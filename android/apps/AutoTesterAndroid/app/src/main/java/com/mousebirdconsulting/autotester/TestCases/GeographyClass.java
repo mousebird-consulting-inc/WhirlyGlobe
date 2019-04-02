@@ -6,13 +6,17 @@ import android.content.ContextWrapper;
 import android.util.Log;
 
 import com.mousebird.maply.GlobeController;
+import com.mousebird.maply.MBTileFetcher;
 import com.mousebird.maply.MBTiles;
 import com.mousebird.maply.MapController;
 import com.mousebird.maply.BaseController;
 import com.mousebird.maply.Mbr;
 import com.mousebird.maply.Point2d;
 import com.mousebird.maply.Point3d;
+import com.mousebird.maply.QuadImageLoader;
+import com.mousebird.maply.SamplingParams;
 import com.mousebird.maply.SelectedObject;
+import com.mousebird.maply.SphericalMercatorCoordSystem;
 import com.mousebirdconsulting.autotester.ConfigOptions;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 
@@ -103,14 +107,18 @@ public class GeographyClass extends MaplyTestCase {
         this.implementation = TestExecutionImplementation.Both;
     }
 
-    // TODO: Put this back
-    /*
-
-    private QuadImageTileLayer setupImageLayer(MaplyBaseController baseController, ConfigOptions.TestType testType) throws Exception
+    private void setupImageLoader(BaseController baseController, ConfigOptions.TestType testType) throws Exception
     {
+        File mbTiles;
 
         // We need to copy the file from the asset so that it can be used as a file
-        File mbTiles = this.getMbTileFile("mbtiles/geography-class.mbtiles", "geography-class.mbtiles");
+        try {
+            mbTiles = this.getMbTileFile("mbtiles/geography-class_medres.mbtiles", "geography-class.mbtiles");
+        }
+        catch (Exception e)
+        {
+            return;
+        }
 
         if (!mbTiles.exists()) {
             throw new FileNotFoundException(String.format("Could not copy MBTiles asset to \"%s\"", mbTiles.getAbsolutePath()));
@@ -118,18 +126,29 @@ public class GeographyClass extends MaplyTestCase {
 
         Log.d(TAG, String.format("Obtained MBTiles SQLLite database \"%s\"", mbTiles.getAbsolutePath()));
 
-        MBTiles mbTilesFile = new MBTiles(mbTiles);
-        MBTilesImageSource tileSource = new MBTilesImageSource(mbTilesFile);
-        QuadImageTileLayer imageLayer = new QuadImageTileLayer(baseController, tileSource.coordSys, tileSource);
-        imageLayer.setCoverPoles(true);
-        imageLayer.setHandleEdges(true);
+        // The fetcher fetches tile from the MBTiles file
+        MBTileFetcher mbTileFetcher = new MBTileFetcher(mbTiles);
+        if (mbTileFetcher == null)
+            return;
 
-        return imageLayer;
+        // Set up the parameters to match the MBTile file
+        SamplingParams params = new SamplingParams();
+        params.setCoordSystem(new SphericalMercatorCoordSystem());
+        if (testType == ConfigOptions.TestType.GlobeTest) {
+            params.setCoverPoles(true);
+            params.setEdgeMatching(true);
+        }
+        params.setSingleLevel(true);
+        params.setMinZoom(mbTileFetcher.minZoom);
+        params.setMaxZoom(mbTileFetcher.maxZoom);
+
+        QuadImageLoader loader = new QuadImageLoader(params,mbTileFetcher.tileInfo,controller);
+        loader.setTileFetcher(mbTileFetcher);
     }
 
     @Override
     public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
-        globeVC.addLayer(setupImageLayer(globeVC, ConfigOptions.TestType.GlobeTest));
+        setupImageLoader(globeVC, ConfigOptions.TestType.GlobeTest);
 
         globeVC.gestureDelegate = gestureDelegate;
 
@@ -138,7 +157,7 @@ public class GeographyClass extends MaplyTestCase {
 
     @Override
     public boolean setUpWithMap(MapController mapVC) throws Exception {
-        mapVC.addLayer(setupImageLayer(mapVC, ConfigOptions.TestType.MapTest));
+        setupImageLoader(mapVC, ConfigOptions.TestType.MapTest);
         return true;
     }
 
@@ -168,8 +187,4 @@ public class GeographyClass extends MaplyTestCase {
 
     }
 
-
-*/
-
-    
 }

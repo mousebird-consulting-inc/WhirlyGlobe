@@ -55,7 +55,7 @@ using namespace WhirlyKit;
     return self;
 }
 
-- (id _Nullable)fetchInfoForTile:(MaplyTileID)tileID
+- (id _Nullable)fetchInfoForTile:(MaplyTileID)tileID flipY:(bool)flipY
 {
     MaplyMBTileFetchInfo *fetchInfo = [[MaplyMBTileFetchInfo alloc] init];
     fetchInfo.x = tileID.x;

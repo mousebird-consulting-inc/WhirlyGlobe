@@ -140,7 +140,7 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
     /**
      * Use a specific tile fetcher rather than the one shared by everyone else.
      */
-    void setTileFetcher(TileFetcher newFetcher) {
+    public void setTileFetcher(TileFetcher newFetcher) {
         tileFetcher = newFetcher;
     }
 
@@ -149,7 +149,7 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
     /**
      * Set the interpreter for the data coming back.  If you're just getting images, don't set this.
      */
-    void setLoaderInterpreter(LoaderInterpreter newInterp) {
+    public void setLoaderInterpreter(LoaderInterpreter newInterp) {
         loadInterp = newInterp;
     }
 

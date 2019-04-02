@@ -60,9 +60,15 @@ public class MBTileFetcher extends HandlerThread implements TileFetcher
     CoordSystem coordSys = null;
 
     /**
+     * The QuadLoader needs a tileInfo object to generate the fetcher objects
+     * it eventually passes to the TileFetcher.  You can use this one.
+     */
+    public MBTileInfo tileInfo = null;
+
+    /**
      * Construct with the location of an MBTiles file.
      */
-    MBTileFetcher(File mbTileFile)
+    public MBTileFetcher(File mbTileFile)
     {
         super("MBTiles Fetcher");
 
@@ -76,6 +82,7 @@ public class MBTileFetcher extends HandlerThread implements TileFetcher
         }
 
         this.init(mbTileFile);
+        tileInfo = new MBTileInfo(minZoom,maxZoom);
 
         // Kicks off our thread
         valid = true;
@@ -84,7 +91,7 @@ public class MBTileFetcher extends HandlerThread implements TileFetcher
 
     /**
      * We don't need to describe a remote URL, so this is
-     * basically a sub.
+     * basically a stub that passes back the tile ID.
      */
     protected class MBTileInfo extends TileInfoNew
     {
@@ -94,9 +101,9 @@ public class MBTileFetcher extends HandlerThread implements TileFetcher
             maxZoom = inMaxZoom;
         }
 
-        Object fetchInfoForTile(TileID tileID)
+        @Override Object fetchInfoForTile(TileID tileID,boolean flipY)
         {
-            return null;
+            return new MBTileFetchInfo(tileID);
         }
     }
 
@@ -236,7 +243,8 @@ public class MBTileFetcher extends HandlerThread implements TileFetcher
         if (toLoad.isEmpty())
             return;
 
-        final TileInfo tileInfo = toLoad.first();
+        final TileInfo tileInfo = toLoad.last();
+        toLoad.remove(tileInfo);
 
         // Load the data tile
         final byte[] data = getDataTile(tileInfo.fetchInfo.tileID);
