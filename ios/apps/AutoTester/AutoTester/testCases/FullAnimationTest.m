@@ -14,6 +14,7 @@
 
 @implementation FullAnimationTest {
     MaplyBaseViewController *_baseVC;
+    CartoDBLightTestCase *baseCase;
 }
 
 - (instancetype)init
@@ -30,8 +31,8 @@
 
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
-    CartoDBLightTestCase *baseView = [[CartoDBLightTestCase alloc] init];
-    [baseView setUpWithGlobe:globeVC];
+    baseCase = [[CartoDBLightTestCase alloc] init];
+    [baseCase setUpWithGlobe:globeVC];
     [self setupWithBaseVC:(MaplyBaseViewController *)globeVC];
     
 //    [globeVC setPosition:MaplyCoordinateMakeWithDegrees(0.0, 0.0)];

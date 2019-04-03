@@ -284,10 +284,7 @@ using namespace WhirlyKit;
     session = [NSURLSession sharedSession];
     allStats = [[MaplyRemoteTileFetcherStats alloc] init];
     recentStats = [[MaplyRemoteTileFetcherStats alloc] init];
-    
-    // Note: Debugging
-    _debugMode = true;
-    
+        
     return self;
 }
 
