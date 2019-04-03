@@ -391,6 +391,8 @@ public class RenderController implements RenderControllerInterface
 
                         for (InternalMarker marker : intMarkers)
                             marker.dispose();
+
+                        componentManager.addComponentObject(compObj);
                     }
                 };
 
@@ -466,6 +468,8 @@ public class RenderController implements RenderControllerInterface
 
                         for (InternalMarker marker : intMarkers)
                             marker.dispose();
+
+                        componentManager.addComponentObject(compObj);
                     }
                 };
 
@@ -542,6 +546,8 @@ public class RenderController implements RenderControllerInterface
 
                         for (InternalMarker marker : intMarkers)
                             marker.dispose();
+
+                        componentManager.addComponentObject(compObj);
                     }
                 };
 
@@ -604,6 +610,8 @@ public class RenderController implements RenderControllerInterface
 
                         for (InternalLabel label : intLabels)
                             label.dispose();
+
+                        componentManager.addComponentObject(compObj);
                     }
                 };
 
@@ -667,6 +675,8 @@ public class RenderController implements RenderControllerInterface
 
                         for (InternalLabel label : intLabels)
                             label.dispose();
+
+                        componentManager.addComponentObject(compObj);
                     }
                 };
 
@@ -719,6 +729,8 @@ public class RenderController implements RenderControllerInterface
                             for (VectorObject vecObj : vecs)
                                 if (!vecObj.getSelectable())
                                     vecObj.dispose();
+
+                        componentManager.addComponentObject(compObj);
                     }
                 };
 
@@ -789,6 +801,8 @@ public class RenderController implements RenderControllerInterface
                             if (scene != null)
                                 changes.process(scene);
                         }
+
+                        componentManager.addComponentObject(compObj);
                     }
                 };
         taskMan.addTask(run, mode);
@@ -844,6 +858,8 @@ public class RenderController implements RenderControllerInterface
                             for (VectorObject vecObj : vecs)
                                 if (!vecObj.getSelectable())
                                     vecObj.dispose();
+
+                        componentManager.addComponentObject(compObj);
                     }
                 };
 
@@ -887,6 +903,8 @@ public class RenderController implements RenderControllerInterface
 
                         if (scene != null)
                             changes.process(scene);
+
+                        componentManager.addComponentObject(compObj);
                     }
                 };
 
@@ -927,6 +945,8 @@ public class RenderController implements RenderControllerInterface
                 if (shapeInfo.disposeAfterUse || disposeAfterRemoval)
                     for (Shape shape : shapes)
                         shape.dispose();
+
+                componentManager.addComponentObject(compObj);
             }
         };
 
@@ -971,6 +991,8 @@ public class RenderController implements RenderControllerInterface
                         if (stickerInfo.disposeAfterUse || disposeAfterRemoval)
                             for (Sticker sticker : stickers)
                                 sticker.dispose();
+
+                        componentManager.addComponentObject(compObj);
                     }
                 };
 
@@ -1008,6 +1030,8 @@ public class RenderController implements RenderControllerInterface
 
                         if (scene != null)
                             changes.process(scene);
+
+                        componentManager.addComponentObject(compObj);
                     }
                 };
 
@@ -1075,6 +1099,8 @@ public class RenderController implements RenderControllerInterface
                             for (Billboard bill : bills)
                                 if (!bill.getSelectable())
                                     bill.dispose();
+
+                        componentManager.addComponentObject(compObj);
                     }
                 };
 
@@ -1123,6 +1149,8 @@ public class RenderController implements RenderControllerInterface
                         if (geomInfo.disposeAfterUse || disposeAfterRemoval)
                             for (Points pts: ptList)
                                 pts.rawPoints.dispose();
+
+                        componentManager.addComponentObject(compObj);
                     }
                 };
 

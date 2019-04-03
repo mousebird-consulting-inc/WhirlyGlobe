@@ -100,7 +100,6 @@ public class TestListFragment extends Fragment {
 			testCases.add(new ScreenMarkersTestCase(getActivity()));
 			testCases.add(new MarkersTestCase(getActivity()));
 			testCases.add(new AnimatedScreenMarkersTestCase(getActivity()));
-			// TODO: Do we have this on iOS?
 			testCases.add(new AnimatedMarkersTestCase(getActivity()));
 			testCases.add(new ClusteredMarkersTestCase(getActivity()));
 			// Label Animation

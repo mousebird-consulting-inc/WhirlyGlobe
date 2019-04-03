@@ -136,7 +136,7 @@ void ComponentManager::removeComponentObjects(const SimpleIDSet &compIDs,ChangeS
     
     for (ComponentObjectRef compObj : compRefs) {
         // Get rid of the various layer objects
-        if (compObj->markerIDs.empty())
+        if (!compObj->markerIDs.empty())
             markerManager->removeMarkers(compObj->markerIDs, changes);
         if (!compObj->labelIDs.empty())
             labelManager->removeLabels(compObj->labelIDs, changes);
