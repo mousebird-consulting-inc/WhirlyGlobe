@@ -24,6 +24,7 @@ import com.mousebirdconsulting.autotester.TestCases.ClusteredMarkersTestCase;
 import com.mousebirdconsulting.autotester.TestCases.CustomBNGCoordAdapter;
 import com.mousebirdconsulting.autotester.TestCases.CustomBNGTileSource;
 //import com.mousebirdconsulting.autotester.TestCases.GreatCircleTestCase;
+import com.mousebirdconsulting.autotester.TestCases.FindHeightTestCase;
 import com.mousebirdconsulting.autotester.TestCases.GeographyClass;
 import com.mousebirdconsulting.autotester.TestCases.MarkersTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ScreenLabelsTestCase;
@@ -91,25 +92,21 @@ public class TestListFragment extends Fragment {
 			testCases = new ArrayList<>();
 			testCases.add(new StamenRemoteTestCase(getActivity()));
 			testCases.add(new GeographyClass(getActivity()));
-			// NASA GIBS
 			testCases.add(new AnimatedBaseMapTestCase(getActivity()));
 			testCases.add(new CustomBNGCoordAdapter(getActivity()));
 			testCases.add(new CustomBNGTileSource(getActivity()));
-			// WMS Test
 			testCases.add(new ScreenLabelsTestCase(getActivity()));
 			testCases.add(new ScreenMarkersTestCase(getActivity()));
 			testCases.add(new MarkersTestCase(getActivity()));
 			testCases.add(new AnimatedScreenMarkersTestCase(getActivity()));
 			testCases.add(new AnimatedMarkersTestCase(getActivity()));
 			testCases.add(new ClusteredMarkersTestCase(getActivity()));
-			// Label Animation
 			testCases.add(new VectorsTestCase(getActivity()));
 //			testCases.add(new GreatCircleTestCase(getActivity()));
 			// Vector Style Test
 			// Vectors with Holes
 			testCases.add(new ShapefileTestCase(getActivity()));
 			testCases.add(new WideVectorsTestCase(getActivity()));
-			// Wide Vector Backface
 //			testCases.add(new TextureVectorTestCase(getActivity()));
 //			testCases.add(new SLDTestCase(getActivity()));
 			// Lofted Polys
@@ -123,11 +120,8 @@ public class TestListFragment extends Fragment {
 			// Models
 			// Runway Builder
 //			testCases.add(new MaplyStarModelTestCase(getActivity()));
-			// Find Height
+			testCases.add(new FindHeightTestCase(getActivity()));
 			// Animating Position
-			// Animation Delegate Test Case
-			// Location Tracking Simulated Test Case
-			// Location Tracking Real Test Case
 
 //			testCases.add(new GestureFeedbackTestCase(getActivity()));
 //			testCases.add(new ComponentObjectLeakTestCase(getActivity()));
