@@ -2339,7 +2339,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     [self resolveDrawPriority:inDesc info:&chunkInfo drawPriority:kMaplyStickerDrawPriorityDefault offset:0];
     
     SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
-    
+    ChangeSet changes;
+
     for (MaplySticker *sticker in stickers)
     {
         std::vector<SimpleIdentity> texIDs;
@@ -2379,6 +2380,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         // Note: Move this over to info logic
         chunk->sampleX = [inDesc[@"sampleX"] intValue];
         chunk->sampleY = [inDesc[@"sampleY"] intValue];
+        if (chunk->sampleX == 0)  chunk->sampleX = 10;
+        if (chunk->sampleY == 0) chunk->sampleY = 10;
         chunk->programID = chunkInfo.programID;
         if (inDesc[kMaplySubdivEpsilon] != nil)
             chunk->eps = [inDesc[kMaplySubdivEpsilon] floatValue];
@@ -2387,14 +2390,13 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         chunk->rotation = sticker.rotation;
         if (chunkManager)
         {
-            ChangeSet changes;
             SimpleIdentity chunkID = chunkManager->addChunk(chunk, chunkInfo, changes);
             if (chunkID != EmptyIdentity)
                 compObj->contents->chunkIDs.insert(chunkID);
-            [self flushChanges:changes mode:threadMode];
         }
     }
     
+    [self flushChanges:changes mode:threadMode];
     compManager->addComponentObject(compObj->contents);
 }
 

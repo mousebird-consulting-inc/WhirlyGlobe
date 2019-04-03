@@ -60,7 +60,7 @@ public class StickersTestCase extends MaplyTestCase {
 			if (center != null) {
 				Point2d centroid = vector.centroid();
 				sticker.setLowerLeft(centroid);
-				sticker.setUpperRight(new Point2d(centroid.getX() + 0.5, centroid.getY() + 0.5));
+				sticker.setUpperRight(new Point2d(centroid.getX() + 0.1, centroid.getY() + 0.1));
 				sticker.setImageFormat(RenderController.ImageFormat.MaplyImageIntRGBA);
 				sticker.setRotation(45.0/180.0 * Math.PI);
 				stickers.add(sticker);

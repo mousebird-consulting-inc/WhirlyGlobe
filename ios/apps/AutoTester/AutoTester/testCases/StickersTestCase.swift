@@ -16,10 +16,12 @@ class StickersTestCase: MaplyTestCase {
 		self.name = "Stickers"
 		self.implementations = [.globe, .map]
 	}
+    
+    var startTex : MaplyTexture?
 
 	func addStickers (_ arrayComp: NSArray , baseViewC: MaplyBaseViewController) {
 		let startImage = UIImage(named: "Smiley_Face_Avatar_by_PixelTwist")
-        let startTex = baseViewC.addTexture(startImage!, desc: [kMaplyTexMagFilter: kMaplyMinFilterLinear], mode: MaplyThreadMode.current)
+        startTex = baseViewC.addTexture(startImage!, desc: [kMaplyTexMagFilter: kMaplyMinFilterLinear], mode: MaplyThreadMode.current)
 		var stickers = [MaplySticker]()
 		for object in arrayComp {
 			let sticker = MaplySticker()
@@ -59,21 +61,21 @@ class StickersTestCase: MaplyTestCase {
         //        baseViewC.addStickers([sticker], desc: [kMaplyColor: UIColor.init(white: 0.25, alpha: 0.25)] )
         baseViewC.addStickers([sticker], desc: [kMaplyColor: UIColor.init(white: 1.0, alpha: 1.0)] )
     }
+    
+    let baseCase = VectorsTestCase()
 	
 	override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
-        let baseLayer = VectorsTestCase()
-        baseLayer.setUpWithGlobe(globeVC)
+        baseCase.setUpWithGlobe(globeVC)
 
-        addStickers(baseLayer.vecList, baseViewC: globeVC)
+        addStickers(baseCase.vecList, baseViewC: globeVC)
         
         addTestSticker(baseViewC: globeVC)
 	}
 	
 	override func setUpWithMap(_ mapVC: MaplyViewController) {
-		let baseLayer = VectorsTestCase()
-		baseLayer.setUpWithMap(mapVC)
+		baseCase.setUpWithMap(mapVC)
 
-        addStickers(baseLayer.vecList, baseViewC: mapVC)
+        addStickers(baseCase.vecList, baseViewC: mapVC)
         
         addTestSticker(baseViewC: mapVC)
 	}

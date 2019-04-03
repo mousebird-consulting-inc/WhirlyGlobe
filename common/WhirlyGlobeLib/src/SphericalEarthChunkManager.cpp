@@ -128,6 +128,7 @@ void SphericalChunk::buildDrawable(BasicDrawable **draw,BasicDrawable **skirtDra
     }
     
     BasicDrawable *drawable = new BasicDrawable("Spherical Earth Chunk");
+    chunkInfo.setupBasicDrawable(drawable);
     drawable->setType(GL_TRIANGLES);
 //    drawable->setLocalMbr(_mbr);
     drawable->setColor(chunkInfo.color);
@@ -262,6 +263,7 @@ void SphericalChunk::buildDrawable(BasicDrawable **draw,BasicDrawable **skirtDra
     if (skirtDraw && !coordAdapter->isFlat())
     {
         BasicDrawable *skirtDrawable = new BasicDrawable("Spherical Earth Chunk Skirts");
+        chunkInfo.setupBasicDrawable(skirtDrawable);
         skirtDrawable->setType(GL_TRIANGLES);
         skirtDrawable->setLocalMbr(mbr);
         skirtDrawable->setTexIDs(texIDs);
