@@ -15,6 +15,9 @@
 #import "MaplyViewController.h"
 
 @implementation WideVectorsTestCase
+{
+    GeographyClassTestCase * baseCase;
+}
 
 - (instancetype)init
 {
@@ -216,6 +219,8 @@
     [self addGeoJson:@"track.geojson" viewC:viewC];
     [self addGeoJson:@"uturn2.geojson" dashPattern:@[@16, @16] width:40 viewC:viewC];
     
+    [self addGeoJson:@"USA.geojson" viewC:viewC];
+
 //    [self addGeoJson:@"testJson.json" viewC:viewC];
     
     //    [self addGeoJson:@"straight.geojson"];
@@ -225,16 +230,16 @@
 
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC{
 	
-	GeographyClassTestCase * baseLayer = [[GeographyClassTestCase alloc]init];
-	[baseLayer setUpWithGlobe:globeVC];
+	baseCase = [[GeographyClassTestCase alloc]init];
+	[baseCase setUpWithGlobe:globeVC];
 	[self wideLineTest:globeVC];
     [globeVC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) time:0.1];
 
 }
 
 - (void)setUpWithMap:(MaplyViewController *)mapVC{
-	GeographyClassTestCase * baseLayer = [[GeographyClassTestCase alloc]init];
-	[baseLayer setUpWithMap:mapVC];
+	baseCase = [[GeographyClassTestCase alloc]init];
+	[baseCase setUpWithMap:mapVC];
 	[self wideLineTest:mapVC];
     [mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) time:0.1];
     [self loadShapeFile:mapVC];

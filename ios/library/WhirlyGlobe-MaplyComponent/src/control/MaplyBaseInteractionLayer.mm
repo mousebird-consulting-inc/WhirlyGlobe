@@ -1621,10 +1621,9 @@ public:
     NSDictionary *inDesc = [argArray objectAtIndex:2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
-    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     iosDictionary dictWrap(inDesc);
     WideVectorInfo vectorInfo(dictWrap);
-    [self resolveInfoDefaults:inDesc info:&vectorInfo defaultShader:(coordAdapter->isFlat() ? kMaplyShaderDefaultWideVector : kMaplyShaderDefaultWideVectorGlobe)];
+    [self resolveInfoDefaults:inDesc info:&vectorInfo defaultShader:kMaplyShaderDefaultWideVector];
     [self resolveDrawPriority:inDesc info:&vectorInfo drawPriority:kMaplyVectorDrawPriorityDefault offset:0];
     
     // Look for a texture and add it

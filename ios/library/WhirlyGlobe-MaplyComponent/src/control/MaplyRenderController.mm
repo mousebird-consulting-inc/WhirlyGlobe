@@ -545,11 +545,13 @@ using namespace Eigen;
         return;
     
     [self useGLContext];
+    
+    bool isGlobe = dynamic_cast<WhirlyGlobe::GlobeScene *>(scene);
 
     // Default line shaders
     OpenGLES2Program *defaultLineShader = BuildDefautLineShaderCulling([kMaplyShaderDefaultLine cStringUsingEncoding:NSASCIIStringEncoding]);
     OpenGLES2Program *defaultLineShaderNoBack = BuildDefaultLineShaderNoCulling([kMaplyShaderDefaultLineNoBackface cStringUsingEncoding:NSASCIIStringEncoding]);
-    if (dynamic_cast<WhirlyGlobe::GlobeScene *>(scene))
+    if (isGlobe)
         [self addShader:kMaplyShaderDefaultLine program:defaultLineShader];
     else
         [self addShader:kMaplyShaderDefaultLine program:defaultLineShaderNoBack];
@@ -587,8 +589,10 @@ using namespace Eigen;
     [self addShader:kMaplyShaderBillboardGround program:BuildBillboardGroundProgram([kMaplyShaderBillboardGround cStringUsingEncoding:NSASCIIStringEncoding])];
     [self addShader:kMaplyShaderBillboardEye program:BuildBillboardEyeProgram([kMaplyShaderBillboardEye cStringUsingEncoding:NSASCIIStringEncoding])];
     // Wide vectors
-    [self addShader:kMaplyShaderDefaultWideVector program:BuildWideVectorProgram([kMaplyShaderDefaultWideVector cStringUsingEncoding:NSASCIIStringEncoding])];
-    [self addShader:kMaplyShaderDefaultWideVectorGlobe program:BuildWideVectorGlobeProgram([kMaplyShaderDefaultWideVectorGlobe cStringUsingEncoding:NSASCIIStringEncoding])];
+    if (isGlobe)
+        [self addShader:kMaplyShaderDefaultWideVector program:BuildWideVectorGlobeProgram([kMaplyShaderDefaultWideVector cStringUsingEncoding:NSASCIIStringEncoding])];
+    else
+        [self addShader:kMaplyShaderDefaultWideVector program:BuildWideVectorProgram([kMaplyShaderDefaultWideVector cStringUsingEncoding:NSASCIIStringEncoding])];
     // Screen space
     [self addShader:kMaplyScreenSpaceDefaultMotionProgram program:BuildScreenSpaceProgram([kMaplyScreenSpaceDefaultMotionProgram cStringUsingEncoding:NSASCIIStringEncoding])];
     [self addShader:kMaplyScreenSpaceDefaultProgram program:BuildScreenSpaceMotionProgram([kMaplyScreenSpaceDefaultProgram cStringUsingEncoding:NSASCIIStringEncoding])];

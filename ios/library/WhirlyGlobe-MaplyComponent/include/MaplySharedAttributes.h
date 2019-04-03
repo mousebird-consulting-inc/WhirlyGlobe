@@ -355,7 +355,6 @@ extern NSString* const kMaplyShaderBillboardGround;
 extern NSString* const kMaplyShaderBillboardEye;
 
 extern NSString* const kMaplyShaderDefaultWideVector;
-extern NSString* const kMaplyShaderDefaultWideVectorGlobe;
 
 extern NSString* const kMaplyScreenSpaceDefaultMotionProgram;
 extern NSString* const kMaplyScreenSpaceDefaultProgram;

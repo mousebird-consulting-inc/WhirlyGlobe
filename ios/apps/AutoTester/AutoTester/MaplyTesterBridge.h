@@ -21,7 +21,6 @@
 #import "LabelsTestCase.h"
 #import "MegaMarkersTestCase.h"
 #import "WideVectorsTestCase.h"
-#import "WideVectorGlobeTestCase.h"
 #import "ShapesTestCase.h"
 #import "LoftedPolysTestCase.h"
 #import "CartoDBTestCase.h"

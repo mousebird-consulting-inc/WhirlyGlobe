@@ -328,7 +328,6 @@ NSString* const kMaplyShaderBillboardGround = @"Default Billboard ground";
 NSString* const kMaplyShaderBillboardEye = @"Default Billboard eye";
 
 NSString* const kMaplyShaderDefaultWideVector = @"Default Wide Vector";
-NSString* const kMaplyShaderDefaultWideVectorGlobe = @"Default Wide Vector Globe";
 
 NSString* const kMaplyScreenSpaceDefaultMotionProgram = @"Default Screenspace Motion";
 NSString* const kMaplyScreenSpaceDefaultProgram = @"Default Screenspace";
