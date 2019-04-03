@@ -64,23 +64,23 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 	}
 
 	// If set, we'll put markers around the points for debugging
-	static boolean addMarkers = true;
+	static boolean addMarkers = false;
 
 	private void insertLabels(ArrayList<VectorObject> objects, BaseController baseVC) {
 
 		LabelInfo labelInfo = new LabelInfo();
 		labelInfo.setFontSize(32.f);
-		labelInfo.setTextColor(Color.BLACK);
-//		labelInfo.setBackgroundColor(Color.RED);
+//		labelInfo.setTextColor(Color.BLACK);
+		labelInfo.setBackgroundColor(Color.RED);
 		labelInfo.setTypeface(Typeface.DEFAULT);
 //		labelInfo.setLayoutImportance(1.f);
 		labelInfo.setLayoutPlacement(LabelInfo.LayoutAbove|LabelInfo.LayoutCenter);
 		labelInfo.setTextJustify(LabelInfo.TextJustify.TextLeft);
 //		labelInfo.setMinVis(0.f);
 //		labelInfo.setMaxVis(2.5f);
-		labelInfo.setOutlineColor(Color.WHITE);
-		labelInfo.setOutlineSize(2.f);
-		labelInfo.setBackgroundColor(Color.BLUE);
+//		labelInfo.setOutlineColor(Color.WHITE);
+//		labelInfo.setOutlineSize(2.f);
+		labelInfo.layoutImportance = Float.MAX_VALUE;
 
 		MarkerInfo markerInfo = new MarkerInfo();
 		markerInfo.setDrawPriority(labelInfo.getDrawPriority() - 1);

@@ -135,8 +135,6 @@ DrawableString *FontTextureManager_Android::addString(JNIEnv *env,const std::vec
 					void* bitmapPixels;
 					if (AndroidBitmap_lockPixels(env, bitmapObj, &bitmapPixels) < 0)
 						throw 1;
-					uint32_t* src = (uint32_t*) bitmapPixels;
-					int testVal = src[20];
 					MutableRawData *rawData = new MutableRawData(bitmapPixels,info.height*info.width*4);
 					Texture tex("FontTextureManager");
 					tex.setRawData(rawData,info.width,info.height);

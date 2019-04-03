@@ -44,6 +44,7 @@ bool LabelInfoAndroid::typefaceIsSame(const jobject inTypeface) const
 		return true;
 
 	// Now for a deeper comparison
+	// TODO: Can we find a cheaper way to do this?
 	jclass typefaceClass = env->GetObjectClass(inTypeface);
 	jmethodID jmethodID = env->GetMethodID(typefaceClass, "equals", "(Ljava/lang/Object;)Z");
 	bool res = env->CallBooleanMethod(typefaceObj,jmethodID,inTypeface);

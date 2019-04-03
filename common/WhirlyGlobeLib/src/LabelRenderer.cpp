@@ -270,7 +270,7 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
             } else {
                 screenShape->setEnable(labelInfo->enable);
                 if (labelInfo->startEnable != labelInfo->endEnable)
-                screenShape->setEnableTime(labelInfo->startEnable, labelInfo->endEnable);
+                    screenShape->setEnableTime(labelInfo->startEnable, labelInfo->endEnable);
             }
             
             // Deal with the icon here becaue we need its geometry
@@ -321,7 +321,7 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
             {
                 // If the label doesn't already have an ID, it needs one
                 if (!label->selectID)
-                label->selectID = Identifiable::genId();
+                    label->selectID = Identifiable::genId();
                 
                 RectSelectable2D select2d;
                 select2d.center = screenShape->getWorldLoc();
