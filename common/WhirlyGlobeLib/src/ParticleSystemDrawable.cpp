@@ -675,9 +675,9 @@ void main()
 }
 )";
     
-OpenGLES2Program *BuildParticleSystemProgram()
+OpenGLES2Program *BuildParticleSystemProgram(const std::string &name)
 {
-    OpenGLES2Program *shader = new OpenGLES2Program(kParticleSystemShaderName,vertexShaderTri,fragmentShaderTri);
+    OpenGLES2Program *shader = new OpenGLES2Program(name,vertexShaderTri,fragmentShaderTri);
     if (!shader->isValid())
     {
         delete shader;

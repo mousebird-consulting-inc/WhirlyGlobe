@@ -93,6 +93,7 @@
 
 #define MaplyDefaultTriMultiTexShader WKString("Default Triangle;multitex=yes;lighting=yes")
 #define MaplyDefaultTriMultiTexRampShader WKString("Default Triangle;multitex=yes;lighting=yes;ramp=yes")
+#define MaplyDefaultMarkerShader WKString("Default marker;multitex=yes;lighting=yes")
 
 #define MaplyDefaultTriNightDayShader WKString("Default Triangle;nightday=yes;multitex=yes;lighting=yes")
 

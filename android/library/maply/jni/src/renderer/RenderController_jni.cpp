@@ -187,6 +187,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_setupShadersNat
 
 		// Multi-texture support
 		rendWrap.addShader(MaplyDefaultTriMultiTexShader,BuildDefaultTriShaderMultitex(MaplyDefaultTriMultiTexShader));
+		rendWrap.addShader(MaplyDefaultMarkerShader,BuildDefaultTriShaderMultitex(MaplyDefaultMarkerShader));
 
 		// Ramp texture support
 		rendWrap.addShader(MaplyDefaultTriMultiTexRampShader,BuildDefaultTriShaderRamptex(MaplyDefaultTriMultiTexRampShader));
@@ -205,7 +206,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_setupShadersNat
 		rendWrap.addShader(MaplyScreenSpaceDefaultMotionShader,BuildScreenSpaceProgram(MaplyScreenSpaceDefaultMotionShader));
 		rendWrap.addShader(MaplyScreenSpaceDefaultShader,BuildScreenSpaceMotionProgram(MaplyScreenSpaceDefaultShader));
 		// Particles
-		rendWrap.addShader(MaplyParticleSystemPointDefaultShader,BuildParticleSystemProgram());
+		rendWrap.addShader(MaplyParticleSystemPointDefaultShader,BuildParticleSystemProgram(MaplyParticleSystemPointDefaultShader));
 	}
 	catch (...)
 	{

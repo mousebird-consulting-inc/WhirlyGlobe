@@ -14,6 +14,9 @@
 #import "MaplyViewController.h"
 
 @implementation ScreenMarkersTestCase
+{
+    VectorsTestCase *baseCase;
+}
 
 - (instancetype)init
 {
@@ -27,17 +30,17 @@
 
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
-    VectorsTestCase * baseView = [[VectorsTestCase alloc]init];
-    [baseView setUpWithGlobe:globeVC];
-    [self insertMarker:baseView.vecList theView:(MaplyBaseViewController*)globeVC];
+    baseCase = [[VectorsTestCase alloc]init];
+    [baseCase setUpWithGlobe:globeVC];
+    [self insertMarker:baseCase.vecList theView:(MaplyBaseViewController*)globeVC];
     [globeVC animateToPosition:MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056) time:1.0];
 }
 
 - (void)setUpWithMap:(MaplyViewController *)mapVC
 {
-    VectorsTestCase * baseView = [[VectorsTestCase alloc]init];
-    [baseView setUpWithMap:mapVC];
-    [self insertMarker:baseView.vecList theView:(MaplyBaseViewController*)mapVC];
+    baseCase = [[VectorsTestCase alloc]init];
+    [baseCase setUpWithMap:mapVC];
+    [self insertMarker:baseCase.vecList theView:(MaplyBaseViewController*)mapVC];
     [mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056) time:1.0];
 }
 

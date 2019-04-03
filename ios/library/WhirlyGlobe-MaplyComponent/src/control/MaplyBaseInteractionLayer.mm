@@ -1077,7 +1077,7 @@ public:
 
     iosDictionary dictWrap(inDesc);
     MarkerInfo markerInfo(dictWrap,false);
-    [self resolveInfoDefaults:inDesc info:&markerInfo defaultShader:(hasMultiTex ? kMaplyShaderDefaultTriMultiTex : kMaplyShaderDefaultTri)];
+    [self resolveInfoDefaults:inDesc info:&markerInfo defaultShader:(hasMultiTex ? kMaplyShaderDefaultMarker : kMaplyShaderDefaultTri)];
     [self resolveDrawPriority:inDesc info:&markerInfo drawPriority:kMaplyMarkerDrawPriorityDefault offset:0];
     
     // Convert to WG markers

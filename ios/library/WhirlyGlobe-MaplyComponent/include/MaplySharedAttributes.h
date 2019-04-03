@@ -337,6 +337,7 @@ extern NSString* const kMaplyShaderDefaultModelTri;
 
 extern NSString* const kMaplyShaderDefaultTriNoLighting;
 extern NSString* const kMaplyNoLightTriangleShader;
+extern NSString* const kMaplyShaderDefaultMarker;
 
 extern NSString* const kMaplyShaderDefaultTriScreenTex;
 

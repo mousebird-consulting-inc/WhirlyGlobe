@@ -316,6 +316,8 @@ NSString* const kMaplyShaderDefaultTriMultiTex = @"Default Triangle;multitex=yes
 NSString* const kMaplyShaderDefaultTriMultiTexRamp = @"Default Triangle;multitex=yes;lighting=yes;ramp=yes";
 NSString* const kMaplyShaderDefaultTriNightDay = @"Default Triangle;nightday=yes;multitex=yes;lighting=yes";
 
+NSString* const kMaplyShaderDefaultMarker = @"Default marker;multitex=yes;lighting=yes";
+
 NSString* const kMaplyShaderDefaultLine = @"Default Line;backface=yes";
 NSString* const kMaplyDefaultLineShader = @"Default Line;backface=yes";
 

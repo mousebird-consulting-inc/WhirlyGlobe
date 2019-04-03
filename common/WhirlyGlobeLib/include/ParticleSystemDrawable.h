@@ -25,13 +25,13 @@ namespace WhirlyKit
 {
     
 // Shader name
-#define kParticleSystemShaderName "Default Part Sys (Point)"
+//#define kParticleSystemShaderName "Default Part Sys (Point)"
     
 // Maximum size of particle buffers (8MB)
 #define kMaxParticleMemory (8*1024*1024)
 
 // Build the particle system default shader
-OpenGLES2Program *BuildParticleSystemProgram();
+OpenGLES2Program *BuildParticleSystemProgram(const std::string &name);
     
 // Low level drawable used to manage particle systems
 class ParticleSystemDrawable : public Drawable

@@ -572,6 +572,8 @@ using namespace Eigen;
     // Multi-texture support
     [self addShader:kMaplyShaderDefaultTriMultiTex
             program:BuildDefaultTriShaderMultitex([kMaplyShaderDefaultTriMultiTex cStringUsingEncoding:NSASCIIStringEncoding])];
+    // Same one, but for markers.  This fixes any weird conflicts
+    [self addShader:kMaplyShaderDefaultMarker program:BuildDefaultTriShaderMultitex([kMaplyShaderDefaultMarker cStringUsingEncoding:NSASCIIStringEncoding])];
     
     // Ramp texture support
     [self addShader:kMaplyShaderDefaultTriMultiTexRamp
@@ -582,16 +584,16 @@ using namespace Eigen;
             program:BuildDefaultTriShaderNightDay([kMaplyShaderDefaultTriNightDay cStringUsingEncoding:NSASCIIStringEncoding])];
 
     // Billboards
-    [self addShader:kMaplyShaderBillboardGround program:BuildBillboardGroundProgram()];
-    [self addShader:kMaplyShaderBillboardEye program:BuildBillboardEyeProgram()];
+    [self addShader:kMaplyShaderBillboardGround program:BuildBillboardGroundProgram([kMaplyShaderBillboardGround cStringUsingEncoding:NSASCIIStringEncoding])];
+    [self addShader:kMaplyShaderBillboardEye program:BuildBillboardEyeProgram([kMaplyShaderBillboardEye cStringUsingEncoding:NSASCIIStringEncoding])];
     // Wide vectors
-    [self addShader:kMaplyShaderDefaultWideVector program:BuildWideVectorProgram()];
-    [self addShader:kMaplyShaderDefaultWideVectorGlobe program:BuildWideVectorGlobeProgram()];
+    [self addShader:kMaplyShaderDefaultWideVector program:BuildWideVectorProgram([kMaplyShaderDefaultWideVector cStringUsingEncoding:NSASCIIStringEncoding])];
+    [self addShader:kMaplyShaderDefaultWideVectorGlobe program:BuildWideVectorGlobeProgram([kMaplyShaderDefaultWideVectorGlobe cStringUsingEncoding:NSASCIIStringEncoding])];
     // Screen space
-    [self addShader:kMaplyScreenSpaceDefaultMotionProgram program:BuildScreenSpaceProgram()];
-    [self addShader:kMaplyScreenSpaceDefaultProgram program:BuildScreenSpaceMotionProgram()];
+    [self addShader:kMaplyScreenSpaceDefaultMotionProgram program:BuildScreenSpaceProgram([kMaplyScreenSpaceDefaultMotionProgram cStringUsingEncoding:NSASCIIStringEncoding])];
+    [self addShader:kMaplyScreenSpaceDefaultProgram program:BuildScreenSpaceMotionProgram([kMaplyScreenSpaceDefaultProgram cStringUsingEncoding:NSASCIIStringEncoding])];
     // Particles
-    [self addShader:kMaplyShaderParticleSystemPointDefault program:BuildParticleSystemProgram()];
+    [self addShader:kMaplyShaderParticleSystemPointDefault program:BuildParticleSystemProgram([kMaplyShaderParticleSystemPointDefault cStringUsingEncoding:NSASCIIStringEncoding])];
 }
 
 @end

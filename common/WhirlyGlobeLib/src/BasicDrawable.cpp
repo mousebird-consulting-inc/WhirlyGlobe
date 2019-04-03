@@ -1389,11 +1389,12 @@ void BasicDrawableTexTweaker::tweakForFrame(Drawable *draw,RendererFrameInfo *fr
     
     basicDraw->setTexId(0, texIDs[base]);
     basicDraw->setTexId(1, texIDs[next]);
-    
+
     // Interpolation as well
-    if (frame->program)
-        frame->program->setUniform(u_interpNameID, (float)interp);
-    
+    SingleVertexAttributeSet uniforms;
+    uniforms.insert(SingleVertexAttribute(u_interpNameID,(float)interp));
+    basicDraw->setUniforms(uniforms);
+
     // This forces a redraw every frame
     // Note: There has to be a better way
     frame->scene->addChangeRequest(NULL);
@@ -1406,6 +1407,8 @@ BasicDrawableScreenTexTweaker::BasicDrawableScreenTexTweaker(const Point3d &cent
     
 void BasicDrawableScreenTexTweaker::tweakForFrame(Drawable *draw,WhirlyKit::RendererFrameInfo *frameInfo)
 {
+    BasicDrawable *basicDraw = (BasicDrawable *)draw;
+
     if (frameInfo->program)
     {
         Vector4f screenPt = frameInfo->mvpMat * Vector4f(centerPt.x(),centerPt.y(),centerPt.z(),1.0);
@@ -1415,10 +1418,12 @@ void BasicDrawableScreenTexTweaker::tweakForFrame(Drawable *draw,WhirlyKit::Rend
         Point2f newScreenPt(fmod(-screenPt.x()*texScale.x()*u_scale.x(),1.0),fmod(-screenPt.y()*texScale.y()*u_scale.y(),1.0));
         newScreenPt.x() /= texScale.x()*u_scale.x();
         newScreenPt.y() /= texScale.y()*u_scale.y();
-        
-        frameInfo->program->setUniform(u_screenOriginNameID, Point2f(newScreenPt.x(),newScreenPt.y()));
-        frameInfo->program->setUniform(u_ScaleNameID, u_scale);
-        frameInfo->program->setUniform(u_texScaleNameID, Point2f(texScale.x(),texScale.y()));
+
+        SingleVertexAttributeSet uniforms;
+        uniforms.insert(SingleVertexAttribute(u_screenOriginNameID, newScreenPt.x(),newScreenPt.y()));
+        uniforms.insert(SingleVertexAttribute(u_ScaleNameID, u_scale.x(), u_scale.y()));
+        uniforms.insert(SingleVertexAttribute(u_texScaleNameID, texScale.x(),texScale.y()));
+        basicDraw->setUniforms(uniforms);
     }
 }
 
