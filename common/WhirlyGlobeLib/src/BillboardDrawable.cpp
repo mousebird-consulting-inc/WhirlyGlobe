@@ -121,9 +121,9 @@ void main()
 }
 )";
 
-WhirlyKit::OpenGLES2Program *BuildBillboardGroundProgram()
+WhirlyKit::OpenGLES2Program *BuildBillboardGroundProgram(const std::string &name)
 {
-    OpenGLES2Program *shader = new OpenGLES2Program(kBillboardShaderName,vertexShaderGroundTri,fragmentShaderTri);
+    OpenGLES2Program *shader = new OpenGLES2Program(name,vertexShaderGroundTri,fragmentShaderTri);
     if (!shader->isValid())
     {
         delete shader;
@@ -143,9 +143,9 @@ WhirlyKit::OpenGLES2Program *BuildBillboardGroundProgram()
     return shader;
 }
 
-WhirlyKit::OpenGLES2Program *BuildBillboardEyeProgram()
+WhirlyKit::OpenGLES2Program *BuildBillboardEyeProgram(const std::string &name)
 {
-    OpenGLES2Program *shader = new OpenGLES2Program(kBillboardShaderName,vertexShaderEyeTri,fragmentShaderTri);
+    OpenGLES2Program *shader = new OpenGLES2Program(name,vertexShaderEyeTri,fragmentShaderTri);
     if (!shader->isValid())
     {
         delete shader;

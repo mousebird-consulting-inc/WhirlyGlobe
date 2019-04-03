@@ -368,7 +368,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setTextJustifyNative
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setLineHeightNative
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setLineHeight
 (JNIEnv *env, jobject obj, jfloat lineSize)
 {
     try

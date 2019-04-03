@@ -75,16 +75,16 @@ public class VectorsTestCase extends MaplyTestCase {
 
 	@Override
 	public boolean setUpWithMap(MapController mapVC) throws Exception {
-		CartoLightTestCase mapBoxSatelliteTestCase = new CartoLightTestCase(getActivity());
-		mapBoxSatelliteTestCase.setUpWithMap(mapVC);
+		GeographyClass baseCase = new GeographyClass(getActivity());
+		baseCase.setUpWithMap(mapVC);
 		overlayCountries(mapVC);
 		return true;
 	}
 
 	@Override
 	public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
-		CartoLightTestCase mapBoxSatelliteTestCase = new CartoLightTestCase(getActivity());
-		mapBoxSatelliteTestCase.setUpWithGlobe(globeVC);
+		GeographyClass baseCase = new GeographyClass(getActivity());
+		baseCase.setUpWithGlobe(globeVC);
 		overlayCountries(globeVC);
 
 		return true;

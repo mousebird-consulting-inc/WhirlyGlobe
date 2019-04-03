@@ -195,15 +195,15 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_setupShadersNat
 		rendWrap.addShader(MaplyDefaultTriNightDayShader,BuildDefaultTriShaderNightDay(MaplyDefaultTriNightDayShader));
 
 		// Billboards
-		rendWrap.addShader(MaplyBillboardGroundShader,BuildBillboardGroundProgram());
-		rendWrap.addShader(MaplyBillboardEyeShader,BuildBillboardEyeProgram());
+		rendWrap.addShader(MaplyBillboardGroundShader,BuildBillboardGroundProgram(MaplyBillboardGroundShader));
+		rendWrap.addShader(MaplyBillboardEyeShader,BuildBillboardEyeProgram(MaplyBillboardEyeShader));
 
 		// Wide vectors
-		rendWrap.addShader(MaplyDefaultWideVectorShader,BuildWideVectorProgram());
-		rendWrap.addShader(MaplyDefaultWideVectorGlobeShader,BuildWideVectorGlobeProgram());
+		rendWrap.addShader(MaplyDefaultWideVectorShader,BuildWideVectorProgram(MaplyDefaultWideVectorShader));
+		rendWrap.addShader(MaplyDefaultWideVectorGlobeShader,BuildWideVectorGlobeProgram(MaplyDefaultWideVectorGlobeShader));
 		// Screen space
-		rendWrap.addShader(MaplyScreenSpaceDefaultMotionShader,BuildScreenSpaceProgram());
-		rendWrap.addShader(MaplyScreenSpaceDefaultShader,BuildScreenSpaceMotionProgram());
+		rendWrap.addShader(MaplyScreenSpaceDefaultMotionShader,BuildScreenSpaceProgram(MaplyScreenSpaceDefaultMotionShader));
+		rendWrap.addShader(MaplyScreenSpaceDefaultShader,BuildScreenSpaceMotionProgram(MaplyScreenSpaceDefaultShader));
 		// Particles
 		rendWrap.addShader(MaplyParticleSystemPointDefaultShader,BuildParticleSystemProgram());
 	}

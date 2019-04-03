@@ -294,9 +294,9 @@ void main()
 }
 )";
 
-WhirlyKit::OpenGLES2Program *BuildScreenSpaceProgram()
+WhirlyKit::OpenGLES2Program *BuildScreenSpaceProgram(const std::string &name)
 {
-    OpenGLES2Program *shader = new OpenGLES2Program(kScreenSpaceShaderName,vertexShaderTri,fragmentShaderTri);
+    OpenGLES2Program *shader = new OpenGLES2Program(name,vertexShaderTri,fragmentShaderTri);
     if (!shader->isValid())
     {
         delete shader;
@@ -309,9 +309,9 @@ WhirlyKit::OpenGLES2Program *BuildScreenSpaceProgram()
     return shader;
 }
 
-WhirlyKit::OpenGLES2Program *BuildScreenSpace2DProgram()
+WhirlyKit::OpenGLES2Program *BuildScreenSpace2DProgram(const std::string &name)
 {
-    OpenGLES2Program *shader = new OpenGLES2Program(kScreenSpaceShader2DName,vertexShaderTri2d,fragmentShaderTri);
+    OpenGLES2Program *shader = new OpenGLES2Program(name,vertexShaderTri2d,fragmentShaderTri);
     if (!shader->isValid())
     {
         delete shader;
@@ -324,9 +324,9 @@ WhirlyKit::OpenGLES2Program *BuildScreenSpace2DProgram()
     return shader;
 }
 
-WhirlyKit::OpenGLES2Program *BuildScreenSpaceMotionProgram()
+WhirlyKit::OpenGLES2Program *BuildScreenSpaceMotionProgram(const std::string &name)
 {
-    OpenGLES2Program *shader = new OpenGLES2Program(kScreenSpaceShaderMotionName,vertexShaderMotionTri,fragmentShaderTri);
+    OpenGLES2Program *shader = new OpenGLES2Program(name,vertexShaderMotionTri,fragmentShaderTri);
     if (!shader->isValid())
     {
         delete shader;
@@ -339,9 +339,9 @@ WhirlyKit::OpenGLES2Program *BuildScreenSpaceMotionProgram()
     return shader;
 }
 
-WhirlyKit::OpenGLES2Program *BuildScreenSpaceMotion2DProgram()
+WhirlyKit::OpenGLES2Program *BuildScreenSpaceMotion2DProgram(const std::string &name)
 {
-    OpenGLES2Program *shader = new OpenGLES2Program(kScreenSpaceShader2DMotionName,vertexShader2dMotionTri,fragmentShaderTri);
+    OpenGLES2Program *shader = new OpenGLES2Program(name,vertexShader2dMotionTri,fragmentShaderTri);
     if (!shader->isValid())
     {
         delete shader;

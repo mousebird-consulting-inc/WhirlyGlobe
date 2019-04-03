@@ -303,9 +303,9 @@ void main()
 }
 )";
 
-WhirlyKit::OpenGLES2Program *BuildWideVectorProgram()
+WhirlyKit::OpenGLES2Program *BuildWideVectorProgram(const std::string &name)
 {
-    OpenGLES2Program *shader = new OpenGLES2Program(kWideVectorShaderName,vertexShaderTri,fragmentShaderTriAlias);
+    OpenGLES2Program *shader = new OpenGLES2Program(name,vertexShaderTri,fragmentShaderTriAlias);
     if (!shader->isValid())
     {
         delete shader;
@@ -325,9 +325,9 @@ WhirlyKit::OpenGLES2Program *BuildWideVectorProgram()
     return shader;
 }
 
-WhirlyKit::OpenGLES2Program *BuildWideVectorGlobeProgram()
+WhirlyKit::OpenGLES2Program *BuildWideVectorGlobeProgram(const std::string &name)
 {
-    OpenGLES2Program *shader = new OpenGLES2Program(kWideVectorGlobeShaderName,vertexGlobeShaderTri,fragmentGlobeShaderTriAlias);
+    OpenGLES2Program *shader = new OpenGLES2Program(name,vertexGlobeShaderTri,fragmentGlobeShaderTriAlias);
     if (!shader->isValid())
     {
         delete shader;

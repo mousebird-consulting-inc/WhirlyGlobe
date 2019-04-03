@@ -24,11 +24,11 @@ namespace WhirlyKit
 {
     
 // Shader name for accessing within the scene
-#define kBillboardShaderName "Billboard Shader"
+//#define kBillboardShaderName "Billboard Shader"
     
 /// Construct and return the Billboard shader program
-OpenGLES2Program *BuildBillboardGroundProgram();
-OpenGLES2Program *BuildBillboardEyeProgram();
+OpenGLES2Program *BuildBillboardGroundProgram(const std::string &name);
+OpenGLES2Program *BuildBillboardEyeProgram(const std::string &name);
 
 /** The drawable class for rendering billboards.
     Billboards contain extra information per vertex and

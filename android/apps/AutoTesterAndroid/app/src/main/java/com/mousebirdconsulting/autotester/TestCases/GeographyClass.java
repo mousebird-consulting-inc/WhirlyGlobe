@@ -142,7 +142,7 @@ public class GeographyClass extends MaplyTestCase {
         params.setMinZoom(mbTileFetcher.minZoom);
         params.setMaxZoom(mbTileFetcher.maxZoom);
 
-        QuadImageLoader loader = new QuadImageLoader(params,mbTileFetcher.tileInfo,controller);
+        QuadImageLoader loader = new QuadImageLoader(params,mbTileFetcher.tileInfo,baseController);
         loader.setTileFetcher(mbTileFetcher);
     }
 

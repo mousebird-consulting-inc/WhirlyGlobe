@@ -57,7 +57,9 @@ varying float      v_dot;
 
 void main()
 {
-  gl_FragColor = (v_dot > 0.0 ? v_color : vec4(0.0,0.0,0.0,0.0));
+  if (v_dot <= 0.0)
+     discard;
+  gl_FragColor = v_color;
 }
 )";
 

@@ -230,9 +230,11 @@ Texture::~Texture()
 {
 }
     
-void Texture::setRawData(RawData *rawData,int width,int height)
+void Texture::setRawData(RawData *rawData,int inWidth,int inHeight)
 {
     texData = RawDataRef(rawData);
+    width = inWidth;
+    height = inHeight;
 }
 
 RawDataRef Texture::processData()
