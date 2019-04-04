@@ -122,7 +122,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setTextureID
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setTexScale
-  (JNIEnv *env, jobject obj, jfloat s, jfloat t)
+  (JNIEnv *env, jobject obj, jdouble s, jdouble t)
 {
 	try
 	{

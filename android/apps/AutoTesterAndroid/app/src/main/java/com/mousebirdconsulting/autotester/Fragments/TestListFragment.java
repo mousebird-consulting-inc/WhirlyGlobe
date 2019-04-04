@@ -33,6 +33,7 @@ import com.mousebirdconsulting.autotester.TestCases.ScreenMarkersTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ShapefileTestCase;
 import com.mousebirdconsulting.autotester.TestCases.StamenRemoteTestCase;
 import com.mousebirdconsulting.autotester.TestCases.StickersTestCase;
+import com.mousebirdconsulting.autotester.TestCases.TextureVectorTestCase;
 import com.mousebirdconsulting.autotester.TestCases.VectorHoleTestCase;
 import com.mousebirdconsulting.autotester.TestCases.VectorsTestCase;
 import com.mousebirdconsulting.autotester.TestCases.WideVectorsTestCase;
@@ -108,7 +109,7 @@ public class TestListFragment extends Fragment {
 			testCases.add(new VectorHoleTestCase(getActivity()));
 			testCases.add(new ShapefileTestCase(getActivity()));
 			testCases.add(new WideVectorsTestCase(getActivity()));
-//			testCases.add(new TextureVectorTestCase(getActivity()));
+			testCases.add(new TextureVectorTestCase(getActivity()));
 //			testCases.add(new SLDTestCase(getActivity()));
 			// Lofted Polys
 			testCases.add(new StickersTestCase(getActivity()));

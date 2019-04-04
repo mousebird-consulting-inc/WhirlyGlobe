@@ -379,6 +379,19 @@ public class VectorObject implements Iterable<VectorObject>
 	public native boolean fromShapeFile(String fileName);
 
 	/**
+	 * Make a complete copy of the vector object and return it.
+	 */
+	public VectorObject deepCopy()
+	{
+		VectorObject vecObj = new VectorObject();
+		deepCopyNative(vecObj);
+
+		return vecObj;
+	}
+
+	protected native void deepCopyNative(VectorObject vecObj);
+
+	/**
 	 * Load vector objects from a GeoJSON assembly, which is just a bunch of GeoJSON stuck together.
 	 * @param json
 	 * @return

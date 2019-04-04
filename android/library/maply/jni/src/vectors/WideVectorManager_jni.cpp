@@ -92,9 +92,9 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_WideVectorManager_addVectors
 		ShapeSet shapes;
 		JavaObjectArrayHelper vecHelper(env,vecObjArray);
 		while (jobject vecObjObj = vecHelper.getNextObject()) {
-            VectorObject *vecObj = vecObjClassInfo->getObject(env,vecObjObj);
+            VectorObjectRef *vecObj = vecObjClassInfo->getObject(env,vecObjObj);
             if (vecObj)
-                shapes.insert(vecObj->shapes.begin(),vecObj->shapes.end());
+                shapes.insert((*vecObj)->shapes.begin(),(*vecObj)->shapes.end());
 		}
 
         // Resolve a missing program

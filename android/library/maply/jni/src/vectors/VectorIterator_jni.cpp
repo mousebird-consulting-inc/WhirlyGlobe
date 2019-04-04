@@ -27,13 +27,13 @@ using namespace WhirlyKit;
 class VectorIterator
 {
 public:
-	VectorIterator(VectorObject *vecObj)
+	VectorIterator(VectorObjectRef vecObj)
 		: vecObj(vecObj)
 	{
 		it = vecObj->shapes.begin();
 	}
 
-	VectorObject *vecObj;
+	VectorObjectRef vecObj;
 	ShapeSet::iterator it;
 };
 
@@ -51,8 +51,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorIterator_initialise
 {
 	try
 	{
-		VectorObject *vec = VectorObjectClassInfo::getClassInfo()->getObject(env,vecObj);
-		VectorIterator *vecIter = new VectorIterator(vec);
+		VectorObjectRef *vec = VectorObjectClassInfo::getClassInfo()->getObject(env,vecObj);
+		VectorIterator *vecIter = new VectorIterator(*vec);
 		VectorIteratorClassInfo::getClassInfo()->setHandle(env,obj,vecIter);
 	}
 	catch (...)

@@ -36,7 +36,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_nativeInit
 JNIEXPORT jobject JNICALL MakeVectorObject(JNIEnv *env,VectorObject *vec)
 {
 	VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo(env,"com/mousebird/maply/VectorObject");
-	return classInfo->makeWrapperObject(env,vec);
+	return classInfo->makeWrapperObject(env,new VectorObjectRef(vec));
 }
 
 void Java_com_mousebird_maply_VectorObject_initialise
@@ -45,7 +45,7 @@ void Java_com_mousebird_maply_VectorObject_initialise
 	try
 	{
 		VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
-		VectorObject *inst = new VectorObject();
+        VectorObjectRef *inst = new VectorObjectRef(new VectorObject());
 		classInfo->setHandle(env,obj,inst);
 	}
 	catch (...)
@@ -64,7 +64,7 @@ void Java_com_mousebird_maply_VectorObject_dispose
 		VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
-            VectorObject *inst = classInfo->getObject(env,obj);
+            VectorObjectRef *inst = classInfo->getObject(env,obj);
             if (!inst)
                 return;
             delete inst;
@@ -84,10 +84,10 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_VectorObject_getVectorTypeNative
     try
     {
         VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
-        VectorObject *vecObj = classInfo->getObject(env,obj);
+        VectorObjectRef *vecObj = classInfo->getObject(env,obj);
         if (!vecObj)
             return VectorNoneType;
-		return vecObj->getVectorType();
+		return (*vecObj)->getVectorType();
     }
     catch (...)
     {
@@ -102,10 +102,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_setSelectable
     try
     {
         VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
-        VectorObject *vecObj = classInfo->getObject(env,obj);
+        VectorObjectRef *vecObj = classInfo->getObject(env,obj);
         if (!vecObj)
             return;
-        vecObj->selectable = newVal;
+        (*vecObj)->selectable = newVal;
     }
     catch (...)
     {
@@ -119,10 +119,10 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_getSelectable
     try
     {
         VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
-        VectorObject *vecObj = classInfo->getObject(env,obj);
+        VectorObjectRef *vecObj = classInfo->getObject(env,obj);
         if (!vecObj)
             return false;
-        return vecObj->selectable;
+        return (*vecObj)->selectable;
     }
     catch (...)
     {
@@ -138,11 +138,11 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorObject_getAttributes
 	try
 	{
 		VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
-		VectorObject *vecObj = classInfo->getObject(env,obj);
+        VectorObjectRef *vecObj = classInfo->getObject(env,obj);
 		if (!vecObj)
 			return NULL;
 
-		MutableDictionary_AndroidRef dict = std::dynamic_pointer_cast<MutableDictionary_Android>(vecObj->getAttributes());
+		MutableDictionary_AndroidRef dict = std::dynamic_pointer_cast<MutableDictionary_Android>((*vecObj)->getAttributes());
 		if (!dict)
 		  return NULL;
 		jobject dictObj = MakeAttrDictionary(env,dict);
@@ -162,11 +162,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_setAttributes
     try
     {
         VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
-        VectorObject *vecObj = classInfo->getObject(env,obj);
+        VectorObjectRef *vecObj = classInfo->getObject(env,obj);
 		MutableDictionary_AndroidRef *dict = AttrDictClassInfo::getClassInfo()->getObject(env,obj);
 		if (!vecObj || !dict)
             return;
-        vecObj->setAttributes(*dict);
+        (*vecObj)->setAttributes(*dict);
     }
     catch (...)
     {
@@ -179,8 +179,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_addPoint
 {
 	try
 	{
-		VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
-		VectorObject *vecObj = classInfo->getObject(env,obj);
+        VectorObjectRef *vecObj = VectorObjectClassInfo::getClassInfo()->getObject(env,obj);
 		Point2d *pt = Point2dClassInfo::getClassInfo()->getObject(env,ptObj);
 		if (!vecObj)
 			return;
@@ -188,7 +187,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_addPoint
 		VectorPointsRef pts = VectorPoints::createPoints();
 		pts->pts.push_back(GeoCoord(pt->x(),pt->y()));
 		pts->initGeoMbr();
-		vecObj->shapes.insert(pts);
+        (*vecObj)->shapes.insert(pts);
 	}
 	catch (...)
 	{
@@ -201,8 +200,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_addLinear
 {
 	try
 	{
-		VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
-		VectorObject *vecObj = classInfo->getObject(env,obj);
+		VectorObjectRef *vecObj = VectorObjectClassInfo::getClassInfo()->getObject(env,obj);
 		if (!vecObj)
 			return;
 
@@ -213,7 +211,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_addLinear
             lin->pts.push_back(GeoCoord(pt->x(),pt->y()));
 		}
 		lin->initGeoMbr();
-		vecObj->shapes.insert(lin);
+        (*vecObj)->shapes.insert(lin);
 	}
 	catch (...)
 	{
@@ -226,8 +224,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_addAreal___3Lcom_mo
 {
 	try
 	{
-		VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
-		VectorObject *vecObj = classInfo->getObject(env,obj);
+        VectorObjectRef *vecObj = VectorObjectClassInfo::getClassInfo()->getObject(env,obj);
 		if (!vecObj)
 			return;
 
@@ -240,7 +237,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_addAreal___3Lcom_mo
             ar->loops[0].push_back(GeoCoord(pt->x(),pt->y()));
 		}
 		ar->initGeoMbr();
-		vecObj->shapes.insert(ar);
+        (*vecObj)->shapes.insert(ar);
 	}
 	catch (...)
 	{
@@ -253,8 +250,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_addAreal___3Lcom_mo
 {
     try
     {
-        VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
-        VectorObject *vecObj = classInfo->getObject(env,obj);
+        VectorObjectRef *vecObj = VectorObjectClassInfo::getClassInfo()->getObject(env,obj);
         if (!vecObj)
             return;
         Point2dClassInfo *point2dClassInfo = Point2dClassInfo::getClassInfo();
@@ -277,7 +273,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_addAreal___3Lcom_mo
         }
 
         ar->initGeoMbr();
-        vecObj->shapes.insert(ar);
+        (*vecObj)->shapes.insert(ar);
     }
     catch (...)
     {
@@ -291,12 +287,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_mergeVectorsFrom
     try
     {
         VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
-        VectorObject *vecObj = classInfo->getObject(env,obj);
-        VectorObject *otherVecObj = classInfo->getObject(env,otherObj);
+        VectorObjectRef *vecObj = classInfo->getObject(env,obj);
+        VectorObjectRef *otherVecObj = classInfo->getObject(env,otherObj);
         if (!vecObj || !otherVecObj)
             return;
 
-        vecObj->mergeVectorsFrom(otherVecObj);
+        (*vecObj)->mergeVectorsFrom((*otherVecObj).get());
     }
     catch (...)
     {
@@ -309,13 +305,12 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorObject_center
 {
 	try
 	{
-		VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
-		VectorObject *vecObj = classInfo->getObject(env,obj);
+        VectorObjectRef *vecObj = VectorObjectClassInfo::getClassInfo()->getObject(env,obj);
 		if (!vecObj)
 			return NULL;
 
 		Point2d center;
-		if (vecObj->center(center))
+		if ((*vecObj)->center(center))
 		{
 			return MakePoint2d(env,center);
 		} else
@@ -334,13 +329,12 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorObject_centroid
 {
 	try
 	{
-		VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
-		VectorObject *vecObj = classInfo->getObject(env,obj);
+        VectorObjectRef *vecObj = VectorObjectClassInfo::getClassInfo()->getObject(env,obj);
 		if (!vecObj)
 			return NULL;
 
 		Point2d center;
-		if (vecObj->centroid(center))
+		if ((*vecObj)->centroid(center))
 		{
 			return MakePoint2d(env,center);
 		} else
@@ -359,16 +353,15 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorObject_largestLoopCente
 {
 	try
 	{
-		VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
 		Point2dClassInfo *pt2dClassInfo = Point2dClassInfo::getClassInfo();
-		VectorObject *vecObj = classInfo->getObject(env,obj);
+        VectorObjectRef *vecObj = VectorObjectClassInfo::getClassInfo()->getObject(env,obj);
 		Point2d *ll = pt2dClassInfo->getObject(env,llObj);
 		Point2d *ur = pt2dClassInfo->getObject(env,urObj);
 		if (!vecObj || !ll || !ur)
 			return NULL;
 
 		Point2d center;
-		if (vecObj->largestLoopCenter(center,*ll,*ur))
+		if ((*vecObj)->largestLoopCenter(center,*ll,*ur))
 		{
 			return MakePoint2d(env,center);
 		} else
@@ -387,15 +380,14 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorObject_linearMiddle__Lc
 {
 	try
 	{
-		VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
 		Point2dClassInfo *pt2dClassInfo = Point2dClassInfo::getClassInfo();
-		VectorObject *vecObj = classInfo->getObject(env,obj);
+        VectorObjectRef *vecObj = VectorObjectClassInfo::getClassInfo()->getObject(env,obj);
 		Point2d *mid = pt2dClassInfo->getObject(env,midObj);
 		if (!vecObj || !mid)
 			return 0.0;
 
 		double rot;
-		if (vecObj->linearMiddle(*mid,rot))
+		if ((*vecObj)->linearMiddle(*mid,rot))
 		{
 			return rot;
 		} else
@@ -419,16 +411,15 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorObject_linearMiddle__Lc
 {
     try
     {
-        VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
         Point2dClassInfo *pt2dClassInfo = Point2dClassInfo::getClassInfo();
-        VectorObject *vecObj = classInfo->getObject(env,obj);
+        VectorObjectRef *vecObj = VectorObjectClassInfo::getClassInfo()->getObject(env,obj);
         Point2d *mid = pt2dClassInfo->getObject(env,midObj);
         CoordSystemRef *coordSys = CoordSystemRefClassInfo::getClassInfo()->getObject(env,coordSysObj);
         if (!vecObj || !mid || !coordSys)
             return 0.0;
 
         double rot;
-        if (vecObj->linearMiddle(*mid,rot,coordSys->get()))
+        if ((*vecObj)->linearMiddle(*mid,rot,coordSys->get()))
         {
             return rot;
         } else
@@ -447,14 +438,13 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_middleCoordinat
 {
 	try
 	{
-		VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
 		Point2dClassInfo *pt2dClassInfo = Point2dClassInfo::getClassInfo();
-		VectorObject *vecObj = classInfo->getObject(env,obj);
+        VectorObjectRef *vecObj = VectorObjectClassInfo::getClassInfo()->getObject(env,obj);
 		Point2d *mid = pt2dClassInfo->getObject(env,midObj);
 		if (!vecObj || !mid)
 			return false;
 
-		if (vecObj->middleCoordinate(*mid))
+		if ((*vecObj)->middleCoordinate(*mid))
 		{
 			return true;
 		} else
@@ -473,14 +463,13 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_pointInside
 {
     try
     {
-        VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
         Point2dClassInfo *pt2dClassInfo = Point2dClassInfo::getClassInfo();
-        VectorObject *vecObj = classInfo->getObject(env,obj);
+        VectorObjectRef *vecObj = VectorObjectClassInfo::getClassInfo()->getObject(env,obj);
         Point2d *pt = pt2dClassInfo->getObject(env,ptObj);
         if (!vecObj || !pt)
             return false;
 
-        return vecObj->pointInside(*pt);
+        return (*vecObj)->pointInside(*pt);
     }
     catch (...)
     {
@@ -495,12 +484,11 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorObject_areaOfOuterLoops
 {
     try
     {
-        VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
-        VectorObject *vecObj = classInfo->getObject(env,obj);
+        VectorObjectRef *vecObj = VectorObjectClassInfo::getClassInfo()->getObject(env,obj);
         if (!vecObj)
             return 0.0;
 
-        return vecObj->areaOfOuterLoops();
+        return (*vecObj)->areaOfOuterLoops();
     }
     catch (...)
     {
@@ -515,14 +503,13 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_VectorObject_countPoints
 {
     try
     {
-        VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
         Point2dClassInfo *pt2dClassInfo = Point2dClassInfo::getClassInfo();
-        VectorObject *vecObj = classInfo->getObject(env,obj);
+        VectorObjectRef *vecObj = VectorObjectClassInfo::getClassInfo()->getObject(env,obj);
         if (!vecObj)
             return 0;
 
         int numPts = 0;
-        for (auto shape : vecObj->shapes)
+        for (auto shape : (*vecObj)->shapes)
         {
             if(std::dynamic_pointer_cast<VectorLinear>(shape) != NULL)
             {
@@ -562,15 +549,14 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_boundingBox
 {
     try
     {
-        VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
         Point2dClassInfo *pt2dClassInfo = Point2dClassInfo::getClassInfo();
-        VectorObject *vecObj = classInfo->getObject(env,obj);
+        VectorObjectRef *vecObj = VectorObjectClassInfo::getClassInfo()->getObject(env,obj);
         Point2d *ll = pt2dClassInfo->getObject(env,llObj);
         Point2d *ur = pt2dClassInfo->getObject(env,urObj);
         if (!vecObj || !ll || !ur)
             return 0.0;
 
-        return vecObj->boundingBox(*ll,*ur);
+        return (*vecObj)->boundingBox(*ll,*ur);
     }
     catch (...)
     {
@@ -586,13 +572,13 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_subdivideToGlob
     try
     {
         VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
-        VectorObject *vecObj = classInfo->getObject(env,obj);
-        VectorObject *retVecObj = classInfo->getObject(env,retObj);
+        VectorObjectRef *vecObj = classInfo->getObject(env,obj);
+        VectorObjectRef *retVecObj = classInfo->getObject(env,retObj);
         if (!vecObj || !retVecObj)
             return false;
 
-        retVecObj->shapes = vecObj->shapes;
-        retVecObj->subdivideToGlobe(epsilon);
+        *retVecObj = *vecObj;
+        (*retVecObj)->subdivideToGlobe(epsilon);
 
         return true;
     }
@@ -610,13 +596,13 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_subdivideToGlob
     try
     {
         VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
-        VectorObject *vecObj = classInfo->getObject(env,obj);
-        VectorObject *retVecObj = classInfo->getObject(env,retObj);
+        VectorObjectRef *vecObj = classInfo->getObject(env,obj);
+        VectorObjectRef *retVecObj = classInfo->getObject(env,retObj);
         if (!vecObj || !retVecObj)
             return false;
 
-        retVecObj->shapes = vecObj->shapes;
-        retVecObj->subdivideToGlobeGreatCircle(epsilon);
+        *retVecObj = *vecObj;
+        (*retVecObj)->subdivideToGlobeGreatCircle(epsilon);
 
         return true;
     }
@@ -634,13 +620,13 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_subdivideToFlat
     try
     {
         VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
-        VectorObject *vecObj = classInfo->getObject(env,obj);
-        VectorObject *retVecObj = classInfo->getObject(env,retObj);
+        VectorObjectRef *vecObj = classInfo->getObject(env,obj);
+        VectorObjectRef *retVecObj = classInfo->getObject(env,retObj);
         if (!vecObj || !retVecObj)
             return false;
 
-        retVecObj->shapes = vecObj->shapes;
-        retVecObj->subdivideToFlatGreatCircle(epsilon);
+        *retVecObj = *vecObj;
+        (*retVecObj)->subdivideToFlatGreatCircle(epsilon);
 
         return true;
     }
@@ -658,13 +644,13 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_tesselateNative
     try
     {
         VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
-        VectorObject *vecObj = classInfo->getObject(env,obj);
-        VectorObject *retVecObj = classInfo->getObject(env,retObj);
+        VectorObjectRef *vecObj = classInfo->getObject(env,obj);
+        VectorObjectRef *retVecObj = classInfo->getObject(env,retObj);
         if (!vecObj || !retVecObj)
             return false;
 
-        VectorObjectRef newVecObj = vecObj->tesselate();
-        retVecObj->shapes = newVecObj->shapes;
+        VectorObjectRef newVecObj = (*vecObj)->tesselate();
+        *retVecObj = newVecObj;
 
         return true;
     }
@@ -682,13 +668,13 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_clipToGridNativ
     try
     {
         VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
-        VectorObject *vecObj = classInfo->getObject(env,obj);
-        VectorObject *retVecObj = classInfo->getObject(env,retObj);
+        VectorObjectRef *vecObj = classInfo->getObject(env,obj);
+        VectorObjectRef *retVecObj = classInfo->getObject(env,retObj);
         if (!vecObj || !retVecObj)
             return false;
 
-        VectorObjectRef newVecObj = vecObj->clipToGrid(Point2d(sizeX,sizeY));
-        retVecObj->shapes = newVecObj->shapes;
+        VectorObjectRef newVecObj = (*vecObj)->clipToGrid(Point2d(sizeX,sizeY));
+        *retVecObj = newVecObj;
 
         return true;
     }
@@ -706,14 +692,14 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_clipToMbrNative
     try
     {
         VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
-        VectorObject *vecObj = classInfo->getObject(env,obj);
-        VectorObject *retVecObj = classInfo->getObject(env,retObj);
+        VectorObjectRef *vecObj = classInfo->getObject(env,obj);
+        VectorObjectRef *retVecObj = classInfo->getObject(env,retObj);
         if (!vecObj || !retVecObj)
             return false;
 
         Point2d ll(llX,llY),ur(urX,urY);
-        VectorObjectRef newVecObj = vecObj->clipToMbr(ll,ur);
-        retVecObj->shapes = newVecObj->shapes;
+        VectorObjectRef newVecObj = (*vecObj)->clipToMbr(ll,ur);
+        *retVecObj = newVecObj;
 
         return true;
     }
@@ -731,16 +717,17 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_reprojectNative
     try
     {
         VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
-        VectorObject *vecObj = classInfo->getObject(env,obj);
-        VectorObject *retVecObj = classInfo->getObject(env,retObj);
+        VectorObjectRef *vecObj = classInfo->getObject(env,obj);
+        VectorObjectRef *retVecObj = classInfo->getObject(env,retObj);
         CoordSystemRefClassInfo *coordSystemInfo = CoordSystemRefClassInfo::getClassInfo();
         CoordSystemRef *srcSystem = coordSystemInfo->getObject(env,srcSystemObj);
         CoordSystemRef *destSystem = coordSystemInfo->getObject(env,destSystemObj);
         if (!vecObj || !retVecObj || !srcSystem || !destSystem)
             return false;
 
-        retVecObj->shapes = vecObj->shapes;
-        retVecObj->reproject(srcSystem->get(),scale,destSystem->get());
+        VectorObjectRef newVecObj = (*vecObj)->deepCopy();
+        newVecObj->reproject(srcSystem->get(),scale,destSystem->get());
+        *retVecObj = newVecObj;
 
         return true;
     }
@@ -758,13 +745,13 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_filterClippedEd
     try
     {
         VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
-        VectorObject *vecObj = classInfo->getObject(env,obj);
-        VectorObject *retVecObj = classInfo->getObject(env,retObj);
+        VectorObjectRef *vecObj = classInfo->getObject(env,obj);
+        VectorObjectRef *retVecObj = classInfo->getObject(env,retObj);
         if (!vecObj || !retVecObj)
             return false;
 
-        VectorObjectRef newVecObj = retVecObj->filterClippedEdges();
-        retVecObj->shapes = newVecObj->shapes;
+        VectorObjectRef newVecObj = (*vecObj)->filterClippedEdges();
+        *retVecObj = newVecObj;
 
         return true;
     }
@@ -782,13 +769,13 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_linearsToAreals
     try
     {
         VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
-        VectorObject *vecObj = classInfo->getObject(env,obj);
-        VectorObject *retVecObj = classInfo->getObject(env,retObj);
+        VectorObjectRef *vecObj = classInfo->getObject(env,obj);
+        VectorObjectRef *retVecObj = classInfo->getObject(env,retObj);
         if (!vecObj || !retVecObj)
             return false;
 
-        VectorObjectRef newVecObj = retVecObj->linearsToAreals();
-        retVecObj->shapes = newVecObj->shapes;
+        VectorObjectRef newVecObj = (*vecObj)->linearsToAreals();
+        *retVecObj = newVecObj;
 
         return true;
     }
@@ -806,13 +793,13 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_arealsToLinears
     try
     {
         VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
-        VectorObject *vecObj = classInfo->getObject(env,obj);
-        VectorObject *retVecObj = classInfo->getObject(env,retObj);
+        VectorObjectRef *vecObj = classInfo->getObject(env,obj);
+        VectorObjectRef *retVecObj = classInfo->getObject(env,retObj);
         if (!vecObj || !retVecObj)
             return false;
 
-        VectorObjectRef newVecObj = retVecObj->arealsToLinears();
-        retVecObj->shapes = newVecObj->shapes;
+        VectorObjectRef newVecObj = (*vecObj)->arealsToLinears();
+        *retVecObj = newVecObj;
 
         return true;
     }
@@ -830,7 +817,7 @@ jboolean Java_com_mousebird_maply_VectorObject_fromGeoJSON
 	try
 	{
 		VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
-		VectorObject *vecObj = classInfo->getObject(env,obj);
+		VectorObjectRef *vecObj = classInfo->getObject(env,obj);
 		if (!vecObj)
 			return false;
 
@@ -841,7 +828,7 @@ jboolean Java_com_mousebird_maply_VectorObject_fromGeoJSON
 		env->ReleaseStringUTFChars(jstr, cStr);
 
         std::string crs;
-		bool ret = vecObj->fromGeoJSON(jsonStr,crs);
+		bool ret = (*vecObj)->fromGeoJSON(jsonStr,crs);
 
 		return ret;
 	}
@@ -859,7 +846,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_fromShapeFile
     try
     {
         VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
-        VectorObject *vecObj = classInfo->getObject(env,obj);
+        VectorObjectRef *vecObj = classInfo->getObject(env,obj);
         if (!vecObj)
             return false;
 
@@ -869,7 +856,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_fromShapeFile
         std::string jsonStr(cStr);
         env->ReleaseStringUTFChars(jstr, cStr);
 
-        bool ret = vecObj->fromShapeFile(jsonStr);
+        bool ret = (*vecObj)->fromShapeFile(jsonStr);
 
         return true;
     }
@@ -879,6 +866,26 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_fromShapeFile
     }
 
     return false;
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_deepCopyNative
+        (JNIEnv *env, jobject obj, jobject destObj)
+{
+    try
+    {
+        VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
+        VectorObjectRef *vecObj = classInfo->getObject(env,obj);
+        VectorObjectRef *destVecObj = classInfo->getObject(env,destObj);
+        if (!vecObj || !destVecObj)
+            return;
+
+        VectorObjectRef newVecObj = (*vecObj)->deepCopy();
+        *destVecObj = newVecObj;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorObject::deepCopyNative()");
+    }
 }
 
 JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorObject_FromGeoJSONAssembly
@@ -917,4 +924,6 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorObject_FromGeoJSONAssem
 
 	return NULL;
 }
+
+
 
