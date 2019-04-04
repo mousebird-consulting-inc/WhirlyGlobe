@@ -27,6 +27,7 @@ import com.mousebirdconsulting.autotester.TestCases.CustomBNGTileSource;
 import com.mousebirdconsulting.autotester.TestCases.FindHeightTestCase;
 import com.mousebirdconsulting.autotester.TestCases.GeographyClass;
 import com.mousebirdconsulting.autotester.TestCases.GreatCircleTestCase;
+import com.mousebirdconsulting.autotester.TestCases.LoftedPolyTestCase;
 import com.mousebirdconsulting.autotester.TestCases.MarkersTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ScreenLabelsTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ScreenMarkersTestCase;
@@ -111,7 +112,7 @@ public class TestListFragment extends Fragment {
 			testCases.add(new WideVectorsTestCase(getActivity()));
 			testCases.add(new TextureVectorTestCase(getActivity()));
 //			testCases.add(new SLDTestCase(getActivity()));
-			// Lofted Polys
+			testCases.add(new LoftedPolyTestCase(getActivity()));
 			testCases.add(new StickersTestCase(getActivity()));
 			// Paging Layer
 			// Vector MBTiles

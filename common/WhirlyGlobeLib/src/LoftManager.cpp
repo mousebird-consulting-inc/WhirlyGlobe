@@ -31,6 +31,16 @@ using namespace WhirlyKit;
 namespace WhirlyKit
 {
     
+    
+LoftedPolyInfo::LoftedPolyInfo()
+    : height(0.01), base(0.0), top(true), side(true), layered(false),
+    outline(true), outlineSide(false), outlineBottom(false),
+    outlineDrawPriority(MaplyLoftedPolysDrawPriorityDefault+1),
+    color(255,255,255,255), outlineColor(255,255,255,255), outlineWidth(1.0),
+    centered(false), hasCenter(false), center(0.0,0.0), gridSize(10.0 / 180.0 * M_PI)
+{    
+}
+
 LoftedPolyInfo::LoftedPolyInfo(const Dictionary &dict)
     : BaseInfo(dict)
 {

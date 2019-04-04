@@ -53,7 +53,7 @@ class TextureVectorTestCase : MaplyTestCase {
                         attrs.setDouble("veccenterx", center.x)
                         attrs.setDouble("veccentery", center.y)
 
-                        var tessObj : VectorObject? = null
+                        var tessObj : VectorObject?
                         if (control is GlobeController) {
                             // We adjust the grid clipping size based on the latitude
                             // This helps a lot near the poles.  Otherwise we're way oversampling

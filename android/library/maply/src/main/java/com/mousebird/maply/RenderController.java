@@ -95,6 +95,7 @@ public class RenderController implements RenderControllerInterface
 
         // Fire up the managers.  Can't do anything without these.
         vecManager = new VectorManager(scene);
+        loftManager = new LoftedPolyManager(scene);
         wideVecManager = new WideVectorManager(scene);
         markerManager = new MarkerManager(scene);
         stickerManager = new StickerManager(scene);
@@ -190,6 +191,7 @@ public class RenderController implements RenderControllerInterface
 
     // Managers are thread safe objects for handling adding and removing types of data
     protected VectorManager vecManager;
+    protected LoftedPolyManager loftManager;
     protected WideVectorManager wideVecManager;
     protected MarkerManager markerManager;
     protected StickerManager stickerManager;
@@ -215,6 +217,8 @@ public class RenderController implements RenderControllerInterface
 
         if (vecManager != null)
             vecManager.dispose();
+        if (loftManager != null)
+            loftManager.dispose();
         if (wideVecManager != null)
             wideVecManager.dispose();
         if (stickerManager != null)
@@ -231,6 +235,7 @@ public class RenderController implements RenderControllerInterface
             particleSystemManager.dispose();
 
         vecManager = null;
+        loftManager = null;
         wideVecManager = null;
         markerManager = null;
         stickerManager = null;
@@ -738,6 +743,62 @@ public class RenderController implements RenderControllerInterface
 
         return compObj;
     }
+
+    /**
+     * Add Lofted Polygons to the MaplyController to display.
+     * <br>
+     * Lofted polygons require areal features as outlines.  The result will be
+     * a tent-like visual with optional sides and a top.
+     *
+     * @param vecs A list of VectorObject's created by the user or read in from various sources.
+     * @param loftInfo A description of how the lofted polygons should look.
+     * @param mode Where to execute the add.  Choose ThreadAny by default.
+     * @return The ComponentObject representing the vectors.  This is necessary for modifying
+     * or deleting the features once created.
+     */
+    public ComponentObject addLoftedPolys(final List<VectorObject> vecs, final LoftedPolyInfo loftInfo, final ThreadMode mode)
+    {
+        final ComponentObject compObj = componentManager.makeComponentObject();
+
+        // Do the actual work on the layer thread
+        Runnable run =
+                new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        // Vectors are simple enough to just add
+                        ChangeSet changes = new ChangeSet();
+                        long loftID = loftManager.addPolys(vecs.toArray(new VectorObject[0]), loftInfo, changes);
+                        if (scene != null)
+                            changes.process(scene);
+
+                        // Track the vector ID for later use
+                        if (loftID != EmptyIdentity)
+                            compObj.addLoftID(loftID);
+
+                        for (VectorObject vecObj : vecs)
+                        {
+                            // TODO: Porting
+                            // Keep track of this one for selection
+//					if (vecObj.getSelectable())
+//						compObj.addSelectID(vecObj.getID());
+                        }
+
+                        if (loftInfo.disposeAfterUse || disposeAfterRemoval)
+                            for (VectorObject vecObj : vecs)
+                                if (!vecObj.getSelectable())
+                                    vecObj.dispose();
+
+                        componentManager.addComponentObject(compObj);
+                    }
+                };
+
+        taskMan.addTask(run, mode);
+
+        return compObj;
+    }
+
 
     /**
      * Change the visual representation of the given vectors.
@@ -1269,7 +1330,7 @@ public class RenderController implements RenderControllerInterface
 
     /**
      * Remove a texture from the scene.
-     * @param tex Texture to remove.
+     * @param texs Textures to remove.
      * @param mode Remove immediately (current thread) or elsewhere.
      */
     public void removeTextures(final List<MaplyTexture> texs,ThreadMode mode)

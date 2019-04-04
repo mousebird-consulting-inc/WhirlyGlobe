@@ -718,10 +718,10 @@
  |kMaplyLoftedPolyBase|NSNumber|If present, we'll start the lofted poly at this height.  The height is in globe units, based on a radius of 1.0.|
  |kMaplyLoftedPolyTop|NSNumber boolean|If on we'll create the geometry for the top.  On by default.|
  |kMaplyLoftedPolySide|NSNumber boolean|If on we'll create geometry for the sides.  On by default.|
- |kMaplyLoftedPolyGridSize|NSNumber|The size of the grid (in degrees) we'll use to chop up the vector features to make them follow the sphere (for a globe).|
+ |kMaplyLoftedPolyGridSize|NSNumber|The size of the grid (in radians) we'll use to chop up the vector features to make them follow the sphere (for a globe).|
  |kMaplyLoftedPolyOutline|NSNumber boolean|If set to @(YES) this will draw an outline around the top of the lofted poly in lines.|
  |kMaplyLoftedPolyOutlineBottom|NSNumber boolean|If set to @(YES) this will draw an outline around the bottom of the lofted poly in lines.|
- |kMaplyLoftedPolyOutlineColor|UIColor|If the outline is one this is the outline's color.|
+ |kMaplyLoftedPolyOutlineColor|UIColor|If the outline is on this is the outline's color.|
  |kMaplyLoftedPolyOutlineWidth|NSNumber|This is the outline's width if it's turned on.|
  |kMaplyLoftedPolyOutlineDrawPriority|NSNumber|Draw priority of the lines created for the lofted poly outline.|
  |kMaplyLoftedPolyOutlineSide|NSNumber boolean|If set and we're drawing an outline, this will create lines up the sides.|

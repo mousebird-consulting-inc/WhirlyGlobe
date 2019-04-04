@@ -1262,6 +1262,37 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	}
 
 	/**
+	 * Add a single Lofted Polygon.  See addLoftedPolys() for details.
+	 */
+	public ComponentObject addLoftedPoly(final VectorObject vec,final LoftedPolyInfo loftInfo,RenderController.ThreadMode mode)
+	{
+		ArrayList<VectorObject> vecObjs = new ArrayList<VectorObject>();
+		vecObjs.add(vec);
+		return addLoftedPolys(vecObjs,loftInfo,mode);
+	}
+
+	/**
+	 * Add Lofted Polygons to the MaplyController to display.
+	 * <br>
+	 * Lofted polygons require areal features as outlines.  The result will be
+	 * a tent-like visual with optional sides and a top.
+	 *
+	 * @param vecs A list of VectorObject's created by the user or read in from various sources.
+	 * @param loftInfo A description of how the lofted polygons should look.
+	 * @param mode Where to execute the add.  Choose ThreadAny by default.
+	 * @return The ComponentObject representing the vectors.  This is necessary for modifying
+	 * or deleting the features once created.
+	 */
+	public ComponentObject addLoftedPolys(final List<VectorObject> vecs,final LoftedPolyInfo loftInfo,RenderController.ThreadMode mode)
+	{
+		if (!running)
+			return null;
+
+		return renderControl.addLoftedPolys(vecs,loftInfo,mode);
+	}
+
+
+	/**
 	 * Add a single screen marker.  See addScreenMarkers() for details.
 	 */
 	public ComponentObject addScreenMarker(final ScreenMarker marker,final MarkerInfo markerInfo,RenderController.ThreadMode mode)

@@ -18,6 +18,8 @@ class CartoLightTestCase : MaplyTestCase {
         implementation = TestExecutionImplementation.Both
     }
 
+    var loader : QuadImageLoader? = null
+
     fun setupImageLoader(control: BaseController,testType: ConfigOptions.TestType) {
         val cacheDirName = "carto_light"
         val cacheDir = File(getActivity().cacheDir, cacheDirName)
@@ -39,7 +41,7 @@ class CartoLightTestCase : MaplyTestCase {
         params.minZoom = tileInfo.minZoom
         params.maxZoom = tileInfo.maxZoom
 
-        var loader = QuadImageLoader(params,tileInfo,control)
+        loader = QuadImageLoader(params,tileInfo,control)
     }
 
     override fun setUpWithMap(mapVC: MapController?): Boolean {

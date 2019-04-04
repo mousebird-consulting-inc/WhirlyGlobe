@@ -63,6 +63,8 @@ public class ComponentObject
 	// Track the given vector ID as associated with us
 	public native void addVectorID(long id);
 
+	public native void addLoftID(long id);
+
 	public native long[] getVectorIDs();
 
 	public native void addWideVectorID(long id);

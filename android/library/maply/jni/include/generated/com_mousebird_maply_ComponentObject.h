@@ -65,6 +65,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentObject_addVectorID
 
 /*
  * Class:     com_mousebird_maply_ComponentObject
+ * Method:    addLoftID
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentObject_addLoftID
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_mousebird_maply_ComponentObject
  * Method:    getVectorIDs
  * Signature: ()[J
  */

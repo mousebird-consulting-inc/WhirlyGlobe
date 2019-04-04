@@ -55,8 +55,7 @@ public interface RenderControllerInterface
 
     public ComponentObject addBillboards(final List<Billboard> bills, final BillboardInfo info, final ThreadMode threadMode);
 
-    // TODO: Fill this in
-//    public ComponentObject addLoftedPolygons();
+    public ComponentObject addLoftedPolys(final List<VectorObject> vecs, final LoftedPolyInfo info, final ThreadMode threadMode);
 
     public ComponentObject addPoints(final List<Points> inPoints,final GeometryInfo geomInfo, final ThreadMode mode);
 

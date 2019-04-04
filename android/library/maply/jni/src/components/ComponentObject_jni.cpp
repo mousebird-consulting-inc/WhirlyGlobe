@@ -191,6 +191,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentObject_addVectorID
     }
 }
 
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentObject_addLoftID
+        (JNIEnv *env, jobject obj, jlong loftID)
+{
+    try
+    {
+        ComponentObjectRef *inst = ComponentObjectRefClassInfo::getClassInfo()->getObject(env,obj);
+        if (!inst)
+            return;
+        (*inst)->loftIDs.insert(loftID);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ComponentObject::addLoftID()");
+    }
+}
+
 JNIEXPORT jlongArray JNICALL Java_com_mousebird_maply_ComponentObject_getVectorIDs
   (JNIEnv *env, jobject obj)
 {
