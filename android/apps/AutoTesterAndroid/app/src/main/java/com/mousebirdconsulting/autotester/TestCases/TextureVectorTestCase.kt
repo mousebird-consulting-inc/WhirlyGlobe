@@ -87,7 +87,7 @@ class TextureVectorTestCase : MaplyTestCase {
         vecInfo.setFilled(true)
         vecInfo.setTexture(tex)
         vecInfo.setTextureProjection(VectorInfo.TextureProjection.TangentPlane)
-        vecInfo.setTexScale(2.0, 2.0)
+        vecInfo.setTexScale(16.0, 16.0)
         vecInfo.setColor(Color.WHITE)
 
         // Add all the vectors at once to be more efficient
