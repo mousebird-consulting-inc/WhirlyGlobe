@@ -26,6 +26,7 @@ import com.mousebirdconsulting.autotester.TestCases.CustomBNGTileSource;
 //import com.mousebirdconsulting.autotester.TestCases.GreatCircleTestCase;
 import com.mousebirdconsulting.autotester.TestCases.FindHeightTestCase;
 import com.mousebirdconsulting.autotester.TestCases.GeographyClass;
+import com.mousebirdconsulting.autotester.TestCases.GreatCircleTestCase;
 import com.mousebirdconsulting.autotester.TestCases.MarkersTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ScreenLabelsTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ScreenMarkersTestCase;
@@ -102,7 +103,7 @@ public class TestListFragment extends Fragment {
 			testCases.add(new AnimatedMarkersTestCase(getActivity()));
 			testCases.add(new ClusteredMarkersTestCase(getActivity()));
 			testCases.add(new VectorsTestCase(getActivity()));
-//			testCases.add(new GreatCircleTestCase(getActivity()));
+			testCases.add(new GreatCircleTestCase(getActivity()));
 			// Vector Style Test
 			// Vectors with Holes
 			testCases.add(new ShapefileTestCase(getActivity()));
