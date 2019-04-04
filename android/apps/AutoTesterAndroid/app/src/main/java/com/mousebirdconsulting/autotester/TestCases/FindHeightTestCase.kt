@@ -23,7 +23,16 @@ class FindHeightTestCase : MaplyTestCase {
     // Run a findHeight
     fun runDelayedFind(vc: BaseController) {
         Handler().postDelayed(Runnable {
-            // TODO: Fill this in
+            val bbox = Mbr(Point2d.FromDegrees(7.05090689853, 47.7675500593),
+                    Point2d.FromDegrees(8.06813647023, 49.0562323851))
+            val center = Point2d.FromDegrees((7.05090689853+8.06813647023)/2, (47.7675500593+49.0562323851)/2)
+            if (vc is GlobeController) {
+                val height = vc.findHeightToViewBounds(bbox, center)
+                vc.animatePositionGeo(center.x,center.y,height,1.0)
+            } else if (vc is MapController) {
+                val height = vc.findHeightToViewBounds(bbox, center)
+                vc.animatePositionGeo(center.x,center.y,height,1.0)
+            }
         }, 10000)
     }
 

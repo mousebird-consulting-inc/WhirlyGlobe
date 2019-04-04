@@ -296,7 +296,7 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 		for (Point2d pt : pts)
 		{
 			Point2d screenPt = screenPointFromGeo(theGlobeView,pt);
-			if (screenPt.getX() < 0.0 || screenPt.getY() < 0.0 || screenPt.getX() > frameSize.getX() || screenPt.getY() > frameSize.getY())
+			if (screenPt == null || screenPt.getX() < 0.0 || screenPt.getY() < 0.0 || screenPt.getX() > frameSize.getX() || screenPt.getY() > frameSize.getY())
 				return false;
 		}
 
