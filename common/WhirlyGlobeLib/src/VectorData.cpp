@@ -1015,7 +1015,7 @@ bool VectorParseFeature(JSONNode node,ShapeSet &shapes)
         else if (!it->name().compare("properties"))
             propIt = it;
     }
-    if (typeIt == node.end() || geomIt == node.end() || propIt == node.end())
+    if (typeIt == node.end() || geomIt == node.end())
         return false;
     
     // Expecting this to be a feature with a geometry and properties node
@@ -1025,7 +1025,9 @@ bool VectorParseFeature(JSONNode node,ShapeSet &shapes)
 
     // Parse the properties, then the geometry
     MutableDictionaryRef properties = MutableDictionaryMake();
-    VectorParseProperties(*propIt,properties);
+    if (propIt != node.end()) {
+        VectorParseProperties(*propIt, properties);
+    }
     ShapeSet newShapes;
     if (!VectorParseGeometry(*geomIt,newShapes))
         return false;
