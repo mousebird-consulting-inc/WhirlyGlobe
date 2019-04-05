@@ -34,4 +34,15 @@ public class ObjectLoaderReturn extends LoaderReturn
      * They need to start disabled.  The system will enable and delete them when it is time.
      */
     public native void addComponentObjects(ComponentObject[] compObjs);
+
+    /**
+     * Add a single component object to the tile.
+     * The system will manage it after that.
+     * @param compObj
+     */
+    public void addComponentObject(ComponentObject compObj) {
+        ComponentObject[] compObjs = new ComponentObject[1];
+        compObjs[0] = compObj;
+        addComponentObjects(compObjs);
+    }
 }

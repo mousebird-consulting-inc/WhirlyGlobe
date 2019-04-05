@@ -341,7 +341,7 @@
     return false;
 }
 
-- (id)fetchInfoForTile:(MaplyTileID)tileID
+- (id)fetchInfoForTile:(MaplyTileID)tileID flipY:(bool)flipY
 {
     MaplyRemoteTileFetchInfo *info = [[MaplyRemoteTileFetchInfo alloc] init];
     

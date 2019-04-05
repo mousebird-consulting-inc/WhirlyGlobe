@@ -22,7 +22,7 @@
 }
 
 // Generate a URL for a given tile
-- (MaplyRemoteTileFetchInfo *)fetchInfoForTile:(MaplyTileID)tileID
+- (MaplyRemoteTileFetchInfo *)fetchInfoForTile:(MaplyTileID)tileID flipY:(bool)flipY
 {
     // bounding box for tile
     MaplyBoundingBox bbox = [_loader geoBoundsForTile:tileID];

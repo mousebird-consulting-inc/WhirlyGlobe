@@ -93,6 +93,7 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
     Mbr geoBoundsForTile(TileID tileID)
     {
         Mbr mbr = new Mbr();
+        mbr.initialize();
         geoBoundsForTileNative(tileID.x,tileID.y,tileID.level,mbr.ll,mbr.ur);
 
         return mbr;
@@ -112,6 +113,7 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
     Mbr boundsForTile(TileID tileID)
     {
         Mbr mbr = new Mbr();
+        mbr.initialize();
         boundsForTileNative(tileID.x,tileID.y,tileID.level,mbr.ll,mbr.ur);
 
         return mbr;
@@ -249,9 +251,7 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
             final int dispFrame = tileInfos.length > 1 ? frame : -1;
 
             // Put together a fetch request for, you now, fetching
-            TileFetchRequest fetchRequest = new TileFetchRequest();
-            fetchRequest.fetchInfo = tileInfo.fetchInfoForTile(tileID,getFlipY());
-            fetchRequest.tileSource = tileInfo.uniqueID;
+            final TileFetchRequest fetchRequest = new TileFetchRequest();
             fetchRequest.priority = priority;
             fetchRequest.importance = (float)importance;
             fetchRequest.callback = new TileFetchRequest.Callback() {
@@ -261,7 +261,8 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
                     final LoaderReturn loadReturn = makeLoaderReturn();
                     loadReturn.setTileID(tileX, tileY, tileLevel);
                     loadReturn.setFrame(fFrame);
-                    loadReturn.addTileData(data);
+                    if (data != null)
+                        loadReturn.addTileData(data);
 
                     // We're on an AsyncTask in the background here, so do the loading
                     loadInterp.dataForTile(loadReturn,loaderBase);
@@ -297,11 +298,26 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
 
             // Update the frame asset and track it
             QIFFrameAsset frameAsset = inFrameAssets[frame];
-            frameAsset.request = fetchRequest;
             frameAssets.add(frameAsset);
 
-            // This will start the fetch request in a bit
-            batchOps.addToStart(fetchRequest);
+            if (tileInfo != null) {
+                fetchRequest.fetchInfo = tileInfo.fetchInfoForTile(tileID, getFlipY());
+                fetchRequest.tileSource = tileInfo.uniqueID;
+                frameAsset.request = fetchRequest;
+
+                // This will start the fetch request in a bit
+                batchOps.addToStart(fetchRequest);
+            } else {
+                // There's no fetching to do, so we'll short circuit it
+                new AsyncTask<Void, Void, Void>() {
+                    protected Void doInBackground(Void... unused) {
+                        fetchRequest.callback.success(null, null);
+
+                        return null;
+                    }
+                }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void)null);
+
+            }
 
             frame++;
         }

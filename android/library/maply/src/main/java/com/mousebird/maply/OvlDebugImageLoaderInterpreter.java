@@ -32,7 +32,7 @@ import java.lang.reflect.Field;
  */
 public class OvlDebugImageLoaderInterpreter extends ImageLoaderInterpreter
 {
-    OvlDebugImageLoaderInterpreter()
+    public OvlDebugImageLoaderInterpreter()
     {
     }
 
@@ -41,12 +41,23 @@ public class OvlDebugImageLoaderInterpreter extends ImageLoaderInterpreter
     }
 
     // Convert byte arrays into images
-    @Override public void dataForTile(LoaderReturn inLoadReturn,QuadLoaderBase loader)
+    @Override public void dataForTile(LoaderReturn loadReturn,QuadLoaderBase loader)
     {
-        ImageLoaderReturn loadReturn = (ImageLoaderReturn)inLoadReturn;
+        ObjectLoaderReturn objectLoaderReturn = null;
+        ImageLoaderReturn imageLoadReturn = null;
 
-        // This interprets the images
-        super.dataForTile(loadReturn,loader);
+        if (loadReturn instanceof ImageLoaderReturn)
+            imageLoadReturn = (ImageLoaderReturn)loadReturn;
+        else if (loadReturn instanceof ObjectLoaderReturn)
+            objectLoaderReturn = (ObjectLoaderReturn)loadReturn;
+        else
+            return;
+
+        // Sometimes there's a base image
+        if (imageLoadReturn != null) {
+            // This interprets the images
+            super.dataForTile(loadReturn, loader);
+        }
 
         // Add a label right in the middle
         Mbr bbox = loader.geoBoundsForTile(loadReturn.getTileID());
@@ -56,14 +67,16 @@ public class OvlDebugImageLoaderInterpreter extends ImageLoaderInterpreter
         label.layoutImportance = Float.MAX_VALUE;
 
         LabelInfo labelInfo = new LabelInfo();
-        labelInfo.setTextColor(Color.BLACK);
+        labelInfo.setTextColor(Color.RED);
         labelInfo.setOutlineColor(Color.WHITE);
         labelInfo.setOutlineSize(2.0f);
         labelInfo.setEnable(false);
 
-        loadReturn.addComponentObject(
-                loader.getController().addScreenLabel(label,labelInfo, RenderController.ThreadMode.ThreadCurrent)
-        );
+        ComponentObject compObj = loader.getController().addScreenLabel(label,labelInfo, RenderController.ThreadMode.ThreadCurrent);
+        if (imageLoadReturn != null)
+            imageLoadReturn.addComponentObject(compObj);
+        else
+            objectLoaderReturn.addComponentObject(compObj);
 
         // A bounding box around the whole thing
         Point2d[] pts = new Point2d[4];
@@ -77,8 +90,10 @@ public class OvlDebugImageLoaderInterpreter extends ImageLoaderInterpreter
 
         VectorInfo vecInfo = new VectorInfo();
         vecInfo.setEnable(false);
-        loadReturn.addComponentObject(
-                loader.getController().addVector(vecObj,vecInfo, RenderController.ThreadMode.ThreadCurrent)
-        );
+        compObj = loader.getController().addVector(vecObj,vecInfo, RenderController.ThreadMode.ThreadCurrent);
+        if (imageLoadReturn != null)
+            imageLoadReturn.addComponentObject(compObj);
+        else
+            objectLoaderReturn.addComponentObject(compObj);
     }
 }

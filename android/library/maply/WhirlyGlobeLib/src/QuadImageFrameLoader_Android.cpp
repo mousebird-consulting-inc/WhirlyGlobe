@@ -155,8 +155,8 @@ QuadImageFrameLoader_Android::QuadImageFrameLoader_Android(const SamplingParams 
 
     jclass frameClass = QIFFrameAssetClassInfo::getClassInfo(env,"com/mousebird/maply/QIFFrameAsset")->getClass();
     cancelFrameFetchMethod = env->GetMethodID(frameClass,"cancelFetch","(Lcom/mousebird/maply/QIFBatchOps;)V");
-    updateFrameMethod = env->GetMethodID(frameClass,"updateFetch","(Lcom/mousebird/maply/QuadImageLoaderBase;ID)V");
-    clearFrameMethod = env->GetMethodID(frameClass,"clearFrameAsset","(Lcom/mousebird/maply/QuadImageLoaderBase;Lcom/mousebird/maply/QIFBatchOps;)V");
+    updateFrameMethod = env->GetMethodID(frameClass,"updateFetch","(Lcom/mousebird/maply/QuadLoaderBase;ID)V");
+    clearFrameMethod = env->GetMethodID(frameClass,"clearFrameAsset","(Lcom/mousebird/maply/QuadLoaderBase;Lcom/mousebird/maply/QIFBatchOps;)V");
     clearRequestMethod = env->GetMethodID(frameClass, "clearRequest","()V");
 }
 

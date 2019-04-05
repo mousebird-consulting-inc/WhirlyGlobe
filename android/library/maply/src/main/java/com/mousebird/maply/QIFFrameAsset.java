@@ -47,13 +47,13 @@ class QIFFrameAsset
     // Update the priority and importance for a tile fetch
     // Probably because the user moved around and a tile takes a different amount of screen space
     // Called by the c++ side
-    public void updateFetch(QuadImageLoaderBase loader, int newPriority,double newImportance)
+    public void updateFetch(QuadLoaderBase loader, int newPriority,double newImportance)
     {
         loader.tileFetcher.updateTileFetch(request,newPriority,(float)newImportance);
     }
 
     // Prepare this frame asset to be deleted
-    public void clearFrameAsset(QuadImageLoaderBase loader,QIFBatchOps batchOps)
+    public void clearFrameAsset(QuadLoaderBase loader,QIFBatchOps batchOps)
     {
         loader.clearFrameAsset(this);
         cancelFetch(batchOps);
