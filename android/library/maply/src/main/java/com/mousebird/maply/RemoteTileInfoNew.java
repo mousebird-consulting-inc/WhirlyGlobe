@@ -217,7 +217,7 @@ public class RemoteTileInfoNew extends TileInfoNew
      * Build the URL and other info for a single tile fetch.
      * Returns is a RemoteTileFetcheInfo object.
      */
-    @Override Object fetchInfoForTile(TileID tileID,boolean flipY)
+    @Override public Object fetchInfoForTile(TileID tileID,boolean flipY)
     {
         RemoteTileFetchInfo fetchInfo = new RemoteTileFetchInfo();
         fetchInfo.urlReq = buildRequest(buildURL(tileID.x,tileID.y,tileID.level,flipY),NET_TAG);

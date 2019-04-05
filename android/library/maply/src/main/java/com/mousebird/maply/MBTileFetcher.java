@@ -101,7 +101,7 @@ public class MBTileFetcher extends HandlerThread implements TileFetcher
             maxZoom = inMaxZoom;
         }
 
-        @Override Object fetchInfoForTile(TileID tileID,boolean flipY)
+        @Override public Object fetchInfoForTile(TileID tileID,boolean flipY)
         {
             return new MBTileFetchInfo(tileID);
         }

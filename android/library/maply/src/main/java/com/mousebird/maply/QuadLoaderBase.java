@@ -75,7 +75,7 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
      * Controller associated with this quad loader.
      * This is where you send geometry and such.
      */
-    BaseController getController()
+    public BaseController getController()
     {
         return control.get();
     }
@@ -90,7 +90,7 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
      *  @return The lower left and upper right corner of the tile in geographic coordinates.
      *          Returns null in case of error.
      */
-    Mbr geoBoundsForTile(TileID tileID)
+    public Mbr geoBoundsForTile(TileID tileID)
     {
         Mbr mbr = new Mbr();
         mbr.initialize();
@@ -110,7 +110,7 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
      *
      *  @return The lower left and upper right corner of the tile in local coordinates.
      */
-    Mbr boundsForTile(TileID tileID)
+    public Mbr boundsForTile(TileID tileID)
     {
         Mbr mbr = new Mbr();
         mbr.initialize();
@@ -128,7 +128,7 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
      *
      *  @return Return the center in display space for the given tile.
      */
-    Point3d displayCenterForTile(TileID tileID)
+    public Point3d displayCenterForTile(TileID tileID)
     {
         Point3d pt = new Point3d();
         displayCenterForTileNative(tileID.x,tileID.y,tileID.level,pt);

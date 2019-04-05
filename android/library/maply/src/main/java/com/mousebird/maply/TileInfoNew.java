@@ -64,7 +64,7 @@ public class TileInfoNew
      *   tells the fetcher how to get the data you wawnt.
      *   RemoteTileFetchers want a RemoteTileInfoNew object.
      */
-    Object fetchInfoForTile(TileID tileID,boolean flipY)
+    public Object fetchInfoForTile(TileID tileID,boolean flipY)
     {
         return null;
     }

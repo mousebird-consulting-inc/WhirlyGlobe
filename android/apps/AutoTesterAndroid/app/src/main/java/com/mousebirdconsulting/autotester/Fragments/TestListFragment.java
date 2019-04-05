@@ -20,6 +20,7 @@ import com.mousebirdconsulting.autotester.R;
 import com.mousebirdconsulting.autotester.TestCases.AnimatedBaseMapTestCase;
 import com.mousebirdconsulting.autotester.TestCases.AnimatedMarkersTestCase;
 import com.mousebirdconsulting.autotester.TestCases.AnimatedScreenMarkersTestCase;
+import com.mousebirdconsulting.autotester.TestCases.CartoTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ClusteredMarkersTestCase;
 import com.mousebirdconsulting.autotester.TestCases.CustomBNGCoordAdapter;
 import com.mousebirdconsulting.autotester.TestCases.CustomBNGTileSource;
@@ -119,7 +120,7 @@ public class TestListFragment extends Fragment {
 			testCases.add(new PagingLayerTestCase(getActivity()));
 			// Vector MBTiles
 			// OpenMapTiles Hybrid Test Case
-			// CartoDB
+			testCases.add(new CartoTestCase(getActivity()));
 			testCases.add(new ShapesTestCase(getActivity()));
 			// Extruded Model (Arrows)
 			// Models

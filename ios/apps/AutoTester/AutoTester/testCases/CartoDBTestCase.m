@@ -22,7 +22,7 @@
 - (instancetype)init
 {
 	if (self = [super init]) {
-		self.name = @"CartoDB";
+		self.name = @"Carto New York";
 		self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
 	}
 	return self;
