@@ -508,9 +508,9 @@ void Extruded::makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuild
         for (unsigned int jj=0;jj<3;jj++)
         {
             const Point3f &pt = trisRef->pts[tri.pts[jj]];
-            Vector4d bot4d = shiftMat * Vector4d(pt.x(),pt.y(),z-theThickness/2.0,1.0);
+            Vector4d bot4d = shiftMat * Vector4d(pt.x()*scale,pt.y()*scale,z-theThickness/2.0,1.0);
             bot[jj] = Point3d(bot4d.x(),bot4d.y(),bot4d.z())/bot4d.w() + dispPt;
-            Vector4d top4d = shiftMat * Vector4d(pt.x(),pt.y(),z+theThickness/2.0,1.0);
+            Vector4d top4d = shiftMat * Vector4d(pt.x()*scale,pt.y()*scale,z+theThickness/2.0,1.0);
             top[jj] = Point3d(top4d.x(),top4d.y(),top4d.z())/top4d.w() + dispPt;
         }
         triBuilder->addTriangle(top[0],norm,theColor,top[1],norm,theColor,top[2],norm,theColor,shapeMbr);

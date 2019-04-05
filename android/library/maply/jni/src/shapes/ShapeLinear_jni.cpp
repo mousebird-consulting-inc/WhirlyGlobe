@@ -20,7 +20,7 @@
 
 #import "Shapes_jni.h"
 #import "Geometry_jni.h"
-#import "com_mousebird_maply_Shape.h"
+#import "com_mousebird_maply_ShapeLinear.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;

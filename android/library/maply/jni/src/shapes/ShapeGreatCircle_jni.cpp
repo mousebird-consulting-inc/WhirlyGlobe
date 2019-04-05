@@ -20,7 +20,7 @@
 
 #import "Shapes_jni.h"
 #import "Geometry_jni.h"
-#import "com_mousebird_maply_Shape.h"
+#import "com_mousebird_maply_ShapeGreatCircle.h"
 
 using namespace WhirlyKit;
 
@@ -137,5 +137,35 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeGreatCircle_setSamplingStat
     }
     catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeGreatCircle::setSamplingStatic()");
+    }
+}
+
+JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_ShapeGreatCircle_angleBetween
+        (JNIEnv *env, jobject obj)
+{
+    try
+    {
+        GreatCircleClassInfo *classInfo = GreatCircleClassInfo::getClassInfo();
+        GreatCircle_Android *inst = classInfo->getObject(env, obj);
+        if (!inst)
+            return 0.0;
+
+        Point3d p0 = FakeGeocentricDisplayAdapter::LocalToDisplay(Point3d(inst->startPt.x(),inst->startPt.y(),0.0));
+        Point3d p1 = FakeGeocentricDisplayAdapter::LocalToDisplay(Point3d(inst->endPt.x(),inst->endPt.y(),0.0));
+
+        double dot = p0.dot(p1);
+//    Point3f cross = p0.cross(p1);
+//    float mag = cross.norm();
+
+        // Note: Atan2 is the correct way, but it's not working right here
+//    return atan2f(dot, mag);
+        double ret = acos(dot);
+        if (std::isnan(ret))
+            ret = 0.0;
+
+        return ret;
+    }
+    catch (...) {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeGreatCircle::angleBetween()");
     }
 }

@@ -20,7 +20,7 @@
 
 #import "Shapes_jni.h"
 #import "Geometry_jni.h"
-#import "com_mousebird_maply_Shape.h"
+#import "com_mousebird_maply_ShapeCircle.h"
 
 using namespace WhirlyKit;
 
@@ -105,7 +105,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeCircle_setHeight
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeCircle_setRadius
-  (JNIEnv *env, jobject obj, jfloat radius)
+  (JNIEnv *env, jobject obj, jdouble radius)
 {
     try
     {

@@ -20,11 +20,14 @@
 package com.mousebirdconsulting.autotester.TestCases
 
 import android.app.Activity
+import android.graphics.Color
+import android.location.Location
 import com.mousebird.maply.*
 
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase
 
 import java.util.ArrayList
+import kotlin.math.PI
 
 
 class ShapesTestCase(activity: Activity) : MaplyTestCase(activity) {
@@ -80,21 +83,19 @@ class ShapesTestCase(activity: Activity) : MaplyTestCase(activity) {
         locations.add(LocationInfo("Panama City", 8.983333, -79.516667))
         locations.add(LocationInfo("Niihau", 21.9, -160.166667))
 
-        addCylinders(viewC,locations,4,0)
-        addGreatCircles(viewC,locations,4,2)
-        addSpheres(viewC,locations,4,1)
-        addCircles(viewC,locations,4,3)
+        addCylinders(viewC,locations,5,0)
+        addGreatCircles(viewC,locations,5,2)
+        addSpheres(viewC,locations,5,1)
+        addCircles(viewC,locations,5,3)
+        addArrows(viewC,locations,5,4)
     }
 
-    private fun addSpheres(vc: BaseController, locs: ArrayList<LocationInfo>, stride: Int, offset: Int)
-    {
+    private fun addSpheres(vc: BaseController, locs: ArrayList<LocationInfo>, stride: Int, offset: Int) {
         val shapes = ArrayList<Shape>()
-        val numShapes = locs.size
 
-        var newShape: ShapeSphere
-        for (ii in 0 until numShapes) {
-            newShape = ShapeSphere()
-            newShape.setLoc(Point2d.FromDegrees(locations!![ii].y, locations!![ii].x))
+        for (ii in offset until locs.size step stride) {
+            val newShape = ShapeSphere()
+            newShape.setLoc(Point2d.FromDegrees(locs[ii].y, locs[ii].x))
             newShape.setRadius(0.04f)
             newShape.isSelectable = true
             shapes.add(newShape)
@@ -104,7 +105,96 @@ class ShapesTestCase(activity: Activity) : MaplyTestCase(activity) {
         shapeInfo.setColor(1f, 0f, 0f, 0.8f)
         shapeInfo.drawPriority = 1000000
         //        shapeInfo.setFade(1.0f);
-        viewC.addShapes(shapes, shapeInfo, RenderControllerInterface.ThreadMode.ThreadAny)
+        vc.addShapes(shapes, shapeInfo, RenderControllerInterface.ThreadMode.ThreadAny)
+    }
 
+    private fun addCylinders(vc: BaseController, locs: ArrayList<LocationInfo>, stride: Int, offset: Int) {
+        val shapes = ArrayList<Shape>()
+
+        for (ii in offset until locs.size step stride) {
+            val cyl = ShapeCylinder()
+            cyl.setBaseCenter(Point2d.FromDegrees(locs[ii].y, locs[ii].y))
+            cyl.setRadius(0.01)
+            cyl.setHeight(0.06)
+            cyl.setSample(20)
+            cyl.isSelectable = true
+            shapes.add(cyl)
+        }
+
+        val shapeInfo = ShapeInfo()
+        shapeInfo.setColor(0f, 0f, 1f, 0.8f)
+        shapeInfo.drawPriority = 1000000
+        //        shapeInfo.setFade(1.0f);
+        vc.addShapes(shapes, shapeInfo, RenderControllerInterface.ThreadMode.ThreadAny)
+    }
+
+    private fun addGreatCircles(vc: BaseController, locs: ArrayList<LocationInfo>, stride: Int, offset: Int) {
+        val shapes = ArrayList<Shape>()
+
+        for (ii in offset until locs.size step stride) {
+            val circle = ShapeGreatCircle()
+            val loc0 = locs[ii];
+            val loc1 = locs[(ii+1)%locs.size]
+            circle.setPoints(Point2d.FromDegrees(loc0.y,loc0.x),Point2d.FromDegrees(loc1.y,loc1.x))
+            circle.isSelectable = true
+            val angle = circle.angleBetween()
+            circle.setHeight(0.3 * angle / PI)
+            shapes.add(circle)
+        }
+
+        val shapeInfo = ShapeInfo()
+        shapeInfo.setColor(1.0f, 0.1f, 0f, 1.0f)
+        shapeInfo.drawPriority = 1000000
+        shapeInfo.setLineWidth(8.0f)
+        //        shapeInfo.setFade(1.0f);
+        vc.addShapes(shapes, shapeInfo, RenderControllerInterface.ThreadMode.ThreadAny)
+    }
+
+    private fun addCircles(vc: BaseController, locs: ArrayList<LocationInfo>, stride: Int, offset: Int) {
+        val shapes = ArrayList<Shape>()
+
+        for (ii in offset until locs.size step stride) {
+            val circle = ShapeCircle()
+            circle.setLoc(Point2d.FromDegrees(locs[ii].y,locs[ii].x))
+            circle.setRadius(0.04)
+            circle.setSample(40)
+            circle.isSelectable = true
+            shapes.add(circle)
+        }
+
+        val shapeInfo = ShapeInfo()
+        shapeInfo.setColor(0f, 1.00f, 0f, 0.8f)
+        shapeInfo.drawPriority = 1000000
+        //        shapeInfo.setFade(1.0f);
+        vc.addShapes(shapes, shapeInfo, RenderControllerInterface.ThreadMode.ThreadAny)
+    }
+
+    private fun addArrows(vc: BaseController, locs: ArrayList<LocationInfo>, stride: Int, offset: Int) {
+        val shapes = ArrayList<Shape>()
+
+        for (ii in offset until locs.size step stride) {
+            val arrow = ShapeExtruded()
+            val size = 100000.0
+            val coords = arrayOf(Point2d(-0.25*size,-0.75*size),
+                    Point2d(-0.25*size,0.25*size),
+                    Point2d(-0.5*size,0.25*size),
+                    Point2d(0.0*size,1.0*size),
+                    Point2d(0.5*size,0.25*size),
+                    Point2d(0.25*size,0.25*size),
+                    Point2d(0.25*size,-0.75*size))
+            arrow.setLoc(Point2d.FromDegrees(locs[ii].y,locs[ii].x))
+            arrow.setOutline(coords)
+            arrow.setThickness(size*1.0)
+            arrow.setHeight(0.0)
+            // Scale it down to meters
+            arrow.setScale(1.0/6371000.0)
+            shapes.add(arrow)
+        }
+
+        val shapeInfo = ShapeInfo()
+        shapeInfo.setColor(1.0f, 0.1f, 0f, 0.8f)
+        shapeInfo.drawPriority = 1000000
+        //        shapeInfo.setFade(1.0f);
+        vc.addShapes(shapes, shapeInfo, RenderControllerInterface.ThreadMode.ThreadAny)
     }
 }

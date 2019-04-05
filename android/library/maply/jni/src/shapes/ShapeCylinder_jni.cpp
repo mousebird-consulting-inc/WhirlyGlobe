@@ -20,7 +20,7 @@
 
 #import "Shapes_jni.h"
 #import "Geometry_jni.h"
-#import "com_mousebird_maply_Shape.h"
+#import "com_mousebird_maply_ShapeCylinder.h"
 
 using namespace WhirlyKit;
 
@@ -75,8 +75,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeCylinder_setBaseCenter
     {
         CylinderClassInfo *classInfo = CylinderClassInfo::getClassInfo();
         Cylinder *inst = classInfo->getObject(env, obj);
-        Point3dClassInfo *ptClassInfo = Point3dClassInfo::getClassInfo();
-        Point3d *pt = ptClassInfo->getObject(env,ptObj);
+        Point2dClassInfo *ptClassInfo = Point2dClassInfo::getClassInfo();
+        Point2d *pt = ptClassInfo->getObject(env,ptObj);
         if (!inst || !pt)
             return;
 

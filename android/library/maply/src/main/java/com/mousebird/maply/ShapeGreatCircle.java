@@ -67,6 +67,12 @@ public class ShapeGreatCircle extends Shape {
      */
     public native void setSamplingStatic(int numSamples);
 
+    /**
+     * Angle between start and end points in radians.
+     * Useful for calculating a reasonable height.
+     */
+    public native double angleBetween();
+
     static
     {
         nativeInit();

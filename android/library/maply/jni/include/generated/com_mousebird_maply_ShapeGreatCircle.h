@@ -41,6 +41,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeGreatCircle_setSamplingStat
 
 /*
  * Class:     com_mousebird_maply_ShapeGreatCircle
+ * Method:    angleBetween
+ * Signature: ()D
+ */
+JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_ShapeGreatCircle_angleBetween
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_ShapeGreatCircle
  * Method:    nativeInit
  * Signature: ()V
  */
