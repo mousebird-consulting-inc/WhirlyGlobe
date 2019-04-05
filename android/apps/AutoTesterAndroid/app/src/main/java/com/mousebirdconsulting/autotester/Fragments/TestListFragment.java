@@ -32,6 +32,7 @@ import com.mousebirdconsulting.autotester.TestCases.MarkersTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ScreenLabelsTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ScreenMarkersTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ShapefileTestCase;
+import com.mousebirdconsulting.autotester.TestCases.ShapesTestCase;
 import com.mousebirdconsulting.autotester.TestCases.StamenRemoteTestCase;
 import com.mousebirdconsulting.autotester.TestCases.StickersTestCase;
 import com.mousebirdconsulting.autotester.TestCases.TextureVectorTestCase;
@@ -118,10 +119,9 @@ public class TestListFragment extends Fragment {
 			// Vector MBTiles
 			// OpenMapTiles Hybrid Test Case
 			// CartoDB
-//			testCases.add(new ShapesTestCase(getActivity()));
+			testCases.add(new ShapesTestCase(getActivity()));
 			// Extruded Model (Arrows)
 			// Models
-			// Runway Builder
 //			testCases.add(new MaplyStarModelTestCase(getActivity()));
 			testCases.add(new FindHeightTestCase(getActivity()));
 			// Animating Position

@@ -10,10 +10,10 @@ extern "C" {
 /*
  * Class:     com_mousebird_maply_ShapeManager
  * Method:    addShapes
- * Signature: ([Lcom/mousebird/maply/Shape;Lcom/mousebird/maply/ShapeInfo;Lcom/mousebird/maply/ChangeSet;Lcom/mousebird/maply/CoordSystemDisplayAdapter;)J
+ * Signature: ([Lcom/mousebird/maply/Shape;Lcom/mousebird/maply/ShapeInfo;Lcom/mousebird/maply/ChangeSet;)J
  */
 JNIEXPORT jlong JNICALL Java_com_mousebird_maply_ShapeManager_addShapes
-  (JNIEnv *, jobject, jobjectArray, jobject, jobject, jobject);
+  (JNIEnv *, jobject, jobjectArray, jobject, jobject);
 
 /*
  * Class:     com_mousebird_maply_ShapeManager
