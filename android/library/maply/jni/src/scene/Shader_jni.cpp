@@ -33,7 +33,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_nativeInit
 	ShaderClassInfo::getClassInfo(env,cls);
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_initialise
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_initialise__Ljava_lang_String_2Ljava_lang_String_2Ljava_lang_String_2
   (JNIEnv *env, jobject obj, jstring nameStr, jstring vertStr, jstring fragStr)
 {
 	try

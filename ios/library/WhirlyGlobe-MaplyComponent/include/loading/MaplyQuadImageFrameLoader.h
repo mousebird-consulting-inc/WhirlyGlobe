@@ -45,11 +45,10 @@
 @end
 
 /**
- The Maply Quad Image Loader is for paging image pyramids local or remote.
- 
- This layer pages image pyramids.  They can be local or remote, in any coordinate system Maply supports and you provide a MaplyTileInfoNew conformant object to do the actual image tile fetching.
- 
- You probably don't have to implement your own tile source.  Go look at the MaplyRemoteTileInfoNew and MaplyMBTileFetcher objects.  Those will do remote and local fetching.
+ The Maply Quad Image Frame Loader is for paging individual frames of image pyramids.
+
+ This works much like the Quad Image Loader, but handles more than one frame.  You can animate
+ between the frames with the QuadImageFrameAnimator
  */
 @interface MaplyQuadImageFrameLoader : MaplyQuadImageLoaderBase
 

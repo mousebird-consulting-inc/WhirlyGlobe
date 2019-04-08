@@ -49,7 +49,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_addChangesNative
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_addShaderProgram
-(JNIEnv *env, jobject obj, jobject shaderObj, jstring sceneNameStr)
+(JNIEnv *env, jobject obj, jobject shaderObj)
 {
     try
     {
@@ -61,12 +61,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_addShaderProgram
         if (!scene || !shader)
             return;
         
-        const char *cName = env->GetStringUTFChars(sceneNameStr,0);
-        std::string name = cName;
-        
         scene->addProgram(shader->prog);
-
-        env->ReleaseStringUTFChars(sceneNameStr, cName);
     }
     catch (...)
     {

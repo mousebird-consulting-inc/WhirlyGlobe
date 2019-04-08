@@ -41,6 +41,7 @@ class CartoTestCase : MaplyTestCase {
     }
 
     var interp : CartoInterp? = null
+    var loader : QuadPagingLoader? = null
 
     fun setupCartoLayer(vc: BaseController) {
         val params = SamplingParams()
@@ -54,7 +55,7 @@ class CartoTestCase : MaplyTestCase {
         interp.minZoom = params.minZoom
         interp.maxZoom = params.maxZoom
 
-        val loader = QuadPagingLoader(params,interp,interp,vc)
+        loader = QuadPagingLoader(params,interp,interp,vc)
     }
 
     var baseCase : CartoLightTestCase? = null
@@ -115,7 +116,7 @@ class CartoTestCase : MaplyTestCase {
             // Construct the query string
             val fetchInfo = RemoteTileFetchInfo()
             val toDeg = 180.0/ PI
-            val query = String.format(search,bbox!!.ll.x*toDeg,bbox!!.ll.y*toDeg,bbox!!.ur.x*toDeg,bbox!!.ur.y*toDeg)
+            val query = String.format(search,bbox!!.ll.x*toDeg,bbox.ll.y*toDeg,bbox.ur.x*toDeg,bbox.ur.y*toDeg)
             val encodeQuery = URLEncoder.encode(query,"utf-8")
             val fullURLStr = String.format("https://pluto.cartodb.com/api/v2/sql?format=GeoJSON&q=%s",encodeQuery)
             fetchInfo.urlReq = Request.Builder().url(URL(fullURLStr)).build()

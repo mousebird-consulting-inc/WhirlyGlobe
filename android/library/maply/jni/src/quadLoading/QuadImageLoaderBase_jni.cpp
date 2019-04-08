@@ -42,6 +42,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_delayedInitN
             if (prog)
                 loader->get()->setShaderID(prog->getId());
         }
+
+        if (loader->get()->getMode() == QuadImageFrameLoader::Mode::MultiFrame) {
+            scene->addActiveModel(*loader);
+        }
     }
     catch (...)
     {

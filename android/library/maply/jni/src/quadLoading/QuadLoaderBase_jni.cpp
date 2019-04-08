@@ -218,6 +218,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_cleanupNative
         if (!loader || !changes)
             return;
 
+        if (loader->get()->getMode() == QuadImageFrameLoader::Mode::MultiFrame) {
+            loader->get()->getController()->getScene()->removeActiveModel(*loader);
+        }
+
         (*loader)->cleanup(*changes);
     }
     catch (...)

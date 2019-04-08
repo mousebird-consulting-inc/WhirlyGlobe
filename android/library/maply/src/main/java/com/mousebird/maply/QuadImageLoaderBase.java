@@ -31,13 +31,15 @@ import java.lang.ref.WeakReference;
  */
 public class QuadImageLoaderBase extends QuadLoaderBase
 {
+    public static int BaseDrawPriorityDefault = 100;
+    public static int DrawPriorityPerLevelDefault = 100;
+
     protected QuadImageLoaderBase(BaseController control,SamplingParams params,int numFrames)
     {
         super(control,params,numFrames,(numFrames <= 1 ? Mode.SingleFrame : Mode.MultiFrame));
 
-        // TODO: Move these constants somewhere shared
-        setBaseDrawPriority(100);
-        setDrawPriorityPerLevel(100);
+        setBaseDrawPriority(BaseDrawPriorityDefault);
+        setDrawPriorityPerLevel(DrawPriorityPerLevelDefault);
     }
 
     // Called after a tick after creation on the main thread

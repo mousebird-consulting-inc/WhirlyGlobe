@@ -31,6 +31,7 @@ class PagingLayerTestCase(activity: Activity) : MaplyTestCase(activity) {
     }
 
     var interp : OvlDebugImageLoaderInterpreter? = null
+    var loader : QuadPagingLoader? = null
 
     fun setupLayer(vc: BaseController) {
         // Describes how to break down the space
@@ -45,7 +46,7 @@ class PagingLayerTestCase(activity: Activity) : MaplyTestCase(activity) {
         interp = OvlDebugImageLoaderInterpreter()
 
         // The paging loader isn't assuming a image.  More generic.
-        val loader = QuadPagingLoader(params,null,interp,vc)
+        loader = QuadPagingLoader(params,null,interp,vc)
     }
 
     var baseCase : CartoLightTestCase? = null
