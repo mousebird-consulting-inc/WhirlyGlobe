@@ -129,7 +129,7 @@ public class AnimatedBaseMapTestCase extends MaplyTestCase {
 		shader.addTexture("s_colorRamp", tex);
 
 		loader = new QuadImageFrameLoader(params,sources,vc);
-		loader.setDrawPriorityPerLevel(QuadImageLoaderBase.BaseDrawPriorityDefault+1000);
+		loader.setBaseDrawPriority(QuadImageLoaderBase.BaseDrawPriorityDefault+1000);
 		loader.setShader(shader);
 		animator = new QuadImageFrameAnimator(loader,vc);
 		animator.period = 6.0;

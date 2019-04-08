@@ -149,13 +149,16 @@ public class RenderController implements RenderControllerInterface
      */
     public boolean activeObjectsHaveChanges()
     {
+        boolean ret = false;
+
         synchronized (activeObjects) {
+            // Can't short circuit this.  Some objects use the hasUpdate as a pre-render
             for (ActiveObject activeObject : activeObjects)
                 if (activeObject.hasChanges())
-                    return true;
+                    ret = true;
         }
 
-        return false;
+        return ret;
     }
 
     public boolean surfaceChanged(int width,int height)
