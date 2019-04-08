@@ -35,7 +35,7 @@ public class ImageLoaderInterpreter implements LoaderInterpreter
     // Set if we can use the premultiply option for images
     boolean hasPremultiplyOption = false;
 
-    ImageLoaderInterpreter()
+    public ImageLoaderInterpreter()
     {
         // See if the premultiplied option is available
         try {
