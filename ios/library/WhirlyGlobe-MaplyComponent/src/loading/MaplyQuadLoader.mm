@@ -31,11 +31,11 @@ using namespace WhirlyKit;
 
 @implementation MaplyLoaderReturn
 
-- (id)init
+- (id)initWithLoader:(MaplyQuadLoaderBase *)loader
 {
     self = [super init];
     
-    loadReturn = QuadLoaderReturnRef(new QuadLoaderReturn());
+    loadReturn = QuadLoaderReturnRef(new QuadLoaderReturn(loader->loader->getGeneration()));
     
     return self;
 }
@@ -225,7 +225,7 @@ using namespace WhirlyKit;
     }
     
     loader->setTileInfos(tileInfos);
-    loader->reload();
+    loader->reload(-1);
 }
 
 - (void)reload
@@ -238,7 +238,7 @@ using namespace WhirlyKit;
         return;
     }
 
-    loader->reload();
+    loader->reload(-1);
 }
 
 

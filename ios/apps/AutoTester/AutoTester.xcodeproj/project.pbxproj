@@ -25,6 +25,7 @@
 		2B4BA6D81C83A22000DC1562 /* track.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2B4BA6CC1C83A22000DC1562 /* track.geojson */; };
 		2B4BA6D91C83A22000DC1562 /* uturn.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2B4BA6CD1C83A22000DC1562 /* uturn.geojson */; };
 		2B5E8AF51E943560000B39E5 /* greensquare.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B5E8AF41E943560000B39E5 /* greensquare.png */; };
+		2B68A43C225D06A8009CC720 /* ImageReloadTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B68A43B225D06A8009CC720 /* ImageReloadTestCase.swift */; };
 		2B6953681C7E67DD007FC51E /* colorramp.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B6953671C7E67DD007FC51E /* colorramp.png */; };
 		2B73D6AE207C0D5F00AF5095 /* NotoSans-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B8F3258201021CF006DDE27 /* NotoSans-Bold.ttf */; };
 		2B73D6AF207C0D5F00AF5095 /* NotoSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B8F3256201021CF006DDE27 /* NotoSans-Regular.ttf */; };
@@ -568,6 +569,7 @@
 		2B4BA6CC1C83A22000DC1562 /* track.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = track.geojson; path = ../WhirlyGlobeComponentTester/resources/track.geojson; sourceTree = "<group>"; };
 		2B4BA6CD1C83A22000DC1562 /* uturn.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = uturn.geojson; path = ../WhirlyGlobeComponentTester/resources/uturn.geojson; sourceTree = "<group>"; };
 		2B5E8AF41E943560000B39E5 /* greensquare.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = greensquare.png; path = resources/greensquare.png; sourceTree = "<group>"; };
+		2B68A43B225D06A8009CC720 /* ImageReloadTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageReloadTestCase.swift; sourceTree = "<group>"; };
 		2B6953671C7E67DD007FC51E /* colorramp.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = colorramp.png; path = AutoTester/colorramp.png; sourceTree = "<group>"; };
 		2B73D6B2207C106C00AF5095 /* GlobeSamplerTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GlobeSamplerTestCase.swift; sourceTree = "<group>"; };
 		2B7787C921CDA47F006ABF5D /* CartoDBLightTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CartoDBLightTestCase.swift; sourceTree = "<group>"; };
@@ -1210,6 +1212,7 @@
 				2B8849E91E37F7CB0027C397 /* LIDARTestCase.h */,
 				2B8849EA1E37F7CB0027C397 /* LIDARTestCase.mm */,
 				2B7787C921CDA47F006ABF5D /* CartoDBLightTestCase.swift */,
+				2B68A43B225D06A8009CC720 /* ImageReloadTestCase.swift */,
 			);
 			path = testCases;
 			sourceTree = "<group>";
@@ -2364,6 +2367,7 @@
 				2BB8A40021ED46E10025DA98 /* StamenWatercolorRemote.swift in Sources */,
 				88BF115D1BCDA9530002205E /* GeographyClassTestCase.m in Sources */,
 				2B392B711C5AC59D001EE40B /* RunwayBuilderTestCase.m in Sources */,
+				2B68A43C225D06A8009CC720 /* ImageReloadTestCase.swift in Sources */,
 				D8F2FE2E1BE7CF310058A310 /* ModelsTestCase.swift in Sources */,
 				2B81009C221F4EA900CFF779 /* CartoDBInterpreter.m in Sources */,
 				D8228AA81BE786BE001D6914 /* ClusteredMarkersTestCase.swift in Sources */,
@@ -2530,6 +2534,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = BFXSGS6V8N;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2561,6 +2566,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = BFXSGS6V8N;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",

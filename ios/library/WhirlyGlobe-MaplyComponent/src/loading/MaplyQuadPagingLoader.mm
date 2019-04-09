@@ -34,6 +34,11 @@ using namespace WhirlyKit;
 
 @implementation MaplyObjectLoaderReturn
 
+- (id)initWithLoader:(MaplyQuadLoaderBase *)loader
+{
+    return [super initWithLoader:loader];
+}
+
 - (void)addCompObjs:(NSArray<MaplyComponentObject *> *)compObjs
 {
     for (MaplyComponentObject *compObj in compObjs)
@@ -111,7 +116,7 @@ using namespace WhirlyKit;
 
 - (MaplyLoaderReturn *)makeLoaderReturn
 {
-    return [[MaplyObjectLoaderReturn alloc] init];
+    return [[MaplyObjectLoaderReturn alloc] initWithLoader:self];
 }
 
 @end

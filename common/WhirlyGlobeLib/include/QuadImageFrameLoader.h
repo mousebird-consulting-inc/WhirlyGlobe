@@ -126,13 +126,13 @@ public:
     virtual void clear(QuadImageFrameLoader *loader,QIFBatchOps *batchOps, ChangeSet &changes);
     
     // Start fetching data for this tile
-    virtual void startFetching(QuadImageFrameLoader *loader,QIFBatchOps *batchOps);
+    virtual void startFetching(QuadImageFrameLoader *loader,int frameToLoad,QIFBatchOps *batchOps);
 
     // Set up the geometry for this tile
     virtual void setupContents(QuadImageFrameLoader *loader,LoadedTileNewRef loadedTile,int defaultDrawPriority,SimpleIdentity shaderID,ChangeSet &changes);
     
     // Cancel any outstanding fetches
-    virtual  void cancelFetches(QuadImageFrameLoader *loader,QIFBatchOps *batchOps);
+    virtual void cancelFetches(QuadImageFrameLoader *loader,int frame,QIFBatchOps *batchOps);
     
     // A single frame loaded successfully
     virtual bool frameLoaded(QuadImageFrameLoader *loader,QuadLoaderReturn *loadReturn,Texture *tex,ChangeSet &changes);
@@ -275,6 +275,12 @@ public:
     /// Number of frames we're representing
     virtual int getNumFrames() = 0;
     
+    /// Current generation of the loader (used for reload lagging)
+    int getGeneration();
+    
+    /// Reload the given frame (or everything)
+    virtual void reload(int frame);
+    
     /// **** QuadTileBuilderDelegate methods ****
     
     /// Called when the builder first starts up.  Keep this around if you need it.
@@ -368,6 +374,9 @@ protected:
     QIFRenderState renderState;
     
     bool changesSinceLastFlush;
+    
+    // We number load requests so we can catch old ones after doing a reload
+    int generation;
 };
     
 }

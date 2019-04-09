@@ -27,6 +27,9 @@
  */
 @interface MaplyObjectLoaderReturn : MaplyLoaderReturn
 
+/// Initialize with the loader this will be attached to
+- (id __nonnull)initWithLoader:(MaplyQuadLoaderBase *__nonnull)loader;
+
 /// If any component objects are associated with the tile, these are them.
 /// They need to start disabled.  The system will enable and delete them when it is time.
 - (void)addCompObjs:(NSArray<MaplyComponentObject *> * __nonnull)compObjs;

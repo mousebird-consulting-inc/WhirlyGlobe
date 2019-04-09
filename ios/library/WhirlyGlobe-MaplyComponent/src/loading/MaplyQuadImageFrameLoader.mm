@@ -145,7 +145,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
 
 - (MaplyLoaderReturn *)makeLoaderReturn
 {
-    return [[MaplyImageLoaderReturn alloc] init];
+    return [[MaplyImageLoaderReturn alloc] initWithLoader:self];
 }
 
 - (void)setCurrentImage:(double)where

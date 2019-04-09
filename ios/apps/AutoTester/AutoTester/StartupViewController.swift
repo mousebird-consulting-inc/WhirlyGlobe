@@ -15,6 +15,7 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
 		GeographyClassTestCase(),
         NASAGIBSTestCase(),
 		AnimatedBasemapTestCase(),
+        ImageReloadTestCase(),
         BNGCustomMapTestCase(),
         BNGTestCase(),
         WMSTestCase(),

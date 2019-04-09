@@ -213,7 +213,7 @@ void QIFTileAsset::clear(QuadImageFrameLoader *loader,QIFBatchOps *batchOps, Cha
     shouldEnable = false;
 }
     
-void QIFTileAsset::startFetching(QuadImageFrameLoader *inLoader,QIFBatchOps *inBatchOps)
+void QIFTileAsset::startFetching(QuadImageFrameLoader *inLoader,int frameToLoad,QIFBatchOps *inBatchOps)
 {
     state = Active;
 }
@@ -252,10 +252,14 @@ void QIFTileAsset::setupContents(QuadImageFrameLoader *loader,LoadedTileNewRef l
 }
 
 // Cancel any outstanding fetches
-void QIFTileAsset::cancelFetches(QuadImageFrameLoader *loader,QIFBatchOps *batchOps)
+void QIFTileAsset::cancelFetches(QuadImageFrameLoader *loader,int frameToCancel,QIFBatchOps *batchOps)
 {
-    for (auto frame : frames) {
-        frame->cancelFetch(loader,batchOps);
+    if (frameToCancel == -1) {
+        for (auto frame : frames) {
+            frame->cancelFetch(loader,batchOps);
+        }
+    } else {
+        frames[frameToCancel]->cancelFetch(loader, batchOps);
     }
 }
 
@@ -263,8 +267,24 @@ void QIFTileAsset::cancelFetches(QuadImageFrameLoader *loader,QIFBatchOps *batch
 bool QIFTileAsset::frameLoaded(QuadImageFrameLoader *loader,QuadLoaderReturn *loadReturn,Texture *tex,ChangeSet &changes) {
     if (frames.size() > 0 && (loadReturn->frame < 0 || loadReturn->frame >= frames.size()))
     {
-        wkLogLevel(Warn,"MaplyQuadImageFrameLoader: Got frame back outside of range");
+        wkLogLevel(Warn,"QuadImageFrameLoader: Got frame back outside of range");
         return false;
+    }
+    
+    // Check the generation.  This is how we catch old data that was in transit.
+    if (loadReturn->generation < loader->getGeneration()) {
+        wkLogLevel(Debug, "QuadImageFrameLoader: Dropped an old loadReturn after a reload.");
+        return true;
+    }
+    
+    // We may be replacing data that's already there
+    if (!compObjs.empty()) {
+        loader->compManager->removeComponentObjects(compObjs, changes);
+        compObjs.clear();
+    }
+    if (!ovlCompObjs.empty()) {
+        loader->compManager->removeComponentObjects(ovlCompObjs, changes);
+        ovlCompObjs.clear();
     }
     
     // Component objects (if there)
@@ -275,6 +295,12 @@ bool QIFTileAsset::frameLoaded(QuadImageFrameLoader *loader,QuadLoaderReturn *lo
     
     if (loadReturn->frame >= 0 && frames.size() > 0) {
         auto frame = frames[loadReturn->frame];
+        
+        // Clear out the old texture if it's there
+        // Happens in the reload case
+        if (frame->getTexID() != EmptyIdentity) {
+            changes.push_back(new RemTextureReq(frame->getTexID()));
+        }
         
         frame->loadSuccess(loader,tex);
     }
@@ -467,7 +493,8 @@ QuadImageFrameLoader::QuadImageFrameLoader(const SamplingParams &params,Mode mod
     renderTargetID(EmptyIdentity),
     control(NULL), builder(NULL),
     changesSinceLastFlush(true),
-    compManager(NULL)
+    compManager(NULL),
+    generation(0)
 {
 }
     
@@ -560,6 +587,38 @@ bool QuadImageFrameLoader::getFlipY()
     return flipY;
 }
     
+int QuadImageFrameLoader::getGeneration()
+{
+    return generation;
+}
+    
+void QuadImageFrameLoader::reload(int frame)
+{
+    if (debugMode)
+        wkLogLevel(Debug, "QuadImageFrameLoader: Starting reload of frame %d",frame);
+    
+    QIFBatchOps *batchOps = makeBatchOps();
+
+    generation++;
+    
+    // Note: Deal with a load coming in that we might already have
+    
+    // Look through the tiles and:
+    //  Cancel outstanding fetches (that match our frame)
+    //  Start new requests
+    for (auto it: tiles) {
+        QIFTileAssetRef tile = it.second;
+        
+        tile->cancelFetches(this, frame, batchOps);
+        tile->startFetching(this, frame, batchOps);
+    }
+    
+    // Process all the fetches and cancels at once
+    // We're not making any visual changes here, just messing with loading so no ChangeSet
+    processBatchOps(batchOps);
+    delete batchOps;
+}
+    
 QIFTileAssetRef QuadImageFrameLoader::addNewTile(const QuadTreeNew::ImportantNode &ident,QIFBatchOps *batchOps,ChangeSet &changes)
 {
     // Set up a new tile
@@ -582,7 +641,7 @@ QIFTileAssetRef QuadImageFrameLoader::addNewTile(const QuadTreeNew::ImportantNod
         wkLogLevel(Debug,"Starting fetch for tile %d: (%d,%d)",ident.level,ident.x,ident.y);
     
     // Normal remote data fetching
-    newTile->startFetching(this, batchOps);
+    newTile->startFetching(this, -1, batchOps);
         
     return newTile;
 }
@@ -934,7 +993,7 @@ void QuadImageFrameLoader::builderLoad(QuadTileBuilder *builder,
         if (tile->getState() == QIFTileAsset::Waiting) {
             if (debugMode)
                 wkLogLevel(Debug,"Tile switched from Wait to Fetch %d: (%d,%d) importance = %f",ident.level,ident.x,ident.y,ident.importance);
-            tile->startFetching(this, batchOps);
+            tile->startFetching(this, -1, batchOps);
             if (loadedTile)
                 tile->setShouldEnable(loadedTile->enabled);
             somethingChanged = true;

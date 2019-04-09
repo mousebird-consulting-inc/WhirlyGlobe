@@ -19,6 +19,7 @@
  */
 
 #import "QuadImageFrameLoader_iOS.h"
+#import "WhirlyKitLog.h"
 
 namespace WhirlyKit
 {
@@ -119,7 +120,7 @@ QIFFrameAssetRef QIFTileAsset_ios::makeFrameAsset(QuadImageFrameLoader *loader)
     return QIFFrameAssetRef(new QIFFrameAsset_ios());
 }
     
-void QIFTileAsset_ios::startFetching(QuadImageFrameLoader *inLoader,QIFBatchOps *inBatchOps)
+void QIFTileAsset_ios::startFetching(QuadImageFrameLoader *inLoader,int frameToLoad,QIFBatchOps *inBatchOps)
 {
     QuadImageFrameLoader_ios *loader = (QuadImageFrameLoader_ios *)inLoader;
     QIFBatchOps_ios *batchOps = (QIFBatchOps_ios *)inBatchOps;
@@ -131,17 +132,20 @@ void QIFTileAsset_ios::startFetching(QuadImageFrameLoader *inLoader,QIFBatchOps 
         // Normal remote (or local) fetching case
         int frame = 0;
         for (NSObject<MaplyTileInfoNew> *frameInfo in loader->frameInfos) {
-            QIFFrameAsset_ios *frameAsset = (QIFFrameAsset_ios *)frames[frame].get();
-            MaplyTileFetchRequest *request = frameAsset->setupFetch(loader,[frameInfo fetchInfoForTile:tileID flipY:loader->getFlipY()],frameInfo,0,ident.importance);
-            
-            request.success = ^(MaplyTileFetchRequest *request, NSData *data) {
-                [loader->layer fetchRequestSuccess:request tileID:tileID frame:frame data:data];
-            };
-            request.failure = ^(MaplyTileFetchRequest *request, NSError *error) {
-                [loader->layer fetchRequestFail:request tileID:tileID frame:frame error:error];
-            };
-            [batchOps->toStart addObject:request];
-            
+            // If we're not loading all frames, then just load the one we need
+            if (frameToLoad == -1 || frameToLoad == frame) {
+                QIFFrameAsset_ios *frameAsset = (QIFFrameAsset_ios *)frames[frame].get();
+                MaplyTileFetchRequest *request = frameAsset->setupFetch(loader,[frameInfo fetchInfoForTile:tileID flipY:loader->getFlipY()],frameInfo,0,ident.importance);
+                
+                request.success = ^(MaplyTileFetchRequest *request, NSData *data) {
+                    [loader->layer fetchRequestSuccess:request tileID:tileID frame:frame data:data];
+                };
+                request.failure = ^(MaplyTileFetchRequest *request, NSError *error) {
+                    [loader->layer fetchRequestFail:request tileID:tileID frame:frame error:error];
+                };
+                [batchOps->toStart addObject:request];
+            }
+                
             frame++;
         }
     } else {
@@ -197,6 +201,17 @@ void QuadImageFrameLoader_ios::processBatchOps(QIFBatchOps *inBatchOps)
     
     batchOps->toCancel = nil;
     batchOps->toStart = nil;
+}
+    
+// Change the tile sources for upcoming loads
+void QuadImageFrameLoader_ios::setTileInfos(NSArray<NSObject<MaplyTileInfoNew> *> *tileInfos)
+{
+    if ([frameInfos count] != [tileInfos count]) {
+        wkLogLevel(Error,"QuadImageFrameLoader_iOS: Tried to set new tilInfos that don't match old ones.  Dropping.");
+        return;
+    }
+    
+    frameInfos = tileInfos;
 }
 
 }

@@ -33,6 +33,9 @@
  */
 @interface MaplyImageLoaderReturn : MaplyLoaderReturn
 
+/// Initialize with the loader this will be attached to
+- (id __nonnull)initWithLoader:(MaplyQuadLoaderBase * __nonnull)loader;
+
 /// Add an image to this loaded return.
 /// You can add multiple, but the interpreter should be expecting that
 - (void)addImageTile:(MaplyImageTile * __nonnull)image;

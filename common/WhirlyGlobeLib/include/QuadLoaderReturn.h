@@ -33,7 +33,7 @@ namespace WhirlyKit
 class QuadLoaderReturn
 {
 public:
-    QuadLoaderReturn();
+    QuadLoaderReturn(int generation);
     virtual ~QuadLoaderReturn();
     
     // Which node this is in the quad tree
@@ -50,6 +50,10 @@ public:
 
     // Overlay component objects added for a tile
     std::vector<ComponentObjectRef> ovlCompObjs;
+    
+    // The generation associated with the loader.
+    // We use this to catch lagging loads after a reload
+    int generation;
     
     // Set if something went wrong with loading
     bool hasError;

@@ -35,6 +35,9 @@
  */
 @interface MaplyLoaderReturn : NSObject
 
+/// Initialize with the loader this will be attached to
+- (id __nonnull)initWithLoader:(MaplyQuadLoaderBase * __nonnull)loader;
+
 /// Tile this is the data for
 @property (nonatomic) MaplyTileID tileID;
 

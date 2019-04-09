@@ -70,7 +70,6 @@ LocationInfo locations[NumLocations] =
 	}
 	return self;
 }
-static const float EarthRadius = 6371000;
 
 - (void)addShapeCylinders:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset desc:(NSDictionary *)desc baseViewC: (MaplyBaseViewController*) baseViewC
 {

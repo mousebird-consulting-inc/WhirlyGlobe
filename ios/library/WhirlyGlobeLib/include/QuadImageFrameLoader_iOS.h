@@ -84,8 +84,9 @@ public:
     QIFTileAsset_ios(const QuadTreeNew::ImportantNode &ident);;
     virtual ~QIFTileAsset_ios();
         
-    // Fetch the tile frames.  Just fetch them all for now.
-    virtual void startFetching(QuadImageFrameLoader *loader,QIFBatchOps *batchOps);
+    // Fetch the tile frames.  Just fetch them all for now if frameToLoad is set to -1
+    // Otherwise, just fetch the specified frame
+    virtual void startFetching(QuadImageFrameLoader *loader,int frameToLoad,QIFBatchOps *batchOps);
 
 protected:
     // Specialized frame asset
@@ -119,9 +120,9 @@ public:
     // Process whatever ops we batched up during the load phase
     virtual void processBatchOps(QIFBatchOps *);
     
-    // Purge everything and reload
-    virtual void reload();
-    
+    // Change the tile sources for upcoming loads
+    virtual void setTileInfos(NSArray<NSObject<MaplyTileInfoNew> *> *tileInfos);
+        
 protected:
     // Make an iOS specific tile/frame assets
     virtual QIFTileAssetRef makeTileAsset(const QuadTreeNew::ImportantNode &ident);

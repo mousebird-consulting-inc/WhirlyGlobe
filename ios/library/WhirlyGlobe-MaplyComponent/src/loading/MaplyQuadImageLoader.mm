@@ -31,6 +31,11 @@ using namespace WhirlyKit;
 
 @implementation MaplyImageLoaderReturn
 
+- (id)initWithLoader:(MaplyQuadLoaderBase *)loader
+{
+    return [super initWithLoader:loader];
+}
+
 - (void)addImageTile:(MaplyImageTile *)image
 {
     loadReturn->images.push_back(image->imageTile);
@@ -376,7 +381,7 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
 
 - (MaplyLoaderReturn *)makeLoaderReturn
 {
-    return [[MaplyImageLoaderReturn alloc] init];
+    return [[MaplyImageLoaderReturn alloc] initWithLoader:self];
 }
 
 - (void)changeTileInfo:(NSObject<MaplyTileInfoNew> *__nonnull)tileInfo
