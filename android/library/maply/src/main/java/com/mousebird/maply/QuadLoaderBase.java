@@ -323,6 +323,8 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
         }
     }
 
+    protected native void reloadNative();
+
     public void finalize()
     {
         dispose();

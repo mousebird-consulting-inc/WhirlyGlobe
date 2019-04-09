@@ -60,6 +60,6 @@ public class QuadPagingLoader extends QuadLoaderBase {
     }
 
     protected LoaderReturn makeLoaderReturn() {
-        return new ObjectLoaderReturn();
+        return new ObjectLoaderReturn(this);
     }
 }

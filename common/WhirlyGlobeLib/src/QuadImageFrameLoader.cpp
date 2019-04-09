@@ -633,8 +633,6 @@ QIFTileAssetRef QuadImageFrameLoader::addNewTile(const QuadTreeNew::ImportantNod
         if (mode != Object)
             newTile->setupContents(this,loadedTile,defaultDrawPriority,shaderID,changes);
         newTile->setShouldEnable(loadedTile->enabled);
-        
-        // Note: Should we check for existing geometry?
     }
     
     if (debugMode)

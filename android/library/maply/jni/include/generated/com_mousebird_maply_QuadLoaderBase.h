@@ -89,6 +89,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_samplingLayerDisc
 
 /*
  * Class:     com_mousebird_maply_QuadLoaderBase
+ * Method:    reloadNative
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_reloadNative
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_QuadLoaderBase
  * Method:    nativeInit
  * Signature: ()V
  */

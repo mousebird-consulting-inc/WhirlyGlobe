@@ -30,6 +30,10 @@ import android.graphics.Bitmap;
  */
 public class ImageLoaderReturn extends LoaderReturn
 {
+    ImageLoaderReturn(QuadLoaderBase loader) {
+        super(loader);
+    }
+
     /**
      * Add an image to this loaded return.
      * You can add multiple, but the interpreter should be expecting that

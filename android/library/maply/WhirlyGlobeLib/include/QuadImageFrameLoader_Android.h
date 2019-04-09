@@ -80,7 +80,7 @@ public:
     virtual ~QIFTileAsset_Android();
 
     // Fetch the tile frames.  Just fetch them all for now.
-    virtual void startFetching(QuadImageFrameLoader *loader,QIFBatchOps *batchOps);
+    virtual void startFetching(QuadImageFrameLoader *loader,int frameToLoad,QIFBatchOps *batchOps);
 
 protected:
     // Specialized frame asset

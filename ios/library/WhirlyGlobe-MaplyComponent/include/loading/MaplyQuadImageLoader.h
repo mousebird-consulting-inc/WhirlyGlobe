@@ -174,7 +174,7 @@ extern NSString * _Nonnull const MaplyQuadImageLoaderFetcherName;
  
  This layer pages image pyramids.  They can be local or remote, in any coordinate system Maply supports and you provide a MaplyTileInfoNew conformant object to do the actual image tile fetching.
  
- You probably don't have to implement your own tile source.  Go look at the MaplyRemoteTileInfoNew and MaplyMBTileFetcher objects.  Those will do remote and local fetching.
+ You probably don't have to implement your own tile source.  Go look at the MaplyRemoteTileFetcher and MaplyMBTileFetcher objects.  Those will do remote and local fetching.
  */
 @interface MaplyQuadImageLoader : MaplyQuadImageLoaderBase
 

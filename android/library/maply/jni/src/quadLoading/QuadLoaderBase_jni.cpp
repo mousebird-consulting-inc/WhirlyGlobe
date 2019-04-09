@@ -287,3 +287,19 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_samplingLayerDisc
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadLoaderBase::samplingLayerDisconnectNative()");
     }
 }
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_reloadNative
+        (JNIEnv *env, jobject obj)
+{
+    try {
+        QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
+        if (!loader)
+            return;
+
+        (*loader)->reload(-1);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadLoaderBase::samplingLayerDisconnectNative()");
+    }
+}

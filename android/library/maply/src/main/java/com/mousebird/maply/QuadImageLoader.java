@@ -23,6 +23,17 @@ package com.mousebird.maply;
 import android.os.Handler;
 import android.renderscript.Sampler;
 
+import java.util.ArrayList;
+
+/**
+ * The Quad Image Loader is for paging image pyramids local or remote.
+ * <br>
+ * This layer pages image pyramids.  They can be local or remote, in any coordinate system Maply
+ * supports and you provide a TileInfoNew conformant object to do the actual image tile fetching.
+ *
+ * You probably don't have to implement your own tile source.
+ * Go look at the RemoteTileFetch and MBTileFetcher objects.  Those will do remote and local fetching.
+ */
 public class QuadImageLoader extends QuadImageLoaderBase
 {
     boolean valid = false;
@@ -52,5 +63,16 @@ public class QuadImageLoader extends QuadImageLoaderBase
                 delayedInit(params);
             }
         });
+    }
+
+    /**
+     * Change the tile source and force a reload.
+     */
+    public void changeTileInfo(TileInfoNew tileInfo)
+    {
+        tileInfos = new TileInfoNew[1];
+        tileInfos[0] = tileInfo;
+
+        super.changeTileInfo(tileInfos);
     }
 }

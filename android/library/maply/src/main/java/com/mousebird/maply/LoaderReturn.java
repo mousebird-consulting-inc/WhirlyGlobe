@@ -30,8 +30,8 @@ import java.util.ArrayList;
  */
 public class LoaderReturn
 {
-    LoaderReturn() {
-        initialise();
+    LoaderReturn(QuadLoaderBase loader) {
+        initialise(loader);
     }
 
     /**
@@ -111,7 +111,7 @@ public class LoaderReturn
         nativeInit();
     }
     private static native void nativeInit();
-    native void initialise();
+    native void initialise(QuadLoaderBase loader);
     native void dispose();
     private long nativeHandle;
 }

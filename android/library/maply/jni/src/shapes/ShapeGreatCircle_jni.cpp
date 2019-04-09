@@ -168,4 +168,6 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_ShapeGreatCircle_angleBetween
     catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeGreatCircle::angleBetween()");
     }
+
+    return 0.0;
 }

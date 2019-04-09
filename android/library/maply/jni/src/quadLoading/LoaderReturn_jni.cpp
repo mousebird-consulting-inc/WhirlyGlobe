@@ -33,11 +33,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_nativeInit
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_initialise
-  (JNIEnv *env, jobject obj)
+  (JNIEnv *env, jobject obj, jobject loaderObj)
 {
 	try
 	{
-	    QuadLoaderReturn *load = new QuadLoaderReturn();
+		QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,loaderObj);
+	    QuadLoaderReturn *load = new QuadLoaderReturn((*loader)->getGeneration());
 		LoaderReturnClassInfo::getClassInfo()->setHandle(env,obj,load);
 	}
 	catch (...)

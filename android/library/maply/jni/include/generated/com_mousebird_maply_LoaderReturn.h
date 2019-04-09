@@ -50,10 +50,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_nativeInit
 /*
  * Class:     com_mousebird_maply_LoaderReturn
  * Method:    initialise
- * Signature: ()V
+ * Signature: (Lcom/mousebird/maply/QuadLoaderBase;)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_initialise
-  (JNIEnv *, jobject);
+  (JNIEnv *, jobject, jobject);
 
 /*
  * Class:     com_mousebird_maply_LoaderReturn

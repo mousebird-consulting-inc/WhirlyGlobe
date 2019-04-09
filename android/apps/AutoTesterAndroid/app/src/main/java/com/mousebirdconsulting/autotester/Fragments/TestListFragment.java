@@ -28,6 +28,7 @@ import com.mousebirdconsulting.autotester.TestCases.CustomBNGTileSource;
 import com.mousebirdconsulting.autotester.TestCases.FindHeightTestCase;
 import com.mousebirdconsulting.autotester.TestCases.GeographyClass;
 import com.mousebirdconsulting.autotester.TestCases.GreatCircleTestCase;
+import com.mousebirdconsulting.autotester.TestCases.ImageReloadTestCase;
 import com.mousebirdconsulting.autotester.TestCases.LoftedPolyTestCase;
 import com.mousebirdconsulting.autotester.TestCases.MarkersTestCase;
 import com.mousebirdconsulting.autotester.TestCases.PagingLayerTestCase;
@@ -100,6 +101,7 @@ public class TestListFragment extends Fragment {
 			testCases.add(new StamenRemoteTestCase(getActivity()));
 			testCases.add(new GeographyClass(getActivity()));
 			testCases.add(new AnimatedBaseMapTestCase(getActivity()));
+			testCases.add(new ImageReloadTestCase(getActivity()));
 			testCases.add(new CustomBNGCoordAdapter(getActivity()));
 			testCases.add(new CustomBNGTileSource(getActivity()));
 			testCases.add(new ScreenLabelsTestCase(getActivity()));

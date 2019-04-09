@@ -168,6 +168,39 @@ public class QuadImageLoaderBase extends QuadLoaderBase
 
     protected LoaderReturn makeLoaderReturn()
     {
-        return new ImageLoaderReturn();
+        return new ImageLoaderReturn(this);
+    }
+
+    /**
+     * Change the tile sources all at once.  This also forces a reload.
+     */
+    protected void changeTileInfo(final TileInfoNew[] newTileInfo)
+    {
+        if(samplingLayer.get() == null)
+            return;
+
+        samplingLayer.get().layerThread.addTask(new Runnable() {
+            @Override
+            public void run() {
+                tileInfos = newTileInfo;
+                reloadNative();
+            }
+        });
+    }
+
+    /**
+     * Forces a reload of all currently loaded tiles.
+     */
+    public void reload()
+    {
+        if (samplingLayer.get() == null)
+            return;
+
+        samplingLayer.get().layerThread.addTask(new Runnable() {
+            @Override
+            public void run() {
+                reloadNative();
+            }
+        });
     }
 }

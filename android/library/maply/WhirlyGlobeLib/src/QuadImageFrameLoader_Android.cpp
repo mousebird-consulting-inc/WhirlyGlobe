@@ -120,19 +120,21 @@ QIFFrameAssetRef QIFTileAsset_Android::makeFrameAsset(QuadImageFrameLoader *inLo
     return QIFFrameAssetRef(frame);
 }
 
-void QIFTileAsset_Android::startFetching(QuadImageFrameLoader *inLoader,QIFBatchOps *inBatchOps)
+void QIFTileAsset_Android::startFetching(QuadImageFrameLoader *inLoader,int frameToLoad,QIFBatchOps *inBatchOps)
 {
     QuadImageFrameLoader_Android *loader = (QuadImageFrameLoader_Android *)inLoader;
     QIFBatchOps_Android *batchOps = (QIFBatchOps_Android *)inBatchOps;
 
     state = Active;
 
-    std::vector<jobject> objVec(frames.size());
+    std::vector<jobject> objVec(frames.size(),NULL);
     for (unsigned int ii=0;ii<frames.size();ii++)
     {
-        QIFFrameAsset_Android *frame = (QIFFrameAsset_Android *)(frames[ii].get());
-        frame->setupFetch(loader);
-        objVec[ii] = frame->frameAssetObj;
+        if (frameToLoad == -1 || frameToLoad == ii) {
+            QIFFrameAsset_Android *frame = (QIFFrameAsset_Android *) (frames[ii].get());
+            frame->setupFetch(loader);
+            objVec[ii] = frame->frameAssetObj;
+        }
     }
 
     // Give the Java side a list of frames to start fetching

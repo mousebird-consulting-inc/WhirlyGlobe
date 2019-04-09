@@ -29,6 +29,10 @@ package com.mousebird.maply;
  */
 public class ObjectLoaderReturn extends LoaderReturn
 {
+    ObjectLoaderReturn(QuadLoaderBase loader) {
+        super(loader);
+    }
+
     /**
      * If any component objects are associated with the tile, these are them.
      * They need to start disabled.  The system will enable and delete them when it is time.
