@@ -193,4 +193,20 @@ extern NSString * _Nonnull const MaplyQuadImageLoaderFetcherName;
   */
 - (nullable instancetype)initWithParams:(MaplySamplingParams *__nonnull)params tileInfos:(NSArray<NSObject<MaplyTileInfoNew> *> *__nonnull)tileInfos viewC:(MaplyBaseViewController * __nonnull)viewC;
 
+/**
+   Change the tile source and reload all the data.
+   <br>
+   You can change the tile source data is being loaded from.  This will
+   force a reload and everything visual should change as the data comes in.
+  */
+- (void)changeTileInfo:(NSObject<MaplyTileInfoNew> *__nonnull)tileInfo;
+
+/**
+  Force a reload of the images.
+  <br>
+  All the current loads will be cancelled, any in flight will be ignored
+  and the loader will ask for a whole new set of imagery.
+  */
+- (void)reload;
+
 @end

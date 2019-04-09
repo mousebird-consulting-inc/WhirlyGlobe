@@ -49,6 +49,12 @@
 // We delay setup by a tick so the user can mess with settings
 - (bool)delayedInit;
 
+// Change the tile source to a new one (if they match)
+- (void)changeTileInfos:(NSArray<NSObject<MaplyTileInfoNew> *> *)tileInfos;
+
+// Force a reload of all visible tiles
+- (void)reload;
+
 @end
 
 @interface MaplyLoaderReturn()

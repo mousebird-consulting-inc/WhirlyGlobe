@@ -119,6 +119,9 @@ public:
     // Process whatever ops we batched up during the load phase
     virtual void processBatchOps(QIFBatchOps *);
     
+    // Purge everything and reload
+    virtual void reload();
+    
 protected:
     // Make an iOS specific tile/frame assets
     virtual QIFTileAssetRef makeTileAsset(const QuadTreeNew::ImportantNode &ident);

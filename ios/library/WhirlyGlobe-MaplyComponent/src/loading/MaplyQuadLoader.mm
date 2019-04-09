@@ -214,6 +214,35 @@ using namespace WhirlyKit;
     return nil;
 }
 
+- (void)changeTileInfos:(NSArray<NSObject<MaplyTileInfoNew> *> *)tileInfos
+{
+    if (!samplingLayer)
+        return;
+    
+    if ([NSThread currentThread] != samplingLayer.layerThread) {
+        [self performSelector:@selector(changeTileInfos:) onThread:samplingLayer.layerThread withObject:tileInfos waitUntilDone:false];
+        return;
+    }
+    
+    loader->setTileInfos(tileInfos);
+    loader->reload();
+}
+
+- (void)reload
+{
+    if (!samplingLayer)
+        return;
+    
+    if ([NSThread currentThread] != samplingLayer.layerThread) {
+        [self performSelector:@selector(reload) onThread:samplingLayer.layerThread withObject:nil waitUntilDone:false];
+        return;
+    }
+
+    loader->reload();
+}
+
+
+
 // Called on a random dispatch queue
 - (void)fetchRequestSuccess:(MaplyTileFetchRequest *)request tileID:(MaplyTileID)tileID frame:(int)frame data:(NSData *)data;
 {
