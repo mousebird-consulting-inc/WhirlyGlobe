@@ -143,6 +143,11 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     return true;
 }
 
+- (MaplyLoaderReturn *)makeLoaderReturn
+{
+    return [[MaplyImageLoaderReturn alloc] init];
+}
+
 - (void)setCurrentImage:(double)where
 {
     double curFrame = std::min(std::max(where,0.0),(double)([loader->frameInfos count]-1));
