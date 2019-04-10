@@ -80,6 +80,8 @@
 		2B446B9621FBA8520078A975 /* OpenGLES2Program.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B9521FBA8520078A975 /* OpenGLES2Program.h */; };
 		2B446B9A21FBA9D50078A975 /* PerformanceTimer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B9921FBA9D50078A975 /* PerformanceTimer.h */; };
 		2B541C171ECFAA2300EC35A0 /* MaplyRenderTarget.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B541C161ECFAA2300EC35A0 /* MaplyRenderTarget.h */; };
+		2B68A43F225D4469009CC720 /* MapboxVectorTileParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B68A43E225D4469009CC720 /* MapboxVectorTileParser.h */; };
+		2B68A441225D447F009CC720 /* MapboxVectorTileParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B68A440225D447E009CC720 /* MapboxVectorTileParser.cpp */; };
 		2B73D6C2207D224100AF5095 /* MaplyQuadImageLoader_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B73D6C1207D224100AF5095 /* MaplyQuadImageLoader_private.h */; };
 		2B7B84D821223F0300D11447 /* MaplyTextureAtlas_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7B84D721223F0200D11447 /* MaplyTextureAtlas_private.h */; };
 		2B7B84DA2122403700D11447 /* MaplyTapMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7B84D92122403700D11447 /* MaplyTapMessage.h */; };
@@ -1129,6 +1131,8 @@
 		2B446B9921FBA9D50078A975 /* PerformanceTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PerformanceTimer.h; path = ../../../../common/WhirlyGlobeLib/include/PerformanceTimer.h; sourceTree = "<group>"; };
 		2B446B9B21FBA9E90078A975 /* PerformanceTimer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PerformanceTimer.cpp; path = ../../../../common/WhirlyGlobeLib/src/PerformanceTimer.cpp; sourceTree = "<group>"; };
 		2B541C161ECFAA2300EC35A0 /* MaplyRenderTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyRenderTarget.h; sourceTree = "<group>"; };
+		2B68A43E225D4469009CC720 /* MapboxVectorTileParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MapboxVectorTileParser.h; path = ../../../../common/WhirlyGlobeLib/include/MapboxVectorTileParser.h; sourceTree = "<group>"; };
+		2B68A440225D447E009CC720 /* MapboxVectorTileParser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MapboxVectorTileParser.cpp; path = ../../../../common/WhirlyGlobeLib/src/MapboxVectorTileParser.cpp; sourceTree = "<group>"; };
 		2B73D6C1207D224100AF5095 /* MaplyQuadImageLoader_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyQuadImageLoader_private.h; sourceTree = "<group>"; };
 		2B7B84D721223F0200D11447 /* MaplyTextureAtlas_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyTextureAtlas_private.h; sourceTree = "<group>"; };
 		2B7B84D92122403700D11447 /* MaplyTapMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyTapMessage.h; sourceTree = "<group>"; };
@@ -2246,6 +2250,7 @@
 		2B446B7E21FB97990078A975 /* data formats */ = {
 			isa = PBXGroup;
 			children = (
+				2B68A43E225D4469009CC720 /* MapboxVectorTileParser.h */,
 				2B446B8221FB97C40078A975 /* GeometryOBJReader.h */,
 				2B446B8021FB97C30078A975 /* ShapeReader.h */,
 			);
@@ -2255,6 +2260,7 @@
 		2B446B7F21FB97A80078A975 /* data formats */ = {
 			isa = PBXGroup;
 			children = (
+				2B68A440225D447E009CC720 /* MapboxVectorTileParser.cpp */,
 				2B446B8621FB97D50078A975 /* GeometryOBJReader.cpp */,
 				2B446B8721FB97D50078A975 /* ShapeReader.cpp */,
 			);
@@ -4224,6 +4230,7 @@
 				2B446B0021F79A600078A975 /* Proj4CoordSystem.h in Headers */,
 				2B884A6A1E3803170027C397 /* laswriteitem.hpp in Headers */,
 				2BE53A381D249C3D00B60FAD /* gzip_stream.h in Headers */,
+				2B68A43F225D4469009CC720 /* MapboxVectorTileParser.h in Headers */,
 				2BE53A181D249C2900B60FAD /* unknown_field_set.h in Headers */,
 				2BB476792000486F006AAACB /* MapboxVectorStyleFill.h in Headers */,
 				2BE5396E1D249BEF00B60FAD /* AAMoonPerigeeApogee.h in Headers */,
@@ -4749,6 +4756,7 @@
 				2BE539931D249BEF00B60FAD /* AAEaster.cpp in Sources */,
 				2BE539F91D249C2900B60FAD /* descriptor.cc in Sources */,
 				2B82B6031E82E2490095FB14 /* JSONDebug.cpp in Sources */,
+				2B68A441225D447F009CC720 /* MapboxVectorTileParser.cpp in Sources */,
 				2B82B6BE1E82E24A0095FB14 /* PJ_vandg4.c in Sources */,
 				2B846EDA21F1362400EF2A82 /* pj_gc_reader.c in Sources */,
 				2BE539C01D249BEF00B60FAD /* AAStellarMagnitudes.cpp in Sources */,
