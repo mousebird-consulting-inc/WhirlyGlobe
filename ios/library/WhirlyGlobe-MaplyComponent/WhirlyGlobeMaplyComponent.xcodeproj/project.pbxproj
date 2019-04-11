@@ -470,6 +470,7 @@
 		2BA827C7225E6F1700324594 /* MapboxVectorTiles.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA827C6225E6F1600324594 /* MapboxVectorTiles.h */; };
 		2BA827C9225E6F2100324594 /* MapboxVectorTiles.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA827C8225E6F2100324594 /* MapboxVectorTiles.mm */; };
 		2BA827CB225E719D00324594 /* MapboxVectorTiles_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA827CA225E719D00324594 /* MapboxVectorTiles_private.h */; };
+		2BA827CE225EBDD300324594 /* GeoJSONSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = E56E02A91E11F9AD00C1DD85 /* GeoJSONSource.mm */; };
 		2BB476762000486F006AAACB /* MapboxVectorStyleSymbol.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB476702000486E006AAACB /* MapboxVectorStyleSymbol.h */; };
 		2BB476772000486F006AAACB /* MapboxVectorStyleBackground.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB476712000486F006AAACB /* MapboxVectorStyleBackground.h */; };
 		2BB476782000486F006AAACB /* MapboxVectorStyleLine.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB476722000486F006AAACB /* MapboxVectorStyleLine.h */; };
@@ -4873,6 +4874,7 @@
 				2B82B6511E82E2490095FB14 /* PJ_collg.c in Sources */,
 				2B82B6651E82E24A0095FB14 /* pj_fwd.c in Sources */,
 				2BC3D6CB2203E9D700CE91D0 /* MaplyMoon.mm in Sources */,
+				2BA827CE225EBDD300324594 /* GeoJSONSource.mm in Sources */,
 				2BB8E1F421FF903100154CDC /* MaplyScene.cpp in Sources */,
 				2B82B6BD1E82E24A0095FB14 /* PJ_vandg2.c in Sources */,
 				2BE539A21D249BEF00B60FAD /* AAMars.cpp in Sources */,

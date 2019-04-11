@@ -135,10 +135,10 @@ using namespace WhirlyKit;
             
             SimpleIDSet styleIDs;
             for(NSObject<MaplyVectorStyle> *style in styles) {
-                NSMutableArray *featuresForStyle = featureStyles[style.uuid];
+                NSMutableArray *featuresForStyle = featureStyles[@(style.uuid)];
                 if(!featuresForStyle) {
                     featuresForStyle = [NSMutableArray new];
-                    featureStyles[style.uuid] = featuresForStyle;
+                    featureStyles[@(style.uuid)] = featuresForStyle;
                 }
                 [featuresForStyle addObjectsFromArray:vectorObjs];
             }
@@ -153,15 +153,14 @@ using namespace WhirlyKit;
         
         NSArray *symbolizerKeys = [featureStyles.allKeys sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"self" ascending:YES]]];
         dispatch_async(dispatch_get_main_queue(), ^{
-            
             for(id key in symbolizerKeys) {
-                NSObject<MaplyVectorStyle> *symbolizer = [self->_styleSet styleForUUID:key viewC:baseVC];
+                NSObject<MaplyVectorStyle> *symbolizer = [self->_styleSet styleForUUID:[key longValue] viewC:baseVC];
                 NSArray *features = featureStyles[key];
-                [compObjs addObjectsFromArray:[symbolizer buildObjects:features forTile:tileInfo viewC:baseVC]];
+                [symbolizer buildObjects:features forTile:tileInfo viewC:baseVC];
             }
             
-            self->_compObjs = compObjs;
-            [baseVC enableObjects:compObjs mode:MaplyThreadCurrent];
+            self->_compObjs = [tileInfo componentObjects];
+            [baseVC enableObjects:self->_compObjs mode:MaplyThreadCurrent];
             self->_loaded = true;
             self->_enabled = true;
             completionBlock();
