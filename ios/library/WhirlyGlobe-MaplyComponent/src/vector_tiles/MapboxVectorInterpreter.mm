@@ -25,6 +25,8 @@
 #import "MapboxVectorStyleBackground.h"
 #import "MaplyQuadImageFrameLoader.h"
 #import "MaplyImageTile_private.h"
+#import "MapboxVectorTiles_private.h"
+#import "MaplyQuadLoader_private.h"
 
 #include <iostream>
 #include <fstream>
@@ -57,7 +59,7 @@ static double MAX_EXTENT = 20037508.342789244;
     MaplyRenderController *offlineRender;
     UIColor *backColor;
     
-    MapboxVectorTileParser *imageTileParser,*vecTileParser;
+    MapboxVectorTileParser_iOSRef imageTileParser,vecTileParser;
 }
 
 - (instancetype) initWithImageStyle:(MapboxVectorStyleSet *)inImageStyle
@@ -73,9 +75,9 @@ static double MAX_EXTENT = 20037508.342789244;
     coordSys = [[MaplySphericalMercator alloc] initWebStandard];
 
     offlineRender.clearColor = [UIColor blueColor];
-    imageTileParser = [[MapboxVectorTileParser alloc] initWithStyle:imageStyle viewC:offlineRender];
-    imageTileParser.localCoords = true;
-    vecTileParser = [[MapboxVectorTileParser alloc] initWithStyle:vecStyle viewC:viewC];
+    imageTileParser = MapboxVectorTileParser_iOSRef(new MapboxVectorTileParser_iOS(imageStyle,offlineRender));
+    imageTileParser->localCoords = true;
+    vecTileParser = MapboxVectorTileParser_iOSRef(new MapboxVectorTileParser_iOS(vecStyle,viewC));
 
     MapboxVectorLayerBackground *backLayer = imageStyle.layersByName[@"background"];
     backColor = backLayer.paint.color;
@@ -90,7 +92,7 @@ static double MAX_EXTENT = 20037508.342789244;
     vecStyle = inVectorStyle;
     viewC = inViewC;
     
-    vecTileParser = [[MapboxVectorTileParser alloc] initWithStyle:vecStyle viewC:viewC];
+    vecTileParser = MapboxVectorTileParser_iOSRef(new MapboxVectorTileParser_iOS(vecStyle,viewC));
     
     return self;
 }
@@ -160,12 +162,12 @@ static double MAX_EXTENT = 20037508.342789244;
     }
     
     // Coordinates for the coming data
-    MaplyBoundingBox imageBBox;
-    imageBBox.ll = MaplyCoordinateMake(0,0);  imageBBox.ur = MaplyCoordinateMake(offlineRender.getFramebufferSize.width,offlineRender.getFramebufferSize.height);
-    MaplyBoundingBox localBBox,geoBBox;
-    localBBox = [loader boundsForTile:tileID];
-    geoBBox = [loader geoBoundsForTile:tileID];
-    MaplyBoundingBox spherMercBBox;
+    MaplyBoundingBoxD imageBBox;
+    imageBBox.ll = MaplyCoordinateDMake(0,0);  imageBBox.ur = MaplyCoordinateDMake(offlineRender.getFramebufferSize.width,offlineRender.getFramebufferSize.height);
+    MaplyBoundingBoxD localBBox,geoBBox;
+    localBBox = [loader boundsForTileD:tileID];
+    geoBBox = [loader geoBoundsForTileD:tileID];
+    MaplyBoundingBoxD spherMercBBox;
     spherMercBBox.ll = [self toMerc:geoBBox.ll];
     spherMercBBox.ur = [self toMerc:geoBBox.ur];
     
@@ -179,20 +181,24 @@ static double MAX_EXTENT = 20037508.342789244;
         @synchronized(offlineRender)
         {
             // Build the vector objects for use in the image tile
-            NSMutableArray *compObjs = [NSMutableArray array];
             offlineRender.clearColor = backColor;
+            MaplyVectorTileData *vecTileReturn;
 
             for (NSData *thisTileData : pbfDatas) {
-                MaplyVectorTileData *retData = [imageTileParser buildObjects:thisTileData tile:tileID bounds:imageBBox geoBounds:geoBBox];
-                if (retData) {
-                    [compObjs addObjectsFromArray:retData.compObjs];
-                } else {
-                    NSString *errMsg = [NSString stringWithFormat:@"Failed to parse tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y];
-                    loadReturn.error = [[NSError alloc] initWithDomain:@"MapboxVectorTilesImageDelegate" code:0 userInfo:@{NSLocalizedDescriptionKey: errMsg}];
-                }
+                RawNSDataReader thisTileDataWrap(thisTileData);
+                vecTileReturn = [[MaplyVectorTileData alloc] initWithID:tileID bbox:imageBBox geoBBox:geoBBox];
+                imageTileParser->parse(&thisTileDataWrap, vecTileReturn);
+                
+//                if (vecTileReturn) {
+//                } else {
+//                    NSString *errMsg = [NSString stringWithFormat:@"Failed to parse tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y];
+//                    loadReturn.error = [[NSError alloc] initWithDomain:@"MapboxVectorTilesImageDelegate" code:0 userInfo:@{NSLocalizedDescriptionKey: errMsg}];
+//                }
             }
             
-            if (!loadReturn.error) {
+            NSArray *compObjs = [vecTileReturn componentObjects];
+            if (!loadReturn.error && compObjs) {
+                
                 // Turn all those objects on
                 [offlineRender enableObjects:compObjs mode:MaplyThreadCurrent];
                 
@@ -207,18 +213,19 @@ static double MAX_EXTENT = 20037508.342789244;
     }
     
     // Parse everything else and turn into vectors
-    NSMutableArray *compObjs = [NSMutableArray array];
-    NSMutableArray *ovlCompObjs = [NSMutableArray array];
+    std::vector<ComponentObjectRef> compObjs,ovlCompObjs;
     for (NSData *thisTileData : pbfDatas) {
-        MaplyVectorTileData *retData = [vecTileParser buildObjects:thisTileData tile:tileID bounds:spherMercBBox geoBounds:geoBBox];
-        if (retData) {
-            [compObjs addObjectsFromArray:retData.compObjs];
-            NSArray *ovl = [retData.categories objectForKey:@"overlay"];
-            if (ovl)
-                [ovlCompObjs addObjectsFromArray:ovl];
-        } else {
-            NSLog(@"Failed to parse tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
-            loadReturn.error = [[NSError alloc] initWithDomain:@"MapboxVectorTilesImageDelegate" code:0 userInfo:@{NSLocalizedDescriptionKey: @"Failed to parse tile"}];
+        RawNSDataReader thisTileDataWrap(thisTileData);
+        MaplyVectorTileData *vecTileReturn = [[MaplyVectorTileData alloc] initWithID:tileID bbox:spherMercBBox geoBBox:geoBBox];
+        vecTileParser->parse(&thisTileDataWrap,vecTileReturn);
+        
+        if (!vecTileReturn->data.compObjs.empty())
+            compObjs.insert(compObjs.end(),vecTileReturn->data.compObjs.begin(),vecTileReturn->data.compObjs.end());
+        
+        auto it = vecTileReturn->data.categories.find("overlay");
+        if (it != vecTileReturn->data.categories.end()) {
+            auto ids = it->second;
+            ovlCompObjs.insert(ovlCompObjs.end(),ids.begin(),ids.end());
         }
     }
 
@@ -235,13 +242,20 @@ static double MAX_EXTENT = 20037508.342789244;
         MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithImage:image];
         [loadReturn addImageTile:tileData];
     }
-
-    if ([ovlCompObjs count] > 0) {
-        [loadReturn addOvlCompObjs:ovlCompObjs];
-        [compObjs removeObjectsInArray:ovlCompObjs];
-        [loadReturn addCompObjs:compObjs];
-    } else
-        [loadReturn addCompObjs:compObjs];
+    
+    if (!ovlCompObjs.empty()) {
+        std::set<ComponentObjectRef> compObjSet,ovlCompObjSet;
+        compObjSet.insert(compObjs.begin(),compObjs.end());
+        ovlCompObjSet.insert(ovlCompObjs.begin(),ovlCompObjs.end());
+        
+        std::vector<ComponentObjectRef> minusOvls;
+        std::set_difference(compObjSet.begin(), compObjSet.end(), ovlCompObjs.begin(), ovlCompObjs.end(),
+                            std::inserter(minusOvls, minusOvls.begin()));
+        loadReturn->loadReturn->compObjs = minusOvls;
+        loadReturn->loadReturn->ovlCompObjs = ovlCompObjs;
+    } else {
+        loadReturn->loadReturn->compObjs = compObjs;
+    }
 }
 
 /**
@@ -249,7 +263,7 @@ static double MAX_EXTENT = 20037508.342789244;
  Verified output with "cs2cs +init=epsg:4326 +to +init=epsg:3785", correct within .5 meters,
  but frequently off by .4
  */
-- (MaplyCoordinate)toMerc:(MaplyCoordinate)coord {
+- (MaplyCoordinateD)toMerc:(MaplyCoordinateD)coord {
     //  MaplyCoordinate orig = coord;
     coord.x = RadToDeg(coord.x) * MAX_EXTENT / 180;
     coord.y = 3189068.5 * log((1.0 + sin(coord.y)) / (1.0 - sin(coord.y)));

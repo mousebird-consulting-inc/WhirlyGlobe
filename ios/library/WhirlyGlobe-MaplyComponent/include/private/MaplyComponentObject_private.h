@@ -35,6 +35,8 @@
     WhirlyKit::ComponentObjectRef contents;
 }
 
+- (id)initWithRef:(WhirlyKit::ComponentObjectRef)compObj;
+
 @property (nonatomic,assign) std::set<MaplyTexture *> &textures;
 @property (nonatomic,strong) NSArray *vectors;
 

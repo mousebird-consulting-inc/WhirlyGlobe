@@ -115,13 +115,13 @@
     return self;
 }
 
-- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileInfo *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+- (void)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileData *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     NSMutableArray *compObjs = [NSMutableArray array];
     
     // Note: Would be better to do this earlier
     if (!_layout.visible)
-        return compObjs;
+        return;
 
     // Filled polygons
     if (fillDesc)
@@ -184,7 +184,7 @@
         }
     }
     
-    return compObjs;
+    [tileInfo addComponentObjects:compObjs];
 }
 
 @end

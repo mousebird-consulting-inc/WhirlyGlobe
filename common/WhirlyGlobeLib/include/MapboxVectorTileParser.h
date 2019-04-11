@@ -22,6 +22,7 @@
 #import "VectorObject.h"
 #import "QuadTreeNew.h"
 #import "ImageTile.h"
+#import "ComponentManager.h"
 
 namespace WhirlyKit
 {
@@ -39,7 +40,7 @@ typedef enum {
     SEG_LINETO = 2,
     SEG_CLOSE = (0x40 | 0x0f)
 } MapnikCommandType;
-    
+
 /**
  Information about a single vector tile being parsed.  This is passed into the buildObjects:
  method of a MaplyVectorStyle.
@@ -52,23 +53,35 @@ public:
     VectorTileData();
     ~VectorTileData();
     
+    /// Merge the contents of the other one
+    void mergeFrom(VectorTileData *);
+    
+    /// Clear out any added objects (but not ident, bounds)
+    void clear();
+    
     /// Tile ID for this tile
     QuadTreeNew::Node ident;
+    
+    /// Bounding box in local coordinates
+    MbrD bbox;
     
     /// Bounding box in geographic
     MbrD geoBBox;
 
     /// Component objects already added to the display, but not yet visible.
-    SimpleIDSet compObjIDs;
+    std::vector<ComponentObjectRef> compObjs;
     
     /// If there were any raster layers, they're here by name
     std::vector<ImageTileRef> images;
     
     /// If we asked to preserve the vector objects, these are them
     std::vector<VectorObjectRef> vecObjs;
+    
+    /// These are vector objects sorted by the Style IDs that will build them
+    std::map<SimpleIdentity,std::vector<VectorObjectRef> *> vecObjsByStyle;
 
     /// If there are any wkcategory tags, we'll sort the component objects into groups
-    std::map<std::string,SimpleIDSet> categories;
+    std::map<std::string,std::vector<ComponentObjectRef> > categories;
 };
     
 /** This object parses the data in Mapbox Vector Tile format.
@@ -88,9 +101,15 @@ public:
     /// Parse everything, even if there's no style for it
     bool parseAll;
     
+    // Subclass can fill this in to check if a layer has any styles
+    virtual bool layerShoudParse(const std::string &layerName,VectorTileData *tileData);
+    
+    // Subclass returns the style IDs that get a shot at the given feature
+    virtual SimpleIDSet stylesForFeature(MutableDictionaryRef attributes,const std::string &layerName,VectorTileData *tileData) = 0;
+
     // Parse the vector tile and return a list of vectors.
     // Returns false on failure.
-    bool parseVectorTile(RawData *rawData,TileID tileID,const MbrD &mbr,const MbrD &geoMbr);
+    virtual bool parse(RawData *rawData,VectorTileData *tileData);    
 };
 
 }

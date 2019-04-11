@@ -32,7 +32,7 @@
 + (id)styleFromStyleEntry:(NSDictionary *)styleEntry settings:(MaplyVectorStyleSettings *)settings viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 
 /// Unique Identifier for this style
-@property (nonatomic,strong) id<NSCopying> uuid;
+@property (nonatomic) long long uuid;
 
 /// Set if this geometry is additive (e.g. sticks around) rather than replacement
 @property (nonatomic) bool geomAdditive;

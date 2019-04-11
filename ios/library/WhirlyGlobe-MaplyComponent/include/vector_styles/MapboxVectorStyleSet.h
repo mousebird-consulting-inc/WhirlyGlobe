@@ -62,6 +62,9 @@
 /// @details The optional filter can be used to reject layers we won't use
 - (id __nullable)initWithJSON:(NSData * __nonnull)styleJSON settings:(MaplyVectorStyleSettings * __nonnull)settings viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)viewC filter:(bool (^_Nullable)(NSMutableDictionary * __nonnull))filterBlock;
 
+/// @brief Generates a unique ID for a style
+- (long long)generateUUID;
+
 /// @brief Return an integer value for the given name, taking the constants into account.
 - (int)intValue:(NSString * __nonnull)name dict:(NSDictionary * __nullable)dict defVal:(int)defVal;
 
@@ -132,7 +135,7 @@
 - (id __nullable)initWithStyleEntry:(NSDictionary * __nonnull)styleEntry parent:(MaplyMapboxVectorStyleLayer * __nonnull)refLayer styleSet:(MapboxVectorStyleSet * __nonnull)styleSet drawPriority:(int)drawPriority viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)viewC;
 
 /// @brief Unique Identifier for this style
-@property(nonatomic,strong) NSString * _Nonnull uuid;
+@property(nonatomic) long long uuid;
 
 /// @brief Set if this geometry is additive (e.g. sticks around) rather than replacement
 @property(nonatomic) bool geomAdditive;

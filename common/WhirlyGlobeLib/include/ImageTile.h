@@ -34,6 +34,7 @@ class ImageTile
 {
 public:
     ImageTile();
+    ImageTile(const std::string &name);
     virtual ~ImageTile();
     
     /// Construct and return a texture, if possible.
@@ -43,6 +44,8 @@ public:
     virtual void clearTexture() = 0;
     
 public:
+    // Optional name.  Not always set.
+    std::string name;
     int borderSize;
     int width,height,components;
     int targetWidth,targetHeight;

@@ -242,18 +242,16 @@
     return val;
 }
 
-- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileInfo *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+- (void)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileData *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
-    NSMutableArray *compObjs = [NSMutableArray array];
-
     // Note: Would be better to do this earlier
     if (!_layout.visible)
-        return compObjs;
+        return;
     
     if (self.minzoom > tileInfo.tileID.level)
-        return compObjs;
+        return;
     if (self.maxzoom < tileInfo.tileID.level)
-        return compObjs;
+        return;
     
     NSDictionary *desc = symbolDesc;
     double textSize = 24.0;
@@ -392,11 +390,7 @@
         [labels addObject:label];
     }
     
-    MaplyComponentObject *compObj = [viewC addScreenLabels:labels desc:desc mode:MaplyThreadCurrent];
-    if (compObjs)
-        [compObjs addObject:compObj];
-    
-    return compObjs;
+    [tileInfo addComponentObject:[viewC addScreenLabels:labels desc:desc mode:MaplyThreadCurrent]];
 }
 
 @end

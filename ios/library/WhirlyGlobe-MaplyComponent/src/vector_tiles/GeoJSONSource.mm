@@ -12,6 +12,7 @@
 #import "MaplyVectorObject_private.h"
 #import "VectorData.h"
 #import "Dictionary_NSDictionary.h"
+#import "MapboxVectorTiles_private.h"
 
 using namespace WhirlyKit;
 
@@ -99,13 +100,12 @@ using namespace WhirlyKit;
         }
         
         NSMutableDictionary *featureStyles = [NSMutableDictionary new];
-        MaplyVectorTileInfo *tileInfo = [[MaplyVectorTileInfo alloc] init];
         MaplyBoundingBoxD geoBBox;
+        MaplyBoundingBoxD bbox;
         geoBBox.ll.x = -M_PI;  geoBBox.ll.y = -M_PI/2.0;
         geoBBox.ur.x = M_PI; geoBBox.ur.y = M_PI/2.0;
-        tileInfo.geoBBox = geoBBox;
-        tileInfo.tileID = {0, 0, 0};
-        NSMutableArray *compObjs = [NSMutableArray array];
+        MaplyTileID tileID = {0,0,0};
+        MaplyVectorTileData *tileInfo = [[MaplyVectorTileData alloc] initWithID:tileID bbox:bbox geoBBox:geoBBox];
         
         for (ShapeSet::iterator it = shapes.begin(); it != shapes.end(); ++it) {
             
@@ -133,6 +133,7 @@ using namespace WhirlyKit;
             if (!styles || styles.count == 0)
                 continue;
             
+            SimpleIDSet styleIDs;
             for(NSObject<MaplyVectorStyle> *style in styles) {
                 NSMutableArray *featuresForStyle = featureStyles[style.uuid];
                 if(!featuresForStyle) {
@@ -160,7 +161,7 @@ using namespace WhirlyKit;
             }
             
             self->_compObjs = compObjs;
-            [baseVC enableObjects:compObjs mode:MaplyThreadAny];
+            [baseVC enableObjects:compObjs mode:MaplyThreadCurrent];
             self->_loaded = true;
             self->_enabled = true;
             completionBlock();

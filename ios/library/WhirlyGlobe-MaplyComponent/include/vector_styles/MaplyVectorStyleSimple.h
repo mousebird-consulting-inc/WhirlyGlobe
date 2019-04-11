@@ -22,6 +22,9 @@
 /// Initialize with a map view controller
 - (id)initWithViewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 
+/// uuid for the styles
+- (long long)generateUUID;
+
 @end
 
 /** 
@@ -30,7 +33,7 @@
 @interface MaplyVectorStyleSimple : NSObject<MaplyVectorStyle>
 
 /// Unique Identifier for this style
-@property (nonatomic,strong) NSString *uuid;
+@property (nonatomic) long long uuid;
 
 /// Set if this geometry is additive (e.g. sticks around) rather than replacement
 @property (nonatomic) bool geomAdditive;
@@ -40,7 +43,7 @@
 
 @property (nonatomic,weak) NSObject<MaplyRenderControllerProtocol> *viewC;
 
-- (id)initWithViewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
+- (id)initWithGen:(MaplyVectorStyleSimpleGenerator *)gen viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 
 @end
 

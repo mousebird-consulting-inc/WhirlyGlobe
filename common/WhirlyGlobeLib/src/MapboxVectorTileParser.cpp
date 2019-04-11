@@ -28,6 +28,48 @@ using namespace Eigen;
 
 namespace WhirlyKit
 {
+    
+VectorTileData::VectorTileData()
+{
+}
+    
+VectorTileData::~VectorTileData()
+{
+    for (auto it : vecObjsByStyle)
+        delete it.second;
+}
+    
+void VectorTileData::mergeFrom(VectorTileData *that)
+{
+    compObjs.insert(compObjs.end(),that->compObjs.begin(),that->compObjs.end());
+    images.insert(images.end(),that->images.begin(),that->images.end());
+    vecObjs.insert(vecObjs.end(),that->vecObjs.begin(),that->vecObjs.end());
+    for (auto it : that->vecObjsByStyle) {
+        auto it2 = vecObjsByStyle.find(it.first);
+        if (it2 != vecObjsByStyle.end())
+            it2->second->insert(it2->second->end(),it.second->begin(),it.second->end());
+        else
+            vecObjsByStyle[it.first] = it.second;
+    }
+    that->vecObjsByStyle.clear();
+    for (auto it : that->categories) {
+        categories[it.first] = it.second;
+    }
+    
+    that->clear();
+}
+
+void VectorTileData::clear()
+{
+    compObjs.clear();
+    images.clear();
+    vecObjs.clear();
+
+    for (auto it : vecObjsByStyle)
+        delete it.second;
+    vecObjsByStyle.clear();
+    categories.clear();
+}
 
 MapboxVectorTileParser::MapboxVectorTileParser()
     : localCoords(false), keepVectors(false), parseAll(false)
@@ -37,17 +79,22 @@ MapboxVectorTileParser::MapboxVectorTileParser()
 MapboxVectorTileParser::~MapboxVectorTileParser()
 {
 }
+
+// Subclass can fill this in to check if a layer has any styles
+bool MapboxVectorTileParser::layerShoudParse(const std::string &layerName,VectorTileData *tileData)
+{
+    return true;
+}
     
-    
-bool MapboxVectorTileParser::parseVectorTile(RawData *rawData,TileID tileID,const MbrD &mbr,const MbrD &geoMbr)
+bool MapboxVectorTileParser::parse(RawData *rawData,VectorTileData *tileData)
 {
     //calulate tile bounds and coordinate shift
     int tileSize = 256;
-    double sx = tileSize / (mbr.ur().x() - mbr.ll().x());
-    double sy = tileSize / (mbr.ur().y() - mbr.ll().y());
+    double sx = tileSize / (tileData->bbox.ur().x() - tileData->bbox.ll().x());
+    double sy = tileSize / (tileData->bbox.ur().y() - tileData->bbox.ll().y());
     //Tile origin is upper left corner, in epsg:3785
-    double tileOriginX = mbr.ll().x();
-    double tileOriginY = mbr.ur().y();
+    double tileOriginX = tileData->bbox.ll().x();
+    double tileOriginY = tileData->bbox.ur().y();
     
     double scale;
     double x;
@@ -66,25 +113,34 @@ bool MapboxVectorTileParser::parseVectorTile(RawData *rawData,TileID tileID,cons
     
     unsigned featureCount = 0;
     
+    int unknownAttributeCount = 0;
+    int badAttributeCount = 0;
+    int unknownCommandTypes = 0;
+    int parseErrors = 0;
+    
     //now attempt to open protobuf
     vector_tile::Tile tile;
     if(tile.ParseFromArray(rawData->getRawData(), (int)rawData->getLen())) {
-        //Itterate layers
+        // Run through layers
         for (unsigned i=0;i<tile.layers_size();++i) {
             vector_tile::Tile_Layer const& tileLayer = tile.layers(i);
             scale = tileLayer.extent() / 256.0;
             
-            // iterate over features
+            // if we dont have any styles for a layer, dont bother parsing the features
+            if (!layerShoudParse(tileLayer.name(),tileData))
+                continue;
+            
+            // Work through features
             for (unsigned j=0;j<tileLayer.features_size();++j) {
                 featureCount++;
                 vector_tile::Tile_Feature const & f = tileLayer.features(j);
                 g_type = static_cast<MapnikGeometryType>(f.type());
                 
                 //Parse attributes
-                Dictionary attributes;
-                attributes.setInt("geometry_type", (int)g_type);
-                attributes.setString("layer_name", tileLayer.name());
-                attributes.setInt("layer_order",i);
+                MutableDictionaryRef attributes = MutableDictionaryMake();
+                attributes->setInt("geometry_type", (int)g_type);
+                attributes->setString("layer_name", tileLayer.name());
+                attributes->setInt("layer_order",i);
                 
                 for (int m = 0; m < f.tags_size(); m += 2) {
                     int32_t key_name = f.tags(m);
@@ -98,22 +154,32 @@ bool MapboxVectorTileParser::parseVectorTile(RawData *rawData,TileID tileID,cons
                         
                         vector_tile::Tile_Value const& value = tileLayer.values(key_value);
                         if (value.has_string_value()) {
-                            attributes.setString(key, value.string_value());
+                            attributes->setString(key, value.string_value());
                         } else if (value.has_int_value()) {
-                            attributes.setInt(key, value.int_value());
+                            attributes->setInt(key, value.int_value());
                         } else if (value.has_double_value()) {
-                            attributes.setDouble(key, value.double_value());
+                            attributes->setDouble(key, value.double_value());
                         } else if (value.has_float_value()) {
-                            attributes.setDouble(key, value.float_value());
+                            attributes->setDouble(key, value.float_value());
                         } else if (value.has_bool_value()) {
-                            attributes.setInt(key, (int)value.bool_value());
+                            attributes->setInt(key, (int)value.bool_value());
                         } else if (value.has_sint_value()) {
-                            attributes.setInt(key, (int)value.sint_value());
+                            attributes->setInt(key, (int)value.sint_value());
                         } else if (value.has_uint_value()) {
-                            attributes.setInt(key, (int)value.uint_value());
+                            attributes->setInt(key, (int)value.uint_value());
+                        } else {
+                            unknownAttributeCount++;
                         }
+                    } else {
+                        badAttributeCount++;
                     }
                 }
+                
+                // Ask for the styles that correspond to this feature
+                // If there are none, we can skip this
+                SimpleIDSet styleIDs = stylesForFeature(attributes, tileLayer.name(), tileData);
+                if (styleIDs.empty() && !parseAll)
+                    continue;
                 
                 //Parse geometry
                 x = 0;
@@ -122,8 +188,7 @@ bool MapboxVectorTileParser::parseVectorTile(RawData *rawData,TileID tileID,cons
                 cmd = -1;
                 length = 0;
                 
-                VectorObject *vecObj = new VectorObject();
-                vecObjs.push_back(vecObj);
+                VectorObjectRef vecObj = VectorObjectRef(new VectorObject());
                 
                 try {
                     if(g_type == GeomTypeLineString) {
@@ -145,10 +210,15 @@ bool MapboxVectorTileParser::parseVectorTile(RawData *rawData,TileID tileID,cons
                                     x += (static_cast<double>(dx) / scale);
                                     y += (static_cast<double>(dy) / scale);
                                     //At this point x/y is a coord encoded in tile coord space, from 0 to TILE_SIZE
-                                    //Covert to epsg:3785, then to degrees, then to radians
-                                    point.x() = DegToRad(((tileOriginX + x / sx) / MAX_EXTENT) * 180.0);
-                                    point.y() = 2 * atan(exp(DegToRad(((tileOriginY - y / sy) / MAX_EXTENT) * 180.0))) - M_PI_2;
-                                    
+                                    //Convert to epsg:3785, then to degrees, then to radians
+                                    Point2f loc((tileOriginX + x / sx),(tileOriginY - y / sy));
+                                    if (localCoords) {
+                                        point = loc;
+                                    } else {
+                                        point.x() = DegToRad((loc.x() / MAX_EXTENT) * 180.0);
+                                        point.y() = 2 * atan(exp(DegToRad((loc.y() / MAX_EXTENT) * 180.0))) - M_PI_2;
+                                    }
+
                                     if(cmd == SEG_MOVETO) { //move to means we are starting a new segment
                                         if(lin && lin->pts.size() > 0) { //We've already got a line, finish it
                                             lin->initGeoMbr();
@@ -201,10 +271,15 @@ bool MapboxVectorTileParser::parseVectorTile(RawData *rawData,TileID tileID,cons
                                     x += (static_cast<double>(dx) / scale);
                                     y += (static_cast<double>(dy) / scale);
                                     //At this point x/y is a coord is encoded in tile coord space, from 0 to TILE_SIZE
-                                    //Covert to epsg:3785, then to degrees, then to radians
-                                    point.x() = DegToRad(((tileOriginX + x / sx) / MAX_EXTENT) * 180.0);
-                                    point.y() = 2 * atan(exp(DegToRad(((tileOriginY - y / sy) / MAX_EXTENT) * 180.0))) - M_PI_2;
-                                    
+                                    //Convert to epsg:3785, then to degrees, then to radians
+                                    Point2f loc((tileOriginX + x / sx),(tileOriginY - y / sy));
+                                    if (localCoords) {
+                                        point = loc;
+                                    } else {
+                                        point.x() = DegToRad((loc.x() / MAX_EXTENT) * 180.0);
+                                        point.y() = 2 * atan(exp(DegToRad((loc.y() / MAX_EXTENT) * 180.0))) - M_PI_2;
+                                    }
+
                                     if(cmd == SEG_MOVETO) { //move to means we are starting a new segment
                                         firstCoord = point;
                                         //TODO: does this ever happen when we are part way through a shape? holes?
@@ -218,7 +293,7 @@ bool MapboxVectorTileParser::parseVectorTile(RawData *rawData,TileID tileID,cons
                                         ring.clear(); //reuse the ring
                                     }
                                 } else {
-//                                    NSLog(@"Unknown command type:%i", cmd);
+                                    unknownCommandTypes++;
                                 }
                             }
                         }
@@ -251,31 +326,59 @@ bool MapboxVectorTileParser::parseVectorTile(RawData *rawData,TileID tileID,cons
                                     y += (static_cast<double>(dy) / scale);
                                     //At this point x/y is a coord is encoded in tile coord space, from 0 to TILE_SIZE
                                     //Covert to epsg:3785, then to degrees, then to radians
-                                    point.x() = DegToRad(((tileOriginX + x / sx) / MAX_EXTENT) * 180.0);
-                                    point.y() = 2 * atan(exp(DegToRad(((tileOriginY - y / sy) / MAX_EXTENT) * 180.0))) - M_PI_2;
-                                    
+                                    if(x > 0 && x < 256 && y > 0 && y < 256) {
+                                        Point2f loc((tileOriginX + x / sx),(tileOriginY - y / sy));
+                                        if (localCoords) {
+                                            point = loc;
+                                        } else {
+                                            point.x() = DegToRad((loc.x() / MAX_EXTENT) * 180.0);
+                                            point.y() = 2 * atan(exp(DegToRad((loc.y() / MAX_EXTENT) * 180.0))) - M_PI_2;
+                                        }
+                                        shape->pts.push_back(point);
+                                    }
                                     shape->pts.push_back(point);
                                 } else if (cmd == (SEG_CLOSE & ((1 << cmd_bits) - 1))) {
 //                                    NSLog(@"Close point feature?");
                                 } else {
-//                                    NSLog(@"Unknown command type:%i", cmd);
+                                    unknownCommandTypes++;
                                 }
                             }
                         }
                         
-                        shape->initGeoMbr();
-                        vecObj->shapes.insert(shape);
+                        if(shape->pts.size() > 0) {
+                            shape->initGeoMbr();
+                            vecObj->shapes.insert(shape);
+                        }
                     } else if(g_type == GeomTypeUnknown) {
 //                        NSLog(@"Unknown geom type");
                     }
                 } catch(...) {
-//                    NSLog(@"Error parsing feature");
+                    parseErrors++;
                 }
+                
+                if(vecObj->shapes.size() > 0) {
+                    if (keepVectors)
+                        tileData->vecObjs.push_back(vecObj);
+
+                    // Sort this vector object into the styles that will process it
+                    for (SimpleIdentity styleID : styleIDs) {
+                        std::vector<VectorObjectRef> *vecs = NULL;
+                        auto it = tileData->vecObjsByStyle.find(styleID);
+                        if (it != tileData->vecObjsByStyle.end())
+                            vecs = it->second;
+                        if (!vecs) {
+                            vecs = new std::vector<VectorObjectRef>();
+                            tileData->vecObjsByStyle[styleID] = vecs;
+                        }
+                        vecs->push_back(vecObj);
+                    }
+                }
+                
                 
                 for (auto shape: vecObj->shapes)
                     shape->setAttrDict(attributes);
-            } //end of iterating features
-        }//end of iterating layers
+            }
+        }
     } else {
         return false;
     }

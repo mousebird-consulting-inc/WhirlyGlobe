@@ -214,18 +214,18 @@ static unsigned int NextPowOf2(unsigned int val)
 }
 
 
-- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileInfo *)tileInfo  viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+- (void)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileData *)tileInfo  viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     NSMutableArray *compObjs = [NSMutableArray array];
 
     // Note: Would be better to do this earlier
     if (!_layout.visible)
-        return compObjs;
+        return;
     
     // Turn into linears (if not already) and then clip to the bounds
     if (_linearClipToBounds) {
-        MaplyCoordinate ll = MaplyCoordinateMake(tileInfo.geoBBox.ll.x, tileInfo.geoBBox.ll.y);
-        MaplyCoordinate ur = MaplyCoordinateMake(tileInfo.geoBBox.ur.x, tileInfo.geoBBox.ur.y);
+        MaplyCoordinate ll = MaplyCoordinateMake(tileInfo.geoBounds.ll.x, tileInfo.geoBounds.ll.y);
+        MaplyCoordinate ur = MaplyCoordinateMake(tileInfo.geoBounds.ur.x, tileInfo.geoBounds.ur.y);
         NSMutableArray *outVecObjs = [NSMutableArray array];
         for (MaplyVectorObject *vecObj in vecObjs) {
             MaplyVectorObject *linVec = nil;
@@ -294,7 +294,7 @@ static unsigned int NextPowOf2(unsigned int val)
             [compObjs addObject:compObj];
     }
     
-    return compObjs;
+    [tileInfo addComponentObjects:compObjs];
 }
 
 @end

@@ -20,6 +20,7 @@
 
 #import "MaplyVectorTileMarkerStyle.h"
 #import "MaplyIconManager.h"
+#import "MapboxVectorTiles.h"
 
 @interface MaplyVectorTileSubStyleMarker : NSObject
 {
@@ -129,7 +130,7 @@
     return self;
 }
 
-- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileInfo *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
+- (void)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileData *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 {    
     bool isRetina = [UIScreen mainScreen].scale > 1.0;
 
@@ -177,7 +178,7 @@
             [compObjs addObject:compObj];
     }
     
-    return compObjs;
+    [tileInfo addComponentObjects:compObjs];
 }
 
 @end

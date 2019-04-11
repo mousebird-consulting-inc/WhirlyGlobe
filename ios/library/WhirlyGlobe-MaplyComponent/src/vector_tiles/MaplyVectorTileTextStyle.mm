@@ -20,6 +20,7 @@
 
 #import "MaplyVectorTileTextStyle.h"
 #import "MaplyScreenLabel.h"
+#import "MapboxVectorTiles.h"
 
 typedef enum {
   TextPlacementPoint,
@@ -247,7 +248,7 @@ typedef enum {
     return self;
 }
 
-- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileInfo *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
+- (void)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileData *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 {
     MaplyCoordinateSystem *displaySystem = viewC.coordSystem;
     
@@ -328,8 +329,8 @@ typedef enum {
         if (compObj)
             [compObjs addObject:compObj];
     }
-
-    return compObjs;
+    
+    [tileInfo addComponentObjects:compObjs];
 }
 
 @end

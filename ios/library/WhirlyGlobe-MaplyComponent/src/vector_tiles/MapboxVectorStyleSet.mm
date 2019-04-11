@@ -24,10 +24,12 @@
 #import "MapboxVectorStyleLine.h"
 #import "MapboxVectorStyleRaster.h"
 #import "MapboxVectorStyleSymbol.h"
+#import <map>
 
 @implementation MapboxVectorStyleSet
 {
-    NSMutableDictionary *layersByUUID;
+    NSMutableDictionary *layersByID;
+    int currentID;
 }
 
 - (id)initWithJSON:(NSData *)styleJSON settings:(MaplyVectorStyleSettings *)settings viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC filter:(bool (^)(NSMutableDictionary * __nonnull))filterBlock
@@ -51,8 +53,9 @@
     _spriteURL = styleDict[@"sprite"];
     NSArray *layerStyles = styleDict[@"layers"];
     NSMutableArray *layers = [NSMutableArray array];
+    layersByID = [NSMutableDictionary dictionary];
+    currentID = 0;
     NSMutableDictionary *sourceLayers = [NSMutableDictionary dictionary];
-    layersByUUID = [NSMutableDictionary dictionary];
     NSMutableDictionary *layersByName = [NSMutableDictionary dictionary];
     int which = 0;
     for (NSDictionary *layerStyleIter in layerStyles)
@@ -68,7 +71,7 @@
         if (layer)
         {
             [layers addObject:layer];
-            layersByUUID[layer.uuid] = layer;
+            layersByID[@(layer.uuid)] = layer;
             layersByName[layer.ident] = layer;
             if (layer.sourceLayer)
             {
@@ -87,6 +90,11 @@
     _layersByName = layersByName;
     
     return self;
+}
+
+- (long long)generateUUID
+{
+    return currentID++;
 }
 
 - (NSArray*)stylesForFeatureWithAttributes:(NSDictionary*)attributes
@@ -114,9 +122,9 @@
     return (layersToRun.count != 0);
 }
 
-- (MaplyVectorTileStyle*)styleForUUID:(NSString*)uuid viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+- (MaplyVectorTileStyle*)styleForUUID:(long long)uuid viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
-    return layersByUUID[uuid];
+    return layersByID[@(uuid)];
 }
 
 - (id)constantSubstitution:(id)thing forField:(NSString *)field
@@ -487,7 +495,7 @@
     
     self.styleSet = styleSet;
     self.drawPriority = drawPriority;
-    self.uuid = [@(rand()) stringValue];
+    self.uuid = [styleSet generateUUID];
     
     _minzoom = -1;
     _maxzoom = -1;
@@ -507,9 +515,8 @@
     return category;
 }
 
-- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileInfo *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+- (void)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileData *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
-    return nil;
 }
 
 @end

@@ -34,7 +34,7 @@
 @interface SLDStyleSet () {
 }
 
-@property (nonatomic, strong) NSMutableDictionary *symbolizers;
+@property (nonatomic, strong) NSMutableArray *symbolizers;
 
 @end
 
@@ -71,7 +71,7 @@
         self.tileStyleSettings.useWideVectors = true;
         symbolizerId = 0;
         _relativeDrawPriority = relativeDrawPriority;
-        self.symbolizers = [NSMutableDictionary dictionary];
+        self.symbolizers = [NSMutableArray array];
     }
     return self;
 }
@@ -336,8 +336,8 @@
             _relativeDrawPriority += 1;
             relativeDrawPriority += 1;
             for (MaplyVectorTileStyle * symbolizer in symbolizers) {
-                symbolizer.uuid = @(symbolizerId);
-                self.symbolizers[@(symbolizerId)] = symbolizer;
+                symbolizer.uuid = symbolizerId;
+                self.symbolizers[symbolizerId] = symbolizer;
                 symbolizerId += 1;
                 [rule.symbolizers addObject:symbolizer];
             }
@@ -443,7 +443,7 @@
     return YES;
 }
 
-- (nullable NSObject<MaplyVectorStyle> *)styleForUUID:(NSString *__nonnull)uuid viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC {
+- (nullable NSObject<MaplyVectorStyle> *)styleForUUID:(long long)uuid viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC {
     return self.symbolizers[uuid];
 }
 

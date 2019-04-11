@@ -40,7 +40,7 @@
 
 @property (nonatomic, strong) NSMutableDictionary *styles;
 @property (nonatomic, strong) NSMutableDictionary *layers;
-@property (nonatomic, strong) NSMutableDictionary *symbolizers;
+@property (nonatomic, strong) NSMutableArray *symbolizers;
 
 @property (nonatomic, assign, readwrite) BOOL parsing;
 @property (nonatomic, assign) BOOL success;
@@ -154,7 +154,7 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
 - (void)generateStyles {
   self.styles = [NSMutableDictionary dictionary];
   self.layers = [NSMutableDictionary dictionary];
-  self.symbolizers = [NSMutableDictionary dictionary];
+  self.symbolizers = [NSMutableArray array];
   
   NSInteger symbolizerId = 0;
 
@@ -237,10 +237,10 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
         MaplyVectorTileStyle *s = [MaplyVectorTileStyle styleFromStyleEntry:@{@"type": mutableSymbolizerDict[@"type"], @"substyles": @[mutableSymbolizerDict]}
                                                                    settings:self.tileStyleSettings
                                                                       viewC:self.viewC];
-        s.uuid = @(symbolizerId);
+        s.uuid = symbolizerId;
         if(s) {
           [rule.symbolizers addObject:s];
-          self.symbolizers[s.uuid] = s;
+          self.symbolizers[symbolizerId] = s;
         }
       }
       
@@ -315,7 +315,7 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
 }
 
 
-- (MaplyVectorTileStyle*)styleForUUID:(NSString *)uuid viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC {
+- (MaplyVectorTileStyle*)styleForUUID:(long long)uuid viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC {
   return self.symbolizers[uuid];
 }
 

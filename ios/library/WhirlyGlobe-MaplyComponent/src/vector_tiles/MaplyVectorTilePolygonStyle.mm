@@ -20,6 +20,7 @@
 
 #import "WhirlyGlobeViewController.h"
 #import "MaplyVectorTilePolygonStyle.h"
+#import "MapboxVectorTiles.h"
 
 // Filled polygons styles
 @implementation MaplyVectorTileStylePolygon
@@ -97,7 +98,7 @@
     return self;
 }
 
-- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileInfo *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
+- (void)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileData *)tileData viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 {
     MaplyComponentObject *baseObj = nil;
     NSMutableArray *compObjs = [NSMutableArray array];
@@ -137,7 +138,7 @@
             [compObjs addObject:compObj];
     }
     
-    return compObjs;
+    [tileData addComponentObjects:compObjs];
 }
 
 @end

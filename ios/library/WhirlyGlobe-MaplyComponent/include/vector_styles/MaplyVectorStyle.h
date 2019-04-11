@@ -22,6 +22,8 @@
 #import "MaplyTileSourceNew.h"
 #import "MaplyBaseViewController.h"
 
+@class MaplyVectorTileData;
+
 /** 
     Settings that control how vector tiles look in relation to their styles.
     
@@ -105,7 +107,7 @@
 - (BOOL)layerShouldDisplay:(NSString *__nonnull)layer tile:(MaplyTileID)tileID;
 
 /// Return the style associated with the given UUID.
-- (nullable NSObject<MaplyVectorStyle> *)styleForUUID:(NSString *__nonnull)uiid viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC;
+- (nullable NSObject<MaplyVectorStyle> *)styleForUUID:(long long)uiid viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC;
 
 @end
 
@@ -118,7 +120,7 @@
 @protocol MaplyVectorStyle<NSObject>
 
 /// Unique Identifier for this style
-- (NSString * _Nonnull) uuid;
+- (long long) uuid;
 
 /// Category used for sorting
 - (NSString * _Nullable) getCategory;
@@ -127,7 +129,7 @@
 - (bool) geomAdditive;
 
 /// Construct objects related to this style based on the input data.
-- (NSArray * __nullable )buildObjects:(NSArray * _Nonnull)vecObjs forTile:(MaplyVectorTileInfo * __nonnull)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC;
+- (void)buildObjects:(NSArray * _Nonnull)vecObjs forTile:(MaplyVectorTileData * __nonnull)tileData viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC;
 
 @end
 

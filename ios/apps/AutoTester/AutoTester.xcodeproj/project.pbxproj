@@ -487,7 +487,6 @@
 		E5941DBD1E0CEC8600E1C8B3 /* belfast_ireland_roads.geojson in Resources */ = {isa = PBXBuildFile; fileRef = E5941DB81E0CEC8600E1C8B3 /* belfast_ireland_roads.geojson */; };
 		E5941DBE1E0CEC8600E1C8B3 /* belfast_ireland_waterareas.geojson in Resources */ = {isa = PBXBuildFile; fileRef = E5941DB91E0CEC8600E1C8B3 /* belfast_ireland_waterareas.geojson */; };
 		E5941DBF1E0CEC8600E1C8B3 /* belfast_ireland_waterways.geojson in Resources */ = {isa = PBXBuildFile; fileRef = E5941DBA1E0CEC8600E1C8B3 /* belfast_ireland_waterways.geojson */; };
-		E5941DC11E0CEE7300E1C8B3 /* GeoJSONStyleTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5941DC01E0CEE7300E1C8B3 /* GeoJSONStyleTestCase.swift */; };
 		E5941DCA1E0D02A800E1C8B3 /* osm_buildings.sld in Resources */ = {isa = PBXBuildFile; fileRef = E5941DC51E0D02A800E1C8B3 /* osm_buildings.sld */; };
 		E5941DCB1E0D02A800E1C8B3 /* osm_landuse.sld in Resources */ = {isa = PBXBuildFile; fileRef = E5941DC61E0D02A800E1C8B3 /* osm_landuse.sld */; };
 		E5941DCC1E0D02A800E1C8B3 /* osm_roads.sld in Resources */ = {isa = PBXBuildFile; fileRef = E5941DC71E0D02A800E1C8B3 /* osm_roads.sld */; };
@@ -2363,7 +2362,6 @@
 				D8200CA11BE9563F00B22CF5 /* StickersTestCase.swift in Sources */,
 				2BC3D6F3220B901000CE91D0 /* AppDelegate.swift in Sources */,
 				2BC3D6F2220B900D00CE91D0 /* TestCell.swift in Sources */,
-				E5941DC11E0CEE7300E1C8B3 /* GeoJSONStyleTestCase.swift in Sources */,
 				2BB8A40021ED46E10025DA98 /* StamenWatercolorRemote.swift in Sources */,
 				88BF115D1BCDA9530002205E /* GeographyClassTestCase.m in Sources */,
 				2B392B711C5AC59D001EE40B /* RunwayBuilderTestCase.m in Sources */,

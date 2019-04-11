@@ -76,13 +76,11 @@ using namespace WhirlyKit;
 
 NSArray * _Nonnull AddMaplyVectorsUsingStyle(NSArray * _Nonnull vecObjs,NSObject<MaplyVectorStyleDelegate> * _Nonnull styleDelegate,NSObject<MaplyRenderControllerProtocol> * _Nonnull viewC,MaplyThreadMode threadMode)
 {
-    NSMutableArray *compObjs = [NSMutableArray array];
-    MaplyVectorTileInfo *tileInfo = [[MaplyVectorTileInfo alloc] init];
+    MaplyTileID tileID = {0, 0, 0};
     MaplyBoundingBoxD geoBBox;
     geoBBox.ll.x = -M_PI;  geoBBox.ll.y = -M_PI/2.0;
     geoBBox.ur.x = M_PI; geoBBox.ur.y = M_PI/2.0;
-    tileInfo.geoBBox = geoBBox;
-    tileInfo.tileID = {0, 0, 0};
+    MaplyVectorTileData *tileData = [[MaplyVectorTileData alloc] initWithID:tileID bbox:geoBBox geoBBox:geoBBox];
     NSMutableDictionary *featureStyles = [[NSMutableDictionary alloc] init];
     
     // First we sort by the styles that each feature uses.
@@ -94,25 +92,25 @@ NSArray * _Nonnull AddMaplyVectorsUsingStyle(NSArray * _Nonnull vecObjs,NSObject
             NSString *layer = vecObj.attributes[@"layer"];
             if (!layer)
                 layer = vecObj.attributes[@"layer_name"];
-            if (layer && ![styleDelegate layerShouldDisplay:layer tile:tileInfo.tileID])
+            if (layer && ![styleDelegate layerShouldDisplay:layer tile:tileData.tileID])
                 continue;
             
             if (!layer)
                 layer = [NSString stringWithFormat:@"layer%d",whichLayer];
             
             // Need to set a geometry type
-            MapnikGeometryType geomType = GeomTypeUnknown;
+            MapboxGeometryType geomType = MapboxGeometryType::GeomTypeUnknown;
             switch ([vecObj vectorType])
             {
                 case MaplyVectorPointType:
-                    geomType = GeomTypePoint;
+                    geomType = MapboxGeometryType::GeomTypePoint;
                     break;
                 case MaplyVectorLinearType:
                 case MaplyVectorLinear3dType:
-                    geomType = GeomTypeLineString;
+                    geomType = MapboxGeometryType::GeomTypeLineString;
                     break;
                 case MaplyVectorArealType:
-                    geomType = GeomTypePolygon;
+                    geomType = MapboxGeometryType::GeomTypePolygon;
                     break;
                 case MaplyVectorMultiType:
                     break;
@@ -121,16 +119,16 @@ NSArray * _Nonnull AddMaplyVectorsUsingStyle(NSArray * _Nonnull vecObjs,NSObject
             }
             vecObj.attributes[@"geometry_type"] = @(geomType);
             
-            NSArray *styles = [styleDelegate stylesForFeatureWithAttributes:vecObj.attributes onTile:tileInfo.tileID inLayer:layer viewC:viewC];
+            NSArray *styles = [styleDelegate stylesForFeatureWithAttributes:vecObj.attributes onTile:tileData.tileID inLayer:layer viewC:viewC];
             if (styles.count == 0)
                 continue;
             
             for (NSObject<MaplyVectorStyle> *style in styles)
             {
-                NSMutableArray *featuresForStyle = featureStyles[style.uuid];
+                NSMutableArray *featuresForStyle = featureStyles[@(style.uuid)];
                 if(!featuresForStyle) {
                     featuresForStyle = [NSMutableArray new];
-                    featureStyles[style.uuid] = featuresForStyle;
+                    featureStyles[@(style.uuid)] = featuresForStyle;
                 }
                 [featuresForStyle addObject:vecObj];
             }
@@ -142,15 +140,10 @@ NSArray * _Nonnull AddMaplyVectorsUsingStyle(NSArray * _Nonnull vecObjs,NSObject
     // Then we add each of those styles as a group for efficiency
     NSArray *symbolizerKeys = [featureStyles.allKeys sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"self" ascending:YES]]];
     for(id key in symbolizerKeys) {
-        NSObject<MaplyVectorStyle> *symbolizer = [styleDelegate styleForUUID:key viewC:viewC];
+        NSObject<MaplyVectorStyle> *symbolizer = [styleDelegate styleForUUID:[key longLongValue] viewC:viewC];
         NSArray *features = featureStyles[key];
-        NSArray *newCompObjs = [symbolizer buildObjects:features forTile:tileInfo viewC:viewC];
-        if (newCompObjs.count > 0)
-            [compObjs addObjectsFromArray:newCompObjs];
+        [symbolizer buildObjects:features forTile:tileData viewC:viewC];
     }
-
-    return compObjs;
+    
+    return [tileData componentObjects];
 }
-
-@implementation MaplyVectorTileInfo
-@end

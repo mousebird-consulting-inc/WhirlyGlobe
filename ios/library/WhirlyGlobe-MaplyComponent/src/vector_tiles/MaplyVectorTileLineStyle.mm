@@ -23,6 +23,7 @@
 #import "MaplyTexture.h"
 #import "MaplyTextureBuilder.h"
 #import <WhirlyGlobe_iOS.h>
+#import "MapboxVectorTiles.h"
 
 // Line styles
 @implementation MaplyVectorTileStyleLine
@@ -147,7 +148,7 @@
     return self;
 }
 
-- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileInfo *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
+- (void)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileData *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 {
     MaplyComponentObject *baseWideObj = nil;
     MaplyComponentObject *baseRegObj = nil;
@@ -174,7 +175,7 @@
         which++;
     }
     
-    return compObjs;
+    [tileInfo addComponentObjects:compObjs];
 }
 
 @end

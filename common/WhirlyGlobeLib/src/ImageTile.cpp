@@ -28,6 +28,12 @@ ImageTile::ImageTile()
     targetWidth(0), targetHeight(0)
 {
 }
+    
+ImageTile::ImageTile(const std::string &name)
+    : borderSize(0),width(0), height(0), components(0),
+    targetWidth(0), targetHeight(0), name(name)
+{
+}
 
 ImageTile::~ImageTile()
 {

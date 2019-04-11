@@ -52,6 +52,7 @@
 #import "LineAndPointShaders.h"
 #import "LoadedTileNew.h"
 #import "LoftManager.h"
+#import "MapboxVectorTileParser.h"
 #import "MaplyAnimateTranslateMomentum.h"
 #import "MaplyAnimateTranslation.h"
 #import "MaplyFlatView.h"

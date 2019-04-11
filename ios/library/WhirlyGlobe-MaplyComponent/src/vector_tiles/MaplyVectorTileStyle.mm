@@ -102,7 +102,7 @@ using namespace WhirlyKit;
 {
     self = [super init];
     _viewC = viewC;
-    _uuid = styleEntry[@"uuid"];
+    _uuid = [styleEntry[@"uuid"] longLongValue];
     if ([styleEntry[@"tilegeom"] isEqualToString:@"add"])
         self.geomAdditive = true;
     _selectable = styleEntry[kMaplySelectable];
@@ -147,9 +147,8 @@ using namespace WhirlyKit;
     }
 }
 
-- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileInfo *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
+- (void)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileData *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 {
-    return nil;
 }
 
 
@@ -280,7 +279,7 @@ using namespace WhirlyKit;
 - (NSString*)description
 {
     return [NSString stringWithFormat:@"%@ uuid:%@ additive:%d",
-          [[self class] description], self.uuid, self.geomAdditive];
+          [[self class] description], @(self.uuid), self.geomAdditive];
 }
 
 @end

@@ -103,6 +103,15 @@ using namespace WhirlyGlobe;
     return self;
 }
 
+- (id)initWithRef:(WhirlyKit::VectorObjectRef)vecObj
+{
+    self = [super init];
+    
+    vObj = vecObj;
+    
+    return self;
+}
+
 /// Construct with a single point
 - (instancetype)initWithPoint:(MaplyCoordinate)coord attributes:(NSDictionary *)attr
 {

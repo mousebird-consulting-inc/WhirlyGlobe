@@ -1,9 +1,9 @@
 /*
- *  WGVectorObject_private.h
- *  WhirlyGlobeComponent
+ *  MapboxVectorTiles_private.h
+ *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 8/2/12.
- *  Copyright 2012-2019 mousebird consulting
+ *  Created by Steve Gifford on 4/10/19.
+ *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,19 +18,22 @@
  *
  */
 
-#import "MaplyVectorObject.h"
-#import <WhirlyGlobe_iOS.h>
+#import "MapboxVectorTiles.h"
+#import "WhirlyGlobe.h"
 
-@interface MaplyVectorObject()
+@interface MaplyVectorTileData()
 {
 @public
-    WhirlyKit::VectorObjectRef vObj;
+    WhirlyKit::VectorTileData data;    
 }
 
-// Construct as a wrapper
-- (id)initWithRef:(WhirlyKit::VectorObjectRef)vecObj;
+// Intialize with the same parameters, but doesn't copy data
+- (id)initWithTileData:(MaplyVectorTileData *)tileData;
 
-// Construct a vector object from the Vector DB raw format
-- (void)addShape:(WhirlyKit::VectorShapeRef)shape;
+// Merge in the contents from the second one
+- (void)mergeFrom:(MaplyVectorTileData *)tileData;
+
+// Clear out any added data (component objects, etc)
+- (void)clear;
 
 @end

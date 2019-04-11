@@ -34,6 +34,14 @@ using namespace WhirlyKit;
     return self;
 }
 
+- (id)initWithRef:(WhirlyKit::ComponentObjectRef)compObj
+{
+    self = [super init];
+    contents = compObj;
+    
+    return self;
+}
+
 - (instancetype)initWithDesc:(NSDictionary *)desc
 {
     self = [super init];
