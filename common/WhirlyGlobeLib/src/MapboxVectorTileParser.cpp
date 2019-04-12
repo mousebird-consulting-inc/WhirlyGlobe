@@ -33,6 +33,11 @@ VectorTileData::VectorTileData()
 {
 }
     
+VectorTileData::VectorTileData(const VectorTileData &that)
+    : ident(that.ident), bbox(that.bbox), geoBBox(that.geoBBox)
+{
+}
+    
 VectorTileData::~VectorTileData()
 {
     for (auto it : vecObjsByStyle)
@@ -78,6 +83,11 @@ MapboxVectorTileParser::MapboxVectorTileParser()
 
 MapboxVectorTileParser::~MapboxVectorTileParser()
 {
+}
+    
+void MapboxVectorTileParser::addCategory(const std::string &category,long long styleID)
+{
+    styleCategories[styleID] = category;
 }
 
 // Subclass can fill this in to check if a layer has any styles
@@ -381,6 +391,31 @@ bool MapboxVectorTileParser::parse(RawData *rawData,VectorTileData *tileData)
         }
     } else {
         return false;
+    }
+    
+    // Run the styles over their assembled data
+    for (auto it : tileData->vecObjsByStyle) {
+        std::vector<VectorObjectRef> *vecs = it.second;
+        
+        VectorTileDataRef styleData(new VectorTileData(*tileData));
+        
+        // Ask the subclass to run the style and fill in the VectorTileData
+        buildForStyle(it.first,*vecs,styleData);
+        
+        // Sort the results into categories if needed
+        auto catIt = styleCategories.find(it.first);
+        if (catIt != styleCategories.end() && !styleData->compObjs.empty()) {
+            std::string category = catIt->second;
+            auto compObjs = styleData->compObjs;
+            auto categoryIt = tileData->categories.find(category);
+            if (categoryIt != tileData->categories.end()) {
+                compObjs.insert(compObjs.end(), categoryIt->second.begin(), categoryIt->second.end());
+            }
+            tileData->categories[category] = compObjs;
+        }
+        
+        // Merge this into the general return data
+        tileData->mergeFrom(styleData.get());
     }
     
     return true;

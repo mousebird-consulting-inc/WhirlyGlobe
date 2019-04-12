@@ -24,14 +24,11 @@
 @interface MaplyVectorTileData()
 {
 @public
-    WhirlyKit::VectorTileData data;    
+    WhirlyKit::VectorTileDataRef data;    
 }
 
 // Intialize with the same parameters, but doesn't copy data
-- (id)initWithTileData:(MaplyVectorTileData *)tileData;
-
-// Merge in the contents from the second one
-- (void)mergeFrom:(MaplyVectorTileData *)tileData;
+- (id)initWithTileData:(WhirlyKit::VectorTileDataRef)tileData;
 
 // Clear out any added data (component objects, etc)
 - (void)clear;

@@ -25,27 +25,10 @@ using namespace WhirlyKit;
 
 @implementation MaplyVectorTileData
 
-- (id)initWithTileData:(MaplyVectorTileData *)tileData
+- (id)initWithTileData:(WhirlyKit::VectorTileDataRef)tileData
 {
     self = [super init];
-    data.ident = tileData->data.ident;
-    data.bbox = tileData->data.bbox;
-    data.geoBBox = tileData->data.geoBBox;
-    
-    return self;
-}
-
-- (id)initWithID:(MaplyTileID)tileID bbox:(MaplyBoundingBoxD)bbox geoBBox:(MaplyBoundingBoxD)geoBBox
-{
-    self = [super init];
-    data.ident.x = tileID.x;
-    data.ident.y = tileID.y;
-    data.ident.level = tileID.level;
-    
-    data.bbox.ll() = Point2d(bbox.ll.x,bbox.ll.y);
-    data.bbox.ur() = Point2d(bbox.ur.x,bbox.ur.y);
-    data.geoBBox.ll() = Point2d(geoBBox.ll.x,geoBBox.ll.y);
-    data.geoBBox.ur() = Point2d(geoBBox.ur.x,geoBBox.ur.y);
+    data = tileData;
     
     return self;
 }
@@ -53,9 +36,9 @@ using namespace WhirlyKit;
 - (MaplyTileID) tileID
 {
     MaplyTileID newTileID;
-    newTileID.x = data.ident.x;
-    newTileID.y = data.ident.y;
-    newTileID.level = data.ident.level;
+    newTileID.x = data->ident.x;
+    newTileID.y = data->ident.y;
+    newTileID.level = data->ident.level;
     
     return newTileID;
 }
@@ -63,8 +46,8 @@ using namespace WhirlyKit;
 - (MaplyBoundingBoxD)bounds
 {
     MaplyBoundingBoxD ret;
-    ret.ll.x = data.bbox.ll().x();  ret.ll.y = data.bbox.ll().y();
-    ret.ur.x = data.bbox.ur().x();  ret.ur.y = data.bbox.ur().y();
+    ret.ll.x = data->bbox.ll().x();  ret.ll.y = data->bbox.ll().y();
+    ret.ur.x = data->bbox.ur().x();  ret.ur.y = data->bbox.ur().y();
     
     return ret;
 }
@@ -72,8 +55,8 @@ using namespace WhirlyKit;
 - (MaplyBoundingBoxD)geoBounds
 {
     MaplyBoundingBoxD ret;
-    ret.ll.x = data.geoBBox.ll().x();  ret.ll.y = data.geoBBox.ll().y();
-    ret.ur.x = data.geoBBox.ur().x();  ret.ur.y = data.geoBBox.ur().y();
+    ret.ll.x = data->geoBBox.ll().x();  ret.ll.y = data->geoBBox.ll().y();
+    ret.ur.x = data->geoBBox.ur().x();  ret.ur.y = data->geoBBox.ur().y();
     
     return ret;
 }
@@ -83,7 +66,7 @@ using namespace WhirlyKit;
     if (!compObj)
         return;
     
-    data.compObjs.push_back(compObj->contents);
+    data->compObjs.push_back(compObj->contents);
 }
 
 - (void)addComponentObjects:(NSArray *)inCompObjs
@@ -92,13 +75,13 @@ using namespace WhirlyKit;
         return;
 
     for (MaplyComponentObject *compObj in inCompObjs)
-        data.compObjs.push_back(compObj->contents);
+        data->compObjs.push_back(compObj->contents);
 }
 
 - (NSArray *)componentObjects
 {
     NSMutableArray *ret = [[NSMutableArray alloc] init];
-    for (auto compObj : data.compObjs) {
+    for (auto compObj : data->compObjs) {
         MaplyComponentObject *newCompObj = [[MaplyComponentObject alloc] initWithRef:compObj];
         [ret addObject:newCompObj];
     }
@@ -108,12 +91,12 @@ using namespace WhirlyKit;
 
 - (void)mergeFrom:(MaplyVectorTileData *)tileData
 {
-    data.mergeFrom(&tileData->data);
+    data->mergeFrom(&tileData->data.get());
 }
 
 - (void)clear
 {
-    data.clear();
+    data->clear();
 }
 
 @end

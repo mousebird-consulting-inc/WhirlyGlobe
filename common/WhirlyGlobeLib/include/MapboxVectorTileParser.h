@@ -51,6 +51,8 @@ class VectorTileData
 {
 public:
     VectorTileData();
+    // Construct by just taking the outline information.  No data.
+    VectorTileData(const VectorTileData &);
     ~VectorTileData();
     
     /// Merge the contents of the other one
@@ -84,6 +86,8 @@ public:
     std::map<std::string,std::vector<ComponentObjectRef> > categories;
 };
     
+typedef std::shared_ptr<VectorTileData> VectorTileDataRef;
+    
 /** This object parses the data in Mapbox Vector Tile format.
   */
 class MapboxVectorTileParser
@@ -101,6 +105,10 @@ public:
     /// Parse everything, even if there's no style for it
     bool parseAll;
     
+    // Add a category for a particulary style ID
+    // These are used for sorting later on
+    void addCategory(const std::string &category,long long styleID);
+    
     // Subclass can fill this in to check if a layer has any styles
     virtual bool layerShoudParse(const std::string &layerName,VectorTileData *tileData);
     
@@ -109,7 +117,14 @@ public:
 
     // Parse the vector tile and return a list of vectors.
     // Returns false on failure.
-    virtual bool parse(RawData *rawData,VectorTileData *tileData);    
+    virtual bool parse(RawData *rawData,VectorTileData *tileData);
+    
+    // The subclass calls the appropriate style to build component objects
+    //  which are then returned in the VectorTileData
+    virtual void buildForStyle(long long styleID,std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef data) = 0;
+        
+protected:
+    std::map<long long,std::string> styleCategories;
 };
 
 }

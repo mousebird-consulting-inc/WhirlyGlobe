@@ -39,9 +39,6 @@ typedef NS_ENUM(NSInteger,MapboxGeometryType)
   */
 @interface MaplyVectorTileData : NSObject
 
-/// Initialize with tile and bounds inf
-- (id)initWithID:(MaplyTileID)tileID bbox:(MaplyBoundingBoxD)bbox geoBBox:(MaplyBoundingBoxD)geoBBox;
-
 /// Tile ID for the tile being built
 @property (readonly) MaplyTileID tileID;
 

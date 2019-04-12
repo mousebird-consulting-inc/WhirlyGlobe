@@ -62,7 +62,33 @@ SimpleIDSet MapboxVectorTileParser_iOS::stylesForFeature(MutableDictionaryRef at
     return styleIDs;
 }
     
-bool MapboxVectorTileParser_iOS::parse(RawData *rawData,MaplyVectorTileData *tileData)
+void MapboxVectorTileParser_iOS::buildForStyle(long long styleID,VectorTileDataRef data)
+{
+    std::vector<VectorObjectRef> *vecs = it.second;
+    // Make up an NSArray for this since it's outward facing
+    NSMutableArray *vecObjs = [[NSMutableArray alloc] init];
+    for (auto vecObj : *vecs) {
+        MaplyVectorObject *wrapObj = [[MaplyVectorObject alloc] initWithRef:vecObj];
+        [vecObjs addObject:wrapObj];
+    }
+    
+    NSObject<MaplyVectorStyle> *style = [styleDelegate styleForUUID:it.first viewC:viewC];
+    if (style) {
+        [style buildObjects:vecObjs forTile:stubTileData viewC:viewC];
+        
+        // If we're using categories then sort the objects that were returned
+        NSString *category = [style getCategory];
+        if (category) {
+            std::string categoryStr = [category cStringUsingEncoding:NSUTF8StringEncoding];
+            tileData->data.categories[categoryStr] = stubTileData->data.compObjs;
+        }
+        
+        [tileData mergeFrom:stubTileData];
+        [stubTileData clear];
+    }
+}
+    
+MaplyVectorTileData *MapboxVectorTileParser_iOS::parse(RawData *rawData)
 {
     if (!MapboxVectorTileParser::parse(rawData,&tileData->data))
         return false;
@@ -74,28 +100,6 @@ bool MapboxVectorTileParser_iOS::parse(RawData *rawData,MaplyVectorTileData *til
     // Call the various buildObjects calls
     // Note: Do we need to sort these first?
     for (auto it : tileData->data.vecObjsByStyle) {
-        std::vector<VectorObjectRef> *vecs = it.second;
-        // Make up an NSArray for this since it's outward facing
-        NSMutableArray *vecObjs = [[NSMutableArray alloc] init];
-        for (auto vecObj : *vecs) {
-            MaplyVectorObject *wrapObj = [[MaplyVectorObject alloc] initWithRef:vecObj];
-            [vecObjs addObject:wrapObj];
-        }
-        
-        NSObject<MaplyVectorStyle> *style = [styleDelegate styleForUUID:it.first viewC:viewC];
-        if (style) {
-            [style buildObjects:vecObjs forTile:stubTileData viewC:viewC];
-            
-            // If we're using categories then sort the objects that were returned
-            NSString *category = [style getCategory];
-            if (category) {
-                std::string categoryStr = [category cStringUsingEncoding:NSUTF8StringEncoding];
-                tileData->data.categories[categoryStr] = stubTileData->data.compObjs;
-            }
-
-            [tileData mergeFrom:stubTileData];
-            [stubTileData clear];
-        }
     }
     
     if(debugLabel || debugOutline) {
