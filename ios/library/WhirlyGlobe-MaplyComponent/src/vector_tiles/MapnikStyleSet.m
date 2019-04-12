@@ -437,5 +437,9 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
   currentLayer = nil;
 }
 
+- (NSArray * __nonnull)allStyles
+{
+    return _symbolizers;
+}
 
 @end

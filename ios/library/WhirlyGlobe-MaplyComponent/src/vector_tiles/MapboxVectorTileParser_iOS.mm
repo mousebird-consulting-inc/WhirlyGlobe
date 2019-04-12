@@ -23,13 +23,24 @@
 #import "MaplyVectorObject_private.h"
 #import "MapboxVectorTiles_private.h"
 #import "MaplyScreenLabel.h"
+#import "MaplyComponentObject_private.h"
 
 namespace WhirlyKit
 {
 
 MapboxVectorTileParser_iOS::MapboxVectorTileParser_iOS(NSObject<MaplyVectorStyleDelegate> * styleDelegate,NSObject<MaplyRenderControllerProtocol> *viewC)
     : styleDelegate(styleDelegate), viewC(viewC), debugLabel(false), debugOutline(false)
-{    
+{
+    // Index all the categories ahead of time.  Once.
+    NSArray *allStyles = [styleDelegate allStyles];
+    for (NSObject<MaplyVectorStyle> *style in allStyles) {
+        NSString *category = [style getCategory];
+        if (category) {
+            long long styleID = style.uuid;
+            std::string categoryStr = [category cStringUsingEncoding:NSUTF8StringEncoding];
+            addCategory(categoryStr, styleID);
+        }
+    }
 }
 
 MapboxVectorTileParser_iOS::~MapboxVectorTileParser_iOS()
@@ -62,56 +73,40 @@ SimpleIDSet MapboxVectorTileParser_iOS::stylesForFeature(MutableDictionaryRef at
     return styleIDs;
 }
     
-void MapboxVectorTileParser_iOS::buildForStyle(long long styleID,VectorTileDataRef data)
+void MapboxVectorTileParser_iOS::buildForStyle(long long styleID,std::vector<VectorObjectRef> &vecs,VectorTileDataRef data)
 {
-    std::vector<VectorObjectRef> *vecs = it.second;
     // Make up an NSArray for this since it's outward facing
     NSMutableArray *vecObjs = [[NSMutableArray alloc] init];
-    for (auto vecObj : *vecs) {
-        MaplyVectorObject *wrapObj = [[MaplyVectorObject alloc] initWithRef:vecObj];
+    for (auto vec : vecs) {
+        MaplyVectorObject *wrapObj = [[MaplyVectorObject alloc] initWithRef:vec];
         [vecObjs addObject:wrapObj];
     }
     
-    NSObject<MaplyVectorStyle> *style = [styleDelegate styleForUUID:it.first viewC:viewC];
-    if (style) {
-        [style buildObjects:vecObjs forTile:stubTileData viewC:viewC];
-        
-        // If we're using categories then sort the objects that were returned
-        NSString *category = [style getCategory];
-        if (category) {
-            std::string categoryStr = [category cStringUsingEncoding:NSUTF8StringEncoding];
-            tileData->data.categories[categoryStr] = stubTileData->data.compObjs;
-        }
-        
-        [tileData mergeFrom:stubTileData];
-        [stubTileData clear];
-    }
+    NSObject<MaplyVectorStyle> *style = [styleDelegate styleForUUID:styleID viewC:viewC];
+    if (!style)
+        return;
+    MaplyVectorTileData *tileDataWrap = [[MaplyVectorTileData alloc] initWithTileData:data];
+    [style buildObjects:vecObjs forTile:tileDataWrap viewC:viewC];
 }
     
-MaplyVectorTileData *MapboxVectorTileParser_iOS::parse(RawData *rawData)
+bool MapboxVectorTileParser_iOS::parse(RawData *rawData,VectorTileData *tileData)
 {
-    if (!MapboxVectorTileParser::parse(rawData,&tileData->data))
+    // This one does the real work
+    if (!MapboxVectorTileParser::parse(rawData,tileData))
         return false;
-    MaplyTileID tileID = [tileData tileID];
-    
-    // We use this to capture the output for each symbolizer (style)
-    MaplyVectorTileData *stubTileData = [[MaplyVectorTileData alloc] initWithTileData:tileData];
-    
-    // Call the various buildObjects calls
-    // Note: Do we need to sort these first?
-    for (auto it : tileData->data.vecObjsByStyle) {
-    }
-    
+
+    // These are layered on top for debugging
     if(debugLabel || debugOutline) {
-        MaplyBoundingBoxD geoBounds = [tileData geoBounds];
-        MaplyCoordinateD sw = geoBounds.ll, ne = geoBounds.ur;
+        QuadTreeNew::Node tileID = tileData->ident;
+        MbrD geoBounds = tileData->geoBBox;
+        Point2d sw = geoBounds.ll(), ne = geoBounds.ur();
         if(debugLabel) {
             MaplyScreenLabel *label = [[MaplyScreenLabel alloc] init];
             label.text = [NSString stringWithFormat:@"%d: (%d,%d)\n%lu items", tileID.level, tileID.x,
-                          tileID.y, (unsigned long)tileData.componentObjects.count];
+                          tileID.y, (unsigned long)tileData->compObjs.size()];
             MaplyCoordinate tileCenter;
-            tileCenter.x = (ne.x + sw.x)/2.0;
-            tileCenter.y = (ne.y + sw.y)/2.0;
+            tileCenter.x = (ne.x() + sw.x())/2.0;
+            tileCenter.y = (ne.y() + sw.y())/2.0;
             label.loc = tileCenter;
             
             MaplyComponentObject *c = [viewC addScreenLabels:@[label]
@@ -121,15 +116,15 @@ MaplyVectorTileData *MapboxVectorTileParser_iOS::parse(RawData *rawData)
                                                                 kMaplyEnable: @(NO)
                                                                 }
                                                          mode:MaplyThreadCurrent];
-            [tileData addComponentObject:c];
+            tileData->compObjs.push_back(c->contents);
         }
         if(debugOutline) {
             MaplyCoordinate outline[5];
-            outline[0].x = ne.x;            outline[0].y = ne.y;
-            outline[1].x = ne.x;            outline[1].y = sw.y;
-            outline[2].x = sw.x;            outline[2].y = sw.y;
-            outline[3].x = sw.x;            outline[3].y = ne.y;
-            outline[4].x = ne.x;            outline[4].y = ne.y;
+            outline[0].x = ne.x();            outline[0].y = ne.y();
+            outline[1].x = ne.x();            outline[1].y = sw.y();
+            outline[2].x = sw.x();            outline[2].y = sw.y();
+            outline[3].x = sw.x();            outline[3].y = ne.y();
+            outline[4].x = ne.x();            outline[4].y = ne.y();
             MaplyVectorObject *outlineObj = [[MaplyVectorObject alloc] initWithLineString:outline
                                                                                 numCoords:5
                                                                                attributes:nil];
@@ -140,7 +135,7 @@ MaplyVectorTileData *MapboxVectorTileParser_iOS::parse(RawData *rawData)
                                                            kMaplyEnable: @(NO)
                                                            }
                                                     mode:MaplyThreadCurrent];
-            [tileData addComponentObject:c];
+            tileData->compObjs.push_back(c->contents);
         }
     }
     

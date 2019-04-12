@@ -187,7 +187,7 @@ static double MAX_EXTENT = 20037508.342789244;
             for (NSData *thisTileData : pbfDatas) {
                 RawNSDataReader thisTileDataWrap(thisTileData);
                 vecTileReturn = [[MaplyVectorTileData alloc] initWithID:tileID bbox:imageBBox geoBBox:geoBBox];
-                imageTileParser->parse(&thisTileDataWrap, vecTileReturn);
+                imageTileParser->parse(&thisTileDataWrap, vecTileReturn->data.get());
                 
 //                if (vecTileReturn) {
 //                } else {
@@ -217,13 +217,13 @@ static double MAX_EXTENT = 20037508.342789244;
     for (NSData *thisTileData : pbfDatas) {
         RawNSDataReader thisTileDataWrap(thisTileData);
         MaplyVectorTileData *vecTileReturn = [[MaplyVectorTileData alloc] initWithID:tileID bbox:spherMercBBox geoBBox:geoBBox];
-        vecTileParser->parse(&thisTileDataWrap,vecTileReturn);
+        vecTileParser->parse(&thisTileDataWrap,vecTileReturn->data.get());
         
-        if (!vecTileReturn->data.compObjs.empty())
-            compObjs.insert(compObjs.end(),vecTileReturn->data.compObjs.begin(),vecTileReturn->data.compObjs.end());
+        if (!vecTileReturn->data->compObjs.empty())
+            compObjs.insert(compObjs.end(),vecTileReturn->data->compObjs.begin(),vecTileReturn->data->compObjs.end());
         
-        auto it = vecTileReturn->data.categories.find("overlay");
-        if (it != vecTileReturn->data.categories.end()) {
+        auto it = vecTileReturn->data->categories.find("overlay");
+        if (it != vecTileReturn->data->categories.end()) {
             auto ids = it->second;
             ovlCompObjs.insert(ovlCompObjs.end(),ids.begin(),ids.end());
         }

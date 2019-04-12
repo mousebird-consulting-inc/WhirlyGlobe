@@ -127,6 +127,11 @@
     return layersByID[@(uuid)];
 }
 
+- (NSArray * _Nonnull)allStyles {
+    return [layersByID allValues];
+}
+
+
 - (id)constantSubstitution:(id)thing forField:(NSString *)field
 {
     // Look for a constant substitution

@@ -47,7 +47,10 @@ public:
     bool debugOutline;
 
     // Parse the data and add specific iOS level stuff on top
-    virtual bool parse(RawData * __nonnull rawData,MaplyVectorTileData * __nonnull tileData);
+    virtual bool parse(RawData * __nonnull rawData,VectorTileData * __nonnull tileData);
+
+    // Build the objects for the appropriate style
+    virtual void buildForStyle(long long styleID,std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef data);
 
 protected:
     /// The styling delegate turns vector data into visible objects in the toolkit

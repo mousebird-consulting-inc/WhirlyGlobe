@@ -109,6 +109,9 @@
 /// Return the style associated with the given UUID.
 - (nullable NSObject<MaplyVectorStyle> *)styleForUUID:(long long)uiid viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC;
 
+// Return a list of all the styles in no particular order.  Needed for categories and indexing
+- (NSArray * __nonnull)allStyles;
+
 @end
 
 /** 

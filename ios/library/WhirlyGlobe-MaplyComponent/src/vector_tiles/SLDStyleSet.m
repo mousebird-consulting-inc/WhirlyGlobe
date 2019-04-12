@@ -447,4 +447,9 @@
     return self.symbolizers[uuid];
 }
 
+- (NSArray * __nonnull)allStyles
+{
+    return _symbolizers;
+}
+
 @end

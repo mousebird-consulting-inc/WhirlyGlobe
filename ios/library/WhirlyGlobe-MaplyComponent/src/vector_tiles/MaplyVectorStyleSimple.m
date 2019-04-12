@@ -85,6 +85,12 @@
     return stylesByUUID[@(uuid)];
 }
 
+- (NSArray * _Nonnull)allStyles
+{
+    return [stylesByUUID allValues];
+}
+
+
 - (long long)generateUUID
 {
     return uuidCount++;
@@ -215,5 +221,7 @@
     if (compObj)
         [tileInfo addComponentObject:compObj];
 }
+
+
 
 @end
