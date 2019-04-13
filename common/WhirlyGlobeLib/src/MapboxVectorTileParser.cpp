@@ -91,7 +91,7 @@ void MapboxVectorTileParser::addCategory(const std::string &category,long long s
 }
 
 // Subclass can fill this in to check if a layer has any styles
-bool MapboxVectorTileParser::layerShoudParse(const std::string &layerName,VectorTileData *tileData)
+bool MapboxVectorTileParser::layerShouldParse(const std::string &layerName,VectorTileData *tileData)
 {
     return true;
 }
@@ -137,7 +137,7 @@ bool MapboxVectorTileParser::parse(RawData *rawData,VectorTileData *tileData)
             scale = tileLayer.extent() / 256.0;
             
             // if we dont have any styles for a layer, dont bother parsing the features
-            if (!layerShoudParse(tileLayer.name(),tileData))
+            if (!layerShouldParse(tileLayer.name(),tileData))
                 continue;
             
             // Work through features

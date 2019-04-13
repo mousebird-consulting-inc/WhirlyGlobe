@@ -35,7 +35,7 @@ public:
     ~MapboxVectorTileParser_iOS();
 
     // Filter out layers we don't care about
-    virtual bool layerShoudParse(const std::string &layerName,VectorTileData * __nonnull tileData);
+    virtual bool layerShouldParse(const std::string &layerName,VectorTileData * __nonnull tileData);
 
     // Return a set of styles that will parse the given feature
     virtual SimpleIDSet stylesForFeature(MutableDictionaryRef attributes,const std::string &layerName,VectorTileData * __nonnull tileData);

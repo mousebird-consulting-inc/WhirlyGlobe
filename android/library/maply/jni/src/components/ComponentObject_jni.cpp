@@ -26,6 +26,11 @@ using namespace WhirlyKit;
 
 template<> ComponentObjectRefClassInfo *ComponentObjectRefClassInfo::classInfoObj = NULL;
 
+JNIEXPORT jobject JNICALL MakeComponentObjectWrapper(JNIEnv *env,ComponentObjectRefClassInfo *classInfo,ComponentObjectRef compObj)
+{
+    return classInfo->makeWrapperObject(env,new ComponentObjectRef(compObj));
+}
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentObject_nativeInit
   (JNIEnv *env, jclass cls)
 {

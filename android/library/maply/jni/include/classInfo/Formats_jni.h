@@ -21,4 +21,7 @@
 #import "Maply_jni.h"
 #import "WhirlyGlobe_Android.h"
 
-typedef JavaClassInfo<WhirlyKit::GeoJSONSource> GeoJSONSourceClassInfo;
+// TODO: Put this back
+//typedef JavaClassInfo<WhirlyKit::GeoJSONSource> GeoJSONSourceClassInfo;
+typedef JavaClassInfo<WhirlyKit::VectorTileDataRef> VectorTileDataClassInfo;
+typedef JavaClassInfo<WhirlyKit::MapboxVectorTileParser_Android> MapboxVectorTileParserClassInfo;

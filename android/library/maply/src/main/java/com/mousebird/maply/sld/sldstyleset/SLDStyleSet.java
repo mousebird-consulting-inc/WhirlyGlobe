@@ -65,7 +65,7 @@ public class SLDStyleSet implements VectorStyleInterface {
     private boolean useLayerNames;
     private int relativeDrawPriority;
     private HashMap<String, SLDNamedLayer> namedLayers =  new HashMap<String, SLDNamedLayer>();;
-    private HashMap<String, VectorStyle> stylesByUUID = new HashMap<String, VectorStyle>();
+    private HashMap<Long, VectorStyle> stylesByUUID = new HashMap<Long, VectorStyle>();
     private WeakReference<RenderControllerInterface> viewC;
     private VectorStyleSettings vectorStyleSettings;
     private SLDSymbolizerParams symbolizerParams;
@@ -175,9 +175,15 @@ public class SLDStyleSet implements VectorStyleInterface {
     }
 
     @Override
-    public VectorStyle styleForUUID(String uuid, RenderControllerInterface controller)
+    public VectorStyle styleForUUID(long uuid, RenderControllerInterface controller)
     {
         VectorStyle style = stylesByUUID.get(uuid);
         return style;
+    }
+
+    @Override
+    public VectorStyle[] allStyles()
+    {
+        return stylesByUUID.values().toArray(new VectorStyle[0]);
     }
 }

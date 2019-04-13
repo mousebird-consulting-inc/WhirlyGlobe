@@ -20,7 +20,12 @@ public interface VectorStyleInterface
      * @param controller Maply base controller where the
      * @return A list of vector styles that apply to the vector data with the given attributes.
      */
-    VectorStyle[] stylesForFeature(AttrDictionary attrs,TileID tileID,String layerName,RenderControllerInterface controller);
+    public VectorStyle[] stylesForFeature(AttrDictionary attrs,TileID tileID,String layerName,RenderControllerInterface controller);
+
+    /**
+     * Return the full list of styles.
+     */
+    public VectorStyle[] allStyles();
 
     /**
      * Returns true if the given layer (by name) should be displayed at all.  If you return
@@ -28,7 +33,7 @@ public interface VectorStyleInterface
      * @param layerName Name of the layer to be displayed (or not)
      * @param tileID If we're using a tile source, this is the tile ID.  If not, it will be null.
      */
-    boolean layerShouldDisplay(String layerName,TileID tileID);
+    public boolean layerShouldDisplay(String layerName,TileID tileID);
 
     /**
      * Returns a vector style corresponding to the given unique ID.  Each vector style has to
@@ -37,5 +42,5 @@ public interface VectorStyleInterface
      * @param controller Base controller used for the geometry.
      * @return Vector Style to be used in displaying geometry.
      */
-    VectorStyle styleForUUID(String uuid,RenderControllerInterface controller);
+    public VectorStyle styleForUUID(long uuid,RenderControllerInterface controller);
 }

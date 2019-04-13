@@ -48,7 +48,7 @@ public class VectorTileTextStyle extends VectorTileStyle {
         this.offset = offset;
     }
 
-    public ComponentObject[] buildObjects(List<VectorObject> objects, TileID tileID, RenderControllerInterface controller) {
+    public void buildObjects(VectorObject[] objects, VectorTileData tileData, RenderControllerInterface controller) {
 
         ArrayList<ScreenLabel> labels = new ArrayList<ScreenLabel>();
 
@@ -88,10 +88,7 @@ public class VectorTileTextStyle extends VectorTileStyle {
 
 
         ComponentObject compObj = controller.addScreenLabels(labels, labelInfo, RenderController.ThreadMode.ThreadCurrent);
-        if (compObj != null) {
-            return new ComponentObject[]{compObj};
-        }
-        return null;
+        tileData.addComponentObject(compObj);
     }
 
     /**

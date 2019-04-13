@@ -33,3 +33,6 @@ JNIEXPORT jobject JNICALL MakeAttrDictionary(JNIEnv *env,WhirlyKit::MutableDicti
 
 // Construct a Java-side Vector Object
 JNIEXPORT jobject JNICALL MakeVectorObject(JNIEnv *env,WhirlyKit::VectorObject *vec);
+
+// This one takes the classInfo object which skips a lookup
+JNIEXPORT jobject JNICALL MakeVectorObjectWrapper(JNIEnv *env,VectorObjectClassInfo *classInfo,WhirlyKit::VectorObjectRef vecObj);

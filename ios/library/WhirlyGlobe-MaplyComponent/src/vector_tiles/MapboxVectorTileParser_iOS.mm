@@ -47,7 +47,7 @@ MapboxVectorTileParser_iOS::~MapboxVectorTileParser_iOS()
 {
 }
     
-bool MapboxVectorTileParser_iOS::layerShoudParse(const std::string &layerName,VectorTileData *tileData)
+bool MapboxVectorTileParser_iOS::layerShouldParse(const std::string &layerName,VectorTileData *tileData)
 {
     NSString *layerNameStr = [NSString stringWithUTF8String:layerName.c_str()];
     MaplyTileID tileID;

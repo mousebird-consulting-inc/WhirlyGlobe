@@ -110,7 +110,7 @@ public:
     void addCategory(const std::string &category,long long styleID);
     
     // Subclass can fill this in to check if a layer has any styles
-    virtual bool layerShoudParse(const std::string &layerName,VectorTileData *tileData);
+    virtual bool layerShouldParse(const std::string &layerName,VectorTileData *tileData);
     
     // Subclass returns the style IDs that get a shot at the given feature
     virtual SimpleIDSet stylesForFeature(MutableDictionaryRef attributes,const std::string &layerName,VectorTileData *tileData) = 0;

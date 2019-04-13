@@ -45,7 +45,7 @@ public class VectorTileMarkerStyle extends VectorTileStyle {
 
     }
 
-    public ComponentObject[] buildObjects(List<VectorObject> objects, TileID tileID, RenderControllerInterface controller) {
+    public void buildObjects(VectorObject objects[], VectorTileData tileData, RenderControllerInterface controller) {
 
         ArrayList<ScreenMarker> markers = new ArrayList<ScreenMarker>();
         for (VectorObject vector : objects) {
@@ -61,10 +61,7 @@ public class VectorTileMarkerStyle extends VectorTileStyle {
         }
 
         ComponentObject compObj = controller.addScreenMarkers(markers, markerInfo, RenderController.ThreadMode.ThreadCurrent);
-        if (compObj != null) {
-            return new ComponentObject[]{compObj};
-        }
-        return null;
+        tileData.addComponentObject(compObj);
     }
 
 }

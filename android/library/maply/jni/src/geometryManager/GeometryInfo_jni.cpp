@@ -17,7 +17,6 @@
  *  limitations under the License.
  *
  */
-#import <jni.h>
 #import "GeometryManager_jni.h"
 #import "com_mousebird_maply_GeometryInfo.h"
 

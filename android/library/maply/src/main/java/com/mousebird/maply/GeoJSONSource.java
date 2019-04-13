@@ -8,6 +8,7 @@ import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.Vector;
 
 import android.os.AsyncTask;
 import android.util.Log;
@@ -107,7 +108,7 @@ public class GeoJSONSource {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         int nRead;
         byte[] data = new byte[16384];
-        HashMap<String, ArrayList<VectorObject>> featureStyles = new HashMap<String, ArrayList<VectorObject>>();
+        HashMap<Long, ArrayList<VectorObject>> featureStyles = new HashMap<Long, ArrayList<VectorObject>>();
         ArrayList<ComponentObject> componentObjects = new ArrayList<ComponentObject>();
 
         try {
@@ -138,12 +139,15 @@ public class GeoJSONSource {
 
             if (vecs != null) {
                 TileID nullTileID = new TileID(0, 0, 0);
-                for (String uuid : featureStyles.keySet()) {
+                Mbr bounds = new Mbr(new Point2d(-Math.PI,-Math.PI/2.0),new Point2d(Math.PI,Math.PI/2.0));
+                VectorTileData tileData = new VectorTileData(nullTileID,bounds,bounds);
+                for (Long uuid : featureStyles.keySet()) {
                     VectorStyle style = styleSet.styleForUUID(uuid, baseController.get());
                     ArrayList<VectorObject> featuresForStyle = featureStyles.get(uuid);
 
                     //List<VectorObject> objects, MaplyTileID tileID, MaplyBaseController controller)
-                    ComponentObject[] newCompObjs = style.buildObjects(featuresForStyle, nullTileID, baseController.get());
+                    style.buildObjects(featuresForStyle.toArray(new VectorObject[0]), tileData, baseController.get());
+                    ComponentObject[] newCompObjs = tileData.getComponentObjects();
                     if (newCompObjs != null && newCompObjs.length > 0)
                        componentObjects.addAll(Arrays.asList(newCompObjs));
                 }

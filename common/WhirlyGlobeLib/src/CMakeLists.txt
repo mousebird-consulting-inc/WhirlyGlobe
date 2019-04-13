@@ -13,6 +13,7 @@ target_sources(
 
         PUBLIC
 
+        "${CMAKE_CURRENT_LIST_DIR}/vector_tile.pb.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/glwrapper.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/BaseInfo.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/BasicDrawable.cpp"
@@ -46,6 +47,7 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/LineAndPointShaders.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/LoadedTileNew.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/LoftManager.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/MapboxVectorTileParser.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/MaplyAnimateTranslateMomentum.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/MaplyAnimateTranslation.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/MaplyFlatView.cpp"

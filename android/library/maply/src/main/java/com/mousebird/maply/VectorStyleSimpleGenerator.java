@@ -5,6 +5,7 @@ import android.graphics.Typeface;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -18,7 +19,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
      */
     public abstract class VectorStyleSimple implements VectorStyle
     {
-        String uuid = null;
+        long uuid = 0;
 
         /**
          * Draw priority for each feature.
@@ -26,13 +27,19 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
         public int drawPriority = VectorInfo.VectorPriorityDefault;
 
         @Override
-        public String getUuid()
+        public long getUuid()
         {
-            if (uuid == null)
+            if (uuid == 0)
             {
-                uuid = " " + Math.random() * 1000000 + Math.random() * 10000;
+                uuid = Identifiable.genID();
             }
             return uuid;
+        }
+
+        @Override
+        public String getCategory()
+        {
+            return null;
         }
 
         /**
@@ -67,7 +74,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
         }
 
         @Override
-        public ComponentObject[] buildObjects(List<VectorObject> vecObjs, TileID tileID, RenderControllerInterface controller)
+        public void buildObjects(VectorObject vecObjs[], VectorTileData tileData, RenderControllerInterface controller)
         {
             ArrayList<ScreenLabel> labels = new ArrayList<ScreenLabel>();
             for (VectorObject point : vecObjs)
@@ -89,9 +96,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
             }
 
             ComponentObject compObj = controller.addScreenLabels(labels,labelInfo, threadMode);
-            if (compObj != null)
-                return new ComponentObject[]{compObj};
-            return null;
+            tileData.addComponentObject(compObj);
         }
     }
 
@@ -111,7 +116,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
         }
 
         @Override
-        public ComponentObject[] buildObjects(List<VectorObject> vecObjs,TileID tileID,RenderControllerInterface controller)
+        public void buildObjects(VectorObject vecObjs[],VectorTileData tileData,RenderControllerInterface controller)
         {
             VectorInfo vecInfo = new VectorInfo();
 //            vecInfo.disposeAfterUse = true;
@@ -121,10 +126,8 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
             vecInfo.setDrawPriority(drawPriority);
             vecInfo.setEnable(false);
 
-            ComponentObject compObj = controller.addVectors(vecObjs,vecInfo,threadMode);
-            if (compObj != null)
-                return new ComponentObject[]{compObj};
-            return null;
+            ComponentObject compObj = controller.addVectors(new ArrayList<VectorObject>(Arrays.asList(vecObjs)),vecInfo,threadMode);
+            tileData.addComponentObject(compObj);
         }
     }
 
@@ -144,7 +147,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
         }
 
         @Override
-        public ComponentObject[] buildObjects(List<VectorObject> vecObjs,TileID tileID,RenderControllerInterface controller)
+        public void buildObjects(VectorObject vecObjs[],VectorTileData tileData,RenderControllerInterface controller)
         {
             VectorInfo vecInfo = new VectorInfo();
             vecInfo.disposeAfterUse = true;
@@ -153,15 +156,13 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
             vecInfo.setDrawPriority(drawPriority);
             vecInfo.setEnable(false);
 
-            ComponentObject compObj = controller.addVectors(vecObjs,vecInfo,threadMode);
-            if (compObj != null)
-                return new ComponentObject[]{compObj};
-            return null;
+            ComponentObject compObj = controller.addVectors(new ArrayList<VectorObject>(Arrays.asList(vecObjs)),vecInfo,threadMode);
+            tileData.addComponentObject(compObj);
         }
     }
 
     WeakReference<RenderControllerInterface> controller;
-    HashMap<String,VectorStyleSimple> stylesByUUID = new HashMap<String,VectorStyleSimple>();
+    HashMap<Long,VectorStyleSimple> stylesByUUID = new HashMap<Long,VectorStyleSimple>();
     HashMap<String,VectorStyleSimple> stylesByLayerName = new HashMap<String,VectorStyleSimple>();
 
 
@@ -216,9 +217,15 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
     }
 
     @Override
-    public VectorStyle styleForUUID(String uuid,RenderControllerInterface controller)
+    public VectorStyle styleForUUID(long uuid,RenderControllerInterface controller)
     {
         VectorStyle style = stylesByUUID.get(uuid);
         return style;
+    }
+
+    @Override
+    public VectorStyle[] allStyles()
+    {
+        return stylesByLayerName.values().toArray(new VectorStyle[0]);
     }
 }

@@ -42,7 +42,7 @@ public class VectorTilePolygonStyle extends VectorTileStyle {
 
     static double ClipGridSize = 2.0/180.0*Math.PI;
 
-    public ComponentObject[] buildObjects(List<VectorObject> objects, TileID tileID, RenderControllerInterface controller) {
+    public void buildObjects(VectorObject objects[], VectorTileData tileData, RenderControllerInterface controller) {
 
         boolean globeMode = (controller instanceof GlobeController);
         ArrayList<VectorObject> vectors = new ArrayList<VectorObject>();
@@ -82,9 +82,7 @@ public class VectorTilePolygonStyle extends VectorTileStyle {
 
 
         ComponentObject compObj = controller.addVectors(vectors, vectorInfo, RenderController.ThreadMode.ThreadCurrent);
-        if (compObj != null)
-            return new ComponentObject[]{compObj};
-        return null;
+        tileData.addComponentObject(compObj);
     }
 
 }

@@ -28,7 +28,7 @@ import java.io.File;
 /**
  * The MBTiles Source reads Mapbox style MBTiles files.
  */
-public class MBTiles implements MapboxTileSource
+public class MBTiles
 {
 
     //***********************************************************************//
