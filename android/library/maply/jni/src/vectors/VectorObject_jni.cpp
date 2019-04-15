@@ -39,6 +39,12 @@ JNIEXPORT jobject JNICALL MakeVectorObject(JNIEnv *env,VectorObject *vec)
 	return classInfo->makeWrapperObject(env,new VectorObjectRef(vec));
 }
 
+JNIEXPORT jobject JNICALL MakeVectorObject(JNIEnv *env,VectorObjectRef vec)
+{
+    VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo(env,"com/mousebird/maply/VectorObject");
+    return classInfo->makeWrapperObject(env,new VectorObjectRef(vec));
+}
+
 JNIEXPORT jobject JNICALL MakeVectorObjectWrapper(JNIEnv *env,VectorObjectClassInfo *classInfo,VectorObjectRef vecObj)
 {
     return classInfo->makeWrapperObject(env,new VectorObjectRef(vecObj));

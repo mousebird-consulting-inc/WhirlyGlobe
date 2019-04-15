@@ -20,26 +20,23 @@
 
 #import "MapboxVectorTileParser_Android.h"
 #import "Formats_jni.h"
+#import "Vectors_jni.h"
 
 namespace WhirlyKit
 {
 MapboxVectorTileParser_Android::MapboxVectorTileParser_Android()
-: env(NULL), obj(NULL)
+: env(NULL), shouldParseMethod(NULL), styleForFeatureMethod(NULL), buildForStyleMethod(NULL)
 {
 }
 
 MapboxVectorTileParser_Android::~MapboxVectorTileParser_Android()
 {
     env = NULL;
-    obj = NULL;
 }
 
-void MapboxVectorTileParser_Android::setJavaObject(JNIEnv *inEnv,jobject inObj)
+void MapboxVectorTileParser_Android::setupJavaMethods(JNIEnv *inEnv)
 {
-    env = inEnv;
-    obj = inObj;
-
-    if (!env) {
+    if (!shouldParseMethod) {
         jclass thisClass = MapboxVectorTileParserClassInfo::getClassInfo()->getClass();
         shouldParseMethod = env->GetMethodID(thisClass,"layerShouldParse","(Ljava/lang/String;Lcom/mousebird/maply/VectorTileData;)Z");
         styleForFeatureMethod = env->GetMethodID(thisClass,"stylesForFeature","(Lcom/mousebird/maply/AttrDictionary;Ljava/lang/String;Lcom/mousebird/maply/VectorTileData;)[J");
@@ -47,20 +44,52 @@ void MapboxVectorTileParser_Android::setJavaObject(JNIEnv *inEnv,jobject inObj)
     }
 }
 
-bool MapboxVectorTileParser_Android::layerShouldParse(const std::string &layerName,VectorTileData *tileData)
+bool MapboxVectorTileParser_Android::layerShouldParse(const std::string &layerName,VectorTileData *inTileData)
 {
-    // TODO: Need the java side object for the tileData
-    return env->CallVoidMethod(obj,shouldParseMethod,)
+    VectorTileData_Android *tileData = (VectorTileData_Android *)inTileData;
+
+    jstring layerNameStr = env->NewStringUTF(layerName.c_str());
+    bool ret = env->CallBooleanMethod(tileData->parserObj,shouldParseMethod,layerNameStr,tileData->vecTileDataObj);
+    env->DeleteLocalRef(layerNameStr);
+
+    return ret;
 }
 
-SimpleIDSet MapboxVectorTileParser_Android::stylesForFeature(MutableDictionaryRef attributes,const std::string &layerName,VectorTileData *tileData)
+SimpleIDSet MapboxVectorTileParser_Android::stylesForFeature(MutableDictionaryRef inAttrs,const std::string &layerName,VectorTileData *inTileData)
 {
-    // TODO: Call the Java side
+    VectorTileData_Android *tileData = (VectorTileData_Android *)inTileData;
+    MutableDictionary_AndroidRef attrs = std::dynamic_pointer_cast<MutableDictionary_Android>(inAttrs);
+
+    // Call the Java side to get a list of style IDs
+    jobject attrObj = MakeAttrDictionary(tileData->env,attrs);
+    jlongArray idArray = (jlongArray)env->CallObjectMethod(tileData->parserObj,styleForFeatureMethod,attrObj,tileData->vecTileDataObj);
+    env->DeleteLocalRef(attrObj);
+
+    SimpleIDSet styleIDs;
+    ConvertLongArrayToSet(tileData->env,idArray,styleIDs);
+    env->DeleteLocalRef(idArray);
+
+    return styleIDs;
 }
 
-void MapboxVectorTileParser_Android::buildForStyle(long long styleID,std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef data)
+void MapboxVectorTileParser_Android::buildForStyle(long long styleID,std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef inTileData)
 {
-    // TODO: Call the Java side
+    VectorTileData_AndroidRef tileData = std::dynamic_pointer_cast<VectorTileData_Android>(inTileData);
+
+    // Wrap the vectors in individual Java objects
+    std::vector<jobject> objsJava;
+    for (VectorObjectRef vecObj : vecObjs) {
+        jobject objJava = MakeVectorObject(env,vecObj);
+        objsJava.push_back(objJava);
+    }
+    jobjectArray objsArrJava = BuildObjectArray(env,VectorObjectClassInfo::getClassInfo()->getClass(),objsJava);
+
+    env->CallVoidMethod(tileData->parserObj,buildForStyleMethod,objsArrJava,tileData->vecTileDataObj);
+
+    // Tear down the Java objects we built up
+    env->DeleteLocalRef(objsArrJava);
+    for (jobject objJava : objsJava)
+        env->DeleteLocalRef(objJava);
 }
 
 bool MapboxVectorTileParser_Android::parse(RawData *rawData,VectorTileData *tileData)

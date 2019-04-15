@@ -41,5 +41,6 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/SceneRenderer_Android.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/Shader_Android.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/SingleLabel_Android.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/VectorTileData_Android.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/WhirlyKitLog.cpp"
 )

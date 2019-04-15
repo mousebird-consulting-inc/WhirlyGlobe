@@ -33,3 +33,4 @@
 #import "SceneRenderer_Android.h"
 #import "SingleLabel_Android.h"
 #import "Shader_Android.h"
+#import "VectorTileData_Android.h"

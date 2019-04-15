@@ -53,7 +53,7 @@ public:
     VectorTileData();
     // Construct by just taking the outline information.  No data.
     VectorTileData(const VectorTileData &);
-    ~VectorTileData();
+    virtual ~VectorTileData();
     
     /// Merge the contents of the other one
     void mergeFrom(VectorTileData *);

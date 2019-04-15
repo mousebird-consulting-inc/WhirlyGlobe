@@ -1,8 +1,8 @@
 /*
- *  GeoJSON_jni.h
+ *  VectorTileData_Android.cpp
  *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 3/7/19.
+ *  Created by Steve Gifford on 4/15/19.
  *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,10 +18,26 @@
  *
  */
 
-#import "Maply_jni.h"
-#import "WhirlyGlobe_Android.h"
+#import "VectorTileData_Android.h"
 
-// TODO: Put this back
-//typedef JavaClassInfo<WhirlyKit::GeoJSONSource> GeoJSONSourceClassInfo;
-typedef JavaClassInfo<WhirlyKit::VectorTileData_AndroidRef> VectorTileDataClassInfo;
-typedef JavaClassInfo<WhirlyKit::MapboxVectorTileParser_Android> MapboxVectorTileParserClassInfo;
+namespace WhirlyKit
+{
+VectorTileData_Android::VectorTileData_Android()
+: env(NULL), parserObj(NULL), vecTileDataObj(NULL)
+{
+
+}
+
+VectorTileData_Android::~VectorTileData_Android()
+{
+    env = NULL;
+}
+
+void VectorTileData_Android::setEnv(JNIEnv *inEnv,jobject inParserObj,jobject inVectorTileDataObj)
+{
+    env = inEnv;
+    parserObj = inParserObj;
+    vecTileDataObj = inVectorTileDataObj;
+}
+
+}

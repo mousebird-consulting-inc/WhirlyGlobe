@@ -32,10 +32,10 @@ public:
     ~MapboxVectorTileParser_Android();
 
     // Set the Java environment and object for callbacks
-    void setJavaObject(JNIEnv *env,jobject obj);
+    void setupJavaMethods(JNIEnv *env);
 
     // Filter out layers we don't care about
-    virtual bool layerShoudParse(const std::string &layerName,VectorTileData *tileData);
+    virtual bool layerShouldParse(const std::string &layerName,VectorTileData *tileData);
 
     // Return a set of styles that will parse the given feature
     virtual SimpleIDSet stylesForFeature(MutableDictionaryRef attributes,const std::string &layerName,VectorTileData *tileData);
@@ -48,7 +48,6 @@ public:
 
 protected:
     JNIEnv *env;
-    jobject obj;
 
     jmethodID shouldParseMethod;
     jmethodID styleForFeatureMethod;

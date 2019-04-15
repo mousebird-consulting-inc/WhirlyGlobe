@@ -79,12 +79,16 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_MapboxVectorTileParser_parse
     try
     {
         MapboxVectorTileParser_Android *inst = MapboxVectorTileParserClassInfo::getClassInfo()->getObject(env,obj);
-        VectorTileDataRef *tileData = VectorTileDataClassInfo::getClassInfo()->getObject(env,vecTileDataObj);
+        VectorTileData_AndroidRef *tileData = VectorTileDataClassInfo::getClassInfo()->getObject(env,vecTileDataObj);
         if (!obj || !tileData)
             return false;
 
-        // TODO: This has to be associated with the tile data instead.  Otherwise we'll get threading conflicts.
-        (*inst).setJavaObject(env,obj);
+        // This hold the Java objects so we can associate them per thread rather
+        //  than per parser.  Thus we can use a parser on multiple thread.
+        (*tileData)->setEnv(env,obj,vecTileDataObj);
+
+        // Set up the method references if they're not done yet
+        (*inst).setupJavaMethods(env);
 
         // Copy data into a temporary buffer (must we?)
         int len = env->GetArrayLength(data);
@@ -100,4 +104,6 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_MapboxVectorTileParser_parse
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MapboxVectorTileParser::parseDataNative()");
     }
+
+    return false;
 }
