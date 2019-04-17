@@ -45,7 +45,7 @@ class PagingLayerTestCase(activity: Activity) : MaplyTestCase(activity) {
         // This will put an outline around a tile and a number in the middle
         interp = OvlDebugImageLoaderInterpreter()
 
-        // The paging loader isn't assuming a image.  More generic.
+        // The paging loader isn't assuming an image.  More generic.
         loader = QuadPagingLoader(params,null,interp,vc)
     }
 

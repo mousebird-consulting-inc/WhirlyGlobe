@@ -28,6 +28,14 @@ VectorTileData_Android::VectorTileData_Android()
 
 }
 
+VectorTileData_Android::VectorTileData_Android(const VectorTileData_Android &that)
+: VectorTileData(that)
+{
+    env = that.env;
+    parserObj = that.parserObj;
+    vecTileDataObj = that.vecTileDataObj;
+}
+
 VectorTileData_Android::~VectorTileData_Android()
 {
     env = NULL;

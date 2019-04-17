@@ -31,7 +31,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ObjectLoaderReturn_addComponentO
 	try
 	{
 		QuadLoaderReturn *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
-		if (!loadReturn)
+		if (!loadReturn || !compObjs)
 		    return;
 
         // Work through the component object array

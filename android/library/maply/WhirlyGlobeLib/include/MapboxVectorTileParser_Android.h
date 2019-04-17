@@ -34,6 +34,9 @@ public:
     // Set the Java environment and object for callbacks
     void setupJavaMethods(JNIEnv *env);
 
+    // Return an Android version of the vector tile data that contains the same info
+    virtual VectorTileDataRef makeTileDataCopy(VectorTileData *inTileData);
+
     // Filter out layers we don't care about
     virtual bool layerShouldParse(const std::string &layerName,VectorTileData *tileData);
 
@@ -47,8 +50,6 @@ public:
     virtual bool parse(RawData *rawData,VectorTileData *tileData);
 
 protected:
-    JNIEnv *env;
-
     jmethodID shouldParseMethod;
     jmethodID styleForFeatureMethod;
     jmethodID buildForStyleMethod;

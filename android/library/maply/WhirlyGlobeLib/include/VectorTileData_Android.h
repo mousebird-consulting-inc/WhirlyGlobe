@@ -28,6 +28,7 @@ namespace WhirlyKit
 class VectorTileData_Android : public VectorTileData {
 public:
     VectorTileData_Android();
+    VectorTileData_Android(const VectorTileData_Android &that);
     ~VectorTileData_Android();
 
     void setEnv(JNIEnv *env,jobject parserObj,jobject vectorTileDataObj);

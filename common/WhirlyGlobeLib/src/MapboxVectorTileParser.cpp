@@ -396,9 +396,9 @@ bool MapboxVectorTileParser::parse(RawData *rawData,VectorTileData *tileData)
     // Run the styles over their assembled data
     for (auto it : tileData->vecObjsByStyle) {
         std::vector<VectorObjectRef> *vecs = it.second;
-        
-        VectorTileDataRef styleData(new VectorTileData(*tileData));
-        
+
+        auto styleData = makeTileDataCopy(tileData);
+
         // Ask the subclass to run the style and fill in the VectorTileData
         buildForStyle(it.first,*vecs,styleData);
         

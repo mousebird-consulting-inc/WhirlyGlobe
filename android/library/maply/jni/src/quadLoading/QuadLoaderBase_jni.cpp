@@ -237,7 +237,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_mergeLoaderReturn
         QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
         QuadLoaderReturn *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,loadRetObj);
         ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changeObj);
-        if (!loader || !changes)
+        if (!loader || !loadReturn || !changes)
             return;
         (*loader)->mergeLoadedTile(loadReturn,*changes);
     }

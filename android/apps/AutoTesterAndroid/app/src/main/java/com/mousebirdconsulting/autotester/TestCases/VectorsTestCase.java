@@ -84,7 +84,7 @@ public class VectorsTestCase extends MaplyTestCase {
 	@Override
 	public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
 		GeographyClass baseCase = new GeographyClass(getActivity());
-		baseCase.setUpWithGlobe(globeVC);
+//		baseCase.setUpWithGlobe(globeVC);
 		overlayCountries(globeVC);
 
 		return true;

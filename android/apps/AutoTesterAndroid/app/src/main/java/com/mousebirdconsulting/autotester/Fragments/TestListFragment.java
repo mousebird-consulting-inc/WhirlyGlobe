@@ -40,6 +40,7 @@ import com.mousebirdconsulting.autotester.TestCases.StamenRemoteTestCase;
 import com.mousebirdconsulting.autotester.TestCases.StickersTestCase;
 import com.mousebirdconsulting.autotester.TestCases.TextureVectorTestCase;
 import com.mousebirdconsulting.autotester.TestCases.VectorHoleTestCase;
+import com.mousebirdconsulting.autotester.TestCases.VectorMBTilesTestCase;
 import com.mousebirdconsulting.autotester.TestCases.VectorsTestCase;
 import com.mousebirdconsulting.autotester.TestCases.WideVectorsTestCase;
 
@@ -120,7 +121,7 @@ public class TestListFragment extends Fragment {
 			testCases.add(new LoftedPolyTestCase(getActivity()));
 			testCases.add(new StickersTestCase(getActivity()));
 			testCases.add(new PagingLayerTestCase(getActivity()));
-			// Vector MBTiles
+			testCases.add(new VectorMBTilesTestCase(getActivity()));
 			// OpenMapTiles Hybrid Test Case
 			testCases.add(new CartoTestCase(getActivity()));
 			testCases.add(new ShapesTestCase(getActivity()));

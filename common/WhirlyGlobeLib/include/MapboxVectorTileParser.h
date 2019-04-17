@@ -108,7 +108,10 @@ public:
     // Add a category for a particulary style ID
     // These are used for sorting later on
     void addCategory(const std::string &category,long long styleID);
-    
+
+    // Make a platform specific copy of the tile data
+    virtual VectorTileDataRef makeTileDataCopy(VectorTileData *inTileData) = 0;
+
     // Subclass can fill this in to check if a layer has any styles
     virtual bool layerShouldParse(const std::string &layerName,VectorTileData *tileData);
     
