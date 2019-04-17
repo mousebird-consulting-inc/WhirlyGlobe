@@ -47,6 +47,11 @@ MapboxVectorTileParser_iOS::~MapboxVectorTileParser_iOS()
 {
 }
     
+VectorTileDataRef MapboxVectorTileParser_iOS::makeTileDataCopy(VectorTileData *inTileData)
+{
+    return VectorTileDataRef(new VectorTileData(*inTileData));
+}
+    
 bool MapboxVectorTileParser_iOS::layerShouldParse(const std::string &layerName,VectorTileData *tileData)
 {
     NSString *layerNameStr = [NSString stringWithUTF8String:layerName.c_str()];

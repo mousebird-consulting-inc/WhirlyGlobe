@@ -53,6 +53,18 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
         }
     }
 
+    static double MAX_EXTENT = 20037508.342789244;
+
+    // Convert to spherical mercator directly
+    Point2d toMerc(Point2d pt)
+    {
+        Point2d newPt = new Point2d();
+        newPt.setValue(Math.toDegrees(pt.getX()) * MAX_EXTENT / 180.0,
+                3189068.5 * Math.log((1.0 + Math.sin(pt.getY())) / (1.0 - Math.sin(pt.getY()))));
+
+        return newPt;
+    }
+
     public void dataForTile(LoaderReturn loadReturn,QuadLoaderBase loader)
     {
         byte[] data = loadReturn.getFirstData();
@@ -78,7 +90,11 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
 
         // Parse the data into vectors
         // This will skip layers we don't care about
-        VectorTileData tileData = new VectorTileData();
+        TileID tileID = loadReturn.getTileID();
+        Mbr locBounds = loader.geoBoundsForTile(tileID);
+        locBounds.ll = toMerc(locBounds.ll);
+        locBounds.ur = toMerc(locBounds.ur);
+        VectorTileData tileData = new VectorTileData(tileID,locBounds,loader.geoBoundsForTile(tileID));
         parser.parseData(data,tileData);
 
         // Merge the results into the loadReturn

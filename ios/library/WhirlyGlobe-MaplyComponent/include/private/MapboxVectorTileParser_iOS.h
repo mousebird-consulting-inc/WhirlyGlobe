@@ -34,6 +34,9 @@ public:
     MapboxVectorTileParser_iOS(NSObject<MaplyVectorStyleDelegate> *__nonnull styleDelegate,NSObject<MaplyRenderControllerProtocol> *__nonnull);
     ~MapboxVectorTileParser_iOS();
 
+    // We don't use a special on iOS
+    virtual VectorTileDataRef makeTileDataCopy(VectorTileData * __nonnull inTileData);
+
     // Filter out layers we don't care about
     virtual bool layerShouldParse(const std::string &layerName,VectorTileData * __nonnull tileData);
 

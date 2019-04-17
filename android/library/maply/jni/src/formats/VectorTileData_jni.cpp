@@ -64,6 +64,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorTileData_initialise__IIILc
         (*tileData)->bbox.ur() = *boundUR;
         (*tileData)->geoBBox.ll() = *geoLL;
         (*tileData)->geoBBox.ur() = *geoUR;
+        VectorTileDataClassInfo::getClassInfo()->setHandle(env,obj,tileData);
     }
     catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorTileData::initialise()");
