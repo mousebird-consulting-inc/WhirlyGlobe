@@ -32,8 +32,7 @@ import java.io.IOException
 
 
 /**
- * The Carto light basemap used in a bunch of test cases since it's not too
- * intrusive.
+ * Loads vector tiles over southern France.
  */
 class VectorMBTilesTestCase : MaplyTestCase {
 

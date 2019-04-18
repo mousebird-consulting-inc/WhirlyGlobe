@@ -41,6 +41,7 @@ import com.mousebirdconsulting.autotester.TestCases.StickersTestCase;
 import com.mousebirdconsulting.autotester.TestCases.TextureVectorTestCase;
 import com.mousebirdconsulting.autotester.TestCases.VectorHoleTestCase;
 import com.mousebirdconsulting.autotester.TestCases.VectorMBTilesTestCase;
+import com.mousebirdconsulting.autotester.TestCases.VectorStyleTestCase;
 import com.mousebirdconsulting.autotester.TestCases.VectorsTestCase;
 import com.mousebirdconsulting.autotester.TestCases.WideVectorsTestCase;
 
@@ -113,6 +114,7 @@ public class TestListFragment extends Fragment {
 			testCases.add(new ClusteredMarkersTestCase(getActivity()));
 			testCases.add(new VectorsTestCase(getActivity()));
 			testCases.add(new GreatCircleTestCase(getActivity()));
+			testCases.add(new VectorStyleTestCase(getActivity()));
 			testCases.add(new VectorHoleTestCase(getActivity()));
 			testCases.add(new ShapefileTestCase(getActivity()));
 			testCases.add(new WideVectorsTestCase(getActivity()));

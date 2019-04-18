@@ -181,20 +181,22 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
         VectorStyleSimple style = stylesByLayerName.get(layerName);
         if (style == null)
         {
-            int layerOrder = attrs.getInt("layer_order");
-            int geomType = attrs.getInt("geometry_type");
+            Integer layerOrder = attrs.getInt("layer_order");
+            Integer geomType = attrs.getInt("geometry_type");
+
+            int layer = layerOrder == null ? 0 : layerOrder;
 
             // Each layer gets its own style
             switch (geomType)
             {
                 case MapboxVectorTileParser.GeomTypePoint:
-                    style = new VectorStyleSimplePoint(LabelInfo.LabelPriorityDefault+layerOrder);
+                    style = new VectorStyleSimplePoint(LabelInfo.LabelPriorityDefault+layer);
                     break;
                 case MapboxVectorTileParser.GeomTypeLineString:
-                    style = new VectorStyleSimpleLinear(VectorInfo.VectorPriorityDefault+layerOrder);
+                    style = new VectorStyleSimpleLinear(VectorInfo.VectorPriorityDefault+layer);
                     break;
                 case MapboxVectorTileParser.GeomTypePolygon:
-                    style = new VectorStyleSimplePolygon(VectorInfo.VectorPriorityDefault+layerOrder);
+                    style = new VectorStyleSimplePolygon(VectorInfo.VectorPriorityDefault+layer);
                     break;
                 default:
                     break;
