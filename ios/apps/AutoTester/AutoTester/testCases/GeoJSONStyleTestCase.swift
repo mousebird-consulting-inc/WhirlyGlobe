@@ -26,7 +26,7 @@ class GeoJSONStyleTestCase: MaplyTestCase {
     override init() {
         super.init()
         
-        self.name = "GeoJSON SLD Style Test Case"
+        self.name = "GeoJSON SLD Style"
         self.implementations = [.globe, .map]
     }
     

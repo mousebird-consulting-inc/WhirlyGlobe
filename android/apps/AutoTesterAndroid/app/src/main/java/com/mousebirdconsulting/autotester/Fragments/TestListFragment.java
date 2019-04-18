@@ -32,6 +32,7 @@ import com.mousebirdconsulting.autotester.TestCases.ImageReloadTestCase;
 import com.mousebirdconsulting.autotester.TestCases.LoftedPolyTestCase;
 import com.mousebirdconsulting.autotester.TestCases.MarkersTestCase;
 import com.mousebirdconsulting.autotester.TestCases.PagingLayerTestCase;
+import com.mousebirdconsulting.autotester.TestCases.SLDTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ScreenLabelsTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ScreenMarkersTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ShapefileTestCase;
@@ -119,7 +120,7 @@ public class TestListFragment extends Fragment {
 			testCases.add(new ShapefileTestCase(getActivity()));
 			testCases.add(new WideVectorsTestCase(getActivity()));
 			testCases.add(new TextureVectorTestCase(getActivity()));
-//			testCases.add(new SLDTestCase(getActivity()));
+			testCases.add(new SLDTestCase(getActivity()));
 			testCases.add(new LoftedPolyTestCase(getActivity()));
 			testCases.add(new StickersTestCase(getActivity()));
 			testCases.add(new PagingLayerTestCase(getActivity()));

@@ -93,7 +93,7 @@ public class MBTileFetcher extends HandlerThread implements TileFetcher
      * We don't need to describe a remote URL, so this is
      * basically a stub that passes back the tile ID.
      */
-    protected class MBTileInfo extends TileInfoNew
+    public class MBTileInfo extends TileInfoNew
     {
         MBTileInfo(int inMinZoom,int inMaxZoom)
         {
