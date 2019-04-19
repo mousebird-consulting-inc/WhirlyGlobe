@@ -82,10 +82,10 @@ class StarsSunTestCase: MaplyTestCase {
 			mode: MaplyThreadMode.any)
 		
 		// And some atmosphere, because the iDevice fill rate is just too fast
-		atmosObj = MaplyAtmosphere.init(viewC: globeVC)!
-
-		atmosObj.setWavelengthRed(0.650, green: 0.570, blue: 0.47)
-		atmosObj.setSunPosition(sun.getDirection())
+//        atmosObj = MaplyAtmosphere.init(viewC: globeVC)!
+//
+//        atmosObj.setWavelengthRed(0.650, green: 0.570, blue: 0.47)
+//        atmosObj.setSunPosition(sun.getDirection())
 	}
     
     var imageLoader : MaplyQuadImageFrameLoader?
@@ -97,23 +97,24 @@ class StarsSunTestCase: MaplyTestCase {
         sampleParams.coverPoles = true
         sampleParams.edgeMatching = true
         sampleParams.minZoom = 1
-        sampleParams.maxZoom = 8
+        sampleParams.maxZoom = 9
         sampleParams.singleLevel = true
-
+        
         // Two tile sources, one night and one day
         let cacheDir = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0]
 		let tileSource1 = MaplyRemoteTileInfoNew(
             baseURL: "http://map1.vis.earthdata.nasa.gov/wmts-webmerc/MODIS_Terra_CorrectedReflectance_TrueColor/default/2015-05-07/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg",
             minZoom: sampleParams.minZoom,
             maxZoom: sampleParams.maxZoom)
-        tileSource1.cacheDir = "\(cacheDir)/daytexture-2015-05-07/"
+        tileSource1.cacheDir = "\(cacheDir)/daytexture-2015-05-07-2/"
+        // TODO: Get the loader to respect missing tiles at the lowest levels
 		let tileSource2 = MaplyRemoteTileInfoNew(
             baseURL: "http://map1.vis.earthdata.nasa.gov/wmts-webmerc/VIIRS_CityLights_2012/default/2015-05-07/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpg",
-            minZoom: sampleParams.minZoom,
-            maxZoom: sampleParams.maxZoom)
-		tileSource2.cacheDir = "\(cacheDir)/nighttexture-2015-05-07/"
+            minZoom: 1,
+            maxZoom: 8)
+		tileSource2.cacheDir = "\(cacheDir)/nighttexture-2015-05-07-2/"
 		
-        guard let imageLoader = MaplyQuadImageFrameLoader(params: sampleParams, tileInfos: [tileSource1,tileSource2], viewC: globeVC) else {
+        guard let imageLoader = MaplyQuadImageFrameLoader(params: sampleParams, tileInfos: [tileSource1, tileSource2], viewC: globeVC) else {
             return nil
         }
         imageLoader.setShader(globeVC.getShaderByName(kMaplyShaderDefaultTriNightDay))

@@ -540,7 +540,7 @@ void SceneRendererES2::render(TimeInterval duration)
                         glUseProgram(program->getProgram());
                         // Assign the lights if we need to
                         if (program->hasLights() && (lights.size() > 0))
-                        program->setLights(lights, lightsLastUpdated, &defaultMat, currentMvpMat);
+                            program->setLights(lights, lightsLastUpdated, &defaultMat, currentMvpMat);
                         // Explicitly turn the lights on
                         program->setUniform(u_numLightsNameID, (int)lights.size());
                         
