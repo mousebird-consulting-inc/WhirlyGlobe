@@ -540,7 +540,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	protected MetroThread metroThread;
 
     // Note: Why isn't this in EGL10?
-    private static final int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
+    static final int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
 
 	ArrayList<ContextInfo> glContexts = new ArrayList<ContextInfo>();
 	ContextInfo glContext = null;

@@ -27,3 +27,4 @@ typedef JavaClassInfo<WhirlyKit::View> ViewClassInfo;
 typedef JavaClassInfo<WhirlyKit::ViewStateRef> ViewStateRefClassInfo;
 typedef JavaClassInfo<Maply::MapViewStateRef> MapViewStateRefClassInfo;
 typedef JavaClassInfo<WhirlyGlobe::GlobeViewStateRef> GlobeViewStateRefClassInfo;
+typedef JavaClassInfo<Maply::FlatView> FlatViewClassInfo;

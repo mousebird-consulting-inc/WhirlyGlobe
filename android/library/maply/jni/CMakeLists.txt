@@ -49,6 +49,7 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/src/coordSystem/FakeGeocentricDisplayAdapter_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/coordSystem/GeneralDisplayAdapter_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/coordSystem/GeoCoordSystem_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/coordSystem/PassThroughCoordSystem_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/coordSystem/PlateCarreeCoordSystem_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/coordSystem/Proj4CoordSystem_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/coordSystem/SphericalMercatorCoordSystem_jni.cpp"
@@ -62,6 +63,7 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/src/scene/Shader_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/scene/Texture_jni.cpp"
 
+        "${CMAKE_CURRENT_LIST_DIR}/src/view/FlatView_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/view/GlobeView_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/view/GlobeViewState_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/view/MapView_jni.cpp"

@@ -116,9 +116,17 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_nativeInit
 /*
  * Class:     com_mousebird_maply_RenderController
  * Method:    initialise
+ * Signature: (II)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_initialise__II
+  (JNIEnv *, jobject, jint, jint);
+
+/*
+ * Class:     com_mousebird_maply_RenderController
+ * Method:    initialise
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_initialise
+JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_initialise__
   (JNIEnv *, jobject);
 
 /*

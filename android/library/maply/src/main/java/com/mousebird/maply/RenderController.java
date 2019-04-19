@@ -7,6 +7,8 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.ColorDrawable;
+import android.opengl.EGL14;
+import android.opengl.EGLExt;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.util.Log;
@@ -19,6 +21,7 @@ import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.egl.EGLContext;
 import javax.microedition.khronos.egl.EGLDisplay;
+import javax.microedition.khronos.egl.EGLSurface;
 
 /**
  * The Render Controller handles the object manipulation and rendering interface.
@@ -71,9 +74,75 @@ public class RenderController implements RenderControllerInterface
     {
         return scene;
     }
+
+    /**
+     * This constructor assumes we'll be hooking up to surface provided later.
+     */
     RenderController()
     {
         initialise();
+    }
+
+    // Set if this is a standalone renderer
+    protected boolean offlineMode = false;
+
+    /**
+     * This constructor sets up its own render target.  Used for offline rendering.
+     */
+    public RenderController(int width,int height)
+    {
+        // TODO: Is this going to work?
+        setConfig(null);
+
+        // Set up our own EGL context for offline work
+        EGL10 egl = (EGL10) EGLContext.getEGL();
+        int[] attrib_list = {BaseController.EGL_CONTEXT_CLIENT_VERSION, 2, EGL10.EGL_NONE};
+        offlineGLContext = new ContextInfo();
+        offlineGLContext.eglContext = egl.eglCreateContext(display, config, context, attrib_list);
+        int[] surface_attrs =
+                {
+                        EGL10.EGL_WIDTH, 32,
+                        EGL10.EGL_HEIGHT, 32,
+                        //			    EGL10.EGL_COLORSPACE, GL10.GL_RGB,
+                        //			    EGL10.EGL_TEXTURE_FORMAT, EGL_TEXTURE_RGB,
+                        //			    EGL10.EGL_TEXTURE_TARGET, EGL_TEXTURE_2D,
+                        //			    EGL10.EGL_LARGEST_PBUFFER, GL10.GL_TRUE,
+                        EGL10.EGL_NONE
+                };
+        offlineGLContext.eglSurface = egl.eglCreatePbufferSurface(display, config, surface_attrs);
+
+        initialise(width,height);
+
+        // Set up a passthrough coordinate system, view, and so on
+        CoordSystem coordSys = new PassThroughCoordSystem();
+        Point3d ll = new Point3d(0.0,0.0,0.0);
+        Point3d ur = new Point3d(width,height,0.0);
+        Point3d scale = new Point3d(1.0, 1.0, 1.0);
+        Point3d center = new Point3d((ll.getX()+ur.getX())/2.0,(ll.getY()+ur.getY())/2.0,(ll.getZ()+ur.getZ())/2.0);
+        coordAdapter = new GeneralDisplayAdapter(coordSys,ll,ur,center,scale);
+        FlatView flatView = new FlatView(null,coordAdapter);
+        Mbr extents = new Mbr(new Point2d(ll.getX(),ll.getY()),new Point2d(ur.getX(),ur.getY()));
+        flatView.setExtents(extents);
+        flatView.setWindow(new Point2d(width,height),new Point2d(0.0,0.0));
+
+        scene = new MapScene(coordAdapter);
+
+        // Need a task manager that just runs things on the current thread
+        //  after setting the proper context for rendering
+        TaskManager taskMan = new TaskManager() {
+            @Override
+            public void addTask(Runnable run, ThreadMode mode) {
+                EGL10 egl = (EGL10) EGLContext.getEGL();
+                setEGLContext(offlineGLContext);
+
+                run.run();
+
+                // TODO: Clear back to the old context
+            }
+        };
+
+        // This will properly wire things up
+        Init(scene,coordAdapter,taskMan);
     }
 
     /**
@@ -186,10 +255,32 @@ public class RenderController implements RenderControllerInterface
     public EGLContext context = null;
     public void setConfig(EGLConfig inConfig)
     {
-        config = inConfig;
         EGL10 egl = (EGL10) EGLContext.getEGL();
         display = egl.eglGetCurrentDisplay();
         context = egl.eglGetCurrentContext();
+
+        // If we didn't pass in one, we're in offline mode and need to make one
+        if (config == null) {
+            int[] attribList = {
+                    EGL14.EGL_RED_SIZE, 8,
+                    EGL14.EGL_GREEN_SIZE, 8,
+                    EGL14.EGL_BLUE_SIZE, 8,
+                    EGL14.EGL_ALPHA_SIZE, 8,
+                    EGL14.EGL_DEPTH_SIZE, 16,
+                    EGL14.EGL_RENDERABLE_TYPE, EGL14.EGL_OPENGL_ES2_BIT | EGLExt.EGL_OPENGL_ES3_BIT_KHR,
+                    EGL14.EGL_NONE
+            };
+            EGLConfig[] configs = new EGLConfig[1];
+            int[] numConfigs = new int[1];
+            if (!egl.eglChooseConfig(display,attribList,configs, configs.length, numConfigs))
+            {
+                Log.e("Maply", "Unable set set up OpenGL ES for offline rendering.");
+            } else {
+                config = configs[0];
+            }
+        } else {
+            config = inConfig;
+        }
     }
 
     // Managers are thread safe objects for handling adding and removing types of data
@@ -1620,18 +1711,37 @@ public class RenderController implements RenderControllerInterface
     {
     }
 
-    // TODO: Figure out what to do with this
+    // Used in standalone mode
+    ContextInfo offlineGLContext = null;
+
+    // Used only in standalone mode
     public boolean setEGLContext(ContextInfo cInfo) {
+        if (cInfo == null)
+            cInfo = offlineGLContext;
+
+        EGL10 egl = (EGL10) EGLContext.getEGL();
+        if (cInfo != null)
+        {
+            if (!egl.eglMakeCurrent(display, cInfo.eglSurface, cInfo.eglSurface, cInfo.eglContext)) {
+                Log.d("Maply", "Failed to make current context.");
+                return false;
+            }
+
+            return true;
+        } else {
+                egl.eglMakeCurrent(display, egl.EGL_NO_SURFACE, egl.EGL_NO_SURFACE, egl.EGL_NO_CONTEXT);
+        }
+
         return false;
     }
 
-    // TODO: Figure out if we need this in standalone mode
+    // Don't need this in standalone mode
     public ContextInfo setupTempContext(ThreadMode threadMode)
     {
         return null;
     }
 
-    // TODO: Figure out if we need this in standalone mode
+    // Don't need this in standalone mode
     public void clearTempContext(ContextInfo cInfo)
     {
     }
@@ -1659,6 +1769,7 @@ public class RenderController implements RenderControllerInterface
         nativeInit();
     }
     private static native void nativeInit();
+    native void initialise(int width,int height);
     native void initialise();
     native void dispose();
     private long nativeHandle;
