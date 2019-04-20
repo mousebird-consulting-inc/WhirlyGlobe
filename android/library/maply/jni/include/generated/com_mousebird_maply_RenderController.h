@@ -107,6 +107,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_replaceLights
 
 /*
  * Class:     com_mousebird_maply_RenderController
+ * Method:    renderToBitmap
+ * Signature: ()Landroid/graphics/Bitmap;
+ */
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_RenderController_renderToBitmap
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_RenderController
  * Method:    nativeInit
  * Signature: ()V
  */

@@ -28,6 +28,12 @@ SceneRendererES2_Android::SceneRendererES2_Android()
     extraFrameMode = true;
 }
 
+SceneRendererES2_Android::SceneRendererES2_Android(int width,int height)
+{
+    context = eglGetCurrentContext();
+    setup(3,width,height);
+}
+
 // Called when the window changes size (or on startup)
 bool SceneRendererES2_Android::resize(int width, int height)
 {

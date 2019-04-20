@@ -27,6 +27,7 @@ namespace WhirlyKit {
 class SceneRendererES2_Android : public SceneRendererES2 {
 public:
     SceneRendererES2_Android();
+    SceneRendererES2_Android(int width,int height);
 
     // Called when the window changes size (or on startup)
     bool resize(int width, int height);

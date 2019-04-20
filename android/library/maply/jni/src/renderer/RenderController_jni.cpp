@@ -69,7 +69,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_nativeInit
 	SceneRendererInfo::getClassInfo(env,cls);
 }
 
-void Java_com_mousebird_maply_RenderController_initialise
+void Java_com_mousebird_maply_RenderController_initialise__
   (JNIEnv *env, jobject obj)
 {
 	try
@@ -86,6 +86,23 @@ void Java_com_mousebird_maply_RenderController_initialise
 	}
 
 //	renderer->setup();
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_initialise__II
+		(JNIEnv *env, jobject obj, jint width, jint height)
+{
+	try
+	{
+		SceneRendererES2_Android *renderer = new SceneRendererES2_Android(width,height);
+		renderer->setZBufferMode(zBufferOffDefault);
+		renderer->setClearColor(RGBAColor(255,255,255,255));
+		SceneRendererInfo *classInfo = SceneRendererInfo::getClassInfo();
+		classInfo->setHandle(env,obj,renderer);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in RenderController::initialise()");
+	}
 }
 
 static std::mutex disposeMutex;

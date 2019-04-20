@@ -20,6 +20,8 @@
 
 package com.mousebird.maply;
 
+import android.graphics.Bitmap;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.lang.ref.WeakReference;
@@ -32,14 +34,47 @@ import java.util.zip.ZipEntry;
  */
 public class MapboxVectorInterpreter implements LoaderInterpreter
 {
+    VectorStyleInterface imageStyleGen;
     VectorStyleInterface styleGen;
     WeakReference<BaseController> vc;
+    RenderController tileRender;
     MapboxVectorTileParser parser;
+    MapboxVectorTileParser imageParser;
 
+    /**
+     * This version of the init builds visual features for vector tiles.
+     * <br>
+     * This interpreter can be used as overlay data or a full map, depending
+     * on how your style is configured.
+     */
     public MapboxVectorInterpreter(VectorStyleInterface inStyleInter,BaseController inVC) {
         styleGen = inStyleInter;
         vc = new WeakReference<BaseController>(inVC);
         parser = new MapboxVectorTileParser(inStyleInter,inVC);
+    }
+
+    /**
+     * This version of the init takes an image style set, a vector style set,
+     * and an offline renderer to build the image tiles.
+     * <br>
+     * Image tiles will be used as a background and vectors put on top of them.
+     * This is very nice for the globe, but requires specialized style sheets.
+     *
+     * @param inImageStyle Style used when rendering to image tiles
+     * @param inTileRender Renderer used to draw the image tiles
+     * @param inVectorStyle Style used in the main controller (e.g. the overlay)
+     * @param inVC Controller where everything eventually goes
+     */
+    public MapboxVectorInterpreter(VectorStyleInterface inImageStyle,RenderController inTileRender,
+                                   VectorStyleInterface inVectorStyle,BaseController inVC)
+    {
+        imageStyleGen = inImageStyle;
+        styleGen = inVectorStyle;
+        tileRender = inTileRender;
+        vc = new WeakReference<BaseController>(inVC);
+
+        parser = new MapboxVectorTileParser(styleGen,inVC);
+        imageParser = new MapboxVectorTileParser(imageStyleGen,inTileRender);
     }
 
     WeakReference<QuadPagingLoader> objectLoader;
@@ -97,6 +132,17 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
         VectorTileData tileData = new VectorTileData(tileID,locBounds,loader.geoBoundsForTile(tileID));
         parser.parseData(data,tileData);
 
+        // If we have a tile renderer, draw the data into that
+        Bitmap tileBitmap = null;
+        if (tileRender != null) {
+            Mbr imageBounds = new Mbr(new Point2d(0.0,0.0), tileRender.frameSize);
+            VectorTileData imageTileData = new VectorTileData(tileID,imageBounds,imageBounds);
+            synchronized (tileRender) {
+                imageParser.parseData(data,imageTileData);
+                tileBitmap = tileRender.renderToBitmap();
+            }
+        }
+
         // Merge the results into the loadReturn
         if (objectLoader != null) {
             ObjectLoaderReturn objLoadReturn = (ObjectLoaderReturn)loadReturn;
@@ -104,6 +150,8 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
         } else if (imageLoader != null) {
             ImageLoaderReturn imgLoadReturn = (ImageLoaderReturn)loadReturn;
             imgLoadReturn.addComponentObjects(tileData.getComponentObjects());
+            if (tileBitmap != null)
+                imgLoadReturn.addBitmap(tileBitmap);
         }
     }
 

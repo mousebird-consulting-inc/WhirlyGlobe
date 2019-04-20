@@ -61,7 +61,7 @@ class VectorMBTilesTestCase : MaplyTestCase {
         styleGen = VectorStyleSimpleGenerator(control)
 
         // Mapbox interpreter uses the parser and style to create visual data
-        var interp = MapboxVectorInterpreter(styleGen, control)
+        interp = MapboxVectorInterpreter(styleGen, control)
 
         loader = QuadPagingLoader(params, fetcher!!.tileInfo, interp, control)
         loader!!.setTileFetcher(fetcher)

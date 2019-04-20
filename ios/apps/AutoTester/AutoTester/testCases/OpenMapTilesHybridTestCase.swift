@@ -13,7 +13,7 @@ class OpenMapTilesHybridTestCase: MaplyTestCase {
     override init() {
         super.init()
         
-        self.name = "OpenMapTiles Hybrid Test Case"
+        self.name = "OpenMapTiles Hybrid"
         self.implementations = [.map, .globe]
     }
     

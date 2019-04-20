@@ -91,7 +91,6 @@ public class RenderController implements RenderControllerInterface
      */
     public RenderController(int width,int height)
     {
-        // TODO: Is this going to work?
         setConfig(null);
 
         // Set up our own EGL context for offline work
@@ -260,14 +259,14 @@ public class RenderController implements RenderControllerInterface
         context = egl.eglGetCurrentContext();
 
         // If we didn't pass in one, we're in offline mode and need to make one
-        if (config == null) {
+        if (inConfig == null) {
             int[] attribList = {
                     EGL14.EGL_RED_SIZE, 8,
                     EGL14.EGL_GREEN_SIZE, 8,
                     EGL14.EGL_BLUE_SIZE, 8,
                     EGL14.EGL_ALPHA_SIZE, 8,
                     EGL14.EGL_DEPTH_SIZE, 16,
-                    EGL14.EGL_RENDERABLE_TYPE, EGL14.EGL_OPENGL_ES2_BIT | EGLExt.EGL_OPENGL_ES3_BIT_KHR,
+                    EGL14.EGL_RENDERABLE_TYPE, EGL14.EGL_OPENGL_ES2_BIT, EGLExt.EGL_OPENGL_ES3_BIT_KHR,
                     EGL14.EGL_NONE
             };
             EGLConfig[] configs = new EGLConfig[1];
@@ -343,6 +342,9 @@ public class RenderController implements RenderControllerInterface
         billboardManager = null;
 
         texManager = null;
+
+        // TODO: Do we have to explicity shut these down?
+        offlineGLContext = null;
     }
 
     /** RenderControllerInterface **/
@@ -1757,7 +1759,7 @@ public class RenderController implements RenderControllerInterface
     public native void setPerfInterval(int perfInterval);
     public native void addLight(DirectionalLight light);
     public native void replaceLights(DirectionalLight[] lights);
-
+    public native Bitmap renderToBitmap();
 
     public void finalize()
     {

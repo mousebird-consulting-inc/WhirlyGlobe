@@ -31,6 +31,7 @@ import com.mousebirdconsulting.autotester.TestCases.GreatCircleTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ImageReloadTestCase;
 import com.mousebirdconsulting.autotester.TestCases.LoftedPolyTestCase;
 import com.mousebirdconsulting.autotester.TestCases.MarkersTestCase;
+import com.mousebirdconsulting.autotester.TestCases.OpenMapTilesHybridTestCase;
 import com.mousebirdconsulting.autotester.TestCases.PagingLayerTestCase;
 import com.mousebirdconsulting.autotester.TestCases.SLDTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ScreenLabelsTestCase;
@@ -125,7 +126,7 @@ public class TestListFragment extends Fragment {
 			testCases.add(new StickersTestCase(getActivity()));
 			testCases.add(new PagingLayerTestCase(getActivity()));
 			testCases.add(new VectorMBTilesTestCase(getActivity()));
-			// OpenMapTiles Hybrid Test Case
+			testCases.add(new OpenMapTilesHybridTestCase(getActivity()));
 			testCases.add(new CartoTestCase(getActivity()));
 			testCases.add(new ShapesTestCase(getActivity()));
 			// Extruded Model (Arrows)
