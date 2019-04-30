@@ -118,7 +118,7 @@
     [self handleSelection:selectedObj];
 }
 
-- (void)maplyViewController:(MaplyViewController *__nonnull)viewC didSelect:(NSObject *__nonnull)selectedObj atLoc:(WGCoordinate)coord onScreen:(CGPoint)screenPt
+- (void)maplyViewController:(MaplyViewController *__nonnull)viewC didSelect:(NSObject *__nonnull)selectedObj atLoc:(MaplyCoordinate)coord onScreen:(CGPoint)screenPt
 {
     [self handleSelection:selectedObj];
 }

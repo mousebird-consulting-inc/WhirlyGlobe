@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "WhirlyGlobeComponent.h"
-
+#import "MaplyComponent.h"
 
 @class MaplyViewController;
 @class WhirlyGlobeViewController;
