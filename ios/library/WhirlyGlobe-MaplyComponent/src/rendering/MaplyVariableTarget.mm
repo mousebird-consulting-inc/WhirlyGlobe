@@ -19,7 +19,7 @@
  */
 
 #import "MaplyVariableTarget_private.h"
-#import "MaplyShape.h"
+#import "visual_objects/MaplyShape.h"
 
 @implementation MaplyVariableTarget
 {

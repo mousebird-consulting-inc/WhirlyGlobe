@@ -18,10 +18,10 @@
  *
  */
 
-#import "MaplyWMSTileSource.h"
+#import "data_sources/MaplyWMSTileSource.h"
 #import "DDXMLElementAdditions.h"
 #import "DDXML.h"
-#import "MaplyRemoteTileFetcher.h"
+#import "loading/MaplyRemoteTileFetcher.h"
 
 @implementation MaplyWMSLayerBoundingBox
 

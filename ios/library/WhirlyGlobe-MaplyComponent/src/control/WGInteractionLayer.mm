@@ -19,14 +19,14 @@
  */
 
 #import "WGInteractionLayer_private.h"
-#import "MaplyScreenMarker.h"
-#import "MaplyMarker.h"
-#import "MaplyScreenLabel.h"
-#import "MaplyLabel.h"
+#import "visual_objects/MaplyScreenMarker.h"
+#import "visual_objects/MaplyMarker.h"
+#import "visual_objects/MaplyScreenLabel.h"
+#import "visual_objects/MaplyLabel.h"
 #import "MaplyVectorObject_private.h"
-#import "MaplyShape.h"
-#import "MaplySticker.h"
-#import "WGCoordinate.h"
+#import "visual_objects/MaplyShape.h"
+#import "visual_objects/MaplySticker.h"
+#import "math/MaplyCoordinate.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;

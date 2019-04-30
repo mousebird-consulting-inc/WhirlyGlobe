@@ -19,7 +19,7 @@
  */
 
 #import <vector>
-#import "MaplyStarsModel.h"
+#import "visual_objects/MaplyStarsModel.h"
 #import <WhirlyGlobe_iOS.h>
 #import <AA+.h>
 

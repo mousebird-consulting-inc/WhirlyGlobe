@@ -18,8 +18,8 @@
  *
  */
 
-#import "MaplyTileSourceNew.h"
-#import "MaplyCoordinateSystem.h"
+#import "loading/MaplyTileSourceNew.h"
+#import "math/MaplyCoordinateSystem.h"
 
 /**
     MBTiles tile fetcher.

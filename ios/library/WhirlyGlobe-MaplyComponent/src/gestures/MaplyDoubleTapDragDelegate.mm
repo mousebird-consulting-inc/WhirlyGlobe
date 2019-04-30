@@ -19,9 +19,9 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "MaplyZoomGestureDelegate.h"
+#import "gestures/MaplyZoomGestureDelegate.h"
 #import "MaplyZoomGestureDelegate_private.h"
-#import "MaplyDoubleTapDragDelegate.h"
+#import "gestures/MaplyDoubleTapDragDelegate.h"
 #import "MaplyAnimateTranslation.h"
 
 using namespace WhirlyKit;

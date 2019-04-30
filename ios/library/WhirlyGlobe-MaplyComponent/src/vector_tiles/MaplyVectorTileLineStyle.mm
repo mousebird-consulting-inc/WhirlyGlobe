@@ -19,11 +19,11 @@
  */
 
 #import <vector>
-#import "MaplyVectorTileLineStyle.h"
-#import "MaplyTexture.h"
-#import "MaplyTextureBuilder.h"
+#import "vector_styles/MaplyVectorTileLineStyle.h"
+#import "visual_objects/MaplyTexture.h"
+#import "helpers/MaplyTextureBuilder.h"
 #import <WhirlyGlobe_iOS.h>
-#import "MapboxVectorTiles.h"
+#import "vector_tiles/MapboxVectorTiles.h"
 
 // Line styles
 @implementation MaplyVectorTileStyleLine

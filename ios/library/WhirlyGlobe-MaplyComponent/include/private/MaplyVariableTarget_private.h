@@ -18,7 +18,7 @@
  *
  */
 
-#import "MaplyVariableTarget.h"
+#import "rendering/MaplyVariableTarget.h"
 
 @interface MaplyVariableTarget()
 

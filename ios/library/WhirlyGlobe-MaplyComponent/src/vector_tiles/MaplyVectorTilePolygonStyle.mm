@@ -18,9 +18,9 @@
  *
  */
 
-#import "WhirlyGlobeViewController.h"
-#import "MaplyVectorTilePolygonStyle.h"
-#import "MapboxVectorTiles.h"
+#import "control/WhirlyGlobeViewController.h"
+#import "vector_styles/MaplyVectorTilePolygonStyle.h"
+#import "vector_tiles/MapboxVectorTiles.h"
 
 // Filled polygons styles
 @implementation MaplyVectorTileStylePolygon

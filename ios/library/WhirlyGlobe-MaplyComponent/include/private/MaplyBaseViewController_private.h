@@ -20,7 +20,7 @@
 
 #import <UIKit/UIKit.h>
 
-#import "MaplyBaseViewController.h"
+#import "control/MaplyBaseViewController.h"
 #import "MaplyViewControllerLayer_private.h"
 #import "MaplyComponentObject_private.h"
 #import "WGInteractionLayer_private.h"
@@ -29,9 +29,9 @@
 #import "MaplyShader_private.h"
 #import "MaplyActiveObject_private.h"
 #import "MaplyCoordinateSystem_private.h"
-#import "MaplyCluster.h"
+#import "visual_objects/MaplyCluster.h"
 #import "SMCalloutView.h"
-#import "Maply3dTouchPreviewDelegate.h"
+#import "gestures/Maply3dTouchPreviewDelegate.h"
 #import "MaplyRenderController_private.h"
 #import "ViewPlacementActiveModel.h"
 #import "FontTextureManager_iOS.h"

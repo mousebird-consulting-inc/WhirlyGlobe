@@ -20,7 +20,7 @@
 
 #import <Foundation/Foundation.h>
 #import "MapView_iOS.h"
-#import "MaplyZoomGestureDelegate.h"
+#import "gestures/MaplyZoomGestureDelegate.h"
 
 @interface MaplyDoubleTapDelegate : MaplyZoomGestureDelegate
 

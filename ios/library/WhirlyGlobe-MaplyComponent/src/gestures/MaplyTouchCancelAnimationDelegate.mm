@@ -19,7 +19,7 @@
  */
 
 
-#import "MaplyTouchCancelAnimationDelegate.h"
+#import "gestures/MaplyTouchCancelAnimationDelegate.h"
 
 @implementation MaplyTouchCancelAnimationDelegate
 

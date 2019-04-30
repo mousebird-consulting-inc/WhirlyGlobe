@@ -18,8 +18,8 @@
  *
  */
 
-#import "MaplyZoomGestureDelegate.h"
-#import "MaplyPanDelegate.h"
+#import "gestures/MaplyZoomGestureDelegate.h"
+#import "gestures/MaplyPanDelegate.h"
 #import "MaplyAnimateTranslation.h"
 
 #import "EAGLView.h"

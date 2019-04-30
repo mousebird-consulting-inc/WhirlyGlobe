@@ -18,13 +18,13 @@
  *
  */
 
-#import "MapnikStyleSet.h"
-#import "MaplyVectorTileStyle.h"
+#import "vector_styles/MapnikStyleSet.h"
+#import "vector_styles/MaplyVectorTileStyle.h"
 
-#import "MaplyTileSourceNew.h"
-#import "MapnikStyle.h"
-#import "MapnikStyleRule.h"
-#import "NSDictionary+StyleRules.h"
+#import "loading/MaplyTileSourceNew.h"
+#import "vector_styles/MapnikStyle.h"
+#import "vector_styles/MapnikStyleRule.h"
+#import "UIKit/NSDictionary+StyleRules.h"
 
 @interface MapnikStyleSet() {
   //temporary storage during parsing

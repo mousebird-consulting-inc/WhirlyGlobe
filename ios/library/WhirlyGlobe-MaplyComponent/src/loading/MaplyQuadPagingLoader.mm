@@ -17,7 +17,7 @@
  *
  */
 
-#import "MaplyQuadPagingLoader.h"
+#import "loading/MaplyQuadPagingLoader.h"
 #import "MaplyQuadSampler_private.h"
 #import "MaplyQuadLoader_private.h"
 #import "MaplyComponentObject_private.h"

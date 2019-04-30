@@ -6,7 +6,7 @@
 //  Copyright © 2016-2019 mousebird consulting.
 //
 
-#import "SLDExpressions.h"
+#import "vector_styles/SLDExpressions.h"
 #import "DDXML.h"
 
 @implementation SLDExpression

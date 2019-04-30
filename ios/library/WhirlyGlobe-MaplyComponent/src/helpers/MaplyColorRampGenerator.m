@@ -6,7 +6,7 @@
 //
 //
 
-#import "MaplyColorRampGenerator.h"
+#import "rendering/MaplyColorRampGenerator.h"
 
 @implementation MaplyColorRampGenerator
 {

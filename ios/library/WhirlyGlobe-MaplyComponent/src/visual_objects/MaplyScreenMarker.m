@@ -18,7 +18,7 @@
  *
  */
 
-#import "MaplyScreenMarker.h"
+#import "visual_objects/MaplyScreenMarker.h"
 
 @implementation MaplyScreenMarker
 

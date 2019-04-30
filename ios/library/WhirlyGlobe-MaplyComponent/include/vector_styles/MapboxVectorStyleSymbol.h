@@ -18,7 +18,7 @@
  *
  */
 
-#import "MapboxVectorStyleSet.h"
+#import "vector_styles/MapboxVectorStyleSet.h"
 
 typedef enum {MBTextCenter,MBTextLeft,MBTextRight,MBTextTop,MBTextBottom,MBTextTopLeft,MBTextTopRight,MBTextBottomLeft,MBTextBottomRight} MapboxTextAnchor;
 typedef enum {MBPlacePoint,MBPlaceLine} MapboxSymbolPlacement;

@@ -19,8 +19,8 @@
  */
 
 #import <WhirlyGlobe_iOS.h>
-#import "MaplyAtmosphere.h"
-#import "MaplyShape.h"
+#import "rendering/MaplyAtmosphere.h"
+#import "visual_objects/MaplyShape.h"
 #import "MaplyShader_private.h"
 #import "MaplyActiveObject_private.h"
 

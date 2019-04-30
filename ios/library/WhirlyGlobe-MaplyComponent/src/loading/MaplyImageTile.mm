@@ -18,7 +18,7 @@
  *
  */
 
-#import "MaplyImageTile.h"
+#import "loading/MaplyImageTile.h"
 #import "MaplyImageTile_private.h"
 #import "WhirlyGlobe.h"
 

@@ -20,7 +20,7 @@
 
 #import <UIKit/UIKit.h>
 #import "MapView_iOS.h"
-#import "MaplyZoomGestureDelegate.h"
+#import "gestures/MaplyZoomGestureDelegate.h"
 
 @interface MaplyTwoFingerTapDelegate : MaplyZoomGestureDelegate
 

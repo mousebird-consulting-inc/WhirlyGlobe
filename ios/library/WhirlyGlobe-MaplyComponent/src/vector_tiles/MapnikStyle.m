@@ -18,8 +18,8 @@
  *
  */
 
-#import "MapnikStyle.h"
-#import "MaplyVectorStyle.h"
+#import "vector_styles/MapnikStyle.h"
+#import "vector_styles/MaplyVectorStyle.h"
 
 @interface MapnikStyle ()
 

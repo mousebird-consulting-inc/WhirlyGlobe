@@ -20,8 +20,8 @@
 
 #import <Foundation/Foundation.h>
 #import <WhirlyGlobe_iOS.h>
-#import "MaplyVectorObject.h"
-#import "MaplyComponentObject.h"
+#import "visual_objects/MaplyVectorObject.h"
+#import "visual_objects/MaplyComponentObject.h"
 #import "MaplyTexture_private.h"
 
 /** The Component Object is used to track all the resources a user created

@@ -18,7 +18,7 @@
  *
  */
 
-#import "MaplyRenderTarget.h"
+#import "rendering/MaplyRenderTarget.h"
 #import "WhirlyGlobe.h"
 
 @interface MaplyRenderTarget()

@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "SLDExpressions.h"
+#import "vector_styles/SLDExpressions.h"
 
 /** @brief Base class for elements of ogc:comparisonOps or ogc:logicOps.
  

@@ -20,17 +20,17 @@
 
 #import <UIKit/UIKit.h>
 #import <WhirlyGlobe_iOS.h>
-#import "WhirlyGlobeViewController.h"
+#import "control/WhirlyGlobeViewController.h"
 #import "MaplyBaseViewController_private.h"
-#import "GlobePinchDelegate.h"
-#import "GlobePanDelegate.h"
-#import "GlobeTiltDelegate.h"
-#import "GlobeTapDelegate.h"
+#import "gestures/GlobePinchDelegate.h"
+#import "gestures/GlobePanDelegate.h"
+#import "gestures/GlobeTiltDelegate.h"
+#import "gestures/GlobeTapDelegate.h"
 #import "GlobeAnimateRotation.h"
-#import "GlobeDoubleTapDelegate.h"
-#import "GlobeTwoFingerTapDelegate.h"
-#import "GlobeDoubleTapDragDelegate.h"
-#import "GlobeRotateDelegate.h"
+#import "gestures/GlobeDoubleTapDelegate.h"
+#import "gestures/GlobeTwoFingerTapDelegate.h"
+#import "gestures/GlobeDoubleTapDragDelegate.h"
+#import "gestures/GlobeRotateDelegate.h"
 
 /// This is the private interface to WhirlyGlobeViewController.
 /// Only pull this in if you're subclassing

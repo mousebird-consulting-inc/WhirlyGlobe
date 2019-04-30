@@ -17,7 +17,7 @@
  *
  */
 
-#import "MaplyQuadLoader.h"
+#import "loading/MaplyQuadLoader.h"
 
 /**
  This version of the loader return is used by the MaplyQuadPagingLoader.

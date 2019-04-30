@@ -18,11 +18,11 @@
  *
  */
 
-#import "MaplyLocationTracker.h"
-#import "MaplyBaseViewController.h"
-#import "MaplyCoordinate.h"
-#import "MaplyShape.h"
-#import "WhirlyGlobeViewController.h"
+#import "helpers/MaplyLocationTracker.h"
+#import "control/MaplyBaseViewController.h"
+#import "math/MaplyCoordinate.h"
+#import "visual_objects/MaplyShape.h"
+#import "control/WhirlyGlobeViewController.h"
 #import "MaplyViewController.h"
 
 @implementation MaplyLocationTracker {

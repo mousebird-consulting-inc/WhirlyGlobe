@@ -18,12 +18,12 @@
  *
  */
 
-#import "MapboxVectorStyleSet.h"
-#import "MapboxVectorStyleBackground.h"
-#import "MapboxVectorStyleFill.h"
-#import "MapboxVectorStyleLine.h"
-#import "MapboxVectorStyleRaster.h"
-#import "MapboxVectorStyleSymbol.h"
+#import "vector_styles/MapboxVectorStyleSet.h"
+#import "vector_styles/MapboxVectorStyleBackground.h"
+#import "vector_styles/MapboxVectorStyleFill.h"
+#import "vector_styles/MapboxVectorStyleLine.h"
+#import "vector_styles/MapboxVectorStyleRaster.h"
+#import "vector_styles/MapboxVectorStyleSymbol.h"
 #import <map>
 
 @implementation MapboxVectorStyleSet

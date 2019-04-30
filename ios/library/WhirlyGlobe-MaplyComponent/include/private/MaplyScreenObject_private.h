@@ -18,7 +18,7 @@
  *
  */
 
-#import "MaplyScreenObject.h"
+#import "visual_objects/MaplyScreenObject.h"
 #import <vector>
 
 @interface MaplyScreenObject()

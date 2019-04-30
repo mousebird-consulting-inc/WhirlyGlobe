@@ -18,7 +18,7 @@
  *
  */
 
-#import "GlobeDoubleTapDelegate.h"
+#import "gestures/GlobeDoubleTapDelegate.h"
 #import "EAGLView.h"
 #import "GlobeAnimateHeight.h"
 

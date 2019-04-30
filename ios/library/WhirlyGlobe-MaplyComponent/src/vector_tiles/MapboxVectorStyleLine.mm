@@ -18,8 +18,8 @@
  *
  */
 
-#import "MapboxVectorStyleLine.h"
-#import "MaplyTextureBuilder.h"
+#import "vector_styles/MapboxVectorStyleLine.h"
+#import "helpers/MaplyTextureBuilder.h"
 
 @implementation MapboxVectorLineLayout
 

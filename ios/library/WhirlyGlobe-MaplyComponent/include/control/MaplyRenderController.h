@@ -18,18 +18,18 @@
  *
  */
 
-#import "MaplyCoordinate.h"
-#import "MaplyScreenMarker.h"
-#import "MaplyVectorObject.h"
-#import "MaplyComponentObject.h"
+#import "math/MaplyCoordinate.h"
+#import "visual_objects/MaplyScreenMarker.h"
+#import "visual_objects/MaplyVectorObject.h"
+#import "visual_objects/MaplyComponentObject.h"
 #import "MaplySharedAttributes.h"
-#import "MaplyLight.h"
-#import "MaplyShader.h"
-#import "MaplyTexture.h"
-#import "MaplyParticleSystem.h"
-#import "MaplyPoints.h"
-#import "MaplyCluster.h"
-#import "MaplyRenderTarget.h"
+#import "rendering/MaplyLight.h"
+#import "rendering/MaplyShader.h"
+#import "visual_objects/MaplyTexture.h"
+#import "visual_objects/MaplyParticleSystem.h"
+#import "visual_objects/MaplyPoints.h"
+#import "visual_objects/MaplyCluster.h"
+#import "rendering/MaplyRenderTarget.h"
 
 /// Where we'd like an add to be executed.  If you need immediate feedback,
 ///  then be on the main thread and use MaplyThreadCurrent.  Any is the default.

@@ -18,9 +18,9 @@
  *
  */
 
-#import "MaplyActiveObject.h"
+#import "control/MaplyActiveObject.h"
 #import "WhirlyGlobe.h"
-#import "MaplyBaseViewController.h"
+#import "control/MaplyBaseViewController.h"
 
 // Fill in the Active Model protocol from the API
 @interface MaplyActiveObject()

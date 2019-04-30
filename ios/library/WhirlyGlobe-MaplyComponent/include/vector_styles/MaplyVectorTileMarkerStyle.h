@@ -18,8 +18,8 @@
  *
  */
 
-#import "MaplyVectorStyle.h"
-#import "MaplyVectorTileStyle.h"
+#import "vector_styles/MaplyVectorStyle.h"
+#import "vector_styles/MaplyVectorTileStyle.h"
 
 /** 
     Implementation of the marker style symbolizer for Maply Vector Tiles.

@@ -18,9 +18,9 @@
  *
  */
 
-#import "MaplyVectorTileMarkerStyle.h"
-#import "MaplyIconManager.h"
-#import "MapboxVectorTiles.h"
+#import "vector_styles/MaplyVectorTileMarkerStyle.h"
+#import "helpers/MaplyIconManager.h"
+#import "vector_tiles/MapboxVectorTiles.h"
 
 @interface MaplyVectorTileSubStyleMarker : NSObject
 {

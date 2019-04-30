@@ -18,9 +18,9 @@
  *
  */
 
-#import "GlobePinchDelegate.h"
-#import "GlobeRotateDelegate.h"
-#import "GlobeTiltDelegate.h"
+#import "gestures/GlobePinchDelegate.h"
+#import "gestures/GlobeRotateDelegate.h"
+#import "gestures/GlobeTiltDelegate.h"
 #import "EAGLView.h"
 
 using namespace Eigen;

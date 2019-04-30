@@ -18,7 +18,7 @@
  *
  */
 
-#import "MaplyViewTracker.h"
+#import "control/MaplyViewTracker.h"
 
 @implementation MaplyViewTracker
 

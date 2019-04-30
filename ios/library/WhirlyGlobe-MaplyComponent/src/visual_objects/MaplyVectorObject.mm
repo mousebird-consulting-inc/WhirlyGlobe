@@ -18,7 +18,7 @@
  *
  */
 
-#import "MaplyVectorObject.h"
+#import "visual_objects/MaplyVectorObject.h"
 #import "MaplyVectorObject_private.h"
 #import <WhirlyGlobe_iOS.h>
 #import "Tesselator.h"

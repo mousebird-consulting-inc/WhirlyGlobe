@@ -6,7 +6,7 @@
 //  Copyright © 2016-2019 mousebird consulting.
 //
 
-#import "SLDOperators.h"
+#import "vector_styles/SLDOperators.h"
 #import "DDXML.h"
 
 @implementation SLDOperator

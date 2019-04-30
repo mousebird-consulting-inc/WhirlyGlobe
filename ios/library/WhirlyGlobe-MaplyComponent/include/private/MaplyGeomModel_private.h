@@ -18,7 +18,7 @@
  *
  */
 
-#import "MaplyGeomModel.h"
+#import "visual_objects/MaplyGeomModel.h"
 #import <WhirlyGlobe_iOS.h>
 #import "MaplyRenderController_private.h"
 

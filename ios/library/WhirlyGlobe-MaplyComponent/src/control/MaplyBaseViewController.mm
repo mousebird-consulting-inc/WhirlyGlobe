@@ -18,13 +18,14 @@
  *
  */
 
-#import "MaplyBaseViewController.h"
+#import "control/MaplyBaseViewController.h"
 #import "MaplyBaseViewController_private.h"
-#import "NSData+Zlib.h"
+#import "UIKit/NSData+Zlib.h"
+
 #import "MaplyTexture_private.h"
 #import "MaplyAnnotation_private.h"
-#import "NSDictionary+StyleRules.h"
-#import "Maply3dTouchPreviewDelegate.h"
+#import "UIKit/NSDictionary+StyleRules.h"
+#import "gestures/Maply3dTouchPreviewDelegate.h"
 #import "MaplyTexture_private.h"
 #import "MaplyRenderTarget_private.h"
 #import "FontTextureManager_iOS.h"

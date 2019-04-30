@@ -19,7 +19,7 @@
  */
 
 #import <WhirlyGlobe_iOS.h>
-#import "MaplySun.h"
+#import "visual_objects/MaplySun.h"
 #import <AA+.h>
 
 using namespace WhirlyKit;

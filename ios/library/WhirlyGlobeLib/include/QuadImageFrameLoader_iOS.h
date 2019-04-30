@@ -19,7 +19,7 @@
  */
 
 #import "QuadImageFrameLoader.h"
-#import "MaplyTileSourceNew.h"
+#import "loading/MaplyTileSourceNew.h"
 
 // These are implemented by the layer on top of the loader
 @protocol QuadImageFrameLoaderLayer

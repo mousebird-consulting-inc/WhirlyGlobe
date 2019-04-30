@@ -18,8 +18,8 @@
  *
  */
 
-#import "MapboxVectorTiles.h"
-#import "MaplyVectorStyle.h"
+#import "vector_tiles/MapboxVectorTiles.h"
+#import "vector_styles/MaplyVectorStyle.h"
 #import "WhirlyGlobe.h"
 
 using namespace WhirlyKit;

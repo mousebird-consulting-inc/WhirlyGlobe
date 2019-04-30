@@ -6,7 +6,7 @@
 //  Copyright © 2016-2019 mousebird consulting.
 //
 
-#import "SLDWellKnownMarkers.h"
+#import "vector_styles/SLDWellKnownMarkers.h"
 
 @implementation SLDWellKnownMarkers
 

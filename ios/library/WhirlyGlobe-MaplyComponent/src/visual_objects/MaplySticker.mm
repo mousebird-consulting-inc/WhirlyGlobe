@@ -18,7 +18,7 @@
  *
  */
 
-#import "MaplySticker.h"
+#import "visual_objects/MaplySticker.h"
 
 @implementation MaplySticker
 

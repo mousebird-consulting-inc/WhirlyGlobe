@@ -18,7 +18,7 @@
  *
  */
 
-#import "MaplyTileSourceNew.h"
+#import "loading/MaplyTileSourceNew.h"
 
 NSString *MaplyTileIDString(MaplyTileID tileID)
 {

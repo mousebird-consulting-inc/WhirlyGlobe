@@ -20,11 +20,11 @@
 
 
 #import <Foundation/Foundation.h>
-#import "MaplyTileSourceNew.h"
-#import "MaplyCoordinate.h"
-#import "MaplyVectorStyle.h"
-#import "MapboxVectorTiles.h"
-#import "MaplyQuadImageFrameLoader.h"
+#import "loading/MaplyTileSourceNew.h"
+#import "math/MaplyCoordinate.h"
+#import "vector_styles/MaplyVectorStyle.h"
+#import "vector_tiles/MapboxVectorTiles.h"
+#import "loading/MaplyQuadImageFrameLoader.h"
 
 @class MapboxVectorStyleSet;
 

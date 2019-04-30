@@ -18,7 +18,7 @@
  *
  */
 
-#import "MaplyMBTileFetcher.h"
+#import "data_sources/MaplyMBTileFetcher.h"
 #import "MaplyCoordinateSystem_private.h"
 #import "WhirlyGlobe.h"
 #import "sqlhelpers.h"

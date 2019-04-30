@@ -7,8 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "GeoJSONSource.h"
-#import "SLDStyleSet.h"
+#import "loading/GeoJSONSource.h"
+#import "vector_styles/SLDStyleSet.h"
 #import "MaplyVectorObject_private.h"
 #import "VectorData.h"
 #import "Dictionary_NSDictionary.h"

@@ -18,9 +18,9 @@
  *
  */
 
-#import "MaplyVectorTileTextStyle.h"
-#import "MaplyScreenLabel.h"
-#import "MapboxVectorTiles.h"
+#import "vector_styles/MaplyVectorTileTextStyle.h"
+#import "visual_objects/MaplyScreenLabel.h"
+#import "vector_tiles/MapboxVectorTiles.h"
 
 typedef enum {
   TextPlacementPoint,

@@ -18,8 +18,8 @@
  *
  */
 
-#import "MaplyCluster.h"
-#import "MaplyBaseViewController.h"
+#import "visual_objects/MaplyCluster.h"
+#import "control/MaplyBaseViewController.h"
 
 @implementation MaplyClusterInfo
 @end

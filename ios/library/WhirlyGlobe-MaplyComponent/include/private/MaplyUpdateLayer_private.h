@@ -18,7 +18,7 @@
  *
  */
 
-#import "MaplyUpdateLayer.h"
+#import "control/MaplyUpdateLayer.h"
 #import <WhirlyGlobe_iOS.h>
 
 @interface MaplyViewerState()

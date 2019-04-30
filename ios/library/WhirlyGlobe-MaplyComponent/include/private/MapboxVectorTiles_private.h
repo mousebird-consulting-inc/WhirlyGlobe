@@ -18,7 +18,7 @@
  *
  */
 
-#import "MapboxVectorTiles.h"
+#import "vector_tiles/MapboxVectorTiles.h"
 #import "WhirlyGlobe.h"
 
 @interface MaplyVectorTileData()

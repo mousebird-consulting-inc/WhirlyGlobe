@@ -1001,7 +1001,7 @@ public:
 	return mapView->getLoc().z();
 }
 
-- (void)getPosition:(WGCoordinate *)pos height:(float *)height
+- (void)getPosition:(MaplyCoordinate *)pos height:(float *)height
 {
     Point3d loc = mapView->getLoc();
     GeoCoord geoCoord = mapView->coordAdapter->getCoordSystem()->localToGeographic(mapView->coordAdapter->displayToLocal(loc));

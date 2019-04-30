@@ -6,11 +6,11 @@
 //  Copyright © 2016-2019 mousebird consulting.
 //
 
-#import "SLDStyleSet.h"
-#import "SLDExpressions.h"
-#import "SLDOperators.h"
-#import "SLDSymbolizers.h"
-#import "MaplyVectorTileStyle.h"
+#import "vector_styles/SLDStyleSet.h"
+#import "vector_styles/SLDExpressions.h"
+#import "vector_styles/SLDOperators.h"
+#import "vector_styles/SLDSymbolizers.h"
+#import "vector_styles/MaplyVectorTileStyle.h"
 #import "DDXML.h"
 
 

@@ -18,7 +18,7 @@
  *
  */
 
-#import "MaplyIconManager.h"
+#import "helpers/MaplyIconManager.h"
 #import "UIColor+Stuff.h"
 
 @implementation MaplyIconManager

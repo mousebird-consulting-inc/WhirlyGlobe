@@ -19,8 +19,8 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "MaplyCoordinate.h"
-#import "MaplyRenderController.h"
+#import "math/MaplyCoordinate.h"
+#import "control/MaplyRenderController.h"
 
 /** 
     Stickers are rectangles placed on the globe with an image.

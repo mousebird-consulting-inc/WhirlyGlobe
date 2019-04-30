@@ -19,8 +19,8 @@
  */
 
 #import "WhirlyGlobe.h"
-#import "MaplyRenderController.h"
-#import "MaplyVectorStyle.h"
+#import "control/MaplyRenderController.h"
+#import "vector_styles/MaplyVectorStyle.h"
 #import "MapboxVectorTileParser.h"
 
 namespace WhirlyKit

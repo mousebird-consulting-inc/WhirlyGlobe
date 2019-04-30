@@ -20,7 +20,7 @@
 
 #import <UIKit/UIKit.h>
 #import "GlobeMath.h"
-#import "GlobeDoubleTapDragDelegate.h"
+#import "gestures/GlobeDoubleTapDragDelegate.h"
 #import "GlobeView.h"
 #import "EAGLView.h"
 

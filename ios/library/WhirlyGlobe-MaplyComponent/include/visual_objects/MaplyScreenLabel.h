@@ -19,7 +19,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "MaplyCoordinate.h"
+#import "math/MaplyCoordinate.h"
 
 /// Okay to place centered on point
 #define kMaplyLayoutCenter  (1<<1)

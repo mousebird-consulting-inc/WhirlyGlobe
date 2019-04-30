@@ -18,8 +18,8 @@
  *
  */
 
-#import "MaplyCoordinateSystem.h"
-#import "MaplyCoordinate.h"
+#import "math/MaplyCoordinateSystem.h"
+#import "math/MaplyCoordinate.h"
 #import "WhirlyGlobe.h"
 
 @interface MaplyCoordinateSystem()

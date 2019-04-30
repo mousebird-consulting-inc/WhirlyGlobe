@@ -20,7 +20,7 @@
 
 #import <vector>
 #import <set>
-#import "MaplyGeomBuilder.h"
+#import "helpers/MaplyGeomBuilder.h"
 #import <WhirlyGlobe_iOS.h>
 #import "MaplyRenderController_private.h"
 #import "MaplyGeomModel_private.h"

@@ -18,9 +18,9 @@
  *
  */
 
-#import "MaplyAnnotation.h"
+#import "control/MaplyAnnotation.h"
 #import "SMCalloutView.h"
-#import "MaplyCoordinate.h"
+#import "math/MaplyCoordinate.h"
 
 @interface MaplyAnnotation()
 

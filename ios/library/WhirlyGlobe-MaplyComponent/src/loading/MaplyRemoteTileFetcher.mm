@@ -18,7 +18,7 @@
  *
  */
 
-#import "MaplyRemoteTileFetcher.h"
+#import "loading/MaplyRemoteTileFetcher.h"
 #import "MaplyRenderController_private.h"
 
 namespace WhirlyKit

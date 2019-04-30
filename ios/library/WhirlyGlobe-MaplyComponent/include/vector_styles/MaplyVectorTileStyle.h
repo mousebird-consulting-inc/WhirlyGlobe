@@ -19,7 +19,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "MaplyVectorStyle.h"
+#import "vector_styles/MaplyVectorStyle.h"
 
 /** The Maply Vector Tile Style is an internal representation of the style JSON coming out
     of a Maply Vector Tile database.

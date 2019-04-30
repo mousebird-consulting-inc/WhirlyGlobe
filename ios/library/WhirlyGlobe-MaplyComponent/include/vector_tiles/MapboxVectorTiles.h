@@ -18,10 +18,10 @@
  *
  */
 
-#import "MaplyVectorTileStyle.h"
-#import "MaplyTileSourceNew.h"
-#import "MaplyCoordinate.h"
-#import "MaplyVectorStyle.h"
+#import "vector_styles/MaplyVectorTileStyle.h"
+#import "loading/MaplyTileSourceNew.h"
+#import "math/MaplyCoordinate.h"
+#import "vector_styles/MaplyVectorStyle.h"
 
 typedef NS_ENUM(NSInteger,MapboxGeometryType)
 {

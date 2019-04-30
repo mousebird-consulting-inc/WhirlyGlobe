@@ -19,9 +19,9 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "MaplyCoordinate.h"
-#import "MaplyMatrix.h"
-#import "MaplyShape.h"
+#import "math/MaplyCoordinate.h"
+#import "math/MaplyMatrix.h"
+#import "visual_objects/MaplyShape.h"
 
 /** 
     Contains a big pile of geometry and textures (e.g. a model).

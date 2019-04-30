@@ -18,7 +18,7 @@
  *
  */
 
-#import "MaplyMarker.h"
+#import "visual_objects/MaplyMarker.h"
 
 @implementation MaplyMarker
 

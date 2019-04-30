@@ -19,13 +19,13 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "MaplyCoordinate.h"
-#import "MaplyScreenMarker.h"
-#import "MaplyVectorObject.h"
-#import "MaplyViewTracker.h"
-#import "MaplyComponentObject.h"
+#import "math/MaplyCoordinate.h"
+#import "visual_objects/MaplyScreenMarker.h"
+#import "visual_objects/MaplyVectorObject.h"
+#import "control/MaplyViewTracker.h"
+#import "visual_objects/MaplyComponentObject.h"
 #import "MaplySharedAttributes.h"
-#import "MaplyBaseViewController.h"
+#import "control/MaplyBaseViewController.h"
 
 @class MaplyViewControllerLayer;
 @class MaplyViewController;
@@ -161,7 +161,7 @@
     
     @param screenPt Location on screen where the user tapped.
  */
-- (void)maplyViewController:(MaplyViewController *__nonnull)viewC didSelect:(NSObject *__nonnull)selectedObj atLoc:(WGCoordinate)coord onScreen:(CGPoint)screenPt;
+- (void)maplyViewController:(MaplyViewController *__nonnull)viewC didSelect:(NSObject *__nonnull)selectedObj atLoc:(MaplyCoordinate)coord onScreen:(CGPoint)screenPt;
 
 /** 
     User selected one or more objects at a given location.

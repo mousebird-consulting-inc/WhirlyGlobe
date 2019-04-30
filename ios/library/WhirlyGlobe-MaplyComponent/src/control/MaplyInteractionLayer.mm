@@ -19,12 +19,12 @@
  */
 
 #import "MaplyInteractionLayer_private.h"
-#import "MaplyScreenMarker.h"
-#import "MaplyMarker.h"
-#import "MaplyScreenLabel.h"
-#import "MaplyLabel.h"
+#import "visual_objects/MaplyScreenMarker.h"
+#import "visual_objects/MaplyMarker.h"
+#import "visual_objects/MaplyScreenLabel.h"
+#import "visual_objects/MaplyLabel.h"
 #import "MaplyVectorObject_private.h"
-#import "MaplyCoordinate.h"
+#import "math/MaplyCoordinate.h"
 #import "ImageTexture_private.h"
 #import <vector>
 

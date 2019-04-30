@@ -23,7 +23,7 @@
 #import "MaplyQuadSampler_private.h"
 #import "MaplyBaseViewController_private.h"
 #import "MaplyRenderTarget_private.h"
-#import "MaplyScreenLabel.h"
+#import "visual_objects/MaplyScreenLabel.h"
 #import "MaplyQuadLoader_private.h"
 #import "RawData_NSData.h"
 

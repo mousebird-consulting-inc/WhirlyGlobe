@@ -18,8 +18,8 @@
  *
  */
 
-#import "MaplyTileSourceNew.h"
-#import "MaplyCoordinateSystem.h"
+#import "loading/MaplyTileSourceNew.h"
+#import "math/MaplyCoordinateSystem.h"
 
 /** A bounding box for a specific CRS in that coordinate
     system.  This is part of the Web Map Server parser.

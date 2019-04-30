@@ -18,7 +18,7 @@
  *
  */
 
-#import "MaplyVectorObject.h"
+#import "visual_objects/MaplyVectorObject.h"
 #import <WhirlyGlobe_iOS.h>
 
 @interface MaplyVectorObject()

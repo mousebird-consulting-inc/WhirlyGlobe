@@ -18,10 +18,10 @@
  *
  */
 
-#import "MaplyViewControllerLayer.h"
-#import "MaplyCoordinateSystem.h"
-#import "MaplyTileSourceNew.h"
-#import "MaplyRenderController.h"
+#import "control/MaplyViewControllerLayer.h"
+#import "math/MaplyCoordinateSystem.h"
+#import "loading/MaplyTileSourceNew.h"
+#import "control/MaplyRenderController.h"
 
 /**
     Sampling parameters.

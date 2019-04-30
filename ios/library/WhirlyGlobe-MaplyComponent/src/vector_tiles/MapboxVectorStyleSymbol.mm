@@ -18,8 +18,8 @@
  *
  */
 
-#import "MapboxVectorStyleSymbol.h"
-#import "MaplyScreenLabel.h"
+#import "vector_styles/MapboxVectorStyleSymbol.h"
+#import "visual_objects/MaplyScreenLabel.h"
 
 @implementation MapboxVectorSymbolLayout
 

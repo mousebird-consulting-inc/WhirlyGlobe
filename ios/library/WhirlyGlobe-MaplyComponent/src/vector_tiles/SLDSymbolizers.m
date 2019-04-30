@@ -6,10 +6,10 @@
 //  Copyright © 2016-2019 mousebird consulting.
 //
 
-#import "SLDSymbolizers.h"
-#import "SLDWellKnownMarkers.h"
-#import "MaplyVectorTileStyle.h"
-#import "MaplyScreenLabel.h"
+#import "vector_styles/SLDSymbolizers.h"
+#import "vector_styles/SLDWellKnownMarkers.h"
+#import "vector_styles/MaplyVectorTileStyle.h"
+#import "visual_objects/MaplyScreenLabel.h"
 #import "DDXML.h"
 
 @implementation SLDSymbolizer

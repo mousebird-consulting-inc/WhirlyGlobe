@@ -19,8 +19,8 @@
  */
 
 
-#import "MapnikStyleRule.h"
-#import "MaplyVectorStyle.h"
+#import "vector_styles/MapnikStyleRule.h"
+#import "vector_styles/MaplyVectorStyle.h"
 
 @interface MapnikStyleRule ()
 @property (nonatomic, strong, readwrite) NSMutableArray *symbolizers;

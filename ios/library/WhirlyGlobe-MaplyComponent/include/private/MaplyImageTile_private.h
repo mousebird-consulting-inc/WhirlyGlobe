@@ -18,7 +18,7 @@
  *
  */
 
-#import "MaplyImageTile.h"
+#import "loading/MaplyImageTile.h"
 #import "WhirlyGlobe.h"
 #import "ImageTile_iOS.h"
 

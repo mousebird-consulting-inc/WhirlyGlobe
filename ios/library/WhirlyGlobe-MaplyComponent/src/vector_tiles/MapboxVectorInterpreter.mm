@@ -18,12 +18,12 @@
  *
  */
 
-#import "MapboxVectorInterpreter.h"
-#import "MapboxVectorTiles.h"
-#import "MaplyTileSourceNew.h"
-#import "MapboxVectorStyleSet.h"
-#import "MapboxVectorStyleBackground.h"
-#import "MaplyQuadImageFrameLoader.h"
+#import "vector_tiles/MapboxVectorInterpreter.h"
+#import "vector_tiles/MapboxVectorTiles.h"
+#import "loading/MaplyTileSourceNew.h"
+#import "vector_styles/MapboxVectorStyleSet.h"
+#import "vector_styles/MapboxVectorStyleBackground.h"
+#import "loading/MaplyQuadImageFrameLoader.h"
 #import "MaplyImageTile_private.h"
 #import "MapboxVectorTiles_private.h"
 #import "MaplyQuadLoader_private.h"
@@ -36,13 +36,14 @@
 #include <set>
 
 #import "CoordSystem.h"
-#import "MaplyVectorStyle.h"
+#import "vector_styles/MaplyVectorStyle.h"
 #import "MaplyVectorObject_private.h"
-#import "MaplyScreenLabel.h"
-#import "NSData+Zlib.h"
+#import "visual_objects/MaplyScreenLabel.h"
+#import "UIKit/NSData+Zlib.h"
+
 #import "vector_tile.pb.h"
 #import "VectorData.h"
-#import "MapnikStyleSet.h"
+#import "vector_styles/MapnikStyleSet.h"
 #import "MaplyRenderController_private.h"
 
 using namespace WhirlyKit;

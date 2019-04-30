@@ -18,7 +18,7 @@
  *
  */
 
-#import "MapboxVectorStyleRaster.h"
+#import "vector_styles/MapboxVectorStyleRaster.h"
 
 @implementation MapboxVectorLayerRaster
 

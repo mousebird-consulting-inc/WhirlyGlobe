@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 @class DDXMLNode;
 @class DDXMLElement;
-#import "MaplyVectorTileStyle.h"
+#import "vector_styles/MaplyVectorTileStyle.h"
 
 /** @brief Base class for Symbolizer elements
  @see http://schemas.opengis.net/se/1.1.0/Symbolizer.xsd for SLD v1.1.0

@@ -18,7 +18,7 @@
  *
  */
 
-#import "GlobePanDelegate.h"
+#import "gestures/GlobePanDelegate.h"
 #import <UIKit/UIGestureRecognizerSubclass.h>
 
 using namespace Eigen;

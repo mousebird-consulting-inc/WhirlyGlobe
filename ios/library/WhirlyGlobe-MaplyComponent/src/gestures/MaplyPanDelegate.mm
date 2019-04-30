@@ -20,7 +20,7 @@
 
 #import "EAGLView.h"
 #import "SceneRendererES.h"
-#import "MaplyPanDelegate.h"
+#import "gestures/MaplyPanDelegate.h"
 #import "MaplyAnimateTranslation.h"
 #import "MaplyAnimateTranslateMomentum.h"
 #import <UIKit/UIGestureRecognizerSubclass.h>

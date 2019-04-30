@@ -19,9 +19,9 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "MaplyCoordinate.h"
-#import "MaplyScreenMarker.h"
-#import "MaplyShader.h"
+#import "math/MaplyCoordinate.h"
+#import "visual_objects/MaplyScreenMarker.h"
+#import "rendering/MaplyShader.h"
 
 @class MaplyBaseViewController;
 

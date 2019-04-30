@@ -6,10 +6,10 @@
 //
 //
 
-#import "Maply3dTouchPreviewDelegate.h"
+#import "gestures/Maply3dTouchPreviewDelegate.h"
 #import "MaplyBaseInteractionLayer_private.h"
 #import "MaplyViewController.h"
-#import "WhirlyGlobeViewController.h"
+#import "control/WhirlyGlobeViewController.h"
 
 @interface Maply3dTouchPreviewDelegate () {
     MaplyBaseViewController * _Nonnull __weak viewC;

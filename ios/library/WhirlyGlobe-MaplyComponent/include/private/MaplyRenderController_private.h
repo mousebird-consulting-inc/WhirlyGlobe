@@ -18,7 +18,7 @@
  *
  */
 
-#import "MaplyRenderController.h"
+#import "control/MaplyRenderController.h"
 #import "MaplyComponentObject_private.h"
 #import "MaplyBaseInteractionLayer_private.h"
 #import "MaplyVectorObject_private.h"

@@ -19,7 +19,7 @@
  */
 
 #import <set>
-#import "MaplyParticleSystem.h"
+#import "visual_objects/MaplyParticleSystem.h"
 #import "WhirlyGlobe.h"
 
 namespace WhirlyKit

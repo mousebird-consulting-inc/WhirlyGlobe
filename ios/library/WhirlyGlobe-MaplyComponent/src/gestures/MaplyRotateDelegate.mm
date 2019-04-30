@@ -18,7 +18,7 @@
  *
  */
 
-#import "MaplyRotateDelegate.h"
+#import "gestures/MaplyRotateDelegate.h"
 
 using namespace WhirlyKit;
 using namespace Maply;

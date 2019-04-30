@@ -6,8 +6,8 @@
 //
 //
 
-#import "MaplyVectorStyleSimple.h"
-#import "MaplyScreenLabel.h"
+#import "vector_styles/MaplyVectorStyleSimple.h"
+#import "visual_objects/MaplyScreenLabel.h"
 
 @implementation MaplyVectorStyleSimpleGenerator
 {

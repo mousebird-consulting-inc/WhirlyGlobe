@@ -18,7 +18,7 @@
  *
  */
 
-#import "MaplyTapMessage.h"
+#import "gestures/MaplyTapMessage.h"
 
 @implementation MaplyTapMessage
 

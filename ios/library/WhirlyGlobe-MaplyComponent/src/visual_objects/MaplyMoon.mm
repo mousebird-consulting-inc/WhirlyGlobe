@@ -18,7 +18,7 @@
  *
  */
 
-#import "MaplyMoon.h"
+#import "visual_objects/MaplyMoon.h"
 #import <AA+.h>
 #import "WhirlyGlobe_iOS.h"
 

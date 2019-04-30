@@ -18,7 +18,7 @@
  *
  */
 
-#import "MaplyDoubleTapDelegate.h"
+#import "gestures/MaplyDoubleTapDelegate.h"
 #import "MaplyZoomGestureDelegate_private.h"
 #import "MaplyAnimateTranslation.h"
 

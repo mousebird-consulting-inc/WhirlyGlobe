@@ -18,7 +18,7 @@
  *
  */
 
-#import "MaplyVertexAttribute.h"
+#import "rendering/MaplyVertexAttribute.h"
 #import "WhirlyGlobe.h"
 
 @interface MaplyVertexAttribute()

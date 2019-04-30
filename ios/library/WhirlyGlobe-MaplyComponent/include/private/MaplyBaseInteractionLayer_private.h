@@ -23,7 +23,7 @@
 #import <WhirlyGlobe_iOS.h>
 #import "MaplyComponentObject_private.h"
 #import "ImageTexture_private.h"
-#import "MaplyBaseViewController.h"
+#import "control/MaplyBaseViewController.h"
 #import "MaplyTextureAtlas_private.h"
 #import "ComponentManager_iOS.h"
 

@@ -20,7 +20,7 @@
 
 #import <Foundation/Foundation.h>
 #import "MaplyBaseInteractionLayer_private.h"
-#import "MaplyTapMessage.h"
+#import "gestures/MaplyTapMessage.h"
 #import "MapView_iOS.h"
 
 // The view controller fills this in

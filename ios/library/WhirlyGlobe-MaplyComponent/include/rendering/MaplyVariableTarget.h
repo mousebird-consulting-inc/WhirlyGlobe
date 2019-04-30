@@ -19,9 +19,9 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "MaplyTexture.h"
-#import "MaplyRenderTarget.h"
-#import "MaplyRenderController.h"
+#import "visual_objects/MaplyTexture.h"
+#import "rendering/MaplyRenderTarget.h"
+#import "control/MaplyRenderController.h"
 
 typedef NS_ENUM(NSInteger, MaplyVariableType) {
     // Rendering 4 component images to the target

@@ -18,7 +18,7 @@
  *
  */
 
-#import "MaplyLight.h"
+#import "rendering/MaplyLight.h"
 
 @implementation MaplyLight
 

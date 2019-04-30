@@ -22,7 +22,7 @@
 #import "Dictionary_NSDictionary.h"
 #import "MaplyVectorObject_private.h"
 #import "MapboxVectorTiles_private.h"
-#import "MaplyScreenLabel.h"
+#import "visual_objects/MaplyScreenLabel.h"
 #import "MaplyComponentObject_private.h"
 
 namespace WhirlyKit

@@ -18,7 +18,7 @@
  *
  */
 
-#import "GlobeTapDelegate.h"
+#import "gestures/GlobeTapDelegate.h"
 #import "EAGLView.h"
 #import "SceneRendererES.h"
 #import "GlobeMath.h"

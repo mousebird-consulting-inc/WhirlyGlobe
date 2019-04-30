@@ -6,7 +6,7 @@
 //
 //
 
-#import "NSDictionary+StyleRules.h"
+#import "UIKit/NSDictionary+StyleRules.h"
 
 @implementation NSMutableDictionary (StyleRules)
 - (NSMutableArray*)styles {

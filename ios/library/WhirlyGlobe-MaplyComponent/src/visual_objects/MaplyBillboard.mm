@@ -18,7 +18,7 @@
  *
  */
 
-#import "MaplyBillboard.h"
+#import "visual_objects/MaplyBillboard.h"
 
 @implementation MaplyBillboard
 

@@ -19,7 +19,7 @@
  */
 
 #import "WGCoordinate.h"
-#import "MaplyCoordinate.h"
+#import "math/MaplyCoordinate.h"
 #import <WhirlyGlobe_iOS.h>
 
 using namespace WhirlyKit;

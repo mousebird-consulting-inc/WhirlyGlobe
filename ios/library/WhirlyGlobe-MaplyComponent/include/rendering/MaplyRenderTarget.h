@@ -19,7 +19,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "MaplyTexture.h"
+#import "visual_objects/MaplyTexture.h"
 
 /** 
     Represents a render target (other than the screen)

@@ -18,7 +18,7 @@
  *
  */
 
-#import "MaplyTextureBuilder.h"
+#import "helpers/MaplyTextureBuilder.h"
 #import <vector>
 #import <WhirlyGlobe_iOS.h>
 

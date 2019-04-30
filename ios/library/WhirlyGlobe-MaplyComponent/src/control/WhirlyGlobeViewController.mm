@@ -19,7 +19,7 @@
  */
 
 #import <WhirlyGlobe_iOS.h>
-#import "WhirlyGlobeViewController.h"
+#import "control/WhirlyGlobeViewController.h"
 #import "WhirlyGlobeViewController_private.h"
 
 using namespace Eigen;
@@ -720,7 +720,7 @@ public:
 }
 
 // External facing version of rotateToPoint
-- (void)animateToPosition:(WGCoordinate)newPos time:(TimeInterval)howLong
+- (void)animateToPosition:(MaplyCoordinate)newPos time:(TimeInterval)howLong
 {
     if (isnan(newPos.x) || isnan(newPos.y))
     {
@@ -732,7 +732,7 @@ public:
 }
 
 // Figure out how to get the geolocation to the given point on the screen
-- (bool)animateToPosition:(WGCoordinate)newPos onScreen:(CGPoint)loc time:(TimeInterval)howLong
+- (bool)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc time:(TimeInterval)howLong
 {
     if (!renderControl)
         return false;
@@ -875,7 +875,7 @@ public:
 }
 
 // External facing set position
-- (void)setPosition:(WGCoordinate)newPos
+- (void)setPosition:(MaplyCoordinate)newPos
 {
     if (isnan(newPos.x) || isnan(newPos.y))
     {
@@ -890,7 +890,7 @@ public:
     }
  }
 
-- (void)setPosition:(WGCoordinate)newPos height:(float)height
+- (void)setPosition:(MaplyCoordinate)newPos height:(float)height
 {
     if (isnan(newPos.x) || isnan(newPos.y) || isnan(height))
     {
@@ -980,7 +980,7 @@ public:
 	return globeView->getHeightAboveGlobe();
 }
 
-- (void)getPosition:(WGCoordinate *)pos height:(float *)height
+- (void)getPosition:(MaplyCoordinate *)pos height:(float *)height
 {
     *height = globeView->getHeightAboveGlobe();
     Point3d localPt = globeView->currentUp();
@@ -999,7 +999,7 @@ public:
 // Called back on the main thread after the interaction thread does the selection
 - (void)handleSelection:(WhirlyGlobeTapMessage *)msg didSelect:(NSArray *)selectedObjs
 {
-    WGCoordinate coord;
+    MaplyCoordinate coord;
     coord.x = msg.whereGeo.lon();
     coord.y = msg.whereGeo.lat();
     

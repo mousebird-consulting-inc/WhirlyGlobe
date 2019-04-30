@@ -18,7 +18,7 @@
  *
  */
 
-#import "MaplyLabel.h"
+#import "visual_objects/MaplyLabel.h"
 
 @implementation MaplyLabel
 

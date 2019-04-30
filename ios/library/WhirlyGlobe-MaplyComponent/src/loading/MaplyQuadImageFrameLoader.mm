@@ -17,11 +17,11 @@
  *
  */
 
-#import "MaplyQuadImageFrameLoader.h"
+#import "loading/MaplyQuadImageFrameLoader.h"
 #import "MaplyBaseViewController_private.h"
 #import "MaplyShader_private.h"
 #import "MaplyRenderTarget_private.h"
-#import "MaplyScreenLabel.h"
+#import "visual_objects/MaplyScreenLabel.h"
 #import "MaplyQuadImageLoader_private.h"
 #import "MaplyQuadLoader_private.h"
 #import "MaplyImageTile_private.h"

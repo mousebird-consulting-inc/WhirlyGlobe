@@ -19,7 +19,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "MaplyCoordinate.h"
+#import "math/MaplyCoordinate.h"
 
 /** 
     The Screen Marker is a 2D object that displays an image on the screen tracking a given location.

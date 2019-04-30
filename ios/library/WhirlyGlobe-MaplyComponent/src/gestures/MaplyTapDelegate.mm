@@ -18,7 +18,7 @@
  *
  */
 
-#import "MaplyTapDelegate.h"
+#import "gestures/MaplyTapDelegate.h"
 #import "EAGLView.h"
 #import "SceneRendererES.h"
 #import "MaplyView.h"

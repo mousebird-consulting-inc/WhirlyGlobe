@@ -19,9 +19,9 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "MaplyComponentObject.h"
-#import "WhirlyGlobeViewController.h"
-#import "MaplyLight.h"
+#import "visual_objects/MaplyComponentObject.h"
+#import "control/WhirlyGlobeViewController.h"
+#import "rendering/MaplyLight.h"
 
 /** 
     Utility for calculating moon position.

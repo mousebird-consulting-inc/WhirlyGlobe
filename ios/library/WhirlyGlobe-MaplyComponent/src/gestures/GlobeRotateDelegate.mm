@@ -19,7 +19,7 @@
  */
 
 #import "WhirlyVector.h"
-#import "GlobeRotateDelegate.h"
+#import "gestures/GlobeRotateDelegate.h"
 #import "SceneRendererES.h"
 #import "IntersectionManager.h"
 #import "EAGLView.h"

@@ -18,7 +18,7 @@
  *
  */
 
-#import "MaplyMatrix.h"
+#import "math/MaplyMatrix.h"
 #import <WhirlyGlobe_iOS.h>
 
 @interface MaplyMatrix ()

@@ -18,7 +18,7 @@
  *
  */
 
-#import "MapboxVectorStyleFill.h"
+#import "vector_styles/MapboxVectorStyleFill.h"
 
 @implementation MapboxVectorFillLayout
 

@@ -18,7 +18,7 @@
  *
  */
 
-#import "MaplyScreenLabel.h"
+#import "visual_objects/MaplyScreenLabel.h"
 
 @implementation MaplyScreenLabel
 

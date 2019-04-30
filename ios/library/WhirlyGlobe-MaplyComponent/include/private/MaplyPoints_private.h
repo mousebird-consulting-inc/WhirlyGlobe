@@ -18,7 +18,7 @@
  *
  */
 
-#import "MaplyPoints.h"
+#import "visual_objects/MaplyPoints.h"
 #import "MaplyParticleSystem_private.h"
 #import <vector>
 

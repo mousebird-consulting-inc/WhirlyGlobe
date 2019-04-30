@@ -18,13 +18,13 @@
  *
  */
 
-#import "MaplyVectorStyle.h"
-#import "MaplyVectorTileLineStyle.h"
-#import "MaplyVectorTileMarkerStyle.h"
-#import "MaplyVectorTilePolygonStyle.h"
-#import "MaplyVectorTileTextStyle.h"
+#import "vector_styles/MaplyVectorStyle.h"
+#import "vector_styles/MaplyVectorTileLineStyle.h"
+#import "vector_styles/MaplyVectorTileMarkerStyle.h"
+#import "vector_styles/MaplyVectorTilePolygonStyle.h"
+#import "vector_styles/MaplyVectorTileTextStyle.h"
 #import "WhirlyGlobe.h"
-#import "MaplyBaseViewController.h"
+#import "control/MaplyBaseViewController.h"
 
 using namespace WhirlyKit;
 

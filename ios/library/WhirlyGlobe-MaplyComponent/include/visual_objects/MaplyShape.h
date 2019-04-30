@@ -19,9 +19,9 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "WGCoordinate.h"
-#import "MaplyMatrix.h"
-#import "MaplyTexture.h"
+#import "math/MaplyCoordinate.h"
+#import "math/MaplyMatrix.h"
+#import "visual_objects/MaplyTexture.h"
 
 /** 
     Maply Shape is the base class for the actual shape objects.

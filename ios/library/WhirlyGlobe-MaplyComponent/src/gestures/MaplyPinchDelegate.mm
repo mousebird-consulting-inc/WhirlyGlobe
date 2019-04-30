@@ -18,7 +18,7 @@
  *
  */
 
-#import "MaplyPinchDelegate.h"
+#import "gestures/MaplyPinchDelegate.h"
 #import "SceneRendererES.h"
 #import "MaplyZoomGestureDelegate_private.h"
 #import "MaplyAnimateTranslation.h"
