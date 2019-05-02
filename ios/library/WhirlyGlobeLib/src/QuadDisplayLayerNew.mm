@@ -58,14 +58,14 @@ using namespace WhirlyKit;
 }
 
 - (void)teardown
-{
+{    
     ChangeSet changes;
-    
-    controller->stop(changes);
-    controller = NULL;
     
     if (_layerThread.viewWatcher)
         [_layerThread.viewWatcher removeWatcherTarget:self selector:@selector(viewUpdate:)];
+
+    controller->stop(changes);
+    controller = NULL;
     
     [_layerThread addChangeRequests:changes];
 }
@@ -75,7 +75,7 @@ static const float DelayPeriod = 0.1;
 // Called after some period to sweep up removes
 - (void)delayCheck
 {
-    if (!controller->getViewState())
+    if (!controller || !controller->getViewState())
         return;
 
     [self viewUpdate:[[WhirlyKitViewStateWrapper alloc] initWithViewState:controller->getViewState()]];
@@ -84,6 +84,9 @@ static const float DelayPeriod = 0.1;
 // Called periodically when the user moves, but not too often
 - (void)viewUpdate:(WhirlyKitViewStateWrapper *)inViewState
 {
+    if (!controller)
+        return;
+    
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(delayCheck) object:nil];
 
     ChangeSet changes;

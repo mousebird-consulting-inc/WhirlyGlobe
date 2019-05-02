@@ -183,8 +183,6 @@ bool QuadSamplingController::visibilityForTile(const QuadTreeIdentifier &ident,
 
 void QuadSamplingController::setBuilder(QuadTileBuilder *builder,QuadDisplayControllerNew *control)
 {
-    builderStarted = true;
-    
     std::vector<QuadTileBuilderDelegateRef> delegates;
     {
         std::lock_guard<std::mutex> guardLock(lock);
@@ -194,6 +192,8 @@ void QuadSamplingController::setBuilder(QuadTileBuilder *builder,QuadDisplayCont
     for (auto delegate : delegates) {
         delegate->setBuilder(builder, displayControl.get());
     }
+
+    builderStarted = true;
 }
     
 QuadTreeNew::NodeSet QuadSamplingController::builderUnloadCheck(QuadTileBuilder *builder,
