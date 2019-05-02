@@ -32,7 +32,7 @@ MutableDictionaryRef MutableDictionaryMake()
     
 static NSString *StdStringToString(const std::string &str)
 {
-    return [NSString stringWithFormat:@"%s",str.c_str()];
+    return [NSString stringWithUTF8String:str.c_str()];
 }
     
 static std::string StringToStdString(NSString *str)

@@ -71,7 +71,7 @@ FontManager_iOS *FontTextureManager_iOS::findFontManagerForFont(UIFont *uiFont,U
          it != fontManagers.end(); ++it)
     {
         FontManager_iOS *fm = (FontManager_iOS *)*it;
-        if (!(fontName == fm->fontName) && pointSize == fm->pointSize &&
+        if (fontName == fm->fontName && pointSize == fm->pointSize &&
             fm->color == color &&
             fm->backColor == backColor &&
             fm->outlineColor == outlineColor &&
