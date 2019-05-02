@@ -313,6 +313,8 @@ using namespace WhirlyKit;
         
         [NSObject cancelPreviousPerformRequestsWithTarget:self];
         
+        [_viewWatcher stop];
+        
         if ([threadsToShutdown count] > 0)
         {
             // We'll ask any other layer threads to shut down first, and wait for them to do it

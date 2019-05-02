@@ -19,6 +19,7 @@
  */
 
 #import <set>
+#import <mutex>
 #import "WhirlyTypes.h"
 #import "WhirlyVector.h"
 #import "CoordSystem.h"
@@ -134,6 +135,7 @@ public:
     
     /// Called when positions are updated
     ViewWatcherSet watchers;
+    std::mutex watcherLock;
 };
     
 typedef std::shared_ptr<View> ViewRef;

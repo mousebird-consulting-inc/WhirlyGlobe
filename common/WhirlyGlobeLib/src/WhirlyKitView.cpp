@@ -247,19 +247,27 @@ Point2d View::screenSizeInDisplayCoords(Point2f &frameSize)
 /// Add a watcher delegate
 void View::addWatcher(ViewWatcher *watcher)
 {
+    std::lock_guard<std::mutex> guardLock(watcherLock);
     watchers.insert(watcher);
 }
 
 /// Remove the given watcher delegate
 void View::removeWatcher(ViewWatcher *watcher)
 {
+    std::lock_guard<std::mutex> guardLock(watcherLock);
     watchers.erase(watcher);
 }
 
 void View::runViewUpdates()
 {
-    for (ViewWatcherSet::iterator it = watchers.begin();
-         it != watchers.end(); ++it)
+    // Make a copy so we don't step on watchers being removed
+    ViewWatcherSet watchersToRun;
+    {
+        std::lock_guard<std::mutex> guardLock(watcherLock);
+        watchersToRun = watchers;
+    }
+    for (ViewWatcherSet::iterator it = watchersToRun.begin();
+         it != watchersToRun.end(); ++it)
         (*it)->viewUpdated(this);
 }
 

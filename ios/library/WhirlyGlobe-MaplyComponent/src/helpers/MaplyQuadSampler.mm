@@ -217,10 +217,10 @@ using namespace WhirlyKit;
 
 - (void)cleanupLayers:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)scene
 {
-    sampleControl.stop();
     if (_quadLayer)
         [inLayerThread removeLayer:_quadLayer];
-    _quadLayer = nil;
+    
+    [self performSelector:@selector(teardown) onThread:inLayerThread withObject:nil waitUntilDone:NO];
 }
 
 - (void)teardown

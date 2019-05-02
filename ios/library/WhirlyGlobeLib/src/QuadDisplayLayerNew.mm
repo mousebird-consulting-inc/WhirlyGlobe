@@ -64,6 +64,9 @@ using namespace WhirlyKit;
     controller->stop(changes);
     controller = NULL;
     
+    if (_layerThread.viewWatcher)
+        [_layerThread.viewWatcher removeWatcherTarget:self selector:@selector(viewUpdate:)];
+    
     [_layerThread addChangeRequests:changes];
 }
 
