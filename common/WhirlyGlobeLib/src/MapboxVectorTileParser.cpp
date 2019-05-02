@@ -346,7 +346,6 @@ bool MapboxVectorTileParser::parse(RawData *rawData,VectorTileData *tileData)
                                         }
                                         shape->pts.push_back(point);
                                     }
-                                    shape->pts.push_back(point);
                                 } else if (cmd == (SEG_CLOSE & ((1 << cmd_bits) - 1))) {
 //                                    NSLog(@"Close point feature?");
                                 } else {
