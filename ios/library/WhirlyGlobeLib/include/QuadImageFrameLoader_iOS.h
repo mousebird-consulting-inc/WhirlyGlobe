@@ -81,7 +81,7 @@ protected:
 class QIFTileAsset_ios : public QIFTileAsset
 {
 public:
-    QIFTileAsset_ios(const QuadTreeNew::ImportantNode &ident);;
+    QIFTileAsset_ios(const QuadTreeNew::ImportantNode &ident);
     virtual ~QIFTileAsset_ios();
         
     // Fetch the tile frames.  Just fetch them all for now if frameToLoad is set to -1

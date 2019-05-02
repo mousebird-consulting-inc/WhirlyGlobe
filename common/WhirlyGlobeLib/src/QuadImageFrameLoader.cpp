@@ -690,7 +690,6 @@ void QuadImageFrameLoader::mergeLoadedTile(QuadLoaderReturn *loadReturn,ChangeSe
     }
 
     if (!failed) {
-        
         // Failure depends on what mode we're in
         if (mode == Object) {
             // In object mode, we might not get anything, but it's not a failure

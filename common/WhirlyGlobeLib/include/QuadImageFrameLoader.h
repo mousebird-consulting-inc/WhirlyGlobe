@@ -105,6 +105,7 @@ public:
     const SimpleIDSet &getCompObjs() { return compObjs; }
     const SimpleIDSet &getOvlCompObjs() { return ovlCompObjs; }
     
+    // Return the frame asset corresponding to the frame ID
     QIFFrameAssetRef getFrame(int frameID);
     
     // True if any of the frames are in the process of loading
@@ -129,13 +130,20 @@ public:
     virtual void startFetching(QuadImageFrameLoader *loader,int frameToLoad,QIFBatchOps *batchOps);
 
     // Set up the geometry for this tile
-    virtual void setupContents(QuadImageFrameLoader *loader,LoadedTileNewRef loadedTile,int defaultDrawPriority,SimpleIdentity shaderID,ChangeSet &changes);
+    virtual void setupContents(QuadImageFrameLoader *loader,
+                               LoadedTileNewRef loadedTile,
+                               int defaultDrawPriority,
+                               SimpleIdentity shaderID,
+                               ChangeSet &changes);
     
     // Cancel any outstanding fetches
     virtual void cancelFetches(QuadImageFrameLoader *loader,int frame,QIFBatchOps *batchOps);
     
     // A single frame loaded successfully
-    virtual bool frameLoaded(QuadImageFrameLoader *loader,QuadLoaderReturn *loadReturn,Texture *tex,ChangeSet &changes);
+    virtual bool frameLoaded(QuadImageFrameLoader *loader,
+                             QuadLoaderReturn *loadReturn,
+                             Texture *tex,
+                             ChangeSet &changes);
     
     // A single frame failed to load
     virtual void frameFailed(QuadImageFrameLoader *loader,QuadLoaderReturn *loadReturn,ChangeSet &changes);

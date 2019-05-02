@@ -233,19 +233,19 @@
 - (void)orientationChanged:(NSNotification *)notification {
     UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
     switch (orientation) {
-        case UIDeviceOrientationPortrait:
+        case UIInterfaceOrientationPortrait:
             _locationManager.headingOrientation = CLDeviceOrientationPortrait;
             break;
-        case UIDeviceOrientationPortraitUpsideDown:
+        case UIInterfaceOrientationPortraitUpsideDown:
             _locationManager.headingOrientation = CLDeviceOrientationPortraitUpsideDown;
             break;
-        case UIDeviceOrientationLandscapeRight:
+        case UIInterfaceOrientationLandscapeRight:
             _locationManager.headingOrientation = CLDeviceOrientationLandscapeRight;
             break;
-        case UIDeviceOrientationLandscapeLeft:
+        case UIInterfaceOrientationLandscapeLeft:
             _locationManager.headingOrientation = CLDeviceOrientationLandscapeLeft;
             break;
-        default: // UIDeviceOrientationUnknown
+        default: // UIInterfaceOrientationUnknown
             _locationManager.headingOrientation = CLDeviceOrientationPortrait;
             break;
     }
