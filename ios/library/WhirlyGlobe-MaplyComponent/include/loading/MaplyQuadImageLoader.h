@@ -205,6 +205,15 @@ extern NSString * _Nonnull const MaplyQuadImageLoaderFetcherName;
 - (void)changeTileInfo:(NSObject<MaplyTileInfoNew> *__nonnull)tileInfo;
 
 /**
+   Change the interpreter and reload all the data.
+   <br>
+   You can change the tile interpreter being used to build objects and images.
+   This will then force a reload of the tiles (hopefully from cache) and the
+   visuals will change as everything comes in.
+  */
+- (void)changeInterpreter:(NSObject<MaplyLoaderInterpreter> *__nonnull)interp;
+
+/**
   Force a reload of the images.
   <br>
   All the current loads will be cancelled, any in flight will be ignored

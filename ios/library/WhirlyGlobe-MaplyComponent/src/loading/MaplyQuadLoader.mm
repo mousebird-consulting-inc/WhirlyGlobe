@@ -228,6 +228,20 @@ using namespace WhirlyKit;
     loader->reload(-1);
 }
 
+- (void)changeInterpreter:(NSObject<MaplyLoaderInterpreter> *)interp
+{
+    if (!samplingLayer)
+        return;
+    
+    if ([NSThread currentThread] != samplingLayer.layerThread) {
+        [self performSelector:@selector(changeInterpreter:) onThread:samplingLayer.layerThread withObject:interp waitUntilDone:false];
+        return;
+    }
+    
+    loadInterp = interp;
+    loader->reload(-1);
+}
+
 - (void)reload
 {
     if (!samplingLayer)
