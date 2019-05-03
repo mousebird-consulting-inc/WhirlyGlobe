@@ -140,6 +140,9 @@
 /// @brief Set if this geometry is additive (e.g. sticks around) rather than replacement
 @property(nonatomic) bool geomAdditive;
 
+/// @brief metadata tag from the JSON file
+@property(nonatomic,nullable) NSDictionary *metadata;
+
 @end
 
 /// @brief Mapbox filter operator types

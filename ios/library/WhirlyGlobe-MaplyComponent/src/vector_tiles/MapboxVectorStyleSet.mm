@@ -489,6 +489,13 @@
         }
     }
     
+    if (layerDict[@"metadata"])
+    {
+        NSDictionary *metadataDict = layerDict[@"metadata"];
+        if ([metadataDict isKindOfClass:[NSDictionary class]])
+            layer.metadata = metadataDict;
+    }
+    
     return layer;
 }
 

@@ -85,14 +85,22 @@
         NSLog(@"Expecting paint in fill layer");
         return nil;
     }
-    
+
     if (_paint.color)
     {
+        UIColor *color = [styleSet color:_paint.color withOpacity:_paint.opacity];
+        // Mess directly with the opacity because we're using it for other purposes
+        if (styleEntry[@"alphaoverride"])
+        {
+            double alpha = [styleEntry[@"alphaoverride"] doubleValue];
+            const CGFloat *colors = CGColorGetComponents(color.CGColor);
+            color = [UIColor colorWithRed:colors[0] green:colors[1] blue:colors[2] alpha:alpha];
+        }
         fillDesc = [NSMutableDictionary dictionaryWithDictionary:
                      @{kMaplyFilled: @(YES),
                        kMaplyDrawPriority: @(self.drawPriority),
                        kMaplyVecCentered: @(true),
-                       kMaplyColor: [styleSet color:_paint.color withOpacity:_paint.opacity],
+                       kMaplyColor: color,
                        kMaplySelectable: @(false),
                        kMaplyEnable: @(NO)
                       }];

@@ -59,7 +59,15 @@
         NSLog(@"Expecting paint in background layer");
         return nil;
     }
-    
+
+    // Mess directly with the opacity because we're using it for other purposes
+    if (styleEntry[@"alphaoverride"])
+    {
+        double alpha = [styleEntry[@"alphaoverride"] doubleValue];
+        const CGFloat *colors = CGColorGetComponents(_paint.color.CGColor);
+        _paint.color = [UIColor colorWithRed:colors[0] green:colors[1] blue:colors[2] alpha:alpha];
+    }
+
     return self;
 }
 
