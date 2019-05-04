@@ -427,6 +427,12 @@ using namespace Eigen;
     return [interactLayer addTexture:image desc:desc mode:threadMode];
 }
 
+- (MaplyTexture *__nullable)addSubTexture:(MaplyTexture *__nonnull)tex xOffset:(int)x yOffset:(int)y width:(int)width height:(int)height mode:(MaplyThreadMode)threadMode
+{
+    return [interactLayer addSubTexture:tex xOffset:x yOffset:y width:width height:height mode:threadMode];
+}
+
+
 - (MaplyTexture *__nullable)createTexture:(NSDictionary * _Nullable)spec sizeX:(int)sizeX sizeY:(int)sizeY mode:(MaplyThreadMode)threadMode
 {
     NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:spec];

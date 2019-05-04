@@ -57,6 +57,18 @@
     currentID = 0;
     NSMutableDictionary *sourceLayers = [NSMutableDictionary dictionary];
     NSMutableDictionary *layersByName = [NSMutableDictionary dictionary];
+    
+    // Parse the sprite sheet if it's there
+    // Note: We're only looking for those locally right now
+    if (_spriteURL) {
+        NSString *spriteJSONPath = [[NSBundle mainBundle] pathForResource:_spriteURL ofType:@"json"];
+        UIImage *spriteImage = [UIImage imageNamed:_spriteURL];
+        NSData *jsonData = [NSData dataWithContentsOfFile:spriteJSONPath];
+        if (spriteImage && jsonData) {
+            _sprites = [[MapboxVectorStyleSprites alloc] initWithJSON:jsonData image:spriteImage settings:settings viewC:viewC];
+        }
+    }
+    
     int which = 0;
     for (NSDictionary *layerStyleIter in layerStyles)
     {

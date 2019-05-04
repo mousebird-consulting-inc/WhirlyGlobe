@@ -168,6 +168,15 @@
 /// Set the interpreter for the data coming back.  If you're just getting images, don't set this.
 - (void)setInterpreter:(NSObject<MaplyLoaderInterpreter> * __nonnull)interp;
 
+/**
+ Change the interpreter and reload all the data.
+ <br>
+ You can change the tile interpreter being used to build objects and images.
+ This will then force a reload of the tiles (hopefully from cache) and the
+ visuals will change as everything comes in.
+ */
+- (void)changeInterpreter:(NSObject<MaplyLoaderInterpreter> *__nonnull)interp;
+
 /** Turn off the loader and shut things down.
  This unregisters us with the sampling layer and shuts down the various objects we created.
  */

@@ -474,6 +474,25 @@ public:
     return maplyTex;
 }
 
+- (MaplyTexture *)addSubTexture:(MaplyTexture *)tex xOffset:(int)x yOffset:(int)y width:(int)width height:(int)height mode:(MaplyThreadMode)threadMode
+{
+    MaplyTexture *newTex = [[MaplyTexture alloc] init];
+    if (tex.width == 0 || tex.height == 0 || tex.isSubTex)
+        return nil;
+    
+    // Set up the subtexture reference
+    SubTexture subTex;
+    subTex.setFromTex(TexCoord(x / (double)tex.width, y / (double)tex.height),
+                      TexCoord((x+width) / (double)tex.width, (y+height) / (double)tex.height));
+    scene->addSubTexture(subTex);
+    newTex.isSubTex = true;
+    newTex.texID = subTex.getId();
+    newTex.width = width;
+    newTex.height = height;
+
+    return newTex;
+}
+
 - (void)removeTextures:(NSArray *)textures mode:(MaplyThreadMode)threadMode
 {
     threadMode = [self resolveThreadMode:threadMode];

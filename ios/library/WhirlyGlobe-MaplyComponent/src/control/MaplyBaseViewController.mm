@@ -1071,6 +1071,18 @@ static const float PerfOutputDelay = 15.0;
     return maplyTex;
 }
 
+- (MaplyTexture *__nullable)addSubTexture:(MaplyTexture *__nonnull)tex xOffset:(int)x yOffset:(int)y width:(int)width height:(int)height mode:(MaplyThreadMode)threadMode
+{
+    if (!renderControl || ![renderControl startOfWork])
+        return nil;
+
+    MaplyTexture *maplyTex = [renderControl->interactLayer addSubTexture:tex xOffset:x yOffset:y width:width height:height mode:threadMode];
+    
+    [renderControl endOfWork];
+    
+    return maplyTex;
+}
+
 - (MaplyTexture *__nullable)createTexture:(NSDictionary * _Nullable)inDesc sizeX:(int)sizeX sizeY:(int)sizeY mode:(MaplyThreadMode)threadMode
 {
     if (![renderControl startOfWork])

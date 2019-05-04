@@ -981,6 +981,17 @@
   */
 - (MaplyTexture *__nullable)addTextureToAtlas:(UIImage *__nonnull)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode;
 
+/**
+   Creates a new texture that references part of an existing texture.
+ 
+   @param x Horizontal offset within the existing texture.
+   @param y Vertical offset within the existing texture.
+   @param width Width of the chunk to make a new texture.
+   @param height Height of the chunk to make a new texture.
+   @param threadMode For MaplyThreadAny we'll do the add on another thread.  For MaplyThreadCurrent we'll block the current thread to finish the add.  MaplyThreadAny is preferred if you're on the main thread.
+  */
+- (MaplyTexture *__nullable)addSubTexture:(MaplyTexture *__nonnull)tex xOffset:(int)x yOffset:(int)y width:(int)width height:(int)height mode:(MaplyThreadMode)threadMode;
+
 /** 
     Remove the OpenGL ES texture associated with the given MaplyTexture.
     

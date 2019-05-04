@@ -20,6 +20,7 @@
 
 #import <Foundation/Foundation.h>
 #import "vector_styles/MaplyVectorStyle.h"
+#import "vector_styles/MapboxVectorStyleSprites.h"
 #import "vector_tiles/MapboxVectorTiles.h"
 
 @class MapboxVectorFilter;
@@ -56,6 +57,9 @@
 
 /// @brief Layers sorted by source layer name
 @property (nonatomic, strong, nullable) NSDictionary *layersBySource;
+
+/// @brief Sprite sheet, if there is one
+@property (nonatomic, strong, nullable) MapboxVectorStyleSprites *sprites;
 
 /// @brief Initialize with the style JSON and the view controller
 /// @details We'll parse the style JSON passed in and return nil on failure.

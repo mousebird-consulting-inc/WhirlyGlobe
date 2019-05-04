@@ -159,6 +159,9 @@
 // Add a texture to an atlas
 - (MaplyTexture *)addTextureToAtlas:(UIImage *)image desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 
+// Add a subtexture that references and existing texture
+- (MaplyTexture *)addSubTexture:(MaplyTexture *)tex xOffset:(int)x yOffset:(int)y width:(int)width height:(int)height mode:(MaplyThreadMode)threadMode;
+
 // Start collecting changes for this thread
 - (void)startChanges;
 
