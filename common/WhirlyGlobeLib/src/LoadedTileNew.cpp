@@ -36,21 +36,23 @@ TileGeomSettings::TileGeomSettings()
 {
 }
     
-LoadedTileNew::LoadedTileNew(QuadTreeNew::ImportantNode &ident)
-    : ident(ident), enabled(false)
+LoadedTileNew::LoadedTileNew(const QuadTreeNew::ImportantNode &ident,const MbrD &mbr)
+    : ident(ident), mbr(mbr), enabled(false)
 {
+}
+    
+bool LoadedTileNew::isValidSpatial(TileGeomManager *geomManage)
+{
+    MbrD theMbr = geomManage->quadTree->generateMbrForNode(ident);
+
+    // Make sure this overlaps the area we care about
+    return geomManage->mbr.inside(theMbr.mid());
 }
 
 void LoadedTileNew::makeDrawables(TileGeomManager *geomManage,TileGeomSettings &geomSettings,ChangeSet &changes)
 {
     enabled = true;
     MbrD theMbr = geomManage->quadTree->generateMbrForNode(ident);
-
-    // Make sure this overlaps the area we care about
-    if (!theMbr.overlaps(geomManage->mbr))
-    {
-        wkLogLevel(Error,"Building bogus tile: (%d,%d,%d)",ident.x,ident.y,ident.level);
-    }
     
     // Don't bother to actually build the geometry in this case
     if (!geomSettings.buildGeom)
@@ -503,10 +505,14 @@ TileGeomManager::NodeChanges TileGeomManager::addRemoveTiles(const QuadTreeNew::
         auto it = tileMap.find(ident);
         if (it == tileMap.end()) {
             // Add a new one
-            LoadedTileNewRef tile = LoadedTileNewRef(new LoadedTileNew(ident));
-            tile->makeDrawables(this,settings,changes);
-            tileMap[ident] = tile;
-            nodeChanges.addedTiles.push_back(tile);
+            MbrD mbr = quadTree->generateMbrForNode(ident);
+            LoadedTileNewRef tile = LoadedTileNewRef(new LoadedTileNew(ident,mbr));
+            if (tile->isValidSpatial(this))
+            {
+                tile->makeDrawables(this,settings,changes);
+                tileMap[ident] = tile;
+                nodeChanges.addedTiles.push_back(tile);
+            }
         }
     }
     

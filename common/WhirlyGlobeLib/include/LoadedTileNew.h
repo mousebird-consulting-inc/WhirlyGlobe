@@ -72,7 +72,10 @@ class TileGeomManager;
 class LoadedTileNew
 {
 public:
-    LoadedTileNew(QuadTreeNew::ImportantNode &ident);
+    LoadedTileNew(const QuadTreeNew::ImportantNode &ident,const MbrD &mbr);
+    
+    // Make sure the tile exists in space
+    bool isValidSpatial(TileGeomManager *geomManage);
     
     // Build the drawable(s) to represent this one tile
     void makeDrawables(TileGeomManager *geomManage,TileGeomSettings &geomSettings,ChangeSet &changes);
@@ -100,6 +103,7 @@ public:
     };
     bool enabled;
     QuadTreeNew::ImportantNode ident;
+    MbrD mbr;
     std::vector<DrawableInfo> drawInfo;
     // The Draw Priority as set when created
     int drawPriority;

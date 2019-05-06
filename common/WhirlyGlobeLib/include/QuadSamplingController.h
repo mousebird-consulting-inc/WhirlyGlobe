@@ -91,7 +91,7 @@ public:
                                    const Mbr &mbr,
                                    ViewStateRef viewState,
                                    const Point2f &frameSize);
-
+    
     /// **** QuadTileBuilderDelegate methods ****
 
     /// Called when the builder first starts up.  Keep this around if you need it.

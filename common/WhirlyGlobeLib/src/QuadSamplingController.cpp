@@ -52,8 +52,13 @@ void QuadSamplingController::start(const SamplingParams &inParams,Scene *inScene
     std::vector<double> importance(params.maxZoom+1);
     for (int ii=0;ii<=params.maxZoom;ii++) {
         double import = params.minImportance;
-        if (ii < params.importancePerLevel.size() && params.importancePerLevel[ii] > -2.0)
+        if (ii < params.minZoom)
+            import = MAXFLOAT;
+        else if (ii == params.minZoom && params.minImportanceTop != MAXFLOAT) {
+            import = params.minImportanceTop;
+        } else if (ii < params.importancePerLevel.size() && params.importancePerLevel[ii] > -2.0) {
             import = params.importancePerLevel[ii];
+        }
         importance[ii] = import;
     }
     if (params.minImportanceTop != params.minImportance && params.minImportanceTop > 0.0)
@@ -178,7 +183,7 @@ bool QuadSamplingController::visibilityForTile(const QuadTreeIdentifier &ident,
     DisplaySolidRef dispSolid;
     return TileIsOnScreen(viewState.get(), frameSize,  params.coordSys.get(), scene->getCoordAdapter(), mbr, ident, dispSolid);
 }
-
+    
 /// **** QuadTileBuilderDelegate methods ****
 
 void QuadSamplingController::setBuilder(QuadTileBuilder *builder,QuadDisplayControllerNew *control)
