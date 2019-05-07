@@ -119,7 +119,7 @@ void ComponentManager::removeComponentObjects(const SimpleIDSet &compIDs,ChangeS
             auto it = compObjs.find(ComponentObjectRef(new ComponentObject(compID)));
             if (it == compObjs.end())
             {
-                wkLogLevel(Warn,"Tried to delete object that doesn't exist");
+                wkLogLevel(Warn,"Tried to delete object that doesn't exist: %d",compID);
                 return;
             }
             ComponentObjectRef compObj = *it;

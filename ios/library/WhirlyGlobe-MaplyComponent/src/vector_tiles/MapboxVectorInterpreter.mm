@@ -245,13 +245,22 @@ static double MAX_EXTENT = 20037508.342789244;
     }
     
     if (!ovlCompObjs.empty()) {
-        std::set<ComponentObjectRef> compObjSet,ovlCompObjSet;
-        compObjSet.insert(compObjs.begin(),compObjs.end());
-        ovlCompObjSet.insert(ovlCompObjs.begin(),ovlCompObjs.end());
-        
         std::vector<ComponentObjectRef> minusOvls;
-        std::set_difference(compObjSet.begin(), compObjSet.end(), ovlCompObjs.begin(), ovlCompObjs.end(),
-                            std::inserter(minusOvls, minusOvls.begin()));
+        
+        // Need a list of component objects without overlays
+        for (auto compObj : compObjs) {
+            // Look for it in overlays
+            bool found = false;
+            for (auto ovlCompObj : ovlCompObjs)
+                if (ovlCompObj->getId() == compObj->getId()) {
+                    found = true;
+                    break;
+                }
+            if (!found) {
+                minusOvls.push_back(compObj);
+            }
+        }
+        
         loadReturn->loadReturn->compObjs = minusOvls;
         loadReturn->loadReturn->ovlCompObjs = ovlCompObjs;
     } else {
