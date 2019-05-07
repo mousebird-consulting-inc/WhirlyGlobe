@@ -366,6 +366,34 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
     return self;
 }
 
+- (instancetype)initWithParams:(MaplySamplingParams *)inParams tileInfos:(NSArray<NSObject<MaplyTileInfoNew> *> *)tileInfos viewC:(MaplyBaseViewController *)inViewC
+{
+    if (!inParams.singleLevel) {
+        NSLog(@"MaplyQuadImageLoader only supports samplers with singleLevel set to true");
+        return nil;
+    }
+    self = [super initWithViewC:inViewC];
+    
+    params = inParams->params;
+    params.generateGeom = true;
+    
+    // Loader does all the work.  The Obj-C version is just a wrapper
+    self->loader = QuadImageFrameLoader_iosRef(new QuadImageFrameLoader_ios(params,
+                                                                            tileInfos,
+                                                                            QuadImageFrameLoader::SingleFrame));
+    
+    self.baseDrawPriority = kMaplyImageLayerDrawPriorityDefault;
+    self.drawPriorityPerLevel = 100;
+    
+    self.flipY = true;
+    self.debugMode = false;
+    self->minLevel = tileInfos[0].minZoom;
+    self->maxLevel = tileInfos[0].maxZoom;
+    self->valid = true;
+    
+    return self;
+}
+
 - (bool)delayedInit
 {
     if (!loadInterp) {
@@ -394,14 +422,6 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
 - (void)reload
 {
     [super reload];
-}
-
-// Note: Implement this one
-//       Need an array of an array of sources (whee!)
-
-- (instancetype)initWithParams:(MaplySamplingParams *)params tileInfos:(NSArray<NSObject<MaplyTileInfoNew> *> *)tileInfos viewC:(MaplyBaseViewController *)viewC
-{
-    return nil;
 }
 
 @end

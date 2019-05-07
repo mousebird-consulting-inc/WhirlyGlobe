@@ -33,7 +33,7 @@ QIFBatchOps::~QIFBatchOps()
 }
     
 QIFFrameAsset::QIFFrameAsset()
-: state(Empty), priority(0), importance(0.0), texID(EmptyIdentity)
+: state(Empty), priority(0), importance(0.0), loadReturnSet(false)
 { }
     
 QIFFrameAsset::~QIFFrameAsset()
@@ -50,9 +50,9 @@ int QIFFrameAsset::getPriority()
     return priority;
 }
 
-SimpleIdentity QIFFrameAsset::getTexID()
+const std::vector<SimpleIdentity> &QIFFrameAsset::getTexIDs()
 {
-    return texID;
+    return texIDs;
 }
     
 void QIFFrameAsset::setupFetch(QuadImageFrameLoader *loader)
@@ -62,9 +62,9 @@ void QIFFrameAsset::setupFetch(QuadImageFrameLoader *loader)
 
 void QIFFrameAsset::clear(QuadImageFrameLoader *loader,QIFBatchOps *batchOps,ChangeSet &changes) {
     state = Empty;
-    if (texID != EmptyIdentity)
+    for (auto texID : texIDs)
         changes.push_back(new RemTextureReq(texID));
-    texID = EmptyIdentity;
+    texIDs.clear();
 }
 
 bool QIFFrameAsset::updateFetching(QuadImageFrameLoader *loader,int newPriority,double newImportance)
@@ -82,12 +82,12 @@ void QIFFrameAsset::cancelFetch(QuadImageFrameLoader *loader,QIFBatchOps *batchO
     state = Empty;
 }
 
-void QIFFrameAsset::loadSuccess(QuadImageFrameLoader *loader,Texture *tex)
+void QIFFrameAsset::loadSuccess(QuadImageFrameLoader *loader,std::vector<Texture *> texs)
 {
     state = Loaded;
-    texID = EmptyIdentity;
-    if (tex)
-        texID = tex->getId();
+    texIDs.clear();
+    for (auto tex : texs)
+        texIDs.push_back(tex->getId());
 }
 
 void QIFFrameAsset::loadFailed(QuadImageFrameLoader *loader)
@@ -95,6 +95,27 @@ void QIFFrameAsset::loadFailed(QuadImageFrameLoader *loader)
     state = Empty;
 }
 
+void QIFFrameAsset::setLoadReturn(const RawDataRef &data)
+{
+    loadReturn = data;
+    loadReturnSet = true;
+}
+
+void QIFFrameAsset::clearLoadReturn()
+{
+    loadReturn.reset();
+    loadReturnSet = false;
+}
+    
+RawDataRef QIFFrameAsset::getLoadReturn()
+{
+    return loadReturn;
+}
+
+bool QIFFrameAsset::hasLoadReturn()
+{
+    return loadReturnSet;
+}
 
 QIFTileAsset::QIFTileAsset(const QuadTreeNew::ImportantNode &ident) : state(Waiting), shouldEnable(false), ident(ident), drawPriority(0)
 {
@@ -146,8 +167,13 @@ QIFFrameAssetRef QIFTileAsset::getFrame(int frameID)
 }
 
 // True if any of the frames are in the process of loading
-bool QIFTileAsset::anyFramesLoading()
+bool QIFTileAsset::anyFramesLoading(QuadImageFrameLoader *loader)
 {
+    // In single frame mode, just care about the first
+    if (loader->getMode() == QuadImageFrameLoader::SingleFrame) {
+        return frames[0]->getState() == QIFFrameAsset::Loading;
+    }
+    
     for (auto frame : frames)
         if (frame->getState() == QIFFrameAsset::Loading)
             return true;
@@ -156,8 +182,13 @@ bool QIFTileAsset::anyFramesLoading()
 }
 
 // True if any frames have loaded
-bool QIFTileAsset::anyFramesLoaded()
+bool QIFTileAsset::anyFramesLoaded(QuadImageFrameLoader *loader)
 {
+    // In single frame mode, just care about the first
+    if (loader->getMode() == QuadImageFrameLoader::SingleFrame) {
+        return frames[0]->getState() == QIFFrameAsset::Loaded;
+    }
+
     for (auto frame : frames)
         if (frame->getState() == QIFFrameAsset::Loaded)
             return true;
@@ -264,7 +295,7 @@ void QIFTileAsset::cancelFetches(QuadImageFrameLoader *loader,int frameToCancel,
 }
 
 // A single frame loaded successfully
-bool QIFTileAsset::frameLoaded(QuadImageFrameLoader *loader,QuadLoaderReturn *loadReturn,Texture *tex,ChangeSet &changes) {
+bool QIFTileAsset::frameLoaded(QuadImageFrameLoader *loader,QuadLoaderReturn *loadReturn,std::vector<Texture *> &texs,ChangeSet &changes) {
     if (frames.size() > 0 && (loadReturn->frame < 0 || loadReturn->frame >= frames.size()))
     {
         wkLogLevel(Warn,"QuadImageFrameLoader: Got frame back outside of range");
@@ -298,17 +329,46 @@ bool QIFTileAsset::frameLoaded(QuadImageFrameLoader *loader,QuadLoaderReturn *lo
         
         // Clear out the old texture if it's there
         // Happens in the reload case
-        if (frame->getTexID() != EmptyIdentity) {
-            changes.push_back(new RemTextureReq(frame->getTexID()));
+        if (!frame->getTexIDs().empty()) {
+            for (auto texID : frame->getTexIDs())
+                changes.push_back(new RemTextureReq(texID));
         }
         
-        frame->loadSuccess(loader,tex);
+        frame->loadSuccess(loader,texs);
     }
     
-    if (tex)
-        changes.push_back(new AddTextureReq(tex));
-    else
+    if (!texs.empty()) {
+        for (auto tex : texs)
+            changes.push_back(new AddTextureReq(tex));
+    } else
         changes.push_back(NULL);
+    
+    return true;
+}
+    
+void QIFTileAsset::mergeLoadedFrame(QuadImageFrameLoader *loader,int frameID,const RawDataRef &data)
+{
+    if (frameID >= 0 && frameID < frames.size()) {
+        auto frame = frames[frameID];
+        frame->setLoadReturn(data);
+    }
+}
+    
+void QIFTileAsset::getLoadedData(std::vector<RawDataRef> &allData)
+{
+    for (auto frame : frames) {
+        if (frame->hasLoadReturn())
+            allData.push_back(frame->getLoadReturn());
+        frame->clearLoadReturn();
+    }
+}
+    
+bool QIFTileAsset::allFramesLoaded()
+{
+    for (auto frame : frames) {
+        if (!frame->hasLoadReturn())
+            return false;
+    }
     
     return true;
 }
@@ -334,7 +394,7 @@ QIFTileState::QIFTileState(int numFrames)
 }
 
 QIFTileState::FrameInfo::FrameInfo()
-: texNode(0,0,-1), texID(EmptyIdentity)
+: texNode(0,0,-1)
 { }
 
 QIFRenderState::QIFRenderState()
@@ -429,7 +489,7 @@ void QIFRenderState::updateScene(Scene *scene,double curFrame,TimeInterval now,b
             // Assign as many active textures as we've got
             for (unsigned int ii=0;ii<numFrames;ii++) {
                 auto frame = tile->frames[activeFrames[ii]];
-                if (frame.texID != EmptyIdentity) {
+                if (frame.texIDs.empty()) {
                     int relLevel = tileID.level - frame.texNode.level;
                     int relX = tileID.x - frame.texNode.x * (1<<relLevel);
                     int tileIDY = tileID.y;
@@ -441,7 +501,8 @@ void QIFRenderState::updateScene(Scene *scene,double curFrame,TimeInterval now,b
                     int relY = tileIDY - frameIdentY * (1<<relLevel);
                     
                     for (auto drawID : tile->instanceDrawIDs)
-                        changes.push_back(new DrawTexChangeRequest(drawID,ii,frame.texID,0,0,relLevel,relX,relY));
+                        // Note: In this case we just use the first texture
+                        changes.push_back(new DrawTexChangeRequest(drawID,ii,frame.texIDs[0],0,0,relLevel,relX,relY));
                     //                        NSLog(@"tile %d: (%d,%d), frame = %d getting texNode %d: (%d,%d texID = %d)",tileID.level,tileID.x,tileID.y,ii,frame.texNode.level,frame.texNode.x,frame.texNode.y,frame.texID);
                 } else {
                     enable = false;
@@ -675,18 +736,22 @@ void QuadImageFrameLoader::mergeLoadedTile(QuadLoaderReturn *loadReturn,ChangeSe
             wkLogLevel(Debug,"MaplyQuadImageLoader: Failed to load tile before it was erased %d: (%d,%d)",loadReturn->ident.level,loadReturn->ident.x,loadReturn->ident.y);
         failed = true;
     }
-
+    
     ImageTileRef image;
-    Texture *tex = NULL;
+    std::vector<Texture *> texs;
 
     if (!failed) {
-        // Build the texture
-        image = loadReturn->images.empty() ? NULL : loadReturn->images.front();
-        LoadedTileNewRef loadedTile = builder->getLoadedTile(ident);
-        if (image) {
-            tex = image->buildTexture();
-            image->clearTexture();
-            tex->setFormat(texType);
+        // Build the texture(s)
+        for (auto image : loadReturn->images) {
+            LoadedTileNewRef loadedTile = builder->getLoadedTile(ident);
+            if (image) {
+                Texture *tex = image->buildTexture();
+                image->clearTexture();
+                if (tex) {
+                    tex->setFormat(texType);
+                    texs.push_back(tex);
+                }
+            }
         }
     }
 
@@ -697,7 +762,7 @@ void QuadImageFrameLoader::mergeLoadedTile(QuadLoaderReturn *loadReturn,ChangeSe
             failed = loadReturn->hasError;
         } else {
             // In the images modes we need, ya know, and image
-            failed = (tex == NULL);
+            failed = texs.empty();
         }
     }
 
@@ -707,7 +772,7 @@ void QuadImageFrameLoader::mergeLoadedTile(QuadLoaderReturn *loadReturn,ChangeSe
         if (failed) {
             tile->frameFailed(this, loadReturn, changes);
         } else {
-            if (!tile->frameLoaded(this, loadReturn, tex, changes))
+            if (!tile->frameLoaded(this, loadReturn, texs, changes))
                 failed = true;
         }
     }
@@ -715,9 +780,9 @@ void QuadImageFrameLoader::mergeLoadedTile(QuadLoaderReturn *loadReturn,ChangeSe
     // For whatever reason, didn't correctly integrate the tile
     // so now delete everything
     if (failed) {
-        if (tex)
+        for (auto tex: texs)
             delete tex;
-        tex = NULL;
+        texs.clear();
         SimpleIDSet compObjs;
         for (auto compObj : loadReturn->compObjs)
             compObjs.insert(compObj->getId());
@@ -744,7 +809,7 @@ void QuadImageFrameLoader::updateRenderState(ChangeSet &changes)
         for (auto it : tiles) {
             auto tileID = it.first;
             auto tile = it.second;
-            if (tileID.level == targetLevel && tile->anyFramesLoading()) {
+            if (tileID.level == targetLevel && tile->anyFramesLoading(this)) {
                 allLoaded = false;
                 break;
             }
@@ -778,7 +843,7 @@ void QuadImageFrameLoader::updateRenderState(ChangeSet &changes)
         if (mode != Object) {
             // For the image modes, we try to refer to parent textures as needed
             
-            SimpleIdentity texID = EmptyIdentity;
+            std::vector<SimpleIdentity> texIDs;
             QuadTreeNew::Node texNode = tile->getIdent();
 
             // Look for a tile or parent tile that has a texture ID
@@ -788,9 +853,9 @@ void QuadImageFrameLoader::updateRenderState(ChangeSet &changes)
                     break;
                 auto parentTile = it->second;
                 auto parentFrame = parentTile->getFrame(0);
-                if (parentFrame && parentFrame->getTexID() != EmptyIdentity) {
+                if (parentFrame && !parentFrame->getTexIDs().empty()) {
                     // Got one, so stop
-                    texID = parentFrame->getTexID();
+                    texIDs = parentFrame->getTexIDs();
                     texNode = parentTile->getIdent();
                     break;
                 }
@@ -801,11 +866,11 @@ void QuadImageFrameLoader::updateRenderState(ChangeSet &changes)
                 texNode.level -= 1;
                 texNode.x /= 2;
                 texNode.y /= 2;
-            } while (texID == EmptyIdentity);
+            } while (texIDs.empty());
 
             // Turn on the node and adjust the texture
             // Note: Should cache this so we're not changing it every frame
-            if (texID) {
+            if (!texIDs.empty()) {
                 int relLevel = tileID.level - texNode.level;
                 int relX = tileID.x - texNode.x * (1<<relLevel);
                 int tileIDY = tileID.y;
@@ -818,7 +883,11 @@ void QuadImageFrameLoader::updateRenderState(ChangeSet &changes)
                 
                 for (auto drawID : tile->getInstanceDrawIDs()) {
                     changes.push_back(new OnOffChangeRequest(drawID,true));
-                    changes.push_back(new DrawTexChangeRequest(drawID,0,texID,0,0,relLevel,relX,relY));
+                    int texIDCount = 0;
+                    for (auto texID : texIDs) {
+                        changes.push_back(new DrawTexChangeRequest(drawID,texIDCount,texID,0,0,relLevel,relX,relY));
+                        texIDCount++;
+                    }
                 }
             } else {
                 for (auto drawID : tile->getInstanceDrawIDs()) {
@@ -867,9 +936,9 @@ void QuadImageFrameLoader::buildRenderState(ChangeSet &changes)
                     break;
                 auto parentTile = it->second;
                 auto parentFrame = parentTile->getFrame(frameID);
-                if (parentFrame && parentFrame->getTexID() != EmptyIdentity) {
+                if (parentFrame && !parentFrame->getTexIDs().empty()) {
                     // Got one, so stop
-                    outFrame.texID = parentFrame->getTexID();
+                    outFrame.texIDs = parentFrame->getTexIDs();
                     outFrame.texNode = parentTile->getIdent();
                     break;
                 }
@@ -880,10 +949,10 @@ void QuadImageFrameLoader::buildRenderState(ChangeSet &changes)
                 texNode.level -= 1;
                 texNode.x /= 2;
                 texNode.y /= 2;
-            } while (outFrame.texID == EmptyIdentity);
+            } while (outFrame.texIDs.empty());
             
             // Metrics for overall loading used by the display side
-            if (outFrame.texID == EmptyIdentity) {
+            if (outFrame.texIDs.empty()) {
                 if (tile->getIdent().level == params.minZoom)
                     newRenderState.topTilesLoaded[frameID] = false;
             } else {
@@ -927,7 +996,7 @@ QuadTreeNew::NodeSet QuadImageFrameLoader::builderUnloadCheck(QuadTileBuilder *b
     for (auto node : loadTiles)
         allLoads.insert(node);
     for (auto node : tiles)
-        if (node.second->anyFramesLoading())
+        if (node.second->anyFramesLoading(this))
             allLoads.insert(node.first);
     
     // For all those loading or will be loading nodes, nail down their parents
@@ -939,7 +1008,7 @@ QuadTreeNew::NodeSet QuadImageFrameLoader::builderUnloadCheck(QuadTileBuilder *b
             {
                 auto it = tiles.find(parent);
                 // Nail down the parent that's loaded, but don't care otherwise
-                if (it != tiles.end() && it->second->anyFramesLoaded()) {
+                if (it != tiles.end() && it->second->anyFramesLoaded(this)) {
                     toKeep.insert(parent);
                     break;
                 }
@@ -953,7 +1022,7 @@ QuadTreeNew::NodeSet QuadImageFrameLoader::builderUnloadCheck(QuadTileBuilder *b
         if (it == tiles.end())
             continue;
         // If this tile (to be unloaded) isn't loaded, then we don't care about it
-        if (!it->second->anyFramesLoaded())
+        if (!it->second->anyFramesLoaded(this))
             continue;
         
         // Check that it's not already being kept around
@@ -1112,6 +1181,30 @@ bool QuadImageFrameLoader::isFrameLoading(const QuadTreeIdentifier &ident,int fr
         return tile->isFrameLoading(frame);
     else
         return true;
+}
+    
+bool QuadImageFrameLoader::mergeLoadedFrame(const QuadTreeIdentifier &ident,int frame,const RawDataRef &data,std::vector<RawDataRef> &allData)
+{
+    auto it = tiles.find(ident);
+    if (it == tiles.end()) {
+        return false;
+    }
+    auto tile = it->second;
+
+    // Single frame mode with multiple sources is the only case where we keep the data
+    if (mode == SingleFrame && getNumFrames() > 1) {
+        tile->mergeLoadedFrame(this,frame,data);
+        
+        // We need to put all the various data pieces into the load return for processing
+        if (tile->allFramesLoaded()) {
+            tile->getLoadedData(allData);
+            return true;
+        }
+        
+        return false;
+    }
+    
+    return true;
 }
 
 }

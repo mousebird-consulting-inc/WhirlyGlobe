@@ -74,8 +74,8 @@ using namespace WhirlyKit;
     imageTile = ImageTile_iOSRef(new ImageTile_iOS());
     imageTile->type = MaplyImgTypeImage;
     imageTile->components = 4;
-    imageTile->width = -1;
-    imageTile->height = -1;
+    imageTile->width = image.size.width;
+    imageTile->height = image.size.height;
     imageTile->borderSize = 0;
     imageTile->imageStuff = image;
 

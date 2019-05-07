@@ -290,12 +290,31 @@ using namespace WhirlyKit;
     if (!loader->isFrameLoading(loadReturn->loadReturn->ident,loadReturn->loadReturn->frame))
         return;
     
-    // Do the parsing on another thread since it can be slow
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        [self->loadInterp dataForTile:loadReturn loader:self];
+    // Might be keeping the data coming back per frame
+    // If we are, this tells us to merge when all the data has come back
+    RawDataRef dataWrap(new RawNSDataReader([loadReturn getFirstData]));
+    std::vector<RawDataRef> allData;
+    if (loader->mergeLoadedFrame(loadReturn->loadReturn->ident,loadReturn->loadReturn->frame,dataWrap,allData))
+    {
+        // In this mode we need to adjust the loader return to contain everything at once
+        if (loader->getMode() == QuadImageFrameLoader::SingleFrame && loader->getNumFrames() > 1) {
+            loadReturn->tileData.clear();
+            loadReturn->loadReturn->frame = 0;
+            for (auto data : allData) {
+                RawNSDataReader *rawData = dynamic_cast<RawNSDataReader *>(data.get());
+                if (rawData) {
+                    loadReturn->tileData.push_back(rawData->getData());
+                }
+            }
+        }
         
-        [self performSelector:@selector(mergeLoadedTile:) onThread:self->samplingLayer.layerThread withObject:loadReturn waitUntilDone:NO];
-    });
+        // Do the parsing on another thread since it can be slow
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [self->loadInterp dataForTile:loadReturn loader:self];
+            
+            [self performSelector:@selector(mergeLoadedTile:) onThread:self->samplingLayer.layerThread withObject:loadReturn waitUntilDone:NO];
+        });
+    }
 }
 
 // Called on the SamplingLayer.LayerThread

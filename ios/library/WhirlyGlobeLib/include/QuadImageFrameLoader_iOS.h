@@ -67,7 +67,7 @@ public:
     virtual void cancelFetch(QuadImageFrameLoader *loader,QIFBatchOps *batchOps);
     
     // Keep track of the texture ID
-    virtual void loadSuccess(QuadImageFrameLoader *loader,Texture *tex);
+    virtual void loadSuccess(QuadImageFrameLoader *loader,const std::vector<Texture *> &texs);
     
     // Clear out state
     virtual void loadFailed(QuadImageFrameLoader *loader);
@@ -100,7 +100,7 @@ class QuadImageFrameLoader_ios : public QuadImageFrameLoader
 public:
     // Displaying a single frame
     QuadImageFrameLoader_ios(const SamplingParams &params,NSObject<MaplyTileInfoNew> *inTileInfo,Mode mode);
-    // Displaying multiple animated frames
+    // Displaying multiple animated frames (or one with multiple data sources)
     QuadImageFrameLoader_ios(const SamplingParams &params,NSArray<NSObject<MaplyTileInfoNew> *> *inFrameInfos,Mode mode);
     ~QuadImageFrameLoader_ios();
     

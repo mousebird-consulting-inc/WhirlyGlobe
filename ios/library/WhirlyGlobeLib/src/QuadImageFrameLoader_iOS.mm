@@ -94,9 +94,9 @@ void QIFFrameAsset_ios::cancelFetch(QuadImageFrameLoader *loader,QIFBatchOps *in
     request = nil;
 }
     
-void QIFFrameAsset_ios::loadSuccess(QuadImageFrameLoader *loader,Texture *tex)
+void QIFFrameAsset_ios::loadSuccess(QuadImageFrameLoader *loader,const std::vector<Texture *> &texs)
 {
-    QIFFrameAsset::loadSuccess(loader, tex);
+    QIFFrameAsset::loadSuccess(loader, texs);
     request = nil;
 }
 

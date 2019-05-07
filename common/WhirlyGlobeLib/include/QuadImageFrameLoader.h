@@ -52,8 +52,8 @@ public:
     int getPriority();
     
     // Texture ID (if loaded)
-    SimpleIdentity getTexID();
-    
+    const std::vector<SimpleIdentity> &getTexIDs();
+
     // Just sets the state to loading
     virtual void setupFetch(QuadImageFrameLoader *loader);
     
@@ -62,15 +62,27 @@ public:
 
     // Update priority for an existing fetch request
     virtual bool updateFetching(QuadImageFrameLoader *loader,int newPriority,double newImportance);
-
+    
     // Cancel an outstanding fetch
     virtual void cancelFetch(QuadImageFrameLoader *loader,QIFBatchOps *batchOps);
 
     // Keep track of the texture ID
-    virtual void loadSuccess(QuadImageFrameLoader *loader,Texture *tex);
+    virtual void loadSuccess(QuadImageFrameLoader *loader,std::vector<Texture *> texs);
     
     // Clear out state
     virtual void loadFailed(QuadImageFrameLoader *loader);
+
+    // Store the raw data for use later
+    virtual void setLoadReturn(const RawDataRef &data);
+    
+    // Return the load return
+    virtual RawDataRef getLoadReturn();
+    
+    // True if a load return was set at one point
+    virtual bool hasLoadReturn();
+    
+    // Clear out any temp stored data
+    virtual void clearLoadReturn();
     
 protected:
     State state;
@@ -79,7 +91,11 @@ protected:
     double importance;
     
     // If set, the texture ID for this asset
-    SimpleIdentity texID;
+    std::vector<SimpleIdentity> texIDs;
+    
+    // When fetching a single frame that has multiple data sources, we store the data here
+    bool loadReturnSet;
+    RawDataRef loadReturn;
 };
 
 typedef std::shared_ptr<QIFFrameAsset> QIFFrameAssetRef;
@@ -109,10 +125,10 @@ public:
     QIFFrameAssetRef getFrame(int frameID);
     
     // True if any of the frames are in the process of loading
-    bool anyFramesLoading();
+    bool anyFramesLoading(QuadImageFrameLoader *loader);
     
     // True if any frames have loaded
-    bool anyFramesLoaded();
+    bool anyFramesLoaded(QuadImageFrameLoader *loader);
     
     // True if the given frame is loading
     bool isFrameLoading(int which);
@@ -142,8 +158,17 @@ public:
     // A single frame loaded successfully
     virtual bool frameLoaded(QuadImageFrameLoader *loader,
                              QuadLoaderReturn *loadReturn,
-                             Texture *tex,
+                             std::vector<Texture *> &texs,
                              ChangeSet &changes);
+    
+    // Keep track of the load return data (just for single frame + multiple source mode)
+    virtual void mergeLoadedFrame(QuadImageFrameLoader *loader,int frame,const RawDataRef &data);
+    
+    // Return all the low level data (and reset it) if we're in that mode
+    virtual void getLoadedData(std::vector<RawDataRef> &allData);
+    
+    // True if all frames are loaded (just for single frame + multiple source mode)
+    virtual bool allFramesLoaded();
     
     // A single frame failed to load
     virtual void frameFailed(QuadImageFrameLoader *loader,QuadLoaderReturn *loadReturn,ChangeSet &changes);
@@ -192,7 +217,7 @@ public:
         
         // Node we're using a texture from (could be this one)
         QuadTreeNew::Node texNode;
-        SimpleIdentity texID;
+        std::vector<SimpleIdentity> texIDs;
     };
     
     // Component objects associated with the tile
@@ -327,6 +352,10 @@ public:
     
     /// Check if a frame is in the process of loading
     bool isFrameLoading(const QuadTreeIdentifier &ident,int frame);
+    
+    /// Called when the data for a frame comes back
+    /// Returns true if that tile is ready for merging
+    bool mergeLoadedFrame(const QuadTreeIdentifier &ident,int frame,const RawDataRef &data,std::vector<RawDataRef> &allData);
     
     /// Builds the render state *and* send it over to the main thread via the scene changes
     void buildRenderState(ChangeSet &changes);
