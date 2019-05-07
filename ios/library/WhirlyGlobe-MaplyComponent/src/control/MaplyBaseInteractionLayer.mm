@@ -351,50 +351,50 @@ public:
     ChangeSet changes;
     MaplyTexture *maplyTex = nil;
 
+    // Look for an image texture that's already representing our UIImage
+    if (image != nil)
     {
         std::lock_guard<std::mutex> guardLock(imageLock);
-        
-        // Look for an image texture that's already representing our UIImage
-        if (image != nil)
-        {
-            std::vector<MaplyImageTextureList::iterator> toRemove;
-            for (MaplyImageTextureList::iterator theImageTex = imageTextures.begin();
-                 theImageTex != imageTextures.end(); ++theImageTex)
-            {
-                if (*theImageTex)
-                {
-                    if ((*theImageTex).image == image && !(*theImageTex).isBeingRemoved)
-                    {
-                        maplyTex = *theImageTex;
-                        break;
-                    }
-                } else
-                    toRemove.push_back(theImageTex);
-            }
-            for (auto rem : toRemove)
-                imageTextures.erase(rem);
-        }
 
-        // Takes the altas path instead
-        if (!maplyTex && image && [desc boolForKey:kMaplyTexAtlas default:false])
+        std::vector<MaplyImageTextureList::iterator> toRemove;
+        for (MaplyImageTextureList::iterator theImageTex = imageTextures.begin();
+             theImageTex != imageTextures.end(); ++theImageTex)
         {
-            return [self addTextureToAtlas:image desc:desc mode:threadMode];
+            if (*theImageTex)
+            {
+                if ((*theImageTex).image == image && !(*theImageTex).isBeingRemoved)
+                {
+                    maplyTex = *theImageTex;
+                    break;
+                }
+            } else
+                toRemove.push_back(theImageTex);
         }
+        for (auto rem : toRemove)
+            imageTextures.erase(rem);
+    }
+
+    // Takes the altas path instead
+    if (!maplyTex && image && [desc boolForKey:kMaplyTexAtlas default:false])
+    {
+        return [self addTextureToAtlas:image desc:desc mode:threadMode];
+    }
+    
+    if (!maplyTex)
+    {
+        std::lock_guard<std::mutex> guardLock(imageLock);
+
+        maplyTex = [[MaplyTexture alloc] init];
         
-        if (!maplyTex)
-        {
-            maplyTex = [[MaplyTexture alloc] init];
-            
-            Texture *tex = [self createTexture:image desc:desc mode:threadMode];
-            maplyTex.texID = tex->getId();
-            maplyTex.interactLayer = self;
-            maplyTex.image = image;
-            maplyTex.width = tex->getWidth();
-            maplyTex.height = tex->getHeight();
-            
-            changes.push_back(new AddTextureReq(tex));
-            imageTextures.push_back(maplyTex);
-        }
+        Texture *tex = [self createTexture:image desc:desc mode:threadMode];
+        maplyTex.texID = tex->getId();
+        maplyTex.interactLayer = self;
+        maplyTex.image = image;
+        maplyTex.width = tex->getWidth();
+        maplyTex.height = tex->getHeight();
+        
+        changes.push_back(new AddTextureReq(tex));
+        imageTextures.push_back(maplyTex);
     }
     
     if (!changes.empty())
