@@ -385,6 +385,12 @@ protected:
     
     // We number load requests so we can catch old ones after doing a reload
     int generation;
+    
+    // Last target level set in quadBuilder:update: callback
+    int targetLevel;
+    
+    // This is set to the targetLevel when all targetLevel tiles are loaded
+    int curOvlLevel;
 };
     
 }

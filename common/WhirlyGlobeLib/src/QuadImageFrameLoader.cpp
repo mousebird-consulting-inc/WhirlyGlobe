@@ -494,7 +494,8 @@ QuadImageFrameLoader::QuadImageFrameLoader(const SamplingParams &params,Mode mod
     control(NULL), builder(NULL),
     changesSinceLastFlush(true),
     compManager(NULL),
-    generation(0)
+    generation(0),
+    targetLevel(-1), curOvlLevel(-1)
 {
 }
     
@@ -733,6 +734,29 @@ void QuadImageFrameLoader::mergeLoadedTile(QuadLoaderReturn *loadReturn,ChangeSe
 // Figure out what needs to be on/off for the non-frame cases
 void QuadImageFrameLoader::updateRenderState(ChangeSet &changes)
 {
+    // Figure out the overlay level
+    if (curOvlLevel == -1) {
+        curOvlLevel = targetLevel;
+        if (debugMode)
+            wkLogLevel(Debug, "Picking new overlay level %d, targetLevel = %d",curOvlLevel,targetLevel);
+    } else {
+        bool allLoaded = true;
+        for (auto it : tiles) {
+            auto tileID = it.first;
+            auto tile = it.second;
+            if (tileID.level == targetLevel && tile->anyFramesLoading()) {
+                allLoaded = false;
+                break;
+            }
+        }
+        
+        if (allLoaded) {
+            curOvlLevel = targetLevel;
+            if (debugMode)
+                wkLogLevel(Debug, "Picking new overlay level %d, targetLevel = %d",curOvlLevel,targetLevel);
+        }
+    }
+    
     // Work through the tiles, figuring out textures and objects
     for (auto tileIt : tiles) {
         auto tileID = tileIt.first;
@@ -743,9 +767,12 @@ void QuadImageFrameLoader::updateRenderState(ChangeSet &changes)
         auto compObjIDs = tile->getCompObjs();
         if (!compObjIDs.empty())
             compManager->enableComponentObjects(compObjIDs, enable, changes);
+
+        // Only turn on the overlays if the Tile ID is one of the overlay level
+        bool ovlEnable = enable && (tileID.level == curOvlLevel);
         auto ovlCompObjIDs = tile->getOvlCompObjs();
         if (!ovlCompObjIDs.empty())
-            compManager->enableComponentObjects(ovlCompObjIDs, enable, changes);
+            compManager->enableComponentObjects(ovlCompObjIDs, ovlEnable, changes);
 
         // In object mode we just turn things on
         if (mode != Object) {
@@ -940,6 +967,14 @@ QuadTreeNew::NodeSet QuadImageFrameLoader::builderUnloadCheck(QuadTileBuilder *b
                 }
             }
         }
+        
+        // Lastly, hold anything that might be used for an overlay
+        if (curOvlLevel != targetLevel) {
+            if (node.level == curOvlLevel && !it->second->getOvlCompObjs().empty()) {
+                if (toKeep.find(node) == toKeep.end())
+                    toKeep.insert(node);
+            }
+        }
     }
     
     return toKeep;
@@ -951,6 +986,8 @@ void QuadImageFrameLoader::builderLoad(QuadTileBuilder *builder,
                          ChangeSet &changes)
 {
     bool somethingChanged = false;
+    
+    targetLevel = updates.targetLevel;
     
     QIFBatchOps *batchOps = makeBatchOps();
     
