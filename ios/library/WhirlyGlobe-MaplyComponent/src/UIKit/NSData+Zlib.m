@@ -140,7 +140,3 @@
 }
 
 @end
-
-void NSDataDummyFunc()
-{
-}

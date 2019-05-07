@@ -35,9 +35,3 @@
 - (BOOL)isCompressed;
 
 @end
-
-// A function we can call to force the linker to bring in categories
-#ifdef __cplusplus
-extern "C"
-#endif
-void NSDataDummyFunc();
