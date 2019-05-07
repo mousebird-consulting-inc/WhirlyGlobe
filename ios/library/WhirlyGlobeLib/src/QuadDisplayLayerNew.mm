@@ -91,6 +91,7 @@ static const float DelayPeriod = 0.1;
 
     ChangeSet changes;
     // Controller is sitting on some unloads, so call it back in a bit
+    // Note: We don't need to go through the view update logic here.  We should just process the unloads.
     if (controller->viewUpdate(inViewState.viewState,changes)) {
         [self performSelector:@selector(delayCheck) withObject:nil afterDelay:DelayPeriod];
     }

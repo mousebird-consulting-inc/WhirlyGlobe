@@ -127,7 +127,7 @@ void AnimateViewHeight::updateView(GlobeView *globeView)
 	} else {
 		// Interpolate somewhere along the path
 		double t = (span-remain)/span;
-        globeView->setHeightAboveGlobe(startHeight + (endHeight-startHeight)*t,false);
+        globeView->setHeightAboveGlobe(startHeight + (endHeight-startHeight)*t,true);
 
         if (tiltDelegate)
         {
