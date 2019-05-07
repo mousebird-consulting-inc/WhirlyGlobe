@@ -500,10 +500,14 @@ void QIFRenderState::updateScene(Scene *scene,double curFrame,TimeInterval now,b
                     }
                     int relY = tileIDY - frameIdentY * (1<<relLevel);
                     
-                    for (auto drawID : tile->instanceDrawIDs)
+                    for (auto drawID : tile->instanceDrawIDs) {
                         // Note: In this case we just use the first texture
-                        changes.push_back(new DrawTexChangeRequest(drawID,ii,frame.texIDs[0],0,0,relLevel,relX,relY));
+                        if (frame.texIDs.empty())
+                            changes.push_back(new DrawTexChangeRequest(drawID,ii,EmptyIdentity,0,0,relLevel,relX,relY));
+                        else
+                            changes.push_back(new DrawTexChangeRequest(drawID,ii,frame.texIDs[0],0,0,relLevel,relX,relY));
                     //                        NSLog(@"tile %d: (%d,%d), frame = %d getting texNode %d: (%d,%d texID = %d)",tileID.level,tileID.x,tileID.y,ii,frame.texNode.level,frame.texNode.x,frame.texNode.y,frame.texID);
+                    }
                 } else {
                     enable = false;
                     break;

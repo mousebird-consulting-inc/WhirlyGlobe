@@ -63,7 +63,6 @@ void BasicDrawable::basicDrawableInit()
     sharedBuffer = 0;
     vertexSize = 0;
     vertArrayObj = 0;
-    sharedBufferIsExternal = false;
     requestZBuffer = false;
     writeZBuffer = true;
     renderTargetID = EmptyIdentity;
@@ -689,13 +688,8 @@ void BasicDrawable::addPointToBuffer(unsigned char *basePtr,int which,const Poin
     }
 }
 
-void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager)
-{
-    setupGL(setupInfo,memManager,0,0);
-}
-
 // Create VBOs and such
-void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager,GLuint externalSharedBuf,GLuint externalSharedBufOffset)
+void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager)
 {
     // If we're already setup, don't do it twice
     if (pointBuffer || sharedBuffer)
@@ -728,33 +722,22 @@ void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *me
     vertexSize = singleVertexSize();
     int numVerts = (int)points.size();
     
-    // We're handed an external buffer, so just use it
-    int bufferSize = 0;
-    if (externalSharedBuf)
+    // Set up the buffer
+    int bufferSize = vertexSize*numVerts;
+    if (!tris.empty())
     {
-        sharedBuffer = externalSharedBuf;
-        sharedBufferOffset = externalSharedBufOffset;
-        sharedBufferIsExternal = true;
-    } else {
-        // Set up the buffer
-        bufferSize = vertexSize*numVerts;
-        if (!tris.empty())
-        {
-            bufferSize += tris.size()*sizeof(Triangle);
-        }
-        sharedBuffer = memManager->getBufferID(bufferSize,GL_STATIC_DRAW);
-        if (!sharedBuffer)
-            wkLogLevel(Error, "Empty buffer in BasicDrawable::setupGL()");
-        sharedBufferOffset = 0;
-        sharedBufferIsExternal = false;
+        bufferSize += tris.size()*sizeof(Triangle);
     }
+    sharedBuffer = memManager->getBufferID(bufferSize,GL_STATIC_DRAW);
+    if (!sharedBuffer)
+        wkLogLevel(Error, "Empty buffer in BasicDrawable::setupGL()");
     
     // Now copy in the data
     glBindBuffer(GL_ARRAY_BUFFER, sharedBuffer);
     if (hasMapBufferSupport) {
       void *glMem = NULL;
       glMem = glMapBufferRange(GL_ARRAY_BUFFER, 0, bufferSize, GL_MAP_WRITE_BIT);
-      unsigned char *basePtr = (unsigned char *)glMem + sharedBufferOffset;
+      unsigned char *basePtr = (unsigned char *)glMem;
       for (unsigned int ii=0;ii<numVerts;ii++,basePtr+=vertexSize)
           addPointToBuffer(basePtr,ii,NULL);
       
@@ -762,7 +745,7 @@ void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *me
       if (tris.size())
       {
           triBuffer = vertexSize*numVerts;
-          unsigned char *basePtr = (unsigned char *)glMem + triBuffer + sharedBufferOffset;
+          unsigned char *basePtr = (unsigned char *)glMem + triBuffer;
           for (unsigned int ii=0;ii<tris.size();ii++,basePtr+=sizeof(Triangle))
               memcpy(basePtr, &tris[ii], sizeof(Triangle));
       }
@@ -899,7 +882,7 @@ void BasicDrawable::teardownGL(OpenGLMemManager *memManager)
         glDeleteVertexArrays(1,&vertArrayObj);
     vertArrayObj = 0;
     
-    if (sharedBuffer && !sharedBufferIsExternal)
+    if (sharedBuffer)
     {
         memManager->removeBufferID(sharedBuffer);
         sharedBuffer = 0;
@@ -913,11 +896,6 @@ void BasicDrawable::teardownGL(OpenGLMemManager *memManager)
     triBuffer = 0;
     for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
         vertexAttributes[ii]->buffer = 0;
-}
-
-void BasicDrawable::draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene)
-{
-    drawOGL2(frameInfo,scene);
 }
 
 // Used to pass in buffer offsets
@@ -943,7 +921,7 @@ GLuint BasicDrawable::setupVAO(OpenGLES2Program *prog)
     // Vertex array
     if (vertAttr)
     {
-        glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, vertexSize, CALCBUFOFF(sharedBufferOffset,0));
+        glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, vertexSize, 0);
         glEnableVertexAttribArray ( vertAttr->index );
     }
     
@@ -957,7 +935,7 @@ GLuint BasicDrawable::setupVAO(OpenGLES2Program *prog)
         if (thisAttr) {
             if (attr->buffer != 0 || attr->numElements() != 0) {
                 glEnableVertexAttribArray(thisAttr->index);
-                glVertexAttribPointer(thisAttr->index, attr->glEntryComponents(), attr->glType(), attr->glNormalize(), vertexSize, CALCBUFOFF(sharedBufferOffset,attr->buffer));
+                glVertexAttribPointer(thisAttr->index, attr->glEntryComponents(), attr->glType(), attr->glNormalize(), vertexSize, CALCBUFOFF(0,attr->buffer));
                 progAttrs[ii] = thisAttr;
             } else {
                 VertAttrDefault attrDef(thisAttr->index,*attr);
@@ -977,9 +955,6 @@ GLuint BasicDrawable::setupVAO(OpenGLES2Program *prog)
     
     glBindVertexArray(0);
     
-    // Let a subclass set up their own VAO state
-    setupAdditionalVAO(prog,theVertArrayObj);
-    
     // Now tear down all that state
     if (vertAttr)
         glDisableVertexAttribArray(vertAttr->index);
@@ -994,8 +969,8 @@ GLuint BasicDrawable::setupVAO(OpenGLES2Program *prog)
     return theVertArrayObj;
 }
 
-// Draw Vertex Buffer Objects, OpenGL 2.0
-void BasicDrawable::drawOGL2(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene)
+// Draw Vertex Buffer Objects, OpenGL 2.0+
+void BasicDrawable::draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene)
 {
     OpenGLES2Program *prog = frameInfo->program;
     
@@ -1216,7 +1191,7 @@ void BasicDrawable::drawOGL2(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scen
         {
             glBindBuffer(GL_ARRAY_BUFFER,sharedBuffer);
             CheckGLError("BasicDrawable::drawVBO2() shared glBindBuffer");
-            glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, vertexSize, CALCBUFOFF(sharedBufferOffset,0));
+            glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, vertexSize, 0);
         } else {
             glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, 0, &points[0]);
         }
@@ -1235,7 +1210,7 @@ void BasicDrawable::drawOGL2(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scen
                 if (attr->buffer != 0 || attr->numElements() != 0)
                 {
                     if (attr->buffer)
-                        glVertexAttribPointer(thisAttr->index, attr->glEntryComponents(), attr->glType(), attr->glNormalize(), vertexSize, CALCBUFOFF(sharedBufferOffset,attr->buffer));
+                        glVertexAttribPointer(thisAttr->index, attr->glEntryComponents(), attr->glType(), attr->glNormalize(), vertexSize, CALCBUFOFF(0,attr->buffer));
                     else
                         glVertexAttribPointer(thisAttr->index, attr->glEntryComponents(), attr->glType(), attr->glNormalize(), 0, attr->addressForElement(0));
                     glEnableVertexAttribArray(thisAttr->index);
@@ -1274,7 +1249,7 @@ void BasicDrawable::drawOGL2(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scen
         switch (type)
         {
             case GL_TRIANGLES:
-                glDrawElements(GL_TRIANGLES, numTris*3, GL_UNSIGNED_SHORT, CALCBUFOFF(sharedBufferOffset,triBuffer));
+                glDrawElements(GL_TRIANGLES, numTris*3, GL_UNSIGNED_SHORT, CALCBUFOFF(0,triBuffer));
                 CheckGLError("BasicDrawable::drawVBO2() glDrawElements");
                 break;
             case GL_POINTS:

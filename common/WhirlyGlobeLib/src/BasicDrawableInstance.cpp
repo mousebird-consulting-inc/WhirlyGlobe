@@ -660,9 +660,9 @@ void BasicDrawableInstance::draw(RendererFrameInfo *frameInfo,Scene *scene)
                 case GL_TRIANGLES:
                     if (instBuffer)
                     {
-                        glDrawElementsInstanced(GL_TRIANGLES, basicDraw->numTris*3, GL_UNSIGNED_SHORT, CALCBUFOFF(basicDraw->sharedBufferOffset,basicDraw->triBuffer), numInstances);
+                        glDrawElementsInstanced(GL_TRIANGLES, basicDraw->numTris*3, GL_UNSIGNED_SHORT, CALCBUFOFF(0,basicDraw->triBuffer), numInstances);
                     } else
-                        glDrawElements(GL_TRIANGLES, basicDraw->numTris*3, GL_UNSIGNED_SHORT, CALCBUFOFF(basicDraw->sharedBufferOffset,basicDraw->triBuffer));
+                        glDrawElements(GL_TRIANGLES, basicDraw->numTris*3, GL_UNSIGNED_SHORT, CALCBUFOFF(0,basicDraw->triBuffer));
                     CheckGLError("BasicDrawable::drawVBO2() glDrawElements");
                     break;
                 case GL_POINTS:
