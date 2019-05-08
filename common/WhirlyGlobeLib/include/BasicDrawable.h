@@ -18,7 +18,6 @@
  *
  */
 
-#import "glwrapper.h"
 #import <vector>
 #import <set>
 #import <map>
@@ -36,7 +35,7 @@ namespace WhirlyKit
  */
 class BasicDrawable : public Drawable
 {
-    friend class BasicDrawableInstance;
+friend class BasicDrawableInstance;
 
 protected:
     // Used by subclasses
@@ -54,27 +53,21 @@ public:
     
     /// For OpenGLES2, this is the program to use to render this drawable.
     virtual SimpleIdentity getProgram() const;
-    
-    /// Set up the VBOs
-    virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager);
-    
-    /// Clean up the VBOs
-    virtual void teardownGL(OpenGLMemManager *memManage);
 
-    /// Called render-thread side to set up a VAO
-    virtual GLuint setupVAO(OpenGLES2Program *prog);
+    /// Set up local rendering structures (e.g. VBOs)
+    virtual void setupForRenderer(RenderSetupInfo *setupInfo);
     
+    /// Clean up any rendering objects you may have (e.g. VBOs).
+    virtual void teardownForRenderer(RenderSetupInfo *setupInfo);
+
     /// Fill this in to draw the basic drawable
-    virtual void draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene);
+    virtual void draw(RendererFrameInfo *frameInfo,Scene *scene);
     
     /// Draw priority
     virtual unsigned int getDrawPriority() const;
     
     /// We use the on/off flag as well as a visibility check
-    virtual bool isOn(WhirlyKit::RendererFrameInfo *frameInfo) const;
-    
-    /// Check if this has been set up and (more importantly) hasn't been torn down
-    virtual bool isSetupInGL() { return isSetupGL; }
+    virtual bool isOn(RendererFrameInfo *frameInfo) const;
     
     /// Used for alpha sorting
     virtual bool hasAlpha(WhirlyKit::RendererFrameInfo *frameInfo) const;
@@ -98,9 +91,6 @@ public:
     /// Set the draw offset.  This is an integer offset from the base terrain.
     /// Geometry is moved upward by a certain number of units.
     virtual float getDrawOffset();
-    
-    /// Geometry type.  Probably triangles.
-    virtual GLenum getType() const;
     
     /// Return the default color
     virtual RGBAColor getColor() const;
@@ -150,13 +140,7 @@ public:
     };
     
     /// Return the current texture info
-    virtual const std::vector<TexInfo> &getTexInfo() { return texInfo; }
-    
-    /// Return the number of points added so far
-    virtual unsigned int getNumPoints() const;
-    
-    /// Return the number of triangles added so far
-    virtual unsigned int getNumTris() const;
+    virtual const std::vector<TexInfo> &getTexInfo();
     
     /// Return the active transform matrix, if we have one
     virtual const Eigen::Matrix4d *getMatrix() const;
@@ -164,8 +148,8 @@ public:
     /// Uniforms to be applied to the shader
     virtual SingleVertexAttributeSet getUniforms() const;
     
-    // EmptyIdentity is the standard view, anything else ia custom render target
-    SimpleIdentity getRenderTarget() { return renderTargetID; }
+    // EmptyIdentity is the standard view, anything else is custom render target
+    SimpleIdentity getRenderTarget();
 
     /// Update fade up/down times in renderer (i.e. keep the renderer rendering)
     virtual void updateRenderer(WhirlyKit::SceneRendererES *renderer);
@@ -229,109 +213,6 @@ public:
     /// We use these to look up parts of a texture at a higher level
     virtual void setTexRelative(int which,int size,int borderTexel,int relLevel,int relX,int relY);
 
-    ////////////////////////////////////
-    /// ---- Construction methods -----
-    
-    /// Set local extents
-    void setLocalMbr(Mbr mbr);
-    
-    /// Set the geometry type.  Probably triangles.
-    virtual void setType(GLenum inType);
-
-    /// Set the color as an RGB color
-    virtual void setColor(RGBAColor inColor);
-    
-    /// Set the color as an array.
-    virtual void setColor(unsigned char inColor[]);
-    
-    /// Set the active transform matrix
-    virtual void setMatrix(const Eigen::Matrix4d *inMat);
-
-    /// Size of a single vertex used in creating an interleaved buffer.
-    virtual GLuint singleVertexSize();
-
-    /// Add a new vertex related attribute.  Need a data type and the name the shader refers to
-    ///  it by.  The index returned is how you will access it.
-    virtual int addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings = -1);
-
-    /// Reserve the extra space for points
-    virtual void reserveNumPoints(int numPoints);
-    
-    /// Reserve the extra space for triangles
-    virtual void reserveNumTris(int numTris);
-    
-    /// Reserve extra space for texture coordinates
-    virtual void reserveNumTexCoords(unsigned int which,int numCoords);
-    
-    /// Reserve extra space for normals
-    virtual void reserveNumNorms(int numNorms);
-    
-    /// Reserve extra space for colors
-    virtual void reserveNumColors(int numColors);
-    
-    /// If true the geometry is already in clip coordinates, so we won't transform it
-    virtual void setClipCoords(bool clipCoords);
-    
-    /// Add a point when building up geometry.  Returns the index.
-    virtual unsigned int addPoint(const Point3f &pt);
-    virtual unsigned int addPoint(const Point3d &pt);
-    
-    /// Return a given point
-    virtual Point3f getPoint(int which);
-    
-    /// Add a texture coordinate. -1 means we add the same
-    ///  texture coordinate to all the available texture coordinate sets
-    virtual void addTexCoord(int which,TexCoord coord);
-    
-    /// Add a color
-    virtual void addColor(RGBAColor color);
-    
-    /// Add a normal
-    virtual void addNormal(const Point3f &norm);
-    virtual void addNormal(const Point3d &norm);
-    
-    /// Decide if the given list of vertex attributes is the same as the one we have
-    bool compareVertexAttributes(const SingleVertexAttributeSet &attrs);
-    
-    /// Set up the required vertex attribute arrays from the given list
-    void setVertexAttributes(const SingleVertexAttributeInfoSet &attrs);
-    
-    /// Add the given vertex attributes for the given vertex
-    void addVertexAttributes(const SingleVertexAttributeSet &attrs);
-    
-    /// Add a 2D vector to the given attribute array
-    virtual void addAttributeValue(int attrId,const Eigen::Vector2f &vec);
-    
-    /// Add a 3D vector to the given attribute array
-    virtual void addAttributeValue(int attrId,const Eigen::Vector3f &vec);
-    
-    /// Add a 4D vector to the given attribute array
-    virtual void addAttributeValue(int attrId,const Eigen::Vector4f &vec);
-    
-    /// Add a 4 component char array to the given attribute array
-    virtual void addAttributeValue(int attrId,const RGBAColor &color);
-    
-    /// Add a float to the given attribute array
-    virtual void addAttributeValue(int attrId,float val);
-    
-    /// Add a triangle.  Should point to the vertex IDs.
-    virtual void addTriangle(Triangle tri);
-    
-    /// Add a single point to the GL Buffer.
-    /// Override this to add your own data to interleaved vertex buffers.
-    virtual void addPointToBuffer(unsigned char *basePtr,int which,const Point3d *center);
-
-    virtual void setUniforms(const SingleVertexAttributeSet &uniforms);
-
-    /// Run the texture and texture coordinates based on a SubTexture
-    virtual void applySubTexture(int which,SubTexture subTex,int startingAt=0);
-
-    /// Copy the vertex data into an NSData object and return it
-    virtual RawDataRef asData(bool dupStart,bool dupEnd);
-
-    /// Copy vertex and element data into appropriate NSData objects
-    virtual void asVertexAndElementData(MutableRawDataRef retVertData,RawDataRef retElementData,int singleElementSize,const Point3d *center);
-
 public:
     // Used by subclasses to do the standard init
     void basicDrawableInit();
@@ -342,20 +223,15 @@ public:
     std::vector<VertexAttribute *> vertexAttributes;
     // Entries for the standard attributes we create on startup
     int colorEntry,normalEntry;
-    // Set up the standard vertex attributes we use
-    virtual void setupStandardAttributes(int numReserve=0);
     
-    bool isSetupGL;  // Is setup to draw with GL (needed by the instances)
     bool on;  // If set, draw.  If not, not
     TimeInterval startEnable,endEnable;
     SimpleIdentity programId;    // Program to use for rendering
-    bool usingBuffers;  // If set, we've downloaded the buffers already
     TimeInterval fadeUp,fadeDown;  // Controls fade in and fade out
     unsigned int drawPriority;  // Used to sort drawables
     float drawOffset;    // Number of units of Z buffer resolution to offset upward (by the normal)
     bool isAlpha;  // Set if we want to be drawn last
     Mbr localMbr;  // Extents in a local space, if we're not using lat/lon/radius
-    GLenum type;  // Primitive(s) type
     std::vector<TexInfo> texInfo;
     RGBAColor color;
     float minVisible,maxVisible;
@@ -391,10 +267,6 @@ public:
         VertexAttribute attr;
     };
     
-    // Size for a single vertex w/ all its data.  Used by shared buffer
-    int vertexSize;
-    GLuint pointBuffer,triBuffer,sharedBuffer;
-    GLuint vertArrayObj;
     std::vector<VertAttrDefault> vertArrayDefaults;
     
     // If set the geometry is already in OpenGL clip coordinates, so no transform

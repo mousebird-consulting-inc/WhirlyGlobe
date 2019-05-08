@@ -18,9 +18,6 @@
  *
  */
 
-
-#import "GLUtils.h"
-
 #import <vector>
 #import <set>
 #import <unordered_map>
@@ -29,7 +26,6 @@
 #import "BasicDrawableInstance.h"
 #import "ActiveModel.h"
 #import "CoordSystem.h"
-#import "OpenGLES2Program.h"
 
 /// How the scene refers to the default triangle shader (and how you replace it)
 #define kSceneDefaultTriShader "Default Triangle Shader"

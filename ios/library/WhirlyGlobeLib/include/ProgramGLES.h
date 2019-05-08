@@ -55,7 +55,7 @@ public:
     GLenum type;
     /// Set if we know this is a texture
     bool isTexture;
-        
+    
     /// Current value (if set)
     bool isSet;
     union {
@@ -71,14 +71,14 @@ class OpenGLESAttribute
 public:
     OpenGLESAttribute() : index(0), size(0) { }
     OpenGLESAttribute(StringIdentity nameID) : nameID(nameID) { }
-
+    
     bool operator < (const OpenGLESAttribute &that) const { return nameID < that.nameID; }
     
     /// Return true if this uniform is an array
     bool isArray() { return size != 0; }
     /// Return true if the type matches
     bool isType(GLenum inType) { return inType == type; }
-
+    
     /// Name of the per vertex attribute
     StringIdentity nameID;
     /// Index we'll use to address the attribute
@@ -90,9 +90,9 @@ public:
 };
 
 /** Representation of an OpenGL ES 2.0 program.  It's an identifiable so we can
-    point to it generically.  Otherwise, pretty basic.
+ point to it generically.  Otherwise, pretty basic.
  */
-class OpenGLES2Program : public Identifiable
+class OpenGLES2Program : public Program
 {
 public:
     OpenGLES2Program();
@@ -100,16 +100,16 @@ public:
     
     /// Used only for comparison
     OpenGLES2Program(SimpleIdentity theId) : Identifiable(theId), lightsLastUpdated(0.0) { }
-
+    
     /// Initialize with both shader programs
     OpenGLES2Program(const std::string &name,const std::string &vShaderString,const std::string &fShaderString,const std::vector<std::string> *varyings=NULL);
     
     /// Return true if it was built correctly
     bool isValid();
-        
+    
     /// Search for the given uniform name and return the info.  NULL on failure.
     OpenGLESUniform *findUniform(StringIdentity nameID);
-
+    
     /// Set the given uniform to the given value.
     /// These check the type and cache a value to save on duplicate gl calls
     bool setUniform(StringIdentity nameID,float val);
@@ -132,7 +132,7 @@ public:
     /// Set the attributes associated with lighting.
     /// We'll check their last updated time against ours.
     bool setLights(const std::vector<DirectionalLight> &lights, TimeInterval lastUpdated, Material *mat, Eigen::Matrix4f &modelMat);
-        
+    
     /// Search for the given attribute name and return the info.  NULL on failure.
     const OpenGLESAttribute *findAttribute(StringIdentity nameID);
     
@@ -145,10 +145,10 @@ public:
     /// Bind any program specific textures right before we draw.
     /// We get to start at 0 and return however many we bound
     int bindTextures();
-
+    
     /// Clean up OpenGL resources, rather than letting the destructor do it (which it will)
     void cleanUp();
-
+    
 protected:
     std::string name;
     GLuint program;
@@ -160,19 +160,5 @@ protected:
     // Attributes sorted for fast lookup
     std::unordered_map<StringIdentity,std::shared_ptr<OpenGLESAttribute>> attrs;
 };
-
-/// Set a texture ID by name in a Shader (Program)
-class ShaderAddTextureReq : public ChangeRequest
-{
-public:
-    ShaderAddTextureReq(SimpleIdentity shaderID,SimpleIdentity nameID,SimpleIdentity texID);
     
-    void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view);
-
-protected:
-    SimpleIdentity shaderID;
-    SimpleIdentity nameID;
-    SimpleIdentity texID;
-};
-
 }

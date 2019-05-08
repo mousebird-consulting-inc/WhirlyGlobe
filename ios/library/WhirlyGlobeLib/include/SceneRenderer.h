@@ -1,5 +1,5 @@
 /*
- *  ESRenderer.h
+ *  SceneRenderer.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/13/11.
@@ -18,8 +18,6 @@
  *
  */
 
-#import "GLUtils.h"
-
 #import "WhirlyVector.h"
 #import "WhirlyKitView.h"
 #import "Scene.h"
@@ -28,117 +26,7 @@
 
 namespace WhirlyKit
 {
-class SceneRendererES;    
-
-/** What and where we're rendering.  This can be a regular framebuffer
- to the screen or to a texture.
- */
-class RenderTarget : public Identifiable
-{
-public:
-    RenderTarget();
-    RenderTarget(SimpleIdentity newID);
-    void init();
-    
-    // Set up the render target
-    bool init(SceneRendererES *renderer,Scene *scene,SimpleIdentity targetTexID);
-    
-    // Pull in framebuffer info from the current OpenGL State
-    bool initFromState(int inWidth,int inHeight);
-    
-    // Clear up resources from the render target
-    void clear();
-    
-    /// Make this framebuffer active
-    void setActiveFramebuffer(SceneRendererES *renderer);
-    
-    /// Set up the target texture
-    void setTargetTexture(Scene *scene,SimpleIdentity newTargetTexID);
-    
-    /// Set the GL texture directly
-    void setTargetTexture(TextureBase *tex);
-    
-    /// Copy the data out of the destination texture and return it
-    RawDataRef snapshot();
-    
-    /// OpenGL ES Name for the frame buffer
-    GLuint framebuffer;
-    /// OpenGL ES Name for the color buffer
-    GLuint colorbuffer;
-    /// OpenGL ES Name for the depth buffer
-    GLuint depthbuffer;
-    /// Output framebuffer size fo glViewport
-    int width,height;
-    /// Set if we've set up background and suchs
-    bool isSetup;
-    
-    // Clear color, if we're clearing
-    GLfloat clearColor[4];
-    bool clearEveryFrame;
-    // Clear on the next frame, then reset this
-    bool clearOnce;
-    // Control how the blending into a destination works
-    bool blendEnable;
-};
-typedef std::shared_ptr<RenderTarget> RenderTargetRef;
-
-// Add a new render target
-class AddRenderTargetReq : public ChangeRequest
-{
-public:
-    AddRenderTargetReq(SimpleIdentity renderTargetID,int width,int height,SimpleIdentity texID,bool clearEveryFrame,bool blend,const RGBAColor &clearColor);
-    
-    /// Add the render target to the renderer
-    void execute(Scene *scene,SceneRendererES *renderer,View *view);
-    
-protected:
-    int width,height;
-    SimpleIdentity renderTargetID;
-    SimpleIdentity texID;
-    bool clearEveryFrame;
-    RGBAColor clearColor;
-    bool blend;
-};
-    
-// Change details about a rendering target.  In this case, just texture.
-class ChangeRenderTargetReq : public ChangeRequest
-{
-public:
-    ChangeRenderTargetReq(SimpleIdentity renderTargetID,SimpleIdentity texID);
-    
-    /// Add the render target to the renderer
-    void execute(Scene *scene,SceneRendererES *renderer,View *view);
-    
-protected:
-    SimpleIdentity renderTargetID;
-    SimpleIdentity texID;
-};
-    
-// Request a one time clear on the rendering target.  Happens next frame.
-class ClearRenderTargetReq : public ChangeRequest
-{
-public:
-    ClearRenderTargetReq(SimpleIdentity renderTargetID);
-    
-    /// Add the render target to the renderer
-    void execute(Scene *scene,SceneRendererES *renderer,View *view);
-    
-protected:
-    SimpleIdentity renderTargetID;
-};
-
-// Remove a render target from the rendering loop
-class RemRenderTargetReq : public ChangeRequest
-{
-public:
-    RemRenderTargetReq(SimpleIdentity targetID);
-    
-    /// Remove the render target from the renderer
-    void execute(Scene *scene,SceneRendererES *renderer,View *view);
-    
-protected:
-    SimpleIdentity targetID;
-};
+class SceneRendererES;
 
 /** Renderer Frame Info.
  Data about the current frame, passed around by the renderer.
@@ -151,8 +39,6 @@ public:
     
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
-    /// Renderer version (e.g. OpenGL ES 1 vs 2)
-    int glesVersion;
     /// Renderer itself
     WhirlyKit::SceneRendererES *sceneRenderer;
     /// View
@@ -198,16 +84,14 @@ public:
     float heightAboveSurface;
     /// Screen size in display coordinates
     Point2d screenSizeInDisplayCoords;
-    /// If using OpenGL ES 2.x, this is the shader
-    OpenGLES2Program *program;
     /// Lights, if applicable
     std::vector<DirectionalLight> *lights;
 };
 
 /** We support three different ways of using z buffer.  (1) Regular mode where it's on.
-    (2) Completely off, priority sorting only.  (3) Priority sorting, but drawables
-        are allowed to force the z buffer on temporarily.
-  */
+ (2) Completely off, priority sorting only.  (3) Priority sorting, but drawables
+ are allowed to force the z buffer on temporarily.
+ */
 typedef enum {zBufferOn,zBufferOff,zBufferOffDefault} WhirlyKitSceneRendererZBufferMode;
 
 /// Base class for the scene renderer.
@@ -216,7 +100,7 @@ class SceneRendererES : public DelayedDeletable
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-
+    
     SceneRendererES();
     virtual ~SceneRendererES();
     
@@ -225,7 +109,7 @@ public:
     
     /// Resize framebuffer because something changed
     virtual bool resize(int sizeX,int sizeY);
-            
+    
     /// Set the render until time.  This is used by things like fade to keep
     ///  the rendering optimization from cutting off animation.
     void setRenderUntil(TimeInterval newTime);
@@ -296,7 +180,7 @@ public:
     
     /// Called before we present the render buffer.  Can do snapshot logic here.
     virtual void snapshotCallback() { };
-
+    
 public:
     // Possible post-target creation init
     virtual void defaultTargetInit(RenderTarget *) { };
@@ -342,11 +226,11 @@ public:
     
     /// Force a draw at the next opportunity
     bool triggerDraw;
-
-	unsigned int frameCount;
-	TimeInterval frameCountStart;
+    
+    unsigned int frameCount;
+    TimeInterval frameCountStart;
     WhirlyKit::PerformanceTimer perfTimer;
-        
+    
     /// Last time we rendered
     TimeInterval lastDraw;
     
@@ -357,7 +241,7 @@ public:
     WhirlyKit::SimpleIDSet contRenderRequests;
     
     WhirlyKit::RGBAColor clearColor;
-
+    
     // View state from the last render, for comparison
     Eigen::Matrix4d modelMat,viewMat,projMat;
     
@@ -365,11 +249,11 @@ public:
     bool extraFrameMode;
     
     std::vector<RenderTargetRef> renderTargets;
-
+    
     // If we're an offline renderer, the texture we're rendering into
     WhirlyKit::Texture *framebufferTex;
 };
-    
-typedef std::shared_ptr<SceneRendererES> SceneRendererESRef;
 
+typedef std::shared_ptr<SceneRendererES> SceneRendererESRef;
+    
 }

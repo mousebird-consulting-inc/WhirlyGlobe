@@ -18,7 +18,6 @@
  *
  */
 
-#import "glwrapper.h"
 #import <vector>
 #import <set>
 #import <map>
@@ -27,118 +26,14 @@
 #import "StringIndexer.h"
 #import "WhirlyVector.h"
 #import "WhirlyKitView.h"
+#import "ChangeRequest.h"
 
 namespace WhirlyKit
 {
-class RendererFrameInfo;
-class SceneRendererES;
 
-/** This is the configuration info passed to setupGL for each
-    drawable.  Sometimes this will be render thread side, sometimes
-    layer thread side.  The defaults should be valid.
-  */
-class WhirlyKitGLSetupInfo
-{
-public:
-    WhirlyKitGLSetupInfo();
-    /// If we're using drawOffset, this is the units
-    float minZres;
-    /// Version of OpenGL ES we're using
-    int glesVersion;
-};
-	
-class Scene;
-class OpenGLES2Program;
 class Drawable;
-
-/// We'll only keep this many buffers or textures around for reuse
-#define WhirlyKitOpenGLMemCacheMax 32
-/// Number of buffers we allocate at once
-#define WhirlyKitOpenGLMemCacheAllocUnit 32
-    
-// Maximum of 8 textures for the moment
-#define WhirlyKitMaxTextures 8
-
-/// Used to manage OpenGL buffer IDs and such.
-/// They're expensive to create and delete, so we try to do it
-///  outside the renderer.
-class OpenGLMemManager
-{
-public:
-    OpenGLMemManager();
-    ~OpenGLMemManager();
-    
-    /// Pick a buffer ID off the list or ask OpenGL for one
-    GLuint getBufferID(unsigned int size=0,GLenum drawType=GL_STATIC_DRAW);
-    /// Toss the given buffer ID back on the list for reuse
-    void removeBufferID(GLuint bufID);
-
-    /// Pick a texture ID off the list or ask OpenGL for one
-    GLuint getTexID();
-    /// Toss the given texture ID back on the list for reuse
-    void removeTexID(GLuint texID);
-        
-    /// Clear out any and all buffer IDs that we may have sitting around
-    void clearBufferIDs();
-    
-    /// Clear out any and all texture IDs that we have sitting around
-    void clearTextureIDs();
-    
-    /// Print out stats about what's in the cache
-    void dumpStats();
-                
-protected:
-    std::mutex idLock;
-
-    std::set<GLuint> buffIDs;
-    std::set<GLuint> texIDs;
-};
-
-/// Mapping from Simple ID to an int
-typedef std::map<SimpleIdentity,SimpleIdentity> TextureIDMap;
-	
-/** This is the base clase for a change request.  Change requests
-    are how we modify things in the scene.  The renderer is running
-    on the main thread and we want to keep our interaction with it
-    very simple.  So instead of deleting things or modifying them
-    directly, we ask the renderer to do so through a change request.
- */
-class ChangeRequest
-{
-public:
-    ChangeRequest() : when(0.0) { }
-    virtual ~ChangeRequest();
-		
-    /// Return true if this change requires a GL Flush in the thread it was executed in
-    virtual bool needsFlush() { return false; }
-    
-    /// Fill this in to set up whatever resources we need on the GL side
-    virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager) { };
-		
-	/// Make a change to the scene.  For the renderer.  Never call this.
-    virtual void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view) = 0;
-    
-    /// Set this if you need to be run before the active models are run
-    virtual bool needPreExecute() { return false; }
-    
-    /// If non-zero we'll execute this request after the given absolute time
-    TimeInterval when;
-};
-    
-/// Representation of a list of changes.  Might get more complex in the future.
-typedef std::vector<ChangeRequest *> ChangeSet;
-    
-typedef struct
-{
-    bool operator () (const ChangeRequest *a,const ChangeRequest *b) const
-    {
-        if (a->when == b->when)
-            return a < b;
-        return a->when < b->when;
-    }
-} ChangeSorter;
-/// This version is sorted by when to run it
-typedef std::set<ChangeRequest *,ChangeSorter> SortedChangeSet;
+class RendererFrameInfo;
+class Scene;
 
 /** Drawable tweakers are called every frame to mess with things.
     It's up to you to make the changes, just make them quick.
@@ -161,7 +56,7 @@ class Drawable : public Identifiable
 {
 protected:
     /// Used in special cases
-    Drawable() { }
+    Drawable();
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
@@ -187,10 +82,10 @@ public:
     /// Do any OpenGL initialization you may want.
     /// For instance, set up VBOs.
     /// We pass in the minimum Z buffer resolution (for offsets).
-    virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager) { };
+    virtual void setupForRenderer(RenderSetupInfo *setupInfo);
     
     /// Clean up any OpenGL objects you may have (e.g. VBOs).
-    virtual void teardownGL(OpenGLMemManager *memManage) { };
+    virtual void teardownForRenderer(RenderSetupInfo *setupInfo);
     
     /// Some drawables have a pre-render phase that uses the GPU for calculation
     virtual void calculate(RendererFrameInfo *frameInfo,Scene *scene) { };
@@ -198,32 +93,29 @@ public:
     /// Set up what you need in the way of context and draw.
     virtual void draw(RendererFrameInfo *frameInfo,Scene *scene) = 0;
     
-    /// Return the type (or an approximation thereof).  We use this for sorting.
-    virtual GLenum getType() const = 0;
-    
     /// Return true if the drawable has alpha.  These will be sorted last.
     virtual bool hasAlpha(RendererFrameInfo *frameInfo) const = 0;
     
     /// Return the Matrix if there is an active one (ideally not)
-    virtual const Eigen::Matrix4d *getMatrix() const { return NULL; }
+    virtual const Eigen::Matrix4d *getMatrix();
 
     /// Check if the force Z buffer on mode is on
-    virtual bool getRequestZBuffer() const { return false; }
+    virtual bool getRequestZBuffer();
 
     /// Check if we're supposed to write to the z buffer
-    virtual bool getWriteZbuffer() const { return true; }
+    virtual bool getWriteZbuffer();
     
     /// Drawables can override where they're drawn.  EmptyIdentity is the regular screen.
-    virtual SimpleIdentity getRenderTarget() { return EmptyIdentity; }
+    virtual SimpleIdentity getRenderTarget();
     
     /// Update anything associated with the renderer.  Probably renderUntil.
     virtual void updateRenderer(SceneRendererES *renderer) = 0;
     
     /// Add a tweaker to this list to be run each frame
-    virtual void addTweaker(DrawableTweakerRef tweakRef) { tweakers.insert(tweakRef); }
+    virtual void addTweaker(DrawableTweakerRef tweakRef);
     
     /// Remove a tweaker from the list
-    virtual void removeTweaker(DrawableTweakerRef tweakRef) { tweakers.erase(tweakRef); }
+    virtual void removeTweaker(DrawableTweakerRef tweakRef);
     
     /// Run the tweakers
     virtual void runTweakers(RendererFrameInfo *frame);
@@ -268,181 +160,5 @@ static const unsigned int MaxDrawablePoints = ((1<<16)-1);
     
 /// Maximum number of triangles we want in a drawable
 static const unsigned int MaxDrawableTriangles = (MaxDrawablePoints / 3);
-    
-class SubTexture;
 
-/// Data types we'll accept for attributes
-typedef enum {
-	BDFloat4Type = 0,
-	BDFloat3Type = 1,
-	BDChar4Type  = 2,
-	BDFloat2Type = 3,
-	BDFloatType  = 4,
-	BDIntType    = 5,
-    BDDataTypeMax
-} BDAttributeDataType;
-    
-    
-/// Used to keep track of attributes (other than points)
-class VertexAttribute
-{
-public:
-    VertexAttribute(BDAttributeDataType dataType,StringIdentity nameID);
-    VertexAttribute(const VertexAttribute &that);
-    ~VertexAttribute();
-    
-    /// Make a copy of everything for the data
-    VertexAttribute templateCopy() const;
-    
-    /// Return the data type
-    BDAttributeDataType getDataType() const;
-    
-    /// Set the default color (if the type matches)
-    void setDefaultColor(const RGBAColor &color);
-    /// Set the default 2D vector (if the type matches)
-    void setDefaultVector2f(const Eigen::Vector2f &vec);
-    /// Set the default 3D vector (if the type matches)
-    void setDefaultVector3f(const Eigen::Vector3f &vec);
-    /// Set the default float (if the type matches)
-    void setDefaultFloat(float val);
-    
-    /// Convenience routine to add a color (if the type matches)
-    void addColor(const RGBAColor &color);
-    /// Convenience routine to add a 2D vector (if the type matches)
-    void addVector2f(const Eigen::Vector2f &vec);
-    /// Convenience routine to add a 3D vector (if the type matches)
-    void addVector3f(const Eigen::Vector3f &vec);
-    /// Convenience routine to add a 4D vector (if the type matches)
-    void addVector4f(const Eigen::Vector4f &vec);
-    /// Convenience routine to add a float (if the type matches)
-    void addFloat(float val);
-    /// Convenience routine to add an int (if the type matches)
-    void addInt(int val);
-    
-    /// Reserve size in the data array
-    void reserve(int size);
-    
-    /// Number of elements in our array
-    int numElements() const;
-    
-    /// Return the size of a single element
-    int size() const;
-    
-    /// Clean out the data array
-    void clear();
-    
-    /// Return a pointer to the given element
-    void *addressForElement(int which);
-    
-    /// Return the number of components as needed by glVertexAttribPointer
-    GLuint glEntryComponents() const;
-    
-    /// Return the data type as required by glVertexAttribPointer
-    GLenum glType() const;
-    
-    /// Whether or not glVertexAttribPointer will normalize the data
-    GLboolean glNormalize() const;
-    
-    /// Calls glVertexAttrib* for the appropriate type
-    void glSetDefault(int index) const;
-        
-public:
-    /// Data type for the attribute data
-    BDAttributeDataType dataType;
-    /// Name used in the shader
-    StringIdentity nameID;
-    /// Default value to pass to OpenGL if there's no data array
-    union {
-        float vec4[4];
-        float vec3[3];
-        float vec2[2];
-        float floatVal;
-        unsigned char color[4];
-        int intVal;
-    } defaultData;
-    /// std::vector of attribute data.  Type is known by the caller.
-    void *data;
-    /// Buffer offset within interleaved vertex
-    GLuint buffer;
-};
-    
-/** Base class for the single vertex attribute that provides
-    the name and type of a vertex attribute.
-  */
-class SingleVertexAttributeInfo
-{
-public:
-    SingleVertexAttributeInfo();
-    SingleVertexAttributeInfo(StringIdentity nameID,BDAttributeDataType type);
-    
-    /// Comparison operator for set
-    bool operator < (const SingleVertexAttributeInfo &that) const
-    {
-        if (nameID == that.nameID)
-            return type < that.type;
-        return nameID < that.nameID;
-    }
-    
-    bool operator == (const SingleVertexAttributeInfo &that) const
-    {
-        bool ret = (nameID == that.nameID);
-        if (ret)
-            return type == that.type;
-        return ret;
-    }
-    
-    /// Return the number of components as needed by glVertexAttribPointer
-    GLuint glEntryComponents() const;
-    
-    /// Return the data type as required by glVertexAttribPointer
-    GLenum glType() const;
-    
-    /// Whether or not glVertexAttribPointer will normalize the data
-    GLboolean glNormalize() const;
-    
-    /// Return the size for the particular data type
-    int size() const;
-
-    /// Attribute's data type
-    BDAttributeDataType type;
-
-    /// Attribute name (e.g. "u_elev")
-    StringIdentity nameID;
-};
-
-typedef std::set<SingleVertexAttributeInfo> SingleVertexAttributeInfoSet;
-
-/** The single vertex attribute holds a single typed value to
-    be merged into a basic drawable's attributes arrays.
- */
-class SingleVertexAttribute : public SingleVertexAttributeInfo
-{
-public:
-    SingleVertexAttribute();
-    SingleVertexAttribute(StringIdentity nameID,float floatVal);
-    SingleVertexAttribute(StringIdentity nameID,int intVal);
-    SingleVertexAttribute(StringIdentity nameID,unsigned char colorVal[4]);
-    SingleVertexAttribute(StringIdentity nameID,float vec0,float vec1);
-    SingleVertexAttribute(StringIdentity nameID,float vec0,float vec1,float vec2);
-    SingleVertexAttribute(StringIdentity nameID,float vec0,float vec1,float vec2, float vec3);
-
-    /// The actual data
-    union {
-        float vec4[4];
-        float vec3[3];
-        float vec2[2];
-        float floatVal;
-        unsigned char color[4];
-        int intVal;
-    } data;
-};
-    
-typedef std::set<SingleVertexAttribute> SingleVertexAttributeSet;
-
-/// Generate a vertex attribute info set from a vertex attribute set (e.g. strip out the values)
-void VertexAttributeSetConvert(const SingleVertexAttributeSet &attrSet,SingleVertexAttributeInfoSet &infoSet);
-    
-/// See if the given set of attributes is compatible with the set of attributes (without data)
-bool VertexAttributesAreCompatible(const SingleVertexAttributeInfoSet &infoSet,const SingleVertexAttributeSet &attrSet);
-    
 }

@@ -18,7 +18,6 @@
  *
  */
 
-#import "glwrapper.h"
 #import "Platform.h"
 #import "RawData.h"
 #import "Identifiable.h"
@@ -35,25 +34,18 @@ class TextureBase : public Identifiable
 {
 public:
     /// Construct for comparison
-    TextureBase(SimpleIdentity thisId) : Identifiable(thisId), glId(0) { }
-    TextureBase(const std::string &name) : name(name), glId(0) { }
+    TextureBase(SimpleIdentity thisId) : Identifiable(thisId), glId(0);
+    TextureBase(const std::string &name) : name(name), glId(0);
     
-    virtual ~TextureBase() { }
+    virtual ~TextureBase();
     
-    /// Return the unique GL ID.
-    GLuint getGLId() const { return glId; }
-
     /// Render side only.  Don't call this.  Create the openGL version
-	virtual bool createInGL(OpenGLMemManager *memManager) {  return false; }
+    virtual bool createInRenderer(RenderSetupInfo *setupInfo);
 	
 	/// Render side only.  Don't call this.  Destroy the openGL version
-	virtual void destroyInGL(OpenGLMemManager *memManager) { }
+    virtual void destroyInRenderer(RenderSetupInfo *setupInfo);
 
 protected:
-	/// OpenGL ES ID
-	/// Set to 0 if we haven't loaded yet
-	GLuint glId;    
-    
     /// Used for debugging
     std::string name;
 };
@@ -103,23 +95,11 @@ public:
     void setUsesMipmaps(bool use) { usesMipmaps = use; }
     /// Set this to let the texture wrap in the appropriate directions
     void setWrap(bool inWrapU,bool inWrapV) { wrapU = inWrapU;  wrapV = inWrapV; }
-    /// Set the format (before createInGL() is called)
-    void setFormat(GLenum inFormat) { format = inFormat; }
-    /// Return the format
-    GLenum getFormat() { return format; }
-    /// Set the interpolation type used for min and mag
-    void setInterpType(GLenum inType) { interpType = inType; }
-    GLenum getInterpType() { return interpType; }
+    
     /// If we're converting to a single byte, set the source
     void setSingleByteSource(WKSingleByteSource source) { byteSource = source; }
     /// If set, this is a texture we're creating for output purposes
     void setIsEmptyTexture(bool inIsEmptyTexture) { isEmptyTexture = inIsEmptyTexture; }
-
-    /// Render side only.  Don't call this.  Create the openGL version
-	virtual bool createInGL(OpenGLMemManager *memManager);
-	
-	/// Render side only.  Don't call this.  Destroy the openGL version
-	virtual void destroyInGL(OpenGLMemManager *memManager);
 
     /// Sort the PKM data out from the NSData
     /// This is static so the dynamic (haha) textures can use it
@@ -136,15 +116,12 @@ protected:
 	bool isPVRTC;
     /// This one has a header
     bool isPKM;
-    /// If not PVRTC, the format we'll use for the texture
-    GLenum format;
     /// If we're converting down to one byte, where do we get it?
     WKSingleByteSource byteSource;
 	
 	unsigned int width,height;
     bool usesMipmaps;
     bool wrapU,wrapV;
-    GLenum interpType;
     bool isEmptyTexture;
 };
 

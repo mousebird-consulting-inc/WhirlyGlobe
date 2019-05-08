@@ -24,7 +24,7 @@
 
 namespace WhirlyKit {
 
-class OpenGLES2Program;
+class Program;
     
 /** This implements a simple directional light source
 */
@@ -58,7 +58,7 @@ public:
 
     /// Bind this light (given the index) to the program.
     /// Don't call this yourself.
-    bool bindToProgram(OpenGLES2Program *program, int index, Eigen::Matrix4f modelMat) const;
+    bool bindToProgram(Program *program, int index, Eigen::Matrix4f modelMat) const;
 
 public:
     Eigen::Vector4f ambient;
@@ -97,7 +97,7 @@ public:
 
     /// Bind this material to a the given OpenGL ES program.
     /// Don't call this yourself.
-    bool bindToProgram(OpenGLES2Program *program);
+    bool bindToProgram(Program *program);
 
 private:
     Eigen::Vector4f ambient;
