@@ -33,6 +33,8 @@ namespace WhirlyKit
 class TextureBaseGL : public TextureBase
 {
 public:
+    TextureBaseGL() : glId(0) { }
+    
     /// Return the unique GL ID.
     GLuint getGLId() const { return glId; }
 protected:

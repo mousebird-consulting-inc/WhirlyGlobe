@@ -210,6 +210,15 @@ RawDataRef ConvertRGBATo8(RawDataRef inData,WKSingleByteSource source)
 namespace WhirlyKit
 {
     
+TextureBase::TextureBase(SimpleIdentity thisId)
+: Identifiable(thisId)
+{
+}
+
+TextureBase::TextureBase(const std::string &name) : name(name)
+{
+}
+
 Texture::Texture()
 : TextureBase(""), isPVRTC(false), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB), interpType(GL_LINEAR), isEmptyTexture(false)
 {    

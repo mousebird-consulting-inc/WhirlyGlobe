@@ -74,7 +74,7 @@ class ShaderAddTextureReq : public ChangeRequest
 public:
     ShaderAddTextureReq(SimpleIdentity shaderID,SimpleIdentity nameID,SimpleIdentity texID);
     
-    void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view);
+    void execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *view);
 
 protected:
     SimpleIdentity shaderID;

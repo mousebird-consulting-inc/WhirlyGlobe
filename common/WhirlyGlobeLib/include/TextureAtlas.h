@@ -19,7 +19,6 @@
  */
 
 #import <vector>
-#import "glwrapper.h"
 #import "Identifiable.h"
 #import "WhirlyVector.h"
 #import "Texture.h"

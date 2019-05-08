@@ -27,7 +27,7 @@
 namespace WhirlyKit
 {
     
-class SceneRendererES;
+class SceneRenderer;
 class View;
 class ViewState;
 typedef std::shared_ptr<ViewState> ViewStateRef;
@@ -113,7 +113,7 @@ public:
     virtual WhirlyKit::Point2d screenSizeInDisplayCoords(WhirlyKit::Point2f &frameSize);
     
     /// Generate a ViewState corresponding to this view
-    virtual ViewStateRef makeViewState(SceneRendererES *renderer) = 0;
+    virtual ViewStateRef makeViewState(SceneRenderer *renderer) = 0;
 
     /// Add a watcher delegate.  Call this on the main thread.
     virtual void addWatcher(ViewWatcher *delegate);
@@ -148,7 +148,7 @@ class ViewState
 {
 public:
     ViewState() : near(0), far(0) { }
-    ViewState(View *view,WhirlyKit::SceneRendererES *renderer);
+    ViewState(View *view,WhirlyKit::SceneRenderer *renderer);
     virtual ~ViewState();
     
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;

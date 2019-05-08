@@ -34,6 +34,7 @@ namespace WhirlyKit
 class Drawable;
 class RendererFrameInfo;
 class Scene;
+class SceneRenderer;
 
 /** Drawable tweakers are called every frame to mess with things.
     It's up to you to make the changes, just make them quick.
@@ -109,7 +110,7 @@ public:
     virtual SimpleIdentity getRenderTarget();
     
     /// Update anything associated with the renderer.  Probably renderUntil.
-    virtual void updateRenderer(SceneRendererES *renderer) = 0;
+    virtual void updateRenderer(SceneRenderer *renderer) = 0;
     
     /// Add a tweaker to this list to be run each frame
     virtual void addTweaker(DrawableTweakerRef tweakRef);
@@ -142,11 +143,11 @@ public:
     virtual ~DrawableChangeRequest() { }
 	
     /// This will look for the drawable by ID and then call execute2()
-    void execute(Scene *scene,SceneRendererES *renderer,WhirlyKit::View *view);
+    void execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *view);
 	
     /// This is called by execute if there's a drawable to modify.
     /// This is the one you override.
-    virtual void execute2(Scene *scene,SceneRendererES *renderer,DrawableRef draw) = 0;
+    virtual void execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw) = 0;
 	
 protected:
     SimpleIdentity drawId;

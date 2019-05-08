@@ -22,7 +22,7 @@
 
 namespace WhirlyKit
 {
-class SceneRendererES;
+class SceneRenderer;
 
 /** What and where we're rendering.  This can be a regular framebuffer
  to the screen or to a texture.

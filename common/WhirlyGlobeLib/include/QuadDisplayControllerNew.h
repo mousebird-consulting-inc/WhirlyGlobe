@@ -22,7 +22,7 @@
 #import "WhirlyVector.h"
 #import "Scene.h"
 #import "GlobeMath.h"
-#import "SceneRendererES2.h"
+#import "SceneRenderer.h"
 #import "ScreenImportance.h"
 #import "WhirlyKitView.h"
 #import "QuadTreeNew.h"
@@ -110,13 +110,13 @@ protected:
 class QuadDisplayControllerNew : public QuadTreeNew
 {
 public:
-    QuadDisplayControllerNew(QuadDataStructure *dataStructure,QuadLoaderNew *loader,SceneRendererES *renderer);
+    QuadDisplayControllerNew(QuadDataStructure *dataStructure,QuadLoaderNew *loader,SceneRenderer *renderer);
     virtual ~QuadDisplayControllerNew();
     
     /// Scene we're modifying
     Scene *getScene();
     /// The renderer we need for frame sizes
-    SceneRendererES *getRenderer();
+    SceneRenderer *getRenderer();
     /// Quad tree used for paging advice
     QuadTreeNew *getQuadTree();
     /// Coordinate system we're using
@@ -170,7 +170,7 @@ protected:
     QuadLoaderNew *loader;
 
     Scene *scene;
-    SceneRendererES *renderer;
+    SceneRenderer *renderer;
     CoordSystem *coordSys;
     Mbr mbr;
     int maxTiles;

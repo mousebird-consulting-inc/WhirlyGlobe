@@ -18,7 +18,8 @@
  *
  */
 
-#import "BasicDrawable.h"
+#import "BasicDrawableBuilder.h"
+#import "SceneRenderer.h"
 
 namespace WhirlyKit
 {
@@ -30,17 +31,17 @@ namespace WhirlyKit
 //#define kScreenSpaceShader2DMotionName "Screen Space Shader 2D Motion"
     
 /// Construct and return the Screen Space shader program
-OpenGLES2Program *BuildScreenSpaceProgram(const std::string &name);
-OpenGLES2Program *BuildScreenSpaceMotionProgram(const std::string &name);
-OpenGLES2Program *BuildScreenSpace2DProgram(const std::string &name);
-OpenGLES2Program *BuildScreenSpaceMotion2DProgram(const std::string &name);
+Program *BuildScreenSpaceProgram(const std::string &name,SceneRenderer *render);
+Program *BuildScreenSpaceMotionProgram(const std::string &name,SceneRenderer *render);
+Program *BuildScreenSpace2DProgram(const std::string &name,SceneRenderer *render);
+Program *BuildScreenSpaceMotion2DProgram(const std::string &name,SceneRenderer *render);
 
 /// Wrapper for building screen space drawables
-class ScreenSpaceDrawable : public BasicDrawable
+class ScreenSpaceDrawableBuilder : public BasicDrawableBuilder
 {
 public:
     // Construct with or without motion support
-    ScreenSpaceDrawable(bool hasMotion,bool hasRotation);
+    ScreenSpaceDrawableBuilder(bool hasMotion,bool hasRotation);
     
     // If we've got a rotation, we set this to keep the image facing upright
     //  probably because it's text.
@@ -61,12 +62,9 @@ public:
     // Add a rotation vector to the attribute list
     void addRot(const Point3f &dir);
     void addRot(const Point3d &dir);
-
-    /// If we have motion we need to force the render to keep rendering
-    virtual void updateRenderer(SceneRendererES *renderer);
     
-    /// We override draw so we can set our own values
-    virtual void draw(RendererFrameInfo *frameInfo,Scene *scene);
+    // Construct this one drawable
+    virtual BasicDrawable *makeDrawable();
 
 protected:
     bool motion,rotation;

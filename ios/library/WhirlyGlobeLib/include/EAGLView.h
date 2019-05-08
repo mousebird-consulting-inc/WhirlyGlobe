@@ -20,7 +20,7 @@
 
 #import <UIKit/UIKit.h>
 
-#import "SceneRendererES_iOS.h"
+#import "SceneRendererGLES.h"
 
 /** OpenGL View is a
 	base class for implementing an open GL rendering view.

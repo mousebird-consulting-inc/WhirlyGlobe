@@ -18,7 +18,7 @@
  *
  */
 
-#import "BasicDrawable.h"
+#import "BasicDrawableBuilder.h"
 
 namespace WhirlyKit
 {
@@ -37,12 +37,12 @@ OpenGLES2Program *BuildWideVectorGlobeProgram(const std::string &name);
 
 /** This drawable adds convenience functions for wide vectors.
   */
-class WideVectorDrawable : public BasicDrawable
+class WideVectorDrawableBuilder : public BasicDrawableBuilder
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
-    WideVectorDrawable(const std::string &name,unsigned int numVert,unsigned int numTri,bool globeMode);
+    WideVectorDrawableBuilder(const std::string &name,unsigned int numVert,unsigned int numTri,bool globeMode);
     
     virtual unsigned int addPoint(const Point3f &pt);
     // Next point, for calculating p1 - p0
@@ -65,12 +65,12 @@ public:
     
     /// Fix the width to a real world value, rather than letting it change
     void setRealWorldWidth(double width) { realWidthSet = true;  realWidth = width; }
-    
-    /// We override draw so we can set our own values
-    virtual void draw(RendererFrameInfo *frameInfo,Scene *scene);
-    
+        
     // We don't want the standard attributes
     virtual void setupStandardAttributes(int numReserve=0);
+
+    // Construct this one drawable
+    virtual BasicDrawable *makeDrawable();
 
 protected:
     bool globeMode;

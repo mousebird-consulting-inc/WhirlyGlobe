@@ -24,7 +24,7 @@
 #import "Identifiable.h"
 #import "BasicDrawable.h"
 #import "Scene.h"
-#import "SceneRendererES.h"
+#import "SceneRenderer.h"
 #import "ScreenSpaceBuilder.h"
 #import "SelectionManager.h"
 #import "OverlapHelper.h"

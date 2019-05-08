@@ -23,7 +23,7 @@
 #import "Scene.h"
 #import "GlobeMath.h"
 #import "QuadTreeNew.h"
-#import "SceneRendererES.h"
+#import "SceneRenderer.h"
 
 namespace WhirlyKit
 {

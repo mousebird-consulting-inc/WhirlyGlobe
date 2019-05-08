@@ -19,7 +19,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "SceneRendererES2.h"
+#import "SceneRendererGLES.h"
 
 /// Fill this in to get a view snapshot on the next draw
 @protocol WhirlyKitSnapshot
@@ -37,14 +37,14 @@ namespace WhirlyKit {
  
     This allocates and manages the context.
   */
-class SceneRendererES_iOS : public SceneRendererES2
+class SceneRendererGLES_iOS : public SceneRendererGLES
 {
 public:
     /// Create for use on the screen
-    SceneRendererES_iOS();
+    SceneRendererGLES_iOS();
     /// Create for rendering to a texture
-    SceneRendererES_iOS(int width,int height);
-    virtual ~SceneRendererES_iOS();
+    SceneRendererGLES_iOS(int width,int height);
+    virtual ~SceneRendererGLES_iOS();
 
     /// Set the current OpenGL ES context if there is one
     void useContext();

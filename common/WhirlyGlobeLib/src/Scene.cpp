@@ -497,6 +497,17 @@ void Scene::removeProgram(SimpleIdentity progId)
         prog->cleanUp();
     }
 }
+
+void AddTextureReq::setupForRenderer(RenderSetupInfo *setupInfo)
+{
+    if (texRef)
+        texRef->createForRenderer(setupInfo);
+}
+    
+TextureBase *AddTextureReq::getTex()
+{
+    return texRef.get();
+}
     
 AddTextureReq::~AddTextureReq()
 {
@@ -522,6 +533,12 @@ void RemTextureReq::execute(Scene *scene,SceneRendererES *renderer,WhirlyKit::Vi
         scene->textures.erase(it);
     } else
         wkLogLevel(Warn,"RemTextureReq: No such texture.");
+}
+    
+virtual void AddDrawableReq::setupForRenderer(RenderSetupInfo *)
+{
+    if (drawRef)
+        drawRef->setupGL(setupInfo, memManager);
 }
 
 AddDrawableReq::~AddDrawableReq()

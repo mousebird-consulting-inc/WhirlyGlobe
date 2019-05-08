@@ -140,7 +140,7 @@ public:
     double heightAboveSurface();
     
     /// Make a globe view state from the current globe view
-    virtual WhirlyKit::ViewStateRef makeViewState(WhirlyKit::SceneRendererES *renderer);
+    virtual WhirlyKit::ViewStateRef makeViewState(WhirlyKit::SceneRenderer *renderer);
     
     /// Set the change delegate
     virtual void setDelegate(GlobeViewAnimationDelegateRef delegate);
@@ -191,7 +191,7 @@ class GlobeViewState : public WhirlyKit::ViewState
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
-    GlobeViewState(GlobeView *globeView,WhirlyKit::SceneRendererES *renderer);
+    GlobeViewState(GlobeView *globeView,WhirlyKit::SceneRenderer *renderer);
     virtual ~GlobeViewState();
     
     /// Rotation, etc, at this view state

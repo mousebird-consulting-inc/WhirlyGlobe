@@ -275,7 +275,7 @@ public:
     public:
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
-        PlacementInfo(ViewStateRef viewState,SceneRendererES *renderer);
+        PlacementInfo(ViewStateRef viewState,SceneRenderer *renderer);
         
         ViewStateRef viewState;
         WhirlyGlobe::GlobeViewState *globeViewState;

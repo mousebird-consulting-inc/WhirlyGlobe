@@ -23,19 +23,15 @@
 #import <unordered_map>
 #import "WhirlyVector.h"
 #import "Texture.h"
+#import "Program.h"
 #import "BasicDrawableInstance.h"
 #import "ActiveModel.h"
 #import "CoordSystem.h"
 
-/// How the scene refers to the default triangle shader (and how you replace it)
-#define kSceneDefaultTriShader "Default Triangle Shader"
-/// How the scene refers to the default line shader (and how you replace it)
-#define kSceneDefaultLineShader "Default Line Shader"
-
 namespace WhirlyKit
 {
     
-class SceneRendererES;
+class SceneRenderer;
 class Scene;
 class SubTexture;
 class ScreenSpaceGenerator;
@@ -59,13 +55,13 @@ public:
     virtual bool needsFlush() { return true; }
     
     /// Create the texture on its native thread
-    virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager) { if (texRef) texRef->createInGL(memManager); };
+    virtual void setupForRenderer(RenderSetupInfo *setupInfo);
 
 	/// Add to the renderer.  Never call this.
-	void execute(Scene *scene,SceneRendererES *renderer,View *view);
+	void execute(Scene *scene,SceneRenderer *renderer,View *view);
 	
     /// Only use this if you've thought it out
-    TextureBase *getTex() { return texRef.get(); }
+    TextureBase *getTex();
 
 protected:
     TextureBaseRef texRef;
@@ -81,7 +77,7 @@ public:
     RemTextureReq(SimpleIdentity texId,TimeInterval inWhen) : texture(texId) { when = inWhen; }
 
     /// Remove from the renderer.  Never call this.
-	void execute(Scene *scene,SceneRendererES *renderer,WhirlyKit::View *view);
+	void execute(Scene *scene,SceneRenderer *renderer,View *view);
 	
 protected:
 	SimpleIdentity texture;
@@ -101,10 +97,10 @@ public:
     virtual bool needsFlush() { return true; }
     
     /// Create the drawable on its native thread
-    virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager) { if (drawRef) drawRef->setupGL(setupInfo, memManager); };
+    virtual void setupForRenderer(RenderSetupInfo *);
 
 	/// Add to the renderer.  Never call this
-	void execute(Scene *scene,SceneRendererES *renderer,View *view);
+	void execute(Scene *scene,SceneRenderer *renderer,View *view);
 	
 protected:
     DrawableRef drawRef;
@@ -120,7 +116,7 @@ public:
     RemDrawableReq(SimpleIdentity drawId,TimeInterval inWhen) : drawable(drawId) { when = inWhen; }
 
     /// Remove the drawable.  Never call this
-	void execute(Scene *scene,SceneRendererES *renderer,WhirlyKit::View *view);
+	void execute(Scene *scene,SceneRenderer *renderer,View *view);
 	
 protected:	
 	SimpleIdentity drawable;
@@ -131,15 +127,15 @@ class AddProgramReq : public ChangeRequest
 {
 public:
     // Construct with the program to add
-    AddProgramReq(const std::string &sceneName,OpenGLES2Program *prog) : sceneName(sceneName), program(prog) { }
+    AddProgramReq(const std::string &sceneName,Program *prog) : sceneName(sceneName), program(prog) { }
     ~AddProgramReq() { if (program) delete program; program = NULL; }
     
     /// Remove from the renderer.  Never call this.
-    void execute(Scene *scene,SceneRendererES *renderer,WhirlyKit::View *view);
+    void execute(Scene *scene,SceneRenderer *renderer,View *view);
 
 protected:
     std::string sceneName;
-    OpenGLES2Program *program;
+    Program *program;
 };
     
 /// Remove an OpenGL ES 2.0 program from the scene
@@ -150,7 +146,7 @@ public:
     RemProgramReq(SimpleIdentity progId) : programId(progId) { }
     
     /// Remove from the renderer.  Never call this.
-    void execute(Scene *scene,SceneRendererES *renderer,WhirlyKit::View *view);
+    void execute(Scene *scene,SceneRenderer *renderer,View *view);
 
 protected:
     SimpleIdentity programId;
@@ -164,7 +160,7 @@ public:
     SetProgramValueReq(SimpleIdentity progID,const std::string &name,float u_val) : progID(progID), u_name(name), u_val(u_val) { }
     
     /// Remove the drawable.  Never call this
-    void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view);
+    void execute(Scene *scene,SceneRenderer *renderer,View *view);
     
 protected:
     SimpleIdentity progID;
@@ -177,7 +173,7 @@ protected:
 class RunBlockReq : public ChangeRequest
 {
 public:
-    typedef std::function<void(Scene *scene,SceneRendererES *renderer,View *view)> BlockFunc;
+    typedef std::function<void(Scene *scene,SceneRenderer *renderer,View *view)> BlockFunc;
 
     // Set up with the function to run
     RunBlockReq(BlockFunc newFunc);
@@ -187,7 +183,7 @@ public:
     bool needPreExecute() { return true; }
     
     // Run the block of code
-    void execute(Scene *scene,SceneRendererES *renderer,View *view);
+    void execute(Scene *scene,SceneRenderer *renderer,View *view);
     
 protected:
     BlockFunc func;
@@ -195,8 +191,8 @@ protected:
         
 typedef std::unordered_map<SimpleIdentity,DrawableRef> DrawableRefSet;
 
-typedef std::set<OpenGLES2Program *,IdentifiableSorter> OpenGLES2ProgramSet;
-typedef std::map<std::string,OpenGLES2Program *> OpenGLES2ProgramMap;
+typedef std::set<Program *,IdentifiableSorter> ProgramSet;
+typedef std::map<std::string,Program *> ProgramMap;
     
 /** The scene manager is a base class for various functionality managers
     associated with a scene.  These are the objects that build geometry,
@@ -211,7 +207,7 @@ public:
     virtual ~SceneManager() { };
     
     /// Set (or reset) the current renderer
-    virtual void setRenderer(SceneRendererES *inRenderer) { renderer = inRenderer; }
+    virtual void setRenderer(SceneRenderer *inRenderer) { renderer = inRenderer; }
 
     /// Set the scene we're part of
     virtual void setScene(Scene *inScene) { scene = inScene; }
@@ -221,7 +217,7 @@ public:
     
 protected:
     Scene *scene;
-    SceneRendererES *renderer;
+    SceneRenderer *renderer;
 };
 
 /** This is the top level scene object for WhirlyKit.
@@ -238,7 +234,7 @@ public:
     
     /// Return the coordinate system adapter we're using.
     /// You can get the coordinate system we're using from that.
-    WhirlyKit::CoordSystemDisplayAdapter *getCoordAdapter();
+    CoordSystemDisplayAdapter *getCoordAdapter();
     
     /// Add a single change request.  You can call this from any thread, it locks.
     /// If you have more than one, don't iterate, use the other version.
@@ -247,16 +243,12 @@ public:
     /// This is the faster option if you have more than one change request
     void addChangeRequests(const ChangeSet &newchanges);
     
-    /// Look for a valid texture
-    /// If it's missing, we probably won't draw the associated geometry
-    GLuint getGLTexture(SimpleIdentity texIdent);
-    
     /// Process change requests
     /// Only the renderer should call this in the rendering thread
-    void processChanges(WhirlyKit::View *view,SceneRendererES *renderer,TimeInterval now);
+    void processChanges(View *view,SceneRenderer *renderer,TimeInterval now);
     
     /// Some changes generate other changes, so they go first
-    int preProcessChanges(WhirlyKit::View *view,SceneRendererES *renderer,TimeInterval now);
+    int preProcessChanges(View *view,SceneRenderer *renderer,TimeInterval now);
     
     /// True if there are pending updates
     bool hasChanges(TimeInterval now);
@@ -281,13 +273,13 @@ public:
     /// Add a drawable to the scene.
     /// A subclass can override this to control how this interacts with cullabes.
     /// The scene is responsible for the Drawable after this call.
-    virtual void addDrawable(DrawableRef drawable) = 0;
+    virtual void addDrawable(DrawableRef drawable);
     
     /// Remove a drawable from the scene
-    virtual void remDrawable(DrawableRef drawable) = 0;
+    virtual void remDrawable(DrawableRef drawable);
 
     /// Called once by the renderer so we can reset any managers that care
-    void setRenderer(SceneRendererES *renderer);
+    void setRenderer(SceneRenderer *renderer);
     
     /// Return the given manager.  This is thread safe;
     SceneManager *getManager(const char *name);
@@ -302,14 +294,6 @@ public:
     
     /// Remove an active model (if it's in here).  Only call this on the main thread.
     void removeActiveModel(ActiveModelRef);
-    
-    /// Explicitly tear everything down in OpenGL ES.
-    /// We're assuming the context has been set.
-    void teardownGL();
-    
-    /// Get the renderer's buffer/texture ID manager.
-    /// You can use this on any thread.  The calls are protected.
-    OpenGLMemManager *getMemManager() { return &memManager; }
     
     /// Return a dispatch queue that we can use for... stuff.
     /// The idea here is we'll wait for these to drain when we tear down.
@@ -332,7 +316,7 @@ public:
     std::mutex coordAdapterLock;
     /// The coordinate system display adapter converts from the local space
     ///  to display coordinates.
-    WhirlyKit::CoordSystemDisplayAdapter *coordAdapter;
+    CoordSystemDisplayAdapter *coordAdapter;
     
     /// Look for a Drawable by ID
     DrawableRef getDrawable(SimpleIdentity drawId);
@@ -367,9 +351,6 @@ public:
     /// Mappings from images to parts of texture atlases
     SubTextureSet subTextureMap;
     
-    /// Memory manager, really buffer and texture ID manager
-    OpenGLMemManager memManager;
-    
     /// Lock for accessing managers
     std::mutex managerLock;
     
@@ -386,14 +367,14 @@ public:
     std::mutex programLock;
     
     /// Search for a shader program by ID (our ID, not OpenGL's)
-    OpenGLES2Program *getProgram(SimpleIdentity programId);
+    Program *getProgram(SimpleIdentity programId);
     
     /// Look for a program by its name (last to first)
-    OpenGLES2Program *findProgramByName(const std::string &name);
+    Program *findProgramByName(const std::string &name);
     
     /// Add a shader for reference, but not with a scene name.
     /// Presumably you'll call setSceneProgram() shortly.
-    void addProgram(OpenGLES2Program *prog);
+    void addProgram(Program *prog);
     
     /// Remove the given program by ID (ours, not OpenGL's)
     void removeProgram(SimpleIdentity progId);
@@ -402,18 +383,9 @@ public:
     double getOverlapMargin() { return overlapMargin; }
     
 protected:
-    /// Only the subclasses are allowed to create these
-    Scene();
-
-	/// Construct with the depth of the cullable quad tree,
-    ///  the coordinate system we're using, and the MBR of the
-    ///  top level.
-    /// The earth will be recursively divided into a quad tree of given depth.
-    /// Init call used by the base class to set things up
-    void Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr);
 
     /// All the OpenGL ES 2.0 shader programs we know about
-    OpenGLES2ProgramSet glPrograms;
+    ProgramSet glPrograms;
     
     /// Used for 2D overlap testing
     double overlapMargin;

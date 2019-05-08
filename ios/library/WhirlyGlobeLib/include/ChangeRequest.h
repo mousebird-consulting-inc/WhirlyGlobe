@@ -35,6 +35,9 @@ class RenderSetupInfo
 public:
 };
     
+class Scene;
+class SceneRenderer;
+    
 /** This is the base clase for a change request.  Change requests
  are how we modify things in the scene.  The renderer is running
  on the main thread and we want to keep our interaction with it
@@ -57,7 +60,7 @@ public:
     virtual void execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *view) = 0;
     
     /// Set this if you need to be run before the active models are run
-    virtual bool needPreExecute() { return false; }
+    virtual bool needPreExecute();
     
     /// If non-zero we'll execute this request after the given absolute time
     TimeInterval when;

@@ -21,7 +21,7 @@
 #import <Foundation/Foundation.h>
 #import "MaplyView.h"
 #import "EAGLView.h"
-#import "SceneRendererES.h"
+#import "SceneRenderer.h"
 
 using namespace WhirlyKit;
 

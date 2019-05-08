@@ -20,7 +20,7 @@
 
 #import "WhirlyVector.h"
 #import "gestures/GlobeRotateDelegate.h"
-#import "SceneRendererES.h"
+#import "SceneRenderer.h"
 #import "IntersectionManager.h"
 #import "EAGLView.h"
 
@@ -75,7 +75,7 @@ using namespace WhirlyGlobe;
 
 - (void)updateWithCenter:(CGPoint)center touch:(CGPoint)touch glView:(WhirlyKitEAGLView *)glView
 {
-	SceneRendererES *sceneRender = glView.renderer;
+	SceneRenderer *sceneRender = glView.renderer;
     Point2f center2f(center.x,center.y);
     
     auto frameSizeScaled = sceneRender->getFramebufferSizeScaled();

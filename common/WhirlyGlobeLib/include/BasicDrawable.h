@@ -25,6 +25,7 @@
 #import "WhirlyVector.h"
 #import "GlobeView.h"
 #import "Drawable.h"
+#import "VertexAttribute.h"
 
 namespace WhirlyKit
 {
@@ -70,21 +71,11 @@ public:
     virtual bool isOn(RendererFrameInfo *frameInfo) const;
     
     /// Used for alpha sorting
-    virtual bool hasAlpha(WhirlyKit::RendererFrameInfo *frameInfo) const;
+    virtual bool hasAlpha(RendererFrameInfo *frameInfo) const;
     
     /// Extents used for display culling in local coordinates, if we're using them
     virtual Mbr getLocalMbr() const;
-    
-    /// Simple triangle.  Can obviously only have 2^16 vertices
-    class Triangle
-    {
-    public:
-        Triangle() { }
-        /// Construct with vertex IDs
-        Triangle(unsigned short v0,unsigned short v1,unsigned short v2) { verts[0] = v0;  verts[1] = v1;  verts[2] = v2; }
-        unsigned short verts[3];
-    };
-    
+        
     /// We sort by draw priority before rendering.
     virtual unsigned int getDrawPriority();
     
@@ -145,18 +136,12 @@ public:
     /// Return the active transform matrix, if we have one
     virtual const Eigen::Matrix4d *getMatrix() const;
     
-    /// Uniforms to be applied to the shader
-    virtual SingleVertexAttributeSet getUniforms() const;
-    
     // EmptyIdentity is the standard view, anything else is custom render target
     SimpleIdentity getRenderTarget();
 
     /// Update fade up/down times in renderer (i.e. keep the renderer rendering)
-    virtual void updateRenderer(WhirlyKit::SceneRendererES *renderer);
-    
-    /// Return the vertex attributes for reference
-    virtual const std::vector<VertexAttribute *> &getVertexAttributes();
-    
+    virtual void updateRenderer(SceneRenderer *renderer);
+        
     ////////////////////////////////
     /// ---- Changeable values ----
     
@@ -246,8 +231,6 @@ public:
     
     // We'll nuke the data arrays when we hand over the data to GL
     unsigned int numPoints, numTris;
-    std::vector<Eigen::Vector3f> points;
-    std::vector<Triangle> tris;
     SimpleIdentity renderTargetID;
     bool hasOverrideColor;  // If set, we've changed the default color
 
@@ -261,9 +244,9 @@ public:
     class VertAttrDefault
     {
     public:
-        VertAttrDefault(GLuint progAttrIndex,const VertexAttribute &attr)
+        VertAttrDefault(unsigned int progAttrIndex,const VertexAttribute &attr)
         : progAttrIndex(progAttrIndex), attr(attr) { }
-        GLuint progAttrIndex;
+        unsigned int progAttrIndex;
         VertexAttribute attr;
     };
     
@@ -282,7 +265,7 @@ public:
     BasicDrawableTexTweaker(const std::vector<SimpleIdentity> &texIDs,TimeInterval startTime,double period);
     
     /// Modify the active texture IDs
-    void tweakForFrame(Drawable *draw,WhirlyKit::RendererFrameInfo *frame);
+    void tweakForFrame(Drawable *draw,RendererFrameInfo *frame);
 protected:
     std::vector<SimpleIdentity> texIDs;
     TimeInterval startTime;
@@ -300,7 +283,7 @@ public:
     BasicDrawableScreenTexTweaker(const Point3d &centerPt,const Point2d &texScale);
     
     /// Modify the active shader
-    void tweakForFrame(Drawable *draw,WhirlyKit::RendererFrameInfo *frame);
+    void tweakForFrame(Drawable *draw,RendererFrameInfo *frame);
 protected:
     Point3d centerPt;
     Point2d texScale;
@@ -315,7 +298,7 @@ class ColorChangeRequest : public DrawableChangeRequest
 public:
     ColorChangeRequest(SimpleIdentity drawId,RGBAColor color);
     
-    void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw);
+    void execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw);
     
 protected:
     unsigned char color[4];
@@ -327,7 +310,7 @@ class OnOffChangeRequest : public DrawableChangeRequest
 public:
     OnOffChangeRequest(SimpleIdentity drawId,bool OnOff);
     
-    void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw);
+    void execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw);
     
 protected:
     bool newOnOff;
@@ -339,7 +322,7 @@ class VisibilityChangeRequest : public DrawableChangeRequest
 public:
     VisibilityChangeRequest(SimpleIdentity drawId,float minVis,float maxVis);
     
-    void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw);
+    void execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw);
     
 protected:
     float minVis,maxVis;
@@ -351,7 +334,7 @@ class FadeChangeRequest : public DrawableChangeRequest
 public:
     FadeChangeRequest(SimpleIdentity drawId,TimeInterval fadeUp,TimeInterval fadeDown);
     
-    void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw);
+    void execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw);
     
 protected:
     TimeInterval fadeUp,fadeDown;
@@ -364,7 +347,7 @@ public:
     DrawTexChangeRequest(SimpleIdentity drawId,unsigned int which,SimpleIdentity newTexId);
     DrawTexChangeRequest(SimpleIdentity drawId,unsigned int which,SimpleIdentity newTexId,int size,int borderTexel,int relLevel,int relX,int relY);
     
-    void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw);
+    void execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw);
     
 protected:
     unsigned int which;
@@ -380,7 +363,7 @@ class DrawTexturesChangeRequest : public DrawableChangeRequest
 public:
     DrawTexturesChangeRequest(SimpleIdentity drawId,const std::vector<SimpleIdentity> &newTexIDs);
     
-    void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw);
+    void execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw);
     
 protected:
     const std::vector<SimpleIdentity> newTexIDs;
@@ -394,7 +377,7 @@ public:
 
     TransformChangeRequest(SimpleIdentity drawId,const Eigen::Matrix4d *newMat);
     
-    void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw);
+    void execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw);
     
 protected:
     Eigen::Matrix4d newMat;
@@ -406,7 +389,7 @@ class DrawPriorityChangeRequest : public DrawableChangeRequest
 public:
     DrawPriorityChangeRequest(SimpleIdentity drawId,int drawPriority);
     
-    void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw);
+    void execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw);
     
 protected:
     int drawPriority;
@@ -418,7 +401,7 @@ class LineWidthChangeRequest : public DrawableChangeRequest
 public:
     LineWidthChangeRequest(SimpleIdentity drawId,float lineWidth);
     
-    void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw);
+    void execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw);
     
 protected:
     float lineWidth;
@@ -430,7 +413,7 @@ class DrawUniformsChangeRequest : public DrawableChangeRequest
 public:
     DrawUniformsChangeRequest(SimpleIdentity drawID,const SingleVertexAttributeSet &attrs);
     
-    void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw);
+    void execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw);
     
 protected:
     SingleVertexAttributeSet attrs;
@@ -442,7 +425,7 @@ class RenderTargetChangeRequest : public DrawableChangeRequest
 public:
     RenderTargetChangeRequest(SimpleIdentity drawId,SimpleIdentity );
     
-    void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw);
+    void execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw);
     
 protected:
     SimpleIdentity targetID;

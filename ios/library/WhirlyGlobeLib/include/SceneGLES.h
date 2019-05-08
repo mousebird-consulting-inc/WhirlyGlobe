@@ -1,5 +1,5 @@
 /*
- *  GlobeScene.h
+ *  Scene.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/3/11.
@@ -19,25 +19,30 @@
  */
 
 #import "Scene.h"
-#import "GlobeMath.h"
 
-namespace WhirlyGlobe
+namespace WhirlyKit
 {
-    
-/** GlobeScene is the top level scene object for WhirlyGlobe.
- */
-class GlobeScene : public WhirlyKit::Scene
+
+/** OpenGL ES version of the Scene.
+  */
+class SceneGLES : public Scene
 {
 public:
-    /// Construct with the depth of the culling tree and the display adapter
-    GlobeScene(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter);
-    virtual ~GlobeScene();
     
-    /// Add a drawable, taking overlap into account
-    virtual void addDrawable(WhirlyKit::DrawableRef drawable);
-    
-    /// Remove a drawable
-    virtual void remDrawable(WhirlyKit::DrawableRef drawable);
-};
-    
+    /// Look for a valid texture
+    /// If it's missing, we probably won't draw the associated geometry
+    GLuint getGLTexture(SimpleIdentity texIdent);
+
+    /// Explicitly tear everything down in OpenGL ES.
+    /// We're assuming the context has been set.
+    void teardownGL();
+
+    /// Get the renderer's buffer/texture ID manager.
+    /// You can use this on any thread.  The calls are protected.
+    OpenGLMemManager *getMemManager() { return &memManager; }
+
+protected:
+    /// Memory manager, really buffer and texture ID manager
+    OpenGLMemManager memManager;
+
 }

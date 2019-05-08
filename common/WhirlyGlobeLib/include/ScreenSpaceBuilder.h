@@ -102,7 +102,7 @@ public:
     void addScreenObject(const ScreenSpaceObject &screenObject);
     
     /// Return the drawables constructed.  Caller responsible for deletion.
-    void buildDrawables(std::vector<ScreenSpaceDrawable *> &draws);
+    void buildDrawables(std::vector<BasicDrawable *> &draws);
     
     /// Build drawables and add them to the change list
     void flushChanges(ChangeSet &changes,SimpleIDSet &drawIDs);
@@ -130,8 +130,8 @@ protected:
         Point3d center;
         DrawableState state;
         
-        ScreenSpaceDrawable *getDrawable() { return locDraw; }
-        ScreenSpaceDrawable *locDraw;
+        BasicDrawable *getDrawable() { return locDraw; }
+        BasicDrawable *locDraw;
 
     protected:
     };

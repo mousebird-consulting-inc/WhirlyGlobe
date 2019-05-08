@@ -22,7 +22,7 @@
 
 namespace WhirlyKit
 {
-class SceneRendererES;
+class SceneRenderer;
 }
 
 namespace Maply
@@ -119,7 +119,7 @@ public:
     WhirlyKit::CoordSystemDisplayAdapter *getCoordAdapter() { return coordAdapter; }
     
     /// Make a map view state from the current globe view
-    virtual WhirlyKit::ViewStateRef makeViewState(WhirlyKit::SceneRendererES *renderer);
+    virtual WhirlyKit::ViewStateRef makeViewState(WhirlyKit::SceneRenderer *renderer);
 
     /// Set the change delegate
     virtual void setDelegate(MapViewAnimationDelegateRef delegate);
@@ -153,7 +153,7 @@ class MapViewState : public WhirlyKit::ViewState
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
-    MapViewState(MapView *mapView,WhirlyKit::SceneRendererES *renderer);
+    MapViewState(MapView *mapView,WhirlyKit::SceneRenderer *renderer);
     
     /// Height above globe at this view state
     double heightAboveSurface;

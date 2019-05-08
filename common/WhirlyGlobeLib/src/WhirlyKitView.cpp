@@ -24,7 +24,7 @@
 #import "WhirlyKitView.h"
 #import "WhirlyGeometry.h"
 #import "FlatMath.h"
-#import "SceneRendererES.h"
+#import "SceneRenderer.h"
 
 using namespace Eigen;
 
@@ -271,7 +271,7 @@ void View::runViewUpdates()
         (*it)->viewUpdated(this);
 }
 
-ViewState::ViewState(WhirlyKit::View *view,SceneRendererES *renderer)
+ViewState::ViewState(WhirlyKit::View *view,SceneRenderer *renderer)
 {
     modelMatrix = view->calcModelMatrix();
     invModelMatrix = modelMatrix.inverse();

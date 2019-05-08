@@ -18,7 +18,7 @@
  *
  */
 
-#import "glwrapper.h"
+#import "WrapperGLES.h"
 
 /// Check for a GL error and print (NSLog) a message
 bool CheckGLError(const char *msg);

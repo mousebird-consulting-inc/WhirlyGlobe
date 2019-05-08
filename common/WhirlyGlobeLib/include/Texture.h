@@ -34,8 +34,8 @@ class TextureBase : public Identifiable
 {
 public:
     /// Construct for comparison
-    TextureBase(SimpleIdentity thisId) : Identifiable(thisId), glId(0);
-    TextureBase(const std::string &name) : name(name), glId(0);
+    TextureBase(SimpleIdentity thisId);
+    TextureBase(const std::string &name);
     
     virtual ~TextureBase();
     

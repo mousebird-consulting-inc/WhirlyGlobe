@@ -44,7 +44,7 @@ public:
     virtual RawDataRef snapshot();
     
     // Clear color, if we're clearing
-    GLfloat clearColor[4];
+    float clearColor[4];
     bool clearEveryFrame;
     // Clear on the next frame, then reset this
     bool clearOnce;

@@ -18,17 +18,18 @@
  *
  */
 
-#import "GLUtils.h"
+#import "UtilsGLES.h"
 
 #import "WhirlyVector.h"
 #import "WhirlyKitView.h"
 #import "Scene.h"
 #import "PerformanceTimer.h"
 #import "Lighting.h"
+#import "SceneRenderer.h"
 
 namespace WhirlyKit
 {
-class SceneRendererES;
+class SceneRendererGLES;
 
 /** Renderer Frame Info.
  Data about the current frame, passed around by the renderer.
@@ -55,13 +56,13 @@ typedef enum {zBufferOn,zBufferOff,zBufferOffDefault} WhirlyKitSceneRendererZBuf
 
 /// Base class for the scene renderer.
 /// It's subclassed for the specific version of OpenGL ES
-class SceneRendererES : public DelayedDeletable
+class SceneRendererGLES : public DelayedDeletable
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
-    SceneRendererES();
-    virtual ~SceneRendererES();
+    SceneRendererGLES();
+    virtual ~SceneRendererGLES();
     
     /// Called right after the constructor
     virtual bool setup(int apiVersion,int sizeX,int sizeY);

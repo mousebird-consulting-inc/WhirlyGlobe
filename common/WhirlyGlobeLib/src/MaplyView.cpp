@@ -280,12 +280,12 @@ void MapView::animate()
         delegate->updateView(this);
 }
     
-ViewStateRef MapView::makeViewState(SceneRendererES *renderer)
+ViewStateRef MapView::makeViewState(SceneRenderer *renderer)
 {
     return ViewStateRef(new MapViewState(this,renderer));
 }
 
-MapViewState::MapViewState(MapView *mapView,WhirlyKit::SceneRendererES *renderer)
+MapViewState::MapViewState(MapView *mapView,SceneRenderer *renderer)
 : ViewState(mapView,renderer)
 {
     heightAboveSurface = mapView->getLoc().z();

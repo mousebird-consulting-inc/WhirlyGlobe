@@ -59,18 +59,6 @@ public:
     /// We're allowed to turn drawables off completely
     virtual bool isOn(WhirlyKit::RendererFrameInfo *frameInfo) const;
     
-    /// Do any OpenGL initialization you may want.
-    virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager);
-    
-    /// Clean up any OpenGL objects you may have (e.g. VBOs).
-    virtual void teardownGL(OpenGLMemManager *memManage);
-    
-    /// Set up the vertex array object
-    GLuint setupVAO(RendererFrameInfo *frameInfo,OpenGLES2Program *prog);
-    
-    /// Return the type (or an approximation thereof).  We use this for sorting.
-    virtual GLenum getType() const;
-    
     /// Return true if the drawable has alpha.  These will be sorted last.
     virtual bool hasAlpha(WhirlyKit::RendererFrameInfo *frameInfo) const;
     
@@ -84,7 +72,7 @@ public:
     virtual bool getWriteZbuffer() const { return writeZBuffer; }
     
     /// Update anything associated with the renderer.  Probably renderUntil.
-    virtual void updateRenderer(WhirlyKit::SceneRendererES *renderer);
+    virtual void updateRenderer(WhirlyKit::SceneRenderer *renderer);
     
     /// Fill this in to draw the basic drawable
     virtual void draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene);
@@ -205,8 +193,8 @@ protected:
     double minViewerDist,maxViewerDist;
     Point3d viewerCenter;
     int numInstances;
-    GLuint instBuffer;
-    GLuint vertArrayObj;
+//    GLuint instBuffer;
+//    GLuint vertArrayObj;
     std::vector<BasicDrawable::VertAttrDefault> vertArrayDefaults;
     
     int centerSize,matSize,colorInstSize,colorSize,instSize,modelDirSize;

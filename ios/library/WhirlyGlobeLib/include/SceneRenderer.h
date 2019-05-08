@@ -23,10 +23,11 @@
 #import "Scene.h"
 #import "PerformanceTimer.h"
 #import "Lighting.h"
+#import "RenderTarget.h"
 
 namespace WhirlyKit
 {
-class SceneRendererES;
+class SceneRenderer;
 
 /** Renderer Frame Info.
  Data about the current frame, passed around by the renderer.
@@ -40,7 +41,7 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
     /// Renderer itself
-    WhirlyKit::SceneRendererES *sceneRenderer;
+    WhirlyKit::SceneRenderer *sceneRenderer;
     /// View
     WhirlyKit::View *theView;
     /// Current model matrix from the view
@@ -96,13 +97,13 @@ typedef enum {zBufferOn,zBufferOff,zBufferOffDefault} WhirlyKitSceneRendererZBuf
 
 /// Base class for the scene renderer.
 /// It's subclassed for the specific version of OpenGL ES
-class SceneRendererES : public DelayedDeletable
+class SceneRenderer : public DelayedDeletable
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
-    SceneRendererES();
-    virtual ~SceneRendererES();
+    SceneRenderer();
+    virtual ~SceneRenderer();
     
     /// Called right after the constructor
     virtual bool setup(int apiVersion,int sizeX,int sizeY);
@@ -199,9 +200,9 @@ public:
     WhirlyKitSceneRendererZBufferMode zBufferMode;
     
     /// The pixel width of the CAEAGLLayer.
-    GLint framebufferWidth;
+    int framebufferWidth;
     /// The pixel height of the CAEAGLLayer.
-    GLint framebufferHeight;
+    int framebufferHeight;
     /// Scale, to reflect the device's screen
     float scale;
     
@@ -254,6 +255,6 @@ public:
     WhirlyKit::Texture *framebufferTex;
 };
 
-typedef std::shared_ptr<SceneRendererES> SceneRendererESRef;
+typedef std::shared_ptr<SceneRenderer> SceneRendererRef;
     
 }

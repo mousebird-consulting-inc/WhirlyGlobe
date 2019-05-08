@@ -34,11 +34,24 @@ namespace WhirlyKit
 class BasicDrawableBuilder : public Identifiable
 {
 public:
+    /// Simple triangle.  Can obviously only have 2^16 vertices
+    class Triangle
+    {
+    public:
+        Triangle() { }
+        /// Construct with vertex IDs
+        Triangle(unsigned short v0,unsigned short v1,unsigned short v2) { verts[0] = v0;  verts[1] = v1;  verts[2] = v2; }
+        unsigned short verts[3];
+    };
+
+    
     /// Set local extents
     void setLocalMbr(Mbr mbr);
-    
+
+    typedef enum {Points,Lines,Triangles} GeometryType;
+
     /// Set the geometry type.  Probably triangles.
-    virtual void setType(GLenum inType);
+    virtual void setType(GeometryType inType);
     
     /// Set the color as an RGB color
     virtual void setColor(RGBAColor inColor);
@@ -159,8 +172,6 @@ public:
     
     // Size for a single vertex w/ all its data.  Used by shared buffer
     int vertexSize;
-    GLuint pointBuffer,triBuffer,sharedBuffer;
-    GLuint vertArrayObj;
     std::vector<BasicDrawable::VertAttrDefault> vertArrayDefaults;
     
     // If set the geometry is already in OpenGL clip coordinates, so no transform
