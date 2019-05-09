@@ -42,7 +42,7 @@ protected:
     /// Set to 0 if we haven't loaded yet
     GLuint glId;
 };
-    
+
 /** Your basic Texture representation.
  This is how you get an image sent over to the
  rendering engine.  Set up one of these and add it.

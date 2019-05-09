@@ -42,7 +42,7 @@ class SceneRenderer;
 class DrawableTweaker : public Identifiable
 {
 public:
-    virtual ~DrawableTweaker() { }
+    virtual ~DrawableTweaker();
     /// Do your tweaking here
     virtual void tweakForFrame(Drawable *draw,RendererFrameInfo *frame) = 0;
 };
@@ -64,63 +64,56 @@ public:
     /// Construct empty
 	Drawable(const std::string &name);
 	virtual ~Drawable();
-	    
+
+    /// We're allowed to turn drawables off completely
+    virtual bool isOn(RendererFrameInfo *frameInfo) const = 0;
+
     /// Return the local MBR, if we're working in a non-geo coordinate system
     virtual Mbr getLocalMbr() const = 0;
-	
+
+    /// Return true if the drawable has alpha.  These will be sorted last.
+    virtual bool hasAlpha(RendererFrameInfo *frameInfo) const = 0;
+
 	/// We use this to sort drawables
 	virtual unsigned int getDrawPriority() const = 0;
     
-    /// For OpenGLES2, this is the program to use to render this drawable.
-    virtual SimpleIdentity getProgram() const = 0;
-    
-    /// If present, we'll do a pre-render calculation pass with this program set
-    virtual SimpleIdentity getCalculationProgram() const { return EmptyIdentity; }
-	
-    /// We're allowed to turn drawables off completely
-    virtual bool isOn(RendererFrameInfo *frameInfo) const = 0;
-    
-    /// Do any OpenGL initialization you may want.
-    /// For instance, set up VBOs.
-    /// We pass in the minimum Z buffer resolution (for offsets).
-    virtual void setupForRenderer(RenderSetupInfo *setupInfo);
-    
-    /// Clean up any OpenGL objects you may have (e.g. VBOs).
-    virtual void teardownForRenderer(RenderSetupInfo *setupInfo);
-    
-    /// Some drawables have a pre-render phase that uses the GPU for calculation
-    virtual void calculate(RendererFrameInfo *frameInfo,Scene *scene) { };
-
-    /// Set up what you need in the way of context and draw.
-    virtual void draw(RendererFrameInfo *frameInfo,Scene *scene) = 0;
-    
-    /// Return true if the drawable has alpha.  These will be sorted last.
-    virtual bool hasAlpha(RendererFrameInfo *frameInfo) const = 0;
-    
     /// Return the Matrix if there is an active one (ideally not)
-    virtual const Eigen::Matrix4d *getMatrix();
-
+    virtual const Eigen::Matrix4d *getMatrix() const = 0;
+    
     /// Check if the force Z buffer on mode is on
-    virtual bool getRequestZBuffer();
+    virtual bool getRequestZBuffer() const = 0;
 
     /// Check if we're supposed to write to the z buffer
-    virtual bool getWriteZbuffer();
+    virtual bool getWriteZbuffer() const = 0;
     
     /// Drawables can override where they're drawn.  EmptyIdentity is the regular screen.
-    virtual SimpleIdentity getRenderTarget();
+    virtual SimpleIdentity getRenderTarget() const = 0;
     
     /// Update anything associated with the renderer.  Probably renderUntil.
     virtual void updateRenderer(SceneRenderer *renderer) = 0;
     
-    /// Add a tweaker to this list to be run each frame
-    virtual void addTweaker(DrawableTweakerRef tweakRef);
-    
-    /// Remove a tweaker from the list
-    virtual void removeTweaker(DrawableTweakerRef tweakRef);
-    
     /// Run the tweakers
     virtual void runTweakers(RendererFrameInfo *frame);
+
+    /// Do any initialization you may want.
+    /// For instance, set up VBOs.
+    virtual void setupForRenderer(RenderSetupInfo *setupInfo) = 0;
     
+    /// Clean up any rendering objects you may have (e.g. VBOs).
+    virtual void teardownForRenderer(RenderSetupInfo *setupInfo) = 0;
+
+    /// If present, we'll do a pre-render calculation pass with this program set
+    virtual SimpleIdentity getCalculationProgram() const = 0;
+    
+    /// Some drawables have a pre-render phase that uses the GPU for calculation
+    virtual void calculate(RendererFrameInfo *frameInfo,Scene *scene) = 0;
+
+    /// For OpenGLES2, this is the program to use to render this drawable.
+    virtual SimpleIdentity getProgram() const = 0;
+    
+    /// Set up what you need in the way of context and draw.
+    virtual void draw(RendererFrameInfo *frameInfo,Scene *scene) = 0;
+
 protected:
     std::string name;
     DrawableTweakerRefSet tweakers;

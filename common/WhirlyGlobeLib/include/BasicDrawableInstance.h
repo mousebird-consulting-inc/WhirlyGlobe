@@ -1,5 +1,5 @@
 /*
- *  Drawable.h
+ *  BasicDrawableInstance.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/1/11.

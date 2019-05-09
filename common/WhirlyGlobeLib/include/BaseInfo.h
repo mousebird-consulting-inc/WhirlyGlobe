@@ -31,8 +31,8 @@
 
 namespace WhirlyKit
 {
-class BasicDrawable;
-class BasicDrawableInstance;
+class BasicDrawableBuilder;
+class BasicDrawableInstanceBuilder;
 
 /** Object use as the base for parsing description dictionaries.
  */
@@ -48,10 +48,10 @@ public:
     virtual std::string toString();
     
     /// Set the various parameters on a basic drawable
-    void setupBasicDrawable(BasicDrawable *drawable) const;
+    void setupBasicDrawable(BasicDrawableBuilder *drawBuild) const;
 
     /// Set the various parameters on a basic drawable instance
-    void setupBasicDrawableInstance(BasicDrawableInstance *drawable);
+    void setupBasicDrawableInstance(BasicDrawableInstanceBuilder *drawBuild) const;
     
     double minVis,maxVis;
     double minVisBand,maxVisBand;

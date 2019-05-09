@@ -19,7 +19,7 @@
  */
 
 #import <stdio.h>
-#import "GLUtils.h"
+#import "UtilsGLES.h"
 #import "WhirlyKitLog.h"
 
 // Turn this off for a little performance gain

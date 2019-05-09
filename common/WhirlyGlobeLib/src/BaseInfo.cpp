@@ -20,8 +20,8 @@
 
 #import "BaseInfo.h"
 #import "Drawable.h"
-#import "BasicDrawable.h"
-#import "BasicDrawableInstance.h"
+#import "BasicDrawableBuilder.h"
+#import "BasicDrawableInstanceBuilder.h"
 #import "SharedAttributes.h"
 
 using namespace WhirlyKit;
@@ -147,35 +147,35 @@ std::string BaseInfo::toString()
     return outStr;
 }
 
-void BaseInfo::setupBasicDrawable(BasicDrawable *drawable) const
+void BaseInfo::setupBasicDrawable(BasicDrawableBuilder *drawBuild) const
 {
-    drawable->setOnOff(enable);
-    drawable->setEnableTimeRange(startEnable, endEnable);
-    drawable->setDrawPriority(drawPriority);
-    drawable->setVisibleRange(minVis,maxVis);
-    drawable->setViewerVisibility(minViewerDist,maxViewerDist,viewerCenter);
-    drawable->setProgram(programID);
-    drawable->setUniforms(uniforms);
-    drawable->setRequestZBuffer(zBufferRead);
-    drawable->setWriteZBuffer(zBufferWrite);
-    drawable->setProgram(programID);
+    drawBuild->setOnOff(enable);
+    drawBuild->setEnableTimeRange(startEnable, endEnable);
+    drawBuild->setDrawPriority(drawPriority);
+    drawBuild->setVisibleRange(minVis,maxVis);
+    drawBuild->setViewerVisibility(minViewerDist,maxViewerDist,viewerCenter);
+    drawBuild->setProgram(programID);
+    drawBuild->setUniforms(uniforms);
+    drawBuild->setRequestZBuffer(zBufferRead);
+    drawBuild->setWriteZBuffer(zBufferWrite);
+    drawBuild->setProgram(programID);
     if (renderTargetID != EmptyIdentity)
-        drawable->setRenderTarget(renderTargetID);
+        drawBuild->setRenderTarget(renderTargetID);
 }
 
-void BaseInfo::setupBasicDrawableInstance(BasicDrawableInstance *drawInst)
+void BaseInfo::setupBasicDrawableInstance(BasicDrawableInstanceBuilder *drawBuild) const
 {
-    drawInst->setEnable(enable);
-    drawInst->setEnableTimeRange(startEnable, endEnable);
-    drawInst->setDrawPriority(drawPriority);
-    drawInst->setVisibleRange(minVis,maxVis);
-    drawInst->setViewerVisibility(minViewerDist,maxViewerDist,viewerCenter);
-    drawInst->setUniforms(uniforms);
-    drawInst->setRequestZBuffer(zBufferRead);
-    drawInst->setWriteZBuffer(zBufferWrite);
-    drawInst->setProgram(programID);
+    drawBuild->setOnOff(enable);
+    drawBuild->setEnableTimeRange(startEnable, endEnable);
+    drawBuild->setDrawPriority(drawPriority);
+    drawBuild->setVisibleRange(minVis,maxVis);
+    drawBuild->setViewerVisibility(minViewerDist,maxViewerDist,viewerCenter);
+    drawBuild->setUniforms(uniforms);
+    drawBuild->setRequestZBuffer(zBufferRead);
+    drawBuild->setWriteZBuffer(zBufferWrite);
+    drawBuild->setProgram(programID);
     if (renderTargetID != EmptyIdentity)
-        drawInst->setRenderTarget(renderTargetID);
+        drawBuild->setRenderTarget(renderTargetID);
 }
     
 }

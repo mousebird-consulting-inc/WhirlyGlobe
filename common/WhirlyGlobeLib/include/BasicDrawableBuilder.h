@@ -25,31 +25,100 @@
 #import "WhirlyVector.h"
 #import "GlobeView.h"
 #import "Drawable.h"
+#import "TextureAtlas.h"
 
 namespace WhirlyKit
 {
     
-typedef enum {Points,Lines,Triangles} GeometryType;
-
 /** Used to construct a BasicDrawable.
+    This is abstracted away from the BasicDrawable itself so we can
+    build drawables for the different renderers.
  */
 class BasicDrawableBuilder : public Identifiable
 {
 public:
+    /// Construct empty
+    BasicDrawableBuilder(const std::string &name,SceneRenderer *sceneRender);
+
+    /// Construct with some idea how big things are.
+    /// You can violate this, but it will reserve space
+    BasicDrawableBuilder(const std::string &name,SceneRenderer *sceneRender, unsigned int numVert,unsigned int numTri);
+
+    virtual ~BasicDrawableBuilder();
+    
     /// Simple triangle.  Can obviously only have 2^16 vertices
     class Triangle
     {
     public:
-        Triangle() { }
+        Triangle();
         /// Construct with vertex IDs
-        Triangle(unsigned short v0,unsigned short v1,unsigned short v2) { verts[0] = v0;  verts[1] = v1;  verts[2] = v2; }
+        Triangle(unsigned short v0,unsigned short v1,unsigned short v2);
         unsigned short verts[3];
     };
-
     
+    /// True to turn it on, false to turn it off
+    void setOnOff(bool onOff);
+    
+    /// Set the time range for enable
+    void setEnableTimeRange(TimeInterval inStartEnable,TimeInterval inEndEnable);
+    
+    /// Set the fade in and out
+    void setFade(TimeInterval inFadeDown,TimeInterval inFadeUp);
+
     /// Set local extents
     void setLocalMbr(Mbr mbr);
+    
+    /// Set the viewer based visibility
+    virtual void setViewerVisibility(double minViewerDist,double maxViewerDist,const Point3d &viewerCenter);
+    
+    /// Set what range we can see this drawable within.
+    /// The units are in distance from the center of the globe and
+    ///  the surface of the globe as at 1.0
+    virtual void setVisibleRange(float minVis,float maxVis,float minVisBand=0.0,float maxVisBand=0.0);
+    
+    /// Set the alpha sorting on or off
+    void setAlpha(bool onOff);
 
+    /// Set the draw offset.  This is an integer offset from the base terrain.
+    /// Geometry is moved upward by a certain number of units.
+    virtual void setDrawOffset(float newOffset);
+    
+    /// Draw priority used for sorting
+    virtual void setDrawPriority(unsigned int newPriority);
+
+    /// Set the active transform matrix
+    virtual void setMatrix(const Eigen::Matrix4d *inMat);
+
+    /// Resulting drawable wants the Z buffer for comparison
+    virtual void setRequestZBuffer(bool val);
+
+    /// Resulting drawable writes to the Z buffer
+    virtual void setWriteZBuffer(bool val);
+
+    // If set, we'll render this data where directed
+    void setRenderTarget(SimpleIdentity newRenderTarget);
+
+    /// Set the line width (if using lines)
+    virtual void setLineWidth(float inWidth);
+        
+    /// Set the texture ID for a specific slot.  You get this from the Texture object.
+    virtual void setTexId(unsigned int which,SimpleIdentity inId);
+    
+    /// Set all the textures at once
+    virtual void setTexIDs(const std::vector<SimpleIdentity> &texIDs);
+    
+    /// Set the relative offsets for texture usage.
+    /// We use these to look up parts of a texture at a higher level
+    virtual void setTexRelative(int which,int size,int borderTexel,int relLevel,int relX,int relY);
+
+    
+    /// For OpenGLES2, you can set the program to use in rendering
+    void setProgram(SimpleIdentity progId);
+
+    /// Add a tweaker to this list to be run each frame
+    void addTweaker(DrawableTweakerRef tweakRef);
+
+    
     /// Set the geometry type.  Probably triangles.
     virtual void setType(GeometryType inType);
     
@@ -58,10 +127,7 @@ public:
     
     /// Set the color as an array.
     virtual void setColor(unsigned char inColor[]);
-    
-    /// Set the active transform matrix
-    virtual void setMatrix(const Eigen::Matrix4d *inMat);
-    
+
     /// Size of a single vertex used in creating an interleaved buffer.
     virtual unsigned int singleVertexSize();
     
@@ -149,33 +215,20 @@ public:
     
 public:
     // Used by subclasses to do the standard init
-    void basicDrawableInit();
+    void Init(SceneRenderer *sceneRender);
     /// Check for the given texture coordinate entry and add it if it's not there
     virtual void setupTexCoordEntry(int which,int numReserve);
-    
-    // Attributes associated with each vertex, some standard some not
-    std::vector<VertexAttribute *> vertexAttributes;
-    // Entries for the standard attributes we create on startup
-    int colorEntry,normalEntry;
     // Set up the standard vertex attributes we use
     virtual void setupStandardAttributes(int numReserve=0);
     
+    // The basic drawable we're building up
+    BasicDrawable *basicDraw;
+    
     // We'll nuke the data arrays when we hand over the data to GL
-    unsigned int numPoints, numTris;
     std::vector<Eigen::Vector3f> points;
     std::vector<Triangle> tris;
-    SimpleIdentity renderTargetID;
-    // If the drawable has a matrix, we'll transform by that before drawing
-    Eigen::Matrix4d mat;
-    // Uniforms to apply to shader
-    SingleVertexAttributeSet uniforms;
-    
-    // Size for a single vertex w/ all its data.  Used by shared buffer
-    int vertexSize;
-    std::vector<BasicDrawable::VertAttrDefault> vertArrayDefaults;
-    
-    // If set the geometry is already in OpenGL clip coordinates, so no transform
-    bool clipCoords;
 };
-    
+
+typedef std::shared_ptr<BasicDrawableBuilder> BasicDrawableBuilderRef;
+
 }

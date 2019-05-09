@@ -19,7 +19,7 @@
  */
 
 #import <string.h>
-#import "glwrapper.h"
+#import "WrapperGLES.h"
 
 #ifdef __ANDROID__
 
