@@ -234,7 +234,7 @@ public:
 
 - (Scene *) loadSetup_scene
 {
-    globeScene = new WhirlyGlobe::GlobeScene(globeView->coordAdapter);
+    globeScene = new WhirlyKit::Scene(globeView->coordAdapter);
     
     return globeScene;
 }

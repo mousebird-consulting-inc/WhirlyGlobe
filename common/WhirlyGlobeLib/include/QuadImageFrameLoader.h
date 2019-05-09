@@ -290,7 +290,7 @@ public:
     SimpleIdentity getShaderID();
     
     /// In-memory texture type
-    void setTexType(GLenum texType);
+    void setTexType(TextureType texType);
     
     /// Control draw priority assigned to basic drawable instances
     void setBaseDrawPriority(int newPrior);
@@ -388,7 +388,7 @@ protected:
     
     SamplingParams params;
     
-    GLenum texType;
+    TextureType texType;
     WhirlyKit::SimpleIdentity shaderID;
 
     double curFrame;

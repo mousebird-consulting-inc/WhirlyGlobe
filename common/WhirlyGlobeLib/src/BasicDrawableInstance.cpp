@@ -20,8 +20,7 @@
 
 #import "GLUtils.h"
 #import "BasicDrawableInstance.h"
-#import "GlobeScene.h"
-#import "SceneRendererES.h"
+#import "SceneRenderer.h"
 #import "TextureAtlas.h"
 
 using namespace Eigen;

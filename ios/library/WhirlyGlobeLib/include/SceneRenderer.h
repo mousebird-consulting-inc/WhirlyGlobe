@@ -105,12 +105,6 @@ public:
     SceneRenderer();
     virtual ~SceneRenderer();
     
-    /// Called right after the constructor
-    virtual bool setup(int apiVersion,int sizeX,int sizeY);
-    
-    /// Resize framebuffer because something changed
-    virtual bool resize(int sizeX,int sizeY);
-    
     /// Set the render until time.  This is used by things like fade to keep
     ///  the rendering optimization from cutting off animation.
     void setRenderUntil(TimeInterval newTime);
@@ -188,9 +182,6 @@ public:
     
     // Presentation, if required
     virtual void presentRender() { };
-    
-    // OpenGL Version
-    int glesVersion;
     
     /// Scene we're drawing.  This is set from outside
     WhirlyKit::Scene *scene;

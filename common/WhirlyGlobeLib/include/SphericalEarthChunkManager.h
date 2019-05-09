@@ -98,9 +98,6 @@ public:
     /// Texture we'll wrap over the top
     std::vector<SimpleIdentity> texIDs;
 
-    /// Format we'll store the textures in
-    GLenum imageFormat;
-
     /// If no texture, we can pass in a UIImage (or NSData that contains common formats).
     /// The implication here is that we're going to stick these in an atlas.
     ImageTileRef loadImage;

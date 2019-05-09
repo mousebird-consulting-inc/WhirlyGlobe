@@ -19,7 +19,7 @@
  */
 
 #import "gestures/MaplyPinchDelegate.h"
-#import "SceneRendererES.h"
+#import "SceneRenderer.h"
 #import "MaplyZoomGestureDelegate_private.h"
 #import "MaplyAnimateTranslation.h"
 
@@ -49,7 +49,7 @@ using namespace Maply;
 	UIPinchGestureRecognizer *pinch = sender;
 	UIGestureRecognizerState theState = pinch.state;
 	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)pinch.view;
-	SceneRendererES *sceneRenderer = glView.renderer;
+	SceneRenderer *sceneRenderer = glView.renderer;
     
 	switch (theState)
 	{

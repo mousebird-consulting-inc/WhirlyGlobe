@@ -27,11 +27,9 @@ namespace WhirlyKit
 // Shader name
 //#define kParticleSystemShaderName "Default Part Sys (Point)"
     
-// Maximum size of particle buffers (8MB)
-#define kMaxParticleMemory (8*1024*1024)
 
 // Build the particle system default shader
-OpenGLES2Program *BuildParticleSystemProgram(const std::string &name);
+Program *BuildParticleSystemProgram(const std::string &name,SceneRenderer *renderer);
     
 // Low level drawable used to manage particle systems
 class ParticleSystemDrawable : public Drawable
@@ -91,10 +89,10 @@ public:
     virtual void setTexIDs(const std::vector<SimpleIdentity> &inTexIDs) { texIDs = inTexIDs; }
     
     /// Create our buffers in GL
-    void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager);
-    
+    virtual void setupForRenderer(RenderSetupInfo *);
+
     /// Destroy GL buffers
-    void teardownGL(OpenGLMemManager *memManager);
+    virtual void teardownForRenderer(RenderSetupInfo *setupInfo);
 
     /// Particles can calculate their positions
     void calculate(RendererFrameInfo *frameInfo,Scene *scene);
@@ -102,14 +100,11 @@ public:
     /// Called on the rendering thread to draw
     void draw(RendererFrameInfo *frameInfo,Scene *scene);
     
-    /// Just points for now
-    GLenum getType() const { return GL_POINTS; }
-    
     /// Not using this mechanism
     bool hasAlpha(RendererFrameInfo *frameInfo) const { return false; }
     
     /// Don't need to update the renderer particularly
-    void updateRenderer(SceneRendererES *renderer);
+    void updateRenderer(SceneRenderer *renderer);
 
     /// If set, we want to use the z buffer
     bool getRequestZBuffer() const { return requestZBuffer; }
@@ -129,9 +124,6 @@ public:
         TimeInterval startTime;
     };
     
-    /// Add the vertex data (all of it) at once
-    void addAttributeData(WhirlyKitGLSetupInfo *setupInfo,const std::vector<AttributeData> &attrData,const Batch &batch);
-    
     /// Look for an empty batch to reuse
     bool findEmptyBatch(Batch &retBatch);
     
@@ -145,11 +137,6 @@ public:
     SimpleIdentity getRenderTarget() { return renderTargetID; }
 
 protected:
-    class VaryBufferPair {
-    public:
-        GLuint buffers[2];
-    };
-    
     bool enable;
     int numTotalPoints,batchSize;
     int vertexSize;
@@ -162,9 +149,7 @@ protected:
     TimeInterval lifetime;
     bool requestZBuffer,writeZBuffer;
     float minVis,maxVis,minVisibleFadeBand,maxVisibleFadeBand;
-    GLuint pointBuffer,rectBuffer;
     int activeVaryBuffer;  // 0 or 1
-    std::vector<VaryBufferPair> varyBuffers;
     std::vector<SimpleIdentity> texIDs;
     bool useRectangles,useInstancing;
     TimeInterval baseTime;
@@ -184,12 +169,6 @@ protected:
     
     TimeInterval lastUpdateTime;
     void updateChunks();
-    
-    void drawSetupTextures(RendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog,bool hasTexture[],int &progTexBound);
-    void drawTeardownTextures(RendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog,bool hasTexture[],int progTexBound);
-    void drawSetupUniforms(RendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog);
-    void drawBindAttrs(RendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog,const BufferChunk &chunk,int pointsSoFar,bool useInstancingHere);
-    void drawUnbindAttrs(OpenGLES2Program *prog);
     
     // Chunks we use for rendering
     std::mutex batchLock;

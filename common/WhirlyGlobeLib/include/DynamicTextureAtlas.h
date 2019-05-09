@@ -37,9 +37,7 @@ class DynamicTexture : public TextureBase
 public:
     /// Constructor for sorting
     DynamicTexture(SimpleIdentity myId) : TextureBase(myId), layoutGrid(NULL) { }
-    /// Construct with a name, square texture size, cell size (in texels), and the memory format
-    DynamicTexture(const std::string &name,int texSize,int cellSize,GLenum format,bool clearTextures);
-    ~DynamicTexture();
+    virtual ~DynamicTexture();
     
     /// Represents a region in the texture
     class Region
@@ -50,14 +48,10 @@ public:
     };
     
     /// Create an appropriately empty texture in OpenGL ES
-    bool createInGL(OpenGLMemManager *memManager);
-    
+    virtual bool createInRenderer(RenderSetupInfo *setupInfo);
+
     /// Render side only.  Don't call this.  Destroy the OpenGL ES version
-    void destroyInGL(OpenGLMemManager *memManager);
-    
-    /// Set the interpolation type used for min and mag
-    void setInterpType(GLenum inType) { interpType = inType; }
-    GLenum getInterpType() { return interpType; }
+    virtual void destroyInRenderer(RenderSetupInfo *setupInfo);
     
     /// Add the given texture at the given location.
     /// This is probably called on the layer thread
@@ -98,10 +92,6 @@ protected:
     
     /// If set, this is a compressed format (assume PVRTC4)
     bool compressed;
-    /// Interpolation type
-    GLenum interpType;
-    /// Texture memory format
-    GLenum format,type;
     /// Number of texels on a side
     int texSize;
     /// Number of texels in a cell
@@ -141,7 +131,7 @@ public:
     : texId(texId), startX(startX), startY(startY), width(width), height(height), data(data) { }
 
     /// Add the region.  Never call this.
-    void execute(Scene *scene,SceneRendererES *renderer,WhirlyKit::View *view);
+    void execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *view);
     
 protected:
     SimpleIdentity texId;
@@ -159,7 +149,7 @@ public:
     DynamicTextureClearRegion(SimpleIdentity texId,const DynamicTexture::Region &region,TimeInterval inWhen) : texId(texId), region(region) { when = inWhen; }
 
     /// Clear the region from the given dynamic texture.  Never call this.
-    void execute(Scene *scene,SceneRendererES *renderer,WhirlyKit::View *view);
+    void execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *view);
 
 protected:
     SimpleIdentity texId;
@@ -186,20 +176,14 @@ public:
         DynamicTexture::Region region;
     };
 
-    /// Construct with the square size of the textures, the cell size (in pixels) and the pixel format
-    DynamicTextureAtlas(int texSize,int cellSize,GLenum format,int imageDepth=1,bool mainThreadMerge=false);
     virtual ~DynamicTextureAtlas();
     
-    /// Set the interpolation type used for min and mag
-    void setInterpType(GLenum inType) { interpType = inType; }
-    GLenum getInterpType() { return interpType; }
-
     /// Fudge factor for border pixels.  We'll add this/pixelSize to the lower left
     ///  and subtract this/pixelSize from the upper right for each texture application.
     void setPixelFudgeFactor(float pixFudge);
 
     /// Try to add the texture to one of our dynamic textures, or create one.
-    bool addTexture(const std::vector<Texture *> &textures,int frame,Point2f *realSize,Point2f *realOffset,SubTexture &subTex,OpenGLMemManager *memManager,ChangeSet &changes,int borderPixels,int bufferPixels=0,TextureRegion *outTexRegion=NULL);
+    virtual bool addTexture(const std::vector<Texture *> &textures,int frame,Point2f *realSize,Point2f *realOffset,SubTexture &subTex,ChangeSet &changes,int borderPixels,int bufferPixels=0,TextureRegion *outTexRegion=NULL);
     
     /// Update one of the frames of a multi-frame texture atlas
     bool updateTexture(Texture *,int frame,const TextureRegion &texRegion,ChangeSet &changes);
@@ -212,9 +196,6 @@ public:
     
     /// Return the texture ID for a given frame, corresponding to the base Tex ID
     SimpleIdentity getTextureIDForFrame(SimpleIdentity baseTexID,int which);
-    
-    /// Return the dynamic texture's format
-    GLenum getFormat() { return format; }
     
     /// Check if the dynamic texture atlas is empty.
     /// Call cleanup() first
@@ -237,9 +218,7 @@ protected:
     int imageDepth;
     int texSize;
     int cellSize;
-    GLenum format;
     /// Interpolation type
-    GLenum interpType;
     float pixelFudge;
     bool mainThreadMerge;
     

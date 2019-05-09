@@ -18,7 +18,7 @@
  *
  */
 
-#import "glwrapper.h"
+#import "WrapperGLES.h"
 #import <vector>
 #import <set>
 #import <map>

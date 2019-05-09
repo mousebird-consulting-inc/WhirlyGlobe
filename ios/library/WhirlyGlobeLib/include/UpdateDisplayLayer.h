@@ -21,11 +21,10 @@
 #import <Foundation/Foundation.h>
 #import <math.h>
 #import "WhirlyVector.h"
-#import "GlobeScene.h"
 #import "DataLayer.h"
 #import "LayerThread.h"
 #import "GlobeMath.h"
-#import "SceneRendererES.h"
+#import "SceneRenderer.h"
 #import "LayerViewWatcher.h"
 
 /// Fill in this protocol to be called 

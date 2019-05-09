@@ -22,7 +22,7 @@
 #import "OpenGLES2Program.h"
 #import "Lighting.h"
 #import "GLUtils.h"
-#import "SceneRendererES.h"
+#import "SceneRenderer.h"
 #import "WhirlyKitLog.h"
 
 using namespace Eigen;

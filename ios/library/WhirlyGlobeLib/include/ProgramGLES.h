@@ -20,7 +20,7 @@
 
 #import <vector>
 #import <unordered_map>
-#import "GLUtils.h"
+#import "UtilsGLES.h"
 #import "Identifiable.h"
 #import "WhirlyVector.h"
 #import "Drawable.h"
@@ -92,17 +92,17 @@ public:
 /** Representation of an OpenGL ES 2.0 program.  It's an identifiable so we can
  point to it generically.  Otherwise, pretty basic.
  */
-class OpenGLES2Program : public Program
+class ProgramGLES : public Program
 {
 public:
-    OpenGLES2Program();
-    virtual ~OpenGLES2Program();
+    ProgramGLES();
+    virtual ~ProgramGLES();
     
     /// Used only for comparison
-    OpenGLES2Program(SimpleIdentity theId) : Identifiable(theId), lightsLastUpdated(0.0) { }
+    ProgramGLES(SimpleIdentity theId) : Program(theId), lightsLastUpdated(0.0) { }
     
     /// Initialize with both shader programs
-    OpenGLES2Program(const std::string &name,const std::string &vShaderString,const std::string &fShaderString,const std::vector<std::string> *varyings=NULL);
+    ProgramGLES(const std::string &name,const std::string &vShaderString,const std::string &fShaderString,const std::vector<std::string> *varyings=NULL);
     
     /// Return true if it was built correctly
     bool isValid();

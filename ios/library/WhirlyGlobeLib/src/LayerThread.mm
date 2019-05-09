@@ -19,8 +19,7 @@
  */
 
 #import "LayerThread.h"
-#import "GlobeScene.h"
-#import "MaplyScene.h"
+#import "Scene.h"
 #import "GlobeView.h"
 #import "Platform.h"
 
@@ -28,7 +27,7 @@ using namespace WhirlyKit;
 
 @implementation WhirlyKitLayerThread
 {
-    WhirlyKitGLSetupInfo glSetupInfo;
+    GLSetupInfo glSetupInfo;
     /// The various data layers we'll display
     NSMutableArray *layers;
     
@@ -52,7 +51,7 @@ using namespace WhirlyKit;
     BOOL inRunAddChangeRequests;
 }
 
-- (id)initWithScene:(WhirlyKit::Scene *)inScene view:(View *)inView renderer:(SceneRendererES_iOS *)inRenderer mainLayerThread:(bool)mainLayerThread
+- (id)initWithScene:(WhirlyKit::Scene *)inScene view:(View *)inView renderer:(SceneRenderer *)inRenderer mainLayerThread:(bool)mainLayerThread
 {
 	if ((self = [super init]))
 	{

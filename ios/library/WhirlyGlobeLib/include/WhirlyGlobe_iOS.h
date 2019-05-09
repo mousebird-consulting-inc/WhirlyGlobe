@@ -26,7 +26,7 @@
 #import "UIColor+Stuff.h"
 #import "NSString+Stuff.h"
 #import "Texture_iOS.h"
-#import "SceneRendererES_iOS.h"
+#import "SceneRendererGLES_iOS.h"
 #import "EAGLView.h"
 #import "MapView_iOS.h"
 #import "GlobeView_iOS.h"

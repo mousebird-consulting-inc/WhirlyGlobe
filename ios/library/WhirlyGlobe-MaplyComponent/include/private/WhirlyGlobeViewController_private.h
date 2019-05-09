@@ -37,7 +37,7 @@
 @interface WhirlyGlobeViewController()
 {
 @public    
-    WhirlyGlobe::GlobeScene *globeScene;
+    WhirlyKit::Scene *globeScene;
     WhirlyGlobe::GlobeView_iOSRef globeView;
     
     // Local interaction layer

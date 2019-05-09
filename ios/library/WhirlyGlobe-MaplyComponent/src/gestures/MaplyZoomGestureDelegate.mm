@@ -23,7 +23,7 @@
 #import "MaplyAnimateTranslation.h"
 
 #import "EAGLView.h"
-#import "SceneRendererES.h"
+#import "SceneRenderer.h"
 
 using namespace WhirlyKit;
 
@@ -58,7 +58,7 @@ using namespace WhirlyKit;
 {
     UITapGestureRecognizer *tap = sender;
     WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)tap.view;
-    SceneRendererES *sceneRenderer = glView.renderer;
+    SceneRenderer *sceneRenderer = glView.renderer;
 	
     Point3d curLoc = _mapView->getLoc();
 //    NSLog(@"curLoc x:%f y:%f z:%f", curLoc.x(), curLoc.y(), curLoc.z());

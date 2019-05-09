@@ -21,8 +21,7 @@
 #import "BasicDrawable.h"
 #import "BasicDrawableInstance.h"
 #import "ParticleSystemDrawable.h"
-#import "GlobeScene.h"
-#import "SceneRendererES.h"
+#import "SceneRenderer.h"
 #import "TextureAtlas.h"
 #import "WhirlyKitLog.h"
 

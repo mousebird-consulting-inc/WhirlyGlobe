@@ -44,7 +44,7 @@ namespace WhirlyKit
     TimeInterval lastUpdate;
 }
 
-- (id)initWithRenderer:(SceneRendererES *)inRenderer
+- (id)initWithRenderer:(SceneRenderer *)inRenderer
 {
     self = [super init];
     if (!self)

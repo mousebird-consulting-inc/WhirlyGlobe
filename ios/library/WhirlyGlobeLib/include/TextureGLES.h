@@ -51,15 +51,7 @@ protected:
  */
 class TextureGL : public Texture, public TextureBaseGL
 {
-public:
-    /// Set the format (before createInGL() is called)
-    void setFormat(GLenum inFormat) { format = inFormat; }
-    /// Return the format
-    GLenum getFormat() { return format; }
-    /// Set the interpolation type used for min and mag
-    void setInterpType(GLenum inType) { interpType = inType; }
-    GLenum getInterpType() { return interpType; }
-    
+public:    
     /// Render side only.  Don't call this.  Create the openGL version
     virtual bool createInRenderer(RenderSetupInfo *setupInfo);
     
@@ -67,9 +59,6 @@ public:
     virtual void destroyInRenderer(RenderSetupInfo *setupInfo);
 
 protected:
-    /// If not PVRTC, the format we'll use for the texture
-    GLenum format;
-    GLenum interpType;
 };
     
 }

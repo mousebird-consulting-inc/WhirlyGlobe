@@ -20,7 +20,7 @@
 
 #import "gestures/GlobeTapDelegate.h"
 #import "EAGLView.h"
-#import "SceneRendererES.h"
+#import "SceneRenderer.h"
 #import "GlobeMath.h"
 
 using namespace WhirlyKit;
@@ -64,7 +64,7 @@ using namespace WhirlyGlobe;
 	UITapGestureRecognizer *tap = sender;
     
 	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)tap.view;
-	SceneRendererES *sceneRender = glView.renderer;
+	SceneRenderer *sceneRender = glView.renderer;
 //    WhirlyKit::Scene *scene = sceneRender.scene;
     auto frameSizeScaled = sceneRender->getFramebufferSizeScaled();
 

@@ -45,7 +45,7 @@ using namespace Maply;
 {
     UITapGestureRecognizer *tap = sender;
     WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)tap.view;
-    SceneRendererES *sceneRenderer = glView.renderer;
+    SceneRenderer *sceneRenderer = glView.renderer;
 	
     Point3d curLoc = self.mapView->getLoc();
     // Just figure out where we tapped

@@ -119,7 +119,7 @@ using namespace WhirlyGlobe;
 	UIPinchGestureRecognizer *pinch = sender;
 	WhirlyKitEAGLView *glView = (WhirlyKitEAGLView  *)pinch.view;
 	UIGestureRecognizerState theState = pinch.state;
-	SceneRendererES *sceneRender = glView.renderer;
+	SceneRenderer *sceneRender = glView.renderer;
     
     if (theState == UIGestureRecognizerStateCancelled)
     {

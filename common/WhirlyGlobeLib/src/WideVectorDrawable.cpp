@@ -20,7 +20,7 @@
 
 #import "WideVectorDrawable.h"
 #import "OpenGLES2Program.h"
-#import "SceneRendererES.h"
+#import "SceneRenderer.h"
 #import "FlatMath.h"
 
 using namespace Eigen;

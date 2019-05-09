@@ -18,7 +18,7 @@
  *
  */
 
-#import "SceneRendererES.h"
+#import "SceneRenderer.h"
 #import "MaplyAnimateTranslation.h"
 
 using namespace WhirlyKit;
@@ -26,7 +26,7 @@ using namespace Eigen;
 
 namespace Maply {
     
-bool MaplyGestureWithinBounds(const Point2dVector &bounds,const Point3d &loc,SceneRendererES *sceneRender,MapView *testMapView,Point3d *newCenter)
+bool MaplyGestureWithinBounds(const Point2dVector &bounds,const Point3d &loc,SceneRenderer *sceneRender,MapView *testMapView,Point3d *newCenter)
 {
     if (newCenter)
         *newCenter = loc;
@@ -80,7 +80,7 @@ bool MaplyGestureWithinBounds(const Point2dVector &bounds,const Point3d &loc,Sce
     return isValid;
 }
     
-AnimateViewTranslation::AnimateViewTranslation(MapView *inMapView,WhirlyKit::SceneRendererES *inRenderer,Point3d &newLoc,float howLong)
+AnimateViewTranslation::AnimateViewTranslation(MapView *inMapView,WhirlyKit::SceneRenderer *inRenderer,Point3d &newLoc,float howLong)
 {
     mapView = inMapView;
     renderer = inRenderer;

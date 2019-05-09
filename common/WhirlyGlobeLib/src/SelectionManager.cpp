@@ -23,7 +23,7 @@
 #import "MaplyView.h"
 #import "WhirlyGeometry.h"
 #import "Scene.h"
-#import "SceneRendererES.h"
+#import "SceneRenderer.h"
 #import "ScreenSpaceBuilder.h"
 #import "LayoutManager.h"
 

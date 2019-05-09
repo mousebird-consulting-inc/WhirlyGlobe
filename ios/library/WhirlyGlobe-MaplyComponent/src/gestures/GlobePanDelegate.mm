@@ -106,7 +106,7 @@ typedef enum {PanNone,PanFree,PanSuspended} PanningType;
 }
 
 // Save the initial rotation state and let us rotate after this
-- (void)startRotateManipulation:(UIPanGestureRecognizer *)pan sceneRender:(SceneRendererES *)sceneRender glView:(WhirlyKitEAGLView *)glView
+- (void)startRotateManipulation:(UIPanGestureRecognizer *)pan sceneRender:(SceneRenderer *)sceneRender glView:(WhirlyKitEAGLView *)glView
 {
     // Save the first place we touched
     startTransform = globeView->calcFullMatrix();
@@ -177,7 +177,7 @@ static const float MomentumAnimLen = 1.0;
 {
 	UIPanGestureRecognizer *pan = sender;
 	WhirlyKitEAGLView *glView = (WhirlyKitEAGLView *)pan.view;
-	SceneRendererES *sceneRender = glView.renderer;
+	SceneRenderer *sceneRender = glView.renderer;
     
     if (pan.state == UIGestureRecognizerStateCancelled)
     {

@@ -29,7 +29,7 @@ namespace Maply {
 AnimateTranslateMomentum::AnimateTranslateMomentum(MapView *inMapView,
                          float inVel,float inAcc,const WhirlyKit::Point3f &inDir,
                          const Point2dVector &inBounds,
-                         SceneRendererES *inSceneRenderer)
+                         SceneRenderer *inSceneRenderer)
 {
     velocity = inVel;
     acceleration = inAcc;

@@ -436,12 +436,12 @@ void GlobeView::animate()
         delegate->updateView(this);
 }
     
-ViewStateRef GlobeView::makeViewState(SceneRendererES *renderer)
+ViewStateRef GlobeView::makeViewState(SceneRenderer *renderer)
 {
     return ViewStateRef(new GlobeViewState(this,renderer));
 }
 
-GlobeViewState::GlobeViewState(WhirlyGlobe::GlobeView *globeView,WhirlyKit::SceneRendererES *renderer)
+GlobeViewState::GlobeViewState(WhirlyGlobe::GlobeView *globeView,WhirlyKit::SceneRenderer *renderer)
 : ViewState(globeView,renderer)
 {
     heightAboveGlobe = globeView->heightAboveSurface();

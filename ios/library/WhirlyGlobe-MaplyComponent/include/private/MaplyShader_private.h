@@ -23,13 +23,13 @@
 
 @interface MaplyShader()
 
-@property (nonatomic,readonly,nullable) WhirlyKit::OpenGLES2Program *program;
+@property (nonatomic,readonly,nullable) WhirlyKit::Program *program;
 
 /// Internal Shader ID used below the Component level
 - (WhirlyKit::SimpleIdentity)getShaderID;
 
 /// Initialize directly from an existing program
-- (nullable instancetype)initWithProgram:(WhirlyKit::OpenGLES2Program * __nullable)program viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)baseViewC;
+- (nullable instancetype)initWithProgram:(WhirlyKit::Program * __nullable)program viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)baseViewC;
 
 /// Called by the view controller to clear out the shader program
 - (void)teardown;

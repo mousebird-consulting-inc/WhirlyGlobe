@@ -26,12 +26,13 @@
 #import "control/MaplyBaseViewController.h"
 #import "MaplyTextureAtlas_private.h"
 #import "ComponentManager_iOS.h"
+#import "MemManagerGLES.h"
 
 @interface MaplyBaseInteractionLayer : NSObject<WhirlyKitLayer>
 {
 @public
     WhirlyKit::View *visualView;
-    WhirlyKit::WhirlyKitGLSetupInfo glSetupInfo;
+    WhirlyKit::GLSetupInfo glSetupInfo;
 
     // Layer thread we're part of
     WhirlyKitLayerThread * __weak layerThread;

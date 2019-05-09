@@ -395,7 +395,6 @@ static StringIdentity fExposureNameID;
     for (unsigned int ii=0;ii<2;ii++)
     {
         MaplyShader *thisShader = shaders[ii];
-        glUseProgram(thisShader.program->getProgram());
         thisShader.program->setUniform(v3CameraPosNameID, Vector3f(cameraPos.x(),cameraPos.y(),cameraPos.z()));
         thisShader.program->setUniform(fCameraHeightNameID, (float)cameraHeight);
         thisShader.program->setUniform(fCameraHeight2NameID, (float)(cameraHeight*cameraHeight));

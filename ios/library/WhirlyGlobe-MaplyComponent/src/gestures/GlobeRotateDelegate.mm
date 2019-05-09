@@ -124,7 +124,7 @@ using namespace WhirlyGlobe;
 {
 	UIRotationGestureRecognizer *rotate = sender;
 	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)rotate.view;
-	SceneRendererES *sceneRender = glView.renderer;
+	SceneRenderer *sceneRender = glView.renderer;
     auto frameSizeScaled = sceneRender->getFramebufferSizeScaled();
     
     // Turn off rotation if we fall below two fingers

@@ -18,24 +18,25 @@
  *
  */
 
-#import "OpenGLES2Program.h"
+#import "Program.h"
+#import "SceneRenderer.h"
 
 namespace WhirlyKit
 {
  
 // Triangle shader with lighting
-OpenGLES2Program *BuildDefaultTriShaderLighting(const std::string &name);
+Program *BuildDefaultTriShaderLighting(const std::string &name,SceneRenderer *renderer);
 // Triangle shader without lighting
-OpenGLES2Program *BuildDefaultTriShaderNoLighting(const std::string &name);
+Program *BuildDefaultTriShaderNoLighting(const std::string &name,SceneRenderer *renderer);
 // Triangle shader for models
-OpenGLES2Program *BuildDefaultTriShaderModel(const std::string &name);
+Program *BuildDefaultTriShaderModel(const std::string &name,SceneRenderer *renderer);
 // Triangles with screen textures
-OpenGLES2Program *BuildDefaultTriShaderScreenTexture(const std::string &name);
+Program *BuildDefaultTriShaderScreenTexture(const std::string &name,SceneRenderer *renderer);
 // Triangles with multiple textures
-OpenGLES2Program *BuildDefaultTriShaderMultitex(const std::string &name);
+Program *BuildDefaultTriShaderMultitex(const std::string &name,SceneRenderer *renderer);
 // Triangles that use the ramp textures
-OpenGLES2Program *BuildDefaultTriShaderRamptex(const std::string &name);
+Program *BuildDefaultTriShaderRamptex(const std::string &name,SceneRenderer *renderer);
 // Day/night support for triangles
-OpenGLES2Program *BuildDefaultTriShaderNightDay(const std::string &name);
+Program *BuildDefaultTriShaderNightDay(const std::string &name,SceneRenderer *renderer);
 
 }

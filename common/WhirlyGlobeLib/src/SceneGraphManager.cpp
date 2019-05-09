@@ -19,7 +19,7 @@
  */
 
 #import "SceneGraphManager.h"
-#import "SceneRendererES.h"
+#import "SceneRenderer.h"
 #import "WhirlyKitLog.h"
 
 using namespace Eigen;

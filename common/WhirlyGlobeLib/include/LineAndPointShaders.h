@@ -18,15 +18,15 @@
  *
  */
 
-#import "OpenGLES2Program.h"
+#import "Program.h"
 
 namespace WhirlyKit
 {
 
 // Line shader with globe backface culling turned on
-OpenGLES2Program *BuildDefautLineShaderCulling(const std::string &name);
+Program *BuildDefautLineShaderCulling(const std::string &name,SceneRenderer *renderer);
     
 // Line shader without any culling
-OpenGLES2Program *BuildDefaultLineShaderNoCulling(const std::string &name);
+Program *BuildDefaultLineShaderNoCulling(const std::string &name,SceneRenderer *renderer);
     
 }

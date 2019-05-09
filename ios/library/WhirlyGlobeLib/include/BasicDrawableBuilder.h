@@ -29,6 +29,8 @@
 namespace WhirlyKit
 {
     
+typedef enum {Points,Lines,Triangles} GeometryType;
+
 /** Used to construct a BasicDrawable.
  */
 class BasicDrawableBuilder : public Identifiable
@@ -47,8 +49,6 @@ public:
     
     /// Set local extents
     void setLocalMbr(Mbr mbr);
-
-    typedef enum {Points,Lines,Triangles} GeometryType;
 
     /// Set the geometry type.  Probably triangles.
     virtual void setType(GeometryType inType);

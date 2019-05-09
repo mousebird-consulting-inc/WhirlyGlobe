@@ -19,7 +19,7 @@
  */
 
 #import "EAGLView.h"
-#import "SceneRendererES.h"
+#import "SceneRenderer.h"
 #import "gestures/MaplyPanDelegate.h"
 #import "MaplyAnimateTranslation.h"
 #import "MaplyAnimateTranslateMomentum.h"
@@ -113,7 +113,7 @@ static const float AnimLen = 1.0;
 {
     UIPanGestureRecognizer *pan = sender;
 	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)pan.view;
-	SceneRendererES *sceneRender = glView.renderer;
+	SceneRenderer *sceneRender = glView.renderer;
 
     if (pan.numberOfTouches > 1)
     {

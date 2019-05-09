@@ -27,6 +27,7 @@
 #import "WhirlyVector.h"
 #import "WhirlyTypes.h"
 #import "Drawable.h"
+#import "VertexAttribute.h"
 
 namespace WhirlyKit
 {

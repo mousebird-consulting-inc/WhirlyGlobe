@@ -22,7 +22,7 @@
 #import "FlatMath.h"
 #import "GlobeMath.h"
 #import "VectorData.h"
-#import "SceneRendererES2.h"
+#import "SceneRenderer.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;

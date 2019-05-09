@@ -73,6 +73,6 @@ protected:
     NSObject<WhirlyKitSnapshot> *snapshotDelegate;
 };
     
-typedef std::shared_ptr<SceneRendererES_iOS> SceneRendererES_iOSRef;
+typedef std::shared_ptr<SceneRendererGLES_iOS> SceneRendererGLES_iOSRef;
     
 }

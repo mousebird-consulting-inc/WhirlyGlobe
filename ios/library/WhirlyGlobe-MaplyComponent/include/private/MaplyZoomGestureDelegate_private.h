@@ -27,6 +27,6 @@ using namespace WhirlyKit;
 
 @interface MaplyZoomGestureDelegate (_private)
 
-- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(SceneRendererES *)sceneRender mapView:(Maply::MapView *)testMapView newCenter:(Point3d *)newCenter;
+- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(SceneRenderer *)sceneRender mapView:(Maply::MapView *)testMapView newCenter:(Point3d *)newCenter;
 
 @end

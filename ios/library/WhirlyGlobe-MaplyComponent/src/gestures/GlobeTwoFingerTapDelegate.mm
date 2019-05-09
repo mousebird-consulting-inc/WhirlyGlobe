@@ -50,7 +50,7 @@ using namespace WhirlyGlobe;
 {
 	UITapGestureRecognizer *tap = sender;
 	WhirlyKitEAGLView *glView = (WhirlyKitEAGLView *)tap.view;
-	SceneRendererES *sceneRenderer = glView.renderer;
+	SceneRenderer *sceneRenderer = glView.renderer;
     auto frameSizeScaled = sceneRenderer->getFramebufferSizeScaled();
 	
     // Just figure out where we tapped

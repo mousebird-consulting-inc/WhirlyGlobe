@@ -72,7 +72,7 @@ using namespace WhirlyKit;
     return self;
 }
 
-- (bool)startLayer:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)inScene renderer:(SceneRendererES_iOS *)renderer viewC:(MaplyBaseViewController *)inViewC
+- (bool)startLayer:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)inScene renderer:(SceneRenderer *)renderer viewC:(MaplyBaseViewController *)inViewC
 {
     layerThread = inLayerThread;
     

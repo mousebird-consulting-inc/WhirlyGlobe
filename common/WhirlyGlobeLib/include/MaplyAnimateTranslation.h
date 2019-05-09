@@ -22,12 +22,12 @@
 #import "WhirlyVector.h"
 #import "WhirlyGeometry.h"
 #import "MaplyView.h"
-#import "SceneRendererES.h"
+#import "SceneRenderer.h"
 
 namespace Maply {
 
 // Bounds check that adjusts the center to try and compensate
-bool MaplyGestureWithinBounds(const WhirlyKit::Point2dVector &bounds,const WhirlyKit::Point3d &loc,WhirlyKit::SceneRendererES *sceneRender,MapView *testMapView,WhirlyKit::Point3d *newCenter);
+bool MaplyGestureWithinBounds(const WhirlyKit::Point2dVector &bounds,const WhirlyKit::Point3d &loc,WhirlyKit::SceneRenderer *sceneRender,MapView *testMapView,WhirlyKit::Point3d *newCenter);
 
 /// Maply translation from one location to another.
 class AnimateViewTranslation : public MapViewAnimationDelegate
@@ -35,7 +35,7 @@ class AnimateViewTranslation : public MapViewAnimationDelegate
 public:
     /// Kick off a translate to the given position over the given time
     /// Assign this to the globe view's delegate and it'll do the rest
-    AnimateViewTranslation(MapView *mapView,WhirlyKit::SceneRendererES *renderer,WhirlyKit::Point3d &newLoc,float howLong);
+    AnimateViewTranslation(MapView *mapView,WhirlyKit::SceneRenderer *renderer,WhirlyKit::Point3d &newLoc,float howLong);
     
     /// Set the bounding rectangle
     void setBounds(WhirlyKit::Point2d *bounds);
@@ -55,7 +55,7 @@ public:
     bool userMotion;
 
 protected:
-    WhirlyKit::SceneRendererES *renderer;
+    WhirlyKit::SceneRenderer *renderer;
     
     bool withinBounds(const WhirlyKit::Point3d &loc,MapView * testMapView,WhirlyKit::Point3d *newCenter);
     

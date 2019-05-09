@@ -1,5 +1,5 @@
 /*
- *  SceneRendererES.h
+ *  SceneRenderer.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 10/20/12.
@@ -18,7 +18,7 @@
  *
  */
 
-#import "SceneRendererES.h"
+#import "SceneRenderer.h"
 #import "GLUtils.h"
 #import "WhirlyKitLog.h"
 #import "SelectionManager.h"

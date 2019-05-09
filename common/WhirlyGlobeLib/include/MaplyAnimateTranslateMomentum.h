@@ -22,7 +22,7 @@
 #import "WhirlyVector.h"
 #import "WhirlyGeometry.h"
 #import "MaplyView.h"
-#import "SceneRendererES.h"
+#import "SceneRenderer.h"
 
 namespace Maply {
 
@@ -38,7 +38,7 @@ public:
     AnimateTranslateMomentum(MapView *inMapView,
                              float inVel,float inAcc,const WhirlyKit::Point3f &inDir,
                              const WhirlyKit::Point2dVector &inBounds,
-                             WhirlyKit::SceneRendererES *inSceneRenderer);
+                             WhirlyKit::SceneRenderer *inSceneRenderer);
 
     /// Update the map view
     virtual void updateView(MapView *mapView);
@@ -50,7 +50,7 @@ protected:
     bool withinBounds(const WhirlyKit::Point3d &loc,MapView * testMapView,WhirlyKit::Point3d *newCenter);
 
     MapView *mapView;
-    WhirlyKit::SceneRendererES *renderer;
+    WhirlyKit::SceneRenderer *renderer;
     
     float velocity,acceleration;
     Eigen::Vector3d dir;

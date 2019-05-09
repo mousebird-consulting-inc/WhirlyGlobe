@@ -20,7 +20,7 @@
 
 #import "ViewPlacementActiveModel.h"
 #import "MaplyView.h"
-#import "SceneRendererES.h"
+#import "SceneRenderer.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;

@@ -61,10 +61,10 @@ using namespace Eigen;
     extents.addPoint(Point2f(ur.x(),ur.y()));
     flatView->setExtents(extents);
     flatView->setWindow(Point2d(size.width,size.height),Point2d(0.0,0.0));
-    scene = new Maply::MapScene(coordAdapter.get());
+    scene = new Scene(coordAdapter.get());
 
     // Set up the renderer with a target size
-    sceneRenderer = SceneRendererES_iOSRef(new SceneRendererES_iOS((int)size.width,(int)size.height));
+    sceneRenderer = SceneRendererGLES_iOSRef(new SceneRendererGLES_iOS((int)size.width,(int)size.height));
     sceneRenderer->zBufferMode = zBufferOffDefault;
     sceneRenderer->setScene(scene);
     sceneRenderer->theView = flatView.get();
@@ -553,6 +553,7 @@ using namespace Eigen;
     
     [self useGLContext];
     
+    bool isGlobe = dynamic_cast<WhirlyGlobe::GlobeView *>(view);
     bool isGlobe = dynamic_cast<WhirlyGlobe::GlobeScene *>(scene);
 
     // Default line shaders

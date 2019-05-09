@@ -19,7 +19,7 @@
  */
 
 #import "StringIndexer.h"
-#import "SceneRendererES.h"
+#import "SceneRenderer.h"
 #import "Identifiable.h"
 
 namespace WhirlyKit {

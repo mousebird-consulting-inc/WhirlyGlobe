@@ -56,7 +56,7 @@ using namespace Maply;
 {
     UILongPressGestureRecognizer *press = sender;
     WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)press.view;
-	SceneRendererES *sceneRenderer = glView.renderer;
+	SceneRenderer *sceneRenderer = glView.renderer;
 
 	switch (press.state)
     {

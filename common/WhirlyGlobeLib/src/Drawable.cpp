@@ -20,8 +20,7 @@
 
 #import "GLUtils.h"
 #import "BasicDrawable.h"
-#import "GlobeScene.h"
-#import "SceneRendererES.h"
+#import "SceneRenderer.h"
 #import "TextureAtlas.h"
 #import "WhirlyKitLog.h"
 

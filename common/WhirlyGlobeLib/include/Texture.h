@@ -55,6 +55,11 @@ typedef std::shared_ptr<TextureBase> TextureBaseRef;
 /// For single byte pixels, what's the source, R G B or A?
 typedef enum {WKSingleRed,WKSingleGreen,WKSingleBlue,WKSingleRGB,WKSingleAlpha} WKSingleByteSource;
 
+/// Texture formats we allow
+typedef enum {TexTypeUnsignedBy,TexTypeShort565,TexTypeShort4444,TexTypeShort5551,TexTypeSingleChannel,TexTypeDoubleChannel} TextureType;
+/// Interpolation types for upscaling
+typedef enum {TexInterpNearest,TexInterpLinear} TextureInterpType;
+    
 /** Your basic Texture representation.
     This is how you get an image sent over to the
     rendering engine.  Set up one of these and add it.
@@ -72,7 +77,16 @@ public:
     Texture(const std::string &name,FILE *fp);
 	
 	virtual ~Texture();
-	    
+    
+    /// Set the format (before createInGL() is called)
+    void setFormat(TextureType inFormat) { format = inFormat; }
+    /// Return the format
+    TextureType getFormat() { return format; }
+
+    /// Set the interpolation type used for min and mag
+    void setInterpType(TextureInterpType inType) { interpType = inType; }
+    TextureInterpType getInterpType() { return interpType; }
+
     /// Set the raw data directly
     /// Texture takes possession of the bytes.  It will free them.
     void setRawData(RawData *rawData,int width,int height);
@@ -119,6 +133,10 @@ protected:
     /// If we're converting down to one byte, where do we get it?
     WKSingleByteSource byteSource;
 	
+    /// If not PVRTC, the format we'll use for the texture
+    TextureType format;
+    TextureInterpType interpType;
+
 	unsigned int width,height;
     bool usesMipmaps;
     bool wrapU,wrapV;

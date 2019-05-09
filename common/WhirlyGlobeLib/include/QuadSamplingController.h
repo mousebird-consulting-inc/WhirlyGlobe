@@ -52,7 +52,7 @@ public:
     void removeBuilderDelegate(QuadTileBuilderDelegateRef delegate);
 
     // Called right before we start using the controller
-    void start(const SamplingParams &params,Scene *scene,SceneRendererES *renderer);
+    void start(const SamplingParams &params,Scene *scene,SceneRenderer *renderer);
     // Unhook everything and shut it down
     void stop();
     
@@ -124,7 +124,7 @@ protected:
     QuadDisplayControllerNewRef displayControl;
 
     WhirlyKit::Scene *scene;
-    SceneRendererES *renderer;
+    SceneRenderer *renderer;
 
     QuadTileBuilderRef builder;
     std::vector<QuadTileBuilderDelegateRef> builderDelegates;
