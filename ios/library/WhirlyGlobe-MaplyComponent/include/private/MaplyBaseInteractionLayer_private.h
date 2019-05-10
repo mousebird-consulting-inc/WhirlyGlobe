@@ -32,7 +32,7 @@
 {
 @public
     WhirlyKit::View *visualView;
-    WhirlyKit::GLSetupInfo glSetupInfo;
+    WhirlyKit::RenderSetupInfoGLES glSetupInfo;
 
     // Layer thread we're part of
     WhirlyKitLayerThread * __weak layerThread;

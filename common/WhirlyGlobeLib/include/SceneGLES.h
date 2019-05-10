@@ -19,6 +19,7 @@
  */
 
 #import "Scene.h"
+#import "MemManagerGLES.h"
 
 namespace WhirlyKit
 {
@@ -44,5 +45,6 @@ public:
 protected:
     /// Memory manager, really buffer and texture ID manager
     OpenGLMemManager memManager;
+};
 
 }

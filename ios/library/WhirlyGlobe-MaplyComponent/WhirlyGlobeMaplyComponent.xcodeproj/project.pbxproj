@@ -65,7 +65,6 @@
 		2B446B5021F7E7B80078A975 /* ScreenSpaceBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B4121F7E7B70078A975 /* ScreenSpaceBuilder.h */; };
 		2B446B5221F7E7B80078A975 /* Identifiable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B4321F7E7B80078A975 /* Identifiable.h */; };
 		2B446B5321F7E7B80078A975 /* Texture.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B4421F7E7B80078A975 /* Texture.h */; };
-		2B446B5421F7E7B80078A975 /* BasicDrawable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B4521F7E7B80078A975 /* BasicDrawable.h */; };
 		2B446B5521F7E7B80078A975 /* DynamicTextureAtlas.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B4621F7E7B80078A975 /* DynamicTextureAtlas.h */; };
 		2B446B5621F7E7B80078A975 /* BillboardDrawable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B4721F7E7B80078A975 /* BillboardDrawable.h */; };
 		2B446B5721F7E7B80078A975 /* BasicDrawableInstance.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B4821F7E7B80078A975 /* BasicDrawableInstance.h */; };
@@ -459,7 +458,8 @@
 		2B8A787D2284DB3E008B0A1F /* ChangeRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8A78792284DB3D008B0A1F /* ChangeRequest.h */; };
 		2B8A787E2284DB3E008B0A1F /* ProgramGLES.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8A787A2284DB3E008B0A1F /* ProgramGLES.h */; };
 		2B8A787F2284DB3E008B0A1F /* ParticleSystemDrawableGLES.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8A787B2284DB3E008B0A1F /* ParticleSystemDrawableGLES.h */; };
-		2B8A78812284DD5B008B0A1F /* BasicDrawableBuilderGLES.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B8A78802284DD5B008B0A1F /* BasicDrawableBuilderGLES.cpp */; };
+		2B8A78832285F1B7008B0A1F /* BasicDrawableGLES.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B8A78822285F1B7008B0A1F /* BasicDrawableGLES.cpp */; };
+		2B8A788822860315008B0A1F /* BasicDrawableBuilderGLES.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B8A78802284DD5B008B0A1F /* BasicDrawableBuilderGLES.cpp */; };
 		2B8E608920D458A600FB96F0 /* MaplyQuadSampler_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8E608820D458A500FB96F0 /* MaplyQuadSampler_private.h */; };
 		2B8E608B20D47FEE00FB96F0 /* MaplyRemoteTileFetcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8E608A20D47FEE00FB96F0 /* MaplyRemoteTileFetcher.h */; };
 		2BA827C1225E57FA00324594 /* MapboxVectorTileParser_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA827C0225E57FA00324594 /* MapboxVectorTileParser_iOS.h */; };
@@ -1054,7 +1054,6 @@
 		2B446B4121F7E7B70078A975 /* ScreenSpaceBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ScreenSpaceBuilder.h; path = ../../../../common/WhirlyGlobeLib/include/ScreenSpaceBuilder.h; sourceTree = "<group>"; };
 		2B446B4321F7E7B80078A975 /* Identifiable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Identifiable.h; path = ../../../../common/WhirlyGlobeLib/include/Identifiable.h; sourceTree = "<group>"; };
 		2B446B4421F7E7B80078A975 /* Texture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Texture.h; path = ../../../../common/WhirlyGlobeLib/include/Texture.h; sourceTree = "<group>"; };
-		2B446B4521F7E7B80078A975 /* BasicDrawable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BasicDrawable.h; path = ../../../../common/WhirlyGlobeLib/include/BasicDrawable.h; sourceTree = "<group>"; };
 		2B446B4621F7E7B80078A975 /* DynamicTextureAtlas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DynamicTextureAtlas.h; path = ../../../../common/WhirlyGlobeLib/include/DynamicTextureAtlas.h; sourceTree = "<group>"; };
 		2B446B4721F7E7B80078A975 /* BillboardDrawable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BillboardDrawable.h; path = ../../../../common/WhirlyGlobeLib/include/BillboardDrawable.h; sourceTree = "<group>"; };
 		2B446B4821F7E7B80078A975 /* BasicDrawableInstance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BasicDrawableInstance.h; path = ../../../../common/WhirlyGlobeLib/include/BasicDrawableInstance.h; sourceTree = "<group>"; };
@@ -1463,6 +1462,7 @@
 		2B8A787A2284DB3E008B0A1F /* ProgramGLES.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ProgramGLES.h; path = ../../../../common/WhirlyGlobeLib/include/ProgramGLES.h; sourceTree = "<group>"; };
 		2B8A787B2284DB3E008B0A1F /* ParticleSystemDrawableGLES.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ParticleSystemDrawableGLES.h; path = ../../../../common/WhirlyGlobeLib/include/ParticleSystemDrawableGLES.h; sourceTree = "<group>"; };
 		2B8A78802284DD5B008B0A1F /* BasicDrawableBuilderGLES.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BasicDrawableBuilderGLES.cpp; path = ../../../../common/WhirlyGlobeLib/src/BasicDrawableBuilderGLES.cpp; sourceTree = "<group>"; };
+		2B8A78822285F1B7008B0A1F /* BasicDrawableGLES.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = BasicDrawableGLES.cpp; path = ../../../../common/WhirlyGlobeLib/src/BasicDrawableGLES.cpp; sourceTree = "<group>"; };
 		2B8E608820D458A500FB96F0 /* MaplyQuadSampler_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyQuadSampler_private.h; sourceTree = "<group>"; };
 		2B8E608A20D47FEE00FB96F0 /* MaplyRemoteTileFetcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyRemoteTileFetcher.h; sourceTree = "<group>"; };
 		2B8E608E20D4800000FB96F0 /* MaplyRemoteTileFetcher.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyRemoteTileFetcher.mm; sourceTree = "<group>"; };
@@ -2070,7 +2070,6 @@
 		2B3D7E25228333140065FA18 /* opengl */ = {
 			isa = PBXGroup;
 			children = (
-				2B8A78802284DD5B008B0A1F /* BasicDrawableBuilderGLES.cpp */,
 				2B446B6621F7E7E00078A975 /* UtilsGLES.cpp */,
 				2BC90D4B222DAB3900D8B606 /* WrapperGLES.cpp */,
 				2B446B9721FBA8690078A975 /* ProgramGLES.cpp */,
@@ -2078,6 +2077,8 @@
 				2BB8E1B221FBB0BA00154CDC /* SceneRendererGLES2.cpp */,
 				2BEDE105221CDC50008C7B74 /* LineAndPointShadersGLES.cpp */,
 				2BEDE106221CDC50008C7B74 /* TriangleShadersGLES.cpp */,
+				2B8A78822285F1B7008B0A1F /* BasicDrawableGLES.cpp */,
+				2B8A78802284DD5B008B0A1F /* BasicDrawableBuilderGLES.cpp */,
 			);
 			name = opengl;
 			sourceTree = "<group>";
@@ -2800,7 +2801,6 @@
 		2B846F3021F1592400EF2A82 /* managers */ = {
 			isa = PBXGroup;
 			children = (
-				2B446B4521F7E7B80078A975 /* BasicDrawable.h */,
 				2B846F0421F158E100EF2A82 /* BaseInfo.h */,
 				2B846F0221F158E100EF2A82 /* BillboardManager.h */,
 				2B446B9121FBA8240078A975 /* FontTextureManager.h */,
@@ -4176,7 +4176,6 @@
 				2BB8A3F721ED43D10025DA98 /* GlobePanDelegate.h in Headers */,
 				2B446B4B21F7E7B80078A975 /* Scene.h in Headers */,
 				2B846F0F21F158E100EF2A82 /* LabelManager.h in Headers */,
-				2B446B5421F7E7B80078A975 /* BasicDrawable.h in Headers */,
 				2B446AE121F288090078A975 /* LabelRenderer.h in Headers */,
 				2B8796E021FFD59100EF801D /* SceneRendererGLES_iOS.h in Headers */,
 				2B884A671E3803170027C397 /* lasreadpoint.hpp in Headers */,
@@ -4429,6 +4428,7 @@
 				2B87971D2203BF2E00EF801D /* MaplyCoordinate.mm in Sources */,
 				2BE5398E1D249BEF00B60FAD /* AACoordinateTransformation.cpp in Sources */,
 				2BE53A151D249C2900B60FAD /* text_format.cc in Sources */,
+				2B8A78832285F1B7008B0A1F /* BasicDrawableGLES.cpp in Sources */,
 				2BE539A01D249BEF00B60FAD /* AAJupiter.cpp in Sources */,
 				2BE53A951D249C9000B60FAD /* DDXMLDocument.m in Sources */,
 				2BE1E777220A6B6700815D9C /* MaplyVectorTileMarkerStyle.mm in Sources */,
@@ -4673,7 +4673,6 @@
 				2B446B7D21FB94A00078A975 /* VectorData.cpp in Sources */,
 				2BE1E780220A6B6700815D9C /* SLDExpressions.m in Sources */,
 				2BE539A61D249BEF00B60FAD /* AAMoonMaxDeclinations.cpp in Sources */,
-				2B8A78812284DD5B008B0A1F /* BasicDrawableBuilderGLES.cpp in Sources */,
 				2B884A661E3803170027C397 /* lasreadpoint.cpp in Sources */,
 				2B82B7C31E82E68E0095FB14 /* clipper.cpp in Sources */,
 				2B82B5EE1E82E2490095FB14 /* priorityq.c in Sources */,
@@ -4824,6 +4823,7 @@
 				2B82B6931E82E24A0095FB14 /* PJ_natearth.c in Sources */,
 				2B82B6811E82E24A0095FB14 /* PJ_lcc.c in Sources */,
 				2B82B68C1E82E24A0095FB14 /* PJ_merc.c in Sources */,
+				2B8A788822860315008B0A1F /* BasicDrawableBuilderGLES.cpp in Sources */,
 				2B82B61B1E82E2490095FB14 /* JSONWorker.cpp in Sources */,
 				2BE1E764220A43FD00815D9C /* WGInteractionLayer.mm in Sources */,
 				2BC3D6D52203EA9C00CE91D0 /* MaplyZoomGestureDelegate.mm in Sources */,

@@ -49,23 +49,39 @@ friend class BasicDrawableBuilder;
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
+    /// Simple triangle.  Can obviously only have 2^16 vertices
+    class Triangle
+    {
+    public:
+        Triangle();
+        /// Construct with vertex IDs
+        Triangle(unsigned short v0,unsigned short v1,unsigned short v2);
+        unsigned short verts[3];
+    };
+
     /// Construct empty
     BasicDrawable(const std::string &name);
     virtual ~BasicDrawable();
     
     /// We're allowed to turn drawables off completely
-    virtual bool isOn(RendererFrameInfo *frameInfo);
+    virtual bool isOn(RendererFrameInfo *frameInfo) const;
     /// True to turn it on, false to turn it off
     void setOnOff(bool onOff);
+
+    /// Return the local MBR, if we're working in a non-geo coordinate system
+    virtual Mbr getLocalMbr() const;
+
+    /// Return the Matrix if there is an active one (ideally not)
+    virtual const Eigen::Matrix4d *getMatrix() const;
+
+    /// Return true if the drawable has alpha.  These will be sorted last.
+    virtual bool hasAlpha(RendererFrameInfo *frameInfo) const;
 
     /// Set the time range for enable
     void setEnableTimeRange(TimeInterval inStartEnable,TimeInterval inEndEnable);
 
     /// Set the fade in and out
     virtual void setFade(TimeInterval inFadeDown,TimeInterval inFadeUp);
-    
-    /// Return the local MBR, if we're working in a non-geo coordinate system
-    virtual Mbr getLocalMbr();
     
     /// Set the viewer based visibility
     virtual void setViewerVisibility(double minViewerDist,double maxViewerDist,const Point3d &viewerCenter);
@@ -74,29 +90,23 @@ public:
     /// The units are in distance from the center of the globe and
     ///  the surface of the globe as at 1.0
     virtual void setVisibleRange(float minVis,float maxVis,float minVisBand=0.0,float maxVisBand=0.0);
-
-    /// Return true if the drawable has alpha.  These will be sorted last.
-    virtual bool hasAlpha(RendererFrameInfo *frameInfo);
     
     /// We use this to sort drawables
-    virtual unsigned int getDrawPriority();
+    virtual unsigned int getDrawPriority() const;
 
     /// Draw priority used for sorting
     virtual void setDrawPriority(unsigned int newPriority);
-
-    /// Return the Matrix if there is an active one (ideally not)
-    virtual const Eigen::Matrix4d *getMatrix();
     
     /// Check if the force Z buffer on mode is on
-    virtual bool getRequestZBuffer();
+    virtual bool getRequestZBuffer() const;
     virtual void setRequestZBuffer(bool val);
     
     /// Set the z buffer mode for this drawable
-    virtual bool getWriteZbuffer();
+    virtual bool getWriteZbuffer() const;
     virtual void setWriteZBuffer(bool val);
 
     /// Drawables can override where they're drawn.  EmptyIdentity is the regular screen.
-    virtual SimpleIdentity getRenderTarget();
+    virtual SimpleIdentity getRenderTarget() const;
     
     // If set, we'll render this data where directed
     void setRenderTarget(SimpleIdentity newRenderTarget);
@@ -151,13 +161,13 @@ public:
     virtual void teardownForRenderer(RenderSetupInfo *setupInfo);
     
     /// If present, we'll do a pre-render calculation pass with this program set
-    virtual SimpleIdentity getCalculationProgram();
+    virtual SimpleIdentity getCalculationProgram() const;
     
     /// Some drawables have a pre-render phase that uses the GPU for calculation
     virtual void calculate(RendererFrameInfo *frameInfo,Scene *scene);
     
     /// For OpenGLES2, this is the program to use to render this drawable.
-    virtual SimpleIdentity getProgram();
+    virtual SimpleIdentity getProgram() const;
     void setProgram(SimpleIdentity progId);
 
     /// Set up what you need in the way of context and draw.
@@ -197,22 +207,12 @@ public:
 
     // We'll nuke the data arrays when we hand over the data to GL
     unsigned int numPoints, numTris;
+    RGBAColor color;
     bool hasOverrideColor;  // If set, we've changed the default color
 
     // Uniforms to apply to shader
     SingleVertexAttributeSet uniforms;
-    
-    // Attribute that should be applied to the given program index if using VAOs
-    class VertAttrDefault
-    {
-    public:
-        VertAttrDefault(unsigned int progAttrIndex,const VertexAttribute &attr)
-        : progAttrIndex(progAttrIndex), attr(attr) { }
-        unsigned int progAttrIndex;
-        VertexAttribute attr;
-    };
-    std::vector<VertAttrDefault> vertArrayDefaults;
-    
+        
     // If set the geometry is already in OpenGL clip coordinates, so no transform
     bool clipCoords;
 };

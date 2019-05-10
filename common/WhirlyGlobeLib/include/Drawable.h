@@ -55,9 +55,6 @@ typedef std::set<DrawableTweakerRef> DrawableTweakerRefSet;
  */
 class Drawable : public Identifiable
 {
-protected:
-    /// Used in special cases
-    Drawable();
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 

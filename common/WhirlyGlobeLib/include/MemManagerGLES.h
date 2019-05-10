@@ -25,20 +25,6 @@
 
 namespace WhirlyKit
 {
-
-/** This is the configuration info passed to setupGL for each
- drawable.  Sometimes this will be render thread side, sometimes
- layer thread side.  The defaults should be valid.
- */
-class GLSetupInfo
-{
-public:
-    GLSetupInfo();
-    /// If we're using drawOffset, this is the units
-    float minZres;
-    /// Version of OpenGL ES we're using
-    int glesVersion;
-};
     
 /// We'll only keep this many buffers or textures around for reuse
 #define WhirlyKitOpenGLMemCacheMax 32
@@ -83,4 +69,21 @@ protected:
     std::set<GLuint> texIDs;
 };
     
+/** This is the configuration info passed to setupGL for each
+ drawable.  Sometimes this will be render thread side, sometimes
+ layer thread side.  The defaults should be valid.
+ */
+class RenderSetupInfoGLES : public RenderSetupInfo
+{
+public:
+    RenderSetupInfoGLES();
+    /// If we're using drawOffset, this is the units
+    float minZres;
+    /// Version of OpenGL ES we're using
+    int glesVersion;
+    
+    /// GL memory manager
+    OpenGLMemManager *memManager;
+};
+
 }

@@ -26,6 +26,15 @@ using namespace Eigen;
 namespace WhirlyKit
 {
     
+BasicDrawable::Triangle::Triangle()
+{
+}
+
+BasicDrawable::Triangle::Triangle(unsigned short v0,unsigned short v1,unsigned short v2)
+{
+    verts[0] = v0;  verts[1] = v1;  verts[2] = v2;
+}
+    
 BasicDrawable::BasicDrawable(const std::string &name)
 : Drawable(name)
 {
@@ -337,162 +346,6 @@ void BasicDrawable::setClipCoords(bool inClipCoords)
     clipCoords = inClipCoords;
 }
 
-unsigned int BasicDrawable::addPoint(const Point3f &pt)
-{
-    points.push_back(pt);
-    return (unsigned int)(points.size()-1);
-}
-
-unsigned int BasicDrawable::addPoint(const Point3d &pt)
-{
-    points.push_back(Point3f(pt.x(),pt.y(),pt.z()));
-    return (unsigned int)(points.size()-1);
-}
-
-
-Point3f BasicDrawable::getPoint(int which)
-{
-    if (which >= points.size())
-        return Point3f(0,0,0);
-    return points[which];
-}
-
-void BasicDrawable::addTexCoord(int which,TexCoord coord)
-{
-    if (which == -1)
-    {
-        // In this mode, add duplicate texture coords in each of the vertex attrs
-        // Note: This could be optimized to a single set of vertex attrs for all the texture coords
-        for (unsigned int ii=0;ii<texInfo.size();ii++)
-            vertexAttributes[texInfo[ii].texCoordEntry]->addVector2f(coord);
-    } else {
-        setupTexCoordEntry(which, 0);
-        vertexAttributes[texInfo[which].texCoordEntry]->addVector2f(coord);
-    }
-}
-
-void BasicDrawable::addColor(RGBAColor color)
-{ vertexAttributes[colorEntry]->addColor(color); }
-
-void BasicDrawable::addNormal(const Point3f &norm)
-{ vertexAttributes[normalEntry]->addVector3f(norm); }
-
-void BasicDrawable::addNormal(const Point3d &norm)
-{ vertexAttributes[normalEntry]->addVector3f(Point3f(norm.x(),norm.y(),norm.z())); }
-
-void BasicDrawable::addAttributeValue(int attrId,const Eigen::Vector2f &vec)
-{ vertexAttributes[attrId]->addVector2f(vec); }
-
-void BasicDrawable::addAttributeValue(int attrId,const Eigen::Vector3f &vec)
-{ vertexAttributes[attrId]->addVector3f(vec); }
-
-void BasicDrawable::addAttributeValue(int attrId,const Eigen::Vector4f &vec)
-{ vertexAttributes[attrId]->addVector4f(vec); }
-
-void BasicDrawable::addAttributeValue(int attrId,const  RGBAColor &color)
-{ vertexAttributes[attrId]->addColor(color); }
-
-void BasicDrawable::addAttributeValue(int attrId,float val)
-{ vertexAttributes[attrId]->addFloat(val); }
-
-bool BasicDrawable::compareVertexAttributes(const SingleVertexAttributeSet &attrs)
-{
-    for (SingleVertexAttributeSet::iterator it = attrs.begin();
-         it != attrs.end(); ++it)
-    {
-        int attrId = -1;
-        for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
-            if (vertexAttributes[ii]->nameID == it->nameID)
-            {
-                attrId = ii;
-                break;
-            }
-        if (attrId == -1)
-            return false;
-        if (vertexAttributes[attrId]->getDataType() != it->type)
-            return false;
-    }
-    
-    return true;
-}
-
-void BasicDrawable::setVertexAttributes(const SingleVertexAttributeInfoSet &attrs)
-{
-    for (auto it = attrs.begin();
-         it != attrs.end(); ++it)
-        addAttribute(it->type,it->nameID);
-}
-
-void BasicDrawable::addVertexAttributes(const SingleVertexAttributeSet &attrs)
-{
-    for (SingleVertexAttributeSet::iterator it = attrs.begin();
-         it != attrs.end(); ++it)
-    {
-        int attrId = -1;
-        for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
-            if (vertexAttributes[ii]->nameID == it->nameID)
-            {
-                attrId = ii;
-                break;
-            }
-        
-        if (attrId == -1)
-            continue;
-        
-        switch (it->type)
-        {
-            case BDFloatType:
-                addAttributeValue(attrId, it->data.floatVal);
-                break;
-            case BDFloat2Type:
-            {
-                Vector2f vec;
-                vec.x() = it->data.vec2[0];
-                vec.y() = it->data.vec2[1];
-                addAttributeValue(attrId, vec);
-            }
-                break;
-            case BDFloat3Type:
-            {
-                Vector3f vec;
-                vec.x() = it->data.vec3[0];
-                vec.y() = it->data.vec3[1];
-                vec.z() = it->data.vec3[2];
-                addAttributeValue(attrId, vec);
-            }
-                break;
-            case BDFloat4Type:
-            {
-                Vector4f vec;
-                vec.x() = it->data.vec4[0];
-                vec.y() = it->data.vec4[1];
-                vec.z() = it->data.vec4[2];
-                vec.w() = it->data.vec4[3];
-                addAttributeValue(attrId, vec);
-            }
-                break;
-            case BDChar4Type:
-            {
-                RGBAColor color;
-                color.r = it->data.color[0];
-                color.g = it->data.color[1];
-                color.b = it->data.color[2];
-                color.a = it->data.color[3];
-                addAttributeValue(attrId, color);
-            }
-                break;
-            case BDIntType:
-                addAttributeValue(attrId, it->data.intVal);
-                break;
-            case BDDataTypeMax:
-                break;
-        }
-    }
-}
-
-void BasicDrawable::addTriangle(Triangle tri)
-{ tris.push_back(tri); }
-
 SimpleIdentity BasicDrawable::getTexId(unsigned int which)
 {
     SimpleIdentity texId = EmptyIdentity;
@@ -508,68 +361,6 @@ void BasicDrawable::updateRenderer(WhirlyKit::SceneRendererES *renderer)
     renderer->setRenderUntil(fadeUp);
     renderer->setRenderUntil(fadeDown);
 }
-
-// Move the texture coordinates around and apply a new texture
-void BasicDrawable::applySubTexture(int which,SubTexture subTex,int startingAt)
-{
-    if (which == -1)
-    {
-        // Apply the mapping everywhere
-        for (unsigned int ii=0;ii<texInfo.size();ii++)
-            applySubTexture(ii, subTex, startingAt);
-    } else {
-        setupTexCoordEntry(which, 0);
-        
-        TexInfo &thisTexInfo = texInfo[which];
-        thisTexInfo.texId = subTex.texId;
-        std::vector<TexCoord> *texCoords = (std::vector<TexCoord> *)vertexAttributes[thisTexInfo.texCoordEntry]->data;
-        
-        for (unsigned int ii=startingAt;ii<texCoords->size();ii++)
-        {
-            Point2f tc = (*texCoords)[ii];
-            (*texCoords)[ii] = subTex.processTexCoord(TexCoord(tc.x(),tc.y()));
-        }
-    }
-}
-
-int BasicDrawable::addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings)
-{
-    VertexAttribute *attr = new VertexAttribute(dataType,nameID);
-    if (numThings > 0)
-        attr->reserve(numThings);
-    vertexAttributes.push_back(attr);
-    
-    return (unsigned int)(vertexAttributes.size()-1);
-}
-    
-unsigned int BasicDrawable::getNumPoints() const
-{ return (unsigned int)points.size(); }
-
-unsigned int BasicDrawable::getNumTris() const
-{ return (unsigned int)tris.size(); }
-
-void BasicDrawable::reserveNumPoints(int numPoints)
-{ points.reserve(points.size()+numPoints); }
-
-void BasicDrawable::reserveNumTris(int numTris)
-{ tris.reserve(tris.size()+numTris); }
-
-void BasicDrawable::reserveNumTexCoords(unsigned int which,int numCoords)
-{
-    setupTexCoordEntry(which, numCoords);
-    vertexAttributes[texInfo[which].texCoordEntry]->reserve(numCoords);
-}
-
-void BasicDrawable::reserveNumNorms(int numNorms)
-{ vertexAttributes[normalEntry]->reserve(numNorms); }
-
-void BasicDrawable::reserveNumColors(int numColors)
-{
-    vertexAttributes[colorEntry]->reserve(numColors);
-}
-
-void BasicDrawable::setMatrix(const Eigen::Matrix4d *inMat)
-{ mat = *inMat; hasMatrix = true; }
 
 /// Return the active transform matrix, if we have one
 const Eigen::Matrix4d *BasicDrawable::getMatrix() const

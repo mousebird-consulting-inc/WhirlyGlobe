@@ -43,9 +43,9 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
     /// Renderer itself
-    WhirlyKit::SceneRenderer *sceneRenderer;
+    SceneRenderer *sceneRenderer;
     /// View
-    WhirlyKit::View *theView;
+    View *theView;
     /// Current model matrix from the view
     Eigen::Matrix4f modelTrans,viewTrans;
     Eigen::Matrix4d modelTrans4d,viewTrans4d;
@@ -70,7 +70,7 @@ public:
     /// If the visual view supports wrapping, these are the available offset matrices
     std::vector<Eigen::Matrix4d> offsetMatrices;
     /// Scene itself.  Don't mess with this
-    WhirlyKit::Scene *scene;
+    Scene *scene;
     /// Expected length of the current frame
     float frameLen;
     /// Time at the start of frame
@@ -89,6 +89,8 @@ public:
     Point2d screenSizeInDisplayCoords;
     /// Lights, if applicable
     std::vector<DirectionalLight> *lights;
+    /// Program being used for this frame
+    Program *program;
 };
 
 /** We support three different ways of using z buffer.  (1) Regular mode where it's on.
@@ -155,7 +157,7 @@ public:
     virtual void setZBufferMode(WhirlyKitSceneRendererZBufferMode inZBufferMode) { zBufferMode = inZBufferMode; }
     
     /// Assign a new scene.  Just at startup
-    virtual void setScene(WhirlyKit::Scene *newScene);
+    virtual void setScene(Scene *newScene);
     
     /// Set the performance counting interval (0 is off)
     virtual void setPerfInterval(int howLong) { perfInterval = howLong; }
@@ -164,7 +166,7 @@ public:
     virtual void setUseViewChanged(bool newVal) { useViewChanged = newVal; }
     
     /// Current view (opengl view) we're tied to
-    virtual void setView(WhirlyKit::View *newView) { theView = newView; }
+    virtual void setView(View *newView) { theView = newView; }
     
     /// If set, we'll draw one more frame than needed after updates stop
     virtual void setExtraFrameMode(bool newMode) { extraFrameMode = newMode; }
@@ -189,9 +191,9 @@ public:
     virtual void presentRender() { };
     
     /// Scene we're drawing.  This is set from outside
-    WhirlyKit::Scene *scene;
+    Scene *scene;
     /// The view controls how we're looking at the scene
-    WhirlyKit::View *theView;
+    View *theView;
     /// Set this mode to modify how Z buffering is used (if at all)
     WhirlyKitSceneRendererZBufferMode zBufferMode;
     
@@ -226,7 +228,7 @@ public:
     
     unsigned int frameCount;
     TimeInterval frameCountStart;
-    WhirlyKit::PerformanceTimer perfTimer;
+    PerformanceTimer perfTimer;
     
     /// Last time we rendered
     TimeInterval lastDraw;
@@ -235,9 +237,9 @@ public:
     TimeInterval renderUntil;
     
     // The drawables that want continuous rendering on
-    WhirlyKit::SimpleIDSet contRenderRequests;
+    SimpleIDSet contRenderRequests;
     
-    WhirlyKit::RGBAColor clearColor;
+    RGBAColor clearColor;
     
     // View state from the last render, for comparison
     Eigen::Matrix4d modelMat,viewMat,projMat;
@@ -248,7 +250,7 @@ public:
     std::vector<RenderTargetRef> renderTargets;
     
     // If we're an offline renderer, the texture we're rendering into
-    WhirlyKit::Texture *framebufferTex;
+    Texture *framebufferTex;
 };
 
 typedef std::shared_ptr<SceneRenderer> SceneRendererRef;

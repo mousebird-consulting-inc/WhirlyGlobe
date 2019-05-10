@@ -26,13 +26,12 @@ using namespace Eigen;
 namespace WhirlyKit
 {
 
-void BasicDrawableBuilder::Init(SceneRenderer *sceneRender)
+void BasicDrawableBuilder::Init()
 {
     basicDraw->colorEntry = -1;
     basicDraw->normalEntry = -1;
     
     basicDraw->on = true;
-    basicDraw->hasOverrideColor = false;
     basicDraw->startEnable = 0.0;
     basicDraw->endEnable = 0.0;
     basicDraw->programId = EmptyIdentity;
@@ -46,8 +45,8 @@ void BasicDrawableBuilder::Init(SceneRenderer *sceneRender)
     basicDraw->viewerCenter = Point3d(DrawVisibleInvalid,DrawVisibleInvalid,DrawVisibleInvalid);
     
     basicDraw->fadeDown = basicDraw->fadeUp = 0.0;
-    // Note: Set this as a default somewhere
     basicDraw->color = RGBAColor(255,255,255,255);
+    basicDraw->hasOverrideColor = false;
     basicDraw->lineWidth = 1.0;
     
     basicDraw->numTris = 0;
@@ -62,15 +61,15 @@ void BasicDrawableBuilder::Init(SceneRenderer *sceneRender)
     basicDraw->hasMatrix = false;
 }
     
-BasicDrawableBuilder::BasicDrawableBuilder(const std::string &name,SceneRenderer *sceneRender)
+BasicDrawableBuilder::BasicDrawableBuilder(const std::string &name)
 {
-    Init(sceneRender);
+    Init();
     basicDraw->name = name;
 }
 
-BasicDrawableBuilder::BasicDrawableBuilder(const std::string &name, SceneRenderer *sceneRender, unsigned int numVert,unsigned int numTri)
+BasicDrawableBuilder::BasicDrawableBuilder(const std::string &name, unsigned int numVert,unsigned int numTri)
 {
-    Init(sceneRender);
+    Init();
     basicDraw->name = name;
     points.reserve(numVert);
     tris.reserve(numTri);
@@ -78,16 +77,6 @@ BasicDrawableBuilder::BasicDrawableBuilder(const std::string &name, SceneRendere
 
 BasicDrawableBuilder::~BasicDrawableBuilder()
 {
-}
-
-BasicDrawableBuilder::Triangle::Triangle()
-{
-}
-
-BasicDrawableBuilder::Triangle::Triangle(unsigned short v0,unsigned short v1,unsigned short v2)
-{
-    verts[0] = v0;  verts[1] = v1;  verts[2] = v2;
-    
 }
 
 void BasicDrawableBuilder::setOnOff(bool onOff)
@@ -212,171 +201,221 @@ void BasicDrawableBuilder::setColor(unsigned char color[])
     setColor(RGBAColor(color[0],color[1],color[2],color[3]));
 }
 
-
-int BasicDrawableBuilder::addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings = -1);
-
-void BasicDrawableBuilder::reserveNumPoints(int numPoints);
-
-void BasicDrawableBuilder::reserveNumTris(int numTris);
-
-void BasicDrawableBuilder::reserveNumTexCoords(unsigned int which,int numCoords);
-
-void BasicDrawableBuilder::reserveNumNorms(int numNorms);
-
-void BasicDrawableBuilder::reserveNumColors(int numColors);
-
-void BasicDrawableBuilder::setClipCoords(bool clipCoords);
-
-unsigned int BasicDrawableBuilder::addPoint(const Point3f &pt);
-unsigned int BasicDrawableBuilder::addPoint(const Point3d &pt);
-
-Point3f BasicDrawableBuilder::getPoint(int which);
-
-void BasicDrawableBuilder::addTexCoord(int which,TexCoord coord);
-
-void BasicDrawableBuilder::addColor(RGBAColor color);
-
-void BasicDrawableBuilder::addNormal(const Point3f &norm);
-void BasicDrawableBuilder::addNormal(const Point3d &norm);
-
-bool BasicDrawableBuilder::compareVertexAttributes(const SingleVertexAttributeSet &attrs);
-
-void BasicDrawableBuilder::setVertexAttributes(const SingleVertexAttributeInfoSet &attrs);
-
-void BasicDrawableBuilder::addVertexAttributes(const SingleVertexAttributeSet &attrs);
-
-void BasicDrawableBuilder::addAttributeValue(int attrId,const Eigen::Vector2f &vec);
-
-void BasicDrawableBuilder::addAttributeValue(int attrId,const Eigen::Vector3f &vec);
-
-void BasicDrawableBuilder::addAttributeValue(int attrId,const Eigen::Vector4f &vec);
-
-void BasicDrawableBuilder::addAttributeValue(int attrId,const RGBAColor &color);
-
-void BasicDrawableBuilder::addAttributeValue(int attrId,float val);
-
-void BasicDrawableBuilder::addTriangle(Triangle tri);
-
-void BasicDrawableBuilder::addPointToBuffer(unsigned char *basePtr,int which,const Point3d *center)
+void BasicDrawableBuilder::reserveNumPoints(int numPoints)
 {
+    points.reserve(points.size()+numPoints);
+}
+
+void BasicDrawableBuilder::reserveNumTris(int numTris)
+{
+    tris.reserve(tris.size()+numTris);
+}
+
+void BasicDrawableBuilder::reserveNumTexCoords(unsigned int which,int numCoords)
+{
+    setupTexCoordEntry(which, numCoords);
+    basicDraw->vertexAttributes[basicDraw->texInfo[which].texCoordEntry]->reserve(numCoords);
+}
+
+void BasicDrawableBuilder::reserveNumNorms(int numNorms)
+{
+    basicDraw->vertexAttributes[basicDraw->normalEntry]->reserve(numNorms);
+}
+
+void BasicDrawableBuilder::reserveNumColors(int numColors)
+{
+    basicDraw->vertexAttributes[basicDraw->colorEntry]->reserve(numColors);
+}
+
+void BasicDrawableBuilder::setClipCoords(bool clipCoords)
+{
+    basicDraw->clipCoords = clipCoords;
+}
+
+unsigned int BasicDrawableBuilder::addPoint(const Point3f &pt)
+{
+    points.push_back(pt);
+    return (unsigned int)(points.size()-1);
+}
+
+unsigned int BasicDrawableBuilder::addPoint(const Point3d &pt)
+{
+    points.push_back(Point3f(pt.x(),pt.y(),pt.z()));
+    return (unsigned int)(points.size()-1);
+}
+
+Point3d BasicDrawableBuilder::getPoint(int which)
+{
+    if (which >= points.size())
+        return Point3d(0,0,0);
+    const Point3f &pt = points[which];
+    
+    return Point3d(pt.x(),pt.y(),pt.z());
+}
+
+void BasicDrawableBuilder::addTexCoord(int which,TexCoord coord)
+{
+    if (which == -1)
     {
-        if (!points.empty())
-        {
-            Point3f &pt = points[which];
-            
-            // If there's a center, we have to offset everything first
-            if (center)
+        // In this mode, add duplicate texture coords in each of the vertex attrs
+        // Note: This could be optimized to a single set of vertex attrs for all the texture coords
+        for (unsigned int ii=0;ii<basicDraw->texInfo.size();ii++)
+            basicDraw->vertexAttributes[basicDraw->texInfo[ii].texCoordEntry]->addVector2f(coord);
+    } else {
+        setupTexCoordEntry(which, 0);
+        basicDraw->vertexAttributes[basicDraw->texInfo[which].texCoordEntry]->addVector2f(coord);
+    }
+}
+
+void BasicDrawableBuilder::addColor(RGBAColor color)
+{
+    basicDraw->vertexAttributes[basicDraw->colorEntry]->addColor(color);
+}
+
+void BasicDrawableBuilder::addNormal(const Point3f &norm)
+{ basicDraw->vertexAttributes[basicDraw->normalEntry]->addVector3f(norm); }
+
+void BasicDrawableBuilder::addNormal(const Point3d &norm)
+{ basicDraw->vertexAttributes[basicDraw->normalEntry]->addVector3f(Point3f(norm.x(),norm.y(),norm.z())); }
+
+bool BasicDrawableBuilder::compareVertexAttributes(const SingleVertexAttributeSet &attrs)
+{
+    for (SingleVertexAttributeSet::iterator it = attrs.begin();
+         it != attrs.end(); ++it)
+    {
+        int attrId = -1;
+        for (unsigned int ii=0;ii<basicDraw->vertexAttributes.size();ii++)
+            if (basicDraw->vertexAttributes[ii]->nameID == it->nameID)
             {
-                Vector4d pt3d;
-                if (hasMatrix)
-                    pt3d = mat * Vector4d(pt.x(),pt.y(),pt.z(),1.0);
-                else
-                    pt3d = Vector4d(pt.x(),pt.y(),pt.z(),1.0);
-                Point3f newPt(pt3d.x()-center->x(),pt3d.y()-center->y(),pt3d.z()-center->z());
-                memcpy(basePtr+pointBuffer, &newPt.x(), 3*sizeof(GLfloat));
-            } else {
-                // Otherwise, copy it straight in
-                memcpy(basePtr+pointBuffer, &pt.x(), 3*sizeof(GLfloat));
+                attrId = ii;
+                break;
             }
-        }
-        
-        for (VertexAttribute *attr : vertexAttributes)
-        {
-            if (attr->numElements() != 0)
-                memcpy(basePtr+attr->buffer, attr->addressForElement(which), attr->size());
-        }
+        if (attrId == -1)
+            return false;
+        if (basicDraw->vertexAttributes[attrId]->getDataType() != it->type)
+            return false;
     }
+    
+    return true;
 }
 
-void BasicDrawableBuilder::setUniforms(const SingleVertexAttributeSet &uniforms);
-
-void BasicDrawableBuilder::applySubTexture(int which,SubTexture subTex,int startingAt=0);
-
-RawDataRef BasicDrawableBuilder::asData(bool dupStart,bool dupEnd)
+void BasicDrawableBuilder::setVertexAttributes(const SingleVertexAttributeInfoSet &attrs)
 {
-    MutableRawDataRef retData;
-    if (points.empty())
-        return retData;
-    
-    // Verify that everything else (that has data) has the same amount)
-    int numElements = (int)points.size();
-    for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
-    {
-        VertexAttribute *attr = vertexAttributes[ii];
-        int theseElements = attr->numElements();
-        if (theseElements != 0 && theseElements != numElements)
-            return retData;
-    }
-    
-    if (type == GL_TRIANGLE_STRIP || type == GL_POINTS || type == GL_LINES || type == GL_LINE_STRIP)
-    {
-        vertexSize = singleVertexSize();
-        int numVerts = (int)(points.size() + (dupStart ? 2 : 0) + (dupEnd ? 2 : 0));
-        
-        retData = MutableRawDataRef(new MutableRawData(vertexSize*numVerts));
-        unsigned char *basePtr = (unsigned char *)retData->getRawData();
-        if (dupStart)
-        {
-            addPointToBuffer(basePtr, 0, NULL);
-            basePtr += vertexSize;
-            addPointToBuffer(basePtr, 0, NULL);
-            basePtr += vertexSize;
-        }
-        for (unsigned int ii=0;ii<points.size();ii++,basePtr+=vertexSize)
-            addPointToBuffer(basePtr, ii, NULL);
-        if (dupEnd)
-        {
-            addPointToBuffer(basePtr, (int)(points.size()-1), NULL);
-            basePtr += vertexSize;
-            addPointToBuffer(basePtr, (int)(points.size()-1), NULL);
-            basePtr += vertexSize;
-        }
-    }
-    
-    return retData;
+    for (auto it = attrs.begin();
+         it != attrs.end(); ++it)
+        addAttribute(it->type,it->nameID);
 }
 
-void BasicDrawableBuilder::asVertexAndElementData(MutableRawDataRef retVertData,RawDataRef retElementData,int singleElementSize,const Point3d *center)
+void BasicDrawableBuilder::addVertexAttributes(const SingleVertexAttributeSet &attrs)
 {
-    if (type != GL_TRIANGLES)
-        return;
-    if (points.empty() || tris.empty())
-        return;
-    
-    // Verify that everything else (that has data) has the same amount)
-    int numElements = (int)points.size();
-    for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
+    for (SingleVertexAttributeSet::iterator it = attrs.begin();
+         it != attrs.end(); ++it)
     {
-        VertexAttribute *attr = vertexAttributes[ii];
-        int theseElements = attr->numElements();
-        if (theseElements != 0 && theseElements != numElements)
-            return;
-    }
-    
-    // Build up the vertices
-    vertexSize = singleVertexSize();
-    int numVerts = (int)points.size();
-    vertData = MutableRawDataRef(new MutableRawData(vertexSize * numVerts));
-    unsigned char *basePtr = (unsigned char *)vertData->getRawData();
-    for (unsigned int ii=0;ii<points.size();ii++,basePtr+=vertexSize)
-        addPointToBuffer(basePtr, ii, center);
-        
-        // Build up the triangles
-        int triSize = singleElementSize * 3;
-        int numTris = (int)tris.size();
-        int totSize = numTris*triSize;
-        elementData = MutableRawDataRef(new MutableRawData(totSize));
-        GLushort *elPtr = (GLushort *)elementData->getRawData();
-        for (unsigned int ii=0;ii<tris.size();ii++,elPtr+=3)
-        {
-            Triangle &tri = tris[ii];
-            for (unsigned int jj=0;jj<3;jj++)
+        int attrId = -1;
+        for (unsigned int ii=0;ii<basicDraw->vertexAttributes.size();ii++)
+            if (basicDraw->vertexAttributes[ii]->nameID == it->nameID)
             {
-                unsigned short vertId = tri.verts[jj];
-                elPtr[jj] = vertId;
+                attrId = ii;
+                break;
             }
+        
+        if (attrId == -1)
+            continue;
+        
+        switch (it->type)
+        {
+            case BDFloatType:
+                addAttributeValue(attrId, it->data.floatVal);
+                break;
+            case BDFloat2Type:
+            {
+                Vector2f vec;
+                vec.x() = it->data.vec2[0];
+                vec.y() = it->data.vec2[1];
+                addAttributeValue(attrId, vec);
+            }
+                break;
+            case BDFloat3Type:
+            {
+                Vector3f vec;
+                vec.x() = it->data.vec3[0];
+                vec.y() = it->data.vec3[1];
+                vec.z() = it->data.vec3[2];
+                addAttributeValue(attrId, vec);
+            }
+                break;
+            case BDFloat4Type:
+            {
+                Vector4f vec;
+                vec.x() = it->data.vec4[0];
+                vec.y() = it->data.vec4[1];
+                vec.z() = it->data.vec4[2];
+                vec.w() = it->data.vec4[3];
+                addAttributeValue(attrId, vec);
+            }
+                break;
+            case BDChar4Type:
+            {
+                RGBAColor color;
+                color.r = it->data.color[0];
+                color.g = it->data.color[1];
+                color.b = it->data.color[2];
+                color.a = it->data.color[3];
+                addAttributeValue(attrId, color);
+            }
+                break;
+            case BDIntType:
+                addAttributeValue(attrId, it->data.intVal);
+                break;
+            case BDDataTypeMax:
+                break;
         }
+    }
 }
 
+void BasicDrawableBuilder::addAttributeValue(int attrId,const Eigen::Vector2f &vec)
+{ basicDraw->vertexAttributes[attrId]->addVector2f(vec); }
+
+void BasicDrawableBuilder::addAttributeValue(int attrId,const Eigen::Vector3f &vec)
+{ basicDraw->vertexAttributes[attrId]->addVector3f(vec); }
+
+void BasicDrawableBuilder::addAttributeValue(int attrId,const Eigen::Vector4f &vec)
+{ basicDraw->vertexAttributes[attrId]->addVector4f(vec); }
+
+void BasicDrawableBuilder::addAttributeValue(int attrId,const RGBAColor &color)
+{ basicDraw->vertexAttributes[attrId]->addColor(color); }
+
+void BasicDrawableBuilder::addAttributeValue(int attrId,float val)
+{ basicDraw->vertexAttributes[attrId]->addFloat(val); }
+
+void BasicDrawableBuilder::addTriangle(BasicDrawable::Triangle tri)
+{ tris.push_back(tri); }
+
+void BasicDrawableBuilder::setUniforms(const SingleVertexAttributeSet &uniforms)
+{
+    basicDraw->uniforms = uniforms;
+}
+
+void BasicDrawableBuilder::applySubTexture(int which,SubTexture subTex,int startingAt)
+{
+    if (which == -1)
+    {
+        // Apply the mapping everywhere
+        for (unsigned int ii=0;ii<basicDraw->texInfo.size();ii++)
+            applySubTexture(ii, subTex, startingAt);
+    } else {
+        setupTexCoordEntry(which, 0);
+        
+        BasicDrawable::TexInfo &thisTexInfo = basicDraw->texInfo[which];
+        thisTexInfo.texId = subTex.texId;
+        std::vector<TexCoord> *texCoords = (std::vector<TexCoord> *)basicDraw->vertexAttributes[thisTexInfo.texCoordEntry]->data;
+        
+        for (unsigned int ii=startingAt;ii<texCoords->size();ii++)
+        {
+            Point2f tc = (*texCoords)[ii];
+            (*texCoords)[ii] = subTex.processTexCoord(TexCoord(tc.x(),tc.y()));
+        }
+    }
+}
 
 }

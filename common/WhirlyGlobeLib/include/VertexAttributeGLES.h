@@ -27,7 +27,9 @@ namespace WhirlyKit
 class VertexAttributeGLES : public VertexAttribute
 {
 public:
-    
+    VertexAttributeGLES(BDAttributeDataType dataType,StringIdentity nameID);
+    VertexAttributeGLES(const VertexAttribute &that);
+
     /// Return the number of components as needed by glVertexAttribPointer
     GLuint glEntryComponents() const;
     

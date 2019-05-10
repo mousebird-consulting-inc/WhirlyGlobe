@@ -195,7 +195,7 @@ protected:
     int numInstances;
 //    GLuint instBuffer;
 //    GLuint vertArrayObj;
-    std::vector<BasicDrawable::VertAttrDefault> vertArrayDefaults;
+//    std::vector<BasicDrawable::VertAttrDefault> vertArrayDefaults;
     
     int centerSize,matSize,colorInstSize,colorSize,instSize,modelDirSize;
     TimeInterval startTime;

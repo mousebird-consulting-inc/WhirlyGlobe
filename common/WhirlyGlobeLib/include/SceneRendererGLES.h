@@ -27,6 +27,7 @@
 #import "Lighting.h"
 #import "SceneRenderer.h"
 #import "ProgramGLES.h"
+#import "MemManagerGLES.h"
 
 namespace WhirlyKit
 {

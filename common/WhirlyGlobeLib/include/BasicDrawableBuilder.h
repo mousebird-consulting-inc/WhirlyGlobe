@@ -38,24 +38,14 @@ class BasicDrawableBuilder : public Identifiable
 {
 public:
     /// Construct empty
-    BasicDrawableBuilder(const std::string &name,SceneRenderer *sceneRender);
+    BasicDrawableBuilder(const std::string &name);
 
     /// Construct with some idea how big things are.
     /// You can violate this, but it will reserve space
-    BasicDrawableBuilder(const std::string &name,SceneRenderer *sceneRender, unsigned int numVert,unsigned int numTri);
+    BasicDrawableBuilder(const std::string &name, unsigned int numVert,unsigned int numTri);
 
     virtual ~BasicDrawableBuilder();
-    
-    /// Simple triangle.  Can obviously only have 2^16 vertices
-    class Triangle
-    {
-    public:
-        Triangle();
-        /// Construct with vertex IDs
-        Triangle(unsigned short v0,unsigned short v1,unsigned short v2);
-        unsigned short verts[3];
-    };
-    
+        
     /// True to turn it on, false to turn it off
     void setOnOff(bool onOff);
     
@@ -127,13 +117,10 @@ public:
     
     /// Set the color as an array.
     virtual void setColor(unsigned char inColor[]);
-
-    /// Size of a single vertex used in creating an interleaved buffer.
-    virtual unsigned int singleVertexSize();
     
     /// Add a new vertex related attribute.  Need a data type and the name the shader refers to
     ///  it by.  The index returned is how you will access it.
-    virtual int addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings = -1);
+    virtual int addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings = -1) = 0;
     
     /// Reserve the extra space for points
     virtual void reserveNumPoints(int numPoints);
@@ -158,7 +145,7 @@ public:
     virtual unsigned int addPoint(const Point3d &pt);
     
     /// Return a given point
-    virtual Point3f getPoint(int which);
+    virtual Point3d getPoint(int which);
     
     /// Add a texture coordinate. -1 means we add the same
     ///  texture coordinate to all the available texture coordinate sets
@@ -196,26 +183,20 @@ public:
     virtual void addAttributeValue(int attrId,float val);
     
     /// Add a triangle.  Should point to the vertex IDs.
-    virtual void addTriangle(Triangle tri);
-    
-    /// Add a single point to the GL Buffer.
-    /// Override this to add your own data to interleaved vertex buffers.
-    virtual void addPointToBuffer(unsigned char *basePtr,int which,const Point3d *center);
-    
+    virtual void addTriangle(BasicDrawable::Triangle tri);
+        
     virtual void setUniforms(const SingleVertexAttributeSet &uniforms);
     
     /// Run the texture and texture coordinates based on a SubTexture
     virtual void applySubTexture(int which,SubTexture subTex,int startingAt=0);
-    
-    /// Copy the vertex data into an NSData object and return it
-    virtual RawDataRef asData(bool dupStart,bool dupEnd);
-    
-    /// Copy vertex and element data into appropriate NSData objects
-    virtual void asVertexAndElementData(MutableRawDataRef retVertData,RawDataRef retElementData,int singleElementSize,const Point3d *center);
-    
+        
+    /// Constructs the remaining pieces of the drawable and returns it
+    /// Caller is responsible for deletion
+    virtual BasicDrawable *makeDrawable() = 0;
+
 public:
     // Used by subclasses to do the standard init
-    void Init(SceneRenderer *sceneRender);
+    void Init();
     /// Check for the given texture coordinate entry and add it if it's not there
     virtual void setupTexCoordEntry(int which,int numReserve);
     // Set up the standard vertex attributes we use
@@ -223,10 +204,10 @@ public:
     
     // The basic drawable we're building up
     BasicDrawable *basicDraw;
-    
-    // We'll nuke the data arrays when we hand over the data to GL
+
+    // Unprocessed data arrays
     std::vector<Eigen::Vector3f> points;
-    std::vector<Triangle> tris;
+    std::vector<BasicDrawable::Triangle> tris;
 };
 
 typedef std::shared_ptr<BasicDrawableBuilder> BasicDrawableBuilderRef;
