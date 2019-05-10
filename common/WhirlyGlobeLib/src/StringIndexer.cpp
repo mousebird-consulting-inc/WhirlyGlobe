@@ -21,6 +21,7 @@
 #import "StringIndexer.h"
 #import "SceneRenderer.h"
 #import "Identifiable.h"
+#import "MemManagerGLES.h"
 
 namespace WhirlyKit {
     

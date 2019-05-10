@@ -460,6 +460,11 @@
 		2B8A787F2284DB3E008B0A1F /* ParticleSystemDrawableGLES.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8A787B2284DB3E008B0A1F /* ParticleSystemDrawableGLES.h */; };
 		2B8A78832285F1B7008B0A1F /* BasicDrawableGLES.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B8A78822285F1B7008B0A1F /* BasicDrawableGLES.cpp */; };
 		2B8A788822860315008B0A1F /* BasicDrawableBuilderGLES.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B8A78802284DD5B008B0A1F /* BasicDrawableBuilderGLES.cpp */; };
+		2B8A78892286070D008B0A1F /* ProgramGLES.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B9721FBA8690078A975 /* ProgramGLES.cpp */; };
+		2B8A788B228607B3008B0A1F /* Program.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B8A788A228607B3008B0A1F /* Program.cpp */; };
+		2B8A788D22860CEE008B0A1F /* TextureGLES.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B8A788C22860CEE008B0A1F /* TextureGLES.cpp */; };
+		2B8A788E22860D0E008B0A1F /* Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B6421F7E7E00078A975 /* Texture.cpp */; };
+		2B8A788F22860D14008B0A1F /* StringIndexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B0B21F79AD00078A975 /* StringIndexer.cpp */; };
 		2B8E608920D458A600FB96F0 /* MaplyQuadSampler_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8E608820D458A500FB96F0 /* MaplyQuadSampler_private.h */; };
 		2B8E608B20D47FEE00FB96F0 /* MaplyRemoteTileFetcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8E608A20D47FEE00FB96F0 /* MaplyRemoteTileFetcher.h */; };
 		2BA827C1225E57FA00324594 /* MapboxVectorTileParser_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA827C0225E57FA00324594 /* MapboxVectorTileParser_iOS.h */; };
@@ -1463,6 +1468,8 @@
 		2B8A787B2284DB3E008B0A1F /* ParticleSystemDrawableGLES.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ParticleSystemDrawableGLES.h; path = ../../../../common/WhirlyGlobeLib/include/ParticleSystemDrawableGLES.h; sourceTree = "<group>"; };
 		2B8A78802284DD5B008B0A1F /* BasicDrawableBuilderGLES.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BasicDrawableBuilderGLES.cpp; path = ../../../../common/WhirlyGlobeLib/src/BasicDrawableBuilderGLES.cpp; sourceTree = "<group>"; };
 		2B8A78822285F1B7008B0A1F /* BasicDrawableGLES.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = BasicDrawableGLES.cpp; path = ../../../../common/WhirlyGlobeLib/src/BasicDrawableGLES.cpp; sourceTree = "<group>"; };
+		2B8A788A228607B3008B0A1F /* Program.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Program.cpp; path = ../../../../common/WhirlyGlobeLib/src/Program.cpp; sourceTree = "<group>"; };
+		2B8A788C22860CEE008B0A1F /* TextureGLES.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = TextureGLES.cpp; path = ../../../../common/WhirlyGlobeLib/src/TextureGLES.cpp; sourceTree = "<group>"; };
 		2B8E608820D458A500FB96F0 /* MaplyQuadSampler_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyQuadSampler_private.h; sourceTree = "<group>"; };
 		2B8E608A20D47FEE00FB96F0 /* MaplyRemoteTileFetcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyRemoteTileFetcher.h; sourceTree = "<group>"; };
 		2B8E608E20D4800000FB96F0 /* MaplyRemoteTileFetcher.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyRemoteTileFetcher.mm; sourceTree = "<group>"; };
@@ -2072,6 +2079,7 @@
 			children = (
 				2B446B6621F7E7E00078A975 /* UtilsGLES.cpp */,
 				2BC90D4B222DAB3900D8B606 /* WrapperGLES.cpp */,
+				2B8A788C22860CEE008B0A1F /* TextureGLES.cpp */,
 				2B446B9721FBA8690078A975 /* ProgramGLES.cpp */,
 				2BB8E1B121FBB0BA00154CDC /* SceneRendererGLES.cpp */,
 				2BB8E1B221FBB0BA00154CDC /* SceneRendererGLES2.cpp */,
@@ -2188,6 +2196,8 @@
 				2B446B5C21F7E7DF0078A975 /* BasicDrawableInstance.cpp */,
 				2B446B5D21F7E7DF0078A975 /* BillboardDrawable.cpp */,
 				2B446B6221F7E7E00078A975 /* Drawable.cpp */,
+				2B8A788A228607B3008B0A1F /* Program.cpp */,
+				2B446B6421F7E7E00078A975 /* Texture.cpp */,
 				2B446B6321F7E7E00078A975 /* DynamicTextureAtlas.cpp */,
 				2B446B5E21F7E7DF0078A975 /* Identifiable.cpp */,
 				2B446B6021F7E7DF0078A975 /* MaplyScene.cpp */,
@@ -2196,7 +2206,6 @@
 				2B446B5F21F7E7DF0078A975 /* ScreenSpaceBuilder.cpp */,
 				2B446B5921F7E7DF0078A975 /* ScreenSpaceDrawable.cpp */,
 				2B446B0B21F79AD00078A975 /* StringIndexer.cpp */,
-				2B446B6421F7E7E00078A975 /* Texture.cpp */,
 				2B446B6721F7E7E00078A975 /* TextureAtlas.cpp */,
 				2B446B5A21F7E7DF0078A975 /* WideVectorDrawable.cpp */,
 			);
@@ -4477,6 +4486,7 @@
 				2BC3D6D72203EE8A00CE91D0 /* MaplyTwoFingerTapDelegate.mm in Sources */,
 				2BE539F21D249C2900B60FAD /* any.cc in Sources */,
 				2BE539A11D249BEF00B60FAD /* AAKepler.cpp in Sources */,
+				2B8A788E22860D0E008B0A1F /* Texture.cpp in Sources */,
 				2BE53A711D249C4600B60FAD /* once.cc in Sources */,
 				2BE539AF1D249BEF00B60FAD /* AAParabolic.cpp in Sources */,
 				2B8796EF220375E900EF801D /* GlobeAnimateRotation.cpp in Sources */,
@@ -4498,6 +4508,7 @@
 				2B82B6B41E82E24A0095FB14 /* PJ_tmerc.c in Sources */,
 				2B884A6D1E3803170027C397 /* laswriteitemcompressed_v2.cpp in Sources */,
 				2B8796D321FFC59D00EF801D /* NSString+Stuff.mm in Sources */,
+				2B8A788B228607B3008B0A1F /* Program.cpp in Sources */,
 				2B8797222203BF7900EF801D /* MaplyBillboard.mm in Sources */,
 				2B884A751E3803170027C397 /* laszip.cpp in Sources */,
 				2B884A741E3803170027C397 /* laszip_dll.cpp in Sources */,
@@ -4611,6 +4622,7 @@
 				2BA827D4226139AC00324594 /* vector_tile.pb.cpp in Sources */,
 				2BE1E77F220A6B6700815D9C /* SLDStyleSet.m in Sources */,
 				2BE53A171D249C2900B60FAD /* unknown_field_set.cc in Sources */,
+				2B8A788F22860D14008B0A1F /* StringIndexer.cpp in Sources */,
 				2B8796FC2203861200EF801D /* LayerViewWatcher.mm in Sources */,
 				2B884A461E3803170027C397 /* arithmeticmodel.cpp in Sources */,
 				2B82B6691E82E24A0095FB14 /* PJ_geos.c in Sources */,
@@ -4649,6 +4661,7 @@
 				2BBC338C221766D30038A229 /* MaplyQuadSampler.mm in Sources */,
 				2BE1E74A2208E8C500815D9C /* MaplyRemoteTileFetcher.mm in Sources */,
 				2B82B6531E82E2490095FB14 /* pj_ctx.c in Sources */,
+				2B8A78892286070D008B0A1F /* ProgramGLES.cpp in Sources */,
 				2B82B6501E82E2490095FB14 /* PJ_chamb.c in Sources */,
 				2B23133021F936CD006AA344 /* RawData.cpp in Sources */,
 				2BBC3389221746850038A229 /* ComponentManager_iOS.mm in Sources */,
@@ -4680,6 +4693,7 @@
 				2B846EDC21F1365000EF2A82 /* pj_apply_gridshift.c in Sources */,
 				2BC3D6DB220B526D00CE91D0 /* ViewPlacementActiveModel.mm in Sources */,
 				2BC3D6D32203EA6300CE91D0 /* MaplyTexture.mm in Sources */,
+				2B8A788D22860CEE008B0A1F /* TextureGLES.cpp in Sources */,
 				2B82B6871E82E24A0095FB14 /* PJ_lsat.c in Sources */,
 				2BE1E76B220A6B6700815D9C /* MapboxVectorInterpreter.mm in Sources */,
 				2B846EEE21F1393900EF2A82 /* dict.c in Sources */,

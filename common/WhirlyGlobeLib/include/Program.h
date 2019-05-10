@@ -1,5 +1,5 @@
 /*
- *  OpenGLES2Program.h
+ *  Program.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 10/23/12.
@@ -23,6 +23,8 @@
 #import "Identifiable.h"
 #import "WhirlyVector.h"
 #import "Drawable.h"
+#import "VertexAttribute.h"
+#import "Texture.h"
 
 namespace WhirlyKit
 {
@@ -40,7 +42,7 @@ public:
     virtual ~Program();
     
     /// Used only for comparison
-    Program(SimpleIdentity theId) : Identifiable(theId), lightsLastUpdated(0.0) { }
+    Program(SimpleIdentity theId);
     
     /// Return true if it was built correctly
     virtual bool isValid();
@@ -60,8 +62,12 @@ public:
     /// Check for the specific attribute associated with WhirlyKit lights
     virtual bool hasLights();
     
+    /// Tie a given texture ID to the given name.
+    /// We have to set these up each time before drawing
+    virtual bool setTexture(StringIdentity nameID,TextureBase *tex) = 0;
+
     /// Return the name (for tracking purposes)
-    const std::string &getName() { return name; }
+    const std::string &getName();
     
 protected:
     std::string name;

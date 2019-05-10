@@ -125,7 +125,7 @@ public:
     
     /// Tie a given texture ID to the given name.
     /// We have to set these up each time before drawing
-    bool setTexture(StringIdentity nameID,GLuint val);
+    bool setTexture(StringIdentity nameID,TextureBase *tex);
     
     /// Check for the specific attribute associated with WhirlyKit lights
     bool hasLights();

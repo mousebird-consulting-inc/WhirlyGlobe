@@ -22,7 +22,8 @@
 #import "RawData.h"
 #import "Identifiable.h"
 #import "WhirlyVector.h"
-#import "BasicDrawable.h"
+#import "Texture.h"
+#import "WrapperGLES.h"
 
 namespace WhirlyKit
 {
@@ -30,10 +31,11 @@ namespace WhirlyKit
 /** Base class for textures.  This is enough information to
  track it in the Scene, but little else.
  */
-class TextureBaseGL : public TextureBase
+class TextureBaseGLES : public TextureBase
 {
 public:
-    TextureBaseGL() : glId(0) { }
+    TextureBaseGLES(SimpleIdentity thisId) : TextureBase(thisId), glId(0) { }
+    TextureBaseGLES(const std::string &name) : TextureBase(name), glId(0) { }
     
     /// Return the unique GL ID.
     GLuint getGLId() const { return glId; }
@@ -49,7 +51,7 @@ protected:
  If you want to remove it, you need to use its
  Identifiable ID.
  */
-class TextureGL : public Texture, public TextureBaseGL
+class TextureGLES : public Texture, public TextureBaseGLES
 {
 public:    
     /// Render side only.  Don't call this.  Create the openGL version
@@ -57,6 +59,10 @@ public:
     
     /// Render side only.  Don't call this.  Destroy the openGL version
     virtual void destroyInRenderer(RenderSetupInfo *setupInfo);
+
+    /// Sort the PKM data out from the NSData
+    /// This is static so the dynamic (haha) textures can use it
+    static unsigned char *ResolvePKM(RawDataRef texData,int &pkmType,int &size,int &width,int &height);
 
 protected:
 };

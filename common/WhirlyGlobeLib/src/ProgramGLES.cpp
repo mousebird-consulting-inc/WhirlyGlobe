@@ -1,5 +1,5 @@
 /*
- *  OpenGLES2Program.mm
+ *  ProgramGLES.mm
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 10/23/12.
@@ -19,10 +19,11 @@
  */
 
 #import <string>
-#import "OpenGLES2Program.h"
+#import "ProgramGLES.h"
 #import "Lighting.h"
-#import "GLUtils.h"
-#import "SceneRenderer.h"
+#import "UtilsGLES.h"
+#import "SceneRendererGLES.h"
+#import "TextureGLES.h"
 #import "WhirlyKitLog.h"
 
 using namespace Eigen;
@@ -30,16 +31,16 @@ using namespace Eigen;
 namespace WhirlyKit
 {
     
-OpenGLES2Program::OpenGLES2Program()
+ProgramGLES::ProgramGLES()
     : lightsLastUpdated(0.0)
 {
 }
     
-OpenGLES2Program::~OpenGLES2Program()
+ProgramGLES::~ProgramGLES()
 {
 }
     
-bool OpenGLES2Program::setUniform(StringIdentity nameID,float val)
+bool ProgramGLES::setUniform(StringIdentity nameID,float val)
 {
     OpenGLESUniform *uni = findUniform(nameID);
     if (!uni)
@@ -52,14 +53,14 @@ bool OpenGLES2Program::setUniform(StringIdentity nameID,float val)
         return true;
     
     glUniform1f(uni->index,val);
-    CheckGLError("OpenGLES2Program::setUniform() glUniform1f");
+    CheckGLError("ProgramGLES::setUniform() glUniform1f");
     uni->isSet = true;
     uni->val.fVals[0] = val;
     
     return true;
 }
 
-bool OpenGLES2Program::setUniform(StringIdentity nameID,float val,int index)
+bool ProgramGLES::setUniform(StringIdentity nameID,float val,int index)
 {
     std::string name = StringIndexer::getString(nameID) + "[0]";
     OpenGLESUniform *uni = findUniform(StringIndexer::getStringID(name));
@@ -70,14 +71,14 @@ bool OpenGLES2Program::setUniform(StringIdentity nameID,float val,int index)
         return false;
     
     glUniform1f(uni->index+index,val);
-    CheckGLError("OpenGLES2Program::setUniform() glUniform1f");
+    CheckGLError("ProgramGLES::setUniform() glUniform1f");
     uni->isSet = true;
     uni->val.fVals[0] = val;
     
     return true;
 }
 
-bool OpenGLES2Program::setUniform(StringIdentity nameID,int val)
+bool ProgramGLES::setUniform(StringIdentity nameID,int val)
 {
     OpenGLESUniform *uni = findUniform(nameID);
     if (!uni)
@@ -90,15 +91,16 @@ bool OpenGLES2Program::setUniform(StringIdentity nameID,int val)
         return true;
     
     glUniform1i(uni->index,val);
-    CheckGLError("OpenGLES2Program::setUniform() glUniform1i");
+    CheckGLError("ProgramGLES::setUniform() glUniform1i");
     uni->isSet = true;
     uni->val.iVals[0] = val;
     
     return true;
 }
     
-bool OpenGLES2Program::setTexture(StringIdentity nameID,GLuint val)
+bool ProgramGLES::setTexture(StringIdentity nameID,TextureBase *tex)
 {
+    GLuint val = ((TextureBaseGLES *)tex)->getGLId();
     OpenGLESUniform *uni = findUniform(nameID);
     if (!uni)
         return false;
@@ -114,7 +116,7 @@ bool OpenGLES2Program::setTexture(StringIdentity nameID,GLuint val)
 }
 
 
-bool OpenGLES2Program::setUniform(StringIdentity nameID,const Eigen::Vector2f &vec)
+bool ProgramGLES::setUniform(StringIdentity nameID,const Eigen::Vector2f &vec)
 {
     OpenGLESUniform *uni = findUniform(nameID);
     if (!uni)
@@ -127,14 +129,14 @@ bool OpenGLES2Program::setUniform(StringIdentity nameID,const Eigen::Vector2f &v
         return true;
     
     glUniform2f(uni->index, vec.x(), vec.y());
-    CheckGLError("OpenGLES2Program::setUniform() glUniform2f");
+    CheckGLError("ProgramGLES::setUniform() glUniform2f");
     uni->isSet = true;
     uni->val.fVals[0] = vec.x();  uni->val.fVals[1] = vec.y();
     
     return true;
 }
 
-bool OpenGLES2Program::setUniform(StringIdentity nameID,const Eigen::Vector3f &vec)
+bool ProgramGLES::setUniform(StringIdentity nameID,const Eigen::Vector3f &vec)
 {
     OpenGLESUniform *uni = findUniform(nameID);
     if (!uni)
@@ -146,7 +148,7 @@ bool OpenGLES2Program::setUniform(StringIdentity nameID,const Eigen::Vector3f &v
         return true;
     
     glUniform3f(uni->index, vec.x(), vec.y(), vec.z());
-    CheckGLError("OpenGLES2Program::setUniform() glUniform3f");
+    CheckGLError("ProgramGLES::setUniform() glUniform3f");
     uni->isSet = true;
     uni->val.fVals[0] = vec.x();  uni->val.fVals[1] = vec.y();  uni->val.fVals[2] = vec.z();
     
@@ -154,7 +156,7 @@ bool OpenGLES2Program::setUniform(StringIdentity nameID,const Eigen::Vector3f &v
 }
     
 
-bool OpenGLES2Program::setUniform(StringIdentity nameID,const Eigen::Vector4f &vec)
+bool ProgramGLES::setUniform(StringIdentity nameID,const Eigen::Vector4f &vec)
 {
     OpenGLESUniform *uni = findUniform(nameID);
     if (!uni)
@@ -167,14 +169,14 @@ bool OpenGLES2Program::setUniform(StringIdentity nameID,const Eigen::Vector4f &v
         return true;
     
     glUniform4f(uni->index, vec.x(), vec.y(), vec.z(), vec.w());
-    CheckGLError("OpenGLES2Program::setUniform() glUniform4f");
+    CheckGLError("ProgramGLES::setUniform() glUniform4f");
     uni->isSet = true;
     uni->val.fVals[0] = vec.x();  uni->val.fVals[1] = vec.y();  uni->val.fVals[2] = vec.z(); uni->val.fVals[3] = vec.w();
     
     return true;
 }
 
-bool OpenGLES2Program::setUniform(StringIdentity nameID,const Eigen::Vector4f &vec,int index)
+bool ProgramGLES::setUniform(StringIdentity nameID,const Eigen::Vector4f &vec,int index)
 {
     std::string name = StringIndexer::getString(nameID) + "[0]";
     OpenGLESUniform *uni = findUniform(StringIndexer::getStringID(name));
@@ -188,7 +190,7 @@ bool OpenGLES2Program::setUniform(StringIdentity nameID,const Eigen::Vector4f &v
         return true;
     
     glUniform4f(uni->index+index, vec.x(), vec.y(), vec.z(), vec.w());
-    CheckGLError("OpenGLES2Program::setUniform() glUniform4f");
+    CheckGLError("ProgramGLES::setUniform() glUniform4f");
     uni->isSet = true;
     uni->val.fVals[0] = vec.x();  uni->val.fVals[1] = vec.y();  uni->val.fVals[2] = vec.z(); uni->val.fVals[3] = vec.w();
     
@@ -197,7 +199,7 @@ bool OpenGLES2Program::setUniform(StringIdentity nameID,const Eigen::Vector4f &v
     
 
 
-bool OpenGLES2Program::setUniform(StringIdentity nameID,const Eigen::Matrix4f &mat)
+bool ProgramGLES::setUniform(StringIdentity nameID,const Eigen::Matrix4f &mat)
 {
     OpenGLESUniform *uni = findUniform(nameID);
     if (!uni)
@@ -220,7 +222,7 @@ bool OpenGLES2Program::setUniform(StringIdentity nameID,const Eigen::Matrix4f &m
     }
     
     glUniformMatrix4fv(uni->index, 1, GL_FALSE, (GLfloat *)mat.data());
-    CheckGLError("OpenGLES2Program::setUniform() glUniformMatrix4fv");
+    CheckGLError("ProgramGLES::setUniform() glUniformMatrix4fv");
     uni->isSet = true;
     for (unsigned int ii=0;ii<16;ii++)
         uni->val.mat[ii] = mat.data()[ii];
@@ -228,7 +230,7 @@ bool OpenGLES2Program::setUniform(StringIdentity nameID,const Eigen::Matrix4f &m
     return true;
 }
     
-bool OpenGLES2Program::setUniform(const SingleVertexAttribute &attr)
+bool ProgramGLES::setUniform(const SingleVertexAttribute &attr)
 {
     bool ret = false;
     
@@ -290,7 +292,7 @@ bool compileShader(const std::string &name,const char *shaderTypeStr,GLuint *sha
 }
 
 // Construct the program, compile and link
-OpenGLES2Program::OpenGLES2Program(const std::string &inName,const std::string &vShaderString,const std::string &fShaderString,const std::vector<std::string> *varying)
+ProgramGLES::ProgramGLES(const std::string &inName,const std::string &vShaderString,const std::string &fShaderString,const std::vector<std::string> *varying)
     : name(inName), lightsLastUpdated(0.0)
 {
     program = glCreateProgram();
@@ -300,18 +302,18 @@ OpenGLES2Program::OpenGLES2Program(const std::string &inName,const std::string &
         cleanUp();
         return;
     }
-    CheckGLError("OpenGLES2Program: compileShader() vertex");
+    CheckGLError("ProgramGLES: compileShader() vertex");
     if (!compileShader(name,"fragment",&fragShader,GL_FRAGMENT_SHADER,fShaderString))
     {
         cleanUp();
         return;
     }
-    CheckGLError("OpenGLES2Program: compileShader() fragment");
+    CheckGLError("ProgramGLES: compileShader() fragment");
 
     glAttachShader(program, vertShader);
-    CheckGLError("OpenGLES2Program: glAttachShader() vertex");
+    CheckGLError("ProgramGLES: glAttachShader() vertex");
     glAttachShader(program, fragShader);
-    CheckGLError("OpenGLES2Program: glAttachShader() fragment");
+    CheckGLError("ProgramGLES: glAttachShader() fragment");
 
     // Designate the varyings that we want out of the shader
     if (varying) {
@@ -323,7 +325,7 @@ OpenGLES2Program::OpenGLES2Program(const std::string &inName,const std::string &
         }
         glTransformFeedbackVaryings(program, varying->size(), names, GL_SEPARATE_ATTRIBS);
         
-        CheckGLError("OpenGLES2Program: Error setting up varyings in");
+        CheckGLError("ProgramGLES: Error setting up varyings in");
         
         for (unsigned int ii=0;ii<varying->size();ii++) {
             free(names[ii]);
@@ -334,7 +336,7 @@ OpenGLES2Program::OpenGLES2Program(const std::string &inName,const std::string &
     // Now link it
     GLint status;
     glLinkProgram(program);
-    CheckGLError("OpenGLES2Program: glLinkProgram");
+    CheckGLError("ProgramGLES: glLinkProgram");
 
     glGetProgramiv(program, GL_LINK_STATUS, &status);
     if (status == GL_FALSE)
@@ -377,7 +379,7 @@ OpenGLES2Program::OpenGLES2Program(const std::string &inName,const std::string &
         uni->index = glGetUniformLocation(program, thingName);
         uniforms[uni->nameID] = uni;
     }
-    CheckGLError("OpenGLES2Program: glGetActiveUniform");
+    CheckGLError("ProgramGLES: glGetActiveUniform");
 
     // Convert the attributes into a more useful form
     GLint numAttr;
@@ -392,28 +394,28 @@ OpenGLES2Program::OpenGLES2Program(const std::string &inName,const std::string &
         attr->nameID = StringIndexer::getStringID(thingName);
         attrs[attr->nameID] = attr;
     }
-    CheckGLError("OpenGLES2Program: glGetActiveAttrib");
+    CheckGLError("ProgramGLES: glGetActiveAttrib");
 }
     
 // Clean up oustanding OpenGL resources
-void OpenGLES2Program::cleanUp()
+void ProgramGLES::cleanUp()
 {
     if (program)
     {
         glDeleteProgram(program);
-        CheckGLError("OpenGLES2Program::cleanup() glDeleteProgram");
+        CheckGLError("ProgramGLES::cleanup() glDeleteProgram");
         program = 0;
     }
     if (vertShader)
     {
         glDeleteShader(vertShader);
-        CheckGLError("OpenGLES2Program::cleanup() glDeleteShader vertShader");
+        CheckGLError("ProgramGLES::cleanup() glDeleteShader vertShader");
         vertShader = 0;
     }
     if (fragShader)
     {
         glDeleteShader(fragShader);
-        CheckGLError("OpenGLES2Program::cleanup() glDeleteShader fragShader");
+        CheckGLError("ProgramGLES::cleanup() glDeleteShader fragShader");
         fragShader = 0;
     }
     
@@ -421,13 +423,13 @@ void OpenGLES2Program::cleanUp()
     attrs.clear();
 }
     
-bool OpenGLES2Program::isValid()
+bool ProgramGLES::isValid()
 {
     return (program != 0);
 }
     
 
-OpenGLESUniform *OpenGLES2Program::findUniform(StringIdentity nameID)
+OpenGLESUniform *ProgramGLES::findUniform(StringIdentity nameID)
 {
     auto it = uniforms.find(nameID);
     if (it == uniforms.end())
@@ -435,7 +437,7 @@ OpenGLESUniform *OpenGLES2Program::findUniform(StringIdentity nameID)
     return it->second.get();
 }
 
-const OpenGLESAttribute *OpenGLES2Program::findAttribute(StringIdentity nameID)
+const OpenGLESAttribute *ProgramGLES::findAttribute(StringIdentity nameID)
 {
     auto it = attrs.find(nameID);
     if (it == attrs.end())
@@ -443,13 +445,13 @@ const OpenGLESAttribute *OpenGLES2Program::findAttribute(StringIdentity nameID)
     return it->second.get();
 }
     
-bool OpenGLES2Program::hasLights()
+bool ProgramGLES::hasLights()
 {
     OpenGLESUniform *lightAttr = findUniform(u_numLightsNameID);
     return lightAttr != NULL;
 }
     
-bool OpenGLES2Program::setLights(const std::vector<DirectionalLight> &lights, TimeInterval lastUpdated, Material *mat, Eigen::Matrix4f &modelMat)
+bool ProgramGLES::setLights(const std::vector<DirectionalLight> &lights, TimeInterval lastUpdated, Material *mat, Eigen::Matrix4f &modelMat)
 {
     if (lightsLastUpdated >= lastUpdated)
         return false;
@@ -475,7 +477,7 @@ bool OpenGLES2Program::setLights(const std::vector<DirectionalLight> &lights, Ti
     return lightsSet;
 }
 
-int OpenGLES2Program::bindTextures()
+int ProgramGLES::bindTextures()
 {
     int numTextures = 0;
     
@@ -491,21 +493,6 @@ int OpenGLES2Program::bindTextures()
     }
     
     return numTextures;
-}
-
-ShaderAddTextureReq::ShaderAddTextureReq(SimpleIdentity shaderID,SimpleIdentity nameID,SimpleIdentity texID)
-: shaderID(shaderID), nameID(nameID), texID(texID)
-{
-}
-
-void ShaderAddTextureReq::execute(Scene *scene, SceneRendererES *renderer, View *view)
-{
-    OpenGLES2Program *prog = scene->getProgram(shaderID);
-    TextureBase *tex = scene->getTexture(texID);
-    if (prog && tex)
-    {
-        prog->setTexture(nameID,tex->getGLId());
-    }
 }
 
 }

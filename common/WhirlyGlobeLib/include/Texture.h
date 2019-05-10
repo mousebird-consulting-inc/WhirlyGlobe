@@ -56,7 +56,7 @@ typedef std::shared_ptr<TextureBase> TextureBaseRef;
 typedef enum {WKSingleRed,WKSingleGreen,WKSingleBlue,WKSingleRGB,WKSingleAlpha} WKSingleByteSource;
 
 /// Texture formats we allow
-typedef enum {TexTypeUnsignedBy,TexTypeShort565,TexTypeShort4444,TexTypeShort5551,TexTypeSingleChannel,TexTypeDoubleChannel} TextureType;
+typedef enum {TexTypeUnsignedByte,TexTypeShort565,TexTypeShort4444,TexTypeShort5551,TexTypeSingleChannel,TexTypeDoubleChannel} TextureType;
 /// Interpolation types for upscaling
 typedef enum {TexInterpNearest,TexInterpLinear} TextureInterpType;
     
@@ -114,10 +114,6 @@ public:
     void setSingleByteSource(WKSingleByteSource source) { byteSource = source; }
     /// If set, this is a texture we're creating for output purposes
     void setIsEmptyTexture(bool inIsEmptyTexture) { isEmptyTexture = inIsEmptyTexture; }
-
-    /// Sort the PKM data out from the NSData
-    /// This is static so the dynamic (haha) textures can use it
-    static unsigned char *ResolvePKM(RawDataRef texData,int &pkmType,int &size,int &width,int &height);
 
     /// Raw texture data
     RawDataRef texData;
