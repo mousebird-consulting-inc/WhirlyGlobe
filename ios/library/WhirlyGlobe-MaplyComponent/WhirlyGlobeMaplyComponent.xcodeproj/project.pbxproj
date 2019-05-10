@@ -467,6 +467,9 @@
 		2B8A788F22860D14008B0A1F /* StringIndexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B0B21F79AD00078A975 /* StringIndexer.cpp */; };
 		2B8A7890228610F9008B0A1F /* BasicDrawable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B5B21F7E7DF0078A975 /* BasicDrawable.cpp */; };
 		2B8A789122861F3F008B0A1F /* GeometryManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1921F158EB00EF2A82 /* GeometryManager.cpp */; };
+		2B8A789422862F4B008B0A1F /* BasicDrawableInstanceGLES.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B8A789322862F4B008B0A1F /* BasicDrawableInstanceGLES.cpp */; };
+		2B8A789622863DA7008B0A1F /* BasicDrawableInstanceBuilderGLES.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B8A789522863DA7008B0A1F /* BasicDrawableInstanceBuilderGLES.cpp */; };
+		2B8A789822863DF3008B0A1F /* BasicDrawableInstanceBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B8A789722863DF3008B0A1F /* BasicDrawableInstanceBuilder.cpp */; };
 		2B8E608920D458A600FB96F0 /* MaplyQuadSampler_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8E608820D458A500FB96F0 /* MaplyQuadSampler_private.h */; };
 		2B8E608B20D47FEE00FB96F0 /* MaplyRemoteTileFetcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8E608A20D47FEE00FB96F0 /* MaplyRemoteTileFetcher.h */; };
 		2BA827C1225E57FA00324594 /* MapboxVectorTileParser_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA827C0225E57FA00324594 /* MapboxVectorTileParser_iOS.h */; };
@@ -1472,6 +1475,11 @@
 		2B8A78822285F1B7008B0A1F /* BasicDrawableGLES.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = BasicDrawableGLES.cpp; path = ../../../../common/WhirlyGlobeLib/src/BasicDrawableGLES.cpp; sourceTree = "<group>"; };
 		2B8A788A228607B3008B0A1F /* Program.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Program.cpp; path = ../../../../common/WhirlyGlobeLib/src/Program.cpp; sourceTree = "<group>"; };
 		2B8A788C22860CEE008B0A1F /* TextureGLES.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = TextureGLES.cpp; path = ../../../../common/WhirlyGlobeLib/src/TextureGLES.cpp; sourceTree = "<group>"; };
+		2B8A789222862B35008B0A1F /* BasicDrawableInstanceGLES.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = BasicDrawableInstanceGLES.h; path = ../../../../common/WhirlyGlobeLib/include/BasicDrawableInstanceGLES.h; sourceTree = "<group>"; };
+		2B8A789322862F4B008B0A1F /* BasicDrawableInstanceGLES.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = BasicDrawableInstanceGLES.cpp; path = ../../../../common/WhirlyGlobeLib/src/BasicDrawableInstanceGLES.cpp; sourceTree = "<group>"; };
+		2B8A789522863DA7008B0A1F /* BasicDrawableInstanceBuilderGLES.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = BasicDrawableInstanceBuilderGLES.cpp; path = ../../../../common/WhirlyGlobeLib/src/BasicDrawableInstanceBuilderGLES.cpp; sourceTree = "<group>"; };
+		2B8A789722863DF3008B0A1F /* BasicDrawableInstanceBuilder.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = BasicDrawableInstanceBuilder.cpp; path = ../../../../common/WhirlyGlobeLib/src/BasicDrawableInstanceBuilder.cpp; sourceTree = "<group>"; };
+		2B8A789922864289008B0A1F /* BasicDrawableInstanceBuilderGLES.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = BasicDrawableInstanceBuilderGLES.h; path = ../../../../common/WhirlyGlobeLib/include/BasicDrawableInstanceBuilderGLES.h; sourceTree = "<group>"; };
 		2B8E608820D458A500FB96F0 /* MaplyQuadSampler_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyQuadSampler_private.h; sourceTree = "<group>"; };
 		2B8E608A20D47FEE00FB96F0 /* MaplyRemoteTileFetcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyRemoteTileFetcher.h; sourceTree = "<group>"; };
 		2B8E608E20D4800000FB96F0 /* MaplyRemoteTileFetcher.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyRemoteTileFetcher.mm; sourceTree = "<group>"; };
@@ -2089,6 +2097,8 @@
 				2BEDE106221CDC50008C7B74 /* TriangleShadersGLES.cpp */,
 				2B8A78822285F1B7008B0A1F /* BasicDrawableGLES.cpp */,
 				2B8A78802284DD5B008B0A1F /* BasicDrawableBuilderGLES.cpp */,
+				2B8A789322862F4B008B0A1F /* BasicDrawableInstanceGLES.cpp */,
+				2B8A789522863DA7008B0A1F /* BasicDrawableInstanceBuilderGLES.cpp */,
 			);
 			name = opengl;
 			sourceTree = "<group>";
@@ -2210,6 +2220,7 @@
 				2B446B0B21F79AD00078A975 /* StringIndexer.cpp */,
 				2B446B6721F7E7E00078A975 /* TextureAtlas.cpp */,
 				2B446B5A21F7E7DF0078A975 /* WideVectorDrawable.cpp */,
+				2B8A789722863DF3008B0A1F /* BasicDrawableInstanceBuilder.cpp */,
 			);
 			name = scene;
 			sourceTree = "<group>";
@@ -2230,6 +2241,8 @@
 				2BB8E1AB21FBB0A400154CDC /* SceneRendererGLES.h */,
 				2B8A786C2284DAF5008B0A1F /* TextureGLES.h */,
 				2B8A78782284DB3D008B0A1F /* DynamicTextureAtlasGLES.h */,
+				2B8A789222862B35008B0A1F /* BasicDrawableInstanceGLES.h */,
+				2B8A789922864289008B0A1F /* BasicDrawableInstanceBuilderGLES.h */,
 			);
 			name = opengl;
 			sourceTree = "<group>";
@@ -4457,6 +4470,7 @@
 				2B87970022038DF200EF801D /* LayoutLayer.mm in Sources */,
 				2B82B6921E82E24A0095FB14 /* pj_mutex.c in Sources */,
 				2B82B6351E82E2490095FB14 /* dmstor.c in Sources */,
+				2B8A789622863DA7008B0A1F /* BasicDrawableInstanceBuilderGLES.cpp in Sources */,
 				2BE1E760220A166300815D9C /* MaplyGeomModel.mm in Sources */,
 				2BE5398B1D249BEF00B60FAD /* AAAberration.cpp in Sources */,
 				2B82B67C1E82E24A0095FB14 /* PJ_laea.c in Sources */,
@@ -4481,6 +4495,7 @@
 				2B82B6971E82E24A0095FB14 /* PJ_nsper.c in Sources */,
 				2BE7E7BB221B22E500E4EFBA /* QuadImageFrameLoader_iOS.mm in Sources */,
 				2B82B6491E82E2490095FB14 /* PJ_bacon.c in Sources */,
+				2B8A789422862F4B008B0A1F /* BasicDrawableInstanceGLES.cpp in Sources */,
 				2BC3D6EE220B714100CE91D0 /* sqlhelpers.mm in Sources */,
 				2B82B6771E82E24A0095FB14 /* pj_initcache.c in Sources */,
 				2B82B67B1E82E24A0095FB14 /* PJ_labrd.c in Sources */,
@@ -4877,6 +4892,7 @@
 				2BE539991D249BEF00B60FAD /* AAEquinoxesAndSolstices.cpp in Sources */,
 				2B82B64B1E82E2490095FB14 /* PJ_boggs.c in Sources */,
 				2B82B68F1E82E24A0095FB14 /* PJ_mod_ster.c in Sources */,
+				2B8A789822863DF3008B0A1F /* BasicDrawableInstanceBuilder.cpp in Sources */,
 				2B82B6631E82E24A0095FB14 /* PJ_fahey.c in Sources */,
 				2B82B68A1E82E24A0095FB14 /* PJ_mbtfpp.c in Sources */,
 				2B8796CF21FFC59D00EF801D /* RawData_NSData.mm in Sources */,

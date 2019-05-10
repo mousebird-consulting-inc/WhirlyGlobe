@@ -35,6 +35,8 @@ namespace WhirlyKit
  */
 class BasicDrawableInstance : public Drawable
 {
+friend class BasicDrawableInstanceBuilder;
+    
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
@@ -42,8 +44,12 @@ public:
     typedef enum {ReuseStyle,LocalStyle} Style;
     
     /// Construct empty
-    BasicDrawableInstance(const std::string &name,SimpleIdentity masterID,Style instanceStyle);
+    BasicDrawableInstance(const std::string &name);
+    virtual ~BasicDrawableInstance();
     
+    /// Return the master being instanced
+    BasicDrawableRef getMaster() { return basicDraw; }
+
     /// Return the local MBR, if we're working in a non-geo coordinate system
     virtual Mbr getLocalMbr() const;
     
@@ -54,7 +60,7 @@ public:
     virtual SimpleIdentity getProgram() const;
     
     /// Set the shader program
-    void setProgram(SimpleIdentity progID) { programID = progID; }
+    void setProgram(SimpleIdentity progID);
     
     /// We're allowed to turn drawables off completely
     virtual bool isOn(WhirlyKit::RendererFrameInfo *frameInfo) const;
@@ -64,19 +70,21 @@ public:
     
     /// We can ask to use the z buffer
     virtual void setRequestZBuffer(bool val) { requestZBuffer = val; }
+    virtual bool getRequestZBuffer() const;
     
     /// Set the z buffer mode for this drawable
     virtual void setWriteZBuffer(bool val) { writeZBuffer = val; }
-    
-    virtual bool getRequestZBuffer() const { return requestZBuffer; }
-    virtual bool getWriteZbuffer() const { return writeZBuffer; }
+    virtual bool getWriteZbuffer() const;
     
     /// Update anything associated with the renderer.  Probably renderUntil.
     virtual void updateRenderer(WhirlyKit::SceneRenderer *renderer);
     
-    /// Fill this in to draw the basic drawable
-    virtual void draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene);
+    /// If present, we'll do a pre-render calculation pass with this program set
+    virtual SimpleIdentity getCalculationProgram() const { return EmptyIdentity; };
     
+    /// Some drawables have a pre-render phase that uses the GPU for calculation
+    virtual void calculate(RendererFrameInfo *frameInfo,Scene *scene) { };
+
     /// Set the enable on/off
     void setEnable(bool newEnable) { enable = newEnable; }
     
@@ -98,22 +106,8 @@ public:
     /// Set the line width
     void setLineWidth(int newLineWidth) { hasLineWidth = true;  lineWidth = newLineWidth; }
     
-    /// Return the ID of the basic drawable we're instancing
-    SimpleIdentity getMasterID() { return masterID; }
-        
-    /// Return the master being instanced
-    BasicDrawableRef getMaster() { return basicDraw; }
-    
-    /// Set this when we're representing moving geometry model instances
-    void setIsMoving(bool inMoving) { moving = inMoving; }
-    
-    /// Set if the geometry instance is moving over time
-    bool isMoving() const { return moving; }
-
     // Time we start counting from for motion
-    void setStartTime(TimeInterval inStartTime) { startTime = inStartTime; }
-    // Time we start counting from for motion
-    TimeInterval getStartTime() { return startTime; }
+    void setStartTime(TimeInterval inStartTime);
 
     /// Set the uniforms to be applied to the geometry
     virtual void setUniforms(const SingleVertexAttributeSet &uniforms);
@@ -141,10 +135,10 @@ public:
     void addInstances(const std::vector<SingleInstance> &insts);
     
     // If set, we'll render this data where directed
-    void setRenderTarget(SimpleIdentity newRenderTarget) { renderTargetID = newRenderTarget; }
+    void setRenderTarget(SimpleIdentity newRenderTarget);
     
     // EmptyIdentity is the standard view, anything else ia custom render target
-    SimpleIdentity getRenderTarget() { return renderTargetID; }
+    SimpleIdentity getRenderTarget() const;
     
     /// Texture ID and relative override info
     class TexInfo
@@ -168,9 +162,6 @@ public:
     /// We use these to look up parts of a texture at a higher level
     virtual void setTexRelative(int which,int size,int borderTexel,int relLevel,int relX,int relY);
     
-    /// Check for the given texture coordinate entry and add it if it's not there
-    virtual void setupTexCoordEntry(int which,int numReserve);
-
 protected:
     Style instanceStyle;
     SimpleIdentity programID;
@@ -190,9 +181,6 @@ protected:
     double minViewerDist,maxViewerDist;
     Point3d viewerCenter;
     int numInstances;
-//    GLuint instBuffer;
-//    GLuint vertArrayObj;
-//    std::vector<BasicDrawable::VertAttrDefault> vertArrayDefaults;
     
     int centerSize,matSize,colorInstSize,colorSize,instSize,modelDirSize;
     TimeInterval startTime;

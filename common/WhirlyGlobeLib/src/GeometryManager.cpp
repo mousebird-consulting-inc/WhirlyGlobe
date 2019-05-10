@@ -860,7 +860,7 @@ SimpleIdentity GeometryManager::addGeometryInstances(SimpleIdentity baseGeomID,c
     for (SimpleIdentity baseDrawID : baseSceneRep->drawIDs)
     {
         BasicDrawableInstanceBuilderRef drawInst = renderer->makeBasicDrawableInstanceBuilder("GeometryManager");
-        drawInst->setBaseID(baseDrawID,BasicDrawableInstance::LocalStyle);
+        drawInst->setMasterID(baseDrawID,BasicDrawableInstance::LocalStyle);
         geomInfo.setupBasicDrawableInstance(drawInst);
         //                    draw->setColor([geomInfo.color asRGBAColor]);
         drawInst->addInstances(singleInsts);
