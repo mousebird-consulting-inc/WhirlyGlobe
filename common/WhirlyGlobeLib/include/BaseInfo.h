@@ -32,7 +32,9 @@
 namespace WhirlyKit
 {
 class BasicDrawableBuilder;
+typedef std::shared_ptr<BasicDrawableBuilder> BasicDrawableBuilderRef;
 class BasicDrawableInstanceBuilder;
+typedef std::shared_ptr<BasicDrawableInstanceBuilder> BasicDrawableInstanceBuilderRef;
 
 /** Object use as the base for parsing description dictionaries.
  */
@@ -49,10 +51,12 @@ public:
     
     /// Set the various parameters on a basic drawable
     void setupBasicDrawable(BasicDrawableBuilder *drawBuild) const;
+    void setupBasicDrawable(BasicDrawableBuilderRef drawBuild) const;
 
     /// Set the various parameters on a basic drawable instance
     void setupBasicDrawableInstance(BasicDrawableInstanceBuilder *drawBuild) const;
-    
+    void setupBasicDrawableInstance(BasicDrawableInstanceBuilderRef drawBuild) const;
+
     double minVis,maxVis;
     double minVisBand,maxVisBand;
     double minViewerDist,maxViewerDist;

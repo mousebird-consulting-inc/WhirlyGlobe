@@ -30,6 +30,8 @@ namespace WhirlyKit
 class SceneRenderer;
 class BasicDrawableBuilder;
 typedef std::shared_ptr<BasicDrawableBuilder> BasicDrawableBuilderRef;
+class BasicDrawableInstanceBuilder;
+typedef std::shared_ptr<BasicDrawableInstanceBuilder> BasicDrawableInstanceBuilderRef;
 
 /** Renderer Frame Info.
  Data about the current frame, passed around by the renderer.
@@ -181,7 +183,10 @@ public:
     virtual void snapshotCallback() { };
     
     /// Construct a basic drawable builder for the appropriate rendering type
-    BasicDrawableBuilderRef makeBasicDrawableBuilder() const;
+    BasicDrawableBuilderRef makeBasicDrawableBuilder(const std::string &name) const;
+    
+    /// Construct a basic drawables instance builder for the current rendering type
+    BasicDrawableInstanceBuilderRef makeBasicDrawableInstanceBuilder(const std::string &name) const;
     
 public:
     // Possible post-target creation init

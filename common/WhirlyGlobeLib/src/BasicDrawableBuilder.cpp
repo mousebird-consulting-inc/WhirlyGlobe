@@ -273,6 +273,16 @@ unsigned int BasicDrawableBuilder::addPoint(const Point3d &pt)
     points.push_back(Point3f(pt.x(),pt.y(),pt.z()));
     return (unsigned int)(points.size()-1);
 }
+    
+unsigned int BasicDrawableBuilder::getNumPoints()
+{
+    return points.size();
+}
+
+unsigned int BasicDrawableBuilder::getNumTris()
+{
+    return tris.size();
+}
 
 Point3d BasicDrawableBuilder::getPoint(int which)
 {
@@ -447,5 +457,5 @@ void BasicDrawableBuilder::applySubTexture(int which,SubTexture subTex,int start
         }
     }
 }
-
+    
 }

@@ -21,7 +21,7 @@
 #import "GeometryManager.h"
 #import "SelectionManager.h"
 #import "BaseInfo.h"
-#import "BasicDrawableInstance.h"
+#import "BasicDrawableInstanceBuilder.h"
 #import "SharedAttributes.h"
 
 using namespace Eigen;
@@ -165,24 +165,24 @@ void GeometryRaw::calcBounds(Point3d &ll,Point3d &ur)
     }
 }
 
-void GeometryRaw::buildDrawables(std::vector<BasicDrawable *> &draws,const Eigen::Matrix4d &mat,const RGBAColor *colorOverride,GeometryInfo *geomInfo)
+void GeometryRaw::buildDrawables(std::vector<BasicDrawableBuilderRef> &draws,const Eigen::Matrix4d &mat,const RGBAColor *colorOverride,GeometryInfo *geomInfo,SceneRenderer *sceneRender)
 {
     if (!isValid())
         return;
     
-    BasicDrawable *draw = NULL;
+    BasicDrawableBuilderRef draw(NULL);
     for (unsigned int ii=0;ii<triangles.size();ii++)
     {
         RawTriangle tri = triangles[ii];
         // See if we need a new drawable
         if (!draw || draw->getNumPoints() + 3 > MaxDrawablePoints || draw->getNumTris() + 1 > MaxDrawableTriangles)
         {
-            draw = new BasicDrawable("Raw Geometry");
+            draw = sceneRender->makeBasicDrawableBuilder("Raw Geometry");
             if (geomInfo)
                 geomInfo->setupBasicDrawable(draw);
             if (colorOverride)
                 draw->setColor(*colorOverride);
-            draw->setType(GL_TRIANGLES);
+            draw->setType(Triangles);
             if (texId > 0)
                 draw->setTexId(0,texId);
             draws.push_back(draw);
@@ -478,12 +478,12 @@ bool GeometryRawPoints::valid() const
     return hasPosition;
 }
     
-void GeometryRawPoints::buildDrawables(std::vector<BasicDrawable *> &draws,const Eigen::Matrix4d &mat,GeometryInfo *geomInfo) const
+void GeometryRawPoints::buildDrawables(std::vector<BasicDrawableBuilderRef> &draws,const Eigen::Matrix4d &mat,GeometryInfo *geomInfo,SceneRenderer *sceneRender) const
 {
     if (!valid())
         return;
     
-    BasicDrawable *draw = NULL;
+    BasicDrawableBuilderRef draw = sceneRender->makeBasicDrawableBuilder("Raw Geometry");
     
     int posIdx = findAttribute(a_PositionNameID);
     int colorIdx = findAttribute(a_colorNameID);
@@ -497,13 +497,12 @@ void GeometryRawPoints::buildDrawables(std::vector<BasicDrawable *> &draws,const
         // See if we need a new drawable
         if (!draw || draw->getNumPoints() + 3 > MaxDrawablePoints)
         {
-            draw = new BasicDrawable("Raw Geometry");
             if (geomInfo) {
                 geomInfo->setupBasicDrawable(draw);
             }
             if (!mat.isIdentity())
                 draw->setMatrix(&mat);
-            draw->setType(GL_POINTS);
+            draw->setType(Points);
             draws.push_back(draw);
             
             // Add the various attributes
@@ -678,22 +677,22 @@ SimpleIdentity GeometryManager::addGeometry(std::vector<GeometryRaw *> &geom,con
             std::vector<GeometryRaw *> &sg = sortedGeom[jj];
             for (unsigned int kk=0;kk<sg.size();kk++)
             {
-                std::vector<BasicDrawable *> draws;
+                std::vector<BasicDrawableBuilderRef> draws;
                 GeometryRaw *raw = sg[kk];
-                raw->buildDrawables(draws,instMat,(inst->colorOverride ? &inst->color : NULL),&geomInfo);
+                raw->buildDrawables(draws,instMat,(inst->colorOverride ? &inst->color : NULL),&geomInfo,renderer);
                 
                 // Set the various parameters and store the drawables created
                 for (unsigned int ll=0;ll<draws.size();ll++)
                 {
-                    BasicDrawable *draw = draws[ll];
+                    BasicDrawableBuilderRef draw = draws[ll];
                     geomInfo.setupBasicDrawable(draw);
-                    draw->setType((raw->type == WhirlyKitGeometryLines ? GL_LINES : GL_TRIANGLES));
+                    draw->setType((raw->type == WhirlyKitGeometryLines ? Lines : Triangles));
 //                    draw->setColor([geomInfo.color asRGBAColor]);
                     Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
                     Matrix4d transMat = trans.matrix();
                     draw->setMatrix(&transMat);
-                    sceneRep->drawIDs.insert(draw->getId());
-                    changes.push_back(new AddDrawableReq(draw));
+                    sceneRep->drawIDs.insert(draw->getDrawable()->getId());
+                    changes.push_back(new AddDrawableReq(draw->getDrawable()));
                 }
             }
         }
@@ -757,20 +756,20 @@ SimpleIdentity GeometryManager::addBaseGeometry(std::vector<GeometryRaw *> &geom
         std::vector<GeometryRaw *> &sg = sortedGeom[jj];
         for (unsigned int kk=0;kk<sg.size();kk++)
         {
-            std::vector<BasicDrawable *> draws;
+            std::vector<BasicDrawableBuilderRef> draws;
             GeometryRaw *raw = sg[kk];
-            raw->buildDrawables(draws,instMat,NULL,NULL);
+            raw->buildDrawables(draws,instMat,NULL,NULL,renderer);
             
             // Set the various parameters and store the drawables created
             for (unsigned int ll=0;ll<draws.size();ll++)
             {
-                BasicDrawable *draw = draws[ll];
-                draw->setType((raw->type == WhirlyKitGeometryLines ? GL_LINES : GL_TRIANGLES));
+                BasicDrawableBuilderRef draw = draws[ll];
+                draw->setType((raw->type == WhirlyKitGeometryLines ? Lines : Triangles));
                 draw->setOnOff(false);
                 draw->setRequestZBuffer(true);
                 draw->setWriteZBuffer(true);
-                sceneRep->drawIDs.insert(draw->getId());
-                changes.push_back(new AddDrawableReq(draw));
+                sceneRep->drawIDs.insert(draw->getDrawable()->getId());
+                changes.push_back(new AddDrawableReq(draw->getDrawable()));
             }
         }
     }
@@ -860,7 +859,8 @@ SimpleIdentity GeometryManager::addGeometryInstances(SimpleIdentity baseGeomID,c
     // Instance each of the drawables in the base
     for (SimpleIdentity baseDrawID : baseSceneRep->drawIDs)
     {
-        BasicDrawableInstance *drawInst = new BasicDrawableInstance("GeometryManager",baseDrawID,BasicDrawableInstance::LocalStyle);
+        BasicDrawableInstanceBuilderRef drawInst = renderer->makeBasicDrawableInstanceBuilder("GeometryManager");
+        drawInst->setBaseID(baseDrawID,BasicDrawableInstance::LocalStyle);
         geomInfo.setupBasicDrawableInstance(drawInst);
         //                    draw->setColor([geomInfo.color asRGBAColor]);
         drawInst->addInstances(singleInsts);
@@ -870,8 +870,8 @@ SimpleIdentity GeometryManager::addGeometryInstances(SimpleIdentity baseGeomID,c
             drawInst->setIsMoving(true);
         }
         
-        sceneRep->drawIDs.insert(drawInst->getId());
-        changes.push_back(new AddDrawableReq(drawInst));
+        sceneRep->drawIDs.insert(drawInst->getDrawable()->getId());
+        changes.push_back(new AddDrawableReq(drawInst->getDrawable()));
     }
 
     SimpleIdentity geomID = sceneRep->getId();
@@ -888,14 +888,14 @@ SimpleIdentity GeometryManager::addGeometryPoints(const GeometryRawPoints &geomP
     // Calculate the bounding box for the whole thing
     Point3d ll,ur;
 
-    std::vector<BasicDrawable *> draws;
-    geomPoints.buildDrawables(draws,mat,&geomInfo);
+    std::vector<BasicDrawableBuilderRef> draws;
+    geomPoints.buildDrawables(draws,mat,&geomInfo,renderer);
     
     // Set the various parameters and store the drawables created
     for (unsigned int ll=0;ll<draws.size();ll++)
     {
-        BasicDrawable *draw = draws[ll];
-        draw->setType(GL_POINTS);
+        BasicDrawableBuilderRef draw = draws[ll];
+        draw->setType(Points);
         draw->setOnOff(geomInfo.enable);
         draw->setColor(geomInfo.color);
         draw->setVisibleRange(geomInfo.minVis, geomInfo.maxVis);
@@ -912,8 +912,8 @@ SimpleIdentity GeometryManager::addGeometryPoints(const GeometryRawPoints &geomP
 //        Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
 //        Matrix4d transMat = trans.matrix();
 //        draw->setMatrix(&transMat);
-        sceneRep->drawIDs.insert(draw->getId());
-        changes.push_back(new AddDrawableReq(draw));
+        sceneRep->drawIDs.insert(draw->getDrawable()->getId());
+        changes.push_back(new AddDrawableReq(draw->getDrawable()));
     }
     
     SimpleIdentity geomID = sceneRep->getId();

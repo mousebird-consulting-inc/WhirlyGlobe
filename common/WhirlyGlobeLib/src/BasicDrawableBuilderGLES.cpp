@@ -47,7 +47,7 @@ int BasicDrawableBuilderGLES::addAttribute(BDAttributeDataType dataType,StringId
     return (unsigned int)(basicDraw->vertexAttributes.size()-1);
 }
 
-BasicDrawable *BasicDrawableBuilderGLES::makeDrawable()
+BasicDrawable *BasicDrawableBuilderGLES::getDrawable()
 {
     if (!basicDraw)
         return NULL;

@@ -34,7 +34,7 @@ namespace WhirlyKit
     This is abstracted away from the BasicDrawable itself so we can
     build drawables for the different renderers.
  */
-class BasicDrawableBuilder : public Identifiable
+class BasicDrawableBuilder
 {
 public:
     /// Construct empty
@@ -108,7 +108,6 @@ public:
     /// Add a tweaker to this list to be run each frame
     void addTweaker(DrawableTweakerRef tweakRef);
 
-    
     /// Set the geometry type.  Probably triangles.
     virtual void setType(GeometryType inType);
     
@@ -143,6 +142,12 @@ public:
     /// Add a point when building up geometry.  Returns the index.
     virtual unsigned int addPoint(const Point3f &pt);
     virtual unsigned int addPoint(const Point3d &pt);
+    
+    /// Number of points added so far
+    virtual unsigned int getNumPoints();
+    
+    /// Numer of triangles added so far
+    virtual unsigned int getNumTris();
     
     /// Return a given point
     virtual Point3d getPoint(int which);
@@ -184,7 +189,8 @@ public:
     
     /// Add a triangle.  Should point to the vertex IDs.
     virtual void addTriangle(BasicDrawable::Triangle tri);
-        
+    
+    /// Set the uniforms applied to the Program before rendering
     virtual void setUniforms(const SingleVertexAttributeSet &uniforms);
     
     /// Run the texture and texture coordinates based on a SubTexture
@@ -192,7 +198,7 @@ public:
         
     /// Constructs the remaining pieces of the drawable and returns it
     /// Caller is responsible for deletion
-    virtual BasicDrawable *makeDrawable() = 0;
+    virtual BasicDrawable *getDrawable() = 0;
 
 public:
     // Used by subclasses to do the standard init

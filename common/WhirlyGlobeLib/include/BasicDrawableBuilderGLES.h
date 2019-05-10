@@ -41,7 +41,7 @@ public:
     virtual int addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings = -1) = 0;
 
     /// Fill out and return the drawable
-    virtual BasicDrawable *makeDrawable();
+    virtual BasicDrawable *getDrawable();
 };
     
 }

@@ -114,7 +114,7 @@ public:
     void calcBounds(Point3d &ll,Point3d &ur);
     
     // Build geometry into a drawable, using the given transform
-    void buildDrawables(std::vector<BasicDrawable *> &draws,const Eigen::Matrix4d &mat,const RGBAColor *colorOverride,GeometryInfo *geomInfo);
+    void buildDrawables(std::vector<BasicDrawableBuilderRef> &draws,const Eigen::Matrix4d &mat,const RGBAColor *colorOverride,GeometryInfo *geomInfo,SceneRenderer *sceneRender);
 
 public:
     /// What sort of geometry this is
@@ -283,7 +283,7 @@ public:
     int findAttribute(StringIdentity nameID) const;
     
 public:
-    void buildDrawables(std::vector<BasicDrawable *> &draws,const Eigen::Matrix4d &mat,GeometryInfo *geomInfo) const;
+    void buildDrawables(std::vector<BasicDrawableBuilderRef> &draws,const Eigen::Matrix4d &mat,GeometryInfo *geomInfo,SceneRenderer *sceneRender) const;
     
     std::vector<WhirlyKit::GeomPointAttrData *> attrData;
 };

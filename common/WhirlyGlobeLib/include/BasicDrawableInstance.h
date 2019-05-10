@@ -100,10 +100,7 @@ public:
     
     /// Return the ID of the basic drawable we're instancing
     SimpleIdentity getMasterID() { return masterID; }
-    
-    /// Set the drawable we're instancing
-    void setMaster(BasicDrawableRef draw) { basicDraw = draw; }
-    
+        
     /// Return the master being instanced
     BasicDrawableRef getMaster() { return basicDraw; }
     

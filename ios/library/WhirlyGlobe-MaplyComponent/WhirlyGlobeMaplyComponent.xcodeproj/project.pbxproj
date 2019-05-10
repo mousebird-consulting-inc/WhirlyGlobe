@@ -466,6 +466,7 @@
 		2B8A788E22860D0E008B0A1F /* Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B6421F7E7E00078A975 /* Texture.cpp */; };
 		2B8A788F22860D14008B0A1F /* StringIndexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B0B21F79AD00078A975 /* StringIndexer.cpp */; };
 		2B8A7890228610F9008B0A1F /* BasicDrawable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B5B21F7E7DF0078A975 /* BasicDrawable.cpp */; };
+		2B8A789122861F3F008B0A1F /* GeometryManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1921F158EB00EF2A82 /* GeometryManager.cpp */; };
 		2B8E608920D458A600FB96F0 /* MaplyQuadSampler_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8E608820D458A500FB96F0 /* MaplyQuadSampler_private.h */; };
 		2B8E608B20D47FEE00FB96F0 /* MaplyRemoteTileFetcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8E608A20D47FEE00FB96F0 /* MaplyRemoteTileFetcher.h */; };
 		2BA827C1225E57FA00324594 /* MapboxVectorTileParser_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA827C0225E57FA00324594 /* MapboxVectorTileParser_iOS.h */; };
@@ -4831,6 +4832,7 @@
 				2B82B6551E82E2490095FB14 /* pj_datums.c in Sources */,
 				2BE53A8B1D249C8900B60FAD /* DDXMLElementAdditions.m in Sources */,
 				2BE539A41D249BEF00B60FAD /* AAMoon.cpp in Sources */,
+				2B8A789122861F3F008B0A1F /* GeometryManager.cpp in Sources */,
 				2B82B5E61E82E2490095FB14 /* memalloc.c in Sources */,
 				2BE539901D249BEF00B60FAD /* AADiameters.cpp in Sources */,
 				2BC3D6CE2203EA1500CE91D0 /* MaplyScreenMarker.m in Sources */,

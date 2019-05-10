@@ -34,7 +34,7 @@ namespace WhirlyKit
  tweaking some of the fields.  This is good for using the same
  geometry to implement vectors of multiple colors and line widths.
  */
-class BasicDrawableInstanceBuilder : public BasicDrawableBuilder
+class BasicDrawableInstanceBuilder
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
@@ -42,23 +42,67 @@ public:
     /// Construct empty
     BasicDrawableInstanceBuilder(const std::string &name,SimpleIdentity masterID,BasicDrawableInstance::Style instanceStyle);
     
+    /// True to turn it on, false to turn it off
+    void setOnOff(bool onOff);
+    
+    /// Set the time range for enable
+    void setEnableTimeRange(TimeInterval inStartEnable,TimeInterval inEndEnable);
+    
+    /// Set the fade in and out
+    void setFade(TimeInterval inFadeDown,TimeInterval inFadeUp);
+    
+    /// Set local extents
+    void setLocalMbr(Mbr mbr);
+    
+    /// Set the viewer based visibility
+    virtual void setViewerVisibility(double minViewerDist,double maxViewerDist,const Point3d &viewerCenter);
+    
+    /// Set what range we can see this drawable within.
+    /// The units are in distance from the center of the globe and
+    ///  the surface of the globe as at 1.0
+    virtual void setVisibleRange(float minVis,float maxVis,float minVisBand=0.0,float maxVisBand=0.0);
+    
+    /// Set the alpha sorting on or off
+    void setAlpha(bool onOff);
+    
+    /// Draw priority used for sorting
+    virtual void setDrawPriority(unsigned int newPriority);
+    
+    /// Set the base draw ID and type
+    void setBaseID(SimpleIdentity baseDrawID,BasicDrawableInstance::Style style);
+    
+    /// Set the active transform matrix
+    virtual void setMatrix(const Eigen::Matrix4d *inMat);
+    
+    /// Resulting drawable wants the Z buffer for comparison
+    virtual void setRequestZBuffer(bool val);
+    
+    /// Resulting drawable writes to the Z buffer
+    virtual void setWriteZBuffer(bool val);
+
     /// Set the shader program
     void setProgram(SimpleIdentity progID);
     
     /// Set the drawable we're instancing
-    void setMaster(BasicDrawableRef draw) { basicDraw = draw; }
+    void setMaster(BasicDrawableRef draw);
+    
+    /// Add a tweaker to this list to be run each frame
+    void addTweaker(DrawableTweakerRef tweakRef);
     
     /// Set this when we're representing moving geometry model instances
-    void setIsMoving(bool inMoving) { moving = inMoving; }
+    void setIsMoving(bool inMoving);
     
     // Time we start counting from for motion
-    void setStartTime(TimeInterval inStartTime) { startTime = inStartTime; }
+    void setStartTime(TimeInterval inStartTime);
     
     /// Add a instance to the stack of instances this instance represents (mmm, noun overload)
     void addInstances(const std::vector<BasicDrawableInstance::SingleInstance> &insts);
     
     // If set, we'll render this data where directed
     void setRenderTarget(SimpleIdentity newRenderTarget);
+    
+    /// Set the uniforms applied to the Program before rendering
+    virtual void setUniforms(const SingleVertexAttributeSet &uniforms);
     
     /// Set the texture ID for a specific slot.  You get this from the Texture object.
     virtual void setTexId(unsigned int which,SimpleIdentity inId);
@@ -73,6 +117,10 @@ public:
     /// Check for the given texture coordinate entry and add it if it's not there
     virtual void setupTexCoordEntry(int which,int numReserve);
     
+    /// Constructs the remaining pieces of the drawable and returns it
+    /// Caller is responsible for deletion
+    virtual BasicDrawableInstance *getDrawable() = 0;
+
 protected:
     BasicDrawableInstance::Style instanceStyle;
     SimpleIdentity masterID;
@@ -89,5 +137,7 @@ protected:
     // If set, we'll instance this one multiple times
     std::vector<BasicDrawableInstance::SingleInstance> instances;
 };
+    
+typedef std::shared_ptr<BasicDrawableInstanceBuilder> BasicDrawableInstanceBuilderRef;
     
 }

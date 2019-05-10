@@ -146,6 +146,11 @@ std::string BaseInfo::toString()
     
     return outStr;
 }
+    
+void BaseInfo::setupBasicDrawable(BasicDrawableBuilderRef drawBuild) const
+{
+    setupBasicDrawable(drawBuild.get());
+}
 
 void BaseInfo::setupBasicDrawable(BasicDrawableBuilder *drawBuild) const
 {
@@ -163,6 +168,11 @@ void BaseInfo::setupBasicDrawable(BasicDrawableBuilder *drawBuild) const
         drawBuild->setRenderTarget(renderTargetID);
 }
 
+void BaseInfo::setupBasicDrawableInstance(BasicDrawableInstanceBuilderRef drawBuild) const
+{
+    setupBasicDrawableInstance(drawBuild.get());
+}
+    
 void BaseInfo::setupBasicDrawableInstance(BasicDrawableInstanceBuilder *drawBuild) const
 {
     drawBuild->setOnOff(enable);
