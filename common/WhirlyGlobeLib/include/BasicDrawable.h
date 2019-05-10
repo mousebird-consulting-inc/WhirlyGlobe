@@ -97,6 +97,9 @@ public:
     /// Draw priority used for sorting
     virtual void setDrawPriority(unsigned int newPriority);
     
+    /// Set the active transform matrix
+    virtual void setMatrix(const Eigen::Matrix4d *inMat);
+    
     /// Check if the force Z buffer on mode is on
     virtual bool getRequestZBuffer() const;
     virtual void setRequestZBuffer(bool val);
@@ -149,6 +152,9 @@ public:
     /// Set the relative offsets for texture usage.
     /// We use these to look up parts of a texture at a higher level
     virtual void setTexRelative(int which,int size,int borderTexel,int relLevel,int relX,int relY);
+    
+    /// Change all the uniforms applied at once
+    virtual void setUniforms(const SingleVertexAttributeSet &newUniforms);
 
     /// Update anything associated with the renderer.  Probably renderUntil.
     virtual void updateRenderer(SceneRenderer *renderer);

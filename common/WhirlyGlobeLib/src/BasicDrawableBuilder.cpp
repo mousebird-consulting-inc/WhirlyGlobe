@@ -61,6 +61,36 @@ void BasicDrawableBuilder::Init()
     basicDraw->hasMatrix = false;
 }
     
+void BasicDrawableBuilder::setupStandardAttributes(int numReserve)
+{
+    //    setupTexCoordEntry(0,numReserve);
+    
+    basicDraw->colorEntry = addAttribute(BDChar4Type,a_colorNameID);
+    basicDraw->vertexAttributes[basicDraw->colorEntry]->setDefaultColor(RGBAColor(255,255,255,255));
+    basicDraw->vertexAttributes[basicDraw->colorEntry]->reserve(numReserve);
+    
+    basicDraw->normalEntry = addAttribute(BDFloat3Type,a_normalNameID);
+    basicDraw->vertexAttributes[basicDraw->normalEntry]->setDefaultVector3f(Vector3f(1.0,1.0,1.0));
+    basicDraw->vertexAttributes[basicDraw->normalEntry]->reserve(numReserve);
+}
+    
+void BasicDrawableBuilder::setupTexCoordEntry(int which,int numReserve)
+{
+    if (which < basicDraw->texInfo.size())
+        return;
+    
+    for (unsigned int ii=(unsigned int)basicDraw->texInfo.size();ii<=which;ii++)
+    {
+        BasicDrawable::TexInfo newInfo;
+        char attributeName[40];
+        sprintf(attributeName,"a_texCoord%d",ii);
+        newInfo.texCoordEntry = addAttribute(BDFloat2Type,StringIndexer::getStringID(attributeName));
+        basicDraw->vertexAttributes[newInfo.texCoordEntry]->setDefaultVector2f(Vector2f(0.0,0.0));
+        basicDraw->vertexAttributes[newInfo.texCoordEntry]->reserve(numReserve);
+        basicDraw->texInfo.push_back(newInfo);
+    }
+}
+    
 BasicDrawableBuilder::BasicDrawableBuilder(const std::string &name)
 {
     Init();

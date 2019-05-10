@@ -18,7 +18,11 @@
  *
  */
 
+#import "Program.h"
 #import "BasicDrawable.h"
+#import "BasicDrawableInstance.h"
+#import "ParticleSystemDrawable.h"
+#import "SceneRenderer.h"
 #import "WhirlyKitLog.h"
 
 using namespace Eigen;
@@ -38,19 +42,6 @@ BasicDrawable::Triangle::Triangle(unsigned short v0,unsigned short v1,unsigned s
 BasicDrawable::BasicDrawable(const std::string &name)
 : Drawable(name)
 {
-    basicDrawableInit();
-    
-    setupStandardAttributes();
-}
-
-BasicDrawable::BasicDrawable(const std::string &name,unsigned int numVert,unsigned int numTri)
-: Drawable(name)
-{
-    basicDrawableInit();
-    
-    points.reserve(numVert);
-    tris.reserve(numTri);
-    setupStandardAttributes(numVert);
 }
 
 BasicDrawable::~BasicDrawable()
@@ -58,23 +49,6 @@ BasicDrawable::~BasicDrawable()
     for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
         delete vertexAttributes[ii];
     vertexAttributes.clear();
-}
-
-void BasicDrawable::setupTexCoordEntry(int which,int numReserve)
-{
-    if (which < texInfo.size())
-        return;
-    
-    for (unsigned int ii=(unsigned int)texInfo.size();ii<=which;ii++)
-    {
-        TexInfo newInfo;
-        char attributeName[40];
-        sprintf(attributeName,"a_texCoord%d",ii);
-        newInfo.texCoordEntry = addAttribute(BDFloat2Type,StringIndexer::getStringID(attributeName));
-        vertexAttributes[newInfo.texCoordEntry]->setDefaultVector2f(Vector2f(0.0,0.0));
-        vertexAttributes[newInfo.texCoordEntry]->reserve(numReserve);
-        texInfo.push_back(newInfo);
-    }
 }
 
 void BasicDrawable::setTexRelative(int which,int size,int borderTexel,int relLevel,int relX,int relY)
@@ -88,19 +62,6 @@ void BasicDrawable::setTexRelative(int which,int size,int borderTexel,int relLev
     ti.relLevel = relLevel;
     ti.relX = relX;
     ti.relY = relY;
-}
-
-void BasicDrawable::setupStandardAttributes(int numReserve)
-{
-//    setupTexCoordEntry(0,numReserve);
-    
-    colorEntry = addAttribute(BDChar4Type,a_colorNameID);
-    vertexAttributes[colorEntry]->setDefaultColor(RGBAColor(255,255,255,255));
-    vertexAttributes[colorEntry]->reserve(numReserve);
-    
-    normalEntry = addAttribute(BDFloat3Type,a_normalNameID);
-    vertexAttributes[normalEntry]->setDefaultVector3f(Vector3f(1.0,1.0,1.0));
-    vertexAttributes[normalEntry]->reserve(numReserve);
 }
 
 SimpleIdentity BasicDrawable::getProgram() const
@@ -118,7 +79,7 @@ unsigned int BasicDrawable::getDrawPriority() const
     return drawPriority;
 }
 
-bool BasicDrawable::isOn(WhirlyKit::RendererFrameInfo *frameInfo) const
+bool BasicDrawable::isOn(RendererFrameInfo *frameInfo) const
 {
     if (startEnable != endEnable)
     {
@@ -157,7 +118,7 @@ void BasicDrawable::setOnOff(bool onOff)
     on = onOff;
 }
 
-bool BasicDrawable::hasAlpha(WhirlyKit::RendererFrameInfo *frameInfo) const
+bool BasicDrawable::hasAlpha(RendererFrameInfo *frameInfo) const
 {
     if (isAlpha)
         return true;
@@ -205,52 +166,19 @@ bool BasicDrawable::hasAlpha(WhirlyKit::RendererFrameInfo *frameInfo) const
     return false;
 }
 
-void BasicDrawable::setAlpha(bool onOff)
-{
-    isAlpha = onOff;
-}
-
 Mbr BasicDrawable::getLocalMbr() const
 {
     return localMbr;
-}
-
-
-void BasicDrawable::setLocalMbr(Mbr mbr)
-{
-    localMbr = mbr;
 }
 
 void BasicDrawable::setDrawPriority(unsigned int newPriority)
 {
     drawPriority = newPriority;
 }
-
-unsigned int BasicDrawable::getDrawPriority()
+    
+void BasicDrawable::setMatrix(const Eigen::Matrix4d *inMat)
 {
-    return drawPriority;
-}
-
-void BasicDrawable::setDrawOffset(float newOffset)
-{
-    drawOffset = newOffset;
-}
-
-float BasicDrawable::getDrawOffset()
-{
-    return drawOffset;
-}
-
-void BasicDrawable::setType(GLenum inType)
-{
-    type = inType;
-    if (type == GL_LINES)
-        writeZBuffer = false;
-}
-
-GLenum BasicDrawable::getType() const
-{
-    return type;
+    mat = *inMat; hasMatrix = true;
 }
 
 void BasicDrawable::setTexId(unsigned int which,SimpleIdentity inId)
@@ -263,22 +191,8 @@ void BasicDrawable::setTexIDs(const std::vector<SimpleIdentity> &texIDs)
 {
     for (unsigned int ii=0;ii<std::min(texIDs.size(),texInfo.size());ii++)
     {
-        setupTexCoordEntry(ii, 0);
         texInfo[ii].texId = texIDs[ii];
     }
-}
-
-void BasicDrawable::setColor(RGBAColor inColor)
-{
-    if (colorEntry >= 0)
-        vertexAttributes[colorEntry]->setDefaultColor(color);
-}
-
-/// Set the color as an array.
-void BasicDrawable::setColor(unsigned char inColor[])
-{
-    if (colorEntry >= 0)
-        vertexAttributes[colorEntry]->setDefaultColor(color);
 }
     
 void BasicDrawable::setOverrideColor(RGBAColor inColor)
@@ -293,19 +207,8 @@ void BasicDrawable::setOverrideColor(unsigned char inColor[])
     hasOverrideColor = true;
 }
 
-RGBAColor BasicDrawable::getColor() const
-{
-    return color;
-}
-
 void BasicDrawable::setVisibleRange(float minVis,float maxVis,float minVisBand,float maxVisBand)
 { minVisible = minVis;  maxVisible = maxVis;  minVisibleFadeBand = minVisBand; maxVisibleFadeBand = maxVisBand; }
-
-void BasicDrawable::getVisibleRange(float &minVis,float &maxVis)
-{ minVis = minVisible;  maxVis = maxVisible; }
-
-void BasicDrawable::getVisibleRange(float &minVis,float &maxVis,float &minVisBand,float &maxVisBand)
-{ minVis = minVisible; maxVis = maxVisible;  minVisBand = minVisibleFadeBand; maxVisBand = maxVisibleFadeBand; }
     
 void BasicDrawable::setViewerVisibility(double inMinViewerDist,double inMaxViewerDist,const Point3d &inViewerCenter)
 {
@@ -314,20 +217,11 @@ void BasicDrawable::setViewerVisibility(double inMinViewerDist,double inMaxViewe
     viewerCenter = inViewerCenter;
 }
 
-void BasicDrawable::getViewerVisibility(double &outMinViewerDist,double &outMaxViewerDist,Point3d &outViewerCenter)
-{
-    outMinViewerDist = minViewerDist;
-    outMaxViewerDist = maxViewerDist;
-    outViewerCenter = viewerCenter;
-}
 void BasicDrawable::setFade(TimeInterval inFadeDown,TimeInterval inFadeUp)
 { fadeUp = inFadeUp;  fadeDown = inFadeDown; }
 
 void BasicDrawable::setLineWidth(float inWidth)
 { lineWidth = inWidth; }
-
-float BasicDrawable::getLineWidth()
-{ return lineWidth; }
 
 void BasicDrawable::setRequestZBuffer(bool val)
 { requestZBuffer = val; }
@@ -341,22 +235,8 @@ void BasicDrawable::setWriteZBuffer(bool val)
 bool BasicDrawable::getWriteZbuffer() const
 { return writeZBuffer; }
     
-void BasicDrawable::setClipCoords(bool inClipCoords)
-{
-    clipCoords = inClipCoords;
-}
-
-SimpleIdentity BasicDrawable::getTexId(unsigned int which)
-{
-    SimpleIdentity texId = EmptyIdentity;
-    if (which < texInfo.size())
-        texId = texInfo[which].texId;
-    
-    return texId;
-}
-
 // If we're fading in or out, update the rendering window
-void BasicDrawable::updateRenderer(WhirlyKit::SceneRendererES *renderer)
+void BasicDrawable::updateRenderer(SceneRenderer *renderer)
 {
     renderer->setRenderUntil(fadeUp);
     renderer->setRenderUntil(fadeDown);
@@ -371,17 +251,6 @@ void BasicDrawable::setUniforms(const SingleVertexAttributeSet &newUniforms)
     uniforms = newUniforms;
 }
     
-SingleVertexAttributeSet BasicDrawable::getUniforms() const
-{
-    return uniforms;
-}
-
-
-const std::vector<VertexAttribute *> &BasicDrawable::getVertexAttributes()
-{
-    return vertexAttributes;
-}
-
 BasicDrawableTexTweaker::BasicDrawableTexTweaker(const std::vector<SimpleIdentity> &texIDs,TimeInterval startTime,double period)
 : texIDs(texIDs), startTime(startTime), period(period)
 {
@@ -414,7 +283,7 @@ BasicDrawableScreenTexTweaker::BasicDrawableScreenTexTweaker(const Point3d &cent
 {
 }
     
-void BasicDrawableScreenTexTweaker::tweakForFrame(Drawable *draw,WhirlyKit::RendererFrameInfo *frameInfo)
+void BasicDrawableScreenTexTweaker::tweakForFrame(Drawable *draw,RendererFrameInfo *frameInfo)
 {
     BasicDrawable *basicDraw = (BasicDrawable *)draw;
 
@@ -445,7 +314,7 @@ ColorChangeRequest::ColorChangeRequest(SimpleIdentity drawId,RGBAColor inColor)
     color[3] = inColor.a;
 }
 
-void ColorChangeRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw)
+void ColorChangeRequest::execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw)
 {
     BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDrawable)
@@ -464,7 +333,7 @@ OnOffChangeRequest::OnOffChangeRequest(SimpleIdentity drawId,bool OnOff)
     
 }
 
-void OnOffChangeRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw)
+void OnOffChangeRequest::execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw)
 {
     BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDrawable) {
@@ -482,7 +351,7 @@ VisibilityChangeRequest::VisibilityChangeRequest(SimpleIdentity drawId,float min
 {
 }
 
-void VisibilityChangeRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw)
+void VisibilityChangeRequest::execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw)
 {
     BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDrawable)
@@ -499,7 +368,7 @@ FadeChangeRequest::FadeChangeRequest(SimpleIdentity drawId,TimeInterval fadeUp,T
     
 }
 
-void FadeChangeRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw)
+void FadeChangeRequest::execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw)
 {
     // Fade it out, then remove it
     BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
@@ -519,11 +388,11 @@ DrawTexChangeRequest::DrawTexChangeRequest(SimpleIdentity drawId,unsigned int wh
 }
 
 DrawTexChangeRequest::DrawTexChangeRequest(SimpleIdentity drawId,unsigned int which,SimpleIdentity newTexId,int size,int borderTexel,int relLevel,int relX,int relY)
-: WhirlyKit::DrawableChangeRequest(drawId), which(which), newTexId(newTexId), relSet(true), size(size), borderTexel(borderTexel), relLevel(relLevel), relX(relX), relY(relY)
+: DrawableChangeRequest(drawId), which(which), newTexId(newTexId), relSet(true), size(size), borderTexel(borderTexel), relLevel(relLevel), relX(relX), relY(relY)
 {
 }
     
-void DrawTexChangeRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw)
+void DrawTexChangeRequest::execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw)
 {
     BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDrawable) {
@@ -537,8 +406,10 @@ void DrawTexChangeRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *ren
         if (refDrawable) {
             BasicDrawableRef orgDrawable = refDrawable->getMaster();
             if (orgDrawable) {
-                if (orgDrawable->texInfo.size() < which)
-                    orgDrawable->setupTexCoordEntry(which, 0);
+                if (orgDrawable->texInfo.size() < which) {
+                    wkLogLevel(Error,"DrawTexChangeRequest: Asked to change texture entry that doesn't exit.");
+                    return;
+                }
                 refDrawable->setTexId(which,newTexId);
                 if (relSet)
                     refDrawable->setTexRelative(which, size, borderTexel, relLevel, relX, relY);
@@ -554,7 +425,7 @@ DrawTexturesChangeRequest::DrawTexturesChangeRequest(SimpleIdentity drawId,const
 {
 }
 
-void DrawTexturesChangeRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw)
+void DrawTexturesChangeRequest::execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw)
 {
     BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDrawable)
@@ -566,7 +437,7 @@ TransformChangeRequest::TransformChangeRequest(SimpleIdentity drawId,const Matri
 {
 }
 
-void TransformChangeRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw)
+void TransformChangeRequest::execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw)
 {
     BasicDrawableRef basicDraw = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDraw.get())
@@ -578,7 +449,7 @@ DrawPriorityChangeRequest::DrawPriorityChangeRequest(SimpleIdentity drawId,int d
 {
 }
 
-void DrawPriorityChangeRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw)
+void DrawPriorityChangeRequest::execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw)
 {
     BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDrawable)
@@ -595,7 +466,7 @@ LineWidthChangeRequest::LineWidthChangeRequest(SimpleIdentity drawId,float lineW
 {
 }
 
-void LineWidthChangeRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw)
+void LineWidthChangeRequest::execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw)
 {
     BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDrawable)
@@ -608,11 +479,11 @@ void LineWidthChangeRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *r
 }
     
 DrawUniformsChangeRequest::DrawUniformsChangeRequest(SimpleIdentity drawID,const SingleVertexAttributeSet &attrs)
-    : WhirlyKit::DrawableChangeRequest(drawID), attrs(attrs)
+    : DrawableChangeRequest(drawID), attrs(attrs)
 {
 }
     
-void DrawUniformsChangeRequest::execute2(Scene *scene,SceneRendererES *renderer,DrawableRef draw)
+void DrawUniformsChangeRequest::execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw)
 {
     BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDrawable)
@@ -625,11 +496,11 @@ void DrawUniformsChangeRequest::execute2(Scene *scene,SceneRendererES *renderer,
 }
 
 RenderTargetChangeRequest::RenderTargetChangeRequest(SimpleIdentity drawID,SimpleIdentity targetID)
-: WhirlyKit::DrawableChangeRequest(drawID), targetID(targetID)
+: DrawableChangeRequest(drawID), targetID(targetID)
 {
 }
     
-void RenderTargetChangeRequest::execute2(Scene *scene,SceneRendererES *renderer,DrawableRef draw)
+void RenderTargetChangeRequest::execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw)
 {
     BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDrawable)
