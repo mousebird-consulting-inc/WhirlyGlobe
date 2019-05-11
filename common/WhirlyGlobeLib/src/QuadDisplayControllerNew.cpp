@@ -32,7 +32,7 @@ QuadDataStructure::~QuadDataStructure()
 {
 }
 
-QuadDisplayControllerNew::QuadDisplayControllerNew(QuadDataStructure *dataStructure,QuadLoaderNew *loader,SceneRendererES *renderer)
+QuadDisplayControllerNew::QuadDisplayControllerNew(QuadDataStructure *dataStructure,QuadLoaderNew *loader,SceneRenderer *renderer)
     : dataStructure(dataStructure), loader(loader), renderer(renderer), QuadTreeNew(MbrD(dataStructure->getTotalExtents()),dataStructure->getMinZoom(),dataStructure->getMaxZoom())
 {
     coordSys = dataStructure->getCoordSystem();

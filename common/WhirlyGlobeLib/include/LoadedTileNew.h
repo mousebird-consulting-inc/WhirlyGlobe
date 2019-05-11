@@ -78,10 +78,10 @@ public:
     bool isValidSpatial(TileGeomManager *geomManage);
     
     // Build the drawable(s) to represent this one tile
-    void makeDrawables(TileGeomManager *geomManage,TileGeomSettings &geomSettings,ChangeSet &changes);
+    void makeDrawables(SceneRenderer *sceneRender,TileGeomManager *geomManage,TileGeomSettings &geomSettings,ChangeSet &changes);
 
     // Utility routine to build skirts around the edges
-    void buildSkirt(BasicDrawable *draw,Point3dVector &pts,std::vector<TexCoord> &texCoords,double skirtFactor,bool haveElev,const Point3d &theCenter);
+    void buildSkirt(BasicDrawableBuilderRef &draw,Point3dVector &pts,std::vector<TexCoord> &texCoords,double skirtFactor,bool haveElev,const Point3d &theCenter);
 
     // Enable associated drawables
     void enable(TileGeomSettings &geomSettings,ChangeSet &changes);
@@ -120,7 +120,7 @@ public:
     TileGeomManager();
     
     // Construct with the quad tree we're building off of, the coordinate system we're building from and the (valid) bounding box
-    void setup(TileGeomSettings &geomSettings,QuadTreeNew *quadTree,CoordSystemDisplayAdapter *coordAdapter,CoordSystemRef coordSys,MbrD inMbr);
+    void setup(SceneRenderer *sceneRender,TileGeomSettings &geomSettings,QuadTreeNew *quadTree,CoordSystemDisplayAdapter *coordAdapter,CoordSystemRef coordSys,MbrD inMbr);
     
     // Keep track of nodes added, enabled and disabled
     class NodeChanges
@@ -153,6 +153,8 @@ public:
     void cleanup(ChangeSet &changes);
     
     TileGeomSettings settings;
+    
+    SceneRenderer *sceneRender;
     
     QuadTreeNew *quadTree;
     CoordSystemDisplayAdapter *coordAdapter;

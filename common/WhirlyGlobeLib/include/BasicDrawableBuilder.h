@@ -40,11 +40,10 @@ public:
     /// Construct empty
     BasicDrawableBuilder(const std::string &name);
 
-    /// Construct with some idea how big things are.
-    /// You can violate this, but it will reserve space
-    BasicDrawableBuilder(const std::string &name, unsigned int numVert,unsigned int numTri);
-
     virtual ~BasicDrawableBuilder();
+    
+    /// Reserve the given amount of space (cuts down on reallocs)
+    void reserve(int numPoints,int numTris);
         
     /// True to turn it on, false to turn it off
     void setOnOff(bool onOff);
@@ -202,14 +201,15 @@ public:
     /// Caller is responsible for deletion
     virtual BasicDrawable *getDrawable() = 0;
 
+    /// Check for the given texture coordinate entry and add it if it's not there
+    virtual void setupTexCoordEntry(int which,int numReserve);
+
 protected:
     // This version is only used by subclasses
     BasicDrawableBuilder();
     void setName(const std::string &name);
     // Used by subclasses to do the standard init
     void Init();
-    /// Check for the given texture coordinate entry and add it if it's not there
-    virtual void setupTexCoordEntry(int which,int numReserve);
     // Set up the standard vertex attributes we use
     virtual void setupStandardAttributes(int numReserve=0);
     

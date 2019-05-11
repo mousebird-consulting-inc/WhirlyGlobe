@@ -34,7 +34,7 @@ QuadSamplingController::~QuadSamplingController()
 {
 }
 
-void QuadSamplingController::start(const SamplingParams &inParams,Scene *inScene,SceneRendererES *inRenderer)
+void QuadSamplingController::start(const SamplingParams &inParams,Scene *inScene,SceneRenderer *inRenderer)
 {
     params = inParams;
     scene = inScene;

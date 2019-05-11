@@ -268,17 +268,18 @@ void QIFTileAsset::setupContents(QuadImageFrameLoader *loader,LoadedTileNewRef l
         }
         
         // Make a drawable instance to shadow the geometry
-        auto drawInst = new BasicDrawableInstance("MaplyQuadImageFrameLoader", di.drawID, BasicDrawableInstance::LocalStyle);
+        auto drawInst = loader->getController()->getRenderer()->makeBasicDrawableInstanceBuilder("MaplyQuadImageFrameLoader");
+        drawInst->setMasterID(di.drawID, BasicDrawableInstance::LocalStyle);
         drawInst->setTexId(0, 0);
         drawInst->setDrawPriority(newDrawPriority);
-        drawInst->setEnable(false);
+        drawInst->setOnOff(false);
         drawInst->setProgram(shaderID);
         drawInst->setColor(loader->getColor());
         SimpleIdentity renderTargetID = loader->getRenderTarget();
         if (renderTargetID != EmptyIdentity)
             drawInst->setRenderTarget(renderTargetID);
-        changes.push_back(new AddDrawableReq(drawInst));
-        instanceDrawIDs.push_back(drawInst->getId());
+        changes.push_back(new AddDrawableReq(drawInst->getDrawable()));
+        instanceDrawIDs.push_back(drawInst->getDrawable()->getId());
     }
 }
 
@@ -552,7 +553,7 @@ void QIFRenderState::updateScene(Scene *scene,double curFrame,TimeInterval now,b
 QuadImageFrameLoader::QuadImageFrameLoader(const SamplingParams &params,Mode mode)
 : mode(mode), debugMode(false),
     params(params),
-    texType(GL_UNSIGNED_BYTE), curFrame(0.0), flipY(true), shaderID(EmptyIdentity),
+    texType(TexTypeUnsignedByte), curFrame(0.0), flipY(true), shaderID(EmptyIdentity),
     baseDrawPriority(100), drawPriorityPerLevel(1),
     color(RGBAColor(255,255,255,255)),
     renderTargetID(EmptyIdentity),
@@ -623,7 +624,7 @@ SimpleIdentity QuadImageFrameLoader::getShaderID()
     return shaderID;
 }
     
-void QuadImageFrameLoader::setTexType(GLenum inTexType)
+void QuadImageFrameLoader::setTexType(TextureType inTexType)
 {
     texType = inTexType;
 }
@@ -967,7 +968,7 @@ void QuadImageFrameLoader::buildRenderState(ChangeSet &changes)
         newRenderState.tiles[tileID] = tileState;
     }
     
-    auto mergeReq = new RunBlockReq([this,newRenderState](Scene *scene,SceneRendererES *renderer,View *view)
+    auto mergeReq = new RunBlockReq([this,newRenderState](Scene *scene,SceneRenderer *renderer,View *view)
     {
         if (builder)
             renderState = newRenderState;

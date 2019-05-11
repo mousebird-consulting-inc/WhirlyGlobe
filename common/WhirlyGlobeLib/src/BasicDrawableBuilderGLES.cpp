@@ -30,12 +30,6 @@ BasicDrawableBuilderGLES::BasicDrawableBuilderGLES(const std::string &name)
 {
     basicDraw = new BasicDrawableGLES(name);
 }
-
-BasicDrawableBuilderGLES::BasicDrawableBuilderGLES(const std::string &name, unsigned int numVert,unsigned int numTri)
-    : BasicDrawableBuilder(name,numVert,numTri), drawableGotten(false)
-{
-    basicDraw = new BasicDrawableGLES(name);
-}
     
 BasicDrawableBuilderGLES::~BasicDrawableBuilderGLES()
 {

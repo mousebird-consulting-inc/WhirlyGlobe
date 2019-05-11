@@ -19,6 +19,7 @@
  */
 
 #import "LoadedTileNew.h"
+#import "BasicDrawableBuilder.h"
 #import "WhirlyKitLog.h"
 
 using namespace Eigen;
@@ -49,7 +50,7 @@ bool LoadedTileNew::isValidSpatial(TileGeomManager *geomManage)
     return geomManage->mbr.inside(theMbr.mid());
 }
 
-void LoadedTileNew::makeDrawables(TileGeomManager *geomManage,TileGeomSettings &geomSettings,ChangeSet &changes)
+void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *geomManage,TileGeomSettings &geomSettings,ChangeSet &changes)
 {
     enabled = true;
     MbrD theMbr = geomManage->quadTree->generateMbrForNode(ident);
@@ -122,11 +123,12 @@ void LoadedTileNew::makeDrawables(TileGeomManager *geomManage,TileGeomSettings &
     GeoCoord geoLL(geomManage->coordSys->localToGeographic(Point3d(chunkLL.x(),chunkLL.y(),0.0)));
     GeoCoord geoUR(geomManage->coordSys->localToGeographic(Point3d(chunkUR.x(),chunkUR.y(),0.0)));
     
-    BasicDrawable *chunk = new BasicDrawable("LoadedTileNew chunk",(sphereTessX+1)*(sphereTessY+1),2*sphereTessX*sphereTessY);
+    BasicDrawableBuilderRef chunk = sceneRender->makeBasicDrawableBuilder("LoadedTileNew chunk");
+    chunk->reserve((sphereTessX+1)*(sphereTessY+1),2*sphereTessX*sphereTessY);
     // Note: Make this flexible
     chunk->setupTexCoordEntry(0, 0);
     
-    changes.push_back(new AddDrawableReq(chunk));
+    changes.push_back(new AddDrawableReq(chunk->getDrawable()));
     if (geomSettings.useTileCenters)
         chunk->setMatrix(&transMat);
     
@@ -137,26 +139,26 @@ void LoadedTileNew::makeDrawables(TileGeomManager *geomManage,TileGeomSettings &
     chunk->setLocalMbr(Mbr(Point2f(geoLL.x(),geoLL.y()),Point2f(geoUR.x(),geoUR.y())));
     chunk->setProgram(geomSettings.programID);
     chunk->setOnOff(false);
-    drawInfo.push_back(DrawableInfo(DrawableGeom,chunk->getId(),chunk->getDrawPriority()));
+    drawInfo.push_back(DrawableInfo(DrawableGeom,chunk->getDrawable()->getId(),chunk->getDrawable()->getDrawPriority()));
 
     // Might need another drawable for poles
     bool separatePoleChunk = false;
-    BasicDrawable *poleChunk = NULL;
+    BasicDrawableBuilderRef poleChunk;
     if (geomManage->coverPoles && (geomManage->useNorthPoleColor || geomManage->useSouthPoleColor))
     {
-        poleChunk = new BasicDrawable("LoadedTileNew poleChunk");
+        poleChunk = sceneRender->makeBasicDrawableBuilder("LoadedTileNew poleChunk");
         poleChunk->setupTexCoordEntry(0, 0);
-        changes.push_back(new AddDrawableReq(poleChunk));
+        changes.push_back(new AddDrawableReq(poleChunk->getDrawable()));
         if (geomSettings.useTileCenters)
             poleChunk->setMatrix(&transMat);
-        poleChunk->setType(GL_TRIANGLES);
+        poleChunk->setType(Triangles);
         poleChunk->setDrawPriority(drawPriority);
         poleChunk->setVisibleRange(geomSettings.minVis, geomSettings.maxVis);
 //        poleChunk->setColor(geomSettings.color);
         poleChunk->setLocalMbr(Mbr(Point2f(geoLL.x(),geoLL.y()),Point2f(geoUR.x(),geoUR.y())));
         poleChunk->setProgram(geomSettings.programID);
         poleChunk->setOnOff(false);
-        drawInfo.push_back(DrawableInfo(DrawablePole,poleChunk->getId(),poleChunk->getDrawPriority()));
+        drawInfo.push_back(DrawableInfo(DrawablePole,poleChunk->getDrawable()->getId(),poleChunk->getDrawable()->getDrawPriority()));
         separatePoleChunk = true;
     } else
         poleChunk = chunk;
@@ -164,7 +166,7 @@ void LoadedTileNew::makeDrawables(TileGeomManager *geomManage,TileGeomSettings &
     // We're in line mode or the texture didn't load
     if (geomSettings.lineMode)
     {
-        chunk->setType(GL_LINES);
+        chunk->setType(Lines);
         
         // Two lines per cell
         for (unsigned int iy=0;iy<sphereTessY;iy++)
@@ -191,7 +193,7 @@ void LoadedTileNew::makeDrawables(TileGeomManager *geomManage,TileGeomSettings &
                 chunk->addTexCoord(-1,texCoord);
             }
     } else {
-        chunk->setType(GL_TRIANGLES);
+        chunk->setType(Triangles);
         // Generate point, texture coords, and normals
         Point3dVector locs((sphereTessX+1)*(sphereTessY+1));
         std::vector<float> elevs;
@@ -261,8 +263,8 @@ void LoadedTileNew::makeDrawables(TileGeomManager *geomManage,TileGeomSettings &
         if (geomManage->buildSkirts && !geomManage->coordAdapter->isFlat())
         {
             // We'll set up and fill in the drawable
-            BasicDrawable *skirtChunk = new BasicDrawable("LoadedTileNew SkirtChunk");
-            changes.push_back(new AddDrawableReq(skirtChunk));
+            BasicDrawableBuilderRef skirtChunk = sceneRender->makeBasicDrawableBuilder("LoadedTileNew SkirtChunk");
+            changes.push_back(new AddDrawableReq(skirtChunk->getDrawable()));
             if (geomSettings.useTileCenters)
                 skirtChunk->setMatrix(&transMat);
             // We hardwire this to appear after the atmosphere.  A bit hacky.
@@ -271,12 +273,12 @@ void LoadedTileNew::makeDrawables(TileGeomManager *geomManage,TileGeomSettings &
             skirtChunk->setVisibleRange(geomSettings.minVis, geomSettings.maxVis);
 //            skirtChunk->setColor(geomSettings.color);
             skirtChunk->setLocalMbr(Mbr(Point2f(geoLL.x(),geoLL.y()),Point2f(geoUR.x(),geoUR.y())));
-            skirtChunk->setType(GL_TRIANGLES);
+            skirtChunk->setType(Triangles);
             // We need the skirts rendered with the z buffer on, even if we're doing (mostly) pure sorting
             skirtChunk->setRequestZBuffer(true);
             skirtChunk->setProgram(geomSettings.programID);
             skirtChunk->setOnOff(false);
-            drawInfo.push_back(DrawableInfo(DrawableSkirt,skirtChunk->getId(),skirtChunk->getDrawPriority()));
+            drawInfo.push_back(DrawableInfo(DrawableSkirt,skirtChunk->getDrawable()->getId(),skirtChunk->getDrawable()->getDrawPriority()));
 
             // We'll vary the skirt size a bit.  Otherwise the fill gets ridiculous when we're looking
             //  at the very highest levels.  On the other hand, this doesn't fix a really big large/small
@@ -410,7 +412,7 @@ void LoadedTileNew::makeDrawables(TileGeomManager *geomManage,TileGeomSettings &
     }
 }
     
-void LoadedTileNew::buildSkirt(BasicDrawable *draw,Point3dVector &pts,std::vector<TexCoord> &texCoords,double skirtFactor,bool haveElev,const Point3d &theCenter)
+void LoadedTileNew::buildSkirt(BasicDrawableBuilderRef &draw,Point3dVector &pts,std::vector<TexCoord> &texCoords,double skirtFactor,bool haveElev,const Point3d &theCenter)
 {
     for (unsigned int ii=0;ii<pts.size()-1;ii++)
     {
@@ -478,8 +480,9 @@ TileGeomManager::TileGeomManager()
 {
 }
     
-void TileGeomManager::setup(TileGeomSettings &geomSettings,QuadTreeNew *inQuadTree,CoordSystemDisplayAdapter *inCoordAdapter,CoordSystemRef inCoordSys,MbrD inMbr)
+void TileGeomManager::setup(SceneRenderer *inSceneRender,TileGeomSettings &geomSettings,QuadTreeNew *inQuadTree,CoordSystemDisplayAdapter *inCoordAdapter,CoordSystemRef inCoordSys,MbrD inMbr)
 {
+    sceneRender = inSceneRender;
     settings = geomSettings;
     quadTree = inQuadTree;
     coordAdapter = inCoordAdapter;
@@ -509,7 +512,7 @@ TileGeomManager::NodeChanges TileGeomManager::addRemoveTiles(const QuadTreeNew::
             LoadedTileNewRef tile = LoadedTileNewRef(new LoadedTileNew(ident,mbr));
             if (tile->isValidSpatial(this))
             {
-                tile->makeDrawables(this,settings,changes);
+                tile->makeDrawables(sceneRender,this,settings,changes);
                 tileMap[ident] = tile;
                 nodeChanges.addedTiles.push_back(tile);
             }

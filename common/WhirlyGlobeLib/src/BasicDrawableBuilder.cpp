@@ -36,19 +36,16 @@ BasicDrawableBuilder::BasicDrawableBuilder(const std::string &name)
     setupStandardAttributes();
     basicDraw->name = name;
 }
-
-BasicDrawableBuilder::BasicDrawableBuilder(const std::string &name, unsigned int numVert,unsigned int numTri)
-{
-    Init();
-    basicDraw->name = name;
-    setupStandardAttributes(numVert);
-    points.reserve(numVert);
-    tris.reserve(numTri);
-}
     
 void BasicDrawableBuilder::setName(const std::string &name)
 {
     basicDraw->name = name;
+}
+    
+void BasicDrawableBuilder::reserve(int numVert,int numTri)
+{
+    points.reserve(numVert);
+    tris.reserve(numTri);
 }
     
 void BasicDrawableBuilder::Init()

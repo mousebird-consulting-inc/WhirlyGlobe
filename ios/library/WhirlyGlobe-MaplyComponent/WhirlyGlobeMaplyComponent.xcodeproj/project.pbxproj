@@ -24,6 +24,13 @@
 		2B23133C21FA919E006AA344 /* Dictionary_NSDictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B23133B21FA919D006AA344 /* Dictionary_NSDictionary.h */; };
 		2B3D7E32228738210065FA18 /* BillboardDrawableBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B5D21F7E7DF0078A975 /* BillboardDrawableBuilder.cpp */; };
 		2B3D7E3722873B6D0065FA18 /* BillboardManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1421F158EA00EF2A82 /* BillboardManager.cpp */; };
+		2B3D7E382287467E0065FA18 /* LoadedTileNew.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BE1E7942213979800815D9C /* LoadedTileNew.cpp */; };
+		2B3D7E3922874B2D0065FA18 /* QuadTileBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BE1E7952213979800815D9C /* QuadTileBuilder.cpp */; };
+		2B3D7E3A22874B310065FA18 /* QuadDisplayControllerNew.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BE7E7B22214C6EB00E4EFBA /* QuadDisplayControllerNew.cpp */; };
+		2B3D7E3B22874B330065FA18 /* QuadLoaderReturn.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BE1E7A622161C0200815D9C /* QuadLoaderReturn.cpp */; };
+		2B3D7E3C22874B360065FA18 /* QuadSamplingParams.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BBC337E22163B050038A229 /* QuadSamplingParams.cpp */; };
+		2B3D7E3D22874B390065FA18 /* QuadSamplingController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BBC337D22163B050038A229 /* QuadSamplingController.cpp */; };
+		2B3D7E3E22874B3C0065FA18 /* QuadImageFrameLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BBC339122178B130038A229 /* QuadImageFrameLoader.cpp */; };
 		2B446AB021EFE5DA0078A975 /* MaplyWMSTileSource.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446AAF21EFE5DA0078A975 /* MaplyWMSTileSource.h */; };
 		2B446ABB21F25C330078A975 /* WhirlyKitLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446AB921F25C330078A975 /* WhirlyKitLog.h */; };
 		2B446ABC21F25C330078A975 /* WhirlyTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446ABA21F25C330078A975 /* WhirlyTypes.h */; };
@@ -4480,10 +4487,12 @@
 				2B82B6591E82E2490095FB14 /* PJ_eck2.c in Sources */,
 				2BE53A421D249C3D00B60FAD /* zero_copy_stream_impl_lite.cc in Sources */,
 				2B82B65C1E82E24A0095FB14 /* PJ_eck5.c in Sources */,
+				2B3D7E382287467E0065FA18 /* LoadedTileNew.cpp in Sources */,
 				2B82B6431E82E2490095FB14 /* PJ_airy.c in Sources */,
 				2B87970022038DF200EF801D /* LayoutLayer.mm in Sources */,
 				2B82B6921E82E24A0095FB14 /* pj_mutex.c in Sources */,
 				2B82B6351E82E2490095FB14 /* dmstor.c in Sources */,
+				2B3D7E3B22874B330065FA18 /* QuadLoaderReturn.cpp in Sources */,
 				2B8A789622863DA7008B0A1F /* BasicDrawableInstanceBuilderGLES.cpp in Sources */,
 				2BE1E760220A166300815D9C /* MaplyGeomModel.mm in Sources */,
 				2BE5398B1D249BEF00B60FAD /* AAAberration.cpp in Sources */,
@@ -4557,6 +4566,7 @@
 				2B82B6621E82E24A0095FB14 /* pj_factors.c in Sources */,
 				2BC3D6D12203EA4A00CE91D0 /* MaplySticker.mm in Sources */,
 				2BE1E7A12215F70400815D9C /* ImageTile_iOS.mm in Sources */,
+				2B3D7E3D22874B390065FA18 /* QuadSamplingController.cpp in Sources */,
 				2BE53A6D1D249C4600B60FAD /* atomicops_internals_x86_msvc.cc in Sources */,
 				2B82B6271E82E2490095FB14 /* pj_inv3d.c in Sources */,
 				2B82B6831E82E24A0095FB14 /* pj_list.c in Sources */,
@@ -4587,6 +4597,7 @@
 				2BE53A971D249C9000B60FAD /* DDXMLElement.m in Sources */,
 				2B8796D221FFC59D00EF801D /* UIColor+Stuff.mm in Sources */,
 				2B82B6AA1E82E24A0095FB14 /* PJ_robin.c in Sources */,
+				2B3D7E3C22874B360065FA18 /* QuadSamplingParams.cpp in Sources */,
 				2B82B6C71E82E24A0095FB14 /* proj_mdist.c in Sources */,
 				2B82B6A51E82E24A0095FB14 /* PJ_putp4p.c in Sources */,
 				2B8A78A62286507F008B0A1F /* ComponentManager.cpp in Sources */,
@@ -4604,6 +4615,7 @@
 				2BE539B21D249BEF00B60FAD /* AAPhysicalJupiter.cpp in Sources */,
 				2BE1E75B2208F33900815D9C /* SingleLabel_iOS.mm in Sources */,
 				2BE53A6F1D249C4600B60FAD /* common.cc in Sources */,
+				2B3D7E3E22874B3C0065FA18 /* QuadImageFrameLoader.cpp in Sources */,
 				2B3D7E32228738210065FA18 /* BillboardDrawableBuilder.cpp in Sources */,
 				2B82B6C11E82E24A0095FB14 /* PJ_wag7.c in Sources */,
 				2BE1E7512208ECA700815D9C /* MaplyCluster.mm in Sources */,
@@ -4713,6 +4725,7 @@
 				2B8A78A322864B5C008B0A1F /* ShapeDrawableBuilder.cpp in Sources */,
 				2B82B6901E82E24A0095FB14 /* PJ_moll.c in Sources */,
 				2B82B6791E82E24A0095FB14 /* PJ_isea.c in Sources */,
+				2B3D7E3A22874B310065FA18 /* QuadDisplayControllerNew.cpp in Sources */,
 				2BE1E74B2208E8D500815D9C /* MaplyImageTile.mm in Sources */,
 				2B446B1321F79AD00078A975 /* OverlapHelper.cpp in Sources */,
 				2B82B5EA1E82E2490095FB14 /* normal.c in Sources */,
@@ -4869,6 +4882,7 @@
 				2BE1E761220A1A2700815D9C /* MaplyShape.mm in Sources */,
 				2B8A78A222864B41008B0A1F /* SelectionManager.cpp in Sources */,
 				2B446B1D21F79AE40078A975 /* SphericalMercator.cpp in Sources */,
+				2B3D7E3922874B2D0065FA18 /* QuadTileBuilder.cpp in Sources */,
 				2BE53A401D249C3D00B60FAD /* zero_copy_stream_impl.cc in Sources */,
 				2B23133A21F942E2006AA344 /* Dictionary.cpp in Sources */,
 				2BB8E1FE21FF93CB00154CDC /* MaplyFlatView.cpp in Sources */,
