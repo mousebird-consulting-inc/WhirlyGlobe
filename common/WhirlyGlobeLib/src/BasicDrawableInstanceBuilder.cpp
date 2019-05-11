@@ -27,6 +27,10 @@ BasicDrawableInstanceBuilder::BasicDrawableInstanceBuilder(const std::string &na
 {
 }
     
+BasicDrawableInstanceBuilder::~BasicDrawableInstanceBuilder()
+{
+}
+    
 void BasicDrawableInstanceBuilder::Init()
 {
     drawInst->programID = EmptyIdentity;
@@ -82,6 +86,16 @@ void BasicDrawableInstanceBuilder::setVisibleRange(float minVis,float maxVis)
 void BasicDrawableInstanceBuilder::setDrawPriority(unsigned int newPriority)
 {
     drawInst->drawPriority = newPriority;
+}
+    
+void BasicDrawableInstanceBuilder::setColor(const RGBAColor &color)
+{
+    drawInst->setColor(color);
+}
+
+void BasicDrawableInstanceBuilder::setLineWidth(float lineWidth)
+{
+    drawInst->setLineWidth(lineWidth);
 }
 
 void BasicDrawableInstanceBuilder::setRequestZBuffer(bool val)

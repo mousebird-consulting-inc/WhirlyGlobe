@@ -57,6 +57,7 @@ public:
 
     /// Set local extents
     void setLocalMbr(Mbr mbr);
+    const Mbr &getLocalMbr();
     
     /// Set the viewer based visibility
     virtual void setViewerVisibility(double minViewerDist,double maxViewerDist,const Point3d &viewerCenter);
@@ -90,6 +91,7 @@ public:
 
     /// Set the line width (if using lines)
     virtual void setLineWidth(float inWidth);
+    virtual float getLineWidth();
         
     /// Set the texture ID for a specific slot.  You get this from the Texture object.
     virtual void setTexId(unsigned int which,SimpleIdentity inId);

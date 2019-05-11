@@ -25,6 +25,7 @@
 #import "Scene.h"
 #import "BaseInfo.h"
 #import "ImageTile.h"
+#import "BasicDrawableBuilder.h"
 
 namespace WhirlyKit
 {
@@ -123,10 +124,10 @@ public:
     CoordSystemRef coordSys;
     
 protected:
-    void buildSkirt(BasicDrawable *draw,Point3fVector &pts,std::vector<TexCoord> &texCoords,const SphericalChunkInfo &chunkInfo);
+    void buildSkirt(SceneRenderer *sceneRender,BasicDrawableBuilderRef draw,Point3fVector &pts,std::vector<TexCoord> &texCoords,const SphericalChunkInfo &chunkInfo);
     // Create one or more drawables to represent the chunk.
     // Only call this if you know what you're doing
-    void buildDrawable(BasicDrawable **draw,BasicDrawable **skirtDraw,bool enable,CoordSystemDisplayAdapter *coordAdapter,const SphericalChunkInfo &chunkInfo);
+    void buildDrawable(SceneRenderer *sceneRender,BasicDrawableBuilderRef &draw,bool buildSkirt,BasicDrawableBuilderRef &skirtDraw,bool enable,CoordSystemDisplayAdapter *coordAdapter,const SphericalChunkInfo &chunkInfo);
     void calcSampleX(int &thisSampleX,int &thisSampleY,Point3f *dispPts);
 };
 

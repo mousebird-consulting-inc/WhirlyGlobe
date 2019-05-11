@@ -58,16 +58,14 @@ ShapeInfo::ShapeInfo(const Dictionary &dict)
     }
 }
 
-ShapeDrawableBuilder::ShapeDrawableBuilder(CoordSystemDisplayAdapter *coordAdapter, const ShapeInfo &shapeInfo, bool linesOrPoints, const Point3d &center)
-    : coordAdapter(coordAdapter), shapeInfo(shapeInfo), drawable(NULL), center(center)
+ShapeDrawableBuilder::ShapeDrawableBuilder(CoordSystemDisplayAdapter *coordAdapter, SceneRenderer *sceneRender, const ShapeInfo &shapeInfo, bool linesOrPoints, const Point3d &center)
+    : coordAdapter(coordAdapter), sceneRender(sceneRender), shapeInfo(shapeInfo), drawable(NULL), center(center)
 {
-    primType = (linesOrPoints ? GL_LINES : GL_POINTS);
+    primType = (linesOrPoints ? Lines : Points);
 }
 
 ShapeDrawableBuilder::~ShapeDrawableBuilder()
 {
-    for (unsigned int ii=0;ii<drawables.size();ii++)
-        delete drawables[ii];
 }
 
 void ShapeDrawableBuilder::addPoints(Point3dVector &pts,RGBAColor color,Mbr mbr,float lineWidth,bool closed)
@@ -81,7 +79,7 @@ void ShapeDrawableBuilder::addPoints(Point3dVector &pts,RGBAColor color,Mbr mbr,
         if (drawable)
             flush();
 
-        drawable = new BasicDrawable("Shape Manager");
+        drawable = sceneRender->makeBasicDrawableBuilder("Shape Manager");
         shapeInfo.setupBasicDrawable(drawable);
         drawMbr.reset();
         drawable->setType(primType);
@@ -107,7 +105,7 @@ void ShapeDrawableBuilder::addPoints(Point3dVector &pts,RGBAColor color,Mbr mbr,
 
         // Add to drawable
         // Depending on the type, we do this differently
-        if (primType == GL_POINTS)
+        if (primType == Points)
         {
             drawable->addPoint(Point3d(pt-center));
             drawable->addNormal(norm);
@@ -130,7 +128,7 @@ void ShapeDrawableBuilder::addPoints(Point3dVector &pts,RGBAColor color,Mbr mbr,
     }
 
     // Close the loop
-    if (closed && primType == GL_LINES)
+    if (closed && primType == Lines)
     {
         drawable->addPoint(Point3d(prevPt-center));
         drawable->addNormal(prevNorm);
@@ -155,8 +153,7 @@ void ShapeDrawableBuilder::flush()
                 drawable->setFade(curTime,curTime+shapeInfo.fade);
             }
             drawables.push_back(drawable);
-        } else
-            delete drawable;
+        }
         drawable = NULL;
     }
 }
@@ -166,33 +163,31 @@ void ShapeDrawableBuilder::getChanges(WhirlyKit::ChangeSet &changes,SimpleIDSet 
     flush();
     for (unsigned int ii=0;ii<drawables.size();ii++)
     {
-        BasicDrawable *draw = drawables[ii];
-        changes.push_back(new AddDrawableReq(draw));
-        drawIDs.insert(draw->getId());
+        BasicDrawableBuilderRef draw = drawables[ii];
+        changes.push_back(new AddDrawableReq(draw->getDrawable()));
+        drawIDs.insert(draw->getDrawable()->getId());
     }
     drawables.clear();
 }
 
 
-ShapeDrawableBuilderTri::ShapeDrawableBuilderTri(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter, const ShapeInfo &shapeInfo, const Point3d &center)
-    : coordAdapter(coordAdapter), shapeInfo(shapeInfo), drawable(NULL), center(center), clipCoords(false)
+ShapeDrawableBuilderTri::ShapeDrawableBuilderTri(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter, SceneRenderer *sceneRender, const ShapeInfo &shapeInfo, const Point3d &center)
+    : coordAdapter(coordAdapter), sceneRender(sceneRender), shapeInfo(shapeInfo), drawable(NULL), center(center), clipCoords(false)
 {
 }
 
 ShapeDrawableBuilderTri::~ShapeDrawableBuilderTri()
 {
-    for (unsigned int ii=0;ii<drawables.size();ii++)
-        delete drawables[ii];
 }
 
 void ShapeDrawableBuilderTri::setupNewDrawable()
 {
-    drawable = new BasicDrawable("Shape Layer");
+    drawable = sceneRender->makeBasicDrawableBuilder("Shape Layer");
     shapeInfo.setupBasicDrawable(drawable);
     if (clipCoords)
         drawable->setClipCoords(true);
     drawMbr.reset();
-    drawable->setType(GL_TRIANGLES);
+    drawable->setType(Triangles);
     // Adjust according to the vector info
     drawable->setColor(shapeInfo.color);
     int which = 0;
@@ -424,8 +419,7 @@ void ShapeDrawableBuilderTri::flush()
                 drawable->setFade(curTime,curTime+shapeInfo.fade);
             }
             drawables.push_back(drawable);
-        } else
-            delete drawable;
+        }
         drawable = NULL;
     }
 }
@@ -435,9 +429,9 @@ void ShapeDrawableBuilderTri::getChanges(ChangeSet &changeRequests,SimpleIDSet &
     flush();
     for (unsigned int ii=0;ii<drawables.size();ii++)
     {
-        BasicDrawable *draw = drawables[ii];
-        changeRequests.push_back(new AddDrawableReq(draw));
-        drawIDs.insert(draw->getId());
+        BasicDrawableBuilderRef draw = drawables[ii];
+        changeRequests.push_back(new AddDrawableReq(draw->getDrawable()));
+        drawIDs.insert(draw->getDrawable()->getId());
     }
     drawables.clear();
 }

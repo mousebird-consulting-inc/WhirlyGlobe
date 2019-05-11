@@ -30,9 +30,13 @@ class BasicDrawableInstanceBuilderGLES : public BasicDrawableInstanceBuilder
 {
 public:
     BasicDrawableInstanceBuilderGLES(const std::string &name);
+    ~BasicDrawableInstanceBuilderGLES();
     
     /// Fill out and return the drawable
     virtual BasicDrawableInstance *getDrawable();
+    
+protected:
+    bool drawableGotten;
 };
     
 }

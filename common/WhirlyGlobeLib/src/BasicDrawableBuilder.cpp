@@ -129,6 +129,11 @@ void BasicDrawableBuilder::setLocalMbr(Mbr mbr)
 {
     basicDraw->localMbr = mbr;
 }
+    
+const Mbr &BasicDrawableBuilder::getLocalMbr()
+{
+    return basicDraw->localMbr;
+}
 
 void BasicDrawableBuilder::setViewerVisibility(double inMinViewerDist,double inMaxViewerDist,const Point3d &inViewerCenter)
 {
@@ -167,22 +172,24 @@ void BasicDrawableBuilder::setRequestZBuffer(bool val)
     basicDraw->requestZBuffer = val;
 }
 
-/// Resulting drawable writes to the Z buffer
 void BasicDrawableBuilder::setWriteZBuffer(bool val)
 {
     basicDraw->writeZBuffer = val;
 }
 
-// If set, we'll render this data where directed
 void BasicDrawableBuilder::setRenderTarget(SimpleIdentity newRenderTarget)
 {
     basicDraw->renderTargetID = newRenderTarget;
 }
 
-/// Set the line width (if using lines)
 void BasicDrawableBuilder::setLineWidth(float inWidth)
 {
     basicDraw->lineWidth = inWidth;
+}
+    
+float BasicDrawableBuilder::getLineWidth()
+{
+    return basicDraw->lineWidth;
 }
 
 void BasicDrawableBuilder::setTexId(unsigned int which,SimpleIdentity inId)

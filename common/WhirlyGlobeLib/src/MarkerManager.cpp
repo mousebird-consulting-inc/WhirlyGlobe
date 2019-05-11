@@ -118,7 +118,7 @@ MarkerManager::~MarkerManager()
     markerReps.clear();
 }
 
-typedef std::map<SimpleIDSet,BasicDrawable *> DrawableMap;
+typedef std::map<SimpleIDSet,BasicDrawableBuilderRef> DrawableMap;
 
 SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,const MarkerInfo &markerInfo,ChangeSet &changes)
 {
@@ -304,17 +304,17 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
             if (texIDs.empty())
                 texIDs.insert(EmptyIdentity);
             DrawableMap::iterator it = drawables.find(texIDs);
-            BasicDrawable *draw = NULL;
+            BasicDrawableBuilderRef draw;
             if (it != drawables.end())
                 draw = it->second;
-                else {
-                    draw = new BasicDrawable("Marker Layer");
-                    draw->setType(GL_TRIANGLES);
-                    markerInfo.setupBasicDrawable(draw);
-                    draw->setColor(markerInfo.color);
-                    draw->setTexId(0,*(texIDs.begin()));
-                    drawables[texIDs] = draw;
-                    markerRep->drawIDs.insert(draw->getId());
+            else {
+                draw = renderer->makeBasicDrawableBuilder("Marker Layer");
+                draw->setType(Triangles);
+                markerInfo.setupBasicDrawable(draw);
+                draw->setColor(markerInfo.color);
+                draw->setTexId(0,*(texIDs.begin()));
+                drawables[texIDs] = draw;
+                markerRep->drawIDs.insert(draw->getDrawable()->getId());
 
                 // If we've got more than one texture ID and a period, we need a tweaker
                 if (texIDs.size() > 1 && marker->period != 0.0)
@@ -325,7 +325,7 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
                     BasicDrawableTexTweaker *tweak = new BasicDrawableTexTweaker(texIDVec,now,marker->period);
                     draw->addTweaker(DrawableTweakerRef(tweak));
                 }
-                }
+            }
             
             // Toss the geometry into the drawable
             int vOff = draw->getNumPoints();
@@ -362,7 +362,7 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
             TimeInterval curTime = TimeGetCurrent();
             it->second->setFade(curTime,curTime+markerInfo.fadeIn);
         }
-        changes.push_back(new AddDrawableReq(it->second));
+        changes.push_back(new AddDrawableReq(it->second->getDrawable()));
     }
     drawables.clear();
     

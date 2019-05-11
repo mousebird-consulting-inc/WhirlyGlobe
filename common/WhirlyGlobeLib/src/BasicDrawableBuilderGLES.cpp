@@ -26,15 +26,21 @@ namespace WhirlyKit
 {
 
 BasicDrawableBuilderGLES::BasicDrawableBuilderGLES(const std::string &name)
-    : BasicDrawableBuilder(name)
+    : BasicDrawableBuilder(name), drawableGotten(false)
 {
     basicDraw = new BasicDrawableGLES(name);
 }
 
 BasicDrawableBuilderGLES::BasicDrawableBuilderGLES(const std::string &name, unsigned int numVert,unsigned int numTri)
-    : BasicDrawableBuilder(name,numVert,numTri)
+    : BasicDrawableBuilder(name,numVert,numTri), drawableGotten(false)
 {
     basicDraw = new BasicDrawableGLES(name);
+}
+    
+BasicDrawableBuilderGLES::~BasicDrawableBuilderGLES()
+{
+    if (!drawableGotten && basicDraw)
+        delete basicDraw;
 }
 
 int BasicDrawableBuilderGLES::addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings)
@@ -54,11 +60,13 @@ BasicDrawable *BasicDrawableBuilderGLES::getDrawable()
     
     BasicDrawableGLES *draw = (BasicDrawableGLES *)basicDraw;
     
-    draw->vertexSize = draw->singleVertexSize();
-    draw->points = points;
-    draw->tris = tris;
-    
-    basicDraw = NULL;
+    if (!drawableGotten) {
+        draw->vertexSize = draw->singleVertexSize();
+        draw->points = points;
+        draw->tris = tris;
+        
+        drawableGotten = true;
+    }
     
     return draw;
 }

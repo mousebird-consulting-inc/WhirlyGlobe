@@ -43,7 +43,7 @@ SphericalChunkInfo::SphericalChunkInfo(const Dictionary &dict)
 }
 
 SphericalChunk::SphericalChunk()
-    : imageFormat(GL_UNSIGNED_BYTE),loadImage(NULL),programID(EmptyIdentity),
+    : loadImage(NULL),programID(EmptyIdentity),
     sampleX(12), sampleY(12), minSampleX(1), minSampleY(1), eps(0.0005),
     rotation(0.0), coordSys(NULL)
 {
@@ -52,7 +52,7 @@ SphericalChunk::SphericalChunk()
 static const float SkirtFactor = 0.95;
 
 // Helper routine for constructing the skirt around a tile
-void SphericalChunk::buildSkirt(BasicDrawable *draw,Point3fVector &pts,std::vector<TexCoord> &texCoords,const SphericalChunkInfo &chunkInfo)
+void SphericalChunk::buildSkirt(SceneRenderer *sceneRender,BasicDrawableBuilderRef draw,Point3fVector &pts,std::vector<TexCoord> &texCoords,const SphericalChunkInfo &chunkInfo)
 {
     for (unsigned int ii=0;ii<pts.size()-1;ii++)
     {
@@ -114,7 +114,7 @@ void SphericalChunk::calcSampleX(int &thisSampleX,int &thisSampleY,Point3f *disp
     }
 }
 
-void SphericalChunk::buildDrawable(BasicDrawable **draw,BasicDrawable **skirtDraw,bool enable,CoordSystemDisplayAdapter *coordAdapter,const SphericalChunkInfo &chunkInfo)
+void SphericalChunk::buildDrawable(SceneRenderer *sceneRender,BasicDrawableBuilderRef &draw,bool shouldBuildSkirt,BasicDrawableBuilderRef &skirtDraw,bool enable,CoordSystemDisplayAdapter *coordAdapter,const SphericalChunkInfo &chunkInfo)
 {
     CoordSystem *localSys = coordAdapter->getCoordSystem();
 
@@ -127,9 +127,9 @@ void SphericalChunk::buildDrawable(BasicDrawable **draw,BasicDrawable **skirtDra
         srcSystem = geoSystem;
     }
     
-    BasicDrawable *drawable = new BasicDrawable("Spherical Earth Chunk");
+    BasicDrawableBuilderRef drawable = sceneRender->makeBasicDrawableBuilder("Spherical Earth Chunk");
     chunkInfo.setupBasicDrawable(drawable);
-    drawable->setType(GL_TRIANGLES);
+    drawable->setType(Triangles);
 //    drawable->setLocalMbr(_mbr);
     drawable->setColor(chunkInfo.color);
     drawable->setTexIDs(texIDs);
@@ -257,14 +257,14 @@ void SphericalChunk::buildDrawable(BasicDrawable **draw,BasicDrawable **skirtDra
             drawable->addTriangle(triB);
         }
     }
-    *draw = drawable;
+    draw = drawable;
     
     // Build the skirts
-    if (skirtDraw && !coordAdapter->isFlat())
+    if (shouldBuildSkirt && !coordAdapter->isFlat())
     {
-        BasicDrawable *skirtDrawable = new BasicDrawable("Spherical Earth Chunk Skirts");
+        BasicDrawableBuilderRef skirtDrawable = sceneRender->makeBasicDrawableBuilder("Spherical Earth Chunk Skirts");
         chunkInfo.setupBasicDrawable(skirtDrawable);
-        skirtDrawable->setType(GL_TRIANGLES);
+        skirtDrawable->setType(Triangles);
         skirtDrawable->setLocalMbr(mbr);
         skirtDrawable->setTexIDs(texIDs);
         
@@ -276,7 +276,7 @@ void SphericalChunk::buildDrawable(BasicDrawable **draw,BasicDrawable **skirtDra
             skirtLocs.push_back(locs[ix]);
             skirtTexCoords.push_back(texCoords[ix]);
         }
-        buildSkirt(skirtDrawable, skirtLocs, skirtTexCoords, chunkInfo);
+        buildSkirt(sceneRender, skirtDrawable, skirtLocs, skirtTexCoords, chunkInfo);
         // Top skirt
         skirtLocs.clear();
         skirtTexCoords.clear();
@@ -285,7 +285,7 @@ void SphericalChunk::buildDrawable(BasicDrawable **draw,BasicDrawable **skirtDra
             skirtLocs.push_back(locs[(thisSampleY)*(thisSampleX+1)+ix]);
             skirtTexCoords.push_back(texCoords[(thisSampleY)*(thisSampleX+1)+ix]);
         }
-        buildSkirt(skirtDrawable,skirtLocs,skirtTexCoords, chunkInfo);
+        buildSkirt(sceneRender, skirtDrawable,skirtLocs,skirtTexCoords, chunkInfo);
         // Left skirt
         skirtLocs.clear();
         skirtTexCoords.clear();
@@ -294,7 +294,7 @@ void SphericalChunk::buildDrawable(BasicDrawable **draw,BasicDrawable **skirtDra
             skirtLocs.push_back(locs[(thisSampleX+1)*iy+0]);
             skirtTexCoords.push_back(texCoords[(thisSampleX+1)*iy+0]);
         }
-        buildSkirt(skirtDrawable,skirtLocs,skirtTexCoords, chunkInfo);
+        buildSkirt(sceneRender, skirtDrawable,skirtLocs,skirtTexCoords, chunkInfo);
         // right skirt
         skirtLocs.clear();
         skirtTexCoords.clear();
@@ -303,9 +303,9 @@ void SphericalChunk::buildDrawable(BasicDrawable **draw,BasicDrawable **skirtDra
             skirtLocs.push_back(locs[(thisSampleX+1)*iy+(thisSampleX)]);
             skirtTexCoords.push_back(texCoords[(thisSampleX+1)*iy+(thisSampleX)]);
         }
-        buildSkirt(skirtDrawable,skirtLocs,skirtTexCoords, chunkInfo);
+        buildSkirt(sceneRender, skirtDrawable,skirtLocs,skirtTexCoords, chunkInfo);
         
-        *skirtDraw = skirtDrawable;
+        skirtDraw = skirtDrawable;
     }
 }
     
@@ -470,19 +470,19 @@ void SphericalChunkManager::processChunkRequest(ChunkRequest &request,ChangeSet 
                 texId = chunk->texIDs.at(0);
             
             // Build the main drawable and possibly skirt
-            BasicDrawable *drawable = NULL,*skirtDraw = NULL;
-            chunk->buildDrawable(&drawable,(request.doEdgeMatching ? &skirtDraw : NULL),request.chunkInfo.enable,coordAdapter,request.chunkInfo);
+            BasicDrawableBuilderRef drawable,skirtDraw;
+            chunk->buildDrawable(renderer,drawable,request.doEdgeMatching,skirtDraw,request.chunkInfo.enable,coordAdapter,request.chunkInfo);
             
             if (skirtDraw)
             {
-                chunkRep->drawIDs.insert(skirtDraw->getId());
+                chunkRep->drawIDs.insert(skirtDraw->getDrawable()->getId());
                 skirtDraw->setTexId(0,texId);
-                changes.push_back(new AddDrawableReq(skirtDraw));
+                changes.push_back(new AddDrawableReq(skirtDraw->getDrawable()));
             }
             
-            chunkRep->drawIDs.insert(drawable->getId());
+            chunkRep->drawIDs.insert(drawable->getDrawable()->getId());
             drawable->setTexId(0,texId);
-            changes.push_back(new AddDrawableReq(drawable));
+            changes.push_back(new AddDrawableReq(drawable->getDrawable()));
             
             {
                 std::lock_guard<std::mutex> guardLock(repLock);

@@ -31,6 +31,7 @@ class BasicDrawableBuilderGLES : public BasicDrawableBuilder
 public:
     /// Construct empty
     BasicDrawableBuilderGLES(const std::string &name);
+    ~BasicDrawableBuilderGLES();
     
     /// Construct with some idea how big things are.
     /// You can violate this, but it will reserve space
@@ -42,6 +43,9 @@ public:
 
     /// Fill out and return the drawable
     virtual BasicDrawable *getDrawable();
+    
+protected:
+    bool drawableGotten;
 };
     
 }

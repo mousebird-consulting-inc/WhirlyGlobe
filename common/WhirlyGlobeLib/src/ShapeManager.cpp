@@ -28,6 +28,7 @@
 #import "Tesselator.h"
 #import "GeometryManager.h"
 #import "FlatMath.h"
+#import "WhirlyKitLog.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -629,8 +630,8 @@ void ShapeManager::convertShape(Shape &shape,std::vector<WhirlyKit::GeometryRaw>
     ShapeInfo shapeInfo;
     
     Point3d center(0,0,0);
-    ShapeDrawableBuilderTri drawBuildTri(scene->getCoordAdapter(),shapeInfo,center);
-    ShapeDrawableBuilder drawBuildReg(scene->getCoordAdapter(),shapeInfo,true,center);
+    ShapeDrawableBuilderTri drawBuildTri(scene->getCoordAdapter(),renderer,shapeInfo,center);
+    ShapeDrawableBuilder drawBuildReg(scene->getCoordAdapter(),renderer,shapeInfo,true,center);
     
     // Some special shapes are already in OpenGL clip space
     if (shape.clipCoords)
@@ -645,7 +646,7 @@ void ShapeManager::convertShape(Shape &shape,std::vector<WhirlyKit::GeometryRaw>
     GeometryRaw &outGeom = rawGeom.front();
     outGeom.type = WhirlyKitGeometryTriangles;
     outGeom.texId = EmptyIdentity;
-    for (BasicDrawable *draw : drawBuildTri.drawables)
+    for (const BasicDrawableBuilderRef &draw : drawBuildTri.drawables)
     {
         int basePts = (int)outGeom.pts.size();
         outGeom.pts.reserve(draw->points.size());
@@ -654,26 +655,27 @@ void ShapeManager::convertShape(Shape &shape,std::vector<WhirlyKit::GeometryRaw>
         outGeom.triangles.reserve(draw->tris.size());
         for (const BasicDrawable::Triangle &tri : draw->tris)
             outGeom.triangles.push_back(GeometryRaw::RawTriangle(tri.verts[0]+basePts,tri.verts[1]+basePts,tri.verts[2]+basePts));
-        if (draw->colorEntry >= 0)
-        {
-            outGeom.colors.reserve(draw->points.size());
-            VertexAttribute *vertAttr = draw->vertexAttributes[draw->colorEntry];
-            for (int ii=0;ii<vertAttr->numElements();ii++)
-            {
-                RGBAColor *color = (RGBAColor *)vertAttr->addressForElement(ii);
-                outGeom.colors.push_back(*color);
-            }
-        }
-        if (draw->normalEntry >= 0)
-        {
-            outGeom.norms.reserve(draw->points.size());
-            VertexAttribute *vertAttr = draw->vertexAttributes[draw->normalEntry];
-            for (int ii=0;ii<vertAttr->numElements();ii++)
-            {
-                Point3f *norm = (Point3f *)vertAttr->addressForElement(ii);
-                outGeom.norms.push_back(Point3d(norm->x(),norm->y(),norm->z()));
-            }
-        }
+        wkLogLevel(Error,"ShapeManager: Converting shape doesn't worth with new architecture.");
+//        if (draw->colorEntry >= 0)
+//        {
+//            outGeom.colors.reserve(draw->points.size());
+//            VertexAttribute *vertAttr = draw->vertexAttributes[draw->colorEntry];
+//            for (int ii=0;ii<vertAttr->numElements();ii++)
+//            {
+//                RGBAColor *color = (RGBAColor *)vertAttr->addressForElement(ii);
+//                outGeom.colors.push_back(*color);
+//            }
+//        }
+//        if (draw->normalEntry >= 0)
+//        {
+//            outGeom.norms.reserve(draw->points.size());
+//            VertexAttribute *vertAttr = draw->vertexAttributes[draw->normalEntry];
+//            for (int ii=0;ii<vertAttr->numElements();ii++)
+//            {
+//                Point3f *norm = (Point3f *)vertAttr->addressForElement(ii);
+//                outGeom.norms.push_back(Point3d(norm->x(),norm->y(),norm->z()));
+//            }
+//        }
     }
 }
 
@@ -695,8 +697,8 @@ SimpleIdentity ShapeManager::addShapes(std::vector<Shape*> shapes, const ShapeIn
     if (numObjects > 0)
         center /= numObjects;
 
-    ShapeDrawableBuilderTri drawBuildTri(getScene()->getCoordAdapter(),shapeInfo,center);
-    ShapeDrawableBuilder drawBuildReg(getScene()->getCoordAdapter(),shapeInfo,true,center);
+    ShapeDrawableBuilderTri drawBuildTri(getScene()->getCoordAdapter(),renderer,shapeInfo,center);
+    ShapeDrawableBuilder drawBuildReg(getScene()->getCoordAdapter(),renderer,shapeInfo,true,center);
 
     // Work through the shapes
     for (auto shape : shapes) {

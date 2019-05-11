@@ -22,7 +22,9 @@
 #import <vector>
 #import <set>
 #import <map>
-#import "BasicDrawable.h"
+#import "SceneRenderer.h"
+#import "BasicDrawableBuilder.h"
+#import "BasicDrawableInstanceBuilder.h"
 #import "VectorData.h"
 #import "GlobeMath.h"
 #import "Dictionary.h"

@@ -112,11 +112,11 @@ void VectorSceneRep::clear(ChangeSet &changes)
 class VectorDrawableBuilder
 {
 public:
-    VectorDrawableBuilder(Scene *scene,ChangeSet &changeRequests,VectorSceneRep *sceneRep,
+    VectorDrawableBuilder(Scene *scene,SceneRenderer *sceneRender,ChangeSet &changeRequests,VectorSceneRep *sceneRep,
                           const VectorInfo *vecInfo,bool linesOrPoints,bool doColor)
-    : changeRequests(changeRequests), scene(scene), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL), centerValid(false), center(0,0,0), geoCenter(0,0), doColor(doColor)
+    : changeRequests(changeRequests), scene(scene), sceneRender(sceneRender), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL), centerValid(false), center(0,0,0), geoCenter(0,0), doColor(doColor)
     {
-        primType = (linesOrPoints ? GL_LINES : GL_POINTS);
+        primType = (linesOrPoints ? Lines : Points);
     }
     
     ~VectorDrawableBuilder()
@@ -155,7 +155,7 @@ public:
             if (drawable)
                 flush();
             
-            drawable = new BasicDrawable("Vector Layer");
+            drawable = sceneRender->makeBasicDrawableBuilder("Vector Layer");
             drawMbr.reset();
             drawable->setType(primType);
             vecInfo->setupBasicDrawable(drawable);
@@ -179,7 +179,7 @@ public:
             
             // Add to drawable
             // Depending on the type, we do this differently
-            if (primType == GL_POINTS)
+            if (primType == Points)
             {
                 drawable->addPoint(pt);
                 if (doColor)
@@ -207,7 +207,7 @@ public:
         }
         
         // Close the loop
-        if (closed && primType == GL_LINES)
+        if (closed && primType == Lines)
         {
             drawable->addPoint(prevPt);
             drawable->addPoint(firstPt);
@@ -228,7 +228,7 @@ public:
             if (drawable->getNumPoints() > 0)
             {
                 drawable->setLocalMbr(drawMbr);
-                sceneRep->drawIDs.insert(drawable->getId());
+                sceneRep->drawIDs.insert(drawable->getDrawable()->getId());
                 if (centerValid)
                 {
                     Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
@@ -241,9 +241,8 @@ public:
                     TimeInterval curTime = TimeGetCurrent();
                     drawable->setFade(curTime,curTime+vecInfo->fade);
                 }
-                changeRequests.push_back(new AddDrawableReq(drawable));
-            } else
-                delete drawable;
+                changeRequests.push_back(new AddDrawableReq(drawable->getDrawable()));
+            }
             drawable = NULL;
         }
     }
@@ -251,15 +250,16 @@ public:
 protected:
     bool doColor;
     Scene *scene;
+    SceneRenderer *sceneRender;
     ChangeSet &changeRequests;
     VectorSceneRep *sceneRep;
     Mbr drawMbr;
-    BasicDrawable *drawable;
+    BasicDrawableBuilderRef drawable;
     const VectorInfo *vecInfo;
     Point3d center;
     Point2d geoCenter;
     bool centerValid;
-    GLenum primType;
+    GeometryType primType;
 };
 
 /* Drawable Builder (Triangle version)
@@ -269,9 +269,9 @@ protected:
 class VectorDrawableBuilderTri
 {
 public:
-    VectorDrawableBuilderTri(Scene *scene,ChangeSet &changeRequests,VectorSceneRep *sceneRep,
+    VectorDrawableBuilderTri(Scene *scene,SceneRenderer *sceneRender,ChangeSet &changeRequests,VectorSceneRep *sceneRep,
                              const VectorInfo *vecInfo,bool doColor)
-    : changeRequests(changeRequests), scene(scene), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL), centerValid(false), center(0,0,0), doColor(doColor), geoCenter(0,0)
+    : changeRequests(changeRequests), scene(scene), sceneRender(sceneRender), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL), centerValid(false), center(0,0,0), doColor(doColor), geoCenter(0,0)
     {
     }
     
@@ -369,9 +369,9 @@ public:
                 if (drawable)
                     flush();
                 
-                drawable = new BasicDrawable("Vector Layer");
+                drawable = sceneRender->makeBasicDrawableBuilder("Vector Layer");
                 drawMbr.reset();
-                drawable->setType(GL_TRIANGLES);
+                drawable->setType(Triangles);
                 vecInfo->setupBasicDrawable(drawable);
                 drawable->setColor(ringColor);
                 if (vecInfo->texId != EmptyIdentity)
@@ -495,7 +495,7 @@ public:
                     Matrix4d transMat = trans.matrix();
                     drawable->setMatrix(&transMat);
                 }
-                sceneRep->drawIDs.insert(drawable->getId());
+                sceneRep->drawIDs.insert(drawable->getDrawable()->getId());
                 
                 if (vecInfo->fade > 0.0)
                 {
@@ -503,9 +503,8 @@ public:
                     drawable->setFade(curTime,curTime+vecInfo->fade);
                 }
                 
-                changeRequests.push_back(new AddDrawableReq(drawable));
-            } else
-                delete drawable;
+                changeRequests.push_back(new AddDrawableReq(drawable->getDrawable()));
+            }
             drawable = NULL;
         }
     }
@@ -513,13 +512,14 @@ public:
 protected:   
     bool doColor;
     Scene *scene;
+    SceneRenderer *sceneRender;
     ChangeSet &changeRequests;
     VectorSceneRep *sceneRep;
     Mbr drawMbr;
     Point3d center;
     Point2d geoCenter;
     bool centerValid;
-    BasicDrawable *drawable;
+    BasicDrawableBuilderRef drawable;
     const VectorInfo *vecInfo;
 };
 
@@ -592,10 +592,10 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, const VectorInfo &vec
     
     // Used to toss out drawables as we go
     // Its destructor will flush out the last drawable
-    VectorDrawableBuilder drawBuild(scene,changes,sceneRep,&vecInfo,true,doColors);
+    VectorDrawableBuilder drawBuild(scene,renderer,changes,sceneRep,&vecInfo,true,doColors);
     if (centerValid)
         drawBuild.setCenter(center,geoCenter);
-    VectorDrawableBuilderTri drawBuildTri(scene,changes,sceneRep,&vecInfo,doColors);
+    VectorDrawableBuilderTri drawBuildTri(scene,renderer,changes,sceneRep,&vecInfo,doColors);
     if (centerValid)
         drawBuildTri.setCenter(center,geoCenter);
         
@@ -713,7 +713,8 @@ SimpleIdentity VectorManager::instanceVectors(SimpleIdentity vecID,const VectorI
              idIt != sceneRep->drawIDs.end(); ++idIt)
         {
             // Make up a BasicDrawableInstance
-            BasicDrawableInstance *drawInst = new BasicDrawableInstance("VectorManager",*idIt,BasicDrawableInstance::ReuseStyle);
+            BasicDrawableInstanceBuilderRef drawInst = renderer->makeBasicDrawableInstanceBuilder("VectorManager");
+            drawInst->setMasterID(*idIt,BasicDrawableInstance::ReuseStyle);
             
             // Changed color
             drawInst->setColor(vecInfo.color);
@@ -727,8 +728,8 @@ SimpleIdentity VectorManager::instanceVectors(SimpleIdentity vecID,const VectorI
             // Changed draw priority
             drawInst->setDrawPriority(vecInfo.drawPriority);
 
-            newSceneRep->instIDs.insert(drawInst->getId());
-            changes.push_back(new AddDrawableReq(drawInst));
+            newSceneRep->instIDs.insert(drawInst->getDrawable()->getId());
+            changes.push_back(new AddDrawableReq(drawInst->getDrawable()));
         }
         
         vectorReps.insert(newSceneRep);

@@ -23,6 +23,7 @@
 #import "BaseInfo.h"
 #import "BasicDrawable.h"
 #import "BasicDrawableBuilder.h"
+#import "SceneRenderer.h"
 
 namespace WhirlyKit
 {
@@ -55,7 +56,7 @@ public:
     
     /// Construct the builder with the fade value for each created drawable and
     ///  whether we're doing lines or points
-    ShapeDrawableBuilder(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,const ShapeInfo &shapeInfo,bool linesOrPoints,const Point3d &center);
+    ShapeDrawableBuilder(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,SceneRenderer *sceneRender,const ShapeInfo &shapeInfo,bool linesOrPoints,const Point3d &center);
     virtual ~ShapeDrawableBuilder();
 
     /// A group of points (in display space) all at once
@@ -71,11 +72,12 @@ public:
 
 public:
     CoordSystemDisplayAdapter *coordAdapter;
+    SceneRenderer *sceneRender;
     GeometryType primType;
     const ShapeInfo &shapeInfo;
     Mbr drawMbr;
-    BasicDrawable *drawable;
-    std::vector<BasicDrawable *> drawables;
+    BasicDrawableBuilderRef drawable;
+    std::vector<BasicDrawableBuilderRef> drawables;
     Point3d center;
 };
 
@@ -88,7 +90,7 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
     /// Construct with the visual description
-    ShapeDrawableBuilderTri(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,const ShapeInfo &shapeInfo,const Point3d &center);
+    ShapeDrawableBuilderTri(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,SceneRenderer *sceneRender,const ShapeInfo &shapeInfo,const Point3d &center);
     virtual ~ShapeDrawableBuilderTri();
 
     // If set the geometry is already in OpenGL clip coordinates, so we don't transform it
@@ -134,10 +136,11 @@ public:
     void setupNewDrawable();
 
     CoordSystemDisplayAdapter *coordAdapter;    
+    SceneRenderer *sceneRender;
     Mbr drawMbr;
     const ShapeInfo &shapeInfo;
-    BasicDrawable *drawable;
-    std::vector<BasicDrawable *> drawables;
+    BasicDrawableBuilderRef drawable;
+    std::vector<BasicDrawableBuilderRef> drawables;
     std::vector<SimpleIdentity> texIDs;
     Point3d center;
     bool clipCoords;

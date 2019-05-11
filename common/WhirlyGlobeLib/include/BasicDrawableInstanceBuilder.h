@@ -41,6 +41,7 @@ public:
     
     /// Construct empty
     BasicDrawableInstanceBuilder(const std::string &name);
+    virtual ~BasicDrawableInstanceBuilder();
     
     /// Set the base draw ID and type
     void setMasterID(SimpleIdentity baseDrawID,BasicDrawableInstance::Style style);
@@ -64,6 +65,12 @@ public:
         
     /// Draw priority used for sorting
     virtual void setDrawPriority(unsigned int newPriority);
+    
+    /// Override color for the instanced drawable
+    virtual void setColor(const RGBAColor &color);
+    
+    /// Override line width for the instanced drawable
+    virtual void setLineWidth(float lineWidth);
         
     /// Resulting drawable wants the Z buffer for comparison
     virtual void setRequestZBuffer(bool val);
