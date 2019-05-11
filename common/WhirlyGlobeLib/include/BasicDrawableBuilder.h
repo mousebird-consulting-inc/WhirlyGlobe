@@ -121,7 +121,7 @@ public:
     
     /// Add a new vertex related attribute.  Need a data type and the name the shader refers to
     ///  it by.  The index returned is how you will access it.
-    virtual int addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings = -1) = 0;
+    virtual int addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings = -1);
     
     /// Reserve the extra space for points
     virtual void reserveNumPoints(int numPoints);
@@ -202,7 +202,10 @@ public:
     /// Caller is responsible for deletion
     virtual BasicDrawable *getDrawable() = 0;
 
-public:
+protected:
+    // This version is only used by subclasses
+    BasicDrawableBuilder();
+    void setName(const std::string &name);
     // Used by subclasses to do the standard init
     void Init();
     /// Check for the given texture coordinate entry and add it if it's not there

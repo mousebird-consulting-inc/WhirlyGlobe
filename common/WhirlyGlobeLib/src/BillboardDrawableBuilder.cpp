@@ -18,28 +18,31 @@
  *
  */
 
-#import "BillboardDrawable.h"
-#import "OpenGLES2Program.h"
+#import "BillboardDrawableBuilder.h"
+#import "ProgramGLES.h"
 #import "SceneRenderer.h"
 
 namespace WhirlyKit
 {
 
-BillboardDrawable::BillboardDrawable() : BasicDrawable("Billboard")
+BillboardDrawableBuilder::BillboardDrawableBuilder()
 {
+    setName("Billboard");
+    Init();
+    setupStandardAttributes();
     offsetIndex = addAttribute(BDFloat3Type, StringIndexer::getStringID("a_offset"));
 }
     
-void BillboardDrawable::addOffset(const Point3f &offset)
+void BillboardDrawableBuilder::addOffset(const Point3f &offset)
 {
     addAttributeValue(offsetIndex, offset);
 }
 
-void BillboardDrawable::addOffset(const Point3d &offset)
+void BillboardDrawableBuilder::addOffset(const Point3d &offset)
 {
     addAttributeValue(offsetIndex, Point3f(offset.x(),offset.y(),offset.z()));
 }
-    
+
 static const char *vertexShaderGroundTri = R"(
 precision highp float;
 
@@ -121,9 +124,9 @@ void main()
 }
 )";
 
-WhirlyKit::OpenGLES2Program *BuildBillboardGroundProgram(const std::string &name)
+Program *BuildBillboardGroundProgram(const std::string &name,SceneRenderer *render)
 {
-    OpenGLES2Program *shader = new OpenGLES2Program(name,vertexShaderGroundTri,fragmentShaderTri);
+    ProgramGLES *shader = new ProgramGLES(name,vertexShaderGroundTri,fragmentShaderTri);
     if (!shader->isValid())
     {
         delete shader;
@@ -143,9 +146,9 @@ WhirlyKit::OpenGLES2Program *BuildBillboardGroundProgram(const std::string &name
     return shader;
 }
 
-WhirlyKit::OpenGLES2Program *BuildBillboardEyeProgram(const std::string &name)
+Program *BuildBillboardEyeProgram(const std::string &name,SceneRenderer *render)
 {
-    OpenGLES2Program *shader = new OpenGLES2Program(name,vertexShaderEyeTri,fragmentShaderTri);
+    ProgramGLES *shader = new ProgramGLES(name,vertexShaderEyeTri,fragmentShaderTri);
     if (!shader->isValid())
     {
         delete shader;

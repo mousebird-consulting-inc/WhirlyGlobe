@@ -32,6 +32,8 @@ class BasicDrawableBuilder;
 typedef std::shared_ptr<BasicDrawableBuilder> BasicDrawableBuilderRef;
 class BasicDrawableInstanceBuilder;
 typedef std::shared_ptr<BasicDrawableInstanceBuilder> BasicDrawableInstanceBuilderRef;
+class BillboardDrawableBuilder;
+typedef std::shared_ptr<BillboardDrawableBuilder> BillboardDrawableBuilderRef;
 
 /** Renderer Frame Info.
  Data about the current frame, passed around by the renderer.
@@ -187,6 +189,9 @@ public:
     
     /// Construct a basic drawables instance builder for the current rendering type
     BasicDrawableInstanceBuilderRef makeBasicDrawableInstanceBuilder(const std::string &name) const;
+    
+    /// Construct a billboard drawable builder for the current rendering type
+    BillboardDrawableBuilderRef makeBillboardDrawableBuilder(const std::string &name) const;
     
 public:
     // Possible post-target creation init

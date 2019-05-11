@@ -22,6 +22,8 @@
 		2B23133821F942D2006AA344 /* Dictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B23133721F942D1006AA344 /* Dictionary.h */; };
 		2B23133A21F942E2006AA344 /* Dictionary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B23133921F942E1006AA344 /* Dictionary.cpp */; };
 		2B23133C21FA919E006AA344 /* Dictionary_NSDictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B23133B21FA919D006AA344 /* Dictionary_NSDictionary.h */; };
+		2B3D7E32228738210065FA18 /* BillboardDrawableBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B5D21F7E7DF0078A975 /* BillboardDrawableBuilder.cpp */; };
+		2B3D7E3722873B6D0065FA18 /* BillboardManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1421F158EA00EF2A82 /* BillboardManager.cpp */; };
 		2B446AB021EFE5DA0078A975 /* MaplyWMSTileSource.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446AAF21EFE5DA0078A975 /* MaplyWMSTileSource.h */; };
 		2B446ABB21F25C330078A975 /* WhirlyKitLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446AB921F25C330078A975 /* WhirlyKitLog.h */; };
 		2B446ABC21F25C330078A975 /* WhirlyTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446ABA21F25C330078A975 /* WhirlyTypes.h */; };
@@ -66,7 +68,7 @@
 		2B446B5221F7E7B80078A975 /* Identifiable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B4321F7E7B80078A975 /* Identifiable.h */; };
 		2B446B5321F7E7B80078A975 /* Texture.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B4421F7E7B80078A975 /* Texture.h */; };
 		2B446B5521F7E7B80078A975 /* DynamicTextureAtlas.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B4621F7E7B80078A975 /* DynamicTextureAtlas.h */; };
-		2B446B5621F7E7B80078A975 /* BillboardDrawable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B4721F7E7B80078A975 /* BillboardDrawable.h */; };
+		2B446B5621F7E7B80078A975 /* BillboardDrawableBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B4721F7E7B80078A975 /* BillboardDrawableBuilder.h */; };
 		2B446B5721F7E7B80078A975 /* BasicDrawableInstance.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B4821F7E7B80078A975 /* BasicDrawableInstance.h */; };
 		2B446B7B21FB948B0078A975 /* VectorData.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B7A21FB948B0078A975 /* VectorData.h */; };
 		2B446B7D21FB94A00078A975 /* VectorData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B7C21FB94A00078A975 /* VectorData.cpp */; };
@@ -1079,17 +1081,16 @@
 		2B446B4321F7E7B80078A975 /* Identifiable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Identifiable.h; path = ../../../../common/WhirlyGlobeLib/include/Identifiable.h; sourceTree = "<group>"; };
 		2B446B4421F7E7B80078A975 /* Texture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Texture.h; path = ../../../../common/WhirlyGlobeLib/include/Texture.h; sourceTree = "<group>"; };
 		2B446B4621F7E7B80078A975 /* DynamicTextureAtlas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DynamicTextureAtlas.h; path = ../../../../common/WhirlyGlobeLib/include/DynamicTextureAtlas.h; sourceTree = "<group>"; };
-		2B446B4721F7E7B80078A975 /* BillboardDrawable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BillboardDrawable.h; path = ../../../../common/WhirlyGlobeLib/include/BillboardDrawable.h; sourceTree = "<group>"; };
+		2B446B4721F7E7B80078A975 /* BillboardDrawableBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BillboardDrawableBuilder.h; path = ../../../../common/WhirlyGlobeLib/include/BillboardDrawableBuilder.h; sourceTree = "<group>"; };
 		2B446B4821F7E7B80078A975 /* BasicDrawableInstance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BasicDrawableInstance.h; path = ../../../../common/WhirlyGlobeLib/include/BasicDrawableInstance.h; sourceTree = "<group>"; };
 		2B446B5821F7E7DF0078A975 /* ParticleSystemDrawable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ParticleSystemDrawable.cpp; path = ../../../../common/WhirlyGlobeLib/src/ParticleSystemDrawable.cpp; sourceTree = "<group>"; };
 		2B446B5921F7E7DF0078A975 /* ScreenSpaceDrawable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ScreenSpaceDrawable.cpp; path = ../../../../common/WhirlyGlobeLib/src/ScreenSpaceDrawable.cpp; sourceTree = "<group>"; };
 		2B446B5A21F7E7DF0078A975 /* WideVectorDrawable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WideVectorDrawable.cpp; path = ../../../../common/WhirlyGlobeLib/src/WideVectorDrawable.cpp; sourceTree = "<group>"; };
 		2B446B5B21F7E7DF0078A975 /* BasicDrawable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BasicDrawable.cpp; path = ../../../../common/WhirlyGlobeLib/src/BasicDrawable.cpp; sourceTree = "<group>"; };
 		2B446B5C21F7E7DF0078A975 /* BasicDrawableInstance.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BasicDrawableInstance.cpp; path = ../../../../common/WhirlyGlobeLib/src/BasicDrawableInstance.cpp; sourceTree = "<group>"; };
-		2B446B5D21F7E7DF0078A975 /* BillboardDrawable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BillboardDrawable.cpp; path = ../../../../common/WhirlyGlobeLib/src/BillboardDrawable.cpp; sourceTree = "<group>"; };
+		2B446B5D21F7E7DF0078A975 /* BillboardDrawableBuilder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BillboardDrawableBuilder.cpp; path = ../../../../common/WhirlyGlobeLib/src/BillboardDrawableBuilder.cpp; sourceTree = "<group>"; };
 		2B446B5E21F7E7DF0078A975 /* Identifiable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Identifiable.cpp; path = ../../../../common/WhirlyGlobeLib/src/Identifiable.cpp; sourceTree = "<group>"; };
 		2B446B5F21F7E7DF0078A975 /* ScreenSpaceBuilder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ScreenSpaceBuilder.cpp; path = ../../../../common/WhirlyGlobeLib/src/ScreenSpaceBuilder.cpp; sourceTree = "<group>"; };
-		2B446B6021F7E7DF0078A975 /* MaplyScene.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MaplyScene.cpp; path = ../../../../common/WhirlyGlobeLib/src/MaplyScene.cpp; sourceTree = "<group>"; };
 		2B446B6121F7E7E00078A975 /* Scene.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Scene.cpp; path = ../../../../common/WhirlyGlobeLib/src/Scene.cpp; sourceTree = "<group>"; };
 		2B446B6221F7E7E00078A975 /* Drawable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Drawable.cpp; path = ../../../../common/WhirlyGlobeLib/src/Drawable.cpp; sourceTree = "<group>"; };
 		2B446B6321F7E7E00078A975 /* DynamicTextureAtlas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DynamicTextureAtlas.cpp; path = ../../../../common/WhirlyGlobeLib/src/DynamicTextureAtlas.cpp; sourceTree = "<group>"; };
@@ -2200,7 +2201,7 @@
 				2B8A78642284DA30008B0A1F /* BasicDrawableBuilder.h */,
 				2B446B4821F7E7B80078A975 /* BasicDrawableInstance.h */,
 				2B8A78662284DA87008B0A1F /* BasicDrawableInstanceBuilder.h */,
-				2B446B4721F7E7B80078A975 /* BillboardDrawable.h */,
+				2B446B4721F7E7B80078A975 /* BillboardDrawableBuilder.h */,
 				2B446B3B21F7E7B70078A975 /* ParticleSystemDrawable.h */,
 				2B446B4621F7E7B80078A975 /* DynamicTextureAtlas.h */,
 				2B446B4321F7E7B80078A975 /* Identifiable.h */,
@@ -2220,13 +2221,12 @@
 				2B446B5B21F7E7DF0078A975 /* BasicDrawable.cpp */,
 				2B8A785F2284C408008B0A1F /* BasicDrawableBuilder.cpp */,
 				2B446B5C21F7E7DF0078A975 /* BasicDrawableInstance.cpp */,
-				2B446B5D21F7E7DF0078A975 /* BillboardDrawable.cpp */,
+				2B446B5D21F7E7DF0078A975 /* BillboardDrawableBuilder.cpp */,
 				2B446B6221F7E7E00078A975 /* Drawable.cpp */,
 				2B8A788A228607B3008B0A1F /* Program.cpp */,
 				2B446B6421F7E7E00078A975 /* Texture.cpp */,
 				2B446B6321F7E7E00078A975 /* DynamicTextureAtlas.cpp */,
 				2B446B5E21F7E7DF0078A975 /* Identifiable.cpp */,
-				2B446B6021F7E7DF0078A975 /* MaplyScene.cpp */,
 				2B446B5821F7E7DF0078A975 /* ParticleSystemDrawable.cpp */,
 				2B446B6121F7E7E00078A975 /* Scene.cpp */,
 				2B446B5F21F7E7DF0078A975 /* ScreenSpaceBuilder.cpp */,
@@ -3983,7 +3983,7 @@
 				2B446B5321F7E7B80078A975 /* Texture.h in Headers */,
 				2B846F1221F158E100EF2A82 /* IntersectionManager.h in Headers */,
 				2BE538141D249A1200B60FAD /* MaplyMoon.h in Headers */,
-				2B446B5621F7E7B80078A975 /* BillboardDrawable.h in Headers */,
+				2B446B5621F7E7B80078A975 /* BillboardDrawableBuilder.h in Headers */,
 				2B446B4A21F7E7B80078A975 /* ParticleSystemDrawable.h in Headers */,
 				2BE538181D249A1200B60FAD /* MaplyParticleSystem.h in Headers */,
 				2B446B4921F7E7B80078A975 /* ScreenSpaceDrawable.h in Headers */,
@@ -4604,6 +4604,7 @@
 				2BE539B21D249BEF00B60FAD /* AAPhysicalJupiter.cpp in Sources */,
 				2BE1E75B2208F33900815D9C /* SingleLabel_iOS.mm in Sources */,
 				2BE53A6F1D249C4600B60FAD /* common.cc in Sources */,
+				2B3D7E32228738210065FA18 /* BillboardDrawableBuilder.cpp in Sources */,
 				2B82B6C11E82E24A0095FB14 /* PJ_wag7.c in Sources */,
 				2BE1E7512208ECA700815D9C /* MaplyCluster.mm in Sources */,
 				2BE539B81D249BEF00B60FAD /* AAPluto.cpp in Sources */,
@@ -4756,6 +4757,7 @@
 				2B82B6C61E82E24A0095FB14 /* proj_etmerc.c in Sources */,
 				2BC3D6E4220B5ACE00CE91D0 /* VectorData_iOS.mm in Sources */,
 				2BE539911D249BEF00B60FAD /* AADynamicalTime.cpp in Sources */,
+				2B3D7E3722873B6D0065FA18 /* BillboardManager.cpp in Sources */,
 				2B82B6761E82E24A0095FB14 /* pj_init.c in Sources */,
 				2BE1E770220A6B6700815D9C /* MapboxVectorStyleSet.mm in Sources */,
 				2B846EE621F137BD00EF2A82 /* geod_set.c in Sources */,

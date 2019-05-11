@@ -648,14 +648,14 @@ void ShapeManager::convertShape(Shape &shape,std::vector<WhirlyKit::GeometryRaw>
     outGeom.texId = EmptyIdentity;
     for (const BasicDrawableBuilderRef &draw : drawBuildTri.drawables)
     {
-        int basePts = (int)outGeom.pts.size();
-        outGeom.pts.reserve(draw->points.size());
-        for (const Point3f &pt : draw->points)
-            outGeom.pts.push_back(Point3d(pt.x(),pt.y(),pt.z()));
-        outGeom.triangles.reserve(draw->tris.size());
-        for (const BasicDrawable::Triangle &tri : draw->tris)
-            outGeom.triangles.push_back(GeometryRaw::RawTriangle(tri.verts[0]+basePts,tri.verts[1]+basePts,tri.verts[2]+basePts));
-        wkLogLevel(Error,"ShapeManager: Converting shape doesn't worth with new architecture.");
+        wkLogLevel(Error,"ShapeManager: Converting shape doesn't work with new architecture.");
+//        int basePts = (int)outGeom.pts.size();
+//        outGeom.pts.reserve(draw->points.size());
+//        for (const Point3f &pt : draw->points)
+//            outGeom.pts.push_back(Point3d(pt.x(),pt.y(),pt.z()));
+//        outGeom.triangles.reserve(draw->tris.size());
+//        for (const BasicDrawable::Triangle &tri : draw->tris)
+//            outGeom.triangles.push_back(GeometryRaw::RawTriangle(tri.verts[0]+basePts,tri.verts[1]+basePts,tri.verts[2]+basePts));
 //        if (draw->colorEntry >= 0)
 //        {
 //            outGeom.colors.reserve(draw->points.size());

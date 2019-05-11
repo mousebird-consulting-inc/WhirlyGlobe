@@ -23,7 +23,7 @@
 #import <map>
 #import "Identifiable.h"
 #import "BasicDrawable.h"
-#import "BillboardDrawable.h"
+#import "BillboardDrawableBuilder.h"
 #import "Scene.h"
 #import "SelectionManager.h"
 #import "BaseInfo.h"
@@ -112,11 +112,11 @@ public:
 typedef std::set<BillboardSceneRep *,IdentifiableSorter> BillboardSceneRepSet;
 
 // Used to construct billboard geometry
-class BillboardDrawableBuilder
+class BillboardBuilder
 {
 public:
-    BillboardDrawableBuilder(Scene *scene,ChangeSet &changes,BillboardSceneRep *sceneRep,const BillboardInfo &billInfo,SimpleIdentity billboardProgram,SimpleIdentity texId);
-    ~BillboardDrawableBuilder();
+    BillboardBuilder(Scene *scene,SceneRenderer *sceneRender,ChangeSet &changes,BillboardSceneRep *sceneRep,const BillboardInfo &billInfo,SimpleIdentity billboardProgram,SimpleIdentity texId);
+    ~BillboardBuilder();
 
     void addBillboard(Point3d center,const Point2dVector &pts,const std::vector<WhirlyKit::TexCoord> &texCoords, const RGBAColor *inColor,const SingleVertexAttributeSet &vertAttrs);
 
@@ -124,14 +124,16 @@ public:
 
 protected:
     Scene *scene;
+    SceneRenderer *sceneRender;
     ChangeSet &changes;
     Mbr drawMbr;
-    BillboardDrawable *drawable;
+    BillboardDrawableBuilderRef drawable;
     const BillboardInfo &billInfo;
     BillboardSceneRep *sceneRep;
     SimpleIdentity billboardProgram;
     SimpleIdentity texId;
 };
+typedef std::shared_ptr<BillboardBuilder> BillboardBuilderRef;
 
 #define kWKBillboardManager "WKBillboardManager"
 

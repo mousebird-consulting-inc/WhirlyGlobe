@@ -26,6 +26,31 @@ using namespace Eigen;
 namespace WhirlyKit
 {
 
+BasicDrawableBuilder::BasicDrawableBuilder()
+{
+}
+    
+BasicDrawableBuilder::BasicDrawableBuilder(const std::string &name)
+{
+    Init();
+    setupStandardAttributes();
+    basicDraw->name = name;
+}
+
+BasicDrawableBuilder::BasicDrawableBuilder(const std::string &name, unsigned int numVert,unsigned int numTri)
+{
+    Init();
+    basicDraw->name = name;
+    setupStandardAttributes(numVert);
+    points.reserve(numVert);
+    tris.reserve(numTri);
+}
+    
+void BasicDrawableBuilder::setName(const std::string &name)
+{
+    basicDraw->name = name;
+}
+    
 void BasicDrawableBuilder::Init()
 {
     basicDraw->colorEntry = -1;
@@ -91,20 +116,6 @@ void BasicDrawableBuilder::setupTexCoordEntry(int which,int numReserve)
     }
 }
     
-BasicDrawableBuilder::BasicDrawableBuilder(const std::string &name)
-{
-    Init();
-    basicDraw->name = name;
-}
-
-BasicDrawableBuilder::BasicDrawableBuilder(const std::string &name, unsigned int numVert,unsigned int numTri)
-{
-    Init();
-    basicDraw->name = name;
-    points.reserve(numVert);
-    tris.reserve(numTri);
-}
-
 BasicDrawableBuilder::~BasicDrawableBuilder()
 {
 }
@@ -236,6 +247,16 @@ void BasicDrawableBuilder::setColor(RGBAColor color)
 void BasicDrawableBuilder::setColor(unsigned char color[])
 {
     setColor(RGBAColor(color[0],color[1],color[2],color[3]));
+}
+    
+int BasicDrawableBuilder::addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings)
+{
+    VertexAttribute *attr = new VertexAttribute(dataType,nameID);
+    if (numThings > 0)
+        attr->reserve(numThings);
+    basicDraw->vertexAttributes.push_back(attr);
+    
+    return (unsigned int)(basicDraw->vertexAttributes.size()-1);
 }
 
 void BasicDrawableBuilder::reserveNumPoints(int numPoints)

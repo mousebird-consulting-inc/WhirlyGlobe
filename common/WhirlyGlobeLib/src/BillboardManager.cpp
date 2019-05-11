@@ -79,8 +79,9 @@ void BillboardSceneRep::clearContents(SelectionManager *selectManager,ChangeSet 
     }
 }
 
-BillboardDrawableBuilder::BillboardDrawableBuilder(Scene *scene,ChangeSet &changes,BillboardSceneRep *sceneRep,const BillboardInfo &billInfo,SimpleIdentity billboardProgram,SimpleIdentity texId) :
+BillboardBuilder::BillboardBuilder(Scene *scene,SceneRenderer *sceneRender,ChangeSet &changes,BillboardSceneRep *sceneRep,const BillboardInfo &billInfo,SimpleIdentity billboardProgram,SimpleIdentity texId) :
     scene(scene),
+    sceneRender(sceneRender),
     changes(changes),
     sceneRep(sceneRep),
     billInfo(billInfo),
@@ -91,12 +92,12 @@ BillboardDrawableBuilder::BillboardDrawableBuilder(Scene *scene,ChangeSet &chang
 
 }
 
-BillboardDrawableBuilder::~BillboardDrawableBuilder()
+BillboardBuilder::~BillboardBuilder()
 {
     flush();
 }
 
-void BillboardDrawableBuilder::addBillboard(Point3d center, const Point2dVector &pts, const std::vector<WhirlyKit::TexCoord> &texCoords, const WhirlyKit::RGBAColor *inColor, const SingleVertexAttributeSet &vertAttrs)
+void BillboardBuilder::addBillboard(Point3d center, const Point2dVector &pts, const std::vector<WhirlyKit::TexCoord> &texCoords, const WhirlyKit::RGBAColor *inColor, const SingleVertexAttributeSet &vertAttrs)
 {
     if (pts.size() != 4)
     {
@@ -114,9 +115,9 @@ void BillboardDrawableBuilder::addBillboard(Point3d center, const Point2dVector 
         if (drawable)
             flush();
             
-        drawable = new BillboardDrawable();
+        drawable = sceneRender->makeBillboardDrawableBuilder("Billboard");
         //        drawMbr.reset();
-        drawable->setType(GL_TRIANGLES);
+        drawable->setType(Triangles);
         billInfo.setupBasicDrawable(drawable);
         drawable->setProgram(billboardProgram);
         drawable->setTexId(0,texId);
@@ -155,14 +156,14 @@ void BillboardDrawableBuilder::addBillboard(Point3d center, const Point2dVector 
     drawable->addTriangle(BasicDrawable::Triangle(startPoint+0,startPoint+2,startPoint+3));
 }
     
-void BillboardDrawableBuilder::flush()
+void BillboardBuilder::flush()
 {
     if (drawable)
     {
         if (drawable->getNumPoints() > 0)
         {
             //            drawable->setLocalMbr(drawMbr);
-            sceneRep->drawIDs.insert(drawable->getId());
+            sceneRep->drawIDs.insert(drawable->getDrawable()->getId());
             
 // TODO Port (fade isn't supported yet)
 //           if (billInfo.fade > 0.0)
@@ -170,9 +171,8 @@ void BillboardDrawableBuilder::flush()
 //                TimeInterval curTime = TimeGetCurrent();
 //                drawable->setFade(curTime, curTime+billInfo.fade);
 //            }
-            changes.push_back(new AddDrawableReq(drawable));
-        } else
-            delete drawable;
+            changes.push_back(new AddDrawableReq(drawable->getDrawable()));
+        }
         drawable = NULL;
     }
 }
@@ -189,7 +189,7 @@ BillboardManager::~BillboardManager()
     sceneReps.clear();
 }
 
-typedef std::map<SimpleIdentity,BillboardDrawableBuilder *> BuilderMap;
+typedef std::map<SimpleIdentity,BillboardBuilderRef> BuilderMap;
 
 /// Add billboards for display
 SimpleIdentity BillboardManager::addBillboards(std::vector<Billboard*> billboards,const BillboardInfo &billboardInfo,ChangeSet &changes)
@@ -212,11 +212,11 @@ SimpleIdentity BillboardManager::addBillboards(std::vector<Billboard*> billboard
         for (const SingleBillboardPoly &billPoly : billboard->polys)
         {
             BuilderMap::iterator it = drawBuilders.find(billPoly.texId);
-            BillboardDrawableBuilder *drawBuilder = NULL;
+            BillboardBuilderRef drawBuilder;
             // Need a new one
             if (it == drawBuilders.end())
             {
-                drawBuilder = new BillboardDrawableBuilder(scene,changes,sceneRep,billboardInfo,billboardInfo.programID,billPoly.texId);
+                drawBuilder = BillboardBuilderRef(new BillboardBuilder(scene,renderer,changes,sceneRep,billboardInfo,billboardInfo.programID,billPoly.texId));
                 drawBuilders[billPoly.texId] = drawBuilder;
             } else
                 drawBuilder = it->second;
@@ -244,9 +244,8 @@ SimpleIdentity BillboardManager::addBillboards(std::vector<Billboard*> billboard
     // Flush out the changes and tear down the builders
     for (BuilderMap::iterator it = drawBuilders.begin(); it != drawBuilders.end(); ++it)
     {
-        BillboardDrawableBuilder *drawBuilder = it->second;
+        BillboardBuilderRef drawBuilder = it->second;
         drawBuilder->flush();
-        delete drawBuilder;
     }
     drawBuilders.clear();
         

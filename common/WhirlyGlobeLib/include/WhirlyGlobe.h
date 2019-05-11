@@ -20,9 +20,9 @@
 
 #import "ActiveModel.h"
 #import "BaseInfo.h"
-#import "BasicDrawable.h"
-#import "BasicDrawableInstance.h"
-#import "BillboardDrawable.h"
+#import "BasicDrawableBuilder.h"
+#import "BasicDrawableInstanceBuilder.h"
+#import "BillboardDrawableBuilder.h"
 #import "BillboardManager.h"
 #import "ComponentManager.h"
 #import "CoordSystem.h"

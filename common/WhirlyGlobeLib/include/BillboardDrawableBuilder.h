@@ -18,8 +18,8 @@
  *
  */
 
-#import "BasicDrawable.h"
 #import "Program.h"
+#import "BasicDrawableBuilder.h"
 
 namespace WhirlyKit
 {
@@ -31,14 +31,13 @@ namespace WhirlyKit
 Program *BuildBillboardGroundProgram(const std::string &name,SceneRenderer *render);
 Program *BuildBillboardEyeProgram(const std::string &name,SceneRenderer *render);
 
-/** The drawable class for rendering billboards.
-    Billboards contain extra information per vertex and
-    have a custom vertex shader.
+/** Billboards are just a little extra information and
+    a shader.  They emit basic drawables.
   */
-class BillboardDrawable : public BasicDrawable
+class BillboardDrawableBuilder : public BasicDrawableBuilder
 {
 public:
-    BillboardDrawable();
+    BillboardDrawableBuilder();
     
     /// Each vertex has an offset in 3-space
     void addOffset(const Point3f &offset);
@@ -47,5 +46,7 @@ public:
 protected:
     int offsetIndex;
 };
+    
+typedef std::shared_ptr<BillboardDrawableBuilder> BillboardDrawableBuilderRef;
 
 }
