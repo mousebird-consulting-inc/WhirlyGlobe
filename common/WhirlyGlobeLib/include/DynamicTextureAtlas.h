@@ -176,6 +176,8 @@ public:
         DynamicTexture::Region region;
     };
 
+    /// Construct with the square size of the textures, the cell size (in pixels) and the pixel format
+    DynamicTextureAtlas(int texSize,int cellSize,TextureType format,int imageDepth=1,bool mainThreadMerge=false);
     virtual ~DynamicTextureAtlas();
     
     /// Fudge factor for border pixels.  We'll add this/pixelSize to the lower left

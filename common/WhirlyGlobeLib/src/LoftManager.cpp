@@ -73,9 +73,9 @@ LoftedPolyInfo::LoftedPolyInfo(const Dictionary &dict)
 class DrawableBuilder2
 {
 public:
-    DrawableBuilder2(Scene *scene,ChangeSet &changes,LoftedPolySceneRep *sceneRep,
-                     const LoftedPolyInfo &polyInfo,int primType,const GeoMbr &inDrawMbr)
-    : scene(scene), sceneRep(sceneRep), polyInfo(polyInfo), drawable(NULL), primType(primType), changes(changes), centerValid(false), center(0,0,0), geoCenter(0,0)
+    DrawableBuilder2(Scene *scene,SceneRenderer *sceneRender,ChangeSet &changes,LoftedPolySceneRep *sceneRep,
+                     const LoftedPolyInfo &polyInfo,GeometryType primType,const GeoMbr &inDrawMbr)
+    : scene(scene), sceneRender(sceneRender), sceneRep(sceneRep), polyInfo(polyInfo), drawable(NULL), primType(primType), changes(changes), centerValid(false), center(0,0,0), geoCenter(0,0)
     {
         drawMbr = inDrawMbr;
     }
@@ -101,14 +101,14 @@ public:
             if (drawable)
                 flush();
             
-            drawable = new BasicDrawable("Lofted Poly");
+            drawable = sceneRender->makeBasicDrawableBuilder("Lofted Poly");
             drawable->setType(primType);
             // Adjust according to the vector info
             //            drawable->setOnOff(polyInfo.enable);
             //            drawable->setDrawOffset(vecInfo->drawOffset);
-            drawable->setColor(((primType == GL_TRIANGLES) ? polyInfo.color : polyInfo.outlineColor));
+            drawable->setColor(((primType == Triangles) ? polyInfo.color : polyInfo.outlineColor));
             polyInfo.setupBasicDrawable(drawable);
-            if (primType == GL_LINES)
+            if (primType == Lines)
                 drawable->setLineWidth(polyInfo.outlineWidth);
             drawable->setRequestZBuffer(polyInfo.zBufferRead);
             drawable->setWriteZBuffer(polyInfo.zBufferWrite);
@@ -170,7 +170,7 @@ public:
     // Add a set of outlines
     void addOutline(std::vector<VectorRing> &rings,bool useHeight)
     {
-        if (primType != GL_LINES)
+        if (primType != Lines)
             return;
         double height = (useHeight ? polyInfo.height : 0.0);
         
@@ -278,7 +278,7 @@ public:
         }
         
         // Close the loop
-        if (primType == GL_LINES)
+        if (primType == Lines)
         {
             int startVert = drawable->getNumPoints();
             drawable->addPoint((Point3d)(prevPt0-center));
@@ -305,7 +305,7 @@ public:
     
     void addUprights(VectorRing &pts)
     {
-        if (primType != GL_LINES)
+        if (primType != Lines)
             return;
         CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
         
@@ -352,22 +352,22 @@ public:
                     TimeInterval curTime = TimeGetCurrent();
                     drawable->setFade(curTime,curTime+polyInfo.fade);
                 }
-                sceneRep->drawIDs.insert(drawable->getId());
-                changes.push_back(new AddDrawableReq(drawable));
-            } else
-                delete drawable;
+                sceneRep->drawIDs.insert(drawable->getDrawable()->getId());
+                changes.push_back(new AddDrawableReq(drawable->getDrawable()));
+            }
             drawable = NULL;
         }
     }
     
 protected:   
     Scene *scene;
+    SceneRenderer *sceneRender;
     LoftedPolySceneRep *sceneRep;
     ChangeSet &changes;
     GeoMbr drawMbr;
-    BasicDrawable *drawable;
+    BasicDrawableBuilderRef drawable;
     const LoftedPolyInfo &polyInfo;
-    GLenum primType;
+    GeometryType primType;
     Point3d center;
     Point2d geoCenter;
     bool applyCenter;
@@ -393,14 +393,14 @@ void LoftManager::addGeometryToBuilder(LoftedPolySceneRep *sceneRep,const Lofted
     
     // Used to toss out drawables as we go
     // Its destructor will flush out the last drawable
-    DrawableBuilder2 drawBuild(scene,changes,sceneRep,polyInfo,GL_TRIANGLES,drawMbr);
+    DrawableBuilder2 drawBuild(scene,renderer,changes,sceneRep,polyInfo,Triangles,drawMbr);
     if (centerValid)
         drawBuild.setCenter(center,geoCenter);
     
     // Toss in the polygons for the sides
     if (polyInfo.height != 0.0)
     {
-        DrawableBuilder2 drawBuild2(scene,changes,sceneRep,polyInfo,GL_LINES,drawMbr);
+        DrawableBuilder2 drawBuild2(scene,renderer,changes,sceneRep,polyInfo,Lines,drawMbr);
 
         for (ShapeSet::iterator it = shapes.begin(); it != shapes.end(); ++it)
         {
@@ -430,7 +430,7 @@ void LoftManager::addGeometryToBuilder(LoftedPolySceneRep *sceneRep,const Lofted
     // And do the top outline if it's there
     if (polyInfo.outline || polyInfo.outlineBottom)
     {
-        DrawableBuilder2 drawBuild2(scene,changes,sceneRep,polyInfo,GL_LINES,drawMbr);
+        DrawableBuilder2 drawBuild2(scene,renderer,changes,sceneRep,polyInfo,Lines,drawMbr);
         if (centerValid)
             drawBuild2.setCenter(center,geoCenter);
         if (polyInfo.outline)

@@ -389,7 +389,7 @@ DynamicTextureAtlas::TextureRegion::TextureRegion()
 #endif
 
     
-DynamicTextureAtlas::DynamicTextureAtlas(int texSize,int cellSize,GLenum format,int imageDepth,bool mainThreadMerge)
+DynamicTextureAtlas::DynamicTextureAtlas(int texSize,int cellSize,TextureType format,int imageDepth,bool mainThreadMerge)
     : texSize(texSize), cellSize(cellSize), format(format), imageDepth(imageDepth),  pixelFudge(0.0), mainThreadMerge(mainThreadMerge), clearTextures(imageDepth>1), interpType(GL_LINEAR)
 {
     if (mainThreadMerge || MainThreadMerge)

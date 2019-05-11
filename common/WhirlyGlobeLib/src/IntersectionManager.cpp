@@ -34,7 +34,7 @@ void IntersectionManager::removeIntersectable(Intersectable *intersect)
 }
 
 /// Look for the nearest intersection and return the point (in display coordinates)
-bool IntersectionManager::findIntersection(SceneRendererES *renderer,View *view,const Point2f &frameSize,const Point2f &touchPt,Point3d &iPt,double &dist)
+bool IntersectionManager::findIntersection(SceneRenderer *renderer,View *view,const Point2f &frameSize,const Point2f &touchPt,Point3d &iPt,double &dist)
 {
     Point3d minPt;
     double minDist = std::numeric_limits<double>::max();

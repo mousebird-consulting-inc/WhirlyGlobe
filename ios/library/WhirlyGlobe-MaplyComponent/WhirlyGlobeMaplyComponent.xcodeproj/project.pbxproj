@@ -470,6 +470,12 @@
 		2B8A789422862F4B008B0A1F /* BasicDrawableInstanceGLES.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B8A789322862F4B008B0A1F /* BasicDrawableInstanceGLES.cpp */; };
 		2B8A789622863DA7008B0A1F /* BasicDrawableInstanceBuilderGLES.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B8A789522863DA7008B0A1F /* BasicDrawableInstanceBuilderGLES.cpp */; };
 		2B8A789822863DF3008B0A1F /* BasicDrawableInstanceBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B8A789722863DF3008B0A1F /* BasicDrawableInstanceBuilder.cpp */; };
+		2B8A789A2286468B008B0A1F /* FontTextureManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B9321FBA8340078A975 /* FontTextureManager.cpp */; };
+		2B8A789B22864721008B0A1F /* IntersectionManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F2121F158EC00EF2A82 /* IntersectionManager.cpp */; };
+		2B8A789C2286473C008B0A1F /* LabelRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446AE221F288220078A975 /* LabelRenderer.cpp */; };
+		2B8A789D2286474A008B0A1F /* LabelManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1D21F158EB00EF2A82 /* LabelManager.cpp */; };
+		2B8A789E22864758008B0A1F /* LayoutManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1C21F158EB00EF2A82 /* LayoutManager.cpp */; };
+		2B8A789F22864776008B0A1F /* LoftManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1721F158EB00EF2A82 /* LoftManager.cpp */; };
 		2B8E608920D458A600FB96F0 /* MaplyQuadSampler_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8E608820D458A500FB96F0 /* MaplyQuadSampler_private.h */; };
 		2B8E608B20D47FEE00FB96F0 /* MaplyRemoteTileFetcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8E608A20D47FEE00FB96F0 /* MaplyRemoteTileFetcher.h */; };
 		2BA827C1225E57FA00324594 /* MapboxVectorTileParser_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA827C0225E57FA00324594 /* MapboxVectorTileParser_iOS.h */; };
@@ -4498,6 +4504,7 @@
 				2B8A789422862F4B008B0A1F /* BasicDrawableInstanceGLES.cpp in Sources */,
 				2BC3D6EE220B714100CE91D0 /* sqlhelpers.mm in Sources */,
 				2B82B6771E82E24A0095FB14 /* pj_initcache.c in Sources */,
+				2B8A789B22864721008B0A1F /* IntersectionManager.cpp in Sources */,
 				2B82B67B1E82E24A0095FB14 /* PJ_labrd.c in Sources */,
 				2BE53A6B1D249C4600B60FAD /* atomicops_internals_x86_gcc.cc in Sources */,
 				2BC3D6D72203EE8A00CE91D0 /* MaplyTwoFingerTapDelegate.mm in Sources */,
@@ -4611,6 +4618,7 @@
 				2BE539BA1D249BEF00B60FAD /* AARefraction.cpp in Sources */,
 				2B87971A2203B77900EF801D /* MaplyTextureBuilder.mm in Sources */,
 				2B8796B721FFB2DE00EF801D /* Platform.mm in Sources */,
+				2B8A789D2286474A008B0A1F /* LabelManager.cpp in Sources */,
 				2BE539AA1D249BEF00B60FAD /* AAMoslemCalendar.cpp in Sources */,
 				2B82B6AE1E82E24A0095FB14 /* PJ_stere.c in Sources */,
 				2B82B6781E82E24A0095FB14 /* pj_inv.c in Sources */,
@@ -4648,6 +4656,7 @@
 				2B8797182203B77900EF801D /* MaplyLocationTracker.mm in Sources */,
 				2BE539AB1D249BEF00B60FAD /* AANearParabolic.cpp in Sources */,
 				2BC3D6D42203EA6900CE91D0 /* MaplyVertexAttribute.mm in Sources */,
+				2B8A789C2286473C008B0A1F /* LabelRenderer.cpp in Sources */,
 				2B446B1121F79AD00078A975 /* WhirlyOctEncoding.cpp in Sources */,
 				2BE539C31D249BEF00B60FAD /* AAVenus.cpp in Sources */,
 				2B82B6C31E82E24A0095FB14 /* PJ_wink2.c in Sources */,
@@ -4737,6 +4746,7 @@
 				2B82B6761E82E24A0095FB14 /* pj_init.c in Sources */,
 				2BE1E770220A6B6700815D9C /* MapboxVectorStyleSet.mm in Sources */,
 				2B846EE621F137BD00EF2A82 /* geod_set.c in Sources */,
+				2B8A789A2286468B008B0A1F /* FontTextureManager.cpp in Sources */,
 				2B82B6381E82E2490095FB14 /* geocent.c in Sources */,
 				2BE539B01D249BEF00B60FAD /* AAParallactic.cpp in Sources */,
 				2BE53A0F1D249C2900B60FAD /* reflection_ops.cc in Sources */,
@@ -4776,6 +4786,7 @@
 				2B82B6031E82E2490095FB14 /* JSONDebug.cpp in Sources */,
 				2B68A441225D447F009CC720 /* MapboxVectorTileParser.cpp in Sources */,
 				2B82B6BE1E82E24A0095FB14 /* PJ_vandg4.c in Sources */,
+				2B8A789F22864776008B0A1F /* LoftManager.cpp in Sources */,
 				2B846EDA21F1362400EF2A82 /* pj_gc_reader.c in Sources */,
 				2BE539C01D249BEF00B60FAD /* AAStellarMagnitudes.cpp in Sources */,
 				2BBC338E2217853E0038A229 /* MaplyQuadImageFrameLoader.mm in Sources */,
@@ -4803,6 +4814,7 @@
 				2BC3D6D22203EA6000CE91D0 /* MaplySun.mm in Sources */,
 				2B82B6601E82E24A0095FB14 /* PJ_eqdc.c in Sources */,
 				2BE1E73F2208BE0F00815D9C /* MaplyTapDelegate.mm in Sources */,
+				2B8A789E22864758008B0A1F /* LayoutManager.cpp in Sources */,
 				2B82B66A1E82E24A0095FB14 /* PJ_gins8.c in Sources */,
 				2BE1E7412208C03900815D9C /* GlobeDoubleTapDelegate.mm in Sources */,
 				2BB8E20221FF93CB00154CDC /* WhirlyKitView.cpp in Sources */,

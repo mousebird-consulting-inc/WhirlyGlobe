@@ -19,7 +19,6 @@
  */
 
 #import "LayoutManager.h"
-#import "SceneRendererES2.h"
 #import "WhirlyGeometry.h"
 #import "GlobeMath.h"
 #import "WhirlyKitLog.h"
