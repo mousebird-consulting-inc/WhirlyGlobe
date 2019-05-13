@@ -73,7 +73,7 @@ public:
     {
     public:
         VertAttrDefault(unsigned int progAttrIndex,const VertexAttribute &attr)
-        : progAttrIndex(progAttrIndex), attr(attr) { }
+        : progAttrIndex(progAttrIndex), attr((VertexAttributeGLES &)attr) { }
         GLuint progAttrIndex;
         VertexAttributeGLES attr;
     };

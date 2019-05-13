@@ -129,11 +129,11 @@ public:
     
     /// Print out stats for debugging
     void dumpStats();
-    
-protected:
+
     // Look for a drawable by ID
     Drawable *getDrawable(SimpleIdentity drawID);
-    
+
+protected:
     // Top level nodes in the scenegraph
     SceneGraphNodeSet topNodes;
     

@@ -23,6 +23,7 @@
 #import <map>
 #import "Identifiable.h"
 #import "StringIndexer.h"
+#import "WhirlyKitView.h"
 
 namespace WhirlyKit
 {
@@ -57,7 +58,7 @@ public:
     virtual void setupForRenderer(RenderSetupInfo *);
     
     /// Make a change to the scene.  For the renderer.  Never call this.
-    virtual void execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *view) = 0;
+    virtual void execute(Scene *scene,SceneRenderer *renderer,View *view) = 0;
     
     /// Set this if you need to be run before the active models are run
     virtual bool needPreExecute();

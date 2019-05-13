@@ -19,6 +19,7 @@
  */
 
 #import "VertexAttribute.h"
+#import "WrapperGLES.h"
 
 namespace WhirlyKit
 {
@@ -28,7 +29,7 @@ class VertexAttributeGLES : public VertexAttribute
 {
 public:
     VertexAttributeGLES(BDAttributeDataType dataType,StringIdentity nameID);
-    VertexAttributeGLES(const VertexAttribute &that);
+    VertexAttributeGLES(const VertexAttributeGLES &that);
 
     /// Return the number of components as needed by glVertexAttribPointer
     GLuint glEntryComponents() const;

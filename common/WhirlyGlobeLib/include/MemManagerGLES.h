@@ -1,5 +1,5 @@
 /*
- *  Drawable.h
+ *  MemManagerGLES.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/1/11.
@@ -19,9 +19,11 @@
  */
 
 #import "WrapperGLES.h"
+#import "ChangeRequest.h"
 #import <vector>
 #import <set>
 #import <map>
+#import <mutex>
 
 namespace WhirlyKit
 {
@@ -77,6 +79,7 @@ class RenderSetupInfoGLES : public RenderSetupInfo
 {
 public:
     RenderSetupInfoGLES();
+    RenderSetupInfoGLES(Scene *scene);
     /// If we're using drawOffset, this is the units
     float minZres;
     /// Version of OpenGL ES we're using
