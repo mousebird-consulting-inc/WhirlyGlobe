@@ -493,6 +493,7 @@
 		2B8A78A522864E4F008B0A1F /* SphericalEarthChunkManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F2021F158EB00EF2A82 /* SphericalEarthChunkManager.cpp */; };
 		2B8A78A62286507F008B0A1F /* ComponentManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BBC338422173FAA0038A229 /* ComponentManager.cpp */; };
 		2B8A78A722865085008B0A1F /* VectorManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1F21F158EB00EF2A82 /* VectorManager.cpp */; };
+		2B8A78A82289D539008B0A1F /* BasicDrawableInstance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B5C21F7E7DF0078A975 /* BasicDrawableInstance.cpp */; };
 		2B8E608920D458A600FB96F0 /* MaplyQuadSampler_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8E608820D458A500FB96F0 /* MaplyQuadSampler_private.h */; };
 		2B8E608B20D47FEE00FB96F0 /* MaplyRemoteTileFetcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8E608A20D47FEE00FB96F0 /* MaplyRemoteTileFetcher.h */; };
 		2BA827C1225E57FA00324594 /* MapboxVectorTileParser_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA827C0225E57FA00324594 /* MapboxVectorTileParser_iOS.h */; };
@@ -2228,6 +2229,7 @@
 				2B446B5B21F7E7DF0078A975 /* BasicDrawable.cpp */,
 				2B8A785F2284C408008B0A1F /* BasicDrawableBuilder.cpp */,
 				2B446B5C21F7E7DF0078A975 /* BasicDrawableInstance.cpp */,
+				2B8A789722863DF3008B0A1F /* BasicDrawableInstanceBuilder.cpp */,
 				2B446B5D21F7E7DF0078A975 /* BillboardDrawableBuilder.cpp */,
 				2B446B6221F7E7E00078A975 /* Drawable.cpp */,
 				2B8A788A228607B3008B0A1F /* Program.cpp */,
@@ -2241,7 +2243,6 @@
 				2B446B0B21F79AD00078A975 /* StringIndexer.cpp */,
 				2B446B6721F7E7E00078A975 /* TextureAtlas.cpp */,
 				2B446B5A21F7E7DF0078A975 /* WideVectorDrawable.cpp */,
-				2B8A789722863DF3008B0A1F /* BasicDrawableInstanceBuilder.cpp */,
 			);
 			name = scene;
 			sourceTree = "<group>";
@@ -4630,6 +4631,7 @@
 				2BE1E73D2208BD4500815D9C /* Maply3dTouchPreviewDelegate.mm in Sources */,
 				2B8796F022037A1A00EF801D /* GlobeAnimateViewMomentum.cpp in Sources */,
 				2B82B66F1E82E24A0095FB14 /* pj_gridlist.c in Sources */,
+				2B8A78A82289D539008B0A1F /* BasicDrawableInstance.cpp in Sources */,
 				2B82B6AF1E82E24A0095FB14 /* PJ_sterea.c in Sources */,
 				2BE539B51D249BEF00B60FAD /* AAPhysicalSun.cpp in Sources */,
 				2B846EED21F138F600EF2A82 /* tess.c in Sources */,

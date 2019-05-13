@@ -18,21 +18,26 @@
  *
  */
 
-#import "GLUtils.h"
-#import "BasicDrawableInstance.h"
+#import "Program.h"
+#import "BasicDrawable.h"
 #import "SceneRenderer.h"
-#import "TextureAtlas.h"
+#import "WhirlyKitLog.h"
 
 using namespace Eigen;
 
 namespace WhirlyKit
 {
 
-BasicDrawableInstance::BasicDrawableInstance(const std::string &name,SimpleIdentity masterID,Style style)
+BasicDrawableInstance::BasicDrawableInstance(const std::string &name)
 : Drawable(name)
 {
 }
 
+BasicDrawableRef BasicDrawableInstance::getMaster() const
+{
+    return basicDraw;
+}
+    
 Mbr BasicDrawableInstance::getLocalMbr() const
 {
     return basicDraw->getLocalMbr();
@@ -51,6 +56,11 @@ SimpleIdentity BasicDrawableInstance::getProgram() const
         return programID;
 
     return basicDraw->getProgram();
+}
+    
+    void BasicDrawableInstance::setProgram(SimpleIdentity progID)
+{
+    programID = progID;
 }
 
 bool BasicDrawableInstance::isOn(WhirlyKit::RendererFrameInfo *frameInfo) const
@@ -87,17 +97,32 @@ bool BasicDrawableInstance::isOn(WhirlyKit::RendererFrameInfo *frameInfo) const
     return true;
 }
 
-GLenum BasicDrawableInstance::getType() const
-{
-    return basicDraw->getType();
-}
-
 bool BasicDrawableInstance::hasAlpha(WhirlyKit::RendererFrameInfo *frameInfo) const
 {
     return basicDraw->hasAlpha(frameInfo);
 }
+    
+void BasicDrawableInstance::setRequestZBuffer(bool val)
+{
+    requestZBuffer = val;
+}
+    
+bool BasicDrawableInstance::getRequestZBuffer() const
+{
+    return requestZBuffer;
+}
+    
+void BasicDrawableInstance::setWriteZBuffer(bool val)
+{
+    writeZBuffer = val;
+}
+    
+bool BasicDrawableInstance::getWriteZbuffer() const
+{
+    return writeZBuffer;
+}
 
-void BasicDrawableInstance::updateRenderer(WhirlyKit::SceneRendererES *renderer)
+void BasicDrawableInstance::updateRenderer(WhirlyKit::SceneRenderer *renderer)
 {
     if (moving)
     {
@@ -107,10 +132,58 @@ void BasicDrawableInstance::updateRenderer(WhirlyKit::SceneRendererES *renderer)
     
     return basicDraw->updateRenderer(renderer);
 }
-
-const Eigen::Matrix4d *BasicDrawableInstance::getMatrix() const
+    
+SimpleIdentity BasicDrawableInstance::getCalculationProgram() const
 {
-    return basicDraw->getMatrix();
+    return EmptyIdentity;
+}
+    
+void BasicDrawableInstance::calculate(RendererFrameInfo *frameInfo,Scene *scene)
+{
+}
+    
+void BasicDrawableInstance::setEnable(bool newEnable)
+{
+    enable = newEnable;
+}
+
+void BasicDrawableInstance::setEnableTimeRange(TimeInterval inStartEnable,TimeInterval inEndEnable)
+{
+    startEnable = inStartEnable;  endEnable = inEndEnable;
+}
+
+void BasicDrawableInstance::setVisibleRange(float inMinVis,float inMaxVis)
+{
+    minVis = inMinVis;   maxVis = inMaxVis;
+}
+
+/// Set the viewer based visibility
+void BasicDrawableInstance::setViewerVisibility(double inMinViewerDist,double inMaxViewerDist,const Point3d &inViewerCenter)
+{
+    minViewerDist = inMinViewerDist; maxViewerDist = inMaxViewerDist; viewerCenter = inViewerCenter;
+}
+
+/// Set the color
+void BasicDrawableInstance::setColor(RGBAColor inColor)
+{
+    hasColor = true; color = inColor;
+}
+
+/// Set the draw priority
+void BasicDrawableInstance::setDrawPriority(int newPriority)
+{
+    hasDrawPriority = true;  drawPriority = newPriority;
+}
+
+/// Set the line width
+void BasicDrawableInstance::setLineWidth(int newLineWidth)
+{
+    hasLineWidth = true;  lineWidth = newLineWidth;
+}
+    
+void BasicDrawableInstance::setStartTime(TimeInterval inStartTime)
+{
+    startTime = inStartTime;
 }
 
 void BasicDrawableInstance::setUniforms(const SingleVertexAttributeSet &newUniforms)
@@ -118,30 +191,21 @@ void BasicDrawableInstance::setUniforms(const SingleVertexAttributeSet &newUnifo
     uniforms = newUniforms;
 }
 
+const Eigen::Matrix4d *BasicDrawableInstance::getMatrix() const
+{
+    return basicDraw->getMatrix();
+}
+
 void BasicDrawableInstance::setTexId(unsigned int which,SimpleIdentity inId)
 {
-    setupTexCoordEntry(which, 0);
     texInfo[which].texId = inId;
 }
 
 void BasicDrawableInstance::setTexIDs(const std::vector<SimpleIdentity> &texIDs)
 {
-    for (unsigned int ii=0;ii<texIDs.size();ii++)
+    for (unsigned int ii=0;ii<std::min(texInfo.size(),texIDs.size());ii++)
     {
-        setupTexCoordEntry(ii, 0);
         texInfo[ii].texId = texIDs[ii];
-    }
-}
-
-void BasicDrawableInstance::setupTexCoordEntry(int which,int numReserve)
-{
-    if (which < texInfo.size())
-        return;
-    
-    for (unsigned int ii=(unsigned int)texInfo.size();ii<=which;ii++)
-    {
-        TexInfo newInfo;
-        texInfo.push_back(newInfo);
     }
 }
 

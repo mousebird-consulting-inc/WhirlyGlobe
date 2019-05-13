@@ -48,7 +48,7 @@ public:
     virtual ~BasicDrawableInstance();
     
     /// Return the master being instanced
-    BasicDrawableRef getMaster() { return basicDraw; }
+    BasicDrawableRef getMaster() const;
 
     /// Return the local MBR, if we're working in a non-geo coordinate system
     virtual Mbr getLocalMbr() const;
@@ -69,42 +69,42 @@ public:
     virtual bool hasAlpha(WhirlyKit::RendererFrameInfo *frameInfo) const;
     
     /// We can ask to use the z buffer
-    virtual void setRequestZBuffer(bool val) { requestZBuffer = val; }
+    virtual void setRequestZBuffer(bool val);
     virtual bool getRequestZBuffer() const;
     
     /// Set the z buffer mode for this drawable
-    virtual void setWriteZBuffer(bool val) { writeZBuffer = val; }
+    virtual void setWriteZBuffer(bool val);
     virtual bool getWriteZbuffer() const;
     
     /// Update anything associated with the renderer.  Probably renderUntil.
     virtual void updateRenderer(WhirlyKit::SceneRenderer *renderer);
     
     /// If present, we'll do a pre-render calculation pass with this program set
-    virtual SimpleIdentity getCalculationProgram() const { return EmptyIdentity; };
+    virtual SimpleIdentity getCalculationProgram() const;
     
     /// Some drawables have a pre-render phase that uses the GPU for calculation
-    virtual void calculate(RendererFrameInfo *frameInfo,Scene *scene) { };
+    virtual void calculate(RendererFrameInfo *frameInfo,Scene *scene);
 
     /// Set the enable on/off
-    void setEnable(bool newEnable) { enable = newEnable; }
+    void setEnable(bool newEnable);
     
     /// Set the time range for enable
-    void setEnableTimeRange(TimeInterval inStartEnable,TimeInterval inEndEnable) { startEnable = inStartEnable;  endEnable = inEndEnable; }
+    void setEnableTimeRange(TimeInterval inStartEnable,TimeInterval inEndEnable);
     
     /// Set the min/max visible range
-    void setVisibleRange(float inMinVis,float inMaxVis) { minVis = inMinVis;   maxVis = inMaxVis; }
+    void setVisibleRange(float inMinVis,float inMaxVis);
 
     /// Set the viewer based visibility
-    void setViewerVisibility(double inMinViewerDist,double inMaxViewerDist,const Point3d &inViewerCenter) { minViewerDist = inMinViewerDist; maxViewerDist = inMaxViewerDist; viewerCenter = inViewerCenter; }
+    void setViewerVisibility(double inMinViewerDist,double inMaxViewerDist,const Point3d &inViewerCenter);
     
     /// Set the color
-    void setColor(RGBAColor inColor) { hasColor = true; color = inColor; }
+    void setColor(RGBAColor inColor);
     
     /// Set the draw priority
-    void setDrawPriority(int newPriority) { hasDrawPriority = true;  drawPriority = newPriority; }
+    void setDrawPriority(int newPriority);
     
     /// Set the line width
-    void setLineWidth(int newLineWidth) { hasLineWidth = true;  lineWidth = newLineWidth; }
+    void setLineWidth(int newLineWidth);
     
     // Time we start counting from for motion
     void setStartTime(TimeInterval inStartTime);
@@ -163,6 +163,8 @@ public:
     virtual void setTexRelative(int which,int size,int borderTexel,int relLevel,int relX,int relY);
     
 protected:
+    
+    
     Style instanceStyle;
     SimpleIdentity programID;
     bool requestZBuffer,writeZBuffer;
