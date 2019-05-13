@@ -128,7 +128,7 @@ using namespace WhirlyGlobe;
         return;
     }
 
-    IntersectionManager *intManager = (IntersectionManager *)sceneRender->scene->getManager(kWKIntersectionManager);
+    IntersectionManager *intManager = (IntersectionManager *)sceneRender->getScene()->getManager(kWKIntersectionManager);
     if (!intManager)
         return;
     

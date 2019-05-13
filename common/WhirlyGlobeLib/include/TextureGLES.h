@@ -53,7 +53,9 @@ protected:
  */
 class TextureGLES : public Texture, public TextureBaseGLES
 {
-public:    
+public:
+    TextureGLES(const std::string &name);
+    
     /// Render side only.  Don't call this.  Create the openGL version
     virtual bool createInRenderer(RenderSetupInfo *setupInfo);
     

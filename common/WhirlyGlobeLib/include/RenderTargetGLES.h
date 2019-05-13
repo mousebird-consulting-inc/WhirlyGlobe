@@ -1,8 +1,8 @@
 /*
- *  SceneRenderer.h
+ *  RenderTargetGLES.h
  *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 1/13/11.
+ *  Created by Steve Gifford on 5/13/19.
  *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,6 +19,8 @@
  */
 
 #import "RenderTarget.h"
+#import "WrapperGLES.h"
+#import "SceneRendererGLES.h"
 
 namespace WhirlyKit
 {
@@ -30,42 +32,43 @@ class SceneRenderer;
 class RenderTargetGLES : public RenderTarget
 {
 public:
-    RenderTarget();
-    RenderTarget(SimpleIdentity newID);
-    void init();
+    RenderTargetGLES();
+    RenderTargetGLES(SimpleIdentity newID);
+    virtual ~RenderTargetGLES();
     
     // Set up the render target
-    bool init(SceneRendererES *renderer,Scene *scene,SimpleIdentity targetTexID);
+    bool init(SceneRenderer *renderer,Scene *scene,SimpleIdentity targetTexID);
     
     // Pull in framebuffer info from the current OpenGL State
     bool initFromState(int inWidth,int inHeight);
-    
+
+    /// Set up the target texture
+    virtual bool setTargetTexture(SceneRenderer *renderer,Scene *scene,SimpleIdentity newTargetTexID);
+
     // Clear up resources from the render target
     void clear();
     
+    /// Copy the data out of the destination texture and return it
+    virtual RawDataRef snapshot();
+    
     /// Make this framebuffer active
-    void setActiveFramebuffer(SceneRendererES *renderer);
+    void setActiveFramebuffer(SceneRendererGLES *renderer);
     
     /// Set up the target texture
     void setTargetTexture(Scene *scene,SimpleIdentity newTargetTexID);
     
     /// Set the GL texture directly
     void setTargetTexture(TextureBase *tex);
-    
-    /// Copy the data out of the destination texture and return it
-    RawDataRef snapshot();
-    
+        
     /// OpenGL ES Name for the frame buffer
     GLuint framebuffer;
     /// OpenGL ES Name for the color buffer
     GLuint colorbuffer;
     /// OpenGL ES Name for the depth buffer
     GLuint depthbuffer;
-    /// Output framebuffer size fo glViewport
-    int width,height;
-    /// Set if we've set up background and suchs
-    bool isSetup;
     
+protected:
+    void init();
 };
 typedef std::shared_ptr<RenderTargetGLES> RenderTargetGLESRef;
 

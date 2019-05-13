@@ -36,13 +36,25 @@ class RenderTarget : public Identifiable
 public:
     RenderTarget();
     RenderTarget(SimpleIdentity newID);
-    
+    virtual ~RenderTarget();
+
+    // Initialize in the renderer
+    virtual bool init(SceneRenderer *renderer,Scene *scene,SimpleIdentity targetTexID) = 0;
+
     /// Set up the target texture
-    virtual void setTargetTexture(Scene *scene,SimpleIdentity newTargetTexID);
-    
+    virtual bool setTargetTexture(SceneRenderer *renderer,Scene *scene,SimpleIdentity newTargetTexID) = 0;
+
+    // Clear up resources from the render target
+    virtual void clear() = 0;
+
     /// Copy the data out of the destination texture and return it
-    virtual RawDataRef snapshot();
-    
+    virtual RawDataRef snapshot() = 0;
+
+    /// Output framebuffer size
+    int width,height;
+    /// Set if we've set up background and suchs
+    bool isSetup;
+
     // Clear color, if we're clearing
     float clearColor[4];
     bool clearEveryFrame;
@@ -50,6 +62,9 @@ public:
     bool clearOnce;
     // Control how the blending into a destination works
     bool blendEnable;
+    
+protected:
+    virtual void init();
 };
 typedef std::shared_ptr<RenderTarget> RenderTargetRef;
 

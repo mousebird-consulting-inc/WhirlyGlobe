@@ -494,6 +494,10 @@
 		2B8A78A62286507F008B0A1F /* ComponentManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BBC338422173FAA0038A229 /* ComponentManager.cpp */; };
 		2B8A78A722865085008B0A1F /* VectorManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1F21F158EB00EF2A82 /* VectorManager.cpp */; };
 		2B8A78A82289D539008B0A1F /* BasicDrawableInstance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B5C21F7E7DF0078A975 /* BasicDrawableInstance.cpp */; };
+		2B8A78AA2289DA3D008B0A1F /* RenderTarget.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B8A78A92289DA3D008B0A1F /* RenderTarget.cpp */; };
+		2B8A78AC2289DB44008B0A1F /* RenderTargetGLES.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B8A78AB2289DB44008B0A1F /* RenderTargetGLES.cpp */; };
+		2B8A78AE2289E426008B0A1F /* SceneRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B8A78AD2289E426008B0A1F /* SceneRenderer.cpp */; };
+		2B8A78AF2289EDFC008B0A1F /* SceneRendererGLES.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BB8E1B121FBB0BA00154CDC /* SceneRendererGLES.cpp */; };
 		2B8E608920D458A600FB96F0 /* MaplyQuadSampler_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8E608820D458A500FB96F0 /* MaplyQuadSampler_private.h */; };
 		2B8E608B20D47FEE00FB96F0 /* MaplyRemoteTileFetcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8E608A20D47FEE00FB96F0 /* MaplyRemoteTileFetcher.h */; };
 		2BA827C1225E57FA00324594 /* MapboxVectorTileParser_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA827C0225E57FA00324594 /* MapboxVectorTileParser_iOS.h */; };
@@ -1503,6 +1507,9 @@
 		2B8A789522863DA7008B0A1F /* BasicDrawableInstanceBuilderGLES.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = BasicDrawableInstanceBuilderGLES.cpp; path = ../../../../common/WhirlyGlobeLib/src/BasicDrawableInstanceBuilderGLES.cpp; sourceTree = "<group>"; };
 		2B8A789722863DF3008B0A1F /* BasicDrawableInstanceBuilder.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = BasicDrawableInstanceBuilder.cpp; path = ../../../../common/WhirlyGlobeLib/src/BasicDrawableInstanceBuilder.cpp; sourceTree = "<group>"; };
 		2B8A789922864289008B0A1F /* BasicDrawableInstanceBuilderGLES.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = BasicDrawableInstanceBuilderGLES.h; path = ../../../../common/WhirlyGlobeLib/include/BasicDrawableInstanceBuilderGLES.h; sourceTree = "<group>"; };
+		2B8A78A92289DA3D008B0A1F /* RenderTarget.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = RenderTarget.cpp; path = ../../../../common/WhirlyGlobeLib/src/RenderTarget.cpp; sourceTree = "<group>"; };
+		2B8A78AB2289DB44008B0A1F /* RenderTargetGLES.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = RenderTargetGLES.cpp; path = ../../../../common/WhirlyGlobeLib/src/RenderTargetGLES.cpp; sourceTree = "<group>"; };
+		2B8A78AD2289E426008B0A1F /* SceneRenderer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = SceneRenderer.cpp; path = ../../../../common/WhirlyGlobeLib/src/SceneRenderer.cpp; sourceTree = "<group>"; };
 		2B8E608820D458A500FB96F0 /* MaplyQuadSampler_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyQuadSampler_private.h; sourceTree = "<group>"; };
 		2B8E608A20D47FEE00FB96F0 /* MaplyRemoteTileFetcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyRemoteTileFetcher.h; sourceTree = "<group>"; };
 		2B8E608E20D4800000FB96F0 /* MaplyRemoteTileFetcher.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyRemoteTileFetcher.mm; sourceTree = "<group>"; };
@@ -1565,7 +1572,6 @@
 		2BB8A3ED21ED43D10025DA98 /* MaplyTouchCancelAnimationDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyTouchCancelAnimationDelegate.h; sourceTree = "<group>"; };
 		2BB8E1AB21FBB0A400154CDC /* SceneRendererGLES.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SceneRendererGLES.h; path = ../../../../common/WhirlyGlobeLib/include/SceneRendererGLES.h; sourceTree = "<group>"; };
 		2BB8E1B121FBB0BA00154CDC /* SceneRendererGLES.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SceneRendererGLES.cpp; path = ../../../../common/WhirlyGlobeLib/src/SceneRendererGLES.cpp; sourceTree = "<group>"; };
-		2BB8E1B221FBB0BA00154CDC /* SceneRendererGLES2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SceneRendererGLES2.cpp; path = ../../../../common/WhirlyGlobeLib/src/SceneRendererGLES2.cpp; sourceTree = "<group>"; };
 		2BB8E1B621FBC61C00154CDC /* ActiveModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ActiveModel.h; path = ../../../../common/WhirlyGlobeLib/include/ActiveModel.h; sourceTree = "<group>"; };
 		2BB8E1BC21FBCEA400154CDC /* SharedAttributes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SharedAttributes.h; path = ../../../../common/WhirlyGlobeLib/include/SharedAttributes.h; sourceTree = "<group>"; };
 		2BBC337922163AE90038A229 /* QuadSamplingParams.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = QuadSamplingParams.h; path = ../../../../common/WhirlyGlobeLib/include/QuadSamplingParams.h; sourceTree = "<group>"; };
@@ -2114,8 +2120,8 @@
 				2BC90D4B222DAB3900D8B606 /* WrapperGLES.cpp */,
 				2B8A788C22860CEE008B0A1F /* TextureGLES.cpp */,
 				2B446B9721FBA8690078A975 /* ProgramGLES.cpp */,
+				2B8A78AB2289DB44008B0A1F /* RenderTargetGLES.cpp */,
 				2BB8E1B121FBB0BA00154CDC /* SceneRendererGLES.cpp */,
-				2BB8E1B221FBB0BA00154CDC /* SceneRendererGLES2.cpp */,
 				2BEDE105221CDC50008C7B74 /* LineAndPointShadersGLES.cpp */,
 				2BEDE106221CDC50008C7B74 /* TriangleShadersGLES.cpp */,
 				2B8A78822285F1B7008B0A1F /* BasicDrawableGLES.cpp */,
@@ -2289,6 +2295,8 @@
 			children = (
 				2B446B3821F7E6850078A975 /* Lighting.cpp */,
 				2B446B9B21FBA9E90078A975 /* PerformanceTimer.cpp */,
+				2B8A78A92289DA3D008B0A1F /* RenderTarget.cpp */,
+				2B8A78AD2289E426008B0A1F /* SceneRenderer.cpp */,
 			);
 			name = render;
 			sourceTree = "<group>";
@@ -4525,6 +4533,7 @@
 				2B8A789B22864721008B0A1F /* IntersectionManager.cpp in Sources */,
 				2B82B67B1E82E24A0095FB14 /* PJ_labrd.c in Sources */,
 				2BE53A6B1D249C4600B60FAD /* atomicops_internals_x86_gcc.cc in Sources */,
+				2B8A78AC2289DB44008B0A1F /* RenderTargetGLES.cpp in Sources */,
 				2BC3D6D72203EE8A00CE91D0 /* MaplyTwoFingerTapDelegate.mm in Sources */,
 				2BE539F21D249C2900B60FAD /* any.cc in Sources */,
 				2BE539A11D249BEF00B60FAD /* AAKepler.cpp in Sources */,
@@ -4646,6 +4655,7 @@
 				2B8A789D2286474A008B0A1F /* LabelManager.cpp in Sources */,
 				2BE539AA1D249BEF00B60FAD /* AAMoslemCalendar.cpp in Sources */,
 				2B82B6AE1E82E24A0095FB14 /* PJ_stere.c in Sources */,
+				2B8A78AA2289DA3D008B0A1F /* RenderTarget.cpp in Sources */,
 				2B82B6781E82E24A0095FB14 /* pj_inv.c in Sources */,
 				2B82B6821E82E24A0095FB14 /* PJ_lcca.c in Sources */,
 				2B846EEC21F1382300EF2A82 /* pj_fileapi.c in Sources */,
@@ -4743,6 +4753,7 @@
 				2BE1E780220A6B6700815D9C /* SLDExpressions.m in Sources */,
 				2BE539A61D249BEF00B60FAD /* AAMoonMaxDeclinations.cpp in Sources */,
 				2B884A661E3803170027C397 /* lasreadpoint.cpp in Sources */,
+				2B8A78AE2289E426008B0A1F /* SceneRenderer.cpp in Sources */,
 				2B82B7C31E82E68E0095FB14 /* clipper.cpp in Sources */,
 				2B82B5EE1E82E2490095FB14 /* priorityq.c in Sources */,
 				2B82B5F61E82E2490095FB14 /* tessmono.c in Sources */,
@@ -4771,6 +4782,7 @@
 				2B82B6541E82E2490095FB14 /* pj_datum_set.c in Sources */,
 				2B82B6C61E82E24A0095FB14 /* proj_etmerc.c in Sources */,
 				2BC3D6E4220B5ACE00CE91D0 /* VectorData_iOS.mm in Sources */,
+				2B8A78AF2289EDFC008B0A1F /* SceneRendererGLES.cpp in Sources */,
 				2BE539911D249BEF00B60FAD /* AADynamicalTime.cpp in Sources */,
 				2B3D7E3722873B6D0065FA18 /* BillboardManager.cpp in Sources */,
 				2B82B6761E82E24A0095FB14 /* pj_init.c in Sources */,

@@ -115,23 +115,23 @@ public:
     
     /// Set the render until time.  This is used by things like fade to keep
     ///  the rendering optimization from cutting off animation.
-    void setRenderUntil(TimeInterval newTime);
+    virtual void setRenderUntil(TimeInterval newTime);
     
     /// A drawable wants continuous rendering (bleah!)
-    void addContinuousRenderRequest(SimpleIdentity drawID);
+    virtual void addContinuousRenderRequest(SimpleIdentity drawID);
     
     /// Drawable is done with continuous rendering
-    void removeContinuousRenderRequest(SimpleIdentity drawID);
+    virtual void removeContinuousRenderRequest(SimpleIdentity drawID);
     
     /// Call this to force a draw on the next frame.
     /// This turns off the draw optimization, but just for one frame.
-    void forceDrawNextFrame();
+    virtual void forceDrawNextFrame();
     
     /// Return true if we have changes to process or display
-    virtual bool hasChanges() { return false; }
+    virtual bool hasChanges();
     
     /// Use this to set the clear color for the screen.  Defaults to black
-    void setClearColor(const RGBAColor &color);
+    virtual void setClearColor(const RGBAColor &color);
     
     /// Return the current clear color
     RGBAColor getClearColor();
@@ -143,13 +143,13 @@ public:
     Point2f getFramebufferSizeScaled();
     
     /// Return the attached Scene
-    Scene *getScene() { return scene; }
+    Scene *getScene();
     
     /// Return the map view
-    View *getView() { return theView; }
+    View *getView();
     
     /// Return the device scale (e.g. retina vs. not)
-    float getScale() { return scale; }
+    float getScale();
     
     /// Used by the subclasses to determine if the view changed and needs to be updated
     virtual bool viewDidChange();
@@ -158,47 +158,76 @@ public:
     virtual void setTriggerDraw();
     
     /// Set the current z buffer mode
-    virtual void setZBufferMode(WhirlyKitSceneRendererZBufferMode inZBufferMode) { zBufferMode = inZBufferMode; }
+    virtual void setZBufferMode(WhirlyKitSceneRendererZBufferMode inZBufferMode);
     
     /// Assign a new scene.  Just at startup
     virtual void setScene(Scene *newScene);
     
+    /// The next time through we'll redo the render setup.
+    /// We might need this if the view has switched away and then back.
+    virtual void forceRenderSetup();
+    
     /// Set the performance counting interval (0 is off)
-    virtual void setPerfInterval(int howLong) { perfInterval = howLong; }
+    virtual void setPerfInterval(int howLong);
     
     /// If set, we'll use the view changes to trigger rendering
-    virtual void setUseViewChanged(bool newVal) { useViewChanged = newVal; }
+    virtual void setUseViewChanged(bool newVal);
     
     /// Current view (opengl view) we're tied to
-    virtual void setView(View *newView) { theView = newView; }
-    
-    /// If set, we'll draw one more frame than needed after updates stop
-    virtual void setExtraFrameMode(bool newMode) { extraFrameMode = newMode; }
-    
+    virtual void setView(View *newView);
+        
     /// Add a render target to start rendering too
-    void addRenderTarget(RenderTargetRef newTarget);
+    virtual void addRenderTarget(RenderTargetRef newTarget);
     
     /// Stop rendering to the matching render target
-    void removeRenderTarget(SimpleIdentity targetID);
+    virtual void removeRenderTarget(SimpleIdentity targetID);
     
     /// Called before we present the render buffer.  Can do snapshot logic here.
-    virtual void snapshotCallback() { };
+    virtual void snapshotCallback() = 0;
+    
+    /// Add a light to the existing set
+    virtual void addLight(const DirectionalLight &light);
+    
+    /// Replace all the lights at once. nil turns off lighting
+    virtual void replaceLights(const std::vector<DirectionalLight> &lights);
+    
+    /// Set the default material
+    virtual void setDefaultMaterial(const Material &mat);
+    
+    /// Run the scene changes
+    void processScene();
     
     /// Construct a basic drawable builder for the appropriate rendering type
-    BasicDrawableBuilderRef makeBasicDrawableBuilder(const std::string &name) const;
+    virtual BasicDrawableBuilderRef makeBasicDrawableBuilder(const std::string &name) const;
     
     /// Construct a basic drawables instance builder for the current rendering type
-    BasicDrawableInstanceBuilderRef makeBasicDrawableInstanceBuilder(const std::string &name) const;
+    virtual BasicDrawableInstanceBuilderRef makeBasicDrawableInstanceBuilder(const std::string &name) const;
     
     /// Construct a billboard drawable builder for the current rendering type
-    BillboardDrawableBuilderRef makeBillboardDrawableBuilder(const std::string &name) const;
+    virtual BillboardDrawableBuilderRef makeBillboardDrawableBuilder(const std::string &name) const;
     
-public:
+    /// Construct a renderer-specific render target
+    virtual RenderTargetRef makeRenderTarget() const;
+
+    /// The pixel width of the CAEAGLLayer.
+    int framebufferWidth;
+    /// The pixel height of the CAEAGLLayer.
+    int framebufferHeight;
+    
+    /// Scale, to reflect the device's screen
+    float scale;
+
+    std::vector<RenderTargetRef> renderTargets;
+
+protected:
+    // Called by the subclass
+    virtual void init();
+    
     // Possible post-target creation init
-    virtual void defaultTargetInit(RenderTarget *) { };
+    virtual void defaultTargetInit(RenderTarget *);
     
     // Presentation, if required
-    virtual void presentRender() { };
+    virtual void presentRender();
     
     /// Scene we're drawing.  This is set from outside
     Scene *scene;
@@ -206,13 +235,6 @@ public:
     View *theView;
     /// Set this mode to modify how Z buffering is used (if at all)
     WhirlyKitSceneRendererZBufferMode zBufferMode;
-    
-    /// The pixel width of the CAEAGLLayer.
-    int framebufferWidth;
-    /// The pixel height of the CAEAGLLayer.
-    int framebufferHeight;
-    /// Scale, to reflect the device's screen
-    float scale;
     
     /// Statistic: Frames per second
     float framesPerSec;
@@ -254,13 +276,12 @@ public:
     // View state from the last render, for comparison
     Eigen::Matrix4d modelMat,viewMat,projMat;
     
-    // If set we draw one extra frame after updates stop
-    bool extraFrameMode;
-    
-    std::vector<RenderTargetRef> renderTargets;
-    
     // If we're an offline renderer, the texture we're rendering into
     Texture *framebufferTex;
+    
+    TimeInterval lightsLastUpdated;
+    Material defaultMat;    
+    std::vector<DirectionalLight> lights;
 };
 
 typedef std::shared_ptr<SceneRenderer> SceneRendererRef;

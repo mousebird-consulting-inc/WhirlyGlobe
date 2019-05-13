@@ -117,7 +117,7 @@ typedef enum {PanNone,PanFree,PanSuspended} PanningType;
     spinDate = TimeGetCurrent();
     lastTouch = [pan locationInView:glView];
     
-    IntersectionManager *intManager = (IntersectionManager *)sceneRender->scene->getManager(kWKIntersectionManager);
+    IntersectionManager *intManager = (IntersectionManager *)sceneRender->getScene()->getManager(kWKIntersectionManager);
 
     // Look for an intersection with grabbable objects
     Point3d interPt;

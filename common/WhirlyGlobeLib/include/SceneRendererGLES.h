@@ -44,10 +44,6 @@ public:
     
     /// Renderer version (e.g. OpenGL ES 1 vs 2)
     int glesVersion;
-    /// Renderer itself
-    SceneRendererGLES *sceneRenderer;
-    /// If using OpenGL ES 2.x, this is the shader
-    ProgramGLES *program;
 };
 
 /// Base class for the scene renderer.
@@ -67,11 +63,17 @@ public:
     virtual bool resize(int sizeX,int sizeY);
     
     /// Called before we present the render buffer.  Can do snapshot logic here.
-    virtual void snapshotCallback() { };
+    virtual void snapshotCallback();
     
     /// The next time through we'll redo the render setup.
     /// We might need this if the view has switched away and then back.
     void forceRenderSetup();
+    
+    /// If set, we'll draw one more frame than needed after updates stop
+    virtual void setExtraFrameMode(bool newMode);
+    
+    /// Draw stuff (the whole point!)
+    void render(TimeInterval period);
     
 public:
     // Possible post-target creation init
@@ -82,6 +84,10 @@ public:
     
     // OpenGL Version
     int glesVersion;
+    
+    // If set we draw one extra frame after updates stop
+    bool extraFrameMode;
+    bool extraFrameDrawn;
 };
     
 typedef std::shared_ptr<SceneRendererGLES> SceneRendererGLESRef;
