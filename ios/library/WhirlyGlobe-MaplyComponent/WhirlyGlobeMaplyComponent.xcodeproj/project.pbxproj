@@ -502,6 +502,9 @@
 		2B8A78B3228A1539008B0A1F /* VertexAttribute.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B8A78B2228A1539008B0A1F /* VertexAttribute.cpp */; };
 		2B8A78B4228A1610008B0A1F /* Drawable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B6221F7E7E00078A975 /* Drawable.cpp */; };
 		2B8A78B6228A185A008B0A1F /* VertexAttributeGLES.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B8A78B5228A185A008B0A1F /* VertexAttributeGLES.cpp */; };
+		2B8A78B7228A1A0F008B0A1F /* DynamicTextureAtlas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B6321F7E7E00078A975 /* DynamicTextureAtlas.cpp */; };
+		2B8A78B8228A1A1B008B0A1F /* Identifiable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B5E21F7E7DF0078A975 /* Identifiable.cpp */; };
+		2B8A78BA228A1DD9008B0A1F /* DynamicTextureAtlasGLES.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B8A78B9228A1DD9008B0A1F /* DynamicTextureAtlasGLES.cpp */; };
 		2B8E608920D458A600FB96F0 /* MaplyQuadSampler_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8E608820D458A500FB96F0 /* MaplyQuadSampler_private.h */; };
 		2B8E608B20D47FEE00FB96F0 /* MaplyRemoteTileFetcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8E608A20D47FEE00FB96F0 /* MaplyRemoteTileFetcher.h */; };
 		2BA827C1225E57FA00324594 /* MapboxVectorTileParser_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA827C0225E57FA00324594 /* MapboxVectorTileParser_iOS.h */; };
@@ -1517,6 +1520,7 @@
 		2B8A78B0228A13B8008B0A1F /* MemManagerGLES.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MemManagerGLES.cpp; path = ../../../../common/WhirlyGlobeLib/src/MemManagerGLES.cpp; sourceTree = "<group>"; };
 		2B8A78B2228A1539008B0A1F /* VertexAttribute.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = VertexAttribute.cpp; path = ../../../../common/WhirlyGlobeLib/src/VertexAttribute.cpp; sourceTree = "<group>"; };
 		2B8A78B5228A185A008B0A1F /* VertexAttributeGLES.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = VertexAttributeGLES.cpp; path = ../../../../common/WhirlyGlobeLib/src/VertexAttributeGLES.cpp; sourceTree = "<group>"; };
+		2B8A78B9228A1DD9008B0A1F /* DynamicTextureAtlasGLES.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = DynamicTextureAtlasGLES.cpp; path = ../../../../common/WhirlyGlobeLib/src/DynamicTextureAtlasGLES.cpp; sourceTree = "<group>"; };
 		2B8E608820D458A500FB96F0 /* MaplyQuadSampler_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyQuadSampler_private.h; sourceTree = "<group>"; };
 		2B8E608A20D47FEE00FB96F0 /* MaplyRemoteTileFetcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyRemoteTileFetcher.h; sourceTree = "<group>"; };
 		2B8E608E20D4800000FB96F0 /* MaplyRemoteTileFetcher.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyRemoteTileFetcher.mm; sourceTree = "<group>"; };
@@ -2137,6 +2141,7 @@
 				2B8A789322862F4B008B0A1F /* BasicDrawableInstanceGLES.cpp */,
 				2B8A789522863DA7008B0A1F /* BasicDrawableInstanceBuilderGLES.cpp */,
 				2B8A78B0228A13B8008B0A1F /* MemManagerGLES.cpp */,
+				2B8A78B9228A1DD9008B0A1F /* DynamicTextureAtlasGLES.cpp */,
 			);
 			name = opengl;
 			sourceTree = "<group>";
@@ -4493,6 +4498,7 @@
 				2BE5398E1D249BEF00B60FAD /* AACoordinateTransformation.cpp in Sources */,
 				2BE53A151D249C2900B60FAD /* text_format.cc in Sources */,
 				2B8A78832285F1B7008B0A1F /* BasicDrawableGLES.cpp in Sources */,
+				2B8A78B8228A1A1B008B0A1F /* Identifiable.cpp in Sources */,
 				2BE539A01D249BEF00B60FAD /* AAJupiter.cpp in Sources */,
 				2BE53A951D249C9000B60FAD /* DDXMLDocument.m in Sources */,
 				2BE1E777220A6B6700815D9C /* MaplyVectorTileMarkerStyle.mm in Sources */,
@@ -4649,6 +4655,7 @@
 				2BE539A51D249BEF00B60FAD /* AAMoonIlluminatedFraction.cpp in Sources */,
 				2BE5399B1D249BEF00B60FAD /* AAGalileanMoons.cpp in Sources */,
 				2B82B6A71E82E24A0095FB14 /* PJ_putp6.c in Sources */,
+				2B8A78BA228A1DD9008B0A1F /* DynamicTextureAtlasGLES.cpp in Sources */,
 				2BE53A131D249C2900B60FAD /* service.cc in Sources */,
 				2BE1E73D2208BD4500815D9C /* Maply3dTouchPreviewDelegate.mm in Sources */,
 				2B8796F022037A1A00EF801D /* GlobeAnimateViewMomentum.cpp in Sources */,
@@ -4656,6 +4663,7 @@
 				2B8A78A82289D539008B0A1F /* BasicDrawableInstance.cpp in Sources */,
 				2B82B6AF1E82E24A0095FB14 /* PJ_sterea.c in Sources */,
 				2BE539B51D249BEF00B60FAD /* AAPhysicalSun.cpp in Sources */,
+				2B8A78B7228A1A0F008B0A1F /* DynamicTextureAtlas.cpp in Sources */,
 				2B846EED21F138F600EF2A82 /* tess.c in Sources */,
 				2B82B6B51E82E24A0095FB14 /* PJ_tpeqd.c in Sources */,
 				2B82B6681E82E24A0095FB14 /* pj_geocent.c in Sources */,

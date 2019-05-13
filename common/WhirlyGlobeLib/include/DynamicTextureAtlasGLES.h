@@ -2,7 +2,7 @@
  *  DynamicTextureAtlasGLES.h
  *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 5/18/19.
+ *  Created by Steve Gifford on 5/8/19.
  *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,6 +22,8 @@
 #import <set>
 
 #import "DynamicTextureAtlas.h"
+#import "TextureGLES.h"
+#import "WrapperGLES.h"
 
 namespace WhirlyKit
 {
@@ -33,30 +35,20 @@ class DynamicTextureGLES : public DynamicTexture
 {
 public:
     /// Construct with a name, square texture size, cell size (in texels), and the memory format
-    DynamicTexture(const std::string &name,int texSize,int cellSize,GLenum format,bool clearTextures);
-    
-    /// Represents a region in the texture
-    class Region
-    {
-    public:
-        Region();
-        int sx,sy,ex,ey;
-    };
+    DynamicTextureGLES();
+
+    /// Called after construction to do the actual work
+    void setup(const std::string &name,int texSize,int cellSize,TextureType format,bool clearTextures);
     
     /// Create an appropriately empty texture in OpenGL ES
     virtual bool createInRenderer(RenderSetupInfo *setupInfo);
     
     /// Render side only.  Don't call this.  Destroy the OpenGL ES version
     virtual void destroyInRenderer(RenderSetupInfo *setupInfo);
-
-    /// Set the interpolation type used for min and mag
-    void setInterpType(GLenum inType) { interpType = inType; }
-    GLenum getInterpType() { return interpType; }
     
 protected:
-    /// Interpolation type
-    GLenum interpType;
-    /// Texture memory format
+    /// If set, this is a compressed format (assume PVRTC4)
+    bool compressed;
     GLenum format,type;
 };
 
@@ -70,21 +62,8 @@ class DynamicTextureAtlasGLES : public DynamicTextureAtlas
 public:
     DynamicTextureAtlasGLES(int texSize,int cellSize,GLenum format,int imageDepth=1,bool mainThreadMerge=false);
     virtual ~DynamicTextureAtlasGLES();
-    
-    /// Set the interpolation type used for min and mag
-    void setInterpType(GLenum inType) { interpType = inType; }
-    GLenum getInterpType() { return interpType; }
-    
-    /// Try to add the texture to one of our dynamic textures, or create one.
-    bool addTexture(const std::vector<Texture *> &textures,int frame,Point2f *realSize,Point2f *realOffset,SubTexture &subTex,ChangeSet &changes,int borderPixels,int bufferPixels=0,TextureRegion *outTexRegion=NULL);
-    
-    /// Return the dynamic texture's format
-    GLenum getFormat() { return format; }
-    
+        
 protected:
-    GLenum format;
-    /// Interpolation type
-    GLenum interpType;
 };
     
 }

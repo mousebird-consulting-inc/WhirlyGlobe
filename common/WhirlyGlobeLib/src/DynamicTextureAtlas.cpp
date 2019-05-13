@@ -19,7 +19,6 @@
  */
 
 #import "DynamicTextureAtlas.h"
-#import "GLUtils.h"
 #import "Scene.h"
 #import "WhirlyKitLog.h"
 
@@ -32,84 +31,22 @@ DynamicTexture::Region::Region()
   : sx(0), sy(0), ex(0), ey(0)
 {
 }
- 
-DynamicTexture::DynamicTexture(const std::string &name,int texSize,int cellSize,GLenum inFormat,bool clearTextures)
-    : TextureBase(name), texSize(texSize), cellSize(cellSize), numCell(0), numRegions(0), compressed(false), layoutGrid(NULL), clearTextures(clearTextures), interpType(GL_LINEAR)
+    
+DynamicTexture::DynamicTexture(const std::string &name)
+: TextureBase(name), layoutGrid(NULL)
 {
-    if (texSize <= 0 || cellSize <= 0)
-        return;
+}
     
-    // Check for the formats we'll accept
-    switch (inFormat)
-    {
-        case GL_UNSIGNED_SHORT_5_6_5:
-            format = GL_RGB;
-            type = inFormat;
-            break;
-        case GL_UNSIGNED_BYTE:
-        case GL_UNSIGNED_SHORT_4_4_4_4:
-        case GL_UNSIGNED_SHORT_5_5_5_1:
-            format = GL_RGBA;
-            type = inFormat;
-            break;
-        case GL_ALPHA:
-            format = GL_ALPHA;
-            type = GL_UNSIGNED_BYTE;
-            break;
-// Note: Porting
-#if 0
-        case GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG:
-            compressed = true;
-            format = GL_RGBA;
-            type = inFormat;
-            break;
-#endif
-        case GL_COMPRESSED_RGB8_ETC2:
-            compressed = true;
-            format = GL_RGB;
-            type = inFormat;
-            break;
-        case GL_COMPRESSED_RGBA8_ETC2_EAC:
-            compressed = true;
-            format = GL_RGBA;
-            type = inFormat;
-            break;
-        case GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2:
-            compressed = true;
-            format = GL_RGBA;
-            type = inFormat;
-            break;
-        case GL_COMPRESSED_R11_EAC:
-            compressed = true;
-            format = GL_ALPHA;
-            type = inFormat;
-            break;
-        case GL_COMPRESSED_SIGNED_R11_EAC:
-            compressed = true;
-            format = GL_ALPHA;
-            type = inFormat;
-            break;
-        case GL_COMPRESSED_RG11_EAC:
-            compressed = true;
-            format = GL_ALPHA;
-            type = inFormat;
-            break;
-        case GL_COMPRESSED_SIGNED_RG11_EAC:
-            compressed = true;
-            format = GL_ALPHA;
-            type = inFormat;
-            break;
-        default:
-            return;
-            break;
-    }
-    
+void DynamicTexture::setup(const std::string &name,int texSize,int cellSize,TextureType inType,bool inClearTextures)
+{
+    type = inType;
+    clearTextures = inClearTextures;
     numCell = texSize/cellSize;
     layoutGrid = new bool[numCell * numCell];
     for (unsigned int ii=0;ii<numCell * numCell;ii++)
         layoutGrid[ii] = false;
 }
-    
+     
 DynamicTexture::~DynamicTexture()
 {
     if (!layoutGrid)
@@ -121,71 +58,6 @@ DynamicTexture::~DynamicTexture()
 
 // If set we'll try to clear the images when we're not using them.
 static const bool ClearImages = false;
-
-// Create the OpenGL texture, empty
-bool DynamicTexture::createInGL(OpenGLMemManager *memManager)
-{
-    // Already setup
-    if (glId != 0)
-        return true;
-    
-    glId = memManager->getTexID();
-    if (!glId)
-        return false;
-    glBindTexture(GL_TEXTURE_2D, glId);
-    CheckGLError("DynamicTexture::createInGL() glBindTexture()");
-    
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, interpType);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, interpType);
-    
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    CheckGLError("DynamicTexture::createInGL() glTexParameteri()");
-
-    if (compressed)
-    {
-        size_t size = 0;
-        switch (type)
-        {
-        case GL_COMPRESSED_RGB8_ETC2:
-        case GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2:
-        case GL_COMPRESSED_R11_EAC:
-        case GL_COMPRESSED_SIGNED_R11_EAC:
-            size = texSize * texSize / 2;
-            break;
-        case GL_COMPRESSED_RGBA8_ETC2_EAC:
-        case GL_COMPRESSED_RG11_EAC:
-        case GL_COMPRESSED_SIGNED_RG11_EAC:
-            size = texSize * texSize;
-            break;
-        }
-        
-		glCompressedTexImage2D(GL_TEXTURE_2D, 0, type, texSize, texSize, 0, (GLsizei)size, NULL);
-    } else {
-        // Turn this on to provide glTexImage2D with empty memory so Instruments doesn't complain
-        if (ClearImages)
-        {
-            size_t size = texSize*texSize*4;
-            unsigned char *zeroMem = (unsigned char *)malloc(size);
-            memset(zeroMem, 0, size);
-            glTexImage2D(GL_TEXTURE_2D, 0, format, texSize, texSize, 0, format, type, zeroMem);
-            free(zeroMem);
-        } else
-            glTexImage2D(GL_TEXTURE_2D, 0, format, texSize, texSize, 0, format, type, NULL);
-    }
-    CheckGLError("DynamicTexture::createInGL() glTexImage2D()");
-    
-    glBindTexture(GL_TEXTURE_2D, 0);
-    
-    return true;
-}
-    
-void DynamicTexture::destroyInGL(OpenGLMemManager *memManager)
-{
-	if (glId)
-        memManager->removeTexID(glId);    
-    glId = 0;
-}
     
 void DynamicTexture::addTexture(Texture *tex,const Region &region)
 {
@@ -196,64 +68,6 @@ void DynamicTexture::addTexture(Texture *tex,const Region &region)
     
     RawDataRef data = tex->processData();
     addTextureData(startX,startY,width,height,data);
-}
-    
-void DynamicTexture::addTextureData(int startX,int startY,int width,int height,RawDataRef data)
-{
-    if (data)
-    {
-//        if (startX+width > texSize || startY+height > texSize)
-//            NSLog(@"Pixels outside bounds in dynamic texture.");
-        
-        glBindTexture(GL_TEXTURE_2D, glId);
-        CheckGLError("DynamicTexture::createInGL() glBindTexture()");
-        if (compressed)
-        {
-            int pkmType;
-            int size,thisWidth,thisHeight;
-            unsigned char *pixData = Texture::ResolvePKM(data,pkmType, size, thisWidth, thisHeight);
-            if (!pixData || pkmType != type || thisWidth != width || thisHeight != height)
-                wkLogLevel(Warn,"Compressed texture doesn't match atlas.");
-            else
-                glCompressedTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, thisWidth, thisHeight, pkmType, (GLsizei)size, pixData);
-        } else
-            glTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, width, height, format, type, data->getRawData());
-        CheckGLError("DynamicTexture::addTexture() glTexSubImage2D()");
-        glBindTexture(GL_TEXTURE_2D, 0);
-    }    
-}
-    
-void DynamicTexture::clearTextureData(int startX,int startY,int width,int height,ChangeSet &changes,bool mainThreadMerge,unsigned char *emptyData)
-{
-    if (!clearTextures)
-        return;
-    
-    glBindTexture(GL_TEXTURE_2D, glId);
-    
-    if (compressed)
-    {
-        // Note: Can't do this for PKM currently
-//        int pkmType;
-//        int size,thisWidth,thisHeight;
-//        unsigned char *pixData = Texture::ResolvePKM(data,pkmType, size, thisWidth, thisHeight);
-//        if (!pixData || pkmType != type || thisWidth != width || thisHeight != height)
-//            NSLog(@"Compressed texture doesn't match atlas.");
-//        else
-//            glCompressedTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, thisWidth, thisHeight, pkmType, (GLsizei)size, pixData);
-    } else {
-        if (ClearImages)
-        {
-            if (mainThreadMerge) {
-                RawDataRef clearData(new RawDataWrapper(emptyData,width*height*4,false));
-                changes.push_back(new DynamicTextureAddRegion(getId(),
-                                                        startX, startY, width, height,
-                                                        clearData));
-            } else
-                glTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, width, height, format, type, emptyData);
-        }
-    }
-    
-    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void DynamicTexture::setRegion(const Region &region, bool enable)
@@ -351,7 +165,7 @@ void DynamicTexture::getUtilization(int &outNumCell,int &usedCell)
     }
 }
     
-void DynamicTextureClearRegion::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view)
+void DynamicTextureClearRegion::execute(Scene *scene,SceneRenderer *renderer,View *view)
 {
     TextureBase *tex = scene->getTexture(texId);
     DynamicTexture *dynTex = dynamic_cast<DynamicTexture *>(tex);
@@ -361,7 +175,7 @@ void DynamicTextureClearRegion::execute(Scene *scene,WhirlyKit::SceneRendererES 
     }
 }
     
-void DynamicTextureAddRegion::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view)
+void DynamicTextureAddRegion::execute(Scene *scene,SceneRenderer *renderer,View *view)
 {
     TextureBase *tex = scene->getTexture(texId);
     DynamicTexture *dynTex = dynamic_cast<DynamicTexture *>(tex);
@@ -390,7 +204,7 @@ DynamicTextureAtlas::TextureRegion::TextureRegion()
 
     
 DynamicTextureAtlas::DynamicTextureAtlas(int texSize,int cellSize,TextureType format,int imageDepth,bool mainThreadMerge)
-    : texSize(texSize), cellSize(cellSize), format(format), imageDepth(imageDepth),  pixelFudge(0.0), mainThreadMerge(mainThreadMerge), clearTextures(imageDepth>1), interpType(GL_LINEAR)
+    : texSize(texSize), cellSize(cellSize), format(format), imageDepth(imageDepth),  pixelFudge(0.0), mainThreadMerge(mainThreadMerge), clearTextures(imageDepth>1), interpType(TexInterpLinear)
 {
     if (mainThreadMerge || MainThreadMerge)
     {

@@ -36,7 +36,9 @@ class DynamicTexture : public TextureBase
 {
 public:
     /// Constructor for sorting
+    DynamicTexture(const std::string &name);
     DynamicTexture(SimpleIdentity myId) : TextureBase(myId), layoutGrid(NULL) { }
+    virtual void setup(const std::string &name,int texSize,int cellSize,TextureType type,bool clearTextures);
     virtual ~DynamicTexture();
     
     /// Represents a region in the texture
@@ -52,6 +54,10 @@ public:
 
     /// Render side only.  Don't call this.  Destroy the OpenGL ES version
     virtual void destroyInRenderer(RenderSetupInfo *setupInfo);
+    
+    /// Set the interpolation type used for min and mag
+    void setInterpType(TextureInterpType inType) { interpType = inType; }
+    TextureInterpType getInterpType() { return interpType; }
     
     /// Add the given texture at the given location.
     /// This is probably called on the layer thread
@@ -90,15 +96,17 @@ protected:
     /// Used for debugging
     std::string name;
     
-    /// If set, this is a compressed format (assume PVRTC4)
-    bool compressed;
     /// Number of texels on a side
     int texSize;
     /// Number of texels in a cell
     int cellSize;
     /// Number of cells on a side
     int numCell;
-    
+    /// Interpolation type
+    TextureInterpType interpType;
+    /// Texture memory format
+    TextureType type;
+
     // Use to track where sub textures are
     bool *layoutGrid;
     
@@ -180,12 +188,19 @@ public:
     DynamicTextureAtlas(int texSize,int cellSize,TextureType format,int imageDepth=1,bool mainThreadMerge=false);
     virtual ~DynamicTextureAtlas();
     
+    /// Set the interpolation type used for min and mag
+    void setInterpType(TextureInterpType inType);
+    TextureInterpType getInterpType();
+    
+    /// Return the dynamic texture's format
+    TextureType getFormat();
+    
     /// Fudge factor for border pixels.  We'll add this/pixelSize to the lower left
     ///  and subtract this/pixelSize from the upper right for each texture application.
     void setPixelFudgeFactor(float pixFudge);
-
+    
     /// Try to add the texture to one of our dynamic textures, or create one.
-    virtual bool addTexture(const std::vector<Texture *> &textures,int frame,Point2f *realSize,Point2f *realOffset,SubTexture &subTex,ChangeSet &changes,int borderPixels,int bufferPixels=0,TextureRegion *outTexRegion=NULL);
+    bool addTexture(const std::vector<Texture *> &textures,int frame,Point2f *realSize,Point2f *realOffset,SubTexture &subTex,ChangeSet &changes,int borderPixels,int bufferPixels=0,TextureRegion *outTexRegion=NULL);
     
     /// Update one of the frames of a multi-frame texture atlas
     bool updateTexture(Texture *,int frame,const TextureRegion &texRegion,ChangeSet &changes);
@@ -217,16 +232,20 @@ public:
     void log();
 
 protected:
+    /// Texture memory format
+    TextureType format;
+    /// Interpolation type
+    TextureInterpType interpType;
+
     int imageDepth;
     int texSize;
     int cellSize;
     /// Interpolation type
     float pixelFudge;
     bool mainThreadMerge;
-    
+
     /// If set, overwrite texture data with empty pixels
     bool clearTextures;
-    
     
     // On some devices we can't clear with a NULL, we have to use an actual buffer
     std::vector<unsigned char> emptyPixelBuffer;
