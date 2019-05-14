@@ -49,12 +49,16 @@ public:
     
     /// Return the master being instanced
     BasicDrawableRef getMaster() const;
+    void setMaster(BasicDrawableRef newMaster);
 
     /// Return the local MBR, if we're working in a non-geo coordinate system
     virtual Mbr getLocalMbr() const;
     
     /// We use this to sort drawables
     virtual unsigned int getDrawPriority() const;
+    
+    /// Return the ID of the drawable this is based on
+    SimpleIdentity getMasterID() const;
     
     /// For OpenGLES2, this is the program to use to render this drawable.
     virtual SimpleIdentity getProgram() const;

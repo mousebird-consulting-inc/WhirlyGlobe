@@ -1,8 +1,8 @@
 /*
- *  Scene.h
+ *  SceneGLES.h
  *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 1/3/11.
+ *  Created by Steve Gifford on 5/14/19.
  *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");

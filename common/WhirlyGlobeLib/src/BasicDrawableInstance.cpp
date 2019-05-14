@@ -37,6 +37,11 @@ BasicDrawableRef BasicDrawableInstance::getMaster() const
 {
     return basicDraw;
 }
+
+void BasicDrawableInstance::setMaster(BasicDrawableRef newMaster)
+{
+    basicDraw = newMaster;
+}
     
 Mbr BasicDrawableInstance::getLocalMbr() const
 {
@@ -48,6 +53,11 @@ unsigned int BasicDrawableInstance::getDrawPriority() const
     if (hasDrawPriority)
         return drawPriority;
     return basicDraw->getDrawPriority();
+}
+    
+SimpleIdentity BasicDrawableInstance::getMasterID() const
+{
+    return masterID;
 }
 
 SimpleIdentity BasicDrawableInstance::getProgram() const

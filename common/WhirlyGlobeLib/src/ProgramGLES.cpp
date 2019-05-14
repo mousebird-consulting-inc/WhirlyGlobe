@@ -397,6 +397,11 @@ ProgramGLES::ProgramGLES(const std::string &inName,const std::string &vShaderStr
     CheckGLError("ProgramGLES: glGetActiveAttrib");
 }
     
+void ProgramGLES::teardownForRenderer(RenderSetupInfo *setupInfo)
+{
+    cleanUp();
+}
+    
 // Clean up oustanding OpenGL resources
 void ProgramGLES::cleanUp()
 {

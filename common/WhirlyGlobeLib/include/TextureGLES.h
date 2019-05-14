@@ -44,6 +44,8 @@ protected:
     /// Set to 0 if we haven't loaded yet
     GLuint glId;
 };
+    
+typedef std::shared_ptr<TextureBaseGLES> TextureBaseGLESRef;
 
 /** Your basic Texture representation.
  This is how you get an image sent over to the

@@ -18,8 +18,7 @@
  *
  */
 #include "Lighting.h"
-#include "GLUtils.h"
-#include "OpenGLES2Program.h"
+#include "Program.h"
 
 using namespace Eigen;
 
@@ -39,50 +38,17 @@ DirectionalLight::~DirectionalLight()
 {
 }
 
-bool DirectionalLight::bindToProgram(OpenGLES2Program *program, int index, Eigen::Matrix4f modelMat) const
+bool DirectionalLight::bindToProgram(Program *program, int index, Eigen::Matrix4f modelMat) const
 {
-    const OpenGLESUniform *viewDependUni = program->findUniform(lightViewDependNameIDs[index]);
-    const OpenGLESUniform *dirUni = program->findUniform(lightDirectionNameIDs[index]);
-    const OpenGLESUniform *halfUni = program->findUniform(lightHalfplaneNameIDs[index]);
-    const OpenGLESUniform *ambientUni = program->findUniform(lightAmbientNameIDs[index]);
-    const OpenGLESUniform *diffuseUni = program->findUniform(lightDiffuseNameIDs[index]);
-    const OpenGLESUniform *specularUni = program->findUniform(lightSpecularNameIDs[index]);
-
     Eigen::Vector3f dir = pos.normalized();
     Eigen::Vector3f halfPlane = (dir + Eigen::Vector3f(0,0,1)).normalized();
 
-    if (viewDependUni)
-    {
-        glUniform1f(viewDependUni->index, (viewDependent ? 0.0 : 1.0));
-        CheckGLError("DirectionalLight::bindToProgram glUniform1f");
-    }
-    if (dirUni)
-    {
-        glUniform3f(dirUni->index, dir.x(), dir.y(), dir.z());
-        CheckGLError("DirectionalLight::bindToProgram glUniform3f");
-    }
-    if (halfUni)
-    {
-        glUniform3f(halfUni->index, halfPlane.x(), halfPlane.y(), halfPlane.z());
-        CheckGLError("DirectionalLight::bindToProgram glUniform3f");
-    }
-    if (ambientUni)
-    {
-        glUniform4f(ambientUni->index, ambient.x(), ambient.y(), ambient.z(), ambient.w());
-        CheckGLError("DirectionalLight::bindToProgram glUniform4f");
-    }
-    if (diffuseUni)
-    {
-        glUniform4f(diffuseUni->index, diffuse.x(), diffuse.y(), diffuse.z(), diffuse.w());
-        CheckGLError("DirectionalLight::bindToProgram glUniform4f");
-    }
-    if (specularUni)
-    {
-        glUniform4f(specularUni->index, specular.x(), specular.y(), specular.z(), specular.w());
-        CheckGLError("DirectionalLight::bindToProgram glUniform4f");
-    }
-
-    return (dirUni && halfUni && ambientUni && diffuseUni && specularUni);
+    return program->setUniform(lightViewDependNameIDs[index], (viewDependent ? 0.0f : 1.0f)) &&
+        program->setUniform(lightDirectionNameIDs[index], dir) &&
+        program->setUniform(lightHalfplaneNameIDs[index], halfPlane) &&
+        program->setUniform(lightAmbientNameIDs[index], ambient) &&
+        program->setUniform(lightDiffuseNameIDs[index], diffuse) &&
+        program->setUniform(lightSpecularNameIDs[index], specular);
 }
 
 
@@ -98,7 +64,7 @@ Material::~Material()
 {
 }
 
-bool Material::bindToProgram(OpenGLES2Program *program)
+bool Material::bindToProgram(Program *program)
 {
     return program->setUniform(materialAmbientNameID, ambient) &&
     program->setUniform(materialDiffuseNameID, diffuse) &&

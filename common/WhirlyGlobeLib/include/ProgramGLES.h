@@ -148,6 +148,7 @@ public:
     int bindTextures();
     
     /// Clean up OpenGL resources, rather than letting the destructor do it (which it will)
+    virtual void teardownForRenderer(RenderSetupInfo *setupInfo);
     void cleanUp();
     
 protected:

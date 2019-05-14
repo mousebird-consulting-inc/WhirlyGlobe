@@ -38,6 +38,7 @@ class ScreenSpaceGenerator;
 class ViewPlacementGenerator;
 class FontTextureManager;
 typedef std::shared_ptr<FontTextureManager> FontTextureManagerRef;
+class RenderSetupInfo;
 
 /// Request that the renderer add the given texture.
 /// This will make it available for use, referenced by ID.
@@ -191,9 +192,8 @@ protected:
         
 typedef std::unordered_map<SimpleIdentity,DrawableRef> DrawableRefSet;
 
-typedef std::set<Program *,IdentifiableSorter> ProgramSet;
-typedef std::map<std::string,Program *> ProgramMap;
-    
+typedef std::map<SimpleIdentity,ProgramRef> ProgramSet;
+
 /** The scene manager is a base class for various functionality managers
     associated with a scene.  These are the objects that build geometry,
     manage layout, selection, and so forth for a scene.  They typically
@@ -229,7 +229,8 @@ class Scene : public DelayedDeletable
 	friend class ChangeRequest;
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    
+
+    Scene(CoordSystemDisplayAdapter *adapter);
     virtual ~Scene();
     
     /// Return the coordinate system adapter we're using.
@@ -313,6 +314,9 @@ public:
     /// Don't be calling this
     void setDisplayAdapter(CoordSystemDisplayAdapter *newCoordAdapter);
     
+    /// Passed around to setup and teardown renderer assets
+    RenderSetupInfo *setupInfo;
+    
     std::mutex coordAdapterLock;
     /// The coordinate system display adapter converts from the local space
     ///  to display coordinates.
@@ -385,7 +389,7 @@ public:
 protected:
 
     /// All the OpenGL ES 2.0 shader programs we know about
-    ProgramSet glPrograms;
+    ProgramSet programs;
     
     /// Used for 2D overlap testing
     double overlapMargin;

@@ -69,10 +69,15 @@ public:
     /// Return the name (for tracking purposes)
     const std::string &getName();
     
+    /// Clean up renderer resources
+    virtual void teardownForRenderer(RenderSetupInfo *setupInfo) = 0;
+    
 protected:
     std::string name;
     TimeInterval lightsLastUpdated;
 };
+    
+typedef std::shared_ptr<Program> ProgramRef;
 
 /// Set a texture ID by name in a Shader (Program)
 class ShaderAddTextureReq : public ChangeRequest

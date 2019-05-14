@@ -45,15 +45,11 @@
 namespace WhirlyKit
 {
     
-Scene::Scene()
-    : fontTextureManager(NULL)
-{
-}
-    
-void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr)
+Scene::Scene(CoordSystemDisplayAdapter *adapter)
+    : fontTextureManager(NULL), setupInfo(NULL)
 {
     SetupDrawableStrings();
-
+    
     coordAdapter = adapter;
     
     // Selection manager is used for object selection from any thread
@@ -111,11 +107,7 @@ Scene::~Scene()
     
     subTextureMap.clear();
 
-    // Note: Should be clearing program out of context somewhere
-    for (OpenGLES2ProgramSet::iterator it = glPrograms.begin();
-         it != glPrograms.end(); ++it)
-        delete *it;
-    glPrograms.clear();
+    programs.clear();
     
     fontTextureManager = NULL;
 }
@@ -156,24 +148,6 @@ void Scene::addChangeRequest(ChangeRequest *newChange)
         changeRequests.push_back(newChange);
 }
 
-GLuint Scene::getGLTexture(SimpleIdentity texIdent)
-{
-    if (texIdent == EmptyIdentity)
-        return 0;
-    
-    GLuint ret = 0;
-    
-    std::lock_guard<std::mutex> guardLock(textureLock);
-    // Might be a texture ref
-    auto it = textures.find(texIdent);
-    if (it != textures.end())
-    {
-        ret = it->second->getGLId();
-    }
-    
-    return ret;
-}
-
 DrawableRef Scene::getDrawable(SimpleIdentity drawId)
 {
     auto it = drawables.find(drawId);
@@ -198,8 +172,10 @@ void Scene::addLocalMbr(const Mbr &localMbr)
     }
 }
     
-void Scene::setRenderer(SceneRendererES *renderer)
+void Scene::setRenderer(SceneRenderer *renderer)
 {
+    setupInfo = renderer->getRenderSetupInfo();
+    
     std::lock_guard<std::mutex> guardLock(managerLock);
     
     for (std::map<std::string,SceneManager *>::iterator it = managers.begin();
@@ -259,20 +235,6 @@ void Scene::removeActiveModel(ActiveModelRef activeModel)
     }
 }
     
-void Scene::teardownGL()
-{
-    for (auto it : drawables)
-        it.second->teardownGL(&memManager);
-    drawables.clear();
-    for (auto it : textures) {
-        it.second->destroyInGL(&memManager);
-    }
-    textures.clear();
-    
-    memManager.clearBufferIDs();
-    memManager.clearTextureIDs();
-}
-
 TextureBase *Scene::getTexture(SimpleIdentity texId)
 {
     std::lock_guard<std::mutex> guardLock(textureLock);
@@ -290,7 +252,7 @@ const DrawableRefSet &Scene::getDrawables()
     return drawables;
 }
     
-int Scene::preProcessChanges(WhirlyKit::View *view,SceneRendererES *renderer,TimeInterval now)
+int Scene::preProcessChanges(WhirlyKit::View *view,SceneRenderer *renderer,TimeInterval now)
 {
     ChangeSet preRequests;
 
@@ -318,7 +280,7 @@ int Scene::preProcessChanges(WhirlyKit::View *view,SceneRendererES *renderer,Tim
 
 // Process outstanding changes.
 // We'll grab the lock and we're only expecting to be called in the rendering thread
-void Scene::processChanges(WhirlyKit::View *view,SceneRendererES *renderer,TimeInterval now)
+void Scene::processChanges(WhirlyKit::View *view,SceneRenderer *renderer,TimeInterval now)
 {
     std::lock_guard<std::mutex> guardLock(changeRequestLock);
     // See if any of the timed changes are ready
@@ -431,7 +393,6 @@ void Scene::dumpStats()
     wkLogLevel(Verbose,"Scene: %d active models",(int)activeModels.size());
     wkLogLevel(Verbose,"Scene: %ld textures",textures.size());
     wkLogLevel(Verbose,"Scene: %ld sub textures",subTextureMap.size());
-    memManager.dumpStats();
 }
     
 void Scene::setFontTextureManager(FontTextureManagerRef newManager)
@@ -439,30 +400,27 @@ void Scene::setFontTextureManager(FontTextureManagerRef newManager)
     fontTextureManager = newManager;
 }
 
-OpenGLES2Program *Scene::getProgram(SimpleIdentity progId)
+Program *Scene::getProgram(SimpleIdentity progId)
 {
     std::lock_guard<std::mutex> guardLock(programLock);
 
-    OpenGLES2Program *prog = NULL;
-    OpenGLES2Program dummy(progId);
-    OpenGLES2ProgramSet::iterator it = glPrograms.find(&dummy);
-    if (it != glPrograms.end())
-    {
-        prog = *it;
-    }
+    Program *prog = NULL;
+    auto it = programs.find(progId);
+    if (it != programs.end())
+        prog = it->second.get();
     
     return prog;
 }
     
-OpenGLES2Program *Scene::findProgramByName(const std::string &name)
+Program *Scene::findProgramByName(const std::string &name)
 {
     std::lock_guard<std::mutex> guardLock(programLock);
     
-    OpenGLES2Program *prog = NULL;
-    for (auto it = glPrograms.rbegin(); it != glPrograms.rend(); ++it) {
-        if ((*it)->getName() == name)
+    Program *prog = NULL;
+    for (auto it = programs.rbegin(); it != programs.rend(); ++it) {
+        if (it->second->getName() == name)
         {
-            prog = *it;
+            prog = it->second.get();
             break;
         }
     }
@@ -470,7 +428,7 @@ OpenGLES2Program *Scene::findProgramByName(const std::string &name)
     return prog;
 }
 
-void Scene::addProgram(OpenGLES2Program *prog)
+void Scene::addProgram(Program *prog)
 {
     if (!prog) {
         wkLogLevel(Warn,"Tried to add NULL program to scene.  Ignoring.");
@@ -479,29 +437,24 @@ void Scene::addProgram(OpenGLES2Program *prog)
 
     std::lock_guard<std::mutex> guardLock(programLock);
 
-    if (glPrograms.find(prog) == glPrograms.end())
-        glPrograms.insert(prog);
+    programs[prog->getId()] = ProgramRef(prog);
 }
 
 void Scene::removeProgram(SimpleIdentity progId)
 {
     std::lock_guard<std::mutex> guardLock(programLock);
 
-    OpenGLES2Program *prog = NULL;
-    OpenGLES2Program dummy(progId);
-    OpenGLES2ProgramSet::iterator it = glPrograms.find(&dummy);
-    if (it != glPrograms.end()) {
-        prog = *it;
-        glPrograms.erase(it);
-        
-        prog->cleanUp();
+    auto it = programs.find(progId);
+    if (it != programs.end()) {
+        it->second->teardownForRenderer(setupInfo);
+        programs.erase(it);
     }
 }
 
 void AddTextureReq::setupForRenderer(RenderSetupInfo *setupInfo)
 {
     if (texRef)
-        texRef->createForRenderer(setupInfo);
+        texRef->createInRenderer(setupInfo);
 }
     
 TextureBase *AddTextureReq::getTex()
@@ -514,31 +467,30 @@ AddTextureReq::~AddTextureReq()
     texRef = NULL;
 }
     
-void AddTextureReq::execute(Scene *scene,SceneRendererES *renderer,WhirlyKit::View *view)
+void AddTextureReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *view)
 {
-    if (!texRef->getGLId())
-        texRef->createInGL(scene->getMemManager());
+    texRef->createInRenderer(renderer->getRenderSetupInfo());
     scene->textures[texRef->getId()] = texRef;
     texRef = NULL;
 }
 
-void RemTextureReq::execute(Scene *scene,SceneRendererES *renderer,WhirlyKit::View *view)
+void RemTextureReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *view)
 {
     std::lock_guard<std::mutex> guardLock(scene->textureLock);
     auto it = scene->textures.find(texture);
     if (it != scene->textures.end())
     {
         TextureBaseRef tex = it->second;
-        tex->destroyInGL(scene->getMemManager());
+        tex->destroyInRenderer(renderer->getRenderSetupInfo());
         scene->textures.erase(it);
     } else
         wkLogLevel(Warn,"RemTextureReq: No such texture.");
 }
     
-virtual void AddDrawableReq::setupForRenderer(RenderSetupInfo *)
+void AddDrawableReq::setupForRenderer(RenderSetupInfo *setupInfo)
 {
     if (drawRef)
-        drawRef->setupGL(setupInfo, memManager);
+        drawRef->setupForRenderer(setupInfo);
 }
 
 AddDrawableReq::~AddDrawableReq()
@@ -546,7 +498,7 @@ AddDrawableReq::~AddDrawableReq()
     drawRef = NULL;
 }
 
-void AddDrawableReq::execute(Scene *scene,SceneRendererES *renderer,WhirlyKit::View *view)
+void AddDrawableReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *view)
 {
     // If this is an instance, deal with that madness
     BasicDrawableInstance *drawInst = dynamic_cast<BasicDrawableInstance *>(drawRef.get());
@@ -566,38 +518,34 @@ void AddDrawableReq::execute(Scene *scene,SceneRendererES *renderer,WhirlyKit::V
     if (drawRef->getLocalMbr().valid())
         scene->addLocalMbr(drawRef->getLocalMbr());
     
-    // Initialize any OpenGL foo
-    WhirlyKitGLSetupInfo setupInfo;
-    setupInfo.minZres = view->calcZbufferRes();
-    setupInfo.glesVersion = renderer->glesVersion;
-    drawRef->setupGL(&setupInfo,scene->getMemManager());
+    drawRef->setupForRenderer(renderer->getRenderSetupInfo());
     
     drawRef->updateRenderer(renderer);
         
     drawRef = NULL;
 }
 
-void RemDrawableReq::execute(Scene *scene,SceneRendererES *renderer,WhirlyKit::View *view)
+void RemDrawableReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *view)
 {
     auto it = scene->drawables.find(drawable);
     if (it != scene->drawables.end())
     {
         renderer->removeContinuousRenderRequest(it->second->getId());
         // Teardown OpenGL foo
-        it->second->teardownGL(scene->getMemManager());
+        it->second->teardownForRenderer(renderer->getRenderSetupInfo());
 
         scene->remDrawable(it->second);
     } else
         wkLogLevel(Warn,"Missing drawable for RemDrawableReq: %llu", drawable);
 }
 
-void AddProgramReq::execute(Scene *scene,SceneRendererES *renderer,WhirlyKit::View *view)
+void AddProgramReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *view)
 {
     scene->addProgram(program);
     program = NULL;
 }
 
-void RemProgramReq::execute(Scene *scene,SceneRendererES *renderer,WhirlyKit::View *view)
+void RemProgramReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *view)
 {
     scene->removeProgram(programId);
 }
@@ -610,7 +558,7 @@ RunBlockReq::~RunBlockReq()
 {
 }
     
-void RunBlockReq::execute(Scene *scene,SceneRendererES *renderer,WhirlyKit::View *view)
+void RunBlockReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *view)
 {
     func(scene,renderer,view);
 }
