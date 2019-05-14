@@ -80,6 +80,7 @@ class RenderSetupInfoGLES : public RenderSetupInfo
 public:
     RenderSetupInfoGLES();
     RenderSetupInfoGLES(Scene *scene);
+    
     /// If we're using drawOffset, this is the units
     float minZres;
     /// Version of OpenGL ES we're using

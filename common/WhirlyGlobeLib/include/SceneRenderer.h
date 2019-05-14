@@ -34,6 +34,8 @@ class BasicDrawableInstanceBuilder;
 typedef std::shared_ptr<BasicDrawableInstanceBuilder> BasicDrawableInstanceBuilderRef;
 class BillboardDrawableBuilder;
 typedef std::shared_ptr<BillboardDrawableBuilder> BillboardDrawableBuilderRef;
+class DynamicTexture;
+typedef std::shared_ptr<DynamicTexture> DynamicTextureRef;
 
 /** Renderer Frame Info.
  Data about the current frame, passed around by the renderer.
@@ -197,6 +199,9 @@ public:
     /// Run the scene changes
     void processScene();
     
+    /// Return the render setup info for the appropriate rendering type
+    virtual RenderSetupInfo *getRenderSetupInfo() const;
+    
     /// Construct a basic drawable builder for the appropriate rendering type
     virtual BasicDrawableBuilderRef makeBasicDrawableBuilder(const std::string &name) const;
     
@@ -208,6 +213,9 @@ public:
     
     /// Construct a renderer-specific render target
     virtual RenderTargetRef makeRenderTarget() const;
+    
+    /// Construct a renderer-specific dynamic texture
+    virtual DynamicTextureRef makeDynamicTexture() const;
 
     /// The pixel width of the CAEAGLLayer.
     int framebufferWidth;

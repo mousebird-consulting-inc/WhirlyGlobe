@@ -31,7 +31,7 @@ namespace WhirlyKit
 /** The dynamic texture can have pieces of itself replaced in the layer thread while
  being used in the renderer.  It's used to implement dynamic texture atlases.
  */
-class DynamicTextureGLES : public DynamicTexture
+class DynamicTextureGLES : public DynamicTexture, public TextureBaseGLES
 {
 public:
     /// Construct with a name, square texture size, cell size (in texels), and the memory format
@@ -40,6 +40,12 @@ public:
     /// Called after construction to do the actual work
     void setup(const std::string &name,int texSize,int cellSize,TextureType format,bool clearTextures);
     
+    /// Add the data at a given location in the texture
+    void addTextureData(int startX,int startY,int width,int height,RawDataRef data);
+    
+    /// Clear out the low level data
+    void clearTextureData(int startX,int startY,int width,int height,ChangeSet &changes,bool mainThreadMerge,unsigned char *emptyData);
+
     /// Create an appropriately empty texture in OpenGL ES
     virtual bool createInRenderer(RenderSetupInfo *setupInfo);
     

@@ -20,23 +20,24 @@
 
 #import "DynamicTextureAtlas.h"
 #import "Scene.h"
+#import "SceneRenderer.h"
 #import "WhirlyKitLog.h"
 
 using namespace Eigen;
 
 namespace WhirlyKit
 {
- 
+
 DynamicTexture::Region::Region()
   : sx(0), sy(0), ex(0), ey(0)
 {
 }
-    
+
 DynamicTexture::DynamicTexture(const std::string &name)
 : TextureBase(name), layoutGrid(NULL)
 {
 }
-    
+
 void DynamicTexture::setup(const std::string &name,int texSize,int cellSize,TextureType inType,bool inClearTextures)
 {
     type = inType;
@@ -46,7 +47,7 @@ void DynamicTexture::setup(const std::string &name,int texSize,int cellSize,Text
     for (unsigned int ii=0;ii<numCell * numCell;ii++)
         layoutGrid[ii] = false;
 }
-     
+
 DynamicTexture::~DynamicTexture()
 {
     if (!layoutGrid)
@@ -55,9 +56,6 @@ DynamicTexture::~DynamicTexture()
     delete [] layoutGrid;
     layoutGrid = NULL;
 }
-
-// If set we'll try to clear the images when we're not using them.
-static const bool ClearImages = false;
     
 void DynamicTexture::addTexture(Texture *tex,const Region &region)
 {
@@ -226,7 +224,7 @@ void DynamicTextureAtlas::setPixelFudgeFactor(float pixFudge)
     pixelFudge = pixFudge;
 }
         
-bool DynamicTextureAtlas::addTexture(const std::vector<Texture *> &newTextures,int frame,Point2f *realSize,Point2f *realOffset,SubTexture &subTex,OpenGLMemManager *memManager,ChangeSet &changes,int borderPixels,int bufferPixels,TextureRegion *outTexRegion)
+bool DynamicTextureAtlas::addTexture(SceneRenderer *sceneRender,const std::vector<Texture *> &newTextures,int frame,Point2f *realSize,Point2f *realOffset,SubTexture &subTex,ChangeSet &changes,int borderPixels,int bufferPixels,TextureRegion *outTexRegion)
 {
     if (newTextures.size() != imageDepth && frame < 0)
         return false;
@@ -280,10 +278,11 @@ bool DynamicTextureAtlas::addTexture(const std::vector<Texture *> &newTextures,i
         dynTexVec = new std::vector<DynamicTextureRef>();
         for (unsigned int ii=0;ii<imageDepth;ii++)
         {
-            DynamicTextureRef dynTex(new DynamicTexture("Dynamic Texture Atlas",texSize,cellSize,format,clearTextures));
+            DynamicTextureRef dynTex = sceneRender->makeDynamicTexture();
+            dynTex->setup("Dynamic Texture Atlas",texSize,cellSize,format,clearTextures);
             dynTex->setInterpType(interpType);
             dynTexVec->push_back(dynTex);
-            dynTex->createInGL(memManager);
+            dynTex->createInRenderer(sceneRender->getRenderSetupInfo());
         }
         // Unfortunately, we have to flush here or run the risk of no one else seeing our texture
 //        glFlush();
@@ -407,15 +406,13 @@ void DynamicTextureAtlas::removeTexture(const SubTexture &subTex,ChangeSet &chan
         regions.erase(it);
         
         // See if that texture is now empty
-        DynamicTextureRef searchTex(new DynamicTexture(theRegion.dynTexId));
-        DynamicTextureVec searchTexVec;
-        searchTexVec.push_back(searchTex);
-        DynamicTextureSet::iterator it = textures.find(&searchTexVec);
-        if (it != textures.end())
-        {
-            DynamicTextureVec *texVec = *it;
-            DynamicTextureRef tex = texVec->at(0);
-            tex->getNumRegions()--;
+        for (auto it : textures) {
+            if (theRegion.dynTexId == it->at(0)->getId()) {
+                DynamicTextureVec *texVec = it;
+                DynamicTextureRef tex = texVec->at(0);
+                tex->getNumRegions()--;
+                break;
+            }
         }
     } else
         wkLogLevel(Warn,"DynamicTextureAtlas: Request to remove non-existent texture.");
@@ -504,15 +501,15 @@ void DynamicTextureAtlas::log()
     int texelSize = 4;
     switch (format)
     {
-        case GL_UNSIGNED_SHORT_5_6_5:
-        case GL_UNSIGNED_SHORT_4_4_4_4:
-        case GL_UNSIGNED_SHORT_5_5_5_1:
+        case TexTypeShort565:
+        case TexTypeShort4444:
+        case TexTypeShort5551:
             texelSize = 2;;
             break;
-        case GL_UNSIGNED_BYTE:
+        case TexTypeUnsignedByte:
             texelSize = 4;
             break;
-        case GL_ALPHA:
+        case TexTypeSingleChannel:
             texelSize = 1;
             break;
 // Note: Porting
@@ -522,10 +519,10 @@ void DynamicTextureAtlas::log()
             texelSize = 1;
             break;
 #endif
-        case GL_COMPRESSED_RGB8_ETC2:
-            // Note: Not really
-            texelSize = 1;
-            break;
+//        case GL_COMPRESSED_RGB8_ETC2:
+//            // Note: Not really
+//            texelSize = 1;
+//            break;
         default:
             break;
             

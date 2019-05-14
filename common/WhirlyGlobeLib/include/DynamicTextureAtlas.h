@@ -64,11 +64,11 @@ public:
     void addTexture(Texture *tex,const Region &region);
     
     /// Add the data at a given location in the texture
-    void addTextureData(int startX,int startY,int width,int height,RawDataRef data);
+    virtual void addTextureData(int startX,int startY,int width,int height,RawDataRef data) = 0;
     
     /// Clear out the area given
     void clearRegion(const Region &region,ChangeSet &changes,bool mainThreadMerge,unsigned char *emptyData);
-    void clearTextureData(int startX,int startY,int width,int height,ChangeSet &changes,bool mainThreadMerge,unsigned char *emptyData);
+    virtual void clearTextureData(int startX,int startY,int width,int height,ChangeSet &changes,bool mainThreadMerge,unsigned char *emptyData) = 0;
     
     /// Set or clear a given region
     void setRegion(const Region &region,bool enable);
@@ -200,7 +200,7 @@ public:
     void setPixelFudgeFactor(float pixFudge);
     
     /// Try to add the texture to one of our dynamic textures, or create one.
-    bool addTexture(const std::vector<Texture *> &textures,int frame,Point2f *realSize,Point2f *realOffset,SubTexture &subTex,ChangeSet &changes,int borderPixels,int bufferPixels=0,TextureRegion *outTexRegion=NULL);
+    bool addTexture(SceneRenderer *sceneRender,const std::vector<Texture *> &textures,int frame,Point2f *realSize,Point2f *realOffset,SubTexture &subTex,ChangeSet &changes,int borderPixels,int bufferPixels=0,TextureRegion *outTexRegion=NULL);
     
     /// Update one of the frames of a multi-frame texture atlas
     bool updateTexture(Texture *,int frame,const TextureRegion &texRegion,ChangeSet &changes);

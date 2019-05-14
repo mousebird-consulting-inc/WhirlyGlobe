@@ -19,7 +19,9 @@
  */
 
 #import "DynamicTextureAtlasGLES.h"
+#import "MemManagerGLES.h"
 #import "UtilsGLES.h"
+#import "WhirlyKitLog.h"
 
 namespace WhirlyKit
 {
@@ -94,14 +96,19 @@ void DynamicTextureGLES::setup(const std::string &name,int texSize,int cellSize,
     }
 }
 
+// If set we'll try to clear the images when we're not using them.
+static const bool ClearImages = false;
+
 // Create the OpenGL texture, empty
-bool DynamicTextureGLES::createInRenderer(RenderSetupInfo *setupInfo)
+bool DynamicTextureGLES::createInRenderer(RenderSetupInfo *inSetupInfo)
 {
+    RenderSetupInfoGLES *setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
+    
     // Already setup
     if (glId != 0)
         return true;
     
-    glId = memManager->getTexID();
+    glId = setupInfo->memManager->getTexID();
     if (!glId)
         return false;
     glBindTexture(GL_TEXTURE_2D, glId);
@@ -152,10 +159,12 @@ bool DynamicTextureGLES::createInRenderer(RenderSetupInfo *setupInfo)
     return true;
 }
 
-void DynamicTextureGLES::destroyInRenderer(RenderSetupInfo *setupInfo)
+void DynamicTextureGLES::destroyInRenderer(RenderSetupInfo *inSetupInfo)
 {
+    RenderSetupInfoGLES *setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
+
     if (glId)
-        memManager->removeTexID(glId);
+        setupInfo->memManager->removeTexID(glId);
     glId = 0;
 }
 
@@ -172,7 +181,7 @@ void DynamicTextureGLES::addTextureData(int startX,int startY,int width,int heig
         {
             int pkmType;
             int size,thisWidth,thisHeight;
-            unsigned char *pixData = Texture::ResolvePKM(data,pkmType, size, thisWidth, thisHeight);
+            unsigned char *pixData = TextureGLES::ResolvePKM(data,pkmType, size, thisWidth, thisHeight);
             if (!pixData || pkmType != type || thisWidth != width || thisHeight != height)
                 wkLogLevel(Warn,"Compressed texture doesn't match atlas.");
             else

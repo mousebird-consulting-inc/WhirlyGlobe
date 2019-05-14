@@ -30,7 +30,7 @@ namespace WhirlyKit
 /** Base class for textures.  This is enough information to
     track it in the Scene, but little else.
   */
-class TextureBase : public Identifiable
+class TextureBase : virtual public Identifiable
 {
 public:
     /// Construct for comparison
