@@ -369,7 +369,7 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
     // Add any simple 2D markers to the scene
     if (!screenShapes.empty())
     {
-        ScreenSpaceBuilder ssBuild(coordAdapter,renderer->getScale());
+        ScreenSpaceBuilder ssBuild(renderer,coordAdapter,renderer->getScale());
         for (unsigned int ii=0;ii<screenShapes.size();ii++)
         {
             ssBuild.addScreenObject(*(screenShapes[ii]));

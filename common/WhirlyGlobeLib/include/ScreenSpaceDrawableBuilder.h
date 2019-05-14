@@ -41,15 +41,16 @@ class ScreenSpaceDrawableBuilder : public BasicDrawableBuilder
 {
 public:
     // Construct with or without motion support
-    ScreenSpaceDrawableBuilder(bool hasMotion,bool hasRotation);
+    ScreenSpaceDrawableBuilder();
+    void setup(bool hasMotion,bool hasRotation);
     
     // If we've got a rotation, we set this to keep the image facing upright
     //  probably because it's text.
     void setKeepUpright(bool keepUpright);
     // Time we start counting from for motion
-    void setStartTime(TimeInterval inStartTime) { startTime = inStartTime; }
+    void setStartTime(TimeInterval inStartTime);
     // Time we start counting from for motion
-    TimeInterval getStartTime() { return startTime; }
+    TimeInterval getStartTime();
     
     // Each vertex has an offset on the screen
     void addOffset(const Point2f &offset);
@@ -63,9 +64,8 @@ public:
     void addRot(const Point3f &dir);
     void addRot(const Point3d &dir);
     
-    // Construct this one drawable
-    virtual BasicDrawable *makeDrawable();
-
+    void setupTweaker(BasicDrawable *theDraw);
+    
 protected:
     bool motion,rotation;
     bool keepUpright;

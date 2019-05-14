@@ -770,7 +770,7 @@ void LayoutManager::updateLayout(ViewStateRef viewState,ChangeSet &changes)
         drawIDs.clear();
 
         // Generate the drawables
-        ScreenSpaceBuilder ssBuild(coordAdapter,renderer->scale);
+        ScreenSpaceBuilder ssBuild(renderer,coordAdapter,renderer->scale);
         for (LayoutEntrySet::iterator it = layoutObjects.begin();
              it != layoutObjects.end(); ++it)
         {

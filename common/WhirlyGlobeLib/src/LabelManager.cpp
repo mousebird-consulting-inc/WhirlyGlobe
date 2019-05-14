@@ -78,7 +78,7 @@ SimpleIdentity LabelManager::addLabels(std::vector<SingleLabel *> &labels,const 
     // Create screen shapes
     if (!labelRenderer.screenObjects.empty())
     {
-        ScreenSpaceBuilder ssBuild(coordAdapter,renderer->getScale());
+        ScreenSpaceBuilder ssBuild(renderer,coordAdapter,renderer->getScale());
         for (unsigned int ii=0;ii<labelRenderer.screenObjects.size();ii++)
             ssBuild.addScreenObject(labelRenderer.screenObjects[ii]);
         ssBuild.flushChanges(changes, labelRep->drawIDs);

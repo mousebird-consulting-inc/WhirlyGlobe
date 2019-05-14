@@ -18,16 +18,46 @@
  *
  */
 
-#import "ScreenSpaceDrawable.h"
-#import "OpenGLES2Program.h"
-#import "SceneRenderer.h"
-#import "FlatMath.h"
+#import "ScreenSpaceDrawableBuilder.h"
+#import "ProgramGLES.h"
 
 namespace WhirlyKit
 {
-
-ScreenSpaceDrawable::ScreenSpaceDrawable(bool hasMotion,bool hasRotation) : BasicDrawable("ScreenSpace"), keepUpright(false), motion(hasMotion), rotation(hasRotation), offsetIndex(-1), rotIndex(-1), dirIndex(-1)
+    
+// Modifies the uniform values of a given shader right before the
+//  screenspace's Basic Drawables are rendered
+class ScreenSpaceTweaker : public DrawableTweaker
 {
+public:
+    void tweakForFrame(Drawable *inDraw,RendererFrameInfo *frameInfo)
+    {
+        BasicDrawable *draw = (BasicDrawable *)inDraw;
+        if (frameInfo->program)
+        {
+            Point2f fbSize = frameInfo->sceneRenderer->getFramebufferSize();
+            frameInfo->program->setUniform(u_ScaleNameID, Point2f(2.f/fbSize.x(),2.f/(float)fbSize.y()));
+            frameInfo->program->setUniform(u_uprightNameID, keepUpright);
+            if (draw->hasMotion())
+                frameInfo->program->setUniform(u_TimeNameID, (float)(frameInfo->currentTime - startTime));
+            frameInfo->program->setUniform(u_activerotNameID, (rotIndex >= 0 ? 1 : 0));
+        }
+    }
+    
+    TimeInterval startTime;
+    bool keepUpright;
+    int rotIndex;
+};
+
+ScreenSpaceDrawableBuilder::ScreenSpaceDrawableBuilder()
+: keepUpright(false), motion(false), rotation(false), offsetIndex(-1), rotIndex(-1), dirIndex(-1)
+{
+}
+
+void ScreenSpaceDrawableBuilder::setup(bool hasMotion,bool hasRotation)
+{
+    Init();
+    setupStandardAttributes();
+    
     offsetIndex = addAttribute(BDFloat2Type, a_offsetNameID);
     if (hasRotation)
         rotIndex = addAttribute(BDFloat3Type, a_rotNameID);
@@ -35,74 +65,56 @@ ScreenSpaceDrawable::ScreenSpaceDrawable(bool hasMotion,bool hasRotation) : Basi
         dirIndex = addAttribute(BDFloat3Type, a_dirNameID);
 }
     
-void ScreenSpaceDrawable::setKeepUpright(bool newVal)
+void ScreenSpaceDrawableBuilder::setKeepUpright(bool newVal)
 {
     keepUpright = newVal;
 }
+    
+void ScreenSpaceDrawableBuilder::setStartTime(TimeInterval inStartTime)
+    { startTime = inStartTime; }
 
-void ScreenSpaceDrawable::addOffset(const Point2f &offset)
+TimeInterval ScreenSpaceDrawableBuilder::getStartTime()
+    { return startTime; }
+
+void ScreenSpaceDrawableBuilder::addOffset(const Point2f &offset)
 {
     addAttributeValue(offsetIndex, offset);
 }
 
-void ScreenSpaceDrawable::addOffset(const Point2d &offset)
+void ScreenSpaceDrawableBuilder::addOffset(const Point2d &offset)
 {
     addAttributeValue(offsetIndex, Point2f(offset.x(),offset.y()));
 }
     
-void ScreenSpaceDrawable::addDir(const Point3d &dir)
+void ScreenSpaceDrawableBuilder::addDir(const Point3d &dir)
 {
     addAttributeValue(dirIndex, Point3f(dir.x(),dir.y(),dir.z()));
 }
 
-void ScreenSpaceDrawable::addDir(const Point3f &dir)
+void ScreenSpaceDrawableBuilder::addDir(const Point3f &dir)
 {
     addAttributeValue(dirIndex, dir);
 }
     
-void ScreenSpaceDrawable::addRot(const Point3d &rotDir)
+void ScreenSpaceDrawableBuilder::addRot(const Point3d &rotDir)
 {
     addRot(Point3f(rotDir.x(),rotDir.y(),rotDir.z()));
 }
 
-void ScreenSpaceDrawable::addRot(const Point3f &rotDir)
+void ScreenSpaceDrawableBuilder::addRot(const Point3f &rotDir)
 {
     addAttributeValue(rotIndex, rotDir);
 }
-
-void ScreenSpaceDrawable::updateRenderer(SceneRendererES *renderer)
+    
+void ScreenSpaceDrawableBuilder::setupTweaker(BasicDrawable *theDraw)
 {
-    renderer->setRenderUntil(fadeUp);
-    renderer->setRenderUntil(fadeDown);
-
-    if (motion)
-    {
-        if (startEnable != endEnable)
-        {
-            // Note: This still means we'll render until startEnable
-            renderer->setRenderUntil(endEnable);
-        } else {
-            // Motion requires continuous rendering
-            renderer->addContinuousRenderRequest(getId());
-        }
-    }
+    ScreenSpaceTweaker *tweak = new ScreenSpaceTweaker();
+    tweak->startTime = startTime;
+    tweak->keepUpright = keepUpright;
+    tweak->rotIndex = rotIndex;
+    theDraw->addTweaker(DrawableTweakerRef(tweak));
 }
-
-void ScreenSpaceDrawable::draw(RendererFrameInfo *frameInfo,Scene *scene)
-{
-    if (frameInfo->program)
-    {
-        Point2f fbSize = frameInfo->sceneRenderer->getFramebufferSize();
-        frameInfo->program->setUniform(u_ScaleNameID, Point2f(2.f/fbSize.x(),2.f/(float)fbSize.y()));
-        frameInfo->program->setUniform(u_uprightNameID, keepUpright);
-        if (motion)
-            frameInfo->program->setUniform(u_TimeNameID, (float)(frameInfo->currentTime - startTime));
-        frameInfo->program->setUniform(u_activerotNameID, (rotIndex >= 0 ? 1 : 0));
-    }
-
-    BasicDrawable::draw(frameInfo,scene);
-}
-
+    
 static const char *vertexShaderTri = R"(
 precision highp float;
 
@@ -294,9 +306,9 @@ void main()
 }
 )";
 
-WhirlyKit::OpenGLES2Program *BuildScreenSpaceProgram(const std::string &name)
+Program *BuildScreenSpaceProgram(const std::string &name,SceneRenderer *render)
 {
-    OpenGLES2Program *shader = new OpenGLES2Program(name,vertexShaderTri,fragmentShaderTri);
+    ProgramGLES *shader = new ProgramGLES(name,vertexShaderTri,fragmentShaderTri);
     if (!shader->isValid())
     {
         delete shader;
@@ -309,9 +321,9 @@ WhirlyKit::OpenGLES2Program *BuildScreenSpaceProgram(const std::string &name)
     return shader;
 }
 
-WhirlyKit::OpenGLES2Program *BuildScreenSpace2DProgram(const std::string &name)
+Program *BuildScreenSpace2DProgram(const std::string &name,SceneRenderer *render)
 {
-    OpenGLES2Program *shader = new OpenGLES2Program(name,vertexShaderTri2d,fragmentShaderTri);
+    ProgramGLES *shader = new ProgramGLES(name,vertexShaderTri2d,fragmentShaderTri);
     if (!shader->isValid())
     {
         delete shader;
@@ -324,9 +336,9 @@ WhirlyKit::OpenGLES2Program *BuildScreenSpace2DProgram(const std::string &name)
     return shader;
 }
 
-WhirlyKit::OpenGLES2Program *BuildScreenSpaceMotionProgram(const std::string &name)
+Program *BuildScreenSpaceMotionProgram(const std::string &name,SceneRenderer *render)
 {
-    OpenGLES2Program *shader = new OpenGLES2Program(name,vertexShaderMotionTri,fragmentShaderTri);
+    ProgramGLES *shader = new ProgramGLES(name,vertexShaderMotionTri,fragmentShaderTri);
     if (!shader->isValid())
     {
         delete shader;
@@ -339,9 +351,9 @@ WhirlyKit::OpenGLES2Program *BuildScreenSpaceMotionProgram(const std::string &na
     return shader;
 }
 
-WhirlyKit::OpenGLES2Program *BuildScreenSpaceMotion2DProgram(const std::string &name)
+Program *BuildScreenSpaceMotion2DProgram(const std::string &name,SceneRenderer *render)
 {
-    OpenGLES2Program *shader = new OpenGLES2Program(name,vertexShader2dMotionTri,fragmentShaderTri);
+    ProgramGLES *shader = new ProgramGLES(name,vertexShader2dMotionTri,fragmentShaderTri);
     if (!shader->isValid())
     {
         delete shader;

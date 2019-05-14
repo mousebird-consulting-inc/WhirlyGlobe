@@ -65,7 +65,7 @@
 		2B446B2F21F7CE670078A975 /* UtilsGLES.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B2D21F7CE670078A975 /* UtilsGLES.h */; };
 		2B446B3021F7CE670078A975 /* WrapperGLES.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B2E21F7CE670078A975 /* WrapperGLES.h */; };
 		2B446B3721F7E6780078A975 /* Lighting.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B3621F7E6770078A975 /* Lighting.h */; };
-		2B446B4921F7E7B80078A975 /* ScreenSpaceDrawable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B3A21F7E7B70078A975 /* ScreenSpaceDrawable.h */; };
+		2B446B4921F7E7B80078A975 /* ScreenSpaceDrawableBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B3A21F7E7B70078A975 /* ScreenSpaceDrawableBuilder.h */; };
 		2B446B4A21F7E7B80078A975 /* ParticleSystemDrawable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B3B21F7E7B70078A975 /* ParticleSystemDrawable.h */; };
 		2B446B4B21F7E7B80078A975 /* Scene.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B3C21F7E7B70078A975 /* Scene.h */; };
 		2B446B4D21F7E7B80078A975 /* TextureAtlas.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B3E21F7E7B70078A975 /* TextureAtlas.h */; };
@@ -515,6 +515,9 @@
 		2B8A78C8228B5E92008B0A1F /* ParticleSystemDrawableGLES.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B8A78C7228B5E92008B0A1F /* ParticleSystemDrawableGLES.cpp */; };
 		2B8A78CB228B66B7008B0A1F /* ParticleSystemDrawableBuilderGLES.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B8A78CA228B66B7008B0A1F /* ParticleSystemDrawableBuilderGLES.cpp */; };
 		2B8A78CC228B6AAA008B0A1F /* ParticleSystemManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1821F158EB00EF2A82 /* ParticleSystemManager.cpp */; };
+		2B8A78CD228B7B63008B0A1F /* ScreenSpaceDrawableBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B5921F7E7DF0078A975 /* ScreenSpaceDrawableBuilder.cpp */; };
+		2B8A78D0228B832E008B0A1F /* ScreenSpaceDrawableBuilderGLES.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B8A78CF228B832E008B0A1F /* ScreenSpaceDrawableBuilderGLES.cpp */; };
+		2B8A78D1228B85CC008B0A1F /* ScreenSpaceBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B5F21F7E7DF0078A975 /* ScreenSpaceBuilder.cpp */; };
 		2B8E608920D458A600FB96F0 /* MaplyQuadSampler_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8E608820D458A500FB96F0 /* MaplyQuadSampler_private.h */; };
 		2B8E608B20D47FEE00FB96F0 /* MaplyRemoteTileFetcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8E608A20D47FEE00FB96F0 /* MaplyRemoteTileFetcher.h */; };
 		2BA827C1225E57FA00324594 /* MapboxVectorTileParser_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA827C0225E57FA00324594 /* MapboxVectorTileParser_iOS.h */; };
@@ -1100,7 +1103,7 @@
 		2B446B2E21F7CE670078A975 /* WrapperGLES.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WrapperGLES.h; path = ../../../../common/WhirlyGlobeLib/include/WrapperGLES.h; sourceTree = "<group>"; };
 		2B446B3621F7E6770078A975 /* Lighting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Lighting.h; path = ../../../../common/WhirlyGlobeLib/include/Lighting.h; sourceTree = "<group>"; };
 		2B446B3821F7E6850078A975 /* Lighting.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Lighting.cpp; path = ../../../../common/WhirlyGlobeLib/src/Lighting.cpp; sourceTree = "<group>"; };
-		2B446B3A21F7E7B70078A975 /* ScreenSpaceDrawable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ScreenSpaceDrawable.h; path = ../../../../common/WhirlyGlobeLib/include/ScreenSpaceDrawable.h; sourceTree = "<group>"; };
+		2B446B3A21F7E7B70078A975 /* ScreenSpaceDrawableBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ScreenSpaceDrawableBuilder.h; path = ../../../../common/WhirlyGlobeLib/include/ScreenSpaceDrawableBuilder.h; sourceTree = "<group>"; };
 		2B446B3B21F7E7B70078A975 /* ParticleSystemDrawable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ParticleSystemDrawable.h; path = ../../../../common/WhirlyGlobeLib/include/ParticleSystemDrawable.h; sourceTree = "<group>"; };
 		2B446B3C21F7E7B70078A975 /* Scene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Scene.h; path = ../../../../common/WhirlyGlobeLib/include/Scene.h; sourceTree = "<group>"; };
 		2B446B3E21F7E7B70078A975 /* TextureAtlas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TextureAtlas.h; path = ../../../../common/WhirlyGlobeLib/include/TextureAtlas.h; sourceTree = "<group>"; };
@@ -1113,7 +1116,7 @@
 		2B446B4721F7E7B80078A975 /* BillboardDrawableBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BillboardDrawableBuilder.h; path = ../../../../common/WhirlyGlobeLib/include/BillboardDrawableBuilder.h; sourceTree = "<group>"; };
 		2B446B4821F7E7B80078A975 /* BasicDrawableInstance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BasicDrawableInstance.h; path = ../../../../common/WhirlyGlobeLib/include/BasicDrawableInstance.h; sourceTree = "<group>"; };
 		2B446B5821F7E7DF0078A975 /* ParticleSystemDrawable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ParticleSystemDrawable.cpp; path = ../../../../common/WhirlyGlobeLib/src/ParticleSystemDrawable.cpp; sourceTree = "<group>"; };
-		2B446B5921F7E7DF0078A975 /* ScreenSpaceDrawable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ScreenSpaceDrawable.cpp; path = ../../../../common/WhirlyGlobeLib/src/ScreenSpaceDrawable.cpp; sourceTree = "<group>"; };
+		2B446B5921F7E7DF0078A975 /* ScreenSpaceDrawableBuilder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ScreenSpaceDrawableBuilder.cpp; path = ../../../../common/WhirlyGlobeLib/src/ScreenSpaceDrawableBuilder.cpp; sourceTree = "<group>"; };
 		2B446B5A21F7E7DF0078A975 /* WideVectorDrawable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WideVectorDrawable.cpp; path = ../../../../common/WhirlyGlobeLib/src/WideVectorDrawable.cpp; sourceTree = "<group>"; };
 		2B446B5B21F7E7DF0078A975 /* BasicDrawable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BasicDrawable.cpp; path = ../../../../common/WhirlyGlobeLib/src/BasicDrawable.cpp; sourceTree = "<group>"; };
 		2B446B5C21F7E7DF0078A975 /* BasicDrawableInstance.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BasicDrawableInstance.cpp; path = ../../../../common/WhirlyGlobeLib/src/BasicDrawableInstance.cpp; sourceTree = "<group>"; };
@@ -1537,6 +1540,8 @@
 		2B8A78C7228B5E92008B0A1F /* ParticleSystemDrawableGLES.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ParticleSystemDrawableGLES.cpp; path = ../../../../common/WhirlyGlobeLib/src/ParticleSystemDrawableGLES.cpp; sourceTree = "<group>"; };
 		2B8A78C9228B665B008B0A1F /* ParticleSystemDrawableBuilderGLES.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ParticleSystemDrawableBuilderGLES.h; path = ../../../../common/WhirlyGlobeLib/include/ParticleSystemDrawableBuilderGLES.h; sourceTree = "<group>"; };
 		2B8A78CA228B66B7008B0A1F /* ParticleSystemDrawableBuilderGLES.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ParticleSystemDrawableBuilderGLES.cpp; path = ../../../../common/WhirlyGlobeLib/src/ParticleSystemDrawableBuilderGLES.cpp; sourceTree = "<group>"; };
+		2B8A78CE228B8291008B0A1F /* ScreenSpaceDrawableBuilderGLES.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ScreenSpaceDrawableBuilderGLES.h; path = ../../../../common/WhirlyGlobeLib/include/ScreenSpaceDrawableBuilderGLES.h; sourceTree = "<group>"; };
+		2B8A78CF228B832E008B0A1F /* ScreenSpaceDrawableBuilderGLES.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ScreenSpaceDrawableBuilderGLES.cpp; path = ../../../../common/WhirlyGlobeLib/src/ScreenSpaceDrawableBuilderGLES.cpp; sourceTree = "<group>"; };
 		2B8E608820D458A500FB96F0 /* MaplyQuadSampler_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyQuadSampler_private.h; sourceTree = "<group>"; };
 		2B8E608A20D47FEE00FB96F0 /* MaplyRemoteTileFetcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyRemoteTileFetcher.h; sourceTree = "<group>"; };
 		2B8E608E20D4800000FB96F0 /* MaplyRemoteTileFetcher.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyRemoteTileFetcher.mm; sourceTree = "<group>"; };
@@ -2161,6 +2166,7 @@
 				2B8A78BE228B3D97008B0A1F /* SceneGLES.cpp */,
 				2B8A78C7228B5E92008B0A1F /* ParticleSystemDrawableGLES.cpp */,
 				2B8A78CA228B66B7008B0A1F /* ParticleSystemDrawableBuilderGLES.cpp */,
+				2B8A78CF228B832E008B0A1F /* ScreenSpaceDrawableBuilderGLES.cpp */,
 			);
 			name = opengl;
 			sourceTree = "<group>";
@@ -2255,7 +2261,7 @@
 				2B446B4321F7E7B80078A975 /* Identifiable.h */,
 				2B446B3C21F7E7B70078A975 /* Scene.h */,
 				2B446B4121F7E7B70078A975 /* ScreenSpaceBuilder.h */,
-				2B446B3A21F7E7B70078A975 /* ScreenSpaceDrawable.h */,
+				2B446B3A21F7E7B70078A975 /* ScreenSpaceDrawableBuilder.h */,
 				2B446AF121F79A5F0078A975 /* StringIndexer.h */,
 				2B446B3E21F7E7B70078A975 /* TextureAtlas.h */,
 				2B446B4021F7E7B70078A975 /* WideVectorDrawable.h */,
@@ -2280,8 +2286,8 @@
 				2B446B5821F7E7DF0078A975 /* ParticleSystemDrawable.cpp */,
 				2B8A78C5228B5D0A008B0A1F /* ParticleSystemDrawableBuilder.cpp */,
 				2B446B6121F7E7E00078A975 /* Scene.cpp */,
+				2B446B5921F7E7DF0078A975 /* ScreenSpaceDrawableBuilder.cpp */,
 				2B446B5F21F7E7DF0078A975 /* ScreenSpaceBuilder.cpp */,
-				2B446B5921F7E7DF0078A975 /* ScreenSpaceDrawable.cpp */,
 				2B446B0B21F79AD00078A975 /* StringIndexer.cpp */,
 				2B446B6721F7E7E00078A975 /* TextureAtlas.cpp */,
 				2B446B5A21F7E7DF0078A975 /* WideVectorDrawable.cpp */,
@@ -2308,6 +2314,7 @@
 				2B8A78782284DB3D008B0A1F /* DynamicTextureAtlasGLES.h */,
 				2B8A789222862B35008B0A1F /* BasicDrawableInstanceGLES.h */,
 				2B8A789922864289008B0A1F /* BasicDrawableInstanceBuilderGLES.h */,
+				2B8A78CE228B8291008B0A1F /* ScreenSpaceDrawableBuilderGLES.h */,
 			);
 			name = opengl;
 			sourceTree = "<group>";
@@ -4039,7 +4046,7 @@
 				2B446B5621F7E7B80078A975 /* BillboardDrawableBuilder.h in Headers */,
 				2B446B4A21F7E7B80078A975 /* ParticleSystemDrawable.h in Headers */,
 				2BE538181D249A1200B60FAD /* MaplyParticleSystem.h in Headers */,
-				2B446B4921F7E7B80078A975 /* ScreenSpaceDrawable.h in Headers */,
+				2B446B4921F7E7B80078A975 /* ScreenSpaceDrawableBuilder.h in Headers */,
 				2BBC337C22163AE90038A229 /* QuadSamplingController.h in Headers */,
 				2B82B6091E82E2490095FB14 /* JSONDefs.h in Headers */,
 				2BE539781D249BEF00B60FAD /* AAPhysicalJupiter.h in Headers */,
@@ -4621,6 +4628,7 @@
 				2B8A78B1228A13B8008B0A1F /* MemManagerGLES.cpp in Sources */,
 				2B3D7E3D22874B390065FA18 /* QuadSamplingController.cpp in Sources */,
 				2BE53A6D1D249C4600B60FAD /* atomicops_internals_x86_msvc.cc in Sources */,
+				2B8A78D1228B85CC008B0A1F /* ScreenSpaceBuilder.cpp in Sources */,
 				2B82B6271E82E2490095FB14 /* pj_inv3d.c in Sources */,
 				2B82B6831E82E24A0095FB14 /* pj_list.c in Sources */,
 				2B82B63D1E82E2490095FB14 /* nad_cvt.c in Sources */,
@@ -4824,6 +4832,7 @@
 				2B8797162203B77900EF801D /* MaplyColorRampGenerator.m in Sources */,
 				2BE5398D1D249BEF00B60FAD /* AABinaryStar.cpp in Sources */,
 				2B82B5FC1E82E2490095FB14 /* internalJSONNode.cpp in Sources */,
+				2B8A78D0228B832E008B0A1F /* ScreenSpaceDrawableBuilderGLES.cpp in Sources */,
 				2BC3D6D9220B51C500CE91D0 /* MaplyRenderTarget.mm in Sources */,
 				2BE53A371D249C3D00B60FAD /* gzip_stream.cc in Sources */,
 				2B82B6671E82E24A0095FB14 /* pj_gauss.c in Sources */,
@@ -5021,6 +5030,7 @@
 				2BE539F71D249C2900B60FAD /* arenastring.cc in Sources */,
 				2B82B67A1E82E24A0095FB14 /* PJ_krovak.c in Sources */,
 				2BE53A0A1D249C2900B60FAD /* message.cc in Sources */,
+				2B8A78CD228B7B63008B0A1F /* ScreenSpaceDrawableBuilder.cpp in Sources */,
 				2BE53A331D249C3D00B60FAD /* strtod.cc in Sources */,
 				2BC3D6F8220CAAC700CE91D0 /* WhirlyKitLog.mm in Sources */,
 				2B82B6B11E82E24A0095FB14 /* PJ_sts.c in Sources */,

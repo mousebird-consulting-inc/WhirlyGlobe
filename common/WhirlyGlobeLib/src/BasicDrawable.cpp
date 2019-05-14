@@ -40,7 +40,7 @@ BasicDrawable::Triangle::Triangle(unsigned short v0,unsigned short v1,unsigned s
 }
     
 BasicDrawable::BasicDrawable(const std::string &name)
-: Drawable(name)
+: Drawable(name), motion(false)
 {
 }
 
@@ -116,6 +116,11 @@ bool BasicDrawable::isOn(RendererFrameInfo *frameInfo) const
 void BasicDrawable::setOnOff(bool onOff)
 {
     on = onOff;
+}
+    
+bool BasicDrawable::hasMotion() const
+{
+    return motion;
 }
 
 bool BasicDrawable::hasAlpha(RendererFrameInfo *frameInfo) const
@@ -240,6 +245,18 @@ void BasicDrawable::updateRenderer(SceneRenderer *renderer)
 {
     renderer->setRenderUntil(fadeUp);
     renderer->setRenderUntil(fadeDown);
+    
+    if (motion)
+    {
+        if (startEnable != endEnable)
+        {
+            // Note: This still means we'll render until startEnable
+            renderer->setRenderUntil(endEnable);
+        } else {
+            // Motion requires continuous rendering
+            renderer->addContinuousRenderRequest(getId());
+        }
+    }
 }
 
 /// Return the active transform matrix, if we have one
@@ -249,6 +266,11 @@ const Eigen::Matrix4d *BasicDrawable::getMatrix() const
 void BasicDrawable::setUniforms(const SingleVertexAttributeSet &newUniforms)
 {
     uniforms = newUniforms;
+}
+    
+void BasicDrawable::addTweaker(DrawableTweakerRef tweak)
+{
+    tweakers.insert(tweak);
 }
     
 BasicDrawableTexTweaker::BasicDrawableTexTweaker(const std::vector<SimpleIdentity> &texIDs,TimeInterval startTime,double period)

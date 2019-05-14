@@ -24,7 +24,7 @@
 #import "Identifiable.h"
 #import "BasicDrawable.h"
 #import "TextureAtlas.h"
-#import "ScreenSpaceDrawable.h"
+#import "ScreenSpaceDrawableBuilder.h"
 #import "Scene.h"
 
 namespace WhirlyKit
@@ -41,7 +41,7 @@ class ScreenSpaceBuilder
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
-    ScreenSpaceBuilder(CoordSystemDisplayAdapter *coordAdapter,float scale,float centerDist=10e2);
+    ScreenSpaceBuilder(SceneRenderer *sceneRender,CoordSystemDisplayAdapter *coordAdapter,float scale,float centerDist=10e2);
     virtual ~ScreenSpaceBuilder();
     
     // State information we're keeping around.
@@ -117,12 +117,8 @@ protected:
     public:
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
         
-        DrawableWrap();
-        DrawableWrap(const DrawableState &state);
+        DrawableWrap(SceneRenderer *sceneRender,const DrawableState &state);
         ~DrawableWrap();
-        
-        // Comparison operator for set
-        bool operator < (const DrawableWrap &that) const;
         
         void addVertex(CoordSystemDisplayAdapter *coordAdapter,float scale,const Point3d &worldLoc,const Point3f *dir,float rot,const Point2d &inVert,const TexCoord *texCoord,const RGBAColor *color,const SingleVertexAttributeSet *vertAttrs);
         void addTri(int v0,int v1,int v2);
@@ -130,32 +126,25 @@ protected:
         Point3d center;
         DrawableState state;
         
-        BasicDrawable *getDrawable() { return locDraw; }
-        BasicDrawable *locDraw;
+        ScreenSpaceDrawableBuilderRef getDrawable() { return locDraw; }
+        ScreenSpaceDrawableBuilderRef locDraw;
 
     protected:
     };
-
-    // Comparitor for drawable wrapper set
-    typedef struct
-    {
-        bool operator()(const DrawableWrap *a,const DrawableWrap *b) const
-        {
-            return *a < *b;
-        }
-    } DrawableWrapComparator;
+    typedef std::shared_ptr<DrawableWrap> DrawableWrapRef;
     
-    typedef std::set<DrawableWrap *,DrawableWrapComparator> DrawableWrapSet;
+    typedef std::map<DrawableState,DrawableWrapRef> DrawableWrapMap;
     
-    DrawableWrap *findOrAddDrawWrap(const DrawableState &state,int numVerts,int numTri,const Point3d &center);
+    DrawableWrapRef findOrAddDrawWrap(const DrawableState &state,int numVerts,int numTri,const Point3d &center);
     
     float centerDist;
     float scale;
     int drawPriorityOffset;
+    SceneRenderer *sceneRender;
     CoordSystemDisplayAdapter *coordAdapter;
     DrawableState curState;
-    DrawableWrapSet drawables;
-    std::vector<DrawableWrap *> fullDrawables;
+    DrawableWrapMap drawables;
+    std::vector<DrawableWrapRef> fullDrawables;
 };
     
 /** Keeps track of the basic information about a screen space object.

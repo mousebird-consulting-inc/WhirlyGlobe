@@ -67,6 +67,9 @@ public:
     virtual bool isOn(RendererFrameInfo *frameInfo) const;
     /// True to turn it on, false to turn it off
     void setOnOff(bool onOff);
+    
+    /// Return true if the shader is animating for this type of drawable
+    virtual bool hasMotion() const;
 
     /// Return the local MBR, if we're working in a non-geo coordinate system
     virtual Mbr getLocalMbr() const;
@@ -155,6 +158,9 @@ public:
     
     /// Change all the uniforms applied at once
     virtual void setUniforms(const SingleVertexAttributeSet &newUniforms);
+    
+    /// Add a tweaker to be run before each frame
+    virtual void addTweaker(DrawableTweakerRef tweak);
 
     /// Update anything associated with the renderer.  Probably renderUntil.
     virtual void updateRenderer(SceneRenderer *renderer);
@@ -191,6 +197,7 @@ public:
     unsigned int drawPriority;  // Used to sort drawables
     float drawOffset;    // Number of units of Z buffer resolution to offset upward (by the normal)
     bool isAlpha;  // Set if we want to be drawn last
+    bool motion;   // If set, this need continuous render
     
     SimpleIdentity programId;    // Program to use for rendering
     SimpleIdentity renderTargetID;
