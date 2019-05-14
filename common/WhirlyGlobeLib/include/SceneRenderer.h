@@ -34,6 +34,8 @@ class BasicDrawableInstanceBuilder;
 typedef std::shared_ptr<BasicDrawableInstanceBuilder> BasicDrawableInstanceBuilderRef;
 class BillboardDrawableBuilder;
 typedef std::shared_ptr<BillboardDrawableBuilder> BillboardDrawableBuilderRef;
+class ParticleSystemDrawableBuilder;
+typedef std::shared_ptr<ParticleSystemDrawableBuilder> ParticleSystemDrawableBuilderRef;
 class DynamicTexture;
 typedef std::shared_ptr<DynamicTexture> DynamicTextureRef;
 
@@ -210,6 +212,9 @@ public:
     
     /// Construct a billboard drawable builder for the current rendering type
     virtual BillboardDrawableBuilderRef makeBillboardDrawableBuilder(const std::string &name) const;
+    
+    /// Construct a particle system builder of the appropriate rendering type
+    virtual ParticleSystemDrawableBuilderRef  makeParticleSystemDrawableBuilder(const std::string &name) const;
     
     /// Construct a renderer-specific render target
     virtual RenderTargetRef makeRenderTarget() const;

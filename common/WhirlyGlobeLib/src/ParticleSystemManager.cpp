@@ -95,22 +95,23 @@ SimpleIdentity ParticleSystemManager::addParticleSystem(const ParticleSystem &ne
     // Note: There are devices where this won't work
     bool useInstancing = useRectangles;
     int totalParticles = newSystem.totalParticles;
-    ParticleSystemDrawable *draw = new ParticleSystemDrawable(newSystem.name,sceneRep->partSys.vertAttrs,sceneRep->partSys.varyingAttrs,totalParticles,sceneRep->partSys.batchSize,useRectangles,useInstancing);
-    draw->setOnOff(true);
-    draw->setPointSize(sceneRep->partSys.pointSize);
-    draw->setProgram(sceneRep->partSys.renderShaderID);
-    draw->setCalculationProgram(sceneRep->partSys.calcShaderID);
-    draw->setupGL(NULL, scene->getMemManager());
-    draw->setDrawPriority(sceneRep->partSys.drawPriority);
-    draw->setBaseTime(newSystem.baseTime);
-    draw->setLifetime(sceneRep->partSys.lifetime);
-    draw->setTexIDs(sceneRep->partSys.texIDs);
-    draw->setContinuousUpdate(sceneRep->partSys.continuousUpdate);
-    draw->setRequestZBuffer(sceneRep->partSys.zBufferRead);
-    draw->setWriteZbuffer(sceneRep->partSys.zBufferWrite);
-    draw->setRenderTarget(sceneRep->partSys.renderTargetID);
-    changes.push_back(new AddDrawableReq(draw));
-    sceneRep->draws.insert(draw);
+    ParticleSystemDrawableBuilderRef draw = renderer->makeParticleSystemDrawableBuilder(newSystem.name);
+    draw->setup(sceneRep->partSys.vertAttrs,sceneRep->partSys.varyingAttrs,totalParticles,sceneRep->partSys.batchSize,useRectangles,useInstancing);
+    draw->getDrawable()->setOnOff(true);
+    draw->getDrawable()->setPointSize(sceneRep->partSys.pointSize);
+    draw->getDrawable()->setProgram(sceneRep->partSys.renderShaderID);
+    draw->getDrawable()->setCalculationProgram(sceneRep->partSys.calcShaderID);
+    draw->getDrawable()->setDrawPriority(sceneRep->partSys.drawPriority);
+    draw->getDrawable()->setBaseTime(newSystem.baseTime);
+    draw->getDrawable()->setLifetime(sceneRep->partSys.lifetime);
+    draw->getDrawable()->setTexIDs(sceneRep->partSys.texIDs);
+    draw->getDrawable()->setContinuousUpdate(sceneRep->partSys.continuousUpdate);
+    draw->getDrawable()->setRequestZBuffer(sceneRep->partSys.zBufferRead);
+    draw->getDrawable()->setWriteZbuffer(sceneRep->partSys.zBufferWrite);
+    draw->getDrawable()->setRenderTarget(sceneRep->partSys.renderTargetID);
+    draw->getDrawable()->setupForRenderer(renderer->getRenderSetupInfo());
+    changes.push_back(new AddDrawableReq(draw->getDrawable()));
+    sceneRep->draws.insert(draw->getDrawable());
     
     {
         std::lock_guard<std::mutex> guardLock(partSysLock);
@@ -155,9 +156,6 @@ void ParticleSystemManager::addParticleBatch(SimpleIdentity sysID,const Particle
     if (it != sceneReps.end())
         sceneRep = *it;
     
-    WhirlyKitGLSetupInfo setupInfo;
-    setupInfo.glesVersion = 3;
-    setupInfo.minZres = 0.0;
     if (sceneRep)
     {
         // Should be one drawable in there
@@ -179,7 +177,7 @@ void ParticleSystemManager::addParticleBatch(SimpleIdentity sysID,const Particle
                 }
                 // Note: Should pick this up from the batch
                 theBatch.startTime = TimeGetCurrent();
-                draw->addAttributeData(&setupInfo,attrData,theBatch);
+                draw->addAttributeData(renderer->getRenderSetupInfo(),attrData,theBatch);
             }
         }
     }

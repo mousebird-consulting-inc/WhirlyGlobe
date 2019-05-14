@@ -54,6 +54,9 @@ public:
 class SingleVertexAttributeInfoGLES : public SingleVertexAttributeInfo
 {
 public:
+    // Construct with the basic info
+    SingleVertexAttributeInfoGLES(const SingleVertexAttributeInfo &that);
+    
     /// Return the number of components as needed by glVertexAttribPointer
     GLuint glEntryComponents() const;
     

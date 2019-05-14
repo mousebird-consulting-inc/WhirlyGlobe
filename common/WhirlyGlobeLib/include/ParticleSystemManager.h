@@ -25,7 +25,7 @@
 #import "BasicDrawable.h"
 #import "Scene.h"
 #import "SelectionManager.h"
-#import "ParticleSystemDrawable.h"
+#import "ParticleSystemDrawableBuilder.h"
 
 namespace WhirlyKit
 {

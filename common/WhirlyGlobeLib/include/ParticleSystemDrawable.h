@@ -19,6 +19,7 @@
  */
 
 #import "BasicDrawable.h"
+#import "Program.h"
 #import "CoordSystem.h"
 
 namespace WhirlyKit
@@ -34,6 +35,7 @@ Program *BuildParticleSystemProgram(const std::string &name,SceneRenderer *rende
 // Low level drawable used to manage particle systems
 class ParticleSystemDrawable : public Drawable
 {
+friend class ParticleSystemDrawableBuilder;
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
@@ -45,74 +47,76 @@ public:
         const void *data;
     };
     
-    ParticleSystemDrawable(const std::string &name,const std::vector<SingleVertexAttributeInfo> &vertAttrs,const std::vector<SingleVertexAttributeInfo> &varyAttrs,int numTotalPoints,int batchSize,bool useRectangles,bool useInstancing);
+    ParticleSystemDrawable(const std::string &name);
     virtual ~ParticleSystemDrawable();
     
-    /// No bounding box, since these change constantly
-    Mbr getLocalMbr() const { return Mbr(); }
-
-    /// No offset matrix (at the moment)
-    const Eigen::Matrix4d *getMatrix() const { return NULL; }
-
-    /// Draw priority for ordering
-    unsigned int getDrawPriority() const { return drawPriority; }
-    void setDrawPriority(int newPriority) { drawPriority = newPriority; }
-
-    /// Program to use for rendering
-    virtual SimpleIdentity getProgram() const { return renderProgramId; }
-    /// Set the shader program.  Empty (default) by default
-    virtual void setProgram(SimpleIdentity newProgId) { renderProgramId = newProgId; }
-    
-    /// Program to use for pre-render calculations
-    virtual SimpleIdentity getCalculationProgram() const { return calculateProgramId; }
-    virtual void setCalculationProgram(SimpleIdentity newProgId) { calculateProgramId = newProgId; }
-
     /// Whether it's currently displaying
     bool isOn(RendererFrameInfo *frameInfo) const;
-    /// True to turn it on, false to turn it off
-    void setOnOff(bool onOff) { enable = onOff; }
-    
-    /// Set the base time
-    void setBaseTime(TimeInterval inBaseTime) { baseTime = inBaseTime; }
-    
-    /// Set the point size
-    void setPointSize(float inPointSize) { pointSize = inPointSize; }
-    
-    /// Set the lifetime
-    void setLifetime(TimeInterval inLifetime) { lifetime = inLifetime; }
-    TimeInterval getLifetime() { return lifetime; }
-    
-    /// Set whether we're doing continuous renders (the default)
-    void setContinuousUpdate(bool newVal) { usingContinuousRender = newVal; }
-    
-    /// Set all the textures at once
-    virtual void setTexIDs(const std::vector<SimpleIdentity> &inTexIDs) { texIDs = inTexIDs; }
-    
-    /// Create our buffers in GL
-    virtual void setupForRenderer(RenderSetupInfo *);
+    void setOnOff(bool onOff);
 
-    /// Destroy GL buffers
-    virtual void teardownForRenderer(RenderSetupInfo *setupInfo);
+    /// No bounding box, since these change constantly
+    Mbr getLocalMbr() const;
 
-    /// Particles can calculate their positions
-    void calculate(RendererFrameInfo *frameInfo,Scene *scene);
-
-    /// Called on the rendering thread to draw
-    void draw(RendererFrameInfo *frameInfo,Scene *scene);
+    /// No offset matrix (at the moment)
+    const Eigen::Matrix4d *getMatrix() const;
     
     /// Not using this mechanism
-    bool hasAlpha(RendererFrameInfo *frameInfo) const { return false; }
+    bool hasAlpha(RendererFrameInfo *frameInfo) const;
+
+    /// Draw priority for ordering
+    unsigned int getDrawPriority() const;
+    void setDrawPriority(int newPriority);
+
+    /// If set, we want to use the z buffer
+    bool getRequestZBuffer() const;
+    void setRequestZBuffer(bool enable);
+    
+    /// If set, we want to write to the z buffer
+    bool getWriteZbuffer() const;
+    void setWriteZbuffer(bool enable);
+
+    // If set, we'll render this data where directed
+    void setRenderTarget(SimpleIdentity newRenderTarget);
+    SimpleIdentity getRenderTarget() const;
+    
+    /// Set all the textures at once
+    virtual void setTexIDs(const std::vector<SimpleIdentity> &inTexIDs);
+
+    /// Program to use for pre-render calculations
+    virtual SimpleIdentity getCalculationProgram() const;
+    virtual void setCalculationProgram(SimpleIdentity newProgId);
+
+    /// Program to use for rendering
+    virtual SimpleIdentity getProgram() const;
+    virtual void setProgram(SimpleIdentity newProgId);
+    
+    /// Set the base time
+    void setBaseTime(TimeInterval inBaseTime);
+    
+    /// Set the point size
+    void setPointSize(float inPointSize);
+    
+    /// Set the lifetime
+    void setLifetime(TimeInterval inLifetime);
+    TimeInterval getLifetime();
+    
+    /// Set whether we're doing continuous renders (the default)
+    void setContinuousUpdate(bool newVal);
+    
+    /// Create our buffers in GL
+    virtual void setupForRenderer(RenderSetupInfo *) = 0;
+
+    /// Destroy GL buffers
+    virtual void teardownForRenderer(RenderSetupInfo *setupInfo) = 0;
+
+    /// Particles can calculate their positions
+    void calculate(RendererFrameInfo *frameInfo,Scene *scene) = 0;
+
+    /// Called on the rendering thread to draw
+    void draw(RendererFrameInfo *frameInfo,Scene *scene) = 0;
     
     /// Don't need to update the renderer particularly
     void updateRenderer(SceneRenderer *renderer);
-
-    /// If set, we want to use the z buffer
-    bool getRequestZBuffer() const { return requestZBuffer; }
-    void setRequestZBuffer(bool enable) { requestZBuffer = enable; }
-    
-    /// If set, we want to write to the z buffer
-    bool getWriteZbuffer() const { return writeZBuffer; }
-    void setWriteZbuffer(bool enable) { writeZBuffer = enable; }
     
     // Represents a single batch of data
     class Batch
@@ -124,24 +128,19 @@ public:
         TimeInterval startTime;
     };
     
+    /// Add a batch for rendering later
+    virtual void addAttributeData(RenderSetupInfo *setupInfo,const std::vector<AttributeData> &attrData,const Batch &batch) = 0;
+    
     /// Look for an empty batch to reuse
     bool findEmptyBatch(Batch &retBatch);
     
     /// Invalidate old batches
     void updateBatches(TimeInterval now);
 
-    // If set, we'll render this data where directed
-    void setRenderTarget(SimpleIdentity newRenderTarget) { renderTargetID = newRenderTarget; }
-    
-    // EmptyIdentity is the standard view, anything else ia custom render target
-    SimpleIdentity getRenderTarget() { return renderTargetID; }
-
 protected:
     bool enable;
     int numTotalPoints,batchSize;
     int vertexSize;
-    std::vector<SingleVertexAttributeInfo> vertAttrs;
-    std::vector<SingleVertexAttributeInfo> varyAttrs;
     SimpleIdentity calculateProgramId;
     SimpleIdentity renderProgramId;
     int drawPriority;

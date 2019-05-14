@@ -1,5 +1,5 @@
 /*
- *  ParticleSystemDrawable.h
+ *  ParticleSystemDrawableGLES.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/28/15.
@@ -19,6 +19,10 @@
  */
 
 #import "ParticleSystemDrawable.h"
+#import "ProgramGLES.h"
+#import "WrapperGLES.h"
+#import "BasicDrawableGLES.h"
+#import "VertexAttributeGLES.h"
 
 namespace WhirlyKit
 {
@@ -29,14 +33,29 @@ namespace WhirlyKit
 /// OpenGL ES version of the particle system drawable
 class ParticleSystemDrawableGLES : public ParticleSystemDrawable
 {
+friend class ParticleSystemDrawableBuilderGLES;
 public:
-    /// Just points for now
-    GLenum getType() const { return GL_POINTS; }
-
+    ParticleSystemDrawableGLES(const std::string &name);
+    
     /// Add the vertex data (all of it) at once
-    void addAttributeData(WhirlyKitGLSetupInfo *setupInfo,const std::vector<AttributeData> &attrData,const Batch &batch);
+    void addAttributeData(RenderSetupInfo *setupInfo,const std::vector<AttributeData> &attrData,const Batch &batch);
+
+    /// Create our buffers in GL
+    virtual void setupForRenderer(RenderSetupInfo *);
+    
+    /// Destroy GL buffers
+    virtual void teardownForRenderer(RenderSetupInfo *setupInfo);
+
+    /// Particles can calculate their positions
+    void calculate(RendererFrameInfo *frameInfo,Scene *scene);
+    
+    /// Called on the rendering thread to draw
+    void draw(RendererFrameInfo *frameInfo,Scene *scene);
 
 protected:
+    std::vector<SingleVertexAttributeInfoGLES> vertAttrs;
+    std::vector<SingleVertexAttributeInfoGLES> varyAttrs;
+    
     class VaryBufferPair {
     public:
         GLuint buffers[2];
@@ -45,12 +64,11 @@ protected:
     
     GLuint pointBuffer,rectBuffer;
 
-    void drawSetupTextures(RendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog,bool hasTexture[],int &progTexBound);
-    void drawTeardownTextures(RendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog,bool hasTexture[],int progTexBound);
-    void drawSetupUniforms(RendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog);
-    void drawBindAttrs(RendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog,const BufferChunk &chunk,int pointsSoFar,bool useInstancingHere);
-    void drawUnbindAttrs(OpenGLES2Program *prog);
-
-}
+    void drawSetupTextures(RendererFrameInfo *frameInfo,Scene *scene,ProgramGLES *prog,bool hasTexture[],int &progTexBound);
+    void drawTeardownTextures(RendererFrameInfo *frameInfo,Scene *scene,ProgramGLES *prog,bool hasTexture[],int progTexBound);
+    void drawSetupUniforms(RendererFrameInfo *frameInfo,Scene *scene,ProgramGLES *prog);
+    void drawBindAttrs(RendererFrameInfo *frameInfo,Scene *scene,ProgramGLES *prog,const BufferChunk &chunk,int pointsSoFar,bool useInstancingHere);
+    void drawUnbindAttrs(ProgramGLES *prog);
+};
     
 }
