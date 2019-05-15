@@ -47,21 +47,21 @@ typedef std::set<SubTexToAtlas> SubTexToAtlasSet;
 
 @implementation MaplyTextureAtlasGroup
 {
+    SceneRenderer *sceneRender;
     Scene *scene;
-    OpenGLMemManager *memManager;
     DynamicTextureAtlasSet atlases;
     SubTexToAtlasSet subTexMap;
     int atlasSize;
 }
 
-- (instancetype)initWithScene:(WhirlyKit::Scene *)inScene
+- (instancetype)initWithScene:(WhirlyKit::Scene *)inScene render:(SceneRenderer *)inSceneRender
 {
     self = [super init];
     if (!self)
         return nil;
     
+    sceneRender = inSceneRender;
     scene = inScene;
-    memManager = scene->getMemManager();
     atlasSize = 1024;
     
     return self;
@@ -98,7 +98,7 @@ typedef std::set<SubTexToAtlas> SubTexToAtlasSet;
         {
             DynamicTextureAtlas *atlas = *it;
             if (tex->getFormat() == atlas->getFormat())
-                if (atlas->addTexture(texs,-1,NULL,NULL,subTex,memManager,changes,0))
+                if (atlas->addTexture(sceneRender,texs,-1,NULL,NULL,subTex,changes,0))
                 {
                     scene->addSubTexture(subTex);
                     foundAtlas = atlas;
@@ -111,7 +111,7 @@ typedef std::set<SubTexToAtlas> SubTexToAtlasSet;
         {
             foundAtlas = new DynamicTextureAtlas(atlasSize,16,tex->getFormat());
             atlases.insert(foundAtlas);
-            if (foundAtlas->addTexture(texs, -1, NULL, NULL, subTex, memManager, changes, 0))
+            if (foundAtlas->addTexture(sceneRender,texs, -1, NULL, NULL, subTex, changes, 0))
                 scene->addSubTexture(subTex);
         }
         

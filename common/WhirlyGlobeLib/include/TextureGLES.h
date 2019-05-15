@@ -31,7 +31,7 @@ namespace WhirlyKit
 /** Base class for textures.  This is enough information to
  track it in the Scene, but little else.
  */
-class TextureBaseGLES : public TextureBase
+class TextureBaseGLES : virtual public TextureBase
 {
 public:
     TextureBaseGLES(SimpleIdentity thisId) : TextureBase(thisId), glId(0) { }
@@ -53,7 +53,7 @@ typedef std::shared_ptr<TextureBaseGLES> TextureBaseGLESRef;
  If you want to remove it, you need to use its
  Identifiable ID.
  */
-class TextureGLES : public Texture, public TextureBaseGLES
+class TextureGLES : virtual public Texture, virtual public TextureBaseGLES
 {
 public:
     TextureGLES(const std::string &name);

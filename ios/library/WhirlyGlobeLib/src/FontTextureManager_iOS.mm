@@ -21,7 +21,7 @@
 #import <UIKit/UIKit.h>
 #import <CoreText/CoreText.h>
 #import "FontTextureManager_iOS.h"
-#import "Texture_iOS.h"
+#import "TextureGLES_iOS.h"
 #import "UIColor+Stuff.h"
 #import "Scene.h"
 
@@ -47,8 +47,8 @@ bool FontManager_iOS::operator < (const FontManager_iOS &that) const
     return font < that.font;
 }
     
-FontTextureManager_iOS::FontTextureManager_iOS(Scene *scene)
-: FontTextureManager(scene)
+FontTextureManager_iOS::FontTextureManager_iOS(SceneRenderer *sceneRender,Scene *scene)
+: FontTextureManager(sceneRender,scene)
 {
 }
     
@@ -196,7 +196,7 @@ WhirlyKit::DrawableString *FontTextureManager_iOS::addString(NSAttributedString 
     if (!texAtlas)
     {
         // Let's do the biggest possible texture with small cells 32 bits deep
-        texAtlas = new DynamicTextureAtlas(2048,16,GL_UNSIGNED_BYTE);
+        texAtlas = new DynamicTextureAtlas(2048,16,TexTypeUnsignedByte);
     }
     
     DrawableString *drawString = new DrawableString();
@@ -264,14 +264,14 @@ WhirlyKit::DrawableString *FontTextureManager_iOS::addString(NSAttributedString 
                     NSData *glyphImage = renderGlyph(glyph, fm, texSize, glyphSize, offset, textureOffset);
                     if (glyphImage)
                     {
-                        Texture *tex = new Texture_iOS("Font Texture Manager",glyphImage,false);
+                        Texture *tex = new TextureGLES_iOS("Font Texture Manager",glyphImage,false);
                         tex->setWidth(texSize.x());
                         tex->setHeight(texSize.y());
                         SubTexture subTex;
                         Point2f realSize(glyphSize.x()+2*textureOffset.x(),glyphSize.y()+2*textureOffset.y());
                         std::vector<Texture *> texs;
                         texs.push_back(tex);
-                        if (texAtlas->addTexture(texs, -1, &realSize, NULL, subTex, scene->getMemManager(), changes, 0))
+                        if (texAtlas->addTexture(sceneRender, texs, -1, &realSize, NULL, subTex, changes, 0))
                             glyphInfo = fm->addGlyph(glyph, subTex, Point2f(glyphSize.x(),glyphSize.y()), offset, textureOffset);
                         delete tex;
                     }

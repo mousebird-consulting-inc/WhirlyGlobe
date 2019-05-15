@@ -21,6 +21,7 @@
 #import <WhirlyGlobe_iOS.h>
 #import "control/WhirlyGlobeViewController.h"
 #import "WhirlyGlobeViewController_private.h"
+#import "SceneGLES.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -234,7 +235,7 @@ public:
 
 - (Scene *) loadSetup_scene
 {
-    globeScene = new WhirlyKit::Scene(globeView->coordAdapter);
+    globeScene = new WhirlyKit::SceneGLES(globeView->coordAdapter);
     
     return globeScene;
 }

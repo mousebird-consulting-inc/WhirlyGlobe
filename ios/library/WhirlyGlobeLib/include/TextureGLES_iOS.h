@@ -18,7 +18,7 @@
  *
  */
 
-#import "Texture.h"
+#import "TextureGLES.h"
 
 namespace WhirlyKit {
 
@@ -26,20 +26,20 @@ namespace WhirlyKit {
  
     Adds a few convenience constructors for iOS specific data types.
   */
-class Texture_iOS : public Texture
+class TextureGLES_iOS : public TextureGLES
 {
 public:
     /// Construct emtpy
-    Texture_iOS(const std::string &name);
+    TextureGLES_iOS(const std::string &name);
     /// Construct with an NSData object
-    Texture_iOS(const std::string &name,NSData *data,bool isPVRTC);
+    TextureGLES_iOS(const std::string &name,NSData *data,bool isPVRTC);
     /// Construct with a file name and extension
-    Texture_iOS(const std::string &name,NSString *baseName,NSString *ext);
+    TextureGLES_iOS(const std::string &name,NSString *baseName,NSString *ext);
     /// Construct with a UIImage.  Expecting this to be a power of 2 on each side.
     /// If it's not we'll round up or down, depending on the flag
-    Texture_iOS(const std::string &name,UIImage *inImage, bool roundUp=true);
+    TextureGLES_iOS(const std::string &name,UIImage *inImage, bool roundUp=true);
     /// Construct by scaling the image to the given size
-    Texture_iOS(const std::string &name,UIImage *inImage,int width,int height);
+    TextureGLES_iOS(const std::string &name,UIImage *inImage,int width,int height);
     
     /// Version of the PKM setter that takes NSData
     void setPKMData(NSData *data);

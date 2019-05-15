@@ -23,6 +23,11 @@
 
 namespace WhirlyKit
 {
+    
+SceneGLES::SceneGLES(CoordSystemDisplayAdapter *adapter)
+    : Scene(adapter)
+{
+}
 
 GLuint SceneGLES::getGLTexture(SimpleIdentity texIdent)
 {
@@ -43,7 +48,7 @@ GLuint SceneGLES::getGLTexture(SimpleIdentity texIdent)
     return ret;
 }
 
-void SceneGLES::teardownGL()
+void SceneGLES::teardown()
 {
     for (auto it : drawables)
         it.second->teardownForRenderer(setupInfo);

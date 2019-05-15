@@ -32,13 +32,15 @@
 {
 @public
     WhirlyKit::View *visualView;
-    WhirlyKit::RenderSetupInfoGLES glSetupInfo;
+    WhirlyKit::RenderSetupInfo *setupInfo;
 
     // Layer thread we're part of
     WhirlyKitLayerThread * __weak layerThread;
 
     // Scene we're using
     WhirlyKit::Scene *scene;
+    
+    WhirlyKit::SceneRenderer *sceneRender;
     
     // Pointer to the layerThreads we're using in the base view controller
     NSArray *layerThreads;

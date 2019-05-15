@@ -98,9 +98,13 @@ bool ProgramGLES::setUniform(StringIdentity nameID,int val)
     return true;
 }
     
-bool ProgramGLES::setTexture(StringIdentity nameID,TextureBase *tex)
+bool ProgramGLES::setTexture(StringIdentity nameID,TextureBase *inTex)
 {
-    GLuint val = ((TextureBaseGLES *)tex)->getGLId();
+    TextureBaseGLES *tex = dynamic_cast<TextureBaseGLES *>(inTex);
+    if (!tex)
+        return false;
+    
+    GLuint val = tex->getGLId();
     OpenGLESUniform *uni = findUniform(nameID);
     if (!uni)
         return false;

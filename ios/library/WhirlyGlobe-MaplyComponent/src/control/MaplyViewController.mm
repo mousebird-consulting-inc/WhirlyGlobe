@@ -26,6 +26,7 @@
 #import "MaplyAnnotation_private.h"
 #import "MaplyAnimateTranslateMomentum.h"
 #import "GlobeView_iOS.h"
+#import "SceneGLES.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -355,7 +356,7 @@ public:
 
 - (Scene *) loadSetup_scene
 {
-    mapScene = new Maply::MapScene(mapView->coordAdapter);
+    mapScene = new SceneGLES(mapView->coordAdapter);
 
     return mapScene;
 }
@@ -937,7 +938,7 @@ public:
 }
 
 // Bounds check on a single point
-- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(SceneRendererES *)sceneRender mapView:(Maply::MapView *)testMapView newCenter:(Point3d *)newCenter
+- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(SceneRenderer *)sceneRender mapView:(Maply::MapView *)testMapView newCenter:(Point3d *)newCenter
 {
     if (bounds.empty())
         return true;
@@ -1476,7 +1477,7 @@ public:
 
 - (MaplyCoordinate)geoFromScreenPoint:(CGPoint)point {
   	Point3d hit;
-    SceneRendererES *sceneRender = glView.renderer;
+    SceneRenderer *sceneRender = glView.renderer;
     Eigen::Matrix4d theTransform = mapView->calcFullMatrix();
     auto frameSizeScaled = sceneRender->getFramebufferSizeScaled();
     Point2f point2f(point.x,point.y);

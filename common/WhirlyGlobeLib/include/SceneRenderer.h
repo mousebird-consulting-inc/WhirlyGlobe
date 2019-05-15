@@ -121,6 +121,10 @@ public:
     SceneRenderer();
     virtual ~SceneRenderer();
     
+    /// Renderer type.  Just two for now.
+    typedef enum {RenderGLES,RenderMetal} Type;
+    virtual Type getType() = 0;
+    
     /// Set the render until time.  This is used by things like fade to keep
     ///  the rendering optimization from cutting off animation.
     virtual void setRenderUntil(TimeInterval newTime);

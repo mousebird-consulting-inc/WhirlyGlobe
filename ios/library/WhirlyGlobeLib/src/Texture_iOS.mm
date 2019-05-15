@@ -19,27 +19,27 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "Texture_iOS.h"
+#import "TextureGLES_iOS.h"
 #import "RawData_NSData.h"
 #import "UIImage+Stuff.h"
 
 namespace WhirlyKit {
     
-Texture_iOS::Texture_iOS(const std::string &name)
-: Texture(name)
+TextureGLES_iOS::TextureGLES_iOS(const std::string &name)
+: TextureGLES(name), TextureBase(name), TextureBaseGLES(name)
 {
 }
     
-Texture_iOS::Texture_iOS(const std::string &name,NSData *data,bool in_isPVRTC)
-    : Texture(name)
+TextureGLES_iOS::TextureGLES_iOS(const std::string &name,NSData *data,bool in_isPVRTC)
+    : TextureGLES(name), TextureBase(name), TextureBaseGLES(name)
 {
     texData = RawDataRef(new RawNSDataReader(data));
     isPVRTC = in_isPVRTC;
 }
 
 // Set up the texture from a filename
-Texture_iOS::Texture_iOS(const std::string &name,NSString *baseName,NSString *ext)
-: Texture(name)
+TextureGLES_iOS::TextureGLES_iOS(const std::string &name,NSString *baseName,NSString *ext)
+: TextureGLES(name), TextureBase(name), TextureBaseGLES(name)
 {
     if (![ext compare:@"pvrtc"])
     {
@@ -77,8 +77,8 @@ Texture_iOS::Texture_iOS(const std::string &name,NSString *baseName,NSString *ex
 }
 
 // Construct with a UIImage
-Texture_iOS::Texture_iOS(const std::string &name,UIImage *inImage,bool roundUp)
-: Texture(name)
+TextureGLES_iOS::TextureGLES_iOS(const std::string &name,UIImage *inImage,bool roundUp)
+: Texture(name), TextureBase(name), TextureGLES(name), TextureBaseGLES(name)
 {
     NSData *data = [inImage rawDataRetWidth:&width height:&height roundUp:roundUp];
     if (!data)
@@ -87,8 +87,8 @@ Texture_iOS::Texture_iOS(const std::string &name,UIImage *inImage,bool roundUp)
     texData = RawDataRef(new RawNSDataReader(data));
 }
 
-Texture_iOS::Texture_iOS(const std::string &name,UIImage *inImage,int inWidth,int inHeight)
-: Texture(name)
+TextureGLES_iOS::TextureGLES_iOS(const std::string &name,UIImage *inImage,int inWidth,int inHeight)
+: Texture(name), TextureBase(name), TextureGLES(name), TextureBaseGLES(name)
 {
     NSData *data = [inImage rawDataScaleWidth:inWidth height:inHeight border:0];
     if (!data)
@@ -98,7 +98,7 @@ Texture_iOS::Texture_iOS(const std::string &name,UIImage *inImage,int inWidth,in
     texData = RawDataRef(new RawNSDataReader(data));
 }
  
-void Texture_iOS::setPKMData(NSData *data)
+void TextureGLES_iOS::setPKMData(NSData *data)
 {
     RawDataRef dataRef = RawDataRef(new RawNSDataReader(data));
     Texture::setPKMData(dataRef);

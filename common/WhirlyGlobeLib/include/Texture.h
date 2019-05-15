@@ -66,7 +66,7 @@ typedef enum {TexInterpNearest,TexInterpLinear} TextureInterpType;
     If you want to remove it, you need to use its
     Identifiable ID.
  */
-class Texture : public TextureBase
+class Texture : virtual public TextureBase
 {
 public:
     /// Construct empty

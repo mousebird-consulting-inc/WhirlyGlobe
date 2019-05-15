@@ -309,6 +309,9 @@ public:
     /// Dump out stats on what is currently in the scene.
     /// Use this sparingly, as it writes to the log.
     void dumpStats();
+    
+    /// Tear down renderer related assets
+    virtual void teardown() = 0;
 	
 public:
     /// Don't be calling this

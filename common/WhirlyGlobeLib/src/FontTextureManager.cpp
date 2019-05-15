@@ -118,8 +118,8 @@ void FontManager::removeGlyphRefs(const GlyphSet &usedGlyphs,std::vector<SubText
 }
 
                 
-FontTextureManager::FontTextureManager(Scene *scene)
-: scene(scene), texAtlas(NULL)
+FontTextureManager::FontTextureManager(SceneRenderer *sceneRender,Scene *scene)
+: sceneRender(sceneRender), scene(scene), texAtlas(NULL)
 {
 }
 

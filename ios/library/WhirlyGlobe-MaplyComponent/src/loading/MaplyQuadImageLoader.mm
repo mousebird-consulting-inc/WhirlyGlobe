@@ -284,23 +284,23 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
         case MaplyImageIntRGBA:
         case MaplyImage4Layer8Bit:
         default:
-            loader->setTexType(GL_UNSIGNED_BYTE);
+            loader->setTexType(TexTypeUnsignedByte);
             break;
         case MaplyImageUShort565:
-            loader->setTexType(GL_UNSIGNED_SHORT_5_6_5);
+            loader->setTexType(TexTypeShort565);
             break;
         case MaplyImageUShort4444:
-            loader->setTexType(GL_UNSIGNED_SHORT_4_4_4_4);
+            loader->setTexType(TexTypeShort4444);
             break;
         case MaplyImageUShort5551:
-            loader->setTexType(GL_UNSIGNED_SHORT_5_5_5_1);
+            loader->setTexType(TexTypeShort5551);
             break;
         case MaplyImageUByteRed:
         case MaplyImageUByteGreen:
         case MaplyImageUByteBlue:
         case MaplyImageUByteAlpha:
         case MaplyImageUByteRGB:
-            loader->setTexType(GL_ALPHA);
+            loader->setTexType(TexTypeSingleChannel);
             break;
     }
     

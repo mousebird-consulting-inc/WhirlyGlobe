@@ -30,13 +30,15 @@ class SceneGLES : public Scene
 {
 public:
     
+    SceneGLES(CoordSystemDisplayAdapter *adapter);
+    
     /// Look for a valid texture
     /// If it's missing, we probably won't draw the associated geometry
     GLuint getGLTexture(SimpleIdentity texIdent);
 
     /// Explicitly tear everything down in OpenGL ES.
     /// We're assuming the context has been set.
-    void teardownGL();
+    virtual void teardown();
 
     /// Get the renderer's buffer/texture ID manager.
     /// You can use this on any thread.  The calls are protected.

@@ -56,6 +56,9 @@ public:
     SceneRendererGLES();
     virtual ~SceneRendererGLES();
     
+    // GL (obviously)
+    virtual Type getType();
+    
     /// Called right after the constructor
     virtual bool setup(int apiVersion,int sizeX,int sizeY);
     

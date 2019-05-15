@@ -48,7 +48,7 @@ public:
 class FontTextureManager_iOS : public FontTextureManager
 {
 public:
-    FontTextureManager_iOS(Scene *scene);
+    FontTextureManager_iOS(SceneRenderer *sceneRender,Scene *scene);
     virtual ~FontTextureManager_iOS();
     
     /// Add the given string.  Caller is responsible for deleting the DrawableString
@@ -57,6 +57,8 @@ public:
 protected:
     NSData *renderGlyph(CGGlyph glyph,FontManager_iOS *fm,Point2f &size,Point2f &glyphSize,Point2f &offset,Point2f &textureOffset);
     FontManager_iOS *findFontManagerForFont(UIFont *uiFont,UIColor *colorUI,UIColor *backColorUI,UIColor *outlineColorUI,float outlinesize);
+    
+    SceneRenderer *sceneRender;
 };
     
 typedef std::shared_ptr<FontTextureManager_iOS> FontTextureManager_iOSRef;

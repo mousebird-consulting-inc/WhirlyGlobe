@@ -43,7 +43,7 @@
 #import "Dictionary_NSDictionary.h"
 #import "SingleLabel_iOS.h"
 #import "FontTextureManager_iOS.h"
-#import "Texture_iOS.h"
+#import "TextureGLES_iOS.h"
 #import "ComponentManager_iOS.h"
 #import "SphericalEarthChunkManager.h"
 #import "UIColor+Stuff.h"
@@ -163,14 +163,14 @@ public:
     layerThread = inLayerThread;
     offlineMode = layerThread == nil;
     scene = inScene;
+    sceneRender = layerThread.renderer;
     
     compManager = (ComponentManager_iOS *)scene->getManager(kWKComponentManager);
     
-    atlasGroup = [[MaplyTextureAtlasGroup alloc] initWithScene:scene];
+    atlasGroup = [[MaplyTextureAtlasGroup alloc] initWithScene:scene sceneRender:sceneRender];
     
-    glSetupInfo.minZres = visualView->calcZbufferRes();
     if (layerThread)
-        glSetupInfo.glesVersion = layerThread.renderer->glesVersion;
+        setupInfo = layerThread.renderer->getRenderSetupInfo();
     
     if (layerThread)
     {
@@ -293,50 +293,50 @@ public:
     // Add it and download it
     Texture *tex;
     if (image)
-        tex = new Texture_iOS("MaplyBaseInteraction",image,imgWidth,imgHeight);
+        tex = new TextureGLES_iOS("MaplyBaseInteraction",image,imgWidth,imgHeight);
     else {
-        tex = new Texture("MaplyBaseInteraction");
+        tex = new TextureGLES_iOS("MaplyBaseInteraction");
         tex->setWidth(imgWidth);
         tex->setHeight(imgHeight);
         tex->setIsEmptyTexture(true);
     }
     tex->setWrap(wrapX, wrapY);
     tex->setUsesMipmaps(false);
-    tex->setInterpType(magFilter == 0 ? GL_NEAREST : GL_LINEAR);
+    tex->setInterpType(magFilter == 0 ? TexInterpNearest : TexInterpLinear);
     switch (imageFormat)
     {
         case MaplyImageIntRGBA:
         case MaplyImage4Layer8Bit:
         default:
-            tex->setFormat(GL_UNSIGNED_BYTE);
+            tex->setFormat(TexTypeUnsignedByte);
             break;
         case MaplyImageUShort565:
-            tex->setFormat(GL_UNSIGNED_SHORT_5_6_5);
+            tex->setFormat(TexTypeShort565);
             break;
         case MaplyImageUShort4444:
-            tex->setFormat(GL_UNSIGNED_SHORT_4_4_4_4);
+            tex->setFormat(TexTypeShort4444);
             break;
         case MaplyImageUShort5551:
-            tex->setFormat(GL_UNSIGNED_SHORT_5_5_5_1);
+            tex->setFormat(TexTypeShort5551);
             break;
         case MaplyImageUByteRed:
-            tex->setFormat(GL_ALPHA);
+            tex->setFormat(TexTypeSingleChannel);
             tex->setSingleByteSource(WKSingleRed);
             break;
         case MaplyImageUByteGreen:
-            tex->setFormat(GL_ALPHA);
+            tex->setFormat(TexTypeSingleChannel);
             tex->setSingleByteSource(WKSingleGreen);
             break;
         case MaplyImageUByteBlue:
-            tex->setFormat(GL_ALPHA);
+            tex->setFormat(TexTypeSingleChannel);
             tex->setSingleByteSource(WKSingleBlue);
             break;
         case MaplyImageUByteAlpha:
-            tex->setFormat(GL_ALPHA);
+            tex->setFormat(TexTypeSingleChannel);
             tex->setSingleByteSource(WKSingleAlpha);
             break;
         case MaplyImageUByteRGB:
-            tex->setFormat(GL_ALPHA);
+            tex->setFormat(TexTypeSingleChannel);
             tex->setSingleByteSource(WKSingleRGB);
             break;
     }
@@ -447,7 +447,7 @@ public:
             if (change)
             {
                 requiresFlush |= change->needsFlush();
-                change->setupGL(&glSetupInfo, scene->getMemManager());
+                change->setupForRenderer(sceneRender->getRenderSetupInfo());
                 changesToAdd.push_back(change);
             } else
                 // A NULL change request is just a flush request
@@ -676,7 +676,7 @@ public:
         if (currentThread != [NSThread mainThread])
             for (auto &change : theseChanges.changes) {
                 if (change)
-                    change->setupGL(&glSetupInfo, scene->getMemManager());
+                    change->setupForRenderer(sceneRender->getRenderSetupInfo());
             }
         scene->addChangeRequests(theseChanges.changes);
         perThreadChanges.erase(it);
@@ -1198,6 +1198,10 @@ public:
 // This happens if we're making OpenGL calls on a thread that doesn't have a context.
 - (EAGLContext *)setupTempContext:(MaplyThreadMode)threadMode
 {
+    SceneRendererGLES_iOS *sceneRenderGL = dynamic_cast<SceneRendererGLES_iOS *>(sceneRender);
+    if (!sceneRenderGL)
+        return nil;
+    
     threadMode = [self resolveThreadMode:threadMode];
 
     EAGLContext *tmpContext = nil;
@@ -1205,7 +1209,7 @@ public:
     // Use the renderer's context
     if (threadMode == MaplyThreadCurrent && [NSThread mainThread] == [NSThread currentThread])
     {
-        layerThread.renderer->useContext();
+        sceneRenderGL->useContext();
     }
     
     if (threadMode == MaplyThreadCurrent && ![EAGLContext currentContext])
@@ -1215,7 +1219,7 @@ public:
         // See if we need to create a new one
         if (tempContexts.empty())
         {
-            tmpContext = [[EAGLContext alloc] initWithAPI:layerThread.renderer->getContext().API sharegroup:layerThread.renderer->getContext().sharegroup];
+            tmpContext = [[EAGLContext alloc] initWithAPI:sceneRenderGL->getContext().API sharegroup:sceneRenderGL->getContext().sharegroup];
         } else {
             // We can use an existing one
             std::set<EAGLContext *>::iterator it = tempContexts.begin();
@@ -1231,7 +1235,11 @@ public:
 // This just releases the context, but we may want to keep a queue of these in future
 - (void)clearTempContext:(EAGLContext *)context
 {
-    if ([NSThread mainThread] == [NSThread currentThread] && context == layerThread.renderer->getContext())
+    SceneRendererGLES_iOS *sceneRenderGL = dynamic_cast<SceneRendererGLES_iOS *>(sceneRender);
+    if (!sceneRenderGL)
+        return;
+
+    if ([NSThread mainThread] == [NSThread currentThread] && context == sceneRenderGL->getContext())
     {
         [EAGLContext setCurrentContext:nil];
         return;

@@ -287,7 +287,7 @@ using namespace WhirlyKit;
     renderControl->sceneRenderer->setScene(renderControl->scene);
 
     // Set up a Font Texture Manager
-    fontTexManager = FontTextureManager_iOSRef(new FontTextureManager_iOS(renderControl->scene));
+    fontTexManager = FontTextureManager_iOSRef(new FontTextureManager_iOS(renderControl->sceneRenderer.get(),renderControl->scene));
     renderControl->scene->setFontTextureManager(fontTexManager);
 
     [self loadSetup_lighting];
@@ -309,7 +309,7 @@ using namespace WhirlyKit;
     [baseLayerThread addLayer:renderControl->interactLayer];
     
 	// Give the renderer what it needs
-	renderControl->sceneRenderer->theView = visualView.get();
+	renderControl->sceneRenderer->setView(visualView.get());
 	    
     viewTrackers = [NSMutableArray array];
     annotations = [NSMutableArray array];
@@ -421,23 +421,6 @@ using namespace WhirlyKit;
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
-    
-    if (renderControl && renderControl->scene)
-    {
-        WhirlyKit::OpenGLMemManager *memManager = renderControl->scene->getMemManager();
-        // We may retain a bit of memory here.  Clear it up.
-        if (memManager && renderControl->sceneRenderer)
-        {
-            EAGLContext *oldContext = [EAGLContext currentContext];
-            renderControl->sceneRenderer->useContext();
-
-            memManager->clearBufferIDs();
-            memManager->clearTextureIDs();
-            
-            if (oldContext)
-                [EAGLContext setCurrentContext:oldContext];
-        }
-    }
 }
 
 - (void)setFrameInterval:(int)frameInterval
@@ -456,10 +439,10 @@ static const float PerfOutputDelay = 15.0;
     _performanceOutput = performanceOutput;
     if (_performanceOutput)
     {
-        renderControl->sceneRenderer->perfInterval = 100;
+        renderControl->sceneRenderer->setPerfInterval(100);
         [self performSelector:@selector(periodicPerfOutput) withObject:nil afterDelay:PerfOutputDelay];
     } else {
-        renderControl->sceneRenderer->perfInterval = 0;
+        renderControl->sceneRenderer->setPerfInterval(0);
         [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(periodicPerfOutput) object:nil];
     }
 }
@@ -870,7 +853,7 @@ static const float PerfOutputDelay = 15.0;
     if (vpManage) {
         vpManage->addView(GeoCoord(viewTrack.loc.x,viewTrack.loc.y),Point2d(viewTrack.offset.x,viewTrack.offset.y),viewTrack.view,viewTrack.minVis,viewTrack.maxVis);
     }
-    renderControl->sceneRenderer->triggerDraw = true;
+    renderControl->sceneRenderer->setTriggerDraw();
     
     // And add it to the view hierarchy
     // Can only do this on the main thread anyway
@@ -884,7 +867,7 @@ static const float PerfOutputDelay = 15.0;
     if (vpManage) {
         vpManage->moveView(GeoCoord(newPos.x,newPos.y),Point2d(0,0),viewTrack.view,viewTrack.minVis,viewTrack.maxVis);
     }
-    renderControl->sceneRenderer->triggerDraw = true;
+    renderControl->sceneRenderer->setTriggerDraw();
 }
 
 /// Remove the view tracker associated with the given UIView
@@ -910,7 +893,7 @@ static const float PerfOutputDelay = 15.0;
             }
             if ([theTracker.view superview] == glView)
                 [theTracker.view removeFromSuperview];
-            renderControl->sceneRenderer->triggerDraw = true;
+            renderControl->sceneRenderer->setTriggerDraw();
         }
     }
 }
@@ -968,7 +951,7 @@ static const float PerfOutputDelay = 15.0;
             vpManage->addView(GeoCoord(coord.x,coord.y),Point2d(0,0),annotate.calloutView,annotate.minVis,annotate.maxVis);
         }
     }
-    renderControl->sceneRenderer->triggerDraw = true;
+    renderControl->sceneRenderer->setTriggerDraw();
 }
 
 // Delegate callback for annotation placement
@@ -1036,7 +1019,7 @@ static const float PerfOutputDelay = 15.0;
                 vpManage->unfreezeView(annotate.calloutView);
             }
     }
-    renderControl->sceneRenderer->triggerDraw = true;
+    renderControl->sceneRenderer->setTriggerDraw();
 }
 
 - (NSArray *)annotations

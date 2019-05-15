@@ -23,8 +23,7 @@
 #import <WhirlyGlobe_iOS.h>
 #import "MaplyShader_private.h"
 #import "MaplyRenderController_private.h"
-#import "GLUtils.h"
-#import "Texture_iOS.h"
+#import "TextureGLES_iOS.h"
 
 using namespace WhirlyKit;
 
@@ -32,7 +31,7 @@ using namespace WhirlyKit;
 {
     NSObject<MaplyRenderControllerProtocol> * __weak viewC;
     WhirlyKit::Scene *scene;
-    SceneRendererES_iOS *renderer;
+    SceneRendererGLES_iOS *renderer;
     NSString *buildError;
     EAGLContext *context;
     // Texture we created for use in this shader
@@ -91,7 +90,7 @@ using namespace WhirlyKit;
     return self;
 }
 
-- (instancetype)initWithProgram:(OpenGLES2Program *)program viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)baseViewC
+- (instancetype)initWithProgram:(Program *)program viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)baseViewC
 {
     if (!program)
         return nil;
@@ -132,7 +131,7 @@ using namespace WhirlyKit;
 
     EAGLContext *oldContext = [EAGLContext currentContext];
     [renderControl useGLContext];
-    _program = new OpenGLES2Program(nameStr,vertexStr,fragStr,(varyings.empty() ? NULL : &varyings));
+    _program = new ProgramGLES(nameStr,vertexStr,fragStr,(varyings.empty() ? NULL : &varyings));
     if (oldContext)
         [EAGLContext setCurrentContext:oldContext];
     
@@ -178,18 +177,17 @@ using namespace WhirlyKit;
     renderer->useContext();
     renderer->forceDrawNextFrame();
     
-    Texture *auxTex = new Texture_iOS([_name cStringUsingEncoding:NSASCIIStringEncoding],auxImage);
+    TextureGLES_iOS *auxTex = new TextureGLES_iOS([_name cStringUsingEncoding:NSASCIIStringEncoding],auxImage);
     if ([desc[kMaplyTexMinFilter] isEqualToString:kMaplyMinFilterNearest])
-        auxTex->setInterpType(GL_NEAREST);
+        auxTex->setInterpType(TexInterpNearest);
     else if ([desc[kMaplyTexMinFilter] isEqualToString:kMaplyMinFilterLinear])
-        auxTex->setInterpType(GL_LINEAR);
+        auxTex->setInterpType(TexInterpLinear);
     SimpleIdentity auxTexId = auxTex->getId();
-    auxTex->createInGL(scene->getMemManager());
-    GLuint glTexId = auxTex->getGLId();
+    auxTex->createInRenderer(renderer->getRenderSetupInfo());
     scene->addChangeRequest(new AddTextureReq(auxTex));
     if (_program)
     {
-        _program->setTexture(StringIndexer::getStringID([shaderAttrName cStringUsingEncoding:NSASCIIStringEncoding]), (int)glTexId);
+        _program->setTexture(StringIndexer::getStringID([shaderAttrName cStringUsingEncoding:NSASCIIStringEncoding]), auxTex);
     }
     
     texIDs.insert(auxTexId);
@@ -219,7 +217,7 @@ using namespace WhirlyKit;
     EAGLContext *oldContext = [EAGLContext currentContext];
     renderer->useContext();
     renderer->forceDrawNextFrame();
-    glUseProgram(_program->getProgram());
+    glUseProgram(((ProgramGLES *)_program)->getProgram());
     CheckGLError("MaplyShader::setUniformFloatNamed: glUseProgram");
 
     std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
@@ -239,8 +237,8 @@ using namespace WhirlyKit;
     EAGLContext *oldContext = [EAGLContext currentContext];
     renderer->useContext();
     renderer->forceDrawNextFrame();
-    glUseProgram(_program->getProgram());
-    
+    glUseProgram(((ProgramGLES *)_program)->getProgram());
+
     std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
     bool ret = _program->setUniform(StringIndexer::getStringID(name), val, idx);
     
@@ -258,7 +256,7 @@ using namespace WhirlyKit;
     EAGLContext *oldContext = [EAGLContext currentContext];
     renderer->useContext();
     renderer->forceDrawNextFrame();
-    glUseProgram(_program->getProgram());
+    glUseProgram(((ProgramGLES *)_program)->getProgram());
 
     std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
     bool ret = _program->setUniform(StringIndexer::getStringID(name), val);
@@ -277,7 +275,7 @@ using namespace WhirlyKit;
     EAGLContext *oldContext = [EAGLContext currentContext];
     renderer->useContext();
     renderer->forceDrawNextFrame();
-    glUseProgram(_program->getProgram());
+    glUseProgram(((ProgramGLES *)_program)->getProgram());
 
     std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
     Point2f val(x,y);
@@ -297,7 +295,7 @@ using namespace WhirlyKit;
     EAGLContext *oldContext = [EAGLContext currentContext];
     renderer->useContext();
     renderer->forceDrawNextFrame();
-    glUseProgram(_program->getProgram());
+    glUseProgram(((ProgramGLES *)_program)->getProgram());
 
     std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
     Point3f val(x,y,z);
@@ -317,7 +315,7 @@ using namespace WhirlyKit;
     EAGLContext *oldContext = [EAGLContext currentContext];
     renderer->useContext();
     renderer->forceDrawNextFrame();
-    glUseProgram(_program->getProgram());
+    glUseProgram(((ProgramGLES *)_program)->getProgram());
 
     std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
     Eigen::Vector4f val;
@@ -338,8 +336,8 @@ using namespace WhirlyKit;
     EAGLContext *oldContext = [EAGLContext currentContext];
     renderer->useContext();
     renderer->forceDrawNextFrame();
-    glUseProgram(_program->getProgram());
-    
+    glUseProgram(((ProgramGLES *)_program)->getProgram());
+
     std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
     Eigen::Vector4f val;
     val.x() = x;  val.y() = y;  val.z() = z;  val.w() = w;

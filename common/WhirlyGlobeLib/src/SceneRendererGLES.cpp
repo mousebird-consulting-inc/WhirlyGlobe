@@ -42,6 +42,10 @@ SceneRendererGLES::SceneRendererGLES()
     extraFrameMode = false;
     extraFrameMode = false;
 }
+    
+SceneRenderer::Type SceneRendererGLES::getType() {
+    return SceneRenderer::RenderGLES;
+}
 
 bool SceneRendererGLES::setup(int apiVersion,int sizeX,int sizeY)
 {

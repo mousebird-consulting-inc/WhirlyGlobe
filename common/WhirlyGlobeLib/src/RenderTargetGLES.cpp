@@ -103,7 +103,9 @@ void RenderTargetGLES::setTargetTexture(Scene *scene,SimpleIdentity targetTexID)
 
 void RenderTargetGLES::setTargetTexture(TextureBase *inTex)
 {
-    TextureBaseGLES *tex = (TextureBaseGLES *)inTex;
+    TextureBaseGLES *tex = dynamic_cast<TextureBaseGLES *>(inTex);
+    if (!tex)
+        return;
     
     if (framebuffer == 0) {
         glGenFramebuffers(1, &framebuffer);

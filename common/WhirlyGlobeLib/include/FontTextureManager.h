@@ -141,7 +141,7 @@ class FontTextureManager
 {
 public:
     // Construct with a scene
-    FontTextureManager(Scene *scene);
+    FontTextureManager(SceneRenderer *sceneRender,Scene *scene);
     virtual ~FontTextureManager();
     
     // Used to track the draw strings' representations in terms of fonts
@@ -182,6 +182,7 @@ protected:
 
     FontManagerSet fontManagers;
 
+    SceneRenderer *sceneRender;
     Scene *scene;
     DynamicTextureAtlas *texAtlas;
     DrawStringRepSet drawStringReps;

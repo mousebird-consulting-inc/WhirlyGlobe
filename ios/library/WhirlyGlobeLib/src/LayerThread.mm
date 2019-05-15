@@ -22,6 +22,7 @@
 #import "Scene.h"
 #import "GlobeView.h"
 #import "Platform.h"
+#import "SceneRendererGLES_iOS.h"
 
 using namespace WhirlyKit;
 
@@ -63,8 +64,12 @@ using namespace WhirlyKit;
         inRunAddChangeRequests = false;
         _viewWatcher = [[WhirlyKitLayerViewWatcher alloc] initWithView:inView thread:self];
         
-        // We'll create the context here and set it in the layer thread, always
-        _glContext = [[EAGLContext alloc] initWithAPI:_renderer->getContext().API sharegroup:_renderer->getContext().sharegroup];
+        if (_renderer->getType() == SceneRenderer::RenderGLES) {
+            SceneRendererGLES_iOS *renderGL = (SceneRendererGLES_iOS *)_renderer;
+
+            // We'll create the context here and set it in the layer thread, always
+            _glContext = [[EAGLContext alloc] initWithAPI:renderGL->getContext().API sharegroup:renderGL->getContext().sharegroup];
+        }
 
         thingsToRelease = [NSMutableArray array];
         threadsToShutdown = [NSMutableArray array];
@@ -212,7 +217,7 @@ using namespace WhirlyKit;
         if (change)
         {
             requiresFlush |= change->needsFlush();
-            change->setupGL(&glSetupInfo, _scene->getMemManager());
+            change->setupForRenderer(_renderer->getRenderSetupInfo());
             changesToAdd.push_back(changesToProcess[ii]);
         } else
             // A NULL change request is just a flush request
@@ -357,7 +362,7 @@ using namespace WhirlyKit;
         }
 
         // Tear the scene down.  It's unsafe to do it elsewhere
-        _scene->teardownGL();
+        _scene->teardown();
     } else {
         // Okay, we're shutting down, so release the existence lock
         existenceLock.unlock();
