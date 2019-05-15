@@ -19,6 +19,7 @@
  */
 
 #import "LineAndPointShaders.h"
+#import "ProgramGLES.h"
 
 namespace WhirlyKit
 {
@@ -63,9 +64,9 @@ void main()
 }
 )";
 
-WhirlyKit::OpenGLES2Program *BuildDefautLineShaderCulling(const std::string &name)
+Program *BuildDefautLineShaderCulling(const std::string &name)
 {
-    OpenGLES2Program *shader = new OpenGLES2Program(name,vertexShaderLine,fragmentShaderLine);
+    ProgramGLES *shader = new ProgramGLES(name,vertexShaderLine,fragmentShaderLine);
     if (!shader->isValid())
     {
         delete shader;
@@ -107,9 +108,9 @@ void main()
 }
 )";
 
-WhirlyKit::OpenGLES2Program *BuildDefaultLineShaderNoCulling(const std::string &name)
+Program *BuildDefaultLineShaderNoCulling(const std::string &name,SceneRenderer *sceneRender)
 {
-    OpenGLES2Program *shader = new OpenGLES2Program(name,vertexShaderLineNoBack,fragmentShaderLineNoBack);
+    ProgramGLES *shader = new ProgramGLES(name,vertexShaderLineNoBack,fragmentShaderLineNoBack);
     if (!shader->isValid())
     {
         delete shader;

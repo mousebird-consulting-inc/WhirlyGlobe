@@ -19,6 +19,7 @@
  */
 
 #import "TriangleShaders.h"
+#import "ProgramGLES.h"
 
 namespace WhirlyKit
 {
@@ -112,9 +113,9 @@ void main()
 )";
     
 // Triangle shader with lighting
-OpenGLES2Program *BuildDefaultTriShaderLighting(const std::string &name)
+Program *BuildDefaultTriShaderLighting(const std::string &name,SceneRenderer *sceneRender)
 {
-    OpenGLES2Program *shader = new OpenGLES2Program(name,vertexShaderTri,fragmentShaderTri);
+    ProgramGLES *shader = new ProgramGLES(name,vertexShaderTri,fragmentShaderTri);
     if (!shader->isValid())
     {
         delete shader;
@@ -172,9 +173,9 @@ void main()
 )";
     
 // Triangle shader without lighting
-OpenGLES2Program *BuildDefaultTriShaderNoLighting(const std::string &name)
+Program *BuildDefaultTriShaderNoLighting(const std::string &name,SceneRenderer *sceneRender)
 {
-    OpenGLES2Program *shader = new OpenGLES2Program(name,vertexShaderNoLightTri,fragmentShaderNoLightTri);
+    ProgramGLES *shader = new ProgramGLES(name,vertexShaderNoLightTri,fragmentShaderNoLightTri);
     if (!shader->isValid())
     {
         delete shader;
@@ -257,9 +258,9 @@ void main()
 )";
 
 // Triangle shader for models
-OpenGLES2Program *BuildDefaultTriShaderModel(const std::string &name)
+Program *BuildDefaultTriShaderModel(const std::string &name,SceneRenderer *sceneRender)
 {
-    OpenGLES2Program *shader = new OpenGLES2Program(name,vertexShaderModelTri,fragmentShaderTri);
+    ProgramGLES *shader = new ProgramGLES(name,vertexShaderModelTri,fragmentShaderTri);
     if (!shader->isValid())
     {
         delete shader;
@@ -341,9 +342,9 @@ void main()
 )";
     
 // Triangles with screen textures
-OpenGLES2Program *BuildDefaultTriShaderScreenTexture(const std::string &name)
+Program *BuildDefaultTriShaderScreenTexture(const std::string &name,SceneRenderer *sceneRender)
 {
-    OpenGLES2Program *shader = new OpenGLES2Program(name,vertexShaderScreenTexTri,fragmentShaderTri);
+    ProgramGLES *shader = new ProgramGLES(name,vertexShaderScreenTexTri,fragmentShaderTri);
     if (!shader->isValid())
     {
         delete shader;
@@ -453,9 +454,9 @@ void main()
 )";
     
 // Triangles with multiple textures
-OpenGLES2Program *BuildDefaultTriShaderMultitex(const std::string &name)
+Program *BuildDefaultTriShaderMultitex(const std::string &name,SceneRenderer *sceneRender)
 {
-    OpenGLES2Program *shader = new OpenGLES2Program(name,vertexShaderTriMultiTex,fragmentShaderTriMultiTex);
+    ProgramGLES *shader = new ProgramGLES(name,vertexShaderTriMultiTex,fragmentShaderTriMultiTex);
     if (!shader->isValid())
     {
         delete shader;
@@ -487,9 +488,9 @@ void main()
 )";
     
 // Triangles that use the ramp textures
-OpenGLES2Program *BuildDefaultTriShaderRamptex(const std::string &name)
+Program *BuildDefaultTriShaderRamptex(const std::string &name)
 {
-    OpenGLES2Program *shader = new OpenGLES2Program(name,vertexShaderTriMultiTex,fragmentShaderTriMultiTexRamp);
+    ProgramGLES *shader = new ProgramGLES(name,vertexShaderTriMultiTex,fragmentShaderTriMultiTexRamp);
     if (!shader->isValid())
     {
         delete shader;
@@ -588,9 +589,9 @@ void main()
 )";
     
 // Day/night support for triangles
-OpenGLES2Program *BuildDefaultTriShaderNightDay(const std::string &name)
+Program *BuildDefaultTriShaderNightDay(const std::string &name,SceneRenderer *sceneRender)
 {
-    OpenGLES2Program *shader = new OpenGLES2Program(name,vertexShaderTriNightDay,fragmentShaderTriNightDay);
+    ProgramGLES *shader = new ProgramGLES(name,vertexShaderTriNightDay,fragmentShaderTriNightDay);
     if (!shader->isValid())
     {
         delete shader;
