@@ -39,7 +39,6 @@ class BasicDrawableBuilder
 public:
     /// Construct empty
     BasicDrawableBuilder(const std::string &name);
-
     virtual ~BasicDrawableBuilder();
     
     /// Reserve the given amount of space (cuts down on reallocs)

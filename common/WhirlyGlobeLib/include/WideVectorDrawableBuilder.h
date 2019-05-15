@@ -62,17 +62,18 @@ public:
     void addNormal(const Point3d &norm);
     
     /// How often the texture repeats
-    void setTexRepeat(float inTexRepeat) { texRepeat = inTexRepeat; }
+    void setTexRepeat(float inTexRepeat);
     
     /// Number of pixels to interpolate at the edges
-    void setEdgeSize(float inEdgeSize) { edgeSize = inEdgeSize; }
+    void setEdgeSize(float inEdgeSize);
     
     /// Fix the width to a real world value, rather than letting it change
-    void setRealWorldWidth(double width) { realWidthSet = true;  realWidth = width; }
+    void setRealWorldWidth(double width);
 
     void setupTweaker(BasicDrawable *theDraw);
 
 protected:
+    float lineWidth;
     bool globeMode;
     bool realWidthSet;
     double realWidth;

@@ -520,6 +520,7 @@
 		2B8A78D1228B85CC008B0A1F /* ScreenSpaceBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B5F21F7E7DF0078A975 /* ScreenSpaceBuilder.cpp */; };
 		2B8A78D4228B8D5D008B0A1F /* WideVectorDrawableBuilderGLES.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B8A78D3228B8D5D008B0A1F /* WideVectorDrawableBuilderGLES.cpp */; };
 		2B8A78D5228B9041008B0A1F /* WideVectorManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1A21F158EB00EF2A82 /* WideVectorManager.cpp */; };
+		2B8A78D6228B93D1008B0A1F /* WideVectorDrawableBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B5A21F7E7DF0078A975 /* WideVectorDrawableBuilder.cpp */; };
 		2B8E608920D458A600FB96F0 /* MaplyQuadSampler_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8E608820D458A500FB96F0 /* MaplyQuadSampler_private.h */; };
 		2B8E608B20D47FEE00FB96F0 /* MaplyRemoteTileFetcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8E608A20D47FEE00FB96F0 /* MaplyRemoteTileFetcher.h */; };
 		2BA827C1225E57FA00324594 /* MapboxVectorTileParser_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA827C0225E57FA00324594 /* MapboxVectorTileParser_iOS.h */; };
@@ -4913,6 +4914,7 @@
 				2B446B1421F79AD00078A975 /* WhirlyGeometry.cpp in Sources */,
 				2B8A785D2284C3C0008B0A1F /* UtilsGLES.cpp in Sources */,
 				2B8796CE21FFC59D00EF801D /* Dictinary_NSDictionary.mm in Sources */,
+				2B8A78D6228B93D1008B0A1F /* WideVectorDrawableBuilder.cpp in Sources */,
 				2B8796D121FFC59D00EF801D /* NSDictionary+Stuff.m in Sources */,
 				2B82B6281E82E2490095FB14 /* geodesic.c in Sources */,
 				2B446B0F21F79AD00078A975 /* Tesselator.cpp in Sources */,

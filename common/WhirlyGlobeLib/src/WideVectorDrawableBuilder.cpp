@@ -18,10 +18,10 @@
  *
  */
 
-#import "WideVectorDrawable.h"
-#import "OpenGLES2Program.h"
+#import "WideVectorDrawableBuilder.h"
 #import "SceneRenderer.h"
 #import "FlatMath.h"
+#import "ProgramGLES.h"
 
 using namespace Eigen;
 
@@ -52,6 +52,7 @@ public:
             }
             float texScale = scale/(screenSize*texRepeat);
             frameInfo->program->setUniform(u_texScaleNameID, texScale);
+            // Note: Could do this elsewhere
             frameInfo->program->setUniform(u_colorNameID, Vector4f(color.r/255.0,color.g/255.0,color.b/255.0,color.a/255.0));
             
             // Note: This calculation is out of date with respect to the shader
@@ -86,8 +87,6 @@ public:
             //        }
         }
         
-        BasicDrawable::draw(frameInfo,scene);
-        
         //    for (unsigned int ii=0;ii<dirs.size();ii++)
         //    {
         //        double len = lens[ii];
@@ -100,6 +99,11 @@ public:
     }
     
     bool realWidthSet;
+    float realWidth;
+    float edgeSize;
+    float lineWidth;
+    float texRepeat;
+    RGBAColor color;
 };
     
 WideVectorDrawableBuilder::WideVectorDrawableBuilder()
@@ -123,7 +127,7 @@ void WideVectorDrawableBuilder::setup(unsigned int numVert,unsigned int numTri,b
     
     lineWidth = 10.0/1024.0;
     if (globeMode)
-        normalEntry = addAttribute(BDFloat3Type, StringIndexer::getStringID("a_normal"),numVert);
+        basicDraw->normalEntry = addAttribute(BDFloat3Type, StringIndexer::getStringID("a_normal"),numVert);
     p1_index = addAttribute(BDFloat3Type, StringIndexer::getStringID("a_p1"),numVert);
     tex_index = addAttribute(BDFloat4Type, StringIndexer::getStringID("a_texinfo"),numVert);
     n0_index = addAttribute(BDFloat3Type, StringIndexer::getStringID("a_n0"),numVert);
@@ -145,14 +149,14 @@ unsigned int WideVectorDrawableBuilder::addPoint(const Point3f &pt)
 #ifdef WIDEVECDEBUG
     locPts.push_back(pt);
 #endif
-    return BasicDrawable::addPoint(pt);
+    return BasicDrawableBuilder::addPoint(pt);
 }
     
 void WideVectorDrawableBuilder::addNormal(const Point3f &norm)
 {
     if (globeMode)
     {
-        BasicDrawable::addNormal(norm);
+        BasicDrawableBuilder::addNormal(norm);
     }
 }
 
@@ -160,7 +164,7 @@ void WideVectorDrawableBuilder::addNormal(const Point3d &norm)
 {
     if (globeMode)
     {
-        BasicDrawable::addNormal(norm);
+        BasicDrawableBuilder::addNormal(norm);
     }
 }
 
@@ -195,10 +199,15 @@ void WideVectorDrawableBuilder::add_c0(float val)
 #endif
 }
     
-WideVectorDrawableBuilder::setupTweaker(BasicDrawable *theDraw)
+void WideVectorDrawableBuilder::setupTweaker(BasicDrawable *theDraw)
 {
     WideVectorTweaker *tweak = new WideVectorTweaker();
     tweak->realWidthSet = false;
+    tweak->realWidth = realWidth;
+    tweak->edgeSize = edgeSize;
+    tweak->lineWidth = lineWidth;
+    tweak->texRepeat = texRepeat;
+    tweak->color = RGBAColor(255,255,255,255);
     theDraw->addTweaker(DrawableTweakerRef(tweak));
 }
 
@@ -334,9 +343,9 @@ void main()
 }
 )";
 
-WhirlyKit::OpenGLES2Program *BuildWideVectorProgram(const std::string &name)
+Program *BuildWideVectorProgram(const std::string &name)
 {
-    OpenGLES2Program *shader = new OpenGLES2Program(name,vertexShaderTri,fragmentShaderTriAlias);
+    ProgramGLES *shader = new ProgramGLES(name,vertexShaderTri,fragmentShaderTriAlias);
     if (!shader->isValid())
     {
         delete shader;
@@ -356,9 +365,9 @@ WhirlyKit::OpenGLES2Program *BuildWideVectorProgram(const std::string &name)
     return shader;
 }
 
-WhirlyKit::OpenGLES2Program *BuildWideVectorGlobeProgram(const std::string &name)
+Program *BuildWideVectorGlobeProgram(const std::string &name)
 {
-    OpenGLES2Program *shader = new OpenGLES2Program(name,vertexGlobeShaderTri,fragmentGlobeShaderTriAlias);
+    ProgramGLES *shader = new ProgramGLES(name,vertexGlobeShaderTri,fragmentGlobeShaderTriAlias);
     if (!shader->isValid())
     {
         delete shader;
