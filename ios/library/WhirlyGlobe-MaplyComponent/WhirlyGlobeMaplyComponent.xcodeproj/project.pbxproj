@@ -523,6 +523,10 @@
 		2B8A78D6228B93D1008B0A1F /* WideVectorDrawableBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B5A21F7E7DF0078A975 /* WideVectorDrawableBuilder.cpp */; };
 		2B8A78D7228B95C2008B0A1F /* LineAndPointShadersGLES.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BEDE105221CDC50008C7B74 /* LineAndPointShadersGLES.cpp */; };
 		2B8A78D8228B95C5008B0A1F /* TriangleShadersGLES.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BEDE106221CDC50008C7B74 /* TriangleShadersGLES.cpp */; };
+		2B8A78D9228B96BA008B0A1F /* SceneRendererGLES_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B8796E121FFD5B900EF801D /* SceneRendererGLES_iOS.mm */; };
+		2B8A78DA228B96BD008B0A1F /* EAGLView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B5621E82E2490095FB14 /* EAGLView.mm */; };
+		2B8A78DB228B9718008B0A1F /* FontTextureManager_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE1E75E2208F43A00815D9C /* FontTextureManager_iOS.mm */; };
+		2B8A78DC228B9725008B0A1F /* LayerThread.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B5B91E82E2490095FB14 /* LayerThread.mm */; };
 		2B8E608920D458A600FB96F0 /* MaplyQuadSampler_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8E608820D458A500FB96F0 /* MaplyQuadSampler_private.h */; };
 		2B8E608B20D47FEE00FB96F0 /* MaplyRemoteTileFetcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8E608A20D47FEE00FB96F0 /* MaplyRemoteTileFetcher.h */; };
 		2BA827C1225E57FA00324594 /* MapboxVectorTileParser_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA827C0225E57FA00324594 /* MapboxVectorTileParser_iOS.h */; };
@@ -4601,6 +4605,7 @@
 				2B8A78B4228A1610008B0A1F /* Drawable.cpp in Sources */,
 				2B8797152203B77900EF801D /* MaplyIconManager.mm in Sources */,
 				2BB8E1FF21FF93CB00154CDC /* MaplyView.cpp in Sources */,
+				2B8A78D9228B96BA008B0A1F /* SceneRendererGLES_iOS.mm in Sources */,
 				2B82B6881E82E24A0095FB14 /* pj_malloc.c in Sources */,
 				2B82B69F1E82E24A0095FB14 /* pj_param.c in Sources */,
 				2B82B64E1E82E2490095FB14 /* PJ_cc.c in Sources */,
@@ -4813,6 +4818,7 @@
 				2BE1E779220A6B6700815D9C /* MaplyVectorTileStyle.mm in Sources */,
 				2B8A78C6228B5D0A008B0A1F /* ParticleSystemDrawableBuilder.cpp in Sources */,
 				2B82B6B31E82E24A0095FB14 /* PJ_tcea.c in Sources */,
+				2B8A78DA228B96BD008B0A1F /* EAGLView.mm in Sources */,
 				2BE1E73C2208B8ED00815D9C /* MaplyDoubleTapDragDelegate.mm in Sources */,
 				2B82B69C1E82E24A0095FB14 /* PJ_omerc.c in Sources */,
 				2B8797232203BF7900EF801D /* MaplyComponentObject.mm in Sources */,
@@ -4844,6 +4850,7 @@
 				2BE5398D1D249BEF00B60FAD /* AABinaryStar.cpp in Sources */,
 				2B82B5FC1E82E2490095FB14 /* internalJSONNode.cpp in Sources */,
 				2B8A78D0228B832E008B0A1F /* ScreenSpaceDrawableBuilderGLES.cpp in Sources */,
+				2B8A78DC228B9725008B0A1F /* LayerThread.mm in Sources */,
 				2BC3D6D9220B51C500CE91D0 /* MaplyRenderTarget.mm in Sources */,
 				2BE53A371D249C3D00B60FAD /* gzip_stream.cc in Sources */,
 				2B82B6671E82E24A0095FB14 /* pj_gauss.c in Sources */,
@@ -4917,6 +4924,7 @@
 				2B446B1421F79AD00078A975 /* WhirlyGeometry.cpp in Sources */,
 				2B8A785D2284C3C0008B0A1F /* UtilsGLES.cpp in Sources */,
 				2B8796CE21FFC59D00EF801D /* Dictinary_NSDictionary.mm in Sources */,
+				2B8A78DB228B9718008B0A1F /* FontTextureManager_iOS.mm in Sources */,
 				2B8A78D6228B93D1008B0A1F /* WideVectorDrawableBuilder.cpp in Sources */,
 				2B8796D121FFC59D00EF801D /* NSDictionary+Stuff.m in Sources */,
 				2B82B6281E82E2490095FB14 /* geodesic.c in Sources */,

@@ -19,11 +19,11 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "SceneRendererES_iOS.h"
+#import "SceneRendererGLES_iOS.h"
 
 namespace WhirlyKit {
     
-SceneRendererES_iOS::SceneRendererES_iOS()
+SceneRendererGLES_iOS::SceneRendererGLES_iOS()
     : layer(nil), context(nil), snapshotDelegate(nil)
 {
     int version = kEAGLRenderingAPIOpenGLES3;
@@ -42,7 +42,7 @@ SceneRendererES_iOS::SceneRendererES_iOS()
     [EAGLContext setCurrentContext:oldContext];
 }
     
-SceneRendererES_iOS::SceneRendererES_iOS(int width,int height)
+SceneRendererGLES_iOS::SceneRendererGLES_iOS(int width,int height)
 {
     int version = kEAGLRenderingAPIOpenGLES3;
     
@@ -60,7 +60,7 @@ SceneRendererES_iOS::SceneRendererES_iOS(int width,int height)
     [EAGLContext setCurrentContext:oldContext];
 }
     
-SceneRendererES_iOS::~SceneRendererES_iOS()
+SceneRendererGLES_iOS::~SceneRendererGLES_iOS()
 {
     EAGLContext *oldContext = [EAGLContext currentContext];
     [EAGLContext setCurrentContext:context];
@@ -74,19 +74,19 @@ SceneRendererES_iOS::~SceneRendererES_iOS()
     [EAGLContext setCurrentContext:oldContext];
 }
     
-EAGLContext *SceneRendererES_iOS::getContext()
+EAGLContext *SceneRendererGLES_iOS::getContext()
 {
     return context;
 }
 
-void SceneRendererES_iOS::useContext()
+void SceneRendererGLES_iOS::useContext()
 {
     if (!context)
         return;
     [EAGLContext setCurrentContext:context];
 }
 
-void SceneRendererES_iOS::defaultTargetInit(RenderTarget *renderTarget)
+void SceneRendererGLES_iOS::defaultTargetInit(RenderTarget *renderTarget)
 {
     if (!layer)
         return;
@@ -95,12 +95,12 @@ void SceneRendererES_iOS::defaultTargetInit(RenderTarget *renderTarget)
         NSLog(@"SceneRendererES: Failure in renderbufferStorage");
 }
     
-void SceneRendererES_iOS::setLayer(CAEAGLLayer *inLayer)
+void SceneRendererGLES_iOS::setLayer(CAEAGLLayer *inLayer)
 {
     layer = inLayer;
 }
     
-void SceneRendererES_iOS::presentRender()
+void SceneRendererGLES_iOS::presentRender()
 {
     if (!layer)
         return;
@@ -108,12 +108,12 @@ void SceneRendererES_iOS::presentRender()
     [context presentRenderbuffer:GL_RENDERBUFFER];
 }
 
-void SceneRendererES_iOS::setSnapshotDelegate(NSObject<WhirlyKitSnapshot> *newDelegate)
+void SceneRendererGLES_iOS::setSnapshotDelegate(NSObject<WhirlyKitSnapshot> *newDelegate)
 {
     snapshotDelegate = newDelegate;
 }
 
-void SceneRendererES_iOS::snapshotCallback()
+void SceneRendererGLES_iOS::snapshotCallback()
 {
     // The user wants help with a screen snapshot
     if (snapshotDelegate)

@@ -27,7 +27,7 @@ using namespace WhirlyKit;
 
 @implementation WhirlyKitLayerThread
 {
-    GLSetupInfo glSetupInfo;
+    RenderSetupInfo *setupInfo;
     /// The various data layers we'll display
     NSMutableArray *layers;
     
@@ -55,8 +55,7 @@ using namespace WhirlyKit;
 {
 	if ((self = [super init]))
 	{
-        glSetupInfo.glesVersion = inRenderer->glesVersion;
-        glSetupInfo.minZres = inView->calcZbufferRes();
+        setupInfo = inRenderer->getRenderSetupInfo();
         _mainLayerThread = mainLayerThread;
 		_scene = inScene;
         _renderer = inRenderer;
@@ -70,9 +69,6 @@ using namespace WhirlyKit;
         thingsToRelease = [NSMutableArray array];
         threadsToShutdown = [NSMutableArray array];
         
-        WhirlyKit::WhirlyKitGLSetupInfo glSetupInfo;
-        glSetupInfo.minZres = inView->calcZbufferRes();
-        glSetupInfo.glesVersion = inRenderer->getContext().API;
         _allowFlush = true;
         
         pauseLock = [[NSCondition alloc] init];
