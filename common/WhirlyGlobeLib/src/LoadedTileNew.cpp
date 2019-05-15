@@ -128,7 +128,8 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
     // Note: Make this flexible
     chunk->setupTexCoordEntry(0, 0);
     
-    changes.push_back(new AddDrawableReq(chunk->getDrawable()));
+    std::vector<BasicDrawableBuilderRef> drawables;
+    drawables.push_back(chunk);
     if (geomSettings.useTileCenters)
         chunk->setMatrix(&transMat);
     
@@ -139,7 +140,6 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
     chunk->setLocalMbr(Mbr(Point2f(geoLL.x(),geoLL.y()),Point2f(geoUR.x(),geoUR.y())));
     chunk->setProgram(geomSettings.programID);
     chunk->setOnOff(false);
-    drawInfo.push_back(DrawableInfo(DrawableGeom,chunk->getDrawable()->getId(),chunk->getDrawable()->getDrawPriority()));
 
     // Might need another drawable for poles
     bool separatePoleChunk = false;
@@ -148,7 +148,7 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
     {
         poleChunk = sceneRender->makeBasicDrawableBuilder("LoadedTileNew poleChunk");
         poleChunk->setupTexCoordEntry(0, 0);
-        changes.push_back(new AddDrawableReq(poleChunk->getDrawable()));
+        drawables.push_back(poleChunk);
         if (geomSettings.useTileCenters)
             poleChunk->setMatrix(&transMat);
         poleChunk->setType(Triangles);
@@ -158,7 +158,6 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
         poleChunk->setLocalMbr(Mbr(Point2f(geoLL.x(),geoLL.y()),Point2f(geoUR.x(),geoUR.y())));
         poleChunk->setProgram(geomSettings.programID);
         poleChunk->setOnOff(false);
-        drawInfo.push_back(DrawableInfo(DrawablePole,poleChunk->getDrawable()->getId(),poleChunk->getDrawable()->getDrawPriority()));
         separatePoleChunk = true;
     } else
         poleChunk = chunk;
@@ -264,7 +263,7 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
         {
             // We'll set up and fill in the drawable
             BasicDrawableBuilderRef skirtChunk = sceneRender->makeBasicDrawableBuilder("LoadedTileNew SkirtChunk");
-            changes.push_back(new AddDrawableReq(skirtChunk->getDrawable()));
+            drawables.push_back(skirtChunk);
             if (geomSettings.useTileCenters)
                 skirtChunk->setMatrix(&transMat);
             // We hardwire this to appear after the atmosphere.  A bit hacky.
@@ -278,7 +277,6 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
             skirtChunk->setRequestZBuffer(true);
             skirtChunk->setProgram(geomSettings.programID);
             skirtChunk->setOnOff(false);
-            drawInfo.push_back(DrawableInfo(DrawableSkirt,skirtChunk->getDrawable()->getId(),skirtChunk->getDrawable()->getDrawPriority()));
 
             // We'll vary the skirt size a bit.  Otherwise the fill gets ridiculous when we're looking
             //  at the very highest levels.  On the other hand, this doesn't fix a really big large/small
@@ -409,6 +407,11 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
                 }
             }
         }
+    }
+    
+    for (auto draw : drawables) {
+        drawInfo.push_back(DrawableInfo(DrawableGeom,draw->getDrawable()->getId(),draw->getDrawable()->getDrawPriority()));
+        changes.push_back(new AddDrawableReq(draw->getDrawable()));
     }
 }
     

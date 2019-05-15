@@ -115,11 +115,11 @@ WideVectorDrawableBuilder::~WideVectorDrawableBuilder()
 {
 }
     
-void WideVectorDrawableBuilder::setup(unsigned int numVert,unsigned int numTri,bool inGlobeMode)
+void WideVectorDrawableBuilder::Init(unsigned int numVert,unsigned int numTri,bool inGlobeMode)
 {
     globeMode = inGlobeMode;
     
-    Init();
+    BasicDrawableBuilder::Init();
     // Don't want standard attributes
     
     points.reserve(numVert);

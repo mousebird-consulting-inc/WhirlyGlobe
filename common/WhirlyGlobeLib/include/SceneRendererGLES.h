@@ -63,6 +63,7 @@ public:
     virtual const RenderSetupInfo *getRenderSetupInfo() const;
     
     virtual void setView(View *newView);
+    virtual void setScene(Scene *newScene);
 
     /// Called right after the constructor
     virtual bool setup(int apiVersion,int sizeX,int sizeY);

@@ -204,11 +204,13 @@ public:
     virtual void setupTexCoordEntry(int which,int numReserve);
 
 protected:
+    std::string name;
+    
     // This version is only used by subclasses
     BasicDrawableBuilder();
     void setName(const std::string &name);
     // Used by subclasses to do the standard init
-    void Init();
+    virtual void Init();
     // Set up the standard vertex attributes we use
     virtual void setupStandardAttributes(int numReserve=0);
     

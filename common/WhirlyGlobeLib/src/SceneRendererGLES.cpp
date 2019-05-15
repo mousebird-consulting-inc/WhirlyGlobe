@@ -121,7 +121,15 @@ bool SceneRendererGLES::setup(int apiVersion,int sizeX,int sizeY)
     
 void SceneRendererGLES::setView(View *newView)
 {
+    SceneRenderer::setView(newView);
     setupInfo.minZres = newView->calcZbufferRes();
+}
+    
+void SceneRendererGLES::setScene(Scene *newScene)
+{
+    SceneRenderer::setScene(newScene);
+    SceneGLES *sceneGL = (SceneGLES *)newScene;
+    setupInfo.memManager = sceneGL->getMemManager();
 }
     
 bool SceneRendererGLES::resize(int sizeX,int sizeY)

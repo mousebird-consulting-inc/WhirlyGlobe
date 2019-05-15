@@ -26,7 +26,6 @@ namespace WhirlyKit
 BillboardDrawableBuilderGLES::BillboardDrawableBuilderGLES(const std::string &name)
 : BasicDrawableBuilderGLES(name)
 {
-    setup();
 }
     
 int BillboardDrawableBuilderGLES::addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings)

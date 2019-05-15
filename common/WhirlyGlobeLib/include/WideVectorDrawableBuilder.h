@@ -46,7 +46,7 @@ public:
     WideVectorDrawableBuilder();
     ~WideVectorDrawableBuilder();
 
-    void setup(unsigned int numVert,unsigned int numTri,bool globeMode);
+    void Init(unsigned int numVert,unsigned int numTri,bool globeMode);
     
     virtual unsigned int addPoint(const Point3f &pt);
     // Next point, for calculating p1 - p0

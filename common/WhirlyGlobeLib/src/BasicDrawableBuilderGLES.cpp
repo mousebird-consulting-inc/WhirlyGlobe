@@ -29,6 +29,8 @@ BasicDrawableBuilderGLES::BasicDrawableBuilderGLES(const std::string &name)
     : BasicDrawableBuilder(name), drawableGotten(false)
 {
     basicDraw = new BasicDrawableGLES(name);
+    BasicDrawableBuilder::Init();
+    setupStandardAttributes();
 }
     
 BasicDrawableBuilderGLES::~BasicDrawableBuilderGLES()

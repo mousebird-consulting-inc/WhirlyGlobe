@@ -31,10 +31,8 @@ BasicDrawableBuilder::BasicDrawableBuilder()
 }
     
 BasicDrawableBuilder::BasicDrawableBuilder(const std::string &name)
+    : name(name)
 {
-    Init();
-    setupStandardAttributes();
-    basicDraw->name = name;
 }
     
 void BasicDrawableBuilder::setName(const std::string &name)
@@ -50,6 +48,7 @@ void BasicDrawableBuilder::reserve(int numVert,int numTri)
     
 void BasicDrawableBuilder::Init()
 {
+    basicDraw->name = name;
     basicDraw->colorEntry = -1;
     basicDraw->normalEntry = -1;
     

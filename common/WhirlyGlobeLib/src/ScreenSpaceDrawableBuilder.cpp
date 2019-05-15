@@ -53,11 +53,11 @@ ScreenSpaceDrawableBuilder::ScreenSpaceDrawableBuilder()
 {
 }
 
-void ScreenSpaceDrawableBuilder::setup(bool hasMotion,bool hasRotation)
+void ScreenSpaceDrawableBuilder::Init(bool hasMotion,bool hasRotation)
 {
-    Init();
+    BasicDrawableBuilder::Init();
     setupStandardAttributes();
-    
+
     offsetIndex = addAttribute(BDFloat2Type, a_offsetNameID);
     if (hasRotation)
         rotIndex = addAttribute(BDFloat3Type, a_rotNameID);

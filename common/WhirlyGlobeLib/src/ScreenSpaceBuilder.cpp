@@ -75,7 +75,7 @@ ScreenSpaceBuilder::DrawableWrap::DrawableWrap(SceneRenderer *render,const Drawa
     : state(state), center(0,0,0)
 {
     locDraw = render->makeScreenSpaceDrawableBuilder("ScreenSpace Builder");
-    locDraw->setup(state.motion,state.rotation);
+    locDraw->Init(state.motion,state.rotation);
     locDraw->setType(Triangles);
     // A max of two textures per
     for (unsigned int ii=0;ii<state.texIDs.size() && ii<2;ii++)

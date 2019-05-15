@@ -27,7 +27,8 @@ namespace WhirlyKit
 {
     
 BasicDrawableGLES::BasicDrawableGLES(const std::string &name)
-: BasicDrawable(name)
+: BasicDrawable(name), isSetupGL(false), usingBuffers(false), vertexSize(-1),
+    pointBuffer(0), triBuffer(0), sharedBuffer(0), vertArrayObj(0)
 {
 }
 

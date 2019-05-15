@@ -122,12 +122,13 @@ bool TextureGLES::createInRenderer(const RenderSetupInfo *inSetupInfo)
     glBindTexture(GL_TEXTURE_2D, glId);
     CheckGLError("Texture::createInGL() glBindTexture()");
     
+    GLenum interTypeGL = (interpType == TexInterpNearest) ? GL_NEAREST : GL_LINEAR;
     // Set the texture parameters to use a minifying filter and a linear filter (weighted average)
     if (usesMipmaps)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
     else
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, interpType);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, interpType);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, interTypeGL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, interTypeGL);
     
     CheckGLError("Texture::createInGL() glTexParameteri()");
     

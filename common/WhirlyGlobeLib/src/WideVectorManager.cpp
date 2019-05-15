@@ -524,7 +524,7 @@ public:
             int ptAlloc = std::min(std::max(ptCountAllocate,0),(int)MaxDrawablePoints);
             int triAlloc = std::min(std::max(triCountAllocate,0),(int)MaxDrawableTriangles);
             WideVectorDrawableBuilderRef wideDrawable = sceneRender->makeWideVectorDrawableBuilder("Wide Vector");
-            wideDrawable->setup(ptAlloc,triAlloc,!scene->getCoordAdapter()->isFlat());
+            wideDrawable->Init(ptAlloc,triAlloc,!scene->getCoordAdapter()->isFlat());
             drawable = wideDrawable;
             wideDrawable->setTexRepeat(vecInfo->repeatSize);
             wideDrawable->setEdgeSize(vecInfo->edgeSize);
