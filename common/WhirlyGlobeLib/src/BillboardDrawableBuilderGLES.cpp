@@ -1,8 +1,8 @@
 /*
- *  WideVectorDrawableBuilderGLES.cpp
+ *  BillboardDrawableInstanceBuilderGLES.cpp
  *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 5/14/19.
+ *  Created by Steve Gifford on 5/15/19.
  *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,30 +18,26 @@
  *
  */
 
-#import "WideVectorDrawableBuilderGLES.h"
+#import "BillboardDrawableBuilderGLES.h"
 
 namespace WhirlyKit
 {
-
-WideVectorDrawableBuilderGLES::WideVectorDrawableBuilderGLES(const std::string &name)
+    
+BillboardDrawableBuilderGLES::BillboardDrawableBuilderGLES(const std::string &name)
 : BasicDrawableBuilderGLES(name)
 {
+    setup();
 }
     
-int WideVectorDrawableBuilderGLES::addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings)
+int BillboardDrawableBuilderGLES::addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings)
 {
     return BasicDrawableBuilderGLES::addAttribute(dataType, nameID, numThings);
 }
-    
-BasicDrawable *WideVectorDrawableBuilderGLES::getDrawable()
+
+BasicDrawable *BillboardDrawableBuilderGLES::getDrawable()
 {
-    if (drawableGotten)
-        return BasicDrawableBuilderGLES::getDrawable();
-    
-    BasicDrawable *theDraw = getDrawable();
-    setupTweaker(theDraw);
-    
-    return theDraw;
+    return BasicDrawableBuilderGLES::getDrawable();
 }
-    
+
 }
+

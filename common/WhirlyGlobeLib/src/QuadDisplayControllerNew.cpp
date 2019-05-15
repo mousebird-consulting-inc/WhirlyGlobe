@@ -53,6 +53,11 @@ Scene *QuadDisplayControllerNew::getScene()
 {
     return scene;
 }
+    
+SceneRenderer *QuadDisplayControllerNew::getRenderer()
+{
+    return renderer;
+}
 
 QuadTreeNew *QuadDisplayControllerNew::getQuadTree()
 {

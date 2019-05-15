@@ -32,7 +32,7 @@
 {
 @public
     WhirlyKit::View *visualView;
-    WhirlyKit::RenderSetupInfo *setupInfo;
+    const WhirlyKit::RenderSetupInfo *setupInfo;
 
     // Layer thread we're part of
     WhirlyKitLayerThread * __weak layerThread;

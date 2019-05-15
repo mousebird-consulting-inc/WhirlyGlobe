@@ -1,8 +1,8 @@
 /*
- *  ScreenSpaceDrawableBuilderGLES.h
+ *  ChangeRequest.cpp
  *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 5/14/19.
+ *  Created by Steve Gifford on 5/8/19.
  *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,23 +18,21 @@
  *
  */
 
-#import "ScreenSpaceDrawableBuilder.h"
-#import "BasicDrawableBuilderGLES.h"
+#import "ChangeRequest.h"
 
 namespace WhirlyKit
 {
-    
-/** OpenGL version of ScreenSpaceDrawable Builder
- */
-class ScreenSpaceDrawableBuilderGLES : public BasicDrawableBuilderGLES, public ScreenSpaceDrawableBuilder
-{
-public:
-    ScreenSpaceDrawableBuilderGLES(const std::string &name);
-    
-    virtual int addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings = -1);
 
-    /// Fill out and return the drawable
-    virtual BasicDrawable *getDrawable();
-};
-    
+ChangeRequest::ChangeRequest() : when(0.0) { }
+
+ChangeRequest::~ChangeRequest()
+{
+}
+
+bool ChangeRequest::needsFlush() { return false; }
+
+void ChangeRequest::setupForRenderer(const RenderSetupInfo *) { }
+
+bool ChangeRequest::needPreExecute() { return false; }
+
 }

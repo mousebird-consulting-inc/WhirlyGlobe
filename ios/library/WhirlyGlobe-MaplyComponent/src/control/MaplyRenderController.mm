@@ -557,7 +557,7 @@ using namespace Eigen;
     bool isGlobe = !scene->getCoordAdapter()->isFlat();
 
     // Default line shaders
-    Program *defaultLineShader = BuildDefautLineShaderCulling([kMaplyShaderDefaultLine cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get());
+    Program *defaultLineShader = BuildDefaultLineShaderCulling([kMaplyShaderDefaultLine cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get());
     Program *defaultLineShaderNoBack = BuildDefaultLineShaderNoCulling([kMaplyShaderDefaultLineNoBackface cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get());
     if (isGlobe)
         [self addShader:kMaplyShaderDefaultLine program:defaultLineShader];

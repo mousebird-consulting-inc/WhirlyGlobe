@@ -42,10 +42,10 @@ public:
     BasicDrawableGLES(const std::string &name);
     
     /// Set up local rendering structures (e.g. VBOs)
-    virtual void setupForRenderer(RenderSetupInfo *setupInfo);
+    virtual void setupForRenderer(const RenderSetupInfo *setupInfo);
     
     /// Clean up any rendering objects you may have (e.g. VBOs).
-    virtual void teardownForRenderer(RenderSetupInfo *setupInfo);
+    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo);
     
     /// Called render-thread side to set up a VAO
     virtual GLuint setupVAO(ProgramGLES *prog);

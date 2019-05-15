@@ -104,10 +104,10 @@ public:
     void setContinuousUpdate(bool newVal);
     
     /// Create our buffers in GL
-    virtual void setupForRenderer(RenderSetupInfo *) = 0;
+    virtual void setupForRenderer(const RenderSetupInfo *) = 0;
 
     /// Destroy GL buffers
-    virtual void teardownForRenderer(RenderSetupInfo *setupInfo) = 0;
+    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo) = 0;
 
     /// Particles can calculate their positions
     void calculate(RendererFrameInfo *frameInfo,Scene *scene) = 0;
@@ -129,7 +129,7 @@ public:
     };
     
     /// Add a batch for rendering later
-    virtual void addAttributeData(RenderSetupInfo *setupInfo,const std::vector<AttributeData> &attrData,const Batch &batch) = 0;
+    virtual void addAttributeData(const RenderSetupInfo *setupInfo,const std::vector<AttributeData> &attrData,const Batch &batch) = 0;
     
     /// Look for an empty batch to reuse
     bool findEmptyBatch(Batch &retBatch);

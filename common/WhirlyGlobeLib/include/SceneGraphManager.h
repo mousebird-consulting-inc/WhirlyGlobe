@@ -141,7 +141,7 @@ protected:
     SceneGraphNodeSet allNodes;
     
     // All the drawables in the scenegraph (only used if we're not in atlas mode)
-    std::set<BasicDrawable *,IdentifiableSorter> drawables;
+    std::map<SimpleIdentity,BasicDrawableRef> drawables;
     
     // Drawables that are currently being drawn
     SimpleIDSet activeDrawIDs;    

@@ -38,13 +38,13 @@ public:
     ParticleSystemDrawableGLES(const std::string &name);
     
     /// Add the vertex data (all of it) at once
-    void addAttributeData(RenderSetupInfo *setupInfo,const std::vector<AttributeData> &attrData,const Batch &batch);
+    void addAttributeData(const RenderSetupInfo *setupInfo,const std::vector<AttributeData> &attrData,const Batch &batch);
 
     /// Create our buffers in GL
-    virtual void setupForRenderer(RenderSetupInfo *);
+    virtual void setupForRenderer(const RenderSetupInfo *);
     
     /// Destroy GL buffers
-    virtual void teardownForRenderer(RenderSetupInfo *setupInfo);
+    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo);
 
     /// Particles can calculate their positions
     void calculate(RendererFrameInfo *frameInfo,Scene *scene);

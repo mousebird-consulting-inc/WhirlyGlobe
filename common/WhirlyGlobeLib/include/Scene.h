@@ -56,7 +56,7 @@ public:
     virtual bool needsFlush() { return true; }
     
     /// Create the texture on its native thread
-    virtual void setupForRenderer(RenderSetupInfo *setupInfo);
+    virtual void setupForRenderer(const RenderSetupInfo *setupInfo);
 
 	/// Add to the renderer.  Never call this.
 	void execute(Scene *scene,SceneRenderer *renderer,View *view);
@@ -98,7 +98,7 @@ public:
     virtual bool needsFlush() { return true; }
     
     /// Create the drawable on its native thread
-    virtual void setupForRenderer(RenderSetupInfo *);
+    virtual void setupForRenderer(const RenderSetupInfo *);
 
 	/// Add to the renderer.  Never call this
 	void execute(Scene *scene,SceneRenderer *renderer,View *view);
@@ -318,7 +318,7 @@ public:
     void setDisplayAdapter(CoordSystemDisplayAdapter *newCoordAdapter);
     
     /// Passed around to setup and teardown renderer assets
-    RenderSetupInfo *setupInfo;
+    const RenderSetupInfo *setupInfo;
     
     std::mutex coordAdapterLock;
     /// The coordinate system display adapter converts from the local space

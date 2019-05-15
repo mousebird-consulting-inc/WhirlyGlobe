@@ -28,6 +28,10 @@ ParticleSystemDrawableBuilder::ParticleSystemDrawableBuilder(const std::string &
 {    
 }
     
+ParticleSystemDrawableBuilder::~ParticleSystemDrawableBuilder()
+{    
+}
+    
 void ParticleSystemDrawableBuilder::setup(const std::vector<SingleVertexAttributeInfo> &inVertAttrs,
                                            const std::vector<SingleVertexAttributeInfo> &inVaryAttrs,
                                            int numTotalPoints,int batchSize,bool useRectangles,bool useInstancing)

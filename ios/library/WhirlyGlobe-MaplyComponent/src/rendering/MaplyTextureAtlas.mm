@@ -54,7 +54,7 @@ typedef std::set<SubTexToAtlas> SubTexToAtlasSet;
     int atlasSize;
 }
 
-- (instancetype)initWithScene:(WhirlyKit::Scene *)inScene render:(SceneRenderer *)inSceneRender
+- (instancetype)initWithScene:(WhirlyKit::Scene *)inScene sceneRender:(SceneRenderer *)inSceneRender
 {
     self = [super init];
     if (!self)
@@ -109,7 +109,7 @@ typedef std::set<SubTexToAtlas> SubTexToAtlasSet;
         // Make up a new texture atlas
         if (!foundAtlas)
         {
-            foundAtlas = new DynamicTextureAtlas(atlasSize,16,tex->getFormat());
+            foundAtlas = new DynamicTextureAtlas("Maply Texture Atlas",atlasSize,16,tex->getFormat());
             atlases.insert(foundAtlas);
             if (foundAtlas->addTexture(sceneRender,texs, -1, NULL, NULL, subTex, changes, 0))
                 scene->addSubTexture(subTex);

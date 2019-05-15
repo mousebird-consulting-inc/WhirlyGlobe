@@ -55,9 +55,40 @@ unsigned int BasicDrawableGLES::singleVertexSize()
     
     return singleVertSize;
 }
+    
+// Adds the basic vertex data to an interleaved vertex buffer
+void BasicDrawableGLES::addPointToBuffer(unsigned char *basePtr,int which,const Point3d *center)
+{
+    if (!points.empty())
+    {
+        Point3f &pt = points[which];
+        
+        // If there's a center, we have to offset everything first
+        if (center)
+        {
+            Vector4d pt3d;
+            if (hasMatrix)
+                pt3d = mat * Vector4d(pt.x(),pt.y(),pt.z(),1.0);
+            else
+                pt3d = Vector4d(pt.x(),pt.y(),pt.z(),1.0);
+            Point3f newPt(pt3d.x()-center->x(),pt3d.y()-center->y(),pt3d.z()-center->z());
+            memcpy(basePtr+pointBuffer, &newPt.x(), 3*sizeof(GLfloat));
+        } else {
+            // Otherwise, copy it straight in
+            memcpy(basePtr+pointBuffer, &pt.x(), 3*sizeof(GLfloat));
+        }
+    }
+    
+    for (VertexAttribute *attr : vertexAttributes)
+    {
+        VertexAttributeGLES *theAttr = (VertexAttributeGLES *)attr;
+        if (attr->numElements() != 0)
+            memcpy(basePtr+theAttr->buffer, attr->addressForElement(which), attr->size());
+    }
+}
 
 // Create VBOs and such
-void BasicDrawableGLES::setupForRenderer(RenderSetupInfo *inSetupInfo)
+void BasicDrawableGLES::setupForRenderer(const RenderSetupInfo *inSetupInfo)
 {
     RenderSetupInfoGLES *setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
     
@@ -152,7 +183,7 @@ void BasicDrawableGLES::setupForRenderer(RenderSetupInfo *inSetupInfo)
 }
 
 // Tear down the VBOs we set up
-void BasicDrawableGLES::teardownForRenderer(RenderSetupInfo *inSetupInfo)
+void BasicDrawableGLES::teardownForRenderer(const RenderSetupInfo *inSetupInfo)
 {
     RenderSetupInfoGLES *setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
     
@@ -246,6 +277,11 @@ GLuint BasicDrawableGLES::setupVAO(ProgramGLES *prog)
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     
     return theVertArrayObj;
+}
+    
+bool BasicDrawableGLES::isSetupInGL()
+{
+    return isSetupGL;
 }
 
 // Draw Vertex Buffer Objects, OpenGL 2.0+

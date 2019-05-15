@@ -164,14 +164,7 @@ public:
 
     /// Update anything associated with the renderer.  Probably renderUntil.
     virtual void updateRenderer(SceneRenderer *renderer);
-    
-    /// Do any initialization you may want.
-    /// For instance, set up VBOs.
-    virtual void setupForRenderer(RenderSetupInfo *setupInfo);
-    
-    /// Clean up any rendering objects you may have (e.g. VBOs).
-    virtual void teardownForRenderer(RenderSetupInfo *setupInfo);
-    
+        
     /// If present, we'll do a pre-render calculation pass with this program set
     virtual SimpleIdentity getCalculationProgram() const;
     
@@ -183,7 +176,7 @@ public:
     void setProgram(SimpleIdentity progId);
 
     /// Set up what you need in the way of context and draw.
-    virtual void draw(RendererFrameInfo *frameInfo,Scene *scene);
+    virtual void draw(RendererFrameInfo *frameInfo,Scene *scene) = 0;
     
 public:
     GeometryType type;

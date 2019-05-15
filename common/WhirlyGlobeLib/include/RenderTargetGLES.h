@@ -53,10 +53,7 @@ public:
     
     /// Make this framebuffer active
     void setActiveFramebuffer(SceneRendererGLES *renderer);
-    
-    /// Set up the target texture
-    void setTargetTexture(Scene *scene,SimpleIdentity newTargetTexID);
-    
+        
     /// Set the GL texture directly
     void setTargetTexture(TextureBase *tex);
         

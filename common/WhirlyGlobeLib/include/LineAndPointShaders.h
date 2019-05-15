@@ -24,7 +24,7 @@ namespace WhirlyKit
 {
 
 // Line shader with globe backface culling turned on
-Program *BuildDefautLineShaderCulling(const std::string &name,SceneRenderer *renderer);
+Program *BuildDefaultLineShaderCulling(const std::string &name,SceneRenderer *renderer);
     
 // Line shader without any culling
 Program *BuildDefaultLineShaderNoCulling(const std::string &name,SceneRenderer *renderer);

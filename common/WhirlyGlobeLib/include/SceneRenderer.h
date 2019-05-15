@@ -210,31 +210,31 @@ public:
     void processScene();
     
     /// Return the render setup info for the appropriate rendering type
-    virtual RenderSetupInfo *getRenderSetupInfo() const;
+    virtual const RenderSetupInfo *getRenderSetupInfo() const = 0;
     
     /// Construct a basic drawable builder for the appropriate rendering type
-    virtual BasicDrawableBuilderRef makeBasicDrawableBuilder(const std::string &name) const;
+    virtual BasicDrawableBuilderRef makeBasicDrawableBuilder(const std::string &name) const = 0;
     
     /// Construct a basic drawables instance builder for the current rendering type
-    virtual BasicDrawableInstanceBuilderRef makeBasicDrawableInstanceBuilder(const std::string &name) const;
+    virtual BasicDrawableInstanceBuilderRef makeBasicDrawableInstanceBuilder(const std::string &name) const = 0;
     
     /// Construct a billboard drawable builder for the current rendering type
-    virtual BillboardDrawableBuilderRef makeBillboardDrawableBuilder(const std::string &name) const;
+    virtual BillboardDrawableBuilderRef makeBillboardDrawableBuilder(const std::string &name) const = 0;
     
     /// Construct a screnspace drawable builder for the current rendering type
-    virtual ScreenSpaceDrawableBuilderRef makeScreenSpaceDrawableBuilder(const std::string &name) const;
+    virtual ScreenSpaceDrawableBuilderRef makeScreenSpaceDrawableBuilder(const std::string &name) const = 0;
     
     /// Construct a particle system builder of the appropriate rendering type
-    virtual ParticleSystemDrawableBuilderRef  makeParticleSystemDrawableBuilder(const std::string &name) const;
+    virtual ParticleSystemDrawableBuilderRef  makeParticleSystemDrawableBuilder(const std::string &name) const = 0;
     
     /// Construct a wide vector drawable builder of the appropriate rendering type
-    virtual WideVectorDrawableBuilderRef makeWideVectorDrawableBuilder(const std::string &name) const;
+    virtual WideVectorDrawableBuilderRef makeWideVectorDrawableBuilder(const std::string &name) const = 0;
     
     /// Construct a renderer-specific render target
-    virtual RenderTargetRef makeRenderTarget() const;
+    virtual RenderTargetRef makeRenderTarget() const = 0;
     
     /// Construct a renderer-specific dynamic texture
-    virtual DynamicTextureRef makeDynamicTexture() const;
+    virtual DynamicTextureRef makeDynamicTexture(const std::string &name) const = 0;
 
     /// The pixel width of the CAEAGLLayer.
     int framebufferWidth;

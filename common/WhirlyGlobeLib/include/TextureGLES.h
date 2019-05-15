@@ -57,12 +57,14 @@ class TextureGLES : virtual public Texture, virtual public TextureBaseGLES
 {
 public:
     TextureGLES(const std::string &name);
+    /// Construct with raw texture data.  PVRTC is preferred.
+    TextureGLES(const std::string &name,RawDataRef texData,bool isPVRTC);
     
     /// Render side only.  Don't call this.  Create the openGL version
-    virtual bool createInRenderer(RenderSetupInfo *setupInfo);
+    virtual bool createInRenderer(const RenderSetupInfo *setupInfo);
     
     /// Render side only.  Don't call this.  Destroy the openGL version
-    virtual void destroyInRenderer(RenderSetupInfo *setupInfo);
+    virtual void destroyInRenderer(const RenderSetupInfo *setupInfo);
 
     /// Sort the PKM data out from the NSData
     /// This is static so the dynamic (haha) textures can use it

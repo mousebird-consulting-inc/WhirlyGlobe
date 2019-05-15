@@ -38,7 +38,7 @@ DynamicTexture::DynamicTexture(const std::string &name)
 {
 }
 
-void DynamicTexture::setup(const std::string &name,int texSize,int cellSize,TextureType inType,bool inClearTextures)
+void DynamicTexture::setup(int texSize,int cellSize,TextureType inType,bool inClearTextures)
 {
     type = inType;
     clearTextures = inClearTextures;
@@ -201,8 +201,8 @@ DynamicTextureAtlas::TextureRegion::TextureRegion()
 #endif
 
     
-DynamicTextureAtlas::DynamicTextureAtlas(int texSize,int cellSize,TextureType format,int imageDepth,bool mainThreadMerge)
-    : texSize(texSize), cellSize(cellSize), format(format), imageDepth(imageDepth),  pixelFudge(0.0), mainThreadMerge(mainThreadMerge), clearTextures(imageDepth>1), interpType(TexInterpLinear)
+DynamicTextureAtlas::DynamicTextureAtlas(const std::string &name,int texSize,int cellSize,TextureType format,int imageDepth,bool mainThreadMerge)
+    : name(name), texSize(texSize), cellSize(cellSize), format(format), imageDepth(imageDepth),  pixelFudge(0.0), mainThreadMerge(mainThreadMerge), clearTextures(imageDepth>1), interpType(TexInterpLinear)
 {
     if (mainThreadMerge || MainThreadMerge)
     {
@@ -217,6 +217,22 @@ DynamicTextureAtlas::~DynamicTextureAtlas()
         delete *it;
 
     textures.clear();
+}
+    
+/// Set the interpolation type used for min and mag
+void DynamicTextureAtlas::setInterpType(TextureInterpType inType)
+{
+    interpType = inType;
+}
+
+TextureInterpType DynamicTextureAtlas::getInterpType()
+{
+    return interpType;
+}
+
+TextureType DynamicTextureAtlas::getFormat()
+{
+    return format;
 }
 
 void DynamicTextureAtlas::setPixelFudgeFactor(float pixFudge)
@@ -278,8 +294,8 @@ bool DynamicTextureAtlas::addTexture(SceneRenderer *sceneRender,const std::vecto
         dynTexVec = new std::vector<DynamicTextureRef>();
         for (unsigned int ii=0;ii<imageDepth;ii++)
         {
-            DynamicTextureRef dynTex = sceneRender->makeDynamicTexture();
-            dynTex->setup("Dynamic Texture Atlas",texSize,cellSize,format,clearTextures);
+            DynamicTextureRef dynTex = sceneRender->makeDynamicTexture(name);
+            dynTex->setup(texSize,cellSize,format,clearTextures);
             dynTex->setInterpType(interpType);
             dynTexVec->push_back(dynTex);
             dynTex->createInRenderer(sceneRender->getRenderSetupInfo());

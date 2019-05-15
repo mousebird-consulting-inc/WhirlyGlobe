@@ -27,7 +27,17 @@ using namespace Eigen;
 
 namespace WhirlyKit
 {
-
+    
+TextureGLES::TextureGLES(const std::string &name)
+    : Texture(name), TextureBaseGLES(name), TextureBase(name)
+{
+}
+    
+TextureGLES::TextureGLES(const std::string &name,RawDataRef texData,bool isPVRTC)
+    : Texture(name,texData,isPVRTC), TextureBaseGLES(name), TextureBase(name)
+{
+}
+    
 // Figure out the PKM data
 unsigned char *TextureGLES::ResolvePKM(RawDataRef texData,int &pkmType,int &size,int &width,int &height)
 {
@@ -91,7 +101,7 @@ unsigned char *TextureGLES::ResolvePKM(RawDataRef texData,int &pkmType,int &size
 }
 
 // Define the texture in OpenGL
-bool TextureGLES::createInRenderer(RenderSetupInfo *inSetupInfo)
+bool TextureGLES::createInRenderer(const RenderSetupInfo *inSetupInfo)
 {
     RenderSetupInfoGLES *setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
     
@@ -198,7 +208,7 @@ bool TextureGLES::createInRenderer(RenderSetupInfo *inSetupInfo)
 }
 
 // Release the OpenGL texture
-void TextureGLES::destroyInRenderer(RenderSetupInfo *inSetupInfo)
+void TextureGLES::destroyInRenderer(const RenderSetupInfo *inSetupInfo)
 {
     RenderSetupInfoGLES *setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
 

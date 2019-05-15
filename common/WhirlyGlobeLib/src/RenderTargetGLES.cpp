@@ -36,6 +36,10 @@ RenderTargetGLES::RenderTargetGLES(SimpleIdentity newID) : RenderTarget(newID)
     init();
 }
     
+RenderTargetGLES::~RenderTargetGLES()
+{
+}
+    
 void RenderTargetGLES::init()
 {
     RenderTarget::init();
@@ -55,7 +59,7 @@ bool RenderTargetGLES::init(SceneRenderer *inRenderer,Scene *scene,SimpleIdentit
     if (targetTexID)
     {
         colorbuffer = 0;
-        setTargetTexture(scene,targetTexID);
+        setTargetTexture(inRenderer,scene,targetTexID);
     } else {
         glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
         
@@ -93,12 +97,14 @@ bool RenderTargetGLES::init(SceneRenderer *inRenderer,Scene *scene,SimpleIdentit
     isSetup = false;
     return true;
 }
-
-void RenderTargetGLES::setTargetTexture(Scene *scene,SimpleIdentity targetTexID)
+    
+bool RenderTargetGLES::setTargetTexture(SceneRenderer *sceneRender,Scene *scene,SimpleIdentity targetTexID)
 {
     TextureBase *tex = scene->getTexture(targetTexID);
     if (tex)
         setTargetTexture(tex);
+    
+    return tex != NULL;
 }
 
 void RenderTargetGLES::setTargetTexture(TextureBase *inTex)

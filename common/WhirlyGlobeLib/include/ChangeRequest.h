@@ -48,14 +48,14 @@ class SceneRenderer;
 class ChangeRequest
 {
 public:
-    ChangeRequest() : when(0.0) { }
+    ChangeRequest();
     virtual ~ChangeRequest();
     
     /// Return true if this change requires a GL Flush in the thread it was executed in
-    virtual bool needsFlush() { return false; }
+    virtual bool needsFlush();
     
     /// Fill this in to set up whatever resources we need on the GL side
-    virtual void setupForRenderer(RenderSetupInfo *);
+    virtual void setupForRenderer(const RenderSetupInfo *);
     
     /// Make a change to the scene.  For the renderer.  Never call this.
     virtual void execute(Scene *scene,SceneRenderer *renderer,View *view) = 0;

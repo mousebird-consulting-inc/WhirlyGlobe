@@ -32,6 +32,10 @@ BasicDrawableInstance::BasicDrawableInstance(const std::string &name)
 : Drawable(name)
 {
 }
+    
+BasicDrawableInstance::~BasicDrawableInstance()
+{
+}
 
 BasicDrawableRef BasicDrawableInstance::getMaster() const
 {
@@ -204,6 +208,16 @@ void BasicDrawableInstance::setUniforms(const SingleVertexAttributeSet &newUnifo
 const Eigen::Matrix4d *BasicDrawableInstance::getMatrix() const
 {
     return basicDraw->getMatrix();
+}
+    
+SimpleIdentity BasicDrawableInstance::getRenderTarget() const
+{
+    return renderTargetID;
+}
+
+void BasicDrawableInstance::setRenderTarget(SimpleIdentity newRenderTarget)
+{
+    renderTargetID = newRenderTarget;
 }
 
 void BasicDrawableInstance::setTexId(unsigned int which,SimpleIdentity inId)

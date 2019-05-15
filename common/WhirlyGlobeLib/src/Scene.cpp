@@ -387,6 +387,18 @@ SubTexture Scene::getSubTexture(SimpleIdentity subTexId)
     return *it;
 }
     
+void Scene::addDrawable(DrawableRef draw)
+{
+    drawables[draw->getId()] = draw;
+}
+    
+void Scene::remDrawable(DrawableRef draw)
+{
+    auto it = drawables.find(draw->getId());
+    if (it != drawables.end())
+        drawables.erase(it);
+}
+    
 void Scene::dumpStats()
 {
     wkLogLevel(Verbose,"Scene: %ld drawables",drawables.size());
@@ -451,7 +463,7 @@ void Scene::removeProgram(SimpleIdentity progId)
     }
 }
 
-void AddTextureReq::setupForRenderer(RenderSetupInfo *setupInfo)
+void AddTextureReq::setupForRenderer(const RenderSetupInfo *setupInfo)
 {
     if (texRef)
         texRef->createInRenderer(setupInfo);
@@ -487,7 +499,7 @@ void RemTextureReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View
         wkLogLevel(Warn,"RemTextureReq: No such texture.");
 }
     
-void AddDrawableReq::setupForRenderer(RenderSetupInfo *setupInfo)
+void AddDrawableReq::setupForRenderer(const RenderSetupInfo *setupInfo)
 {
     if (drawRef)
         drawRef->setupForRenderer(setupInfo);

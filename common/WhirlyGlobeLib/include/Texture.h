@@ -40,10 +40,10 @@ public:
     virtual ~TextureBase();
     
     /// Render side only.  Don't call this.  Create the openGL version
-    virtual bool createInRenderer(RenderSetupInfo *setupInfo);
+    virtual bool createInRenderer(const RenderSetupInfo *setupInfo) = 0;
 	
 	/// Render side only.  Don't call this.  Destroy the openGL version
-    virtual void destroyInRenderer(RenderSetupInfo *setupInfo);
+    virtual void destroyInRenderer(const RenderSetupInfo *setupInfo) = 0;
 
 protected:
     /// Used for debugging
@@ -73,8 +73,6 @@ public:
 	Texture(const std::string &name);
 	/// Construct with raw texture data.  PVRTC is preferred.
 	Texture(const std::string &name,RawDataRef texData,bool isPVRTC);
-    /// Construct from a FILE, presumably because it was cached
-    Texture(const std::string &name,FILE *fp);
 	
 	virtual ~Texture();
     

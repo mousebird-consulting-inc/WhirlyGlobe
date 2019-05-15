@@ -30,6 +30,8 @@ class WideVectorDrawableBuilderGLES : public BasicDrawableBuilderGLES, public Wi
 public:
     WideVectorDrawableBuilderGLES(const std::string &name);
     
+    virtual int addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings = -1);
+
     virtual BasicDrawable *getDrawable();
 };
     

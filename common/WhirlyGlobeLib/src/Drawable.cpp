@@ -27,10 +27,10 @@ using namespace Eigen;
 namespace WhirlyKit
 {
 		
-ChangeRequest::~ChangeRequest()
+DrawableTweaker::~DrawableTweaker()
 {
 }
-		
+    		
 Drawable::Drawable(const std::string &name)
     : name(name)
 {

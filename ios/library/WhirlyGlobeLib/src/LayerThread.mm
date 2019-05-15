@@ -28,7 +28,7 @@ using namespace WhirlyKit;
 
 @implementation WhirlyKitLayerThread
 {
-    RenderSetupInfo *setupInfo;
+    const RenderSetupInfo *setupInfo;
     /// The various data layers we'll display
     NSMutableArray *layers;
     

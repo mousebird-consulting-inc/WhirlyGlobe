@@ -27,6 +27,11 @@ ScreenSpaceDrawableBuilderGLES::ScreenSpaceDrawableBuilderGLES(const std::string
     : BasicDrawableBuilderGLES(name)
 {
 }
+    
+int ScreenSpaceDrawableBuilderGLES::addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings)
+{
+    return BasicDrawableBuilderGLES::addAttribute(dataType, nameID, numThings);
+}
 
 BasicDrawable *ScreenSpaceDrawableBuilderGLES::getDrawable()
 {

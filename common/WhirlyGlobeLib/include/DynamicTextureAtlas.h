@@ -38,7 +38,7 @@ public:
     /// Constructor for sorting
     DynamicTexture(const std::string &name);
     DynamicTexture(SimpleIdentity myId) : TextureBase(myId), layoutGrid(NULL) { }
-    virtual void setup(const std::string &name,int texSize,int cellSize,TextureType type,bool clearTextures);
+    virtual void setup(int texSize,int cellSize,TextureType type,bool clearTextures);
     virtual ~DynamicTexture();
     
     /// Represents a region in the texture
@@ -50,10 +50,10 @@ public:
     };
     
     /// Create an appropriately empty texture in OpenGL ES
-    virtual bool createInRenderer(RenderSetupInfo *setupInfo);
+    virtual bool createInRenderer(const RenderSetupInfo *setupInfo) = 0;
 
     /// Render side only.  Don't call this.  Destroy the OpenGL ES version
-    virtual void destroyInRenderer(RenderSetupInfo *setupInfo);
+    virtual void destroyInRenderer(const RenderSetupInfo *setupInfo) = 0;
     
     /// Set the interpolation type used for min and mag
     void setInterpType(TextureInterpType inType) { interpType = inType; }
@@ -185,7 +185,7 @@ public:
     };
 
     /// Construct with the square size of the textures, the cell size (in pixels) and the pixel format
-    DynamicTextureAtlas(int texSize,int cellSize,TextureType format,int imageDepth=1,bool mainThreadMerge=false);
+    DynamicTextureAtlas(const std::string &name,int texSize,int cellSize,TextureType format,int imageDepth=1,bool mainThreadMerge=false);
     virtual ~DynamicTextureAtlas();
     
     /// Set the interpolation type used for min and mag
@@ -232,6 +232,8 @@ public:
     void log();
 
 protected:
+    std::string name;
+    
     /// Texture memory format
     TextureType format;
     /// Interpolation type

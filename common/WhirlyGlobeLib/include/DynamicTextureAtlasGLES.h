@@ -31,14 +31,14 @@ namespace WhirlyKit
 /** The dynamic texture can have pieces of itself replaced in the layer thread while
  being used in the renderer.  It's used to implement dynamic texture atlases.
  */
-class DynamicTextureGLES : public DynamicTexture, public TextureBaseGLES
+class DynamicTextureGLES : virtual public DynamicTexture, virtual public TextureBaseGLES
 {
 public:
     /// Construct with a name, square texture size, cell size (in texels), and the memory format
-    DynamicTextureGLES();
+    DynamicTextureGLES(const std::string &name);
 
     /// Called after construction to do the actual work
-    void setup(const std::string &name,int texSize,int cellSize,TextureType format,bool clearTextures);
+    void setup(int texSize,int cellSize,TextureType format,bool clearTextures);
     
     /// Add the data at a given location in the texture
     void addTextureData(int startX,int startY,int width,int height,RawDataRef data);
@@ -47,10 +47,10 @@ public:
     void clearTextureData(int startX,int startY,int width,int height,ChangeSet &changes,bool mainThreadMerge,unsigned char *emptyData);
 
     /// Create an appropriately empty texture in OpenGL ES
-    virtual bool createInRenderer(RenderSetupInfo *setupInfo);
+    virtual bool createInRenderer(const RenderSetupInfo *setupInfo);
     
     /// Render side only.  Don't call this.  Destroy the OpenGL ES version
-    virtual void destroyInRenderer(RenderSetupInfo *setupInfo);
+    virtual void destroyInRenderer(const RenderSetupInfo *setupInfo);
     
 protected:
     /// If set, this is a compressed format (assume PVRTC4)
@@ -66,7 +66,7 @@ protected:
 class DynamicTextureAtlasGLES : public DynamicTextureAtlas
 {
 public:
-    DynamicTextureAtlasGLES(int texSize,int cellSize,GLenum format,int imageDepth=1,bool mainThreadMerge=false);
+    DynamicTextureAtlasGLES(const std::string &name,int texSize,int cellSize,GLenum format,int imageDepth=1,bool mainThreadMerge=false);
     virtual ~DynamicTextureAtlasGLES();
         
 protected:

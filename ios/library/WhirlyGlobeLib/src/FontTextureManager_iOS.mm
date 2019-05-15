@@ -196,7 +196,7 @@ WhirlyKit::DrawableString *FontTextureManager_iOS::addString(NSAttributedString 
     if (!texAtlas)
     {
         // Let's do the biggest possible texture with small cells 32 bits deep
-        texAtlas = new DynamicTextureAtlas(2048,16,TexTypeUnsignedByte);
+        texAtlas = new DynamicTextureAtlas("Font Texture Atlas",2048,16,TexTypeUnsignedByte);
     }
     
     DrawableString *drawString = new DrawableString();

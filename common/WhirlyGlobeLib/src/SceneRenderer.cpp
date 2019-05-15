@@ -50,6 +50,14 @@ RendererFrameInfo::RendererFrameInfo(const RendererFrameInfo &that)
     *this = that;
 }
     
+SceneRenderer::SceneRenderer()
+{
+}
+    
+SceneRenderer::~SceneRenderer()
+{
+}
+    
 void SceneRenderer::init()
 {
     scene = NULL;

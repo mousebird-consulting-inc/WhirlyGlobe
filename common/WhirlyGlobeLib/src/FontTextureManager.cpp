@@ -145,7 +145,7 @@ void FontTextureManager::init()
         // Let's do the biggest possible texture with small cells 32 bits deep
         // Note: Porting.  We've turned main thread merge on here, which shouldn't be needed.
         //       If we leave it off, we get corruption of the dynamic textures
-        texAtlas = new DynamicTextureAtlas(2048,16,TexTypeUnsignedByte,1,true);
+        texAtlas = new DynamicTextureAtlas("Font Texture Atlas",2048,16,TexTypeUnsignedByte,1,true);
     }
 }
             

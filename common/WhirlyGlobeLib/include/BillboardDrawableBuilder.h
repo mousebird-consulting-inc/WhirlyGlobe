@@ -37,7 +37,7 @@ Program *BuildBillboardEyeProgram(const std::string &name,SceneRenderer *render)
 class BillboardDrawableBuilder : public BasicDrawableBuilder
 {
 public:
-    BillboardDrawableBuilder();
+    void setup();
     
     /// Each vertex has an offset in 3-space
     void addOffset(const Point3f &offset);

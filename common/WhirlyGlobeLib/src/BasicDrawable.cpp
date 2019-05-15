@@ -185,6 +185,11 @@ void BasicDrawable::setMatrix(const Eigen::Matrix4d *inMat)
 {
     mat = *inMat; hasMatrix = true;
 }
+    
+const std::vector<BasicDrawable::TexInfo> &BasicDrawable::getTexInfo()
+{
+    return texInfo;
+}
 
 void BasicDrawable::setTexId(unsigned int which,SimpleIdentity inId)
 {
@@ -240,6 +245,16 @@ void BasicDrawable::setWriteZBuffer(bool val)
 bool BasicDrawable::getWriteZbuffer() const
 { return writeZBuffer; }
     
+SimpleIdentity BasicDrawable::getRenderTarget() const
+{
+    return renderTargetID;
+}
+    
+void BasicDrawable::setRenderTarget(SimpleIdentity newRenderTarget)
+{
+    renderTargetID = newRenderTarget;
+}
+    
 // If we're fading in or out, update the rendering window
 void BasicDrawable::updateRenderer(SceneRenderer *renderer)
 {
@@ -259,6 +274,15 @@ void BasicDrawable::updateRenderer(SceneRenderer *renderer)
     }
 }
 
+SimpleIdentity BasicDrawable::getCalculationProgram() const
+{
+    return EmptyIdentity;
+}
+    
+void BasicDrawable::calculate(RendererFrameInfo *frameInfo,Scene *scene)
+{
+}
+    
 /// Return the active transform matrix, if we have one
 const Eigen::Matrix4d *BasicDrawable::getMatrix() const
 { if (hasMatrix) return &mat;  return NULL; }

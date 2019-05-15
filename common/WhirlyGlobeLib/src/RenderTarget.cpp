@@ -29,6 +29,16 @@ RenderTarget::RenderTarget()
     init();
 }
     
+RenderTarget::RenderTarget(SimpleIdentity newID)
+: Identifiable(newID)
+{
+    init();
+}
+    
+RenderTarget::~RenderTarget()
+{
+}
+    
 void RenderTarget::init()
 {
     width = 0;

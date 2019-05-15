@@ -488,7 +488,7 @@ void main()
 )";
     
 // Triangles that use the ramp textures
-Program *BuildDefaultTriShaderRamptex(const std::string &name)
+Program *BuildDefaultTriShaderRamptex(const std::string &name,SceneRenderer *renderer)
 {
     ProgramGLES *shader = new ProgramGLES(name,vertexShaderTriMultiTex,fragmentShaderTriMultiTexRamp);
     if (!shader->isValid())

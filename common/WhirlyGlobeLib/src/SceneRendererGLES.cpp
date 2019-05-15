@@ -21,6 +21,14 @@
 #import "SceneRendererGLES.h"
 #import "TextureGLES.h"
 #import "RenderTargetGLES.h"
+#import "BasicDrawableBuilderGLES.h"
+#import "BasicDrawableInstanceBuilderGLES.h"
+#import "BillboardDrawableBuilderGLES.h"
+#import "ScreenSpaceDrawableBuilderGLES.h"
+#import "WideVectorDrawableBuilderGLES.h"
+#import "ParticleSystemDrawableBuilderGLES.h"
+#import "RenderTargetGLES.h"
+#import "DynamicTextureAtlasGLES.h"
 #import "MaplyView.h"
 #import "WhirlyKitLog.h"
 
@@ -38,7 +46,6 @@ RendererFrameInfoGLES::RendererFrameInfoGLES()
 SceneRendererGLES::SceneRendererGLES()
 {
     init();
-    glesVersion = 0;
     extraFrameMode = false;
     extraFrameMode = false;
 }
@@ -46,10 +53,14 @@ SceneRendererGLES::SceneRendererGLES()
 SceneRenderer::Type SceneRendererGLES::getType() {
     return SceneRenderer::RenderGLES;
 }
+    
+const RenderSetupInfo *SceneRendererGLES::getRenderSetupInfo() const
+{
+    return &setupInfo;
+}
 
 bool SceneRendererGLES::setup(int apiVersion,int sizeX,int sizeY)
 {
-    glesVersion = apiVersion;
     frameCount = 0;
     framesPerSec = 0.0;
     numDrawables = 0;
@@ -75,6 +86,8 @@ bool SceneRendererGLES::setup(int apiVersion,int sizeX,int sizeY)
     
     framebufferWidth = sizeX;
     framebufferHeight = sizeY;
+    
+    setupInfo.glesVersion = apiVersion;
     
     // We need a texture to draw to in this case
     if (framebufferWidth > 0)
@@ -104,6 +117,11 @@ bool SceneRendererGLES::setup(int apiVersion,int sizeX,int sizeY)
     renderTargets.push_back(defaultTarget);
     
     return true;
+}
+    
+void SceneRendererGLES::setView(View *newView)
+{
+    setupInfo.minZres = newView->calcZbufferRes();
 }
     
 bool SceneRendererGLES::resize(int sizeX,int sizeY)
@@ -184,6 +202,12 @@ public:
     bool useAlpha,useZBuffer;
     RendererFrameInfo *frameInfo;
 };
+    
+void SceneRendererGLES::setExtraFrameMode(bool newMode)
+{
+    extraFrameMode = newMode;
+    extraFrameDrawn = false;
+}
 
 void SceneRendererGLES::render(TimeInterval duration)
 {
@@ -287,7 +311,7 @@ void SceneRendererGLES::render(TimeInterval duration)
         int numDrawables = 0;
         
         RendererFrameInfoGLES baseFrameInfo;
-        baseFrameInfo.glesVersion = glesVersion;
+        baseFrameInfo.glesVersion = setupInfo.glesVersion;
         baseFrameInfo.sceneRenderer = this;
         baseFrameInfo.theView = theView;
         baseFrameInfo.viewTrans = viewTrans;
@@ -644,6 +668,45 @@ void SceneRendererGLES::render(TimeInterval duration)
     }
 }
 
+BasicDrawableBuilderRef SceneRendererGLES::makeBasicDrawableBuilder(const std::string &name) const
+{
+    return BasicDrawableBuilderRef(new BasicDrawableBuilderGLES(name));
 }
 
+BasicDrawableInstanceBuilderRef SceneRendererGLES::makeBasicDrawableInstanceBuilder(const std::string &name) const
+{
+    return BasicDrawableInstanceBuilderRef(new BasicDrawableInstanceBuilderGLES(name));
+}
+
+BillboardDrawableBuilderRef SceneRendererGLES::makeBillboardDrawableBuilder(const std::string &name) const
+{
+    return BillboardDrawableBuilderRef(new BillboardDrawableBuilderGLES(name));
+}
+
+ScreenSpaceDrawableBuilderRef SceneRendererGLES::makeScreenSpaceDrawableBuilder(const std::string &name) const
+{
+    return ScreenSpaceDrawableBuilderRef(new ScreenSpaceDrawableBuilderGLES(name));
+}
+
+ParticleSystemDrawableBuilderRef  SceneRendererGLES::makeParticleSystemDrawableBuilder(const std::string &name) const
+{
+    return ParticleSystemDrawableBuilderRef(new ParticleSystemDrawableBuilderGLES(name));
+}
+
+WideVectorDrawableBuilderRef SceneRendererGLES::makeWideVectorDrawableBuilder(const std::string &name) const
+{
+    return WideVectorDrawableBuilderRef(new WideVectorDrawableBuilderGLES(name));
+}
+
+RenderTargetRef SceneRendererGLES::makeRenderTarget() const
+{
+    return RenderTargetRef(new RenderTargetGLES());
+}
+
+DynamicTextureRef SceneRendererGLES::makeDynamicTexture(const std::string &name) const
+{
+    return DynamicTextureRef(new DynamicTextureGLES(name));
+}
+
+}
 

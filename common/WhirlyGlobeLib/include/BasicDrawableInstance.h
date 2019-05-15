@@ -134,10 +134,7 @@ public:
         Point3d endCenter;
         TimeInterval duration;
     };
-    
-    /// Add a instance to the stack of instances this instance represents (mmm, noun overload)
-    void addInstances(const std::vector<SingleInstance> &insts);
-    
+        
     // If set, we'll render this data where directed
     void setRenderTarget(SimpleIdentity newRenderTarget);
     

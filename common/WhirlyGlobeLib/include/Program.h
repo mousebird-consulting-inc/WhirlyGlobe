@@ -45,22 +45,22 @@ public:
     Program(SimpleIdentity theId);
     
     /// Return true if it was built correctly
-    virtual bool isValid();
+    virtual bool isValid() = 0;
 
     /// Set the given uniform to the given value.
     /// These check the type and cache a value to save on duplicate gl calls
-    virtual bool setUniform(StringIdentity nameID,float val);
-    virtual bool setUniform(StringIdentity nameID,float val,int index);
-    virtual bool setUniform(StringIdentity nameID,const Eigen::Vector2f &vec);
-    virtual bool setUniform(StringIdentity nameID,const Eigen::Vector3f &vec);
-    virtual bool setUniform(StringIdentity nameID,const Eigen::Vector4f &vec);
-    virtual bool setUniform(StringIdentity nameID,const Eigen::Vector4f &vec,int index);
-    virtual bool setUniform(StringIdentity nameID,const Eigen::Matrix4f &mat);
-    virtual bool setUniform(StringIdentity nameID,int val);
-    virtual bool setUniform(const SingleVertexAttribute &attr);
+    virtual bool setUniform(StringIdentity nameID,float val) = 0;
+    virtual bool setUniform(StringIdentity nameID,float val,int index) = 0;
+    virtual bool setUniform(StringIdentity nameID,const Eigen::Vector2f &vec) = 0;
+    virtual bool setUniform(StringIdentity nameID,const Eigen::Vector3f &vec) = 0;
+    virtual bool setUniform(StringIdentity nameID,const Eigen::Vector4f &vec) = 0;
+    virtual bool setUniform(StringIdentity nameID,const Eigen::Vector4f &vec,int index) = 0;
+    virtual bool setUniform(StringIdentity nameID,const Eigen::Matrix4f &mat) = 0;
+    virtual bool setUniform(StringIdentity nameID,int val) = 0;
+    virtual bool setUniform(const SingleVertexAttribute &attr) = 0;
     
     /// Check for the specific attribute associated with WhirlyKit lights
-    virtual bool hasLights();
+    virtual bool hasLights() = 0;
     
     /// Tie a given texture ID to the given name.
     /// We have to set these up each time before drawing
@@ -70,7 +70,7 @@ public:
     const std::string &getName();
     
     /// Clean up renderer resources
-    virtual void teardownForRenderer(RenderSetupInfo *setupInfo) = 0;
+    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo) = 0;
     
 protected:
     std::string name;

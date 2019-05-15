@@ -246,16 +246,6 @@ void BasicDrawableBuilder::setColor(unsigned char color[])
     setColor(RGBAColor(color[0],color[1],color[2],color[3]));
 }
     
-int BasicDrawableBuilder::addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings)
-{
-    VertexAttribute *attr = new VertexAttribute(dataType,nameID);
-    if (numThings > 0)
-        attr->reserve(numThings);
-    basicDraw->vertexAttributes.push_back(attr);
-    
-    return (unsigned int)(basicDraw->vertexAttributes.size()-1);
-}
-
 void BasicDrawableBuilder::reserveNumPoints(int numPoints)
 {
     points.reserve(points.size()+numPoints);

@@ -1,8 +1,8 @@
 /*
- *  ScreenSpaceDrawableBuilderGLES.h
+ *  BillboardDrawableBuilderGLES.h
  *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 5/14/19.
+ *  Created by Steve Gifford on 5/15/19.
  *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,23 +18,22 @@
  *
  */
 
-#import "ScreenSpaceDrawableBuilder.h"
+#import "BillboardDrawableBuilder.h"
 #import "BasicDrawableBuilderGLES.h"
 
 namespace WhirlyKit
 {
     
-/** OpenGL version of ScreenSpaceDrawable Builder
+/** OpenGL version of BillboardDrawable Builder
  */
-class ScreenSpaceDrawableBuilderGLES : public BasicDrawableBuilderGLES, public ScreenSpaceDrawableBuilder
+class BillboardDrawableBuilderGLES : public BasicDrawableBuilderGLES, public BillboardDrawableBuilder
 {
 public:
-    ScreenSpaceDrawableBuilderGLES(const std::string &name);
+    BillboardDrawableBuilderGLES(const std::string &name);
     
     virtual int addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings = -1);
 
-    /// Fill out and return the drawable
     virtual BasicDrawable *getDrawable();
 };
-    
+
 }

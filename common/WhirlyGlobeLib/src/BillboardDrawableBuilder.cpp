@@ -25,9 +25,8 @@
 namespace WhirlyKit
 {
 
-BillboardDrawableBuilder::BillboardDrawableBuilder()
+void BillboardDrawableBuilder::setup()
 {
-    setName("Billboard");
     Init();
     setupStandardAttributes();
     offsetIndex = addAttribute(BDFloat3Type, StringIndexer::getStringID("a_offset"));

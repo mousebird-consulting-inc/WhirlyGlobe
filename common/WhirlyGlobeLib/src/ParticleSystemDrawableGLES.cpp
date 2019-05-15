@@ -30,7 +30,7 @@ ParticleSystemDrawableGLES::ParticleSystemDrawableGLES(const std::string &name)
 {
 }
 
-void ParticleSystemDrawableGLES::setupForRenderer(RenderSetupInfo *inSetupInfo)
+void ParticleSystemDrawableGLES::setupForRenderer(const RenderSetupInfo *inSetupInfo)
 {
     RenderSetupInfoGLES *setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
     
@@ -125,7 +125,7 @@ void ParticleSystemDrawableGLES::setupForRenderer(RenderSetupInfo *inSetupInfo)
     //    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void ParticleSystemDrawableGLES::teardownForRenderer(RenderSetupInfo *inSetupInfo)
+void ParticleSystemDrawableGLES::teardownForRenderer(const RenderSetupInfo *inSetupInfo)
 {
     RenderSetupInfoGLES *setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
 
@@ -143,7 +143,7 @@ void ParticleSystemDrawableGLES::teardownForRenderer(RenderSetupInfo *inSetupInf
     chunks.clear();
 }
 
-void ParticleSystemDrawableGLES::addAttributeData(RenderSetupInfo *setupInfo,const std::vector<AttributeData> &attrData,const Batch &batch)
+void ParticleSystemDrawableGLES::addAttributeData(const RenderSetupInfo *setupInfo,const std::vector<AttributeData> &attrData,const Batch &batch)
 {
     if (attrData.size() != vertAttrs.size())
         return;
@@ -573,7 +573,7 @@ void main()
 }
 )";
 
-Program *BuildParticleSystemProgram(const std::string &name)
+Program *BuildParticleSystemProgram(const std::string &name,SceneRenderer *renderer)
 {
     ProgramGLES *shader = new ProgramGLES(name,vertexShaderTri,fragmentShaderTri);
     if (!shader->isValid())

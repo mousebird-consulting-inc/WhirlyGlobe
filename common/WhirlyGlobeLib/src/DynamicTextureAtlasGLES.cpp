@@ -25,10 +25,15 @@
 
 namespace WhirlyKit
 {
-
-void DynamicTextureGLES::setup(const std::string &name,int texSize,int cellSize,TextureType inType,bool clearTextures)
+    
+DynamicTextureGLES::DynamicTextureGLES(const std::string &name)
+    : DynamicTexture(name), TextureBase(name), TextureBaseGLES(name)
 {
-    DynamicTexture::setup(name,texSize,cellSize,inType,clearTextures);
+}
+
+void DynamicTextureGLES::setup(int texSize,int cellSize,TextureType inType,bool clearTextures)
+{
+    DynamicTexture::setup(texSize,cellSize,inType,clearTextures);
     
     // Check for the formats we'll accept
     switch (format)
@@ -100,7 +105,7 @@ void DynamicTextureGLES::setup(const std::string &name,int texSize,int cellSize,
 static const bool ClearImages = false;
 
 // Create the OpenGL texture, empty
-bool DynamicTextureGLES::createInRenderer(RenderSetupInfo *inSetupInfo)
+bool DynamicTextureGLES::createInRenderer(const RenderSetupInfo *inSetupInfo)
 {
     RenderSetupInfoGLES *setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
     
@@ -159,7 +164,7 @@ bool DynamicTextureGLES::createInRenderer(RenderSetupInfo *inSetupInfo)
     return true;
 }
 
-void DynamicTextureGLES::destroyInRenderer(RenderSetupInfo *inSetupInfo)
+void DynamicTextureGLES::destroyInRenderer(const RenderSetupInfo *inSetupInfo)
 {
     RenderSetupInfoGLES *setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
 

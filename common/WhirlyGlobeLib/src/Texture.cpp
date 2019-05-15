@@ -217,6 +217,10 @@ TextureBase::TextureBase(SimpleIdentity thisId)
 TextureBase::TextureBase(const std::string &name) : name(name)
 {
 }
+    
+TextureBase::~TextureBase()
+{
+}
 
 Texture::Texture()
 : TextureBase(""), isPVRTC(false), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(TexTypeUnsignedByte), byteSource(WKSingleRGB), interpType(TexInterpLinear), isEmptyTexture(false)

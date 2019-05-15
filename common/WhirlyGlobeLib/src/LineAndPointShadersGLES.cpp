@@ -64,7 +64,7 @@ void main()
 }
 )";
 
-Program *BuildDefautLineShaderCulling(const std::string &name)
+Program *BuildDefaultLineShaderCulling(const std::string &name,SceneRenderer *renderer)
 {
     ProgramGLES *shader = new ProgramGLES(name,vertexShaderLine,fragmentShaderLine);
     if (!shader->isValid())

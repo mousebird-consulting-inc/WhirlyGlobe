@@ -58,25 +58,47 @@ public:
     
     // GL (obviously)
     virtual Type getType();
+
+    // Various information about the renderer passed around to call
+    virtual const RenderSetupInfo *getRenderSetupInfo() const;
     
+    virtual void setView(View *newView);
+
     /// Called right after the constructor
     virtual bool setup(int apiVersion,int sizeX,int sizeY);
     
     /// Resize framebuffer because something changed
     virtual bool resize(int sizeX,int sizeY);
-    
-    /// Called before we present the render buffer.  Can do snapshot logic here.
-    virtual void snapshotCallback();
-    
-    /// The next time through we'll redo the render setup.
-    /// We might need this if the view has switched away and then back.
-    void forceRenderSetup();
-    
+            
     /// If set, we'll draw one more frame than needed after updates stop
     virtual void setExtraFrameMode(bool newMode);
     
     /// Draw stuff (the whole point!)
     void render(TimeInterval period);
+    
+    /// Construct a basic drawable builder for the appropriate rendering type
+    virtual BasicDrawableBuilderRef makeBasicDrawableBuilder(const std::string &name) const;
+    
+    /// Construct a basic drawables instance builder for the current rendering type
+    virtual BasicDrawableInstanceBuilderRef makeBasicDrawableInstanceBuilder(const std::string &name) const;
+    
+    /// Construct a billboard drawable builder for the current rendering type
+    virtual BillboardDrawableBuilderRef makeBillboardDrawableBuilder(const std::string &name) const;
+    
+    /// Construct a screnspace drawable builder for the current rendering type
+    virtual ScreenSpaceDrawableBuilderRef makeScreenSpaceDrawableBuilder(const std::string &name) const;
+    
+    /// Construct a particle system builder of the appropriate rendering type
+    virtual ParticleSystemDrawableBuilderRef  makeParticleSystemDrawableBuilder(const std::string &name) const;
+    
+    /// Construct a wide vector drawable builder of the appropriate rendering type
+    virtual WideVectorDrawableBuilderRef makeWideVectorDrawableBuilder(const std::string &name) const;
+    
+    /// Construct a renderer-specific render target
+    virtual RenderTargetRef makeRenderTarget() const;
+    
+    /// Construct a renderer-specific dynamic texture
+    virtual DynamicTextureRef makeDynamicTexture(const std::string &name) const;
     
 public:
     // Possible post-target creation init
@@ -85,8 +107,8 @@ public:
     // Presentation, if required
     virtual void presentRender() { };
     
-    // OpenGL Version
-    int glesVersion;
+    // Information about the renderer passed around to various calls
+    RenderSetupInfoGLES setupInfo;
     
     // If set we draw one extra frame after updates stop
     bool extraFrameMode;
