@@ -40,6 +40,8 @@ Program *BuildScreenSpaceMotion2DProgram(const std::string &name,SceneRenderer *
 class ScreenSpaceDrawableBuilder : public BasicDrawableBuilder
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     // Construct with or without motion support
     ScreenSpaceDrawableBuilder();
     void setup(bool hasMotion,bool hasRotation);

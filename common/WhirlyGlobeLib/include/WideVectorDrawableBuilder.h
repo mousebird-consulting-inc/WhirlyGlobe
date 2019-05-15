@@ -19,13 +19,14 @@
  */
 
 #import "BasicDrawableBuilder.h"
+#import "Program.h"
 
 namespace WhirlyKit
 {
     
 // Shader name
-#define kWideVectorShaderName "Wide Vector Shader"
-#define kWideVectorGlobeShaderName "Wide Vector Shader Globe"
+//#define kWideVectorShaderName "Wide Vector Shader"
+//#define kWideVectorGlobeShaderName "Wide Vector Shader Globe"
     
 /// Construct and return the wide vector shader program
 Program *BuildWideVectorProgram(const std::string &name,SceneRenderer *renderer);
@@ -42,7 +43,10 @@ class WideVectorDrawableBuilder : public BasicDrawableBuilder
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
-    WideVectorDrawableBuilder(const std::string &name,unsigned int numVert,unsigned int numTri,bool globeMode);
+    WideVectorDrawableBuilder();
+    ~WideVectorDrawableBuilder();
+
+    void setup(unsigned int numVert,unsigned int numTri,bool globeMode);
     
     virtual unsigned int addPoint(const Point3f &pt);
     // Next point, for calculating p1 - p0
@@ -65,12 +69,8 @@ public:
     
     /// Fix the width to a real world value, rather than letting it change
     void setRealWorldWidth(double width) { realWidthSet = true;  realWidth = width; }
-        
-    // We don't want the standard attributes
-    virtual void setupStandardAttributes(int numReserve=0);
 
-    // Construct this one drawable
-    virtual BasicDrawable *makeDrawable();
+    void setupTweaker(BasicDrawable *theDraw);
 
 protected:
     bool globeMode;
@@ -92,5 +92,7 @@ protected:
     std::vector<float> c0;
 #endif
 };
+    
+typedef std::shared_ptr<WideVectorDrawableBuilder> WideVectorDrawableBuilderRef;
     
 }

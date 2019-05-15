@@ -19,6 +19,7 @@
  */
 
 #import "WideVectorManager.h"
+#import "BasicDrawableInstanceBuilder.h"
 #import "FlatMath.h"
 #import "WhirlyKitLog.h"
 #import "SharedAttributes.h"
@@ -162,7 +163,7 @@ public:
     }
 
     // Add a rectangle to the wide drawable
-    void addWideRect(WideVectorDrawable *drawable,InterPoint *verts,const Point3d &up)
+    void addWideRect(WideVectorDrawableBuilderRef drawable,InterPoint *verts,const Point3d &up)
     {
         int startPt = drawable->getNumPoints();
 
@@ -182,7 +183,7 @@ public:
     }
     
     // Add a triangle to the wide drawable
-    void addWideTri(WideVectorDrawable *drawable,InterPoint *verts,const Point3d &up)
+    void addWideTri(WideVectorDrawableBuilderRef drawable,InterPoint *verts,const Point3d &up)
     {
         int startPt = drawable->getNumPoints();
 
@@ -201,10 +202,8 @@ public:
     }
     
     // Build the polygons for a widened line segment
-    void buildPolys(const Point3d *pa,const Point3d *pb,const Point3d *pc,const Point3d &up,BasicDrawable *drawable,bool buildSegment,bool buildJunction)
+    void buildPolys(const Point3d *pa,const Point3d *pb,const Point3d *pc,const Point3d &up,WideVectorDrawableBuilderRef wideDrawable,bool buildSegment,bool buildJunction)
     {
-        WideVectorDrawable *wideDrawable = dynamic_cast<WideVectorDrawable *>(drawable);
-        
         double texLen = (*pb-*pa).norm();
         double texLen2 = 0.0;
         // Degenerate segment
@@ -445,7 +444,7 @@ public:
     
     
     // Add a point to the widened linear we're building
-    void addPoint(const Point3d &inPt,const Point3d &up,BasicDrawable *drawable,bool closed,bool buildSegment,bool buildJunction)
+    void addPoint(const Point3d &inPt,const Point3d &up,WideVectorDrawableBuilderRef &drawable,bool closed,bool buildSegment,bool buildJunction)
     {
         // Compare with the last point, if it's the same, toss it
         if (!pts.empty() && pts.back() == inPt && !closed)
@@ -463,7 +462,7 @@ public:
     }
     
     // Flush out any outstanding points
-    void flush(BasicDrawable *drawable,bool buildLastSegment, bool buildLastJunction)
+    void flush(WideVectorDrawableBuilderRef &drawable,bool buildLastSegment, bool buildLastJunction)
     {
         if (pts.size() >= 2)
         {
@@ -491,11 +490,11 @@ public:
 };
 
 // Used to build up drawables
-class WideVectorDrawableBuilder
+class WideVectorDrawableConstructor
 {
 public:
-    WideVectorDrawableBuilder(Scene *scene,const WideVectorInfo *vecInfo)
-    : scene(scene), vecInfo(vecInfo), drawable(NULL), centerValid(false), localCenter(0,0,0), dispCenter(0,0,0)
+    WideVectorDrawableConstructor(SceneRenderer *sceneRender,Scene *scene,const WideVectorInfo *vecInfo)
+    : sceneRender(sceneRender), scene(scene), vecInfo(vecInfo), drawable(NULL), centerValid(false), localCenter(0,0,0), dispCenter(0,0,0)
     {
         coordAdapter = scene->getCoordAdapter();
         coordSys = coordAdapter->getCoordSystem();
@@ -510,7 +509,7 @@ public:
     }
     
     // Build or return a suitable drawable (depending on the mode)
-    BasicDrawable *getDrawable(int ptCount,int triCount,int ptCountAllocate,int triCountAllocate)
+    WideVectorDrawableBuilderRef getDrawable(int ptCount,int triCount,int ptCountAllocate,int triCountAllocate)
     {
         int ptGuess = std::min(std::max(ptCount,0),(int)MaxDrawablePoints);
         int triGuess = std::min(std::max(triCount,0),(int)MaxDrawableTriangles);
@@ -524,7 +523,8 @@ public:
 //            NSLog(@"Pts = %d, tris = %d",ptGuess,triGuess);
             int ptAlloc = std::min(std::max(ptCountAllocate,0),(int)MaxDrawablePoints);
             int triAlloc = std::min(std::max(triCountAllocate,0),(int)MaxDrawableTriangles);
-            WideVectorDrawable *wideDrawable = new WideVectorDrawable("Widen Vector",ptAlloc,triAlloc,!scene->getCoordAdapter()->isFlat());
+            WideVectorDrawableBuilderRef wideDrawable = sceneRender->makeWideVectorDrawableBuilder("Wide Vector");
+            wideDrawable->setup(ptAlloc,triAlloc,!scene->getCoordAdapter()->isFlat());
             drawable = wideDrawable;
             wideDrawable->setTexRepeat(vecInfo->repeatSize);
             wideDrawable->setEdgeSize(vecInfo->edgeSize);
@@ -533,7 +533,7 @@ public:
                 wideDrawable->setRealWorldWidth(vecInfo->width);
             
 //            drawMbr.reset();
-            drawable->setType(GL_TRIANGLES);
+            drawable->setType(Triangles);
             vecInfo->setupBasicDrawable(drawable);
             drawable->setColor(vecInfo->color);
             if (vecInfo->texID != EmptyIdentity)
@@ -602,7 +602,7 @@ public:
             // Get a drawable ready
             int triCount = 2+3;
             int ptCount = triCount*3;
-            BasicDrawable *thisDrawable = getDrawable(ptCount,triCount,totalPtCount,totalTriCount);
+            WideVectorDrawableBuilderRef thisDrawable = getDrawable(ptCount,triCount,totalPtCount,totalTriCount);
             totalTriCount -= triCount;
             totalPtCount -= ptCount;
             drawMbr.addPoint(geoA);
@@ -642,7 +642,7 @@ public:
             // Get a drawable ready
             int ptCount = 5;
             int triCount = 4;
-            BasicDrawable *thisDrawable = getDrawable(ptCount,triCount,ptCount,triCount);
+            WideVectorDrawableBuilderRef thisDrawable = getDrawable(ptCount,triCount,ptCount,triCount);
             drawMbr.addPoint(geoA);
 
             vecBuilder.addPoint(dispPa,up,thisDrawable,false,true,true);
@@ -665,11 +665,11 @@ public:
         sceneRep->fade = vecInfo->fade;
         for (unsigned int ii=0;ii<drawables.size();ii++)
         {
-            BasicDrawable *drawable = drawables[ii];
-            sceneRep->drawIDs.insert(drawable->getId());
+            WideVectorDrawableBuilderRef drawable = drawables[ii];
+            sceneRep->drawIDs.insert(drawable->getDrawable()->getId());
             if (vecInfo->fade > 0.0)
                 drawable->setFade(curTime,curTime+vecInfo->fade);
-            changes.push_back(new AddDrawableReq(drawable));
+            changes.push_back(new AddDrawableReq(drawable->getDrawable()));
         }
         
         drawables.clear();
@@ -692,12 +692,13 @@ protected:
     bool centerValid;
     Point3d localCenter,dispCenter;
     Mbr drawMbr;
+    SceneRenderer *sceneRender;
     Scene *scene;
     CoordSystemDisplayAdapter *coordAdapter;
     CoordSystem *coordSys;
     const WideVectorInfo *vecInfo;
-    BasicDrawable *drawable;
-    std::vector<BasicDrawable *> drawables;
+    WideVectorDrawableBuilderRef drawable;
+    std::vector<WideVectorDrawableBuilderRef> drawables;
 };
     
 WideVectorSceneRep::WideVectorSceneRep()
@@ -746,7 +747,7 @@ WideVectorManager::~WideVectorManager()
     
 SimpleIdentity WideVectorManager::addVectors(ShapeSet *shapes,const WideVectorInfo &vecInfo,ChangeSet &changes)
 {
-    WideVectorDrawableBuilder builder(scene,&vecInfo);
+    WideVectorDrawableConstructor builder(renderer,scene,&vecInfo);
     
     // Calculate a center for this geometry
     GeoMbr geoMbr;
@@ -843,10 +844,11 @@ SimpleIdentity WideVectorManager::instanceVectors(SimpleIdentity vecID,const Wid
              idIt != sceneRep->drawIDs.end(); ++idIt)
         {
             // Make up a BasicDrawableInstance
-            BasicDrawableInstance *drawInst = new BasicDrawableInstance("WideVectorManager",*idIt,BasicDrawableInstance::ReuseStyle);
+            BasicDrawableInstanceBuilderRef drawInst = renderer->makeBasicDrawableInstanceBuilder("Wide Vector Manager");
+            drawInst->setMasterID(*idIt,BasicDrawableInstance::ReuseStyle);
 
             // Changed enable
-            drawInst->setEnable(vecInfo.enable);
+            drawInst->setOnOff(vecInfo.enable);
             
             // Changed color
             drawInst->setColor(vecInfo.color);
@@ -861,8 +863,8 @@ SimpleIdentity WideVectorManager::instanceVectors(SimpleIdentity vecID,const Wid
             drawInst->setDrawPriority(vecInfo.drawPriority);
             
             // Note: Should set fade
-            newSceneRep->instIDs.insert(drawInst->getId());
-            changes.push_back(new AddDrawableReq(drawInst));
+            newSceneRep->instIDs.insert(drawInst->getDrawable()->getId());
+            changes.push_back(new AddDrawableReq(drawInst->getDrawable()));
         }
         
         sceneReps.insert(newSceneRep);

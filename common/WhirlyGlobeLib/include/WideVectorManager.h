@@ -23,7 +23,7 @@
 #import <map>
 #import "Identifiable.h"
 #import "BasicDrawableInstance.h"
-#import "WideVectorDrawable.h"
+#import "WideVectorDrawableBuilder.h"
 #import "Scene.h"
 #import "SelectionManager.h"
 #import "VectorData.h"

@@ -103,5 +103,5 @@
 #import "WhirlyOctEncoding.h"
 #import "WhirlyTypes.h"
 #import "WhirlyVector.h"
-#import "WideVectorDrawable.h"
+#import "WideVectorDrawableBuilder.h"
 #import "WideVectorManager.h"

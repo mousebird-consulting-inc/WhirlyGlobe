@@ -38,6 +38,8 @@ class ParticleSystemDrawableBuilder;
 typedef std::shared_ptr<ParticleSystemDrawableBuilder> ParticleSystemDrawableBuilderRef;
 class ScreenSpaceDrawableBuilder;
 typedef std::shared_ptr<ScreenSpaceDrawableBuilder> ScreenSpaceDrawableBuilderRef;
+class WideVectorDrawableBuilder;
+typedef std::shared_ptr<WideVectorDrawableBuilder> WideVectorDrawableBuilderRef;
 class DynamicTexture;
 typedef std::shared_ptr<DynamicTexture> DynamicTextureRef;
 
@@ -220,6 +222,9 @@ public:
     
     /// Construct a particle system builder of the appropriate rendering type
     virtual ParticleSystemDrawableBuilderRef  makeParticleSystemDrawableBuilder(const std::string &name) const;
+    
+    /// Construct a wide vector drawable builder of the appropriate rendering type
+    virtual WideVectorDrawableBuilderRef makeWideVectorDrawableBuilder(const std::string &name) const;
     
     /// Construct a renderer-specific render target
     virtual RenderTargetRef makeRenderTarget() const;
