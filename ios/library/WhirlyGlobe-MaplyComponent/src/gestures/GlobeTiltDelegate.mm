@@ -19,7 +19,7 @@
 
 #import "gestures/GlobeTiltDelegate.h"
 #import "gestures/GlobePinchDelegate.h"
-#import "EAGLView.h"
+#import "ViewWrapper.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -65,9 +65,9 @@ using namespace WhirlyGlobe;
 - (void)panAction:(id)sender
 {
     UIPanGestureRecognizer *pan = sender;
-    WhirlyKitEAGLView *glView = (WhirlyKitEAGLView *)pan.view;
-//    SceneRendererES *sceneRender = glView.renderer;
-    
+    UIView<WhirlyKitViewWrapper> *wrapView = (UIView<WhirlyKitViewWrapper> *)pan.view;
+//    SceneRenderer *sceneRenderer = [wrapView getRenderer];
+
     if (pan.state == UIGestureRecognizerStateCancelled)
     {
         [[NSNotificationCenter defaultCenter] postNotificationName:kTiltDelegateDidEnd object:globeView->tag];
@@ -85,7 +85,7 @@ using namespace WhirlyGlobe;
         return;
     }
     
-    CGSize frameSize = glView.frame.size;
+    CGSize frameSize = wrapView.frame.size;
     
     switch (pan.state)
     {
@@ -93,7 +93,7 @@ using namespace WhirlyGlobe;
         {
             globeView->cancelAnimation();
             startTilt = globeView->getTilt();
-            startTouch = [pan locationInView:glView];
+            startTouch = [pan locationInView:wrapView];
             active = true;
             if (_pinchDelegate.gestureRecognizer.enabled)
             {
@@ -106,7 +106,7 @@ using namespace WhirlyGlobe;
             break;
         case UIGestureRecognizerStateChanged:
         {
-            CGPoint curTouch = [pan locationInView:glView];
+            CGPoint curTouch = [pan locationInView:wrapView];
             double scale = (curTouch.y-startTouch.y)/frameSize.width;
             double move = scale * M_PI/4;
 

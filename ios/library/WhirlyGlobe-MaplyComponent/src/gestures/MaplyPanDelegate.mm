@@ -18,12 +18,12 @@
  *
  */
 
-#import "EAGLView.h"
 #import "SceneRenderer.h"
 #import "gestures/MaplyPanDelegate.h"
 #import "MaplyAnimateTranslation.h"
 #import "MaplyAnimateTranslateMomentum.h"
 #import <UIKit/UIGestureRecognizerSubclass.h>
+#import "ViewWrapper.h"
 
 using namespace WhirlyKit;
 using namespace Maply;
@@ -112,8 +112,8 @@ static const float AnimLen = 1.0;
 - (void)panAction:(id)sender
 {
     UIPanGestureRecognizer *pan = sender;
-	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)pan.view;
-	SceneRenderer *sceneRender = glView.renderer;
+    UIView<WhirlyKitViewWrapper> *wrapView = (UIView<WhirlyKitViewWrapper> *)pan.view;
+    SceneRenderer *sceneRender = wrapView.renderer;
 
     if (pan.numberOfTouches > 1)
     {
@@ -146,7 +146,7 @@ static const float AnimLen = 1.0;
                 
                 // Figure out where we are now
                 Point3d hit;
-                CGPoint touchPt = [pan locationInView:glView];
+                CGPoint touchPt = [pan locationInView:wrapView];
                 Point2f touchPt2f(touchPt.x,touchPt.y);
                 lastTouch = touchPt2f;
                 mapView->pointOnPlaneFromScreen(touchPt2f, &startTransform, frameSizeScaled, &hit, false);
@@ -193,7 +193,7 @@ static const float AnimLen = 1.0;
             if (panning)
             {
                 // We'll use this to get two points in model space
-                CGPoint vel = [pan velocityInView:glView];
+                CGPoint vel = [pan velocityInView:wrapView];
                 if((std::abs(vel.x) + std::abs(vel.y)) > 150) {
                     //if the velocity is to slow, its probably not just a finger up
                     Point2f touch0 = lastTouch;

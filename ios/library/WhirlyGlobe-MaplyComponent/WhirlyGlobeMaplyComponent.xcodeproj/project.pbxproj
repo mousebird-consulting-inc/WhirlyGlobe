@@ -1168,6 +1168,7 @@
 		2B6997EA228CAA2200C31E3F /* BillboardDrawableBuilderGLES.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = BillboardDrawableBuilderGLES.h; path = ../../../../common/WhirlyGlobeLib/include/BillboardDrawableBuilderGLES.h; sourceTree = "<group>"; };
 		2B6997EB228CAA3B00C31E3F /* BillboardDrawableBuilderGLES.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = BillboardDrawableBuilderGLES.cpp; path = ../../../../common/WhirlyGlobeLib/src/BillboardDrawableBuilderGLES.cpp; sourceTree = "<group>"; };
 		2B6997ED228CAF7C00C31E3F /* ChangeRequest.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ChangeRequest.cpp; path = ../../../../common/WhirlyGlobeLib/src/ChangeRequest.cpp; sourceTree = "<group>"; };
+		2B6997EF228CDA0400C31E3F /* ViewWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewWrapper.h; sourceTree = "<group>"; };
 		2B73D6C1207D224100AF5095 /* MaplyQuadImageLoader_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyQuadImageLoader_private.h; sourceTree = "<group>"; };
 		2B7B84D721223F0200D11447 /* MaplyTextureAtlas_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyTextureAtlas_private.h; sourceTree = "<group>"; };
 		2B7B84D92122403700D11447 /* MaplyTapMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyTapMessage.h; sourceTree = "<group>"; };
@@ -2734,6 +2735,7 @@
 		2B82B4CB1E82E2490095FB14 /* rendering */ = {
 			isa = PBXGroup;
 			children = (
+				2B6997EF228CDA0400C31E3F /* ViewWrapper.h */,
 				2B87970422039D6300EF801D /* TextureGLES_iOS.h */,
 				2B8796DF21FFD59000EF801D /* SceneRendererGLES_iOS.h */,
 				2B82B4C91E82E2490095FB14 /* EAGLView.h */,

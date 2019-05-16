@@ -22,7 +22,7 @@
 #import "GlobeMath.h"
 #import "gestures/GlobeDoubleTapDragDelegate.h"
 #import "GlobeView.h"
-#import "EAGLView.h"
+#import "ViewWrapper.h"
 
 using namespace WhirlyKit;
 using namespace WhirlyGlobe;
@@ -57,13 +57,13 @@ using namespace WhirlyGlobe;
 - (void)pressGesture:(id)sender
 {
     UILongPressGestureRecognizer *press = sender;
-    WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)press.view;
-	SceneRenderer *sceneRenderer = glView.renderer;
-    
+    UIView<WhirlyKitViewWrapper> *wrapView = (UIView<WhirlyKitViewWrapper> *)press.view;
+    SceneRenderer *sceneRenderer = wrapView.renderer;
+
 	switch (press.state)
     {
         case UIGestureRecognizerStateBegan:
-            screenPt = [press locationInView:glView];
+            screenPt = [press locationInView:wrapView];
             startZ = globeView->getHeightAboveGlobe();
             globeView->cancelAnimation();
             [[NSNotificationCenter defaultCenter] postNotificationName:kGlobeDoubleTapDragDidStart object:globeView->tag];
@@ -73,7 +73,7 @@ using namespace WhirlyGlobe;
             break;
         case UIGestureRecognizerStateChanged:
         {
-            CGPoint curPt = [press locationInView:glView];
+            CGPoint curPt = [press locationInView:wrapView];
             float diffY = screenPt.y-curPt.y;
             float height = sceneRenderer->getFramebufferSizeScaled().y();
             float scale = powf(2.0,2*diffY/(height/2));

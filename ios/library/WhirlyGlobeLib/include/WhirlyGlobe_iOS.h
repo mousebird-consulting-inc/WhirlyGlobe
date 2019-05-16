@@ -27,7 +27,6 @@
 #import "NSString+Stuff.h"
 #import "TextureGLES_iOS.h"
 #import "SceneRendererGLES_iOS.h"
-#import "EAGLView.h"
 #import "MapView_iOS.h"
 #import "GlobeView_iOS.h"
 #import "VectorData_iOS.h"

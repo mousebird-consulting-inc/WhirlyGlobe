@@ -20,6 +20,7 @@
 
 #import "gestures/GlobePanDelegate.h"
 #import <UIKit/UIGestureRecognizerSubclass.h>
+#import "ViewWrapper.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -106,16 +107,16 @@ typedef enum {PanNone,PanFree,PanSuspended} PanningType;
 }
 
 // Save the initial rotation state and let us rotate after this
-- (void)startRotateManipulation:(UIPanGestureRecognizer *)pan sceneRender:(SceneRenderer *)sceneRender glView:(WhirlyKitEAGLView *)glView
+- (void)startRotateManipulation:(UIPanGestureRecognizer *)pan sceneRender:(SceneRenderer *)sceneRender wrapView:(UIView<WhirlyKitViewWrapper> *)wrapView
 {
     // Save the first place we touched
     startTransform = globeView->calcFullMatrix();
     startQuat = globeView->getRotQuat();
     spinQuat = globeView->getRotQuat();
-    startPoint = [pan locationInView:glView];
+    startPoint = [pan locationInView:wrapView];
     Point2f startPt2f(startPoint.x,startPoint.y);
     spinDate = TimeGetCurrent();
-    lastTouch = [pan locationInView:glView];
+    lastTouch = [pan locationInView:wrapView];
     
     IntersectionManager *intManager = (IntersectionManager *)sceneRender->getScene()->getManager(kWKIntersectionManager);
 
@@ -176,9 +177,9 @@ static const float MomentumAnimLen = 1.0;
 - (void)panAction:(id)sender
 {
 	UIPanGestureRecognizer *pan = sender;
-	WhirlyKitEAGLView *glView = (WhirlyKitEAGLView *)pan.view;
-	SceneRenderer *sceneRender = glView.renderer;
-    
+    UIView<WhirlyKitViewWrapper> *wrapView = (UIView<WhirlyKitViewWrapper> *)pan.view;
+    SceneRenderer *sceneRender = wrapView.renderer;
+
     if (pan.state == UIGestureRecognizerStateCancelled)
     {
         if (panType != PanNone)
@@ -215,7 +216,7 @@ static const float MomentumAnimLen = 1.0;
             globeView->cancelAnimation();
             runEndMomentum = true;
             
-            [self startRotateManipulation:pan sceneRender:sceneRender glView:glView];
+            [self startRotateManipulation:pan sceneRender:sceneRender wrapView:wrapView];
 
             // Cancel gesture if touched within globe view but outside of the globe itself.
             // When interoperating with a scroll view, this allows a horizontal pan gesture
@@ -236,9 +237,9 @@ static const float MomentumAnimLen = 1.0;
                 
                 // We were suspended, probably because the user dropped another finger
                 // So now restart the process
-                [self startRotateManipulation:pan sceneRender:sceneRender glView:glView];
+                [self startRotateManipulation:pan sceneRender:sceneRender wrapView:wrapView];
 
-                CGPoint touchPt = [pan locationInView:glView];
+                CGPoint touchPt = [pan locationInView:wrapView];
                 lastTouch = touchPt;
             }
 			if (panType != PanNone)
@@ -247,7 +248,7 @@ static const float MomentumAnimLen = 1.0;
                 
 				// Figure out where we are now
 				Point3d hit;
-                CGPoint touchPt = [pan locationInView:glView];
+                CGPoint touchPt = [pan locationInView:wrapView];
                 Point2f touchPt2f(touchPt.x,touchPt.y);
                 lastTouch = touchPt;
                 bool onSphere = globeView->pointOnSphereFromScreen(touchPt2f, startTransform, frameSize, hit, true, sphereRadius);
@@ -312,7 +313,7 @@ static const float MomentumAnimLen = 1.0;
             if (panType == PanFree && runEndMomentum)
             {
                 // We'll use this to get two points in model space
-                CGPoint vel = [pan velocityInView:glView];
+                CGPoint vel = [pan velocityInView:wrapView];
                 CGPoint touch0 = lastTouch;
                 CGPoint touch1 = touch0;  touch1.x += MomentumAnimLen*vel.x; touch1.y += MomentumAnimLen*vel.y;
                 Point3d p0 = globeView->pointUnproject(Point2f(touch0.x,touch0.y), frameSize.x(), frameSize.y(), false);

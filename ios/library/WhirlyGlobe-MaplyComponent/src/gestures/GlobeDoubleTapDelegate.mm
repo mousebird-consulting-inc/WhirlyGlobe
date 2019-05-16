@@ -19,8 +19,8 @@
  */
 
 #import "gestures/GlobeDoubleTapDelegate.h"
-#import "EAGLView.h"
 #import "GlobeAnimateHeight.h"
+#import "ViewWrapper.h"
 
 using namespace WhirlyKit;
 using namespace WhirlyGlobe;
@@ -49,9 +49,9 @@ using namespace WhirlyGlobe;
 - (void)tapGesture:(id)sender
 {
 	UITapGestureRecognizer *tap = sender;
-	WhirlyKitEAGLView *glView = (WhirlyKitEAGLView *)tap.view;
-	SceneRenderer *sceneRenderer = glView.renderer;
-	
+    UIView<WhirlyKitViewWrapper> *wrapView = (UIView<WhirlyKitViewWrapper> *)tap.view;
+    SceneRenderer *sceneRenderer = wrapView.renderer;
+
     // Just figure out where we tapped
 	Point3d hit;
     Eigen::Matrix4d theTransform = globeView->calcFullMatrix();

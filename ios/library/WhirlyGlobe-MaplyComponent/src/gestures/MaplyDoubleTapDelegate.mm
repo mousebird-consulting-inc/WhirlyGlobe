@@ -21,6 +21,7 @@
 #import "gestures/MaplyDoubleTapDelegate.h"
 #import "MaplyZoomGestureDelegate_private.h"
 #import "MaplyAnimateTranslation.h"
+#import "ViewWrapper.h"
 
 using namespace WhirlyKit;
 using namespace Maply;
@@ -44,9 +45,9 @@ using namespace Maply;
 - (void)tapGesture:(id)sender
 {
     UITapGestureRecognizer *tap = sender;
-    WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)tap.view;
-    SceneRenderer *sceneRenderer = glView.renderer;
-	
+    UIView<WhirlyKitViewWrapper> *wrapView = (UIView<WhirlyKitViewWrapper> *)tap.view;
+    SceneRenderer *sceneRenderer = wrapView.renderer;
+
     Point3d curLoc = self.mapView->getLoc();
     // Just figure out where we tapped
 	Point3d hit;

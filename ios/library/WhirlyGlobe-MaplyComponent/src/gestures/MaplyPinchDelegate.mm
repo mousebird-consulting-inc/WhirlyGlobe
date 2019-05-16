@@ -22,6 +22,7 @@
 #import "SceneRenderer.h"
 #import "MaplyZoomGestureDelegate_private.h"
 #import "MaplyAnimateTranslation.h"
+#import "ViewWrapper.h"
 
 using namespace WhirlyKit;
 using namespace Maply;
@@ -48,9 +49,9 @@ using namespace Maply;
 {
 	UIPinchGestureRecognizer *pinch = sender;
 	UIGestureRecognizerState theState = pinch.state;
-	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)pinch.view;
-	SceneRenderer *sceneRenderer = glView.renderer;
-    
+    UIView<WhirlyKitViewWrapper> *wrapView = (UIView<WhirlyKitViewWrapper> *)pinch.view;
+    SceneRenderer *sceneRenderer = wrapView.renderer;
+
 	switch (theState)
 	{
 		case UIGestureRecognizerStateBegan:
@@ -91,8 +92,8 @@ using namespace Maply;
                     startingMidPoint.y() - currentScalePointScreenLoc.y());
 
                 //calculate a new map center to maintain scalepoint in place on screen
-                Point2f newMapCenterPoint((glView.frame.size.width/2.0) - screenOffset.x(),
-                    (glView.frame.size.height/2.0) - screenOffset.y());
+                Point2f newMapCenterPoint((wrapView.frame.size.width/2.0) - screenOffset.x(),
+                    (wrapView.frame.size.height/2.0) - screenOffset.y());
                 Point3d newCenterGeoPoint;
                 testMapView.pointOnPlaneFromScreen(newMapCenterPoint, &modelTrans, frameSizeScaled, &newLoc, true);
                 newLoc.z() = newZ;

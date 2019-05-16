@@ -23,6 +23,7 @@
 #import "MaplyZoomGestureDelegate_private.h"
 #import "gestures/MaplyDoubleTapDragDelegate.h"
 #import "MaplyAnimateTranslation.h"
+#import "ViewWrapper.h"
 
 using namespace WhirlyKit;
 using namespace Maply;
@@ -55,13 +56,13 @@ using namespace Maply;
 - (void)pressGesture:(id)sender
 {
     UILongPressGestureRecognizer *press = sender;
-    WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)press.view;
-	SceneRenderer *sceneRenderer = glView.renderer;
+    UIView<WhirlyKitViewWrapper> *wrapView = (UIView<WhirlyKitViewWrapper> *)press.view;
+    SceneRenderer *sceneRenderer = wrapView.renderer;
 
 	switch (press.state)
     {
         case UIGestureRecognizerStateBegan:
-            screenPt = [press locationInView:glView];
+            screenPt = [press locationInView:wrapView];
             startZ = self.mapView->getLoc().z();
             self.mapView->cancelAnimation();
             [[NSNotificationCenter defaultCenter] postNotificationName:kMaplyDoubleTapDragDidStart object:self.mapView->tag];
@@ -72,7 +73,7 @@ using namespace Maply;
         case UIGestureRecognizerStateChanged:
         {
             Point3d curLoc = self.mapView->getLoc();
-            CGPoint curPt = [press locationInView:glView];
+            CGPoint curPt = [press locationInView:wrapView];
             float diffY = screenPt.y-curPt.y;
             float height = sceneRenderer->getFramebufferSizeScaled().y();
             float scale = powf(2.0,2*diffY/(height/2));

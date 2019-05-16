@@ -21,8 +21,8 @@
 #import "gestures/MaplyZoomGestureDelegate.h"
 #import "gestures/MaplyPanDelegate.h"
 #import "MaplyAnimateTranslation.h"
+#import "ViewWrapper.h"
 
-#import "EAGLView.h"
 #import "SceneRenderer.h"
 
 using namespace WhirlyKit;
@@ -57,9 +57,9 @@ using namespace WhirlyKit;
 - (void)tapGesture:(id)sender
 {
     UITapGestureRecognizer *tap = sender;
-    WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)tap.view;
-    SceneRenderer *sceneRenderer = glView.renderer;
-	
+    UIView<WhirlyKitViewWrapper> *wrapView = (UIView<WhirlyKitViewWrapper> *)tap.view;
+    SceneRenderer *sceneRenderer = wrapView.renderer;
+
     Point3d curLoc = _mapView->getLoc();
 //    NSLog(@"curLoc x:%f y:%f z:%f", curLoc.x(), curLoc.y(), curLoc.z());
     // Just figure out where we tapped
@@ -67,7 +67,7 @@ using namespace WhirlyKit;
     Eigen::Matrix4d theTransform = _mapView->calcFullMatrix();
     CGPoint touchLoc = [tap locationInView:tap.view];
     Point2f touchLoc2f(touchLoc.x,touchLoc.y);
-    if (_mapView->pointOnPlaneFromScreen(touchLoc2f, &theTransform, Point2f(sceneRenderer->framebufferWidth/glView.contentScaleFactor,sceneRenderer->framebufferHeight/glView.contentScaleFactor), &hit, true))
+    if (_mapView->pointOnPlaneFromScreen(touchLoc2f, &theTransform, Point2f(sceneRenderer->framebufferWidth/wrapView.contentScaleFactor,sceneRenderer->framebufferHeight/wrapView.contentScaleFactor), &hit, true))
     {
         double newZ = curLoc.z() - (curLoc.z() - _minZoom)/2.0;
         Point2d newCenter;

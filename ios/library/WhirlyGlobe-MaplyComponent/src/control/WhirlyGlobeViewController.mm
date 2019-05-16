@@ -253,8 +253,8 @@ public:
     [super loadSetup];
     
     // Wire up the gesture recognizers
-    panDelegate = [WhirlyGlobePanDelegate panDelegateForView:glView globeView:globeView.get() useCustomPanRecognizer:self.inScrollView];
-    tapDelegate = [WhirlyGlobeTapDelegate tapDelegateForView:glView globeView:globeView.get()];
+    panDelegate = [WhirlyGlobePanDelegate panDelegateForView:wrapView globeView:globeView.get() useCustomPanRecognizer:self.inScrollView];
+    tapDelegate = [WhirlyGlobeTapDelegate tapDelegateForView:wrapView globeView:globeView.get()];
     // These will activate the appropriate gesture
     self.panGesture = true;
     self.pinchGesture = true;
@@ -266,7 +266,7 @@ public:
     
     if(_doubleTapZoomGesture)
     {
-        doubleTapDelegate = [WhirlyGlobeDoubleTapDelegate doubleTapDelegateForView:glView globeView:globeView.get()];
+        doubleTapDelegate = [WhirlyGlobeDoubleTapDelegate doubleTapDelegateForView:wrapView globeView:globeView.get()];
         doubleTapDelegate.minZoom = pinchDelegate.minHeight;
         doubleTapDelegate.maxZoom = pinchDelegate.maxHeight;
         doubleTapDelegate.zoomTapFactor = _zoomTapFactor;
@@ -274,7 +274,7 @@ public:
     }
     if(_twoFingerTapGesture)
     {
-        twoFingerTapDelegate = [WhirlyGlobeTwoFingerTapDelegate twoFingerTapDelegateForView:glView globeView:globeView.get()];
+        twoFingerTapDelegate = [WhirlyGlobeTwoFingerTapDelegate twoFingerTapDelegateForView:wrapView globeView:globeView.get()];
         twoFingerTapDelegate.minZoom = pinchDelegate.minHeight;
         twoFingerTapDelegate.maxZoom = pinchDelegate.maxHeight;
         twoFingerTapDelegate.zoomTapFactor = _zoomTapFactor;
@@ -285,7 +285,7 @@ public:
     }
     if (_doubleTapDragGesture)
     {
-        doubleTapDragDelegate = [WhirlyGlobeDoubleTapDragDelegate doubleTapDragDelegateForView:glView globeView:globeView.get()];
+        doubleTapDragDelegate = [WhirlyGlobeDoubleTapDragDelegate doubleTapDragDelegateForView:wrapView globeView:globeView.get()];
         doubleTapDragDelegate.minZoom = pinchDelegate.minHeight;
         doubleTapDragDelegate.maxZoom = pinchDelegate.maxHeight;
         [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
@@ -398,7 +398,7 @@ public:
     {
         if (!pinchDelegate)
         {
-            pinchDelegate = [WhirlyGlobePinchDelegate pinchDelegateForView:glView globeView:globeView.get()];
+            pinchDelegate = [WhirlyGlobePinchDelegate pinchDelegateForView:wrapView globeView:globeView.get()];
             pinchDelegate.zoomAroundPinch = self.zoomAroundPinch;
             pinchDelegate.doRotation = false;
             pinchDelegate.northUp = panDelegate.northUp;
@@ -411,7 +411,7 @@ public:
     } else {
         if (pinchDelegate)
         {
-            [glView removeGestureRecognizer:pinchDelegate.gestureRecognizer];
+            [wrapView removeGestureRecognizer:pinchDelegate.gestureRecognizer];
             pinchDelegate = nil;
             tiltDelegate.pinchDelegate = nil;
         }
@@ -429,7 +429,7 @@ public:
     {
         if (!rotateDelegate)
         {
-            rotateDelegate = [WhirlyGlobeRotateDelegate rotateDelegateForView:glView globeView:globeView.get()];
+            rotateDelegate = [WhirlyGlobeRotateDelegate rotateDelegateForView:wrapView globeView:globeView.get()];
             rotateDelegate.rotateAroundCenter = true;
             pinchDelegate.rotateDelegate = rotateDelegate;
             [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:rotateDelegate.gestureRecognizer];
@@ -438,10 +438,10 @@ public:
         if (rotateDelegate)
         {
             UIRotationGestureRecognizer *rotRecog = nil;
-            for (UIGestureRecognizer *recog in glView.gestureRecognizers)
+            for (UIGestureRecognizer *recog in wrapView.gestureRecognizers)
                 if ([recog isKindOfClass:[UIRotationGestureRecognizer class]])
                     rotRecog = (UIRotationGestureRecognizer *)recog;
-            [glView removeGestureRecognizer:rotRecog];
+            [wrapView removeGestureRecognizer:rotRecog];
             rotateDelegate = nil;
             pinchDelegate.rotateDelegate = nil;
             pinchDelegate.doRotation = false;
@@ -460,7 +460,7 @@ public:
     {
         if (!tiltDelegate)
         {
-            tiltDelegate = [WhirlyGlobeTiltDelegate tiltDelegateForView:glView globeView:globeView.get()];
+            tiltDelegate = [WhirlyGlobeTiltDelegate tiltDelegateForView:wrapView globeView:globeView.get()];
             tiltDelegate.pinchDelegate = pinchDelegate;
             tiltDelegate.tiltCalcDelegate = tiltControlDelegate;
             [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDelegate.gestureRecognizer];
@@ -470,7 +470,7 @@ public:
     } else {
         if (tiltDelegate)
         {
-            [glView removeGestureRecognizer:tiltDelegate.gestureRecognizer];
+            [wrapView removeGestureRecognizer:tiltDelegate.gestureRecognizer];
             tiltDelegate = nil;
         }
     }
@@ -625,7 +625,7 @@ public:
     {
         if (!doubleTapDelegate)
         {
-            doubleTapDelegate = [WhirlyGlobeDoubleTapDelegate doubleTapDelegateForView:glView globeView:globeView.get()];
+            doubleTapDelegate = [WhirlyGlobeDoubleTapDelegate doubleTapDelegateForView:wrapView globeView:globeView.get()];
             doubleTapDelegate.minZoom = pinchDelegate.minHeight;
             doubleTapDelegate.maxZoom = pinchDelegate.maxHeight;
             doubleTapDelegate.zoomTapFactor = _zoomTapFactor;
@@ -634,7 +634,7 @@ public:
     } else {
         if (doubleTapDelegate)
         {
-            [glView removeGestureRecognizer:doubleTapDelegate.gestureRecognizer];
+            [wrapView removeGestureRecognizer:doubleTapDelegate.gestureRecognizer];
             doubleTapDelegate.gestureRecognizer = nil;
             doubleTapDelegate = nil;
         }
@@ -648,7 +648,7 @@ public:
     {
         if (!twoFingerTapDelegate)
         {
-            twoFingerTapDelegate = [WhirlyGlobeTwoFingerTapDelegate twoFingerTapDelegateForView:glView globeView:globeView.get()];
+            twoFingerTapDelegate = [WhirlyGlobeTwoFingerTapDelegate twoFingerTapDelegateForView:wrapView globeView:globeView.get()];
             twoFingerTapDelegate.minZoom = pinchDelegate.minHeight;
             twoFingerTapDelegate.maxZoom = pinchDelegate.maxHeight;
             twoFingerTapDelegate.zoomTapFactor = _zoomTapFactor;
@@ -659,7 +659,7 @@ public:
     } else {
         if (twoFingerTapDelegate)
         {
-            [glView removeGestureRecognizer:twoFingerTapDelegate.gestureRecognizer];
+            [wrapView removeGestureRecognizer:twoFingerTapDelegate.gestureRecognizer];
             twoFingerTapDelegate.gestureRecognizer = nil;
             twoFingerTapDelegate = nil;
         }
@@ -673,7 +673,7 @@ public:
     {
         if (!doubleTapDragDelegate)
         {
-            doubleTapDragDelegate = [WhirlyGlobeDoubleTapDragDelegate doubleTapDragDelegateForView:glView globeView:globeView.get()];
+            doubleTapDragDelegate = [WhirlyGlobeDoubleTapDragDelegate doubleTapDragDelegateForView:wrapView globeView:globeView.get()];
             doubleTapDragDelegate.minZoom = pinchDelegate.minHeight;
             doubleTapDragDelegate.maxZoom = pinchDelegate.maxHeight;
             [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
@@ -682,7 +682,7 @@ public:
     } else {
         if (doubleTapDragDelegate)
         {
-            [glView removeGestureRecognizer:doubleTapDragDelegate.gestureRecognizer];
+            [wrapView removeGestureRecognizer:doubleTapDragDelegate.gestureRecognizer];
             doubleTapDragDelegate.gestureRecognizer = nil;
             doubleTapDragDelegate = nil;
         }
@@ -1066,7 +1066,7 @@ public:
     WhirlyGlobeTapMessage *msg = note.object;
     
     // Ignore taps from other view controllers
-    if (msg.view != glView)
+    if (msg.view != wrapView)
         return;
     
     // Hand this over to the interaction layer to look for a selection
@@ -1080,7 +1080,7 @@ public:
     WhirlyGlobeTapMessage *msg = note.object;
     
     // Ignore taps from other view controllers
-    if (msg.view != glView)
+    if (msg.view != wrapView)
         return;
 
     // Hand this over to the interaction layer to look for a selection

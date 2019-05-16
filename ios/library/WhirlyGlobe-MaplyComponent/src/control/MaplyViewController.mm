@@ -253,7 +253,7 @@ public:
     
     mapScene = NULL;
     mapView = nil;
-    glView = nil;
+    wrapView = nil;
 
     mapInteractLayer = nil;
     
@@ -388,26 +388,26 @@ public:
     }
     
     // Wire up the gesture recognizers
-    tapDelegate = [MaplyTapDelegate tapDelegateForView:glView mapView:mapView.get()];
-    panDelegate = [MaplyPanDelegate panDelegateForView:glView mapView:mapView.get() useCustomPanRecognizer:nil];
+    tapDelegate = [MaplyTapDelegate tapDelegateForView:wrapView mapView:mapView.get()];
+    panDelegate = [MaplyPanDelegate panDelegateForView:wrapView mapView:mapView.get() useCustomPanRecognizer:nil];
     if (_pinchGesture)
     {
-        pinchDelegate = [MaplyPinchDelegate pinchDelegateForView:glView mapView:mapView.get()];
+        pinchDelegate = [MaplyPinchDelegate pinchDelegateForView:wrapView mapView:mapView.get()];
         pinchDelegate.minZoom = mapView->minHeightAboveSurface();
         pinchDelegate.maxZoom = mapView->maxHeightAboveSurface();
     }
     if(_rotateGesture)
-        rotateDelegate = [MaplyRotateDelegate rotateDelegateForView:glView mapView:mapView.get()];
+        rotateDelegate = [MaplyRotateDelegate rotateDelegateForView:wrapView mapView:mapView.get()];
     if(_doubleTapZoomGesture)
     {
-        doubleTapDelegate = [MaplyDoubleTapDelegate doubleTapDelegateForView:glView mapView:mapView.get()];
+        doubleTapDelegate = [MaplyDoubleTapDelegate doubleTapDelegateForView:wrapView mapView:mapView.get()];
         doubleTapDelegate.minZoom = mapView->minHeightAboveSurface();
         doubleTapDelegate.maxZoom = mapView->maxHeightAboveSurface();
         [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDelegate.gestureRecognizer];
     }
     if(_twoFingerTapGesture)
     {
-        twoFingerTapDelegate = [MaplyTwoFingerTapDelegate twoFingerTapDelegateForView:glView mapView:mapView.get()];
+        twoFingerTapDelegate = [MaplyTwoFingerTapDelegate twoFingerTapDelegateForView:wrapView mapView:mapView.get()];
         twoFingerTapDelegate.minZoom = mapView->minHeightAboveSurface();
         twoFingerTapDelegate.maxZoom = mapView->maxHeightAboveSurface();
         if (pinchDelegate)
@@ -416,7 +416,7 @@ public:
     }
     if (_doubleTapDragGesture)
     {
-        doubleTapDragDelegate = [MaplyDoubleTapDragDelegate doubleTapDragDelegateForView:glView mapView:mapView.get()];
+        doubleTapDragDelegate = [MaplyDoubleTapDragDelegate doubleTapDragDelegateForView:wrapView mapView:mapView.get()];
         doubleTapDragDelegate.minZoom = mapView->minHeightAboveSurface();
         doubleTapDragDelegate.maxZoom = mapView->maxHeightAboveSurface();
         [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
@@ -424,7 +424,7 @@ public:
     }
     if(_cancelAnimationOnTouch)
     {
-        touchDelegate = [MaplyTouchCancelAnimationDelegate touchDelegateForView:glView mapView:mapView.get()];
+        touchDelegate = [MaplyTouchCancelAnimationDelegate touchDelegateForView:wrapView mapView:mapView.get()];
     }
 
     [self setViewExtentsLL:boundLL ur:boundUR];
@@ -499,7 +499,7 @@ public:
 //        // Let's rerun the view constrants if we have them, because things can move around
 //        Point3d newCenter;
 //        MaplyView *thisMapView = [[MaplyView alloc] initWithView:mapView];
-//        bool valid = [self withinBounds:mapView.loc view:glView renderer:renderControl->sceneRenderer mapView:thisMapView newCenter:&newCenter];
+//        bool valid = [self withinBounds:mapView.loc view:wrapView renderer:renderControl->sceneRenderer mapView:thisMapView newCenter:&newCenter];
 //        if (valid)
 //        {
 //            if (mapView.loc.x() != newCenter.x() || mapView.loc.y() != newCenter.y())
@@ -519,7 +519,7 @@ public:
 //                {
 //                    Point3d newLoc(coord.x,coord.y,testHeight);
 //                    Point3d newNewCenter;
-//                    bool valid = [self withinBounds:newLoc view:glView renderer:renderControl->sceneRenderer mapView:thisMapView newCenter:&newNewCenter];
+//                    bool valid = [self withinBounds:newLoc view:wrapView renderer:renderControl->sceneRenderer mapView:thisMapView newCenter:&newNewCenter];
 //
 //                    newCoordValid = true;
 //                    newHeight = testHeight;
@@ -584,7 +584,7 @@ public:
     {
         if (!pinchDelegate)
         {
-            pinchDelegate = [MaplyPinchDelegate pinchDelegateForView:glView mapView:mapView.get()];
+            pinchDelegate = [MaplyPinchDelegate pinchDelegateForView:wrapView mapView:mapView.get()];
             pinchDelegate.minZoom = mapView->minHeightAboveSurface();
             pinchDelegate.maxZoom = mapView->maxHeightAboveSurface();
             
@@ -594,7 +594,7 @@ public:
     } else {
         if (pinchDelegate)
         {
-            [glView removeGestureRecognizer:pinchDelegate.gestureRecognizer];
+            [wrapView removeGestureRecognizer:pinchDelegate.gestureRecognizer];
             pinchDelegate = nil;
         }
     }
@@ -607,16 +607,16 @@ public:
     {
         if (!rotateDelegate)
         {
-            rotateDelegate = [MaplyRotateDelegate rotateDelegateForView:glView mapView:mapView.get()];
+            rotateDelegate = [MaplyRotateDelegate rotateDelegateForView:wrapView mapView:mapView.get()];
         }
     } else {
         if (rotateDelegate)
         {
             UIRotationGestureRecognizer *rotRecog = nil;
-            for (UIGestureRecognizer *recog in glView.gestureRecognizers)
+            for (UIGestureRecognizer *recog in wrapView.gestureRecognizers)
                 if ([recog isKindOfClass:[UIRotationGestureRecognizer class]])
                     rotRecog = (UIRotationGestureRecognizer *)recog;
-           [glView removeGestureRecognizer:rotRecog];
+           [wrapView removeGestureRecognizer:rotRecog];
            rotateDelegate = nil;
         }
     }
@@ -629,14 +629,14 @@ public:
     {
         if (!doubleTapDelegate)
         {
-            doubleTapDelegate = [MaplyDoubleTapDelegate doubleTapDelegateForView:glView mapView:mapView.get()];
+            doubleTapDelegate = [MaplyDoubleTapDelegate doubleTapDelegateForView:wrapView mapView:mapView.get()];
             doubleTapDelegate.minZoom = mapView->minHeightAboveSurface();
             doubleTapDelegate.maxZoom = mapView->maxHeightAboveSurface();
         }
     } else {
         if (doubleTapDelegate)
         {
-            [glView removeGestureRecognizer:doubleTapDelegate.gestureRecognizer];
+            [wrapView removeGestureRecognizer:doubleTapDelegate.gestureRecognizer];
             doubleTapDelegate.gestureRecognizer = nil;
             doubleTapDelegate = nil;
         }
@@ -650,7 +650,7 @@ public:
     {
         if (!twoFingerTapDelegate)
         {
-            twoFingerTapDelegate = [MaplyTwoFingerTapDelegate twoFingerTapDelegateForView:glView mapView:mapView.get()];
+            twoFingerTapDelegate = [MaplyTwoFingerTapDelegate twoFingerTapDelegateForView:wrapView mapView:mapView.get()];
             twoFingerTapDelegate.minZoom = mapView->minHeightAboveSurface();
             twoFingerTapDelegate.maxZoom = mapView->maxHeightAboveSurface();
             if (pinchDelegate)
@@ -659,7 +659,7 @@ public:
     } else {
         if (twoFingerTapDelegate)
         {
-            [glView removeGestureRecognizer:twoFingerTapDelegate.gestureRecognizer];
+            [wrapView removeGestureRecognizer:twoFingerTapDelegate.gestureRecognizer];
             twoFingerTapDelegate.gestureRecognizer = nil;
             twoFingerTapDelegate = nil;
         }
@@ -673,7 +673,7 @@ public:
     {
         if (!doubleTapDragDelegate)
         {
-            doubleTapDragDelegate = [MaplyDoubleTapDragDelegate doubleTapDragDelegateForView:glView mapView:mapView.get()];
+            doubleTapDragDelegate = [MaplyDoubleTapDragDelegate doubleTapDragDelegateForView:wrapView mapView:mapView.get()];
             doubleTapDragDelegate.minZoom = mapView->minHeightAboveSurface();
             doubleTapDragDelegate.maxZoom = mapView->maxHeightAboveSurface();
             [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
@@ -682,7 +682,7 @@ public:
     } else {
         if (doubleTapDragDelegate)
         {
-            [glView removeGestureRecognizer:doubleTapDragDelegate.gestureRecognizer];
+            [wrapView removeGestureRecognizer:doubleTapDragDelegate.gestureRecognizer];
             doubleTapDragDelegate.gestureRecognizer = nil;
             doubleTapDragDelegate = nil;
         }
@@ -696,10 +696,10 @@ public:
     {
         if(!touchDelegate)
         {
-            touchDelegate = [MaplyTouchCancelAnimationDelegate touchDelegateForView:glView mapView:mapView.get()];
+            touchDelegate = [MaplyTouchCancelAnimationDelegate touchDelegateForView:wrapView mapView:mapView.get()];
         }
     } else {
-        [glView removeGestureRecognizer:touchDelegate.gestureRecognizer];
+        [wrapView removeGestureRecognizer:touchDelegate.gestureRecognizer];
         touchDelegate.gestureRecognizer = nil;
         touchDelegate = nil;
     }
@@ -919,7 +919,7 @@ public:
     [self setViewStateInternal:nextState runViewUpdates:false];
     Point3d newCenter;
     Point3d oldLoc = mapView->getLoc();
-    bool valid = [self withinBounds:oldLoc view:glView renderer:renderControl->sceneRenderer.get() mapView:mapView.get() newCenter:&newCenter];
+    bool valid = [self withinBounds:oldLoc view:wrapView renderer:renderControl->sceneRenderer.get() mapView:mapView.get() newCenter:&newCenter];
     
     // restore current view state
     [self setViewStateInternal:curState runViewUpdates:false];
@@ -982,7 +982,7 @@ public:
     // Do a validity check and possibly adjust the center
     Maply::MapView testMapView(*(mapView.get()));
     Point3d newCenter;
-    if ([self withinBounds:loc view:glView renderer:renderControl->sceneRenderer.get() mapView:&testMapView newCenter:&newCenter])
+    if ([self withinBounds:loc view:wrapView renderer:renderControl->sceneRenderer.get() mapView:&testMapView newCenter:&newCenter])
     {
         mapView->setLoc(newCenter);
     }
@@ -1120,7 +1120,7 @@ public:
     loc.z() = animState.height;
     Maply::MapView testMapView(*(mapView.get()));
     Point3d newCenter;
-    if ([self withinBounds:loc view:glView renderer:renderControl->sceneRenderer.get() mapView:&testMapView newCenter:&newCenter])
+    if ([self withinBounds:loc view:wrapView renderer:renderControl->sceneRenderer.get() mapView:&testMapView newCenter:&newCenter])
     {
         GeoCoord geoCoord = coordAdapter->getCoordSystem()->localToGeographic(newCenter);
         animState.pos = {geoCoord.x(),geoCoord.y()};
@@ -1372,7 +1372,7 @@ public:
     MaplyTapMessage *msg = note.object;
     
     // Ignore taps from other view controllers
-    if (msg.view != glView)
+    if (msg.view != wrapView)
         return;
     
     // Hand this over to the interaction layer to look for a selection
@@ -1477,7 +1477,7 @@ public:
 
 - (MaplyCoordinate)geoFromScreenPoint:(CGPoint)point {
   	Point3d hit;
-    SceneRenderer *sceneRender = glView.renderer;
+    SceneRenderer *sceneRender = wrapView.renderer;
     Eigen::Matrix4d theTransform = mapView->calcFullMatrix();
     auto frameSizeScaled = sceneRender->getFramebufferSizeScaled();
     Point2f point2f(point.x,point.y);

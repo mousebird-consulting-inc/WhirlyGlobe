@@ -19,9 +19,9 @@
  */
 
 #import "gestures/GlobeTapDelegate.h"
-#import "EAGLView.h"
 #import "SceneRenderer.h"
 #import "GlobeMath.h"
+#import "ViewWrapper.h"
 
 using namespace WhirlyKit;
 using namespace WhirlyGlobe;
@@ -63,8 +63,8 @@ using namespace WhirlyGlobe;
 {
 	UITapGestureRecognizer *tap = sender;
     
-	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)tap.view;
-	SceneRenderer *sceneRender = glView.renderer;
+    UIView<WhirlyKitViewWrapper> *wrapView = (UIView<WhirlyKitViewWrapper> *)tap.view;
+	SceneRenderer *sceneRender = wrapView.renderer;
 //    WhirlyKit::Scene *scene = sceneRender.scene;
     auto frameSizeScaled = sceneRender->getFramebufferSizeScaled();
 
@@ -72,13 +72,13 @@ using namespace WhirlyGlobe;
 	// If we hit, then we'll generate a message
 	Point3d hit;
 	Eigen::Matrix4d theTransform = globeView->calcFullMatrix();
-    CGPoint touchLoc = [tap locationInView:glView];
+    CGPoint touchLoc = [tap locationInView:wrapView];
     Point2f touchLoc2f(touchLoc.x,touchLoc.y);
     if (globeView->pointOnSphereFromScreen(touchLoc2f, theTransform, frameSizeScaled, hit, true))
     {
 		WhirlyGlobeTapMessage *msg = [[WhirlyGlobeTapMessage alloc] init];
         [msg setTouchLoc:touchLoc];
-        [msg setView:glView];
+        [msg setView:wrapView];
 		[msg setWorldLocD:hit];
         Point3d localCoord = FakeGeocentricDisplayAdapter::DisplayToLocal(hit);
 		[msg setWhereGeo:GeoCoord(localCoord.x(),localCoord.y())];
@@ -88,7 +88,7 @@ using namespace WhirlyGlobe;
     } else {
         WhirlyGlobeTapMessage *msg = [[WhirlyGlobeTapMessage alloc] init];
         [msg setTouchLoc:touchLoc];
-        [msg setView:glView];
+        [msg setView:wrapView];
         // If we didn't hit, we generate a different message
         [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:WhirlyGlobeTapOutsideMsg object:msg]];
     }

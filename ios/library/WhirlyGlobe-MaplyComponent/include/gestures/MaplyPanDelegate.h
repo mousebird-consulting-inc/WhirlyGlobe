@@ -18,7 +18,7 @@
  *
  */
 
-#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 #import <vector>
 #import "MapView_iOS.h"
 

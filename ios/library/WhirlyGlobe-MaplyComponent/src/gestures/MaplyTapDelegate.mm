@@ -19,10 +19,10 @@
  */
 
 #import "gestures/MaplyTapDelegate.h"
-#import "EAGLView.h"
 #import "SceneRenderer.h"
 #import "MaplyView.h"
 #import "GlobeMath.h"
+#import "ViewWrapper.h"
 
 using namespace WhirlyKit;
 using namespace Maply;
@@ -62,8 +62,8 @@ using namespace Maply;
 - (void)tapAction:(id)sender
 {
 	UITapGestureRecognizer *tap = sender;
-	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)tap.view;
-	SceneRenderer *sceneRender = glView.renderer;
+    UIView<WhirlyKitViewWrapper> *wrapView = (UIView<WhirlyKitViewWrapper> *)tap.view;
+    SceneRenderer *sceneRender = wrapView.renderer;
     CoordSystemDisplayAdapter *coordAdapter = mapView->getCoordAdapter();
     
     // Just figure out where we tapped

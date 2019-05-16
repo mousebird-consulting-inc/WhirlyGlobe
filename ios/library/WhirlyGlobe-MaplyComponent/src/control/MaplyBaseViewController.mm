@@ -30,6 +30,7 @@
 #import "MaplyRenderTarget_private.h"
 #import "FontTextureManager_iOS.h"
 #import "UIColor+Stuff.h"
+#import "EAGLView.h"
 #import <sys/utsname.h>
 
 using namespace Eigen;
@@ -91,7 +92,7 @@ using namespace WhirlyKit;
     
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(periodicPerfOutput) object:nil];
 
-    [glView stopAnimation];
+    [wrapView stopAnimation];
     
 //    NSLog(@"BaseViewController: Shutting down layers");
     
@@ -107,13 +108,13 @@ using namespace WhirlyKit;
 
         [baseLayerThread addThingToDelete:renderControl->scene];
         [baseLayerThread addThingToRelease:baseLayerThread];
-        [baseLayerThread addThingToRelease:glView];
+        [baseLayerThread addThingToRelease:wrapView];
         [baseLayerThread cancel];
         
         // Wait for the base layer thread to finish
         baseLayerThread->existenceLock.lock();
     }
-    [glView teardown];
+    [wrapView teardown];
     
     [renderControl teardown];
 
@@ -122,7 +123,7 @@ using namespace WhirlyKit;
     visualView = NULL;
 
     fontTexManager = NULL;
-    glView = nil;
+    wrapView = nil;
     renderControl->scene = NULL;
     renderControl->sceneRenderer = NULL;
     baseLayerThread = nil;
@@ -159,8 +160,9 @@ using namespace WhirlyKit;
 {
     if (_frameInterval <= 0)
         _frameInterval = 1;
-    glView = [[WhirlyKitEAGLView alloc] init];
+    WhirlyKitEAGLView *glView = [[WhirlyKitEAGLView alloc] init];
     glView.frameInterval = _frameInterval;
+    wrapView = glView;
 }
 
 - (WhirlyKit::Scene *) loadSetup_scene
@@ -270,16 +272,16 @@ using namespace WhirlyKit;
     [self loadSetup_glView];
     
     [renderControl loadSetup];
-    renderControl->sceneRenderer->setLayer((CAEAGLLayer *)glView.layer);
+    renderControl->sceneRenderer->setLayer((CAEAGLLayer *)wrapView.layer);
 
     // Set up the GL View to display it in
-	glView.renderer = renderControl->sceneRenderer.get();
-    [self.view insertSubview:glView atIndex:0];
+    [wrapView setRenderer:renderControl->sceneRenderer.get()];
+    [self.view insertSubview:wrapView atIndex:0];
     self.view.backgroundColor = [UIColor blackColor];
     self.view.opaque = YES;
 	self.view.autoresizesSubviews = YES;
-	glView.frame = self.view.bounds;
-    glView.backgroundColor = [UIColor blackColor];
+	wrapView.frame = self.view.bounds;
+    wrapView.backgroundColor = [UIColor blackColor];
     
 	// Need an empty scene and view
     visualView = [self loadSetup_view];
@@ -358,12 +360,12 @@ using namespace WhirlyKit;
 
 - (void)startAnimation
 {
-    [glView startAnimation];
+    [wrapView startAnimation];
 }
 
 - (void)stopAnimation
 {
-    [glView stopAnimation];
+    [wrapView stopAnimation];
 }
 
 - (void)teardown
@@ -371,17 +373,17 @@ using namespace WhirlyKit;
     if (renderControl)
         [renderControl->interactLayer lockingShutdown];
     
-    if (glView)
-        [glView teardown];
+    if (wrapView)
+        [wrapView teardown];
     
     [self clear];
 }
 
 - (void)appBackground:(NSNotification *)note
 {
-    if(!wasAnimating || glView.animating)
+    if(!wasAnimating || wrapView.isAnimating)
     {
-        wasAnimating = glView.animating;
+        wasAnimating = wrapView.isAnimating;
         if (wasAnimating)
             [self stopAnimation];
     }
@@ -426,7 +428,10 @@ using namespace WhirlyKit;
 - (void)setFrameInterval:(int)frameInterval
 {
     _frameInterval = frameInterval;
-    glView.frameInterval = frameInterval;
+    if ([wrapView isKindOfClass:[WhirlyKitEAGLView class]]) {
+        WhirlyKitEAGLView *glView = (WhirlyKitEAGLView *)wrapView;
+        glView.frameInterval = frameInterval;
+    }
 }
 
 static const float PerfOutputDelay = 15.0;
@@ -858,7 +863,7 @@ static const float PerfOutputDelay = 15.0;
     // And add it to the view hierarchy
     // Can only do this on the main thread anyway
     if ([viewTrack.view superview] == nil)
-        [glView addSubview:viewTrack.view];
+        [wrapView addSubview:viewTrack.view];
 }
 
 - (void)moveViewTracker:(MaplyViewTracker *)viewTrack moveTo:(MaplyCoordinate)newPos
@@ -891,7 +896,7 @@ static const float PerfOutputDelay = 15.0;
             if (vpManage) {
                 vpManage->removeView(theTracker.view);
             }
-            if ([theTracker.view superview] == glView)
+            if ([theTracker.view superview] == wrapView)
                 [theTracker.view removeFromSuperview];
             renderControl->sceneRenderer->setTriggerDraw();
         }
@@ -931,10 +936,10 @@ static const float PerfOutputDelay = 15.0;
     {
         annotate.calloutView.delegate = self;
         [annotations addObject:annotate];
-        [annotate.calloutView presentCalloutFromRect:rect inView:glView constrainedToView:glView animated:YES];
+        [annotate.calloutView presentCalloutFromRect:rect inView:wrapView constrainedToView:wrapView animated:YES];
     } else {
         annotate.calloutView.delegate = nil;
-        [annotate.calloutView presentCalloutFromRect:rect inView:glView constrainedToView:glView animated:NO];
+        [annotate.calloutView presentCalloutFromRect:rect inView:wrapView constrainedToView:wrapView animated:NO];
     }
     
     // But then we move it back because we're controlling its positioning
@@ -1487,7 +1492,7 @@ static const float PerfOutputDelay = 15.0;
     if (theColor.a < 255)
     {
         [self.view setBackgroundColor:[UIColor clearColor]];
-        [glView setBackgroundColor:[UIColor clearColor]];
+        [wrapView setBackgroundColor:[UIColor clearColor]];
     }
 }
 

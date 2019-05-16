@@ -20,6 +20,9 @@
 
 #import "EAGLView.h"
 #import <QuartzCore/QuartzCore.h>
+#import "SceneRendererGLES_iOS.h"
+
+using namespace WhirlyKit;
 
 @implementation WhirlyKitEAGLView 
 {
@@ -150,12 +153,13 @@
         [self layoutSubviews];
 
     EAGLContext *oldContext = [EAGLContext currentContext];
-    _renderer->useContext();
+    SceneRendererGLES_iOS *sceneRender = (SceneRendererGLES_iOS *)_renderer;
+    sceneRender->useContext();
 
     if (_animating) {
-        _renderer->render(displayLink.frameInterval * 1/60.0);
+        sceneRender->render(displayLink.frameInterval * 1/60.0);
     } else
-        _renderer->processScene();
+        sceneRender->processScene();
     
     [EAGLContext setCurrentContext:oldContext];
 }
@@ -177,10 +181,11 @@
     }
     
     EAGLContext *oldContext = [EAGLContext currentContext];
-    _renderer->useContext();
+    SceneRendererGLES_iOS *sceneRender = (SceneRendererGLES_iOS *)_renderer;
+    sceneRender->useContext();
 
     // Try to resize the renderer, multiple times if necessary
-	if (!_renderer->resize((int)self.frame.size.width*self.contentScaleFactor,(int)self.frame.size.height*self.contentScaleFactor))
+	if (!sceneRender->resize((int)self.frame.size.width*self.contentScaleFactor,(int)self.frame.size.height*self.contentScaleFactor))
     {
         if (!resizeFail)
         {

@@ -21,7 +21,7 @@
 #import "gestures/GlobePinchDelegate.h"
 #import "gestures/GlobeRotateDelegate.h"
 #import "gestures/GlobeTiltDelegate.h"
-#import "EAGLView.h"
+#import "ViewWrapper.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -117,10 +117,10 @@ using namespace WhirlyGlobe;
 - (void)pinchGesture:(id)sender
 {
 	UIPinchGestureRecognizer *pinch = sender;
-	WhirlyKitEAGLView *glView = (WhirlyKitEAGLView  *)pinch.view;
 	UIGestureRecognizerState theState = pinch.state;
-	SceneRenderer *sceneRender = glView.renderer;
-    
+    UIView<WhirlyKitViewWrapper> *wrapView = (UIView<WhirlyKitViewWrapper> *)pinch.view;
+    SceneRenderer *sceneRender = wrapView.renderer;
+
     if (theState == UIGestureRecognizerStateCancelled)
     {
         [[NSNotificationCenter defaultCenter] postNotificationName:kPinchDelegateDidEnd object:globeView->tag];
@@ -147,7 +147,7 @@ using namespace WhirlyGlobe;
 			startQuat = globeView->getRotQuat();
 			// Store the starting Z and pinch center for comparison
 			startZ = globeView->getHeightAboveGlobe();
-            CGPoint startPoint = [pinch locationInView:glView];
+            CGPoint startPoint = [pinch locationInView:wrapView];
             Point2f startPoint2f(startPoint.x,startPoint.y);
             
             if (_zoomAroundPinch)
@@ -177,9 +177,9 @@ using namespace WhirlyGlobe;
             // Calculate a starting rotation
             if (valid && _doRotation)
             {
-                CGPoint center = [pinch locationInView:glView];
+                CGPoint center = [pinch locationInView:wrapView];
                 Point2f center2f(center.x,center.y);
-                CGPoint touch0 = [pinch locationOfTouch:0 inView:glView];
+                CGPoint touch0 = [pinch locationOfTouch:0 inView:wrapView];
                 float dx = touch0.x-center.x,dy=touch0.y-center.y;
                 startRot = atan2(dy, dx);
                 Point3d hit;
@@ -233,7 +233,7 @@ using namespace WhirlyGlobe;
                         Point3d hit;
                         globeView->setRotQuat(startQuat, false);
                         Eigen::Matrix4d curTransform = globeView->calcFullMatrix();
-                        CGPoint pinchPt = [pinch locationInView:glView];
+                        CGPoint pinchPt = [pinch locationInView:wrapView];
                         Point2f pinchPt2f(pinchPt.x,pinchPt.y);
                         if (globeView->pointOnSphereFromScreen(pinchPt2f, curTransform, frameSizeScaled, hit, true, sphereRadius))
                         {
@@ -255,8 +255,8 @@ using namespace WhirlyGlobe;
                 // And do a rotation around the pinch
                 if (_doRotation && startRotAxisValid && !(_northUp || _trackUp))
                 {
-                    CGPoint center = [pinch locationInView:glView];
-                    CGPoint touch0 = [pinch locationOfTouch:0 inView:glView];
+                    CGPoint center = [pinch locationInView:wrapView];
+                    CGPoint touch0 = [pinch locationOfTouch:0 inView:wrapView];
                     float dx = touch0.x-center.x,dy=touch0.y-center.y;
                     double curRot = atan2(dy, dx);
                     double diffRot = curRot-startRot;
@@ -322,7 +322,7 @@ using namespace WhirlyGlobe;
                 }
 
                 if (_rotateDelegate)
-                    [_rotateDelegate updateWithCenter:[pinch locationInView:glView] touch:[pinch locationOfTouch:0 inView:glView ] glView:glView];
+                    [_rotateDelegate updateWithCenter:[pinch locationInView:wrapView] touch:[pinch locationOfTouch:0 inView:wrapView ] wrapView:wrapView];
                 
                 globeView->runViewUpdates();
             }

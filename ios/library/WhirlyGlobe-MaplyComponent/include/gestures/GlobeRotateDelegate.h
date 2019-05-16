@@ -21,7 +21,7 @@
 #import <UIKit/UIKit.h>
 #import "GlobeView_iOS.h"
 
-@class WhirlyKitEAGLView;
+@protocol WhirlyKitViewWrapper;
 
 namespace WhirlyGlobe
 {
@@ -52,6 +52,6 @@ typedef enum {RotNone,RotFree} RotationType;
 @property (nonatomic,weak) UIGestureRecognizer *gestureRecognizer;
 
 /// Can be called by a cooperating delegate (which is also messing with rotation) (HACK!)
-- (void)updateWithCenter:(CGPoint)center touch:(CGPoint)touch glView:(WhirlyKitEAGLView *)glView;
+- (void)updateWithCenter:(CGPoint)center touch:(CGPoint)touch wrapView:(UIView<WhirlyKitViewWrapper> *)glView;
 
 @end

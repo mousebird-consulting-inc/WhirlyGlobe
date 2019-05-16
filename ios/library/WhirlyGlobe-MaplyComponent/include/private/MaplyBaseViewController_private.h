@@ -35,13 +35,14 @@
 #import "MaplyRenderController_private.h"
 #import "ViewPlacementActiveModel.h"
 #import "FontTextureManager_iOS.h"
+#import "ViewWrapper.h"
 
 @interface MaplyBaseViewController() <SMCalloutViewDelegate>
 {
 @public
     MaplyRenderController *renderControl;
     
-    WhirlyKitEAGLView *glView;
+    UIView<WhirlyKitViewWrapper> *wrapView;
     
     WhirlyKitLayerThread *baseLayerThread;
     WhirlyKitLayoutLayer *layoutLayer;

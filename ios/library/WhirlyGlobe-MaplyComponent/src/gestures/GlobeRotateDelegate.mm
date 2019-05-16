@@ -22,7 +22,7 @@
 #import "gestures/GlobeRotateDelegate.h"
 #import "SceneRenderer.h"
 #import "IntersectionManager.h"
-#import "EAGLView.h"
+#import "ViewWrapper.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -73,9 +73,9 @@ using namespace WhirlyGlobe;
     return TRUE;
 }
 
-- (void)updateWithCenter:(CGPoint)center touch:(CGPoint)touch glView:(WhirlyKitEAGLView *)glView
+- (void)updateWithCenter:(CGPoint)center touch:(CGPoint)touch wrapView:(UIView<WhirlyKitViewWrapper> *)wrapView
 {
-	SceneRenderer *sceneRender = glView.renderer;
+	SceneRenderer *sceneRender = wrapView.renderer;
     Point2f center2f(center.x,center.y);
     
     auto frameSizeScaled = sceneRender->getFramebufferSizeScaled();
@@ -123,8 +123,8 @@ using namespace WhirlyGlobe;
 - (void)rotateGesture:(id)sender
 {
 	UIRotationGestureRecognizer *rotate = sender;
-	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)rotate.view;
-	SceneRenderer *sceneRender = glView.renderer;
+    UIView<WhirlyKitViewWrapper> *wrapView = (UIView<WhirlyKitViewWrapper> *)rotate.view;
+    SceneRenderer *sceneRender = wrapView.renderer;
     auto frameSizeScaled = sceneRender->getFramebufferSizeScaled();
     
     // Turn off rotation if we fall below two fingers
@@ -148,7 +148,7 @@ using namespace WhirlyGlobe;
 			startTransform = globeView->calcFullMatrix();
             startQuat = globeView->getRotQuat();
             valid = true;
-            CGPoint startPoint = [rotate locationInView:glView];
+            CGPoint startPoint = [rotate locationInView:wrapView];
             
             // Look for an intersection with grabbable objects
             Point3d interPt;
@@ -159,7 +159,7 @@ using namespace WhirlyGlobe;
                 startOnSphere = interPt.normalized();
                 valid = true;
             } else {
-                CGPoint pt = [rotate locationInView:glView];
+                CGPoint pt = [rotate locationInView:wrapView];
                 Point2f pt2f(pt.x,pt.y);
                 if (globeView->pointOnSphereFromScreen(pt2f, startTransform, frameSizeScaled, startOnSphere, true))
                     valid = true;
@@ -167,8 +167,8 @@ using namespace WhirlyGlobe;
                     valid = false;
             }
             
-            CGPoint center = [rotate locationInView:glView];
-            CGPoint touch0 = [rotate locationOfTouch:0 inView:glView];
+            CGPoint center = [rotate locationInView:wrapView];
+            CGPoint touch0 = [rotate locationOfTouch:0 inView:wrapView];
             float dx = touch0.x-center.x,dy=touch0.y-center.y;
             startRot = atan2(dy, dx);
             
@@ -196,7 +196,7 @@ using namespace WhirlyGlobe;
                     Eigen::Quaterniond oldQuat = globeView->getRotQuat();
                     globeView->setRotQuat(startQuat,false);
                     Eigen::Matrix4d curTransform = globeView->calcFullMatrix();
-                    CGPoint pt = [rotate locationInView:glView];
+                    CGPoint pt = [rotate locationInView:wrapView];
                     Point2f pt2f(pt.x,pt.y);
                     if (globeView->pointOnSphereFromScreen(pt2f, curTransform, frameSizeScaled, hit, true, sphereRadius))
                     {
@@ -212,8 +212,8 @@ using namespace WhirlyGlobe;
                 }
                 
                 // And do a rotation around the pinch
-                CGPoint center = [rotate locationInView:glView];
-                CGPoint touch0 = [rotate locationOfTouch:0 inView:glView];
+                CGPoint center = [rotate locationInView:wrapView];
+                CGPoint touch0 = [rotate locationOfTouch:0 inView:wrapView];
                 float dx = touch0.x-center.x,dy=touch0.y-center.y;
                 double curRot = atan2(dy, dx);
                 double diffRot = curRot-startRot;
