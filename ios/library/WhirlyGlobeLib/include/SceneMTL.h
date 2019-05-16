@@ -17,3 +17,27 @@
  *  limitations under the License.
  *
  */
+
+#import "Scene.h"
+#import "WrapperMTL.h"
+
+namespace WhirlyKit
+{
+
+/** Metal verson of Scene.
+  */
+class SceneMTL : public Scene
+{
+public:
+    SceneMTL(CoordSystemDisplayAdapter *adapter);
+    
+    /// Look for a valid texture
+    /// If it's missing, we probably won't draw the associated geometry
+    id<MTLTexture> getMTLTexture(SimpleIdentity texIdent);
+    
+    /// Explicitly tear everything down in OpenGL ES.
+    /// We're assuming the context has been set.
+    virtual void teardown();
+};
+    
+}

@@ -17,3 +17,22 @@
  *  limitations under the License.
  *
  */
+
+#import <Metal/Metal.h>
+#import "ChangeRequest.h"
+
+namespace WhirlyKit
+{
+    
+/// Passed around to various init and teardown routines
+class RenderSetupInfoMTL : public RenderSetupInfo
+{
+public:
+    RenderSetupInfoMTL();
+    RenderSetupInfoMTL(Scene *scene);
+    
+    id<MTLDevice> mtlDevice;
+};
+
+    
+}

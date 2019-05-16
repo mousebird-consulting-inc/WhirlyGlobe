@@ -124,6 +124,8 @@
 		2B699877228DD36A00C31E3F /* WideVectorDrawableBuilderMTL.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B699866228DD36900C31E3F /* WideVectorDrawableBuilderMTL.mm */; };
 		2B699878228DD36A00C31E3F /* ParticleSystemDrawableMTL.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B699867228DD36900C31E3F /* ParticleSystemDrawableMTL.mm */; };
 		2B699879228DD36A00C31E3F /* TextureMTL.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B699868228DD36A00C31E3F /* TextureMTL.mm */; };
+		2B69987B228DE06000C31E3F /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B69987A228DE06000C31E3F /* Metal.framework */; };
+		2B69987D228DE2EF00C31E3F /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B69987C228DE2EF00C31E3F /* MetalKit.framework */; };
 		2B73D6C2207D224100AF5095 /* MaplyQuadImageLoader_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B73D6C1207D224100AF5095 /* MaplyQuadImageLoader_private.h */; };
 		2B7B84D821223F0300D11447 /* MaplyTextureAtlas_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7B84D721223F0200D11447 /* MaplyTextureAtlas_private.h */; };
 		2B7B84DA2122403700D11447 /* MaplyTapMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7B84D92122403700D11447 /* MaplyTapMessage.h */; };
@@ -1237,6 +1239,8 @@
 		2B699866228DD36900C31E3F /* WideVectorDrawableBuilderMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WideVectorDrawableBuilderMTL.mm; path = ../WideVectorDrawableBuilderMTL.mm; sourceTree = "<group>"; };
 		2B699867228DD36900C31E3F /* ParticleSystemDrawableMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ParticleSystemDrawableMTL.mm; path = ../ParticleSystemDrawableMTL.mm; sourceTree = "<group>"; };
 		2B699868228DD36A00C31E3F /* TextureMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = TextureMTL.mm; path = ../TextureMTL.mm; sourceTree = "<group>"; };
+		2B69987A228DE06000C31E3F /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
+		2B69987C228DE2EF00C31E3F /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
 		2B73D6C1207D224100AF5095 /* MaplyQuadImageLoader_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyQuadImageLoader_private.h; sourceTree = "<group>"; };
 		2B7B84D721223F0200D11447 /* MaplyTextureAtlas_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyTextureAtlas_private.h; sourceTree = "<group>"; };
 		2B7B84D92122403700D11447 /* MaplyTapMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyTapMessage.h; sourceTree = "<group>"; };
@@ -2161,6 +2165,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2B69987D228DE2EF00C31E3F /* MetalKit.framework in Frameworks */,
+				2B69987B228DE06000C31E3F /* Metal.framework in Frameworks */,
 				2B84ED1E1F83FC9F00B34D73 /* libz.tbd in Frameworks */,
 				2B84ED1D1F83FC9B00B34D73 /* CoreText.framework in Frameworks */,
 				2B84ED1B1F83FC8F00B34D73 /* UIKit.framework in Frameworks */,
@@ -2396,17 +2402,15 @@
 			children = (
 				2B446B2D21F7CE670078A975 /* UtilsGLES.h */,
 				2B446B2E21F7CE670078A975 /* WrapperGLES.h */,
+				2B8A786C2284DAF5008B0A1F /* TextureGLES.h */,
 				2B8A78712284DAF6008B0A1F /* SceneGLES.h */,
 				2B8A786E2284DAF6008B0A1F /* MemManagerGLES.h */,
-				2B8A786D2284DAF6008B0A1F /* VertexAttributeGLES.h */,
 				2B8A787A2284DB3E008B0A1F /* ProgramGLES.h */,
+				2B8A786D2284DAF6008B0A1F /* VertexAttributeGLES.h */,
 				2B8A786F2284DAF6008B0A1F /* BasicDrawableGLES.h */,
 				2B8A78632284D876008B0A1F /* BasicDrawableBuilderGLES.h */,
 				2B8A787B2284DB3E008B0A1F /* ParticleSystemDrawableGLES.h */,
 				2B8A78C9228B665B008B0A1F /* ParticleSystemDrawableBuilderGLES.h */,
-				2B8A78702284DAF6008B0A1F /* RenderTargetGLES.h */,
-				2BB8E1AB21FBB0A400154CDC /* SceneRendererGLES.h */,
-				2B8A786C2284DAF5008B0A1F /* TextureGLES.h */,
 				2B8A78782284DB3D008B0A1F /* DynamicTextureAtlasGLES.h */,
 				2B8A789222862B35008B0A1F /* BasicDrawableInstanceGLES.h */,
 				2B8A789922864289008B0A1F /* BasicDrawableInstanceBuilderGLES.h */,
@@ -2415,6 +2419,8 @@
 				2B6997EA228CAA2200C31E3F /* BillboardDrawableBuilderGLES.h */,
 				2BEDE102221CDC11008C7B74 /* LineAndPointShadersGLES.h */,
 				2BEDE101221CDC10008C7B74 /* TriangleShadersGLES.h */,
+				2B8A78702284DAF6008B0A1F /* RenderTargetGLES.h */,
+				2BB8E1AB21FBB0A400154CDC /* SceneRendererGLES.h */,
 			);
 			name = opengl;
 			sourceTree = "<group>";
@@ -2469,8 +2475,10 @@
 			isa = PBXGroup;
 			children = (
 				2B699841228DD31E00C31E3F /* WrapperMTL.h */,
-				2B699842228DD31E00C31E3F /* VertexAttributeMTL.h */,
 				2B699840228DD31E00C31E3F /* TextureMTL.h */,
+				2B699838228DD31D00C31E3F /* SceneMTL.h */,
+				2B699836228DD31D00C31E3F /* ProgramMTL.h */,
+				2B699842228DD31E00C31E3F /* VertexAttributeMTL.h */,
 				2B699845228DD31F00C31E3F /* DynamicTextureAtlasMTL.h */,
 				2B699837228DD31D00C31E3F /* BasicDrawableMTL.h */,
 				2B69983B228DD31D00C31E3F /* BasicDrawableBuilderMTL.h */,
@@ -2481,9 +2489,7 @@
 				2B699843228DD31E00C31E3F /* ParticleSystemDrawableBuilderMTL.h */,
 				2B69983C228DD31D00C31E3F /* ScreenSpaceDrawableBuilderMTL.h */,
 				2B69983D228DD31D00C31E3F /* WideVectorDrawableBuilderMTL.h */,
-				2B699836228DD31D00C31E3F /* ProgramMTL.h */,
 				2B69983A228DD31D00C31E3F /* RenderTargetMTL.h */,
-				2B699838228DD31D00C31E3F /* SceneMTL.h */,
 				2B699844228DD31E00C31E3F /* SceneRendererMTL.h */,
 			);
 			name = metal;
@@ -3101,6 +3107,8 @@
 		2B84ED111F83FC5A00B34D73 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				2B69987C228DE2EF00C31E3F /* MetalKit.framework */,
+				2B69987A228DE06000C31E3F /* Metal.framework */,
 				2B84ED1C1F83FC9B00B34D73 /* CoreText.framework */,
 				2B84ED1A1F83FC8F00B34D73 /* UIKit.framework */,
 				2B84ED161F83FC7000B34D73 /* QuartzCore.framework */,

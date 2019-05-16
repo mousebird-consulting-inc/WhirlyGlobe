@@ -17,3 +17,46 @@
  *  limitations under the License.
  *
  */
+
+#import "WrapperMTL.h"
+#import "VertexAttribute.h"
+
+namespace WhirlyKit
+{
+    
+class VertexAttributeMTL : public VertexAttribute
+{
+public:
+    VertexAttributeMTL(BDAttributeDataType dataType,StringIdentity nameID);
+    VertexAttributeMTL(const VertexAttributeMTL &that);
+    
+//        /// Return the number of components as needed by glVertexAttribPointer
+//        GLuint glEntryComponents() const;
+//
+//        /// Return the data type as required by glVertexAttribPointer
+//        GLenum glType() const;
+//
+//        /// Whether or not glVertexAttribPointer will normalize the data
+//        GLboolean glNormalize() const;
+//
+//        /// Calls glVertexAttrib* for the appropriate type
+//        void glSetDefault(int index) const;
+};
+
+class SingleVertexAttributeInfoMTL : public SingleVertexAttributeInfo
+{
+public:
+    // Construct with the basic info
+    SingleVertexAttributeInfoMTL(const SingleVertexAttributeInfo &that);
+    
+//    /// Return the number of components as needed by glVertexAttribPointer
+//    GLuint glEntryComponents() const;
+//
+//    /// Return the data type as required by glVertexAttribPointer
+//    GLenum glType() const;
+//
+//    /// Whether or not glVertexAttribPointer will normalize the data
+//    GLboolean glNormalize() const;
+};
+    
+}

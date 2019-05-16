@@ -19,3 +19,43 @@
  */
 
 #import "SceneMTL.h"
+#import "TextureMTL.h"
+
+namespace WhirlyKit
+{
+
+SceneMTL::SceneMTL(CoordSystemDisplayAdapter *adapter)
+    : Scene(adapter)
+{
+}
+    
+id<MTLTexture> SceneMTL::getMTLTexture(SimpleIdentity texIdent)
+{
+    if (texIdent == EmptyIdentity)
+        return nil;
+    
+    id<MTLTexture> ret = nil;
+    std::lock_guard<std::mutex> guardLock(textureLock);
+    // Might be a texture ref
+    auto it = textures.find(texIdent);
+    if (it != textures.end())
+    {
+        TextureBaseMTLRef tex = std::dynamic_pointer_cast<TextureBaseMTL> (it->second);
+        ret = tex->getMTLID();
+    }
+    
+    return ret;
+}
+
+void SceneMTL::teardown()
+{
+    for (auto it : drawables)
+        it.second->teardownForRenderer(setupInfo);
+    drawables.clear();
+    for (auto it : textures) {
+        it.second->destroyInRenderer(setupInfo);
+    }
+    textures.clear();
+}
+    
+}
