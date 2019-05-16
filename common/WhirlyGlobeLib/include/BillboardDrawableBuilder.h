@@ -24,13 +24,6 @@
 namespace WhirlyKit
 {
     
-// Shader name for accessing within the scene
-//#define kBillboardShaderName "Billboard Shader"
-    
-/// Construct and return the Billboard shader program
-Program *BuildBillboardGroundProgram(const std::string &name,SceneRenderer *render);
-Program *BuildBillboardEyeProgram(const std::string &name,SceneRenderer *render);
-
 /** Billboards are just a little extra information and
     a shader.  They emit basic drawables.
   */

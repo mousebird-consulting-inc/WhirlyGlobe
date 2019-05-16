@@ -25,18 +25,18 @@ namespace WhirlyKit
 {
  
 // Triangle shader with lighting
-Program *BuildDefaultTriShaderLighting(const std::string &name,SceneRenderer *renderer);
+Program *BuildDefaultTriShaderLightingGLES(const std::string &name,SceneRenderer *renderer);
 // Triangle shader without lighting
-Program *BuildDefaultTriShaderNoLighting(const std::string &name,SceneRenderer *renderer);
+Program *BuildDefaultTriShaderNoLightingGLES(const std::string &name,SceneRenderer *renderer);
 // Triangle shader for models
-Program *BuildDefaultTriShaderModel(const std::string &name,SceneRenderer *renderer);
+Program *BuildDefaultTriShaderModelGLES(const std::string &name,SceneRenderer *renderer);
 // Triangles with screen textures
-Program *BuildDefaultTriShaderScreenTexture(const std::string &name,SceneRenderer *renderer);
+Program *BuildDefaultTriShaderScreenTextureGLES(const std::string &name,SceneRenderer *renderer);
 // Triangles with multiple textures
-Program *BuildDefaultTriShaderMultitex(const std::string &name,SceneRenderer *renderer);
+Program *BuildDefaultTriShaderMultitexGLES(const std::string &name,SceneRenderer *renderer);
 // Triangles that use the ramp textures
-Program *BuildDefaultTriShaderRamptex(const std::string &name,SceneRenderer *renderer);
+Program *BuildDefaultTriShaderRamptexGLES(const std::string &name,SceneRenderer *renderer);
 // Day/night support for triangles
-Program *BuildDefaultTriShaderNightDay(const std::string &name,SceneRenderer *renderer);
+Program *BuildDefaultTriShaderNightDayGLES(const std::string &name,SceneRenderer *renderer);
 
 }

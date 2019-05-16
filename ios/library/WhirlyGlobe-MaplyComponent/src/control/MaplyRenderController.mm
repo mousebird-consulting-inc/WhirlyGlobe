@@ -557,8 +557,8 @@ using namespace Eigen;
     bool isGlobe = !scene->getCoordAdapter()->isFlat();
 
     // Default line shaders
-    Program *defaultLineShader = BuildDefaultLineShaderCulling([kMaplyShaderDefaultLine cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get());
-    Program *defaultLineShaderNoBack = BuildDefaultLineShaderNoCulling([kMaplyShaderDefaultLineNoBackface cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get());
+    Program *defaultLineShader = BuildDefaultLineShaderCullingGLES([kMaplyShaderDefaultLine cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get());
+    Program *defaultLineShaderNoBack = BuildDefaultLineShaderNoCullingGLES([kMaplyShaderDefaultLineNoBackface cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get());
     if (isGlobe)
         [self addShader:kMaplyShaderDefaultLine program:defaultLineShader];
     else
@@ -567,45 +567,45 @@ using namespace Eigen;
     
     // Default triangle shaders
     [self addShader:kMaplyShaderDefaultTri
-            program:BuildDefaultTriShaderLighting([kMaplyShaderDefaultTri cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get())];
+            program:BuildDefaultTriShaderLightingGLES([kMaplyShaderDefaultTri cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get())];
     [self addShader:kMaplyShaderDefaultTriNoLighting
-            program:BuildDefaultTriShaderNoLighting([kMaplyShaderDefaultTriNoLighting cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get())];
+            program:BuildDefaultTriShaderNoLightingGLES([kMaplyShaderDefaultTriNoLighting cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get())];
     
     // Model instancing
     [self addShader:kMaplyShaderDefaultModelTri
-            program:BuildDefaultTriShaderModel([kMaplyShaderDefaultModelTri cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get())];
+            program:BuildDefaultTriShaderModelGLES([kMaplyShaderDefaultModelTri cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get())];
     
     // Screen space texture application
     [self addShader:kMaplyShaderDefaultTriScreenTex
-            program:BuildDefaultTriShaderScreenTexture([kMaplyShaderDefaultTriScreenTex cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get())];
+            program:BuildDefaultTriShaderScreenTextureGLES([kMaplyShaderDefaultTriScreenTex cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get())];
     
     // Multi-texture support
     [self addShader:kMaplyShaderDefaultTriMultiTex
-            program:BuildDefaultTriShaderMultitex([kMaplyShaderDefaultTriMultiTex cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get())];
+            program:BuildDefaultTriShaderMultitexGLES([kMaplyShaderDefaultTriMultiTex cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get())];
     // Same one, but for markers.  This fixes any weird conflicts
-    [self addShader:kMaplyShaderDefaultMarker program:BuildDefaultTriShaderMultitex([kMaplyShaderDefaultMarker cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get())];
+    [self addShader:kMaplyShaderDefaultMarker program:BuildDefaultTriShaderMultitexGLES([kMaplyShaderDefaultMarker cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get())];
     
     // Ramp texture support
     [self addShader:kMaplyShaderDefaultTriMultiTexRamp
-            program:BuildDefaultTriShaderRamptex([kMaplyShaderDefaultTriMultiTexRamp cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get())];
+            program:BuildDefaultTriShaderRamptexGLES([kMaplyShaderDefaultTriMultiTexRamp cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get())];
 
     // Night/day shading for globe
     [self addShader:kMaplyShaderDefaultTriNightDay
-            program:BuildDefaultTriShaderNightDay([kMaplyShaderDefaultTriNightDay cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get())];
+            program:BuildDefaultTriShaderNightDayGLES([kMaplyShaderDefaultTriNightDay cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get())];
 
     // Billboards
-    [self addShader:kMaplyShaderBillboardGround program:BuildBillboardGroundProgram([kMaplyShaderBillboardGround cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get())];
-    [self addShader:kMaplyShaderBillboardEye program:BuildBillboardEyeProgram([kMaplyShaderBillboardEye cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get())];
+    [self addShader:kMaplyShaderBillboardGround program:BuildBillboardGroundProgramGLES([kMaplyShaderBillboardGround cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get())];
+    [self addShader:kMaplyShaderBillboardEye program:BuildBillboardEyeProgramGLES([kMaplyShaderBillboardEye cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get())];
     // Wide vectors
     if (isGlobe)
-        [self addShader:kMaplyShaderDefaultWideVector program:BuildWideVectorGlobeProgram([kMaplyShaderDefaultWideVector cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get())];
+        [self addShader:kMaplyShaderDefaultWideVector program:BuildWideVectorGlobeProgramGLES([kMaplyShaderDefaultWideVector cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get())];
     else
-        [self addShader:kMaplyShaderDefaultWideVector program:BuildWideVectorProgram([kMaplyShaderDefaultWideVector cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get())];
+        [self addShader:kMaplyShaderDefaultWideVector program:BuildWideVectorProgramGLES([kMaplyShaderDefaultWideVector cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get())];
     // Screen space
-    [self addShader:kMaplyScreenSpaceDefaultMotionProgram program:BuildScreenSpaceProgram([kMaplyScreenSpaceDefaultMotionProgram cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get())];
-    [self addShader:kMaplyScreenSpaceDefaultProgram program:BuildScreenSpaceMotionProgram([kMaplyScreenSpaceDefaultProgram cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get())];
+    [self addShader:kMaplyScreenSpaceDefaultMotionProgram program:BuildScreenSpaceProgramGLES([kMaplyScreenSpaceDefaultMotionProgram cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get())];
+    [self addShader:kMaplyScreenSpaceDefaultProgram program:BuildScreenSpaceMotionProgramGLES([kMaplyScreenSpaceDefaultProgram cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get())];
     // Particles
-    [self addShader:kMaplyShaderParticleSystemPointDefault program:BuildParticleSystemProgram([kMaplyShaderParticleSystemPointDefault cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get())];
+    [self addShader:kMaplyShaderParticleSystemPointDefault program:BuildParticleSystemProgramGLES([kMaplyShaderParticleSystemPointDefault cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get())];
 }
 
 @end

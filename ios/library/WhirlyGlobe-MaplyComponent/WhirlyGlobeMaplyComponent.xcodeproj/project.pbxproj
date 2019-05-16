@@ -1053,8 +1053,8 @@
 		2BE7E7B9221B22DE00E4EFBA /* QuadImageFrameLoader_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE7E7B8221B22DE00E4EFBA /* QuadImageFrameLoader_iOS.h */; };
 		2BE7E7BB221B22E500E4EFBA /* QuadImageFrameLoader_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE7E7BA221B22E500E4EFBA /* QuadImageFrameLoader_iOS.mm */; };
 		2BE7E7BC221B99FA00E4EFBA /* MaplyQuadLoader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE1E7A22216163A00815D9C /* MaplyQuadLoader.mm */; };
-		2BEDE103221CDC11008C7B74 /* TriangleShaders.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BEDE101221CDC10008C7B74 /* TriangleShaders.h */; };
-		2BEDE104221CDC11008C7B74 /* LineAndPointShaders.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BEDE102221CDC11008C7B74 /* LineAndPointShaders.h */; };
+		2BEDE103221CDC11008C7B74 /* TriangleShadersGLES.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BEDE101221CDC10008C7B74 /* TriangleShadersGLES.h */; };
+		2BEDE104221CDC11008C7B74 /* LineAndPointShadersGLES.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BEDE102221CDC11008C7B74 /* LineAndPointShadersGLES.h */; };
 		2BF4FC98227D02240012CEFD /* MapboxVectorStyleSprites.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF4FC97227D02240012CEFD /* MapboxVectorStyleSprites.h */; };
 		2BF4FC9A227D022C0012CEFD /* MapboxVectorStyleSprites.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF4FC99227D022C0012CEFD /* MapboxVectorStyleSprites.mm */; };
 		E56DB3D51D6B1B17007000D2 /* SLDStyleSet.h in Headers */ = {isa = PBXBuildFile; fileRef = E56DB3D41D6B1B17007000D2 /* SLDStyleSet.h */; };
@@ -2134,8 +2134,8 @@
 		2BE7E7B22214C6EB00E4EFBA /* QuadDisplayControllerNew.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = QuadDisplayControllerNew.cpp; path = ../../../../common/WhirlyGlobeLib/src/QuadDisplayControllerNew.cpp; sourceTree = "<group>"; };
 		2BE7E7B8221B22DE00E4EFBA /* QuadImageFrameLoader_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuadImageFrameLoader_iOS.h; sourceTree = "<group>"; };
 		2BE7E7BA221B22E500E4EFBA /* QuadImageFrameLoader_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = QuadImageFrameLoader_iOS.mm; sourceTree = "<group>"; };
-		2BEDE101221CDC10008C7B74 /* TriangleShaders.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TriangleShaders.h; path = ../../../../common/WhirlyGlobeLib/include/TriangleShaders.h; sourceTree = "<group>"; };
-		2BEDE102221CDC11008C7B74 /* LineAndPointShaders.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LineAndPointShaders.h; path = ../../../../common/WhirlyGlobeLib/include/LineAndPointShaders.h; sourceTree = "<group>"; };
+		2BEDE101221CDC10008C7B74 /* TriangleShadersGLES.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TriangleShadersGLES.h; path = ../../../../common/WhirlyGlobeLib/include/TriangleShadersGLES.h; sourceTree = "<group>"; };
+		2BEDE102221CDC11008C7B74 /* LineAndPointShadersGLES.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LineAndPointShadersGLES.h; path = ../../../../common/WhirlyGlobeLib/include/LineAndPointShadersGLES.h; sourceTree = "<group>"; };
 		2BEDE105221CDC50008C7B74 /* LineAndPointShadersGLES.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LineAndPointShadersGLES.cpp; path = ../../../../common/WhirlyGlobeLib/src/LineAndPointShadersGLES.cpp; sourceTree = "<group>"; };
 		2BEDE106221CDC50008C7B74 /* TriangleShadersGLES.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TriangleShadersGLES.cpp; path = ../../../../common/WhirlyGlobeLib/src/TriangleShadersGLES.cpp; sourceTree = "<group>"; };
 		2BF4FC97227D02240012CEFD /* MapboxVectorStyleSprites.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapboxVectorStyleSprites.h; sourceTree = "<group>"; };
@@ -2248,8 +2248,6 @@
 				2B8A78B5228A185A008B0A1F /* VertexAttributeGLES.cpp */,
 				2B8A78AB2289DB44008B0A1F /* RenderTargetGLES.cpp */,
 				2BB8E1B121FBB0BA00154CDC /* SceneRendererGLES.cpp */,
-				2BEDE105221CDC50008C7B74 /* LineAndPointShadersGLES.cpp */,
-				2BEDE106221CDC50008C7B74 /* TriangleShadersGLES.cpp */,
 				2B8A78822285F1B7008B0A1F /* BasicDrawableGLES.cpp */,
 				2B8A78802284DD5B008B0A1F /* BasicDrawableBuilderGLES.cpp */,
 				2B8A789322862F4B008B0A1F /* BasicDrawableInstanceGLES.cpp */,
@@ -2262,6 +2260,8 @@
 				2B8A78CF228B832E008B0A1F /* ScreenSpaceDrawableBuilderGLES.cpp */,
 				2B8A78D3228B8D5D008B0A1F /* WideVectorDrawableBuilderGLES.cpp */,
 				2B6997EB228CAA3B00C31E3F /* BillboardDrawableBuilderGLES.cpp */,
+				2BEDE105221CDC50008C7B74 /* LineAndPointShadersGLES.cpp */,
+				2BEDE106221CDC50008C7B74 /* TriangleShadersGLES.cpp */,
 			);
 			name = opengl;
 			sourceTree = "<group>";
@@ -2413,6 +2413,8 @@
 				2B8A78CE228B8291008B0A1F /* ScreenSpaceDrawableBuilderGLES.h */,
 				2B8A78D2228B8D2C008B0A1F /* WideVectorDrawableBuilderGLES.h */,
 				2B6997EA228CAA2200C31E3F /* BillboardDrawableBuilderGLES.h */,
+				2BEDE102221CDC11008C7B74 /* LineAndPointShadersGLES.h */,
+				2BEDE101221CDC10008C7B74 /* TriangleShadersGLES.h */,
 			);
 			name = opengl;
 			sourceTree = "<group>";
@@ -2426,8 +2428,6 @@
 				2B446B9521FBA8520078A975 /* Program.h */,
 				2B3D7E282283380E0065FA18 /* RenderTarget.h */,
 				2B3D7E2A228338A90065FA18 /* SceneRenderer.h */,
-				2BEDE102221CDC11008C7B74 /* LineAndPointShaders.h */,
-				2BEDE101221CDC10008C7B74 /* TriangleShaders.h */,
 			);
 			name = render;
 			sourceTree = "<group>";
@@ -4181,7 +4181,7 @@
 				2B82B60E1E82E2490095FB14 /* JSONMemoryPool.h in Headers */,
 				2BE539601D249BEF00B60FAD /* AAFK5.h in Headers */,
 				2BE539721D249BEF00B60FAD /* AANeptune.h in Headers */,
-				2BEDE103221CDC11008C7B74 /* TriangleShaders.h in Headers */,
+				2BEDE103221CDC11008C7B74 /* TriangleShadersGLES.h in Headers */,
 				2BE5380B1D249A1200B60FAD /* MaplyGeomBuilder.h in Headers */,
 				2BE539881D249BEF00B60FAD /* AAUranus.h in Headers */,
 				2B446B0421F79A600078A975 /* GridClipper.h in Headers */,
@@ -4252,7 +4252,7 @@
 				2B0387F8206ABD7B00DD5C40 /* MaplyQuadSampler.h in Headers */,
 				2BE5398A1D249BEF00B60FAD /* stdafx.h in Headers */,
 				2BE53A051D249C2900B60FAD /* generated_enum_reflection.h in Headers */,
-				2BEDE104221CDC11008C7B74 /* LineAndPointShaders.h in Headers */,
+				2BEDE104221CDC11008C7B74 /* LineAndPointShadersGLES.h in Headers */,
 				2BB8A3F521ED43D10025DA98 /* MaplyPanDelegate.h in Headers */,
 				2B446B9A21FBA9D50078A975 /* PerformanceTimer.h in Headers */,
 				2BB8A3F321ED43D10025DA98 /* MaplyTapDelegate.h in Headers */,

@@ -24,14 +24,7 @@
 
 namespace WhirlyKit
 {
-    
-// Shader name
-//#define kParticleSystemShaderName "Default Part Sys (Point)"
-    
 
-// Build the particle system default shader
-Program *BuildParticleSystemProgram(const std::string &name,SceneRenderer *renderer);
-    
 // Low level drawable used to manage particle systems
 class ParticleSystemDrawable : public Drawable
 {

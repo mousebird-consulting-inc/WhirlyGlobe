@@ -23,18 +23,6 @@
 
 namespace WhirlyKit
 {
-    
-// Shader name
-//#define kScreenSpaceShaderName "Screen Space Shader"
-//#define kScreenSpaceShader2DName "Screen Space Shader 2D"
-//#define kScreenSpaceShaderMotionName "Screen Space Shader Motion"
-//#define kScreenSpaceShader2DMotionName "Screen Space Shader 2D Motion"
-    
-/// Construct and return the Screen Space shader program
-Program *BuildScreenSpaceProgram(const std::string &name,SceneRenderer *render);
-Program *BuildScreenSpaceMotionProgram(const std::string &name,SceneRenderer *render);
-Program *BuildScreenSpace2DProgram(const std::string &name,SceneRenderer *render);
-Program *BuildScreenSpaceMotion2DProgram(const std::string &name,SceneRenderer *render);
 
 /// Wrapper for building screen space drawables
 class ScreenSpaceDrawableBuilder : public BasicDrawableBuilder

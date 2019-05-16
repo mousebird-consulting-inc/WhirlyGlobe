@@ -24,15 +24,6 @@
 namespace WhirlyKit
 {
     
-// Shader name
-//#define kWideVectorShaderName "Wide Vector Shader"
-//#define kWideVectorGlobeShaderName "Wide Vector Shader Globe"
-    
-/// Construct and return the wide vector shader program
-Program *BuildWideVectorProgram(const std::string &name,SceneRenderer *renderer);
-/// This version is for the 3D globe
-Program *BuildWideVectorGlobeProgram(const std::string &name,SceneRenderer *renderer);
-    
 // Used to debug the wide vectors
 //#define WIDEVECDEBUG 1
 

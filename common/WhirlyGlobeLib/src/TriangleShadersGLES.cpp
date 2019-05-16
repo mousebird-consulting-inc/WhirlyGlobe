@@ -18,7 +18,7 @@
  *
  */
 
-#import "TriangleShaders.h"
+#import "TriangleShadersGLES.h"
 #import "ProgramGLES.h"
 
 namespace WhirlyKit
@@ -113,7 +113,7 @@ void main()
 )";
     
 // Triangle shader with lighting
-Program *BuildDefaultTriShaderLighting(const std::string &name,SceneRenderer *sceneRender)
+Program *BuildDefaultTriShaderLightingGLES(const std::string &name,SceneRenderer *sceneRender)
 {
     ProgramGLES *shader = new ProgramGLES(name,vertexShaderTri,fragmentShaderTri);
     if (!shader->isValid())
@@ -173,7 +173,7 @@ void main()
 )";
     
 // Triangle shader without lighting
-Program *BuildDefaultTriShaderNoLighting(const std::string &name,SceneRenderer *sceneRender)
+Program *BuildDefaultTriShaderNoLightingGLES(const std::string &name,SceneRenderer *sceneRender)
 {
     ProgramGLES *shader = new ProgramGLES(name,vertexShaderNoLightTri,fragmentShaderNoLightTri);
     if (!shader->isValid())
@@ -258,7 +258,7 @@ void main()
 )";
 
 // Triangle shader for models
-Program *BuildDefaultTriShaderModel(const std::string &name,SceneRenderer *sceneRender)
+Program *BuildDefaultTriShaderModelGLES(const std::string &name,SceneRenderer *sceneRender)
 {
     ProgramGLES *shader = new ProgramGLES(name,vertexShaderModelTri,fragmentShaderTri);
     if (!shader->isValid())
@@ -342,7 +342,7 @@ void main()
 )";
     
 // Triangles with screen textures
-Program *BuildDefaultTriShaderScreenTexture(const std::string &name,SceneRenderer *sceneRender)
+Program *BuildDefaultTriShaderScreenTextureGLES(const std::string &name,SceneRenderer *sceneRender)
 {
     ProgramGLES *shader = new ProgramGLES(name,vertexShaderScreenTexTri,fragmentShaderTri);
     if (!shader->isValid())
@@ -454,7 +454,7 @@ void main()
 )";
     
 // Triangles with multiple textures
-Program *BuildDefaultTriShaderMultitex(const std::string &name,SceneRenderer *sceneRender)
+Program *BuildDefaultTriShaderMultitexGLES(const std::string &name,SceneRenderer *sceneRender)
 {
     ProgramGLES *shader = new ProgramGLES(name,vertexShaderTriMultiTex,fragmentShaderTriMultiTex);
     if (!shader->isValid())
@@ -488,7 +488,7 @@ void main()
 )";
     
 // Triangles that use the ramp textures
-Program *BuildDefaultTriShaderRamptex(const std::string &name,SceneRenderer *renderer)
+Program *BuildDefaultTriShaderRamptexGLES(const std::string &name,SceneRenderer *renderer)
 {
     ProgramGLES *shader = new ProgramGLES(name,vertexShaderTriMultiTex,fragmentShaderTriMultiTexRamp);
     if (!shader->isValid())
@@ -589,7 +589,7 @@ void main()
 )";
     
 // Day/night support for triangles
-Program *BuildDefaultTriShaderNightDay(const std::string &name,SceneRenderer *sceneRender)
+Program *BuildDefaultTriShaderNightDayGLES(const std::string &name,SceneRenderer *sceneRender)
 {
     ProgramGLES *shader = new ProgramGLES(name,vertexShaderTriNightDay,fragmentShaderTriNightDay);
     if (!shader->isValid())
