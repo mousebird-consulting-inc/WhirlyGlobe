@@ -57,19 +57,5 @@ protected:
     bool compressed;
     GLenum format,type;
 };
-
-/** The dynamic texture atlas manages a variable number of dynamic textures into which it will stuff
- individual textures.  You use it by adding your individual Textures and passing the
- change requests on to the layer thread (or Scene).  You can also clear your Textures later
- by region.
- */
-class DynamicTextureAtlasGLES : public DynamicTextureAtlas
-{
-public:
-    DynamicTextureAtlasGLES(const std::string &name,int texSize,int cellSize,GLenum format,int imageDepth=1,bool mainThreadMerge=false);
-    virtual ~DynamicTextureAtlasGLES();
-        
-protected:
-};
     
 }

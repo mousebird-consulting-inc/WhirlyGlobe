@@ -19,3 +19,49 @@
  */
 
 #import "ScreenSpaceDrawableBuilderMTL.h"
+
+namespace WhirlyKit
+{
+    
+Program *BuildScreenSpaceProgramMTL(const std::string &name,SceneRenderer *render)
+{
+    // TODO: Implement
+    return NULL;
+}
+
+Program *BuildScreenSpaceMotionProgramMTL(const std::string &name,SceneRenderer *render)
+{
+    // TODO: Implement
+    return NULL;
+}
+
+Program *BuildScreenSpace2DProgramMTL(const std::string &name,SceneRenderer *render)
+{
+    // TODO: Implement
+    return NULL;
+}
+
+Program *BuildScreenSpaceMotion2DProgramMTL(const std::string &name,SceneRenderer *render)
+{
+    // TODO: Implement
+    return NULL;
+}
+
+ScreenSpaceDrawableBuilderMTL::ScreenSpaceDrawableBuilderMTL(const std::string &name)
+    : BasicDrawableBuilderMTL(name)
+{
+}
+
+int ScreenSpaceDrawableBuilderMTL::addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings)
+{
+    // TODO: Implement
+    return -1;
+}
+
+BasicDrawable *ScreenSpaceDrawableBuilderMTL::getDrawable()
+{
+    // TODO: Implement
+    return NULL;
+}
+    
+}

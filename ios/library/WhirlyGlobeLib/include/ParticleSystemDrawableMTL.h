@@ -17,3 +17,46 @@
  *  limitations under the License.
  *
  */
+
+#import "ParticleSystemDrawable.h"
+#import "ProgramMTL.h"
+#import "WrapperMTL.h"
+#import "BasicDrawableMTL.h"
+#import "VertexAttributeMTL.h"
+
+namespace WhirlyKit
+{
+
+// Build the particle system default shader
+Program *BuildParticleSystemProgramMTL(const std::string &name,SceneRenderer *renderer);
+
+// Maximum size of particle buffers (8MB)
+//#define kMaxParticleMemory (8*1024*1024)
+
+/// Metal version of the particle system drawable
+class ParticleSystemDrawableMTL : public ParticleSystemDrawable
+{
+    friend class ParticleSystemDrawableBuilderMTL;
+public:
+    ParticleSystemDrawableMTL(const std::string &name);
+    
+    /// Add the vertex data (all of it) at once
+    void addAttributeData(const RenderSetupInfo *setupInfo,const std::vector<AttributeData> &attrData,const Batch &batch);
+    
+    /// Create our buffers in GL
+    virtual void setupForRenderer(const RenderSetupInfo *);
+    
+    /// Destroy GL buffers
+    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo);
+    
+    /// Particles can calculate their positions
+    void calculate(RendererFrameInfo *frameInfo,Scene *scene);
+    
+    /// Called on the rendering thread to draw
+    void draw(RendererFrameInfo *frameInfo,Scene *scene);
+    
+protected:
+};
+
+    
+}

@@ -17,3 +17,37 @@
  *  limitations under the License.
  *
  */
+
+#import "ScreenSpaceDrawableBuilder.h"
+#import "BasicDrawableBuilderMTL.h"
+
+namespace WhirlyKit
+{
+    
+// Shader name
+//#define kScreenSpaceShaderName "Screen Space Shader"
+//#define kScreenSpaceShader2DName "Screen Space Shader 2D"
+//#define kScreenSpaceShaderMotionName "Screen Space Shader Motion"
+//#define kScreenSpaceShader2DMotionName "Screen Space Shader 2D Motion"
+
+/// Construct and return the Screen Space shader program
+Program *BuildScreenSpaceProgramMTL(const std::string &name,SceneRenderer *render);
+Program *BuildScreenSpaceMotionProgramMTL(const std::string &name,SceneRenderer *render);
+Program *BuildScreenSpace2DProgramMTL(const std::string &name,SceneRenderer *render);
+Program *BuildScreenSpaceMotion2DProgramMTL(const std::string &name,SceneRenderer *render);
+
+/** OpenGL version of ScreenSpaceDrawable Builder
+ */
+class ScreenSpaceDrawableBuilderMTL : public BasicDrawableBuilderMTL, public ScreenSpaceDrawableBuilder
+{
+public:
+    ScreenSpaceDrawableBuilderMTL(const std::string &name);
+    
+    virtual int addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings = -1);
+    
+    /// Fill out and return the drawable
+    virtual BasicDrawable *getDrawable();
+};
+    
+}
+

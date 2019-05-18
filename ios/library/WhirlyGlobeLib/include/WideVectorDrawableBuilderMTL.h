@@ -17,3 +17,27 @@
  *  limitations under the License.
  *
  */
+
+#import "WideVectorDrawableBuilder.h"
+#import "BasicDrawableBuilderMTL.h"
+
+namespace WhirlyKit
+{
+    
+/// Construct and return the wide vector shader program
+Program *BuildWideVectorProgramMTL(const std::string &name,SceneRenderer *renderer);
+/// This version is for the 3D globe
+Program *BuildWideVectorGlobeProgramMTL(const std::string &name,SceneRenderer *renderer);
+
+/// Metal version of the WideVectorDrawable Builder
+class WideVectorDrawableBuilderMTL : public BasicDrawableBuilderMTL, public WideVectorDrawableBuilder
+{
+public:
+    WideVectorDrawableBuilderMTL(const std::string &name);
+    
+    virtual int addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings = -1);
+    
+    virtual BasicDrawable *getDrawable();
+};
+
+}

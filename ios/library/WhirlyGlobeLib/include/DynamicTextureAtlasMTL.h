@@ -17,3 +17,39 @@
  *  limitations under the License.
  *
  */
+
+#import "DynamicTextureAtlas.h"
+#import "TextureMTL.h"
+#import "WrapperMTL.h"
+
+namespace WhirlyKit
+{
+    
+/** The dynamic texture can have pieces of itself replaced in the layer thread while
+ being used in the renderer.  It's used to implement dynamic texture atlases.
+ */
+class DynamicTextureMTL : virtual public DynamicTexture, virtual public TextureBaseMTL
+{
+public:
+    /// Construct with a name, square texture size, cell size (in texels), and the memory format
+    DynamicTextureMTL(const std::string &name);
+    
+    /// Called after construction to do the actual work
+    void setup(int texSize,int cellSize,TextureType format,bool clearTextures);
+    
+    /// Add the data at a given location in the texture
+    void addTextureData(int startX,int startY,int width,int height,RawDataRef data);
+    
+    /// Clear out the low level data
+    void clearTextureData(int startX,int startY,int width,int height,ChangeSet &changes,bool mainThreadMerge,unsigned char *emptyData);
+    
+    /// Create an appropriately empty texture in OpenGL ES
+    virtual bool createInRenderer(const RenderSetupInfo *setupInfo);
+    
+    /// Render side only.  Don't call this.  Destroy the OpenGL ES version
+    virtual void destroyInRenderer(const RenderSetupInfo *setupInfo);
+    
+protected:
+};
+    
+}

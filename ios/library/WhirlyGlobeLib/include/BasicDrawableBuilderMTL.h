@@ -17,3 +17,30 @@
  *  limitations under the License.
  *
  */
+
+#import "BasicDrawableBuilder.h"
+#import "BasicDrawableMTL.h"
+
+namespace WhirlyKit
+{
+
+/** Metal version of BasicDrawable Builder.
+ */
+class BasicDrawableBuilderMTL : public BasicDrawableBuilder
+{
+public:
+    /// Construct empty
+    BasicDrawableBuilderMTL(const std::string &name);
+    ~BasicDrawableBuilderMTL();
+    
+    /// Add a new vertex related attribute.  Need a data type and the name the shader refers to
+    ///  it by.  The index returned is how you will access it.
+    virtual int addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings = -1);
+    
+    /// Fill out and return the drawable
+    virtual BasicDrawable *getDrawable();
+    
+protected:
+};
+
+}

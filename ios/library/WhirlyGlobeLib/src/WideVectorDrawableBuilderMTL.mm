@@ -19,3 +19,37 @@
  */
 
 #import "WideVectorDrawableBuilderMTL.h"
+
+namespace WhirlyKit
+{
+
+Program *BuildWideVectorProgramMTL(const std::string &name,SceneRenderer *renderer)
+{
+    // TODO: Implement
+    return NULL;
+}
+
+Program *BuildWideVectorGlobeProgramMTL(const std::string &name,SceneRenderer *renderer)
+{
+    // TODO: Implement
+    return NULL;
+}
+    
+WideVectorDrawableBuilderMTL::WideVectorDrawableBuilderMTL(const std::string &name)
+: BasicDrawableBuilderMTL(name)
+{
+}
+
+int WideVectorDrawableBuilderMTL::addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings)
+{
+    return BasicDrawableBuilderMTL::addAttribute(dataType, nameID, numThings);
+    // TODO: Implement
+}
+
+BasicDrawable *WideVectorDrawableBuilderMTL::getDrawable()
+{
+    // TODO: Implement
+    return NULL;
+}
+
+}

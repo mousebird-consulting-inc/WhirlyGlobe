@@ -17,3 +17,35 @@
  *  limitations under the License.
  *
  */
+
+#import "Identifiable.h"
+#import "WhirlyVector.h"
+#import "BasicDrawable.h"
+#import "WrapperMTL.h"
+#import "VertexAttributeMTL.h"
+
+namespace WhirlyKit
+{
+    
+/** Metal Version of the BasicDrawable.
+ */
+class BasicDrawableMTL : public BasicDrawable
+{
+public:
+    BasicDrawableMTL(const std::string &name);
+    
+    /// Set up local rendering structures (e.g. VBOs)
+    virtual void setupForRenderer(const RenderSetupInfo *setupInfo);
+    
+    /// Clean up any rendering objects you may have (e.g. VBOs).
+    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo);
+    
+    /// Fill this in to draw the basic drawable
+    /// Note: Make this GL only
+    virtual void draw(RendererFrameInfo *frameInfo,Scene *scene);
+        
+public:
+};
+
+    
+}

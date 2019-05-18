@@ -17,3 +17,25 @@
  *  limitations under the License.
  *
  */
+
+#import "BillboardDrawableBuilder.h"
+#import "BasicDrawableBuilderMTL.h"
+
+namespace WhirlyKit
+{
+Program *BuildBillboardGroundProgramMTL(const std::string &name,SceneRenderer *render);
+Program *BuildBillboardEyeProgramMTL(const std::string &name,SceneRenderer *render);
+    
+/** Metal version of BillboardDrawable Builder
+ */
+class BillboardDrawableBuilderMTL : public BasicDrawableBuilderMTL, public BillboardDrawableBuilder
+{
+public:
+    BillboardDrawableBuilderMTL(const std::string &name);
+    
+    virtual int addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings = -1);
+    
+    virtual BasicDrawable *getDrawable();
+};
+
+}

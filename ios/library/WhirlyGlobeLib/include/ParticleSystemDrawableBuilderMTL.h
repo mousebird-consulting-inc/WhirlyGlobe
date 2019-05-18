@@ -17,3 +17,27 @@
  *  limitations under the License.
  *
  */
+
+#import "ParticleSystemDrawableBuilder.h"
+#import "ParticleSystemDrawableMTL.h"
+
+namespace WhirlyKit
+{
+    
+/// Metal version of the particle system drawable builder
+class ParticleSystemDrawableBuilderMTL : public ParticleSystemDrawableBuilder
+{
+public:
+    ParticleSystemDrawableBuilderMTL(const std::string &name);
+    virtual ~ParticleSystemDrawableBuilderMTL();
+    
+    void setup(const std::vector<SingleVertexAttributeInfo> &inVertAttrs,
+               const std::vector<SingleVertexAttributeInfo> &inVaryAttrs,
+               int numTotalPoints,int batchSize,bool useRectangles,bool useInstancing);
+    
+    ParticleSystemDrawable *getDrawable();
+    
+protected:
+};
+    
+}

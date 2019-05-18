@@ -19,3 +19,39 @@
  */
 
 #import "DynamicTextureAtlasMTL.h"
+
+namespace WhirlyKit
+{
+    
+DynamicTextureMTL::DynamicTextureMTL(const std::string &name)
+: DynamicTexture(name), TextureBase(name), TextureBaseMTL(name)
+{
+}
+
+void DynamicTextureMTL::setup(int texSize,int cellSize,TextureType format,bool clearTextures)
+{
+    // TODO: Implement
+}
+
+void DynamicTextureMTL::addTextureData(int startX,int startY,int width,int height,RawDataRef data)
+{
+    // TODO: Implement
+}
+
+void DynamicTextureMTL::clearTextureData(int startX,int startY,int width,int height,ChangeSet &changes,bool mainThreadMerge,unsigned char *emptyData)
+{
+    // TODO: Implement
+}
+
+bool DynamicTextureMTL::createInRenderer(const RenderSetupInfo *setupInfo)
+{
+    // TODO: Implement
+    return false;
+}
+
+void DynamicTextureMTL::destroyInRenderer(const RenderSetupInfo *setupInfo)
+{
+    // TODO: Implement
+}
+    
+}

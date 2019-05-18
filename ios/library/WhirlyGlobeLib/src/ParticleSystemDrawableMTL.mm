@@ -19,3 +19,44 @@
  */
 
 #import "ParticleSystemDrawableMTL.h"
+
+namespace WhirlyKit
+{
+
+Program *BuildParticleSystemProgramMTL(const std::string &name,SceneRenderer *renderer)
+{
+    // TODO: Implement
+    return NULL;
+}
+
+ParticleSystemDrawableMTL::ParticleSystemDrawableMTL(const std::string &name)
+    : ParticleSystemDrawable(name)
+{
+}
+
+void ParticleSystemDrawableMTL::addAttributeData(const RenderSetupInfo *setupInfo,const std::vector<AttributeData> &attrData,const Batch &batch)
+{
+    // TODO: Implement
+}
+
+void ParticleSystemDrawableMTL::setupForRenderer(const RenderSetupInfo *)
+{
+    // TODO: Implement
+}
+
+void ParticleSystemDrawableMTL::teardownForRenderer(const RenderSetupInfo *setupInfo)
+{
+    // TODO: Implement
+}
+
+void ParticleSystemDrawableMTL::calculate(RendererFrameInfo *frameInfo,Scene *scene)
+{
+    // TODO: Implement
+}
+
+void ParticleSystemDrawableMTL::draw(RendererFrameInfo *frameInfo,Scene *scene)
+{
+    // TODO: Implement
+}
+
+}

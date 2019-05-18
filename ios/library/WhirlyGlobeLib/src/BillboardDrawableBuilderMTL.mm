@@ -19,3 +19,38 @@
  */
 
 #import "BillboardDrawableBuilderMTL.h"
+
+namespace WhirlyKit
+{
+
+Program *BuildBillboardGroundProgramMTL(const std::string &name,SceneRenderer *render)
+{
+    // TODO: Implement
+    return NULL;
+}
+
+Program *BuildBillboardEyeProgramMTL(const std::string &name,SceneRenderer *render)
+{
+    // TODO: Implement
+    return NULL;
+}
+
+BillboardDrawableBuilderMTL::BillboardDrawableBuilderMTL(const std::string &name)
+    : BasicDrawableBuilderMTL(name)
+{
+}
+
+int BillboardDrawableBuilderMTL::addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings)
+{
+    // TODO: Implement
+    return -1;
+}
+
+BasicDrawable *BillboardDrawableBuilderMTL::getDrawable()
+{
+    // TODO: Implement
+    return NULL;
+}
+
+    
+}

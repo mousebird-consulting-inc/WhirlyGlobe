@@ -19,3 +19,50 @@
  */
 
 #import "RenderTargetMTL.h"
+
+namespace WhirlyKit
+{
+
+RenderTargetMTL::RenderTargetMTL()
+{
+}
+
+RenderTargetMTL::RenderTargetMTL(SimpleIdentity newID)
+    : RenderTarget(newID)
+{
+}
+
+RenderTargetMTL::~RenderTargetMTL()
+{
+}
+
+bool RenderTargetMTL::init(SceneRenderer *renderer,Scene *scene,SimpleIdentity targetTexID)
+{
+    // TODO: Implement
+    return false;
+}
+
+bool RenderTargetMTL::setTargetTexture(SceneRenderer *renderer,Scene *scene,SimpleIdentity newTargetTexID)
+{
+    // TODO: Implement
+    return false;
+}
+
+void RenderTargetMTL::clear()
+{
+    // TODO: Implement
+}
+
+RawDataRef RenderTargetMTL::snapshot()
+{
+    // TODO: Implement
+    return RawDataRef();
+}
+
+void RenderTargetMTL::setTargetTexture(TextureBase *tex)
+{
+    // TODO: Implement
+}
+
+    
+}

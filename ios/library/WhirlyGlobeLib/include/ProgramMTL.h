@@ -34,11 +34,7 @@ public:
     virtual ~ProgramMTL();
     
     /// Used only for comparison
-    ProgramMTL(SimpleIdentity theId) : Program(theId), lightsLastUpdated(0.0) { }
-    
-    /// Initialize with both shader programs
-    /// We'll look for both mains
-    ProgramMTL(const std::string &name,const std::string &progStr);
+    ProgramMTL(SimpleIdentity theId);
     
     /// Return true if it was built correctly
     bool isValid();
@@ -67,20 +63,17 @@ public:
     bool setLights(const std::vector<DirectionalLight> &lights, TimeInterval lastUpdated, Material *mat, Eigen::Matrix4f &modelMat);
         
     /// Return the name (for tracking purposes)
-    const std::string &getName() { return name; }
+    const std::string &getName();
     
     /// Return the GL Program ID
-    id<MTLLibrary> getProgram() { return program; }
-    
-    /// Bind any program specific textures right before we draw.
-    /// We get to start at 0 and return however many we bound
-    int bindTextures();
+    id<MTLLibrary> getProgram();
     
     /// Clean up OpenGL resources, rather than letting the destructor do it (which it will)
     virtual void teardownForRenderer(const RenderSetupInfo *setupInfo);
     void cleanUp();
     
 protected:
+    bool valid;
     id<MTLLibrary> program;
     std::string name;
     TimeInterval lightsLastUpdated;

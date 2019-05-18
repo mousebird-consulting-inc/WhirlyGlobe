@@ -18,4 +18,29 @@
  *
  */
 
-#import "BasicDrawable.h"
+#import "BasicDrawableMTL.h"
+
+namespace WhirlyKit
+{
+    
+BasicDrawableMTL::BasicDrawableMTL(const std::string &name)
+    : BasicDrawable(name)
+{
+}
+
+void BasicDrawableMTL::setupForRenderer(const RenderSetupInfo *setupInfo)
+{
+    // TODO: Implement
+}
+
+void BasicDrawableMTL::teardownForRenderer(const RenderSetupInfo *setupInfo)
+{
+    // TODO: Implement
+}
+
+void BasicDrawableMTL::draw(RendererFrameInfo *frameInfo,Scene *scene)
+{
+    // TODO: Implement
+}
+    
+}

@@ -19,3 +19,24 @@
  */
 
 #import "BasicDrawableInstanceBuilderMTL.h"
+
+namespace WhirlyKit
+{
+
+    
+BasicDrawableInstanceBuilderMTL::BasicDrawableInstanceBuilderMTL(const std::string &name)
+    : BasicDrawableInstanceBuilder(name)
+{
+}
+    
+BasicDrawableInstanceBuilderMTL::~BasicDrawableInstanceBuilderMTL()
+{
+}
+
+BasicDrawableInstance *BasicDrawableInstanceBuilderMTL::getDrawable()
+{
+    // TODO: Implement
+    return NULL;
+}
+
+}

@@ -19,3 +19,101 @@
  */
 
 #import "SceneRendererMTL.h"
+#import "BasicDrawableBuilderMTL.h"
+#import "BasicDrawableInstanceBuilderMTL.h"
+#import "BillboardDrawableBuilderMTL.h"
+#import "ScreenSpaceDrawableBuilderMTL.h"
+#import "ParticleSystemDrawableBuilderMTL.h"
+#import "WideVectorDrawableBuilderMTL.h"
+#import "RenderTargetMTL.h"
+#import "DynamicTextureAtlasMTL.h"
+
+namespace WhirlyKit
+{
+
+SceneRendererMTL::SceneRendererMTL(id<MTLDevice> mtlDevice)
+{
+    setupInfo.mtlDevice = mtlDevice;
+}
+    
+SceneRendererMTL::~SceneRendererMTL()
+{
+}
+
+SceneRendererMTL::Type SceneRendererMTL::getType()
+{
+    return RenderMetal;
+}
+
+const RenderSetupInfo *SceneRendererMTL::getRenderSetupInfo() const
+{
+    return &setupInfo;
+}
+
+void SceneRendererMTL::setView(View *newView)
+{
+    SceneRenderer::setView(newView);
+}
+
+void SceneRendererMTL::setScene(Scene *newScene)
+{
+    SceneRenderer::setScene(newScene);
+}
+
+bool SceneRendererMTL::setup(int sizeX,int sizeY)
+{
+    return true;
+}
+
+bool SceneRendererMTL::resize(int sizeX,int sizeY)
+{
+    return true;
+}
+
+void SceneRendererMTL::render(TimeInterval period)
+{
+    
+}
+
+BasicDrawableBuilderRef SceneRendererMTL::makeBasicDrawableBuilder(const std::string &name) const
+{
+    return BasicDrawableBuilderRef(new BasicDrawableBuilderMTL(name));
+}
+
+BasicDrawableInstanceBuilderRef SceneRendererMTL::makeBasicDrawableInstanceBuilder(const std::string &name) const
+{
+    return BasicDrawableInstanceBuilderRef(new BasicDrawableInstanceBuilderMTL(name));
+}
+
+BillboardDrawableBuilderRef SceneRendererMTL::makeBillboardDrawableBuilder(const std::string &name) const
+{
+    return BillboardDrawableBuilderRef(new BillboardDrawableBuilderMTL(name));
+}
+
+ScreenSpaceDrawableBuilderRef SceneRendererMTL::makeScreenSpaceDrawableBuilder(const std::string &name) const
+{
+    return ScreenSpaceDrawableBuilderRef(new ScreenSpaceDrawableBuilderMTL(name));
+}
+
+ParticleSystemDrawableBuilderRef  SceneRendererMTL::makeParticleSystemDrawableBuilder(const std::string &name) const
+{
+    return ParticleSystemDrawableBuilderRef(new ParticleSystemDrawableBuilderMTL(name));
+}
+
+WideVectorDrawableBuilderRef SceneRendererMTL::makeWideVectorDrawableBuilder(const std::string &name) const
+{
+    return WideVectorDrawableBuilderRef(new WideVectorDrawableBuilderMTL(name));
+}
+
+RenderTargetRef SceneRendererMTL::makeRenderTarget() const
+{
+    return RenderTargetRef(new RenderTargetMTL());
+}
+
+DynamicTextureRef SceneRendererMTL::makeDynamicTexture(const std::string &name) const
+{
+    return DynamicTextureRef(new DynamicTextureMTL(name));
+}
+
+    
+}

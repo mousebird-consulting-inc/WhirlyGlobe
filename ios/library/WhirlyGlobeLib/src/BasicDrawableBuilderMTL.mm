@@ -19,3 +19,30 @@
  */
 
 #import "BasicDrawableBuilderMTL.h"
+
+namespace WhirlyKit
+{
+
+BasicDrawableBuilderMTL::BasicDrawableBuilderMTL(const std::string &name)
+    : BasicDrawableBuilder(name)
+{
+}
+    
+BasicDrawableBuilderMTL::~BasicDrawableBuilderMTL()
+{
+}
+
+int BasicDrawableBuilderMTL::addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings)
+{
+    // TODO: Implement
+    
+    return -1;
+}
+
+BasicDrawable *BasicDrawableBuilderMTL::getDrawable()
+{
+    // TODO: Implement
+    return NULL;
+}
+    
+}

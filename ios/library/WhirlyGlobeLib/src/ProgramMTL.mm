@@ -19,3 +19,119 @@
  */
 
 #import "ProgramMTL.h"
+
+namespace WhirlyKit
+{
+    
+ProgramMTL::ProgramMTL() : lightsLastUpdated(0.0), valid(false)
+{
+}
+
+ProgramMTL::~ProgramMTL()
+{
+}
+
+ProgramMTL::ProgramMTL(SimpleIdentity theId) : Program(theId), valid(true), lightsLastUpdated(0.0)
+{ }
+
+bool ProgramMTL::isValid()
+{
+    return valid;
+}
+
+bool ProgramMTL::setUniform(StringIdentity nameID,float val)
+{
+    // TODO: Implement
+    
+    return false;
+}
+
+bool ProgramMTL::setUniform(StringIdentity nameID,float val,int index)
+{
+    // TODO: Implement
+    
+    return false;
+}
+
+bool ProgramMTL::setUniform(StringIdentity nameID,const Eigen::Vector2f &vec)
+{
+    // TODO: Implement
+    
+    return false;
+}
+
+bool ProgramMTL::setUniform(StringIdentity nameID,const Eigen::Vector3f &vec)
+{
+    // TODO: Implement
+    
+    return false;
+}
+
+bool ProgramMTL::setUniform(StringIdentity nameID,const Eigen::Vector4f &vec)
+{
+    // TODO: Implement
+    
+    return false;
+}
+
+bool ProgramMTL::setUniform(StringIdentity nameID,const Eigen::Vector4f &vec,int index)
+{
+    // TODO: Implement
+    
+    return false;
+}
+
+bool ProgramMTL::setUniform(StringIdentity nameID,const Eigen::Matrix4f &mat)
+{
+    // TODO: Implement
+    
+    return false;
+}
+
+bool ProgramMTL::setUniform(StringIdentity nameID,int val)
+{
+    // TODO: Implement
+    
+    return false;
+}
+
+bool ProgramMTL::setUniform(const SingleVertexAttribute &attr)
+{
+    // TODO: Implement
+    
+    return false;
+}
+
+bool ProgramMTL::setTexture(StringIdentity nameID,TextureBase *tex)
+{
+    // TODO: Implement
+    
+    return false;
+}
+
+bool ProgramMTL::hasLights()
+{
+    // TODO: Implement
+    
+    return false;
+}
+
+bool ProgramMTL::setLights(const std::vector<DirectionalLight> &lights, TimeInterval lastUpdated, Material *mat, Eigen::Matrix4f &modelMat)
+{
+    // TODO: Implement
+    
+    return false;
+}
+
+const std::string &ProgramMTL::getName()
+{ return name; }
+
+id<MTLLibrary> ProgramMTL::getProgram()
+{ return program; }
+
+void ProgramMTL::teardownForRenderer(const RenderSetupInfo *setupInfo)
+{
+    // TODO: Implement
+}
+
+}

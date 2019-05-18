@@ -17,3 +17,72 @@
  *  limitations under the License.
  *
  */
+
+#import "SceneRenderer.h"
+#import "WhirlyVector.h"
+#import "WhirlyKitView.h"
+#import "Scene.h"
+#import "PerformanceTimer.h"
+#import "Lighting.h"
+#import "SceneRenderer.h"
+#import "WrapperMTL.h"
+#import "ProgramMTL.h"
+
+namespace WhirlyKit
+{
+
+/// Metal version of the Scene Renderer
+class SceneRendererMTL : public SceneRenderer
+{
+public:
+    SceneRendererMTL(id<MTLDevice> mtlDevice);
+    virtual ~SceneRendererMTL();
+    
+    // Metal (obviously)
+    virtual Type getType();
+    
+    // Various information about the renderer passed around to call
+    virtual const RenderSetupInfo *getRenderSetupInfo() const;
+    
+    virtual void setView(View *newView);
+    virtual void setScene(Scene *newScene);
+    
+    /// Called right after the constructor
+    bool setup(int sizeX,int sizeY);
+    
+    /// Resize framebuffer because something changed
+    virtual bool resize(int sizeX,int sizeY);
+    
+    /// Draw stuff (the whole point!)
+    void render(TimeInterval period);
+    
+    /// Construct a basic drawable builder for the appropriate rendering type
+    virtual BasicDrawableBuilderRef makeBasicDrawableBuilder(const std::string &name) const;
+    
+    /// Construct a basic drawables instance builder for the current rendering type
+    virtual BasicDrawableInstanceBuilderRef makeBasicDrawableInstanceBuilder(const std::string &name) const;
+    
+    /// Construct a billboard drawable builder for the current rendering type
+    virtual BillboardDrawableBuilderRef makeBillboardDrawableBuilder(const std::string &name) const;
+    
+    /// Construct a screnspace drawable builder for the current rendering type
+    virtual ScreenSpaceDrawableBuilderRef makeScreenSpaceDrawableBuilder(const std::string &name) const;
+    
+    /// Construct a particle system builder of the appropriate rendering type
+    virtual ParticleSystemDrawableBuilderRef  makeParticleSystemDrawableBuilder(const std::string &name) const;
+    
+    /// Construct a wide vector drawable builder of the appropriate rendering type
+    virtual WideVectorDrawableBuilderRef makeWideVectorDrawableBuilder(const std::string &name) const;
+    
+    /// Construct a renderer-specific render target
+    virtual RenderTargetRef makeRenderTarget() const;
+    
+    /// Construct a renderer-specific dynamic texture
+    virtual DynamicTextureRef makeDynamicTexture(const std::string &name) const;
+    
+public:
+    // Information about the renderer passed around to various calls
+    RenderSetupInfoMTL setupInfo;
+};
+
+}

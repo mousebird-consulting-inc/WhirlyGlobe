@@ -17,3 +17,25 @@
  *  limitations under the License.
  *
  */
+
+#import "BasicDrawableInstanceBuilder.h"
+#import "BasicDrawableInstanceMTL.h"
+
+namespace WhirlyKit
+{
+    
+/** Metal version of BasicDrawableInstance Builder
+ */
+class BasicDrawableInstanceBuilderMTL : public BasicDrawableInstanceBuilder
+{
+public:
+    BasicDrawableInstanceBuilderMTL(const std::string &name);
+    ~BasicDrawableInstanceBuilderMTL();
+    
+    /// Fill out and return the drawable
+    virtual BasicDrawableInstance *getDrawable();
+    
+protected:
+};
+
+}

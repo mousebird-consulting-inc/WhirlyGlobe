@@ -17,3 +17,43 @@
  *  limitations under the License.
  *
  */
+
+#import "RenderTarget.h"
+#import "WrapperMTL.h"
+#import "SceneRendererMTL.h"
+
+namespace WhirlyKit
+{
+    class SceneRenderer;
+    
+/** What and where we're rendering.  This can be a regular framebuffer
+ to the screen or to a texture.
+ */
+class RenderTargetMTL : public RenderTarget
+{
+public:
+    RenderTargetMTL();
+    RenderTargetMTL(SimpleIdentity newID);
+    virtual ~RenderTargetMTL();
+    
+    // Set up the render target
+    bool init(SceneRenderer *renderer,Scene *scene,SimpleIdentity targetTexID);
+    
+    // Pull in framebuffer info from the current OpenGL State
+    /// Set up the target texture
+    virtual bool setTargetTexture(SceneRenderer *renderer,Scene *scene,SimpleIdentity newTargetTexID);
+    
+    // Clear up resources from the render target
+    void clear();
+    
+    /// Copy the data out of the destination texture and return it
+    virtual RawDataRef snapshot();
+    
+    /// Set the GL texture directly
+    void setTargetTexture(TextureBase *tex);
+    
+protected:
+};
+typedef std::shared_ptr<RenderTargetMTL> RenderTargetMTLRef;
+    
+}

@@ -19,3 +19,18 @@
  */
 
 #import "WrapperMTL.h"
+
+namespace WhirlyKit
+{
+    
+RenderSetupInfoMTL::RenderSetupInfoMTL()
+: mtlDevice(nil)
+{
+}
+
+RenderSetupInfoMTL::RenderSetupInfoMTL(Scene *scene)
+: mtlDevice(nil)
+{
+}
+    
+}

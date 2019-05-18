@@ -19,3 +19,33 @@
  */
 
 #import "ParticleSystemDrawableBuilderMTL.h"
+
+namespace WhirlyKit
+{
+
+ParticleSystemDrawableBuilderMTL::ParticleSystemDrawableBuilderMTL(const std::string &name)
+: ParticleSystemDrawableBuilder(name)
+{
+}
+
+void ParticleSystemDrawableBuilderMTL::setup(const std::vector<SingleVertexAttributeInfo> &inVertAttrs,
+                                              const std::vector<SingleVertexAttributeInfo> &inVaryAttrs,
+                                              int numTotalPoints,int batchSize,bool useRectangles,bool useInstancing)
+{
+    ParticleSystemDrawableBuilder::setup(inVertAttrs,inVaryAttrs,numTotalPoints,batchSize,useRectangles,useInstancing);
+    
+    // TODO: Implement
+}
+
+ParticleSystemDrawableBuilderMTL::~ParticleSystemDrawableBuilderMTL()
+{
+}
+
+ParticleSystemDrawable *ParticleSystemDrawableBuilderMTL::getDrawable()
+{
+    // TODO: Implement
+    
+    return NULL;
+}
+    
+}
