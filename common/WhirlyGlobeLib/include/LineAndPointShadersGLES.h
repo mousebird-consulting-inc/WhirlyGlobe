@@ -18,15 +18,15 @@
  *
  */
 
-#import "Program.h"
+#import "ProgramGLES.h"
 
 namespace WhirlyKit
 {
 
 // Line shader with globe backface culling turned on
-Program *BuildDefaultLineShaderCullingGLES(const std::string &name,SceneRenderer *renderer);
+ProgramGLES *BuildDefaultLineShaderCullingGLES(const std::string &name,SceneRenderer *renderer);
     
 // Line shader without any culling
-Program *BuildDefaultLineShaderNoCullingGLES(const std::string &name,SceneRenderer *renderer);
+ProgramGLES *BuildDefaultLineShaderNoCullingGLES(const std::string &name,SceneRenderer *renderer);
     
 }

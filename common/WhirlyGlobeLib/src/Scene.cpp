@@ -440,7 +440,7 @@ Program *Scene::findProgramByName(const std::string &name)
     return prog;
 }
 
-void Scene::addProgram(Program *prog)
+void Scene::addProgram(ProgramRef prog)
 {
     if (!prog) {
         wkLogLevel(Warn,"Tried to add NULL program to scene.  Ignoring.");
@@ -449,7 +449,7 @@ void Scene::addProgram(Program *prog)
 
     std::lock_guard<std::mutex> guardLock(programLock);
 
-    programs[prog->getId()] = ProgramRef(prog);
+    programs[prog->getId()] = prog;
 }
 
 void Scene::removeProgram(SimpleIdentity progId)

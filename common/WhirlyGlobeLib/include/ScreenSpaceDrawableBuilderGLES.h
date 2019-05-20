@@ -31,10 +31,10 @@ namespace WhirlyKit
 //#define kScreenSpaceShader2DMotionName "Screen Space Shader 2D Motion"
 
 /// Construct and return the Screen Space shader program
-Program *BuildScreenSpaceProgramGLES(const std::string &name,SceneRenderer *render);
-Program *BuildScreenSpaceMotionProgramGLES(const std::string &name,SceneRenderer *render);
-Program *BuildScreenSpace2DProgramGLES(const std::string &name,SceneRenderer *render);
-Program *BuildScreenSpaceMotion2DProgramGLES(const std::string &name,SceneRenderer *render);
+ProgramGLES *BuildScreenSpaceProgramGLES(const std::string &name,SceneRenderer *render);
+ProgramGLES *BuildScreenSpaceMotionProgramGLES(const std::string &name,SceneRenderer *render);
+ProgramGLES *BuildScreenSpace2DProgramGLES(const std::string &name,SceneRenderer *render);
+ProgramGLES *BuildScreenSpaceMotion2DProgramGLES(const std::string &name,SceneRenderer *render);
     
 /** OpenGL version of ScreenSpaceDrawable Builder
  */

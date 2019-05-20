@@ -19,11 +19,17 @@
  */
 
 #import "ProgramMTL.h"
+#import "WhirlyKitLog.h"
 
 namespace WhirlyKit
 {
     
 ProgramMTL::ProgramMTL() : lightsLastUpdated(0.0), valid(false)
+{
+}
+    
+ProgramMTL::ProgramMTL(const std::string &name,id<MTLFunction> vertFunc,id<MTLFunction> fragFunc)
+    : name(name), vertFunc(vertFunc), fragFunc(fragFunc), lightsLastUpdated(0.0), valid(true)
 {
 }
 

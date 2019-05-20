@@ -23,18 +23,6 @@
 namespace WhirlyKit
 {
 
-Program *BuildBillboardGroundProgramMTL(const std::string &name,SceneRenderer *render)
-{
-    // TODO: Implement
-    return NULL;
-}
-
-Program *BuildBillboardEyeProgramMTL(const std::string &name,SceneRenderer *render)
-{
-    // TODO: Implement
-    return NULL;
-}
-
 BillboardDrawableBuilderMTL::BillboardDrawableBuilderMTL(const std::string &name)
     : BasicDrawableBuilderMTL(name)
 {

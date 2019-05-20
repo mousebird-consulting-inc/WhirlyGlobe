@@ -28,8 +28,8 @@ namespace WhirlyKit
 //#define kBillboardShaderName "Billboard Shader"
 
 /// Construct and return the Billboard shader program
-Program *BuildBillboardGroundProgramGLES(const std::string &name,SceneRenderer *render);
-Program *BuildBillboardEyeProgramGLES(const std::string &name,SceneRenderer *render);
+ProgramGLES *BuildBillboardGroundProgramGLES(const std::string &name,SceneRenderer *render);
+ProgramGLES *BuildBillboardEyeProgramGLES(const std::string &name,SceneRenderer *render);
 
 /** OpenGL version of BillboardDrawable Builder
  */

@@ -235,7 +235,7 @@ void main()
 }
 )";
 
-Program *BuildScreenSpaceProgramGLES(const std::string &name,SceneRenderer *render)
+ProgramGLES *BuildScreenSpaceProgramGLES(const std::string &name,SceneRenderer *render)
 {
     ProgramGLES *shader = new ProgramGLES(name,vertexShaderTri,fragmentShaderTri);
     if (!shader->isValid())
@@ -250,7 +250,7 @@ Program *BuildScreenSpaceProgramGLES(const std::string &name,SceneRenderer *rend
     return shader;
 }
 
-Program *BuildScreenSpace2DProgramGLES(const std::string &name,SceneRenderer *render)
+ProgramGLES *BuildScreenSpace2DProgramGLES(const std::string &name,SceneRenderer *render)
 {
     ProgramGLES *shader = new ProgramGLES(name,vertexShaderTri2d,fragmentShaderTri);
     if (!shader->isValid())
@@ -265,7 +265,7 @@ Program *BuildScreenSpace2DProgramGLES(const std::string &name,SceneRenderer *re
     return shader;
 }
 
-Program *BuildScreenSpaceMotionProgramGLES(const std::string &name,SceneRenderer *render)
+ProgramGLES *BuildScreenSpaceMotionProgramGLES(const std::string &name,SceneRenderer *render)
 {
     ProgramGLES *shader = new ProgramGLES(name,vertexShaderMotionTri,fragmentShaderTri);
     if (!shader->isValid())
@@ -280,7 +280,7 @@ Program *BuildScreenSpaceMotionProgramGLES(const std::string &name,SceneRenderer
     return shader;
 }
 
-Program *BuildScreenSpaceMotion2DProgramGLES(const std::string &name,SceneRenderer *render)
+ProgramGLES *BuildScreenSpaceMotion2DProgramGLES(const std::string &name,SceneRenderer *render)
 {
     ProgramGLES *shader = new ProgramGLES(name,vertexShader2dMotionTri,fragmentShaderTri);
     if (!shader->isValid())

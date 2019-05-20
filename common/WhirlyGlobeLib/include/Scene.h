@@ -128,15 +128,15 @@ class AddProgramReq : public ChangeRequest
 {
 public:
     // Construct with the program to add
-    AddProgramReq(const std::string &sceneName,Program *prog) : sceneName(sceneName), program(prog) { }
-    ~AddProgramReq() { if (program) delete program; program = NULL; }
+    AddProgramReq(const std::string &sceneName,ProgramRef prog) : sceneName(sceneName), program(prog) { }
+    ~AddProgramReq() { }
     
     /// Remove from the renderer.  Never call this.
     void execute(Scene *scene,SceneRenderer *renderer,View *view);
 
 protected:
     std::string sceneName;
-    Program *program;
+    ProgramRef program;
 };
     
 /// Remove an OpenGL ES 2.0 program from the scene
@@ -381,7 +381,7 @@ public:
     
     /// Add a shader for reference, but not with a scene name.
     /// Presumably you'll call setSceneProgram() shortly.
-    void addProgram(Program *prog);
+    void addProgram(ProgramRef prog);
     
     /// Remove the given program by ID (ours, not OpenGL's)
     void removeProgram(SimpleIdentity progId);

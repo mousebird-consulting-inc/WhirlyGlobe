@@ -27,9 +27,6 @@
 namespace WhirlyKit
 {
 
-// Build the particle system default shader
-Program *BuildParticleSystemProgramMTL(const std::string &name,SceneRenderer *renderer);
-
 // Maximum size of particle buffers (8MB)
 //#define kMaxParticleMemory (8*1024*1024)
 

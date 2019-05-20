@@ -64,7 +64,7 @@ void main()
 }
 )";
 
-Program *BuildDefaultLineShaderCullingGLES(const std::string &name,SceneRenderer *renderer)
+ProgramGLES *BuildDefaultLineShaderCullingGLES(const std::string &name,SceneRenderer *renderer)
 {
     ProgramGLES *shader = new ProgramGLES(name,vertexShaderLine,fragmentShaderLine);
     if (!shader->isValid())
@@ -108,7 +108,7 @@ void main()
 }
 )";
 
-Program *BuildDefaultLineShaderNoCullingGLES(const std::string &name,SceneRenderer *sceneRender)
+ProgramGLES *BuildDefaultLineShaderNoCullingGLES(const std::string &name,SceneRenderer *sceneRender)
 {
     ProgramGLES *shader = new ProgramGLES(name,vertexShaderLineNoBack,fragmentShaderLineNoBack);
     if (!shader->isValid())

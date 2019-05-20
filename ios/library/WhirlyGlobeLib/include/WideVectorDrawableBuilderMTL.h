@@ -24,11 +24,6 @@
 namespace WhirlyKit
 {
     
-/// Construct and return the wide vector shader program
-Program *BuildWideVectorProgramMTL(const std::string &name,SceneRenderer *renderer);
-/// This version is for the 3D globe
-Program *BuildWideVectorGlobeProgramMTL(const std::string &name,SceneRenderer *renderer);
-
 /// Metal version of the WideVectorDrawable Builder
 class WideVectorDrawableBuilderMTL : public BasicDrawableBuilderMTL, public WideVectorDrawableBuilder
 {

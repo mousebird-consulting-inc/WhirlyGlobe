@@ -29,9 +29,9 @@ namespace WhirlyKit
 //#define kWideVectorGlobeShaderName "Wide Vector Shader Globe"
 
 /// Construct and return the wide vector shader program
-Program *BuildWideVectorProgramGLES(const std::string &name,SceneRenderer *renderer);
+ProgramGLES *BuildWideVectorProgramGLES(const std::string &name,SceneRenderer *renderer);
 /// This version is for the 3D globe
-Program *BuildWideVectorGlobeProgramGLES(const std::string &name,SceneRenderer *renderer);
+ProgramGLES *BuildWideVectorGlobeProgramGLES(const std::string &name,SceneRenderer *renderer);
 
 /// OpenGL version of the WideVectorDrawable Builder
 class WideVectorDrawableBuilderGLES : public BasicDrawableBuilderGLES, public WideVectorDrawableBuilder

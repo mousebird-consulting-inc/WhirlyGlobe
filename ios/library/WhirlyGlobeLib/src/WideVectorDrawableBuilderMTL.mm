@@ -22,18 +22,6 @@
 
 namespace WhirlyKit
 {
-
-Program *BuildWideVectorProgramMTL(const std::string &name,SceneRenderer *renderer)
-{
-    // TODO: Implement
-    return NULL;
-}
-
-Program *BuildWideVectorGlobeProgramMTL(const std::string &name,SceneRenderer *renderer)
-{
-    // TODO: Implement
-    return NULL;
-}
     
 WideVectorDrawableBuilderMTL::WideVectorDrawableBuilderMTL(const std::string &name)
 : BasicDrawableBuilderMTL(name)

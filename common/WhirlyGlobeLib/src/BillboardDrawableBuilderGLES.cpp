@@ -120,7 +120,7 @@ void main()
 }
 )";
 
-Program *BuildBillboardGroundProgramGLES(const std::string &name,SceneRenderer *render)
+ProgramGLES *BuildBillboardGroundProgramGLES(const std::string &name,SceneRenderer *render)
 {
     ProgramGLES *shader = new ProgramGLES(name,vertexShaderGroundTri,fragmentShaderTri);
     if (!shader->isValid())
@@ -142,7 +142,7 @@ Program *BuildBillboardGroundProgramGLES(const std::string &name,SceneRenderer *
     return shader;
 }
 
-Program *BuildBillboardEyeProgramGLES(const std::string &name,SceneRenderer *render)
+ProgramGLES *BuildBillboardEyeProgramGLES(const std::string &name,SceneRenderer *render)
 {
     ProgramGLES *shader = new ProgramGLES(name,vertexShaderEyeTri,fragmentShaderTri);
     if (!shader->isValid())

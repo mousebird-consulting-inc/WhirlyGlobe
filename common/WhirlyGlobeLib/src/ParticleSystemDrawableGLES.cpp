@@ -573,7 +573,7 @@ void main()
 }
 )";
 
-Program *BuildParticleSystemProgramGLES(const std::string &name,SceneRenderer *renderer)
+ProgramGLES *BuildParticleSystemProgramGLES(const std::string &name,SceneRenderer *renderer)
 {
     ProgramGLES *shader = new ProgramGLES(name,vertexShaderTri,fragmentShaderTri);
     if (!shader->isValid())

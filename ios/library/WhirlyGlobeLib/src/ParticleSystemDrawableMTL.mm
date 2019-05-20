@@ -23,12 +23,6 @@
 namespace WhirlyKit
 {
 
-Program *BuildParticleSystemProgramMTL(const std::string &name,SceneRenderer *renderer)
-{
-    // TODO: Implement
-    return NULL;
-}
-
 ParticleSystemDrawableMTL::ParticleSystemDrawableMTL(const std::string &name)
     : ParticleSystemDrawable(name)
 {

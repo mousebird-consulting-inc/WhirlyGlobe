@@ -89,7 +89,7 @@ using namespace WhirlyKit;
     return self;
 }
 
-- (instancetype)initWithProgram:(Program *)program viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)baseViewC
+- (instancetype)initWithProgram:(ProgramRef)program viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)baseViewC
 {
     if (!program)
         return nil;
@@ -130,7 +130,7 @@ using namespace WhirlyKit;
 
     EAGLContext *oldContext = [EAGLContext currentContext];
     [renderControl useGLContext];
-    _program = new ProgramGLES(nameStr,vertexStr,fragStr,(varyings.empty() ? NULL : &varyings));
+    _program = ProgramGLESRef(new ProgramGLES(nameStr,vertexStr,fragStr,(varyings.empty() ? NULL : &varyings)));
     if (oldContext)
         [EAGLContext setCurrentContext:oldContext];
     
@@ -139,7 +139,6 @@ using namespace WhirlyKit;
     if (!_program->isValid())
     {
         buildError = @"Could not compile program.";
-        delete _program;
         _program = NULL;
         return false;
     }
@@ -224,7 +223,8 @@ using namespace WhirlyKit;
         sceneRenderGLES->useContext();
         
         renderer->forceDrawNextFrame();
-        glUseProgram(((ProgramGLES *)_program)->getProgram());
+        ProgramGLESRef programGLES = std::dynamic_pointer_cast<ProgramGLES>(_program);
+        glUseProgram(programGLES->getProgram());
         CheckGLError("MaplyShader::setUniformFloatNamed: glUseProgram");
     }
 
@@ -249,7 +249,8 @@ using namespace WhirlyKit;
         sceneRenderGLES->useContext();
         
         renderer->forceDrawNextFrame();
-        glUseProgram(((ProgramGLES *)_program)->getProgram());
+        ProgramGLESRef programGLES = std::dynamic_pointer_cast<ProgramGLES>(_program);
+        glUseProgram(programGLES->getProgram());
         CheckGLError("MaplyShader::setUniformFloatNamed: glUseProgram");
     }
 
@@ -274,7 +275,8 @@ using namespace WhirlyKit;
         sceneRenderGLES->useContext();
         
         renderer->forceDrawNextFrame();
-        glUseProgram(((ProgramGLES *)_program)->getProgram());
+        ProgramGLESRef programGLES = std::dynamic_pointer_cast<ProgramGLES>(_program);
+        glUseProgram(programGLES->getProgram());
         CheckGLError("MaplyShader::setUniformIntNamed: glUseProgram");
     }
 
@@ -299,7 +301,8 @@ using namespace WhirlyKit;
         sceneRenderGLES->useContext();
         
         renderer->forceDrawNextFrame();
-        glUseProgram(((ProgramGLES *)_program)->getProgram());
+        ProgramGLESRef programGLES = std::dynamic_pointer_cast<ProgramGLES>(_program);
+        glUseProgram(programGLES->getProgram());
         CheckGLError("MaplyShader::setUniformVector2Named: glUseProgram");
     }
 
@@ -325,7 +328,8 @@ using namespace WhirlyKit;
         sceneRenderGLES->useContext();
         
         renderer->forceDrawNextFrame();
-        glUseProgram(((ProgramGLES *)_program)->getProgram());
+        ProgramGLESRef programGLES = std::dynamic_pointer_cast<ProgramGLES>(_program);
+        glUseProgram(programGLES->getProgram());
         CheckGLError("MaplyShader::setUniformVector3Named: glUseProgram");
     }
 
@@ -351,7 +355,8 @@ using namespace WhirlyKit;
         sceneRenderGLES->useContext();
         
         renderer->forceDrawNextFrame();
-        glUseProgram(((ProgramGLES *)_program)->getProgram());
+        ProgramGLESRef programGLES = std::dynamic_pointer_cast<ProgramGLES>(_program);
+        glUseProgram(programGLES->getProgram());
         CheckGLError("MaplyShader::setUniformVector4Named: glUseProgram");
     }
 
@@ -378,7 +383,8 @@ using namespace WhirlyKit;
         sceneRenderGLES->useContext();
         
         renderer->forceDrawNextFrame();
-        glUseProgram(((ProgramGLES *)_program)->getProgram());
+        ProgramGLESRef programGLES = std::dynamic_pointer_cast<ProgramGLES>(_program);
+        glUseProgram(programGLES->getProgram());
         CheckGLError("MaplyShader::setUniformVector4Named: glUseProgram");
     }
 

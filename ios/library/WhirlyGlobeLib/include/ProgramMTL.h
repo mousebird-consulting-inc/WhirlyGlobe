@@ -18,6 +18,7 @@
  *
  */
 
+#import <Foundation/Foundation.h>
 #import "WrapperMTL.h"
 #import "Program.h"
 
@@ -32,7 +33,10 @@ class ProgramMTL : public Program
 public:
     ProgramMTL();
     virtual ~ProgramMTL();
-        
+    
+    /// Set up with a vertex and fragment shader
+    ProgramMTL(const std::string &name,id<MTLFunction> vertfunc,id<MTLFunction> fragFunc);
+    
     /// Return true if it was built correctly
     bool isValid();
     
@@ -68,8 +72,8 @@ public:
     
 protected:
     bool valid;
-    id<MTLLibrary> program;
     std::string name;
+    id<MTLFunction> vertFunc,fragFunc;
     TimeInterval lightsLastUpdated;
 };
 

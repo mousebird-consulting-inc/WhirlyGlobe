@@ -160,4 +160,6 @@ protected:
     std::unordered_map<StringIdentity,std::shared_ptr<OpenGLESAttribute>> attrs;
 };
     
+typedef std::shared_ptr<ProgramGLES> ProgramGLESRef;
+    
 }

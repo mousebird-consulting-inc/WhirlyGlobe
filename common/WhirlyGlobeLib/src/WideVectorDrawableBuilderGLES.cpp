@@ -176,7 +176,7 @@ void main()
 }
 )";
 
-Program *BuildWideVectorProgramGLES(const std::string &name,SceneRenderer *renderer)
+ProgramGLES *BuildWideVectorProgramGLES(const std::string &name,SceneRenderer *renderer)
 {
     ProgramGLES *shader = new ProgramGLES(name,vertexShaderTri,fragmentShaderTriAlias);
     if (!shader->isValid())
@@ -198,7 +198,7 @@ Program *BuildWideVectorProgramGLES(const std::string &name,SceneRenderer *rende
     return shader;
 }
 
-Program *BuildWideVectorGlobeProgramGLES(const std::string &name,SceneRenderer *renderer)
+ProgramGLES *BuildWideVectorGlobeProgramGLES(const std::string &name,SceneRenderer *renderer)
 {
     ProgramGLES *shader = new ProgramGLES(name,vertexGlobeShaderTri,fragmentGlobeShaderTriAlias);
     if (!shader->isValid())

@@ -23,8 +23,6 @@
 
 namespace WhirlyKit
 {
-Program *BuildBillboardGroundProgramMTL(const std::string &name,SceneRenderer *render);
-Program *BuildBillboardEyeProgramMTL(const std::string &name,SceneRenderer *render);
     
 /** Metal version of BillboardDrawable Builder
  */
