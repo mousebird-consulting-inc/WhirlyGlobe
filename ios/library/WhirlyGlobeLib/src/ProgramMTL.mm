@@ -31,9 +31,6 @@ ProgramMTL::~ProgramMTL()
 {
 }
 
-ProgramMTL::ProgramMTL(SimpleIdentity theId) : Program(theId), valid(true), lightsLastUpdated(0.0)
-{ }
-
 bool ProgramMTL::isValid()
 {
     return valid;
@@ -125,9 +122,6 @@ bool ProgramMTL::setLights(const std::vector<DirectionalLight> &lights, TimeInte
 
 const std::string &ProgramMTL::getName()
 { return name; }
-
-id<MTLLibrary> ProgramMTL::getProgram()
-{ return program; }
 
 void ProgramMTL::teardownForRenderer(const RenderSetupInfo *setupInfo)
 {

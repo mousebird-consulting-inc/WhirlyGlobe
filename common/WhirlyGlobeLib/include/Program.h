@@ -40,10 +40,7 @@ class Program : public Identifiable
 public:
     Program();
     virtual ~Program();
-    
-    /// Used only for comparison
-    Program(SimpleIdentity theId);
-    
+        
     /// Return true if it was built correctly
     virtual bool isValid() = 0;
 

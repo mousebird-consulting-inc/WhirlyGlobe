@@ -32,10 +32,7 @@ class ProgramMTL : public Program
 public:
     ProgramMTL();
     virtual ~ProgramMTL();
-    
-    /// Used only for comparison
-    ProgramMTL(SimpleIdentity theId);
-    
+        
     /// Return true if it was built correctly
     bool isValid();
     
@@ -64,9 +61,6 @@ public:
         
     /// Return the name (for tracking purposes)
     const std::string &getName();
-    
-    /// Return the GL Program ID
-    id<MTLLibrary> getProgram();
     
     /// Clean up OpenGL resources, rather than letting the destructor do it (which it will)
     virtual void teardownForRenderer(const RenderSetupInfo *setupInfo);

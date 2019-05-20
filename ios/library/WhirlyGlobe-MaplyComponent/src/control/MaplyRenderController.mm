@@ -587,8 +587,31 @@ using namespace Eigen;
     }
 }
 
-// Install the various shaders we expect to be running
 - (void)setupShaders
+{
+    if (renderType == MaplyRenderGLES)
+        [self setupShadersGL];
+    else
+        [self setupShadersMTL];
+}
+
+- (void)setupShadersMTL
+{
+    if (!interactLayer)
+        return;
+    
+    bool isGlobe = !scene->getCoordAdapter()->isFlat();
+
+    SceneRendererMTL *sceneRenderMTL = (SceneRendererMTL *)sceneRenderer.get();
+    id<MTLDevice> mtlDevice = ((RenderSetupInfoMTL *)sceneRenderMTL->getRenderSetupInfo())->mtlDevice;
+    NSError *err = nil;
+    id<MTLLibrary> mtlLib = [mtlDevice newDefaultLibraryWithBundle:[NSBundle bundleForClass:[MaplyRenderController class]] error:&err];
+    
+    
+}
+
+// Install the various shaders we expect to be running
+- (void)setupShadersGL
 {
     if (!interactLayer)
         return;

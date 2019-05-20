@@ -31,11 +31,7 @@ Program::Program()
 Program::~Program()
 {
 }
-    
-Program::Program(SimpleIdentity theId) : Identifiable(theId), lightsLastUpdated(0.0)
-{
-}
-    
+        
 const std::string &Program::getName()
 {
     return name;

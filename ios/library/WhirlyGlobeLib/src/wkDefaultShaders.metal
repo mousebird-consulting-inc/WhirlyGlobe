@@ -19,7 +19,10 @@
  */
 
 #include <metal_stdlib>
+#import "../include/DefaultShadersMTL.h"
+
 using namespace metal;
+using namespace WhirlyKit;
 
 // Vertices with position, color, and normal
 struct VertexA
@@ -27,15 +30,6 @@ struct VertexA
     float3 position [[attribute(0)]];
     float4 color [[attribute(1)]];
     float3 normal [[attribute(2)]];
-};
-
-// Uniforms for the basic case.  Nothing fancy.
-struct UniformsA
-{
-    float4x4 mvpMatrix;
-    float4x4 mvMatrix;
-    float4x4 mvNormalMatrix;
-    float fade;
 };
 
 // Position, color, and dot project (for backface checking)
@@ -99,49 +93,6 @@ fragment float4 fragmentLineOnly_flat(
 {
     return vert.color;
 }
-
-
-//// Lighting support //////
-
-// A single light
-struct Light {
-    float3 direction;
-    float3 halfPlane;
-    float4 ambient;
-    float4 diffuse;
-    float4 specular;
-    float viewDepend;
-};
-
-// Material definition
-struct Material {
-    float4 ambient;
-    float4 diffuse;
-    float4 specular;
-    float specularExponent;
-};
-
-// Lighting together in one struct
-struct Lighting {
-    int numLights;
-    Light lights[8];
-    Material mat;
-};
-
-// General purpose uniforms for these shaders
-struct UniformsTri {
-    float4x4 mvpMatrix;
-    float4x4 mvMatrix;
-    float4x4 mvNormalMatrix;
-    float fade;
-};
-
-// Texture lookup indirection
-// Used for treating one textures coordinates as coordinates in the parent
-struct TexIndirect {
-    float2 offset;
-    float2 scale;
-};
 
 // Ye olde triangle vertex
 struct VertexTriA

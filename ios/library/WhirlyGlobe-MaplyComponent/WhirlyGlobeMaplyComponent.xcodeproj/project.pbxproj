@@ -1246,6 +1246,7 @@
 		2B69987F228E26B500C31E3F /* wkDefaultShaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; name = wkDefaultShaders.metal; path = ../src/wkDefaultShaders.metal; sourceTree = "<group>"; };
 		2B6998812293124F00C31E3F /* MTLView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MTLView.h; sourceTree = "<group>"; };
 		2B6998822293139400C31E3F /* MTLView.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = MTLView.mm; sourceTree = "<group>"; };
+		2B6998872293418F00C31E3F /* DefaultShadersMTL.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DefaultShadersMTL.h; sourceTree = "<group>"; };
 		2B73D6C1207D224100AF5095 /* MaplyQuadImageLoader_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyQuadImageLoader_private.h; sourceTree = "<group>"; };
 		2B7B84D721223F0200D11447 /* MaplyTextureAtlas_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyTextureAtlas_private.h; sourceTree = "<group>"; };
 		2B7B84D92122403700D11447 /* MaplyTapMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyTapMessage.h; sourceTree = "<group>"; };
@@ -2528,6 +2529,7 @@
 		2B69987E228E1AAA00C31E3F /* metal shaders */ = {
 			isa = PBXGroup;
 			children = (
+				2B6998872293418F00C31E3F /* DefaultShadersMTL.h */,
 				2B69987F228E26B500C31E3F /* wkDefaultShaders.metal */,
 			);
 			name = "metal shaders";
