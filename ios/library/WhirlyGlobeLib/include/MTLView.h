@@ -1,8 +1,8 @@
 /*
- *  BasicDrawableInstanceBuilderMTL.mm
+ *  MTLView.h
  *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 5/16/19.
+ *  Created by Steve Gifford on 5/20/19.
  *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,25 +18,26 @@
  *
  */
 
-#import "BasicDrawableInstanceBuilderMTL.h"
+#import <UIKit/UIKit.h>
+#import <MetalKit/MetalKit.h>
 
-namespace WhirlyKit
-{
+#import "ViewWrapper.h"
+#import "SceneRendererMTL.h"
 
-    
-BasicDrawableInstanceBuilderMTL::BasicDrawableInstanceBuilderMTL(const std::string &name)
-    : BasicDrawableInstanceBuilder(name)
-{
-    drawInst = new BasicDrawableInstanceMTL(name);
-}
-    
-BasicDrawableInstanceBuilderMTL::~BasicDrawableInstanceBuilderMTL()
-{
-}
+/** OpenGL View is a
+ base class for implementing an open GL rendering view.
+ This is modeled off of the example.  We subclass this for
+ our own purposes.
+ */
+@interface WhirlyKitMTLView : MTKView<WhirlyKitViewWrapper>
 
-BasicDrawableInstance *BasicDrawableInstanceBuilderMTL::getDrawable()
-{
-    return drawInst;
-}
+/// Default init call
+- (id)init;
 
-}
+/// Device we're using
+@property (nonatomic) id<MTLDevice> mtlDevice;
+
+/// We're only expecting this to be set once
+@property (nonatomic) WhirlyKit::SceneRenderer *renderer;
+
+@end

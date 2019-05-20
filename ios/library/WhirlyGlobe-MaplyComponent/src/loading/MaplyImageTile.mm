@@ -20,13 +20,14 @@
 
 #import "loading/MaplyImageTile.h"
 #import "MaplyImageTile_private.h"
+#import "MaplyRenderController_private.h"
 #import "WhirlyGlobe.h"
 
 using namespace WhirlyKit;
 
 @implementation MaplyImageTile
 
-- (instancetype)initWithRawImage:(NSData *)data width:(int)width height:(int)height
+- (instancetype)initWithRawImage:(NSData *)data width:(int)width height:(int)height viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     if (![data isKindOfClass:[NSData class]])
         return nil;
@@ -35,7 +36,7 @@ using namespace WhirlyKit;
     
     self = [super init];
     
-    imageTile = ImageTile_iOSRef(new ImageTile_iOS());
+    imageTile = ImageTile_iOSRef(new ImageTile_iOS(viewC.getRenderControl->renderType));
     imageTile->type = MaplyImgTypeRawImage;
     imageTile->components = 4;
     imageTile->width = width;
@@ -46,7 +47,7 @@ using namespace WhirlyKit;
     return self;
 }
 
-- (instancetype)initWithRawImage:(NSData *)data width:(int)width height:(int)height components:(int)comp
+- (instancetype)initWithRawImage:(NSData *)data width:(int)width height:(int)height components:(int)comp viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     if (![data isKindOfClass:[NSData class]])
         return nil;
@@ -54,7 +55,7 @@ using namespace WhirlyKit;
         return nil;
     
     self = [super init];
-    imageTile = ImageTile_iOSRef(new ImageTile_iOS());
+    imageTile = ImageTile_iOSRef(new ImageTile_iOS(viewC.getRenderControl->renderType));
     imageTile->type = MaplyImgTypeRawImage;
     imageTile->components = comp;
     imageTile->width = width;
@@ -65,13 +66,13 @@ using namespace WhirlyKit;
     return self;
 }
 
-- (instancetype)initWithImage:(UIImage *)image
+- (instancetype)initWithImage:(UIImage *)image viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     if (![image isKindOfClass:[UIImage class]])
         return nil;
     
     self = [super init];
-    imageTile = ImageTile_iOSRef(new ImageTile_iOS());
+    imageTile = ImageTile_iOSRef(new ImageTile_iOS(viewC.getRenderControl->renderType));
     imageTile->type = MaplyImgTypeImage;
     imageTile->components = 4;
     imageTile->width = image.size.width;
@@ -82,13 +83,13 @@ using namespace WhirlyKit;
     return self;
 }
 
-- (instancetype)initWithPNGorJPEGData:(NSData *)data
+- (instancetype)initWithPNGorJPEGData:(NSData *)data viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     if (![data isKindOfClass:[NSData class]])
         return nil;
     
     self = [super init];
-    imageTile = ImageTile_iOSRef(new ImageTile_iOS());
+    imageTile = ImageTile_iOSRef(new ImageTile_iOS(viewC.getRenderControl->renderType));
     imageTile->type = MaplyImgTypeDataUIKitRecognized;
     imageTile->components = 4;
     imageTile->width = -1;

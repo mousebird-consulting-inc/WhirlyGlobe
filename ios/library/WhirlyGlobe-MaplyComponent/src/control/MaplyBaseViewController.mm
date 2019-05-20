@@ -31,6 +31,7 @@
 #import "FontTextureManager_iOS.h"
 #import "UIColor+Stuff.h"
 #import "EAGLView.h"
+#import "MTLView.h"
 #import <sys/utsname.h>
 
 using namespace Eigen;
@@ -165,6 +166,12 @@ using namespace WhirlyKit;
     wrapView = glView;
 }
 
+- (void)loadSetup_mtlView
+{
+    WhirlyKitMTLView *mtlView = [[WhirlyKitMTLView alloc] init];
+    wrapView = mtlView;
+}
+
 - (WhirlyKit::Scene *) loadSetup_scene
 {
     return NULL;
@@ -270,7 +277,12 @@ using namespace WhirlyKit;
     userLayers = [NSMutableArray array];
     _threadPerLayer = true;
     
-    [self loadSetup_glView];
+    if (renderControl->renderType == SceneRenderer::RenderGLES)
+    {
+        [self loadSetup_glView];
+    } else {
+        [self loadSetup_mtlView];
+    }
     
     [renderControl loadSetup];
     SceneRendererGLES_iOSRef sceneRenderGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(renderControl->sceneRenderer);

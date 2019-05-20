@@ -127,6 +127,7 @@
 		2B69987B228DE06000C31E3F /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B69987A228DE06000C31E3F /* Metal.framework */; };
 		2B69987D228DE2EF00C31E3F /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B69987C228DE2EF00C31E3F /* MetalKit.framework */; };
 		2B699880228E26B500C31E3F /* wkDefaultShaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 2B69987F228E26B500C31E3F /* wkDefaultShaders.metal */; };
+		2B6998842293139400C31E3F /* MTLView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B6998822293139400C31E3F /* MTLView.mm */; };
 		2B73D6C2207D224100AF5095 /* MaplyQuadImageLoader_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B73D6C1207D224100AF5095 /* MaplyQuadImageLoader_private.h */; };
 		2B7B84D821223F0300D11447 /* MaplyTextureAtlas_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7B84D721223F0200D11447 /* MaplyTextureAtlas_private.h */; };
 		2B7B84DA2122403700D11447 /* MaplyTapMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7B84D92122403700D11447 /* MaplyTapMessage.h */; };
@@ -1243,6 +1244,8 @@
 		2B69987A228DE06000C31E3F /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 		2B69987C228DE2EF00C31E3F /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
 		2B69987F228E26B500C31E3F /* wkDefaultShaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; name = wkDefaultShaders.metal; path = ../src/wkDefaultShaders.metal; sourceTree = "<group>"; };
+		2B6998812293124F00C31E3F /* MTLView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MTLView.h; sourceTree = "<group>"; };
+		2B6998822293139400C31E3F /* MTLView.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = MTLView.mm; sourceTree = "<group>"; };
 		2B73D6C1207D224100AF5095 /* MaplyQuadImageLoader_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyQuadImageLoader_private.h; sourceTree = "<group>"; };
 		2B7B84D721223F0200D11447 /* MaplyTextureAtlas_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyTextureAtlas_private.h; sourceTree = "<group>"; };
 		2B7B84D92122403700D11447 /* MaplyTapMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyTapMessage.h; sourceTree = "<group>"; };
@@ -2500,6 +2503,7 @@
 		2B6997F1228DCDC300C31E3F /* metal */ = {
 			isa = PBXGroup;
 			children = (
+				2B6998822293139400C31E3F /* MTLView.mm */,
 				2B699863228DD36700C31E3F /* WrapperMTL.mm */,
 				2B699865228DD36800C31E3F /* VertexAttributeMTL.mm */,
 				2B699864228DD36700C31E3F /* BasicDrawableMTL.mm */,
@@ -2871,6 +2875,7 @@
 				2B87970422039D6300EF801D /* TextureGLES_iOS.h */,
 				2B8796DF21FFD59000EF801D /* SceneRendererGLES_iOS.h */,
 				2B82B4C91E82E2490095FB14 /* EAGLView.h */,
+				2B6998812293124F00C31E3F /* MTLView.h */,
 			);
 			name = rendering;
 			sourceTree = "<group>";
@@ -5219,6 +5224,7 @@
 				2BE539C21D249BEF00B60FAD /* AAUranus.cpp in Sources */,
 				2BE1E7422208C35100815D9C /* GlobePinchDelegate.mm in Sources */,
 				2B82B6471E82E2490095FB14 /* PJ_august.c in Sources */,
+				2B6998842293139400C31E3F /* MTLView.mm in Sources */,
 				2BE53A001D249C2900B60FAD /* dynamic_message.cc in Sources */,
 				2BE1E7542208ECAC00815D9C /* MaplyViewTracker.m in Sources */,
 				2B846ED521F1356E00EF2A82 /* geod_interface.c in Sources */,

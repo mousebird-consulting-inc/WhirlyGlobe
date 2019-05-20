@@ -141,6 +141,10 @@ void BasicDrawableInstanceBuilder::setUniforms(const SingleVertexAttributeSet &u
 void BasicDrawableInstanceBuilder::setTexId(unsigned int which,SimpleIdentity inId)
 {
     setupTexCoordEntry(which, 0);
+    
+    if (drawInst->texInfo.empty())
+        return;
+    
     drawInst->texInfo[which].texId = inId;
 }
 

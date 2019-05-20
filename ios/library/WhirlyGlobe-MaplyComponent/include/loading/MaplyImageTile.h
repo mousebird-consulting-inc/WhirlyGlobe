@@ -19,6 +19,7 @@
  */
 
 #import <UIKit/UIKit.h>
+#import "MaplyRenderController.h"
 
 @class MaplyElevationChunk;
 
@@ -40,7 +41,7 @@
     
     @param height The height of the raw image contained in the data object.
  */
-- (instancetype)initWithRawImage:(NSData *)data width:(int)width height:(int)height;
+- (instancetype)initWithRawImage:(NSData *)data width:(int)width height:(int)height viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 
 /**
  Initialize with an NSData object containing 32 bit pixels.
@@ -55,14 +56,14 @@
  
  @param comp The number of components (1, 2 or 4)
  */
-- (instancetype)initWithRawImage:(NSData *)data width:(int)width height:(int)height components:(int)comp;
+- (instancetype)initWithRawImage:(NSData *)data width:(int)width height:(int)height components:(int)comp viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 
 /** 
     Initialize with a single UIImage for the tile.
     
     This sets up the given UIImage as the return for the given tile.  You can then set targetSize and such.
  */
-- (instancetype)initWithImage:(UIImage *)image;
+- (instancetype)initWithImage:(UIImage *)image viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 
 /** 
     Initialize with an NSData object containing PNG or JPEG data that can be interpreted by UIImage.
@@ -71,7 +72,7 @@
 
     @param borderSize If the image already contains a border, let the ImageTile no.  Pass in 0 if it doesn't.
  */
-- (instancetype)initWithPNGorJPEGData:(NSData *)data;
+- (instancetype)initWithPNGorJPEGData:(NSData *)data viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 
 /**
     Border size that was set on initialization.

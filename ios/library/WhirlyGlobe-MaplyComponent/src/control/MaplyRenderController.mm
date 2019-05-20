@@ -140,15 +140,17 @@ using namespace Eigen;
 {    
     screenDrawPriorityOffset = 1000000;
     
-    // Set up the OpenGL ES renderer
-    sceneRenderer = SceneRendererGLES_iOSRef(new SceneRendererGLES_iOS());
-    sceneRenderer->setZBufferMode(zBufferOffDefault);
-    // Switch to that context for any assets we create
-    // Note: Should be switching back at the end
-    SceneRendererGLES_iOSRef sceneRendererGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(sceneRenderer);
-    if (sceneRendererGLES) {
+    if (renderType == WhirlyKit::SceneRendererGLES_iOS::RenderGLES) {
+        // Set up the OpenGL ES renderer
+        SceneRendererGLES_iOSRef sceneRendererGLES = SceneRendererGLES_iOSRef(new SceneRendererGLES_iOS());
         sceneRendererGLES->useContext();
+        sceneRenderer = sceneRendererGLES;
+    } else {
+        SceneRendererMTLRef sceneRendererMTL = SceneRendererMTLRef(new SceneRendererMTL(MTLCreateSystemDefaultDevice()));
+        sceneRenderer = sceneRendererMTL;
     }
+
+    sceneRenderer->setZBufferMode(zBufferOffDefault);
     sceneRenderer->setClearColor([[UIColor blackColor] asRGBAColor]);
     
     // Turn on the model matrix optimization for drawing

@@ -36,6 +36,7 @@ using namespace WhirlyKit;
     self = [super init];
     
     loadReturn = QuadLoaderReturnRef(new QuadLoaderReturn(loader->loader->getGeneration()));
+    viewC = loader.viewC;
     
     return self;
 }

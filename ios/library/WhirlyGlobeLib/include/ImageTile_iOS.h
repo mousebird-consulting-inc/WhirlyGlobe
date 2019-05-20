@@ -19,6 +19,7 @@
  */
 
 #import "WhirlyGlobe.h"
+#import "SceneRenderer.h"
 
 namespace WhirlyKit
 {
@@ -32,7 +33,7 @@ typedef enum {MaplyImgTypeImage,MaplyImgTypeDataUIKitRecognized,MaplyImgTypeData
 class ImageTile_iOS : public ImageTile
 {
 public:
-    ImageTile_iOS();
+    ImageTile_iOS(SceneRenderer::Type renderType);
     virtual ~ImageTile_iOS();
     
     /// Construct and return a texture, if possible.
@@ -45,6 +46,7 @@ public:
     virtual void clearTexture();
     
 public:
+    SceneRenderer::Type renderType;
     MaplyImgType type;
     
     // The NSData or UIImage or whatever

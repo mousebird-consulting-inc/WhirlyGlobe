@@ -27,11 +27,12 @@ namespace WhirlyKit
 {
 
 BasicDrawableBuilder::BasicDrawableBuilder()
+    : basicDraw(NULL)
 {
 }
     
 BasicDrawableBuilder::BasicDrawableBuilder(const std::string &name)
-    : name(name)
+    : name(name), basicDraw(NULL)
 {
 }
     
@@ -86,6 +87,9 @@ void BasicDrawableBuilder::setupStandardAttributes(int numReserve)
 {
     //    setupTexCoordEntry(0,numReserve);
     
+    if (basicDraw->colorEntry < 0 || basicDraw->normalEntry < 0)
+        return;
+    
     basicDraw->colorEntry = addAttribute(BDChar4Type,a_colorNameID);
     basicDraw->vertexAttributes[basicDraw->colorEntry]->setDefaultColor(RGBAColor(255,255,255,255));
     basicDraw->vertexAttributes[basicDraw->colorEntry]->reserve(numReserve);
@@ -98,6 +102,9 @@ void BasicDrawableBuilder::setupStandardAttributes(int numReserve)
 void BasicDrawableBuilder::setupTexCoordEntry(int which,int numReserve)
 {
     if (which < basicDraw->texInfo.size())
+        return;
+    
+    if (basicDraw->texInfo.empty())
         return;
     
     for (unsigned int ii=(unsigned int)basicDraw->texInfo.size();ii<=which;ii++)
@@ -323,14 +330,27 @@ void BasicDrawableBuilder::addTexCoord(int which,TexCoord coord)
 
 void BasicDrawableBuilder::addColor(RGBAColor color)
 {
+    if (basicDraw->colorEntry < 0)
+        return;
+    
     basicDraw->vertexAttributes[basicDraw->colorEntry]->addColor(color);
 }
 
 void BasicDrawableBuilder::addNormal(const Point3f &norm)
-{ basicDraw->vertexAttributes[basicDraw->normalEntry]->addVector3f(norm); }
+{
+    if (basicDraw->normalEntry < 0)
+        return;
+    
+    basicDraw->vertexAttributes[basicDraw->normalEntry]->addVector3f(norm);
+}
 
 void BasicDrawableBuilder::addNormal(const Point3d &norm)
-{ basicDraw->vertexAttributes[basicDraw->normalEntry]->addVector3f(Point3f(norm.x(),norm.y(),norm.z())); }
+{
+    if (basicDraw->normalEntry < 0)
+        return;
+    
+    basicDraw->vertexAttributes[basicDraw->normalEntry]->addVector3f(Point3f(norm.x(),norm.y(),norm.z()));
+}
 
 bool BasicDrawableBuilder::compareVertexAttributes(const SingleVertexAttributeSet &attrs)
 {

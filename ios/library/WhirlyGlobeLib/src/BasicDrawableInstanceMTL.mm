@@ -19,3 +19,28 @@
  */
 
 #import "BasicDrawableInstanceMTL.h"
+
+namespace WhirlyKit
+{
+    
+BasicDrawableInstanceMTL::BasicDrawableInstanceMTL(const std::string &name)
+    : BasicDrawableInstance(name)
+{
+}
+
+void BasicDrawableInstanceMTL::setupForRenderer(const RenderSetupInfo *setupInfo)
+{
+    // TODO: Implement
+}
+
+void BasicDrawableInstanceMTL::teardownForRenderer(const RenderSetupInfo *setupInfo)
+{
+    // TODO: Implement
+}
+
+void BasicDrawableInstanceMTL::draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene)
+{
+    // TODO: Implement
+}
+    
+}

@@ -110,6 +110,9 @@
 /// Create the EAGLView
 - (void) loadSetup_glView;
 
+/// Create the MetalView
+- (void) loadSetup_mtlView;
+
 /// If you have your own WhirlyGlobeView or MaplyView subclass, set it up here
 - (WhirlyKit::ViewRef) loadSetup_view;
 

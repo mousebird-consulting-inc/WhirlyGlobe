@@ -22,12 +22,13 @@
 #import "RawData_NSData.h"
 #import "UIImage+Stuff.h"
 #import "TextureGLES.h"
+#import "TextureMTL.h"
 
 namespace WhirlyKit
 {
     
-ImageTile_iOS::ImageTile_iOS()
-: imageStuff(nil), tex(NULL)
+ImageTile_iOS::ImageTile_iOS(SceneRenderer::Type renderType)
+: renderType(renderType), imageStuff(nil), tex(NULL)
 {
 }
 
@@ -64,7 +65,10 @@ Texture *ImageTile_iOS::buildTexture()
         {
             NSData *rawData = [(UIImage *)imageStuff rawDataScaleWidth:destWidth height:destHeight border:0];
 
-            tex = new TextureGLES("ImageTile_iOS",RawDataRef(new RawNSDataReader(rawData)),false);
+            if (renderType == SceneRenderer::RenderGLES)
+                tex = new TextureGLES("ImageTile_iOS",RawDataRef(new RawNSDataReader(rawData)),false);
+            else
+                tex = new TextureMTL("ImageTile_iOS",RawDataRef(new RawNSDataReader(rawData)),false);
             tex->setWidth(destWidth);
             tex->setHeight(destHeight);
         }
@@ -78,24 +82,36 @@ Texture *ImageTile_iOS::buildTexture()
                 destHeight = (int)CGImageGetHeight(texImage.CGImage);
 
             NSData *rawData = [texImage rawDataScaleWidth:destWidth height:destHeight border:0];
-            tex = new TextureGLES("ImageTile_iOS",RawDataRef(new RawNSDataReader(rawData)),false);
+            if (renderType == SceneRenderer::RenderGLES)
+                tex = new TextureGLES("ImageTile_iOS",RawDataRef(new RawNSDataReader(rawData)),false);
+            else
+                tex = new TextureMTL("ImageTile_iOS",RawDataRef(new RawNSDataReader(rawData)),false);
             tex->setWidth(destWidth);
             tex->setHeight(destHeight);
         }
             break;
         case MaplyImgTypeDataPKM:
-            tex = new TextureGLES("ImageTile_iOS");
+            if (renderType == SceneRenderer::RenderGLES)
+                tex = new TextureGLES("ImageTile_iOS");
+            else
+                tex = new TextureMTL("ImageTile_iOS");
             tex->setPKMData(RawDataRef(new RawNSDataReader((NSData *)imageStuff)));
             tex->setWidth(destWidth);
             tex->setHeight(destHeight);
             break;
         case MaplyImgTypeDataPVRTC4:
-            tex = new TextureGLES("ImageTile_iOS", RawDataRef(new RawNSDataReader((NSData *)imageStuff)),true);
+            if (renderType == SceneRenderer::RenderGLES)
+                tex = new TextureGLES("ImageTile_iOS", RawDataRef(new RawNSDataReader((NSData   *)imageStuff)),true);
+            else
+                tex = new TextureMTL("ImageTile_iOS", RawDataRef(new RawNSDataReader((NSData *)imageStuff)),true);
             tex->setWidth(destWidth);
             tex->setHeight(destHeight);
             break;
         case MaplyImgTypeRawImage:
-            tex = new TextureGLES("ImageTile_iOS",RawDataRef(new RawNSDataReader((NSData *)imageStuff)),false);
+            if (renderType == SceneRenderer::RenderGLES)
+                tex = new TextureGLES("ImageTile_iOS",RawDataRef(new RawNSDataReader((NSData *)imageStuff)),false);
+            else
+                tex = new TextureMTL("ImageTile_iOS",RawDataRef(new RawNSDataReader((NSData *)imageStuff)),false);
             tex->setWidth(destWidth);
             tex->setHeight(destHeight);
             break;

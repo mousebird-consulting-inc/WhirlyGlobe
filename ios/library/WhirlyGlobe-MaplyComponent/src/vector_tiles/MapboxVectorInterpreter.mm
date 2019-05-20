@@ -234,13 +234,13 @@ static double MAX_EXTENT = 20037508.342789244;
 
     if (imageData) {
         // Rendered image goes in first
-        MaplyImageTile *tileImage = [[MaplyImageTile alloc] initWithRawImage:imageData width:offlineRender.getFramebufferSize.width height:offlineRender.getFramebufferSize.height ];
+        MaplyImageTile *tileImage = [[MaplyImageTile alloc] initWithRawImage:imageData width:offlineRender.getFramebufferSize.width height:offlineRender.getFramebufferSize.height viewC:viewC];
         [loadReturn addImageTile:tileImage];
     }
     
     // Any additional images are tacked on
     for (UIImage *image : images) {
-        MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithImage:image];
+        MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithImage:image viewC:viewC];
         [loadReturn addImageTile:tileData];
     }
     

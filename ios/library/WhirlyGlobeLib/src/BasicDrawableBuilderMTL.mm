@@ -26,6 +26,9 @@ namespace WhirlyKit
 BasicDrawableBuilderMTL::BasicDrawableBuilderMTL(const std::string &name)
     : BasicDrawableBuilder(name)
 {
+    basicDraw = new BasicDrawableMTL(name);
+    BasicDrawableBuilder::Init();
+    setupStandardAttributes();
 }
     
 BasicDrawableBuilderMTL::~BasicDrawableBuilderMTL()
@@ -41,8 +44,7 @@ int BasicDrawableBuilderMTL::addAttribute(BDAttributeDataType dataType,StringIde
 
 BasicDrawable *BasicDrawableBuilderMTL::getDrawable()
 {
-    // TODO: Implement
-    return NULL;
+    return basicDraw;
 }
     
 }

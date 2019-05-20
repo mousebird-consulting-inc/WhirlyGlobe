@@ -60,6 +60,8 @@
 @interface MaplyLoaderReturn()
 {
 @public
+    NSObject<MaplyRenderControllerProtocol> * __weak viewC;
+    
     // We're just wrapping the object that does the work
     WhirlyKit::QuadLoaderReturnRef loadReturn;
 

@@ -17,3 +17,31 @@
  *  limitations under the License.
  *
  */
+
+#import "BasicDrawableInstance.h"
+#import "BasicDrawableMTL.h"
+#import "WrapperMTL.h"
+
+namespace WhirlyKit
+{
+    
+/// Metal variant of BasicDrawableInstance
+class BasicDrawableInstanceMTL : public BasicDrawableInstance
+{
+    friend class BasicDrawableInstanceBuilderMTL;
+public:
+    BasicDrawableInstanceMTL(const std::string &name);
+    
+    /// Set up local rendering structures (e.g. VBOs)
+    virtual void setupForRenderer(const RenderSetupInfo *setupInfo);
+    
+    /// Clean up any rendering objects you may have (e.g. VBOs).
+    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo);
+    
+    /// Fill this in to draw the basic drawable
+    virtual void draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene);
+    
+protected:
+};
+    
+}

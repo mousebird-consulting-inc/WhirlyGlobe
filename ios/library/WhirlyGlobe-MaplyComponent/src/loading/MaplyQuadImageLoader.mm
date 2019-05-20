@@ -26,6 +26,7 @@
 #import "MaplyRenderTarget_private.h"
 #import "visual_objects/MaplyScreenLabel.h"
 #import "MaplyRenderTarget_private.h"
+#import "MaplyRenderController_private.h"
 
 using namespace WhirlyKit;
 
@@ -43,7 +44,10 @@ using namespace WhirlyKit;
 
 - (void)addImage:(UIImage *)image
 {
-    ImageTile_iOSRef imageTile = ImageTile_iOSRef(new ImageTile_iOS());
+    if (!viewC)
+        return;
+    
+    ImageTile_iOSRef imageTile = ImageTile_iOSRef(new ImageTile_iOS(viewC.getRenderControl->renderType));
     imageTile->type = MaplyImgTypeImage;
     imageTile->components = 4;
     imageTile->width = -1;
@@ -113,10 +117,13 @@ using namespace WhirlyKit;
 
 - (void)dataForTile:(MaplyImageLoaderReturn *)loadReturn loader:(MaplyQuadLoaderBase *)loader
 {
+    if (!loadReturn->viewC)
+        return;
+    
     NSArray *tileDatas = [loadReturn getTileData];
     
     for (NSData *tileData in tileDatas) {
-        MaplyImageTile *imageTile = [[MaplyImageTile alloc] initWithPNGorJPEGData:tileData];
+        MaplyImageTile *imageTile = [[MaplyImageTile alloc] initWithPNGorJPEGData:tileData viewC:loadReturn->viewC];
         [loadReturn addImageTile:imageTile];
     }
 }
