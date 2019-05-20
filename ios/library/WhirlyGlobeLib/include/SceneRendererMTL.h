@@ -27,6 +27,7 @@
 #import "SceneRenderer.h"
 #import "WrapperMTL.h"
 #import "ProgramMTL.h"
+#import <MetalKit/MetalKit.h>
 
 namespace WhirlyKit
 {
@@ -54,7 +55,7 @@ public:
     virtual bool resize(int sizeX,int sizeY);
     
     /// Draw stuff (the whole point!)
-    void render(TimeInterval period);
+    void render(TimeInterval period,MTLRenderPassDescriptor *renderPassDesc,id<CAMetalDrawable> drawable);
     
     /// Run a snapshot and callback the registered routine
     virtual void snapshotCallback();

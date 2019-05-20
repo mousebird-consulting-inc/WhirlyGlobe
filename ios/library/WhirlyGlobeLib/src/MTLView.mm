@@ -24,11 +24,12 @@ using namespace WhirlyKit;
 
 @implementation WhirlyKitMTLView
 
-- (id)init
+- (id)initWithDevice:(id<MTLDevice>)mtlDevice
 {
-    self = [super init];
+    self = [super initWithFrame:CGRectZero device:mtlDevice];
 
     self.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
+    self.framebufferOnly = true;
     
     return self;
 }
@@ -40,11 +41,14 @@ using namespace WhirlyKit;
         return;
 
     _renderer = renderer;
-    self.mtlDevice = ((RenderSetupInfoMTL *)renderMTL->getRenderSetupInfo())->mtlDevice;
+    
+    renderMTL->setup(self.frame.size.width, self.frame.size.height);
 }
 
 - (void)layoutSubviews
 {
+    [super layoutSubviews];
+    
     SceneRendererMTL *renderMTL = dynamic_cast<SceneRendererMTL *>(_renderer);
     if (!renderMTL)
         return;
@@ -53,13 +57,20 @@ using namespace WhirlyKit;
                       (int)self.frame.size.height*self.contentScaleFactor);
 }
 
-- (void)drawView:(id)sender
+- (void)draw
 {
+    [super draw];
+    
     SceneRendererMTL *renderMTL = dynamic_cast<SceneRendererMTL *>(_renderer);
     if (!renderMTL)
         return;
     
-    renderMTL->render(1/60.0);
+    MTLRenderPassDescriptor *renderPassDesc = self.currentRenderPassDescriptor;
+    id<CAMetalDrawable> drawable = self.currentDrawable;
+    if (!renderPassDesc || !drawable)
+        return;
+    
+    renderMTL->render(1/60.0,renderPassDesc,drawable);
 }
 
 - (BOOL)isAnimating

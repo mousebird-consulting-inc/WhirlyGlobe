@@ -168,7 +168,9 @@ using namespace WhirlyKit;
 
 - (void)loadSetup_mtlView
 {
-    WhirlyKitMTLView *mtlView = [[WhirlyKitMTLView alloc] init];
+    SceneRendererMTL *renderMTL = (SceneRendererMTL *)renderControl->sceneRenderer.get();
+    
+    WhirlyKitMTLView *mtlView = [[WhirlyKitMTLView alloc] initWithDevice:((RenderSetupInfoMTL *) renderMTL->getRenderSetupInfo())->mtlDevice];
     wrapView = mtlView;
 }
 
@@ -277,6 +279,7 @@ using namespace WhirlyKit;
     userLayers = [NSMutableArray array];
     _threadPerLayer = true;
     
+    [renderControl loadSetup];
     if (renderControl->renderType == SceneRenderer::RenderGLES)
     {
         [self loadSetup_glView];
@@ -284,7 +287,6 @@ using namespace WhirlyKit;
         [self loadSetup_mtlView];
     }
     
-    [renderControl loadSetup];
     SceneRendererGLES_iOSRef sceneRenderGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(renderControl->sceneRenderer);
     if (sceneRenderGLES)
         sceneRenderGLES->setLayer((CAEAGLLayer *)wrapView.layer);

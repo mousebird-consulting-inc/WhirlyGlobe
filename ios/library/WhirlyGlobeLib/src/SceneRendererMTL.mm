@@ -33,6 +33,7 @@ namespace WhirlyKit
 
 SceneRendererMTL::SceneRendererMTL(id<MTLDevice> mtlDevice)
 {
+    init();
     setupInfo.mtlDevice = mtlDevice;
 }
     
@@ -62,17 +63,63 @@ void SceneRendererMTL::setScene(Scene *newScene)
 
 bool SceneRendererMTL::setup(int sizeX,int sizeY)
 {
+    // Set up a default render target
+    RenderTargetMTLRef defaultTarget = RenderTargetMTLRef(new RenderTargetMTL(EmptyIdentity));
+    defaultTarget->width = sizeX;
+    defaultTarget->height = sizeY;
+    if (framebufferTex) {
+        defaultTarget->setTargetTexture(framebufferTex);
+        // Note: Should make this optional
+        defaultTarget->blendEnable = false;
+    } else {
+        if (sizeX > 0 && sizeY > 0)
+            defaultTarget->init(this,NULL,EmptyIdentity);
+        defaultTarget->blendEnable = true;
+    }
+    defaultTarget->clearEveryFrame = true;
+    renderTargets.push_back(defaultTarget);
+    
     return true;
 }
 
 bool SceneRendererMTL::resize(int sizeX,int sizeY)
 {
+    // Don't want to deal with it for offscreen rendering
+    if (framebufferTex)
+        return false;
+    
+    framebufferWidth = sizeX;
+    framebufferHeight = sizeY;
+    
+    RenderTargetRef defaultTarget = renderTargets.back();
+    defaultTarget->width = sizeX;
+    defaultTarget->height = sizeY;
+    defaultTarget->init(this, NULL, EmptyIdentity);
+    
     return true;
 }
 
-void SceneRendererMTL::render(TimeInterval period)
+void SceneRendererMTL::render(TimeInterval period,
+                              MTLRenderPassDescriptor *renderPassDesc,
+                              id<CAMetalDrawable> drawable)
 {
+    auto defaultTarget = renderTargets.back();
     
+    auto clearColor = defaultTarget->clearColor;
+    renderPassDesc.colorAttachments[0].clearColor = MTLClearColorMake(clearColor[0],clearColor[1],clearColor[2],clearColor[3]);
+    
+    id<MTLDevice> mtlDevice = setupInfo.mtlDevice;
+    
+    id<MTLCommandQueue> cmdQueue = [mtlDevice newCommandQueue];
+    id<MTLCommandBuffer> cmdBuff = [cmdQueue commandBuffer];
+    id<MTLRenderCommandEncoder> cmdEncode = [cmdBuff renderCommandEncoderWithDescriptor:renderPassDesc];
+    
+    // TODO: Work through the drawables
+    
+    [cmdEncode endEncoding];
+    
+    [cmdBuff presentDrawable:drawable];
+    [cmdBuff commit];
 }
     
 void SceneRendererMTL::snapshotCallback()

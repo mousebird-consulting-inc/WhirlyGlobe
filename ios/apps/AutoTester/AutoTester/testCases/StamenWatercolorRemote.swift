@@ -48,6 +48,8 @@ class StamenWatercolorRemote: MaplyTestCase {
 
 	override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
 		imageLoader = setupLoader(globeVC)
+        
+        globeVC.clearColor = UIColor.red
 		
 		globeVC.keepNorthUp = true
 		globeVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056), time: 1.0)

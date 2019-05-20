@@ -32,10 +32,7 @@
 @interface WhirlyKitMTLView : MTKView<WhirlyKitViewWrapper>
 
 /// Default init call
-- (id)init;
-
-/// Device we're using
-@property (nonatomic) id<MTLDevice> mtlDevice;
+- (id)initWithDevice:(id<MTLDevice>)mtlDevice;
 
 /// We're only expecting this to be set once
 @property (nonatomic) WhirlyKit::SceneRenderer *renderer;
