@@ -27,6 +27,8 @@
 #import "UIKit/NSDictionary+StyleRules.h"
 
 #import "SceneGLES.h"
+#import "SceneMTL.h"
+#import "SceneRendererMTL.h"
 
 using namespace WhirlyKit;
 using namespace Eigen;
@@ -43,7 +45,12 @@ using namespace Eigen;
     NSData *snapshotData;
 }
 
-- (instancetype)initWithSize:(CGSize)size
+- (instancetype __nullable)initWithSize:(CGSize)size
+{
+    return [self initWithSize:size mode:MaplyRenderMetal];
+}
+
+- (instancetype)initWithSize:(CGSize)size mode:(MaplyRenderType)renderType
 {
     self = [super init];
     
@@ -66,7 +73,13 @@ using namespace Eigen;
     scene = new SceneGLES(coordAdapter.get());
 
     // Set up the renderer with a target size
-    sceneRenderer = SceneRendererGLES_iOSRef(new SceneRendererGLES_iOS((int)size.width,(int)size.height));
+    if (renderType == MaplyRenderGLES) {
+        SceneRendererGLES_iOSRef theSceneRenderer = SceneRendererGLES_iOSRef(new SceneRendererGLES_iOS((int)size.width,(int)size.height));
+        sceneRenderer = theSceneRenderer;
+    } else {
+        SceneRendererMTLRef theSceneRenderer = SceneRendererMTLRef(new SceneRendererMTL( MTLCreateSystemDefaultDevice()));
+        sceneRenderer = theSceneRenderer;
+    }
     sceneRenderer->setZBufferMode(zBufferOffDefault);
     sceneRenderer->setScene(scene);
     sceneRenderer->setView(flatView.get());
@@ -80,16 +93,23 @@ using namespace Eigen;
 
     [self setupShaders];
     
-    if (oldContext)
-        [EAGLContext setCurrentContext:oldContext];
+    if (renderType == MaplyRenderGLES) {
+        if (oldContext)
+            [EAGLContext setCurrentContext:oldContext];
+    }
     
     return self;
 }
 
 - (void)teardown
 {
-    EAGLContext *oldContext = [EAGLContext currentContext];
-    sceneRenderer->useContext();
+    SceneRendererGLES_iOSRef sceneRendererGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(sceneRenderer);
+    
+    EAGLContext *oldContext = nil;
+    if (sceneRendererGLES) {
+        oldContext = [EAGLContext currentContext];
+        sceneRendererGLES->useContext();
+    }
     // This stuff is our responsibility if we created it
     if (offlineMode)
     {
@@ -103,7 +123,7 @@ using namespace Eigen;
         scene = NULL;
     }
     sceneRenderer = nil;
-    if (oldContext)
+    if (sceneRendererGLES && oldContext)
         [EAGLContext setCurrentContext:oldContext];
 }
 
@@ -125,7 +145,10 @@ using namespace Eigen;
     sceneRenderer->setZBufferMode(zBufferOffDefault);
     // Switch to that context for any assets we create
     // Note: Should be switching back at the end
-    sceneRenderer->useContext();
+    SceneRendererGLES_iOSRef sceneRendererGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(sceneRenderer);
+    if (sceneRendererGLES) {
+        sceneRendererGLES->useContext();
+    }
     sceneRenderer->setClearColor([[UIColor blackColor] asRGBAColor]);
     
     // Turn on the model matrix optimization for drawing
@@ -146,12 +169,18 @@ using namespace Eigen;
 
 - (UIImage *)renderToImage
 {
+    SceneRendererGLES_iOSRef sceneRendererGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(sceneRenderer);
+    if (!sceneRendererGLES)
+        return nil;
+    
+    // TODO: Implement for Metal
+    
     EAGLContext *oldContext = [EAGLContext currentContext];
 
     [self useGLContext];
 
-    sceneRenderer->setSnapshotDelegate(self);
-    sceneRenderer->render(0.0);
+    sceneRendererGLES->setSnapshotDelegate(self);
+    sceneRendererGLES->render(0.0);
     
     UIImage *toRet = snapshotImage;
     snapshotImage = nil;
@@ -164,12 +193,18 @@ using namespace Eigen;
 
 - (NSData *)renderToImageData
 {
+    SceneRendererGLES_iOSRef sceneRendererGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(sceneRenderer);
+    if (!sceneRendererGLES)
+        return nil;
+    
+    // TODO: Implement for Metal
+
     EAGLContext *oldContext = [EAGLContext currentContext];
 
     [self useGLContext];
 
-    sceneRenderer->setSnapshotDelegate(self);
-    sceneRenderer->render(0.0);
+    sceneRendererGLES->setSnapshotDelegate(self);
+    sceneRendererGLES->render(0.0);
     
     NSData *toRet = snapshotData;
     snapshotImage = nil;
@@ -182,7 +217,11 @@ using namespace Eigen;
 
 - (void) useGLContext
 {
-    sceneRenderer->useContext();
+    SceneRendererGLES_iOSRef sceneRendererGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(sceneRenderer);
+    if (!sceneRendererGLES)
+        return;
+
+    sceneRendererGLES->useContext();
 }
 
 - (void)clearLights

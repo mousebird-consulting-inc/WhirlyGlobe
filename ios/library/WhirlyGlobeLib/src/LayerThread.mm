@@ -23,6 +23,7 @@
 #import "GlobeView.h"
 #import "Platform.h"
 #import "SceneRendererGLES_iOS.h"
+#import "SceneRendererMTL.h"
 
 using namespace WhirlyKit;
 
@@ -192,7 +193,8 @@ using namespace WhirlyKit;
         // Note: Hey, should we be deleting these?
         return;
     
-    [EAGLContext setCurrentContext:_glContext];
+    if (_glContext)
+        [EAGLContext setCurrentContext:_glContext];
 
     inRunAddChangeRequests = true;
     for (NSObject<WhirlyKitLayer> *layer in layers) {
@@ -277,7 +279,8 @@ using namespace WhirlyKit;
     existenceLock.lock();
 
     // This should be the default context.  If you change it yourself, change it back
-    [EAGLContext setCurrentContext:_glContext];
+    if (_glContext)
+        [EAGLContext setCurrentContext:_glContext];
 
     @autoreleasepool {
         _runLoop = [NSRunLoop currentRunLoop];

@@ -31,9 +31,8 @@ using namespace WhirlyKit;
 {
     NSObject<MaplyRenderControllerProtocol> * __weak viewC;
     WhirlyKit::Scene *scene;
-    SceneRendererGLES_iOS *renderer;
+    SceneRendererRef renderer;
     NSString *buildError;
-    EAGLContext *context;
     // Texture we created for use in this shader
     SimpleIDSet texIDs;
     std::vector<std::string> varyings;
@@ -102,7 +101,7 @@ using namespace WhirlyKit;
     _program = program;
     viewC = baseViewC;
     scene = renderControl->scene;
-    renderer = renderControl->sceneRenderer.get();
+    renderer = renderControl->sceneRenderer;
     
     if (renderControl->scene)
         renderControl->scene->addProgram(_program);
@@ -146,7 +145,7 @@ using namespace WhirlyKit;
     }
     
     scene = renderControl->scene;
-    renderer = renderControl->sceneRenderer.get();
+    renderer = renderControl->sceneRenderer;
     
     if (renderControl->scene)
         renderControl->scene->addProgram(_program);
@@ -173,10 +172,14 @@ using namespace WhirlyKit;
     if (!scene || !renderer)
         return;
     
-    EAGLContext *oldContext = [EAGLContext currentContext];
-    renderer->useContext();
+    SceneRendererGLES_iOSRef sceneRenderGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(renderer);
+    EAGLContext *oldContext = nil;
+    if (sceneRenderGLES) {
+        oldContext = [EAGLContext currentContext];
+        sceneRenderGLES->useContext();
+    }
     renderer->forceDrawNextFrame();
-    
+
     TextureGLES_iOS *auxTex = new TextureGLES_iOS([_name cStringUsingEncoding:NSASCIIStringEncoding],auxImage);
     if ([desc[kMaplyTexMinFilter] isEqualToString:kMaplyMinFilterNearest])
         auxTex->setInterpType(TexInterpNearest);
@@ -192,7 +195,7 @@ using namespace WhirlyKit;
     
     texIDs.insert(auxTexId);
     
-    if (oldContext != [EAGLContext currentContext])
+    if (sceneRenderGLES && oldContext != [EAGLContext currentContext])
         [EAGLContext setCurrentContext:oldContext];
 }
 
@@ -214,16 +217,21 @@ using namespace WhirlyKit;
         return false;
     CheckGLError("MaplyShader::setUniformFloatNamed: pre anything");
 
-    EAGLContext *oldContext = [EAGLContext currentContext];
-    renderer->useContext();
-    renderer->forceDrawNextFrame();
-    glUseProgram(((ProgramGLES *)_program)->getProgram());
-    CheckGLError("MaplyShader::setUniformFloatNamed: glUseProgram");
+    SceneRendererGLES_iOSRef sceneRenderGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(renderer);
+    EAGLContext *oldContext = nil;
+    if (sceneRenderGLES) {
+        oldContext = [EAGLContext currentContext];
+        sceneRenderGLES->useContext();
+        
+        renderer->forceDrawNextFrame();
+        glUseProgram(((ProgramGLES *)_program)->getProgram());
+        CheckGLError("MaplyShader::setUniformFloatNamed: glUseProgram");
+    }
 
     std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
     bool ret = _program->setUniform(StringIndexer::getStringID(name), val);
 
-    if (oldContext != [EAGLContext currentContext])
+    if (sceneRenderGLES && oldContext != [EAGLContext currentContext])
         [EAGLContext setCurrentContext:oldContext];
     
     return ret;
@@ -234,15 +242,21 @@ using namespace WhirlyKit;
     if (!_program)
         return false;
     
-    EAGLContext *oldContext = [EAGLContext currentContext];
-    renderer->useContext();
-    renderer->forceDrawNextFrame();
-    glUseProgram(((ProgramGLES *)_program)->getProgram());
+    SceneRendererGLES_iOSRef sceneRenderGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(renderer);
+    EAGLContext *oldContext = nil;
+    if (sceneRenderGLES) {
+        oldContext = [EAGLContext currentContext];
+        sceneRenderGLES->useContext();
+        
+        renderer->forceDrawNextFrame();
+        glUseProgram(((ProgramGLES *)_program)->getProgram());
+        CheckGLError("MaplyShader::setUniformFloatNamed: glUseProgram");
+    }
 
     std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
     bool ret = _program->setUniform(StringIndexer::getStringID(name), val, idx);
     
-    if (oldContext != [EAGLContext currentContext])
+    if (sceneRenderGLES && oldContext != [EAGLContext currentContext])
         [EAGLContext setCurrentContext:oldContext];
     
     return ret;
@@ -253,15 +267,21 @@ using namespace WhirlyKit;
     if (!_program)
         return false;
     
-    EAGLContext *oldContext = [EAGLContext currentContext];
-    renderer->useContext();
-    renderer->forceDrawNextFrame();
-    glUseProgram(((ProgramGLES *)_program)->getProgram());
+    SceneRendererGLES_iOSRef sceneRenderGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(renderer);
+    EAGLContext *oldContext = nil;
+    if (sceneRenderGLES) {
+        oldContext = [EAGLContext currentContext];
+        sceneRenderGLES->useContext();
+        
+        renderer->forceDrawNextFrame();
+        glUseProgram(((ProgramGLES *)_program)->getProgram());
+        CheckGLError("MaplyShader::setUniformIntNamed: glUseProgram");
+    }
 
     std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
     bool ret = _program->setUniform(StringIndexer::getStringID(name), val);
     
-    if (oldContext != [EAGLContext currentContext])
+    if (sceneRenderGLES && oldContext != [EAGLContext currentContext])
         [EAGLContext setCurrentContext:oldContext];
     
     return ret;
@@ -272,16 +292,22 @@ using namespace WhirlyKit;
     if (!_program)
         return false;
     
-    EAGLContext *oldContext = [EAGLContext currentContext];
-    renderer->useContext();
-    renderer->forceDrawNextFrame();
-    glUseProgram(((ProgramGLES *)_program)->getProgram());
+    SceneRendererGLES_iOSRef sceneRenderGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(renderer);
+    EAGLContext *oldContext = nil;
+    if (sceneRenderGLES) {
+        oldContext = [EAGLContext currentContext];
+        sceneRenderGLES->useContext();
+        
+        renderer->forceDrawNextFrame();
+        glUseProgram(((ProgramGLES *)_program)->getProgram());
+        CheckGLError("MaplyShader::setUniformVector2Named: glUseProgram");
+    }
 
     std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
     Point2f val(x,y);
     bool ret = _program->setUniform(StringIndexer::getStringID(name), val);
 
-    if (oldContext != [EAGLContext currentContext])
+    if (sceneRenderGLES && oldContext != [EAGLContext currentContext])
         [EAGLContext setCurrentContext:oldContext];
     
     return ret;
@@ -292,16 +318,22 @@ using namespace WhirlyKit;
     if (!_program)
         return false;
     
-    EAGLContext *oldContext = [EAGLContext currentContext];
-    renderer->useContext();
-    renderer->forceDrawNextFrame();
-    glUseProgram(((ProgramGLES *)_program)->getProgram());
+    SceneRendererGLES_iOSRef sceneRenderGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(renderer);
+    EAGLContext *oldContext = nil;
+    if (sceneRenderGLES) {
+        oldContext = [EAGLContext currentContext];
+        sceneRenderGLES->useContext();
+        
+        renderer->forceDrawNextFrame();
+        glUseProgram(((ProgramGLES *)_program)->getProgram());
+        CheckGLError("MaplyShader::setUniformVector3Named: glUseProgram");
+    }
 
     std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
     Point3f val(x,y,z);
     bool ret = _program->setUniform(StringIndexer::getStringID(name), val);
 
-    if (oldContext != [EAGLContext currentContext])
+    if (sceneRenderGLES && oldContext != [EAGLContext currentContext])
         [EAGLContext setCurrentContext:oldContext];
     
     return ret;
@@ -312,17 +344,23 @@ using namespace WhirlyKit;
     if (!_program)
         return false;
     
-    EAGLContext *oldContext = [EAGLContext currentContext];
-    renderer->useContext();
-    renderer->forceDrawNextFrame();
-    glUseProgram(((ProgramGLES *)_program)->getProgram());
+    SceneRendererGLES_iOSRef sceneRenderGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(renderer);
+    EAGLContext *oldContext = nil;
+    if (sceneRenderGLES) {
+        oldContext = [EAGLContext currentContext];
+        sceneRenderGLES->useContext();
+        
+        renderer->forceDrawNextFrame();
+        glUseProgram(((ProgramGLES *)_program)->getProgram());
+        CheckGLError("MaplyShader::setUniformVector4Named: glUseProgram");
+    }
 
     std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
     Eigen::Vector4f val;
     val.x() = x;  val.y() = y;  val.z() = z;  val.w() = w;
     bool ret = _program->setUniform(StringIndexer::getStringID(name), val);
 
-    if (oldContext != [EAGLContext currentContext])
+    if (sceneRenderGLES && oldContext != [EAGLContext currentContext])
         [EAGLContext setCurrentContext:oldContext];
     
     return ret;
@@ -333,17 +371,23 @@ using namespace WhirlyKit;
     if (!_program)
         return false;
     
-    EAGLContext *oldContext = [EAGLContext currentContext];
-    renderer->useContext();
-    renderer->forceDrawNextFrame();
-    glUseProgram(((ProgramGLES *)_program)->getProgram());
+    SceneRendererGLES_iOSRef sceneRenderGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(renderer);
+    EAGLContext *oldContext = nil;
+    if (sceneRenderGLES) {
+        oldContext = [EAGLContext currentContext];
+        sceneRenderGLES->useContext();
+        
+        renderer->forceDrawNextFrame();
+        glUseProgram(((ProgramGLES *)_program)->getProgram());
+        CheckGLError("MaplyShader::setUniformVector4Named: glUseProgram");
+    }
 
     std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
     Eigen::Vector4f val;
     val.x() = x;  val.y() = y;  val.z() = z;  val.w() = w;
     bool ret = _program->setUniform(StringIndexer::getStringID(name), val, which);
     
-    if (oldContext != [EAGLContext currentContext])
+    if (sceneRenderGLES && oldContext != [EAGLContext currentContext])
         [EAGLContext setCurrentContext:oldContext];
     
     return ret;

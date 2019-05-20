@@ -262,6 +262,7 @@ using namespace WhirlyKit;
     
     if (!renderControl)
         renderControl = [[MaplyRenderController alloc] init];
+    renderControl->renderType = SceneRenderer::RenderMetal;
     
     tileFetcherConnections = 16;
     allowRepositionForAnnnotations = true;
@@ -272,7 +273,9 @@ using namespace WhirlyKit;
     [self loadSetup_glView];
     
     [renderControl loadSetup];
-    renderControl->sceneRenderer->setLayer((CAEAGLLayer *)wrapView.layer);
+    SceneRendererGLES_iOSRef sceneRenderGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(renderControl->sceneRenderer);
+    if (sceneRenderGLES)
+        sceneRenderGLES->setLayer((CAEAGLLayer *)wrapView.layer);
 
     // Set up the GL View to display it in
     [wrapView setRenderer:renderControl->sceneRenderer.get()];
@@ -1531,12 +1534,18 @@ static const float PerfOutputDelay = 15.0;
 {
     if (!renderControl)
         return nil;
+
+    SceneRendererGLES_iOSRef sceneRenderGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(renderControl->sceneRenderer);
+    if (!sceneRenderGLES)
+        return nil;
     
+    // TODO: Implement this for Metal
+
     SnapshotTarget *target = [[SnapshotTarget alloc] init];
-    renderControl->sceneRenderer->setSnapshotDelegate(target);
+    sceneRenderGLES->setSnapshotDelegate(target);
     
-    renderControl->sceneRenderer->forceDrawNextFrame();
-    renderControl->sceneRenderer->render(0.0);
+    sceneRenderGLES->forceDrawNextFrame();
+    sceneRenderGLES->render(0.0);
     
     return target.image;
 }
@@ -1546,12 +1555,18 @@ static const float PerfOutputDelay = 15.0;
     if ([NSThread currentThread] != [NSThread mainThread])
         return NULL;
 
+    SceneRendererGLES_iOSRef sceneRenderGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(renderControl->sceneRenderer);
+    if (!sceneRenderGLES)
+        return nil;
+    
+    // TODO: Implement this for Metal
+    
     SnapshotTarget *target = [[SnapshotTarget alloc] init];
     target.renderTargetID = renderTarget.renderTargetID;
-    renderControl->sceneRenderer->setSnapshotDelegate(target);
+    sceneRenderGLES->setSnapshotDelegate(target);
     
-    renderControl->sceneRenderer->forceDrawNextFrame();
-    renderControl->sceneRenderer->render(0.0);
+    sceneRenderGLES->forceDrawNextFrame();
+    sceneRenderGLES->render(0.0);
 
     return target.data;
 }

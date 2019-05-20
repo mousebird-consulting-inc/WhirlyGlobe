@@ -74,6 +74,11 @@ void SceneRendererMTL::render(TimeInterval period)
 {
     
 }
+    
+void SceneRendererMTL::snapshotCallback()
+{
+    
+}
 
 BasicDrawableBuilderRef SceneRendererMTL::makeBasicDrawableBuilder(const std::string &name) const
 {

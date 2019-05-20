@@ -37,8 +37,11 @@
 @interface MaplyRenderController()<WhirlyKitSnapshot>
 {
 @public
+    // OpenGL or Metal
+    WhirlyKit::SceneRenderer::Type renderType;
+    
     // Scene renderer... renders the scene
-    WhirlyKit::SceneRendererGLES_iOSRef sceneRenderer;
+    WhirlyKit::SceneRendererRef sceneRenderer;
     
     // Our own interaction layer does most of the work
     MaplyBaseInteractionLayer *interactLayer;

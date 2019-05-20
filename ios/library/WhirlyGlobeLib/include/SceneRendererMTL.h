@@ -56,6 +56,9 @@ public:
     /// Draw stuff (the whole point!)
     void render(TimeInterval period);
     
+    /// Run a snapshot and callback the registered routine
+    virtual void snapshotCallback();
+    
     /// Construct a basic drawable builder for the appropriate rendering type
     virtual BasicDrawableBuilderRef makeBasicDrawableBuilder(const std::string &name) const;
     
@@ -84,5 +87,7 @@ public:
     // Information about the renderer passed around to various calls
     RenderSetupInfoMTL setupInfo;
 };
+    
+typedef std::shared_ptr<SceneRendererMTL> SceneRendererMTLRef;
 
 }

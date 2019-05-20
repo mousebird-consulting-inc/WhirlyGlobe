@@ -1223,23 +1223,23 @@
 		2B699844228DD31E00C31E3F /* SceneRendererMTL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SceneRendererMTL.h; sourceTree = "<group>"; };
 		2B699845228DD31F00C31E3F /* DynamicTextureAtlasMTL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DynamicTextureAtlasMTL.h; sourceTree = "<group>"; };
 		2B699846228DD31F00C31E3F /* BillboardDrawableBuilderMTL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BillboardDrawableBuilderMTL.h; sourceTree = "<group>"; };
-		2B699858228DD36300C31E3F /* BasicDrawableInstanceBuilderMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = BasicDrawableInstanceBuilderMTL.mm; path = ../BasicDrawableInstanceBuilderMTL.mm; sourceTree = "<group>"; };
-		2B699859228DD36400C31E3F /* RenderTargetMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = RenderTargetMTL.mm; path = ../RenderTargetMTL.mm; sourceTree = "<group>"; };
-		2B69985A228DD36400C31E3F /* BasicDrawableBuilderMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = BasicDrawableBuilderMTL.mm; path = ../BasicDrawableBuilderMTL.mm; sourceTree = "<group>"; };
-		2B69985B228DD36400C31E3F /* ProgramMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ProgramMTL.mm; path = ../ProgramMTL.mm; sourceTree = "<group>"; };
-		2B69985C228DD36500C31E3F /* BillboardDrawableBuilderMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = BillboardDrawableBuilderMTL.mm; path = ../BillboardDrawableBuilderMTL.mm; sourceTree = "<group>"; };
-		2B69985D228DD36500C31E3F /* BasicDrawableInstanceMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = BasicDrawableInstanceMTL.mm; path = ../BasicDrawableInstanceMTL.mm; sourceTree = "<group>"; };
-		2B69985E228DD36500C31E3F /* SceneMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SceneMTL.mm; path = ../SceneMTL.mm; sourceTree = "<group>"; };
-		2B69985F228DD36600C31E3F /* DynamicTextureAtlasMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = DynamicTextureAtlasMTL.mm; path = ../DynamicTextureAtlasMTL.mm; sourceTree = "<group>"; };
-		2B699860228DD36600C31E3F /* ScreenSpaceDrawableBuilderMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ScreenSpaceDrawableBuilderMTL.mm; path = ../ScreenSpaceDrawableBuilderMTL.mm; sourceTree = "<group>"; };
-		2B699861228DD36600C31E3F /* SceneRendererMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SceneRendererMTL.mm; path = ../SceneRendererMTL.mm; sourceTree = "<group>"; };
-		2B699862228DD36700C31E3F /* ParticleSystemDrawableBuilderMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ParticleSystemDrawableBuilderMTL.mm; path = ../ParticleSystemDrawableBuilderMTL.mm; sourceTree = "<group>"; };
-		2B699863228DD36700C31E3F /* WrapperMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WrapperMTL.mm; path = ../WrapperMTL.mm; sourceTree = "<group>"; };
-		2B699864228DD36700C31E3F /* BasicDrawableMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = BasicDrawableMTL.mm; path = ../BasicDrawableMTL.mm; sourceTree = "<group>"; };
-		2B699865228DD36800C31E3F /* VertexAttributeMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = VertexAttributeMTL.mm; path = ../VertexAttributeMTL.mm; sourceTree = "<group>"; };
-		2B699866228DD36900C31E3F /* WideVectorDrawableBuilderMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WideVectorDrawableBuilderMTL.mm; path = ../WideVectorDrawableBuilderMTL.mm; sourceTree = "<group>"; };
-		2B699867228DD36900C31E3F /* ParticleSystemDrawableMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ParticleSystemDrawableMTL.mm; path = ../ParticleSystemDrawableMTL.mm; sourceTree = "<group>"; };
-		2B699868228DD36A00C31E3F /* TextureMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = TextureMTL.mm; path = ../TextureMTL.mm; sourceTree = "<group>"; };
+		2B699858228DD36300C31E3F /* BasicDrawableInstanceBuilderMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = BasicDrawableInstanceBuilderMTL.mm; sourceTree = "<group>"; };
+		2B699859228DD36400C31E3F /* RenderTargetMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RenderTargetMTL.mm; sourceTree = "<group>"; };
+		2B69985A228DD36400C31E3F /* BasicDrawableBuilderMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = BasicDrawableBuilderMTL.mm; sourceTree = "<group>"; };
+		2B69985B228DD36400C31E3F /* ProgramMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ProgramMTL.mm; sourceTree = "<group>"; };
+		2B69985C228DD36500C31E3F /* BillboardDrawableBuilderMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = BillboardDrawableBuilderMTL.mm; sourceTree = "<group>"; };
+		2B69985D228DD36500C31E3F /* BasicDrawableInstanceMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = BasicDrawableInstanceMTL.mm; sourceTree = "<group>"; };
+		2B69985E228DD36500C31E3F /* SceneMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SceneMTL.mm; sourceTree = "<group>"; };
+		2B69985F228DD36600C31E3F /* DynamicTextureAtlasMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DynamicTextureAtlasMTL.mm; sourceTree = "<group>"; };
+		2B699860228DD36600C31E3F /* ScreenSpaceDrawableBuilderMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ScreenSpaceDrawableBuilderMTL.mm; sourceTree = "<group>"; };
+		2B699861228DD36600C31E3F /* SceneRendererMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SceneRendererMTL.mm; sourceTree = "<group>"; };
+		2B699862228DD36700C31E3F /* ParticleSystemDrawableBuilderMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ParticleSystemDrawableBuilderMTL.mm; sourceTree = "<group>"; };
+		2B699863228DD36700C31E3F /* WrapperMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WrapperMTL.mm; sourceTree = "<group>"; };
+		2B699864228DD36700C31E3F /* BasicDrawableMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = BasicDrawableMTL.mm; sourceTree = "<group>"; };
+		2B699865228DD36800C31E3F /* VertexAttributeMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = VertexAttributeMTL.mm; sourceTree = "<group>"; };
+		2B699866228DD36900C31E3F /* WideVectorDrawableBuilderMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WideVectorDrawableBuilderMTL.mm; sourceTree = "<group>"; };
+		2B699867228DD36900C31E3F /* ParticleSystemDrawableMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ParticleSystemDrawableMTL.mm; sourceTree = "<group>"; };
+		2B699868228DD36A00C31E3F /* TextureMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TextureMTL.mm; sourceTree = "<group>"; };
 		2B69987A228DE06000C31E3F /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 		2B69987C228DE2EF00C31E3F /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
 		2B69987F228E26B500C31E3F /* wkDefaultShaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; name = wkDefaultShaders.metal; path = ../src/wkDefaultShaders.metal; sourceTree = "<group>"; };
@@ -2519,7 +2519,6 @@
 				2B699868228DD36A00C31E3F /* TextureMTL.mm */,
 			);
 			name = metal;
-			path = include;
 			sourceTree = "<group>";
 		};
 		2B69987E228E1AAA00C31E3F /* metal shaders */ = {

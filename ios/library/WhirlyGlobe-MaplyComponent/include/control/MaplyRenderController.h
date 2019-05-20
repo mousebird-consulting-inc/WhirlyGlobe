@@ -811,6 +811,12 @@ typedef NS_ENUM(NSInteger, MaplyQuadImageFormat) {
 
 @end
 
+/// The system can set up as eitheir GL or Metal
+typedef NS_ENUM(NSInteger, MaplyRenderType) {
+    MaplyRenderGLES,
+    MaplyRenderMetal,
+};
+
 /**
  The Render Controller is a standalone WhirlyGlobe-Maply renderer.
  
@@ -818,7 +824,10 @@ typedef NS_ENUM(NSInteger, MaplyQuadImageFormat) {
  */
 @interface MaplyRenderController : NSObject<MaplyRenderControllerProtocol>
 
-/// Initialize as an offline renderer of a given target size
+/// Initialize as an offline renderer of a given target size of the given rendering type
+- (instancetype __nullable)initWithSize:(CGSize)size mode:(MaplyRenderType)renderType;
+
+/// Initialize as an offline renderer of a given target size with default renderer (Metal)
 - (instancetype __nullable)initWithSize:(CGSize)size;
 
 /// If set up in offline mode, this is how we draw
