@@ -70,7 +70,7 @@ public:
     virtual void teardownForRenderer(const RenderSetupInfo *setupInfo);
     void cleanUp();
     
-protected:
+public:
     bool valid;
     std::string name;
     id<MTLFunction> vertFunc,fragFunc;

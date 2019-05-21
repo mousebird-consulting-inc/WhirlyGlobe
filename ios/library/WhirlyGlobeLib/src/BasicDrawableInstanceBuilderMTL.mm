@@ -28,6 +28,8 @@ BasicDrawableInstanceBuilderMTL::BasicDrawableInstanceBuilderMTL(const std::stri
     : BasicDrawableInstanceBuilder(name)
 {
     drawInst = new BasicDrawableInstanceMTL(name);
+
+    Init();
 }
     
 BasicDrawableInstanceBuilderMTL::~BasicDrawableInstanceBuilderMTL()

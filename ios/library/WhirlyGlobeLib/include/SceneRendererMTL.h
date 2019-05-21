@@ -31,6 +31,17 @@
 
 namespace WhirlyKit
 {
+    
+/// Metal stores a bit more per-frame information
+class RendererFrameInfoMTL : public RendererFrameInfo
+{
+public:
+    RendererFrameInfoMTL();
+    RendererFrameInfoMTL(const RendererFrameInfoMTL &that);
+
+    // Command encoder for just this frame
+    id<MTLRenderCommandEncoder> cmdEncode;
+};
 
 /// Metal version of the Scene Renderer
 class SceneRendererMTL : public SceneRenderer
