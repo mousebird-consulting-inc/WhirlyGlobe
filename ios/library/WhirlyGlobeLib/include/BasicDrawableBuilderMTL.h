@@ -41,6 +41,7 @@ public:
     virtual BasicDrawable *getDrawable();
     
 protected:
+    bool drawableGotten;
 };
 
 }

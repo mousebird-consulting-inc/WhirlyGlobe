@@ -87,9 +87,6 @@ void BasicDrawableBuilder::setupStandardAttributes(int numReserve)
 {
     //    setupTexCoordEntry(0,numReserve);
     
-    if (basicDraw->colorEntry < 0 || basicDraw->normalEntry < 0)
-        return;
-    
     basicDraw->colorEntry = addAttribute(BDChar4Type,a_colorNameID);
     basicDraw->vertexAttributes[basicDraw->colorEntry]->setDefaultColor(RGBAColor(255,255,255,255));
     basicDraw->vertexAttributes[basicDraw->colorEntry]->reserve(numReserve);
@@ -102,9 +99,6 @@ void BasicDrawableBuilder::setupStandardAttributes(int numReserve)
 void BasicDrawableBuilder::setupTexCoordEntry(int which,int numReserve)
 {
     if (which < basicDraw->texInfo.size())
-        return;
-    
-    if (basicDraw->texInfo.empty())
         return;
     
     for (unsigned int ii=(unsigned int)basicDraw->texInfo.size();ii<=which;ii++)

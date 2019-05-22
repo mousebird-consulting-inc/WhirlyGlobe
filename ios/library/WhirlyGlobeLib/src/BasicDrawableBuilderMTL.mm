@@ -24,7 +24,7 @@ namespace WhirlyKit
 {
 
 BasicDrawableBuilderMTL::BasicDrawableBuilderMTL(const std::string &name)
-    : BasicDrawableBuilder(name)
+    : BasicDrawableBuilder(name), drawableGotten(false)
 {
     basicDraw = new BasicDrawableMTL(name);
     BasicDrawableBuilder::Init();
@@ -33,18 +33,39 @@ BasicDrawableBuilderMTL::BasicDrawableBuilderMTL(const std::string &name)
     
 BasicDrawableBuilderMTL::~BasicDrawableBuilderMTL()
 {
+    if (!drawableGotten && basicDraw)
+        delete basicDraw;
 }
-
+    
 int BasicDrawableBuilderMTL::addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings)
 {
-    // TODO: Implement
+    VertexAttribute *attr = new VertexAttributeMTL(dataType,nameID);
+    if (numThings > 0)
+        attr->reserve(numThings);
+    basicDraw->vertexAttributes.push_back(attr);
     
-    return -1;
+    return (unsigned int)(basicDraw->vertexAttributes.size()-1);
 }
 
 BasicDrawable *BasicDrawableBuilderMTL::getDrawable()
 {
-    return basicDraw;
+    if (!basicDraw)
+        return NULL;
+    
+    BasicDrawableMTL *draw = (BasicDrawableMTL *)basicDraw;
+    
+    if (!drawableGotten) {
+        int ptsIndex = addAttribute(BDFloat3Type, a_PositionNameID);
+        VertexAttribute *ptsAttr = basicDraw->vertexAttributes[ptsIndex];
+        ptsAttr->reserve(points.size());
+        for (auto pt : points)
+            ptsAttr->addVector3f(pt);
+        draw->tris = tris;
+        
+        drawableGotten = true;
+    }
+    
+    return draw;
 }
     
 }

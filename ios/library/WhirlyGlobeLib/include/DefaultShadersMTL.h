@@ -18,15 +18,15 @@
  *
  */
 
-namespace WhirlyKit
+namespace WhirlyKitShader
 {
-
+    
 // Uniforms for the basic case.  Nothing fancy.
 struct UniformsA
 {
-    metal::float4x4 mvpMatrix;
-    metal::float4x4 mvMatrix;
-    metal::float4x4 mvNormalMatrix;
+    simd::float4x4 mvpMatrix;
+    simd::float4x4 mvMatrix;
+    simd::float4x4 mvNormalMatrix;
     float fade;
 };
     
@@ -34,19 +34,19 @@ struct UniformsA
 
 // A single light
 struct Light {
-    metal::float3 direction;
-    metal::float3 halfPlane;
-    metal::float4 ambient;
-    metal::float4 diffuse;
-    metal::float4 specular;
+    simd::float3 direction;
+    simd::float3 halfPlane;
+    simd::float4 ambient;
+    simd::float4 diffuse;
+    simd::float4 specular;
     float viewDepend;
 };
 
 // Material definition
 struct Material {
-    metal::float4 ambient;
-    metal::float4 diffuse;
-    metal::float4 specular;
+    simd::float4 ambient;
+    simd::float4 diffuse;
+    simd::float4 specular;
     float specularExponent;
 };
 
@@ -59,17 +59,17 @@ struct Lighting {
 
 // General purpose uniforms for these shaders
 struct UniformsTri {
-    metal::float4x4 mvpMatrix;
-    metal::float4x4 mvMatrix;
-    metal::float4x4 mvNormalMatrix;
+    simd::float4x4 mvpMatrix;
+    simd::float4x4 mvMatrix;
+    simd::float4x4 mvNormalMatrix;
     float fade;
 };
 
 // Texture lookup indirection
 // Used for treating one textures coordinates as coordinates in the parent
 struct TexIndirect {
-    metal::float2 offset;
-    metal::float2 scale;
+    simd::float2 offset;
+    simd::float2 scale;
 };
-
+    
 }

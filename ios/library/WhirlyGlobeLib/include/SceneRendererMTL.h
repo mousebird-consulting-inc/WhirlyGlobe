@@ -27,6 +27,7 @@
 #import "SceneRenderer.h"
 #import "WrapperMTL.h"
 #import "ProgramMTL.h"
+#import "SceneMTL.h"
 #import <MetalKit/MetalKit.h>
 
 namespace WhirlyKit
@@ -41,6 +42,10 @@ public:
 
     // Command encoder for just this frame
     id<MTLRenderCommandEncoder> cmdEncode;
+    // Buffer containing the Uniforms structure
+    id<MTLBuffer> uniformABuffer,uniformTriBuffer;
+    // Buffer containing the Lights structure
+    id<MTLBuffer> lightBuffer;
 };
 
 /// Metal version of the Scene Renderer
@@ -94,6 +99,13 @@ public:
     
     /// Construct a renderer-specific dynamic texture
     virtual DynamicTextureRef makeDynamicTexture(const std::string &name) const;
+    
+    /// Set up the buffer for general uniforms
+    id<MTLBuffer> setupUniformABuffer(RendererFrameInfoMTL *frameInfo);
+    id<MTLBuffer> setupUniformTriBuffer(RendererFrameInfoMTL *frameInfo);
+
+    /// Set the lights up in their own buffer
+    id<MTLBuffer> setupLightBuffer(SceneMTL *scene);
     
 public:
     // Information about the renderer passed around to various calls

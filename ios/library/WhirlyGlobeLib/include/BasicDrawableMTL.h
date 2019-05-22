@@ -33,6 +33,9 @@ class BasicDrawableMTL : public BasicDrawable
 {
 public:
     BasicDrawableMTL(const std::string &name);
+
+    // Note: Overriding for debugging
+    virtual bool isOn(RendererFrameInfo *frameInfo) const;
     
     /// Set up local rendering structures (e.g. VBOs)
     virtual void setupForRenderer(const RenderSetupInfo *setupInfo);
@@ -43,8 +46,12 @@ public:
     /// Fill this in to draw the basic drawable
     /// Note: Make this GL only
     virtual void draw(RendererFrameInfo *frameInfo,Scene *scene);
-        
+    
 public:
+    bool setupForMTL;
+    std::vector<Triangle> tris;
+    int numPts,numTris;
+    id<MTLBuffer> triBuffer;
 };
 
     

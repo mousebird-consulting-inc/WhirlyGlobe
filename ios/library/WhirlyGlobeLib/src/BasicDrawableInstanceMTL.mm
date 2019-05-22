@@ -42,24 +42,7 @@ void BasicDrawableInstanceMTL::teardownForRenderer(const RenderSetupInfo *setupI
 
 void BasicDrawableInstanceMTL::draw(RendererFrameInfo *inFrameInfo,Scene *scene)
 {
-    RendererFrameInfoMTL *frameInfo = (RendererFrameInfoMTL *)inFrameInfo;
-    ProgramMTL *program = (ProgramMTL *)frameInfo->program;
-    SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
-    id<MTLDevice> mtlDevice = sceneRender->setupInfo.mtlDevice;
-    
-    MTLRenderPipelineDescriptor *renderDesc = [[MTLRenderPipelineDescriptor alloc] init];
-    renderDesc.vertexFunction = program->vertFunc;
-    renderDesc.fragmentFunction = program->fragFunc;
-
-    // TODO: Should be from the target
-    renderDesc.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
-    
-    NSError *err = nil;
-    id<MTLRenderPipelineState> renderState = [mtlDevice newRenderPipelineStateWithDescriptor:renderDesc error:&err];
-    // Note: Vertex description
-    [frameInfo->cmdEncode setRenderPipelineState:renderState];
-    
-    // TODO: And draw....
+    // TODO: Implement
 }
     
 }

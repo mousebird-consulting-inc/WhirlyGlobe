@@ -22,14 +22,14 @@
 #import "../include/DefaultShadersMTL.h"
 
 using namespace metal;
-using namespace WhirlyKit;
+using namespace WhirlyKitShader;
 
 // Vertices with position, color, and normal
 struct VertexA
 {
-    float3 position [[attribute(0)]];
-    float4 color [[attribute(1)]];
-    float3 normal [[attribute(2)]];
+    float3 a_position [[attribute(0)]];
+    float4 a_color [[attribute(1)]];
+    float3 a_normal [[attribute(2)]];
 };
 
 // Position, color, and dot project (for backface checking)
@@ -47,12 +47,12 @@ vertex ProjVertexA vertexLineOnly_globe(
 {
     ProjVertexA outVert;
     
-    float4 pt = uniforms.mvMatrix * float4(vert.position, 1.0);
+    float4 pt = uniforms.mvMatrix * float4(vert.a_position, 1.0);
     pt /= pt.w;
-    float4 testNorm = uniforms.mvNormalMatrix * float4(vert.normal,0.0);
+    float4 testNorm = uniforms.mvNormalMatrix * float4(vert.a_normal,0.0);
     outVert.dotProd = dot(-pt.xyz,testNorm.xyz);
-    outVert.color = vert.color * uniforms.fade;
-    outVert.position = uniforms.mvpMatrix * float4(vert.position,1.0);
+    outVert.color = vert.a_color * uniforms.fade;
+    outVert.position = uniforms.mvpMatrix * float4(vert.a_position,1.0);
     
     return outVert;
 }
@@ -80,8 +80,8 @@ vertex ProjVertexB vertexLineOnly_flat(
 {
     ProjVertexB outVert;
     
-    outVert.color = vert.color * uniforms.fade;
-    outVert.position = uniforms.mvpMatrix * float4(vert.position,1.0);
+    outVert.color = vert.a_color * uniforms.fade;
+    outVert.position = uniforms.mvpMatrix * float4(vert.a_position,1.0);
     
     return outVert;
 }
@@ -97,10 +97,10 @@ fragment float4 fragmentLineOnly_flat(
 // Ye olde triangle vertex
 struct VertexTriA
 {
-    float3 position [[attribute(0)]];
-    float4 color [[attribute(1)]];
-    float3 normal [[attribute(2)]];
-    float2 texCoord [[attribute(3)]];
+    float3 a_position [[attribute(0)]];
+    float4 a_color [[attribute(1)]];
+    float3 a_normal [[attribute(2)]];
+    float2 a_texCoord [[attribute(3)]];
 };
 
 // Output vertex to the fragment shader
@@ -143,22 +143,22 @@ float4 resolveLighting(const float4 &pos,const float4 &norm,const float4 color,
 
 // Simple vertex shader for triangle with no lighting
 vertex ProjVertexTriA vertexTri_noLight(VertexTriA vert [[stage_in]],
-                                        constant UniformsTri &uniforms [[buffer(1)]],
-                                        constant Lighting &lighting [[buffer(2)]],
-                                        constant TexIndirect &texIndirect [[buffer(3)]])
+                                        constant UniformsTri &uniforms [[buffer(8)]],
+                                        constant Lighting &lighting [[buffer(9)]],
+                                        constant TexIndirect &texIndirect [[buffer(10)]])
 {
     ProjVertexTriA outVert;
     
-    outVert.position = uniforms.mvpMatrix * float4(vert.position,1.0);
-    outVert.color = vert.color * uniforms.fade;
-    outVert.texCoord = resolveTexCoords(vert.texCoord,texIndirect);
+    outVert.position = uniforms.mvpMatrix * float4(vert.a_position,1.0);
+    outVert.color = vert.a_color * uniforms.fade;
+    outVert.texCoord = resolveTexCoords(vert.a_texCoord,texIndirect);
     
     return outVert;
 }
 
 // Simple fragment shader for lines on flat map
 fragment float4 fragmentTri_noLight(ProjVertexTriA vert [[stage_in]],
-                                      constant UniformsTri &uniforms [[buffer(1)]],
+                                      constant UniformsTri &uniforms [[buffer(8)]],
                                       texture2d<float,access::sample> tex [[texture(0)]]
                                       )
 {

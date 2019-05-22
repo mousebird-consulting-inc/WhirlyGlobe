@@ -29,6 +29,7 @@
 #import "DynamicTextureAtlasMTL.h"
 #import "MaplyView.h"
 #import "WhirlyKitLog.h"
+#import "DefaultShadersMTL.h"
 
 using namespace Eigen;
 
@@ -36,12 +37,13 @@ namespace WhirlyKit
 {
     
 RendererFrameInfoMTL::RendererFrameInfoMTL()
+    : uniformABuffer(nil), uniformTriBuffer(nil), lightBuffer(nil)
 {
     cmdEncode = nil;
 }
     
 RendererFrameInfoMTL::RendererFrameInfoMTL(const RendererFrameInfoMTL &that)
-: RendererFrameInfo(that)
+: RendererFrameInfo(that), uniformABuffer(that.uniformABuffer), uniformTriBuffer(that.uniformTriBuffer), lightBuffer(that.lightBuffer)
 {
     cmdEncode = that.cmdEncode;
 }
@@ -171,6 +173,81 @@ public:
     bool useAlpha,useZBuffer;
     RendererFrameInfoMTL *frameInfo;
 };
+    
+static void CopyIntoFloat4x4(simd::float4x4 &dest,Eigen::Matrix4f &src)
+{
+    for (unsigned int ix=0;ix<4;ix++)
+        for (unsigned int iy=0;iy<4;iy++)
+            dest.columns[ix][iy] = src(iy*4+ix);
+}
+    
+static void CopyIntoFloat3(simd::float3 &dest,const Point3d &src)
+{
+    dest[0] = src.x();
+    dest[1] = src.y();
+    dest[2] = src.z();
+}
+    
+static void CopyIntoFloat3(simd::float3 &dest,const Point3f &src)
+{
+    dest[0] = src.x();
+    dest[1] = src.y();
+    dest[2] = src.z();
+}
+    
+static void CopyIntoFloat4(simd::float4 &dest,const Eigen::Vector4f &src)
+{
+    dest[0] = src.x();
+    dest[1] = src.y();
+    dest[2] = src.z();
+    dest[3] = src.w();
+}
+    
+id<MTLBuffer> SceneRendererMTL::setupUniformABuffer(RendererFrameInfoMTL *frameInfo)
+{
+    WhirlyKitShader::UniformsA uniforms;
+    CopyIntoFloat4x4(uniforms.mvpMatrix,frameInfo->mvpMat);
+    CopyIntoFloat4x4(uniforms.mvMatrix,frameInfo->mvpMat);
+    CopyIntoFloat4x4(uniforms.mvNormalMatrix,frameInfo->mvpMat);
+    // TODO: Tie this to something
+    uniforms.fade = 1.0;
+    
+    return [setupInfo.mtlDevice newBufferWithBytes:&uniforms length:sizeof(uniforms) options:MTLStorageModeShared];
+}
+
+id<MTLBuffer> SceneRendererMTL::setupUniformTriBuffer(RendererFrameInfoMTL *frameInfo)
+{
+    WhirlyKitShader::UniformsTri uniforms;
+    CopyIntoFloat4x4(uniforms.mvpMatrix,frameInfo->mvpMat);
+    CopyIntoFloat4x4(uniforms.mvMatrix,frameInfo->mvpMat);
+    CopyIntoFloat4x4(uniforms.mvNormalMatrix,frameInfo->mvpMat);
+    // TODO: Tie this to something
+    uniforms.fade = 1.0;
+    
+    return [setupInfo.mtlDevice newBufferWithBytes:&uniforms length:sizeof(uniforms) options:MTLStorageModeShared];
+}
+
+id<MTLBuffer> SceneRendererMTL::setupLightBuffer(SceneMTL *scene)
+{
+    WhirlyKitShader::Lighting lighting;
+    lighting.numLights = lights.size();
+    for (unsigned int ii=0;ii<lighting.numLights;ii++) {
+        DirectionalLight &dirLight = lights[ii];
+        
+        Eigen::Vector3f dir = dirLight.pos.normalized();
+        Eigen::Vector3f halfPlane = (dir + Eigen::Vector3f(0,0,1)).normalized();
+        
+        WhirlyKitShader::Light &light = lighting.lights[ii];
+        CopyIntoFloat3(light.direction,dir);
+        CopyIntoFloat3(light.halfPlane,halfPlane);
+        CopyIntoFloat4(light.ambient,dirLight.getAmbient());
+        CopyIntoFloat4(light.diffuse,dirLight.getDiffuse());
+        CopyIntoFloat4(light.specular,dirLight.getSpecular());
+        light.viewDepend = dirLight.viewDependent ? 0.0f : 1.0f;
+    }
+    
+    return [setupInfo.mtlDevice newBufferWithBytes:&lighting length:sizeof(lighting) options:MTLStorageModeShared];
+}
 
 void SceneRendererMTL::render(TimeInterval duration,
                               MTLRenderPassDescriptor *renderPassDesc,
@@ -275,7 +352,8 @@ void SceneRendererMTL::render(TimeInterval duration,
         baseFrameInfo.screenSizeInDisplayCoords = screenSize;
         baseFrameInfo.lights = &lights;
         baseFrameInfo.cmdEncode = cmdEncode;
-        
+        baseFrameInfo.lightBuffer = setupLightBuffer((SceneMTL *)scene);
+
         // We need a reverse of the eye vector in model space
         // We'll use this to determine what's pointed away
         Eigen::Matrix4f modelTransInv = modelTrans.inverse();
@@ -497,7 +575,10 @@ void SceneRendererMTL::render(TimeInterval duration,
                 baseFrameInfo.mvpInvMat = currentMvpInvMat;
                 baseFrameInfo.viewAndModelMat = currentMvMat;
                 baseFrameInfo.viewModelNormalMat = currentMvNormalMat;
-                
+
+                baseFrameInfo.uniformABuffer = setupUniformABuffer(&baseFrameInfo);
+                baseFrameInfo.uniformTriBuffer = setupUniformTriBuffer(&baseFrameInfo);
+
                 // Figure out the program to use for drawing
                 SimpleIdentity drawProgramId = drawContain.drawable->getProgram();
                 ProgramMTL *program = (ProgramMTL *)scene->getProgram(drawProgramId);

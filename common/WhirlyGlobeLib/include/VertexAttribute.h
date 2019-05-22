@@ -96,7 +96,7 @@ public:
     BDAttributeDataType dataType;
     /// Name used in the shader
     StringIdentity nameID;
-    /// Default value to pass to OpenGL if there's no data array
+    /// Default value to pass to renderer if there's no data array
     union {
         float vec4[4];
         float vec3[3];

@@ -19,3 +19,73 @@
  */
 
 #import "VertexAttributeMTL.h"
+
+namespace WhirlyKit
+{
+VertexAttributeMTL::VertexAttributeMTL(BDAttributeDataType dataType,StringIdentity nameID)
+    : VertexAttribute(dataType,nameID), buffer(nil)
+{
+}
+
+VertexAttributeMTL::VertexAttributeMTL(const VertexAttributeMTL &that)
+    : VertexAttribute(that), buffer(that.buffer)
+{
+}
+
+int VertexAttributeMTL::sizeMTL() const
+{
+    // Note: Should reference Metal info for this
+    switch (dataType)
+    {
+        case BDFloat4Type:
+            return 4*4;
+            break;
+        case BDFloat3Type:
+            return 3*4;
+            break;
+        case BDChar4Type:
+            return 4;
+            break;
+        case BDFloat2Type:
+            return 2*4;
+            break;
+        case BDFloatType:
+            return 4;
+            break;
+        case BDIntType:
+            return 4;
+            break;
+        default:
+            return 0;
+    }
+}
+    
+MTLVertexFormat VertexAttributeMTL::formatMTL() const
+{
+    switch (dataType)
+    {
+            
+        case BDFloat4Type:
+            return MTLVertexFormatFloat4;
+            break;
+        case BDFloat3Type:
+            return MTLVertexFormatFloat3;
+            break;
+        case BDChar4Type:
+            return MTLVertexFormatChar4;
+            break;
+        case BDFloat2Type:
+            return MTLVertexFormatFloat2;
+            break;
+        case BDFloatType:
+            return MTLVertexFormatFloat;
+            break;
+        case BDIntType:
+            return MTLVertexFormatInt;
+            break;
+        default:
+            return MTLVertexFormatFloat;
+    }
+}
+    
+}

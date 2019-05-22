@@ -24,23 +24,21 @@
 namespace WhirlyKit
 {
     
+// Metal wrapper around vertex attribute
 class VertexAttributeMTL : public VertexAttribute
 {
 public:
     VertexAttributeMTL(BDAttributeDataType dataType,StringIdentity nameID);
     VertexAttributeMTL(const VertexAttributeMTL &that);
     
-//        /// Return the number of components as needed by glVertexAttribPointer
-//        GLuint glEntryComponents() const;
-//
-//        /// Return the data type as required by glVertexAttribPointer
-//        GLenum glType() const;
-//
-//        /// Whether or not glVertexAttribPointer will normalize the data
-//        GLboolean glNormalize() const;
-//
-//        /// Calls glVertexAttrib* for the appropriate type
-//        void glSetDefault(int index) const;
+    // In memory size of the data component
+    int sizeMTL() const;
+    
+    // Low level data type
+    MTLVertexFormat formatMTL() const;
+public:
+    // If set, the Metal buffer we've set up for this one
+    id<MTLBuffer> buffer;
 };
 
 class SingleVertexAttributeInfoMTL : public SingleVertexAttributeInfo
