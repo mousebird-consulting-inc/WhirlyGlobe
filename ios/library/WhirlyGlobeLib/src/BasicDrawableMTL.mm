@@ -62,7 +62,7 @@ void BasicDrawableMTL::setupForRenderer(const RenderSetupInfo *inSetupInfo)
     
     // And put the triangles in their own
     // Note: Could use 2 bytes some of the time
-    int bufferSize = 3*4*tris.size();
+    int bufferSize = 3*2*tris.size();
     numTris = tris.size();
     if (bufferSize > 0) {
         triBuffer = [setupInfo->mtlDevice newBufferWithBytes:&tris[0] length:bufferSize options:MTLStorageModeShared];

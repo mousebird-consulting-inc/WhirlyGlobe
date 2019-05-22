@@ -12,10 +12,12 @@
 #import "WhirlyGlobeViewController.h"
 #import "MaplyComponentObject.h"
 #import "GeographyClassTestCase.h"
-
+#import "VectorsTestCase.h"
 
 @implementation LoftedPolysTestCase
-
+{
+    VectorsTestCase *baseLayer;
+}
 
 - (instancetype)init
 {
@@ -26,9 +28,10 @@
 	return self;
 }
 
+// Or maybe the USA.
 -(void) addLoftedPolysSpain: (WhirlyGlobeViewController*) globeVC
 {
-	NSString *path = [[NSBundle mainBundle] pathForResource:@"ESP" ofType:@"geojson" inDirectory:nil];
+	NSString *path = [[NSBundle mainBundle] pathForResource:@"USA" ofType:@"geojson" inDirectory:nil];
 	if (path) {
 		NSData *jsonData = [NSData dataWithContentsOfFile:path];
 		if (jsonData) {
@@ -49,7 +52,7 @@
 
 -(void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
-	GeographyClassTestCase *baseLayer = [[GeographyClassTestCase alloc]init];
+	baseLayer = [[VectorsTestCase alloc]init];
 	[baseLayer setUpWithGlobe:globeVC];
 	[self addLoftedPolysSpain:globeVC];
 }
