@@ -28,7 +28,7 @@ using namespace WhirlyKitShader;
 struct VertexA
 {
     float3 a_position [[attribute(0)]];
-    float4 a_color [[attribute(1)]];
+    uchar4 a_color [[attribute(1)]];
     float3 a_normal [[attribute(2)]];
 };
 
@@ -51,7 +51,7 @@ vertex ProjVertexA vertexLineOnly_globe(
     pt /= pt.w;
     float4 testNorm = uniforms.mvNormalMatrix * float4(vert.a_normal,0.0);
     outVert.dotProd = dot(-pt.xyz,testNorm.xyz);
-    outVert.color = vert.a_color * uniforms.fade;
+    outVert.color = float4(vert.a_color) * uniforms.fade;
     outVert.position = uniforms.mvpMatrix * float4(vert.a_position,1.0);
     
     return outVert;
@@ -80,7 +80,7 @@ vertex ProjVertexB vertexLineOnly_flat(
 {
     ProjVertexB outVert;
     
-    outVert.color = vert.a_color * uniforms.fade;
+    outVert.color = float4(vert.a_color) * uniforms.fade;
     outVert.position = uniforms.mvpMatrix * float4(vert.a_position,1.0);
     
     return outVert;
@@ -98,7 +98,7 @@ fragment float4 fragmentLineOnly_flat(
 struct VertexTriA
 {
     float3 a_position [[attribute(0)]];
-    float4 a_color [[attribute(1)]];
+    uchar4 a_color [[attribute(1)]];
     float3 a_normal [[attribute(2)]];
     float2 a_texCoord [[attribute(3)]];
 };
@@ -150,23 +150,22 @@ vertex ProjVertexTriA vertexTri_noLight(VertexTriA vert [[stage_in]],
     ProjVertexTriA outVert;
     
     outVert.position = uniforms.mvpMatrix * float4(vert.a_position,1.0);
-//    outVert.color = vert.a_color * uniforms.fade;
-//    outVert.texCoord = resolveTexCoords(vert.a_texCoord,texIndirect);
-//    outVert.position = uniforms.mvpMatrix * float4(1.0,1.0,1.0,1.0);
-    outVert.color = {1.0,1.0,1.0,1.0};
-    outVert.texCoord = {0.0,0.0};
+    outVert.color = float4(vert.a_color) * uniforms.fade;
+    outVert.texCoord = resolveTexCoords(vert.a_texCoord,texIndirect);
     
     return outVert;
 }
 
 // Simple fragment shader for lines on flat map
 fragment float4 fragmentTri_noLight(ProjVertexTriA vert [[stage_in]],
-                                      constant UniformsTri &uniforms [[buffer(8)]]
-//                                      texture2d<float,access::sample> tex [[texture(0)]]
+                                      constant UniformsTri &uniforms [[buffer(8)]],
+                                      texture2d<float,access::sample> tex [[texture(0)]]
                                       )
 {
-//    constexpr sampler sampler2d(coord::normalized, filter::linear);
-
-//    return vert.color * tex.sample(sampler2d, vert.texCoord);
-    return vert.color;
+//    if (tex.) {
+//        constexpr sampler sampler2d(coord::normalized, filter::linear);
+//        return vert.color * tex.sample(sampler2d, vert.texCoord);
+//    } else {
+        return vert.color;
+//    }
 }

@@ -62,7 +62,7 @@ void BasicDrawableMTL::setupForRenderer(const RenderSetupInfo *inSetupInfo)
     
     // And put the triangles in their own
     // Note: Could use 2 bytes some of the time
-    int bufferSize = 4*tris.size();
+    int bufferSize = 3*4*tris.size();
     numTris = tris.size();
     if (bufferSize > 0) {
         triBuffer = [setupInfo->mtlDevice newBufferWithBytes:&tris[0] length:bufferSize options:MTLStorageModeShared];
@@ -115,7 +115,6 @@ void BasicDrawableMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScene)
                 attrDesc.format = ourVertAttr->formatMTL();
                 attrDesc.bufferIndex = which;
                 attrDesc.offset = 0;
-                vertDesc.attributes[which] = attrDesc;
 
                 // Add in the buffer
                 MTLVertexBufferLayoutDescriptor *layoutDesc = [[MTLVertexBufferLayoutDescriptor alloc] init];
@@ -176,7 +175,7 @@ void BasicDrawableMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScene)
                             break;
                         case BDChar4Type:
                         {
-                            attrDesc.format = MTLVertexFormatInt;
+                            attrDesc.format = MTLVertexFormatUChar4;
                             layoutDesc.stride = 4;
                             auto val = ourVertAttr->defaultData.color;
                             [frameInfo->cmdEncode setVertexBytes:val length:4 atIndex:which];
@@ -185,6 +184,7 @@ void BasicDrawableMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScene)
                             break;
                     }
                 }
+                vertDesc.attributes[which] = attrDesc;
                 vertDesc.layouts[which] = layoutDesc;
                 
                 
@@ -311,7 +311,7 @@ void BasicDrawableMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScene)
     }
     
     // This actually draws the triangles (well, in a bit)
-    [frameInfo->cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:numTris indexType:MTLIndexTypeUInt16 indexBuffer:triBuffer indexBufferOffset:0];
+    [frameInfo->cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:numTris*3 indexType:MTLIndexTypeUInt16 indexBuffer:triBuffer indexBufferOffset:0];
 }
     
 }
