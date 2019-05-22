@@ -209,8 +209,6 @@ id<MTLBuffer> SceneRendererMTL::setupUniformABuffer(RendererFrameInfoMTL *frameI
     CopyIntoFloat4x4(uniforms.mvpMatrix,frameInfo->mvpMat);
     CopyIntoFloat4x4(uniforms.mvMatrix,frameInfo->mvpMat);
     CopyIntoFloat4x4(uniforms.mvNormalMatrix,frameInfo->mvpMat);
-    // TODO: Tie this to something
-    uniforms.fade = 1.0;
     
     return [setupInfo.mtlDevice newBufferWithBytes:&uniforms length:sizeof(uniforms) options:MTLStorageModeShared];
 }
@@ -221,8 +219,6 @@ id<MTLBuffer> SceneRendererMTL::setupUniformTriBuffer(RendererFrameInfoMTL *fram
     CopyIntoFloat4x4(uniforms.mvpMatrix,frameInfo->mvpMat);
     CopyIntoFloat4x4(uniforms.mvMatrix,frameInfo->mvpMat);
     CopyIntoFloat4x4(uniforms.mvNormalMatrix,frameInfo->mvpMat);
-    // TODO: Tie this to something
-    uniforms.fade = 1.0;
     
     return [setupInfo.mtlDevice newBufferWithBytes:&uniforms length:sizeof(uniforms) options:MTLStorageModeShared];
 }
@@ -245,6 +241,10 @@ id<MTLBuffer> SceneRendererMTL::setupLightBuffer(SceneMTL *scene)
         CopyIntoFloat4(light.specular,dirLight.getSpecular());
         light.viewDepend = dirLight.viewDependent ? 0.0f : 1.0f;
     }
+    CopyIntoFloat4(lighting.mat.ambient,defaultMat.getAmbient());
+    CopyIntoFloat4(lighting.mat.diffuse,defaultMat.getDiffuse());
+    CopyIntoFloat4(lighting.mat.specular,defaultMat.getSpecular());
+    lighting.mat.specularExponent = defaultMat.getSpecularExponent();
     
     return [setupInfo.mtlDevice newBufferWithBytes:&lighting length:sizeof(lighting) options:MTLStorageModeShared];
 }

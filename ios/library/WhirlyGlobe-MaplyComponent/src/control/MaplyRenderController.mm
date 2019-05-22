@@ -621,10 +621,9 @@ using namespace Eigen;
     [self addShader:kMaplyShaderDefaultLineNoBackface program:defaultLineShaderNoBack];
 
     // Default triangle shaders
-    // TODO: Implement this version
     [self addShader:kMaplyShaderDefaultTri
             program:ProgramRef(new ProgramMTL([kMaplyShaderDefaultTri cStringUsingEncoding:NSASCIIStringEncoding],
-                                              [mtlLib newFunctionWithName:@"vertexTri_noLight"],
+                                              [mtlLib newFunctionWithName:@"vertexTri_light"],
                                               [mtlLib newFunctionWithName:@"fragmentTri_noLight"]))];
     [self addShader:kMaplyShaderDefaultTriNoLighting
             program:ProgramRef(new ProgramMTL([kMaplyShaderDefaultTri cStringUsingEncoding:NSASCIIStringEncoding],

@@ -27,7 +27,27 @@ struct UniformsA
     simd::float4x4 mvpMatrix;
     simd::float4x4 mvMatrix;
     simd::float4x4 mvNormalMatrix;
-    float fade;
+};
+    
+// General purpose uniforms for these shaders
+struct UniformsTri {
+    simd::float4x4 mvpMatrix;
+    simd::float4x4 mvMatrix;
+    simd::float4x4 mvNormalMatrix;
+};
+
+// Texture lookup indirection
+// Used for treating one textures coordinates as coordinates in the parent
+struct TexIndirect {
+    simd::float2 offset;
+    simd::float2 scale;
+};
+
+// Things that change per drawable (like fade)
+struct UniformDrawStateA {
+    int numTextures;           // Number of textures we may find on input
+    float fade;                // Fade tends to change by time
+    simd::float4x4 singleMat;  // Note: Use this rather than changing the uniforms
 };
     
 //// Lighting support //////
@@ -52,24 +72,9 @@ struct Material {
 
 // Lighting together in one struct
 struct Lighting {
+    Material mat;
     int numLights;
     Light lights[8];
-    Material mat;
-};
-
-// General purpose uniforms for these shaders
-struct UniformsTri {
-    simd::float4x4 mvpMatrix;
-    simd::float4x4 mvMatrix;
-    simd::float4x4 mvNormalMatrix;
-    float fade;
-};
-
-// Texture lookup indirection
-// Used for treating one textures coordinates as coordinates in the parent
-struct TexIndirect {
-    simd::float2 offset;
-    simd::float2 scale;
 };
     
 }

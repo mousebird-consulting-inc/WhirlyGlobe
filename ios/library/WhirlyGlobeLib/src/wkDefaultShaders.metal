@@ -28,7 +28,7 @@ using namespace WhirlyKitShader;
 struct VertexA
 {
     float3 a_position [[attribute(0)]];
-    uchar4 a_color [[attribute(1)]];
+    float4 a_color [[attribute(1)]];
     float3 a_normal [[attribute(2)]];
 };
 
@@ -43,7 +43,8 @@ struct ProjVertexA
 // Vertex shader for simple line on the globe
 vertex ProjVertexA vertexLineOnly_globe(
     VertexA vert [[stage_in]],
-    constant UniformsA &uniforms [[buffer(1)]])
+    constant UniformsTri &uniforms [[buffer(9)]],
+    constant UniformDrawStateA &uniDrawState [[buffer(10)]])
 {
     ProjVertexA outVert;
     
@@ -51,7 +52,7 @@ vertex ProjVertexA vertexLineOnly_globe(
     pt /= pt.w;
     float4 testNorm = uniforms.mvNormalMatrix * float4(vert.a_normal,0.0);
     outVert.dotProd = dot(-pt.xyz,testNorm.xyz);
-    outVert.color = float4(vert.a_color) * uniforms.fade;
+    outVert.color = float4(vert.a_color) * uniDrawState.fade;
     outVert.position = uniforms.mvpMatrix * float4(vert.a_position,1.0);
     
     return outVert;
@@ -76,11 +77,12 @@ struct ProjVertexB
 // Vertex shader for simple line on the flat map (no backface checking)
 vertex ProjVertexB vertexLineOnly_flat(
     VertexA vert [[stage_in]],
-    constant UniformsA &uniforms [[buffer(1)]])
+    constant UniformsTri &uniforms [[buffer(9)]],
+    constant UniformDrawStateA &uniDrawState [[buffer(10)]])
 {
     ProjVertexB outVert;
     
-    outVert.color = float4(vert.a_color) * uniforms.fade;
+    outVert.color = float4(vert.a_color) * uniDrawState.fade;
     outVert.position = uniforms.mvpMatrix * float4(vert.a_position,1.0);
     
     return outVert;
@@ -89,7 +91,7 @@ vertex ProjVertexB vertexLineOnly_flat(
 // Simple fragment shader for lines on flat map
 fragment float4 fragmentLineOnly_flat(
     ProjVertexB vert [[stage_in]],
-    constant UniformsA &uniforms [[buffer(1)]])
+    constant UniformsTri &uniforms [[buffer(9)]])
 {
     return vert.color;
 }
@@ -98,7 +100,7 @@ fragment float4 fragmentLineOnly_flat(
 struct VertexTriA
 {
     float3 a_position [[attribute(0)]];
-    uchar4 a_color [[attribute(1)]];
+    float4 a_color [[attribute(1)]];
     float3 a_normal [[attribute(2)]];
     float2 a_texCoord [[attribute(3)]];
 };
@@ -111,7 +113,7 @@ struct ProjVertexTriA {
 };
 
 // Resolve texture coordinates with their parent offsts, if necessary
-float2 resolveTexCoords(const float2 &texCoord,constant TexIndirect &texIndr)
+float2 resolveTexCoords(float2 texCoord,TexIndirect texIndr)
 {
     if (texIndr.scale.x == 0.0)
         return texCoord;
@@ -120,20 +122,19 @@ float2 resolveTexCoords(const float2 &texCoord,constant TexIndirect &texIndr)
 }
 
 // Calculate lighting for the given position and normal
-float4 resolveLighting(const float4 &pos,const float4 &norm,const float4 color,
-                       constant Lighting &lighting,constant UniformsTri &uniforms)
+float4 resolveLighting(float3 pos,
+                      float3 norm,
+                      float4 color,
+                      constant Lighting &lighting,
+                      constant float4x4 &mvpMatrix)
 {
     float4 ambient(0.0,0.0,0.0,0.0);
     float4 diffuse(0.0,0.0,0.0,0.0);
 
     for (int ii=0;ii<lighting.numLights;ii++) {
         constant Light &light = lighting.lights[ii];
-        float3 adjNorm = light.viewDepend > 0.0 ? normalize((uniforms.mvpMatrix * float4(norm.xyz, 0.0)).xyz) : norm.xzy;
-        float ndotl;
-        //"        float ndoth;
-        ndotl = max(0.0, dot(adjNorm, light.direction));
-        //"        ndotl = pow(ndotl,0.5);
-        //"        ndoth = max(0.0, dot(adjNorm, light[ii].halfplane));
+        float3 adjNorm = light.viewDepend > 0.0 ? normalize((mvpMatrix * float4(norm.xyz, 0.0)).xyz) : norm.xzy;
+        float ndotl = max(0.0, dot(adjNorm, light.direction));
         ambient += light.ambient;
         diffuse += ndotl * light.diffuse;
     }
@@ -144,13 +145,33 @@ float4 resolveLighting(const float4 &pos,const float4 &norm,const float4 color,
 // Simple vertex shader for triangle with no lighting
 vertex ProjVertexTriA vertexTri_noLight(VertexTriA vert [[stage_in]],
                                         constant UniformsTri &uniforms [[buffer(8)]],
-                                        constant Lighting &lighting [[buffer(9)]],
-                                        constant TexIndirect &texIndirect [[buffer(10)]])
+                                        constant UniformDrawStateA &uniDrawState [[buffer(9)]],
+                                        constant TexIndirect &texIndirect [[buffer(11)]])
 {
     ProjVertexTriA outVert;
     
     outVert.position = uniforms.mvpMatrix * float4(vert.a_position,1.0);
-    outVert.color = float4(vert.a_color) * uniforms.fade;
+    outVert.color = float4(vert.a_color) * uniDrawState.fade;
+    outVert.texCoord = resolveTexCoords(vert.a_texCoord,texIndirect);
+    
+    return outVert;
+}
+
+// Simple vertex shader for triangle with basic lighting
+vertex ProjVertexTriA vertexTri_light(VertexTriA vert [[stage_in]],
+                                      constant UniformsTri &uniforms [[buffer(8)]],
+                                      constant UniformDrawStateA &uniDrawState [[buffer(9)]],
+                                      constant Lighting &lighting [[buffer(10)]],
+                                      constant TexIndirect &texIndirect [[buffer(11)]])
+{
+    ProjVertexTriA outVert;
+    
+    outVert.position = uniforms.mvpMatrix * float4(vert.a_position,1.0);
+    outVert.color = resolveLighting(vert.a_position,
+                                    vert.a_normal,
+                                    float4(vert.a_color),
+                                    lighting,
+                                    uniforms.mvpMatrix);
     outVert.texCoord = resolveTexCoords(vert.a_texCoord,texIndirect);
     
     return outVert;

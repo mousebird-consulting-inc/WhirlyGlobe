@@ -79,19 +79,67 @@ void BasicDrawableMTL::teardownForRenderer(const RenderSetupInfo *setupInfo)
         vertAttrMTL->buffer = nil;
     }
 }
+    
+float BasicDrawableMTL::calcFade(RendererFrameInfo *frameInfo)
+{
+    // Figure out if we're fading in or out
+    float fade = 1.0;
+    if (fadeDown < fadeUp)
+    {
+        // Heading to 1
+        if (frameInfo->currentTime < fadeDown)
+            fade = 0.0;
+        else
+            if (frameInfo->currentTime > fadeUp)
+                fade = 1.0;
+            else
+                fade = (frameInfo->currentTime - fadeDown)/(fadeUp - fadeDown);
+    } else {
+        if (fadeUp < fadeDown)
+        {
+            // Heading to 0
+            if (frameInfo->currentTime < fadeUp)
+                fade = 1.0;
+            else
+                if (frameInfo->currentTime > fadeDown)
+                    fade = 0.0;
+                else
+                    fade = 1.0-(frameInfo->currentTime - fadeUp)/(fadeDown - fadeUp);
+        }
+    }
+    // Deal with the range based fade
+    if (frameInfo->heightAboveSurface > 0.0)
+    {
+        float factor = 1.0;
+        if (minVisibleFadeBand != 0.0)
+        {
+            float a = (frameInfo->heightAboveSurface - minVisible)/minVisibleFadeBand;
+            if (a >= 0.0 && a < 1.0)
+                factor = a;
+        }
+        if (maxVisibleFadeBand != 0.0)
+        {
+            float b = (maxVisible - frameInfo->heightAboveSurface)/maxVisibleFadeBand;
+            if (b >= 0.0 && b < 1.0)
+                factor = b;
+        }
+        
+        fade = fade * factor;
+    }
+
+    return fade;
+}
 
 void BasicDrawableMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScene)
 {
-    // Note: Should cull these before this
-    if (!triBuffer)
-        return;
-    
     RendererFrameInfoMTL *frameInfo = (RendererFrameInfoMTL *)inFrameInfo;
     ProgramMTL *program = (ProgramMTL *)frameInfo->program;
     SceneMTL *scene = (SceneMTL *)inScene;
     SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
     id<MTLDevice> mtlDevice = sceneRender->setupInfo.mtlDevice;
-    
+
+    float fade = calcFade(inFrameInfo);
+
     MTLRenderPipelineDescriptor *renderDesc = [[MTLRenderPipelineDescriptor alloc] init];
     renderDesc.vertexFunction = program->vertFunc;
     renderDesc.fragmentFunction = program->fragFunc;
@@ -175,7 +223,7 @@ void BasicDrawableMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScene)
                             break;
                         case BDChar4Type:
                         {
-                            attrDesc.format = MTLVertexFormatUChar4;
+                            attrDesc.format = MTLVertexFormatUChar4Normalized;
                             layoutDesc.stride = 4;
                             auto val = ourVertAttr->defaultData.color;
                             [frameInfo->cmdEncode setVertexBytes:val length:4 atIndex:which];
@@ -267,6 +315,11 @@ void BasicDrawableMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScene)
     
     [frameInfo->cmdEncode setRenderPipelineState:renderState];
 
+    // Per drawable uniform info
+    WhirlyKitShader::UniformDrawStateA uni;
+    uni.fade = 1.0;
+    bzero(&uni.singleMat,sizeof(uni.singleMat));
+
     // Look for the vertex uniforms
     // Note: Put these in the ProgramMTL
     int texIndex = 0;
@@ -274,6 +327,8 @@ void BasicDrawableMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScene)
     for (MTLArgument *vertArg : vertArgs) {
         if ([vertArg.name isEqualToString:@"uniforms"]) {
             [frameInfo->cmdEncode setVertexBuffer:frameInfo->uniformTriBuffer offset:0 atIndex:vertArg.index];
+        } else if ([vertArg.name isEqualToString:@"uniDrawState"]) {
+            [frameInfo->cmdEncode setVertexBytes:&uni length:sizeof(uni) atIndex:vertArg.index];
         } else if ([vertArg.name isEqualToString:@"lighting"]) {
             [frameInfo->cmdEncode setVertexBuffer:frameInfo->lightBuffer offset:0 atIndex:vertArg.index];
         } else if ([vertArg.name containsString:@"texIndirect"]) {
@@ -292,6 +347,8 @@ void BasicDrawableMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScene)
     for (MTLArgument *fragArg : fragArgs) {
         if ([fragArg.name isEqualToString:@"uniforms"]) {
             [frameInfo->cmdEncode setFragmentBuffer:frameInfo->uniformTriBuffer offset:0 atIndex:fragArg.index];
+        } else if ([fragArg.name isEqualToString:@"uniDrawState"]) {
+            [frameInfo->cmdEncode setFragmentBytes:&uni length:sizeof(uni) atIndex:fragArg.index];
         } else {
             if (fragArg.type == MTLArgumentTypeTexture) {
                 // Textures we just add as they come along
@@ -310,8 +367,17 @@ void BasicDrawableMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScene)
         }
     }
     
-    // This actually draws the triangles (well, in a bit)
-    [frameInfo->cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:numTris*3 indexType:MTLIndexTypeUInt16 indexBuffer:triBuffer indexBufferOffset:0];
+    switch (type) {
+        case Lines:
+            [frameInfo->cmdEncode drawPrimitives:MTLPrimitiveTypeLine vertexStart:0 vertexCount:numPts];
+            break;
+        case Triangles:
+            // This actually draws the triangles (well, in a bit)
+            [frameInfo->cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:numTris*3 indexType:MTLIndexTypeUInt16 indexBuffer:triBuffer indexBufferOffset:0];
+            break;
+        default:
+            break;
+    }
 }
     
 }

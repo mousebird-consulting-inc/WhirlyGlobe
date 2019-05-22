@@ -47,7 +47,10 @@ public:
     /// Note: Make this GL only
     virtual void draw(RendererFrameInfo *frameInfo,Scene *scene);
     
+    
 public:
+    float calcFade(RendererFrameInfo *frameInfo);
+
     bool setupForMTL;
     std::vector<Triangle> tris;
     int numPts,numTris;

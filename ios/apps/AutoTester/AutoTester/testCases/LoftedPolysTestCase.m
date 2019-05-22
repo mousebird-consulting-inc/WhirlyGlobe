@@ -38,9 +38,9 @@
 			[globeVC addLoftedPolys:@[wgVecObj]
 				desc:@{
 					kMaplyLoftedPolyHeight: @(0.1),
-					kMaplyLoftedPolyOutlineColor: [UIColor redColor],
+					kMaplyLoftedPolyOutlineColor: [UIColor whiteColor],
 					kMaplyDrawPriority: @(kMaplyLoftedPolysDrawPriorityDefault),
-					kMaplyColor: [UIColor redColor]
+					kMaplyColor: [UIColor colorWithRed:0.7 green:0.0 blue:0.0 alpha:0.7]
 				}
 				mode:MaplyThreadAny];
 		}
