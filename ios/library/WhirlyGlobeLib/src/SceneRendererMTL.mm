@@ -178,7 +178,7 @@ static void CopyIntoFloat4x4(simd::float4x4 &dest,Eigen::Matrix4f &src)
 {
     for (unsigned int ix=0;ix<4;ix++)
         for (unsigned int iy=0;iy<4;iy++)
-            dest.columns[ix][iy] = src(iy*4+ix);
+            dest.columns[ix][iy] = src(ix*4+iy);
 }
     
 static void CopyIntoFloat3(simd::float3 &dest,const Point3d &src)

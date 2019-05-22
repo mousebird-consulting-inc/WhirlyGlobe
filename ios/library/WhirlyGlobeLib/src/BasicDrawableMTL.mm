@@ -24,6 +24,7 @@
 #import "VertexAttributeMTL.h"
 #import "TextureMTL.h"
 #import "SceneMTL.h"
+#import "DefaultShadersMTL.h"
 
 namespace WhirlyKit
 {
@@ -54,7 +55,7 @@ void BasicDrawableMTL::setupForRenderer(const RenderSetupInfo *inSetupInfo)
         int bufferSize = vertAttrMTL->sizeMTL() * vertAttrMTL->numElements();
         if (bufferSize > 0) {
             numPts = vertAttrMTL->numElements();
-            vertAttrMTL->buffer = [setupInfo->mtlDevice newBufferWithBytes:vertAttr->data length:bufferSize options:MTLStorageModeShared];
+            vertAttrMTL->buffer = [setupInfo->mtlDevice newBufferWithBytes:vertAttr->addressForElement(0) length:bufferSize options:MTLStorageModeShared];
             vertAttrMTL->clear();
         }
     }
@@ -275,6 +276,11 @@ void BasicDrawableMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScene)
             [frameInfo->cmdEncode setVertexBuffer:frameInfo->uniformTriBuffer offset:0 atIndex:vertArg.index];
         } else if ([vertArg.name isEqualToString:@"lighting"]) {
             [frameInfo->cmdEncode setVertexBuffer:frameInfo->lightBuffer offset:0 atIndex:vertArg.index];
+        } else if ([vertArg.name containsString:@"texIndirect"]) {
+            WhirlyKitShader::TexIndirect texInd;
+            texInd.offset[0] = 0.0;  texInd.offset[1] = 0.0;
+            texInd.scale[0] = 1.0; texInd.scale[1] = 1.0;
+            [frameInfo->cmdEncode setVertexBytes:&texInd length:sizeof(texInd) atIndex:vertArg.index];
         } else if (vertArg.type == MTLArgumentTypeTexture) {
             // TODO: Implement the attributes users can pass in
         }
@@ -305,7 +311,7 @@ void BasicDrawableMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScene)
     }
     
     // This actually draws the triangles (well, in a bit)
-    [frameInfo->cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:numTris indexType:MTLIndexTypeUInt32 indexBuffer:triBuffer indexBufferOffset:0];
+    [frameInfo->cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:numTris indexType:MTLIndexTypeUInt16 indexBuffer:triBuffer indexBufferOffset:0];
 }
     
 }

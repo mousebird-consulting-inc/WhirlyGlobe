@@ -150,19 +150,23 @@ vertex ProjVertexTriA vertexTri_noLight(VertexTriA vert [[stage_in]],
     ProjVertexTriA outVert;
     
     outVert.position = uniforms.mvpMatrix * float4(vert.a_position,1.0);
-    outVert.color = vert.a_color * uniforms.fade;
-    outVert.texCoord = resolveTexCoords(vert.a_texCoord,texIndirect);
+//    outVert.color = vert.a_color * uniforms.fade;
+//    outVert.texCoord = resolveTexCoords(vert.a_texCoord,texIndirect);
+//    outVert.position = uniforms.mvpMatrix * float4(1.0,1.0,1.0,1.0);
+    outVert.color = {1.0,1.0,1.0,1.0};
+    outVert.texCoord = {0.0,0.0};
     
     return outVert;
 }
 
 // Simple fragment shader for lines on flat map
 fragment float4 fragmentTri_noLight(ProjVertexTriA vert [[stage_in]],
-                                      constant UniformsTri &uniforms [[buffer(8)]],
-                                      texture2d<float,access::sample> tex [[texture(0)]]
+                                      constant UniformsTri &uniforms [[buffer(8)]]
+//                                      texture2d<float,access::sample> tex [[texture(0)]]
                                       )
 {
-    constexpr sampler sampler2d(coord::normalized, filter::linear);
+//    constexpr sampler sampler2d(coord::normalized, filter::linear);
 
-    return vert.color * tex.sample(sampler2d, vert.texCoord);
+//    return vert.color * tex.sample(sampler2d, vert.texCoord);
+    return vert.color;
 }
