@@ -32,7 +32,7 @@ namespace WhirlyKit
 {
     
 BasicDrawableMTL::BasicDrawableMTL(const std::string &name)
-    : BasicDrawable(name), triBuffer(nil), setupForMTL(false), vertDesc(nil), numPts(0), numTris(0)
+    : BasicDrawable(name), triBuffer(nil), setupForMTL(false), vertDesc(nil), renderState(nil), numPts(0), numTris(0)
 {
 }
  
@@ -80,6 +80,11 @@ void BasicDrawableMTL::teardownForRenderer(const RenderSetupInfo *setupInfo)
         VertexAttributeMTL *vertAttrMTL = (VertexAttributeMTL *)vertAttr;
         vertAttrMTL->buffer = nil;
     }
+    
+    vertDesc = nil;
+    triBuffer = nil;
+    renderState = nil;
+    defaultAttrs.clear();
 }
     
 float BasicDrawableMTL::calcFade(RendererFrameInfo *frameInfo)
@@ -261,23 +266,43 @@ MTLVertexDescriptor *BasicDrawableMTL::getVertexDescriptor(id<MTLFunction> vertF
 
     return vertDesc;
 }
-
-void BasicDrawableMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScene)
+    
+id<MTLRenderPipelineState> BasicDrawableMTL::getRenderPipelineState(SceneRendererMTL *sceneRender,RendererFrameInfoMTL *frameInfo)
 {
-    RendererFrameInfoMTL *frameInfo = (RendererFrameInfoMTL *)inFrameInfo;
+    if (renderState)
+        return renderState;
+    
     ProgramMTL *program = (ProgramMTL *)frameInfo->program;
-    SceneMTL *scene = (SceneMTL *)inScene;
-    SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
     id<MTLDevice> mtlDevice = sceneRender->setupInfo.mtlDevice;
-
-    float fade = calcFade(inFrameInfo);
 
     MTLRenderPipelineDescriptor *renderDesc = [[MTLRenderPipelineDescriptor alloc] init];
     renderDesc.vertexFunction = program->vertFunc;
     renderDesc.fragmentFunction = program->fragFunc;
 
-    // Make a vertex descriptor
-    MTLVertexDescriptor *vertDesc = getVertexDescriptor(program->vertFunc);
+    renderDesc.vertexDescriptor = getVertexDescriptor(program->vertFunc);
+    // TODO: Should be from the target
+    renderDesc.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
+
+    // Set up a render state
+    NSError *err = nil;
+    renderState = [mtlDevice newRenderPipelineStateWithDescriptor:renderDesc error:&err];
+    if (err) {
+        NSLog(@"BasicDrawableMTL: Failed to set up render state because:\n%@",err);
+        return nil;
+    }
+
+    return renderState;
+}
+
+void BasicDrawableMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScene)
+{
+    RendererFrameInfoMTL *frameInfo = (RendererFrameInfoMTL *)inFrameInfo;
+    SceneMTL *scene = (SceneMTL *)inScene;
+    SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
+
+    float fade = calcFade(inFrameInfo);
+    
+    id<MTLRenderPipelineState> renderState = getRenderPipelineState(sceneRender,frameInfo);
     
     // Wire up the various inputs that we know about
     for (auto vertAttr : vertexAttributes) {
@@ -289,18 +314,6 @@ void BasicDrawableMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScene)
     // And provide defaults for the ones we don't
     for (auto defAttr : defaultAttrs)
         [frameInfo->cmdEncode setVertexBytes:&defAttr.data length:sizeof(defAttr.data) atIndex:defAttr.bufferIndex];
-    
-    renderDesc.vertexDescriptor = vertDesc;
-    // TODO: Should be from the target
-    renderDesc.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
-
-    // Set up a render state
-    NSError *err = nil;
-    id<MTLRenderPipelineState> renderState = [mtlDevice newRenderPipelineStateWithDescriptor:renderDesc error:&err];
-    if (err) {
-        NSLog(@"BasicDrawableMTL: Failed to set up render state because:\n%@",err);
-        return;
-    }
     
     [frameInfo->cmdEncode setRenderPipelineState:renderState];
 

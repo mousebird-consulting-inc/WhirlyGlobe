@@ -23,6 +23,7 @@
 #import "BasicDrawable.h"
 #import "WrapperMTL.h"
 #import "VertexAttributeMTL.h"
+#import "SceneRendererMTL.h"
 
 namespace WhirlyKit
 {
@@ -50,7 +51,8 @@ public:
 public:
     float calcFade(RendererFrameInfo *frameInfo);
     MTLVertexDescriptor *getVertexDescriptor(id<MTLFunction> vertFunc);
-    
+    id<MTLRenderPipelineState> getRenderPipelineState(SceneRendererMTL *sceneRender,RendererFrameInfoMTL *frameInfo);
+
     // Defaults for vertex attributes we don't have
     typedef struct {
         MTLDataType dataType;
@@ -65,6 +67,7 @@ public:
     bool setupForMTL;
     std::vector<Triangle> tris;
     int numPts,numTris;
+    id<MTLRenderPipelineState> renderState; // Cacheable render state
     MTLVertexDescriptor *vertDesc;     // Description of vertices
     id<MTLBuffer> triBuffer;           // Metal side buffer for triangles
     std::vector<AttributeDefault> defaultAttrs;

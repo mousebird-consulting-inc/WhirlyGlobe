@@ -30,6 +30,7 @@ using namespace WhirlyKit;
 
     self.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
     self.framebufferOnly = true;
+//    self.preferredFramesPerSecond = 120;
     
     return self;
 }
