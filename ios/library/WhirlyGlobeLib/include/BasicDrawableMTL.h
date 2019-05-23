@@ -47,14 +47,27 @@ public:
     /// Note: Make this GL only
     virtual void draw(RendererFrameInfo *frameInfo,Scene *scene);
     
-    
 public:
     float calcFade(RendererFrameInfo *frameInfo);
+    MTLVertexDescriptor *getVertexDescriptor(id<MTLFunction> vertFunc);
+    
+    // Defaults for vertex attributes we don't have
+    typedef struct {
+        MTLDataType dataType;
+        union {
+            float fVals[4];
+            int iVal;
+            unsigned char chars[4];
+        } data;
+        int bufferIndex;
+    } AttributeDefault;
 
     bool setupForMTL;
     std::vector<Triangle> tris;
     int numPts,numTris;
-    id<MTLBuffer> triBuffer;
+    MTLVertexDescriptor *vertDesc;     // Description of vertices
+    id<MTLBuffer> triBuffer;           // Metal side buffer for triangles
+    std::vector<AttributeDefault> defaultAttrs;
 };
 
     

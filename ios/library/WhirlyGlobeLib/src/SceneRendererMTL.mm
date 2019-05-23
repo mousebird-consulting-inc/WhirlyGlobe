@@ -37,13 +37,12 @@ namespace WhirlyKit
 {
     
 RendererFrameInfoMTL::RendererFrameInfoMTL()
-    : uniformABuffer(nil), uniformTriBuffer(nil), lightBuffer(nil)
 {
     cmdEncode = nil;
 }
     
 RendererFrameInfoMTL::RendererFrameInfoMTL(const RendererFrameInfoMTL &that)
-: RendererFrameInfo(that), uniformABuffer(that.uniformABuffer), uniformTriBuffer(that.uniformTriBuffer), lightBuffer(that.lightBuffer)
+: RendererFrameInfo(that)
 {
     cmdEncode = that.cmdEncode;
 }
@@ -203,27 +202,18 @@ static void CopyIntoFloat4(simd::float4 &dest,const Eigen::Vector4f &src)
     dest[3] = src.w();
 }
     
-id<MTLBuffer> SceneRendererMTL::setupUniformABuffer(RendererFrameInfoMTL *frameInfo)
+void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo)
 {
-    WhirlyKitShader::UniformsA uniforms;
+    WhirlyKitShader::Uniforms uniforms;
     CopyIntoFloat4x4(uniforms.mvpMatrix,frameInfo->mvpMat);
     CopyIntoFloat4x4(uniforms.mvMatrix,frameInfo->mvpMat);
     CopyIntoFloat4x4(uniforms.mvNormalMatrix,frameInfo->mvpMat);
     
-    return [setupInfo.mtlDevice newBufferWithBytes:&uniforms length:sizeof(uniforms) options:MTLStorageModeShared];
+    [frameInfo->cmdEncode setVertexBytes:&uniforms length:sizeof(uniforms) atIndex:WKSUniformBuffer];
+    [frameInfo->cmdEncode setFragmentBytes:&uniforms length:sizeof(uniforms) atIndex:WKSUniformBuffer];
 }
 
-id<MTLBuffer> SceneRendererMTL::setupUniformTriBuffer(RendererFrameInfoMTL *frameInfo)
-{
-    WhirlyKitShader::UniformsTri uniforms;
-    CopyIntoFloat4x4(uniforms.mvpMatrix,frameInfo->mvpMat);
-    CopyIntoFloat4x4(uniforms.mvMatrix,frameInfo->mvpMat);
-    CopyIntoFloat4x4(uniforms.mvNormalMatrix,frameInfo->mvpMat);
-    
-    return [setupInfo.mtlDevice newBufferWithBytes:&uniforms length:sizeof(uniforms) options:MTLStorageModeShared];
-}
-
-id<MTLBuffer> SceneRendererMTL::setupLightBuffer(SceneMTL *scene)
+void SceneRendererMTL::setupLightBuffer(SceneMTL *scene,id<MTLRenderCommandEncoder> cmdEncode)
 {
     WhirlyKitShader::Lighting lighting;
     lighting.numLights = lights.size();
@@ -246,7 +236,7 @@ id<MTLBuffer> SceneRendererMTL::setupLightBuffer(SceneMTL *scene)
     CopyIntoFloat4(lighting.mat.specular,defaultMat.getSpecular());
     lighting.mat.specularExponent = defaultMat.getSpecularExponent();
     
-    return [setupInfo.mtlDevice newBufferWithBytes:&lighting length:sizeof(lighting) options:MTLStorageModeShared];
+    [cmdEncode setVertexBytes:&lighting length:sizeof(lighting) atIndex:WKSLightingBuffer];
 }
 
 void SceneRendererMTL::render(TimeInterval duration,
@@ -352,7 +342,7 @@ void SceneRendererMTL::render(TimeInterval duration,
         baseFrameInfo.screenSizeInDisplayCoords = screenSize;
         baseFrameInfo.lights = &lights;
         baseFrameInfo.cmdEncode = cmdEncode;
-        baseFrameInfo.lightBuffer = setupLightBuffer((SceneMTL *)scene);
+        setupLightBuffer((SceneMTL *)scene,cmdEncode);
 
         // We need a reverse of the eye vector in model space
         // We'll use this to determine what's pointed away
@@ -576,8 +566,8 @@ void SceneRendererMTL::render(TimeInterval duration,
                 baseFrameInfo.viewAndModelMat = currentMvMat;
                 baseFrameInfo.viewModelNormalMat = currentMvNormalMat;
 
-                baseFrameInfo.uniformABuffer = setupUniformABuffer(&baseFrameInfo);
-                baseFrameInfo.uniformTriBuffer = setupUniformTriBuffer(&baseFrameInfo);
+                // Note: Try to do this once rather than per drawable
+                setupUniformBuffer(&baseFrameInfo);
 
                 // Figure out the program to use for drawing
                 SimpleIdentity drawProgramId = drawContain.drawable->getProgram();

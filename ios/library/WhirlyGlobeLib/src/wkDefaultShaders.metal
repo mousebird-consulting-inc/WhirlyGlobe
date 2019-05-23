@@ -27,9 +27,9 @@ using namespace WhirlyKitShader;
 // Vertices with position, color, and normal
 struct VertexA
 {
-    float3 a_position [[attribute(0)]];
-    float4 a_color [[attribute(1)]];
-    float3 a_normal [[attribute(2)]];
+    float3 position [[attribute(WKSVertexPositionAttribute)]];
+    float4 color [[attribute(WKSVertexColorAttribute)]];
+    float3 normal [[attribute(WKSVertexNormalAttribute)]];
 };
 
 // Position, color, and dot project (for backface checking)
@@ -43,17 +43,17 @@ struct ProjVertexA
 // Vertex shader for simple line on the globe
 vertex ProjVertexA vertexLineOnly_globe(
     VertexA vert [[stage_in]],
-    constant UniformsTri &uniforms [[buffer(9)]],
-    constant UniformDrawStateA &uniDrawState [[buffer(10)]])
+    constant Uniforms &uniforms [[buffer(WKSUniformBuffer)]],
+    constant UniformDrawStateA &uniDrawState [[buffer(WKSUniformDrawStateBuffer)]])
 {
     ProjVertexA outVert;
     
-    float4 pt = uniforms.mvMatrix * float4(vert.a_position, 1.0);
+    float4 pt = uniforms.mvMatrix * float4(vert.position, 1.0);
     pt /= pt.w;
-    float4 testNorm = uniforms.mvNormalMatrix * float4(vert.a_normal,0.0);
+    float4 testNorm = uniforms.mvNormalMatrix * float4(vert.normal,0.0);
     outVert.dotProd = dot(-pt.xyz,testNorm.xyz);
-    outVert.color = float4(vert.a_color) * uniDrawState.fade;
-    outVert.position = uniforms.mvpMatrix * float4(vert.a_position,1.0);
+    outVert.color = float4(vert.color) * uniDrawState.fade;
+    outVert.position = uniforms.mvpMatrix * float4(vert.position,1.0);
     
     return outVert;
 }
@@ -77,13 +77,13 @@ struct ProjVertexB
 // Vertex shader for simple line on the flat map (no backface checking)
 vertex ProjVertexB vertexLineOnly_flat(
     VertexA vert [[stage_in]],
-    constant UniformsTri &uniforms [[buffer(9)]],
-    constant UniformDrawStateA &uniDrawState [[buffer(10)]])
+    constant Uniforms &uniforms [[buffer(WKSUniformBuffer)]],
+    constant UniformDrawStateA &uniDrawState [[buffer(WKSUniformDrawStateBuffer)]])
 {
     ProjVertexB outVert;
     
-    outVert.color = float4(vert.a_color) * uniDrawState.fade;
-    outVert.position = uniforms.mvpMatrix * float4(vert.a_position,1.0);
+    outVert.color = float4(vert.color) * uniDrawState.fade;
+    outVert.position = uniforms.mvpMatrix * float4(vert.position,1.0);
     
     return outVert;
 }
@@ -91,7 +91,7 @@ vertex ProjVertexB vertexLineOnly_flat(
 // Simple fragment shader for lines on flat map
 fragment float4 fragmentLineOnly_flat(
     ProjVertexB vert [[stage_in]],
-    constant UniformsTri &uniforms [[buffer(9)]])
+    constant Uniforms &uniforms [[buffer(WKSUniformBuffer)]])
 {
     return vert.color;
 }
@@ -144,9 +144,9 @@ float4 resolveLighting(float3 pos,
 
 // Simple vertex shader for triangle with no lighting
 vertex ProjVertexTriA vertexTri_noLight(VertexTriA vert [[stage_in]],
-                                        constant UniformsTri &uniforms [[buffer(8)]],
-                                        constant UniformDrawStateA &uniDrawState [[buffer(9)]],
-                                        constant TexIndirect &texIndirect [[buffer(11)]])
+                                        constant Uniforms &uniforms [[buffer(WKSUniformBuffer)]],
+                                        constant UniformDrawStateA &uniDrawState [[buffer(WKSUniformDrawStateBuffer)]],
+                                        constant TexIndirect &texIndirect [[buffer(WKSTexIndirectStartBuffer)]])
 {
     ProjVertexTriA outVert;
     
@@ -159,10 +159,10 @@ vertex ProjVertexTriA vertexTri_noLight(VertexTriA vert [[stage_in]],
 
 // Simple vertex shader for triangle with basic lighting
 vertex ProjVertexTriA vertexTri_light(VertexTriA vert [[stage_in]],
-                                      constant UniformsTri &uniforms [[buffer(8)]],
-                                      constant UniformDrawStateA &uniDrawState [[buffer(9)]],
-                                      constant Lighting &lighting [[buffer(10)]],
-                                      constant TexIndirect &texIndirect [[buffer(11)]])
+                                      constant Uniforms &uniforms [[buffer(WKSUniformBuffer)]],
+                                      constant UniformDrawStateA &uniDrawState [[buffer(WKSUniformDrawStateBuffer)]],
+                                      constant Lighting &lighting [[buffer(WKSLightingBuffer)]],
+                                      constant TexIndirect &texIndirect [[buffer(WKSTexIndirectStartBuffer)]])
 {
     ProjVertexTriA outVert;
     
@@ -179,7 +179,7 @@ vertex ProjVertexTriA vertexTri_light(VertexTriA vert [[stage_in]],
 
 // Simple fragment shader for lines on flat map
 fragment float4 fragmentTri_noLight(ProjVertexTriA vert [[stage_in]],
-                                      constant UniformsTri &uniforms [[buffer(8)]],
+                                      constant Uniforms &uniforms [[buffer(WKSUniformBuffer)]],
                                       texture2d<float,access::sample> tex [[texture(0)]])
 {
 //    if (tex.) {

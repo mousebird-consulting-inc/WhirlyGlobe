@@ -18,7 +18,11 @@
  *
  */
 
+#import <MetalKit/MetalKit.h>
 #import "BasicDrawableBuilderMTL.h"
+#import "DefaultShadersMTL.h"
+
+using namespace Eigen;
 
 namespace WhirlyKit
 {
@@ -29,6 +33,21 @@ BasicDrawableBuilderMTL::BasicDrawableBuilderMTL(const std::string &name)
     basicDraw = new BasicDrawableMTL(name);
     BasicDrawableBuilder::Init();
     setupStandardAttributes();
+}
+    
+void BasicDrawableBuilderMTL::setupStandardAttributes(int numReserve)
+{
+    basicDraw->colorEntry = addAttribute(BDChar4Type,a_colorNameID);
+    VertexAttributeMTL *colorAttr = (VertexAttributeMTL *)basicDraw->vertexAttributes[basicDraw->colorEntry];
+    colorAttr->bufferIndex = WKSVertexColorAttribute;
+    colorAttr->setDefaultColor(RGBAColor(255,255,255,255));
+    colorAttr->reserve(numReserve);
+    
+    basicDraw->normalEntry = addAttribute(BDFloat3Type,a_normalNameID);
+    VertexAttributeMTL *normalAttr = (VertexAttributeMTL *)basicDraw->vertexAttributes[basicDraw->normalEntry];
+    normalAttr->bufferIndex = WKSVertexNormalAttribute;
+    normalAttr->setDefaultVector3f(Vector3f(1.0,1.0,1.0));
+    normalAttr->reserve(numReserve);
 }
     
 BasicDrawableBuilderMTL::~BasicDrawableBuilderMTL()
@@ -56,7 +75,8 @@ BasicDrawable *BasicDrawableBuilderMTL::getDrawable()
     
     if (!drawableGotten) {
         int ptsIndex = addAttribute(BDFloat3Type, a_PositionNameID);
-        VertexAttribute *ptsAttr = basicDraw->vertexAttributes[ptsIndex];
+        VertexAttributeMTL *ptsAttr = (VertexAttributeMTL *)basicDraw->vertexAttributes[ptsIndex];
+        ptsAttr->bufferIndex = WKSVertexPositionAttribute;
         ptsAttr->reserve(points.size());
         for (auto pt : points)
             ptsAttr->addVector3f(pt);

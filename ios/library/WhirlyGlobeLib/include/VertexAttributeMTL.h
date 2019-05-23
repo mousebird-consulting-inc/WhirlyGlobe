@@ -37,6 +37,9 @@ public:
     // Low level data type
     MTLVertexFormat formatMTL() const;
 public:
+    // Buffer ID in the shader
+    int bufferIndex;
+    
     // If set, the Metal buffer we've set up for this one
     id<MTLBuffer> buffer;
 };

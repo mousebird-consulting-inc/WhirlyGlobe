@@ -26,11 +26,13 @@
 #import "SceneMTL.h"
 #import "DefaultShadersMTL.h"
 
+using namespace Eigen;
+
 namespace WhirlyKit
 {
     
 BasicDrawableMTL::BasicDrawableMTL(const std::string &name)
-    : BasicDrawable(name), triBuffer(nil), setupForMTL(false), numPts(0), numTris(0)
+    : BasicDrawable(name), triBuffer(nil), setupForMTL(false), vertDesc(nil), numPts(0), numTris(0)
 {
 }
  
@@ -129,6 +131,137 @@ float BasicDrawableMTL::calcFade(RendererFrameInfo *frameInfo)
 
     return fade;
 }
+    
+MTLVertexDescriptor *BasicDrawableMTL::getVertexDescriptor(id<MTLFunction> vertFunc)
+{
+    if (vertDesc)
+        return vertDesc;
+    
+    vertDesc = [[MTLVertexDescriptor alloc] init];
+    
+    // Work through the buffers we know about
+    for (VertexAttribute *vertAttr : vertexAttributes) {
+        MTLVertexAttributeDescriptor *attrDesc = [[MTLVertexAttributeDescriptor alloc] init];
+        VertexAttributeMTL *ourVertAttr = (VertexAttributeMTL *)vertAttr;
+        
+        // Describe the vertex attribute
+        attrDesc.format = ourVertAttr->formatMTL();
+        attrDesc.bufferIndex = ourVertAttr->bufferIndex;
+        attrDesc.offset = 0;
+        
+        // Add in the buffer
+        MTLVertexBufferLayoutDescriptor *layoutDesc = [[MTLVertexBufferLayoutDescriptor alloc] init];
+        if (ourVertAttr->buffer) {
+            // Normal case with one per vertex
+            layoutDesc.stepFunction = MTLVertexStepFunctionPerVertex;
+            layoutDesc.stepRate = 1;
+            layoutDesc.stride = ourVertAttr->sizeMTL();
+        } else {
+            // Provides just a default value for the whole thing
+            layoutDesc.stepFunction = MTLVertexStepFunctionConstant;
+            layoutDesc.stepRate = 0;
+            layoutDesc.stride = ourVertAttr->sizeMTL();
+            
+            AttributeDefault defAttr;
+            bzero(&defAttr.data,sizeof(defAttr.data));
+            switch (ourVertAttr->dataType) {
+                case BDFloat4Type:
+                    defAttr.dataType = MTLDataTypeFloat4;
+                    for (unsigned int ii=0;ii<4;ii++)
+                        defAttr.data.fVals[ii] = ourVertAttr->defaultData.vec4[ii];
+                    break;
+                case BDFloat3Type:
+                    defAttr.dataType = MTLDataTypeFloat3;
+                    for (unsigned int ii=0;ii<3;ii++)
+                        defAttr.data.fVals[ii] = ourVertAttr->defaultData.vec3[ii];
+                    break;
+                case BDChar4Type:
+                    defAttr.dataType = MTLDataTypeUChar4;
+                    for (unsigned int ii=0;ii<4;ii++)
+                        defAttr.data.chars[ii] = ourVertAttr->defaultData.color[ii];
+                    break;
+                case BDFloat2Type:
+                    defAttr.dataType = MTLDataTypeFloat2;
+                    for (unsigned int ii=0;ii<2;ii++)
+                        defAttr.data.fVals[ii] = ourVertAttr->defaultData.vec4[ii];
+                    break;
+                case BDFloatType:
+                    defAttr.dataType = MTLDataTypeFloat;
+                    defAttr.data.fVals[0] = ourVertAttr->defaultData.floatVal;
+                    break;
+                case BDIntType:
+                    defAttr.dataType = MTLDataTypeInt;
+                    defAttr.data.iVal = ourVertAttr->defaultData.intVal;
+                    break;
+                default:
+                    break;
+            }
+            defAttr.bufferIndex = ourVertAttr->bufferIndex;
+            defaultAttrs.push_back(defAttr);
+        }
+        vertDesc.attributes[attrDesc.bufferIndex] = attrDesc;
+        vertDesc.layouts[attrDesc.bufferIndex] = layoutDesc;
+    }
+
+    // Link up the vertex attributes with the buffers
+    // Note: Put the preferred attribute index in the vertex attribute
+    //       And we can identify unknown attributes that way too
+    NSArray<MTLAttribute *> *vertAttrsMTL = vertFunc.stageInputAttributes;
+    int which = 0;
+    for (MTLAttribute *vertAttrMTL : vertAttrsMTL) {
+        // Find the matching attribute
+        bool found = false;
+        
+        // See if it's already been filled out
+        found = vertDesc.attributes[which] != nil;
+        
+        // We don't have this one at all, so let's provide some sort of default anyway
+        // This happens with texture coordinates
+        if (!found) {
+            MTLVertexAttributeDescriptor *attrDesc = [[MTLVertexAttributeDescriptor alloc] init];
+            MTLVertexBufferLayoutDescriptor *layoutDesc = [[MTLVertexBufferLayoutDescriptor alloc] init];
+            AttributeDefault defAttr;
+            bzero(&defAttr.data,sizeof(defAttr.data));
+            defAttr.dataType = vertAttrMTL.attributeType;
+            defAttr.bufferIndex = which;
+            switch (vertAttrMTL.attributeType) {
+                case MTLDataTypeFloat:
+                    attrDesc.format = MTLVertexFormatFloat;
+                    layoutDesc.stride = 4;
+                    break;
+                case MTLDataTypeFloat2:
+                    attrDesc.format = MTLVertexFormatFloat2;
+                    layoutDesc.stride = 8;
+                    break;
+                case MTLDataTypeFloat3:
+                    attrDesc.format = MTLVertexFormatFloat3;
+                    layoutDesc.stride = 12;
+                    break;
+                case MTLDataTypeFloat4:
+                    attrDesc.format = MTLVertexFormatFloat4;
+                    layoutDesc.stride = 16;
+                    break;
+                case MTLDataTypeInt:
+                    attrDesc.format = MTLVertexFormatInt;
+                    layoutDesc.stride = 4;
+                    break;
+                default:
+                    break;
+            }
+            attrDesc.bufferIndex = which;
+            attrDesc.offset = 0;
+            vertDesc.attributes[which] = attrDesc;
+            
+            layoutDesc.stepFunction = MTLVertexStepFunctionConstant;
+            layoutDesc.stepRate = 0;
+            vertDesc.layouts[which] = layoutDesc;
+        }
+        
+        which++;
+    }
+
+    return vertDesc;
+}
 
 void BasicDrawableMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScene)
 {
@@ -143,230 +276,82 @@ void BasicDrawableMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScene)
     MTLRenderPipelineDescriptor *renderDesc = [[MTLRenderPipelineDescriptor alloc] init];
     renderDesc.vertexFunction = program->vertFunc;
     renderDesc.fragmentFunction = program->fragFunc;
-    
-    // Make up a vertex descriptor
-    MTLVertexDescriptor *vertDesc = [[MTLVertexDescriptor alloc] init];
-    
-    // Link up the vertex attributes with the buffers
-    NSArray<MTLAttribute *> *vertAttrsMTL = renderDesc.vertexFunction.stageInputAttributes;
-    int which = 0;
-    for (MTLAttribute *vertAttrMTL : vertAttrsMTL) {
-        // Find the matching attribute
-        int nameID = StringIndexer::getStringID([vertAttrMTL.name cStringUsingEncoding:NSASCIIStringEncoding]);
-        bool found = false;
-        for (VertexAttribute *vertAttr : vertexAttributes) {
-            if (vertAttr->nameID == nameID) {
-                MTLVertexAttributeDescriptor *attrDesc = [[MTLVertexAttributeDescriptor alloc] init];
-                VertexAttributeMTL *ourVertAttr = (VertexAttributeMTL *)vertAttr;
-                
-                // Describe the vertex attribute
-                attrDesc.format = ourVertAttr->formatMTL();
-                attrDesc.bufferIndex = which;
-                attrDesc.offset = 0;
 
-                // Add in the buffer
-                MTLVertexBufferLayoutDescriptor *layoutDesc = [[MTLVertexBufferLayoutDescriptor alloc] init];
-                if (ourVertAttr->buffer) {
-                    // Normal case with one per vertex
-                    layoutDesc.stepFunction = MTLVertexStepFunctionPerVertex;
-                    layoutDesc.stepRate = 1;
-                    layoutDesc.stride = ourVertAttr->sizeMTL();
-
-                    [frameInfo->cmdEncode setVertexBuffer:ourVertAttr->buffer offset:0 atIndex:which];
-                } else {
-                    // Provides just a default value for the whole thing
-                    layoutDesc.stepFunction = MTLVertexStepFunctionConstant;
-                    layoutDesc.stepRate = 0;
-                    layoutDesc.stride = ourVertAttr->sizeMTL();
-                    
-                    // Provide the default
-                    switch (ourVertAttr->getDataType()) {
-                        case BDFloatType:
-                        {
-                            attrDesc.format = MTLVertexFormatFloat;
-                            layoutDesc.stride = 4;
-                            float val = ourVertAttr->defaultData.floatVal;
-                            [frameInfo->cmdEncode setVertexBytes:&val length:4 atIndex:which];
-                        }
-                            break;
-                        case BDFloat2Type:
-                        {
-                            attrDesc.format = MTLVertexFormatFloat2;
-                            layoutDesc.stride = 8;
-                            auto val = ourVertAttr->defaultData.vec2;
-                            [frameInfo->cmdEncode setVertexBytes:&val length:2*4 atIndex:which];
-                        }
-                            break;
-                        case BDFloat3Type:
-                        {
-                            attrDesc.format = MTLVertexFormatFloat3;
-                            layoutDesc.stride = 12;
-                            auto val = ourVertAttr->defaultData.vec3;
-                            [frameInfo->cmdEncode setVertexBytes:&val length:3*4 atIndex:which];
-                        }
-                            break;
-                        case BDFloat4Type:
-                        {
-                            attrDesc.format = MTLVertexFormatFloat4;
-                            layoutDesc.stride = 16;
-                            auto val = ourVertAttr->defaultData.vec4;
-                            [frameInfo->cmdEncode setVertexBytes:&val length:4*4 atIndex:which];
-                        }
-                            break;
-                        case BDIntType:
-                        {
-                            attrDesc.format = MTLVertexFormatInt;
-                            layoutDesc.stride = 4;
-                            auto val = ourVertAttr->defaultData.intVal;
-                            [frameInfo->cmdEncode setVertexBytes:&val length:4 atIndex:which];
-                        }
-                            break;
-                        case BDChar4Type:
-                        {
-                            attrDesc.format = MTLVertexFormatUChar4Normalized;
-                            layoutDesc.stride = 4;
-                            auto val = ourVertAttr->defaultData.color;
-                            [frameInfo->cmdEncode setVertexBytes:val length:4 atIndex:which];
-                        }
-                        default:
-                            break;
-                    }
-                }
-                vertDesc.attributes[which] = attrDesc;
-                vertDesc.layouts[which] = layoutDesc;
-                
-                
-                which++;
-                found = true;
-                break;
-            }
-        }
-        
-        // We don't have this one at all, so let's provide some sort of default anyway
-        // This happens with texture coordinates
-        if (!found) {
-            MTLVertexAttributeDescriptor *attrDesc = [[MTLVertexAttributeDescriptor alloc] init];
-            MTLVertexBufferLayoutDescriptor *layoutDesc = [[MTLVertexBufferLayoutDescriptor alloc] init];
-            switch (vertAttrMTL.attributeType) {
-                case MTLDataTypeFloat:
-                {
-                    attrDesc.format = MTLVertexFormatFloat;
-                    layoutDesc.stride = 4;
-                    float val = 0.0;
-                    [frameInfo->cmdEncode setVertexBytes:&val length:4 atIndex:which];
-                }
-                    break;
-                case MTLDataTypeFloat2:
-                {
-                    attrDesc.format = MTLVertexFormatFloat2;
-                    layoutDesc.stride = 8;
-                    float val[2] = {0.0,0.0};
-                    [frameInfo->cmdEncode setVertexBytes:val length:2*4 atIndex:which];
-                }
-                    break;
-                case MTLDataTypeFloat3:
-                {
-                    attrDesc.format = MTLVertexFormatFloat3;
-                    layoutDesc.stride = 12;
-                    float val[3] = {0.0,0.0,0.0};
-                    [frameInfo->cmdEncode setVertexBytes:val length:3*4 atIndex:which];
-                }
-                   break;
-                case MTLDataTypeFloat4:
-                {
-                    attrDesc.format = MTLVertexFormatFloat4;
-                    layoutDesc.stride = 16;
-                    float val[4] = {0.0,0.0,0.0};
-                    [frameInfo->cmdEncode setVertexBytes:val length:4*4 atIndex:which];
-                }
-                    break;
-                case MTLDataTypeInt:
-                {
-                    attrDesc.format = MTLVertexFormatInt;
-                    layoutDesc.stride = 4;
-                    int val = 0;
-                    [frameInfo->cmdEncode setVertexBytes:&val length:4 atIndex:which];
-                }
-                    break;
-                default:
-                    break;
-            }
-            attrDesc.bufferIndex = which;
-            attrDesc.offset = 0;
-            vertDesc.attributes[which] = attrDesc;
-            
-            layoutDesc.stepFunction = MTLVertexStepFunctionConstant;
-            layoutDesc.stepRate = 0;
-            vertDesc.layouts[which] = layoutDesc;
-            
-            which++;
-        }
+    // Make a vertex descriptor
+    MTLVertexDescriptor *vertDesc = getVertexDescriptor(program->vertFunc);
+    
+    // Wire up the various inputs that we know about
+    for (auto vertAttr : vertexAttributes) {
+        VertexAttributeMTL *vertAttrMTL = (VertexAttributeMTL *)vertAttr;
+        if (vertAttrMTL->buffer)
+            [frameInfo->cmdEncode setVertexBuffer:vertAttrMTL->buffer offset:0 atIndex:vertAttrMTL->bufferIndex];
     }
+    
+    // And provide defaults for the ones we don't
+    for (auto defAttr : defaultAttrs)
+        [frameInfo->cmdEncode setVertexBytes:&defAttr.data length:sizeof(defAttr.data) atIndex:defAttr.bufferIndex];
     
     renderDesc.vertexDescriptor = vertDesc;
     // TODO: Should be from the target
     renderDesc.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
 
     // Set up a render state
-    // Note: Also querying the arguments and parsing those
     NSError *err = nil;
-    MTLRenderPipelineReflection *reflInfo = nil;
-    id<MTLRenderPipelineState> renderState = [mtlDevice newRenderPipelineStateWithDescriptor:renderDesc options:MTLPipelineOptionArgumentInfo|MTLPipelineOptionBufferTypeInfo reflection:&reflInfo error:&err];
+    id<MTLRenderPipelineState> renderState = [mtlDevice newRenderPipelineStateWithDescriptor:renderDesc error:&err];
     
     [frameInfo->cmdEncode setRenderPipelineState:renderState];
 
-    // Per drawable uniform info
+    // Set the per-drawable draw state
     WhirlyKitShader::UniformDrawStateA uni;
+    uni.numTextures = texInfo.size();
     uni.fade = fade;
     bzero(&uni.singleMat,sizeof(uni.singleMat));
+    [frameInfo->cmdEncode setVertexBytes:&uni length:sizeof(uni) atIndex:WKSUniformDrawStateBuffer];
+    [frameInfo->cmdEncode setFragmentBytes:&uni length:sizeof(uni) atIndex:WKSUniformDrawStateBuffer];
+    
+    // Pass in the textures (and offsets)
+    // Note: We could precalculate most of then when the texture changes
+    //       And we should figure out how many textures there actually have
+    for (unsigned int texIndex=0;texIndex<std::max((int)texInfo.size(),2);texIndex++) {
+        TexInfo *thisTexInfo = (texIndex < texInfo.size()) ? &texInfo[texIndex] : NULL;
+        
+        // Figure out texture adjustment for parent textures
+        float texScale = 1.0;
+        Vector2f texOffset(0.0,0.0);
+        // Adjust for border pixels
+        if (thisTexInfo && thisTexInfo->borderTexel > 0 && thisTexInfo->size > 0) {
+            texScale = (thisTexInfo->size - 2 * thisTexInfo->borderTexel) / (double)thisTexInfo->size;
+            float offset = thisTexInfo->borderTexel / (double)thisTexInfo->size;
+            texOffset = Vector2f(offset,offset);
+        }
+        // Adjust for a relative texture lookup (using lower zoom levels)
+        if (thisTexInfo && thisTexInfo->relLevel > 0) {
+            texScale = texScale/(1<<thisTexInfo->relLevel);
+            texOffset = Vector2f(texScale*thisTexInfo->relX,texScale*thisTexInfo->relY) + texOffset;
+        }
 
-    // Look for the vertex uniforms
-    // Note: Put these in the ProgramMTL
-    int texIndex = 0;
-    NSArray<MTLArgument *> *vertArgs = reflInfo.vertexArguments;
-    for (MTLArgument *vertArg : vertArgs) {
-        if ([vertArg.name isEqualToString:@"uniforms"]) {
-            [frameInfo->cmdEncode setVertexBuffer:frameInfo->uniformTriBuffer offset:0 atIndex:vertArg.index];
-        } else if ([vertArg.name isEqualToString:@"uniDrawState"]) {
-            [frameInfo->cmdEncode setVertexBytes:&uni length:sizeof(uni) atIndex:vertArg.index];
-        } else if ([vertArg.name isEqualToString:@"lighting"]) {
-            [frameInfo->cmdEncode setVertexBuffer:frameInfo->lightBuffer offset:0 atIndex:vertArg.index];
-        } else if ([vertArg.name containsString:@"texIndirect"]) {
-            WhirlyKitShader::TexIndirect texInd;
-            texInd.offset[0] = 0.0;  texInd.offset[1] = 0.0;
-            texInd.scale[0] = 1.0; texInd.scale[1] = 1.0;
-            [frameInfo->cmdEncode setVertexBytes:&texInd length:sizeof(texInd) atIndex:vertArg.index];
-        } else if (vertArg.type == MTLArgumentTypeTexture) {
-            // TODO: Implement the attributes users can pass in
-        }
-    }
-    
-    // Same for the fragment shader
-    NSArray<MTLArgument *> *fragArgs = reflInfo.fragmentArguments;
-    texIndex = 0;
-    for (MTLArgument *fragArg : fragArgs) {
-        if ([fragArg.name isEqualToString:@"uniforms"]) {
-            [frameInfo->cmdEncode setFragmentBuffer:frameInfo->uniformTriBuffer offset:0 atIndex:fragArg.index];
-        } else if ([fragArg.name isEqualToString:@"uniDrawState"]) {
-            [frameInfo->cmdEncode setFragmentBytes:&uni length:sizeof(uni) atIndex:fragArg.index];
+        // Calculate offset and scales
+        WhirlyKitShader::TexIndirect texInd;
+        texInd.offset[0] = texOffset.x();  texInd.offset[1] = texOffset.y();
+        texInd.scale[0] = texScale; texInd.scale[1] = texScale;
+
+        [frameInfo->cmdEncode setVertexBytes:&texInd length:sizeof(texInd) atIndex:WKSTexIndirectStartBuffer+texIndex];
+
+        // And the texture itself
+        // Note: Should we be setting up the sampler?
+        TextureBaseMTL *tex = NULL;
+        if (thisTexInfo && thisTexInfo->texId != EmptyIdentity)
+            tex = dynamic_cast<TextureBaseMTL *>(scene->getTexture(thisTexInfo->texId));
+        if (tex) {
+            [frameInfo->cmdEncode setVertexTexture:tex->getMTLID() atIndex:texIndex];
+            [frameInfo->cmdEncode setFragmentTexture:tex->getMTLID() atIndex:texIndex];
         } else {
-            if (fragArg.type == MTLArgumentTypeTexture) {
-                // Textures we just add as they come along
-                SimpleIdentity texID = EmptyIdentity;
-                if (texIndex < texInfo.size())
-                    texID = texInfo[texIndex].texId;
-                
-                TextureBaseMTL *tex = NULL;
-                if (texID != EmptyIdentity)
-                    tex = dynamic_cast<TextureBaseMTL *>(scene->getTexture(texID));
-                if (tex)
-                    [frameInfo->cmdEncode setFragmentTexture:tex->getMTLID() atIndex:texIndex];
-                
-                texIndex++;
-            }
+            [frameInfo->cmdEncode setVertexTexture:nil atIndex:texIndex];
+            [frameInfo->cmdEncode setFragmentTexture:nil atIndex:texIndex];
         }
     }
     
+    // Render the primitives themselves
     switch (type) {
         case Lines:
             [frameInfo->cmdEncode drawPrimitives:MTLPrimitiveTypeLine vertexStart:0 vertexCount:numPts];

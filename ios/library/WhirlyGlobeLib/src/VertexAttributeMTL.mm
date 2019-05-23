@@ -23,12 +23,12 @@
 namespace WhirlyKit
 {
 VertexAttributeMTL::VertexAttributeMTL(BDAttributeDataType dataType,StringIdentity nameID)
-    : VertexAttribute(dataType,nameID), buffer(nil)
+    : VertexAttribute(dataType,nameID), buffer(nil), bufferIndex(-1)
 {
 }
 
 VertexAttributeMTL::VertexAttributeMTL(const VertexAttributeMTL &that)
-    : VertexAttribute(that), buffer(that.buffer)
+    : VertexAttribute(that), buffer(that.buffer), bufferIndex(that.bufferIndex)
 {
 }
 
@@ -59,7 +59,7 @@ int VertexAttributeMTL::sizeMTL() const
             return 0;
     }
 }
-    
+
 MTLVertexFormat VertexAttributeMTL::formatMTL() const
 {
     switch (dataType)
@@ -72,7 +72,7 @@ MTLVertexFormat VertexAttributeMTL::formatMTL() const
             return MTLVertexFormatFloat3;
             break;
         case BDChar4Type:
-            return MTLVertexFormatChar4;
+            return MTLVertexFormatUChar4Normalized;
             break;
         case BDFloat2Type:
             return MTLVertexFormatFloat2;
@@ -87,5 +87,5 @@ MTLVertexFormat VertexAttributeMTL::formatMTL() const
             return MTLVertexFormatFloat;
     }
 }
-    
+
 }

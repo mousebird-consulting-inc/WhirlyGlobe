@@ -18,38 +18,31 @@
  *
  */
 
+
 namespace WhirlyKitShader
 {
     
+#define WKSVertexPositionAttribute 0
+#define WKSVertexColorAttribute 1
+#define WKSVertexNormalAttribute 2
+    
+#define WKSUniformBuffer 8
 // Uniforms for the basic case.  Nothing fancy.
-struct UniformsA
+struct Uniforms
 {
     simd::float4x4 mvpMatrix;
     simd::float4x4 mvMatrix;
     simd::float4x4 mvNormalMatrix;
 };
-    
-// General purpose uniforms for these shaders
-struct UniformsTri {
-    simd::float4x4 mvpMatrix;
-    simd::float4x4 mvMatrix;
-    simd::float4x4 mvNormalMatrix;
-};
 
-// Texture lookup indirection
-// Used for treating one textures coordinates as coordinates in the parent
-struct TexIndirect {
-    simd::float2 offset;
-    simd::float2 scale;
-};
-
+#define WKSUniformDrawStateBuffer 9
 // Things that change per drawable (like fade)
 struct UniformDrawStateA {
     int numTextures;           // Number of textures we may find on input
     float fade;                // Fade tends to change by time
     simd::float4x4 singleMat;  // Note: Use this rather than changing the uniforms
 };
-    
+
 //// Lighting support //////
 
 // A single light
@@ -70,6 +63,7 @@ struct Material {
     float specularExponent;
 };
 
+#define WKSLightingBuffer 10
 // Lighting together in one struct
 struct Lighting {
     Material mat;
@@ -77,4 +71,12 @@ struct Lighting {
     Light lights[8];
 };
     
+#define WKSTexIndirectStartBuffer 12
+// Texture lookup indirection
+// Used for treating one textures coordinates as coordinates in the parent
+struct TexIndirect {
+    simd::float2 offset;
+    simd::float2 scale;
+};
+
 }

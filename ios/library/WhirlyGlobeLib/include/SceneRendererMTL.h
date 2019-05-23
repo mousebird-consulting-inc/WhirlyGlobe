@@ -42,10 +42,6 @@ public:
 
     // Command encoder for just this frame
     id<MTLRenderCommandEncoder> cmdEncode;
-    // Buffer containing the Uniforms structure
-    id<MTLBuffer> uniformABuffer,uniformTriBuffer;
-    // Buffer containing the Lights structure
-    id<MTLBuffer> lightBuffer;
 };
 
 /// Metal version of the Scene Renderer
@@ -100,12 +96,11 @@ public:
     /// Construct a renderer-specific dynamic texture
     virtual DynamicTextureRef makeDynamicTexture(const std::string &name) const;
     
-    /// Set up the buffer for general uniforms
-    id<MTLBuffer> setupUniformABuffer(RendererFrameInfoMTL *frameInfo);
-    id<MTLBuffer> setupUniformTriBuffer(RendererFrameInfoMTL *frameInfo);
+    /// Set up the buffer for general uniforms and attach it to its vertex/fragment buffers
+    void setupUniformBuffer(RendererFrameInfoMTL *frameInfo);
 
-    /// Set the lights up in their own buffer
-    id<MTLBuffer> setupLightBuffer(SceneMTL *scene);
+    /// Set the lights and tie them to a vertex buffer index
+    void setupLightBuffer(SceneMTL *scene,id<MTLRenderCommandEncoder> cmdEncode);
     
 public:
     // Information about the renderer passed around to various calls

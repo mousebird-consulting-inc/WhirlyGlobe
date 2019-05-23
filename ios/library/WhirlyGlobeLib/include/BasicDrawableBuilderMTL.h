@@ -40,6 +40,8 @@ public:
     /// Fill out and return the drawable
     virtual BasicDrawable *getDrawable();
     
+    virtual void setupStandardAttributes(int numReserve=0);
+    
 protected:
     bool drawableGotten;
 };
