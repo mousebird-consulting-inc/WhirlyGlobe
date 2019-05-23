@@ -317,7 +317,7 @@ void BasicDrawableMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScene)
 
     // Per drawable uniform info
     WhirlyKitShader::UniformDrawStateA uni;
-    uni.fade = 1.0;
+    uni.fade = fade;
     bzero(&uni.singleMat,sizeof(uni.singleMat));
 
     // Look for the vertex uniforms
