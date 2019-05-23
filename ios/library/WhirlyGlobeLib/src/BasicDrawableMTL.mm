@@ -138,6 +138,7 @@ MTLVertexDescriptor *BasicDrawableMTL::getVertexDescriptor(id<MTLFunction> vertF
         return vertDesc;
     
     vertDesc = [[MTLVertexDescriptor alloc] init];
+    std::set<int> buffersFilled;
     
     // Work through the buffers we know about
     for (VertexAttribute *vertAttr : vertexAttributes) {
@@ -201,6 +202,8 @@ MTLVertexDescriptor *BasicDrawableMTL::getVertexDescriptor(id<MTLFunction> vertF
         }
         vertDesc.attributes[attrDesc.bufferIndex] = attrDesc;
         vertDesc.layouts[attrDesc.bufferIndex] = layoutDesc;
+        
+        buffersFilled.insert(ourVertAttr->bufferIndex);
     }
 
     // Link up the vertex attributes with the buffers
@@ -209,15 +212,9 @@ MTLVertexDescriptor *BasicDrawableMTL::getVertexDescriptor(id<MTLFunction> vertF
     NSArray<MTLAttribute *> *vertAttrsMTL = vertFunc.stageInputAttributes;
     int which = 0;
     for (MTLAttribute *vertAttrMTL : vertAttrsMTL) {
-        // Find the matching attribute
-        bool found = false;
-        
-        // See if it's already been filled out
-        found = vertDesc.attributes[which] != nil;
-        
         // We don't have this one at all, so let's provide some sort of default anyway
         // This happens with texture coordinates
-        if (!found) {
+        if (buffersFilled.find(which) == buffersFilled.end()) {
             MTLVertexAttributeDescriptor *attrDesc = [[MTLVertexAttributeDescriptor alloc] init];
             MTLVertexBufferLayoutDescriptor *layoutDesc = [[MTLVertexBufferLayoutDescriptor alloc] init];
             AttributeDefault defAttr;
@@ -255,6 +252,8 @@ MTLVertexDescriptor *BasicDrawableMTL::getVertexDescriptor(id<MTLFunction> vertF
             layoutDesc.stepFunction = MTLVertexStepFunctionConstant;
             layoutDesc.stepRate = 0;
             vertDesc.layouts[which] = layoutDesc;
+            
+            defaultAttrs.push_back(defAttr);
         }
         
         which++;
@@ -298,6 +297,10 @@ void BasicDrawableMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScene)
     // Set up a render state
     NSError *err = nil;
     id<MTLRenderPipelineState> renderState = [mtlDevice newRenderPipelineStateWithDescriptor:renderDesc error:&err];
+    if (err) {
+        NSLog(@"BasicDrawableMTL: Failed to set up render state because:\n%@",err);
+        return;
+    }
     
     [frameInfo->cmdEncode setRenderPipelineState:renderState];
 

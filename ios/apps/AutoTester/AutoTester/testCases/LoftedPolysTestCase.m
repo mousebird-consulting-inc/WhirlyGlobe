@@ -53,7 +53,7 @@
 -(void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
 	baseLayer = [[VectorsTestCase alloc]init];
-	[baseLayer setUpWithGlobe:globeVC];
+    [baseLayer setUpWithGlobe:globeVC];
 	[self addLoftedPolysSpain:globeVC];
 }
 

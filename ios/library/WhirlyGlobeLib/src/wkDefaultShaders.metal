@@ -99,10 +99,10 @@ fragment float4 fragmentLineOnly_flat(
 // Ye olde triangle vertex
 struct VertexTriA
 {
-    float3 a_position [[attribute(0)]];
-    float4 a_color [[attribute(1)]];
-    float3 a_normal [[attribute(2)]];
-    float2 a_texCoord [[attribute(3)]];
+    float3 position [[attribute(0)]];
+    float4 color [[attribute(1)]];
+    float3 normal [[attribute(2)]];
+    float2 texCoord [[attribute(3)]];
 };
 
 // Output vertex to the fragment shader
@@ -150,9 +150,9 @@ vertex ProjVertexTriA vertexTri_noLight(VertexTriA vert [[stage_in]],
 {
     ProjVertexTriA outVert;
     
-    outVert.position = uniforms.mvpMatrix * float4(vert.a_position,1.0);
-    outVert.color = float4(vert.a_color) * uniDrawState.fade;
-    outVert.texCoord = resolveTexCoords(vert.a_texCoord,texIndirect);
+    outVert.position = uniforms.mvpMatrix * float4(vert.position,1.0);
+    outVert.color = float4(vert.color) * uniDrawState.fade;
+    outVert.texCoord = resolveTexCoords(vert.texCoord,texIndirect);
     
     return outVert;
 }
@@ -166,13 +166,13 @@ vertex ProjVertexTriA vertexTri_light(VertexTriA vert [[stage_in]],
 {
     ProjVertexTriA outVert;
     
-    outVert.position = uniforms.mvpMatrix * float4(vert.a_position,1.0);
-    outVert.color = resolveLighting(vert.a_position,
-                                    vert.a_normal,
-                                    float4(vert.a_color),
+    outVert.position = uniforms.mvpMatrix * float4(vert.position,1.0);
+    outVert.color = resolveLighting(vert.position,
+                                    vert.normal,
+                                    float4(vert.color),
                                     lighting,
                                     uniforms.mvpMatrix);
-    outVert.texCoord = resolveTexCoords(vert.a_texCoord,texIndirect);
+    outVert.texCoord = resolveTexCoords(vert.texCoord,texIndirect);
     
     return outVert;
 }
