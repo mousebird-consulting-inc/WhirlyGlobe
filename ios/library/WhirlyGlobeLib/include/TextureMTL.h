@@ -24,6 +24,7 @@
 #import "WhirlyVector.h"
 #import "Texture.h"
 #import "WrapperMTL.h"
+#import <UIKit/UIKit.h>
 
 namespace WhirlyKit
 {
@@ -52,7 +53,9 @@ public:
     TextureMTL(const std::string &name);
     /// Construct with raw texture data.
     TextureMTL(const std::string &name,RawDataRef texData,bool isPVRTC);
-    
+    /// Construct by scaling the image to the given size
+    TextureMTL(const std::string &name,UIImage *inImage,int width,int height);
+
     /// Creates the MTL resources
     virtual bool createInRenderer(const RenderSetupInfo *setupInfo);
     

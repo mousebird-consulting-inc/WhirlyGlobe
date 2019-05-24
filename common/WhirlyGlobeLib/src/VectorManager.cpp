@@ -228,7 +228,7 @@ public:
             if (drawable->getNumPoints() > 0)
             {
                 drawable->setLocalMbr(drawMbr);
-                sceneRep->drawIDs.insert(drawable->getDrawable()->getId());
+                sceneRep->drawIDs.insert(drawable->getDrawableID());
                 if (centerValid)
                 {
                     Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
@@ -495,7 +495,7 @@ public:
                     Matrix4d transMat = trans.matrix();
                     drawable->setMatrix(&transMat);
                 }
-                sceneRep->drawIDs.insert(drawable->getDrawable()->getId());
+                sceneRep->drawIDs.insert(drawable->getDrawableID());
                 
                 if (vecInfo->fade > 0.0)
                 {
@@ -728,7 +728,7 @@ SimpleIdentity VectorManager::instanceVectors(SimpleIdentity vecID,const VectorI
             // Changed draw priority
             drawInst->setDrawPriority(vecInfo.drawPriority);
 
-            newSceneRep->instIDs.insert(drawInst->getDrawable()->getId());
+            newSceneRep->instIDs.insert(drawInst->getDrawableID());
             changes.push_back(new AddDrawableReq(drawInst->getDrawable()));
         }
         

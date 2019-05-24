@@ -199,6 +199,10 @@ public:
     /// Constructs the remaining pieces of the drawable and returns it
     /// Caller is responsible for deletion
     virtual BasicDrawable *getDrawable() = 0;
+    
+    /// Return just the ID of the drawable being created.
+    /// This avoids flushing things out
+    virtual SimpleIdentity getDrawableID();
 
     /// Check for the given texture coordinate entry and add it if it's not there
     virtual void setupTexCoordEntry(int which,int numReserve);

@@ -279,7 +279,7 @@ void QIFTileAsset::setupContents(QuadImageFrameLoader *loader,LoadedTileNewRef l
         if (renderTargetID != EmptyIdentity)
             drawInst->setRenderTarget(renderTargetID);
         changes.push_back(new AddDrawableReq(drawInst->getDrawable()));
-        instanceDrawIDs.push_back(drawInst->getDrawable()->getId());
+        instanceDrawIDs.push_back(drawInst->getDrawableID());
     }
 }
 

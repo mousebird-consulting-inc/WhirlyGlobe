@@ -410,7 +410,7 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
     }
     
     for (auto draw : drawables) {
-        drawInfo.push_back(DrawableInfo(DrawableGeom,draw->getDrawable()->getId(),draw->getDrawable()->getDrawPriority()));
+        drawInfo.push_back(DrawableInfo(DrawableGeom,draw->getDrawableID(),draw->getDrawable()->getDrawPriority()));
         changes.push_back(new AddDrawableReq(draw->getDrawable()));
     }
 }

@@ -37,6 +37,9 @@ public:
     ///  it by.  The index returned is how you will access it.
     virtual int addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings = -1);
     
+    /// Override this to set the internal Metal buffer
+    virtual void setupTexCoordEntry(int which,int numReserve=0);
+    
     /// Fill out and return the drawable
     virtual BasicDrawable *getDrawable();
     

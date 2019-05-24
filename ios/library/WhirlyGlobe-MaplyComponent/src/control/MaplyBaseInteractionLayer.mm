@@ -292,13 +292,25 @@ public:
     
     // Add it and download it
     Texture *tex;
-    if (image)
-        tex = new TextureGLES_iOS("MaplyBaseInteraction",image,imgWidth,imgHeight);
-    else {
-        tex = new TextureGLES_iOS("MaplyBaseInteraction");
-        tex->setWidth(imgWidth);
-        tex->setHeight(imgHeight);
-        tex->setIsEmptyTexture(true);
+    if (sceneRender->getType() == WhirlyKit::SceneRendererGLES_iOS::RenderGLES) {
+        if (image)
+            tex = new TextureGLES_iOS("MaplyBaseInteraction",image,imgWidth,imgHeight);
+        else {
+            tex = new TextureGLES_iOS("MaplyBaseInteraction");
+            tex->setWidth(imgWidth);
+            tex->setHeight(imgHeight);
+            tex->setIsEmptyTexture(true);
+        }
+    } else {
+        // Metal
+        if (image)
+            tex = new TextureMTL("MaplyBaseInteraction",image,imgWidth,imgHeight);
+        else {
+            tex = new TextureMTL("MaplyBaseInteraction");
+            tex->setWidth(imgWidth);
+            tex->setHeight(imgHeight);
+            tex->setIsEmptyTexture(true);
+        }
     }
     tex->setWrap(wrapX, wrapY);
     tex->setUsesMipmaps(false);
@@ -340,7 +352,7 @@ public:
             tex->setSingleByteSource(WKSingleRGB);
             break;
     }
-    
+
     return tex;
 }
 

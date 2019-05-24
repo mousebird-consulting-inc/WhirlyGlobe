@@ -314,7 +314,7 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
                 draw->setColor(markerInfo.color);
                 draw->setTexId(0,*(texIDs.begin()));
                 drawables[texIDs] = draw;
-                markerRep->drawIDs.insert(draw->getDrawable()->getId());
+                markerRep->drawIDs.insert(draw->getDrawableID());
 
                 // If we've got more than one texture ID and a period, we need a tweaker
                 if (texIDs.size() > 1 && marker->period != 0.0)

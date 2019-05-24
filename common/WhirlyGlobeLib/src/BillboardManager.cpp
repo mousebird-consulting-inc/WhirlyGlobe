@@ -163,7 +163,7 @@ void BillboardBuilder::flush()
         if (drawable->getNumPoints() > 0)
         {
             //            drawable->setLocalMbr(drawMbr);
-            sceneRep->drawIDs.insert(drawable->getDrawable()->getId());
+            sceneRep->drawIDs.insert(drawable->getDrawableID());
             
 // TODO Port (fade isn't supported yet)
 //           if (billInfo.fade > 0.0)

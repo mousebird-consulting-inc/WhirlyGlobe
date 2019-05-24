@@ -180,12 +180,12 @@ vertex ProjVertexTriA vertexTri_light(VertexTriA vert [[stage_in]],
 // Simple fragment shader for lines on flat map
 fragment float4 fragmentTri_noLight(ProjVertexTriA vert [[stage_in]],
                                       constant Uniforms &uniforms [[buffer(WKSUniformBuffer)]],
+                                      constant UniformDrawStateA &uniDrawState [[buffer(WKSUniformDrawStateBuffer)]],
                                       texture2d<float,access::sample> tex [[texture(0)]])
 {
-//    if (tex.) {
-//        constexpr sampler sampler2d(coord::normalized, filter::linear);
-//        return vert.color * tex.sample(sampler2d, vert.texCoord);
-//    } else {
+    if (uniDrawState.numTextures > 0) {
+        constexpr sampler sampler2d(coord::normalized, filter::linear);
+        return vert.color * tex.sample(sampler2d, vert.texCoord);
+    } else
         return vert.color;
-//    }
 }

@@ -25,6 +25,7 @@ namespace WhirlyKitShader
 #define WKSVertexPositionAttribute 0
 #define WKSVertexColorAttribute 1
 #define WKSVertexNormalAttribute 2
+#define WKSVertexTextureBaseAttribute 3
     
 #define WKSUniformBuffer 8
 // Uniforms for the basic case.  Nothing fancy.

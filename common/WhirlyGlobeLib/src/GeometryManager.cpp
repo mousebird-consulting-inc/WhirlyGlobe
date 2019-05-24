@@ -691,7 +691,7 @@ SimpleIdentity GeometryManager::addGeometry(std::vector<GeometryRaw *> &geom,con
                     Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
                     Matrix4d transMat = trans.matrix();
                     draw->setMatrix(&transMat);
-                    sceneRep->drawIDs.insert(draw->getDrawable()->getId());
+                    sceneRep->drawIDs.insert(draw->getDrawableID());
                     changes.push_back(new AddDrawableReq(draw->getDrawable()));
                 }
             }
@@ -768,7 +768,7 @@ SimpleIdentity GeometryManager::addBaseGeometry(std::vector<GeometryRaw *> &geom
                 draw->setOnOff(false);
                 draw->setRequestZBuffer(true);
                 draw->setWriteZBuffer(true);
-                sceneRep->drawIDs.insert(draw->getDrawable()->getId());
+                sceneRep->drawIDs.insert(draw->getDrawableID());
                 changes.push_back(new AddDrawableReq(draw->getDrawable()));
             }
         }
@@ -870,7 +870,7 @@ SimpleIdentity GeometryManager::addGeometryInstances(SimpleIdentity baseGeomID,c
             drawInst->setIsMoving(true);
         }
         
-        sceneRep->drawIDs.insert(drawInst->getDrawable()->getId());
+        sceneRep->drawIDs.insert(drawInst->getDrawableID());
         changes.push_back(new AddDrawableReq(drawInst->getDrawable()));
     }
 
@@ -912,7 +912,7 @@ SimpleIdentity GeometryManager::addGeometryPoints(const GeometryRawPoints &geomP
 //        Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
 //        Matrix4d transMat = trans.matrix();
 //        draw->setMatrix(&transMat);
-        sceneRep->drawIDs.insert(draw->getDrawable()->getId());
+        sceneRep->drawIDs.insert(draw->getDrawableID());
         changes.push_back(new AddDrawableReq(draw->getDrawable()));
     }
     

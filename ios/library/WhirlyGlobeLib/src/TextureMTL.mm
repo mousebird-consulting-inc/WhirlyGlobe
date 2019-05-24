@@ -19,6 +19,8 @@
  */
 
 #import "TextureMTL.h"
+#import "UIImage+Stuff.h"
+#import "RawData_NSData.h"
 
 namespace WhirlyKit
 {
@@ -31,6 +33,17 @@ TextureMTL::TextureMTL(const std::string &name)
 TextureMTL::TextureMTL(const std::string &name,RawDataRef texData,bool isPVRTC)
     : Texture(name,texData,isPVRTC), TextureBaseMTL(name), TextureBase(name)
 {
+}
+    
+TextureMTL::TextureMTL(const std::string &name,UIImage *inImage,int inWidth,int inHeight)
+    : Texture(name), TextureBase(name), TextureBaseMTL(name)
+{
+    NSData *data = [inImage rawDataScaleWidth:inWidth height:inHeight border:0];
+    if (!data)
+        return;
+    width = inWidth;  height = inHeight;
+    
+    texData = RawDataRef(new RawNSDataReader(data));
 }
 
 bool TextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)

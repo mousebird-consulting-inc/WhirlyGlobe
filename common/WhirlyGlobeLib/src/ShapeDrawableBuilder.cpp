@@ -165,7 +165,7 @@ void ShapeDrawableBuilder::getChanges(WhirlyKit::ChangeSet &changes,SimpleIDSet 
     {
         BasicDrawableBuilderRef draw = drawables[ii];
         changes.push_back(new AddDrawableReq(draw->getDrawable()));
-        drawIDs.insert(draw->getDrawable()->getId());
+        drawIDs.insert(draw->getDrawableID());
     }
     drawables.clear();
 }
@@ -431,7 +431,7 @@ void ShapeDrawableBuilderTri::getChanges(ChangeSet &changeRequests,SimpleIDSet &
     {
         BasicDrawableBuilderRef draw = drawables[ii];
         changeRequests.push_back(new AddDrawableReq(draw->getDrawable()));
-        drawIDs.insert(draw->getDrawable()->getId());
+        drawIDs.insert(draw->getDrawableID());
     }
     drawables.clear();
 }

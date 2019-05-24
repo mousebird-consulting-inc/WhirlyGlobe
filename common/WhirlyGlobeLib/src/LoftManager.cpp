@@ -352,7 +352,7 @@ public:
                     TimeInterval curTime = TimeGetCurrent();
                     drawable->setFade(curTime,curTime+polyInfo.fade);
                 }
-                sceneRep->drawIDs.insert(drawable->getDrawable()->getId());
+                sceneRep->drawIDs.insert(drawable->getDrawableID());
                 changes.push_back(new AddDrawableReq(drawable->getDrawable()));
             }
             drawable = NULL;

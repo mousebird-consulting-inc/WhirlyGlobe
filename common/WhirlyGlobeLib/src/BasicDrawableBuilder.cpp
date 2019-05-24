@@ -96,6 +96,13 @@ void BasicDrawableBuilder::setupStandardAttributes(int numReserve)
     basicDraw->vertexAttributes[basicDraw->normalEntry]->reserve(numReserve);
 }
     
+SimpleIdentity BasicDrawableBuilder::getDrawableID()
+{
+    if (basicDraw)
+        return basicDraw->getId();
+    return EmptyIdentity;
+}
+    
 void BasicDrawableBuilder::setupTexCoordEntry(int which,int numReserve)
 {
     if (which < basicDraw->texInfo.size())

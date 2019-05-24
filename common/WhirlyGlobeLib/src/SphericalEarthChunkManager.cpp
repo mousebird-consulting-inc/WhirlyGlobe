@@ -475,12 +475,12 @@ void SphericalChunkManager::processChunkRequest(ChunkRequest &request,ChangeSet 
             
             if (skirtDraw)
             {
-                chunkRep->drawIDs.insert(skirtDraw->getDrawable()->getId());
+                chunkRep->drawIDs.insert(skirtDraw->getDrawableID());
                 skirtDraw->setTexId(0,texId);
                 changes.push_back(new AddDrawableReq(skirtDraw->getDrawable()));
             }
             
-            chunkRep->drawIDs.insert(drawable->getDrawable()->getId());
+            chunkRep->drawIDs.insert(drawable->getDrawableID());
             drawable->setTexId(0,texId);
             changes.push_back(new AddDrawableReq(drawable->getDrawable()));
             

@@ -178,5 +178,12 @@ void BasicDrawableInstanceBuilder::setProgram(SimpleIdentity progID)
 {
     drawInst->setProgram(progID);
 }
+    
+SimpleIdentity BasicDrawableInstanceBuilder::getDrawableID()
+{
+    if (drawInst)
+        return drawInst->getId();
+    return EmptyIdentity;
+}
 
 }

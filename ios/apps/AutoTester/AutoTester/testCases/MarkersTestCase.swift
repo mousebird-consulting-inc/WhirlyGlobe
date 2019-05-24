@@ -16,10 +16,11 @@ class MarkersTestCase: MaplyTestCase {
 		self.name = "Markers"
 		self.implementations = [.globe, .map]
 	}
+    let startImage = UIImage(named: "airfield-24@2x")
+    var compObjs: MaplyComponentObject? = nil
 
 	func insertMarkers (_ arrayComp: NSArray, theViewC: MaplyBaseViewController) {
 		let size = CGSize(width: 0.05, height: 0.05);
-		let startImage = UIImage(named: "airfield-24@2x")
 		var markers = [MaplyMarker]()
 		for i in 0 ..< arrayComp.count {
 			let object = arrayComp[i]
@@ -30,13 +31,14 @@ class MarkersTestCase: MaplyTestCase {
 			marker.userObject = (object as AnyObject).userObject!
 			markers.append(marker)
 		}
-		theViewC.addMarkers(markers, desc: nil)
+        // Note: We have to sit on this so we don't lose our MaplyTexture.  Need to fix that.
+		compObjs = theViewC.addMarkers(markers, desc: nil)
 	}
     
     let baseCase = VectorsTestCase()
 
 	override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
-		baseCase.setUpWithGlobe(globeVC)
+        baseCase.setUpWithGlobe(globeVC)
 		insertMarkers(baseCase.vecList!, theViewC: globeVC)
 		globeVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(151.211111, -33.859972), time: 1.0)
 	}

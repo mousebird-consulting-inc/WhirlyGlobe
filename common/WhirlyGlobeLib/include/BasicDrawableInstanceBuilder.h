@@ -115,6 +115,10 @@ public:
     /// Constructs the remaining pieces of the drawable and returns it
     /// Caller is responsible for deletion
     virtual BasicDrawableInstance *getDrawable() = 0;
+    
+    /// Return just the ID of the drawable being created
+    /// This doesn't flush out the drawable in any way
+    virtual SimpleIdentity getDrawableID();
 
 protected:
     // Called by subclasses

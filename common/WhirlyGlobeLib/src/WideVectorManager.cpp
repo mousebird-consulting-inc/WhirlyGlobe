@@ -666,7 +666,7 @@ public:
         for (unsigned int ii=0;ii<drawables.size();ii++)
         {
             WideVectorDrawableBuilderRef drawable = drawables[ii];
-            sceneRep->drawIDs.insert(drawable->getDrawable()->getId());
+            sceneRep->drawIDs.insert(drawable->getDrawableID());
             if (vecInfo->fade > 0.0)
                 drawable->setFade(curTime,curTime+vecInfo->fade);
             changes.push_back(new AddDrawableReq(drawable->getDrawable()));
@@ -863,7 +863,7 @@ SimpleIdentity WideVectorManager::instanceVectors(SimpleIdentity vecID,const Wid
             drawInst->setDrawPriority(vecInfo.drawPriority);
             
             // Note: Should set fade
-            newSceneRep->instIDs.insert(drawInst->getDrawable()->getId());
+            newSceneRep->instIDs.insert(drawInst->getDrawableID());
             changes.push_back(new AddDrawableReq(drawInst->getDrawable()));
         }
         
