@@ -63,18 +63,21 @@ bool TextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
     switch (format)
     {
         case TexTypeUnsignedByte:
-            pixFormat = MTLPixelFormatR32Uint;
+            pixFormat = MTLPixelFormatRGBA8Unorm;
             bytesPerRow = 4*width;
             break;
         case TexTypeShort565:
+            // TODO: These aren't the right order
             pixFormat = MTLPixelFormatB5G6R5Unorm;
             bytesPerRow = 2*width;
             break;
         case TexTypeShort4444:
+            // TODO: These aren't the right order
             pixFormat = MTLPixelFormatABGR4Unorm;
             bytesPerRow = 2*width;
             break;
         case TexTypeShort5551:
+            // TODO: These aren't the right order
             pixFormat = MTLPixelFormatA1BGR5Unorm;
             bytesPerRow = 2*width;
             break;
@@ -94,7 +97,7 @@ bool TextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
     mtlID = [setupInfo->mtlDevice newTextureWithDescriptor:desc];
     if (mtlID) {
         MTLRegion region = MTLRegionMake2D(0,0,width,height);
-        [mtlID replaceRegion:region mipmapLevel:0 withBytes:texData.get() bytesPerRow:bytesPerRow];
+        [mtlID replaceRegion:region mipmapLevel:0 withBytes:texData->getRawData() bytesPerRow:bytesPerRow];
     }
     
     texData.reset();
