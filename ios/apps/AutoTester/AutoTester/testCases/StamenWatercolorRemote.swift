@@ -40,7 +40,8 @@ class StamenWatercolorRemote: MaplyTestCase {
         guard let imageLoader = MaplyQuadImageLoader(params: sampleParams, tileInfo: tileInfo, viewC: baseVC) else {
             return nil
         }
-        imageLoader.imageFormat = .imageUShort565
+        // TODO: Get this working
+//        imageLoader.imageFormat = .imageUShort565
         //        imageLoader.debugMode = true
         
         return imageLoader
@@ -48,9 +49,7 @@ class StamenWatercolorRemote: MaplyTestCase {
 
 	override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
 		imageLoader = setupLoader(globeVC)
-        
-        globeVC.clearColor = UIColor.red
-		
+        		
 		globeVC.keepNorthUp = true
 		globeVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056), time: 1.0)
 	}

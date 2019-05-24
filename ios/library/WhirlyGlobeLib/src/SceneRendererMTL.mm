@@ -310,6 +310,9 @@ void SceneRendererMTL::render(TimeInterval duration,
     id<MTLCommandQueue> cmdQueue = [mtlDevice newCommandQueue];
     id<MTLCommandBuffer> cmdBuff = [cmdQueue commandBuffer];
     id<MTLRenderCommandEncoder> cmdEncode = [cmdBuff renderCommandEncoderWithDescriptor:renderPassDesc];
+    
+    // Backface culling on by default
+    [cmdEncode setCullMode:MTLCullModeFront];
 
     if (scene)
     {
