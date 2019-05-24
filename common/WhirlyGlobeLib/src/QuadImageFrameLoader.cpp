@@ -255,15 +255,21 @@ void QIFTileAsset::setupContents(QuadImageFrameLoader *loader,LoadedTileNewRef l
     drawPriority = defaultDrawPriority;
     for (auto di : loadedTile->drawInfo) {
         int newDrawPriority = defaultDrawPriority;
+        bool zBufferRead = false;
+        bool zBufferWrite = true;
         switch (di.kind) {
             case WhirlyKit::LoadedTileNew::DrawableGeom:
                 newDrawPriority = defaultDrawPriority;
                 break;
             case WhirlyKit::LoadedTileNew::DrawableSkirt:
+                zBufferWrite = false;
+                zBufferRead = true;
                 newDrawPriority = 11;
                 break;
             case WhirlyKit::LoadedTileNew::DrawablePole:
                 newDrawPriority = defaultDrawPriority;
+                zBufferWrite = false;
+                zBufferRead = false;
                 break;
         }
         
@@ -275,6 +281,8 @@ void QIFTileAsset::setupContents(QuadImageFrameLoader *loader,LoadedTileNewRef l
         drawInst->setOnOff(false);
         drawInst->setProgram(shaderID);
         drawInst->setColor(loader->getColor());
+        drawInst->setRequestZBuffer(zBufferRead);
+        drawInst->setWriteZBuffer(zBufferWrite);
         SimpleIdentity renderTargetID = loader->getRenderTarget();
         if (renderTargetID != EmptyIdentity)
             drawInst->setRenderTarget(renderTargetID);

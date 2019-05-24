@@ -34,9 +34,6 @@ class BasicDrawableMTL : public BasicDrawable
 {
 public:
     BasicDrawableMTL(const std::string &name);
-
-    // Note: Overriding for debugging
-    virtual bool isOn(RendererFrameInfo *frameInfo) const;
     
     /// Set up local rendering structures (e.g. VBOs)
     virtual void setupForRenderer(const RenderSetupInfo *setupInfo);
@@ -49,10 +46,6 @@ public:
     virtual void draw(RendererFrameInfo *frameInfo,Scene *scene);
     
 public:
-    float calcFade(RendererFrameInfo *frameInfo);
-    MTLVertexDescriptor *getVertexDescriptor(id<MTLFunction> vertFunc);
-    id<MTLRenderPipelineState> getRenderPipelineState(SceneRendererMTL *sceneRender,RendererFrameInfoMTL *frameInfo);
-
     // Defaults for vertex attributes we don't have
     typedef struct {
         MTLDataType dataType;
@@ -63,6 +56,10 @@ public:
         } data;
         int bufferIndex;
     } AttributeDefault;
+
+    float calcFade(RendererFrameInfo *frameInfo);
+    MTLVertexDescriptor *getVertexDescriptor(id<MTLFunction> vertFunc,std::vector<AttributeDefault> &defAttrs);
+    id<MTLRenderPipelineState> getRenderPipelineState(SceneRendererMTL *sceneRender,RendererFrameInfoMTL *frameInfo);
 
     bool setupForMTL;
     std::vector<Triangle> tris;

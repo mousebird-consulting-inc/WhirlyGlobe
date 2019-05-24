@@ -39,9 +39,17 @@ public:
     virtual void teardownForRenderer(const RenderSetupInfo *setupInfo);
     
     /// Fill this in to draw the basic drawable
-    virtual void draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene);
+    virtual void draw(RendererFrameInfo *frameInfo,Scene *scene);
     
 protected:
+    void drawReuse(RendererFrameInfoMTL *frameInfo,SceneRendererMTL *sceneRender,SceneMTL *scene,BasicDrawableMTL *basicDrawMTL);
+    void drawLocal(RendererFrameInfoMTL *frameInfo,SceneRendererMTL *sceneRender,SceneMTL *scene,BasicDrawableMTL *basicDrawMTL);
+    
+    id<MTLRenderPipelineState> getRenderPipelineState(SceneRendererMTL *sceneRender,RendererFrameInfoMTL *frameInfo,BasicDrawableMTL *basicDrawMTL);
+    
+    id<MTLRenderPipelineState> renderState;
+    MTLVertexDescriptor *vertDesc;
+    std::vector<BasicDrawableMTL::AttributeDefault> defaultAttrs;
 };
     
 }

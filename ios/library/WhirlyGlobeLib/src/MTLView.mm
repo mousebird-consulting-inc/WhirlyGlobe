@@ -29,6 +29,7 @@ using namespace WhirlyKit;
     self = [super initWithFrame:CGRectZero device:mtlDevice];
 
     self.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
+    self.depthStencilPixelFormat = MTLPixelFormatDepth32Float;
     self.framebufferOnly = true;
 //    self.preferredFramesPerSecond = 120;
     
@@ -71,7 +72,7 @@ using namespace WhirlyKit;
     if (!renderPassDesc || !drawable)
         return;
     
-    renderMTL->render(1/60.0,renderPassDesc,drawable);
+    renderMTL->render(1.0/self.preferredFramesPerSecond,renderPassDesc,drawable);
 }
 
 - (BOOL)isAnimating

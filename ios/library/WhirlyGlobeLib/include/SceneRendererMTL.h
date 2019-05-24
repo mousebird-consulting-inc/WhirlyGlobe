@@ -42,6 +42,8 @@ public:
 
     // Command encoder for just this frame
     id<MTLRenderCommandEncoder> cmdEncode;
+    // Render pass descriptor from the view
+    MTLRenderPassDescriptor *renderPassDesc;
 };
 
 /// Metal version of the Scene Renderer

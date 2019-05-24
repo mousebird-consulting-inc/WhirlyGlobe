@@ -44,6 +44,7 @@ public:
 protected:
     GLuint setupVAO(RendererFrameInfoGLES *frameInfo);
     
+    int centerSize,matSize,colorInstSize,colorSize,instSize,modelDirSize;
     GLuint instBuffer;
     GLuint vertArrayObj;
     std::vector<BasicDrawableGLES::VertAttrDefault> vertArrayDefaults;

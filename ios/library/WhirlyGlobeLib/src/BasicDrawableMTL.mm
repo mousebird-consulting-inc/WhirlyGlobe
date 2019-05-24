@@ -36,12 +36,6 @@ BasicDrawableMTL::BasicDrawableMTL(const std::string &name)
 {
 }
  
-// Note: Debugging
-bool BasicDrawableMTL::isOn(RendererFrameInfo *frameInfo) const
-{
-    return true;
-}
-
 // Create a buffer per vertex attribute
 void BasicDrawableMTL::setupForRenderer(const RenderSetupInfo *inSetupInfo)
 {
@@ -137,12 +131,13 @@ float BasicDrawableMTL::calcFade(RendererFrameInfo *frameInfo)
     return fade;
 }
     
-MTLVertexDescriptor *BasicDrawableMTL::getVertexDescriptor(id<MTLFunction> vertFunc)
+MTLVertexDescriptor *BasicDrawableMTL::getVertexDescriptor(id<MTLFunction> vertFunc,std::vector<AttributeDefault> &defAttrs)
 {
     if (vertDesc)
         return vertDesc;
     
     vertDesc = [[MTLVertexDescriptor alloc] init];
+    defAttrs.clear();
     std::set<int> buffersFilled;
     
     // Work through the buffers we know about
@@ -203,7 +198,7 @@ MTLVertexDescriptor *BasicDrawableMTL::getVertexDescriptor(id<MTLFunction> vertF
                     break;
             }
             defAttr.bufferIndex = ourVertAttr->bufferIndex;
-            defaultAttrs.push_back(defAttr);
+            defAttrs.push_back(defAttr);
         }
         vertDesc.attributes[attrDesc.bufferIndex] = attrDesc;
         vertDesc.layouts[attrDesc.bufferIndex] = layoutDesc;
@@ -258,7 +253,7 @@ MTLVertexDescriptor *BasicDrawableMTL::getVertexDescriptor(id<MTLFunction> vertF
             layoutDesc.stepRate = 0;
             vertDesc.layouts[which] = layoutDesc;
             
-            defaultAttrs.push_back(defAttr);
+            defAttrs.push_back(defAttr);
         }
         
         which++;
@@ -279,9 +274,10 @@ id<MTLRenderPipelineState> BasicDrawableMTL::getRenderPipelineState(SceneRendere
     renderDesc.vertexFunction = program->vertFunc;
     renderDesc.fragmentFunction = program->fragFunc;
 
-    renderDesc.vertexDescriptor = getVertexDescriptor(program->vertFunc);
+    renderDesc.vertexDescriptor = getVertexDescriptor(program->vertFunc,defaultAttrs);
     // TODO: Should be from the target
     renderDesc.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
+    renderDesc.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
 
     // Set up a render state
     NSError *err = nil;

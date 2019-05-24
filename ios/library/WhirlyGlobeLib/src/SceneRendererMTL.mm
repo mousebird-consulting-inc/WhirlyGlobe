@@ -519,41 +519,48 @@ void SceneRendererMTL::render(TimeInterval duration,
 //                CheckGLError("SceneRendererES2: glClear");
 //            }
             
-            bool depthMaskOn = (zBufferMode == zBufferOn);
+            // Keep track of state changes for z buffer state
+            bool firstDepthState = true;
+            bool zBufferWrite = (zBufferMode == zBufferOn);
+            bool zBufferRead = (zBufferMode == zBufferOn);
+            
+            bool lastZBufferWrite = zBufferWrite;
+            bool lastZBufferRead = zBufferRead;
+            
             for (unsigned int ii=0;ii<drawList.size();ii++)
             {
                 DrawableContainer &drawContain = drawList[ii];
                 
                 // The first time we hit an explicitly alpha drawable
                 //  turn off the depth buffer
-                if (depthBufferOffForAlpha && !(zBufferMode == zBufferOffDefault))
-                {
-                    if (depthMaskOn && depthBufferOffForAlpha && drawContain.drawable->hasAlpha(&baseFrameInfo))
-                    {
-                        depthMaskOn = false;
-//                        glDisable(GL_DEPTH_TEST);
-                    }
-                }
+                if (depthBufferOffForAlpha && drawContain.drawable->hasAlpha(&baseFrameInfo))
+                    zBufferWrite = false;
                 
                 // For this mode we turn the z buffer off until we get a request to turn it on
-                if (zBufferMode == zBufferOffDefault)
-                {
-                    if (drawContain.drawable->getRequestZBuffer())
-                    {
-//                        glDepthFunc(GL_LESS);
-                        depthMaskOn = true;
-                    } else {
-//                        glDepthFunc(GL_ALWAYS);
-                    }
-                }
+                zBufferRead = drawContain.drawable->getRequestZBuffer();
                 
                 // If we're drawing lines or points we don't want to update the z buffer
-                if (zBufferMode != zBufferOff)
-                {
-//                    if (drawContain.drawable->getWriteZbuffer())
-//                        glDepthMask(GL_TRUE);
-//                    else
-//                        glDepthMask(GL_FALSE);
+                zBufferWrite = drawContain.drawable->getWriteZbuffer();
+                
+                // TODO: Optimize this a bit
+                if (firstDepthState ||
+                    (zBufferRead != lastZBufferRead) ||
+                    (zBufferWrite != lastZBufferWrite)) {
+                    
+                    MTLDepthStencilDescriptor *depthDesc = [[MTLDepthStencilDescriptor alloc] init];
+                    if (zBufferRead)
+                        depthDesc.depthCompareFunction = MTLCompareFunctionLess;
+                    else
+                        depthDesc.depthCompareFunction = MTLCompareFunctionAlways;
+                    depthDesc.depthWriteEnabled = zBufferWrite;
+                    
+                    lastZBufferRead = zBufferRead;
+                    lastZBufferWrite = zBufferWrite;
+                    
+                    id<MTLDepthStencilState> depthStencil = [mtlDevice newDepthStencilStateWithDescriptor:depthDesc];
+                    
+                    [cmdEncode setDepthStencilState:depthStencil];
+                    firstDepthState = false;
                 }
                 
                 // Set up transforms to use right now

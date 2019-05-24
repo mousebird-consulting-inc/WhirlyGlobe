@@ -103,6 +103,13 @@ SimpleIdentity BasicDrawableBuilder::getDrawableID()
     return EmptyIdentity;
 }
     
+int BasicDrawableBuilder::getDrawablePriority()
+{
+   if (basicDraw)
+       return basicDraw->getDrawPriority();
+    return 0;
+}
+    
 void BasicDrawableBuilder::setupTexCoordEntry(int which,int numReserve)
 {
     if (which < basicDraw->texInfo.size())

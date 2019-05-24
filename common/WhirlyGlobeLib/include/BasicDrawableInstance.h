@@ -164,8 +164,6 @@ public:
     virtual void setTexRelative(int which,int size,int borderTexel,int relLevel,int relX,int relY);
     
 protected:
-    
-    
     Style instanceStyle;
     SimpleIdentity programID;
     bool requestZBuffer,writeZBuffer;
@@ -185,7 +183,6 @@ protected:
     Point3d viewerCenter;
     int numInstances;
     
-    int centerSize,matSize,colorInstSize,colorSize,instSize,modelDirSize;
     TimeInterval startTime;
     bool moving;
     // Uniforms to apply to shader
@@ -196,8 +193,6 @@ protected:
 
     // If set, we'll instance this one multiple times
     std::vector<SingleInstance> instances;
-    // While rendering, which instance we're rendering
-//    int whichInstance;
 };
 
 /// Reference counted version of BasicDrawableInstance

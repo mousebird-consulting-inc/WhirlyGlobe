@@ -203,6 +203,9 @@ public:
     /// Return just the ID of the drawable being created.
     /// This avoids flushing things out
     virtual SimpleIdentity getDrawableID();
+    
+    /// Return just the draw priority of the drawable being created
+    virtual int getDrawablePriority();
 
     /// Check for the given texture coordinate entry and add it if it's not there
     virtual void setupTexCoordEntry(int which,int numReserve);

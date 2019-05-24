@@ -130,6 +130,7 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
     
     std::vector<BasicDrawableBuilderRef> drawables;
     drawables.push_back(chunk);
+    drawInfo.push_back(DrawableInfo(DrawableGeom,chunk->getDrawableID(),chunk->getDrawablePriority()));
     if (geomSettings.useTileCenters)
         chunk->setMatrix(&transMat);
     
@@ -158,6 +159,7 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
         poleChunk->setLocalMbr(Mbr(Point2f(geoLL.x(),geoLL.y()),Point2f(geoUR.x(),geoUR.y())));
         poleChunk->setProgram(geomSettings.programID);
         poleChunk->setOnOff(false);
+        drawInfo.push_back(DrawableInfo(DrawablePole,poleChunk->getDrawableID(),poleChunk->getDrawablePriority()));
         separatePoleChunk = true;
     } else
         poleChunk = chunk;
@@ -277,6 +279,7 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
             skirtChunk->setRequestZBuffer(true);
             skirtChunk->setProgram(geomSettings.programID);
             skirtChunk->setOnOff(false);
+            drawInfo.push_back(DrawableInfo(DrawableSkirt,skirtChunk->getDrawableID(),skirtChunk->getDrawablePriority()));
 
             // We'll vary the skirt size a bit.  Otherwise the fill gets ridiculous when we're looking
             //  at the very highest levels.  On the other hand, this doesn't fix a really big large/small
@@ -410,7 +413,6 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
     }
     
     for (auto draw : drawables) {
-        drawInfo.push_back(DrawableInfo(DrawableGeom,draw->getDrawableID(),draw->getDrawable()->getDrawPriority()));
         changes.push_back(new AddDrawableReq(draw->getDrawable()));
     }
 }
