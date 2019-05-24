@@ -206,8 +206,8 @@ void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo)
 {
     WhirlyKitShader::Uniforms uniforms;
     CopyIntoFloat4x4(uniforms.mvpMatrix,frameInfo->mvpMat);
-    CopyIntoFloat4x4(uniforms.mvMatrix,frameInfo->mvpMat);
-    CopyIntoFloat4x4(uniforms.mvNormalMatrix,frameInfo->mvpMat);
+    CopyIntoFloat4x4(uniforms.mvMatrix,frameInfo->viewAndModelMat);
+    CopyIntoFloat4x4(uniforms.mvNormalMatrix,frameInfo->viewModelNormalMat);
     
     [frameInfo->cmdEncode setVertexBytes:&uniforms length:sizeof(uniforms) atIndex:WKSUniformBuffer];
     [frameInfo->cmdEncode setFragmentBytes:&uniforms length:sizeof(uniforms) atIndex:WKSUniformBuffer];
