@@ -57,9 +57,9 @@ BasicDrawable *BasicDrawableBuilderGLES::getDrawable()
     BasicDrawableGLES *draw = (BasicDrawableGLES *)basicDraw;
     
     if (!drawableGotten) {
-        draw->vertexSize = draw->singleVertexSize();
         draw->points = points;
         draw->tris = tris;
+        draw->vertexSize = draw->singleVertexSize();
         
         drawableGotten = true;
     }
