@@ -42,8 +42,6 @@ namespace WhirlyKit
 class ComponentObject : public Identifiable
 {
 public:
-    ComponentObject();
-    ComponentObject(SimpleIdentity theID);
     virtual ~ComponentObject();
     
     SimpleIDSet markerIDs;
@@ -66,11 +64,14 @@ public:
     
     // Empty out references
     void clear();
+    
+protected:
+    ComponentObject();
 };
 
 typedef std::shared_ptr<ComponentObject> ComponentObjectRef;
     
-typedef std::set<ComponentObjectRef,IdentifiableRefSorter> ComponentObjectSet;
+typedef std::map<SimpleIdentity,ComponentObjectRef> ComponentObjectMap;
     
 #define kWKComponentManager "kWKComponentManager"
     
@@ -122,9 +123,12 @@ public:
     ParticleSystemManager *partSysManager;
     
 protected:
+    // Subclass fills this in
+    virtual ComponentObjectRef makeComponentObject() = 0;
+    
     std::mutex lock;
 
-    ComponentObjectSet compObjs;
+    ComponentObjectMap compObjs;
 };
 
 // Make an OS specific component manager

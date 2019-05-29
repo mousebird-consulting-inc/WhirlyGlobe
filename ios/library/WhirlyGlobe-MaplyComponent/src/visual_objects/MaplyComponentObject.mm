@@ -27,14 +27,14 @@ using namespace WhirlyKit;
 - (instancetype)init
 {
     self = [super init];
-    contents = ComponentObjectRef(new ComponentObject());
+    contents = ComponentObject_iOSRef(new ComponentObject_iOS());
     contents->isSelectable = true;
     contents->enable = true;
     
     return self;
 }
 
-- (id)initWithRef:(WhirlyKit::ComponentObjectRef)compObj
+- (id)initWithRef:(WhirlyKit::ComponentObject_iOSRef)compObj
 {
     self = [super init];
     contents = compObj;
@@ -45,7 +45,7 @@ using namespace WhirlyKit;
 - (instancetype)initWithDesc:(NSDictionary *)desc
 {
     self = [super init];
-    contents = ComponentObjectRef(new ComponentObject());
+    contents = ComponentObject_iOSRef(new ComponentObject_iOS());
     contents->isSelectable = true;
     contents->enable = true;
     id enable = desc[kMaplyEnable];

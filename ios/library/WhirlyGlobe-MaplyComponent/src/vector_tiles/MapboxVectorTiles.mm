@@ -99,7 +99,8 @@ using namespace WhirlyKit;
 {
     NSMutableArray *ret = [[NSMutableArray alloc] init];
     for (auto compObj : data->compObjs) {
-        MaplyComponentObject *newCompObj = [[MaplyComponentObject alloc] initWithRef:compObj];
+        ComponentObject_iOSRef compObjIOS = std::dynamic_pointer_cast<ComponentObject_iOS>(compObj);
+        MaplyComponentObject *newCompObj = [[MaplyComponentObject alloc] initWithRef:compObjIOS];
         [ret addObject:newCompObj];
     }
     

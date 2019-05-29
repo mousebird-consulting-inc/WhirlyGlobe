@@ -32,12 +32,11 @@
 {
 @public
     // A WhirlyKit object holds most of this stuff
-    WhirlyKit::ComponentObjectRef contents;
+    WhirlyKit::ComponentObject_iOSRef contents;
 }
 
-- (id)initWithRef:(WhirlyKit::ComponentObjectRef)compObj;
+- (id)initWithRef:(WhirlyKit::ComponentObject_iOSRef)compObj;
 
-@property (nonatomic,assign) std::set<MaplyTexture *> &textures;
 @property (nonatomic,strong) NSArray *vectors;
 
 @end

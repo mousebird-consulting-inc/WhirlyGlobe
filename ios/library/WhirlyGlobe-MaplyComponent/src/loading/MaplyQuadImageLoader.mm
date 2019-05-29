@@ -82,7 +82,7 @@ using namespace WhirlyKit;
     NSMutableArray *ret = [[NSMutableArray alloc] init];
     for (auto compObj : loadReturn->compObjs) {
         MaplyComponentObject *compObjWrap = [[MaplyComponentObject alloc] init];
-        compObjWrap->contents = compObj;
+        compObjWrap->contents = std::dynamic_pointer_cast<ComponentObject_iOS>(compObj);
         [ret addObject:compObjWrap];
     }
     
@@ -100,7 +100,7 @@ using namespace WhirlyKit;
     NSMutableArray *ret = [[NSMutableArray alloc] init];
     for (auto compObj : loadReturn->ovlCompObjs) {
         MaplyComponentObject *compObjWrap = [[MaplyComponentObject alloc] init];
-        compObjWrap->contents = compObj;
+        compObjWrap->contents = std::dynamic_pointer_cast<ComponentObject_iOS>(compObj);
         [ret addObject:compObjWrap];
     }
     

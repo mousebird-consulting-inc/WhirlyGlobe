@@ -805,7 +805,7 @@ public:
         }
         if (texs.size() > 1)
             wgMarker->period = marker.period;
-        compObj.textures.insert(texs.begin(),texs.end());
+        compObj->contents->texs.insert(texs.begin(),texs.end());
         wgMarker->color = [marker.color asRGBAColor];
         if (!texs.empty())
         {
@@ -1140,7 +1140,7 @@ public:
         }
         if (texs.size() > 1)
             wgMarker->period = marker.period;
-        compObj.textures.insert(texs.begin(),texs.end());
+        compObj->contents->texs.insert(texs.begin(),texs.end());
         if (!texs.empty())
         {
             for (unsigned int ii=0;ii<texs.size();ii++)
@@ -1313,7 +1313,7 @@ public:
         MaplyTexture *tex = nil;
         if (label.iconImage2) {
             tex = [self addImage:label.iconImage2 imageFormat:MaplyImageIntRGBA mode:threadMode];
-            compObj.textures.insert(tex);
+            compObj->contents->texs.insert(tex);
         }
         if (tex)
             wgLabel->iconTexture = tex.texID;
@@ -1439,7 +1439,7 @@ public:
         MaplyTexture *tex = nil;
         if (label.iconImage2) {
             tex = [self addImage:label.iconImage2 imageFormat:MaplyImageIntRGBA mode:threadMode];
-            compObj.textures.insert(tex);
+            compObj->contents->texs.insert(tex);
         }
         wgLabel->iconTexture = tex.texID;
         if (label.size.width > 0.0)
@@ -1676,7 +1676,7 @@ public:
             tex = (MaplyTexture *)theImage;
         if (tex.texID) {
             vectorInfo.texID = tex.texID;
-            compObj.textures.insert(tex);
+            compObj->contents->texs.insert(tex);
         }
     }
     
@@ -2029,7 +2029,7 @@ public:
         }
     }
     
-    compObj.textures = textures;
+    compObj->contents->texs = textures;
     
     ShapeManager *shapeManager = (ShapeManager *)scene->getManager(kWKShapeManager);
     if (shapeManager)
@@ -2162,7 +2162,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
             SimpleIdentity baseModelID = [model getBaseModel:self fontTexManager:fontTexManager compObj:compObj mode:threadMode];
             
             // Reference count the textures for this comp obj
-            compObj.textures.insert(model->maplyTextures.begin(),model->maplyTextures.end());
+            compObj->contents->texs.insert(model->maplyTextures.begin(),model->maplyTextures.end());
 
             if (baseModelID != EmptyIdentity)
             {
@@ -2388,12 +2388,12 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                 MaplyTexture *tex = [self addImage:sticker.image imageFormat:sticker.imageFormat mode:threadMode];
                 if (tex)
                     texIDs.push_back(tex.texID);
-                compObj.textures.insert(tex);
+                compObj->contents->texs.insert(tex);
             } else if ([sticker.image isKindOfClass:[MaplyTexture class]])
             {
                 MaplyTexture *tex = (MaplyTexture *)sticker.image;
                 texIDs.push_back(tex.texID);
-                compObj.textures.insert(tex);
+                compObj->contents->texs.insert(tex);
             }
         }
         for (UIImage *image in sticker.images)
@@ -2403,12 +2403,12 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                 MaplyTexture *tex = [self addImage:image imageFormat:sticker.imageFormat mode:threadMode];
                 if (tex)
                     texIDs.push_back(tex.texID);
-                compObj.textures.insert(tex);
+                compObj->contents->texs.insert(tex);
             } else if ([image isKindOfClass:[MaplyTexture class]])
             {
                 MaplyTexture *tex = (MaplyTexture *)image;
                 texIDs.push_back(tex.texID);
-                compObj.textures.insert(tex);
+                compObj->contents->texs.insert(tex);
             }
         }
         SphericalChunk *chunk = new SphericalChunk();
@@ -2493,8 +2493,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                 if ([desc[kMaplyStickerImageFormat] isKindOfClass:[NSNumber class]])
                     newFormat = (MaplyQuadImageFormat)[desc[kMaplyStickerImageFormat] integerValue];
                 std::vector<SimpleIdentity> newTexIDs;
-                std::set<MaplyTexture *> oldTextures = stickerObj.textures;
-                stickerObj.textures.clear();
+                std::set<MaplyTexture *> oldTextures = stickerObj->contents->texs;
+                stickerObj->contents->texs.clear();
 
                 // Add in the new images
                 for (UIImage *image in newImages)
@@ -2504,12 +2504,12 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                         MaplyTexture *tex = [self addImage:image imageFormat:newFormat mode:threadMode];
                         if (tex)
                             newTexIDs.push_back(tex.texID);
-                        stickerObj.textures.insert(tex);
+                        stickerObj->contents->texs.insert(tex);
                     } else if ([image isKindOfClass:[MaplyTexture class]])
                     {
                         MaplyTexture *tex = (MaplyTexture *)image;
                         newTexIDs.push_back(tex.texID);
-                        stickerObj.textures.insert(tex);
+                        stickerObj->contents->texs.insert(tex);
                     }
                 }
                 
@@ -2690,7 +2690,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                     }
                     if (tex)
                     {
-                        compObj.textures.insert(tex);
+                        compObj->contents->texs.insert(tex);
                         billPoly.texId = tex.texID;
                     }
                 }
@@ -2876,7 +2876,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
             } else if ([image isKindOfClass:[MaplyTexture class]])
                 maplyTex = image;
             wkPartSys.texIDs.push_back(maplyTex.texID);
-            compObj.textures.insert(maplyTex);
+            compObj->contents->texs.insert(maplyTex);
         }
         
         SimpleIdentity partSysID = partSysManager->addParticleSystem(wkPartSys, changes);
@@ -3134,10 +3134,9 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     {
         @synchronized (compObj) {
             // And associated textures
-            for (std::set<MaplyTexture *>::iterator it = compObj.textures.begin();
-                 it != compObj.textures.end(); ++it)
-                [self removeImageTexture:*it changes:changes];
-            compObj.textures.clear();
+            for (MaplyTexture *tex : compObj->contents->texs)
+                [self removeImageTexture:tex changes:changes];
+            compObj->contents->texs.clear();
 
             if (compObj->contents) {
                 // This does the visual and the selection data

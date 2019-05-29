@@ -17,7 +17,6 @@ class MarkersTestCase: MaplyTestCase {
 		self.implementations = [.globe, .map]
 	}
     let startImage = UIImage(named: "airfield-24@2x")
-    var compObjs: MaplyComponentObject? = nil
 
 	func insertMarkers (_ arrayComp: NSArray, theViewC: MaplyBaseViewController) {
 		let size = CGSize(width: 0.05, height: 0.05);
@@ -31,8 +30,7 @@ class MarkersTestCase: MaplyTestCase {
 			marker.userObject = (object as AnyObject).userObject!
 			markers.append(marker)
 		}
-        // Note: We have to sit on this so we don't lose our MaplyTexture.  Need to fix that.
-		compObjs = theViewC.addMarkers(markers, desc: nil)
+		theViewC.addMarkers(markers, desc: nil)
 	}
     
     let baseCase = VectorsTestCase()

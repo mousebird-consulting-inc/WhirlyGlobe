@@ -19,9 +19,22 @@
  */
 
 #import "ComponentManager.h"
+#import "MaplyTexture_private.h"
 
 namespace WhirlyKit
 {
+// iOS version of ComponentObject
+class ComponentObject_iOS : public ComponentObject
+{
+public:
+    ComponentObject_iOS();
+    
+    // Textures we're holding on to
+    // If we let them release, they go away
+    std::set<MaplyTexture *> texs;
+};
+    
+typedef std::shared_ptr<ComponentObject_iOS> ComponentObject_iOSRef;
 
 // Used to map IDs to individual user objects (e.g. markers, labels)
 class SelectObject
@@ -67,6 +80,8 @@ public:
     void dumpStats();
     
 protected:
+    virtual ComponentObjectRef makeComponentObject();
+    
     /// Remove the given selectable object
     void removeSelectObjects(SimpleIDSet selID);
 
