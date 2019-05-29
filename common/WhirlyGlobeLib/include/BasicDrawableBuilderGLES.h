@@ -26,7 +26,7 @@ namespace WhirlyKit
     
 /** OpenGL version of BasicDrawable Builder.
   */
-class BasicDrawableBuilderGLES : public BasicDrawableBuilder
+class BasicDrawableBuilderGLES : virtual public BasicDrawableBuilder
 {
 public:
     /// Construct empty

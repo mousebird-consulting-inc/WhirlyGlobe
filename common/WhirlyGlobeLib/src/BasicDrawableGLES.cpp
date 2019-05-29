@@ -83,7 +83,7 @@ void BasicDrawableGLES::addPointToBuffer(unsigned char *basePtr,int which,const 
     for (VertexAttribute *attr : vertexAttributes)
     {
         VertexAttributeGLES *theAttr = (VertexAttributeGLES *)attr;
-        if (attr->numElements() != 0)
+        if (attr->numElements() != 0 && theAttr->buffer != pointBuffer)
             memcpy(basePtr+theAttr->buffer, attr->addressForElement(which), attr->size());
     }
 }

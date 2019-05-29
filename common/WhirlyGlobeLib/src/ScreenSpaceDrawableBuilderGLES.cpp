@@ -26,6 +26,8 @@ namespace WhirlyKit
 ScreenSpaceDrawableBuilderGLES::ScreenSpaceDrawableBuilderGLES(const std::string &name)
     : BasicDrawableBuilderGLES(name)
 {
+    basicDraw = new BasicDrawableGLES(name);
+    BasicDrawableBuilder::Init();
 }
     
 int ScreenSpaceDrawableBuilderGLES::addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings)

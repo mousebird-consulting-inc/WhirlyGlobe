@@ -38,7 +38,7 @@ ProgramGLES *BuildScreenSpaceMotion2DProgramGLES(const std::string &name,SceneRe
     
 /** OpenGL version of ScreenSpaceDrawable Builder
  */
-class ScreenSpaceDrawableBuilderGLES : public BasicDrawableBuilderGLES, public ScreenSpaceDrawableBuilder
+class ScreenSpaceDrawableBuilderGLES : virtual public BasicDrawableBuilderGLES, virtual public ScreenSpaceDrawableBuilder
 {
 public:
     ScreenSpaceDrawableBuilderGLES(const std::string &name);

@@ -271,7 +271,8 @@ using namespace WhirlyKit;
     
     if (!renderControl)
         renderControl = [[MaplyRenderController alloc] init];
-    renderControl->renderType = SceneRenderer::RenderMetal;
+    
+    renderControl->renderType = _useOpenGLES ? SceneRenderer::RenderGLES : SceneRenderer::RenderMetal;
     
     tileFetcherConnections = 16;
     allowRepositionForAnnnotations = true;

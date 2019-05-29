@@ -74,6 +74,13 @@
  */
 @interface MaplyBaseViewController : UIViewController <MaplyRenderControllerProtocol>
 
+/**
+    Use the OpenGL renderer, not Metal.
+ 
+    By default, we'll set up with Metal.  But if you need OpenGL ES for some reason, here you go.
+  */
+@property(nonatomic,assign) bool useOpenGLES;
+
 /** 
     Turn selection on or off globally.
     

@@ -70,13 +70,14 @@ using namespace Eigen;
     extents.addPoint(Point2f(ur.x(),ur.y()));
     flatView->setExtents(extents);
     flatView->setWindow(Point2d(size.width,size.height),Point2d(0.0,0.0));
-    scene = new SceneGLES(coordAdapter.get());
 
     // Set up the renderer with a target size
     if (renderType == MaplyRenderGLES) {
+        scene = new SceneGLES(coordAdapter.get());
         SceneRendererGLES_iOSRef theSceneRenderer = SceneRendererGLES_iOSRef(new SceneRendererGLES_iOS((int)size.width,(int)size.height));
         sceneRenderer = theSceneRenderer;
     } else {
+        scene = new SceneMTL(coordAdapter.get());
         SceneRendererMTLRef theSceneRenderer = SceneRendererMTLRef(new SceneRendererMTL( MTLCreateSystemDefaultDevice()));
         sceneRenderer = theSceneRenderer;
     }

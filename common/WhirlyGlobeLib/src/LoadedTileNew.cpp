@@ -87,7 +87,7 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
 
     // Translation for the middle.  The drawable stores floats which isn't high res enough zoomed way in
     Point3d chunkMidDisp = (geomSettings.useTileCenters ? dispCenter : Point3d(0,0,0));
-    //    NSLog(@"mid = (%f,%f,%f)",chunkMidDisp.x(),chunkMidDisp.y(),chunkMidDisp.z());
+//        wkLogLevel(Debug,"id = %d: (%d,%d),mid = (%f,%f,%f)",ident.level,ident.x,ident.y,chunkMidDisp.x(),chunkMidDisp.y(),chunkMidDisp.z());
     Eigen::Affine3d trans(Eigen::Translation3d(chunkMidDisp.x(),chunkMidDisp.y(),chunkMidDisp.z()));
     Matrix4d transMat = trans.matrix();
 

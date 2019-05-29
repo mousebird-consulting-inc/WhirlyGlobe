@@ -25,7 +25,7 @@ namespace WhirlyKit
 {
 
 /// Wrapper for building screen space drawables
-class ScreenSpaceDrawableBuilder : public BasicDrawableBuilder
+class ScreenSpaceDrawableBuilder : virtual public BasicDrawableBuilder
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
