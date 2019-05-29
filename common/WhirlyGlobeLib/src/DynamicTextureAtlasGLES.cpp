@@ -27,7 +27,7 @@ namespace WhirlyKit
 {
     
 DynamicTextureGLES::DynamicTextureGLES(const std::string &name)
-    : DynamicTexture(name), TextureBase(name), TextureBaseGLES(name)
+    : DynamicTexture(name), TextureBase(name), glType(0), compressed(false), TextureBaseGLES(name)
 {
 }
 
@@ -36,21 +36,27 @@ void DynamicTextureGLES::setup(int texSize,int cellSize,TextureType inType,bool 
     DynamicTexture::setup(texSize,cellSize,inType,clearTextures);
     
     // Check for the formats we'll accept
-    switch (format)
+    switch (inType)
     {
         case TexTypeShort565:
             format = GL_RGB;
-            type = inType;
+            glType = GL_UNSIGNED_SHORT_5_6_5;
             break;
         case TexTypeUnsignedByte:
+            format = GL_RGBA;
+            glType = GL_UNSIGNED_BYTE;
+            break;
         case TexTypeShort4444:
+            format = GL_RGBA;
+            glType = GL_UNSIGNED_SHORT_4_4_4_4;
+            break;
         case TexTypeShort5551:
             format = GL_RGBA;
-            type = inType;
+            glType = GL_UNSIGNED_SHORT_5_5_5_1;
             break;
         case TexTypeSingleChannel:
             format = GL_ALPHA;
-            type = TexTypeUnsignedByte;
+            glType = GL_UNSIGNED_BYTE;
             break;
             // Note: Porting
     #if 0
@@ -119,8 +125,9 @@ bool DynamicTextureGLES::createInRenderer(const RenderSetupInfo *inSetupInfo)
     glBindTexture(GL_TEXTURE_2D, glId);
     CheckGLError("DynamicTexture::createInGL() glBindTexture()");
     
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, interpType);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, interpType);
+    GLenum interTypeGL = (interpType == TexInterpNearest) ? GL_NEAREST : GL_LINEAR;
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, interTypeGL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, interTypeGL);
     
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -129,7 +136,7 @@ bool DynamicTextureGLES::createInRenderer(const RenderSetupInfo *inSetupInfo)
     if (compressed)
     {
         size_t size = 0;
-        switch (type)
+        switch (glType)
         {
             case GL_COMPRESSED_RGB8_ETC2:
             case GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2:
@@ -144,7 +151,7 @@ bool DynamicTextureGLES::createInRenderer(const RenderSetupInfo *inSetupInfo)
                 break;
         }
         
-        glCompressedTexImage2D(GL_TEXTURE_2D, 0, type, texSize, texSize, 0, (GLsizei)size, NULL);
+        glCompressedTexImage2D(GL_TEXTURE_2D, 0, glType, texSize, texSize, 0, (GLsizei)size, NULL);
     } else {
         // Turn this on to provide glTexImage2D with empty memory so Instruments doesn't complain
         if (ClearImages)
@@ -152,10 +159,10 @@ bool DynamicTextureGLES::createInRenderer(const RenderSetupInfo *inSetupInfo)
             size_t size = texSize*texSize*4;
             unsigned char *zeroMem = (unsigned char *)malloc(size);
             memset(zeroMem, 0, size);
-            glTexImage2D(GL_TEXTURE_2D, 0, type, texSize, texSize, 0, format, type, zeroMem);
+            glTexImage2D(GL_TEXTURE_2D, 0, format, texSize, texSize, 0, format, glType, zeroMem);
             free(zeroMem);
         } else
-            glTexImage2D(GL_TEXTURE_2D, 0, type, texSize, texSize, 0, format, type, NULL);
+            glTexImage2D(GL_TEXTURE_2D, 0, format, texSize, texSize, 0, format, glType, NULL);
     }
     CheckGLError("DynamicTexture::createInGL() glTexImage2D()");
     
@@ -192,7 +199,7 @@ void DynamicTextureGLES::addTextureData(int startX,int startY,int width,int heig
             else
                 glCompressedTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, thisWidth, thisHeight, pkmType, (GLsizei)size, pixData);
         } else
-            glTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, width, height, format, type, data->getRawData());
+            glTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, width, height, format, glType, data->getRawData());
         CheckGLError("DynamicTexture::addTexture() glTexSubImage2D()");
         glBindTexture(GL_TEXTURE_2D, 0);
     }
@@ -224,7 +231,7 @@ void DynamicTextureGLES::clearTextureData(int startX,int startY,int width,int he
                                                               startX, startY, width, height,
                                                               clearData));
             } else
-                glTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, width, height, format, type, emptyData);
+                glTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, width, height, format, glType, emptyData);
         }
     }
     

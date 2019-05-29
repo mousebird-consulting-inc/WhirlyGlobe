@@ -40,7 +40,7 @@ BasicDrawable *ScreenSpaceDrawableBuilderGLES::getDrawable()
     if (drawableGotten)
         return BasicDrawableBuilderGLES::getDrawable();
     
-    BasicDrawable *theDraw = getDrawable();
+    BasicDrawable *theDraw = BasicDrawableBuilderGLES::getDrawable();
     setupTweaker(theDraw);
     
     return theDraw;

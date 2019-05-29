@@ -38,8 +38,10 @@ DynamicTexture::DynamicTexture(const std::string &name)
 {
 }
 
-void DynamicTexture::setup(int texSize,int cellSize,TextureType inType,bool inClearTextures)
+void DynamicTexture::setup(int inTexSize,int inCellSize,TextureType inType,bool inClearTextures)
 {
+    texSize = inTexSize;
+    cellSize = inCellSize;
     type = inType;
     clearTextures = inClearTextures;
     numCell = texSize/cellSize;

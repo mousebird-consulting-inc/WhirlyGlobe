@@ -126,7 +126,7 @@ protected:
         Point3d center;
         DrawableState state;
         
-        ScreenSpaceDrawableBuilderRef getDrawable() { return locDraw; }
+        ScreenSpaceDrawableBuilderRef getDrawableBuilder() { return locDraw; }
         ScreenSpaceDrawableBuilderRef locDraw;
 
     protected:

@@ -241,7 +241,7 @@ void ScreenSpaceBuilder::addRectangle(const Point3d &worldLoc,const Point2d *coo
 {
     DrawableWrapRef drawWrap = findOrAddDrawWrap(curState,4,2,worldLoc);
     
-    int baseVert = drawWrap->getDrawable()->getNumPoints();
+    int baseVert = drawWrap->getDrawableBuilder()->getNumPoints();
     for (unsigned int ii=0;ii<4;ii++)
     {
         Point2d coord(coords[ii].x(),coords[ii].y());
@@ -257,7 +257,7 @@ void ScreenSpaceBuilder::addRectangle(const Point3d &worldLoc,double rotation,bo
     DrawableWrapRef drawWrap = findOrAddDrawWrap(curState,4,2,worldLoc);
     
     // Note: Do something with keepUpright
-    int baseVert = drawWrap->getDrawable()->getNumPoints();
+    int baseVert = drawWrap->getDrawableBuilder()->getNumPoints();
     for (unsigned int ii=0;ii<4;ii++)
     {
         Point2d coord(coords[ii].x(),coords[ii].y());
@@ -328,14 +328,16 @@ void ScreenSpaceBuilder::addScreenObject(const ScreenSpaceObject &ssObj)
     
 void ScreenSpaceBuilder::buildDrawables(std::vector<BasicDrawable *> &draws)
 {
-    for (unsigned int ii=0;ii<fullDrawables.size();ii++)
+    for (auto it : fullDrawables)
     {
-        DrawableWrapRef drawWrap = fullDrawables[ii];
-        draws.push_back(drawWrap->getDrawable()->getDrawable());
+        draws.push_back(it->getDrawableBuilder()->getDrawable());
     }
     fullDrawables.clear();
-    
-    // Note: Are we losing drawables here?
+
+    for (auto it : drawables)
+    {
+        draws.push_back(it.second->getDrawableBuilder()->getDrawable());
+    }
     drawables.clear();
 }
     

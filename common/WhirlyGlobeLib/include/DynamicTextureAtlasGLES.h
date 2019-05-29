@@ -55,7 +55,7 @@ public:
 protected:
     /// If set, this is a compressed format (assume PVRTC4)
     bool compressed;
-    GLenum format,type;
+    GLenum format,glType;
 };
     
 }
