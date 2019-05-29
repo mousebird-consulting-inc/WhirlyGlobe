@@ -10,6 +10,8 @@ import UIKit
 
 class ClusteredMarkersTestCase: MaplyTestCase {
 
+    var baseLayer : VectorsTestCase?
+    
 	override init() {
 		super.init()
 
@@ -18,16 +20,16 @@ class ClusteredMarkersTestCase: MaplyTestCase {
 	}
 
 	override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
-		let baseLayer = VectorsTestCase()
-		baseLayer.setUpWithGlobe(globeVC)
-		insertClusteredMarkers(baseLayer.vecList!, theBaseView: globeVC)
+		baseLayer = VectorsTestCase()
+		baseLayer?.setUpWithGlobe(globeVC)
+		insertClusteredMarkers(baseLayer!.vecList!, theBaseView: globeVC)
 		globeVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(151.211111, -33.859972), time: 1.0)
 	}
 	
 	override func setUpWithMap(_ mapVC: MaplyViewController) {
-		let baseLayer = VectorsTestCase()
-		baseLayer.setUpWithMap(mapVC)
-		insertClusteredMarkers(baseLayer.vecList!, theBaseView: mapVC)
+		baseLayer = VectorsTestCase()
+		baseLayer?.setUpWithMap(mapVC)
+		insertClusteredMarkers(baseLayer!.vecList!, theBaseView: mapVC)
 		mapVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(151.211111, -33.859972), time: 1.0)
 	}
 

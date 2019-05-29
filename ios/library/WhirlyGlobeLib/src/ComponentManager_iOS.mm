@@ -24,6 +24,10 @@
 
 namespace WhirlyKit
 {
+    
+ComponentObject_iOS::ComponentObject_iOS()
+{
+}
 
 // The scene wants a component manager early in the process
 // This gives it an iOS specific one
@@ -55,6 +59,11 @@ NSObject *ComponentManager_iOS::getSelectObject(SimpleIdentity selID)
     return nil;
 }
     
+ComponentObjectRef ComponentManager_iOS::makeComponentObject()
+{
+    return ComponentObject_iOSRef(new ComponentObject_iOS());
+}
+    
 void ComponentManager_iOS::removeSelectObjects(SimpleIDSet selIDs)
 {
     std::lock_guard<std::mutex> guardLock(selectLock);
@@ -76,8 +85,8 @@ void ComponentManager_iOS::removeComponentObject(SimpleIdentity compID,ChangeSet
     {
         std::lock_guard<std::mutex> guardLock(lock);
         
-        auto it = compObjs.find(ComponentObjectRef(new ComponentObject(compID)));
-        compObj = *it;
+        auto it = compObjs.find(compID);
+        compObj = it->second;
     }
 
     // Now clean up the selection stuff

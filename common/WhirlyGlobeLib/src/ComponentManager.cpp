@@ -29,13 +29,6 @@ enable(false), underConstruction(false)
 {
 }
     
-ComponentObject::ComponentObject(SimpleIdentity theID)
-: Identifiable(theID),
-vectorOffset(0.0,0.0), isSelectable(false),
-enable(false), underConstruction(false)
-{
-}
-
 ComponentObject::~ComponentObject()
 {
 }
@@ -88,14 +81,14 @@ void ComponentManager::addComponentObject(ComponentObjectRef compObj)
     std::lock_guard<std::mutex> guardLock(lock);
     
     compObj->underConstruction = false;
-    compObjs.insert(compObj);
+    compObjs[compObj->getId()] = compObj;
 }
 
 bool ComponentManager::hasComponentObject(SimpleIdentity compID)
 {
     std::lock_guard<std::mutex> guardLock(lock);
 
-    auto it = compObjs.find(ComponentObjectRef(new ComponentObject(compID)));
+    auto it = compObjs.find(compID);
     return it != compObjs.end();
 }
     
@@ -116,13 +109,13 @@ void ComponentManager::removeComponentObjects(const SimpleIDSet &compIDs,ChangeS
         std::lock_guard<std::mutex> guardLock(lock);
 
         for (SimpleIdentity compID : compIDs) {
-            auto it = compObjs.find(ComponentObjectRef(new ComponentObject(compID)));
+            auto it = compObjs.find(compID);
             if (it == compObjs.end())
             {
                 wkLogLevel(Warn,"Tried to delete object that doesn't exist: %d",compID);
                 return;
             }
-            ComponentObjectRef compObj = *it;
+            ComponentObjectRef compObj = it->second;
             
             if (compObj->underConstruction) {
                 wkLogLevel(Warn,"Deleting an object that's under construction");
@@ -189,13 +182,13 @@ void ComponentManager::enableComponentObjects(const SimpleIDSet &compIDs,bool en
         
         for (SimpleIdentity compID : compIDs)
         {
-            auto it = compObjs.find(ComponentObjectRef(new ComponentObject(compID)));
+            auto it = compObjs.find(compID);
             if (it == compObjs.end())
             {
                 wkLogLevel(Warn,"Tried to enable/disable object that doesn't exist");
                 return;
             }
-            ComponentObjectRef compObj = *it;
+            ComponentObjectRef compObj = it->second;
             
             if (compObj->underConstruction) {
                 wkLogLevel(Warn,"Disable/enabled an object that's under construction");

@@ -256,12 +256,12 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
     _imageFormat = MaplyImageIntRGBA;
     _borderTexel = 0;
     
-    MaplyQuadImageLoaderBase * __weak weakSelf = self;
+    MaplyQuadImageLoaderBase *strongSelf = self;
     
     // Start things out after a delay
     // This lets the caller mess with settings
     dispatch_async(dispatch_get_main_queue(), ^{
-        [weakSelf delayedInit];
+        [strongSelf delayedInit];
     });
 
     return self;
