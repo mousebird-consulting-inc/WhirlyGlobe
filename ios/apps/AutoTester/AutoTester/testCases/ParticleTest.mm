@@ -337,7 +337,7 @@ void main()
     cachedTiles = [NSMutableDictionary dictionary];
     
     // We need to refresh the particles periodically.  We'll do that one a single queue.
-    queue = dispatch_queue_create("Wind Delegate",NULL);
+    queue = dispatch_queue_create("Wind Delegate",DISPATCH_QUEUE_SERIAL);
 
     // Kick off the first generation of particles
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_updateInterval * NSEC_PER_SEC)), queue,

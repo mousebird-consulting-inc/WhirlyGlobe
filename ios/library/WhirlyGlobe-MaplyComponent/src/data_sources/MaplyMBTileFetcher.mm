@@ -237,7 +237,7 @@ typedef std::map<MaplyTileFetchRequest *,TileInfoRef> TileFetchMap;
     }
     
     tileInfo = [[MaplyMBTileInfo alloc] initWithMinZoom:minZoom maxZoom:maxZoom];
-    queue = dispatch_queue_create("MBTiles Fetcher", NULL);
+    queue = dispatch_queue_create("MBTiles Fetcher", DISPATCH_QUEUE_SERIAL);
     
     active = true;
     return self;

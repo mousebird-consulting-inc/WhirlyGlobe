@@ -176,7 +176,9 @@ public:
     _zoomTapFactor = 2.0;
     _zoomTapAnimationDuration = 0.1;
     viewWrapper.control = self;
-    
+    // Note: Debugging
+    self.useOpenGLES = true;
+
     return self;
 }
 

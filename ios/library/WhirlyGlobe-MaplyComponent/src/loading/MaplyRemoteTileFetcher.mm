@@ -209,6 +209,20 @@ using namespace WhirlyKit;
 @end
 
 @implementation MaplyRemoteTileFetchInfo
+
+- (id)init
+{
+    self = [super init];
+    NSLog(@"MaplyRemoteTileFetchInfo 0x%lx",(long)self);
+    
+    return self;
+}
+
+- (void)dealloc
+{
+    NSLog(@"MaplyRemoteTileFetchInfo dealloc 0x%lx",(long)self);
+}
+
 @end
 
 @implementation MaplyRemoteTileFetcherStats
@@ -227,6 +241,11 @@ using namespace WhirlyKit;
     _totalLatency = 0;
     
     return self;
+}
+
+- (void)dealloc
+{
+    
 }
 
 - (void)addStats:(MaplyRemoteTileFetcherStats * __nonnull)stats
@@ -280,7 +299,7 @@ using namespace WhirlyKit;
     active = true;
     _numConnections = numConnections;
     // All the internal work is done on a single queue.  Nothing significant, really.
-    queue = dispatch_queue_create("MaplyRemoteTileFetcher", nil);
+    queue = dispatch_queue_create("MaplyRemoteTileFetcher", DISPATCH_QUEUE_SERIAL);
     session = [NSURLSession sharedSession];
     allStats = [[MaplyRemoteTileFetcherStats alloc] init];
     recentStats = [[MaplyRemoteTileFetcherStats alloc] init];
