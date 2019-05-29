@@ -29,7 +29,7 @@ namespace WhirlyKit
 
 /** This drawable adds convenience functions for wide vectors.
   */
-class WideVectorDrawableBuilder : public BasicDrawableBuilder
+class WideVectorDrawableBuilder : virtual public BasicDrawableBuilder
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;

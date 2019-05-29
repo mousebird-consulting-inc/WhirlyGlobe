@@ -28,6 +28,12 @@ WideVectorDrawableBuilderGLES::WideVectorDrawableBuilderGLES(const std::string &
 {
 }
     
+void WideVectorDrawableBuilderGLES::Init(unsigned int numVert,unsigned int numTri,bool globeMode)
+{
+    basicDraw = new BasicDrawableGLES("Wide Vector");
+    WideVectorDrawableBuilder::Init(numVert,numTri,globeMode);
+}
+    
 int WideVectorDrawableBuilderGLES::addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings)
 {
     return BasicDrawableBuilderGLES::addAttribute(dataType, nameID, numThings);
@@ -38,7 +44,7 @@ BasicDrawable *WideVectorDrawableBuilderGLES::getDrawable()
     if (drawableGotten)
         return BasicDrawableBuilderGLES::getDrawable();
     
-    BasicDrawable *theDraw = getDrawable();
+    BasicDrawable *theDraw = BasicDrawableBuilderGLES::getDrawable();
     setupTweaker(theDraw);
     
     return theDraw;

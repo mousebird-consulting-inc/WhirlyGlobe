@@ -11,6 +11,8 @@ import UIKit
 class LocationTrackingRealTestCase: MaplyTestCase, MaplyLocationTrackerDelegate {
 
     var segCtrl: UISegmentedControl?
+    
+    var baseLayer : MaplyTestCase? = nil
 
     override init() {
         super.init()
@@ -34,8 +36,8 @@ class LocationTrackingRealTestCase: MaplyTestCase, MaplyLocationTrackerDelegate 
     }
     
     override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
-        let baseLayer = StamenWatercolorRemote()
-        baseLayer.setUpWithGlobe(globeVC)
+        baseLayer = StamenWatercolorRemote()
+        baseLayer?.setUpWithGlobe(globeVC)
         globeVC.keepNorthUp = false
         
         setupLocationTracking(baseVC: globeVC)
@@ -44,8 +46,8 @@ class LocationTrackingRealTestCase: MaplyTestCase, MaplyLocationTrackerDelegate 
     }
     
     override func setUpWithMap(_ mapVC: MaplyViewController) {
-        let baseLayer = StamenWatercolorRemote()
-        baseLayer.setUpWithMap(mapVC)
+        baseLayer = StamenWatercolorRemote()
+        baseLayer?.setUpWithMap(mapVC)
         
         setupLocationTracking(baseVC: mapVC)
         

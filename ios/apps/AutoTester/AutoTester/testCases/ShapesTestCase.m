@@ -60,6 +60,9 @@ LocationInfo locations[NumLocations] =
 };
 
 @implementation ShapesTestCase
+{
+    GeographyClassTestCase *baseLayer;
+}
 
 - (instancetype)init
 {
@@ -140,7 +143,7 @@ LocationInfo locations[NumLocations] =
 
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
-	GeographyClassTestCase *baseLayer = [[GeographyClassTestCase alloc]init];
+	baseLayer = [[GeographyClassTestCase alloc]init];
 	[baseLayer setUpWithGlobe:globeVC];
 	[self addShapeCylinders:locations len:NumLocations stride:4 offset:0 desc:@{kMaplyColor : [UIColor colorWithRed:0.0 green:0.0 blue:1.0 alpha:0.8], kMaplyFade: @(1.0)} baseViewC:(MaplyBaseViewController*)globeVC];
 	[self addGreatCircles:locations len:NumLocations stride:4 offset:2 desc:@{kMaplyColor : [UIColor colorWithRed:1.0 green:0.1 blue:0.0 alpha:1.0], kMaplyFade: @(1.0)} baseViewC:(MaplyBaseViewController*)globeVC];
@@ -151,7 +154,7 @@ LocationInfo locations[NumLocations] =
 
 - (void)setUpWithMap:(MaplyViewController *)mapVC
 {
-	GeographyClassTestCase *baseLayer = [[GeographyClassTestCase alloc]init];
+	baseLayer = [[GeographyClassTestCase alloc]init];
     [baseLayer setUpWithMap:mapVC];
 	[self addShapeCylinders:locations len:NumLocations stride:4 offset:0 desc:@{kMaplyColor : [UIColor colorWithRed:0.0 green:0.0 blue:1.0 alpha:0.8], kMaplyFade: @(1.0)} baseViewC:(MaplyBaseViewController*)mapVC];
 	[self addGreatCircles:locations len:NumLocations stride:4 offset:2 desc:@{kMaplyColor : [UIColor colorWithRed:1.0 green:0.1 blue:0.0 alpha:1.0], kMaplyFade: @(1.0)} baseViewC:(MaplyBaseViewController*)mapVC];

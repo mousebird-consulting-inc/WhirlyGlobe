@@ -10,6 +10,9 @@
 #import "AutoTester-Swift.h"
 
 @implementation GreatCircleTestCase
+{
+    CartoDBLightTestCase *baseView;
+}
 
 - (instancetype)init
 {
@@ -201,7 +204,7 @@
 
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
-    CartoDBLightTestCase *baseView = [[CartoDBLightTestCase alloc] init];
+    baseView = [[CartoDBLightTestCase alloc] init];
     [baseView setUpWithGlobe:globeVC];
     globeVC.height = 0.25;
     globeVC.keepNorthUp = false;
@@ -213,7 +216,7 @@
 
 - (void)setUpWithMap:(MaplyViewController *)mapVC
 {
-    CartoDBLightTestCase *baseView = [[CartoDBLightTestCase alloc] init];
+    baseView = [[CartoDBLightTestCase alloc] init];
     [baseView setUpWithMap:mapVC];
     mapVC.height = 0.25;
 

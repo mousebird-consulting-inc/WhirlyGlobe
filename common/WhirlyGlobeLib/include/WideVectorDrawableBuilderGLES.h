@@ -34,10 +34,12 @@ ProgramGLES *BuildWideVectorProgramGLES(const std::string &name,SceneRenderer *r
 ProgramGLES *BuildWideVectorGlobeProgramGLES(const std::string &name,SceneRenderer *renderer);
 
 /// OpenGL version of the WideVectorDrawable Builder
-class WideVectorDrawableBuilderGLES : public BasicDrawableBuilderGLES, public WideVectorDrawableBuilder
+class WideVectorDrawableBuilderGLES : virtual public BasicDrawableBuilderGLES, virtual public WideVectorDrawableBuilder
 {
 public:
     WideVectorDrawableBuilderGLES(const std::string &name);
+    
+    void Init(unsigned int numVert,unsigned int numTri,bool globeMode);
     
     virtual int addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings = -1);
 
