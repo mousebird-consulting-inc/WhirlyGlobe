@@ -37,7 +37,7 @@ public:
     WideVectorDrawableBuilder();
     ~WideVectorDrawableBuilder();
 
-    void Init(unsigned int numVert,unsigned int numTri,bool globeMode);
+    virtual void Init(unsigned int numVert,unsigned int numTri,bool globeMode);
     
     virtual unsigned int addPoint(const Point3f &pt);
     // Next point, for calculating p1 - p0
@@ -52,6 +52,12 @@ public:
     void addNormal(const Point3f &norm);
     void addNormal(const Point3d &norm);
     
+    // We set color globally
+    void setColor(RGBAColor inColor);
+    
+    // Line width for vectors is a bit different
+    void setLineWidth(float inWidth);
+    
     /// How often the texture repeats
     void setTexRepeat(float inTexRepeat);
     
@@ -65,6 +71,7 @@ public:
 
 protected:
     float lineWidth;
+    RGBAColor color;
     bool globeMode;
     bool realWidthSet;
     double realWidth;

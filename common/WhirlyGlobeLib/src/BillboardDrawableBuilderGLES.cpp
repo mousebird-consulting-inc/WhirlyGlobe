@@ -24,7 +24,7 @@ namespace WhirlyKit
 {
     
 BillboardDrawableBuilderGLES::BillboardDrawableBuilderGLES(const std::string &name)
-: BasicDrawableBuilderGLES(name)
+: BasicDrawableBuilderGLES(name,true)
 {
 }
     

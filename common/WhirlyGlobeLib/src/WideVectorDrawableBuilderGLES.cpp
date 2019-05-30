@@ -24,7 +24,7 @@ namespace WhirlyKit
 {
 
 WideVectorDrawableBuilderGLES::WideVectorDrawableBuilderGLES(const std::string &name)
-: BasicDrawableBuilderGLES(name)
+: BasicDrawableBuilderGLES(name,false)
 {
 }
     
@@ -46,7 +46,7 @@ BasicDrawable *WideVectorDrawableBuilderGLES::getDrawable()
     
     BasicDrawable *theDraw = BasicDrawableBuilderGLES::getDrawable();
     setupTweaker(theDraw);
-    
+        
     return theDraw;
 }
     

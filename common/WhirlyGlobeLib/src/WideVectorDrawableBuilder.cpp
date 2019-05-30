@@ -52,9 +52,8 @@ public:
             }
             float texScale = scale/(screenSize*texRepeat);
             frameInfo->program->setUniform(u_texScaleNameID, texScale);
-            // Note: Could do this elsewhere
             frameInfo->program->setUniform(u_colorNameID, Vector4f(color.r/255.0,color.g/255.0,color.b/255.0,color.a/255.0));
-            
+
             // Note: This calculation is out of date with respect to the shader
             // Redo the calculation for debugging
             //        NSLog(@"\n");
@@ -107,7 +106,7 @@ public:
 };
     
 WideVectorDrawableBuilder::WideVectorDrawableBuilder()
-    : texRepeat(1.0), edgeSize(1.0), realWidthSet(false), globeMode(true)
+    : texRepeat(1.0), edgeSize(1.0), realWidthSet(false), globeMode(true), color(255,255,255,255)
 {
 }
     
@@ -127,11 +126,22 @@ void WideVectorDrawableBuilder::Init(unsigned int numVert,unsigned int numTri,bo
     
     lineWidth = 10.0/1024.0;
     if (globeMode)
-        basicDraw->normalEntry = addAttribute(BDFloat3Type, StringIndexer::getStringID("a_normal"),numVert);
+        basicDraw->normalEntry = addAttribute(BDFloat3Type, a_normalNameID,numVert);
+    basicDraw->colorEntry = addAttribute(BDChar4Type, a_colorNameID);
     p1_index = addAttribute(BDFloat3Type, StringIndexer::getStringID("a_p1"),numVert);
     tex_index = addAttribute(BDFloat4Type, StringIndexer::getStringID("a_texinfo"),numVert);
     n0_index = addAttribute(BDFloat3Type, StringIndexer::getStringID("a_n0"),numVert);
     c0_index = addAttribute(BDFloatType, StringIndexer::getStringID("a_c0"),numVert);
+}
+    
+void WideVectorDrawableBuilder::setColor(RGBAColor inColor)
+{
+    color = inColor;
+}
+    
+void WideVectorDrawableBuilder::setLineWidth(float inWidth)
+{
+    lineWidth = inWidth;
 }
  
 void WideVectorDrawableBuilder::setTexRepeat(float inTexRepeat)
@@ -207,7 +217,7 @@ void WideVectorDrawableBuilder::setupTweaker(BasicDrawable *theDraw)
     tweak->edgeSize = edgeSize;
     tweak->lineWidth = lineWidth;
     tweak->texRepeat = texRepeat;
-    tweak->color = RGBAColor(255,255,255,255);
+    tweak->color = color;
     theDraw->addTweaker(DrawableTweakerRef(tweak));
 }    
     

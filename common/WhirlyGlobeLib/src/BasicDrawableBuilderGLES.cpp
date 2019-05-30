@@ -25,12 +25,13 @@ using namespace Eigen;
 namespace WhirlyKit
 {
 
-BasicDrawableBuilderGLES::BasicDrawableBuilderGLES(const std::string &name)
+BasicDrawableBuilderGLES::BasicDrawableBuilderGLES(const std::string &name,bool setupStandard)
     : BasicDrawableBuilder(name), drawableGotten(false)
 {
     basicDraw = new BasicDrawableGLES(name);
     BasicDrawableBuilder::Init();
-    setupStandardAttributes();
+    if (setupStandard)
+        setupStandardAttributes();
 }
     
 BasicDrawableBuilderGLES::~BasicDrawableBuilderGLES()
