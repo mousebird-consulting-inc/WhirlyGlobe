@@ -84,8 +84,9 @@ class GeoJSONStyleTestCase: MaplyTestCase {
         }
     }
     
+    let baseLayer = CartoDBLightTestCase()
+    
     override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
-        let baseLayer = CartoDBLightTestCase()
         baseLayer.setUpWithGlobe(globeVC)
         
         setupCommon(baseVC: globeVC)
@@ -94,7 +95,6 @@ class GeoJSONStyleTestCase: MaplyTestCase {
     }
 
     override func setUpWithMap(_ mapVC: MaplyViewController) {
-        let baseLayer = CartoDBLightTestCase()
         baseLayer.setUpWithMap(mapVC)
         
         setupCommon(baseVC: mapVC)
