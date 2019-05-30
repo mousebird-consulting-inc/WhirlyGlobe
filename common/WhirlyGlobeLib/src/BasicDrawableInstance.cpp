@@ -222,7 +222,11 @@ void BasicDrawableInstance::setRenderTarget(SimpleIdentity newRenderTarget)
 
 void BasicDrawableInstance::setTexId(unsigned int which,SimpleIdentity inId)
 {
-    texInfo[which].texId = inId;
+    if (which < texInfo.size())
+        texInfo[which].texId = inId;
+    else {
+        wkLogLevel(Error, "BasicDrawableInstance:setTexId() Tried to set texInfo entry that doesn't exist.");
+    }
 }
 
 void BasicDrawableInstance::setTexIDs(const std::vector<SimpleIdentity> &texIDs)

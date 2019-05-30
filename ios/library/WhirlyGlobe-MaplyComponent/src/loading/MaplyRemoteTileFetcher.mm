@@ -350,7 +350,7 @@ using namespace WhirlyKit;
     });
 }
 
-- (void)cancelTileFetches:(NSArray *)requests
+- (void)cancelTileFetches:(NSArray<MaplyTileFetchRequest *> *)requests
 {
     if (!active)
         return;
