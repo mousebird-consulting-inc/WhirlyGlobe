@@ -36,7 +36,7 @@ SphericalChunkInfo::SphericalChunkInfo()
 }
     
 SphericalChunkInfo::SphericalChunkInfo(const Dictionary &dict)
-    : BaseInfo(dict)
+    : BaseInfo(dict), doEdgeMatching(false)
 {
     color = dict.getColor(MaplyColor, RGBAColor(255,255,255,255));
     // Note: Should expose edge matching
