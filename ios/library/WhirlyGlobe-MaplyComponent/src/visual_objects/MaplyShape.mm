@@ -70,8 +70,10 @@ using namespace WhirlyKit;
     newSphere->loc.lat() = _center.y;
     newSphere->radius = _radius;
     newSphere->height = _height;
-    newSphere->sampleX = [desc[kMaplyShapeSampleX] intValue];
-    newSphere->sampleY = [desc[kMaplyShapeSampleY] intValue];
+    if (desc[kMaplyShapeSampleX] != nil)
+        newSphere->sampleX = [desc[kMaplyShapeSampleX] intValue];
+    if (desc[kMaplyShapeSampleY] != nil)
+        newSphere->sampleY = [desc[kMaplyShapeSampleY] intValue];
     if (self.color)
     {
         newSphere->useColor = true;
