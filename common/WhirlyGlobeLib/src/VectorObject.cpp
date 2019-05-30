@@ -1122,7 +1122,7 @@ void SampleGreatCircle(const Point2d &startPt,const Point2d &endPt,double height
         for (unsigned int ii=0;ii<pts.size();ii++)
         {
             Point3d &pt = pts[ii];
-            float len = (pts[ii+1]-pt).norm();
+            float len = (ii+1 < pts.size()) ? (pts[ii+1]-pt).norm() : 0.0;
             float t = lenSoFar/totLen;
             lenSoFar += len;
             
