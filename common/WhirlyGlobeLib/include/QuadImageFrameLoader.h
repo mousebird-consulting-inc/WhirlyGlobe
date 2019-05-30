@@ -200,7 +200,7 @@ typedef std::map<QuadTreeNew::Node,QIFTileAssetRef> QIFTileAssetMap;
 class QIFTileState
 {
 public:
-    QIFTileState(int numFrames);
+    QIFTileState(int numFrames,const QuadTreeNew::Node &node);
     
     QuadTreeNew::Node node;
     

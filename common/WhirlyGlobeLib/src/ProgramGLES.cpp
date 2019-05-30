@@ -467,7 +467,7 @@ bool ProgramGLES::setLights(const std::vector<DirectionalLight> &lights, TimeInt
     lightsLastUpdated = lastUpdated;
     
     int numLights = (int)lights.size();
-    numLights = std::max(numLights,8);
+    numLights = std::min(numLights,8);
     bool lightsSet = true;
     for (unsigned int ii=0;ii<numLights;ii++)
     {

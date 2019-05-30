@@ -481,7 +481,10 @@ void LoadedTileNew::removeDrawables(ChangeSet &changes)
 }
 
 TileGeomManager::TileGeomManager()
-: coordAdapter(NULL), coverPoles(false), buildSkirts(false)
+: sceneRender(NULL), quadTree(NULL), coordAdapter(NULL), coverPoles(false),
+    useNorthPoleColor(false), northPoleColor(255,255,255,255),
+    useSouthPoleColor(false), southPoleColor(255,255,255,255),
+    buildSkirts(false)
 {
 }
     

@@ -276,7 +276,9 @@ void QIFTileAsset::setupContents(QuadImageFrameLoader *loader,LoadedTileNewRef l
         // Make a drawable instance to shadow the geometry
         auto drawInst = loader->getController()->getRenderer()->makeBasicDrawableInstanceBuilder("MaplyQuadImageFrameLoader");
         drawInst->setMasterID(di.drawID, BasicDrawableInstance::LocalStyle);
-        drawInst->setTexId(0, 0);
+        drawInst->setTexId(0, EmptyIdentity);
+        if (frames.size() > 1)
+            drawInst->setTexId(1, EmptyIdentity);
         drawInst->setDrawPriority(newDrawPriority);
         drawInst->setOnOff(false);
         drawInst->setProgram(shaderID);
@@ -396,10 +398,12 @@ void QIFTileAsset::frameFailed(QuadImageFrameLoader *loader,QuadLoaderReturn *lo
     }
 }
 
-QIFTileState::QIFTileState(int numFrames)
-: enable(false)
+QIFTileState::QIFTileState(int numFrames,const QuadTreeNew::Node &node)
+: node(node), enable(false)
 {
     frames.resize(numFrames);
+    for (auto &frame : frames)
+        frame.texNode = node;
 }
 
 QIFTileState::FrameInfo::FrameInfo()
@@ -498,7 +502,7 @@ void QIFRenderState::updateScene(Scene *scene,double curFrame,TimeInterval now,b
             // Assign as many active textures as we've got
             for (unsigned int ii=0;ii<numFrames;ii++) {
                 auto frame = tile->frames[activeFrames[ii]];
-                if (frame.texIDs.empty()) {
+                if (!frame.texIDs.empty()) {
                     int relLevel = tileID.level - frame.texNode.level;
                     int relX = tileID.x - frame.texNode.x * (1<<relLevel);
                     int tileIDY = tileID.y;
@@ -925,8 +929,7 @@ void QuadImageFrameLoader::buildRenderState(ChangeSet &changes)
         auto tileID = tileIt.first;
         auto tile = tileIt.second;
         
-        QIFTileStateRef tileState(new QIFTileState(numFrames));
-        tileState->node = tileID;
+        QIFTileStateRef tileState(new QIFTileState(numFrames,tileID));
         tileState->instanceDrawIDs = tile->getInstanceDrawIDs();
         tileState->enable = tile->getShouldEnable();
         tileState->compObjs = tile->getCompObjs();

@@ -213,14 +213,8 @@ using namespace WhirlyKit;
 - (id)init
 {
     self = [super init];
-    NSLog(@"MaplyRemoteTileFetchInfo 0x%lx",(long)self);
     
     return self;
-}
-
-- (void)dealloc
-{
-    NSLog(@"MaplyRemoteTileFetchInfo dealloc 0x%lx",(long)self);
 }
 
 @end
