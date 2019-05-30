@@ -1350,4 +1350,7 @@
 /// Return a tile fetcher we may share between loaders
 - (MaplyRemoteTileFetcher * __nonnull)addTileFetcher:(NSString * __nonnull)name;
 
+/// Return the renderer type being used
+- (MaplyRenderType)getRenderType;
+
 @end

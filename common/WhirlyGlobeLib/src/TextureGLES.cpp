@@ -113,7 +113,7 @@ bool TextureGLES::createInRenderer(const RenderSetupInfo *inSetupInfo)
         return true;
     
     // Allocate a texture and set up the various params
-    if (setupInfo->memManager)
+    if (setupInfo && setupInfo->memManager)
         glId = setupInfo->memManager->getTexID();
     else
         glGenTextures(1, &glId);

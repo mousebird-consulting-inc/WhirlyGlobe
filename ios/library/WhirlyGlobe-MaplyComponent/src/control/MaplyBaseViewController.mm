@@ -1732,4 +1732,22 @@ static const float PerfOutputDelay = 15.0;
     return CGSizeMake(renderControl->sceneRenderer->framebufferWidth,renderControl->sceneRenderer->framebufferHeight);
 }
 
+- (MaplyRenderType)getRenderType
+{
+    if (!renderControl || !renderControl->sceneRenderer)
+        return MaplyRenderUnknown;
+    
+    switch (renderControl->sceneRenderer->getType())
+    {
+        case WhirlyKit::SceneRenderer::RenderGLES:
+            return MaplyRenderGLES;
+            break;
+        case WhirlyKit::SceneRenderer::RenderMetal:
+            return MaplyRenderMetal;
+            break;
+    }
+    
+    return MaplyRenderUnknown;
+}
+
 @end

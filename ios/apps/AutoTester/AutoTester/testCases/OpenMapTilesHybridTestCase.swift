@@ -31,7 +31,7 @@ class OpenMapTilesHybridTestCase: MaplyTestCase {
         
         // Set up an offline renderer and a Mapbox vector style handler to render to it
         let imageSize = (width: 512.0, height: 512.0)
-        guard let offlineRender = MaplyRenderController.init(size: CGSize.init(width: imageSize.width, height: imageSize.height)) else {
+        guard let offlineRender = MaplyRenderController.init(size: CGSize.init(width: imageSize.width, height: imageSize.height), mode: baseVC.getRenderType()) else {
             return nil
         }
         let imageStyleSettings = MaplyVectorStyleSettings.init(scale: UIScreen.main.scale)

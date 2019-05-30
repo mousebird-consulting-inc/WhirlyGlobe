@@ -815,6 +815,7 @@ typedef NS_ENUM(NSInteger, MaplyQuadImageFormat) {
 typedef NS_ENUM(NSInteger, MaplyRenderType) {
     MaplyRenderGLES,
     MaplyRenderMetal,
+    MaplyRenderUnknown
 };
 
 /**
