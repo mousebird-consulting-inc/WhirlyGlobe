@@ -433,8 +433,12 @@ public:
                     minCoord.y() = std::min(minCoord.y(),texCoord.y());
                 }
                 // Essentially do a mod, since texture coordinates repeat
-                int minS = floorf(minCoord.x());
-                int minT = floorf(minCoord.y());
+                int minS = 0;
+                int minT = 0;
+                if (minCoord.x() != MAXFLOAT) {
+                    minS = floorf(minCoord.x());
+                    minT = floorf(minCoord.y());
+                }
                 for (unsigned int jj=0;jj<pts.size();jj++)
                 {
                     TexCoord &texCoord = texCoords[jj];
