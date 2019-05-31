@@ -259,16 +259,24 @@ using namespace WhirlyKit;
 
 
 // Called on a random dispatch queue
-- (void)fetchRequestSuccess:(MaplyTileFetchRequest *)request tileID:(MaplyTileID)tileID frame:(int)frame data:(NSData *)data;
+- (void)fetchRequestSuccess:(MaplyTileFetchRequest *)request tileID:(MaplyTileID)tileID frame:(int)frame data:(id)data;
 {
     if (loader->getDebugMode())
         NSLog(@"MaplyQuadImageLoader: Got fetch back for tile %d: (%d,%d) frame %d",tileID.level,tileID.x,tileID.y,frame);
     
-    MaplyLoaderReturn *loadData = [self makeLoaderReturn];
-    loadData.tileID = tileID;
-    loadData.frame = frame;
-    if (data)
-        [loadData addTileData:data];
+    MaplyLoaderReturn *loadData = nil;
+    if ([data isKindOfClass:[MaplyLoaderReturn class]]) {
+        loadData = data;
+    } else {
+        loadData = [self makeLoaderReturn];
+        loadData.tileID = tileID;
+        loadData.frame = frame;
+        if ([data isKindOfClass:[NSData class]]) {
+            [loadData addTileData:data];
+        } else {
+            NSLog(@"MaplyQuadLader:fetchRequestSuccess: client return unknown data type.  Dropping.");
+        }
+    }
     
     [self performSelector:@selector(mergeFetchRequest:) onThread:self->samplingLayer.layerThread withObject:loadData waitUntilDone:NO];
 }

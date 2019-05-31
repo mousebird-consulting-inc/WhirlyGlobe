@@ -19,6 +19,7 @@
  */
 
 #import "loading/MaplyTileSourceNew.h"
+#import "loading/MaplySimpleTileFetcher.h"
 #import "math/MaplyCoordinateSystem.h"
 
 /**
@@ -29,19 +30,10 @@
 
     Will work for image or vector MBTiles files.
   */
-@interface MaplyMBTileFetcher : NSObject<MaplyTileFetcher>
+@interface MaplyMBTileFetcher : MaplySimpleTileFetcher
 
 /// Initialize with the name of the local MBTiles file
 - (nullable instancetype)initWithMBTiles:(NSString *__nonnull)fileName;
-
-/// TileInfo objected needed by a QuadImageLoader
-- (nullable NSObject<MaplyTileInfoNew> *)tileInfo;
-
-// Min zoom read from file
-- (int)minZoom;
-
-// Max zoom read from file
-- (int)maxZoom;
 
 // Coordinate system (probably Spherical Mercator)
 - (MaplyCoordinateSystem * __nonnull)coordSys;

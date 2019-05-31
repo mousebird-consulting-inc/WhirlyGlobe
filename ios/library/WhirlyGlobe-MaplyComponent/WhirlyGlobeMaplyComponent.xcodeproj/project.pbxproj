@@ -131,6 +131,7 @@
 		2B73D6C2207D224100AF5095 /* MaplyQuadImageLoader_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B73D6C1207D224100AF5095 /* MaplyQuadImageLoader_private.h */; };
 		2B7B84D821223F0300D11447 /* MaplyTextureAtlas_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7B84D721223F0200D11447 /* MaplyTextureAtlas_private.h */; };
 		2B7B84DA2122403700D11447 /* MaplyTapMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7B84D92122403700D11447 /* MaplyTapMessage.h */; };
+		2B7E68A022A1E62400BBFD9E /* MaplySimpleTileFetcher.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B7E689F22A1E62400BBFD9E /* MaplySimpleTileFetcher.mm */; };
 		2B810091221E07EE00CFF779 /* VectorObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B810090221E07EE00CFF779 /* VectorObject.h */; };
 		2B810093221E080700CFF779 /* VectorObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B810092221E080700CFF779 /* VectorObject.cpp */; };
 		2B810099221F234D00CFF779 /* MaplyQuadPagingLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B810098221F234D00CFF779 /* MaplyQuadPagingLoader.h */; };
@@ -1252,6 +1253,8 @@
 		2B7B84D92122403700D11447 /* MaplyTapMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyTapMessage.h; sourceTree = "<group>"; };
 		2B7B84DB2122404200D11447 /* MaplyTapMessage.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyTapMessage.mm; sourceTree = "<group>"; };
 		2B7B84DD2122404A00D11447 /* MaplyTextureAtlas.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyTextureAtlas.mm; sourceTree = "<group>"; };
+		2B7E689E22A1E34B00BBFD9E /* MaplySimpleTileFetcher.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MaplySimpleTileFetcher.h; sourceTree = "<group>"; };
+		2B7E689F22A1E62400BBFD9E /* MaplySimpleTileFetcher.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplySimpleTileFetcher.mm; sourceTree = "<group>"; };
 		2B810090221E07EE00CFF779 /* VectorObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VectorObject.h; path = ../../../../common/WhirlyGlobeLib/include/VectorObject.h; sourceTree = "<group>"; };
 		2B810092221E080700CFF779 /* VectorObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VectorObject.cpp; path = ../../../../common/WhirlyGlobeLib/src/VectorObject.cpp; sourceTree = "<group>"; };
 		2B810094221E2C3600CFF779 /* SceneGraphManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SceneGraphManager.cpp; path = ../../../../common/WhirlyGlobeLib/src/SceneGraphManager.cpp; sourceTree = "<group>"; };
@@ -3194,6 +3197,7 @@
 				2B8E608E20D4800000FB96F0 /* MaplyRemoteTileFetcher.mm */,
 				2BE1E7A22216163A00815D9C /* MaplyQuadLoader.mm */,
 				2BB8A3AC21ED43770025DA98 /* MaplyQuadImageFrameLoader.mm */,
+				2B7E689F22A1E62400BBFD9E /* MaplySimpleTileFetcher.mm */,
 			);
 			path = loading;
 			sourceTree = "<group>";
@@ -3426,6 +3430,7 @@
 				2BB8A3CC21ED43A40025DA98 /* MaplyQuadImageFrameLoader.h */,
 				2B810098221F234D00CFF779 /* MaplyQuadPagingLoader.h */,
 				2BB8A3C921ED43A30025DA98 /* MaplyTileSourceNew.h */,
+				2B7E689E22A1E34B00BBFD9E /* MaplySimpleTileFetcher.h */,
 				2B0387F7206ABD7B00DD5C40 /* MaplyQuadSampler.h */,
 				2B8E608A20D47FEE00FB96F0 /* MaplyRemoteTileFetcher.h */,
 				E56E02A61E11F99500C1DD85 /* GeoJSONSource.h */,
@@ -5238,6 +5243,7 @@
 				2B82B64B1E82E2490095FB14 /* PJ_boggs.c in Sources */,
 				2B82B68F1E82E24A0095FB14 /* PJ_mod_ster.c in Sources */,
 				2B8A789822863DF3008B0A1F /* BasicDrawableInstanceBuilder.cpp in Sources */,
+				2B7E68A022A1E62400BBFD9E /* MaplySimpleTileFetcher.mm in Sources */,
 				2B82B6631E82E24A0095FB14 /* PJ_fahey.c in Sources */,
 				2B699869228DD36A00C31E3F /* BasicDrawableInstanceBuilderMTL.mm in Sources */,
 				2B82B68A1E82E24A0095FB14 /* PJ_mbtfpp.c in Sources */,

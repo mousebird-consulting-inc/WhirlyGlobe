@@ -25,124 +25,18 @@
 
 using namespace WhirlyKit;
 
-// Encapsulates a single tile load request
-@interface MaplyMBTileFetchInfo : NSObject
-
-@property (nonatomic,assign) int x;
-@property (nonatomic,assign) int y;
-@property (nonatomic,assign) int level;
-
-@end
-
-@implementation MaplyMBTileFetchInfo
-@end
-
-// Internal object used by the QuadImageLoader to generate tile load info
-@interface MaplyMBTileInfo : NSObject<MaplyTileInfoNew>
-@end
-
-@implementation MaplyMBTileInfo
-{
-    int minZoom,maxZoom;
-}
-
-- (instancetype)initWithMinZoom:(int)inMinZoom maxZoom:(int)inMaxZoom
-{
-    self = [super init];
-    minZoom = inMinZoom;
-    maxZoom = inMaxZoom;
-    
-    return self;
-}
-
-- (id _Nullable)fetchInfoForTile:(MaplyTileID)tileID flipY:(bool)flipY
-{
-    MaplyMBTileFetchInfo *fetchInfo = [[MaplyMBTileFetchInfo alloc] init];
-    fetchInfo.x = tileID.x;
-    fetchInfo.y = tileID.y;
-    fetchInfo.level = tileID.level;
-    
-    return fetchInfo;
-}
-
-- (int)minZoom
-{
-    return minZoom;
-}
-
-- (int)maxZoom
-{
-    return maxZoom;
-}
-
-@end
-
-// A single tile that we're aware of
-class TileInfo
-{
-public:
-    TileInfo() : priority(0), importance(0.0), request(nil), fetchInfo(nil) { }
-    
-    /// Comparison based on importance, tile source, then x,y,level
-    bool operator < (const TileInfo &that) const
-    {
-        if (this->priority == that.priority) {
-            if (this->importance == that.importance) {
-                return this->request < that.request;
-            }
-            return this->importance < that.importance;
-        }
-        return this->priority > that.priority;
-    }
-    
-    // Priority before importance
-    int priority;
-    
-    // Importance of this tile request as passed in by the fetch request
-    double importance;
-    
-    // The request as it came from outside the tile fetcher
-    MaplyTileFetchRequest *request;
-    
-    // Specific fetchInfo from the fetch request.
-    MaplyMBTileFetchInfo *fetchInfo;
-};
-
-typedef std::shared_ptr<TileInfo> TileInfoRef;
-typedef struct {
-    bool operator () (const TileInfoRef a,const TileInfoRef b) const {
-        return *a < *b;
-    }
-} TileInfoSorter;
-typedef std::set<TileInfoRef,TileInfoSorter> TileInfoSet;
-typedef std::map<MaplyTileFetchRequest *,TileInfoRef> TileFetchMap;
-
 @implementation MaplyMBTileFetcher
 {
-    bool active;
-    bool loadScheduled;
     bool tilesStyles;
-    NSString *name;
     int minZoom,maxZoom;
     Mbr mbr;
     GeoMbr geoMbr;
     sqlite3 *sqlDb;
     MaplyCoordinateSystem *coordSys;
-    MaplyMBTileInfo *tileInfo;
-    dispatch_queue_t queue;
-
-    TileInfoSet toLoad;  // Tiles sorted by importance
-    TileFetchMap tilesByFetchRequest;  // Tiles sorted by fetch request
 }
 
 - (nullable instancetype)initWithMBTiles:(NSString *__nonnull)mbTilesName
 {
-    self = [super init];
-    if (!self)
-        return nil;
-    name = mbTilesName;
-    active = false;
-
     NSString *infoPath = nil;
     // See if that was a direct path first
     if ([[NSFileManager defaultManager] fileExistsAtPath:mbTilesName])
@@ -236,16 +130,9 @@ typedef std::map<MaplyTileFetchRequest *,TileInfoRef> TileFetchMap;
         return nil;
     }
     
-    tileInfo = [[MaplyMBTileInfo alloc] initWithMinZoom:minZoom maxZoom:maxZoom];
-    queue = dispatch_queue_create("MBTiles Fetcher", DISPATCH_QUEUE_SERIAL);
+    self = [super initWithName:mbTilesName minZoom:minZoom maxZoom:maxZoom];
     
-    active = true;
     return self;
-}
-
-- (NSString * _Nonnull)name
-{
-    return name;
 }
 
 - (MaplyCoordinateSystem *)coordSys
@@ -253,22 +140,7 @@ typedef std::map<MaplyTileFetchRequest *,TileInfoRef> TileFetchMap;
     return coordSys;
 }
 
-- (int)minZoom
-{
-    return minZoom;
-}
-
-- (int)maxZoom
-{
-    return maxZoom;
-}
-
-- (NSObject<MaplyTileInfoNew> *)tileInfo
-{
-    return tileInfo;
-}
-
-- (NSData *)imageForTile:(MaplyMBTileFetchInfo *)tileID
+- (id)dataForTile:(id)fetchInfo tileID:(MaplyTileID)tileID;
 {
     NSData *imageData = nil;
     
@@ -298,154 +170,14 @@ typedef std::map<MaplyTileFetchRequest *,TileInfoRef> TileFetchMap;
     return imageData;
 }
 
-- (dispatch_queue_t)getQueue
-{
-    return queue;
-}
-
-- (void)updateLoading
-{
-    loadScheduled = false;
-    
-    if (!active)
-        return;
-    
-    if (toLoad.empty())
-        return;
-    
-    // Take the first one off the stack
-    auto it = toLoad.rbegin();
-    TileInfoRef tile = *it;
-    
-    // The actual data fetch.  Woo.
-    NSData *imageData = [self imageForTile:tile->fetchInfo];
-    NSError *error = nil;
-    if (!imageData) {
-        error = [[NSError alloc] initWithDomain:@"MaplyMBTileFetcher" code:0 userInfo:@{NSLocalizedDescriptionKey: @"Failed to fetch tile from sqlite file"}];
-    }
-
-    MaplyMBTileFetcher * __weak weakSelf = self;
-    // Do the callback on a background queue
-    // Because the parsing might take a while
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
-                   ^{
-                       // We assume the parsing is going to take some time
-                       if (imageData) {
-                           tile->request.success(tile->request,imageData);
-                       } else {
-                           tile->request.failure(tile->request, error);
-                       }
-                       
-                       dispatch_queue_t theQueue = [weakSelf getQueue];
-                       if (theQueue)
-                           dispatch_async(theQueue,
-                                          ^{
-                                              [weakSelf updateLoading];
-                                          });
-                   });
-    
-    [weakSelf finishTile:tile];
-}
-
-- (void)finishTile:(TileInfoRef)tile
-{
-    // Done with the tile, so take it out of here
-    toLoad.erase(tile);
-    auto rit = tilesByFetchRequest.find(tile->request);
-    if (rit != tilesByFetchRequest.end())
-        tilesByFetchRequest.erase(rit);
-}
-
-- (void)scheduleLoading
-{
-    if (!active)
-        return;
-    
-    if (!loadScheduled) {
-        loadScheduled = true;
-        dispatch_async(queue, ^{
-            [self updateLoading];
-        });
-    }
-}
-
-- (void)startTileFetches:(NSArray<MaplyTileFetchRequest *> * _Nonnull)requests
-{
-    if (!active)
-        return;
-
-    // Check each of the fetchInfo objects
-    for (MaplyTileFetchRequest *request in requests)
-        if (![request.fetchInfo isKindOfClass:[MaplyMBTileFetchInfo class]]) {
-            NSLog(@"MaplyMBTileFetcher is expecting MaplyMBTileFetchInfo objects.  Rejecting requests.");
-            return;
-        }
-
-    dispatch_async(queue, ^{
-        for (MaplyTileFetchRequest *request in requests) {
-            // Set up new request
-            TileInfoRef tile(new TileInfo());
-            tile->importance = request.importance;
-            tile->priority = request.priority;
-            tile->request = request;
-            tile->fetchInfo = request.fetchInfo;
-            self->tilesByFetchRequest[request] = tile;
-            self->toLoad.insert(tile);
-        }
-
-        [self scheduleLoading];
-    });
-}
-
-- (void)cancelTileFetches:(NSArray * _Nonnull)requests
-{
-    if (!active)
-        return;
-
-    dispatch_async(queue, ^{
-        for (MaplyTileFetchRequest *request in requests) {
-            auto it = self->tilesByFetchRequest.find(request);
-            if (it == self->tilesByFetchRequest.end()) {
-                // Wasn't there.  Ignore.
-                return;
-            }
-            TileInfoRef tile = it->second;
-            self->toLoad.erase(tile);
-            self->tilesByFetchRequest.erase(it);
-        }
-    });
-}
-
-- (id _Nonnull)updateTileFetch:(id _Nonnull)request priority:(int)priority importance:(double)importance
-{
-    if (!active)
-        return nil;
-    
-    dispatch_async(queue, ^{
-        auto it = self->tilesByFetchRequest.find(request);
-        if (it == self->tilesByFetchRequest.end())
-            return;
-        
-        // Reinsert the tile with the new values
-        TileInfoRef tile = it->second;
-        self->toLoad.erase(tile);
-        tile->priority = priority;
-        tile->importance = importance;
-        self->toLoad.insert(tile);
-    });
-    
-    return request;
-}
-
 - (void)shutdown
 {
-    active = false;
-
-    // Execute an empty task and wait for it to return
-    // This drains the queue
-    dispatch_sync(queue, ^{});
+    [super shutdown];
     
-    queue = nil;
+    if (sqlDb) {
+        sqlite3_close(sqlDb);
+        sqlDb = NULL;
+    }
 }
 
 @end
