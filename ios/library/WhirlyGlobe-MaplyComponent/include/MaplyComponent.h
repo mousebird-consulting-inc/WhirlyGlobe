@@ -91,6 +91,7 @@
 #import "loading/MaplyQuadImageFrameLoader.h"
 #import "loading/MaplyQuadPagingLoader.h"
 #import "loading/MaplyTileSourceNew.h"
+#import "loading/MaplySimpleTileFetcher.h"
 #import "loading/MaplyQuadSampler.h"
 #import "loading/MaplyRemoteTileFetcher.h"
 #import "loading/GeoJSONSource.h"
