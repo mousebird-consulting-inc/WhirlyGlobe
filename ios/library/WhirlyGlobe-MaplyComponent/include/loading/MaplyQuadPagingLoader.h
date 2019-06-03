@@ -62,7 +62,7 @@
  */
 - (nullable instancetype)initWithParams:(MaplySamplingParams *__nonnull)params
                                tileInfo:(NSObject<MaplyTileInfoNew> *__nullable)tileInfo
-                             loadInterp:(NSObject<MaplyLoaderInterpreter> *__nonnull)loadInterp
+                             loadInterp:(NSObject<MaplyLoaderInterpreter> *__nullable)loadInterp
                                   viewC:(MaplyBaseViewController * __nonnull)viewC;
 
 @end

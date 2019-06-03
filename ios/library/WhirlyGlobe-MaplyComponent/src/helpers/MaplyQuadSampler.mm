@@ -30,6 +30,7 @@ using namespace WhirlyKit;
 - (instancetype)init
 {
     self = [super init];
+    self.singleLevel = true;
 
     return self;
 }
