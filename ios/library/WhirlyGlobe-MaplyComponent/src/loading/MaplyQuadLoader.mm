@@ -267,6 +267,8 @@ using namespace WhirlyKit;
     MaplyLoaderReturn *loadData = nil;
     if ([data isKindOfClass:[MaplyLoaderReturn class]]) {
         loadData = data;
+        loadData.tileID = tileID;
+        loadData.frame = frame;
     } else {
         loadData = [self makeLoaderReturn];
         loadData.tileID = tileID;
@@ -319,7 +321,9 @@ using namespace WhirlyKit;
         
         // Do the parsing on another thread since it can be slow
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            [self->loadInterp dataForTile:loadReturn loader:self];
+            // No load interpreter means the fetcher created the objects.  Hopefully.
+            if (self->loadInterp)
+                [self->loadInterp dataForTile:loadReturn loader:self];
             
             [self performSelector:@selector(mergeLoadedTile:) onThread:self->samplingLayer.layerThread withObject:loadReturn waitUntilDone:NO];
         });
