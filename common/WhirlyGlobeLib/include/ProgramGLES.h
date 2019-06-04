@@ -149,7 +149,6 @@ public:
     void cleanUp();
     
 protected:
-    std::string name;
     GLuint program;
     GLuint vertShader;
     GLuint fragShader;

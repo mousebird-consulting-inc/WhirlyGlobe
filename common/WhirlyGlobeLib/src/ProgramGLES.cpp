@@ -297,8 +297,9 @@ bool compileShader(const std::string &name,const char *shaderTypeStr,GLuint *sha
 
 // Construct the program, compile and link
 ProgramGLES::ProgramGLES(const std::string &inName,const std::string &vShaderString,const std::string &fShaderString,const std::vector<std::string> *varying)
-    : name(inName), lightsLastUpdated(0.0)
+    : lightsLastUpdated(0.0)
 {
+    name = inName;
     program = glCreateProgram();
     
     if (!compileShader(name,"vertex",&vertShader,GL_VERTEX_SHADER,vShaderString))

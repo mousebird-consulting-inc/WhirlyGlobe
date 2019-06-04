@@ -227,7 +227,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_setupShadersNat
 		if (isGlobe)
 			rendWrap.addShader(MaplyDefaultLineShader,defaultLineShader);
 		else
-			rendWrap.addShader(MaplyNoBackfaceLineShader,defaultLineShaderNoBack);
+			rendWrap.addShader(MaplyDefaultLineShader,defaultLineShaderNoBack);
+		rendWrap.addShader(MaplyNoBackfaceLineShader,defaultLineShaderNoBack);
 
 		// Default triangle shaders
 		rendWrap.addShader(MaplyDefaultTriangleShader,BuildDefaultTriShaderLightingGLES(MaplyDefaultTriangleShader,renderer));
