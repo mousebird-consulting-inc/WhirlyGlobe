@@ -20,7 +20,7 @@
 
 #import "MaplyTileSourceNew.h"
 
-/** Simple Tile Fetcher meant for sub classing.
+/** Simple Tile Fetcher is meant for sub classing.
  
     Some data sources aren't all that complex.  You read from a local source,
     you return the data.  Something else turns it into visible objects.  Simple.

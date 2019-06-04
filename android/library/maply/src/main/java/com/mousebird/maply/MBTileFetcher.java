@@ -40,30 +40,13 @@ import android.util.Log;
  * <br>
  * Will work for image or vector MBTiles files.
  */
-public class MBTileFetcher extends HandlerThread implements TileFetcher
+public class MBTileFetcher extends  SimpleTileFetcher
 {
-    protected boolean valid = false;
-
-    /**
-     * Min zoom read from file
-     */
-    public int minZoom;
-
-    /**
-     * Max zoom read from file
-     */
-    public int maxZoom;
 
     /**
      * Coordinate system (probably Spherical Mercator)
      */
     CoordSystem coordSys = null;
-
-    /**
-     * The QuadLoader needs a tileInfo object to generate the fetcher objects
-     * it eventually passes to the TileFetcher.  You can use this one.
-     */
-    public MBTileInfo tileInfo = null;
 
     /**
      * Construct with the location of an MBTiles file.
@@ -82,252 +65,10 @@ public class MBTileFetcher extends HandlerThread implements TileFetcher
         }
 
         this.init(mbTileFile);
-        tileInfo = new MBTileInfo(minZoom,maxZoom);
 
         // Kicks off our thread
         valid = true;
         start();
-    }
-
-    /**
-     * We don't need to describe a remote URL, so this is
-     * basically a stub that passes back the tile ID.
-     */
-    public class MBTileInfo extends TileInfoNew
-    {
-        MBTileInfo(int inMinZoom,int inMaxZoom)
-        {
-            minZoom = inMinZoom;
-            maxZoom = inMaxZoom;
-        }
-
-        @Override public Object fetchInfoForTile(TileID tileID,boolean flipY)
-        {
-            return new MBTileFetchInfo(tileID);
-        }
-    }
-
-    /**
-     * No remote URLs to track, so we just keep the
-     * tile ID.
-     */
-    protected class MBTileFetchInfo
-    {
-        MBTileFetchInfo(TileID inTileID)
-        {
-            tileID = inTileID;
-        }
-
-        public TileID tileID = null;
-    }
-
-    /**
-     * Wrapper around the fetch request so we can prioritize loads.
-     */
-    public class TileInfo implements Comparable<TileInfo>
-    {
-        // Priority before importance
-        int priority = 0;
-
-        // Importance of this tile request as passed in by the fetch request
-        float importance = 0.0f;
-
-        // The request that came from the tile fetcher
-        TileFetchRequest request = null;
-
-        // Simple description of where we get the thing we're fetching
-        MBTileFetchInfo fetchInfo = null;
-
-        @Override public int compareTo(TileInfo that)
-        {
-            if (priority == that.priority) {
-                if (importance == that.importance) {
-                    return fetchInfo.tileID.compareTo(that.fetchInfo.tileID);
-                } else {
-                    return (importance < that.importance) ? -1 : 1;
-                }
-            } else {
-                return (priority < that.priority) ? -1 : 1;
-            }
-        }
-
-        @Override public boolean equals(Object that)
-        {
-            if (this == that)
-                return true;
-
-            if (!(that instanceof TileInfo))
-                return false;
-
-            TileInfo lhs = (TileInfo)that;
-            return priority == lhs.priority && importance == lhs.importance &&
-                    fetchInfo.tileID.equals(lhs.fetchInfo.tileID);
-        }
-
-        @Override public int hashCode()
-        {
-            int result = 17;
-            result = 31 * result + priority;
-            result = 31 * result + (int)importance;
-            result = 31 * result + fetchInfo.tileID.hashCode();
-
-            return result;
-        }
-    }
-
-    // Tiles sorted by priority, importance etc...
-    TreeSet<TileInfo> toLoad = new TreeSet<TileInfo>();
-    // Tiles sorted by fetch request
-    HashMap<TileFetchRequest,TileInfo> tilesByFetchRequest = new HashMap<TileFetchRequest,TileInfo>();
-
-    /**
-     * Name of this tile fetcher.  Used for coordinating tile sources.
-     */
-    @Override public String getFetcherName()
-    {
-        return "MBTiles";
-    }
-
-    /**
-     * Add a bunch of requests to the queue and kick them off in a tick.
-     */
-    @Override public void startTileFetches(final TileFetchRequest[] requests)
-    {
-        if (!valid)
-            return;
-
-        Handler handler = new Handler(getLooper());
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                for (TileFetchRequest request : requests) {
-                    // Set up a new request
-                    TileInfo tileInfo = new TileInfo();
-                    tileInfo.priority = request.priority;
-                    tileInfo.importance = request.importance;
-                    tileInfo.request = request;
-                    tileInfo.fetchInfo = (MBTileFetchInfo)request.fetchInfo;
-                    toLoad.add(tileInfo);
-                    tilesByFetchRequest.put(request,tileInfo);
-                }
-
-                scheduleLoading();
-            }
-        });
-    }
-
-    boolean scheduled = false;
-
-    // Schedule the next loading update
-    protected void scheduleLoading()
-    {
-        if (!scheduled) {
-            Handler handler = new Handler(getLooper());
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    updateLoading();
-                }
-            });
-        }
-    }
-
-    // Load a tile and pass off the results
-    protected void updateLoading()
-    {
-        scheduled = false;
-
-        if (!valid)
-            return;
-
-        if (toLoad.isEmpty())
-            return;
-
-        final TileInfo tileInfo = toLoad.last();
-        toLoad.remove(tileInfo);
-
-        // Load the data tile
-        final byte[] data = getDataTile(tileInfo.fetchInfo.tileID);
-
-        // We assume they'll be parsing things which will take time
-        new AsyncTask<Void, Void, Void>() {
-            protected Void doInBackground(Void... unused) {
-                if (data != null)
-                    tileInfo.request.callback.success(tileInfo.request, data);
-                else
-                    tileInfo.request.callback.failure(tileInfo.request,"Failed to read MBTiles File");
-
-                return null;
-            }
-        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void)null);
-
-        finishTile(tileInfo);
-
-        scheduleLoading();
-    }
-
-    protected void finishTile(TileInfo tileInfo)
-    {
-        toLoad.remove(tileInfo);
-        tilesByFetchRequest.remove(tileInfo.request);
-    }
-
-    /**
-     * Update an active request with a new priority and importance.
-     */
-    @Override public Object updateTileFetch(final Object fetchRequest,final int priority,final float importance)
-    {
-        if (!valid)
-            return null;
-
-        Handler handler = new Handler(getLooper());
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                TileInfo tileInfo = tilesByFetchRequest.get(fetchRequest);
-                if (tileInfo != null) {
-                    toLoad.remove(tileInfo);
-                    tileInfo.priority = priority;
-                    tileInfo.importance = importance;
-                    toLoad.add(tileInfo);
-                }
-            }
-        });
-
-        return fetchRequest;
-    }
-
-    /**
-     * Cancel a group of requests at once
-     * Use the object returned by the startTileFetch call (which is just a Request object)
-     */
-    @Override public void cancelTileFetches(final Object[] fetches)
-    {
-        if (!valid)
-            return;
-
-        Handler handler = new Handler(getLooper());
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                for (Object fetchInfo : fetches) {
-                    TileInfo tileInfo = tilesByFetchRequest.get(fetchInfo);
-                    if (tileInfo != null) {
-                        tilesByFetchRequest.remove(fetchInfo);
-                        toLoad.remove(tileInfo);
-                    }
-                }
-            }
-        });
-    }
-
-    /**
-     * Kill all outstanding connections and clean up.
-     */
-    @Override public void shutdown()
-    {
-        valid = false;
-        quitSafely();
     }
 
     /** SQLite interface logic below **/
@@ -444,7 +185,7 @@ public class MBTileFetcher extends HandlerThread implements TileFetcher
     /**
      * Fetch the data blog for a given tile.  This blocks.
      */
-    public byte[] getDataTile(TileID tileID)
+    @Override public byte[] dataForTile(Object fetchInfo,TileID tileID)
     {
         String[] params = new String[3];
         params[0] = Integer.toString(tileID.level);
