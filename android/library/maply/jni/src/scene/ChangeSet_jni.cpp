@@ -20,6 +20,7 @@
 
 #import <jni.h>
 #import "Scene_jni.h"
+#import "Renderer_jni.h"
 #import "com_mousebird_maply_ChangeSet.h"
 
 using namespace WhirlyKit;
@@ -95,20 +96,15 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_merge
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_process
-  (JNIEnv *env, jobject obj, jobject sceneObj)
+  (JNIEnv *env, jobject obj, jobject renderControlObj, jobject sceneObj)
 {
 	try
 	{
-		ChangeSetClassInfo *classInfo = ChangeSetClassInfo::getClassInfo();
-		ChangeSet *changes = classInfo->getObject(env,obj);
-		SceneClassInfo *sceneClassInfo = SceneClassInfo::getClassInfo();
-		Scene *scene = sceneClassInfo->getObject(env,sceneObj);
-		if (!changes || !scene)
+		ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,obj);
+		SceneRendererGLES_Android *sceneRender = SceneRendererInfo::getClassInfo()->getObject(env,renderControlObj);
+		Scene *scene = SceneClassInfo::getClassInfo()->getObject(env,sceneObj);
+		if (!changes || !sceneRender || !scene)
 			return;
-
-		// Note: Porting Should be using the view
-		WhirlyKitGLSetupInfo glSetupInfo;
-		glSetupInfo.minZres = 0.0001;
 
 	    bool requiresFlush = false;
 	    // Set up anything that needs to be set up
@@ -119,7 +115,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_process
 	        if (change)
 	        {
 	            requiresFlush |= change->needsFlush();
-	            change->setupGL(&glSetupInfo, scene->getMemManager());
+	            change->setupForRenderer(sceneRender->getRenderSetupInfo());
 	            changesToAdd.push_back(change);
 	        } else
 	            // A NULL change request is just a flush request
@@ -160,10 +156,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_addTexture
         switch (filterType)
         {
             case 0:
-                texture->setInterpType(GL_NEAREST);
+                texture->setInterpType(TexInterpNearest);
                 break;
             case 1:
-                texture->setInterpType(GL_LINEAR);
+                texture->setInterpType(TexInterpLinear);
                 break;
         }
 

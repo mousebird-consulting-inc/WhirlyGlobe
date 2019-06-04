@@ -20,6 +20,7 @@
 package com.mousebirdconsulting.autotester.TestCases;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.os.Handler;
 
 import com.mousebird.maply.BaseController;
@@ -80,6 +81,7 @@ public class StamenRemoteTestCase extends MaplyTestCase {
 	@Override
 	public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
 		setupImageLoader(ConfigOptions.TestType.GlobeTest,globeVC);
+		globeVC.setClearColor(Color.RED);
 		globeVC.animatePositionGeo(-3.6704803, 40.5023056, 5, 1.0);
 //		globeVC.setZoomLimits(0.0,1.0);
 		return true;

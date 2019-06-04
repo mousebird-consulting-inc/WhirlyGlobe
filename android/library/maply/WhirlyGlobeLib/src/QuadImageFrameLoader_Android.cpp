@@ -87,9 +87,9 @@ void QIFFrameAsset_Android::cancelFetch(QuadImageFrameLoader *inLoader,QIFBatchO
     QIFFrameAsset::cancelFetch(loader, batchOps);
 }
 
-void QIFFrameAsset_Android::loadSuccess(QuadImageFrameLoader *loader,Texture *tex)
+void QIFFrameAsset_Android::loadSuccess(QuadImageFrameLoader *loader,const std::vector<Texture *> &texs)
 {
-    QIFFrameAsset::loadSuccess(loader, tex);
+    QIFFrameAsset::loadSuccess(loader, texs);
 
     clearRequestJava((QuadImageFrameLoader_Android *)loader);
 }

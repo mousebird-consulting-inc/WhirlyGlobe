@@ -56,7 +56,7 @@ public:
     virtual void cancelFetch(QuadImageFrameLoader *loader,QIFBatchOps *batchOps);
 
     // Keep track of the texture ID
-    virtual void loadSuccess(QuadImageFrameLoader *loader,Texture *tex);
+    virtual void loadSuccess(QuadImageFrameLoader *loader,const std::vector<Texture *> &texs);
 
     // Clear out state
     virtual void loadFailed(QuadImageFrameLoader *loader);

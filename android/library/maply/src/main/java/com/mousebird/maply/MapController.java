@@ -137,7 +137,7 @@ public class MapController extends BaseController implements View.OnTouchListene
 		coordAdapter = inCoordAdapter;
 
 		// Create the scene and map view
-		mapScene = new MapScene(coordAdapter);
+		mapScene = new Scene(coordAdapter,renderControl);
 		scene = mapScene;
 		mapView = new MapView(this,coordAdapter);
 		view = mapView;
@@ -188,7 +188,7 @@ public class MapController extends BaseController implements View.OnTouchListene
 	MapView mapView = null;
 	
 	// Map version of scene
-	MapScene mapScene = null;
+	Scene mapScene = null;
 	
 	/**
 	 * Return the screen coordinate for a given geographic coordinate (in radians).

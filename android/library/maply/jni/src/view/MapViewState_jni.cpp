@@ -41,7 +41,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapViewState_initialise
 	try
 	{
 		MapView *mapView = MapViewClassInfo::getClassInfo()->getObject(env,viewObj);
-		SceneRendererES2_Android *renderer = (SceneRendererES2_Android *)SceneRendererInfo::getClassInfo()->getObject(env,rendererObj);
+		SceneRendererGLES_Android *renderer = (SceneRendererGLES_Android *)SceneRendererInfo::getClassInfo()->getObject(env,rendererObj);
 		if (!mapView || !renderer)
 			return;
 

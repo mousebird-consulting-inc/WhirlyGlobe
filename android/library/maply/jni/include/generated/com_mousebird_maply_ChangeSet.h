@@ -34,10 +34,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_merge
 /*
  * Class:     com_mousebird_maply_ChangeSet
  * Method:    process
- * Signature: (Lcom/mousebird/maply/Scene;)V
+ * Signature: (Lcom/mousebird/maply/RenderController;Lcom/mousebird/maply/Scene;)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_process
-  (JNIEnv *, jobject, jobject);
+  (JNIEnv *, jobject, jobject, jobject);
 
 /*
  * Class:     com_mousebird_maply_ChangeSet

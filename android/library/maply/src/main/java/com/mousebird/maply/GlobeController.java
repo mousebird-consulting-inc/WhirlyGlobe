@@ -81,8 +81,7 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 		coordAdapter = new FakeGeocentricDisplayAdapter();
 
 		// Create the scene and map view
-		// Note: Expose the cull tree depth
-		globeScene = new GlobeScene(coordAdapter);
+		globeScene = new Scene(coordAdapter,renderControl);
 		scene = globeScene;
 		globeView = new GlobeView(this,coordAdapter);
 		view = globeView;
@@ -132,7 +131,7 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 	}
 
 	// Map version of scene
-	GlobeScene globeScene = null;
+	Scene globeScene = null;
 
 	/**
 	 * True if the globe is keeping north facing up on the screen.

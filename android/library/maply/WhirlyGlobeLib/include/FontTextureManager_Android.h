@@ -31,7 +31,7 @@ namespace WhirlyKit
 class FontTextureManager_Android : public FontTextureManager
 {
 public:
-	FontTextureManager_Android(JNIEnv *env,Scene *scene,jobject charRenderObj);
+	FontTextureManager_Android(JNIEnv *env,SceneRenderer *sceneRender,Scene *scene,jobject charRenderObj);
     ~FontTextureManager_Android();
 
     void setEnv(JNIEnv *newEnv)   { savedEnv = newEnv; }

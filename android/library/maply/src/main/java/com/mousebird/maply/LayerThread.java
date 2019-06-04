@@ -317,7 +317,7 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 						synchronized (changes) {
 							changeHandler = null;
 							if (scene != null)
-								changes.process(scene);
+								changes.process(renderer, scene);
 						}
 					}
 				},true);

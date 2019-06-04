@@ -84,7 +84,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_StickerManager_addSticker
         }
 
         if (chunkInfo->programID == EmptyIdentity) {
-            OpenGLES2Program *prog = chunkManager->getScene()->findProgramByName(MaplyDefaultTriangleShader);
+            ProgramGLES *prog = (ProgramGLES *)chunkManager->getScene()->findProgramByName(MaplyDefaultTriangleShader);
             if (prog)
                 chunkInfo->programID = prog->getId();
         }

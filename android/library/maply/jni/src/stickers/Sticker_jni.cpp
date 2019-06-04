@@ -188,24 +188,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_setEpsilon
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_setImageFormatNative
-(JNIEnv *env, jobject obj, jint imageFormatEnum)
-{
-    try
-    {
-        SphericalChunkClassInfo *classInfo = SphericalChunkClassInfo::getClassInfo();
-        SphericalChunk *chunk = classInfo->getObject(env,obj);
-        if (!chunk)
-            return;
-        
-        chunk->imageFormat = ImageFormatToGLenum((MaplyImageType)imageFormatEnum);
-    }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SphericalChunk::setImageFormat()");
-    }
-}
-
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_setTextureIDs
   (JNIEnv *env, jobject obj, jlongArray texIDs)
 {

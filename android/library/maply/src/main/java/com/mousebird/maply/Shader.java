@@ -140,7 +140,7 @@ public class Shader
 
 //        Log.d("Maply","addTexture texID " + texture.texID);
 
-		changes.process(control.get().getScene());
+		control.get().processChangeSet(changes);
 	}
 
 	native void addTextureNative(ChangeSet changes,String name,long texID);

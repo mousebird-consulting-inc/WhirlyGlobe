@@ -59,18 +59,7 @@ public class Sticker
      * @param maxSampleY Maximum samples in Y
      */
     public native void setEpsilon(double eps,int minSampleX,int minSampleY,int maxSampleX,int maxSampleY);
-
-    /**
-     * Set the destination image format for images passed in.
-     * The images will be converted to this format.
-     */
-    public void setImageFormat(RenderController.ImageFormat imageFormat)
-    {
-        setImageFormatNative(imageFormat.ordinal());
-    }
-
-    native void setImageFormatNative(int imageFormatEnum);
-
+    
     /**
      * Images to display on the Sticker.  This may include an image or a blending of
      * multiple, depending on the shader.

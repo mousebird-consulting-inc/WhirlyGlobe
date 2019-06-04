@@ -19,6 +19,8 @@
  */
 
 #import "Scene_jni.h"
+#import "Renderer_jni.h"
+#import "CoordSystem_jni.h"
 #import "com_mousebird_maply_Scene.h"
 
 using namespace WhirlyKit;
@@ -29,6 +31,23 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_nativeInit
   (JNIEnv *env, jclass cls)
 {
 	SceneClassInfo::getClassInfo(env,cls);
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_initialise
+        (JNIEnv *env, jobject obj, jobject coordAdapterObj, jobject renderControlObj, jobject charRendererObj)
+{
+    try
+    {
+        CoordSystemDisplayAdapter *coordAdapter = CoordSystemDisplayAdapterInfo::getClassInfo()->getObject(env,coordAdapterObj);
+        SceneGLES *scene = new SceneGLES(coordAdapter);
+        SceneRendererGLES_Android *sceneRender = SceneRendererInfo::getClassInfo()->getObject(env,renderControlObj);
+        scene->setFontTextureManager(FontTextureManagerRef(new FontTextureManager_Android(env,sceneRender,scene,charRendererObj)));
+        SceneClassInfo::getClassInfo()->setHandle(env,obj,scene);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in GlobeScene::initialise()");
+    }
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_addChangesNative
@@ -98,7 +117,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_teardownGL
         if (!scene)
             return;
         
-        scene->teardownGL();
+        scene->teardown();
     }
     catch (...)
     {

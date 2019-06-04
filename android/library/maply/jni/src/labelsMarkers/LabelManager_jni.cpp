@@ -108,11 +108,11 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_LabelManager_addLabels
 		// Resolve a missing program
 		if (labelInfo->programID == EmptyIdentity)
         {
-            OpenGLES2Program *prog = NULL;
+			ProgramGLES *prog = NULL;
             if (isMoving)
-                prog = labelManager->getScene()->findProgramByName(MaplyScreenSpaceDefaultMotionShader);
+                prog = (ProgramGLES *)labelManager->getScene()->findProgramByName(MaplyScreenSpaceDefaultMotionShader);
             else
-                prog = labelManager->getScene()->findProgramByName(MaplyScreenSpaceDefaultShader);
+                prog = (ProgramGLES *)labelManager->getScene()->findProgramByName(MaplyScreenSpaceDefaultShader);
             if (prog)
                 labelInfo->programID = prog->getId();
         }

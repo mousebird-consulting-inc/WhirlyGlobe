@@ -51,8 +51,8 @@ FontTextureManager_Android::FontManager_Android::~FontManager_Android()
 {
 }
 
-FontTextureManager_Android::FontTextureManager_Android(JNIEnv *env,Scene *scene,jobject inCharRenderObj)
-	: FontTextureManager(scene), charRenderObj(NULL)
+FontTextureManager_Android::FontTextureManager_Android(JNIEnv *env,SceneRenderer *sceneRender,Scene *scene,jobject inCharRenderObj)
+	: FontTextureManager(sceneRender,scene), charRenderObj(NULL)
 {
 	// TODO: Porting.  This will leak
 	charRenderObj = env->NewGlobalRef(inCharRenderObj);
@@ -136,7 +136,7 @@ DrawableString *FontTextureManager_Android::addString(JNIEnv *env,const std::vec
 					if (AndroidBitmap_lockPixels(env, bitmapObj, &bitmapPixels) < 0)
 						throw 1;
 					MutableRawData *rawData = new MutableRawData(bitmapPixels,info.height*info.width*4);
-					Texture tex("FontTextureManager");
+					TextureGLES tex("FontTextureManager");
 					tex.setRawData(rawData,info.width,info.height);
 
 					// Add it to the texture atlas
@@ -144,7 +144,7 @@ DrawableString *FontTextureManager_Android::addString(JNIEnv *env,const std::vec
                     Point2f realSize(glyphSize.x()+2*textureOffset.x(),glyphSize.y()+2*textureOffset.y());
                     std::vector<Texture *> texs;
                     texs.push_back(&tex);
-                    if (texAtlas->addTexture(texs, -1, &realSize, NULL, subTex, scene->getMemManager(), changes, 0, 0, NULL))
+                    if (texAtlas->addTexture(sceneRender, texs, -1, &realSize, NULL, subTex, changes, 0, 0, NULL))
                         glyphInfo = fm->addGlyph(glyph, subTex, Point2f(glyphSize.x(),glyphSize.y()), Point2f(offset.x(),offset.y()), Point2f(textureOffset.x(),textureOffset.y()));
                     
                     AndroidBitmap_unlockPixels(env, bitmapObj);

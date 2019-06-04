@@ -29,5 +29,11 @@ ComponentManager *MakeComponentManager()
 {
     return new ComponentManager_Android();
 }
-    
+
+
+ComponentObjectRef ComponentManager_Android::makeComponentObject()
+{
+    return ComponentObjectRef(new ComponentObject());
+}
+
 }

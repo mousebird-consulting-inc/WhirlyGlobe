@@ -37,7 +37,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Texture_initialise
 {
 	try
 	{
-		Texture *tex = new Texture("jni");
+		Texture *tex = new TextureGLES("jni");
 		TextureClassInfo::getClassInfo()->setHandle(env,obj,tex);
 	}
 	catch (...)

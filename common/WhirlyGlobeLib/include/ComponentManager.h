@@ -41,6 +41,7 @@ namespace WhirlyKit
  */
 class ComponentObject : public Identifiable
 {
+    friend class ComponentManager;
 public:
     virtual ~ComponentObject();
     
@@ -65,7 +66,8 @@ public:
     // Empty out references
     void clear();
     
-protected:
+public:
+    // Don't call this
     ComponentObject();
 };
 

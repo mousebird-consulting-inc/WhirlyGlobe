@@ -95,8 +95,8 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_LoftedPolyManager_addPolys
         // Resolve a missing program
         if (loftInfo->programID == EmptyIdentity)
         {
-            OpenGLES2Program *prog = NULL;
-            prog = loftManager->getScene()->findProgramByName(MaplyDefaultTriangleShader);
+            ProgramGLES *prog = NULL;
+            prog = (ProgramGLES *)loftManager->getScene()->findProgramByName(MaplyDefaultTriangleShader);
             if (prog)
                 loftInfo->programID = prog->getId();
         }

@@ -23,8 +23,6 @@
 
 typedef JavaClassInfo<WhirlyKit::ChangeSet> ChangeSetClassInfo;
 typedef JavaClassInfo<WhirlyKit::DirectionalLight> DirectionalLightClassInfo;
-typedef JavaClassInfo<WhirlyGlobe::GlobeScene> GlobeSceneClassInfo;
-typedef JavaClassInfo<Maply::MapScene> MapSceneClassInfo;
 typedef JavaClassInfo<WhirlyKit::Scene> SceneClassInfo;
 typedef JavaClassInfo<WhirlyKit::Texture> TextureClassInfo;
 typedef JavaClassInfo<WhirlyKit::Material> MaterialClassInfo;

@@ -119,7 +119,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadSamplingLayer_startNative
         QuadSamplingController_Android *control = QuadSamplingControllerInfo::getClassInfo()->getObject(env,obj);
         SamplingParams *params = SamplingParamsClassInfo::getClassInfo()->getObject(env,paramsObj);
         Scene *scene = SceneClassInfo::getClassInfo()->getObject(env,sceneObj);
-        SceneRendererES2_Android *render = SceneRendererInfo::getClassInfo()->getObject(env,renderObj);
+        SceneRendererGLES_Android *render = SceneRendererInfo::getClassInfo()->getObject(env,renderObj);
         if (!control || !params || !scene || !render)
             return;
         control->setEnv(env);

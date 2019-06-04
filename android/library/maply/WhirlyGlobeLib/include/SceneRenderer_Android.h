@@ -24,13 +24,17 @@
 namespace WhirlyKit {
 
 // Android version keeps track of the context
-class SceneRendererES2_Android : public SceneRendererES2 {
+class SceneRendererGLES_Android : public SceneRendererGLES {
 public:
-    SceneRendererES2_Android();
-    SceneRendererES2_Android(int width,int height);
+    SceneRendererGLES_Android();
+    SceneRendererGLES_Android(int width,int height);
 
     // Called when the window changes size (or on startup)
     bool resize(int width, int height);
+
+    /// Run the snapshot logic
+    /// TODO: Run the snapshots (do we need this?)
+    virtual void snapshotCallback();
 
     EGLContext context;
 };

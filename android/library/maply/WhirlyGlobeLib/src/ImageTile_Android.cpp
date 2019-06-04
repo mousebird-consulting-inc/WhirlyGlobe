@@ -100,18 +100,18 @@ Texture *ImageTile_Android::buildTexture()
         case MaplyImgTypeNone:
             break;
         case MaplyImgTypeDataPKM:
-            tex = new Texture("ImageTile_Android");
+            tex = new TextureGLES("ImageTile_Android");
             tex->setPKMData(rawData);
             tex->setWidth(destWidth);
             tex->setHeight(destHeight);
             break;
         case MaplyImgTypeDataPVRTC4:
-            tex = new Texture("ImageTile_Android", rawData,true);
+            tex = new TextureGLES("ImageTile_Android", rawData,true);
             tex->setWidth(destWidth);
             tex->setHeight(destHeight);
             break;
         case MaplyImgTypeRawImage:
-            tex = new Texture("ImageTile_Android",rawData,false);
+            tex = new TextureGLES("ImageTile_Android",rawData,false);
             tex->setWidth(destWidth);
             tex->setHeight(destHeight);
             break;

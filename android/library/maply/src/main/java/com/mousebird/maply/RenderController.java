@@ -124,7 +124,7 @@ public class RenderController implements RenderControllerInterface
         flatView.setExtents(extents);
         flatView.setWindow(new Point2d(width,height),new Point2d(0.0,0.0));
 
-        scene = new MapScene(coordAdapter);
+        scene = new Scene(coordAdapter,this);
 
         // Need a task manager that just runs things on the current thread
         //  after setting the proper context for rendering
@@ -433,6 +433,7 @@ public class RenderController implements RenderControllerInterface
     public ComponentObject addScreenMarkers(final List<ScreenMarker> markers,final MarkerInfo markerInfo,ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
+        final RenderController renderControl = this;
 
         // Do the actual work on the layer thread
         Runnable run =
@@ -483,7 +484,7 @@ public class RenderController implements RenderControllerInterface
                         // Add the markers and flush the changes
                         long markerId = markerManager.addScreenMarkers(intMarkers.toArray(new InternalMarker[0]), markerInfo, changes);
                         if (scene != null)
-                            changes.process(scene);
+                            changes.process(renderControl,scene);
 
                         if (markerId != EmptyIdentity)
                         {
@@ -510,6 +511,7 @@ public class RenderController implements RenderControllerInterface
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
         final double now = System.currentTimeMillis() / 1000.0;
+        final RenderController renderControl = this;
 
         // Do the actual work on the layer thread
         Runnable run =
@@ -560,7 +562,7 @@ public class RenderController implements RenderControllerInterface
                         // Add the markers and flush the changes
                         long markerId = markerManager.addScreenMarkers(intMarkers.toArray(new InternalMarker[0]), markerInfo, changes);
                         if (scene != null)
-                            changes.process(scene);
+                            changes.process(renderControl,scene);
 
                         if (markerId != EmptyIdentity)
                         {
@@ -592,6 +594,7 @@ public class RenderController implements RenderControllerInterface
     public ComponentObject addMarkers(final List<Marker> markers,final MarkerInfo markerInfo,ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
+        final RenderController renderControl = this;
 
         // Do the actual work on the layer thread
         Runnable run =
@@ -638,7 +641,7 @@ public class RenderController implements RenderControllerInterface
                         // Add the markers and flush the changes
                         long markerId = markerManager.addMarkers(intMarkers.toArray(new InternalMarker[0]), markerInfo, changes);
                         if (scene != null)
-                            changes.process(scene);
+                            changes.process(renderControl,scene);
 
                         if (markerId != EmptyIdentity)
                         {
@@ -670,6 +673,7 @@ public class RenderController implements RenderControllerInterface
     public ComponentObject addScreenLabels(final List<ScreenLabel> labels,final LabelInfo labelInfo,ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
+        final RenderController renderControl = this;
 
         // Do the actual work on the layer thread
         Runnable run =
@@ -707,7 +711,7 @@ public class RenderController implements RenderControllerInterface
 
                         // Flush the text changes
                         if (scene != null)
-                            changes.process(scene);
+                            changes.process(renderControl,scene);
 
                         for (InternalLabel label : intLabels)
                             label.dispose();
@@ -735,6 +739,7 @@ public class RenderController implements RenderControllerInterface
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
         final double now = System.currentTimeMillis() / 1000.0;
+        final RenderController renderControl = this;
 
         // Do the actual work on the layer thread
         Runnable run =
@@ -772,7 +777,7 @@ public class RenderController implements RenderControllerInterface
 
                         // Flush the text changes
                         if (scene != null)
-                            changes.process(scene);
+                            changes.process(renderControl,scene);
 
                         for (InternalLabel label : intLabels)
                             label.dispose();
@@ -800,6 +805,7 @@ public class RenderController implements RenderControllerInterface
     public ComponentObject addVectors(final List<VectorObject> vecs,final VectorInfo vecInfo,RenderController.ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
+        final RenderController renderControl = this;
 
         // Do the actual work on the layer thread
         Runnable run =
@@ -812,7 +818,7 @@ public class RenderController implements RenderControllerInterface
                         ChangeSet changes = new ChangeSet();
                         long vecId = vecManager.addVectors(vecs.toArray(new VectorObject[0]), vecInfo, changes);
                         if (scene != null)
-                            changes.process(scene);
+                            changes.process(renderControl,scene);
 
                         // Track the vector ID for later use
                         if (vecId != EmptyIdentity)
@@ -855,6 +861,7 @@ public class RenderController implements RenderControllerInterface
     public ComponentObject addLoftedPolys(final List<VectorObject> vecs, final LoftedPolyInfo loftInfo, final ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
+        final RenderController renderControl = this;
 
         // Do the actual work on the layer thread
         Runnable run =
@@ -867,7 +874,7 @@ public class RenderController implements RenderControllerInterface
                         ChangeSet changes = new ChangeSet();
                         long loftID = loftManager.addPolys(vecs.toArray(new VectorObject[0]), loftInfo, changes);
                         if (scene != null)
-                            changes.process(scene);
+                            changes.process(renderControl,scene);
 
                         // Track the vector ID for later use
                         if (loftID != EmptyIdentity)
@@ -906,6 +913,7 @@ public class RenderController implements RenderControllerInterface
     {
         if (vecObj == null)
             return;
+        final RenderController renderControl = this;
 
         // Do the actual work on the layer thread
         Runnable run =
@@ -920,7 +928,7 @@ public class RenderController implements RenderControllerInterface
                         if (vecIDs != null) {
                             vecManager.changeVectors(vecIDs, vecInfo, changes);
                             if (scene != null)
-                                changes.process(scene);
+                                changes.process(renderControl,scene);
                         }
                     }
                 };
@@ -938,6 +946,7 @@ public class RenderController implements RenderControllerInterface
             return null;
 
         final ComponentObject compObj = componentManager.makeComponentObject();
+        final RenderController renderControl = this;
 
         // Do the actual work on the layer thread
         Runnable run =
@@ -956,7 +965,7 @@ public class RenderController implements RenderControllerInterface
                                     compObj.addVectorID(newID);
                             }
                             if (scene != null)
-                                changes.process(scene);
+                                changes.process(renderControl,scene);
                         }
 
                         componentManager.addComponentObject(compObj);
@@ -985,6 +994,7 @@ public class RenderController implements RenderControllerInterface
     public ComponentObject addWideVectors(final List<VectorObject> vecs,final WideVectorInfo wideVecInfo,ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
+        final RenderController renderControl = this;
 
         // Do the actual work on the layer thread
         Runnable run =
@@ -997,7 +1007,7 @@ public class RenderController implements RenderControllerInterface
                         ChangeSet changes = new ChangeSet();
                         long vecId = wideVecManager.addVectors(vecs.toArray(new VectorObject[0]), wideVecInfo, changes);
                         if (scene != null)
-                            changes.process(scene);
+                            changes.process(renderControl,scene);
 
                         // Track the vector ID for later use
                         if (vecId != EmptyIdentity)
@@ -1040,6 +1050,7 @@ public class RenderController implements RenderControllerInterface
     public ComponentObject instanceWideVectors(final ComponentObject inCompObj,final WideVectorInfo wideVecInfo,ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
+        final RenderController renderControl = this;
 
         // Do the actual work on the layer thread
         Runnable run =
@@ -1059,7 +1070,7 @@ public class RenderController implements RenderControllerInterface
                         }
 
                         if (scene != null)
-                            changes.process(scene);
+                            changes.process(renderControl,scene);
 
                         componentManager.addComponentObject(compObj);
                     }
@@ -1084,6 +1095,8 @@ public class RenderController implements RenderControllerInterface
     public ComponentObject addShapes(final List<Shape> shapes, final ShapeInfo shapeInfo, ThreadMode mode) {
         final ComponentObject compObj = componentManager.makeComponentObject();
         final ChangeSet changes = new ChangeSet();
+        final RenderController renderControl = this;
+
         Runnable run = new Runnable() {
             @Override
             public void run() {
@@ -1091,7 +1104,7 @@ public class RenderController implements RenderControllerInterface
                 if (shapeId != EmptyIdentity)
                     compObj.addShapeID(shapeId);
                 if (scene != null)
-                    changes.process(scene);
+                    changes.process(renderControl,scene);
 
                 for (Shape shape : shapes)
                     if (shape.isSelectable())
@@ -1123,6 +1136,7 @@ public class RenderController implements RenderControllerInterface
     public ComponentObject addStickers(final List<Sticker> stickers,final StickerInfo stickerInfo,ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
+        final RenderController renderControl = this;
 
         // Do the actual work on the layer thread
         Runnable run =
@@ -1143,7 +1157,7 @@ public class RenderController implements RenderControllerInterface
                         }
 
                         if (scene != null)
-                            changes.process(scene);
+                            changes.process(renderControl,scene);
 
                         if (stickerInfo.disposeAfterUse || disposeAfterRemoval)
                             for (Sticker sticker : stickers)
@@ -1169,6 +1183,7 @@ public class RenderController implements RenderControllerInterface
     public ComponentObject changeSticker(final ComponentObject stickerObj,final StickerInfo stickerInfo,ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
+        final RenderController renderControl = this;
 
         // Do the actual work on the layer thread
         Runnable run =
@@ -1186,7 +1201,7 @@ public class RenderController implements RenderControllerInterface
                         }
 
                         if (scene != null)
-                            changes.process(scene);
+                            changes.process(renderControl,scene);
 
                         componentManager.addComponentObject(compObj);
                     }
@@ -1203,6 +1218,7 @@ public class RenderController implements RenderControllerInterface
      */
     public ComponentObject addBillboards(final List<Billboard> bills, final BillboardInfo info, final RenderController.ThreadMode threadMode) {
         final ComponentObject compObj = componentManager.makeComponentObject();
+        final RenderController renderControl = this;
 
         // Do the actual work on the layer thread
         Runnable run =
@@ -1250,7 +1266,7 @@ public class RenderController implements RenderControllerInterface
 
                         // Flush the text changes
                         if (scene != null)
-                            changes.process(scene);
+                            changes.process(renderControl,scene);
 
                         if (info.disposeAfterUse || disposeAfterRemoval)
                             for (Billboard bill : bills)
@@ -1280,6 +1296,7 @@ public class RenderController implements RenderControllerInterface
     public ComponentObject addPoints(final List<Points> ptList,final GeometryInfo geomInfo,RenderController.ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
+        final RenderController renderControl = this;
 
         // Do the actual work on the layer thread
         Runnable run =
@@ -1301,7 +1318,7 @@ public class RenderController implements RenderControllerInterface
                         }
 
                         if (scene != null)
-                            changes.process(scene);
+                            changes.process(renderControl,scene);
 
                         if (geomInfo.disposeAfterUse || disposeAfterRemoval)
                             for (Points pts: ptList)
@@ -1327,6 +1344,7 @@ public class RenderController implements RenderControllerInterface
         final MaplyTexture texture = new MaplyTexture();
         final Texture rawTex = new Texture();
         texture.texID = rawTex.getID();
+        final RenderController renderControl = this;
 
         // Possibly do the work somewhere else
         Runnable run =
@@ -1343,7 +1361,7 @@ public class RenderController implements RenderControllerInterface
 
                         // Flush the texture changes
                         if (scene != null)
-                            changes.process(scene);
+                            changes.process(renderControl,scene);
                     }
                 };
 
@@ -1361,6 +1379,7 @@ public class RenderController implements RenderControllerInterface
     public MaplyTexture addTexture(final Texture rawTex,final TextureSettings settings,ThreadMode mode)
     {
         final MaplyTexture texture = new MaplyTexture();
+        final RenderController renderControl = this;
 
         // Possibly do the work somewhere else
         Runnable run =
@@ -1375,7 +1394,7 @@ public class RenderController implements RenderControllerInterface
 
                         // Flush the texture changes
                         if (scene != null)
-                            changes.process(scene);
+                            changes.process(renderControl,scene);
                     }
                 };
 
@@ -1399,6 +1418,7 @@ public class RenderController implements RenderControllerInterface
         texture.texID = rawTex.getID();
         texture.width = width;
         texture.height = height;
+        final RenderController renderControl = this;
 
         // Possibly do the work somewhere else
         Runnable run =
@@ -1415,7 +1435,7 @@ public class RenderController implements RenderControllerInterface
 
                         // Flush the texture changes
                         if (scene != null)
-                            changes.process(scene);
+                            changes.process(renderControl,scene);
                     }
                 };
 
@@ -1431,6 +1451,8 @@ public class RenderController implements RenderControllerInterface
      */
     public void removeTextures(final List<MaplyTexture> texs,ThreadMode mode)
     {
+        final RenderController renderControl = this;
+
         // Do the actual work on the layer thread
         Runnable run =
                 new Runnable()
@@ -1445,7 +1467,7 @@ public class RenderController implements RenderControllerInterface
 
                         // Flush the texture changes
                         if (scene != null)
-                            changes.process(scene);
+                            changes.process(renderControl,scene);
                     }
                 };
 
@@ -1461,6 +1483,8 @@ public class RenderController implements RenderControllerInterface
      */
     public void removeTexturesByID(final List<Long> texIDs,ThreadMode mode)
     {
+        final RenderController renderControl = this;
+
         // Do the actual work on the layer thread
         Runnable run =
                 new Runnable()
@@ -1475,7 +1499,7 @@ public class RenderController implements RenderControllerInterface
 
                         // Flush the texture changes
                         if (scene != null)
-                            changes.process(scene);
+                            changes.process(renderControl,scene);
                     }
                 };
 
@@ -1528,6 +1552,7 @@ public class RenderController implements RenderControllerInterface
             return;
 
         final ComponentObject[] localCompObjs = compObjs.toArray(new ComponentObject[compObjs.size()]);
+        final RenderController renderControl = this;
 
         Runnable run = new Runnable()
         {
@@ -1539,7 +1564,7 @@ public class RenderController implements RenderControllerInterface
                     if (compObj != null)
                         componentManager.enableComponentObject(compObj,false,changes);
                 if (scene != null)
-                    changes.process(scene);
+                    changes.process(renderControl,scene);
             }
         };
 
@@ -1559,6 +1584,7 @@ public class RenderController implements RenderControllerInterface
             return;
 
         final ComponentObject[] localCompObjs = compObjs.toArray(new ComponentObject[compObjs.size()]);
+        final RenderController renderControl = this;
 
         Runnable run =
                 new Runnable()
@@ -1571,7 +1597,7 @@ public class RenderController implements RenderControllerInterface
                             if (compObj != null)
                                 componentManager.enableComponentObject(compObj,true,changes);
                         if (scene != null)
-                            changes.process(scene);
+                            changes.process(renderControl,scene);
                     }
                 };
 
@@ -1589,6 +1615,7 @@ public class RenderController implements RenderControllerInterface
     {
         if (compObjs == null || compObjs.size() == 0)
             return;
+        final RenderController renderControl = this;
 
         Runnable run = new Runnable()
         {
@@ -1600,7 +1627,7 @@ public class RenderController implements RenderControllerInterface
                 componentManager.removeComponentObjects(compObjs.toArray(new ComponentObject[0]),changes,disposeAfterRemoval);
 
                 if (scene != null)
-                    changes.process(scene);
+                    changes.process(renderControl,scene);
             }
         };
 
@@ -1735,6 +1762,11 @@ public class RenderController implements RenderControllerInterface
         }
 
         return false;
+    }
+
+    public void processChangeSet(ChangeSet changes)
+    {
+        changes.process(this, scene);
     }
 
     // Don't need this in standalone mode

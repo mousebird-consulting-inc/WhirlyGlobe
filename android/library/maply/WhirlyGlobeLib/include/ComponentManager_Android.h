@@ -28,6 +28,9 @@ namespace WhirlyKit
 class ComponentManager_Android : public ComponentManager
 {
 public:
+
+protected:
+    virtual ComponentObjectRef makeComponentObject();
 };
 
 }

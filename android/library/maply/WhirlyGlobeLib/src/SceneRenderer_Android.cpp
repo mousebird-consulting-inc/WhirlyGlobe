@@ -22,29 +22,29 @@
 
 namespace WhirlyKit {
 
-SceneRendererES2_Android::SceneRendererES2_Android()
+SceneRendererGLES_Android::SceneRendererGLES_Android()
         : context(0)
 {
     extraFrameMode = true;
 }
 
-SceneRendererES2_Android::SceneRendererES2_Android(int width,int height)
+SceneRendererGLES_Android::SceneRendererGLES_Android(int width,int height)
 {
     context = eglGetCurrentContext();
     setup(3,width,height);
 }
 
 // Called when the window changes size (or on startup)
-bool SceneRendererES2_Android::resize(int width, int height)
+bool SceneRendererGLES_Android::resize(int width, int height)
 {
     context = eglGetCurrentContext();
 
     if (renderTargets.empty()) {
-        RenderTargetRef defaultTarget(new RenderTarget(EmptyIdentity));
+        RenderTargetGLESRef defaultTarget(new RenderTargetGLES(EmptyIdentity));
         defaultTarget->initFromState(width, height);
         renderTargets.push_back(defaultTarget);
     } else {
-        RenderTargetRef defaultTarget = renderTargets.back();
+        RenderTargetGLESRef defaultTarget = std::dynamic_pointer_cast<RenderTargetGLES>(renderTargets.back());
         defaultTarget->initFromState(width, height);
     }
 
@@ -54,6 +54,11 @@ bool SceneRendererES2_Android::resize(int width, int height)
     forceRenderSetup();
 
     return true;
+}
+
+void SceneRendererGLES_Android::snapshotCallback()
+{
+    // TODO: Implement snapshots
 }
 
 }

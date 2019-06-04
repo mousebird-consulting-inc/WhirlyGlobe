@@ -57,14 +57,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_setEpsilon
 
 /*
  * Class:     com_mousebird_maply_Sticker
- * Method:    setImageFormatNative
- * Signature: (I)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_setImageFormatNative
-  (JNIEnv *, jobject, jint);
-
-/*
- * Class:     com_mousebird_maply_Sticker
  * Method:    setTextureIDs
  * Signature: ([J)V
  */

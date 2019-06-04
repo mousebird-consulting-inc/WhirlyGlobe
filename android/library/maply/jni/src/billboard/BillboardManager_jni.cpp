@@ -93,7 +93,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_BillboardManager_addBillboards
         // Resolve a missing program
         if (billInfo->programID == EmptyIdentity)
         {
-            OpenGLES2Program *prog = NULL;
+            Program *prog = NULL;
             if (billInfo->orient == BillboardInfo::Orient::Eye)
                 prog = billManager->getScene()->findProgramByName(MaplyBillboardEyeShader);
             else

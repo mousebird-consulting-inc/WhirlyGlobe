@@ -97,7 +97,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_MarkerManager_addMarkers
 		// Resolve the program ID
 		if (markerInfo->programID == EmptyIdentity)
         {
-            OpenGLES2Program *prog = NULL;
+            Program *prog = NULL;
             if (hasMultiTex)
                 prog = markerManager->getScene()->findProgramByName(MaplyDefaultMarkerShader);
             else
@@ -149,7 +149,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_MarkerManager_addScreenMarkers
         // Resolve the program ID
         if (markerInfo->programID == EmptyIdentity)
         {
-            OpenGLES2Program *prog = NULL;
+            Program *prog = NULL;
             if (isMoving)
                 prog = markerManager->getScene()->findProgramByName(MaplyScreenSpaceDefaultMotionShader);
             else

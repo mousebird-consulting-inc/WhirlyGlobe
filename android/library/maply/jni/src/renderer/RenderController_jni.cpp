@@ -61,6 +61,42 @@ GLenum ImageFormatToGLenum(MaplyImageType format) {
 
 	return ret;
 }
+
+TextureType ImageFormatToTexType(MaplyImageType format) {
+	TextureType ret = TexTypeUnsignedByte;
+
+	switch (format) {
+		case MaplyImageIntRGBA:
+		case MaplyImage4Layer8Bit:
+			ret = TexTypeUnsignedByte;
+			break;
+		case MaplyImageUShort565:
+			ret = TexTypeShort565;
+			break;
+		case MaplyImageUShort4444:
+			ret = TexTypeShort4444;
+			break;
+		case MaplyImageUShort5551:
+			ret = TexTypeShort5551;
+			break;
+		case MaplyImageUByteRed:
+		case MaplyImageUByteGreen:
+		case MaplyImageUByteBlue:
+		case MaplyImageUByteAlpha:
+		case MaplyImageUByteRGB:
+			ret = TexTypeSingleChannel;
+			break;
+			// Note: Need to add dual channel
+		default:
+			break;
+			// Note: Not supporting everything
+//				MaplyImageETC2RGB8,MaplyImageETC2RGBA8,MaplyImageETC2RGBPA8,
+//				MaplyImageEACR11,MaplyImageEACR11S,MaplyImageEACRG11,MaplyImageEACRG11S,
+	}
+
+	return ret;
+}
+
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_nativeInit
@@ -74,7 +110,7 @@ void Java_com_mousebird_maply_RenderController_initialise__
 {
 	try
 	{
-		SceneRendererES2_Android *renderer = new SceneRendererES2_Android();
+		SceneRendererGLES_Android *renderer = new SceneRendererGLES_Android();
 		renderer->setZBufferMode(zBufferOffDefault);
 		renderer->setClearColor(RGBAColor(255,255,255,255));
 		SceneRendererInfo *classInfo = SceneRendererInfo::getClassInfo();
@@ -93,7 +129,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_initialise__II
 {
 	try
 	{
-		SceneRendererES2_Android *renderer = new SceneRendererES2_Android(width,height);
+		SceneRendererGLES_Android *renderer = new SceneRendererGLES_Android(width,height);
 		renderer->setZBufferMode(zBufferOffDefault);
 		renderer->setClearColor(RGBAColor(255,255,255,255));
 		SceneRendererInfo *classInfo = SceneRendererInfo::getClassInfo();
@@ -115,7 +151,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_dispose
 		SceneRendererInfo *classInfo = SceneRendererInfo::getClassInfo();
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
-			SceneRendererES2_Android *inst = classInfo->getObject(env,obj);
+			SceneRendererGLES_Android *inst = classInfo->getObject(env,obj);
             if (!inst)
                 return;
             delete inst;
@@ -134,7 +170,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_setScene
 {
 	try
 	{
-		SceneRendererES2_Android *renderer = SceneRendererInfo::getClassInfo()->getObject(env,obj);
+		SceneRendererGLES_Android *renderer = SceneRendererInfo::getClassInfo()->getObject(env,obj);
 		Scene *scene = SceneClassInfo::getClassInfo()->getObject(env,sceneObj);
 		if (!renderer || !scene)
 			return;
@@ -158,11 +194,11 @@ public:
 	}
 
 	// Add a shader and let the Java side RenderController keep it
-	void addShader(const std::string &name,OpenGLES2Program *prog)
+	void addShader(const std::string &name,ProgramGLES *prog)
 	{
 		Shader_Android *localShader = new Shader_Android();
 		localShader->setupPreBuildProgram(prog);
-		scene->addProgram(prog);
+		scene->addProgram(localShader->prog);
 		jobject shaderObj = MakeShader(env,localShader);
 		env->CallVoidMethod(renderControlObj,addShaderID,shaderObj);
 	}
@@ -178,52 +214,58 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_setupShadersNat
 {
 	try
 	{
-		SceneRendererES2_Android *renderer = SceneRendererInfo::getClassInfo()->getObject(env,obj);
+		SceneRendererGLES_Android *renderer = SceneRendererInfo::getClassInfo()->getObject(env,obj);
 		if (!renderer)
 			return;
+
+		bool isGlobe = !renderer->getScene()->getCoordAdapter()->isFlat();
 
 		SceneRendererWrapper rendWrap(env,renderer->getScene(),obj);
 
 		// Default line shaders
-		OpenGLES2Program *defaultLineShader = BuildDefautLineShaderCulling(MaplyDefaultLineShader);
-		OpenGLES2Program *defaultLineShaderNoBack = BuildDefaultLineShaderNoCulling(MaplyNoBackfaceLineShader);
-		if (dynamic_cast<WhirlyGlobe::GlobeScene *>(renderer->getScene()))
+		ProgramGLES *defaultLineShader = BuildDefaultLineShaderCullingGLES(MaplyDefaultLineShader,renderer);
+		ProgramGLES *defaultLineShaderNoBack = BuildDefaultLineShaderNoCullingGLES(MaplyNoBackfaceLineShader,renderer);
+		if (isGlobe)
 			rendWrap.addShader(MaplyDefaultLineShader,defaultLineShader);
 		else
 			rendWrap.addShader(MaplyNoBackfaceLineShader,defaultLineShaderNoBack);
 
 		// Default triangle shaders
-		rendWrap.addShader(MaplyDefaultTriangleShader,BuildDefaultTriShaderLighting(MaplyDefaultTriangleShader));
-		rendWrap.addShader(MaplyNoLightTriangleShader,BuildDefaultTriShaderNoLighting(MaplyNoLightTriangleShader));
+		rendWrap.addShader(MaplyDefaultTriangleShader,BuildDefaultTriShaderLightingGLES(MaplyDefaultTriangleShader,renderer));
+		rendWrap.addShader(MaplyNoLightTriangleShader,BuildDefaultTriShaderNoLightingGLES(MaplyNoLightTriangleShader,renderer));
 
 		// Model instancing
-		rendWrap.addShader(MaplyDefaultModelTriShader,BuildDefaultTriShaderModel(MaplyDefaultModelTriShader));
+		rendWrap.addShader(MaplyDefaultModelTriShader,BuildDefaultTriShaderModelGLES(MaplyDefaultModelTriShader,renderer));
 
 		// Screen space texture application
-		rendWrap.addShader(MaplyDefaultTriScreenTexShader,BuildDefaultTriShaderScreenTexture(MaplyDefaultTriScreenTexShader));
+		rendWrap.addShader(MaplyDefaultTriScreenTexShader,BuildDefaultTriShaderScreenTextureGLES(MaplyDefaultTriScreenTexShader,renderer));
 
 		// Multi-texture support
-		rendWrap.addShader(MaplyDefaultTriMultiTexShader,BuildDefaultTriShaderMultitex(MaplyDefaultTriMultiTexShader));
-		rendWrap.addShader(MaplyDefaultMarkerShader,BuildDefaultTriShaderMultitex(MaplyDefaultMarkerShader));
+		rendWrap.addShader(MaplyDefaultTriMultiTexShader,BuildDefaultTriShaderMultitexGLES(MaplyDefaultTriMultiTexShader,renderer));
+		rendWrap.addShader(MaplyDefaultMarkerShader,BuildDefaultTriShaderMultitexGLES(MaplyDefaultMarkerShader,renderer));
 
 		// Ramp texture support
-		rendWrap.addShader(MaplyDefaultTriMultiTexRampShader,BuildDefaultTriShaderRamptex(MaplyDefaultTriMultiTexRampShader));
+		rendWrap.addShader(MaplyDefaultTriMultiTexRampShader,BuildDefaultTriShaderRamptexGLES(MaplyDefaultTriMultiTexRampShader,renderer));
 
 		// Night/day shading for globe
-		rendWrap.addShader(MaplyDefaultTriNightDayShader,BuildDefaultTriShaderNightDay(MaplyDefaultTriNightDayShader));
+		rendWrap.addShader(MaplyDefaultTriNightDayShader,BuildDefaultTriShaderNightDayGLES(MaplyDefaultTriNightDayShader,renderer));
 
 		// Billboards
-		rendWrap.addShader(MaplyBillboardGroundShader,BuildBillboardGroundProgram(MaplyBillboardGroundShader));
-		rendWrap.addShader(MaplyBillboardEyeShader,BuildBillboardEyeProgram(MaplyBillboardEyeShader));
+		rendWrap.addShader(MaplyBillboardGroundShader,BuildBillboardGroundProgramGLES(MaplyBillboardGroundShader,renderer));
+		rendWrap.addShader(MaplyBillboardEyeShader,BuildBillboardEyeProgramGLES(MaplyBillboardEyeShader,renderer));
 
 		// Wide vectors
-		rendWrap.addShader(MaplyDefaultWideVectorShader,BuildWideVectorProgram(MaplyDefaultWideVectorShader));
-		rendWrap.addShader(MaplyDefaultWideVectorGlobeShader,BuildWideVectorGlobeProgram(MaplyDefaultWideVectorGlobeShader));
+		rendWrap.addShader(MaplyDefaultWideVectorGlobeShader,BuildWideVectorGlobeProgramGLES(MaplyDefaultWideVectorGlobeShader,renderer));
+		if (isGlobe) {
+            rendWrap.addShader(MaplyDefaultWideVectorShader,BuildWideVectorGlobeProgramGLES(MaplyDefaultWideVectorShader,renderer));
+		} else {
+            rendWrap.addShader(MaplyDefaultWideVectorShader,BuildWideVectorProgramGLES(MaplyDefaultWideVectorShader,renderer));
+		}
 		// Screen space
-		rendWrap.addShader(MaplyScreenSpaceDefaultMotionShader,BuildScreenSpaceProgram(MaplyScreenSpaceDefaultMotionShader));
-		rendWrap.addShader(MaplyScreenSpaceDefaultShader,BuildScreenSpaceMotionProgram(MaplyScreenSpaceDefaultShader));
+		rendWrap.addShader(MaplyScreenSpaceDefaultMotionShader,BuildScreenSpaceProgramGLES(MaplyScreenSpaceDefaultMotionShader,renderer));
+		rendWrap.addShader(MaplyScreenSpaceDefaultShader,BuildScreenSpaceMotionProgramGLES(MaplyScreenSpaceDefaultShader,renderer));
 		// Particles
-		rendWrap.addShader(MaplyParticleSystemPointDefaultShader,BuildParticleSystemProgram(MaplyParticleSystemPointDefaultShader));
+		rendWrap.addShader(MaplyParticleSystemPointDefaultShader,BuildParticleSystemProgramGLES(MaplyParticleSystemPointDefaultShader,renderer));
 	}
 	catch (...)
 	{
@@ -236,7 +278,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_setViewNative
 {
 	try
 	{
-		SceneRendererES2_Android *renderer = SceneRendererInfo::getClassInfo()->getObject(env,obj);
+		SceneRendererGLES_Android *renderer = SceneRendererInfo::getClassInfo()->getObject(env,obj);
 		WhirlyKit::View *view = ViewClassInfo::getClassInfo()->getObject(env,objView);
 		if (!renderer || !view)
 			return;
@@ -255,7 +297,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_setClearColor
 {
 	try
 	{
-		SceneRendererES2_Android *renderer = SceneRendererInfo::getClassInfo()->getObject(env,obj);
+        SceneRendererGLES_Android *renderer = SceneRendererInfo::getClassInfo()->getObject(env,obj);
 		if (!renderer)
 			return;
 
@@ -279,7 +321,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_RenderController_resize
 {
 	try
 	{
-		SceneRendererES2_Android *renderer = SceneRendererInfo::getClassInfo()->getObject(env,obj);
+        SceneRendererGLES_Android *renderer = SceneRendererInfo::getClassInfo()->getObject(env,obj);
 		if (!renderer)
 			return false;
 
@@ -304,13 +346,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_render
 {
 	try
 	{
-		SceneRendererES2_Android *renderer = SceneRendererInfo::getClassInfo()->getObject(env,obj);
+        SceneRendererGLES_Android *renderer = SceneRendererInfo::getClassInfo()->getObject(env,obj);
 		if (!renderer)
 			return;
 
 		// Force a draw every time
-		renderer->triggerDraw = true;
-		renderer->render(1/60.0 * renderer->perfInterval);
+		renderer->setTriggerDraw();
+		/// TODO: Make sure this is actually what we're using
+		renderer->render(1/60.0);
 	}
 	catch (...)
 	{
@@ -323,7 +366,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_RenderController_hasChanges
 {
 	try
 	{
-		SceneRendererES2_Android *renderer = SceneRendererInfo::getClassInfo()->getObject(env,obj);
+        SceneRendererGLES_Android *renderer = SceneRendererInfo::getClassInfo()->getObject(env,obj);
 		if (!renderer)
 			return false;
 
@@ -342,7 +385,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_setPerfInterval
 {
 	try
 	{
-		SceneRendererES2_Android *renderer = SceneRendererInfo::getClassInfo()->getObject(env,obj);
+        SceneRendererGLES_Android *renderer = SceneRendererInfo::getClassInfo()->getObject(env,obj);
 		if (!renderer)
 			return;
 
@@ -359,7 +402,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_addLight
 {
 	try
 	{
-		SceneRendererES2_Android *renderer = SceneRendererInfo::getClassInfo()->getObject(env,obj);
+        SceneRendererGLES_Android *renderer = SceneRendererInfo::getClassInfo()->getObject(env,obj);
 		DirectionalLight *light = DirectionalLightClassInfo::getClassInfo()->getObject(env, lightObj);
 		if (!renderer || !light)
 			return;
@@ -377,7 +420,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_replaceLights
 {
 	try
 	{
-		SceneRendererES2_Android *renderer = SceneRendererInfo::getClassInfo()->getObject(env,obj);
+        SceneRendererGLES_Android *renderer = SceneRendererInfo::getClassInfo()->getObject(env,obj);
 		if (!renderer)
 			return;
 

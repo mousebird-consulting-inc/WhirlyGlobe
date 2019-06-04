@@ -104,9 +104,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addGeometry
         // Resolve a missing program
         if (geomInfo->programID == EmptyIdentity)
         {
-            bool isGlobe = dynamic_cast<WhirlyGlobe::GlobeScene *>(geomManager->getScene());
-            OpenGLES2Program *prog = NULL;
-            prog = geomManager->getScene()->findProgramByName(MaplyDefaultTriangleShader);
+            Program *prog = geomManager->getScene()->findProgramByName(MaplyDefaultTriangleShader);
             if (prog)
                 geomInfo->programID = prog->getId();
         }

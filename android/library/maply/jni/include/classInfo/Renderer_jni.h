@@ -22,25 +22,29 @@
 #import "WhirlyGlobe_Android.h"
 
 typedef JavaClassInfo<WhirlyKit::SingleVertexAttributeInfo> SingleVertexAttributeInfoClassInfo;
-typedef JavaClassInfo<WhirlyKit::OpenGLES2Program> OpenGLES2ProgramClassInfo;
-typedef JavaClassInfo<WhirlyKit::SceneRendererES2_Android> SceneRendererInfo;
+typedef JavaClassInfo<WhirlyKit::ProgramGLES> OpenGLES2ProgramClassInfo;
+typedef JavaClassInfo<WhirlyKit::SceneRendererGLES_Android> SceneRendererInfo;
 typedef JavaClassInfo<WhirlyKit::SingleVertexAttribute> SingleVertexAttributeClassInfo;
 
 namespace WhirlyKit {
-// Image type enum
-    typedef enum {
-        MaplyImageIntRGBA,
-        MaplyImageUShort565,
-        MaplyImageUShort4444,
-        MaplyImageUShort5551,
-        MaplyImageUByteRed, MaplyImageUByteGreen, MaplyImageUByteBlue, MaplyImageUByteAlpha,
-        MaplyImageUByteRGB,
-        MaplyImageETC2RGB8, MaplyImageETC2RGBA8, MaplyImageETC2RGBPA8,
-        MaplyImageEACR11, MaplyImageEACR11S, MaplyImageEACRG11, MaplyImageEACRG11S,
-        MaplyImage4Layer8Bit
-    }
-            MaplyImageType;
+// Image type enum, corresponds to the same thing on the Java side
+typedef enum {
+    MaplyImageIntRGBA,
+    MaplyImageUShort565,
+    MaplyImageUShort4444,
+    MaplyImageUShort5551,
+    MaplyImageUByteRed, MaplyImageUByteGreen, MaplyImageUByteBlue, MaplyImageUByteAlpha,
+    MaplyImageUByteRGB,
+    MaplyImageETC2RGB8, MaplyImageETC2RGBA8, MaplyImageETC2RGBPA8,
+    MaplyImageEACR11, MaplyImageEACR11S, MaplyImageEACRG11, MaplyImageEACRG11S,
+    MaplyImage4Layer8Bit
+}
+MaplyImageType;
 
 // Convert the image format to an appropriate GL enum for textures
-    extern GLenum ImageFormatToGLenum(MaplyImageType format);
+extern GLenum ImageFormatToGLenum(MaplyImageType format);
+
+// Convert the image type format to the texture type format
+TextureType ImageFormatToTexType(MaplyImageType format);
 }
+

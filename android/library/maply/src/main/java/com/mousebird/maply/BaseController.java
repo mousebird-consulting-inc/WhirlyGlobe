@@ -1887,7 +1887,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 					compObj.addParticleSystemID(particleSystemID);
 				}
 				if (scene != null)
-					changes.process(scene);
+					changes.process(renderControl, scene);
 			}
 		};
 
@@ -1912,7 +1912,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 					ChangeSet changes = new ChangeSet();
 					renderControl.particleSystemManager.addParticleBatch(particleBatch.partSys.getID(), particleBatch,changes);
 					if (scene != null)
-						changes.process(scene);
+						changes.process(renderControl, scene);
 				}
 			};
 			addTask(run, mode);
@@ -2053,5 +2053,10 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	public int[] getFrameBufferSize()
 	{
 		return renderControl.getFrameBufferSize();
+	}
+
+	public void processChangeSet(ChangeSet changes)
+	{
+		changes.process(renderControl, scene);
 	}
 }

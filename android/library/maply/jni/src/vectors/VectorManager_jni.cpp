@@ -95,12 +95,11 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_VectorManager_addVectors
         // Resolve a missing program
         if (vecInfo->programID == EmptyIdentity)
         {
-            bool isGlobe = dynamic_cast<WhirlyGlobe::GlobeScene *>(vecManager->getScene());
-            OpenGLES2Program *prog = NULL;
+            ProgramGLES *prog = NULL;
             if (vecInfo->filled)
-				prog = vecManager->getScene()->findProgramByName(MaplyDefaultTriangleShader);
+				prog = (ProgramGLES *)vecManager->getScene()->findProgramByName(MaplyDefaultTriangleShader);
             else
-            	prog = vecManager->getScene()->findProgramByName(MaplyDefaultLineShader);
+            	prog = (ProgramGLES *)vecManager->getScene()->findProgramByName(MaplyDefaultLineShader);
             if (prog)
                 vecInfo->programID = prog->getId();
         }

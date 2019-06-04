@@ -40,14 +40,14 @@ Shader_Android::~Shader_Android()
 void Shader_Android::setupProgram(const std::string &name,const std::string &vertProg,const std::string &fragProg)
 {
     if (varyings.empty())
-    	prog = new OpenGLES2Program(name,vertProg,fragProg);
+    	prog = ProgramGLESRef(new ProgramGLES(name,vertProg,fragProg));
     else
-        prog = new OpenGLES2Program(name,vertProg,fragProg,&varyings);
+        prog = ProgramGLESRef(new ProgramGLES(name,vertProg,fragProg,&varyings));
 }
 
-void Shader_Android::setupPreBuildProgram(OpenGLES2Program *inProg)
+void Shader_Android::setupPreBuildProgram(ProgramGLES *inProg)
 {
-    prog = inProg;
+    prog = ProgramGLESRef(inProg);
 }
 
 }

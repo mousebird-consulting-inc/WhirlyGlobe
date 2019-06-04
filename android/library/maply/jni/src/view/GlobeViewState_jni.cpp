@@ -40,7 +40,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GlobeViewState_initialise
 	try
 	{
 		GlobeView *globeView = GlobeViewClassInfo::getClassInfo()->getObject(env,viewObj);
-		SceneRendererES2_Android *renderer = (SceneRendererES2_Android *)SceneRendererInfo::getClassInfo()->getObject(env,rendererObj);
+		SceneRendererGLES_Android *renderer = (SceneRendererGLES_Android *)SceneRendererInfo::getClassInfo()->getObject(env,rendererObj);
 		if (!globeView || !renderer)
 			return;
 

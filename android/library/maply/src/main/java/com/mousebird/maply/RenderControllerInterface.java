@@ -124,6 +124,8 @@ public interface RenderControllerInterface
 
     void clearTempContext(ContextInfo cInfo);
 
+    void processChangeSet(ChangeSet changes);
+
     public void requestRender();
 
     // Context and associated surface
