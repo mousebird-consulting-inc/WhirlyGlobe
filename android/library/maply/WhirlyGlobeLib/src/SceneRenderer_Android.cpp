@@ -26,10 +26,14 @@ SceneRendererGLES_Android::SceneRendererGLES_Android()
         : context(0)
 {
     extraFrameMode = true;
+    context = eglGetCurrentContext();
+    // If we pass in a size, we get an offscreen buffer
+    setup(3, 0, 0);
 }
 
 SceneRendererGLES_Android::SceneRendererGLES_Android(int width,int height)
 {
+    extraFrameMode = true;
     context = eglGetCurrentContext();
     setup(3,width,height);
 }
@@ -39,14 +43,8 @@ bool SceneRendererGLES_Android::resize(int width, int height)
 {
     context = eglGetCurrentContext();
 
-    if (renderTargets.empty()) {
-        RenderTargetGLESRef defaultTarget(new RenderTargetGLES(EmptyIdentity));
-        defaultTarget->initFromState(width, height);
-        renderTargets.push_back(defaultTarget);
-    } else {
-        RenderTargetGLESRef defaultTarget = std::dynamic_pointer_cast<RenderTargetGLES>(renderTargets.back());
-        defaultTarget->initFromState(width, height);
-    }
+    RenderTargetGLESRef defaultTarget = std::dynamic_pointer_cast<RenderTargetGLES>(renderTargets.back());
+    defaultTarget->initFromState(width, height);
 
     framebufferWidth = width;
     framebufferHeight = height;

@@ -177,12 +177,6 @@ public class RenderController implements RenderControllerInterface
         geomManager = new GeometryManager(scene);
     }
 
-    // Called when we have an openGL surface to use
-    public void surfaceAttached()
-    {
-        setupShadersNative();
-    }
-
     View view = null;
     public void setView(View inView)
     {

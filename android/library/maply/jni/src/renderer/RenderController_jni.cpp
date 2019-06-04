@@ -112,9 +112,8 @@ void Java_com_mousebird_maply_RenderController_initialise__
 	{
 		SceneRendererGLES_Android *renderer = new SceneRendererGLES_Android();
 		renderer->setZBufferMode(zBufferOffDefault);
-		renderer->setClearColor(RGBAColor(255,255,255,255));
-		SceneRendererInfo *classInfo = SceneRendererInfo::getClassInfo();
-		classInfo->setHandle(env,obj,renderer);
+		renderer->setClearColor(RGBAColor(0,0,0,0));
+        SceneRendererInfo::getClassInfo()->setHandle(env,obj,renderer);
 	}
 	catch (...)
 	{
