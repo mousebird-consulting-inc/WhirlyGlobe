@@ -644,11 +644,13 @@ void SceneRendererGLES::render(TimeInterval duration)
     
     if (perfInterval > 0)
         perfTimer.startTiming("Present Renderbuffer");
-    
+
+#ifndef __ANDROID__
     // Explicitly discard the depth buffer
     const GLenum discards[]  = {GL_DEPTH_ATTACHMENT};
     glInvalidateFramebuffer(GL_FRAMEBUFFER,1,discards);
     CheckGLError("SceneRendererES2: glInvalidateFramebuffer");
+#endif
     
     // Subclass with do the presentation
     presentRender();

@@ -43,12 +43,14 @@ bool DirectionalLight::bindToProgram(Program *program, int index, Eigen::Matrix4
     Eigen::Vector3f dir = pos.normalized();
     Eigen::Vector3f halfPlane = (dir + Eigen::Vector3f(0,0,1)).normalized();
 
-    return program->setUniform(lightViewDependNameIDs[index], (viewDependent ? 0.0f : 1.0f)) &&
-        program->setUniform(lightDirectionNameIDs[index], dir) &&
-        program->setUniform(lightHalfplaneNameIDs[index], halfPlane) &&
-        program->setUniform(lightAmbientNameIDs[index], ambient) &&
-        program->setUniform(lightDiffuseNameIDs[index], diffuse) &&
-        program->setUniform(lightSpecularNameIDs[index], specular);
+    program->setUniform(lightViewDependNameIDs[index], (viewDependent ? 0.0f : 1.0f));
+    program->setUniform(lightDirectionNameIDs[index], dir);
+    program->setUniform(lightHalfplaneNameIDs[index], halfPlane);
+    program->setUniform(lightAmbientNameIDs[index], ambient);
+    program->setUniform(lightDiffuseNameIDs[index], diffuse);
+    program->setUniform(lightSpecularNameIDs[index], specular);
+
+    return true;
 }
 
 
@@ -66,10 +68,12 @@ Material::~Material()
 
 bool Material::bindToProgram(Program *program)
 {
-    return program->setUniform(materialAmbientNameID, ambient) &&
-    program->setUniform(materialDiffuseNameID, diffuse) &&
-    program->setUniform(materialSpecularNameID, specular) &&
+    program->setUniform(materialAmbientNameID, ambient);
+    program->setUniform(materialDiffuseNameID, diffuse);
+    program->setUniform(materialSpecularNameID, specular);
     program->setUniform(materialSpecularExponentNameID, specularExponent);
+
+    return true;
 }
 
 }
