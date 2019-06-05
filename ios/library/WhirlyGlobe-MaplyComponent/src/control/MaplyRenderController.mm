@@ -625,17 +625,17 @@ using namespace Eigen;
     [self addShader:kMaplyShaderDefaultTri
             program:ProgramRef(new ProgramMTL([kMaplyShaderDefaultTri cStringUsingEncoding:NSASCIIStringEncoding],
                                               [mtlLib newFunctionWithName:@"vertexTri_light"],
-                                              [mtlLib newFunctionWithName:@"fragmentTri_noLight"]))];
+                                              [mtlLib newFunctionWithName:@"fragmentTri_basic"]))];
     [self addShader:kMaplyShaderDefaultTriNoLighting
             program:ProgramRef(new ProgramMTL([kMaplyShaderDefaultTri cStringUsingEncoding:NSASCIIStringEncoding],
                                               [mtlLib newFunctionWithName:@"vertexTri_noLight"],
-                                              [mtlLib newFunctionWithName:@"fragmentTri_noLight"]))];
+                                              [mtlLib newFunctionWithName:@"fragmentTri_basic"]))];
 
     // TODO: Implement this version
     [self addShader:kMaplyShaderDefaultTriMultiTex
             program:ProgramRef(new ProgramMTL([kMaplyShaderDefaultTriMultiTex cStringUsingEncoding:NSASCIIStringEncoding],
                                               [mtlLib newFunctionWithName:@"vertexTri_noLight"],
-                                              [mtlLib newFunctionWithName:@"fragmentTri_noLight"]))];
+                                              [mtlLib newFunctionWithName:@"fragmentTri_basic"]))];
 
 }
 

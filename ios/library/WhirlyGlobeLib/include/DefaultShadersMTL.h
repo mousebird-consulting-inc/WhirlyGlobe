@@ -26,6 +26,14 @@ namespace WhirlyKitShader
 #define WKSVertexColorAttribute 1
 #define WKSVertexNormalAttribute 2
 #define WKSVertexTextureBaseAttribute 3
+// A maximum of two texture coordinates at the moment
+#define WKSVertexTextureCoordMax 2
+    
+// Where we start with basic textures
+#define WKSTextureEntryBase 0
+    
+// Where we start with data lookup texture (like color ramps)
+#define WKSTextureEntryLookup 4
     
 #define WKSUniformBuffer 8
 // Uniforms for the basic case.  Nothing fancy.
@@ -41,6 +49,7 @@ struct Uniforms
 struct UniformDrawStateA {
     int numTextures;           // Number of textures we may find on input
     float fade;                // Fade tends to change by time
+    float interp;              // Used to interpolate between two textures (if appropriate)
     simd::float4x4 singleMat;  // Note: Use this rather than changing the uniforms
 };
 
