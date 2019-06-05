@@ -61,6 +61,9 @@ public:
     /// Copy the data out of the destination texture and return it
     RawDataRef snapshot();
     
+    /// This version just copies out a subset
+    RawDataRef snapshot(int startX,int starTY,int width,int height);
+    
     /// OpenGL ES Name for the frame buffer
     GLuint framebuffer;
     /// OpenGL ES Name for the color buffer

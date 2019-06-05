@@ -1210,6 +1210,14 @@
   */
 - (NSData * __nullable)shapshotRenderTarget:(MaplyRenderTarget * __nonnull)renderTarget;
 
+/**
+    Return raw data for just a subset of the render target.
+ 
+    Copies only the pixels needed into an NSData and returns it.
+    This is faster than doing the whole thing, but it is not, in general, fast.
+  */
+- (NSData * __nullable)shapshotRenderTarget:(MaplyRenderTarget * __nonnull)renderTarget rect:(CGRect)rect;
+
 /** 
     Return the current map zoom from the viewpoint.
  

@@ -173,10 +173,16 @@ void SceneRendererES_iOS::snapshotCallback()
             [snapshotDelegate snapshotImage:image];
             [snapshotDelegate snapshotData:dataWrapper];
         } else {
+            CGRect snapshotRect = [snapshotDelegate snapshotRect];
+            
             // Was a specific render target, not the general screen
             for (auto target: renderTargets) {
                 if (target->getId() == snapshotDelegate.renderTargetID) {
-                    RawDataRef rawData = target->snapshot();
+                    RawDataRef rawData;
+                    if (snapshotRect.size.width == 0.0)
+                        rawData = target->snapshot();
+                    else
+                        rawData = target->snapshot(snapshotRect.origin.x,snapshotRect.origin.y,snapshotRect.size.width,snapshotRect.size.height);
                     // Note: This is an extra copy
                     NSData *data = [[NSData alloc] initWithBytes:rawData->getRawData() length:rawData->getLen()];
                     

@@ -43,6 +43,7 @@ using namespace WhirlyKit;
 @property (nonatomic) UIImage *image;
 @property (nonatomic) NSData *data;
 @property (nonatomic) SimpleIdentity renderTargetID;
+@property (nonatomic) CGRect subsetRect;
 @end
 
 @implementation SnapshotTarget
@@ -54,8 +55,19 @@ using namespace WhirlyKit;
     _image = nil;
     _data = nil;
     _renderTargetID = EmptyIdentity;
+    _subsetRect = CGRectZero;
     
     return self;
+}
+
+- (void)setSubsetRect:(CGRect)subsetRect
+{
+    _subsetRect = subsetRect;
+}
+
+- (CGRect)snapshotRect
+{
+    return _subsetRect;
 }
 
 - (void)snapshotData:(NSData *)snapshotData {
@@ -1565,6 +1577,22 @@ static const float PerfOutputDelay = 15.0;
     renderControl->sceneRenderer->forceDrawNextFrame();
     renderControl->sceneRenderer->render(0.0);
 
+    return target.data;
+}
+
+- (NSData *)shapshotRenderTarget:(MaplyRenderTarget *)renderTarget rect:(CGRect)rect
+{
+    if ([NSThread currentThread] != [NSThread mainThread])
+        return NULL;
+    
+    SnapshotTarget *target = [[SnapshotTarget alloc] init];
+    target.renderTargetID = renderTarget.renderTargetID;
+    target.subsetRect = rect;
+    renderControl->sceneRenderer->setSnapshotDelegate(target);
+    
+    renderControl->sceneRenderer->forceDrawNextFrame();
+    renderControl->sceneRenderer->render(0.0);
+    
     return target.data;
 }
 

@@ -25,6 +25,8 @@
 @protocol WhirlyKitSnapshot
 /// Rerturn the render target to snapshot.  EmptyIdentity for the screen.
 - (WhirlyKit::SimpleIdentity)renderTargetID;
+/// If we just want a subset, this is it
+- (CGRect)snapshotRect;
 /// Called when the snapshot is taken
 - (void)snapshotImage:(UIImage *)image;
 /// Called with the raw image data
