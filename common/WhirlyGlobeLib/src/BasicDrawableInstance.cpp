@@ -23,6 +23,7 @@
 #import "GlobeScene.h"
 #import "SceneRendererES.h"
 #import "TextureAtlas.h"
+#import "WhirlyKitLog.h"
 
 using namespace Eigen;
 
@@ -482,11 +483,19 @@ void BasicDrawableInstance::draw(RendererFrameInfo *frameInfo,Scene *scene)
                 if (texID != EmptyIdentity)
                 {
                     glTexID = scene->getGLTexture(texID);
-                    anyTextures = true;
+                    
+                    if (glTexID != 0)
+                    {
+                        anyTextures = true;
+                        glTexIDs.push_back(glTexID);
+                    } else
+                        wkLogLevel(Error,"BasicDrawableInstance: Missing texture %d",texID);
                 }
-                glTexIDs.push_back(glTexID);
             }
         }
+        
+        if (!anyTextures)
+            wkLogLevel(Error,"BasicDrawableInstance: Drawable without textures");
         
         // Model/View/Projection matrix
         if (basicDraw->clipCoords)
