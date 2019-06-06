@@ -49,6 +49,9 @@ public:
 
     /// Copy the data out of the destination texture and return it
     virtual RawDataRef snapshot() = 0;
+    
+    /// Copy just a subset out of the destination texture and return it
+    virtual RawDataRef snapshot(int startX,int startY,int snapWidth,int snapHeight) = 0;
 
     /// Output framebuffer size
     int width,height;

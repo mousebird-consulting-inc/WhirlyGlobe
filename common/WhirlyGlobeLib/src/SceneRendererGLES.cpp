@@ -656,7 +656,7 @@ void SceneRendererGLES::render(TimeInterval duration)
     presentRender();
     
     // Snapshots tend to be platform specific
-    snapshotCallback();
+    snapshotCallback(now);
     
     if (perfInterval > 0)
         perfTimer.stopTiming("Present Renderbuffer");

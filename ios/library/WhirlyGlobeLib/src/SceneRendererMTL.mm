@@ -180,12 +180,12 @@ static void CopyIntoFloat4x4(simd::float4x4 &dest,Eigen::Matrix4f &src)
             dest.columns[ix][iy] = src(ix*4+iy);
 }
     
-static void CopyIntoFloat3(simd::float3 &dest,const Point3d &src)
-{
-    dest[0] = src.x();
-    dest[1] = src.y();
-    dest[2] = src.z();
-}
+//static void CopyIntoFloat3(simd::float3 &dest,const Point3d &src)
+//{
+//    dest[0] = src.x();
+//    dest[1] = src.y();
+//    dest[2] = src.z();
+//}
     
 static void CopyIntoFloat3(simd::float3 &dest,const Point3f &src)
 {
@@ -641,7 +641,7 @@ void SceneRendererMTL::render(TimeInterval duration,
         perfTimer.startTiming("Present Renderbuffer");
     
     // Snapshots tend to be platform specific
-    snapshotCallback();
+    snapshotCallback(now);
     
     if (perfInterval > 0)
         perfTimer.stopTiming("Present Renderbuffer");
@@ -669,7 +669,7 @@ void SceneRendererMTL::render(TimeInterval duration,
     [cmdBuff commit];
 }
     
-void SceneRendererMTL::snapshotCallback()
+void SceneRendererMTL::snapshotCallback(TimeInterval now)
 {
     
 }

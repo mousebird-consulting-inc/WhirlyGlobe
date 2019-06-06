@@ -72,7 +72,7 @@ public:
     void render(TimeInterval period,MTLRenderPassDescriptor *renderPassDesc,id<CAMetalDrawable> drawable);
     
     /// Run a snapshot and callback the registered routine
-    virtual void snapshotCallback();
+    virtual void snapshotCallback(TimeInterval now);
     
     /// Construct a basic drawable builder for the appropriate rendering type
     virtual BasicDrawableBuilderRef makeBasicDrawableBuilder(const std::string &name) const;

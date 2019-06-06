@@ -182,13 +182,14 @@ using namespace Eigen;
 
     [self useGLContext];
 
-    sceneRendererGLES->setSnapshotDelegate(self);
+    sceneRendererGLES->addSnapshotDelegate(self);
     sceneRendererGLES->render(0.0);
     
     UIImage *toRet = snapshotImage;
     snapshotImage = nil;
     snapshotData = nil;
-    
+    sceneRendererGLES->removeSnapshotDelegate(self);
+
     [EAGLContext setCurrentContext:oldContext];
     
     return toRet;
@@ -206,12 +207,13 @@ using namespace Eigen;
 
     [self useGLContext];
 
-    sceneRendererGLES->setSnapshotDelegate(self);
+    sceneRendererGLES->addSnapshotDelegate(self);
     sceneRendererGLES->render(0.0);
     
     NSData *toRet = snapshotData;
     snapshotImage = nil;
     snapshotData = nil;
+    sceneRendererGLES->removeSnapshotDelegate(self);
 
     [EAGLContext setCurrentContext:oldContext];
     
@@ -569,6 +571,16 @@ using namespace Eigen;
 - (void)snapshotImage:(UIImage *)image {
     snapshotImage = image;
 }
+
+- (bool)needSnapshot:(NSTimeInterval)now {
+    return true;
+}
+
+
+- (CGRect)snapshotRect {
+    return CGRectZero;
+}
+
 
 - (void)addShader:(NSString *)inName program:(ProgramRef)program
 {

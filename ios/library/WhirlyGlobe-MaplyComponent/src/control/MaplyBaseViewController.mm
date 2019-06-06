@@ -42,30 +42,73 @@ using namespace WhirlyKit;
 
 // Target for screen snapshot
 @interface SnapshotTarget : NSObject<WhirlyKitSnapshot>
+@property (nonatomic,weak) MaplyBaseViewController *viewC;
 @property (nonatomic) UIImage *image;
 @property (nonatomic) NSData *data;
 @property (nonatomic) SimpleIdentity renderTargetID;
+@property (nonatomic) CGRect subsetRect;
+@property (nonatomic) NSObject<MaplySnapshotDelegate> *outsideDelegate;
 @end
 
 @implementation SnapshotTarget
 
-- (instancetype)init
+- (instancetype)initWithViewC:(MaplyBaseViewController *)inViewC
 {
     self = [super init];
     
-    _image = nil;
+    _viewC = inViewC;
     _data = nil;
     _renderTargetID = EmptyIdentity;
+    _subsetRect = CGRectZero;
     
     return self;
 }
 
-- (void)snapshotData:(NSData *)snapshotData {
-    _data = snapshotData;
+- (instancetype)initWithOutsideDelegate:(NSObject<MaplySnapshotDelegate> *)inOutsideDelegate viewC:(MaplyBaseViewController *)inViewC
+{
+    self = [super init];
+    _outsideDelegate = inOutsideDelegate;
+    
+    return self;
 }
 
-- (void)snapshotImage:(UIImage *)snapshotImage {
-    _image = snapshotImage;
+- (void)setSubsetRect:(CGRect)subsetRect
+{
+    _subsetRect = subsetRect;
+}
+
+- (CGRect)snapshotRect
+{
+    if (_outsideDelegate)
+        return [_outsideDelegate snapshotRect];
+    
+    return _subsetRect;
+}
+
+- (void)snapshotData:(NSData *)snapshotData {
+    if (_outsideDelegate)
+        [_outsideDelegate snapshot:snapshotData];
+    else
+        _data = snapshotData;
+}
+
+- (bool)needSnapshot:(NSTimeInterval)now {
+    if (_outsideDelegate)
+        return [_outsideDelegate needSnapshot:now viewC:_viewC];
+    return true;
+}
+
+- (SimpleIdentity)renderTargetID
+{
+    if (_outsideDelegate) {
+        MaplyRenderTarget *renderTarget = [_outsideDelegate renderTarget];
+        if (renderTarget) {
+            return [renderTarget renderTargetID];
+        }
+        return EmptyIdentity;
+    }
+    
+    return _renderTargetID;
 }
 
 @end
@@ -1545,6 +1588,39 @@ static const float PerfOutputDelay = 15.0;
     return (float)visualView->heightForMapScale(scale,frameSize);
 }
 
+- (void)addSnapshotDelegate:(NSObject<MaplySnapshotDelegate> *)snapshotDelegate
+{
+    if (!renderControl)
+        return;
+    
+    SceneRendererGLES_iOSRef sceneRenderGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(renderControl->sceneRenderer);
+    if (!sceneRenderGLES)
+        return;
+    
+    SnapshotTarget *newTarget = [[SnapshotTarget alloc] initWithOutsideDelegate:snapshotDelegate viewC:self];
+    sceneRenderGLES->addSnapshotDelegate(newTarget);
+}
+
+- (void)removeSnapshotDelegate:(NSObject<MaplySnapshotDelegate> *)snapshotDelegate
+{
+    if (!renderControl)
+        return;
+    
+    SceneRendererGLES_iOSRef sceneRenderGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(renderControl->sceneRenderer);
+    if (!sceneRenderGLES)
+        return;
+
+    for (auto delegate : sceneRenderGLES->snapshotDelegates) {
+        if ([delegate isKindOfClass:[SnapshotTarget class]]) {
+            SnapshotTarget *thisTarget = (SnapshotTarget *)delegate;
+            if (thisTarget.outsideDelegate == snapshotDelegate) {
+                sceneRenderGLES->removeSnapshotDelegate(thisTarget);
+                break;
+            }
+        }
+    }
+}
+
 - (UIImage *)snapshot
 {
     if (!renderControl)
@@ -1557,11 +1633,12 @@ static const float PerfOutputDelay = 15.0;
     // TODO: Implement this for Metal
 
     SnapshotTarget *target = [[SnapshotTarget alloc] init];
-    sceneRenderGLES->setSnapshotDelegate(target);
-    
+    sceneRenderGLES->addSnapshotDelegate(target);
+
     sceneRenderGLES->forceDrawNextFrame();
     sceneRenderGLES->render(0.0);
-    
+    sceneRenderGLES->removeSnapshotDelegate(target);
+
     return target.image;
 }
 
@@ -1578,10 +1655,11 @@ static const float PerfOutputDelay = 15.0;
     
     SnapshotTarget *target = [[SnapshotTarget alloc] init];
     target.renderTargetID = renderTarget.renderTargetID;
-    sceneRenderGLES->setSnapshotDelegate(target);
-    
+    sceneRenderGLES->addSnapshotDelegate(target);
+
     sceneRenderGLES->forceDrawNextFrame();
     sceneRenderGLES->render(0.0);
+    sceneRenderGLES->removeSnapshotDelegate(target);
 
     return target.data;
 }

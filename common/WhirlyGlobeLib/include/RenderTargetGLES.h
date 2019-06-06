@@ -50,7 +50,10 @@ public:
     
     /// Copy the data out of the destination texture and return it
     virtual RawDataRef snapshot();
-    
+
+    /// Copy just a subset out of the destination texture
+    RawDataRef snapshot(int startX,int startY,int snapWidth,int snapHeight);
+
     /// Make this framebuffer active
     void setActiveFramebuffer(SceneRendererGLES *renderer);
         

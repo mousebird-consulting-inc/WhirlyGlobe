@@ -62,6 +62,28 @@
 
 @end
 
+/** Snapshot Delegate
+ 
+ Snapshots can be run as callbacks after the rendering.  If you keep your area
+ small enough you can even do it every frame.  This is the protocol for
+ snapshot delegates.
+ */
+@protocol MaplySnapshotDelegate
+
+/// Return true if you want a snapshot for this frame
+- (bool)needSnapshot:(NSTimeInterval)now viewC:(MaplyBaseViewController * __nonnull)viewC;
+
+/// If you want the whole thing return CGRectZero, otherwise return the rectangle you want based
+///  on the number of pixels.  So multiply by the scale first.
+- (CGRect)snapshotRect;
+
+/// Here's your snapshot data.  Do what you will, but do it quickly.  You can hold onto the NSData.
+- (void)snapshot:(NSData * __nonnull)snapshotData;
+
+/// If you want a specific render target, return it.  Otherwise nil for the screen.
+- (MaplyRenderTarget * __nullable)renderTarget;
+
+@end
 
 @protocol MaplyLocationTrackerDelegate;
 
@@ -1216,6 +1238,20 @@
     This is not fast.  Don't call it often.
   */
 - (NSData * __nullable)shapshotRenderTarget:(MaplyRenderTarget * __nonnull)renderTarget;
+
+/** Add a snapshot delegate.
+ 
+ If you need more regular snapshots, you can fill this in to get a callback every frame.
+ Don't snapshot the screen or even offscreen render targets every frame.  It'll be slow.
+ */
+- (void)addSnapshotDelegate:(NSObject<MaplySnapshotDelegate> *__nonnull)snapshotDelegate;
+
+/** Remove your snapshot delegate.
+ 
+ Don't getting screenshots/render target snapshots?  Get rid of your delegate.  They're expensive.
+ */
+- (void)removeSnapshotDelegate:(NSObject<MaplySnapshotDelegate> *__nonnull)snapshotDelegate;
+
 
 /** 
     Return the current map zoom from the viewpoint.

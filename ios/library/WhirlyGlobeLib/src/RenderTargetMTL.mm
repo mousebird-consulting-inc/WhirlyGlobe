@@ -58,6 +58,12 @@ RawDataRef RenderTargetMTL::snapshot()
     // TODO: Implement
     return RawDataRef();
 }
+    
+RawDataRef RenderTargetMTL::snapshot(int startX,int startY,int snapWidth,int snapHeight)
+{
+    // TODO: Implement
+    return RawDataRef();
+}
 
 void RenderTargetMTL::setTargetTexture(TextureBase *tex)
 {

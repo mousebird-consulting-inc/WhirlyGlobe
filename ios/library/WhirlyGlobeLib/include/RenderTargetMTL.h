@@ -48,6 +48,10 @@ public:
     
     /// Copy the data out of the destination texture and return it
     virtual RawDataRef snapshot();
+
+    /// Copy just a subset of data out of the destination texture
+    virtual RawDataRef snapshot(int startX,int startY,int snapWidth,int snapHeight);
+
     
     /// Set the GL texture directly
     void setTargetTexture(TextureBase *tex);

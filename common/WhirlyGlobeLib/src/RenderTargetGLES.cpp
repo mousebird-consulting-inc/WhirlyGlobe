@@ -143,6 +143,28 @@ RawDataRef RenderTargetGLES::snapshot()
     
     return RawDataRef(rawData);
 }
+    
+RawDataRef RenderTargetGLES::snapshot(int startX,int startY,int snapWidth,int snapHeight)
+{
+    if (snapWidth == 0 || snapHeight == 0)
+        return RawDataRef();
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    CheckGLError("SceneRendererES2: glBindFramebuffer");
+    glViewport(0, 0, snapWidth, snapHeight);
+    CheckGLError("SceneRendererES2: glViewport");
+    
+    // Note: We're just assuming this format from the texture.  Should check
+    int len = snapWidth * snapHeight * sizeof(GLubyte) * 4;
+    GLubyte* pixels = (GLubyte*) malloc(len);
+    glReadPixels(startX, startY, snapWidth, snapHeight, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+    
+    RawDataWrapper *rawData = new RawDataWrapper(pixels,len,true);
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    
+    return RawDataRef(rawData);
+}
 
 bool RenderTargetGLES::initFromState(int inWidth,int inHeight)
 {
