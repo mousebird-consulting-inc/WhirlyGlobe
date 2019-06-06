@@ -135,15 +135,18 @@ void QIFTileAsset_ios::startFetching(QuadImageFrameLoader *inLoader,int frameToL
             // If we're not loading all frames, then just load the one we need
             if (frameToLoad == -1 || frameToLoad == frame) {
                 QIFFrameAsset_ios *frameAsset = (QIFFrameAsset_ios *)frames[frame].get();
-                MaplyTileFetchRequest *request = frameAsset->setupFetch(loader,[frameInfo fetchInfoForTile:tileID flipY:loader->getFlipY()],frameInfo,0,ident.importance);
-                
-                request.success = ^(MaplyTileFetchRequest *request, id data) {
-                    [loader->layer fetchRequestSuccess:request tileID:tileID frame:frame data:data];
-                };
-                request.failure = ^(MaplyTileFetchRequest *request, NSError *error) {
-                    [loader->layer fetchRequestFail:request tileID:tileID frame:frame error:error];
-                };
-                [batchOps->toStart addObject:request];
+                id fetchInfo = [frameInfo fetchInfoForTile:tileID flipY:loader->getFlipY()];
+                if (fetchInfo) {
+                    MaplyTileFetchRequest *request = frameAsset->setupFetch(loader,fetchInfo,frameInfo,0,ident.importance);
+                    
+                    request.success = ^(MaplyTileFetchRequest *request, id data) {
+                        [loader->layer fetchRequestSuccess:request tileID:tileID frame:frame data:data];
+                    };
+                    request.failure = ^(MaplyTileFetchRequest *request, NSError *error) {
+                        [loader->layer fetchRequestFail:request tileID:tileID frame:frame error:error];
+                    };
+                    [batchOps->toStart addObject:request];
+                }
             }
                 
             frame++;
