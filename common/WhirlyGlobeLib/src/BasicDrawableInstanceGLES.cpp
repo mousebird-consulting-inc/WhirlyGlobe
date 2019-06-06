@@ -364,12 +364,19 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfo *inFrameInfo,Scene *inSce
                 GLuint glTexID = EmptyIdentity;
                 if (texID != EmptyIdentity)
                 {
-                    glTexID = scene->getGLTexture(texID);
-                    anyTextures = true;
+                    glTexID = scene->getGLTexture(texID);\
+                    if (glTexID != 0)
+                    {
+                        anyTextures = true;
+                        glTexIDs.push_back(glTexID);
+                    } else
+                        wkLogLevel(Error,"BasicDrawableInstance: Missing texture %d",texID);
                 }
-                glTexIDs.push_back(glTexID);
             }
         }
+        
+        if (!anyTextures)
+            wkLogLevel(Error,"BasicDrawableInstance: Drawable without textures");
         
         // Model/View/Projection matrix
         if (basicDraw->clipCoords)

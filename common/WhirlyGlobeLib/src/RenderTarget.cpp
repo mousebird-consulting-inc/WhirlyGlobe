@@ -63,10 +63,10 @@ void AddRenderTargetReq::execute(Scene *scene,SceneRenderer *renderer,View *view
     renderTarget->width = width;
     renderTarget->height = height;
     renderTarget->clearEveryFrame = clearEveryFrame;
-    renderTarget->clearColor[0] = clearColor.r;
-    renderTarget->clearColor[1] = clearColor.g;
-    renderTarget->clearColor[2] = clearColor.b;
-    renderTarget->clearColor[3] = clearColor.a;
+    renderTarget->clearColor[0] = clearColor.r / 255.0;
+    renderTarget->clearColor[1] = clearColor.g / 255.0;
+    renderTarget->clearColor[2] = clearColor.b / 255.0;
+    renderTarget->clearColor[3] = clearColor.a / 255.0;
     renderTarget->blendEnable = blend;
     renderTarget->init(renderer,scene,texID);
     
