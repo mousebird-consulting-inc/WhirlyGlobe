@@ -19,12 +19,13 @@
  */
 
 #import <UIKit/UIKit.h>
+#import <algorithm>
 #import "SceneRendererES_iOS.h"
 
 namespace WhirlyKit {
     
 SceneRendererES_iOS::SceneRendererES_iOS()
-    : layer(nil), context(nil), snapshotDelegate(nil)
+    : layer(nil), context(nil)
 {
     int version = kEAGLRenderingAPIOpenGLES3;
     
@@ -108,92 +109,55 @@ void SceneRendererES_iOS::presentRender()
     [context presentRenderbuffer:GL_RENDERBUFFER];
 }
 
-void SceneRendererES_iOS::setSnapshotDelegate(NSObject<WhirlyKitSnapshot> *newDelegate)
+void SceneRendererES_iOS::addSnapshotDelegate(NSObject<WhirlyKitSnapshot> *newDelegate)
 {
-    snapshotDelegate = newDelegate;
+    snapshotDelegates.push_back(newDelegate);
+}
+    
+void SceneRendererES_iOS::removeSnapshotDelegate(NSObject<WhirlyKitSnapshot> *oldDelegate)
+{
+    snapshotDelegates.erase(std::remove(snapshotDelegates.begin(), snapshotDelegates.end(), oldDelegate), snapshotDelegates.end());
 }
 
-void SceneRendererES_iOS::snapshotCallback()
+void SceneRendererES_iOS::snapshotCallback(TimeInterval now)
 {
-    // The user wants help with a screen snapshot
-    if (snapshotDelegate)
-    {
-        if (snapshotDelegate.renderTargetID == EmptyIdentity)
-        {
-            // Courtesy: https://developer.apple.com/library/ios/qa/qa1704/_index.html
-            NSInteger dataLength = framebufferWidth * framebufferHeight * 4;
-            GLubyte *data = (GLubyte*)malloc(dataLength * sizeof(GLubyte));
-            
-            // Read pixel data from the framebuffer
-            glPixelStorei(GL_PACK_ALIGNMENT, 4);
-            glReadPixels(0, 0, framebufferWidth, framebufferHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);
-            
-            // Create a CGImage with the pixel data
-            // If your OpenGL ES content is opaque, use kCGImageAlphaNoneSkipLast to ignore the alpha channel
-            // otherwise, use kCGImageAlphaPremultipliedLast
-            CGDataProviderRef ref = CGDataProviderCreateWithData(NULL, data, dataLength, NULL);
-            CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
-            CGImageRef iref = CGImageCreate(framebufferWidth, framebufferHeight, 8, 32, framebufferWidth * 4, colorspace, kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast,
-                                            ref, NULL, true, kCGRenderingIntentDefault);
-            
-            // OpenGL ES measures data in PIXELS
-            // Create a graphics context with the target size measured in POINTS
-            NSInteger widthInPoints, heightInPoints;
-            {
-                // On iOS 4 and later, use UIGraphicsBeginImageContextWithOptions to take the scale into consideration
-                // Set the scale parameter to your OpenGL ES view's contentScaleFactor
-                // so that you get a high-resolution snapshot when its value is greater than 1.0
-                CGFloat scale = DeviceScreenScale();
-                widthInPoints = framebufferWidth / scale;
-                heightInPoints = framebufferHeight / scale;
-                UIGraphicsBeginImageContextWithOptions(CGSizeMake(widthInPoints, heightInPoints), NO, scale);
-            }
-            
-            CGContextRef cgcontext = UIGraphicsGetCurrentContext();
-            
-            // UIKit coordinate system is upside down to GL/Quartz coordinate system
-            // Flip the CGImage by rendering it to the flipped bitmap context
-            // The size of the destination area is measured in POINTS
-            CGContextSetBlendMode(cgcontext, kCGBlendModeCopy);
-            CGContextDrawImage(cgcontext, CGRectMake(0.0, 0.0, widthInPoints, heightInPoints), iref);
-            
-            // Retrieve the UIImage from the current context
-            UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
-            
-            // Also wrap up the raw data
-            NSData *dataWrapper = [[NSData alloc] initWithBytesNoCopy:data length:dataLength];
-            
-            UIGraphicsEndImageContext();
-            
-            // Clean up
-            CFRelease(ref);
-            CFRelease(colorspace);
-            CGImageRelease(iref);
-            
-            [snapshotDelegate snapshotImage:image];
-            [snapshotDelegate snapshotData:dataWrapper];
-        } else {
-            CGRect snapshotRect = [snapshotDelegate snapshotRect];
-            
-            // Was a specific render target, not the general screen
-            for (auto target: renderTargets) {
-                if (target->getId() == snapshotDelegate.renderTargetID) {
+    for (auto snapshotDelegate : snapshotDelegates) {
+        if (![snapshotDelegate needSnapshot:now])
+            continue;
+        
+        // They'll want a snapshot of a specific render target (or the screen)
+        for (auto target: renderTargets) {
+            if (target->getId() == [snapshotDelegate renderTargetID]) {
+                CGRect snapshotRect = [snapshotDelegate snapshotRect];
+                NSData *dataWrapper = nil;
+
+                if (target->getId() == EmptyIdentity) {
+                    // Screen is special
+                    NSInteger dataLength = framebufferWidth * framebufferHeight * 4;
+                    GLubyte *data = (GLubyte*)malloc(dataLength * sizeof(GLubyte));
+                    
+                    // Read pixel data from the framebuffer
+                    glPixelStorei(GL_PACK_ALIGNMENT, 4);
+                    glReadPixels(0, 0, framebufferWidth, framebufferHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);
+
+                    // Also wrap up the raw data
+                    dataWrapper = [[NSData alloc] initWithBytesNoCopy:data length:dataLength];
+                } else {
+                    // Offscreen render buffer
                     RawDataRef rawData;
                     if (snapshotRect.size.width == 0.0)
                         rawData = target->snapshot();
                     else
                         rawData = target->snapshot(snapshotRect.origin.x,snapshotRect.origin.y,snapshotRect.size.width,snapshotRect.size.height);
                     // Note: This is an extra copy
-                    NSData *data = [[NSData alloc] initWithBytes:rawData->getRawData() length:rawData->getLen()];
-                    
-                    [snapshotDelegate snapshotData:data];
-                    break;
+                    dataWrapper = [[NSData alloc] initWithBytes:rawData->getRawData() length:rawData->getLen()];
                 }
+                
+                [snapshotDelegate snapshotData:dataWrapper];
+                
+                break;
             }
         }
-
-        // Snapshots are a one time thing
-        snapshotDelegate = nil;
     }
 }
     

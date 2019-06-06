@@ -40,22 +40,31 @@ using namespace WhirlyKit;
 
 // Target for screen snapshot
 @interface SnapshotTarget : NSObject<WhirlyKitSnapshot>
-@property (nonatomic) UIImage *image;
+@property (nonatomic,weak) MaplyBaseViewController *viewC;
 @property (nonatomic) NSData *data;
 @property (nonatomic) SimpleIdentity renderTargetID;
 @property (nonatomic) CGRect subsetRect;
+@property (nonatomic) NSObject<MaplySnapshotDelegate> *outsideDelegate;
 @end
 
 @implementation SnapshotTarget
 
-- (instancetype)init
+- (instancetype)initWithViewC:(MaplyBaseViewController *)inViewC
 {
     self = [super init];
     
-    _image = nil;
+    _viewC = inViewC;
     _data = nil;
     _renderTargetID = EmptyIdentity;
     _subsetRect = CGRectZero;
+    
+    return self;
+}
+
+- (instancetype)initWithOutsideDelegate:(NSObject<MaplySnapshotDelegate> *)inOutsideDelegate viewC:(MaplyBaseViewController *)inViewC
+{
+    self = [super init];
+    _outsideDelegate = inOutsideDelegate;
     
     return self;
 }
@@ -67,15 +76,36 @@ using namespace WhirlyKit;
 
 - (CGRect)snapshotRect
 {
+    if (_outsideDelegate)
+        return [_outsideDelegate snapshotRect];
+    
     return _subsetRect;
 }
 
 - (void)snapshotData:(NSData *)snapshotData {
-    _data = snapshotData;
+    if (_outsideDelegate)
+        [_outsideDelegate snapshot:snapshotData];
+    else
+        _data = snapshotData;
 }
 
-- (void)snapshotImage:(UIImage *)snapshotImage {
-    _image = snapshotImage;
+- (bool)needSnapshot:(NSTimeInterval)now {
+    if (_outsideDelegate)
+        return [_outsideDelegate needSnapshot:now viewC:_viewC];
+    return true;
+}
+
+- (SimpleIdentity)renderTargetID
+{
+    if (_outsideDelegate) {
+        MaplyRenderTarget *renderTarget = [_outsideDelegate renderTarget];
+        if (renderTarget) {
+            return [renderTarget renderTargetID];
+        }
+        return EmptyIdentity;
+    }
+    
+    return _renderTargetID;
 }
 
 @end
@@ -1551,18 +1581,87 @@ static const float PerfOutputDelay = 15.0;
     return (float)visualView->heightForMapScale(scale,frameSize);
 }
 
+- (void)addSnapshotDelegate:(NSObject<MaplySnapshotDelegate> *)snapshotDelegate
+{
+    if (!renderControl)
+        return;
+    
+    SnapshotTarget *newTarget = [[SnapshotTarget alloc] initWithOutsideDelegate:snapshotDelegate viewC:self];
+    renderControl->sceneRenderer->addSnapshotDelegate(newTarget);
+}
+
+- (void)removeSnapshotDelegate:(NSObject<MaplySnapshotDelegate> *)snapshotDelegate
+{
+    if (!renderControl || !snapshotDelegate)
+        return;
+    
+    for (auto delegate : renderControl->sceneRenderer->snapshotDelegates) {
+        if ([delegate isKindOfClass:[SnapshotTarget class]]) {
+            SnapshotTarget *thisTarget = (SnapshotTarget *)delegate;
+            if (thisTarget.outsideDelegate == snapshotDelegate) {
+                renderControl->sceneRenderer->removeSnapshotDelegate(thisTarget);
+                break;
+            }
+        }
+    }
+}
+
 - (UIImage *)snapshot
 {
     if (!renderControl)
         return nil;
     
     SnapshotTarget *target = [[SnapshotTarget alloc] init];
-    renderControl->sceneRenderer->setSnapshotDelegate(target);
+    renderControl->sceneRenderer->addSnapshotDelegate(target);
     
     renderControl->sceneRenderer->forceDrawNextFrame();
     renderControl->sceneRenderer->render(0.0);
     
-    return target.image;
+    renderControl->sceneRenderer->removeSnapshotDelegate(target);
+    
+    // Courtesy: https://developer.apple.com/library/ios/qa/qa1704/_index.html
+    // Create a CGImage with the pixel data
+    // If your OpenGL ES content is opaque, use kCGImageAlphaNoneSkipLast to ignore the alpha channel
+    // otherwise, use kCGImageAlphaPremultipliedLast
+    CGDataProviderRef ref = CGDataProviderCreateWithData(NULL, [target.data bytes], [target.data length], NULL);
+    CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
+    int framebufferWidth = renderControl->sceneRenderer->framebufferWidth;
+    int framebufferHeight = renderControl->sceneRenderer->framebufferHeight;
+    CGImageRef iref = CGImageCreate(framebufferWidth, framebufferHeight, 8, 32, framebufferWidth * 4, colorspace, kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast,
+                                    ref, NULL, true, kCGRenderingIntentDefault);
+    
+    // OpenGL ES measures data in PIXELS
+    // Create a graphics context with the target size measured in POINTS
+    NSInteger widthInPoints, heightInPoints;
+    {
+        // On iOS 4 and later, use UIGraphicsBeginImageContextWithOptions to take the scale into consideration
+        // Set the scale parameter to your OpenGL ES view's contentScaleFactor
+        // so that you get a high-resolution snapshot when its value is greater than 1.0
+        CGFloat scale = DeviceScreenScale();
+        widthInPoints = framebufferWidth / scale;
+        heightInPoints = framebufferHeight / scale;
+        UIGraphicsBeginImageContextWithOptions(CGSizeMake(widthInPoints, heightInPoints), NO, scale);
+    }
+    
+    CGContextRef cgcontext = UIGraphicsGetCurrentContext();
+    
+    // UIKit coordinate system is upside down to GL/Quartz coordinate system
+    // Flip the CGImage by rendering it to the flipped bitmap context
+    // The size of the destination area is measured in POINTS
+    CGContextSetBlendMode(cgcontext, kCGBlendModeCopy);
+    CGContextDrawImage(cgcontext, CGRectMake(0.0, 0.0, widthInPoints, heightInPoints), iref);
+    
+    // Retrieve the UIImage from the current context
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    
+    UIGraphicsEndImageContext();
+    
+    // Clean up
+    CFRelease(ref);
+    CFRelease(colorspace);
+    CGImageRelease(iref);
+
+    return image;
 }
 
 - (NSData *)shapshotRenderTarget:(MaplyRenderTarget *)renderTarget
@@ -1572,10 +1671,12 @@ static const float PerfOutputDelay = 15.0;
 
     SnapshotTarget *target = [[SnapshotTarget alloc] init];
     target.renderTargetID = renderTarget.renderTargetID;
-    renderControl->sceneRenderer->setSnapshotDelegate(target);
+    renderControl->sceneRenderer->addSnapshotDelegate(target);
     
     renderControl->sceneRenderer->forceDrawNextFrame();
     renderControl->sceneRenderer->render(0.0);
+    
+    renderControl->sceneRenderer->removeSnapshotDelegate(target);
 
     return target.data;
 }
@@ -1588,10 +1689,12 @@ static const float PerfOutputDelay = 15.0;
     SnapshotTarget *target = [[SnapshotTarget alloc] init];
     target.renderTargetID = renderTarget.renderTargetID;
     target.subsetRect = rect;
-    renderControl->sceneRenderer->setSnapshotDelegate(target);
+    renderControl->sceneRenderer->addSnapshotDelegate(target);
     
     renderControl->sceneRenderer->forceDrawNextFrame();
     renderControl->sceneRenderer->render(0.0);
+    
+    renderControl->sceneRenderer->removeSnapshotDelegate(target);
     
     return target.data;
 }

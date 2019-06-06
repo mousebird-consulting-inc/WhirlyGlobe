@@ -23,14 +23,19 @@
 
 /// Fill this in to get a view snapshot on the next draw
 @protocol WhirlyKitSnapshot
-/// Rerturn the render target to snapshot.  EmptyIdentity for the screen.
+
+/// Returns true if we really want a snapshot
+- (bool)needSnapshot:(NSTimeInterval)now;
+
+/// Return the render target to snapshot.  EmptyIdentity for the screen.
 - (WhirlyKit::SimpleIdentity)renderTargetID;
+
 /// If we just want a subset, this is it
 - (CGRect)snapshotRect;
-/// Called when the snapshot is taken
-- (void)snapshotImage:(UIImage *)image;
+
 /// Called with the raw image data
 - (void)snapshotData:(NSData *)data;
+
 @end
 
 namespace WhirlyKit {
@@ -64,15 +69,18 @@ public:
     virtual void presentRender();
     
     /// Run the snapshot logic
-    virtual void snapshotCallback();
+    virtual void snapshotCallback(TimeInterval now);
     
     /// Want a snapshot, set up this delegate
-    void setSnapshotDelegate(NSObject<WhirlyKitSnapshot> *);
+    void addSnapshotDelegate(NSObject<WhirlyKitSnapshot> *);
     
-protected:
+    /// Remove an existing snapshot delegate
+    void removeSnapshotDelegate(NSObject<WhirlyKitSnapshot> *);
+    
+public:
     CAEAGLLayer * __weak layer;
     EAGLContext *context;
-    NSObject<WhirlyKitSnapshot> *snapshotDelegate;
+    std::vector<NSObject<WhirlyKitSnapshot> *> snapshotDelegates;
 };
     
 typedef std::shared_ptr<SceneRendererES_iOS> SceneRendererES_iOSRef;
