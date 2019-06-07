@@ -89,5 +89,14 @@ struct TexIndirect {
     simd::float2 offset;
     simd::float2 scale;
 };
+    
+// Instructions to the screen space renders, usually per-drawable
+struct ScreenSpaceUniforms {
+    float w2;       // Width / 2.0 in screen space
+    float real_w2;  // Width/2 in real coordinates
+    float edge;     // Edge falloff control
+    simd::float2 texScale;  // Texture scaling specific to wide vectors
+    simd::float4 color;  // Color override.  TODO: Use the standard one.  Seriouslly.
+};
 
 }

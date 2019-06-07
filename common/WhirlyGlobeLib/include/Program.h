@@ -50,6 +50,10 @@ public:
     /// Return the name (for tracking purposes)
     const std::string &getName();
     
+    /// Tie a given texture ID to the given slot or nameID (depending on renderer)
+    /// We have to set these up each time before drawing
+    virtual bool setTexture(StringIdentity nameID,TextureBase *tex,int textureSlot) = 0;
+
     /// Clean up renderer resources
     virtual void teardownForRenderer(const RenderSetupInfo *setupInfo) = 0;
     
@@ -64,7 +68,8 @@ typedef std::shared_ptr<Program> ProgramRef;
 class ShaderAddTextureReq : public ChangeRequest
 {
 public:
-    ShaderAddTextureReq(SimpleIdentity shaderID,SimpleIdentity nameID,SimpleIdentity texID);
+    /// Add the given texture to the given shader.  For Metal, we need a texture slot.  Ignore for OpenGL
+    ShaderAddTextureReq(SimpleIdentity shaderID,SimpleIdentity nameID,SimpleIdentity texID,int textureSlot);
     
     void execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *view);
 
@@ -72,6 +77,7 @@ protected:
     SimpleIdentity shaderID;
     SimpleIdentity nameID;
     SimpleIdentity texID;
+    int textureSlot;
 };
 
 }

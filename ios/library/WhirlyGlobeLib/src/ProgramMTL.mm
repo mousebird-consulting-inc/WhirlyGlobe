@@ -18,7 +18,11 @@
  *
  */
 
+#import <MetalKit/MetalKit.h>
 #import "ProgramMTL.h"
+#import "TextureMTL.h"
+#import "DefaultShadersMTL.h"
+#import "SceneRendererMTL.h"
 #import "WhirlyKitLog.h"
 
 namespace WhirlyKit
@@ -42,88 +46,30 @@ bool ProgramMTL::isValid()
     return valid;
 }
 
-bool ProgramMTL::setUniform(StringIdentity nameID,float val)
-{
-    // TODO: Implement
-    
-    return false;
-}
-
-bool ProgramMTL::setUniform(StringIdentity nameID,float val,int index)
-{
-    // TODO: Implement
-    
-    return false;
-}
-
-bool ProgramMTL::setUniform(StringIdentity nameID,const Eigen::Vector2f &vec)
-{
-    // TODO: Implement
-    
-    return false;
-}
-
-bool ProgramMTL::setUniform(StringIdentity nameID,const Eigen::Vector3f &vec)
-{
-    // TODO: Implement
-    
-    return false;
-}
-
-bool ProgramMTL::setUniform(StringIdentity nameID,const Eigen::Vector4f &vec)
-{
-    // TODO: Implement
-    
-    return false;
-}
-
-bool ProgramMTL::setUniform(StringIdentity nameID,const Eigen::Vector4f &vec,int index)
-{
-    // TODO: Implement
-    
-    return false;
-}
-
-bool ProgramMTL::setUniform(StringIdentity nameID,const Eigen::Matrix4f &mat)
-{
-    // TODO: Implement
-    
-    return false;
-}
-
-bool ProgramMTL::setUniform(StringIdentity nameID,int val)
-{
-    // TODO: Implement
-    
-    return false;
-}
-
-bool ProgramMTL::setUniform(const SingleVertexAttribute &attr)
-{
-    // TODO: Implement
-    
-    return false;
-}
-
-bool ProgramMTL::setTexture(StringIdentity nameID,TextureBase *tex)
-{
-    // TODO: Implement
-    
-    return false;
-}
-
 bool ProgramMTL::hasLights()
 {
-    // TODO: Implement
-    
-    return false;
+    // Lights are set up once for the renderer, so this makes no difference
+    return true;
 }
 
 bool ProgramMTL::setLights(const std::vector<DirectionalLight> &lights, TimeInterval lastUpdated, Material *mat, Eigen::Matrix4f &modelMat)
 {
-    // TODO: Implement
+    // We don't do lights this way, so it's all good
+    return true;
+}
     
-    return false;
+bool ProgramMTL::setTexture(StringIdentity nameID,TextureBase *tex,int textureSlot)
+{
+    TextureBaseMTL *texMTL = dynamic_cast<TextureBaseMTL *>(tex);
+    if (!texMTL)
+        return false;
+    
+    TextureEntry texEntry;
+    texEntry.slot = textureSlot;
+    texEntry.tex = texMTL->getMTLID();
+    textures.push_back(texEntry);
+    
+    return true;
 }
 
 const std::string &ProgramMTL::getName()
@@ -131,7 +77,16 @@ const std::string &ProgramMTL::getName()
 
 void ProgramMTL::teardownForRenderer(const RenderSetupInfo *setupInfo)
 {
-    // TODO: Implement
+    // Don't really need to do anything here
 }
 
+void ProgramMTL::preRender(RendererFrameInfoMTL *frameInfo,SceneMTL *scene)
+{
+    // Slot in the textures
+    for (auto texEntry : textures) {
+        [frameInfo->cmdEncode setVertexTexture:texEntry.tex atIndex:WKSTextureEntryLookup+texEntry.slot];
+        [frameInfo->cmdEncode setFragmentTexture:texEntry.tex atIndex:WKSTextureEntryLookup+texEntry.slot];
+    }
+}
+    
 }

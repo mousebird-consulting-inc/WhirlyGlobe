@@ -395,33 +395,38 @@ static StringIdentity fExposureNameID;
     for (unsigned int ii=0;ii<2;ii++)
     {
         MaplyShader *thisShader = shaders[ii];
-        thisShader.program->setUniform(v3CameraPosNameID, Vector3f(cameraPos.x(),cameraPos.y(),cameraPos.z()));
-        thisShader.program->setUniform(fCameraHeightNameID, (float)cameraHeight);
-        thisShader.program->setUniform(fCameraHeight2NameID, (float)(cameraHeight*cameraHeight));
-        thisShader.program->setUniform(v3LightPosNameID, Vector3f(sunDir3d.x(),sunDir3d.y(),sunDir3d.z()));
+        ProgramGLESRef programGLES = std::dynamic_pointer_cast<ProgramGLES>(thisShader.program);
+        if (programGLES) {
+            programGLES->setUniform(v3CameraPosNameID, Vector3f(cameraPos.x(),cameraPos.y(),cameraPos.z()));
+            programGLES->setUniform(fCameraHeightNameID, (float)cameraHeight);
+            programGLES->setUniform(fCameraHeight2NameID, (float)(cameraHeight*cameraHeight));
+            programGLES->setUniform(v3LightPosNameID, Vector3f(sunDir3d.x(),sunDir3d.y(),sunDir3d.z()));
 
-        thisShader.program->setUniform(fInnerRadiusNameID, 1.f);
-        thisShader.program->setUniform(fInnerRadius2NameID, 1.f);
-        thisShader.program->setUniform(fOuterRadiusNameID, atm.outerRadius);
-        thisShader.program->setUniform(fOuterRadius2NameID, atm.outerRadius*atm.outerRadius);
-        thisShader.program->setUniform(fScaleNameID, scale);
-        thisShader.program->setUniform(fScaleDepthNameID, scaleDepth);
-        thisShader.program->setUniform(fScaleOverScaleDepthNameID, scale / scaleDepth);
-        
-        thisShader.program->setUniform(KrNameID, atm.Kr);
-        thisShader.program->setUniform(Kr4PINameID, (float)(atm.Kr * 4.0 * M_PI));
-        thisShader.program->setUniform(KmNameID, atm.Km);
-        thisShader.program->setUniform(Km4PINameID, (float)(atm.Km * 4.0 * M_PI));
-        thisShader.program->setUniform(ESunNameID, atm.ESun);
-        thisShader.program->setUniform(KmESunNameID, atm.Km * atm.ESun);
-        thisShader.program->setUniform(KrESunNameID, atm.Kr * atm.ESun);
-        thisShader.program->setUniform(v3InvWavelengthNameID, Vector3f(wavelength[0],wavelength[1],wavelength[2]));
-        thisShader.program->setUniform(fSamplesNameID, (float)atm.numSamples);
-        thisShader.program->setUniform(nSamplesNameID, atm.numSamples);
-        
-        thisShader.program->setUniform(gNameID, atm.g);
-        thisShader.program->setUniform(g2NameID, atm.g * atm.g);
-        thisShader.program->setUniform(fExposureNameID, atm.exposure);
+            programGLES->setUniform(fInnerRadiusNameID, 1.f);
+            programGLES->setUniform(fInnerRadius2NameID, 1.f);
+            programGLES->setUniform(fOuterRadiusNameID, atm.outerRadius);
+            programGLES->setUniform(fOuterRadius2NameID, atm.outerRadius*atm.outerRadius);
+            programGLES->setUniform(fScaleNameID, scale);
+            programGLES->setUniform(fScaleDepthNameID, scaleDepth);
+            programGLES->setUniform(fScaleOverScaleDepthNameID, scale / scaleDepth);
+            
+            programGLES->setUniform(KrNameID, atm.Kr);
+            programGLES->setUniform(Kr4PINameID, (float)(atm.Kr * 4.0 * M_PI));
+            programGLES->setUniform(KmNameID, atm.Km);
+            programGLES->setUniform(Km4PINameID, (float)(atm.Km * 4.0 * M_PI));
+            programGLES->setUniform(ESunNameID, atm.ESun);
+            programGLES->setUniform(KmESunNameID, atm.Km * atm.ESun);
+            programGLES->setUniform(KrESunNameID, atm.Kr * atm.ESun);
+            programGLES->setUniform(v3InvWavelengthNameID, Vector3f(wavelength[0],wavelength[1],wavelength[2]));
+            programGLES->setUniform(fSamplesNameID, (float)atm.numSamples);
+            programGLES->setUniform(nSamplesNameID, atm.numSamples);
+            
+            programGLES->setUniform(gNameID, atm.g);
+            programGLES->setUniform(g2NameID, atm.g * atm.g);
+            programGLES->setUniform(fExposureNameID, atm.exposure);
+        } else {
+            NSLog(@"MaplyAtmosphere not implemented for Metal.");
+        }
     }
     
     changed = false;

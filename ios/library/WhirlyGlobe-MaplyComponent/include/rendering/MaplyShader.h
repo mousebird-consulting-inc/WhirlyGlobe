@@ -173,7 +173,7 @@ These are the per vertex attributes provided to each vertex shader.
    For a Metal shader we can pass in zero or more textures starting at WKSTextureEntryLookup (DefaultShadersMTL.h).
    This index is offset from there.  Start at 0.
   */
-- (void)setTexture:(MaplyTexture *)tex forIndex:(int)idx;
+- (void)setTexture:(MaplyTexture * __nonnull)tex forIndex:(int)idx;
 
 /** 
     Add a texture tied to the given attribute name. OpenGL Only.

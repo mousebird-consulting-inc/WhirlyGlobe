@@ -337,7 +337,7 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfo *inFrameInfo,Scene *inSce
         
         // Time for motion
         if (moving)
-            frameInfo->program->setUniform(u_TimeNameID, (float)(frameInfo->currentTime - startTime));
+            ((ProgramGLES *)frameInfo->program)->setUniform(u_TimeNameID, (float)(frameInfo->currentTime - startTime));
         
         // GL Texture IDs
         bool anyTextures = false;

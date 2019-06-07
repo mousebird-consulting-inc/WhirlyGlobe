@@ -24,6 +24,9 @@
 
 namespace WhirlyKit
 {
+    
+class RendererFrameInfoMTL;
+class SceneMTL;
 
 /** Representation of an iOS Metal.  It's an identifiable so we can
  point to it generically.  Otherwise, pretty basic.
@@ -39,9 +42,6 @@ public:
     
     /// Return true if it was built correctly
     bool isValid();
-
-    /// Tie a given texture to an index offset
-    bool setTexture(StringIdentity nameID,int indexOffset);
     
     /// Check for the specific attribute associated with WhirlyKit lights
     bool hasLights();
@@ -49,7 +49,11 @@ public:
     /// Set the attributes associated with lighting.
     /// We'll check their last updated time against ours.
     bool setLights(const std::vector<DirectionalLight> &lights, TimeInterval lastUpdated, Material *mat, Eigen::Matrix4f &modelMat);
-        
+    
+    /// Tie a given texture ID to the given slot in the renderer
+    /// We have to set these up each time before drawing
+    virtual bool setTexture(StringIdentity nameID,TextureBase *tex,int textureSlot);
+    
     /// Return the name (for tracking purposes)
     const std::string &getName();
     
@@ -57,13 +61,21 @@ public:
     virtual void teardownForRenderer(const RenderSetupInfo *setupInfo);
     void cleanUp();
     
+    /// Called right before use on a drawable
+    virtual void preRender(RendererFrameInfoMTL *frameInfo,SceneMTL *scene);
+    
 public:
     bool valid;
     std::string name;
     id<MTLFunction> vertFunc,fragFunc;
     TimeInterval lightsLastUpdated;
-};
 
-    
+    // Program wide textures
+    typedef struct {
+        int slot;
+        id<MTLTexture> tex;
+    } TextureEntry;
+    std::vector<TextureEntry> textures;
+};
     
 }

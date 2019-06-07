@@ -78,6 +78,8 @@ class AnimatedBasemapTestCase: MaplyTestCase {
       gl_FragColor = texture2D(s_colorRamp,vec2(index,0.5));
     }
     """
+    
+    var rampTex : MaplyTexture? = nil
 
     // Put together a sampling layer and loader
     func setupLoader(_ baseVC: MaplyBaseViewController) {
@@ -112,9 +114,16 @@ class AnimatedBasemapTestCase: MaplyTestCase {
             imageLayer?.setRenderTarget(varTarget.renderTarget)
         }
 
-        if let shader = baseVC.getShaderByName(kMaplyShaderDefaultTriMultiTexRamp) {
-            imageLayer?.setShader(shader)
+        guard let shader = baseVC.getShaderByName(kMaplyShaderDefaultTriMultiTexRamp) else {
+            return
         }
+        imageLayer?.setShader(shader)
+        
+        // Assign the ramp texture to the first entry in the texture lookup slot
+        guard let rampTex = baseVC.addTexture(UIImage.init(named: "colorramp.png")!, desc: nil, mode: .current) else {
+            return
+        }
+        shader.setTexture(rampTex, for: 0)
         
         // Animator
         imageAnimator = MaplyQuadImageFrameAnimator(frameLoader: imageLayer!, viewC: baseVC)

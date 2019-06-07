@@ -266,8 +266,8 @@ fragment float4 fragmentTri_multiTexRamp(ProjVertexTriB vert [[stage_in]],
                                          constant Uniforms &uniforms [[buffer(WKSUniformBuffer)]],
                                          constant UniformDrawStateA &uniDrawState [[buffer(WKSUniformDrawStateBuffer)]],
                                          texture2d<float,access::sample> tex0 [[texture(0)]],
-                                         texture2d<float,access::sample> tex1 [[texture(1)]])
-//                                         texture2d<float,access::sample> rampTex [[texture(WKSTextureEntryLookup)]])
+                                         texture2d<float,access::sample> tex1 [[texture(1)]],
+                                         texture2d<float,access::sample> rampTex [[texture(WKSTextureEntryLookup)]])
 {
     // Handle none, 1 or 2 textures
     if (uniDrawState.numTextures == 0) {
@@ -275,14 +275,14 @@ fragment float4 fragmentTri_multiTexRamp(ProjVertexTriB vert [[stage_in]],
     } else if (uniDrawState.numTextures == 1) {
         constexpr sampler sampler2d(coord::normalized, filter::linear);
         float index = tex0.sample(sampler2d, vert.texCoord0).r;
-        return vert.color * index;
-//        return vert.color * rampTex.sample(sampler2d,float2(0.5,index));
+//        return vert.color * index;
+        return vert.color * rampTex.sample(sampler2d,float2(index,0.5));
     } else {
         constexpr sampler sampler2d(coord::normalized, filter::linear);
         float index0 = tex0.sample(sampler2d, vert.texCoord0).r;
         float index1 = tex1.sample(sampler2d, vert.texCoord1).r;
         float index = mix(index0,index1,uniDrawState.interp);
-//        return vert.color * rampTex.sample(sampler2d,float2(0.5,index));
-        return vert.color * index;
+        return vert.color * rampTex.sample(sampler2d,float2(index,0.5));
+//        return vert.color * index;
     }
 }

@@ -98,7 +98,7 @@ bool ProgramGLES::setUniform(StringIdentity nameID,int val)
     return true;
 }
     
-bool ProgramGLES::setTexture(StringIdentity nameID,TextureBase *inTex)
+bool ProgramGLES::setTexture(StringIdentity nameID,TextureBase *inTex,int textureSlot)
 {
     TextureBaseGLES *tex = dynamic_cast<TextureBaseGLES *>(inTex);
     if (!tex)

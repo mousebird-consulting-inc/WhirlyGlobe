@@ -122,7 +122,8 @@ public:
     
     /// Tie a given texture ID to the given name.
     /// We have to set these up each time before drawing
-    bool setTexture(StringIdentity nameID,TextureBase *tex);
+    /// textureSlot is ignored OpenGLES
+    bool setTexture(StringIdentity nameID,TextureBase *tex,int textureSlot);
     
     /// Check for the specific attribute associated with WhirlyKit lights
     bool hasLights();
@@ -133,9 +134,6 @@ public:
     
     /// Search for the given attribute name and return the info.  NULL on failure.
     const OpenGLESAttribute *findAttribute(StringIdentity nameID);
-    
-    /// Return the name (for tracking purposes)
-    const std::string &getName() { return name; }
     
     /// Return the GL Program ID
     GLuint getProgram() { return program; }

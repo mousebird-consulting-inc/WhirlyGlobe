@@ -599,6 +599,9 @@ void SceneRendererMTL::render(TimeInterval duration,
                 // Only draw drawables that are active for the current render target
                 if (drawContain.drawable->getRenderTarget() != renderTarget->getId())
                     continue;
+                
+                // Activate the program
+                program->preRender(&baseFrameInfo,(SceneMTL *)scene);
             
                 // Run any tweakers right here
                 drawContain.drawable->runTweakers(&baseFrameInfo);

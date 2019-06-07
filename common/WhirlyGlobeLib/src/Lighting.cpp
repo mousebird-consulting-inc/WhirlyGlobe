@@ -17,8 +17,9 @@
  *  limitations under the License.
  *
  */
-#include "Lighting.h"
-#include "Program.h"
+#import "Lighting.h"
+#import "Program.h"
+#import "ProgramGLES.h"
 
 using namespace Eigen;
 
@@ -43,12 +44,15 @@ bool DirectionalLight::bindToProgram(Program *program, int index, Eigen::Matrix4
     Eigen::Vector3f dir = pos.normalized();
     Eigen::Vector3f halfPlane = (dir + Eigen::Vector3f(0,0,1)).normalized();
 
-    program->setUniform(lightViewDependNameIDs[index], (viewDependent ? 0.0f : 1.0f));
-    program->setUniform(lightDirectionNameIDs[index], dir);
-    program->setUniform(lightHalfplaneNameIDs[index], halfPlane);
-    program->setUniform(lightAmbientNameIDs[index], ambient);
-    program->setUniform(lightDiffuseNameIDs[index], diffuse);
-    program->setUniform(lightSpecularNameIDs[index], specular);
+    ProgramGLES *programGLES = dynamic_cast<ProgramGLES *>(program);
+    if (programGLES) {
+        programGLES->setUniform(lightViewDependNameIDs[index], (viewDependent ? 0.0f : 1.0f));
+        programGLES->setUniform(lightDirectionNameIDs[index], dir);
+        programGLES->setUniform(lightHalfplaneNameIDs[index], halfPlane);
+        programGLES->setUniform(lightAmbientNameIDs[index], ambient);
+        programGLES->setUniform(lightDiffuseNameIDs[index], diffuse);
+        programGLES->setUniform(lightSpecularNameIDs[index], specular);
+    }
 
     return true;
 }
@@ -68,10 +72,13 @@ Material::~Material()
 
 bool Material::bindToProgram(Program *program)
 {
-    program->setUniform(materialAmbientNameID, ambient);
-    program->setUniform(materialDiffuseNameID, diffuse);
-    program->setUniform(materialSpecularNameID, specular);
-    program->setUniform(materialSpecularExponentNameID, specularExponent);
+    ProgramGLES *programGLES = dynamic_cast<ProgramGLES *>(program);
+    if (programGLES) {
+        programGLES->setUniform(materialAmbientNameID, ambient);
+        programGLES->setUniform(materialDiffuseNameID, diffuse);
+        programGLES->setUniform(materialSpecularNameID, specular);
+        programGLES->setUniform(materialSpecularExponentNameID, specularExponent);
+    }
 
     return true;
 }

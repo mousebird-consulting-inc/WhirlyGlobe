@@ -37,7 +37,7 @@ const std::string &Program::getName()
     return name;
 }
     
-ShaderAddTextureReq::ShaderAddTextureReq(SimpleIdentity shaderID,SimpleIdentity nameID,SimpleIdentity texID)
+ShaderAddTextureReq::ShaderAddTextureReq(SimpleIdentity shaderID,SimpleIdentity nameID,SimpleIdentity texID,int textureSlot)
 : shaderID(shaderID), nameID(nameID), texID(texID)
 {
 }
@@ -48,7 +48,7 @@ void ShaderAddTextureReq::execute(Scene *scene, SceneRenderer *renderer, View *v
     TextureBase *tex = scene->getTexture(texID);
     if (prog && tex)
     {
-        prog->setTexture(nameID,tex);
+        prog->setTexture(nameID,tex,textureSlot);
     }
 }
 
