@@ -241,8 +241,36 @@ void SceneRendererMTL::setupLightBuffer(SceneMTL *scene,id<MTLRenderCommandEncod
     
 void SceneRendererMTL::setupDrawStateA(WhirlyKitShader::UniformDrawStateA &drawState,RendererFrameInfoMTL *frameInfo)
 {
-    // This works for now
+    // That was anti-climactic
     bzero(&drawState,sizeof(drawState));
+}
+    
+MTLRenderPipelineDescriptor *SceneRendererMTL::defaultRenderPipelineState(SceneRendererMTL *sceneRender,RendererFrameInfoMTL *frameInfo)
+{
+    ProgramMTL *program = (ProgramMTL *)frameInfo->program;
+    
+    MTLRenderPipelineDescriptor *renderDesc = [[MTLRenderPipelineDescriptor alloc] init];
+    renderDesc.vertexFunction = program->vertFunc;
+    renderDesc.fragmentFunction = program->fragFunc;
+    
+    // TODO: Should be from the target
+    renderDesc.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
+    if (frameInfo->renderPassDesc.depthAttachment.texture)
+        renderDesc.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
+    
+    if (frameInfo->renderTarget->blendEnable) {
+        renderDesc.colorAttachments[0].blendingEnabled = true;
+        renderDesc.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
+        renderDesc.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
+        renderDesc.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
+        renderDesc.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;
+        renderDesc.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+        renderDesc.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+    } else {
+        renderDesc.colorAttachments[0].blendingEnabled = false;
+    }
+    
+    return renderDesc;
 }
 
 void SceneRendererMTL::render(TimeInterval duration,
@@ -265,7 +293,8 @@ void SceneRendererMTL::render(TimeInterval duration,
     
     TimeInterval now = TimeGetCurrent();
     
-    // Note: Put this back
+    // TODO: Put this back
+    hasChanges();
 //    if (!hasChanges())
 //        return;
     
@@ -344,6 +373,7 @@ void SceneRendererMTL::render(TimeInterval duration,
         Point2d screenSize = theView->screenSizeInDisplayCoords(frameSize);
         baseFrameInfo.screenSizeInDisplayCoords = screenSize;
         baseFrameInfo.lights = &lights;
+        baseFrameInfo.renderTarget = NULL;
 
         // We need a reverse of the eye vector in model space
         // We'll use this to determine what's pointed away
@@ -512,7 +542,8 @@ void SceneRendererMTL::render(TimeInterval duration,
         for (RenderTargetRef inRenderTarget : renderTargets)
         {
             RenderTargetMTLRef renderTarget = std::dynamic_pointer_cast<RenderTargetMTL>(inRenderTarget);
-                        
+            baseFrameInfo.renderTarget = renderTarget.get();
+
             // Each render target needs its own buffer and command queue
             id<MTLCommandBuffer> cmdBuff = [cmdQueue commandBuffer];
             id<MTLRenderCommandEncoder> cmdEncode = nil;

@@ -273,7 +273,8 @@ fragment float4 fragmentTri_multiTex(ProjVertexTriB vert [[stage_in]],
     } else {
         constexpr sampler sampler2d(coord::normalized, filter::linear);
         float4 color0 = tex0.sample(sampler2d, vert.texCoord0);
-        float4 color1 = tex1.sample(sampler2d, vert.texCoord1);
+        // Note: There are times we may not want to reuse the same texture coordinates
+        float4 color1 = tex1.sample(sampler2d, vert.texCoord0);
         return vert.color * mix(color0,color1,uniDrawState.interp);
     }
 }
@@ -297,7 +298,8 @@ fragment float4 fragmentTri_multiTexRamp(ProjVertexTriB vert [[stage_in]],
     } else {
         constexpr sampler sampler2d(coord::normalized, filter::linear);
         float index0 = tex0.sample(sampler2d, vert.texCoord0).r;
-        float index1 = tex1.sample(sampler2d, vert.texCoord1).r;
+        // Note: There are times we may not want to reuse the same texture coordinates
+        float index1 = tex1.sample(sampler2d, vert.texCoord0).r;
         float index = mix(index0,index1,uniDrawState.interp);
         return vert.color * rampTex.sample(sampler2d,float2(index,0.5));
 //        return vert.color * index;

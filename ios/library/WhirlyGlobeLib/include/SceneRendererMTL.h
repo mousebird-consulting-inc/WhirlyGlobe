@@ -33,7 +33,7 @@
 
 namespace WhirlyKit
 {
-    
+
 class RenderTargetMTL;
     
 /// Metal stores a bit more per-frame information

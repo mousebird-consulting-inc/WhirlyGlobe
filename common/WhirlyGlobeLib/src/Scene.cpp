@@ -322,15 +322,16 @@ bool Scene::hasChanges(TimeInterval now)
 
         changeRequestLock.unlock();
     }
-    if (changes)
-        return true;
     
     // How about the active models?
+    bool activeModelsUpdates = false;
     for (auto model : activeModels)
-        if (model->hasUpdate())
+        if (model->hasUpdate()) {
+            activeModelsUpdates = true;
             return true;
+        }
     
-    return changes;
+    return changes && activeModelsUpdates;
 }
 
 // Add a single sub texture map
