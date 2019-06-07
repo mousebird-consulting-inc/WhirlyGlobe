@@ -24,6 +24,7 @@
 #import "MaplyShader_private.h"
 #import "MaplyRenderController_private.h"
 #import "TextureGLES_iOS.h"
+#import "MaplyTexture_private.h"
 
 using namespace WhirlyKit;
 
@@ -40,6 +41,12 @@ using namespace WhirlyKit;
 
 - (instancetype)initWithName:(NSString *)name vertexFile:(NSString *)vertexFileName fragmentFile:(NSString *)fragFileName viewC:(NSObject<MaplyRenderControllerProtocol> *)baseViewC
 {
+    if ([baseViewC getRenderControl]->sceneRenderer->getType() != SceneRenderer::RenderGLES)
+    {
+        NSLog(@"MaplyShader method only works with OpenGL ES");
+        return nil;
+    }
+    
     NSError *error = nil;
     _name = name;
     NSString *vertexShader = [NSString stringWithContentsOfFile:vertexFileName encoding:NSASCIIStringEncoding error:&error];
@@ -71,6 +78,12 @@ using namespace WhirlyKit;
 
 - (instancetype)initWithName:(NSString *)name vertex:(NSString *)vertexProg fragment:(NSString *)fragProg viewC:(NSObject<MaplyRenderControllerProtocol> *)baseViewC
 {
+    if ([baseViewC getRenderControl]->sceneRenderer->getType() != SceneRenderer::RenderGLES)
+    {
+        NSLog(@"MaplyShader method only works with OpenGL ES");
+        return nil;
+    }
+
     self = [super init];
     
     viewC = baseViewC;
@@ -82,6 +95,12 @@ using namespace WhirlyKit;
 
 - (instancetype)initWithViewC:(NSObject<MaplyRenderControllerProtocol> *)baseViewC
 {
+    if ([baseViewC getRenderControl]->sceneRenderer->getType() != SceneRenderer::RenderGLES)
+    {
+        NSLog(@"MaplyShader method only works with OpenGL ES");
+        return nil;
+    }
+
     self = [super init];
 
     viewC = baseViewC;
@@ -91,6 +110,12 @@ using namespace WhirlyKit;
 
 - (instancetype)initWithProgram:(ProgramRef)program viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)baseViewC
 {
+    if ([baseViewC getRenderControl]->sceneRenderer->getType() != SceneRenderer::RenderGLES)
+    {
+        NSLog(@"MaplyShader method only works with OpenGL ES");
+        return nil;
+    }
+
     if (!program)
         return nil;
     MaplyRenderController *renderControl = [baseViewC getRenderControl];
@@ -111,6 +136,12 @@ using namespace WhirlyKit;
 
 - (bool)delayedSetupWithName:(NSString *)name vertex:(NSString *)vertexProg fragment:(NSString *)fragProg
 {
+    if ([viewC getRenderControl]->sceneRenderer->getType() != SceneRenderer::RenderGLES)
+    {
+        NSLog(@"MaplyShader method only works with OpenGL ES");
+        return nil;
+    }
+
     if (!vertexProg || !fragProg)
     {
         buildError = @"Empty vertex or fragment shader program.";
@@ -170,7 +201,13 @@ using namespace WhirlyKit;
     
     if (!scene || !renderer)
         return;
-    
+ 
+    if (renderer->getType() != SceneRenderer::RenderGLES)
+    {
+        NSLog(@"MaplyShader method only works with OpenGL ES");
+        return;
+    }
+
     SceneRendererGLES_iOSRef sceneRenderGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(renderer);
     EAGLContext *oldContext = nil;
     if (sceneRenderGLES) {
@@ -205,6 +242,15 @@ using namespace WhirlyKit;
 
 - (void)addVarying:(NSString *__nonnull)varyName
 {
+    if (!scene || !renderer)
+        return;
+
+    if (renderer->getType() != SceneRenderer::RenderGLES)
+    {
+        NSLog(@"MaplyShader method only works with OpenGL ES");
+        return;
+    }
+
     std::string name = [varyName cStringUsingEncoding:NSASCIIStringEncoding];
     varyings.push_back(name);
 }
@@ -212,8 +258,15 @@ using namespace WhirlyKit;
 
 - (bool)setUniformFloatNamed:(NSString *)uniName val:(float)val
 {
-    if (!_program)
+    if (!_program || !scene || !renderer)
         return false;
+    
+    if (renderer->getType() != SceneRenderer::RenderGLES)
+    {
+        NSLog(@"MaplyShader method only works with OpenGL ES");
+        return false;
+    }
+
     CheckGLError("MaplyShader::setUniformFloatNamed: pre anything");
 
     SceneRendererGLES_iOSRef sceneRenderGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(renderer);
@@ -239,9 +292,15 @@ using namespace WhirlyKit;
 
 - (bool)setUniformFloatNamed:(NSString *__nonnull)uniName val:(float)val index:(int)idx
 {
-    if (!_program)
+    if (!_program || !scene || !renderer)
         return false;
-    
+
+    if (renderer->getType() != SceneRenderer::RenderGLES)
+    {
+        NSLog(@"MaplyShader method only works with OpenGL ES");
+        return false;
+    }
+
     SceneRendererGLES_iOSRef sceneRenderGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(renderer);
     EAGLContext *oldContext = nil;
     if (sceneRenderGLES) {
@@ -265,9 +324,15 @@ using namespace WhirlyKit;
 
 - (bool)setUniformIntNamed:(NSString *)uniName val:(int)val
 {
-    if (!_program)
+    if (!_program || !scene || !renderer)
         return false;
     
+    if (renderer->getType() != SceneRenderer::RenderGLES)
+    {
+        NSLog(@"MaplyShader method only works with OpenGL ES");
+        return false;
+    }
+
     SceneRendererGLES_iOSRef sceneRenderGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(renderer);
     EAGLContext *oldContext = nil;
     if (sceneRenderGLES) {
@@ -291,9 +356,15 @@ using namespace WhirlyKit;
 
 - (bool)setUniformVector2Named:(NSString *)uniName x:(float)x y:(float)y
 {
-    if (!_program)
+    if (!_program || !scene || !renderer)
         return false;
     
+    if (renderer->getType() != SceneRenderer::RenderGLES)
+    {
+        NSLog(@"MaplyShader method only works with OpenGL ES");
+        return false;
+    }
+
     SceneRendererGLES_iOSRef sceneRenderGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(renderer);
     EAGLContext *oldContext = nil;
     if (sceneRenderGLES) {
@@ -318,9 +389,15 @@ using namespace WhirlyKit;
 
 - (bool)setUniformVector3Named:(NSString *)uniName x:(float)x y:(float)y z:(float)z
 {
-    if (!_program)
+    if (!_program || !scene || !renderer)
         return false;
     
+    if (renderer->getType() != SceneRenderer::RenderGLES)
+    {
+        NSLog(@"MaplyShader method only works with OpenGL ES");
+        return false;
+    }
+
     SceneRendererGLES_iOSRef sceneRenderGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(renderer);
     EAGLContext *oldContext = nil;
     if (sceneRenderGLES) {
@@ -345,9 +422,15 @@ using namespace WhirlyKit;
 
 - (bool)setUniformVector4Named:(NSString *)uniName x:(float)x y:(float)y z:(float)z w:(float)w
 {    
-    if (!_program)
+    if (!_program || !scene || !renderer)
         return false;
     
+    if (renderer->getType() != SceneRenderer::RenderGLES)
+    {
+        NSLog(@"MaplyShader method only works with OpenGL ES");
+        return false;
+    }
+
     SceneRendererGLES_iOSRef sceneRenderGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(renderer);
     EAGLContext *oldContext = nil;
     if (sceneRenderGLES) {
@@ -373,9 +456,15 @@ using namespace WhirlyKit;
 
 - (bool)setUniformVector4Named:(NSString *__nonnull)uniName x:(float)x y:(float)y z:(float)z w:(float)w index:(int)which
 {
-    if (!_program)
+    if (!_program || !scene || !renderer)
         return false;
     
+    if (renderer->getType() != SceneRenderer::RenderGLES)
+    {
+        NSLog(@"MaplyShader method only works with OpenGL ES");
+        return false;
+    }
+
     SceneRendererGLES_iOSRef sceneRenderGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(renderer);
     EAGLContext *oldContext = nil;
     if (sceneRenderGLES) {
@@ -413,6 +502,20 @@ using namespace WhirlyKit;
     return [self setUniformVector4Named:uniName x:red y:green z:blue w:alpha index:which];
 }
 
+- (void)setTexture:(MaplyTexture *)tex forIndex:(int)idx
+{
+    if (!_program || !scene || !renderer)
+        return;
+    
+    if (renderer->getType() != SceneRenderer::RenderMetal)
+    {
+        NSLog(@"MaplyShader method only works with Metal");
+        return;
+    }
+
+    _program->setTexture(tex.texID,idx);
+}
+
 
 // We're assuming the view controller has set the proper context
 - (void)teardown
@@ -431,10 +534,6 @@ using namespace WhirlyKit;
             changes.push_back(new RemTextureReq(*it));
         scene->addChangeRequests(changes);
     }
-}
-
-- (void)dealloc
-{
 }
 
 - (bool)valid

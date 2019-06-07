@@ -43,26 +43,10 @@ public:
         
     /// Return true if it was built correctly
     virtual bool isValid() = 0;
-
-    /// Set the given uniform to the given value.
-    /// These check the type and cache a value to save on duplicate gl calls
-    virtual bool setUniform(StringIdentity nameID,float val) = 0;
-    virtual bool setUniform(StringIdentity nameID,float val,int index) = 0;
-    virtual bool setUniform(StringIdentity nameID,const Eigen::Vector2f &vec) = 0;
-    virtual bool setUniform(StringIdentity nameID,const Eigen::Vector3f &vec) = 0;
-    virtual bool setUniform(StringIdentity nameID,const Eigen::Vector4f &vec) = 0;
-    virtual bool setUniform(StringIdentity nameID,const Eigen::Vector4f &vec,int index) = 0;
-    virtual bool setUniform(StringIdentity nameID,const Eigen::Matrix4f &mat) = 0;
-    virtual bool setUniform(StringIdentity nameID,int val) = 0;
-    virtual bool setUniform(const SingleVertexAttribute &attr) = 0;
     
     /// Check for the specific attribute associated with WhirlyKit lights
     virtual bool hasLights() = 0;
     
-    /// Tie a given texture ID to the given name.
-    /// We have to set these up each time before drawing
-    virtual bool setTexture(StringIdentity nameID,TextureBase *tex) = 0;
-
     /// Return the name (for tracking purposes)
     const std::string &getName();
     
