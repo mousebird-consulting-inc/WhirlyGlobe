@@ -167,8 +167,10 @@ void BasicDrawableInstanceMTL::drawLocal(RendererFrameInfoMTL *frameInfo,SceneRe
     
     // Set the per-drawable draw state
     WhirlyKitShader::UniformDrawStateA uni;
+    sceneRender->setupDrawStateA(uni,frameInfo);
     uni.numTextures = numTextures;
     uni.fade = fade;
+    uni.clipCoords = basicDrawMTL->clipCoords;
     BasicDrawableMTL::applyUniformsToDrawState(uni, uniforms);
     // TODO: Fill in the override matrix
     bzero(&uni.singleMat,sizeof(uni.singleMat));

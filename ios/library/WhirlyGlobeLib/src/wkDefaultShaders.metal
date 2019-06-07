@@ -48,12 +48,17 @@ vertex ProjVertexA vertexLineOnly_globe(
 {
     ProjVertexA outVert;
     
-    float4 pt = uniforms.mvMatrix * float4(vert.position, 1.0);
-    pt /= pt.w;
-    float4 testNorm = uniforms.mvNormalMatrix * float4(vert.normal,0.0);
-    outVert.dotProd = dot(-pt.xyz,testNorm.xyz);
     outVert.color = float4(vert.color) * uniDrawState.fade;
-    outVert.position = uniforms.mvpMatrix * float4(vert.position,1.0);
+    if (uniDrawState.clipCoords) {
+        outVert.dotProd = 1.0;
+        outVert.position = uniforms.mvpMatrix * float4(vert.position,1.0);
+    } else {
+        float4 pt = uniforms.mvMatrix * float4(vert.position, 1.0);
+        pt /= pt.w;
+        float4 testNorm = uniforms.mvNormalMatrix * float4(vert.normal,0.0);
+        outVert.dotProd = dot(-pt.xyz,testNorm.xyz);
+        outVert.position = uniforms.mvpMatrix * float4(vert.position,1.0);
+    }
     
     return outVert;
 }
@@ -83,7 +88,10 @@ vertex ProjVertexB vertexLineOnly_flat(
     ProjVertexB outVert;
     
     outVert.color = float4(vert.color) * uniDrawState.fade;
-    outVert.position = uniforms.mvpMatrix * float4(vert.position,1.0);
+    if (uniDrawState.clipCoords)
+        outVert.position = float4(vert.position,1.0);
+    else
+        outVert.position = uniforms.mvpMatrix * float4(vert.position,1.0);
     
     return outVert;
 }
@@ -150,7 +158,10 @@ vertex ProjVertexTriA vertexTri_noLight(VertexTriA vert [[stage_in]],
 {
     ProjVertexTriA outVert;
     
-    outVert.position = uniforms.mvpMatrix * float4(vert.position,1.0);
+    if (uniDrawState.clipCoords)
+        outVert.position = float4(vert.position,1.0);
+    else
+        outVert.position = uniforms.mvpMatrix * float4(vert.position,1.0);
     outVert.color = float4(vert.color) * uniDrawState.fade;
     outVert.texCoord = resolveTexCoords(vert.texCoord,texIndirect);
     
@@ -166,7 +177,10 @@ vertex ProjVertexTriA vertexTri_light(VertexTriA vert [[stage_in]],
 {
     ProjVertexTriA outVert;
     
-    outVert.position = uniforms.mvpMatrix * float4(vert.position,1.0);
+    if (uniDrawState.clipCoords)
+        outVert.position = float4(vert.position,1.0);
+    else
+        outVert.position = uniforms.mvpMatrix * float4(vert.position,1.0);
     outVert.color = resolveLighting(vert.position,
                                     vert.normal,
                                     float4(vert.color),
@@ -218,7 +232,10 @@ vertex ProjVertexTriB vertexTri_multiTex(VertexTriB vert [[stage_in]],
 {
     ProjVertexTriB outVert;
     
-    outVert.position = uniforms.mvpMatrix * float4(vert.position,1.0);
+    if (uniDrawState.clipCoords)
+        outVert.position = float4(vert.position,1.0);
+    else
+        outVert.position = uniforms.mvpMatrix * float4(vert.position,1.0);
     outVert.color = resolveLighting(vert.position,
                                     vert.normal,
                                     float4(vert.color),

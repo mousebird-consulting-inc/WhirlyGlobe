@@ -52,6 +52,7 @@ struct UniformDrawStateA {
     float interp;              // Used to interpolate between two textures (if appropriate)
     simd::float2 screenOrigin; // Used for texture pinning in screen space
     simd::float4x4 singleMat;  // Note: Use this rather than changing the uniforms
+    bool clipCoords;           // If set, the geometry coordinates aren't meant to be transformed
 };
 
 //// Lighting support //////

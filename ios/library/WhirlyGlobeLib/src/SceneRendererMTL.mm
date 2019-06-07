@@ -238,6 +238,12 @@ void SceneRendererMTL::setupLightBuffer(SceneMTL *scene,id<MTLRenderCommandEncod
     
     [cmdEncode setVertexBytes:&lighting length:sizeof(lighting) atIndex:WKSLightingBuffer];
 }
+    
+void SceneRendererMTL::setupDrawStateA(WhirlyKitShader::UniformDrawStateA &drawState,RendererFrameInfoMTL *frameInfo)
+{
+    // This works for now
+    bzero(&drawState,sizeof(drawState));
+}
 
 void SceneRendererMTL::render(TimeInterval duration,
                               MTLRenderPassDescriptor *renderPassDesc,

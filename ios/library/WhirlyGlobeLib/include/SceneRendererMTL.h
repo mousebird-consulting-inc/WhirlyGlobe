@@ -29,6 +29,7 @@
 #import "ProgramMTL.h"
 #import "SceneMTL.h"
 #import <MetalKit/MetalKit.h>
+#import "DefaultShadersMTL.h"
 
 namespace WhirlyKit
 {
@@ -103,6 +104,9 @@ public:
 
     /// Set the lights and tie them to a vertex buffer index
     void setupLightBuffer(SceneMTL *scene,id<MTLRenderCommandEncoder> cmdEncode);
+    
+    // Apply the various defaults to DrawStateA
+    void setupDrawStateA(WhirlyKitShader::UniformDrawStateA &drawState,RendererFrameInfoMTL *frameInfo);
     
 public:
     // Information about the renderer passed around to various calls

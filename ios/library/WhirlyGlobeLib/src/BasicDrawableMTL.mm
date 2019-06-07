@@ -372,12 +372,12 @@ void BasicDrawableMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScene)
     
     // Set the per-drawable draw state
     WhirlyKitShader::UniformDrawStateA uni;
+    sceneRender->setupDrawStateA(uni,frameInfo);
     uni.numTextures = numTextures;
     uni.fade = fade;
-    uni.interp = 0.0;
+    uni.clipCoords = clipCoords;
     // TODO: Apply the uniforms from the Program as well
     applyUniformsToDrawState(uni,uniforms);
-    bzero(&uni.singleMat,sizeof(uni.singleMat));
     [frameInfo->cmdEncode setVertexBytes:&uni length:sizeof(uni) atIndex:WKSUniformDrawStateBuffer];
     [frameInfo->cmdEncode setFragmentBytes:&uni length:sizeof(uni) atIndex:WKSUniformDrawStateBuffer];
     
