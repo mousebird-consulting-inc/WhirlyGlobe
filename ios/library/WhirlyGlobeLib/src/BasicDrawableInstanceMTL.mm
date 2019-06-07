@@ -76,17 +76,8 @@ id<MTLRenderPipelineState> BasicDrawableInstanceMTL::getRenderPipelineState(Scen
     ProgramMTL *program = (ProgramMTL *)frameInfo->program;
     id<MTLDevice> mtlDevice = sceneRender->setupInfo.mtlDevice;
     
-    MTLRenderPipelineDescriptor *renderDesc = [[MTLRenderPipelineDescriptor alloc] init];
-    renderDesc.vertexFunction = program->vertFunc;
-    renderDesc.fragmentFunction = program->fragFunc;
-    
+    MTLRenderPipelineDescriptor *renderDesc = sceneRender->defaultRenderPipelineState(sceneRender,frameInfo);
     renderDesc.vertexDescriptor = basicDrawMTL->getVertexDescriptor(program->vertFunc,defaultAttrs);
-    // TODO: Should be from the target
-    renderDesc.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
-    if (frameInfo->renderPassDesc.depthAttachment.texture)
-        renderDesc.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
-    else
-        renderDesc.depthAttachmentPixelFormat = MTLPixelFormatInvalid;
 
     // Set up a render state
     NSError *err = nil;

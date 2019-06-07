@@ -583,13 +583,22 @@ void Rectangle::makeGeometryWithBuilder(ShapeDrawableBuilder *regBuilder,ShapeDr
     Point3dVector pts(4);
     std::vector<TexCoord> texCoords(4);
     pts[0] = Point3d(ll.x(),ll.y(),ll.z());
-    texCoords[0] = TexCoord(0,0);
     pts[3] = Point3d(ur.x(),ll.y(),ur.z());
-    texCoords[3] = TexCoord(1,0);
     pts[2] = Point3d(ur.x(),ur.y(),ur.z());
-    texCoords[2] = TexCoord(1,1);
     pts[1] = Point3d(ll.x(),ur.y(),ll.z());
-    texCoords[1] = TexCoord(0,1);
+
+    if (clipCoords && regBuilder->sceneRender->getType() == SceneRenderer::RenderMetal) {
+        // We use these for rendering from render targets and those are flipped in Metal
+        texCoords[0] = TexCoord(0,1);
+        texCoords[3] = TexCoord(1,1);
+        texCoords[2] = TexCoord(1,0);
+        texCoords[1] = TexCoord(0,0);
+    } else {
+        texCoords[0] = TexCoord(0,0);
+        texCoords[3] = TexCoord(1,0);
+        texCoords[2] = TexCoord(1,1);
+        texCoords[1] = TexCoord(0,1);
+    }
     
     Point3d norm;
     if (!clipCoords)

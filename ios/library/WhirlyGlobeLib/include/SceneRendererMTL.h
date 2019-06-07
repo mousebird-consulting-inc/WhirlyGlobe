@@ -34,6 +34,8 @@
 namespace WhirlyKit
 {
     
+class RenderTargetMTL;
+    
 /// Metal stores a bit more per-frame information
 class RendererFrameInfoMTL : public RendererFrameInfo
 {
@@ -45,6 +47,8 @@ public:
     id<MTLRenderCommandEncoder> cmdEncode;
     // Render pass descriptor from the view
     MTLRenderPassDescriptor *renderPassDesc;
+    // Current render target
+    RenderTargetMTL *renderTarget;
 };
 
 /// Metal version of the Scene Renderer
@@ -107,6 +111,9 @@ public:
     
     // Apply the various defaults to DrawStateA
     void setupDrawStateA(WhirlyKitShader::UniformDrawStateA &drawState,RendererFrameInfoMTL *frameInfo);
+    
+    // Generate a render pipeline descriptor matching the given frame
+    MTLRenderPipelineDescriptor *defaultRenderPipelineState(SceneRendererMTL *sceneRender,RendererFrameInfoMTL *frameInfo);
     
 public:
     // Information about the renderer passed around to various calls
