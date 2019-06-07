@@ -185,7 +185,7 @@ void SetupDrawableStrings()
     u_colorNameID = StringIndexer::getStringID("u_color");
     u_lengthNameID = StringIndexer::getStringID("u_length");
     u_interpNameID = StringIndexer::getStringID("u_interp");
-    u_screenOriginNameID = StringIndexer::getStringID("u_interp");
+    u_screenOriginNameID = StringIndexer::getStringID("u_screenOrigin");
     a_colorNameID = StringIndexer::getStringID("a_color");
     a_normalNameID = StringIndexer::getStringID("a_normal");
     a_modelCenterNameID = StringIndexer::getStringID("a_modelCenter");

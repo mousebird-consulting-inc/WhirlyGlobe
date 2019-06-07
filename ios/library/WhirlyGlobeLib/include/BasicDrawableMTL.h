@@ -24,6 +24,7 @@
 #import "WrapperMTL.h"
 #import "VertexAttributeMTL.h"
 #import "SceneRendererMTL.h"
+#import "DefaultShadersMTL.h"
 
 namespace WhirlyKit
 {
@@ -46,6 +47,10 @@ public:
     virtual void draw(RendererFrameInfo *frameInfo,Scene *scene);
     
 public:
+    // Apply a list of uniforms to the draw state
+    // We hard wire some of these uniforms into a single buffer
+    static void applyUniformsToDrawState(WhirlyKitShader::UniformDrawStateA &drawState,const SingleVertexAttributeSet &uniforms);
+    
     // Defaults for vertex attributes we don't have
     typedef struct {
         MTLDataType dataType;

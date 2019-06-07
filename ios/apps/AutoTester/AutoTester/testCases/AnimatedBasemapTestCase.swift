@@ -112,15 +112,8 @@ class AnimatedBasemapTestCase: MaplyTestCase {
             imageLayer?.setRenderTarget(varTarget.renderTarget)
         }
 
-        // Color ramp shader
-        if let colorRamp = UIImage(named: "colorramp.png"),
-            let shader = MaplyShader(name: "AnimatedBasemap Shader",
-                                     vertex: vertexShaderNoLightTri,
-                                     fragment: fragmentShaderTriMultiTexRamp,
-                                     viewC: baseVC) {
-            baseVC.addShaderProgram(shader)
+        if let shader = baseVC.getShaderByName(kMaplyShaderDefaultTriMultiTexRamp) {
             imageLayer?.setShader(shader)
-            shader.addTextureNamed("s_colorRamp", image: colorRamp)
         }
         
         // Animator

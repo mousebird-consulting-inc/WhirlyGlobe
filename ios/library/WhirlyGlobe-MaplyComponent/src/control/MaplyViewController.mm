@@ -203,8 +203,7 @@ public:
 	_doubleTapDragGesture = true;
 	_twoFingerTapGesture = true;
 	_doubleTapZoomGesture = true;
-    // Note: Debugging
-    self.useOpenGLES = true;
+//    self.useOpenGLES = true;
 
 	return self;
 }
@@ -221,8 +220,7 @@ public:
     _doubleTapDragGesture = true;
     _twoFingerTapGesture = true;
     _doubleTapZoomGesture = true;
-    // Note: Debugging
-    self.useOpenGLES = true;
+//    self.useOpenGLES = true;
 
     return self;
 }

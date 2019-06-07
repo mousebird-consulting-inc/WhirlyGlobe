@@ -84,7 +84,7 @@ bool SceneRendererMTL::setup(int sizeX,int sizeY)
     defaultTarget->width = sizeX;
     defaultTarget->height = sizeY;
     if (framebufferTex) {
-        defaultTarget->setTargetTexture(framebufferTex);
+        defaultTarget->setTargetTexture(dynamic_cast<TextureBaseMTL *>(framebufferTex));
         // Note: Should make this optional
         defaultTarget->blendEnable = false;
     } else {
@@ -306,13 +306,7 @@ void SceneRendererMTL::render(TimeInterval duration,
     // Send the command buffer and encoders
     // TODO: Make this general for more than one render target
     id<MTLDevice> mtlDevice = setupInfo.mtlDevice;
-    
     id<MTLCommandQueue> cmdQueue = [mtlDevice newCommandQueue];
-    id<MTLCommandBuffer> cmdBuff = [cmdQueue commandBuffer];
-    id<MTLRenderCommandEncoder> cmdEncode = [cmdBuff renderCommandEncoderWithDescriptor:renderPassDesc];
-    
-    // Backface culling on by default
-    [cmdEncode setCullMode:MTLCullModeFront];
 
     if (scene)
     {
@@ -344,8 +338,6 @@ void SceneRendererMTL::render(TimeInterval duration,
         Point2d screenSize = theView->screenSizeInDisplayCoords(frameSize);
         baseFrameInfo.screenSizeInDisplayCoords = screenSize;
         baseFrameInfo.lights = &lights;
-        baseFrameInfo.cmdEncode = cmdEncode;
-        setupLightBuffer((SceneMTL *)scene,cmdEncode);
 
         // We need a reverse of the eye vector in model space
         // We'll use this to determine what's pointed away
@@ -514,14 +506,25 @@ void SceneRendererMTL::render(TimeInterval duration,
         for (RenderTargetRef inRenderTarget : renderTargets)
         {
             RenderTargetMTLRef renderTarget = std::dynamic_pointer_cast<RenderTargetMTL>(inRenderTarget);
+                        
+            // Each render target needs its own buffer and command queue
+            id<MTLCommandBuffer> cmdBuff = [cmdQueue commandBuffer];
+            id<MTLRenderCommandEncoder> cmdEncode = nil;
+
+            if (renderTarget->getId() == EmptyIdentity) {
+                cmdEncode = [cmdBuff renderCommandEncoderWithDescriptor:renderPassDesc];
+                baseFrameInfo.renderPassDesc = renderPassDesc;
+            } else {
+                cmdEncode = [cmdBuff renderCommandEncoderWithDescriptor:renderTarget->renderPassDesc];
+                baseFrameInfo.renderPassDesc = renderTarget->renderPassDesc;
+            }
             
-//            if (renderTarget->clearEveryFrame || renderTarget->clearOnce)
-//            {
-//                renderTarget->clearOnce = false;
-//                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-//                CheckGLError("SceneRendererES2: glClear");
-//            }
-            
+            // Backface culling on by default
+            [cmdEncode setCullMode:MTLCullModeFront];
+
+            baseFrameInfo.cmdEncode = cmdEncode;
+            setupLightBuffer((SceneMTL *)scene,cmdEncode);
+
             // Keep track of state changes for z buffer state
             bool firstDepthState = true;
             bool zBufferWrite = (zBufferMode == zBufferOn);
@@ -544,6 +547,12 @@ void SceneRendererMTL::render(TimeInterval duration,
                 
                 // If we're drawing lines or points we don't want to update the z buffer
                 zBufferWrite = drawContain.drawable->getWriteZbuffer();
+                
+                // Off screen render targets don't like z buffering
+                if (renderTarget->getId() != EmptyIdentity) {
+                    zBufferRead = false;
+                    zBufferWrite = false;
+                }
                 
                 // TODO: Optimize this a bit
                 if (firstDepthState ||
@@ -585,24 +594,11 @@ void SceneRendererMTL::render(TimeInterval duration,
                 if (!program)
                     continue;
                 
-                // TODO: Assign Program
-                //       Update lights (if needed)
-                //       Update any per-Program uniforms
-                //       Call the "draw"
-                
-                // TODO: Turn the lights back on
-                //                    [renderStateOptimizer setUseProgram:program->getProgram()];
-                // Assign the lights if we need to
-//                if (program->hasLights() && (lights.size() > 0))
-//                    program->setLights(lights, lightsLastUpdated, &defaultMat, currentMvpMat);
-//                // Explicitly turn the lights on
-//                program->setUniform(u_numLightsNameID, (int)lights.size());
-                
                 baseFrameInfo.program = program;
                 
                 // Only draw drawables that are active for the current render target
-//                if (drawContain.drawable->getRenderTarget() != renderTarget->getId())
-//                    continue;
+                if (drawContain.drawable->getRenderTarget() != renderTarget->getId())
+                    continue;
             
                 // Run any tweakers right here
                 drawContain.drawable->runTweakers(&baseFrameInfo);
@@ -616,6 +612,14 @@ void SceneRendererMTL::render(TimeInterval duration,
                 
                 numDrawables++;
             }
+
+            [cmdEncode endEncoding];
+            // Main screen has to be committed
+            if (renderTarget->getId() == EmptyIdentity)
+                [cmdBuff presentDrawable:drawable];
+            [cmdBuff commit];
+            if (renderTarget->getId() != EmptyIdentity)
+                [cmdBuff waitUntilCompleted];
         }
         
         if (perfInterval > 0)
@@ -663,10 +667,6 @@ void SceneRendererMTL::render(TimeInterval duration,
         perfTimer.log();
         perfTimer.clear();
     }
-
-    [cmdEncode endEncoding];
-    [cmdBuff presentDrawable:drawable];
-    [cmdBuff commit];
 }
     
 void SceneRendererMTL::snapshotCallback(TimeInterval now)

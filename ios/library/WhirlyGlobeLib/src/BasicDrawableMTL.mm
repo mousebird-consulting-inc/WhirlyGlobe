@@ -277,7 +277,8 @@ id<MTLRenderPipelineState> BasicDrawableMTL::getRenderPipelineState(SceneRendere
     renderDesc.vertexDescriptor = getVertexDescriptor(program->vertFunc,defaultAttrs);
     // TODO: Should be from the target
     renderDesc.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
-    renderDesc.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
+    if (frameInfo->renderPassDesc.depthAttachment.texture)
+        renderDesc.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
 
     // Set up a render state
     NSError *err = nil;
@@ -288,6 +289,18 @@ id<MTLRenderPipelineState> BasicDrawableMTL::getRenderPipelineState(SceneRendere
     }
 
     return renderState;
+}
+    
+void BasicDrawableMTL::applyUniformsToDrawState(WhirlyKitShader::UniformDrawStateA &drawState,const SingleVertexAttributeSet &uniforms)
+{
+    for (auto uni : uniforms) {
+        if (uni.nameID == u_interpNameID) {
+            drawState.interp = uni.data.floatVal;
+        } else if (uni.nameID == u_screenOriginNameID) {
+            drawState.screenOrigin[0] = uni.data.vec2[0];
+            drawState.screenOrigin[1] = uni.data.vec2[1];
+        }
+    }
 }
 
 void BasicDrawableMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScene)
@@ -312,18 +325,11 @@ void BasicDrawableMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScene)
         [frameInfo->cmdEncode setVertexBytes:&defAttr.data length:sizeof(defAttr.data) atIndex:defAttr.bufferIndex];
     
     [frameInfo->cmdEncode setRenderPipelineState:renderState];
-
-    // Set the per-drawable draw state
-    WhirlyKitShader::UniformDrawStateA uni;
-    uni.numTextures = texInfo.size();
-    uni.fade = fade;
-    bzero(&uni.singleMat,sizeof(uni.singleMat));
-    [frameInfo->cmdEncode setVertexBytes:&uni length:sizeof(uni) atIndex:WKSUniformDrawStateBuffer];
-    [frameInfo->cmdEncode setFragmentBytes:&uni length:sizeof(uni) atIndex:WKSUniformDrawStateBuffer];
     
     // Pass in the textures (and offsets)
     // Note: We could precalculate most of then when the texture changes
-    //       And we should figure out how many textures there actually have
+    //       And we should figure out how many textures they actually have
+    int numTextures = 0;
     for (unsigned int texIndex=0;texIndex<std::max((int)texInfo.size(),2);texIndex++) {
         TexInfo *thisTexInfo = (texIndex < texInfo.size()) ? &texInfo[texIndex] : NULL;
         
@@ -357,11 +363,23 @@ void BasicDrawableMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScene)
         if (tex) {
             [frameInfo->cmdEncode setVertexTexture:tex->getMTLID() atIndex:texIndex];
             [frameInfo->cmdEncode setFragmentTexture:tex->getMTLID() atIndex:texIndex];
+            numTextures++;
         } else {
             [frameInfo->cmdEncode setVertexTexture:nil atIndex:texIndex];
             [frameInfo->cmdEncode setFragmentTexture:nil atIndex:texIndex];
         }
     }
+    
+    // Set the per-drawable draw state
+    WhirlyKitShader::UniformDrawStateA uni;
+    uni.numTextures = numTextures;
+    uni.fade = fade;
+    uni.interp = 0.0;
+    // TODO: Apply the uniforms from the Program as well
+    applyUniformsToDrawState(uni,uniforms);
+    bzero(&uni.singleMat,sizeof(uni.singleMat));
+    [frameInfo->cmdEncode setVertexBytes:&uni length:sizeof(uni) atIndex:WKSUniformDrawStateBuffer];
+    [frameInfo->cmdEncode setFragmentBytes:&uni length:sizeof(uni) atIndex:WKSUniformDrawStateBuffer];
     
     // Render the primitives themselves
     switch (type) {

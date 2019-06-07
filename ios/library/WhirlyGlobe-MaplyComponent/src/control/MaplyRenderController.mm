@@ -642,13 +642,32 @@ using namespace Eigen;
             program:ProgramRef(new ProgramMTL([kMaplyShaderDefaultTri cStringUsingEncoding:NSASCIIStringEncoding],
                                               [mtlLib newFunctionWithName:@"vertexTri_noLight"],
                                               [mtlLib newFunctionWithName:@"fragmentTri_basic"]))];
+    
+    // TODO: Screen Space Texture application
 
-    // TODO: Implement this version
+    // Multitexture shader - Used for animation
     [self addShader:kMaplyShaderDefaultTriMultiTex
             program:ProgramRef(new ProgramMTL([kMaplyShaderDefaultTriMultiTex cStringUsingEncoding:NSASCIIStringEncoding],
-                                              [mtlLib newFunctionWithName:@"vertexTri_noLight"],
-                                              [mtlLib newFunctionWithName:@"fragmentTri_basic"]))];
+                                              [mtlLib newFunctionWithName:@"vertexTri_multiTex"],
+                                              [mtlLib newFunctionWithName:@"fragmentTri_multiTex"]))];
+    
+    // Multitexture ramp shader - Very simple implementation of animated color lookup
+    [self addShader:kMaplyShaderDefaultTriMultiTexRamp
+            program:ProgramRef(new ProgramMTL([kMaplyShaderDefaultTriMultiTex cStringUsingEncoding:NSASCIIStringEncoding],
+                                              [mtlLib newFunctionWithName:@"vertexTri_multiTex"],
+                                              [mtlLib newFunctionWithName:@"fragmentTri_multiTexRamp"]))];
+    
+    // TODO: MultiTexture for Markers
 
+    // TODO: Model Instancing
+
+    // TODO: Night/Day Shader
+    
+    // TODO: Billboards
+    
+    // TODO: Screen Space
+    
+    // TODO: Particles
 }
 
 // Install the various shaders we expect to be running

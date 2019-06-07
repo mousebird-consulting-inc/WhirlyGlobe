@@ -24,11 +24,12 @@ namespace WhirlyKit
 {
 
 RenderTargetMTL::RenderTargetMTL()
+    : renderPassDesc(nil)
 {
 }
 
 RenderTargetMTL::RenderTargetMTL(SimpleIdentity newID)
-    : RenderTarget(newID)
+    : RenderTarget(newID), renderPassDesc(nil)
 {
 }
 
@@ -38,14 +39,22 @@ RenderTargetMTL::~RenderTargetMTL()
 
 bool RenderTargetMTL::init(SceneRenderer *renderer,Scene *scene,SimpleIdentity targetTexID)
 {
-    // TODO: Implement
+    // This is not the screen and so we must set things up
+    if (targetTexID != EmptyIdentity)
+        setTargetTexture(renderer, scene, targetTexID);
+    
     return false;
 }
 
 bool RenderTargetMTL::setTargetTexture(SceneRenderer *renderer,Scene *scene,SimpleIdentity newTargetTexID)
 {
-    // TODO: Implement
-    return false;
+    TextureBase *tex = scene->getTexture(newTargetTexID);
+    if (!tex)
+        return false;
+    
+    setTargetTexture(dynamic_cast<TextureBaseMTL *>(tex));
+    
+    return true;
 }
 
 void RenderTargetMTL::clear()
@@ -58,17 +67,27 @@ RawDataRef RenderTargetMTL::snapshot()
     // TODO: Implement
     return RawDataRef();
 }
-    
+
 RawDataRef RenderTargetMTL::snapshot(int startX,int startY,int snapWidth,int snapHeight)
 {
     // TODO: Implement
     return RawDataRef();
 }
 
-void RenderTargetMTL::setTargetTexture(TextureBase *tex)
+void RenderTargetMTL::setTargetTexture(TextureBaseMTL *inTex)
 {
-    // TODO: Implement
+    if (!inTex)
+        return;
+    
+    // We need our own little render pass when we go out to a texture
+    TextureBaseMTL *tex = (TextureBaseMTL *)inTex;
+    
+    renderPassDesc = [[MTLRenderPassDescriptor alloc] init];
+    renderPassDesc.colorAttachments[0].texture = tex->getMTLID();
+    if (this->clearEveryFrame)
+        renderPassDesc.colorAttachments[0].loadAction = MTLLoadActionClear;
+    renderPassDesc.colorAttachments[0].clearColor = MTLClearColorMake(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
+    renderPassDesc.colorAttachments[0].storeAction = MTLStoreActionStore;
 }
-
     
 }

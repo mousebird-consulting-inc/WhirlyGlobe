@@ -21,6 +21,7 @@
 #import "RenderTarget.h"
 #import "WrapperMTL.h"
 #import "SceneRendererMTL.h"
+#import "TextureMTL.h"
 
 namespace WhirlyKit
 {
@@ -52,11 +53,11 @@ public:
     /// Copy just a subset of data out of the destination texture
     virtual RawDataRef snapshot(int startX,int startY,int snapWidth,int snapHeight);
 
-    
     /// Set the GL texture directly
-    void setTargetTexture(TextureBase *tex);
+    void setTargetTexture(TextureBaseMTL *tex);
     
-protected:
+public:
+    MTLRenderPassDescriptor *renderPassDesc;
 };
 typedef std::shared_ptr<RenderTargetMTL> RenderTargetMTLRef;
     

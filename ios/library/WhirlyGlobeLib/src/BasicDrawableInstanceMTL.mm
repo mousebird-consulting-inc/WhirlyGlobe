@@ -83,7 +83,10 @@ id<MTLRenderPipelineState> BasicDrawableInstanceMTL::getRenderPipelineState(Scen
     renderDesc.vertexDescriptor = basicDrawMTL->getVertexDescriptor(program->vertFunc,defaultAttrs);
     // TODO: Should be from the target
     renderDesc.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
-    renderDesc.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
+    if (frameInfo->renderPassDesc.depthAttachment.texture)
+        renderDesc.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
+    else
+        renderDesc.depthAttachmentPixelFormat = MTLPixelFormatInvalid;
 
     // Set up a render state
     NSError *err = nil;
@@ -118,18 +121,10 @@ void BasicDrawableInstanceMTL::drawLocal(RendererFrameInfoMTL *frameInfo,SceneRe
     // TODO: Fill this in
     float fade = 1.0;
     
-    // Set the per-drawable draw state
-    WhirlyKitShader::UniformDrawStateA uni;
-    uni.numTextures = texInfo.size();
-    uni.fade = fade;
-    // TODO: Fill in the override matrix
-    bzero(&uni.singleMat,sizeof(uni.singleMat));
-    [frameInfo->cmdEncode setVertexBytes:&uni length:sizeof(uni) atIndex:WKSUniformDrawStateBuffer];
-    [frameInfo->cmdEncode setFragmentBytes:&uni length:sizeof(uni) atIndex:WKSUniformDrawStateBuffer];
-    
     // Pass in the textures (and offsets)
     // Note: We could precalculate most of then when the texture changes
     //       And we should figure out how many textures there actually have
+    int numTextures = 0;
     for (unsigned int texIndex=0;texIndex<std::max((int)texInfo.size(),2);texIndex++) {
         TexInfo *thisTexInfo = (texIndex < texInfo.size()) ? &texInfo[texIndex] : NULL;
         
@@ -163,11 +158,23 @@ void BasicDrawableInstanceMTL::drawLocal(RendererFrameInfoMTL *frameInfo,SceneRe
         if (tex) {
             [frameInfo->cmdEncode setVertexTexture:tex->getMTLID() atIndex:texIndex];
             [frameInfo->cmdEncode setFragmentTexture:tex->getMTLID() atIndex:texIndex];
+            numTextures++;
         } else {
             [frameInfo->cmdEncode setVertexTexture:nil atIndex:texIndex];
             [frameInfo->cmdEncode setFragmentTexture:nil atIndex:texIndex];
         }
     }
+    
+    // Set the per-drawable draw state
+    WhirlyKitShader::UniformDrawStateA uni;
+    uni.numTextures = numTextures;
+    uni.fade = fade;
+    BasicDrawableMTL::applyUniformsToDrawState(uni, uniforms);
+    // TODO: Fill in the override matrix
+    bzero(&uni.singleMat,sizeof(uni.singleMat));
+    [frameInfo->cmdEncode setVertexBytes:&uni length:sizeof(uni) atIndex:WKSUniformDrawStateBuffer];
+    [frameInfo->cmdEncode setFragmentBytes:&uni length:sizeof(uni) atIndex:WKSUniformDrawStateBuffer];
+
     
     // Render the primitives themselves
     switch (basicDraw->type) {

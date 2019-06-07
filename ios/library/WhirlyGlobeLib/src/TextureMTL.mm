@@ -64,6 +64,9 @@ bool TextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
     {
         case TexTypeUnsignedByte:
             pixFormat = MTLPixelFormatRGBA8Unorm;
+            // Note: Render target.  this is goofy
+            if (!texData)
+                pixFormat = MTLPixelFormatBGRA8Unorm;
             bytesPerRow = 4*width;
             break;
         case TexTypeShort565:
@@ -94,10 +97,17 @@ bool TextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
     
     // Set up the texture and upload the data
     MTLTextureDescriptor *desc = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:pixFormat width:width height:height mipmapped:usesMipmaps];
+    
+    // If there's no data, then we're using this as a target
+    if (!texData) {
+        desc.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
+    }
+
     mtlID = [setupInfo->mtlDevice newTextureWithDescriptor:desc];
     if (mtlID) {
         MTLRegion region = MTLRegionMake2D(0,0,width,height);
-        [mtlID replaceRegion:region mipmapLevel:0 withBytes:texData->getRawData() bytesPerRow:bytesPerRow];
+        if (texData)
+            [mtlID replaceRegion:region mipmapLevel:0 withBytes:texData->getRawData() bytesPerRow:bytesPerRow];
     }
     
     texData.reset();
