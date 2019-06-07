@@ -93,7 +93,7 @@ using namespace WhirlyKit;
 
 - (void) teardown
 {
-    // TODO: Implement
+    _renderer = nil;
 }
 
 @end
