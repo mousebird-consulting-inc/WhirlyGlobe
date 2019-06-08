@@ -23,6 +23,12 @@
 
 namespace WhirlyKit
 {
+ 
+/// GLES version modifies uniforms
+class WideVectorTweakerGLES : public WideVectorTweaker
+{
+    void tweakForFrame(Drawable *inDraw,RendererFrameInfo *frameInfo);
+};
 
 // Shader name
 //#define kWideVectorShaderName "Wide Vector Shader"
@@ -37,11 +43,14 @@ ProgramGLES *BuildWideVectorGlobeProgramGLES(const std::string &name,SceneRender
 class WideVectorDrawableBuilderGLES : virtual public BasicDrawableBuilderGLES, virtual public WideVectorDrawableBuilder
 {
 public:
+    // Initialize with an estimate on the number of vertices and triangles
     WideVectorDrawableBuilderGLES(const std::string &name);
     
     void Init(unsigned int numVert,unsigned int numTri,bool globeMode);
     
     virtual int addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings = -1);
+
+    virtual WideVectorTweaker *makeTweaker();
 
     virtual BasicDrawable *getDrawable();
 };

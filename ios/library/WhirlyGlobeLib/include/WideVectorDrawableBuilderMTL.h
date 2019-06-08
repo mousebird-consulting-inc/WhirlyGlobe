@@ -24,14 +24,25 @@
 namespace WhirlyKit
 {
     
+/// Metal version sets up one Uniform structure
+class WideVectorTweakerMTL : public WideVectorTweaker
+{
+    void tweakForFrame(Drawable *inDraw,RendererFrameInfo *frameInfo);
+};
+
 /// Metal version of the WideVectorDrawable Builder
-class WideVectorDrawableBuilderMTL : public BasicDrawableBuilderMTL, public WideVectorDrawableBuilder
+class WideVectorDrawableBuilderMTL : virtual public BasicDrawableBuilderMTL, virtual public WideVectorDrawableBuilder
 {
 public:
     WideVectorDrawableBuilderMTL(const std::string &name);
     
+    // Initialize with an estimate on the number of vertices and triangles
+    virtual void Init(unsigned int numVert,unsigned int numTri,bool globeMode);
+
     virtual int addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings = -1);
     
+    WideVectorTweaker *makeTweaker();
+
     virtual BasicDrawable *getDrawable();
 };
 

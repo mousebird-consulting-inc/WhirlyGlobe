@@ -28,48 +28,6 @@ using namespace Eigen;
 namespace WhirlyKit
 {
     
-// Modifies the uniform values of a given shader right
-//  before the wide vector drawables are rendered
-class WideVectorTweaker : public DrawableTweaker
-{
-public:
-    void tweakForFrame(Drawable *inDraw,RendererFrameInfo *frameInfo)
-    {
-        if (frameInfo->program)
-        {
-            float scale = std::max(frameInfo->sceneRenderer->framebufferWidth,frameInfo->sceneRenderer->framebufferHeight);
-            float screenSize = frameInfo->screenSizeInDisplayCoords.x();
-            float pixDispSize = std::min(frameInfo->screenSizeInDisplayCoords.x(),frameInfo->screenSizeInDisplayCoords.y()) / scale;
-            float texScale = scale/(screenSize*texRepeat);
-
-            if (frameInfo->sceneRenderer->getType() == SceneRenderer::RenderGLES) {
-                ProgramGLES *programGLES = (ProgramGLES *)frameInfo->program;
-                
-                if (realWidthSet)
-                {
-                    programGLES->setUniform(u_w2NameID, (float)(realWidth / pixDispSize));
-                    programGLES->setUniform(u_Realw2NameID, (float)realWidth);
-                    programGLES->setUniform(u_EdgeNameID, edgeSize);
-                } else {
-                    programGLES->setUniform(u_w2NameID, lineWidth);
-                    programGLES->setUniform(u_Realw2NameID, pixDispSize * lineWidth);
-                    programGLES->setUniform(u_EdgeNameID, edgeSize);
-                }
-                programGLES->setUniform(u_texScaleNameID, texScale);
-                programGLES->setUniform(u_colorNameID, Vector4f(color.r/255.0,color.g/255.0,color.b/255.0,color.a/255.0));
-            }
-        }
-        
-    }
-    
-    bool realWidthSet;
-    float realWidth;
-    float edgeSize;
-    float lineWidth;
-    float texRepeat;
-    RGBAColor color;
-};
-    
 WideVectorDrawableBuilder::WideVectorDrawableBuilder()
     : texRepeat(1.0), edgeSize(1.0), realWidthSet(false), globeMode(true), color(255,255,255,255)
 {
@@ -176,7 +134,7 @@ void WideVectorDrawableBuilder::add_c0(float val)
     
 void WideVectorDrawableBuilder::setupTweaker(BasicDrawable *theDraw)
 {
-    WideVectorTweaker *tweak = new WideVectorTweaker();
+    WideVectorTweaker *tweak = makeTweaker();
     tweak->realWidthSet = false;
     tweak->realWidth = realWidth;
     tweak->edgeSize = edgeSize;

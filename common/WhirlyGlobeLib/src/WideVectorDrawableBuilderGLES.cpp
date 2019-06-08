@@ -20,8 +20,40 @@
 
 #import "WideVectorDrawableBuilderGLES.h"
 
+using namespace Eigen;
+
 namespace WhirlyKit
 {
+    
+// OpenGL version of the tweaker
+void WideVectorTweakerGLES::tweakForFrame(Drawable *inDraw,RendererFrameInfo *frameInfo)
+{
+    if (frameInfo->program)
+    {
+        float scale = std::max(frameInfo->sceneRenderer->framebufferWidth,frameInfo->sceneRenderer->framebufferHeight);
+        float screenSize = frameInfo->screenSizeInDisplayCoords.x();
+        float pixDispSize = std::min(frameInfo->screenSizeInDisplayCoords.x(),frameInfo->screenSizeInDisplayCoords.y()) / scale;
+        float texScale = scale/(screenSize*texRepeat);
+        
+        if (frameInfo->sceneRenderer->getType() == SceneRenderer::RenderGLES) {
+            ProgramGLES *programGLES = (ProgramGLES *)frameInfo->program;
+            
+            if (realWidthSet)
+            {
+                programGLES->setUniform(u_w2NameID, (float)(realWidth / pixDispSize));
+                programGLES->setUniform(u_Realw2NameID, (float)realWidth);
+                programGLES->setUniform(u_EdgeNameID, edgeSize);
+            } else {
+                programGLES->setUniform(u_w2NameID, lineWidth);
+                programGLES->setUniform(u_Realw2NameID, pixDispSize * lineWidth);
+                programGLES->setUniform(u_EdgeNameID, edgeSize);
+            }
+            programGLES->setUniform(u_texScaleNameID, texScale);
+            programGLES->setUniform(u_colorNameID, Vector4f(color.r/255.0,color.g/255.0,color.b/255.0,color.a/255.0));
+        }
+    }
+    
+}
 
 WideVectorDrawableBuilderGLES::WideVectorDrawableBuilderGLES(const std::string &name)
 : BasicDrawableBuilderGLES(name,false)
@@ -37,6 +69,11 @@ void WideVectorDrawableBuilderGLES::Init(unsigned int numVert,unsigned int numTr
 int WideVectorDrawableBuilderGLES::addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings)
 {
     return BasicDrawableBuilderGLES::addAttribute(dataType, nameID, numThings);
+}
+    
+WideVectorTweaker *WideVectorDrawableBuilderGLES::makeTweaker()
+{
+    return new WideVectorTweakerGLES();
 }
     
 BasicDrawable *WideVectorDrawableBuilderGLES::getDrawable()

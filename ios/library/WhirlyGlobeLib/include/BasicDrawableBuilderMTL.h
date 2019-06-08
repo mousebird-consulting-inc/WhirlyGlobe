@@ -26,7 +26,7 @@ namespace WhirlyKit
 
 /** Metal version of BasicDrawable Builder.
  */
-class BasicDrawableBuilderMTL : public BasicDrawableBuilder
+class BasicDrawableBuilderMTL : virtual public BasicDrawableBuilder
 {
 public:
     /// Construct empty

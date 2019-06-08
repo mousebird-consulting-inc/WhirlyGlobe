@@ -29,13 +29,20 @@ namespace WhirlyKitShader
 // A maximum of two texture coordinates at the moment
 #define WKSVertexTextureCoordMax 2
     
+// Wide Vector vertex attribute positions
+// Note: Combine these
+#define WKSVertexWideVecTexInfoAttribute 6
+#define WKSVertexWideVecP1Attribute 7
+#define WKSVertexWideVecN0Attribute 8
+#define WKSVertexWideVecC0Attribute 9
+    
 // Where we start with basic textures
 #define WKSTextureEntryBase 0
     
 // Where we start with data lookup texture (like color ramps)
 #define WKSTextureEntryLookup 4
     
-#define WKSUniformBuffer 8
+#define WKSUniformBuffer 10
 // Uniforms for the basic case.  Nothing fancy.
 struct Uniforms
 {
@@ -44,7 +51,7 @@ struct Uniforms
     simd::float4x4 mvNormalMatrix;
 };
 
-#define WKSUniformDrawStateBuffer 9
+#define WKSUniformDrawStateBuffer 11
 // Things that change per drawable (like fade)
 struct UniformDrawStateA {
     int numTextures;           // Number of textures we may find on input
@@ -75,7 +82,7 @@ struct Material {
     float specularExponent;
 };
 
-#define WKSLightingBuffer 10
+#define WKSLightingBuffer 12
 // Lighting together in one struct
 struct Lighting {
     Material mat;
@@ -83,20 +90,22 @@ struct Lighting {
     Light lights[8];
 };
     
-#define WKSTexIndirectStartBuffer 12
+#define WKSTexIndirectStartBuffer 13
 // Texture lookup indirection
-// Used for treating one textures coordinates as coordinates in the parent
+// Used for treating one texture's coordinates as coordinates in the parent
 struct TexIndirect {
     simd::float2 offset;
     simd::float2 scale;
 };
     
+
+#define WKSUniformDrawStateWideVecBuffer 15
 // Instructions to the screen space renders, usually per-drawable
-struct ScreenSpaceUniforms {
+struct UniformWideVec {
     float w2;       // Width / 2.0 in screen space
     float real_w2;  // Width/2 in real coordinates
     float edge;     // Edge falloff control
-    simd::float2 texScale;  // Texture scaling specific to wide vectors
+    float texScale;  // Texture scaling specific to wide vectors
     simd::float4 color;  // Color override.  TODO: Use the standard one.  Seriouslly.
 };
 

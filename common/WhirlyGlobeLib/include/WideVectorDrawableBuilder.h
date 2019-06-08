@@ -24,6 +24,22 @@
 namespace WhirlyKit
 {
     
+// Modifies the uniform values of a given shader right
+//  before the wide vector drawables are rendered
+class WideVectorTweaker : public DrawableTweaker
+{
+public:
+    // Called right before the drawable is drawn
+    virtual void tweakForFrame(Drawable *inDraw,RendererFrameInfo *frameInfo) = 0;
+    
+    bool realWidthSet;
+    float realWidth;
+    float edgeSize;
+    float lineWidth;
+    float texRepeat;
+    RGBAColor color;
+};
+    
 // Used to debug the wide vectors
 //#define WIDEVECDEBUG 1
 
@@ -67,7 +83,11 @@ public:
     /// Fix the width to a real world value, rather than letting it change
     void setRealWorldWidth(double width);
 
+    // The tweaker sets up uniforms before a given drawable draws
     void setupTweaker(BasicDrawable *theDraw);
+    
+    // We need slightly different tweakers for the rendering variants
+    virtual WideVectorTweaker *makeTweaker() = 0;
 
 protected:
     float lineWidth;
