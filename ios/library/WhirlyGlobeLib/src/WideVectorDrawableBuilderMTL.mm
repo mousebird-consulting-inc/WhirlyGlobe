@@ -79,11 +79,6 @@ void WideVectorDrawableBuilderMTL::Init(unsigned int numVert, unsigned int numTr
     ((VertexAttributeMTL *)basicDraw->vertexAttributes[c0_index])->bufferIndex = WKSVertexWideVecC0Attribute;
 }
 
-int WideVectorDrawableBuilderMTL::addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings)
-{
-    return BasicDrawableBuilderMTL::addAttribute(dataType, nameID, numThings);
-}
-
 WideVectorTweaker *WideVectorDrawableBuilderMTL::makeTweaker()
 {
     return new WideVectorTweakerMTL();

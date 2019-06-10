@@ -36,6 +36,13 @@ ProgramGLES *BuildScreenSpaceMotionProgramGLES(const std::string &name,SceneRend
 ProgramGLES *BuildScreenSpace2DProgramGLES(const std::string &name,SceneRenderer *render);
 ProgramGLES *BuildScreenSpaceMotion2DProgramGLES(const std::string &name,SceneRenderer *render);
     
+/// The OpenGL version sets uniforms
+class ScreenSpaceTweakerGLES : public ScreenSpaceTweaker
+{
+public:
+    void tweakForFrame(Drawable *inDraw,RendererFrameInfo *frameInfo);
+};
+    
 /** OpenGL version of ScreenSpaceDrawable Builder
  */
 class ScreenSpaceDrawableBuilderGLES : virtual public BasicDrawableBuilderGLES, virtual public ScreenSpaceDrawableBuilder
@@ -45,6 +52,8 @@ public:
     
     virtual int addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings = -1);
 
+    virtual ScreenSpaceTweaker *makeTweaker();
+    
     /// Fill out and return the drawable
     virtual BasicDrawable *getDrawable();
 };

@@ -154,13 +154,13 @@ bool TextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
         desc.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
     }
     
-    RawDataRef convData = convertData();
-
     mtlID = [setupInfo->mtlDevice newTextureWithDescriptor:desc];
     if (mtlID) {
         MTLRegion region = MTLRegionMake2D(0,0,width,height);
-        if (texData)
+        if (texData) {
+            RawDataRef convData = convertData();
             [mtlID replaceRegion:region mipmapLevel:0 withBytes:convData->getRawData() bytesPerRow:bytesPerRow];
+        }
     }
     
     texData.reset();

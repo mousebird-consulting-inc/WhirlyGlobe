@@ -23,6 +23,18 @@
 
 namespace WhirlyKit
 {
+    
+// Modifies the uniform values of a given shader right before the
+//  screenspace's Basic Drawables are rendered
+class ScreenSpaceTweaker : public DrawableTweaker
+{
+public:
+    virtual void tweakForFrame(Drawable *inDraw,RendererFrameInfo *frameInfo) = 0;
+    
+    TimeInterval startTime;
+    bool keepUpright;
+    bool activeRot;
+};
 
 /// Wrapper for building screen space drawables
 class ScreenSpaceDrawableBuilder : virtual public BasicDrawableBuilder
@@ -32,7 +44,7 @@ public:
 
     // Construct with or without motion support
     ScreenSpaceDrawableBuilder();
-    void Init(bool hasMotion,bool hasRotation);
+    virtual void Init(bool hasMotion,bool hasRotation, bool buildAnyway = false);
     
     // If we've got a rotation, we set this to keep the image facing upright
     //  probably because it's text.
@@ -53,6 +65,9 @@ public:
     // Add a rotation vector to the attribute list
     void addRot(const Point3f &dir);
     void addRot(const Point3d &dir);
+    
+    // Tweaker runs before we draw and we need different versions for the renderers
+    virtual ScreenSpaceTweaker *makeTweaker() = 0;
     
     void setupTweaker(BasicDrawable *theDraw);
     

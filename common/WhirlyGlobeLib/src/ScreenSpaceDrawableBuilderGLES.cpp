@@ -23,6 +23,22 @@
 namespace WhirlyKit
 {
     
+void ScreenSpaceTweakerGLES::tweakForFrame(Drawable *inDraw,RendererFrameInfo *frameInfo)
+{
+    if (frameInfo->sceneRenderer->getType() != SceneRenderer::RenderGLES || !frameInfo->program)
+        return;
+    
+    BasicDrawable *draw = (BasicDrawable *)inDraw;
+    Point2f fbSize = frameInfo->sceneRenderer->getFramebufferSize();
+    ProgramGLES *programGLES = (ProgramGLES *)frameInfo->program;
+    programGLES->setUniform(u_ScaleNameID, Point2f(2.f/fbSize.x(),2.f/(float)fbSize.y()));
+    programGLES->setUniform(u_uprightNameID, keepUpright);
+    if (draw->hasMotion())
+        programGLES->setUniform(u_TimeNameID, (float)(frameInfo->currentTime - startTime));
+    programGLES->setUniform(u_activerotNameID, (activeRot ? 1 : 0));
+}
+
+    
 ScreenSpaceDrawableBuilderGLES::ScreenSpaceDrawableBuilderGLES(const std::string &name)
     : BasicDrawableBuilderGLES(name,true)
 {
@@ -31,6 +47,11 @@ ScreenSpaceDrawableBuilderGLES::ScreenSpaceDrawableBuilderGLES(const std::string
 int ScreenSpaceDrawableBuilderGLES::addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings)
 {
     return BasicDrawableBuilderGLES::addAttribute(dataType, nameID, numThings);
+}
+    
+ScreenSpaceTweaker *ScreenSpaceDrawableBuilderGLES::makeTweaker()
+{
+    return new ScreenSpaceTweakerGLES();
 }
 
 BasicDrawable *ScreenSpaceDrawableBuilderGLES::getDrawable()

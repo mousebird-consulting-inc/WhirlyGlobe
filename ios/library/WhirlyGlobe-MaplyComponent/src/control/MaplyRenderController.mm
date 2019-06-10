@@ -666,18 +666,18 @@ using namespace Eigen;
     // TODO: Billboards
     
     // Wide vectors
-    if (isGlobe)
-        [self addShader:kMaplyShaderDefaultWideVector
-                program:ProgramRef(new ProgramMTL([kMaplyShaderDefaultTriMultiTex cStringUsingEncoding:NSASCIIStringEncoding],
-                                            [mtlLib newFunctionWithName:@"vertexTri_wideVecGlobe"],
-                                            [mtlLib newFunctionWithName:@"fragmentTri_wideVecGlobe"]))];
-    else
-        [self addShader:kMaplyShaderDefaultWideVector program:ProgramRef(new ProgramMTL([kMaplyShaderDefaultTriMultiTex cStringUsingEncoding:NSASCIIStringEncoding],
-                                            [mtlLib newFunctionWithName:@"vertexTri_wideVec"],
-                                            [mtlLib newFunctionWithName:@"fragmentTri_wideVec"]))];
+    [self addShader:kMaplyShaderDefaultWideVector
+            program:ProgramRef(new ProgramMTL([kMaplyShaderDefaultTriMultiTex cStringUsingEncoding:NSASCIIStringEncoding],
+                                        [mtlLib newFunctionWithName:@"vertexTri_wideVecGlobe"],
+                                        [mtlLib newFunctionWithName:@"fragmentTri_wideVecGlobe"]))];
 
-    // TODO: Screen Space
-    
+    // Screen Space
+    // TODO: Motion Screen Space
+    [self addShader:kMaplyScreenSpaceDefaultProgram
+            program:ProgramRef(new ProgramMTL([kMaplyShaderDefaultTriMultiTex cStringUsingEncoding:NSASCIIStringEncoding],
+                                      [mtlLib newFunctionWithName:@"vertexTri_screenSpace"],
+                                      [mtlLib newFunctionWithName:@"fragmentTri_basic"]))];
+
     // TODO: Particles
 }
 

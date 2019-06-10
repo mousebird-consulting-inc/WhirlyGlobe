@@ -36,6 +36,12 @@ namespace WhirlyKitShader
 #define WKSVertexWideVecN0Attribute 8
 #define WKSVertexWideVecC0Attribute 9
     
+// Screen space vertex attribute positions
+// Note: Combine these
+#define WKSVertexScreenSpaceOffsetAttribute 6
+#define WKSVertexScreenSpaceRotAttribute 7
+#define WKSVertexScreenSpaceDirAttribute 8
+    
 // Where we start with basic textures
 #define WKSTextureEntryBase 0
     
@@ -49,6 +55,7 @@ struct Uniforms
     simd::float4x4 mvpMatrix;
     simd::float4x4 mvMatrix;
     simd::float4x4 mvNormalMatrix;
+    bool globeMode;
 };
 
 #define WKSUniformDrawStateBuffer 11
@@ -97,16 +104,24 @@ struct TexIndirect {
     simd::float2 offset;
     simd::float2 scale;
 };
-    
 
 #define WKSUniformDrawStateWideVecBuffer 15
-// Instructions to the screen space renders, usually per-drawable
+// Instructions to the wide vector shaders, usually per-drawable
 struct UniformWideVec {
     float w2;       // Width / 2.0 in screen space
     float real_w2;  // Width/2 in real coordinates
     float edge;     // Edge falloff control
     float texScale;  // Texture scaling specific to wide vectors
     simd::float4 color;  // Color override.  TODO: Use the standard one.  Seriouslly.
+};
+    
+#define WKSUniformDrawStateScreenSpaceBuffer 15
+// Instructions to the screen space shaders, usually per-drawable
+struct UniformScreenSpace {
+    float time;
+    simd::float2 scale;
+    bool keepUpright;
+    bool activeRot;
 };
 
 }

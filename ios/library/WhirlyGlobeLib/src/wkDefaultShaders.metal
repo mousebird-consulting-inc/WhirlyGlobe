@@ -79,6 +79,19 @@ struct ProjVertexB
     float4 color;
 };
 
+// Back facing calculation for the globe
+float calcGlobeDotProd(constant Uniforms &uniforms,float3 pos, float3 norm)
+{
+    if (!uniforms.globeMode)
+        return 1.0;
+    
+    // Used to evaluate pixels behind the globe
+    float4 pt = uniforms.mvMatrix * float4(pos,1.0);
+    pt /= pt.w;
+    float4 testNorm = uniforms.mvNormalMatrix * float4(norm,0.0);
+    return dot(-pt.xyz,testNorm.xyz);
+}
+
 // Vertex shader for simple line on the flat map (no backface checking)
 vertex ProjVertexB vertexLineOnly_flat(
     VertexA vert [[stage_in]],
@@ -322,52 +335,7 @@ struct VertexTriWideVec
     float c0 [[attribute(WKSVertexWideVecC0Attribute)]];
 };
 
-// 2D Map version
-vertex ProjVertexTriA vertexTri_wideVec(VertexTriWideVec vert [[stage_in]],
-                                        constant Uniforms &uniforms [[buffer(WKSUniformBuffer)]],
-                                        constant UniformDrawStateA &uniDrawState [[buffer(WKSUniformDrawStateBuffer)]],
-                                        constant UniformWideVec &uniSS [[buffer(WKSUniformDrawStateWideVecBuffer)]])
-{
-    ProjVertexTriA outVert;
-    
-    outVert.color = uniSS.color;
-    
-    float t0 = vert.c0 * uniSS.real_w2;
-    t0 = clamp(t0,0.0,1.0);
-    float3 realPos = (vert.p1 - vert.position) * t0 + vert.n0 * uniSS.real_w2 + vert.position;
-    float texPos = ((vert.texInfo.z - vert.texInfo.y) * t0 + vert.texInfo.y + vert.texInfo.w * uniSS.real_w2) * uniSS.texScale;
-    outVert.texCoord = float2(vert.texInfo.x, texPos);
-    float4 screenPos = uniforms.mvpMatrix * float4(realPos,1.0);
-    screenPos /= screenPos.w;
-    outVert.position = float4(screenPos.xy,0,1.0);
-
-    return outVert;
-}
-
-// Fragment shader that doesn't account for the globe
-fragment float4 fragmentTri_wideVec(ProjVertexTriA vert [[stage_in]],
-                                        constant Uniforms &uniforms [[buffer(WKSUniformBuffer)]],
-                                        constant UniformDrawStateA &uniDrawState [[buffer(WKSUniformDrawStateBuffer)]],
-                                        constant UniformWideVec &uniSS [[buffer(WKSUniformDrawStateWideVecBuffer)]],
-                                        texture2d<float,access::sample> tex [[texture(0)]])
-{
-    // Dot/dash pattern
-    float patternVal = 1.0;
-    if (uniDrawState.numTextures > 0) {
-        constexpr sampler sampler2d(coord::normalized, address::repeat, filter::linear);
-        patternVal = tex.sample(sampler2d, float2(0.5,vert.texCoord.y)).r;
-    }
-    float alpha = 1.0;
-    float across = vert.texCoord.x * uniSS.w2;
-    if (across < uniSS.edge)
-        alpha = across/uniSS.edge;
-    if (across > uniSS.w2-uniSS.edge)
-        alpha = (uniSS.w2-across)/uniSS.edge;
-    return uniSS.color * alpha * patternVal * uniDrawState.fade;
-}
-
-
-// This version has the dot project pass through
+// Wide Vector vertex passed to fragment shader
 struct ProjVertexTriWideVec {
     float4 position [[position]];
     float4 color;
@@ -375,15 +343,14 @@ struct ProjVertexTriWideVec {
     float dotProd;
 };
 
-// 3D globe version.  Takes the back into account
-vertex ProjVertexTriWideVec vertexTri_wideVecGlobe(VertexTriWideVec vert [[stage_in]],
+vertex ProjVertexTriWideVec vertexTri_wideVec(VertexTriWideVec vert [[stage_in]],
                                             constant Uniforms &uniforms [[buffer(WKSUniformBuffer)]],
                                             constant UniformDrawStateA &uniDrawState [[buffer(WKSUniformDrawStateBuffer)]],
                                             constant UniformWideVec &uniSS [[buffer(WKSUniformDrawStateWideVecBuffer)]])
 {
     ProjVertexTriWideVec outVert;
     
-    outVert.color = uniSS.color;
+    outVert.color = uniSS.color * uniDrawState.fade;
     
     float t0 = vert.c0 * uniSS.real_w2;
     t0 = clamp(t0,0.0,1.0);
@@ -393,18 +360,14 @@ vertex ProjVertexTriWideVec vertexTri_wideVecGlobe(VertexTriWideVec vert [[stage
     float4 screenPos = uniforms.mvpMatrix * float4(realPos,1.0);
     screenPos /= screenPos.w;
     outVert.position = float4(screenPos.xy,0,1.0);
-    
-    // Used to evaluate pixels behind the globe
-    float4 pt = uniforms.mvMatrix * float4(vert.position,1.0);
-    pt /= pt.w;
-    float4 testNorm = uniforms.mvNormalMatrix * float4(vert.normal,0.0);
-    outVert.dotProd = dot(-pt.xyz,testNorm.xyz);
+
+    outVert.dotProd = calcGlobeDotProd(uniforms,vert.position,vert.normal);
     
     return outVert;
 }
 
 // Fragment share that takes the back of the globe into account
-fragment float4 fragmentTri_wideVecGlobe(ProjVertexTriWideVec vert [[stage_in]],
+fragment float4 fragmentTri_wideVec(ProjVertexTriWideVec vert [[stage_in]],
                                         constant Uniforms &uniforms [[buffer(WKSUniformBuffer)]],
                                         constant UniformDrawStateA &uniDrawState [[buffer(WKSUniformDrawStateBuffer)]],
                                         constant UniformWideVec &uniSS [[buffer(WKSUniformDrawStateWideVecBuffer)]],
@@ -424,3 +387,58 @@ fragment float4 fragmentTri_wideVecGlobe(ProjVertexTriWideVec vert [[stage_in]],
         alpha = (uniSS.w2-across)/uniSS.edge;
     return vert.dotProd > 0.0 ? uniSS.color * alpha * patternVal * uniDrawState.fade : float4(0.0);
 }
+
+// Input vertex data for Screen Space shaders
+struct VertexTriScreenSpace
+{
+    float3 position [[attribute(WKSVertexPositionAttribute)]];
+    float3 normal [[attribute(WKSVertexNormalAttribute)]];
+    float2 texCoord [[attribute(WKSVertexTextureBaseAttribute)]];
+    float4 color [[attribute(WKSVertexColorAttribute)]];
+    float2 offset [[attribute(WKSVertexScreenSpaceOffsetAttribute)]];
+    float3 rot [[attribute(WKSVertexScreenSpaceRotAttribute)]];
+    float4 dir [[attribute(WKSVertexScreenSpaceDirAttribute)]];
+};
+
+// Screen space (no motion) vertex shader
+vertex ProjVertexTriA vertexTri_screenSpace(VertexTriScreenSpace vert [[stage_in]],
+                                      constant Uniforms &uniforms [[buffer(WKSUniformBuffer)]],
+                                      constant UniformDrawStateA &uniDrawState [[buffer(WKSUniformDrawStateBuffer)]],
+                                      constant UniformScreenSpace &uniSS [[buffer(WKSUniformDrawStateScreenSpaceBuffer)]],
+                                      texture2d<float,access::sample> tex [[texture(0)]])
+{
+    ProjVertexTriA outVert;
+    
+    outVert.color = vert.color * uniDrawState.fade;
+    outVert.texCoord = vert.texCoord;
+    
+    // Convert from model space into display space
+    float4 pt = uniforms.mvMatrix * float4(vert.position,1.0);
+    pt /= pt.w;
+    
+    // Make sure the object is facing the user (only for the globe)
+    float dotProd = 1.0;
+    if (uniforms.globeMode) {
+        float4 testNorm = uniforms.mvNormalMatrix * float4(vert.normal,0.0);
+        dotProd = dot(-pt.xyz,testNorm.xyz);
+    }
+    
+    // Project the point all the way to screen space
+    float4 screenPt = uniforms.mvpMatrix * float4(vert.position,1.0);
+    screenPt /= screenPt.w;
+    
+    // Project the rotation into display space and drop the Z
+    float2 screenOffset;
+    if (uniSS.activeRot) {
+        float4 projRot = uniforms.mvNormalMatrix * float4(vert.rot,0.0);
+        float2 rotY = normalize(projRot.xy);
+        float2 rotX(rotY.y,-rotY.x);
+        screenOffset = vert.offset.x*rotX + vert.offset.y*rotY;
+    } else
+        screenOffset = vert.offset;
+    outVert.position = (dotProd > 0.0 && pt.z <= 0.0) ? float4(screenPt.xy + float2(screenOffset.x*uniSS.scale.x,screenOffset.y*uniSS.scale.y),0.0,1.0) : float4(0.0,0.0,0.0,0.0);
+    
+    return outVert;
+}
+
+// TODO: Motion shader

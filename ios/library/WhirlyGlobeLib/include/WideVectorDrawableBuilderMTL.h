@@ -38,8 +38,6 @@ public:
     
     // Initialize with an estimate on the number of vertices and triangles
     virtual void Init(unsigned int numVert,unsigned int numTri,bool globeMode);
-
-    virtual int addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings = -1);
     
     WideVectorTweaker *makeTweaker();
 

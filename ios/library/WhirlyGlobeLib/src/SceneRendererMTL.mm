@@ -202,12 +202,14 @@ static void CopyIntoFloat4(simd::float4 &dest,const Eigen::Vector4f &src)
     dest[3] = src.w();
 }
     
-void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo)
+void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,CoordSystemDisplayAdapter *coordAdapter)
 {
     WhirlyKitShader::Uniforms uniforms;
+    bzero(&uniforms,sizeof(uniforms));
     CopyIntoFloat4x4(uniforms.mvpMatrix,frameInfo->mvpMat);
     CopyIntoFloat4x4(uniforms.mvMatrix,frameInfo->viewAndModelMat);
     CopyIntoFloat4x4(uniforms.mvNormalMatrix,frameInfo->viewModelNormalMat);
+    uniforms.globeMode = !coordAdapter->isFlat();
     
     [frameInfo->cmdEncode setVertexBytes:&uniforms length:sizeof(uniforms) atIndex:WKSUniformBuffer];
     [frameInfo->cmdEncode setFragmentBytes:&uniforms length:sizeof(uniforms) atIndex:WKSUniformBuffer];
@@ -623,7 +625,7 @@ void SceneRendererMTL::render(TimeInterval duration,
                 baseFrameInfo.viewModelNormalMat = currentMvNormalMat;
 
                 // Note: Try to do this once rather than per drawable
-                setupUniformBuffer(&baseFrameInfo);
+                setupUniformBuffer(&baseFrameInfo,scene->getCoordAdapter());
 
                 // Figure out the program to use for drawing
                 SimpleIdentity drawProgramId = drawContain.drawable->getProgram();
