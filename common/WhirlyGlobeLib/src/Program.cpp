@@ -38,7 +38,7 @@ const std::string &Program::getName()
 }
     
 ShaderAddTextureReq::ShaderAddTextureReq(SimpleIdentity shaderID,SimpleIdentity nameID,SimpleIdentity texID,int textureSlot)
-: shaderID(shaderID), nameID(nameID), texID(texID)
+: shaderID(shaderID), nameID(nameID), texID(texID), textureSlot(textureSlot)
 {
 }
 

@@ -28,6 +28,11 @@
 namespace WhirlyKit
 {
     
+ProgramMTL::TextureEntry::TextureEntry()
+: slot(-1), tex(nil)
+{
+}
+    
 ProgramMTL::ProgramMTL() : lightsLastUpdated(0.0), valid(false)
 {
 }

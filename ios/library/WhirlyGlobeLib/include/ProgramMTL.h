@@ -71,10 +71,13 @@ public:
     TimeInterval lightsLastUpdated;
 
     // Program wide textures
-    typedef struct {
+    class TextureEntry {
+    public:
+        TextureEntry();
+        
         int slot;
         id<MTLTexture> tex;
-    } TextureEntry;
+    } ;
     std::vector<TextureEntry> textures;
 };
     
