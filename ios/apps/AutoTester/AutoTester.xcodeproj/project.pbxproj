@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		2B158BEF1D5D19E900103E04 /* VectorHoleTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B158BEE1D5D19E900103E04 /* VectorHoleTestCase.m */; };
+		2B1806D322AECF4300DD3DB1 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B1806D122AECF4200DD3DB1 /* Accelerate.framework */; };
 		2B1C26531C91037100C71B0A /* France.mbtiles in Resources */ = {isa = PBXBuildFile; fileRef = 2B1C26511C9100A500C71B0A /* France.mbtiles */; };
 		2B2A417E1D83454900098E12 /* ActiveObjectTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B2A417D1D83454900098E12 /* ActiveObjectTestCase.m */; };
 		2B392B711C5AC59D001EE40B /* RunwayBuilderTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B392B701C5AC59D001EE40B /* RunwayBuilderTestCase.m */; };
@@ -549,6 +550,8 @@
 		2B127BFE201802BB0099F405 /* OpenMapTilesHybridTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenMapTilesHybridTestCase.swift; sourceTree = "<group>"; };
 		2B158BED1D5D19E900103E04 /* VectorHoleTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorHoleTestCase.h; sourceTree = "<group>"; };
 		2B158BEE1D5D19E900103E04 /* VectorHoleTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VectorHoleTestCase.m; sourceTree = "<group>"; };
+		2B1806D122AECF4200DD3DB1 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
+		2B1806D422AECFA700DD3DB1 /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
 		2B1C264E1C90FFFC00C71B0A /* VectorMBTilesTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VectorMBTilesTestCase.swift; sourceTree = "<group>"; };
 		2B1C26511C9100A500C71B0A /* France.mbtiles */ = {isa = PBXFileReference; lastKnownFileType = file; name = France.mbtiles; path = ../../../resources/vectors/France.mbtiles; sourceTree = "<group>"; };
 		2B2A417C1D83454900098E12 /* ActiveObjectTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ActiveObjectTestCase.h; sourceTree = "<group>"; };
@@ -1087,6 +1090,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2B1806D322AECF4300DD3DB1 /* Accelerate.framework in Frameworks */,
 				8F858B011E7FE7EB00037D4E /* WhirlyGlobeMaplyComponent.framework in Frameworks */,
 				E5D2D66E1DE6C26A00E02305 /* libc++.tbd in Frameworks */,
 				E5D2D66C1DE6C26000E02305 /* libz.tbd in Frameworks */,
@@ -1120,6 +1124,8 @@
 		3651D5D283D23F0C2EFDE845 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				2B1806D422AECFA700DD3DB1 /* CoreImage.framework */,
+				2B1806D122AECF4200DD3DB1 /* Accelerate.framework */,
 				2B361E3921237CFE0074D06D /* CoreLocation.framework */,
 				E5D2D66D1DE6C26A00E02305 /* libc++.tbd */,
 				E5D2D66B1DE6C26000E02305 /* libz.tbd */,

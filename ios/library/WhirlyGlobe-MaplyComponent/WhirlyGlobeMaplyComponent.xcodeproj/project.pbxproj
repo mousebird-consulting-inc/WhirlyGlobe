@@ -12,6 +12,7 @@
 		2B127BF92012A12B0099F405 /* MaplyRenderController_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B127BF82012A12A0099F405 /* MaplyRenderController_private.h */; };
 		2B127BFB2012A1390099F405 /* MaplyRenderTarget_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B127BFA2012A1390099F405 /* MaplyRenderTarget_private.h */; };
 		2B127C03201911D40099F405 /* MapboxVectorInterpreter.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B127C01201911D30099F405 /* MapboxVectorInterpreter.h */; };
+		2B1806D822AED08200DD3DB1 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B1806D622AED03300DD3DB1 /* Accelerate.framework */; };
 		2B23131921F8DD61006AA344 /* GlobeView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B23131321F8DD60006AA344 /* GlobeView.h */; };
 		2B23131A21F8DD61006AA344 /* MaplyFlatView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B23131421F8DD60006AA344 /* MaplyFlatView.h */; };
 		2B23131B21F8DD61006AA344 /* MaplyView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B23131521F8DD60006AA344 /* MaplyView.h */; };
@@ -1092,6 +1093,7 @@
 		2B127BFC2012ACA20099F405 /* MaplyRenderController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyRenderController.mm; sourceTree = "<group>"; };
 		2B127C01201911D30099F405 /* MapboxVectorInterpreter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapboxVectorInterpreter.h; sourceTree = "<group>"; };
 		2B127C06201911DC0099F405 /* MapboxVectorInterpreter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MapboxVectorInterpreter.mm; sourceTree = "<group>"; };
+		2B1806D622AED03300DD3DB1 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		2B23131321F8DD60006AA344 /* GlobeView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GlobeView.h; path = ../../../../common/WhirlyGlobeLib/include/GlobeView.h; sourceTree = "<group>"; };
 		2B23131421F8DD60006AA344 /* MaplyFlatView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyFlatView.h; path = ../../../../common/WhirlyGlobeLib/include/MaplyFlatView.h; sourceTree = "<group>"; };
 		2B23131521F8DD60006AA344 /* MaplyView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyView.h; path = ../../../../common/WhirlyGlobeLib/include/MaplyView.h; sourceTree = "<group>"; };
@@ -2174,6 +2176,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2B1806D822AED08200DD3DB1 /* Accelerate.framework in Frameworks */,
 				2B69987D228DE2EF00C31E3F /* MetalKit.framework in Frameworks */,
 				2B69987B228DE06000C31E3F /* Metal.framework in Frameworks */,
 				2B84ED1E1F83FC9F00B34D73 /* libz.tbd in Frameworks */,
@@ -3127,6 +3130,7 @@
 		2B84ED111F83FC5A00B34D73 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				2B1806D622AED03300DD3DB1 /* Accelerate.framework */,
 				2B69987C228DE2EF00C31E3F /* MetalKit.framework */,
 				2B69987A228DE06000C31E3F /* Metal.framework */,
 				2B84ED1C1F83FC9B00B34D73 /* CoreText.framework */,

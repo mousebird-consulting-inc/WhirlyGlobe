@@ -63,6 +63,8 @@ public:
     virtual void destroyInRenderer(const RenderSetupInfo *setupInfo);
 
 protected:
+    // Convert our own raw data into bytes of the appropriate format
+    RawDataRef convertData();
 };
 
     

@@ -21,6 +21,7 @@
 #import "TextureMTL.h"
 #import "UIImage+Stuff.h"
 #import "RawData_NSData.h"
+#import <Accelerate/Accelerate.h>
 
 namespace WhirlyKit
 {
@@ -44,6 +45,56 @@ TextureMTL::TextureMTL(const std::string &name,UIImage *inImage,int inWidth,int 
     width = inWidth;  height = inHeight;
     
     texData = RawDataRef(new RawNSDataReader(data));
+}
+    
+RawDataRef TextureMTL::convertData()
+{
+    NSMutableData *outData = nil;
+
+    vImage_Buffer srcBuff;
+    srcBuff.data = (void *)texData->getRawData();
+    srcBuff.width = width;
+    srcBuff.height = height;
+    srcBuff.rowBytes = 4*width;
+
+    switch (format) {
+        case TexTypeUnsignedByte:
+        case TexTypeSingleChannel:
+        case TexTypeDoubleChannel:
+            break;
+        case TexTypeShort565:
+            {
+                outData = [[NSMutableData alloc] initWithCapacity:width*height*2];
+                vImage_Buffer destBuff;
+                destBuff.data = (void *)[outData bytes];
+                destBuff.width = width;
+                destBuff.height = height;
+                destBuff.rowBytes = 2*width;
+                vImageConvert_RGBA8888toRGB565(&srcBuff,&destBuff,kvImageNoFlags);
+            }
+            break;
+        case TexTypeShort4444:
+        {
+            NSLog(@"TextureMTL: 4444 image format not support on Metal.");
+        }
+            break;
+        case TexTypeShort5551:
+        {
+            outData = [[NSMutableData alloc] initWithCapacity:width*height*2];
+            vImage_Buffer destBuff;
+            destBuff.data = (void *)[outData bytes];
+            destBuff.width = width;
+            destBuff.height = height;
+            destBuff.rowBytes = 2*width;
+            vImageConvert_RGBA8888toRGBA5551(&srcBuff,&destBuff,kvImageNoFlags);
+        }
+            break;
+    }
+
+    if (outData)
+        return RawDataRef(new RawNSDataReader(outData));
+    else
+        return texData;
 }
 
 bool TextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
@@ -102,12 +153,14 @@ bool TextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
     if (!texData) {
         desc.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
     }
+    
+    RawDataRef convData = convertData();
 
     mtlID = [setupInfo->mtlDevice newTextureWithDescriptor:desc];
     if (mtlID) {
         MTLRegion region = MTLRegionMake2D(0,0,width,height);
         if (texData)
-            [mtlID replaceRegion:region mipmapLevel:0 withBytes:texData->getRawData() bytesPerRow:bytesPerRow];
+            [mtlID replaceRegion:region mipmapLevel:0 withBytes:convData->getRawData() bytesPerRow:bytesPerRow];
     }
     
     texData.reset();
