@@ -653,7 +653,7 @@ using namespace Eigen;
     
     // Multitexture ramp shader - Very simple implementation of animated color lookup
     [self addShader:kMaplyShaderDefaultTriMultiTexRamp
-            program:ProgramRef(new ProgramMTL([kMaplyShaderDefaultTriMultiTex cStringUsingEncoding:NSASCIIStringEncoding],
+            program:ProgramRef(new ProgramMTL([kMaplyShaderDefaultTriMultiTexRamp cStringUsingEncoding:NSASCIIStringEncoding],
                                               [mtlLib newFunctionWithName:@"vertexTri_multiTex"],
                                               [mtlLib newFunctionWithName:@"fragmentTri_multiTexRamp"]))];
     
@@ -667,14 +667,14 @@ using namespace Eigen;
     
     // Wide vectors
     [self addShader:kMaplyShaderDefaultWideVector
-            program:ProgramRef(new ProgramMTL([kMaplyShaderDefaultTriMultiTex cStringUsingEncoding:NSASCIIStringEncoding],
-                                        [mtlLib newFunctionWithName:@"vertexTri_wideVecGlobe"],
-                                        [mtlLib newFunctionWithName:@"fragmentTri_wideVecGlobe"]))];
+            program:ProgramRef(new ProgramMTL([kMaplyShaderDefaultWideVector cStringUsingEncoding:NSASCIIStringEncoding],
+                                        [mtlLib newFunctionWithName:@"vertexTri_wideVec"],
+                                        [mtlLib newFunctionWithName:@"fragmentTri_wideVec"]))];
 
     // Screen Space
     // TODO: Motion Screen Space
     [self addShader:kMaplyScreenSpaceDefaultProgram
-            program:ProgramRef(new ProgramMTL([kMaplyShaderDefaultTriMultiTex cStringUsingEncoding:NSASCIIStringEncoding],
+            program:ProgramRef(new ProgramMTL([kMaplyScreenSpaceDefaultProgram cStringUsingEncoding:NSASCIIStringEncoding],
                                       [mtlLib newFunctionWithName:@"vertexTri_screenSpace"],
                                       [mtlLib newFunctionWithName:@"fragmentTri_basic"]))];
 
