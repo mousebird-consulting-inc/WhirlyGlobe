@@ -626,7 +626,7 @@ using namespace Eigen;
                                                              [mtlLib newFunctionWithName:@"framentLineOnly_globe"]));
     ProgramRef defaultLineShaderNoBack = ProgramRef(new ProgramMTL([kMaplyShaderDefaultLine cStringUsingEncoding:NSASCIIStringEncoding],
                                                              [mtlLib newFunctionWithName:@"vertexLineOnly_flat"],
-                                                             [mtlLib newFunctionWithName:@"framentLineOnly_flat"]));
+                                                             [mtlLib newFunctionWithName:@"fragmentLineOnly_flat"]));
     if (isGlobe)
         [self addShader:kMaplyShaderDefaultLine program:defaultLineShader];
     else

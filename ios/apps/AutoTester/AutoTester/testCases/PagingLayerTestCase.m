@@ -48,7 +48,8 @@ const bool enableTest = false;
 {
     // Describes how we want to break things down
     MaplySamplingParams *params = [[MaplySamplingParams alloc] init];
-    params.minZoom = 4;
+    // TODO: Try this at minZoom = 4 and debug
+    params.minZoom = 0;
     params.maxZoom = 22;
     params.minImportance = 256*256;
     params.singleLevel = true;

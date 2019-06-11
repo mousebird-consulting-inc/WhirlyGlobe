@@ -275,7 +275,7 @@ using namespace WhirlyKit;
         loadData.frame = frame;
         if ([data isKindOfClass:[NSData class]]) {
             [loadData addTileData:data];
-        } else {
+        } else if (data != nil) {
             NSLog(@"MaplyQuadLader:fetchRequestSuccess: client return unknown data type.  Dropping.");
         }
     }
