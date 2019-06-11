@@ -24,34 +24,72 @@ namespace WhirlyKit
 {
     
 DynamicTextureMTL::DynamicTextureMTL(const std::string &name)
-: DynamicTexture(name), TextureBase(name), TextureBaseMTL(name)
+: DynamicTexture(name), TextureBase(name), TextureBaseMTL(name), valid(false), bytesPerRow(0)
 {
 }
 
-void DynamicTextureMTL::setup(int texSize,int cellSize,TextureType format,bool clearTextures)
+void DynamicTextureMTL::setup(int texSize,int cellSize,TextureType inType,bool clearTextures)
 {
-    // TODO: Implement
+    DynamicTexture::setup(texSize,cellSize,inType,clearTextures);
+    
+    switch (inType)
+    {
+        case TexTypeUnsignedByte:
+            bytesPerRow = texSize * 4;
+            pixFormat = MTLPixelFormatRGBA8Unorm;
+            type = inType;
+            break;
+        case TexTypeSingleChannel:
+            bytesPerRow = texSize;
+            pixFormat = MTLPixelFormatA8Unorm;
+            type = inType;
+            break;
+        default:
+            NSLog(@"DynamicTextureMTL: Only valid texture types are RGBA and Single channel.");
+            return;
+            break;
+    }
+    
+    valid = true;
 }
 
-void DynamicTextureMTL::addTextureData(int startX,int startY,int width,int height,RawDataRef data)
+bool DynamicTextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
 {
-    // TODO: Implement
-}
+    if (mtlID)
+        return true;
+    
+    if (type != TexTypeUnsignedByte && type != TexTypeSingleChannel)
+        return false;
+    RenderSetupInfoMTL *setupInfo = (RenderSetupInfoMTL *)inSetupInfo;
+    
+    // Set up an empty texture
+    MTLTextureDescriptor *desc = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:pixFormat width:texSize height:texSize mipmapped:false];
+    mtlID = [setupInfo->mtlDevice newTextureWithDescriptor:desc];
+    if (!mtlID) {
+        valid = false;
+        return false;
+    }
 
-void DynamicTextureMTL::clearTextureData(int startX,int startY,int width,int height,ChangeSet &changes,bool mainThreadMerge,unsigned char *emptyData)
-{
-    // TODO: Implement
-}
-
-bool DynamicTextureMTL::createInRenderer(const RenderSetupInfo *setupInfo)
-{
-    // TODO: Implement
-    return false;
+    return valid;
 }
 
 void DynamicTextureMTL::destroyInRenderer(const RenderSetupInfo *setupInfo)
 {
-    // TODO: Implement
+    mtlID = nil;
+}
+
+void DynamicTextureMTL::addTextureData(int startX,int startY,int width,int height,RawDataRef data)
+{
+    MTLRegion region = MTLRegionMake2D(startX,startY,width,height);
+    [mtlID replaceRegion:region mipmapLevel:0 withBytes:data->getRawData() bytesPerRow:width*4];    
+}
+
+void DynamicTextureMTL::clearTextureData(int startX,int startY,int width,int height,ChangeSet &changes,bool mainThreadMerge,unsigned char *emptyData)
+{
+    if (!clearTextures)
+        return;
+
+    // TODO: Implement this with a blit encoder
 }
     
 }

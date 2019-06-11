@@ -397,15 +397,14 @@ struct VertexTriScreenSpace
     float4 color [[attribute(WKSVertexColorAttribute)]];
     float2 offset [[attribute(WKSVertexScreenSpaceOffsetAttribute)]];
     float3 rot [[attribute(WKSVertexScreenSpaceRotAttribute)]];
-    float4 dir [[attribute(WKSVertexScreenSpaceDirAttribute)]];
+    float3 dir [[attribute(WKSVertexScreenSpaceDirAttribute)]];
 };
 
 // Screen space (no motion) vertex shader
 vertex ProjVertexTriA vertexTri_screenSpace(VertexTriScreenSpace vert [[stage_in]],
                                       constant Uniforms &uniforms [[buffer(WKSUniformBuffer)]],
                                       constant UniformDrawStateA &uniDrawState [[buffer(WKSUniformDrawStateBuffer)]],
-                                      constant UniformScreenSpace &uniSS [[buffer(WKSUniformDrawStateScreenSpaceBuffer)]],
-                                      texture2d<float,access::sample> tex [[texture(0)]])
+                                      constant UniformScreenSpace &uniSS [[buffer(WKSUniformDrawStateScreenSpaceBuffer)]])
 {
     ProjVertexTriA outVert;
     

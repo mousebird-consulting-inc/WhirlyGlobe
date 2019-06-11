@@ -22,8 +22,11 @@
 #import <CoreText/CoreText.h>
 #import "FontTextureManager_iOS.h"
 #import "TextureGLES_iOS.h"
+#import "TextureMTL.h"
 #import "UIColor+Stuff.h"
 #import "Scene.h"
+#import "SceneRenderer.h"
+#import "RawData_NSData.h"
 
 // We scale the fonts up so they look better sampled down.
 static const float BogusFontScale = 2.0;
@@ -264,9 +267,17 @@ WhirlyKit::DrawableString *FontTextureManager_iOS::addString(NSAttributedString 
                     NSData *glyphImage = renderGlyph(glyph, fm, texSize, glyphSize, offset, textureOffset);
                     if (glyphImage)
                     {
-                        Texture *tex = new TextureGLES_iOS("Font Texture Manager",glyphImage,false);
-                        tex->setWidth(texSize.x());
-                        tex->setHeight(texSize.y());
+                        Texture *tex = nil;
+                        if (sceneRender->getType() == SceneRenderer::RenderGLES) {
+                            tex = new TextureGLES_iOS("Font Texture Manager",glyphImage,false);
+                            tex->setWidth(texSize.x());
+                            tex->setHeight(texSize.y());
+                        } else {
+                            RawDataRef glyphImageWrap(new RawNSDataReader(glyphImage));
+                            tex = new TextureMTL("Font Texture Manager",glyphImageWrap,false);
+                            tex->setWidth(texSize.x());
+                            tex->setHeight(texSize.y());
+                        }
                         SubTexture subTex;
                         Point2f realSize(glyphSize.x()+2*textureOffset.x(),glyphSize.y()+2*textureOffset.y());
                         std::vector<Texture *> texs;

@@ -50,6 +50,10 @@ public:
     virtual void destroyInRenderer(const RenderSetupInfo *setupInfo);
     
 protected:
+    bool valid;
+    MTLPixelFormat pixFormat;
+    TextureType type;
+    int bytesPerRow;
 };
     
 }

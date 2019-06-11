@@ -210,17 +210,16 @@ MTLVertexDescriptor *BasicDrawableMTL::getVertexDescriptor(id<MTLFunction> vertF
     // Note: Put the preferred attribute index in the vertex attribute
     //       And we can identify unknown attributes that way too
     NSArray<MTLAttribute *> *vertAttrsMTL = vertFunc.stageInputAttributes;
-    int which = 0;
     for (MTLAttribute *vertAttrMTL : vertAttrsMTL) {
         // We don't have this one at all, so let's provide some sort of default anyway
         // This happens with texture coordinates
-        if (buffersFilled.find(which) == buffersFilled.end()) {
+        if (buffersFilled.find(vertAttrMTL.attributeIndex) == buffersFilled.end()) {
             MTLVertexAttributeDescriptor *attrDesc = [[MTLVertexAttributeDescriptor alloc] init];
             MTLVertexBufferLayoutDescriptor *layoutDesc = [[MTLVertexBufferLayoutDescriptor alloc] init];
             AttributeDefault defAttr;
             bzero(&defAttr.data,sizeof(defAttr.data));
             defAttr.dataType = vertAttrMTL.attributeType;
-            defAttr.bufferIndex = which;
+            defAttr.bufferIndex = vertAttrMTL.attributeIndex;
             switch (vertAttrMTL.attributeType) {
                 case MTLDataTypeFloat:
                     attrDesc.format = MTLVertexFormatFloat;
@@ -245,18 +244,16 @@ MTLVertexDescriptor *BasicDrawableMTL::getVertexDescriptor(id<MTLFunction> vertF
                 default:
                     break;
             }
-            attrDesc.bufferIndex = which;
+            attrDesc.bufferIndex = vertAttrMTL.attributeIndex;
             attrDesc.offset = 0;
-            vertDesc.attributes[which] = attrDesc;
+            vertDesc.attributes[vertAttrMTL.attributeIndex] = attrDesc;
             
             layoutDesc.stepFunction = MTLVertexStepFunctionConstant;
             layoutDesc.stepRate = 0;
-            vertDesc.layouts[which] = layoutDesc;
+            vertDesc.layouts[vertAttrMTL.attributeIndex] = layoutDesc;
             
             defAttrs.push_back(defAttr);
         }
-        
-        which++;
     }
 
     return vertDesc;
