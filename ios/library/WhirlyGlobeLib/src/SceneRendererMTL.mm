@@ -630,8 +630,10 @@ void SceneRendererMTL::render(TimeInterval duration,
                 // Figure out the program to use for drawing
                 SimpleIdentity drawProgramId = drawContain.drawable->getProgram();
                 ProgramMTL *program = (ProgramMTL *)scene->getProgram(drawProgramId);
-                if (!program)
+                if (!program) {
+                    wkLogLevel(Error, "SceneRendererMTL: Drawable without Program");
                     continue;
+                }
                 
                 baseFrameInfo.program = program;
                 

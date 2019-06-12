@@ -657,7 +657,11 @@ using namespace Eigen;
                                               [mtlLib newFunctionWithName:@"vertexTri_multiTex"],
                                               [mtlLib newFunctionWithName:@"fragmentTri_multiTexRamp"]))];
     
-    // TODO: MultiTexture for Markers
+    // MultiTexture for Markers
+    [self addShader:kMaplyShaderDefaultMarker
+            program:ProgramRef(new ProgramMTL([kMaplyShaderDefaultTriMultiTex cStringUsingEncoding:NSASCIIStringEncoding],
+                                              [mtlLib newFunctionWithName:@"vertexTri_multiTex"],
+                                              [mtlLib newFunctionWithName:@"fragmentTri_multiTex"]))];
 
     // TODO: Model Instancing
 
