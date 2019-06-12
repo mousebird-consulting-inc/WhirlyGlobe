@@ -65,7 +65,7 @@ void SceneRenderer::init()
     zBufferMode = zBufferOff;
     framebufferWidth = 0;
     framebufferHeight = 0;
-    scale = 1.0;
+    scale = DeviceScreenScale();
     framesPerSec = 0.0;
     numDrawables = 0;
     perfInterval = 0.0;

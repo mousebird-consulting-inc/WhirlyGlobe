@@ -17,6 +17,8 @@
 {
     // create and prepare the controller
     self.globeViewController = [[WhirlyGlobeViewController alloc] init];
+    // Note: Debugging
+//    self.globeViewController.useOpenGLES = true;
     self.baseViewController = self.globeViewController;
     [nav pushViewController:self.baseViewController animated:YES];
     self.globeViewController.view.backgroundColor = [UIColor blueColor];
