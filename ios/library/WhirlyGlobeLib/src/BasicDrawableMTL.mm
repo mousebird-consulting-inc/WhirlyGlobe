@@ -57,7 +57,7 @@ void BasicDrawableMTL::setupForRenderer(const RenderSetupInfo *inSetupInfo)
     }
     
     // And put the triangles in their own
-    // Note: Could use 2 bytes some of the time
+    // Note: Could use 1 byte some of the time
     int bufferSize = 3*2*tris.size();
     numTris = tris.size();
     if (bufferSize > 0) {

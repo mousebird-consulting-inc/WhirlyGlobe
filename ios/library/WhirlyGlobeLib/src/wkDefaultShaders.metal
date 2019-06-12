@@ -160,7 +160,7 @@ float4 resolveLighting(float3 pos,
         diffuse += ndotl * light.diffuse;
     }
     
-    return float4(ambient.xyz * lighting.mat.ambient.xyz * color.xyz + diffuse.xyz * color.xyz,1.0);
+    return float4(ambient.xyz * lighting.mat.ambient.xyz * color.xyz + diffuse.xyz * color.xyz,color.a);
 }
 
 // Simple vertex shader for triangle with no lighting

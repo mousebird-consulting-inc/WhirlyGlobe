@@ -38,12 +38,18 @@ LoftedPolyInfo::LoftedPolyInfo()
     outlineDrawPriority(MaplyLoftedPolysDrawPriorityDefault+1),
     color(255,255,255,255), outlineColor(255,255,255,255), outlineWidth(1.0),
     centered(false), hasCenter(false), center(0.0,0.0), gridSize(10.0 / 180.0 * M_PI)
-{    
+{
+    zBufferRead = true;
+    zBufferWrite = false;
 }
 
 LoftedPolyInfo::LoftedPolyInfo(const Dictionary &dict)
     : BaseInfo(dict)
 {
+    // We have different defaults than the base
+    zBufferRead = dict.getBool(MaplyZBufferRead,true);
+    zBufferWrite = dict.getBool(MaplyZBufferWrite, false);
+
     color = dict.getColor(MaplyColor, RGBAColor(255,255,255,255));
     height = dict.getDouble(MaplyLoftedPolyHeight, 0.01);
     base = dict.getDouble(MaplyLoftedPolyBase, 0.0);
@@ -108,10 +114,10 @@ public:
             //            drawable->setDrawOffset(vecInfo->drawOffset);
             drawable->setColor(((primType == Triangles) ? polyInfo.color : polyInfo.outlineColor));
             polyInfo.setupBasicDrawable(drawable);
-            if (primType == Lines)
+            if (primType == Lines) {
                 drawable->setLineWidth(polyInfo.outlineWidth);
-            drawable->setRequestZBuffer(polyInfo.zBufferRead);
-            drawable->setWriteZBuffer(polyInfo.zBufferWrite);
+                drawable->setDrawPriority(polyInfo.outlineDrawPriority);
+            }
         }
     }
     
