@@ -122,6 +122,7 @@ struct UniformScreenSpace {
     simd::float2 scale;
     bool keepUpright;
     bool activeRot;
+    bool hasMotion;
 };
 
 }

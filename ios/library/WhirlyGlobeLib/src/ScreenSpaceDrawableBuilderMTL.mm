@@ -39,6 +39,7 @@ void ScreenSpaceTweakerMTL::tweakForFrame(Drawable *inDraw,RendererFrameInfo *in
     uniSS.keepUpright = keepUpright;
     uniSS.time = frameInfo->currentTime - startTime;
     uniSS.activeRot = activeRot;
+    uniSS.hasMotion = motion;
     
     [frameInfo->cmdEncode setVertexBytes:&uniSS length:sizeof(uniSS) atIndex:WKSUniformDrawStateScreenSpaceBuffer];
     [frameInfo->cmdEncode setFragmentBytes:&uniSS length:sizeof(uniSS) atIndex:WKSUniformDrawStateScreenSpaceBuffer];

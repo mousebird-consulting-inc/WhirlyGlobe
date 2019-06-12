@@ -34,6 +34,7 @@ public:
     TimeInterval startTime;
     bool keepUpright;
     bool activeRot;
+    bool motion;
 };
 
 /// Wrapper for building screen space drawables

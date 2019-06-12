@@ -32,6 +32,7 @@ ScreenSpaceDrawableBuilder::ScreenSpaceDrawableBuilder()
 void ScreenSpaceDrawableBuilder::Init(bool hasMotion,bool hasRotation,bool buildAnyway)
 {
     rotation = hasRotation;
+    motion = hasMotion;
     BasicDrawableBuilder::Init();
     setupStandardAttributes();
 
@@ -89,6 +90,7 @@ void ScreenSpaceDrawableBuilder::setupTweaker(BasicDrawable *theDraw)
     tweak->startTime = startTime;
     tweak->keepUpright = keepUpright;
     tweak->activeRot = rotation;
+    tweak->motion = motion;
     theDraw->addTweaker(DrawableTweakerRef(tweak));
 }
     

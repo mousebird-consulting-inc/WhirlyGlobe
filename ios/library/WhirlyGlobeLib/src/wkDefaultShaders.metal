@@ -408,11 +408,15 @@ vertex ProjVertexTriA vertexTri_screenSpace(VertexTriScreenSpace vert [[stage_in
 {
     ProjVertexTriA outVert;
     
+    float3 pos = vert.position;
+    if (uniSS.hasMotion)
+        pos += uniSS.time * vert.dir;
+    
     outVert.color = vert.color * uniDrawState.fade;
     outVert.texCoord = vert.texCoord;
     
     // Convert from model space into display space
-    float4 pt = uniforms.mvMatrix * float4(vert.position,1.0);
+    float4 pt = uniforms.mvMatrix * float4(pos,1.0);
     pt /= pt.w;
     
     // Make sure the object is facing the user (only for the globe)
@@ -423,7 +427,7 @@ vertex ProjVertexTriA vertexTri_screenSpace(VertexTriScreenSpace vert [[stage_in
     }
     
     // Project the point all the way to screen space
-    float4 screenPt = uniforms.mvpMatrix * float4(vert.position,1.0);
+    float4 screenPt = uniforms.mvpMatrix * float4(pos,1.0);
     screenPt /= screenPt.w;
     
     // Project the rotation into display space and drop the Z
@@ -435,6 +439,7 @@ vertex ProjVertexTriA vertexTri_screenSpace(VertexTriScreenSpace vert [[stage_in
         screenOffset = vert.offset.x*rotX + vert.offset.y*rotY;
     } else
         screenOffset = vert.offset;
+    
     outVert.position = (dotProd > 0.0 && pt.z <= 0.0) ? float4(screenPt.xy + float2(screenOffset.x*uniSS.scale.x,screenOffset.y*uniSS.scale.y),0.0,1.0) : float4(0.0,0.0,0.0,0.0);
     
     return outVert;

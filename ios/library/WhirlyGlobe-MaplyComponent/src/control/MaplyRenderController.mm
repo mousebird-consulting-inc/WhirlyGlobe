@@ -675,12 +675,13 @@ using namespace Eigen;
                                         [mtlLib newFunctionWithName:@"vertexTri_wideVec"],
                                         [mtlLib newFunctionWithName:@"fragmentTri_wideVec"]))];
 
-    // Screen Space
-    // TODO: Motion Screen Space
-    [self addShader:kMaplyScreenSpaceDefaultProgram
-            program:ProgramRef(new ProgramMTL([kMaplyScreenSpaceDefaultProgram cStringUsingEncoding:NSASCIIStringEncoding],
-                                      [mtlLib newFunctionWithName:@"vertexTri_screenSpace"],
-                                      [mtlLib newFunctionWithName:@"fragmentTri_basic"]))];
+    // Screen Space (motion and regular are the same)
+    ProgramRef screenSpace = ProgramRef(new
+            ProgramMTL([kMaplyScreenSpaceDefaultProgram cStringUsingEncoding:NSASCIIStringEncoding],
+                       [mtlLib newFunctionWithName:@"vertexTri_screenSpace"],
+                       [mtlLib newFunctionWithName:@"fragmentTri_basic"]));
+    [self addShader:kMaplyScreenSpaceDefaultProgram program:screenSpace];
+    [self addShader:kMaplyScreenSpaceDefaultMotionProgram program:screenSpace];
 
     // TODO: Particles
 }
