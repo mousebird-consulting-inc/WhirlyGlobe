@@ -1653,6 +1653,7 @@
 		2B8E608820D458A500FB96F0 /* MaplyQuadSampler_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyQuadSampler_private.h; sourceTree = "<group>"; };
 		2B8E608A20D47FEE00FB96F0 /* MaplyRemoteTileFetcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyRemoteTileFetcher.h; sourceTree = "<group>"; };
 		2B8E608E20D4800000FB96F0 /* MaplyRemoteTileFetcher.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyRemoteTileFetcher.mm; sourceTree = "<group>"; };
+		2BA24D5222B1B47400879D99 /* Snapshot_iOS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Snapshot_iOS.h; sourceTree = "<group>"; };
 		2BA827C0225E57FA00324594 /* MapboxVectorTileParser_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapboxVectorTileParser_iOS.h; sourceTree = "<group>"; };
 		2BA827C3225E581100324594 /* MapboxVectorTileParser_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MapboxVectorTileParser_iOS.mm; sourceTree = "<group>"; };
 		2BA827C6225E6F1600324594 /* MapboxVectorTiles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapboxVectorTiles.h; sourceTree = "<group>"; };
@@ -2881,6 +2882,7 @@
 			children = (
 				2B6997EF228CDA0400C31E3F /* ViewWrapper.h */,
 				2B87970422039D6300EF801D /* TextureGLES_iOS.h */,
+				2BA24D5222B1B47400879D99 /* Snapshot_iOS.h */,
 				2B8796DF21FFD59000EF801D /* SceneRendererGLES_iOS.h */,
 				2B82B4C91E82E2490095FB14 /* EAGLView.h */,
 				2B6998812293124F00C31E3F /* MTLView.h */,
