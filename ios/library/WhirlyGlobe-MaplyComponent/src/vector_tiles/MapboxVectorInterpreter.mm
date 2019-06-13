@@ -116,17 +116,19 @@ static double MAX_EXTENT = 20037508.342789244;
 // Flip data in an NSData object that we know to be an image
 - (NSData *)flipVertically:(NSData *)data width:(int)width height:(int)height
 {
-    NSMutableData *retData = [[NSMutableData alloc] initWithData:data];
+    if (!data)
+        return nil;
+    
+    NSMutableData *retData = [[NSMutableData alloc] initWithBytes:[data bytes] length:[data length]];
 
-    int rowSize = 4*width;
-    unsigned char tmpData[rowSize];
-    unsigned char *rawData = (unsigned char *)[retData mutableBytes];
+    unsigned int tmpData[width];
+    unsigned int *rawData = (unsigned int *)[retData mutableBytes];
     for (unsigned int iy=0;iy<height/2;iy++) {
-        unsigned char *rowA = &rawData[iy*rowSize];
-        unsigned char *rowB = &rawData[(height-iy-1)*rowSize];
-        memcpy(tmpData, rowA, rowSize);
-        memcpy(rowA, rowB, rowSize);
-        memcpy(rowB, tmpData, rowSize);
+        unsigned int *rowA = &rawData[iy*width];
+        unsigned int *rowB = &rawData[(height-iy-1)*width];
+        memcpy(tmpData, rowA, 4*width);
+        memcpy(rowA, rowB, 4*width);
+        memcpy(rowB, tmpData, 4*width);
     }
     
     return retData;

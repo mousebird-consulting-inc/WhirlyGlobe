@@ -188,6 +188,7 @@ using namespace Eigen;
         [self useGLContext];
 
         sceneRendererGLES->addSnapshotDelegate(self);
+        sceneRendererGLES->forceDrawNextFrame();
         sceneRendererGLES->render(0.0);
 
         // Note: Convert to image
@@ -220,6 +221,7 @@ using namespace Eigen;
         [self useGLContext];
 
         sceneRendererGLES->addSnapshotDelegate(self);
+        sceneRendererGLES->forceDrawNextFrame();
         sceneRendererGLES->render(0.0);
         
         toRet = snapshotData;
@@ -231,6 +233,7 @@ using namespace Eigen;
         SceneRendererMTLRef sceneRendererMTL = std::dynamic_pointer_cast<SceneRendererMTL>(sceneRenderer);
         
         sceneRendererMTL->addSnapshotDelegate(self);
+        sceneRendererMTL->forceDrawNextFrame();
         sceneRendererMTL->render(0.0,nil,nil);
         toRet = snapshotData;
         snapshotData = nil;

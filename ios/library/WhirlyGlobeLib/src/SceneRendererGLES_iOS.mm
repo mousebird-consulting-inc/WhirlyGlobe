@@ -133,14 +133,14 @@ void SceneRendererGLES_iOS::snapshotCallback(TimeInterval now)
                 if (target->getId() == EmptyIdentity) {
                     // Screen is special
                     NSInteger dataLength = framebufferWidth * framebufferHeight * 4;
-                    GLubyte *data = (GLubyte*)malloc(dataLength * sizeof(GLubyte));
+                    NSMutableData *theData = [NSMutableData dataWithLength:dataLength];
                     
                     // Read pixel data from the framebuffer
                     glPixelStorei(GL_PACK_ALIGNMENT, 4);
-                    glReadPixels(0, 0, framebufferWidth, framebufferHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);
+                    glReadPixels(0, 0, framebufferWidth, framebufferHeight, GL_RGBA, GL_UNSIGNED_BYTE, [theData mutableBytes]);
                     
                     // Also wrap up the raw data
-                    dataWrapper = [[NSData alloc] initWithBytesNoCopy:data length:dataLength];
+                    dataWrapper = theData;
                 } else {
                     // Offscreen render buffer
                     RawDataRef rawData;
