@@ -44,7 +44,7 @@ using namespace WhirlyKit;
 
     _renderer = renderer;
     
-    renderMTL->setup(self.frame.size.width, self.frame.size.height);
+    renderMTL->setup(self.frame.size.width, self.frame.size.height,false);
 }
 
 - (void)layoutSubviews

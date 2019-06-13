@@ -67,5 +67,6 @@ protected:
     RawDataRef convertData();
 };
 
+typedef std::shared_ptr<TextureMTL> TextureMTLRef;
     
 }

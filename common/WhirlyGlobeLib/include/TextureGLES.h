@@ -73,4 +73,6 @@ public:
 protected:
 };
     
+typedef std::shared_ptr<TextureGLES> TextureGLESRef;
+    
 }

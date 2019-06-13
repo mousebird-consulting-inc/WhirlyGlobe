@@ -91,7 +91,7 @@ bool SceneRendererGLES::setup(int apiVersion,int sizeX,int sizeY)
     // We need a texture to draw to in this case
     if (framebufferWidth > 0)
     {
-        TextureGLES *framebufferTexGL = new TextureGLES("Framebuffer Texture");
+        TextureGLESRef framebufferTexGL = TextureGLESRef(new TextureGLES("Framebuffer Texture"));
         framebufferTexGL->setWidth(framebufferWidth);
         framebufferTexGL->setHeight(framebufferHeight);
         framebufferTexGL->setIsEmptyTexture(true);
@@ -104,7 +104,7 @@ bool SceneRendererGLES::setup(int apiVersion,int sizeX,int sizeY)
     defaultTarget->width = sizeX;
     defaultTarget->height = sizeY;
     if (framebufferTex) {
-        defaultTarget->setTargetTexture(framebufferTex);
+        defaultTarget->setTargetTexture(framebufferTex.get());
         // Note: Should make this optional
         defaultTarget->blendEnable = false;
     } else {

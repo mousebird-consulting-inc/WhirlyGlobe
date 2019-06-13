@@ -124,6 +124,11 @@ void RenderTargetGLES::setTargetTexture(TextureBase *inTex)
     
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
+    
+void RenderTargetGLES::setClearColor(const RGBAColor &color)
+{
+    color.asUnitFloats(clearColor);
+}
 
 RawDataRef RenderTargetGLES::snapshot()
 {

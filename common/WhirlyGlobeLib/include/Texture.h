@@ -136,5 +136,7 @@ protected:
     bool wrapU,wrapV;
     bool isEmptyTexture;
 };
+    
+typedef std::shared_ptr<Texture> TextureRef;
 
 }

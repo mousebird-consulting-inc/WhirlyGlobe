@@ -20,23 +20,7 @@
 
 #import <UIKit/UIKit.h>
 #import "SceneRendererGLES.h"
-
-/// Fill this in to get a view snapshot on the next draw
-@protocol WhirlyKitSnapshot
-
-/// Returns true if we really want a snapshot
-- (bool)needSnapshot:(NSTimeInterval)now;
-
-/// Return the render target to snapshot.  EmptyIdentity for the screen.
-- (WhirlyKit::SimpleIdentity)renderTargetID;
-
-/// If we just want a subset, this is it
-- (CGRect)snapshotRect;
-
-/// Called with the raw image data
-- (void)snapshotData:(NSData *)data;
-
-@end
+#import "Snapshot_iOS.h"
 
 namespace WhirlyKit {
 

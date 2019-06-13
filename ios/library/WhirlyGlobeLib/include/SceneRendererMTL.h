@@ -30,6 +30,7 @@
 #import "SceneMTL.h"
 #import <MetalKit/MetalKit.h>
 #import "DefaultShadersMTL.h"
+#import "Snapshot_iOS.h"
 
 namespace WhirlyKit
 {
@@ -68,7 +69,7 @@ public:
     virtual void setScene(Scene *newScene);
     
     /// Called right after the constructor
-    bool setup(int sizeX,int sizeY);
+    bool setup(int sizeX,int sizeY,bool offscreen);
     
     /// Resize framebuffer because something changed
     virtual bool resize(int sizeX,int sizeY);
@@ -76,9 +77,18 @@ public:
     /// Draw stuff (the whole point!)
     void render(TimeInterval period,MTLRenderPassDescriptor *renderPassDesc,id<CAMetalDrawable> drawable);
     
-    /// Run a snapshot and callback the registered routine
+    /// Set the clear color we're using
+    virtual void setClearColor(const RGBAColor &color);
+    
+    /// Run the snapshot logic
     virtual void snapshotCallback(TimeInterval now);
     
+    /// Want a snapshot, set up this delegate
+    void addSnapshotDelegate(NSObject<WhirlyKitSnapshot> *);
+    
+    /// Remove an existing snapshot delegate
+    void removeSnapshotDelegate(NSObject<WhirlyKitSnapshot> *);
+
     /// Construct a basic drawable builder for the appropriate rendering type
     virtual BasicDrawableBuilderRef makeBasicDrawableBuilder(const std::string &name) const;
     
@@ -118,6 +128,7 @@ public:
 public:
     // Information about the renderer passed around to various calls
     RenderSetupInfoMTL setupInfo;
+    std::vector<NSObject<WhirlyKitSnapshot> *> snapshotDelegates;
 };
     
 typedef std::shared_ptr<SceneRendererMTL> SceneRendererMTLRef;

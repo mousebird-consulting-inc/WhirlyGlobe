@@ -304,7 +304,7 @@ protected:
     Eigen::Matrix4d modelMat,viewMat,projMat;
     
     // If we're an offline renderer, the texture we're rendering into
-    Texture *framebufferTex;
+    TextureRef framebufferTex;
     
     TimeInterval lightsLastUpdated;
     Material defaultMat;    

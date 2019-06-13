@@ -45,5 +45,7 @@ public:
 protected:
     NSData *data;
 };
+    
+typedef std::shared_ptr<RawNSDataReader> RawNSDataReaderRef;
 
 }

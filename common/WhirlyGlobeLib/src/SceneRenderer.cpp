@@ -264,6 +264,7 @@ void SceneRenderer::setClearColor(const RGBAColor &color)
         return;
     
     RenderTargetRef defaultTarget = renderTargets.back();
+    defaultTarget->setClearColor(color);
     color.asUnitFloats(defaultTarget->clearColor);
     
     clearColor = color;

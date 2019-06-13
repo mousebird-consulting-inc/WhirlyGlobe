@@ -44,6 +44,9 @@ TextureMTL::TextureMTL(const std::string &name,UIImage *inImage,int inWidth,int 
         return;
     width = inWidth;  height = inHeight;
     
+    if ((width == 0 || height == 0) && data)
+        NSLog(@"TextureMTL: Got textures with 0 width or height");
+    
     texData = RawDataRef(new RawNSDataReader(data));
 }
     

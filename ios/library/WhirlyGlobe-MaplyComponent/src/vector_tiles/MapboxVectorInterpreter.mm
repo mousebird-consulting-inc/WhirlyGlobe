@@ -34,6 +34,7 @@
 #include <sstream>
 #include <vector>
 #include <set>
+#import <Accelerate/Accelerate.h>
 
 #import "CoordSystem.h"
 #import "vector_styles/MaplyVectorStyle.h"
@@ -203,9 +204,31 @@ static double MAX_EXTENT = 20037508.342789244;
                 // Turn all those objects on
                 [offlineRender enableObjects:compObjs mode:MaplyThreadCurrent];
                 
-                imageData = [self flipVertically:[offlineRender renderToImageData]
+                NSData *renderData = [offlineRender renderToImageData];
+                // Flip for OpenGL, but not for Metal
+                if (offlineRender->renderType == SceneRenderer::RenderGLES) {
+                    imageData = [self flipVertically:renderData
                                            width:offlineRender.getFramebufferSize.width
                                           height:offlineRender.getFramebufferSize.height];
+                } else {
+                    // For Metal, we have to swizzle the channels
+                    vImage_Buffer srcBuff;
+                    srcBuff.width = offlineRender.getFramebufferSize.width;
+                    srcBuff.height = offlineRender.getFramebufferSize.height;
+                    srcBuff.rowBytes = srcBuff.width * 4;
+                    srcBuff.data = (void *)[renderData bytes];
+                    
+                    NSMutableData *newImageData = [NSMutableData dataWithLength:[renderData length]];
+                    vImage_Buffer destBuff;
+                    destBuff.width = srcBuff.width;
+                    destBuff.height = srcBuff.height;
+                    destBuff.rowBytes = srcBuff.rowBytes;
+                    destBuff.data = [newImageData mutableBytes];
+                    const uint8_t map[4] = { 2, 1, 0, 3 };
+                    vImagePermuteChannels_ARGB8888(&srcBuff, &destBuff, map, kvImageNoFlags);
+                    
+                    imageData = newImageData;
+                }
                 
                 // And then remove them all
                 [offlineRender removeObjects:compObjs mode:MaplyThreadCurrent];

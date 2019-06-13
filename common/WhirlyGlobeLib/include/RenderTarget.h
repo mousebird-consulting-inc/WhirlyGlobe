@@ -44,6 +44,9 @@ public:
     /// Set up the target texture
     virtual bool setTargetTexture(SceneRenderer *renderer,Scene *scene,SimpleIdentity newTargetTexID) = 0;
 
+    /// Set the clear color
+    virtual void setClearColor(const RGBAColor &color) = 0;
+    
     // Clear up resources from the render target
     virtual void clear() = 0;
 

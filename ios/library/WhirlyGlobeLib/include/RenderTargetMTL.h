@@ -43,7 +43,10 @@ public:
     // Pull in framebuffer info from the current OpenGL State
     /// Set up the target texture
     virtual bool setTargetTexture(SceneRenderer *renderer,Scene *scene,SimpleIdentity newTargetTexID);
-    
+
+    // Set the clear color
+    void setClearColor(const RGBAColor &color);
+
     // Clear up resources from the render target
     void clear();
     
@@ -57,6 +60,7 @@ public:
     void setTargetTexture(TextureBaseMTL *tex);
     
 public:
+    id<MTLTexture> tex;
     MTLRenderPassDescriptor *renderPassDesc;
 };
 typedef std::shared_ptr<RenderTargetMTL> RenderTargetMTLRef;

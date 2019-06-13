@@ -19,6 +19,7 @@
  */
 
 #import "RenderTargetMTL.h"
+#import "RawData_NSData.h"
 
 namespace WhirlyKit
 {
@@ -59,19 +60,46 @@ bool RenderTargetMTL::setTargetTexture(SceneRenderer *renderer,Scene *scene,Simp
 
 void RenderTargetMTL::clear()
 {
-    // TODO: Implement
+    // Render pass descriptor handles this
 }
 
 RawDataRef RenderTargetMTL::snapshot()
 {
-    // TODO: Implement
-    return RawDataRef();
+    if (!tex)
+        return RawDataRef();
+    
+    MTLRegion region = MTLRegionMake2D(0,0,[tex width],[tex height]);
+    int width = [tex width], height = [tex height];
+    int pixSize = 4;
+    MTLPixelFormat pixFormat = [tex pixelFormat];
+    // TODO: Fix this pixel size hack
+    if (pixFormat != MTLPixelFormatRGBA8Unorm && pixFormat != MTLPixelFormatBGRA8Unorm) {
+        pixSize = 2;
+    }
+    
+    NSMutableData *data = [[NSMutableData alloc] initWithLength:width*height*pixSize];
+    [tex getBytes:[data mutableBytes] bytesPerRow:width*pixSize fromRegion:region mipmapLevel:0];
+    
+    return RawDataRef(new RawNSDataReader(data));
 }
 
 RawDataRef RenderTargetMTL::snapshot(int startX,int startY,int snapWidth,int snapHeight)
 {
-    // TODO: Implement
-    return RawDataRef();
+    if (!tex)
+        return RawDataRef();
+    
+    MTLRegion region = MTLRegionMake2D(startX,startY,snapWidth,snapHeight);
+    int pixSize = 4;
+    MTLPixelFormat pixFormat = [tex pixelFormat];
+    // TODO: Fix this pixel size hack
+    if (pixFormat != MTLPixelFormatRGBA8Unorm || pixFormat != MTLPixelFormatBGRA8Unorm) {
+        pixSize = 2;
+    }
+    
+    NSMutableData *data = [[NSMutableData alloc] initWithCapacity:snapWidth*snapHeight*pixSize];
+    [tex getBytes:[data mutableBytes] bytesPerRow:snapWidth*pixSize fromRegion:region mipmapLevel:0];
+    
+    return RawDataRef(new RawNSDataReader(data));
 }
 
 void RenderTargetMTL::setTargetTexture(TextureBaseMTL *inTex)
@@ -80,14 +108,24 @@ void RenderTargetMTL::setTargetTexture(TextureBaseMTL *inTex)
         return;
     
     // We need our own little render pass when we go out to a texture
-    TextureBaseMTL *tex = (TextureBaseMTL *)inTex;
+    TextureBaseMTL *theTex = (TextureBaseMTL *)inTex;
+    tex = theTex->getMTLID();
     
     renderPassDesc = [[MTLRenderPassDescriptor alloc] init];
-    renderPassDesc.colorAttachments[0].texture = tex->getMTLID();
+    renderPassDesc.colorAttachments[0].texture = tex;
     if (this->clearEveryFrame)
         renderPassDesc.colorAttachments[0].loadAction = MTLLoadActionClear;
     renderPassDesc.colorAttachments[0].clearColor = MTLClearColorMake(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
     renderPassDesc.colorAttachments[0].storeAction = MTLStoreActionStore;
 }
+    
+void RenderTargetMTL::setClearColor(const RGBAColor &color)
+{
+    color.asUnitFloats(clearColor);
+    
+    if (renderPassDesc)
+        renderPassDesc.colorAttachments[0].clearColor = MTLClearColorMake(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
+}
+
     
 }

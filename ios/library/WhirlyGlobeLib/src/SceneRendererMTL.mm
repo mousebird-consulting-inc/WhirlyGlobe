@@ -30,6 +30,7 @@
 #import "MaplyView.h"
 #import "WhirlyKitLog.h"
 #import "DefaultShadersMTL.h"
+#import "RawData_NSData.h"
 
 using namespace Eigen;
 
@@ -77,25 +78,47 @@ void SceneRendererMTL::setScene(Scene *newScene)
     SceneRenderer::setScene(newScene);
 }
 
-bool SceneRendererMTL::setup(int sizeX,int sizeY)
+bool SceneRendererMTL::setup(int sizeX,int sizeY,bool offscreen)
 {
     // Set up a default render target
     RenderTargetMTLRef defaultTarget = RenderTargetMTLRef(new RenderTargetMTL(EmptyIdentity));
     defaultTarget->width = sizeX;
     defaultTarget->height = sizeY;
-    if (framebufferTex) {
-        defaultTarget->setTargetTexture(dynamic_cast<TextureBaseMTL *>(framebufferTex));
+    defaultTarget->clearEveryFrame = true;
+    if (offscreen) {
+        framebufferWidth = sizeX;
+        framebufferHeight = sizeY;
+        
+        // Create the texture we'll use right here
+        TextureMTLRef fbTexMTL = TextureMTLRef(new TextureMTL("Framebuffer Texture"));
+        fbTexMTL->setWidth(sizeX);
+        fbTexMTL->setHeight(sizeY);
+        fbTexMTL->setIsEmptyTexture(true);
+        fbTexMTL->setFormat(TexTypeUnsignedByte);
+        fbTexMTL->createInRenderer(&setupInfo);
+        
+        framebufferTex = fbTexMTL;
+        
         // Note: Should make this optional
         defaultTarget->blendEnable = false;
+        defaultTarget->setTargetTexture(fbTexMTL.get());
     } else {
         if (sizeX > 0 && sizeY > 0)
             defaultTarget->init(this,NULL,EmptyIdentity);
         defaultTarget->blendEnable = true;
     }
-    defaultTarget->clearEveryFrame = true;
     renderTargets.push_back(defaultTarget);
     
     return true;
+}
+    
+void SceneRendererMTL::setClearColor(const RGBAColor &color)
+{
+    if (renderTargets.empty())
+        return;
+    
+    auto defaultTarget = renderTargets.back();
+    defaultTarget->setClearColor(color);
 }
 
 bool SceneRendererMTL::resize(int sizeX,int sizeY)
@@ -273,6 +296,16 @@ MTLRenderPipelineDescriptor *SceneRendererMTL::defaultRenderPipelineState(SceneR
     }
     
     return renderDesc;
+}
+    
+void SceneRendererMTL::addSnapshotDelegate(NSObject<WhirlyKitSnapshot> *newDelegate)
+{
+    snapshotDelegates.push_back(newDelegate);
+}
+
+void SceneRendererMTL::removeSnapshotDelegate(NSObject<WhirlyKitSnapshot> *oldDelegate)
+{
+    snapshotDelegates.erase(std::remove(snapshotDelegates.begin(), snapshotDelegates.end(), oldDelegate), snapshotDelegates.end());
 }
 
 void SceneRendererMTL::render(TimeInterval duration,
@@ -550,7 +583,7 @@ void SceneRendererMTL::render(TimeInterval duration,
             id<MTLCommandBuffer> cmdBuff = [cmdQueue commandBuffer];
             id<MTLRenderCommandEncoder> cmdEncode = nil;
 
-            if (renderTarget->getId() == EmptyIdentity) {
+            if (renderTarget->tex == nil) {
                 cmdEncode = [cmdBuff renderCommandEncoderWithDescriptor:renderPassDesc];
                 baseFrameInfo.renderPassDesc = renderPassDesc;
             } else {
@@ -588,7 +621,7 @@ void SceneRendererMTL::render(TimeInterval duration,
                 zBufferWrite = drawContain.drawable->getWriteZbuffer();
                 
                 // Off screen render targets don't like z buffering
-                if (renderTarget->getId() != EmptyIdentity) {
+                if (renderTarget->tex != nil) {
                     zBufferRead = false;
                     zBufferWrite = false;
                 }
@@ -659,10 +692,10 @@ void SceneRendererMTL::render(TimeInterval duration,
 
             [cmdEncode endEncoding];
             // Main screen has to be committed
-            if (renderTarget->getId() == EmptyIdentity)
+            if (renderTarget->tex == nil)
                 [cmdBuff presentDrawable:drawable];
             [cmdBuff commit];
-            if (renderTarget->getId() != EmptyIdentity)
+            if (renderTarget->tex != nil)
                 [cmdBuff waitUntilCompleted];
         }
         
@@ -715,7 +748,43 @@ void SceneRendererMTL::render(TimeInterval duration,
     
 void SceneRendererMTL::snapshotCallback(TimeInterval now)
 {
-    
+    for (auto snapshotDelegate : snapshotDelegates) {
+        if (![snapshotDelegate needSnapshot:now])
+            continue;
+        
+        // They'll want a snapshot of a specific render target (or the screen)
+        for (auto inTarget: renderTargets) {
+            RenderTargetMTL *target = (RenderTargetMTL *)inTarget.get();
+            if (target->getId() == [snapshotDelegate renderTargetID]) {
+                CGRect snapshotRect = [snapshotDelegate snapshotRect];
+                NSData *dataWrapper = nil;
+
+                // Has a destination texture
+                if (target->tex) {
+                    // Offscreen render buffer
+                    RawDataRef rawData;
+                    if (snapshotRect.size.width == 0.0)
+                        rawData = target->snapshot();
+                    else
+                        rawData = target->snapshot(snapshotRect.origin.x,snapshotRect.origin.y,snapshotRect.size.width,snapshotRect.size.height);
+                    
+                    RawNSDataReaderRef rawNSData = std::dynamic_pointer_cast<RawNSDataReader>(rawData);
+                    if (!rawNSData) {
+                        NSLog(@"SceneRendererMTL::snapshotCallback() Bad NSData return");
+                    } else {
+                        dataWrapper = rawNSData->getData();
+                    }
+                } else {
+                    NSLog(@"SceneRendererMTL: Whole screen snapshot not currently implemented.");
+                }
+                
+                [snapshotDelegate snapshotData:dataWrapper];
+                
+                break;
+            }
+        }
+    }
+
 }
 
 BasicDrawableBuilderRef SceneRendererMTL::makeBasicDrawableBuilder(const std::string &name) const

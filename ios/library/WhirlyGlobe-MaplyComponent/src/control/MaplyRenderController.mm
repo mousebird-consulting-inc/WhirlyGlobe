@@ -41,7 +41,6 @@ using namespace Eigen;
     GeneralCoordSystemDisplayAdapterRef coordAdapter;
     Maply::FlatViewRef flatView;
     bool offlineMode;
-    UIImage *snapshotImage;
     NSData *snapshotData;
 }
 
@@ -50,7 +49,7 @@ using namespace Eigen;
     return [self initWithSize:size mode:MaplyRenderMetal];
 }
 
-- (instancetype)initWithSize:(CGSize)size mode:(MaplyRenderType)renderType
+- (instancetype)initWithSize:(CGSize)size mode:(MaplyRenderType)inRenderType
 {
     self = [super init];
     
@@ -72,13 +71,16 @@ using namespace Eigen;
     flatView->setWindow(Point2d(size.width,size.height),Point2d(0.0,0.0));
 
     // Set up the renderer with a target size
-    if (renderType == MaplyRenderGLES) {
+    if (inRenderType == MaplyRenderGLES) {
+        renderType = SceneRenderer::RenderGLES;
         scene = new SceneGLES(coordAdapter.get());
         SceneRendererGLES_iOSRef theSceneRenderer = SceneRendererGLES_iOSRef(new SceneRendererGLES_iOS((int)size.width,(int)size.height));
         sceneRenderer = theSceneRenderer;
     } else {
+        renderType = SceneRenderer::RenderMetal;
         scene = new SceneMTL(coordAdapter.get());
         SceneRendererMTLRef theSceneRenderer = SceneRendererMTLRef(new SceneRendererMTL( MTLCreateSystemDefaultDevice()));
+        theSceneRenderer->setup(size.width, size.height, true);
         sceneRenderer = theSceneRenderer;
     }
     sceneRenderer->setZBufferMode(zBufferOffDefault);
@@ -94,7 +96,7 @@ using namespace Eigen;
 
     [self setupShaders];
     
-    if (renderType == MaplyRenderGLES) {
+    if (inRenderType == MaplyRenderGLES) {
         if (oldContext)
             [EAGLContext setCurrentContext:oldContext];
     }
@@ -172,50 +174,68 @@ using namespace Eigen;
 
 - (UIImage *)renderToImage
 {
-    SceneRendererGLES_iOSRef sceneRendererGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(sceneRenderer);
-    if (!sceneRendererGLES)
+    if (!sceneRenderer)
         return nil;
-    
-    // TODO: Implement for Metal
-    
-    EAGLContext *oldContext = [EAGLContext currentContext];
 
-    [self useGLContext];
+    UIImage *toRet = nil;
+    if (sceneRenderer->getType() == SceneRenderer::RenderGLES) {
+        SceneRendererGLES_iOSRef sceneRendererGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(sceneRenderer);
+        
+        // TODO: Implement for Metal
+        
+        EAGLContext *oldContext = [EAGLContext currentContext];
 
-    sceneRendererGLES->addSnapshotDelegate(self);
-    sceneRendererGLES->render(0.0);
-    
-    UIImage *toRet = snapshotImage;
-    snapshotImage = nil;
-    snapshotData = nil;
-    sceneRendererGLES->removeSnapshotDelegate(self);
+        [self useGLContext];
 
-    [EAGLContext setCurrentContext:oldContext];
+        sceneRendererGLES->addSnapshotDelegate(self);
+        sceneRendererGLES->render(0.0);
+
+        // Note: Convert to image
+        
+        snapshotData = nil;
+        sceneRendererGLES->removeSnapshotDelegate(self);
+
+        [EAGLContext setCurrentContext:oldContext];
+    } else {
+        // TODO: Convert to image
+
+    }
     
     return toRet;
 }
 
 - (NSData *)renderToImageData
 {
-    SceneRendererGLES_iOSRef sceneRendererGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(sceneRenderer);
-    if (!sceneRendererGLES)
+    if (!sceneRenderer)
         return nil;
-    
-    // TODO: Implement for Metal
 
-    EAGLContext *oldContext = [EAGLContext currentContext];
+    NSData *toRet = nil;
+    if (sceneRenderer->getType() == SceneRenderer::RenderGLES) {
+        SceneRendererGLES_iOSRef sceneRendererGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(sceneRenderer);
+        
+        // TODO: Implement for Metal
 
-    [self useGLContext];
+        EAGLContext *oldContext = [EAGLContext currentContext];
 
-    sceneRendererGLES->addSnapshotDelegate(self);
-    sceneRendererGLES->render(0.0);
-    
-    NSData *toRet = snapshotData;
-    snapshotImage = nil;
-    snapshotData = nil;
-    sceneRendererGLES->removeSnapshotDelegate(self);
+        [self useGLContext];
 
-    [EAGLContext setCurrentContext:oldContext];
+        sceneRendererGLES->addSnapshotDelegate(self);
+        sceneRendererGLES->render(0.0);
+        
+        toRet = snapshotData;
+        snapshotData = nil;
+        sceneRendererGLES->removeSnapshotDelegate(self);
+
+        [EAGLContext setCurrentContext:oldContext];
+    } else {
+        SceneRendererMTLRef sceneRendererMTL = std::dynamic_pointer_cast<SceneRendererMTL>(sceneRenderer);
+        
+        sceneRendererMTL->addSnapshotDelegate(self);
+        sceneRendererMTL->render(0.0,nil,nil);
+        toRet = snapshotData;
+        snapshotData = nil;
+        sceneRendererMTL->removeSnapshotDelegate(self);
+    }
     
     return toRet;
 }
@@ -566,10 +586,6 @@ using namespace Eigen;
 
 - (void)snapshotData:(NSData *)data {
     snapshotData = data;
-}
-
-- (void)snapshotImage:(UIImage *)image {
-    snapshotImage = image;
 }
 
 - (bool)needSnapshot:(NSTimeInterval)now {
