@@ -127,7 +127,7 @@ void BasicDrawableInstanceMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScen
     
     // Pass in the textures (and offsets)
     // Note: We could precalculate most of then when the texture changes
-    //       And we should figure out how many textures there actually have
+    //       And we should figure out how many textures they actually have
     int numTextures = 0;
     for (unsigned int texIndex=0;texIndex<std::max((int)texInfo.size(),2);texIndex++) {
         TexInfo *thisTexInfo = (texIndex < texInfo.size()) ? &texInfo[texIndex] : NULL;

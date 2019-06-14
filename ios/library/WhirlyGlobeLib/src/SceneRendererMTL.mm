@@ -606,9 +606,6 @@ void SceneRendererMTL::render(TimeInterval duration,
                 baseFrameInfo.renderPassDesc = renderTarget->renderPassDesc;
             }
             
-            // Backface culling on by default
-            [cmdEncode setCullMode:MTLCullModeFront];
-
             baseFrameInfo.cmdEncode = cmdEncode;
             setupLightBuffer((SceneMTL *)scene,cmdEncode);
 
@@ -623,7 +620,11 @@ void SceneRendererMTL::render(TimeInterval duration,
             for (unsigned int ii=0;ii<drawList.size();ii++)
             {
                 DrawableContainer &drawContain = drawList[ii];
-                
+
+                // Backface culling on by default
+                // Note: Would like to not set this every time
+                [cmdEncode setCullMode:MTLCullModeFront];
+
                 // The first time we hit an explicitly alpha drawable
                 //  turn off the depth buffer
                 if (depthBufferOffForAlpha && drawContain.drawable->hasAlpha(&baseFrameInfo))

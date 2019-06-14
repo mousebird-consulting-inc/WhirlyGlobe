@@ -28,8 +28,13 @@ namespace WhirlyKit
 void BillboardDrawableBuilder::Init()
 {
     BasicDrawableBuilder::Init();
-    setupStandardAttributes();
     offsetIndex = addAttribute(BDFloat3Type, StringIndexer::getStringID("a_offset"));
+    groundMode = false;
+}
+    
+void BillboardDrawableBuilder::setGroundMode(bool newVal)
+{
+    groundMode = newVal;
 }
     
 void BillboardDrawableBuilder::addOffset(const Point3f &offset)

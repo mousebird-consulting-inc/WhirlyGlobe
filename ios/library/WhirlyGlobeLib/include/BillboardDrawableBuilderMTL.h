@@ -23,15 +23,26 @@
 
 namespace WhirlyKit
 {
+
+// Passes in the uniform values the shader is expecting
+class BillboardTweakerMTL : public DrawableTweaker
+{
+public:
+    BillboardTweakerMTL();
+    
+    virtual void tweakForFrame(Drawable *inDraw,RendererFrameInfo *frameInfo);
+    
+    bool groundMode;
+};
     
 /** Metal version of BillboardDrawable Builder
  */
-class BillboardDrawableBuilderMTL : public BasicDrawableBuilderMTL, public BillboardDrawableBuilder
+class BillboardDrawableBuilderMTL : virtual public BasicDrawableBuilderMTL, virtual public BillboardDrawableBuilder
 {
 public:
     BillboardDrawableBuilderMTL(const std::string &name);
     
-    virtual int addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings = -1);
+    virtual void Init();
     
     virtual BasicDrawable *getDrawable();
 };

@@ -690,7 +690,12 @@ using namespace Eigen;
 
     // TODO: Night/Day Shader
 
-    // TODO: Billboards
+    // Billboards
+    ProgramRef billboardProg(new ProgramMTL([kMaplyShaderDefaultWideVector cStringUsingEncoding:NSASCIIStringEncoding],
+                                            [mtlLib newFunctionWithName:@"vertexTri_billboard"],
+                                            [mtlLib newFunctionWithName:@"fragmentTri_basic"]));
+    [self addShader:kMaplyShaderBillboardGround program:billboardProg];
+    [self addShader:kMaplyShaderBillboardEye program:billboardProg];
 
     // Wide vectors
     [self addShader:kMaplyShaderDefaultWideVector

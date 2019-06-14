@@ -49,6 +49,10 @@ namespace WhirlyKitShader
 #define WKSVertexInstanceCenterAttribute 8
 #define WKSVertexInstanceDirAttribute 9
     
+// Billboard offsets
+// TODO: Billboards should be instances
+#define WKSVertexBillboardOffsetAttribute 6
+    
 // Where we start with basic textures
 #define WKSTextureEntryBase 0
     
@@ -149,6 +153,13 @@ struct VertexTriModelInstance
     simd::float4x4 mat;
     simd::float3 center;
     simd::float3 dir;
+};
+    
+#define WKSUniformDrawStateBillboardBuffer 15
+// Instructions to the billboard shaders, per-drawable
+struct UniformBillboard {
+    simd::float3 eyeVec;
+    bool groundMode;
 };
 
 }

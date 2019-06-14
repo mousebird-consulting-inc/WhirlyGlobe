@@ -476,3 +476,51 @@ vertex ProjVertexTriB vertexTri_model(VertexTriB vert [[stage_in]],
 
     return outVert;
 }
+
+// Triangle vertex with a couple of texture coordinates
+struct VertexTriBillboard
+{
+    float3 position [[attribute(WKSVertexPositionAttribute)]];
+    float3 offset [[attribute(WKSVertexBillboardOffsetAttribute)]];
+    float4 color [[attribute(WKSVertexColorAttribute)]];
+    float3 normal [[attribute(WKSVertexNormalAttribute)]];
+    float2 texCoord [[attribute(WKSVertexTextureBaseAttribute)]];
+};
+
+
+// Vertex shader for billboards
+// TODO: These should be model instances.  Ew.
+vertex ProjVertexTriA vertexTri_billboard(VertexTriBillboard vert [[stage_in]],
+                                  constant Uniforms &uniforms [[buffer(WKSUniformBuffer)]],
+                                  constant UniformDrawStateA &uniDrawState [[buffer(WKSUniformDrawStateBuffer)]],
+                                  constant UniformBillboard &uniBB [[buffer(WKSUniformDrawStateBillboardBuffer)]],
+                                  constant Lighting &lighting [[buffer(WKSLightingBuffer)]])
+{
+    ProjVertexTriA outVert;
+    
+    float3 newPos;
+    // Billboard is rooted to its position
+    if (uniBB.groundMode) {
+        float3 axisX = normalize(cross(uniBB.eyeVec,vert.normal));
+        float3 axisZ = normalize(cross(axisX,vert.normal));
+        newPos = vert.position + axisX * vert.offset.x + vert.normal * vert.offset.y + axisZ * vert.offset.z;
+    } else {
+        // Billboard orients fully toward the eye
+        float4 pos = uniforms.mvMatrix * float4(vert.position,1.0);
+        float3 pos3 = (pos/pos.w).xyz;
+        newPos = float3(pos3.x + vert.offset.x,pos3.y+vert.offset.y,pos3.z+vert.offset.z);
+    }
+    outVert.position = uniforms.mvpMatrix * float4(newPos,1.0);
+
+    // TODO: Support lighting.  Maybe
+//    outVert.color = resolveLighting(vert.position,
+//                                    vert.normal,
+//                                    float4(vert.color),
+//                                    lighting,
+//                                    uniforms.mvpMatrix) * uniDrawState.fade;
+    outVert.color = vert.color;
+    outVert.texCoord = vert.texCoord;
+
+    return outVert;
+
+}

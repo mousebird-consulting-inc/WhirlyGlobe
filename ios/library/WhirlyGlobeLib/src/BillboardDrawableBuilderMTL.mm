@@ -19,25 +19,55 @@
  */
 
 #import "BillboardDrawableBuilderMTL.h"
+#import "DefaultShadersMTL.h"
 
 namespace WhirlyKit
 {
+    
+BillboardTweakerMTL::BillboardTweakerMTL()
+: groundMode(false)
+{
+}
+    
+void BillboardTweakerMTL::tweakForFrame(Drawable *inDraw,RendererFrameInfo *inFrameInfo)
+{
+    RendererFrameInfoMTL *frameInfo = (RendererFrameInfoMTL *)inFrameInfo;
+
+    WhirlyKitShader::UniformBillboard uniBB;
+    bzero(&uniBB,sizeof(uniBB));
+    uniBB.groundMode = groundMode;
+    CopyIntoMtlFloat3(uniBB.eyeVec, frameInfo->eyeVec);
+
+    // Note: Can we not do this?
+    [frameInfo->cmdEncode setCullMode:MTLCullModeNone];
+    [frameInfo->cmdEncode setVertexBytes:&uniBB length:sizeof(uniBB) atIndex:WKSUniformDrawStateBillboardBuffer];
+}
 
 BillboardDrawableBuilderMTL::BillboardDrawableBuilderMTL(const std::string &name)
     : BasicDrawableBuilderMTL(name)
 {
+    Init();
 }
-
-int BillboardDrawableBuilderMTL::addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings)
+    
+void BillboardDrawableBuilderMTL::Init()
 {
-    // TODO: Implement
-    return -1;
+    BillboardDrawableBuilder::Init();
+    
+    // Wire up the buffers we use
+    ((VertexAttributeMTL *)basicDraw->vertexAttributes[offsetIndex])->bufferIndex = WKSVertexBillboardOffsetAttribute;
 }
-
+    
 BasicDrawable *BillboardDrawableBuilderMTL::getDrawable()
 {
-    // TODO: Implement
-    return NULL;
+    if (drawableGotten)
+        return BasicDrawableBuilderMTL::getDrawable();
+    
+    BasicDrawable *theDraw = BasicDrawableBuilderMTL::getDrawable();
+    BillboardTweakerMTL *tweak = new BillboardTweakerMTL();
+    tweak->groundMode = groundMode;
+    theDraw->addTweaker(DrawableTweakerRef(tweak));
+    
+    return theDraw;
 }
 
     

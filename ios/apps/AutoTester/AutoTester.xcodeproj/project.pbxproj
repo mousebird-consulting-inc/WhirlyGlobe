@@ -10,6 +10,7 @@
 		2B158BEF1D5D19E900103E04 /* VectorHoleTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B158BEE1D5D19E900103E04 /* VectorHoleTestCase.m */; };
 		2B1806D322AECF4300DD3DB1 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B1806D122AECF4200DD3DB1 /* Accelerate.framework */; };
 		2B1C26531C91037100C71B0A /* France.mbtiles in Resources */ = {isa = PBXBuildFile; fileRef = 2B1C26511C9100A500C71B0A /* France.mbtiles */; };
+		2B1E85A622B44D5800AB7208 /* BillboardTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B1E85A522B44D5800AB7208 /* BillboardTestCase.swift */; };
 		2B2A417E1D83454900098E12 /* ActiveObjectTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B2A417D1D83454900098E12 /* ActiveObjectTestCase.m */; };
 		2B392B711C5AC59D001EE40B /* RunwayBuilderTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B392B701C5AC59D001EE40B /* RunwayBuilderTestCase.m */; };
 		2B446AAE21EFE29B0078A975 /* WMSTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = E5679F451CB72DE800369A15 /* WMSTestCase.m */; };
@@ -554,6 +555,7 @@
 		2B1806D422AECFA700DD3DB1 /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
 		2B1C264E1C90FFFC00C71B0A /* VectorMBTilesTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VectorMBTilesTestCase.swift; sourceTree = "<group>"; };
 		2B1C26511C9100A500C71B0A /* France.mbtiles */ = {isa = PBXFileReference; lastKnownFileType = file; name = France.mbtiles; path = ../../../resources/vectors/France.mbtiles; sourceTree = "<group>"; };
+		2B1E85A522B44D5800AB7208 /* BillboardTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BillboardTestCase.swift; sourceTree = "<group>"; };
 		2B2A417C1D83454900098E12 /* ActiveObjectTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ActiveObjectTestCase.h; sourceTree = "<group>"; };
 		2B2A417D1D83454900098E12 /* ActiveObjectTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ActiveObjectTestCase.m; sourceTree = "<group>"; };
 		2B361E3921237CFE0074D06D /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
@@ -1219,6 +1221,7 @@
 				2B8849EA1E37F7CB0027C397 /* LIDARTestCase.mm */,
 				2B7787C921CDA47F006ABF5D /* CartoDBLightTestCase.swift */,
 				2B68A43B225D06A8009CC720 /* ImageReloadTestCase.swift */,
+				2B1E85A522B44D5800AB7208 /* BillboardTestCase.swift */,
 			);
 			path = testCases;
 			sourceTree = "<group>";
@@ -2345,6 +2348,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2B1E85A622B44D5800AB7208 /* BillboardTestCase.swift in Sources */,
 				2B2A417E1D83454900098E12 /* ActiveObjectTestCase.m in Sources */,
 				2BA827CD225EBDBF00324594 /* GeoJSONStyleTestCase.swift in Sources */,
 				E5679F481CB72DE800369A15 /* LabelAnimationTestCase.m in Sources */,

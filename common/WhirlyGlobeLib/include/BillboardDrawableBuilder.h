@@ -27,7 +27,7 @@ namespace WhirlyKit
 /** Billboards are just a little extra information and
     a shader.  They emit basic drawables.
   */
-class BillboardDrawableBuilder : public BasicDrawableBuilder
+class BillboardDrawableBuilder : virtual public BasicDrawableBuilder
 {
 public:
     virtual void Init();
@@ -36,7 +36,11 @@ public:
     void addOffset(const Point3f &offset);
     void addOffset(const Point3d &offset);
     
+    /// Set whether this is eye or ground mode
+    void setGroundMode(bool newVal);
+    
 protected:
+    bool groundMode;
     int offsetIndex;
 };
     

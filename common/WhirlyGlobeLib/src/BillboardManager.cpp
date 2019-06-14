@@ -40,6 +40,10 @@ BillboardInfo::BillboardInfo() :
 BillboardInfo::BillboardInfo(const Dictionary &dict)
 : BaseInfo(dict)
 {
+    // We have different defaults than the base
+    zBufferRead = dict.getBool(MaplyZBufferRead,true);
+    zBufferWrite = dict.getBool(MaplyZBufferWrite, false);
+
     color = dict.getColor(MaplyColor,RGBAColor(255,255,255,255));
     std::string orientStr = dict.getString(MaplyBillboardOrient, "");
     if (orientStr == MaplyBillboardOrientEye)
@@ -119,6 +123,7 @@ void BillboardBuilder::addBillboard(Point3d center, const Point2dVector &pts, co
         //        drawMbr.reset();
         drawable->setType(Triangles);
         billInfo.setupBasicDrawable(drawable);
+        drawable->setGroundMode(billInfo.orient == BillboardInfo::Ground);
         drawable->setProgram(billboardProgram);
         drawable->setTexId(0,texId);
         if (!vertAttrs.empty())

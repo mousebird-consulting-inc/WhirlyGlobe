@@ -2638,7 +2638,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     BillboardInfo billInfo(dictWrap);
     
     [self resolveInfoDefaults:inDesc info:&billInfo
-                defaultShader:(billInfo.orient == WhirlyKit::BillboardInfo::Eye ? kMaplyBillboardOrientEye : kMaplyBillboardOrientGround)];
+                defaultShader:(billInfo.orient == WhirlyKit::BillboardInfo::Eye ? kMaplyShaderBillboardEye : kMaplyShaderBillboardGround)];
     [self resolveDrawPriority:inDesc info:&billInfo drawPriority:kMaplyBillboardDrawPriorityDefault offset:0];
 
     // May need a temporary context when setting up label textures
