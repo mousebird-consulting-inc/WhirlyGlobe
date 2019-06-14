@@ -49,13 +49,6 @@ typedef NS_ENUM(NSInteger, MaplyVectorObjectType) {
   */
 @interface MaplyVectorObject : NSObject
 
-/** 
-    User data object for selection
- 
-    When the user selects a feature and the developer gets it in their delegate, this is an object they can use to figure out what the vector object means to them.
- */
-@property (nonatomic,strong) id __nullable userObject;
-
 /// Turn this off to make this vector invisible to selection.
 /// On by default.
 @property (nonatomic,assign) bool selectable;

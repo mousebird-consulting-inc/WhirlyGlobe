@@ -33,13 +33,13 @@
 		MaplyLabel *label = [[MaplyLabel alloc] init];
 		label.loc = object.center;
 		label.size = size;
-		if (object.userObject == nil) {
+		if (object.attributes[@"title"] == nil) {
 			label.text = @"Label";
-			label.userObject = object.userObject;
+			label.userObject = object.attributes[@"title"];
 		}
 		else {
-			label.text = object.userObject;
-			label.userObject = object.userObject;
+			label.text = object.attributes[@"title"];
+			label.userObject = object.attributes[@"title"];
 		}
         
 		if (i % 2 == 0) {

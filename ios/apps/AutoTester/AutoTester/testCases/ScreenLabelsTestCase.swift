@@ -38,7 +38,7 @@ class ScreenLabelsTestCase: MaplyTestCase {
 		
 		for i in 0..<arrayComp.count {
 			let object = arrayComp[i]
-            let str = object.userObject as? String
+            let str = object.attributes["title"] as? String
             if str != nil {
 				let label = MaplyScreenLabel()
 

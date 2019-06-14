@@ -49,7 +49,7 @@
 
 /// Object the user selected
 /// This is the original object the user passed in when adding it to the globe or map.
-@property (nonatomic,weak) id __nullable selectedObj;
+@property (nonatomic) id __nullable selectedObj;
 
 /// Distance from where the user tapped to the closest part of the object on the screen
 @property double screenDist;

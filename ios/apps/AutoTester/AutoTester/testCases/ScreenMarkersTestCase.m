@@ -52,7 +52,7 @@
         MaplyScreenMarker *marker = [[MaplyScreenMarker alloc]init];
         marker.image = alcohol;
         marker.loc = object.center;
-        marker.userObject = object.userObject;
+        marker.userObject = object.attributes[@"title"];
         marker.selectable = true;
         marker.layoutImportance = 1.0;
         [markers addObject:marker];

@@ -212,7 +212,7 @@
         {
             MaplyVectorObject *vecObj = (MaplyVectorObject *)selectedObj;
             loc = [vecObj centroid];
-            title = (NSString *)vecObj.userObject;
+            title = (NSString *)vecObj.attributes[@"title"];
             subTitle = @"Vector";
         } else if ([selectedObj isKindOfClass:[MaplyShapeSphere class]])
         {

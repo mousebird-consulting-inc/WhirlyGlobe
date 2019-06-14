@@ -111,7 +111,7 @@
 		MaplyCoordinate location = [theVector center];
 		MaplyAnnotation *annotate = [[MaplyAnnotation alloc]init];
 		annotate.title = @"Selected";
-		annotate.subTitle = (NSString *)theVector.userObject;
+		annotate.subTitle = (NSString *)theVector.attributes[@"title"];
 		[self.viewC addAnnotation:annotate forPoint:location offset:CGPointZero];
 	}
 }

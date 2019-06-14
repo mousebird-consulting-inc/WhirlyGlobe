@@ -51,7 +51,7 @@
                 if (wgVecObj)
                 {
                     NSString *vecName = [[wgVecObj attributes] objectForKey:@"ADMIN"];
-                    wgVecObj.userObject = vecName;
+                    wgVecObj.attributes[@"title"] = vecName;
                     wgVecObj.selectable = true;
                     [self.vecList addObject:wgVecObj];
                     MaplyComponentObject *compObj = [baseVC addVectors:@[wgVecObj] desc:vectorDict];
@@ -97,7 +97,7 @@
 		if ([theVector centroid:&location]) {
 			MaplyAnnotation *annotate = [[MaplyAnnotation alloc]init];
 			annotate.title = @"Selected";
-			annotate.subTitle = (NSString *)theVector.userObject;
+			annotate.subTitle = (NSString *)theVector.attributes[@"title"];
 			[viewC addAnnotation:annotate forPoint:location offset:CGPointZero];
 		}
 	}

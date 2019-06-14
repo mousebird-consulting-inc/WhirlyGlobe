@@ -37,7 +37,7 @@
 		if (jsonData) {
 			MaplyVectorObject *wgVecObj = [MaplyVectorObject VectorObjectFromGeoJSON:jsonData];
 			NSString *vecName = [[wgVecObj attributes] objectForKey:@"ADMIN"];
-			wgVecObj.userObject = vecName;
+			wgVecObj.attributes[@"title"] = vecName;
 			[globeVC addLoftedPolys:@[wgVecObj]
 				desc:@{
 					kMaplyLoftedPolyHeight: @(0.1),

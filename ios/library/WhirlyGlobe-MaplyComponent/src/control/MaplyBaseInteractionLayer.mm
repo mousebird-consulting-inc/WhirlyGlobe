@@ -1615,7 +1615,8 @@ public:
             if (inDesc[kMaplyVecCenterY])
                 compObj->contents->vectorOffset.y() = [inDesc[kMaplyVecCenterY] doubleValue];
         }
-        compObj.vectors = vectors;
+        for (MaplyVectorObject *vObj in vectors)
+            compObj->contents->vecObjs.push_back(vObj->vObj);
     }
     
     compManager->addComponentObject(compObj->contents);
@@ -1726,8 +1727,11 @@ public:
     
     // If the vectors are selectable we want to keep them around
     id selVal = inDesc[@"selectable"];
-    if (selVal && [selVal boolValue])
-        compObj.vectors = vectors;
+    if (selVal && [selVal boolValue]) {
+        for (MaplyVectorObject *vObj in vectors)
+            compObj->contents->vecObjs.push_back(vObj->vObj);
+
+    }
     
     compManager->addComponentObject(compObj->contents);
 }
@@ -1768,7 +1772,7 @@ public:
 
     MaplyComponentObject *baseObj = [argArray objectAtIndex:0];
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
-    compObj.vectors = baseObj.vectors;
+    compObj->contents->vecObjs = baseObj->contents->vecObjs;
     NSDictionary *inDesc = [argArray objectAtIndex:2];
     bool makeVisible = [[argArray objectAtIndex:3] boolValue];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:4] intValue];
@@ -2562,7 +2566,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
     NSArray *vectors = [argArray objectAtIndex:0];
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
-    compObj.vectors = vectors;
+    
     NSDictionary *inDesc = [argArray objectAtIndex:2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
@@ -3304,12 +3308,11 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     
     pt = visualView->unwrapCoordinate(pt);
     
-    MaplyRenderController *renderControl = [vc getRenderControl];
     auto rets = compManager->findVectors(Point2d(pt.x(),pt.y()),20.0,vc->visualView.get(),vc->visualView->coordAdapter,vc->renderControl->sceneRenderer->getFramebufferSizeScaled(),multi);
     
     for (auto foundObj : rets) {
-        MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithRef:std::dynamic_pointer_cast<ComponentObject_iOS>(foundObj.first)];
-        [foundObjs addObject:compObj];
+        MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] initWithRef:foundObj.second];
+        [foundObjs addObject:vecObj];
     }
     
     return foundObjs;

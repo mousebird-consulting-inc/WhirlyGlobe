@@ -37,6 +37,4 @@
 
 - (id)initWithRef:(WhirlyKit::ComponentObject_iOSRef)compObj;
 
-@property (nonatomic,strong) NSArray *vectors;
-
 @end
