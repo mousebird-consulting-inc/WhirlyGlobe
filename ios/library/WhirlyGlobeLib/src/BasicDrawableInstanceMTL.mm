@@ -69,6 +69,7 @@ void BasicDrawableInstanceMTL::setupForRenderer(const RenderSetupInfo *inSetupIn
             // EndCenter/direction
             Point3d dir = moving ? (inst.endCenter - inst.center)/inst.duration : Point3d(0.0,0.0,0.0);
             CopyIntoMtlFloat3(outInst.dir, dir);
+            uniMI.hasMotion |= moving;
         }
 
         int bufferSize = sizeof(WhirlyKitShader::VertexTriModelInstance) * insts.size();
@@ -113,6 +114,8 @@ void BasicDrawableInstanceMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScen
     
     // Wire up the model instances if we have them
     if (instanceStyle == LocalStyle) {
+        if (moving)
+            uniMI.time = frameInfo->currentTime - startTime;
         [frameInfo->cmdEncode setVertexBytes:&uniMI length:sizeof(uniMI) atIndex:WKSUniformDrawStateModelInstanceBuffer];
         [frameInfo->cmdEncode setVertexBuffer:instBuffer offset:0 atIndex:WKSModelInstanceBuffer];
     }

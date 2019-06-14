@@ -36,8 +36,9 @@ class ModelsTestCase: MaplyTestCase {
 		self.implementations = [.globe]
 	}
 
+    let baseLayer = GeographyClassTestCase()
+
 	override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
-		let baseLayer = GeographyClassTestCase()
 		baseLayer.setUpWithGlobe(globeVC)
 
 		let fullPath = Bundle.main.path(forResource: "cessna", ofType: "obj")
