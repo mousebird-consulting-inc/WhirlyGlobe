@@ -30,6 +30,7 @@
 #import "ShapeManager.h"
 #import "SphericalEarthChunkManager.h"
 #import "VectorManager.h"
+#import "VectorObject.h"
 #import "WideVectorManager.h"
 #import "SelectionManager.h"
 
@@ -57,7 +58,10 @@ public:
     SimpleIDSet partSysIDs;
     SimpleIDSet selectIDs;
     SimpleIDSet drawStringIDs;
-    // Note: Move vectors in here as well
+    
+    // Vectors objects associated with this component object
+    std::vector<VectorObjectRef> vecObjs;
+    
     Point2d vectorOffset;
     bool isSelectable;
     bool enable;
@@ -109,6 +113,9 @@ public:
     
     /// Enable/disable a whole group of Component Objects
     virtual void enableComponentObjects(const SimpleIDSet &compIDs,bool enable,ChangeSet &changes);
+    
+    /// Find all the vectors that fall within or near the given point
+    std::vector<std::pair<ComponentObjectRef,VectorObjectRef> > findVectors(const Point2d &pt,double maxDist,View *visualView,CoordSystemDisplayAdapter *coordAdapter,const Point2f &frameSize,bool muti);
     
     // These are here for convenience
     LayoutManager *layoutManager;

@@ -228,5 +228,52 @@ void ComponentManager::enableComponentObjects(const SimpleIDSet &compIDs,bool en
         }
     }
 }
+    
+std::vector<std::pair<ComponentObjectRef,VectorObjectRef> > ComponentManager::findVectors(const Point2d &pt,double maxDist,View *visualView,CoordSystemDisplayAdapter *coordAdapter,const Point2f &frameSize,bool multi)
+{
+    std::vector<ComponentObjectRef> compRefs;
+    std::vector<std::pair<ComponentObjectRef,VectorObjectRef> > rets;
+
+    // Copy out the vectors that might be candidates
+    {
+        std::lock_guard<std::mutex> guardLock(lock);
+        
+        for (auto it: compObjs) {
+            auto compObj = it.second;
+            if (compObj->enable && compObj->isSelectable && !compObj->vecObjs.empty())
+                compRefs.push_back(compObj);
+        }
+    }
+    
+    // Work through the vector objects
+    for (auto compObj: compRefs) {
+        auto center = compObj->vectorOffset;
+        Point2d coord;
+        coord.x() = pt.x()-center.x();
+        coord.y() = pt.y()-center.y();
+        
+        for (auto vecObj: compObj->vecObjs) {
+            if (vecObj->pointInside(pt)) {
+                
+                rets.push_back(std::make_pair(compObj, vecObj));
+                
+                if (!multi)
+                    break;
+                continue;
+            }
+            if (vecObj->pointNearLinear(coord, maxDist, visualView, coordAdapter, frameSize)) {
+                rets.push_back(std::make_pair(compObj, vecObj));
+
+                if (!multi)
+                    break;
+            }
+        }
+        
+        if (!multi && !rets.empty())
+            break;
+    }
+    
+    return rets;
+}
 
 }

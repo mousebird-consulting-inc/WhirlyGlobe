@@ -48,6 +48,7 @@
 #import "SphericalEarthChunkManager.h"
 #import "UIColor+Stuff.h"
 #import "NSDictionary+Stuff.h"
+#import "MaplyBaseViewController_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -3294,8 +3295,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     return [self findVectorsInPoint:pt inView:nil multi:true];
 }
 
-
-- (NSArray *)findVectorsInPoint:(Point2f)pt inView:(NSObject<MaplyRenderControllerProtocol> *)vc multi:(bool)multi
+- (NSArray *)findVectorsInPoint:(Point2f)pt inView:(MaplyBaseViewController *)vc multi:(bool)multi
 {
     if (!layerThread)
         return nil;
@@ -3304,43 +3304,14 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     
     pt = visualView->unwrapCoordinate(pt);
     
-#if 0
-    // Note: Need to unravel this for ComponentManager if possible
-    @synchronized(userObjects)
-    {
-        for (MaplyComponentObject *userObj in userObjects)
-        {
-            if (userObj.vectors && userObj->contents->isSelectable && userObj->contents->enable)
-            {
-                for (MaplyVectorObject *vecObj in userObj.vectors)
-                {
-                    if (vecObj.selectable && userObj->contents->enable)
-                    {
-                        // Note: Take visibility into account too
-                        MaplyCoordinate coord;
-                        auto center = userObj->contents->vectorOffset;
-                        coord.x = pt.x()-center.x();
-                        coord.y = pt.y()-center.y();
-                        if ([vecObj pointInAreal:coord])
-                        {
-                            [foundObjs addObject:vecObj];
-                            if (!multi)
-                                break;
-                        } else if (vc && [vecObj pointNearLinear:coord distance:20 inViewController:(MaplyBaseViewController *)vc]) {
-                            [foundObjs addObject:vecObj];
-                            if (!multi)
-                                break;
-                        }
-                    }
-                }
-                
-                if (!multi && [foundObjs count] > 0)
-                    break;
-            }
-        }
+    MaplyRenderController *renderControl = [vc getRenderControl];
+    auto rets = compManager->findVectors(Point2d(pt.x(),pt.y()),20.0,vc->visualView.get(),vc->visualView->coordAdapter,vc->renderControl->sceneRenderer->getFramebufferSizeScaled(),multi);
+    
+    for (auto foundObj : rets) {
+        MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithRef:std::dynamic_pointer_cast<ComponentObject_iOS>(foundObj.first)];
+        [foundObjs addObject:compObj];
     }
-#endif
-
+    
     return foundObjs;
 }
 

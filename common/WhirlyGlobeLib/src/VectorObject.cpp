@@ -25,6 +25,8 @@
 #import "Tesselator.h"
 #import "GridClipper.h"
 #import "WhirlyKitLog.h"
+#import "GlobeView.h"
+#import "MaplyView.h"
 
 namespace WhirlyKit
 {
@@ -450,6 +452,143 @@ bool VectorObject::pointInside(const Point2d &pt)
             {
                 if (tris->pointInside(GeoCoord(pt.x(),pt.y())))
                     return true;
+            }
+        }
+    }
+    
+    return false;
+}
+    
+// Helper routine to convert and check geographic points (globe version)
+static bool ScreenPointFromGeo(const Point2d &geoCoord,WhirlyGlobe::GlobeView *globeView,Maply::MapView *mapView,CoordSystemDisplayAdapter *coordAdapter,const Point2f &frameSize,const Eigen::Matrix4f &modelAndViewMat,const Eigen::Matrix4d &modelAndViewMat4d,const Eigen::Matrix4d &modelMatFull,const Eigen::Matrix4f &modelAndViewNormalMat,Point2d *screenPt)
+{
+    Point3d pt = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(geoCoord.x(),geoCoord.y())));
+    Point3f pt3f(pt.x(),pt.y(),pt.z());
+    
+    Point2f screenPt2f;
+    if (globeView) {
+        if (CheckPointAndNormFacing(pt3f,pt3f.normalized(),modelAndViewMat,modelAndViewNormalMat) < 0.0)
+            return false;
+        
+        screenPt2f = globeView->pointOnScreenFromSphere(pt, &modelAndViewMat4d, frameSize);
+    } else {
+        screenPt2f = mapView->pointOnScreenFromPlane(pt, &modelMatFull, frameSize);
+    }
+    screenPt->x() = screenPt2f.x();  screenPt->y() = screenPt2f.y();
+    
+    if (screenPt->x() < 0 || screenPt->y() < 0 || screenPt->x() > frameSize.x() || screenPt->y() > frameSize.y())
+        return false;
+    
+    return true;
+}
+    
+bool VectorObject::pointNearLinear(const Point2d &coord,float maxDistance,WhirlyKit::View *visualView,CoordSystemDisplayAdapter *coordAdapter,const Point2f &frameSize)
+{
+    WhirlyGlobe::GlobeView *globeView = dynamic_cast<WhirlyGlobe::GlobeView *>(visualView);
+    Maply::MapView *mapView = dynamic_cast<Maply::MapView *>(visualView);
+    
+    Eigen::Matrix4d modelTrans4d = visualView->calcModelMatrix();
+    Eigen::Matrix4d viewTrans4d = visualView->calcViewMatrix();
+    Eigen::Matrix4d modelAndViewMat4d = viewTrans4d * modelTrans4d;
+    Eigen::Matrix4f modelAndViewMat = Matrix4dToMatrix4f(modelAndViewMat4d);
+    Eigen::Matrix4f modelAndViewNormalMat = modelAndViewMat.inverse().transpose();
+    // Note: This is probably redundant
+    Eigen::Matrix4d modelMatFull = visualView->calcFullMatrix();
+
+    // Point we're searching around
+    Point2d p;
+    if (!ScreenPointFromGeo(coord, globeView, mapView, coordAdapter, frameSize, modelAndViewMat, modelAndViewMat4d, modelMatFull, modelAndViewNormalMat, &p))
+        return false;
+
+    for (ShapeSet::iterator it = shapes.begin();it != shapes.end();++it)
+    {
+        VectorLinearRef linear = std::dynamic_pointer_cast<VectorLinear>(*it);
+        if (linear)
+        {
+            GeoMbr geoMbr = linear->calcGeoMbr();
+            if(geoMbr.inside(GeoCoord(coord.x(),coord.y())))
+            {
+                VectorRing pts = linear->pts;
+                float distance;
+                for (int ii=0;ii<pts.size()-1;ii++)
+                {
+                    distance = MAXFLOAT;
+                    const Point2f &p0 = pts[ii];
+                    Point2d pc(p0.x(),p0.y());
+                    Point2d a;
+                    if (!ScreenPointFromGeo(pc, globeView, mapView, coordAdapter, frameSize, modelAndViewMat, modelAndViewMat4d, modelMatFull, modelAndViewNormalMat, &a))
+                        continue;
+                    
+                    const Point2f &p1 = pts[ii + 1];
+                    pc = Point2d(p1.x(),p1.y());
+                    Point2d b;
+                    if (!ScreenPointFromGeo(pc, globeView, mapView, coordAdapter, frameSize, modelAndViewMat, modelAndViewMat4d, modelMatFull, modelAndViewNormalMat, &b))
+                        continue;
+                    
+                    Point2d aToP = a - p;
+                    Point2d aToB = a - b;
+                    double aToBMagitude = pow(hypot(aToB.x(), aToB.y()), 2);
+                    double dot = aToP.x() * aToB.x() + aToP.y() * aToB.y();
+                    double d = dot/aToBMagitude;
+                    
+                    if(d < 0)
+                    {
+                        distance = hypot(p.x() - a.x(), p.y() - a.y());
+                    } else if(d > 1) {
+                        distance = hypot(p.x() - b.x(), p.y() - b.y());
+                    } else {
+                        distance = hypot(p.x() - a.x() + (aToB.x() * d),
+                                         p.y() - a.y() + (aToB.y() * d));
+                    }
+                    
+                    if (distance < maxDistance)
+                        return true;
+                }
+            }
+        } else {
+            VectorLinear3dRef linear3d = std::dynamic_pointer_cast<VectorLinear3d>(*it);
+            if (linear3d)
+            {
+                GeoMbr geoMbr = linear3d->calcGeoMbr();
+                if(geoMbr.inside(GeoCoord(coord.x(),coord.y())))
+                {
+                    VectorRing3d pts = linear3d->pts;
+                    float distance;
+                    for (int ii=0;ii<pts.size()-1;ii++)
+                    {
+                        distance = MAXFLOAT;
+                        Point3d p0 = pts[ii];
+                        Point2d pc(p0.x(),p0.y());
+                        Point2d a;
+                        if (!ScreenPointFromGeo(pc, globeView, mapView, coordAdapter, frameSize, modelAndViewMat, modelAndViewMat4d, modelMatFull, modelAndViewNormalMat, &a))
+                            continue;
+
+                        Point3d p1 = pts[ii + 1];
+                        pc = Point2d(p1.x(),p1.y());
+                        Point2d b;
+                        if (!ScreenPointFromGeo(pc, globeView, mapView, coordAdapter, frameSize, modelAndViewMat, modelAndViewMat4d, modelMatFull, modelAndViewNormalMat, &b))
+                            continue;
+
+                        Point2d aToP = a - p;
+                        Point2d aToB = a - b;
+                        double aToBMagitude = pow(hypot(aToB.x(), aToB.y()), 2);
+                        double dot = aToP.x() * aToB.x() + aToP.y() * aToB.y();
+                        double d = dot/aToBMagitude;
+                        
+                        if(d < 0)
+                        {
+                            distance = hypot(p.x() - a.x(), p.y() - a.y());
+                        } else if(d > 1) {
+                            distance = hypot(p.x() - b.x(), p.y() - b.y());
+                        } else {
+                            distance = hypot(p.x() - a.x() + (aToB.x() * d),
+                                             p.y() - a.y() + (aToB.y() * d));
+                        }
+                        
+                        if (distance < maxDistance)
+                            return true;
+                    }
+                }
             }
         }
     }

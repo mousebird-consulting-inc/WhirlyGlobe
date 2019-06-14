@@ -291,13 +291,10 @@ typedef NS_ENUM(NSInteger, MaplyVectorObjectType) {
   */
 - (bool)pointInAreal:(MaplyCoordinate)coord;
 
-// Note: Porting
-#if 0
-/** 
+/**
     Test if any linear feature is within distance of coord
  */
 - (bool)pointNearLinear:(MaplyCoordinate)coord distance:(float)maxDistance inViewController:(MaplyBaseViewController *__nonnull)vc;
-#endif
 
 /** 
     Calculate the center of the entire set of vectors in this object.
