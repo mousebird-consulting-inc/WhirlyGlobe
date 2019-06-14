@@ -30,16 +30,59 @@ namespace WhirlyKit
 {
     
 BasicDrawableInstanceMTL::BasicDrawableInstanceMTL(const std::string &name)
-    : BasicDrawableInstance(name), vertDesc(nil), renderState(nil)
+    : BasicDrawableInstance(name), renderState(nil), setupForMTL(false), numInst(0)
 {
 }
 
-void BasicDrawableInstanceMTL::setupForRenderer(const RenderSetupInfo *setupInfo)
+void BasicDrawableInstanceMTL::setupForRenderer(const RenderSetupInfo *inSetupInfo)
 {
+    if (setupForMTL)
+        return;
+        
+    if (instanceStyle == LocalStyle) {
+        RenderSetupInfoMTL *setupInfo = (RenderSetupInfoMTL *)inSetupInfo;
+
+        bzero(&uniMI,sizeof(uniMI));
+        
+        // Set up the instances in their own array
+        std::vector<WhirlyKitShader::VertexTriModelInstance> insts(instances.size());
+        for (int which = 0;which < instances.size();which++) {
+            auto &inst = instances[which];
+            auto &outInst = insts[which];
+            
+            // Color override
+            if (inst.colorOverride) {
+                uniMI.useInstanceColor = true;
+                float colors[4];
+                inst.color.asUnitFloats(colors);
+                CopyIntoMtlFloat4(outInst.color, colors);
+            } else {
+                outInst.color[0] = 1.0;  outInst.color[1] = 1.0;  outInst.color[2] = 1.0;  outInst.color[3] = 1.0;
+            }
+            
+            // Center
+            CopyIntoMtlFloat3(outInst.center, inst.center);
+            
+            // Rotation/translation/scale
+            CopyIntoMtlFloat4x4(outInst.mat, inst.mat);
+            
+            // EndCenter/direction
+            Point3d dir = moving ? (inst.endCenter - inst.center)/inst.duration : Point3d(0.0,0.0,0.0);
+            CopyIntoMtlFloat3(outInst.dir, dir);
+        }
+
+        int bufferSize = sizeof(WhirlyKitShader::VertexTriModelInstance) * insts.size();
+        instBuffer = [setupInfo->mtlDevice newBufferWithBytes:&insts[0] length:bufferSize options:MTLStorageModeShared];
+        numInst = insts.size();
+    }
+    
+    setupForMTL = true;
 }
 
 void BasicDrawableInstanceMTL::teardownForRenderer(const RenderSetupInfo *setupInfo)
 {
+    setupForMTL = false;
+    instBuffer = nil;
 }
 
 void BasicDrawableInstanceMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScene)
@@ -51,48 +94,6 @@ void BasicDrawableInstanceMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScen
     if (!basicDrawMTL)
         return;
 
-    switch (instanceStyle)
-    {
-        case ReuseStyle:
-            drawReuse(frameInfo,sceneRender,scene,basicDrawMTL);
-            break;
-        case LocalStyle:
-            drawLocal(frameInfo,sceneRender,scene,basicDrawMTL);
-            break;
-    }
-}
-    
-void BasicDrawableInstanceMTL::drawReuse(RendererFrameInfoMTL *frameInfo,SceneRendererMTL *sceneRender,SceneMTL *scene,BasicDrawableMTL *basicDrawMTL)
-{
-    // TODO: Implement
-}
-    
-    
-id<MTLRenderPipelineState> BasicDrawableInstanceMTL::getRenderPipelineState(SceneRendererMTL *sceneRender,RendererFrameInfoMTL *frameInfo,BasicDrawableMTL *basicDrawMTL)
-{
-    if (renderState)
-        return renderState;
-    
-    ProgramMTL *program = (ProgramMTL *)frameInfo->program;
-    id<MTLDevice> mtlDevice = sceneRender->setupInfo.mtlDevice;
-    
-    MTLRenderPipelineDescriptor *renderDesc = sceneRender->defaultRenderPipelineState(sceneRender,frameInfo);
-    renderDesc.vertexDescriptor = basicDrawMTL->getVertexDescriptor(program->vertFunc,defaultAttrs);
-
-    // Set up a render state
-    NSError *err = nil;
-    renderState = [mtlDevice newRenderPipelineStateWithDescriptor:renderDesc error:&err];
-    if (err) {
-        NSLog(@"BasicDrawableInstanceMTL: Failed to set up render state because:\n%@",err);
-        return nil;
-    }
-    
-    return renderState;
-}
-
-    
-void BasicDrawableInstanceMTL::drawLocal(RendererFrameInfoMTL *frameInfo,SceneRendererMTL *sceneRender,SceneMTL *scene,BasicDrawableMTL *basicDrawMTL)
-{
     id<MTLRenderPipelineState> renderState = getRenderPipelineState(sceneRender,frameInfo,basicDrawMTL);
     
     // Wire up the various inputs that we know about
@@ -104,8 +105,17 @@ void BasicDrawableInstanceMTL::drawLocal(RendererFrameInfoMTL *frameInfo,SceneRe
     }
     
     // And provide defaults for the ones we don't
+    // TODO: Consolidate this
+    for (auto defAttr : basicDrawMTL->defaultAttrs)
+        [frameInfo->cmdEncode setVertexBytes:&defAttr.data length:sizeof(defAttr.data) atIndex:defAttr.bufferIndex];
     for (auto defAttr : defaultAttrs)
         [frameInfo->cmdEncode setVertexBytes:&defAttr.data length:sizeof(defAttr.data) atIndex:defAttr.bufferIndex];
+    
+    // Wire up the model instances if we have them
+    if (instanceStyle == LocalStyle) {
+        [frameInfo->cmdEncode setVertexBytes:&uniMI length:sizeof(uniMI) atIndex:WKSUniformDrawStateModelInstanceBuffer];
+        [frameInfo->cmdEncode setVertexBuffer:instBuffer offset:0 atIndex:WKSModelInstanceBuffer];
+    }
     
     [frameInfo->cmdEncode setRenderPipelineState:renderState];
     
@@ -167,26 +177,60 @@ void BasicDrawableInstanceMTL::drawLocal(RendererFrameInfoMTL *frameInfo,SceneRe
     bzero(&uni.singleMat,sizeof(uni.singleMat));
     [frameInfo->cmdEncode setVertexBytes:&uni length:sizeof(uni) atIndex:WKSUniformDrawStateBuffer];
     [frameInfo->cmdEncode setFragmentBytes:&uni length:sizeof(uni) atIndex:WKSUniformDrawStateBuffer];
-
     
-    // Render the primitives themselves
-    switch (basicDraw->type) {
-        case Lines:
-            [frameInfo->cmdEncode drawPrimitives:MTLPrimitiveTypeLine vertexStart:0 vertexCount:basicDrawMTL->numPts];
-            break;
-        case Triangles:
-            if (!basicDrawMTL->triBuffer) {
-                // TODO: Figure out why this happens
-//                NSLog(@"BasicDrawableInstanceMTL: Bad basic drawable with no triangles.");
-                return;
-            }
-            // This actually draws the triangles (well, in a bit)
-            [frameInfo->cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:basicDrawMTL->numTris*3 indexType:MTLIndexTypeUInt16 indexBuffer:basicDrawMTL->triBuffer indexBufferOffset:0];
-            break;
-        default:
-            break;
+    // Using the basic drawable geometry with a few tweaks
+    if (instanceStyle == ReuseStyle) {
+        switch (basicDraw->type) {
+            case Lines:
+                [frameInfo->cmdEncode drawPrimitives:MTLPrimitiveTypeLine vertexStart:0 vertexCount:basicDrawMTL->numPts];
+                break;
+            case Triangles:
+                if (!basicDrawMTL->triBuffer) {
+                    // TODO: Figure out why this happens
+                    // NSLog(@"BasicDrawableInstanceMTL: Bad basic drawable with no triangles.");
+                    return;
+                }
+                // This actually draws the triangles (well, in a bit)
+                [frameInfo->cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:basicDrawMTL->numTris*3 indexType:MTLIndexTypeUInt16 indexBuffer:basicDrawMTL->triBuffer indexBufferOffset:0];
+                break;
+            default:
+                break;
+        }
+    } else {
+        // Model instancing
+        switch (basicDraw->type) {
+            case Lines:
+                [frameInfo->cmdEncode drawPrimitives:MTLPrimitiveTypeLine vertexStart:0 vertexCount:basicDrawMTL->numPts instanceCount:numInst];
+                break;
+            case Triangles:
+                [frameInfo->cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:basicDrawMTL->numTris*3 indexType:MTLIndexTypeUInt16 indexBuffer:basicDrawMTL->triBuffer indexBufferOffset:0 instanceCount:numInst];
+                break;
+            default:
+                break;
+        }
     }
-
 }
+    
+id<MTLRenderPipelineState> BasicDrawableInstanceMTL::getRenderPipelineState(SceneRendererMTL *sceneRender,RendererFrameInfoMTL *frameInfo,BasicDrawableMTL *basicDrawMTL)
+{
+    if (renderState)
+        return renderState;
+    
+    ProgramMTL *program = (ProgramMTL *)frameInfo->program;
+    id<MTLDevice> mtlDevice = sceneRender->setupInfo.mtlDevice;
+    
+    MTLRenderPipelineDescriptor *renderDesc = sceneRender->defaultRenderPipelineState(sceneRender,frameInfo);
+    renderDesc.vertexDescriptor = basicDrawMTL->getVertexDescriptor(program->vertFunc,defaultAttrs);
 
+    // Set up a render state
+    NSError *err = nil;
+    renderState = [mtlDevice newRenderPipelineStateWithDescriptor:renderDesc error:&err];
+    if (err) {
+        NSLog(@"BasicDrawableInstanceMTL: Failed to set up render state because:\n%@",err);
+        return nil;
+    }
+    
+    return renderState;
+}
+    
 }

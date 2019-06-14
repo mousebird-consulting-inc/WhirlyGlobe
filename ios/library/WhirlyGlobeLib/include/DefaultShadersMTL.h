@@ -30,17 +30,24 @@ namespace WhirlyKitShader
 #define WKSVertexTextureCoordMax 2
     
 // Wide Vector vertex attribute positions
-// Note: Combine these
+// TODO: Combine these
 #define WKSVertexWideVecTexInfoAttribute 6
 #define WKSVertexWideVecP1Attribute 7
 #define WKSVertexWideVecN0Attribute 8
 #define WKSVertexWideVecC0Attribute 9
     
 // Screen space vertex attribute positions
-// Note: Combine these
+// TODO: Combine these
 #define WKSVertexScreenSpaceOffsetAttribute 6
 #define WKSVertexScreenSpaceRotAttribute 7
 #define WKSVertexScreenSpaceDirAttribute 8
+    
+// Model instance vertex attribute positions
+// TODO: Combine these
+#define WKSVertexInstanceColorAttribute 6
+#define WKSVertexInstanceMatrixAttribute 7
+#define WKSVertexInstanceCenterAttribute 8
+#define WKSVertexInstanceDirAttribute 9
     
 // Where we start with basic textures
 #define WKSTextureEntryBase 0
@@ -65,7 +72,7 @@ struct UniformDrawStateA {
     float fade;                // Fade tends to change by time
     float interp;              // Used to interpolate between two textures (if appropriate)
     simd::float2 screenOrigin; // Used for texture pinning in screen space
-    simd::float4x4 singleMat;  // Note: Use this rather than changing the uniforms
+    simd::float4x4 singleMat;  // TODO: Use this rather than changing the uniforms
     bool clipCoords;           // If set, the geometry coordinates aren't meant to be transformed
 };
 
@@ -118,11 +125,30 @@ struct UniformWideVec {
 #define WKSUniformDrawStateScreenSpaceBuffer 15
 // Instructions to the screen space shaders, usually per-drawable
 struct UniformScreenSpace {
-    float time;
     simd::float2 scale;
+    float time;                // For moving objects, this is the base time
     bool keepUpright;
     bool activeRot;
-    bool hasMotion;
+    bool hasMotion;            // For objects that can move, check this
+};
+    
+#define WKSUniformDrawStateModelInstanceBuffer 15
+// Instructions to the model instance shaders, per-drawable
+struct UniformModelInstance {
+    float time;                // For moving objects, this is the base time
+    bool hasMotion;            // For objects that can move, check this
+    bool useInstanceColor;     // For model instance, if set use the instance color
+};
+
+#define WKSModelInstanceBuffer 16
+// Input model instance info
+struct VertexTriModelInstance
+{
+    // Instance stuff
+    simd::float4 color;
+    simd::float4x4 mat;
+    simd::float3 center;
+    simd::float3 dir;
 };
 
 }

@@ -196,28 +196,35 @@ public:
     RendererFrameInfoMTL *frameInfo;
 };
     
-static void CopyIntoFloat4x4(simd::float4x4 &dest,Eigen::Matrix4f &src)
+void CopyIntoMtlFloat4x4(simd::float4x4 &dest,Eigen::Matrix4f &src)
 {
     for (unsigned int ix=0;ix<4;ix++)
         for (unsigned int iy=0;iy<4;iy++)
             dest.columns[ix][iy] = src(ix*4+iy);
 }
     
-//static void CopyIntoFloat3(simd::float3 &dest,const Point3d &src)
-//{
-//    dest[0] = src.x();
-//    dest[1] = src.y();
-//    dest[2] = src.z();
-//}
+void CopyIntoMtlFloat4x4(simd::float4x4 &dest,Eigen::Matrix4d &src)
+{
+    for (unsigned int ix=0;ix<4;ix++)
+        for (unsigned int iy=0;iy<4;iy++)
+            dest.columns[ix][iy] = src(ix*4+iy);
+}
     
-static void CopyIntoFloat3(simd::float3 &dest,const Point3f &src)
+void CopyIntoMtlFloat3(simd::float3 &dest,const Point3d &src)
 {
     dest[0] = src.x();
     dest[1] = src.y();
     dest[2] = src.z();
 }
     
-static void CopyIntoFloat4(simd::float4 &dest,const Eigen::Vector4f &src)
+void CopyIntoMtlFloat3(simd::float3 &dest,const Point3f &src)
+{
+    dest[0] = src.x();
+    dest[1] = src.y();
+    dest[2] = src.z();
+}
+    
+void CopyIntoMtlFloat4(simd::float4 &dest,const Eigen::Vector4f &src)
 {
     dest[0] = src.x();
     dest[1] = src.y();
@@ -225,13 +232,21 @@ static void CopyIntoFloat4(simd::float4 &dest,const Eigen::Vector4f &src)
     dest[3] = src.w();
 }
     
+void CopyIntoMtlFloat4(simd::float4 &dest,const float vals[4])
+{
+    dest[0] = vals[0];
+    dest[1] = vals[1];
+    dest[2] = vals[2];
+    dest[3] = vals[3];
+}
+    
 void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,CoordSystemDisplayAdapter *coordAdapter)
 {
     WhirlyKitShader::Uniforms uniforms;
     bzero(&uniforms,sizeof(uniforms));
-    CopyIntoFloat4x4(uniforms.mvpMatrix,frameInfo->mvpMat);
-    CopyIntoFloat4x4(uniforms.mvMatrix,frameInfo->viewAndModelMat);
-    CopyIntoFloat4x4(uniforms.mvNormalMatrix,frameInfo->viewModelNormalMat);
+    CopyIntoMtlFloat4x4(uniforms.mvpMatrix,frameInfo->mvpMat);
+    CopyIntoMtlFloat4x4(uniforms.mvMatrix,frameInfo->viewAndModelMat);
+    CopyIntoMtlFloat4x4(uniforms.mvNormalMatrix,frameInfo->viewModelNormalMat);
     uniforms.globeMode = !coordAdapter->isFlat();
     
     [frameInfo->cmdEncode setVertexBytes:&uniforms length:sizeof(uniforms) atIndex:WKSUniformBuffer];
@@ -249,16 +264,16 @@ void SceneRendererMTL::setupLightBuffer(SceneMTL *scene,id<MTLRenderCommandEncod
         Eigen::Vector3f halfPlane = (dir + Eigen::Vector3f(0,0,1)).normalized();
         
         WhirlyKitShader::Light &light = lighting.lights[ii];
-        CopyIntoFloat3(light.direction,dir);
-        CopyIntoFloat3(light.halfPlane,halfPlane);
-        CopyIntoFloat4(light.ambient,dirLight.getAmbient());
-        CopyIntoFloat4(light.diffuse,dirLight.getDiffuse());
-        CopyIntoFloat4(light.specular,dirLight.getSpecular());
+        CopyIntoMtlFloat3(light.direction,dir);
+        CopyIntoMtlFloat3(light.halfPlane,halfPlane);
+        CopyIntoMtlFloat4(light.ambient,dirLight.getAmbient());
+        CopyIntoMtlFloat4(light.diffuse,dirLight.getDiffuse());
+        CopyIntoMtlFloat4(light.specular,dirLight.getSpecular());
         light.viewDepend = dirLight.viewDependent ? 0.0f : 1.0f;
     }
-    CopyIntoFloat4(lighting.mat.ambient,defaultMat.getAmbient());
-    CopyIntoFloat4(lighting.mat.diffuse,defaultMat.getDiffuse());
-    CopyIntoFloat4(lighting.mat.specular,defaultMat.getSpecular());
+    CopyIntoMtlFloat4(lighting.mat.ambient,defaultMat.getAmbient());
+    CopyIntoMtlFloat4(lighting.mat.diffuse,defaultMat.getDiffuse());
+    CopyIntoMtlFloat4(lighting.mat.specular,defaultMat.getSpecular());
     lighting.mat.specularExponent = defaultMat.getSpecularExponent();
     
     [cmdEncode setVertexBytes:&lighting length:sizeof(lighting) atIndex:WKSLightingBuffer];

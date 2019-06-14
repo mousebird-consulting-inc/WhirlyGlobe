@@ -42,14 +42,14 @@ public:
     virtual void draw(RendererFrameInfo *frameInfo,Scene *scene);
     
 protected:
-    void drawReuse(RendererFrameInfoMTL *frameInfo,SceneRendererMTL *sceneRender,SceneMTL *scene,BasicDrawableMTL *basicDrawMTL);
-    void drawLocal(RendererFrameInfoMTL *frameInfo,SceneRendererMTL *sceneRender,SceneMTL *scene,BasicDrawableMTL *basicDrawMTL);
-    
     id<MTLRenderPipelineState> getRenderPipelineState(SceneRendererMTL *sceneRender,RendererFrameInfoMTL *frameInfo,BasicDrawableMTL *basicDrawMTL);
     
     id<MTLRenderPipelineState> renderState;
-    MTLVertexDescriptor *vertDesc;
     std::vector<BasicDrawableMTL::AttributeDefault> defaultAttrs;
+    bool setupForMTL;
+    WhirlyKitShader::UniformModelInstance uniMI;
+    id<MTLBuffer> instBuffer;  // Stores instances
+    int numInst;
 };
     
 }

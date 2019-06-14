@@ -275,7 +275,7 @@ void QIFTileAsset::setupContents(QuadImageFrameLoader *loader,LoadedTileNewRef l
         
         // Make a drawable instance to shadow the geometry
         auto drawInst = loader->getController()->getRenderer()->makeBasicDrawableInstanceBuilder("MaplyQuadImageFrameLoader");
-        drawInst->setMasterID(di.drawID, BasicDrawableInstance::LocalStyle);
+        drawInst->setMasterID(di.drawID, BasicDrawableInstance::ReuseStyle);
         drawInst->setTexId(0, EmptyIdentity);
         if (frames.size() > 1)
             drawInst->setTexId(1, EmptyIdentity);

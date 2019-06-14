@@ -85,16 +85,19 @@ void BasicDrawableInstanceBuilder::setVisibleRange(float minVis,float maxVis)
 
 void BasicDrawableInstanceBuilder::setDrawPriority(unsigned int newPriority)
 {
+    drawInst->hasDrawPriority = true;
     drawInst->drawPriority = newPriority;
 }
     
 void BasicDrawableInstanceBuilder::setColor(const RGBAColor &color)
 {
+    drawInst->hasColor = true;
     drawInst->setColor(color);
 }
 
 void BasicDrawableInstanceBuilder::setLineWidth(float lineWidth)
 {
+    drawInst->hasLineWidth = lineWidth;
     drawInst->setLineWidth(lineWidth);
 }
 

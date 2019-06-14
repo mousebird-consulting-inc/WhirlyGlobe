@@ -445,4 +445,34 @@ vertex ProjVertexTriA vertexTri_screenSpace(VertexTriScreenSpace vert [[stage_in
     return outVert;
 }
 
-// TODO: Motion shader
+// Vertex shader for models
+vertex ProjVertexTriB vertexTri_model(VertexTriB vert [[stage_in]],
+                                      constant VertexTriModelInstance *modelInsts [[buffer(WKSModelInstanceBuffer)]],
+                                      constant Uniforms &uniforms [[buffer(WKSUniformBuffer)]],
+                                      constant UniformDrawStateA &uniDrawState [[buffer(WKSUniformDrawStateBuffer)]],
+                                      constant UniformModelInstance &uniMI [[buffer(WKSUniformDrawStateModelInstanceBuffer)]],
+                                      constant Lighting &lighting [[buffer(WKSLightingBuffer)]],
+                                      uint instanceID [[instance_id]])
+{
+    ProjVertexTriB outVert;
+    
+    VertexTriModelInstance inst = modelInsts[instanceID];
+    
+    // Take movement into account
+    float3 center = inst.center;
+    if (uniMI.hasMotion)
+        center += uniMI.time * inst.dir;
+    float3 vertPos = (inst.mat * float4(vert.position,1.0)).xyz + center;
+    
+    outVert.position = uniforms.mvpMatrix * float4(vertPos,1.0);
+    float4 color = uniMI.useInstanceColor ? inst.color : vert.color;
+    outVert.color = resolveLighting(vert.position,
+                                    vert.normal,
+                                    color,
+                                    lighting,
+                                    uniforms.mvpMatrix) * uniDrawState.fade;
+    outVert.texCoord0 = vert.texCoord0;
+    outVert.texCoord1 = vert.texCoord1;
+
+    return outVert;
+}

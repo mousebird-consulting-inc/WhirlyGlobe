@@ -210,7 +210,7 @@ public:
     /// Check for the given texture coordinate entry and add it if it's not there
     virtual void setupTexCoordEntry(int which,int numReserve);
 
-protected:
+public:
     std::string name;
     
     // This version is only used by subclasses

@@ -13,6 +13,9 @@
 static const float EarthRadius = 6371000;
 
 @implementation ExtrudedModelTestCase
+{
+    CartoDBLightTestCase *baseView;
+}
 
 - (instancetype)init
 {
@@ -107,14 +110,14 @@ static LocationInfo locations[NumLocations] =
 
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
-    CartoDBLightTestCase *baseView = [[CartoDBLightTestCase alloc] init];
+    baseView = [[CartoDBLightTestCase alloc] init];
     [baseView setUpWithGlobe:globeVC];
     
     [self addArrows:locations len:NumLocations stride:1 offset:0 desc:
         @{kMaplyColor : [UIColor colorWithRed:1.0 green:0.1 blue:0.0 alpha:1.0],
           kMaplyFade: @(1.0),
-          kMaplyZBufferRead: @(YES),
-          kMaplyZBufferWrite: @(YES),
+          kMaplyZBufferRead: @(NO),
+          kMaplyZBufferWrite: @(NO),
           kMaplyDrawPriority: @(100000)
           }
               viewC:globeVC];

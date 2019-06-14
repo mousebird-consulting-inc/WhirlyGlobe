@@ -657,34 +657,33 @@ void ShapeManager::convertShape(Shape &shape,std::vector<WhirlyKit::GeometryRaw>
     outGeom.texId = EmptyIdentity;
     for (const BasicDrawableBuilderRef &draw : drawBuildTri.drawables)
     {
-        wkLogLevel(Error,"ShapeManager: Converting shape doesn't work with new architecture.");
-//        int basePts = (int)outGeom.pts.size();
-//        outGeom.pts.reserve(draw->points.size());
-//        for (const Point3f &pt : draw->points)
-//            outGeom.pts.push_back(Point3d(pt.x(),pt.y(),pt.z()));
-//        outGeom.triangles.reserve(draw->tris.size());
-//        for (const BasicDrawable::Triangle &tri : draw->tris)
-//            outGeom.triangles.push_back(GeometryRaw::RawTriangle(tri.verts[0]+basePts,tri.verts[1]+basePts,tri.verts[2]+basePts));
-//        if (draw->colorEntry >= 0)
-//        {
-//            outGeom.colors.reserve(draw->points.size());
-//            VertexAttribute *vertAttr = draw->vertexAttributes[draw->colorEntry];
-//            for (int ii=0;ii<vertAttr->numElements();ii++)
-//            {
-//                RGBAColor *color = (RGBAColor *)vertAttr->addressForElement(ii);
-//                outGeom.colors.push_back(*color);
-//            }
-//        }
-//        if (draw->normalEntry >= 0)
-//        {
-//            outGeom.norms.reserve(draw->points.size());
-//            VertexAttribute *vertAttr = draw->vertexAttributes[draw->normalEntry];
-//            for (int ii=0;ii<vertAttr->numElements();ii++)
-//            {
-//                Point3f *norm = (Point3f *)vertAttr->addressForElement(ii);
-//                outGeom.norms.push_back(Point3d(norm->x(),norm->y(),norm->z()));
-//            }
-//        }
+        int basePts = (int)outGeom.pts.size();
+        outGeom.pts.reserve(draw->points.size());
+        for (const Point3f &pt : draw->points)
+            outGeom.pts.push_back(Point3d(pt.x(),pt.y(),pt.z()));
+        outGeom.triangles.reserve(draw->tris.size());
+        for (const BasicDrawable::Triangle &tri : draw->tris)
+            outGeom.triangles.push_back(GeometryRaw::RawTriangle(tri.verts[0]+basePts,tri.verts[1]+basePts,tri.verts[2]+basePts));
+        if (draw->basicDraw->colorEntry >= 0)
+        {
+            outGeom.colors.reserve(draw->points.size());
+            VertexAttribute *vertAttr = draw->basicDraw->vertexAttributes[draw->basicDraw->colorEntry];
+            for (int ii=0;ii<vertAttr->numElements();ii++)
+            {
+                RGBAColor *color = (RGBAColor *)vertAttr->addressForElement(ii);
+                outGeom.colors.push_back(*color);
+            }
+        }
+        if (draw->basicDraw->normalEntry >= 0)
+        {
+            outGeom.norms.reserve(draw->points.size());
+            VertexAttribute *vertAttr = draw->basicDraw->vertexAttributes[draw->basicDraw->normalEntry];
+            for (int ii=0;ii<vertAttr->numElements();ii++)
+            {
+                Point3f *norm = (Point3f *)vertAttr->addressForElement(ii);
+                outGeom.norms.push_back(Point3d(norm->x(),norm->y(),norm->z()));
+            }
+        }
     }
 }
 

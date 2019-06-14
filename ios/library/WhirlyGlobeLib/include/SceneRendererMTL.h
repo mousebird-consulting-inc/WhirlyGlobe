@@ -52,6 +52,20 @@ public:
     RenderTargetMTL *renderTarget;
 };
 
+/// Copy one of our matrices into Metal format
+void CopyIntoMtlFloat4x4(simd::float4x4 &dest,Eigen::Matrix4f &src);
+void CopyIntoMtlFloat4x4(simd::float4x4 &dest,Eigen::Matrix4d &src);
+
+/// Copy one of our points into Metal form
+void CopyIntoMtlFloat3(simd::float3 &dest,const Point3d &src);
+
+/// Copy one of our points into Metal form
+void CopyIntoMtlFloat3(simd::float3 &dest,const Point3f &src);
+
+/// Copy one of our 4D points into Metal form
+void CopyIntoMtlFloat4(simd::float4 &dest,const Eigen::Vector4f &src);
+void CopyIntoMtlFloat4(simd::float4 &dest,const float vals[4]);
+    
 /// Metal version of the Scene Renderer
 class SceneRendererMTL : public SceneRenderer
 {

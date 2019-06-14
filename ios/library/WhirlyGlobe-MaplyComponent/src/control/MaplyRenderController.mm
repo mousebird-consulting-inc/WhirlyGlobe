@@ -682,17 +682,21 @@ using namespace Eigen;
                                               [mtlLib newFunctionWithName:@"vertexTri_multiTex"],
                                               [mtlLib newFunctionWithName:@"fragmentTri_multiTex"]))];
 
-    // TODO: Model Instancing
+    // Model Instancing
+    [self addShader:kMaplyShaderDefaultModelTri
+            program:ProgramRef(new ProgramMTL([kMaplyShaderDefaultTriMultiTex cStringUsingEncoding:NSASCIIStringEncoding],
+                                              [mtlLib newFunctionWithName:@"vertexTri_model"],
+                                              [mtlLib newFunctionWithName:@"fragmentTri_multiTex"]))];
 
     // TODO: Night/Day Shader
-    
+
     // TODO: Billboards
-    
+
     // Wide vectors
     [self addShader:kMaplyShaderDefaultWideVector
             program:ProgramRef(new ProgramMTL([kMaplyShaderDefaultWideVector cStringUsingEncoding:NSASCIIStringEncoding],
-                                        [mtlLib newFunctionWithName:@"vertexTri_wideVec"],
-                                        [mtlLib newFunctionWithName:@"fragmentTri_wideVec"]))];
+                                        [mtlLib newFunctionWithName:@"vertexTri_model"],
+                                        [mtlLib newFunctionWithName:@"fragmentTri_basic"]))];
 
     // Screen Space (motion and regular are the same)
     ProgramRef screenSpace = ProgramRef(new
