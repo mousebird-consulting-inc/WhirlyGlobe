@@ -3308,7 +3308,9 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     
     pt = visualView->unwrapCoordinate(pt);
     
-    auto rets = compManager->findVectors(Point2d(pt.x(),pt.y()),20.0,vc->visualView.get(),vc->visualView->coordAdapter,vc->renderControl->sceneRenderer->getFramebufferSizeScaled(),multi);
+    ViewStateRef viewState = vc->visualView->makeViewState(vc->renderControl->sceneRenderer.get());
+    
+    auto rets = compManager->findVectors(Point2d(pt.x(),pt.y()),20.0,viewState,vc->renderControl->sceneRenderer->getFramebufferSizeScaled(),multi);
     
     for (auto foundObj : rets) {
         MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] initWithRef:foundObj.second];

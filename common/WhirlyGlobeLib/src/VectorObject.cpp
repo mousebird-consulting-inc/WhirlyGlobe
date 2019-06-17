@@ -460,7 +460,7 @@ bool VectorObject::pointInside(const Point2d &pt)
 }
     
 // Helper routine to convert and check geographic points (globe version)
-static bool ScreenPointFromGeo(const Point2d &geoCoord,WhirlyGlobe::GlobeView *globeView,Maply::MapView *mapView,CoordSystemDisplayAdapter *coordAdapter,const Point2f &frameSize,const Eigen::Matrix4f &modelAndViewMat,const Eigen::Matrix4d &modelAndViewMat4d,const Eigen::Matrix4d &modelMatFull,const Eigen::Matrix4f &modelAndViewNormalMat,Point2d *screenPt)
+static bool ScreenPointFromGeo(const Point2d &geoCoord,WhirlyGlobe::GlobeViewStateRef globeView,Maply::MapViewStateRef mapView,CoordSystemDisplayAdapter *coordAdapter,const Point2f &frameSize,const Eigen::Matrix4f &modelAndViewMat,const Eigen::Matrix4d &modelAndViewMat4d,const Eigen::Matrix4d &modelMatFull,const Eigen::Matrix4f &modelAndViewNormalMat,Point2d *screenPt)
 {
     Point3d pt = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(geoCoord.x(),geoCoord.y())));
     Point3f pt3f(pt.x(),pt.y(),pt.z());
@@ -470,9 +470,9 @@ static bool ScreenPointFromGeo(const Point2d &geoCoord,WhirlyGlobe::GlobeView *g
         if (CheckPointAndNormFacing(pt3f,pt3f.normalized(),modelAndViewMat,modelAndViewNormalMat) < 0.0)
             return false;
         
-        screenPt2f = globeView->pointOnScreenFromSphere(pt, &modelAndViewMat4d, frameSize);
+        screenPt2f = globeView->pointOnScreenFromDisplay(pt, &modelAndViewMat4d, frameSize);
     } else {
-        screenPt2f = mapView->pointOnScreenFromPlane(pt, &modelMatFull, frameSize);
+        screenPt2f = mapView->pointOnScreenFromDisplay(pt, &modelAndViewMat4d, frameSize);
     }
     screenPt->x() = screenPt2f.x();  screenPt->y() = screenPt2f.y();
     
@@ -482,18 +482,21 @@ static bool ScreenPointFromGeo(const Point2d &geoCoord,WhirlyGlobe::GlobeView *g
     return true;
 }
     
-bool VectorObject::pointNearLinear(const Point2d &coord,float maxDistance,WhirlyKit::View *visualView,CoordSystemDisplayAdapter *coordAdapter,const Point2f &frameSize)
+bool VectorObject::pointNearLinear(const Point2d &coord,float maxDistance,ViewStateRef viewState,const Point2f &frameSize)
 {
-    WhirlyGlobe::GlobeView *globeView = dynamic_cast<WhirlyGlobe::GlobeView *>(visualView);
-    Maply::MapView *mapView = dynamic_cast<Maply::MapView *>(visualView);
+    CoordSystemDisplayAdapter *coordAdapter = viewState->coordAdapter;
     
-    Eigen::Matrix4d modelTrans4d = visualView->calcModelMatrix();
-    Eigen::Matrix4d viewTrans4d = visualView->calcViewMatrix();
+    WhirlyGlobe::GlobeViewStateRef globeView = std::dynamic_pointer_cast<WhirlyGlobe::GlobeViewState>(viewState);
+    Maply::MapViewStateRef mapView = std::dynamic_pointer_cast<Maply::MapViewState>(viewState);
+    
+    Eigen::Matrix4d modelTrans4d = viewState->modelMatrix;
+    // Note: This won't work if there's more than one matrix
+    Eigen::Matrix4d viewTrans4d = viewState->viewMatrices[0];
     Eigen::Matrix4d modelAndViewMat4d = viewTrans4d * modelTrans4d;
     Eigen::Matrix4f modelAndViewMat = Matrix4dToMatrix4f(modelAndViewMat4d);
     Eigen::Matrix4f modelAndViewNormalMat = modelAndViewMat.inverse().transpose();
     // Note: This is probably redundant
-    Eigen::Matrix4d modelMatFull = visualView->calcFullMatrix();
+    Eigen::Matrix4d modelMatFull = viewState->fullMatrices[0];
 
     // Point we're searching around
     Point2d p;

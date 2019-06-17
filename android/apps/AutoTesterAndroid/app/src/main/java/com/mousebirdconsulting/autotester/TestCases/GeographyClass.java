@@ -43,12 +43,12 @@ public class GeographyClass extends MaplyTestCase {
     private GlobeController.GestureDelegate gestureDelegate = new GlobeController.GestureDelegate() {
         @Override
         public void userDidSelect(GlobeController controller, SelectedObject objs[], Point2d loc, Point2d screenLoc) {
-            // Intentionally blank
+            GeographyClass.super.userDidSelect(controller, objs, loc, screenLoc);
         }
 
         @Override
         public void userDidTap(GlobeController controller, Point2d loc, Point2d screenLoc) {
-            // Intentionally blank
+            GeographyClass.super.userDidTap(controller, loc, screenLoc);
         }
 
         @Override

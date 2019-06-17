@@ -28,6 +28,7 @@
 #import "GlobeView.h"
 #import "Scene.h"
 #import "ScreenSpaceBuilder.h"
+#import "VectorObject.h"
 
 namespace WhirlyKit
 {
@@ -207,6 +208,7 @@ public:
         SelectedObject(SimpleIdentity selectID,double distIn3D,double screenDist) : distIn3D(distIn3D), screenDist(screenDist) { selectIDs.push_back(selectID); }
         SelectedObject(const std::vector<SimpleIdentity> &selectIDs,double distIn3D,double screenDist) : selectIDs(selectIDs), distIn3D(distIn3D), screenDist(screenDist) { }
         std::vector<SimpleIdentity> selectIDs;    // What we selected.  If it was a cluster, could be more than one
+        VectorObjectRef vecObj;     // On the Android side, we use this as a container for selected vectors
         double distIn3D;            // 3D distance from eye
         double screenDist;          // 2D distance in screen space
         bool isCluster;             // Set if this is a cluster

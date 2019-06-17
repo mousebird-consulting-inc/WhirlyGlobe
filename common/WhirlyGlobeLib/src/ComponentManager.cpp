@@ -229,7 +229,7 @@ void ComponentManager::enableComponentObjects(const SimpleIDSet &compIDs,bool en
     }
 }
     
-std::vector<std::pair<ComponentObjectRef,VectorObjectRef> > ComponentManager::findVectors(const Point2d &pt,double maxDist,View *visualView,CoordSystemDisplayAdapter *coordAdapter,const Point2f &frameSize,bool multi)
+std::vector<std::pair<ComponentObjectRef,VectorObjectRef> > ComponentManager::findVectors(const Point2d &pt,double maxDist,ViewStateRef viewState,const Point2f &frameSize,bool multi)
 {
     std::vector<ComponentObjectRef> compRefs;
     std::vector<std::pair<ComponentObjectRef,VectorObjectRef> > rets;
@@ -261,7 +261,7 @@ std::vector<std::pair<ComponentObjectRef,VectorObjectRef> > ComponentManager::fi
                     break;
                 continue;
             }
-            if (vecObj->pointNearLinear(coord, maxDist, visualView, coordAdapter, frameSize)) {
+            if (vecObj->pointNearLinear(coord, maxDist, viewState, frameSize)) {
                 rets.push_back(std::make_pair(compObj, vecObj));
 
                 if (!multi)

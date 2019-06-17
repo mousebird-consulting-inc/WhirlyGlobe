@@ -818,12 +818,12 @@ public class RenderController implements RenderControllerInterface
                         if (vecId != EmptyIdentity)
                             compObj.addVectorID(vecId);
 
+                        // Keep track of this one for selection
                         for (VectorObject vecObj : vecs)
                         {
-                            // TODO: Porting
-                            // Keep track of this one for selection
-//					if (vecObj.getSelectable())
-//						compObj.addSelectID(vecObj.getID());
+                            if (vecObj.getSelectable()) {
+                                compObj.addVector(vecObj);
+                            }
                         }
 
                         if (vecInfo.disposeAfterUse || disposeAfterRemoval)

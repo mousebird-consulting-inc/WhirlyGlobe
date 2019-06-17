@@ -22,6 +22,7 @@
 #import "Geometry_jni.h"
 #import "Scene_jni.h"
 #import "View_jni.h"
+#import "Components_jni.h"
 #import "com_mousebird_maply_SelectionManager.h"
 
 using namespace WhirlyKit;
@@ -94,21 +95,49 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_SelectionManager_pickObject
 }
 
 JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_SelectionManager_pickObjects
-(JNIEnv *env, jobject obj, jobject viewStateObj, jobject pointObj)
+(JNIEnv *env, jobject selManageObj, jobject compManageObj, jobject viewStateObj, jobject pointObj)
 {
     try
     {
-        SelectionManagerClassInfo *classInfo = SelectionManagerClassInfo::getClassInfo();
-        SelectionManager *selectionManager = classInfo->getObject(env,obj);
+        SelectionManager *selectionManager = SelectionManagerClassInfo::getClassInfo()->getObject(env,selManageObj);
+        ComponentManager *compManager = ComponentManagerClassInfo::getClassInfo()->getObject(env,compManageObj);
 		ViewStateRefClassInfo *viewStateRefClassInfo = ViewStateRefClassInfo::getClassInfo();
 		ViewStateRef *mapViewState = viewStateRefClassInfo->getObject(env,viewStateObj);
         Point2dClassInfo *point2DclassInfo = Point2dClassInfo::getClassInfo();
         Point2d *point = point2DclassInfo->getObject(env,pointObj);
-        if (!selectionManager || !mapViewState || !point)
+        if (!selectionManager || !compManager || !mapViewState || !point)
             return NULL;
         
         std::vector<SelectionManager::SelectedObject> selObjs;
-        selectionManager->pickObjects(Point2f(point->x(),point->y()),10.0,*mapViewState,selObjs);
+
+        Point2f frameBufferSizeScaled = selectionManager->getSceneRenderer()->getFramebufferSizeScaled();
+        Point2f frameBufferSize = selectionManager->getSceneRenderer()->getFramebufferSize();
+
+        // This takes care of labels, markers, billboards, 3D objects and such.
+        Point2f pt2f(point->x(),point->y());
+        selectionManager->pickObjects(pt2f,10.0,*mapViewState,selObjs);
+
+        // Need the point in geographic
+        WhirlyGlobe::GlobeViewState *globeViewState = dynamic_cast<WhirlyGlobe::GlobeViewState *>((*mapViewState).get());
+        Maply::MapViewState *maplyViewState = dynamic_cast<Maply::MapViewState *>((*mapViewState).get());
+        Point3d dispPt;
+        if (globeViewState) {
+            globeViewState->pointOnSphereFromScreen(Point2f(point->x(),point->y()),globeViewState->fullMatrices[0],frameBufferSize,dispPt);
+        } else {
+            maplyViewState->pointOnPlaneFromScreen(Point2f(point->x(),point->y()),maplyViewState->fullMatrices[0],frameBufferSize,dispPt,false);
+        }
+        Point3d locPoint = (*mapViewState)->coordAdapter->displayToLocal(dispPt);
+
+        // This one does vector features
+        auto vecObjs = compManager->findVectors(Point2d(locPoint.x(),locPoint.y()),20.0,*mapViewState,frameBufferSizeScaled,true);
+        for (auto vecObj : vecObjs) {
+            SelectionManager::SelectedObject selObj;
+            selObj.distIn3D = 0.0;
+            selObj.isCluster = false;
+            selObj.screenDist = 0.0;
+            selObj.vecObj = vecObj.second;
+            selObjs.push_back(selObj);
+        }
 
         if (selObjs.empty())
             return NULL;
@@ -122,7 +151,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_SelectionManager_pickObj
             env->DeleteLocalRef( newObj);
             which++;
         }
-        
+
         return retArray;
     }
     catch (...)

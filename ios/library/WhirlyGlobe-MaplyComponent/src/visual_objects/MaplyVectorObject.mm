@@ -397,7 +397,9 @@ using namespace WhirlyGlobe;
     if (!vc->visualView || !vc->renderControl)
         return false;
     
-    return vObj->pointNearLinear(Point2d(coord.x,coord.y),maxDistance,vc->visualView.get(),vc->visualView->coordAdapter,vc->renderControl->sceneRenderer->getFramebufferSizeScaled());
+    ViewStateRef viewState = vc->visualView->makeViewState(vc->renderControl->sceneRenderer.get());
+
+    return vObj->pointNearLinear(Point2d(coord.x,coord.y),maxDistance,viewState,vc->renderControl->sceneRenderer->getFramebufferSizeScaled());
 }
 
 // Calculate a center

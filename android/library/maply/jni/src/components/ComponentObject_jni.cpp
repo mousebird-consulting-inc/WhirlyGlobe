@@ -20,6 +20,7 @@
 
 #import <jni.h>
 #import "Components_jni.h"
+#import "Vectors_jni.h"
 #import "com_mousebird_maply_ComponentObject.h"
 
 using namespace WhirlyKit;
@@ -44,6 +45,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentObject_initialise
     {
         ComponentObjectRefClassInfo *classInfo = ComponentObjectRefClassInfo::getClassInfo();
         ComponentObjectRef *inst = new ComponentObjectRef(new ComponentObject());
+        (*inst)->enable = true;
         classInfo->setHandle(env, obj, inst);
     }
     catch (...)
@@ -339,6 +341,24 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentObject_addGeometryID
         if (!inst)
             return;
         (*inst)->geomIDs.insert(geomID);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ComponentObject::addGeometryID()");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentObject_addVector
+        (JNIEnv *env, jobject obj, jobject vecObjObj)
+{
+    try
+    {
+        ComponentObjectRef *inst = ComponentObjectRefClassInfo::getClassInfo()->getObject(env,obj);
+        VectorObjectRef *vecObj = VectorObjectClassInfo::getClassInfo()->getObject(env,vecObjObj);
+        if (!inst)
+            return;
+        (*inst)->isSelectable = true;
+        (*inst)->vecObjs.push_back(*vecObj);
     }
     catch (...)
     {

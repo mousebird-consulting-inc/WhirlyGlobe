@@ -115,7 +115,7 @@ public:
     virtual void enableComponentObjects(const SimpleIDSet &compIDs,bool enable,ChangeSet &changes);
     
     /// Find all the vectors that fall within or near the given point
-    std::vector<std::pair<ComponentObjectRef,VectorObjectRef> > findVectors(const Point2d &pt,double maxDist,View *visualView,CoordSystemDisplayAdapter *coordAdapter,const Point2f &frameSize,bool muti);
+    std::vector<std::pair<ComponentObjectRef,VectorObjectRef> > findVectors(const Point2d &pt,double maxDist,ViewStateRef viewState,const Point2f &frameSize,bool muti);
     
     // These are here for convenience
     LayoutManager *layoutManager;

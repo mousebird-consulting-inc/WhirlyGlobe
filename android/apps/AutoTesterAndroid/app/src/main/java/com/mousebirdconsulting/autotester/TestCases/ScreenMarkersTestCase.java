@@ -66,7 +66,7 @@ public class ScreenMarkersTestCase extends MaplyTestCase
 //		markerInfo.setMinVis(0.f);
 //		markerInfo.setMaxVis(2.5f);
 //		markerInfo.setClusterGroup(0);
-//		markerInfo.setLayoutImportance(1.f);
+		markerInfo.setLayoutImportance(1.f);
 
 		ArrayList<ScreenMarker> markers = new ArrayList<ScreenMarker>();
 		for (VectorObject vector : vectors) {

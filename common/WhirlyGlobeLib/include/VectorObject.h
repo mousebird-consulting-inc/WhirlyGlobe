@@ -95,7 +95,7 @@ public:
     
     // Fuzzy matching for selecting Linear features
     // This will project the features to the screen
-    bool pointNearLinear(const Point2d &coord,float maxDistance,WhirlyKit::View *visualView,CoordSystemDisplayAdapter *coordAdapter,const Point2f &frameBufferSize);
+    bool pointNearLinear(const Point2d &coord,float maxDistance,ViewStateRef viewState,const Point2f &frameBufferSize);
     
     /// Calculate the area of all the loops together
     double areaOfOuterLoops();

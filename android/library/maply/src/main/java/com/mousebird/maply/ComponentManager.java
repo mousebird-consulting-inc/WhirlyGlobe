@@ -77,7 +77,7 @@ public class ComponentManager
     public native void enableComponentObjects(ComponentObject[] compObj,boolean enable,ChangeSet changes);
 
     /**
-     * Enable/disabel a single component object.
+     * Enable/disable a single component object.
      */
     public void enableComponentObject(ComponentObject compObj,boolean enable,ChangeSet changes)
     {

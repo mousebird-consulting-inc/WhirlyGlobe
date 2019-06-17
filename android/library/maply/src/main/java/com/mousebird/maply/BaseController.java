@@ -1457,7 +1457,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		Point2d frameLoc = new Point2d(scale.getX()*screenLoc.getX(),scale.getY()*screenLoc.getY());
 
 		// Ask the selection manager
-		SelectedObject selManObjs[] = renderControl.selectionManager.pickObjects(view.makeViewState(renderControl), frameLoc);
+		SelectedObject selManObjs[] = renderControl.selectionManager.pickObjects(renderControl.componentManager,view.makeViewState(renderControl), frameLoc);
 		if (selManObjs != null)
 			renderControl.componentManager.remapSelectableObjects(selManObjs);
 
@@ -1465,37 +1465,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		if (geoPt == null)
 			return null;
 
-		// Also check any vectors that were selectable
-//		ComponentObject[] theCompObjs;
-//		ArrayList<SelectedObject> vecSelObjs = new ArrayList<SelectedObject>();
-//		synchronized (componentObjects)
-//		{
-//			theCompObjs = componentObjects.toArray(new ComponentObject[componentObjects.size()]);
-//		}
-		// TODO: Porting
-//		for (ComponentObject compObj: theCompObjs)
-//		{
-//			if (compObj.vecObjs != null)
-//				for (VectorObject vecObj : compObj.vecObjs)
-//					if (vecObj.pointInside(geoPt))
-//					{
-//						// Note: Are the rest of the defaults useful?
-//						SelectedObject selObj = new SelectedObject();
-//						selObj.selObj = vecObj;
-//						vecSelObjs.add(selObj);
-//					}
-//		}
-
-//		if (vecSelObjs.size() == 0)
-			return selManObjs;
-
-		// TODO: Porting
-//		{
-//			if (selManObjs != null)
-//				for (SelectedObject selObj : selManObjs)
-//					vecSelObjs.add(selObj);
-//			return vecSelObjs.toArray(new SelectedObject[vecSelObjs.size()]);
-//		}
+		return selManObjs;
 	}
 
 	/**

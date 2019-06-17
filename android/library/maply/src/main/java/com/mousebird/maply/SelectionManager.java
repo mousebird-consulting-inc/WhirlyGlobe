@@ -23,7 +23,7 @@ class SelectionManager
 	public native long pickObject(ViewState view,Point2d screenLoc);
 
 	// Look for a list of objects the selection manager is handling
-	public native SelectedObject[] pickObjects(ViewState view,Point2d screenLoc);
+	public native SelectedObject[] pickObjects(ComponentManager compManage,ViewState view,Point2d screenLoc);
 	
 	static
 	{

@@ -214,6 +214,9 @@ public:
     
     /// Return the scene this is part of
     Scene *getScene() { return scene; }
+
+    /// Return the renderer
+    SceneRenderer *getSceneRenderer() { return renderer; }
     
 protected:
     Scene *scene;

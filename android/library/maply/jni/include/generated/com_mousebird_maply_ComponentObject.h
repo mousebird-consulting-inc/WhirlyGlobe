@@ -137,6 +137,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentObject_addGeometryID
 
 /*
  * Class:     com_mousebird_maply_ComponentObject
+ * Method:    addVector
+ * Signature: (Lcom/mousebird/maply/VectorObject;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentObject_addVector
+  (JNIEnv *, jobject, jobject);
+
+/*
+ * Class:     com_mousebird_maply_ComponentObject
  * Method:    nativeInit
  * Signature: ()V
  */

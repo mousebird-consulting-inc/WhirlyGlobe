@@ -82,6 +82,8 @@ public class ComponentObject
 
 	public native void addGeometryID(long id);
 
+	public native void addVector(VectorObject vecObj);
+
 	static
 	{
 		nativeInit();
