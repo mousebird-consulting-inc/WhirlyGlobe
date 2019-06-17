@@ -79,6 +79,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_initialise
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_addChangesNative
   (JNIEnv *, jobject, jobject);
 
+/*
+ * Class:     com_mousebird_maply_Scene
+ * Method:    dispose
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_dispose
+  (JNIEnv *, jobject);
+
 #ifdef __cplusplus
 }
 #endif

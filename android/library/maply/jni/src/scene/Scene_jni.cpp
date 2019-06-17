@@ -50,6 +50,31 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_initialise
     }
 }
 
+static std::mutex disposeMutex;
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_dispose
+        (JNIEnv *env, jobject obj)
+{
+    try
+    {
+        SceneClassInfo *classInfo = SceneClassInfo::getClassInfo();
+        {
+            std::lock_guard<std::mutex> lock(disposeMutex);
+            Scene *inst = classInfo->getObject(env,obj);
+            if (!inst)
+                return;
+            delete inst;
+
+            classInfo->clearHandle(env,obj);
+        }
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Scene::dispose()");
+    }
+}
+
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_addChangesNative
   (JNIEnv *env, jobject obj, jobject changesObj)
 {

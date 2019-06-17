@@ -16,14 +16,16 @@ public class Scene
 		initialise(coordAdapter,renderControl,charRenderer);
 	}
 
-	// Overridden by the subclass
+	// Pass this over to the native call.
 	public void addChanges(ChangeSet changes)
 	{
+		addChangesNative(changes);
 	}
 
 	// Overriden by subclass
 	public void shutdown()
 	{
+		dispose();
 	}
 
 	/**
@@ -47,6 +49,12 @@ public class Scene
 	}
 	private static native void nativeInit();
 	native void initialise(CoordSystemDisplayAdapter coordAdapter,RenderController renderControl,CharRenderer charRenderer);
+	public void finalize()
+	{
+		dispose();
+	}
 	native void addChangesNative(ChangeSet changes);
 	protected long nativeHandle;
+	native void dispose();
+
 }
