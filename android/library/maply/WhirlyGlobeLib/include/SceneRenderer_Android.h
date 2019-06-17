@@ -34,7 +34,7 @@ public:
 
     /// Run the snapshot logic
     /// TODO: Run the snapshots (do we need this?)
-    virtual void snapshotCallback();
+    virtual void snapshotCallback(TimeInterval now);
 
     EGLContext context;
 };

@@ -54,7 +54,7 @@ bool SceneRendererGLES_Android::resize(int width, int height)
     return true;
 }
 
-void SceneRendererGLES_Android::snapshotCallback()
+void SceneRendererGLES_Android::snapshotCallback(TimeInterval now)
 {
     // TODO: Implement snapshots
 }

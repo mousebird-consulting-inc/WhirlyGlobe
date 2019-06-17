@@ -194,7 +194,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_addTextureNative
         
         JavaString name(env,nameStr);
         // Do this on the rendering thread so we don't get ahead of ourselves
-        changes->push_back(new ShaderAddTextureReq(inst->prog->getId(),StringIndexer::getStringID(name.cStr),texID));
+        changes->push_back(new ShaderAddTextureReq(inst->prog->getId(),StringIndexer::getStringID(name.cStr),texID,-1));
     }
     catch (...)
     {

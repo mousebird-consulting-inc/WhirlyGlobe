@@ -25,7 +25,10 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.TreeSet;
 
 /**
@@ -212,6 +215,12 @@ public class SimpleTileFetcher extends HandlerThread implements TileFetcher
         }
     }
 
+    // Keep track of the number of tiles parsing at once
+    // The ThreadPoolExecutor gets testy beyond a certain number
+    private static final int MaxParsing = 8;
+    private int numParsing = 0;
+    protected Queue<AsyncTask<Void, Void, Void> > tasks = new LinkedList<>();
+
     // Load a tile and pass off the results
     protected void updateLoading()
     {
@@ -230,20 +239,40 @@ public class SimpleTileFetcher extends HandlerThread implements TileFetcher
         final byte[] data = dataForTile(tileInfo.fetchInfo,tileInfo.fetchInfo.tileID);
 
         // We assume they'll be parsing things which will take time
-        new AsyncTask<Void, Void, Void>() {
+        tasks.add(new AsyncTask<Void, Void, Void>() {
             protected Void doInBackground(Void... unused) {
                 if (data != null)
                     tileInfo.request.callback.success(tileInfo.request, data);
                 else
                     tileInfo.request.callback.failure(tileInfo.request,"Failed to read MBTiles File");
 
+                // Add more tasks, if there are any
+                Handler handler = new Handler(getLooper());
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        numParsing--;
+                        updateTasks();
+                    }
+                });
+
                 return null;
             }
-        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void)null);
+        });
 
         finishTile(tileInfo);
 
+        updateTasks();
         scheduleLoading();
+    }
+
+    // Keep a certain number of tasks running for parsing, but no more
+    protected void updateTasks() {
+        if (numParsing < MaxParsing && !tasks.isEmpty()) {
+            AsyncTask<Void, Void, Void> task = tasks.remove();
+            task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void)null);
+            numParsing++;
+        }
     }
 
     protected void finishTile(TileInfo tileInfo)
