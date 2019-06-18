@@ -43,9 +43,11 @@ void MapView_iOS::setDelegate(MapViewAnimationDelegateRef delegate)
 
 void MapView_iOS::cancelAnimation()
 {
+    bool hadDelegate = delegate != nil;
+
     MapView::cancelAnimation();
     
-    if (delegate)
+    if (hadDelegate)
         [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationEnded object:tag];
     
     delegate = nil;
