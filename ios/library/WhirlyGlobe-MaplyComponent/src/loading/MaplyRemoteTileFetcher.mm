@@ -55,9 +55,9 @@ public:
     
     // Clean up references to make things happier
     void clear() {
-        request = nil;
-        fetchInfo = nil;
-        task = nil;
+//        request = nil;
+//        fetchInfo = nil;
+//        task = nil;
     }
 
     // We're either loading it or going to load it eventually
@@ -225,6 +225,8 @@ using namespace WhirlyKit;
     _remoteData = 0;
     _localData = 0;
     _totalLatency = 0;
+    _maxActiveRequests = 0;
+    _activeRequests = 0;
     
     return self;
 }
@@ -238,11 +240,14 @@ using namespace WhirlyKit;
     _remoteData += stats.remoteData;
     _localData += stats.localData;
     _totalLatency += stats.totalLatency;
+    // Active requests don't add
 }
 
 - (void)dump
 {
     NSLog(@"---MaplyTileFetcher %@ Stats---",_fetcher.name);
+    NSLog(@"   Active Requests = %d",_activeRequests);
+    NSLog(@"   Max Active Requests = %d",_maxActiveRequests);
     NSLog(@"   Total Requests = %d",_totalRequests);
     NSLog(@"   Canceled Requests = %d",_totalCancels);
     NSLog(@"   Failed Requests = %d",_totalFails);
@@ -282,19 +287,20 @@ using namespace WhirlyKit;
     // All the internal work is done on a single queue.  Nothing significant, really.
     queue = dispatch_queue_create("MaplyRemoteTileFetcher", nil);
     session = [NSURLSession sharedSession];
-    allStats = [[MaplyRemoteTileFetcherStats alloc] init];
-    recentStats = [[MaplyRemoteTileFetcherStats alloc] init];
-        
+    allStats = [[MaplyRemoteTileFetcherStats alloc] initWithFetcher:self];
+    recentStats = [[MaplyRemoteTileFetcherStats alloc] initWithFetcher:self];
+            
     return self;
 }
 
 /// Return the fetching stats since the beginning or since the last reset
 - (MaplyRemoteTileFetcherStats * __nullable)getStats:(bool)allTime
 {
-    if (allTime)
+    if (allTime) {
         return allStats;
-    else
+    } else {
         return recentStats;
+    }
 }
 
 - (NSString * _Nonnull)name
@@ -305,6 +311,22 @@ using namespace WhirlyKit;
 - (void)resetStats
 {
     recentStats = [[MaplyRemoteTileFetcherStats alloc] initWithFetcher:self];
+}
+
+- (void)resetActiveStats
+{
+    MaplyRemoteTileFetcher * __weak weakSelf = self;
+    
+    dispatch_async(queue,
+                   ^{
+                       [weakSelf resetActiveStatsLocal];
+                   });
+}
+
+- (void)resetActiveStatsLocal
+{
+    recentStats.activeRequests = toLoad.size() + loading.size();
+    recentStats.maxActiveRequests = recentStats.activeRequests;
 }
 
 - (dispatch_queue_t)getQueue
@@ -421,12 +443,12 @@ using namespace WhirlyKit;
         switch (tile->state) {
             case TileInfo::Loading:
                 [tile->task cancel];
-                loading.erase(tile);
                 break;
             case TileInfo::ToLoad:
-                toLoad.erase(tile);
                 break;
         }
+        loading.erase(tile);
+        toLoad.erase(tile);
         tile->clear();
         tilesByFetchRequest.erase(it);
     }
@@ -493,6 +515,8 @@ using namespace WhirlyKit;
 {
     // Ask for a few more to load
     while (loading.size() < _numConnections) {
+        [self updateActiveStats];
+
         auto nextLoad = toLoad.rbegin();
         if (nextLoad == toLoad.rend())
             break;
@@ -535,6 +559,14 @@ using namespace WhirlyKit;
             [tile->task resume];
         }
     }
+
+    [self updateActiveStats];
+}
+
+- (void)updateActiveStats
+{
+    recentStats.activeRequests = loading.size()+toLoad.size();
+    recentStats.maxActiveRequests = std::max(recentStats.maxActiveRequests,recentStats.activeRequests);
 }
 
 - (void)handleData:(NSData *)data response:(NSHTTPURLResponse *)response error:(NSError *)error tile:(TileInfoRef)tile fetchStart:(TimeInterval)fetchStartTile
@@ -606,9 +638,11 @@ using namespace WhirlyKit;
     if (it != tilesByFetchRequest.end()) {
         tilesByFetchRequest.erase(it);
     }
-    tile->clear();
     loading.erase(tile);
     toLoad.erase(tile);
+    tile->clear();
+
+    [self updateActiveStats];
 }
 
 // Called on our queue
@@ -616,6 +650,8 @@ using namespace WhirlyKit;
 {
     auto it = tilesByFetchRequest.find(tile->request);
     if (it == tilesByFetchRequest.end()) {
+        loading.erase(tile);
+        toLoad.erase(tile);
         tile->clear();
         // No idea what it is.  Toss it.
         return;
