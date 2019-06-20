@@ -261,7 +261,7 @@ vertex ProjVertexTriB vertexTri_multiTex(VertexTriB vert [[stage_in]],
         outVert.texCoord1 = float2(0.0,0.0);
     } else if (uniDrawState.numTextures == 1) {
         outVert.texCoord0 = resolveTexCoords(vert.texCoord0,texIndirect0);
-        outVert.texCoord1 = vert.texCoord0;
+        outVert.texCoord1 = outVert.texCoord0;
     } else {
         outVert.texCoord0 = resolveTexCoords(vert.texCoord0,texIndirect0);
         outVert.texCoord1 = resolveTexCoords(vert.texCoord1,texIndirect1);
