@@ -80,9 +80,7 @@ bool SceneRendererGLES::setup(int apiVersion,int sizeX,int sizeY)
     
     // Off by default.  Because duh.
     depthBufferOffForAlpha = false;
-    
-    extraFrameMode = false;
-    
+
     framebufferWidth = sizeX;
     framebufferHeight = sizeY;
     

@@ -350,8 +350,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_render
 		if (!renderer)
 			return;
 
-		// Force a draw every time
-		renderer->setTriggerDraw();
 		/// TODO: Make sure this is actually what we're using
 		renderer->render(1/60.0);
 	}
@@ -370,7 +368,14 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_RenderController_hasChanges
 		if (!renderer)
 			return false;
 
-		return renderer->hasChanges();
+		if (!renderer->hasChanges()) {
+            if (!renderer->extraFrameMode)
+                return false;
+            if (!renderer->extraFrameDrawn)
+                return true;
+            return false;
+		} else
+		    return true;
 	}
 	catch (...)
 	{
