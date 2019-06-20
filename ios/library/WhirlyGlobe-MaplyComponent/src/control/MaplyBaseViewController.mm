@@ -406,6 +406,28 @@ using namespace WhirlyKit;
                                                object:nil];
 }
 
+- (id<MTLDevice>)getMetalDevice
+{
+    if (!renderControl || renderControl->sceneRenderer->getType() != SceneRenderer::RenderMetal)
+        return nil;
+    
+    SceneRendererMTL *renderMTL = (SceneRendererMTL *)renderControl->sceneRenderer.get();
+    return renderMTL->setupInfo.mtlDevice;
+}
+
+- (id<MTLLibrary>)getMetalLibrary
+{
+    if (!renderControl || renderControl->sceneRenderer->getType() != SceneRenderer::RenderMetal)
+        return nil;
+
+    SceneRendererMTL *renderMTL = (SceneRendererMTL *)renderControl->sceneRenderer.get();
+    NSError *err = nil;
+    id<MTLLibrary> mtlLib = [renderMTL->setupInfo.mtlDevice newDefaultLibraryWithBundle:[NSBundle bundleForClass:[MaplyRenderController class]] error:&err];
+    return mtlLib;
+
+}
+
+
 - (void) useGLContext
 {
     [renderControl useGLContext];

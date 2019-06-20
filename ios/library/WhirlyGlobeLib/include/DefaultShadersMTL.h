@@ -161,5 +161,114 @@ struct UniformBillboard {
     simd::float3 eyeVec;
     bool groundMode;
 };
-
+    
 }
+
+
+// These have syntax that only the shader language can grok
+// We put them here so we can include them in other Metal libraries
+#ifdef __METAL_VERSION__
+// Vertices with position, color, and normal
+struct VertexA
+{
+    float3 position [[attribute(WKSVertexPositionAttribute)]];
+    float4 color [[attribute(WKSVertexColorAttribute)]];
+    float3 normal [[attribute(WKSVertexNormalAttribute)]];
+};
+
+// Position, color, and dot project (for backface checking)
+struct ProjVertexA
+{
+    float4 position [[position]];
+    float4 color;
+    float dotProd;
+};
+
+// Just position and color
+struct ProjVertexB
+{
+    float4 position [[position]];
+    float4 color;
+};
+
+// Ye olde triangle vertex
+struct VertexTriA
+{
+    float3 position [[attribute(WKSVertexPositionAttribute)]];
+    float4 color [[attribute(WKSVertexColorAttribute)]];
+    float3 normal [[attribute(WKSVertexNormalAttribute)]];
+    float2 texCoord [[attribute(WKSVertexTextureBaseAttribute)]];
+};
+
+// Output vertex to the fragment shader
+struct ProjVertexTriA {
+    float4 position [[position]];
+    float4 color;
+    float2 texCoord;
+};
+
+// Triangle vertex with a couple of texture coordinates
+struct VertexTriB
+{
+    float3 position [[attribute(WKSVertexPositionAttribute)]];
+    float4 color [[attribute(WKSVertexColorAttribute)]];
+    float3 normal [[attribute(WKSVertexNormalAttribute)]];
+    float2 texCoord0 [[attribute(WKSVertexTextureBaseAttribute)]];
+    float2 texCoord1 [[attribute(WKSVertexTextureBaseAttribute+1)]];
+};
+
+// Output vertex to the fragment shader
+struct ProjVertexTriB {
+    float4 position [[position]];
+    float4 color;
+    float2 texCoord0;
+    float2 texCoord1;
+};
+
+/**
+ Wide Vector Shaders
+ These work to build/render objects in 2D space, but based
+ on 3D locations.
+ */
+
+struct VertexTriWideVec
+{
+    float3 position [[attribute(WKSVertexPositionAttribute)]];
+    float3 normal [[attribute(WKSVertexNormalAttribute)]];
+    float4 texInfo [[attribute(WKSVertexWideVecTexInfoAttribute)]];
+    float3 p1 [[attribute(WKSVertexWideVecP1Attribute)]];
+    float3 n0 [[attribute(WKSVertexWideVecN0Attribute)]];
+    float c0 [[attribute(WKSVertexWideVecC0Attribute)]];
+};
+
+// Wide Vector vertex passed to fragment shader
+struct ProjVertexTriWideVec {
+    float4 position [[position]];
+    float4 color;
+    float2 texCoord;
+    float dotProd;
+};
+
+// Input vertex data for Screen Space shaders
+struct VertexTriScreenSpace
+{
+    float3 position [[attribute(WKSVertexPositionAttribute)]];
+    float3 normal [[attribute(WKSVertexNormalAttribute)]];
+    float2 texCoord [[attribute(WKSVertexTextureBaseAttribute)]];
+    float4 color [[attribute(WKSVertexColorAttribute)]];
+    float2 offset [[attribute(WKSVertexScreenSpaceOffsetAttribute)]];
+    float3 rot [[attribute(WKSVertexScreenSpaceRotAttribute)]];
+    float3 dir [[attribute(WKSVertexScreenSpaceDirAttribute)]];
+};
+
+// Triangle vertex with a couple of texture coordinates
+struct VertexTriBillboard
+{
+    float3 position [[attribute(WKSVertexPositionAttribute)]];
+    float3 offset [[attribute(WKSVertexBillboardOffsetAttribute)]];
+    float4 color [[attribute(WKSVertexColorAttribute)]];
+    float3 normal [[attribute(WKSVertexNormalAttribute)]];
+    float2 texCoord [[attribute(WKSVertexTextureBaseAttribute)]];
+};
+    
+#endif

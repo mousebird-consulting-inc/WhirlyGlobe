@@ -19,6 +19,7 @@
  */
 
 #import <UIKit/UIKit.h>
+#import <Metal/Metal.h>
 #import "math/MaplyCoordinate.h"
 #import "visual_objects/MaplyScreenMarker.h"
 #import "visual_objects/MaplyVectorObject.h"
@@ -160,6 +161,16 @@
     If you set this to 0, you can control the ordering of everything more precisely.
  */
 @property (nonatomic,assign) int screenObjectDrawPriorityOffset;
+
+/**
+    If in Metal rendering mode, return the Metal device being used.
+  */
+- (id<MTLDevice> __nullable)getMetalDevice;
+
+/**
+   If in Metal rendering mode, return the shader library set up by the toolkit.
+  */
+- (id<MTLLibrary> __nullable)getMetalLibrary;
 
 /** 
     Clear all the currently active lights.
@@ -732,11 +743,7 @@
  
     
     @param polys An NSArray of MaplyVectorObject.
-    
-    @param key This is part of an old caching system that's no longer necessary.  Set it to nil.
-    
-    @param cacheDb This is part of an old caching system that's no longer necessary.  Set it to nil.
-    
+ 
     @param desc The desciption dictionary which controls how the lofted polys will look.  It takes the following entries.
     
     @param threadMode For MaplyThreadAny we'll do the add on another thread.  For MaplyThreadCurrent we'll block the current thread to finish the add.  MaplyThreadAny is preferred.

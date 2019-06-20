@@ -24,22 +24,6 @@
 using namespace metal;
 using namespace WhirlyKitShader;
 
-// Vertices with position, color, and normal
-struct VertexA
-{
-    float3 position [[attribute(WKSVertexPositionAttribute)]];
-    float4 color [[attribute(WKSVertexColorAttribute)]];
-    float3 normal [[attribute(WKSVertexNormalAttribute)]];
-};
-
-// Position, color, and dot project (for backface checking)
-struct ProjVertexA
-{
-    float4 position [[position]];
-    float4 color;
-    float dotProd;
-};
-
 // Vertex shader for simple line on the globe
 vertex ProjVertexA vertexLineOnly_globe(
     VertexA vert [[stage_in]],
@@ -71,13 +55,6 @@ fragment float4 framentLineOnly_globe(
         discard_fragment();
     return in.color;
 }
-
-// Just position and color
-struct ProjVertexB
-{
-    float4 position [[position]];
-    float4 color;
-};
 
 // Back facing calculation for the globe
 float calcGlobeDotProd(constant Uniforms &uniforms,float3 pos, float3 norm)
@@ -116,22 +93,6 @@ fragment float4 fragmentLineOnly_flat(
 {
     return vert.color;
 }
-
-// Ye olde triangle vertex
-struct VertexTriA
-{
-    float3 position [[attribute(WKSVertexPositionAttribute)]];
-    float4 color [[attribute(WKSVertexColorAttribute)]];
-    float3 normal [[attribute(WKSVertexNormalAttribute)]];
-    float2 texCoord [[attribute(WKSVertexTextureBaseAttribute)]];
-};
-
-// Output vertex to the fragment shader
-struct ProjVertexTriA {
-    float4 position [[position]];
-    float4 color;
-    float2 texCoord;
-};
 
 // Resolve texture coordinates with their parent offsts, if necessary
 float2 resolveTexCoords(float2 texCoord,TexIndirect texIndr)
@@ -217,24 +178,6 @@ fragment float4 fragmentTri_basic(ProjVertexTriA vert [[stage_in]],
         return vert.color;
 }
 
-// Triangle vertex with a couple of texture coordinates
-struct VertexTriB
-{
-    float3 position [[attribute(WKSVertexPositionAttribute)]];
-    float4 color [[attribute(WKSVertexColorAttribute)]];
-    float3 normal [[attribute(WKSVertexNormalAttribute)]];
-    float2 texCoord0 [[attribute(WKSVertexTextureBaseAttribute)]];
-    float2 texCoord1 [[attribute(WKSVertexTextureBaseAttribute+1)]];
-};
-
-// Output vertex to the fragment shader
-struct ProjVertexTriB {
-    float4 position [[position]];
-    float4 color;
-    float2 texCoord0;
-    float2 texCoord1;
-};
-
 // Vertex shader that handles up to two textures
 vertex ProjVertexTriB vertexTri_multiTex(VertexTriB vert [[stage_in]],
                                          constant Uniforms &uniforms [[buffer(WKSUniformBuffer)]],
@@ -264,7 +207,8 @@ vertex ProjVertexTriB vertexTri_multiTex(VertexTriB vert [[stage_in]],
         outVert.texCoord1 = outVert.texCoord0;
     } else {
         outVert.texCoord0 = resolveTexCoords(vert.texCoord0,texIndirect0);
-        outVert.texCoord1 = resolveTexCoords(vert.texCoord1,texIndirect1);
+        // Note: Rather than reusing texCoord0, we should just attach the same data to texCoord1
+        outVert.texCoord1 = resolveTexCoords(vert.texCoord0,texIndirect1);
     }
     
     return outVert;
@@ -319,30 +263,6 @@ fragment float4 fragmentTri_multiTexRamp(ProjVertexTriB vert [[stage_in]],
     }
 }
 
-/**
-  Wide Vector Shaders
-  These work to build/render objects in 2D space, but based
-   on 3D locations.
-  */
-
-struct VertexTriWideVec
-{
-    float3 position [[attribute(WKSVertexPositionAttribute)]];
-    float3 normal [[attribute(WKSVertexNormalAttribute)]];
-    float4 texInfo [[attribute(WKSVertexWideVecTexInfoAttribute)]];
-    float3 p1 [[attribute(WKSVertexWideVecP1Attribute)]];
-    float3 n0 [[attribute(WKSVertexWideVecN0Attribute)]];
-    float c0 [[attribute(WKSVertexWideVecC0Attribute)]];
-};
-
-// Wide Vector vertex passed to fragment shader
-struct ProjVertexTriWideVec {
-    float4 position [[position]];
-    float4 color;
-    float2 texCoord;
-    float dotProd;
-};
-
 vertex ProjVertexTriWideVec vertexTri_wideVec(VertexTriWideVec vert [[stage_in]],
                                             constant Uniforms &uniforms [[buffer(WKSUniformBuffer)]],
                                             constant UniformDrawStateA &uniDrawState [[buffer(WKSUniformDrawStateBuffer)]],
@@ -387,18 +307,6 @@ fragment float4 fragmentTri_wideVec(ProjVertexTriWideVec vert [[stage_in]],
         alpha = (uniSS.w2-across)/uniSS.edge;
     return vert.dotProd > 0.0 ? uniSS.color * alpha * patternVal * uniDrawState.fade : float4(0.0);
 }
-
-// Input vertex data for Screen Space shaders
-struct VertexTriScreenSpace
-{
-    float3 position [[attribute(WKSVertexPositionAttribute)]];
-    float3 normal [[attribute(WKSVertexNormalAttribute)]];
-    float2 texCoord [[attribute(WKSVertexTextureBaseAttribute)]];
-    float4 color [[attribute(WKSVertexColorAttribute)]];
-    float2 offset [[attribute(WKSVertexScreenSpaceOffsetAttribute)]];
-    float3 rot [[attribute(WKSVertexScreenSpaceRotAttribute)]];
-    float3 dir [[attribute(WKSVertexScreenSpaceDirAttribute)]];
-};
 
 // Screen space (no motion) vertex shader
 vertex ProjVertexTriA vertexTri_screenSpace(VertexTriScreenSpace vert [[stage_in]],
@@ -476,17 +384,6 @@ vertex ProjVertexTriB vertexTri_model(VertexTriB vert [[stage_in]],
 
     return outVert;
 }
-
-// Triangle vertex with a couple of texture coordinates
-struct VertexTriBillboard
-{
-    float3 position [[attribute(WKSVertexPositionAttribute)]];
-    float3 offset [[attribute(WKSVertexBillboardOffsetAttribute)]];
-    float4 color [[attribute(WKSVertexColorAttribute)]];
-    float3 normal [[attribute(WKSVertexNormalAttribute)]];
-    float2 texCoord [[attribute(WKSVertexTextureBaseAttribute)]];
-};
-
 
 // Vertex shader for billboards
 // TODO: These should be model instances.  Ew.
