@@ -1728,6 +1728,7 @@ static const float PerfOutputDelay = 15.0;
     return target.data;
 }
 
+
 - (float)currentMapZoom:(MaplyCoordinate)coordinate
 {
     if (!renderControl)
