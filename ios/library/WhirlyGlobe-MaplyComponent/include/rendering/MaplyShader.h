@@ -19,6 +19,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <Metal/Metal.h>
 
 @protocol MaplyRenderControllerProtocol;
 @class MaplyTexture;
@@ -135,6 +136,24 @@ These are the per vertex attributes provided to each vertex shader.
     @return Returns a shader program if it succeeded.  IT may not work, however, so call valid first.
  */
 - (nullable instancetype)initWithName:(NSString *__nonnull)name vertex:(NSString *__nonnull)vertexProg fragment:(NSString *__nonnull)fragProg viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)baseViewC;
+
+/**
+    Initialize with Metal shader functions tied to a particular view controller.  Metal only.
+ 
+    This initializer just ties the given functions to this MaplyShader.  All the real work is
+    done by Metal.
+ 
+     @param name The name of the shader program.  Used for identification and sometimes lookup.
+ 
+     @param vertex The MTLFunction for vertex processing.
+ 
+     @param fragment The MTLFunction for fragment processing.
+
+     @param baseViewC The view controller where we'll register the new shader.
+ 
+     @return Returns a shader program if it succeeded.  IT may not work, however, so call valid first.
+  */
+- (nullable instancetype)initMetalWithName:(NSString *__nonnull)name vertex:(id<MTLFunction> __nonnull)vertexFunc fragment:(id<MTLFunction> __nonnull)fragFunc viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)baseViewC;
 
 /**
     Minimal initialized used in conjuction with delayed setup.  OpenGL Only.

@@ -25,6 +25,7 @@
 #import "MaplyRenderController_private.h"
 #import "TextureGLES_iOS.h"
 #import "MaplyTexture_private.h"
+#import "ProgramMTL.h"
 
 using namespace WhirlyKit;
 
@@ -92,6 +93,44 @@ using namespace WhirlyKit;
     
     return self;
 }
+
+- (instancetype)initMetalWithName:(NSString *)inName vertex:(id<MTLFunction>)vertexFunc fragment:(id<MTLFunction>)fragFunc viewC:(NSObject<MaplyRenderControllerProtocol> *)baseViewC
+{
+    if ([baseViewC getRenderControl]->sceneRenderer->getType() != SceneRenderer::RenderMetal)
+    {
+        NSLog(@"MaplyShader method only works with Metal");
+        return nil;
+    }
+    
+    self = [super init];
+    viewC = baseViewC;
+    
+    std::string name = [inName cStringUsingEncoding:NSASCIIStringEncoding];
+    ProgramMTLRef prog(new ProgramMTL(name,vertexFunc,fragFunc));
+    _program = prog;
+
+    MaplyRenderController *renderControl = [viewC getRenderControl];
+    if (!renderControl)
+        return nil;
+    
+    if (!_program->isValid())
+    {
+        buildError = @"Could not compile program.";
+        _program = NULL;
+        return nil;
+    }
+    
+    scene = renderControl->scene;
+    renderer = renderControl->sceneRenderer;
+    
+    if (renderControl->scene)
+        renderControl->scene->addProgram(_program);
+
+    _name = inName;
+    
+    return self;
+}
+
 
 - (instancetype)initWithViewC:(NSObject<MaplyRenderControllerProtocol> *)baseViewC
 {

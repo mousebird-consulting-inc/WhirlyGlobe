@@ -81,4 +81,6 @@ public:
     std::vector<TextureEntry> textures;
 };
     
+typedef std::shared_ptr<ProgramMTL> ProgramMTLRef;
+    
 }
