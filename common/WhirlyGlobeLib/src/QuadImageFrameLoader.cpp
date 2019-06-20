@@ -507,14 +507,17 @@ void QIFRenderState::updateScene(Scene *scene,double curFrame,TimeInterval now,b
                     int relX = tileID.x - frame.texNode.x * (1<<relLevel);
                     int tileIDY = tileID.y;
                     int frameIdentY = frame.texNode.y;
-                    if (flipY) {
+                    // Note: Confused why this works for both modes
+                    //       Might be how the textures are laid out.  Still.  Wah?
+//                    if (flipY) {
                         tileIDY = (1<<tileID.level)-tileIDY-1;
                         frameIdentY = (1<<frame.texNode.level)-frameIdentY-1;
-                    }
+//                    }
                     int relY = tileIDY - frameIdentY * (1<<relLevel);
                     
                     for (auto drawID : tile->instanceDrawIDs) {
                         // Note: In this case we just use the first texture
+                        //       We're assuming that each frame has only one texture
                         if (frame.texIDs.empty())
                             changes.push_back(new DrawTexChangeRequest(drawID,ii,EmptyIdentity,0,0,relLevel,relX,relY));
                         else
