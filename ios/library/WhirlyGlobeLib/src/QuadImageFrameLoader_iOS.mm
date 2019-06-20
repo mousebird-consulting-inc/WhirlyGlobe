@@ -49,7 +49,7 @@ QIFFrameAsset_ios::~QIFFrameAsset_ios()
 MaplyTileFetchRequest *QIFFrameAsset_ios::setupFetch(QuadImageFrameLoader *loader,id fetchInfo,id frameInfo,int priority,double importance)
 {
     QIFFrameAsset::setupFetch(loader);
-    
+        
     request = [[MaplyTileFetchRequest alloc] init];
     request.fetchInfo = fetchInfo;
     request.tileSource = frameInfo;

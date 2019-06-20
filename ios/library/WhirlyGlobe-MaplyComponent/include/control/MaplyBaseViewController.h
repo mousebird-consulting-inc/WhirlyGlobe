@@ -64,10 +64,10 @@
 
 /** Snapshot Delegate
  
- Snapshots can be run as callbacks after the rendering.  If you keep your area
- small enough you can even do it every frame.  This is the protocol for
- snapshot delegates.
- */
+    Snapshots can be run as callbacks after the rendering.  If you keep your area
+    small enough you can even do it every frame.  This is the protocol for
+    snapshot delegates.
+  */
 @protocol MaplySnapshotDelegate
 
 /// Return true if you want a snapshot for this frame
@@ -84,6 +84,7 @@
 - (MaplyRenderTarget * __nullable)renderTarget;
 
 @end
+
 
 @protocol MaplyLocationTrackerDelegate;
 

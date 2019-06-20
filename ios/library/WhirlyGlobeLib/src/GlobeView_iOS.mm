@@ -43,9 +43,11 @@ void GlobeView_iOS::setDelegate(GlobeViewAnimationDelegateRef delegate)
 
 void GlobeView_iOS::cancelAnimation()
 {
+    bool hadDelegate = delegate != nil;
+    
     GlobeView::cancelAnimation();
     
-    if (delegate)
+    if (hadDelegate)
         [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationEnded object:tag];
     
     delegate = nil;

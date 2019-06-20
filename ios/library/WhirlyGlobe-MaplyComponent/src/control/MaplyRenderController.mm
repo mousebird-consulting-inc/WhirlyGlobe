@@ -191,8 +191,8 @@ using namespace Eigen;
         sceneRendererGLES->forceDrawNextFrame();
         sceneRendererGLES->render(0.0);
 
-        // Note: Convert to image
-        
+        // TODO: Convert to image
+
         snapshotData = nil;
         sceneRendererGLES->removeSnapshotDelegate(self);
 
@@ -201,6 +201,9 @@ using namespace Eigen;
         // TODO: Convert to image
 
     }
+
+        // Note: Convert to image
+        
     
     return toRet;
 }
@@ -214,10 +217,8 @@ using namespace Eigen;
     if (sceneRenderer->getType() == SceneRenderer::RenderGLES) {
         SceneRendererGLES_iOSRef sceneRendererGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(sceneRenderer);
         
-        // TODO: Implement for Metal
-
         EAGLContext *oldContext = [EAGLContext currentContext];
-
+        
         [self useGLContext];
 
         sceneRendererGLES->addSnapshotDelegate(self);
@@ -594,7 +595,6 @@ using namespace Eigen;
 - (bool)needSnapshot:(NSTimeInterval)now {
     return true;
 }
-
 
 - (CGRect)snapshotRect {
     return CGRectZero;

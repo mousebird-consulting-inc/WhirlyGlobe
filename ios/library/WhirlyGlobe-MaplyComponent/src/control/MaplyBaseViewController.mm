@@ -43,7 +43,6 @@ using namespace WhirlyKit;
 // Target for screen snapshot
 @interface SnapshotTarget : NSObject<WhirlyKitSnapshot>
 @property (nonatomic,weak) MaplyBaseViewController *viewC;
-@property (nonatomic) UIImage *image;
 @property (nonatomic) NSData *data;
 @property (nonatomic) SimpleIdentity renderTargetID;
 @property (nonatomic) CGRect subsetRect;
@@ -1629,17 +1628,60 @@ static const float PerfOutputDelay = 15.0;
     SceneRendererGLES_iOSRef sceneRenderGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(renderControl->sceneRenderer);
     if (!sceneRenderGLES)
         return nil;
-    
+
     // TODO: Implement this for Metal
 
     SnapshotTarget *target = [[SnapshotTarget alloc] init];
     sceneRenderGLES->addSnapshotDelegate(target);
-
+    
     sceneRenderGLES->forceDrawNextFrame();
     sceneRenderGLES->render(0.0);
+    
     sceneRenderGLES->removeSnapshotDelegate(target);
+    
+    // Courtesy: https://developer.apple.com/library/ios/qa/qa1704/_index.html
+    // Create a CGImage with the pixel data
+    // If your OpenGL ES content is opaque, use kCGImageAlphaNoneSkipLast to ignore the alpha channel
+    // otherwise, use kCGImageAlphaPremultipliedLast
+    CGDataProviderRef ref = CGDataProviderCreateWithData(NULL, [target.data bytes], [target.data length], NULL);
+    CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
+    int framebufferWidth = renderControl->sceneRenderer->framebufferWidth;
+    int framebufferHeight = renderControl->sceneRenderer->framebufferHeight;
+    CGImageRef iref = CGImageCreate(framebufferWidth, framebufferHeight, 8, 32, framebufferWidth * 4, colorspace, kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast,
+                                    ref, NULL, true, kCGRenderingIntentDefault);
+    
+    // OpenGL ES measures data in PIXELS
+    // Create a graphics context with the target size measured in POINTS
+    NSInteger widthInPoints, heightInPoints;
+    {
+        // On iOS 4 and later, use UIGraphicsBeginImageContextWithOptions to take the scale into consideration
+        // Set the scale parameter to your OpenGL ES view's contentScaleFactor
+        // so that you get a high-resolution snapshot when its value is greater than 1.0
+        CGFloat scale = DeviceScreenScale();
+        widthInPoints = framebufferWidth / scale;
+        heightInPoints = framebufferHeight / scale;
+        UIGraphicsBeginImageContextWithOptions(CGSizeMake(widthInPoints, heightInPoints), NO, scale);
+    }
+    
+    CGContextRef cgcontext = UIGraphicsGetCurrentContext();
+    
+    // UIKit coordinate system is upside down to GL/Quartz coordinate system
+    // Flip the CGImage by rendering it to the flipped bitmap context
+    // The size of the destination area is measured in POINTS
+    CGContextSetBlendMode(cgcontext, kCGBlendModeCopy);
+    CGContextDrawImage(cgcontext, CGRectMake(0.0, 0.0, widthInPoints, heightInPoints), iref);
+    
+    // Retrieve the UIImage from the current context
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    
+    UIGraphicsEndImageContext();
+    
+    // Clean up
+    CFRelease(ref);
+    CFRelease(colorspace);
+    CGImageRelease(iref);
 
-    return target.image;
+    return image;
 }
 
 - (NSData *)shapshotRenderTarget:(MaplyRenderTarget *)renderTarget
@@ -1661,6 +1703,28 @@ static const float PerfOutputDelay = 15.0;
     sceneRenderGLES->render(0.0);
     sceneRenderGLES->removeSnapshotDelegate(target);
 
+    return target.data;
+}
+
+- (NSData *)shapshotRenderTarget:(MaplyRenderTarget *)renderTarget rect:(CGRect)rect
+{
+    if ([NSThread currentThread] != [NSThread mainThread])
+        return NULL;
+    
+    SceneRendererGLES_iOSRef sceneRenderGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(renderControl->sceneRenderer);
+    if (!sceneRenderGLES)
+        return nil;
+
+    SnapshotTarget *target = [[SnapshotTarget alloc] init];
+    target.renderTargetID = renderTarget.renderTargetID;
+    target.subsetRect = rect;
+    sceneRenderGLES->addSnapshotDelegate(target);
+    
+    sceneRenderGLES->forceDrawNextFrame();
+    sceneRenderGLES->render(0.0);
+    
+    sceneRenderGLES->removeSnapshotDelegate(target);
+    
     return target.data;
 }
 

@@ -139,6 +139,9 @@
 /// Reset the counters for one variant of stat
 - (void)resetStats;
 
+/// Reset just the active counters
+- (void)resetActiveStats;
+
 // If set, you get way too much debugging output
 @property (nonatomic,assign) bool debugMode;
 
@@ -172,6 +175,12 @@
 
 // Total time spent waiting for successful remote data requests
 @property (nonatomic) NSTimeInterval totalLatency;
+
+// The maximum number of requests we've had at once (since the last reset)
+@property (nonatomic) int maxActiveRequests;
+
+// Current number of active requests
+@property (nonatomic) int activeRequests;
 
 // Add the given stats to ours
 - (void)addStats:(MaplyRemoteTileFetcherStats * __nonnull)stats;
