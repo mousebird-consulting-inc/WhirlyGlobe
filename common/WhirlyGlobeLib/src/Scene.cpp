@@ -331,7 +331,7 @@ bool Scene::hasChanges(TimeInterval now)
             return true;
         }
     
-    return changes && activeModelsUpdates;
+    return changes || activeModelsUpdates;
 }
 
 // Add a single sub texture map

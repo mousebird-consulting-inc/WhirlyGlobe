@@ -80,7 +80,9 @@ bool SceneRendererGLES::setup(int apiVersion,int sizeX,int sizeY)
     
     // Off by default.  Because duh.
     depthBufferOffForAlpha = false;
-
+    
+    extraFrameMode = false;
+    
     framebufferWidth = sizeX;
     framebufferHeight = sizeY;
     
@@ -211,7 +213,13 @@ public:
 void SceneRendererGLES::setExtraFrameMode(bool newMode)
 {
     extraFrameMode = newMode;
-    extraFrameDrawn = false;
+    if (extraFrameMode)
+        extraFrameCount = 2;
+}
+    
+bool SceneRendererGLES::hasChanges()
+{
+    return SceneRenderer::hasChanges();
 }
 
 void SceneRendererGLES::render(TimeInterval duration)
@@ -220,29 +228,11 @@ void SceneRendererGLES::render(TimeInterval duration)
         return;
     
     frameCount++;
-    
-    if (framebufferWidth <= 0 || framebufferHeight <= 0)
-    {
-        // Process the scene even if the window isn't up
-        processScene();
-        return;
-    }
-    
+        
     theView->animate();
     
     TimeInterval now = TimeGetCurrent();
-    
-    // Decide if we even need to draw
-    if (!hasChanges())
-    {
-        if (!extraFrameMode)
-            return;
-        if (extraFrameDrawn)
-            return;
-        extraFrameDrawn = true;
-    } else
-        extraFrameDrawn = false;
-    
+
     lastDraw = now;
     
     if (perfInterval > 0)

@@ -70,7 +70,10 @@ public:
     
     /// Resize framebuffer because something changed
     virtual bool resize(int sizeX,int sizeY);
-            
+
+    /// Return true if we have changes to process or display
+    virtual bool hasChanges();
+
     /// If set, we'll draw one more frame than needed after updates stop
     virtual void setExtraFrameMode(bool newMode);
     
@@ -113,7 +116,7 @@ public:
     
     // If set we draw one extra frame after updates stop
     bool extraFrameMode;
-    bool extraFrameDrawn;
+    int extraFrameCount;
 };
     
 typedef std::shared_ptr<SceneRendererGLES> SceneRendererGLESRef;

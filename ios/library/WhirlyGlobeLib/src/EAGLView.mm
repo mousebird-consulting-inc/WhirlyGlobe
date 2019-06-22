@@ -157,7 +157,12 @@ using namespace WhirlyKit;
     sceneRender->useContext();
 
     if (_animating) {
-        sceneRender->render(displayLink.frameInterval * 1/60.0);
+        if (sceneRender->hasChanges())
+            sceneRender->render(displayLink.frameInterval * 1/60.0);
+        else {
+            // Process the scene even if the window isn't up
+            sceneRender->processScene();
+        }
     } else
         sceneRender->processScene();
     

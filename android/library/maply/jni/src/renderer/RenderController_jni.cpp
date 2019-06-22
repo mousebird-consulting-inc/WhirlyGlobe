@@ -113,6 +113,7 @@ void Java_com_mousebird_maply_RenderController_initialise__
 		SceneRendererGLES_Android *renderer = new SceneRendererGLES_Android();
 		renderer->setZBufferMode(zBufferOffDefault);
 		renderer->setClearColor(RGBAColor(0,0,0,0));
+		renderer->setExtraFrameMode(true);
         SceneRendererInfo::getClassInfo()->setHandle(env,obj,renderer);
 	}
 	catch (...)
@@ -350,8 +351,18 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_render
 		if (!renderer)
 			return;
 
+		bool changes = renderer->hasChanges();
+
 		/// TODO: Make sure this is actually what we're using
 		renderer->render(1/60.0);
+
+		// Count down the extra frames if we need them
+		if (renderer->extraFrameMode) {
+		    if (changes)
+		        renderer->extraFrameCount = 1;
+            else
+                renderer->extraFrameCount--;
+		}
 	}
 	catch (...)
 	{
@@ -368,14 +379,18 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_RenderController_hasChanges
 		if (!renderer)
 			return false;
 
-		if (!renderer->hasChanges()) {
-            if (!renderer->extraFrameMode)
-                return false;
-            if (!renderer->extraFrameDrawn)
-                return true;
-            return false;
-		} else
-		    return true;
+		bool changes = renderer->hasChanges();
+        if (renderer->extraFrameMode) {
+            // If there were changes, we need two extra frames after things settle
+            if (changes) {
+                renderer->extraFrameCount = 4;
+            } else {
+                // No changes, make sure we don't have extra frames to draw
+                changes = renderer->extraFrameCount > 0;;
+            }
+        }
+
+        return changes;
 	}
 	catch (...)
 	{
