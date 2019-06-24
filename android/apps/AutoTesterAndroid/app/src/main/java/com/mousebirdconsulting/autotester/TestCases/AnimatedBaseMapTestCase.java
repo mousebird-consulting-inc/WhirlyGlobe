@@ -23,15 +23,14 @@ package com.mousebirdconsulting.autotester.TestCases;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Handler;
 
 import com.mousebird.maply.*;
 import com.mousebirdconsulting.autotester.ConfigOptions;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 import com.mousebirdconsulting.autotester.R;
-import com.mousebirdconsulting.autotester.WeatherShader;
 
 import java.io.File;
-
 
 public class AnimatedBaseMapTestCase extends MaplyTestCase {
 
@@ -78,6 +77,16 @@ public class AnimatedBaseMapTestCase extends MaplyTestCase {
 		loader.setShader(shader);
 		animator = new QuadImageFrameAnimator(loader,vc);
 		animator.period = 6.0;
+
+		// Test shutting things down
+//		final Handler handler = new Handler();
+//		handler.postDelayed(new Runnable() {
+//			@Override
+//			public void run() {
+//				animator.shutdown();
+//				loader.shutdown();
+//			}
+//		}, 10000);
 	}
 
 	CartoLightTestCase baseCase = null;

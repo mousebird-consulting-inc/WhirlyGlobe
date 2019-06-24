@@ -222,6 +222,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_cleanupNative
             loader->get()->getController()->getScene()->removeActiveModel(*loader);
         }
 
+        (*loader)->setEnv(env);
         (*loader)->cleanup(*changes);
     }
     catch (...)

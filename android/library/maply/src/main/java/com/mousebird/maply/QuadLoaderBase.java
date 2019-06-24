@@ -21,6 +21,8 @@
 package com.mousebird.maply;
 
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Looper;
 
 import java.lang.ref.WeakReference;
 import java.util.HashSet;
@@ -175,19 +177,36 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
     {
         tileFetcher = null;
         loadInterp = null;
+        if (samplingLayer.get() == null || control.get() == null)
+            return;
 
         samplingLayer.get().removeClient(this);
+        final QuadLoaderBase loaderBase = this;
 
-        ChangeSet changes = new ChangeSet();
-        cleanupNative(changes);
+        // Do all the shutdown on the layer thread
+        samplingLayer.get().layerThread.addTask(new Runnable() {
+            @Override
+            public void run() {
+                // Clean things up
+                ChangeSet changes = new ChangeSet();
+                cleanupNative(changes);
 
-        if (control.get() != null && control.get().renderControl != null)
-            control.get().renderControl.scene.addChanges(changes);
+                samplingLayer.get().layerThread.addChanges(changes);
 
-        control.get().releaseSamplingLayer(samplingLayer.get(),this);
+                // Back to the main thread for the sampling layer stuff
+                Handler handler = new Handler(Looper.getMainLooper());
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (control.get() != null)
+                            control.get().releaseSamplingLayer(samplingLayer.get(),loaderBase);
 
-        samplingLayer.clear();
-        control.clear();
+                        samplingLayer.clear();
+                        control.clear();
+                    }
+                });
+            }
+        });
     }
 
     protected native void cleanupNative(ChangeSet changes);
@@ -255,6 +274,9 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
             fetchRequest.callback = new TileFetchRequest.Callback() {
                 @Override
                 public void success(TileFetchRequest fetchRequest, byte[] data) {
+                    if (loadInterp == null)
+                        return;
+
                     // Build a loader return object, fill in the data and then parse it
                     final LoaderReturn loadReturn = makeLoaderReturn();
                     loadReturn.setTileID(tileX, tileY, tileLevel);

@@ -57,6 +57,9 @@ class QIFBatchOps
      */
     void process(TileFetcher fetcher)
     {
+        if (fetcher == null)
+            return;
+
         if (!toCancel.isEmpty()) {
             fetcher.cancelTileFetches(toCancel.toArray(new TileFetchRequest[0]));
             toCancel = null;
