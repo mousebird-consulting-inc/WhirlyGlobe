@@ -92,6 +92,7 @@ public interface RenderControllerInterface
     public MaplyTexture addTexture(final Texture rawTex,final TextureSettings settings,ThreadMode mode);
     public MaplyTexture createTexture(final int width,final int height,final TextureSettings settings,ThreadMode mode);
     public void removeTextures(final List<MaplyTexture> texs,ThreadMode mode);
+    public void removeTexture(final MaplyTexture tex,ThreadMode mode);
     public void removeTexturesByID(final List<Long> texIDs,ThreadMode mode);
 
     public void addRenderTarget(RenderTarget renderTarget);
@@ -101,6 +102,7 @@ public interface RenderControllerInterface
     public void disableObjects(final List<ComponentObject> compObjs,ThreadMode mode);
     public void enableObjects(final List<ComponentObject> compObjs,ThreadMode mode);
     public void removeObjects(final List<ComponentObject> compObjs,ThreadMode mode);
+    public void removeObject(final ComponentObject compObj,ThreadMode mode);
 
     // TODO: StartChanges/EndChanges interface
 

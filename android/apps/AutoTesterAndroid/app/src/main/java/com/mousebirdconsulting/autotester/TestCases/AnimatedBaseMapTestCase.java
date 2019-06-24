@@ -43,6 +43,7 @@ public class AnimatedBaseMapTestCase extends MaplyTestCase {
 	QuadImageFrameLoader loader = null;
 	QuadImageFrameAnimator animator = null;
 	Shader shader = null;
+	VariableTarget varTarget = null;
 
 	private void setupImageLoader(BaseController vc, ConfigOptions.TestType testType) throws Exception {
 		// Five frames, cached locally
@@ -66,6 +67,11 @@ public class AnimatedBaseMapTestCase extends MaplyTestCase {
 		params.setMinZoom(0);
 		params.setMaxZoom(6);
 
+		// Use two pass rendering to sort out priorities
+		varTarget = new VariableTarget(vc);
+		varTarget.scale = 0.5;
+		varTarget.drawPriority = QuadImageLoaderBase.BaseDrawPriorityDefault+2000;
+
 		// Ramp shader turns these into colors
 		shader = vc.getShader(Shader.DefaultTriMultiTexRampShader);
 		Bitmap colorRamp = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.colorramp);
@@ -75,6 +81,7 @@ public class AnimatedBaseMapTestCase extends MaplyTestCase {
 		loader = new QuadImageFrameLoader(params,sources,vc);
 		loader.setBaseDrawPriority(QuadImageLoaderBase.BaseDrawPriorityDefault+1000);
 		loader.setShader(shader);
+		loader.setRenderTarget(varTarget.renderTarget);
 		animator = new QuadImageFrameAnimator(loader,vc);
 		animator.period = 6.0;
 

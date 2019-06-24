@@ -1469,6 +1469,14 @@ public class RenderController implements RenderControllerInterface
         taskMan.addTask(run, mode);
     }
 
+    public void removeTexture(final MaplyTexture tex,ThreadMode mode)
+    {
+        ArrayList<MaplyTexture> texs = new ArrayList<MaplyTexture>();
+        texs.add(tex);
+
+        removeTextures(texs,mode);
+    }
+
     /**
      * This version of removeTexture takes texture IDs.  Thus you don't
      * have to keep the MaplyTexture around.
@@ -1604,7 +1612,7 @@ public class RenderController implements RenderControllerInterface
      * from Maply.  The component objects were returned from the various add calls.
      *
      * @param compObjs Component Objects to remove.
-     * @param mode Where to execute the add.  Choose ThreadAny by default.
+     * @param mode Where to execute the remove.  Choose ThreadAny by default.
      */
     public void removeObjects(final List<ComponentObject> compObjs,ThreadMode mode)
     {
@@ -1627,6 +1635,20 @@ public class RenderController implements RenderControllerInterface
         };
 
         taskMan.addTask(run, mode);
+    }
+
+    /**
+     * Remove a simple object from the display.
+     *
+     * @param compObj Component Object to remove.
+     * @param mode Where to execute the remove.  Choose ThreadAny by default.
+     */
+    public void removeObject(final ComponentObject compObj,ThreadMode mode)
+    {
+        List<ComponentObject> compObjs = new ArrayList<ComponentObject>();
+        compObjs.add(compObj);
+
+        removeObjects(compObjs,mode);
     }
 
     // TODO: StartChanges/EndChanges interface ??
