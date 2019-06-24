@@ -21,8 +21,6 @@
 package com.mousebird.maply;
 
 import android.os.AsyncTask;
-import android.os.Handler;
-import android.support.v4.content.Loader;
 
 import java.lang.ref.WeakReference;
 import java.util.HashSet;
