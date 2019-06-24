@@ -45,60 +45,6 @@ public class AnimatedBaseMapTestCase extends MaplyTestCase {
 	QuadImageFrameAnimator animator = null;
 	Shader shader = null;
 
-	static String vertexShaderTriMultiTex =
-		"    precision highp float;\n" +
-		"\n" +
-		"    uniform mat4  u_mvpMatrix;\n" +
-		"    uniform float u_fade;\n" +
-		"    attribute vec3 a_position;\n" +
-		"    attribute vec2 a_texCoord0;\n" +
-		"    attribute vec4 a_color;\n" +
-		"    attribute vec3 a_normal;\n" +
-		"\n" +
-		"    uniform vec2 u_texOffset0;\n" +
-		"    uniform vec2 u_texScale0;\n" +
-		"    uniform vec2 u_texOffset1;\n" +
-		"    uniform vec2 u_texScale1;\n" +
-		"\n" +
-		"    varying vec2 v_texCoord0;\n" +
-		"    varying vec2 v_texCoord1;\n" +
-		"    varying vec4 v_color;\n" +
-		"\n" +
-		"    void main()\n" +
-		"    {\n" +
-		"        if (u_texScale0.x != 0.0)\n" +
-		"            v_texCoord0 = vec2(a_texCoord0.x*u_texScale0.x,a_texCoord0.y*u_texScale0.y) + u_texOffset0;\n" +
-		"        else\n" +
-		"            v_texCoord0 = a_texCoord0;\n" +
-		"        if (u_texScale1.x != 0.0)\n" +
-		"            v_texCoord1 = vec2(a_texCoord0.x*u_texScale1.x,a_texCoord0.y*u_texScale1.y) + u_texOffset1;\n" +
-		"        else\n" +
-		"            v_texCoord1 = a_texCoord0;\n" +
-		"       v_color = a_color * u_fade;\n" +
-		"    \n" +
-		"       gl_Position = u_mvpMatrix * vec4(a_position,1.0);\n" +
-		"    }\n";
-
-	static String fragmentShaderTriMultiTex =
-		"    precision highp float;\n" +
-		"\n" +
-		"    uniform sampler2D s_baseMap0;\n" +
-		"    uniform sampler2D s_baseMap1;\n" +
-		"    uniform sampler2D s_colorRamp;\n" +
-		"    uniform float u_interp;\n" +
-		"\n" +
-		"    varying vec2      v_texCoord0;\n" +
-		"    varying vec2      v_texCoord1;\n" +
-		"    varying vec4      v_color;\n" +
-		"\n" +
-		"    void main()\n" +
-		"    {\n" +
-		"      float baseVal0 = texture2D(s_baseMap0, v_texCoord0).r;\n" +
-		"      float baseVal1 = texture2D(s_baseMap1, v_texCoord1).r;\n" +
-		"      float index = mix(baseVal0,baseVal1,u_interp);\n" +
-		"      gl_FragColor = texture2D(s_colorRamp,vec2(index,0.5));\n" +
-		"    }\n";
-
 	private void setupImageLoader(BaseController vc, ConfigOptions.TestType testType) throws Exception {
 		// Five frames, cached locally
 		String cacheDirName = "forecastio";
@@ -121,9 +67,8 @@ public class AnimatedBaseMapTestCase extends MaplyTestCase {
 		params.setMinZoom(0);
 		params.setMaxZoom(6);
 
-		// Custom shader to turn these into colors
-		shader = new Shader("Weather Shader", vertexShaderTriMultiTex, fragmentShaderTriMultiTex, vc);
-		vc.addShaderProgram(shader);
+		// Ramp shader turns these into colors
+		shader = vc.getShader(Shader.DefaultTriMultiTexRampShader);
 		Bitmap colorRamp = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.colorramp);
 		MaplyTexture tex = vc.addTexture(colorRamp,null, RenderControllerInterface.ThreadMode.ThreadCurrent);
 		shader.addTexture("s_colorRamp", tex);

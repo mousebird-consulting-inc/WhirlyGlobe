@@ -14,6 +14,7 @@ import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -1655,6 +1656,7 @@ public class RenderController implements RenderControllerInterface
         synchronized (shaders) {
             shaders.add(shader);
         }
+        shader.control = new WeakReference<RenderControllerInterface>(this);
     }
 
     /**
@@ -1666,7 +1668,8 @@ public class RenderController implements RenderControllerInterface
     {
         synchronized (shaders) {
             for (Shader shader : shaders) {
-                if (shader.getName() == name)
+                String shaderName = shader.getName();
+                if (shaderName.equals(name))
                     return shader;
             }
         }

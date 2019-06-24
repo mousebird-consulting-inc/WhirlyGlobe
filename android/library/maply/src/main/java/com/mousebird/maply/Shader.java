@@ -39,6 +39,24 @@ public class Shader
 {
 	WeakReference<RenderControllerInterface> control;
 
+	// Shaders can be looked up by name
+	public static final String DefaultTriangleShader = "Default Triangle;lighting=yes";
+	public static final String NoLightTriangleShader = "Default Triangle;lighting=no";
+	public static final String DefaultLineShader = "Default Line;backface=yes";
+	public static final String NoBackfaceLineShader = "Default Line;backface=no";
+	public static final String DefaultModelTriShader = "Default Triangle;model=yes;lighting=yes";
+	public static final String DefaultTriScreenTexShader = "Default Triangle;screentex=yes;lighting=yes";
+	public static final String DefaultTriMultiTexShader = "Default Triangle;multitex=yes;lighting=yes";
+	public static final String DefaultTriMultiTexRampShader = "Default Triangle;multitex=yes;lighting=yes;ramp=yes";
+	public static final String DefaultMarkerShader = "Default marker;multitex=yes;lighting=yes";
+	public static final String DefaultTriNightDayShader = "Default Triangle;nightday=yes;multitex=yes;lighting=yes";
+	public static final String BillboardGroundShader = "Default Billboard ground";
+	public static final String BillboardEyeShader = "Default Billboard eye";
+	public static final String DefaultWideVectorShader = "Default Wide Vector";
+	public static final String DefaultWideVectorGlobeShader = "Default Wide Vector Globe";
+	public static final String DefaultScreenSpaceMotionShader = "Default Screenspace Motion";
+	public static final String DefaultScreenSpaceShader = "Default Screenspace";
+
 	// Types used to describe the shader attributes
 	enum AttributeType {
 		Int,

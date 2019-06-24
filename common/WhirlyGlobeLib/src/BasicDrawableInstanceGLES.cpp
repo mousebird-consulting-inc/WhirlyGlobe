@@ -211,110 +211,13 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfo *inFrameInfo,Scene *inSce
     // The old style where we reuse the basic drawable
     if (instanceStyle == ReuseStyle)
     {
-        int oldDrawPriority = basicDraw->getDrawPriority();
-        RGBAColor oldColor = basicDrawGL->color;
-        float oldLineWidth = basicDrawGL->lineWidth;
-        float oldMinVis = basicDrawGL->minVisible,oldMaxVis = basicDrawGL->maxVisible;
-        auto oldUniforms = basicDrawGL->uniforms;
-        std::vector<BasicDrawable::TexInfo> oldTexInfo = basicDraw->getTexInfo();
-        
-        // Change the drawable
-        if (hasDrawPriority)
-            basicDraw->setDrawPriority(drawPriority);
-        if (hasColor)
-            basicDrawGL->color = color;
-        if (hasLineWidth)
-            basicDraw->setLineWidth(lineWidth);
-        if (!uniforms.empty()) {
-            basicDraw->setUniforms(uniforms);
-        }
-        if (!texInfo.empty())
-        {
-            if (basicDraw->texInfo.size() < texInfo.size()) {
-                wkLogLevel(Error,"BasicDrawableInstanceGLES: Tried to set missing texture entry");
-//                basicDrawGL->setupTexCoordEntry(texInfo.size()-1, 0);
-            }
-            // Override the texture with different ID and relative coords
-            if (texInfo.size() == basicDraw->texInfo.size()) {
-                for (int ii=0;ii<basicDraw->texInfo.size();ii++)
-                {
-                    auto &newEntry = texInfo[ii];
-                    auto &entry = basicDraw->texInfo[ii];
-                    entry.texId = newEntry.texId;
-                    entry.size = newEntry.size;
-                    entry.borderTexel = newEntry.borderTexel;
-                    entry.relX = newEntry.relX;
-                    entry.relY = newEntry.relY;
-                    entry.relLevel = newEntry.relLevel;
-                }
-            }
-        }
-        basicDraw->setVisibleRange(minVis, maxVis);
-        
-        Matrix4f oldMvpMat = frameInfo->mvpMat;
-        Matrix4f oldMvMat = frameInfo->viewAndModelMat;
-        Matrix4f oldMvNormalMat = frameInfo->viewModelNormalMat;
-        
-        // No matrices, so just one instance
-        if (instances.empty())
-            basicDraw->draw(frameInfo,scene);
-        else {
-            // Run through the list of instances
-            for (unsigned int ii=0;ii<instances.size();ii++)
-            {
-                // Change color
-                const SingleInstance &singleInst = instances[ii];
-                if (singleInst.colorOverride)
-                    basicDrawGL->color = singleInst.color;
-                else {
-                    if (hasColor)
-                        basicDrawGL->color = color;
-                    else
-                        basicDrawGL->color = oldColor;
-                }
-                
-                // Note: Ignoring offsets, so won't work reliably in 2D
-                Eigen::Matrix4d newMvpMat = frameInfo->projMat4d * frameInfo->viewTrans4d * frameInfo->modelTrans4d * singleInst.mat;
-                Eigen::Matrix4d newMvMat = frameInfo->viewTrans4d * frameInfo->modelTrans4d * singleInst.mat;
-                Eigen::Matrix4d newMvNormalMat = newMvMat.inverse().transpose();
-                
-                // Inefficient, but effective
-                Matrix4f mvpMat4f = Matrix4dToMatrix4f(newMvpMat);
-                Matrix4f mvMat4f = Matrix4dToMatrix4f(newMvpMat);
-                Matrix4f mvNormalMat4f = Matrix4dToMatrix4f(newMvNormalMat);
-                frameInfo->mvpMat = mvpMat4f;
-                frameInfo->viewAndModelMat = mvMat4f;
-                frameInfo->viewModelNormalMat = mvNormalMat4f;
-                
-                basicDraw->draw(frameInfo,scene);
-            }
-        }
-        
-        // Set it back
-        frameInfo->mvpMat = oldMvpMat;
-        frameInfo->viewAndModelMat = oldMvMat;
-        frameInfo->viewModelNormalMat = oldMvNormalMat;
-        
-        if (hasDrawPriority)
-            basicDraw->setDrawPriority(oldDrawPriority);
-        if (hasColor)
-            basicDraw->color = oldColor;
-        if (hasLineWidth)
-            basicDraw->setLineWidth(oldLineWidth);
-        if (!texInfo.empty())
-            basicDraw->texInfo = oldTexInfo;
-        if (!uniforms.empty())
-            basicDraw->setUniforms(oldUniforms);
-        basicDraw->setVisibleRange(oldMinVis, oldMaxVis);
-        
-    } else {
         // New style makes use of OpenGL instancing and makes its own copy of the geometry
         ProgramGLES *prog = (ProgramGLES *)frameInfo->program;
-        
+
         // Figure out if we're fading in or out
         float fade = 1.0;
         // Note: Time based fade isn't represented in the instance.  Probably should be.
-        
+
         // Deal with the range based fade
         if (frameInfo->heightAboveSurface > 0.0)
         {
@@ -331,14 +234,14 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfo *inFrameInfo,Scene *inSce
                 if (b >= 0.0 && b < 1.0)
                     factor = b;
             }
-            
+
             fade = fade * factor;
         }
-        
+
         // Time for motion
         if (moving)
             ((ProgramGLES *)frameInfo->program)->setUniform(u_TimeNameID, (float)(frameInfo->currentTime - startTime));
-        
+
         // GL Texture IDs
         bool anyTextures = false;
         std::vector<GLuint> glTexIDs;
@@ -360,7 +263,7 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfo *inFrameInfo,Scene *inSce
             for (int ii=0;ii<texInfo.size();ii++)
             {
                 SimpleIdentity texID = texInfo[ii].texId;
-                
+
                 GLuint glTexID = EmptyIdentity;
                 if (texID != EmptyIdentity)
                 {
@@ -374,10 +277,10 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfo *inFrameInfo,Scene *inSce
                 }
             }
         }
-        
+
         if (!anyTextures)
             wkLogLevel(Error,"BasicDrawableInstance: Drawable without textures");
-        
+
         // Model/View/Projection matrix
         if (basicDraw->clipCoords)
         {
@@ -394,26 +297,26 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfo *inFrameInfo,Scene *inSce
             prog->setUniform(mvpNormalMatrixNameID, frameInfo->mvpNormalMat);
             prog->setUniform(u_pMatrixNameID, frameInfo->projMat);
         }
-        
+
         // Any uniforms we may want to apply to the shader
         for (auto const &attr : uniforms)
             prog->setUniform(attr);
-        
+
         // Fade is always mixed in
         prog->setUniform(u_FadeNameID, fade);
-        
+
         // Let the shaders know if we even have a texture
         prog->setUniform(u_HasTextureNameID, anyTextures);
-        
+
         // If this is present, the drawable wants to do something based where the viewer is looking
         prog->setUniform(u_EyeVecNameID, frameInfo->fullEyeVec);
-        
+
         // The program itself may have some textures to bind
         bool hasTexture[WhirlyKitMaxTextures];
         int progTexBound = prog->bindTextures();
         for (unsigned int ii=0;ii<progTexBound;ii++)
             hasTexture[ii] = true;
-        
+
         // Zero or more textures in the drawable
         for (unsigned int ii=0;ii<WhirlyKitMaxTextures-progTexBound;ii++)
         {
@@ -432,7 +335,7 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfo *inFrameInfo,Scene *inSce
                 prog->setUniform(baseMapNameID, (int)ii+progTexBound);
                 CheckGLError("BasicDrawableInstance::drawVBO2() glUniform1i");
                 prog->setUniform(hasBaseMapNameID, 1);
-                
+
                 float texScale = 1.0;
                 Vector2f texOffset(0.0,0.0);
                 // Adjust for border pixels
@@ -456,14 +359,14 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfo *inFrameInfo,Scene *inSce
                 prog->setUniform(hasBaseMapNameID, 0);
             }
         }
-        
+
         // If necessary, set up the VAO (once)
         if (vertArrayObj == 0 && basicDrawGL->sharedBuffer !=0)
             setupVAO(frameInfo);
-        
+
         // Figure out what we're using
         const OpenGLESAttribute *vertAttr = prog->findAttribute(a_PositionNameID);
-        
+
         // Vertex array
         bool usedLocalVertices = false;
         if (vertAttr && !(basicDrawGL->sharedBuffer || basicDrawGL->pointBuffer))
@@ -474,7 +377,7 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfo *inFrameInfo,Scene *inSce
             glEnableVertexAttribArray ( vertAttr->index );
             CheckGLError("BasicDrawable::drawVBO2() glEnableVertexAttribArray");
         }
-        
+
         // Other vertex attributes
         std::vector<const OpenGLESAttribute *> progAttrs;
         if (!vertArrayObj) {
@@ -496,7 +399,7 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfo *inFrameInfo,Scene *inSce
                             CheckGLError("BasicDrawable::drawVBO2() glVertexAttribPointer");
                             glEnableVertexAttribArray ( progAttr->index );
                             CheckGLError("BasicDrawable::drawVBO2() glEnableVertexAttribArray");
-                            
+
                             progAttrs[ii] = progAttr;
                         }
                     }
@@ -511,14 +414,14 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfo *inFrameInfo,Scene *inSce
                 CheckGLError("BasicDrawable::drawVBO2() glSetDefault");
             }
         }
-        
+
         // Note: Something of a hack
         if (hasColor) {
             const OpenGLESAttribute *colorAttr = prog->findAttribute(a_colorNameID);
             if (colorAttr)
                 glVertexAttrib4f(colorAttr->index, color.r / 255.0, color.g / 255.0, color.b / 255.0, color.a / 255.0);
         }
-        
+
         // If there are no instances, fill in the identity
         if (!instBuffer)
         {
@@ -539,12 +442,12 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfo *inFrameInfo,Scene *inSce
             if (dirAttr)
                 glVertexAttrib3f(dirAttr->index, 0.0, 0.0, 0.0);
         }
-        
+
         // If we're using a vertex array object, bind it and draw
         if (vertArrayObj)
         {
             glBindVertexArray(vertArrayObj);
-            
+
             switch (basicDraw->type)
             {
                 case Triangles:
@@ -581,7 +484,7 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfo *inFrameInfo,Scene *inSce
 //                    CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
 //                    break;
             }
-            
+
             glBindVertexArray(0);
         } else {
             // Draw without a VAO
@@ -638,7 +541,7 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfo *inFrameInfo,Scene *inSce
 //                    break;
             }
         }
-        
+
         // Unbind any textures
         for (unsigned int ii=0;ii<WhirlyKitMaxTextures;ii++)
             if (hasTexture[ii])
@@ -646,14 +549,14 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfo *inFrameInfo,Scene *inSce
                 glActiveTexture(GL_TEXTURE0+ii);
                 glBindTexture(GL_TEXTURE_2D, 0);
             }
-        
+
         // Tear down the various arrays, if we stood them up
         if (usedLocalVertices)
             glDisableVertexAttribArray(vertAttr->index);
         for (unsigned int ii=0;ii<progAttrs.size();ii++)
             if (progAttrs[ii])
                 glDisableVertexAttribArray(progAttrs[ii]->index);
-        
+
         if (instBuffer)
         {
             const OpenGLESAttribute *centerAttr = prog->findAttribute(a_modelCenterNameID);
@@ -682,6 +585,102 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfo *inFrameInfo,Scene *inSce
                 CheckGLError("BasicDrawableInstance::draw() glDisableVertexAttribArray");
             }
         }
+    } else {
+        int oldDrawPriority = basicDraw->getDrawPriority();
+        RGBAColor oldColor = basicDrawGL->color;
+        float oldLineWidth = basicDrawGL->lineWidth;
+        float oldMinVis = basicDrawGL->minVisible,oldMaxVis = basicDrawGL->maxVisible;
+        auto oldUniforms = basicDrawGL->uniforms;
+        std::vector<BasicDrawable::TexInfo> oldTexInfo = basicDraw->getTexInfo();
+
+        // Change the drawable
+        if (hasDrawPriority)
+            basicDraw->setDrawPriority(drawPriority);
+        if (hasColor)
+            basicDrawGL->color = color;
+        if (hasLineWidth)
+            basicDraw->setLineWidth(lineWidth);
+        if (!uniforms.empty()) {
+            basicDraw->setUniforms(uniforms);
+        }
+        if (!texInfo.empty())
+        {
+            if (basicDraw->texInfo.size() < texInfo.size()) {
+                wkLogLevel(Error,"BasicDrawableInstanceGLES: Tried to set missing texture entry");
+//                basicDrawGL->setupTexCoordEntry(texInfo.size()-1, 0);
+            }
+            // Override the texture with different ID and relative coords
+            if (texInfo.size() == basicDraw->texInfo.size()) {
+                for (int ii=0;ii<basicDraw->texInfo.size();ii++)
+                {
+                    auto &newEntry = texInfo[ii];
+                    auto &entry = basicDraw->texInfo[ii];
+                    entry.texId = newEntry.texId;
+                    entry.size = newEntry.size;
+                    entry.borderTexel = newEntry.borderTexel;
+                    entry.relX = newEntry.relX;
+                    entry.relY = newEntry.relY;
+                    entry.relLevel = newEntry.relLevel;
+                }
+            }
+        }
+        basicDraw->setVisibleRange(minVis, maxVis);
+
+        Matrix4f oldMvpMat = frameInfo->mvpMat;
+        Matrix4f oldMvMat = frameInfo->viewAndModelMat;
+        Matrix4f oldMvNormalMat = frameInfo->viewModelNormalMat;
+
+        // No matrices, so just one instance
+        if (instances.empty())
+            basicDraw->draw(frameInfo,scene);
+        else {
+            // Run through the list of instances
+            for (unsigned int ii=0;ii<instances.size();ii++)
+            {
+                // Change color
+                const SingleInstance &singleInst = instances[ii];
+                if (singleInst.colorOverride)
+                    basicDrawGL->color = singleInst.color;
+                else {
+                    if (hasColor)
+                        basicDrawGL->color = color;
+                    else
+                        basicDrawGL->color = oldColor;
+                }
+
+                // Note: Ignoring offsets, so won't work reliably in 2D
+                Eigen::Matrix4d newMvpMat = frameInfo->projMat4d * frameInfo->viewTrans4d * frameInfo->modelTrans4d * singleInst.mat;
+                Eigen::Matrix4d newMvMat = frameInfo->viewTrans4d * frameInfo->modelTrans4d * singleInst.mat;
+                Eigen::Matrix4d newMvNormalMat = newMvMat.inverse().transpose();
+
+                // Inefficient, but effective
+                Matrix4f mvpMat4f = Matrix4dToMatrix4f(newMvpMat);
+                Matrix4f mvMat4f = Matrix4dToMatrix4f(newMvpMat);
+                Matrix4f mvNormalMat4f = Matrix4dToMatrix4f(newMvNormalMat);
+                frameInfo->mvpMat = mvpMat4f;
+                frameInfo->viewAndModelMat = mvMat4f;
+                frameInfo->viewModelNormalMat = mvNormalMat4f;
+
+                basicDraw->draw(frameInfo,scene);
+            }
+        }
+
+        // Set it back
+        frameInfo->mvpMat = oldMvpMat;
+        frameInfo->viewAndModelMat = oldMvMat;
+        frameInfo->viewModelNormalMat = oldMvNormalMat;
+
+        if (hasDrawPriority)
+            basicDraw->setDrawPriority(oldDrawPriority);
+        if (hasColor)
+            basicDraw->color = oldColor;
+        if (hasLineWidth)
+            basicDraw->setLineWidth(oldLineWidth);
+        if (!texInfo.empty())
+            basicDraw->texInfo = oldTexInfo;
+        if (!uniforms.empty())
+            basicDraw->setUniforms(oldUniforms);
+        basicDraw->setVisibleRange(oldMinVis, oldMaxVis);
     }
 }
 

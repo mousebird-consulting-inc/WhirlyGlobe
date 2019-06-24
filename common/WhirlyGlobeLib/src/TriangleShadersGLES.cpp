@@ -480,13 +480,13 @@ varying vec4      v_color;
 
 void main()
 {
-  float baseVal0 = texture2D(s_baseMap0, v_texCoord0).a;
-  float baseVal1 = texture2D(s_baseMap1, v_texCoord1).a;
+  float baseVal0 = texture2D(s_baseMap0, v_texCoord0).r;
+  float baseVal1 = texture2D(s_baseMap1, v_texCoord1).r;
   float index = mix(baseVal0,baseVal1,u_interp);
-  gl_FragColor = v_color * texture2D(s_colorRamp,vec2(0.5,index));
+  gl_FragColor = v_color * texture2D(s_colorRamp,vec2(index,0.5));
 }
 )";
-    
+
 // Triangles that use the ramp textures
 ProgramGLES *BuildDefaultTriShaderRamptexGLES(const std::string &name,SceneRenderer *renderer)
 {
