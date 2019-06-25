@@ -300,8 +300,10 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
 
             @Override
             public void onResponse(Response response) throws IOException {
-                if (!valid)
+                if (!valid) {
+                    response.body().close();
                     return;
+                }
 
                 finishedLoading(tile,response,null);
             }
@@ -322,6 +324,12 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
                 if (tile == null) {
                     if (debugMode)
                         Log.d("RemoteTileFetcher","Dropping a tile request because it was cancelled: " + inTile.fetchInfo.urlReq);
+
+                    try {
+                        response.body().close();
+                    }
+                    catch (Exception fooE) {
+                    }
 
                     return;
                 }

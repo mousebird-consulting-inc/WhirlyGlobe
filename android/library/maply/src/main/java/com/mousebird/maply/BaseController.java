@@ -1078,7 +1078,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 * Either returns a RemoteTileFetcher with the given name or
 	 * it creates one and then returns the same.
 	 */
-	RemoteTileFetcher addTileFetcher(String name)
+	public RemoteTileFetcher addTileFetcher(String name)
 	{
 		for (RemoteTileFetcher tileFetcher : tileFetchers) {
 			if (tileFetcher.getFetcherName() == name)
