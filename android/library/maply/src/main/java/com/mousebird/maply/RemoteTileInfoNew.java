@@ -20,12 +20,12 @@
 
 package com.mousebird.maply;
 
-import com.squareup.okhttp.Headers;
-import com.squareup.okhttp.Request;
-
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
+
+import okhttp3.Headers;
+import okhttp3.Request;
 
 /**
  *  Remote Tile Info Object (New)
@@ -194,7 +194,7 @@ public class RemoteTileInfoNew extends TileInfoNew
     /**
      * Build an okHTTP request
      */
-    public Request buildRequest(URL url,Object OkHTTP_TAG)
+    public Request buildRequest(URL url, Object OkHTTP_TAG)
     {
         if (OkHTTP_TAG == null)
             return new Request.Builder().url(url).build();

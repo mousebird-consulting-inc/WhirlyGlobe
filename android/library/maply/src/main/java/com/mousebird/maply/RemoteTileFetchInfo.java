@@ -20,9 +20,9 @@
 
 package com.mousebird.maply;
 
-import com.squareup.okhttp.Request;
-
 import java.io.File;
+
+import okhttp3.Request;
 
 /**
  * Fetch Info for remote tile fetches.

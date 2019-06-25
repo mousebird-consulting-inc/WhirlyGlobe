@@ -21,8 +21,6 @@ allprojects {
 apply plugin: 'com.android.library'
 
 android {
-    signingConfigs {
-    }
     compileSdkVersion 28
     defaultConfig {
         minSdkVersion 19
@@ -62,11 +60,10 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'com.squareup.okhttp:okhttp:2.7.5'
-    implementation 'com.squareup.okio:okio:1.12.0'
     implementation 'org.apache.directory.studio:org.apache.commons.io:2.4'
     implementation 'androidx.appcompat:appcompat:1.0.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.1.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
+    implementation 'com.squareup.okhttp3:okhttp:3.14.2'
 }
