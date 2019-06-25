@@ -496,7 +496,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_SamplingParams_equalsNative
 	{
 		SamplingParamsClassInfo *classInfo = SamplingParamsClassInfo::getClassInfo();
 		SamplingParams *paramsA = classInfo->getObject(env,obj);
-		SamplingParams *paramsB = classInfo->getObject(env,obj);
+		SamplingParams *paramsB = classInfo->getObject(env,otherObj);
 		if (!paramsA || !paramsB)
 			return false;
 		return *paramsA == *paramsB;

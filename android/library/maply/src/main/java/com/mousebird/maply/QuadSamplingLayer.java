@@ -20,6 +20,8 @@
 
 package com.mousebird.maply;
 
+import android.util.Log;
+
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
@@ -105,6 +107,7 @@ class QuadSamplingLayer extends Layer implements LayerThread.ViewWatcherInterfac
     {
         ChangeSet changes = new ChangeSet();
         if (viewUpdatedNative(viewState,changes)) {
+            Log.v("Maply", "Need to schedule an update.");
             // TODO: Schedule a delayed update because the controller is sitting on some later changes
         }
         layerThread.addChanges(changes);
