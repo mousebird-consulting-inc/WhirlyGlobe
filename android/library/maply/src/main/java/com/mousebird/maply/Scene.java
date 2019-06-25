@@ -10,6 +10,11 @@ public class Scene
 {
 	// Used to render individual characters using Android's Canvas/Paint/Typeface
 	CharRenderer charRenderer = new CharRenderer();
+
+	// Necessary for the JNI side
+	private Scene()
+	{
+	}
 	
 	public Scene(CoordSystemDisplayAdapter coordAdapter,RenderController renderControl)
 	{

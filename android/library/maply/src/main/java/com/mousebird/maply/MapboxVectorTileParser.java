@@ -33,6 +33,8 @@ public class MapboxVectorTileParser
     VectorStyleInterface styleDelegate = null;
     WeakReference<RenderControllerInterface> viewC;
 
+    private MapboxVectorTileParser() { }
+
     MapboxVectorTileParser(VectorStyleInterface inStyleDelegate,RenderControllerInterface inViewC)
     {
         styleDelegate = inStyleDelegate;

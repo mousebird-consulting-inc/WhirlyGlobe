@@ -33,6 +33,8 @@ class QuadSamplingLayer extends Layer implements LayerThread.ViewWatcherInterfac
     WeakReference<BaseController> control;
     SamplingParams params;
 
+    protected QuadSamplingLayer() { }
+
     QuadSamplingLayer(BaseController inControl,SamplingParams inParams) {
         control = new WeakReference<BaseController>(inControl);
         params = inParams;
