@@ -46,7 +46,7 @@ class VectorMBTilesTestCase : MaplyTestCase {
     var interp: MapboxVectorInterpreter? = null
     var styleGen: VectorStyleSimpleGenerator? = null
 
-    fun setupLoader(control: BaseController, testType: ConfigOptions.TestType) {
+    fun setupLoader(control: BaseController) {
         val mbTileFile = getMbTileFile("mbtiles/France.mbtiles", "France.mbtiles")
         fetcher = MBTileFetcher(mbTileFile)
 
@@ -73,7 +73,7 @@ class VectorMBTilesTestCase : MaplyTestCase {
         baseCase = VectorsTestCase(mapVC!!.getActivity())
         baseCase?.setUpWithMap(mapVC)
 
-        setupLoader(mapVC!!, ConfigOptions.TestType.MapTest)
+        setupLoader(mapVC)
 
         return true
     }
@@ -82,7 +82,7 @@ class VectorMBTilesTestCase : MaplyTestCase {
         baseCase = VectorsTestCase(globeVC!!.getActivity())
         baseCase?.setUpWithGlobe(globeVC)
 
-        setupLoader(globeVC!!, ConfigOptions.TestType.GlobeTest)
+        setupLoader(globeVC)
 
         return true
     }

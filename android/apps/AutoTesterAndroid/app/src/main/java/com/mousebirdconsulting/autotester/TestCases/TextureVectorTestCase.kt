@@ -49,7 +49,7 @@ class TextureVectorTestCase : MaplyTestCase {
         val tex = control.addTexture(icon, null, RenderControllerInterface.ThreadMode.ThreadCurrent)
 
         val assetMgr = getActivity().assets
-        val paths = assetMgr.list("country_json_50m")
+        val paths = assetMgr.list("country_json_50m")!!
 
         var tessObjs = ArrayList<VectorObject>()
 

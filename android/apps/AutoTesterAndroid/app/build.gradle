@@ -3,6 +3,10 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-android'
 
 android {
+    compileOptions {
+        sourceCompatibility 1.8
+        targetCompatibility 1.8
+    }
     signingConfigs {
         config {
             keyAlias 'key0'
@@ -39,10 +43,9 @@ dependencies {
     implementation project(path: ':maply')
     implementation 'androidx.appcompat:appcompat:1.0.0'
     implementation 'com.google.android.material:material:1.0.0'
-    implementation 'com.squareup.okhttp:okhttp:2.7.5'
     implementation 'org.apache.directory.studio:org.apache.commons.io:2.4'
-    implementation 'com.squareup.okio:okio:1.12.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'com.squareup.okhttp3:okhttp:3.14.2'
 }
 repositories {
     mavenCentral()

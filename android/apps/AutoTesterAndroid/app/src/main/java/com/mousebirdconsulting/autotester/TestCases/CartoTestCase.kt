@@ -24,7 +24,7 @@ import android.app.Activity
 import android.graphics.Color
 import com.mousebird.maply.*
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase
-import com.squareup.okhttp.Request
+import okhttp3.Request
 import java.net.URL
 import java.net.URLEncoder
 import kotlin.math.PI

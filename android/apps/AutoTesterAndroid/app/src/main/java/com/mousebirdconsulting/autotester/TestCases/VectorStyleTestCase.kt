@@ -44,7 +44,7 @@ class VectorStyleTestCase : MaplyTestCase {
         implementation = TestExecutionImplementation.Both
     }
 
-    fun setupOverlay(control: BaseController, testType: ConfigOptions.TestType) {
+    fun setupOverlay(control: BaseController) {
         val stream = getActivity().assets.open("country_json_50m/USA.geojson")
         val json = IOUtils.toString(stream, Charset.defaultCharset())
 
@@ -61,7 +61,7 @@ class VectorStyleTestCase : MaplyTestCase {
         baseCase = CartoLightTestCase(mapVC!!.getActivity())
         baseCase?.setUpWithMap(mapVC)
 
-        setupOverlay(mapVC!!, ConfigOptions.TestType.MapTest)
+        setupOverlay(mapVC)
 
         return true
     }
@@ -70,7 +70,7 @@ class VectorStyleTestCase : MaplyTestCase {
         baseCase = CartoLightTestCase(globeVC!!.getActivity())
         baseCase?.setUpWithGlobe(globeVC)
 
-        setupOverlay(globeVC!!, ConfigOptions.TestType.GlobeTest)
+        setupOverlay(globeVC)
 
         return true
     }
