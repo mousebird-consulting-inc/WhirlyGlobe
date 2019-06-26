@@ -515,8 +515,11 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			{
 				if (httpClient.dispatcher() != null && httpClient.dispatcher().executorService() != null)
 					httpClient.dispatcher().executorService().shutdown();
-				if (httpClient.connectionPool() != null)
-					httpClient.connectionPool().evictAll();
+				// Note: This code can't be run on the main thread, but now is not the time
+				//       to be spinning up an AsyncTask, so we just hope for the best
+//				if (httpClient.connectionPool() != null) {
+//					httpClient.connectionPool().evictAll();
+//				}
 				httpClient = null;
 			}
 
