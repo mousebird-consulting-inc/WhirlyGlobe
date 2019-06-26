@@ -26,12 +26,6 @@ import android.os.HandlerThread;
 import android.service.quicksettings.Tile;
 import android.util.Log;
 
-import com.squareup.okhttp.Call;
-import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
-
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -41,6 +35,12 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.TreeSet;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class RemoteTileFetcher extends HandlerThread implements TileFetcher
 {
@@ -282,7 +282,7 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
     {
         tile.task.enqueue(new Callback() {
             @Override
-            public void onFailure(Request request, IOException e) {
+            public void onFailure(Call call, IOException e) {
                 if (!valid)
                     return;
                 // Ignore cancels, because we do those a lot
@@ -290,7 +290,7 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
                     String mess = e.getLocalizedMessage();
                     if (mess != null && mess.contains("Canceled")) {
                         if (debugMode)
-                            Log.d("RemoteTileFetcher","Ignoring a cancel for: " + request);
+                            Log.d("RemoteTileFetcher","Ignoring a cancel for: " + call.request());
                         return;
                     }
                 }
@@ -299,9 +299,11 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
             }
 
             @Override
-            public void onResponse(Response response) throws IOException {
-                if (!valid)
+            public void onResponse(Call call, Response response) throws IOException {
+                if (!valid) {
+                    response.body().close();
                     return;
+                }
 
                 finishedLoading(tile,response,null);
             }
@@ -322,6 +324,12 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
                 if (tile == null) {
                     if (debugMode)
                         Log.d("RemoteTileFetcher","Dropping a tile request because it was cancelled: " + inTile.fetchInfo.urlReq);
+
+                    try {
+                        response.body().close();
+                    }
+                    catch (Exception fooE) {
+                    }
 
                     return;
                 }

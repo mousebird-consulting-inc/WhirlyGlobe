@@ -126,7 +126,7 @@ public class Shader
 			Log.i("Maply","Shader was set up before context was created.  Shader won't work.");
 	}
 
-    private Shader()
+    protected Shader()
     {
     }
 	

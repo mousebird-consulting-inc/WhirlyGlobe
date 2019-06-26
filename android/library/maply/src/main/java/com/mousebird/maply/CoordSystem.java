@@ -32,7 +32,7 @@ public class CoordSystem
 	/**
 	 * Only ever called by the subclass.  Don't use this directly please.
 	 */
-	CoordSystem()
+	protected CoordSystem()
 	{
 	}
 	

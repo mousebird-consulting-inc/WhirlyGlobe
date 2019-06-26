@@ -30,6 +30,8 @@ import java.util.Vector;
  */
 public class ComponentManager
 {
+    private ComponentManager() { }
+
     public ComponentManager(Scene scene)
     {
         initialise(scene);

@@ -30,6 +30,8 @@ import java.util.ArrayList;
  */
 public class LoaderReturn
 {
+    protected LoaderReturn() {}
+
     LoaderReturn(QuadLoaderBase loader) {
         initialise(loader);
     }

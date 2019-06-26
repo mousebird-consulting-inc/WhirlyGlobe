@@ -17,9 +17,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.squareup.okhttp.Dispatcher;
-import com.squareup.okhttp.OkHttpClient;
-
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +26,9 @@ import java.util.concurrent.ThreadPoolExecutor;
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLContext;
 import javax.microedition.khronos.egl.EGLSurface;
+
+import okhttp3.Dispatcher;
+import okhttp3.OkHttpClient;
 
 /**
  * The base controller is a base class for both Maply and WhirlyGlobe controllers.
@@ -115,10 +115,10 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 
 			// This little dance lets the OKHttp client shutdown and then reject any random calls
 			// we may send its way
-			Dispatcher dispatch = httpClient.getDispatcher();
+			Dispatcher dispatch = httpClient.dispatcher();
 			try {
 				if (dispatch != null) {
-					ExecutorService service = dispatch.getExecutorService();
+					ExecutorService service = dispatch.executorService();
 					if (service != null) {
 						ThreadPoolExecutor exec = (ThreadPoolExecutor) service;
 						exec.setRejectedExecutionHandler(new ThreadPoolExecutor.DiscardPolicy());
@@ -513,10 +513,10 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 
 			if (httpClient != null)
 			{
-				if (httpClient.getDispatcher() != null && httpClient.getDispatcher().getExecutorService() != null)
-					httpClient.getDispatcher().getExecutorService().shutdown();
-				if (httpClient.getConnectionPool() != null)
-					httpClient.getConnectionPool().evictAll();
+				if (httpClient.dispatcher() != null && httpClient.dispatcher().executorService() != null)
+					httpClient.dispatcher().executorService().shutdown();
+				if (httpClient.connectionPool() != null)
+					httpClient.connectionPool().evictAll();
 				httpClient = null;
 			}
 
@@ -1078,7 +1078,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 * Either returns a RemoteTileFetcher with the given name or
 	 * it creates one and then returns the same.
 	 */
-	RemoteTileFetcher addTileFetcher(String name)
+	public RemoteTileFetcher addTileFetcher(String name)
 	{
 		for (RemoteTileFetcher tileFetcher : tileFetchers) {
 			if (tileFetcher.getFetcherName() == name)
