@@ -137,9 +137,7 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
 //            theOutlineColor = [UIColor blackColor];
         
         // We set this if the color is embedded in the "font"
-//        bool embeddedColor = (labelInfo->outlineSize > 0.0 || label->desc.hasField(MaplyTextOutlineSize));
-        // Note: Porting.  Not clear if this makes sense
-        bool embeddedColor = false;
+        bool embeddedColor = labelInfo->outlineSize > 0.0 || (label->infoOverride && label->infoOverride->outlineSize > 0.0);
 
         // Ask the label to build the strings.  There are OS specific things in there
         // We also need the real line height back (because it's in the font)

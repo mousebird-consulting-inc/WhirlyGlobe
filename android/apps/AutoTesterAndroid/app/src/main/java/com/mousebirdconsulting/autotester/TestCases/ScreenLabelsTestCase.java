@@ -70,16 +70,16 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 
 		LabelInfo labelInfo = new LabelInfo();
 		labelInfo.setFontSize(32.f);
-//		labelInfo.setTextColor(Color.BLACK);
-		labelInfo.setBackgroundColor(Color.RED);
+		labelInfo.setTextColor(Color.BLACK);
+//		labelInfo.setBackgroundColor(Color.RED);
 		labelInfo.setTypeface(Typeface.DEFAULT);
 		labelInfo.setLayoutImportance(1.f);
 		labelInfo.setLayoutPlacement(LabelInfo.LayoutAbove|LabelInfo.LayoutCenter);
 		labelInfo.setTextJustify(LabelInfo.TextJustify.TextLeft);
 //		labelInfo.setMinVis(0.f);
 //		labelInfo.setMaxVis(2.5f);
-//		labelInfo.setOutlineColor(Color.WHITE);
-//		labelInfo.setOutlineSize(2.f);
+		labelInfo.setOutlineColor(Color.WHITE);
+		labelInfo.setOutlineSize(2.f);
 		labelInfo.layoutImportance = Float.MAX_VALUE;
 
 		MarkerInfo markerInfo = new MarkerInfo();
@@ -112,13 +112,13 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 		}
 
 		// Toss in a few with explicit diacritics
-//		labels.add(makeLabel(-74.075833, 4.4, "Bogotá", 2.f));
-//		labels.add(makeLabel(-74.075833, 4.598056, "Bogotá2", 2.f));
-//		labels.add(makeLabel(6.0219, 47.2431, "Besançon", 2.f));
-//		labels.add(makeLabel(4.361, 43.838, "Nîmes", 2.f));
-//		labels.add(makeLabel(4.9053, 43.9425, "Morières-lès-Avignon", 2.f));
-//		labels.add(makeLabel(11.616667, 44.833333, "Ferrara", 2.f));
-//		labels.add(makeLabel(7, 49.233333, "Saarbrücken", 2.f));
+		labels.add(makeLabel(-74.075833, 4.4, "Bogotá", 2.f));
+		labels.add(makeLabel(-74.075833, 4.598056, "Bogotá2", 2.f));
+		labels.add(makeLabel(6.0219, 47.2431, "Besançon", 2.f));
+		labels.add(makeLabel(4.361, 43.838, "Nîmes", 2.f));
+		labels.add(makeLabel(4.9053, 43.9425, "Morières-lès-Avignon", 2.f));
+		labels.add(makeLabel(11.616667, 44.833333, "Ferrara", 2.f));
+		labels.add(makeLabel(7, 49.233333, "Saarbrücken", 2.f));
 
 		labels.add(makeLabel(0.0, 0.0, "abcdef\nghijklmn\nopqrstu\nvwxyzA\nBCDEF\nGHIJKLMN\nOPQRTST\nUVWXYZ", 10.f));
 		{
@@ -129,7 +129,7 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 		}
 		labels.add(makeLabel(1.0, 0.0, "abcdef\nghijklmn\nopqrstu\nvwxyz", 10.f));
 
-//		labels.add(makeLabel(4.361, 43.838, "Nîmes", Float.MAX_VALUE));
+		labels.add(makeLabel(4.361, 43.838, "Nîmes", Float.MAX_VALUE));
 
 		// Test the layout engine very explicitly
 //		int i = 0;
