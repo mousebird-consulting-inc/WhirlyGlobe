@@ -22,6 +22,7 @@ package com.mousebird.maply;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 
 import java.lang.reflect.Field;
 
@@ -42,7 +43,8 @@ public class ImageLoaderInterpreter implements LoaderInterpreter
             Object opts = new BitmapFactory.Options();
             Class<?> theClass = opts.getClass();
             Field field = theClass.getField("inPremultiplied");
-            if (field != null) {
+            int version = Build.VERSION.SDK_INT;
+            if (field != null && version >= 23) {
                 hasPremultiplyOption = true;
             }
         }
