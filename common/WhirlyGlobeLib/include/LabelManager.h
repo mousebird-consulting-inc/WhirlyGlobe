@@ -71,6 +71,8 @@ public:
     Point2f iconSize;
     /// If set, this moves the label if displayed in screen (2D) mode
     Point2d screenOffset;
+    /// If set, this overrides the natural size of the label for layout purposes
+    Point2d layoutSize;
     /// If non-empty, used to identify a set of labels of which only one should be displayed
     std::string uniqueID;
     

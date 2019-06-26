@@ -153,6 +153,15 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
             layoutMbr.expand(drawStr->mbr);
         }
 
+        // Override the layout size, but do so from the middle
+        if (label->layoutSize.x() >= 0.0 && label->layoutSize.y() >= 0.0) {
+            Point2f center = layoutMbr.mid();
+            
+            Point2f layoutSize(label->layoutSize.x(),label->layoutSize.y());
+            layoutMbr.ll() = center - layoutSize/2.0;
+            layoutMbr.ur() = center + layoutSize/2.0;
+        }
+
         // Set if we're letting the layout engine control placement
         bool layoutEngine = false;
         float layoutImportance = MAXFLOAT;

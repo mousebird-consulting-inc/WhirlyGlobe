@@ -140,6 +140,8 @@ class ScreenLabelsTestCase: MaplyTestCase {
     label3.userObject = label.text
     label3.layoutPlacement = kMaplyLayoutCenter
     label3.loc = MaplyCoordinateMakeWithDegrees(1.5, 5.0-0.75)
+    // Make this really tall and skinny as a test case
+    label3.layoutSize = CGSize(width: 1.0, height: 200.0)
     
     theViewC.addScreenLabels([label3], desc: [
     kMaplyFont: UIFont.boldSystemFont(ofSize: 24.0),

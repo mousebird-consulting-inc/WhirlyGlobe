@@ -56,6 +56,8 @@ class InternalLabel
 				addText(codePoints, which);
 			}
 		}
+		if (label.layoutSize != null)
+			setLayoutSize(label.layoutSize.getX(),label.layoutSize.getY());
 		if (label.offset != null)
 			setOffset(label.offset);
 		setLayoutImportance(label.layoutImportance);
@@ -98,6 +100,7 @@ class InternalLabel
 	public native void addText(int[] codePoints,int len);
 	public native void setOffset(Point2d offset);
 	public native void setLayoutImportance(float layoutImportance);
+	public native void setLayoutSize(double sizeX,double sizeY);
 	public native void setUniqueID(String uniqueStr);
 
 	public void finalize()

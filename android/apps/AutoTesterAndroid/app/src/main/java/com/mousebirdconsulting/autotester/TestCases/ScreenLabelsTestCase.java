@@ -129,7 +129,10 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 		}
 		labels.add(makeLabel(1.0, 0.0, "abcdef\nghijklmn\nopqrstu\nvwxyz", 10.f));
 
-		labels.add(makeLabel(4.361, 43.838, "Nîmes", Float.MAX_VALUE));
+		ScreenLabel nimesLabel = makeLabel(4.361, 43.838, "Nîmes", Float.MAX_VALUE);
+		// Tall and skinny for testing
+		nimesLabel.layoutSize = new Point2d(1.0,200.0);
+		labels.add(nimesLabel);
 
 		// Test the layout engine very explicitly
 //		int i = 0;

@@ -128,6 +128,13 @@
 @property (nonatomic,assign) int layoutPlacement;
 
 /**
+ The size of the label for layout purposes.
+ 
+ If layoutImportance is not set to MAXFLOAT, the screen label will get throw into the mix when doing screen layout.  With this, you can set the size of the label when considering layout.  If you set this to (0,0) the maker will take up no space, but still be considered in the layout.
+ */
+@property (nonatomic,assign) CGSize layoutSize;
+
+/**
     Used to resolve to resolve labels that show the same thing.
  
     By default this is nil and not used to resolve conflicts.  When you set it to

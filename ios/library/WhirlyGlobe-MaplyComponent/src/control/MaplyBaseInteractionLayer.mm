@@ -1319,7 +1319,12 @@ public:
         if (tex)
             wgLabel->iconTexture = tex.texID;
         wgLabel->iconSize = Point2f(label.iconSize.width,label.iconSize.height);
-        
+        if (label.layoutSize.width >= 0.0)
+        {
+            wgLabel->layoutSize.x() = label.layoutSize.width;
+            wgLabel->layoutSize.y() = label.layoutSize.height;
+        }
+
         LabelInfoRef thisLabelInfo;
         if ([inDesc objectForKey:kMaplyTextColor] || label.layoutImportance != MAXFLOAT ||
             [inDesc objectForKey:kMaplyTextLineSpacing]) {

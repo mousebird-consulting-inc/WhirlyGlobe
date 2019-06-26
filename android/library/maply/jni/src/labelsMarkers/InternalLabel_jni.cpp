@@ -246,6 +246,23 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setLayoutImportanc
     }
 }
 
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setLayoutSize
+		(JNIEnv *env, jobject obj, jdouble sizeX, jdouble sizeY)
+{
+	try
+	{
+		LabelClassInfo *classInfo = LabelClassInfo::getClassInfo();
+		SingleLabel *label = classInfo->getObject(env,obj);
+		if (!label)
+			return;
+		label->layoutSize = Point2d(sizeX,sizeY);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in InternalLabel::setLayoutSize()");
+	}
+}
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setUniqueID
   (JNIEnv *env, jobject obj, jstring uniqueStr)
 {

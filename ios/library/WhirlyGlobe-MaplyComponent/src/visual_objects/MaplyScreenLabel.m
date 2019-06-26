@@ -32,7 +32,8 @@
     _layoutImportance = MAXFLOAT;
     _layoutPlacement = kMaplyLayoutRight | kMaplyLayoutLeft | kMaplyLayoutAbove | kMaplyLayoutBelow;
     _keepUpright = false;
-    
+    _layoutSize = CGSizeMake(-1.0, -1.0);
+
     return self;
 }
 
