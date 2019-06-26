@@ -53,26 +53,26 @@ class ScreenLabelsTestCase: MaplyTestCase {
 				if (i % 2 == 0) {
                     label.layoutImportance = 10
 					// Some with text shadow
-					if let comp = theViewC.addScreenLabels([label], desc: [
-							kMaplyFont: UIFont.boldSystemFont(ofSize: 12.0),
-							kMaplyShadowColor: UIColor.black,
-							kMaplyShadowSize: 1.0,
-                            kMaplySelectable: true,
-							kMaplyTextColor: UIColor.white]) {
-						labelList.append(comp)
-					}
+//                    if let comp = theViewC.addScreenLabels([label], desc: [
+//                            kMaplyFont: UIFont.boldSystemFont(ofSize: 12.0),
+//                            kMaplyShadowColor: UIColor.black,
+//                            kMaplyShadowSize: 1.0,
+//                            kMaplySelectable: true,
+//                            kMaplyTextColor: UIColor.red]) {
+//                        labelList.append(comp)
+//                    }
 				}
 				else {
                     label.layoutImportance = 20
 					//Some with text outline
-					if let comp = theViewC.addScreenLabels([label], desc: [
-							kMaplyFont: UIFont.boldSystemFont(ofSize: 24.0),
-							kMaplyTextOutlineColor: UIColor.black,
-							kMaplyTextOutlineSize: 2.0,
-                            kMaplySelectable: true,
-							kMaplyTextColor: UIColor.lightGray]) {
-						labelList.append(comp)
-					}
+//                    if let comp = theViewC.addScreenLabels([label], desc: [
+//                            kMaplyFont: UIFont.boldSystemFont(ofSize: 24.0),
+//                            kMaplyTextOutlineColor: UIColor.black,
+//                            kMaplyTextOutlineSize: 2.0,
+//                            kMaplySelectable: true,
+//                            kMaplyTextColor: UIColor.green]) {
+//                        labelList.append(comp)
+//                    }
 				}
                 
 #if false
@@ -104,7 +104,7 @@ class ScreenLabelsTestCase: MaplyTestCase {
             kMaplyTextOutlineSize: 2.0,
             kMaplyTextJustify: kMaplyTextJustifyCenter,
             kMaplySelectable: true,
-//            kMaplyBackgroundColor: UIColor.purple,
+            kMaplyBackgroundColor: UIColor.purple,
             kMaplyTextColor: UIColor.lightGray])
 
         // Marker for reference
@@ -127,9 +127,9 @@ class ScreenLabelsTestCase: MaplyTestCase {
             kMaplyFont: UIFont.boldSystemFont(ofSize: 24.0),
             kMaplyTextOutlineColor: UIColor.blue,
             kMaplyTextOutlineSize: 2.0,
-            kMaplyTextJustify: kMaplyTextJustifyRight,
+            kMaplyTextJustify: kMaplyTextJustifyCenter,
             kMaplySelectable: true,
-//            kMaplyBackgroundColor: UIColor.yellow,
+            kMaplyBackgroundColor: UIColor.yellow,
             kMaplyTextColor: UIColor.lightGray])
     
     // A multi-line test case
@@ -145,7 +145,7 @@ class ScreenLabelsTestCase: MaplyTestCase {
     kMaplyFont: UIFont.boldSystemFont(ofSize: 24.0),
     kMaplyTextOutlineColor: UIColor.black,
     kMaplyTextOutlineSize: 2.0,
-    kMaplyTextJustify: kMaplyTextJustifyRight,
+    kMaplyTextJustify: kMaplyTextJustifyCenter,
     kMaplySelectable: true,
     //            kMaplyBackgroundColor: UIColor.yellow,
     kMaplyTextColor: UIColor.lightGray])
