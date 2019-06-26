@@ -77,6 +77,7 @@ jobject MakeQIFFrameAsset(JNIEnv *env,QIFFrameAsset_Android *frame)
     QIFFrameAssetClassInfo *classInfo = QIFFrameAssetClassInfo::getClassInfo(env,"com/mousebird/maply/QIFFrameAsset");
     jobject obj = classInfo->makeWrapperObject(env,frame);
     frame->frameAssetObj = env->NewGlobalRef(obj);
+    env->DeleteLocalRef(obj);
 
     return obj;
 }
