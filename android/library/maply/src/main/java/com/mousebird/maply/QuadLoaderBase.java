@@ -152,9 +152,28 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
 
     /**
      * Set the interpreter for the data coming back.  If you're just getting images, don't set this.
+     * Only call this at startup.  If you need to change the interpreter, call changeLoaderInterpreter()
      */
     public void setLoaderInterpreter(LoaderInterpreter newInterp) {
         loadInterp = newInterp;
+    }
+
+    /**
+     * Change the interpreter for the data coming back.  This will force a reload.
+     * @param newInterp
+     */
+    public void changeLoaderInterpreter(final LoaderInterpreter newInterp) {
+        if (samplingLayer.get() == null)
+            return;
+
+        // Make this change on the layer thread
+        samplingLayer.get().layerThread.addTask(new Runnable() {
+            @Override
+            public void run() {
+                loadInterp = newInterp;
+                reloadNative();
+            }
+        });
     }
 
     /**
