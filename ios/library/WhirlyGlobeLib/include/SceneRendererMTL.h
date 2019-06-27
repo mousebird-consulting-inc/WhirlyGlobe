@@ -32,6 +32,16 @@
 #import "DefaultShadersMTL.h"
 #import "Snapshot_iOS.h"
 
+/// Caller to render() fills this in so we don't allocate the drawable
+///  until it's needed.
+@protocol SceneRendererMTLDrawableGetter
+
+/// Return a CAMetalDrawable when requested
+- (id<CAMetalDrawable>) getDrawable;
+
+@end
+
+
 namespace WhirlyKit
 {
 
@@ -89,7 +99,7 @@ public:
     virtual bool resize(int sizeX,int sizeY);
     
     /// Draw stuff (the whole point!)
-    void render(TimeInterval period,MTLRenderPassDescriptor *renderPassDesc,id<CAMetalDrawable> drawable);
+    void render(TimeInterval period,MTLRenderPassDescriptor *renderPassDesc,id<SceneRendererMTLDrawableGetter> drawGetter);
     
     /// Set the clear color we're using
     virtual void setClearColor(const RGBAColor &color);

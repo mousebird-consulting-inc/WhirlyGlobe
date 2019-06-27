@@ -41,7 +41,4 @@
 /// Destroy the display link.  Cannot be restarted.
 - (void) teardown;
 
-/// Draw into the actual view
-- (void) drawView:(id)sender;
-
 @end

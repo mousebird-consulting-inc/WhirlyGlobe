@@ -325,7 +325,7 @@ void SceneRendererMTL::removeSnapshotDelegate(NSObject<WhirlyKitSnapshot> *oldDe
 
 void SceneRendererMTL::render(TimeInterval duration,
                               MTLRenderPassDescriptor *renderPassDesc,
-                              id<CAMetalDrawable> drawable)
+                              id<SceneRendererMTLDrawableGetter> drawGetter)
 {
     if (!scene)
         return;
@@ -339,14 +339,8 @@ void SceneRendererMTL::render(TimeInterval duration,
         return;
     }
     
-    theView->animate();
-    
     TimeInterval now = TimeGetCurrent();
-    
-    // TODO: Put this back
-    hasChanges();
-//    if (!hasChanges())
-//        return;
+    lastDraw = now;
     
     if (perfInterval > 0)
         perfTimer.startTiming("Render Frame");
@@ -708,8 +702,10 @@ void SceneRendererMTL::render(TimeInterval duration,
 
             [cmdEncode endEncoding];
             // Main screen has to be committed
-            if (renderTarget->tex == nil)
+            if (renderTarget->tex == nil && drawGetter != nil) {
+                id<CAMetalDrawable> drawable = [drawGetter getDrawable];
                 [cmdBuff presentDrawable:drawable];
+            }
             [cmdBuff commit];
             if (renderTarget->tex != nil)
                 [cmdBuff waitUntilCompleted];
