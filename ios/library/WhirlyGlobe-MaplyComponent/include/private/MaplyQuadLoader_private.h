@@ -39,6 +39,8 @@
     MaplyQuadSamplingLayer *samplingLayer;
     
     WhirlyKit::QuadImageFrameLoader_iosRef loader;
+    
+    WhirlyKit::QuadImageFrameLoader::FrameStats frameStats;
 }
 
 - (instancetype)initWithViewC:(MaplyBaseViewController *)inViewC;

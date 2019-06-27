@@ -1147,6 +1147,9 @@ void QuadImageFrameLoader::builderPreSceneFlush(QuadTileBuilder *builder,ChangeS
         updateRenderState(changes);
     }
     
+    // Let's also generate the stats right here.  That should be often enough.
+    makeStats();
+    
     changesSinceLastFlush = false;
 }
 
@@ -1173,6 +1176,57 @@ void QuadImageFrameLoader::updateForFrame(RendererFrameInfo *frameInfo)
     renderState.updateScene(frameInfo->scene, curFrame, now, flipY, color, changes);
 
     frameInfo->scene->addChangeRequests(changes);
+}
+
+QuadImageFrameLoader::FrameStats::FrameStats()
+: totalTiles(0), tilesToLoad(0)
+{
+}
+
+QuadImageFrameLoader::Stats::Stats()
+: numTiles(0)
+{
+}
+
+void QuadImageFrameLoader::makeStats()
+{
+    Stats newStats;
+    
+    newStats.numTiles = tiles.size();
+    int numFrames = getNumFrames();
+    newStats.frameStats.resize(numFrames);
+    for (auto it : tiles) {
+        auto tileID = it.first;
+        auto tile = it.second;
+        
+        for (int frameID = 0;frameID<numFrames;frameID++) {
+            auto frame = tile->getFrame(frameID);
+            auto &frameStat = newStats.frameStats[frameID];
+            switch (frame->getState()) {
+                case QIFFrameAsset::Empty:
+                    break;
+                case QIFFrameAsset::Loaded:
+                    break;
+                case QIFFrameAsset::Loading:
+                    frameStat.tilesToLoad++;
+                    break;
+            }
+            frameStat.totalTiles++;
+        }
+    }
+    
+    {
+        std::lock_guard<std::mutex> guardLock(statsLock);
+        stats = newStats;
+    }
+}
+    
+QuadImageFrameLoader::Stats QuadImageFrameLoader::getStats()
+{
+    {
+        std::lock_guard<std::mutex> guardLock(statsLock);
+        return stats;
+    }
 }
     
 void QuadImageFrameLoader::cleanup(ChangeSet &changes)

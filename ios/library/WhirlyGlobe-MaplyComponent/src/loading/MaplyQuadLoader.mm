@@ -256,8 +256,6 @@ using namespace WhirlyKit;
     loader->reload(-1);
 }
 
-
-
 // Called on a random dispatch queue
 - (void)fetchRequestSuccess:(MaplyTileFetchRequest *)request tileID:(MaplyTileID)tileID frame:(int)frame data:(id)data;
 {

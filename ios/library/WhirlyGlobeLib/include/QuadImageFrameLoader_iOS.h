@@ -122,7 +122,7 @@ public:
     
     // Change the tile sources for upcoming loads
     virtual void setTileInfos(NSArray<NSObject<MaplyTileInfoNew> *> *tileInfos);
-        
+
 protected:
     // Make an iOS specific tile/frame assets
     virtual QIFTileAssetRef makeTileAsset(const QuadTreeNew::ImportantNode &ident);

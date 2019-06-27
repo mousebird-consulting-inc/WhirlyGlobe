@@ -93,6 +93,13 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
 
 @end
 
+@implementation MaplyQuadImageFrameStats
+@end
+
+@implementation MaplyQuadImageFrameLoaderStats
+
+@end
+
 @implementation MaplyQuadImageFrameLoader
 
 - (nullable instancetype)initWithParams:(MaplySamplingParams *__nonnull)inParams tileInfos:(NSArray<NSObject<MaplyTileInfoNew> *> *__nonnull)frameInfos viewC:(MaplyBaseViewController * __nonnull)inViewC
@@ -157,6 +164,24 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
 - (int)getNumFrames
 {
     return [loader->frameInfos count];
+}
+
+- (MaplyQuadImageFrameLoaderStats * __nonnull)getFrameStats
+{
+    QuadImageFrameLoader::Stats stats = loader->getStats();
+    
+    MaplyQuadImageFrameLoaderStats *retStats = [[MaplyQuadImageFrameLoaderStats alloc] init];
+    retStats.numTiles = stats.numTiles;
+    NSMutableArray *frameStats = [[NSMutableArray alloc] init];
+    for (auto frameStat: stats.frameStats) {
+        MaplyQuadImageFrameStats *retFrameStat = [[MaplyQuadImageFrameStats alloc] init];
+        retFrameStat.totalTiles = frameStat.totalTiles;
+        retFrameStat.tilesToLoad = frameStat.tilesToLoad;
+        [frameStats addObject:retFrameStat];
+    }
+    retStats.frames = frameStats;
+    
+    return retStats;
 }
 
 - (void)shutdown

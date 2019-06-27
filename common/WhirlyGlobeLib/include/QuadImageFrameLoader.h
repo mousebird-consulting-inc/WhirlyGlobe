@@ -103,6 +103,7 @@ typedef std::shared_ptr<QIFFrameAsset> QIFFrameAssetRef;
 // Holds all the frame assets and manages various loading state
 class QIFTileAsset
 {
+    friend class QuadImageFrameLoader;
 public:
     QIFTileAsset(const QuadTreeNew::ImportantNode &ident);
     void setupFrames(QuadImageFrameLoader *loader,int numFrames);
@@ -251,7 +252,7 @@ public:
     // Update what the scene is looking at.  Ideally not every frame.
     void updateScene(Scene *scene,double curFrame,TimeInterval now,bool flipY,const RGBAColor &color,ChangeSet &changes);
 };
-
+    
 /** Quad Image Frame Loader
  
     This quad loader handles the logic for a multi-frame set of images.
@@ -347,6 +348,38 @@ public:
     
     /** ----- **/
     
+    /**
+     Instantaneous per-frame stats for the quad image frame loader.
+     */
+    class FrameStats
+    {
+    public:
+        FrameStats();
+        
+        // Number of tiles this frame is present in
+        int totalTiles;
+        // Tiles yet to load for this frame
+        int tilesToLoad;
+    };
+
+    /**
+     Instantaneous stats for the whole loader.
+     */
+    class Stats
+    {
+    public:
+        Stats();
+        
+        // Total number of tiles being managed
+        int numTiles;
+        
+        // Per frame stats
+        std::vector<FrameStats> frameStats;
+    };
+
+    /// Return the stats (thread safe)
+    Stats getStats();
+    
     /// Shut everything down and remove our geometry and resources
     void cleanup(ChangeSet &changes);
     
@@ -369,6 +402,12 @@ public:
     ComponentManager *compManager;
 
 protected:
+    std::mutex statsLock;
+    Stats stats;
+    
+    // Periodically generates the stats
+    void makeStats();
+    
     // Construct a platform specific tile/frame assets in the subclass
     virtual QIFTileAssetRef makeTileAsset(const QuadTreeNew::ImportantNode &ident) = 0;
     

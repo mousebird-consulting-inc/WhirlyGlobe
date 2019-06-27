@@ -22,64 +22,10 @@ class AnimatedBasemapTestCase: MaplyTestCase {
 		self.name = "Animated basemap"
 		self.implementations = [.globe, .map]
 	}
-
-    let vertexShaderNoLightTri = """
-    precision highp float;
-
-    uniform mat4  u_mvpMatrix;
-    uniform float u_fade;
-    attribute vec3 a_position;
-    attribute vec2 a_texCoord0;
-    attribute vec4 a_color;
-    attribute vec3 a_normal;
-
-    uniform vec2 u_texOffset0;
-    uniform vec2 u_texScale0;
-    uniform vec2 u_texOffset1;
-    uniform vec2 u_texScale1;
-
-    varying vec2 v_texCoord0;
-    varying vec2 v_texCoord1;
-    varying vec4 v_color;
-
-    void main()
-    {
-        if (u_texScale0.x != 0.0)
-            v_texCoord0 = vec2(a_texCoord0.x*u_texScale0.x,a_texCoord0.y*u_texScale0.y) + u_texOffset0;
-        else
-            v_texCoord0 = a_texCoord0;
-        if (u_texScale1.x != 0.0)
-            v_texCoord1 = vec2(a_texCoord0.x*u_texScale1.x,a_texCoord0.y*u_texScale1.y) + u_texOffset1;
-        else
-            v_texCoord1 = a_texCoord0;
-       v_color = a_color * u_fade;
-    
-       gl_Position = u_mvpMatrix * vec4(a_position,1.0);
-    }
-    """
-    
-    let fragmentShaderTriMultiTexRamp = """
-    precision highp float;
-
-    uniform sampler2D s_baseMap0;
-    uniform sampler2D s_baseMap1;
-    uniform sampler2D s_colorRamp;
-    uniform float u_interp;
-
-    varying vec2      v_texCoord0;
-    varying vec2      v_texCoord1;
-    varying vec4      v_color;
-
-    void main()
-    {
-      float baseVal0 = texture2D(s_baseMap0, v_texCoord0).r;
-      float baseVal1 = texture2D(s_baseMap1, v_texCoord1).r;
-      float index = mix(baseVal0,baseVal1,u_interp);
-      gl_FragColor = texture2D(s_colorRamp,vec2(index,0.5));
-    }
-    """
     
     var rampTex : MaplyTexture? = nil
+    
+    var timer : Timer? = nil
 
     // Put together a sampling layer and loader
     func setupLoader(_ baseVC: MaplyBaseViewController) {
@@ -129,6 +75,19 @@ class AnimatedBasemapTestCase: MaplyTestCase {
         imageAnimator = MaplyQuadImageFrameAnimator(frameLoader: imageLayer!, viewC: baseVC)
         imageAnimator?.period = 15.0
         imageAnimator?.pauseLength = 3.0
+        
+        // Periodic stats
+        timer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true)
+        {
+            timer in
+            let stats = self.imageLayer!.getFrameStats()
+            print("Loading stats")
+            var which = 0
+            for frame in stats.frames {
+                print("frame \(which):  \(frame.tilesToLoad) to load of \(frame.totalTiles))")
+                which += 1
+            }
+        }
     }
 
 	override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
