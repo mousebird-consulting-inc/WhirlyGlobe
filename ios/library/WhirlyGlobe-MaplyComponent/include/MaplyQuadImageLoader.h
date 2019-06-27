@@ -32,39 +32,42 @@
  */
 @interface MaplyLoaderReturn : NSObject
 
-// Tile this is the image for
+/// Tile this is the image for
 @property (nonatomic,assign) MaplyTileID tileID;
 
-// If set, the frame.  -1 by default
+/// If set, the frame.  -1 by default
 @property (nonatomic,assign) int frame;
 
-// Data returned from a tile request.  Unparsed.
+/// Data returned from a tile request.  Unparsed.
 @property (nonatomic,strong) NSData * __nonnull tileData;
 
-// If you have more than one tileInfo, you'll get your data back here unparsed.
+/// If you have more than one tileInfo, you'll get your data back here unparsed.
 @property (nonatomic,strong) NSArray * __nullable multiTileData;
 
-// Can be zero or more UIImage or an NSData containing an image or a MaplyImageTile
+/// Can be zero or more UIImage or an NSData containing an image or a MaplyImageTile
 @property (nonatomic,strong) NSArray *__nullable images;
 
-// If any component objects are associated with the tile, these are them.
-// They need to start disabled.  The system will enable and delete them when it is time.
+/// If any component objects are associated with the tile, these are them.
+/// They need to start disabled.  The system will enable and delete them when it is time.
 @property (nonatomic,strong) NSArray * __nullable compObjs;
 
-// These component objects are assumed to be overlaid and so only one
-// set will be displayed at a time.
+/// These component objects are assumed to be overlaid and so only one
+/// set will be displayed at a time.
 @property (nonatomic,strong) NSArray * __nullable ovlCompObjs;
 
-// If this is set, the tile failed to parse
+/// If this is set, the tile failed to parse and maybe why.
 @property (nonatomic,strong) NSError * __nullable error;
 
 @end
 
 /**
-    Loader Interpreter converts raw data into images and objects.
+    Protocol for turning raw data into images and objects.
  
-    Converts data returned from a remote source (or cache) into images and/or
-    MaplyComponentObjects that have already been added to the view (disabled).
+    The Loader Interpretor converts data returned from a remote source (or cache) into
+    images and/or MaplyComponentObjects that have already been added to the view (disabled).
+ 
+    The implementation of these is dependent on the data source.  One for vector tiles,
+    another for images, and so on.
   */
 @protocol MaplyLoaderInterpreter<NSObject>
 
@@ -81,7 +84,9 @@
 /**
     Image loader intrepreter turns NSData objects into MaplyImageTiles.
  
-    This is the default interpreter used byt the MaplyQuadImageLoader.
+    This is the default interpreter used by the MaplyQuadImageLoader.  It's expecting
+    to get a single NSData object containing an PNG or JPEG.  It will turn those
+    into data suitable for display.
   */
 @interface MaplyImageLoaderInterpreter : NSObject<MaplyLoaderInterpreter>
 @end
@@ -89,12 +94,16 @@
 @class MaplyQuadImageLoaderBase;
 
 /**
+    Debugging interpretor that makes tiles.
+ 
     This loader interpreter sticks a designator in the middle of tiles
     and a line around the edge.  Nice for debugging.
+ 
+    Initialize it with the real loader interpreter you want to use.
   */
 @interface MaplyDebugImageLoaderInterpreter : MaplyImageLoaderInterpreter
 
-// Intialize with the loader we're using.  Need this for extents of tiles
+/// Initialize with the loader we're using and the view controller.
 - (instancetype __nonnull)initWithLoader:(MaplyQuadImageLoaderBase * __nonnull)inLoader viewC:(MaplyBaseViewController * __nonnull)viewC;
 
 @end
@@ -109,25 +118,25 @@ extern NSString * _Nonnull const MaplyQuadImageLoaderFetcherName;
   */
 @interface MaplyQuadImageLoaderBase : NSObject
 
-// Set the draw priority values for produced tiles
+/// Set the draw priority values for produced tiles
 @property (nonatomic) int baseDrawPriority;
 
-// Offset between levels for a calculated draw priority
+/// Offset between levels for a calculated draw priority
 @property (nonatomic) int drawPriorityPerLevel;
 
-// Base color for geometry produced
+/// Base color for geometry produced
 @property (nonatomic,retain,nonnull) UIColor *color;
 
-// Write to the z buffer when rendering.  On by default
+/// Write to the z buffer when rendering.  On by default
 @property (nonatomic,assign) bool zBufferWrite;
 
-// Read from the z buffer when rendering.  Off by default
+/// Read from the z buffer when rendering.  Off by default
 @property (nonatomic,assign) bool zBufferRead;
 
 /**
  Shader to use for rendering the image frames.
  
- If not, set we'll pick the default visual shader.
+ If not set, we'll pick the default visual shader.
  */
 - (void)setShader:(MaplyShader * __nullable)shader;
 
@@ -156,14 +165,15 @@ extern NSString * _Nonnull const MaplyQuadImageLoaderFetcherName;
  OpenGL ES offers us several image formats that are more efficient than 32 bit RGBA, but they're not always appropriate.  This property lets you choose one of them.  The 16 or 8 bit ones can save a huge amount of space and will work well for some imagery, most maps, and a lot of weather overlays.
  
  Be sure to set this at layer creation, it won't do anything later on.
+
+ - Remark:
  
- | Image Format | Description |
- |:-------------|:------------|
- | MaplyImageIntRGBA | 32 bit RGBA with 8 bits per channel.  The default. |
- | MaplyImageUShort565 | 16 bits with 5/6/5 for RGB and none for A. |
- | MaplyImageUShort4444 | 16 bits with 4 bits for each channel. |
- | MaplyImageUShort5551 | 16 bits with 5/5/5 bits for RGB and 1 bit for A. |
- | MaplyImageUByteRed | 8 bits, where we choose the R and ignore the rest. |
+ * MaplyImageIntRGBA 32 bit RGBA with 8 bits per channel.  The default.
+ * MaplyImageUShort565 16 bits with 5/6/5 for RGB and none for A.
+ * *MaplyImageUShort4444* | 16 bits with 4 bits for each channel. |
+ * *MaplyImageUShort5551* | 16 bits with 5/5/5 bits for RGB and 1 bit for A. |
+ * *MaplyImageUByteRed( | 8 bits, where we choose the R and ignore the rest. |
+ 
  | MaplyImageUByteGreen | 8 bits, where we choose the G and ignore the rest. |
  | MaplyImageUByteBlue | 8 bits, where we choose the B and ignore the rest. |
  | MaplyImageUByteAlpha | 8 bits, where we choose the A and ignore the rest. |

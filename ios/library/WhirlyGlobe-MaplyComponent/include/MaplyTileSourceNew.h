@@ -27,7 +27,7 @@
 /**
     Tile Info Protocol.
  
-    This describes a single source of data tiles.  A uses these to
+    This describes a single source of data tiles.  We use these to
     figure out what to load when and where.  The loader passes the result of
     fetchInfoForTile to a MaplyTileFetcher to get the data it wants.
   */
@@ -62,10 +62,11 @@
 @end
 
 /**
- Generic Tile fetcher request.
+ General purpose tile fetch request.
  
  A single request for a single tile of data from a single source.
  The tile fetcher will... fetch this and call the success or failure callback.
+ These are passed between a TileInfoNew object and its associated Fetcher.
  */
 @interface MaplyTileFetchRequest : NSObject
 
@@ -82,7 +83,7 @@
 
 /** This is requested from a TileInfo object by a loader and then passed
  along to the TileFetcher.  TileFetchers expect certain objects.
- The RemoteTileFetcher wans a RemoteFetchInfo object and will check.
+ The RemoteTileFetcher wants a RemoteFetchInfo object and will check.
  Other fetchers will want other things.
  */
 @property (nonatomic,nonnull,strong) id fetchInfo;
@@ -97,16 +98,18 @@
 
 /**
  Tile Fetcher failure callback.
+ 
+ If the fetcher failed, this is the callback that results.
  */
 @property (nonatomic,nullable) void (^failure)(MaplyTileFetchRequest * __nonnull,NSError * __nonnull);
 
 @end
 
 /**
-    Tile Fetcher protocol.
+    Tile Fetcher protocol decides how loaders ask for tiles.
  
     The tile fetcher interacts with loaders that want tiles, as demanded by samplers.
-    A given data source (e.g. remote URL, MBTiles) needs one of these to fetch and return data.
+    A given data source (e.g. remote URL, MBTiles) implements this protocl to be used by a loader.
   */
 @protocol MaplyTileFetcher<NSObject>
 
