@@ -94,7 +94,25 @@ public class AnimatedBaseMapTestCase extends MaplyTestCase {
 //				loader.shutdown();
 //			}
 //		}, 10000);
+
+		// Print out loading stats periodically
+		final Handler timeHandler = new Handler();
+		timeRun = new Runnable(){
+			@Override
+			public void run() {
+				TileFetcher tileFetcher = loader.getTileFetcher();
+				if (tileFetcher instanceof RemoteTileFetcher) {
+					RemoteTileFetcher remoteTileFetcher = (RemoteTileFetcher)tileFetcher;
+					remoteTileFetcher.getStats(false).dump("Animated Layer");
+				}
+
+				timeHandler.postDelayed(timeRun, 3000);
+			}
+		};
+		timeHandler.postDelayed(timeRun,1000);
 	}
+
+	Runnable timeRun = null;
 
 	CartoLightTestCase baseCase = null;
 

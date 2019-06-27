@@ -63,6 +63,13 @@ public class QuadImageLoaderBase extends QuadLoaderBase
     protected native void delayedInitNative(Scene scene);
 
     /**
+     * Return the tile fetcher being used.  Must be called after initialization.
+     */
+    public TileFetcher getTileFetcher() {
+        return tileFetcher;
+    }
+
+    /**
      * Set the base priority values for produced tiles.
      * <br>
      * The system will use a range of values to deal with overlaps.

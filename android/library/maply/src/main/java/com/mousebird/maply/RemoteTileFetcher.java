@@ -32,6 +32,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.TreeSet;
@@ -156,12 +157,118 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
         }
     }
 
+    /**
+     * Stats collected by the fetcher
+     */
+    public class Stats {
+        // Start of stats collection
+        public Date startDate;
+
+        // Total requests, remote and cached
+        public int totalRequests;
+
+        // Requests that resulted in a remote HTTP call
+        public int remoteRequests;
+
+        // Total requests cancelled
+        public int totalCancels;
+
+        // Requests failed
+        public int totalFails;
+
+        // Bytes of remote data loaded
+        public long remoteData;
+
+        // Bytes of cached data loaded
+        public long localData;
+
+        // Total time spent waiting for successful remote data requests
+        public double totalLatency;
+
+        // The maximum number of requests we've had at once (since the last reset)
+        public int maxActiveRequests;
+
+        // Current number of active requests
+        public int activeRequests;
+
+        // Add the given stats to ours
+        public void addStats(Stats that) {
+            totalRequests += that.totalRequests;
+            remoteRequests += that.remoteRequests;
+            totalCancels += that.totalCancels;
+            totalFails += that.totalFails;
+            remoteData += that.remoteData;
+            localData += that.localData;
+            totalLatency += that.totalLatency;
+        }
+
+        // Print out the stats
+        public void dump(String name) {
+            Log.v("Maply", String.format("---MaplyTileFetcher %s Stats---",name) );
+            Log.v("Maply", String.format("   Active Requests = %d",activeRequests) );
+            Log.v("Maply", String.format("   Max Active Requests = %d",maxActiveRequests) );
+            Log.v("Maply", String.format("   Total Requests = %d",totalRequests) );
+            Log.v("Maply", String.format("   Canceled Requests = %d",totalCancels) );
+            Log.v("Maply", String.format("   Failed Requests = %d",totalFails) );
+            Log.v("Maply", String.format("   Data Transferred = %.2fMB",(float)remoteData) );
+            if (remoteRequests > 0) {
+                Log.v("Maply", String.format("   Latency per request = %.2fms",totalLatency / remoteRequests * 1000.0) );
+                Log.v("Maply", String.format("   Average request size = %.2fKB",remoteData / remoteRequests / 1024.0) );
+            }
+            Log.v("Maply", String.format("   Cached Data = %.2fMB",localData / (1024.0*1024.0)) );
+        }
+    }
+
+    protected Stats allStats = null;
+    protected Stats recentStats = null;
+
+    /** Return the stats (recent or for all time
+     */
+    public Stats getStats(boolean allTime)
+    {
+        if (allTime)
+            return allStats;
+        else
+            return recentStats;
+    }
+
+    /**
+     * Reset the stats keeping back to zero
+     */
+    public void resetStats()
+    {
+        recentStats = new Stats();
+    }
+
+    /**
+     * Reset the periodic active stats.  These are useful for progress bars.
+     */
+    public void resetActiveStats() {
+        Handler handler = new Handler(getLooper());
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                recentStats.activeRequests = toLoad.size() + loading.size();
+                recentStats.maxActiveRequests = recentStats.activeRequests;
+            }
+        });
+    }
+
+    public void updateActiveStats() {
+        recentStats.activeRequests = loading.size()+toLoad.size();
+        if (recentStats.activeRequests > recentStats.maxActiveRequests)
+            recentStats.maxActiveRequests = recentStats.activeRequests;
+    }
+
     RemoteTileFetcher(BaseController baseController, String name)
     {
         super(name);
 
         client = baseController.getHttpClient();
         valid = true;
+
+        allStats = new Stats();
+        recentStats = new Stats();
 
         // Kick off the thread
         start();
@@ -194,6 +301,9 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
         handler.post(new Runnable() {
             @Override
             public void run() {
+                allStats.totalRequests = allStats.totalRequests + requests.length;
+                recentStats.totalRequests = recentStats.totalRequests + requests.length;
+
                 for (TileFetchRequest request : requests) {
                     // Set up a new request
                     TileInfo tile = new TileInfo();
@@ -247,6 +357,8 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
             return;
 
         while (loading.size() < numConnections) {
+            updateActiveStats();
+
             if (toLoad.isEmpty())
                 break;
 
@@ -275,16 +387,21 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
                 startFetch(tile);
             }
         }
+
+        updateActiveStats();
     }
 
     // Kick off a network fetch with the appropriate callbacks
     protected void startFetch(final TileInfo tile)
     {
+        final double fetchStartTime = System.currentTimeMillis() /1000.0;
+
         tile.task.enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 if (!valid)
                     return;
+
                 // Ignore cancels, because we do those a lot
                 if (e != null) {
                     String mess = e.getLocalizedMessage();
@@ -295,7 +412,7 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
                     }
                 }
 
-                finishedLoading(tile,null,e);
+                finishedLoading(tile,null,e, fetchStartTime);
             }
 
             @Override
@@ -305,14 +422,14 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
                     return;
                 }
 
-                finishedLoading(tile,response,null);
+                finishedLoading(tile,response,null, fetchStartTime);
             }
         });
     }
 
     // Got response back, may be good, may be bad.
     // On a random thread, perhaps
-    protected void finishedLoading(final TileInfo inTile, final Response response, final Exception inE)
+    protected void finishedLoading(final TileInfo inTile, final Response response, final Exception inE,final double fetchStartTile)
     {
         // Have to run on our own thread
         Handler handler = new Handler(getLooper());
@@ -342,6 +459,15 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
 
                 if (response != null) {
                     try {
+                        long length = response.body().contentLength();
+                        allStats.remoteRequests = allStats.remoteRequests + 1;
+                        recentStats.remoteRequests = recentStats.remoteRequests + 1;
+                        allStats.remoteData = allStats.remoteData + length;
+                        recentStats.remoteData = recentStats.remoteData + length;
+                        double howLong = System.currentTimeMillis()/1000.0 - fetchStartTile;
+                        allStats.totalLatency = allStats.totalLatency + howLong;
+                        recentStats.totalLatency = recentStats.totalLatency + howLong;
+
                         handleFinishLoading(tile, response.body().bytes(), null);
                     }
                     catch (Exception thisE)
@@ -354,6 +480,9 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
                 }
 
                 if (!success) {
+                    allStats.totalFails = allStats.totalFails + 1;
+                    recentStats.totalFails = recentStats.totalFails + 1;
+
                     handleFinishLoading(tile, null, e);
                 }
 
@@ -374,7 +503,7 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
             return;
 
         boolean success = true;
-        int size = (int) tile.fetchInfo.cacheFile.length();
+        final int size = (int) tile.fetchInfo.cacheFile.length();
         final byte[] data = new byte[size];
         try {
             BufferedInputStream buf = new BufferedInputStream(new FileInputStream(tile.fetchInfo.cacheFile));
@@ -389,6 +518,9 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
             handler.post(new Runnable() {
                 @Override
                 public void run() {
+                    allStats.localData = allStats.localData + size;
+                    recentStats.localData = recentStats.localData + size;
+
                     handleFinishLoading(tile,data,null);
                 }
             });
@@ -472,6 +604,8 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
         tilesByFetchRequest.remove(tile.request);
         loading.remove(tile);
         toLoad.remove(tile);
+
+        updateActiveStats();
     }
 
     /**
@@ -517,6 +651,9 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
         handler.post(new Runnable() {
             @Override
             public void run() {
+                allStats.totalCancels = allStats.totalCancels + 1;
+                recentStats.totalCancels = recentStats.totalCancels + 1;
+
                 for (Object fetchRequest : fetchRequests) {
                     TileInfo tile = tilesByFetchRequest.get(fetchRequest);
                     if (tile == null)
