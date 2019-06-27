@@ -166,11 +166,14 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
         if (samplingLayer.get() == null)
             return;
 
+        final QuadLoaderBase theLoader = this;
+
         // Make this change on the layer thread
         samplingLayer.get().layerThread.addTask(new Runnable() {
             @Override
             public void run() {
                 loadInterp = newInterp;
+                newInterp.setLoader(theLoader);
                 reloadNative();
             }
         });
