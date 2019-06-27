@@ -370,6 +370,9 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
     // Read cache data on a random thread
     protected void handleCache(final TileInfo tile)
     {
+        if (!valid)
+            return;
+
         boolean success = true;
         int size = (int) tile.fetchInfo.cacheFile.length();
         final byte[] data = new byte[size];
