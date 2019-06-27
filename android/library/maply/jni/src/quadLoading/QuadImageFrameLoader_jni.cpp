@@ -41,3 +41,31 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_setCurrentI
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageFrameLoader::setCurrentImage()");
     }
 }
+
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_getStatsNative
+        (JNIEnv *env, jobject obj, jintArray totalTilesArr, jintArray tilesToLoadArr)
+{
+    try {
+        QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
+        if (!loader)
+            return 0;
+
+        QuadImageFrameLoader::Stats stats = (*loader)->getStats();
+        int numFrames = stats.frameStats.size();
+        std::vector<int> totalTiles(numFrames),tilesToLoad(numFrames);
+        for (unsigned int ii=0;ii<numFrames;ii++) {
+            auto &frame = stats.frameStats[ii];
+            totalTiles[ii] = frame.totalTiles;
+            tilesToLoad[ii] = frame.tilesToLoad;
+        }
+        env->SetIntArrayRegion(totalTilesArr,0,totalTiles.size(),&totalTiles[0]);
+        env->SetIntArrayRegion(tilesToLoadArr,0,tilesToLoad.size(),&tilesToLoad[0]);
+
+        return stats.numTiles;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageFrameLoader::getStatsNative()");
+    }
+
+}

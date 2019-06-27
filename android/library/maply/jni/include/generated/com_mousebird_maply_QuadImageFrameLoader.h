@@ -15,6 +15,14 @@ extern "C" {
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_setCurrentImageNative
   (JNIEnv *, jobject, jdouble);
 
+/*
+ * Class:     com_mousebird_maply_QuadImageFrameLoader
+ * Method:    getStatsNative
+ * Signature: ([I[I)I
+ */
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_getStatsNative
+  (JNIEnv *, jobject, jintArray, jintArray);
+
 #ifdef __cplusplus
 }
 #endif

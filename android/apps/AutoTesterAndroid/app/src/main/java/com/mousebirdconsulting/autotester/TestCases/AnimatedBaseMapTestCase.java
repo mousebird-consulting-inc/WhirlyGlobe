@@ -24,6 +24,7 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Handler;
+import android.util.Log;
 
 import com.mousebird.maply.*;
 import com.mousebirdconsulting.autotester.ConfigOptions;
@@ -104,6 +105,12 @@ public class AnimatedBaseMapTestCase extends MaplyTestCase {
 				if (tileFetcher instanceof RemoteTileFetcher) {
 					RemoteTileFetcher remoteTileFetcher = (RemoteTileFetcher)tileFetcher;
 					remoteTileFetcher.getStats(false).dump("Animated Layer");
+				}
+
+				QuadImageFrameLoader.Stats stats = loader.getStats();
+				Log.v("Maply", String.format("numTiles = %d, numFrames = %d",stats.numTiles,stats.frameStats.length));
+				for (int ii=0;ii<stats.frameStats.length;ii++) {
+					Log.v("Maply", String.format("  Loading %d out of %d tiles",stats.frameStats[ii].tilesToLoad,stats.frameStats[ii].totalTiles));
 				}
 
 				timeHandler.postDelayed(timeRun, 3000);
