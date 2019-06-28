@@ -22,7 +22,13 @@
 
 using namespace WhirlyKit;
 
+@interface WhirlyKitMTLView()<SceneRendererMTLDrawableGetter>
+@end
+
 @implementation WhirlyKitMTLView
+{
+    bool animating;
+}
 
 - (id)initWithDevice:(id<MTLDevice>)mtlDevice
 {
@@ -31,6 +37,7 @@ using namespace WhirlyKit;
     self.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
     self.depthStencilPixelFormat = MTLPixelFormatDepth32Float;
     self.framebufferOnly = true;
+    animating = true;
 //    self.preferredFramesPerSecond = 120;
     
     return self;
@@ -59,6 +66,11 @@ using namespace WhirlyKit;
                       (int)self.frame.size.height*self.contentScaleFactor);
 }
 
+- (id<CAMetalDrawable>)getDrawable
+{
+    return self.currentDrawable;
+}
+
 - (void)draw
 {
     [super draw];
@@ -67,28 +79,33 @@ using namespace WhirlyKit;
     if (!renderMTL)
         return;
     
-    MTLRenderPassDescriptor *renderPassDesc = self.currentRenderPassDescriptor;
-    id<CAMetalDrawable> drawable = self.currentDrawable;
-    if (!renderPassDesc || !drawable)
-        return;
-    
-    renderMTL->render(1.0/self.preferredFramesPerSecond,renderPassDesc,drawable);
+    if (animating) {
+        renderMTL->getView()->animate();
+
+        if (renderMTL->hasChanges()) {
+            MTLRenderPassDescriptor *renderPassDesc = self.currentRenderPassDescriptor;
+            if (!renderPassDesc)
+                return;
+
+            renderMTL->render(1.0/self.preferredFramesPerSecond,renderPassDesc,self);
+        }
+    } else
+        renderMTL->processScene();
 }
 
 - (BOOL)isAnimating
 {
-    // TODO: Implement
-    return true;
+    return animating;
 }
 
 - (void) startAnimation
 {
-    // TODO: Implement
+    animating = true;
 }
 
 - (void) stopAnimation
 {
-    // TODO: Implement
+    animating = false;
 }
 
 - (void) teardown
