@@ -32,6 +32,11 @@ public class Marker
     public Bitmap image = null;
 
     /**
+     * If set, we'll use this texture instead of the image.
+     */
+    public MaplyTexture tex = null;
+
+    /**
      * If set we'll animate these images one after the other over the duration.
      */
     public MaplyTexture images[] = null;

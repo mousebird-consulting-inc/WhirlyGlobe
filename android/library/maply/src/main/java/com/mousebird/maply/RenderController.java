@@ -622,6 +622,9 @@ public class RenderController implements RenderControllerInterface
                                 for (MaplyTexture tex : marker.images) {
                                     intMarker.addTexID(tex.texID);
                                 }
+                            } else if (marker.tex != null)
+                            {
+                                intMarker.addTexID(marker.tex.texID);
                             }
 
                             intMarkers.add(intMarker);
