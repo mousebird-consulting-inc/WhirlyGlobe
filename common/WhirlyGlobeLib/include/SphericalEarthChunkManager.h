@@ -124,7 +124,7 @@ public:
     CoordSystemRef coordSys;
     
 protected:
-    void buildSkirt(SceneRenderer *sceneRender,BasicDrawableBuilderRef draw,Point3fVector &pts,std::vector<TexCoord> &texCoords,const SphericalChunkInfo &chunkInfo);
+    void buildSkirt(SceneRenderer *sceneRender,BasicDrawableBuilderRef draw,Point3fVector &pts,int pointOffset,std::vector<TexCoord> &texCoords,const SphericalChunkInfo &chunkInfo);
     // Create one or more drawables to represent the chunk.
     // Only call this if you know what you're doing
     void buildDrawable(SceneRenderer *sceneRender,BasicDrawableBuilderRef &draw,bool buildSkirt,BasicDrawableBuilderRef &skirtDraw,bool enable,CoordSystemDisplayAdapter *coordAdapter,const SphericalChunkInfo &chunkInfo);

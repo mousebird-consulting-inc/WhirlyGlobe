@@ -52,7 +52,7 @@ SphericalChunk::SphericalChunk()
 static const float SkirtFactor = 0.95;
 
 // Helper routine for constructing the skirt around a tile
-void SphericalChunk::buildSkirt(SceneRenderer *sceneRender,BasicDrawableBuilderRef draw,Point3fVector &pts,std::vector<TexCoord> &texCoords,const SphericalChunkInfo &chunkInfo)
+void SphericalChunk::buildSkirt(SceneRenderer *sceneRender,BasicDrawableBuilderRef draw,Point3fVector &pts,int pointOffset,std::vector<TexCoord> &texCoords,const SphericalChunkInfo &chunkInfo)
 {
     for (unsigned int ii=0;ii<pts.size()-1;ii++)
     {
@@ -78,8 +78,8 @@ void SphericalChunk::buildSkirt(SceneRenderer *sceneRender,BasicDrawableBuilderR
         }
         
         // Add two triangles
-        draw->addTriangle(BasicDrawable::Triangle(base+3,base+2,base+0));
-        draw->addTriangle(BasicDrawable::Triangle(base+0,base+2,base+1));
+        draw->addTriangle(BasicDrawable::Triangle(base+3+pointOffset,base+2+pointOffset,base+0+pointOffset));
+        draw->addTriangle(BasicDrawable::Triangle(base+0+pointOffset,base+2+pointOffset,base+1+pointOffset));
     }
 }
 
@@ -149,7 +149,9 @@ void SphericalChunk::buildDrawable(SceneRenderer *sceneRender,BasicDrawableBuild
     
     Point3fVector locs;
     std::vector<TexCoord> texCoords;
-    
+
+    int pointOffset = drawable->getNumPoints();
+
     Point2f texIncr;
     // Without rotation, we'll just follow the boundaries
     if (rotation == 0.0)
@@ -247,12 +249,12 @@ void SphericalChunk::buildDrawable(SceneRenderer *sceneRender,BasicDrawableBuild
         for (unsigned int ix=0;ix<thisSampleX;ix++)
         {
             BasicDrawable::Triangle triA,triB;
-            triA.verts[0] = (iy+1)*(thisSampleX+1)+ix;
-            triA.verts[1] = iy*(thisSampleX+1)+ix;
-            triA.verts[2] = (iy+1)*(thisSampleX+1)+(ix+1);
+            triA.verts[0] = (iy+1)*(thisSampleX+1)+ix + pointOffset;
+            triA.verts[1] = iy*(thisSampleX+1)+ix + pointOffset;
+            triA.verts[2] = (iy+1)*(thisSampleX+1)+(ix+1) + pointOffset;
             triB.verts[0] = triA.verts[2];
             triB.verts[1] = triA.verts[1];
-            triB.verts[2] = iy*(thisSampleX+1)+(ix+1);
+            triB.verts[2] = iy*(thisSampleX+1)+(ix+1) + pointOffset;
             drawable->addTriangle(triA);
             drawable->addTriangle(triB);
         }
@@ -276,7 +278,7 @@ void SphericalChunk::buildDrawable(SceneRenderer *sceneRender,BasicDrawableBuild
             skirtLocs.push_back(locs[ix]);
             skirtTexCoords.push_back(texCoords[ix]);
         }
-        buildSkirt(sceneRender, skirtDrawable, skirtLocs, skirtTexCoords, chunkInfo);
+        buildSkirt(sceneRender, skirtDrawable, skirtLocs,pointOffset, skirtTexCoords, chunkInfo);
         // Top skirt
         skirtLocs.clear();
         skirtTexCoords.clear();
@@ -285,7 +287,7 @@ void SphericalChunk::buildDrawable(SceneRenderer *sceneRender,BasicDrawableBuild
             skirtLocs.push_back(locs[(thisSampleY)*(thisSampleX+1)+ix]);
             skirtTexCoords.push_back(texCoords[(thisSampleY)*(thisSampleX+1)+ix]);
         }
-        buildSkirt(sceneRender, skirtDrawable,skirtLocs,skirtTexCoords, chunkInfo);
+        buildSkirt(sceneRender, skirtDrawable,skirtLocs,pointOffset,skirtTexCoords, chunkInfo);
         // Left skirt
         skirtLocs.clear();
         skirtTexCoords.clear();
@@ -294,7 +296,7 @@ void SphericalChunk::buildDrawable(SceneRenderer *sceneRender,BasicDrawableBuild
             skirtLocs.push_back(locs[(thisSampleX+1)*iy+0]);
             skirtTexCoords.push_back(texCoords[(thisSampleX+1)*iy+0]);
         }
-        buildSkirt(sceneRender, skirtDrawable,skirtLocs,skirtTexCoords, chunkInfo);
+        buildSkirt(sceneRender, skirtDrawable,skirtLocs,pointOffset,skirtTexCoords, chunkInfo);
         // right skirt
         skirtLocs.clear();
         skirtTexCoords.clear();
@@ -303,7 +305,7 @@ void SphericalChunk::buildDrawable(SceneRenderer *sceneRender,BasicDrawableBuild
             skirtLocs.push_back(locs[(thisSampleX+1)*iy+(thisSampleX)]);
             skirtTexCoords.push_back(texCoords[(thisSampleX+1)*iy+(thisSampleX)]);
         }
-        buildSkirt(sceneRender, skirtDrawable,skirtLocs,skirtTexCoords, chunkInfo);
+        buildSkirt(sceneRender, skirtDrawable,skirtLocs,pointOffset,skirtTexCoords, chunkInfo);
         
         skirtDraw = skirtDrawable;
     }
