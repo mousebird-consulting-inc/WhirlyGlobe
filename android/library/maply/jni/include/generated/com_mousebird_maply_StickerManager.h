@@ -9,11 +9,11 @@ extern "C" {
 #endif
 /*
  * Class:     com_mousebird_maply_StickerManager
- * Method:    addSticker
- * Signature: (Lcom/mousebird/maply/Sticker;Lcom/mousebird/maply/StickerInfo;Lcom/mousebird/maply/ChangeSet;)J
+ * Method:    addStickers
+ * Signature: ([Lcom/mousebird/maply/Sticker;Lcom/mousebird/maply/StickerInfo;Lcom/mousebird/maply/ChangeSet;)J
  */
-JNIEXPORT jlong JNICALL Java_com_mousebird_maply_StickerManager_addSticker
-  (JNIEnv *, jobject, jobject, jobject, jobject);
+JNIEXPORT jlong JNICALL Java_com_mousebird_maply_StickerManager_addStickers
+  (JNIEnv *, jobject, jobjectArray, jobject, jobject);
 
 /*
  * Class:     com_mousebird_maply_StickerManager

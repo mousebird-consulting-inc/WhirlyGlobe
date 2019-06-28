@@ -1146,14 +1146,11 @@ public class RenderController implements RenderControllerInterface
                         ChangeSet changes = new ChangeSet();
 
                         // Stickers are added one at a time for some reason
-                        for (Sticker sticker : stickers) {
-                            long stickerID = stickerManager.addSticker(sticker, stickerInfo, changes);
+                        long stickerID = stickerManager.addStickers(stickers.toArray(new Sticker[0]), stickerInfo, changes);
 
-                            if (stickerID != EmptyIdentity) {
-                                compObj.addStickerID(stickerID);
-                            }
+                        if (stickerID != EmptyIdentity) {
+                            compObj.addStickerID(stickerID);
                         }
-
                         if (scene != null)
                             changes.process(renderControl,scene);
 

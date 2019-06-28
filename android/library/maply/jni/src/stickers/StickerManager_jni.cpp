@@ -67,17 +67,16 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_StickerManager_dispose
     }
 }
 
-JNIEXPORT jlong JNICALL Java_com_mousebird_maply_StickerManager_addSticker
-(JNIEnv *env, jobject obj, jobject stickerObj, jobject stickerInfoObj, jobject changeSetObj)
+JNIEXPORT jlong JNICALL Java_com_mousebird_maply_StickerManager_addStickers
+        (JNIEnv *env, jobject obj, jobjectArray stickerArr, jobject stickerInfoObj, jobject changeSetObj)
 {
     try
     {
-        StickerManagerClassInfo *classInfo = StickerManagerClassInfo::getClassInfo();
-        SphericalChunkManager *chunkManager = classInfo->getObject(env,obj);
-        SphericalChunkInfo *chunkInfo = (SphericalChunkInfo *)SphericalChunkInfoClassInfo::getClassInfo()->getObject(env,stickerInfoObj);
-        SphericalChunk *chunk = SphericalChunkClassInfo::getClassInfo()->getObject(env,stickerObj);
+        SphericalChunkManager *chunkManager = StickerManagerClassInfo::getClassInfo()->getObject(env,obj);
+        SphericalChunkClassInfo *chunkClassInfo = SphericalChunkClassInfo::getClassInfo();
+        SphericalChunkInfo *chunkInfo = SphericalChunkInfoClassInfo::getClassInfo()->getObject(env,stickerInfoObj);
         ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
-        if (!chunkManager || !chunkInfo || !chunk || !changeSet)
+        if (!chunkManager || !chunkInfo || !changeSet)
         {
             __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "One of the inputs was null in SphericalChunkManager::addSticker()");
             return EmptyIdentity;
@@ -89,11 +88,16 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_StickerManager_addSticker
                 chunkInfo->programID = prog->getId();
         }
 
-        SimpleIdentity chunkId = chunkManager->addChunk(chunk,*chunkInfo,*changeSet);
+        JavaObjectArrayHelper stickerHelp(env,stickerArr);
+        std::vector<SphericalChunk> chunks;
+        while (jobject stickerObjObj = stickerHelp.getNextObject()) {
+            SphericalChunk *chunk = chunkClassInfo->getObject(env,stickerObjObj);
+            if (chunk)
+                chunks.push_back(*chunk);
+        }
 
-        // We hand over the chunk's memory to the manager at that point
-        SphericalChunkClassInfo::getClassInfo()->clearHandle(env,stickerObj);
-        
+        SimpleIdentity chunkId = chunkManager->addChunks(chunks,*chunkInfo,*changeSet);
+
         return chunkId;
     }
     catch (...)

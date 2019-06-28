@@ -127,30 +127,13 @@ protected:
     void buildSkirt(SceneRenderer *sceneRender,BasicDrawableBuilderRef draw,Point3fVector &pts,int pointOffset,std::vector<TexCoord> &texCoords,const SphericalChunkInfo &chunkInfo);
     // Create one or more drawables to represent the chunk.
     // Only call this if you know what you're doing
-    void buildDrawable(SceneRenderer *sceneRender,BasicDrawableBuilderRef &draw,bool buildSkirt,BasicDrawableBuilderRef &skirtDraw,bool enable,CoordSystemDisplayAdapter *coordAdapter,const SphericalChunkInfo &chunkInfo);
+    void buildDrawable(SceneRenderer *sceneRender,BasicDrawableBuilderRef draw,bool buildSkirt,BasicDrawableBuilderRef skirtDraw,bool enable,CoordSystemDisplayAdapter *coordAdapter,const SphericalChunkInfo &chunkInfo);
     void calcSampleX(int &thisSampleX,int &thisSampleY,Point3f *dispPts);
 };
 
 typedef std::shared_ptr<ChunkSceneRep> ChunkSceneRepRef;
 typedef std::set<ChunkSceneRepRef,IdentifiableRefSorter> ChunkRepSet;
  
-// Used to track requests that come in so we can queue them
-typedef enum {ChunkAdd,ChunkRemove,ChunkEnable,ChunkDisable} ChunkRequestType;
-class ChunkRequest
-{
-public:
-    ChunkRequest(ChunkRequestType type,const SphericalChunkInfo &chunkInfo,SphericalChunk *chunk) :
-  type(type), chunkId(EmptyIdentity), chunkInfo(chunkInfo), chunk(chunk) { chunkId = chunk->getId(); }
-    ChunkRequest(ChunkRequestType type,const SphericalChunkInfo &chunkInfo,SimpleIdentity chunkId) :
-    type(type), chunkId(chunkId), chunk(NULL), chunkInfo(chunkInfo), doEdgeMatching(false) { }
-    ~ChunkRequest() { if (chunk)  delete chunk; }
-    ChunkRequestType type;
-    SimpleIdentity chunkId;
-    SphericalChunkInfo chunkInfo;
-    SphericalChunk *chunk;
-    bool doEdgeMatching;
-};
-
 #define kWKSphericalChunkManager "WKSphericalChunkManager"
     
 /** The spherical chunk manager handles the geometry associated with
@@ -166,7 +149,7 @@ public:
     void setBorderTexel(int inBorderTexel) { borderTexel = inBorderTexel; }
     
     /// Add the given chunk (enabled or disabled)
-    SimpleIdentity addChunk(SphericalChunk *chunk,const SphericalChunkInfo &chunkInfo,ChangeSet &changes);
+    SimpleIdentity addChunks(const std::vector<SphericalChunk> &chunks,const SphericalChunkInfo &chunkInfo,ChangeSet &changes);
     
     /// Modify the given chunk (new texture IDs)
     bool modifyChunkTextures(SimpleIdentity chunkID,const std::vector<SimpleIdentity> &texIDs,ChangeSet &changes);
@@ -187,13 +170,8 @@ public:
     void processRequests(ChangeSet &changes);
     
 protected:
-    void processChunkRequest(ChunkRequest &request,ChangeSet &changes);
-    
     std::mutex repLock;
     ChunkRepSet chunkReps;
-    std::mutex requestLock;
-    // Outstanding requests to process
-    std::queue<ChunkRequest> requests;
     int borderTexel;
 };
 

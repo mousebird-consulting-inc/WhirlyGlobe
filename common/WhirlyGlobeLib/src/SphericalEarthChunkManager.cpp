@@ -114,7 +114,7 @@ void SphericalChunk::calcSampleX(int &thisSampleX,int &thisSampleY,Point3f *disp
     }
 }
 
-void SphericalChunk::buildDrawable(SceneRenderer *sceneRender,BasicDrawableBuilderRef &draw,bool shouldBuildSkirt,BasicDrawableBuilderRef &skirtDraw,bool enable,CoordSystemDisplayAdapter *coordAdapter,const SphericalChunkInfo &chunkInfo)
+void SphericalChunk::buildDrawable(SceneRenderer *sceneRender,BasicDrawableBuilderRef drawable,bool shouldBuildSkirt,BasicDrawableBuilderRef skirtDrawable,bool enable,CoordSystemDisplayAdapter *coordAdapter,const SphericalChunkInfo &chunkInfo)
 {
     CoordSystem *localSys = coordAdapter->getCoordSystem();
 
@@ -127,7 +127,6 @@ void SphericalChunk::buildDrawable(SceneRenderer *sceneRender,BasicDrawableBuild
         srcSystem = geoSystem;
     }
     
-    BasicDrawableBuilderRef drawable = sceneRender->makeBasicDrawableBuilder("Spherical Earth Chunk");
     chunkInfo.setupBasicDrawable(drawable);
     drawable->setType(Triangles);
 //    drawable->setLocalMbr(_mbr);
@@ -259,12 +258,10 @@ void SphericalChunk::buildDrawable(SceneRenderer *sceneRender,BasicDrawableBuild
             drawable->addTriangle(triB);
         }
     }
-    draw = drawable;
     
     // Build the skirts
     if (shouldBuildSkirt && !coordAdapter->isFlat())
     {
-        BasicDrawableBuilderRef skirtDrawable = sceneRender->makeBasicDrawableBuilder("Spherical Earth Chunk Skirts");
         chunkInfo.setupBasicDrawable(skirtDrawable);
         skirtDrawable->setType(Triangles);
         skirtDrawable->setLocalMbr(mbr);
@@ -306,8 +303,6 @@ void SphericalChunk::buildDrawable(SceneRenderer *sceneRender,BasicDrawableBuild
             skirtTexCoords.push_back(texCoords[(thisSampleX+1)*iy+(thisSampleX)]);
         }
         buildSkirt(sceneRender, skirtDrawable,skirtLocs,pointOffset,skirtTexCoords, chunkInfo);
-        
-        skirtDraw = skirtDrawable;
     }
 }
     
@@ -321,27 +316,71 @@ SphericalChunkManager::~SphericalChunkManager()
 }
     
 /// Add the given chunk (enabled or disabled)
-SimpleIdentity SphericalChunkManager::addChunk(SphericalChunk *chunk,const SphericalChunkInfo &chunkInfo,ChangeSet &changes)
+SimpleIdentity SphericalChunkManager::addChunks(const std::vector<SphericalChunk> &chunks,const SphericalChunkInfo &chunkInfo,ChangeSet &changes)
 {
-    ChunkRequest request(ChunkAdd,chunkInfo,chunk);
-    request.doEdgeMatching = chunkInfo.doEdgeMatching;
-    // If it needs the altases, just queue it up
-    if (chunk->loadImage)
-    {
-        std::lock_guard<std::mutex> guardLock(requestLock);
-        requests.push(request);
-    } else {
-        // If it doesn't, just run it right now
-        processChunkRequest(request,changes);
+    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
+    ChunkSceneRepRef chunkRep(new ChunkSceneRep());
+
+    // Build the main drawable and possibly skirt
+    BasicDrawableBuilderRef drawable = getSceneRenderer()->makeBasicDrawableBuilder("Chunk Manager");
+    BasicDrawableBuilderRef skirtDraw = getSceneRenderer()->makeBasicDrawableBuilder("Chunk Manager Skirt");
+    SimpleIdentity lastTexID = -1;
+    
+    for (auto chunk : chunks) {
+        // May need to set up the texture
+        SimpleIdentity texId = EmptyIdentity;
+        Texture *newTex = NULL;
+        if (chunk.loadImage)
+        {
+            // Let's just deal with square images
+            newTex = chunk.loadImage->buildTexture();
+        }
+        if (newTex)
+        {
+            chunk.texIDs.push_back(newTex->getId());
+            changes.push_back(new AddTextureReq(newTex));
+        }
+        texId = EmptyIdentity;
+        if (!chunk.texIDs.empty())
+            texId = chunk.texIDs.at(0);
+
+        skirtDraw->setTexId(0,texId);
+        drawable->setTexId(0,texId);
+        chunk.buildDrawable(renderer,drawable,chunkInfo.doEdgeMatching,skirtDraw,chunkInfo.enable,coordAdapter,chunkInfo);
+
+        if (drawable->getNumPoints() > MaxDrawablePoints || (lastTexID != -1 && lastTexID != texId)) {
+            if (skirtDraw->getNumPoints() > 0) {
+                chunkRep->drawIDs.insert(skirtDraw->getDrawableID());
+                changes.push_back(new AddDrawableReq(skirtDraw->getDrawable()));
+                
+                skirtDraw = getSceneRenderer()->makeBasicDrawableBuilder("Chunk Manager Skirt");
+            }
+            if (drawable->getNumPoints() > 0) {
+                chunkRep->drawIDs.insert(drawable->getDrawableID());
+                changes.push_back(new AddDrawableReq(drawable->getDrawable()));
+                
+                drawable = getSceneRenderer()->makeBasicDrawableBuilder("Chunk Manager");
+            }
+        }
+        lastTexID = texId;
     }
     
-    // Get rid of an unnecessary circularity
-//    chunkInfo->chunk = nil;
-    
-    // And possibly run the outstanding request queue
-//    processRequests(changes);
-    
-    return chunk->getId();
+    if (skirtDraw->getNumPoints() > 0) {
+        chunkRep->drawIDs.insert(skirtDraw->getDrawableID());
+        changes.push_back(new AddDrawableReq(skirtDraw->getDrawable()));
+    }
+
+    if (drawable->getNumPoints() > 0) {
+        chunkRep->drawIDs.insert(drawable->getDrawableID());
+        changes.push_back(new AddDrawableReq(drawable->getDrawable()));
+    }
+
+    {
+        std::lock_guard<std::mutex> guardLock(repLock);
+        chunkReps.insert(chunkRep);
+    }
+
+    return chunkRep->getId();
 }
     
 bool SphericalChunkManager::modifyChunkTextures(SimpleIdentity chunkID,const std::vector<SimpleIdentity> &texIDs,ChangeSet &changes)
@@ -428,100 +467,4 @@ int SphericalChunkManager::getNumChunks()
     return chunkReps.size();
 }
     
-/// Process outstanding requests
-void SphericalChunkManager::processRequests(ChangeSet &changes)
-{
-    // Process the changes and then flush them out
-    while (!requests.empty())
-    {
-        std::lock_guard<std::mutex> guardLock(requestLock);
-        ChunkRequest request = requests.front();
-        requests.pop();
-    }
-}
-    
-// Process a single chunk request (add, enable, disable)
-void SphericalChunkManager::processChunkRequest(ChunkRequest &request,ChangeSet &changes)
-{
-    switch (request.type)
-    {
-        case ChunkAdd:
-        {
-            CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
-            ChunkSceneRepRef chunkRep(new ChunkSceneRep(request.chunkId));
-            SphericalChunk *chunk = request.chunk;
-            
-            // May need to set up the texture
-            SimpleIdentity texId = EmptyIdentity;
-            Texture *newTex = NULL;
-            if (chunk->loadImage)
-            {
-                // Let's just deal with square images
-                newTex = chunk->loadImage->buildTexture();
-            }
-            if (newTex)
-            {
-                chunk->texIDs.push_back(newTex->getId());
-                chunkRep->texIDs.insert(newTex->getId());
-                changes.push_back(new AddTextureReq(newTex));
-            }
-            texId = EmptyIdentity;
-            if (!chunk->texIDs.empty())
-                texId = chunk->texIDs.at(0);
-            
-            // Build the main drawable and possibly skirt
-            BasicDrawableBuilderRef drawable,skirtDraw;
-            chunk->buildDrawable(renderer,drawable,request.doEdgeMatching,skirtDraw,request.chunkInfo.enable,coordAdapter,request.chunkInfo);
-            
-            if (skirtDraw)
-            {
-                chunkRep->drawIDs.insert(skirtDraw->getDrawableID());
-                skirtDraw->setTexId(0,texId);
-                changes.push_back(new AddDrawableReq(skirtDraw->getDrawable()));
-            }
-            
-            chunkRep->drawIDs.insert(drawable->getDrawableID());
-            drawable->setTexId(0,texId);
-            changes.push_back(new AddDrawableReq(drawable->getDrawable()));
-            
-            {
-                std::lock_guard<std::mutex> guardLock(repLock);
-                chunkReps.insert(chunkRep);
-            }
-        }
-            break;
-        case ChunkEnable:
-        {
-            std::lock_guard<std::mutex> guardLock(repLock);
-            ChunkSceneRepRef dummyRef(new ChunkSceneRep(request.chunkId));
-            ChunkRepSet::iterator it = chunkReps.find(dummyRef);
-            if (it != chunkReps.end())
-                (*it)->enable(changes);
-        }
-            break;
-        case ChunkDisable:
-        {
-            std::lock_guard<std::mutex> guardLock(repLock);
-            ChunkSceneRepRef dummyRef(new ChunkSceneRep(request.chunkId));
-            ChunkRepSet::iterator it = chunkReps.find(dummyRef);
-            if (it != chunkReps.end())
-                (*it)->disable(changes);
-        }
-            break;
-        case ChunkRemove:
-        {
-            std::lock_guard<std::mutex> guardLock(repLock);
-            ChunkSceneRepRef dummyRef(new ChunkSceneRep(request.chunkId));
-            ChunkRepSet::iterator it = chunkReps.find(dummyRef);
-            if (it != chunkReps.end())
-	      {
-                (*it)->clear(scene,changes);
-              chunkReps.erase(it);
-	      }
-        }
-            break;
-    }
-}
-
-
 }

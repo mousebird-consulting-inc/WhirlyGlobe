@@ -2389,6 +2389,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
     ChangeSet changes;
 
+    std::vector<SphericalChunk> chunks;
+    chunks.reserve([stickers count]);
     for (MaplySticker *sticker in stickers)
     {
         std::vector<SimpleIdentity> texIDs;
@@ -2421,29 +2423,32 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                 compObj->contents->texs.insert(tex);
             }
         }
-        SphericalChunk *chunk = new SphericalChunk();
+        SphericalChunk chunk;
         Mbr mbr(Point2f(sticker.ll.x,sticker.ll.y), Point2f(sticker.ur.x,sticker.ur.y));
-        chunk->mbr = mbr;
-        chunk->texIDs = texIDs;
+        chunk.mbr = mbr;
+        chunk.texIDs = texIDs;
         // Note: Move this over to info logic
-        chunk->sampleX = [inDesc[@"sampleX"] intValue];
-        chunk->sampleY = [inDesc[@"sampleY"] intValue];
-        if (chunk->sampleX == 0)  chunk->sampleX = 10;
-        if (chunk->sampleY == 0) chunk->sampleY = 10;
-        chunk->programID = chunkInfo.programID;
+        chunk.sampleX = [inDesc[@"sampleX"] intValue];
+        chunk.sampleY = [inDesc[@"sampleY"] intValue];
+        if (chunk.sampleX == 0)  chunk.sampleX = 10;
+        if (chunk.sampleY == 0) chunk.sampleY = 10;
+        chunk.programID = chunkInfo.programID;
         if (inDesc[kMaplySubdivEpsilon] != nil)
-            chunk->eps = [inDesc[kMaplySubdivEpsilon] floatValue];
+            chunk.eps = [inDesc[kMaplySubdivEpsilon] floatValue];
         if (sticker.coordSys)
-            chunk->coordSys = [sticker.coordSys getCoordSystem];
-        chunk->rotation = sticker.rotation;
-        if (chunkManager)
-        {
-            SimpleIdentity chunkID = chunkManager->addChunk(chunk, chunkInfo, changes);
-            if (chunkID != EmptyIdentity)
-                compObj->contents->chunkIDs.insert(chunkID);
-        }
+            chunk.coordSys = [sticker.coordSys getCoordSystem];
+        chunk.rotation = sticker.rotation;
+        
+        chunks.push_back(chunk);
     }
     
+    if (chunkManager)
+    {
+        SimpleIdentity chunkID = chunkManager->addChunks(chunks, chunkInfo, changes);
+        if (chunkID != EmptyIdentity)
+            compObj->contents->chunkIDs.insert(chunkID);
+    }
+
     [self flushChanges:changes mode:threadMode];
     compManager->addComponentObject(compObj->contents);
 }
