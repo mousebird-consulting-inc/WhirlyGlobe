@@ -42,7 +42,7 @@ class ClusteredMarkersTestCase: MaplyTestCase {
 			marker.image = image
 			marker.loc = (object as! MaplyVectorObject).center()
 			marker.size = size
-			marker.userObject = (object as AnyObject).userObject!
+            marker.userObject = (object as! MaplyVectorObject).attributes["title"]
 			markers.append(marker)
 		}
 		_ =  theBaseView.addScreenMarkers(markers, desc: [kMaplyClusterGroup: 0], mode: MaplyThreadMode.current)
