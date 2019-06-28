@@ -345,6 +345,9 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	 */
 	public Handler addDelayedTask(Runnable run,long time)
 	{
+		if (!valid)
+			return null;
+
 		Handler handler = new Handler(getLooper());
 		handler.postDelayed(run, time);
 		return handler;
@@ -491,6 +494,9 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	// Schedule a lagging update (e.g. not too often, but no less than 100ms
 	void scheduleLateUpdate(long delay)
 	{
+		if (!valid)
+			return;
+
 		synchronized(this)
 		{
 			if (trailingHandle != null)

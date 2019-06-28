@@ -391,31 +391,29 @@ bool SphericalChunkManager::modifyDrawPriority(SimpleIdentity chunkID,int drawPr
 /// Enable or disable the given chunk
 void SphericalChunkManager::enableChunk(SimpleIdentity chunkID,bool enable,ChangeSet &changes)
 {
-    SphericalChunkInfo chunkInfo;
-    
-    {
-        std::lock_guard<std::mutex> guardLock(requestLock);
+    std::lock_guard<std::mutex> guardLock(repLock);
+    ChunkSceneRepRef dummyRef(new ChunkSceneRep(chunkID));
+    ChunkRepSet::iterator it = chunkReps.find(dummyRef);
+    if (it != chunkReps.end()) {
         if (enable)
-            requests.push(ChunkRequest(ChunkEnable,chunkInfo,chunkID));
+            (*it)->enable(changes);
         else
-            requests.push(ChunkRequest(ChunkDisable,chunkInfo,chunkID));
+            (*it)->disable(changes);
     }
-    
-    processRequests(changes);
 }
 
 /// Remove the given chunks
 void SphericalChunkManager::removeChunks(SimpleIDSet &chunkIDs,ChangeSet &changes)
 {
-    SphericalChunkInfo chunkInfo;
-
-    {
-        std::lock_guard<std::mutex> guardLock(requestLock);
-        for (SimpleIDSet::iterator it = chunkIDs.begin(); it != chunkIDs.end(); ++it)
-            requests.push(ChunkRequest(ChunkRemove,chunkInfo,*it));
+    std::lock_guard<std::mutex> guardLock(repLock);
+    for (auto chunkID : chunkIDs) {
+        ChunkSceneRepRef dummyRef(new ChunkSceneRep(chunkID));
+        ChunkRepSet::iterator it = chunkReps.find(dummyRef);
+        if (it != chunkReps.end()) {
+            (*it)->clear(scene, changes);
+            chunkReps.erase(it);
+        }
     }
-    
-    processRequests(changes);
 }
 
 int SphericalChunkManager::getNumChunks()
