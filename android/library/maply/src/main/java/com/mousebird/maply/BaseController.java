@@ -401,7 +401,9 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		}
 
 		layerThread.shutdown();
-		layerThreads.remove(layerThread);
+		synchronized (layerThreads) {
+			layerThreads.remove(layerThread);
+		}
 	}
 
 	/** @brief Convert from a coordinate in the given system to display space.

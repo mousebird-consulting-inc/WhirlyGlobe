@@ -141,7 +141,7 @@ void ComponentManager::removeComponentObjects(const SimpleIDSet &compIDs,ChangeS
             shapeManager->removeShapes(compObj->shapeIDs, changes);
         if (!compObj->loftIDs.empty())
             loftManager->removeLoftedPolys(compObj->loftIDs, changes);
-        if (compObj->chunkIDs.empty())
+        if (!compObj->chunkIDs.empty())
             chunkManager->removeChunks(compObj->chunkIDs, changes);
         if (!compObj->billIDs.empty())
             billManager->removeBillboards(compObj->billIDs, changes);

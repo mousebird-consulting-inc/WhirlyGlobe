@@ -298,6 +298,8 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
             fetchRequest.callback = new TileFetchRequest.Callback() {
                 @Override
                 public void success(TileFetchRequest fetchRequest, byte[] data) {
+                    LoaderInterpreter theLoadInterp = loadInterp;
+
                     if (loadInterp == null)
                         return;
 
@@ -309,7 +311,8 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
                         loadReturn.addTileData(data);
 
                     // We're on an AsyncTask in the background here, so do the loading
-                    loadInterp.dataForTile(loadReturn,loaderBase);
+                    if (loadInterp != null)
+                        theLoadInterp.dataForTile(loadReturn,loaderBase);
 
                     // Merge the data back in on the sampling layer's thread
                     final QuadSamplingLayer layer = samplingLayer.get();
@@ -317,9 +320,11 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
                         layer.layerThread.addTask(new Runnable() {
                             @Override
                             public void run() {
-                                ChangeSet changes = new ChangeSet();
-                                mergeLoaderReturn(loadReturn,changes);
-                                layer.layerThread.addChanges(changes);
+                                if (loadInterp != null) {
+                                    ChangeSet changes = new ChangeSet();
+                                    mergeLoaderReturn(loadReturn, changes);
+                                    layer.layerThread.addChanges(changes);
+                                }
                             }
                         });
                 }

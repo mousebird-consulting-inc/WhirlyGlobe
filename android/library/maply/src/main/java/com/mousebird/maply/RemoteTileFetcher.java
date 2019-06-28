@@ -244,6 +244,10 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
      * Reset the periodic active stats.  These are useful for progress bars.
      */
     public void resetActiveStats() {
+        if (!valid)
+            return;
+
+
         Handler handler = new Handler(getLooper());
         handler.post(new Runnable() {
             @Override
@@ -335,6 +339,9 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
     // Schedule the next loading update
     protected void scheduleLoading()
     {
+        if (!valid)
+            return;
+
         if (!scheduled) {
             Handler handler = new Handler(getLooper());
             handler.post(new Runnable() {
@@ -431,6 +438,9 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
     // On a random thread, perhaps
     protected void finishedLoading(final TileInfo inTile, final Response response, final Exception inE,final double fetchStartTile)
     {
+        if (!valid)
+            return;
+
         // Have to run on our own thread
         Handler handler = new Handler(getLooper());
         handler.post(new Runnable() {
@@ -514,6 +524,9 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
         }
 
         if (success) {
+            if (!valid)
+                return;
+
             Handler handler = new Handler(getLooper());
             handler.post(new Runnable() {
                 @Override
@@ -552,6 +565,9 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
         AsyncTask<Void,Void,Void> task = new AsyncTask<Void, Void, Void>() {
             protected Void doInBackground(Void... unused) {
 
+                if (!valid)
+                    return null;
+
                 if (debugMode)
                     Log.d("RemoteTileFetcher","Returning fetch: " + tile.fetchInfo.urlReq);
 
@@ -560,6 +576,9 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
                     tile.request.callback.success(tile.request, data);
                 } else
                     tile.request.callback.failure(tile.request,error.toString());
+
+                if (!valid)
+                    return null;
 
                 // Now get rid of the tile and kick off a new request
                 Handler handler = new Handler(getLooper());
