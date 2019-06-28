@@ -552,6 +552,9 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
         AsyncTask<Void,Void,Void> task = new AsyncTask<Void, Void, Void>() {
             protected Void doInBackground(Void... unused) {
 
+                if (!valid)
+                    return null;
+
                 if (debugMode)
                     Log.d("RemoteTileFetcher","Returning fetch: " + tile.fetchInfo.urlReq);
 
@@ -560,6 +563,9 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
                     tile.request.callback.success(tile.request, data);
                 } else
                     tile.request.callback.failure(tile.request,error.toString());
+
+                if (!valid)
+                    return null;
 
                 // Now get rid of the tile and kick off a new request
                 Handler handler = new Handler(getLooper());
