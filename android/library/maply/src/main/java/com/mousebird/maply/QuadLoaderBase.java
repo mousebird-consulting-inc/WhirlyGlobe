@@ -311,7 +311,7 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
                         loadReturn.addTileData(data);
 
                     // We're on an AsyncTask in the background here, so do the loading
-                    if (loadInterp)
+                    if (loadInterp != null)
                         theLoadInterp.dataForTile(loadReturn,loaderBase);
 
                     // Merge the data back in on the sampling layer's thread
