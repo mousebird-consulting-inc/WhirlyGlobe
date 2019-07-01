@@ -3,7 +3,9 @@ package com.mousebird.maply;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.ConfigurationInfo;
+import android.content.pm.PackageInfo;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
@@ -17,9 +19,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -27,8 +32,14 @@ import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLContext;
 import javax.microedition.khronos.egl.EGLSurface;
 
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.Dispatcher;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 /**
  * The base controller is a base class for both Maply and WhirlyGlobe controllers.
@@ -358,8 +369,82 @@ public class BaseController implements RenderController.TaskManager, RenderContr
         	return;
         }   
         
-		running = true;		
+		running = true;
+
+		startAnalytics();
 	}
+
+	// Kick off the analytics logic.
+	private void startAnalytics()
+	{
+		SharedPreferences prefs = activity.getSharedPreferences("WGMaplyPrefs", Context.MODE_PRIVATE);
+
+		// USER ID is a random string.  Only used for deconfliction.  No unique information here.
+		String userID = prefs.getString("wgmaplyanalyticuser", null);
+		if (userID == null) {
+			UUID uuid = UUID.randomUUID();
+			userID = uuid.toString();
+			SharedPreferences.Editor editor = prefs.edit();
+			editor.putString("wgmaplyanalyticuser", userID);
+			editor.apply();
+		}
+
+		// Send it once a month at most
+		long lastSent = prefs.getLong("wgmaplyanalytictime2", 0);
+		final long now = new Date().getTime()/1000;
+		final long howLong = now - lastSent;
+		if (howLong > 30*24*60*60) {
+			PackageInfo pInfo;
+			try {
+				pInfo = activity.getPackageManager().getPackageInfo(activity.getPackageName(), 0);
+			}
+			catch (Exception e) {
+				return;
+			}
+
+			// We're not recording anything that can identify the user, just the app
+			// create table register( userid VARCHAR(50), bundleid VARCHAR(100), bundlename VARCHAR(100), bundlebuild VARCHAR(100), bundleversion VARCHAR(100), osversion VARCHAR(20), model VARCHAR(100), wgmaplyversion VARCHAR(20));
+			String bundleID = activity.getPackageName();
+			String bundleName = pInfo.packageName;
+			String bundleBuild = "unknown";
+			String bundleVersion = pInfo.versionName;
+			String osversion = "Android " + Build.VERSION.RELEASE.toString();
+			String model = Build.MANUFACTURER + " " + Build.MODEL;
+			String wgMaplyVersion = "3.0";
+			String json = String.format(
+					"{ \"userid\":\"%s\", \"bundleid\":\"%s\", \"bundlename\":\"%s\", \"bundlebuild\":\"%s\", \"bundleversion\":\"%s\", \"osversion\":\"%s\", \"model\":\"%s\", \"wgmaplyversion\":\"%s\" }",
+					userID, bundleID, bundleName, bundleBuild, bundleVersion, osversion, model, wgMaplyVersion);
+
+			RequestBody body = RequestBody.create(MediaType.parse("application/json"),json);
+			if (body == null)
+				return;
+			Request request = new Request.Builder()
+					.url("http://analytics.mousebirdconsulting.com:8081/register")
+					.post(body)
+					.build();
+			if (request == null)
+				return;
+
+			OkHttpClient client = new OkHttpClient();
+			client.newCall(request).enqueue(new Callback() {
+				@Override
+				public void onFailure(Call call, IOException e) {
+				}
+
+				@Override
+				public void onResponse(Call call, Response response) throws IOException {
+					// We got a response, so save that in prefs
+					if (activity != null) {
+						SharedPreferences prefs = activity.getSharedPreferences("WGMaplyPrefs", Context.MODE_PRIVATE);
+						SharedPreferences.Editor editor = prefs.edit();
+						editor.putLong("wgmaplyanalytictime2", now);
+						editor.apply();
+					}
+				}
+			});
+		}
+	}
+
 
 	/**
 	 * Makes a new layer thread for toolkit related tasks.
