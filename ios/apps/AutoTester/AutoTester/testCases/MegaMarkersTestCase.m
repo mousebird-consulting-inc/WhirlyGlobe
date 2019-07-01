@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by jmnavarro on 2/11/15.
-//  Copyright © 2015-2017 mousebird consulting. All rights reserved.
+//  Copyright © 2015-2017 mousebird consulting.
 //
 
 #import "MegaMarkersTestCase.h"
@@ -17,7 +17,6 @@
 - (instancetype)init
 {
 	if (self = [super init]) {
-		self.captureDelay = 3;
 		self.name = @"Mega Markers";
 		self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
 	}

@@ -43,7 +43,7 @@ public class ShapeManager {
      * Add an array of shapes.
      * The returned ID can be used to remove or modify the group of shapes.
      */
-    public native long addShapes(List<Shape> shapes,ShapeInfo info, ChangeSet changes);
+    public native long addShapes(Shape[] shapes,ShapeInfo info, ChangeSet changes);
 
 	/**
      * Remove a group of shapes named by the given ID

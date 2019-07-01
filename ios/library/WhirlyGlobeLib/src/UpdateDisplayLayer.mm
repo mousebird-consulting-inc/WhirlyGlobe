@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/19/12.
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@
  */
 
 #import "UpdateDisplayLayer.h"
-#import "GlobeLayerViewWatcher.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -34,7 +33,7 @@ using namespace WhirlyGlobe;
     WhirlyKit::Scene *scene;
     
     /// Last view state we were given
-    WhirlyGlobeViewState *viewState;
+    ViewStateRef viewState;
 }
 
 - (id)initWithDataSource:(NSObject<WhirlyGlobeUpdateDataSource> *)inDataSource moveDist:(float)inMoveDist minTime:(float)inMinTime
@@ -57,7 +56,7 @@ using namespace WhirlyGlobe;
     
     // We want view updates, but only occasionally
     if (layerThread.viewWatcher)
-        [(WhirlyGlobeLayerViewWatcher *)layerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:_minTime minDist:0.0 maxLagTime:0.0];
+        [(WhirlyKitLayerViewWatcher *)layerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:_minTime minDist:0.0 maxLagTime:0.0];
     
     [self performSelector:@selector(startOnThread) onThread:layerThread withObject:nil waitUntilDone:NO];
 }
@@ -72,22 +71,22 @@ using namespace WhirlyGlobe;
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
     
     if (layerThread.viewWatcher)
-        [(WhirlyGlobeLayerViewWatcher *)layerThread.viewWatcher removeWatcherTarget:self selector:@selector(viewUpdate:)];
+        [(WhirlyKitLayerViewWatcher *)layerThread.viewWatcher removeWatcherTarget:self selector:@selector(viewUpdate:)];
     
     [_dataSource teardown];
 }
 
-- (void)viewUpdate:(WhirlyGlobeViewState *)inViewState
+- (void)viewUpdate:(WhirlyKitViewStateWrapper *)inViewState
 {
-    WhirlyGlobeViewState *lastViewState = viewState;    
-    WhirlyGlobeViewState *newViewState = inViewState;
+    ViewStateRef lastViewState = viewState;
+    ViewStateRef newViewState = inViewState.viewState;
 
     // See how far we've moved
     float dist2 = 0.0;
     if (lastViewState)
     {
-        Vector3d eye0 = [lastViewState eyePos];
-        Vector3d eye1 = [newViewState eyePos];
+        Vector3d eye0 = lastViewState->eyePos;
+        Vector3d eye1 = newViewState->eyePos;
         
         dist2 = (eye0-eye1).squaredNorm();
     }

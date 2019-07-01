@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by Steve Gifford on 11/2/16.
-//  Copyright © 2016-2017 mousebird consulting. All rights reserved.
+//  Copyright © 2016-2017 mousebird consulting.
 //
 
 #import "TextureVectorTestCase.h"
@@ -18,7 +18,6 @@
 {
     if (self = [super init]) {
         self.name = @"Textured Vectors";
-        self.captureDelay = 5;
         self.implementations = MaplyTestCaseImplementationGlobe;
     }
     
@@ -80,10 +79,7 @@ static const float ClipGridSize = 2.0/180.0*M_PI;
             }
         }
     }
-    
-    // Note: At this point you could cache the country vectors on disk and read them back in
-    //       You might want this to speed things up
-    
+        
     // Add all the vectors at once to be more efficient
     // The geometry gets grouped together, which is nice and fast
     [baseVC addVectors:tessObjs desc:

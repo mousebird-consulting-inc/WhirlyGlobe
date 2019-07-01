@@ -3,33 +3,30 @@
 //  AutoTester
 //
 //  Created by Ranen Ghosh on 4/7/16.
-//  Copyright © 2016-2017 mousebird consulting. All rights reserved.
+//  Copyright © 2016-2017 mousebird consulting.
 //
 
 #import "FindHeightTestCase.h"
 #import "MaplyBaseViewController.h"
 #import "MaplyViewController.h"
 #import "WhirlyGlobeViewController.h"
-#import "CartoDBTestCase.h"
+#import "AutoTester-Swift.h"
 
 @implementation FindHeightTestCase {
     MaplyBaseViewController *_baseVC;
+    CartoDBLightTestCase *baseView;
 }
 
 - (instancetype)init
 {
     if (self = [super init]) {
         self.name = @"Find Height";
-        self.captureDelay = 2;
 		self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
     }
     return self;
 }
 
 - (void)setupWithBaseVC:(MaplyBaseViewController *)vc {
-}
-
-- (void)teardownWithBaseVC:(MaplyBaseViewController *)vc {
 }
 
 - (void)addBoundingBox:(MaplyBoundingBox)bbox baseVC:(MaplyBaseViewController *)baseVC
@@ -47,7 +44,7 @@
 
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
-    CartoDBTestCase *baseView = [[CartoDBTestCase alloc] init];
+    baseView = [[CartoDBLightTestCase alloc] init];
     [baseView setUpWithGlobe:globeVC];
     [self setupWithBaseVC:(MaplyBaseViewController *)globeVC];
     [globeVC setPosition:MaplyCoordinateMakeWithDegrees(-98.58, 39.83) height:1.5];
@@ -67,15 +64,9 @@
     });
 }
 
-- (void)tearDownWithGlobe:(WhirlyGlobeViewController * _Nonnull)globeVC
-{
-    [self teardownWithBaseVC:(MaplyBaseViewController *)globeVC];
-    
-}
-
 - (void)setUpWithMap:(MaplyViewController *)mapVC
 {
-    CartoDBTestCase *baseView = [[CartoDBTestCase alloc] init];
+    baseView = [[CartoDBLightTestCase alloc] init];
     [baseView setUpWithMap:mapVC];
     [self setupWithBaseVC:(MaplyBaseViewController *)mapVC];
     [mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-98.58, 39.83) time:0.0];
@@ -93,12 +84,6 @@
         
         [self addBoundingBox:bbox baseVC:mapVC];
     });
-}
-
-- (void)tearDownWithMap:(MaplyViewController * _Nonnull)mapVC
-{
-    [self teardownWithBaseVC:(MaplyBaseViewController *)mapVC];
-    
 }
 
 @end

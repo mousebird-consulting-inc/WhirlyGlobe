@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 2/17/15.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
  *
  */
 
-#import "MapboxVectorStyleRaster.h"
+#import "vector_styles/MapboxVectorStyleRaster.h"
 
 @implementation MapboxVectorLayerRaster
 
@@ -31,9 +31,8 @@
     return self;
 }
 
-- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileInfo *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+- (void)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileData *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
-    return nil;
 }
 
 @end

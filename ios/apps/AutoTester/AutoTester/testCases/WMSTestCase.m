@@ -3,28 +3,27 @@
 //  AutoTester
 //
 //  Created by Ranen Ghosh on 4/7/16.
-//  Copyright © 2016-2017 mousebird consulting. All rights reserved.
+//  Copyright © 2016-2017 mousebird consulting.
 //
 
 #import "WMSTestCase.h"
 #import "MaplyBaseViewController.h"
 #import "MaplyViewController.h"
 #import "WhirlyGlobeViewController.h"
-#import "CartoDBTestCase.h"
 
 #import "MaplyWMSTileSource.h"
 #import "DDXML.h"
+#import "AutoTester-Swift.h"
 
 @implementation WMSTestCase {
     MaplyBaseViewController *_baseVC;
-    MaplyQuadImageTilesLayer *_imageLayer;
+    MaplyQuadImageLoader *imageLoader;
 }
 
 - (instancetype)init
 {
     if (self = [super init]) {
         self.name = @"WMS Test";
-        self.captureDelay = 2;
 		self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
         
     }
@@ -37,37 +36,22 @@
     [self fetchWMSLayer:@"http://129.206.228.72/cached/osm" layer:@"osm_auto:all" style:nil cacheDir:cacheDir];
 }
 
-- (void)teardownWithBaseVC:(MaplyBaseViewController *)vc {
-}
-
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
-    CartoDBTestCase *baseView = [[CartoDBTestCase alloc] init];
+    CartoDBLightTestCase *baseView = [[CartoDBLightTestCase alloc] init];
     [baseView setUpWithGlobe:globeVC];
     globeVC.height = 0.25;
     [self setupWithBaseVC:(MaplyBaseViewController *)globeVC];
     [globeVC setPosition:MaplyCoordinateMakeWithDegrees(-98.58, 39.83) height:1.5];
 }
 
-- (void)tearDownWithGlobe:(WhirlyGlobeViewController * _Nonnull)globeVC
-{
-    [self teardownWithBaseVC:(MaplyBaseViewController *)globeVC];
-    
-}
-
 - (void)setUpWithMap:(MaplyViewController *)mapVC
 {
-    CartoDBTestCase *baseView = [[CartoDBTestCase alloc] init];
+    CartoDBLightTestCase *baseView = [[CartoDBLightTestCase alloc] init];
     [baseView setUpWithMap:mapVC];
     mapVC.height = 0.25;
     [self setupWithBaseVC:(MaplyBaseViewController *)mapVC];
     [mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-98.58, 39.83) time:0.0];
-}
-
-- (void)tearDownWithMap:(MaplyViewController * _Nonnull)mapVC
-{
-    [self teardownWithBaseVC:(MaplyBaseViewController *)mapVC];
-    
 }
 
 // Try to fetch the given WMS layer
@@ -89,20 +73,6 @@
             NSLog(@"Unable to fetch WMS layer:\n%@", error);
     }];
     [task resume];
-    
-    
-    
-//    AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:capabilitiesURL]]];
-//    operation.responseSerializer = [AFXMLParserResponseSerializer serializer];
-//    [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
-//        [self startWMSLayerBaseURL:baseURL xml:responseObject layer:layerName style:styleName cacheDir:thisCacheDir ovlName:ovlName];
-//    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-//        // Sometimes this works anyway
-//        //        if (![self startWMSLayerBaseURL:baseURL xml:XMLDocument layer:layerName style:styleName cacheDir:thisCacheDir ovlName:ovlName])
-//        //            NSLog(@"Failed to get capabilities from WMS server: %@",capabilitiesURL);
-//    }];
-//    
-//    [operation start];
 }
 
 // Try to start the layer, given the capabilities
@@ -132,13 +102,18 @@
         MaplyWMSTileSource *tileSource = [[MaplyWMSTileSource alloc] initWithBaseURL:baseURL capabilities:cap layer:layer style:style coordSys:coordSys minZoom:0 maxZoom:16 tileSize:256];
         tileSource.cacheDir = thisCacheDir;
         tileSource.transparent = true;
-        _imageLayer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:coordSys tileSource:tileSource];
-        _imageLayer.coverPoles = false;
-        _imageLayer.handleEdges = true;
-        _imageLayer.requireElev = false;
-        _imageLayer.waitLoad = false;
-        [_baseVC addLayer:_imageLayer];
+
+        // Parameters describing how we want a globe broken down
+        MaplySamplingParams *sampleParams = [[MaplySamplingParams alloc] init];
+        sampleParams.coordSys = coordSys;
+        sampleParams.coverPoles = false;
+        sampleParams.edgeMatching = false;
+        sampleParams.minZoom = tileSource.minZoom;
+        sampleParams.maxZoom = tileSource.maxZoom;
+        sampleParams.singleLevel = true;
         
+        imageLoader = [[MaplyQuadImageLoader alloc] initWithParams:sampleParams tileInfos:@[tileSource] viewC:_baseVC];
+        imageLoader.baseDrawPriority = kMaplyImageLayerDrawPriorityDefault+1000;
     }
     
     return true;

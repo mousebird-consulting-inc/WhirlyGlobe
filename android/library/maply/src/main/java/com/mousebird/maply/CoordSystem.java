@@ -32,7 +32,7 @@ public class CoordSystem
 	/**
 	 * Only ever called by the subclass.  Don't use this directly please.
 	 */
-	CoordSystem()
+	protected CoordSystem()
 	{
 	}
 	
@@ -91,6 +91,22 @@ public class CoordSystem
 	 * @return A coordinate in longitude/latitude WGS84 radians.  Yes, radians.
 	 */
 	public native Point3d localToGeographic(Point3d pt);
+
+	/**
+	 * Convert from the local coordinate system to Geocentric
+	 *
+	 * @param pt A point in the local coordinate system.
+	 * @return A coordinate in geocentric.
+	 */
+	public native Point3d localToGeocentric(Point3d pt);
+
+	/**
+	 * Convert from geocentric to the local coordinate system.
+	 *
+	 * @param pt A point in geocentric
+	 * @return A coordinate in the local coordinate system.
+	 */
+	public native Point3d geocentricToLocal(Point3d pt);
 
 	/**
 	 * Convert the coordinate between systems.

@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by Steve Gifford on 6/25/16.
-//  Copyright © 2016-2017 mousebird consulting. All rights reserved.
+//  Copyright © 2016-2017 mousebird consulting.
 //
 
 #import "ShapefileTestCase.h"
@@ -20,7 +20,6 @@
 {
     if (self = [super init]) {
         self.name = @"Shapefile";
-        self.captureDelay = 5;
         self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
         
     }
@@ -64,13 +63,6 @@
                    });
 }
 
-- (void) tearDownWithMap:(MaplyViewController *)mapVC {
-    [baseViewC removeObject:compObj];
-}
-
-- (void)tearDownWithGlobe:(WhirlyGlobeViewController *)globeVC{
-    [baseViewC removeObject:compObj];
-}
 - (void) handleSelection:(MaplyBaseViewController *)viewC
                 selected:(NSObject *)selectedObj
 {
@@ -82,7 +74,7 @@
         if ([theVector centroid:&location]) {
             MaplyAnnotation *annotate = [[MaplyAnnotation alloc]init];
             annotate.title = @"Selected";
-            annotate.subTitle = (NSString *)theVector.userObject;
+            annotate.subTitle = (NSString *)theVector.attributes[@"title"];
             [viewC addAnnotation:annotate forPoint:location offset:CGPointZero];
         }
     }

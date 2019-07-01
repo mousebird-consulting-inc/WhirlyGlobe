@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 1/3/14.
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,10 +19,11 @@
  */
 
 #import <vector>
-#import "MaplyVectorTileLineStyle.h"
-#import "MaplyTexture.h"
-#import "MaplyTextureBuilder.h"
-#import <WhirlyGlobe.h>
+#import "vector_styles/MaplyVectorTileLineStyle.h"
+#import "visual_objects/MaplyTexture.h"
+#import "helpers/MaplyTextureBuilder.h"
+#import <WhirlyGlobe_iOS.h>
+#import "vector_tiles/MapboxVectorTiles.h"
 
 // Line styles
 @implementation MaplyVectorTileStyleLine
@@ -56,7 +57,7 @@
         }
         if (styleEntry[@"stroke"])
         {
-            strokeColor = [MaplyVectorTiles ParseColor:styleEntry[@"stroke"] alpha:alpha];
+            strokeColor = [MaplyVectorTileStyle ParseColor:styleEntry[@"stroke"] alpha:alpha];
         }
         
         int drawPriority = 0;
@@ -147,7 +148,7 @@
     return self;
 }
 
-- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileInfo *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
+- (void)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileData *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 {
     MaplyComponentObject *baseWideObj = nil;
     MaplyComponentObject *baseRegObj = nil;
@@ -174,7 +175,7 @@
         which++;
     }
     
-    return compObjs;
+    [tileInfo addComponentObjects:compObjs];
 }
 
 @end

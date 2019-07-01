@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by Ranen Ghosh on 2016-12-23.
-//  Copyright © 2016-2017 mousebird consulting. All rights reserved.
+//  Copyright © 2016-2017 mousebird consulting.
 //
 
 import UIKit
@@ -26,8 +26,7 @@ class GeoJSONStyleTestCase: MaplyTestCase {
     override init() {
         super.init()
         
-        self.name = "GeoJSON SLD Style Test Case"
-        self.captureDelay = 4
+        self.name = "GeoJSON SLD Style"
         self.implementations = [.globe, .map]
     }
     
@@ -85,8 +84,9 @@ class GeoJSONStyleTestCase: MaplyTestCase {
         }
     }
     
+    let baseLayer = CartoDBLightTestCase()
+    
     override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
-        let baseLayer = CartoDBLightTestCase()
         baseLayer.setUpWithGlobe(globeVC)
         
         setupCommon(baseVC: globeVC)
@@ -95,7 +95,6 @@ class GeoJSONStyleTestCase: MaplyTestCase {
     }
 
     override func setUpWithMap(_ mapVC: MaplyViewController) {
-        let baseLayer = CartoDBLightTestCase()
         baseLayer.setUpWithMap(mapVC)
         
         setupCommon(baseVC: mapVC)
@@ -124,19 +123,6 @@ class GeoJSONStyleTestCase: MaplyTestCase {
     
     @objc func onSwitchAmenities() {
         self.amenitiesSource!.enabled = !(self.amenitiesSource!.enabled)
-    }
-
-    
-    func teardownCommon(baseVC: MaplyBaseViewController) {
-        
-    }
-    
-    override func tearDown(withMap mapVC: MaplyViewController) {
-        teardownCommon(baseVC: mapVC)
-    }
-    
-    override func tearDown(withGlobe globeVC: WhirlyGlobeViewController) {
-        teardownCommon(baseVC: globeVC)
     }
     
     func setupMenuWithFrameView(frameView: UIView) {

@@ -30,11 +30,7 @@ import java.util.ArrayList;
 import android.util.Log;
 
 import com.mousebird.maply.AttrDictionary;
-import com.mousebird.maply.VectorStyleSettings;
 import com.mousebird.maply.VectorTileStyle;
-import com.mousebird.maply.sld.sldstyleset.SLDFeatureTypeStyle;
-import com.mousebird.maply.sld.sldstyleset.SLDParseHelper;
-import com.mousebird.maply.MaplyBaseController;
 import com.mousebird.maply.sld.sldsymbolizers.SLDSymbolizerParams;
 
 /**

@@ -3,20 +3,22 @@
 //  AutoTester
 //
 //  Created by Steve Gifford on 3/11/16.
-//  Copyright © 2016-2017 mousebird consulting. All rights reserved.
+//  Copyright © 2016-2017 mousebird consulting.
 //
 
 #import "GreatCircleTestCase.h"
-#import "CartoDBTestCase.h"
+#import "AutoTester-Swift.h"
 
 @implementation GreatCircleTestCase
+{
+    CartoDBLightTestCase *baseView;
+}
 
 - (instancetype)init
 {
     if (self = [super init]) {
         self.name = @"Great Circles";
-        self.captureDelay = 20;
-        self.implementations = MaplyTestCaseOptionGlobe | MaplyTestCaseOptionMap;
+        self.implementations = MaplyTestCaseImplementationGlobe | MaplyTestCaseImplementationMap;
 
     }
     
@@ -202,7 +204,7 @@
 
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
-    CartoDBTestCase *baseView = [[CartoDBTestCase alloc] init];
+    baseView = [[CartoDBLightTestCase alloc] init];
     [baseView setUpWithGlobe:globeVC];
     globeVC.height = 0.25;
     globeVC.keepNorthUp = false;
@@ -214,7 +216,7 @@
 
 - (void)setUpWithMap:(MaplyViewController *)mapVC
 {
-    CartoDBTestCase *baseView = [[CartoDBTestCase alloc] init];
+    baseView = [[CartoDBLightTestCase alloc] init];
     [baseView setUpWithMap:mapVC];
     mapVC.height = 0.25;
 

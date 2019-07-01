@@ -8,11 +8,12 @@ import com.mousebird.maply.AttrDictionary;
 import com.mousebird.maply.ComponentObject;
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.MapController;
-import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.BaseController;
 import com.mousebird.maply.MaplyTexture;
 import com.mousebird.maply.Marker;
 import com.mousebird.maply.MarkerInfo;
 import com.mousebird.maply.Point2d;
+import com.mousebird.maply.RenderController;
 import com.mousebird.maply.VectorObject;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 import com.mousebirdconsulting.autotester.R;
@@ -54,13 +55,13 @@ public class AnimatedMarkersTestCase extends MaplyTestCase
         return true;
     }
 
-    private void insertMarkers(ArrayList<VectorObject> vectors, MaplyBaseController baseVC) {
+    private void insertMarkers(ArrayList<VectorObject> vectors, BaseController baseVC) {
         MarkerInfo markerInfo = new MarkerInfo();
         Bitmap icon0 = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.teardrop);
         Bitmap icon1 = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.teardrop_stroked);
         MaplyTexture textures[] = new MaplyTexture[2];
-        textures[0] = baseVC.addTexture(icon0,new MaplyBaseController.TextureSettings(), MaplyBaseController.ThreadMode.ThreadCurrent);
-        textures[1] = baseVC.addTexture(icon1,new MaplyBaseController.TextureSettings(), MaplyBaseController.ThreadMode.ThreadCurrent);
+        textures[0] = baseVC.addTexture(icon0,null, RenderController.ThreadMode.ThreadCurrent);
+        textures[1] = baseVC.addTexture(icon1,null, RenderController.ThreadMode.ThreadCurrent);
 //		markerInfo.setMinVis(0.f);
 //		markerInfo.setMaxVis(2.5f);
 
@@ -82,7 +83,7 @@ public class AnimatedMarkersTestCase extends MaplyTestCase
             }
         }
 
-        ComponentObject object = baseVC.addMarkers(markers, markerInfo, MaplyBaseController.ThreadMode.ThreadAny);
+        ComponentObject object = baseVC.addMarkers(markers, markerInfo, RenderController.ThreadMode.ThreadAny);
         if (object != null) {
             componentObjects.add(object);
         }

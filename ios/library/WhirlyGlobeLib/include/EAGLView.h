@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/5/11.
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,17 +20,18 @@
 
 #import <UIKit/UIKit.h>
 
-#import "SceneRendererES.h"
+#import "ViewWrapper.h"
+#import "SceneRendererGLES_iOS.h"
 
 /** OpenGL View is a
 	base class for implementing an open GL rendering view.
 	This is modeled off of the example.  We subclass this for
     our own purposes.
  */
-@interface WhirlyKitEAGLView  : UIView 
+@interface WhirlyKitEAGLView : UIView<WhirlyKitViewWrapper>
 
 /// We're only expecting this to be set once
-@property (nonatomic,weak) WhirlyKitSceneRendererES *renderer;
+@property (nonatomic) WhirlyKit::SceneRenderer *renderer;
 /// This is in units of 60/frameRate.  Set it to 4 to get 15 frames/sec (at most)
 @property (nonatomic) NSInteger frameInterval;
 /// True if we've got a displayLink turned on to animate.
@@ -44,15 +45,5 @@
 /// If set, we'll pause the display link for stopAnimation
 /// If not set we'll continue firing and process the scene but not render
 @property (nonatomic) bool pauseDisplayLink;
-
-/// Start animating.  Typically right before we're displayed
-- (void) startAnimation;
-/// Stop animating.  It can be restarted or destroyed after this.
-- (void) stopAnimation;
-/// Destroy the display link.  Cannot be restarted.
-- (void) teardown;
-
-/// Draw into the actual view
-- (void) drawView:(id)sender;
 
 @end

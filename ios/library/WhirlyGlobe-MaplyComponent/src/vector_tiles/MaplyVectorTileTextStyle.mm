@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 1/3/14.
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,8 +18,9 @@
  *
  */
 
-#import "MaplyVectorTileTextStyle.h"
-#import "MaplyScreenLabel.h"
+#import "vector_styles/MaplyVectorTileTextStyle.h"
+#import "visual_objects/MaplyScreenLabel.h"
+#import "vector_tiles/MapboxVectorTiles.h"
 
 typedef enum {
   TextPlacementPoint,
@@ -74,7 +75,7 @@ typedef enum {
         
         UIColor *fillColor = [UIColor blackColor];
         if (styleEntry[@"fill"])
-            fillColor = [MaplyVectorTiles ParseColor:styleEntry[@"fill"] alpha:alpha];
+            fillColor = [MaplyVectorTileStyle ParseColor:styleEntry[@"fill"] alpha:alpha];
         subStyle->textSize = 12.0;
         if (styleEntry[@"size"])
         {
@@ -165,7 +166,7 @@ typedef enum {
         
         UIColor *outlineColor = nil;
         if (styleEntry[@"halo-fill"])
-            outlineColor = [MaplyVectorTiles ParseColor:styleEntry[@"halo-fill"] alpha:alpha];
+            outlineColor = [MaplyVectorTileStyle ParseColor:styleEntry[@"halo-fill"] alpha:alpha];
         float outlineSize = 1.0;
         if (styleEntry[@"halo-radius"])
             outlineSize = [styleEntry[@"halo-radius"] floatValue];
@@ -247,7 +248,7 @@ typedef enum {
     return self;
 }
 
-- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileInfo *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
+- (void)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileData *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 {
     MaplyCoordinateSystem *displaySystem = viewC.coordSystem;
     
@@ -324,14 +325,12 @@ typedef enum {
                 label.layoutPlacement = [subStyle->layoutPlacement intValue];
         }
 
-        // Note: This should be MaplyThreadCurrent, but...
-        //   We need a GL context present for the text rendering
         MaplyComponentObject *compObj = [viewC addScreenLabels:labels desc:subStyle->desc mode:MaplyThreadCurrent];
         if (compObj)
             [compObjs addObject:compObj];
     }
-
-    return compObjs;
+    
+    [tileInfo addComponentObjects:compObjs];
 }
 
 @end

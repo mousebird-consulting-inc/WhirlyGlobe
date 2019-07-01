@@ -3,7 +3,7 @@
  *  MaplyComponent
  *
  *  Created by Steve Gifford on 12/14/12.
- *  Copyright 2012-2017 mousebird consulting
+ *  Copyright 2012-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,23 +20,19 @@
 
 #import <Foundation/Foundation.h>
 #import <set>
-#import <WhirlyGlobe.h>
+#import <WhirlyGlobe_iOS.h>
 #import "MaplyComponentObject_private.h"
-#import "SelectObject_private.h"
 #import "ImageTexture_private.h"
-#import "MaplyBaseViewController.h"
-#import "MaplyQuadImageTilesLayer.h"
+#import "control/MaplyBaseViewController.h"
 #import "MaplyTextureAtlas_private.h"
+#import "ComponentManager_iOS.h"
+#import "MemManagerGLES.h"
 
 @interface MaplyBaseInteractionLayer : NSObject<WhirlyKitLayer>
 {
 @public
-    WhirlyKitView * __weak visualView;
-    WhirlyKitGLSetupInfo *glSetupInfo;
-
-    pthread_mutex_t selectLock;
-    // Use to map IDs in the selection layer to objects the user passed in
-    SelectObjectSet selectObjectSet;
+    WhirlyKit::View *visualView;
+    const WhirlyKit::RenderSetupInfo *setupInfo;
 
     // Layer thread we're part of
     WhirlyKitLayerThread * __weak layerThread;
@@ -44,20 +40,25 @@
     // Scene we're using
     WhirlyKit::Scene *scene;
     
+    WhirlyKit::SceneRenderer *sceneRender;
+    
     // Pointer to the layerThreads we're using in the base view controller
     NSArray *layerThreads;
-    
-    pthread_mutex_t imageLock;
+
+    // Used to track groups of low level objects and vectors
+    WhirlyKit::ComponentManager_iOS *compManager;
+
+    std::mutex imageLock;
     // Used to track textures
     MaplyImageTextureList imageTextures;
-
-    // Component objects created for the user
-    NSMutableSet *userObjects;
-    
+        
     // Texture atlas manager
     MaplyTextureAtlasGroup *atlasGroup;
     
-    pthread_mutex_t tempContextLock;
+    /// Active shaders
+    NSMutableArray *shaders;
+        
+    std::mutex tempContextLock;
     // We keep a set of temporary OpenGL ES contexts around for threads that don't have them
     std::set<EAGLContext *> tempContexts;
     
@@ -65,14 +66,11 @@
     bool isShuttingDown;
 }
 
-// Note: Not a great idea to be passing this in
-@property (nonatomic,weak) UIView * glView;
-
 // Offset for draw priorities on screen objects
 @property (nonatomic,assign) int screenObjectDrawPriorityOffset;
 
 // Initialize with the view we'll be using
-- (instancetype)initWithView:(WhirlyKitView *)visualView;
+- (instancetype)initWithView:(WhirlyKit::View *)visualView;
 
 // Add screen space (2D) markers
 - (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
@@ -120,7 +118,7 @@
 - (void)changeSticker:(MaplyComponentObject *)compObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 
 // Add lofted polys
-- (MaplyComponentObject *)addLoftedPolys:(NSArray *)vectors desc:(NSDictionary *)desc key:(NSString *)key cache:(NSObject<WhirlyKitLoftedPolyCache> *)cache mode:(MaplyThreadMode)threadMode;
+- (MaplyComponentObject *)addLoftedPolys:(NSArray *)vectors desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 
 // Add billboards
 - (MaplyComponentObject *)addBillboards:(NSArray *)billboards desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
@@ -163,6 +161,9 @@
 
 // Add a texture to an atlas
 - (MaplyTexture *)addTextureToAtlas:(UIImage *)image desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+
+// Add a subtexture that references and existing texture
+- (MaplyTexture *)addSubTexture:(MaplyTexture *)tex xOffset:(int)x yOffset:(int)y width:(int)width height:(int)height mode:(MaplyThreadMode)threadMode;
 
 // Start collecting changes for this thread
 - (void)startChanges;

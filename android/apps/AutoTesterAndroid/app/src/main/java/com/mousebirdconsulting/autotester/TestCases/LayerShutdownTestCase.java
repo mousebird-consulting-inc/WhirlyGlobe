@@ -5,11 +5,6 @@ import android.os.Handler;
 
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.MapController;
-import com.mousebird.maply.MaplyBaseController;
-import com.mousebird.maply.QuadImageTileLayer;
-import com.mousebird.maply.QuadPagingLayer;
-import com.mousebird.maply.RemoteTileInfo;
-import com.mousebird.maply.RemoteTileSource;
 import com.mousebird.maply.SphericalMercatorCoordSystem;
 import com.mousebirdconsulting.autotester.ConfigOptions;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
@@ -28,6 +23,9 @@ public class LayerShutdownTestCase extends MaplyTestCase  {
         this.implementation = MaplyTestCase.TestExecutionImplementation.Both;
     }
 
+    // TODO: Put this back
+
+    /*
     QuadImageTileLayer stamenLayer = null;
     QuadPagingLayer vectorLayer = null;
     boolean canceled = false;
@@ -121,6 +119,8 @@ public class LayerShutdownTestCase extends MaplyTestCase  {
         canceled = true;
         super.shutdown();
     }
+
+    */
 }
 
 

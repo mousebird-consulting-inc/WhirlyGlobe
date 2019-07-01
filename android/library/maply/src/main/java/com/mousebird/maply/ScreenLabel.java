@@ -66,6 +66,16 @@ public class ScreenLabel
 	public float layoutImportance = 0.f;
 
 	/**
+	 * If set, this is the size of the object as seen by the layout engine.
+	 * If not set, it uses the display size
+	 */
+	public Point2d layoutSize = null;
+
+	// If set, this is a string used to uniquely identify this string
+	// Used for deconfliction in map display
+	public String uniqueID = null;
+
+	/**
 	 * For selection, we include a user accessible object pointer.  You use
 	 * this to identify a label if you're doing user selection.
 	 */

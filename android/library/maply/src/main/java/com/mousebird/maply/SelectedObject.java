@@ -18,7 +18,7 @@ public class SelectedObject
     native long getSelectID();
 
     /**
-     * The object selected.
+     * The Java-side object selected.
      */
     public Object selObj = null;
 

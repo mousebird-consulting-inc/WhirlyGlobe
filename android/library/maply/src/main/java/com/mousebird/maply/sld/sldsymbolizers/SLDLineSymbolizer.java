@@ -22,11 +22,9 @@ package com.mousebird.maply.sld.sldsymbolizers;
 
 import android.util.Log;
 
-import com.mousebird.maply.VectorStyleSettings;
 import com.mousebird.maply.VectorTileStyle;
 import com.mousebird.maply.sld.sldstyleset.SLDParseHelper;
 import com.mousebird.maply.VectorTileLineStyle;
-import com.mousebird.maply.MaplyBaseController;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;

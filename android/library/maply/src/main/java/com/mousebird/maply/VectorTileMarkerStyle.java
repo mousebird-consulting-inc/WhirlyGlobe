@@ -36,7 +36,7 @@ public class VectorTileMarkerStyle extends VectorTileStyle {
     private MarkerInfo markerInfo;
     private Bitmap bitmap;
 
-    public VectorTileMarkerStyle(MarkerInfo markerInfo, Bitmap bitmap, VectorStyleSettings settings, MaplyBaseController viewC) {
+    public VectorTileMarkerStyle(MarkerInfo markerInfo, Bitmap bitmap, VectorStyleSettings settings, RenderControllerInterface viewC) {
         super(viewC);
 
         this.markerInfo = markerInfo;
@@ -45,7 +45,7 @@ public class VectorTileMarkerStyle extends VectorTileStyle {
 
     }
 
-    public ComponentObject[] buildObjects(List<VectorObject> objects, MaplyTileID tileID, MaplyBaseController controller) {
+    public void buildObjects(VectorObject objects[], VectorTileData tileData, RenderControllerInterface controller) {
 
         ArrayList<ScreenMarker> markers = new ArrayList<ScreenMarker>();
         for (VectorObject vector : objects) {
@@ -60,11 +60,8 @@ public class VectorTileMarkerStyle extends VectorTileStyle {
             }
         }
 
-        ComponentObject compObj = controller.addScreenMarkers(markers, markerInfo, MaplyBaseController.ThreadMode.ThreadCurrent);
-        if (compObj != null) {
-            return new ComponentObject[]{compObj};
-        }
-        return null;
+        ComponentObject compObj = controller.addScreenMarkers(markers, markerInfo, RenderController.ThreadMode.ThreadCurrent);
+        tileData.addComponentObject(compObj);
     }
 
 }

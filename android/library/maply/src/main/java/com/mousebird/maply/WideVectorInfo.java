@@ -20,12 +20,6 @@ public class WideVectorInfo extends BaseInfo
     public WideVectorInfo()
     {
         initialise();
-        setColor(Color.WHITE);
-        setLineWidth(2.0f);
-        setJoinType(JoinType.MiterJoin);
-        setMitreLimit(2.0f);
-        setTexId(0);
-        setEdgeFalloff(1.0f);
         setDrawPriority(WideVectorPriorityDefault);
     }
 
@@ -33,6 +27,41 @@ public class WideVectorInfo extends BaseInfo
     {
         dispose();
     }
+
+    /**
+     * Set the color used by the geometry.
+     * @param color Color in Android format, including alpha.
+     */
+    public void setColor(int color)
+    {
+        setColor(Color.red(color)/255.f,Color.green(color)/255.f,Color.blue(color)/255.f,Color.alpha(color)/255.f);
+    }
+
+    /**
+     * Set the color used by the geometry.  Color values range from 0 to 1.0.
+     * You must specify all four values.  Alpha controls transparency.
+     * @param r Red component.
+     * @param g Green component.
+     * @param b Blue component.
+     * @param a Alpha component.
+     */
+    public native void setColor(float r,float g,float b,float a);
+
+    /**
+     * This is the line width for vector features.  By default this is 1.0.
+     */
+    public native void setLineWidth(float lineWidth);
+
+    /**
+     * This is the repeat size for a texture applied along the widened line.
+     * The value is in pixels for screen widths.
+     */
+    public native void setTextureRepeatLength(double repeatLen);
+
+    /**
+     * Number of pixels to use in blending the edges of the wide vectors.
+     */
+    public native void setEdgeFalloff(double falloff);
 
     enum JoinType {MiterJoin,BevelJoin};
 
@@ -58,45 +87,13 @@ public class WideVectorInfo extends BaseInfo
      */
     public void setTexture(MaplyTexture tex)
     {
-        setTexId(tex.texID);
-    }
-
-    native void setTexId(long texID);
-
-    /**
-     * This is the repeat size for a texture applied along the widened line.
-     * The value is in pixels for screen widths.
-     */
-    public native void setTextureRepeatLength(double repeatLen);
-
-    /**
-     * Number of pixels to use in blending the edges of the wide vectors.
-     */
-    public native void setEdgeFalloff(double falloff);
-
-    /**
-     * Set the color used by the geometry.
-     * @param color Color in Android format, including alpha.
-     */
-    public void setColor(int color)
-    {
-        setColor(Color.red(color)/255.f,Color.green(color)/255.f,Color.blue(color)/255.f,Color.alpha(color)/255.f);
+        setTexID(tex.texID);
     }
 
     /**
-     * Set the color used by the geometry.  Color values range from 0 to 1.0.
-     * You must specify all four values.  Alpha controls transparency.
-     * @param r Red component.
-     * @param g Green component.
-     * @param b Blue component.
-     * @param a Alpha component.
+     * Set the texture to be applied by ID.
      */
-    public native void setColor(float r,float g,float b,float a);
-
-    /**
-     * This is the line width for vector features.  By default this is 1.0.
-     */
-    public native void setLineWidth(float lineWidth);
+    native void setTexID(long texID);
 
     static
     {

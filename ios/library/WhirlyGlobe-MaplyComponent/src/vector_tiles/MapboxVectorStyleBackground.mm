@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 2/17/15.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
  *
  */
 
-#import "MapboxVectorStyleBackground.h"
+#import "vector_styles/MapboxVectorStyleBackground.h"
 
 @implementation MapboxVectorBackgroundPaint
 
@@ -59,13 +59,20 @@
         NSLog(@"Expecting paint in background layer");
         return nil;
     }
-    
+
+    // Mess directly with the opacity because we're using it for other purposes
+    if (styleEntry[@"alphaoverride"])
+    {
+        double alpha = [styleEntry[@"alphaoverride"] doubleValue];
+        const CGFloat *colors = CGColorGetComponents(_paint.color.CGColor);
+        _paint.color = [UIColor colorWithRed:colors[0] green:colors[1] blue:colors[2] alpha:alpha];
+    }
+
     return self;
 }
 
-- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileInfo *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+- (void)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileData *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
-    return nil;
 }
 
 @end

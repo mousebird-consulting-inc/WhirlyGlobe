@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 4/3/13.
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,15 +18,21 @@
  *
  */
 
-#import "MaplyActiveObject.h"
+#import "control/MaplyActiveObject.h"
 #import "WhirlyGlobe.h"
-#import "MaplyBaseViewController.h"
+#import "control/MaplyBaseViewController.h"
 
 // Fill in the Active Model protocol from the API
-@interface MaplyActiveObject() <WhirlyKitActiveModel>
+@interface MaplyActiveObject()
 {
 @public
     WhirlyKit::Scene *scene;
 }
+
+// Wire in the active object
+- (void)registerWithScene;
+
+// Get rid of the scene hooks
+- (void)removeFromScene;
 
 @end

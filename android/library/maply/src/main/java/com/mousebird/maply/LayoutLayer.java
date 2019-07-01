@@ -22,6 +22,8 @@ package com.mousebird.maply;
 
 import android.os.Handler;
 
+import java.lang.ref.WeakReference;
+
 /**
  * The layout layer runs every so often to layout text and marker objects
  * on the screen.  You don't need to create one of these, MaplyController does that.
@@ -29,12 +31,12 @@ import android.os.Handler;
  */
 class LayoutLayer extends Layer implements LayerThread.ViewWatcherInterface
 {
-	MaplyBaseController maplyControl = null;
+	WeakReference<BaseController> maplyControl = null;
 	LayoutManager layoutManager = null;
 
-	LayoutLayer(MaplyBaseController inMaplyControl,LayoutManager inLayoutManager)
+	LayoutLayer(BaseController inMaplyControl,LayoutManager inLayoutManager)
 	{
-		maplyControl = inMaplyControl;
+		maplyControl = new WeakReference<BaseController>(inMaplyControl);
 		layoutManager = inLayoutManager;
 	}
 	
@@ -44,9 +46,9 @@ class LayoutLayer extends Layer implements LayerThread.ViewWatcherInterface
 
 		scheduleUpdate();
 		if (maplyControl != null) {
-			LayerThread layerThread = maplyControl.getLayerThread();
+			LayerThread layerThread = maplyControl.get().getLayerThread();
 			if (layerThread != null)
-				maplyControl.getLayerThread().addWatcher(this);
+				maplyControl.get().getLayerThread().addWatcher(this);
 		}
 	}
 	
@@ -101,8 +103,8 @@ class LayoutLayer extends Layer implements LayerThread.ViewWatcherInterface
 			if (updateHandle == null)
 			{
 				updateRun = makeRepeatingTask();
-				if (maplyControl != null && maplyControl.getLayerThread() != null) {
-					updateHandle = maplyControl.getLayerThread().addDelayedTask(updateRun, 200);
+				if (maplyControl != null && maplyControl.get().getLayerThread() != null) {
+					updateHandle = maplyControl.get().getLayerThread().addDelayedTask(updateRun, 200);
 				}
 			}
 		}
@@ -133,7 +135,7 @@ class LayoutLayer extends Layer implements LayerThread.ViewWatcherInterface
 			// Note: Should wait until the user stops moving
 			ChangeSet changes = new ChangeSet();
 			layoutManager.updateLayout(viewState, changes);
-			maplyControl.scene.addChanges(changes);
+			maplyControl.get().scene.addChanges(changes);
 
 			lastViewState = viewState;
 		}

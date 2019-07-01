@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 2/16/15.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,16 +18,18 @@
  *
  */
 
-#import "MapboxVectorStyleSet.h"
-#import "MapboxVectorStyleBackground.h"
-#import "MapboxVectorStyleFill.h"
-#import "MapboxVectorStyleLine.h"
-#import "MapboxVectorStyleRaster.h"
-#import "MapboxVectorStyleSymbol.h"
+#import "vector_styles/MapboxVectorStyleSet.h"
+#import "vector_styles/MapboxVectorStyleBackground.h"
+#import "vector_styles/MapboxVectorStyleFill.h"
+#import "vector_styles/MapboxVectorStyleLine.h"
+#import "vector_styles/MapboxVectorStyleRaster.h"
+#import "vector_styles/MapboxVectorStyleSymbol.h"
+#import <map>
 
 @implementation MapboxVectorStyleSet
 {
-    NSMutableDictionary *layersByUUID;
+    NSMutableDictionary *layersByID;
+    int currentID;
 }
 
 - (id)initWithJSON:(NSData *)styleJSON settings:(MaplyVectorStyleSettings *)settings viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC filter:(bool (^)(NSMutableDictionary * __nonnull))filterBlock
@@ -51,9 +53,22 @@
     _spriteURL = styleDict[@"sprite"];
     NSArray *layerStyles = styleDict[@"layers"];
     NSMutableArray *layers = [NSMutableArray array];
+    layersByID = [NSMutableDictionary dictionary];
+    currentID = 0;
     NSMutableDictionary *sourceLayers = [NSMutableDictionary dictionary];
-    layersByUUID = [NSMutableDictionary dictionary];
     NSMutableDictionary *layersByName = [NSMutableDictionary dictionary];
+    
+    // Parse the sprite sheet if it's there
+    // Note: We're only looking for those locally right now
+    if (_spriteURL) {
+        NSString *spriteJSONPath = [[NSBundle mainBundle] pathForResource:_spriteURL ofType:@"json"];
+        UIImage *spriteImage = [UIImage imageNamed:_spriteURL];
+        NSData *jsonData = [NSData dataWithContentsOfFile:spriteJSONPath];
+        if (spriteImage && jsonData) {
+            _sprites = [[MapboxVectorStyleSprites alloc] initWithJSON:jsonData image:spriteImage settings:settings viewC:viewC];
+        }
+    }
+    
     int which = 0;
     for (NSDictionary *layerStyleIter in layerStyles)
     {
@@ -68,7 +83,7 @@
         if (layer)
         {
             [layers addObject:layer];
-            layersByUUID[layer.uuid] = layer;
+            layersByID[@(layer.uuid)] = layer;
             layersByName[layer.ident] = layer;
             if (layer.sourceLayer)
             {
@@ -87,6 +102,11 @@
     _layersByName = layersByName;
     
     return self;
+}
+
+- (long long)generateUUID
+{
+    return currentID++;
 }
 
 - (NSArray*)stylesForFeatureWithAttributes:(NSDictionary*)attributes
@@ -114,10 +134,15 @@
     return (layersToRun.count != 0);
 }
 
-- (MaplyVectorTileStyle*)styleForUUID:(NSString*)uuid viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+- (MaplyVectorTileStyle*)styleForUUID:(long long)uuid viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
-    return layersByUUID[uuid];
+    return layersByID[@(uuid)];
 }
+
+- (NSArray * _Nonnull)allStyles {
+    return [layersByID allValues];
+}
+
 
 - (id)constantSubstitution:(id)thing forField:(NSString *)field
 {
@@ -476,6 +501,13 @@
         }
     }
     
+    if (layerDict[@"metadata"])
+    {
+        NSDictionary *metadataDict = layerDict[@"metadata"];
+        if ([metadataDict isKindOfClass:[NSDictionary class]])
+            layer.metadata = metadataDict;
+    }
+    
     return layer;
 }
 
@@ -487,7 +519,7 @@
     
     self.styleSet = styleSet;
     self.drawPriority = drawPriority;
-    self.uuid = [@(rand()) stringValue];
+    self.uuid = [styleSet generateUUID];
     
     _minzoom = -1;
     _maxzoom = -1;
@@ -507,9 +539,8 @@
     return category;
 }
 
-- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileInfo *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+- (void)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileData *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
-    return nil;
 }
 
 @end

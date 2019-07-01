@@ -18,13 +18,14 @@
  *
  */
 
-#import "MaplyRenderController.h"
+#import "control/MaplyRenderController.h"
 #import "MaplyComponentObject_private.h"
 #import "MaplyBaseInteractionLayer_private.h"
 #import "MaplyVectorObject_private.h"
 #import "MaplyShader_private.h"
 #import "MaplyCoordinateSystem_private.h"
 #import "MaplyQuadSampler_private.h"
+#import "SceneRendererGLES_iOS.h"
 
 @class MaplyBaseInteractionLayer;
 
@@ -36,8 +37,11 @@
 @interface MaplyRenderController()<WhirlyKitSnapshot>
 {
 @public
+    // OpenGL or Metal
+    WhirlyKit::SceneRenderer::Type renderType;
+    
     // Scene renderer... renders the scene
-    WhirlyKitSceneRendererES2 *sceneRenderer;
+    WhirlyKit::SceneRendererRef sceneRenderer;
     
     // Our own interaction layer does most of the work
     MaplyBaseInteractionLayer *interactLayer;
@@ -53,10 +57,7 @@
 
     /// Active lights
     NSMutableArray *lights;
-    
-    /// Active shaders
-    NSMutableArray *shaders;
-    
+        
     /// Used to be screen objects were always drawn last.  Now that's optional.
     int screenDrawPriorityOffset;
 }
@@ -66,6 +67,7 @@
 
 // Setup
 - (void)loadSetup;
+- (void)setupShaders;
 
 // Used in shutting down controls
 - (void)teardown;

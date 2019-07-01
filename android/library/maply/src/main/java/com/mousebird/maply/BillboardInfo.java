@@ -20,72 +20,63 @@
 package com.mousebird.maply;
 
 
+import android.graphics.Color;
+
 /**
  * Parameters used to control billboard display.
  */
 public class BillboardInfo extends BaseInfo {
 
     /**
-     * Creates an empty billboard info
+     * Creates an empty billboard info object
      */
     public BillboardInfo() {
         initialise();
     }
 
     /**
-     * TODO(sjg)
-     * Color components range from 0.0 to 1.0.
-     * @param r red component
-     * @param g green component
-     * @param b blue component
-     * @param a alpha component
+     * Billboard is oriented toward the eye or tied to the ground.
+     */
+    enum Orient {Eye,Ground}
+
+    /**
+     * Set the color used by the geometry.
+     * @param color Color in Android format, including alpha.
+     */
+    public void setColor(int color)
+    {
+        setColor(Color.red(color)/255.f,Color.green(color)/255.f,Color.blue(color)/255.f,Color.alpha(color)/255.f);
+    }
+
+    /**
+     * Set color by component.
      */
     public native void setColor(float r, float g, float b, float a);
 
-    /**
-     * TODO(sjg)
-     * @return the color components (rgba)
-     */
-    public native float[] getColor();
+    private Orient orient = Orient.Ground;
 
     /**
-     * TODO(sjg)
-     * @param zBufferRead
+     * Set the orientation toward the user (eye) or tied to the ground (but also taking user position into account)
      */
-    public native void setZBufferRead(boolean zBufferRead);
-
-    /**
-     * TODO(sjg)
-     * @return
-     */
-    public native boolean getZBufferRead();
-
-    /**
-     * TODO(sjg)
-     * @param zBufferWrite
-     */
-    public native void setZBufferWrite(boolean zBufferWrite);
-
-    /**
-     * TODO(sjg)
-     * @return
-     */
-    public native boolean getZBufferWrite();
-
-    /**
-     * @return the shader name to be used in the billboard.
-     */
-    public String getShaderName() {
-        return shaderName;
+    public void setOrient(Orient orient)
+    {
+        setOrientNative(orient.ordinal());
     }
 
+    private native void setOrientNative(int orient);
+
     /**
-     * @param shaderName the shader name to be used in the billboard.
+     * Return the billboard orientation.
      */
-    public void setShaderName(String shaderName) {
-        this.shaderName = shaderName;
+    public Orient getOrient()
+    {
+        return orient;
     }
 
+    public void finalize()
+    {
+        dispose();
+    }
     static
     {
         nativeInit();

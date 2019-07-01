@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Jesse Crocker, Trailbehind inc. on 3/31/14.
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,14 +18,13 @@
  *
  */
 
-#import "MapnikStyleSet.h"
-#import "MaplyVectorTileStyle.h"
-#import "MaplyVectorTiles.h"
+#import "vector_styles/MapnikStyleSet.h"
+#import "vector_styles/MaplyVectorTileStyle.h"
 
-#import "MaplyRemoteTileSource.h"
-#import "MapnikStyle.h"
-#import "MapnikStyleRule.h"
-#import "NSDictionary+StyleRules.h"
+#import "loading/MaplyTileSourceNew.h"
+#import "vector_styles/MapnikStyle.h"
+#import "vector_styles/MapnikStyleRule.h"
+#import "UIKit/NSDictionary+StyleRules.h"
 
 @interface MapnikStyleSet() {
   //temporary storage during parsing
@@ -41,7 +40,7 @@
 
 @property (nonatomic, strong) NSMutableDictionary *styles;
 @property (nonatomic, strong) NSMutableDictionary *layers;
-@property (nonatomic, strong) NSMutableDictionary *symbolizers;
+@property (nonatomic, strong) NSMutableArray *symbolizers;
 
 @property (nonatomic, assign, readwrite) BOOL parsing;
 @property (nonatomic, assign) BOOL success;
@@ -155,7 +154,7 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
 - (void)generateStyles {
   self.styles = [NSMutableDictionary dictionary];
   self.layers = [NSMutableDictionary dictionary];
-  self.symbolizers = [NSMutableDictionary dictionary];
+  self.symbolizers = [NSMutableArray array];
   
   NSInteger symbolizerId = 0;
 
@@ -238,10 +237,10 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
         MaplyVectorTileStyle *s = [MaplyVectorTileStyle styleFromStyleEntry:@{@"type": mutableSymbolizerDict[@"type"], @"substyles": @[mutableSymbolizerDict]}
                                                                    settings:self.tileStyleSettings
                                                                       viewC:self.viewC];
-        s.uuid = @(symbolizerId);
+        s.uuid = symbolizerId;
         if(s) {
           [rule.symbolizers addObject:s];
-          self.symbolizers[s.uuid] = s;
+          self.symbolizers[symbolizerId] = s;
         }
       }
       
@@ -271,7 +270,7 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
   
   NSString *backgroundColorString = self.styleDictionary[@"map"][@"background-color"];
   if(backgroundColorString) {
-    self.backgroundColor = [MaplyVectorTiles ParseColor:backgroundColorString];
+    self.backgroundColor = [MaplyVectorTileStyle ParseColor:backgroundColorString];
   }
 }
 
@@ -316,7 +315,7 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
 }
 
 
-- (MaplyVectorTileStyle*)styleForUUID:(NSString *)uuid viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC {
+- (MaplyVectorTileStyle*)styleForUUID:(long long)uuid viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC {
   return self.symbolizers[uuid];
 }
 
@@ -408,7 +407,7 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
 
 
 - (void)parserDidEndDocument:(NSXMLParser *)parser {
-  //NSLog(@"Parse time:%f, %d styles", CFAbsoluteTimeGetCurrent() - startTime, self.styles.count);
+  //NSLog(@"Parse time:%f, %d styles", TimeGetCurrent() - startTime, self.styles.count);
 //  [self generateStyles];
   self.success = YES;
   [self cleanup];
@@ -438,5 +437,9 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
   currentLayer = nil;
 }
 
+- (NSArray * __nonnull)allStyles
+{
+    return _symbolizers;
+}
 
 @end

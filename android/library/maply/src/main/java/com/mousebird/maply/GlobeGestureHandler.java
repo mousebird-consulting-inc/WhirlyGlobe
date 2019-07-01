@@ -116,7 +116,7 @@ public class GlobeGestureHandler
 					double anglePerSec = autoRotateDegrees / 180.0 * Math.PI;
 					// GlobeView inGlobeView,MaplyRenderer inRender,double inVelocity,double inAcceleration,Point3d inAxis,boolean inNorthUp
 					Point3d north = new Point3d(0,0,1);
-					rotateAnimation = new GlobeAnimateMomentum(globeView,globeControl.renderWrapper.maplyRender,anglePerSec,0.0,north,false);
+					rotateAnimation = new GlobeAnimateMomentum(globeView,globeControl.renderWrapper.maplyRender.get(),anglePerSec,0.0,north,false);
 					globeView.setAnimationDelegate(rotateAnimation);
 				}
 				autoRotateHandler = new Handler();
@@ -373,7 +373,7 @@ public class GlobeGestureHandler
 	
 				if (angVel > 0.0)
 				{
-					globeView.setAnimationDelegate(new GlobeAnimateMomentum(globeView,globeControl.renderWrapper.maplyRender,angVel,accel,rotAxis,globeView.northUp));
+					globeView.setAnimationDelegate(new GlobeAnimateMomentum(globeView,globeControl.renderWrapper.maplyRender.get(),angVel,accel,rotAxis,globeView.northUp));
 				}
 			}
 
@@ -453,7 +453,7 @@ public class GlobeGestureHandler
 				Quaternion newQuat = globeView.makeRotationToGeoCoord(geoCoord.getX(), geoCoord.getY(), globeView.northUp);
 				
 				// Now kick off the animation
-				globeView.setAnimationDelegate(new GlobeAnimateRotation(globeView, globeControl.renderWrapper.maplyRender, newQuat, newHeight, 0.5));
+				globeView.setAnimationDelegate(new GlobeAnimateRotation(globeView, globeControl.renderWrapper.maplyRender.get(), newQuat, newHeight, 0.5));
 			}
 
 			updateTouchedTime();
@@ -612,7 +612,7 @@ public class GlobeGestureHandler
 			newHeight = Math.max(newHeight,zoomLimitMin);
 
 			// Now kick off the animation
-			globeView.setAnimationDelegate(new GlobeAnimateRotation(globeView, globeControl.renderWrapper.maplyRender, globeView.getRotQuat(), newHeight, 0.5));
+			globeView.setAnimationDelegate(new GlobeAnimateRotation(globeView, globeControl.renderWrapper.maplyRender.get(), globeView.getRotQuat(), newHeight, 0.5));
 
 			sl.isActive = false;
 			gl.isActive = false;
