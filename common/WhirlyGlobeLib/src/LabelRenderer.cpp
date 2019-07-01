@@ -229,10 +229,11 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
             
             // Throw a rectangle in the background
             RGBAColor backColor = theBackColor;
+            double backBorder = 0.0;
             if (backColor.a != 0.0)
             {
                 // Note: This is an arbitrary border around the text
-                float backBorder = 4.0;
+                backBorder = 4.0;
                 ScreenSpaceObject::ConvexGeometry smGeom;
                 smGeom.progID = labelInfo->programID;
                 Point2d ll = Point2d(drawMbr.ll().x(),drawMbr.ll().y())+iconOff+Point2d(-backBorder,-backBorder), ur = Point2d(drawMbr.ur().x(),drawMbr.ur().y())+iconOff+Point2d(backBorder,0.0);
@@ -258,10 +259,14 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
             {
                 // Put together the layout info
                 //                    layoutObject->hint = label->text;
-                layoutObject->layoutPts.push_back(Point2d(layoutMbr.ll().x()+label->screenOffset.x(),layoutMbr.ll().y()-label->screenOffset.y())+iconOff+justifyOff);
-                layoutObject->layoutPts.push_back(Point2d(layoutMbr.ur().x()+label->screenOffset.x(),layoutMbr.ll().y()-label->screenOffset.y())+iconOff+justifyOff);
-                layoutObject->layoutPts.push_back(Point2d(layoutMbr.ur().x()+label->screenOffset.x(),layoutMbr.ur().y()-label->screenOffset.y())+iconOff+justifyOff);
-                layoutObject->layoutPts.push_back(Point2d(layoutMbr.ll().x()+label->screenOffset.x(),layoutMbr.ur().y()-label->screenOffset.y())+iconOff+justifyOff);
+                layoutObject->layoutPts.push_back(Point2d(layoutMbr.ll().x()+label->screenOffset.x()-backBorder,
+                                                          layoutMbr.ll().y()-label->screenOffset.y()-backBorder)+iconOff+justifyOff);
+                layoutObject->layoutPts.push_back(Point2d(layoutMbr.ur().x()+label->screenOffset.x()+backBorder,
+                                                          layoutMbr.ll().y()-label->screenOffset.y()-backBorder)+iconOff+justifyOff);
+                layoutObject->layoutPts.push_back(Point2d(layoutMbr.ur().x()+label->screenOffset.x()+backBorder,
+                                                          layoutMbr.ur().y()-label->screenOffset.y()+backBorder)+iconOff+justifyOff);
+                layoutObject->layoutPts.push_back(Point2d(layoutMbr.ll().x()+label->screenOffset.x()+backBorder,
+                                                          layoutMbr.ur().y()-label->screenOffset.y()+backBorder)+iconOff+justifyOff);
                 layoutObject->selectPts = layoutObject->layoutPts;
                 
                 //                        layoutObj->iconSize = Point2f(iconSize,iconSize);

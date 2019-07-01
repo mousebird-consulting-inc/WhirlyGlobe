@@ -636,7 +636,7 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
                             for (unsigned int li=0;li<layoutPts.size();li++)
                                 layoutMbr.addPoint(layoutPts[li]);
                             Point2f layoutSpan(layoutMbr.ur().x()-layoutMbr.ll().x(),layoutMbr.ur().y()-layoutMbr.ll().y());
-                            Point2d layoutOrg(layoutMbr.ll().x(),layoutMbr.ll().y());
+                            Point2d layoutOrg(layoutMbr.ll().x(),-layoutMbr.ll().y());
                             
                             // Set up the offset for this orientation
                             switch (orient)
@@ -659,7 +659,7 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
                                     break;
                                 // Above
                                 case 4:
-                                    objOffset = Point2d(-layoutSpan.x()/2.0,0);
+                                    objOffset = Point2d(-layoutSpan.x()/2.0,0.0);
                                     break;
                                 // Below
                                 case 5:
@@ -672,14 +672,14 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
                             {
                                 objPts[0] = Point2d(objPt.x(),objPt.y()) + (objOffset + layoutOrg)*resScale;
                                 objPts[1] = objPts[0] + Point2d(layoutSpan.x()*resScale,0.0);
-                                objPts[2] = objPts[0] + Point2d(layoutSpan.x()*resScale,layoutSpan.y()*resScale);
-                                objPts[3] = objPts[0] + Point2d(0.0,layoutSpan.y()*resScale);
+                                objPts[2] = objPts[0] + Point2d(layoutSpan.x()*resScale,-layoutSpan.y()*resScale);
+                                objPts[3] = objPts[0] + Point2d(0.0,-layoutSpan.y()*resScale);
                             } else {
                                 Point2d center(objPt.x(),objPt.y());
                                 objPts[0] = Point2d(objOffset.x(),-objOffset.y()) + layoutOrg;
                                 objPts[1] = Point2d(objOffset.x(),-objOffset.y()) + layoutOrg + Point2d(layoutSpan.x(),0.0);
-                                objPts[2] = Point2d(objOffset.x(),-objOffset.y()) + layoutOrg + Point2d(layoutSpan.x(),layoutSpan.y());
-                                objPts[3] = Point2d(objOffset.x(),-objOffset.y()) + layoutOrg + Point2d(0.0,layoutSpan.y());
+                                objPts[2] = Point2d(objOffset.x(),-objOffset.y()) + layoutOrg + Point2d(layoutSpan.x(),-layoutSpan.y());
+                                objPts[3] = Point2d(objOffset.x(),-objOffset.y()) + layoutOrg + Point2d(0.0,-layoutSpan.y());
                                 for (unsigned int oi=0;oi<4;oi++)
                                 {
                                     Point2d &thisObjPt = objPts[oi];
@@ -688,10 +688,10 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
                                 }
                             }
                             
-//                        NSLog(@"Center pt = (%f,%f), orient = %d",objPt.x,objPt.y,orient);
-//                        NSLog(@"Layout Pts");
+//                        wkLogLevel(Debug, "Center pt = (%f,%f), orient = %d",objPt.x(),objPt.y(),orient);
+//                        wkLogLevel(Debug, "Layout Pts");
 //                        for (unsigned int xx=0;xx<objPts.size();xx++)
-//                           NSLog(@"  (%f,%f)\n",objPts[xx].x(),objPts[xx].y());
+//                           wkLogLevel(Debug, "  (%f,%f)\n",objPts[xx].x(),objPts[xx].y());
                             
                             // Now try it
                             if (overlapMan.addObject(objPts))
@@ -706,7 +706,7 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
                     }
                 }
 
-//            NSLog(@" Valid (%s): %@, pos = (%f,%f), size = (%f, %f), offset = (%f,%f)",(isActive ? "yes" : "no"),layoutObj->obj.hint,objPt.x,objPt.y,layoutObj->obj.size.x(),layoutObj->obj.size.y(),
+//            wkLogLevel(Debug, " Valid (%s): %s, pos = (%f,%f), offset = (%f,%f)",(isActive ? "yes" : "no"),layoutObj->obj.hint.c_str(),objPt.x(),objPt.y(),
 //                  layoutObj->offset.x(),layoutObj->offset.y());
             }
             
@@ -727,7 +727,7 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
         }
     }
     
-//    NSLog(@"----Finished layout----");
+//    wkLogLevel(Debug, "----Finished layout----");
     
     return hadChanges;
 }

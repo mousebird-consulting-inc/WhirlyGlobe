@@ -21,6 +21,8 @@
 #import <UIKit/UIKit.h>
 #import "math/MaplyCoordinate.h"
 
+/// Don't move the label at all
+#define kMaplyLayoutNone (1<<0)
 /// Okay to place centered on point
 #define kMaplyLayoutCenter  (1<<1)
 /// Okay to place to the right of a point
