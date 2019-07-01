@@ -74,7 +74,7 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 //		labelInfo.setBackgroundColor(Color.RED);
 		labelInfo.setTypeface(Typeface.DEFAULT);
 		labelInfo.setLayoutImportance(1.f);
-		labelInfo.setLayoutPlacement(LabelInfo.LayoutAbove|LabelInfo.LayoutCenter);
+		labelInfo.setLayoutPlacement(LabelInfo.LayoutAbove|LabelInfo.LayoutCenter|LabelInfo.LayoutBelow|LabelInfo.LayoutRight);
 		labelInfo.setTextJustify(LabelInfo.TextJustify.TextLeft);
 //		labelInfo.setMinVis(0.f);
 //		labelInfo.setMaxVis(2.5f);
@@ -121,13 +121,21 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 		labels.add(makeLabel(7, 49.233333, "Saarbrücken", 2.f));
 
 		labels.add(makeLabel(0.0, 0.0, "abcdef\nghijklmn\nopqrstu\nvwxyzA\nBCDEF\nGHIJKLMN\nOPQRTST\nUVWXYZ", 10.f));
+		if (addMarkers)
 		{
 			ScreenMarker marker = new ScreenMarker();
 			marker.loc = Point2d.FromDegrees(0.0,0.0);
 			marker.size = new Point2d(32.f, 32.f);
 			markers.add(marker);
 		}
-		labels.add(makeLabel(1.0, 0.0, "abcdef\nghijklmn\nopqrstu\nvwxyz", 10.f));
+		labels.add(makeLabel(1.0, -5.0, "abcdef\nghijklmn\nopqrstu\nvwxyz", 10.f));
+		if (addMarkers)
+		{
+			ScreenMarker marker = new ScreenMarker();
+			marker.loc = Point2d.FromDegrees(1.0,-5.0);
+			marker.size = new Point2d(32.f, 32.f);
+			markers.add(marker);
+		}
 
 		ScreenLabel nimesLabel = makeLabel(4.361, 43.838, "Nîmes", Float.MAX_VALUE);
 		// Tall and skinny for testing
