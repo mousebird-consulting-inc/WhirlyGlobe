@@ -3,16 +3,15 @@
 //  AutoTester
 //
 //  Created by Ranen Ghosh on 4/7/16.
-//  Copyright © 2016-2017 mousebird consulting. All rights reserved.
+//  Copyright © 2016-2017 mousebird consulting.
 //
 
 #import "LabelAnimationTestCase.h"
 #import "MaplyBaseViewController.h"
 #import "MaplyViewController.h"
 #import "WhirlyGlobeViewController.h"
-#import "CartoDBTestCase.h"
 #import "MaplyScreenLabel.h"
-
+#import "AutoTester-Swift.h"
 
 @implementation LabelAnimationTestCase {
     NSTimer *_labelAnimationTimer;
@@ -24,7 +23,6 @@
 {
     if (self = [super init]) {
         self.name = @"Label Animation";
-        self.captureDelay = 2;
 		self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
         
     }
@@ -48,7 +46,7 @@
 
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
-    CartoDBTestCase *baseView = [[CartoDBTestCase alloc] init];
+    CartoDBLightTestCase *baseView = [[CartoDBLightTestCase alloc] init];
     [baseView setUpWithGlobe:globeVC];
     globeVC.height = 0.25;
     [globeVC setPosition:MaplyCoordinateMakeWithDegrees(-98.58, 39.83) height:1.5];
@@ -63,7 +61,7 @@
 
 - (void)setUpWithMap:(MaplyViewController *)mapVC
 {
-    CartoDBTestCase *baseView = [[CartoDBTestCase alloc] init];
+    CartoDBLightTestCase *baseView = [[CartoDBLightTestCase alloc] init];
     [baseView setUpWithMap:mapVC];
     mapVC.height = 0.25;
     [mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-98.58, 39.83) time:0.0];
@@ -117,7 +115,7 @@
     }
     
     
-    _labelAnimationTimer = [NSTimer scheduledTimerWithTimeInterval:1.25 target:self selector:@selector(labelAnimationCallback) userInfo:nil repeats:NO];
+    _labelAnimationTimer = [NSTimer scheduledTimerWithTimeInterval:10.0 target:self selector:@selector(labelAnimationCallback) userInfo:nil repeats:NO];
 }
 
 

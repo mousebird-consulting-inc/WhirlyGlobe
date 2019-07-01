@@ -8,9 +8,12 @@ import com.mousebird.maply.AttrDictionary;
 import com.mousebird.maply.ComponentObject;
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.MapController;
-import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.BaseController;
 import com.mousebird.maply.MarkerInfo;
 import com.mousebird.maply.Point2d;
+import com.mousebird.maply.MaplyTexture;
+import com.mousebird.maply.RenderController;
+import com.mousebird.maply.RenderControllerInterface;
 import com.mousebird.maply.ScreenMarker;
 import com.mousebird.maply.VectorObject;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
@@ -27,7 +30,7 @@ public class ScreenMarkersTestCase extends MaplyTestCase
 
 	public ScreenMarkersTestCase(Activity activity) {
 		super(activity);
-		setTestName("Screen Markers Test");
+		setTestName("Screen Markers");
 		setDelay(1000);
 		this.implementation = TestExecutionImplementation.Both;
 	}
@@ -56,18 +59,19 @@ public class ScreenMarkersTestCase extends MaplyTestCase
 		return true;
 	}
 
-	private void insertMarkers(ArrayList<VectorObject> vectors, MaplyBaseController baseVC) {
+	private void insertMarkers(ArrayList<VectorObject> vectors, BaseController baseVC) {
 		MarkerInfo markerInfo = new MarkerInfo();
 		Bitmap icon = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.testtarget);
+		MaplyTexture tex = baseVC.addTexture(icon,null, RenderControllerInterface.ThreadMode.ThreadCurrent);
 //		markerInfo.setMinVis(0.f);
 //		markerInfo.setMaxVis(2.5f);
-		markerInfo.setClusterGroup(0);
+//		markerInfo.setClusterGroup(0);
 		markerInfo.setLayoutImportance(1.f);
 
 		ArrayList<ScreenMarker> markers = new ArrayList<ScreenMarker>();
 		for (VectorObject vector : vectors) {
 			ScreenMarker marker = new ScreenMarker();
-			marker.image = icon;
+			marker.tex = tex;
 			Point2d centroid = vector.centroid();
 			if (centroid != null) {
 				marker.loc = centroid;
@@ -83,7 +87,7 @@ public class ScreenMarkersTestCase extends MaplyTestCase
 			}
 		}
 
-		ComponentObject object = baseVC.addScreenMarkers(markers, markerInfo, MaplyBaseController.ThreadMode.ThreadAny);
+		ComponentObject object = baseVC.addScreenMarkers(markers, markerInfo, RenderController.ThreadMode.ThreadAny);
 		if (object != null) {
 			componentObjects.add(object);
 		}

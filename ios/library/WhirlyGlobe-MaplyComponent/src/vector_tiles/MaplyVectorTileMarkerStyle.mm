@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 1/3/14.
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,8 +18,9 @@
  *
  */
 
-#import "MaplyVectorTileMarkerStyle.h"
-#import "MaplyIconManager.h"
+#import "vector_styles/MaplyVectorTileMarkerStyle.h"
+#import "helpers/MaplyIconManager.h"
+#import "vector_tiles/MapboxVectorTiles.h"
 
 @interface MaplyVectorTileSubStyleMarker : NSObject
 {
@@ -58,10 +59,10 @@
     {
         MaplyVectorTileSubStyleMarker *subStyle = [[MaplyVectorTileSubStyleMarker alloc] init];
         if (styleEntry[@"fill"])
-            subStyle->fillColor = [MaplyVectorTiles ParseColor:styleEntry[@"fill"]];
+            subStyle->fillColor = [MaplyVectorTileStyle ParseColor:styleEntry[@"fill"]];
         subStyle->strokeColor = nil;
         if (styleEntry[@"stroke"])
-            subStyle->strokeColor = [MaplyVectorTiles ParseColor:styleEntry[@"stroke"]];
+            subStyle->strokeColor = [MaplyVectorTileStyle ParseColor:styleEntry[@"stroke"]];
         subStyle->width = inSettings.markerSize;
         if (styleEntry[@"width"])
             subStyle->width = [styleEntry[@"width"] floatValue];
@@ -129,7 +130,7 @@
     return self;
 }
 
-- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileInfo *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
+- (void)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileData *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 {    
     bool isRetina = [UIScreen mainScreen].scale > 1.0;
 
@@ -177,7 +178,7 @@
             [compObjs addObject:compObj];
     }
     
-    return compObjs;
+    [tileInfo addComponentObjects:compObjs];
 }
 
 @end

@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by jmnavarro on 29/10/15.
-//  Copyright © 2015-2017 mousebird consulting. All rights reserved.
+//  Copyright © 2015-2017 mousebird consulting.
 //
 
 #import "VectorsTestCase.h"
@@ -27,7 +27,6 @@
 {
 	if (self = [super init]) {
 		self.name = @"Vectors";
-		self.captureDelay = 5;
 		self.compObjs = [[NSMutableArray alloc] init];
         self.vecList = [[NSMutableArray alloc] init];
 		self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
@@ -52,7 +51,7 @@
                 if (wgVecObj)
                 {
                     NSString *vecName = [[wgVecObj attributes] objectForKey:@"ADMIN"];
-                    wgVecObj.userObject = vecName;
+                    wgVecObj.attributes[@"title"] = vecName;
                     wgVecObj.selectable = true;
                     [self.vecList addObject:wgVecObj];
                     MaplyComponentObject *compObj = [baseVC addVectors:@[wgVecObj] desc:vectorDict];
@@ -87,19 +86,6 @@
 	[self overlayCountries:(MaplyBaseViewController*)mapVC];
 }
 
-- (void) tearDownWithMap:(MaplyViewController *)mapVC {
-    [mapVC removeObjects:self.compObjs];
-    self.compObjs = nil;
-    self.baseView = nil;
-    
-}
-
-- (void)tearDownWithGlobe:(WhirlyGlobeViewController *)globeVC{
-    
-    [globeVC removeObjects:self.compObjs];
-    self.compObjs = nil;
-    self.baseView = nil;
-}
 - (void) handleSelection:(MaplyBaseViewController *)viewC
 				selected:(NSObject *)selectedObj
 {
@@ -111,7 +97,7 @@
 		if ([theVector centroid:&location]) {
 			MaplyAnnotation *annotate = [[MaplyAnnotation alloc]init];
 			annotate.title = @"Selected";
-			annotate.subTitle = (NSString *)theVector.userObject;
+			annotate.subTitle = (NSString *)theVector.attributes[@"title"];
 			[viewC addAnnotation:annotate forPoint:location offset:CGPointZero];
 		}
 	}

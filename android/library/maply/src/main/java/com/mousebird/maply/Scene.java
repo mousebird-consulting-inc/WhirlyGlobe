@@ -10,29 +10,37 @@ public class Scene
 {
 	// Used to render individual characters using Android's Canvas/Paint/Typeface
 	CharRenderer charRenderer = new CharRenderer();
-	
-	protected Scene()
+
+	// Necessary for the JNI side
+	private Scene()
 	{
 	}
 	
-	// Overridden by the subclass
+	public Scene(CoordSystemDisplayAdapter coordAdapter,RenderController renderControl)
+	{
+		initialise(coordAdapter,renderControl,charRenderer);
+	}
+
+	// Pass this over to the native call.
 	public void addChanges(ChangeSet changes)
 	{
+		addChangesNative(changes);
 	}
 
 	// Overriden by subclass
 	public void shutdown()
 	{
+		dispose();
 	}
 
 	/**
 	 * Associate a shader with the given scene name.  These names let us override existing shaders, as well as adding our own.
 	 * @param shader The shader to add.
-	 * @param sceneName The scene name to associate it with.
 	 */
-	public native void addShaderProgram(Shader shader,String sceneName);
-
-	public native void addRenderTargetNative(long renderTargetID,int width,int height,long texID);
+	public native void addShaderProgram(Shader shader);
+	public native void removeShaderProgram(long shaderID);
+	public native void addRenderTargetNative(long renderTargetID,int width,int height,long texID,boolean clearEveryFrame,boolean blend,float red,float green,float blue,float alpha);
+	public native void changeRenderTarget(long renderTargetID,long texID);
 	public native void removeRenderTargetNative(long renderTargetID);
 
 	/**
@@ -40,13 +48,18 @@ public class Scene
 	 */
 	public native void teardownGL();
 
-	public native long getProgramIDBySceneName(String shaderName);
-
 	static
 	{
 		nativeInit();
 	}
 	private static native void nativeInit();
+	native void initialise(CoordSystemDisplayAdapter coordAdapter,RenderController renderControl,CharRenderer charRenderer);
+	public void finalize()
+	{
+		dispose();
+	}
 	native void addChangesNative(ChangeSet changes);
 	protected long nativeHandle;
+	native void dispose();
+
 }

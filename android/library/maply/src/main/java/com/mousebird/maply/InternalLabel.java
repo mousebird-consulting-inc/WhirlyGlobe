@@ -30,17 +30,13 @@ class InternalLabel
 	{
 		initialise();
 	}
-	
-	/**
-	 * Construct from a ScreenLabel and LabelInfo.  Translates to internal values suitable
-	 * for the rendering engine.
-	 * 
-	 * @param label Screen label we're going to represent.
-	 * @param info Label info to describe how it looks.
-	 */
-	InternalLabel(ScreenLabel label,LabelInfo info)
+
+	private void setupScreenLabel(ScreenLabel label)
 	{
-		initialise();
+		if (label.selectable) {
+			setSelectID(label.ident);
+		}
+
 		setLoc(label.loc);
 		setRotation(label.rotation);
 		if (label.text != null && !label.text.isEmpty()) {
@@ -60,27 +56,57 @@ class InternalLabel
 				addText(codePoints, which);
 			}
 		}
+		if (label.layoutSize != null)
+			setLayoutSize(label.layoutSize.getX(),label.layoutSize.getY());
 		if (label.offset != null)
 			setOffset(label.offset);
 		setLayoutImportance(label.layoutImportance);
-		if (label.selectable) {
-			setSelectable(true);
-			setSelectID(label.ident);
-		}
+		if (label.uniqueID != null)
+			setUniqueID(label.uniqueID);
+	}
+	
+	/**
+	 * Construct from a ScreenLabel and LabelInfo.  Translates to internal values suitable
+	 * for the rendering engine.
+	 * 
+	 * @param label Screen label we're going to represent.
+	 */
+	InternalLabel(ScreenLabel label)
+	{
+		initialise();
+
+		setupScreenLabel(label);
+	}
+
+	/**
+	 * Construct with a moving label.
+	 */
+	InternalLabel(ScreenMovingLabel label,double startTime)
+	{
+		initialise();
+
+		setupScreenLabel(label);
+
+		setEndLoc(label.endLoc);
+		setAnimationRange(startTime,startTime+label.duration);
 	}
 
 	public native void setSelectID(long selectID);
 	public native void setLoc(Point2d loc);
+	public native void setEndLoc(Point2d loc);
+	public native void setAnimationRange(double startTime,double endTime);
 	public native void setRotation(double rotation);
+	public native void setLockRotation(boolean lockRotation);
 	public native void addText(int[] codePoints,int len);
-//	public native void iconImage(Bitmap image);
-//	public native void setIconSize(Point2d iconSize);
 	public native void setOffset(Point2d offset);
-	// Note: Color
-	public native void setSelectable(boolean selectable);
-	// Note: Layout placement
 	public native void setLayoutImportance(float layoutImportance);
-	
+	public native void setLayoutSize(double sizeX,double sizeY);
+	public native void setUniqueID(String uniqueStr);
+
+	public void finalize()
+	{
+		dispose();
+	}
 	static
 	{
 		nativeInit();

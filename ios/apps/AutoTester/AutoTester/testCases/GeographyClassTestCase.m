@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by jmnavarro on 13/10/15.
-//  Copyright © 2015-2017 mousebird consulting. All rights reserved.
+//  Copyright © 2015-2017 mousebird consulting.
 //
 
 #import "GeographyClassTestCase.h"
@@ -24,7 +24,6 @@
 {
 	if (self = [super init]) {
 		self.name = @"Geography Class";
-		self.captureDelay = 2;
 		self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
 	}
 
@@ -81,21 +80,4 @@
 	[mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056) time:1.0];
 }
 
-- (void)teardown
-{
-    [self.loader shutdown];
-    [self.fetcher shutdown];
-    self.loader = nil;
-    self.fetcher = nil;
-}
-
--(void) tearDownWithGlobe:(WhirlyGlobeViewController *)globeVC
-{
-    [self teardown];
-}
-
--(void) tearDownWithMap:(MaplyViewController *)mapVC
-{
-    [self teardown];
-}
 @end

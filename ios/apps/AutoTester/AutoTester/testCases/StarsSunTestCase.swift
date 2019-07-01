@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by jmnavarro on 3/11/15.
-//  Copyright © 2015-2017 mousebird consulting. All rights reserved.
+//  Copyright © 2015-2017 mousebird consulting.
 //
 
 import UIKit
@@ -18,7 +18,6 @@ class StarsSunTestCase: MaplyTestCase {
 		super.init()
 
 		self.name = "Stars/Sun"
-		self.captureDelay = 10
 		self.implementations = [.globe]
 	}
 	
@@ -83,48 +82,52 @@ class StarsSunTestCase: MaplyTestCase {
 			mode: MaplyThreadMode.any)
 		
 		// And some atmosphere, because the iDevice fill rate is just too fast
-		atmosObj = MaplyAtmosphere.init(viewC: globeVC)!
-
-		atmosObj.setWavelengthRed(0.650, green: 0.570, blue: 0.47)
-		atmosObj.setSunPosition(sun.getDirection())
-
-//		turnOnNightDay(globeVC, atmosObj: atmosObj!)
+//        atmosObj = MaplyAtmosphere.init(viewC: globeVC)!
+//
+//        atmosObj.setWavelengthRed(0.650, green: 0.570, blue: 0.47)
+//        atmosObj.setSunPosition(sun.getDirection())
 	}
+    
+    var imageLoader : MaplyQuadImageFrameLoader?
 	
-	
-	func turnOnNightDay (_ globeVC: WhirlyGlobeViewController, atmosObj : MaplyAtmosphere?) {
-		let cacheDir = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0]
-		let tileSource1 = MaplyRemoteTileInfo(baseURL: "http://map1.vis.earthdata.nasa.gov/wmts-webmerc/MODIS_Terra_CorrectedReflectance_TrueColor/default/2015-05-07/GoogleMapsCompatible_Level9/{z}/{y}/{x}", ext: "jpg", minZoom: Int32(1), maxZoom: Int32(8))
-		let tileSource2 = MaplyRemoteTileInfo(baseURL: "http://map1.vis.earthdata.nasa.gov/wmts-webmerc/VIIRS_CityLights_2012/default/2015-05-07/GoogleMapsCompatible_Level8/{z}/{y}/{x}", ext: "jpg", minZoom: Int32(1), maxZoom: Int32(8))
-		tileSource1.cacheDir = "\(cacheDir)/daytexture-2015-05-07/"
-		tileSource2.cacheDir = "\(cacheDir)/nighttexture-2015-05-07/"
+	func turnOnNightDay (_ globeVC: WhirlyGlobeViewController, atmosObj : MaplyAtmosphere?) -> MaplyQuadImageFrameLoader? {
+        // Parameters describing how we want a globe broken down
+        let sampleParams = MaplySamplingParams()
+        sampleParams.coordSys = MaplySphericalMercator(webStandard: ())
+        sampleParams.coverPoles = true
+        sampleParams.edgeMatching = true
+        sampleParams.minZoom = 1
+        sampleParams.maxZoom = 9
+        sampleParams.singleLevel = true
+        
+        // Two tile sources, one night and one day
+        let cacheDir = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0]
+		let tileSource1 = MaplyRemoteTileInfoNew(
+            baseURL: "http://map1.vis.earthdata.nasa.gov/wmts-webmerc/MODIS_Terra_CorrectedReflectance_TrueColor/default/2015-05-07/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg",
+            minZoom: sampleParams.minZoom,
+            maxZoom: sampleParams.maxZoom)
+        tileSource1.cacheDir = "\(cacheDir)/daytexture-2015-05-07-2/"
+        // TODO: Get the loader to respect missing tiles at the lowest levels
+		let tileSource2 = MaplyRemoteTileInfoNew(
+            baseURL: "http://map1.vis.earthdata.nasa.gov/wmts-webmerc/VIIRS_CityLights_2012/default/2015-05-07/GoogleMapsCompatible_Level8/{z}/{y}/{x}.jpg",
+            minZoom: 1,
+            maxZoom: 8)
+		tileSource2.cacheDir = "\(cacheDir)/nighttexture-2015-05-07-2/"
 		
-		let tileSource = MaplyMultiplexTileSource(sources: [tileSource1, tileSource2])
-		
-		let layer = MaplyQuadImageTilesLayer(coordSystem: tileSource1.coordSys!, tileSource: tileSource!)
-		
-		layer?.drawPriority = kMaplyImageLayerDrawPriorityDefault
-		layer?.handleEdges = true
-		layer?.requireElev = false
-		layer?.maxTiles = 256
-		layer?.imageDepth = 2
-		layer?.allowFrameLoading = false
-//		layer?.currentImage = 0.5
-		layer?.singleLevelLoading = false
-		layer?.shaderProgramName = kMaplyShaderDefaultTriNightDay
-		layer?.setTesselationValues([(-1) : 10, 0 : 20, 1 : 16])
-        // The ground shader is overkill here
-//		layer?.shaderProgramName = atmosObj?.groundShader!.name
-		globeVC.add(layer!)
-		layer?.drawPriority = kMaplyImageLayerDrawPriorityDefault
+        guard let imageLoader = MaplyQuadImageFrameLoader(params: sampleParams, tileInfos: [tileSource1, tileSource2], viewC: globeVC) else {
+            return nil
+        }
+        imageLoader.setShader(globeVC.getShaderByName(kMaplyShaderDefaultTriNightDay))
+        imageLoader.setCurrentImage(0.5)
+        
+        return imageLoader
 	}
 	
 	override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
-//		let baseLayer  = GeographyClassTestCase()
-//		baseLayer.setUpWithGlobe(globeVC)
+        imageLoader = turnOnNightDay(globeVC, atmosObj: nil)
+
+        addSun(globeVC)
 		addStars(globeVC)
-		addSun(globeVC)
-		turnOnNightDay(globeVC, atmosObj: nil)
 	}
 
 }

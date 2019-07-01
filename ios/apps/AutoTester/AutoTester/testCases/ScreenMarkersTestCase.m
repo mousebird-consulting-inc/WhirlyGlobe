@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by Steve Gifford on 6/16/16.
-//  Copyright © 2016-2017 mousebird consulting. All rights reserved.
+//  Copyright © 2016-2017 mousebird consulting.
 //
 
 #import "ScreenMarkersTestCase.h"
@@ -14,12 +14,14 @@
 #import "MaplyViewController.h"
 
 @implementation ScreenMarkersTestCase
+{
+    VectorsTestCase *baseCase;
+}
 
 - (instancetype)init
 {
     if (self = [super init]) {
         self.name = @"Screen Markers";
-        self.captureDelay = 4;
         self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
     }
     return self;
@@ -28,17 +30,17 @@
 
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
-    VectorsTestCase * baseView = [[VectorsTestCase alloc]init];
-    [baseView setUpWithGlobe:globeVC];
-    [self insertMarker:baseView.vecList theView:(MaplyBaseViewController*)globeVC];
+    baseCase = [[VectorsTestCase alloc]init];
+    [baseCase setUpWithGlobe:globeVC];
+    [self insertMarker:baseCase.vecList theView:(MaplyBaseViewController*)globeVC];
     [globeVC animateToPosition:MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056) time:1.0];
 }
 
 - (void)setUpWithMap:(MaplyViewController *)mapVC
 {
-    VectorsTestCase * baseView = [[VectorsTestCase alloc]init];
-    [baseView setUpWithMap:mapVC];
-    [self insertMarker:baseView.vecList theView:(MaplyBaseViewController*)mapVC];
+    baseCase = [[VectorsTestCase alloc]init];
+    [baseCase setUpWithMap:mapVC];
+    [self insertMarker:baseCase.vecList theView:(MaplyBaseViewController*)mapVC];
     [mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056) time:1.0];
 }
 
@@ -50,8 +52,9 @@
         MaplyScreenMarker *marker = [[MaplyScreenMarker alloc]init];
         marker.image = alcohol;
         marker.loc = object.center;
-        marker.userObject = object.userObject;
+        marker.userObject = object.attributes[@"title"];
         marker.selectable = true;
+        marker.layoutImportance = 1.0;
         [markers addObject:marker];
     }
     self.markersObj = [theView addScreenMarkers:markers desc:nil];

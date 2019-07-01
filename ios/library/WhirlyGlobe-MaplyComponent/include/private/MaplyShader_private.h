@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 2/7/13.
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,14 +18,18 @@
  *
  */
 
-#import "MaplyShader.h"
+#import "rendering/MaplyShader.h"
+#import <WhirlyGlobe_iOS.h>
 
 @interface MaplyShader()
 
-@property (nonatomic,readonly) WhirlyKit::OpenGLES2Program *program;
+@property (nonatomic,readonly) WhirlyKit::ProgramRef program;
 
 /// Internal Shader ID used below the Component level
 - (WhirlyKit::SimpleIdentity)getShaderID;
+
+/// Initialize directly from an existing program
+- (nullable instancetype)initWithProgram:(WhirlyKit::ProgramRef)program viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)baseViewC;
 
 /// Called by the view controller to clear out the shader program
 - (void)teardown;

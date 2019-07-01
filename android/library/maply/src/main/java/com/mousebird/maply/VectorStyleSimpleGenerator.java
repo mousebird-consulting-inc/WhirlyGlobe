@@ -3,7 +3,9 @@ package com.mousebird.maply;
 import android.graphics.Color;
 import android.graphics.Typeface;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -17,7 +19,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
      */
     public abstract class VectorStyleSimple implements VectorStyle
     {
-        String uuid = null;
+        long uuid = 0;
 
         /**
          * Draw priority for each feature.
@@ -25,13 +27,19 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
         public int drawPriority = VectorInfo.VectorPriorityDefault;
 
         @Override
-        public String getUuid()
+        public long getUuid()
         {
-            if (uuid == null)
+            if (uuid == 0)
             {
-                uuid = " " + Math.random() * 1000000 + Math.random() * 10000;
+                uuid = Identifiable.genID();
             }
             return uuid;
+        }
+
+        @Override
+        public String getCategory()
+        {
+            return null;
         }
 
         /**
@@ -45,7 +53,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
     }
 
     // Note: This should be ThreadCurrent
-    MaplyBaseController.ThreadMode threadMode = MaplyBaseController.ThreadMode.ThreadCurrent;
+    RenderController.ThreadMode threadMode = RenderController.ThreadMode.ThreadCurrent;
 
     /**
      * For points we just turn them into labels for demonstration.
@@ -66,7 +74,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
         }
 
         @Override
-        public ComponentObject[] buildObjects(List<VectorObject> vecObjs, MaplyTileID tileID, MaplyBaseController controller)
+        public void buildObjects(VectorObject vecObjs[], VectorTileData tileData, RenderControllerInterface controller)
         {
             ArrayList<ScreenLabel> labels = new ArrayList<ScreenLabel>();
             for (VectorObject point : vecObjs)
@@ -88,9 +96,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
             }
 
             ComponentObject compObj = controller.addScreenLabels(labels,labelInfo, threadMode);
-            if (compObj != null)
-                return new ComponentObject[]{compObj};
-            return null;
+            tileData.addComponentObject(compObj);
         }
     }
 
@@ -110,7 +116,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
         }
 
         @Override
-        public ComponentObject[] buildObjects(List<VectorObject> vecObjs,MaplyTileID tileID,MaplyBaseController controller)
+        public void buildObjects(VectorObject vecObjs[],VectorTileData tileData,RenderControllerInterface controller)
         {
             VectorInfo vecInfo = new VectorInfo();
 //            vecInfo.disposeAfterUse = true;
@@ -120,10 +126,8 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
             vecInfo.setDrawPriority(drawPriority);
             vecInfo.setEnable(false);
 
-            ComponentObject compObj = controller.addVectors(vecObjs,vecInfo,threadMode);
-            if (compObj != null)
-                return new ComponentObject[]{compObj};
-            return null;
+            ComponentObject compObj = controller.addVectors(new ArrayList<VectorObject>(Arrays.asList(vecObjs)),vecInfo,threadMode);
+            tileData.addComponentObject(compObj);
         }
     }
 
@@ -143,7 +147,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
         }
 
         @Override
-        public ComponentObject[] buildObjects(List<VectorObject> vecObjs,MaplyTileID tileID,MaplyBaseController controller)
+        public void buildObjects(VectorObject vecObjs[],VectorTileData tileData,RenderControllerInterface controller)
         {
             VectorInfo vecInfo = new VectorInfo();
             vecInfo.disposeAfterUse = true;
@@ -152,47 +156,47 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
             vecInfo.setDrawPriority(drawPriority);
             vecInfo.setEnable(false);
 
-            ComponentObject compObj = controller.addVectors(vecObjs,vecInfo,threadMode);
-            if (compObj != null)
-                return new ComponentObject[]{compObj};
-            return null;
+            ComponentObject compObj = controller.addVectors(new ArrayList<VectorObject>(Arrays.asList(vecObjs)),vecInfo,threadMode);
+            tileData.addComponentObject(compObj);
         }
     }
 
-    MaplyBaseController controller = null;
-    HashMap<String,VectorStyleSimple> stylesByUUID = new HashMap<String,VectorStyleSimple>();
+    WeakReference<RenderControllerInterface> controller;
+    HashMap<Long,VectorStyleSimple> stylesByUUID = new HashMap<Long,VectorStyleSimple>();
     HashMap<String,VectorStyleSimple> stylesByLayerName = new HashMap<String,VectorStyleSimple>();
 
 
-    public VectorStyleSimpleGenerator(MaplyBaseController inControl)
+    public VectorStyleSimpleGenerator(RenderControllerInterface inControl)
     {
-        controller = inControl;
+        controller = new WeakReference<RenderControllerInterface>(inControl);
     }
 
     /**
      * We'll return a point, line, or areal vector style
      */
     @Override
-    public VectorStyle[] stylesForFeature(AttrDictionary attrs,MaplyTileID tileID,String layerName,MaplyBaseController controller)
+    public VectorStyle[] stylesForFeature(AttrDictionary attrs,TileID tileID,String layerName,RenderControllerInterface controller)
     {
         // Look for an existing style if we've already done this lookup
         VectorStyleSimple style = stylesByLayerName.get(layerName);
         if (style == null)
         {
-            int layerOrder = attrs.getInt("layer_order");
-            int geomType = attrs.getInt("geometry_type");
+            Integer layerOrder = attrs.getInt("layer_order");
+            Integer geomType = attrs.getInt("geometry_type");
+
+            int layer = layerOrder == null ? 0 : layerOrder;
 
             // Each layer gets its own style
             switch (geomType)
             {
                 case MapboxVectorTileParser.GeomTypePoint:
-                    style = new VectorStyleSimplePoint(LabelInfo.LabelPriorityDefault+layerOrder);
+                    style = new VectorStyleSimplePoint(LabelInfo.LabelPriorityDefault+layer);
                     break;
                 case MapboxVectorTileParser.GeomTypeLineString:
-                    style = new VectorStyleSimpleLinear(VectorInfo.VectorPriorityDefault+layerOrder);
+                    style = new VectorStyleSimpleLinear(VectorInfo.VectorPriorityDefault+layer);
                     break;
                 case MapboxVectorTileParser.GeomTypePolygon:
-                    style = new VectorStyleSimplePolygon(VectorInfo.VectorPriorityDefault+layerOrder);
+                    style = new VectorStyleSimplePolygon(VectorInfo.VectorPriorityDefault+layer);
                     break;
                 default:
                     break;
@@ -209,15 +213,21 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
      * We'll display all layers
      */
     @Override
-    public boolean layerShouldDisplay(String layerName,MaplyTileID tileID)
+    public boolean layerShouldDisplay(String layerName,TileID tileID)
     {
         return true;
     }
 
     @Override
-    public VectorStyle styleForUUID(String uuid,MaplyBaseController controller)
+    public VectorStyle styleForUUID(long uuid,RenderControllerInterface controller)
     {
         VectorStyle style = stylesByUUID.get(uuid);
         return style;
+    }
+
+    @Override
+    public VectorStyle[] allStyles()
+    {
+        return stylesByLayerName.values().toArray(new VectorStyle[0]);
     }
 }

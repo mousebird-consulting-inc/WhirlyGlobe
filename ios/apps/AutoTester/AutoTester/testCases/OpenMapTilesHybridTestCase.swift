@@ -13,8 +13,7 @@ class OpenMapTilesHybridTestCase: MaplyTestCase {
     override init() {
         super.init()
         
-        self.name = "OpenMapTiles Hybrid Test Case"
-        self.captureDelay = 4
+        self.name = "OpenMapTiles Hybrid"
         self.implementations = [.map, .globe]
     }
     
@@ -32,7 +31,7 @@ class OpenMapTilesHybridTestCase: MaplyTestCase {
         
         // Set up an offline renderer and a Mapbox vector style handler to render to it
         let imageSize = (width: 512.0, height: 512.0)
-        guard let offlineRender = MaplyRenderController.init(size: CGSize.init(width: imageSize.width, height: imageSize.height)) else {
+        guard let offlineRender = MaplyRenderController.init(size: CGSize.init(width: imageSize.width, height: imageSize.height), mode: baseVC.getRenderType()) else {
             return nil
         }
         let imageStyleSettings = MaplyVectorStyleSettings.init(scale: UIScreen.main.scale)
@@ -103,11 +102,10 @@ class OpenMapTilesHybridTestCase: MaplyTestCase {
         }
 //        imageLoader.debugMode = true
 
-        guard let mapboxInterp = MapboxVectorImageInterpreter(loader: imageLoader,
-                                                             imageStyle: imageStyleSet,
-                                                             offlineRender: offlineRender,
-                                                             vectorStyle: vectorStyleSet,
-                                                             viewC: baseVC) else {
+        guard let mapboxInterp = MapboxVectorInterpreter(imageStyle: imageStyleSet,
+                                                         offlineRender: offlineRender,
+                                                         vectorStyle: vectorStyleSet,
+                                                         viewC: baseVC) else {
             return nil
         }
         imageLoader.setInterpreter(mapboxInterp)

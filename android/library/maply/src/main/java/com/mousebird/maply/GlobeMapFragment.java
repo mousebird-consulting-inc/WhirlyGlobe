@@ -4,15 +4,17 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
+import androidx.fragment.app.Fragment;
+
 /**
  * A fragment that instantiates either a map or a globe.
  * You subclass this and fill in the various stubs to implement your own
  * map or globe.
  */
-public class GlobeMapFragment extends android.support.v4.app.Fragment implements MapController.GestureDelegate, GlobeController.GestureDelegate {
+public class GlobeMapFragment extends Fragment implements MapController.GestureDelegate, GlobeController.GestureDelegate {
     protected MapController mapControl;
     protected GlobeController globeControl;
-    protected MaplyBaseController baseControl;
+    protected BaseController baseControl;
 
     public enum MapDisplayType {Globe, Map}
 

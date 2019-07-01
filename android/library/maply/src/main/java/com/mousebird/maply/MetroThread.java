@@ -24,17 +24,19 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.view.Choreographer;
 
+import java.lang.ref.WeakReference;
+
 public class MetroThread extends HandlerThread implements Choreographer.FrameCallback
 {
 	Choreographer ch;
-	MaplyBaseController control;
+	WeakReference<BaseController> control;
 	int frameInterval;
 	
-	public MetroThread(String name,MaplyBaseController inControl,int inFrameInterval) 
+	public MetroThread(String name,BaseController inControl,int inFrameInterval)
 	{
 		super(name);
 
-		control = inControl;
+		control = new WeakReference<BaseController>(inControl);
 		frameInterval = inFrameInterval;
 		
 		start();
@@ -68,10 +70,10 @@ public class MetroThread extends HandlerThread implements Choreographer.FrameCal
 		frameInterval = newRate;
 	}
 
-	MaplyRenderer renderer = null;
+	RenderController renderer = null;
 
 	// Set the renderer (and scene) we'll look at render requests
-	public void setRenderer(MaplyRenderer inRenderer)
+	public void setRenderer(RenderController inRenderer)
 	{
 		renderer = inRenderer;
 	}
@@ -90,14 +92,14 @@ public class MetroThread extends HandlerThread implements Choreographer.FrameCal
 	public void doFrame(long frameTimeNanos) 
 	{
 		// Nudge the renderer
-		if (control.baseView != null && (frameCount % frameInterval == 0)) {
+		if (control.get().baseView != null && (frameCount % frameInterval == 0)) {
 			if (requestRender ||
 					(renderer != null && (renderer.hasChanges() || renderer.activeObjectsHaveChanges() || renderer.view.isAnimating()))) {
-				if (control.baseView instanceof GLSurfaceView) {
-					GLSurfaceView glSurfaceView = (GLSurfaceView)control.baseView;
+				if (control.get().baseView instanceof GLSurfaceView) {
+					GLSurfaceView glSurfaceView = (GLSurfaceView)control.get().baseView;
 					glSurfaceView.requestRender();
 				} else {
-					GLTextureView glTextureView = (GLTextureView) control.baseView;
+					GLTextureView glTextureView = (GLTextureView) control.get().baseView;
 					glTextureView.requestRender();
 				}
 			}

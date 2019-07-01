@@ -3,7 +3,7 @@
  *  MaplyComponent
  *
  *  Created by Steve Gifford on 12/14/12.
- *  Copyright 2012-2017 mousebird consulting
+ *  Copyright 2012-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,33 +20,32 @@
 
 #import <UIKit/UIKit.h>
 
-#import "MaplyBaseViewController.h"
+#import "control/MaplyBaseViewController.h"
 #import "MaplyViewControllerLayer_private.h"
 #import "MaplyComponentObject_private.h"
 #import "WGInteractionLayer_private.h"
-#import "PanDelegateFixed.h"
-#import "PinchDelegateFixed.h"
 #import "MaplyBaseInteractionLayer_private.h"
 #import "MaplyVectorObject_private.h"
 #import "MaplyShader_private.h"
 #import "MaplyActiveObject_private.h"
 #import "MaplyCoordinateSystem_private.h"
-#import "MaplyCluster.h"
+#import "visual_objects/MaplyCluster.h"
 #import "SMCalloutView.h"
-#import "Maply3dTouchPreviewDelegate.h"
+#import "gestures/Maply3dTouchPreviewDelegate.h"
 #import "MaplyRenderController_private.h"
-#import "MaplyRemoteTileFetcher.h"
+#import "ViewPlacementActiveModel.h"
+#import "FontTextureManager_iOS.h"
+#import "ViewWrapper.h"
 
 @interface MaplyBaseViewController() <SMCalloutViewDelegate>
 {
 @public
     MaplyRenderController *renderControl;
     
-    WhirlyKitEAGLView *glView;
+    UIView<WhirlyKitViewWrapper> *wrapView;
     
     WhirlyKitLayerThread *baseLayerThread;
     WhirlyKitLayoutLayer *layoutLayer;
-    WhirlyKitParticleSystemLayer *partSysLayer;
     NSMutableArray *layerThreads;
 
     // Layers (and associated data) created for the user
@@ -59,13 +58,19 @@
     NSMutableArray *annotations;
     
     /// A pointer to the 3D view.  The subclasses are keeping points with the right subclass.
-    WhirlyKitView *visualView;
+    WhirlyKit::ViewRef visualView;
     
     /// Active models
     NSMutableArray *activeObjects;
     
     /// The default cluster generator (group 0)
     MaplyBasicClusterGenerator *defaultClusterGenerator;
+    
+    /// View Placement logic used to move annotations around
+    WhirlyKit::ViewPlacementActiveModelRef viewPlacementModel;
+    
+    /// Used to render font glyphs on this platform
+    WhirlyKit::FontTextureManager_iOSRef fontTexManager;
     
     /// Current draw priority if we're assigning them ourselves
     int layerDrawPriority;
@@ -105,8 +110,11 @@
 /// Create the EAGLView
 - (void) loadSetup_glView;
 
+/// Create the MetalView
+- (void) loadSetup_mtlView;
+
 /// If you have your own WhirlyGlobeView or MaplyView subclass, set it up here
-- (WhirlyKitView *) loadSetup_view;
+- (WhirlyKit::ViewRef) loadSetup_view;
 
 /// For loading the Maply or Globe view.  The subclasses call this, but you shouldn't
 - (WhirlyKit::Scene *) loadSetup_scene;
@@ -129,9 +137,9 @@
 
 /// Look for a sampling layer that matches the given parameters
 /// We'll also keep it around until the user lets us know we're done
-- (MaplyQuadSamplingLayer *)findSamplingLayer:(MaplySamplingParams *)params forUser:(NSObject *)userObj;
+- (MaplyQuadSamplingLayer *)findSamplingLayer:(const WhirlyKit::SamplingParams &)params forUser:(WhirlyKit::QuadTileBuilderDelegateRef)userObj;
 
 /// The given user object is done with the given sampling layer.  So we may shut it down.
-- (void)releaseSamplingLayer:(MaplyQuadSamplingLayer *)layer forUser:(NSObject *)userObj;
+- (void)releaseSamplingLayer:(MaplyQuadSamplingLayer *)layer forUser:(WhirlyKit::QuadTileBuilderDelegateRef)userObj;
 
 @end

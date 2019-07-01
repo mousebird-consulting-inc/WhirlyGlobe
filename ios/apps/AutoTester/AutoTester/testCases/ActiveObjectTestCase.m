@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by Steve Gifford on 9/9/16.
-//  Copyright © 2016-2017 mousebird consulting. All rights reserved.
+//  Copyright © 2016-2017 mousebird consulting.
 //
 
 #import "ActiveObjectTestCase.h"
@@ -31,7 +31,7 @@
     return true;
 }
 
-- (void)updateForFrame:(id)frameInfo
+- (void)updateForFrame:(void *)frameInfo
 {
     // Delete it
     if (compObj)
@@ -60,7 +60,6 @@
 {
     if (self = [super init]) {
         self.name = @"Active Object Test Case";
-        self.captureDelay = 5;
         self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
     }
     

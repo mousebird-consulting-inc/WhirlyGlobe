@@ -19,7 +19,7 @@ public class WideVectorManager {
     }
 
     // Add vectors to the scene and return an ID to track them
-    public native long addVectors(List<VectorObject> vecs, WideVectorInfo vecInfo, ChangeSet changes);
+    public native long addVectors(VectorObject[] vecs, WideVectorInfo vecInfo, ChangeSet changes);
 
     // Remove vectors by ID
     public native void removeVectors(long ids[],ChangeSet changes);

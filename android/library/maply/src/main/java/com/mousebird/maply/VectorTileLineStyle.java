@@ -21,6 +21,9 @@
 package com.mousebird.maply;
 
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
@@ -34,7 +37,7 @@ public class VectorTileLineStyle extends VectorTileStyle {
     private WideVectorInfo wideVectorInfo;
     private VectorInfo vectorInfo;
 
-    public VectorTileLineStyle(BaseInfo baseInfo, VectorStyleSettings settings, MaplyBaseController viewC) {
+    public VectorTileLineStyle(BaseInfo baseInfo, VectorStyleSettings settings, RenderControllerInterface viewC) {
         super(viewC);
         if (baseInfo instanceof VectorInfo) {
             useWideVectors = false;
@@ -48,15 +51,15 @@ public class VectorTileLineStyle extends VectorTileStyle {
     }
 
 
-    public ComponentObject[] buildObjects(List<VectorObject> objects, MaplyTileID tileID, MaplyBaseController controller) {
+    public void buildObjects(VectorObject objects[], VectorTileData tileData, RenderControllerInterface controller) {
+        ArrayList<VectorObject> vecObjs = new ArrayList<VectorObject>(Arrays.asList(objects));
+
         ComponentObject compObj = null;
         if (useWideVectors)
-            compObj = controller.addWideVectors(objects, wideVectorInfo, MaplyBaseController.ThreadMode.ThreadCurrent);
+            compObj = controller.addWideVectors(vecObjs, wideVectorInfo, RenderController.ThreadMode.ThreadCurrent);
         else
-            compObj = controller.addVectors(objects, vectorInfo, MaplyBaseController.ThreadMode.ThreadCurrent);
-        if (compObj != null)
-            return new ComponentObject[]{compObj};
-        return null;
+            compObj = controller.addVectors(vecObjs, vectorInfo, RenderController.ThreadMode.ThreadCurrent);
+        tileData.addComponentObject(compObj);
     }
 
 }

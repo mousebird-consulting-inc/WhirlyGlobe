@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by jmnavarro on 24/10/15.
-//  Copyright © 2015-2017 mousebird consulting. All rights reserved.
+//  Copyright © 2015-2017 mousebird consulting.
 //
 
 #import "CesiumElevationTestCase.h"
@@ -23,7 +23,7 @@
 	if (self = [super init]) {
 		self.name = @"Celsium Elevation";
 		self.captureDelay = 5;
-        self.implementations = MaplyTestCaseOptionGlobe;
+        self.implementations = MaplyTestCaseImplementationGlobe;
 	}
 
 	return self;

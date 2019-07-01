@@ -32,7 +32,7 @@ import java.util.HashSet;
  */
 public class ClusterGenerator
 {
-    public MaplyBaseController baseController = null;
+    public BaseController baseController = null;
     private HashSet<Long> currentTextures,oldTextures;
 
     /**
@@ -43,7 +43,7 @@ public class ClusterGenerator
     public void startClusterGroup()
     {
         if (oldTextures != null) {
-            baseController.removeTexturesByID(new ArrayList<Long>(oldTextures), MaplyBaseController.ThreadMode.ThreadCurrent);
+            baseController.removeTexturesByID(new ArrayList<Long>(oldTextures), RenderController.ThreadMode.ThreadCurrent);
             oldTextures = null;
         }
 

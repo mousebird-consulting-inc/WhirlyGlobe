@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by Steve Gifford on 8/12/16.
-//  Copyright © 2016-2017 mousebird consulting. All rights reserved.
+//  Copyright © 2016-2017 mousebird consulting.
 //
 
 #import "VectorStyleTestCase.h"
@@ -19,7 +19,6 @@
 {
     if (self = [super init]) {
         self.name = @"Vector Style Test";
-        self.captureDelay = 5;
         self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
         
     }

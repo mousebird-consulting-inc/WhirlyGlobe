@@ -71,6 +71,11 @@ public class LabelInfo extends BaseInfo
 	}
 
 	/**
+	 * Return the text color in a form suitable for Android.
+	 */
+	public native int getTextColor();
+
+	/**
 	 * Set the text color as float values from 0.0 to 1.0
 	 * 
 	 * @param r red
@@ -100,20 +105,10 @@ public class LabelInfo extends BaseInfo
 	 */
 	public native void setBackgroundColor(float r,float g,float b,float a);
 
-	void updateLineHeight()
-	{
-		if (fontSize == 0.0 || getTypeface() == null)
-			return;
-
-		Paint paint = new Paint();
-		paint.setTextSize(fontSize);
-		paint.setTypeface(getTypeface());
-		Paint.FontMetrics fm = paint.getFontMetrics();
-		float fontHeight = (float)Math.ceil( Math.abs( fm.bottom ) + Math.abs( fm.top ) );
-		setLineHeightNative(fontHeight);
-	}
-
-	native void setLineHeightNative(float fontHeight);
+	/**
+	 * Return the background text color in a form suitable for Android.
+	 */
+	public native int getBackgroundColor();
 
 	/**
 	 * Set the typeface used in the text.
@@ -126,6 +121,11 @@ public class LabelInfo extends BaseInfo
 	}
 
 	native void setTypefaceNative(Typeface typeface);
+
+	/**
+	 * Return the typeface used for the labels.
+	 */
+	public native Typeface getTypeface();
 
 	float fontSize = 0.f;
 	/**
@@ -157,6 +157,11 @@ public class LabelInfo extends BaseInfo
 	public native void setOutlineColor(float r,float g,float b,float a);
 
 	/**
+	 * Return the outline color in a form suitable for Android.
+	 */
+	public native int getOutlineColor();
+
+	/**
 	 * Set the color of the outline.
      */
 	public void setOutlineColor(int color)
@@ -168,6 +173,35 @@ public class LabelInfo extends BaseInfo
 	 * Set the outline size for the text.
 	 */
 	public native void setOutlineSize(float size);
+
+	/**
+	 * Return the outline size
+	 */
+	public native float getOutlineSize();
+
+	/**
+	 * Set the color of shadow.
+	 * Color components range from 0.0 to 1.0.
+	 *
+	 * @param r red
+	 * @param g green
+	 * @param b blue
+	 * @param a alpha
+	 */
+	public native void setShadowColor(float r,float g,float b,float a);
+
+	/**
+	 * Set the color of the shadow.
+	 */
+	public void setShadowColor(int color)
+	{
+		setShadowColor(Color.red(color)/255.f,Color.green(color)/255.f,Color.blue(color)/255.f,Color.alpha(color)/255.f);
+	}
+
+	/**
+	 * Set the shadow size for the text.
+	 */
+	public native void setShadowSize(float size);
 
 	/**
 	 * The layout engine controls how text is displayed.  It tries to avoid overlaps
@@ -210,30 +244,25 @@ public class LabelInfo extends BaseInfo
 	}
 	native void setTextJustifyNative(int textJustify);
 
-	/**
-	 * Return the typeface used for the labels.
-	 */
-	public native Typeface getTypeface();
-	
-	/**
-	 * Return the text color in a form suitable for Android.
-	 */
-	public native int getTextColor();
+
+	void updateLineHeight()
+	{
+		if (fontSize == 0.0 || getTypeface() == null)
+			return;
+
+		Paint paint = new Paint();
+		paint.setTextSize(fontSize);
+		paint.setTypeface(getTypeface());
+		Paint.FontMetrics fm = paint.getFontMetrics();
+		float fontHeight = (float)Math.ceil( Math.abs( fm.bottom ) + Math.abs( fm.top ) );
+		setLineHeight(fontHeight);
+	}
 
 	/**
-	 * Return the background text color in a form suitable for Android.
+	 * Rather than calculate it from the Typeface, set the line height directly.
 	 */
-	public native int getBackColor();
+	native void setLineHeight(float fontHeight);
 
-	/**
-	 * Return the outline color in a form suitable for Android.
-	 */
-	public native int getOutlineColor();
-
-	/**
-	 * Return the outline size
-	 */
-	public native float getOutlineSize();
 
 	static
 	{

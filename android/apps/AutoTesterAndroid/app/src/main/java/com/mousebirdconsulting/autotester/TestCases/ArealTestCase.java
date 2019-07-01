@@ -5,8 +5,9 @@ import android.graphics.Color;
 
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.MapController;
-import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.BaseController;
 import com.mousebird.maply.Point2d;
+import com.mousebird.maply.RenderController;
 import com.mousebird.maply.VectorInfo;
 import com.mousebird.maply.VectorObject;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
@@ -23,7 +24,7 @@ public class ArealTestCase extends MaplyTestCase
         setDelay(1000);
     }
 
-    private void addAreal(MaplyBaseController baseVC) throws Exception {
+    private void addAreal(BaseController baseVC) throws Exception {
         VectorInfo vectorInfo = new VectorInfo();
         vectorInfo.setColor(Color.RED);
         vectorInfo.setLineWidth(4.f);
@@ -42,12 +43,12 @@ public class ArealTestCase extends MaplyTestCase
         innerLoops[0][3] = Point2d.FromDegrees(0.2,0.1);
         vecObj.addAreal(outer,innerLoops);
 
-        baseVC.addVector(vecObj,vectorInfo, MaplyBaseController.ThreadMode.ThreadAny);
+        baseVC.addVector(vecObj,vectorInfo, RenderController.ThreadMode.ThreadAny);
     }
 
     @Override
     public boolean setUpWithMap(MapController mapVC) throws Exception {
-        CartoDBMapTestCase baseTestCase = new CartoDBMapTestCase(getActivity());
+        CartoLightTestCase baseTestCase = new CartoLightTestCase(getActivity());
         baseTestCase.setUpWithMap(mapVC);
         addAreal(mapVC);
 
@@ -58,7 +59,7 @@ public class ArealTestCase extends MaplyTestCase
 
     @Override
     public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
-        CartoDBMapTestCase baseTestCase = new CartoDBMapTestCase(getActivity());
+        CartoLightTestCase baseTestCase = new CartoLightTestCase(getActivity());
         baseTestCase.setUpWithGlobe(globeVC);
         addAreal(globeVC);
 

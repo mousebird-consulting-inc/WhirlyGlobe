@@ -65,6 +65,17 @@ public class ScreenMarker
 	public MaplyTexture tex = null;
 
 	/**
+	 * If set we'll animate these images one after the other over the duration.
+	 */
+	public MaplyTexture images[] = null;
+
+	/**
+	 * If images are passed in, this is the time it will take to cycle through them all.
+	 * By default this is 5s.
+	 */
+	public double period = 5.0;
+
+	/**
 	 * Background color for a marker can be overridden at this level.
 	 */
 	public int color = 0xFFFFFFFF;
@@ -75,6 +86,12 @@ public class ScreenMarker
 	 * layout entirely.
 	 */
 	public float layoutImportance = Float.MAX_VALUE;
+
+	/**
+	 * If set, this is the size of the object as seen by the layout engine.
+	 * If not set, it uses the display size
+	 */
+	public Point2d layoutSize = null;
 	
 	/**
 	 * If non-null an offset to tweak the label by.  We'll move the label

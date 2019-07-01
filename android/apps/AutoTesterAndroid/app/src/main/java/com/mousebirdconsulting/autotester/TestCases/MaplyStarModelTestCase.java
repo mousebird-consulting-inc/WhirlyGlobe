@@ -24,8 +24,9 @@ import android.graphics.Color;
 
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.LayerThread;
-import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.BaseController;
 import com.mousebird.maply.MaplyStarModel;
+import com.mousebird.maply.RenderController;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 
 import java.io.IOException;
@@ -56,7 +57,7 @@ public class MaplyStarModelTestCase extends MaplyTestCase {
                 particleThread = globeVC.makeLayerThread(false);
                 try {
                     particleAdapter = new MaplyStarModel("starcatalog_orig.txt", "star_background.png", getActivity());
-                    particleAdapter.addToViewc(globeVC, MaplyBaseController.ThreadMode.ThreadCurrent);
+                    particleAdapter.addToViewc(globeVC, RenderController.ThreadMode.ThreadCurrent);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

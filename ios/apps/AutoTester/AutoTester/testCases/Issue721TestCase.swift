@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by jmnavarro on 24/10/16.
-//  Copyright © 2016-2017 mousebird consulting. All rights reserved.
+//  Copyright © 2016-2017 mousebird consulting.
 //
 import Foundation
 
@@ -13,7 +13,6 @@ class Issue721TestCase : MaplyTestCase{
 		super.init()
 
 		self.name = "Issue 721: Interaction lost bug"
-		self.captureDelay = 4
 		self.implementations = [.globe]
 	}
 
@@ -27,8 +26,8 @@ class Issue721TestCase : MaplyTestCase{
 				globeVC.view.frame = CGRect(
 					origin: CGPoint.zero,
 					size: CGSize(
-						width: self.testView!.bounds.width/2,
-						height: self.testView!.bounds.height/2))
+						width: self.globeViewController!.view!.bounds.width/2,
+						height: self.globeViewController!.view!.bounds.height/2))
 			}
 		}
 	}

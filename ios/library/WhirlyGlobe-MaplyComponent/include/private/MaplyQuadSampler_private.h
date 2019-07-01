@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 6/15/18.
- *  Copyright 2011-2018 Saildrone Inc
+ *  Copyright 2011-2019 Saildrone Inc
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,12 +18,16 @@
  *
  */
 
-#import "MaplyQuadSampler.h"
+#import "WhirlyGlobe.h"
+#import "loading/MaplyQuadSampler.h"
 #import "QuadTileBuilder.h"
+#import "QuadDisplayLayerNew.h"
 
 @interface MaplySamplingParams()
-    
-@property (nonatomic,assign) std::vector<double> importancePerLevel;
+{
+@public
+    WhirlyKit::SamplingParams params;
+}
 
 @end
 
@@ -32,9 +36,13 @@
  the loading.
  */
 @interface MaplyQuadSamplingLayer : MaplyViewControllerLayer
+{
+@public
+    WhirlyKit::QuadSamplingController sampleControl;
+}
 
 // Parameters this sampler is using (non changeable)
-@property (nonatomic,readonly,nonnull) MaplySamplingParams *params;
+@property (nonatomic) WhirlyKit::SamplingParams params;
 
 // Number of clients using this sampler
 @property (nonatomic,readonly) int numClients;
@@ -42,12 +50,14 @@
 @property (nonatomic) bool debugMode;
 
 // Initialize with the sampling parameters
-- (nullable instancetype)initWithParams:(MaplySamplingParams * __nonnull)params;
+- (nullable instancetype)initWithParams:(const WhirlyKit::SamplingParams &)params;
 
 // Add a new builder delegate to watch tile related events
-- (void)addBuilderDelegate:(NSObject<WhirlyKitQuadTileBuilderDelegate> * __nonnull)delegate;
+- (void)addBuilderDelegate:(WhirlyKit::QuadTileBuilderDelegateRef)delegate;
 
 // Remove the given builder delegate that was watching tile related events
-- (void)removeBuilderDelegate:(NSObject * __nonnull)delegate;
+- (void)removeBuilderDelegate:(WhirlyKit::QuadTileBuilderDelegateRef)delegate;
+
+@property (nonatomic) WhirlyKitQuadDisplayLayerNew * __nullable quadLayer;
 
 @end

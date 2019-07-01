@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 12/13/13.
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,9 +18,9 @@
  *
  */
 
-#import "MaplyAnnotation.h"
+#import "control/MaplyAnnotation.h"
 #import "SMCalloutView.h"
-#import "MaplyCoordinate.h"
+#import "math/MaplyCoordinate.h"
 
 @interface MaplyAnnotation()
 

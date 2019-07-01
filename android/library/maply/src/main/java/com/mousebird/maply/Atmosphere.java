@@ -402,7 +402,7 @@ public class Atmosphere {
      * @param inViewC The globe controller to create objects in.
      * @param mode Whether or not to work on this thread on put the work in the background.
      */
-    public Atmosphere(GlobeController inViewC, MaplyBaseController.ThreadMode mode) {
+    public Atmosphere(GlobeController inViewC, RenderController.ThreadMode mode) {
         this.viewC = inViewC;
         this.kr = 0.0025f;
         this.km = 0.0010f;
@@ -475,13 +475,12 @@ public class Atmosphere {
     }
 
     // Set up the complex atmospheric shader
-    private void complexAtmosphere(MaplyBaseController.ThreadMode mode) {
+    private void complexAtmosphere(RenderController.ThreadMode mode) {
         ShapeSphere sphere = new ShapeSphere();
         sphere.setLoc(new Point2d(0, 0));
         sphere.setRadius(this.outerRadius);
         sphere.setHeight(-1.0f);
-        sphere.setSampleX(120);
-        sphere.setSampleY(60);
+        sphere.setSamples(120,60);
 
         List<Shape> shapes = new ArrayList<Shape>();
         shapes.add(sphere);
@@ -506,7 +505,7 @@ public class Atmosphere {
         if (!theShader.valid())
             return null;
 
-        viewC.addShaderProgram(theShader, kAtmosphereGroundShader);
+        viewC.addShaderProgram(theShader);
         theShader.setUniform(k_blendColor, new Point4d(1.f,1.f,1.f,1.f));
 
         return theShader;
@@ -530,7 +529,7 @@ public class Atmosphere {
         if (!theShader.valid())
             return null;
 
-        viewC.addShaderProgram(theShader, kAtmosphereShader);
+        viewC.addShaderProgram(theShader);
 
         return theShader;
     }
@@ -540,7 +539,7 @@ public class Atmosphere {
      */
     public void removeFromController() {
         if (comObj!= null)
-            viewC.removeObject(comObj, MaplyBaseController.ThreadMode.ThreadAny);
+            viewC.removeObject(comObj, RenderController.ThreadMode.ThreadAny);
         comObj = null;
 
         if (sunUpdater != null)

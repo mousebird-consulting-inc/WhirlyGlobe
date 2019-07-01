@@ -33,18 +33,23 @@ import java.util.HashMap;
 public abstract class VectorTileStyle implements VectorStyle {
 
     protected boolean geomAdditive;
-    protected String uuid;
-    protected WeakReference<MaplyBaseController> viewC;
+    protected long uuid;
+    protected WeakReference<RenderControllerInterface> viewC;
     protected boolean selectable;
 
     static long uuidCount = 0;
 
-    public String getUuid() {
+    public long getUuid() {
         return uuid;
     }
 
     public boolean geomIsAdditive() {
         return geomAdditive;
+    }
+
+    public String getCategory()
+    {
+        return null;
     }
 
     static synchronized long makeUUID()
@@ -54,10 +59,10 @@ public abstract class VectorTileStyle implements VectorStyle {
         return uuidCount;
     }
 
-    public VectorTileStyle(MaplyBaseController viewC) {
-        this.viewC = new WeakReference<MaplyBaseController>(viewC);
+    public VectorTileStyle(RenderControllerInterface viewC) {
+        this.viewC = new WeakReference<RenderControllerInterface>(viewC);
 
-        uuid = "" + makeUUID();
+        uuid = makeUUID();
 
 //        if (((String)styleEntry.get("tilegeom")).equals("add"))
 //            geomAdditive = true;

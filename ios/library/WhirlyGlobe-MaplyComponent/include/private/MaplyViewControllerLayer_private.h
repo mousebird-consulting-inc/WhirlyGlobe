@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 7/21/12.
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <WhirlyGlobe.h>
-#import "MaplyViewControllerLayer.h"
+#import <WhirlyGlobe_iOS.h>
+#import "control/MaplyViewControllerLayer.h"
 
 @class MaplyBaseViewController;
 
@@ -35,7 +35,7 @@
 @property (nonatomic,readonly) bool drawPriorityWasSet;
 
 /// Subclasses fill this in.  It's called when the Component layer is added to the view controller.
-- (bool)startLayer:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer viewC:(MaplyBaseViewController *)viewC;
+- (bool)startLayer:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKit::SceneRenderer *)renderer viewC:(MaplyBaseViewController *)viewC;
 
 /// Remove resources associated with this layer
 - (void)cleanupLayers:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;

@@ -8,9 +8,10 @@ import com.mousebird.maply.ActiveObject;
 import com.mousebird.maply.ComponentObject;
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.MapController;
-import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.BaseController;
 import com.mousebird.maply.MarkerInfo;
 import com.mousebird.maply.Point2d;
+import com.mousebird.maply.RenderController;
 import com.mousebird.maply.ScreenMarker;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 import com.mousebirdconsulting.autotester.R;
@@ -22,11 +23,11 @@ import java.util.ArrayList;
  */
 public class AnimatedScreenMarkersTestCase extends MaplyTestCase implements ActiveObject
 {
-    MaplyBaseController controller;
+    BaseController controller;
 
     public AnimatedScreenMarkersTestCase(Activity activity) {
         super(activity);
-        setTestName("Animated Screen Markers Test");
+        setTestName("Animated Screen Markers");
         setDelay(1000);
         this.implementation = TestExecutionImplementation.Both;
     }
@@ -76,14 +77,14 @@ public class AnimatedScreenMarkersTestCase extends MaplyTestCase implements Acti
         markers.add(marker);
 
         if (compObj != null) {
-            controller.removeObject(compObj, MaplyBaseController.ThreadMode.ThreadCurrent);
+            controller.removeObject(compObj, RenderController.ThreadMode.ThreadCurrent);
             compObj = null;
         }
-        compObj = controller.addScreenMarkers(markers, markerInfo, MaplyBaseController.ThreadMode.ThreadCurrent);
+        compObj = controller.addScreenMarkers(markers, markerInfo, RenderController.ThreadMode.ThreadCurrent);
     }
 
     // Kick off the marker animation with an active object
-    private void startMarkers(MaplyBaseController inController) {
+    private void startMarkers(BaseController inController) {
         markerInfo = new MarkerInfo();
         icon = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.testtarget);
 

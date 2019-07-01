@@ -67,7 +67,7 @@ public class View
 	}
 
 	// Filled in by the subclass
-	public ViewState makeViewState(MaplyRenderer renderer)
+	public ViewState makeViewState(RenderController renderer)
 	{
 		return null;
 	}
@@ -93,19 +93,25 @@ public class View
 	// Add a watcher for callbacks on each and every view related change
 	void addViewWatcher(ViewWatcher watcher)
 	{
-		watchers.add(watcher);
+		synchronized (this) {
+			watchers.add(watcher);
+		}
 	}
 	// Remove an object that was watching view changes
 	void removeViewWatcher(ViewWatcher watcher)
 	{
-		watchers.remove(watcher);
+		synchronized (this) {
+			watchers.remove(watcher);
+		}
 	}
 	// Let everything know we changed the view
 	void runViewUpdates()
 	{
-//		Point3d loc = getLoc();
-//		Log.i("Maply","New pos: (" + loc.getX() + "," + loc.getY() + "," + loc.getZ() + ")");
-		for (ViewWatcher watcher: watchers)
+		ArrayList<ViewWatcher> theWatchers = null;
+		synchronized (watchers) {
+			theWatchers = new ArrayList<ViewWatcher>(watchers);
+		}
+		for (ViewWatcher watcher: theWatchers)
 			watcher.viewUpdated(this);
 		lastUpdated = GregorianCalendar.getInstance().getTimeInMillis() / 1000.0;
 	}

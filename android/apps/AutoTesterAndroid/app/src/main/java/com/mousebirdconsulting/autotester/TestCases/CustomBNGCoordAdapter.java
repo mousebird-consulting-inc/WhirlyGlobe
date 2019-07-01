@@ -5,11 +5,13 @@ import android.os.Looper;
 
 import com.mousebird.maply.CoordSystem;
 import com.mousebird.maply.GlobeController;
+import com.mousebird.maply.ImageLoaderInterpreter;
 import com.mousebird.maply.MapController;
-import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.BaseController;
+import com.mousebird.maply.OvlDebugImageLoaderInterpreter;
 import com.mousebird.maply.Point2d;
-import com.mousebird.maply.QuadImageTileLayer;
-import com.mousebird.maply.TestImageSource;
+import com.mousebird.maply.QuadImageLoader;
+import com.mousebird.maply.SamplingParams;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 
 /**
@@ -19,30 +21,32 @@ public class CustomBNGCoordAdapter extends MaplyTestCase
 {
     public CustomBNGCoordAdapter(Activity activity) {
         super(activity);
-        this.setTestName("Custom BNG Coord Adapter");
-        this.setDelay(2000);
-        this.implementation = TestExecutionImplementation.Both;
+        this.setTestName("British National Grid (custom map)");
+        this.implementation = TestExecutionImplementation.Map;
     }
 
-    public QuadImageTileLayer makeTestLayer(MaplyBaseController viewC)
+    ImageLoaderInterpreter testInterp = null;
+    CoordSystem coordSys = null;
+
+    public void makeTestLoader(BaseController viewC)
     {
-        CoordSystem bngCoordSystem = CustomBNGTileSource.MakeBNGCoordSystem(getActivity(),false);
+        SamplingParams params = new SamplingParams();
+        params.setCoordSystem(coordSys);
+        params.setCoverPoles(false);
+        params.setEdgeMatching(false);
+        params.setMinZoom(0);
+        params.setMaxZoom(10);
 
-        TestImageSource tileSource = new TestImageSource(Looper.getMainLooper(),0,14);
-        tileSource.alpha = 64;
+        testInterp = new ImageLoaderInterpreter();
 
-        QuadImageTileLayer baseLayer = new QuadImageTileLayer(viewC, bngCoordSystem, tileSource);
-        baseLayer.setCoverPoles(false);
-        baseLayer.setHandleEdges(false);
-        baseLayer.setDrawPriority(1000);
-
-        return baseLayer;
+        QuadImageLoader loader = new QuadImageLoader(params,null,viewC);
+        loader.setLoaderInterpreter(testInterp);
     }
 
     @Override
     protected MapController makeMapController()
     {
-        CoordSystem coordSys = CustomBNGTileSource.MakeBNGCoordSystem(getActivity(),true);
+        coordSys = CustomBNGTileSource.MakeBNGCoordSystem(getActivity(),true);
 
         MapController.Settings settings = new MapController.Settings();
         settings.coordSys = coordSys;
@@ -58,30 +62,11 @@ public class CustomBNGCoordAdapter extends MaplyTestCase
         StamenRemoteTestCase baseView = new StamenRemoteTestCase(getActivity());
         baseView.setUpWithGlobe(globeVC);
 
-        QuadImageTileLayer layer = makeTestLayer(globeVC);
-        if (layer != null)
-            globeVC.addLayer(layer);
+        makeTestLoader(globeVC);
 
         Point2d pt = Point2d.FromDegrees(-0.1275, 51.507222);
         globeVC.setPositionGeo(pt.getX(), pt.getY(), 0.4);
 
         return true;
     }
-
-    @Override
-    public boolean setUpWithMap(MapController mapVC) throws Exception
-    {
-        StamenRemoteTestCase baseView = new StamenRemoteTestCase(getActivity());
-        baseView.setUpWithMap(mapVC);
-
-        QuadImageTileLayer layer = makeTestLayer(mapVC);
-        if (layer != null)
-            mapVC.addLayer(layer);
-
-        Point2d pt = Point2d.FromDegrees(-0.1275, 51.507222);
-        mapVC.setPositionGeo(pt.getX(), pt.getY(), 0.4);
-
-        return true;
-    }
-
 }

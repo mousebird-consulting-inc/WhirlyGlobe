@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 7/13/15.
- *  Copyright 2012-2017 mousebird consulting
+ *  Copyright 2012-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,35 +18,42 @@
  *
  */
 
-#import "MaplyShape.h"
+#import "visual_objects/MaplyShape.h"
 #import "WhirlyGlobe.h"
 
 @interface MaplyShapeCircle()
 
-- (WhirlyKitCircle *)asWKShape:(NSDictionary *)desc;
+- (WhirlyKit::Shape *)asWKShape:(NSDictionary *)desc;
 
 @end
 
 @interface MaplyShapeSphere()
 
-- (WhirlyKitSphere *)asWKShape:(NSDictionary *)desc;
+- (WhirlyKit::Shape *)asWKShape:(NSDictionary *)desc;
 
 @end
 
 @interface MaplyShapeCylinder()
 
-- (WhirlyKitCylinder *)asWKShape:(NSDictionary *)desc;
+- (WhirlyKit::Shape *)asWKShape:(NSDictionary *)desc;
 
 @end
 
 @interface MaplyShapeRectangle()
 
-- (WhirlyKitShapeRectangle *)asWKShape:(NSDictionary *)desc;
+- (WhirlyKit::Shape *)asWKShape:(NSDictionary *)desc;
 
 @end
 
 @interface MaplyShapeExtruded()
 
-- (WhirlyKitShapeExtruded *)asWKShape:(NSDictionary *)desc;
+- (WhirlyKit::Shape *)asWKShape:(NSDictionary *)desc;
 
 @end
+
+@interface MaplyShapeLinear()
+
+- (WhirlyKit::Shape *)asWKShape:(NSDictionary *)desc coordAdapter:(WhirlyKit::CoordSystemDisplayAdapter *)coordAdapter;
+
+@end
+

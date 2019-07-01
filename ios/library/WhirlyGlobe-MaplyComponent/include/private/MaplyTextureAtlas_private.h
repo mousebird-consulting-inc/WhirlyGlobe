@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 9/11/14.
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,15 +19,14 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <WhirlyGlobe.h>
+#import <WhirlyGlobe_iOS.h>
 #import "MaplyTexture_private.h"
-#import "MaplyQuadImageTilesLayer.h"
 
 // Manages a whole group of texture atlases.  Thread safe.
 @interface MaplyTextureAtlasGroup : NSObject
 
 // Construct with the OpenGL memory manager
-- (instancetype)initWithScene:(WhirlyKit::Scene *)scene;
+- (instancetype)initWithScene:(WhirlyKit::Scene *)scene sceneRender:(WhirlyKit::SceneRenderer *)inSceneRender;
 
 // Size of the texture atlases we'll create
 - (void)setSize:(int)size;

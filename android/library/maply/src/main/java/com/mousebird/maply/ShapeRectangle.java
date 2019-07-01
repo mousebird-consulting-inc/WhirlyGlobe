@@ -44,12 +44,15 @@ public class ShapeRectangle extends Shape {
     /**
      * Assign a texture for display.
      */
-    public void setTexture(MaplyTexture tex)
+    public void addTexture(MaplyTexture tex)
     {
-        setTextureNative(tex.texID);
+        addTextureID(tex.texID);
     }
 
-    native void setTextureNative(long texID);
+    /**
+     * Assign the texture by unique ID.
+     */
+    native void addTextureID(long texID);
 
     static
     {

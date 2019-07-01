@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by jmnavarro on 2/11/15.
-//  Copyright © 2015-2017 mousebird consulting. All rights reserved.
+//  Copyright © 2015-2017 mousebird consulting.
 //
 
 import UIKit
@@ -14,7 +14,6 @@ class MovingScreenLabelsTestCase: MaplyTestCase {
 		super.init()
 
 		self.name = "Moving Screen Labels"
-		self.captureDelay = 3
 		self.implementations = []
 	}
 

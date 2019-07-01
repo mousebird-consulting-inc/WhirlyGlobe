@@ -3,13 +3,13 @@
 //  SLDTest
 //
 //  Created by Ranen Ghosh on 2016-08-12.
-//  Copyright © 2016-2017 mousebird consulting. All rights reserved.
+//  Copyright © 2016-2019 mousebird consulting.
 //
 
-#import "SLDSymbolizers.h"
-#import "SLDWellKnownMarkers.h"
-#import "MaplyVectorTiles.h"
-#import "MaplyScreenLabel.h"
+#import "vector_styles/SLDSymbolizers.h"
+#import "vector_styles/SLDWellKnownMarkers.h"
+#import "vector_styles/MaplyVectorTileStyle.h"
+#import "visual_objects/MaplyScreenLabel.h"
 #import "DDXML.h"
 
 @implementation SLDSymbolizer
@@ -390,12 +390,12 @@
         
         // Transform relevant drawing parameters.
         if (params[@"stroke"])
-            strokeColor = [MaplyVectorTiles ParseColor:params[@"stroke"] alpha:1.0];
+            strokeColor = [MaplyVectorTileStyle ParseColor:params[@"stroke"] alpha:1.0];
         else
             strokeColor = [UIColor darkGrayColor];
         
         if (params[@"fill"])
-            fillColor = [MaplyVectorTiles ParseColor:params[@"fill"] alpha:1.0];
+            fillColor = [MaplyVectorTileStyle ParseColor:params[@"fill"] alpha:1.0];
         else
             fillColor = [UIColor whiteColor];
         

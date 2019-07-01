@@ -24,12 +24,12 @@ import android.graphics.Color;
 import android.graphics.Bitmap;
 import android.util.Log;
 
-import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.RenderController;
+import com.mousebird.maply.RenderControllerInterface;
 import com.mousebird.maply.VectorStyleSettings;
 import com.mousebird.maply.VectorTileLineStyle;
 import com.mousebird.maply.VectorTilePolygonStyle;
 import com.mousebird.maply.VectorTileStyle;
-import com.mousebird.maply.WideVectorInfo;
 import com.mousebird.maply.VectorInfo;
 import com.mousebird.maply.MaplyTexture;
 import com.mousebird.maply.sld.sldstyleset.SLDParseHelper;
@@ -86,7 +86,7 @@ public class SLDPolygonSymbolizer extends SLDSymbolizer {
 
     public static VectorTilePolygonStyle vectorTilePolygonStyleFromFillNode(XmlPullParser xpp, SLDSymbolizerParams symbolizerParams) throws XmlPullParserException, IOException {
 
-        MaplyBaseController viewC = symbolizerParams.getBaseController();
+        RenderControllerInterface viewC = symbolizerParams.getBaseController();
         VectorStyleSettings vectorStyleSettings = symbolizerParams.getVectorStyleSettings();
 
         VectorInfo vectorInfo = new VectorInfo();
@@ -147,9 +147,9 @@ public class SLDPolygonSymbolizer extends SLDSymbolizer {
                         if (graphicParams != null) {
                             Bitmap bmp = graphicParams.getBitmap();
                             if (bmp != null) {
-                                MaplyBaseController.TextureSettings texSettings = new MaplyBaseController.TextureSettings();
+                                RenderController.TextureSettings texSettings = new RenderController.TextureSettings();
                                 texSettings.wrapU = true;  texSettings.wrapV = true;
-                                MaplyTexture tex = viewC.addTexture(graphicParams.getBitmap(), texSettings, MaplyBaseController.ThreadMode.ThreadCurrent);
+                                MaplyTexture tex = viewC.addTexture(graphicParams.getBitmap(), texSettings, RenderController.ThreadMode.ThreadCurrent);
                                 vectorInfo.setTexture(tex);
 
                                 float scaleX = 50000.0f;
@@ -179,7 +179,7 @@ public class SLDPolygonSymbolizer extends SLDSymbolizer {
             vectorInfo.setColor(color);
         }
 
-        vectorInfo.setDrawPriority(symbolizerParams.getRelativeDrawPriority() + MaplyBaseController.FeatureDrawPriorityBase);
+        vectorInfo.setDrawPriority(symbolizerParams.getRelativeDrawPriority() + RenderController.FeatureDrawPriorityBase);
         VectorTilePolygonStyle vectorTilePolygonStyle = new VectorTilePolygonStyle(vectorInfo, vectorStyleSettings, viewC);
         return vectorTilePolygonStyle;
     }

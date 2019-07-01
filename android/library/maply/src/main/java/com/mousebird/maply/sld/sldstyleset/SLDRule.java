@@ -34,7 +34,6 @@ import com.mousebird.maply.sld.sldstyleset.SLDParseHelper;
 import com.mousebird.maply.sld.sldsymbolizers.SLDSymbolizer;
 import com.mousebird.maply.sld.sldsymbolizers.SLDSymbolizerFactory;
 import com.mousebird.maply.VectorTileStyle;
-import com.mousebird.maply.MaplyBaseController;
 import com.mousebird.maply.VectorStyleSettings;
 import com.mousebird.maply.sld.sldsymbolizers.SLDSymbolizerParams;
 

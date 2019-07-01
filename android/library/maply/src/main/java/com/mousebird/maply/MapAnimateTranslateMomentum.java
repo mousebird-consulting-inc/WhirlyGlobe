@@ -34,7 +34,7 @@ package com.mousebird.maply;
 public class MapAnimateTranslateMomentum implements MapView.AnimationDelegate
 {
 	MapView mapView = null;
-	MaplyRenderer renderer = null;
+	RenderController renderer = null;
 	double velocity,acceleration;
 	Point3d dir = null;
 	Mbr bounds = null;
@@ -53,7 +53,7 @@ public class MapAnimateTranslateMomentum implements MapView.AnimationDelegate
 	 * @param inDir Direction to go, rather than a destination point.
 	 * @param inBounds Bounding box to stay within.
 	 */
-	MapAnimateTranslateMomentum(MapView inView,MaplyRenderer inRender,double inVel,double inAcc,Point3d inDir,Point2d inBounds[])
+	MapAnimateTranslateMomentum(MapView inView,RenderController inRender,double inVel,double inAcc,Point3d inDir,Point2d inBounds[])
 	{
 		mapView = inView;
 		renderer = inRender;

@@ -8,10 +8,11 @@ import com.mousebird.maply.AttrDictionary;
 import com.mousebird.maply.ComponentObject;
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.MapController;
-import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.BaseController;
 import com.mousebird.maply.Marker;
 import com.mousebird.maply.MarkerInfo;
 import com.mousebird.maply.Point2d;
+import com.mousebird.maply.RenderController;
 import com.mousebird.maply.VectorObject;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 import com.mousebirdconsulting.autotester.R;
@@ -24,7 +25,7 @@ public class MarkersTestCase extends MaplyTestCase
 
     public MarkersTestCase(Activity activity) {
         super(activity);
-        setTestName("Markers Test");
+        setTestName("Markers");
         setDelay(1000);
         this.implementation = MaplyTestCase.TestExecutionImplementation.Both;
     }
@@ -53,7 +54,7 @@ public class MarkersTestCase extends MaplyTestCase
         return true;
     }
 
-    private void insertMarkers(ArrayList<VectorObject> vectors, MaplyBaseController baseVC) {
+    private void insertMarkers(ArrayList<VectorObject> vectors, BaseController baseVC) {
         MarkerInfo markerInfo = new MarkerInfo();
         Bitmap icon = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.testtarget);
 //		markerInfo.setMinVis(0.f);
@@ -79,7 +80,7 @@ public class MarkersTestCase extends MaplyTestCase
             }
         }
 
-        ComponentObject object = baseVC.addMarkers(markers, markerInfo, MaplyBaseController.ThreadMode.ThreadAny);
+        ComponentObject object = baseVC.addMarkers(markers, markerInfo, RenderController.ThreadMode.ThreadAny);
         if (object != null) {
             componentObjects.add(object);
         }
