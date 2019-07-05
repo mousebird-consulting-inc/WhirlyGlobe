@@ -59,8 +59,10 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     
     _period = period;
     // Adjust the start time to make the quad loader appear not to move initially
-    if (numFrames > 0) {
-        startTime = TimeGetCurrent()-[loader getCurrentImage]/numFrames * _period;
+    if (numFrames > 1) {
+        startTime = TimeGetCurrent()-[loader getCurrentImage]/(numFrames-1) * _period;
+    } else if (numFrames > 0) {
+        startTime = TimeGetCurrent()-[loader getCurrentImage] * _period;
     }
 }
 
