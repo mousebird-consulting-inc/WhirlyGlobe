@@ -139,11 +139,13 @@ void QIFTileAsset_ios::startFetching(QuadImageFrameLoader *inLoader,int frameToL
                 if (fetchInfo) {
                     MaplyTileFetchRequest *request = frameAsset->setupFetch(loader,fetchInfo,frameInfo,0,ident.importance);
                     
+                    NSObject<QuadImageFrameLoaderLayer> * __weak layer = loader->layer;
+                    
                     request.success = ^(MaplyTileFetchRequest *request, id data) {
-                        [loader->layer fetchRequestSuccess:request tileID:tileID frame:frame data:data];
+                        [layer fetchRequestSuccess:request tileID:tileID frame:frame data:data];
                     };
                     request.failure = ^(MaplyTileFetchRequest *request, NSError *error) {
-                        [loader->layer fetchRequestFail:request tileID:tileID frame:frame error:error];
+                        [layer fetchRequestFail:request tileID:tileID frame:frame error:error];
                     };
                     [batchOps->toStart addObject:request];
                 }

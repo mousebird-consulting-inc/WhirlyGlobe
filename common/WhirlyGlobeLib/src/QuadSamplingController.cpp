@@ -117,10 +117,16 @@ void QuadSamplingController::notifyDelegateStartup(SimpleIdentity delegateID,Cha
 
 void QuadSamplingController::removeBuilderDelegate(QuadTileBuilderDelegateRef delegate)
 {
+    ChangeSet changes;
+    
     std::lock_guard<std::mutex> guardLock(lock);
     auto it = std::find(builderDelegates.begin(), builderDelegates.end(), delegate);
-    if (it != builderDelegates.end())
+    if (it != builderDelegates.end()) {
+        (*it)->builderShutdown(builder.get(), changes);
         builderDelegates.erase(it);
+    }
+    
+    scene->addChangeRequests(changes);
 }
 
 /// **** QuadDataStructure methods ****
