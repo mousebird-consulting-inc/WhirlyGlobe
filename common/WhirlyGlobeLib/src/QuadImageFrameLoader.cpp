@@ -662,6 +662,11 @@ void QuadImageFrameLoader::setCurFrame(double inCurFrame)
     curFrame = inCurFrame;
 }
     
+double QuadImageFrameLoader::getCurFrame()
+{
+    return curFrame;
+}
+    
 void QuadImageFrameLoader::setFlipY(bool newFlip)
 {
     flipY = newFlip;

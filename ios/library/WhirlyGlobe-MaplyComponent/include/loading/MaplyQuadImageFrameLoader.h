@@ -98,6 +98,11 @@
   */
 - (void)setCurrentImage:(double)where;
 
+/**
+  Return the interpolated location within the array of frames.
+  */
+- (double)getCurrentImage;
+
 /** Number of tile sources passed in as individual frames.
   */
 - (int)getNumFrames;

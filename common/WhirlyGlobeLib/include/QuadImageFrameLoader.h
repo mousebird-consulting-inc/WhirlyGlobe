@@ -299,6 +299,7 @@ public:
     
     // What part of the animation we're displaying
     void setCurFrame(double curFrame);
+    double getCurFrame();
     
     // Need to know how we're loading the tiles to calculate the render state
     void setFlipY(bool newFlip);
