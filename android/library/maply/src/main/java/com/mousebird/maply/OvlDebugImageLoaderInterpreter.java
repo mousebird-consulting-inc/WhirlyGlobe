@@ -38,6 +38,8 @@ public class OvlDebugImageLoaderInterpreter extends ImageLoaderInterpreter
 
     @Override  public void setLoader(QuadLoaderBase loader)
     {
+        if (parentInterp != null)
+            parentInterp.setLoader(loader);
     }
 
     private LoaderInterpreter parentInterp = null;
