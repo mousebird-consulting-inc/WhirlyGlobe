@@ -40,6 +40,17 @@ public class OvlDebugImageLoaderInterpreter extends ImageLoaderInterpreter
     {
     }
 
+    private LoaderInterpreter parentInterp = null;
+
+    /**
+     * If set, this is the interpreter we call before adding
+     * our own overlay debug data.
+     */
+    public void setParentInterpreter(LoaderInterpreter interp)
+    {
+        parentInterp = interp;
+    }
+
     // Convert byte arrays into images
     @Override public void dataForTile(LoaderReturn loadReturn,QuadLoaderBase loader)
     {
@@ -52,6 +63,10 @@ public class OvlDebugImageLoaderInterpreter extends ImageLoaderInterpreter
             objectLoaderReturn = (ObjectLoaderReturn)loadReturn;
         else
             return;
+
+        if (parentInterp != null) {
+            parentInterp.dataForTile(loadReturn, loader);
+        }
 
         // Sometimes there's a base image
         if (imageLoadReturn != null) {
