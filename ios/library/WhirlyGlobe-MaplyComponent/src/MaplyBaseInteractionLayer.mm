@@ -1424,7 +1424,7 @@ public:
         wgLabel.iconSize = label.iconSize;
         if (label.color)
             [desc setObject:label.color forKey:@"textColor"];
-        if (label.layoutImportance != MAXFLOAT)
+        if (label.layoutImportance < MAXFLOAT)
         {
             [desc setObject:@(YES) forKey:@"layout"];
             [desc setObject:@(label.layoutImportance) forKey:@"layoutImportance"];
