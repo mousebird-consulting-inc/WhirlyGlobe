@@ -576,8 +576,11 @@ QuadImageFrameLoader::QuadImageFrameLoader(const SamplingParams &params,Mode mod
     changesSinceLastFlush(true),
     compManager(NULL),
     generation(0),
-    targetLevel(-1), curOvlLevel(-1)
+    targetLevel(-1), curOvlLevel(-1),
+    lastRunReqFlag(NULL)
 {
+    lastRunReqFlag = new bool();
+    *lastRunReqFlag = true;
 }
     
 QuadImageFrameLoader::Mode QuadImageFrameLoader::getMode()
@@ -657,6 +660,11 @@ void QuadImageFrameLoader::setDrawPriorityPerLevel(int newPrior)
 void QuadImageFrameLoader::setCurFrame(double inCurFrame)
 {
     curFrame = inCurFrame;
+}
+    
+double QuadImageFrameLoader::getCurFrame()
+{
+    return curFrame;
 }
     
 void QuadImageFrameLoader::setFlipY(bool newFlip)
@@ -982,10 +990,13 @@ void QuadImageFrameLoader::buildRenderState(ChangeSet &changes)
         newRenderState.tiles[tileID] = tileState;
     }
     
-    auto mergeReq = new RunBlockReq([this,newRenderState](Scene *scene,SceneRenderer *renderer,View *view)
+    bool *theLastRunReqFlag = lastRunReqFlag;
+    auto mergeReq = new RunBlockReq([this,newRenderState,theLastRunReqFlag](Scene *scene,SceneRenderer *renderer,View *view)
     {
-        if (builder)
-            renderState = newRenderState;
+        if (*theLastRunReqFlag) {
+            if (builder)
+                renderState = newRenderState;
+        }
     });
     
     changes.push_back(mergeReq);
@@ -1156,6 +1167,8 @@ void QuadImageFrameLoader::builderPreSceneFlush(QuadTileBuilder *builder,ChangeS
 /// Shutdown called on the layer thread if you stuff to clean up
 void QuadImageFrameLoader::builderShutdown(QuadTileBuilder *builder,ChangeSet &changes)
 {
+    if (lastRunReqFlag)
+        *lastRunReqFlag = false;
 }
     
 /// Returns true if there's an update to process

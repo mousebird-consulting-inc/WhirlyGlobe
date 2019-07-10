@@ -44,6 +44,7 @@ class VectorMBTilesTestCase : MaplyTestCase {
     var loader: QuadPagingLoader? = null
     var fetcher: MBTileFetcher? = null
     var interp: MapboxVectorInterpreter? = null
+    var debugInterp: OvlDebugImageLoaderInterpreter? = null
     var styleGen: VectorStyleSimpleGenerator? = null
 
     fun setupLoader(control: BaseController) {
@@ -63,7 +64,11 @@ class VectorMBTilesTestCase : MaplyTestCase {
         // Mapbox interpreter uses the parser and style to create visual data
         interp = MapboxVectorInterpreter(styleGen, control)
 
-        loader = QuadPagingLoader(params, fetcher!!.tileInfo, interp, control)
+        // Overlay the tile number on top
+        debugInterp = OvlDebugImageLoaderInterpreter()
+        debugInterp!!.setParentInterpreter(interp)
+
+        loader = QuadPagingLoader(params, fetcher!!.tileInfo, debugInterp, control)
         loader!!.setTileFetcher(fetcher)
     }
 

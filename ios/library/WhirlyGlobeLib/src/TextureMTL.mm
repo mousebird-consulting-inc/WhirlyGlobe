@@ -22,6 +22,7 @@
 #import "UIImage+Stuff.h"
 #import "RawData_NSData.h"
 #import <Accelerate/Accelerate.h>
+#import "WhirlyKitLog.h"
 
 namespace WhirlyKit
 {
@@ -109,6 +110,11 @@ bool TextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
         return true;
     
     RenderSetupInfoMTL *setupInfo = (RenderSetupInfoMTL *)inSetupInfo;
+    
+    if (width == 0 || height == 0) {
+        wkLogLevel(Error,"Texture with 0 width or height: %s",name.c_str());
+        return false;
+    }
     
     MTLPixelFormat pixFormat = MTLPixelFormatR32Uint;
     int bytesPerRow = 0;

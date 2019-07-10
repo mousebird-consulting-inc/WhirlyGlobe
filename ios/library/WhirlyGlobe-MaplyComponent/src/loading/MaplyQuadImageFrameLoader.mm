@@ -43,14 +43,27 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     self = [super init];
     loader = inLoader;
     viewC = inViewC;
-    startTime = TimeGetCurrent();
-    _period = 10.0;
     _pauseLength = 0.0;
     numFrames = [loader getNumFrames];
+    self.period = 10.0;
 
     [viewC addActiveObject:self];
 
     return self;
+}
+
+- (void)setPeriod:(NSTimeInterval)period
+{
+    if (period == _period)
+        return;
+    
+    _period = period;
+    // Adjust the start time to make the quad loader appear not to move initially
+    if (numFrames > 1) {
+        startTime = TimeGetCurrent()-[loader getCurrentImage]/(numFrames-1) * _period;
+    } else if (numFrames > 0) {
+        startTime = TimeGetCurrent()-[loader getCurrentImage] * _period;
+    }
 }
 
 - (void)shutdown
@@ -159,6 +172,14 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
 {
     double curFrame = std::min(std::max(where,0.0),(double)([loader->frameInfos count]-1));
     loader->setCurFrame(curFrame);
+}
+
+- (double)getCurrentImage
+{
+    if (!loader)
+        return 0.0;
+    
+    return loader->getCurFrame();
 }
 
 - (int)getNumFrames

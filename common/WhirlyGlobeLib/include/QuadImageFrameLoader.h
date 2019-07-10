@@ -299,6 +299,7 @@ public:
     
     // What part of the animation we're displaying
     void setCurFrame(double curFrame);
+    double getCurFrame();
     
     // Need to know how we're loading the tiles to calculate the render state
     void setFlipY(bool newFlip);
@@ -459,6 +460,9 @@ protected:
     
     // This is set to the targetLevel when all targetLevel tiles are loaded
     int curOvlLevel;
+    
+    // If set, used to signal when we're done to a RunRequest in process
+    bool *lastRunReqFlag;
 };
     
 }
