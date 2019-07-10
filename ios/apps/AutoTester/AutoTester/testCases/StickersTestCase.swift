@@ -34,12 +34,12 @@ class StickersTestCase: MaplyTestCase {
 		baseViewC.addStickers(stickers, desc: [kMaplyFade: (1.0)])
 	}
     
-    func addTestSticker (baseViewC: MaplyBaseViewController) {
+    func addTestSticker (baseViewC: MaplyBaseViewController, rotation: Double) {
         let startImage = UIImage(named: "greensquare.png")
         
         let sticker = MaplySticker()
         sticker.coordSys = MaplySphericalMercator.init(webStandard: ())
-        sticker.rotation = 45.0 / 180.0 * Float.pi
+        sticker.rotation = Float(rotation) / 180.0 * Float.pi
         let center = MaplyCoordinateMakeWithDegrees(-0.381378, 45.089304)
         var ll = center
         ll.x -= 0.0025
@@ -66,10 +66,11 @@ class StickersTestCase: MaplyTestCase {
 	
 	override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
         baseCase.setUpWithGlobe(globeVC)
+        globeVC.keepNorthUp = true
 
         addStickers(baseCase.vecList, baseViewC: globeVC)
         
-        addTestSticker(baseViewC: globeVC)
+        addTestSticker(baseViewC: globeVC, rotation: 180.0+10.0)
 	}
 	
 	override func setUpWithMap(_ mapVC: MaplyViewController) {
@@ -77,6 +78,6 @@ class StickersTestCase: MaplyTestCase {
 
         addStickers(baseCase.vecList, baseViewC: mapVC)
         
-        addTestSticker(baseViewC: mapVC)
+        addTestSticker(baseViewC: mapVC, rotation: 45.0)
 	}
 }
