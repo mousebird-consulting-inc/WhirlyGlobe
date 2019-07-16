@@ -772,7 +772,6 @@ using namespace WhirlyKit;
         if (self.debugMode)
             NSLog(@"Unloading tile %d: (%d,%d)",ident.level,ident.x,ident.y);
         
-        ChangeSet changes;
         it->second->clear(toCancel, changes);
 
         tiles.erase(it);
