@@ -143,10 +143,11 @@ using namespace WhirlyKit;
     double spanY = wholeBBox.ur.y - wholeBBox.ll.y;
     double dx = spanX/numLevel, dy = spanY/numLevel;
     Point3d pts[4];
-    pts[0] = Point3d(wholeBBox.ll.x+dx*tileID.x,wholeBBox.ll.y+dy*tileID.y,0.0);
-    pts[1] = Point3d(wholeBBox.ll.x+dx*(tileID.x+1),wholeBBox.ll.y+dy*tileID.y,0.0);
-    pts[2] = Point3d(wholeBBox.ll.x+dx*(tileID.x+1),wholeBBox.ll.y+dy*(tileID.y+1),0.0);
-    pts[3] = Point3d(wholeBBox.ll.x+dx*tileID.x,wholeBBox.ll.y+dy*(tileID.y+1),0.0);
+    double nudge = spanX * 1e-7;   // Nudge things in a bit to avoid a round earth problem
+    pts[0] = Point3d(wholeBBox.ll.x+dx*tileID.x,wholeBBox.ll.y+dy*tileID.y,0.0) + Point3d(nudge,nudge,0.0);
+    pts[1] = Point3d(wholeBBox.ll.x+dx*(tileID.x+1),wholeBBox.ll.y+dy*tileID.y,0.0) + Point3d(-nudge,nudge,0.0);
+    pts[2] = Point3d(wholeBBox.ll.x+dx*(tileID.x+1),wholeBBox.ll.y+dy*(tileID.y+1),0.0) + Point3d(-nudge,-nudge,0.0);
+    pts[3] = Point3d(wholeBBox.ll.x+dx*tileID.x,wholeBBox.ll.y+dy*(tileID.y+1),0.0) + Point3d(nudge,-nudge,0.0);
 
     // Project the corners into
     MbrD tileMbr;
