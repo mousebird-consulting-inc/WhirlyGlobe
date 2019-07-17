@@ -181,7 +181,11 @@ public:
             MaplyTileID tileID;  tileID.level = ident.level;  tileID.x = ident.x;  tileID.y = ident.y;
             id fetchInfo = [frameInfo fetchInfoForTile:tileID];
             if (fetchInfo) {
-                MaplyTileFetchRequest *request = frames[frame]->setupFetch(fetchInfo,frameInfo,0,ident.importance * loader.importanceScale);
+                MaplyTileFetchRequest *request = frames[frame]->setupFetch(fetchInfo,frameInfo,1,ident.importance * loader.importanceScale);
+                
+                // We need all the min levels to display a a frame, so bump this up a bit
+                if (tileID.level == loader->minLevel)
+                    request.priority = request.priority - 1;
         
                 request.success = ^(MaplyTileFetchRequest *request, NSData *data) {
                     [loader fetchRequestSuccess:request tileID:tileID frame:frame data:data];
