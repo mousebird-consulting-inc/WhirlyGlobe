@@ -350,7 +350,11 @@ using namespace WhirlyKit;
     // Note: Deal with border pixels
     int borderPixel = 0;
     WhirlyKitLoadedTile *loadTile = [tileData wkTile:borderPixel convertToRaw:true];
-    loadReturn.images = @[loadTile];
+    if (loadTile)
+        loadReturn.images = @[loadTile];
+    else {
+        loadReturn.error = [[NSError alloc] initWithDomain:@"MaplyQuadImageLaoder" code:0 userInfo:@{NSLocalizedDescriptionKey: @"Tile data was not valid image"}];
+    }
 }
 
 @end

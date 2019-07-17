@@ -314,7 +314,7 @@ using namespace WhirlyKit;
 
 - (void)startTileFetches:(NSArray<MaplyTileFetchRequest *> *)requests
 {
-    if (!active)
+    if (!active || [requests count] == 0)
         return;
     
     // Check each of the fetchInfo objects
@@ -333,7 +333,7 @@ using namespace WhirlyKit;
 
 - (void)cancelTileFetches:(NSArray *)requests
 {
-    if (!active)
+    if (!active || [requests count] == 0)
         return;
     
     MaplyRemoteTileFetcher * __weak weakSelf = self;
@@ -421,12 +421,12 @@ using namespace WhirlyKit;
         switch (tile->state) {
             case TileInfo::Loading:
                 [tile->task cancel];
-                loading.erase(tile);
                 break;
             case TileInfo::ToLoad:
-                toLoad.erase(tile);
                 break;
         }
+        loading.erase(tile);
+        toLoad.erase(tile);
         tile->clear();
         tilesByFetchRequest.erase(it);
     }
@@ -606,9 +606,9 @@ using namespace WhirlyKit;
     if (it != tilesByFetchRequest.end()) {
         tilesByFetchRequest.erase(it);
     }
-    tile->clear();
     loading.erase(tile);
     toLoad.erase(tile);
+    tile->clear();
 }
 
 // Called on our queue
@@ -616,6 +616,8 @@ using namespace WhirlyKit;
 {
     auto it = tilesByFetchRequest.find(tile->request);
     if (it == tilesByFetchRequest.end()) {
+        loading.erase(tile);
+        toLoad.erase(tile);
         tile->clear();
         // No idea what it is.  Toss it.
         return;
