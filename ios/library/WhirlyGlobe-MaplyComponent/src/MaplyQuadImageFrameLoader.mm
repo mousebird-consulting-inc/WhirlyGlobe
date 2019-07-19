@@ -937,6 +937,13 @@ using namespace WhirlyKit;
         newRenderState.tiles[tileID] = tileState;
     }
     
+//    if (true) {
+//        std::string outStr = "";
+//        for (int fi=0;fi<numFrames;fi++)
+//            outStr += newRenderState.topTilesLoaded[fi] ? " 1" : " 0";
+//        NSLog(@"MaplyQuadImageLoader topLoaded: %s",outStr.c_str());
+//    }
+    
     auto mergeReq = new RunBlockReq([self,newRenderState](Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
                                           {
                                               if (self)
@@ -1064,33 +1071,10 @@ using namespace WhirlyKit;
         auto tile = it->second;
         auto loadedTile = [builder getLoadedTile:ident];
 
-        // We consider it worth loading
-        if ([self shouldLoad:ident]) {
-            // If it isn't loaded, then start that process
-            if (tile->getState() == QIFTileAsset::Waiting) {
-                if (self.debugMode)
-                    NSLog(@"Tile switched from Wait to Fetch %d: (%d,%d) importance = %f",ident.level,ident.x,ident.y,ident.importance);
-                tile->startFetching(self, toStart, frameInfos);
-                if (loadedTile)
-                    tile->setShouldEnable(loadedTile->enabled);
-                somethingChanged = true;
-            }
-        } else {
-            // We don't consider it worth loading now so drop it if we were
-            switch (tile->getState())
-            {
-                case QIFTileAsset::Waiting:
-                    tile->setImportance(tileFetcher, ident.importance);
-                    if (loadedTile)
-                        tile->setShouldEnable(loadedTile->enabled);
-                    somethingChanged = true;
-                    break;
-                case QIFTileAsset::Active:
-                    tile->clear(toCancel, changes);
-                    somethingChanged = true;
-                    break;
-            }
-        }
+        tile->setImportance(tileFetcher, ident.importance);
+
+        // Note: We used to have some convoluted importance logic here.  Didn't work out.
+        somethingChanged = true;
     }
     
     [tileFetcher cancelTileFetches:toCancel];
