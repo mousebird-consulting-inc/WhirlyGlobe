@@ -143,10 +143,11 @@ using namespace WhirlyKit;
     double spanY = wholeBBox.ur.y - wholeBBox.ll.y;
     double dx = spanX/numLevel, dy = spanY/numLevel;
     Point3d pts[4];
-    pts[0] = Point3d(wholeBBox.ll.x+dx*tileID.x,wholeBBox.ll.y+dy*tileID.y,0.0);
-    pts[1] = Point3d(wholeBBox.ll.x+dx*(tileID.x+1),wholeBBox.ll.y+dy*tileID.y,0.0);
-    pts[2] = Point3d(wholeBBox.ll.x+dx*(tileID.x+1),wholeBBox.ll.y+dy*(tileID.y+1),0.0);
-    pts[3] = Point3d(wholeBBox.ll.x+dx*tileID.x,wholeBBox.ll.y+dy*(tileID.y+1),0.0);
+    double nudge = spanX * 1e-7;   // Nudge things in a bit to avoid a round earth problem
+    pts[0] = Point3d(wholeBBox.ll.x+dx*tileID.x,wholeBBox.ll.y+dy*tileID.y,0.0) + Point3d(nudge,nudge,0.0);
+    pts[1] = Point3d(wholeBBox.ll.x+dx*(tileID.x+1),wholeBBox.ll.y+dy*tileID.y,0.0) + Point3d(-nudge,nudge,0.0);
+    pts[2] = Point3d(wholeBBox.ll.x+dx*(tileID.x+1),wholeBBox.ll.y+dy*(tileID.y+1),0.0) + Point3d(-nudge,-nudge,0.0);
+    pts[3] = Point3d(wholeBBox.ll.x+dx*tileID.x,wholeBBox.ll.y+dy*(tileID.y+1),0.0) + Point3d(nudge,-nudge,0.0);
 
     // Project the corners into
     MbrD tileMbr;
@@ -314,7 +315,7 @@ using namespace WhirlyKit;
 
 - (void)startTileFetches:(NSArray<MaplyTileFetchRequest *> *)requests
 {
-    if (!active)
+    if (!active || [requests count] == 0)
         return;
     
     // Check each of the fetchInfo objects
@@ -333,7 +334,7 @@ using namespace WhirlyKit;
 
 - (void)cancelTileFetches:(NSArray *)requests
 {
-    if (!active)
+    if (!active || [requests count] == 0)
         return;
     
     MaplyRemoteTileFetcher * __weak weakSelf = self;
@@ -421,12 +422,12 @@ using namespace WhirlyKit;
         switch (tile->state) {
             case TileInfo::Loading:
                 [tile->task cancel];
-                loading.erase(tile);
                 break;
             case TileInfo::ToLoad:
-                toLoad.erase(tile);
                 break;
         }
+        loading.erase(tile);
+        toLoad.erase(tile);
         tile->clear();
         tilesByFetchRequest.erase(it);
     }
@@ -606,9 +607,9 @@ using namespace WhirlyKit;
     if (it != tilesByFetchRequest.end()) {
         tilesByFetchRequest.erase(it);
     }
-    tile->clear();
     loading.erase(tile);
     toLoad.erase(tile);
+    tile->clear();
 }
 
 // Called on our queue
@@ -616,6 +617,8 @@ using namespace WhirlyKit;
 {
     auto it = tilesByFetchRequest.find(tile->request);
     if (it == tilesByFetchRequest.end()) {
+        loading.erase(tile);
+        toLoad.erase(tile);
         tile->clear();
         // No idea what it is.  Toss it.
         return;

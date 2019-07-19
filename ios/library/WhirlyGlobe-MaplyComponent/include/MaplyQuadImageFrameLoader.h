@@ -73,7 +73,8 @@
 - (void)setCurrentImage:(double)where;
 
 /** Turn off the image loader and shut things down.
- This unregisters us with the sampling layer and shuts down the various objects we created.
+ 
+    This unregisters us with the sampling layer and shuts down the various objects we created.
  */
 - (void)shutdown;
 

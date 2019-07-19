@@ -22,7 +22,6 @@ class CartoDBLightTestCase: MaplyTestCase {
     
     // Put together a quad sampler layer
     func setupLoader(_ baseVC: MaplyBaseViewController) -> MaplyQuadImageLoader? {
-        // Stamen tile source
         let cacheDir = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0]
         let thisCacheDir = "\(cacheDir)/cartodblight/"
         let maxZoom = Int32(16)

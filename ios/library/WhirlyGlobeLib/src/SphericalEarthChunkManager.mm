@@ -333,73 +333,60 @@ static const float SkirtFactor = 0.95;
 
 namespace WhirlyKit
 {
-     
-// Used to track scene data associated with a chunk
-class ChunkSceneRep : public Identifiable
+    
+// Remove elements from the scene
+void ChunkSceneRep::clear(Scene *scene,DynamicTextureAtlas *texAtlas,DynamicDrawableAtlas *drawAtlas,ChangeSet &changeRequests)
 {
-public:
-    ChunkSceneRep(SimpleIdentity theId) : Identifiable(theId) { }
-    ChunkSceneRep() : usesAtlas(false) { subTex.texId = EmptyIdentity; }
-    SimpleIDSet drawIDs;
-    SimpleIDSet texIDs;
-    bool usesAtlas;
-    // Set if we're using a dynamic texture atlas
-    SubTexture subTex;
-    
-    // Remove elements from the scene
-    void clear(Scene *scene,DynamicTextureAtlas *texAtlas,DynamicDrawableAtlas *drawAtlas,ChangeSet &changeRequests)
+    if (usesAtlas && drawAtlas)
     {
-        if (usesAtlas && drawAtlas)
-        {
-            for (SimpleIDSet::iterator it = drawIDs.begin();
-                 it != drawIDs.end(); ++it)
-                drawAtlas->removeDrawable(*it, changeRequests);
-        } else {
-            for (SimpleIDSet::iterator it = drawIDs.begin();
-                 it != drawIDs.end(); ++it)
-                changeRequests.push_back(new RemDrawableReq(*it));
-        }
-        if (usesAtlas && texAtlas)
-        {
-            if (subTex.texId != EmptyIdentity)
-                texAtlas->removeTexture(subTex, changeRequests, 0.0);
-        } else {
-            for (SimpleIDSet::iterator it = texIDs.begin();
-                 it != texIDs.end(); ++it)
-                changeRequests.push_back(new RemTextureReq(*it));
-        }
+        for (SimpleIDSet::iterator it = drawIDs.begin();
+             it != drawIDs.end(); ++it)
+            drawAtlas->removeDrawable(*it, changeRequests);
+    } else {
+        for (SimpleIDSet::iterator it = drawIDs.begin();
+             it != drawIDs.end(); ++it)
+            changeRequests.push_back(new RemDrawableReq(*it));
     }
-    
-    // Enable drawables
-    void enable(DynamicTextureAtlas *texAtlas,DynamicDrawableAtlas *drawAtlas,ChangeSet &changes)
+    if (usesAtlas && texAtlas)
     {
-        if (usesAtlas && drawAtlas)
-        {
-            for (SimpleIDSet::iterator it = drawIDs.begin();
-                 it != drawIDs.end(); ++it)
-                drawAtlas->setEnableDrawable(*it, true);
-        } else {
-            for (SimpleIDSet::iterator it = drawIDs.begin();
-                 it != drawIDs.end(); ++it)
-                changes.push_back(new OnOffChangeRequest(*it, true));
-        }
+        if (subTex.texId != EmptyIdentity)
+            texAtlas->removeTexture(subTex, changeRequests, 0.0);
+    } else {
+        for (SimpleIDSet::iterator it = texIDs.begin();
+             it != texIDs.end(); ++it)
+            changeRequests.push_back(new RemTextureReq(*it));
     }
-    
-    // Disable drawables
-    void disable(DynamicTextureAtlas *texAtlas,DynamicDrawableAtlas *drawAtlas,ChangeSet &changes)
+}
+
+// Enable drawables
+void ChunkSceneRep::enable(DynamicTextureAtlas *texAtlas,DynamicDrawableAtlas *drawAtlas,ChangeSet &changes)
+{
+    if (usesAtlas && drawAtlas)
     {
-        if (usesAtlas && drawAtlas)
-        {
-            for (SimpleIDSet::iterator it = drawIDs.begin();
-                 it != drawIDs.end(); ++it)
-                drawAtlas->setEnableDrawable(*it, false);
-        } else {
-            for (SimpleIDSet::iterator it = drawIDs.begin();
-                 it != drawIDs.end(); ++it)
-                changes.push_back(new OnOffChangeRequest(*it, false));
-        }
+        for (SimpleIDSet::iterator it = drawIDs.begin();
+             it != drawIDs.end(); ++it)
+            drawAtlas->setEnableDrawable(*it, true);
+    } else {
+        for (SimpleIDSet::iterator it = drawIDs.begin();
+             it != drawIDs.end(); ++it)
+            changes.push_back(new OnOffChangeRequest(*it, true));
     }
-};
+}
+
+// Disable drawables
+void ChunkSceneRep::disable(DynamicTextureAtlas *texAtlas,DynamicDrawableAtlas *drawAtlas,ChangeSet &changes)
+{
+    if (usesAtlas && drawAtlas)
+    {
+        for (SimpleIDSet::iterator it = drawIDs.begin();
+             it != drawIDs.end(); ++it)
+            drawAtlas->setEnableDrawable(*it, false);
+    } else {
+        for (SimpleIDSet::iterator it = drawIDs.begin();
+             it != drawIDs.end(); ++it)
+            changes.push_back(new OnOffChangeRequest(*it, false));
+    }
+}
     
 SphericalChunkManager::SphericalChunkManager()
     : borderTexel(0), texAtlas(NULL), drawAtlas(NULL)

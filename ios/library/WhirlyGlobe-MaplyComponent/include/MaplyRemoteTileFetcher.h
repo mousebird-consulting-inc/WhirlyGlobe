@@ -22,12 +22,15 @@
 #import "MaplyCoordinateSystem.h"
 
 /**
- Remote Tile Info Object (New)
+ Remote Tile Info Object (New) represents a single source if pyramid tile data.
  
  Not to be confused with the old one, which works with the older loading subsystem,
  the new remote tile info object contains min/max zoom, coordinate system and URL
  information for fetching individual data tiles.
- */
+ 
+ These are used to repesent a remote URL for a single frame of data.  We typically
+ use replacement URL schemes and the request can have various header fields attached.
+ **/
 @interface MaplyRemoteTileInfoNew : NSObject<MaplyTileInfoNew>
 
 /**
@@ -59,7 +62,7 @@
 /**
  The timeout assigned to the NSMutableURLRequest we're using to fetch tiles.
  
- This is not set by default.  If set, we'll use this value as the timeout on the NSMutableURLRequest we use for fetching tiles.  This lets you extent it where appropriate or shorten it if you like.
+ This is not set by default.  If set, we'll use this value as the timeout on the NSMutableURLRequest we use for fetching tiles.  This lets you extend it where appropriate or shorten it if you like.
  */
 @property (nonatomic,assign) float timeOut;
 
@@ -71,6 +74,8 @@
  The cacheing behavior is a little dumb.  It will just write
  files to the given directory forever.  If you're interacting
  with a giant image pyramid, that could be problematic.
+ 
+ The solution we've used in the past is to clean out the cache directory on a background thread.
  */
 @property (nonatomic, retain,nullable) NSString *cacheDir;
 
@@ -86,7 +91,7 @@
  
  This coordinate system is required if the tile info will need
  to evaluate valid tiles as defined by the addValidBounds:coordSystem: call.
- This is the coordinate system of the tiles et.
+ This is the coordinate system of the tiles set.
   */
 @property (nonatomic, retain) MaplyCoordinateSystem * __nullable coordSys;
 
@@ -102,7 +107,7 @@
 @end
 
 /**
-    Fetch Info for remote tile fetches.
+    Fetch Info for remote tile fetches.  Passed between the TileInfo and Fetcher.
  
     The URL (required) and cacheFile (optional) for the given fetch.
     This is the object the RemoteTileFetcher expects for the fetchInfo member of the TileFetchRequest.
@@ -140,7 +145,7 @@
 /// Reset the counters for one variant of stat
 - (void)resetStats;
 
-// If set, you get way too much debugging output
+/// If set, you get way too much debugging output
 @property (nonatomic,assign) bool debugMode;
 
 @end
@@ -148,36 +153,37 @@
 /// Stats collected by the fetcher
 @interface MaplyRemoteTileFetcherStats : NSObject
 
+/// Fetcher we collected stats for
 @property (nonatomic,readonly,weak,nullable) MaplyRemoteTileFetcher *fetcher;
 
-// Start of stats collection
+/// Start of stats collection
 @property (nonatomic,nonnull,strong) NSDate *startDate;
 
-// Total requests, remote and cached
+/// Total requests, remote and cached
 @property (nonatomic) int totalRequests;
 
-// Requests that resulted in a remote HTTP call
+/// Requests that resulted in a remote HTTP call
 @property (nonatomic) int remoteRequests;
 
-// Total requests cancelled
+/// Total requests cancelled
 @property (nonatomic) int totalCancels;
 
-// Requests failed
+/// Requests failed
 @property (nonatomic) int totalFails;
 
-// Bytes of remote data loaded
+/// Bytes of remote data loaded
 @property (nonatomic) int remoteData;
 
-// Bytes of cached data loaded
+/// Bytes of cached data loaded
 @property (nonatomic) int localData;
 
-// Total time spent waiting for successful remote data requests
+/// Total time spent waiting for successful remote data requests
 @property (nonatomic) NSTimeInterval totalLatency;
 
-// Add the given stats to ours
+/// Add the given stats to ours
 - (void)addStats:(MaplyRemoteTileFetcherStats * __nonnull)stats;
 
-// Print out the stats
+/// Print out the stats
 - (void)dump;
 
 @end

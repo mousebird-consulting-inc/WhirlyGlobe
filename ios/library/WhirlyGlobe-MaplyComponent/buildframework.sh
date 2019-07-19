@@ -54,6 +54,7 @@ lipo -create $BUILT_PRODUCTS_IPHONEOS/WhirlyGlobeMaplyComponent.framework/Whirly
 
 echo "Framework: Copying assets into current version..."
 cp include/*.h $FRAMEWORK_DIR/Headers/
+cp include/vector_tiles/*.h $FRAMEWORK_DIR/Headers/
 
 #replace placeholder in plist with project name
 cp framework_info.plist $FRAMEWORK_DIR/Resources/Info.plist

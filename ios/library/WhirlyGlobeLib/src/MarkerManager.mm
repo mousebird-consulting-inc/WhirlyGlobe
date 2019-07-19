@@ -201,7 +201,7 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
             
             ScreenSpaceObject *shape = NULL;
             LayoutObject *layoutObj = NULL;
-            if (layoutManager && marker.layoutImportance != MAXFLOAT)
+            if (layoutManager && marker.layoutImportance < MAXFLOAT)
             {
                 markerRep->useLayout = true;
                 layoutObj = new LayoutObject();
@@ -247,7 +247,7 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
             markerRep->screenShapeIDs.insert(shape->getId());
             
             // Set up for the layout layer
-            if (layoutManager && marker.layoutImportance != MAXFLOAT)
+            if (layoutManager && marker.layoutImportance < MAXFLOAT)
             {
                 if (marker.layoutWidth >= 0.0)
                 {

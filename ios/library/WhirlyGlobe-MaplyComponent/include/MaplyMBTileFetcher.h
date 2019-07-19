@@ -22,7 +22,7 @@
 #import "MaplyCoordinateSystem.h"
 
 /**
-    MBTiles tile fetcher.
+    Tile Fetcher that reads from an MBTiles file.
  
     This tile fetcher focuses on a single MBTiles file.  You mate this
     with a QuadImageLoader to do the actual work.
@@ -37,13 +37,13 @@
 /// TileInfo objected needed by a QuadImageLoader
 - (nullable NSObject<MaplyTileInfoNew> *)tileInfo;
 
-// Min zoom read from file
+/// Min zoom read from file
 - (int)minZoom;
 
-// Max zoom read from file
+/// Max zoom read from file
 - (int)maxZoom;
 
-// Coordinate system (probably Spherical Mercator)
+/// Coordinate system (probably Spherical Mercator)
 - (MaplyCoordinateSystem * __nonnull)coordSys;
 
 @end

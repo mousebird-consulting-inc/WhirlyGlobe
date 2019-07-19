@@ -1580,7 +1580,7 @@ using namespace WhirlyGlobe;
     
     // Orient with north up.  Either because we want that or we're about do do a heading
     Eigen::Quaterniond posRotNorth = posRot;
-    if (panDelegate.northUp || animState.heading != MAXFLOAT)
+    if (panDelegate.northUp || animState.heading < MAXFLOAT)
     {
         // We'd like to keep the north pole pointed up
         // So we look at where the north pole is going
@@ -1601,7 +1601,7 @@ using namespace WhirlyGlobe;
     
     // We can't have both northUp and a heading
     Eigen::Quaterniond finalQuat = posRotNorth;
-    if (!panDelegate.northUp && animState.heading != MAXFLOAT)
+    if (!panDelegate.northUp && animState.heading < MAXFLOAT)
     {
         Eigen::AngleAxisd headingRot(animState.heading,worldLoc);
         finalQuat = posRotNorth * headingRot;
@@ -1611,7 +1611,7 @@ using namespace WhirlyGlobe;
     [globeView setHeightAboveGlobe:animState.height updateWatchers:false];
     
     // Set the tilt either directly or as a consequence of the height
-    if (animState.tilt == MAXFLOAT)
+    if (animState.tilt >= MAXFLOAT)
         globeView.tilt = [tiltControlDelegate tiltFromHeight:globeView.heightAboveGlobe];
     else
         globeView.tilt = animState.tilt;
