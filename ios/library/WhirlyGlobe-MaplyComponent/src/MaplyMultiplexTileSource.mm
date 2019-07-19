@@ -377,7 +377,7 @@ static bool trackConnections = false;
         // Let the paging layer know about it
         NSMutableArray *allData = [NSMutableArray array];
         if (singleFetch)
-            [allData addObject:tileData];
+            [allData addObject:(tileData ? tileData : [NSNull null])];
         else
             for (unsigned int ii=0;ii<theTile.tileData.size();ii++)
                 [allData addObject:theTile.tileData[ii]];
