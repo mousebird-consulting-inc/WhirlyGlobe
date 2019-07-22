@@ -67,7 +67,7 @@ LabelInfo::LabelInfo(const Dictionary &dict, bool screenObject)
     shadowColor = dict.getColor(MaplyShadowColor, RGBAColor(0,0,0,255));
     shadowSize = dict.getDouble(MaplyShadowSize, 0.0);
     outlineSize = dict.getDouble(MaplyTextOutlineSize,0.0);
-    outlineColor = dict.getColor(MaplyShadowColor, RGBAColor(0,0,0,255));
+    outlineColor = dict.getColor(MaplyTextOutlineColor, RGBAColor(0,0,0,255));
     if (!labelJustifyStr.compare(MaplyLabelJustifyNameMiddle))
         labelJustify = WhirlyKitLabelMiddle;
     else {
