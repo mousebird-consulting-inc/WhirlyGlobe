@@ -30,10 +30,6 @@ Shader_Android::Shader_Android()
 
 Shader_Android::~Shader_Android()
 {
-    // Shaders are added to the Scene, which deletes them, so we can't
-    // TODO: We should share the shaders with a shared_ptr
-//    if (prog)
-//        delete prog;
     prog = NULL;
 }
 
