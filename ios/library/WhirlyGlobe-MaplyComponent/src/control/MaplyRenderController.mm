@@ -547,6 +547,11 @@ using namespace Eigen;
     [interactLayer enableObjects:theObjs mode:threadMode];
 }
 
+- (void)setUniformBlock:(NSData *__nonnull)uniBlock buffer:(int)bufferID forObjects:(NSArray<MaplyComponentObject *> *__nonnull)compObjs mode:(MaplyThreadMode)threadMode
+{
+    [interactLayer setUniformBlock:uniBlock buffer:bufferID forObjects:compObjs mode:threadMode];
+}
+
 - (MaplyCoordinateSystem *__nullable)coordSystem
 {
     // Note: Hack.  Should wrap the real coordinate system

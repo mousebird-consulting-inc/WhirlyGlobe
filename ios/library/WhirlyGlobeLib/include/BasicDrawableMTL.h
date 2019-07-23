@@ -29,6 +29,15 @@
 namespace WhirlyKit
 {
     
+// Block of data to be passed into a given buffer ID
+// We do this rather than setting individual uniforms
+class UniformBlockMTL
+{
+public:
+    int bufferID;
+    RawDataRef blockData;
+};
+    
 /** Metal Version of the BasicDrawable.
  */
 class BasicDrawableMTL : public BasicDrawable
@@ -50,6 +59,9 @@ public:
     // Apply a list of uniforms to the draw state
     // We hard wire some of these uniforms into a single buffer
     static void applyUniformsToDrawState(WhirlyKitShader::UniformDrawStateA &drawState,const SingleVertexAttributeSet &uniforms);
+    
+    // Encode the uniform blocks into the given frame
+    static void encodeUniBlocks(RendererFrameInfoMTL *frameInfo,const std::vector<BasicDrawable::UniformBlock> &uniBlocks);
     
     // Defaults for vertex attributes we don't have
     typedef struct {
@@ -74,6 +86,5 @@ public:
     id<MTLBuffer> triBuffer;           // Metal side buffer for triangles
     std::vector<AttributeDefault> defaultAttrs;
 };
-
     
 }

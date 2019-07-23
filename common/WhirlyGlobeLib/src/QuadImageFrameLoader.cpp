@@ -1020,6 +1020,10 @@ QuadTreeNew::NodeSet QuadImageFrameLoader::builderUnloadCheck(QuadTileBuilder *b
         int targetLevel)
 {
     QuadTreeNew::NodeSet toKeep;
+
+    // Not initialized yet
+    if (!this->builder)
+        return toKeep;
     
     // List all the tiles that we're going to load or are loading
     QuadTreeNew::NodeSet allLoads;
@@ -1084,6 +1088,10 @@ void QuadImageFrameLoader::builderLoad(QuadTileBuilder *builder,
                          const WhirlyKit::TileBuilderDelegateInfo &updates,
                          ChangeSet &changes)
 {
+    // Not initialized yet
+    if (!this->builder)
+        return;
+    
     bool somethingChanged = false;
     
     targetLevel = updates.targetLevel;
@@ -1146,6 +1154,10 @@ void QuadImageFrameLoader::builderLoad(QuadTileBuilder *builder,
 /// Called right before the layer thread flushes all its current changes
 void QuadImageFrameLoader::builderPreSceneFlush(QuadTileBuilder *builder,ChangeSet &changes)
 {
+    // Not initialized yet
+    if (!this->builder)
+        return;
+
     if (!changesSinceLastFlush)
         return;
     

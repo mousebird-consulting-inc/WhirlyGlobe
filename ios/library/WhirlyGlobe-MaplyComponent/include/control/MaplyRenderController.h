@@ -756,6 +756,15 @@ typedef NS_ENUM(NSInteger, MaplyQuadImageFormat) {
 - (void)enableObjects:(NSArray *__nonnull)theObjs mode:(MaplyThreadMode)threadMode;
 
 /**
+ Pass a uniform block through to a shader.  Only for Metal.
+ 
+ Custom Metal shaders may have their own uniform blocks associated with a known bufferID.
+ This is how you pass those through for objects you've already created.
+ Useful for things like custom animation.
+ */
+- (void)setUniformBlock:(NSData *__nonnull)uniBlock buffer:(int)bufferID forObjects:(NSArray<MaplyComponentObject *> *__nonnull)compObjs mode:(MaplyThreadMode)threadMode;
+
+/**
  Call this to start journaling changes for this thread.
  
  Your can collect up your add/remove/enable changes on the current thread.  Call startChanges to start collecting and endChanges to flush the changes.

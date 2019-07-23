@@ -54,6 +54,20 @@ typedef NS_ENUM(NSInteger, MaplyVariableType) {
 /// Leave this empty and we'll provide our own
 @property (nonatomic,strong,nullable) MaplyShader *shader;
 
+/// By default we'll build a rectangle to display the target
+@property (nonatomic,assign) bool buildRectangle;
+
+/// Rectangle created to show the variable target (if that's set)
+@property (nonatomic,readonly,nullable) MaplyComponentObject *rectObj;
+
+/// The texture we're rendering to (as part of the render target)
+@property (nonatomic,readonly,strong,nullable) MaplyTexture *renderTex;
+
+/// Passing in another variable target will let us assign that target to the
+/// rectangle used to render this variable target's data.  This is used if
+/// you need the contents of more than one target in a shader.
+- (void)addVariableTarget:(MaplyVariableTarget * __nonnull)target;
+
 /// Stop rendering to the target and release everything
 - (void)shutdown;
 

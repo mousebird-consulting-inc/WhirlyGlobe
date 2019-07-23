@@ -292,6 +292,14 @@ void BasicDrawableMTL::applyUniformsToDrawState(WhirlyKitShader::UniformDrawStat
         }
     }
 }
+    
+void BasicDrawableMTL::encodeUniBlocks(RendererFrameInfoMTL *frameInfo,const std::vector<BasicDrawable::UniformBlock> &uniBlocks)
+{
+    for (const UniformBlock &uniBlock : uniBlocks) {
+        [frameInfo->cmdEncode setVertexBytes:uniBlock.blockData->getRawData() length:sizeof(uniBlock.blockData->getLen()) atIndex:uniBlock.bufferID];
+        [frameInfo->cmdEncode setFragmentBytes:uniBlock.blockData->getRawData() length:sizeof(uniBlock.blockData->getLen()) atIndex:uniBlock.bufferID];
+    }
+}
 
 void BasicDrawableMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScene)
 {
@@ -366,10 +374,12 @@ void BasicDrawableMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScene)
     uni.numTextures = numTextures;
     uni.fade = fade;
     uni.clipCoords = clipCoords;
-    // TODO: Apply the uniforms from the Program as well
     applyUniformsToDrawState(uni,uniforms);
     [frameInfo->cmdEncode setVertexBytes:&uni length:sizeof(uni) atIndex:WKSUniformDrawStateBuffer];
     [frameInfo->cmdEncode setFragmentBytes:&uni length:sizeof(uni) atIndex:WKSUniformDrawStateBuffer];
+    
+    // And the uniforms passed through the drawable
+    encodeUniBlocks(frameInfo,uniBlocks);
     
     // Render the primitives themselves
     switch (type) {

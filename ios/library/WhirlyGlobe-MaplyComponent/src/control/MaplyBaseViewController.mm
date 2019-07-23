@@ -1309,6 +1309,20 @@ static const float PerfOutputDelay = 15.0;
     [renderControl endOfWork];
 }
 
+- (void)setUniformBlock:(NSData *__nonnull)uniBlock buffer:(int)bufferID forObjects:(NSArray<MaplyComponentObject *> *__nonnull)compObjs mode:(MaplyThreadMode)threadMode
+{
+    if (!compObjs)
+        return;
+
+    if (!renderControl || ![renderControl startOfWork])
+        return;
+    
+    [renderControl->interactLayer setUniformBlock:uniBlock buffer:bufferID forObjects:compObjs mode:threadMode];
+    
+    [renderControl endOfWork];
+}
+
+
 - (void)startChanges
 {
     if (!renderControl || ![renderControl startOfWork])

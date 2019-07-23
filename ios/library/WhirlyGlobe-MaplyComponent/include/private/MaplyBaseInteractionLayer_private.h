@@ -70,100 +70,103 @@
 @property (nonatomic,assign) int screenObjectDrawPriorityOffset;
 
 // Initialize with the view we'll be using
-- (instancetype)initWithView:(WhirlyKit::View *)visualView;
+- (instancetype __nonnull)initWithView:(WhirlyKit::View * __nonnull)visualView;
 
 // Add screen space (2D) markers
-- (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+- (MaplyComponentObject *__nullable)addScreenMarkers:(NSArray * __nonnull)markers desc:(NSDictionary * __nullable)desc mode:(MaplyThreadMode)threadMode;
 
 // Add a marker cluster generator
-- (void)addClusterGenerator:(NSObject <MaplyClusterGenerator> *)clusterGen;
+- (void)addClusterGenerator:(NSObject <MaplyClusterGenerator> *__nonnull)clusterGen;
 
 // Add 3D markers
-- (MaplyComponentObject *)addMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+- (MaplyComponentObject *__nullable)addMarkers:(NSArray *__nonnull)markers desc:(NSDictionary * __nullable)desc mode:(MaplyThreadMode)threadMode;
 
 // Add screen space (2D) labels
-- (MaplyComponentObject *)addScreenLabels:(NSArray *)labels desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+- (MaplyComponentObject *__nullable)addScreenLabels:(NSArray *__nonnull)labels desc:(NSDictionary * __nullable)desc mode:(MaplyThreadMode)threadMode;
 
 // Add 3D labels
-- (MaplyComponentObject *)addLabels:(NSArray *)labels desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+- (MaplyComponentObject *__nullable)addLabels:(NSArray *__nonnull)labels desc:(NSDictionary * __nullable)desc mode:(MaplyThreadMode)threadMode;
 
 // Add vectors
-- (MaplyComponentObject *)addVectors:(NSArray *)vectors desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+- (MaplyComponentObject *__nullable)addVectors:(NSArray *__nonnull)vectors desc:(NSDictionary * __nullable)desc mode:(MaplyThreadMode)threadMode;
 
 // Instance vectors
-- (MaplyComponentObject *)instanceVectors:(MaplyComponentObject *)baseObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+- (MaplyComponentObject *__nullable)instanceVectors:(MaplyComponentObject *__nonnull)baseObj desc:(NSDictionary * __nullable)desc mode:(MaplyThreadMode)threadMode;
 
 // Add widened vectors
-- (MaplyComponentObject *)addWideVectors:(NSArray *)vectors desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+- (MaplyComponentObject *__nullable)addWideVectors:(NSArray *__nonnull)vectors desc:(NSDictionary * __nullable)desc mode:(MaplyThreadMode)threadMode;
 
 // Add vectors that we'll only use for selection
-- (MaplyComponentObject *)addSelectionVectors:(NSArray *)vectors desc:(NSDictionary *)desc;
+- (MaplyComponentObject *__nullable)addSelectionVectors:(NSArray *__nonnull)vectors desc:(NSDictionary * __nullable)desc;
 
 // Change vector representation
-- (void)changeVectors:(MaplyComponentObject *)vecObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+- (void)changeVectors:(MaplyComponentObject *__nonnull)vecObj desc:(NSDictionary * __nullable)desc mode:(MaplyThreadMode)threadMode;
 
 // Add shapes
-- (MaplyComponentObject *)addShapes:(NSArray *)shapes desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+- (MaplyComponentObject *__nullable)addShapes:(NSArray *__nonnull)shapes desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
 
 // Add model instances
-- (MaplyComponentObject *)addModelInstances:(NSArray *)modelInstances desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+- (MaplyComponentObject *__nullable)addModelInstances:(NSArray *__nonnull)modelInstances desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
 
 // Add raw geometry
-- (MaplyComponentObject *)addGeometry:(NSArray *)geom desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+- (MaplyComponentObject *__nullable)addGeometry:(NSArray *__nonnull)geom desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
 
 // Add stickers
-- (MaplyComponentObject *)addStickers:(NSArray *)stickers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+- (MaplyComponentObject *__nullable)addStickers:(NSArray *__nonnull)stickers desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
 
 // Modify stickers
-- (void)changeSticker:(MaplyComponentObject *)compObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+- (void)changeSticker:(MaplyComponentObject *__nonnull)compObj desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
 
 // Add lofted polys
-- (MaplyComponentObject *)addLoftedPolys:(NSArray *)vectors desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+- (MaplyComponentObject *__nullable)addLoftedPolys:(NSArray *__nonnull)vectors desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
 
 // Add billboards
-- (MaplyComponentObject *)addBillboards:(NSArray *)billboards desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+- (MaplyComponentObject *__nullable)addBillboards:(NSArray *__nonnull)billboards desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
 
 // Add a particle system
-- (MaplyComponentObject *)addParticleSystem:(MaplyParticleSystem *)partSys desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+- (MaplyComponentObject *__nullable)addParticleSystem:(MaplyParticleSystem *__nonnull)partSys desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
 
 // Change the render target for a particle system
-- (void)changeParticleSystem:(MaplyComponentObject *)compObj renderTarget:(MaplyRenderTarget *)target;
+- (void)changeParticleSystem:(MaplyComponentObject *__nonnull)compObj renderTarget:(MaplyRenderTarget * __nullable)target;
 
 // Add a particle system batch
-- (void)addParticleBatch:(MaplyParticleBatch *)batch mode:(MaplyThreadMode)threadMode;
+- (void)addParticleBatch:(MaplyParticleBatch *__nonnull)batch mode:(MaplyThreadMode)threadMode;
 
 // Add a group of points
-- (MaplyComponentObject *)addPoints:(NSArray *)points desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+- (MaplyComponentObject *__nullable)addPoints:(NSArray *__nonnull)points desc:(NSDictionary * __nullable)desc mode:(MaplyThreadMode)threadMode;
 
 // Remove objects associated with the user objects, but just generate the changes don't flush them
-- (void)removeObjects:(NSArray *)userObjs mode:(MaplyThreadMode)threadMode;
+- (void)removeObjects:(NSArray *__nonnull)userObjs mode:(MaplyThreadMode)threadMode;
 
 // Remove objects associated with the user objects
-- (void)removeObjects:(NSArray *)userObjs changes:(WhirlyKit::ChangeSet &)changes;
+- (void)removeObjects:(NSArray *__nonnull)userObjs changes:(WhirlyKit::ChangeSet &)changes;
 
 // Enable objects
-- (void)enableObjects:(NSArray *)userObjs mode:(MaplyThreadMode)threadMode;
+- (void)enableObjects:(NSArray *__nonnull)userObjs mode:(MaplyThreadMode)threadMode;
 
 // Enable objects, but just generate the changes don't flush them
-- (void)enableObjects:(NSArray *)userObjs changes:(WhirlyKit::ChangeSet &)changes;
+- (void)enableObjects:(NSArray *__nonnull)userObjs changes:(WhirlyKit::ChangeSet &)changes;
 
 // Disable objects
-- (void)disableObjects:(NSArray *)userObjs mode:(MaplyThreadMode)threadMode;
+- (void)disableObjects:(NSArray *__nonnull)userObjs mode:(MaplyThreadMode)threadMode;
 
 // Disable objects, but just generate the changes don't flush them
-- (void)disableObjects:(NSArray *)userObjs changes:(WhirlyKit::ChangeSet &)changes;
+- (void)disableObjects:(NSArray *__nonnull)userObjs changes:(WhirlyKit::ChangeSet &)changes;
+
+// Pass through a uniform block
+- (void)setUniformBlock:(NSData *__nonnull)uniBlock buffer:(int)bufferID forObjects:(NSArray<MaplyComponentObject *> *__nonnull)compObjs mode:(MaplyThreadMode)threadMode;
 
 // Explicitly add a texture
-- (MaplyTexture *)addTexture:(UIImage *)image desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+- (MaplyTexture *__nullable)addTexture:(UIImage *__nullable)image desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
 
 // Explicitly remove a texture
-- (void)removeTextures:(NSArray *)textures mode:(MaplyThreadMode)threadMode;
+- (void)removeTextures:(NSArray *__nonnull)textures mode:(MaplyThreadMode)threadMode;
 
 // Add a texture to an atlas
-- (MaplyTexture *)addTextureToAtlas:(UIImage *)image desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+- (MaplyTexture *__nullable)addTextureToAtlas:(UIImage *__nonnull)image desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
 
 // Add a subtexture that references and existing texture
-- (MaplyTexture *)addSubTexture:(MaplyTexture *)tex xOffset:(int)x yOffset:(int)y width:(int)width height:(int)height mode:(MaplyThreadMode)threadMode;
+- (MaplyTexture *__nullable)addSubTexture:(MaplyTexture *__nonnull)tex xOffset:(int)x yOffset:(int)y width:(int)width height:(int)height mode:(MaplyThreadMode)threadMode;
 
 // Start collecting changes for this thread
 - (void)startChanges;
@@ -172,29 +175,29 @@
 - (void)endChanges;
 
 // Add a render target to the renderer
-- (void)addRenderTarget:(MaplyRenderTarget *)renderTarget;
+- (void)addRenderTarget:(MaplyRenderTarget *__nonnull)renderTarget;
 
 // Change the texture being used by a render target
-- (void)changeRenderTarget:(MaplyRenderTarget *)renderTarget tex:(MaplyTexture *)tex;
+- (void)changeRenderTarget:(MaplyRenderTarget *__nonnull)renderTarget tex:(MaplyTexture * __nullable)tex;
 
 // Ask for a one time clear on the render target in the coming frame
-- (void)clearRenderTarget:(MaplyRenderTarget *)renderTarget mode:(MaplyThreadMode)threadMode;
+- (void)clearRenderTarget:(MaplyRenderTarget *__nonnull)renderTarget mode:(MaplyThreadMode)threadMode;
 
 // Stop rendering to a given render target
-- (void)removeRenderTarget:(MaplyRenderTarget *)renderTarget;
+- (void)removeRenderTarget:(MaplyRenderTarget *__nonnull)renderTarget;
 
 // Remove the texture associated with an image  or just decrement its reference count
-- (void)removeImageTexture:(MaplyTexture *)tex changes:(WhirlyKit::ChangeSet &)changes;
+- (void)removeImageTexture:(MaplyTexture *__nonnull)tex changes:(WhirlyKit::ChangeSet &)changes;
 
 // Do a point in poly check for vectors we're representing
-- (NSArray *)findVectorsInPoint:(WhirlyKit::Point2f)pt;
-- (NSArray *)findVectorsInPoint:(WhirlyKit::Point2f)pt inView:(MaplyBaseViewController*)vc multi:(bool)multi;
+- (NSArray *__nullable)findVectorsInPoint:(WhirlyKit::Point2f)pt;
+- (NSArray *__nullable)findVectorsInPoint:(WhirlyKit::Point2f)pt inView:(MaplyBaseViewController*__nullable)vc multi:(bool)multi;
 
-- (NSObject*)selectLabelsAndMarkerForScreenPoint:(CGPoint)screenPoint;
+- (NSObject*__nullable)selectLabelsAndMarkerForScreenPoint:(CGPoint)screenPoint;
 
 // Find the Maply object corresponding to the given ID (from the selection manager).
 // Thread-safe
-- (NSObject *)getSelectableObject:(WhirlyKit::SimpleIdentity)objId;
+- (NSObject *__nullable)getSelectableObject:(WhirlyKit::SimpleIdentity)objId;
 
 // Called right before asking us to do some work
 - (bool)startOfWork;
@@ -206,7 +209,7 @@
 - (void)lockingShutdown;
 
 // Clean up a given texture
-- (void)clearTexture:(MaplyTexture *)tex when:(NSTimeInterval)when;
+- (void)clearTexture:(MaplyTexture *__nonnull)tex when:(NSTimeInterval)when;
 
 // Write out usage stats
 - (void)dumpStats;
@@ -214,9 +217,9 @@
 ///// Internal routines.  Don't ever call these outside of the layer thread.
 
 // An internal routine to add an image to our local UIImage/ID cache
-- (MaplyTexture *)addImage:(id)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags interpType:(GLenum)interpType mode:(MaplyThreadMode)threadMode;
+- (MaplyTexture *__nullable)addImage:(id __nonnull)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags interpType:(GLenum)interpType mode:(MaplyThreadMode)threadMode;
 
 // This version defaults the wrap flags
-- (MaplyTexture *)addImage:(id)image imageFormat:(MaplyQuadImageFormat)imageFormat mode:(MaplyThreadMode)threadMode;
+- (MaplyTexture *__nullable)addImage:(id __nonnull)image imageFormat:(MaplyQuadImageFormat)imageFormat mode:(MaplyThreadMode)threadMode;
 
 @end

@@ -204,6 +204,17 @@ void BasicDrawableInstance::setUniforms(const SingleVertexAttributeSet &newUnifo
 {
     uniforms = newUniforms;
 }
+    
+void BasicDrawableInstance::setUniBlock(const BasicDrawable::UniformBlock &uniBlock)
+{
+    for (int ii=0;ii<uniBlocks.size();ii++)
+        if (uniBlocks[ii].bufferID == uniBlock.bufferID) {
+            uniBlocks[ii] = uniBlock;
+            return;
+        }
+    
+    uniBlocks.push_back(uniBlock);
+}
 
 const Eigen::Matrix4d *BasicDrawableInstance::getMatrix() const
 {

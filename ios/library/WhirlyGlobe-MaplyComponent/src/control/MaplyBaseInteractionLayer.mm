@@ -3207,6 +3207,56 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     }
 }
 
+- (void)setUniformBlockRun:(NSArray *)argArray
+{
+    if (isShuttingDown || (!layerThread && !offlineMode))
+        return;
+
+    NSArray *userObjs = [argArray objectAtIndex:0];
+    NSData *uniBlock = [argArray objectAtIndex:1];
+    int bufferID = [[argArray objectAtIndex:2] intValue];
+    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
+    RawNSDataReaderRef dataWrap(new RawNSDataReader(uniBlock));
+
+    SimpleIDSet compIDs;
+    for (MaplyComponentObject *compObj in userObjs) {
+        compIDs.insert(compObj->contents->getId());
+    }
+    ChangeSet changes;
+    compManager->setUniformBlock(compIDs,dataWrap,bufferID,changes);
+    
+    [self flushChanges:changes mode:threadMode];
+}
+
+- (void)setUniformBlock:(NSData *__nonnull)uniBlock buffer:(int)bufferID forObjects:(NSArray<MaplyComponentObject *> *__nonnull)userObjs mode:(MaplyThreadMode)threadMode
+{
+    threadMode = [self resolveThreadMode:threadMode];
+    
+    NSArray *argArray = @[userObjs,uniBlock,@(bufferID),@(threadMode)];
+    
+    // If any are under construction, we need to toss this over to the layer thread
+    if (threadMode == MaplyThreadCurrent)
+    {
+        bool anyUnderConstruction = false;
+        for (MaplyComponentObject *userObj in userObjs)
+            if (userObj->contents->underConstruction)
+                anyUnderConstruction = true;
+        if (anyUnderConstruction)
+            threadMode = MaplyThreadAny;
+    }
+    
+    switch (threadMode)
+    {
+        case MaplyThreadCurrent:
+            [self setUniformBlockRun:argArray];
+            break;
+        case MaplyThreadAny:
+            [self performSelector:@selector(setUniformBlockRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+            break;
+    }
+}
+
+
 // This is called directly from outside.
 // Not great, but it means we need the start/work calls in here to catch locking shutdowns
 - (void)enableObjects:(NSArray *)userObjs changes:(ChangeSet &)changes

@@ -159,6 +159,18 @@ public:
     /// Change all the uniforms applied at once
     virtual void setUniforms(const SingleVertexAttributeSet &newUniforms);
     
+    // Block of data to be passed into a given buffer ID
+    // We do this in Metal rather than setting individual uniforms (like OpenGL)
+    class UniformBlock
+    {
+    public:
+        int bufferID;
+        RawDataRef blockData;
+    };
+
+    /// Set a block of uniforms (Metal only, at the moment)
+    virtual void setUniBlock(const UniformBlock &uniBlock);
+    
     /// Add a tweaker to be run before each frame
     virtual void addTweaker(DrawableTweakerRef tweak);
 
@@ -208,6 +220,8 @@ public:
 
     // Attributes associated with each vertex, some standard some not
     std::vector<VertexAttribute *> vertexAttributes;
+    // Uniforms to be passed into a shader (just Metal for now)
+    std::vector<UniformBlock> uniBlocks;
     // Entries for the standard attributes we create on startup
     int colorEntry,normalEntry;
 
@@ -396,6 +410,19 @@ public:
     
 protected:
     SimpleIdentity targetID;
+};
+    
+// Set the uniform block for a shader when rendering a given piece of geometry
+// Metal only, for now
+class UniformBlockSetRequest : public DrawableChangeRequest
+{
+public:
+    UniformBlockSetRequest(SimpleIdentity drawID,const RawDataRef &uniBlock,int bufferID);
+    
+    void execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw);
+    
+protected:
+    BasicDrawable::UniformBlock uniBlock;
 };
     
 }

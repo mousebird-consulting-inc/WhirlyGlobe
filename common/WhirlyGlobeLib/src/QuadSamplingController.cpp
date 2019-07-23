@@ -197,6 +197,7 @@ void QuadSamplingController::setBuilder(QuadTileBuilder *builder,QuadDisplayCont
     std::vector<QuadTileBuilderDelegateRef> delegates;
     {
         std::lock_guard<std::mutex> guardLock(lock);
+        builderStarted = true;
         delegates = builderDelegates;
     }
     
@@ -204,7 +205,6 @@ void QuadSamplingController::setBuilder(QuadTileBuilder *builder,QuadDisplayCont
         delegate->setBuilder(builder, displayControl.get());
     }
 
-    builderStarted = true;
 }
     
 QuadTreeNew::NodeSet QuadSamplingController::builderUnloadCheck(QuadTileBuilder *builder,

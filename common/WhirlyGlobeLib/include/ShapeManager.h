@@ -239,6 +239,9 @@ public:
 
     /// Enable/disable a group of shapes
     void enableShapes(SimpleIDSet &shapeIDs,bool enable,ChangeSet &changes);
+    
+    /// Pass through a uniform block to use on the given shapes
+    void setUniformBlock(const SimpleIDSet &shapeIDs,const RawDataRef &uniBlock,int bufferID,ChangeSet &changes);
 
 protected:
     std::mutex shapeLock;

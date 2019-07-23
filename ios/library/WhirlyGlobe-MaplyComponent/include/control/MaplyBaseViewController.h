@@ -40,6 +40,7 @@
 #import "rendering/MaplyRenderTarget.h"
 #import "control/MaplyRenderController.h"
 #import "loading/MaplyRemoteTileFetcher.h"
+#import "rendering/MaplyVertexAttribute.h"
 
 /** 
     When selecting multiple objects, one or more of these is returned.
@@ -1123,6 +1124,15 @@
     @param threadMode For MaplyThreadAny we'll do the enable on another thread.  For MaplyThreadCurrent we'll block the current thread to finish the enable.  MaplyThreadAny is preferred.
  */
 - (void)enableObjects:(NSArray *__nonnull)theObjs mode:(MaplyThreadMode)threadMode;
+
+/**
+    Pass a uniform block through to a shader.  Only for Metal.
+ 
+    Custom Metal shaders may have their own uniform blocks associated with a known bufferID.
+    This is how you pass those through for objects you've already created.
+    Useful for things like custom animation.
+  */
+- (void)setUniformBlock:(NSData *__nonnull)uniBlock buffer:(int)bufferID forObjects:(NSArray<MaplyComponentObject *> *__nonnull)compObjs mode:(MaplyThreadMode)threadMode;
 
 /** 
     Add the given active object to the scene.

@@ -229,6 +229,36 @@ void ComponentManager::enableComponentObjects(const SimpleIDSet &compIDs,bool en
     }
 }
     
+void ComponentManager::setUniformBlock(const SimpleIDSet &compIDs,const RawDataRef &uniBlock,int bufferID,ChangeSet &changes)
+{
+    std::vector<ComponentObjectRef> compRefs;
+    
+    {
+        // Lock around all component objects
+        std::lock_guard<std::mutex> guardLock(lock);
+        
+        for (SimpleIdentity compID : compIDs)
+        {
+            auto it = compObjs.find(compID);
+            if (it == compObjs.end())
+            {
+                wkLogLevel(Warn,"Tried to set uniform block on object that doesn't exist");
+                return;
+            }
+            ComponentObjectRef compObj = it->second;
+            
+            compRefs.push_back(compObj);
+        }
+    }
+    
+    for (auto compObj : compRefs) {
+        if (shapeManager && !compObj->shapeIDs.empty()) {
+            shapeManager->setUniformBlock(compObj->shapeIDs,uniBlock,bufferID,changes);
+        }
+        // TODO: Fill this in for the other object types
+    }
+}
+    
 std::vector<std::pair<ComponentObjectRef,VectorObjectRef> > ComponentManager::findVectors(const Point2d &pt,double maxDist,ViewStateRef viewState,const Point2f &frameSize,bool multi)
 {
     std::vector<ComponentObjectRef> compRefs;

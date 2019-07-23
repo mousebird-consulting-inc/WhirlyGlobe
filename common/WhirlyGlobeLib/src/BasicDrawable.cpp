@@ -292,6 +292,17 @@ void BasicDrawable::setUniforms(const SingleVertexAttributeSet &newUniforms)
     uniforms = newUniforms;
 }
     
+void BasicDrawable::setUniBlock(const UniformBlock &uniBlock)
+{
+    for (int ii=0;ii<uniBlocks.size();ii++)
+        if (uniBlocks[ii].bufferID == uniBlock.bufferID) {
+            uniBlocks[ii] = uniBlock;
+            return;
+        }
+    
+    uniBlocks.push_back(uniBlock);
+}
+    
 void BasicDrawable::addTweaker(DrawableTweakerRef tweak)
 {
     tweakers.insert(tweak);
@@ -559,6 +570,30 @@ void RenderTargetChangeRequest::execute2(Scene *scene,SceneRenderer *renderer,Dr
             ParticleSystemDrawableRef partDrawable = std::dynamic_pointer_cast<ParticleSystemDrawable>(draw);
             if (partDrawable)
                 partDrawable->setRenderTarget(targetID);
+        }
+    }
+}
+    
+UniformBlockSetRequest::UniformBlockSetRequest(SimpleIdentity drawID,const RawDataRef &uniData,int bufferID)
+    : DrawableChangeRequest(drawID)
+{
+    uniBlock.blockData = uniData;
+    uniBlock.bufferID = bufferID;
+}
+    
+void UniformBlockSetRequest::execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw)
+{
+    BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
+    if (basicDrawable)
+        basicDrawable->setUniBlock(uniBlock);
+    else {
+        BasicDrawableInstanceRef basicDrawInst = std::dynamic_pointer_cast<BasicDrawableInstance>(draw);
+        if (basicDrawInst)
+            basicDrawInst->setUniBlock(uniBlock);
+        else {
+//            ParticleSystemDrawableRef partDrawable = std::dynamic_pointer_cast<ParticleSystemDrawable>(draw);
+//            if (partDrawable)
+//                partDrawable->setUniBlock(uniBlock);
         }
     }
 }

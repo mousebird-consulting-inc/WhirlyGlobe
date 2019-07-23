@@ -119,6 +119,9 @@ void BasicDrawableInstanceMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScen
         [frameInfo->cmdEncode setVertexBytes:&uniMI length:sizeof(uniMI) atIndex:WKSUniformDrawStateModelInstanceBuffer];
         [frameInfo->cmdEncode setVertexBuffer:instBuffer offset:0 atIndex:WKSModelInstanceBuffer];
     }
+
+    // Pass through the uniform blocks from this drawable
+    BasicDrawableMTL::encodeUniBlocks(frameInfo,uniBlocks);
     
     [frameInfo->cmdEncode setRenderPipelineState:renderState];
     
@@ -223,7 +226,7 @@ id<MTLRenderPipelineState> BasicDrawableInstanceMTL::getRenderPipelineState(Scen
     id<MTLDevice> mtlDevice = sceneRender->setupInfo.mtlDevice;
     
     MTLRenderPipelineDescriptor *renderDesc = sceneRender->defaultRenderPipelineState(sceneRender,frameInfo);
-    renderDesc.vertexDescriptor = basicDrawMTL->getVertexDescriptor(program->vertFunc,defaultAttrs);
+    renderDesc.vertexDescriptor = basicDrawMTL->getVertexDescriptor(program->vertFunc,basicDrawMTL->defaultAttrs);
 
     // Set up a render state
     NSError *err = nil;

@@ -115,6 +115,9 @@ public:
 
     /// Set the uniforms to be applied to the geometry
     virtual void setUniforms(const SingleVertexAttributeSet &uniforms);
+    
+    /// Set a block of uniforms (Metal only, at the moment)
+    virtual void setUniBlock(const BasicDrawable::UniformBlock &uniBlock);
 
     /// Return the translation matrix if there is one
     const Eigen::Matrix4d *getMatrix() const;
@@ -187,6 +190,8 @@ protected:
     bool moving;
     // Uniforms to apply to shader
     SingleVertexAttributeSet uniforms;
+    // Uniforms to be passed into a shader (just Metal for now)
+    std::vector<BasicDrawable::UniformBlock> uniBlocks;
     SimpleIdentity renderTargetID;
 
     std::vector<TexInfo> texInfo;

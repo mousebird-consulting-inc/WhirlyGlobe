@@ -774,5 +774,19 @@ void ShapeManager::removeShapes(SimpleIDSet &shapeIDs,ChangeSet &changes)
         }
     }
 }
+    
+void ShapeManager::setUniformBlock(const SimpleIDSet &shapeIDs,const RawDataRef &uniBlock,int bufferID,ChangeSet &changes)
+{
+    std::lock_guard<std::mutex> guardLock(shapeLock);
+
+    for (auto shapeID : shapeIDs) {
+        ShapeSceneRep dummyRep(shapeID);
+        auto sit = shapeReps.find(&dummyRep);
+        if (sit != shapeReps.end()) {
+            for (auto drawID : (*sit)->drawIDs)
+                changes.push_back(new UniformBlockSetRequest(drawID,uniBlock,bufferID));
+        }
+    }
+}
 
 }

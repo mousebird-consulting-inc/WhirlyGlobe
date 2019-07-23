@@ -114,6 +114,9 @@ public:
     /// Enable/disable a whole group of Component Objects
     virtual void enableComponentObjects(const SimpleIDSet &compIDs,bool enable,ChangeSet &changes);
     
+    /// Set a uniform block on the geometry for the given component objects
+    virtual void setUniformBlock(const SimpleIDSet &compIDs,const RawDataRef &uniBlock,int bufferID,ChangeSet &changes);
+    
     /// Find all the vectors that fall within or near the given point
     std::vector<std::pair<ComponentObjectRef,VectorObjectRef> > findVectors(const Point2d &pt,double maxDist,ViewStateRef viewState,const Point2f &frameSize,bool muti);
     
