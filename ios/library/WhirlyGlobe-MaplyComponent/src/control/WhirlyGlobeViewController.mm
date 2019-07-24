@@ -1443,6 +1443,40 @@ public:
         return false;
 }
 
+- (CGSize)realWorldSizeFromScreenPt0:(CGPoint)pt0 pt1:(CGPoint)pt1
+{
+    CGSize size = CGSizeMake(-1.0, -1.0);
+    
+    if (!renderControl)
+        return size;
+    
+    // Three points on the screen to give us two vectors
+    Point2f screenPt[3];
+    screenPt[0] = Point2f(pt0.x,pt0.y);
+    screenPt[1] = Point2f(pt1.x,pt0.y);
+    screenPt[2] = Point2f(pt0.x,pt1.y);
+    Point3d hits[3];
+
+    for (int ii=0;ii<3;ii++) {
+        Point3d &hit = hits[ii];
+        Eigen::Matrix4d theTransform = globeView->calcFullMatrix();
+        if (globeView->pointOnSphereFromScreen(screenPt[ii], theTransform, renderControl->sceneRenderer->getFramebufferSizeScaled(), hit, true))
+        {
+            // Note: Obviously doing something stupid here
+            if (isnan(hit.x()) || isnan(hit.y()) || isnan(hit.z()))
+                return size;
+            hit.normalize();
+        } else
+            return size;
+    }
+    
+    double da = (hits[1] - hits[0]).norm() * EarthRadius;
+    double db = (hits[2] - hits[0]).norm() * EarthRadius;
+    size = CGSizeMake(da,db);
+    
+    return size;
+}
+
 // Note: Finish writing this
 - (id)findObjectAtLocation:(CGPoint)screenPt
 {

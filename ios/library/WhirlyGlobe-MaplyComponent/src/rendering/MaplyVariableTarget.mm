@@ -71,7 +71,8 @@
 
     screenSize.width *= scale;
     screenSize.height *= scale;
-    
+    _texSize = screenSize;
+
     // Set up the render target
     _renderTex = [viewC createTexture:nil sizeX:screenSize.width sizeY:screenSize.height mode:MaplyThreadCurrent];
     _renderTarget.texture = _renderTex;

@@ -60,6 +60,9 @@ typedef NS_ENUM(NSInteger, MaplyVariableType) {
 /// Rectangle created to show the variable target (if that's set)
 @property (nonatomic,readonly,nullable) MaplyComponentObject *rectObj;
 
+/// Size of the texture in pixels for the render target
+@property (nonatomic,readonly) CGSize texSize;
+
 /// The texture we're rendering to (as part of the render target)
 @property (nonatomic,readonly,strong,nullable) MaplyTexture *renderTex;
 

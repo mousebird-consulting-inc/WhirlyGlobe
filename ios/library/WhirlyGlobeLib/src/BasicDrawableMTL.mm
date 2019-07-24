@@ -296,8 +296,8 @@ void BasicDrawableMTL::applyUniformsToDrawState(WhirlyKitShader::UniformDrawStat
 void BasicDrawableMTL::encodeUniBlocks(RendererFrameInfoMTL *frameInfo,const std::vector<BasicDrawable::UniformBlock> &uniBlocks)
 {
     for (const UniformBlock &uniBlock : uniBlocks) {
-        [frameInfo->cmdEncode setVertexBytes:uniBlock.blockData->getRawData() length:sizeof(uniBlock.blockData->getLen()) atIndex:uniBlock.bufferID];
-        [frameInfo->cmdEncode setFragmentBytes:uniBlock.blockData->getRawData() length:sizeof(uniBlock.blockData->getLen()) atIndex:uniBlock.bufferID];
+        [frameInfo->cmdEncode setVertexBytes:uniBlock.blockData->getRawData() length:uniBlock.blockData->getLen() atIndex:uniBlock.bufferID];
+        [frameInfo->cmdEncode setFragmentBytes:uniBlock.blockData->getRawData() length:uniBlock.blockData->getLen() atIndex:uniBlock.bufferID];
     }
 }
 

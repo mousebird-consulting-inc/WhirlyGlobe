@@ -717,6 +717,12 @@
  */
 - (bool)geocPointFromScreen:(CGPoint)screenPt geocCoord:(double *__nonnull)retCoords;
 
+/**
+    Calculate a size in meters by projecting the two screen points onto the globe.
+    Return -1, -1 if the points weren't on the globe.
+  */
+- (CGSize)realWorldSizeFromScreenPt0:(CGPoint)pt0 pt1:(CGPoint)pt1;
+
 /** 
     Find a height that shows the given bounding box.
     
