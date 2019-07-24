@@ -235,7 +235,11 @@ MaplyCoordinate3dD MaplyCoordinate3dDMake(double x,double y,double z);
     @return A MaplyBoundingBox in radians.
   */
 MaplyBoundingBox MaplyBoundingBoxMakeWithDegrees(float degLon0,float degLat0,float degLon1,float degLat1);
-    
+
+/** Double version of MaplyBoundingBoxMakeWithDegrees
+  */
+MaplyBoundingBoxD MaplyBoundingBoxDMakeWithDegrees(double degLon0,double degLat0,double degLon1,double degLat1);
+
 /** 
     Check if two bounding boxes overlap.
      

@@ -91,6 +91,15 @@ MaplyBoundingBox MaplyBoundingBoxMakeWithDegrees(float degLon0,float degLat0,flo
     return bbox;
 }
 
+MaplyBoundingBoxD MaplyBoundingBoxDMakeWithDegrees(double degLon0,double degLat0,double degLon1,double degLat1)
+{
+    MaplyBoundingBoxD bbox;
+    bbox.ll = MaplyCoordinateDMakeWithDegrees(degLon0, degLat0);
+    bbox.ur = MaplyCoordinateDMakeWithDegrees(degLon1, degLat1);
+    
+    return bbox;
+}
+
 bool MaplyBoundingBoxesOverlap(MaplyBoundingBox bbox0,MaplyBoundingBox bbox1)
 {
     Mbr mbr0,mbr1;
