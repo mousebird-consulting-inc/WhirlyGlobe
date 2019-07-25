@@ -222,6 +222,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setMinImportance_
 		if (!params)
 		    return;
 		params->minImportance = minImport;
+		if (params->minImportanceTop == 0.0)
+			params->minImportanceTop = minImport;
 	}
 	catch (...)
 	{

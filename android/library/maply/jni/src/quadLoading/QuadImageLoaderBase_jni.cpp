@@ -37,10 +37,13 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_delayedInitN
             return;
 
         // Resolve the shader if it's not set
-        if (loader->get()->getShaderID() == EmptyIdentity) {
-            ProgramGLES *prog = (ProgramGLES *)scene->findProgramByName(MaplyDefaultTriMultiTexShader);
-            if (prog)
-                loader->get()->setShaderID(prog->getId());
+        for (unsigned int ii=0;ii<loader->get()->getNumFocus();ii++) {
+            if (loader->get()->getShaderID(ii) == EmptyIdentity) {
+                ProgramGLES *prog = (ProgramGLES *) scene->findProgramByName(
+                        MaplyDefaultTriMultiTexShader);
+                if (prog)
+                    loader->get()->setShaderID(ii,prog->getId());
+            }
         }
 
         if (loader->get()->getMode() == QuadImageFrameLoader::Mode::MultiFrame) {
@@ -136,7 +139,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_setShaderID
         QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
         if (!loader)
             return;
-        (*loader)->setShaderID(shaderID);
+        (*loader)->setShaderID(0,shaderID);
     }
     catch (...)
     {
@@ -151,7 +154,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_setRenderTar
         QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
         if (!loader)
             return;
-        (*loader)->setRenderTarget(targetID);
+        (*loader)->setRenderTarget(0,targetID);
     }
     catch (...)
     {

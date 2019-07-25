@@ -26,19 +26,138 @@
 
 using namespace WhirlyKit;
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_setCurrentImageNative
-        (JNIEnv *env, jobject obj, jdouble curImage)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_setLoadFrameModeNative
+        (JNIEnv *env, jobject obj, jint mode)
 {
     try {
         QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
         if (!loader)
             return;
 
-        (*loader)->setCurFrame(curImage);
+        (*loader)->setLoadMode((QuadImageFrameLoader::LoadMode)mode);
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageFrameLoader::setCurrentImage()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageFrameLoader::setLoadFrameModeNative()");
+    }
+
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_addFocus
+        (JNIEnv *env, jobject obj)
+{
+    try {
+        QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
+        if (!loader)
+            return;
+
+        (*loader)->addFocus();
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageFrameLoader::addFocus()");
+    }
+}
+
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_getNumFocus
+        (JNIEnv *env, jobject obj)
+{
+    try {
+        QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
+        if (!loader)
+            return 0;
+
+        return (*loader)->getNumFocus();
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageFrameLoader::getNumFocus()");
+    }
+
+    return 0;
+}
+
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_setCurrentImageNative
+        (JNIEnv *env, jobject obj, jint focusID, jdouble curImage)
+{
+    try {
+        QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
+        if (!loader)
+            return;
+
+        (*loader)->setCurFrame(focusID,curImage);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageFrameLoader::setCurrentImageNative()");
+    }
+}
+
+JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_getCurrentImage
+        (JNIEnv *env, jobject obj, jint focusID)
+{
+    try {
+        QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
+        if (!loader)
+            return 0.0;
+
+        return (*loader)->getCurFrame(focusID);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageFrameLoader::getCurrentImage()");
+    }
+
+    return 0.0;
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_setRequireTopTiles
+        (JNIEnv *env, jobject obj, jboolean loadTopTiles)
+{
+    try {
+        QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
+        if (!loader)
+            return;
+
+        (*loader)->setRequireTopTilesLoaded(loadTopTiles);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageFrameLoader::setRequireTopTiles()");
+    }
+}
+
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_setRenderTargetIDNative
+        (JNIEnv *env, jobject obj, jint focusID, jlong targetID)
+{
+    try {
+        QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
+        if (!loader)
+            return;
+
+        (*loader)->setRenderTarget(focusID,targetID);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageFrameLoader::setRenderTargetIDNative()");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_setShaderIDNative
+        (JNIEnv *env, jobject obj, jint focusID, jlong shaderID)
+{
+    try {
+        QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
+        if (!loader)
+            return;
+
+        (*loader)->setShaderID(focusID,shaderID);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageFrameLoader::setRenderTargetIDNative()");
     }
 }
 
