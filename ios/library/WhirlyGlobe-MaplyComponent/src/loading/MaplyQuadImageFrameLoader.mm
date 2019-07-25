@@ -114,6 +114,9 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
 @end
 
 @implementation MaplyQuadImageFrameLoader
+{
+    bool started;
+}
 
 - (nullable instancetype)initWithParams:(MaplySamplingParams *__nonnull)inParams tileInfos:(NSArray<NSObject<MaplyTileInfoNew> *> *__nonnull)frameInfos viewC:(MaplyBaseViewController * __nonnull)inViewC
 {
@@ -143,12 +146,24 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
         self->maxLevel = std::max(self->maxLevel,frameInfo.maxZoom);
     }
     self->valid = true;
+    started = false;
     
     return self;
 }
 
+- (void)addFocus
+{
+    if (started) {
+        NSLog(@"MaplyQuadImageFrameLoader: addFocus called too late.");
+        return;
+    }
+    
+    loader->addFocus();
+}
+
 - (bool)delayedInit
 {
+    started = true;
     if (!loadInterp) {
         loadInterp = [[MaplyImageLoaderInterpreter alloc] init];
     }
@@ -163,6 +178,14 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     return true;
 }
 
+- (int)getNumFocus
+{
+    if (!loader)
+        return 0;
+    
+    return loader->getNumFocus();
+}
+
 - (MaplyLoaderReturn *)makeLoaderReturn
 {
     return [[MaplyImageLoaderReturn alloc] initWithLoader:self];
@@ -170,16 +193,26 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
 
 - (void)setCurrentImage:(double)where
 {
+    [self setFocus:0 currentImage:where];
+}
+
+- (void)setFocus:(int)focusID currentImage:(double)where
+{
     double curFrame = std::min(std::max(where,0.0),(double)([loader->frameInfos count]-1));
-    loader->setCurFrame(curFrame);
+    loader->setCurFrame(focusID,curFrame);
 }
 
 - (double)getCurrentImage
 {
+    return [self getCurrentImageForFocus:0];
+}
+
+- (double)getCurrentImageForFocus:(int)focusID
+{
     if (!loader)
         return 0.0;
     
-    return loader->getCurFrame();
+    return loader->getCurFrame(focusID);
 }
 
 - (int)getNumFrames
@@ -203,6 +236,22 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     retStats.frames = frameStats;
     
     return retStats;
+}
+
+- (void)setFocus:(int)focusID renderTarget:(MaplyRenderTarget *)renderTarget
+{
+    if (!loader)
+        return;
+    
+    loader->setRenderTarget(focusID, renderTarget.renderTargetID);
+}
+
+- (void)setFocus:(int)focusID shader:(MaplyShader * __nullable)shader
+{
+    if (!loader)
+        return;
+    
+    loader->setShaderID(focusID,[shader getShaderID]);
 }
 
 - (void)shutdown

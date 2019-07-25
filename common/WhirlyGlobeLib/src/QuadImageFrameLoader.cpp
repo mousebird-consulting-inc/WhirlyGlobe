@@ -153,9 +153,9 @@ QuadTreeNew::ImportantNode QIFTileAsset::getIdent()
     return ident;
 }
 
-const std::vector<SimpleIdentity> &QIFTileAsset::getInstanceDrawIDs()
+const std::vector<SimpleIdentity> &QIFTileAsset::getInstanceDrawIDs(int focusID)
 {
-    return instanceDrawIDs;
+    return instanceDrawIDs[focusID];
 }
 
 QIFFrameAssetRef QIFTileAsset::getFrame(int frameID)
@@ -227,8 +227,10 @@ void QIFTileAsset::clear(QuadImageFrameLoader *loader,QIFBatchOps *batchOps, Cha
     clearFrames(loader,batchOps, changes);
     
     state = Waiting;
-    for (auto drawID : instanceDrawIDs) {
-        changes.push_back(new RemDrawableReq(drawID));
+    for (auto drawIDs : instanceDrawIDs) {
+        for (auto drawID : drawIDs) {
+            changes.push_back(new RemDrawableReq(drawID));
+        }
     }
     instanceDrawIDs.clear();
     
@@ -250,46 +252,52 @@ void QIFTileAsset::startFetching(QuadImageFrameLoader *inLoader,int frameToLoad,
 }
 
 // Set up the geometry for this tile
-void QIFTileAsset::setupContents(QuadImageFrameLoader *loader,LoadedTileNewRef loadedTile,int defaultDrawPriority,SimpleIdentity shaderID,ChangeSet &changes)
+void QIFTileAsset::setupContents(QuadImageFrameLoader *loader,LoadedTileNewRef loadedTile,int defaultDrawPriority,const std::vector<SimpleIdentity> &shaderIDs,ChangeSet &changes)
 {
     drawPriority = defaultDrawPriority;
-    for (auto di : loadedTile->drawInfo) {
-        int newDrawPriority = defaultDrawPriority;
-        bool zBufferRead = false;
-        bool zBufferWrite = true;
-        switch (di.kind) {
-            case WhirlyKit::LoadedTileNew::DrawableGeom:
-                newDrawPriority = defaultDrawPriority;
-                break;
-            case WhirlyKit::LoadedTileNew::DrawableSkirt:
-                zBufferWrite = false;
-                zBufferRead = true;
-                newDrawPriority = 11;
-                break;
-            case WhirlyKit::LoadedTileNew::DrawablePole:
-                newDrawPriority = defaultDrawPriority;
-                zBufferWrite = false;
-                zBufferRead = false;
-                break;
+    
+    // One set of instances per focus
+    for (unsigned int focusID = 0; focusID < loader->getNumFocus(); focusID++) {
+        std::vector<SimpleIdentity> drawIDs;
+        for (auto di : loadedTile->drawInfo) {
+            int newDrawPriority = defaultDrawPriority;
+            bool zBufferRead = false;
+            bool zBufferWrite = true;
+            switch (di.kind) {
+                case WhirlyKit::LoadedTileNew::DrawableGeom:
+                    newDrawPriority = defaultDrawPriority;
+                    break;
+                case WhirlyKit::LoadedTileNew::DrawableSkirt:
+                    zBufferWrite = false;
+                    zBufferRead = true;
+                    newDrawPriority = 11;
+                    break;
+                case WhirlyKit::LoadedTileNew::DrawablePole:
+                    newDrawPriority = defaultDrawPriority;
+                    zBufferWrite = false;
+                    zBufferRead = false;
+                    break;
+            }
+            
+            // Make a drawable instance to shadow the geometry
+            auto drawInst = loader->getController()->getRenderer()->makeBasicDrawableInstanceBuilder("MaplyQuadImageFrameLoader");
+            drawInst->setMasterID(di.drawID, BasicDrawableInstance::ReuseStyle);
+            drawInst->setTexId(0, EmptyIdentity);
+            if (frames.size() > 1)
+                drawInst->setTexId(1, EmptyIdentity);
+            drawInst->setDrawPriority(newDrawPriority);
+            drawInst->setOnOff(false);
+            drawInst->setProgram(shaderIDs[focusID]);
+            drawInst->setColor(loader->getColor());
+            drawInst->setRequestZBuffer(zBufferRead);
+            drawInst->setWriteZBuffer(zBufferWrite);
+            SimpleIdentity renderTargetID = loader->getRenderTarget(focusID);
+            if (renderTargetID != EmptyIdentity)
+                drawInst->setRenderTarget(renderTargetID);
+            changes.push_back(new AddDrawableReq(drawInst->getDrawable()));
+            drawIDs.push_back(drawInst->getDrawableID());
         }
-        
-        // Make a drawable instance to shadow the geometry
-        auto drawInst = loader->getController()->getRenderer()->makeBasicDrawableInstanceBuilder("MaplyQuadImageFrameLoader");
-        drawInst->setMasterID(di.drawID, BasicDrawableInstance::ReuseStyle);
-        drawInst->setTexId(0, EmptyIdentity);
-        if (frames.size() > 1)
-            drawInst->setTexId(1, EmptyIdentity);
-        drawInst->setDrawPriority(newDrawPriority);
-        drawInst->setOnOff(false);
-        drawInst->setProgram(shaderID);
-        drawInst->setColor(loader->getColor());
-        drawInst->setRequestZBuffer(zBufferRead);
-        drawInst->setWriteZBuffer(zBufferWrite);
-        SimpleIdentity renderTargetID = loader->getRenderTarget();
-        if (renderTargetID != EmptyIdentity)
-            drawInst->setRenderTarget(renderTargetID);
-        changes.push_back(new AddDrawableReq(drawInst->getDrawable()));
-        instanceDrawIDs.push_back(drawInst->getDrawableID());
+        instanceDrawIDs.push_back(drawIDs);
     }
 }
 
@@ -411,21 +419,21 @@ QIFTileState::FrameInfo::FrameInfo()
 { }
 
 QIFRenderState::QIFRenderState()
-: lastCurFrame(-1.0), lastUpdate(0.0), lastRenderTime(0.0)
+: lastUpdate(0.0), lastRenderTime(0.0)
 { }
 
-QIFRenderState::QIFRenderState(int numFrames)
+QIFRenderState::QIFRenderState(int numFocus,int numFrames)
 {
-    lastCurFrame = -1.0;
+    lastCurFrames.resize(numFocus,-1.0);
     lastUpdate = 0.0;
     tilesLoaded.resize(numFrames,0);
     topTilesLoaded.resize(numFrames,false);
 }
 
-bool QIFRenderState::hasUpdate(double curFrame)
+bool QIFRenderState::hasUpdate(const std::vector<double> &curFrames)
 {
     // Current frame moved
-    if (curFrame != lastCurFrame)
+    if (curFrames != lastCurFrames)
         return true;
     
     // We got an update from the layer thread
@@ -436,7 +444,12 @@ bool QIFRenderState::hasUpdate(double curFrame)
 }
 
 // Update what the scene is looking at.  Ideally not every frame.
-void QIFRenderState::updateScene(Scene *scene,double curFrame,TimeInterval now,bool flipY,const RGBAColor &color,ChangeSet &changes)
+void QIFRenderState::updateScene(Scene *scene,
+                                 const std::vector<double> &curFrames,
+                                 TimeInterval now,
+                                 bool flipY,
+                                 const RGBAColor &color,
+                                 ChangeSet &changes)
 {
     if (tiles.empty())
         return;
@@ -444,122 +457,127 @@ void QIFRenderState::updateScene(Scene *scene,double curFrame,TimeInterval now,b
     color.asUChar4(color4);
     
     lastRenderTime = now;
-    lastCurFrame = curFrame;
+    lastCurFrames = curFrames;
     
-    int activeFrames[2];
-    activeFrames[0] = floor(curFrame);
-    activeFrames[1] = ceil(curFrame);
-    
-    // Figure out how many valid frames we've got to look at
-    int numFrames = 2;
-    if (activeFrames[0] == activeFrames[1]) {
-        numFrames = 1;
-    }
-    // Make sure we've got full coverage on those frames
-    if (numFrames > 1 && topTilesLoaded[activeFrames[0]] && topTilesLoaded[activeFrames[1]]) {
-        // We're good
-    } else if (topTilesLoaded[activeFrames[1]]) {
-        // Just one valid frame
-        activeFrames[0] = activeFrames[1];
-        numFrames = 1;
-    } else {
-        // Hunt for a good frame
-        numFrames = 1;
-        bool foundOne = false;
-        for (int ii=0;ii<tilesLoaded.size();ii++) {
-            int testFrame[2];
-            testFrame[0] = activeFrames[0]-ii;
-            testFrame[1] = activeFrames[0]+ii+1;
-            for (int jj=0;jj<2;jj++) {
-                int theFrame = testFrame[jj];
-                if (theFrame >= 0 && theFrame < tilesLoaded.size()) {
-                    if (topTilesLoaded[theFrame]) {
-                        activeFrames[0] = theFrame;
-                        foundOne = true;
+    // We allow one or more points in the time slices where we're rendering
+    // Useful if we're doing multi-stage rendering
+    for (unsigned int focusID=0;focusID<curFrames.size();focusID++) {
+        double curFrame = curFrames[focusID];
+        int activeFrames[2];
+        activeFrames[0] = floor(curFrame);
+        activeFrames[1] = ceil(curFrame);
+        
+        // Figure out how many valid frames we've got to look at
+        int numFrames = 2;
+        if (activeFrames[0] == activeFrames[1]) {
+            numFrames = 1;
+        }
+        // Make sure we've got full coverage on those frames
+        if (numFrames > 1 && topTilesLoaded[activeFrames[0]] && topTilesLoaded[activeFrames[1]]) {
+            // We're good
+        } else if (topTilesLoaded[activeFrames[1]]) {
+            // Just one valid frame
+            activeFrames[0] = activeFrames[1];
+            numFrames = 1;
+        } else {
+            // Hunt for a good frame
+            numFrames = 1;
+            bool foundOne = false;
+            for (int ii=0;ii<tilesLoaded.size();ii++) {
+                int testFrame[2];
+                testFrame[0] = activeFrames[0]-ii;
+                testFrame[1] = activeFrames[0]+ii+1;
+                for (int jj=0;jj<2;jj++) {
+                    int theFrame = testFrame[jj];
+                    if (theFrame >= 0 && theFrame < tilesLoaded.size()) {
+                        if (topTilesLoaded[theFrame]) {
+                            activeFrames[0] = theFrame;
+                            foundOne = true;
+                            break;
+                        }
+                    }
+                }
+                if (foundOne)
+                    break;
+            }
+            
+            if (!foundOne)
+                numFrames = 0;
+        }
+        
+        bool bigEnable = numFrames > 0;
+        
+        //        NSLog(@"numFrames = %d, activeFrames[0] = %d, activeFrames[1] = %d",numFrames,activeFrames[0],activeFrames[1]);
+        
+        // Work through the tiles, figure out what's to be on and off
+        for (auto tileIt : tiles) {
+            auto tileID = tileIt.first;
+            auto tile = tileIt.second;
+            
+            bool enable = bigEnable && tile->enable;
+            if (enable) {
+                // Assign as many active textures as we've got
+                for (unsigned int ii=0;ii<numFrames;ii++) {
+                    auto frame = tile->frames[activeFrames[ii]];
+                    if (!frame.texIDs.empty()) {
+                        int relLevel = tileID.level - frame.texNode.level;
+                        int relX = tileID.x - frame.texNode.x * (1<<relLevel);
+                        int tileIDY = tileID.y;
+                        int frameIdentY = frame.texNode.y;
+                        // Note: Confused why this works for both modes
+                        //       Might be how the textures are laid out.  Still.  Wah?
+    //                    if (flipY) {
+                            tileIDY = (1<<tileID.level)-tileIDY-1;
+                            frameIdentY = (1<<frame.texNode.level)-frameIdentY-1;
+    //                    }
+                        int relY = tileIDY - frameIdentY * (1<<relLevel);
+                        
+                        for (auto drawID : tile->instanceDrawIDs[focusID]) {
+                            // Note: In this case we just use the first texture
+                            //       We're assuming that each frame has only one texture
+                            if (frame.texIDs.empty())
+                                changes.push_back(new DrawTexChangeRequest(drawID,ii,EmptyIdentity,0,0,relLevel,relX,relY));
+                            else
+                                changes.push_back(new DrawTexChangeRequest(drawID,ii,frame.texIDs[0],0,0,relLevel,relX,relY));
+                        //                        NSLog(@"tile %d: (%d,%d), frame = %d getting texNode %d: (%d,%d texID = %d)",tileID.level,tileID.x,tileID.y,ii,frame.texNode.level,frame.texNode.x,frame.texNode.y,frame.texID);
+                        }
+                    } else {
+                        enable = false;
                         break;
                     }
                 }
-            }
-            if (foundOne)
-                break;
-        }
-        
-        if (!foundOne)
-            numFrames = 0;
-    }
-    
-    bool bigEnable = numFrames > 0;
-    
-    //        NSLog(@"numFrames = %d, activeFrames[0] = %d, activeFrames[1] = %d",numFrames,activeFrames[0],activeFrames[1]);
-    
-    // Work through the tiles, figure out what's to be on and off
-    for (auto tileIt : tiles) {
-        auto tileID = tileIt.first;
-        auto tile = tileIt.second;
-        
-        bool enable = bigEnable && tile->enable;
-        if (enable) {
-            // Assign as many active textures as we've got
-            for (unsigned int ii=0;ii<numFrames;ii++) {
-                auto frame = tile->frames[activeFrames[ii]];
-                if (!frame.texIDs.empty()) {
-                    int relLevel = tileID.level - frame.texNode.level;
-                    int relX = tileID.x - frame.texNode.x * (1<<relLevel);
-                    int tileIDY = tileID.y;
-                    int frameIdentY = frame.texNode.y;
-                    // Note: Confused why this works for both modes
-                    //       Might be how the textures are laid out.  Still.  Wah?
-//                    if (flipY) {
-                        tileIDY = (1<<tileID.level)-tileIDY-1;
-                        frameIdentY = (1<<frame.texNode.level)-frameIdentY-1;
-//                    }
-                    int relY = tileIDY - frameIdentY * (1<<relLevel);
-                    
-                    for (auto drawID : tile->instanceDrawIDs) {
-                        // Note: In this case we just use the first texture
-                        //       We're assuming that each frame has only one texture
-                        if (frame.texIDs.empty())
-                            changes.push_back(new DrawTexChangeRequest(drawID,ii,EmptyIdentity,0,0,relLevel,relX,relY));
-                        else
-                            changes.push_back(new DrawTexChangeRequest(drawID,ii,frame.texIDs[0],0,0,relLevel,relX,relY));
-                    //                        NSLog(@"tile %d: (%d,%d), frame = %d getting texNode %d: (%d,%d texID = %d)",tileID.level,tileID.x,tileID.y,ii,frame.texNode.level,frame.texNode.x,frame.texNode.y,frame.texID);
+                // Clear out the other texture if there is one
+                if (numFrames == 1) {
+                    for (auto drawID : tile->instanceDrawIDs[focusID]) {
+                        changes.push_back(new DrawTexChangeRequest(drawID,1,EmptyIdentity));
                     }
-                } else {
-                    enable = false;
-                    break;
+                }
+                
+                // Interpolate between two frames or snap to one
+                double t = 0.0;
+                if (numFrames > 1) {
+                    t = curFrame-activeFrames[0];
+                }
+                
+                // We set the interpolation value per drawable
+                SingleVertexAttributeSet attrs;
+                attrs.insert(SingleVertexAttribute(u_interpNameID,(float)t));
+                attrs.insert(SingleVertexAttribute(u_colorNameID,color4));
+                
+                // Turn it all on
+                for (auto drawID : tile->instanceDrawIDs[focusID]) {
+                    changes.push_back(new OnOffChangeRequest(drawID,true));
+                    changes.push_back(new DrawUniformsChangeRequest(drawID,attrs));
                 }
             }
-            // Clear out the other texture if there is one
-            if (numFrames == 1) {
-                for (auto drawID : tile->instanceDrawIDs) {
+            
+            // Just turn the geometry off if we've got nothing
+            if (!enable) {
+                for (auto drawID : tile->instanceDrawIDs[focusID]) {
+                    changes.push_back(new OnOffChangeRequest(drawID,false));
+                    changes.push_back(new DrawTexChangeRequest(drawID,0,EmptyIdentity));
                     changes.push_back(new DrawTexChangeRequest(drawID,1,EmptyIdentity));
                 }
-            }
-            
-            // Interpolate between two frames or snap to one
-            double t = 0.0;
-            if (numFrames > 1) {
-                t = curFrame-activeFrames[0];
-            }
-            
-            // We set the interpolation value per drawable
-            SingleVertexAttributeSet attrs;
-            attrs.insert(SingleVertexAttribute(u_interpNameID,(float)t));
-            attrs.insert(SingleVertexAttribute(u_colorNameID,color4));
-            
-            // Turn it all on
-            for (auto drawID : tile->instanceDrawIDs) {
-                changes.push_back(new OnOffChangeRequest(drawID,true));
-                changes.push_back(new DrawUniformsChangeRequest(drawID,attrs));
-            }
-        }
-        
-        // Just turn the geometry off if we've got nothing
-        if (!enable) {
-            for (auto drawID : tile->instanceDrawIDs) {
-                changes.push_back(new OnOffChangeRequest(drawID,false));
-                changes.push_back(new DrawTexChangeRequest(drawID,0,EmptyIdentity));
-                changes.push_back(new DrawTexChangeRequest(drawID,1,EmptyIdentity));
             }
         }
     }
@@ -568,10 +586,9 @@ void QIFRenderState::updateScene(Scene *scene,double curFrame,TimeInterval now,b
 QuadImageFrameLoader::QuadImageFrameLoader(const SamplingParams &params,Mode mode)
 : mode(mode), debugMode(false),
     params(params),
-    texType(TexTypeUnsignedByte), curFrame(0.0), flipY(true), shaderID(EmptyIdentity),
+    texType(TexTypeUnsignedByte), flipY(true),
     baseDrawPriority(100), drawPriorityPerLevel(1),
     color(RGBAColor(255,255,255,255)),
-    renderTargetID(EmptyIdentity),
     control(NULL), builder(NULL),
     changesSinceLastFlush(true),
     compManager(NULL),
@@ -581,6 +598,23 @@ QuadImageFrameLoader::QuadImageFrameLoader(const SamplingParams &params,Mode mod
 {
     lastRunReqFlag = new bool();
     *lastRunReqFlag = true;
+    numFocus = 1;
+    renderTargetIDs.push_back(EmptyIdentity);
+    shaderIDs.push_back(EmptyIdentity);
+    curFrames.push_back(0.0);
+}
+    
+void QuadImageFrameLoader::addFocus()
+{
+    numFocus++;
+    renderTargetIDs.push_back(EmptyIdentity);
+    shaderIDs.push_back(EmptyIdentity);
+    curFrames.push_back(0.0);
+}
+    
+int QuadImageFrameLoader::getNumFocus()
+{
+    return numFocus;
 }
     
 QuadImageFrameLoader::Mode QuadImageFrameLoader::getMode()
@@ -622,24 +656,24 @@ const RGBAColor &QuadImageFrameLoader::getColor()
     return color;
 }
     
-void QuadImageFrameLoader::setRenderTarget(SimpleIdentity inRenderTargetID)
+void QuadImageFrameLoader::setRenderTarget(int focusID,SimpleIdentity inRenderTargetID)
 {
-    renderTargetID = inRenderTargetID;
+    renderTargetIDs[focusID] = inRenderTargetID;
 }
 
-SimpleIdentity QuadImageFrameLoader::getRenderTarget()
+SimpleIdentity QuadImageFrameLoader::getRenderTarget(int focusID)
 {
-    return renderTargetID;
+    return renderTargetIDs[focusID];
 }
     
-void QuadImageFrameLoader::setShaderID(SimpleIdentity inShaderID)
+void QuadImageFrameLoader::setShaderID(int focusID,SimpleIdentity inShaderID)
 {
-    shaderID = inShaderID;
+    shaderIDs[focusID] = inShaderID;
 }
 
-SimpleIdentity QuadImageFrameLoader::getShaderID()
+SimpleIdentity QuadImageFrameLoader::getShaderID(int focusID)
 {
-    return shaderID;
+    return shaderIDs[focusID];
 }
     
 void QuadImageFrameLoader::setTexType(TextureType inTexType)
@@ -657,14 +691,14 @@ void QuadImageFrameLoader::setDrawPriorityPerLevel(int newPrior)
     drawPriorityPerLevel = newPrior;
 }
     
-void QuadImageFrameLoader::setCurFrame(double inCurFrame)
+void QuadImageFrameLoader::setCurFrame(int focusID,double inCurFrame)
 {
-    curFrame = inCurFrame;
+    curFrames[focusID] = inCurFrame;
 }
     
-double QuadImageFrameLoader::getCurFrame()
+double QuadImageFrameLoader::getCurFrame(int focusID)
 {
-    return curFrame;
+    return curFrames[focusID];
 }
     
 void QuadImageFrameLoader::setFlipY(bool newFlip)
@@ -721,7 +755,7 @@ QIFTileAssetRef QuadImageFrameLoader::addNewTile(const QuadTreeNew::ImportantNod
     // Make the instance drawables we'll use to mirror the geometry
     if (loadedTile) {
         if (mode != Object)
-            newTile->setupContents(this,loadedTile,defaultDrawPriority,shaderID,changes);
+            newTile->setupContents(this,loadedTile,defaultDrawPriority,shaderIDs,changes);
         newTile->setShouldEnable(loadedTile->enabled);
     }
     
@@ -909,17 +943,21 @@ void QuadImageFrameLoader::updateRenderState(ChangeSet &changes)
                 }
                 int relY = tileIDY - frameIdentY * (1<<relLevel);
                 
-                for (auto drawID : tile->getInstanceDrawIDs()) {
-                    changes.push_back(new OnOffChangeRequest(drawID,true));
-                    int texIDCount = 0;
-                    for (auto texID : texIDs) {
-                        changes.push_back(new DrawTexChangeRequest(drawID,texIDCount,texID,0,0,relLevel,relX,relY));
-                        texIDCount++;
+                for (unsigned int focusID = 0;focusID<getNumFocus();focusID++) {
+                    for (auto drawID : tile->getInstanceDrawIDs(focusID)) {
+                        changes.push_back(new OnOffChangeRequest(drawID,true));
+                        int texIDCount = 0;
+                        for (auto texID : texIDs) {
+                            changes.push_back(new DrawTexChangeRequest(drawID,texIDCount,texID,0,0,relLevel,relX,relY));
+                            texIDCount++;
+                        }
                     }
                 }
             } else {
-                for (auto drawID : tile->getInstanceDrawIDs()) {
-                    changes.push_back(new OnOffChangeRequest(drawID,false));
+                for (unsigned int focusID = 0;focusID<getNumFocus();focusID++) {
+                    for (auto drawID : tile->getInstanceDrawIDs(focusID)) {
+                        changes.push_back(new OnOffChangeRequest(drawID,false));
+                    }
                 }
             }
         }
@@ -931,7 +969,7 @@ void QuadImageFrameLoader::updateRenderState(ChangeSet &changes)
 void QuadImageFrameLoader::buildRenderState(ChangeSet &changes)
 {
     int numFrames = getNumFrames();
-    QIFRenderState newRenderState(numFrames);
+    QIFRenderState newRenderState(numFocus,numFrames);
     for (int frameID=0;frameID<numFrames;frameID++)
         newRenderState.topTilesLoaded[frameID] = true;
         
@@ -941,7 +979,7 @@ void QuadImageFrameLoader::buildRenderState(ChangeSet &changes)
         auto tile = tileIt.second;
         
         QIFTileStateRef tileState(new QIFTileState(numFrames,tileID));
-        tileState->instanceDrawIDs = tile->getInstanceDrawIDs();
+        tileState->instanceDrawIDs = tile->instanceDrawIDs;
         tileState->enable = tile->getShouldEnable();
         tileState->compObjs = tile->getCompObjs();
         tileState->ovlCompObjs = tile->getOvlCompObjs();
@@ -1186,19 +1224,19 @@ void QuadImageFrameLoader::builderShutdown(QuadTileBuilder *builder,ChangeSet &c
 /// Returns true if there's an update to process
 bool QuadImageFrameLoader::hasUpdate()
 {
-    return renderState.hasUpdate(curFrame);
+    return renderState.hasUpdate(curFrames);
 }
 
 /// Process the update
 void QuadImageFrameLoader::updateForFrame(RendererFrameInfo *frameInfo)
 {
-    if (!renderState.hasUpdate(curFrame))
+    if (!renderState.hasUpdate(curFrames))
         return;
 
     ChangeSet changes;
 
     TimeInterval now = TimeGetCurrent();
-    renderState.updateScene(frameInfo->scene, curFrame, now, flipY, color, changes);
+    renderState.updateScene(frameInfo->scene, curFrames, now, flipY, color, changes);
 
     frameInfo->scene->addChangeRequests(changes);
 }

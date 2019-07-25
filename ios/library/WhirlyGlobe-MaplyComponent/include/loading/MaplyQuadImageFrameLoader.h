@@ -89,6 +89,24 @@
 - (nullable instancetype)initWithParams:(MaplySamplingParams *__nonnull)params tileInfos:(NSArray<NSObject<MaplyTileInfoNew> *> *__nonnull)tileInfos viewC:(MaplyBaseViewController * __nonnull)viewC;
 
 /**
+  Add another rendering focus to the frame loader.
+ 
+  Normally you'd have one point of focus for a frame loader resulting in one image
+  to be displayed.  But if you're using render targets, you may want to have two
+  and combine them in some way yourself.  Or more.  No idea why you'd do that.
+ 
+  If you're going to do this, call addFocus right after you create the FrameLoader.
+  */
+- (void)addFocus;
+
+/**
+  Return the number of focii.  Normally it's 1.
+ 
+  See addFocus for what these are.  You probably don't need to be using them.
+  */
+- (int)getNumFocus;
+
+/**
   Set the interpolated location within the array of frames.
  
   Each set of frames can be accessed from [0.0,numFrames].  Images will be interpolated between
@@ -99,13 +117,40 @@
 - (void)setCurrentImage:(double)where;
 
 /**
+  Set the currentImage for the given focus.  See addFocus for what those are.
+  */
+- (void)setFocus:(int)focusID currentImage:(double)where;
+
+/**
   Return the interpolated location within the array of frames.
   */
 - (double)getCurrentImage;
 
+/**
+  Return the interpolated location within the array of frames for a given focus.  See addFocus for what that means.
+  */
+- (double)getCurrentImageForFocus:(int)focusID;
+
 /** Number of tile sources passed in as individual frames.
   */
 - (int)getNumFrames;
+
+/**
+ An optional render target for this loader.
+ 
+ The loader can draw to a render target rather than to the screen.
+ You use this in a multi-pass rendering setup.
+ 
+ This version takes a specific focus.  See addFocus for what that means.
+ */
+- (void)setFocus:(int)focusID renderTarget:(MaplyRenderTarget *__nonnull)renderTarget;
+
+/**
+ Shader to use for rendering the image frames for a particular focus.
+ 
+ Consult addFocus for what this means.
+ */
+- (void)setFocus:(int)focusID shader:(MaplyShader * __nullable)shader;
 
 /**
   Get the frame stats for what's loaded and what's not.

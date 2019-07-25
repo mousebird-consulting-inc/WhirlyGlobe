@@ -312,10 +312,12 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
             break;
     }
     
-    if (loader->getShaderID() == EmptyIdentity) {
-        MaplyShader *theShader = [self.viewC getShaderByName:kMaplyShaderDefaultTriMultiTex];
-        if (theShader)
-            loader->setShaderID([theShader getShaderID]);
+    for (unsigned int ii=0;ii<loader->getNumFocus();ii++) {
+        if (loader->getShaderID(ii) == EmptyIdentity) {
+            MaplyShader *theShader = [self.viewC getShaderByName:kMaplyShaderDefaultTriMultiTex];
+            if (theShader)
+                loader->setShaderID(ii,[theShader getShaderID]);
+        }
     }
     
     // These might be changed by the setup call
@@ -331,7 +333,7 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
     if (!loader)
         return;
     
-    loader->setShaderID([shader getShaderID]);
+    loader->setShaderID(0,[shader getShaderID]);
 }
 
 - (void)setRenderTarget:(MaplyRenderTarget *__nonnull)renderTarget
@@ -339,7 +341,7 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
     if (!loader)
         return;
     
-    loader->setRenderTarget([renderTarget renderTargetID]);
+    loader->setRenderTarget(0,[renderTarget renderTargetID]);
 }
 
 @end

@@ -118,7 +118,7 @@ public:
     
     QuadTreeNew::ImportantNode getIdent();
     
-    const std::vector<SimpleIdentity> &getInstanceDrawIDs();
+    const std::vector<SimpleIdentity> &getInstanceDrawIDs(int focusID);
     const SimpleIDSet &getCompObjs() { return compObjs; }
     const SimpleIDSet &getOvlCompObjs() { return ovlCompObjs; }
     
@@ -150,7 +150,7 @@ public:
     virtual void setupContents(QuadImageFrameLoader *loader,
                                LoadedTileNewRef loadedTile,
                                int defaultDrawPriority,
-                               SimpleIdentity shaderID,
+                               const std::vector<SimpleIdentity> &shaderIDs,
                                ChangeSet &changes);
     
     // Cancel any outstanding fetches
@@ -184,7 +184,8 @@ protected:
     // Set if the sampling layer thinks this should be on
     bool shouldEnable;
     
-    std::vector<SimpleIdentity> instanceDrawIDs;
+    // One set of instance IDs per focus
+    std::vector<std::vector<SimpleIdentity> > instanceDrawIDs;
     
     std::vector<QIFFrameAssetRef> frames;
     
@@ -209,7 +210,7 @@ public:
     bool enable;
     
     // The geometry used to represent the tile
-    std::vector<SimpleIdentity> instanceDrawIDs;
+    std::vector<std::vector<SimpleIdentity> > instanceDrawIDs;
     
     // Information about each frame
     class FrameInfo {
@@ -234,7 +235,7 @@ class QIFRenderState
 {
 public:
     QIFRenderState();
-    QIFRenderState(int numFrames);
+    QIFRenderState(int numFocus,int numFrames);
     
     std::map<QuadTreeNew::Node,QIFTileStateRef> tiles;
     
@@ -243,14 +244,19 @@ public:
     // Number of tiles at the lowest level loaded for each frame
     std::vector<bool> topTilesLoaded;
     
-    bool hasUpdate(double curFrame);
+    bool hasUpdate(const std::vector<double> &curFrames);
     
-    double lastCurFrame;
+    std::vector<double> lastCurFrames;
     TimeInterval lastRenderTime;
     TimeInterval lastUpdate;
     
     // Update what the scene is looking at.  Ideally not every frame.
-    void updateScene(Scene *scene,double curFrame,TimeInterval now,bool flipY,const RGBAColor &color,ChangeSet &changes);
+    void updateScene(Scene *scene,
+                     const std::vector<double> &curFrames,
+                     TimeInterval now,
+                     bool flipY,
+                     const RGBAColor &color,
+                     ChangeSet &changes);
 };
     
 /** Quad Image Frame Loader
@@ -264,6 +270,12 @@ public:
     
     QuadImageFrameLoader(const SamplingParams &params,Mode);
     virtual ~QuadImageFrameLoader();
+    
+    /// Add a focus
+    void addFocus();
+    
+    /// Number of focus points (usually 1)
+    int getNumFocus();
 
     /// Loading mode we're currently supporting
     Mode getMode();
@@ -283,12 +295,12 @@ public:
     const RGBAColor &getColor();
     
     /// Render target for the geometry being created
-    void setRenderTarget(SimpleIdentity renderTargetID);
-    SimpleIdentity getRenderTarget();
+    void setRenderTarget(int focusID,SimpleIdentity renderTargetID);
+    SimpleIdentity getRenderTarget(int focusID);
     
     /// Shader ID for geometry being created
-    void setShaderID(SimpleIdentity shaderID);
-    SimpleIdentity getShaderID();
+    void setShaderID(int focusID,SimpleIdentity shaderID);
+    SimpleIdentity getShaderID(int focusID);
     
     /// In-memory texture type
     void setTexType(TextureType texType);
@@ -298,8 +310,8 @@ public:
     void setDrawPriorityPerLevel(int newPrior);
     
     // What part of the animation we're displaying
-    void setCurFrame(double curFrame);
-    double getCurFrame();
+    void setCurFrame(int focusID,double curFrame);
+    double getCurFrame(int focusID);
     
     // Need to know how we're loading the tiles to calculate the render state
     void setFlipY(bool newFlip);
@@ -429,16 +441,24 @@ protected:
     SamplingParams params;
     
     TextureType texType;
-    WhirlyKit::SimpleIdentity shaderID;
 
-    double curFrame;
+    // Number of focus points (1 by default)
+    int numFocus;
+
+    // One per focus point
+    std::vector<WhirlyKit::SimpleIdentity> shaderIDs;
+
+    // One per focus point
+    std::vector<double> curFrames;
     
     bool flipY;
 
     int baseDrawPriority,drawPriorityPerLevel;
 
     RGBAColor color;
-    SimpleIdentity renderTargetID;
+    
+    // One per focus
+    std::vector<SimpleIdentity> renderTargetIDs;
 
     // Tiles in various states of loading or loaded
     QIFTileAssetMap tiles;
