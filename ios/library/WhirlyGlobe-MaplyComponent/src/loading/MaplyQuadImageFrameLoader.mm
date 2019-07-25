@@ -215,6 +215,14 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     return loader->getCurFrame(focusID);
 }
 
+- (void)setRequireTopTiles:(bool)newVal
+{
+    if (!loader)
+        return;
+    
+    loader->setRequireTopTilesLoaded(newVal);
+}
+
 - (int)getNumFrames
 {
     return [loader->frameInfos count];

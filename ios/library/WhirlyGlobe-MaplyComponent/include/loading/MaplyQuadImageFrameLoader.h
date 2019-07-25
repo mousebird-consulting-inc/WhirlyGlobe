@@ -131,6 +131,14 @@
   */
 - (double)getCurrentImageForFocus:(int)focusID;
 
+/**
+ Set whether we require the top tiles to be loaded before a frame can be displayed.
+ 
+ Normally the system wants all the top level tiles to be loaded (just one at level 0)
+ to be in memory before it will display a frame at all.  You can turn this off.
+ */
+- (void)setRequireTopTiles:(bool)newVal;
+
 /** Number of tile sources passed in as individual frames.
   */
 - (int)getNumFrames;

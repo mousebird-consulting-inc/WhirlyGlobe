@@ -586,6 +586,7 @@ void QIFRenderState::updateScene(Scene *scene,
 QuadImageFrameLoader::QuadImageFrameLoader(const SamplingParams &params,Mode mode)
 : mode(mode), debugMode(false),
     params(params),
+    requiringTopTilesLoaded(true),
     texType(TexTypeUnsignedByte), flipY(true),
     baseDrawPriority(100), drawPriorityPerLevel(1),
     color(RGBAColor(255,255,255,255)),
@@ -629,6 +630,11 @@ QuadImageFrameLoader::~QuadImageFrameLoader()
 void QuadImageFrameLoader::setSamplingParams(const SamplingParams &inParams)
 {
     params = inParams;
+}
+    
+void QuadImageFrameLoader::setRequireTopTilesLoaded(bool newVal)
+{
+    requiringTopTilesLoaded = newVal;
 }
 
 QuadDisplayControllerNew *QuadImageFrameLoader::getController()
@@ -1018,7 +1024,7 @@ void QuadImageFrameLoader::buildRenderState(ChangeSet &changes)
             
             // Metrics for overall loading used by the display side
             if (outFrame.texIDs.empty()) {
-                if (tile->getIdent().level == params.minZoom)
+                if (tile->getIdent().level == params.minZoom && requiringTopTilesLoaded)
                     newRenderState.topTilesLoaded[frameID] = false;
             } else {
                 newRenderState.tilesLoaded[frameID]++;

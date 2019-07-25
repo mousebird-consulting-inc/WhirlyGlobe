@@ -154,7 +154,7 @@ void QuadTreeNew::evalNodeImportance(ImportantNode node,const std::vector<double
 {
     node.importance = importance(node);
     
-    if (node.level > maxLevel || node.importance < minImportance[node.level])
+    if (node.level > maxLevel || (node.importance < minImportance[node.level] && minImportance[node.level] != MAXFLOAT))
         return;
 
     if (node.level >= minLevel)

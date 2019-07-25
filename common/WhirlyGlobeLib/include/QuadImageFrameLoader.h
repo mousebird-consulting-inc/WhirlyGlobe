@@ -286,6 +286,9 @@ public:
     
     /// Set/Change the sampling parameters.
     virtual void setSamplingParams(const SamplingParams &params);
+    
+    /// Set if we need the top tiles to load before we'll display a frame
+    virtual void setRequireTopTilesLoaded(bool newVal);
 
     /// Return the quad display controller this is attached to
     QuadDisplayControllerNew *getController();
@@ -439,6 +442,9 @@ protected:
     bool debugMode;
     
     SamplingParams params;
+    
+    // Set if we require the top tiles to be loaded before we'll display a frame
+    bool requiringTopTilesLoaded;
     
     TextureType texType;
 

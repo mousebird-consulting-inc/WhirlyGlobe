@@ -81,6 +81,8 @@ using namespace WhirlyKit;
 - (void)setMinImportance:(double)minImportance
 {
     params.minImportance = minImportance;
+    if (params.minImportanceTop == 0.0)
+        params.minImportanceTop = minImportance;
 }
 
 - (void)setMinImportance:(double)minImportance forLevel:(int)level
