@@ -161,6 +161,15 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     loader->addFocus();
 }
 
+- (void)setLoadFrameMode:(MaplyLoadFrameMode)loadFrameMode
+{
+    if (!loader)
+        return;
+    
+    _loadFrameMode = loadFrameMode;
+    loader->setLoadMode(_loadFrameMode == MaplyLoadFrameBroad ? QuadImageFrameLoader::LoadMode::Broad : QuadImageFrameLoader::LoadMode::Narrow);
+}
+
 - (bool)delayedInit
 {
     started = true;

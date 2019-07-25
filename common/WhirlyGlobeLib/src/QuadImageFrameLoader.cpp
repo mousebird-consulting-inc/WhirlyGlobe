@@ -584,7 +584,7 @@ void QIFRenderState::updateScene(Scene *scene,
 }
     
 QuadImageFrameLoader::QuadImageFrameLoader(const SamplingParams &params,Mode mode)
-: mode(mode), debugMode(false),
+: mode(mode), loadMode(Narrow), debugMode(false),
     params(params),
     requiringTopTilesLoaded(true),
     texType(TexTypeUnsignedByte), flipY(true),
@@ -603,6 +603,8 @@ QuadImageFrameLoader::QuadImageFrameLoader(const SamplingParams &params,Mode mod
     renderTargetIDs.push_back(EmptyIdentity);
     shaderIDs.push_back(EmptyIdentity);
     curFrames.push_back(0.0);
+    
+    updatePriorityDefaults();
 }
     
 void QuadImageFrameLoader::addFocus()
@@ -650,6 +652,55 @@ void QuadImageFrameLoader::setDebugMode(bool newMode)
 bool QuadImageFrameLoader::getDebugMode()
 {
     return debugMode;
+}
+    
+void QuadImageFrameLoader::setLoadMode(LoadMode newMode)
+{
+    loadMode = newMode;
+    updatePriorityDefaults();
+}
+    
+void QuadImageFrameLoader::updatePriorityDefaults()
+{
+    if (loadMode == Broad) {
+        topPriority = 0;
+        nearFramePriority = -1;
+        restPriority = 1;
+    } else {
+        // Focus on the current frame
+        topPriority = -1;
+        nearFramePriority = 1;
+        restPriority = 2;
+    }
+}
+    
+int QuadImageFrameLoader::calcLoadPriority(const QuadTreeNew::ImportantNode &ident,int frame)
+{
+    if (getNumFrames() == 1)
+        return 0;
+    
+    // Min zoom level has priority
+    if (topPriority > -1) {
+        if (ident.level == params.minZoom)
+            return topPriority;
+    }
+    
+    // Frames next to the one we're loading have priority
+    if (nearFramePriority > -1) {
+        for (auto focusFrame : curFrames) {
+            // We want a frame before and after the current position
+            int minFrame = floor(focusFrame);
+            int maxFrame = ceil(focusFrame);
+            if (minFrame == maxFrame) {
+                maxFrame = minFrame + 1;
+            }
+            
+            if (std::abs(frame-minFrame) <= 1 || std::abs(frame-maxFrame) <= 1)
+                return nearFramePriority;
+        }
+    }
+    
+    return restPriority;
 }
     
 void QuadImageFrameLoader::setColor(RGBAColor &inColor)

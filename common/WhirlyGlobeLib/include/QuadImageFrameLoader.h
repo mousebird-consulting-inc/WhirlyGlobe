@@ -284,6 +284,17 @@ public:
     void setDebugMode(bool newMode);
     bool getDebugMode();
     
+    typedef enum {Broad,Narrow} LoadMode;
+    
+    /// Set loading mode to Broad (load lowest level first) and Narrow (load current frame first)
+    void setLoadMode(LoadMode newMode);
+    
+    // Calculate the load priority for a given tile, respecting the rules
+    int calcLoadPriority(const QuadTreeNew::ImportantNode &ident,int frame);
+
+    /// Recalculate the loading default priorites
+    void updatePriorityDefaults();
+
     /// Set/Change the sampling parameters.
     virtual void setSamplingParams(const SamplingParams &params);
     
@@ -438,6 +449,7 @@ protected:
     QIFTileAssetRef addNewTile(const QuadTreeNew::ImportantNode &ident,QIFBatchOps *batchOps,ChangeSet &changes);
     
     Mode mode;
+    LoadMode loadMode;
     
     bool debugMode;
     
@@ -489,6 +501,11 @@ protected:
     
     // If set, used to signal when we're done to a RunRequest in process
     bool *lastRunReqFlag;
+    
+    // Default load priority values.  Used to assign loading priorities
+    int topPriority;        // Top nodes, if they're special.  -1 if not
+    int nearFramePriority;  // Frames next to the current one, -1 if not
+    int restPriority;       // Everything else
 };
     
 }

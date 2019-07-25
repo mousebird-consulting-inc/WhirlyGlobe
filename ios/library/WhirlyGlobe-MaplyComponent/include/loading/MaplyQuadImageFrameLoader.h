@@ -70,6 +70,13 @@
 
 @end
 
+/// How we load frames in the QuadImageFrameLoader
+/// Broad means we load 0 first and the on down
+/// Narrow means we load the frames around the current display first
+typedef NS_ENUM(NSInteger, MaplyLoadFrameMode) {
+    MaplyLoadFrameBroad,
+    MaplyLoadFrameNarrow,
+};
 
 /**
  The Maply Quad Image Frame Loader is for paging individual frames of image pyramids.
@@ -87,6 +94,9 @@
  @param viewC the View controller (or renderer) to add objects to.
  */
 - (nullable instancetype)initWithParams:(MaplySamplingParams *__nonnull)params tileInfos:(NSArray<NSObject<MaplyTileInfoNew> *> *__nonnull)tileInfos viewC:(MaplyBaseViewController * __nonnull)viewC;
+
+/// How frames are loaded (top down vs broad)
+@property (nonatomic,assign) MaplyLoadFrameMode loadFrameMode;
 
 /**
   Add another rendering focus to the frame loader.
