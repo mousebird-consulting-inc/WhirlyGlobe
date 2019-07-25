@@ -105,7 +105,7 @@ using namespace WhirlyKit;
 
 @implementation MaplyRemoteTileInfoNew
 {
-    MbrD validMbr;
+    std::vector<MbrD> validMbrs;
     MaplyCoordinateSystem *bboxCoordSys;
 }
 
@@ -121,14 +121,17 @@ using namespace WhirlyKit;
 
 - (void)addValidBounds:(MaplyBoundingBoxD)bbox coordSystem:(MaplyCoordinateSystem *)coordSys
 {
+    MbrD validMbr;
     validMbr.addPoint(Point2d(bbox.ll.x,bbox.ll.y));
     validMbr.addPoint(Point2d(bbox.ur.x,bbox.ur.y));
+    validMbrs.push_back(validMbr);
+    
     bboxCoordSys = coordSys;
 }
 
 - (bool)tileIsValid:(MaplyTileID)tileID
 {
-    if (!_coordSys || !bboxCoordSys)
+    if (!_coordSys || !bboxCoordSys || validMbrs.empty())
         return true;
 
     // Bounding box for the whole coordinate system
@@ -154,11 +157,13 @@ using namespace WhirlyKit;
         Point3d validPt = CoordSystemConvert3d([_coordSys getCoordSystem].get(), [bboxCoordSys getCoordSystem].get(), pts[ii]);
         tileMbr.addPoint(Point2d(validPt.x(),validPt.y()));
     }
+
+    // Within any of the valid MBRs is fine
+    for (auto validMbr : validMbrs)
+        if (tileMbr.overlaps(validMbr))
+            return true;
     
-    if (tileMbr.overlaps(validMbr))
-        return true;
-    else
-        return false;
+    return false;
 }
 
 - (NSURLRequest *)urlRequestForTile:(MaplyTileID)tileID flipY:(bool)flipY
