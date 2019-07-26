@@ -32,7 +32,7 @@ public class QuadImageFrameLoader extends QuadImageLoaderBase
         });
     }
 
-    enum FrameLoadMode {Broad,Narrow};
+    public enum FrameLoadMode {Broad,Narrow};
 
     /**
      * How frames are loaded (top down vs broad).  Top down is the default.
