@@ -526,7 +526,7 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 		}
 	}
 	
-	static long UpdatePeriod = 100;
+	public static long UpdatePeriod = 100;
 	
 	// Called when the view updates its information
 	public void viewUpdated(View view)

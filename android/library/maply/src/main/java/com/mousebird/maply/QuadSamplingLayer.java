@@ -103,12 +103,17 @@ class QuadSamplingLayer extends Layer implements LayerThread.ViewWatcherInterfac
     }
 
     /** --- View Updated Methods --- **/
-    public void viewUpdated(ViewState viewState)
+    public void viewUpdated(final ViewState viewState)
     {
         ChangeSet changes = new ChangeSet();
         if (viewUpdatedNative(viewState,changes)) {
-            Log.v("Maply", "Need to schedule an update.");
-            // TODO: Schedule a delayed update because the controller is sitting on some later changes
+            // Have a few things left to process.  So come back in a bit and do them.
+            layerThread.addDelayedTask(new Runnable() {
+                @Override
+                public void run() {
+                    viewUpdated(viewState);
+                }
+            },LayerThread.UpdatePeriod);
         }
         layerThread.addChanges(changes);
     }
