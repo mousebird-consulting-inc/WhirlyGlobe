@@ -201,7 +201,7 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
     {
         tileFetcher = null;
         loadInterp = null;
-        if (samplingLayer.get() == null || control.get() == null)
+        if (samplingLayer == null || samplingLayer.get() == null || control == null || control.get() == null)
             return;
 
         samplingLayer.get().removeClient(this);

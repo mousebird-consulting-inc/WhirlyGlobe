@@ -62,4 +62,11 @@ public class QuadPagingLoader extends QuadLoaderBase {
     protected LoaderReturn makeLoaderReturn() {
         return new ObjectLoaderReturn(this);
     }
+
+    @Override
+    public void shutdown() {
+        valid = false;
+
+        super.shutdown();
+    }
 }
