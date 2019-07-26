@@ -118,7 +118,7 @@ class QuadSamplingLayer extends Layer implements LayerThread.ViewWatcherInterfac
         layerThread.addChanges(changes);
     }
 
-    // Called noe more often than 1/10 of a second
+    // Called no more often than 1/10 of a second
     public float getMinTime()
     {
         return 0.1f;
