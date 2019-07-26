@@ -358,6 +358,42 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 		return maxHeight;
 	}
 
+	static double EarthRadius = 6371000;
+
+	/**
+	 * Calculate a size in meters by projecting the two screen points onto the globe.
+	 * Return -1, -1 if the points weren't on the globe.
+	 */
+	public Point2d realWorldSizeFromScreen(Point2d pt0,Point2d pt1)
+	{
+		Point2d size = new Point2d(-1.0,-1.0);
+		if (!running || view == null || renderWrapper == null || renderWrapper.maplyRender == null || renderControl.frameSize == null)
+			return size;
+
+		int[] frameSizeInt = getFrameBufferSize();
+		Point2d frameSize = new Point2d((double)frameSizeInt[0],(double)frameSizeInt[1]);
+		Point2d screenPt[] = new Point2d[3];
+		screenPt[0] = new Point2d(pt0.getX(),pt0.getY());
+		screenPt[1] = new Point2d(pt1.getX(),pt0.getY());
+		screenPt[2] = new Point2d(pt0.getX(),pt1.getY());
+		Point3d hits[] = new Point3d[3];
+		for (int ii=0;ii<3;ii++) {
+			Matrix4d transform = globeView.calcModelViewMatrix();
+			Point3d hit = globeView.pointOnSphereFromScreen(screenPt[ii], transform, frameSize, true);
+			if (hit == null)
+				return size;
+			hit.normalize();
+			hits[ii] = hit;
+		}
+
+		double da = hits[1].subtract(hits[0]).norm() * EarthRadius;
+		double db = hits[2].subtract(hits[0]).norm() * EarthRadius;
+
+		size.setValue(da,db);
+
+		return size;
+	}
+
 	/**
 	 * This encapulates the entire view state.  You can replicate all visual parameters with
 	 * set set of values.

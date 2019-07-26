@@ -89,9 +89,27 @@ public class VariableTarget
         shader = inShader;
     }
 
+    /** By default we'll build a rectangle to display the target
+     */
+    public boolean buildRectangle = true;
+
+    // Other variable targets we're hooking up to
+    private ArrayList<VariableTarget> auxTargets = new ArrayList<VariableTarget>();
+
+    /**
+     * Passing in another variable target will let us assign that target to the
+     * rectangle used to render this variable target's data.  This is used if
+     * you need the contents of more than one target in a shader.
+     */
+    public void addVariableTarget(VariableTarget target)
+    {
+        auxTargets.add(target);
+    }
+
+
     protected MaplyTexture renderTex = null;
     public RenderTarget renderTarget = null;
-    protected ComponentObject compObj = null;
+    public ComponentObject compObj = null;
 
     // We let the setup go a tick so the caller and set settings
     protected void delayedSetup() {
@@ -115,21 +133,27 @@ public class VariableTarget
             shader = viewC.getShader(Shader.NoLightTriangleShader);
         }
 
-        // Rectangle that sits over the view and pulls from the render target
-        ShapeRectangle rect = new ShapeRectangle();
-        rect.setPoints(new Point3d(-1.0,-1.0,0.0), new Point3d(1.0,1.0, 0.0));
-        rect.setClipCoords(true);
-        rect.addTexture(renderTex);
-        ArrayList<Shape> shapes = new ArrayList<Shape>();
-        shapes.add(rect);
+        if (buildRectangle) {
+            // Rectangle that sits over the view and pulls from the render target
+            ShapeRectangle rect = new ShapeRectangle();
+            rect.setPoints(new Point3d(-1.0, -1.0, 0.0), new Point3d(1.0, 1.0, 0.0));
+            rect.setClipCoords(true);
+            rect.addTexture(renderTex);
+            for (VariableTarget target : auxTargets) {
+                rect.addTexture(target.renderTex);
+            }
+            ArrayList<Shape> shapes = new ArrayList<Shape>();
+            shapes.add(rect);
 
-        ShapeInfo shapeInfo = new ShapeInfo();
-        shapeInfo.setColor(color);
-        shapeInfo.setDrawPriority(drawPriority);
-        shapeInfo.setShader(shader);
-        shapeInfo.setZBufferRead(false);
-        shapeInfo.setZBufferWrite(false);
-        compObj = viewC.addShapes(shapes,shapeInfo, RenderControllerInterface.ThreadMode.ThreadCurrent);
+            ShapeInfo shapeInfo = new ShapeInfo();
+            shapeInfo.setColor(color);
+            shapeInfo.setDrawPriority(drawPriority);
+            shapeInfo.setShader(shader);
+            shapeInfo.setZBufferRead(false);
+            shapeInfo.setZBufferWrite(false);
+            compObj = viewC.addShapes(shapes, shapeInfo, RenderControllerInterface.ThreadMode.ThreadCurrent);
+        }
+        auxTargets = null;
     }
 
     /**

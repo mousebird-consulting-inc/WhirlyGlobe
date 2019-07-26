@@ -198,6 +198,16 @@ public class RenderController implements RenderControllerInterface
     }
 
     /**
+     * Add an active object to the beginning of the list.  Do this if you want to make sure
+     * yours is run first.
+     */
+    void addActiveObjectAtStart(ActiveObject activeObject) {
+        synchronized (activeObjects) {
+            activeObjects.add(0,activeObject);
+        }
+    }
+
+    /**
      * Remove an active object added earlier.
      */
     void removeActiveObject(ActiveObject activeObject)

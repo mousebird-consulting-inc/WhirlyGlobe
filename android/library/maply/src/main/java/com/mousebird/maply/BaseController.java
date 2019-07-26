@@ -981,7 +981,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		return coordAdapter.geoPointFromScreenBatch(view,(int)frameSize.getX(),(int)frameSize.getY(),
 				inX,inY,outX,outY);
 	}
-		
+
 	int perfInterval = 0;
 	/**
 	 * Report performance stats in the console ever few frames.
@@ -1799,6 +1799,24 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		}
 
         renderControl.addActiveObject(activeObject);
+	}
+
+	/**
+	 * Add an active object to the beginning of the list.  Do this if you want to make sure
+	 * yours is run first.
+	 */
+	public void addActiveObjectAtStart(final ActiveObject activeObject) {
+		if (!rendererAttached) {
+			addPostSurfaceRunnable(new Runnable() {
+				@Override
+				public void run() {
+					addActiveObjectAtStart(activeObject);
+				}
+			});
+			return;
+		}
+
+		renderControl.addActiveObjectAtStart(activeObject);
 	}
 
 	/**
