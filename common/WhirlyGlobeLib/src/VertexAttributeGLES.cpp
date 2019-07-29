@@ -67,8 +67,8 @@ GLuint VertexAttributeGLES::glEntryComponents() const
 }
     
 SingleVertexAttributeInfoGLES::SingleVertexAttributeInfoGLES(const SingleVertexAttributeInfo &that)
+    : SingleVertexAttributeInfo(that)
 {
-    *this = that;
 }
 
 /// Return the number of components as needed by glVertexAttribPointer

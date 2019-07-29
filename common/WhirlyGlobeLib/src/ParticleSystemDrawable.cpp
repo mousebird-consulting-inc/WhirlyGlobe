@@ -177,6 +177,26 @@ void ParticleSystemDrawable::updateChunks()
     }
 }
     
+void ParticleSystemDrawable::setupBaches()
+{
+    // Set up the batches
+    int numBatches = numTotalPoints / batchSize;
+    int batchBufLen = batchSize * vertexSize;
+    batches.resize(numBatches);
+    unsigned int bufOffset = 0;
+    for (unsigned int ii=0;ii<numBatches;ii++)
+    {
+        Batch &batch = batches[ii];
+        batch.active = false;
+        batch.batchID = ii;
+        batch.offset = bufOffset;
+        batch.len = batchBufLen;
+        bufOffset += batchBufLen;
+    }
+    chunks.clear();
+    chunksDirty = true;
+}
+    
 bool ParticleSystemDrawable::findEmptyBatch(Batch &retBatch)
 {
     bool ret = false;

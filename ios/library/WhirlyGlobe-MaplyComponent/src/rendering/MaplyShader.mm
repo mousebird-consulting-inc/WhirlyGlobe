@@ -275,15 +275,6 @@ using namespace WhirlyKit;
 
 - (void)addVarying:(NSString *__nonnull)varyName
 {
-    if (!scene || !renderer)
-        return;
-
-    if (renderer->getType() != SceneRenderer::RenderGLES)
-    {
-        NSLog(@"MaplyShader method only works with OpenGL ES");
-        return;
-    }
-
     std::string name = [varyName cStringUsingEncoding:NSASCIIStringEncoding];
     varyings.push_back(name);
 }

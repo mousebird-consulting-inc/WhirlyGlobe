@@ -124,6 +124,9 @@ public:
     /// Add a batch for rendering later
     virtual void addAttributeData(const RenderSetupInfo *setupInfo,const std::vector<AttributeData> &attrData,const Batch &batch) = 0;
     
+    /// Called once to set up batches
+    void setupBaches();
+    
     /// Look for an empty batch to reuse
     bool findEmptyBatch(Batch &retBatch);
     

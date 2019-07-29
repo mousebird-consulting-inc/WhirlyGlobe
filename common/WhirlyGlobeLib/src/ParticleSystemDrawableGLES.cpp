@@ -26,7 +26,7 @@ namespace WhirlyKit
 {
     
 ParticleSystemDrawableGLES::ParticleSystemDrawableGLES(const std::string &name)
-: ParticleSystemDrawable(name)
+: ParticleSystemDrawable(name), pointBuffer(0), rectBuffer(0)
 {
 }
 
@@ -91,23 +91,6 @@ void ParticleSystemDrawableGLES::setupForRenderer(const RenderSetupInfo *inSetup
         }
         varyBuffers.push_back(bufferPair);
     }
-    
-    // Set up the batches
-    int numBatches = numTotalPoints / batchSize;
-    int batchBufLen = batchSize * vertexSize;
-    batches.resize(numBatches);
-    unsigned int bufOffset = 0;
-    for (unsigned int ii=0;ii<numBatches;ii++)
-    {
-        Batch &batch = batches[ii];
-        batch.active = false;
-        batch.batchID = ii;
-        batch.offset = bufOffset;
-        batch.len = batchBufLen;
-        bufOffset += batchBufLen;
-    }
-    chunks.clear();
-    chunksDirty = true;
     
     // Zero it out to avoid warnings
     //    glBindBuffer(GL_ARRAY_BUFFER, pointBuffer);
