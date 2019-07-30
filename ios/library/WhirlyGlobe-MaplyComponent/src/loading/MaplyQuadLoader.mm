@@ -295,9 +295,14 @@ using namespace WhirlyKit;
     if (!loader)
         return;
     
+    
+    QuadTreeIdentifier tileID = loadReturn->loadReturn->ident;
     // Don't actually want this one
-    if (!loader->isFrameLoading(loadReturn->loadReturn->ident,loadReturn->loadReturn->frame))
+    if (!loader->isFrameLoading(tileID,loadReturn->loadReturn->frame)) {
+        if (_debugMode)
+            NSLog(@"MaplyQuadImageLoader: Dropping fetched tile %d: (%d,%d) frame %d",tileID.level,tileID.x,tileID.y,loadReturn->loadReturn->frame);
         return;
+    }
     
     // Might be keeping the data coming back per frame
     // If we are, this tells us to merge when all the data has come back

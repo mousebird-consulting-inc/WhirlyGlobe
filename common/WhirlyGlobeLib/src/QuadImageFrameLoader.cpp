@@ -94,6 +94,12 @@ void QIFFrameAsset::loadFailed(QuadImageFrameLoader *loader)
 {
     state = Empty;
 }
+    
+void QIFFrameAsset::loadSkipped()
+{
+    loadReturnSet = true;
+    state = Loaded;
+}
 
 void QIFFrameAsset::setLoadReturn(const RawDataRef &data)
 {
@@ -376,8 +382,11 @@ void QIFTileAsset::mergeLoadedFrame(QuadImageFrameLoader *loader,int frameID,con
 void QIFTileAsset::getLoadedData(std::vector<RawDataRef> &allData)
 {
     for (auto frame : frames) {
-        if (frame->hasLoadReturn())
-            allData.push_back(frame->getLoadReturn());
+        if (frame->hasLoadReturn()) {
+            auto loadReturn = frame->getLoadReturn();
+            if (loadReturn.get() != NULL)
+                allData.push_back(loadReturn);
+        }
         frame->clearLoadReturn();
     }
 }
@@ -842,6 +851,8 @@ void QuadImageFrameLoader::removeTile(const QuadTreeNew::Node &ident, QIFBatchOp
     
 void QuadImageFrameLoader::mergeLoadedTile(QuadLoaderReturn *loadReturn,ChangeSet &changes)
 {
+    changesSinceLastFlush = true;
+
     bool failed = false;
     
     if (debugMode)
@@ -911,8 +922,6 @@ void QuadImageFrameLoader::mergeLoadedTile(QuadLoaderReturn *loadReturn,ChangeSe
         loadReturn->compObjs.clear();
         loadReturn->ovlCompObjs.clear();
     }
-
-    changesSinceLastFlush = true;
 }
     
 // Figure out what needs to be on/off for the non-frame cases
@@ -1074,7 +1083,7 @@ void QuadImageFrameLoader::buildRenderState(ChangeSet &changes)
             } while (outFrame.texIDs.empty());
             
             // Metrics for overall loading used by the display side
-            if (outFrame.texIDs.empty()) {
+            if (outFrame.texIDs.empty() && inFrame->getState() != QIFFrameAsset::Loaded) {
                 if (tile->getIdent().level == params.minZoom && requiringTopTilesLoaded)
                     newRenderState.topTilesLoaded[frameID] = false;
             } else {
@@ -1187,6 +1196,10 @@ void QuadImageFrameLoader::builderLoad(QuadTileBuilder *builder,
     if (!this->builder)
         return;
     
+    // Only handling loads and unloads for now
+    if (updates.loadTiles.empty() && updates.unloadTiles.empty())
+        return;
+    
     bool somethingChanged = false;
     
     targetLevel = updates.targetLevel;
@@ -1217,25 +1230,6 @@ void QuadImageFrameLoader::builderLoad(QuadTileBuilder *builder,
         somethingChanged = true;
     }
     
-    // Look through the importance updates
-    for (auto ident : updates.changeTiles) {
-        auto it = tiles.find(ident);
-        if (it == tiles.end())
-            continue;
-        auto tile = it->second;
-        auto loadedTile = builder->getLoadedTile(ident);
-        
-        // If it isn't loaded, then start that process
-        if (tile->getState() == QIFTileAsset::Waiting) {
-            if (debugMode)
-                wkLogLevel(Debug,"Tile switched from Wait to Fetch %d: (%d,%d) importance = %f",ident.level,ident.x,ident.y,ident.importance);
-            tile->startFetching(this, -1, batchOps);
-            if (loadedTile)
-                tile->setShouldEnable(loadedTile->enabled);
-            somethingChanged = true;
-        }
-    }
-
     // Process all the fetches and cancels at once
     processBatchOps(batchOps);
     delete batchOps;
@@ -1378,6 +1372,8 @@ bool QuadImageFrameLoader::isFrameLoading(const QuadTreeIdentifier &ident,int fr
     
 bool QuadImageFrameLoader::mergeLoadedFrame(const QuadTreeIdentifier &ident,int frame,const RawDataRef &data,std::vector<RawDataRef> &allData)
 {
+    changesSinceLastFlush = true;
+
     auto it = tiles.find(ident);
     if (it == tiles.end()) {
         return false;

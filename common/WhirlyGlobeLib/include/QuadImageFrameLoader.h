@@ -71,6 +71,9 @@ public:
     
     // Clear out state
     virtual void loadFailed(QuadImageFrameLoader *loader);
+    
+    // We're not bothering to load it, but pretend like it succeeded
+    virtual void loadSkipped();
 
     // Store the raw data for use later
     virtual void setLoadReturn(const RawDataRef &data);

@@ -106,6 +106,12 @@ void QIFFrameAsset_ios::loadFailed(QuadImageFrameLoader *loader)
     request = nil;
 }
     
+void QIFFrameAsset_ios::loadSkipped()
+{
+    QIFFrameAsset::loadSkipped();
+    request = nil;
+}
+    
 QIFTileAsset_ios::QIFTileAsset_ios(const QuadTreeNew::ImportantNode &ident)
 : QIFTileAsset(ident)
 {
@@ -148,7 +154,8 @@ void QIFTileAsset_ios::startFetching(QuadImageFrameLoader *inLoader,int frameToL
                         [layer fetchRequestFail:request tileID:tileID frame:frame error:error];
                     };
                     [batchOps->toStart addObject:request];
-                }
+                } else
+                    frameAsset->loadSkipped();
             }
                 
             frame++;
