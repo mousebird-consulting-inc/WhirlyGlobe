@@ -61,6 +61,9 @@ class QIFFrameAsset
         dispose();
     }
 
+    // Return the priority assigned on the C++ side
+    public native int getPriority();
+
     public void finalize()
     {
         dispose();
