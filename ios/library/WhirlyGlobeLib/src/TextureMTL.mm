@@ -93,6 +93,9 @@ RawDataRef TextureMTL::convertData()
             vImageConvert_RGBA8888toRGBA5551(&srcBuff,&destBuff,kvImageNoFlags);
         }
             break;
+        default:
+            NSLog(@"TextureMTL: Format %d not supported for passing in data.",(int)format);
+            break;
     }
 
     if (outData)
@@ -152,6 +155,22 @@ bool TextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
         case TexTypeDoubleChannel:
             pixFormat = MTLPixelFormatRG8Unorm;
             bytesPerRow = 2*width;
+            break;
+        case TexTypeSingleFloat16:
+            pixFormat = MTLPixelFormatR16Float;
+            bytesPerRow = 2*width;
+            break;
+        case TexTypeSingleFloat32:
+            pixFormat = MTLPixelFormatR32Float;
+            bytesPerRow = 4*width;
+            break;
+        case TexTypeDoubleFloat16:
+            pixFormat = MTLPixelFormatRG16Float;
+            bytesPerRow = 4*width;
+            break;
+        case TexTypeDoubleFloat32:
+            pixFormat = MTLPixelFormatRG32Float;
+            bytesPerRow = 8*width;
             break;
     }
     

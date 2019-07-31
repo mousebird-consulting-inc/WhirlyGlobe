@@ -214,7 +214,7 @@ vertex ProjVertexTriB vertexTri_multiTex(VertexTriB vert [[stage_in]],
     return outVert;
 }
 
-// Fragement shader that handles to two textures
+// Fragment shader that handles to two textures
 fragment float4 fragmentTri_multiTex(ProjVertexTriB vert [[stage_in]],
                                      constant Uniforms &uniforms [[buffer(WKSUniformBuffer)]],
                                      constant UniformDrawStateA &uniDrawState [[buffer(WKSUniformDrawStateBuffer)]],

@@ -158,7 +158,7 @@ These are the per vertex attributes provided to each vertex shader.
 /**
     Minimal initialized used in conjuction with delayed setup.  OpenGL Only.
   */
-- (instancetype __nonnull)initWithViewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)baseViewC;
+- (instancetype __nullable)initWithViewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)baseViewC;
 
 /**
     Delayed construction of the shader.  OnlyGL Only.

@@ -702,14 +702,14 @@ using namespace Eigen;
 
     // Model Instancing
     [self addShader:kMaplyShaderDefaultModelTri
-            program:ProgramRef(new ProgramMTL([kMaplyShaderDefaultTriMultiTex cStringUsingEncoding:NSASCIIStringEncoding],
+            program:ProgramRef(new ProgramMTL([kMaplyShaderDefaultModelTri cStringUsingEncoding:NSASCIIStringEncoding],
                                               [mtlLib newFunctionWithName:@"vertexTri_model"],
                                               [mtlLib newFunctionWithName:@"fragmentTri_multiTex"]))];
 
     // TODO: Night/Day Shader
 
     // Billboards
-    ProgramRef billboardProg(new ProgramMTL([kMaplyShaderDefaultWideVector cStringUsingEncoding:NSASCIIStringEncoding],
+    ProgramRef billboardProg(new ProgramMTL([kMaplyShaderBillboardGround cStringUsingEncoding:NSASCIIStringEncoding],
                                             [mtlLib newFunctionWithName:@"vertexTri_billboard"],
                                             [mtlLib newFunctionWithName:@"fragmentTri_basic"]));
     [self addShader:kMaplyShaderBillboardGround program:billboardProg];
@@ -718,7 +718,7 @@ using namespace Eigen;
     // Wide vectors
     [self addShader:kMaplyShaderDefaultWideVector
             program:ProgramRef(new ProgramMTL([kMaplyShaderDefaultWideVector cStringUsingEncoding:NSASCIIStringEncoding],
-                                        [mtlLib newFunctionWithName:@"vertexTri_model"],
+                                        [mtlLib newFunctionWithName:@"vertexTri_wideVec"],
                                         [mtlLib newFunctionWithName:@"fragmentTri_basic"]))];
 
     // Screen Space (motion and regular are the same)

@@ -161,7 +161,6 @@ bool TextureGLES::createInRenderer(const RenderSetupInfo *inSetupInfo)
         switch (format)
         {
             case TexTypeUnsignedByte:
-            default:
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE,
                              (convertedData ? convertedData->getRawData() : NULL));
                 break;
@@ -185,6 +184,8 @@ bool TextureGLES::createInRenderer(const RenderSetupInfo *inSetupInfo)
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_RG8, width, height, 0, GL_RG, GL_UNSIGNED_BYTE,
                              (convertedData ? convertedData->getRawData() : NULL));
                 break;
+            default:
+                wkLogLevel(Error, "Unknown texture type %d for GLES",(int)format);
                 // Note: Porting
 //            case GL_COMPRESSED_RGB8_ETC2:
 //                glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGB8_ETC2, width, height, 0,
