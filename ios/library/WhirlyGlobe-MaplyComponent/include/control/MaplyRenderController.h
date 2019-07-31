@@ -59,6 +59,13 @@ typedef NS_ENUM(NSInteger, MaplyQuadImageFormat) {
 
 @class MaplyRenderController;
 
+/// The system can set up as either GL or Metal
+typedef NS_ENUM(NSInteger, MaplyRenderType) {
+    MaplyRenderGLES,
+    MaplyRenderMetal,
+    MaplyRenderUnknown
+};
+
 /**
     Render Controler Protocol defines the methods required of a render controller.
  
@@ -818,14 +825,10 @@ typedef NS_ENUM(NSInteger, MaplyQuadImageFormat) {
 // For internal use only
 - (MaplyRenderController * __nullable)getRenderControl;
 
-@end
+/// Return the renderer type being used
+- (MaplyRenderType)getRenderType;
 
-/// The system can set up as eitheir GL or Metal
-typedef NS_ENUM(NSInteger, MaplyRenderType) {
-    MaplyRenderGLES,
-    MaplyRenderMetal,
-    MaplyRenderUnknown
-};
+@end
 
 /**
  The Render Controller is a standalone WhirlyGlobe-Maply renderer.

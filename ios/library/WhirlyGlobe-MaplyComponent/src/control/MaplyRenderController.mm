@@ -624,6 +624,19 @@ using namespace Eigen;
     }
 }
 
+- (MaplyRenderType)getRenderType
+{
+    switch (sceneRenderer->getType())
+    {
+        case SceneRenderer::RenderGLES:
+            return MaplyRenderGLES;
+        case SceneRenderer::RenderMetal:
+            return MaplyRenderMetal;
+        default:
+            return MaplyRenderUnknown;
+    }
+}
+
 - (void)setupShaders
 {
     if (sceneRenderer->getType() == SceneRenderer::RenderGLES)
