@@ -133,6 +133,8 @@ void QIFTileAsset_Android::startFetching(QuadImageFrameLoader *inLoader,int fram
         if (frameToLoad == -1 || frameToLoad == ii) {
             QIFFrameAsset_Android *frame = (QIFFrameAsset_Android *) (frames[ii].get());
             frame->setupFetch(loader);
+            int priority = loader->calcLoadPriority(ident,ii);
+            frame->updateFetching(loader,priority,ident.importance);
             objVec[ii] = frame->frameAssetObj;
         }
     }

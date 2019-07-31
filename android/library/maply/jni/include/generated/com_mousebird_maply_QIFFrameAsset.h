@@ -9,6 +9,14 @@ extern "C" {
 #endif
 /*
  * Class:     com_mousebird_maply_QIFFrameAsset
+ * Method:    getPriority
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_QIFFrameAsset_getPriority
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_QIFFrameAsset
  * Method:    nativeInit
  * Signature: ()V
  */

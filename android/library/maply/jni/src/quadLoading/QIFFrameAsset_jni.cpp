@@ -81,3 +81,18 @@ jobject MakeQIFFrameAsset(JNIEnv *env,QIFFrameAsset_Android *frame)
 
     return obj;
 }
+
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_QIFFrameAsset_getPriority
+        (JNIEnv *env, jobject obj)
+{
+    try {
+        QIFFrameAsset_Android *frame = QIFFrameAssetClassInfo::getClassInfo()->getObject(env,obj);
+        if (!frame)
+            return 0;
+        return frame->getPriority();
+    } catch (...) {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QIFFrameAsset::getPriority()");
+    }
+
+    return 0;
+}

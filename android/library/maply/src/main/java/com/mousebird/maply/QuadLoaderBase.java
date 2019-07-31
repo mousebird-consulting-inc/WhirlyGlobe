@@ -293,7 +293,7 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
 
             // Put together a fetch request for, you now, fetching
             final TileFetchRequest fetchRequest = new TileFetchRequest();
-            fetchRequest.priority = priority;
+            fetchRequest.priority = inFrameAssets[frame].getPriority();
             fetchRequest.importance = (float)importance;
             fetchRequest.callback = new TileFetchRequest.Callback() {
                 @Override

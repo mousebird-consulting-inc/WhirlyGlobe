@@ -124,7 +124,7 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
                     }
                     return importance < that.importance ? -1 : 1;
                 }
-                return priority < that.priority ? -1 : 1;
+                return priority < that.priority ? 1 : -1;
             }
             return (isLocal ? 1 : 0) < (that.isLocal ? 1 : 0) ? -1 : 1;
         }
