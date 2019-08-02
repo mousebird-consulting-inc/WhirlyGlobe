@@ -24,6 +24,9 @@
 using namespace WhirlyKit;
 using namespace Eigen;
 
+namespace WhirlyKit
+{
+
 // Convert a buffer in RGBA to 2-byte 565
 // Code courtesy: http://stackoverflow.com/questions/7930148/opengl-es-on-ios-texture-loading-how-do-i-get-from-a-rgba8888-png-file-to-a-r
 RawDataRef ConvertRGBATo565(RawDataRef inData)
@@ -205,9 +208,6 @@ RawDataRef ConvertRGBATo8(RawDataRef inData,WKSingleByteSource source)
     
     return RawDataRef(new RawDataWrapper(temp,pixelCount,true));
 }
-
-namespace WhirlyKit
-{
     
 TextureBase::TextureBase(SimpleIdentity thisId)
 : Identifiable(thisId)

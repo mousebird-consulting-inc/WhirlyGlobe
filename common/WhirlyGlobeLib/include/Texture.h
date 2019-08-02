@@ -139,4 +139,7 @@ protected:
     
 typedef std::shared_ptr<Texture> TextureRef;
 
+// Pull two 8 byte channels out of an RGBA image
+extern RawDataRef ConvertRGBATo16(RawDataRef inData,int width,int height);
+    
 }

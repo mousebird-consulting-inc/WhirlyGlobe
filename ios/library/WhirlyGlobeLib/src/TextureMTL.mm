@@ -53,7 +53,7 @@ TextureMTL::TextureMTL(const std::string &name,UIImage *inImage,int inWidth,int 
     
 RawDataRef TextureMTL::convertData()
 {
-    NSMutableData *outData = nil;
+    RawDataRef outDataRef;
 
     vImage_Buffer srcBuff;
     srcBuff.data = (void *)texData->getRawData();
@@ -64,17 +64,20 @@ RawDataRef TextureMTL::convertData()
     switch (format) {
         case TexTypeUnsignedByte:
         case TexTypeSingleChannel:
+            break;
         case TexTypeDoubleChannel:
+            outDataRef = ConvertRGBATo16(texData,width,height);
             break;
         case TexTypeShort565:
             {
-                outData = [[NSMutableData alloc] initWithCapacity:width*height*2];
+                NSMutableData *outData = [[NSMutableData alloc] initWithCapacity:width*height*2];
                 vImage_Buffer destBuff;
                 destBuff.data = (void *)[outData bytes];
                 destBuff.width = width;
                 destBuff.height = height;
                 destBuff.rowBytes = 2*width;
                 vImageConvert_RGBA8888toRGB565(&srcBuff,&destBuff,kvImageNoFlags);
+                outDataRef = RawDataRef(new RawNSDataReader(outData));
             }
             break;
         case TexTypeShort4444:
@@ -84,13 +87,14 @@ RawDataRef TextureMTL::convertData()
             break;
         case TexTypeShort5551:
         {
-            outData = [[NSMutableData alloc] initWithCapacity:width*height*2];
+            NSMutableData *outData = [[NSMutableData alloc] initWithCapacity:width*height*2];
             vImage_Buffer destBuff;
             destBuff.data = (void *)[outData bytes];
             destBuff.width = width;
             destBuff.height = height;
             destBuff.rowBytes = 2*width;
             vImageConvert_RGBA8888toRGBA5551(&srcBuff,&destBuff,kvImageNoFlags);
+            outDataRef = RawDataRef(new RawNSDataReader(outData));
         }
             break;
         default:
@@ -98,8 +102,8 @@ RawDataRef TextureMTL::convertData()
             break;
     }
 
-    if (outData)
-        return RawDataRef(new RawNSDataReader(outData));
+    if (outDataRef)
+        return outDataRef;
     else
         return texData;
 }
