@@ -61,6 +61,7 @@ public:
     
 public:
     id<MTLTexture> tex;
+    MTLPixelFormat pixelFormat;
     MTLRenderPassDescriptor *renderPassDesc;
 };
 typedef std::shared_ptr<RenderTargetMTL> RenderTargetMTLRef;

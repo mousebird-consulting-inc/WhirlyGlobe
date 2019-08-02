@@ -352,6 +352,24 @@ public:
             tex->setFormat(TexTypeSingleChannel);
             tex->setSingleByteSource(WKSingleRGB);
             break;
+        case MaplyImageSingleFloat16:
+            tex->setFormat(TexTypeSingleFloat16);
+            break;
+        case MaplyImageSingleFloat32:
+            tex->setFormat(TexTypeSingleFloat32);
+            break;
+        case MaplyImageDoubleFloat16:
+            tex->setFormat(TexTypeDoubleFloat16);
+            break;
+        case MaplyImageDoubleFloat32:
+            tex->setFormat(TexTypeDoubleFloat32);
+            break;
+        case MaplyImageQuadFloat16:
+            tex->setFormat(TexTypeQuadFloat16);
+            break;
+        case MaplyImageQuadFloat32:
+            tex->setFormat(TexTypeQuadFloat32);
+            break;
     }
 
     return tex;

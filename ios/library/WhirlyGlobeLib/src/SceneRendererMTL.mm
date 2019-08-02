@@ -293,8 +293,7 @@ MTLRenderPipelineDescriptor *SceneRendererMTL::defaultRenderPipelineState(SceneR
     renderDesc.vertexFunction = program->vertFunc;
     renderDesc.fragmentFunction = program->fragFunc;
     
-    // TODO: Should be from the target
-    renderDesc.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
+    renderDesc.colorAttachments[0].pixelFormat = frameInfo->renderTarget->pixelFormat;
     if (frameInfo->renderPassDesc.depthAttachment.texture)
         renderDesc.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
     

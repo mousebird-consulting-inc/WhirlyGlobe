@@ -25,12 +25,12 @@ namespace WhirlyKit
 {
 
 RenderTargetMTL::RenderTargetMTL()
-    : renderPassDesc(nil)
+    : renderPassDesc(nil), pixelFormat(MTLPixelFormatBGRA8Unorm)
 {
 }
 
 RenderTargetMTL::RenderTargetMTL(SimpleIdentity newID)
-    : RenderTarget(newID), renderPassDesc(nil)
+    : RenderTarget(newID), renderPassDesc(nil), pixelFormat(MTLPixelFormatBGRA8Unorm)
 {
 }
 
@@ -111,6 +111,7 @@ void RenderTargetMTL::setTargetTexture(TextureBaseMTL *inTex)
     TextureBaseMTL *theTex = (TextureBaseMTL *)inTex;
     tex = theTex->getMTLID();
     
+    pixelFormat = inTex->getMTLID().pixelFormat;
     renderPassDesc = [[MTLRenderPassDescriptor alloc] init];
     renderPassDesc.colorAttachments[0].texture = tex;
     if (this->clearEveryFrame)

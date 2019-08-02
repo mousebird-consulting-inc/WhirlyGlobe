@@ -140,6 +140,11 @@ void BasicDrawableInstanceBuilder::setUniforms(const SingleVertexAttributeSet &u
 {
     drawInst->uniforms = uniforms;
 }
+    
+void BasicDrawableInstanceBuilder::setUniBlock(const BasicDrawable::UniformBlock &uniBlock)
+{
+    drawInst->setUniBlock(uniBlock);
+}
 
 void BasicDrawableInstanceBuilder::setTexId(unsigned int which,SimpleIdentity inId)
 {

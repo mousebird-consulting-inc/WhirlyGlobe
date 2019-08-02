@@ -310,6 +310,24 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
         case MaplyImageUByteRGB:
             loader->setTexType(TexTypeSingleChannel);
             break;
+        case MaplyImageSingleFloat16:
+            loader->setTexType(TexTypeSingleFloat16);
+            break;
+        case MaplyImageSingleFloat32:
+            loader->setTexType(TexTypeSingleFloat32);
+            break;
+        case MaplyImageDoubleFloat16:
+            loader->setTexType(TexTypeDoubleFloat16);
+            break;
+        case MaplyImageDoubleFloat32:
+            loader->setTexType(TexTypeDoubleFloat32);
+            break;
+        case MaplyImageQuadFloat16:
+            loader->setTexType(TexTypeQuadFloat16);
+            break;
+        case MaplyImageQuadFloat32:
+            loader->setTexType(TexTypeQuadFloat32);
+            break;
     }
     
     for (unsigned int ii=0;ii<loader->getNumFocus();ii++) {
