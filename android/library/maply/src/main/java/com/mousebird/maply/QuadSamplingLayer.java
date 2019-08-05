@@ -24,6 +24,7 @@ import android.util.Log;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.logging.Handler;
 
 /**
  * The Quad Sampling Layer runs a quad tree which determines what
@@ -102,15 +103,24 @@ class QuadSamplingLayer extends Layer implements LayerThread.ViewWatcherInterfac
         layerThread.addChanges(changes);
     }
 
+    // Used to sunset delayed view updates
+    int generation = 0;
+
     /** --- View Updated Methods --- **/
     public void viewUpdated(final ViewState viewState)
     {
+        generation++;
+        final int thisGeneration = generation;
+
         ChangeSet changes = new ChangeSet();
         if (viewUpdatedNative(viewState,changes)) {
             // Have a few things left to process.  So come back in a bit and do them.
             layerThread.addDelayedTask(new Runnable() {
                 @Override
                 public void run() {
+                    // If we've moved on, then cancel
+                    if (thisGeneration < generation)
+                        return;
                     viewUpdated(viewState);
                 }
             },LayerThread.UpdatePeriod);

@@ -49,6 +49,8 @@ class QIFFrameAsset
     // Called by the c++ side
     public void updateFetch(QuadLoaderBase loader, int newPriority,double newImportance)
     {
+        if (loader == null || loader.tileFetcher == null)
+            return;
         loader.tileFetcher.updateTileFetch(request,newPriority,(float)newImportance);
     }
 
