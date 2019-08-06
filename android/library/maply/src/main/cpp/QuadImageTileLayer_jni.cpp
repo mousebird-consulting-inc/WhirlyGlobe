@@ -69,8 +69,9 @@ public:
 	int tileSize;
 	std::vector<int> levelLoads;
 	ViewState *lastViewState;
-        std::string shaderName;
-        SimpleIdentity shaderID;
+    std::string shaderName;
+    SimpleIdentity shaderID;
+    SimpleIdentity renderTargetID;
     JavaVM* jvm;
 
 	// Methods for Java quad image layer
@@ -82,7 +83,8 @@ public:
 		  handleEdges(true),coverPoles(false), drawPriority(0),imageDepth(1),
 		  borderTexel(0),textureAtlasSize(2048),enable(true),fade(1.0),color(255,255,255,255),imageFormat(0),
 		  currentImage(0.0), animationWrap(true), maxCurrentImage(-1), allowFrameLoading(true), animationPeriod(10.0),
-		  maxTiles(256), importanceScale(1.0), tileSize(256), lastViewState(NULL), shaderID(EmptyIdentity), scene(NULL), control(NULL),scheduleEvalStepJava(0)
+		  maxTiles(256), importanceScale(1.0), tileSize(256), lastViewState(NULL), shaderID(EmptyIdentity), renderTargetID(EmptyIdentity),
+		  scene(NULL), control(NULL),scheduleEvalStepJava(0)
 	{
 		useTargetZoomLevel = true;
         canShortCircuitImportance = false;
@@ -207,6 +209,8 @@ public:
 	    // This will force the shader setup
 	    if (!shaderName.empty())
 	      setShaderName(shaderName);
+	    if (renderTargetID != EmptyIdentity)
+	        setRenderTarget(renderTargetID);
 	    setCurrentImage(currentImage,changes);
 
 	    return tileLoader;
@@ -261,15 +265,22 @@ public:
 	    animationPeriod = newAnimationPeriod;
 	}
 
-        void setShaderName(const std::string &newName)
+    void setShaderName(const std::string &newName)
+    {
+        shaderName = newName;
+        if (scene && tileLoader)
         {
-	  shaderName = newName;
-	  if (scene && tileLoader)
-	  {
-	      shaderID = scene->getProgramIDBySceneName(shaderName.c_str());
-	      tileLoader->setProgramId(shaderID);
-	  }
-        }    
+          shaderID = scene->getProgramIDBySceneName(shaderName.c_str());
+          tileLoader->setProgramId(shaderID);
+        }
+    }
+
+    void setRenderTarget(SimpleIdentity targetID)
+    {
+	    renderTargetID = targetID;
+	    if (tileLoader)
+	        tileLoader->setRenderTarget(targetID);
+    }
 
 	// Change which image is displayed (or interpolation thereof)
 	void setCurrentImage(float newCurrentImage,ChangeSet &changes)
@@ -300,7 +311,7 @@ public:
         
         changes.push_back(new SetProgramValueReq(shaderID,"u_interp",t));
 	}
-    
+
     void setColor(const RGBAColor &newColor)
     {
         color = newColor;
@@ -1104,6 +1115,24 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setShaderName
     catch (...)
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setShaderName()");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setRenderTargetNative
+        (JNIEnv *env, jobject obj, jlong targetID)
+{
+    try
+    {
+        QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+        QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
+        if (!adapter)
+            return;
+
+        adapter->setRenderTarget(targetID);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setRenderTargetNative()");
     }
 }
 

@@ -746,6 +746,15 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
      * Set the scene name of the shader to use for this layer.
      */
 	public native void setShaderName(String name);
+
+	/**
+	 * Geometry created by this layer will be rendered to this render target.
+	 */
+	public void setRenderTarget(RenderTarget target)
+	{
+		setRenderTargetNative(target.renderTargetID);
+	}
+	protected native void setRenderTargetNative(long renderTargetID);
     
     /** Force a full reload of all tiles.
      * This will notify the system to flush out all the existing tiles and start reloading from the top.  If everything is cached locally (and the MaplyTileSource objects say so) then this should appear instantly.  If something needs to be fetched or it's taking too long, you'll see these page in from the low to the high level.
