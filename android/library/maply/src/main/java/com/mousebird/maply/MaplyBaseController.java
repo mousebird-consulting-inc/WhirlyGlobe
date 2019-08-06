@@ -788,10 +788,17 @@ public class MaplyBaseController
      */
     public void addPostSurfaceRunnable(Runnable run)
     {
-        if (rendererAttached)
-            activity.runOnUiThread(run);
-        else
-            postSurfaceRunnables.add(run);
+    	boolean runNow = false;
+		synchronized (this) {
+			if (rendererAttached)
+				runNow = true;
+			else
+				postSurfaceRunnables.add(run);
+		}
+		if (runNow) {
+			Handler handler = new Handler(activity.getMainLooper());
+			handler.post(run);
+		}
     }
 
 	int displayRate = 2;
@@ -2022,11 +2029,14 @@ public class MaplyBaseController
      * @param settings Settings to use.
      * @param mode Add on the current thread or elsewhere.
      */
-	public MaplyTexture addTexture(final Bitmap image,final TextureSettings settings,ThreadMode mode)
+	public MaplyTexture addTexture(final Bitmap image,TextureSettings settings,ThreadMode mode)
     {
         final MaplyTexture texture = new MaplyTexture();
 		final Texture rawTex = new Texture();
 		texture.texID = rawTex.getID();
+		if (settings == null)
+			settings = new TextureSettings();
+		final TextureSettings theSettings = settings;
 
         // Possibly do the work somewhere else
         Runnable run =
@@ -2037,9 +2047,9 @@ public class MaplyBaseController
                     {
                         ChangeSet changes = new ChangeSet();
 
-			rawTex.setBitmap(image,settings.imageFormat.ordinal());
-			rawTex.setSettings(settings.wrapU,settings.wrapV);
-                        changes.addTexture(rawTex, scene, settings.filterType.ordinal());
+			rawTex.setBitmap(image,theSettings.imageFormat.ordinal());
+			rawTex.setSettings(theSettings.wrapU,theSettings.wrapV);
+                        changes.addTexture(rawTex, scene, theSettings.filterType.ordinal());
 
                         // Flush the texture changes
 			if (scene != null)
