@@ -144,11 +144,11 @@ using namespace WhirlyGlobe;
 {
 	MaplyCoordinate *coords = (MaplyCoordinate *) malloc(sizeof(int) * [inCoords count]/2);
 
-	for (int i = 0; i < [inCoords count]/2; i += 2) {
-		float x = [inCoords[i] floatValue];
-		float y = [inCoords[i+1] floatValue];
+	for (int i = 0; i < [inCoords count]/2; i++) {
+		float x = [inCoords[2*i] floatValue];
+		float y = [inCoords[2*i+1] floatValue];
 
-		coords[i / 2] = MaplyCoordinateMakeWithDegrees(x, y);
+		coords[i] = MaplyCoordinateMakeWithDegrees(x, y);
 	}
 
 	self = [self initWithLineString:coords numCoords:(int)[inCoords count]/2 attributes:attr];
