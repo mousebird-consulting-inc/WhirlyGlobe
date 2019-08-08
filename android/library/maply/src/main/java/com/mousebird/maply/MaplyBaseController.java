@@ -988,10 +988,17 @@ public class MaplyBaseController
 	 * @param ll Lower left corner.
 	 * @param ur Upper right corner.
 	 */
-	public void setViewExtents(Point2d ll,Point2d ur)
+	public void setViewExtents(final Point2d ll,final Point2d ur)
 	{
-		if (!running || view == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
+		if (!running || view == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null) {
+			addPostSurfaceRunnable(new Runnable() {
+				@Override
+				public void run() {
+					setViewExtents(ll,ur);
+				}
+			});
 			return;
+		}
 
 		CoordSystemDisplayAdapter coordAdapter = view.getCoordAdapter();
 		if (coordAdapter == null)
