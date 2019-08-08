@@ -169,6 +169,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setShaderName
 
 /*
  * Class:     com_mousebird_maply_QuadImageTileLayer
+ * Method:    setRenderTargetNative
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setRenderTargetNative
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_mousebird_maply_QuadImageTileLayer
  * Method:    reload
  * Signature: (Lcom/mousebird/maply/ChangeSet;)V
  */

@@ -289,8 +289,18 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 	 * @param inMin Closest the user is allowed to zoom in.
 	 * @param inMax Farthest the user is allowed to zoom out.
 	 */
-	public void setZoomLimits(double inMin,double inMax)
+	public void setZoomLimits(final double inMin,final double inMax)
 	{
+		if (gestureHandler == null) {
+			addPostSurfaceRunnable(new Runnable() {
+				@Override
+				public void run() {
+					setZoomLimits(inMin,inMax);
+				}
+			});
+			return;
+		}
+
 		if (gestureHandler != null)
 			gestureHandler.setZoomLimits(inMin,inMax);
 	}

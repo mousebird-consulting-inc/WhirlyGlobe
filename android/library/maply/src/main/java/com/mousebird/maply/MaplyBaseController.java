@@ -988,10 +988,17 @@ public class MaplyBaseController
 	 * @param ll Lower left corner.
 	 * @param ur Upper right corner.
 	 */
-	public void setViewExtents(Point2d ll,Point2d ur)
+	public void setViewExtents(final Point2d ll,final Point2d ur)
 	{
-		if (!running || view == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
+		if (!running || view == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null) {
+			addPostSurfaceRunnable(new Runnable() {
+				@Override
+				public void run() {
+					setViewExtents(ll,ur);
+				}
+			});
 			return;
+		}
 
 		CoordSystemDisplayAdapter coordAdapter = view.getCoordAdapter();
 		if (coordAdapter == null)
@@ -1055,6 +1062,16 @@ public class MaplyBaseController
 		perfInterval = inPerfInterval;
 		if (renderWrapper != null && renderWrapper.maplyRender != null)
 			renderWrapper.maplyRender.setPerfInterval(perfInterval);
+	}
+
+	/**
+	 * If performance reporting is on, this returns the last recorded frame rate.
+	 */
+	public float getPerfFrameRate()
+	{
+		if (renderWrapper != null && renderWrapper.maplyRender != null)
+			return renderWrapper.maplyRender.getFrameRate();
+		return 0.0f;
 	}
 
 	/** Calculate the height that corresponds to a given Mapnik-style map scale.
@@ -1833,6 +1850,18 @@ public class MaplyBaseController
 		return null;
 	}
 
+	/**
+	 * Return the frame size we're rendering to.
+	 */
+	public Point2d getFrameSize()
+	{
+		if (renderWrapper == null || renderWrapper.maplyRender == null) {
+			return null;
+		}
+
+		return renderWrapper.maplyRender.frameSize;
+	}
+
 	// Returns all the objects near a point
 	protected SelectedObject[] getObjectsAtScreenLoc(Point2d screenLoc)
 	{
@@ -2047,8 +2076,8 @@ public class MaplyBaseController
                     {
                         ChangeSet changes = new ChangeSet();
 
-			rawTex.setBitmap(image,theSettings.imageFormat.ordinal());
-			rawTex.setSettings(theSettings.wrapU,theSettings.wrapV);
+						rawTex.setBitmap(image,theSettings.imageFormat.ordinal());
+						rawTex.setSettings(theSettings.wrapU,theSettings.wrapV);
                         changes.addTexture(rawTex, scene, theSettings.filterType.ordinal());
 
                         // Flush the texture changes
@@ -2070,13 +2099,16 @@ public class MaplyBaseController
 	 * @param mode Which thread to do the work on
      * @return The new texture (or a reference to it, anyway)
      */
-	public MaplyTexture createTexture(final int width,final int height,final TextureSettings settings,ThreadMode mode)
+	public MaplyTexture createTexture(final int width,final int height,TextureSettings settings,ThreadMode mode)
 	{
 		final MaplyTexture texture = new MaplyTexture();
 		final Texture rawTex = new Texture();
 		texture.texID = rawTex.getID();
 		texture.width = width;
 		texture.height = height;
+		if (settings == null)
+			settings = new TextureSettings();
+		final TextureSettings theSettings = settings;
 
 		// Possibly do the work somewhere else
 		Runnable run =
@@ -2089,7 +2121,7 @@ public class MaplyBaseController
 
 						rawTex.setSize(width,height);
 						rawTex.setIsEmpty(true);
-						changes.addTexture(rawTex, scene, settings.filterType.ordinal());
+						changes.addTexture(rawTex, scene, theSettings.filterType.ordinal());
 
 						// Flush the texture changes
 						if (scene != null)

@@ -194,6 +194,27 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MaplyRenderer_setPerfInterval
 	}
 }
 
+JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_MaplyRenderer_getFrameRate
+		(JNIEnv *env, jobject obj)
+{
+	try
+	{
+		MaplySceneRendererInfo *classInfo = MaplySceneRendererInfo::getClassInfo();
+		MaplySceneRenderer *renderer = classInfo->getObject(env,obj);
+		if (!renderer)
+			return 0.0;
+
+		return renderer->getFrameRate();
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MaplyRenderer::getFrameRate()");
+	}
+
+	return 0.0;
+}
+
+
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_MaplyRenderer_teardown
   (JNIEnv *, jobject)
 {

@@ -136,6 +136,7 @@ public class MaplyRenderer
 	public native void setPerfInterval(int perfInterval);
 	public native void addLight(DirectionalLight light);
 	public native void replaceLights(List<DirectionalLight> lights);
+	public native float getFrameRate();
 
 	static
 	{

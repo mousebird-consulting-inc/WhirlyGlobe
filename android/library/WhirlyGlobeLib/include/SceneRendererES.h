@@ -304,7 +304,10 @@ public:
     
     /// Set the performance counting interval (0 is off)
     virtual void setPerfInterval(int howLong) { perfInterval = howLong; }
-    
+
+    /// Return the last recorded frame rate, if performance measuring is on
+    virtual float getFrameRate() { return lastFrameRate; }
+
     /// If set, we'll use the view changes to trigger rendering
     virtual void setUseViewChanged(bool newVal) { useViewChanged = newVal; }
     
@@ -348,6 +351,8 @@ public:
     unsigned int numDrawables;
     /// Period over which we measure performance
     int perfInterval;
+    /// Last recorded frame rate
+    float lastFrameRate;
     
     /// Set if we're using the view based change mechanism to tell when to draw.
     /// This works well for figuring out when the model matrix changes, but

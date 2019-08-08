@@ -89,6 +89,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MaplyRenderer_replaceLights
 
 /*
  * Class:     com_mousebird_maply_MaplyRenderer
+ * Method:    getFrameRate
+ * Signature: ()F
+ */
+JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_MaplyRenderer_getFrameRate
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_MaplyRenderer
  * Method:    nativeInit
  * Signature: ()V
  */
