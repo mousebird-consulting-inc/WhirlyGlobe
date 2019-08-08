@@ -1057,6 +1057,16 @@ public class MaplyBaseController
 			renderWrapper.maplyRender.setPerfInterval(perfInterval);
 	}
 
+	/**
+	 * If performance reporting is on, this returns the last recorded frame rate.
+	 */
+	public float getPerfFrameRate()
+	{
+		if (renderWrapper != null && renderWrapper.maplyRender != null)
+			return renderWrapper.maplyRender.getFrameRate();
+		return 0.0f;
+	}
+
 	/** Calculate the height that corresponds to a given Mapnik-style map scale.
 	 * <br>
 	 * Figure out the viewer height that corresponds to a given scale denominator (ala Mapnik).

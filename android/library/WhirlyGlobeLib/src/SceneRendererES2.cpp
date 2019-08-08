@@ -746,6 +746,7 @@ void SceneRendererES2::render()
         TimeInterval now = TimeGetCurrent();
 		TimeInterval howLong =  now - frameCountStart;;
 		framesPerSec = frameCount / howLong;
+        lastFrameRate = framesPerSec;
 		frameCountStart = now;
 		frameCount = 0;
         
