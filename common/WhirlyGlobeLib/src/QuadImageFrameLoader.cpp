@@ -82,7 +82,7 @@ void QIFFrameAsset::cancelFetch(QuadImageFrameLoader *loader,QIFBatchOps *batchO
     state = Empty;
 }
 
-void QIFFrameAsset::loadSuccess(QuadImageFrameLoader *loader,std::vector<Texture *> texs)
+void QIFFrameAsset::loadSuccess(QuadImageFrameLoader *loader,const std::vector<Texture *> &texs)
 {
     state = Loaded;
     texIDs.clear();

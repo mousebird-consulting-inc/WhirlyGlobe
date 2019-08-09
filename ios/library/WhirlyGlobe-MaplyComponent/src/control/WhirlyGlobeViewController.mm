@@ -305,7 +305,8 @@ public:
     [super viewDidAppear:animated];
     
     // Let's kick off a view update in case the renderer just got set up
-    globeView->runViewUpdates();
+    if (globeView)
+        globeView->runViewUpdates();
 }
 
 - (void)viewWillDisappear:(BOOL)animated

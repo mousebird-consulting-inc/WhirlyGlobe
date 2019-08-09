@@ -300,6 +300,9 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
             }
         }
 
+        if (debugMode)
+            Log.d("RemoteTileFetcher","Starting (number) tile requests: " + requests.length);
+
         // Have to run on our own thread
         Handler handler = new Handler(getLooper());
         handler.post(new Runnable() {
@@ -328,6 +331,9 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
                     tilesByFetchRequest.put(request,tile);
                     toLoad.add(tile);
                 }
+
+                if (debugMode)
+                    Log.d("RemoteTileFetcher","Added (number) tile requests: " + requests.length);
 
                 scheduleLoading();
             }
@@ -617,8 +623,11 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
     {
         // Make sure we still want it
         final TileInfo tile = tilesByFetchRequest.get(inTile.request);
-        if (tile == null)
+        if (tile == null) {
+            if (debugMode)
+                Log.d("RemoteTileFetcher","Dropping fetch: " + inTile.fetchInfo.urlReq);
             return;
+        }
 
         tilesByFetchRequest.remove(tile.request);
         loading.remove(tile);
@@ -664,6 +673,9 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
     {
         if (!valid)
             return;
+
+        if (debugMode)
+            Log.d("RemoteTileFetcher","Cancelling (number) fetches: " + fetchRequests.length);
 
         // Have to run on our own thread
         Handler handler = new Handler(getLooper());
