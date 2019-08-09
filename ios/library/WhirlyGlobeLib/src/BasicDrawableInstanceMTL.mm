@@ -74,6 +74,8 @@ void BasicDrawableInstanceMTL::setupForRenderer(const RenderSetupInfo *inSetupIn
 
         int bufferSize = sizeof(WhirlyKitShader::VertexTriModelInstance) * insts.size();
         instBuffer = [setupInfo->mtlDevice newBufferWithBytes:&insts[0] length:bufferSize options:MTLStorageModeShared];
+        if (!name.empty())
+            instBuffer.label = [NSString stringWithFormat:@"%s inst",name.c_str()];
         numInst = insts.size();
     }
     
@@ -227,6 +229,8 @@ id<MTLRenderPipelineState> BasicDrawableInstanceMTL::getRenderPipelineState(Scen
     
     MTLRenderPipelineDescriptor *renderDesc = sceneRender->defaultRenderPipelineState(sceneRender,frameInfo);
     renderDesc.vertexDescriptor = basicDrawMTL->getVertexDescriptor(program->vertFunc,basicDrawMTL->defaultAttrs);
+    if (!name.empty())
+        renderDesc.label = [NSString stringWithFormat:@"%s",name.c_str()];
 
     // Set up a render state
     NSError *err = nil;

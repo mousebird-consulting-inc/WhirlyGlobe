@@ -32,7 +32,7 @@ namespace WhirlyKit
 /** The dynamic texture can have pieces of itself replaced in the layer thread while
     being used in the renderer.  It's used to implement dynamic texture atlases.
   */
-class DynamicTexture : public TextureBase
+class DynamicTexture : virtual public TextureBase
 {
 public:
     /// Constructor for sorting

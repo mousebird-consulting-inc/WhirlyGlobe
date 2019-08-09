@@ -52,6 +52,8 @@ void BasicDrawableMTL::setupForRenderer(const RenderSetupInfo *inSetupInfo)
         if (bufferSize > 0) {
             numPts = vertAttrMTL->numElements();
             vertAttrMTL->buffer = [setupInfo->mtlDevice newBufferWithBytes:vertAttr->addressForElement(0) length:bufferSize options:MTLStorageModeShared];
+            if (!name.empty())
+                [vertAttrMTL->buffer setLabel:[NSString stringWithFormat:@"%s vert attr",name.c_str()]];
             vertAttrMTL->clear();
         }
     }
@@ -62,6 +64,8 @@ void BasicDrawableMTL::setupForRenderer(const RenderSetupInfo *inSetupInfo)
     numTris = tris.size();
     if (bufferSize > 0) {
         triBuffer = [setupInfo->mtlDevice newBufferWithBytes:&tris[0] length:bufferSize options:MTLStorageModeShared];
+        if (!name.empty())
+            [triBuffer setLabel:[NSString stringWithFormat:@"%s tri buffer",name.c_str()]];
         tris.clear();
     }
     
@@ -269,6 +273,8 @@ id<MTLRenderPipelineState> BasicDrawableMTL::getRenderPipelineState(SceneRendere
 
     MTLRenderPipelineDescriptor *renderDesc = sceneRender->defaultRenderPipelineState(sceneRender,frameInfo);
     renderDesc.vertexDescriptor = getVertexDescriptor(program->vertFunc,defaultAttrs);
+    if (!name.empty())
+        renderDesc.label = [NSString stringWithFormat:@"%s",name.c_str()];
 
     // Set up a render state
     NSError *err = nil;

@@ -195,6 +195,8 @@ bool TextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
     }
     
     mtlID = [setupInfo->mtlDevice newTextureWithDescriptor:desc];
+    if (!name.empty())
+        [mtlID setLabel:[NSString stringWithFormat:@"%s",name.c_str()]];
     if (mtlID) {
         MTLRegion region = MTLRegionMake2D(0,0,width,height);
         if (texData) {

@@ -65,6 +65,8 @@ bool DynamicTextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
     // Set up an empty texture
     MTLTextureDescriptor *desc = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:pixFormat width:texSize height:texSize mipmapped:false];
     mtlID = [setupInfo->mtlDevice newTextureWithDescriptor:desc];
+    if (!this->name.empty())
+        mtlID.label = [NSString stringWithFormat:@"%s dynamic texture",this->name.c_str()];
     if (!mtlID) {
         valid = false;
         return false;
