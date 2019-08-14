@@ -237,16 +237,16 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
                 ScreenSpaceObject::ConvexGeometry smGeom;
                 smGeom.progID = labelInfo->programID;
                 Point2d ll = Point2d(drawMbr.ll().x(),drawMbr.ll().y())+iconOff+Point2d(-backBorder,-backBorder), ur = Point2d(drawMbr.ur().x(),drawMbr.ur().y())+iconOff+Point2d(backBorder,0.0);
-                smGeom.coords.push_back(Point2d(ur.x()+label->screenOffset.x(),ll.y()-label->screenOffset.y())+iconOff+justifyOff);
+                smGeom.coords.push_back(Point2d(ur.x()+label->screenOffset.x(),ll.y()+label->screenOffset.y())+iconOff+justifyOff);
                 smGeom.texCoords.push_back(TexCoord(0,1));
                 
-                smGeom.coords.push_back(Point2d(ur.x()+label->screenOffset.x(),ur.y()-label->screenOffset.y())+iconOff+justifyOff);
+                smGeom.coords.push_back(Point2d(ur.x()+label->screenOffset.x(),ur.y()+label->screenOffset.y())+iconOff+justifyOff);
                 smGeom.texCoords.push_back(TexCoord(0,0));
                 
-                smGeom.coords.push_back(Point2d(ll.x()+label->screenOffset.x(),ur.y()-label->screenOffset.y())+iconOff+justifyOff);
+                smGeom.coords.push_back(Point2d(ll.x()+label->screenOffset.x(),ur.y()+label->screenOffset.y())+iconOff+justifyOff);
                 smGeom.texCoords.push_back(TexCoord(1,0));
                 
-                smGeom.coords.push_back(Point2d(ll.x()+label->screenOffset.x(),ll.y()-label->screenOffset.y())+iconOff+justifyOff);
+                smGeom.coords.push_back(Point2d(ll.x()+label->screenOffset.x(),ll.y()+label->screenOffset.y())+iconOff+justifyOff);
                 smGeom.texCoords.push_back(TexCoord(1,1));
                 
                 smGeom.drawPriority = labelInfo->drawPriority;
@@ -260,13 +260,13 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
                 // Put together the layout info
                 //                    layoutObject->hint = label->text;
                 layoutObject->layoutPts.push_back(Point2d(layoutMbr.ll().x()+label->screenOffset.x()-backBorder,
-                                                          layoutMbr.ll().y()-label->screenOffset.y()-backBorder)+iconOff+justifyOff);
+                                                          layoutMbr.ll().y()+label->screenOffset.y()-backBorder)+iconOff+justifyOff);
                 layoutObject->layoutPts.push_back(Point2d(layoutMbr.ur().x()+label->screenOffset.x()+backBorder,
-                                                          layoutMbr.ll().y()-label->screenOffset.y()-backBorder)+iconOff+justifyOff);
+                                                          layoutMbr.ll().y()+label->screenOffset.y()-backBorder)+iconOff+justifyOff);
                 layoutObject->layoutPts.push_back(Point2d(layoutMbr.ur().x()+label->screenOffset.x()+backBorder,
-                                                          layoutMbr.ur().y()-label->screenOffset.y()+backBorder)+iconOff+justifyOff);
+                                                          layoutMbr.ur().y()+label->screenOffset.y()+backBorder)+iconOff+justifyOff);
                 layoutObject->layoutPts.push_back(Point2d(layoutMbr.ll().x()+label->screenOffset.x()+backBorder,
-                                                          layoutMbr.ur().y()-label->screenOffset.y()+backBorder)+iconOff+justifyOff);
+                                                          layoutMbr.ur().y()+label->screenOffset.y()+backBorder)+iconOff+justifyOff);
                 layoutObject->selectPts = layoutObject->layoutPts;
                 
                 //                        layoutObj->iconSize = Point2f(iconSize,iconSize);
