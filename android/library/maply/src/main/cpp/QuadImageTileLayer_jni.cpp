@@ -58,6 +58,7 @@ public:
 	float fade;
 	RGBAColor color;
 	int imageFormat;
+	GLenum interpType;
 	float currentImage;
 	bool animationWrap;
 	int maxCurrentImage;
@@ -81,7 +82,7 @@ public:
 		: env(NULL), javaObj(NULL), renderer(NULL), coordSys(coordSys),
 		  simultaneousFetches(1), tileLoader(NULL), minVis(0.0), maxVis(10.0),
 		  handleEdges(true),coverPoles(false), drawPriority(0),imageDepth(1),
-		  borderTexel(0),textureAtlasSize(2048),enable(true),fade(1.0),color(255,255,255,255),imageFormat(0),
+		  borderTexel(0),textureAtlasSize(2048),enable(true),fade(1.0),color(255,255,255,255),imageFormat(0), interpType(GL_LINEAR),
 		  currentImage(0.0), animationWrap(true), maxCurrentImage(-1), allowFrameLoading(true), animationPeriod(10.0),
 		  maxTiles(256), importanceScale(1.0), tileSize(256), lastViewState(NULL), shaderID(EmptyIdentity), renderTargetID(EmptyIdentity),
 		  scene(NULL), control(NULL),scheduleEvalStepJava(0)
@@ -132,6 +133,7 @@ public:
 	    tileLoader->setTextureAtlasSize(textureAtlasSize);
 	    ChangeSet changes;
 	    tileLoader->setEnable(enable,changes);
+	    tileLoader->setInterType(interpType);
 //	    tileLoader->setFade(fade,changes);
 	    tileLoader->setUseTileCenters(false);
 	    switch (imageFormat)
@@ -1016,6 +1018,23 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setImageForma
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setImageFormat()");
 	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setInterpType
+        (JNIEnv *env, jobject obj, jint interpType)
+{
+    try
+    {
+        QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+        QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
+        if (!adapter)
+            return;
+        adapter->interpType = interpType == 0 ? GL_NEAREST : GL_LINEAR;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::setInterpType()");
+    }
 }
 
 JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageTileLayer_getBorderTexel

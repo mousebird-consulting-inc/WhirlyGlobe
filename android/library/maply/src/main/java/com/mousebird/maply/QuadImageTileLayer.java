@@ -612,9 +612,7 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
     /**
      * Query the status for active frames.  This asks the quad image layer what the state of
      * frame loading is at this instant.  All arrays are imageDepth in size.
-     * @param complete For each frame, whether or not it's completely loaded.
-     * @param tilesLoaded For each frame, how many tiles are loaded.
-     * @return The frame currently beng loaded.  Returns -1 if the call was invalid.
+     * @return Information about the frames in the process of loading.
      */
     public FrameStatus getFrameStatus()
     {
@@ -708,6 +706,17 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
     }
     
     native void setImageFormat(int format);
+
+    public enum InterpType {Nearest,Linear};
+
+	/**
+	 * Set the interpolation type for textures created by this layer.
+	 * Nearest means the texture values won't be sampled before they get to the shader.
+	 * Linear is the normal mode.
+	 */
+	public void setInterpType(InterpType type) { setInterpType(type.ordinal()); }
+
+    private native void setInterpType(int type);
     
     /**
      * Returns the number of border texels used around images.

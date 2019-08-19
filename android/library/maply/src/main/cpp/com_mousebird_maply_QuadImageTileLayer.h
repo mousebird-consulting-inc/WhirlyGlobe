@@ -129,6 +129,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setImageForma
 
 /*
  * Class:     com_mousebird_maply_QuadImageTileLayer
+ * Method:    setInterpType
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setInterpType
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     com_mousebird_maply_QuadImageTileLayer
  * Method:    getBorderTexel
  * Signature: ()I
  */
