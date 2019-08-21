@@ -389,10 +389,10 @@ public:
             if (TileIsOnScreen(viewState, frameSize, coordSys, scene->getCoordAdapter(), mbr, ident, attrs))
             {
                 import = 1.0/(ident.level+10);
+                import *= importanceScale;
                 if (ident.level <= maxShortCircuitLevel)
                     import += 1.0;
             }
-            import *= importanceScale;
         } else {
         	// Note: Porting
 //            if (elevDelegate)
@@ -470,6 +470,7 @@ public:
                 }
             Dictionary attrs;
             float import = ScreenImportance(viewState, frameSize, viewState->eyeVec, 1, coordSys, scene->getCoordAdapter(), mbr, ident, &attrs);
+            import *= importanceScale;
             if (import <= shortCircuitImportance)
             {
                 zoomLevel--;
