@@ -259,6 +259,9 @@ using namespace WhirlyKit;
 // Called on a random dispatch queue
 - (void)fetchRequestSuccess:(MaplyTileFetchRequest *)request tileID:(MaplyTileID)tileID frame:(int)frame data:(id)data;
 {
+    if (!loader)
+        return;
+    
     if (loader->getDebugMode())
         NSLog(@"MaplyQuadImageLoader: Got fetch back for tile %d: (%d,%d) frame %d",tileID.level,tileID.x,tileID.y,frame);
     
@@ -284,6 +287,8 @@ using namespace WhirlyKit;
 // Called on SamplingLayer.layerThread
 - (void)fetchRequestFail:(MaplyTileFetchRequest *)request tileID:(MaplyTileID)tileID frame:(int)frame error:(NSError *)error
 {
+    if (!loader)
+        return;
     // Note: Need to do something more here for single frame cases
     
     NSLog(@"MaplyQuadImageLoader: Failed to fetch tile %d: (%d,%d) frame %d because:\n%@",tileID.level,tileID.x,tileID.y,frame,[error localizedDescription]);
@@ -294,7 +299,6 @@ using namespace WhirlyKit;
 {
     if (!loader)
         return;
-    
     
     QuadTreeIdentifier tileID = loadReturn->loadReturn->ident;
     // Don't actually want this one
