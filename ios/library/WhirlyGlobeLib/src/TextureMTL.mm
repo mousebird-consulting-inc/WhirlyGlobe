@@ -154,7 +154,7 @@ bool TextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
         case TexTypeSingleChannel:
             pixFormat = MTLPixelFormatA8Unorm;
             // Nudge up the size a bit
-            bytesPerRow = ceil(width / 4.0)*4;
+            bytesPerRow = width;
             break;
         case TexTypeDoubleChannel:
             pixFormat = MTLPixelFormatRG8Unorm;
