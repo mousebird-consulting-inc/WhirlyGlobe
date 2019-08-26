@@ -63,6 +63,8 @@ public:
 
     // Clear color, if we're clearing
     float clearColor[4];
+    // Used for non-4 channel RGBA targets
+    float clearVal;
     bool clearEveryFrame;
     // Clear on the next frame, then reset this
     bool clearOnce;
@@ -78,7 +80,7 @@ typedef std::shared_ptr<RenderTarget> RenderTargetRef;
 class AddRenderTargetReq : public ChangeRequest
 {
 public:
-    AddRenderTargetReq(SimpleIdentity renderTargetID,int width,int height,SimpleIdentity texID,bool clearEveryFrame,bool blend,const RGBAColor &clearColor);
+    AddRenderTargetReq(SimpleIdentity renderTargetID,int width,int height,SimpleIdentity texID,bool clearEveryFrame,bool blend,const RGBAColor &clearColor,float clearVal);
     
     /// Add the render target to the renderer
     void execute(Scene *scene,SceneRenderer *renderer,View *view);
@@ -89,6 +91,7 @@ protected:
     SimpleIdentity texID;
     bool clearEveryFrame;
     RGBAColor clearColor;
+    float clearVal;
     bool blend;
 };
 

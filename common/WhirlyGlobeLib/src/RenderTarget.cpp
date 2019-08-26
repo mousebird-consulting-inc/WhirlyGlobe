@@ -48,10 +48,11 @@ void RenderTarget::init()
     clearOnce = false;
     blendEnable = false;
     clearColor[0] = 0.0; clearColor[1] = 0.0; clearColor[2] = 0.0; clearColor[3] = 0.0;
+    clearVal = 0.0;
 }
 
-AddRenderTargetReq::AddRenderTargetReq(SimpleIdentity renderTargetID,int width,int height,SimpleIdentity texID,bool clearEveryFrame,bool blend,const RGBAColor &clearColor)
-: renderTargetID(renderTargetID), width(width), height(height), texID(texID), clearEveryFrame(clearEveryFrame), blend(blend), clearColor(clearColor)
+AddRenderTargetReq::AddRenderTargetReq(SimpleIdentity renderTargetID,int width,int height,SimpleIdentity texID,bool clearEveryFrame,bool blend,const RGBAColor &clearColor, float clearVal)
+: renderTargetID(renderTargetID), width(width), height(height), texID(texID), clearEveryFrame(clearEveryFrame), blend(blend), clearColor(clearColor), clearVal(clearVal)
 {
 }
 
@@ -67,6 +68,7 @@ void AddRenderTargetReq::execute(Scene *scene,SceneRenderer *renderer,View *view
     renderTarget->clearColor[1] = clearColor.g / 255.0;
     renderTarget->clearColor[2] = clearColor.b / 255.0;
     renderTarget->clearColor[3] = clearColor.a / 255.0;
+    renderTarget->clearVal = clearVal;
     renderTarget->blendEnable = blend;
     renderTarget->init(renderer,scene,texID);
     

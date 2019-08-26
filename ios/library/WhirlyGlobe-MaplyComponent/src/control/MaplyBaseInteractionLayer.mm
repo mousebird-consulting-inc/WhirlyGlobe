@@ -3110,7 +3110,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                                              renderTarget.texture.texID,
                                              renderTarget.clearEveryFrame,
                                              renderTarget.blend,
-                                             [renderTarget.clearColor asRGBAColor]));
+                                             [renderTarget.clearColor asRGBAColor],
+                                             renderTarget.clearVal));
     
     [self flushChanges:changes mode:MaplyThreadCurrent];
 }

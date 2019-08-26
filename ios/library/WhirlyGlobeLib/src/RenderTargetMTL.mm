@@ -116,7 +116,23 @@ void RenderTargetMTL::setTargetTexture(TextureBaseMTL *inTex)
     renderPassDesc.colorAttachments[0].texture = tex;
     if (this->clearEveryFrame)
         renderPassDesc.colorAttachments[0].loadAction = MTLLoadActionClear;
-    renderPassDesc.colorAttachments[0].clearColor = MTLClearColorMake(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
+    switch (pixelFormat) {
+        case MTLPixelFormatBGRA8Unorm:
+            renderPassDesc.colorAttachments[0].clearColor = MTLClearColorMake(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
+            break;
+        case MTLPixelFormatR32Float:
+            renderPassDesc.colorAttachments[0].clearColor = MTLClearColorMake(clearVal, 0.0, 0.0, 0.0);
+            break;
+        case MTLPixelFormatRG32Float:
+            renderPassDesc.colorAttachments[0].clearColor = MTLClearColorMake(clearVal, clearVal, 0.0, 0.0);
+            break;
+        case MTLPixelFormatRGBA32Float:
+            renderPassDesc.colorAttachments[0].clearColor = MTLClearColorMake(clearVal, clearVal, clearVal, clearVal);
+            break;
+        default:
+            NSLog(@"RenderTargetMTL: Unknown Pixel Format.  Not clearing.");
+            break;
+    }
     renderPassDesc.colorAttachments[0].storeAction = MTLStoreActionStore;
 }
     

@@ -31,6 +31,7 @@ using namespace WhirlyKit;
     _clearEveryFrame = true;
     _blend = false;
     _clearColor = nil;
+    _clearVal = 0.0;
     
     return self;
 }

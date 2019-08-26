@@ -56,6 +56,14 @@
   */
 @property (nonatomic,strong) UIColor *clearColor;
 
+
+/**
+    Clear the render target to this value on every frame.
+ 
+    This is for render targets that are not purely color, such as multiple floats.
+  */
+@property (nonatomic,assign) float clearVal;
+
 /**
     If set, anything rendered to this render target will blend with what's there.
  
