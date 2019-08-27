@@ -265,7 +265,8 @@ bool DynamicTextureAtlas::addTexture(SceneRenderer *sceneRender,const std::vecto
             for (unsigned int ii=0;ii<dynTexVec->size();ii++)
             {
                 DynamicTextureRef dynTex = dynTexVec->at(ii);
-                dynTex->clearRegion(clearRegion,changes,MainThreadMerge || mainThreadMerge,&emptyPixelBuffer[0]);
+                bool doMainThreadMerge = MainThreadMerge || mainThreadMerge;
+                dynTex->clearRegion(clearRegion,changes,doMainThreadMerge,doMainThreadMerge ? &emptyPixelBuffer[0] : NULL);
             }
     }
     

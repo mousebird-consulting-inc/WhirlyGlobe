@@ -61,6 +61,7 @@ VectorInfo::VectorInfo(const Dictionary &dict)
     color = dict.getColor(MaplyColor,RGBAColor(255,255,255,255));
     lineWidth = dict.getDouble(MaplyVecWidth,1.0);
     centered = dict.getBool(MaplyVecCentered,true);
+    vecCenterSet = false;
     if (dict.hasField(MaplyVecCenterX) && dict.hasField(MaplyVecCenterY))
     {
         vecCenterSet = true;
