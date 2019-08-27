@@ -139,10 +139,15 @@ RawDataRef ConvertRGToRG(RawDataRef inData,int width,int height)
     return RawDataRef(new RawDataWrapper(temp,outWidth*height*2,true));
 }
 
-RawDataRef ConvertRGBATo16(RawDataRef inData,int width,int height)
+RawDataRef ConvertRGBATo16(RawDataRef inData,int width,int height,bool pad)
 {
     int extra = 2 - (width % 2);
     if (extra == 2) extra = 0;
+    
+    // Metal doesn't seem to care if we pad
+    if (!pad)
+        extra = 0;
+    
     int outWidth = width + extra;
 
     unsigned char *temp = (unsigned char *)malloc(outWidth*height*2);
@@ -283,7 +288,7 @@ RawDataRef Texture::processData()
                 if (texData->getLen()  == width * height * 2)
                     return ConvertRGToRG(texData,width,height);
                 else if (texData->getLen() == width * height * 4)
-                    return ConvertRGBATo16(texData,width,height);
+                    return ConvertRGBATo16(texData,width,height,true);
                 wkLogLevel(Error,"Texture: Not handling RG conversion case.");
                 break;
 //            case GL_COMPRESSED_RGB8_ETC2:

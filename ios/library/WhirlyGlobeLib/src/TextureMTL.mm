@@ -73,7 +73,7 @@ RawDataRef TextureMTL::convertData()
         case TexTypeSingleChannel:
             break;
         case TexTypeDoubleChannel:
-            outDataRef = ConvertRGBATo16(texData,width,height);
+            outDataRef = ConvertRGBATo16(texData,width,height,false);
             break;
         case TexTypeShort565:
             {

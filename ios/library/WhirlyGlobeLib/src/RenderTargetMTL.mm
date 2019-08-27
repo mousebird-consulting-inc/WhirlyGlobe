@@ -129,6 +129,12 @@ void RenderTargetMTL::setTargetTexture(TextureBaseMTL *inTex)
         case MTLPixelFormatRGBA32Float:
             renderPassDesc.colorAttachments[0].clearColor = MTLClearColorMake(clearVal, clearVal, clearVal, clearVal);
             break;
+        case MTLPixelFormatRG16Float:
+            renderPassDesc.colorAttachments[0].clearColor = MTLClearColorMake(clearVal, clearVal, clearVal, clearVal);
+            break;
+        case MTLPixelFormatRGBA16Float:
+            renderPassDesc.colorAttachments[0].clearColor = MTLClearColorMake(clearVal, clearVal, clearVal, clearVal);
+            break;
         default:
             NSLog(@"RenderTargetMTL: Unknown Pixel Format.  Not clearing.");
             break;
