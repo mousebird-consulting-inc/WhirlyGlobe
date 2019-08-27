@@ -54,6 +54,11 @@ Texture *ImageTile_iOS::buildTexture()
     if (destHeight <= 0)
         destHeight = height;
     
+    if (destWidth == 0 || destHeight == 0) {
+        wkLogLevel(Error,"ImageTile_iOS 0 width or height: %s",name.c_str());
+        return NULL;
+    }
+    
     // We need this to be square.  Because duh.
     if (destWidth != destHeight)
     {
@@ -76,6 +81,8 @@ Texture *ImageTile_iOS::buildTexture()
         case MaplyImgTypeDataUIKitRecognized:
         {
             UIImage *texImage = [UIImage imageWithData:(NSData *)imageStuff];
+            if (!texImage)
+                return NULL;
             if (destWidth <= 0)
                 destWidth = (int)CGImageGetWidth(texImage.CGImage);
             if (destHeight <= 0)

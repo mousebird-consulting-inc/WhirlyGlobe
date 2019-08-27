@@ -35,6 +35,13 @@ TextureMTL::TextureMTL(const std::string &name)
 TextureMTL::TextureMTL(const std::string &name,RawDataRef texData,bool isPVRTC)
     : Texture(name,texData,isPVRTC), TextureBaseMTL(name), TextureBase(name)
 {
+    if (!texData) {
+        NSLog(@"TextureMTL: Got texture with empty data");
+    }
+    RawNSDataReaderRef texDataRef = std::dynamic_pointer_cast<RawNSDataReader>(texData);
+    if (texDataRef && texDataRef->getData() == nil) {
+        NSLog(@"TextureMTL: Got texture with empty data");
+    }
 }
     
 TextureMTL::TextureMTL(const std::string &name,UIImage *inImage,int inWidth,int inHeight)
