@@ -259,7 +259,7 @@ using namespace WhirlyKit;
 // Called on a random dispatch queue
 - (void)fetchRequestSuccess:(MaplyTileFetchRequest *)request tileID:(MaplyTileID)tileID frame:(int)frame data:(id)data;
 {
-    if (!loader)
+    if (!loader || !valid)
         return;
     
     if (loader->getDebugMode())
@@ -287,7 +287,7 @@ using namespace WhirlyKit;
 // Called on SamplingLayer.layerThread
 - (void)fetchRequestFail:(MaplyTileFetchRequest *)request tileID:(MaplyTileID)tileID frame:(int)frame error:(NSError *)error
 {
-    if (!loader)
+    if (!loader || !valid)
         return;
     // Note: Need to do something more here for single frame cases
     
@@ -297,7 +297,7 @@ using namespace WhirlyKit;
 // Called on the SamplingLayer.LayerThread
 - (void)mergeFetchRequest:(MaplyLoaderReturn *)loadReturn
 {
-    if (!loader)
+    if (!loader || !valid)
         return;
     
     QuadTreeIdentifier tileID = loadReturn->loadReturn->ident;
