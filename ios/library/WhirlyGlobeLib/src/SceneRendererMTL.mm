@@ -245,8 +245,10 @@ void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,CoordS
     WhirlyKitShader::Uniforms uniforms;
     bzero(&uniforms,sizeof(uniforms));
     CopyIntoMtlFloat4x4(uniforms.mvpMatrix,frameInfo->mvpMat);
+    CopyIntoMtlFloat4x4(uniforms.mvpInvMatrix,frameInfo->mvpInvMat);
     CopyIntoMtlFloat4x4(uniforms.mvMatrix,frameInfo->viewAndModelMat);
     CopyIntoMtlFloat4x4(uniforms.mvNormalMatrix,frameInfo->viewModelNormalMat);
+    CopyIntoMtlFloat3(uniforms.eyePos,frameInfo->eyePos);
     uniforms.globeMode = !coordAdapter->isFlat();
     
     [frameInfo->cmdEncode setVertexBytes:&uniforms length:sizeof(uniforms) atIndex:WKSUniformBuffer];
@@ -538,6 +540,10 @@ void SceneRendererMTL::render(TimeInterval duration,
         // Run any calculation shaders
         // These should be independent of screen space, so we only run them once and ignore offsets.
         if (!calcPassDone) {
+            // Need some sort of render target even if we're not really rendering
+            RenderTargetMTLRef renderTarget = std::dynamic_pointer_cast<RenderTargetMTL>(renderTargets.back());
+            baseFrameInfo.renderTarget = renderTarget.get();
+
             // But do we have any
             bool haveCalcShader = false;
             for (unsigned int ii=0;ii<drawList.size();ii++)
@@ -549,7 +555,14 @@ void SceneRendererMTL::render(TimeInterval duration,
             if (haveCalcShader) {
                 // Have to set an active framebuffer for our empty fragment shaders to write to
                 RenderTargetMTLRef renderTarget = std::dynamic_pointer_cast<RenderTargetMTL>(renderTargets[0]);
-                
+
+                // Each render target needs its own buffer and command queue
+                id<MTLCommandBuffer> cmdBuff = [cmdQueue commandBuffer];
+                id<MTLRenderCommandEncoder> cmdEncode = nil;
+                cmdEncode = [cmdBuff renderCommandEncoderWithDescriptor:renderPassDesc];
+                baseFrameInfo.renderPassDesc = renderPassDesc;
+                baseFrameInfo.cmdEncode = cmdEncode;
+
                 for (unsigned int ii=0;ii<drawList.size();ii++) {
                     DrawableContainer &drawContain = drawList[ii];
                     SimpleIdentity calcProgID = drawContain.drawable->getCalculationProgram();
@@ -557,12 +570,13 @@ void SceneRendererMTL::render(TimeInterval duration,
                     // Figure out the program to use for drawing
                     if (calcProgID == EmptyIdentity)
                         continue;
-//                    ProgramGLES *program = (ProgramGLES *)scene->getProgram(calcProgID);
-//                    if (program)
-//                    {
-//                        glUseProgram(program->getProgram());
-//                        baseFrameInfo.program = program;
-//                    }
+                    
+                    ProgramMTL *calcProgram = (ProgramMTL *)scene->getProgram(calcProgID);
+                    if (!calcProgram) {
+                        NSLog(@"Invalid calculation program for drawable.  Skipping.");
+                        continue;
+                    }
+                    baseFrameInfo.program = calcProgram;
                     
                     // Tweakers probably not necessary, but who knows
                     drawContain.drawable->runTweakers(&baseFrameInfo);
@@ -570,6 +584,8 @@ void SceneRendererMTL::render(TimeInterval duration,
                     // Run the calculation phase
                     drawContain.drawable->calculate(&baseFrameInfo,scene);
                 }
+                
+                [cmdEncode endEncoding];
             }
             
             calcPassDone = true;
@@ -719,15 +735,6 @@ void SceneRendererMTL::render(TimeInterval duration,
         // Anything generated needs to be cleaned up
         drawList.clear();
     }
-    
-    //    if (perfInterval > 0)
-    //        perfTimer.startTiming("glFinish");
-    
-    //    glFlush();
-    //    glFinish();
-    
-    //    if (perfInterval > 0)
-    //        perfTimer.stopTiming("glFinish");
     
     if (perfInterval > 0)
         perfTimer.startTiming("Present Renderbuffer");

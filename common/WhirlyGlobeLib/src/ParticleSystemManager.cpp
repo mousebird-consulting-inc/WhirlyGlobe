@@ -26,10 +26,12 @@ namespace WhirlyKit
 
 ParticleSystem::ParticleSystem()
 : drawPriority(0), pointSize(1.0), type(ParticleSystemPoint),
-calcShaderID(EmptyIdentity), renderShaderID(EmptyIdentity),
-lifetime(0.0), baseTime(0.0), continuousUpdate(true),
-zBufferRead(false), zBufferWrite(false),
-renderTargetID(EmptyIdentity)
+    calcShaderID(EmptyIdentity), renderShaderID(EmptyIdentity),
+    lifetime(0.0), baseTime(0.0),
+    totalParticles(0), batchSize(0), vertexSize(0),
+    continuousUpdate(true),
+    zBufferRead(false), zBufferWrite(false),
+    renderTargetID(EmptyIdentity)
 {
 }
     
@@ -96,7 +98,13 @@ SimpleIdentity ParticleSystemManager::addParticleSystem(const ParticleSystem &ne
     bool useInstancing = useRectangles;
     int totalParticles = newSystem.totalParticles;
     ParticleSystemDrawableBuilderRef draw = renderer->makeParticleSystemDrawableBuilder(newSystem.name);
-    draw->setup(sceneRep->partSys.vertAttrs,sceneRep->partSys.varyingAttrs,totalParticles,sceneRep->partSys.batchSize,useRectangles,useInstancing);
+    draw->setup(sceneRep->partSys.vertAttrs,
+                sceneRep->partSys.varyingAttrs,
+                totalParticles,
+                sceneRep->partSys.batchSize,
+                newSystem.vertexSize,
+                useRectangles,
+                useInstancing);
     draw->getDrawable()->setOnOff(true);
     draw->getDrawable()->setPointSize(sceneRep->partSys.pointSize);
     draw->getDrawable()->setProgram(sceneRep->partSys.renderShaderID);

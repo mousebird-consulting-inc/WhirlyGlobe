@@ -115,6 +115,16 @@ TimeInterval ParticleSystemDrawable::getLifetime()
 void ParticleSystemDrawable::setContinuousUpdate(bool newVal)
     { usingContinuousRender = newVal; }
 
+void ParticleSystemDrawable::setUniBlock(const BasicDrawable::UniformBlock &uniBlock)
+{
+    for (int ii=0;ii<uniBlocks.size();ii++)
+        if (uniBlocks[ii].bufferID == uniBlock.bufferID) {
+            uniBlocks[ii] = uniBlock;
+            return;
+        }
+    
+    uniBlocks.push_back(uniBlock);
+}
         
 void ParticleSystemDrawable::updateBatches(TimeInterval now)
 {

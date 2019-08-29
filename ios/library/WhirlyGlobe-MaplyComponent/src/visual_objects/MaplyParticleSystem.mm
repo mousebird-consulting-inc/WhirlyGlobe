@@ -75,6 +75,7 @@ using namespace WhirlyKit;
     _baseTime = TimeGetCurrent();
     _renderTargetID = EmptyIdentity;
     _numRegAttrs = 0;
+    _vertexSize = 0;
     
     return self;
 }

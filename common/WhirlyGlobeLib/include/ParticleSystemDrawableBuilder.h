@@ -35,7 +35,11 @@ public:
     // Set up our various attributes at once
     virtual void setup(const std::vector<SingleVertexAttributeInfo> &inVertAttrs,
                const std::vector<SingleVertexAttributeInfo> &inVaryAttrs,
-               int numTotalPoints,int batchSize,bool useRectangles,bool useInstancing);
+               int numTotalPoints,
+                       int batchSize,
+                       int vertesSize,
+                       bool useRectangles,
+                       bool useInstancing);
 
     // Return the drawable being constructed
     virtual ParticleSystemDrawable *getDrawable() = 0;

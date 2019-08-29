@@ -34,11 +34,16 @@ ParticleSystemDrawableBuilder::~ParticleSystemDrawableBuilder()
     
 void ParticleSystemDrawableBuilder::setup(const std::vector<SingleVertexAttributeInfo> &inVertAttrs,
                                            const std::vector<SingleVertexAttributeInfo> &inVaryAttrs,
-                                           int numTotalPoints,int batchSize,bool useRectangles,bool useInstancing)
+                                           int numTotalPoints,
+                                          int batchSize,
+                                          int vertexSize,
+                                          bool useRectangles,
+                                          bool useInstancing)
 {
     draw->enable = true;
     draw->numTotalPoints = numTotalPoints;
     draw->batchSize = batchSize;
+    draw->vertexSize = vertexSize;
     draw->useRectangles = useRectangles;
     draw->useInstancing = useInstancing;
     
