@@ -64,8 +64,10 @@ namespace WhirlyKitShader
 struct Uniforms
 {
     simd::float4x4 mvpMatrix;
+    simd::float4x4 mvpInvMatrix;
     simd::float4x4 mvMatrix;
     simd::float4x4 mvNormalMatrix;
+    simd::float3 eyePos;
     bool globeMode;
 };
 

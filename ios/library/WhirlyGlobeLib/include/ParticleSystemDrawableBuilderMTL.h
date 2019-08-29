@@ -33,11 +33,12 @@ public:
     
     void setup(const std::vector<SingleVertexAttributeInfo> &inVertAttrs,
                const std::vector<SingleVertexAttributeInfo> &inVaryAttrs,
-               int numTotalPoints,int batchSize,bool useRectangles,bool useInstancing);
+               int numTotalPoints,int batchSize,int vertexSize,bool useRectangles,bool useInstancing);
     
     ParticleSystemDrawable *getDrawable();
     
 protected:
+    bool drawableGotten;
 };
     
 }

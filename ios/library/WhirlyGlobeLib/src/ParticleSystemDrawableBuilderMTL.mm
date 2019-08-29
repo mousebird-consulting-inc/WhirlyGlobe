@@ -24,28 +24,32 @@ namespace WhirlyKit
 {
 
 ParticleSystemDrawableBuilderMTL::ParticleSystemDrawableBuilderMTL(const std::string &name)
-: ParticleSystemDrawableBuilder(name)
+: ParticleSystemDrawableBuilder(name), drawableGotten(false)
 {
+    draw = new ParticleSystemDrawableMTL(name);
 }
 
 void ParticleSystemDrawableBuilderMTL::setup(const std::vector<SingleVertexAttributeInfo> &inVertAttrs,
                                               const std::vector<SingleVertexAttributeInfo> &inVaryAttrs,
-                                              int numTotalPoints,int batchSize,bool useRectangles,bool useInstancing)
+                                              int numTotalPoints,int batchSize,int vertexSize,bool useRectangles,bool useInstancing)
 {
-    ParticleSystemDrawableBuilder::setup(inVertAttrs,inVaryAttrs,numTotalPoints,batchSize,useRectangles,useInstancing);
-    
-    // TODO: Implement
+    ParticleSystemDrawableBuilder::setup(inVertAttrs,inVaryAttrs,numTotalPoints,batchSize,vertexSize,useRectangles,useInstancing);
 }
 
 ParticleSystemDrawableBuilderMTL::~ParticleSystemDrawableBuilderMTL()
 {
+    if (!drawableGotten && draw)
+        delete draw;
 }
 
 ParticleSystemDrawable *ParticleSystemDrawableBuilderMTL::getDrawable()
 {
-    // TODO: Implement
+    if (!draw)
+        return NULL;
     
-    return NULL;
+    drawableGotten = true;
+
+    return draw;
 }
     
 }

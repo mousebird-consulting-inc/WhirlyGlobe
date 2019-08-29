@@ -92,8 +92,16 @@ typedef NS_ENUM(NSInteger, MaplyParticleSystemType) {
     Batch size for MaplyParticleBatch.
     
     Particles need to be created in large batches for efficiency.  This is the size of individual batches.
+ 
+    Only for OpenGL ES.  Metal does particles as one big batch.
   */
 @property (nonatomic,assign) int batchSize;
+
+/**
+   Metal only.
+   Size of a single to be passed in to the calculation and rendering shaders.
+  */
+@property (nonatomic,assign) int vertexSize;
 
 /** 
     Turn on/off the continuous rendering for particles.
@@ -113,6 +121,8 @@ typedef NS_ENUM(NSInteger, MaplyParticleSystemType) {
     Add an attribute we'll be expecting in each batch.
     
     Adds an attribute name and type which will be present in each batch.
+ 
+    OpenGL ES Only.  Metal handles things as blocks of memory.
   */
 - (void)addAttribute:(NSString *__nonnull)attrName type:(MaplyShaderAttrType)type;
 
@@ -122,6 +132,8 @@ typedef NS_ENUM(NSInteger, MaplyParticleSystemType) {
     Two stage shaders run a position shader and then a regular render shader
     from the position output.  Add any varying values you want to share per
     vertex from the former to the latter.
+
+    OpenGL ES Only.  Metal does this more simply.
   */
 - (void)addVarying:(NSString *__nonnull)varyAttrName inputName:(NSString *__nonnull)inputName type:(MaplyShaderAttrType)type;
 

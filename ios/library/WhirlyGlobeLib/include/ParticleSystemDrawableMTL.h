@@ -53,6 +53,12 @@ public:
     void draw(RendererFrameInfo *frameInfo,Scene *scene);
     
 protected:
+    id<MTLRenderPipelineState> getRenderPipelineState(SceneRendererMTL *sceneRender,RendererFrameInfoMTL *frameInfo);
+
+    bool setupForMTL;
+    id<MTLRenderPipelineState> renderState;
+    MTLVertexDescriptor *vertDesc;
+    id<MTLBuffer> pointBuffer;
 };
 
     

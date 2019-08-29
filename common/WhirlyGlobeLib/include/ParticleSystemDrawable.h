@@ -101,6 +101,9 @@ public:
 
     /// Destroy GL buffers
     virtual void teardownForRenderer(const RenderSetupInfo *setupInfo) = 0;
+    
+    /// Set a block of uniforms (Metal only, at the moment)
+    virtual void setUniBlock(const BasicDrawable::UniformBlock &uniBlock);
 
     /// Particles can calculate their positions
     void calculate(RendererFrameInfo *frameInfo,Scene *scene) = 0;
@@ -153,7 +156,9 @@ protected:
 
     // The vertex attributes we're representing in the buffers
     std::vector<VertexAttribute> vertexAttributes;
-    
+    // Uniforms to be passed into a shader (just Metal for now)
+    std::vector<BasicDrawable::UniformBlock> uniBlocks;
+
     // Chunk of a buffer to render
     typedef struct
     {

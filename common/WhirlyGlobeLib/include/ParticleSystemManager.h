@@ -47,7 +47,7 @@ public:
     SimpleIdentity calcShaderID;
     SimpleIdentity renderShaderID;
     TimeInterval lifetime,baseTime;
-    int totalParticles,batchSize;
+    int totalParticles,batchSize,vertexSize;
     bool continuousUpdate;
     bool zBufferRead,zBufferWrite;
     SimpleIdentity renderTargetID;
