@@ -591,9 +591,9 @@ void UniformBlockSetRequest::execute2(Scene *scene,SceneRenderer *renderer,Drawa
         if (basicDrawInst)
             basicDrawInst->setUniBlock(uniBlock);
         else {
-//            ParticleSystemDrawableRef partDrawable = std::dynamic_pointer_cast<ParticleSystemDrawable>(draw);
-//            if (partDrawable)
-//                partDrawable->setUniBlock(uniBlock);
+            ParticleSystemDrawableRef partDrawable = std::dynamic_pointer_cast<ParticleSystemDrawable>(draw);
+            if (partDrawable)
+                partDrawable->setUniBlock(uniBlock);
         }
     }
 }

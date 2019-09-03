@@ -153,7 +153,7 @@ These are the per vertex attributes provided to each vertex shader.
  
      @return Returns a shader program if it succeeded.  IT may not work, however, so call valid first.
   */
-- (nullable instancetype)initMetalWithName:(NSString *__nonnull)name vertex:(id<MTLFunction> __nonnull)vertexFunc fragment:(id<MTLFunction> __nonnull)fragFunc viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)baseViewC;
+- (nullable instancetype)initMetalWithName:(NSString *__nonnull)name vertex:(id<MTLFunction> __nonnull)vertexFunc fragment:(id<MTLFunction> __nullable)fragFunc viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)baseViewC;
 
 /**
     Minimal initialized used in conjuction with delayed setup.  OpenGL Only.

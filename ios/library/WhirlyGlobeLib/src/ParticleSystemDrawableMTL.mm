@@ -26,8 +26,10 @@ namespace WhirlyKit
 
 ParticleSystemDrawableMTL::ParticleSystemDrawableMTL(const std::string &name)
     : ParticleSystemDrawable(name), setupForMTL(false), renderState(nil),
-    vertDesc(nil), pointBuffer(nil)
+    vertDesc(nil), curPointBuffer(0)
 {
+    pointBuffer[0] = nil;
+    pointBuffer[1] = nil;
 }
 
 void ParticleSystemDrawableMTL::addAttributeData(const RenderSetupInfo *setupInfo,
@@ -46,8 +48,13 @@ void ParticleSystemDrawableMTL::setupForRenderer(const RenderSetupInfo *inSetupI
 
     // Set up a single buffer to calculate and then render into
     int len = numTotalPoints * vertexSize;
-    pointBuffer = [setupInfo->mtlDevice newBufferWithLength:len options:MTLStorageModeShared];
-    [pointBuffer setLabel:[NSString stringWithFormat:@"%s particle buffer",name.c_str()]];
+    curPointBuffer = 0;
+    pointBuffer[0] = [setupInfo->mtlDevice newBufferWithLength:len options:MTLStorageModeShared];
+    pointBuffer[1] = [setupInfo->mtlDevice newBufferWithLength:len options:MTLStorageModeShared];
+    for (unsigned int ii=0;ii<2;ii++) {
+        memset([pointBuffer[ii] contents], 0, len);
+        [pointBuffer[ii] setLabel:[NSString stringWithFormat:@"%s particle buffer %d",name.c_str(),(int)ii]];
+    }
 
     setupForMTL = true;
 }
@@ -55,7 +62,8 @@ void ParticleSystemDrawableMTL::setupForRenderer(const RenderSetupInfo *inSetupI
 void ParticleSystemDrawableMTL::teardownForRenderer(const RenderSetupInfo *setupInfo)
 {
     renderState = nil;
-    pointBuffer = nil;
+    pointBuffer[0] = nil;
+    pointBuffer[1] = nil;
 }
     
 id<MTLRenderPipelineState> ParticleSystemDrawableMTL::getRenderPipelineState(SceneRendererMTL *sceneRender,RendererFrameInfoMTL *frameInfo)
@@ -112,14 +120,25 @@ void ParticleSystemDrawableMTL::calculate(RendererFrameInfo *inFrameInfo,Scene *
         }
         texIndex++;
     }
+    
+    // Uniforms just for this particle drawable
+    WhirlyKitShader::UniformDrawStateParticle uniPart;
+    uniPart.pointSize = pointSize;
+    uniPart.time = frameInfo->currentTime-baseTime;
+    uniPart.lifetime = lifetime;
+    uniPart.frameLen = frameInfo->frameLen;
+    [frameInfo->cmdEncode setVertexBytes:&uniPart length:sizeof(uniPart) atIndex:WKSUniformDrawStateParticleBuffer];
+    [frameInfo->cmdEncode setFragmentBytes:&uniPart length:sizeof(uniPart) atIndex:WKSUniformDrawStateParticleBuffer];
 
-    // Note: Do we want UniforDrawStateA here too?
+    // Note: Do we want UniformDrawStateA here too?
 
     // Send along the uniform blocks
     BasicDrawableMTL::encodeUniBlocks(frameInfo, uniBlocks);
 
     // Note: Make this buffer configurable?
-    [frameInfo->cmdEncode setVertexBuffer:pointBuffer offset:0 atIndex:0];
+    [frameInfo->cmdEncode setVertexBuffer:pointBuffer[curPointBuffer] offset:0 atIndex:0];
+    [frameInfo->cmdEncode setVertexBuffer:pointBuffer[curPointBuffer == 0 ? 1 : 0] offset:0 atIndex:1];
+    curPointBuffer = (curPointBuffer == 0) ? 1 : 0;
 
     [frameInfo->cmdEncode drawPrimitives:MTLPrimitiveTypePoint vertexStart:0 vertexCount:numTotalPoints];
 }

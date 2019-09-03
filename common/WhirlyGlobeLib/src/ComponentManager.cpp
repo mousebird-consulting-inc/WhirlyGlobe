@@ -255,6 +255,9 @@ void ComponentManager::setUniformBlock(const SimpleIDSet &compIDs,const RawDataR
         if (shapeManager && !compObj->shapeIDs.empty()) {
             shapeManager->setUniformBlock(compObj->shapeIDs,uniBlock,bufferID,changes);
         }
+        if (partSysManager && !compObj->partSysIDs.empty()) {
+            partSysManager->setUniformBlock(compObj->partSysIDs,uniBlock,bufferID,changes);
+        }
         // TODO: Fill this in for the other object types
     }
 }
