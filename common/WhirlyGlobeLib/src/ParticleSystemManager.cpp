@@ -212,4 +212,18 @@ void ParticleSystemManager::changeRenderTarget(SimpleIdentity sysID,SimpleIdenti
     }
 }
     
+void ParticleSystemManager::setUniformBlock(const SimpleIDSet &partSysIDs,const RawDataRef &uniBlock,int bufferID,ChangeSet &changes)
+{
+    std::lock_guard<std::mutex> guardLock(partSysLock);
+    
+    for (auto sysID : partSysIDs) {
+        ParticleSystemSceneRep dummyRep(sysID);
+        auto it = sceneReps.find(&dummyRep);
+        if (it != sceneReps.end())
+            for (auto draw : (*it)->draws)
+                changes.push_back(new UniformBlockSetRequest(draw->getId(),uniBlock,bufferID));
+    }
 }
+
+}
+

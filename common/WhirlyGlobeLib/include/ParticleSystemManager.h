@@ -108,6 +108,9 @@ public:
     /// Change the render target
     void changeRenderTarget(SimpleIdentity sysID,SimpleIdentity targetID,ChangeSet &changes);
 
+    /// Apply the given uniform block to the particle systems selected
+    void setUniformBlock(const SimpleIDSet &partSysIDs,const RawDataRef &uniBlock,int bufferID,ChangeSet &changes);
+
 protected:
     std::mutex partSysLock;
     ParticleSystemSceneRepSet sceneReps;

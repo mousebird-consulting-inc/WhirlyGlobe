@@ -58,7 +58,8 @@ protected:
     bool setupForMTL;
     id<MTLRenderPipelineState> renderState;
     MTLVertexDescriptor *vertDesc;
-    id<MTLBuffer> pointBuffer;
+    int curPointBuffer;
+    id<MTLBuffer> pointBuffer[2];
 };
 
     

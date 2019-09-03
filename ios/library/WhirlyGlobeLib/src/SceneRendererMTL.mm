@@ -224,6 +224,12 @@ void CopyIntoMtlFloat3(simd::float3 &dest,const Point3f &src)
     dest[2] = src.z();
 }
     
+void CopyIntoMtlFloat2(simd::float2 &dest,const Point2f &src)
+{
+    dest[0] = src.x();
+    dest[1] = src.y();
+}
+
 void CopyIntoMtlFloat4(simd::float4 &dest,const Eigen::Vector4f &src)
 {
     dest[0] = src.x();
@@ -249,6 +255,9 @@ void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,CoordS
     CopyIntoMtlFloat4x4(uniforms.mvMatrix,frameInfo->viewAndModelMat);
     CopyIntoMtlFloat4x4(uniforms.mvNormalMatrix,frameInfo->viewModelNormalMat);
     CopyIntoMtlFloat3(uniforms.eyePos,frameInfo->eyePos);
+    Point2f pixDispSize(frameInfo->screenSizeInDisplayCoords.x()/frameInfo->sceneRenderer->framebufferWidth,
+                        frameInfo->screenSizeInDisplayCoords.y()/frameInfo->sceneRenderer->framebufferHeight);
+    CopyIntoMtlFloat2(uniforms.pixDispSize,pixDispSize);
     uniforms.globeMode = !coordAdapter->isFlat();
     
     [frameInfo->cmdEncode setVertexBytes:&uniforms length:sizeof(uniforms) atIndex:WKSUniformBuffer];
@@ -581,11 +590,16 @@ void SceneRendererMTL::render(TimeInterval duration,
                     // Tweakers probably not necessary, but who knows
                     drawContain.drawable->runTweakers(&baseFrameInfo);
                     
+                    // Regular uniforms
+                    // TODO: Can we do this just once?
+                    setupUniformBuffer(&baseFrameInfo,scene->getCoordAdapter());
+                    
                     // Run the calculation phase
                     drawContain.drawable->calculate(&baseFrameInfo,scene);
                 }
                 
                 [cmdEncode endEncoding];
+                [cmdBuff commit];
             }
             
             calcPassDone = true;
@@ -682,7 +696,7 @@ void SceneRendererMTL::render(TimeInterval duration,
                 baseFrameInfo.viewAndModelMat = currentMvMat;
                 baseFrameInfo.viewModelNormalMat = currentMvNormalMat;
 
-                // Note: Try to do this once rather than per drawable
+                // TODO: Try to do this once rather than per drawable
                 setupUniformBuffer(&baseFrameInfo,scene->getCoordAdapter());
 
                 // Figure out the program to use for drawing

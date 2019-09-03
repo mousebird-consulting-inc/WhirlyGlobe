@@ -68,6 +68,7 @@ struct Uniforms
     simd::float4x4 mvMatrix;
     simd::float4x4 mvNormalMatrix;
     simd::float3 eyePos;
+    simd::float2 pixDispSize;  // Size of a single pixel in display coordinates
     bool globeMode;
 };
 
@@ -80,6 +81,15 @@ struct UniformDrawStateA {
     simd::float2 screenOrigin; // Used for texture pinning in screen space
     simd::float4x4 singleMat;  // TODO: Use this rather than changing the uniforms
     bool clipCoords;           // If set, the geometry coordinates aren't meant to be transformed
+};
+    
+// Things that change per particle drawable
+#define WKSUniformDrawStateParticleBuffer 13
+struct UniformDrawStateParticle {
+    float pointSize;   // If set, the size of points to be rendered
+    float time; // Relative time globally
+    float lifetime;  // Total lifetime of a particle
+    float frameLen; // Length of a single frame
 };
 
 //// Lighting support //////
