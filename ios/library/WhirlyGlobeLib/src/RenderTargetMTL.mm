@@ -121,10 +121,10 @@ void RenderTargetMTL::setTargetTexture(TextureBaseMTL *inTex)
             renderPassDesc.colorAttachments[0].clearColor = MTLClearColorMake(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
             break;
         case MTLPixelFormatR32Float:
-            renderPassDesc.colorAttachments[0].clearColor = MTLClearColorMake(clearVal, 0.0, 0.0, 0.0);
+            renderPassDesc.colorAttachments[0].clearColor = MTLClearColorMake(clearVal, clearVal, clearVal, clearVal);
             break;
         case MTLPixelFormatRG32Float:
-            renderPassDesc.colorAttachments[0].clearColor = MTLClearColorMake(clearVal, clearVal, 0.0, 0.0);
+            renderPassDesc.colorAttachments[0].clearColor = MTLClearColorMake(clearVal, clearVal, clearVal, clearVal);
             break;
         case MTLPixelFormatRGBA32Float:
             renderPassDesc.colorAttachments[0].clearColor = MTLClearColorMake(clearVal, clearVal, clearVal, clearVal);

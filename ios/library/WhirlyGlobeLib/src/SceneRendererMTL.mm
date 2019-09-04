@@ -644,6 +644,10 @@ void SceneRendererMTL::render(TimeInterval duration,
             {
                 DrawableContainer &drawContain = drawList[ii];
 
+                // Only draw drawables that are active for the current render target
+                if (drawContain.drawable->getRenderTarget() != renderTarget->getId())
+                    continue;
+
                 // Backface culling on by default
                 // Note: Would like to not set this every time
                 [cmdEncode setCullMode:MTLCullModeFront];
@@ -708,10 +712,6 @@ void SceneRendererMTL::render(TimeInterval duration,
                 }
                 
                 baseFrameInfo.program = program;
-                
-                // Only draw drawables that are active for the current render target
-                if (drawContain.drawable->getRenderTarget() != renderTarget->getId())
-                    continue;
                 
                 // Activate the program
                 program->preRender(&baseFrameInfo,(SceneMTL *)scene);
