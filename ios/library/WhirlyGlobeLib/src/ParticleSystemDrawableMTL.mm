@@ -105,7 +105,8 @@ id<MTLRenderPipelineState> ParticleSystemDrawableMTL::getCalcRenderPipelineState
     id<MTLDevice> mtlDevice = sceneRender->setupInfo.mtlDevice;
     
     MTLRenderPipelineDescriptor *renderDesc = sceneRender->defaultRenderPipelineState(sceneRender,frameInfo);
-//    renderDesc.rasterizationEnabled = false;
+    // Note: Disable this to debug the shader
+    renderDesc.rasterizationEnabled = false;
     renderDesc.vertexDescriptor = nil;
     if (!name.empty())
         renderDesc.label = [NSString stringWithFormat:@"%s",name.c_str()];
