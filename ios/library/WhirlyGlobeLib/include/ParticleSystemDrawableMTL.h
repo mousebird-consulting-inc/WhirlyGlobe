@@ -53,13 +53,15 @@ public:
     void draw(RendererFrameInfo *frameInfo,Scene *scene);
     
 protected:
+    id<MTLRenderPipelineState> getCalcRenderPipelineState(SceneRendererMTL *sceneRender,RendererFrameInfoMTL *frameInfo);
     id<MTLRenderPipelineState> getRenderPipelineState(SceneRendererMTL *sceneRender,RendererFrameInfoMTL *frameInfo);
 
     bool setupForMTL;
-    id<MTLRenderPipelineState> renderState;
+    id<MTLRenderPipelineState> calcRenderState,visRenderState;
     MTLVertexDescriptor *vertDesc;
     int curPointBuffer;
     id<MTLBuffer> pointBuffer[2];
+    id<MTLBuffer> rectBuffer;
 };
 
     
