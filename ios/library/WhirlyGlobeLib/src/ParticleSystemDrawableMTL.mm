@@ -61,17 +61,24 @@ void ParticleSystemDrawableMTL::setupForRenderer(const RenderSetupInfo *inSetupI
     
     if (useRectangles) {
         // Make up a simple rectangle to feed into the instancing
+        // Note: Should interleave these
         Point2f verts[4];
         verts[0] = Point2f(-1,-1);
         verts[1] = Point2f(1,-1);
         verts[2] = Point2f(1,1);
         verts[3] = Point2f(-1,1);
+        Point2f texCoords[4];
+        texCoords[0] = Point2f(0.0,0.0);
+        texCoords[1] = Point2f(1.0,0.0);
+        texCoords[2] = Point2f(1.0,1.0);
+        texCoords[3] = Point2f(0.0,1.0);
         uint16_t idx[6];
         idx[0] = 0; idx[1] = 1; idx[2] = 2;
         idx[3] = 0; idx[4] = 2; idx[5] = 3;
         numRectTris = 2;
         
         rectVertBuffer = [setupInfo->mtlDevice newBufferWithBytes:&verts[0] length:sizeof(Point2f)*4 options:MTLStorageModeShared];
+        rectTexCoordBuffer = [setupInfo->mtlDevice newBufferWithBytes:&texCoords[0] length:sizeof(Point2f)*4 options:MTLStorageModeShared];
         rectTriBuffer = [setupInfo->mtlDevice newBufferWithBytes:&idx[0] length:sizeof(uint16_t)*numRectTris*3 options:MTLStorageModeShared];
     }
 
@@ -85,6 +92,7 @@ void ParticleSystemDrawableMTL::teardownForRenderer(const RenderSetupInfo *setup
     pointBuffer[0] = nil;
     pointBuffer[1] = nil;
     rectVertBuffer = nil;
+    rectTexCoordBuffer = nil;
     rectTriBuffer = nil;
 }
     
@@ -230,6 +238,7 @@ void ParticleSystemDrawableMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inSce
 
     if (useRectangles) {
         [frameInfo->cmdEncode setVertexBuffer:rectVertBuffer offset:0 atIndex:WKSVertexPositionAttribute];
+        [frameInfo->cmdEncode setVertexBuffer:rectTexCoordBuffer offset:0 atIndex:WKSVertexTextureBaseAttribute];
         [frameInfo->cmdEncode setVertexBuffer:pointBuffer[curPointBuffer] offset:0 atIndex:WKSParticleBuffer];
         [frameInfo->cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:numRectTris*3 indexType:MTLIndexTypeUInt16 indexBuffer:rectTriBuffer indexBufferOffset:0 instanceCount:numTotalPoints];
     } else {

@@ -93,7 +93,7 @@ struct UniformDrawStateParticle {
 };
 
 // Input buffer for the particles
-#define WKSParticleBuffer 3
+#define WKSParticleBuffer 6
 
 //// Lighting support //////
 
