@@ -62,7 +62,7 @@ protected:
     int curPointBuffer;
     id<MTLBuffer> pointBuffer[2];
     int numRectTris;
-    id<MTLBuffer> rectVertBuffer,rectTriBuffer;
+    id<MTLBuffer> rectVertBuffer,rectTexCoordBuffer,rectTriBuffer;
 };
 
     
