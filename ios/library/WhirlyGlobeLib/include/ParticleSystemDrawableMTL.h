@@ -61,7 +61,8 @@ protected:
     MTLVertexDescriptor *vertDesc;
     int curPointBuffer;
     id<MTLBuffer> pointBuffer[2];
-    id<MTLBuffer> rectBuffer;
+    int numRectTris;
+    id<MTLBuffer> rectVertBuffer,rectTriBuffer;
 };
 
     
