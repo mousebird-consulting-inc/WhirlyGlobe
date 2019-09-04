@@ -20,13 +20,15 @@
 
 #import "ParticleSystemDrawableMTL.h"
 #import "TextureMTL.h"
+#import <MetalKit/MetalKit.h>
+#import "DefaultShadersMTL.h"
 
 namespace WhirlyKit
 {
 
 ParticleSystemDrawableMTL::ParticleSystemDrawableMTL(const std::string &name)
     : ParticleSystemDrawable(name), setupForMTL(false), calcRenderState(nil), visRenderState(nil),
-    vertDesc(nil), curPointBuffer(0), rectBuffer(nil)
+    vertDesc(nil), curPointBuffer(0), rectVertBuffer(nil), rectTriBuffer(nil), numRectTris(0)
 {
     pointBuffer[0] = nil;
     pointBuffer[1] = nil;
@@ -59,21 +61,18 @@ void ParticleSystemDrawableMTL::setupForRenderer(const RenderSetupInfo *inSetupI
     
     if (useRectangles) {
         // Make up a simple rectangle to feed into the instancing
-        Point2f verts[2*6];
+        Point2f verts[4];
         verts[0] = Point2f(-1,-1);
-        verts[1] = Point2f(0,0);
-        verts[2] = Point2f(1,-1);
-        verts[3] = Point2f(1.0,0);
-        verts[4] = Point2f(1,1);
-        verts[5] = Point2f(1.0,1.0);
-        verts[6] = Point2f(-1,-1);
-        verts[7] = Point2f(0,0);
-        verts[8] = Point2f(1,1);
-        verts[9] = Point2f(1.0,1.0);
-        verts[10] = Point2f(-1,1);
-        verts[11] = Point2f(0,1.0);
+        verts[1] = Point2f(1,-1);
+        verts[2] = Point2f(1,1);
+        verts[3] = Point2f(-1,1);
+        uint16_t idx[6];
+        idx[0] = 0; idx[1] = 1; idx[2] = 2;
+        idx[3] = 0; idx[4] = 2; idx[5] = 3;
+        numRectTris = 2;
         
-        rectBuffer = [setupInfo->mtlDevice newBufferWithBytes:&verts[0] length:sizeof(Point2f)*12 options:MTLStorageModeShared];
+        rectVertBuffer = [setupInfo->mtlDevice newBufferWithBytes:&verts[0] length:sizeof(Point2f)*4 options:MTLStorageModeShared];
+        rectTriBuffer = [setupInfo->mtlDevice newBufferWithBytes:&idx[0] length:sizeof(uint16_t)*numRectTris*3 options:MTLStorageModeShared];
     }
 
     setupForMTL = true;
@@ -85,7 +84,8 @@ void ParticleSystemDrawableMTL::teardownForRenderer(const RenderSetupInfo *setup
     visRenderState = nil;
     pointBuffer[0] = nil;
     pointBuffer[1] = nil;
-    rectBuffer = nil;
+    rectVertBuffer = nil;
+    rectTriBuffer = nil;
 }
     
 // Render state for calculation pass
@@ -97,7 +97,7 @@ id<MTLRenderPipelineState> ParticleSystemDrawableMTL::getCalcRenderPipelineState
     id<MTLDevice> mtlDevice = sceneRender->setupInfo.mtlDevice;
     
     MTLRenderPipelineDescriptor *renderDesc = sceneRender->defaultRenderPipelineState(sceneRender,frameInfo);
-    renderDesc.rasterizationEnabled = false;
+//    renderDesc.rasterizationEnabled = false;
     renderDesc.vertexDescriptor = nil;
     if (!name.empty())
         renderDesc.label = [NSString stringWithFormat:@"%s",name.c_str()];
@@ -183,8 +183,8 @@ void ParticleSystemDrawableMTL::calculate(RendererFrameInfo *inFrameInfo,Scene *
     BasicDrawableMTL::encodeUniBlocks(frameInfo, uniBlocks);
 
     // Switch between buffers, one input & one output
-    [frameInfo->cmdEncode setVertexBuffer:pointBuffer[curPointBuffer] offset:0 atIndex:0];
-    [frameInfo->cmdEncode setVertexBuffer:pointBuffer[curPointBuffer == 0 ? 1 : 0] offset:0 atIndex:1];
+    [frameInfo->cmdEncode setVertexBuffer:pointBuffer[curPointBuffer] offset:0 atIndex:WKSParticleBuffer];
+    [frameInfo->cmdEncode setVertexBuffer:pointBuffer[curPointBuffer == 0 ? 1 : 0] offset:0 atIndex:WKSParticleBuffer+1];
     curPointBuffer = (curPointBuffer == 0) ? 1 : 0;
 
     [frameInfo->cmdEncode drawPrimitives:MTLPrimitiveTypePoint vertexStart:0 vertexCount:numTotalPoints];
@@ -228,12 +228,14 @@ void ParticleSystemDrawableMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inSce
     // TODO: Differentiate between the ones we want for each shader
     BasicDrawableMTL::encodeUniBlocks(frameInfo, uniBlocks);
 
-//    if (useRectangles) {
-//        // TODO: Use rectangles
-//    } else {
-        [frameInfo->cmdEncode setVertexBuffer:pointBuffer[curPointBuffer] offset:0 atIndex:0];
+    if (useRectangles) {
+        [frameInfo->cmdEncode setVertexBuffer:rectVertBuffer offset:0 atIndex:WKSVertexPositionAttribute];
+        [frameInfo->cmdEncode setVertexBuffer:pointBuffer[curPointBuffer] offset:0 atIndex:WKSParticleBuffer];
+        [frameInfo->cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:numRectTris*3 indexType:MTLIndexTypeUInt16 indexBuffer:rectTriBuffer indexBufferOffset:0 instanceCount:numTotalPoints];
+    } else {
+        [frameInfo->cmdEncode setVertexBuffer:pointBuffer[curPointBuffer] offset:0 atIndex:WKSParticleBuffer];
         [frameInfo->cmdEncode drawPrimitives:MTLPrimitiveTypePoint vertexStart:0 vertexCount:numTotalPoints];
-//    }
+    }
 }
 
 }

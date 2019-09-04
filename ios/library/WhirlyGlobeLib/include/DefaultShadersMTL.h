@@ -92,6 +92,9 @@ struct UniformDrawStateParticle {
     float frameLen; // Length of a single frame
 };
 
+// Input buffer for the particles
+#define WKSParticleBuffer 3
+
 //// Lighting support //////
 
 // A single light
@@ -175,7 +178,6 @@ struct UniformBillboard {
 };
     
 }
-
 
 // These have syntax that only the shader language can grok
 // We put them here so we can include them in other Metal libraries
