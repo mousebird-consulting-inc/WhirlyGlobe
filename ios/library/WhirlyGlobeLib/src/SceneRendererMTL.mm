@@ -547,7 +547,8 @@ void SceneRendererMTL::render(TimeInterval duration,
         
         // Run any calculation shaders
         // These should be independent of screen space, so we only run them once and ignore offsets.
-        if (!calcPassDone) {
+        // Note: Can't run calculation shaders without a normal screen
+        if (!calcPassDone && renderPassDesc) {
             // Need some sort of render target even if we're not really rendering
             RenderTargetMTLRef renderTarget = std::dynamic_pointer_cast<RenderTargetMTL>(renderTargets.back());
             baseFrameInfo.renderTarget = renderTarget.get();
@@ -623,6 +624,10 @@ void SceneRendererMTL::render(TimeInterval duration,
             id<MTLRenderCommandEncoder> cmdEncode = nil;
 
             if (renderTarget->getTex() == nil) {
+                // This happens if the dev wants an instantaneous render
+                if (!renderPassDesc)
+                    continue;
+                
                 cmdEncode = [cmdBuff renderCommandEncoderWithDescriptor:renderPassDesc];
                 baseFrameInfo.renderPassDesc = renderPassDesc;
             } else {
