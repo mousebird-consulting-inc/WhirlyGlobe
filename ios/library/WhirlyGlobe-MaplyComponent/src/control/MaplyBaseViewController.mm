@@ -1725,20 +1725,25 @@ static const float PerfOutputDelay = 15.0;
     if ([NSThread currentThread] != [NSThread mainThread])
         return NULL;
 
-    SceneRendererGLES_iOSRef sceneRenderGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(renderControl->sceneRenderer);
-    if (!sceneRenderGLES)
-        return nil;
-    
-    // TODO: Implement this for Metal
-    
     SnapshotTarget *target = [[SnapshotTarget alloc] init];
     target.renderTargetID = renderTarget.renderTargetID;
-    sceneRenderGLES->addSnapshotDelegate(target);
 
-    sceneRenderGLES->forceDrawNextFrame();
-    sceneRenderGLES->render(0.0);
-    sceneRenderGLES->removeSnapshotDelegate(target);
+    if ([self getRenderType] == MaplyRenderGLES) {
+        SceneRendererGLES_iOSRef sceneRenderGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(renderControl->sceneRenderer);
 
+        sceneRenderGLES->addSnapshotDelegate(target);
+        sceneRenderGLES->forceDrawNextFrame();
+        sceneRenderGLES->render(0.0);
+        sceneRenderGLES->removeSnapshotDelegate(target);
+    } else {
+        SceneRendererMTLRef sceneRenderMTL = std::dynamic_pointer_cast<SceneRendererMTL>(renderControl->sceneRenderer);
+        
+        sceneRenderMTL->addSnapshotDelegate(target);
+        sceneRenderMTL->forceDrawNextFrame();
+        sceneRenderMTL->render(0.0, nil, nil);
+        sceneRenderMTL->removeSnapshotDelegate(target);
+    }
+    
     return target.data;
 }
 

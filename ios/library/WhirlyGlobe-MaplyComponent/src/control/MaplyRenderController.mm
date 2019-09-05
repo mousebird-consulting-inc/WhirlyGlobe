@@ -235,7 +235,7 @@ using namespace Eigen;
         
         sceneRendererMTL->addSnapshotDelegate(self);
         sceneRendererMTL->forceDrawNextFrame();
-        sceneRendererMTL->render(0.0,nil,nil);
+        sceneRendererMTL->render(1.0/60.0,nil,nil);
         toRet = snapshotData;
         snapshotData = nil;
         sceneRendererMTL->removeSnapshotDelegate(self);

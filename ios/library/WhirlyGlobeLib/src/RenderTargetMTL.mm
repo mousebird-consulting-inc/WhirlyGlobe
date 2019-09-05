@@ -76,6 +76,18 @@ RawDataRef RenderTargetMTL::snapshot()
     int pixSize = 4;
     MTLPixelFormat pixFormat = [tex pixelFormat];
     // TODO: Fix this pixel size hack
+    switch (pixFormat) {
+        case MTLPixelFormatRGBA8Unorm:
+        case MTLPixelFormatBGRA8Unorm:
+            pixSize = 4;
+            break;
+        case MTLPixelFormatRGBA16Float:
+            pixSize = 8;
+            break;
+        default:
+            // TODO: Fill in the rest of these
+            pixSize = 4;
+    }
     if (pixFormat != MTLPixelFormatRGBA8Unorm && pixFormat != MTLPixelFormatBGRA8Unorm) {
         pixSize = 2;
     }
