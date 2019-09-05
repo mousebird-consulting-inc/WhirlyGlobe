@@ -22,6 +22,6 @@
 
 @interface MaplyVariableTarget()
 
-@property (nonatomic,assign) MaplyVariableType type;
+@property (nonatomic,assign) MaplyQuadImageFormat type;
 
 @end

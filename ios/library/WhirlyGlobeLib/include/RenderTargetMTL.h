@@ -46,9 +46,6 @@ public:
 
     // Set the clear color
     void setClearColor(const RGBAColor &color);
-
-    // Clear up resources from the render target
-    void clear();
     
     /// Copy the data out of the destination texture and return it
     virtual RawDataRef snapshot();
@@ -59,7 +56,22 @@ public:
     /// Set the GL texture directly
     void setTargetTexture(TextureBaseMTL *tex);
     
-public:
+    /// Release associated resources (not clear the buffer, very confusing)
+    virtual void clear();
+    
+    /// Return the pixel format.  Important for shader output and such.
+    MTLPixelFormat getPixelFormat();
+    
+    /// Called once per frame to build a render pass descriptor
+    MTLRenderPassDescriptor *makeRenderPassDesc();
+    
+    /// Get the last render pass descriptor built
+    MTLRenderPassDescriptor *getRenderPassDesc();
+    
+    /// Return the texture reference, if there is one
+    id<MTLTexture> getTex();
+    
+protected:
     id<MTLTexture> tex;
     MTLPixelFormat pixelFormat;
     MTLRenderPassDescriptor *renderPassDesc;

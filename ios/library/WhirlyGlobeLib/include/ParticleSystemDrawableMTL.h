@@ -55,7 +55,8 @@ public:
 protected:
     id<MTLRenderPipelineState> getCalcRenderPipelineState(SceneRendererMTL *sceneRender,RendererFrameInfoMTL *frameInfo);
     id<MTLRenderPipelineState> getRenderPipelineState(SceneRendererMTL *sceneRender,RendererFrameInfoMTL *frameInfo);
-
+    void bindParticleUniforms(RendererFrameInfoMTL *frameInfo);
+    
     bool setupForMTL;
     id<MTLRenderPipelineState> calcRenderState,visRenderState;
     MTLVertexDescriptor *vertDesc;

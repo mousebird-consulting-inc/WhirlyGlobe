@@ -304,7 +304,7 @@ MTLRenderPipelineDescriptor *SceneRendererMTL::defaultRenderPipelineState(SceneR
     renderDesc.vertexFunction = program->vertFunc;
     renderDesc.fragmentFunction = program->fragFunc;
     
-    renderDesc.colorAttachments[0].pixelFormat = frameInfo->renderTarget->pixelFormat;
+    renderDesc.colorAttachments[0].pixelFormat = frameInfo->renderTarget->getPixelFormat();
     if (frameInfo->renderPassDesc.depthAttachment.texture)
         renderDesc.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
     
@@ -615,18 +615,20 @@ void SceneRendererMTL::render(TimeInterval duration,
         for (RenderTargetRef inRenderTarget : renderTargets)
         {
             RenderTargetMTLRef renderTarget = std::dynamic_pointer_cast<RenderTargetMTL>(inRenderTarget);
+            // Render pass descriptor might change from frame to frame if we're clearing sporadically
+            renderTarget->makeRenderPassDesc();
             baseFrameInfo.renderTarget = renderTarget.get();
 
             // Each render target needs its own buffer and command queue
             id<MTLCommandBuffer> cmdBuff = [cmdQueue commandBuffer];
             id<MTLRenderCommandEncoder> cmdEncode = nil;
 
-            if (renderTarget->tex == nil) {
+            if (renderTarget->getTex() == nil) {
                 cmdEncode = [cmdBuff renderCommandEncoderWithDescriptor:renderPassDesc];
                 baseFrameInfo.renderPassDesc = renderPassDesc;
             } else {
-                cmdEncode = [cmdBuff renderCommandEncoderWithDescriptor:renderTarget->renderPassDesc];
-                baseFrameInfo.renderPassDesc = renderTarget->renderPassDesc;
+                baseFrameInfo.renderPassDesc = renderTarget->getRenderPassDesc();
+                cmdEncode = [cmdBuff renderCommandEncoderWithDescriptor:baseFrameInfo.renderPassDesc];
             }
             
             baseFrameInfo.cmdEncode = cmdEncode;
@@ -664,7 +666,7 @@ void SceneRendererMTL::render(TimeInterval duration,
                 zBufferWrite = drawContain.drawable->getWriteZbuffer();
                 
                 // Off screen render targets don't like z buffering
-                if (renderTarget->tex != nil) {
+                if (renderTarget->getTex() != nil) {
                     zBufferRead = false;
                     zBufferWrite = false;
                 }
@@ -731,12 +733,12 @@ void SceneRendererMTL::render(TimeInterval duration,
 
             [cmdEncode endEncoding];
             // Main screen has to be committed
-            if (renderTarget->tex == nil && drawGetter != nil) {
+            if (renderTarget->getTex() == nil && drawGetter != nil) {
                 id<CAMetalDrawable> drawable = [drawGetter getDrawable];
                 [cmdBuff presentDrawable:drawable];
             }
             [cmdBuff commit];
-            if (renderTarget->tex != nil)
+            if (renderTarget->getTex() != nil)
                 [cmdBuff waitUntilCompleted];
         }
         
@@ -792,7 +794,7 @@ void SceneRendererMTL::snapshotCallback(TimeInterval now)
                 NSData *dataWrapper = nil;
 
                 // Has a destination texture
-                if (target->tex) {
+                if (target->getTex()) {
                     // Offscreen render buffer
                     RawDataRef rawData;
                     if (snapshotRect.size.width == 0.0)

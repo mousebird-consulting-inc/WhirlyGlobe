@@ -27,11 +27,13 @@ namespace WhirlyKit
 RenderTargetMTL::RenderTargetMTL()
     : renderPassDesc(nil), pixelFormat(MTLPixelFormatBGRA8Unorm)
 {
+    clearOnce = true;
 }
 
 RenderTargetMTL::RenderTargetMTL(SimpleIdentity newID)
     : RenderTarget(newID), renderPassDesc(nil), pixelFormat(MTLPixelFormatBGRA8Unorm)
 {
+    clearOnce = true;
 }
 
 RenderTargetMTL::~RenderTargetMTL()
@@ -60,7 +62,8 @@ bool RenderTargetMTL::setTargetTexture(SceneRenderer *renderer,Scene *scene,Simp
 
 void RenderTargetMTL::clear()
 {
-    // Render pass descriptor handles this
+    tex = nil;
+    renderPassDesc = nil;
 }
 
 RawDataRef RenderTargetMTL::snapshot()
@@ -110,28 +113,26 @@ void RenderTargetMTL::setTargetTexture(TextureBaseMTL *inTex)
     // We need our own little render pass when we go out to a texture
     TextureBaseMTL *theTex = (TextureBaseMTL *)inTex;
     tex = theTex->getMTLID();
-    
     pixelFormat = inTex->getMTLID().pixelFormat;
+}
+    
+MTLRenderPassDescriptor *RenderTargetMTL::makeRenderPassDesc()
+{
     renderPassDesc = [[MTLRenderPassDescriptor alloc] init];
     renderPassDesc.colorAttachments[0].texture = tex;
-    if (this->clearEveryFrame)
+    if (clearEveryFrame || clearOnce)
         renderPassDesc.colorAttachments[0].loadAction = MTLLoadActionClear;
+    else
+        // TODO: This is more work for the renderer.  Narrow down when to do this
+        renderPassDesc.colorAttachments[0].loadAction =  MTLLoadActionLoad;
     switch (pixelFormat) {
         case MTLPixelFormatBGRA8Unorm:
             renderPassDesc.colorAttachments[0].clearColor = MTLClearColorMake(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
             break;
         case MTLPixelFormatR32Float:
-            renderPassDesc.colorAttachments[0].clearColor = MTLClearColorMake(clearVal, clearVal, clearVal, clearVal);
-            break;
         case MTLPixelFormatRG32Float:
-            renderPassDesc.colorAttachments[0].clearColor = MTLClearColorMake(clearVal, clearVal, clearVal, clearVal);
-            break;
         case MTLPixelFormatRGBA32Float:
-            renderPassDesc.colorAttachments[0].clearColor = MTLClearColorMake(clearVal, clearVal, clearVal, clearVal);
-            break;
         case MTLPixelFormatRG16Float:
-            renderPassDesc.colorAttachments[0].clearColor = MTLClearColorMake(clearVal, clearVal, clearVal, clearVal);
-            break;
         case MTLPixelFormatRGBA16Float:
             renderPassDesc.colorAttachments[0].clearColor = MTLClearColorMake(clearVal, clearVal, clearVal, clearVal);
             break;
@@ -140,6 +141,20 @@ void RenderTargetMTL::setTargetTexture(TextureBaseMTL *inTex)
             break;
     }
     renderPassDesc.colorAttachments[0].storeAction = MTLStoreActionStore;
+    
+    clearOnce = false;
+    
+    return renderPassDesc;
+}
+    
+MTLPixelFormat RenderTargetMTL::getPixelFormat()
+{
+    return pixelFormat;
+}
+    
+MTLRenderPassDescriptor *RenderTargetMTL::getRenderPassDesc()
+{
+    return renderPassDesc;
 }
     
 void RenderTargetMTL::setClearColor(const RGBAColor &color)
@@ -150,5 +165,9 @@ void RenderTargetMTL::setClearColor(const RGBAColor &color)
         renderPassDesc.colorAttachments[0].clearColor = MTLClearColorMake(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
 }
 
+id<MTLTexture> RenderTargetMTL::getTex()
+{
+    return tex;
+}
     
 }

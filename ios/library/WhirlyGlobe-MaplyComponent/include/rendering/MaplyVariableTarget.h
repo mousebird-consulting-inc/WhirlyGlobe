@@ -23,11 +23,6 @@
 #import "rendering/MaplyRenderTarget.h"
 #import "control/MaplyRenderController.h"
 
-typedef NS_ENUM(NSInteger, MaplyVariableType) {
-    // Rendering 4 component images to the target
-    VariableTypeVisual
-};
-
 /**
     A variable target manages two pass rendering for one type of variable.
  
@@ -36,7 +31,7 @@ typedef NS_ENUM(NSInteger, MaplyVariableType) {
 @interface MaplyVariableTarget : NSObject
 
 /// Initialize with the variable type and view controller
-- (nonnull instancetype)initWithType:(MaplyVariableType)type viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)viewC;
+- (nonnull instancetype)initWithType:(MaplyQuadImageFormat)type viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)viewC;
 
 /// Render target created for this variable target
 @property (nonatomic,readonly,strong,nonnull) MaplyRenderTarget *renderTarget;
@@ -49,6 +44,9 @@ typedef NS_ENUM(NSInteger, MaplyVariableType) {
 
 /// Draw priority of the rectangle we'll use to draw the render target to the screen
 @property (nonatomic,assign) int drawPriority;
+
+/// If set (by default), then we clear out the render target every frame
+@property (nonatomic,assign) bool clearEveryFrame;
 
 /// Shader used to draw the render target to the screen.
 /// Leave this empty and we'll provide our own
@@ -70,6 +68,12 @@ typedef NS_ENUM(NSInteger, MaplyVariableType) {
 /// rectangle used to render this variable target's data.  This is used if
 /// you need the contents of more than one target in a shader.
 - (void)addVariableTarget:(MaplyVariableTarget * __nonnull)target;
+
+// Pass this uniform block to the geometry we create for rendering (if it was created)
+- (void)setUniformBlock:(NSData *__nonnull)uniBlock buffer:(int)bufferID;
+
+/// Clear the target for the next frame
+- (void)clear;
 
 /// Stop rendering to the target and release everything
 - (void)shutdown;

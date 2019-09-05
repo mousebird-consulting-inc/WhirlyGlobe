@@ -21,6 +21,7 @@
 #import "MaplyVariableTarget_private.h"
 #import "visual_objects/MaplyShape.h"
 #import <vector>
+#import "MaplyBaseViewController_private.h"
 
 @implementation MaplyVariableTarget
 {
@@ -28,19 +29,22 @@
     double scale;
     NSObject<MaplyRenderControllerProtocol> * __weak viewC;
     std::vector<MaplyVariableTarget *> auxTargets;
+    std::map<int,NSData *> uniBlocks;
 }
 
 /// Initialize with the variable type and view controller
-- (instancetype)initWithType:(MaplyVariableType)type viewC:(NSObject<MaplyRenderControllerProtocol> *)inViewC
+- (instancetype)initWithType:(MaplyQuadImageFormat)type viewC:(NSObject<MaplyRenderControllerProtocol> *)inViewC
 {
     self = [super init];
     
     scale = 1.0;
     valid = true;
     viewC = inViewC;
+    _type = type;
     _color = [UIColor whiteColor];
     _renderTarget = [[MaplyRenderTarget alloc] init];
     _buildRectangle = true;
+    _clearEveryFrame = false;
 
     dispatch_async(dispatch_get_main_queue(), ^{
         [self delayedSetup];
@@ -74,8 +78,9 @@
     _texSize = screenSize;
 
     // Set up the render target
-    _renderTex = [viewC createTexture:nil sizeX:screenSize.width sizeY:screenSize.height mode:MaplyThreadCurrent];
+    _renderTex = [viewC createTexture:@{kMaplyTexFormat: @(_type)} sizeX:screenSize.width sizeY:screenSize.height mode:MaplyThreadCurrent];
     _renderTarget.texture = _renderTex;
+    _renderTarget.clearEveryFrame = _clearEveryFrame;
     [viewC addRenderTarget:_renderTarget];
     
     if (_buildRectangle) {
@@ -100,6 +105,11 @@
                                      kMaplyZBufferWrite: @(NO)
                                      }
                               mode:MaplyThreadCurrent];
+        
+        // Pass through the uniform blocks if they've been set up
+        for (auto block : uniBlocks) {
+            [viewC setUniformBlock:block.second buffer:block.first forObjects:@[_rectObj] mode:MaplyThreadCurrent];
+        }
     }
     
     auxTargets.clear();
@@ -109,6 +119,22 @@
 - (void)setScale:(double)inScale
 {
     scale = inScale;
+}
+
+- (void)setUniformBlock:(NSData *__nonnull)uniBlock buffer:(int)bufferID
+{
+    uniBlocks[bufferID] = uniBlock;
+    
+    // Pass this through if we're running
+    if (_rectObj) {
+        [viewC setUniformBlock:uniBlock buffer:bufferID forObjects:@[_rectObj] mode:MaplyThreadCurrent];
+    }
+}
+
+- (void)clear
+{
+    if (_renderTarget && [viewC isKindOfClass:[MaplyBaseViewController class]])
+        [(MaplyBaseViewController *)viewC clearRenderTarget:_renderTarget mode:MaplyThreadCurrent];
 }
 
 /// Stop rendering to the target and release everything
