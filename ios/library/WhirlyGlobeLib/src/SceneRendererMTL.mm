@@ -393,7 +393,6 @@ void SceneRendererMTL::render(TimeInterval duration,
     renderPassDesc.colorAttachments[0].clearColor = MTLClearColorMake(clearColor[0],clearColor[1],clearColor[2],clearColor[3]);
 
     // Send the command buffer and encoders
-    // TODO: Make this general for more than one render target
     id<MTLDevice> mtlDevice = setupInfo.mtlDevice;
     id<MTLCommandQueue> cmdQueue = [mtlDevice newCommandQueue];
 
