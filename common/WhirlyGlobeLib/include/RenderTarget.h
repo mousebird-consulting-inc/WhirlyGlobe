@@ -47,7 +47,7 @@ public:
     /// Set the clear color
     virtual void setClearColor(const RGBAColor &color) = 0;
     
-    // Clear up resources from the render target
+    // Clear up resources from the render target (not clear the buffer)
     virtual void clear() = 0;
 
     /// Copy the data out of the destination texture and return it

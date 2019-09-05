@@ -145,6 +145,18 @@ id<MTLRenderPipelineState> ParticleSystemDrawableMTL::getRenderPipelineState(Sce
     
     return visRenderState;
 }
+    
+void ParticleSystemDrawableMTL::bindParticleUniforms(RendererFrameInfoMTL *frameInfo)
+{
+    // Uniforms just for this particle drawable
+    WhirlyKitShader::UniformDrawStateParticle uniPart;
+    uniPart.pointSize = pointSize;
+    uniPart.time = frameInfo->currentTime-baseTime;
+    uniPart.lifetime = lifetime;
+    uniPart.frameLen = frameInfo->frameLen;
+    [frameInfo->cmdEncode setVertexBytes:&uniPart length:sizeof(uniPart) atIndex:WKSUniformDrawStateParticleBuffer];
+    [frameInfo->cmdEncode setFragmentBytes:&uniPart length:sizeof(uniPart) atIndex:WKSUniformDrawStateParticleBuffer];
+}
 
 void ParticleSystemDrawableMTL::calculate(RendererFrameInfo *inFrameInfo,Scene *inScene)
 {
@@ -177,15 +189,9 @@ void ParticleSystemDrawableMTL::calculate(RendererFrameInfo *inFrameInfo,Scene *
         texIndex++;
     }
     
-    // Uniforms just for this particle drawable
-    WhirlyKitShader::UniformDrawStateParticle uniPart;
-    uniPart.pointSize = pointSize;
-    uniPart.time = frameInfo->currentTime-baseTime;
-    uniPart.lifetime = lifetime;
-    uniPart.frameLen = frameInfo->frameLen;
-    [frameInfo->cmdEncode setVertexBytes:&uniPart length:sizeof(uniPart) atIndex:WKSUniformDrawStateParticleBuffer];
-    [frameInfo->cmdEncode setFragmentBytes:&uniPart length:sizeof(uniPart) atIndex:WKSUniformDrawStateParticleBuffer];
-
+    // Uniforms we pass in for all particles
+    bindParticleUniforms(frameInfo);
+    
     // Note: Do we want UniformDrawStateA here too?
 
     // Send along the uniform blocks
@@ -232,9 +238,11 @@ void ParticleSystemDrawableMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inSce
     }
     
     // Note: Do we want UniformDrawStateA here too?
-    
+
+    // Uniforms we pass in for all particles
+    bindParticleUniforms(frameInfo);
+
     // Send along the uniform blocks
-    // TODO: Differentiate between the ones we want for each shader
     BasicDrawableMTL::encodeUniBlocks(frameInfo, uniBlocks);
 
     if (useRectangles) {

@@ -79,7 +79,7 @@ typedef NS_ENUM(NSInteger, MaplyParticleSystemType) {
     
     Individual particles will measure their own lifetime against this base value.
   */
-@property (nonatomic,readonly) NSTimeInterval baseTime;
+@property (nonatomic,assign) NSTimeInterval baseTime;
 
 /** 
     Total number of particles to be represented at once.
