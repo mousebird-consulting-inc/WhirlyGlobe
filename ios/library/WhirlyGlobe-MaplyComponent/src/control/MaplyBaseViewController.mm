@@ -1628,12 +1628,24 @@ static const float PerfOutputDelay = 15.0;
     if (!renderControl)
         return;
     
-    SceneRendererGLES_iOSRef sceneRenderGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(renderControl->sceneRenderer);
-    if (!sceneRenderGLES)
-        return;
-    
     SnapshotTarget *newTarget = [[SnapshotTarget alloc] initWithOutsideDelegate:snapshotDelegate viewC:self];
-    sceneRenderGLES->addSnapshotDelegate(newTarget);
+    switch ([self getRenderType])
+    {
+        case MaplyRenderGLES:
+        {
+            SceneRendererGLES_iOSRef sceneRenderGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(renderControl->sceneRenderer);
+            sceneRenderGLES->addSnapshotDelegate(newTarget);
+        }
+            break;
+        case MaplyRenderMetal:
+        {
+            SceneRendererMTLRef sceneRenderMTL = std::dynamic_pointer_cast<SceneRendererMTL>(renderControl->sceneRenderer);
+            sceneRenderMTL->addSnapshotDelegate(newTarget);
+        }
+            break;
+        default:
+            break;
+    }
 }
 
 - (void)removeSnapshotDelegate:(NSObject<MaplySnapshotDelegate> *)snapshotDelegate
@@ -1641,18 +1653,38 @@ static const float PerfOutputDelay = 15.0;
     if (!renderControl)
         return;
     
-    SceneRendererGLES_iOSRef sceneRenderGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(renderControl->sceneRenderer);
-    if (!sceneRenderGLES)
-        return;
-
-    for (auto delegate : sceneRenderGLES->snapshotDelegates) {
-        if ([delegate isKindOfClass:[SnapshotTarget class]]) {
-            SnapshotTarget *thisTarget = (SnapshotTarget *)delegate;
-            if (thisTarget.outsideDelegate == snapshotDelegate) {
-                sceneRenderGLES->removeSnapshotDelegate(thisTarget);
-                break;
+    switch ([self getRenderType])
+    {
+        case MaplyRenderGLES:
+        {
+            SceneRendererGLES_iOSRef sceneRenderGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(renderControl->sceneRenderer);
+            for (auto delegate : sceneRenderGLES->snapshotDelegates) {
+                if ([delegate isKindOfClass:[SnapshotTarget class]]) {
+                    SnapshotTarget *thisTarget = (SnapshotTarget *)delegate;
+                    if (thisTarget.outsideDelegate == snapshotDelegate) {
+                        sceneRenderGLES->removeSnapshotDelegate(thisTarget);
+                        break;
+                    }
+                }
             }
         }
+            break;
+        case MaplyRenderMetal:
+        {
+            SceneRendererMTLRef sceneRenderMTL = std::dynamic_pointer_cast<SceneRendererMTL>(renderControl->sceneRenderer);
+            for (auto delegate : sceneRenderMTL->snapshotDelegates) {
+                if ([delegate isKindOfClass:[SnapshotTarget class]]) {
+                    SnapshotTarget *thisTarget = (SnapshotTarget *)delegate;
+                    if (thisTarget.outsideDelegate == snapshotDelegate) {
+                        sceneRenderMTL->removeSnapshotDelegate(thisTarget);
+                        break;
+                    }
+                }
+            }
+        }
+            break;
+        default:
+            break;
     }
 }
 
