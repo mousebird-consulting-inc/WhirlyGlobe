@@ -65,6 +65,35 @@ void RenderTargetMTL::clear()
     tex = nil;
     renderPassDesc = nil;
 }
+ 
+// TODO: Move this somewhere else
+static size_t calcPixelSize(MTLPixelFormat pixFormat)
+{
+    int pixSize = 4;
+    // TODO: Fix this pixel size hack
+    switch (pixFormat) {
+        case MTLPixelFormatR16Float:
+            pixSize = 2;
+            break;
+        case MTLPixelFormatRGBA8Unorm:
+        case MTLPixelFormatBGRA8Unorm:
+        case MTLPixelFormatR32Float:
+        case MTLPixelFormatRG16Float:
+            pixSize = 4;
+            break;
+        case MTLPixelFormatRG32Float:
+            pixSize = 8;
+            break;
+        case MTLPixelFormatRGBA16Float:
+            pixSize = 16;
+            break;
+        default:
+            // TODO: Fill in the rest of these
+            pixSize = 4;
+    }
+    
+    return pixSize;
+}
 
 RawDataRef RenderTargetMTL::snapshot()
 {
@@ -73,24 +102,7 @@ RawDataRef RenderTargetMTL::snapshot()
     
     MTLRegion region = MTLRegionMake2D(0,0,[tex width],[tex height]);
     int width = [tex width], height = [tex height];
-    int pixSize = 4;
-    MTLPixelFormat pixFormat = [tex pixelFormat];
-    // TODO: Fix this pixel size hack
-    switch (pixFormat) {
-        case MTLPixelFormatRGBA8Unorm:
-        case MTLPixelFormatBGRA8Unorm:
-            pixSize = 4;
-            break;
-        case MTLPixelFormatRGBA16Float:
-            pixSize = 8;
-            break;
-        default:
-            // TODO: Fill in the rest of these
-            pixSize = 4;
-    }
-    if (pixFormat != MTLPixelFormatRGBA8Unorm && pixFormat != MTLPixelFormatBGRA8Unorm) {
-        pixSize = 2;
-    }
+    int pixSize = calcPixelSize([tex pixelFormat]);
     
     NSMutableData *data = [[NSMutableData alloc] initWithLength:width*height*pixSize];
     [tex getBytes:[data mutableBytes] bytesPerRow:width*pixSize fromRegion:region mipmapLevel:0];
@@ -104,12 +116,7 @@ RawDataRef RenderTargetMTL::snapshot(int startX,int startY,int snapWidth,int sna
         return RawDataRef();
     
     MTLRegion region = MTLRegionMake2D(startX,startY,snapWidth,snapHeight);
-    int pixSize = 4;
-    MTLPixelFormat pixFormat = [tex pixelFormat];
-    // TODO: Fix this pixel size hack
-    if (pixFormat != MTLPixelFormatRGBA8Unorm || pixFormat != MTLPixelFormatBGRA8Unorm) {
-        pixSize = 2;
-    }
+    int pixSize = calcPixelSize([tex pixelFormat]);
     
     NSMutableData *data = [[NSMutableData alloc] initWithCapacity:snapWidth*snapHeight*pixSize];
     [tex getBytes:[data mutableBytes] bytesPerRow:snapWidth*pixSize fromRegion:region mipmapLevel:0];
