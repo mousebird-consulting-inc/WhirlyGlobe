@@ -176,16 +176,22 @@ void ParticleSystemManager::addParticleBatch(SimpleIdentity sysID,const Particle
             ParticleSystemDrawable::Batch theBatch;
             if (draw->findEmptyBatch(theBatch))
             {
-                std::vector<ParticleSystemDrawable::AttributeData> attrData;
-                for (unsigned int ii=0;ii<batch.attrData.size();ii++)
-                {
-                    ParticleSystemDrawable::AttributeData thisAttrData;
-                    thisAttrData.data = batch.attrData[ii];
-                    attrData.push_back(thisAttrData);
+                if (!batch.attrData.empty()) {
+                    // For OpenGL we match everything up
+                    std::vector<ParticleSystemDrawable::AttributeData> attrData;
+                    for (unsigned int ii=0;ii<batch.attrData.size();ii++)
+                    {
+                        ParticleSystemDrawable::AttributeData thisAttrData;
+                        thisAttrData.data = batch.attrData[ii];
+                        attrData.push_back(thisAttrData);
+                    }
+                    // Note: Should pick this up from the batch
+                    theBatch.startTime = TimeGetCurrent();
+                    draw->addAttributeData(renderer->getRenderSetupInfo(),attrData,theBatch);
+                } else {
+                    // For Metal, we just pass a block of data through
+                    draw->addAttributeData(renderer->getRenderSetupInfo(),batch.data,theBatch);
                 }
-                // Note: Should pick this up from the batch
-                theBatch.startTime = TimeGetCurrent();
-                draw->addAttributeData(renderer->getRenderSetupInfo(),attrData,theBatch);
             }
         }
     }

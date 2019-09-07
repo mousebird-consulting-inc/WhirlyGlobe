@@ -38,7 +38,7 @@ public:
     ParticleSystemDrawableMTL(const std::string &name);
     
     /// Add the vertex data (all of it) at once
-    void addAttributeData(const RenderSetupInfo *setupInfo,const std::vector<AttributeData> &attrData,const Batch &batch);
+    void addAttributeData(const RenderSetupInfo *setupInfo,const RawDataRef &data,const Batch &batch);
     
     /// Create our buffers in GL
     virtual void setupForRenderer(const RenderSetupInfo *);

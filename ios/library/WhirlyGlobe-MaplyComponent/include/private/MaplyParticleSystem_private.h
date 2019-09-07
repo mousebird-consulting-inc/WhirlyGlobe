@@ -58,5 +58,6 @@ public:
 @interface MaplyParticleBatch()
 
 @property (nonatomic,assign) std::vector<WhirlyKit::ParticleSystemAttrVals> &attrVals;
+@property (nonatomic) NSData *data;
 
 @end

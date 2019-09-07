@@ -147,6 +147,11 @@ using namespace WhirlyKit;
     return false;
 }
 
+- (void) addData:(NSData *)data
+{
+    self.data = data;
+}
+
 - (bool) isValid
 {
     return _partSys.numRegAttrs == self.attrVals.size();

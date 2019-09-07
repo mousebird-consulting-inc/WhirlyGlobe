@@ -125,8 +125,10 @@ public:
     };
     
     /// Add a batch for rendering later
-    virtual void addAttributeData(const RenderSetupInfo *setupInfo,const std::vector<AttributeData> &attrData,const Batch &batch) = 0;
-    
+    /// OpenGL ES wants individual attributes.  Metal just a blob of data.
+    virtual void addAttributeData(const RenderSetupInfo *setupInfo,const std::vector<AttributeData> &attrData,const Batch &batch) { };
+    virtual void addAttributeData(const RenderSetupInfo *setupInfo,const RawDataRef &data,const Batch &batch) { };
+
     /// Called once to set up batches
     void setupBaches();
     

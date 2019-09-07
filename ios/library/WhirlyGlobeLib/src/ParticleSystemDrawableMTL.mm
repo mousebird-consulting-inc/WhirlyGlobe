@@ -35,10 +35,20 @@ ParticleSystemDrawableMTL::ParticleSystemDrawableMTL(const std::string &name)
 }
 
 void ParticleSystemDrawableMTL::addAttributeData(const RenderSetupInfo *setupInfo,
-                                                 const std::vector<AttributeData> &attrData,
+                                                 const RawDataRef &data,
                                                  const Batch &batch)
 {
-    // No attributes for Metal version.  Just memory.
+    size_t offset = batch.batchID*vertexSize*batchSize;
+    size_t size = vertexSize*batchSize;
+    
+    if (size != data->getLen()) {
+        NSLog(@"Batch size doesn't match in addAttributeData()");
+        return;
+    }
+    
+    if (pointBuffer[0] != nil) {
+        memcpy((unsigned char *)[pointBuffer[0] contents] + offset, data->getRawData(), size);
+    }
 }
 
 void ParticleSystemDrawableMTL::setupForRenderer(const RenderSetupInfo *inSetupInfo)
@@ -53,10 +63,13 @@ void ParticleSystemDrawableMTL::setupForRenderer(const RenderSetupInfo *inSetupI
     int len = numTotalPoints * vertexSize;
     curPointBuffer = 0;
     pointBuffer[0] = [setupInfo->mtlDevice newBufferWithLength:len options:MTLStorageModeShared];
-    pointBuffer[1] = [setupInfo->mtlDevice newBufferWithLength:len options:MTLStorageModeShared];
+    if (calculateProgramId != EmptyIdentity)
+        pointBuffer[1] = [setupInfo->mtlDevice newBufferWithLength:len options:MTLStorageModeShared];
     for (unsigned int ii=0;ii<2;ii++) {
-        memset([pointBuffer[ii] contents], 0, len);
-        [pointBuffer[ii] setLabel:[NSString stringWithFormat:@"%s particle buffer %d",name.c_str(),(int)ii]];
+        if (pointBuffer[ii]) {
+            memset([pointBuffer[ii] contents], 0, len);
+            [pointBuffer[ii] setLabel:[NSString stringWithFormat:@"%s particle buffer %d",name.c_str(),(int)ii]];
+        }
     }
     
     if (useRectangles) {

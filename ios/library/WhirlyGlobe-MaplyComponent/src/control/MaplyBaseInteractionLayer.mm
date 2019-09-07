@@ -2981,28 +2981,34 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         bool validBatch = true;
         ParticleBatch wkBatch;
         wkBatch.batchSize = batch.partSys.batchSize;
-        // Copy the attributes over in the right order
-        for (auto mainAttr : batch.partSys.attrs)
-        {
-            if (mainAttr.varyName)
-                continue;
-            
-            bool found = false;
-            // Find the one that matches
-            for (auto thisAttr : batch.attrVals)
+        
+        if (sceneRender->getType() == WhirlyKit::SceneRendererGLES_iOS::RenderGLES) {
+            // Copy the attributes over in the right order
+            for (auto mainAttr : batch.partSys.attrs)
             {
-                if (thisAttr.attrID == mainAttr.getId())
+                if (mainAttr.varyName)
+                    continue;
+                
+                bool found = false;
+                // Find the one that matches
+                for (auto thisAttr : batch.attrVals)
                 {
-                    found = true;
-                    wkBatch.attrData.push_back([thisAttr.data bytes]);
-                    break;
+                    if (thisAttr.attrID == mainAttr.getId())
+                    {
+                        found = true;
+                        wkBatch.attrData.push_back([thisAttr.data bytes]);
+                        break;
+                    }
+                }
+                if (!found)
+                {
+                    NSLog(@"Missing attribute data for particle batch.  Dropping.");
+                    validBatch = false;
                 }
             }
-            if (!found)
-            {
-                NSLog(@"Missing attribute data for particle batch.  Dropping.");
-                validBatch = false;
-            }
+        } else {
+            // For Metal, we just pass through the data
+            wkBatch.data = RawNSDataReaderRef(new RawNSDataReader(batch.data));
         }
         
         if (validBatch)
