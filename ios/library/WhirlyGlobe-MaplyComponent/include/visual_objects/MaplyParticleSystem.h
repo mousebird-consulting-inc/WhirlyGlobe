@@ -180,7 +180,9 @@ typedef NS_ENUM(NSInteger, MaplyParticleSystemType) {
   */
 - (nonnull instancetype)initWithParticleSystem:(MaplyParticleSystem *__nonnull)partSys;
 
-/** 
+/**
+    OpenGL ES only.
+ 
     Add an attribute array of the given name.
     
     Each attribute in the MaplyParticleSystem must be filled in here.  The name must correspond and the length of the data must match.
@@ -188,6 +190,14 @@ typedef NS_ENUM(NSInteger, MaplyParticleSystemType) {
     @return Returns true if the attribute array was valid, false otherwise.
   */
 - (bool) addAttribute:(NSString *__nonnull)attrName values:(NSData *__nonnull)data;
+
+/**
+   Metal only.
+ 
+   We add the batch as a single blob of data.  Format is up to you and your shader.
+ 
+  */
+- (void) addData:(NSData *)data;
 
 /** 
     Tests if the batch is valid.

@@ -65,8 +65,10 @@ public:
     
     // Should match the particle systems batch size
     int batchSize;
-    // One entry per vertex attribute.  Order corresponds to the vertAttrs array in the ParticleSystem.
+    // For OpenGL ES: One entry per vertex attribute.  Order corresponds to the vertAttrs array in the ParticleSystem.
     std::vector<const void *> attrData;
+    // For Metal: We just pass through a mass of data without looking at it.
+    RawDataRef data;
 };
 
 /// Used to track resources associated with a particle system
