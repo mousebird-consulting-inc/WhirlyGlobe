@@ -62,13 +62,14 @@ FontTextureManager_iOS::~FontTextureManager_iOS()
 // Look for an existing font that will match the UIFont given
 FontManager_iOS *FontTextureManager_iOS::findFontManagerForFont(UIFont *uiFont,UIColor *colorUI,UIColor *backColorUI,UIColor *outlineColorUI,float outlineSize)
 {
+    // We need to scale the font up so it looks better scaled down
     std::string fontName = [uiFont.fontName cStringUsingEncoding:NSASCIIStringEncoding];
     float pointSize = uiFont.pointSize;
     RGBAColor color = [colorUI asRGBAColor];
     RGBAColor backColor = [backColorUI asRGBAColor];
     RGBAColor outlineColor = [outlineColorUI asRGBAColor];
-    
     pointSize *= BogusFontScale;
+    uiFont = [UIFont fontWithDescriptor:uiFont.fontDescriptor size:pointSize];
     
     for (FontManagerSet::iterator it = fontManagers.begin();
          it != fontManagers.end(); ++it)
@@ -83,7 +84,7 @@ FontManager_iOS *FontTextureManager_iOS::findFontManagerForFont(UIFont *uiFont,U
     }
     
     // Create it
-    CTFontRef font = CTFontCreateWithName((__bridge CFStringRef)uiFont.fontName, pointSize, NULL);
+    CTFontRef font = (__bridge CTFontRef)uiFont;
     FontManager_iOS *fm = new FontManager_iOS(font);
     fm->fontName = fontName;
     fm->color = color;
@@ -96,8 +97,6 @@ FontManager_iOS *FontTextureManager_iOS::findFontManagerForFont(UIFont *uiFont,U
     fm->outlineSize = outlineSize;
     //    fm->outlineSize *= BogusFontScale;
     fontManagers.insert(fm);
-    if (font)
-        CFRelease(font);
         
     return fm;
 }
