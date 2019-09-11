@@ -340,7 +340,7 @@ using namespace WhirlyKit;
 // Called on the SamplingLayer.LayerThread
 - (void)mergeLoadedTile:(MaplyLoaderReturn *)loadReturn
 {
-    if (!loader)
+    if (!loader || !valid)
         return;
     
     ChangeSet changes;
