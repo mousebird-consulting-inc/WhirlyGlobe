@@ -31,6 +31,7 @@ SamplingParams::SamplingParams()
     coverPoles(true), edgeMatching(true),
     tessX(10), tessY(10),
     singleLevel(false),
+    forceMinLevel(true),
     generateGeom(true)
 {
 }
@@ -56,6 +57,7 @@ bool SamplingParams::operator == (const SamplingParams &that) const
         coverPoles == that.coverPoles && edgeMatching == that.edgeMatching &&
         tessX == that.tessX && tessY == that.tessY &&
         singleLevel == that.singleLevel &&
+        forceMinLevel == that.forceMinLevel &&
         clipBounds == that.clipBounds &&
         generateGeom == that.generateGeom &&
         levelLoads == that.levelLoads &&

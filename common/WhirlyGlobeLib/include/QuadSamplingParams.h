@@ -68,6 +68,9 @@ public:
     /// Tesselation values per level for breaking down the coordinate system (e.g. globe)
     int tessX,tessY;
     
+    /// If set, we'll always load the lowest level first
+    bool forceMinLevel;
+    
     /// If set, we'll try to load a single level
     bool singleLevel;
     

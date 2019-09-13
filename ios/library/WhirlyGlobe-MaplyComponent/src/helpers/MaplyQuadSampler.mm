@@ -31,6 +31,7 @@ using namespace WhirlyKit;
 {
     self = [super init];
     self.singleLevel = true;
+    self.forceMinLevel = true;
 
     return self;
 }
@@ -148,6 +149,11 @@ using namespace WhirlyKit;
 - (void)setSingleLevel:(bool)singleLevel
 {
     params.singleLevel = singleLevel;
+}
+
+- (void)setForceMinLevel:(bool)forceMinLevel
+{
+    params.forceMinLevel = forceMinLevel;
 }
 
 - (MaplyBoundingBoxD)clipBounds

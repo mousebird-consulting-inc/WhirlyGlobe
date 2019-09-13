@@ -132,7 +132,11 @@ public:
 
     /// Load just the target level (and the lowest level)
     bool getSingleLevel();
-    void setSingleLevel(int);
+    void setSingleLevel(bool);
+    
+    /// Do we always throw the min level into the mix or not
+    bool getKeepMinLevel();
+    void setKeepMinLevel(bool);
     
     /// Level offsets in single level mode
     std::vector<int> getLevelLoads();
@@ -177,6 +181,7 @@ protected:
     std::vector<double> minImportancePerLevel;
     int minZoom,maxZoom;
     TimeInterval viewUpdatePeriod;
+    bool keepMinLevel;
     bool singleLevel;
     std::vector<int> levelLoads;
 

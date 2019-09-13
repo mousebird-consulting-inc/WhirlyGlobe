@@ -42,6 +42,7 @@ QuadDisplayControllerNew::QuadDisplayControllerNew(QuadDataStructure *dataStruct
     maxTiles = 128;
     viewUpdatePeriod = 0.1;
     singleLevel = false;
+    keepMinLevel = true;
     scene = renderer->getScene();
 }
     
@@ -94,9 +95,19 @@ bool QuadDisplayControllerNew::getSingleLevel()
     return singleLevel;
 }
 
-void QuadDisplayControllerNew::setSingleLevel(int newSingleLevel)
+void QuadDisplayControllerNew::setSingleLevel(bool newSingleLevel)
 {
     singleLevel = newSingleLevel;
+}
+    
+bool QuadDisplayControllerNew::getKeepMinLevel()
+{
+    return keepMinLevel;
+}
+
+void QuadDisplayControllerNew::setKeepMinLevel(bool newVal)
+{
+    keepMinLevel = newVal;
 }
 
 std::vector<int> QuadDisplayControllerNew::getLevelLoads()
@@ -160,7 +171,7 @@ bool QuadDisplayControllerNew::viewUpdate(ViewStateRef inViewState,ChangeSet &ch
     QuadTreeNew::ImportantNodeSet newNodes;
     int targetLevel = -1;
     if (singleLevel) {
-        std::tie(targetLevel,newNodes) = calcCoverageVisible(minImportancePerLevel, maxTiles, levelLoads);
+        std::tie(targetLevel,newNodes) = calcCoverageVisible(minImportancePerLevel, maxTiles, levelLoads, keepMinLevel);
     } else {
         newNodes = calcCoverageImportance(minImportancePerLevel,maxTiles,true);
         // Just take the highest level as target

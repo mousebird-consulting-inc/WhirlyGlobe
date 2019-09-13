@@ -115,7 +115,7 @@ public:
         Try to load all visible tiles at that level.
         If it's too many, back off a level. Repeat.
       */
-    std::tuple<int,ImportantNodeSet> calcCoverageVisible(const std::vector<double> &minImportance,int maxNodes,const std::vector<int> &levelLoads);
+    std::tuple<int,ImportantNodeSet> calcCoverageVisible(const std::vector<double> &minImportance,int maxNodes,const std::vector<int> &levelLoads,bool keepMinLevel);
     
     // Generate a bounding box 
     MbrD generateMbrForNode(const Node &node);
