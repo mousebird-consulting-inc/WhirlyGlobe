@@ -60,6 +60,10 @@
 /// Tesselation values per level for breaking down the coordinate system (e.g. globe)
 @property (nonatomic) int tessX,tessY;
 
+/// If set, we'll always load the lowest level first and then whatever the target level is
+/// Turn this off to get true single level loading
+@property (nonatomic) bool forceMinLevel;
+
 /// If set, we'll try to load a single level
 @property (nonatomic) bool singleLevel;
 

@@ -212,7 +212,7 @@ bool QuadTreeNew::evalNodeVisible(ImportantNode node,const std::vector<double> &
     return true;
 }
     
-std::tuple<int,QuadTreeNew::ImportantNodeSet> QuadTreeNew::calcCoverageVisible(const std::vector<double> &minImportance,int maxNodes,const std::vector<int> &levelLoads)
+std::tuple<int,QuadTreeNew::ImportantNodeSet> QuadTreeNew::calcCoverageVisible(const std::vector<double> &minImportance,int maxNodes,const std::vector<int> &levelLoads,bool keepMinLevel)
 {
     ImportantNodeSet sortedNodes;
 
@@ -233,7 +233,8 @@ std::tuple<int,QuadTreeNew::ImportantNodeSet> QuadTreeNew::calcCoverageVisible(c
     while (chosenLevel >= minLevel) {
         // Resolve the offsets and such if they are there
         std::set<int> levelsToLoad;
-        levelsToLoad.insert(minLevel);
+        if (keepMinLevel)
+            levelsToLoad.insert(minLevel);
         levelsToLoad.insert(chosenLevel);
         for (int level : levelLoads) {
             if (level < 0)
