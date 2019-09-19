@@ -129,6 +129,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setImageForma
 
 /*
  * Class:     com_mousebird_maply_QuadImageTileLayer
+ * Method:    setInterpType
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setInterpType
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     com_mousebird_maply_QuadImageTileLayer
  * Method:    getBorderTexel
  * Signature: ()I
  */
@@ -166,6 +174,14 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageTileLayer_getTargetZoom
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setShaderName
   (JNIEnv *, jobject, jstring);
+
+/*
+ * Class:     com_mousebird_maply_QuadImageTileLayer
+ * Method:    setRenderTargetNative
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setRenderTargetNative
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     com_mousebird_maply_QuadImageTileLayer

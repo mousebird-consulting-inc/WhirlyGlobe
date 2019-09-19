@@ -1381,7 +1381,8 @@ using namespace WhirlyGlobe;
     Point3d pt = theView.coordAdapter->localToDisplay(theView.coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(geoCoord.x,geoCoord.y)));
     
     Eigen::Matrix4d modelTrans = [theView calcFullMatrix];
-    return [theView pointOnScreenFromSphere:pt transform:&modelTrans frameSize:Point2f(renderControl->sceneRenderer.framebufferWidth/glView.contentScaleFactor,renderControl->sceneRenderer.framebufferHeight/glView.contentScaleFactor)];
+    CGFloat scale = UIScreen.mainScreen.scale;
+    return [theView pointOnScreenFromSphere:pt transform:&modelTrans frameSize:Point2f(renderControl->sceneRenderer.framebufferWidth/scale,renderControl->sceneRenderer.framebufferHeight/scale)];
 }
 
 - (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord
@@ -1412,7 +1413,8 @@ using namespace WhirlyGlobe;
     if (CheckPointAndNormFacing(pt3f,pt3f.normalized(),modelAndViewMat,modelAndViewNormalMat) < 0.0)
         return false;
     
-    *screenPt =  [globeView pointOnScreenFromSphere:pt transform:&modelAndViewMat4d frameSize:Point2f(renderControl->sceneRenderer.framebufferWidth/glView.contentScaleFactor,renderControl->sceneRenderer.framebufferHeight/glView.contentScaleFactor)];
+    CGFloat scale = UIScreen.mainScreen.scale;
+    *screenPt =  [globeView pointOnScreenFromSphere:pt transform:&modelAndViewMat4d frameSize:Point2f(renderControl->sceneRenderer.framebufferWidth/scale,renderControl->sceneRenderer.framebufferHeight/scale)];
     
     if (screenPt->x < 0 || screenPt->y < 0 || screenPt->x > renderControl->sceneRenderer.framebufferWidth || screenPt->y > renderControl->sceneRenderer.framebufferHeight)
         return false;
@@ -1425,9 +1427,10 @@ using namespace WhirlyGlobe;
     if (!renderControl)
         return false;
     
+    CGFloat scale = UIScreen.mainScreen.scale;
 	Point3d hit;
 	Eigen::Matrix4d theTransform = [globeView calcFullMatrix];
-    if ([globeView pointOnSphereFromScreen:screenPt transform:&theTransform frameSize:Point2f(renderControl->sceneRenderer.framebufferWidth/glView.contentScaleFactor,renderControl->sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&hit normalized:true])
+    if ([globeView pointOnSphereFromScreen:screenPt transform:&theTransform frameSize:Point2f(renderControl->sceneRenderer.framebufferWidth/scale,renderControl->sceneRenderer.framebufferHeight/scale) hit:&hit normalized:true])
     {
         GeoCoord geoCoord = visualView.coordAdapter->getCoordSystem()->localToGeographic(visualView.coordAdapter->displayToLocal(hit));
         retCoord->x = geoCoord.x();
@@ -1455,9 +1458,10 @@ using namespace WhirlyGlobe;
     if (!renderControl)
         return false;
     
+    CGFloat scale = UIScreen.mainScreen.scale;
 	Point3d hit;
 	Eigen::Matrix4d theTransform = [globeView calcFullMatrix];
-    if ([globeView pointOnSphereFromScreen:screenPt transform:&theTransform frameSize:Point2f(renderControl->sceneRenderer.framebufferWidth/glView.contentScaleFactor,renderControl->sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&hit normalized:true])
+    if ([globeView pointOnSphereFromScreen:screenPt transform:&theTransform frameSize:Point2f(renderControl->sceneRenderer.framebufferWidth/scale,renderControl->sceneRenderer.framebufferHeight/scale) hit:&hit normalized:true])
     {
         Point3d geoC = visualView.coordAdapter->getCoordSystem()->localToGeocentric(visualView.coordAdapter->displayToLocal(hit));
         retCoords[0] = geoC.x();  retCoords[1] = geoC.y();  retCoords[2] = geoC.z();
@@ -1564,11 +1568,12 @@ using namespace WhirlyGlobe;
     
     Vector3d startLoc(0,0,1);
     
+    CGFloat scale = UIScreen.mainScreen.scale;
     if (animState.screenPos.x >= 0.0 && animState.screenPos.y >= 0.0)
     {
         Matrix4d heightTrans = Eigen::Affine3d(Eigen::Translation3d(0,0,-[globeView calcEarthZOffset])).matrix();
         Point3d hit;
-        if ([globeView pointOnSphereFromScreen:animState.screenPos transform:&heightTrans frameSize:Point2f(renderControl->sceneRenderer.framebufferWidth/glView.contentScaleFactor,renderControl->sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&hit normalized:true])
+        if ([globeView pointOnSphereFromScreen:animState.screenPos transform:&heightTrans frameSize:Point2f(renderControl->sceneRenderer.framebufferWidth/scale,renderControl->sceneRenderer.framebufferHeight/scale) hit:&hit normalized:true])
         {
             startLoc = hit;
         }
@@ -1741,6 +1746,7 @@ static const float FullExtentEps = 1e-5;
     if (!renderControl)
         return 0;
     
+    CGFloat scale = UIScreen.mainScreen.scale;
     float extentEps = visualBoxes ? FullExtentEps : 0.0;
     
     CGPoint screenCorners[4];
@@ -1950,7 +1956,7 @@ static const float FullExtentEps = 1e-5;
                 if (CheckPointAndNormFacing(pt,pt.normalized(),modelTrans,modelAndViewNormalMat) < 0.0)
                     continue;
                 
-                CGPoint screenPt = [globeView pointOnScreenFromSphere:pt transform:&modelTrans frameSize:Point2f(renderControl->sceneRenderer.framebufferWidth/glView.contentScaleFactor,renderControl->sceneRenderer.framebufferHeight/glView.contentScaleFactor)];
+                CGPoint screenPt = [globeView pointOnScreenFromSphere:pt transform:&modelTrans frameSize:Point2f(renderControl->sceneRenderer.framebufferWidth/scale,renderControl->sceneRenderer.framebufferHeight/scale)];
             
                 if (screenPt.x < 0 || screenPt.y < 0 || screenPt.x > renderControl->sceneRenderer.framebufferWidth || screenPt.y > renderControl->sceneRenderer.framebufferHeight)
                     continue;

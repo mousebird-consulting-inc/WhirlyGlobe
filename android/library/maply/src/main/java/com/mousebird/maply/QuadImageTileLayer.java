@@ -612,9 +612,7 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
     /**
      * Query the status for active frames.  This asks the quad image layer what the state of
      * frame loading is at this instant.  All arrays are imageDepth in size.
-     * @param complete For each frame, whether or not it's completely loaded.
-     * @param tilesLoaded For each frame, how many tiles are loaded.
-     * @return The frame currently beng loaded.  Returns -1 if the call was invalid.
+     * @return Information about the frames in the process of loading.
      */
     public FrameStatus getFrameStatus()
     {
@@ -708,6 +706,17 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
     }
     
     native void setImageFormat(int format);
+
+    public enum InterpType {Nearest,Linear};
+
+	/**
+	 * Set the interpolation type for textures created by this layer.
+	 * Nearest means the texture values won't be sampled before they get to the shader.
+	 * Linear is the normal mode.
+	 */
+	public void setInterpType(InterpType type) { setInterpType(type.ordinal()); }
+
+    private native void setInterpType(int type);
     
     /**
      * Returns the number of border texels used around images.
@@ -746,6 +755,15 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
      * Set the scene name of the shader to use for this layer.
      */
 	public native void setShaderName(String name);
+
+	/**
+	 * Geometry created by this layer will be rendered to this render target.
+	 */
+	public void setRenderTarget(RenderTarget target)
+	{
+		setRenderTargetNative(target.renderTargetID);
+	}
+	protected native void setRenderTargetNative(long renderTargetID);
     
     /** Force a full reload of all tiles.
      * This will notify the system to flush out all the existing tiles and start reloading from the top.  If everything is cached locally (and the MaplyTileSource objects say so) then this should appear instantly.  If something needs to be fetched or it's taking too long, you'll see these page in from the low to the high level.
