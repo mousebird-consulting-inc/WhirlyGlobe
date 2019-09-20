@@ -341,7 +341,10 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     
     return retData;
 }
-            
+
+// Courtesy: https://stackoverflow.com/questions/7848766/how-can-we-programmatically-detect-which-ios-version-is-device-running-on
+#define SYSTEM_VERSION_LESS_THAN(v)                 ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedAscending)
+
 // Look for an existing font that will match the UIFont given
 - (FontManager *)findFontManagerForFont:(UIFont *)uiFont color:(UIColor *)color backColor:(UIColor *)backColor outlineColor:(UIColor *)outlineColor outlineSize:(NSNumber *)outlineSize
 {
@@ -349,7 +352,6 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     NSString *fontName = uiFont.fontName;
     float pointSize = uiFont.pointSize;
     pointSize *= BogusFontScale;
-    uiFont = [UIFont fontWithDescriptor:uiFont.fontDescriptor size:pointSize];
     
     for (FontManagerSet::iterator it = fontManagers.begin();
          it != fontManagers.end(); ++it)
@@ -367,7 +369,15 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     }
     
     // Create it
-    CTFontRef font = (__bridge CTFontRef)uiFont;
+    CTFontRef font;
+    bool cleanupFont = false;
+    if (SYSTEM_VERSION_LESS_THAN(@"11.0")) {
+        font = CTFontCreateWithName((__bridge CFStringRef)fontName, pointSize, NULL);
+        cleanupFont = true;
+    } else {
+        uiFont = [UIFont fontWithDescriptor:uiFont.fontDescriptor size:pointSize];
+        font = (__bridge CTFontRef)uiFont;
+    }
     FontManager *fm = new FontManager(font);
     fm->fontName = fontName;
     fm->color = color;
@@ -377,7 +387,9 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     fm->outlineSize = [outlineSize floatValue];
 //    fm->outlineSize *= BogusFontScale;
     fontManagers.insert(fm);
-    
+    if (cleanupFont)
+        CFRelease(font);
+
     return fm;
 }
 
