@@ -342,9 +342,6 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     return retData;
 }
 
-// Courtesy: https://stackoverflow.com/questions/7848766/how-can-we-programmatically-detect-which-ios-version-is-device-running-on
-#define SYSTEM_VERSION_LESS_THAN(v)                 ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedAscending)
-
 // Look for an existing font that will match the UIFont given
 - (FontManager *)findFontManagerForFont:(UIFont *)uiFont color:(UIColor *)color backColor:(UIColor *)backColor outlineColor:(UIColor *)outlineColor outlineSize:(NSNumber *)outlineSize
 {
@@ -371,7 +368,7 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     // Create it
     CTFontRef font;
     bool cleanupFont = false;
-    if (SYSTEM_VERSION_LESS_THAN(@"11.0")) {
+    if (@available(iOS 12.0, *)) {
         font = CTFontCreateWithName((__bridge CFStringRef)fontName, pointSize, NULL);
         cleanupFont = true;
     } else {

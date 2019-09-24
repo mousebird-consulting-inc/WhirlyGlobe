@@ -127,6 +127,10 @@ using namespace WhirlyKit;
                 _maxZoom = [readStmt3.getString() intValue];
         }
         
+        sqlhelpers::StatementRead readStmt4(_sqlDb,"select value from metadata where name='format';");
+        if (readStmt4.stepRow())
+            _format = readStmt4.getString();
+
         // Note: We could load something and calculate this, but I don't want to slow us down here
         _pixelsPerTile = 256;
         
