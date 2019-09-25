@@ -369,11 +369,11 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     CTFontRef font;
     bool cleanupFont = false;
     if (@available(iOS 12.0, *)) {
-        font = CTFontCreateWithName((__bridge CFStringRef)fontName, pointSize, NULL);
-        cleanupFont = true;
-    } else {
         uiFont = [UIFont fontWithDescriptor:uiFont.fontDescriptor size:pointSize];
         font = (__bridge CTFontRef)uiFont;
+    } else {
+        font = CTFontCreateWithName((__bridge CFStringRef)fontName, pointSize, NULL);
+        cleanupFont = true;
     }
     FontManager *fm = new FontManager(font);
     fm->fontName = fontName;
