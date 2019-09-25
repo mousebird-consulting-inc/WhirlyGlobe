@@ -42,6 +42,7 @@ class AnimatedBasemapTestCase: MaplyTestCase {
         // Set up a variable target for two pass rendering
         varTarget = MaplyVariableTarget(type: .imageIntRGBA, viewC: baseVC)
         varTarget?.setScale(0.5)
+        varTarget?.clearEveryFrame = true
         varTarget?.drawPriority = kMaplyImageLayerDrawPriorityDefault + 1000
         
         // Parameters describing how we want a globe broken down
@@ -55,7 +56,7 @@ class AnimatedBasemapTestCase: MaplyTestCase {
         sampleParams.minImportance = 1024.0*1024.0
 
         imageLayer = MaplyQuadImageFrameLoader(params: sampleParams, tileInfos: tileSources, viewC: baseVC)
-        imageLayer?.debugMode = true;
+//        imageLayer?.debugMode = true;
         if let varTarget = varTarget {
             imageLayer?.setRenderTarget(varTarget.renderTarget)
         }
@@ -88,6 +89,12 @@ class AnimatedBasemapTestCase: MaplyTestCase {
                 which += 1
             }
         }
+        
+        // Color changing test
+//        imageLayer?.color = UIColor.green
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) {
+//            self.imageLayer?.color = UIColor.blue
+//        }
     }
 
 	override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {

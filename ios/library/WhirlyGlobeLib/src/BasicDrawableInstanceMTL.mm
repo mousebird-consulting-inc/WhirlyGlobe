@@ -34,11 +34,53 @@ BasicDrawableInstanceMTL::BasicDrawableInstanceMTL(const std::string &name)
 {
 }
 
+// Place or update the default attribute corresponding to color
+// TODO: Make this more general
+void BasicDrawableInstanceMTL::updateColorDefaultAttr()
+{
+    BasicDrawableMTL *basicDrawMTL = (BasicDrawableMTL *)basicDraw.get();
+    if (!basicDrawMTL)
+        return;
+
+    if (hasColor) {
+        VertexAttributeMTL *colorAttrMTL = basicDrawMTL->findVertexAttribute(a_colorNameID);
+        if (colorAttrMTL) {
+            BasicDrawableMTL::AttributeDefault defAttr;
+            defAttr.dataType = MTLDataTypeUChar4;
+            defAttr.bufferIndex = colorAttrMTL->bufferIndex;
+            unsigned char chars[4];
+            color.asUChar4(chars);
+            for (unsigned int ii=0;ii<4;ii++)
+                defAttr.data.chars[ii] = chars[ii];
+            
+            // Might need to replace this one
+            bool found = false;
+            for (int ii=0;ii<defaultAttrs.size();ii++)
+                if (defaultAttrs[ii].bufferIndex == defAttr.bufferIndex) {
+                    defaultAttrs[ii] = defAttr;
+                    found = true;
+                    break;
+                }
+
+            if (!found)
+                defaultAttrs.push_back(defAttr);
+        }
+    }
+}
+
+void BasicDrawableInstanceMTL::setColor(RGBAColor inColor)
+{
+    BasicDrawableInstance::setColor(inColor);
+    
+    updateColorDefaultAttr();
+}
+
+
 void BasicDrawableInstanceMTL::setupForRenderer(const RenderSetupInfo *inSetupInfo)
 {
     if (setupForMTL)
         return;
-        
+
     if (instanceStyle == LocalStyle) {
         RenderSetupInfoMTL *setupInfo = (RenderSetupInfoMTL *)inSetupInfo;
 
@@ -78,7 +120,7 @@ void BasicDrawableInstanceMTL::setupForRenderer(const RenderSetupInfo *inSetupIn
             instBuffer.label = [NSString stringWithFormat:@"%s inst",name.c_str()];
         numInst = insts.size();
     }
-    
+        
     setupForMTL = true;
 }
 
@@ -231,6 +273,9 @@ id<MTLRenderPipelineState> BasicDrawableInstanceMTL::getRenderPipelineState(Scen
     renderDesc.vertexDescriptor = basicDrawMTL->getVertexDescriptor(program->vertFunc,basicDrawMTL->defaultAttrs);
     if (!name.empty())
         renderDesc.label = [NSString stringWithFormat:@"%s",name.c_str()];
+    
+    // We also need to set up our default attribute overrides
+    updateColorDefaultAttr();
 
     // Set up a render state
     NSError *err = nil;

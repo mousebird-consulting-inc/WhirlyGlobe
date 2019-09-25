@@ -32,6 +32,9 @@ class BasicDrawableInstanceMTL : public BasicDrawableInstance
 public:
     BasicDrawableInstanceMTL(const std::string &name);
     
+    // Color can change after setup
+    virtual void setColor(RGBAColor inColor);
+    
     /// Set up local rendering structures (e.g. VBOs)
     virtual void setupForRenderer(const RenderSetupInfo *setupInfo);
     
@@ -43,6 +46,7 @@ public:
     
 protected:
     id<MTLRenderPipelineState> getRenderPipelineState(SceneRendererMTL *sceneRender,RendererFrameInfoMTL *frameInfo,BasicDrawableMTL *basicDrawMTL);
+    void updateColorDefaultAttr();
     
     id<MTLRenderPipelineState> renderState;
     std::vector<BasicDrawableMTL::AttributeDefault> defaultAttrs;

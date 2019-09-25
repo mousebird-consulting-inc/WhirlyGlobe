@@ -35,6 +35,20 @@ BasicDrawableMTL::BasicDrawableMTL(const std::string &name)
     : BasicDrawable(name), triBuffer(nil), setupForMTL(false), vertDesc(nil), renderState(nil), numPts(0), numTris(0)
 {
 }
+
+VertexAttributeMTL *BasicDrawableMTL::findVertexAttribute(int nameID)
+{
+    VertexAttributeMTL *foundVertAttr = NULL;
+    for (auto vertAttr : vertexAttributes) {
+        VertexAttributeMTL *vertAttrMTL = (VertexAttributeMTL *)vertAttr;
+        if (vertAttrMTL->nameID == nameID) {
+            foundVertAttr = vertAttrMTL;
+            break;
+        }
+    }
+    
+    return foundVertAttr;
+}
  
 // Create a buffer per vertex attribute
 void BasicDrawableMTL::setupForRenderer(const RenderSetupInfo *inSetupInfo)

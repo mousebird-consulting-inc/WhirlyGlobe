@@ -102,7 +102,7 @@ public:
     void setViewerVisibility(double inMinViewerDist,double inMaxViewerDist,const Point3d &inViewerCenter);
     
     /// Set the color
-    void setColor(RGBAColor inColor);
+    virtual void setColor(RGBAColor inColor);
     
     /// Set the draw priority
     void setDrawPriority(int newPriority);

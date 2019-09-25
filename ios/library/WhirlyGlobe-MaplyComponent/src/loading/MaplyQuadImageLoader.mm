@@ -342,6 +342,8 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
     loader->setFlipY(self.flipY);
     loader->setBaseDrawPriority(_baseDrawPriority);
     loader->setDrawPriorityPerLevel(_drawPriorityPerLevel);
+    RGBAColor color = [_color asRGBAColor];
+    loader->setColor(color,NULL);
 
     return true;
 }
@@ -361,6 +363,29 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
     
     loader->setRenderTarget(0,[renderTarget renderTargetID]);
 }
+
+- (void)setColor:(UIColor *)newColor
+{
+    _color = newColor;
+    
+    if (samplingLayer.layerThread)
+        [self performSelector:@selector(setColorThread:) onThread:samplingLayer.layerThread withObject:_color waitUntilDone:NO];
+    else if (loader) {
+        RGBAColor color = [_color asRGBAColor];
+        loader->setColor(color, NULL);
+    }
+}
+
+// Run on the layer thread
+- (void)setColorThread:(UIColor *)newColor
+{
+    ChangeSet changes;
+    RGBAColor color = [_color asRGBAColor];
+    loader->setColor(color,&changes);
+    
+    [samplingLayer.layerThread addChangeRequests:changes];
+}
+         
 
 @end
 

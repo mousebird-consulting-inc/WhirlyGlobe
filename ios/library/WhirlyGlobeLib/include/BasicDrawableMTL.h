@@ -52,8 +52,10 @@ public:
     virtual void teardownForRenderer(const RenderSetupInfo *setupInfo);
     
     /// Fill this in to draw the basic drawable
-    /// Note: Make this GL only
     virtual void draw(RendererFrameInfo *frameInfo,Scene *scene);
+    
+    /// Find the vertex attribute corresponding to the given name
+    VertexAttributeMTL *findVertexAttribute(int nameID);
     
 public:
     // Apply a list of uniforms to the draw state
