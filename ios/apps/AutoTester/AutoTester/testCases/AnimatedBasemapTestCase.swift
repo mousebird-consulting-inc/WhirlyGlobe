@@ -40,7 +40,7 @@ class AnimatedBasemapTestCase: MaplyTestCase {
         }
         
         // Set up a variable target for two pass rendering
-        varTarget = MaplyVariableTarget(type: .VariableTypeVisual, viewC: baseVC)
+        varTarget = MaplyVariableTarget(type: .imageIntRGBA, viewC: baseVC)
         varTarget?.setScale(0.5)
         varTarget?.drawPriority = kMaplyImageLayerDrawPriorityDefault + 1000
         
