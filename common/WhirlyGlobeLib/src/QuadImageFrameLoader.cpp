@@ -323,13 +323,21 @@ void QIFTileAsset::cancelFetches(QuadImageFrameLoader *loader,int frameToCancel,
 bool QIFTileAsset::frameLoaded(QuadImageFrameLoader *loader,QuadLoaderReturn *loadReturn,std::vector<Texture *> &texs,ChangeSet &changes) {
     if (frames.size() > 0 && (loadReturn->frame < 0 || loadReturn->frame >= frames.size()))
     {
+        if (!loadReturn->compObjs.empty())
+            loader->compManager->removeComponentObjects(loadReturn->compObjs, changes);
+        if (!loadReturn->ovlCompObjs.empty())
+            loader->compManager->removeComponentObjects(loadReturn->ovlCompObjs, changes);
         wkLogLevel(Warn,"QuadImageFrameLoader: Got frame back outside of range");
         return false;
     }
     
     // Check the generation.  This is how we catch old data that was in transit.
     if (loadReturn->generation < loader->getGeneration()) {
-        wkLogLevel(Debug, "QuadImageFrameLoader: Dropped an old loadReturn after a reload.");
+        if (!loadReturn->compObjs.empty())
+            loader->compManager->removeComponentObjects(loadReturn->compObjs, changes);
+        if (!loadReturn->ovlCompObjs.empty())
+            loader->compManager->removeComponentObjects(loadReturn->ovlCompObjs, changes);
+//        wkLogLevel(Debug, "QuadImageFrameLoader: Dropped an old loadReturn after a reload.");
         return true;
     }
     

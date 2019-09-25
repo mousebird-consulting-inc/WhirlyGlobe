@@ -119,4 +119,9 @@ using namespace WhirlyKit;
     return [[MaplyObjectLoaderReturn alloc] initWithLoader:self];
 }
 
+- (void)reload
+{
+    [super reload];
+}
+
 @end

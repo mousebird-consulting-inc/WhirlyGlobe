@@ -100,6 +100,17 @@ void ComponentManager::removeComponentObject(SimpleIdentity compID, ChangeSet &c
     removeComponentObjects(compIDs, changes);
 }
 
+void ComponentManager::removeComponentObjects(const std::vector<ComponentObjectRef> &compObjs,ChangeSet &changes)
+{
+    SimpleIDSet compIDs;
+    
+    for (auto compObj: compObjs) {
+        compIDs.insert(compObj->getId());
+    }
+    
+    removeComponentObjects(compIDs, changes);
+}
+
 void ComponentManager::removeComponentObjects(const SimpleIDSet &compIDs,ChangeSet &changes)
 {
     std::vector<ComponentObjectRef> compRefs;

@@ -61,6 +61,19 @@ const bool enableTest = false;
     // Starts loading up the quad tree
     // With no tileInfo object, it doesn't bother to fetch anything
     loader = [[MaplyQuadPagingLoader alloc] initWithParams:params tileInfo:nil loadInterp:interp viewC:baseViewC];
+
+//    [self forceReload];
+}
+
+- (void)forceReload
+{
+    [loader reload];
+    
+    PagingLayerTestCase * __weak weakSelf = self;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3.0 * NSEC_PER_SEC)), dispatch_get_main_queue(),
+    ^{
+        [weakSelf forceReload];
+    });
 }
 
 @end
