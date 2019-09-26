@@ -503,7 +503,8 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
                 }
 
                 try {
-                    response.body().close();
+                    if (response != null)
+                        response.body().close();
                 }
                 catch (Exception fooE)
                 {
