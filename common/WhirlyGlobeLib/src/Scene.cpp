@@ -53,7 +53,7 @@ Scene::Scene(CoordSystemDisplayAdapter *adapter)
     coordAdapter = adapter;
     
     // Selection manager is used for object selection from any thread
-    addManager(kWKSelectionManager,new SelectionManager(this,DeviceScreenScale()));
+    addManager(kWKSelectionManager,new SelectionManager(this));
     // Intersection handling
     addManager(kWKIntersectionManager, new IntersectionManager(this));
     // Layout manager handles text and icon layout

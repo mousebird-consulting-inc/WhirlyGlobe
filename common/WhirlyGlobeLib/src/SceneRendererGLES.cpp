@@ -59,7 +59,7 @@ const RenderSetupInfo *SceneRendererGLES::getRenderSetupInfo() const
     return &setupInfo;
 }
 
-bool SceneRendererGLES::setup(int apiVersion,int sizeX,int sizeY)
+bool SceneRendererGLES::setup(int apiVersion,int sizeX,int sizeY,float inScale)
 {
     frameCount = 0;
     framesPerSec = 0.0;
@@ -70,6 +70,7 @@ bool SceneRendererGLES::setup(int apiVersion,int sizeX,int sizeY)
     clearColor.r = 0;  clearColor.g = 0;  clearColor.b = 0;  clearColor.a = 0;
     perfInterval = -1;
     scene = NULL;
+    scale = inScale;
     theView = NULL;
     
     // All the animations should work now, except for particle systems

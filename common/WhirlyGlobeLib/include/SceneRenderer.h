@@ -163,6 +163,9 @@ public:
     /// Return the device scale (e.g. retina vs. not)
     float getScale();
     
+    /// Set the screen scale (can vary)
+    void setScale(float newScale);
+    
     /// Used by the subclasses to determine if the view changed and needs to be updated
     virtual bool viewDidChange();
     

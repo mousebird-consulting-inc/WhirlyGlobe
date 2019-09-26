@@ -80,7 +80,7 @@ void CopyIntoMtlFloat4(simd::float4 &dest,const float vals[4]);
 class SceneRendererMTL : public SceneRenderer
 {
 public:
-    SceneRendererMTL(id<MTLDevice> mtlDevice);
+    SceneRendererMTL(id<MTLDevice> mtlDevice,float scale);
     virtual ~SceneRendererMTL();
     
     // Metal (obviously)

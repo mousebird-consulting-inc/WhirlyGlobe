@@ -71,8 +71,8 @@ SelectionManager::SelectedObject::SelectedObject()
 {
 }
 
-SelectionManager::SelectionManager(Scene *scene,float viewScale)
-    : scene(scene), scale(viewScale)
+SelectionManager::SelectionManager(Scene *scene)
+    : scene(scene)
 {
 }
 
@@ -732,7 +732,7 @@ void SelectionManager::getScreenSpaceObjects(const PlacementInfo &pInfo,std::vec
 SelectionManager::PlacementInfo::PlacementInfo(ViewStateRef viewState,SceneRenderer *renderer)
 : viewState(viewState)
 {
-    float scale = DeviceScreenScale();
+    float scale = renderer->getScale();
     
     // Sort out what kind of view it is
     globeViewState = dynamic_cast<WhirlyGlobe::GlobeViewState *>(viewState.get());
@@ -895,7 +895,7 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,ViewStateRef vi
         ScreenSpaceObjectLocation &screenObj = ssObjs[ii];
         
         Point2dVector projPts;
-        projectWorldPointToScreen(screenObj.dispLoc, pInfo, projPts,scale);
+        projectWorldPointToScreen(screenObj.dispLoc, pInfo, projPts, renderer->getScale());
         
         float closeDist2 = MAXFLOAT;
         // Work through the possible locations of the projected point
@@ -1114,13 +1114,13 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,ViewStateRef vi
                     (sel.minVis < pInfo.heightAboveSurface && pInfo.heightAboveSurface < sel.maxVis))
                 {
                     Point2dVector p0Pts;
-                    projectWorldPointToScreen(sel.pts[0],pInfo,p0Pts,scale);
+                    projectWorldPointToScreen(sel.pts[0],pInfo,p0Pts,renderer->getScale());
                     float closeDist2 = MAXFLOAT;
                     float closeDist3d = MAXFLOAT;
                     for (unsigned int ip=1;ip<sel.pts.size();ip++)
                     {
                         Point2dVector p1Pts;
-                        projectWorldPointToScreen(sel.pts[ip],pInfo,p1Pts,scale);
+                        projectWorldPointToScreen(sel.pts[ip],pInfo,p1Pts,renderer->getScale());
                         
                         if (p0Pts.size() == p1Pts.size())
                         {

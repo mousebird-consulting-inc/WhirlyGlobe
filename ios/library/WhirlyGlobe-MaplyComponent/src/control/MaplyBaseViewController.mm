@@ -342,7 +342,7 @@ using namespace WhirlyKit;
 	self.view.autoresizesSubviews = YES;
 	wrapView.frame = self.view.bounds;
     wrapView.backgroundColor = [UIColor blackColor];
-    
+        
 	// Need an empty scene and view
     visualView = [self loadSetup_view];
     renderControl->scene = [self loadSetup_scene];
@@ -500,6 +500,14 @@ using namespace WhirlyKit;
 	[super viewWillDisappear:animated];
 
 	[self stopAnimation];
+}
+
+- (void)viewWillLayoutSubviews
+{
+    if (wrapView) {
+        CGRect bounds = self.view.bounds;
+        wrapView.frame = self.view.bounds;
+    }
 }
 
 - (void)didReceiveMemoryWarning
@@ -1725,7 +1733,7 @@ static const float PerfOutputDelay = 15.0;
         // On iOS 4 and later, use UIGraphicsBeginImageContextWithOptions to take the scale into consideration
         // Set the scale parameter to your OpenGL ES view's contentScaleFactor
         // so that you get a high-resolution snapshot when its value is greater than 1.0
-        CGFloat scale = DeviceScreenScale();
+        CGFloat scale = sceneRenderGLES->scale;
         widthInPoints = framebufferWidth / scale;
         heightInPoints = framebufferHeight / scale;
         UIGraphicsBeginImageContextWithOptions(CGSizeMake(widthInPoints, heightInPoints), NO, scale);

@@ -48,9 +48,10 @@ RendererFrameInfoMTL::RendererFrameInfoMTL(const RendererFrameInfoMTL &that)
     cmdEncode = that.cmdEncode;
 }
 
-SceneRendererMTL::SceneRendererMTL(id<MTLDevice> mtlDevice)
+SceneRendererMTL::SceneRendererMTL(id<MTLDevice> mtlDevice, float inScale)
 {
     init();
+    scale = inScale;
     setupInfo.mtlDevice = mtlDevice;
 }
     
@@ -373,8 +374,13 @@ void SceneRendererMTL::render(TimeInterval duration,
     
     // Set up a projection matrix
     Point2f frameSize(framebufferWidth,framebufferHeight);
+    // In theory, we should be nudging the projection matrix from OpenGL style to Metal style
+    //  but it doesn't seem to matter, oddly.
+//    Eigen::Matrix4d mtlShift = Matrix4d::Identity();
+//    mtlShift(2,2) = 0.5;  mtlShift(2,3) = 0.5;
+//    Eigen::Matrix4d projMat4d = mtlShift * theView->calcProjectionMatrix(frameSize,0.0);
     Eigen::Matrix4d projMat4d = theView->calcProjectionMatrix(frameSize,0.0);
-    
+
     Eigen::Matrix4f projMat = Matrix4dToMatrix4f(projMat4d);
     Eigen::Matrix4f modelAndViewMat = viewTrans * modelTrans;
     Eigen::Matrix4d modelAndViewMat4d = viewTrans4d * modelTrans4d;

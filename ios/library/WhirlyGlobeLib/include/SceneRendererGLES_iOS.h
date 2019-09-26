@@ -32,9 +32,9 @@ class SceneRendererGLES_iOS : public SceneRendererGLES
 {
 public:
     /// Create for use on the screen
-    SceneRendererGLES_iOS();
+    SceneRendererGLES_iOS(float scale);
     /// Create for rendering to a texture
-    SceneRendererGLES_iOS(int width,int height);
+    SceneRendererGLES_iOS(int width,int height,float scale);
     virtual ~SceneRendererGLES_iOS();
 
     /// Set the current OpenGL ES context if there is one
