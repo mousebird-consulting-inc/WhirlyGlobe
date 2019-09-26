@@ -719,7 +719,7 @@ using namespace Eigen;
     [self addShader:kMaplyShaderDefaultWideVector
             program:ProgramRef(new ProgramMTL([kMaplyShaderDefaultWideVector cStringUsingEncoding:NSASCIIStringEncoding],
                                         [mtlLib newFunctionWithName:@"vertexTri_wideVec"],
-                                        [mtlLib newFunctionWithName:@"fragmentTri_basic"]))];
+                                        [mtlLib newFunctionWithName:@"fragmentTri_wideVec"]))];
 
     // Screen Space (motion and regular are the same)
     ProgramRef screenSpace = ProgramRef(new
