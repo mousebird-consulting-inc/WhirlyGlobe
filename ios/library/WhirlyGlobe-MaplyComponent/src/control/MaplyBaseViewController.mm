@@ -505,7 +505,6 @@ using namespace WhirlyKit;
 - (void)viewWillLayoutSubviews
 {
     if (wrapView) {
-        CGRect bounds = self.view.bounds;
         wrapView.frame = self.view.bounds;
     }
 }
