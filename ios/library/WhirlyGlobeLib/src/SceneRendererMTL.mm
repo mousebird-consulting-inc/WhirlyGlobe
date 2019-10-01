@@ -646,14 +646,17 @@ void SceneRendererMTL::render(TimeInterval duration,
 //                masterEncode = [cmdBuff parallelRenderCommandEncoderWithDescriptor:baseFrameInfo.renderPassDesc];
                 masterEncode = [cmdBuff renderCommandEncoderWithDescriptor:baseFrameInfo.renderPassDesc];
             }
+            
+            // TODO: Set this up once and reuse the buffer
+            setupLightBuffer((SceneMTL *)scene,masterEncode);
 
 //            // Keep track of state changes for z buffer state
-//            bool firstDepthState = true;
+            bool firstDepthState = true;
             bool zBufferWrite = (zBufferMode == zBufferOn);
             bool zBufferRead = (zBufferMode == zBufferOn);
-//
-//            bool lastZBufferWrite = zBufferWrite;
-//            bool lastZBufferRead = zBufferRead;
+
+            bool lastZBufferWrite = zBufferWrite;
+            bool lastZBufferRead = zBufferRead;
             
             for (unsigned int ii=0;ii<drawList.size();ii++)
             {
@@ -666,9 +669,6 @@ void SceneRendererMTL::render(TimeInterval duration,
 //                id<MTLRenderCommandEncoder> cmdEncode = [masterEncode renderCommandEncoder];
                 id<MTLRenderCommandEncoder> cmdEncode = masterEncode;
                 
-                // TODO: Set this up once and reuse the buffer
-                setupLightBuffer((SceneMTL *)scene,cmdEncode);
-
                 // Backface culling on by default
                 // Note: Would like to not set this every time
                 [cmdEncode setCullMode:MTLCullModeFront];
@@ -691,9 +691,9 @@ void SceneRendererMTL::render(TimeInterval duration,
                 }
                 
                 // TODO: Optimize this a bit
-//                if (firstDepthState ||
-//                    (zBufferRead != lastZBufferRead) ||
-//                    (zBufferWrite != lastZBufferWrite)) {
+                if (firstDepthState ||
+                    (zBufferRead != lastZBufferRead) ||
+                    (zBufferWrite != lastZBufferWrite)) {
                     
                     MTLDepthStencilDescriptor *depthDesc = [[MTLDepthStencilDescriptor alloc] init];
                     if (zBufferRead)
@@ -702,14 +702,14 @@ void SceneRendererMTL::render(TimeInterval duration,
                         depthDesc.depthCompareFunction = MTLCompareFunctionAlways;
                     depthDesc.depthWriteEnabled = zBufferWrite;
                     
-//                    lastZBufferRead = zBufferRead;
-//                    lastZBufferWrite = zBufferWrite;
+                    lastZBufferRead = zBufferRead;
+                    lastZBufferWrite = zBufferWrite;
                     
                     id<MTLDepthStencilState> depthStencil = [mtlDevice newDepthStencilStateWithDescriptor:depthDesc];
                     
                     [cmdEncode setDepthStencilState:depthStencil];
-//                    firstDepthState = false;
-//                }
+                    firstDepthState = false;
+                }
                 
                 // Set up transforms to use right now
                 Matrix4f currentMvpMat = Matrix4dToMatrix4f(drawContain.mvpMat);
