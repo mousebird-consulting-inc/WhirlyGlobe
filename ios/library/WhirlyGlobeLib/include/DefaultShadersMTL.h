@@ -138,7 +138,7 @@ struct UniformWideVec {
     float real_w2;  // Width/2 in real coordinates
     float edge;     // Edge falloff control
     float texScale;  // Texture scaling specific to wide vectors
-    simd::float4 color;  // Color override.  TODO: Use the standard one.  Seriouslly.
+    simd::float4 color;  // Color override.  TODO: Use the standard one.  Seriously.
 };
     
 #define WKSUniformDrawStateScreenSpaceBuffer 15

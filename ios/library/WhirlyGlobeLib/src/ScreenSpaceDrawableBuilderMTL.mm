@@ -20,6 +20,7 @@
 
 #import "ScreenSpaceDrawableBuilderMTL.h"
 #import "DefaultShadersMTL.h"
+#import "RawData_NSData.h"
 
 namespace WhirlyKit
 {
@@ -28,6 +29,7 @@ void ScreenSpaceTweakerMTL::tweakForFrame(Drawable *inDraw,RendererFrameInfo *in
 {
     if (inFrameInfo->sceneRenderer->getType() != SceneRenderer::RenderMetal || !inFrameInfo->program)
         return;
+    BasicDrawable *basicDraw = dynamic_cast<BasicDrawable *>(inDraw);
     RendererFrameInfoMTL *frameInfo = (RendererFrameInfoMTL *)inFrameInfo;
 
     Point2f fbSize = frameInfo->sceneRenderer->getFramebufferSize();
@@ -41,8 +43,10 @@ void ScreenSpaceTweakerMTL::tweakForFrame(Drawable *inDraw,RendererFrameInfo *in
     uniSS.activeRot = activeRot;
     uniSS.hasMotion = motion;
     
-    [frameInfo->cmdEncode setVertexBytes:&uniSS length:sizeof(uniSS) atIndex:WKSUniformDrawStateScreenSpaceBuffer];
-    [frameInfo->cmdEncode setFragmentBytes:&uniSS length:sizeof(uniSS) atIndex:WKSUniformDrawStateScreenSpaceBuffer];
+    BasicDrawable::UniformBlock uniBlock;
+    uniBlock.blockData = RawDataRef(new RawNSDataReader([[NSData alloc] initWithBytes:&uniSS length:sizeof(uniSS)]));
+    uniBlock.bufferID = WKSUniformDrawStateScreenSpaceBuffer;
+    basicDraw->setUniBlock(uniBlock);
 }
     
 ScreenSpaceDrawableBuilderMTL::ScreenSpaceDrawableBuilderMTL(const std::string &name)

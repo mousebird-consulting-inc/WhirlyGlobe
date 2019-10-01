@@ -39,13 +39,11 @@ namespace WhirlyKit
     
 RendererFrameInfoMTL::RendererFrameInfoMTL()
 {
-    cmdEncode = nil;
 }
     
 RendererFrameInfoMTL::RendererFrameInfoMTL(const RendererFrameInfoMTL &that)
 : RendererFrameInfo(that)
 {
-    cmdEncode = that.cmdEncode;
 }
 
 SceneRendererMTL::SceneRendererMTL(id<MTLDevice> mtlDevice, float inScale)
@@ -144,10 +142,10 @@ bool SceneRendererMTL::resize(int sizeX,int sizeY)
 class DrawableContainer
 {
 public:
-    DrawableContainer(Drawable *draw) : drawable(draw) { mvpMat = mvpMat.Identity(); mvMat = mvMat.Identity();  mvNormalMat = mvNormalMat.Identity(); }
-    DrawableContainer(Drawable *draw,Matrix4d mvpMat,Matrix4d mvMat,Matrix4d mvNormalMat) : drawable(draw), mvpMat(mvpMat), mvMat(mvMat), mvNormalMat(mvNormalMat) { }
+    DrawableContainer(DrawableMTL *draw) : drawable(draw) { mvpMat = mvpMat.Identity(); mvMat = mvMat.Identity();  mvNormalMat = mvNormalMat.Identity(); }
+    DrawableContainer(DrawableMTL *draw,Matrix4d mvpMat,Matrix4d mvMat,Matrix4d mvNormalMat) : drawable(draw), mvpMat(mvpMat), mvMat(mvMat), mvNormalMat(mvNormalMat) { }
     
-    Drawable *drawable;
+    DrawableMTL *drawable;
     Matrix4d mvpMat,mvMat,mvNormalMat;
 };
 
@@ -247,7 +245,7 @@ void CopyIntoMtlFloat4(simd::float4 &dest,const float vals[4])
     dest[3] = vals[3];
 }
     
-void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,CoordSystemDisplayAdapter *coordAdapter)
+void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,CoordSystemDisplayAdapter *coordAdapter)
 {
     WhirlyKitShader::Uniforms uniforms;
     bzero(&uniforms,sizeof(uniforms));
@@ -261,8 +259,8 @@ void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,CoordS
     CopyIntoMtlFloat2(uniforms.pixDispSize,pixDispSize);
     uniforms.globeMode = !coordAdapter->isFlat();
     
-    [frameInfo->cmdEncode setVertexBytes:&uniforms length:sizeof(uniforms) atIndex:WKSUniformBuffer];
-    [frameInfo->cmdEncode setFragmentBytes:&uniforms length:sizeof(uniforms) atIndex:WKSUniformBuffer];
+    [cmdEncode setVertexBytes:&uniforms length:sizeof(uniforms) atIndex:WKSUniformBuffer];
+    [cmdEncode setFragmentBytes:&uniforms length:sizeof(uniforms) atIndex:WKSUniformBuffer];
 }
 
 void SceneRendererMTL::setupLightBuffer(SceneMTL *scene,id<MTLRenderCommandEncoder> cmdEncode)
@@ -528,7 +526,7 @@ void SceneRendererMTL::render(TimeInterval duration,
             DrawableRefSet rawDrawables = scene->getDrawables();
             for (DrawableRefSet::iterator it = rawDrawables.begin(); it != rawDrawables.end(); ++it)
             {
-                Drawable *theDrawable = it->second.get();
+                DrawableMTL *theDrawable = dynamic_cast<DrawableMTL *>(it->second.get());
                 if (theDrawable->isOn(&offFrameInfo))
                 {
                     const Matrix4d *localMat = theDrawable->getMatrix();
@@ -558,7 +556,7 @@ void SceneRendererMTL::render(TimeInterval duration,
             // Need some sort of render target even if we're not really rendering
             RenderTargetMTLRef renderTarget = std::dynamic_pointer_cast<RenderTargetMTL>(renderTargets.back());
             baseFrameInfo.renderTarget = renderTarget.get();
-
+            
             // But do we have any
             bool haveCalcShader = false;
             for (unsigned int ii=0;ii<drawList.size();ii++)
@@ -573,10 +571,10 @@ void SceneRendererMTL::render(TimeInterval duration,
 
                 // Each render target needs its own buffer and command queue
                 id<MTLCommandBuffer> cmdBuff = [cmdQueue commandBuffer];
-                id<MTLRenderCommandEncoder> cmdEncode = nil;
-                cmdEncode = [cmdBuff renderCommandEncoderWithDescriptor:renderPassDesc];
                 baseFrameInfo.renderPassDesc = renderPassDesc;
-                baseFrameInfo.cmdEncode = cmdEncode;
+
+//                id<MTLParallelRenderCommandEncoder> masterEncode = [cmdBuff parallelRenderCommandEncoderWithDescriptor:renderPassDesc];
+                id<MTLRenderCommandEncoder> masterEncode = [cmdBuff renderCommandEncoderWithDescriptor:renderPassDesc];
 
                 for (unsigned int ii=0;ii<drawList.size();ii++) {
                     DrawableContainer &drawContain = drawList[ii];
@@ -585,26 +583,31 @@ void SceneRendererMTL::render(TimeInterval duration,
                     // Figure out the program to use for drawing
                     if (calcProgID == EmptyIdentity)
                         continue;
-                    
+
                     ProgramMTL *calcProgram = (ProgramMTL *)scene->getProgram(calcProgID);
                     if (!calcProgram) {
                         NSLog(@"Invalid calculation program for drawable.  Skipping.");
                         continue;
                     }
                     baseFrameInfo.program = calcProgram;
-                    
+
+//                    id<MTLRenderCommandEncoder> cmdEncode = [masterEncode renderCommandEncoder];
+                    id<MTLRenderCommandEncoder> cmdEncode = masterEncode;
+
                     // Tweakers probably not necessary, but who knows
                     drawContain.drawable->runTweakers(&baseFrameInfo);
                     
                     // Regular uniforms
                     // TODO: Can we do this just once?
-                    setupUniformBuffer(&baseFrameInfo,scene->getCoordAdapter());
+                    setupUniformBuffer(&baseFrameInfo,cmdEncode,scene->getCoordAdapter());
                     
                     // Run the calculation phase
-                    drawContain.drawable->calculate(&baseFrameInfo,scene);
+                    drawContain.drawable->calculate(&baseFrameInfo,cmdEncode,scene);
+                    
+//                    [cmdEncode endEncoding];
                 }
                 
-                [cmdEncode endEncoding];
+                [masterEncode endEncoding];
                 [cmdBuff commit];
             }
             
@@ -627,30 +630,30 @@ void SceneRendererMTL::render(TimeInterval duration,
 
             // Each render target needs its own buffer and command queue
             id<MTLCommandBuffer> cmdBuff = [cmdQueue commandBuffer];
-            id<MTLRenderCommandEncoder> cmdEncode = nil;
 
+            // Set up a master encoder for all the little encoders
+            id<MTLRenderCommandEncoder> masterEncode = nil;
             if (renderTarget->getTex() == nil) {
                 // This happens if the dev wants an instantaneous render
                 if (!renderPassDesc)
                     continue;
                 
-                cmdEncode = [cmdBuff renderCommandEncoderWithDescriptor:renderPassDesc];
+//                masterEncode = [cmdBuff parallelRenderCommandEncoderWithDescriptor:renderPassDesc];
+                masterEncode = [cmdBuff renderCommandEncoderWithDescriptor:renderPassDesc];
                 baseFrameInfo.renderPassDesc = renderPassDesc;
             } else {
                 baseFrameInfo.renderPassDesc = renderTarget->getRenderPassDesc();
-                cmdEncode = [cmdBuff renderCommandEncoderWithDescriptor:baseFrameInfo.renderPassDesc];
+//                masterEncode = [cmdBuff parallelRenderCommandEncoderWithDescriptor:baseFrameInfo.renderPassDesc];
+                masterEncode = [cmdBuff renderCommandEncoderWithDescriptor:baseFrameInfo.renderPassDesc];
             }
-            
-            baseFrameInfo.cmdEncode = cmdEncode;
-            setupLightBuffer((SceneMTL *)scene,cmdEncode);
 
-            // Keep track of state changes for z buffer state
-            bool firstDepthState = true;
+//            // Keep track of state changes for z buffer state
+//            bool firstDepthState = true;
             bool zBufferWrite = (zBufferMode == zBufferOn);
             bool zBufferRead = (zBufferMode == zBufferOn);
-            
-            bool lastZBufferWrite = zBufferWrite;
-            bool lastZBufferRead = zBufferRead;
+//
+//            bool lastZBufferWrite = zBufferWrite;
+//            bool lastZBufferRead = zBufferRead;
             
             for (unsigned int ii=0;ii<drawList.size();ii++)
             {
@@ -659,6 +662,12 @@ void SceneRendererMTL::render(TimeInterval duration,
                 // Only draw drawables that are active for the current render target
                 if (drawContain.drawable->getRenderTarget() != renderTarget->getId())
                     continue;
+
+//                id<MTLRenderCommandEncoder> cmdEncode = [masterEncode renderCommandEncoder];
+                id<MTLRenderCommandEncoder> cmdEncode = masterEncode;
+                
+                // TODO: Set this up once and reuse the buffer
+                setupLightBuffer((SceneMTL *)scene,cmdEncode);
 
                 // Backface culling on by default
                 // Note: Would like to not set this every time
@@ -682,9 +691,9 @@ void SceneRendererMTL::render(TimeInterval duration,
                 }
                 
                 // TODO: Optimize this a bit
-                if (firstDepthState ||
-                    (zBufferRead != lastZBufferRead) ||
-                    (zBufferWrite != lastZBufferWrite)) {
+//                if (firstDepthState ||
+//                    (zBufferRead != lastZBufferRead) ||
+//                    (zBufferWrite != lastZBufferWrite)) {
                     
                     MTLDepthStencilDescriptor *depthDesc = [[MTLDepthStencilDescriptor alloc] init];
                     if (zBufferRead)
@@ -693,14 +702,14 @@ void SceneRendererMTL::render(TimeInterval duration,
                         depthDesc.depthCompareFunction = MTLCompareFunctionAlways;
                     depthDesc.depthWriteEnabled = zBufferWrite;
                     
-                    lastZBufferRead = zBufferRead;
-                    lastZBufferWrite = zBufferWrite;
+//                    lastZBufferRead = zBufferRead;
+//                    lastZBufferWrite = zBufferWrite;
                     
                     id<MTLDepthStencilState> depthStencil = [mtlDevice newDepthStencilStateWithDescriptor:depthDesc];
                     
                     [cmdEncode setDepthStencilState:depthStencil];
-                    firstDepthState = false;
-                }
+//                    firstDepthState = false;
+//                }
                 
                 // Set up transforms to use right now
                 Matrix4f currentMvpMat = Matrix4dToMatrix4f(drawContain.mvpMat);
@@ -713,35 +722,39 @@ void SceneRendererMTL::render(TimeInterval duration,
                 baseFrameInfo.viewModelNormalMat = currentMvNormalMat;
 
                 // TODO: Try to do this once rather than per drawable
-                setupUniformBuffer(&baseFrameInfo,scene->getCoordAdapter());
+                setupUniformBuffer(&baseFrameInfo,cmdEncode,scene->getCoordAdapter());
 
                 // Figure out the program to use for drawing
                 SimpleIdentity drawProgramId = drawContain.drawable->getProgram();
                 ProgramMTL *program = (ProgramMTL *)scene->getProgram(drawProgramId);
                 if (!program) {
                     wkLogLevel(Error, "SceneRendererMTL: Drawable without Program");
+                    [cmdEncode endEncoding];
                     continue;
                 }
                 
                 baseFrameInfo.program = program;
                 
                 // Activate the program
-                program->preRender(&baseFrameInfo,(SceneMTL *)scene);
+                program->addResources(&baseFrameInfo, cmdEncode, (SceneMTL *)scene);
             
                 // Run any tweakers right here
                 drawContain.drawable->runTweakers(&baseFrameInfo);
                 
                 // "Draw" using the given program
-                drawContain.drawable->draw(&baseFrameInfo,scene);
+                drawContain.drawable->draw(&baseFrameInfo,cmdEncode,scene);
                 
                 // If we had a local matrix, set the frame info back to the general one
                 //            if (localMat)
                 //                offFrameInfo.mvpMat = mvpMat;
                 
                 numDrawables++;
+                
+//                [cmdEncode endEncoding];
             }
+            
+            [masterEncode endEncoding];
 
-            [cmdEncode endEncoding];
             // Main screen has to be committed
             if (renderTarget->getTex() == nil && drawGetter != nil) {
                 id<CAMetalDrawable> drawable = [drawGetter getDrawable];

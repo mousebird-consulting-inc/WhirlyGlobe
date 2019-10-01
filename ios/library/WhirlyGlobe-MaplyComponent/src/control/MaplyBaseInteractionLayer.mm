@@ -2842,6 +2842,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     {
         ParticleSystem wkPartSys;
         wkPartSys.setId(partSys.ident);
+        wkPartSys.enable = inDesc[kMaplyEnable] != nil ? [inDesc[kMaplyEnable] boolValue] : true;
         wkPartSys.drawPriority = [inDesc[kMaplyDrawPriority] intValue];
         wkPartSys.pointSize = [inDesc[kMaplyPointSize] floatValue];
         wkPartSys.name = [partSys.name cStringUsingEncoding:NSASCIIStringEncoding];

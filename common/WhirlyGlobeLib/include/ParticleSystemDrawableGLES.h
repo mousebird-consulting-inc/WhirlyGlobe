@@ -37,7 +37,7 @@ ProgramGLES *BuildParticleSystemProgramGLES(const std::string &name,SceneRendere
 #define kMaxParticleMemory (8*1024*1024)
 
 /// OpenGL ES version of the particle system drawable
-class ParticleSystemDrawableGLES : public ParticleSystemDrawable
+class ParticleSystemDrawableGLES : virtual public ParticleSystemDrawable, virtual public DrawableGLES
 {
 friend class ParticleSystemDrawableBuilderGLES;
 public:
@@ -53,10 +53,10 @@ public:
     virtual void teardownForRenderer(const RenderSetupInfo *setupInfo);
 
     /// Particles can calculate their positions
-    void calculate(RendererFrameInfo *frameInfo,Scene *scene);
+    void calculate(RendererFrameInfoGLES *frameInfo,Scene *scene);
     
     /// Called on the rendering thread to draw
-    void draw(RendererFrameInfo *frameInfo,Scene *scene);
+    void draw(RendererFrameInfoGLES *frameInfo,Scene *scene);
 
 protected:
     std::vector<SingleVertexAttributeInfoGLES> vertAttrs;

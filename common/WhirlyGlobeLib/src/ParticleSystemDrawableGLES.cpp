@@ -26,7 +26,7 @@ namespace WhirlyKit
 {
     
 ParticleSystemDrawableGLES::ParticleSystemDrawableGLES(const std::string &name)
-: ParticleSystemDrawable(name), pointBuffer(0), rectBuffer(0)
+: ParticleSystemDrawable(name), Drawable(name), pointBuffer(0), rectBuffer(0)
 {
 }
 
@@ -341,7 +341,7 @@ void ParticleSystemDrawableGLES::drawUnbindAttrs(ProgramGLES *prog)
     }
 }
 
-void ParticleSystemDrawableGLES::calculate(RendererFrameInfo *frameInfo,Scene *scene)
+void ParticleSystemDrawableGLES::calculate(RendererFrameInfoGLES *frameInfo,Scene *scene)
 {
     CheckGLError("BasicDrawable::calculate() glBeginTransformFeedback");
     
@@ -424,7 +424,7 @@ void ParticleSystemDrawableGLES::calculate(RendererFrameInfo *frameInfo,Scene *s
     activeVaryBuffer = (activeVaryBuffer == 0) ? 1 : 0;
 }
 
-void ParticleSystemDrawableGLES::draw(RendererFrameInfo *frameInfo,Scene *scene)
+void ParticleSystemDrawableGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *scene)
 {
     if (lastUpdateTime < frameInfo->currentTime) {
         updateBatches(frameInfo->currentTime);

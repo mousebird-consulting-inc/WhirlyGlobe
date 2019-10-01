@@ -26,7 +26,7 @@ namespace WhirlyKit
 {
     
 /// Metal variant of BasicDrawableInstance
-class BasicDrawableInstanceMTL : public BasicDrawableInstance
+class BasicDrawableInstanceMTL : virtual public BasicDrawableInstance, virtual public DrawableMTL
 {
     friend class BasicDrawableInstanceBuilderMTL;
 public:
@@ -41,8 +41,10 @@ public:
     /// Clean up any rendering objects you may have (e.g. VBOs).
     virtual void teardownForRenderer(const RenderSetupInfo *setupInfo);
     
+    virtual void calculate(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> frameEncode,Scene *scene) { };
+    
     /// Fill this in to draw the basic drawable
-    virtual void draw(RendererFrameInfo *frameInfo,Scene *scene);
+    virtual void draw(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene);
     
 protected:
     id<MTLRenderPipelineState> getRenderPipelineState(SceneRendererMTL *sceneRender,RendererFrameInfoMTL *frameInfo,BasicDrawableMTL *basicDrawMTL);

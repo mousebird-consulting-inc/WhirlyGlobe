@@ -237,6 +237,11 @@ void ComponentManager::enableComponentObjects(const SimpleIDSet &compIDs,bool en
                  it != compObj->chunkIDs.end(); ++it)
                 chunkManager->enableChunk(*it, enable, changes);
         }
+        if (partSysManager && !compObj->partSysIDs.empty()) {
+            for (SimpleIDSet::iterator it = compObj->partSysIDs.begin();
+                 it != compObj->partSysIDs.end(); ++it)
+                partSysManager->enableParticleSystem(*it, enable, changes);
+        }
     }
 }
     

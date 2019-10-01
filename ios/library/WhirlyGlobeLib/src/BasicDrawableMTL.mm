@@ -32,7 +32,7 @@ namespace WhirlyKit
 {
     
 BasicDrawableMTL::BasicDrawableMTL(const std::string &name)
-    : BasicDrawable(name), triBuffer(nil), setupForMTL(false), vertDesc(nil), renderState(nil), numPts(0), numTris(0)
+    : BasicDrawable(name), Drawable(name), triBuffer(nil), setupForMTL(false), vertDesc(nil), renderState(nil), numPts(0), numTris(0)
 {
 }
 
@@ -313,21 +313,20 @@ void BasicDrawableMTL::applyUniformsToDrawState(WhirlyKitShader::UniformDrawStat
     }
 }
     
-void BasicDrawableMTL::encodeUniBlocks(RendererFrameInfoMTL *frameInfo,const std::vector<BasicDrawable::UniformBlock> &uniBlocks)
+void BasicDrawableMTL::encodeUniBlocks(RendererFrameInfoMTL *frameInfo,const std::vector<BasicDrawable::UniformBlock> &uniBlocks,id<MTLRenderCommandEncoder> cmdEncode)
 {
     for (const UniformBlock &uniBlock : uniBlocks) {
-        [frameInfo->cmdEncode setVertexBytes:uniBlock.blockData->getRawData() length:uniBlock.blockData->getLen() atIndex:uniBlock.bufferID];
-        [frameInfo->cmdEncode setFragmentBytes:uniBlock.blockData->getRawData() length:uniBlock.blockData->getLen() atIndex:uniBlock.bufferID];
+        [cmdEncode setVertexBytes:uniBlock.blockData->getRawData() length:uniBlock.blockData->getLen() atIndex:uniBlock.bufferID];
+        [cmdEncode setFragmentBytes:uniBlock.blockData->getRawData() length:uniBlock.blockData->getLen() atIndex:uniBlock.bufferID];
     }
 }
 
-void BasicDrawableMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScene)
+void BasicDrawableMTL::draw(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *inScene)
 {
-    RendererFrameInfoMTL *frameInfo = (RendererFrameInfoMTL *)inFrameInfo;
     SceneMTL *scene = (SceneMTL *)inScene;
     SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
 
-    float fade = calcFade(inFrameInfo);
+    float fade = calcFade(frameInfo);
     
     id<MTLRenderPipelineState> renderState = getRenderPipelineState(sceneRender,frameInfo);
     
@@ -335,14 +334,14 @@ void BasicDrawableMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScene)
     for (auto vertAttr : vertexAttributes) {
         VertexAttributeMTL *vertAttrMTL = (VertexAttributeMTL *)vertAttr;
         if (vertAttrMTL->buffer)
-            [frameInfo->cmdEncode setVertexBuffer:vertAttrMTL->buffer offset:0 atIndex:vertAttrMTL->bufferIndex];
+            [cmdEncode setVertexBuffer:vertAttrMTL->buffer offset:0 atIndex:vertAttrMTL->bufferIndex];
     }
     
     // And provide defaults for the ones we don't
     for (auto defAttr : defaultAttrs)
-        [frameInfo->cmdEncode setVertexBytes:&defAttr.data length:sizeof(defAttr.data) atIndex:defAttr.bufferIndex];
+        [cmdEncode setVertexBytes:&defAttr.data length:sizeof(defAttr.data) atIndex:defAttr.bufferIndex];
     
-    [frameInfo->cmdEncode setRenderPipelineState:renderState];
+    [cmdEncode setRenderPipelineState:renderState];
     
     // Pass in the textures (and offsets)
     // Note: We could precalculate most of then when the texture changes
@@ -371,7 +370,7 @@ void BasicDrawableMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScene)
         texInd.offset[0] = texOffset.x();  texInd.offset[1] = texOffset.y();
         texInd.scale[0] = texScale; texInd.scale[1] = texScale;
 
-        [frameInfo->cmdEncode setVertexBytes:&texInd length:sizeof(texInd) atIndex:WKSTexIndirectStartBuffer+texIndex];
+        [cmdEncode setVertexBytes:&texInd length:sizeof(texInd) atIndex:WKSTexIndirectStartBuffer+texIndex];
 
         // And the texture itself
         // Note: Should we be setting up the sampler?
@@ -379,12 +378,12 @@ void BasicDrawableMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScene)
         if (thisTexInfo && thisTexInfo->texId != EmptyIdentity)
             tex = dynamic_cast<TextureBaseMTL *>(scene->getTexture(thisTexInfo->texId));
         if (tex) {
-            [frameInfo->cmdEncode setVertexTexture:tex->getMTLID() atIndex:texIndex];
-            [frameInfo->cmdEncode setFragmentTexture:tex->getMTLID() atIndex:texIndex];
+            [cmdEncode setVertexTexture:tex->getMTLID() atIndex:texIndex];
+            [cmdEncode setFragmentTexture:tex->getMTLID() atIndex:texIndex];
             numTextures++;
         } else {
-            [frameInfo->cmdEncode setVertexTexture:nil atIndex:texIndex];
-            [frameInfo->cmdEncode setFragmentTexture:nil atIndex:texIndex];
+            [cmdEncode setVertexTexture:nil atIndex:texIndex];
+            [cmdEncode setFragmentTexture:nil atIndex:texIndex];
         }
     }
     
@@ -395,20 +394,20 @@ void BasicDrawableMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScene)
     uni.fade = fade;
     uni.clipCoords = clipCoords;
     applyUniformsToDrawState(uni,uniforms);
-    [frameInfo->cmdEncode setVertexBytes:&uni length:sizeof(uni) atIndex:WKSUniformDrawStateBuffer];
-    [frameInfo->cmdEncode setFragmentBytes:&uni length:sizeof(uni) atIndex:WKSUniformDrawStateBuffer];
+    [cmdEncode setVertexBytes:&uni length:sizeof(uni) atIndex:WKSUniformDrawStateBuffer];
+    [cmdEncode setFragmentBytes:&uni length:sizeof(uni) atIndex:WKSUniformDrawStateBuffer];
     
     // And the uniforms passed through the drawable
-    encodeUniBlocks(frameInfo,uniBlocks);
+    encodeUniBlocks(frameInfo, uniBlocks, cmdEncode);
     
     // Render the primitives themselves
     switch (type) {
         case Lines:
-            [frameInfo->cmdEncode drawPrimitives:MTLPrimitiveTypeLine vertexStart:0 vertexCount:numPts];
+            [cmdEncode drawPrimitives:MTLPrimitiveTypeLine vertexStart:0 vertexCount:numPts];
             break;
         case Triangles:
             // This actually draws the triangles (well, in a bit)
-            [frameInfo->cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:numTris*3 indexType:MTLIndexTypeUInt16 indexBuffer:triBuffer indexBufferOffset:0];
+            [cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:numTris*3 indexType:MTLIndexTypeUInt16 indexBuffer:triBuffer indexBufferOffset:0];
             break;
         default:
             break;

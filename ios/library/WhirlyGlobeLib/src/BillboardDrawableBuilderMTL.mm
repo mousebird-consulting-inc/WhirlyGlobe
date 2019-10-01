@@ -20,6 +20,7 @@
 
 #import "BillboardDrawableBuilderMTL.h"
 #import "DefaultShadersMTL.h"
+#import "RawData_NSData.h"
 
 namespace WhirlyKit
 {
@@ -32,15 +33,21 @@ BillboardTweakerMTL::BillboardTweakerMTL()
 void BillboardTweakerMTL::tweakForFrame(Drawable *inDraw,RendererFrameInfo *inFrameInfo)
 {
     RendererFrameInfoMTL *frameInfo = (RendererFrameInfoMTL *)inFrameInfo;
+    BasicDrawable *basicDraw = dynamic_cast<BasicDrawable *>(inDraw);
+    if (!basicDraw)
+        return;
 
     WhirlyKitShader::UniformBillboard uniBB;
     bzero(&uniBB,sizeof(uniBB));
     uniBB.groundMode = groundMode;
     CopyIntoMtlFloat3(uniBB.eyeVec, frameInfo->eyeVec);
-
-    // Note: Can we not do this?
-    [frameInfo->cmdEncode setCullMode:MTLCullModeNone];
-    [frameInfo->cmdEncode setVertexBytes:&uniBB length:sizeof(uniBB) atIndex:WKSUniformDrawStateBillboardBuffer];
+    
+    // Change the uniforms this frame
+    // Note: There are other ways to do this
+    BasicDrawable::UniformBlock uniBlock;
+    uniBlock.blockData = RawDataRef(new RawNSDataReader([[NSData alloc] initWithBytes:&uniBB length:sizeof(uniBB)]));
+    uniBlock.bufferID = WKSUniformDrawStateBillboardBuffer;
+    basicDraw->setUniBlock(uniBlock);
 }
 
 BillboardDrawableBuilderMTL::BillboardDrawableBuilderMTL(const std::string &name)

@@ -40,6 +40,7 @@ public:
     ParticleSystem();
     virtual ~ParticleSystem();
     
+    bool enable;
     std::string name;
     int drawPriority;
     float pointSize;

@@ -26,7 +26,7 @@ namespace WhirlyKit
 {
 
 /// OpenGL variant of BasicDrawableInstance
-class BasicDrawableInstanceGLES : public BasicDrawableInstance
+class BasicDrawableInstanceGLES : virtual public BasicDrawableInstance
 {
 friend class BasicDrawableInstanceBuilderGLES;
 public:

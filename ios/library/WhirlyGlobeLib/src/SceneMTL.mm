@@ -20,6 +20,7 @@
 
 #import "SceneMTL.h"
 #import "TextureMTL.h"
+#import "DrawableMTL.h"
 
 namespace WhirlyKit
 {
@@ -50,7 +51,7 @@ id<MTLTexture> SceneMTL::getMTLTexture(SimpleIdentity texIdent)
 void SceneMTL::teardown()
 {
     for (auto it : drawables)
-        it.second->teardownForRenderer(setupInfo);
+        dynamic_cast<DrawableMTL *>(it.second.get())->teardownForRenderer((RenderSetupInfoMTL *)setupInfo);
     drawables.clear();
     for (auto it : textures) {
         it.second->destroyInRenderer(setupInfo);

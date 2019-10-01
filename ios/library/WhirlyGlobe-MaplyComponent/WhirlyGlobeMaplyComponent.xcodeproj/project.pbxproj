@@ -23,6 +23,10 @@
 		2B23133821F942D2006AA344 /* Dictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B23133721F942D1006AA344 /* Dictionary.h */; };
 		2B23133A21F942E2006AA344 /* Dictionary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B23133921F942E1006AA344 /* Dictionary.cpp */; };
 		2B23133C21FA919E006AA344 /* Dictionary_NSDictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B23133B21FA919D006AA344 /* Dictionary_NSDictionary.h */; };
+		2B2EA04D23427F88006F2F34 /* DrawableMTL.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B2EA04C23427F88006F2F34 /* DrawableMTL.mm */; };
+		2B2EA04F23427FB7006F2F34 /* DrawableMTL.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B2EA04E23427FB7006F2F34 /* DrawableMTL.h */; };
+		2B2EA05123428015006F2F34 /* DrawableGLES.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B2EA05023428014006F2F34 /* DrawableGLES.h */; };
+		2B2EA05323428048006F2F34 /* DrawableGLES.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B2EA05223428048006F2F34 /* DrawableGLES.cpp */; };
 		2B3D7E32228738210065FA18 /* BillboardDrawableBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B5D21F7E7DF0078A975 /* BillboardDrawableBuilder.cpp */; };
 		2B3D7E3722873B6D0065FA18 /* BillboardManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1421F158EA00EF2A82 /* BillboardManager.cpp */; };
 		2B3D7E382287467E0065FA18 /* LoadedTileNew.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BE1E7942213979800815D9C /* LoadedTileNew.cpp */; };
@@ -1110,6 +1114,10 @@
 		2B23133921F942E1006AA344 /* Dictionary.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Dictionary.cpp; path = ../../../../common/WhirlyGlobeLib/src/Dictionary.cpp; sourceTree = "<group>"; };
 		2B23133B21FA919D006AA344 /* Dictionary_NSDictionary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Dictionary_NSDictionary.h; sourceTree = "<group>"; };
 		2B23133D21FA91A4006AA344 /* Dictinary_NSDictionary.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Dictinary_NSDictionary.mm; sourceTree = "<group>"; };
+		2B2EA04C23427F88006F2F34 /* DrawableMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DrawableMTL.mm; sourceTree = "<group>"; };
+		2B2EA04E23427FB7006F2F34 /* DrawableMTL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DrawableMTL.h; sourceTree = "<group>"; };
+		2B2EA05023428014006F2F34 /* DrawableGLES.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DrawableGLES.h; path = ../../../../common/WhirlyGlobeLib/include/DrawableGLES.h; sourceTree = "<group>"; };
+		2B2EA05223428048006F2F34 /* DrawableGLES.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DrawableGLES.cpp; path = ../../../../common/WhirlyGlobeLib/src/DrawableGLES.cpp; sourceTree = "<group>"; };
 		2B361DE621233CBE0074D06D /* MaplyTwoFingerTapDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyTwoFingerTapDelegate.mm; sourceTree = "<group>"; };
 		2B361DE721233CBE0074D06D /* MaplyDoubleTapDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyDoubleTapDelegate.mm; sourceTree = "<group>"; };
 		2B361DE821233CBE0074D06D /* MaplyTapDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyTapDelegate.mm; sourceTree = "<group>"; };
@@ -2267,6 +2275,7 @@
 				2B8A78B5228A185A008B0A1F /* VertexAttributeGLES.cpp */,
 				2B8A78AB2289DB44008B0A1F /* RenderTargetGLES.cpp */,
 				2BB8E1B121FBB0BA00154CDC /* SceneRendererGLES.cpp */,
+				2B2EA05223428048006F2F34 /* DrawableGLES.cpp */,
 				2B8A78822285F1B7008B0A1F /* BasicDrawableGLES.cpp */,
 				2B8A78802284DD5B008B0A1F /* BasicDrawableBuilderGLES.cpp */,
 				2B8A789322862F4B008B0A1F /* BasicDrawableInstanceGLES.cpp */,
@@ -2420,6 +2429,7 @@
 				2B8A786E2284DAF6008B0A1F /* MemManagerGLES.h */,
 				2B8A787A2284DB3E008B0A1F /* ProgramGLES.h */,
 				2B8A786D2284DAF6008B0A1F /* VertexAttributeGLES.h */,
+				2B2EA05023428014006F2F34 /* DrawableGLES.h */,
 				2B8A786F2284DAF6008B0A1F /* BasicDrawableGLES.h */,
 				2B8A78632284D876008B0A1F /* BasicDrawableBuilderGLES.h */,
 				2B8A787B2284DB3E008B0A1F /* ParticleSystemDrawableGLES.h */,
@@ -2493,6 +2503,7 @@
 				2B699836228DD31D00C31E3F /* ProgramMTL.h */,
 				2B699842228DD31E00C31E3F /* VertexAttributeMTL.h */,
 				2B699845228DD31F00C31E3F /* DynamicTextureAtlasMTL.h */,
+				2B2EA04E23427FB7006F2F34 /* DrawableMTL.h */,
 				2B699837228DD31D00C31E3F /* BasicDrawableMTL.h */,
 				2B69983B228DD31D00C31E3F /* BasicDrawableBuilderMTL.h */,
 				2B69983F228DD31E00C31E3F /* BasicDrawableInstanceMTL.h */,
@@ -2514,6 +2525,7 @@
 				2B6998822293139400C31E3F /* MTLView.mm */,
 				2B699863228DD36700C31E3F /* WrapperMTL.mm */,
 				2B699865228DD36800C31E3F /* VertexAttributeMTL.mm */,
+				2B2EA04C23427F88006F2F34 /* DrawableMTL.mm */,
 				2B699864228DD36700C31E3F /* BasicDrawableMTL.mm */,
 				2B69985A228DD36400C31E3F /* BasicDrawableBuilderMTL.mm */,
 				2B69985D228DD36500C31E3F /* BasicDrawableInstanceMTL.mm */,
@@ -4179,6 +4191,7 @@
 				2BE539681D249BEF00B60FAD /* AAMars.h in Headers */,
 				2BB8A3F921ED43D10025DA98 /* GlobeTiltDelegate.h in Headers */,
 				2BB476762000486F006AAACB /* MapboxVectorStyleSymbol.h in Headers */,
+				2B2EA04F23427FB7006F2F34 /* DrawableMTL.h in Headers */,
 				2BC3D6C4220255E500CE91D0 /* MapView_iOS.h in Headers */,
 				2B846ED421F1356E00EF2A82 /* geod_interface.h in Headers */,
 				2BE53A361D249C3D00B60FAD /* coded_stream_inl.h in Headers */,
@@ -4521,6 +4534,7 @@
 				2B82B5E31E82E2490095FB14 /* dict.h in Headers */,
 				2BB8A3F421ED43D10025DA98 /* MaplyZoomGestureDelegate.h in Headers */,
 				2B699852228DD31F00C31E3F /* WrapperMTL.h in Headers */,
+				2B2EA05123428015006F2F34 /* DrawableGLES.h in Headers */,
 				2B82B5E11E82E2490095FB14 /* dict-list.h in Headers */,
 				2BE539831D249BEF00B60FAD /* AASaturnMoons.h in Headers */,
 				2BE539F61D249C2900B60FAD /* arena.h in Headers */,
@@ -4966,6 +4980,7 @@
 				2B446B1121F79AD00078A975 /* WhirlyOctEncoding.cpp in Sources */,
 				2BE539C31D249BEF00B60FAD /* AAVenus.cpp in Sources */,
 				2B82B6C31E82E24A0095FB14 /* PJ_wink2.c in Sources */,
+				2B2EA04D23427F88006F2F34 /* DrawableMTL.mm in Sources */,
 				2B6997EE228CAF7C00C31E3F /* ChangeRequest.cpp in Sources */,
 				2B82B6121E82E2490095FB14 /* JSONPreparse.cpp in Sources */,
 				2B846EE721F137D300EF2A82 /* emess.c in Sources */,
@@ -5198,6 +5213,7 @@
 				2B82B6551E82E2490095FB14 /* pj_datums.c in Sources */,
 				2BE53A8B1D249C8900B60FAD /* DDXMLElementAdditions.m in Sources */,
 				2BE539A41D249BEF00B60FAD /* AAMoon.cpp in Sources */,
+				2B2EA05323428048006F2F34 /* DrawableGLES.cpp in Sources */,
 				2B8A789122861F3F008B0A1F /* GeometryManager.cpp in Sources */,
 				2B82B5E61E82E2490095FB14 /* memalloc.c in Sources */,
 				2BE539901D249BEF00B60FAD /* AADiameters.cpp in Sources */,

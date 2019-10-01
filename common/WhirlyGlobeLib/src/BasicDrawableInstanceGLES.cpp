@@ -27,7 +27,7 @@ namespace WhirlyKit
 {
     
 BasicDrawableInstanceGLES::BasicDrawableInstanceGLES(const std::string &name)
-    : BasicDrawableInstance(name), instBuffer(0), vertArrayObj(0)
+    : BasicDrawableInstance(name), Drawable(name), instBuffer(0), vertArrayObj(0)
 {
 }
     
@@ -35,7 +35,7 @@ GLuint BasicDrawableInstanceGLES::setupVAO(RendererFrameInfoGLES *frameInfo)
 {
     ProgramGLES *prog = (ProgramGLES *)frameInfo->program;
     
-    BasicDrawableGLES *basicDrawGL = (BasicDrawableGLES *)basicDraw.get();
+    BasicDrawableGLES *basicDrawGL = dynamic_cast<BasicDrawableGLES *>(basicDraw.get());
     vertArrayObj = basicDrawGL->setupVAO(prog);
     vertArrayDefaults = basicDrawGL->vertArrayDefaults;
     
@@ -201,7 +201,7 @@ void BasicDrawableInstanceGLES::teardownForRenderer(const RenderSetupInfo *inSet
 void BasicDrawableInstanceGLES::draw(RendererFrameInfo *inFrameInfo,Scene *inScene)
 {
     RendererFrameInfoGLES *frameInfo = (RendererFrameInfoGLES *)inFrameInfo;
-    BasicDrawableGLES *basicDrawGL = (BasicDrawableGLES *)basicDraw.get();
+    BasicDrawableGLES *basicDrawGL = dynamic_cast<BasicDrawableGLES *>(basicDraw.get());
     SceneGLES *scene = (SceneGLES *)inScene;
     
     // Happens if we're deleting things out of order
@@ -632,7 +632,7 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfo *inFrameInfo,Scene *inSce
 
         // No matrices, so just one instance
         if (instances.empty())
-            basicDraw->draw(frameInfo,scene);
+            basicDrawGL->draw(frameInfo,scene);
         else {
             // Run through the list of instances
             for (unsigned int ii=0;ii<instances.size();ii++)
@@ -661,7 +661,7 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfo *inFrameInfo,Scene *inSce
                 frameInfo->viewAndModelMat = mvMat4f;
                 frameInfo->viewModelNormalMat = mvNormalMat4f;
 
-                basicDraw->draw(frameInfo,scene);
+                basicDrawGL->draw(frameInfo,scene);
             }
         }
 

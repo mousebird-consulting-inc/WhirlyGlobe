@@ -90,7 +90,7 @@ BasicDrawable *BasicDrawableBuilderMTL::getDrawable()
     if (!basicDraw)
         return NULL;
     
-    BasicDrawableMTL *draw = (BasicDrawableMTL *)basicDraw;
+    BasicDrawableMTL *draw = dynamic_cast<BasicDrawableMTL *>(basicDraw);
     
     if (!drawableGotten) {
         int ptsIndex = addAttribute(BDFloat3Type, a_PositionNameID);
