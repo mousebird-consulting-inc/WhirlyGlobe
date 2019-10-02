@@ -60,7 +60,7 @@
     
     // Parse the sprite sheet if it's there
     // Note: We're only looking for those locally right now
-    if (_spriteURL) {
+    if ([_spriteURL length]) {
         NSString *spriteJSONPath = [[NSBundle mainBundle] pathForResource:_spriteURL ofType:@"json"];
         UIImage *spriteImage = [UIImage imageNamed:_spriteURL];
         NSData *jsonData = [NSData dataWithContentsOfFile:spriteJSONPath];

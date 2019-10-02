@@ -87,6 +87,9 @@ public:
     
     // If we're loading it, this is the data task associated with it
     NSURLSessionDataTask *task;
+    
+    // When this request was first queued
+    NSTimeInterval startTime;
 };
 
 
@@ -280,6 +283,109 @@ using namespace WhirlyKit;
 
 @end
 
+@implementation MaplyRemoteTileFetcherLogEntry
+@end
+
+@implementation MaplyRemoteTileFetcherLog
+{
+    std::vector<MaplyRemoteTileFetcherLogEntry *> entries;
+}
+
+- (void)addRemoteFailure:(TileInfoRef)tileInfo
+{
+    MaplyRemoteTileFetcherLogEntry *entry = [[MaplyRemoteTileFetcherLogEntry alloc] init];
+    entry.urlReq = tileInfo->fetchInfo.urlReq;
+    entry.success = false;
+    entry.size = 0;
+    entry.wasCached = false;
+    entry.queuedTime = tileInfo->startTime;
+    entry.startedTime = tileInfo->startTime;
+    entry.finishedTime = CFAbsoluteTimeGetCurrent();
+
+    @synchronized (self) {
+        entries.push_back(entry);
+    }
+}
+
+- (void)addRemoteSuccess:(TileInfoRef)tileInfo length:(int)length startTime:(NSTimeInterval)fetchStartTile
+{
+    MaplyRemoteTileFetcherLogEntry *entry = [[MaplyRemoteTileFetcherLogEntry alloc] init];
+    entry.urlReq = tileInfo->fetchInfo.urlReq;
+    entry.success = true;
+    entry.size = length;
+    entry.wasCached = false;
+    entry.queuedTime = tileInfo->startTime;
+    entry.startedTime = fetchStartTile;
+    entry.finishedTime = CFAbsoluteTimeGetCurrent();
+
+    @synchronized (self) {
+        entries.push_back(entry);
+    }
+}
+
+- (void)addCache:(TileInfoRef)tileInfo length:(int)length
+{
+    MaplyRemoteTileFetcherLogEntry *entry = [[MaplyRemoteTileFetcherLogEntry alloc] init];
+    entry.urlReq = tileInfo->fetchInfo.urlReq;
+    entry.success = true;
+    entry.size = length;
+    entry.wasCached = true;
+    entry.queuedTime = tileInfo->startTime;
+    entry.startedTime = tileInfo->startTime;
+    entry.finishedTime = CFAbsoluteTimeGetCurrent();
+
+    @synchronized (self) {
+        entries.push_back(entry);
+    }
+}
+
+- (NSArray<MaplyRemoteTileFetcherLogEntry *> * __nullable)getEntries
+{
+    @synchronized (self) {
+        NSMutableArray *ret = [[NSMutableArray alloc] init];
+        for (MaplyRemoteTileFetcherLogEntry *entry : entries) {
+            [ret addObject:entry];
+        }
+        
+        self.endTime = CFAbsoluteTimeGetCurrent();
+        return ret;
+    }
+}
+
+- (NSString *)dump
+{
+    NSArray<MaplyRemoteTileFetcherLogEntry *> *theEntries = [self getEntries];
+    std::stringstream sstr;
+    
+    // (R) latency fetchLatency size URL
+    // (C) latency size URL
+    // (F) URL
+    sstr << "TYPE  WHEN  TOTAL NETWORK SIZE  URL\n";
+    for (MaplyRemoteTileFetcherLogEntry *entry in theEntries) {
+        if (entry.success) {
+            sstr << (entry.wasCached ? "(C) " : "(R) ");
+            char foo[20];
+            sprintf(foo,"%*.2f",6,entry.startedTime-_startTime);
+            sstr << foo << " ";
+            sprintf(foo,"%*.2f",6,entry.finishedTime-entry.queuedTime);
+            sstr << foo << " ";
+            if (entry.wasCached) {
+                sprintf(foo,"      ");
+            } else {
+                sprintf(foo,"%*.2f",6,entry.finishedTime-entry.startedTime);
+            }
+            sstr << foo << " ";
+        }
+        sstr << entry.size/1024 << "k ";
+        sstr << [entry.urlReq.URL.path cStringUsingEncoding:NSASCIIStringEncoding];
+        sstr << "\n";
+    }
+    
+    return [NSString stringWithFormat:@"\n%s", sstr.str().c_str()];
+}
+
+@end
+
 @implementation MaplyRemoteTileFetcher
 {
     bool active;
@@ -294,6 +400,8 @@ using namespace WhirlyKit;
     // Keeps track of stats
     MaplyRemoteTileFetcherStats *allStats;
     MaplyRemoteTileFetcherStats *recentStats;
+    
+    MaplyRemoteTileFetcherLog *log;
 }
 
 - (instancetype)initWithName:(NSString *)inName connections:(int)numConnections
@@ -347,6 +455,25 @@ using namespace WhirlyKit;
     recentStats.maxActiveRequests = recentStats.activeRequests;
 }
 
+- (void)startLogging
+{
+    log = [[MaplyRemoteTileFetcherLog alloc] init];
+    log.startTime = CFAbsoluteTimeGetCurrent();
+}
+
+- (MaplyRemoteTileFetcherLog *)stopLogging
+{
+    if (log) {
+        MaplyRemoteTileFetcherLog *retLog = log;
+        log.endTime = CFAbsoluteTimeGetCurrent();
+        log = nil;
+        return retLog;
+    }
+    
+    return nil;
+}
+
+
 - (dispatch_queue_t)getQueue
 {
     return queue;
@@ -389,6 +516,8 @@ using namespace WhirlyKit;
     allStats.totalRequests = allStats.totalRequests + requests.count;
     recentStats.totalRequests = recentStats.totalRequests + requests.count;
 
+    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+    
     for (MaplyTileFetchRequest *request in requests) {
         // Set up new request
         TileInfoRef tile(new TileInfo());
@@ -399,6 +528,7 @@ using namespace WhirlyKit;
         tile->state = TileInfo::ToLoad;
         tile->request = request;
         tile->fetchInfo = request.fetchInfo;
+        tile->startTime = now;
         tilesByFetchRequest[request] = tile;
 
         // If it's already cached, just short circuit this
@@ -608,6 +738,8 @@ using namespace WhirlyKit;
 
        if (_debugMode)
            NSLog(@"Remote return for: %@, %dk",tile->fetchInfo.urlReq.URL.absoluteString,length / 1024);
+       if (log)
+           [log addRemoteSuccess:tile length:length startTime:fetchStartTile];
 
        allStats.remoteRequests = allStats.remoteRequests + 1;
        recentStats.remoteRequests = recentStats.remoteRequests + 1;
@@ -632,6 +764,8 @@ using namespace WhirlyKit;
         
         if (_debugMode)
             NSLog(@"Cache for: %@, %dk",tile->fetchInfo.urlReq.URL.absoluteString,(int)[data length] / 1024);
+        if (log)
+            [log addCache:tile length:[data length]];
         
         MaplyRemoteTileFetcher * __weak weakSelf = self;
         // It worked, but run the finished loading back on our queue
@@ -666,6 +800,9 @@ using namespace WhirlyKit;
 // Called on our queue
 - (void)finishedLoading:(TileInfoRef)tile data:(NSData *)data error:(NSError *)error
 {
+    if (!data && log)
+        [log addRemoteFailure:tile];
+    
     auto it = tilesByFetchRequest.find(tile->request);
     if (it == tilesByFetchRequest.end()) {
         loading.erase(tile);

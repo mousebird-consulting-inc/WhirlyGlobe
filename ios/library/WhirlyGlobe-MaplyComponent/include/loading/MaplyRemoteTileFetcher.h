@@ -118,6 +118,7 @@
 
 
 @class MaplyRemoteTileFetcherStats;
+@class MaplyRemoteTileFetcherLog;
 
 /**
   Remote Tile fetcher fetches tiles from remote URLs.
@@ -141,6 +142,12 @@
 
 /// Reset just the active counters
 - (void)resetActiveStats;
+
+/// Start logging request (and times and such)
+- (void)startLogging;
+
+/// Stop logging and return the log itself
+- (MaplyRemoteTileFetcherLog * __nullable)stopLogging;
 
 // If set, you get way too much debugging output
 @property (nonatomic,assign) bool debugMode;
@@ -187,5 +194,50 @@
 
 // Print out the stats
 - (void)dump;
+
+@end
+
+/**
+  Single entry for the logging.  Reports on the status of a specific fetch.
+ */
+@interface MaplyRemoteTileFetcherLogEntry : NSObject
+
+/// URL this is about
+@property (nonatomic,nonnull) NSURLRequest *urlReq;
+
+/// Total size of data
+@property (nonatomic) int size;
+
+/// Did we get it at all?
+@property (nonatomic) bool success;
+
+/// True if it was cached on local storage
+@property (nonatomic) bool wasCached;
+
+/// Time when the request was first presented to the RemotetTileFetcher
+@property (nonatomic) NSTimeInterval queuedTime;
+
+/// Time when the remote request was initiated by the system
+@property (nonatomic) NSTimeInterval startedTime;
+
+/// If successful, when we got the request back
+@property (nonatomic) NSTimeInterval finishedTime;
+
+@end
+
+/// Log of remote fetches, how long they took, their results and so on
+@interface MaplyRemoteTileFetcherLog : NSObject
+
+/// When this log begins
+@property (nonatomic) NSTimeInterval startTime;
+
+/// When the log ends
+@property (nonatomic) NSTimeInterval endTime;
+
+/// Individual log entries sorted by finishedTime (probably)
+- (NSArray<MaplyRemoteTileFetcherLogEntry *> * __nullable)getEntries;
+
+/// Print it all out
+- (NSString * __nonnull)dump;
 
 @end
