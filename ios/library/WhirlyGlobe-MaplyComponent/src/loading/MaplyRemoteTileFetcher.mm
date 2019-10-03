@@ -360,38 +360,27 @@ using namespace WhirlyKit;
     // (R) latency fetchLatency size URL
     // (C) latency size URL
     // (F) URL
-    sstr << "TYPE WHEN  TOTAL NETWORK SIZE  URL\n";
+    sstr << "TYPE,WHEN(s),TOTAL(s),NETWORK(s),SIZE(k),URL\n";
+    sstr.precision(2);
     for (MaplyRemoteTileFetcherLogEntry *entry in theEntries) {
         if (entry.success) {
-            sstr << (entry.wasCached ? "(C) " : "(R) ");
-            char foo[20];
-            char foo2[20];
-            sprintf(foo,"%.2f",entry.startedTime-_startTime);
-            sprintf(foo2,"%7s",foo);
-            sstr << foo2 << " ";
-            sprintf(foo,"%.2f",entry.finishedTime-entry.queuedTime);
-            sprintf(foo2,"%6s",foo);
-            sstr << foo2 << " ";
-            if (entry.wasCached) {
-                foo[0] = 0;
-            } else {
-                sprintf(foo,"%.2f",entry.finishedTime-entry.startedTime);
-            }
-            sprintf(foo2,"%6s",foo);
-            sstr << foo2 << " ";
+            sstr << (entry.wasCached ? "(C)" : "(R)") << ",";
+            sstr << entry.startedTime-_startTime << ",";
+            sstr << entry.finishedTime-entry.queuedTime << ",";
+            if (entry.wasCached)
+                sstr << "";
+            else
+                sstr << entry.finishedTime-entry.startedTime;
+            sstr << ",";
         } else {
-            sstr << "(F)                  ";
+            sstr << "(F),,,,";
         }
-        char foo[20];
-        char foo2[20];
-        sprintf(foo,"%3d%s",entry.size/1024,"k");
-        sprintf(foo2,"%5s",foo);
-        sstr << foo2;
-        sstr << " " << [entry.urlReq.URL.path cStringUsingEncoding:NSASCIIStringEncoding];
+        sstr << (float)entry.size/1024 << ",";
+        sstr << [entry.urlReq.URL.path cStringUsingEncoding:NSASCIIStringEncoding];
         sstr << "\n";
     }
     
-    return [NSString stringWithFormat:@"\n%s", sstr.str().c_str()];
+    return [NSString stringWithFormat:@"%s", sstr.str().c_str()];
 }
 
 @end
