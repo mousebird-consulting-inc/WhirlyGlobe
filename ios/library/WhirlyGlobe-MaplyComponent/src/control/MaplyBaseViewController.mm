@@ -216,11 +216,6 @@ using namespace WhirlyKit;
     wrapView = mtlView;
 }
 
-- (WhirlyKit::Scene *) loadSetup_scene
-{
-    return NULL;
-}
-
 - (void) loadSetup_lighting
 {
     [renderControl resetLights];
@@ -345,7 +340,12 @@ using namespace WhirlyKit;
         
 	// Need an empty scene and view
     visualView = [self loadSetup_view];
-    renderControl->scene = [self loadSetup_scene];
+    
+    if (sceneRenderGLES) {
+        renderControl->scene = new SceneGLES(visualView->coordAdapter);
+    } else {
+        renderControl->scene = new SceneMTL(visualView->coordAdapter);
+    }
     renderControl->sceneRenderer->setScene(renderControl->scene);
 
     // Set up a Font Texture Manager

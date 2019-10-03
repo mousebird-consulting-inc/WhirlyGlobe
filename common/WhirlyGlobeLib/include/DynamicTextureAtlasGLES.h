@@ -50,7 +50,7 @@ public:
     virtual bool createInRenderer(const RenderSetupInfo *setupInfo);
     
     /// Render side only.  Don't call this.  Destroy the OpenGL ES version
-    virtual void destroyInRenderer(const RenderSetupInfo *setupInfo);
+    virtual void destroyInRenderer(const RenderSetupInfo *setupInfo,Scene *scene);
     
 protected:
     /// If set, this is a compressed format (assume PVRTC4)

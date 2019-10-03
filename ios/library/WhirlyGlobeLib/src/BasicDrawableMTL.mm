@@ -86,14 +86,18 @@ void BasicDrawableMTL::setupForRenderer(const RenderSetupInfo *inSetupInfo)
     setupForMTL = true;
 }
 
-void BasicDrawableMTL::teardownForRenderer(const RenderSetupInfo *setupInfo)
+void BasicDrawableMTL::teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *inScene)
 {
+    SceneMTL *scene = (SceneMTL *)inScene;
+    
     for (VertexAttribute *vertAttr : vertexAttributes) {
         VertexAttributeMTL *vertAttrMTL = (VertexAttributeMTL *)vertAttr;
+        scene->releaseBuffer(vertAttrMTL->buffer);
         vertAttrMTL->buffer = nil;
     }
     
     vertDesc = nil;
+    scene->releaseBuffer(triBuffer);
     triBuffer = nil;
     renderState = nil;
     defaultAttrs.clear();

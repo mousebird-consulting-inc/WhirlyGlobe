@@ -50,7 +50,7 @@ public:
     virtual void setupForRenderer(const RenderSetupInfo *);
     
     /// Destroy GL buffers
-    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo);
+    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene);
 
     /// Particles can calculate their positions
     void calculate(RendererFrameInfoGLES *frameInfo,Scene *scene);

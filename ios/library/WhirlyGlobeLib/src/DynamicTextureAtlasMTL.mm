@@ -75,7 +75,7 @@ bool DynamicTextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
     return valid;
 }
 
-void DynamicTextureMTL::destroyInRenderer(const RenderSetupInfo *setupInfo)
+void DynamicTextureMTL::destroyInRenderer(const RenderSetupInfo *setupInfo,Scene *scene)
 {
     mtlID = nil;
 }

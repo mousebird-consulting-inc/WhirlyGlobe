@@ -177,7 +177,7 @@ void BasicDrawableInstanceGLES::setupForRenderer(const RenderSetupInfo *inSetupI
 }
 
 /// Clean up any rendering objects you may have (e.g. VBOs).
-void BasicDrawableInstanceGLES::teardownForRenderer(const RenderSetupInfo *inSetupInfo)
+void BasicDrawableInstanceGLES::teardownForRenderer(const RenderSetupInfo *inSetupInfo,Scene *scene)
 {
     RenderSetupInfoGLES *setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
 

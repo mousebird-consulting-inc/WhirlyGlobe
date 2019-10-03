@@ -80,7 +80,7 @@ bool ProgramMTL::setTexture(StringIdentity nameID,TextureBase *tex,int textureSl
 const std::string &ProgramMTL::getName()
 { return name; }
 
-void ProgramMTL::teardownForRenderer(const RenderSetupInfo *setupInfo)
+void ProgramMTL::teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene)
 {
     // Don't really need to do anything here
 }

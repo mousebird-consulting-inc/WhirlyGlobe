@@ -53,7 +53,7 @@ public:
     virtual bool createInRenderer(const RenderSetupInfo *setupInfo) = 0;
 
     /// Render side only.  Don't call this.  Destroy the OpenGL ES version
-    virtual void destroyInRenderer(const RenderSetupInfo *setupInfo) = 0;
+    virtual void destroyInRenderer(const RenderSetupInfo *setupInfo,Scene *scene) = 0;
     
     /// Set the interpolation type used for min and mag
     void setInterpType(TextureInterpType inType) { interpType = inType; }

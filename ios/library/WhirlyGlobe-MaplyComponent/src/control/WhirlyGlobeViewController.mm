@@ -233,13 +233,6 @@ public:
     return globeView;
 }
 
-- (Scene *) loadSetup_scene
-{
-    globeScene = new WhirlyKit::SceneGLES(globeView->coordAdapter);
-    
-    return globeScene;
-}
-
 - (MaplyBaseInteractionLayer *) loadSetup_interactionLayer
 {
     globeInteractLayer = [[WGInteractionLayer alloc] initWithGlobeView:globeView.get()];

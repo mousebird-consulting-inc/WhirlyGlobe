@@ -64,7 +64,7 @@ public:
     virtual bool createInRenderer(const RenderSetupInfo *setupInfo);
     
     /// Render side only.  Don't call this.  Destroy the openGL version
-    virtual void destroyInRenderer(const RenderSetupInfo *setupInfo);
+    virtual void destroyInRenderer(const RenderSetupInfo *setupInfo,Scene *scene);
 
     /// Sort the PKM data out from the NSData
     /// This is static so the dynamic (haha) textures can use it

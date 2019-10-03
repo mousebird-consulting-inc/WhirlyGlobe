@@ -338,6 +338,7 @@ void SceneRendererMTL::render(TimeInterval duration,
 {
     if (!scene)
         return;
+    SceneMTL *sceneMTL = (SceneMTL *)scene;
     
     frameCount++;
     
@@ -648,7 +649,7 @@ void SceneRendererMTL::render(TimeInterval duration,
             }
             
             // TODO: Set this up once and reuse the buffer
-            setupLightBuffer((SceneMTL *)scene,masterEncode);
+            setupLightBuffer(sceneMTL,masterEncode);
 
 //            // Keep track of state changes for z buffer state
             bool firstDepthState = true;
@@ -736,7 +737,7 @@ void SceneRendererMTL::render(TimeInterval duration,
                 baseFrameInfo.program = program;
                 
                 // Activate the program
-                program->addResources(&baseFrameInfo, cmdEncode, (SceneMTL *)scene);
+                program->addResources(&baseFrameInfo, cmdEncode, sceneMTL);
             
                 // Run any tweakers right here
                 drawContain.drawable->runTweakers(&baseFrameInfo);
@@ -752,7 +753,7 @@ void SceneRendererMTL::render(TimeInterval duration,
                 
 //                [cmdEncode endEncoding];
             }
-            
+                        
             [masterEncode endEncoding];
 
             // Main screen has to be committed
@@ -761,7 +762,9 @@ void SceneRendererMTL::render(TimeInterval duration,
                 [cmdBuff presentDrawable:drawable];
             }
             [cmdBuff commit];
-            if (renderTarget->getTex() != nil)
+            
+            // This happens for offline rendering and we want to wait until the render finishes to return it
+            if (!drawGetter)
                 [cmdBuff waitUntilCompleted];
         }
         
@@ -774,16 +777,10 @@ void SceneRendererMTL::render(TimeInterval duration,
         // Anything generated needs to be cleaned up
         drawList.clear();
     }
-    
-    if (perfInterval > 0)
-        perfTimer.startTiming("Present Renderbuffer");
-    
+        
     // Snapshots tend to be platform specific
     snapshotCallback(now);
-    
-    if (perfInterval > 0)
-        perfTimer.stopTiming("Present Renderbuffer");
-    
+        
     if (perfInterval > 0)
         perfTimer.stopTiming("Render Frame");
     
@@ -801,6 +798,8 @@ void SceneRendererMTL::render(TimeInterval duration,
         perfTimer.log();
         perfTimer.clear();
     }
+    
+    sceneMTL->endOfFrameBufferClear();
 }
     
 void SceneRendererMTL::snapshotCallback(TimeInterval now)

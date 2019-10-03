@@ -58,7 +58,7 @@ public:
     const std::string &getName();
     
     /// Clean up OpenGL resources, rather than letting the destructor do it (which it will)
-    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo);
+    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene);
     void cleanUp();
     
     /// Add any external resources the program might need to the encoder

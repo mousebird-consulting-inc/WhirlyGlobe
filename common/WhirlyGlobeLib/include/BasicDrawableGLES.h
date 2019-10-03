@@ -46,7 +46,7 @@ public:
     virtual void setupForRenderer(const RenderSetupInfo *setupInfo);
     
     /// Clean up any rendering objects you may have (e.g. VBOs).
-    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo);
+    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene);
     
     /// Some drawables have a pre-render phase that uses the GPU for calculation
     virtual void calculate(RendererFrameInfoGLES *frameInfo,Scene *scene) { };

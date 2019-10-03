@@ -171,7 +171,7 @@ bool DynamicTextureGLES::createInRenderer(const RenderSetupInfo *inSetupInfo)
     return true;
 }
 
-void DynamicTextureGLES::destroyInRenderer(const RenderSetupInfo *inSetupInfo)
+void DynamicTextureGLES::destroyInRenderer(const RenderSetupInfo *inSetupInfo,Scene *scene)
 {
     RenderSetupInfoGLES *setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
 

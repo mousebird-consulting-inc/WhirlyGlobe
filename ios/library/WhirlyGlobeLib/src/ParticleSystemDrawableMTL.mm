@@ -98,14 +98,21 @@ void ParticleSystemDrawableMTL::setupForRenderer(const RenderSetupInfo *inSetupI
     setupForMTL = true;
 }
 
-void ParticleSystemDrawableMTL::teardownForRenderer(const RenderSetupInfo *setupInfo)
+void ParticleSystemDrawableMTL::teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *inScene)
 {
+    SceneMTL *scene = (SceneMTL *)inScene;
+
     calcRenderState = nil;
     visRenderState = nil;
+    scene->releaseBuffer(pointBuffer[0]);
+    scene->releaseBuffer(pointBuffer[1]);
     pointBuffer[0] = nil;
     pointBuffer[1] = nil;
+    scene->releaseBuffer(rectVertBuffer);
     rectVertBuffer = nil;
+    scene->releaseBuffer(rectTexCoordBuffer);
     rectTexCoordBuffer = nil;
+    scene->releaseBuffer(rectTriBuffer);
     rectTriBuffer = nil;
 }
     

@@ -97,7 +97,7 @@ public:
     virtual void setupForRenderer(const RenderSetupInfo *setupInfo) = 0;
     
     /// Clean up any rendering objects you may have (e.g. VBOs).
-    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo) = 0;
+    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene) = 0;
 
     /// If present, we'll do a pre-render calculation pass with this program set
     virtual SimpleIdentity getCalculationProgram() const = 0;

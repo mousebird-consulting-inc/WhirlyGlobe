@@ -184,7 +184,7 @@ void BasicDrawableGLES::setupForRenderer(const RenderSetupInfo *inSetupInfo)
 }
 
 // Tear down the VBOs we set up
-void BasicDrawableGLES::teardownForRenderer(const RenderSetupInfo *inSetupInfo)
+void BasicDrawableGLES::teardownForRenderer(const RenderSetupInfo *inSetupInfo,Scene *scene)
 {
     RenderSetupInfoGLES *setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
     

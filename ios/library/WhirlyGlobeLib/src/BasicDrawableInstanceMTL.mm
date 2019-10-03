@@ -126,9 +126,12 @@ void BasicDrawableInstanceMTL::setupForRenderer(const RenderSetupInfo *inSetupIn
     setupForMTL = true;
 }
 
-void BasicDrawableInstanceMTL::teardownForRenderer(const RenderSetupInfo *setupInfo)
+void BasicDrawableInstanceMTL::teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *inScene)
 {
+    SceneMTL *scene = (SceneMTL *)inScene;
+
     setupForMTL = false;
+    scene->releaseBuffer(instBuffer);
     instBuffer = nil;
 }
 

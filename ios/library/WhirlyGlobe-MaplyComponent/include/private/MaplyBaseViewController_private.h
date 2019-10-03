@@ -116,9 +116,6 @@
 /// If you have your own WhirlyGlobeView or MaplyView subclass, set it up here
 - (WhirlyKit::ViewRef) loadSetup_view;
 
-/// For loading the Maply or Globe view.  The subclasses call this, but you shouldn't
-- (WhirlyKit::Scene *) loadSetup_scene;
-
 /// Override this to set up the default lighting scheme (e.g. the shaders).
 /// The base class provides an adequate default
 - (void) loadSetup_lighting;

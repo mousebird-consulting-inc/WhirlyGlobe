@@ -356,13 +356,6 @@ public:
     return mapView;
 }
 
-- (Scene *) loadSetup_scene
-{
-    mapScene = new SceneGLES(mapView->coordAdapter);
-
-    return mapScene;
-}
-
 - (MaplyBaseInteractionLayer *) loadSetup_interactionLayer
 {
     mapInteractLayer = [[MaplyInteractionLayer alloc] initWithMapView:mapView.get()];

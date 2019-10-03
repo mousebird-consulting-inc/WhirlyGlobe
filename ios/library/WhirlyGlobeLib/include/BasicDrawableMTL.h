@@ -50,7 +50,7 @@ public:
     virtual void setupForRenderer(const RenderSetupInfo *setupInfo);
     
     /// Clean up any rendering objects you may have (e.g. VBOs).
-    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo);
+    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene);
     
     /// Fill this in to draw the basic drawable
     virtual void draw(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene);

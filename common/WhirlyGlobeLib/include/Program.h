@@ -55,7 +55,7 @@ public:
     virtual bool setTexture(StringIdentity nameID,TextureBase *tex,int textureSlot) = 0;
 
     /// Clean up renderer resources
-    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo) = 0;
+    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene) = 0;
     
 protected:
     std::string name;

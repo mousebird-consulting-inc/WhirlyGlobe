@@ -60,7 +60,7 @@ public:
     virtual bool createInRenderer(const RenderSetupInfo *setupInfo);
     
     /// Tears down MTL resources
-    virtual void destroyInRenderer(const RenderSetupInfo *setupInfo);
+    virtual void destroyInRenderer(const RenderSetupInfo *setupInfo,Scene *inScene);
 
 protected:
     // Convert our own raw data into bytes of the appropriate format
