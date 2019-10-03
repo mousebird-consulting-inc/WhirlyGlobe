@@ -360,24 +360,34 @@ using namespace WhirlyKit;
     // (R) latency fetchLatency size URL
     // (C) latency size URL
     // (F) URL
-    sstr << "TYPE  WHEN  TOTAL NETWORK SIZE  URL\n";
+    sstr << "TYPE WHEN  TOTAL NETWORK SIZE  URL\n";
     for (MaplyRemoteTileFetcherLogEntry *entry in theEntries) {
         if (entry.success) {
             sstr << (entry.wasCached ? "(C) " : "(R) ");
             char foo[20];
-            sprintf(foo,"%*.2f",6,entry.startedTime-_startTime);
-            sstr << foo << " ";
-            sprintf(foo,"%*.2f",6,entry.finishedTime-entry.queuedTime);
-            sstr << foo << " ";
+            char foo2[20];
+            sprintf(foo,"%.2f",entry.startedTime-_startTime);
+            sprintf(foo2,"%7s",foo);
+            sstr << foo2 << " ";
+            sprintf(foo,"%.2f",entry.finishedTime-entry.queuedTime);
+            sprintf(foo2,"%6s",foo);
+            sstr << foo2 << " ";
             if (entry.wasCached) {
-                sprintf(foo,"      ");
+                foo[0] = 0;
             } else {
-                sprintf(foo,"%*.2f",6,entry.finishedTime-entry.startedTime);
+                sprintf(foo,"%.2f",entry.finishedTime-entry.startedTime);
             }
-            sstr << foo << " ";
+            sprintf(foo2,"%6s",foo);
+            sstr << foo2 << " ";
+        } else {
+            sstr << "(F)                  ";
         }
-        sstr << entry.size/1024 << "k ";
-        sstr << [entry.urlReq.URL.path cStringUsingEncoding:NSASCIIStringEncoding];
+        char foo[20];
+        char foo2[20];
+        sprintf(foo,"%3d%s",entry.size/1024,"k");
+        sprintf(foo2,"%5s",foo);
+        sstr << foo2;
+        sstr << " " << [entry.urlReq.URL.path cStringUsingEncoding:NSASCIIStringEncoding];
         sstr << "\n";
     }
     
