@@ -37,7 +37,7 @@ git submodule update
 
 Get comfortable. The data is contained in a submodule and it's large.
 
-Once you get all this synced, try to build WhirlyGlobeComponentTester. If it builds, you're good to go. Enjoy.
+Once you get all this synced, try to build AutoTester. If it builds, you're good to go. Enjoy.
 
 Want more detail? Go read the [Tutorials](http://mousebird.github.io/WhirlyGlobe/tutorial/) on the WhirlyGlobe-Maply site.
 
