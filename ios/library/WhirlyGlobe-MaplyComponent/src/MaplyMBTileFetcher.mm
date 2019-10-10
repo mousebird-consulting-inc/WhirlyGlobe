@@ -226,6 +226,10 @@ typedef std::map<MaplyTileFetchRequest *,TileInfoRef> TileFetchMap;
                 maxZoom = [readStmt3.getString() intValue];
         }
         
+        sqlhelpers::StatementRead readStmt4(sqlDb,"select value from metadata where name='format';");
+        if (readStmt4.stepRow())
+            _format = readStmt4.getString();
+
         // See if there's a tiles table or it's the older(?) style
         sqlhelpers::StatementRead testStmt(sqlDb,@"SELECT name FROM sqlite_master WHERE type='table' AND name='tiles';");
         if (testStmt.stepRow())

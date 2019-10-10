@@ -1313,8 +1313,10 @@ bool VectorParseTopNode(JSONNode node,ShapeSet &shapes,JSONNode &crs)
     } else if (!type.compare("Feature"))
     {
         return VectorParseFeature(node,shapes);
-    } else
-        return false;
+    } else {
+        // Only last try to do raw geometry
+        return VectorParseGeometry(node, shapes);
+    }
 
     return false;
 }

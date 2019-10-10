@@ -43,6 +43,9 @@
 /// Max zoom read from file
 - (int)maxZoom;
 
+/// Format directly from the metadata
+@property (nonatomic,nullable) NSString *format;
+
 /// Coordinate system (probably Spherical Mercator)
 - (MaplyCoordinateSystem * __nonnull)coordSys;
 

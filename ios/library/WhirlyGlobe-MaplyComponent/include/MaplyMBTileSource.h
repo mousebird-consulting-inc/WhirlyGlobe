@@ -70,6 +70,9 @@
  */
 @property (nonatomic) int minZoom;
 
+/// Format directly from the metadata
+@property (nonatomic,nullable) NSString *format;
+
 /** 
     Returns the bounding box of the MBTiles file.
     

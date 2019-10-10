@@ -32,6 +32,7 @@
     float height;
     float strokeWidth;
     bool allowOverlap;
+    int clusterGroup;
     NSString *markerImageTemplate;
 }
 
@@ -57,6 +58,7 @@
     for (NSDictionary *styleEntry in stylesArray)
     {
         MaplyVectorTileSubStyleMarker *subStyle = [[MaplyVectorTileSubStyleMarker alloc] init];
+        subStyle->clusterGroup = -1;
         if (styleEntry[@"fill"])
             subStyle->fillColor = [MaplyVectorTiles ParseColor:styleEntry[@"fill"]];
         subStyle->strokeColor = nil;
@@ -71,6 +73,8 @@
         subStyle->allowOverlap = false;
         if (styleEntry[@"allow-overlap"])
             subStyle->allowOverlap = [styleEntry[@"allow-overlap"] boolValue];
+        if (styleEntry[@"cluster"])
+            subStyle->clusterGroup = [styleEntry[@"cluster"] intValue];
         subStyle->strokeWidth = 1.0;
         NSString *fileName = nil;
         if (styleEntry[@"file"])
@@ -84,6 +88,8 @@
         subStyle->desc = [NSMutableDictionary dictionary];
         subStyle->desc[kMaplyEnable] = @NO;
         [self resolveVisibility:styleEntry settings:settings desc:subStyle->desc];
+        if (subStyle->clusterGroup > -1)
+            subStyle->desc[kMaplyClusterGroup] = @(subStyle->clusterGroup);
       
         if (image)
             subStyle->markerImage = image;
@@ -141,6 +147,7 @@
         for (MaplyVectorObject *vec in vecObjs)
         {
             MaplyScreenMarker *marker = [[MaplyScreenMarker alloc] init];
+            marker.userObject = vec;
             marker.selectable = self.selectable;
             if(subStyle->markerImage)
                 marker.image = subStyle->markerImage;
@@ -159,7 +166,11 @@
 
             if (marker.image) {
                 marker.loc = [vec center];
-                marker.layoutImportance = settings.markerImportance;
+                if (subStyle->allowOverlap)
+                    marker.layoutImportance = MAXFLOAT;
+                else
+                    marker.layoutImportance = settings.markerImportance;
+                marker.selectable = true;
                 if (marker.image)
                 {
                     marker.size = CGSizeMake(settings.markerScale*subStyle->width, settings.markerScale*subStyle->height);

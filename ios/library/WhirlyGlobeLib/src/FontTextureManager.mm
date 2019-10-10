@@ -341,7 +341,7 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     
     return retData;
 }
-            
+
 // Look for an existing font that will match the UIFont given
 - (FontManager *)findFontManagerForFont:(UIFont *)uiFont color:(UIColor *)color backColor:(UIColor *)backColor outlineColor:(UIColor *)outlineColor outlineSize:(NSNumber *)outlineSize
 {
@@ -349,7 +349,6 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     NSString *fontName = uiFont.fontName;
     float pointSize = uiFont.pointSize;
     pointSize *= BogusFontScale;
-    uiFont = [UIFont fontWithDescriptor:uiFont.fontDescriptor size:pointSize];
     
     for (FontManagerSet::iterator it = fontManagers.begin();
          it != fontManagers.end(); ++it)
@@ -367,7 +366,15 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     }
     
     // Create it
-    CTFontRef font = (__bridge CTFontRef)uiFont;
+    CTFontRef font;
+    bool cleanupFont = false;
+    if (@available(iOS 12.0, *)) {
+        uiFont = [UIFont fontWithDescriptor:uiFont.fontDescriptor size:pointSize];
+        font = (__bridge CTFontRef)uiFont;
+    } else {
+        font = CTFontCreateWithName((__bridge CFStringRef)fontName, pointSize, NULL);
+        cleanupFont = true;
+    }
     FontManager *fm = new FontManager(font);
     fm->fontName = fontName;
     fm->color = color;
@@ -377,7 +384,9 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     fm->outlineSize = [outlineSize floatValue];
 //    fm->outlineSize *= BogusFontScale;
     fontManagers.insert(fm);
-    
+    if (cleanupFont)
+        CFRelease(font);
+
     return fm;
 }
 
