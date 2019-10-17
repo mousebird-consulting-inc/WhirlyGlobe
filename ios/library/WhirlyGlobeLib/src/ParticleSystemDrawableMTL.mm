@@ -202,8 +202,8 @@ void ParticleSystemDrawableMTL::calculate(RendererFrameInfoMTL *frameInfo,id<MTL
             [cmdEncode setFragmentTexture:tex->getMTLID() atIndex:texIndex];
             numTextures++;
         } else {
-            [cmdEncode setVertexTexture:nil atIndex:texIndex];
-            [cmdEncode setFragmentTexture:nil atIndex:texIndex];
+//            [frameInfo->cmdEncode setVertexTexture:nil atIndex:texIndex];
+//            [frameInfo->cmdEncode setFragmentTexture:nil atIndex:texIndex];
         }
         texIndex++;
     }

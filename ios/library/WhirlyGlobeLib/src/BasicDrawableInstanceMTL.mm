@@ -133,13 +133,19 @@ void BasicDrawableInstanceMTL::teardownForRenderer(const RenderSetupInfo *setupI
     setupForMTL = false;
     scene->releaseBuffer(instBuffer);
     instBuffer = nil;
+    renderState = nil;
+    defaultAttrs.clear();
 }
 
 void BasicDrawableInstanceMTL::draw(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *inScene)
 {
     SceneMTL *scene = (SceneMTL *)inScene;
     SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
-    BasicDrawableMTL *basicDrawMTL = dynamic_cast<BasicDrawableMTL *>(basicDraw.get());
+    BasicDrawableMTL *basicDrawMTL = (BasicDrawableMTL *)basicDraw.get();
+    if (!basicDrawMTL->setupForMTL) {
+        NSLog(@"BasicDrawableInstance pointing at a bad BasicDrawable");
+        return;
+    }
     if (!basicDrawMTL)
         return;
 
@@ -216,8 +222,8 @@ void BasicDrawableInstanceMTL::draw(RendererFrameInfoMTL *frameInfo,id<MTLRender
             [cmdEncode setFragmentTexture:tex->getMTLID() atIndex:texIndex];
             numTextures++;
         } else {
-            [cmdEncode setVertexTexture:nil atIndex:texIndex];
-            [cmdEncode setFragmentTexture:nil atIndex:texIndex];
+//            [frameInfo->cmdEncode setVertexTexture:nil atIndex:texIndex];
+//            [frameInfo->cmdEncode setFragmentTexture:nil atIndex:texIndex];
         }
     }
     
