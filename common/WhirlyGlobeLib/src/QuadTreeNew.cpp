@@ -185,7 +185,7 @@ bool QuadTreeNew::evalNodeVisible(ImportantNode node,const std::vector<double> &
         return true;
 
     // Skip anything we wouldn't have evaluated in the first pass
-    if (node.level != minLevel && node.level < maxLevel && node.importance == 0.0)
+    if (node.level != minLevel && node.level <= maxLevel && node.importance == 0.0)
         return true;
 
     // Only add to the visible set if we want it
