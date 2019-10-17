@@ -141,7 +141,7 @@ void BasicDrawableInstanceMTL::draw(RendererFrameInfoMTL *frameInfo,id<MTLRender
 {
     SceneMTL *scene = (SceneMTL *)inScene;
     SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
-    BasicDrawableMTL *basicDrawMTL = (BasicDrawableMTL *)basicDraw.get();
+    BasicDrawableMTL *basicDrawMTL = dynamic_cast<BasicDrawableMTL *>(basicDraw.get());
     if (!basicDrawMTL->setupForMTL) {
         NSLog(@"BasicDrawableInstance pointing at a bad BasicDrawable");
         return;
