@@ -88,6 +88,7 @@ void BasicDrawableMTL::setupForRenderer(const RenderSetupInfo *inSetupInfo)
 
 void BasicDrawableMTL::teardownForRenderer(const RenderSetupInfo *setupInfo)
 {
+    setupForMTL = false;
     for (VertexAttribute *vertAttr : vertexAttributes) {
         VertexAttributeMTL *vertAttrMTL = (VertexAttributeMTL *)vertAttr;
         vertAttrMTL->buffer = nil;
@@ -383,8 +384,8 @@ void BasicDrawableMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScene)
             [frameInfo->cmdEncode setFragmentTexture:tex->getMTLID() atIndex:texIndex];
             numTextures++;
         } else {
-            [frameInfo->cmdEncode setVertexTexture:nil atIndex:texIndex];
-            [frameInfo->cmdEncode setFragmentTexture:nil atIndex:texIndex];
+//            [frameInfo->cmdEncode setVertexTexture:nil atIndex:texIndex];
+//            [frameInfo->cmdEncode setFragmentTexture:nil atIndex:texIndex];
         }
     }
     

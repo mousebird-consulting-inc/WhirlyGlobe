@@ -196,8 +196,8 @@ void ParticleSystemDrawableMTL::calculate(RendererFrameInfo *inFrameInfo,Scene *
             [frameInfo->cmdEncode setFragmentTexture:tex->getMTLID() atIndex:texIndex];
             numTextures++;
         } else {
-            [frameInfo->cmdEncode setVertexTexture:nil atIndex:texIndex];
-            [frameInfo->cmdEncode setFragmentTexture:nil atIndex:texIndex];
+//            [frameInfo->cmdEncode setVertexTexture:nil atIndex:texIndex];
+//            [frameInfo->cmdEncode setFragmentTexture:nil atIndex:texIndex];
         }
         texIndex++;
     }
@@ -244,8 +244,8 @@ void ParticleSystemDrawableMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inSce
             [frameInfo->cmdEncode setFragmentTexture:tex->getMTLID() atIndex:texIndex];
             numTextures++;
         } else {
-            [frameInfo->cmdEncode setVertexTexture:nil atIndex:texIndex];
-            [frameInfo->cmdEncode setFragmentTexture:nil atIndex:texIndex];
+//            [frameInfo->cmdEncode setVertexTexture:nil atIndex:texIndex];
+//            [frameInfo->cmdEncode setFragmentTexture:nil atIndex:texIndex];
         }
         texIndex++;
     }
