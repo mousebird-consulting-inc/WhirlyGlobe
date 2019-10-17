@@ -480,7 +480,7 @@ using namespace WhirlyKit;
 
 - (void)startTileFetches:(NSArray<MaplyTileFetchRequest *> *)requests
 {
-    if (!active)
+    if (!active || ![requests count])
         return;
     
     // Check each of the fetchInfo objects
@@ -499,7 +499,7 @@ using namespace WhirlyKit;
 
 - (void)cancelTileFetches:(NSArray<MaplyTileFetchRequest *> *)requests
 {
-    if (!active)
+    if (!active || ![requests count])
         return;
     
     MaplyRemoteTileFetcher * __weak weakSelf = self;
