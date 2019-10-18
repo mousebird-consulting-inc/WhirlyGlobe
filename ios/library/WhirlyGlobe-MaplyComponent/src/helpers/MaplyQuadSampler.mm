@@ -154,6 +154,15 @@ using namespace WhirlyKit;
 - (void)setForceMinLevel:(bool)forceMinLevel
 {
     params.forceMinLevel = forceMinLevel;
+    if (!params.forceMinLevel)
+        params.forceMinLevelHeight = 0.0;
+}
+
+- (void)setForceMinLevelHeight:(double)forceMinLevelHeight
+{
+    params.forceMinLevelHeight = forceMinLevelHeight;
+    if (params.forceMinLevelHeight != 0.0)
+        params.forceMinLevel = true;
 }
 
 - (MaplyBoundingBoxD)clipBounds

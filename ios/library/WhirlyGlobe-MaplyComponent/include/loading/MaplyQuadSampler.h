@@ -64,6 +64,9 @@
 /// Turn this off to get true single level loading
 @property (nonatomic) bool forceMinLevel;
 
+/// If set, we'll turn on forceMinLevel and only use it when the viewer is above this height
+@property (nonatomic) double forceMinLevelHeight;
+
 /// If set, we'll try to load a single level
 @property (nonatomic) bool singleLevel;
 

@@ -71,6 +71,9 @@ public:
     /// If set, we'll always load the lowest level first
     bool forceMinLevel;
     
+    /// If non-zero we'll only force min level loading above this height
+    double forceMinLevelHeight;
+    
     /// If set, we'll try to load a single level
     bool singleLevel;
     

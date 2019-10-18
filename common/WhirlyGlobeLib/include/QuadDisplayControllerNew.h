@@ -135,9 +135,8 @@ public:
     void setSingleLevel(bool);
     
     /// Do we always throw the min level into the mix or not
-    bool getKeepMinLevel();
-    void setKeepMinLevel(bool);
-    
+    void setKeepMinLevel(bool newVal,double height);
+        
     /// Level offsets in single level mode
     std::vector<int> getLevelLoads();
     void setLevelLoads(const std::vector<int> &);
@@ -182,6 +181,7 @@ protected:
     int minZoom,maxZoom;
     TimeInterval viewUpdatePeriod;
     bool keepMinLevel;
+    double keepMinLevelHeight;
     bool singleLevel;
     std::vector<int> levelLoads;
 
