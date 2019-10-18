@@ -1689,7 +1689,7 @@ public:
     [self getPositionD:&pos height:&height];
     state.pos = pos;
     state.height = height;
-    state.globeCenter = globeCenter;
+    state.globeCenter = [self globeCenter];
     
     return state;
 }
