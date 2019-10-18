@@ -37,6 +37,7 @@ View::View()
     nearPlane = 0.001;
     imagePlaneSize = nearPlane * tanf(fieldOfView / 2.0);
     farPlane = 10.0;
+    centerOffset = Point2d(0.0,0.0);
     lastChangedTime = TimeGetCurrent();
     continuousZoom = false;
 }

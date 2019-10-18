@@ -210,10 +210,25 @@ void GlobeView::privateSetHeightAboveGlobe(double newH,bool updateWatchers)
     if (updateWatchers)
        runViewUpdates();
 }
+
+void GlobeView::setCenterOffset(double offX,double offY,bool updateWatchers)
+{
+    centerOffset = Point2d(offX,offY);
+
+    if (updateWatchers)
+        runViewUpdates();
+}
 	
 Eigen::Matrix4d GlobeView::calcModelMatrix()
 {
-    Eigen::Affine3d trans(Eigen::Translation3d(0,0,-calcEarthZOffset()));
+    // Move the model around to move the center around
+    Point2d modelOff(0.0,0.0);
+    if (centerOffset.x() != 0.0 || centerOffset.y() != 0.0) {
+        // imagePlaneSize is actually half the image plane size in the horizontal
+        modelOff = Point2d(centerOffset.x() * imagePlaneSize, centerOffset.y() * imagePlaneSize) * (heightAboveGlobe+1.0)/nearPlane;
+    }
+    
+    Eigen::Affine3d trans(Eigen::Translation3d(modelOff.x(),modelOff.y(),-calcEarthZOffset()));
 	Eigen::Affine3d rot(rotQuat);
 	
 	return (trans * rot).matrix();

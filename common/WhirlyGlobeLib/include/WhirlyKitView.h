@@ -125,6 +125,7 @@ public:
     virtual void runViewUpdates();
     
     double fieldOfView,imagePlaneSize,nearPlane,farPlane;
+    Point2d centerOffset;
     std::vector<Eigen::Matrix4d> offsetMatrices;
     /// The last time the position was changed
     TimeInterval lastChangedTime;
