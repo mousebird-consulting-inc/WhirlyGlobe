@@ -209,7 +209,7 @@ public:
     void addClusterGenerator(ClusterGenerator *clusterGen);
     
 protected:
-    bool calcScreenPt(Point2f &objPt,LayoutObjectEntry *layoutObj,ViewStateRef viewState,const Mbr &screenMbr,const Point2f &frameBufferSize);
+    bool calcScreenPt(Point2f &objPt,LayoutObject *layoutObj,ViewStateRef viewState,const Mbr &screenMbr,const Point2f &frameBufferSize);
     Eigen::Matrix2d calcScreenRot(float &screenRot,ViewStateRef viewState,WhirlyGlobe::GlobeViewState *globeViewState,ScreenSpaceObject *ssObj,const Point2f &objPt,const Eigen::Matrix4d &modelTrans,const Eigen::Matrix4d &normalMat,const Point2f &frameBufferSize);
     bool runLayoutRules(ViewStateRef viewState,std::vector<ClusterEntry> &clusterEntries,std::vector<ClusterGenerator::ClusterClassParams> &clusterParams);
     

@@ -248,14 +248,14 @@ static const int OverlapSampleY = 60;
 // Now much around the screen we'll take into account
 static const float ScreenBuffer = 0.1;
     
-bool LayoutManager::calcScreenPt(Point2f &objPt,LayoutObjectEntry *layoutObj,ViewStateRef viewState,const Mbr &screenMbr,const Point2f &frameBufferSize)
+bool LayoutManager::calcScreenPt(Point2f &objPt,LayoutObject *layoutObj,ViewStateRef viewState,const Mbr &screenMbr,const Point2f &frameBufferSize)
 {
     // Figure out where this will land
     bool isInside = false;
     for (unsigned int offi=0;offi<viewState->viewMatrices.size();offi++)
     {
         Eigen::Matrix4d modelTrans = viewState->fullMatrices[offi];
-        Point2f thisObjPt = viewState->pointOnScreenFromDisplay(layoutObj->obj.worldLoc,&modelTrans,frameBufferSize);
+        Point2f thisObjPt = viewState->pointOnScreenFromDisplay(layoutObj->worldLoc,&modelTrans,frameBufferSize);
         if (screenMbr.inside(Point2f(thisObjPt.x(),thisObjPt.y())))
         {
             isInside = true;
@@ -458,7 +458,7 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
                 // Project the point and figure out the rotation
                 bool isActive = true;
                 Point2f objPt;
-                bool isInside = calcScreenPt(objPt,entry,viewState,screenMbr,frameBufferSize);
+                bool isInside = calcScreenPt(objPt,&entry->obj,viewState,screenMbr,frameBufferSize);
                 
                 isActive &= isInside;
                 
@@ -573,12 +573,22 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
     // Set up the overlap sampler
     OverlapHelper overlapMan(screenMbr,OverlapSampleX,OverlapSampleY);
     
-    // Add in the unique objects and then sort them all
+    // Add in the unique objects, cluster entries and then sort them all
     for (auto it : uniqueLayoutObjs) {
         layoutObjs.push_back(it.second);
     }
     std::sort(layoutObjs.begin(),layoutObjs.end());
     
+    // Clusters have priority in the overlap.
+    for (auto it : clusterEntries) {
+        Point2f objPt;
+        calcScreenPt(objPt,&it.layoutObj,viewState,screenMbr,frameBufferSize);
+        auto objPts = it.layoutObj.layoutPts;
+        for (auto &pt : objPts)
+            pt = pt * resScale + Point2d(objPt.x(),objPt.y());
+        overlapMan.addObject(objPts);
+    }
+
     // Lay out the various objects that are active
     int numSoFar = 0;
     for (auto container : layoutObjs)
@@ -611,7 +621,7 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
             if (isActive)
             {
                 Point2f objPt;
-                bool isInside = calcScreenPt(objPt,layoutObj,viewState,screenMbr,frameBufferSize);
+                bool isInside = calcScreenPt(objPt,&layoutObj->obj,viewState,screenMbr,frameBufferSize);
                 
                 isActive &= isInside;
                 

@@ -1029,6 +1029,7 @@ public:
     
     retObj.layoutPts = smGeom.coords;
     retObj.selectPts = smGeom.coords;
+    retObj.importance = sampleObj->importance;
     
     // Create the texture
     // Note: Keep this around
