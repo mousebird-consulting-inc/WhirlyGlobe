@@ -90,6 +90,8 @@
 		2B446B9221FBA8250078A975 /* FontTextureManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B9121FBA8240078A975 /* FontTextureManager.h */; };
 		2B446B9621FBA8520078A975 /* Program.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B9521FBA8520078A975 /* Program.h */; };
 		2B446B9A21FBA9D50078A975 /* PerformanceTimer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B9921FBA9D50078A975 /* PerformanceTimer.h */; };
+		2B4B63A5236102DA0008C8C1 /* MaplyGlobeRenderController.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B63A4236102DA0008C8C1 /* MaplyGlobeRenderController.h */; };
+		2B4B63A7236102EC0008C8C1 /* MaplyGlobeRenderController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B63A6236102EC0008C8C1 /* MaplyGlobeRenderController.mm */; };
 		2B541C171ECFAA2300EC35A0 /* MaplyRenderTarget.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B541C161ECFAA2300EC35A0 /* MaplyRenderTarget.h */; };
 		2B68A43F225D4469009CC720 /* MapboxVectorTileParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B68A43E225D4469009CC720 /* MapboxVectorTileParser.h */; };
 		2B68A441225D447F009CC720 /* MapboxVectorTileParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B68A440225D447E009CC720 /* MapboxVectorTileParser.cpp */; };
@@ -1211,6 +1213,8 @@
 		2B446B9721FBA8690078A975 /* ProgramGLES.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ProgramGLES.cpp; path = ../../../../common/WhirlyGlobeLib/src/ProgramGLES.cpp; sourceTree = "<group>"; };
 		2B446B9921FBA9D50078A975 /* PerformanceTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PerformanceTimer.h; path = ../../../../common/WhirlyGlobeLib/include/PerformanceTimer.h; sourceTree = "<group>"; };
 		2B446B9B21FBA9E90078A975 /* PerformanceTimer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PerformanceTimer.cpp; path = ../../../../common/WhirlyGlobeLib/src/PerformanceTimer.cpp; sourceTree = "<group>"; };
+		2B4B63A4236102DA0008C8C1 /* MaplyGlobeRenderController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyGlobeRenderController.h; sourceTree = "<group>"; };
+		2B4B63A6236102EC0008C8C1 /* MaplyGlobeRenderController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyGlobeRenderController.mm; sourceTree = "<group>"; };
 		2B541C161ECFAA2300EC35A0 /* MaplyRenderTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyRenderTarget.h; sourceTree = "<group>"; };
 		2B68A43E225D4469009CC720 /* MapboxVectorTileParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MapboxVectorTileParser.h; path = ../../../../common/WhirlyGlobeLib/include/MapboxVectorTileParser.h; sourceTree = "<group>"; };
 		2B68A440225D447E009CC720 /* MapboxVectorTileParser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MapboxVectorTileParser.cpp; path = ../../../../common/WhirlyGlobeLib/src/MapboxVectorTileParser.cpp; sourceTree = "<group>"; };
@@ -3237,6 +3241,7 @@
 				2BE537F41D249A1200B60FAD /* WGViewControllerLayer.mm */,
 				2BE537A11D249A1200B60FAD /* MaplyBaseViewController.mm */,
 				2BE537D31D249A1200B60FAD /* MaplyViewController.mm */,
+				2B4B63A6236102EC0008C8C1 /* MaplyGlobeRenderController.mm */,
 				2BE537F51D249A1200B60FAD /* WhirlyGlobeViewController.mm */,
 			);
 			path = control;
@@ -3491,6 +3496,7 @@
 				2BE537561D249A1200B60FAD /* MaplyViewTracker.h */,
 				2BE537551D249A1200B60FAD /* MaplyViewControllerLayer.h */,
 				2BE537221D249A1200B60FAD /* MaplyBaseViewController.h */,
+				2B4B63A4236102DA0008C8C1 /* MaplyGlobeRenderController.h */,
 				2BE537981D249A1200B60FAD /* WhirlyGlobeViewController.h */,
 				2BE537541D249A1200B60FAD /* MaplyViewController.h */,
 			);
@@ -4213,6 +4219,7 @@
 				2B23133C21FA919E006AA344 /* Dictionary_NSDictionary.h in Headers */,
 				2B82B71D1E82E24A0095FB14 /* LayerThread.h in Headers */,
 				2B884A5F1E3803170027C397 /* lasquantizer.hpp in Headers */,
+				2B4B63A5236102DA0008C8C1 /* MaplyGlobeRenderController.h in Headers */,
 				2BE53A721D249C4600B60FAD /* once.h in Headers */,
 				2B846F0921F158E100EF2A82 /* ShapeManager.h in Headers */,
 				2BE538721D249A1200B60FAD /* WhirlyGlobeViewController.h in Headers */,
@@ -5184,6 +5191,7 @@
 				2B8796FF22038DF200EF801D /* UpdateDisplayLayer.mm in Sources */,
 				2BE1E73A2208B25F00815D9C /* MaplyPanDelegate.mm in Sources */,
 				2B82B6411E82E2490095FB14 /* PJ_aea.c in Sources */,
+				2B4B63A7236102EC0008C8C1 /* MaplyGlobeRenderController.mm in Sources */,
 				2B82B6CA1E82E24A0095FB14 /* rtodms.c in Sources */,
 				2BE539BE1D249BEF00B60FAD /* AASaturnRings.cpp in Sources */,
 				2B82B6801E82E24A0095FB14 /* pj_latlong.c in Sources */,

@@ -80,7 +80,7 @@ class LocationTrackingSimTestCase: MaplyTestCase, MaplyLocationTrackerDelegate {
     }
     
     func getSimulationPoint() -> MaplyLocationTrackerSimulationPoint {
-        var pointData:[Float] = (simPointData?[simPointIndex!])!
+        let pointData:[Float] = (simPointData?[simPointIndex!])!
         simPointIndex = (simPointIndex! + 1) % (simPointData?.count)!
         
         return MaplyLocationTrackerSimulationPoint(lonDeg: pointData[0], latDeg: pointData[1], headingDeg: pointData[2])

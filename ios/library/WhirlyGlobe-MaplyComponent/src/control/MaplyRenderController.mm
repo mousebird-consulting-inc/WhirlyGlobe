@@ -38,7 +38,7 @@ using namespace Eigen;
 {
     // This view is used when we're doing an offline renderer
     PassThroughCoordSystemRef coordSys;
-    GeneralCoordSystemDisplayAdapterRef coordAdapter;
+    GeneralCoordSystemDisplayAdapterRef genCoordAdapter;
     Maply::FlatViewRef flatView;
     bool offlineMode;
     NSData *snapshotData;
@@ -57,41 +57,45 @@ using namespace Eigen;
     
     EAGLContext *oldContext = [EAGLContext currentContext];
     
-    // Coordinate system and view that just pass coordinates through
-    coordSys = PassThroughCoordSystemRef(new PassThroughCoordSystem());
-    Point3d ll(0.0,0.0,0.0),ur(size.width,size.height,0.0);
-    Point3d scale(1.0,1.0,1.0);
-    Point3d center = (ll+ur)/2.0;
-    coordAdapter = GeneralCoordSystemDisplayAdapterRef(new GeneralCoordSystemDisplayAdapter(coordSys.get(),ll,ur,center,scale));
-    flatView = Maply::FlatViewRef(new Maply::FlatView(coordAdapter.get()));
-    Mbr extents;
-    extents.addPoint(Point2f(ll.x(),ll.y()));
-    extents.addPoint(Point2f(ur.x(),ur.y()));
-    flatView->setExtents(extents);
-    flatView->setWindow(Point2d(size.width,size.height),Point2d(0.0,0.0));
-
+    // If the coordinate system hasn't been set up, we'll do a flat one
+    if (!coordAdapter) {
+        // Coordinate system and view that just pass coordinates through
+        coordSys = PassThroughCoordSystemRef(new PassThroughCoordSystem());
+        Point3d ll(0.0,0.0,0.0),ur(size.width,size.height,0.0);
+        Point3d scale(1.0,1.0,1.0);
+        Point3d center = (ll+ur)/2.0;
+        genCoordAdapter = GeneralCoordSystemDisplayAdapterRef(new GeneralCoordSystemDisplayAdapter(coordSys.get(),ll,ur,center,scale));
+        coordAdapter = genCoordAdapter.get();
+        flatView = Maply::FlatViewRef(new Maply::FlatView(coordAdapter));
+        theView = flatView;
+        Mbr extents;
+        extents.addPoint(Point2f(ll.x(),ll.y()));
+        extents.addPoint(Point2f(ur.x(),ur.y()));
+        flatView->setExtents(extents);
+        flatView->setWindow(Point2d(size.width,size.height),Point2d(0.0,0.0));
+    }
     // Set up the renderer with a target size
     if (inRenderType == MaplyRenderGLES) {
         renderType = SceneRenderer::RenderGLES;
-        scene = new SceneGLES(coordAdapter.get());
+        scene = new SceneGLES(coordAdapter);
         SceneRendererGLES_iOSRef theSceneRenderer = SceneRendererGLES_iOSRef(new SceneRendererGLES_iOS((int)size.width,(int)size.height,1.0));
         sceneRenderer = theSceneRenderer;
     } else {
         renderType = SceneRenderer::RenderMetal;
-        scene = new SceneMTL(coordAdapter.get());
+        scene = new SceneMTL(coordAdapter);
         SceneRendererMTLRef theSceneRenderer = SceneRendererMTLRef(new SceneRendererMTL( MTLCreateSystemDefaultDevice(), 1.0));
         theSceneRenderer->setup(size.width, size.height, true);
         sceneRenderer = theSceneRenderer;
     }
     sceneRenderer->setZBufferMode(zBufferOffDefault);
     sceneRenderer->setScene(scene);
-    sceneRenderer->setView(flatView.get());
+    sceneRenderer->setView(theView.get());
     sceneRenderer->setClearColor([[UIColor blackColor] asRGBAColor]);
     
     // Turn on the model matrix optimization for drawing
     sceneRenderer->setUseViewChanged(true);
     
-    interactLayer = [[MaplyBaseInteractionLayer alloc] initWithView:flatView.get()];
+    interactLayer = [[MaplyBaseInteractionLayer alloc] initWithView:theView.get()];
     [interactLayer startWithThread:nil scene:scene];
 
     [self setupShaders];
@@ -121,6 +125,8 @@ using namespace Eigen;
         interactLayer = nil;
         if (flatView)
             flatView = nil;
+        genCoordAdapter = NULL;
+        theView = NULL;
         coordAdapter = NULL;
         coordSys = NULL;
         scene = NULL;

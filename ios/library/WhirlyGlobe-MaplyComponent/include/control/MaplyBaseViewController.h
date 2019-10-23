@@ -157,7 +157,7 @@
 /** 
     Set the offset for the screen space objects.
     
-    In general you want the screen space objects to appear on top of everything else.  There used to be structural versions for this, but now you can mix and match where everything appears.  This controls the offset that's used to push screen space objects behind everything else in the list (and thus, on top).
+    In general you want the screen space objects to appear on top of everything else.  There used to be structural reasons for this, but now you can mix and match where everything appears.  This controls the offset that's used to push screen space objects behind everything else in the list (and thus, on top).
     
     If you set this to 0, you can control the ordering of everything more precisely.
  */

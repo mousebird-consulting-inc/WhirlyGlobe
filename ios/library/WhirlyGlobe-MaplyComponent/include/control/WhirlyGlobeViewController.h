@@ -19,52 +19,13 @@
  */
 
 #import <UIKit/UIKit.h>
+#import "control/MaplyGlobeRenderController.h"
 #import "control/MaplyBaseViewController.h"
 
 @class WGViewControllerLayer;
 @class WhirlyGlobeViewController;
 
-/** 
-    Animation State used by the WhirlyGlobeViewControllerAnimationDelegate.
-    
-    You fill out one of these when you're implementing the animation delegate.  Return it and the view controller will set the respective values to match.
-  */
-@interface WhirlyGlobeViewControllerAnimationState : NSObject
-
-/// Heading is calculated from due north
-/// If not set or set to MAXFLOAT, this is ignored
-@property (nonatomic) double heading;
-
-/// Height above the globe
-@property (nonatomic) double height;
-
-/// Tilt as used in the view controller
-/// If not set or set to MAXFLOAT, we calculate tilt the regular way
-@property (nonatomic) double tilt;
-
-/// Roll as used in the view controller
-@property (nonatomic) double roll;
-
-/// Position to move to on the globe
-@property (nonatomic) MaplyCoordinateD pos;
-
-/// If set, this is a point on the screen where pos should be.
-/// By default this is (-1,-1) meaning the screen position is just the middle.  Otherwise, this is where the position should wind up on the screen, if it can.
-@property (nonatomic) CGPoint screenPos;
-
-/// If set, the globe will be centered at this point on the screen
-@property (nonatomic) CGPoint globeCenter;
-
-/** 
-    Interpolate a new state between the given states A and B.
-    
-    This does a simple interpolation (lat/lon, not great circle) between the two animation states.
-  */
-+ (nonnull WhirlyGlobeViewControllerAnimationState *)Interpolate:(double)t from:(WhirlyGlobeViewControllerAnimationState *__nonnull)stateA to:(WhirlyGlobeViewControllerAnimationState *__nonnull)stateB;
-
-@end
-
-/** 
+/**
     An animation delegate that can be set on a WhirlyGlobeViewController to control the view over time.
     
     Filling out these methods will get you animation callbacks at the proper time to control position, heading, tilt, and height on a frame basis.
@@ -73,7 +34,7 @@
   */
 @protocol WhirlyGlobeViewControllerAnimationDelegate <NSObject>
 
-/** 
+/**
     This method is called when the animation starts.
     
     At the animation start we collect up the various parameters of the current visual view state and pas them in via the startState.  You probably want to keep track of this for later.
@@ -88,7 +49,7 @@
   */
 - (void)globeViewController:(WhirlyGlobeViewController *__nonnull)viewC startState:(WhirlyGlobeViewControllerAnimationState *__nonnull)startState startTime:(NSTimeInterval)startTime endTime:(NSTimeInterval)endTime;
 
-/** 
+/**
     This method is called at the beginning of every frame draw to position the viewer.
     
     This is the method that does all the work.  You need to fill out the returned WhirlyGlobeViewControllerAnimationState according to whatever interpolation your'e doing based on the currentTime.
@@ -103,7 +64,7 @@
 
 @optional
 
-/** 
+/**
     This method is called at the end of the animation.
     
     The globe view controller calls this method when the animation is finished.  Do your cleanup here if need be.
@@ -114,7 +75,7 @@
 
 @end
 
-/** 
+/**
     A simple animation delegate for moving the globe around.
     
     The animation delegate support provides a lot of flexibility.  This version just provides all the standard fields and interpolates from beginning to end.

@@ -43,6 +43,9 @@
     // Scene renderer... renders the scene
     WhirlyKit::SceneRendererRef sceneRenderer;
     
+    WhirlyKit::ViewRef theView;
+    WhirlyKit::CoordSystemDisplayAdapter *coordAdapter;
+
     // Our own interaction layer does most of the work
     MaplyBaseInteractionLayer *interactLayer;
 
