@@ -797,7 +797,7 @@ SimpleIdentity GeometryManager::addBaseGeometry(std::vector<GeometryRaw> &inGeom
 SimpleIdentity GeometryManager::addGeometryInstances(SimpleIdentity baseGeomID,const std::vector<GeometryInstance> &instances,GeometryInfo &geomInfo,ChangeSet &changes)
 {
     std::lock_guard<std::mutex> guardLock(geomLock);
-    TimeInterval startTime = TimeGetCurrent();
+    TimeInterval startTime = scene->getCurrentTime();
 
     // Look for the scene rep we're basing this on
     GeomSceneRep *baseSceneRep = NULL;
@@ -950,7 +950,7 @@ void GeometryManager::removeGeometry(SimpleIDSet &geomIDs,ChangeSet &changes)
 
     std::lock_guard<std::mutex> guardLock(geomLock);
 
-    TimeInterval curTime = TimeGetCurrent();
+    TimeInterval curTime = scene->getCurrentTime();
     for (SimpleIDSet::iterator git = geomIDs.begin(); git != geomIDs.end(); ++git)
     {
         GeomSceneRep dummyRep(*git);

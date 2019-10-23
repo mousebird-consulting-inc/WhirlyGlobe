@@ -22,6 +22,7 @@
 #import "visual_objects/MaplyStarsModel.h"
 #import <WhirlyGlobe_iOS.h>
 #import <AA+.h>
+#import "WhirlyGlobeViewController_private.h"
 
 using namespace WhirlyKit;
 
@@ -140,7 +141,7 @@ typedef struct
         starTex = [viewC addTexture:image imageFormat:MaplyImageIntRGBA wrapFlags:0 mode:MaplyThreadCurrent];
 
     // Set up a simple particle system (that doesn't move)
-    partSys = [[MaplyParticleSystem alloc] initWithName:@"Stars"];
+    partSys = [[MaplyParticleSystem alloc] initWithName:@"Stars" viewC:viewC];
     partSys.type = MaplyParticleSystemTypePoint;
     partSys.lifetime = 1e20;
     partSys.totalParticles = (int)stars.size();
@@ -191,7 +192,7 @@ typedef struct
 
     // Set up the particle batch
     MaplyParticleBatch *batch = [[MaplyParticleBatch alloc] initWithParticleSystem:partSys];
-    batch.time = TimeGetCurrent();
+    batch.time = viewC->globeScene->getCurrentTime();
     [batch addAttribute:@"a_position" values:posData];
     [batch addAttribute:@"a_size" values:sizeData];
     [viewC addParticleBatch:batch mode:mode];

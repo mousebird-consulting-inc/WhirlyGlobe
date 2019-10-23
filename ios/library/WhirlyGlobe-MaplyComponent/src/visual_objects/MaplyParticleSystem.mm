@@ -21,6 +21,7 @@
 #import "MaplyParticleSystem_private.h"
 #import "MaplyRenderTarget_private.h"
 #import "MaplySharedAttributes.h"
+#import "MaplyRenderController_private.h"
 
 namespace WhirlyKit
 {
@@ -60,7 +61,7 @@ using namespace WhirlyKit;
 
 @implementation MaplyParticleSystem
 
-- (instancetype)initWithName:(NSString *)name
+- (instancetype)initWithName:(NSString *)name viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     self = [super init];
     if (!self)
@@ -72,7 +73,9 @@ using namespace WhirlyKit;
     _lifetime = 5.0;
     _batchSize = 2000;
     _totalParticles = 100000;
-    _baseTime = TimeGetCurrent();
+    _viewC = viewC;
+    MaplyRenderController *renderControl = [_viewC getRenderControl];
+    _baseTime = renderControl->scene->getCurrentTime();
     _renderTargetID = EmptyIdentity;
     _numRegAttrs = 0;
     _vertexSize = 0;
@@ -120,7 +123,8 @@ using namespace WhirlyKit;
     if (!self)
         return nil;
     _partSys = partSys;
-    _time = TimeGetCurrent();
+    MaplyRenderController *renderControl = [partSys.viewC getRenderControl];
+    _time = renderControl->scene->getCurrentTime();
     
     return self;
 }

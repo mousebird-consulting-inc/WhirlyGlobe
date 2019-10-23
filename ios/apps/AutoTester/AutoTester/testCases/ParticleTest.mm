@@ -482,7 +482,7 @@ static const float sqrt2 = 1.41421356237;
         partSysObj = [viewC addParticleSystem:partSys desc:@{kMaplyPointSize: @(4.0), kMaplyDrawPriority: @(kMaplyModelDrawPriorityDefault+1000)} mode:MaplyThreadCurrent];
     }
     
-    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+    NSTimeInterval now = scene->getCurrentTime();
 
     // Data arrays for particles
     // These have to be raw data, rather than objects for speed

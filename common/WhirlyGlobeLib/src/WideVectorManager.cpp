@@ -659,7 +659,7 @@ public:
         if (drawables.empty())
             return NULL;
         
-        TimeInterval curTime = TimeGetCurrent();
+        TimeInterval curTime = scene->getCurrentTime();
         
         WideVectorSceneRep *sceneRep = new WideVectorSceneRep();
         sceneRep->fade = vecInfo->fade;
@@ -878,7 +878,7 @@ void WideVectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
 {
     std::lock_guard<std::mutex> guardLock(vecLock);
 
-    TimeInterval curTime = TimeGetCurrent();
+    TimeInterval curTime = scene->getCurrentTime();
     for (SimpleIDSet::iterator vit = vecIDs.begin();vit != vecIDs.end();++vit)
     {
         WideVectorSceneRep dummyRep(*vit);

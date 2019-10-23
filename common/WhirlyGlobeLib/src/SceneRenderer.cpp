@@ -89,7 +89,7 @@ void SceneRenderer::init()
     light.setSpecular(Vector4f(0, 0, 0, 0));
     addLight(light);
     
-    lightsLastUpdated = TimeGetCurrent();
+    lightsLastUpdated = scene->getCurrentTime();
 }
 
 Scene *SceneRenderer::getScene()
@@ -238,7 +238,7 @@ void SceneRenderer::forceRenderSetup()
 void SceneRenderer::addLight(const DirectionalLight &light)
 {
     lights.push_back(light);
-    lightsLastUpdated = TimeGetCurrent();
+    lightsLastUpdated = scene->getCurrentTime();
     triggerDraw = true;
 }
 
@@ -249,14 +249,14 @@ void SceneRenderer::replaceLights(const std::vector<DirectionalLight> &newLights
     for (auto light : newLights)
         lights.push_back(light);
     
-    lightsLastUpdated = TimeGetCurrent();
+    lightsLastUpdated = scene->getCurrentTime();
     triggerDraw = true;
 }
 
 void SceneRenderer::setDefaultMaterial(const Material &mat)
 {
     defaultMat = mat;
-    lightsLastUpdated = TimeGetCurrent();
+    lightsLastUpdated = scene->getCurrentTime();
     triggerDraw = true;
 }
 
@@ -278,12 +278,12 @@ void SceneRenderer::processScene()
     if (!scene)
         return;
     
-    scene->processChanges(theView,this,TimeGetCurrent());
+    scene->processChanges(theView,this,scene->getCurrentTime());
 }
 
 bool SceneRenderer::hasChanges()
 {
-    return scene->hasChanges(TimeGetCurrent()) || viewDidChange() || !contRenderRequests.empty();
+    return scene->hasChanges(scene->getCurrentTime()) || viewDidChange() || !contRenderRequests.empty();
 }
     
 }

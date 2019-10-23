@@ -83,7 +83,7 @@ using namespace WhirlyGlobe;
 // Try to auto-spin every so often
 -(void)processAutoSpin:(id)sender
 {
-    TimeInterval now = TimeGetCurrent();
+    TimeInterval now = scene->getCurrentTime();
     
     if (autoSpinner && globeView->getDelegate() != autoSpinner)
         autoSpinner = NULL;
@@ -109,7 +109,7 @@ using namespace WhirlyGlobe;
 // Runs in the layer thread
 - (void) userDidTapLayerThread:(WhirlyGlobeTapMessage *)msg
 {
-    lastTouched = TimeGetCurrent();
+    lastTouched = scene->getCurrentTime();
     if (autoSpinner)
     {
         if (globeView->getDelegate() == autoSpinner)

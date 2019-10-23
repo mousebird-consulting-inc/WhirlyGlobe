@@ -349,7 +349,7 @@ void SceneRendererMTL::render(TimeInterval duration,
         return;
     }
     
-    TimeInterval now = TimeGetCurrent();
+    TimeInterval now = scene->getCurrentTime();
     lastDraw = now;
     
     if (perfInterval > 0)
@@ -414,7 +414,7 @@ void SceneRendererMTL::render(TimeInterval duration,
         baseFrameInfo.modelTrans4d = modelTrans4d;
         baseFrameInfo.scene = scene;
         baseFrameInfo.frameLen = duration;
-        baseFrameInfo.currentTime = TimeGetCurrent();
+        baseFrameInfo.currentTime = scene->getCurrentTime();
         baseFrameInfo.projMat = projMat;
         baseFrameInfo.projMat4d = projMat4d;
         baseFrameInfo.mvpMat = mvpMat;

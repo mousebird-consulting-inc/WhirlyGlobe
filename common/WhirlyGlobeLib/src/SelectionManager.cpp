@@ -866,7 +866,7 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,ViewStateRef vi
     if (!pInfo.globeViewState && !pInfo.mapViewState)
         return;
     
-    TimeInterval now = TimeGetCurrent();
+    TimeInterval now = scene->getCurrentTime();
 
     // And the eye vector for billboards
     Vector4d eyeVec4 = pInfo.viewState->fullMatrices[0].inverse() * Vector4d(0,0,1,0);

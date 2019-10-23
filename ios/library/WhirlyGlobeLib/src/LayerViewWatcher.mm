@@ -213,7 +213,7 @@ public:
         kickoffScheduled = false;
     }
     [self viewUpdateLayerThread:lastViewState];
-    lastUpdate = TimeGetCurrent();
+    lastUpdate = layerThread.scene->getCurrentTime();
 }
 
 // We're in the main thread here
@@ -244,7 +244,7 @@ public:
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
         [watch->target performSelector:watch->selector withObject:[[WhirlyKitViewStateWrapper alloc] initWithViewState:lastViewState]];
 #pragma clang diagnostic pop
-        watch->lastUpdated = TimeGetCurrent();
+        watch->lastUpdated = layerThread.scene->getCurrentTime();
         watch->lastEyePos = lastViewState->eyePos;
     } else
         NSLog(@"Missing last view state");
@@ -265,7 +265,7 @@ public:
 // We can dispatch things from here
 - (void)viewUpdateLayerThread:(ViewStateRef)viewState
 {
-    TimeInterval curTime = TimeGetCurrent();
+    TimeInterval curTime = layerThread.scene->getCurrentTime();
     
     // Look for anything that hasn't been updated in a while
     std::set<LayerPriorityOrder> orderedLayers;

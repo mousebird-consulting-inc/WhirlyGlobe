@@ -124,7 +124,7 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
 {
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
-    TimeInterval curTime = TimeGetCurrent();
+    TimeInterval curTime = scene->getCurrentTime();
 
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     MarkerSceneRep *markerRep = new MarkerSceneRep();
@@ -319,7 +319,7 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
                 // If we've got more than one texture ID and a period, we need a tweaker
                 if (texIDs.size() > 1 && marker->period != 0.0)
                 {
-                    TimeInterval now = TimeGetCurrent();
+                    TimeInterval now = scene->getCurrentTime();
                     std::vector<SimpleIdentity> texIDVec;
                     std::copy(texIDs.begin(), texIDs.end(), std::back_inserter(texIDVec));
                     BasicDrawableTexTweaker *tweak = new BasicDrawableTexTweaker(texIDVec,now,marker->period);
@@ -359,7 +359,7 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
     {
         if (markerInfo.fadeIn > 0.0)
         {
-            TimeInterval curTime = TimeGetCurrent();
+            TimeInterval curTime = scene->getCurrentTime();
             it->second->setFade(curTime,curTime+markerInfo.fadeIn);
         }
         changes.push_back(new AddDrawableReq(it->second->getDrawable()));
@@ -421,7 +421,7 @@ void MarkerManager::removeMarkers(SimpleIDSet &markerIDs,ChangeSet &changes)
 
     std::lock_guard<std::mutex> guardLock(markerLock);
 
-    TimeInterval curTime = TimeGetCurrent();
+    TimeInterval curTime = scene->getCurrentTime();
     for (SimpleIDSet::iterator mit = markerIDs.begin();mit != markerIDs.end(); ++mit)
     {
         SimpleIdentity markerID = *mit;

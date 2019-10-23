@@ -1074,7 +1074,7 @@ public:
 
 - (void)animateWithDelegate:(NSObject<MaplyViewControllerAnimationDelegate> *)inAnimationDelegate time:(TimeInterval)howLong
 {
-    TimeInterval now = TimeGetCurrent();
+    TimeInterval now = mapScene->getCurrentTime();
     animationDelegate = inAnimationDelegate;
     animationDelegateEnd = now+howLong;
     
@@ -1093,7 +1093,7 @@ public:
     if (!renderControl)
         return;
     
-    TimeInterval now = TimeGetCurrent();
+    TimeInterval now = mapScene->getCurrentTime();
     if (!animationDelegate)
     {
         theMapView->cancelAnimation();

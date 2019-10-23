@@ -291,7 +291,7 @@ void BillboardManager::removeBillboards(SimpleIDSet &billIDs,ChangeSet &changes)
         
     std::lock_guard<std::mutex> guardLock(billLock);
 
-    TimeInterval curTime = TimeGetCurrent();
+    TimeInterval curTime = scene->getCurrentTime();
     for (SimpleIDSet::iterator bit = billIDs.begin();bit != billIDs.end();++bit)
     {
         BillboardSceneRep dummyRep(*bit);

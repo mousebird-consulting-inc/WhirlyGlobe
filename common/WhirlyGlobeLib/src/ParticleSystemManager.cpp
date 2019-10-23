@@ -186,7 +186,7 @@ void ParticleSystemManager::addParticleBatch(SimpleIdentity sysID,const Particle
                         attrData.push_back(thisAttrData);
                     }
                     // Note: Should pick this up from the batch
-                    theBatch.startTime = TimeGetCurrent();
+                    theBatch.startTime = scene->getCurrentTime();
                     draw->addAttributeData(renderer->getRenderSetupInfo(),attrData,theBatch);
                 } else {
                     // For Metal, we just pass a block of data through

@@ -163,7 +163,7 @@ void ComponentManager::removeComponentObjects(const SimpleIDSet &compIDs,ChangeS
             // Giving the fonts 2s to stick around
             //       This avoids problems with texture being paged out.
             //       Without this we lose the textures before we're done with them
-            TimeInterval when = TimeGetCurrent() + 2.0;
+            TimeInterval when = scene->getCurrentTime() + 2.0;
             for (SimpleIdentity dStrID : compObj->drawStringIDs)
                 fontTexManager->removeString(dStrID, changes, when);
         }

@@ -232,7 +232,7 @@ void SceneRendererGLES::render(TimeInterval duration)
         
     theView->animate();
     
-    TimeInterval now = TimeGetCurrent();
+    TimeInterval now = scene->getCurrentTime();
 
     lastDraw = now;
     
@@ -316,7 +316,7 @@ void SceneRendererGLES::render(TimeInterval duration)
         baseFrameInfo.modelTrans4d = modelTrans4d;
         baseFrameInfo.scene = scene;
         baseFrameInfo.frameLen = duration;
-        baseFrameInfo.currentTime = TimeGetCurrent();
+        baseFrameInfo.currentTime = scene->getCurrentTime();
         baseFrameInfo.projMat = projMat;
         baseFrameInfo.projMat4d = projMat4d;
         baseFrameInfo.mvpMat = mvpMat;
@@ -655,7 +655,7 @@ void SceneRendererGLES::render(TimeInterval duration)
     // Update the frames per sec
     if (perfInterval > 0 && frameCount > perfInterval)
     {
-        TimeInterval now = TimeGetCurrent();
+        TimeInterval now = scene->getCurrentTime();
         TimeInterval howLong =  now - frameCountStart;;
         framesPerSec = frameCount / howLong;
         frameCountStart = now;

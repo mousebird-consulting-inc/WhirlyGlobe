@@ -93,7 +93,7 @@ static const float MaxDelay = 1.0;
     viewState = inViewState.viewState;
     
     // If it's been too long since an update, force the next one
-    if (TimeGetCurrent() - lastUpdate > MaxDelay)
+    if (scene->getCurrentTime() - lastUpdate > MaxDelay)
     {
         [self updateLayout];
         return;
@@ -151,7 +151,7 @@ static const float MaxDelay = 1.0;
 - (void)updateLayout
 {
 //    NSLog(@"UpdateLayout called");
-    lastUpdate = TimeGetCurrent();
+    lastUpdate = scene->getCurrentTime();
 
     LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
     if (layoutManager)

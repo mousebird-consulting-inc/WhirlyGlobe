@@ -1313,7 +1313,7 @@ void QuadImageFrameLoader::updateForFrame(RendererFrameInfo *frameInfo)
 
     ChangeSet changes;
 
-    TimeInterval now = TimeGetCurrent();
+    TimeInterval now = control->getScene()->getCurrentTime();
     renderState.updateScene(frameInfo->scene, curFrames, now, flipY, color, changes);
 
     frameInfo->scene->addChangeRequests(changes);

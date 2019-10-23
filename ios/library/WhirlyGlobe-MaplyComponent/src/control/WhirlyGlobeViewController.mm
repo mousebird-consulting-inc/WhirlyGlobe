@@ -1546,7 +1546,7 @@ public:
 // Called every frame from within the globe view
 - (void)updateView:(GlobeView *)inGlobeView
 {
-    TimeInterval now = TimeGetCurrent();
+    TimeInterval now = globeScene->getCurrentTime();
     if (!animationDelegate)
     {
         globeView->cancelAnimation();
@@ -1573,7 +1573,7 @@ public:
 
 - (void)animateWithDelegate:(NSObject<WhirlyGlobeViewControllerAnimationDelegate> *)inAnimationDelegate time:(TimeInterval)howLong
 {
-    TimeInterval now = TimeGetCurrent();
+    TimeInterval now = globeScene->getCurrentTime();
     animationDelegate = inAnimationDelegate;
     animationDelegateEnd = now+howLong;
 

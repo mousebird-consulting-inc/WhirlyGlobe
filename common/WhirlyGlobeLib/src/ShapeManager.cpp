@@ -755,7 +755,7 @@ void ShapeManager::removeShapes(SimpleIDSet &shapeIDs,ChangeSet &changes)
 
     std::lock_guard<std::mutex> guardLock(shapeLock);
 
-    TimeInterval curTime = TimeGetCurrent();
+    TimeInterval curTime = scene->getCurrentTime();
     for (auto shapeID : shapeIDs) {
         ShapeSceneRep dummyRep(shapeID);
         auto sit = shapeReps.find(&dummyRep);

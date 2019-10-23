@@ -48,6 +48,7 @@ public:
 
 @interface MaplyParticleSystem()
 
+@property (nonatomic,weak) NSObject<MaplyRenderControllerProtocol> *viewC;
 @property (nonatomic,assign) WhirlyKit::ParticleSystemAttributeSet &attrs;
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity ident;
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity renderTargetID;

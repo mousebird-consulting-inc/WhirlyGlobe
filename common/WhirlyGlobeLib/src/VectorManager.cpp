@@ -239,7 +239,7 @@ public:
                 
                 if (vecInfo->fade > 0.0)
                 {
-                    TimeInterval curTime = TimeGetCurrent();
+                    TimeInterval curTime = scene->getCurrentTime();
                     drawable->setFade(curTime,curTime+vecInfo->fade);
                 }
                 changeRequests.push_back(new AddDrawableReq(drawable->getDrawable()));
@@ -504,7 +504,7 @@ public:
                 
                 if (vecInfo->fade > 0.0)
                 {
-                    TimeInterval curTime = TimeGetCurrent();
+                    TimeInterval curTime = scene->getCurrentTime();
                     drawable->setFade(curTime,curTime+vecInfo->fade);
                 }
                 
@@ -779,7 +779,7 @@ void VectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
 {
     std::lock_guard<std::mutex> guardLock(vectorLock);
 
-    TimeInterval curTime = TimeGetCurrent();
+    TimeInterval curTime = scene->getCurrentTime();
     for (SimpleIDSet::iterator vit = vecIDs.begin(); vit != vecIDs.end(); ++vit)
     {
         VectorSceneRep dummyRep(*vit);

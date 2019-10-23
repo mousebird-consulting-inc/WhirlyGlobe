@@ -753,7 +753,7 @@ void LayoutManager::updateLayout(ViewStateRef viewState,ChangeSet &changes)
     
     std::lock_guard<std::mutex> guardLock(layoutLock);
 
-    TimeInterval curTime = TimeGetCurrent();
+    TimeInterval curTime = scene->getCurrentTime();
     
     std::vector<ClusterEntry> oldClusters = clusters;
     clusters.clear();

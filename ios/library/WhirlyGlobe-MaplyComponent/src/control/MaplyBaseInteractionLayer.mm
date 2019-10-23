@@ -776,7 +776,7 @@ public:
     NSDictionary *inDesc = [argArray objectAtIndex:2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
-    TimeInterval now = TimeGetCurrent();
+    TimeInterval now = scene->getCurrentTime();
     
     bool isMotionMarkers = false;
     if ([[markers objectAtIndex:0] isKindOfClass:[MaplyMovingScreenMarker class]])
@@ -1305,7 +1305,7 @@ public:
     // May need a temporary context when setting up screen label textures
     EAGLContext *tmpContext = [self setupTempContext:threadMode];
 
-    TimeInterval now = TimeGetCurrent();
+    TimeInterval now = scene->getCurrentTime();
     
     bool isMotionLabels = false;
     if ([[labels objectAtIndex:0] isKindOfClass:[MaplyMovingScreenLabel class]])

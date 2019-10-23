@@ -355,7 +355,7 @@ public:
                 }
                 if (polyInfo.fade > 0)
                 {
-                    TimeInterval curTime = TimeGetCurrent();
+                    TimeInterval curTime = scene->getCurrentTime();
                     drawable->setFade(curTime,curTime+polyInfo.fade);
                 }
                 sceneRep->drawIDs.insert(drawable->getDrawableID());
@@ -574,7 +574,7 @@ void LoftManager::removeLoftedPolys(const SimpleIDSet &polyIDs,ChangeSet &change
             TimeInterval removeTime = 0.0;
             if (sceneRep->fade > 0.0)
             {
-                TimeInterval curTime = TimeGetCurrent();
+                TimeInterval curTime = scene->getCurrentTime();
                                 
                 for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
                      idIt != sceneRep->drawIDs.end(); ++idIt)

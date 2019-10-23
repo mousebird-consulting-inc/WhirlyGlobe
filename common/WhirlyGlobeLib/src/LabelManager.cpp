@@ -181,7 +181,7 @@ void LabelManager::removeLabels(SimpleIDSet &labelIDs,ChangeSet &changes)
     
     std::lock_guard<std::mutex> guardLock(labelLock);
 
-    TimeInterval curTime = TimeGetCurrent();
+    TimeInterval curTime = scene->getCurrentTime();
     for (SimpleIDSet::iterator lit = labelIDs.begin(); lit != labelIDs.end(); ++lit)
     {
         LabelSceneRep dummyRep(*lit);

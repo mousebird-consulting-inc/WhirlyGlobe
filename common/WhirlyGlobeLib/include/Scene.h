@@ -306,6 +306,13 @@ public:
     // Return all the drawables in a list.  Only call this on the main thread.
     const DrawableRefSet &getDrawables();
     
+    // Used for offline frame by frame rendering
+    void setCurrentTime(TimeInterval newTime);
+    
+    // In general, this is just the system time.
+    // But in offline render mode, we control this carefully
+    TimeInterval getCurrentTime();
+    
     // Used to track overlaps at the edges of a viewable area
     void addLocalMbr(const Mbr &localMbr);
 	
@@ -390,6 +397,9 @@ public:
     double getOverlapMargin() { return overlapMargin; }
     
 protected:
+    
+    // If time is being set externally
+    TimeInterval currentTime;
 
     /// All the OpenGL ES 2.0 shader programs we know about
     ProgramSet programs;

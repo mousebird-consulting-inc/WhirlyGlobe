@@ -46,7 +46,7 @@ namespace WhirlyKit
 {
     
 Scene::Scene(CoordSystemDisplayAdapter *adapter)
-    : fontTextureManager(NULL), setupInfo(NULL)
+    : fontTextureManager(NULL), setupInfo(NULL), currentTime(0.0)
 {
     SetupDrawableStrings();
     
@@ -250,6 +250,19 @@ TextureBase *Scene::getTexture(SimpleIdentity texId)
 const DrawableRefSet &Scene::getDrawables()
 {
     return drawables;
+}
+
+void Scene::setCurrentTime(TimeInterval newTime)
+{
+    currentTime = newTime;
+}
+
+TimeInterval Scene::getCurrentTime()
+{
+    if (currentTime == 0.0)
+        return TimeGetCurrent();
+    
+    return currentTime;
 }
     
 int Scene::preProcessChanges(WhirlyKit::View *view,SceneRenderer *renderer,TimeInterval now)

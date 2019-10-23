@@ -110,7 +110,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
 
 void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes)
 {
-    TimeInterval curTime = TimeGetCurrent();
+    TimeInterval curTime = scene->getCurrentTime();
 
     // Drawables used for the icons
     IconDrawables iconDrawables;
@@ -460,7 +460,7 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
         
         if (labelInfo->fadeIn > 0.0)
         {
-            TimeInterval curTime = TimeGetCurrent();
+            TimeInterval curTime = scene->getCurrentTime();
             iconDrawable->setFade(curTime,curTime+labelInfo->fadeIn);
         }
         changes.push_back(new AddDrawableReq(iconDrawable));
