@@ -1,5 +1,5 @@
 /*
- *  MaplyViewControllerLayer.mm
+ *  MaplyControllerLayer.mm
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 7/21/12.
@@ -18,16 +18,16 @@
  *
  */
 
-#import "MaplyViewControllerLayer_private.h"
+#import "MaplyControllerLayer_private.h"
 #import "MaplyBaseViewController_private.h"
 
-@implementation MaplyViewControllerLayer
+@implementation MaplyControllerLayer
 
 - (void)setDrawPriority:(int)drawPriority
 {
     _drawPriorityWasSet = true;
     _drawPriority = drawPriority;
-    _identifier = @"Unidentified MaplyViewControllerLayer";
+    _identifier = @"Unidentified MaplyControllerLayer";
 }
 
 - (bool)startLayer:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKit::SceneRenderer *)renderer viewC:(MaplyBaseViewController *)viewC

@@ -104,7 +104,7 @@ using namespace WhirlyKit;
     }
     loader->tileFetcher = tileFetcher;
 
-    samplingLayer = [self.viewC findSamplingLayer:params forUser:self->loader];
+    samplingLayer = [[self.viewC getRenderControl] findSamplingLayer:params forUser:self->loader];
     // Do this again in case they changed them
     loader->setSamplingParams(params);
     loader->setFlipY(self.flipY);

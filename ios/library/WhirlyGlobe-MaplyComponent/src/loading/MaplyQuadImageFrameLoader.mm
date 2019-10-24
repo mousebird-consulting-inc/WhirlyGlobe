@@ -179,7 +179,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     loader->layer = self;
 
     // Hook into the active updater to organize geometry for rendering
-    self.viewC->renderControl->scene->addActiveModel(loader);
+    [self.viewC getRenderControl]->scene->addActiveModel(loader);
 
     if (![super delayedInit])
         return false;

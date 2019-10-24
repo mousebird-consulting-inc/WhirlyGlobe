@@ -37,7 +37,7 @@
 #import "control/MaplyRenderController.h"
 #import "control/MaplyUpdateLayer.h"
 #import "control/MaplyViewTracker.h"
-#import "control/MaplyViewControllerLayer.h"
+#import "control/MaplyControllerLayer.h"
 #import "control/MaplyViewController.h"
 #import "control/MaplyBaseViewController.h"
 

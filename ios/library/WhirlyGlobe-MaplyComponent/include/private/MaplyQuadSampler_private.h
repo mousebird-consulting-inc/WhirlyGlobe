@@ -22,6 +22,7 @@
 #import "loading/MaplyQuadSampler.h"
 #import "QuadTileBuilder.h"
 #import "QuadDisplayLayerNew.h"
+#import "MaplyControllerLayer_private.h"
 
 @interface MaplySamplingParams()
 {
@@ -35,7 +36,7 @@
  tiles to load.  We hook up other things to this to actually do
  the loading.
  */
-@interface MaplyQuadSamplingLayer : MaplyViewControllerLayer
+@interface MaplyQuadSamplingLayer : MaplyControllerLayer
 {
 @public
     WhirlyKit::QuadSamplingController sampleControl;

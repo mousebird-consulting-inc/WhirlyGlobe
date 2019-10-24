@@ -19,7 +19,7 @@
  */
 
 #import "visual_objects/MaplyComponentObject.h"
-#import "control/MaplyViewControllerLayer.h"
+#import "control/MaplyControllerLayer.h"
 #import "math/MaplyCoordinate.h"
 #import "math/MaplyCoordinateSystem.h"
 #import "loading/MaplyTileSourceNew.h"
@@ -75,7 +75,7 @@
     
     This layer is responsible for calling a delegate you provide as the user moves their viewpoint around.  You'll be called if they move from than a certain amount, but not more often than the minimum time.
   */
-@interface MaplyUpdateLayer : MaplyViewControllerLayer
+@interface MaplyUpdateLayer : MaplyControllerLayer
 
 /// The minimum distance that will trigger a delegate call.  Distance is in display units (radius of the earth = 1.0).
 @property (nonatomic,readonly) double moveDist;

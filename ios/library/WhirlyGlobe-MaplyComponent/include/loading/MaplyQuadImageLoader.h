@@ -17,7 +17,7 @@
  *
  */
 
-#import "control/MaplyViewControllerLayer.h"
+#import "control/MaplyControllerLayer.h"
 #import "math/MaplyCoordinateSystem.h"
 #import "loading/MaplyTileSourceNew.h"
 #import "control/MaplyRenderController.h"
@@ -185,7 +185,7 @@ extern NSString * _Nonnull const MaplyQuadImageLoaderFetcherName;
  @param tileInfo A single tile info object describing where the data is and how to get it.
  @param viewC the View controller (or renderer) to add objects to.
  */
-- (nullable instancetype)initWithParams:(MaplySamplingParams *__nonnull)params tileInfo:(NSObject<MaplyTileInfoNew> *__nullable)tileInfo viewC:(MaplyBaseViewController * __nonnull)viewC;
+- (nullable instancetype)initWithParams:(MaplySamplingParams *__nonnull)params tileInfo:(NSObject<MaplyTileInfoNew> *__nullable)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)viewC;
 
 /**
   Initialize with multiple tile sources and sampling parameters.
@@ -194,7 +194,7 @@ extern NSString * _Nonnull const MaplyQuadImageLoaderFetcherName;
  @param tileInfos A list of tile info objects to fetch for each tile.  If one fails, the tile fails to load.
  @param viewC the View controller (or renderer) to add objects to.
   */
-- (nullable instancetype)initWithParams:(MaplySamplingParams *__nonnull)params tileInfos:(NSArray<NSObject<MaplyTileInfoNew> *> *__nonnull)tileInfos viewC:(MaplyBaseViewController * __nonnull)viewC;
+- (nullable instancetype)initWithParams:(MaplySamplingParams *__nonnull)params tileInfos:(NSArray<NSObject<MaplyTileInfoNew> *> *__nonnull)tileInfos viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)viewC;
 
 /**
    Change the tile source and reload all the data.

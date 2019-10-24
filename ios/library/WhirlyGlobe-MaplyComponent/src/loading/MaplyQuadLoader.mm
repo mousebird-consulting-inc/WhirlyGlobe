@@ -366,7 +366,7 @@ using namespace WhirlyKit;
     if (self->samplingLayer && self->samplingLayer.layerThread)
         [self performSelector:@selector(cleanup) onThread:self->samplingLayer.layerThread withObject:nil waitUntilDone:NO];
     
-    [self.viewC releaseSamplingLayer:samplingLayer forUser:loader];
+    [[self.viewC getRenderControl] releaseSamplingLayer:samplingLayer forUser:loader];
 }
 
 @end

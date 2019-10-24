@@ -18,7 +18,7 @@
  *
  */
 
-#import "control/MaplyViewControllerLayer.h"
+#import "control/MaplyControllerLayer.h"
 #import "math/MaplyCoordinateSystem.h"
 #import "loading/MaplyTileSourceNew.h"
 #import "control/MaplyRenderController.h"

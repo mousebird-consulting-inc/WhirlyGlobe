@@ -20,10 +20,10 @@
 
 #import <Foundation/Foundation.h>
 #import <WhirlyGlobe_iOS.h>
-#import "MaplyViewControllerLayer_private.h"
+#import "MaplyControllerLayer_private.h"
 
 /// Used to keep track of resources for a layer the user has asked to be created.
 /// Don't mess with these directly.
-@interface WGViewControllerLayer : MaplyViewControllerLayer
+@interface WGViewControllerLayer : MaplyControllerLayer
 
 @end

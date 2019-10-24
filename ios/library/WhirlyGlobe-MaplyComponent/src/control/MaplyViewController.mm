@@ -249,7 +249,7 @@ public:
     [self stopAnimation];
     
     if (_coordSys)
-        [baseLayerThread addThingToRelease:_coordSys];
+        [renderControl->baseLayerThread addThingToRelease:_coordSys];
     
     [super clear];
     

@@ -21,7 +21,7 @@
 #import <UIKit/UIKit.h>
 
 #import "control/MaplyBaseViewController.h"
-#import "MaplyViewControllerLayer_private.h"
+#import "MaplyControllerLayer_private.h"
 #import "MaplyComponentObject_private.h"
 #import "WGInteractionLayer_private.h"
 #import "MaplyBaseInteractionLayer_private.h"
@@ -43,38 +43,16 @@
     MaplyRenderController *renderControl;
     
     UIView<WhirlyKitViewWrapper> *wrapView;
-    
-    WhirlyKitLayerThread *baseLayerThread;
-    WhirlyKitLayoutLayer *layoutLayer;
-    NSMutableArray *layerThreads;
-
-    // Layers (and associated data) created for the user
-    NSMutableArray *userLayers;
-    
+        
     // List of views we're tracking for location
     NSMutableArray *viewTrackers;
     
     // List of annotations we're tracking for location
     NSMutableArray *annotations;
-    
-    /// A pointer to the 3D view.  The subclasses are keeping points with the right subclass.
-    WhirlyKit::ViewRef visualView;
-    
-    /// Active models
-    NSMutableArray *activeObjects;
-    
-    /// The default cluster generator (group 0)
-    MaplyBasicClusterGenerator *defaultClusterGenerator;
-    
+
     /// View Placement logic used to move annotations around
     WhirlyKit::ViewPlacementActiveModelRef viewPlacementModel;
-    
-    /// Used to render font glyphs on this platform
-    WhirlyKit::FontTextureManager_iOSRef fontTexManager;
-    
-    /// Current draw priority if we're assigning them ourselves
-    int layerDrawPriority;
-    
+                
     /// Set if we're dumping out performance output
     bool _performanceOutput;
     
@@ -83,21 +61,12 @@
     
     /// When an annotation comes up we may want to reposition the view.  This works poorly in some cases.
     bool allowRepositionForAnnnotations;
-    
-    /// Number of simultaneous tile fetcher connections (per tile fetcher)
-    int tileFetcherConnections;
-  
+      
     /// 3dtouch preview context, so we can remove it.
     id <UIViewControllerPreviewing> previewingContext;
   
     /// Need to keep a ref to this because the system keeps a weak ref
     Maply3dTouchPreviewDelegate *previewTouchDelegate;
-    
-    /// Shared sampling layers (used for loaders)
-    std::vector<MaplyQuadSamplingLayer *> samplingLayers;
-    
-    /// Shared tile fetcher used by default for loaders
-    std::vector<MaplyRemoteTileFetcher *> tileFetchers;
 }
 
 /// This is called by the subclasses.  Don't call it yourself.
@@ -131,12 +100,5 @@
 
 /// Called internally to end a block of work being done
 - (void) endOfWork;
-
-/// Look for a sampling layer that matches the given parameters
-/// We'll also keep it around until the user lets us know we're done
-- (MaplyQuadSamplingLayer *)findSamplingLayer:(const WhirlyKit::SamplingParams &)params forUser:(WhirlyKit::QuadTileBuilderDelegateRef)userObj;
-
-/// The given user object is done with the given sampling layer.  So we may shut it down.
-- (void)releaseSamplingLayer:(MaplyQuadSamplingLayer *)layer forUser:(WhirlyKit::QuadTileBuilderDelegateRef)userObj;
 
 @end

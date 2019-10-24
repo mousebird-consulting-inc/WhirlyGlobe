@@ -124,13 +124,7 @@ using namespace WhirlyKit;
     
     if (!renderControl->scene)
         return;
-    
-    for (auto tileFetcher : tileFetchers)
-        [tileFetcher shutdown];
-    tileFetchers.clear();
-    
-    defaultClusterGenerator = nil;
-    
+        
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(periodicPerfOutput) object:nil];
@@ -139,48 +133,17 @@ using namespace WhirlyKit;
     
 //    NSLog(@"BaseViewController: Shutting down layers");
     
-    if (baseLayerThread)
-    {
-        // Kill off all the other layers first
-        for (unsigned int ii=1;ii<[layerThreads count];ii++)
-        {
-            WhirlyKitLayerThread *layerThread = [layerThreads objectAtIndex:ii];
-            if (layerThread != baseLayerThread)
-                [baseLayerThread addThreadToShutdown:layerThread];
-        }
-
-        [baseLayerThread addThingToDelete:renderControl->scene];
-        [baseLayerThread addThingToRelease:baseLayerThread];
-        [baseLayerThread addThingToRelease:wrapView];
-        [baseLayerThread cancel];
-        
-        // Wait for the base layer thread to finish
-        baseLayerThread->existenceLock.lock();
-    }
     [wrapView teardown];
     
     [renderControl teardown];
 
-    layerThreads = nil;
-//    NSLog(@"BaseViewController: Layers shut down");
     visualView = NULL;
 
-    fontTexManager = NULL;
+    [renderControl->baseLayerThread addThingToRelease:wrapView];
     wrapView = nil;
     renderControl->scene = NULL;
     renderControl->sceneRenderer = NULL;
-    baseLayerThread = nil;
-    layoutLayer = nil;
     
-    activeObjects = nil;
-    
-    while ([userLayers count] > 0)
-    {
-        MaplyViewControllerLayer *layer = [userLayers objectAtIndex:0];
-        [userLayers removeObject:layer];
-    }
-    userLayers = nil;
-
     viewTrackers = nil;
     annotations = nil;
     
@@ -1348,224 +1311,6 @@ static const float PerfOutputDelay = 15.0;
     [renderControl->interactLayer endChanges];
 
     [renderControl endOfWork];
-}
-
-- (void)addActiveObject:(MaplyActiveObject *)theObj
-{
-    if ([NSThread currentThread] != [NSThread mainThread])
-    {
-        NSLog(@"Must call addActiveObject: on the main thread.");
-        return;
-    }
-    
-    if (!renderControl)
-        return;
-    
-    if (!activeObjects)
-        activeObjects = [NSMutableArray array];
-
-    if (![activeObjects containsObject:theObj])
-    {
-        theObj->scene = renderControl->scene;
-        [theObj registerWithScene];
-        [activeObjects addObject:theObj];
-    }
-}
-
-- (void)removeActiveObject:(MaplyActiveObject *)theObj
-{
-    if ([NSThread currentThread] != [NSThread mainThread])
-    {
-        NSLog(@"Must call removeActiveObject: on the main thread.");
-        return;
-    }
-    
-    if (!renderControl)
-        return;
-    
-    if ([activeObjects containsObject:theObj])
-    {
-        [theObj removeFromScene];
-        [activeObjects removeObject:theObj];
-    }
-}
-
-- (void)removeActiveObjects:(NSArray *)theObjs
-{
-    if ([NSThread currentThread] != [NSThread mainThread])
-    {
-        NSLog(@"Must call removeActiveObject: on the main thread.");
-        return;
-    }
-
-    for (MaplyActiveObject *theObj in theObjs)
-        [self removeActiveObject:theObj];
-}
-
-- (bool)addLayer:(MaplyViewControllerLayer *)newLayer
-{
-    if (!renderControl)
-        return false;
-    
-    if (newLayer && ![userLayers containsObject:newLayer])
-    {
-        WhirlyKitLayerThread *layerThread = baseLayerThread;
-        // Only supporting quad image tiles layer for the thread per layer
-        // Note: Porting
-//        if (_threadPerLayer && ([newLayer isKindOfClass:[MaplyQuadImageTilesLayer class]] || [newLayer isKindOfClass:[MaplyQuadSamplingLayer class]]))
-        if (_threadPerLayer && [newLayer isKindOfClass:[MaplyQuadSamplingLayer class]])
-        {
-            layerThread = [[WhirlyKitLayerThread alloc] initWithScene:renderControl->scene view:visualView.get() renderer:renderControl->sceneRenderer.get() mainLayerThread:false];
-            [layerThreads addObject:layerThread];
-            [layerThread start];
-        }
-        
-        if ([newLayer startLayer:layerThread scene:renderControl->scene renderer:renderControl->sceneRenderer.get() viewC:self])
-        {
-            if (!newLayer.drawPriorityWasSet)
-            {
-                newLayer.drawPriority = 100*(layerDrawPriority++) + kMaplyImageLayerDrawPriorityDefault;
-            }
-            [userLayers addObject:newLayer];
-            return true;
-        }
-    }
-    
-    return false;
-}
-
-- (void)removeLayer:(MaplyViewControllerLayer *)layer wait:(bool)wait
-{
-    if (!renderControl)
-        return;
-    
-    bool found = false;
-    MaplyViewControllerLayer *theLayer = nil;
-    for (theLayer in userLayers)
-    {
-        if (theLayer == layer)
-        {
-            found = true;
-            break;
-        }
-    }
-    if (!found)
-        return;
-    
-    WhirlyKitLayerThread *layerThread = layer.layerThread;
-    [layer cleanupLayers:layerThread scene:renderControl->scene];
-    [userLayers removeObject:layer];
-    
-    // Need to shut down the layer thread too
-    if (layerThread != baseLayerThread)
-    {
-        if ([layerThreads containsObject:layerThread])
-        {
-            [layerThreads removeObject:layerThread];
-            [layerThread addThingToRelease:theLayer];
-            [layerThread cancel];
-
-            if (wait) {
-                // We also have to make sure it actually does finish
-                bool finished = true;
-                do {
-                    finished = [layerThread isFinished];
-                    if (!finished)
-                        [NSThread sleepForTimeInterval:0.0001];
-                } while (!finished);
-            }
-        }
-    }
-}
-
-- (void)removeLayer:(MaplyViewControllerLayer *)layer
-{
-    [self removeLayer:layer wait:false];
-}
-
-- (void)removeLayers:(NSArray *)layers
-{
-    if ([NSThread currentThread] != [NSThread mainThread])
-    {
-        [self performSelector:@selector(removeLayers:) withObject:layers];
-        return;
-    }
-
-    for (MaplyViewControllerLayer *layer in layers)
-        [self removeLayer:layer];
-}
-
-- (void)removeAllLayers
-{
-    if ([NSThread currentThread] != [NSThread mainThread])
-    {
-        [self performSelector:@selector(removeAllLayers) withObject:nil];
-        return;
-    }
-
-    NSArray *allLayers = [NSArray arrayWithArray:userLayers];
-    
-    for (MaplyViewControllerLayer *theLayer in allLayers)
-        [self removeLayer:theLayer];
-}
-
-- (MaplyQuadSamplingLayer *)findSamplingLayer:(const WhirlyKit::SamplingParams &)params forUser:(QuadTileBuilderDelegateRef)userObj
-{
-    if (!renderControl)
-        return nil;
-    if ([NSThread currentThread] != [NSThread mainThread])
-    {
-        NSLog(@"Caller called findSamplerLayer:forUser: off of main thread.");
-        return nil;
-    }
-
-    // Look for a matching sampler
-    for (auto layer : samplingLayers) {
-        if (layer.params == params) {
-            [layer addBuilderDelegate:userObj];
-            return layer;
-        }
-    }
-    
-    // Create a new sampler
-    MaplyQuadSamplingLayer *layer = [[MaplyQuadSamplingLayer alloc] initWithParams:params];
-    [layer addBuilderDelegate:userObj];
-    [self addLayer:layer];
-    samplingLayers.push_back(layer);
-    
-    return layer;
-}
-
-- (void)releaseSamplingLayer:(MaplyQuadSamplingLayer *)layer forUser:(QuadTileBuilderDelegateRef)userObj
-{
-    if (!renderControl)
-        return;
-    if ([NSThread currentThread] != [NSThread mainThread])
-    {
-        NSLog(@"Caller called findSamplerLayer:forUser: off of main thread.");
-        return;
-    }
-
-    [layer removeBuilderDelegate:userObj];
-    
-    if (layer.numClients == 0) {
-        [self removeLayer:layer wait:false];
-        auto it = std::find(samplingLayers.begin(),samplingLayers.end(),layer);
-        if (it != samplingLayers.end())
-            samplingLayers.erase(it);
-    }
-}
-
-- (MaplyRemoteTileFetcher *)addTileFetcher:(NSString *)name
-{
-    for (auto tileFetcher : tileFetchers)
-        if ([tileFetcher.name isEqualToString:name])
-            return tileFetcher;
-    
-    MaplyRemoteTileFetcher *tileFetcher = [[MaplyRemoteTileFetcher alloc] initWithName:name connections:tileFetcherConnections];
-    tileFetchers.push_back(tileFetcher);
-    
-    return tileFetcher;
 }
 
 -(NSArray*)objectsAtCoord:(MaplyCoordinate)coord

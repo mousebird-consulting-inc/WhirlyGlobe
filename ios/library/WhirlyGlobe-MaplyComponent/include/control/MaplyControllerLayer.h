@@ -1,5 +1,5 @@
 /*
- *  MaplyViewControllerLayer.h
+ *  MaplyControllerLayer.h
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 10/25/12.
@@ -25,7 +25,7 @@
     
     You don't create these directly.  This is a base class for things like the MaplyQuadPagingLayer and the MaplyQuadImageTilesLayer.
   */
-@interface MaplyViewControllerLayer : NSObject
+@interface MaplyControllerLayer : NSObject
 
 /** 
     Set the priority for drawing.

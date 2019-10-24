@@ -30,6 +30,10 @@
 #import "visual_objects/MaplyPoints.h"
 #import "visual_objects/MaplyCluster.h"
 #import "rendering/MaplyRenderTarget.h"
+#import "control/MaplyActiveObject.h"
+#import "control/MaplyControllerLayer.h"
+
+@class MaplyRemoteTileFetcher;
 
 /// Where we'd like an add to be executed.  If you need immediate feedback,
 ///  then be on the main thread and use MaplyThreadCurrent.  Any is the default.
@@ -829,6 +833,38 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
 
 /// Return the renderer type being used
 - (MaplyRenderType)getRenderType;
+
+/**
+    Add the given active object to the scene.
+    
+    Active objects are used for immediate, frame based updates.  They're fairly expensive, so be careful.  After you create one, you add it to the scene here.
+  */
+- (void)addActiveObject:(MaplyActiveObject *__nonnull)theObj;
+
+/// Remove an active object from the scene.
+- (void)removeActiveObject:(MaplyActiveObject *__nonnull)theObj;
+
+/// Remove an array of active objects from the scene
+- (void)removeActiveObjects:(NSArray *__nonnull)theObjs;
+
+/**
+    Add a MaplyControllerLayer to the globe or map.
+    
+    At present, layers are for paged geometry such as image tiles or vector tiles.  You can create someting like a MaplyQuadImageTilesLayer, set it up and then hand it to addLayer: to add to the scene.
+  */
+- (bool)addLayer:(MaplyControllerLayer *__nonnull)layer;
+
+/// Remove a MaplyControllerLayer from the globe or map.
+- (void)removeLayer:(MaplyControllerLayer *__nonnull)layer;
+
+/// Remove zero or more MaplyControllerLayer objects from the globe or map.
+- (void)removeLayers:(NSArray *__nonnull)layers;
+
+/// Remove all the user created MaplyControllerLayer objects from the globe or map.
+- (void)removeAllLayers;
+
+/// Return a tile fetcher we may share between loaders
+- (MaplyRemoteTileFetcher * __nonnull)addTileFetcher:(NSString * __nonnull)name;
 
 @end
 

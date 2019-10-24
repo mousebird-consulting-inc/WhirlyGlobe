@@ -27,7 +27,7 @@
 #import "MaplySharedAttributes.h"
 #import "control/MaplyBaseViewController.h"
 
-@class MaplyViewControllerLayer;
+@class MaplyControllerLayer;
 @class MaplyViewController;
 
 

@@ -18,7 +18,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "control/MaplyViewControllerLayer.h"
+#import "control/MaplyControllerLayer.h"
 #import "math/MaplyCoordinateSystem.h"
 #import "loading/MaplyTileSourceNew.h"
 #import "control/MaplyRenderController.h"
@@ -106,7 +106,7 @@
 
 /// View controller this is attached to.
 /// Useful for delegate calls that might not be tracking that.
-@property (nonatomic,readonly,weak,nullable) MaplyBaseViewController *viewC;
+@property (nonatomic,readonly,weak,nullable) NSObject<MaplyRenderControllerProtocol> *viewC;
 
 /**
  Calculate the bounding box for a single tile in geographic.

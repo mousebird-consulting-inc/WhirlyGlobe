@@ -1,5 +1,5 @@
 /*
- *  MaplyViewControllerLayer_private.h
+ *  MaplyControllerLayer_private.h
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 7/21/12.
@@ -20,13 +20,13 @@
 
 #import <Foundation/Foundation.h>
 #import <WhirlyGlobe_iOS.h>
-#import "control/MaplyViewControllerLayer.h"
+#import "control/MaplyControllerLayer.h"
 
 @class MaplyBaseViewController;
 
 /// Used to keep track of resources for a layer the user has asked to be created.
 /// Don't mess with these directly.
-@interface MaplyViewControllerLayer()
+@interface MaplyControllerLayer()
 
 /// Layer thread this layer belongs to
 @property (nonatomic,weak) WhirlyKitLayerThread *layerThread;

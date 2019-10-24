@@ -14,6 +14,7 @@
 		2B2A417E1D83454900098E12 /* ActiveObjectTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B2A417D1D83454900098E12 /* ActiveObjectTestCase.m */; };
 		2B392B711C5AC59D001EE40B /* RunwayBuilderTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B392B701C5AC59D001EE40B /* RunwayBuilderTestCase.m */; };
 		2B446AAE21EFE29B0078A975 /* WMSTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = E5679F451CB72DE800369A15 /* WMSTestCase.m */; };
+		2B4B63AE23611D690008C8C1 /* OfflineRenderTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B63AD23611D690008C8C1 /* OfflineRenderTestCase.swift */; };
 		2B4BA6CE1C83A22000DC1562 /* leftbend.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2B4BA6C21C83A22000DC1562 /* leftbend.geojson */; };
 		2B4BA6CF1C83A22000DC1562 /* leftv.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2B4BA6C31C83A22000DC1562 /* leftv.geojson */; };
 		2B4BA6D01C83A22000DC1562 /* mowing-lawn.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2B4BA6C41C83A22000DC1562 /* mowing-lawn.geojson */; };
@@ -561,6 +562,7 @@
 		2B361E3921237CFE0074D06D /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		2B392B6F1C5AC59D001EE40B /* RunwayBuilderTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RunwayBuilderTestCase.h; sourceTree = "<group>"; };
 		2B392B701C5AC59D001EE40B /* RunwayBuilderTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RunwayBuilderTestCase.m; sourceTree = "<group>"; };
+		2B4B63AD23611D690008C8C1 /* OfflineRenderTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineRenderTestCase.swift; sourceTree = "<group>"; };
 		2B4BA6C21C83A22000DC1562 /* leftbend.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = leftbend.geojson; path = ../WhirlyGlobeComponentTester/resources/leftbend.geojson; sourceTree = "<group>"; };
 		2B4BA6C31C83A22000DC1562 /* leftv.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = leftv.geojson; path = ../WhirlyGlobeComponentTester/resources/leftv.geojson; sourceTree = "<group>"; };
 		2B4BA6C41C83A22000DC1562 /* mowing-lawn.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "mowing-lawn.geojson"; path = "../WhirlyGlobeComponentTester/resources/mowing-lawn.geojson"; sourceTree = "<group>"; };
@@ -1222,6 +1224,7 @@
 				2B7787C921CDA47F006ABF5D /* CartoDBLightTestCase.swift */,
 				2B68A43B225D06A8009CC720 /* ImageReloadTestCase.swift */,
 				2B1E85A522B44D5800AB7208 /* BillboardTestCase.swift */,
+				2B4B63AD23611D690008C8C1 /* OfflineRenderTestCase.swift */,
 			);
 			path = testCases;
 			sourceTree = "<group>";
@@ -2381,6 +2384,7 @@
 				D8F2FE2E1BE7CF310058A310 /* ModelsTestCase.swift in Sources */,
 				2B81009C221F4EA900CFF779 /* CartoDBInterpreter.m in Sources */,
 				D8228AA81BE786BE001D6914 /* ClusteredMarkersTestCase.swift in Sources */,
+				2B4B63AE23611D690008C8C1 /* OfflineRenderTestCase.swift in Sources */,
 				2BBCE41E2220BDF70013E158 /* VectorMBTilesTestCase.swift in Sources */,
 				2BC2DCCD1D1F4CE20088D350 /* ShapefileTestCase.m in Sources */,
 				D8F2FE271BE7BD630058A310 /* LabelsTestCase.m in Sources */,
