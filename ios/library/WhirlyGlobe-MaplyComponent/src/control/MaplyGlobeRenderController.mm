@@ -43,7 +43,8 @@ using namespace WhirlyGlobe;
     coordAdapter = globeView->coordAdapter;
     
     self = [super initWithSize:screenSize mode:renderType];
-    
+    [self resetLights];
+
     return self;
 }
 

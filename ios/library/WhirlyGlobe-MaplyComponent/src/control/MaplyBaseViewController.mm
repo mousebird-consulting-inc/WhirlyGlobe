@@ -290,7 +290,8 @@ using namespace WhirlyKit;
         
     [renderControl loadSetup_view:[self loadSetup_view]];
     [renderControl loadSetup_scene:[self loadSetup_interactionLayer]];
-    	    
+    [self loadSetup_lighting];
+
     viewTrackers = [NSMutableArray array];
     annotations = [NSMutableArray array];
         
@@ -312,6 +313,11 @@ using namespace WhirlyKit;
                                              selector:@selector(appForeground:)
                                                  name:UIApplicationWillEnterForegroundNotification
                                                object:nil];
+}
+
+- (void)loadSetup_lighting
+{
+    [renderControl resetLights];
 }
 
 - (id<MTLDevice>)getMetalDevice
@@ -1667,6 +1673,70 @@ static const float PerfOutputDelay = 15.0;
     }
     
     return MaplyRenderUnknown;
+}
+
+- (void)addActiveObject:(MaplyActiveObject *__nonnull)theObj
+{
+    if (!renderControl)
+        return;
+    
+    [renderControl addActiveObject:theObj];
+}
+
+- (void)removeActiveObject:(MaplyActiveObject *__nonnull)theObj
+{
+    if (!renderControl)
+        return;
+
+    [renderControl removeActiveObject:theObj];
+}
+
+- (void)removeActiveObjects:(NSArray *__nonnull)theObjs
+{
+    if (!renderControl)
+        return;
+
+    [renderControl removeActiveObjects:theObjs];
+}
+
+- (bool)addLayer:(MaplyControllerLayer *__nonnull)layer
+{
+    if (!renderControl)
+        return false;
+
+    return [renderControl addLayer:layer];
+}
+
+- (void)removeLayer:(MaplyControllerLayer *__nonnull)layer
+{
+    if (!renderControl)
+        return;
+
+    [renderControl removeLayer:layer];
+}
+
+- (void)removeLayers:(NSArray *__nonnull)layers
+{
+    if (!renderControl)
+        return;
+
+    [renderControl removeLayers:layers];
+}
+
+- (void)removeAllLayers
+{
+    if (!renderControl)
+        return;
+
+    [renderControl removeAllLayers];
+}
+
+- (MaplyRemoteTileFetcher * __nonnull)addTileFetcher:(NSString * __nonnull)name
+{
+    if (!renderControl)
+        return nil;
+
+    return [renderControl addTileFetcher:name];
 }
 
 @end

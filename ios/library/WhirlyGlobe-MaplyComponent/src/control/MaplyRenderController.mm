@@ -235,8 +235,6 @@ using namespace Eigen;
     // Set up a Font Texture Manager
     fontTexManager = FontTextureManager_iOSRef(new FontTextureManager_iOS(sceneRenderer.get(),scene));
     scene->setFontTextureManager(fontTexManager);
-
-    [self resetLights];
     
     layerThreads = [NSMutableArray array];
     

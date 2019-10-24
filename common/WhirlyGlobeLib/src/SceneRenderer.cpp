@@ -89,7 +89,7 @@ void SceneRenderer::init()
     light.setSpecular(Vector4f(0, 0, 0, 0));
     addLight(light);
     
-    lightsLastUpdated = scene->getCurrentTime();
+    lightsLastUpdated = 0.0;
 }
 
 Scene *SceneRenderer::getScene()
@@ -238,7 +238,8 @@ void SceneRenderer::forceRenderSetup()
 void SceneRenderer::addLight(const DirectionalLight &light)
 {
     lights.push_back(light);
-    lightsLastUpdated = scene->getCurrentTime();
+    if (scene)
+        lightsLastUpdated = scene->getCurrentTime();
     triggerDraw = true;
 }
 

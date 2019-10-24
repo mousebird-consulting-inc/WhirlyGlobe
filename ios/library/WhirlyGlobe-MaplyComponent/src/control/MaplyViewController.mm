@@ -319,12 +319,6 @@ public:
         light.viewDependent = false;
         [self addLight:light];
     }
-
-    // We don't want the backface culling program for lines
-    // Note: Porting
-//    SimpleIdentity lineNoBackface = renderControl->scene->getProgramIDByName(kToolkitDefaultLineNoBackfaceProgram);
-//    if (lineNoBackface)
-//        renderControl->scene->setSceneProgram(kSceneDefaultLineShader, lineNoBackface);
 }
 
 - (ViewRef) loadSetup_view
