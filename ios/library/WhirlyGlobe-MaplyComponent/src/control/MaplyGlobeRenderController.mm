@@ -26,6 +26,48 @@ using namespace Eigen;
 using namespace WhirlyKit;
 using namespace WhirlyGlobe;
 
+@implementation WhirlyGlobeViewControllerAnimationState
+
+- (instancetype)init
+{
+    self = [super init];
+    _heading = DBL_MAX;
+    _height = 1.0;
+    _tilt = DBL_MAX;
+    _roll = 0.0;
+    _pos.x = _pos.y = 0.0;
+    _screenPos = {-1,-1};
+    _globeCenter = {-1000,-1000};
+    
+    return self;
+}
+
++ (WhirlyGlobeViewControllerAnimationState *)Interpolate:(double)t from:(WhirlyGlobeViewControllerAnimationState *)stateA to:(WhirlyGlobeViewControllerAnimationState *)stateB
+{
+    WhirlyGlobeViewControllerAnimationState *newState = [[WhirlyGlobeViewControllerAnimationState alloc] init];
+    
+    newState.heading = (stateB.heading-stateA.heading)*t + stateA.heading;
+    newState.height = (stateB.height-stateA.height)*t + stateA.height;
+    newState.tilt = (stateB.tilt-stateA.tilt)*t + stateA.tilt;
+    newState.pos = MaplyCoordinateDMake((stateB.pos.x-stateA.pos.x)*t + stateA.pos.x,(stateB.pos.y-stateA.pos.y)*t + stateA.pos.y);
+    newState.roll = (stateB.roll-stateA.roll)*t + stateA.roll;
+    if (stateA.screenPos.x >= 0.0 && stateA.screenPos.y >= 0.0 &&
+        stateB.screenPos.x >= 0.0 && stateB.screenPos.y >= 0.0)
+    {
+        newState.screenPos = CGPointMake((stateB.screenPos.x - stateA.screenPos.x)*t + stateA.screenPos.x,
+                                         (stateB.screenPos.y - stateA.screenPos.y)*t + stateA.screenPos.y);
+    } else
+        newState.screenPos = stateB.screenPos;
+    if (stateA.globeCenter.x != -1000 && stateB.globeCenter.x != -1000) {
+        newState.globeCenter = CGPointMake((stateB.globeCenter.x - stateA.globeCenter.x)*t + stateA.globeCenter.x,
+                                           (stateB.globeCenter.y - stateA.globeCenter.y)*t + stateA.globeCenter.y);
+    }
+    
+    return newState;
+}
+
+@end
+
 // Target for screen snapshot
 @interface SnapshotTargetGlobe : NSObject<WhirlyKitSnapshot>
 @property (nonatomic,weak) WhirlyGlobeRenderController *viewC;
@@ -158,15 +200,114 @@ using namespace WhirlyGlobe;
     scene->setCurrentTime(currentTime);
 }
 
-- (void)setViewState:(WhirlyGlobeViewControllerAnimationState *__nonnull)viewState
+- (void)setViewState:(WhirlyGlobeViewControllerAnimationState *)animState
 {
-    // TODO: Fill this in
+    Vector3d startLoc(0,0,1);
+    
+    if (animState.screenPos.x >= 0.0 && animState.screenPos.y >= 0.0)
+    {
+        Matrix4d heightTrans = Eigen::Affine3d(Eigen::Translation3d(0,0,-globeView->calcEarthZOffset())).matrix();
+        Point3d hit;
+        if (globeView->pointOnSphereFromScreen(Point2f(animState.screenPos.x,animState.screenPos.y), heightTrans, sceneRenderer->getFramebufferSizeScaled(), hit, true))
+        {
+            startLoc = hit;
+        }
+    }
+    
+    // Start with a rotation from the clean start state to the location
+    Point3d worldLoc = globeView->coordAdapter->localToDisplay(globeView->coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(animState.pos.x,animState.pos.y)));
+    Eigen::Quaterniond posRot = QuatFromTwoVectors(worldLoc, startLoc);
+    
+    // Orient with north up.  Either because we want that or we're about do do a heading
+    Eigen::Quaterniond posRotNorth = posRot;
+    if (_keepNorthUp || animState.heading < MAXFLOAT)
+    {
+        // We'd like to keep the north pole pointed up
+        // So we look at where the north pole is going
+        Vector3d northPole = (posRot * Vector3d(0,0,1)).normalized();
+        if (northPole.y() != 0.0)
+        {
+            // Then rotate it back on to the YZ axis
+            // This will keep it upward
+            float ang = atan(northPole.x()/northPole.y());
+            // However, the pole might be down now
+            // If so, rotate it back up
+            if (northPole.y() < 0.0)
+                ang += M_PI;
+            Eigen::AngleAxisd upRot(ang,worldLoc);
+            posRotNorth = posRot * upRot;
+        }
+    }
+    
+    // We can't have both northUp and a heading
+    Eigen::Quaterniond finalQuat = posRotNorth;
+    if (!_keepNorthUp && animState.heading < MAXFLOAT)
+    {
+        Eigen::AngleAxisd headingRot(animState.heading,worldLoc);
+        finalQuat = posRotNorth * headingRot;
+    }
+    
+    // Set the height (easy)
+    globeView->setHeightAboveGlobe(animState.height,false);
+    
+    // Set the tilt either directly or as a consequence of the height
+    if (animState.tilt < MAXFLOAT)
+        globeView->setTilt(animState.tilt);
+    globeView->setRoll(animState.roll, false);
+
+    globeView->setRotQuat(finalQuat, true);
+}
+
+- (double)getHeading
+{
+    double retHeading = 0.0;
+
+    // Figure out where the north pole went
+    Vector3d northPole = (globeView->getRotQuat() * Vector3d(0,0,1)).normalized();
+    if (northPole.y() != 0.0)
+        retHeading = atan2(-northPole.x(),northPole.y());
+    
+    return retHeading;
+}
+
+- (MaplyCoordinate)getPosition
+{
+    GeoCoord geoCoord = globeView->coordAdapter->getCoordSystem()->localToGeographic(globeView->coordAdapter->displayToLocal(globeView->currentUp()));
+
+    return {.x = geoCoord.lon(), .y = geoCoord.lat()};
+}
+
+- (double)getHeight
+{
+    if (!globeView)
+        return 0.0;
+    
+    return globeView->getHeightAboveGlobe();
+}
+
+- (void)getPositionD:(MaplyCoordinateD *)pos height:(double *)height
+{
+    *height = globeView->getHeightAboveGlobe();
+    Point3d localPt = globeView->currentUp();
+    Point2d geoCoord = globeView->coordAdapter->getCoordSystem()->localToGeographicD(globeView->coordAdapter->displayToLocal(localPt));
+    pos->x = geoCoord.x();  pos->y = geoCoord.y();
 }
 
 - (WhirlyGlobeViewControllerAnimationState *)getViewState
 {
-    // TODO: Fill this in
-    return nil;
+    // Figure out the current state
+    WhirlyGlobeViewControllerAnimationState *state = [[WhirlyGlobeViewControllerAnimationState alloc] init];
+    state.heading = [self getHeading];
+    state.tilt = globeView->getTilt();
+    state.roll = globeView->getRoll();
+    MaplyCoordinateD pos;
+    double height;
+    [self getPositionD:&pos height:&height];
+    state.pos = pos;
+    state.height = height;
+//    state.globeCenter = [self globeCenter];
+    
+    return state;
 }
 
 - (UIImage *__nullable)snapshot

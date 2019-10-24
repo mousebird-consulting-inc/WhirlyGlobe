@@ -49,12 +49,33 @@ class OfflineRenderTestCase: MaplyTestCase {
         guard let renderControl = WhirlyGlobeRenderController(size: CGSize(width: 1024, height: 768)) else {
             return
         }
+        renderControl.keepNorthUp = true
         imageLoader = setupLoader(renderControl)
         
-        DispatchQueue.main.asyncAfter(deadline: .now()+10.0) {
+        // Set to a starting position
+        let viewState0 = WhirlyGlobeViewControllerAnimationState()
+        viewState0.pos = MaplyCoordinateDMakeWithDegrees(-3.6704803, 40.5023056)
+        viewState0.height = 1.0
+        viewState0.heading = 0.0
+        renderControl.setViewState(viewState0)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now()+5.0) {
             // Force a single render
-            if let image = renderControl.snapshot() {
+            if let image0 = renderControl.snapshot() {
                 print("Got an image!")
+            }
+            
+            // Move and try again
+            let viewState1 = WhirlyGlobeViewControllerAnimationState()
+            viewState1.pos = MaplyCoordinateDMakeWithDegrees(-3.6704803, 40.5023056)
+            viewState1.height = 0.25
+            viewState1.heading = 0.0
+            renderControl.setViewState(viewState1)
+
+            DispatchQueue.main.asyncAfter(deadline: .now()+5.0) {
+                if let image1 = renderControl.snapshot() {
+                    print("Got another image!")
+                }
             }
         }
     }

@@ -27,48 +27,6 @@ using namespace Eigen;
 using namespace WhirlyKit;
 using namespace WhirlyGlobe;
 
-@implementation WhirlyGlobeViewControllerAnimationState
-
-- (instancetype)init
-{
-    self = [super init];
-    _heading = DBL_MAX;
-    _height = 1.0;
-    _tilt = DBL_MAX;
-    _roll = 0.0;
-    _pos.x = _pos.y = 0.0;
-    _screenPos = {-1,-1};
-    _globeCenter = {-1000,-1000};
-    
-    return self;
-}
-
-+ (WhirlyGlobeViewControllerAnimationState *)Interpolate:(double)t from:(WhirlyGlobeViewControllerAnimationState *)stateA to:(WhirlyGlobeViewControllerAnimationState *)stateB
-{
-    WhirlyGlobeViewControllerAnimationState *newState = [[WhirlyGlobeViewControllerAnimationState alloc] init];
-    
-    newState.heading = (stateB.heading-stateA.heading)*t + stateA.heading;
-    newState.height = (stateB.height-stateA.height)*t + stateA.height;
-    newState.tilt = (stateB.tilt-stateA.tilt)*t + stateA.tilt;
-    newState.pos = MaplyCoordinateDMake((stateB.pos.x-stateA.pos.x)*t + stateA.pos.x,(stateB.pos.y-stateA.pos.y)*t + stateA.pos.y);
-    newState.roll = (stateB.roll-stateA.roll)*t + stateA.roll;
-    if (stateA.screenPos.x >= 0.0 && stateA.screenPos.y >= 0.0 &&
-        stateB.screenPos.x >= 0.0 && stateB.screenPos.y >= 0.0)
-    {
-        newState.screenPos = CGPointMake((stateB.screenPos.x - stateA.screenPos.x)*t + stateA.screenPos.x,
-                                         (stateB.screenPos.y - stateA.screenPos.y)*t + stateA.screenPos.y);
-    } else
-        newState.screenPos = stateB.screenPos;
-    if (stateA.globeCenter.x != -1000 && stateB.globeCenter.x != -1000) {
-        newState.globeCenter = CGPointMake((stateB.globeCenter.x - stateA.globeCenter.x)*t + stateA.globeCenter.x,
-                                           (stateB.globeCenter.y - stateA.globeCenter.y)*t + stateA.globeCenter.y);
-    }
-    
-    return newState;
-}
-
-@end
-
 @implementation WhirlyGlobeViewControllerSimpleAnimationDelegate
 {
     WhirlyGlobeViewControllerAnimationState *startState;

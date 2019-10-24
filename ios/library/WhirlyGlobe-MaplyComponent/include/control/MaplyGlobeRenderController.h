@@ -99,7 +99,11 @@
   */
 - (UIImage *__nullable)snapshot;
 
-/// Return a tile fetcher we may share between loaders
-- (MaplyRemoteTileFetcher * __nonnull)addTileFetcher:(NSString * __nonnull)name;
+/**
+    If set, keep north facing upward on the screen as the user moves around.
+    
+    Off by default.
+  */
+@property(nonatomic,assign) bool keepNorthUp;
 
 @end
