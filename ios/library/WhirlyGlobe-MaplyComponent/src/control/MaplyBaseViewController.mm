@@ -1303,7 +1303,10 @@ static const float PerfOutputDelay = 15.0;
 
 - (MaplyCoordinate3d)displayPointFromGeo:(MaplyCoordinate)geoCoord
 {
-    MaplyCoordinate3d displayCoord;
+    MaplyCoordinate3d displayCoord = {0,0,0};
+    if (!renderControl)
+        return displayCoord;
+    
     Point3f pt = renderControl->visualView->coordAdapter->localToDisplay(renderControl->visualView->coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(geoCoord.x,geoCoord.y)));
     
     displayCoord.x = pt.x();    displayCoord.y = pt.y();    displayCoord.z = pt.z();

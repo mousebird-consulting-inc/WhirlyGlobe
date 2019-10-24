@@ -192,7 +192,7 @@ typedef struct
 
     // Set up the particle batch
     MaplyParticleBatch *batch = [[MaplyParticleBatch alloc] initWithParticleSystem:partSys];
-    batch.time = viewC->globeScene->getCurrentTime();
+    batch.time = viewC->renderControl->scene->getCurrentTime();
     [batch addAttribute:@"a_position" values:posData];
     [batch addAttribute:@"a_size" values:sizeData];
     [viewC addParticleBatch:batch mode:mode];

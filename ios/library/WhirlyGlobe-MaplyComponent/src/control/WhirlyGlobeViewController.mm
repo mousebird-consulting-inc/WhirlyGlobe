@@ -206,7 +206,6 @@ public:
 {
     [super clear];
     
-    globeScene = NULL;
     globeView = nil;
     globeInteractLayer = nil;
     
@@ -733,6 +732,9 @@ public:
 // Rotate to the given location over time
 - (void)rotateToPoint:(GeoCoord)whereGeo time:(TimeInterval)howLong
 {
+    if (!renderControl)
+        return;
+
     // If we were rotating from one point to another, stop
     globeView->cancelAnimation();
     
@@ -747,6 +749,9 @@ public:
 
 - (void)rotateToPointD:(Point2d)whereGeo time:(TimeInterval)howLong
 {
+    if (!renderControl)
+        return;
+
     // If we were rotating from one point to another, stop
     globeView->cancelAnimation();
     
@@ -762,6 +767,9 @@ public:
 // External facing version of rotateToPoint
 - (void)animateToPosition:(MaplyCoordinate)newPos time:(TimeInterval)howLong
 {
+    if (!renderControl)
+        return;
+
     if (isnan(newPos.x) || isnan(newPos.y))
     {
         NSLog(@"WhirlyGlobeViewController: Invalid location passed to animationToPosition:");
@@ -829,6 +837,9 @@ public:
 
 - (bool)animateToPosition:(MaplyCoordinate)newPos height:(float)newHeight heading:(float)newHeading time:(TimeInterval)howLong
 {
+    if (!renderControl)
+        return false;
+
     if (isnan(newPos.x) || isnan(newPos.y) || isnan(newHeight))
     {
         NSLog(@"WhirlyGlobeViewController: Invalid location passed to animationToPosition:");
@@ -850,6 +861,9 @@ public:
 
 - (bool)animateToPositionD:(MaplyCoordinateD)newPos height:(double)newHeight heading:(double)newHeading time:(TimeInterval)howLong
 {
+    if (!renderControl)
+        return false;
+
     if (isnan(newPos.x) || isnan(newPos.y) || isnan(newHeight))
     {
         NSLog(@"WhirlyGlobeViewController: Invalid location passed to animationToPosition:");
@@ -871,6 +885,9 @@ public:
 
 - (bool)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc height:(float)newHeight heading:(float)newHeading time:(TimeInterval)howLong {
     
+    if (!renderControl)
+        return false;
+
     if (isnan(newPos.x) || isnan(newPos.y) || isnan(newHeight))
     {
         NSLog(@"WhirlyGlobeViewController: Invalid location passed to animationToPosition:");
@@ -917,6 +934,9 @@ public:
 // External facing set position
 - (void)setPosition:(MaplyCoordinate)newPos
 {
+    if (!renderControl)
+        return;
+
     if (isnan(newPos.x) || isnan(newPos.y))
     {
         NSLog(@"WhirlyGlobeViewController: Invalid location passed to setPosition:");
@@ -932,6 +952,9 @@ public:
 
 - (void)setPosition:(MaplyCoordinate)newPos height:(float)height
 {
+    if (!renderControl)
+        return;
+
     if (isnan(newPos.x) || isnan(newPos.y) || isnan(height))
     {
         NSLog(@"WhirlyGlobeViewController: Invalid location passed to setPosition:");
@@ -944,6 +967,9 @@ public:
 
 - (void)setPositionD:(MaplyCoordinateD)newPos height:(double)height
 {
+    if (!renderControl)
+        return;
+
     if (isnan(newPos.x) || isnan(newPos.y) || isnan(height))
     {
         NSLog(@"WhirlyGlobeViewController: Invalid location passed to setPosition:");
@@ -959,6 +985,9 @@ public:
 
 - (void)setHeading:(float)heading
 {
+    if (!renderControl)
+        return;
+
     if (isnan(heading))
     {
         NSLog(@"WhirlyGlobeViewController: Invalid heading passed to setHeading:");
@@ -991,6 +1020,9 @@ public:
 
 - (float)heading
 {
+    if (!renderControl)
+        return 0.0;
+
     float retHeading = 0.0;
 
     // Figure out where the north pole went
@@ -1003,25 +1035,39 @@ public:
 
 - (MaplyCoordinate)getPosition
 {
-	GeoCoord geoCoord = globeView->coordAdapter->getCoordSystem()->localToGeographic(globeView->coordAdapter->displayToLocal(globeView->currentUp()));
+    if (!renderControl)
+        return {0.0, 0.0};
+
+    GeoCoord geoCoord = globeView->coordAdapter->getCoordSystem()->localToGeographic(globeView->coordAdapter->displayToLocal(globeView->currentUp()));
 
 	return {.x = geoCoord.lon(), .y = geoCoord.lat()};
 }
 
 - (MaplyCoordinateD)getPositionD
 {
-	Point2d geoCoord = globeView->coordAdapter->getCoordSystem()->localToGeographicD(globeView->coordAdapter->displayToLocal(globeView->currentUp()));
+    if (!renderControl)
+        return {0.0, 0.0};
+
+    Point2d geoCoord = globeView->coordAdapter->getCoordSystem()->localToGeographicD(globeView->coordAdapter->displayToLocal(globeView->currentUp()));
 
 	return {.x = geoCoord.x(), .y = geoCoord.y()};
 }
 
 - (double)getHeight
 {
+    if (!globeView)
+        return 0.0;
+    
 	return globeView->getHeightAboveGlobe();
 }
 
 - (void)getPosition:(MaplyCoordinate *)pos height:(float *)height
 {
+    if (!renderControl) {
+        *height = 0.0;
+        return;
+    }
+    
     *height = globeView->getHeightAboveGlobe();
     Point3d localPt = globeView->currentUp();
     GeoCoord geoCoord = globeView->coordAdapter->getCoordSystem()->localToGeographic(globeView->coordAdapter->displayToLocal(localPt));
@@ -1030,6 +1076,11 @@ public:
 
 - (void)getPositionD:(MaplyCoordinateD *)pos height:(double *)height
 {
+    if (!renderControl) {
+        pos->x = 0.0;  pos->y = 0.0;  *height = 0.0;
+        return;
+    }
+
     *height = globeView->getHeightAboveGlobe();
     Point3d localPt = globeView->currentUp();
     Point2d geoCoord = globeView->coordAdapter->getCoordSystem()->localToGeographicD(globeView->coordAdapter->displayToLocal(localPt));
@@ -1546,7 +1597,7 @@ public:
 // Called every frame from within the globe view
 - (void)updateView:(GlobeView *)inGlobeView
 {
-    TimeInterval now = globeScene->getCurrentTime();
+    TimeInterval now = renderControl->scene->getCurrentTime();
     if (!animationDelegate)
     {
         globeView->cancelAnimation();
@@ -1573,7 +1624,7 @@ public:
 
 - (void)animateWithDelegate:(NSObject<WhirlyGlobeViewControllerAnimationDelegate> *)inAnimationDelegate time:(TimeInterval)howLong
 {
-    TimeInterval now = globeScene->getCurrentTime();
+    TimeInterval now = renderControl->scene->getCurrentTime();
     animationDelegate = inAnimationDelegate;
     animationDelegateEnd = now+howLong;
 
