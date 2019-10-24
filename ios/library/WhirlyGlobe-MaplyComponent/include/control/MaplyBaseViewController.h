@@ -148,13 +148,6 @@
 //@property (nonatomic,weak) NSObject<MaplyElevationSourceDelegate> *__nullable elevDelegate;
 
 /** 
-    If set we'll create a new thread for every layer the user adds.
-    
-    The only layers within the toolkit are for image tile paging.  So effectively this creates a thread for every image layer you add.  This is going to result in faster image paging, but higher CPU usage and a bit more memory.  On by default.
-  */
-@property (nonatomic,assign) bool threadPerLayer;
-
-/** 
     Set the offset for the screen space objects.
     
     In general you want the screen space objects to appear on top of everything else.  There used to be structural reasons for this, but now you can mix and match where everything appears.  This controls the offset that's used to push screen space objects behind everything else in the list (and thus, on top).

@@ -1409,11 +1409,11 @@ public:
     if (!renderControl)
         return false;
     
-    Point3d pt = visualView->coordAdapter->localToDisplay(visualView->coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(geoCoord.x,geoCoord.y)));
+    Point3d pt = renderControl->visualView->coordAdapter->localToDisplay(renderControl->visualView->coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(geoCoord.x,geoCoord.y)));
     Point3f pt3f(pt.x(),pt.y(),pt.z());
     
-    Eigen::Matrix4d modelTrans4d = visualView->calcModelMatrix();
-    Eigen::Matrix4d viewTrans4d = visualView->calcViewMatrix();
+    Eigen::Matrix4d modelTrans4d = renderControl->visualView->calcModelMatrix();
+    Eigen::Matrix4d viewTrans4d = renderControl->visualView->calcViewMatrix();
     Eigen::Matrix4d modelAndViewMat4d = viewTrans4d * modelTrans4d;
     Eigen::Matrix4f modelAndViewMat = Matrix4dToMatrix4f(modelAndViewMat4d);
     Eigen::Matrix4f modelAndViewNormalMat = modelAndViewMat.inverse().transpose();
@@ -1440,7 +1440,7 @@ public:
 	Eigen::Matrix4d theTransform = globeView->calcFullMatrix();
     if (globeView->pointOnSphereFromScreen(screenPt2f, theTransform, renderControl->sceneRenderer->getFramebufferSizeScaled(), hit, true))
     {
-        GeoCoord geoCoord = visualView->coordAdapter->getCoordSystem()->localToGeographic(visualView->coordAdapter->displayToLocal(hit));
+        GeoCoord geoCoord = renderControl->visualView->coordAdapter->getCoordSystem()->localToGeographic(renderControl->visualView->coordAdapter->displayToLocal(hit));
         retCoord->x = geoCoord.x();
         retCoord->y = geoCoord.y();
         
@@ -1470,7 +1470,7 @@ public:
 	Eigen::Matrix4d theTransform = globeView->calcFullMatrix();
     if (globeView->pointOnSphereFromScreen(Point2f(screenPt.x,screenPt.y), theTransform, renderControl->sceneRenderer->getFramebufferSizeScaled(), hit, true))
     {
-        Point3d geoC = visualView->coordAdapter->getCoordSystem()->localToGeocentric(visualView->coordAdapter->displayToLocal(hit));
+        Point3d geoC = renderControl->visualView->coordAdapter->getCoordSystem()->localToGeocentric(renderControl->visualView->coordAdapter->displayToLocal(hit));
         retCoords[0] = geoC.x();  retCoords[1] = geoC.y();  retCoords[2] = geoC.z();
         
         // Note: Obviously doing something stupid here

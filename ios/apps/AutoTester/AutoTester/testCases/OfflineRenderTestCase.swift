@@ -19,7 +19,7 @@ class OfflineRenderTestCase: MaplyTestCase {
     
     var imageLoader : MaplyQuadImageLoader? = nil
     
-    func setupLoader(_ baseVC: MaplyRenderControllerProtocol) -> MaplyQuadImageLoader? {
+    func setupLoader(_ baseVC: MaplyBaseViewController) -> MaplyQuadImageLoader? {
         let cacheDir = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0]
         let thisCacheDir = "\(cacheDir)/stamentiles/"
         let maxZoom = Int32(16)

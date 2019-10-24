@@ -137,8 +137,6 @@ using namespace WhirlyKit;
     
     [renderControl teardown];
 
-    visualView = NULL;
-
     [renderControl->baseLayerThread addThingToRelease:wrapView];
     wrapView = nil;
     renderControl->scene = NULL;
@@ -179,16 +177,9 @@ using namespace WhirlyKit;
     wrapView = mtlView;
 }
 
-- (void) loadSetup_lighting
-{
-    [renderControl resetLights];
-    
-    [self resetLights];
-}
-
 - (MaplyBaseInteractionLayer *) loadSetup_interactionLayer
 {
-    return nil;
+    return [[MaplyBaseInteractionLayer alloc] initWithView:renderControl->visualView.get()];
 }
 
 - (void)setScreenObjectDrawPriorityOffset:(int)screenObjectDrawPriorityOffset
@@ -274,12 +265,8 @@ using namespace WhirlyKit;
     
     renderControl->renderType = _useOpenGLES ? SceneRenderer::RenderGLES : SceneRenderer::RenderMetal;
     
-    tileFetcherConnections = 16;
     allowRepositionForAnnnotations = true;
-    
-    userLayers = [NSMutableArray array];
-    _threadPerLayer = true;
-    
+        
     [renderControl loadSetup];
     if (renderControl->renderType == SceneRenderer::RenderGLES)
     {
@@ -301,54 +288,12 @@ using namespace WhirlyKit;
 	wrapView.frame = self.view.bounds;
     wrapView.backgroundColor = [UIColor blackColor];
         
-	// Need an empty scene and view
-    visualView = [self loadSetup_view];
-    
-    if (sceneRenderGLES) {
-        renderControl->scene = new SceneGLES(visualView->coordAdapter);
-    } else {
-        renderControl->scene = new SceneMTL(visualView->coordAdapter);
-    }
-    renderControl->sceneRenderer->setScene(renderControl->scene);
-
-    // Set up a Font Texture Manager
-    fontTexManager = FontTextureManager_iOSRef(new FontTextureManager_iOS(renderControl->sceneRenderer.get(),renderControl->scene));
-    renderControl->scene->setFontTextureManager(fontTexManager);
-
-    [self loadSetup_lighting];
-    
-    layerThreads = [NSMutableArray array];
-    
-    // Need a layer thread to manage the layers
-	baseLayerThread = [[WhirlyKitLayerThread alloc] initWithScene:renderControl->scene view:visualView.get() renderer:renderControl->sceneRenderer.get() mainLayerThread:true];
-    [layerThreads addObject:baseLayerThread];
-    
-    // Layout still needs a layer to kick it off
-    layoutLayer = [[WhirlyKitLayoutLayer alloc] initWithRenderer:renderControl->sceneRenderer.get()];
-    [baseLayerThread addLayer:layoutLayer];
-    
-    // Lastly, an interaction layer of our own
-    renderControl->interactLayer = [self loadSetup_interactionLayer];
-    renderControl->interactLayer.screenObjectDrawPriorityOffset = renderControl.screenObjectDrawPriorityOffset;
-    renderControl->interactLayer->layerThreads = layerThreads;
-    [baseLayerThread addLayer:renderControl->interactLayer];
-    
-	// Give the renderer what it needs
-	renderControl->sceneRenderer->setView(visualView.get());
-	    
+    [renderControl loadSetup_view:[self loadSetup_view]];
+    [renderControl loadSetup_scene:[self loadSetup_interactionLayer]];
+    	    
     viewTrackers = [NSMutableArray array];
     annotations = [NSMutableArray array];
-    
-    [renderControl setupShaders];
-	
-	// Kick off the layer thread
-	// This will start loading things
-	[baseLayerThread start];
-    
-    // Default cluster generator
-    defaultClusterGenerator = [[MaplyBasicClusterGenerator alloc] initWithColors:@[[UIColor orangeColor]] clusterNumber:0 size:CGSizeMake(32,32) viewC:self];
-    [self addClusterGenerator:defaultClusterGenerator];
-    
+        
     // View placement manager
     viewPlacementModel = ViewPlacementActiveModelRef(new ViewPlacementActiveModel());
     renderControl->scene->addActiveModel(viewPlacementModel);
@@ -432,7 +377,10 @@ using namespace WhirlyKit;
         if (wasAnimating)
             [self stopAnimation];
     }
-    for(WhirlyKitLayerThread *t in layerThreads)
+    
+    if (!renderControl)
+        return;
+    for(WhirlyKitLayerThread *t in renderControl->layerThreads)
     {
         [t pause];
     }
@@ -440,7 +388,10 @@ using namespace WhirlyKit;
 
 - (void)appForeground:(NSNotification *)note
 {
-    for(WhirlyKitLayerThread *t in layerThreads)
+    if (!renderControl)
+        return;
+
+    for(WhirlyKitLayerThread *t in renderControl->layerThreads)
     {
         [t unpause];
     }
@@ -512,12 +463,12 @@ static const float PerfOutputDelay = 15.0;
     
     renderControl->scene->dumpStats();
     [renderControl->interactLayer dumpStats];
-    for (MaplyRemoteTileFetcher *tileFetcher : tileFetchers) {
+    for (MaplyRemoteTileFetcher *tileFetcher : renderControl->tileFetchers) {
         MaplyRemoteTileFetcherStats *stats = [tileFetcher getStats:false];
         [stats dump];
         [tileFetcher resetStats];
     }
-    NSLog(@"Sampling layers: %lu",samplingLayers.size());
+    NSLog(@"Sampling layers: %lu",renderControl->samplingLayers.size());
     
     [self performSelector:@selector(periodicPerfOutput) withObject:nil afterDelay:PerfOutputDelay];    
 }
@@ -610,8 +561,8 @@ static const float PerfOutputDelay = 15.0;
 {
     if (!renderControl)
         return;
-
-    [renderControl->interactLayer addClusterGenerator:clusterGen];
+    
+    [renderControl addClusterGenerator:clusterGen];
 }
 
 
@@ -1347,7 +1298,7 @@ static const float PerfOutputDelay = 15.0;
 - (MaplyCoordinate3d)displayPointFromGeo:(MaplyCoordinate)geoCoord
 {
     MaplyCoordinate3d displayCoord;
-    Point3f pt = visualView->coordAdapter->localToDisplay(visualView->coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(geoCoord.x,geoCoord.y)));
+    Point3f pt = renderControl->visualView->coordAdapter->localToDisplay(renderControl->visualView->coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(geoCoord.x,geoCoord.y)));
     
     displayCoord.x = pt.x();    displayCoord.y = pt.y();    displayCoord.z = pt.z();
     return displayCoord;
@@ -1361,7 +1312,7 @@ static const float PerfOutputDelay = 15.0;
     Point2f frameSize(renderControl->sceneRenderer->framebufferWidth,renderControl->sceneRenderer->framebufferHeight);
     if (frameSize.x() == 0)
         return MAXFLOAT;
-    return (float)visualView->currentMapScale(frameSize);
+    return (float)renderControl->visualView->currentMapScale(frameSize);
 }
 
 - (float)heightForMapScale:(float)scale
@@ -1372,7 +1323,7 @@ static const float PerfOutputDelay = 15.0;
     Point2f frameSize(renderControl->sceneRenderer->framebufferWidth,renderControl->sceneRenderer->framebufferHeight);
     if (frameSize.x() == 0)
         return -1.0;
-    return (float)visualView->heightForMapScale(scale,frameSize);
+    return (float)renderControl->visualView->heightForMapScale(scale,frameSize);
 }
 
 - (void)addSnapshotDelegate:(NSObject<MaplySnapshotDelegate> *)snapshotDelegate
@@ -1562,7 +1513,7 @@ static const float PerfOutputDelay = 15.0;
     Point2f frameSize(renderControl->sceneRenderer->framebufferWidth,renderControl->sceneRenderer->framebufferHeight);
     if (frameSize.x() == 0)
         return MAXFLOAT;
-    return (float)visualView->currentMapZoom(frameSize,coordinate.y);
+    return (float)renderControl->visualView->currentMapZoom(frameSize,coordinate.y);
 }
 
 - (MaplyCoordinateSystem *)coordSystem
@@ -1575,7 +1526,7 @@ static const float PerfOutputDelay = 15.0;
 
 - (MaplyCoordinate3d)displayCoordFromLocal:(MaplyCoordinate3d)localCoord
 {
-    Point3d pt = visualView->coordAdapter->localToDisplay(Point3d(localCoord.x,localCoord.y,localCoord.z));
+    Point3d pt = renderControl->visualView->coordAdapter->localToDisplay(Point3d(localCoord.x,localCoord.y,localCoord.z));
     
     MaplyCoordinate3d ret;
     ret.x = pt.x();  ret.y = pt.y();  ret.z = pt.z();
@@ -1584,8 +1535,8 @@ static const float PerfOutputDelay = 15.0;
 
 - (MaplyCoordinate3d)displayCoord:(MaplyCoordinate3d)localCoord fromSystem:(MaplyCoordinateSystem *)coordSys
 {
-    Point3d loc3d = CoordSystemConvert3d(coordSys->coordSystem.get(), visualView->coordAdapter->getCoordSystem(), Point3d(localCoord.x,localCoord.y,localCoord.z));
-    Point3d pt = visualView->coordAdapter->localToDisplay(loc3d);
+    Point3d loc3d = CoordSystemConvert3d(coordSys->coordSystem.get(), renderControl->visualView->coordAdapter->getCoordSystem(), Point3d(localCoord.x,localCoord.y,localCoord.z));
+    Point3d pt = renderControl->visualView->coordAdapter->localToDisplay(loc3d);
     
     MaplyCoordinate3d ret;
     ret.x = pt.x();  ret.y = pt.y();  ret.z = pt.z();
@@ -1594,8 +1545,8 @@ static const float PerfOutputDelay = 15.0;
 
 - (MaplyCoordinate3dD)displayCoordD:(MaplyCoordinate3dD)localCoord fromSystem:(MaplyCoordinateSystem *)coordSys
 {
-    Point3d loc3d = CoordSystemConvert3d(coordSys->coordSystem.get(), visualView->coordAdapter->getCoordSystem(), Point3d(localCoord.x,localCoord.y,localCoord.z));
-    Point3d pt = visualView->coordAdapter->localToDisplay(loc3d);
+    Point3d loc3d = CoordSystemConvert3d(coordSys->coordSystem.get(), renderControl->visualView->coordAdapter->getCoordSystem(), Point3d(localCoord.x,localCoord.y,localCoord.z));
+    Point3d pt = renderControl->visualView->coordAdapter->localToDisplay(loc3d);
     
     MaplyCoordinate3dD ret;
     ret.x = pt.x();  ret.y = pt.y();  ret.z = pt.z();
@@ -1684,7 +1635,7 @@ static const float PerfOutputDelay = 15.0;
 
 -(NSArray *)loadedLayers
 {
-    return [NSArray arrayWithArray:userLayers];
+    return [NSArray arrayWithArray:renderControl->userLayers];
 }
 
 - (MaplyRenderController * __nullable)getRenderControl

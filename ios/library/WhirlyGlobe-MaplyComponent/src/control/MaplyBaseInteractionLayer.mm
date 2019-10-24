@@ -3396,7 +3396,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     
     pt = visualView->unwrapCoordinate(pt);
     
-    ViewStateRef viewState = vc->visualView->makeViewState(vc->renderControl->sceneRenderer.get());
+    ViewStateRef viewState = vc->renderControl->visualView->makeViewState(vc->renderControl->sceneRenderer.get());
     
     auto rets = compManager->findVectors(Point2d(pt.x(),pt.y()),20.0,viewState,vc->renderControl->sceneRenderer->getFramebufferSizeScaled(),multi);
     

@@ -39,7 +39,7 @@ using namespace WhirlyGlobe;
 {
     globeView = GlobeView_iOSRef(new GlobeView_iOS());
     globeView->continuousZoom = true;
-    theView = globeView;
+    visualView = globeView;
     coordAdapter = globeView->coordAdapter;
     
     self = [super initWithSize:screenSize mode:renderType];

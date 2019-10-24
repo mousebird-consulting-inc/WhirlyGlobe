@@ -46,7 +46,7 @@
     // Scene renderer... renders the scene
     WhirlyKit::SceneRendererRef sceneRenderer;
     
-    WhirlyKit::ViewRef theView;
+    // General pointer to the view
     WhirlyKit::CoordSystemDisplayAdapter *coordAdapter;
 
     // Our own interaction layer does most of the work
@@ -123,5 +123,9 @@
 
 /// The given user object is done with the given sampling layer.  So we may shut it down.
 - (void)releaseSamplingLayer:(MaplyQuadSamplingLayer *)layer forUser:(WhirlyKit::QuadTileBuilderDelegateRef)userObj;
+
+// Used for setup by the view controllers
+- (void)loadSetup_scene:(MaplyBaseInteractionLayer *)newInteractLayer;
+- (void)loadSetup_view:(WhirlyKit::ViewRef)view;
 
 @end

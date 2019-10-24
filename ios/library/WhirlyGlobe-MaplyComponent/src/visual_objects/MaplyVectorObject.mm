@@ -394,10 +394,10 @@ using namespace WhirlyGlobe;
 //Fuzzy matching for selecting Linear features
 - (bool)pointNearLinear:(MaplyCoordinate)coord distance:(float)maxDistance inViewController:(MaplyBaseViewController *)vc
 {
-    if (!vc->visualView || !vc->renderControl)
+    if (!vc->renderControl || !vc->renderControl->visualView)
         return false;
     
-    ViewStateRef viewState = vc->visualView->makeViewState(vc->renderControl->sceneRenderer.get());
+    ViewStateRef viewState = vc->renderControl->visualView->makeViewState(vc->renderControl->sceneRenderer.get());
 
     return vObj->pointNearLinear(Point2d(coord.x,coord.y),maxDistance,viewState,vc->renderControl->sceneRenderer->getFramebufferSizeScaled());
 }

@@ -37,12 +37,23 @@ using namespace Eigen;
 
 @implementation MaplyRenderController
 {
-    // This view is used when we're doing an offline renderer
+    // This view is used when we're not provided with a real view
     PassThroughCoordSystemRef coordSys;
     GeneralCoordSystemDisplayAdapterRef genCoordAdapter;
     Maply::FlatViewRef flatView;
+
     bool offlineMode;
     NSData *snapshotData;
+}
+
+- (instancetype __nullable)init
+{
+    self = [super init];
+
+    tileFetcherConnections = 16;
+    userLayers = [NSMutableArray array];
+
+    return self;
 }
 
 - (instancetype __nullable)initWithSize:(CGSize)size
@@ -52,7 +63,7 @@ using namespace Eigen;
 
 - (instancetype)initWithSize:(CGSize)size mode:(MaplyRenderType)inRenderType
 {
-    self = [super init];
+    self = [self init];
     
     offlineMode = true;
     
@@ -68,7 +79,7 @@ using namespace Eigen;
         genCoordAdapter = GeneralCoordSystemDisplayAdapterRef(new GeneralCoordSystemDisplayAdapter(coordSys.get(),ll,ur,center,scale));
         coordAdapter = genCoordAdapter.get();
         flatView = Maply::FlatViewRef(new Maply::FlatView(coordAdapter));
-        theView = flatView;
+        visualView = flatView;
         Mbr extents;
         extents.addPoint(Point2f(ll.x(),ll.y()));
         extents.addPoint(Point2f(ur.x(),ur.y()));
@@ -90,13 +101,13 @@ using namespace Eigen;
     }
     sceneRenderer->setZBufferMode(zBufferOffDefault);
     sceneRenderer->setScene(scene);
-    sceneRenderer->setView(theView.get());
+    sceneRenderer->setView(visualView.get());
     sceneRenderer->setClearColor([[UIColor blackColor] asRGBAColor]);
     
     // Turn on the model matrix optimization for drawing
     sceneRenderer->setUseViewChanged(true);
     
-    interactLayer = [[MaplyBaseInteractionLayer alloc] initWithView:theView.get()];
+    interactLayer = [[MaplyBaseInteractionLayer alloc] initWithView:visualView.get()];
     [interactLayer startWithThread:nil scene:scene];
 
     [self setupShaders];
@@ -148,10 +159,9 @@ using namespace Eigen;
         if (interactLayer)
             [interactLayer teardown];
         interactLayer = nil;
-        if (flatView)
-            flatView = nil;
+        flatView = NULL;
         genCoordAdapter = NULL;
-        theView = NULL;
+        visualView = NULL;
         coordAdapter = NULL;
         coordSys = NULL;
         scene = NULL;
@@ -204,6 +214,60 @@ using namespace Eigen;
     
     // Turn on the model matrix optimization for drawing
     sceneRenderer->setUseViewChanged(true);
+}
+
+- (void)loadSetup_view:(WhirlyKit::ViewRef)view
+{
+    visualView = view;
+}
+
+- (void)loadSetup_scene:(MaplyBaseInteractionLayer *)newInteractLayer
+{
+    SceneRendererGLES_iOSRef sceneRenderGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(sceneRenderer);
+
+    if (sceneRenderGLES) {
+        scene = new SceneGLES(visualView->coordAdapter);
+    } else {
+        scene = new SceneMTL(visualView->coordAdapter);
+    }
+    sceneRenderer->setScene(scene);
+
+    // Set up a Font Texture Manager
+    fontTexManager = FontTextureManager_iOSRef(new FontTextureManager_iOS(sceneRenderer.get(),scene));
+    scene->setFontTextureManager(fontTexManager);
+
+    [self resetLights];
+    
+    layerThreads = [NSMutableArray array];
+    
+    // Need a layer thread to manage the layers
+    baseLayerThread = [[WhirlyKitLayerThread alloc] initWithScene:scene view:visualView.get() renderer:sceneRenderer.get() mainLayerThread:true];
+    [layerThreads addObject:baseLayerThread];
+    
+    // Layout still needs a layer to kick it off
+    layoutLayer = [[WhirlyKitLayoutLayer alloc] initWithRenderer:sceneRenderer.get()];
+    [baseLayerThread addLayer:layoutLayer];
+    
+    if (newInteractLayer) {
+        interactLayer = newInteractLayer;
+        interactLayer.screenObjectDrawPriorityOffset = [self screenObjectDrawPriorityOffset];
+    }
+    
+    // Give the renderer what it needs
+    sceneRenderer->setView(visualView.get());
+    
+    [self setupShaders];
+    
+    // Kick off the layer thread
+    // This will start loading things
+    [baseLayerThread start];
+    
+    // Default cluster generator
+    defaultClusterGenerator = [[MaplyBasicClusterGenerator alloc] initWithColors:@[[UIColor orangeColor]] clusterNumber:0 size:CGSizeMake(32,32) viewC:self];
+    [self addClusterGenerator:defaultClusterGenerator];
+
+    interactLayer->layerThreads = layerThreads;
+    [baseLayerThread addLayer:interactLayer];
 }
 
 - (void)setScreenObjectDrawPriorityOffset:(int)drawPriorityOffset
@@ -891,9 +955,6 @@ using namespace Eigen;
     if (newLayer && ![userLayers containsObject:newLayer])
     {
         WhirlyKitLayerThread *layerThread = baseLayerThread;
-        // Only supporting quad image tiles layer for the thread per layer
-        // Note: Porting
-//        if (_threadPerLayer && ([newLayer isKindOfClass:[MaplyQuadImageTilesLayer class]] || [newLayer isKindOfClass:[MaplyQuadSamplingLayer class]]))
         if ([newLayer isKindOfClass:[MaplyQuadSamplingLayer class]])
         {
             layerThread = [[WhirlyKitLayerThread alloc] initWithScene:scene view:visualView.get() renderer:sceneRenderer.get() mainLayerThread:false];
@@ -901,7 +962,7 @@ using namespace Eigen;
             [layerThread start];
         }
         
-        if ([newLayer startLayer:layerThread scene:renderControl->scene renderer:sceneRenderer.get() viewC:self])
+        if ([newLayer startLayer:layerThread scene:scene renderer:sceneRenderer.get() viewC:self])
         {
             if (!newLayer.drawPriorityWasSet)
             {
@@ -1040,6 +1101,11 @@ using namespace Eigen;
     tileFetchers.push_back(tileFetcher);
     
     return tileFetcher;
+}
+
+- (void)addClusterGenerator:(NSObject <MaplyClusterGenerator> *)clusterGen
+{
+    [interactLayer addClusterGenerator:clusterGen];
 }
 
 @end

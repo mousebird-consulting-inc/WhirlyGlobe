@@ -35,7 +35,7 @@
 @property (nonatomic,readonly) bool drawPriorityWasSet;
 
 /// Subclasses fill this in.  It's called when the Component layer is added to the view controller.
-- (bool)startLayer:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKit::SceneRenderer *)renderer viewC:(MaplyBaseViewController *)viewC;
+- (bool)startLayer:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKit::SceneRenderer *)renderer viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 
 /// Remove resources associated with this layer
 - (void)cleanupLayers:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;

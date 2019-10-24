@@ -30,7 +30,7 @@
     _identifier = @"Unidentified MaplyControllerLayer";
 }
 
-- (bool)startLayer:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKit::SceneRenderer *)renderer viewC:(MaplyBaseViewController *)viewC
+- (bool)startLayer:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKit::SceneRenderer *)renderer viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     return true;
 }

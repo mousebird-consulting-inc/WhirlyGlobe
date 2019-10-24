@@ -130,6 +130,15 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
 - (void)setHints:(NSDictionary *__nonnull)hintsDict;
 
 /**
+    Add a cluster generator for making clustered marker images on demand.
+    
+    When the layout system clusters a bunch of markers or labels together, it needs new images to represent the cluster.
+    
+    You can provide a custom image for each group of markers by filling in one of these generates and passing it in.
+  */
+- (void)addClusterGenerator:(NSObject <MaplyClusterGenerator> *__nonnull)clusterGen;
+
+/**
  Add one or more screen markers to the current scene.
  
  This method will add the given MaplyScreenMaker objects to the current scene.  It will use the parameters in the description dictionary and it will do it on the thread specified.
