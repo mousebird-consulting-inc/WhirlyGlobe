@@ -19,7 +19,7 @@ class OfflineRenderTestCase: MaplyTestCase {
     
     var imageLoader : MaplyQuadImageLoader? = nil
     
-    func setupLoader(_ baseVC: MaplyBaseViewController) -> MaplyQuadImageLoader? {
+    func setupLoader(_ baseVC: WhirlyGlobeRenderController) -> MaplyQuadImageLoader? {
         let cacheDir = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0]
         let thisCacheDir = "\(cacheDir)/stamentiles/"
         let maxZoom = Int32(16)
@@ -41,27 +41,22 @@ class OfflineRenderTestCase: MaplyTestCase {
         guard let imageLoader = MaplyQuadImageLoader(params: sampleParams, tileInfo: tileInfo, viewC: baseVC) else {
             return nil
         }
-        // TODO: Get this working
-//        imageLoader.imageFormat = .imageUShort565
-        //        imageLoader.debugMode = true
         
         return imageLoader
     }
 
     override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
-        imageLoader = setupLoader(globeVC)
-                
-        globeVC.keepNorthUp = true
-        globeVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056), time: 1.0)
+        guard let renderControl = WhirlyGlobeRenderController(size: CGSize(width: 1024, height: 768)) else {
+            return
+        }
+        imageLoader = setupLoader(renderControl)
         
-//        globeVC.globeCenter = CGPoint(x: globeVC.view.center.x, y: globeVC.view.center.y + 0.33*globeVC.view.frame.size.height/2.0)
-    }
-
-    override func setUpWithMap(_ mapVC: MaplyViewController) {
-        imageLoader = setupLoader(mapVC)
-
-        mapVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056), height: 1.0, time: 1.0)
-        mapVC.setZoomLimitsMin(0.01, max: 5.0)
+        DispatchQueue.main.asyncAfter(deadline: .now()+10.0) {
+            // Force a single render
+            if let image = renderControl.snapshot() {
+                print("Got an image!")
+            }
+        }
     }
 
 }

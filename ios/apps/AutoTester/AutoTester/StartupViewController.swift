@@ -62,6 +62,8 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
 		AnimationDelegateTestCase(),
 		LocationTrackingSimTestCase(),
 		LocationTrackingRealTestCase(),
+        
+        OfflineRenderTestCase()
 	]
 
 	@IBOutlet weak var testsTable: UITableView!

@@ -553,7 +553,7 @@ void SceneRendererMTL::render(TimeInterval duration,
         // Run any calculation shaders
         // These should be independent of screen space, so we only run them once and ignore offsets.
         // Note: Can't run calculation shaders without a normal screen
-        if (!calcPassDone && renderPassDesc) {
+        if (!calcPassDone) {
             // Need some sort of render target even if we're not really rendering
             RenderTargetMTLRef renderTarget = std::dynamic_pointer_cast<RenderTargetMTL>(renderTargets.back());
             baseFrameInfo.renderTarget = renderTarget.get();
@@ -572,7 +572,7 @@ void SceneRendererMTL::render(TimeInterval duration,
 
                 // Each render target needs its own buffer and command queue
                 id<MTLCommandBuffer> cmdBuff = [cmdQueue commandBuffer];
-                baseFrameInfo.renderPassDesc = renderPassDesc;
+                baseFrameInfo.renderPassDesc = renderTarget->getRenderPassDesc();
 
 //                id<MTLParallelRenderCommandEncoder> masterEncode = [cmdBuff parallelRenderCommandEncoderWithDescriptor:renderPassDesc];
                 id<MTLRenderCommandEncoder> masterEncode = [cmdBuff renderCommandEncoderWithDescriptor:renderPassDesc];

@@ -21,4 +21,5 @@
 #import "MaplyComponent.h"
 #import "control/MaplyBaseViewController.h"
 #import "control/WhirlyGlobeViewController.h"
+#import "control/MaplyGlobeRenderController.h"
 #import "control/MaplyViewController.h"
