@@ -99,7 +99,7 @@ using namespace WhirlyKit;
 
 @implementation MaplyQuadLoaderBase
 
-- (instancetype)initWithViewC:(MaplyBaseViewController *)inViewC
+- (instancetype)initWithViewC:(NSObject<MaplyRenderControllerProtocol> *)inViewC
 {
     self = [super init];
     _flipY = true;

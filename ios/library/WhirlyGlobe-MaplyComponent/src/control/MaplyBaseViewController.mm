@@ -322,23 +322,18 @@ using namespace WhirlyKit;
 
 - (id<MTLDevice>)getMetalDevice
 {
-    if (!renderControl || renderControl->sceneRenderer->getType() != SceneRenderer::RenderMetal)
+    if (!renderControl)
         return nil;
     
-    SceneRendererMTL *renderMTL = (SceneRendererMTL *)renderControl->sceneRenderer.get();
-    return renderMTL->setupInfo.mtlDevice;
+    return [renderControl getMetalDevice];
 }
 
 - (id<MTLLibrary>)getMetalLibrary
 {
-    if (!renderControl || renderControl->sceneRenderer->getType() != SceneRenderer::RenderMetal)
+    if (!renderControl)
         return nil;
-
-    SceneRendererMTL *renderMTL = (SceneRendererMTL *)renderControl->sceneRenderer.get();
-    NSError *err = nil;
-    id<MTLLibrary> mtlLib = [renderMTL->setupInfo.mtlDevice newDefaultLibraryWithBundle:[NSBundle bundleForClass:[MaplyRenderController class]] error:&err];
-    return mtlLib;
-
+    
+    return [renderControl getMetalLibrary];
 }
 
 

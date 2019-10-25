@@ -1106,4 +1106,25 @@ using namespace Eigen;
     [interactLayer addClusterGenerator:clusterGen];
 }
 
+- (id<MTLDevice>)getMetalDevice
+{
+    if (sceneRenderer->getType() != SceneRenderer::RenderMetal)
+        return nil;
+    
+    SceneRendererMTL *renderMTL = (SceneRendererMTL *)sceneRenderer.get();
+    return renderMTL->setupInfo.mtlDevice;
+}
+
+- (id<MTLLibrary>)getMetalLibrary
+{
+    if (sceneRenderer->getType() != SceneRenderer::RenderMetal)
+        return nil;
+
+    SceneRendererMTL *renderMTL = (SceneRendererMTL *)sceneRenderer.get();
+    NSError *err = nil;
+    id<MTLLibrary> mtlLib = [renderMTL->setupInfo.mtlDevice newDefaultLibraryWithBundle:[NSBundle bundleForClass:[MaplyRenderController class]] error:&err];
+    return mtlLib;
+
+}
+
 @end

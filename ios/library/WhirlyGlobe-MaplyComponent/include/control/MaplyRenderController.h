@@ -875,6 +875,16 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
 /// Return a tile fetcher we may share between loaders
 - (MaplyRemoteTileFetcher * __nonnull)addTileFetcher:(NSString * __nonnull)name;
 
+/**
+    If in Metal rendering mode, return the Metal device being used.
+  */
+- (id<MTLDevice> __nullable)getMetalDevice;
+
+/**
+   If in Metal rendering mode, return the shader library set up by the toolkit.
+  */
+- (id<MTLLibrary> __nullable)getMetalLibrary;
+
 @end
 
 /**

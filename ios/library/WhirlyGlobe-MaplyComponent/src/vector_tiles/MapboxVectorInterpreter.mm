@@ -67,7 +67,7 @@ static double MAX_EXTENT = 20037508.342789244;
 - (instancetype) initWithImageStyle:(MapboxVectorStyleSet *)inImageStyle
                       offlineRender:(MaplyRenderController *)inOfflineRender
                         vectorStyle:(NSObject<MaplyVectorStyleDelegate> *)inVectorStyle
-                              viewC:(MaplyBaseViewController *)inViewC
+                              viewC:(NSObject<MaplyRenderControllerProtocol> *)inViewC
 {
     self = [super init];
     imageStyle = inImageStyle;
@@ -88,7 +88,7 @@ static double MAX_EXTENT = 20037508.342789244;
 }
 
 - (instancetype) initWithVectorStyle:(NSObject<MaplyVectorStyleDelegate> *)inVectorStyle
-                               viewC:(MaplyBaseViewController *)inViewC
+                               viewC:(NSObject<MaplyRenderControllerProtocol> *)inViewC
 {
     self = [super init];
     vecStyle = inVectorStyle;

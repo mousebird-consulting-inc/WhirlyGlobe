@@ -44,7 +44,7 @@
 - (instancetype _Nullable ) initWithImageStyle:(MapboxVectorStyleSet *__nonnull)imageStyle
                          offlineRender:(MaplyRenderController *__nonnull)renderControl
                            vectorStyle:(NSObject<MaplyVectorStyleDelegate> *__nonnull)vectorStyle
-                                 viewC:(MaplyBaseViewController *__nonnull)viewC;
+                                 viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC;
 
 /** This version of the init builds visual features for vector tiles.
  
@@ -52,6 +52,6 @@
     on how your style is configured.
   */
 - (instancetype __nullable) initWithVectorStyle:(NSObject<MaplyVectorStyleDelegate> *__nonnull)vectorStyle
-                                          viewC:(MaplyBaseViewController *__nonnull)viewC;
+                                          viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC;
 
 @end
