@@ -543,12 +543,7 @@ static const float PerfOutputDelay = 15.0;
 
 - (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 {
-    if (![renderControl startOfWork])
-        return nil;
-    
     MaplyComponentObject *compObj = [renderControl addScreenMarkers:markers desc:desc mode:threadMode];
-    
-    [renderControl endOfWork];
     
     return compObj;
 }
@@ -569,12 +564,7 @@ static const float PerfOutputDelay = 15.0;
 
 - (MaplyComponentObject *)addMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    if (![renderControl startOfWork])
-        return nil;
-    
     MaplyComponentObject *compObj = [renderControl addMarkers:markers desc:desc mode:threadMode];
-    
-    [renderControl endOfWork];
     
     return compObj;
 }
@@ -586,12 +576,7 @@ static const float PerfOutputDelay = 15.0;
 
 - (MaplyComponentObject *)addScreenLabels:(NSArray *)labels desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    if (![renderControl startOfWork])
-        return nil;
-    
     MaplyComponentObject *compObj = [renderControl addScreenLabels:labels desc:desc mode:threadMode];
-
-    [renderControl endOfWork];
     
     return compObj;
 }
@@ -603,12 +588,7 @@ static const float PerfOutputDelay = 15.0;
 
 - (MaplyComponentObject *)addLabels:(NSArray *)labels desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    if (![renderControl startOfWork])
-        return nil;
-    
     MaplyComponentObject *compObj = [renderControl addLabels:labels desc:desc mode:threadMode];
-    
-    [renderControl endOfWork];
     
     return compObj;
 }
@@ -620,12 +600,7 @@ static const float PerfOutputDelay = 15.0;
 
 - (MaplyComponentObject *)addVectors:(NSArray *)vectors desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    if (![renderControl startOfWork])
-        return nil;
-    
     MaplyComponentObject *compObj = [renderControl addVectors:vectors desc:desc mode:threadMode];
-    
-    [renderControl endOfWork];
     
     return compObj;
 }
@@ -637,24 +612,14 @@ static const float PerfOutputDelay = 15.0;
 
 - (MaplyComponentObject *)instanceVectors:(MaplyComponentObject *)baseObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    if (![renderControl startOfWork])
-        return nil;
-    
     MaplyComponentObject *compObj = [renderControl instanceVectors:baseObj desc:desc mode:threadMode];
-    
-    [renderControl endOfWork];
     
     return compObj;
 }
 
 - (MaplyComponentObject *)addWideVectors:(NSArray *)vectors desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    if (![renderControl startOfWork])
-        return nil;
-    
     MaplyComponentObject *compObj = [renderControl addWideVectors:vectors desc:desc mode:threadMode];
-    
-    [renderControl endOfWork];
     
     return compObj;
 }
@@ -667,28 +632,20 @@ static const float PerfOutputDelay = 15.0;
 
 - (MaplyComponentObject *)addBillboards:(NSArray *)billboards desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    if (![renderControl startOfWork])
-        return nil;
-    
     MaplyComponentObject *compObj = [renderControl addBillboards:billboards desc:desc mode:threadMode];
     
-    [renderControl endOfWork];
-    
     return compObj;
 }
 
+// TODO: Move this down to the render control
 - (MaplyComponentObject *)addParticleSystem:(MaplyParticleSystem *)partSys desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    if (![renderControl startOfWork])
-        return nil;
-    
     MaplyComponentObject *compObj = [renderControl->interactLayer addParticleSystem:partSys desc:desc mode:threadMode];
-    
-    [renderControl endOfWork];
     
     return compObj;
 }
 
+// TODO: Move this down to the render control
 - (void)changeParticleSystem:(MaplyComponentObject *__nonnull)compObj renderTarget:(MaplyRenderTarget *__nullable)target
 {
     if ([NSThread currentThread] != [NSThread mainThread]) {
@@ -704,6 +661,7 @@ static const float PerfOutputDelay = 15.0;
     [renderControl endOfWork];
 }
 
+// TODO: Move this down to the render control
 - (void)addParticleBatch:(MaplyParticleBatch *)batch mode:(MaplyThreadMode)threadMode
 {
     if (![batch isValid])
@@ -735,12 +693,7 @@ static const float PerfOutputDelay = 15.0;
 
 - (void)changeVector:(MaplyComponentObject *)compObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    if (![renderControl startOfWork])
-        return;
-    
     [renderControl changeVector:compObj desc:desc mode:threadMode];
-    
-    [renderControl endOfWork];
 }
 
 - (void)changeVector:(MaplyComponentObject *)compObj desc:(NSDictionary *)desc
@@ -750,13 +703,8 @@ static const float PerfOutputDelay = 15.0;
 
 - (MaplyComponentObject *)addShapes:(NSArray *)shapes desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    if (![renderControl startOfWork])
-        return nil;
-    
     MaplyComponentObject *compObj = [renderControl addShapes:shapes desc:desc mode:threadMode];
 
-    [renderControl endOfWork];
-    
     return compObj;
 }
 
@@ -767,36 +715,21 @@ static const float PerfOutputDelay = 15.0;
 
 - (MaplyComponentObject *)addModelInstances:(NSArray *)modelInstances desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    if (![renderControl startOfWork])
-        return nil;
-    
     MaplyComponentObject *compObj = [renderControl addModelInstances:modelInstances desc:desc mode:threadMode];
-
-    [renderControl endOfWork];
     
     return compObj;
 }
 
 - (MaplyComponentObject *)addGeometry:(NSArray *)geom desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    if (![renderControl startOfWork])
-        return nil;
-    
     MaplyComponentObject *compObj = [renderControl addGeometry:geom desc:desc mode:threadMode];
-
-    [renderControl endOfWork];
     
     return compObj;
 }
 
 - (MaplyComponentObject *)addStickers:(NSArray *)stickers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    if (![renderControl startOfWork])
-        return nil;
-    
     MaplyComponentObject *compObj = [renderControl addStickers:stickers desc:desc mode:threadMode];
-
-    [renderControl endOfWork];
     
     return compObj;
 }
@@ -808,21 +741,12 @@ static const float PerfOutputDelay = 15.0;
 
 - (void)changeSticker:(MaplyComponentObject *)compObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    if (![renderControl startOfWork])
-        return;
-    
     [renderControl changeSticker:compObj desc:desc mode:threadMode];
-
-    [renderControl endOfWork];
 }
 
 - (MaplyComponentObject *)addLoftedPolys:(NSArray *)polys desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    if (![renderControl startOfWork])
-        return nil;
-    
     MaplyComponentObject *compObj = [renderControl addLoftedPolys:polys desc:desc mode:threadMode];
-    [renderControl endOfWork];
     
     return compObj;
 }
@@ -834,11 +758,7 @@ static const float PerfOutputDelay = 15.0;
 
 - (MaplyComponentObject *)addPoints:(NSArray *)points desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    if (![renderControl startOfWork])
-        return nil;
-
     MaplyComponentObject *compObj = [renderControl addPoints:points desc:desc mode:threadMode];
-    [renderControl endOfWork];
     
     return compObj;
 }
@@ -1053,58 +973,33 @@ static const float PerfOutputDelay = 15.0;
 
 - (MaplyTexture *)addTexture:(UIImage *)image desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    if (!renderControl || ![renderControl startOfWork])
-        return nil;
-    
-    MaplyTexture *maplyTex = [renderControl->interactLayer addTexture:image desc:desc mode:threadMode];
-    
-    [renderControl endOfWork];
+    MaplyTexture *maplyTex = [renderControl addTexture:image desc:desc mode:threadMode];
     
     return maplyTex;
 }
 
 - (MaplyTexture *__nullable)addSubTexture:(MaplyTexture *__nonnull)tex xOffset:(int)x yOffset:(int)y width:(int)width height:(int)height mode:(MaplyThreadMode)threadMode
 {
-    if (!renderControl || ![renderControl startOfWork])
-        return nil;
-
-    MaplyTexture *maplyTex = [renderControl->interactLayer addSubTexture:tex xOffset:x yOffset:y width:width height:height mode:threadMode];
-    
-    [renderControl endOfWork];
+    MaplyTexture *maplyTex = [renderControl addSubTexture:tex xOffset:x yOffset:y width:width height:height mode:threadMode];
     
     return maplyTex;
 }
 
 - (MaplyTexture *__nullable)createTexture:(NSDictionary * _Nullable)inDesc sizeX:(int)sizeX sizeY:(int)sizeY mode:(MaplyThreadMode)threadMode
 {
-    if (![renderControl startOfWork])
-        return nil;
-
     MaplyTexture *maplyTex = [renderControl createTexture:inDesc sizeX:sizeX sizeY:sizeY mode:threadMode];
-    
-    [renderControl endOfWork];
     
     return maplyTex;
 }
 
 - (void)removeTexture:(MaplyTexture *)texture mode:(MaplyThreadMode)threadMode
 {
-    if (!renderControl || ![renderControl startOfWork])
-        return;
-    
-    [renderControl->interactLayer removeTextures:@[texture] mode:threadMode];
-
-    [renderControl endOfWork];
+    [renderControl removeTextures:@[texture] mode:threadMode];
 }
 
 - (void)removeTextures:(NSArray *)textures mode:(MaplyThreadMode)threadMode
 {
-    if (!renderControl || ![renderControl startOfWork])
-        return;
-    
-    [renderControl->interactLayer removeTextures:textures mode:threadMode];
-
-    [renderControl endOfWork];
+    [renderControl removeTextures:textures mode:threadMode];
 }
 
 - (MaplyTexture *)addTextureToAtlas:(UIImage *)image mode:(MaplyThreadMode)threadMode
@@ -1124,42 +1019,22 @@ static const float PerfOutputDelay = 15.0;
 
 - (void)addRenderTarget:(MaplyRenderTarget *)renderTarget
 {
-    if (!renderControl || ![renderControl startOfWork])
-        return;
-
-    [renderControl->interactLayer addRenderTarget:renderTarget];
-    
-    [renderControl endOfWork];
+    [renderControl addRenderTarget:renderTarget];
 }
 
 - (void)changeRenderTarget:(MaplyRenderTarget *)renderTarget tex:(MaplyTexture *)tex
 {
-    if (!renderControl || ![renderControl startOfWork])
-        return;
-    
-    [renderControl->interactLayer changeRenderTarget:renderTarget tex:tex];
-    
-    [renderControl endOfWork];
+    [renderControl changeRenderTarget:renderTarget tex:tex];
 }
 
 - (void)clearRenderTarget:(MaplyRenderTarget *)renderTarget mode:(MaplyThreadMode)threadMode
 {
-    if (!renderControl || ![renderControl startOfWork])
-        return;
-    
-    [renderControl->interactLayer clearRenderTarget:renderTarget mode:threadMode];
-
-    [renderControl endOfWork];
+    [renderControl clearRenderTarget:renderTarget mode:threadMode];
 }
 
 - (void)removeRenderTarget:(MaplyRenderTarget *)renderTarget
 {
-    if (!renderControl || ![renderControl startOfWork])
-        return;
-    
-    [renderControl->interactLayer removeRenderTarget:renderTarget];
-    
-    [renderControl endOfWork];
+    [renderControl removeRenderTarget:renderTarget];
 }
 
 - (void)setMaxLayoutObjects:(int)maxLayoutObjects
@@ -1189,12 +1064,7 @@ static const float PerfOutputDelay = 15.0;
             return;
         }
 
-    if (!renderControl || ![renderControl startOfWork])
-        return;
-    
-    [renderControl->interactLayer removeObjects:[NSArray arrayWithArray:theObjs] mode:threadMode];
-
-    [renderControl endOfWork];
+    [renderControl removeObjects:[NSArray arrayWithArray:theObjs] mode:threadMode];
 }
 
 - (void)removeObjects:(NSArray *)theObjs
@@ -1210,12 +1080,7 @@ static const float PerfOutputDelay = 15.0;
     if (!theObjs)
         return;
 
-    if (!renderControl || ![renderControl startOfWork])
-        return;
-    
-    [renderControl->interactLayer disableObjects:theObjs mode:threadMode];
-
-    [renderControl endOfWork];
+    [renderControl disableObjects:theObjs mode:threadMode];
 }
 
 - (void)enableObjects:(NSArray *)theObjs mode:(MaplyThreadMode)threadMode
@@ -1223,12 +1088,7 @@ static const float PerfOutputDelay = 15.0;
     if (!theObjs)
         return;
 
-    if (!renderControl || ![renderControl startOfWork])
-        return;
-
-    [renderControl->interactLayer enableObjects:theObjs mode:threadMode];
-
-    [renderControl endOfWork];
+    [renderControl enableObjects:theObjs mode:threadMode];
 }
 
 - (void)setUniformBlock:(NSData *__nonnull)uniBlock buffer:(int)bufferID forObjects:(NSArray<MaplyComponentObject *> *__nonnull)compObjs mode:(MaplyThreadMode)threadMode
@@ -1236,12 +1096,7 @@ static const float PerfOutputDelay = 15.0;
     if (!compObjs)
         return;
 
-    if (!renderControl || ![renderControl startOfWork])
-        return;
-    
-    [renderControl->interactLayer setUniformBlock:uniBlock buffer:bufferID forObjects:compObjs mode:threadMode];
-    
-    [renderControl endOfWork];
+    [renderControl setUniformBlock:uniBlock buffer:bufferID forObjects:compObjs mode:threadMode];
 }
 
 

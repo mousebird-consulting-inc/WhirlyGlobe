@@ -43,7 +43,7 @@
     WhirlyKit::QuadImageFrameLoader::FrameStats frameStats;
 }
 
-- (instancetype)initWithViewC:(MaplyBaseViewController *)inViewC;
+- (instancetype)initWithViewC:(NSObject<MaplyRenderControllerProtocol> *)inViewC;
 
 // The subclasses return their own
 - (MaplyLoaderReturn *)makeLoaderReturn;

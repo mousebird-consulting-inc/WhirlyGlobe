@@ -343,7 +343,10 @@ using namespace WhirlyGlobe;
     }
     
  
-    return [target asImage:self];
+    UIImage *image = [target asImage:self];
+    target.data = nil;
+    
+    return image;
 }
 
 @end

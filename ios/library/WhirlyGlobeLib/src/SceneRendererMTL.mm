@@ -95,12 +95,20 @@ bool SceneRendererMTL::setup(int sizeX,int sizeY,bool offscreen)
         fbTexMTL->setIsEmptyTexture(true);
         fbTexMTL->setFormat(TexTypeUnsignedByte);
         fbTexMTL->createInRenderer(&setupInfo);
-        
         framebufferTex = fbTexMTL;
         
+        // And one for depth
+        TextureMTLRef depthTexMTL = TextureMTLRef(new TextureMTL("Framebuffer Depth Texture"));
+        depthTexMTL->setWidth(sizeX);
+        depthTexMTL->setHeight(sizeY);
+        depthTexMTL->setIsEmptyTexture(true);
+        depthTexMTL->setFormat(TexTypeDepthFloat32);
+        depthTexMTL->createInRenderer(&setupInfo);
+
         // Note: Should make this optional
         defaultTarget->blendEnable = false;
         defaultTarget->setTargetTexture(fbTexMTL.get());
+        defaultTarget->setTargetDepthTexture(depthTexMTL.get());
     } else {
         if (sizeX > 0 && sizeY > 0)
             defaultTarget->init(this,NULL,EmptyIdentity);
@@ -637,7 +645,7 @@ void SceneRendererMTL::render(TimeInterval duration,
             if (renderTarget->getTex() == nil) {
                 // This happens if the dev wants an instantaneous render
                 if (!renderPassDesc)
-                    continue;
+                    renderPassDesc = renderTarget->getRenderPassDesc();
                 
 //                masterEncode = [cmdBuff parallelRenderCommandEncoderWithDescriptor:renderPassDesc];
                 masterEncode = [cmdBuff renderCommandEncoderWithDescriptor:renderPassDesc];

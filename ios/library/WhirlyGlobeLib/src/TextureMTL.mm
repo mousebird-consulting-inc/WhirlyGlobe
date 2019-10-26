@@ -192,6 +192,10 @@ bool TextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
             pixFormat = MTLPixelFormatRGBA32Float;
             bytesPerRow = 16*width;
             break;
+        case TexTypeDepthFloat32:
+            pixFormat = MTLPixelFormatDepth32Float;
+            bytesPerRow = 4*width;
+            break;
     }
     
     // Set up the texture and upload the data

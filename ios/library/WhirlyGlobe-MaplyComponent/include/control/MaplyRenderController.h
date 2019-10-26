@@ -745,6 +745,14 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
 - (void)removeRenderTarget:(MaplyRenderTarget * _Nonnull)renderTarget;
 
 /**
+  Request a one time clear for the render target.
+
+  Rather than clearing every frame, you may want to specifically request a clear.  This will
+  be executed at the next frame and then not again.
+*/
+- (void)clearRenderTarget:(MaplyRenderTarget * _Nonnull)renderTarget mode:(MaplyThreadMode)threadMode;
+
+/**
  Remove all information associated with the given MaplyComponentObject's.
  
  Every add call returns a MaplyComponentObject.  This will remove any visible features, textures, selection data, or anything else associated with it.

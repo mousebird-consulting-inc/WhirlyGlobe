@@ -44,6 +44,7 @@ using namespace Eigen;
 
     bool offlineMode;
     NSData *snapshotData;
+    CGSize initialFramebufferSize;
 }
 
 - (instancetype __nullable)init
@@ -66,8 +67,14 @@ using namespace Eigen;
     self = [self init];
     
     offlineMode = true;
+    initialFramebufferSize = size;
     
     EAGLContext *oldContext = [EAGLContext currentContext];
+    if (inRenderType == MaplyRenderGLES) {
+        renderType = SceneRenderer::RenderGLES;
+    } else {
+        renderType = SceneRenderer::RenderMetal;
+    }
     
     // If the coordinate system hasn't been set up, we'll do a flat one
     if (!coordAdapter) {
@@ -86,30 +93,10 @@ using namespace Eigen;
         flatView->setExtents(extents);
         flatView->setWindow(Point2d(size.width,size.height),Point2d(0.0,0.0));
     }
-    // Set up the renderer with a target size
-    if (inRenderType == MaplyRenderGLES) {
-        renderType = SceneRenderer::RenderGLES;
-        scene = new SceneGLES(coordAdapter);
-        SceneRendererGLES_iOSRef theSceneRenderer = SceneRendererGLES_iOSRef(new SceneRendererGLES_iOS((int)size.width,(int)size.height,1.0));
-        sceneRenderer = theSceneRenderer;
-    } else {
-        renderType = SceneRenderer::RenderMetal;
-        scene = new SceneMTL(coordAdapter);
-        SceneRendererMTLRef theSceneRenderer = SceneRendererMTLRef(new SceneRendererMTL( MTLCreateSystemDefaultDevice(), 1.0));
-        theSceneRenderer->setup(size.width, size.height, true);
-        sceneRenderer = theSceneRenderer;
-    }
-    sceneRenderer->setZBufferMode(zBufferOffDefault);
-    sceneRenderer->setScene(scene);
-    sceneRenderer->setView(visualView.get());
-    sceneRenderer->setClearColor([[UIColor blackColor] asRGBAColor]);
     
-    // Turn on the model matrix optimization for drawing
-    sceneRenderer->setUseViewChanged(true);
+    [self loadSetup];
     
-    interactLayer = [[MaplyBaseInteractionLayer alloc] initWithView:visualView.get()];
-    [interactLayer startWithThread:nil scene:scene];
-
+    [self loadSetup_scene:[[MaplyBaseInteractionLayer alloc] initWithView:visualView.get()]];
     [self setupShaders];
     
     if (inRenderType == MaplyRenderGLES) {
@@ -201,11 +188,20 @@ using namespace Eigen;
     
     if (renderType == WhirlyKit::SceneRendererGLES_iOS::RenderGLES) {
         // Set up the OpenGL ES renderer
-        SceneRendererGLES_iOSRef sceneRendererGLES = SceneRendererGLES_iOSRef(new SceneRendererGLES_iOS(1.0));
+        SceneRendererGLES_iOSRef sceneRendererGLES =
+            SceneRendererGLES_iOSRef(
+            offlineMode ?
+        new SceneRendererGLES_iOS((int)initialFramebufferSize.width,(int)initialFramebufferSize.height,1.0)
+            :
+            new SceneRendererGLES_iOS(1.0)
+                                     );
+            
         sceneRendererGLES->useContext();
         sceneRenderer = sceneRendererGLES;
     } else {
         SceneRendererMTLRef sceneRendererMTL = SceneRendererMTLRef(new SceneRendererMTL(MTLCreateSystemDefaultDevice(),1.0));
+        if (offlineMode)
+            sceneRendererMTL->setup((int)initialFramebufferSize.width,(int)initialFramebufferSize.height, true);
         sceneRenderer = sceneRendererMTL;
     }
 
@@ -521,143 +517,320 @@ using namespace Eigen;
 
 - (MaplyComponentObject *__nullable)addScreenMarkers:(NSArray *__nonnull)markers desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
-    return [interactLayer addScreenMarkers:markers desc:desc mode:threadMode];
+    if (![self startOfWork])
+        return nil;
+    
+    MaplyComponentObject *compObj = [interactLayer addScreenMarkers:markers desc:desc mode:threadMode];
+    
+    [self endOfWork];
+    
+    return compObj;
 }
 
 - (MaplyComponentObject *__nullable)addMarkers:(NSArray *__nonnull)markers desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
-    return [interactLayer addMarkers:markers desc:desc mode:threadMode];
+    if (![self startOfWork])
+        return nil;
+
+    MaplyComponentObject *compObj = [interactLayer addMarkers:markers desc:desc mode:threadMode];
+    
+    [self endOfWork];
+    
+    return compObj;
 }
 
 - (MaplyComponentObject *__nullable)addScreenLabels:(NSArray *__nonnull)labels desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
-    return [interactLayer addScreenLabels:labels desc:desc mode:threadMode];
+    if (![self startOfWork])
+        return nil;
+    
+    MaplyComponentObject *compObj = [interactLayer addScreenLabels:labels desc:desc mode:threadMode];
+    
+    [self endOfWork];
+
+    return compObj;
 }
 
 - (MaplyComponentObject *__nullable)addLabels:(NSArray *__nonnull)labels desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
-    return [interactLayer addLabels:labels desc:desc mode:threadMode];
+    if (![self startOfWork])
+        return nil;
+
+    MaplyComponentObject *compObj = [interactLayer addLabels:labels desc:desc mode:threadMode];
+
+    [self endOfWork];
+    
+    return compObj;
 }
 
 - (MaplyComponentObject *__nullable)addVectors:(NSArray *__nonnull)vectors desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
-    return [interactLayer addVectors:vectors desc:desc mode:threadMode];
+    if (![self startOfWork])
+        return nil;
+
+    MaplyComponentObject *compObj = [interactLayer addVectors:vectors desc:desc mode:threadMode];
+
+    [self endOfWork];
+    
+    return compObj;
 }
 
 - (MaplyComponentObject *__nullable)instanceVectors:(MaplyComponentObject *__nonnull)baseObj desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
-    return [interactLayer instanceVectors:baseObj desc:desc mode:threadMode];
+    if (![self startOfWork])
+        return nil;
+
+    MaplyComponentObject *compObj = [interactLayer instanceVectors:baseObj desc:desc mode:threadMode];
+
+    [self endOfWork];
+    
+    return compObj;
 }
 
 - (MaplyComponentObject *__nullable)addWideVectors:(NSArray *__nonnull)vectors desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
-    return [interactLayer addWideVectors:vectors desc:desc mode:threadMode];
+    if (![self startOfWork])
+        return nil;
+
+    MaplyComponentObject *compObj = [interactLayer addWideVectors:vectors desc:desc mode:threadMode];
+
+    [self endOfWork];
+    
+    return compObj;
 }
 
 - (MaplyComponentObject *__nullable)addModelInstances:(NSArray *__nonnull)modelInstances desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
-    return [interactLayer addModelInstances:modelInstances desc:desc mode:threadMode];
+    if (![self startOfWork])
+        return nil;
+
+    MaplyComponentObject *compObj = [interactLayer addModelInstances:modelInstances desc:desc mode:threadMode];
+
+    [self endOfWork];
+    
+    return compObj;
 }
 
 - (MaplyComponentObject *__nullable)addGeometry:(NSArray *__nonnull)geom desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
-    return [interactLayer addGeometry:geom desc:desc mode:threadMode];
+    if (![self startOfWork])
+        return nil;
+
+    MaplyComponentObject *compObj = [interactLayer addGeometry:geom desc:desc mode:threadMode];
+
+    [self endOfWork];
+    
+    return compObj;
 }
 
 - (void)changeVector:(MaplyComponentObject *__nonnull)compObj desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
+    if (![self startOfWork])
+        return;
+
     [interactLayer changeVectors:compObj desc:desc mode:threadMode];
+
+    [self endOfWork];
 }
 
 - (MaplyComponentObject *__nullable)addShapes:(NSArray *__nonnull)shapes desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
-    return [interactLayer addShapes:shapes desc:desc mode:threadMode];
+    if (![self startOfWork])
+        return nil;
+
+    MaplyComponentObject *compObj = [interactLayer addShapes:shapes desc:desc mode:threadMode];
+
+    [self endOfWork];
+
+    return compObj;
 }
 
 - (MaplyComponentObject *__nullable)addStickers:(NSArray *__nonnull)stickers desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
-    return [interactLayer addStickers:stickers desc:desc mode:threadMode];
+    if (![self startOfWork])
+        return nil;
+
+    MaplyComponentObject *compObj = [interactLayer addStickers:stickers desc:desc mode:threadMode];
+
+    [self endOfWork];
+    
+    return compObj;
 }
 
 - (void)changeSticker:(MaplyComponentObject *__nonnull)compObj desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
+    if (![self startOfWork])
+        return;
+
     [interactLayer changeSticker:compObj desc:desc mode:threadMode];
+
+    [self endOfWork];
 }
 
 - (MaplyComponentObject *__nullable)addBillboards:(NSArray *__nonnull)billboards desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
-    return [interactLayer addBillboards:billboards desc:desc mode:threadMode];
+    if (![self startOfWork])
+        return nil;
+
+    MaplyComponentObject *compObj = [interactLayer addBillboards:billboards desc:desc mode:threadMode];
+
+    [self endOfWork];
+    
+    return compObj;
 }
 
 - (MaplyComponentObject *__nullable)addLoftedPolys:(NSArray *__nonnull)polys desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
-    return [interactLayer addLoftedPolys:polys desc:desc mode:threadMode];
+    if (![self startOfWork])
+        return nil;
+
+    MaplyComponentObject *compObj = [interactLayer addLoftedPolys:polys desc:desc mode:threadMode];
+
+    [self endOfWork];
+    
+    return compObj;
 }
 
 - (MaplyComponentObject *__nullable)addPoints:(NSArray * __nonnull)points desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
-    return [interactLayer addPoints:points desc:desc mode:threadMode];
+    if (![self startOfWork])
+        return nil;
+
+    MaplyComponentObject *compObj = [interactLayer addPoints:points desc:desc mode:threadMode];
+
+    [self endOfWork];
+    
+    return compObj;
 }
 
 - (MaplyTexture *__nullable)addTexture:(UIImage *__nonnull)image desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
-    return [interactLayer addTexture:image desc:desc mode:threadMode];
+    if (![self startOfWork])
+        return nil;
+
+    MaplyTexture *tex = [interactLayer addTexture:image desc:desc mode:threadMode];
+
+    [self endOfWork];
+    
+    return tex;
 }
 
 - (MaplyTexture *__nullable)addSubTexture:(MaplyTexture *__nonnull)tex xOffset:(int)x yOffset:(int)y width:(int)width height:(int)height mode:(MaplyThreadMode)threadMode
 {
-    return [interactLayer addSubTexture:tex xOffset:x yOffset:y width:width height:height mode:threadMode];
+    if (![self startOfWork])
+        return nil;
+
+    MaplyTexture *maplyTex = [interactLayer addSubTexture:tex xOffset:x yOffset:y width:width height:height mode:threadMode];
+
+    [self endOfWork];
+    
+    return maplyTex;
 }
 
 
 - (MaplyTexture *__nullable)createTexture:(NSDictionary * _Nullable)spec sizeX:(int)sizeX sizeY:(int)sizeY mode:(MaplyThreadMode)threadMode
 {
+    if (![self startOfWork])
+        return nil;
+    
     NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:spec];
     desc[kMaplyTexSizeX] = @(sizeX);
     desc[kMaplyTexSizeY] = @(sizeY);
     MaplyTexture *maplyTex = [interactLayer addTexture:nil desc:desc mode:threadMode];
+
+    [self endOfWork];
     
     return maplyTex;
 }
 
 - (void)removeTextures:(NSArray *__nonnull)textures mode:(MaplyThreadMode)threadMode
 {
+    if (![self startOfWork])
+        return;
+
     [interactLayer removeTextures:textures mode:threadMode];
+    
+    [self endOfWork];
 }
 
 - (void)addRenderTarget:(MaplyRenderTarget * _Nonnull)renderTarget
 {
+    if (![self startOfWork])
+        return;
+
     [interactLayer addRenderTarget:renderTarget];
+
+    [self endOfWork];
 }
 
 - (void)changeRenderTarget:(MaplyRenderTarget * __nonnull)renderTarget tex:(MaplyTexture * __nullable)tex
 {
+    if (![self startOfWork])
+        return;
+
     [interactLayer changeRenderTarget:renderTarget tex:tex];
+
+    [self endOfWork];
+}
+
+- (void)clearRenderTarget:(MaplyRenderTarget *)renderTarget mode:(MaplyThreadMode)threadMode
+{
+    if (![self startOfWork])
+        return;
+    
+    [interactLayer clearRenderTarget:renderTarget mode:threadMode];
+
+    [self endOfWork];
 }
 
 - (void)removeRenderTarget:(MaplyRenderTarget * _Nonnull)renderTarget
 {
+    if (![self startOfWork])
+        return;
+
     [interactLayer removeRenderTarget:renderTarget];
+
+    [self endOfWork];
 }
 
 - (void)removeObjects:(NSArray *__nonnull)theObjs mode:(MaplyThreadMode)threadMode
 {
+    if (![self startOfWork])
+        return;
+
     [interactLayer removeObjects:[NSArray arrayWithArray:theObjs] mode:threadMode];
+
+    [self endOfWork];
 }
 
 - (void)disableObjects:(NSArray *__nonnull)theObjs mode:(MaplyThreadMode)threadMode
 {
+    if (![self startOfWork])
+        return;
+
     [interactLayer disableObjects:theObjs mode:threadMode];
+
+    [self endOfWork];
 }
 
 - (void)enableObjects:(NSArray *__nonnull)theObjs mode:(MaplyThreadMode)threadMode
 {
+    if (![self startOfWork])
+        return;
+
     [interactLayer enableObjects:theObjs mode:threadMode];
+
+    [self endOfWork];
 }
 
 - (void)setUniformBlock:(NSData *__nonnull)uniBlock buffer:(int)bufferID forObjects:(NSArray<MaplyComponentObject *> *__nonnull)compObjs mode:(MaplyThreadMode)threadMode
 {
+    if (![self startOfWork])
+        return;
+
     [interactLayer setUniformBlock:uniBlock buffer:bufferID forObjects:compObjs mode:threadMode];
+
+    [self endOfWork];
 }
 
 - (MaplyCoordinateSystem *__nullable)coordSystem

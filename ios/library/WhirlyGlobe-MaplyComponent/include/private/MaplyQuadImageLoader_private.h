@@ -26,6 +26,6 @@
 
 @interface MaplyQuadImageLoaderBase()
 
-- (instancetype)initWithViewC:(MaplyBaseViewController *)inViewC;
+- (instancetype)initWithViewC:(NSObject<MaplyRenderControllerProtocol> *)inViewC;
 
 @end

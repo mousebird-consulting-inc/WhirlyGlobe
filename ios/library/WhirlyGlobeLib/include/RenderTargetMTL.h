@@ -56,6 +56,9 @@ public:
     /// Set the GL texture directly
     void setTargetTexture(TextureBaseMTL *tex);
     
+    /// Set a texture for depth directly
+    void setTargetDepthTexture(TextureBaseMTL *tex);
+    
     /// Release associated resources (not clear the buffer, very confusing)
     virtual void clear();
     
@@ -74,6 +77,8 @@ public:
 protected:
     id<MTLTexture> tex;
     MTLPixelFormat pixelFormat;
+    id<MTLTexture> depthTex;
+    MTLPixelFormat depthPixelFormat;
     MTLRenderPassDescriptor *renderPassDesc;
 };
 typedef std::shared_ptr<RenderTargetMTL> RenderTargetMTLRef;

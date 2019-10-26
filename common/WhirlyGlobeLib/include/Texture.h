@@ -56,7 +56,7 @@ typedef std::shared_ptr<TextureBase> TextureBaseRef;
 typedef enum {WKSingleRed,WKSingleGreen,WKSingleBlue,WKSingleRGB,WKSingleAlpha} WKSingleByteSource;
 
 /// Texture formats we allow
-typedef enum {TexTypeUnsignedByte,TexTypeShort565,TexTypeShort4444,TexTypeShort5551,TexTypeSingleChannel,TexTypeDoubleChannel,TexTypeSingleFloat16,TexTypeSingleFloat32,TexTypeDoubleFloat16,TexTypeDoubleFloat32,TexTypeQuadFloat16,TexTypeQuadFloat32} TextureType;
+typedef enum {TexTypeUnsignedByte,TexTypeShort565,TexTypeShort4444,TexTypeShort5551,TexTypeSingleChannel,TexTypeDoubleChannel,TexTypeSingleFloat16,TexTypeSingleFloat32,TexTypeDoubleFloat16,TexTypeDoubleFloat32,TexTypeQuadFloat16,TexTypeQuadFloat32,TexTypeDepthFloat32} TextureType;
 /// Interpolation types for upscaling
 typedef enum {TexInterpNearest,TexInterpLinear} TextureInterpType;
     
