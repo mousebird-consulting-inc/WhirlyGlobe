@@ -648,7 +648,7 @@ static const float PerfOutputDelay = 15.0;
 // TODO: Move this down to the render control
 - (void)changeParticleSystem:(MaplyComponentObject *__nonnull)compObj renderTarget:(MaplyRenderTarget *__nullable)target
 {
-    if ([NSThread currentThread] != [NSThread mainThread]) {
+    if ([NSThread currentThread] != renderControl->mainThread) {
         NSLog(@"MaplyBaseViewController: changeParticleSystem:renderTarget: must be called on main thread");
         return;
     }
@@ -1316,7 +1316,7 @@ static const float PerfOutputDelay = 15.0;
 
 - (NSData *)shapshotRenderTarget:(MaplyRenderTarget *)renderTarget
 {
-    if ([NSThread currentThread] != [NSThread mainThread])
+    if ([NSThread currentThread] != renderControl->mainThread)
         return NULL;
 
     SnapshotTarget *target = [[SnapshotTarget alloc] init];
@@ -1343,7 +1343,7 @@ static const float PerfOutputDelay = 15.0;
 
 - (NSData *)shapshotRenderTarget:(MaplyRenderTarget *)renderTarget rect:(CGRect)rect
 {
-    if ([NSThread currentThread] != [NSThread mainThread])
+    if ([NSThread currentThread] != renderControl->mainThread)
         return NULL;
     
     SceneRendererGLES_iOSRef sceneRenderGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(renderControl->sceneRenderer);

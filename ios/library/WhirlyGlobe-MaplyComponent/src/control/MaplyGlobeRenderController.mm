@@ -312,6 +312,11 @@ using namespace WhirlyGlobe;
 
 - (UIImage *__nullable)snapshot
 {
+    if ([NSThread currentThread] != mainThread) {
+        NSLog(@"Can only render on the thread this renderControl was created on");
+        return nil;
+    }
+    
     SnapshotTargetGlobe *target = [[SnapshotTargetGlobe alloc] initWithViewC:self];
 
     switch ([self getRenderType])

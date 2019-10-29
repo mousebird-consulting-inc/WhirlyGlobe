@@ -67,6 +67,9 @@
     /// Used to be screen objects were always drawn last.  Now that's optional.
     int screenDrawPriorityOffset;
     
+    /// The thread this render controller started on.  Usually it'll be the main thread.
+    NSThread * __weak mainThread;
+    
     WhirlyKitLayerThread *baseLayerThread;
     WhirlyKitLayoutLayer *layoutLayer;
     NSMutableArray *layerThreads;

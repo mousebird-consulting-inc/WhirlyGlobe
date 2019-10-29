@@ -129,7 +129,7 @@ public:
     SimpleIdentity screenSpaceMotionProgram,screenSpaceDefaultProgram;
 }
 
-- (instancetype)initWithView:(View *)inVisualView
+- (instancetype)initWithView:(WhirlyKit::View * __nonnull)inVisualView
 {
     self = [super init];
     if (!self)
@@ -138,6 +138,7 @@ public:
 //    NSLog(@"Creating interactLayer %lx",(long)self);
     
     visualView = inVisualView;
+    mainThread = [NSThread currentThread];
     numActiveWorkers = 0;
     
     // Grab everything to force people to wait, hopefully
@@ -653,7 +654,7 @@ public:
             } else {
                 // If we're on a layer thread, we want to flush on that thread
                 auto thisLayerThread = [NSThread currentThread];
-                bool flushHere = thisLayerThread == [NSThread mainThread];
+                bool flushHere = thisLayerThread == mainThread;
                 if (!flushHere) {
                     flushHere = true;
                     for (WhirlyKitLayerThread *layerThread in layerThreads) {
@@ -704,7 +705,7 @@ public:
 
         ThreadChanges theseChanges = *it;
         // Process the setupGL on this thread rather than making the main thread do it
-        if (currentThread != [NSThread mainThread])
+        if (currentThread != mainThread)
             for (auto &change : theseChanges.changes) {
                 if (change)
                     change->setupForRenderer(sceneRender->getRenderSetupInfo());
@@ -1239,7 +1240,7 @@ public:
     EAGLContext *tmpContext = nil;
     
     // Use the renderer's context
-    if (threadMode == MaplyThreadCurrent && [NSThread mainThread] == [NSThread currentThread])
+    if (threadMode == MaplyThreadCurrent && mainThread == [NSThread currentThread])
     {
         sceneRenderGL->useContext();
     }
@@ -1271,7 +1272,7 @@ public:
     if (!sceneRenderGL)
         return;
 
-    if ([NSThread mainThread] == [NSThread currentThread] && context == sceneRenderGL->getContext())
+    if (mainThread == [NSThread currentThread] && context == sceneRenderGL->getContext())
     {
         [EAGLContext setCurrentContext:nil];
         return;

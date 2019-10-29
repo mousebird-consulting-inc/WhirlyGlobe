@@ -50,6 +50,7 @@ using namespace Eigen;
 - (instancetype __nullable)init
 {
     self = [super init];
+    mainThread = [NSThread currentThread];
 
     tileFetcherConnections = 16;
     userLayers = [NSMutableArray array];
@@ -65,7 +66,8 @@ using namespace Eigen;
 - (instancetype)initWithSize:(CGSize)size mode:(MaplyRenderType)inRenderType
 {
     self = [self init];
-    
+
+    mainThread = [NSThread currentThread];
     offlineMode = true;
     initialFramebufferSize = size;
     
@@ -1077,7 +1079,7 @@ using namespace Eigen;
 
 - (void)addActiveObject:(MaplyActiveObject *)theObj
 {
-    if ([NSThread currentThread] != [NSThread mainThread])
+    if ([NSThread currentThread] != mainThread)
     {
         NSLog(@"Must call addActiveObject: on the main thread.");
         return;
@@ -1096,7 +1098,7 @@ using namespace Eigen;
 
 - (void)removeActiveObject:(MaplyActiveObject *)theObj
 {
-    if ([NSThread currentThread] != [NSThread mainThread])
+    if ([NSThread currentThread] != mainThread)
     {
         NSLog(@"Must call removeActiveObject: on the main thread.");
         return;
@@ -1111,7 +1113,7 @@ using namespace Eigen;
 
 - (void)removeActiveObjects:(NSArray *)theObjs
 {
-    if ([NSThread currentThread] != [NSThread mainThread])
+    if ([NSThread currentThread] != mainThread)
     {
         NSLog(@"Must call removeActiveObject: on the main thread.");
         return;
@@ -1195,7 +1197,7 @@ using namespace Eigen;
 
 - (void)removeLayers:(NSArray *)layers
 {
-    if ([NSThread currentThread] != [NSThread mainThread])
+    if ([NSThread currentThread] != mainThread)
     {
         [self performSelector:@selector(removeLayers:) withObject:layers];
         return;
@@ -1207,7 +1209,7 @@ using namespace Eigen;
 
 - (void)removeAllLayers
 {
-    if ([NSThread currentThread] != [NSThread mainThread])
+    if ([NSThread currentThread] != mainThread)
     {
         [self performSelector:@selector(removeAllLayers) withObject:nil];
         return;
@@ -1221,7 +1223,7 @@ using namespace Eigen;
 
 - (MaplyQuadSamplingLayer *)findSamplingLayer:(const WhirlyKit::SamplingParams &)params forUser:(QuadTileBuilderDelegateRef)userObj
 {
-    if ([NSThread currentThread] != [NSThread mainThread])
+    if ([NSThread currentThread] != mainThread)
     {
         NSLog(@"Caller called findSamplerLayer:forUser: off of main thread.");
         return nil;
@@ -1246,7 +1248,7 @@ using namespace Eigen;
 
 - (void)releaseSamplingLayer:(MaplyQuadSamplingLayer *)layer forUser:(QuadTileBuilderDelegateRef)userObj
 {
-    if ([NSThread currentThread] != [NSThread mainThread])
+    if ([NSThread currentThread] != mainThread)
     {
         NSLog(@"Caller called findSamplerLayer:forUser: off of main thread.");
         return;

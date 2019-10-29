@@ -33,6 +33,9 @@
 @public
     WhirlyKit::View *visualView;
     const WhirlyKit::RenderSetupInfo *setupInfo;
+    
+    // Layer we were started on (probably the regular MainThread)
+    NSThread * __weak mainThread;
 
     // Layer thread we're part of
     WhirlyKitLayerThread * __weak layerThread;
