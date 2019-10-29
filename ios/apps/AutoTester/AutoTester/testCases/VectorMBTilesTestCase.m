@@ -31,6 +31,8 @@
 {
     GeographyClassTestCase *baseView = [[GeographyClassTestCase alloc]init];
     [baseView setUpWithMap:mapVC];
+    
+    [mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(3.773839, 43.754354) height:0.035 time:0.2];
 
     // Simple style with random colors
     simpleStyle = [[MaplyVectorStyleSimpleGenerator alloc] initWithViewC:mapVC];

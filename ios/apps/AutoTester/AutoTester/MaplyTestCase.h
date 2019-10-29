@@ -46,6 +46,7 @@ typedef NS_OPTIONS(NSUInteger, MaplyTestCaseState) {
 - (NSArray * _Nullable)remoteResources;
 
 - (void)runGlobeTestWithLock:(dispatch_group_t __nonnull)lock;
+- (void)runMapTestWithLock:(dispatch_group_t __nonnull)lock;
 
 - (void)setUpWithMap:(MaplyViewController * _Nonnull)mapVC;
 - (void)tearDownWithMap:(MaplyViewController * _Nonnull)mapVC;
