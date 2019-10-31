@@ -15,11 +15,12 @@ class LayerStartupShutdownTestCase: MaplyTestCase {
 
         self.name = "Repeated Layer Startup/Shutdown"
         self.captureDelay = 4
-        self.implementations = [.globe,.map]
+        self.implementations = testCase.implementations
     }
     
 //    var testCase = StamenWatercolorRemote()
-    var testCase = GeographyClassTestCase()
+//    var testCase = GeographyClassTestCase()
+    var testCase = VectorMBTilesTestCase()
 
     func startGlobeLayer() {
         self.testCase.setUpWithGlobe(self.globeViewController!)
