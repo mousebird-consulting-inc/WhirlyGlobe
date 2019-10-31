@@ -1165,11 +1165,32 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
 {
 }
 
+- (void)cleanup
+{
+    auto control = viewC.getRenderControl;
+    if (!control)
+        return;
+    auto interactLayer = control->interactLayer;
+
+    ChangeSet changes;
+    
+    for (auto tile : tiles)
+        tile.second->clear(interactLayer,changes);
+    [samplingLayer.layerThread addChangeRequests:changes];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self->viewC releaseSamplingLayer:self->samplingLayer forUser:self];
+        self->samplingLayer = nil;
+    });
+}
+
 - (void)shutdown
 {
     tileFetcher = nil;
     loadInterp = nil;
-    [viewC releaseSamplingLayer:samplingLayer forUser:self];
+    
+    if (self->samplingLayer && self->samplingLayer.layerThread)
+        [self performSelector:@selector(cleanup) onThread:self->samplingLayer.layerThread withObject:nil waitUntilDone:NO];
 }
 
 @end

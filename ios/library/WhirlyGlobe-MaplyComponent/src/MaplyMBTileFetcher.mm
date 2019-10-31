@@ -448,6 +448,9 @@ typedef std::map<MaplyTileFetchRequest *,TileInfoRef> TileFetchMap;
     // This drains the queue
     dispatch_sync(queue, ^{});
     
+    if (sqlDb)
+        sqlite3_close(sqlDb);
+    
     queue = nil;
 }
 
