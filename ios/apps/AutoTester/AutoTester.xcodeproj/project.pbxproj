@@ -49,6 +49,7 @@
 		2BC0FB7A1DCAA574004125F1 /* dots.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FB791DCAA574004125F1 /* dots.png */; };
 		2BC2DCCD1D1F4CE20088D350 /* ShapefileTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC2DCCC1D1F4CE20088D350 /* ShapefileTestCase.m */; };
 		2BC2DCF01D2345AF0088D350 /* PagingLayerTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC2DCEF1D2345AF0088D350 /* PagingLayerTestCase.m */; };
+		2BC91F64236A61A600B8A56C /* LayerStartupShutdownTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC91F63236A61A600B8A56C /* LayerStartupShutdownTestCase.swift */; };
 		2BD358F31DD3EA0400081EA8 /* AnimatedMarkersTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BD358F21DD3EA0400081EA8 /* AnimatedMarkersTestCase.swift */; };
 		2BDEB3021C924842003259B3 /* ExtrudedModelTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BDEB3011C924842003259B3 /* ExtrudedModelTestCase.m */; };
 		2BDEB3141C9391EB003259B3 /* GreatCircleTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BDEB3131C9391EB003259B3 /* GreatCircleTestCase.m */; };
@@ -1209,6 +1210,7 @@
 		2BC2DCCC1D1F4CE20088D350 /* ShapefileTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShapefileTestCase.m; sourceTree = "<group>"; };
 		2BC2DCEE1D2345AF0088D350 /* PagingLayerTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PagingLayerTestCase.h; sourceTree = "<group>"; };
 		2BC2DCEF1D2345AF0088D350 /* PagingLayerTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PagingLayerTestCase.m; sourceTree = "<group>"; };
+		2BC91F63236A61A600B8A56C /* LayerStartupShutdownTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerStartupShutdownTestCase.swift; sourceTree = "<group>"; };
 		2BD358F21DD3EA0400081EA8 /* AnimatedMarkersTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnimatedMarkersTestCase.swift; sourceTree = "<group>"; };
 		2BDEB3001C924842003259B3 /* ExtrudedModelTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExtrudedModelTestCase.h; sourceTree = "<group>"; };
 		2BDEB3011C924842003259B3 /* ExtrudedModelTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ExtrudedModelTestCase.m; sourceTree = "<group>"; };
@@ -1968,6 +1970,7 @@
 				2B8849EA1E37F7CB0027C397 /* LIDARTestCase.mm */,
 				2B7787C921CDA47F006ABF5D /* CartoDBLightTestCase.swift */,
 				2B9DC6C52368A382005200B8 /* StartupShutdownTestCase.swift */,
+				2BC91F63236A61A600B8A56C /* LayerStartupShutdownTestCase.swift */,
 			);
 			path = testCases;
 			sourceTree = "<group>";
@@ -3709,6 +3712,7 @@
 				D84AA59C1C1A2E9900413B76 /* ElevationLocalDatabase.m in Sources */,
 				2BFC7E511D132DCB0040E2A3 /* ScreenMarkersTestCase.m in Sources */,
 				2B9DC6C62368A382005200B8 /* StartupShutdownTestCase.swift in Sources */,
+				2BC91F64236A61A600B8A56C /* LayerStartupShutdownTestCase.swift in Sources */,
 				D8200CA11BE9563F00B22CF5 /* StickersTestCase.swift in Sources */,
 				E5941DC11E0CEE7300E1C8B3 /* GeoJSONStyleTestCase.swift in Sources */,
 				88BF115D1BCDA9530002205E /* GeographyClassTestCase.m in Sources */,

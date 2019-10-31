@@ -69,7 +69,8 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
 
 		LIDARTestCase(),
         
-        StartupShutdownTestCase()
+        StartupShutdownTestCase(),
+        LayerStartupShutdownTestCase()
 	]
 
 	@IBOutlet weak var testsTable: UITableView!
