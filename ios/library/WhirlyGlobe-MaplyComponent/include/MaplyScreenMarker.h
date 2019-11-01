@@ -118,6 +118,11 @@
  */
 @property (nonatomic,assign) bool selectable;
 
+/**
+    A unique identifier for the marker that's propagated through the system.
+  */
+@property (nonatomic,retain,nullable) NSString *uniqueID;
+
 /** 
     User data object for selection
  
