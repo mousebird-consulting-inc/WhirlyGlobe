@@ -564,6 +564,41 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
 - (MaplyComponentObject *__nullable)addBillboards:(NSArray *__nonnull)billboards desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
 
 /**
+    Add a particle system to the scene.
+    
+    This adds a particle system to the scene, but does not kick off any particles.
+    
+    @param partSys The particle system to start.
+    
+    @param desc Any additional standard parameters (none at present).
+    
+    @param threadMode MaplyThreadAny will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.  For particles, it's best to make a separate thread and use MaplyThreadCurrent.
+  */
+- (MaplyComponentObject *__nullable)addParticleSystem:(MaplyParticleSystem *__nonnull)partSys desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
+
+/**
+    Change the render target for a particle system.
+
+    This changes the render target for an existing particle system that's already been created.
+    Can pass in nil, which means the particles are rendered to the screen directly.
+    This change takes place immediately, so call it on the main thread.
+ */
+- (void)changeParticleSystem:(MaplyComponentObject *__nonnull)compObj renderTarget:(MaplyRenderTarget *__nullable)target;
+
+/**
+    Add a batch of particles to the current scene.
+    
+    Particles are short term objects, typically very small.  We create them in large groups for efficience.
+    
+    You'll need to fill out the MaplyParticleSystem initially and then the MaplyParticleBatch to create them.
+    
+    @param batch The batch of particles to add to an active particle system.
+    
+    @param threadMode MaplyThreadAny will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.  For particles, it's best to make a separate thread and use MaplyThreadCurrent.
+  */
+- (void)addParticleBatch:(MaplyParticleBatch *__nonnull)batch mode:(MaplyThreadMode)threadMode;
+
+/**
  Change the representation of the given vector features.
  
  This will change how any vector features represented by the compObj look.

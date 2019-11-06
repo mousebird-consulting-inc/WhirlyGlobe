@@ -21,6 +21,7 @@
 #import "MaplyGlobeRenderController.h"
 #import "MaplyRenderController_private.h"
 #import "MaplyRenderTarget_private.h"
+#import "MaplyGlobeRenderController_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -168,9 +169,6 @@ using namespace WhirlyGlobe;
 
 
 @implementation WhirlyGlobeRenderController
-{
-    WhirlyGlobe::GlobeView_iOSRef globeView;
-}
 
 - (instancetype __nullable)initWithSize:(CGSize)size
 {

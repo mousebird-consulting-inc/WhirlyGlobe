@@ -637,44 +637,19 @@ static const float PerfOutputDelay = 15.0;
     return compObj;
 }
 
-// TODO: Move this down to the render control
 - (MaplyComponentObject *)addParticleSystem:(MaplyParticleSystem *)partSys desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    MaplyComponentObject *compObj = [renderControl->interactLayer addParticleSystem:partSys desc:desc mode:threadMode];
-    
-    return compObj;
+    return [renderControl addParticleSystem:partSys desc:desc mode:threadMode];
 }
 
-// TODO: Move this down to the render control
 - (void)changeParticleSystem:(MaplyComponentObject *__nonnull)compObj renderTarget:(MaplyRenderTarget *__nullable)target
 {
-    if ([NSThread currentThread] != renderControl->mainThread) {
-        NSLog(@"MaplyBaseViewController: changeParticleSystem:renderTarget: must be called on main thread");
-        return;
-    }
-    
-    if (![renderControl startOfWork])
-        return;
-    
-    [renderControl->interactLayer changeParticleSystem:compObj renderTarget:target];
-
-    [renderControl endOfWork];
+    return [renderControl changeParticleSystem:compObj renderTarget:target];
 }
 
-// TODO: Move this down to the render control
 - (void)addParticleBatch:(MaplyParticleBatch *)batch mode:(MaplyThreadMode)threadMode
 {
-    if (![batch isValid])
-        return;
-    if (!renderControl)
-        return;
-    
-    if (![renderControl startOfWork])
-        return;
-    
-    [renderControl->interactLayer addParticleBatch:batch mode:threadMode];
-
-    [renderControl endOfWork];
+    [renderControl addParticleBatch:batch mode:threadMode];
 }
 
 - (MaplyComponentObject *)addSelectionVectors:(NSArray *)vectors

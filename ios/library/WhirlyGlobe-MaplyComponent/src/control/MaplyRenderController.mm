@@ -681,6 +681,46 @@ using namespace Eigen;
     return compObj;
 }
 
+- (MaplyComponentObject *)addParticleSystem:(MaplyParticleSystem *)partSys desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+{
+    if (![self startOfWork])
+        return nil;
+
+    MaplyComponentObject *compObj = [interactLayer addParticleSystem:partSys desc:desc mode:threadMode];
+
+    [self endOfWork];
+
+    return compObj;
+}
+
+- (void)changeParticleSystem:(MaplyComponentObject *__nonnull)compObj renderTarget:(MaplyRenderTarget *__nullable)target
+{
+    if ([NSThread currentThread] != mainThread) {
+        NSLog(@"MaplyBaseViewController: changeParticleSystem:renderTarget: must be called on main thread");
+        return;
+    }
+    
+    if (![self startOfWork])
+        return;
+    
+    [interactLayer changeParticleSystem:compObj renderTarget:target];
+
+    [self endOfWork];
+}
+
+- (void)addParticleBatch:(MaplyParticleBatch *)batch mode:(MaplyThreadMode)threadMode
+{
+    if (![batch isValid])
+        return;
+    
+    if (![self startOfWork])
+        return;
+    
+    [interactLayer addParticleBatch:batch mode:threadMode];
+
+    [self endOfWork];
+}
+
 - (MaplyComponentObject *__nullable)addLoftedPolys:(NSArray *__nonnull)polys desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
     if (![self startOfWork])

@@ -260,9 +260,7 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
     
     // Start things out after a delay
     // This lets the caller mess with settings
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [strongSelf delayedInit];
-    });
+    [self performSelector:@selector(delayedInit) withObject:nil afterDelay:0.0];
 
     return self;
 }

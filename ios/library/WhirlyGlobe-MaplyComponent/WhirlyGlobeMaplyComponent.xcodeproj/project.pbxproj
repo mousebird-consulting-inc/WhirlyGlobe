@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		2B0387F22069BC2E00DD5C40 /* QuadDisplayLayerNew.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B0387F12069BC2E00DD5C40 /* QuadDisplayLayerNew.h */; };
 		2B0387F8206ABD7B00DD5C40 /* MaplyQuadSampler.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B0387F7206ABD7B00DD5C40 /* MaplyQuadSampler.h */; };
+		2B092BB42373574E00E27CD8 /* MaplyGlobeRenderController_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B092BB32373574E00E27CD8 /* MaplyGlobeRenderController_private.h */; };
 		2B127BF92012A12B0099F405 /* MaplyRenderController_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B127BF82012A12A0099F405 /* MaplyRenderController_private.h */; };
 		2B127BFB2012A1390099F405 /* MaplyRenderTarget_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B127BFA2012A1390099F405 /* MaplyRenderTarget_private.h */; };
 		2B127C03201911D40099F405 /* MapboxVectorInterpreter.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B127C01201911D30099F405 /* MapboxVectorInterpreter.h */; };
@@ -1093,6 +1094,7 @@
 		2B0387F32069BC3800DD5C40 /* QuadDisplayLayerNew.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = QuadDisplayLayerNew.mm; sourceTree = "<group>"; };
 		2B0387F5206ABD7400DD5C40 /* MaplyQuadSampler.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyQuadSampler.mm; sourceTree = "<group>"; };
 		2B0387F7206ABD7B00DD5C40 /* MaplyQuadSampler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyQuadSampler.h; sourceTree = "<group>"; };
+		2B092BB32373574E00E27CD8 /* MaplyGlobeRenderController_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyGlobeRenderController_private.h; sourceTree = "<group>"; };
 		2B127BF720126FBD0099F405 /* MaplyRenderController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MaplyRenderController.h; sourceTree = "<group>"; };
 		2B127BF82012A12A0099F405 /* MaplyRenderController_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyRenderController_private.h; sourceTree = "<group>"; };
 		2B127BFA2012A1390099F405 /* MaplyRenderTarget_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyRenderTarget_private.h; sourceTree = "<group>"; };
@@ -3726,6 +3728,7 @@
 		2BE5375A1D249A1200B60FAD /* private */ = {
 			isa = PBXGroup;
 			children = (
+				2B092BB32373574E00E27CD8 /* MaplyGlobeRenderController_private.h */,
 				2BA827CA225E719D00324594 /* MapboxVectorTiles_private.h */,
 				2BA827C0225E57FA00324594 /* MapboxVectorTileParser_iOS.h */,
 				2BE1E78A22138A8100815D9C /* MaplyQuadLoader_private.h */,
@@ -4511,6 +4514,7 @@
 				2B8A78762284DAF6008B0A1F /* RenderTargetGLES.h in Headers */,
 				2B884A721E3803170027C397 /* laszip_common_v1.hpp in Headers */,
 				2B23132E21F93661006AA344 /* RawData.h in Headers */,
+				2B092BB42373574E00E27CD8 /* MaplyGlobeRenderController_private.h in Headers */,
 				2BF4FC98227D02240012CEFD /* MapboxVectorStyleSprites.h in Headers */,
 				2BE538281D249A1200B60FAD /* MaplySticker.h in Headers */,
 				E5EF69F81D6B931500A2A660 /* SLDSymbolizers.h in Headers */,

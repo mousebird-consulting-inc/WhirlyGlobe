@@ -88,9 +88,7 @@ using namespace WhirlyKit;
 
     // Start things out after a delay
     // This lets the caller mess with settings
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [strongSelf delayedInit];
-    });
+    [self performSelector:@selector(delayedInit) withObject:nil afterDelay:0.0];
     
     return self;
 }
