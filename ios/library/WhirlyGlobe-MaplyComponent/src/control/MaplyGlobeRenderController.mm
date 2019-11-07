@@ -308,7 +308,7 @@ using namespace WhirlyGlobe;
     return state;
 }
 
-- (UIImage *__nullable)snapshot
+- (SnapshotTargetGlobe *)snapshotTarget
 {
     if ([NSThread currentThread] != mainThread) {
         NSLog(@"Can only render on the thread this renderControl was created on");
@@ -345,11 +345,24 @@ using namespace WhirlyGlobe;
             break;
     }
     
+    return target;
+}
+
+- (UIImage *__nullable)snapshot
+{
+    SnapshotTargetGlobe *target = [self snapshotTarget];
  
     UIImage *image = [target asImage:self];
     target.data = nil;
     
     return image;
+}
+
+- (NSData *__nullable)snapshotData
+{
+   SnapshotTargetGlobe *target = [self snapshotTarget];
+
+   return target.data;
 }
 
 @end

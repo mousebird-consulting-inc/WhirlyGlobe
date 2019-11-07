@@ -100,6 +100,12 @@
 - (UIImage *__nullable)snapshot;
 
 /**
+     This version of snapshot just returns the raw NSData from the "screen".
+ */
+- (NSData *__nullable)snapshotData;
+
+
+/**
     If set, keep north facing upward on the screen as the user moves around.
     
     Off by default.
