@@ -148,6 +148,8 @@ public:
     MTLRenderPipelineDescriptor *defaultRenderPipelineState(SceneRendererMTL *sceneRender,RendererFrameInfoMTL *frameInfo);
     
 public:
+    // By default offscreen rendering turns on or off blend enable
+    bool offscreenBlendEnable;
     // Information about the renderer passed around to various calls
     RenderSetupInfoMTL setupInfo;
     std::vector<NSObject<WhirlyKitSnapshot> *> snapshotDelegates;

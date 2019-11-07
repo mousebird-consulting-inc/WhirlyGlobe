@@ -48,6 +48,7 @@ RendererFrameInfoMTL::RendererFrameInfoMTL(const RendererFrameInfoMTL &that)
 
 SceneRendererMTL::SceneRendererMTL(id<MTLDevice> mtlDevice, float inScale)
 {
+    offscreenBlendEnable = false;
     init();
     scale = inScale;
     setupInfo.mtlDevice = mtlDevice;
@@ -106,7 +107,7 @@ bool SceneRendererMTL::setup(int sizeX,int sizeY,bool offscreen)
         depthTexMTL->createInRenderer(&setupInfo);
 
         // Note: Should make this optional
-        defaultTarget->blendEnable = false;
+        defaultTarget->blendEnable = offscreenBlendEnable;
         defaultTarget->setTargetTexture(fbTexMTL.get());
         defaultTarget->setTargetDepthTexture(depthTexMTL.get());
     } else {

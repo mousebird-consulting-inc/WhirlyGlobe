@@ -188,6 +188,17 @@ using namespace WhirlyGlobe;
     return self;
 }
 
+- (void)loadSetup
+{
+    [super loadSetup];
+    
+    if (renderType == SceneRenderer::RenderMetal) {
+        SceneRendererMTLRef sceneRendererMTL = SceneRendererMTLRef(new SceneRendererMTL(MTLCreateSystemDefaultDevice(),1.0));
+        // By default we're assuming offscreen renderers are dumb splats, but we're not doing that here
+        sceneRendererMTL->offscreenBlendEnable = true;
+    }
+}
+
 - (NSTimeInterval)currentTime
 {
     return scene->getCurrentTime();
