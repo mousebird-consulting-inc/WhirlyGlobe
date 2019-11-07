@@ -233,6 +233,11 @@ using namespace WhirlyKit;
     return sampleControl.getNumClients();
 }
 
+- (bool)isLoading
+{
+    return sampleControl.builderIsLoading();
+}
+
 - (void)cleanupLayers:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)scene
 {
     if (_quadLayer)

@@ -130,6 +130,17 @@ void QuadSamplingController::removeBuilderDelegate(QuadTileBuilderDelegateRef de
     scene->addChangeRequests(changes);
 }
 
+bool QuadSamplingController::builderIsLoading()
+{
+    std::lock_guard<std::mutex> guardLock(lock);
+    for (auto delegate : builderDelegates) {
+        if (delegate->builderIsLoading())
+            return true;
+    }
+
+    return false;
+}
+
 /// **** QuadDataStructure methods ****
 
 CoordSystem *QuadSamplingController::getCoordSystem()

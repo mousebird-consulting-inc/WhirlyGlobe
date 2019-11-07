@@ -622,7 +622,7 @@ QuadImageFrameLoader::QuadImageFrameLoader(const SamplingParams &params,Mode mod
     compManager(NULL),
     generation(0),
     targetLevel(-1), curOvlLevel(-1),
-    lastRunReqFlag(NULL)
+    lastRunReqFlag(NULL), loadingStatus(true)
 {
     lastRunReqFlag = new bool();
     *lastRunReqFlag = true;
@@ -685,6 +685,11 @@ void QuadImageFrameLoader::setLoadMode(LoadMode newMode)
 {
     loadMode = newMode;
     updatePriorityDefaults();
+}
+
+bool QuadImageFrameLoader::getLoadingStatus()
+{
+    return loadingStatus;
 }
     
 void QuadImageFrameLoader::updatePriorityDefaults()
@@ -813,6 +818,8 @@ void QuadImageFrameLoader::reload(int frame)
 {
     if (debugMode)
         wkLogLevel(Debug, "QuadImageFrameLoader: Starting reload of frame %d",frame);
+    
+    loadingStatus = true;
     
     QIFBatchOps *batchOps = makeBatchOps();
 
@@ -954,22 +961,24 @@ void QuadImageFrameLoader::mergeLoadedTile(QuadLoaderReturn *loadReturn,ChangeSe
 // Figure out what needs to be on/off for the non-frame cases
 void QuadImageFrameLoader::updateRenderState(ChangeSet &changes)
 {
+    // See if there's any loading happening
+    bool allLoaded = true;
+    for (auto it : tiles) {
+        auto tileID = it.first;
+        auto tile = it.second;
+        if (tileID.level == targetLevel && tile->anyFramesLoading(this)) {
+            allLoaded = false;
+            break;
+        }
+    }
+    loadingStatus = !allLoaded;
+
     // Figure out the overlay level
     if (curOvlLevel == -1) {
         curOvlLevel = targetLevel;
         if (debugMode)
             wkLogLevel(Debug, "Picking new overlay level %d, targetLevel = %d",curOvlLevel,targetLevel);
     } else {
-        bool allLoaded = true;
-        for (auto it : tiles) {
-            auto tileID = it.first;
-            auto tile = it.second;
-            if (tileID.level == targetLevel && tile->anyFramesLoading(this)) {
-                allLoaded = false;
-                break;
-            }
-        }
-        
         if (allLoaded) {
             curOvlLevel = targetLevel;
             if (debugMode)
@@ -1265,6 +1274,8 @@ void QuadImageFrameLoader::builderLoad(QuadTileBuilder *builder,
         wkLogLevel(Debug,"quadBuilder:updates:changes: changeRequests: %d",(int)changes.size());
     
     changesSinceLastFlush |= somethingChanged;
+    
+    loadingStatus = somethingChanged;
 }
 
 /// Called right before the layer thread flushes all its current changes
@@ -1297,6 +1308,11 @@ void QuadImageFrameLoader::builderShutdown(QuadTileBuilder *builder,ChangeSet &c
 {
     if (lastRunReqFlag)
         *lastRunReqFlag = false;
+}
+
+bool QuadImageFrameLoader::builderIsLoading()
+{
+    return loadingStatus;
 }
     
 /// Returns true if there's an update to process

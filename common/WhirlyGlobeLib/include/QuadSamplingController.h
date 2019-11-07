@@ -112,8 +112,11 @@ public:
     /// Called right before the layer thread flushes all its current changes
     virtual void builderPreSceneFlush(QuadTileBuilder *builder,ChangeSet &changes);
     
-    /// Shutdown called on the layer thread if you stuff to clean up
+    /// Shutdown called on the layer thread if you have stuff to clean up
     virtual void builderShutdown(QuadTileBuilder *builder,ChangeSet &changes);
+
+    /// Quick loading status check
+    virtual bool builderIsLoading();
 
 protected:
     bool debugMode;

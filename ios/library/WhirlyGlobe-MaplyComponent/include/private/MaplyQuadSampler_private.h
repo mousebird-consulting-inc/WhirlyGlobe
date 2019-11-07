@@ -59,6 +59,9 @@
 // Remove the given builder delegate that was watching tile related events
 - (void)removeBuilderDelegate:(WhirlyKit::QuadTileBuilderDelegateRef)delegate;
 
+// True if any of the delegates are loading
+- (bool)isLoading;
+
 @property (nonatomic) WhirlyKitQuadDisplayLayerNew * __nullable quadLayer;
 
 @end

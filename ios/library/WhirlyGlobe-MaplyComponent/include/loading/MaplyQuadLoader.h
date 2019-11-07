@@ -108,6 +108,9 @@
 /// Useful for delegate calls that might not be tracking that.
 @property (nonatomic,readonly,weak,nullable) NSObject<MaplyRenderControllerProtocol> *viewC;
 
+// True if the loader is not currently loading anything
+- (bool)isLoading;
+
 /**
  Calculate the bounding box for a single tile in geographic.
  

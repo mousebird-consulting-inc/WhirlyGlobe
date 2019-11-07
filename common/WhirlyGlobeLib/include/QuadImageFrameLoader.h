@@ -297,6 +297,9 @@ public:
     /// Set loading mode to Broad (load lowest level first) and Narrow (load current frame first)
     void setLoadMode(LoadMode newMode);
     
+    /// True if there's loading going on, false if it's settled
+    bool getLoadingStatus();
+    
     // Calculate the load priority for a given tile, respecting the rules
     int calcLoadPriority(const QuadTreeNew::ImportantNode &ident,int frame);
 
@@ -372,6 +375,9 @@ public:
     
     /// Shutdown called on the layer thread if you stuff to clean up
     virtual void builderShutdown(QuadTileBuilder *builder,ChangeSet &changes);
+    
+    /// Returns true if we're in the middle of loading things
+    virtual bool builderIsLoading();
     
     /// **** Active Model methods ****
 
@@ -510,6 +516,9 @@ protected:
     
     // If set, used to signal when we're done to a RunRequest in process
     bool *lastRunReqFlag;
+    
+    // True if we're trying to load something, false if we're not
+    bool loadingStatus;
     
     // Default load priority values.  Used to assign loading priorities
     int topPriority;        // Top nodes, if they're special.  -1 if not

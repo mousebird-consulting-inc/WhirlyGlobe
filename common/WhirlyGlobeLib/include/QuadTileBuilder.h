@@ -68,6 +68,9 @@ public:
 
     /// Shutdown called on the layer thread if you stuff to clean up
     virtual void builderShutdown(QuadTileBuilder *builder,ChangeSet &changes) = 0;
+    
+    /// Simple status check.  Is this builder in the process of loading something?
+    virtual bool builderIsLoading() = 0;
 };
     
 typedef std::shared_ptr<QuadTileBuilderDelegate> QuadTileBuilderDelegateRef;

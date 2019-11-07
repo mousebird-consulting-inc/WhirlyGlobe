@@ -113,6 +113,15 @@ using namespace WhirlyKit;
     return true;
 }
 
+- (bool)isLoading
+{
+    // Maybe we're still setting up
+    if (!loader)
+        return true;
+    
+    return loader->getLoadingStatus();
+}
+
 - (MaplyBoundingBox)geoBoundsForTile:(MaplyTileID)tileID
 {
     if (!samplingLayer)
