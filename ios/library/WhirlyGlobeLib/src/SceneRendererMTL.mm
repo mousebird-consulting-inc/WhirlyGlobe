@@ -577,11 +577,13 @@ void SceneRendererMTL::render(TimeInterval duration,
             
             if (haveCalcShader) {
                 // Have to set an active framebuffer for our empty fragment shaders to write to
-                RenderTargetMTLRef renderTarget = std::dynamic_pointer_cast<RenderTargetMTL>(renderTargets[0]);
+                RenderTargetMTLRef renderTarget = std::dynamic_pointer_cast<RenderTargetMTL>(renderTargets[renderTargets.size()-1]);
+                if (!renderPassDesc)
+                    renderPassDesc = renderTarget->getRenderPassDesc();
 
                 // Each render target needs its own buffer and command queue
                 id<MTLCommandBuffer> cmdBuff = [cmdQueue commandBuffer];
-                baseFrameInfo.renderPassDesc = renderTarget->getRenderPassDesc();
+                baseFrameInfo.renderPassDesc = renderPassDesc;
 
 //                id<MTLParallelRenderCommandEncoder> masterEncode = [cmdBuff parallelRenderCommandEncoderWithDescriptor:renderPassDesc];
                 id<MTLRenderCommandEncoder> masterEncode = [cmdBuff renderCommandEncoderWithDescriptor:renderPassDesc];

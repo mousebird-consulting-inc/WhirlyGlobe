@@ -183,6 +183,8 @@ MTLPixelFormat RenderTargetMTL::getPixelFormat()
     
 MTLRenderPassDescriptor *RenderTargetMTL::getRenderPassDesc()
 {
+    if (!renderPassDesc)
+        makeRenderPassDesc();
     return renderPassDesc;
 }
     
