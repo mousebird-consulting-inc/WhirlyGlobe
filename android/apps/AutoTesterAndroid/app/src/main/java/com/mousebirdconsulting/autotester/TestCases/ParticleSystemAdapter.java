@@ -16,18 +16,19 @@ import com.mousebird.maply.ParticleSystemAttribute;
 import com.mousebird.maply.Point2d;
 import com.mousebird.maply.QuadPagingLayer;
 import com.mousebird.maply.SphericalMercatorCoordSystem;
-import com.squareup.okhttp.Call;
-import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
 
+import org.jetbrains.annotations.NotNull;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
-
 
 public class ParticleSystemAdapter implements QuadPagingLayer.PagingInterface {
 
@@ -279,14 +280,14 @@ public class ParticleSystemAdapter implements QuadPagingLayer.PagingInterface {
         }
 
         @Override
-        public void onFailure(Request request, IOException e) {
+        public void onFailure(@NotNull Call call, @NotNull IOException e) {
             this.adapter.clearTile(tileID);
             layer.tileFailedToLoad(tileID);
             Log.e("Maply", "Failed to fetch remote tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
         }
 
         @Override
-        public void onResponse(Response response) throws IOException {
+        public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
             if (response.isSuccessful()) {
                 byte[] rawImage = null;
 
