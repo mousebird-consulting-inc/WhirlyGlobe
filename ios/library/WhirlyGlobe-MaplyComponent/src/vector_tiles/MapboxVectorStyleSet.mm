@@ -24,6 +24,7 @@
 #import "MapboxVectorStyleLine.h"
 #import "MapboxVectorStyleRaster.h"
 #import "MapboxVectorStyleSymbol.h"
+#import "MapboxVectorStyleCircle.h"
 
 @implementation MapboxVectorStyleSet
 {
@@ -458,6 +459,10 @@
     {
         MapboxVectorLayerSymbol *symbolLayer = [[MapboxVectorLayerSymbol alloc] initWithStyleEntry:layerDict parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:styleSet.viewC];
         layer = symbolLayer;
+    } else if ([type isEqualToString:@"circle"])
+    {
+        MapboxVectorLayerCircle *circleLayer = [[MapboxVectorLayerCircle alloc] initWithStyleEntry:layerDict parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:styleSet.viewC];
+        layer = circleLayer;
     } else if ([type isEqualToString:@"raster"])
     {
         MapboxVectorLayerRaster *rasterLayer = [[MapboxVectorLayerRaster alloc] initWithStyleEntry:layerDict parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:styleSet.viewC];
