@@ -25,6 +25,11 @@
 		2B4BA6D81C83A22000DC1562 /* track.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2B4BA6CC1C83A22000DC1562 /* track.geojson */; };
 		2B4BA6D91C83A22000DC1562 /* uturn.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2B4BA6CD1C83A22000DC1562 /* uturn.geojson */; };
 		2B5E8AF51E943560000B39E5 /* greensquare.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B5E8AF41E943560000B39E5 /* greensquare.png */; };
+		2B65672223761F2A00F3CC1D /* MapTilerTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B65672123761F2A00F3CC1D /* MapTilerTestCase.swift */; };
+		2B6567282376288100F3CC1D /* maptiler_hybrid_satellite.json in Resources */ = {isa = PBXBuildFile; fileRef = 2B6567242376288100F3CC1D /* maptiler_hybrid_satellite.json */; };
+		2B6567292376288100F3CC1D /* maptiler_streets.json in Resources */ = {isa = PBXBuildFile; fileRef = 2B6567252376288100F3CC1D /* maptiler_streets.json */; };
+		2B65672A2376288100F3CC1D /* maptiler_basic.json in Resources */ = {isa = PBXBuildFile; fileRef = 2B6567262376288100F3CC1D /* maptiler_basic.json */; };
+		2B65672B2376288100F3CC1D /* maptiler_topo.json in Resources */ = {isa = PBXBuildFile; fileRef = 2B6567272376288100F3CC1D /* maptiler_topo.json */; };
 		2B6953651C7E601A007FC51E /* AnimatedColorRampTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B6953641C7E601A007FC51E /* AnimatedColorRampTestCase.m */; };
 		2B6953681C7E67DD007FC51E /* colorramp.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B6953671C7E67DD007FC51E /* colorramp.png */; };
 		2B73D6AE207C0D5F00AF5095 /* NotoSans-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B8F3258201021CF006DDE27 /* NotoSans-Bold.ttf */; };
@@ -1183,6 +1188,11 @@
 		2B4BA6CC1C83A22000DC1562 /* track.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = track.geojson; path = ../WhirlyGlobeComponentTester/resources/track.geojson; sourceTree = "<group>"; };
 		2B4BA6CD1C83A22000DC1562 /* uturn.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = uturn.geojson; path = ../WhirlyGlobeComponentTester/resources/uturn.geojson; sourceTree = "<group>"; };
 		2B5E8AF41E943560000B39E5 /* greensquare.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = greensquare.png; path = resources/greensquare.png; sourceTree = "<group>"; };
+		2B65672123761F2A00F3CC1D /* MapTilerTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapTilerTestCase.swift; sourceTree = "<group>"; };
+		2B6567242376288100F3CC1D /* maptiler_hybrid_satellite.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = maptiler_hybrid_satellite.json; path = ../../../resources/vectors/styles/maptiler_hybrid_satellite.json; sourceTree = "<group>"; };
+		2B6567252376288100F3CC1D /* maptiler_streets.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = maptiler_streets.json; path = ../../../resources/vectors/styles/maptiler_streets.json; sourceTree = "<group>"; };
+		2B6567262376288100F3CC1D /* maptiler_basic.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = maptiler_basic.json; path = ../../../resources/vectors/styles/maptiler_basic.json; sourceTree = "<group>"; };
+		2B6567272376288100F3CC1D /* maptiler_topo.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = maptiler_topo.json; path = ../../../resources/vectors/styles/maptiler_topo.json; sourceTree = "<group>"; };
 		2B6953631C7E601A007FC51E /* AnimatedColorRampTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnimatedColorRampTestCase.h; sourceTree = "<group>"; };
 		2B6953641C7E601A007FC51E /* AnimatedColorRampTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AnimatedColorRampTestCase.m; sourceTree = "<group>"; };
 		2B6953671C7E67DD007FC51E /* colorramp.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = colorramp.png; path = AutoTester/colorramp.png; sourceTree = "<group>"; };
@@ -1971,6 +1981,7 @@
 				2B7787C921CDA47F006ABF5D /* CartoDBLightTestCase.swift */,
 				2B9DC6C52368A382005200B8 /* StartupShutdownTestCase.swift */,
 				2BC91F63236A61A600B8A56C /* LayerStartupShutdownTestCase.swift */,
+				2B65672123761F2A00F3CC1D /* MapTilerTestCase.swift */,
 			);
 			path = testCases;
 			sourceTree = "<group>";
@@ -2039,6 +2050,10 @@
 		88FF5BDF1BC31D3C002F15CE /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				2B6567262376288100F3CC1D /* maptiler_basic.json */,
+				2B6567242376288100F3CC1D /* maptiler_hybrid_satellite.json */,
+				2B6567252376288100F3CC1D /* maptiler_streets.json */,
+				2B6567272376288100F3CC1D /* maptiler_topo.json */,
 				2B8F3258201021CF006DDE27 /* NotoSans-Bold.ttf */,
 				2B8F3256201021CF006DDE27 /* NotoSans-Regular.ttf */,
 				2B7E288A200EC109007E2965 /* SE_Basic.json */,
@@ -2889,12 +2904,14 @@
 				88FF5C841BC31D6D002F15CE /* america-football-24@2x.png in Resources */,
 				88FF5E891BC31D95002F15CE /* MNE.geojson in Resources */,
 				88FF5E201BC31D95002F15CE /* CHN.geojson in Resources */,
+				2B65672B2376288100F3CC1D /* maptiler_topo.json in Resources */,
 				88FF5BE61BC31D53002F15CE /* cube.obj in Resources */,
 				88FF5C8F1BC31D6D002F15CE /* cafe-24@2x.png in Resources */,
 				88FF5E131BC31D95002F15CE /* BMU.geojson in Resources */,
 				88FF5CE51BC31D6D002F15CE /* village-24@2x.png in Resources */,
 				88FF5BE71BC31D53002F15CE /* map_pin.png in Resources */,
 				88FF5E1E1BC31D95002F15CE /* CHE.geojson in Resources */,
+				2B6567292376288100F3CC1D /* maptiler_streets.json in Resources */,
 				88FF5E451BC31D95002F15CE /* GEO.geojson in Resources */,
 				88FF5E571BC31D95002F15CE /* HND.geojson in Resources */,
 				88FF5C941BC31D6D002F15CE /* cinema-24@2x.png in Resources */,
@@ -2990,6 +3007,7 @@
 				88FF5E371BC31D95002F15CE /* EGY.geojson in Resources */,
 				883DF7211C1CE164000756E9 /* CartoDBTestCase-map.png in Resources */,
 				883DF7341C1CE164000756E9 /* ModelsTestCase-globe.png in Resources */,
+				2B65672A2376288100F3CC1D /* maptiler_basic.json in Resources */,
 				88FF5E9F1BC31D95002F15CE /* NZL.geojson in Resources */,
 				88FF5E8F1BC31D95002F15CE /* MTQ.geojson in Resources */,
 				88FF5E591BC31D95002F15CE /* HTI.geojson in Resources */,
@@ -3046,6 +3064,7 @@
 				88FF5E8C1BC31D95002F15CE /* MOZ.geojson in Resources */,
 				88FF5E2A1BC31D95002F15CE /* CUB.geojson in Resources */,
 				88FF5EB41BC31D95002F15CE /* SAU.geojson in Resources */,
+				2B6567282376288100F3CC1D /* maptiler_hybrid_satellite.json in Resources */,
 				88FF5E901BC31D95002F15CE /* MUS.geojson in Resources */,
 				88FF5E1D1BC31D95002F15CE /* CCK.geojson in Resources */,
 				88FF5EBE1BC31D95002F15CE /* SMR.geojson in Resources */,
@@ -3687,6 +3706,7 @@
 				D8D3E0681C4EDA1800F0D006 /* ParticleTestCase.swift in Sources */,
 				D8341A731BE2DFE100411A46 /* ScreenLabelsTestCase.swift in Sources */,
 				8895D8B01CA4ABA9004387FB /* ParticleTest.mm in Sources */,
+				2B65672223761F2A00F3CC1D /* MapTilerTestCase.swift in Sources */,
 				E5D2D6751DEDEABF00E02305 /* AnimationDelegateTestCase.swift in Sources */,
 				D880112F1BFD16A900606EC6 /* DropboxViewController.swift in Sources */,
 				D8E12ECD1BDE9FD500BB7BC7 /* AnimatedBasemapTestCase.swift in Sources */,

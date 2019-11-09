@@ -51,6 +51,9 @@
 /// @brief Layers parsed from the style sheet
 @property (nonatomic, strong, nullable) NSArray *layers;
 
+/// Tile sources
+@property (nonatomic, strong, nonnull) NSArray *sources;
+
 /// @brief Layers sorted by their ID
 @property (nonatomic, strong, nullable) NSDictionary *layersByName;
 
@@ -97,6 +100,32 @@
 
 /// @brief Check if the given thing is a constant and return its value if it is.  Otherwise just return it.
 - (id __nullable)constantSubstitution:(id __nonnull)thing forField:(NSString * __nullable)field;
+
+@end
+
+typedef enum : NSUInteger {
+    MapboxSourceVector,
+    MapboxSourceRaster,
+    // TODO: Support the rest of these eventually
+} MapboxSourceType;
+
+// Sources are called out individually
+@interface MaplyMapboxVectorStyleSource : NSObject
+
+// Name of the source
+@property (nonatomic,nullable) NSString *name;
+
+// Vector and raster sources supported for now
+@property (nonatomic) MapboxSourceType type;
+
+// TileJSON URL, if present
+@property (nonatomic,nullable) NSString *url;
+
+// If the TileJSON spec is inline, this is it
+@property (nonatomic,nullable) NSDictionary *tileSpec;
+
+// Initialize with the entry in the style file
+- (id __nullable)initWithName:(NSString *__nonnull)name styleEntry:(NSDictionary * __nonnull)styleEntry styleSet:(MapboxVectorStyleSet * __nonnull)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)viewC;
 
 @end
 
