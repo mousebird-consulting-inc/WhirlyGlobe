@@ -786,6 +786,10 @@
         } else {
             // No attribute means no pass
             ret = false;
+
+            // A missing value and != is valid
+            if (_filterType == MBFilterNotEqual)
+                ret = true;
         }
     }
     
