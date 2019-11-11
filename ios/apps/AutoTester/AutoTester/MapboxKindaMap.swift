@@ -349,11 +349,10 @@ public class MapboxKindaMap {
             }
             
             // Just the linear and point vectors in the overlay
-            let vectorSettings = MaplyVectorStyleSettings.init(scale: UIScreen.main.scale)
-            vectorSettings.baseDrawPriority = 100+1
-            vectorSettings.drawPriorityPerLevel = 1000
+            styleSettings.baseDrawPriority = 100+1
+            styleSettings.drawPriorityPerLevel = 1000
             guard let styleSheetVector = MapboxVectorStyleSet.init(json: styleSheetData,
-                                                                 settings: vectorSettings,
+                                                                 settings: styleSettings,
                                                                  viewC: viewC,
                                                                  filter:
                 { (styleAttrs) -> Bool in

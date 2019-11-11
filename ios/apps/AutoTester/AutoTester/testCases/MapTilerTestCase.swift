@@ -37,6 +37,7 @@ class MapTilerTestCase: MaplyTestCase {
 
         // Parse it and then let it start itself
         mapboxMap = MapboxKindaMap(fileName, viewC: viewC)
+        mapboxMap?.styleSettings.textScale = 1.5  // Note: Why does this work better than 2.0?
         mapboxMap?.backgroundAllPolys = false
         mapboxMap?.start()
     }
