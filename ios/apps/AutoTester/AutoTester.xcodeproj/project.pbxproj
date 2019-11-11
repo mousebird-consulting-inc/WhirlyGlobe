@@ -30,6 +30,7 @@
 		2B6567292376288100F3CC1D /* maptiler_streets.json in Resources */ = {isa = PBXBuildFile; fileRef = 2B6567252376288100F3CC1D /* maptiler_streets.json */; };
 		2B65672A2376288100F3CC1D /* maptiler_basic.json in Resources */ = {isa = PBXBuildFile; fileRef = 2B6567262376288100F3CC1D /* maptiler_basic.json */; };
 		2B65672B2376288100F3CC1D /* maptiler_topo.json in Resources */ = {isa = PBXBuildFile; fileRef = 2B6567272376288100F3CC1D /* maptiler_topo.json */; };
+		2B656736237A1DFB00F3CC1D /* MapboxKindaMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B656734237A1C0600F3CC1D /* MapboxKindaMap.swift */; };
 		2B6953651C7E601A007FC51E /* AnimatedColorRampTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B6953641C7E601A007FC51E /* AnimatedColorRampTestCase.m */; };
 		2B6953681C7E67DD007FC51E /* colorramp.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B6953671C7E67DD007FC51E /* colorramp.png */; };
 		2B73D6AE207C0D5F00AF5095 /* NotoSans-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B8F3258201021CF006DDE27 /* NotoSans-Bold.ttf */; };
@@ -1193,6 +1194,7 @@
 		2B6567252376288100F3CC1D /* maptiler_streets.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = maptiler_streets.json; path = ../../../resources/vectors/styles/maptiler_streets.json; sourceTree = "<group>"; };
 		2B6567262376288100F3CC1D /* maptiler_basic.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = maptiler_basic.json; path = ../../../resources/vectors/styles/maptiler_basic.json; sourceTree = "<group>"; };
 		2B6567272376288100F3CC1D /* maptiler_topo.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = maptiler_topo.json; path = ../../../resources/vectors/styles/maptiler_topo.json; sourceTree = "<group>"; };
+		2B656734237A1C0600F3CC1D /* MapboxKindaMap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapboxKindaMap.swift; sourceTree = "<group>"; };
 		2B6953631C7E601A007FC51E /* AnimatedColorRampTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnimatedColorRampTestCase.h; sourceTree = "<group>"; };
 		2B6953641C7E601A007FC51E /* AnimatedColorRampTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AnimatedColorRampTestCase.m; sourceTree = "<group>"; };
 		2B6953671C7E67DD007FC51E /* colorramp.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = colorramp.png; path = AutoTester/colorramp.png; sourceTree = "<group>"; };
@@ -2009,6 +2011,7 @@
 		88E4B8C11B83B6AB0050D21B /* AutoTester */ = {
 			isa = PBXGroup;
 			children = (
+				2B656734237A1C0600F3CC1D /* MapboxKindaMap.swift */,
 				D84433EC1C14E4FE00A52117 /* CartoDBLayer.h */,
 				D84433ED1C14E4FE00A52117 /* CartoDBLayer.m */,
 				88E4B8C81B83B6AB0050D21B /* Main.storyboard */,
@@ -3697,6 +3700,7 @@
 				2B73D6C7207D3B2700AF5095 /* ResultsViewController.swift in Sources */,
 				D8228AA61BE785E1001D6914 /* MovingScreenMarkers.m in Sources */,
 				8FC34D0E1CE7218E00BEB7C4 /* DownloadResourceOperation.m in Sources */,
+				2B656736237A1DFB00F3CC1D /* MapboxKindaMap.swift in Sources */,
 				D8DCCCAC1BDC1A1200BA3866 /* CesiumElevationTestCase.m in Sources */,
 				2B73D6B4207C106C00AF5095 /* GlobeSamplerTestCase.swift in Sources */,
 				2B91A22E1DC14B7500B72527 /* ImageSingleLevelTestCase.swift in Sources */,
@@ -3985,7 +3989,7 @@
 					"\"$(SRCROOT)/../../../common/local_libs/eigen\"",
 				);
 				INFOPLIST_FILE = AutoTester/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.mousebirdconsulting.AutoTester;
 				PRODUCT_NAME = AutoTester;
@@ -4016,7 +4020,7 @@
 					"\"$(SRCROOT)/../../../common/local_libs/eigen\"",
 				);
 				INFOPLIST_FILE = AutoTester/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.mousebirdconsulting.AutoTester;
 				PRODUCT_NAME = AutoTester;

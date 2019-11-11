@@ -70,6 +70,7 @@
 @implementation MapboxVectorLayerFill
 {
     NSMutableDictionary *fillDesc,*outlineDesc;
+    int drawPriorityPerLevel;
 }
 
 - (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
@@ -111,7 +112,9 @@
                       kMaplyEnable: @(NO)
                       }];
     }
-    
+
+    drawPriorityPerLevel = styleSet.tileStyleSettings.drawPriorityPerLevel;
+
     return self;
 }
 
@@ -122,7 +125,7 @@
     // Note: Would be better to do this earlier
     if (!_layout.visible)
         return compObjs;
-
+    
     // Filled polygons
     if (fillDesc)
     {
@@ -134,7 +137,7 @@
                 [tessVecObjs addObject:tessVecObj];
         }
         
-        NSDictionary *desc = fillDesc;
+        NSMutableDictionary *mutDesc = [NSMutableDictionary dictionaryWithDictionary:fillDesc];
         bool include = true;
         if (_paint.opacityFunc)
         {
@@ -142,16 +145,18 @@
             if (opacity > 0.0)
             {
                 UIColor *color = [self.styleSet color:_paint.color withOpacity:opacity];
-                NSMutableDictionary *mutDesc = [NSMutableDictionary dictionaryWithDictionary:desc];
                 mutDesc[kMaplyColor] = color;
-                desc = mutDesc;
             } else
                 include = false;
         }
         
+        if (drawPriorityPerLevel > 0) {
+            mutDesc[kMaplyDrawPriority] = @(self.drawPriority + tileInfo.tileID.level * drawPriorityPerLevel);
+        }
+                
         if (include)
         {
-            MaplyComponentObject *compObj = [viewC addVectors:tessVecObjs desc:desc mode:MaplyThreadCurrent];
+            MaplyComponentObject *compObj = [viewC addVectors:tessVecObjs desc:mutDesc mode:MaplyThreadCurrent];
             if (compObj)
                 [compObjs addObject:compObj];
         }
@@ -160,7 +165,7 @@
     // Outline
     if (outlineDesc)
     {
-        NSDictionary *desc = outlineDesc;
+        NSMutableDictionary *mutDesc = [NSMutableDictionary dictionaryWithDictionary:outlineDesc];
         bool include = true;
         // Note: Does opacity apply here?
         if (_paint.opacityFunc)
@@ -169,16 +174,18 @@
             if (opacity > 0.0)
             {
                 UIColor *color = [self.styleSet color:_paint.outlineColor withOpacity:opacity];
-                NSMutableDictionary *mutDesc = [NSMutableDictionary dictionaryWithDictionary:desc];
                 mutDesc[kMaplyColor] = color;
-                desc = mutDesc;
             } else
                 include = false;
         }
 
+        if (drawPriorityPerLevel > 0) {
+            mutDesc[kMaplyDrawPriority] = @(self.drawPriority + tileInfo.tileID.level * drawPriorityPerLevel);
+        }
+
         if (include)
         {
-            MaplyComponentObject *compObj = [viewC addVectors:vecObjs desc:desc mode:MaplyThreadCurrent];
+            MaplyComponentObject *compObj = [viewC addVectors:vecObjs desc:mutDesc mode:MaplyThreadCurrent];
             if (compObj)
                 [compObjs addObject:compObj];
         }

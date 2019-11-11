@@ -36,7 +36,7 @@
 @property (nonatomic,assign) int numObjects;
 
 /// All the unique IDs from the
-@property (nonatomic,retain) NSArray<NSString *> *uniqueIDs;
+@property (nonatomic,retain,nullable) NSArray<NSString *> *uniqueIDs;
 
 @end
 

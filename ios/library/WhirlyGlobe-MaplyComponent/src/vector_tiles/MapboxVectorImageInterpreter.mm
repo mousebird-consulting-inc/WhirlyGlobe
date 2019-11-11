@@ -49,6 +49,7 @@ using namespace WhirlyKit;
 
 static double MAX_EXTENT = 20037508.342789244;
 
+static int BackImageWidth = 16, BackImageHeight = 16;
 
 @implementation MapboxVectorImageInterpreter
 {
@@ -58,6 +59,7 @@ static double MAX_EXTENT = 20037508.342789244;
     MaplySphericalMercator *coordSys;
     MaplyRenderController *offlineRender;
     UIColor *backColor;
+    NSMutableData *backImageData;
     
     MapboxVectorTileParser *imageTileParser,*vecTileParser;
 }
@@ -94,9 +96,43 @@ static double MAX_EXTENT = 20037508.342789244;
     return self;
 }
 
+- (instancetype _Nullable ) initWithLoader:(MaplyQuadImageLoader *__nonnull)inLoader
+                                     style:(MapboxVectorStyleSet *__nonnull)inVectorStyle
+                                     viewC:(MaplyBaseViewController *__nonnull)inViewC
+{
+    self = [super init];
+    loader = inLoader;
+    vecStyle = inVectorStyle;
+
+    loader.baseDrawPriority = vecStyle.tileStyleSettings.baseDrawPriority;
+    loader.drawPriorityPerLevel = vecStyle.tileStyleSettings.drawPriorityPerLevel;
+    viewC = inViewC;
+    coordSys = [[MaplySphericalMercator alloc] initWebStandard];
+
+    vecTileParser = [[MapboxVectorTileParser alloc] initWithStyle:vecStyle viewC:viewC];
+    MapboxVectorLayerBackground *backLayer = vecStyle.layersByName[@"background"];
+    backColor = backLayer.paint.color;
+    
+    // Make a single color background image
+    backImageData = [[NSMutableData alloc] initWithLength:4*BackImageWidth*BackImageHeight];
+    unsigned int *data = (unsigned int *)[backImageData bytes];
+    CGFloat red,green,blue,alpha;
+    [backColor getRed:&red green:&green blue:&blue alpha:&alpha];
+    unsigned int pixel = 0xff << 24 | (int)(blue * 255) << 16 | (int)(green * 255) << 8 | (int)(red * 255);
+    for (unsigned int pix=0;pix<BackImageWidth*BackImageHeight;pix++) {
+        *data = pixel;
+        data++;
+    }
+    
+    return self;
+}
+
 // Flip data in an NSData object that we know to be an image
 - (NSData *)flipVertically:(NSData *)data width:(int)width height:(int)height
 {
+    if (!data)
+        return nil;
+    
     NSMutableData *retData = [[NSMutableData alloc] initWithData:data];
 
     int rowSize = 4*width;
@@ -157,34 +193,36 @@ static double MAX_EXTENT = 20037508.342789244;
     
     [viewC startChanges];
     
-    // Parse the polygons and draw into an image
-    // Note: Can we use multiple of these for speed?
-    @synchronized(offlineRender)
-    {
-        // Build the vector objects for use in the image tile
-        NSMutableArray *compObjs = [NSMutableArray array];
-        offlineRender.clearColor = backColor;
+    if (offlineRender) {
+        // Parse the polygons and draw into an image
+        // Note: Can we use multiple of these for speed?
+        @synchronized(offlineRender)
+        {
+            // Build the vector objects for use in the image tile
+            NSMutableArray *compObjs = [NSMutableArray array];
+            offlineRender.clearColor = backColor;
 
-        for (NSData *thisTileData : pbfDatas) {
-            MaplyVectorTileData *retData = [imageTileParser buildObjects:thisTileData tile:tileID bounds:imageBBox geoBounds:geoBBox];
-            if (retData) {
-                [compObjs addObjectsFromArray:retData.compObjs];
-            } else {
-                NSString *errMsg = [NSString stringWithFormat:@"Failed to parse tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y];
-                loadReturn.error = [[NSError alloc] initWithDomain:@"MapboxVectorTilesImageDelegate" code:0 userInfo:@{NSLocalizedDescriptionKey: errMsg}];
+            for (NSData *thisTileData : pbfDatas) {
+                MaplyVectorTileData *retData = [imageTileParser buildObjects:thisTileData tile:tileID bounds:imageBBox geoBounds:geoBBox];
+                if (retData) {
+                    [compObjs addObjectsFromArray:retData.compObjs];
+                } else {
+                    NSString *errMsg = [NSString stringWithFormat:@"Failed to parse tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y];
+                    loadReturn.error = [[NSError alloc] initWithDomain:@"MapboxVectorTilesImageDelegate" code:0 userInfo:@{NSLocalizedDescriptionKey: errMsg}];
+                }
             }
-        }
-        
-        if (!loadReturn.error) {
-            // Turn all those objects on
-            [offlineRender enableObjects:compObjs mode:MaplyThreadCurrent];
             
-            imageData = [self flipVertically:[offlineRender renderToImageData]
-                                       width:offlineRender.getFramebufferSize.width
-                                      height:offlineRender.getFramebufferSize.height];
-            
-            // And then remove them all
-            [offlineRender removeObjects:compObjs mode:MaplyThreadCurrent];
+            if (!loadReturn.error) {
+                // Turn all those objects on
+                [offlineRender enableObjects:compObjs mode:MaplyThreadCurrent];
+                
+                imageData = [self flipVertically:[offlineRender renderToImageData]
+                                           width:offlineRender.getFramebufferSize.width
+                                          height:offlineRender.getFramebufferSize.height];
+                
+                // And then remove them all
+                [offlineRender removeObjects:compObjs mode:MaplyThreadCurrent];
+            }
         }
     }
     
@@ -208,9 +246,15 @@ static double MAX_EXTENT = 20037508.342789244;
 
     // Rendered image goes in first
     NSMutableArray *outImages = [NSMutableArray array];
-    MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRawImage:imageData width:offlineRender.getFramebufferSize.width height:offlineRender.getFramebufferSize.height];
-    WhirlyKitLoadedTile *loadTile = [tileData wkTile:0 convertToRaw:true];
-    [outImages addObject:loadTile];
+    if (offlineRender) {
+        MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRawImage:imageData width:offlineRender.getFramebufferSize.width height:offlineRender.getFramebufferSize.height];
+        WhirlyKitLoadedTile *loadTile = [tileData wkTile:0 convertToRaw:true];
+        [outImages addObject:loadTile];
+    } else {
+        MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRawImage:backImageData width:BackImageWidth height:BackImageHeight];
+        WhirlyKitLoadedTile *loadTile = [tileData wkTile:0 convertToRaw:true];
+        [outImages addObject:loadTile];
+    }
     
     // Any additional images are tacked on
     for (UIImage *image : images) {

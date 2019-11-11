@@ -259,8 +259,8 @@ typedef NS_ENUM(NSInteger, MaplyMapType) {
 /// Initialize as a flat or 3D map.
 - (nonnull instancetype)initWithMapType:(MaplyMapType)mapType;
 
-/// Initialize as a 3D map.
-- (nonnull instancetype)init __deprecated;
+/// Initialize as flat map
+- (nonnull instancetype)init;
 
 /// Initialize as a 2D map.
 - (nonnull instancetype)initAsFlatMap __deprecated;

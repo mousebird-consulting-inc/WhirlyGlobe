@@ -336,7 +336,7 @@
   By default set to kMaplyMinFilterLinear for bilinear filtering of textures.
     Can be set to kMaplyMinFilterNearest.
  */
-@property (nonatomic) NSString *textureFilter;
+@property (nonatomic,nullable) NSString *textureFilter;
 
 /** 
     Number of border texels to set up around image tiles.
