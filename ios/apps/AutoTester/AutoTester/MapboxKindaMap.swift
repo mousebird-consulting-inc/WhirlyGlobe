@@ -30,7 +30,7 @@ public class MapboxKindaMap {
     
     // If set, a top level directory where we'll cache everything
     public var cacheDir : URL? = nil
-
+    
     // If set, you can override the file loaded for a particular purpose.
     // This includes: the TileJSON files, sprite sheets, and the style sheet itself
     // For example, if you want to load from the bundle, but not have to change

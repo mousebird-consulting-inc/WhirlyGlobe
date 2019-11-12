@@ -32,6 +32,9 @@
 		2B65672B2376288100F3CC1D /* maptiler_topo.json in Resources */ = {isa = PBXBuildFile; fileRef = 2B6567272376288100F3CC1D /* maptiler_topo.json */; };
 		2B656736237A1DFB00F3CC1D /* MapboxKindaMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B656734237A1C0600F3CC1D /* MapboxKindaMap.swift */; };
 		2B656739237B1C4700F3CC1D /* GlyphProblemTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B656737237B1C4600F3CC1D /* GlyphProblemTestCase.m */; };
+		2B65673D237B6C9600F3CC1D /* MapboxTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B65673C237B6C9600F3CC1D /* MapboxTestCase.swift */; };
+		2B656740237B6D9D00F3CC1D /* mapbox_satellite-streets-v9.json in Resources */ = {isa = PBXBuildFile; fileRef = 2B65673F237B6D9C00F3CC1D /* mapbox_satellite-streets-v9.json */; };
+		2B656742237B789700F3CC1D /* mapbox_satellite-v9.json in Resources */ = {isa = PBXBuildFile; fileRef = 2B656741237B789700F3CC1D /* mapbox_satellite-v9.json */; };
 		2B6953651C7E601A007FC51E /* AnimatedColorRampTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B6953641C7E601A007FC51E /* AnimatedColorRampTestCase.m */; };
 		2B6953681C7E67DD007FC51E /* colorramp.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B6953671C7E67DD007FC51E /* colorramp.png */; };
 		2B73D6AE207C0D5F00AF5095 /* NotoSans-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B8F3258201021CF006DDE27 /* NotoSans-Bold.ttf */; };
@@ -1198,6 +1201,9 @@
 		2B656734237A1C0600F3CC1D /* MapboxKindaMap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapboxKindaMap.swift; sourceTree = "<group>"; };
 		2B656737237B1C4600F3CC1D /* GlyphProblemTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GlyphProblemTestCase.m; sourceTree = "<group>"; };
 		2B656738237B1C4700F3CC1D /* GlyphProblemTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GlyphProblemTestCase.h; sourceTree = "<group>"; };
+		2B65673C237B6C9600F3CC1D /* MapboxTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapboxTestCase.swift; sourceTree = "<group>"; };
+		2B65673F237B6D9C00F3CC1D /* mapbox_satellite-streets-v9.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "mapbox_satellite-streets-v9.json"; path = "../../../resources/vectors/styles/mapbox_satellite-streets-v9.json"; sourceTree = "<group>"; };
+		2B656741237B789700F3CC1D /* mapbox_satellite-v9.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "mapbox_satellite-v9.json"; path = "../../../resources/vectors/styles/mapbox_satellite-v9.json"; sourceTree = "<group>"; };
 		2B6953631C7E601A007FC51E /* AnimatedColorRampTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnimatedColorRampTestCase.h; sourceTree = "<group>"; };
 		2B6953641C7E601A007FC51E /* AnimatedColorRampTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AnimatedColorRampTestCase.m; sourceTree = "<group>"; };
 		2B6953671C7E67DD007FC51E /* colorramp.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = colorramp.png; path = AutoTester/colorramp.png; sourceTree = "<group>"; };
@@ -1989,6 +1995,7 @@
 				2B9DC6C52368A382005200B8 /* StartupShutdownTestCase.swift */,
 				2BC91F63236A61A600B8A56C /* LayerStartupShutdownTestCase.swift */,
 				2B65672123761F2A00F3CC1D /* MapTilerTestCase.swift */,
+				2B65673C237B6C9600F3CC1D /* MapboxTestCase.swift */,
 			);
 			path = testCases;
 			sourceTree = "<group>";
@@ -2058,6 +2065,8 @@
 		88FF5BDF1BC31D3C002F15CE /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				2B656741237B789700F3CC1D /* mapbox_satellite-v9.json */,
+				2B65673F237B6D9C00F3CC1D /* mapbox_satellite-streets-v9.json */,
 				2B6567262376288100F3CC1D /* maptiler_basic.json */,
 				2B6567242376288100F3CC1D /* maptiler_hybrid_satellite.json */,
 				2B6567252376288100F3CC1D /* maptiler_streets.json */,
@@ -2863,6 +2872,7 @@
 				88FF5EB71BC31D95002F15CE /* SGP.geojson in Resources */,
 				2B7FC0A71E32B67400AF253A /* testJson.json in Resources */,
 				88FF5E981BC31D95002F15CE /* NGA.geojson in Resources */,
+				2B656742237B789700F3CC1D /* mapbox_satellite-v9.json in Resources */,
 				88F0951F1ECD041300E7E686 /* AutoTesterJenkins.plist in Resources */,
 				88FF5CAF1BC31D6D002F15CE /* land-use-24@2x.png in Resources */,
 				88FF5CC61BC31D6D002F15CE /* polling-place-24@2x.png in Resources */,
@@ -3046,6 +3056,7 @@
 				E5941DCE1E0D02A800E1C8B3 /* water_lines.sld in Resources */,
 				883DF7361C1CE164000756E9 /* NASAGIBSTestCase-map.png in Resources */,
 				8F4D91DD1CDFA7DE00F68045 /* map.png in Resources */,
+				2B656740237B6D9D00F3CC1D /* mapbox_satellite-streets-v9.json in Resources */,
 				88FF5E2B1BC31D95002F15CE /* CUW.geojson in Resources */,
 				88FF5E511BC31D95002F15CE /* GTM.geojson in Resources */,
 				88FF5CAB1BC31D6D002F15CE /* harbor-24@2x.png in Resources */,
@@ -3704,6 +3715,7 @@
 				88BF11521BCD9BF70002205E /* MaplyTestResult.m in Sources */,
 				2B656739237B1C4700F3CC1D /* GlyphProblemTestCase.m in Sources */,
 				2B73D6C7207D3B2700AF5095 /* ResultsViewController.swift in Sources */,
+				2B65673D237B6C9600F3CC1D /* MapboxTestCase.swift in Sources */,
 				D8228AA61BE785E1001D6914 /* MovingScreenMarkers.m in Sources */,
 				8FC34D0E1CE7218E00BEB7C4 /* DownloadResourceOperation.m in Sources */,
 				2B656736237A1DFB00F3CC1D /* MapboxKindaMap.swift in Sources */,
