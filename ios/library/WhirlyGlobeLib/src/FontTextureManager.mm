@@ -35,7 +35,7 @@ typedef std::set<CGGlyph> GlyphSet;
 static const float BogusFontScale = 2.0;
     
 /// Manages the glyphs for a single font
-class FontManager
+class FontManager : public Identifiable
 {
 public:
     FontManager(CTFontRef theFont) : font(theFont),refCount(0),color(nil),backColor(nil),outlineColor(nil),outlineSize(0.0) { CFRetain(font); }
@@ -157,17 +157,11 @@ protected:
     GlyphInfoSet glyphs;
 };
 
-// Used to order a set of these
-typedef struct
-{
-    bool operator () (const FontManager *a,const FontManager *b) const { return a->font < b->font; }
-} FontManagerSorter;
-
-typedef std::set<FontManager *,FontManagerSorter> FontManagerSet;
+typedef std::shared_ptr<FontManager> FontManagerRef;
 
 }
             
-typedef std::map<CTFontRef,GlyphSet> SimpleIDGlyphMap;
+typedef std::map<SimpleIdentity,GlyphSet> SimpleIDGlyphMap;
 
 // Used to track the draw strings' representations in terms of fonts
 //  and glyphs
@@ -177,16 +171,16 @@ public:
     DrawStringRep(SimpleIdentity theId) : Identifiable(theId) { }
     
     // Add the glyphs we're using
-    void addGlyphs(CTFontRef font,const GlyphSet &newGlyphs)
+    void addGlyphs(SimpleIdentity fontManID,const GlyphSet &newGlyphs)
     {
-        SimpleIDGlyphMap::iterator it = fontGlyphs.find(font);
+        SimpleIDGlyphMap::iterator it = fontGlyphs.find(fontManID);
         GlyphSet existingGlyphs;
         if (it != fontGlyphs.end())
         {
             existingGlyphs = it->second;
         }
         existingGlyphs.insert(newGlyphs.begin(), newGlyphs.end());
-        fontGlyphs[font] = existingGlyphs;
+        fontGlyphs[fontManID] = existingGlyphs;
     }
     
     // The glyphs we're using in a given font
@@ -194,12 +188,14 @@ public:
 };
             
 typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
+
+typedef std::map<SimpleIdentity,FontManagerRef> FontManagerMap;
             
 @implementation WhirlyKitFontTextureManager
 {
     Scene *scene;
     DynamicTextureAtlas *texAtlas;
-    FontManagerSet fontManagers;
+    FontManagerMap fontManagers;
     DrawStringRepSet drawStringReps;
     pthread_mutex_t lock;
 }
@@ -224,9 +220,6 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     for (DrawStringRepSet::iterator it = drawStringReps.begin();
          it != drawStringReps.end(); ++it)
         delete *it;
-    for (FontManagerSet::iterator it = fontManagers.begin();
-         it != fontManagers.end(); ++it)
-        delete *it;
     fontManagers.clear();
     pthread_mutex_destroy(&lock);
 }
@@ -245,9 +238,6 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
          it != drawStringReps.end(); ++it)
         delete *it;
     drawStringReps.clear();
-    for (FontManagerSet::iterator it = fontManagers.begin();
-         it != fontManagers.end(); ++it)
-        delete *it;
     fontManagers.clear();
     
     pthread_mutex_unlock(&lock);
@@ -255,7 +245,7 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
 
 
 // Render the glyph into a buffer
-- (NSData *)renderGlyph:(CGGlyph)glyph font:(FontManager *)fm texSize:(CGSize &)size glyphSize:(CGSize &)glyphSize offset:(CGPoint &)offset textureOffset:(CGPoint &)textureOffset
+- (NSData *)renderGlyph:(CGGlyph)glyph font:(FontManagerRef)fm texSize:(CGSize &)size glyphSize:(CGSize &)glyphSize offset:(CGPoint &)offset textureOffset:(CGPoint &)textureOffset
 {
     int width,height;
     
@@ -343,17 +333,16 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
 }
 
 // Look for an existing font that will match the UIFont given
-- (FontManager *)findFontManagerForFont:(UIFont *)uiFont color:(UIColor *)color backColor:(UIColor *)backColor outlineColor:(UIColor *)outlineColor outlineSize:(NSNumber *)outlineSize
+- (FontManagerRef)findFontManagerForFont:(UIFont *)uiFont color:(UIColor *)color backColor:(UIColor *)backColor outlineColor:(UIColor *)outlineColor outlineSize:(NSNumber *)outlineSize
 {
     // We need to scale the font up so it looks better scaled down
     NSString *fontName = uiFont.fontName;
     float pointSize = uiFont.pointSize;
     pointSize *= BogusFontScale;
     
-    for (FontManagerSet::iterator it = fontManagers.begin();
-         it != fontManagers.end(); ++it)
+    for (auto it : fontManagers)
     {
-        FontManager *fm = *it;
+        FontManagerRef fm = it.second;
         if (![fontName compare:fm->fontName] && pointSize == fm->pointSize &&
             ((!fm->color && !color) ||
              ([fm->color asRGBAColor] == [color asRGBAColor])) &&
@@ -375,7 +364,7 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
         font = CTFontCreateWithName((__bridge CFStringRef)fontName, pointSize, NULL);
         cleanupFont = true;
     }
-    FontManager *fm = new FontManager(font);
+    FontManagerRef fm = FontManagerRef(new FontManager(font));
     fm->fontName = fontName;
     fm->color = color;
     fm->backColor = backColor;
@@ -383,7 +372,7 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     fm->outlineColor = outlineColor;
     fm->outlineSize = [outlineSize floatValue];
 //    fm->outlineSize *= BogusFontScale;
-    fontManagers.insert(fm);
+    fontManagers[fm->getId()] = fm;
     if (cleanupFont)
         CFRelease(font);
 
@@ -444,7 +433,7 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
             UIColor *foregroundColor = attrs[NSForegroundColorAttributeName];
             UIColor *backgroundColor = attrs[NSBackgroundColorAttributeName];
 
-            FontManager *fm = nil;
+            FontManagerRef fm;
             if ([uiFont isKindOfClass:[UIFont class]])
                 fm = [self findFontManagerForFont:uiFont color:foregroundColor backColor:backgroundColor outlineColor:outlineColor outlineSize:outlineSize];
             if (!fm)
@@ -504,7 +493,7 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
             }
 
             // Keep track of the glyphs we're using
-            drawStringRep->addGlyphs(fm->font,glyphsUsed);
+            drawStringRep->addGlyphs(fm->getId(),glyphsUsed);
             fm->addGlyphRefs(glyphsUsed);
             
             free(glyphs);
@@ -555,12 +544,11 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     for (SimpleIDGlyphMap::iterator fit = theRep->fontGlyphs.begin();
          fit != theRep->fontGlyphs.end(); ++fit)
     {
-        FontManager dummyFm(fit->first);
-        FontManagerSet::iterator fmIt = fontManagers.find(&dummyFm);
+        auto fmIt = fontManagers.find(fit->first);
         if (fmIt != fontManagers.end())
         {
             // Decrement the glyph references
-            FontManager *fm = *fmIt;
+            FontManagerRef fm = fmIt->second;
             std::vector<SubTexture> texRemove;
             fm->removeGlyphRefs(fit->second,texRemove);
 
@@ -573,7 +561,6 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
             if (fm->refCount <= 0)
             {
                 fontManagers.erase(fmIt);
-                delete fm;
             }
         }
     }

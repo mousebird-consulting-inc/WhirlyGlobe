@@ -31,6 +31,7 @@
 		2B65672A2376288100F3CC1D /* maptiler_basic.json in Resources */ = {isa = PBXBuildFile; fileRef = 2B6567262376288100F3CC1D /* maptiler_basic.json */; };
 		2B65672B2376288100F3CC1D /* maptiler_topo.json in Resources */ = {isa = PBXBuildFile; fileRef = 2B6567272376288100F3CC1D /* maptiler_topo.json */; };
 		2B656736237A1DFB00F3CC1D /* MapboxKindaMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B656734237A1C0600F3CC1D /* MapboxKindaMap.swift */; };
+		2B656739237B1C4700F3CC1D /* GlyphProblemTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B656737237B1C4600F3CC1D /* GlyphProblemTestCase.m */; };
 		2B6953651C7E601A007FC51E /* AnimatedColorRampTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B6953641C7E601A007FC51E /* AnimatedColorRampTestCase.m */; };
 		2B6953681C7E67DD007FC51E /* colorramp.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B6953671C7E67DD007FC51E /* colorramp.png */; };
 		2B73D6AE207C0D5F00AF5095 /* NotoSans-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B8F3258201021CF006DDE27 /* NotoSans-Bold.ttf */; };
@@ -1195,6 +1196,8 @@
 		2B6567262376288100F3CC1D /* maptiler_basic.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = maptiler_basic.json; path = ../../../resources/vectors/styles/maptiler_basic.json; sourceTree = "<group>"; };
 		2B6567272376288100F3CC1D /* maptiler_topo.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = maptiler_topo.json; path = ../../../resources/vectors/styles/maptiler_topo.json; sourceTree = "<group>"; };
 		2B656734237A1C0600F3CC1D /* MapboxKindaMap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapboxKindaMap.swift; sourceTree = "<group>"; };
+		2B656737237B1C4600F3CC1D /* GlyphProblemTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GlyphProblemTestCase.m; sourceTree = "<group>"; };
+		2B656738237B1C4700F3CC1D /* GlyphProblemTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GlyphProblemTestCase.h; sourceTree = "<group>"; };
 		2B6953631C7E601A007FC51E /* AnimatedColorRampTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnimatedColorRampTestCase.h; sourceTree = "<group>"; };
 		2B6953641C7E601A007FC51E /* AnimatedColorRampTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AnimatedColorRampTestCase.m; sourceTree = "<group>"; };
 		2B6953671C7E67DD007FC51E /* colorramp.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = colorramp.png; path = AutoTester/colorramp.png; sourceTree = "<group>"; };
@@ -1895,6 +1898,8 @@
 		88BF115A1BCDA9530002205E /* testCases */ = {
 			isa = PBXGroup;
 			children = (
+				2B656738237B1C4700F3CC1D /* GlyphProblemTestCase.h */,
+				2B656737237B1C4600F3CC1D /* GlyphProblemTestCase.m */,
 				2B73D6B2207C106C00AF5095 /* GlobeSamplerTestCase.swift */,
 				2BB4766E200047C6006AAACB /* OpenMapTilesTestCase.swift */,
 				2B127BFE201802BB0099F405 /* OpenMapTilesHybridTestCase.swift */,
@@ -3697,6 +3702,7 @@
 				D8200CA41BE9624300B22CF5 /* LoftedPolysTestCase.m in Sources */,
 				D8E12ED01BDEA2E400BB7BC7 /* WeatherShader.swift in Sources */,
 				88BF11521BCD9BF70002205E /* MaplyTestResult.m in Sources */,
+				2B656739237B1C4700F3CC1D /* GlyphProblemTestCase.m in Sources */,
 				2B73D6C7207D3B2700AF5095 /* ResultsViewController.swift in Sources */,
 				D8228AA61BE785E1001D6914 /* MovingScreenMarkers.m in Sources */,
 				8FC34D0E1CE7218E00BEB7C4 /* DownloadResourceOperation.m in Sources */,
