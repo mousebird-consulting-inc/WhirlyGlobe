@@ -311,7 +311,6 @@ public class MapboxKindaMap {
 
             // TODO: Handle more than one source
             guard let imageLoader = MaplyQuadImageLoader(params: sampleParams, tileInfos: tileInfos, viewC: viewC) else {
-//            guard let imageLoader = MaplyQuadImageLoader(params: sampleParams, tileInfo: tileInfos[0], viewC: viewC) else {
                 print("Failed to start image loader.  Nothing will appear.")
                 self.stop()
                 return

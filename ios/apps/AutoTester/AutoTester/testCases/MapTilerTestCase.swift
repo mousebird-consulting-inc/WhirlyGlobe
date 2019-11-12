@@ -23,8 +23,9 @@ class MapTilerTestCase: MaplyTestCase {
         [("Basic", "maptiler_basic"),
          ("Hybrid Satellite", "maptiler_hybrid_satellite"),
          ("Streets", "maptiler_streets"),
-         ("Topo", "maptiler_topo")]
-    let MapTilerStyle = 2
+//         ("Topo", "maptiler_topo")
+    ]
+    let MapTilerStyle = 1
     
     var mapboxMap : MapboxKindaMap? = nil
     
