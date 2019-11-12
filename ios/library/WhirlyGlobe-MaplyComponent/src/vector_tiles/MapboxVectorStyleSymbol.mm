@@ -348,7 +348,6 @@ public:
             }
         }
         label.text = text;
-        NSLog(@"text = %@",text);
 
         if (!label.text)
         {

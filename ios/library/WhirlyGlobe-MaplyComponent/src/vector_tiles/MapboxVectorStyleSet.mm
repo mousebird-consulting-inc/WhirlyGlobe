@@ -520,7 +520,7 @@
         layer.filter = [[MapboxVectorFilter alloc] initWithArray:[styleSet arrayValue:@"filter" dict:layerDict defVal:nil] styleSet:styleSet viewC:styleSet.viewC];
         if (!layer.filter)
         {
-            NSLog(@"MapboxStyleSet: Failed to parse filter for layer %@",layer.ident);
+            NSLog(@"MapboxStyleSet: Failed to parse filter for layer %@",layerDict[@"id"]);
         }
     }
     

@@ -63,15 +63,21 @@ public class MapboxKindaMap {
     
     // Check if we've finished loading stuff
     private func checkFinished() {
-        // If any of the oustanding fetches are running, don't start
-        outstandingFetches.forEach {
-            if $0?.state == .running {
-                return
+        DispatchQueue.main.async {
+            var done = true
+            
+            // If any of the oustanding fetches are running, don't start
+            self.outstandingFetches.forEach {
+                if $0?.state == .running {
+                    done = false
+                }
+            }
+            
+            // All done, so start
+            if done {
+                self.startLoader()
             }
         }
-        
-        // All done, so start
-        startLoader()
     }
     
     public var pageLayer : MaplyQuadPagingLayer? = nil
@@ -218,8 +224,8 @@ public class MapboxKindaMap {
                                 self.checkFinished()
                             }
                         }
-                        dataTask1.resume()
                         self.outstandingFetches.append(dataTask1)
+                        dataTask1.resume()
                         let dataTask2 = URLSession.shared.dataTask(with: self.cacheResolve(self.fileOverride(spritePNGurl))) {
                             (data, resp, error) in
                             guard error == nil else {
@@ -237,8 +243,8 @@ public class MapboxKindaMap {
                                 self.checkFinished()
                             }
                         }
-                        dataTask2.resume()
                         self.outstandingFetches.append(dataTask2)
+                        dataTask2.resume()
                     }
                 
                 if !success {
@@ -246,8 +252,8 @@ public class MapboxKindaMap {
                 }
             }
         }
-        dataTask.resume()
         outstandingFetches.append(dataTask)
+        dataTask.resume()
     }
     
     // Everything has been fetched, so fire up the loader
@@ -304,7 +310,8 @@ public class MapboxKindaMap {
             sampleParams.maxZoom = zoom.max
 
             // TODO: Handle more than one source
-            guard let imageLoader = MaplyQuadImageLoader(params: sampleParams, tileInfo: tileInfos[0], viewC: viewC) else {
+            guard let imageLoader = MaplyQuadImageLoader(params: sampleParams, tileInfos: tileInfos, viewC: viewC) else {
+//            guard let imageLoader = MaplyQuadImageLoader(params: sampleParams, tileInfo: tileInfos[0], viewC: viewC) else {
                 print("Failed to start image loader.  Nothing will appear.")
                 self.stop()
                 return
