@@ -28,12 +28,12 @@
     if (!self)
         return nil;
     
-    _color = [styleSet colorValue:@"background-color" val:nil dict:styleEntry defVal:[UIColor blackColor] multiplyAlpha:true];
+    _color = [styleSet transColor:@"background-color" entry:styleEntry defVal:[UIColor blackColor]];
     if (styleEntry[@"background-image"])
     {
         NSLog(@"MapboxStyleSet: Ignoring background image");
     }
-    _opacity = [styleSet doubleValue:@"background-opacity" dict:styleEntry defVal:1.0];
+    _opacity = [styleSet transDouble:@"background-opacity" entry:styleEntry defVal:1.0];
     
     return self;
 }

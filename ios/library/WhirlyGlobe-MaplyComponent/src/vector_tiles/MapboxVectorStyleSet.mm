@@ -26,6 +26,128 @@
 #import "MapboxVectorStyleSymbol.h"
 #import "MapboxVectorStyleCircle.h"
 
+/// @brief A single zoom and value
+@interface MaplyVectorFunctionStop : NSObject
+
+/// @brief Zoom level this applies to
+@property (nonatomic) double zoom;
+
+/// @brief Value at that zoom level
+@property (nonatomic) double val;
+
+/// @brief Could also just be a color
+@property (nonatomic,nullable,strong) UIColor *color;
+
+@end
+
+/// @brief These are used to control simple values based on zoom level
+@interface MaplyVectorFunctionStops : NSObject
+
+/// @brief Array of function stops as they apply to value.  These are MaplyVectorFunctionStop objects.
+@property (nonatomic,strong,nullable) NSArray *stops;
+
+/// @brief Used in exponential calculation
+@property (nonatomic,assign) double base;
+
+/// @brief Parse out of a JSON array
+- (id _Nullable)initWithArray:(NSArray * __nonnull)dataArray styleSet:(MapboxVectorStyleSet * __nonnull)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)viewC;
+
+/// @brief Calculate a value given the zoom level
+- (double)valueForZoom:(double)zoom;
+
+/// @brief This version returns colors, assuming we're dealing with colors
+- (UIColor * _Nonnull)colorForZoom:(int)zoom;
+
+/// @brief Returns the minimum value
+- (double)minValue;
+
+/// @brief Returns the maximum value
+- (double)maxValue;
+
+@end
+
+@implementation MapboxTransDouble
+{
+@public
+    double val;
+    MaplyVectorFunctionStops *stops;
+}
+
+- (id)initWithDouble:(double)value
+{
+    self = [super init];
+    val = value;
+    
+    return self;
+}
+
+- (id)initWithStops:(MaplyVectorFunctionStops *)inStops
+{
+    self = [super init];
+    stops = inStops;
+    
+    return self;
+}
+
+- (double)valForZoom:(double)zoom
+{
+    if (stops) {
+        return [stops valueForZoom:zoom];
+    } else
+        return val;
+}
+
+- (double)minVal
+{
+    if (stops) {
+        return [stops minValue];
+    } else
+        return val;
+}
+
+- (double)maxVal
+{
+    if (stops) {
+        return [stops maxValue];
+    } else
+        return val;
+}
+
+@end
+
+@implementation MapboxTransColor
+{
+@public
+    UIColor *color;
+    MaplyVectorFunctionStops *stops;
+}
+
+- (id)initWithColor:(UIColor *)inColor
+{
+    self = [super init];
+    color = inColor;
+    
+    return self;
+}
+
+- (id)initWithStops:(MaplyVectorFunctionStops *)inStops
+{
+    self = [super init];
+    stops = inStops;
+    
+    return self;
+}
+ 
+- (UIColor *)colorForZoom:(double)zoom
+{
+    if (stops) {
+        return [stops colorForZoom:(int)zoom];
+    } else
+        return color;
+}
+
+@end
+
 @implementation MapboxVectorStyleSet
 {
     NSMutableDictionary *layersByUUID;
@@ -259,6 +381,91 @@
         return stops;
     }
     return defEntry;
+}
+
+- (MapboxTransDouble *__nullable)transDouble:(NSString * __nonnull)name entry:(NSDictionary *__nonnull)entry defVal:(double)defVal
+{
+    // They pass in the whole dictionary and let us look the field up
+    id theEntry = entry[name];
+    if (!theEntry)
+        return [[MapboxTransDouble alloc] initWithDouble:defVal];
+    theEntry = [self constantSubstitution:theEntry forField:nil];
+
+    // This is probably stops
+    if ([theEntry isKindOfClass:[NSDictionary class]]) {
+        MaplyVectorFunctionStops *stops = [self stopsValue:theEntry defVal:name];
+        if (stops) {
+            return [[MapboxTransDouble alloc] initWithStops:stops];
+        } else {
+            NSLog(@"Expecting key word 'stops' in entry %@",name);
+        }
+    } else if ([theEntry isKindOfClass:[NSNumber class]]) {
+        return [[MapboxTransDouble alloc] initWithDouble:[theEntry doubleValue]];
+    } else {
+        NSLog(@"Unexpected type found in entry %@. Was expecting a double.",name);
+    }
+    
+    return nil;
+}
+
+- (MapboxTransColor *__nullable)transColor:(NSString *__nonnull)name entry:(NSDictionary *__nonnull)entry defVal:(UIColor * __nullable)defVal
+{
+    // They pass in the whole dictionary and let us look the field up
+    id theEntry = entry[name];
+    if (!theEntry) {
+        if (defVal)
+            return [[MapboxTransColor alloc] initWithColor:defVal];
+        return nil;
+    }
+    theEntry = [self constantSubstitution:theEntry forField:nil];
+
+    // This is probably stops
+    if ([theEntry isKindOfClass:[NSDictionary class]]) {
+        MaplyVectorFunctionStops *stops = [self stopsValue:theEntry defVal:name];
+        if (stops) {
+            return [[MapboxTransColor alloc] initWithStops:stops];
+        } else {
+            NSLog(@"Expecting key word 'stops' in entry %@",name);
+        }
+    } else if ([theEntry isKindOfClass:[NSString class]]) {
+        UIColor *color = [self colorValue:name val:theEntry dict:nil defVal:defVal multiplyAlpha:false];
+        if (color)
+            return [[MapboxTransColor alloc] initWithColor:color];
+        else {
+            NSLog(@"Unexpected type found in entry %@. Was expecting a color.",name);
+        }
+    } else {
+        NSLog(@"Unexpected type found in entry %@. Was expecting a color.",name);
+    }
+    
+    return nil;
+}
+
+- (UIColor *__nullable)resolveColor:(MapboxTransColor * __nullable)color opacity:(MapboxTransDouble * __nullable)opacity forZoom:(double)zoom mode:(MBResolveColorType)resolveMode
+{
+    // No color means no color
+    if (!color)
+        return nil;
+    
+    UIColor *thisColor = [color colorForZoom:zoom];
+
+    // No opacity, means full opacity
+    if (!opacity)
+        return thisColor;
+    
+    double thisOpacity = [opacity valForZoom:zoom];
+    
+    CGFloat red,green,blue,alpha;
+    [thisColor getRed:&red green:&green blue:&blue alpha:&alpha];
+    switch (resolveMode)
+    {
+        case MBResolveColorOpacityMultiply:
+            return [UIColor colorWithRed:red*thisOpacity green:green*thisOpacity blue:blue*thisOpacity alpha:alpha*thisOpacity];
+            break;
+        case MBResolveColorOpacityReplaceAlpha:
+            return [UIColor colorWithRed:red green:green blue:blue alpha:thisOpacity];
+            break;
+    }
 }
 
 - (UIColor *)color:(UIColor *)color withOpacity:(double)opacity
@@ -534,6 +741,7 @@
         return nil;
     
     self.styleSet = styleSet;
+    self.drawPriorityPerLevel = styleSet.tileStyleSettings.drawPriorityPerLevel;
     self.drawPriority = drawPriority;
     self.uuid = [@(rand()) stringValue];
     
@@ -754,15 +962,15 @@
             } else {
                 NSNumber *featAttrNum = (NSNumber *)featAttrVal;
                 NSNumber *attrNum = (NSNumber *)_attrVal;
-                if ([featAttrNum isKindOfClass:[NSNumber class]] && [attrNum isKindOfClass:[NSNumber class]])
+                if ([featAttrNum isKindOfClass:[NSNumber class]])
                 {
                     switch (_filterType)
                     {
                         case MBFilterEqual:
-                            ret = [featAttrNum isEqualToNumber:attrNum];
+                            ret = [featAttrNum doubleValue] == [attrNum doubleValue];
                             break;
                         case MBFilterNotEqual:
-                            ret = ![featAttrNum isEqualToNumber:attrNum];
+                            ret = [featAttrNum doubleValue] != [attrNum doubleValue];
                             break;
                         case MBFilterGreaterThan:
                             ret = [featAttrNum doubleValue] > [attrNum doubleValue];
@@ -847,7 +1055,7 @@
     return self;
 }
 
-- (double)valueForZoom:(int)zoom
+- (double)valueForZoom:(double)zoom
 {
     MaplyVectorFunctionStop *a = _stops[0],*b = nil;
     if (zoom <= a.zoom)
@@ -905,14 +1113,24 @@
 
 - (double)minValue
 {
-    MaplyVectorFunctionStop *a = _stops[0];
-    return a.val;
+    double val = MAXFLOAT;
+    
+    for (MaplyVectorFunctionStop *stop in _stops) {
+        val = MIN(val,stop.val);
+    }
+    
+    return val;
 }
 
 - (double)maxValue
 {
-    MaplyVectorFunctionStop *b = _stops[_stops.count-1];
-    return b.val;
+    double val = -MAXFLOAT;
+    
+    for (MaplyVectorFunctionStop *stop in _stops) {
+        val = MAX(val,stop.val);
+    }
+    
+    return val;
 }
 
 

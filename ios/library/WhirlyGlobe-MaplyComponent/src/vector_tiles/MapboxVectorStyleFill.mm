@@ -48,19 +48,9 @@
     [styleSet unsupportedCheck:@"fill-translate-anchor" in:@"paint_fill" styleEntry:styleEntry];
     [styleSet unsupportedCheck:@"fill-image" in:@"paint_fill" styleEntry:styleEntry];
 
-    _opacityBase = 1.0;
-    id fillEntry = styleEntry[@"fill-opacity"];
-    if (fillEntry)
-    {
-        if ([fillEntry isKindOfClass:[NSNumber class]])
-            _opacity = [styleSet doubleValue:fillEntry defVal:1.0];
-        else {
-            _opacityFunc = [styleSet stopsValue:fillEntry defVal:nil];
-        }
-    } else
-        _opacity = 1.0;
-    _color = [styleSet colorValue:@"fill-color" val:nil dict:styleEntry defVal:[UIColor blackColor] multiplyAlpha:true];
-    _outlineColor = [styleSet colorValue:@"fill-outline-color" val:nil dict:styleEntry defVal:nil multiplyAlpha:true];
+    _opacity = [styleSet transDouble:@"fill-opacity" entry:styleEntry defVal:1.0];
+    _color = [styleSet transColor:@"fill-color" entry:styleEntry defVal:nil];
+    _outlineColor = [styleSet transColor:@"fill-outline-color" entry:styleEntry defVal:nil];
     
     return self;
 }
@@ -69,8 +59,7 @@
 
 @implementation MapboxVectorLayerFill
 {
-    NSMutableDictionary *fillDesc,*outlineDesc;
-    int drawPriorityPerLevel;
+    NSString *arealShaderName;
 }
 
 - (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
@@ -87,33 +76,8 @@
         return nil;
     }
     
-    if (_paint.color)
-    {
-        fillDesc = [NSMutableDictionary dictionaryWithDictionary:
-                     @{kMaplyFilled: @(YES),
-                       kMaplyDrawPriority: @(self.drawPriority),
-                       kMaplyVecCentered: @(true),
-                       kMaplyColor: [styleSet color:_paint.color withOpacity:_paint.opacity],
-                       kMaplySelectable: @(false),
-                       kMaplyEnable: @(NO)
-                      }];
-        if (styleSet.tileStyleSettings.arealShaderName)
-            fillDesc[kMaplyShader] = styleSet.tileStyleSettings.arealShaderName;
-    }
-    
-    if (_paint.outlineColor)
-    {
-        outlineDesc = [NSMutableDictionary dictionaryWithDictionary:
-                    @{kMaplyFilled: @(NO),
-                      kMaplyDrawPriority: @(self.drawPriority+1),
-                      kMaplyVecCentered: @(true),
-                      kMaplyColor: [styleSet color:_paint.outlineColor withOpacity:_paint.opacity],
-                      kMaplySelectable: @(false),
-                      kMaplyEnable: @(NO)
-                      }];
-    }
-
-    drawPriorityPerLevel = styleSet.tileStyleSettings.drawPriorityPerLevel;
+    if (styleSet.tileStyleSettings.arealShaderName)
+        arealShaderName = styleSet.tileStyleSettings.arealShaderName;
 
     return self;
 }
@@ -127,8 +91,17 @@
         return compObjs;
     
     // Filled polygons
-    if (fillDesc)
+    if (_paint.color)
     {
+        NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:
+                     @{kMaplyFilled: @(YES),
+                       kMaplyVecCentered: @(true),
+                       kMaplySelectable: @(false),
+                       kMaplyEnable: @(NO)
+                      }];
+        if (arealShaderName)
+            desc[kMaplyShader] = arealShaderName;
+
         NSMutableArray *tessVecObjs = [NSMutableArray array];
         for (MaplyVectorObject *vecObj in vecObjs)
         {
@@ -137,55 +110,59 @@
                 [tessVecObjs addObject:tessVecObj];
         }
         
-        NSMutableDictionary *mutDesc = [NSMutableDictionary dictionaryWithDictionary:fillDesc];
         bool include = true;
-        if (_paint.opacityFunc)
-        {
-            double opacity = [_paint.opacityFunc valueForZoom:tileInfo.tileID.level];
-            if (opacity > 0.0)
-            {
-                UIColor *color = [self.styleSet color:_paint.color withOpacity:opacity];
-                mutDesc[kMaplyColor] = color;
-            } else
-                include = false;
+        UIColor *color = [self.styleSet resolveColor:_paint.color opacity:_paint.opacity forZoom:tileInfo.tileID.level mode:MBResolveColorOpacityMultiply];
+        if (color) {
+            // For fill we want the alpha multiplied through
+            // TODO: When we do this, it's a mess.  Need to track colors more exactly (some have alpha, some don't)
+//            CGFloat red,green,blue,alpha;
+//            [color getRed:&red green:&green blue:&blue alpha:&alpha];
+//            color = [UIColor colorWithRed:red*alpha green:green*alpha blue:blue*alpha alpha:alpha];
+            desc[kMaplyColor] = color;
+            include = true;
         }
         
-        if (drawPriorityPerLevel > 0) {
-            mutDesc[kMaplyDrawPriority] = @(self.drawPriority + tileInfo.tileID.level * drawPriorityPerLevel);
+        
+        if (self.drawPriorityPerLevel > 0) {
+            desc[kMaplyDrawPriority] = @(self.drawPriority + tileInfo.tileID.level * self.drawPriorityPerLevel);
+        } else {
+            desc[kMaplyDrawPriority] = @(self.drawPriority);
         }
                 
         if (include)
         {
-            MaplyComponentObject *compObj = [viewC addVectors:tessVecObjs desc:mutDesc mode:MaplyThreadCurrent];
+            MaplyComponentObject *compObj = [viewC addVectors:tessVecObjs desc:desc mode:MaplyThreadCurrent];
             if (compObj)
                 [compObjs addObject:compObj];
         }
     }
     
     // Outline
-    if (outlineDesc)
+    if (_paint.outlineColor)
     {
-        NSMutableDictionary *mutDesc = [NSMutableDictionary dictionaryWithDictionary:outlineDesc];
+        NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:
+                    @{kMaplyFilled: @(NO),
+                      kMaplyVecCentered: @(true),
+                      kMaplySelectable: @(false),
+                      kMaplyEnable: @(NO)
+                      }];
+
         bool include = true;
-        // Note: Does opacity apply here?
-        if (_paint.opacityFunc)
-        {
-            double opacity = [_paint.opacityFunc valueForZoom:tileInfo.tileID.level];
-            if (opacity > 0.0)
-            {
-                UIColor *color = [self.styleSet color:_paint.outlineColor withOpacity:opacity];
-                mutDesc[kMaplyColor] = color;
-            } else
-                include = false;
+        UIColor *color = [self.styleSet resolveColor:_paint.outlineColor opacity:nil forZoom:tileInfo.tileID.level mode:MBResolveColorOpacityMultiply];
+        if (color) {
+            desc[kMaplyColor] = color;
+            include = true;
         }
 
-        if (drawPriorityPerLevel > 0) {
-            mutDesc[kMaplyDrawPriority] = @(self.drawPriority + tileInfo.tileID.level * drawPriorityPerLevel);
+        if (self.drawPriorityPerLevel > 0) {
+            desc[kMaplyDrawPriority] = @(self.drawPriority + tileInfo.tileID.level * self.drawPriorityPerLevel+1);
+        } else {
+            desc[kMaplyDrawPriority] = @(self.drawPriority+1);
         }
 
         if (include)
         {
-            MaplyComponentObject *compObj = [viewC addVectors:vecObjs desc:mutDesc mode:MaplyThreadCurrent];
+            MaplyComponentObject *compObj = [viewC addVectors:vecObjs desc:desc mode:MaplyThreadCurrent];
             if (compObj)
                 [compObjs addObject:compObj];
         }

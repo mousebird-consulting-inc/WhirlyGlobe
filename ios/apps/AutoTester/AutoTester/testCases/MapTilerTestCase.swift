@@ -24,7 +24,7 @@ class MapTilerTestCase: MaplyTestCase {
          ("Hybrid Satellite", "maptiler_hybrid_satellite"),
          ("Streets", "maptiler_streets"),
          ("Topo", "maptiler_topo")]
-    let MapTilerStyle = 0
+    let MapTilerStyle = 2
     
     var mapboxMap : MapboxKindaMap? = nil
     
@@ -37,7 +37,7 @@ class MapTilerTestCase: MaplyTestCase {
 
         // Parse it and then let it start itself
         mapboxMap = MapboxKindaMap(fileName, viewC: viewC)
-        mapboxMap?.styleSettings.textScale = 1.5  // Note: Why does this work better than 2.0?
+        mapboxMap?.styleSettings.textScale = 1.2  // Note: Why does this work better than 2.0?
         mapboxMap?.backgroundAllPolys = false
         mapboxMap?.start()
     }

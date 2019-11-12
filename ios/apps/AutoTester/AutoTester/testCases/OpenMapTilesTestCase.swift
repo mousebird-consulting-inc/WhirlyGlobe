@@ -50,8 +50,9 @@ class OpenMapTilesTestCase: MaplyTestCase {
                 pageLayer.singleLevelLoading = true
                 
                 // Background layer supplies the background color
-                if let backLayer = styleSet.layersByName!["background"] as? MapboxVectorLayerBackground? {
-                    baseVC.clearColor = backLayer?.paint.color
+                if let backLayer = styleSet.layersByName!["background"] as? MapboxVectorLayerBackground?,
+                    let paint = backLayer?.paint {
+                    baseVC.clearColor = paint.color.color(forZoom: 0)
                 }
                 
                 return pageLayer

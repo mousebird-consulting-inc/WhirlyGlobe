@@ -41,7 +41,7 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
 		VectorMBTilesTestCase(),
 //        OpenMapTilesTestCase(),
 //        OpenMapTilesHybridTestCase(),
-//        MapTilerTestCase(),
+        MapTilerTestCase(),
 
 		StarsSunTestCase(),
 		ShapesTestCase(),

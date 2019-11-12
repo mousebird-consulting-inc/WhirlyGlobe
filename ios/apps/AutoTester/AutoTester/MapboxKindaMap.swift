@@ -438,7 +438,8 @@ public class MapboxKindaMap {
                 
                 // Background layer supplies the background color
                 if let backLayer = styleSheet.layersByName!["background"] as? MapboxVectorLayerBackground? {
-                    viewC.clearColor = backLayer?.paint.color
+                    // TODO: This can vary per level
+                    viewC.clearColor = backLayer?.paint.color.color(forZoom: 0)
                 }
                 self.pageLayer = pageLayer
                 viewC.add(pageLayer)
