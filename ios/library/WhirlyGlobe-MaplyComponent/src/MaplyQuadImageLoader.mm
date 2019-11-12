@@ -404,7 +404,9 @@ using namespace WhirlyKit;
     [vecObj subdivideToGlobe:0.001];
     MaplyComponentObject *outlineObj = [viewC addVectors:@[vecObj] desc:nil mode:MaplyThreadCurrent];
     
-    loadReturn.compObjs = @[labelObj,outlineObj];
+    if (labelObj && outlineObj) {
+        loadReturn.compObjs = @[labelObj,outlineObj];
+    }
 }
 
 @end

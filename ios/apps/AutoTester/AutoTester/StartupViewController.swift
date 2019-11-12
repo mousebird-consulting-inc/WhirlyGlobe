@@ -41,7 +41,7 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
 		VectorMBTilesTestCase(),
 //        OpenMapTilesTestCase(),
 //        OpenMapTilesHybridTestCase(),
-        MapTilerTestCase(),
+//        MapTilerTestCase(),
 
 		StarsSunTestCase(),
 		ShapesTestCase(),
@@ -61,7 +61,8 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
 		GreatCircleTestCase(),
 		
 		LabelAnimationTestCase(),
-		WMSTestCase(),
+        // Note: Endpoint is missing
+//		WMSTestCase(),
 		FindHeightTestCase(),
 		FullAnimationTest(),
 		ActiveObjectTestCase(),

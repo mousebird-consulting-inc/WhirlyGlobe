@@ -3605,6 +3605,9 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
 - (void)enableObjectsImpl:(NSArray *)userObjs enable:(bool)enable changes:(ChangeSet &)changes
 {
+    if (isShuttingDown || (!layerThread && !offlineMode))
+        return;
+
     VectorManager *vectorManager = (VectorManager *)scene->getManager(kWKVectorManager);
     WideVectorManager *wideVectorManager = (WideVectorManager *)scene->getManager(kWKWideVectorManager);
     MarkerManager *markerManager = (MarkerManager *)scene->getManager(kWKMarkerManager);
