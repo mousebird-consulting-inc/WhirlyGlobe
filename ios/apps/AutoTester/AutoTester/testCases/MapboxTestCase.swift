@@ -41,6 +41,7 @@ class MapboxTestCase: MaplyTestCase {
         let token = "GetYerOwnToken"
         if token == "GetYerOwnToken" {
             print("----------\nYou need to insert your own Mapbox token.  You can't use mine.\n------------")
+            return
         }
         
         let spriteURLstr = "https://api.mapbox.com/styles/v1/{filename}?access_token=" + token
