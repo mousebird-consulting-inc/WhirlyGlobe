@@ -290,6 +290,9 @@ public class MapboxKindaMap {
                     let maxZoom = source.tileSpec?["maxzoom"] as? Int32,
                     let tiles = source.tileSpec?["tiles"] as? [String] {
                     let tileSource = MaplyRemoteTileInfoNew(baseURL: tiles[0], minZoom: minZoom, maxZoom: maxZoom)
+                    if let cacheDir = self.cacheDir {
+                        tileSource.cacheDir = cacheDir.appendingPathComponent(tiles[0].replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: ":", with: "_")).absoluteString
+                    }
                     tileInfos.append(tileSource)
                 }
             }
