@@ -278,10 +278,11 @@ public:
     if (!_layout.visible)
         return compObjs;
     
-    if (self.minzoom > tileInfo.tileID.level)
-        return compObjs;
-    if (self.maxzoom < tileInfo.tileID.level)
-        return compObjs;
+    // TODO: They mean displayed level here, which is different form loaded level
+//    if (self.minzoom > tileInfo.tileID.level)
+//        return compObjs;
+//    if (self.maxzoom < tileInfo.tileID.level)
+//        return compObjs;
     
     NSDictionary *desc = symbolDesc;
     double textSize = 24.0;
