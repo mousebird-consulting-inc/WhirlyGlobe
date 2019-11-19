@@ -278,6 +278,7 @@ public:
     for (MaplyVectorObject *vecObj in vecObjs)
     {
         MaplyScreenLabel *label = [[MaplyScreenLabel alloc] init];
+        label.userObject = vecObj;
         label.loc = [vecObj center];
         
         // Reconstruct the string from its replacement form

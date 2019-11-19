@@ -237,7 +237,8 @@ static int BackImageWidth = 16, BackImageHeight = 16;
     if (offlineRender) {
         MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRawImage:imageData width:offlineRender.getFramebufferSize.width height:offlineRender.getFramebufferSize.height];
         WhirlyKitLoadedTile *loadTile = [tileData wkTile:0 convertToRaw:true];
-        [outImages addObject:loadTile];
+        if (loadTile)
+            [outImages addObject:loadTile];
     } else {
         if (images.empty()) {
             // Make a single color background image

@@ -109,6 +109,7 @@
         marker.size = circleSize;
         marker.loc = [vecObj center];
         marker.layoutImportance = importance;
+        marker.userObject = vecObj;
         [markers addObject:marker];
     }
     
