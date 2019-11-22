@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import WhirlyGlobeMaplyComponent
 
 /**
     Convenience class for loading a Mapbox-style vector tiles-probably kinda map.
@@ -42,12 +41,19 @@ public class MapboxKindaMap {
     //  directly to local font names.
     public var fontOverride : (_ name: String) -> UIFontDescriptor? = { _ in return nil }
     
+    // This is the importance value used in the sampler for loading
+    // It's roughly the maximum number of pixels you want a tile to be on the screen
+    //  before you load its children.  1024 is good for vector tiles, 256 good for image tiles
+    public var minImportance = 1024.0 * 1024.0
+    
     public init() {
     }
     
     public init(_ styleURL: URL, viewC: MaplyBaseViewController) {
         self.viewC = viewC
         self.styleURL = styleURL
+        styleSettings.baseDrawPriority = kMaplyImageLayerDrawPriorityDefault+1000
+        styleSettings.drawPriorityPerLevel = 1
     }
     
     public var styleSettings = MaplyVectorStyleSettings()
@@ -60,10 +66,19 @@ public class MapboxKindaMap {
     
     // Information about the sources as we fetch them
     public var outstandingFetches : [URLSessionDataTask?] = []
+    private var finished = false
     
     // Check if we've finished loading stuff
     private func checkFinished() {
+        if finished {
+            return
+        }
+
         DispatchQueue.main.async {
+            if self.finished {
+                return
+            }
+            
             var done = true
             
             // If any of the oustanding fetches are running, don't start
@@ -75,6 +90,7 @@ public class MapboxKindaMap {
             
             // All done, so start
             if done {
+                self.finished = true
                 self.startLoader()
             }
         }
@@ -300,7 +316,7 @@ public class MapboxKindaMap {
             // Parameters describing how we want a globe broken down
             let sampleParams = MaplySamplingParams()
             sampleParams.coordSys = MaplySphericalMercator(webStandard: ())
-            sampleParams.minImportance = 1024 * 1024
+            sampleParams.minImportance = self.minImportance
             sampleParams.singleLevel = true
             if viewC is WhirlyGlobeViewController {
                 sampleParams.coverPoles = true
@@ -334,6 +350,7 @@ public class MapboxKindaMap {
                 }
                 self.offlineRender = offlineRender
                 let imageStyleSettings = MaplyVectorStyleSettings.init(scale: UIScreen.main.scale)
+                imageStyleSettings.baseDrawPriority = styleSettings.baseDrawPriority
                 imageStyleSettings.arealShaderName = kMaplyShaderDefaultTriNoLighting
 
                 // We only want the polygons in the image
@@ -358,8 +375,6 @@ public class MapboxKindaMap {
             }
             
             // Just the linear and point vectors in the overlay
-            styleSettings.baseDrawPriority = 100+1
-            styleSettings.drawPriorityPerLevel = 1000
             guard let styleSheetVector = MapboxVectorStyleSet.init(json: styleSheetData,
                                                                  settings: styleSettings,
                                                                  viewC: viewC,
@@ -435,7 +450,7 @@ public class MapboxKindaMap {
             //            pageDelegate.tileParser?.debugOutline = true
             if let pageLayer = MaplyQuadPagingLayer(coordSystem: MaplySphericalMercator(), delegate: pageDelegate) {
                 pageLayer.flipY = false
-                pageLayer.importance = 512*512;
+                pageLayer.importance = 512*512
                 pageLayer.singleLevelLoading = true
                 
                 // Background layer supplies the background color

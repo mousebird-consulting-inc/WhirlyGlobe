@@ -57,8 +57,6 @@
 
     // We want the texture a bit bigger than specified
     float scale = styleSet.tileStyleSettings.markerScale * 2;
-    // Note: Should do the layout, even if it's minimal
-//    _visible = [styleSet boolValue:@"visibility" dict:styleEntry onValue:@"visible" defVal:true];
 
     _paint = [[MapboxVectorCirclePaint alloc] initWithStyleEntry:styleEntry[@"paint"] styleSet:styleSet viewC:viewC];
 
@@ -101,6 +99,10 @@
 
 - (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileInfo *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
+    if (!self.visible) {
+        return @[];
+    }
+    
     NSMutableArray *markers = [NSMutableArray array];
     
     for (MaplyVectorObject *vecObj in vecObjs) {
@@ -109,6 +111,7 @@
         marker.size = circleSize;
         marker.loc = [vecObj center];
         marker.layoutImportance = importance;
+        marker.selectable = self.selectable;
         marker.userObject = vecObj;
         [markers addObject:marker];
     }

@@ -27,9 +27,7 @@
     self = [super init];
     if (!self)
         return nil;
-    
-    _visible = [styleSet boolValue:@"visibility" dict:styleEntry onValue:@"visible" defVal:true];
-    
+        
     return self;
 }
 
@@ -68,7 +66,7 @@
     if (!self)
         return nil;
     
-    _layout = [[MapboxVectorFillLayout alloc] initWithStyleEntry:styleEntry[@"layout"] styleSet:styleSet viewC:viewC];    
+    _layout = [[MapboxVectorFillLayout alloc] initWithStyleEntry:styleEntry[@"layout"] styleSet:styleSet viewC:viewC];
     _paint = [[MapboxVectorFillPaint alloc] initWithStyleEntry:styleEntry[@"paint"] styleSet:styleSet viewC:viewC];
     if (!_paint)
     {
@@ -84,11 +82,11 @@
 
 - (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileInfo *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
+    if (!self.visible) {
+        return @[];
+    }
+
     NSMutableArray *compObjs = [NSMutableArray array];
-    
-    // Note: Would be better to do this earlier
-    if (!_layout.visible)
-        return compObjs;
     
     // Filled polygons
     if (_paint.color)
@@ -96,7 +94,7 @@
         NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:
                      @{kMaplyFilled: @(YES),
                        kMaplyVecCentered: @(true),
-                       kMaplySelectable: @(false),
+                       kMaplySelectable: @(self.selectable),
                        kMaplyEnable: @(NO)
                       }];
         if (arealShaderName)
@@ -143,7 +141,7 @@
         NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:
                     @{kMaplyFilled: @(NO),
                       kMaplyVecCentered: @(true),
-                      kMaplySelectable: @(false),
+                      kMaplySelectable: @(self.selectable),
                       kMaplyEnable: @(NO)
                       }];
 

@@ -731,6 +731,9 @@
         }
     }
     
+    layer.visible = [styleSet boolValue:@"visibility" dict:layerDict[@"layout"] onValue:@"visible" defVal:true];
+    layer.selectable = styleSet.tileStyleSettings.selectable;
+    
     return layer;
 }
 

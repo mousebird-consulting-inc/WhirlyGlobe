@@ -152,6 +152,9 @@ typedef enum : NSUInteger {
 
 @property (nonatomic,weak,nullable) MapboxVectorStyleSet *styleSet;
 
+/// Set if we actually use this layer.  Copied from the layout
+@property (nonatomic) bool visible;
+
 /// @brief ID on the layer style entry
 @property (nonatomic,nullable,strong) NSString *ident;
 
@@ -172,6 +175,10 @@ typedef enum : NSUInteger {
 
 /// If non-zero we set the draw priority differently per level
 @property (nonatomic) int drawPriorityPerLevel;
+
+// If set, the features produced will be selectable (if they can be)
+// Inherited from the settings
+@property (nonatomic) bool selectable;
 
 /// @brief Initialize with the style sheet and the entry for this layer
 + (id __nullable)VectorStyleLayer:(MapboxVectorStyleSet * __nonnull)styleSet JSON:(NSDictionary * __nonnull)layerDict drawPriority:(int)drawPriority;

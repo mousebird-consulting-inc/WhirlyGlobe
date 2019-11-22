@@ -37,6 +37,7 @@ public:
 {
 @public
     std::vector<TextChunk> textChunks;
+    float layoutImportance;
 }
 
 - (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
@@ -46,7 +47,6 @@ public:
         return nil;
     
     _globalTextScale = styleSet.tileStyleSettings.textScale;
-    _visible = [styleSet boolValue:@"visibility" dict:styleEntry onValue:@"visible" defVal:true];
     _placement = (MapboxSymbolPlacement)[styleSet enumValue:styleEntry[@"symbol-placement"] options:@[@"point",@"line"] defVal:MBPlacePoint];
     _textTransform = (MapboxTextTransform)[styleSet enumValue:styleEntry[@"text-transform"] options:@[@"none",@"uppercase",@"lowercase"] defVal:MBTextTransNone];
     
@@ -90,6 +90,7 @@ public:
     {
         _textAnchor = (MapboxTextAnchor)[styleSet enumValue:styleEntry[@"text-anchor"] options:@[@"center",@"left",@"right",@"top",@"bottom",@"top-left",@"top-right",@"bottom-left",@"bottom-right"] defVal:MBTextCenter];
     }
+    layoutImportance = styleSet.tileStyleSettings.labelImportance;
 
     return self;
 }
@@ -224,11 +225,11 @@ public:
 
 - (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileInfo *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
-    NSMutableArray *compObjs = [NSMutableArray array];
+    if (!self.visible) {
+        return @[];
+    }
 
-    // Note: Would be better to do this earlier
-    if (!_layout.visible)
-        return compObjs;
+    NSMutableArray *compObjs = [NSMutableArray array];
     
     // TODO: They mean displayed level here, which is different from loaded level
 //    if (self.minzoom > tileInfo.tileID.level)
@@ -278,6 +279,7 @@ public:
     for (MaplyVectorObject *vecObj in vecObjs)
     {
         MaplyScreenLabel *label = [[MaplyScreenLabel alloc] init];
+        label.selectable = self.selectable;
         label.userObject = vecObj;
         label.loc = [vecObj center];
         
@@ -313,7 +315,7 @@ public:
         }
         // Random tweak to cut down on flashing
         float strHash = [self calcStringHash:label.text];
-        label.layoutImportance = 1000000 - rank + (101-tileInfo.tileID.level)/100.0 + strHash/1000.0;
+        label.layoutImportance = _layout->layoutImportance + 1.0 - (rank + (101-tileInfo.tileID.level)/100.0)/1000.0 + strHash/1000.0;
         
         // Change the text if needed
         switch (_layout.textTransform)

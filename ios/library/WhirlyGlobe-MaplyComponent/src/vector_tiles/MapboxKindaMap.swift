@@ -29,7 +29,7 @@ public class MapboxKindaMap {
     
     // If set, a top level directory where we'll cache everything
     public var cacheDir : URL? = nil
-
+    
     // If set, you can override the file loaded for a particular purpose.
     // This includes: the TileJSON files, sprite sheets, and the style sheet itself
     // For example, if you want to load from the bundle, but not have to change
@@ -40,6 +40,11 @@ public class MapboxKindaMap {
     //  font name in the style.  Font names in the style often don't map
     //  directly to local font names.
     public var fontOverride : (_ name: String) -> UIFontDescriptor? = { _ in return nil }
+    
+    // This is the importance value used in the sampler for loading
+    // It's roughly the maximum number of pixels you want a tile to be on the screen
+    //  before you load its children.  1024 is good for vector tiles, 256 good for image tiles
+    public var minImportance = 1024.0 * 1024.0
     
     public init() {
     }
@@ -59,18 +64,34 @@ public class MapboxKindaMap {
     
     // Information about the sources as we fetch them
     public var outstandingFetches : [URLSessionDataTask?] = []
+    private var finished = false
     
     // Check if we've finished loading stuff
     private func checkFinished() {
-        // If any of the oustanding fetches are running, don't start
-        outstandingFetches.forEach {
-            if $0?.state == .running {
+        if finished {
+            return
+        }
+
+        DispatchQueue.main.async {
+            if self.finished {
                 return
             }
+            
+            var done = true
+            
+            // If any of the oustanding fetches are running, don't start
+            self.outstandingFetches.forEach {
+                if $0?.state == .running {
+                    done = false
+                }
+            }
+            
+            // All done, so start
+            if done {
+                self.finished = true
+                self.startLoader()
+            }
         }
-        
-        // All done, so start
-        startLoader()
     }
     
     public var pageLayer : MaplyQuadPagingLayer? = nil
@@ -217,8 +238,8 @@ public class MapboxKindaMap {
                                 self.checkFinished()
                             }
                         }
-                        dataTask1.resume()
                         self.outstandingFetches.append(dataTask1)
+                        dataTask1.resume()
                         let dataTask2 = URLSession.shared.dataTask(with: self.cacheResolve(self.fileOverride(spritePNGurl))) {
                             (data, resp, error) in
                             guard error == nil else {
@@ -236,8 +257,8 @@ public class MapboxKindaMap {
                                 self.checkFinished()
                             }
                         }
-                        dataTask2.resume()
                         self.outstandingFetches.append(dataTask2)
+                        dataTask2.resume()
                     }
                 
                 if !success {
@@ -245,8 +266,8 @@ public class MapboxKindaMap {
                 }
             }
         }
-        dataTask.resume()
         outstandingFetches.append(dataTask)
+        dataTask.resume()
     }
     
     // Everything has been fetched, so fire up the loader
@@ -283,6 +304,9 @@ public class MapboxKindaMap {
                     let maxZoom = source.tileSpec?["maxzoom"] as? Int32,
                     let tiles = source.tileSpec?["tiles"] as? [String] {
                     let tileSource = MaplyRemoteTileInfoNew(baseURL: tiles[0], minZoom: minZoom, maxZoom: maxZoom)
+                    if let cacheDir = self.cacheDir {
+                        tileSource.cacheDir = cacheDir.appendingPathComponent(tiles[0].replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: ":", with: "_")).absoluteString
+                    }
                     tileInfos.append(tileSource)
                 }
             }
@@ -290,7 +314,7 @@ public class MapboxKindaMap {
             // Parameters describing how we want a globe broken down
             let sampleParams = MaplySamplingParams()
             sampleParams.coordSys = MaplySphericalMercator(webStandard: ())
-            sampleParams.minImportance = 1024 * 1024
+            sampleParams.minImportance = self.minImportance
             sampleParams.singleLevel = true
             if viewC is WhirlyGlobeViewController {
                 sampleParams.coverPoles = true
@@ -303,7 +327,7 @@ public class MapboxKindaMap {
             sampleParams.maxZoom = zoom.max
 
             // TODO: Handle more than one source
-            guard let imageLoader = MaplyQuadImageLoader(params: sampleParams, tileInfo: tileInfos[0], viewC: viewC) else {
+            guard let imageLoader = MaplyQuadImageLoader(params: sampleParams, tileInfos: tileInfos, viewC: viewC) else {
                 print("Failed to start image loader.  Nothing will appear.")
                 self.stop()
                 return
@@ -348,11 +372,10 @@ public class MapboxKindaMap {
             }
             
             // Just the linear and point vectors in the overlay
-            let vectorSettings = MaplyVectorStyleSettings.init(scale: UIScreen.main.scale)
-            vectorSettings.baseDrawPriority = 100+1
-            vectorSettings.drawPriorityPerLevel = 1000
+            styleSettings.baseDrawPriority = 100+1
+            styleSettings.drawPriorityPerLevel = 1000
             guard let styleSheetVector = MapboxVectorStyleSet.init(json: styleSheetData,
-                                                                 settings: vectorSettings,
+                                                                 settings: styleSettings,
                                                                  viewC: viewC,
                                                                  filter:
                 { (styleAttrs) -> Bool in
@@ -431,7 +454,8 @@ public class MapboxKindaMap {
                 
                 // Background layer supplies the background color
                 if let backLayer = styleSheet.layersByName!["background"] as? MapboxVectorLayerBackground? {
-                    viewC.clearColor = backLayer?.paint.color
+                    // TODO: This can vary per level
+                    viewC.clearColor = backLayer?.paint.color.color(forZoom: 0)
                 }
                 self.pageLayer = pageLayer
                 viewC.add(pageLayer)

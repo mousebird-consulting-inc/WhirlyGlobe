@@ -41,6 +41,8 @@
 @property (nonatomic) float markerImportance;
 /// Default marker size when none is specified
 @property (nonatomic) float markerSize;
+/// Importance for labels in the layout engine
+@property (nonatomic) float labelImportance;
 
 /// Draw priority calculated as offset from here
 @property (nonatomic) int baseDrawPriority;
@@ -70,7 +72,7 @@
 /// If set, this is the shader we'll use on the areal features.
 @property (nonatomic,strong) NSString * _Nullable arealShaderName;
 
-/// If set, we'll make the areal features selectable.  If not, this saves memory.
+/// If set, we'll make all the features selectable.  If not, we won't.
 @property (nonatomic) bool selectable;
 
 /// If set, icons will be loaded from this directory

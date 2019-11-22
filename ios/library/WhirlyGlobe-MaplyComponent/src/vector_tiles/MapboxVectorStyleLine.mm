@@ -29,7 +29,6 @@
     if (!self)
         return nil;
 
-    _visible = [styleSet boolValue:@"visibility" dict:styleEntry onValue:@"visible" defVal:true];
     _cap = (MapboxVectorLineCap)[styleSet enumValue:styleEntry[@"line-cap"] options:@[@"butt",@"round",@"square"] defVal:MBLineCapButt];
     _join = (MapboxVectorLineJoin)[styleSet enumValue:styleEntry[@"line-join"] options:@[@"bevel",@"round",@"miter"] defVal:MBLineJoinMiter];
     _miterLimit = [styleSet doubleValue:@"line-miter-limit" dict:styleEntry defVal:2.0];
@@ -164,11 +163,11 @@ static unsigned int NextPowOf2(unsigned int val)
 
 - (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileInfo *)tileInfo  viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
-    NSMutableArray *compObjs = [NSMutableArray array];
+    if (!self.visible) {
+        return @[];
+    }
 
-    // Note: Would be better to do this earlier
-    if (!_layout.visible)
-        return compObjs;
+    NSMutableArray *compObjs = [NSMutableArray array];
     
     // TODO: Do level based animation instead
     float levelBias = 0.9;
@@ -207,7 +206,7 @@ static unsigned int NextPowOf2(unsigned int val)
                   kMaplyWideVecTexRepeatLen: @(totLen/4.0),
                   kMaplyFade: @0.0,
                   kMaplyVecCentered: @YES,
-                  kMaplySelectable: @NO,
+                  kMaplySelectable: @(self.selectable),
                   kMaplyEnable: @NO
                   }];
     } else {
@@ -216,7 +215,7 @@ static unsigned int NextPowOf2(unsigned int val)
                 @{kMaplyDrawPriority: @(self.drawPriority),
                   kMaplyFade: @0.0,
                   kMaplyVecCentered: @YES,
-                  kMaplySelectable: @NO,
+                  kMaplySelectable: @(self.selectable),
                   kMaplyEnable: @NO
                   }];
     }
