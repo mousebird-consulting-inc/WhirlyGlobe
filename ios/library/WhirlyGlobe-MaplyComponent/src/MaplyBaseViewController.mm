@@ -1145,6 +1145,12 @@ static const float PerfOutputDelay = 15.0;
         layoutManager->setMaxDisplayObjects(maxLayoutObjects);
 }
 
+- (void)runLayout
+{
+    [layoutLayer scheduleUpdateNow];
+}
+
+
 - (void)removeObject:(MaplyComponentObject *)theObj
 {
     if (!theObj)

@@ -1039,6 +1039,12 @@
   */
 - (void)setMaxLayoutObjects:(int)maxLayoutObjects;
 
+/**
+    Normally the layout layer runs periodically if you change something or when you move around.
+    You can ask it to run ASAP right here.  Layout runs on its own thread, so there may still be a delay.
+ */
+- (void)runLayout;
+
 /// Calls removeObjects:mode: with MaplyThreadAny.
 - (void)removeObject:(MaplyComponentObject *__nonnull)theObj;
 
