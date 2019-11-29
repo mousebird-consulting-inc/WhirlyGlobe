@@ -35,6 +35,9 @@
 /// Number of objects being clustered
 @property (nonatomic,assign) int numObjects;
 
+/// All the unique IDs from the
+@property (nonatomic,retain,nullable) NSArray<NSString *> *uniqueIDs;
+
 @end
 
 /** 

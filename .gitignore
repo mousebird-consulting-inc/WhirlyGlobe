@@ -35,3 +35,4 @@ podlint\.txt
 android/library/maply/\.externalNativeBuild/
 
 android/apps/AutoTesterAndroid/app/release/
+android/library/maply/.cxx/

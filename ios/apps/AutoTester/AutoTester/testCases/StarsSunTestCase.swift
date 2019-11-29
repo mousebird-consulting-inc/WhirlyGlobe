@@ -113,6 +113,7 @@ class StarsSunTestCase: MaplyTestCase {
 		layer?.singleLevelLoading = false
 		layer?.shaderProgramName = kMaplyShaderDefaultTriNightDay
 		layer?.setTesselationValues([(-1) : 10, 0 : 20, 1 : 16])
+//        layer?.textureFilter = kMaplyMinFilterNearest
         // The ground shader is overkill here
 //		layer?.shaderProgramName = atmosObj?.groundShader!.name
 		globeVC.add(layer!)

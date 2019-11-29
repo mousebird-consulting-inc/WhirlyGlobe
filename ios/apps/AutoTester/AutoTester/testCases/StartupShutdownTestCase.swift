@@ -15,27 +15,11 @@ class StartupShutdownTestCase: MaplyTestCase {
 
         self.name = "Repeated Startup/Shutdown"
         self.captureDelay = 4
-        self.implementations = [.globe]
+        self.implementations = [.globe,.map]
     }
     
-    func setupLayer(_ baseVC: MaplyBaseViewController) -> MaplyQuadImageTilesLayer {
-        let cacheDir = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0]
+    var testCase = VectorMBTilesTestCase()
         
-        let thisCacheDir = "\(cacheDir)/stamentiles/"
-        let maxZoom = Int32(16)
-        let tileSource = MaplyRemoteTileSource(
-            baseURL: "http://tile.stamen.com/watercolor/",
-            ext: "png", minZoom: Int32(0), maxZoom: Int32(maxZoom))
-        tileSource!.cacheDir = thisCacheDir
-        let layer = MaplyQuadImageTilesLayer(tileSource: tileSource!)
-        layer!.handleEdges = true
-        layer!.drawPriority = kMaplyImageLayerDrawPriorityDefault
-        //        layer!.waitLoad = imageWaitLoad
-        layer!.singleLevelLoading = false
-
-        return layer!;
-    }
-    
     func startGlobe() {
         globeViewController = WhirlyGlobeViewController()
         baseViewController = globeViewController
@@ -44,7 +28,7 @@ class StartupShutdownTestCase: MaplyTestCase {
         globeViewController!.delegate = self
         // Note: Should also be adding as a child of the view controller
 
-        setUpWithGlobe(globeViewController!)
+        testCase.setUpWithGlobe(globeViewController!)
         
         // Shut it down in a bit
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
@@ -62,18 +46,42 @@ class StartupShutdownTestCase: MaplyTestCase {
             self.startGlobe()
         }
     }
+    
+    func startMap() {
+        mapViewController = MaplyViewController()
+        baseViewController = mapViewController
+        testView?.addSubview(mapViewController!.view)
+        mapViewController!.view.frame = testView!.bounds
+        mapViewController!.delegate = self
+        // Note: Should also be adding as a child of the view controller
+
+        testCase.setUpWithMap(mapViewController!)
+        
+        // Shut it down in a bit
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            self.stopMap()
+        }
+    }
+    
+    func stopMap() {
+        //        globeViewController?.teardown()
+        mapViewController?.view.removeFromSuperview()
+        
+        // Start it back up again in a bit
+        // Note: Check to see if we're still valid here
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.startMap()
+        }
+    }
 
     // We need to create the globe controller ourselves so we can shut it down
     override func runGlobeTest(withLock lock: DispatchGroup) {
-
         startGlobe()
     }
-
-    override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
-        let layer = setupLayer(globeVC)
-        
-        globeVC.keepNorthUp = true
-        globeVC.add(layer)
-        globeVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056), time: 1.0)
+    
+    // Likewise for the map
+    override func runMapTest(withLock lock: DispatchGroup) {
+        startMap()
     }
+
 }

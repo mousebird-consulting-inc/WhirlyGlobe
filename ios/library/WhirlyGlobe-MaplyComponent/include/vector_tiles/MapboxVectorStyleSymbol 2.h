@@ -33,6 +33,8 @@ typedef enum {MBTextTransNone,MBTextTransUppercase,MBTextTransLowercase} MapboxT
 @property (nonatomic) MapboxSymbolPlacement placement;
 /// If set, turn the text uppercase
 @property (nonatomic) MapboxTextTransform textTransform;
+/// @brief Field to use when displaying the text
+@property (nonatomic,strong) NSArray<NSString *> *textFields;
 /// @brief Font to use for display
 @property (nonatomic,strong) NSString *textFontName;
 /// @brief The maximum line width for wrapping

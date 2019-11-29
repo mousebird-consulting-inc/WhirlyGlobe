@@ -36,10 +36,21 @@
  */
 @interface MapboxVectorImageInterpreter : NSObject<MaplyLoaderInterpreter>
 
+/* This variant takes two styles, one for the image data and one
+   for the overlaid vectors.  It also needs an offline renderer to
+   render to the image
+  */
 - (instancetype _Nullable ) initWithLoader:(MaplyQuadImageLoader *__nonnull)loader
                                 imageStyle:(MapboxVectorStyleSet *__nonnull)imageStyle
                                offlineRender:(MaplyRenderController *__nonnull)renderControl
                                  vectorStyle:(MapboxVectorStyleSet *__nonnull)vectorStyle
                                        viewC:(MaplyBaseViewController *__nonnull)viewC;
+
+/* This variant just needs a style for the vectors.  It will provide an image the
+    color of the background for the image loader.
+ */
+- (instancetype _Nullable ) initWithLoader:(MaplyQuadImageLoader *__nonnull)loader
+                                     style:(MapboxVectorStyleSet *__nonnull)vectorStyle
+                                     viewC:(MaplyBaseViewController *__nonnull)viewC;
 
 @end

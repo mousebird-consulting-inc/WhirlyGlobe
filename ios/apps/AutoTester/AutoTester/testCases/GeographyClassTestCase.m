@@ -31,17 +31,6 @@
 	return self;
 }
 
-- (NSArray *)remoteResources {
-	return nil;
-/*
-	return [NSArray arrayWithObjects:
-			@"http://www.cl.cam.ac.uk/~mgk25/ucs/examples/UTF-8-demo.txt",
-			@"http://www.cl.cam.ac.uk/~mgk25/ucs/examples/grid-cyrillic-1.txt",
-			@"https://manuals.info.apple.com/en_US/macbook_retina_12_inch_early2016_essentials.pdf",
-			nil];
-*/
-}
-
 - (void) setup:(MaplyBaseViewController *)viewC
 {
     // Reads from the MBTiles file

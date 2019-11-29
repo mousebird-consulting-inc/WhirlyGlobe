@@ -100,7 +100,9 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
                                                                 mode:MaplyThreadCurrent
                                                              ];
                            
-                           [layer addData:@[compObj0,compObj1,compObj2] forTile:tileID];
+                           if (compObj0 && compObj1 && compObj2) {
+                               [layer addData:@[compObj0,compObj1,compObj2] forTile:tileID];
+                           }
                            
                            [layer tileDidLoad:tileID];
                        }

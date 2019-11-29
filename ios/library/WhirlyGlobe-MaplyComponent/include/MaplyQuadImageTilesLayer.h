@@ -332,6 +332,12 @@
   */
 @property (nonatomic) MaplyQuadImageFormat imageFormat;
 
+/**
+  By default set to kMaplyMinFilterLinear for bilinear filtering of textures.
+    Can be set to kMaplyMinFilterNearest.
+ */
+@property (nonatomic,nullable) NSString *textureFilter;
+
 /** 
     Number of border texels to set up around image tiles.
     

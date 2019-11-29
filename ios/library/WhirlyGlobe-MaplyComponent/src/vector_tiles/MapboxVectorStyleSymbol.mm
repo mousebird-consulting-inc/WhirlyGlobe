@@ -20,8 +20,24 @@
 
 #import "MapboxVectorStyleSymbol.h"
 #import "MaplyScreenLabel.h"
+#import <vector>
+
+// Used to track text data
+class TextChunk {
+public:
+    // Set if this is a simple string
+    NSString *str;
+
+    // Possible key names in the data. Tried in this order.
+    // Not set if this is a simple string
+    std::vector<NSString *> keys;
+};
 
 @implementation MapboxVectorSymbolLayout
+{
+@public
+    std::vector<TextChunk> textChunks;
+}
 
 - (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
@@ -35,16 +51,28 @@
     _textTransform = (MapboxTextTransform)[styleSet enumValue:styleEntry[@"text-transform"] options:@[@"none",@"uppercase",@"lowercase"] defVal:MBTextTransNone];
     
     NSString *textField = [styleSet stringValue:@"text-field" dict:styleEntry defVal:nil];
-    NSMutableArray *textFields = [NSMutableArray array];
     if (textField) {
-        // Note: Doing a brute force replacement of the string name.  There are more subtle variants
-        NSString *thisTextField = [[textField stringByReplacingOccurrencesOfString:@"{" withString:@""] stringByReplacingOccurrencesOfString:@"}" withString:@""];
-        [textFields addObject:thisTextField];
-        // For some reason name:en is sometimes name_en
-        NSString *textVariant = [thisTextField stringByReplacingOccurrencesOfString:@":" withString:@"_"];
-        if (![textVariant isEqualToString:thisTextField])
-            [textFields addObject:textVariant];
-        _textFields = textFields;
+        // Parse out the {} groups in the text
+        // TODO: We're missing a boatload of stuff in the spec
+        NSMutableCharacterSet *charSet = [[NSMutableCharacterSet alloc] init];
+        [charSet addCharactersInString:@"{}"];
+        NSArray *chunks = [textField componentsSeparatedByCharactersInSet:charSet];
+        bool isJustText = [textField characterAtIndex:0] != '{';
+        for (NSString *chunk in chunks) {
+            if ([chunk length] == 0)
+                continue;
+            TextChunk textChunk;
+            if (isJustText) {
+                textChunk.str = chunk;
+            } else {
+                textChunk.keys.push_back(chunk);
+                // For some reason name:en is sometimes name_en
+                NSString *textVariant = [chunk stringByReplacingOccurrencesOfString:@":" withString:@"_"];
+                textChunk.keys.push_back(textVariant);
+            }
+            textChunks.push_back(textChunk);
+            isJustText = !isJustText;
+        }
     }
     NSArray *textFontArray = styleEntry[@"text-font"];
     if ([textFontArray isKindOfClass:[NSArray class]] && [textFontArray count] > 0) {
@@ -250,10 +278,11 @@
     if (!_layout.visible)
         return compObjs;
     
-    if (self.minzoom > tileInfo.tileID.level)
-        return compObjs;
-    if (self.maxzoom < tileInfo.tileID.level)
-        return compObjs;
+    // TODO: They mean displayed level here, which is different form loaded level
+//    if (self.minzoom > tileInfo.tileID.level)
+//        return compObjs;
+//    if (self.maxzoom < tileInfo.tileID.level)
+//        return compObjs;
     
     NSDictionary *desc = symbolDesc;
     double textSize = 24.0;
@@ -302,12 +331,24 @@
     {
         MaplyScreenLabel *label = [[MaplyScreenLabel alloc] init];
         label.loc = [vecObj center];
-        for (NSString *posTextField in _layout.textFields)
-        {
-            label.text = vecObj.attributes[posTextField];
-            if (label.text)
-                break;
+        
+        // Reconstruct the string from its replacement form
+        NSMutableString *text = [NSMutableString new];
+        for (auto textChunk : _layout->textChunks) {
+            if (textChunk.str) {
+                [text appendString:textChunk.str];
+            } else {
+                for (NSString *key : textChunk.keys) {
+                    NSString *keyVal = vecObj.attributes[key];
+                    if (keyVal) {
+                        [text appendString:keyVal];
+                        break;
+                    }
+                }
+            }
         }
+        label.text = text;
+
         if (!label.text)
         {
             NSLog(@"Failed to find text for label");

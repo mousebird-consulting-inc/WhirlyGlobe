@@ -45,5 +45,6 @@
 #import "ActiveObjectTestCase.h"
 #import "GeoJSONSource.h"
 #import "LIDARTestCase.h"
+#import "GlyphProblemTestCase.h"
 
 #endif

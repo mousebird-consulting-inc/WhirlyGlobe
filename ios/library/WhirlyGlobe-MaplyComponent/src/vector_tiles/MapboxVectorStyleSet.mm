@@ -24,6 +24,7 @@
 #import "MapboxVectorStyleLine.h"
 #import "MapboxVectorStyleRaster.h"
 #import "MapboxVectorStyleSymbol.h"
+#import "MapboxVectorStyleCircle.h"
 
 @implementation MapboxVectorStyleSet
 {
@@ -49,6 +50,18 @@
     _version = [styleDict[@"version"] integerValue];
     _constants = styleDict[@"constants"];
     _spriteURL = styleDict[@"sprite"];
+    
+    // Sources tell us where to get tiles
+    NSDictionary *sourceStyles = styleDict[@"sources"];
+    NSMutableArray *sources = [NSMutableArray array];
+    for (NSString *sourceName in sourceStyles.allKeys) {
+        NSDictionary *styleEntry = sourceStyles[sourceName];
+        MaplyMapboxVectorStyleSource *source = [[MaplyMapboxVectorStyleSource alloc] initWithName:sourceName styleEntry:styleEntry styleSet:self viewC:_viewC];
+        if (source)
+            [sources addObject:source];
+    }
+    
+    // Layers are where the action is
     NSArray *layerStyles = styleDict[@"layers"];
     NSMutableArray *layers = [NSMutableArray array];
     NSMutableDictionary *sourceLayers = [NSMutableDictionary dictionary];
@@ -83,6 +96,7 @@
         which++;
     }
     _layers = layers;
+    _sources = sources;
     _layersBySource = sourceLayers;
     _layersByName = layersByName;
     
@@ -412,6 +426,36 @@
 
 @end
 
+@implementation MaplyMapboxVectorStyleSource
+
+- (id __nullable)initWithName:(NSString *)name styleEntry:(NSDictionary * __nonnull)styleEntry styleSet:(MapboxVectorStyleSet * __nonnull)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)viewC
+{
+    self = [super init];
+    
+    _name = name;
+    
+    NSString *typeStr = styleEntry[@"type"];
+    if ([typeStr isEqualToString:@"vector"]) {
+        _type = MapboxSourceVector;
+    } else if ([typeStr isEqualToString:@"raster"]) {
+        _type = MapboxSourceRaster;
+    } else {
+        NSLog(@"Unsupport source type %@",typeStr);
+        return nil;
+    }
+    
+    _url = styleEntry[@"url"];
+    _tileSpec = styleEntry[@"tiles"];
+    
+    if (!_url && !_tileSpec) {
+        NSLog(@"Expecting either URL or tileSpec in source %@",_name);
+    }
+    
+    return self;
+}
+
+@end
+
 @implementation MaplyMapboxVectorStyleLayer
 {
     NSString *category;
@@ -458,6 +502,10 @@
     {
         MapboxVectorLayerSymbol *symbolLayer = [[MapboxVectorLayerSymbol alloc] initWithStyleEntry:layerDict parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:styleSet.viewC];
         layer = symbolLayer;
+    } else if ([type isEqualToString:@"circle"])
+    {
+        MapboxVectorLayerCircle *circleLayer = [[MapboxVectorLayerCircle alloc] initWithStyleEntry:layerDict parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:styleSet.viewC];
+        layer = circleLayer;
     } else if ([type isEqualToString:@"raster"])
     {
         MapboxVectorLayerRaster *rasterLayer = [[MapboxVectorLayerRaster alloc] initWithStyleEntry:layerDict parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:styleSet.viewC];
@@ -472,7 +520,7 @@
         layer.filter = [[MapboxVectorFilter alloc] initWithArray:[styleSet arrayValue:@"filter" dict:layerDict defVal:nil] styleSet:styleSet viewC:styleSet.viewC];
         if (!layer.filter)
         {
-            NSLog(@"MapboxStyleSet: Failed to parse filter for layer %@",layer.ident);
+            NSLog(@"MapboxStyleSet: Failed to parse filter for layer %@",layerDict[@"id"]);
         }
     }
     
@@ -738,6 +786,10 @@
         } else {
             // No attribute means no pass
             ret = false;
+
+            // A missing value and != is valid
+            if (_filterType == MBFilterNotEqual)
+                ret = true;
         }
     }
     

@@ -281,6 +281,9 @@ using namespace WhirlyKit;
     tileLoader.borderTexel = _borderTexel;
     tileLoader.northPoleColor = _northPoleColor;
     tileLoader.southPoleColor = _southPoleColor;
+    tileLoader.interpType = GL_LINEAR;
+    if ([_textureFilter isEqualToString:kMaplyMinFilterNearest])
+        tileLoader.interpType = GL_NEAREST;
     // Note: Still having problems with this
     tileLoader.useTileCenters = false;
     switch (_imageFormat)

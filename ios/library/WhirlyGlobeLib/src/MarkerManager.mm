@@ -208,6 +208,8 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
                 shape = layoutObj;
             } else
                 shape = new ScreenSpaceObject();
+            if (!marker.uniqueID.empty() && layoutObj)
+                layoutObj->uniqueID = marker.uniqueID;
             
             shape->setPeriod(marker.period);
             
