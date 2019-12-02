@@ -1321,6 +1321,11 @@ using namespace Eigen;
     [interactLayer addClusterGenerator:clusterGen];
 }
 
+- (void)runLayout
+{
+    [layoutLayer scheduleUpdateNow];
+}
+
 - (id<MTLDevice>)getMetalDevice
 {
     if (sceneRenderer->getType() != SceneRenderer::RenderMetal)

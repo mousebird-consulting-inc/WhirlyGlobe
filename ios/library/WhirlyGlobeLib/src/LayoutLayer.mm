@@ -77,6 +77,11 @@ namespace WhirlyKit
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(checkUpdate) object:nil];
 }
 
+- (void)scheduleUpdateNow
+{
+    [self performSelector:@selector(updateLayout) onThread:layerThread withObject:nil waitUntilDone:false];
+}
+
 // How long we'll wait to see if the user has stopped twitching
 static const float DelayPeriod = 0.2;
 // How long we'll let it go without an update
@@ -151,6 +156,8 @@ static const float MaxDelay = 1.0;
 - (void)updateLayout
 {
 //    NSLog(@"UpdateLayout called");
+    if (!viewState)
+        return;
     lastUpdate = scene->getCurrentTime();
 
     LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);

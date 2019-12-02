@@ -52,4 +52,7 @@
 /// Stop tracking a bunch of objects.  We assume they're removed elsewhere.
 - (void)removeLayoutObjects:(const WhirlyKit::SimpleIDSet &)objectIDs;
 
+/// Schedule an update ASAP
+- (void)scheduleUpdateNow;
+
 @end

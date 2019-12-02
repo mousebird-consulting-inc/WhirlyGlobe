@@ -780,6 +780,12 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
 - (void)removeRenderTarget:(MaplyRenderTarget * _Nonnull)renderTarget;
 
 /**
+    Normally the layout layer runs periodically if you change something or when you move around.
+    You can ask it to run ASAP right here.  Layout runs on its own thread, so there may still be a delay.
+ */
+- (void)runLayout;
+
+/**
   Request a one time clear for the render target.
 
   Rather than clearing every frame, you may want to specifically request a clear.  This will
