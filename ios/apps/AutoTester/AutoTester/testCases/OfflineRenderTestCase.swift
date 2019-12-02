@@ -62,7 +62,7 @@ class OfflineRenderTestCase: MaplyTestCase {
         DispatchQueue.main.asyncAfter(deadline: .now()+5.0) {
             // Force a single render
             if let image0 = renderControl.snapshot() {
-                print("Got an image!")
+                print("Got an image!  \(image0)")
             }
             
             // Move and try again
@@ -74,7 +74,7 @@ class OfflineRenderTestCase: MaplyTestCase {
 
             DispatchQueue.main.asyncAfter(deadline: .now()+5.0) {
                 if let image1 = renderControl.snapshot() {
-                    print("Got another image!")
+                    print("Got another image! \(image1)")
                 }
             }
         }

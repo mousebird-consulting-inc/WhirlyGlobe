@@ -84,8 +84,6 @@ using namespace WhirlyKit;
     self->maxLevel = tileInfo.maxZoom;
     self->valid = true;
     
-    MaplyQuadPagingLoader *strongSelf = self;
-
     // Start things out after a delay
     // This lets the caller mess with settings
     [self performSelector:@selector(delayedInit) withObject:nil afterDelay:0.0];
