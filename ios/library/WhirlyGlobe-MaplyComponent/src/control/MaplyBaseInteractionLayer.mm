@@ -1346,7 +1346,7 @@ public:
         }
 
         LabelInfoRef thisLabelInfo;
-        if ([inDesc objectForKey:kMaplyTextColor] || label.layoutImportance != MAXFLOAT ||
+        if ([inDesc objectForKey:kMaplyTextColor] || label.layoutImportance < MAXFLOAT ||
             [inDesc objectForKey:kMaplyTextLineSpacing]) {
             thisLabelInfo = LabelInfoRef(new LabelInfo(true));
 
@@ -1354,7 +1354,7 @@ public:
                 thisLabelInfo->hasTextColor = true;
                 thisLabelInfo->textColor = [label.color asRGBAColor];
             }
-            if (label.layoutImportance != MAXFLOAT)
+            if (label.layoutImportance < MAXFLOAT)
             {
                 thisLabelInfo->layoutEngine = true;
                 thisLabelInfo->layoutImportance = label.layoutImportance;
