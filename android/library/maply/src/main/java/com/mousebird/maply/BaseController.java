@@ -742,10 +742,17 @@ public class BaseController implements RenderController.TaskManager, RenderContr
      */
     public void addPostSurfaceRunnable(Runnable run)
     {
-        if (rendererAttached)
-            activity.runOnUiThread(run);
-        else
-            postSurfaceRunnables.add(run);
+		boolean runNow = false;
+		synchronized (this) {
+			if (rendererAttached)
+				runNow = true;
+			else
+				postSurfaceRunnables.add(run);
+		}
+		if (runNow) {
+			Handler handler = new Handler(activity.getMainLooper());
+			handler.post(run);
+		}
     }
 
 	int displayRate = 2;
@@ -2123,6 +2130,19 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		setEGLContext(null);
 
 		return widths[1];
+	}
+
+	/**
+	 * Return the frame size we're rendering to.
+	 */
+	public Point2d getFrameSize()
+	{
+		if (renderWrapper == null || renderWrapper.maplyRender == null) {
+			return null;
+		}
+
+		int[] frameSize = renderControl.getFrameBufferSize();
+		return new Point2d(frameSize[0],frameSize[1]);
 	}
 
 	/**
