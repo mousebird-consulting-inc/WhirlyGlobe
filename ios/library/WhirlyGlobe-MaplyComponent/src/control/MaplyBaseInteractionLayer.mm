@@ -799,6 +799,8 @@ public:
     {
         WhirlyKit::Marker *wgMarker = new WhirlyKit::Marker();
         wgMarker->loc = GeoCoord(marker.loc.x,marker.loc.y);
+        if (marker.uniqueID)
+            wgMarker->uniqueID = [marker.uniqueID asStdString];
         std::vector<MaplyTexture *> texs;
         if (marker.image)
         {
@@ -1000,6 +1002,7 @@ public:
     // Pick a representive screen object
     int drawPriority = -1;
     LayoutObject *sampleObj = NULL;
+    NSMutableArray *uniqueIDs = [NSMutableArray array];
     for (auto obj : layoutObjects)
     {
         if (obj->obj.getDrawPriority() > drawPriority)
@@ -1007,12 +1010,18 @@ public:
             drawPriority = obj->obj.getDrawPriority();
             sampleObj = &obj->obj;
         }
+        if (!obj->obj.uniqueID.empty()) {
+            NSString *newStr = [NSString stringWithFormat:@"%s",obj->obj.uniqueID.c_str()];
+            if ([newStr length])
+                [uniqueIDs addObject:newStr];
+        }
     }
     SimpleIdentity progID = sampleObj->getTypicalProgramID();
     
     // Ask for a cluster image
     MaplyClusterInfo *clusterInfo = [[MaplyClusterInfo alloc] init];
     clusterInfo.numObjects = (int)layoutObjects.size();
+    clusterInfo.uniqueIDs = uniqueIDs;
     MaplyClusterGroup *group = [clusterGen makeClusterGroup:clusterInfo];
 
     // Geometry for the new cluster object

@@ -190,6 +190,10 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
                 shape = layoutObj;
             } else
                 shape = new ScreenSpaceObject();
+            
+            if (!marker->uniqueID.empty() && layoutObj)
+                layoutObj->uniqueID = marker->uniqueID;
+
             shape->setPeriod(marker->period);
             
             ScreenSpaceObject::ConvexGeometry smGeom;
