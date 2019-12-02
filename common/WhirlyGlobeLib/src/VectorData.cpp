@@ -1015,25 +1015,22 @@ bool VectorParseFeature(JSONNode node,ShapeSet &shapes)
         else if (!it->name().compare("properties"))
             propIt = it;
     }
-    if (typeIt == node.end() || geomIt == node.end())
+    if (geomIt == node.end())
         return false;
     
-    // Expecting this to be a feature with a geometry and properties node
-    json_string type = typeIt->as_string();
-    if (type.compare("Feature"))
+    // Parse the geometry
+    ShapeSet newShapes;
+    if (!VectorParseGeometry(*geomIt, newShapes))
         return false;
 
-    // Parse the properties, then the geometry
-    MutableDictionaryRef properties = MutableDictionaryMake();
+    // Properties are optional
     if (propIt != node.end()) {
+        MutableDictionaryRef properties = MutableDictionaryMake();
         VectorParseProperties(*propIt, properties);
+        // Apply the properties to the geometry
+        for (ShapeSet::iterator sit = newShapes.begin(); sit != newShapes.end(); ++sit)
+            (*sit)->setAttrDict(properties);
     }
-    ShapeSet newShapes;
-    if (!VectorParseGeometry(*geomIt,newShapes))
-        return false;
-    // Apply the properties to the geometry
-    for (ShapeSet::iterator sit = newShapes.begin(); sit != newShapes.end(); ++sit)
-        (*sit)->setAttrDict(properties);
     
     shapes.insert(newShapes.begin(), newShapes.end());
     return true;
@@ -1042,13 +1039,13 @@ bool VectorParseFeature(JSONNode node,ShapeSet &shapes)
 // Parse an array of features
 bool VectorParseFeatures(JSONNode node,ShapeSet &shapes)
 {
-    for (JSONNode::const_iterator it = node.begin();it != node.end(); ++it)
-    {
+    for (JSONNode::const_iterator it = node.begin();it != node.end(); ++it) {
         // Not sure what this would be
         if (it->type() != JSON_NODE)
             return false;
-        if (!VectorParseFeature(*it,shapes))
+        if (!VectorParseFeature(*it, shapes)) {
             return false;
+        }
     }
     
     return true;
