@@ -132,9 +132,6 @@ FontTextureManager::~FontTextureManager()
          it != drawStringReps.end(); ++it)
         delete *it;
     drawStringReps.clear();
-    for (FontManagerSet::iterator it = fontManagers.begin();
-         it != fontManagers.end(); ++it)
-        delete *it;
     fontManagers.clear();
 }
     
@@ -162,10 +159,7 @@ void FontTextureManager::clear(ChangeSet &changes)
     for (DrawStringRepSet::iterator it = drawStringReps.begin();
          it != drawStringReps.end(); ++it)
         delete *it;
-    for (FontManagerSet::iterator it = fontManagers.begin();
-         it != fontManagers.end(); ++it)
-        delete *it;
-    fontManagers.clear();    
+    fontManagers.clear();
 }
 
 void FontTextureManager::removeString(SimpleIdentity drawStringId,ChangeSet &changes,TimeInterval when)
@@ -186,12 +180,11 @@ void FontTextureManager::removeString(SimpleIdentity drawStringId,ChangeSet &cha
     for (SimpleIDGlyphMap::iterator fit = theRep->fontGlyphs.begin();
          fit != theRep->fontGlyphs.end(); ++fit)
     {
-        FontManager dummyFm(fit->first);
-        FontManagerSet::iterator fmIt = fontManagers.find(&dummyFm);
+        auto fmIt = fontManagers.find(fit->first);
         if (fmIt != fontManagers.end())
         {
             // Decrement the glyph references
-            FontManager *fm = *fmIt;
+            FontManagerRef fm = fmIt->second;
             std::vector<SubTexture> texRemove;
             fm->removeGlyphRefs(fit->second,texRemove);
 
@@ -204,7 +197,6 @@ void FontTextureManager::removeString(SimpleIdentity drawStringId,ChangeSet &cha
             if (fm->refCount <= 0)
             {
                 fontManagers.erase(fmIt);
-                delete fm;
             }
         }
     }

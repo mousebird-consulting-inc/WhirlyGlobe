@@ -43,6 +43,8 @@ public:
     UIColor *outlineColorUI;
 };
 
+typedef std::shared_ptr<FontManager_iOS> FontManager_iOSRef;
+
 /** FontTextureManager for iOS.
   */
 class FontTextureManager_iOS : public FontTextureManager
@@ -55,8 +57,8 @@ public:
     WhirlyKit::DrawableString *addString(NSAttributedString *str,ChangeSet &changes);
     
 protected:
-    NSData *renderGlyph(CGGlyph glyph,FontManager_iOS *fm,Point2f &size,Point2f &glyphSize,Point2f &offset,Point2f &textureOffset);
-    FontManager_iOS *findFontManagerForFont(UIFont *uiFont,UIColor *colorUI,UIColor *backColorUI,UIColor *outlineColorUI,float outlinesize);
+    NSData *renderGlyph(CGGlyph glyph,FontManager_iOSRef fm,Point2f &size,Point2f &glyphSize,Point2f &offset,Point2f &textureOffset);
+    FontManager_iOSRef findFontManagerForFont(UIFont *uiFont,UIColor *colorUI,UIColor *backColorUI,UIColor *outlineColorUI,float outlinesize);
 };
     
 typedef std::shared_ptr<FontTextureManager_iOS> FontTextureManager_iOSRef;

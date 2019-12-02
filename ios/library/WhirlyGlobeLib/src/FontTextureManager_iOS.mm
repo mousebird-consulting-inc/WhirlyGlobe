@@ -60,7 +60,7 @@ FontTextureManager_iOS::~FontTextureManager_iOS()
 }
     
 // Look for an existing font that will match the UIFont given
-FontManager_iOS *FontTextureManager_iOS::findFontManagerForFont(UIFont *uiFont,UIColor *colorUI,UIColor *backColorUI,UIColor *outlineColorUI,float outlineSize)
+FontManager_iOSRef FontTextureManager_iOS::findFontManagerForFont(UIFont *uiFont,UIColor *colorUI,UIColor *backColorUI,UIColor *outlineColorUI,float outlineSize)
 {
     // We need to scale the font up so it looks better scaled down
     std::string fontName = [uiFont.fontName cStringUsingEncoding:NSASCIIStringEncoding];
@@ -71,10 +71,9 @@ FontManager_iOS *FontTextureManager_iOS::findFontManagerForFont(UIFont *uiFont,U
     pointSize *= BogusFontScale;
     uiFont = [UIFont fontWithDescriptor:uiFont.fontDescriptor size:pointSize];
     
-    for (FontManagerSet::iterator it = fontManagers.begin();
-         it != fontManagers.end(); ++it)
+    for (auto it : fontManagers)
     {
-        FontManager_iOS *fm = (FontManager_iOS *)*it;
+        FontManager_iOSRef fm = std::dynamic_pointer_cast<FontManager_iOS>(it.second);
         if (fontName == fm->fontName && pointSize == fm->pointSize &&
             fm->color == color &&
             fm->backColor == backColor &&
@@ -84,8 +83,10 @@ FontManager_iOS *FontTextureManager_iOS::findFontManagerForFont(UIFont *uiFont,U
     }
     
     // Create it
-    CTFontRef font = (__bridge CTFontRef)uiFont;
-    FontManager_iOS *fm = new FontManager_iOS(font);
+    CTFontRef font;
+    uiFont = [UIFont fontWithDescriptor:uiFont.fontDescriptor size:pointSize];
+    font = (__bridge CTFontRef)uiFont;
+    FontManager_iOSRef fm = FontManager_iOSRef(new FontManager_iOS(font));
     fm->fontName = fontName;
     fm->color = color;
     fm->colorUI = colorUI;
@@ -96,13 +97,13 @@ FontManager_iOS *FontTextureManager_iOS::findFontManagerForFont(UIFont *uiFont,U
     fm->outlineColorUI = outlineColorUI;
     fm->outlineSize = outlineSize;
     //    fm->outlineSize *= BogusFontScale;
-    fontManagers.insert(fm);
-        
+    fontManagers[fm->getId()] = fm;
+
     return fm;
 }
 
 // Render the glyph into a buffer
-NSData *FontTextureManager_iOS::renderGlyph(CGGlyph glyph,FontManager_iOS *fm,Point2f &size,Point2f &glyphSize,Point2f &offset,Point2f &textureOffset)
+NSData *FontTextureManager_iOS::renderGlyph(CGGlyph glyph,FontManager_iOSRef fm,Point2f &size,Point2f &glyphSize,Point2f &offset,Point2f &textureOffset)
 {
     int width,height;
     
@@ -244,7 +245,7 @@ WhirlyKit::DrawableString *FontTextureManager_iOS::addString(NSAttributedString 
             UIColor *foregroundColor = attrs[NSForegroundColorAttributeName];
             UIColor *backgroundColor = attrs[NSBackgroundColorAttributeName];
             
-            FontManager_iOS *fm = nil;
+            FontManager_iOSRef fm;
             if ([uiFont isKindOfClass:[UIFont class]])
                 fm = findFontManagerForFont(uiFont,foregroundColor,backgroundColor,outlineColor,[outlineSize floatValue]);
             if (!fm)

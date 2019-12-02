@@ -103,12 +103,7 @@ protected:
     GlyphInfoSet glyphs;
 };
 
-// Used to order a set of these
-typedef struct
-{
-    bool operator () (const FontManager *a,const FontManager *b) const { return *a < *b; }
-} FontManagerSorter;
-
+typedef std::shared_ptr<FontManager> FontManagerRef;
 typedef std::map<SimpleIdentity,GlyphSet> SimpleIDGlyphMap;
 
 /** Information sufficient to draw a string as 3D geometry.
@@ -167,7 +162,7 @@ public:
         // The glyphs we're using in a given font
         SimpleIDGlyphMap fontGlyphs;
     };
-    typedef std::set<FontManager *,IdentifiableSorter> FontManagerSet;
+    typedef std::map<SimpleIdentity,FontManagerRef> FontManagerMap;
     
     typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
 
@@ -180,7 +175,7 @@ public:
 protected:    
     void init();
 
-    FontManagerSet fontManagers;
+    FontManagerMap fontManagers;
 
     SceneRenderer *sceneRender;
     Scene *scene;
