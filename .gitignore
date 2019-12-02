@@ -26,6 +26,7 @@ WhirlyGlobeSrc/AutoTester/AutoTester.xcworkspace
 **/.idea
 android/**/local.properties
 android/library/Android/.gradle
+android/library/maply/.cxx
 ios/library/WhirlyGlobe-MaplyComponent/build
 ios/library/WhirlyGlobe-MaplyComponent/WhirlyGlobeMaplyComponent.framework
 
