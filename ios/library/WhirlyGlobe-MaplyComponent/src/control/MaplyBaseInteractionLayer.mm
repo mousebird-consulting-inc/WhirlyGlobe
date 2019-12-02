@@ -3312,6 +3312,9 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
 - (void)enableObjectsImpl:(NSArray *)userObjs enable:(bool)enable changes:(ChangeSet &)changes
 {
+    if (isShuttingDown || (!layerThread && !offlineMode))
+        return;
+
     for (MaplyComponentObject *compObj in userObjs)
         compManager->enableComponentObject(compObj->contents->getId(), enable, changes);
 }

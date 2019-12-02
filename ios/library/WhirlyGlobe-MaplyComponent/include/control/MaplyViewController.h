@@ -259,8 +259,8 @@ typedef NS_ENUM(NSInteger, MaplyMapType) {
 /// Initialize as a flat or 3D map.
 - (nonnull instancetype)initWithMapType:(MaplyMapType)mapType;
 
-/// Initialize as a 3D map.
-- (nonnull instancetype)init __deprecated;
+/// Initialize as a 2D map.
+- (nonnull instancetype)init;
 
 /// Set the coordinate system to use in display.
 /// The coordinate system needs to be valid in flat mode.  The extents, if present, will be used to define the coordinate system origin.
