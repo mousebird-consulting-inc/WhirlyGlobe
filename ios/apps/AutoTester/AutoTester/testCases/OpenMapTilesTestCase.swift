@@ -35,7 +35,7 @@ class OpenMapTilesTestCase: MaplyTestCase {
         }
         
         // Note: Get your own tilehosting key.  This one is not for commercial use
-        let tileInfo = MaplyRemoteTileInfo.init(baseURL: "https://free.tilehosting.com/data/v3/{z}/{x}/{y}.pbf.pict?key=8iZUKgsBTIFhFIZjA5lm", ext: nil, minZoom: 0, maxZoom: 14)
+        let tileInfo = MaplyRemoteTileInfo.init(baseURL: "https://free.tilehosting.com/data/v3/{z}/{x}/{y}.pbf.pict?key={mapTilerKey}", ext: nil, minZoom: 0, maxZoom: 14)
         let tileSource = MaplyRemoteTileSource(info: tileInfo)
         
         let cacheDir = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0]

@@ -21,10 +21,10 @@ class MapboxTestCase: MaplyTestCase {
     // Styles included in the bundle
     let styles : [(name: String, sheet: String)] =
         [("Satellite", "mapbox_satellite-v9"),
-         ("Hybrid Satellite", "mapbox_satellite-streets-v9"),
+         ("Hybrid Satellite", "mapbox_satellite-streets-v9")
 //         ("Streets", "mapbox_streets")
     ]
-    let MapTilerStyle = 0
+    let MapboxStyle = 1
     
     var mapboxMap : MapboxKindaMap? = nil
     
@@ -37,15 +37,21 @@ class MapboxTestCase: MaplyTestCase {
 
         // Parse it and then let it start itself
         let mapboxMap = MapboxKindaMap(fileName, viewC: viewC)
-        // We have to capture the mapbox: URLs and redirect them
+        // We have to capture the mapbox: URLs and redirect them because Mapbox does some funky things with their URLs
+
+        // Put your own Mapbox token here.
+        // To get a Mapbox token, go sign up on mapbox.com
         let token = "GetYerOwnToken"
         if token == "GetYerOwnToken" {
-            print("----------\nYou need to insert your own Mapbox token.  You can't use mine.\n------------")
+            let alertControl = UIAlertController(title: "Missing Token", message: "You need to add your own Mapbox token.\nYou can't use mine.", preferredStyle: .alert)
+            alertControl.addAction(UIAlertAction(title: "Fine!", style: .cancel, handler: { _ in
+                alertControl.dismiss(animated: true, completion: nil)
+            }))
+            viewC.present(alertControl, animated: true, completion: nil)
             return
         }
         
         let spriteURLstr = "https://api.mapbox.com/styles/v1/{filename}?access_token=" + token
-//        let styleURLstr = "https://api.mapbox.com/styles/v1/mapbox/{filename}?access_token=" + token
         let tileURLstr = "https://api.mapbox.com/v4/{filename}.json?secure&access_token=" + token
         mapboxMap.fileOverride = {
             (url) in
@@ -79,13 +85,13 @@ class MapboxTestCase: MaplyTestCase {
     override func setUpWithMap(_ mapVC: MaplyViewController) {
         mapVC.performanceOutput = true
         
-        startMap(styles[MapTilerStyle], viewC: mapVC, round: false)
+        startMap(styles[MapboxStyle], viewC: mapVC, round: false)
     }
     
     override func setUpWithGlobe(_ mapVC: WhirlyGlobeViewController) {
         mapVC.performanceOutput = true
         
-        startMap(styles[MapTilerStyle], viewC: mapVC, round: true)
+        startMap(styles[MapboxStyle], viewC: mapVC, round: true)
     }
 
 }

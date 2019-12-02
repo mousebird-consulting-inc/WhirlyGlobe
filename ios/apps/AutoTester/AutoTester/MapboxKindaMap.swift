@@ -292,6 +292,12 @@ public class MapboxKindaMap {
                 zoom.max = max(maxZoom,zoom.max)
             }
         }
+        
+        // Sources probably weren't set up
+        if zoom.min > zoom.max {
+            print("Sources missing.  Bad zoom min/max.")
+            return
+        }
 
         // Image/vector hybrids draw the polygons into a background image
         if imageVectorHybrid {
