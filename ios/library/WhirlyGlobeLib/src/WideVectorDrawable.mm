@@ -292,7 +292,7 @@ varying float      v_dot;
 
 void main()
 {
-  float patternVal = u_hasTexture ? texture2D(s_baseMap0, vec2(0.5,v_texCoord.y)).a : 1.0;
+  float patternVal = u_hasTexture ? texture2D(s_baseMap0, vec2(v_texCoord.x,v_texCoord.y)).a : 1.0;
   float alpha = 1.0;
   float across = v_texCoord.x * u_w2;
   if (across < u_edge)

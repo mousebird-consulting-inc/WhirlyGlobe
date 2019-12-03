@@ -62,6 +62,7 @@
 		2BDEB3021C924842003259B3 /* ExtrudedModelTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BDEB3011C924842003259B3 /* ExtrudedModelTestCase.m */; };
 		2BDEB3141C9391EB003259B3 /* GreatCircleTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BDEB3131C9391EB003259B3 /* GreatCircleTestCase.m */; };
 		2BFC7E511D132DCB0040E2A3 /* ScreenMarkersTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BFC7E501D132DCB0040E2A3 /* ScreenMarkersTestCase.m */; };
+		2BFDE8EC2397028E005A1FAC /* c-dash.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BFDE8EA2397028E005A1FAC /* c-dash.png */; };
 		8820852B1DC81051008F8E76 /* Issue721TestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8820852A1DC81051008F8E76 /* Issue721TestCase.swift */; };
 		88231C791BA784BC00A95F2B /* ConfigViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 88231C781BA784BC00A95F2B /* ConfigViewController.xib */; };
 		883DF71B1C1CE164000756E9 /* AnimatedBasemapTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF6F11C1CE164000756E9 /* AnimatedBasemapTestCase-globe.png */; };
@@ -1236,6 +1237,7 @@
 		2BE53AE81D258FE800B60FAD /* WhirlyGlobeMaplyComponent.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = WhirlyGlobeMaplyComponent.xcodeproj; path = "../../library/WhirlyGlobe-MaplyComponent/WhirlyGlobeMaplyComponent.xcodeproj"; sourceTree = "<group>"; };
 		2BFC7E4F1D132DCB0040E2A3 /* ScreenMarkersTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenMarkersTestCase.h; sourceTree = "<group>"; };
 		2BFC7E501D132DCB0040E2A3 /* ScreenMarkersTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ScreenMarkersTestCase.m; sourceTree = "<group>"; };
+		2BFDE8EA2397028E005A1FAC /* c-dash.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "c-dash.png"; path = "../../../resources/vectors/c-dash.png"; sourceTree = "<group>"; };
 		8810B2D11BA9D45F00446CE3 /* MaplyTesterBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MaplyTesterBridge.h; sourceTree = "<group>"; };
 		8820852A1DC81051008F8E76 /* Issue721TestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Issue721TestCase.swift; sourceTree = "<group>"; };
 		88231C781BA784BC00A95F2B /* ConfigViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ConfigViewController.xib; sourceTree = "<group>"; };
@@ -2059,6 +2061,7 @@
 		88FF5BDF1BC31D3C002F15CE /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				2BFDE8EA2397028E005A1FAC /* c-dash.png */,
 				2B656741237B789700F3CC1D /* mapbox_satellite-v9.json */,
 				2B65673F237B6D9C00F3CC1D /* mapbox_satellite-streets-v9.json */,
 				2B6567262376288100F3CC1D /* maptiler_basic.json */,
@@ -2852,6 +2855,7 @@
 				88FF5CA61BC31D6D002F15CE /* fire-station-24@2x.png in Resources */,
 				8F4D91DC1CDFA7DE00F68045 /* globe.png in Resources */,
 				2B4BA6D31C83A22000DC1562 /* sawtooth.geojson in Resources */,
+				2BFDE8EC2397028E005A1FAC /* c-dash.png in Resources */,
 				2B7E288B200EC109007E2965 /* SE_PolygonsLines.json in Resources */,
 				88FF5CA01BC31D6D002F15CE /* dog-park-24@2x.png in Resources */,
 				88FF5E001BC31D95002F15CE /* ATA.geojson in Resources */,
