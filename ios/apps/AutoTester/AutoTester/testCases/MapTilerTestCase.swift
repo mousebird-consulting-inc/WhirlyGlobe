@@ -37,7 +37,7 @@ class MapTilerTestCase: MaplyTestCase {
         
         // Maptiler token
         // Go to maptiler.com, setup an account and get your own
-        let token = "GetYerOwnToken"
+        let token = "8iZUKgsBTIFhFIZjA5lm"
         if token == "GetYerOwnToken" {
             let alertControl = UIAlertController(title: "Missing Token", message: "You need to add your own Maptiler token.\nYou can't use mine.", preferredStyle: .alert)
             alertControl.addAction(UIAlertAction(title: "Fine!", style: .cancel, handler: { _ in

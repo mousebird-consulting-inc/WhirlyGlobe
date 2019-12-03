@@ -151,6 +151,7 @@
 
 @implementation MapboxVectorStyleSet
 {
+    int currentID;
     NSMutableDictionary *layersByUUID;
 }
 
@@ -226,6 +227,11 @@
     return self;
 }
 
+- (long long)generateID
+{
+    return currentID++;
+}
+
 - (NSArray*)stylesForFeatureWithAttributes:(NSDictionary*)attributes
                                     onTile:(MaplyTileID)tileID
                                    inLayer:(NSString*)sourceLayer
@@ -255,6 +261,11 @@
 {
     return layersByUUID[@(uuid)];
 }
+
+- (NSArray * _Nonnull)allStyles {
+    return [layersByUUID allValues];
+}
+
 
 - (id)constantSubstitution:(id)thing forField:(NSString *)field
 {
@@ -754,7 +765,7 @@
     self.styleSet = styleSet;
     self.drawPriorityPerLevel = styleSet.tileStyleSettings.drawPriorityPerLevel;
     self.drawPriority = drawPriority;
-    self.uuid = [styleSet generateUUID];
+    self.uuid = [styleSet generateID];
     
     _minzoom = -1;
     _maxzoom = -1;

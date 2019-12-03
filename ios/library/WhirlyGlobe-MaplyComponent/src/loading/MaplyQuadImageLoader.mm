@@ -39,6 +39,8 @@ using namespace WhirlyKit;
 
 - (void)addImageTile:(MaplyImageTile *)image
 {
+    if (!image)
+        return;
     loadReturn->images.push_back(image->imageTile);
 }
 

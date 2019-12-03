@@ -91,7 +91,7 @@
 }
 
 
-- (long long)generateUUID
+- (long long)generateID
 {
     return uuidCount++;
 }
@@ -105,7 +105,7 @@
     self = [super init];
     _viewC = viewC;
 
-    _uuid = [gen generateUUID];
+    _uuid = [gen generateID];
     
     return self;
 }

@@ -22,6 +22,8 @@ class LayerStartupShutdownTestCase: MaplyTestCase {
     var testCase = VectorMBTilesTestCase()
 
     func startGlobeLayer() {
+        self.testCase.globeViewController = globeViewController
+        self.testCase.baseViewController = globeViewController
         self.testCase.setUpWithGlobe(self.globeViewController!)
 
         // Shut it down in a bit
@@ -41,6 +43,8 @@ class LayerStartupShutdownTestCase: MaplyTestCase {
     }
     
     func startMapLayer() {
+        self.testCase.mapViewController = mapViewController
+        self.testCase.baseViewController = mapViewController
         self.testCase.setUpWithMap(self.mapViewController!)
 
         // Shut it down in a bit
@@ -64,7 +68,7 @@ class LayerStartupShutdownTestCase: MaplyTestCase {
         globeViewController = WhirlyGlobeViewController()
         baseViewController = globeViewController
         nav.pushViewController(baseViewController!, animated: true)
-        globeViewController!.view.frame = testView!.bounds
+        _ = baseViewController!.view
         globeViewController!.delegate = self
         // Note: Should also be adding as a child of the view controller
 
@@ -76,7 +80,7 @@ class LayerStartupShutdownTestCase: MaplyTestCase {
         mapViewController = MaplyViewController()
         baseViewController = mapViewController
         nav.pushViewController(baseViewController!, animated: true)
-        mapViewController!.view.frame = testView!.bounds
+        _ = baseViewController!.view
         mapViewController!.delegate = self
         // Note: Should also be adding as a child of the view controller
         

@@ -25,10 +25,12 @@ class StartupShutdownTestCase: MaplyTestCase {
         globeViewController = WhirlyGlobeViewController()
         baseViewController = globeViewController
         nav.pushViewController(baseViewController!, animated: true)
-        globeViewController!.view.frame = testView!.bounds
+        _ = baseViewController!.view
         globeViewController!.delegate = self
         // Note: Should also be adding as a child of the view controller
 
+        self.testCase.globeViewController = globeViewController
+        self.testCase.baseViewController = globeViewController
         testCase.setUpWithGlobe(globeViewController!)
         
         // Shut it down in a bit
@@ -39,8 +41,8 @@ class StartupShutdownTestCase: MaplyTestCase {
     
     func stopGlobe() {
 //        globeViewController?.teardown()
-        globeViewController?.view.removeFromSuperview()
-        
+        globeViewController?.navigationController?.popViewController(animated: true)
+
         // Start it back up again in a bit
         // Note: Check to see if we're still valid here
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -53,10 +55,12 @@ class StartupShutdownTestCase: MaplyTestCase {
         mapViewController = MaplyViewController()
         baseViewController = mapViewController
         nav.pushViewController(baseViewController!, animated: true)
-        mapViewController!.view.frame = testView!.bounds
+        _ = baseViewController!.view
         mapViewController!.delegate = self
         // Note: Should also be adding as a child of the view controller
 
+        self.testCase.mapViewController = mapViewController
+        self.testCase.baseViewController = mapViewController
         testCase.setUpWithMap(mapViewController!)
         
         // Shut it down in a bit
@@ -67,7 +71,7 @@ class StartupShutdownTestCase: MaplyTestCase {
     
     func stopMap() {
         //        globeViewController?.teardown()
-        mapViewController?.view.removeFromSuperview()
+        mapViewController?.navigationController?.popViewController(animated: true)
         
         // Start it back up again in a bit
         // Note: Check to see if we're still valid here

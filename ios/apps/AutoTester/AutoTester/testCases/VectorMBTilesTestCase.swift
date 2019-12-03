@@ -52,13 +52,28 @@ class VectorMBTilesTestCase: MaplyTestCase {
 
     override func setUpWithMap(_ mapVC: MaplyViewController) {
         //        mapVC.performanceOutput = true
+        baseCase.mapViewController = mapVC
+        baseCase.baseViewController = mapVC
         baseCase.setUpWithMap(mapVC)
         setupLoader(mapVC)
     }
     
     override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
         //        globeVC.performanceOutput = true
-        baseCase.setUpWithGlobe(globeVC)        
+        baseCase.globeViewController = globeVC
+        baseCase.baseViewController = globeVC
+        baseCase.setUpWithGlobe(globeVC)
         setupLoader(globeVC)
+    }
+    
+    override func stop() {
+        baseCase.stop()
+        
+        tileFetcher?.shutdown()
+        tileFetcher = nil
+        loader?.shutdown()
+        loader = nil
+        vectorStyle = nil
+        interp = nil
     }
 }

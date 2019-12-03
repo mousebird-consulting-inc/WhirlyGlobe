@@ -23,7 +23,7 @@
 - (id)initWithViewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 
 /// uuid for the styles
-- (long long)generateUUID;
+- (long long)generateID;
 
 @end
 

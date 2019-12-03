@@ -33,10 +33,12 @@ using namespace WhirlyKit;
         return nil;
     if ([data length] != width*height*4)
         return nil;
+    if (![viewC getRenderControl])
+        return nil;
     
     self = [super init];
     
-    imageTile = ImageTile_iOSRef(new ImageTile_iOS(viewC.getRenderControl->renderType));
+    imageTile = ImageTile_iOSRef(new ImageTile_iOS([viewC getRenderControl]->renderType));
     imageTile->type = MaplyImgTypeRawImage;
     imageTile->components = 4;
     imageTile->width = width;

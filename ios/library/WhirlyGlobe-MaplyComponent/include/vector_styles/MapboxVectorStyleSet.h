@@ -75,7 +75,7 @@ typedef enum : NSUInteger {
 - (id __nullable)initWithJSON:(NSData * __nonnull)styleJSON settings:(MaplyVectorStyleSettings * __nonnull)settings viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)viewC filter:(bool (^_Nullable)(NSMutableDictionary * __nonnull))filterBlock;
 
 /// @brief Generates a unique ID for a style
-- (long long)generateUUID;
+- (long long)generateID;
 
 /// @brief Return an integer value for the given name, taking the constants into account.
 - (int)intValue:(NSString * __nonnull)name dict:(NSDictionary * __nullable)dict defVal:(int)defVal;

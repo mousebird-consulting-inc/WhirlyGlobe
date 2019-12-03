@@ -228,8 +228,6 @@ public:
     if (!self.visible) {
         return;
     }
-
-    NSMutableArray *compObjs = [NSMutableArray array];
     
     // TODO: They mean displayed level here, which is different from loaded level
 //    if (self.minzoom > tileInfo.tileID.level)

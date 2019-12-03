@@ -21,8 +21,6 @@
 
 @implementation VectorsTestCase
 
-
-
 - (instancetype)init
 {
 	if (self = [super init]) {
@@ -58,7 +56,7 @@
                     if (compObj) {
                         [self.compObjs addObject:compObj];
                     }
-                    [baseVC addSelectionVectors:[NSArray arrayWithObject:wgVecObj]];
+//                    [baseVC addSelectionVectors:[NSArray arrayWithObject:wgVecObj]];
                     if ([vecName isEqualToString:@"Spain"]) {
                         self.selectedCountry = wgVecObj;
                     }
@@ -101,6 +99,15 @@
 			[viewC addAnnotation:annotate forPoint:location offset:CGPointZero];
 		}
 	}
+}
+
+- (void) stop
+{
+    [self.baseView stop];
+    if (_compObjs) {
+        [self.baseViewController removeObjects:_compObjs];
+        [_compObjs removeAllObjects];
+    }
 }
 
 @end

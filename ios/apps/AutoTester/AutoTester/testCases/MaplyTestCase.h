@@ -33,7 +33,6 @@ typedef NS_OPTIONS(NSUInteger, MaplyTestCaseImplementations) {
 - (void)stop;
 - (MaplyCoordinateSystem * _Nullable)customCoordSystem;
 
-@property (nonatomic, strong) UIView * _Nullable testView;
 @property (nonatomic, strong) NSString * _Nonnull name;
 
 @property (nonatomic) MaplyTestCaseImplementations implementations;
