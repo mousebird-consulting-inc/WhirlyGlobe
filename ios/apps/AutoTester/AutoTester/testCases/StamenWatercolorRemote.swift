@@ -63,4 +63,9 @@ class StamenWatercolorRemote: MaplyTestCase {
 		mapVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056), height: 1.0, time: 1.0)
 		mapVC.setZoomLimitsMin(0.01, max: 5.0)
 	}
+    
+    override func stop() {
+        imageLoader?.shutdown()
+        imageLoader = nil
+    }
 }

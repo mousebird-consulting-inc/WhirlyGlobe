@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 2/17/15.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -28,12 +28,12 @@
     if (!self)
         return nil;
     
-    _color = [styleSet colorValue:@"background-color" val:nil dict:styleEntry defVal:[UIColor blackColor] multiplyAlpha:true];
+    _color = [styleSet transColor:@"background-color" entry:styleEntry defVal:[UIColor blackColor]];
     if (styleEntry[@"background-image"])
     {
         NSLog(@"MapboxStyleSet: Ignoring background image");
     }
-    _opacity = [styleSet doubleValue:@"background-opacity" dict:styleEntry defVal:1.0];
+    _opacity = [styleSet transDouble:@"background-opacity" entry:styleEntry defVal:1.0];
     
     return self;
 }
@@ -59,15 +59,7 @@
         NSLog(@"Expecting paint in background layer");
         return nil;
     }
-
-    // Mess directly with the opacity because we're using it for other purposes
-    if (styleEntry[@"alphaoverride"])
-    {
-        double alpha = [styleEntry[@"alphaoverride"] doubleValue];
-        const CGFloat *colors = CGColorGetComponents(_paint.color.CGColor);
-        _paint.color = [UIColor colorWithRed:colors[0] green:colors[1] blue:colors[2] alpha:alpha];
-    }
-
+    
     return self;
 }
 

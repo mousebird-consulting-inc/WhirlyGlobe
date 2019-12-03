@@ -86,4 +86,12 @@
 	[mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056) time:1.0];
 }
 
+- (void)stop
+{
+    [self.loader shutdown];
+    [self.fetcher shutdown];
+    self.loader = nil;
+    self.fetcher = nil;
+}
+
 @end

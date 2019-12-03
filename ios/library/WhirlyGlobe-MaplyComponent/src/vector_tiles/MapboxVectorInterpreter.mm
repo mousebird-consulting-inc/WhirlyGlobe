@@ -51,6 +51,7 @@ using namespace WhirlyKit;
 
 static double MAX_EXTENT = 20037508.342789244;
 
+static int BackImageWidth = 16, BackImageHeight = 16;
 
 @implementation MapboxVectorInterpreter
 {
@@ -59,8 +60,8 @@ static double MAX_EXTENT = 20037508.342789244;
     NSObject<MaplyVectorStyleDelegate> *vecStyle;
     MaplySphericalMercator *coordSys;
     MaplyRenderController *offlineRender;
-    UIColor *backColor;
-    
+    MapboxTransColor *backColor;
+
     MapboxVectorTileParser_iOSRef imageTileParser,vecTileParser;
 }
 
@@ -185,7 +186,7 @@ static double MAX_EXTENT = 20037508.342789244;
         @synchronized(offlineRender)
         {
             // Build the vector objects for use in the image tile
-            offlineRender.clearColor = backColor;
+            offlineRender.clearColor = [backColor colorForZoom:tileID.level];
             MaplyVectorTileData *vecTileReturn;
 
             for (NSData *thisTileData : pbfDatas) {
@@ -257,10 +258,29 @@ static double MAX_EXTENT = 20037508.342789244;
 
     [viewC endChanges];
 
-    if (imageData) {
+    if (offlineRender) {
         // Rendered image goes in first
         MaplyImageTile *tileImage = [[MaplyImageTile alloc] initWithRawImage:imageData width:offlineRender.getFramebufferSize.width height:offlineRender.getFramebufferSize.height viewC:viewC];
         [loadReturn addImageTile:tileImage];
+    } else {
+        if (images.empty()) {
+            // Make a single color background image
+            // We have to do this each time because it can change per level
+            // TODO: Cache this per level or something
+            NSData *backImageData = [[NSMutableData alloc] initWithLength:4*BackImageWidth*BackImageHeight];
+            unsigned int *data = (unsigned int *)[backImageData bytes];
+            CGFloat red,green,blue,alpha;
+            UIColor *thisBackColor = [backColor colorForZoom:tileID.level];
+            [thisBackColor getRed:&red green:&green blue:&blue alpha:&alpha];
+            unsigned int pixel = 0xff << 24 | (int)(blue * 255) << 16 | (int)(green * 255) << 8 | (int)(red * 255);
+            for (unsigned int pix=0;pix<BackImageWidth*BackImageHeight;pix++) {
+                *data = pixel;
+                data++;
+            }
+
+            MaplyImageTile *tileImage = [[MaplyImageTile alloc] initWithRawImage:backImageData width:BackImageWidth height:BackImageHeight viewC:viewC];
+            [loadReturn addImageTile:tileImage];
+        }
     }
     
     // Any additional images are tacked on

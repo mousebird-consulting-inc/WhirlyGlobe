@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 2/16/15.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -25,6 +25,14 @@
 
 @class MapboxVectorFilter;
 @class MaplyVectorFunctionStops;
+@class MapboxTransDouble;
+@class MapboxTransColor;
+
+// Used for combining color and opacity
+typedef enum : NSUInteger {
+    MBResolveColorOpacityReplaceAlpha,
+    MBResolveColorOpacityMultiply
+} MBResolveColorType;
 
 /** @brief The Mapbox Vector Style Set parses Mapbox GL Style sheets and turns them into Maply compatible styles.
     @details A style delegate is required by the Mapnik parser to build geometry out of Mapnik vector tiles.  This style delegate can read a Mapbox GL Style sheet and produce compatible styles.
@@ -52,14 +60,14 @@
 /// @brief Layers parsed from the style sheet
 @property (nonatomic, strong, nullable) NSArray *layers;
 
+/// Tile sources
+@property (nonatomic, strong, nonnull) NSArray *sources;
+
 /// @brief Layers sorted by their ID
 @property (nonatomic, strong, nullable) NSDictionary *layersByName;
 
 /// @brief Layers sorted by source layer name
 @property (nonatomic, strong, nullable) NSDictionary *layersBySource;
-
-/// @brief Sprite sheet, if there is one
-@property (nonatomic, strong, nullable) MapboxVectorStyleSprites *sprites;
 
 /// @brief Initialize with the style JSON and the view controller
 /// @details We'll parse the style JSON passed in and return nil on failure.
@@ -90,8 +98,15 @@
 /// @brief Return an array for the given name, taking the constants into account
 - (NSArray *_Nullable)arrayValue:(NSString * __nonnull)name dict:(NSDictionary * __nullable)dict defVal:(NSArray * __nullable)defVal;
 
-/// @brief Parse and return a set of stops.  Takes constants into account
-- (MaplyVectorFunctionStops * __nullable)stopsValue:(id __nonnull)entry defVal:(id __nullable)defEntry;
+/// Builds a transitionable double object and returns that
+- (MapboxTransDouble *__nullable)transDouble:(NSString * __nonnull)name entry:(NSDictionary *__nonnull)entry defVal:(double)defVal;
+
+/// Builds a transitionable color object and returns that
+- (MapboxTransColor *__nullable)transColor:(NSString *__nonnull)name entry:(NSDictionary *__nonnull)entry defVal:(UIColor * __nullable)defVal;
+
+/// Resolve transitionable color and opacity into a single color for the zoom
+/// If this returns nil, then the object shouldn't appear
+- (UIColor *__nullable)resolveColor:(MapboxTransColor * __nullable)color opacity:(MapboxTransDouble * __nullable)opacity forZoom:(double)zoom mode:(MBResolveColorType)resolveMode;
 
 /// @brief Scale the color by the given opacity
 - (UIColor * __nullable)color:(UIColor * __nonnull)color withOpacity:(double)opacity;
@@ -107,12 +122,42 @@
 
 @end
 
+typedef enum : NSUInteger {
+    MapboxSourceVector,
+    MapboxSourceRaster,
+    // TODO: Support the rest of these eventually
+} MapboxSourceType;
+
+// Sources are called out individually
+@interface MaplyMapboxVectorStyleSource : NSObject
+
+// Name of the source
+@property (nonatomic,nullable) NSString *name;
+
+// Vector and raster sources supported for now
+@property (nonatomic) MapboxSourceType type;
+
+// TileJSON URL, if present
+@property (nonatomic,nullable) NSString *url;
+
+// If the TileJSON spec is inline, this is it
+@property (nonatomic,nullable) NSDictionary *tileSpec;
+
+// Initialize with the entry in the style file
+- (id __nullable)initWithName:(NSString *__nonnull)name styleEntry:(NSDictionary * __nonnull)styleEntry styleSet:(MapboxVectorStyleSet * __nonnull)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)viewC;
+
+@end
+
 /** @brief Layer definition from the Style Sheet.
     @details This is a single layer from the Mapbox style sheet.  It's also used to build visible objects.
   */
 @interface MaplyMapboxVectorStyleLayer : NSObject<MaplyVectorStyle>
+// Note: Need a better base class than MaplyVectorTileStyle
 
 @property (nonatomic,weak,nullable) MapboxVectorStyleSet *styleSet;
+
+/// Set if we actually use this layer.  Copied from the layout
+@property (nonatomic) bool visible;
 
 /// @brief ID on the layer style entry
 @property (nonatomic,nullable,strong) NSString *ident;
@@ -131,6 +176,13 @@
 
 /// @brief DrawPriority based on location in the style sheet
 @property (nonatomic) int drawPriority;
+
+/// If non-zero we set the draw priority differently per level
+@property (nonatomic) int drawPriorityPerLevel;
+
+// If set, the features produced will be selectable (if they can be)
+// Inherited from the settings
+@property (nonatomic) bool selectable;
 
 /// @brief Initialize with the style sheet and the entry for this layer
 + (id __nullable)VectorStyleLayer:(MapboxVectorStyleSet * __nonnull)styleSet JSON:(NSDictionary * __nonnull)layerDict drawPriority:(int)drawPriority;
@@ -184,42 +236,26 @@ typedef enum {MBGeomPoint,MBGeomLineString,MBGeomPolygon,MBGeomNone} MapboxVecto
 
 @end
 
-/// @brief A single zoom and value
-@interface MaplyVectorFunctionStop : NSObject
+// A transitionable double value
+// This may be stops or a single value
+@interface MapboxTransDouble : NSObject
 
-/// @brief Zoom level this applies to
-@property (nonatomic) double zoom;
+// Return the value for a given level
+- (double)valForZoom:(double)zoom;
 
-/// @brief Value at that zoom level
-@property (nonatomic) double val;
+// Minimum possible value
+- (double)minVal;
 
-/// @brief Could also just be a color
-@property (nonatomic,nullable,strong) UIColor *color;
+// Maximum possible value
+- (double)maxVal;
 
 @end
 
-/// @brief These are used to control simple values based on zoom level
-@interface MaplyVectorFunctionStops : NSObject
+// Transitionable color
+// Might be stops, might be a single value
+@interface MapboxTransColor : NSObject
 
-/// @brief Array of function stops as they apply to value.  These are MaplyVectorFunctionStop objects.
-@property (nonatomic,strong,nullable) NSArray *stops;
-
-/// @brief Used in exponential calculation
-@property (nonatomic,assign) double base;
-
-/// @brief Parse out of a JSON array
-- (id _Nullable)initWithArray:(NSArray * __nonnull)dataArray styleSet:(MapboxVectorStyleSet * __nonnull)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)viewC;
-
-/// @brief Calculate a value given the zoom level
-- (double)valueForZoom:(int)zoom;
-
-/// @brief This version returns colors, assuming we're dealing with colors
-- (UIColor * _Nonnull)colorForZoom:(int)zoom;
-
-/// @brief Returns the minimum value
-- (double)minValue;
-
-/// @brief Returns the maximum value
-- (double)maxValue;
+// Return a color for the given zoom level
+- (UIColor * __nonnull)colorForZoom:(double)zoom;
 
 @end

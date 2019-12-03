@@ -597,6 +597,10 @@
         crossSymbolizerParams[@"height"] = pointParams[@"height"];
     }
     
+    // TODO: Generalize this
+//    pointParams[@"allow-overlap"] = @(YES);
+    pointParams[@"cluster"] = @(0);
+    
     MaplyVectorTileStyle *s = [MaplyVectorTileStyle styleFromStyleEntry:@{@"type": @"MarkersSymbolizer", @"substyles": @[pointParams]}
                                                                settings:tileStyleSettings
                                                                   viewC:viewC];

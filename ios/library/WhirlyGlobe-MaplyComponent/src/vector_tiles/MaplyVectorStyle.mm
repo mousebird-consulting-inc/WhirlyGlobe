@@ -33,6 +33,7 @@ using namespace WhirlyKit;
     _textScale = 1.0;
     _markerScale = 1.0;
     _markerImportance = 2.0;
+    _labelImportance = 1.5;
     _markerSize = 10.0;
     _mapScaleScale = 1.0;
     _dashPatternScale = 1.0;
@@ -53,6 +54,7 @@ using namespace WhirlyKit;
     _textScale = scale;
     _markerScale = scale;
     _markerImportance = 2.0;
+    _labelImportance = 1.5;
     _markerSize = 10.0;
     _mapScaleScale = 1.0;
     _dashPatternScale = 1.0;
@@ -144,6 +146,9 @@ NSArray * _Nonnull AddMaplyVectorsUsingStyle(NSArray * _Nonnull vecObjs,NSObject
         NSArray *features = featureStyles[key];
         [symbolizer buildObjects:features forTile:tileData viewC:viewC];
     }
-    
+
     return [tileData componentObjects];
 }
+
+@implementation MaplyVectorTileInfo
+@end

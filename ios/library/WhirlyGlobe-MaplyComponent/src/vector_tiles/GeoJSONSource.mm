@@ -106,11 +106,11 @@ using namespace WhirlyKit;
         geoBBox.ur.x = M_PI; geoBBox.ur.y = M_PI/2.0;
         MaplyTileID tileID = {0,0,0};
         MaplyVectorTileData *tileInfo = [[MaplyVectorTileData alloc] initWithID:tileID bbox:bbox geoBBox:geoBBox];
-        
+
         for (ShapeSet::iterator it = shapes.begin(); it != shapes.end(); ++it) {
             
             NSMutableDictionary *attributes = ((iosMutableDictionary *)(*it)->getAttrDict().get())->dict;
-            
+
             NSMutableArray *vectorObjs = [NSMutableArray array];
             
             VectorPointsRef points = std::dynamic_pointer_cast<VectorPoints>(*it);
@@ -146,19 +146,20 @@ using namespace WhirlyKit;
             for (MaplyVectorObject *vecObj in vectorObjs) {
                 vecObj->vObj->setAttributes(attrDict);
             }
-            
+
         }
         
         
         
         NSArray *symbolizerKeys = [featureStyles.allKeys sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"self" ascending:YES]]];
         dispatch_async(dispatch_get_main_queue(), ^{
+            
             for(id key in symbolizerKeys) {
                 NSObject<MaplyVectorStyle> *symbolizer = [self->_styleSet styleForUUID:[key longValue] viewC:baseVC];
                 NSArray *features = featureStyles[key];
                 [symbolizer buildObjects:features forTile:tileInfo viewC:baseVC];
             }
-            
+
             self->_compObjs = [tileInfo componentObjects];
             [baseVC enableObjects:self->_compObjs mode:MaplyThreadCurrent];
             self->_loaded = true;

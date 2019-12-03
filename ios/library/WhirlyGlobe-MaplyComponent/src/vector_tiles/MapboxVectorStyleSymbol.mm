@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 2/17/15.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,8 +20,25 @@
 
 #import "vector_styles/MapboxVectorStyleSymbol.h"
 #import "visual_objects/MaplyScreenLabel.h"
+#import <vector>
+
+// Used to track text data
+class TextChunk {
+public:
+    // Set if this is a simple string
+    NSString *str;
+
+    // Possible key names in the data. Tried in this order.
+    // Not set if this is a simple string
+    std::vector<NSString *> keys;
+};
 
 @implementation MapboxVectorSymbolLayout
+{
+@public
+    std::vector<TextChunk> textChunks;
+    float layoutImportance;
+}
 
 - (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
@@ -30,21 +47,32 @@
         return nil;
     
     _globalTextScale = styleSet.tileStyleSettings.textScale;
-    _visible = [styleSet boolValue:@"visibility" dict:styleEntry onValue:@"visible" defVal:true];
     _placement = (MapboxSymbolPlacement)[styleSet enumValue:styleEntry[@"symbol-placement"] options:@[@"point",@"line"] defVal:MBPlacePoint];
     _textTransform = (MapboxTextTransform)[styleSet enumValue:styleEntry[@"text-transform"] options:@[@"none",@"uppercase",@"lowercase"] defVal:MBTextTransNone];
     
     NSString *textField = [styleSet stringValue:@"text-field" dict:styleEntry defVal:nil];
-    NSMutableArray *textFields = [NSMutableArray array];
     if (textField) {
-        // Note: Doing a brute force replacement of the string name.  There are more subtle variants
-        NSString *thisTextField = [[textField stringByReplacingOccurrencesOfString:@"{" withString:@""] stringByReplacingOccurrencesOfString:@"}" withString:@""];
-        [textFields addObject:thisTextField];
-        // For some reason name:en is sometimes name_en
-        NSString *textVariant = [thisTextField stringByReplacingOccurrencesOfString:@":" withString:@"_"];
-        if (![textVariant isEqualToString:thisTextField])
-            [textFields addObject:textVariant];
-        _textFields = textFields;
+        // Parse out the {} groups in the text
+        // TODO: We're missing a boatload of stuff in the spec
+        NSMutableCharacterSet *charSet = [[NSMutableCharacterSet alloc] init];
+        [charSet addCharactersInString:@"{}"];
+        NSArray *chunks = [textField componentsSeparatedByCharactersInSet:charSet];
+        bool isJustText = [textField characterAtIndex:0] != '{';
+        for (NSString *chunk in chunks) {
+            if ([chunk length] == 0)
+                continue;
+            TextChunk textChunk;
+            if (isJustText) {
+                textChunk.str = chunk;
+            } else {
+                textChunk.keys.push_back(chunk);
+                // For some reason name:en is sometimes name_en
+                NSString *textVariant = [chunk stringByReplacingOccurrencesOfString:@":" withString:@"_"];
+                textChunk.keys.push_back(textVariant);
+            }
+            textChunks.push_back(textChunk);
+            isJustText = !isJustText;
+        }
     }
     NSArray *textFontArray = styleEntry[@"text-font"];
     if ([textFontArray isKindOfClass:[NSArray class]] && [textFontArray count] > 0) {
@@ -53,24 +81,8 @@
             _textFontName = [textField stringByReplacingOccurrencesOfString:@" " withString:@"-"];
         }
     }
-    id maxWidthEntry = styleEntry[@"text-max-width"];
-    if (maxWidthEntry)
-    {
-        if ([maxWidthEntry isKindOfClass:[NSNumber class]])
-            _textMaxWidth = [styleSet doubleValue:maxWidthEntry defVal:10.0];
-        else
-            _textMaxWidthFunc = [styleSet stopsValue:maxWidthEntry defVal:nil];
-    } else
-        _textMaxWidth = 10.0;
-    id sizeEntry = styleEntry[@"text-size"];
-    if (sizeEntry)
-    {
-        if ([sizeEntry isKindOfClass:[NSNumber class]])
-            _textSize = [styleSet doubleValue:sizeEntry defVal:1.0];
-        else
-            _textSizeFunc = [styleSet stopsValue:sizeEntry defVal:nil];
-    } else
-        _textSize = 24.0;
+    _textMaxWidth = [styleSet transDouble:@"text-max-width" entry:styleEntry defVal:10.0];
+    _textSize = [styleSet transDouble:@"text-size" entry:styleEntry defVal:24.0];
 
     id textAnchor = styleEntry[@"text-anchor"];
     _textAnchor = MBTextCenter;
@@ -78,6 +90,7 @@
     {
         _textAnchor = (MapboxTextAnchor)[styleSet enumValue:styleEntry[@"text-anchor"] options:@[@"center",@"left",@"right",@"top",@"bottom",@"top-left",@"top-right",@"bottom-left",@"bottom-right"] defVal:MBTextCenter];
     }
+    layoutImportance = styleSet.tileStyleSettings.labelImportance;
 
     return self;
 }
@@ -92,25 +105,8 @@
     if (!self)
         return nil;
     
-    id textColorEntry = styleEntry[@"text-color"];
-    if (textColorEntry)
-    {
-        if ([textColorEntry isKindOfClass:[NSString class]])
-            _textColor = [styleSet colorValue:@"text-color" val:nil dict:styleEntry defVal:[UIColor blackColor] multiplyAlpha:false];
-        else
-            _textColorFunc = [styleSet stopsValue:textColorEntry defVal:nil];
-    } else {
-        _textColor = [UIColor whiteColor];
-    }
-    id textOpacityEntry = styleEntry[@"text-opacity"];
-    if (textOpacityEntry) {
-        if ([textOpacityEntry isKindOfClass:[NSNumber class]])
-            _textOpacity = [styleSet doubleValue:@"text-opacity" dict:styleEntry defVal:1.0];
-        else
-            _textOpacityFunc = [styleSet stopsValue:textOpacityEntry defVal:nil];
-    } else {
-        _textOpacity = 1.0;
-    }
+    _textColor = [styleSet transColor:@"text-color" entry:styleEntry defVal:[UIColor blackColor]];
+    _textOpacity = [styleSet transDouble:@"text-opacity" entry:styleEntry defVal:1.0];
     _textHaloColor = [styleSet colorValue:@"text-halo-color" val:nil dict:styleEntry defVal:nil multiplyAlpha:false];
     _textHaloWidth = [styleSet doubleValue:@"text-halo-width" dict:styleEntry defVal:0.0];
 
@@ -121,7 +117,6 @@
 
 @implementation MapboxVectorLayerSymbol
 {
-    NSMutableDictionary *symbolDesc;
 }
 
 - (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
@@ -144,21 +139,7 @@
         NSLog(@"Expecting paint in symbol layer.");
         return nil;
     }
-    
-    symbolDesc = [NSMutableDictionary dictionaryWithDictionary:
-                  @{
-                    kMaplyFade: @(0.0),
-                    kMaplyTextJustify: kMaplyTextJustifyCenter,
-                    kMaplyEnable: @(NO)
-                    }];
-    if (_paint.textColor)
-        symbolDesc[kMaplyTextColor] = [_paint.textColor colorWithAlphaComponent:_paint.textOpacity];
-    if (_paint.textHaloColor && _paint.textHaloWidth > 0.0)
-    {
-        symbolDesc[kMaplyTextOutlineColor] = _paint.textHaloColor;
-        symbolDesc[kMaplyTextOutlineSize] = @(_paint.textHaloWidth);
-    }
-    
+        
     return self;
 }
 
@@ -244,23 +225,33 @@
 
 - (void)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileData *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
-    // Note: Would be better to do this earlier
-    if (!_layout.visible)
+    if (!self.visible) {
         return;
-    
-    if (self.minzoom > tileInfo.tileID.level)
-        return;
-    if (self.maxzoom < tileInfo.tileID.level)
-        return;
-    
-    NSDictionary *desc = symbolDesc;
-    double textSize = 24.0;
-    if (_layout.textSizeFunc)
-    {
-        textSize = [_layout.textSizeFunc valueForZoom:tileInfo.tileID.level];
-    } else {
-        textSize = _layout.textSize;
     }
+
+    NSMutableArray *compObjs = [NSMutableArray array];
+    
+    // TODO: They mean displayed level here, which is different from loaded level
+//    if (self.minzoom > tileInfo.tileID.level)
+//        return compObjs;
+//    if (self.maxzoom < tileInfo.tileID.level)
+//        return compObjs;
+    
+    NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:
+                  @{
+                    kMaplyFade: @(0.0),
+                    kMaplyTextJustify: kMaplyTextJustifyCenter,
+                    kMaplyEnable: @(NO)
+                    }];
+    UIColor *textColor = [self.styleSet resolveColor:_paint.textColor opacity:_paint.textOpacity forZoom:tileInfo.tileID.level mode:MBResolveColorOpacityReplaceAlpha];
+    if (textColor)
+        desc[kMaplyTextColor] = textColor;
+    if (_paint.textHaloColor && _paint.textHaloWidth > 0.0)
+    {
+        desc[kMaplyTextOutlineColor] = _paint.textHaloColor;
+        desc[kMaplyTextOutlineSize] = @(_paint.textHaloWidth);
+    }
+    double textSize = [_layout.textSize valForZoom:tileInfo.tileID.level];
     // Snap to an integer.  Not clear we need to, just because.
     textSize = (int)(textSize * _layout.globalTextScale+0.5);
 
@@ -275,37 +266,40 @@
     }
     if (!font)
         font = [UIFont systemFontOfSize:textSize];
+    desc[kMaplyFont] = font;
     
-    UIColor *textColor = _paint.textColor;
-    if (_paint.textColorFunc) {
-        textColor = [_paint.textColorFunc colorForZoom:tileInfo.tileID.level];
-    }
-    if (!textColor)
-        textColor = [UIColor whiteColor];
-    double opacity = _paint.textOpacity;
-    if (_paint.textOpacityFunc) {
-        opacity = [_paint.textOpacityFunc valueForZoom:tileInfo.tileID.level];
-    }
-    textColor = [textColor colorWithAlphaComponent:opacity];
-
-    NSMutableDictionary *mutDesc = [NSMutableDictionary dictionaryWithDictionary:desc];
-    mutDesc[kMaplyFont] = font;
-    mutDesc[kMaplyTextColor] = textColor;
-    desc = mutDesc;
     // Note: Made up value for pushing multi-line text together
-    mutDesc[kMaplyTextLineSpacing] = @(4.0 / 5.0 * font.lineHeight);
+    desc[kMaplyTextLineSpacing] = @(4.0 / 5.0 * font.lineHeight);
+    
+    bool include = textColor != nil && textSize > 0.0;
+    if (!include)
+        return;
 
     NSMutableArray *labels = [NSMutableArray array];
     for (MaplyVectorObject *vecObj in vecObjs)
     {
         MaplyScreenLabel *label = [[MaplyScreenLabel alloc] init];
+        label.selectable = self.selectable;
+        label.userObject = vecObj;
         label.loc = [vecObj center];
-        for (NSString *posTextField in _layout.textFields)
-        {
-            label.text = vecObj.attributes[posTextField];
-            if (label.text)
-                break;
+        
+        // Reconstruct the string from its replacement form
+        NSMutableString *text = [NSMutableString new];
+        for (auto textChunk : _layout->textChunks) {
+            if (textChunk.str) {
+                [text appendString:textChunk.str];
+            } else {
+                for (NSString *key : textChunk.keys) {
+                    NSString *keyVal = vecObj.attributes[key];
+                    if (keyVal) {
+                        [text appendString:keyVal];
+                        break;
+                    }
+                }
+            }
         }
+        label.text = text;
+
         if (!label.text)
         {
             NSLog(@"Failed to find text for label");
@@ -321,7 +315,7 @@
         }
         // Random tweak to cut down on flashing
         float strHash = [self calcStringHash:label.text];
-        label.layoutImportance = 1000000 - rank + (101-tileInfo.tileID.level)/100.0 + strHash/1000.0;
+        label.layoutImportance = _layout->layoutImportance + 1.0 - (rank + (101-tileInfo.tileID.level)/100.0)/1000.0 + strHash/1000.0;
         
         // Change the text if needed
         switch (_layout.textTransform)
@@ -336,9 +330,7 @@
                 break;
         }
         // Break it up into lines, if necessary
-        double textMaxWidth = _layout.textMaxWidth;
-        if (_layout.textMaxWidthFunc)
-            textMaxWidth = [_layout.textMaxWidthFunc valueForZoom:tileInfo.tileID.level];
+        double textMaxWidth = [_layout.textMaxWidth valForZoom:tileInfo.tileID.level];
         if (textMaxWidth != 0.0) {
             label.text = [self breakUpText:label.text width:textMaxWidth * font.pointSize * _layout.globalTextScale font:font];
         }

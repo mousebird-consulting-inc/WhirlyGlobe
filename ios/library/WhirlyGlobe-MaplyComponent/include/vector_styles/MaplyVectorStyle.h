@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 1/3/14.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -44,6 +44,8 @@
 @property (nonatomic) float markerImportance;
 /// Default marker size when none is specified
 @property (nonatomic) float markerSize;
+/// Importance for labels in the layout engine
+@property (nonatomic) float labelImportance;
 
 /// Draw priority calculated as offset from here
 @property (nonatomic) int baseDrawPriority;
@@ -73,7 +75,7 @@
 /// If set, this is the shader we'll use on the areal features.
 @property (nonatomic,strong) NSString * _Nullable arealShaderName;
 
-/// If set, we'll make the areal features selectable.  If not, this saves memory.
+/// If set, we'll make all the features selectable.  If not, we won't.
 @property (nonatomic) bool selectable;
 
 /// If set, icons will be loaded from this directory
@@ -111,6 +113,22 @@
 
 // Return a list of all the styles in no particular order.  Needed for categories and indexing
 - (NSArray * __nonnull)allStyles;
+
+@end
+
+/**
+    Vector Tile Info
+ 
+    Information about a single vector tile being parsed.  This is passe dinto the buildObjects:
+    method of a MaplyVectorStyle
+  */
+@interface MaplyVectorTileInfo : NSObject
+
+/// Tile ID for this tile
+@property (nonatomic) MaplyTileID tileID;
+
+/// Bounding box in geographic
+@property (nonatomic,assign) MaplyBoundingBoxD geoBBox;
 
 @end
 

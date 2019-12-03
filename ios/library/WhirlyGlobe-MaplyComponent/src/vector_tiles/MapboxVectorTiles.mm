@@ -1,8 +1,9 @@
 /*
- *  MapboxVectorTiles.mm
- *  WhirlyGlobeLib
+ *  MaplyMapnikVectorTiles.mm
+ *  WhirlyGlobe-MaplyComponent
  *
- *  Created by Steve Gifford on 4/10/19.
+ *  Created by Jesse Crocker, Trailbehind inc. on 3/31/14.
+ *  Recreated by Steve Gifford on 4/10/19.
  *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");

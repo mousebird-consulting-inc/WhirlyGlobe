@@ -29,7 +29,6 @@
     if (!self)
         return nil;
 
-    _visible = [styleSet boolValue:@"visibility" dict:styleEntry onValue:@"visible" defVal:true];
     _cap = (MapboxVectorLineCap)[styleSet enumValue:styleEntry[@"line-cap"] options:@[@"butt",@"round",@"square"] defVal:MBLineCapButt];
     _join = (MapboxVectorLineJoin)[styleSet enumValue:styleEntry[@"line-join"] options:@[@"bevel",@"round",@"miter"] defVal:MBLineJoinMiter];
     _miterLimit = [styleSet doubleValue:@"line-miter-limit" dict:styleEntry defVal:2.0];
@@ -73,33 +72,9 @@
     [styleSet unsupportedCheck:@"line-blur" in:@"line-paint" styleEntry:styleEntry];
     [styleSet unsupportedCheck:@"line-image" in:@"line-paint" styleEntry:styleEntry];
 
-    id opEntry = styleEntry[@"line-opacity"];
-    if (opEntry)
-    {
-        if ([opEntry isKindOfClass:[NSNumber class]])
-            _opacity = [styleSet doubleValue:opEntry defVal:1.0];
-        else
-            _opacityFunc = [styleSet stopsValue:opEntry defVal:nil];
-    } else
-        _opacity = 1.0;
-    id widthEntry = [styleSet constantSubstitution:styleEntry[@"line-width"] forField:@"line-width"];
-    if (widthEntry)
-    {
-        if ([widthEntry isKindOfClass:[NSNumber class]])
-            _width = [styleSet doubleValue:widthEntry defVal:1.0];
-        else
-            _widthFunc = [styleSet stopsValue:widthEntry defVal:nil];
-    } else
-        _width = 1.0;
-    id colorEntry = [styleSet constantSubstitution:styleEntry[@"line-color"] forField:@"line-color"];
-    if (colorEntry)
-    {
-        if ([colorEntry isKindOfClass:[NSString class]])
-            _color = [styleSet colorValue:@"line-color" val:nil dict:styleEntry defVal:[UIColor blackColor] multiplyAlpha:true];
-        else
-            _colorFunc = [styleSet stopsValue:colorEntry defVal:nil];
-    } else
-        _color = [UIColor blackColor];
+    _opacity = [styleSet transDouble:@"line-opacity" entry:styleEntry defVal:1.0];
+    _width = [styleSet transDouble:@"line-width" entry:styleEntry defVal:1.0];
+    _color = [styleSet transColor:@"line-color" entry:styleEntry defVal:[UIColor blackColor]];
     id dashArrayEntry = styleEntry[@"line-dasharray"];
     if (dashArrayEntry)
     {
@@ -114,8 +89,10 @@
 
 @implementation MapboxVectorLayerLine
 {
-    NSMutableDictionary *lineDesc;
-    int drawPriorityPerLevel;
+    MaplyTexture *filledLineTex;
+    double lineScale;
+    double totLen;
+    double fade;
 }
 
 // Courtesy: http://acius2.blogspot.com/2007/11/calculating-next-power-of-2.html
@@ -153,10 +130,8 @@ static unsigned int NextPowOf2(unsigned int val)
     if (_paint.lineDashArray != nil)
     {
         NSMutableArray *dashComponents = [NSMutableArray array];
-        double totLen = 0.0;
-        double maxWidth = _paint.width * styleSet.tileStyleSettings.lineScale;
-        if (_paint.widthFunc)
-            maxWidth = [_paint.widthFunc maxValue] * styleSet.tileStyleSettings.lineScale;
+        totLen = 0.0;
+        double maxWidth = [_paint.width maxVal] * styleSet.tileStyleSettings.lineScale;
 
         // Figure out the total length
         for (NSNumber *num in _paint.lineDashArray.dashes)
@@ -172,43 +147,15 @@ static unsigned int NextPowOf2(unsigned int val)
         MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] init];
         [lineTexBuilder setPattern:dashComponents];
         UIImage *lineImage = [lineTexBuilder makeImage];
-        MaplyTexture *filledLineTex = [viewC addTexture:lineImage
+        filledLineTex = [viewC addTexture:lineImage
                                                    desc:@{kMaplyTexFormat: @(MaplyImageIntRGBA),
                                                           kMaplyTexWrapY: @(MaplyImageWrapY)
                                                           }
                                                    mode:MaplyThreadCurrent];
-        lineDesc = [NSMutableDictionary dictionaryWithDictionary:
-                    @{kMaplyVecWidth: @(_paint.width * styleSet.tileStyleSettings.lineScale),
-                      kMaplyVecTexture: filledLineTex,
-                      kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
-                      // Note: Hack
-                      kMaplyWideVecTexRepeatLen: @(totLen/4.0),
-                      kMaplyDrawPriority: @(self.drawPriority),
-                      kMaplyFade: @0.0,
-                      kMaplyVecCentered: @YES,
-                      kMaplySelectable: @NO,
-                      kMaplyEnable: @NO
-                      }];
-    } else {
-        // Simple filled line
-        lineDesc = [NSMutableDictionary dictionaryWithDictionary:
-                @{kMaplyVecWidth: @(_paint.width * styleSet.tileStyleSettings.lineScale),
-                  kMaplyDrawPriority: @(self.drawPriority),
-                  kMaplyFade: @0.0,
-                  kMaplyVecCentered: @YES,
-                  kMaplySelectable: @NO,
-                  kMaplyEnable: @NO
-                  }];
     }
-    if (_paint.color) {
-        lineDesc[kMaplyColor] = _paint.color;
-    }
-    
-    double fade = [styleSet doubleValue:@"fade" dict:styleEntry defVal:0.0];
-    if (fade != 0.0)
-        lineDesc[kMaplyFade] = @(fade);
-    
-    drawPriorityPerLevel = styleSet.tileStyleSettings.drawPriorityPerLevel;
+    fade = [styleSet doubleValue:@"fade" dict:styleEntry defVal:0.0];
+
+    lineScale = styleSet.tileStyleSettings.lineScale;
 
     return self;
 }
@@ -216,12 +163,15 @@ static unsigned int NextPowOf2(unsigned int val)
 
 - (void)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileData *)tileInfo  viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
-    NSMutableArray *compObjs = [NSMutableArray array];
-
-    // Note: Would be better to do this earlier
-    if (!_layout.visible)
+    if (!self.visible) {
         return;
+    }
+
+    NSMutableArray *compObjs = [NSMutableArray array];
     
+    // TODO: Do level based animation instead
+    float levelBias = 0.9;
+
     // Turn into linears (if not already) and then clip to the bounds
     if (_linearClipToBounds) {
         MaplyCoordinate ll = MaplyCoordinateMake(tileInfo.geoBounds.ll.x, tileInfo.geoBounds.ll.y);
@@ -246,47 +196,48 @@ static unsigned int NextPowOf2(unsigned int val)
         }
     }
     
-    NSDictionary *desc = lineDesc;
-    bool include = true;
-    if (_paint.widthFunc)
-    {
-        double width = [_paint.widthFunc valueForZoom:tileInfo.tileID.level] * self.styleSet.tileStyleSettings.lineScale;
-        if (width > 0.0)
-        {
-            NSMutableDictionary *mutDesc = [NSMutableDictionary dictionaryWithDictionary:desc];
-            mutDesc[kMaplyVecWidth] = @(width);
-            desc = mutDesc;
-        } else
-            include = false;
-    }
-    UIColor *color = _paint.color;
-    if (_paint.colorFunc) {
-        color = [_paint.colorFunc colorForZoom:tileInfo.tileID.level];
-    }
-    if (!color)
-        color = [UIColor blackColor];
-    if (include) {
-        if (_paint.opacityFunc)
-        {
-            double opacity = [_paint.opacityFunc valueForZoom:tileInfo.tileID.level];
-            if (opacity > 0.0)
-            {
-                color = [self.styleSet color:color withOpacity:opacity];
-            } else
-                include = false;
-        } else if (_paint.opacity < 1.0) {
-            color = [self.styleSet color:color withOpacity:_paint.opacity];
-        }
-    }
-    NSMutableDictionary *mutDesc = [NSMutableDictionary dictionaryWithDictionary:desc];
-    mutDesc[kMaplyColor] = color;
-    
-    if (drawPriorityPerLevel > 0) {
-        mutDesc[kMaplyDrawPriority] = @(self.drawPriority + tileInfo.tileID.level * drawPriorityPerLevel);
+    // TODO: Eventually we need width animation
+    NSMutableDictionary *desc;
+    if (filledLineTex) {
+        desc = [NSMutableDictionary dictionaryWithDictionary:
+                @{kMaplyVecTexture: filledLineTex,
+                  kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
+                  // Note: Hack
+                  kMaplyWideVecTexRepeatLen: @(totLen/4.0),
+                  kMaplyFade: @0.0,
+                  kMaplyVecCentered: @YES,
+                  kMaplySelectable: @(self.selectable),
+                  kMaplyEnable: @NO
+                  }];
+    } else {
+        // Simple filled line
+        desc = [NSMutableDictionary dictionaryWithDictionary:
+                @{kMaplyDrawPriority: @(self.drawPriority),
+                  kMaplyFade: @0.0,
+                  kMaplyVecCentered: @YES,
+                  kMaplySelectable: @(self.selectable),
+                  kMaplyEnable: @NO
+                  }];
     }
     
-    desc = mutDesc;
+    UIColor *color = [self.styleSet resolveColor:_paint.color opacity:_paint.opacity forZoom:tileInfo.tileID.level+levelBias mode:MBResolveColorOpacityMultiply];
+    if (color) {
+        desc[kMaplyColor] = color;
+    }
+    double width = [_paint.width valForZoom:tileInfo.tileID.level+levelBias] * lineScale;
+    if (width > 0.0) {
+        desc[kMaplyVecWidth] = @(width);
+    }
+    if (fade != 0.0)
+        desc[kMaplyFade] = @(fade);
+    bool include = color != nil && width > 0.0;
     
+    if (self.drawPriorityPerLevel > 0) {
+        desc[kMaplyDrawPriority] = @(self.drawPriority + tileInfo.tileID.level * self.drawPriorityPerLevel);
+    } else {
+        desc[kMaplyDrawPriority] = @(self.drawPriority);
+    }
+
     if (include)
     {
         MaplyComponentObject *compObj = [viewC addWideVectors:vecObjs desc:desc mode:MaplyThreadCurrent];

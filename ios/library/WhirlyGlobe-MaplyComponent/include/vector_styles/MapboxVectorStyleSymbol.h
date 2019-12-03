@@ -29,24 +29,18 @@ typedef enum {MBTextTransNone,MBTextTransUppercase,MBTextTransLowercase} MapboxT
 @interface MapboxVectorSymbolLayout : NSObject
 
 @property (nonatomic) bool visible;
-/// How we place the symbole (at a point, or along a line)
+/// How we place the symbol (at a point, or along a line)
 @property (nonatomic) MapboxSymbolPlacement placement;
 /// If set, turn the text uppercase
 @property (nonatomic) MapboxTextTransform textTransform;
-/// @brief Field to use when displaying the text
-@property (nonatomic,strong) NSArray<NSString *> *textFields;
 /// @brief Font to use for display
 @property (nonatomic,strong) NSString *textFontName;
 /// @brief The maximum line width for wrapping
-@property (nonatomic) double textMaxWidth;
-/// If set, a function controlling max width
-@property (nonatomic,strong) MaplyVectorFunctionStops *textMaxWidthFunc;
+@property (nonatomic) MapboxTransDouble *textMaxWidth;
 /// If set, the immutable text size
-@property (nonatomic) double textSize;
+@property (nonatomic) MapboxTransDouble *textSize;
 /// Text scale from the global settings
 @property (nonatomic) double globalTextScale;
-/// If set, a function that controls text size
-@property (nonatomic,strong) MaplyVectorFunctionStops *textSizeFunc;
 /// How the text is laid out in relation to it's attach point
 @property (nonatomic) MapboxTextAnchor textAnchor;
 
@@ -57,13 +51,8 @@ typedef enum {MBTextTransNone,MBTextTransUppercase,MBTextTransLowercase} MapboxT
 @interface MapboxVectorSymbolPaint : NSObject
 
 // Default text color
-@property (nonatomic,strong) UIColor *textColor;
-// Possibly a function to describe the text color
-@property (nonatomic) MaplyVectorFunctionStops *textColorFunc;
-// Opacity
-@property (nonatomic,assign) double textOpacity;
-// Optional function to describe text opacity
-@property (nonatomic) MaplyVectorFunctionStops *textOpacityFunc;
+@property (nonatomic) MapboxTransColor *textColor;
+@property (nonatomic) MapboxTransDouble *textOpacity;
 // If there's a halo, this is the color
 @property (nonatomic,strong) UIColor *textHaloColor;
 // If there's a halo, this is the size
