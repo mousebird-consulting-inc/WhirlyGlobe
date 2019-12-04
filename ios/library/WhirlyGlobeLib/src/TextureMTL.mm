@@ -58,6 +58,19 @@ TextureMTL::TextureMTL(const std::string &name,UIImage *inImage,int inWidth,int 
     
     texData = RawDataRef(new RawNSDataReader(data));
 }
+
+TextureMTL::TextureMTL(const std::string &name,UIImage *inImage)
+: Texture(name), TextureBase(name), TextureBaseMTL(name)
+{
+    NSData *data = [inImage rawDataRetWidth:&width height:&height roundUp:true];
+    if (!data)
+        return;
+    
+    if ((width == 0 || height == 0) && data)
+        NSLog(@"TextureMTL: Got textures with 0 width or height");
+    
+    texData = RawDataRef(new RawNSDataReader(data));
+}
     
 RawDataRef TextureMTL::convertData()
 {

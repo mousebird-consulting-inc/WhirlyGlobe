@@ -55,6 +55,8 @@ public:
     TextureMTL(const std::string &name,RawDataRef texData,bool isPVRTC);
     /// Construct by scaling the image to the given size
     TextureMTL(const std::string &name,UIImage *inImage,int width,int height);
+    /// Construct with just the image
+    TextureMTL(const std::string &name,UIImage *inImage);
 
     /// Creates the MTL resources
     virtual bool createInRenderer(const RenderSetupInfo *setupInfo);
