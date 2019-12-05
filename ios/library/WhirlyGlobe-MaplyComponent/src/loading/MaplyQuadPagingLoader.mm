@@ -99,6 +99,7 @@ using namespace WhirlyKit;
         tileFetcher = [self.viewC addTileFetcher:MaplyQuadImageLoaderFetcherName];
     }
     loader->tileFetcher = tileFetcher;
+    loader->layer = self;
 
     samplingLayer = [[self.viewC getRenderControl] findSamplingLayer:params forUser:self->loader];
     // Do this again in case they changed them

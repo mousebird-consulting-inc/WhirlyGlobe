@@ -108,6 +108,9 @@
 /// Useful for delegate calls that might not be tracking that.
 @property (nonatomic,readonly,weak,nullable) NSObject<MaplyRenderControllerProtocol> *viewC;
 
+/// If set, we'll call the interpreter on this queue
+@property (nonatomic,nullable) dispatch_queue_t queue;
+
 // True if the loader is not currently loading anything
 - (bool)isLoading;
 
@@ -179,6 +182,14 @@
  visuals will change as everything comes in.
  */
 - (void)changeInterpreter:(NSObject<MaplyLoaderInterpreter> *__nonnull)interp;
+
+/**
+  Force a reload of the data.
+  <br>
+  All the current loads will be cancelled, any in flight will be ignored
+  and the loader will ask for a whole new set of data.
+  */
+- (void)reload;
 
 /** Turn off the loader and shut things down.
  This unregisters us with the sampling layer and shuts down the various objects we created.

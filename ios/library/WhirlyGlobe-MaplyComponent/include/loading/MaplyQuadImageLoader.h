@@ -204,12 +204,4 @@ extern NSString * _Nonnull const MaplyQuadImageLoaderFetcherName;
   */
 - (void)changeTileInfo:(NSObject<MaplyTileInfoNew> *__nonnull)tileInfo;
 
-/**
-  Force a reload of the images.
-  <br>
-  All the current loads will be cancelled, any in flight will be ignored
-  and the loader will ask for a whole new set of imagery.
-  */
-- (void)reload;
-
 @end

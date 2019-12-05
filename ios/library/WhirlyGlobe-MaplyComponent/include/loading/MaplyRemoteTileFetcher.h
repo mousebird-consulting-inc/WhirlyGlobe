@@ -109,10 +109,10 @@
 @interface MaplyRemoteTileFetchInfo : NSObject
 
 /// URL to fetch from
-@property (nonnull) NSURLRequest *urlReq;
+@property (nonatomic,nonnull,retain) NSURLRequest *urlReq;
 
 /// File name for cached file (if present).  Save it here when fetched if set.
-@property (nullable) NSString *cacheFile;
+@property (nonatomic,nullable,retain) NSString *cacheFile;
 
 @end
 

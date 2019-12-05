@@ -144,16 +144,20 @@ void QIFTileAsset_ios::startFetching(QuadImageFrameLoader *inLoader,int frameToL
                 id fetchInfo = [frameInfo fetchInfoForTile:tileID flipY:loader->getFlipY()];
                 if (fetchInfo) {
                     MaplyTileFetchRequest *request = frameAsset->setupFetch(loader,fetchInfo,frameInfo,loader->calcLoadPriority(ident,frame),ident.importance);
-                    
                     NSObject<QuadImageFrameLoaderLayer> * __weak layer = loader->layer;
-                    
-                    request.success = ^(MaplyTileFetchRequest *request, id data) {
-                        [layer fetchRequestSuccess:request tileID:tileID frame:frame data:data];
-                    };
-                    request.failure = ^(MaplyTileFetchRequest *request, NSError *error) {
-                        [layer fetchRequestFail:request tileID:tileID frame:frame error:error];
-                    };
-                    [batchOps->toStart addObject:request];
+
+                    // This means there's no data fetch.  Interpreter does all the work.
+                    if ([fetchInfo isKindOfClass:[NSNull class]]) {
+                        [layer fetchRequestSuccess:request tileID:tileID frame:frame data:nil];
+                    } else {
+                        request.success = ^(MaplyTileFetchRequest *request, id data) {
+                            [layer fetchRequestSuccess:request tileID:tileID frame:frame data:data];
+                        };
+                        request.failure = ^(MaplyTileFetchRequest *request, NSError *error) {
+                            [layer fetchRequestFail:request tileID:tileID frame:frame error:error];
+                        };
+                        [batchOps->toStart addObject:request];
+                    }
                 } else
                     frameAsset->loadSkipped();
             }
