@@ -303,6 +303,18 @@ using namespace WhirlyKit;
     NSLog(@"MaplyQuadLoader: Failed to fetch tile %d: (%d,%d) frame %d because:\n%@",tileID.level,tileID.x,tileID.y,frame,[error localizedDescription]);
 }
 
+- (void)tileUnloaded:(MaplyTileID)tileID {
+    if (!loader || !valid)
+        return;
+
+    dispatch_queue_t theQueue = _queue;
+    if (!theQueue)
+        theQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_async(theQueue, ^{
+        [self->loadInterp tileUnloaded:tileID];
+    });
+}
+
 // Called on the SamplingLayer.LayerThread
 - (void)mergeFetchRequest:(MaplyLoaderReturn *)loadReturn
 {

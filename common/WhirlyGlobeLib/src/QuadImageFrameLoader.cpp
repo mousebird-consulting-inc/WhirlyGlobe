@@ -878,6 +878,8 @@ void QuadImageFrameLoader::removeTile(const QuadTreeNew::Node &ident, QIFBatchOp
         
         it->second->clear(this, batchOps, changes);
         
+        batchOps->deletes.push_back(QuadTreeIdentifier(ident.x,ident.y,ident.level));
+        
         tiles.erase(it);
     }
 }

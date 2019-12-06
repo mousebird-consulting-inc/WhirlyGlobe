@@ -34,6 +34,9 @@ class QIFBatchOps
 public:
     QIFBatchOps();
     virtual ~QIFBatchOps();
+
+    // Tiles we deleted for callback later
+    std::vector<QuadTreeIdentifier> deletes;
 };
 
 // Assets and status associated with a single tile's frame

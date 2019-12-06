@@ -130,6 +130,9 @@ using namespace WhirlyKit;
     }
 }
 
+- (void)tileUnloaded:(MaplyTileID)tileID {
+}
+
 @end
 
 @implementation MaplyOvlDebugImageLoaderInterpreter

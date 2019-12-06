@@ -82,6 +82,11 @@
  */
 - (void)dataForTile:(MaplyLoaderReturn * __nonnull)loadReturn loader:(MaplyQuadLoaderBase * __nonnull)loader;
 
+/**
+  Notification that the tile was unloaded by the system.  If you're tracking your own resources, you may need this.
+ */
+- (void)tileUnloaded:(MaplyTileID)tileID;
+
 @end
 
 /** Base class for the quad loaders.

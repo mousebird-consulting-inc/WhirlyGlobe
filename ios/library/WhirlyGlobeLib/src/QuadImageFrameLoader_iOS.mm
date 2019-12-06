@@ -214,6 +214,12 @@ void QuadImageFrameLoader_ios::processBatchOps(QIFBatchOps *inBatchOps)
 
     [tileFetcher cancelTileFetches:batchOps->toCancel];
     [tileFetcher startTileFetches:batchOps->toStart];
+
+    for (auto tile : batchOps->deletes) {
+        MaplyTileID tileID;
+        tileID.level = tile.level; tileID.x = tile.x; tileID.y = tile.y;
+        [layer tileUnloaded:tileID];
+    }
     
     batchOps->toCancel = nil;
     batchOps->toStart = nil;

@@ -27,6 +27,8 @@
 - (void)fetchRequestSuccess:(MaplyTileFetchRequest *)request tileID:(MaplyTileID)tileID frame:(int)frame data:(NSData *)data;
 // Called on a random dispatch queue
 - (void)fetchRequestFail:(MaplyTileFetchRequest *)request tileID:(MaplyTileID)tileID frame:(int)frame error:(NSError *)error;
+// Also called on a randomd ispatch queue
+- (void)tileUnloaded:(MaplyTileID)tileID;
 @end
 
 namespace WhirlyKit
