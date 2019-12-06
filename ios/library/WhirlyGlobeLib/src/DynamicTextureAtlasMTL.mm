@@ -44,8 +44,23 @@ void DynamicTextureMTL::setup(int texSize,int cellSize,TextureType inType,bool c
             pixFormat = MTLPixelFormatA8Unorm;
             type = inType;
             break;
+        case TexTypeShort565:
+            bytesPerRow = texSize * 2;
+            pixFormat = MTLPixelFormatB5G6R5Unorm;
+            type = inType;
+            break;
+        case TexTypeShort4444:
+            bytesPerRow = texSize * 2;
+            pixFormat = MTLPixelFormatABGR4Unorm;
+            type = inType;
+            break;
+        case TexTypeShort5551:
+            bytesPerRow = texSize * 2;
+            pixFormat = MTLPixelFormatBGR5A1Unorm;
+            type = inType;
+            break;
         default:
-            NSLog(@"DynamicTextureMTL: Only valid texture types are RGBA and Single channel.");
+            NSLog(@"DynamicTextureMTL: Unrecognized texture type.");
             return;
             break;
     }
