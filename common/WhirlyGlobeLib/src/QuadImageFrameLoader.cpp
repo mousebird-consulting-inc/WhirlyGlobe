@@ -992,7 +992,7 @@ void QuadImageFrameLoader::updateRenderState(ChangeSet &changes)
         auto tile = tileIt.second;
         
         // Enable/disable the various visual objects
-        bool enable = tile->getShouldEnable();
+        bool enable = tile->getShouldEnable() || !params.singleLevel;
         auto compObjIDs = tile->getCompObjs();
         if (!compObjIDs.empty())
             compManager->enableComponentObjects(compObjIDs, enable, changes);
@@ -1006,7 +1006,6 @@ void QuadImageFrameLoader::updateRenderState(ChangeSet &changes)
         // In object mode we just turn things on
         if (mode != Object) {
             // For the image modes, we try to refer to parent textures as needed
-            
             std::vector<SimpleIdentity> texIDs;
             QuadTreeNew::Node texNode = tile->getIdent();
 
@@ -1314,7 +1313,7 @@ bool QuadImageFrameLoader::builderIsLoading()
 {
     return loadingStatus;
 }
-    
+
 /// Returns true if there's an update to process
 bool QuadImageFrameLoader::hasUpdate()
 {

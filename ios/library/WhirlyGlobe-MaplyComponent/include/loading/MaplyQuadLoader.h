@@ -109,7 +109,7 @@
 @property (nonatomic,readonly,weak,nullable) NSObject<MaplyRenderControllerProtocol> *viewC;
 
 /// If set, we'll call the interpreter on this queue
-@property (nonatomic,nullable) dispatch_queue_t queue;
+@property (nonatomic,nullable,strong) dispatch_queue_t queue;
 
 // True if the loader is not currently loading anything
 - (bool)isLoading;
