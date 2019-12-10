@@ -34,7 +34,7 @@ using namespace Maply;
     float startZ;
 }
 
-+ (MaplyDoubleTapDragDelegate *)doubleTapDragDelegateForView:(UIView *)view mapView:(MapView_iOS *)mapView;
++ (MaplyDoubleTapDragDelegate *)doubleTapDragDelegateForView:(UIView *)view mapView:(MapView_iOSRef)mapView;
 {
     MaplyDoubleTapDragDelegate *pressDelegate = [[MaplyDoubleTapDragDelegate alloc] initWithMapView:mapView];
     UILongPressGestureRecognizer *pressRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:pressDelegate action:@selector(pressGesture:)];

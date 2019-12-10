@@ -30,6 +30,6 @@
 @interface MaplyDoubleTapDragDelegate : MaplyZoomGestureDelegate
 
 /// Create a 2 finger tap gesture and a delegate and wire them up to the given UIView
-+ (MaplyDoubleTapDragDelegate *)doubleTapDragDelegateForView:(UIView *)view mapView:(Maply::MapView_iOS *)mapView;
++ (MaplyDoubleTapDragDelegate *)doubleTapDragDelegateForView:(UIView *)view mapView:(Maply::MapView_iOSRef)mapView;
 
 @end

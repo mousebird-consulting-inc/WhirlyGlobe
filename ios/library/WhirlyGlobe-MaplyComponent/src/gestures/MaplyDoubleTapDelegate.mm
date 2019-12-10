@@ -28,7 +28,7 @@ using namespace Maply;
 
 @implementation MaplyDoubleTapDelegate
 
-+ (MaplyDoubleTapDelegate *)doubleTapDelegateForView:(UIView *)view mapView:(MapView_iOS *)mapView
++ (MaplyDoubleTapDelegate *)doubleTapDelegateForView:(UIView *)view mapView:(MapView_iOSRef)mapView
 {
     MaplyDoubleTapDelegate *tapDelegate = [[MaplyDoubleTapDelegate alloc] initWithMapView:mapView];
     UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:tapDelegate action:@selector(tapGesture:)];

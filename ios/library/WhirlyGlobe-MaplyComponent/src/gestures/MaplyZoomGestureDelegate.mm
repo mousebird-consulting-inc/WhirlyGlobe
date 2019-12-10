@@ -29,7 +29,7 @@ using namespace WhirlyKit;
 
 @implementation MaplyZoomGestureDelegate
 
-- (instancetype)initWithMapView:(Maply::MapView_iOS *)inView
+- (instancetype)initWithMapView:(Maply::MapView_iOSRef)inView
 {
 	if ((self = [super init]))
 	{

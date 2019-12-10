@@ -38,7 +38,7 @@ using namespace WhirlyGlobe;
 }
 
 // Initialize with the globeView
--(id)initWithGlobeView:(WhirlyGlobe::GlobeView *)inGlobeView
+-(id)initWithGlobeView:(WhirlyGlobe::GlobeView_iOSRef)inGlobeView
 {
     self = [super initWithView:inGlobeView];
     if (!self)

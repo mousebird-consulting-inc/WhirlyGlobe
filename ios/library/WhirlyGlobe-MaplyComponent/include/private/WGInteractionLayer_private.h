@@ -33,7 +33,7 @@
  */
 @interface WGInteractionLayer : MaplyBaseInteractionLayer
 {
-    WhirlyGlobe::GlobeView *globeView;
+    WhirlyGlobe::GlobeView_iOSRef globeView;
 
     // If set, we'll autorotate after a certain amount of time
     float autoRotateInterval,autoRotateDegrees;
@@ -46,7 +46,7 @@
 @property (nonatomic,weak) NSObject<WGInteractionLayerDelegate> * viewController;
 
 // Initialize with the globeView
--(id)initWithGlobeView:(WhirlyGlobe::GlobeView *)globeView;
+-(id)initWithGlobeView:(WhirlyGlobe::GlobeView_iOSRef)globeView;
 
 // Set the autorotate values
 - (void)setAutoRotateInterval:(float)autoRotateInterval degrees:(float)autoRotateDegrees;

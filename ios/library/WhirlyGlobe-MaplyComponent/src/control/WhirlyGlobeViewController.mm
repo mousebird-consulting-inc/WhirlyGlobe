@@ -213,7 +213,7 @@ public:
 
 - (MaplyBaseInteractionLayer *) loadSetup_interactionLayer
 {
-    globeInteractLayer = [[WGInteractionLayer alloc] initWithGlobeView:globeView.get()];
+    globeInteractLayer = [[WGInteractionLayer alloc] initWithGlobeView:globeView];
     globeInteractLayer.viewController = self;
     return globeInteractLayer;
 }
@@ -224,7 +224,7 @@ public:
     [super loadSetup];
     
     // Wire up the gesture recognizers
-    panDelegate = [WhirlyGlobePanDelegate panDelegateForView:wrapView globeView:globeView.get() useCustomPanRecognizer:self.inScrollView];
+    panDelegate = [WhirlyGlobePanDelegate panDelegateForView:wrapView globeView:globeView useCustomPanRecognizer:self.inScrollView];
     tapDelegate = [WhirlyGlobeTapDelegate tapDelegateForView:wrapView globeView:globeView.get()];
     // These will activate the appropriate gesture
     self.panGesture = true;
@@ -370,7 +370,7 @@ public:
     {
         if (!pinchDelegate)
         {
-            pinchDelegate = [WhirlyGlobePinchDelegate pinchDelegateForView:wrapView globeView:globeView.get()];
+            pinchDelegate = [WhirlyGlobePinchDelegate pinchDelegateForView:wrapView globeView:globeView];
             pinchDelegate.zoomAroundPinch = self.zoomAroundPinch;
             pinchDelegate.doRotation = false;
             pinchDelegate.northUp = panDelegate.northUp;

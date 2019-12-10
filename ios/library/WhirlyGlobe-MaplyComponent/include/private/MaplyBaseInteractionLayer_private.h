@@ -31,7 +31,7 @@
 @interface MaplyBaseInteractionLayer : NSObject<WhirlyKitLayer>
 {
 @public
-    WhirlyKit::View *visualView;
+    WhirlyKit::ViewRef visualView;
     const WhirlyKit::RenderSetupInfo *setupInfo;
     
     // Layer we were started on (probably the regular MainThread)
@@ -73,7 +73,7 @@
 @property (nonatomic,assign) int screenObjectDrawPriorityOffset;
 
 // Initialize with the view we'll be using
-- (instancetype __nonnull)initWithView:(WhirlyKit::View * __nonnull)visualView;
+- (instancetype __nonnull)initWithView:(WhirlyKit::ViewRef)visualView;
 
 // Add screen space (2D) markers
 - (MaplyComponentObject *__nullable)addScreenMarkers:(NSArray * __nonnull)markers desc:(NSDictionary * __nullable)desc mode:(MaplyThreadMode)threadMode;

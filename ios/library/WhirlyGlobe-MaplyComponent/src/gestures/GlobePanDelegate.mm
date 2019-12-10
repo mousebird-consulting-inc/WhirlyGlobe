@@ -51,7 +51,7 @@ typedef enum {PanNone,PanFree,PanSuspended} PanningType;
 
 @implementation WhirlyGlobePanDelegate
 {
-    GlobeView_iOS *globeView;
+    GlobeView_iOSRef globeView;
     UITouch *startTouch;  // The touch we're following
     CGPoint startPoint;
     // Used to keep track of what sort of rotation we're doing
@@ -73,7 +73,7 @@ typedef enum {PanNone,PanFree,PanSuspended} PanningType;
     bool runEndMomentum;
 }
 
-- (instancetype)initWithGlobeView:(GlobeView_iOS *)inView
+- (instancetype)initWithGlobeView:(GlobeView_iOSRef)inView
 {
 	if ((self = [super init]))
 	{
@@ -86,7 +86,7 @@ typedef enum {PanNone,PanFree,PanSuspended} PanningType;
 }
 
 
-+ (WhirlyGlobePanDelegate *)panDelegateForView:(UIView *)view globeView:(GlobeView_iOS *)globeView useCustomPanRecognizer:(bool)useCustomPanRecognizer
++ (WhirlyGlobePanDelegate *)panDelegateForView:(UIView *)view globeView:(GlobeView_iOSRef)globeView useCustomPanRecognizer:(bool)useCustomPanRecognizer
 {
 	WhirlyGlobePanDelegate *panDelegate = [[WhirlyGlobePanDelegate alloc] initWithGlobeView:globeView];
     UIPanGestureRecognizer *panRecog;
@@ -124,7 +124,7 @@ typedef enum {PanNone,PanFree,PanSuspended} PanningType;
     Point3d interPt;
     double interDist;
     auto frameSizeScaled = sceneRender->getFramebufferSizeScaled();
-    if (intManager->findIntersection(sceneRender, globeView, frameSizeScaled, Point2f(startPoint.x,startPoint.y), interPt, interDist))
+    if (intManager->findIntersection(sceneRender, globeView.get(), frameSizeScaled, Point2f(startPoint.x,startPoint.y), interPt, interDist))
     {
         sphereRadius = interPt.norm();
         startOnSphere = interPt.normalized();

@@ -35,10 +35,10 @@ using namespace WhirlyGlobe;
 @implementation MaplyInteractionLayer
 {
     WhirlyKit::Scene *mapScene;
-    Maply::MapView *mapView;
+    Maply::MapViewRef mapView;
 }
 
-- (instancetype)initWithMapView:(Maply::MapView *)inMapView
+- (instancetype)initWithMapView:(Maply::MapViewRef)inMapView
 {
     self = [super initWithView:inMapView];
     if (!self)

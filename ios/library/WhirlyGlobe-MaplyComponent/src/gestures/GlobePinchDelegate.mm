@@ -38,7 +38,7 @@ using namespace WhirlyGlobe;
 	/// Rotation when we started
 	Eigen::Quaterniond startQuat;
     bool valid;
-	GlobeView_iOS *globeView;
+	GlobeView_iOSRef globeView;
     double startRot;
     Point3d startRotAxis;
     double sphereRadius;
@@ -48,7 +48,7 @@ using namespace WhirlyGlobe;
     bool sentRotStartMsg;
 }
 
-- (instancetype)initWithGlobeView:(GlobeView_iOS *)inView
+- (instancetype)initWithGlobeView:(GlobeView_iOSRef)inView
 {
 	if ((self = [super init]))
 	{
@@ -68,7 +68,7 @@ using namespace WhirlyGlobe;
 	return self;
 }
 
-+ (WhirlyGlobePinchDelegate *)pinchDelegateForView:(UIView *)view globeView:(GlobeView_iOS *)globeView
++ (WhirlyGlobePinchDelegate *)pinchDelegateForView:(UIView *)view globeView:(GlobeView_iOSRef)globeView
 {
 	WhirlyGlobePinchDelegate *pinchDelegate = [[WhirlyGlobePinchDelegate alloc] initWithGlobeView:globeView];
     UIPinchGestureRecognizer *pinchRecog = [[UIPinchGestureRecognizer alloc] initWithTarget:pinchDelegate action:@selector(pinchGesture:)];
@@ -155,7 +155,7 @@ using namespace WhirlyGlobe;
                 // Look for an intersection with grabbable objects
                 Point3d interPt;
                 double interDist;
-                if (intManager->findIntersection(sceneRender, globeView, frameSizeScaled, Point2f(startPoint.x,startPoint.y), interPt, interDist))
+                if (intManager->findIntersection(sceneRender, globeView.get(), frameSizeScaled, Point2f(startPoint.x,startPoint.y), interPt, interDist))
                 {
                     sphereRadius = interPt.norm();
                     startOnSphere = interPt.normalized();
@@ -185,7 +185,7 @@ using namespace WhirlyGlobe;
                 Point3d hit;
                 Point3d interPt;
                 double interDist;
-                if (intManager->findIntersection(sceneRender, globeView, frameSizeScaled, Point2f(startPoint.x,startPoint.y), interPt, interDist))
+                if (intManager->findIntersection(sceneRender, globeView.get(), frameSizeScaled, Point2f(startPoint.x,startPoint.y), interPt, interDist))
                 {
                     sphereRadius = interPt.norm();
                     startOnSphere = interPt.normalized();

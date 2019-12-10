@@ -80,7 +80,7 @@ bool MaplyGestureWithinBounds(const Point2dVector &bounds,const Point3d &loc,Sce
     return isValid;
 }
     
-AnimateViewTranslation::AnimateViewTranslation(MapView *inMapView,WhirlyKit::SceneRenderer *inRenderer,Point3d &newLoc,float howLong)
+AnimateViewTranslation::AnimateViewTranslation(MapViewRef inMapView,WhirlyKit::SceneRenderer *inRenderer,Point3d &newLoc,float howLong)
 {
     mapView = inMapView;
     renderer = inRenderer;

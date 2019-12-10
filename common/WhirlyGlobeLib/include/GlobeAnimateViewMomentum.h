@@ -33,7 +33,7 @@ namespace WhirlyGlobe
 class AnimateViewMomentum : public GlobeViewAnimationDelegate
 {
 public:
-    AnimateViewMomentum(GlobeView *globeView,double velocity,double acceleration,const Eigen::Vector3f &axis,bool northUp);
+    AnimateViewMomentum(GlobeViewRef globeView,double velocity,double acceleration,const Eigen::Vector3f &axis,bool northUp);
     
     /// Update the globe view
     virtual void updateView(GlobeView *globeView);

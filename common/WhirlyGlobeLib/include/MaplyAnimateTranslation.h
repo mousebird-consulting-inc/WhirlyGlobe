@@ -35,7 +35,7 @@ class AnimateViewTranslation : public MapViewAnimationDelegate
 public:
     /// Kick off a translate to the given position over the given time
     /// Assign this to the globe view's delegate and it'll do the rest
-    AnimateViewTranslation(MapView *mapView,WhirlyKit::SceneRenderer *renderer,WhirlyKit::Point3d &newLoc,float howLong);
+    AnimateViewTranslation(MapViewRef mapView,WhirlyKit::SceneRenderer *renderer,WhirlyKit::Point3d &newLoc,float howLong);
     
     /// Set the bounding rectangle
     void setBounds(WhirlyKit::Point2d *bounds);
@@ -61,7 +61,7 @@ protected:
     
     /// Boundary quad that we're to stay within
     WhirlyKit::Point2dVector bounds;
-    MapView *mapView;
+    MapViewRef mapView;
 };
     
 typedef std::shared_ptr<AnimateViewTranslation> AnimateViewTranslationRef;

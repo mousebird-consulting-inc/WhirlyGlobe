@@ -28,7 +28,7 @@ using namespace WhirlyKit;
 namespace WhirlyGlobe
 {
 
-AnimateViewMomentum::AnimateViewMomentum(GlobeView *globeView,double inVel,double inAcc,const Eigen::Vector3f &inAxis,bool inNorthUp)
+AnimateViewMomentum::AnimateViewMomentum(GlobeViewRef globeView,double inVel,double inAcc,const Eigen::Vector3f &inAxis,bool inNorthUp)
 {
     velocity = inVel;
     acceleration = inAcc;

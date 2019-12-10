@@ -179,7 +179,7 @@ using namespace WhirlyKit;
 
 - (MaplyBaseInteractionLayer *) loadSetup_interactionLayer
 {
-    return [[MaplyBaseInteractionLayer alloc] initWithView:renderControl->visualView.get()];
+    return [[MaplyBaseInteractionLayer alloc] initWithView:renderControl->visualView];
 }
 
 - (void)setScreenObjectDrawPriorityOffset:(int)screenObjectDrawPriorityOffset

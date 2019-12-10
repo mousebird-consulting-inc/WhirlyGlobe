@@ -44,7 +44,7 @@
 
 @property(nonatomic,assign) bool northUp;
 
-+ (WhirlyGlobePanDelegate *)panDelegateForView:(UIView *)view globeView:(WhirlyGlobe::GlobeView_iOS *)globeView useCustomPanRecognizer:(bool)useCustomPanRecognizer;
++ (WhirlyGlobePanDelegate *)panDelegateForView:(UIView *)view globeView:(WhirlyGlobe::GlobeView_iOSRef)globeView useCustomPanRecognizer:(bool)useCustomPanRecognizer;
 
 @property (nonatomic,weak) UIGestureRecognizer *gestureRecognizer;
 

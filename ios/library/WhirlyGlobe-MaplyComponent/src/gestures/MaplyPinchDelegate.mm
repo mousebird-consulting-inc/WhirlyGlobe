@@ -35,7 +35,7 @@ using namespace Maply;
     Point3d startingGeoPoint;
 }
 
-+ (MaplyPinchDelegate *)pinchDelegateForView:(UIView *)view mapView:(MapView_iOS *)mapView
++ (MaplyPinchDelegate *)pinchDelegateForView:(UIView *)view mapView:(MapView_iOSRef)mapView
 {
     MaplyPinchDelegate *pinchDelegate = [[MaplyPinchDelegate alloc] initWithMapView:mapView];
     pinchDelegate.gestureRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:pinchDelegate action:@selector(pinchGesture:)];

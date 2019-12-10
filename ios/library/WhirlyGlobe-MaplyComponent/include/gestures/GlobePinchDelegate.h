@@ -43,7 +43,7 @@
 
 /// Create a pinch gesture and a delegate and wire them up to the given UIView
 /// Also need the view parameters in WhirlyGlobeView
-+ (WhirlyGlobePinchDelegate *)pinchDelegateForView:(UIView *)view globeView:(WhirlyGlobe::GlobeView_iOS *)globeView;
++ (WhirlyGlobePinchDelegate *)pinchDelegateForView:(UIView *)view globeView:(WhirlyGlobe::GlobeView_iOSRef)globeView;
 
 /// If set, we'll zoom around the pinch, rather than the center of the view
 @property (nonatomic,assign) bool zoomAroundPinch;

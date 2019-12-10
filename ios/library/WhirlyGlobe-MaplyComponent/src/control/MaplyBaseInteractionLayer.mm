@@ -129,7 +129,7 @@ public:
     SimpleIdentity screenSpaceMotionProgram,screenSpaceDefaultProgram;
 }
 
-- (instancetype)initWithView:(WhirlyKit::View * __nonnull)inVisualView
+- (instancetype)initWithView:(WhirlyKit::ViewRef)inVisualView
 {
     self = [super init];
     if (!self)

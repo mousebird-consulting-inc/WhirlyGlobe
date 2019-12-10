@@ -37,11 +37,11 @@
 @property (nonatomic,assign) float maxZoom;
 //The gesture recognizer
 @property (nonatomic,strong) UIGestureRecognizer *gestureRecognizer;
-@property (nonatomic) Maply::MapView_iOS *mapView;
+@property (nonatomic) Maply::MapView_iOSRef mapView;
 
 /// Set the bounding rectangle
 - (void)setBounds:(WhirlyKit::Point2d *)bounds;
 
-- (instancetype)initWithMapView:(Maply::MapView_iOS *)inView;
+- (instancetype)initWithMapView:(Maply::MapView_iOSRef)inView;
 
 @end

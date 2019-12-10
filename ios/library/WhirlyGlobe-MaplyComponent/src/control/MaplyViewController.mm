@@ -352,7 +352,7 @@ public:
 
 - (MaplyBaseInteractionLayer *) loadSetup_interactionLayer
 {
-    mapInteractLayer = [[MaplyInteractionLayer alloc] initWithMapView:mapView.get()];
+    mapInteractLayer = [[MaplyInteractionLayer alloc] initWithMapView:mapView];
     mapInteractLayer.viewController = self;
     return mapInteractLayer;
 }
@@ -381,7 +381,7 @@ public:
     panDelegate = [MaplyPanDelegate panDelegateForView:wrapView mapView:mapView.get() useCustomPanRecognizer:nil];
     if (_pinchGesture)
     {
-        pinchDelegate = [MaplyPinchDelegate pinchDelegateForView:wrapView mapView:mapView.get()];
+        pinchDelegate = [MaplyPinchDelegate pinchDelegateForView:wrapView mapView:mapView];
         pinchDelegate.minZoom = mapView->minHeightAboveSurface();
         pinchDelegate.maxZoom = mapView->maxHeightAboveSurface();
     }
@@ -396,7 +396,7 @@ public:
     }
     if(_twoFingerTapGesture)
     {
-        twoFingerTapDelegate = [MaplyTwoFingerTapDelegate twoFingerTapDelegateForView:wrapView mapView:mapView.get()];
+        twoFingerTapDelegate = [MaplyTwoFingerTapDelegate twoFingerTapDelegateForView:wrapView mapView:mapView];
         twoFingerTapDelegate.minZoom = mapView->minHeightAboveSurface();
         twoFingerTapDelegate.maxZoom = mapView->maxHeightAboveSurface();
         if (pinchDelegate)
@@ -405,7 +405,7 @@ public:
     }
     if (_doubleTapDragGesture)
     {
-        doubleTapDragDelegate = [MaplyDoubleTapDragDelegate doubleTapDragDelegateForView:wrapView mapView:mapView.get()];
+        doubleTapDragDelegate = [MaplyDoubleTapDragDelegate doubleTapDragDelegateForView:wrapView mapView:mapView];
         doubleTapDragDelegate.minZoom = mapView->minHeightAboveSurface();
         doubleTapDragDelegate.maxZoom = mapView->maxHeightAboveSurface();
         [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
@@ -573,7 +573,7 @@ public:
     {
         if (!pinchDelegate)
         {
-            pinchDelegate = [MaplyPinchDelegate pinchDelegateForView:wrapView mapView:mapView.get()];
+            pinchDelegate = [MaplyPinchDelegate pinchDelegateForView:wrapView mapView:mapView];
             pinchDelegate.minZoom = mapView->minHeightAboveSurface();
             pinchDelegate.maxZoom = mapView->maxHeightAboveSurface();
             
@@ -639,7 +639,7 @@ public:
     {
         if (!twoFingerTapDelegate)
         {
-            twoFingerTapDelegate = [MaplyTwoFingerTapDelegate twoFingerTapDelegateForView:wrapView mapView:mapView.get()];
+            twoFingerTapDelegate = [MaplyTwoFingerTapDelegate twoFingerTapDelegateForView:wrapView mapView:mapView];
             twoFingerTapDelegate.minZoom = mapView->minHeightAboveSurface();
             twoFingerTapDelegate.maxZoom = mapView->maxHeightAboveSurface();
             if (pinchDelegate)
@@ -662,7 +662,7 @@ public:
     {
         if (!doubleTapDragDelegate)
         {
-            doubleTapDragDelegate = [MaplyDoubleTapDragDelegate doubleTapDragDelegateForView:wrapView mapView:mapView.get()];
+            doubleTapDragDelegate = [MaplyDoubleTapDragDelegate doubleTapDragDelegateForView:wrapView mapView:mapView];
             doubleTapDragDelegate.minZoom = mapView->minHeightAboveSurface();
             doubleTapDragDelegate.maxZoom = mapView->maxHeightAboveSurface();
             [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
@@ -769,7 +769,7 @@ public:
 {
     mapView->cancelAnimation();
     
-    AnimateViewTranslationRef anim = AnimateViewTranslationRef(new AnimateViewTranslation(mapView.get(),renderControl->sceneRenderer.get(),newLoc,howLong));
+    AnimateViewTranslationRef anim = AnimateViewTranslationRef(new AnimateViewTranslation(mapView,renderControl->sceneRenderer.get(),newLoc,howLong));
     anim->userMotion = false;
     anim->setBounds(bounds2d);
 

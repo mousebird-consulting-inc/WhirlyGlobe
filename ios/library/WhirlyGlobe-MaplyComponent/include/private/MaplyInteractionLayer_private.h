@@ -38,7 +38,7 @@
 @property (nonatomic,weak) NSObject<MaplyInteractionLayerDelegate> * viewController;
 
 // Create with the map view
-- (instancetype)initWithMapView:(Maply::MapView *)inMapView;
+- (instancetype)initWithMapView:(Maply::MapViewRef)inMapView;
 
 // Call this to process a tap with the selection layer
 // It will call the given selector if there was no selection
