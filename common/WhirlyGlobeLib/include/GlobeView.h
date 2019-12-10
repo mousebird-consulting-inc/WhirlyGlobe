@@ -94,16 +94,16 @@ public:
     double calcEarthZOffset();
     
     /// Calculate model matrix
-    Eigen::Matrix4d calcModelMatrix();
+    virtual Eigen::Matrix4d calcModelMatrix();
     
     /// Calculate view matrix
-    Eigen::Matrix4d calcViewMatrix();
+    virtual Eigen::Matrix4d calcViewMatrix();
 
     /// Return where up (0,0,1) is after model rotation
-    Eigen::Vector3d currentUp();
+    virtual Eigen::Vector3d currentUp();
 
     /// Calculate where the eye is in model coordinates
-    Eigen::Vector3d eyePos();
+    virtual Eigen::Vector3d eyePos();
 
     /// Given a rotation, where would (0,0,1) wind up
     static Eigen::Vector3d prospectiveUp(Eigen::Quaterniond &prospectiveRot);
@@ -112,35 +112,32 @@ public:
         Returns true if we hit and where
         Returns false if not and the closest point on the sphere
      */
-    bool pointOnSphereFromScreen(const WhirlyKit::Point2f &pt,const Eigen::Matrix4d &transform,const WhirlyKit::Point2f &frameSize,WhirlyKit::Point3d &hit,bool normalized);
+    virtual bool pointOnSphereFromScreen(const WhirlyKit::Point2f &pt,const Eigen::Matrix4d &transform,const WhirlyKit::Point2f &frameSize,WhirlyKit::Point3d &hit,bool normalized);
 
     /** Given a location on the screen and the screen size, figure out where we touched the sphere
      Returns true if we hit and where
      Returns false if not and the closest point on the sphere
      */
-    bool pointOnSphereFromScreen(const WhirlyKit::Point2f &pt,const Eigen::Matrix4d &transform,const WhirlyKit::Point2f &frameSize,WhirlyKit::Point3d &hit,bool normalized,double radius);
+    virtual bool pointOnSphereFromScreen(const WhirlyKit::Point2f &pt,const Eigen::Matrix4d &transform,const WhirlyKit::Point2f &frameSize,WhirlyKit::Point3d &hit,bool normalized,double radius);
 
     /** From a world location (3D), figure out the projection to the screen
         Returns a point within the frame
       */
-    WhirlyKit::Point2f pointOnScreenFromSphere(const WhirlyKit::Point3d &worldLoc,const Eigen::Matrix4d *transform,const WhirlyKit::Point2f &frameSize);
+    virtual WhirlyKit::Point2f pointOnScreenFromSphere(const WhirlyKit::Point3d &worldLoc,const Eigen::Matrix4d *transform,const WhirlyKit::Point2f &frameSize);
 
     /** Construct a rotation to the given location
         and return it.  Doesn't actually do anything yet.
      */
-    Eigen::Quaterniond makeRotationToGeoCoord(const WhirlyKit::GeoCoord &worldLoc,bool northUp);
+    virtual Eigen::Quaterniond makeRotationToGeoCoord(const WhirlyKit::GeoCoord &worldLoc,bool northUp);
 
     // Construct a rotation to given location and heading
-    Eigen::Quaterniond makeRotationToGeoCoord(const WhirlyKit::Point2d &worldCoord,bool northUp);
-
-    // Construct a rotation to given location and heading
-    Eigen::Quaterniond makeRotationToGeoCoord(const WhirlyKit::GeoCoord &worldCoord,double heading);
+    virtual Eigen::Quaterniond makeRotationToGeoCoord(const WhirlyKit::Point2d &worldCoord,bool northUp);
 
     /// Calculate the Z buffer resolution
-    float calcZbufferRes();
+    virtual float calcZbufferRes();
 
     /// Height above the globe
-    double heightAboveSurface();
+    virtual double heightAboveSurface();
     
     /// Make a globe view state from the current globe view
     virtual WhirlyKit::ViewStateRef makeViewState(WhirlyKit::SceneRenderer *renderer);
@@ -163,7 +160,7 @@ public:
     double absoluteMinFarPlane;
     
     /// Return the current height
-    double getHeightAboveGlobe() { return heightAboveGlobe; }
+    virtual double getHeightAboveGlobe() { return heightAboveGlobe; }
     
     /// Return the current delegate (use for comparison)
     GlobeViewAnimationDelegateRef getDelegate() { return delegate; }
