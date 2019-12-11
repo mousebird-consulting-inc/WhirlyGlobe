@@ -93,7 +93,10 @@ public:
         
     /// Set the texture ID for a specific slot.  You get this from the Texture object.
     virtual void setTexId(unsigned int which,SimpleIdentity inId);
-    
+
+    /// Return the ID for the texture, if it's there
+    virtual SimpleIdentity getTexId(unsigned int which);
+
     /// Set all the textures at once
     virtual void setTexIDs(const std::vector<SimpleIdentity> &texIDs);
     

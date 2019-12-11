@@ -220,6 +220,16 @@ void BasicDrawableBuilder::setTexId(unsigned int which,SimpleIdentity inId)
     basicDraw->texInfo[which].texId = inId;
 }
 
+SimpleIdentity BasicDrawableBuilder::getTexId(unsigned int which)
+{
+    if (!basicDraw)
+        return EmptyIdentity;
+    if (which >= basicDraw->texInfo.size())
+        return EmptyIdentity;
+    
+    return basicDraw->texInfo[which].texId;
+}
+
 void BasicDrawableBuilder::setTexIDs(const std::vector<SimpleIdentity> &texIDs)
 {
     for (unsigned int ii=0;ii<texIDs.size();ii++)
