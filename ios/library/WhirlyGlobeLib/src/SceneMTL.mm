@@ -71,8 +71,11 @@ void SceneMTL::endOfFrameBufferClear()
 
 void SceneMTL::teardown()
 {
-    for (auto it : drawables)
-        dynamic_cast<DrawableMTL *>(it.second.get())->teardownForRenderer((RenderSetupInfoMTL *)setupInfo,this);
+    for (auto it : drawables) {
+        DrawableMTL *draw = dynamic_cast<DrawableMTL *>(it.second.get());
+        if (draw)
+            draw->teardownForRenderer((RenderSetupInfoMTL *)setupInfo,this);
+    }
     drawables.clear();
     for (auto it : textures) {
         it.second->destroyInRenderer(setupInfo,this);

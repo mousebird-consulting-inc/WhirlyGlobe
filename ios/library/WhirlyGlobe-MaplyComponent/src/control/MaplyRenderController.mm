@@ -999,7 +999,7 @@ using namespace Eigen;
                                               [mtlLib newFunctionWithName:@"vertexTri_light"],
                                               [mtlLib newFunctionWithName:@"fragmentTri_basic"]))];
     [self addShader:kMaplyShaderDefaultTriNoLighting
-            program:ProgramRef(new ProgramMTL([kMaplyShaderDefaultTri cStringUsingEncoding:NSASCIIStringEncoding],
+            program:ProgramRef(new ProgramMTL([kMaplyShaderDefaultTriNoLighting cStringUsingEncoding:NSASCIIStringEncoding],
                                               [mtlLib newFunctionWithName:@"vertexTri_noLight"],
                                               [mtlLib newFunctionWithName:@"fragmentTri_basic"]))];
     
