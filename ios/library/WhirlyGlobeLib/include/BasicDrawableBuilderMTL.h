@@ -31,7 +31,7 @@ class BasicDrawableBuilderMTL : virtual public BasicDrawableBuilder
 public:
     /// Construct empty
     BasicDrawableBuilderMTL(const std::string &name);
-    ~BasicDrawableBuilderMTL();
+    virtual ~BasicDrawableBuilderMTL();
     
     /// Add a new vertex related attribute.  Need a data type and the name the shader refers to
     ///  it by.  The index returned is how you will access it.

@@ -741,7 +741,7 @@ void SceneRendererMTL::render(TimeInterval duration,
                 ProgramMTL *program = (ProgramMTL *)scene->getProgram(drawProgramId);
                 if (!program) {
                     wkLogLevel(Error, "SceneRendererMTL: Drawable without Program");
-                    [cmdEncode endEncoding];
+//                    [cmdEncode endEncoding];
                     continue;
                 }
                 

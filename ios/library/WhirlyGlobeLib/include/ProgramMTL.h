@@ -66,7 +66,6 @@ public:
     
 public:
     bool valid;
-    std::string name;
     id<MTLFunction> vertFunc,fragFunc;
     TimeInterval lightsLastUpdated;
 

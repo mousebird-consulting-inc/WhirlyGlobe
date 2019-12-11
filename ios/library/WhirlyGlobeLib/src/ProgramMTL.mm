@@ -37,9 +37,10 @@ ProgramMTL::ProgramMTL() : lightsLastUpdated(0.0), valid(false)
 {
 }
     
-ProgramMTL::ProgramMTL(const std::string &name,id<MTLFunction> vertFunc,id<MTLFunction> fragFunc)
-    : name(name), vertFunc(vertFunc), fragFunc(fragFunc), lightsLastUpdated(0.0), valid(true)
+ProgramMTL::ProgramMTL(const std::string &inName,id<MTLFunction> vertFunc,id<MTLFunction> fragFunc)
+    : vertFunc(vertFunc), fragFunc(fragFunc), lightsLastUpdated(0.0), valid(true)
 {
+    name = inName;
 }
 
 ProgramMTL::~ProgramMTL()
