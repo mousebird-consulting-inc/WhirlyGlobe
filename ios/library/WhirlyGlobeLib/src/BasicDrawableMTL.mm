@@ -167,6 +167,9 @@ MTLVertexDescriptor *BasicDrawableMTL::getVertexDescriptor(id<MTLFunction> vertF
         MTLVertexAttributeDescriptor *attrDesc = [[MTLVertexAttributeDescriptor alloc] init];
         VertexAttributeMTL *ourVertAttr = (VertexAttributeMTL *)vertAttr;
         
+        if (ourVertAttr->bufferIndex < 0)
+            continue;
+        
         // Describe the vertex attribute
         attrDesc.format = ourVertAttr->formatMTL();
         attrDesc.bufferIndex = ourVertAttr->bufferIndex;
@@ -337,7 +340,7 @@ void BasicDrawableMTL::draw(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandE
     // Wire up the various inputs that we know about
     for (auto vertAttr : vertexAttributes) {
         VertexAttributeMTL *vertAttrMTL = (VertexAttributeMTL *)vertAttr;
-        if (vertAttrMTL->buffer)
+        if (vertAttrMTL->buffer && (vertAttrMTL->bufferIndex >= 0))
             [cmdEncode setVertexBuffer:vertAttrMTL->buffer offset:0 atIndex:vertAttrMTL->bufferIndex];
     }
     

@@ -130,9 +130,6 @@ public:
     /// Print out stats for debugging
     void dumpStats();
 
-    // Look for a drawable by ID
-    Drawable *getDrawable(SimpleIdentity drawID);
-
 protected:
     // Top level nodes in the scenegraph
     SceneGraphNodeSet topNodes;
@@ -141,7 +138,7 @@ protected:
     SceneGraphNodeSet allNodes;
     
     // All the drawables in the scenegraph (only used if we're not in atlas mode)
-    std::map<SimpleIdentity,BasicDrawableRef> drawables;
+    std::set<SimpleIdentity> drawables;
     
     // Drawables that are currently being drawn
     SimpleIDSet activeDrawIDs;    

@@ -106,22 +106,13 @@ SceneGraphManager::~SceneGraphManager()
     allNodes.clear();
     drawables.clear();
 }
-
-Drawable *SceneGraphManager::getDrawable(SimpleIdentity drawID)
-{
-    auto it = drawables.find(drawID);
-    if (it == drawables.end())
-        return NULL;
-    
-    return it->second.get();
-}
     
 void SceneGraphManager::removeDrawable(SimpleIdentity drawID,std::vector<ChangeRequest *> &changes)
 {
     auto it = drawables.find(drawID);
     if (it == drawables.end())
     {
-        changes.push_back(new RemDrawableReq(it->second->getId()));
+        changes.push_back(new RemDrawableReq(drawID));
         drawables.erase(it);
     }
 }
@@ -166,7 +157,7 @@ void SceneGraphManager::update(ViewStateRef viewState,ChangeSet &changes)
         
 void SceneGraphManager::addDrawable(BasicDrawable *draw,ChangeSet &changes)
 {
-    drawables[draw->getId()] = BasicDrawableRef(draw);
+    drawables.insert(draw->getId());
     changes.push_back(new AddDrawableReq(draw));
     changes.push_back(new OnOffChangeRequest(draw->getId(),false));
 }
