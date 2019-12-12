@@ -228,6 +228,8 @@ bool TextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
             RawDataRef convData = convertData();
             [mtlID replaceRegion:region mipmapLevel:0 withBytes:convData->getRawData() bytesPerRow:bytesPerRow];
         }
+    } else {
+        NSLog(@"Error setting up Metal Texture");
     }
     
     texData.reset();

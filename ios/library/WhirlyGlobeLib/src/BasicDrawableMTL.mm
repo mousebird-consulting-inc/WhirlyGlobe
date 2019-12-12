@@ -351,7 +351,7 @@ void BasicDrawableMTL::draw(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandE
     // Note: We could precalculate most of then when the texture changes
     //       And we should figure out how many textures they actually have
     int numTextures = 0;
-    for (unsigned int texIndex=0;texIndex<std::max((int)texInfo.size(),2);texIndex++) {
+    for (unsigned int texIndex=0;texIndex<texInfo.size();texIndex++) {
         TexInfo *thisTexInfo = (texIndex < texInfo.size()) ? &texInfo[texIndex] : NULL;
         
         // Figure out texture adjustment for parent textures
@@ -374,16 +374,16 @@ void BasicDrawableMTL::draw(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandE
         texInd.offset[0] = texOffset.x();  texInd.offset[1] = texOffset.y();
         texInd.scale[0] = texScale; texInd.scale[1] = texScale;
 
-        [cmdEncode setVertexBytes:&texInd length:sizeof(texInd) atIndex:WKSTexIndirectStartBuffer+texIndex];
+        [cmdEncode setVertexBytes:&texInd length:sizeof(texInd) atIndex:WKSTexIndirectStartBuffer+numTextures];
 
         // And the texture itself
         // Note: Should we be setting up the sampler?
         TextureBaseMTL *tex = NULL;
         if (thisTexInfo && thisTexInfo->texId != EmptyIdentity)
             tex = dynamic_cast<TextureBaseMTL *>(scene->getTexture(thisTexInfo->texId));
-        if (tex) {
-            [cmdEncode setVertexTexture:tex->getMTLID() atIndex:texIndex];
-            [cmdEncode setFragmentTexture:tex->getMTLID() atIndex:texIndex];
+        if (tex && tex->getMTLID()) {
+            [cmdEncode setVertexTexture:tex->getMTLID() atIndex:numTextures];
+            [cmdEncode setFragmentTexture:tex->getMTLID() atIndex:numTextures];
             numTextures++;
         } else {
 //            [frameInfo->cmdEncode setVertexTexture:nil atIndex:texIndex];

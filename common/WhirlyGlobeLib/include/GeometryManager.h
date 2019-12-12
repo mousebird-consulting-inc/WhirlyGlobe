@@ -114,7 +114,7 @@ public:
     void calcBounds(Point3d &ll,Point3d &ur);
     
     // Build geometry into a drawable, using the given transform
-    void buildDrawables(std::vector<BasicDrawableBuilderRef> &draws,const Eigen::Matrix4d &mat,const RGBAColor *colorOverride,GeometryInfo *geomInfo,SceneRenderer *sceneRender);
+    void buildDrawables(std::vector<BasicDrawableBuilderRef> &draws,const Eigen::Matrix4d &mat,const RGBAColor *colorOverride,const GeometryInfo *geomInfo,SceneRenderer *sceneRender);
 
 public:
     /// What sort of geometry this is
@@ -303,8 +303,8 @@ public:
     SimpleIdentity addGeometry(std::vector<GeometryRaw *> &geom,const std::vector<GeometryInstance *> &instances,GeometryInfo &geomInfo,ChangeSet &changes);
     
     /// Add geometry we're planning to reuse (as a model, for example)
-    SimpleIdentity addBaseGeometry(std::vector<GeometryRaw *> &geom,ChangeSet &changes);
-    SimpleIdentity addBaseGeometry(std::vector<GeometryRaw> &inGeom,ChangeSet &changes);
+    SimpleIdentity addBaseGeometry(std::vector<GeometryRaw *> &geom,const GeometryInfo &geomInfo,ChangeSet &changes);
+    SimpleIdentity addBaseGeometry(std::vector<GeometryRaw> &inGeom,const GeometryInfo &geomInfo,ChangeSet &changes);
     
     /// Add instances that reuse base geometry
     SimpleIdentity addGeometryInstances(SimpleIdentity baseGeomID,const std::vector<GeometryInstance> &instances,GeometryInfo &geomInfo,ChangeSet &changes);

@@ -165,7 +165,7 @@ void GeometryRaw::calcBounds(Point3d &ll,Point3d &ur)
     }
 }
 
-void GeometryRaw::buildDrawables(std::vector<BasicDrawableBuilderRef> &draws,const Eigen::Matrix4d &mat,const RGBAColor *colorOverride,GeometryInfo *geomInfo,SceneRenderer *sceneRender)
+void GeometryRaw::buildDrawables(std::vector<BasicDrawableBuilderRef> &draws,const Eigen::Matrix4d &mat,const RGBAColor *colorOverride,const GeometryInfo *geomInfo,SceneRenderer *sceneRender)
 {
     if (!isValid())
         return;
@@ -716,7 +716,7 @@ SimpleIdentity GeometryManager::addGeometry(std::vector<GeometryRaw *> &geom,con
 }
         
 /// Add geometry we're planning to reuse (as a model, for example)
-SimpleIdentity GeometryManager::addBaseGeometry(std::vector<GeometryRaw *> &geom,ChangeSet &changes)
+SimpleIdentity GeometryManager::addBaseGeometry(std::vector<GeometryRaw *> &geom,const GeometryInfo &geomInfo,ChangeSet &changes)
 {
     GeomSceneRep *sceneRep = new GeomSceneRep();
     
@@ -758,7 +758,7 @@ SimpleIdentity GeometryManager::addBaseGeometry(std::vector<GeometryRaw *> &geom
         {
             std::vector<BasicDrawableBuilderRef> draws;
             GeometryRaw *raw = sg[kk];
-            raw->buildDrawables(draws,instMat,NULL,NULL,renderer);
+            raw->buildDrawables(draws,instMat,NULL,&geomInfo,renderer);
             
             // Set the various parameters and store the drawables created
             for (unsigned int ll=0;ll<draws.size();ll++)
@@ -784,13 +784,13 @@ SimpleIdentity GeometryManager::addBaseGeometry(std::vector<GeometryRaw *> &geom
     return geomID;
 }
     
-SimpleIdentity GeometryManager::addBaseGeometry(std::vector<GeometryRaw> &inGeom,ChangeSet &changes)
+SimpleIdentity GeometryManager::addBaseGeometry(std::vector<GeometryRaw> &inGeom,const GeometryInfo &geomInfo,ChangeSet &changes)
 {
     std::vector<GeometryRaw *> geoms;
     for (GeometryRaw &rawGeom : inGeom)
         geoms.push_back(&rawGeom);
     
-    return addBaseGeometry(geoms, changes);
+    return addBaseGeometry(geoms, geomInfo, changes);
 }
 
 /// Add instances that reuse base geometry

@@ -207,7 +207,8 @@ using namespace Eigen;
             procGeom.push_back(it.second);
         
         GeometryManager *geomManager = (GeometryManager *)layer->scene->getManager(kWKGeometryManager);
-        baseModelID = geomManager->addBaseGeometry(procGeom, changes);
+        GeometryInfo geomInfo;
+        baseModelID = geomManager->addBaseGeometry(procGeom, geomInfo, changes);
 
         // Need to flush these changes immediately
         layer->scene->addChangeRequests(changes);

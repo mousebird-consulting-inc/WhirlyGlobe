@@ -2316,9 +2316,13 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
     NSArray *geom = argArray[0];
     MaplyComponentObject *compObj = argArray[1];
-//    NSMutableDictionary *inDesc = argArray[2];
+    NSMutableDictionary *inDesc = argArray[2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
-    
+
+    GeometryInfo geomInfo;
+    [self resolveInfoDefaults:inDesc info:&geomInfo defaultShader:kMaplyDefaultTriangleShader];
+    [self resolveDrawPriority:inDesc info:&geomInfo drawPriority:kMaplyStickerDrawPriorityDefault offset:0];
+
     GeometryManager *geomManager = (GeometryManager *)scene->getManager(kWKGeometryManager);
     
     // Add each raw geometry model
@@ -2329,7 +2333,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         for (MaplyGeomModel *model in geom)
         {
             // This is intended to be instanced, but we can use it
-            SimpleIdentity geomID = geomManager->addBaseGeometry(model->rawGeom, changes);
+            SimpleIdentity geomID = geomManager->addBaseGeometry(model->rawGeom, geomInfo, changes);
             // If we turn it on
             SimpleIDSet geomIDs;
             geomIDs.insert(geomID);
