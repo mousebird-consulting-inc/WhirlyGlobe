@@ -287,6 +287,14 @@ These are the per vertex attributes provided to each vertex shader.
  */
 - (bool)setUniformVector4Named:(NSString *__nonnull)uniName x:(float)x y:(float)y z:(float)z w:(float)w index:(int)which;
 
+/**
+    For Metal shaders we don't set the individual uniform values passed in, we set them all together as a block.  These are typically set
+    through the ComponentObject interface, but can be set gobally here.
+ 
+    Metal Only.
+ */
+- (bool)setUniformBlock:(NSData *__nonnull)uniBlock buffer:(int)bufferID;
+
 /** 
     Check if the shader is valid.
     

@@ -53,13 +53,18 @@ public:
     /// Tie a given texture ID to the given slot or nameID (depending on renderer)
     /// We have to set these up each time before drawing
     virtual bool setTexture(StringIdentity nameID,TextureBase *tex,int textureSlot) = 0;
+    
+    /// Set a block of uniforms (Metal only, at the moment)
+    virtual void setUniBlock(const BasicDrawable::UniformBlock &uniBlock);
 
     /// Clean up renderer resources
     virtual void teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene) = 0;
     
-protected:
+public:
     std::string name;
     TimeInterval lightsLastUpdated;
+    // Uniforms to be passed into a shader (just Metal for now)
+    std::vector<BasicDrawable::UniformBlock> uniBlocks;
 };
     
 typedef std::shared_ptr<Program> ProgramRef;
@@ -78,6 +83,21 @@ protected:
     SimpleIdentity nameID;
     SimpleIdentity texID;
     int textureSlot;
+};
+
+/// Add a uniform block to a whole Program (rather than geometry)
+class ProgramUniformBlockSetRequest : public ChangeRequest
+{
+public:
+    ProgramUniformBlockSetRequest(SimpleIdentity progID,const RawDataRef &uniBlock,int bufferID);
+    ~ProgramUniformBlockSetRequest() { }
+
+    /// Remove from the renderer.  Never call this.
+    void execute(Scene *scene,SceneRenderer *renderer,View *view);
+
+protected:
+    SimpleIdentity progID;
+    BasicDrawable::UniformBlock uniBlock;
 };
 
 }

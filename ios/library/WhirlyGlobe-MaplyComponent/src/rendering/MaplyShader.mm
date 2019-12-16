@@ -548,6 +548,24 @@ using namespace WhirlyKit;
     scene->addChangeRequest(new ShaderAddTextureReq(programMTL->getId(),-1,tex.texID,idx));
 }
 
+- (bool)setUniformBlock:(NSData *__nonnull)uniBlock buffer:(int)bufferID
+{
+    if (!_program || !scene || !renderer)
+        return false;
+    
+    if (renderer->getType() != SceneRenderer::RenderMetal)
+    {
+        NSLog(@"MaplyShader method only works with Metal");
+        return false;
+    }
+    
+    ProgramMTL *programMTL = (ProgramMTL *)_program.get();
+    
+    RawNSDataReaderRef dataWrap = RawNSDataReaderRef(new RawNSDataReader(uniBlock));
+    scene->addChangeRequest(new ProgramUniformBlockSetRequest(programMTL->getId(),dataWrap,bufferID));
+    
+    return true;
+}
 
 // We're assuming the view controller has set the proper context
 - (void)teardown

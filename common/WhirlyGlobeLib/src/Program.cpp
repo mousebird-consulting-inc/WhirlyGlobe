@@ -20,6 +20,7 @@
 
 #import "Program.h"
 #import "Scene.h"
+#import "BasicDrawable.h"
 
 namespace WhirlyKit
 {
@@ -36,6 +37,17 @@ const std::string &Program::getName()
 {
     return name;
 }
+
+void Program::setUniBlock(const BasicDrawable::UniformBlock &uniBlock)
+{
+    for (int ii=0;ii<uniBlocks.size();ii++)
+        if (uniBlocks[ii].bufferID == uniBlock.bufferID) {
+            uniBlocks[ii] = uniBlock;
+            return;
+        }
+    
+    uniBlocks.push_back(uniBlock);
+}
     
 ShaderAddTextureReq::ShaderAddTextureReq(SimpleIdentity shaderID,SimpleIdentity nameID,SimpleIdentity texID,int textureSlot)
 : shaderID(shaderID), nameID(nameID), texID(texID), textureSlot(textureSlot)
@@ -49,6 +61,21 @@ void ShaderAddTextureReq::execute(Scene *scene, SceneRenderer *renderer, View *v
     if (prog && tex)
     {
         prog->setTexture(nameID,tex,textureSlot);
+    }
+}
+
+ProgramUniformBlockSetRequest::ProgramUniformBlockSetRequest(SimpleIdentity inProgID,const RawDataRef &uniData,int bufferID)
+{
+    progID = inProgID;
+    uniBlock.blockData = uniData;
+    uniBlock.bufferID = bufferID;
+}
+
+void ProgramUniformBlockSetRequest::execute(Scene *scene,SceneRenderer *renderer,View *view)
+{
+    Program *prog = scene->getProgram(progID);
+    if (prog) {
+        prog->setUniBlock(uniBlock);
     }
 }
 

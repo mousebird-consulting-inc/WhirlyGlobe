@@ -602,7 +602,7 @@ void SceneRendererMTL::render(TimeInterval duration,
                         continue;
                     }
                     baseFrameInfo.program = calcProgram;
-
+                    
 //                    id<MTLRenderCommandEncoder> cmdEncode = [masterEncode renderCommandEncoder];
                     id<MTLRenderCommandEncoder> cmdEncode = masterEncode;
 
@@ -612,7 +612,10 @@ void SceneRendererMTL::render(TimeInterval duration,
                     // Regular uniforms
                     // TODO: Can we do this just once?
                     setupUniformBuffer(&baseFrameInfo,cmdEncode,scene->getCoordAdapter());
-                    
+
+                    // Per program uniforms need to be set up
+                    BasicDrawableMTL::encodeUniBlocks(&baseFrameInfo, calcProgram->uniBlocks, cmdEncode);
+
                     // Run the calculation phase
                     drawContain.drawable->calculate(&baseFrameInfo,cmdEncode,scene);
                     
