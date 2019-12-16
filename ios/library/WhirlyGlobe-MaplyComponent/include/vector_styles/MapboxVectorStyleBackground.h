@@ -20,21 +20,35 @@
 
 #import "vector_styles/MapboxVectorStyleSet.h"
 
+/**
+  This class corresponds to the paint portion of the Mapbox Vector Style definition
+    of the background.  You get one of these from parsing a Style, don't generate one.
+ */
 @interface MapboxVectorBackgroundPaint : NSObject
 
+/**
+  
+ */
 @property (nonatomic,strong) UIColor *color;
 @property (nonatomic) double opacity;
 
+/// :nodoc:
 - (id)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 
 @end
 
-/// @brief Background description
+/**
+ This is the layer corresponding to the background in a Mapbox Vector Style definition.
+ You don't create these.  They come from a Style sheet.
+ */
 @interface MapboxVectorLayerBackground : MaplyMapboxVectorStyleLayer
 
 //@property (nonatomic) MapboxVectorLayoutBackground *layout;
+
+/// Controls how the background looks.
 @property (nonatomic,strong) MapboxVectorBackgroundPaint *paint;
 
+/// :nodoc:
 - (id)initWithStyleEntry:(NSDictionary *)styleEntry parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 
 @end

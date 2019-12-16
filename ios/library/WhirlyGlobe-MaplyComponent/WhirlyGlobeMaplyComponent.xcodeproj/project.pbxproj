@@ -425,7 +425,6 @@
 		2B87970722039D7000EF801D /* Texture_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B87970622039D6F00EF801D /* Texture_iOS.mm */; };
 		2B8797082203A27B00EF801D /* QuadDisplayLayerNew.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B0387F32069BC3800DD5C40 /* QuadDisplayLayerNew.mm */; };
 		2B8797132203B76000EF801D /* NSData+Zlib.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537D71D249A1200B60FAD /* NSData+Zlib.m */; };
-		2B8797142203B76000EF801D /* NSDictionary+StyleRules.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537D81D249A1200B60FAD /* NSDictionary+StyleRules.m */; };
 		2B8797152203B77900EF801D /* MaplyIconManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537AE1D249A1200B60FAD /* MaplyIconManager.mm */; };
 		2B8797162203B77900EF801D /* MaplyColorRampGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537A51D249A1200B60FAD /* MaplyColorRampGenerator.m */; };
 		2B8797172203B77900EF801D /* MaplyGeomBuilder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537AC1D249A1200B60FAD /* MaplyGeomBuilder.mm */; };
@@ -798,7 +797,6 @@
 		2BE538311D249A1200B60FAD /* MaplyViewControllerLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE537551D249A1200B60FAD /* MaplyViewControllerLayer.h */; };
 		2BE538321D249A1200B60FAD /* MaplyViewTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE537561D249A1200B60FAD /* MaplyViewTracker.h */; };
 		2BE538341D249A1200B60FAD /* NSData+Zlib.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE537581D249A1200B60FAD /* NSData+Zlib.h */; };
-		2BE538351D249A1200B60FAD /* NSDictionary+StyleRules.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE537591D249A1200B60FAD /* NSDictionary+StyleRules.h */; };
 		2BE538361D249A1200B60FAD /* ImageTexture_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE5375B1D249A1200B60FAD /* ImageTexture_private.h */; };
 		2BE538371D249A1200B60FAD /* MaplyActiveObject_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE5375C1D249A1200B60FAD /* MaplyActiveObject_private.h */; };
 		2BE538381D249A1200B60FAD /* MaplyAnnotation_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE5375D1D249A1200B60FAD /* MaplyAnnotation_private.h */; };
@@ -1831,7 +1829,6 @@
 		2BE537551D249A1200B60FAD /* MaplyViewControllerLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyViewControllerLayer.h; sourceTree = "<group>"; };
 		2BE537561D249A1200B60FAD /* MaplyViewTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyViewTracker.h; sourceTree = "<group>"; };
 		2BE537581D249A1200B60FAD /* NSData+Zlib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+Zlib.h"; sourceTree = "<group>"; };
-		2BE537591D249A1200B60FAD /* NSDictionary+StyleRules.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+StyleRules.h"; sourceTree = "<group>"; };
 		2BE5375B1D249A1200B60FAD /* ImageTexture_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageTexture_private.h; sourceTree = "<group>"; };
 		2BE5375C1D249A1200B60FAD /* MaplyActiveObject_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyActiveObject_private.h; sourceTree = "<group>"; };
 		2BE5375D1D249A1200B60FAD /* MaplyAnnotation_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyAnnotation_private.h; sourceTree = "<group>"; };
@@ -1912,7 +1909,6 @@
 		2BE537D41D249A1200B60FAD /* MaplyViewControllerLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyViewControllerLayer.mm; sourceTree = "<group>"; };
 		2BE537D51D249A1200B60FAD /* MaplyViewTracker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MaplyViewTracker.m; sourceTree = "<group>"; };
 		2BE537D71D249A1200B60FAD /* NSData+Zlib.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+Zlib.m"; sourceTree = "<group>"; };
-		2BE537D81D249A1200B60FAD /* NSDictionary+StyleRules.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+StyleRules.m"; sourceTree = "<group>"; };
 		2BE537E51D249A1200B60FAD /* MaplyVectorStyle.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyVectorStyle.mm; sourceTree = "<group>"; };
 		2BE537E61D249A1200B60FAD /* MaplyVectorStyleSimple.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MaplyVectorStyleSimple.m; sourceTree = "<group>"; };
 		2BE537E71D249A1200B60FAD /* MaplyVectorTileLineStyle.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyVectorTileLineStyle.mm; sourceTree = "<group>"; };
@@ -3160,7 +3156,6 @@
 			isa = PBXGroup;
 			children = (
 				2BE537D71D249A1200B60FAD /* NSData+Zlib.m */,
-				2BE537D81D249A1200B60FAD /* NSDictionary+StyleRules.m */,
 			);
 			path = UIKit;
 			sourceTree = "<group>";
@@ -3523,7 +3518,6 @@
 			isa = PBXGroup;
 			children = (
 				2BE537581D249A1200B60FAD /* NSData+Zlib.h */,
-				2BE537591D249A1200B60FAD /* NSDictionary+StyleRules.h */,
 			);
 			path = UIKit;
 			sourceTree = "<group>";
@@ -4468,7 +4462,6 @@
 				2BE53A741D249C4700B60FAD /* stl_util.h in Headers */,
 				2BBC339022178AFF0038A229 /* QuadImageFrameLoader.h in Headers */,
 				2BE537F71D249A1200B60FAD /* Maply3DTouchPreviewDatasource.h in Headers */,
-				2BE538351D249A1200B60FAD /* NSDictionary+StyleRules.h in Headers */,
 				2BA827C7225E6F1700324594 /* MapboxVectorTiles.h in Headers */,
 				2B82B5F71E82E2490095FB14 /* tessmono.h in Headers */,
 				2BB8A3F621ED43D10025DA98 /* MaplyPinchDelegate.h in Headers */,
@@ -4998,7 +4991,6 @@
 				2B82B6911E82E24A0095FB14 /* pj_msfn.c in Sources */,
 				2BE539B71D249BEF00B60FAD /* AAPlanetPerihelionAphelion.cpp in Sources */,
 				2BE539BC1D249BEF00B60FAD /* AASaturn.cpp in Sources */,
-				2B8797142203B76000EF801D /* NSDictionary+StyleRules.m in Sources */,
 				2BC3D6CF2203EA1800CE91D0 /* MaplyScreenObject.mm in Sources */,
 				2B82B65B1E82E2490095FB14 /* PJ_eck4.c in Sources */,
 				2B82B6A61E82E24A0095FB14 /* PJ_putp5.c in Sources */,

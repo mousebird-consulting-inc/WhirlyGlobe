@@ -31,7 +31,7 @@
 /// Return an uncompressed verison of the given data
 - (NSData *) uncompressGZip;
 
-/// test if the data is zlib compressed
+/// Returns true if the data is zlib compressed
 - (BOOL)isCompressed;
 
 @end
