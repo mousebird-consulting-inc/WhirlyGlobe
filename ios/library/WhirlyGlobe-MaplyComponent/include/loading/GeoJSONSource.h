@@ -11,6 +11,11 @@
 
 #define GEOJSON_MAX_POINTS 4096
 
+/**
+ This class will read GeoJSON via URL with an associated Styled Layer Descriptor via URL.  It will then
+  parse both of them and apply the SLD style to the GeoJSON data.  This results in visual data in
+ much the same way as loading vector tiles would.
+ */
 @interface GeoJSONSource : NSObject
 
 - (id _Nullable)initWithViewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)baseVC GeoJSONURL:(NSURL * _Nonnull)geoJSONURL sldURL:(NSURL * _Nonnull)sldURL relativeDrawPriority:(int)relativeDrawPriority ;
