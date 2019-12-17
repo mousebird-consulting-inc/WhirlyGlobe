@@ -54,21 +54,29 @@
         // display it on the map
         MaplyComponentObject *filledObj =
         [_loader.viewC addVectors:@[vecObj]
-                           desc:@{kMaplyColor: [UIColor colorWithRed:0.25 green:0.0 blue:0.0 alpha:0.25],
-                                  kMaplyFilled: @(YES),
-                                  kMaplyEnable: @(NO)
-                                  }
-                           mode:MaplyThreadCurrent];
+                             desc:@{kMaplyColor: [UIColor colorWithRed:0.25 green:0.0 blue:0.0 alpha:0.25],
+                                    kMaplyFilled: @(YES),
+                                    kMaplyEnable: @(NO)
+                             }
+                             mode:MaplyThreadCurrent];
         MaplyComponentObject *outlineObj =
         [_loader.viewC addVectors:@[vecObj]
-                           desc:@{kMaplyColor: [UIColor redColor],
-                                  kMaplyFilled: @(NO),
-                                  kMaplyEnable: @(NO)
-                                  }
-                           mode:MaplyThreadCurrent];
+                             desc:@{kMaplyColor: [UIColor redColor],
+                                    kMaplyFilled: @(NO),
+                                    kMaplyEnable: @(NO)
+                             }
+                             mode:MaplyThreadCurrent];
         
         [loadReturn addCompObjs:@[filledObj,outlineObj]];
     }
 }
+
+- (void)setLoader:(MaplyQuadLoaderBase * _Nonnull)loader {
+}
+
+
+- (void)tileUnloaded:(MaplyTileID)tileID { 
+}
+
 
 @end

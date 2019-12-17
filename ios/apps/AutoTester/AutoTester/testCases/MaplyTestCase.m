@@ -21,11 +21,10 @@
 //    self.globeViewController.useOpenGLES = true;
     self.baseViewController = self.globeViewController;
     [nav pushViewController:self.baseViewController animated:YES];
-    self.globeViewController.view.backgroundColor = [UIColor blueColor];
+    self.globeViewController.view.backgroundColor = [UIColor blackColor];
     self.globeViewController.clearColor = [UIColor blackColor];
     self.globeViewController.frameInterval = 2;
     self.globeViewController.delegate = self;
-    self.globeViewController.view;
     
     dispatch_async(dispatch_get_main_queue(), ^{
         // setup test case specifics
@@ -46,9 +45,9 @@
         self.mapViewController.coordSys = coordSys;
 
     [nav pushViewController:self.baseViewController animated:YES];
+    self.globeViewController.view.backgroundColor = [UIColor blackColor];
     self.mapViewController.clearColor = [UIColor blackColor];
     self.mapViewController.frameInterval = 2;
-    self.mapViewController.view;
     
     dispatch_async(dispatch_get_main_queue(), ^{
         // setup test case specifics

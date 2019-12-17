@@ -389,7 +389,7 @@ public:
         rotateDelegate = [MaplyRotateDelegate rotateDelegateForView:wrapView mapView:mapView.get()];
     if(_doubleTapZoomGesture)
     {
-        doubleTapDelegate = [MaplyDoubleTapDelegate doubleTapDelegateForView:wrapView mapView:mapView.get()];
+        doubleTapDelegate = [MaplyDoubleTapDelegate doubleTapDelegateForView:wrapView mapView:mapView];
         doubleTapDelegate.minZoom = mapView->minHeightAboveSurface();
         doubleTapDelegate.maxZoom = mapView->maxHeightAboveSurface();
         [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDelegate.gestureRecognizer];
@@ -618,7 +618,7 @@ public:
     {
         if (!doubleTapDelegate)
         {
-            doubleTapDelegate = [MaplyDoubleTapDelegate doubleTapDelegateForView:wrapView mapView:mapView.get()];
+            doubleTapDelegate = [MaplyDoubleTapDelegate doubleTapDelegateForView:wrapView mapView:mapView];
             doubleTapDelegate.minZoom = mapView->minHeightAboveSurface();
             doubleTapDelegate.maxZoom = mapView->maxHeightAboveSurface();
         }

@@ -444,10 +444,10 @@ uint8* ExtensionSet::Extension::SerializeFieldWithCachedSizesToArray(
         HANDLE_TYPE(    ENUM,     Enum,    enum);
 #undef HANDLE_TYPE
 
-        case WireFormatLite::TYPE_STRING:
-        case WireFormatLite::TYPE_BYTES:
-        case WireFormatLite::TYPE_GROUP:
-        case WireFormatLite::TYPE_MESSAGE:
+        case FieldDescriptor::Type::TYPE_STRING:
+        case FieldDescriptor::Type::TYPE_BYTES:
+        case FieldDescriptor::Type::TYPE_GROUP:
+        case FieldDescriptor::Type::TYPE_MESSAGE:
           GOOGLE_LOG(FATAL) << "Non-primitive types can't be packed.";
           break;
       }
