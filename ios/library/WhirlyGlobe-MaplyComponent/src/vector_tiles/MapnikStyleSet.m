@@ -18,6 +18,7 @@
  *
  */
 
+#import "NSDictionary+StyleRules.h"
 #import "vector_styles/MapnikStyleSet.h"
 #import "vector_styles/MaplyVectorTileStyle.h"
 

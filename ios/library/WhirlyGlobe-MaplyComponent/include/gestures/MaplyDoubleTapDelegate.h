@@ -25,7 +25,7 @@
 @interface MaplyDoubleTapDelegate : MaplyZoomGestureDelegate
 
 /// Create a double tap gesture and a delegate and wire them up to the given UIView
-+ (MaplyDoubleTapDelegate *)doubleTapDelegateForView:(UIView *)view mapView:(Maply::MapView_iOS *)mapView;
++ (MaplyDoubleTapDelegate *)doubleTapDelegateForView:(UIView *)view mapView:(Maply::MapView_iOSRef)mapView;
 
 /// How long we animate from starting to end point
 @property (nonatomic) float animTime;

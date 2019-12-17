@@ -313,6 +313,10 @@ static int BackImageWidth = 16, BackImageHeight = 16;
     }
 }
 
+- (void)tileUnloaded:(MaplyTileID)tileID {
+}
+
+
 /**
  Convert a coordinate from lat/lon radians to epsg:3785
  Verified output with "cs2cs +init=epsg:4326 +to +init=epsg:3785", correct within .5 meters,
