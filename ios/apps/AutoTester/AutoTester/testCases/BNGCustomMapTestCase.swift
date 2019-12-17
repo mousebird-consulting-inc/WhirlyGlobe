@@ -54,7 +54,7 @@ class BNGCustomMapTestCase: MaplyTestCase {
 	}
     
     var imageLoader : MaplyQuadImageLoader? = nil
-    var debugInterp : MaplyDebugImageLoaderInterpreter? = nil
+    var debugInterp : MaplyOvlDebugImageLoaderInterpreter? = nil
 	
 	func createBritishNationalOverlayLocal(_ baseViewC: MaplyBaseViewController, maplyMap: Bool) {
 		let bngCoordSys = buildBritishNationalGrid(false)
@@ -71,7 +71,7 @@ class BNGCustomMapTestCase: MaplyTestCase {
         imageLoader = MaplyQuadImageLoader(params: sampleParams, tileInfo: nil, viewC: baseViewC)
         
         if let imageLoader = imageLoader {
-            debugInterp = MaplyDebugImageLoaderInterpreter(viewC: baseViewC)
+            debugInterp = MaplyOvlDebugImageLoaderInterpreter(viewC: baseViewC)
             imageLoader.setInterpreter(debugInterp!)
             imageLoader.baseDrawPriority = kMaplyImageLayerDrawPriorityDefault+1000
         }

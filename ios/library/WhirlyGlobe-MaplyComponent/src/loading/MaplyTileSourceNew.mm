@@ -40,3 +40,23 @@ NSString *MaplyTileIDString(MaplyTileID tileID)
 }
 
 @end
+
+@implementation MaplyTileInfoNone
+
+- (int)minZoom
+{
+    return 0;
+}
+
+- (int)maxZoom
+{
+    return 0;
+}
+
+- (id)fetchInfoForTile:(MaplyTileID)tileID flipY:(bool)flipY
+{
+    return nil;
+}
+
+@end
+

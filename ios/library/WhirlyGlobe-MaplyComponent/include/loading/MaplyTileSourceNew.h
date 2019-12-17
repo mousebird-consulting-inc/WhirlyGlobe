@@ -82,6 +82,14 @@ NSString *__nonnull MaplyTileIDString(MaplyTileID tileID);
 @end
 
 /**
+  A tile source that just returns nil.  You can use this like a tile source where you need one that doesn't do anything.
+ */
+@interface MaplyTileInfoNone : NSObject<MaplyTileInfoNew>
+@end
+
+
+
+/**
  Generic Tile fetcher request.
  
  A single request for a single tile of data from a single source.

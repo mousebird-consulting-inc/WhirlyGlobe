@@ -177,6 +177,8 @@ bool QIFTileAsset::anyFramesLoading(QuadImageFrameLoader *loader)
 {
     // In single frame mode, just care about the first
     if (loader->getMode() == QuadImageFrameLoader::SingleFrame) {
+        if (frames.empty())
+            return false;
         return frames[0]->getState() == QIFFrameAsset::Loading;
     }
     
@@ -192,6 +194,8 @@ bool QIFTileAsset::anyFramesLoaded(QuadImageFrameLoader *loader)
 {
     // In single frame mode, just care about the first
     if (loader->getMode() == QuadImageFrameLoader::SingleFrame) {
+        if (frames.empty())
+            return false;
         return frames[0]->getState() == QIFFrameAsset::Loaded;
     }
 
