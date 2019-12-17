@@ -20,24 +20,43 @@
 
 #import "MapboxVectorStyleSet.h"
 
+/**
+ This is the pain portion o the MapboxVectorLayer Circle.
+ 
+ You control the look of any rendered circles with this.  It would typically be produced in parsing a Mapbox Vector Style.
+ */
 @interface MapboxVectorCirclePaint : NSObject
 
+/// Radius, in pixels, of the circle to be produced
 @property (nonatomic) float radius;
+/// Filled color o the circles
 @property (nonatomic,strong) UIColor *fillColor;
+/// Filled opacity of the circles
 @property (nonatomic) float opacity;
+/// Stroke width, in pixels, around the outside of the circles
 @property (nonatomic) float strokeWidth;
+/// Color of the stroke around the outside of the circles
 @property (nonatomic,strong) UIColor *strokeColor;
+/// Opacity o the stroke around the outside of the circles
 @property (nonatomic) float strokeOpacity;
 
+/// :nodoc:
 - (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 
 @end
 
-/// Simple circles
+/**
+ This layer type produces simple circles that may have an inside and outside stroke.  Nice for data
+ visualization.
+ 
+ You don't create these.  They come from a Style sheet.
+ */
 @interface MapboxVectorLayerCircle : MaplyMapboxVectorStyleLayer
 
+/// Controls the visual representation of the circles
 @property (nonatomic,strong) MapboxVectorCirclePaint *paint;
 
+/// :nodoc:
 - (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 
 @end

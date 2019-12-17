@@ -35,11 +35,12 @@ typedef NS_ENUM(NSInteger,MapboxGeometryType)
 /**
   Container for data parsed out of a Mapbox Vector Tile stream.
  
-  This holds the parsed data as well as post-constructed data.
+  This holds the parsed data as well as post-constructed data.  You will likely be handed one of these
+    if you see it at all.  There are few cases where you might construct one.
   */
 @interface MaplyVectorTileData : NSObject
 
-/// Initialize with tile and bounds inf
+/// Initialize with tile and bounds, both local coordinates and geographic
 - (id)initWithID:(MaplyTileID)tileID bbox:(MaplyBoundingBoxD)bbox geoBBox:(MaplyBoundingBoxD)geoBBox;
 
 /// Tile ID for the tile being built

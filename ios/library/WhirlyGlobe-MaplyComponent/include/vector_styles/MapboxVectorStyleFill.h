@@ -22,8 +22,6 @@
 
 @interface MapboxVectorFillLayout : NSObject
 
-@property (nonatomic) bool visible;
-
 - (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 
 @end

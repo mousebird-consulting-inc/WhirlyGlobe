@@ -31,7 +31,9 @@
 /**
  An interpreter for Mapbox Vector Tiles.
  
- This will turn vector tiles into images, visual objects, or a combination of the two.
+ This will turn vector tiles into images, visual objects, or a combination of the two.  Loader interpreters like
+    this one can be used by Loaders that talk to ondevice objects (such as MBTiles files) or remote tile
+    sources.
  */
 @interface MapboxVectorInterpreter : NSObject<MaplyLoaderInterpreter>
 
