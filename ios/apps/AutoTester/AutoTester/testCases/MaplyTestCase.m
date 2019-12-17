@@ -45,7 +45,7 @@
         self.mapViewController.coordSys = coordSys;
 
     [nav pushViewController:self.baseViewController animated:YES];
-    self.globeViewController.view.backgroundColor = [UIColor blackColor];
+    self.mapViewController.view.backgroundColor = [UIColor blackColor];
     self.mapViewController.clearColor = [UIColor blackColor];
     self.mapViewController.frameInterval = 2;
     
