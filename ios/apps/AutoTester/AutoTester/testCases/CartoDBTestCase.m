@@ -57,14 +57,14 @@
 	NSString *search = @"SELECT the_geom,address,ownername,numfloors FROM mn_mappluto_13v1 WHERE the_geom && ST_SetSRID(ST_MakeBox2D(ST_Point(%f, %f), ST_Point(%f, %f)), 4326) LIMIT 2000;";
 
     MaplySamplingParams *params = [[MaplySamplingParams alloc] init];
-    params.minZoom = 15;
+    params.minZoom = 0;
     params.maxZoom = 15;
     params.minImportance = 1024*1024;
     params.singleLevel = true;
     params.coordSys = [[MaplySphericalMercator alloc] initWebStandard];
 
     interp = [[CartoDBInterpreter alloc] initWithSearch:search];
-    interp.minZoom = params.minZoom;
+    interp.minZoom = params.maxZoom;
     interp.maxZoom = params.maxZoom;
 
     loader = [[MaplyQuadPagingLoader alloc] initWithParams:params tileInfo:interp loadInterp:interp viewC:baseViewC];

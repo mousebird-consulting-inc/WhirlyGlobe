@@ -21,6 +21,10 @@
 	return self;
 }
 
+- (void)setLoader:(MaplyQuadLoaderBase * _Nonnull)loader {
+    _loader = (MaplyQuadPagingLoader *)loader;
+}
+
 // Generate a URL for a given tile
 - (MaplyRemoteTileFetchInfo *)fetchInfoForTile:(MaplyTileID)tileID flipY:(bool)flipY
 {
@@ -67,13 +71,10 @@
                              }
                              mode:MaplyThreadCurrent];
         
-        [loadReturn addCompObjs:@[filledObj,outlineObj]];
+        [loadReturn addCompObj:filledObj];
+        [loadReturn addCompObj:outlineObj];
     }
 }
-
-- (void)setLoader:(MaplyQuadLoaderBase * _Nonnull)loader {
-}
-
 
 - (void)tileUnloaded:(MaplyTileID)tileID { 
 }

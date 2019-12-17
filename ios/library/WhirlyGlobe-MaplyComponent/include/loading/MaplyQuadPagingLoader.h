@@ -34,6 +34,9 @@
 /// They need to start disabled.  The system will enable and delete them when it is time.
 - (void)addCompObjs:(NSArray<MaplyComponentObject *> * __nonnull)compObjs;
 
+/// Add a component object to the collection if it's non null
+- (void)addCompObj:(MaplyComponentObject * __nullable)compObj;
+
 /// Return an array of component objects that were added to this loader return
 - (NSArray * __nonnull)getCompObjs;
 

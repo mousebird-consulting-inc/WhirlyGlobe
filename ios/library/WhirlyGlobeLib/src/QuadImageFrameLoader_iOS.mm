@@ -141,7 +141,9 @@ void QIFTileAsset_ios::startFetching(QuadImageFrameLoader *inLoader,int frameToL
             // If we're not loading all frames, then just load the one we need
             if (frameToLoad == -1 || frameToLoad == frame) {
                 QIFFrameAsset_ios *frameAsset = (QIFFrameAsset_ios *)frames[frame].get();
-                id fetchInfo = [frameInfo fetchInfoForTile:tileID flipY:loader->getFlipY()];
+                id fetchInfo = nil;
+                if (frameInfo.minZoom <= tileID.level && tileID.level <= frameInfo.maxZoom)
+                    fetchInfo = [frameInfo fetchInfoForTile:tileID flipY:loader->getFlipY()];
                 if (fetchInfo) {
                     MaplyTileFetchRequest *request = frameAsset->setupFetch(loader,fetchInfo,frameInfo,loader->calcLoadPriority(ident,frame),ident.importance);
                     NSObject<QuadImageFrameLoaderLayer> * __weak layer = loader->layer;

@@ -39,6 +39,12 @@ using namespace WhirlyKit;
     return [super initWithLoader:loader];
 }
 
+- (void)addCompObj:(MaplyComponentObject *)compObj
+{
+    if (compObj)
+        loadReturn->compObjs.push_back(compObj->contents);
+}
+
 - (void)addCompObjs:(NSArray<MaplyComponentObject *> *)compObjs
 {
     for (MaplyComponentObject *compObj in compObjs)
