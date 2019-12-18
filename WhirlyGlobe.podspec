@@ -9,7 +9,7 @@
 
 Pod::Spec.new do |s|
   s.name             = "WhirlyGlobe"
-  s.version          = "2.6.1"
+  s.version          = "3.0"
   s.summary          = "WhirlyGlobe-Maply: Geospatial visualization for iOS and Android."
   s.description      = <<-DESC
                         WhirlyGlobe-Maply is a high performance geospatial display toolkit for iOS and Android.
@@ -53,7 +53,7 @@ Pod::Spec.new do |s|
   end
 
   s.subspec 'MaplyComponent' do |mc|
-    mc.source_files = 'ios/library/WhirlyGlobeLib/src/*.{mm,m}', 'ios/library/WhirlyGlobeLib/include/*.h', 'ios/library/WhirlyGlobe-MaplyComponent/include/**/*.h', 'ios/library/WhirlyGlobe-MaplyComponent/src/**/*.{mm,m,cpp}'
+    mc.source_files = 'ios/common/WhirlyGlobeLib/include/*.h', 'ios/common/WhirlyGlobeLib/src/*.cpp', 'ios/library/WhirlyGlobeLib/src/*.{mm,m}', 'ios/library/WhirlyGlobeLib/include/*.h', 'ios/library/WhirlyGlobe-MaplyComponent/include/**/*.h', 'ios/library/WhirlyGlobe-MaplyComponent/src/**/*.{mm,m,cpp}'
     mc.public_header_files = 'ios/library/WhirlyGlobe-MaplyComponent/include/*.h', "ios/library/WhirlyGlobe-MaplyComponent/include/vector_tiles/*.h"
     mc.private_header_files = 'ios/library/WhirlyGlobeLib/include/*.h', 'ios/**/vector_tile.pb.h', 'ios/**/MaplyBridge.h'
     mc.dependency 'WhirlyGlobe/locallibs'
