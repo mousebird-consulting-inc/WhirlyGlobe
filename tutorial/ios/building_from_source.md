@@ -41,7 +41,7 @@ Select the HelloEarth project, then go to Build Phases, and expand Link Binary W
 
 ![Adding the Dependent Project]({{ site.baseurl }}/images/tutorial/source_dist_1.png)
 
-Click the + at the bottom, and then Add Files from the Add Other dropdown.
+Click the + at the bottom, and then **Add Files** from the **Add Other** dropdown.
 
 Navigate to the _libs/WhirlyGlobeMaply/ios/library/WhirlyGlobe-MaplyComponent/_ directory, and select _WhirlyGlobe­MaplyComponent.xcodeproj_. Click *Open*.
 

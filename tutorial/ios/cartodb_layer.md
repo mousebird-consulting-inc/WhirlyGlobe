@@ -1,5 +1,5 @@
 ---
-title: CartoDB Layer
+title: Carto Layer
 layout: ios-tutorial
 ---
 
