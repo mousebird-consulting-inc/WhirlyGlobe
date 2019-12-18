@@ -32,6 +32,8 @@ class DrawableGLES : virtual public Drawable
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
         
+    virtual ~DrawableGLES();
+    
     /// Some drawables have a pre-render phase that uses the GPU for calculation
     virtual void calculate(RendererFrameInfoGLES *frameInfo,Scene *scene) = 0;
 

@@ -41,7 +41,8 @@ class BasicDrawableGLES : virtual public BasicDrawable, virtual public DrawableG
 {
 public:
     BasicDrawableGLES(const std::string &name);
-    
+    virtual ~BasicDrawableGLES();
+
     /// Set up local rendering structures (e.g. VBOs)
     virtual void setupForRenderer(const RenderSetupInfo *setupInfo);
     

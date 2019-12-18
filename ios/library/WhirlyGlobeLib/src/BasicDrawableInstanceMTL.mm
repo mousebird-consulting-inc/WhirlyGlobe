@@ -34,6 +34,10 @@ BasicDrawableInstanceMTL::BasicDrawableInstanceMTL(const std::string &name)
 {
 }
 
+BasicDrawableInstanceMTL::~BasicDrawableInstanceMTL()
+{
+}
+
 // Place or update the default attribute corresponding to color
 // TODO: Make this more general
 void BasicDrawableInstanceMTL::updateColorDefaultAttr()

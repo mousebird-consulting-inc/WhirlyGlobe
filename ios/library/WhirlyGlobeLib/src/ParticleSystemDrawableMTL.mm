@@ -34,6 +34,10 @@ ParticleSystemDrawableMTL::ParticleSystemDrawableMTL(const std::string &name)
     pointBuffer[1] = nil;
 }
 
+ParticleSystemDrawableMTL::~ParticleSystemDrawableMTL()
+{
+}
+
 void ParticleSystemDrawableMTL::addAttributeData(const RenderSetupInfo *setupInfo,
                                                  const RawDataRef &data,
                                                  const Batch &batch)

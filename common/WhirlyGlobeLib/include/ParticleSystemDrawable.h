@@ -29,9 +29,7 @@ namespace WhirlyKit
 class ParticleSystemDrawable : virtual public Drawable
 {
 friend class ParticleSystemDrawableBuilder;
-public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    
+public:    
     // A group of attribute data passed in at once
     class AttributeData
     {

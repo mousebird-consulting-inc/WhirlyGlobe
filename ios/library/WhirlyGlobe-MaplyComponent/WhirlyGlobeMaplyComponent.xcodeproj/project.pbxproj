@@ -1524,8 +1524,6 @@
 		2B82B54B1E82E2490095FB14 /* UIColor+Stuff.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = "UIColor+Stuff.mm"; sourceTree = "<group>"; };
 		2B82B54C1E82E2490095FB14 /* NSString+Stuff.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "NSString+Stuff.mm"; sourceTree = "<group>"; };
 		2B82B5621E82E2490095FB14 /* EAGLView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = EAGLView.mm; sourceTree = "<group>"; };
-		2B82B5961E82E2490095FB14 /* ElevationChunk.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ElevationChunk.mm; sourceTree = "<group>"; };
-		2B82B5971E82E2490095FB14 /* ElevationCesiumChunk.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ElevationCesiumChunk.mm; sourceTree = "<group>"; };
 		2B82B5B71E82E2490095FB14 /* LayerViewWatcher.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LayerViewWatcher.mm; sourceTree = "<group>"; };
 		2B82B5B91E82E2490095FB14 /* LayerThread.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LayerThread.mm; sourceTree = "<group>"; };
 		2B82B5BB1E82E2490095FB14 /* UpdateDisplayLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = UpdateDisplayLayer.mm; sourceTree = "<group>"; };
@@ -2987,8 +2985,6 @@
 		2B82B5981E82E2490095FB14 /* elevation */ = {
 			isa = PBXGroup;
 			children = (
-				2B82B5961E82E2490095FB14 /* ElevationChunk.mm */,
-				2B82B5971E82E2490095FB14 /* ElevationCesiumChunk.mm */,
 			);
 			name = elevation;
 			sourceTree = "<group>";

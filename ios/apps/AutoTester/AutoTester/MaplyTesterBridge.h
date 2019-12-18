@@ -13,7 +13,6 @@
 
 #import "MaplyTestCase.h"
 #import "GeographyClassTestCase.h"
-#import "CesiumElevationTestCase.h"
 #import "VectorsTestCase.h"
 #import "TextureVectorTestCase.h"
 #import "ShapefileTestCase.h"

@@ -31,6 +31,7 @@ class BasicDrawableInstanceMTL : virtual public BasicDrawableInstance, virtual p
     friend class BasicDrawableInstanceBuilderMTL;
 public:
     BasicDrawableInstanceMTL(const std::string &name);
+    virtual ~BasicDrawableInstanceMTL();
     
     // Color can change after setup
     virtual void setColor(RGBAColor inColor);

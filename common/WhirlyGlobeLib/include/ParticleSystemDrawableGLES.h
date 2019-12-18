@@ -42,6 +42,7 @@ class ParticleSystemDrawableGLES : virtual public ParticleSystemDrawable, virtua
 friend class ParticleSystemDrawableBuilderGLES;
 public:
     ParticleSystemDrawableGLES(const std::string &name);
+    virtual ~ParticleSystemDrawableGLES();
     
     /// Add the vertex data (all of it) at once
     void addAttributeData(const RenderSetupInfo *setupInfo,const std::vector<AttributeData> &attrData,const Batch &batch);

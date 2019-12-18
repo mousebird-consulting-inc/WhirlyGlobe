@@ -47,8 +47,6 @@ friend class BasicDrawableInstanceBuilder;
 friend class BasicDrawableBuilder;
 
 public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-
     /// Simple triangle.  Can obviously only have 2^16 vertices
     class Triangle
     {

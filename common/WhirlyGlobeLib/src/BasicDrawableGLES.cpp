@@ -32,6 +32,10 @@ BasicDrawableGLES::BasicDrawableGLES(const std::string &name)
 {
 }
 
+BasicDrawableGLES::~BasicDrawableGLES()
+{
+}
+
 unsigned int BasicDrawableGLES::singleVertexSize()
 {
     GLuint singleVertSize = 0;

@@ -38,8 +38,6 @@ class BasicDrawableInstance : virtual public Drawable
 friend class BasicDrawableInstanceBuilder;
     
 public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-
     /// Either the old style where we reuse drawables or the new style, largely for models
     typedef enum {ReuseStyle,LocalStyle} Style;
     

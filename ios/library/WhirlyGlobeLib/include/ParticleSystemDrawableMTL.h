@@ -36,7 +36,8 @@ class ParticleSystemDrawableMTL : virtual public ParticleSystemDrawable, virtual
     friend class ParticleSystemDrawableBuilderMTL;
 public:
     ParticleSystemDrawableMTL(const std::string &name);
-    
+    virtual ~ParticleSystemDrawableMTL();
+
     /// Add the vertex data (all of it) at once
     void addAttributeData(const RenderSetupInfo *setupInfo,const RawDataRef &data,const Batch &batch);
     

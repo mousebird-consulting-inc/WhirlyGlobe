@@ -24,6 +24,10 @@
 
 namespace WhirlyKit
 {
+
+ParticleSystemDrawableGLES::~ParticleSystemDrawableGLES()
+{
+}
     
 ParticleSystemDrawableGLES::ParticleSystemDrawableGLES(const std::string &name)
 : ParticleSystemDrawable(name), Drawable(name), pointBuffer(0), rectBuffer(0)
