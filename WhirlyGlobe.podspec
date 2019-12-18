@@ -64,7 +64,7 @@ Pod::Spec.new do |s|
     mc.dependency 'KissXML'
     mc.dependency 'eigen'
     mc.dependency 'proj4'
-    mc.libraries = 'z', 'xml2', 'c++', 'sqlite3'
+    mc.libraries = 'z', 'xml2', 'c++', 'sqlite3', 'Accelerate', 'MetalKit'
     mc.frameworks = 'CoreLocation', 'MobileCoreServices', 'SystemConfiguration', 'CFNetwork', 'UIKit', 'OpenGLES'
   end
 
