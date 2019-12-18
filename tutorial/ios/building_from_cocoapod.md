@@ -14,28 +14,20 @@ For this tutorial you'll need the [HelloEarth project]({{ site.baseurl }}/tutori
 
 ### WhirlyGlobe-Maply Pod
 
-All credit goes to <a href= "https://github.com/jcollas" target="_blank">Juan Collas</a> who put together the latest pod (and the old one).  We contributed... absolutely nothing.  Now that's what we call open source!
-
-The pod is named WhirlyGlobe, but Maply is in there too.  If you go looking for it on cocoapods.org you'll see this.
-
-![CocoaPods]({{ site.baseurl }}/images/tutorial/whirlyglobecocoapod.png)
-
-### Using the Pod
+There is a pod in the central Cocoapods repo.  It's really old, so don't use it.  Instead, use the podpsec we provide.
 
 Pods are pretty easy to use, which is kind of the point.  If you haven't installed the pod gem, go <a href= "http://guides.cocoapods.org/using/getting-started.html#getting-started" target="_blank">follow their instructions</a>.  You'll need that software to do the rest of this.
 
 Every project you use Cocoapods in is going to need a Podfile.  Yours should look like this.
 
 {% highlight bash %}
-platform :ios, '8.1'
-
+platform :ios, '13.0'
+install! 'cocoapods', :deterministic_uuids => false
+project 'HelloEarth.xcodeproj'
 inhibit_all_warnings!
 
-xcodeproj 'HelloEarth.xcodeproj'
-
-target 'HelloEarth'
-	pod 'WhirlyGlobe', '2.4'
-	pod 'WhirlyGlobeResources'
+target 'HelloEarth' do
+        pod 'WhirlyGlobe', :git => 'https://github.com/mousebird/WhirlyGlobe-3.git', :branch => 'develop'
 end
 {% endhighlight %}
 
@@ -51,23 +43,15 @@ If all goes well it should say something like this.
 
 {% highlight bash %}
 Analyzing dependencies
-
+Pre-downloading: `WhirlyGlobe` from `https://github.com/mousebird/WhirlyGlobe-3.git`, branch `develop`
 Downloading dependencies
-Installing AFNetworking (2.4.1)
-Installing FMDB (2.4)
-Installing GoogleProtobuf (2.5.0)
-Installing KissXML (5.0)
-Installing SMCalloutView (2.0.3)
-Installing WhirlyGlobe (2.3)
-Installing WhirlyGlobeResources (2.3)
-Installing boost (1.51.0a)
-Installing clipper (6.1.3a)
-Installing eigen (3.1.2)
-Installing glues (1.5)
+Installing FMDB (2.7.5)
+Installing KissXML (5.3.1)
+Installing SMCalloutView (2.1.5)
+Installing WhirlyGlobe (2.6.1)
+Installing eigen (3.2.10)
 Installing libjson (7.6.1)
 Installing proj4 (4.8.0)
-Installing shapelib (1.3)
-Installing tinyxml (2.1.0)
 Generating Pods project
 Integrating client project
 {% endhighlight %}

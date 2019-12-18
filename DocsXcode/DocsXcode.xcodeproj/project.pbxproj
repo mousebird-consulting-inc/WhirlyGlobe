@@ -159,7 +159,7 @@
 		2B93D95D1D411F4500EAD280 /* start-new-android-studio-project.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "start-new-android-studio-project.png"; sourceTree = "<group>"; };
 		2B93D95E1D411F4500EAD280 /* whirlyglobe-component.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "whirlyglobe-component.png"; sourceTree = "<group>"; };
 		2B93D95F1D411F4500EAD280 /* your-first-globe-or-map.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "your-first-globe-or-map.md"; sourceTree = "<group>"; };
-		2B93D9601D411F4C00EAD280 /* index.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = index.md; sourceTree = "<group>"; };
+		2B93D9601D411F4C00EAD280 /* index.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = index.md; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.markdown; };
 		2B93D9611D411FFF00EAD280 /* android-tutorial.yaml */ = {isa = PBXFileReference; lastKnownFileType = text; path = "android-tutorial.yaml"; sourceTree = "<group>"; };
 		2B93D9621D411FFF00EAD280 /* ios-tutorial.yaml */ = {isa = PBXFileReference; lastKnownFileType = text; path = "ios-tutorial.yaml"; sourceTree = "<group>"; };
 		2B96DB6E1B7402DC005FF148 /* ArcGIS_Header.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ArcGIS_Header.png; sourceTree = "<group>"; };
@@ -542,6 +542,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 			);
 			mainGroup = 2B4E06841A152F8C00ADA318;

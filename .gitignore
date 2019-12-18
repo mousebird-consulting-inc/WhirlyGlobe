@@ -2,3 +2,4 @@
 .idea/
 DocsXcode/DocsXcode.xcodeproj
 _site/
+.DS_Store
