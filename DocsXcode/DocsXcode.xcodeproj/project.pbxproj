@@ -164,10 +164,6 @@
 		2B93D9621D411FFF00EAD280 /* ios-tutorial.yaml */ = {isa = PBXFileReference; lastKnownFileType = text; path = "ios-tutorial.yaml"; sourceTree = "<group>"; };
 		2B96DB6E1B7402DC005FF148 /* ArcGIS_Header.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ArcGIS_Header.png; sourceTree = "<group>"; };
 		2B96DB6F1B7402DC005FF148 /* ArcGISProgression.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ArcGISProgression.png; sourceTree = "<group>"; };
-		2B96DB701B7402DC005FF148 /* NASA_GIBS_Header.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = NASA_GIBS_Header.png; sourceTree = "<group>"; };
-		2B96DB711B7402DC005FF148 /* NASA_layers_header.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = NASA_layers_header.png; sourceTree = "<group>"; };
-		2B96DB721B7402DC005FF148 /* NASA_NightTime_Layer.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = NASA_NightTime_Layer.png; sourceTree = "<group>"; };
-		2B96DB731B7402DC005FF148 /* NASA_SeaTemp_Overlay.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = NASA_SeaTemp_Overlay.png; sourceTree = "<group>"; };
 		2BADFD8A1C7FC9E8004687FB /* miizee.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = miizee.png; sourceTree = "<group>"; };
 		2BB7660F1C73A14700F01F2A /* aeroviereports.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = aeroviereports.jpeg; sourceTree = "<group>"; };
 		2BB766101C73A14700F01F2A /* climearth.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = climearth.jpeg; sourceTree = "<group>"; };
@@ -394,10 +390,6 @@
 			children = (
 				2B96DB6E1B7402DC005FF148 /* ArcGIS_Header.png */,
 				2B96DB6F1B7402DC005FF148 /* ArcGISProgression.png */,
-				2B96DB701B7402DC005FF148 /* NASA_GIBS_Header.png */,
-				2B96DB711B7402DC005FF148 /* NASA_layers_header.png */,
-				2B96DB721B7402DC005FF148 /* NASA_NightTime_Layer.png */,
-				2B96DB731B7402DC005FF148 /* NASA_SeaTemp_Overlay.png */,
 				2B76A0501A1D2C7100C60136 /* globezoomnumbers.gif */,
 				2B76A04F1A1D2B0B00C60136 /* cartodb_results.png */,
 				2B76A04A1A1D202C00C60136 /* cartodb_layer_2.png */,
