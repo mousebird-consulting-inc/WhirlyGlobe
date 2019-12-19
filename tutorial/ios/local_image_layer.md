@@ -27,13 +27,6 @@ That will get the MBTiles file into the bundle.  Next, we display it.
 
 ### Adding a Layer
 
-There are a few steps to displaying an MBTiles file on your globe or map.
-
-- 
-- Create the MaplyMBTileSource to read it.
-- Spin up a MaplyQuadImageTilesLayer to display it.
-- Start in a useful position on the globe
-
 If you worked through the globe or the map example, you'll need to add this little bit of code to your viewDidLoad method.  This will make the examples work with either globe or map.  If you're using the ViewController file from above, you don't need it.
 
 {% multiple_code %}
