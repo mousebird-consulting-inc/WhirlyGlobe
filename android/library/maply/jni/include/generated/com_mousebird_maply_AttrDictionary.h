@@ -81,6 +81,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_addEntries
 
 /*
  * Class:     com_mousebird_maply_AttrDictionary
+ * Method:    getKeySet
+ * Signature: ()Ljava/util/ArrayList;
+ */
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_AttrDictionary_getKeySet
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_AttrDictionary
  * Method:    nativeInit
  * Signature: ()V
  */
@@ -102,15 +110,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_initialise
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_dispose
   (JNIEnv *, jobject);
-
-/*
- * Class:     com_mousebird_maply_AttrDictionary
- * Method:    getKeySet
- * Signature: ()Ljava/util/ArrayList;
- */
-JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_AttrDictionary_getKeySet
-  (JNIEnv *, jobject);
-
 
 #ifdef __cplusplus
 }

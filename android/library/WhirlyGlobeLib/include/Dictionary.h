@@ -91,6 +91,9 @@ public:
 
     // Merge in key-value pairs from another dictionary
     void addEntries(const Dictionary *other);
+
+    // Return all the keys in the dictionary
+    std::vector<std::string> getKeys() const;
     
 protected:
     class Value

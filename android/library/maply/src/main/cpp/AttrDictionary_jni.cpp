@@ -326,4 +326,32 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_addEntries
 	}
 }
 
+JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_AttrDictionary_getKeySet
+(JNIEnv *env, jobject obj)
+{
+    try
+	{
+        AttrDictClassInfo *classInfo = AttrDictClassInfo::getClassInfo();
+        Dictionary *dict = classInfo->getObject(env,obj);
+        if (!dict)
+            return NULL;
+
+        auto keys = dict->getKeys ();
+		jobjectArray retArr = env->NewObjectArray(keys.size(), env->FindClass("java/lang/String"), NULL);
+		int which = 0;
+		for (const auto key : keys) {
+			env->SetObjectArrayElement(retArr,which,env->NewStringUTF(key.c_str()));
+			which++;
+		}
+
+		return retArr;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Dictionary::getKeySet()");
+    }
+    return NULL;
+}
+
+
 

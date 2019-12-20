@@ -34,6 +34,7 @@ import com.mousebirdconsulting.autotester.TestCases.CustomBNGTileSource;
 import com.mousebirdconsulting.autotester.TestCases.GeomPointsTestCase;
 import com.mousebirdconsulting.autotester.TestCases.GestureFeedbackTestCase;
 //import com.mousebirdconsulting.autotester.TestCases.GreatCircleTestCase;
+import com.mousebirdconsulting.autotester.TestCases.HeadingTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ImageSingleLevelTestCase;
 import com.mousebirdconsulting.autotester.TestCases.LIDARTestCase;
 import com.mousebirdconsulting.autotester.TestCases.LayerShutdownTestCase;
@@ -130,6 +131,7 @@ public class TestListFragment extends Fragment {
 			testCases.add(new ClusteredMarkersTestCase(getActivity()));
 			testCases.add(new StickersTestCase(getActivity()));
 			testCases.add(new GestureFeedbackTestCase(getActivity()));
+			testCases.add(new HeadingTestCase(getActivity()));
 			testCases.add(new SimpleParticleSystemTestCase(getActivity()));
 			testCases.add(new ParticleSystemTestCase(getActivity()));
 			testCases.add(new ComplexParticleSystemTestCase(getActivity()));

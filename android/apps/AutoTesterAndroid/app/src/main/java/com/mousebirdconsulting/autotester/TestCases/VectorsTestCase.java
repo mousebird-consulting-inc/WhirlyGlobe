@@ -3,7 +3,9 @@ package com.mousebirdconsulting.autotester.TestCases;
 import android.app.Activity;
 import android.content.res.AssetManager;
 import android.graphics.Color;
+import android.util.Log;
 
+import com.mousebird.maply.AttrDictionary;
 import com.mousebird.maply.ComponentObject;
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.MapController;
@@ -18,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Set;
 
 
 public class VectorsTestCase extends MaplyTestCase {
@@ -47,6 +50,13 @@ public class VectorsTestCase extends MaplyTestCase {
 				String json = IOUtils.toString(stream, Charset.defaultCharset());
 				if (vecObject.fromGeoJSON(json)) {
 					vectors.add(vecObject);
+
+					// Testing attribute keys
+//					AttrDictionary attrs = vecObject.getAttributes();
+//					if (attrs != null) {
+//						Set<String> keySet = attrs.keySet();
+//						Log.d("Maply", "Pulled vector object keys");
+//					}
 				}
 			} finally {
 				try {
