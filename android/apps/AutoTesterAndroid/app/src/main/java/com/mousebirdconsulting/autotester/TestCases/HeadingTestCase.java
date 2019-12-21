@@ -125,9 +125,8 @@ public class HeadingTestCase extends MaplyTestCase {
         }, (long)(howLong * 1000));
 
         if (globeController != null) {
-            Point2d pt = Point2d.FromDegrees(Math.random() * 380.0 - 180.0,Math.random() * 180.0 - 90.0);
             globeController.setHeading(Math.random());
-            globeController.animatePositionGeo(pt.getX(), pt.getY(), 0.05, animTime/2.0);
+            globeController.animatePositionGeo(Math.random()*360.0 - 180.0, Math.random()*180.0 - 90.0, 0.05, animTime/2.0);
         }
     }
 
