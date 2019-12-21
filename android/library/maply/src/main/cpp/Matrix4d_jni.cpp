@@ -183,7 +183,10 @@ jobject MakeMatrix4d(JNIEnv *env,const Eigen::Matrix4d &mat)
 {
 	// Make a Java Matrix4d
 	Matrix4dClassInfo *classInfo = Matrix4dClassInfo::getClassInfo(env,"com/mousebird/maply/Matrix4d");
-	Matrix4d *newMat = new Matrix4d(mat);
-	return classInfo->makeWrapperObject(env,newMat);
+	jobject newObj = classInfo->makeWrapperObject(env,NULL);
+	Eigen::Matrix4d *inst = classInfo->getObject(env,newObj);
+	*inst = mat;
+
+	return newObj;
 }
 

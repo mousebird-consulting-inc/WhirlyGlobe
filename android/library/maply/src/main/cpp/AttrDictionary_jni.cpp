@@ -37,7 +37,9 @@ JNIEXPORT jobject JNICALL MakeAttrDictionary(JNIEnv *env,Dictionary *dict)
 
 //	Dictionary *copyDict = new Dictionary(*dict);
 	// Note: Just wrapping what's passed in
-	jobject dictObj = classInfo->makeWrapperObject(env,dict);
+	jobject dictObj = classInfo->makeWrapperObject(env,NULL);
+	Dictionary *inst = classInfo->getObject(env,dictObj);
+	*inst = *dict;
 
 	return dictObj;
 }
