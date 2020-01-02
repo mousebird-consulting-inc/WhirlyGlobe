@@ -65,7 +65,7 @@ void SceneRenderer::init()
     zBufferMode = zBufferOff;
     framebufferWidth = 0;
     framebufferHeight = 0;
-    scale = DeviceScreenScale();
+    scale = 1.0;
     framesPerSec = 0.0;
     numDrawables = 0;
     perfInterval = 0.0;
@@ -100,6 +100,9 @@ View *SceneRenderer::getView()
 
 float SceneRenderer::getScale()
     { return scale; }
+
+void SceneRenderer::setScale(float newScale)
+    { scale = newScale; }
 
 void SceneRenderer::setZBufferMode(WhirlyKitSceneRendererZBufferMode inZBufferMode)
     { zBufferMode = inZBufferMode; }
@@ -145,7 +148,6 @@ Point2f SceneRenderer::getFramebufferSize()
 
 Point2f SceneRenderer::getFramebufferSizeScaled()
 {
-    auto scale = DeviceScreenScale();
     return Point2f(framebufferWidth/scale,framebufferHeight/scale);
 }
     

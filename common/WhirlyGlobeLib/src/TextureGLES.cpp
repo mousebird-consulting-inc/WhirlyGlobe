@@ -210,7 +210,7 @@ bool TextureGLES::createInRenderer(const RenderSetupInfo *inSetupInfo)
 }
 
 // Release the OpenGL texture
-void TextureGLES::destroyInRenderer(const RenderSetupInfo *inSetupInfo)
+void TextureGLES::destroyInRenderer(const RenderSetupInfo *inSetupInfo,Scene *scene)
 {
     RenderSetupInfoGLES *setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
 

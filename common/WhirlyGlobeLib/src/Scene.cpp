@@ -53,7 +53,7 @@ Scene::Scene(CoordSystemDisplayAdapter *adapter)
     coordAdapter = adapter;
     
     // Selection manager is used for object selection from any thread
-    addManager(kWKSelectionManager,new SelectionManager(this,DeviceScreenScale()));
+    addManager(kWKSelectionManager,new SelectionManager(this));
     // Intersection handling
     addManager(kWKIntersectionManager, new IntersectionManager(this));
     // Layout manager handles text and icon layout
@@ -459,7 +459,7 @@ void Scene::removeProgram(SimpleIdentity progId)
 
     auto it = programs.find(progId);
     if (it != programs.end()) {
-        it->second->teardownForRenderer(setupInfo);
+        it->second->teardownForRenderer(setupInfo,this);
         programs.erase(it);
     }
 }
@@ -494,7 +494,7 @@ void RemTextureReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View
     if (it != scene->textures.end())
     {
         TextureBaseRef tex = it->second;
-        tex->destroyInRenderer(renderer->getRenderSetupInfo());
+        tex->destroyInRenderer(renderer->getRenderSetupInfo(),scene);
         scene->textures.erase(it);
     } else
         wkLogLevel(Warn,"RemTextureReq: No such texture.");
@@ -545,7 +545,7 @@ void RemDrawableReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::Vie
     {
         renderer->removeContinuousRenderRequest(it->second->getId());
         // Teardown OpenGL foo
-        it->second->teardownForRenderer(renderer->getRenderSetupInfo());
+        it->second->teardownForRenderer(renderer->getRenderSetupInfo(),scene);
 
         scene->remDrawable(it->second);
     } else

@@ -61,6 +61,12 @@
     _loader = [[MaplyQuadImageLoader alloc] initWithParams:sampleParams tileInfo:_fetcher.tileInfo viewC:viewC];
     [_loader setTileFetcher:_fetcher];
     _loader.baseDrawPriority = kMaplyImageLayerDrawPriorityDefault;
+
+    // Color changing test
+//    _loader.color = [UIColor greenColor];
+//    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+//        self.loader.color = [UIColor blueColor];
+//    });
 }
 
 

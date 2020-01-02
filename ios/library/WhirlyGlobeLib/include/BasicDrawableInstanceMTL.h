@@ -26,23 +26,29 @@ namespace WhirlyKit
 {
     
 /// Metal variant of BasicDrawableInstance
-class BasicDrawableInstanceMTL : public BasicDrawableInstance
+class BasicDrawableInstanceMTL : virtual public BasicDrawableInstance, virtual public DrawableMTL
 {
     friend class BasicDrawableInstanceBuilderMTL;
 public:
     BasicDrawableInstanceMTL(const std::string &name);
     
+    // Color can change after setup
+    virtual void setColor(RGBAColor inColor);
+    
     /// Set up local rendering structures (e.g. VBOs)
     virtual void setupForRenderer(const RenderSetupInfo *setupInfo);
     
     /// Clean up any rendering objects you may have (e.g. VBOs).
-    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo);
+    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene);
+    
+    virtual void calculate(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> frameEncode,Scene *scene) { };
     
     /// Fill this in to draw the basic drawable
-    virtual void draw(RendererFrameInfo *frameInfo,Scene *scene);
+    virtual void draw(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene);
     
 protected:
     id<MTLRenderPipelineState> getRenderPipelineState(SceneRendererMTL *sceneRender,RendererFrameInfoMTL *frameInfo,BasicDrawableMTL *basicDrawMTL);
+    void updateColorDefaultAttr();
     
     id<MTLRenderPipelineState> renderState;
     std::vector<BasicDrawableMTL::AttributeDefault> defaultAttrs;

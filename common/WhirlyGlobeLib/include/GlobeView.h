@@ -62,6 +62,9 @@ public:
 
     /// This version avoids the limit calculations (Kind of a hack)
     void setHeightAboveGlobeNoLimits(double newH,bool updateWatchers);
+    
+    /// Set the center offset (percentage +/- in terms of horizontal size)
+    void setCenterOffset(double offX,double offY,bool updateWatchers);
 
     /// Update the quaternion
     void setRotQuat(Eigen::Quaterniond rotQuat);

@@ -107,6 +107,9 @@ public:
 
     /// Remove a list of Component Objects
     virtual void removeComponentObjects(const SimpleIDSet &compIDs,ChangeSet &changes);
+    
+    /// Remove a vector of Component Objects
+    virtual void removeComponentObjects(const std::vector<ComponentObjectRef> &compObjs,ChangeSet &changes);
 
     /// Enable/disable the contents of a Component Object
     virtual void enableComponentObject(SimpleIdentity compID,bool enable,ChangeSet &changes);

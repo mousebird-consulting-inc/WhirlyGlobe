@@ -278,11 +278,7 @@ SimpleIdentity BasicDrawable::getCalculationProgram() const
 {
     return EmptyIdentity;
 }
-    
-void BasicDrawable::calculate(RendererFrameInfo *frameInfo,Scene *scene)
-{
-}
-    
+        
 /// Return the active transform matrix, if we have one
 const Eigen::Matrix4d *BasicDrawable::getMatrix() const
 { if (hasMatrix) return &mat;  return NULL; }
@@ -315,7 +311,7 @@ BasicDrawableTexTweaker::BasicDrawableTexTweaker(const std::vector<SimpleIdentit
 
 void BasicDrawableTexTweaker::tweakForFrame(Drawable *draw,RendererFrameInfo *frame)
 {
-    BasicDrawable *basicDraw = (BasicDrawable *)draw;
+    BasicDrawable *basicDraw = dynamic_cast<BasicDrawable *>(draw);
     
     double t = fmod(frame->currentTime-startTime,period)/period;
     int base = floor(t * texIDs.size());
@@ -342,7 +338,7 @@ BasicDrawableScreenTexTweaker::BasicDrawableScreenTexTweaker(const Point3d &cent
     
 void BasicDrawableScreenTexTweaker::tweakForFrame(Drawable *draw,RendererFrameInfo *frameInfo)
 {
-    BasicDrawable *basicDraw = (BasicDrawable *)draw;
+    BasicDrawable *basicDraw = dynamic_cast<BasicDrawable *>(draw);
 
     if (frameInfo->program)
     {
@@ -400,6 +396,11 @@ void OnOffChangeRequest::execute2(Scene *scene,SceneRenderer *renderer,DrawableR
         BasicDrawableInstanceRef basicDrawInst = std::dynamic_pointer_cast<BasicDrawableInstance>(draw);
         if (basicDrawInst)
             basicDrawInst->setEnable(newOnOff);
+        else {
+            ParticleSystemDrawableRef partSys = std::dynamic_pointer_cast<ParticleSystemDrawable>(draw);
+            if (partSys)
+                partSys->setOnOff(newOnOff);
+        }
     }
 }
 

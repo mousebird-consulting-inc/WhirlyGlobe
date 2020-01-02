@@ -28,14 +28,14 @@ SceneRendererGLES_Android::SceneRendererGLES_Android()
     extraFrameMode = true;
     context = eglGetCurrentContext();
     // If we pass in a size, we get an offscreen buffer
-    setup(3, 0, 0);
+    setup(3, 0, 0, 1.0);
 }
 
 SceneRendererGLES_Android::SceneRendererGLES_Android(int width,int height)
 {
     extraFrameMode = true;
     context = eglGetCurrentContext();
-    setup(3,width,height);
+    setup(3,width,height, 1.0);
 }
 
 // Called when the window changes size (or on startup)

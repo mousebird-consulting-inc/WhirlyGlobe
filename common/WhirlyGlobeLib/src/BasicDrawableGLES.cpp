@@ -27,7 +27,7 @@ namespace WhirlyKit
 {
     
 BasicDrawableGLES::BasicDrawableGLES(const std::string &name)
-: BasicDrawable(name), isSetupGL(false), usingBuffers(false), vertexSize(-1),
+: BasicDrawable(name), Drawable(name), isSetupGL(false), usingBuffers(false), vertexSize(-1),
     pointBuffer(0), triBuffer(0), sharedBuffer(0), vertArrayObj(0)
 {
 }
@@ -184,7 +184,7 @@ void BasicDrawableGLES::setupForRenderer(const RenderSetupInfo *inSetupInfo)
 }
 
 // Tear down the VBOs we set up
-void BasicDrawableGLES::teardownForRenderer(const RenderSetupInfo *inSetupInfo)
+void BasicDrawableGLES::teardownForRenderer(const RenderSetupInfo *inSetupInfo,Scene *scene)
 {
     RenderSetupInfoGLES *setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
     
@@ -286,7 +286,7 @@ bool BasicDrawableGLES::isSetupInGL()
 }
 
 // Draw Vertex Buffer Objects, OpenGL 2.0+
-void BasicDrawableGLES::draw(RendererFrameInfo *frameInfo,Scene *inScene)
+void BasicDrawableGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inScene)
 {
     ProgramGLES *prog = (ProgramGLES *)frameInfo->program;
     SceneGLES *scene = (SceneGLES *)inScene;

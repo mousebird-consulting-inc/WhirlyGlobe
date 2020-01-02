@@ -32,8 +32,5 @@ namespace WhirlyKit
 
 // Wrapper for platform specific time function
 extern TimeInterval TimeGetCurrent();
-    
-// Retina vs. not on iOS.  Always 1.0 on Android
-extern float DeviceScreenScale();
-    
+        
 }

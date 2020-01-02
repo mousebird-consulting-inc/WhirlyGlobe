@@ -58,11 +58,11 @@ public:
     const std::string &getName();
     
     /// Clean up OpenGL resources, rather than letting the destructor do it (which it will)
-    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo);
+    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene);
     void cleanUp();
     
-    /// Called right before use on a drawable
-    virtual void preRender(RendererFrameInfoMTL *frameInfo,SceneMTL *scene);
+    /// Add any external resources the program might need to the encoder
+    void addResources(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,SceneMTL *scene);
     
 public:
     bool valid;

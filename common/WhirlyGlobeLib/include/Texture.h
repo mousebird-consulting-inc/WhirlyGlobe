@@ -43,7 +43,7 @@ public:
     virtual bool createInRenderer(const RenderSetupInfo *setupInfo) = 0;
 	
 	/// Render side only.  Don't call this.  Destroy the openGL version
-    virtual void destroyInRenderer(const RenderSetupInfo *setupInfo) = 0;
+    virtual void destroyInRenderer(const RenderSetupInfo *setupInfo,Scene *scene) = 0;
 
 protected:
     /// Used for debugging

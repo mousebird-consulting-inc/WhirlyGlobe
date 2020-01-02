@@ -33,7 +33,7 @@ namespace WhirlyKit
  tweaking some of the fields.  This is good for using the same
  geometry to implement vectors of multiple colors and line widths.
  */
-class BasicDrawableInstance : public Drawable
+class BasicDrawableInstance : virtual public Drawable
 {
 friend class BasicDrawableInstanceBuilder;
     
@@ -102,7 +102,7 @@ public:
     void setViewerVisibility(double inMinViewerDist,double inMaxViewerDist,const Point3d &inViewerCenter);
     
     /// Set the color
-    void setColor(RGBAColor inColor);
+    virtual void setColor(RGBAColor inColor);
     
     /// Set the draw priority
     void setDrawPriority(int newPriority);

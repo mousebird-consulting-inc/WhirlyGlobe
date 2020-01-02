@@ -52,6 +52,9 @@
 /// By default this is (-1,-1) meaning the screen position is just the middle.  Otherwise, this is where the position should wind up on the screen, if it can.
 @property (nonatomic) CGPoint screenPos;
 
+/// If set, the globe will be centered at this point on the screen
+@property (nonatomic) CGPoint globeCenter;
+
 /** 
     Interpolate a new state between the given states A and B.
     
@@ -133,8 +136,11 @@
 /// Tilt at the end of the animation
 @property (nonatomic) double tilt;
 
-/// Roll at the end of the animaiton
+/// Roll at the end of the animation
 @property (nonatomic) double roll;
+
+/// Globe center at the end of the animation
+@property (nonatomic) CGPoint globeCenter;
 
 @end
 
@@ -378,6 +384,11 @@
     Tilt in radians.  0 is looking straight down (the default).  PI/2 is looking toward the horizon.
   */
 @property(nonatomic,assign) float tilt;
+
+/**
+    If set, the globe will be centered to this point on the screen.
+ */
+@property(nonatomic,assign) CGPoint globeCenter;
 
 /** 
     The current rotation away from north.

@@ -100,6 +100,17 @@ void ComponentManager::removeComponentObject(SimpleIdentity compID, ChangeSet &c
     removeComponentObjects(compIDs, changes);
 }
 
+void ComponentManager::removeComponentObjects(const std::vector<ComponentObjectRef> &compObjs,ChangeSet &changes)
+{
+    SimpleIDSet compIDs;
+    
+    for (auto compObj: compObjs) {
+        compIDs.insert(compObj->getId());
+    }
+    
+    removeComponentObjects(compIDs, changes);
+}
+
 void ComponentManager::removeComponentObjects(const SimpleIDSet &compIDs,ChangeSet &changes)
 {
     std::vector<ComponentObjectRef> compRefs;
@@ -225,6 +236,11 @@ void ComponentManager::enableComponentObjects(const SimpleIDSet &compIDs,bool en
             for (SimpleIDSet::iterator it = compObj->chunkIDs.begin();
                  it != compObj->chunkIDs.end(); ++it)
                 chunkManager->enableChunk(*it, enable, changes);
+        }
+        if (partSysManager && !compObj->partSysIDs.empty()) {
+            for (SimpleIDSet::iterator it = compObj->partSysIDs.begin();
+                 it != compObj->partSysIDs.end(); ++it)
+                partSysManager->enableParticleSystem(*it, enable, changes);
         }
     }
 }

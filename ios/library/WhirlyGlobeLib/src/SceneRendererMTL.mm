@@ -39,18 +39,17 @@ namespace WhirlyKit
     
 RendererFrameInfoMTL::RendererFrameInfoMTL()
 {
-    cmdEncode = nil;
 }
     
 RendererFrameInfoMTL::RendererFrameInfoMTL(const RendererFrameInfoMTL &that)
 : RendererFrameInfo(that)
 {
-    cmdEncode = that.cmdEncode;
 }
 
-SceneRendererMTL::SceneRendererMTL(id<MTLDevice> mtlDevice)
+SceneRendererMTL::SceneRendererMTL(id<MTLDevice> mtlDevice, float inScale)
 {
     init();
+    scale = inScale;
     setupInfo.mtlDevice = mtlDevice;
 }
     
@@ -143,10 +142,10 @@ bool SceneRendererMTL::resize(int sizeX,int sizeY)
 class DrawableContainer
 {
 public:
-    DrawableContainer(Drawable *draw) : drawable(draw) { mvpMat = mvpMat.Identity(); mvMat = mvMat.Identity();  mvNormalMat = mvNormalMat.Identity(); }
-    DrawableContainer(Drawable *draw,Matrix4d mvpMat,Matrix4d mvMat,Matrix4d mvNormalMat) : drawable(draw), mvpMat(mvpMat), mvMat(mvMat), mvNormalMat(mvNormalMat) { }
+    DrawableContainer(DrawableMTL *draw) : drawable(draw) { mvpMat = mvpMat.Identity(); mvMat = mvMat.Identity();  mvNormalMat = mvNormalMat.Identity(); }
+    DrawableContainer(DrawableMTL *draw,Matrix4d mvpMat,Matrix4d mvMat,Matrix4d mvNormalMat) : drawable(draw), mvpMat(mvpMat), mvMat(mvMat), mvNormalMat(mvNormalMat) { }
     
-    Drawable *drawable;
+    DrawableMTL *drawable;
     Matrix4d mvpMat,mvMat,mvNormalMat;
 };
 
@@ -246,7 +245,7 @@ void CopyIntoMtlFloat4(simd::float4 &dest,const float vals[4])
     dest[3] = vals[3];
 }
     
-void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,CoordSystemDisplayAdapter *coordAdapter)
+void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,CoordSystemDisplayAdapter *coordAdapter)
 {
     WhirlyKitShader::Uniforms uniforms;
     bzero(&uniforms,sizeof(uniforms));
@@ -260,8 +259,8 @@ void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,CoordS
     CopyIntoMtlFloat2(uniforms.pixDispSize,pixDispSize);
     uniforms.globeMode = !coordAdapter->isFlat();
     
-    [frameInfo->cmdEncode setVertexBytes:&uniforms length:sizeof(uniforms) atIndex:WKSUniformBuffer];
-    [frameInfo->cmdEncode setFragmentBytes:&uniforms length:sizeof(uniforms) atIndex:WKSUniformBuffer];
+    [cmdEncode setVertexBytes:&uniforms length:sizeof(uniforms) atIndex:WKSUniformBuffer];
+    [cmdEncode setFragmentBytes:&uniforms length:sizeof(uniforms) atIndex:WKSUniformBuffer];
 }
 
 void SceneRendererMTL::setupLightBuffer(SceneMTL *scene,id<MTLRenderCommandEncoder> cmdEncode)
@@ -339,6 +338,7 @@ void SceneRendererMTL::render(TimeInterval duration,
 {
     if (!scene)
         return;
+    SceneMTL *sceneMTL = (SceneMTL *)scene;
     
     frameCount++;
     
@@ -373,8 +373,13 @@ void SceneRendererMTL::render(TimeInterval duration,
     
     // Set up a projection matrix
     Point2f frameSize(framebufferWidth,framebufferHeight);
+    // In theory, we should be nudging the projection matrix from OpenGL style to Metal style
+    //  but it doesn't seem to matter, oddly.
+//    Eigen::Matrix4d mtlShift = Matrix4d::Identity();
+//    mtlShift(2,2) = 0.5;  mtlShift(2,3) = 0.5;
+//    Eigen::Matrix4d projMat4d = mtlShift * theView->calcProjectionMatrix(frameSize,0.0);
     Eigen::Matrix4d projMat4d = theView->calcProjectionMatrix(frameSize,0.0);
-    
+
     Eigen::Matrix4f projMat = Matrix4dToMatrix4f(projMat4d);
     Eigen::Matrix4f modelAndViewMat = viewTrans * modelTrans;
     Eigen::Matrix4d modelAndViewMat4d = viewTrans4d * modelTrans4d;
@@ -522,7 +527,7 @@ void SceneRendererMTL::render(TimeInterval duration,
             DrawableRefSet rawDrawables = scene->getDrawables();
             for (DrawableRefSet::iterator it = rawDrawables.begin(); it != rawDrawables.end(); ++it)
             {
-                Drawable *theDrawable = it->second.get();
+                DrawableMTL *theDrawable = dynamic_cast<DrawableMTL *>(it->second.get());
                 if (theDrawable->isOn(&offFrameInfo))
                 {
                     const Matrix4d *localMat = theDrawable->getMatrix();
@@ -552,7 +557,7 @@ void SceneRendererMTL::render(TimeInterval duration,
             // Need some sort of render target even if we're not really rendering
             RenderTargetMTLRef renderTarget = std::dynamic_pointer_cast<RenderTargetMTL>(renderTargets.back());
             baseFrameInfo.renderTarget = renderTarget.get();
-
+            
             // But do we have any
             bool haveCalcShader = false;
             for (unsigned int ii=0;ii<drawList.size();ii++)
@@ -567,10 +572,10 @@ void SceneRendererMTL::render(TimeInterval duration,
 
                 // Each render target needs its own buffer and command queue
                 id<MTLCommandBuffer> cmdBuff = [cmdQueue commandBuffer];
-                id<MTLRenderCommandEncoder> cmdEncode = nil;
-                cmdEncode = [cmdBuff renderCommandEncoderWithDescriptor:renderPassDesc];
                 baseFrameInfo.renderPassDesc = renderPassDesc;
-                baseFrameInfo.cmdEncode = cmdEncode;
+
+//                id<MTLParallelRenderCommandEncoder> masterEncode = [cmdBuff parallelRenderCommandEncoderWithDescriptor:renderPassDesc];
+                id<MTLRenderCommandEncoder> masterEncode = [cmdBuff renderCommandEncoderWithDescriptor:renderPassDesc];
 
                 for (unsigned int ii=0;ii<drawList.size();ii++) {
                     DrawableContainer &drawContain = drawList[ii];
@@ -579,26 +584,31 @@ void SceneRendererMTL::render(TimeInterval duration,
                     // Figure out the program to use for drawing
                     if (calcProgID == EmptyIdentity)
                         continue;
-                    
+
                     ProgramMTL *calcProgram = (ProgramMTL *)scene->getProgram(calcProgID);
                     if (!calcProgram) {
                         NSLog(@"Invalid calculation program for drawable.  Skipping.");
                         continue;
                     }
                     baseFrameInfo.program = calcProgram;
-                    
+
+//                    id<MTLRenderCommandEncoder> cmdEncode = [masterEncode renderCommandEncoder];
+                    id<MTLRenderCommandEncoder> cmdEncode = masterEncode;
+
                     // Tweakers probably not necessary, but who knows
                     drawContain.drawable->runTweakers(&baseFrameInfo);
                     
                     // Regular uniforms
                     // TODO: Can we do this just once?
-                    setupUniformBuffer(&baseFrameInfo,scene->getCoordAdapter());
+                    setupUniformBuffer(&baseFrameInfo,cmdEncode,scene->getCoordAdapter());
                     
                     // Run the calculation phase
-                    drawContain.drawable->calculate(&baseFrameInfo,scene);
+                    drawContain.drawable->calculate(&baseFrameInfo,cmdEncode,scene);
+                    
+//                    [cmdEncode endEncoding];
                 }
                 
-                [cmdEncode endEncoding];
+                [masterEncode endEncoding];
                 [cmdBuff commit];
             }
             
@@ -621,28 +631,31 @@ void SceneRendererMTL::render(TimeInterval duration,
 
             // Each render target needs its own buffer and command queue
             id<MTLCommandBuffer> cmdBuff = [cmdQueue commandBuffer];
-            id<MTLRenderCommandEncoder> cmdEncode = nil;
 
+            // Set up a master encoder for all the little encoders
+            id<MTLRenderCommandEncoder> masterEncode = nil;
             if (renderTarget->getTex() == nil) {
                 // This happens if the dev wants an instantaneous render
                 if (!renderPassDesc)
                     continue;
                 
-                cmdEncode = [cmdBuff renderCommandEncoderWithDescriptor:renderPassDesc];
+//                masterEncode = [cmdBuff parallelRenderCommandEncoderWithDescriptor:renderPassDesc];
+                masterEncode = [cmdBuff renderCommandEncoderWithDescriptor:renderPassDesc];
                 baseFrameInfo.renderPassDesc = renderPassDesc;
             } else {
                 baseFrameInfo.renderPassDesc = renderTarget->getRenderPassDesc();
-                cmdEncode = [cmdBuff renderCommandEncoderWithDescriptor:baseFrameInfo.renderPassDesc];
+//                masterEncode = [cmdBuff parallelRenderCommandEncoderWithDescriptor:baseFrameInfo.renderPassDesc];
+                masterEncode = [cmdBuff renderCommandEncoderWithDescriptor:baseFrameInfo.renderPassDesc];
             }
             
-            baseFrameInfo.cmdEncode = cmdEncode;
-            setupLightBuffer((SceneMTL *)scene,cmdEncode);
+            // TODO: Set this up once and reuse the buffer
+            setupLightBuffer(sceneMTL,masterEncode);
 
-            // Keep track of state changes for z buffer state
+//            // Keep track of state changes for z buffer state
             bool firstDepthState = true;
             bool zBufferWrite = (zBufferMode == zBufferOn);
             bool zBufferRead = (zBufferMode == zBufferOn);
-            
+
             bool lastZBufferWrite = zBufferWrite;
             bool lastZBufferRead = zBufferRead;
             
@@ -654,6 +667,9 @@ void SceneRendererMTL::render(TimeInterval duration,
                 if (drawContain.drawable->getRenderTarget() != renderTarget->getId())
                     continue;
 
+//                id<MTLRenderCommandEncoder> cmdEncode = [masterEncode renderCommandEncoder];
+                id<MTLRenderCommandEncoder> cmdEncode = masterEncode;
+                
                 // Backface culling on by default
                 // Note: Would like to not set this every time
                 [cmdEncode setCullMode:MTLCullModeFront];
@@ -707,42 +723,48 @@ void SceneRendererMTL::render(TimeInterval duration,
                 baseFrameInfo.viewModelNormalMat = currentMvNormalMat;
 
                 // TODO: Try to do this once rather than per drawable
-                setupUniformBuffer(&baseFrameInfo,scene->getCoordAdapter());
+                setupUniformBuffer(&baseFrameInfo,cmdEncode,scene->getCoordAdapter());
 
                 // Figure out the program to use for drawing
                 SimpleIdentity drawProgramId = drawContain.drawable->getProgram();
                 ProgramMTL *program = (ProgramMTL *)scene->getProgram(drawProgramId);
                 if (!program) {
                     wkLogLevel(Error, "SceneRendererMTL: Drawable without Program");
+                    [cmdEncode endEncoding];
                     continue;
                 }
                 
                 baseFrameInfo.program = program;
                 
                 // Activate the program
-                program->preRender(&baseFrameInfo,(SceneMTL *)scene);
+                program->addResources(&baseFrameInfo, cmdEncode, sceneMTL);
             
                 // Run any tweakers right here
                 drawContain.drawable->runTweakers(&baseFrameInfo);
                 
                 // "Draw" using the given program
-                drawContain.drawable->draw(&baseFrameInfo,scene);
+                drawContain.drawable->draw(&baseFrameInfo,cmdEncode,scene);
                 
                 // If we had a local matrix, set the frame info back to the general one
                 //            if (localMat)
                 //                offFrameInfo.mvpMat = mvpMat;
                 
                 numDrawables++;
+                
+//                [cmdEncode endEncoding];
             }
+                        
+            [masterEncode endEncoding];
 
-            [cmdEncode endEncoding];
             // Main screen has to be committed
             if (renderTarget->getTex() == nil && drawGetter != nil) {
                 id<CAMetalDrawable> drawable = [drawGetter getDrawable];
                 [cmdBuff presentDrawable:drawable];
             }
             [cmdBuff commit];
-            if (renderTarget->getTex() != nil)
+            
+            // This happens for offline rendering and we want to wait until the render finishes to return it
+            if (!drawGetter)
                 [cmdBuff waitUntilCompleted];
         }
         
@@ -755,16 +777,10 @@ void SceneRendererMTL::render(TimeInterval duration,
         // Anything generated needs to be cleaned up
         drawList.clear();
     }
-    
-    if (perfInterval > 0)
-        perfTimer.startTiming("Present Renderbuffer");
-    
+        
     // Snapshots tend to be platform specific
     snapshotCallback(now);
-    
-    if (perfInterval > 0)
-        perfTimer.stopTiming("Present Renderbuffer");
-    
+        
     if (perfInterval > 0)
         perfTimer.stopTiming("Render Frame");
     
@@ -782,6 +798,8 @@ void SceneRendererMTL::render(TimeInterval duration,
         perfTimer.log();
         perfTimer.clear();
     }
+    
+    sceneMTL->endOfFrameBufferClear();
 }
     
 void SceneRendererMTL::snapshotCallback(TimeInterval now)

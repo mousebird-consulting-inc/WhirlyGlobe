@@ -55,6 +55,10 @@
 /// By default we'll build a rectangle to display the target
 @property (nonatomic,assign) bool buildRectangle;
 
+/// If set, the rectangle rendered to the screen will read from the z Buffer
+/// Useful, when doing depth comparisons
+@property (nonatomic,assign) bool zBuffer;
+
 /// Rectangle created to show the variable target (if that's set)
 @property (nonatomic,readonly,nullable) MaplyComponentObject *rectObj;
 

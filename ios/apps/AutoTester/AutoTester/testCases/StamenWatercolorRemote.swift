@@ -53,6 +53,8 @@ class StamenWatercolorRemote: MaplyTestCase {
         		
 		globeVC.keepNorthUp = true
 		globeVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056), time: 1.0)
+        
+//        globeVC.globeCenter = CGPoint(x: globeVC.view.center.x, y: globeVC.view.center.y + 0.33*globeVC.view.frame.size.height/2.0)
 	}
 
 	override func setUpWithMap(_ mapVC: MaplyViewController) {

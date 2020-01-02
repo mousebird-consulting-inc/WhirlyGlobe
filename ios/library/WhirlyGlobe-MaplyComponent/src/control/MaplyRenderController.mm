@@ -74,12 +74,12 @@ using namespace Eigen;
     if (inRenderType == MaplyRenderGLES) {
         renderType = SceneRenderer::RenderGLES;
         scene = new SceneGLES(coordAdapter.get());
-        SceneRendererGLES_iOSRef theSceneRenderer = SceneRendererGLES_iOSRef(new SceneRendererGLES_iOS((int)size.width,(int)size.height));
+        SceneRendererGLES_iOSRef theSceneRenderer = SceneRendererGLES_iOSRef(new SceneRendererGLES_iOS((int)size.width,(int)size.height,1.0));
         sceneRenderer = theSceneRenderer;
     } else {
         renderType = SceneRenderer::RenderMetal;
         scene = new SceneMTL(coordAdapter.get());
-        SceneRendererMTLRef theSceneRenderer = SceneRendererMTLRef(new SceneRendererMTL( MTLCreateSystemDefaultDevice()));
+        SceneRendererMTLRef theSceneRenderer = SceneRendererMTLRef(new SceneRendererMTL( MTLCreateSystemDefaultDevice(), 1.0));
         theSceneRenderer->setup(size.width, size.height, true);
         sceneRenderer = theSceneRenderer;
     }
@@ -145,11 +145,11 @@ using namespace Eigen;
     
     if (renderType == WhirlyKit::SceneRendererGLES_iOS::RenderGLES) {
         // Set up the OpenGL ES renderer
-        SceneRendererGLES_iOSRef sceneRendererGLES = SceneRendererGLES_iOSRef(new SceneRendererGLES_iOS());
+        SceneRendererGLES_iOSRef sceneRendererGLES = SceneRendererGLES_iOSRef(new SceneRendererGLES_iOS(1.0));
         sceneRendererGLES->useContext();
         sceneRenderer = sceneRendererGLES;
     } else {
-        SceneRendererMTLRef sceneRendererMTL = SceneRendererMTLRef(new SceneRendererMTL(MTLCreateSystemDefaultDevice()));
+        SceneRendererMTLRef sceneRendererMTL = SceneRendererMTLRef(new SceneRendererMTL(MTLCreateSystemDefaultDevice(),1.0));
         sceneRenderer = sceneRendererMTL;
     }
 
@@ -719,7 +719,7 @@ using namespace Eigen;
     [self addShader:kMaplyShaderDefaultWideVector
             program:ProgramRef(new ProgramMTL([kMaplyShaderDefaultWideVector cStringUsingEncoding:NSASCIIStringEncoding],
                                         [mtlLib newFunctionWithName:@"vertexTri_wideVec"],
-                                        [mtlLib newFunctionWithName:@"fragmentTri_basic"]))];
+                                        [mtlLib newFunctionWithName:@"fragmentTri_wideVec"]))];
 
     // Screen Space (motion and regular are the same)
     ProgramRef screenSpace = ProgramRef(new

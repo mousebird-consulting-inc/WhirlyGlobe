@@ -45,6 +45,7 @@
     _renderTarget = [[MaplyRenderTarget alloc] init];
     _buildRectangle = true;
     _clearEveryFrame = false;
+    _zBuffer = false;
 
     dispatch_async(dispatch_get_main_queue(), ^{
         [self delayedSetup];
@@ -101,7 +102,7 @@
                               desc:@{kMaplyColor: _color,
                                      kMaplyDrawPriority: @(_drawPriority),
                                      kMaplyShader: shaderName,
-                                     kMaplyZBufferRead: @(NO),
+                                     kMaplyZBufferRead: @(_zBuffer),
                                      kMaplyZBufferWrite: @(NO)
                                      }
                               mode:MaplyThreadCurrent];

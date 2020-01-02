@@ -55,7 +55,7 @@ BasicDrawable *BasicDrawableBuilderGLES::getDrawable()
     if (!basicDraw)
         return NULL;
     
-    BasicDrawableGLES *draw = (BasicDrawableGLES *)basicDraw;
+    BasicDrawableGLES *draw = dynamic_cast<BasicDrawableGLES *>(basicDraw);
     
     if (!drawableGotten) {
         draw->points = points;

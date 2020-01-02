@@ -24,6 +24,9 @@
 namespace WhirlyKit
 {
 
+// Maximum number of frames we could possibly have rendering at once
+#define WKMaxFramesInFlight 4
+
 /** Metal verson of Scene.
   */
 class SceneMTL : public Scene
@@ -35,9 +38,20 @@ public:
     /// If it's missing, we probably won't draw the associated geometry
     id<MTLTexture> getMTLTexture(SimpleIdentity texIdent);
     
+    /// Retain a buffer to release it in a few frames
+    void releaseBuffer(id buf);
+    
+    /// Do the dance to release buffers at the end of a frame
+    void endOfFrameBufferClear();
+    
     /// Explicitly tear everything down in OpenGL ES.
     /// We're assuming the context has been set.
     virtual void teardown();
+    
+protected:
+    std::mutex bufferLock;
+    // Buffers we're sitting on until we can release
+    std::vector<id> buffers[WKMaxFramesInFlight];
 };
     
 }

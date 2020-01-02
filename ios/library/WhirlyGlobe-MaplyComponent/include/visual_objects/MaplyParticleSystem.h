@@ -197,7 +197,7 @@ typedef NS_ENUM(NSInteger, MaplyParticleSystemType) {
    We add the batch as a single blob of data.  Format is up to you and your shader.
  
   */
-- (void) addData:(NSData *)data;
+- (void) addData:(NSData * __nonnull)data;
 
 /** 
     Tests if the batch is valid.

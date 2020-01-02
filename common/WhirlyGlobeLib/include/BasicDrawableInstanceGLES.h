@@ -26,7 +26,7 @@ namespace WhirlyKit
 {
 
 /// OpenGL variant of BasicDrawableInstance
-class BasicDrawableInstanceGLES : public BasicDrawableInstance
+class BasicDrawableInstanceGLES : virtual public BasicDrawableInstance
 {
 friend class BasicDrawableInstanceBuilderGLES;
 public:
@@ -36,7 +36,7 @@ public:
     virtual void setupForRenderer(const RenderSetupInfo *setupInfo);
     
     /// Clean up any rendering objects you may have (e.g. VBOs).
-    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo);
+    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene);
     
     /// Fill this in to draw the basic drawable
     virtual void draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene);

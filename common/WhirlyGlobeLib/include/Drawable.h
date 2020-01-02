@@ -91,26 +91,20 @@ public:
     
     /// Run the tweakers
     virtual void runTweakers(RendererFrameInfo *frame);
-
+    
     /// Do any initialization you may want.
     /// For instance, set up VBOs.
     virtual void setupForRenderer(const RenderSetupInfo *setupInfo) = 0;
     
     /// Clean up any rendering objects you may have (e.g. VBOs).
-    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo) = 0;
+    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene) = 0;
 
     /// If present, we'll do a pre-render calculation pass with this program set
     virtual SimpleIdentity getCalculationProgram() const = 0;
     
-    /// Some drawables have a pre-render phase that uses the GPU for calculation
-    virtual void calculate(RendererFrameInfo *frameInfo,Scene *scene) = 0;
-
     /// For OpenGLES2, this is the program to use to render this drawable.
     virtual SimpleIdentity getProgram() const = 0;
     
-    /// Set up what you need in the way of context and draw.
-    virtual void draw(RendererFrameInfo *frameInfo,Scene *scene) = 0;
-
 protected:
     std::string name;
     DrawableTweakerRefSet tweakers;

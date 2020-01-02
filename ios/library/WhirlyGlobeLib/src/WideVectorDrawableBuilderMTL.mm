@@ -21,6 +21,7 @@
 #import "WideVectorDrawableBuilderMTL.h"
 #import "DefaultShadersMTL.h"
 #import "ProgramMTL.h"
+#import "RawData_NSData.h"
 
 namespace WhirlyKit
 {
@@ -29,6 +30,9 @@ namespace WhirlyKit
 void WideVectorTweakerMTL::tweakForFrame(Drawable *inDraw,RendererFrameInfo *inFrameInfo)
 {
     if (!inFrameInfo->program || inFrameInfo->sceneRenderer->getType() != SceneRenderer::RenderMetal)
+        return;
+    BasicDrawable *basicDraw = dynamic_cast<BasicDrawable *>(inDraw);
+    if (!basicDraw)
         return;
  
     RendererFrameInfoMTL *frameInfo = (RendererFrameInfoMTL *)inFrameInfo;
@@ -54,8 +58,10 @@ void WideVectorTweakerMTL::tweakForFrame(Drawable *inDraw,RendererFrameInfo *inF
     uniWV.color[2] = color.b/255.0;
     uniWV.color[3] = color.a/255.0;
     
-    [frameInfo->cmdEncode setVertexBytes:&uniWV length:sizeof(uniWV) atIndex:WKSUniformDrawStateWideVecBuffer];
-    [frameInfo->cmdEncode setFragmentBytes:&uniWV length:sizeof(uniWV) atIndex:WKSUniformDrawStateWideVecBuffer];
+    BasicDrawable::UniformBlock uniBlock;
+    uniBlock.blockData = RawDataRef(new RawNSDataReader([[NSData alloc] initWithBytes:&uniWV length:sizeof(uniWV)]));
+    uniBlock.bufferID = WKSUniformDrawStateWideVecBuffer;
+    basicDraw->setUniBlock(uniBlock);
 }
 
 WideVectorDrawableBuilderMTL::WideVectorDrawableBuilderMTL(const std::string &name)

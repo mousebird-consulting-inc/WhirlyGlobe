@@ -28,7 +28,7 @@ void ScreenSpaceTweakerGLES::tweakForFrame(Drawable *inDraw,RendererFrameInfo *f
     if (frameInfo->sceneRenderer->getType() != SceneRenderer::RenderGLES || !frameInfo->program)
         return;
     
-    BasicDrawable *draw = (BasicDrawable *)inDraw;
+    BasicDrawable *draw = dynamic_cast<BasicDrawable *>(inDraw);
     Point2f fbSize = frameInfo->sceneRenderer->getFramebufferSize();
     ProgramGLES *programGLES = (ProgramGLES *)frameInfo->program;
     programGLES->setUniform(u_ScaleNameID, Point2f(2.f/fbSize.x(),2.f/(float)fbSize.y()));

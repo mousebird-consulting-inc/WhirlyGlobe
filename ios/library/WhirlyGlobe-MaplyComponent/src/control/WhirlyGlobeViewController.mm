@@ -38,6 +38,7 @@ using namespace WhirlyGlobe;
     _roll = 0.0;
     _pos.x = _pos.y = 0.0;
     _screenPos = {-1,-1};
+    _globeCenter = {-1000,-1000};
     
     return self;
 }
@@ -54,9 +55,14 @@ using namespace WhirlyGlobe;
     if (stateA.screenPos.x >= 0.0 && stateA.screenPos.y >= 0.0 &&
         stateB.screenPos.x >= 0.0 && stateB.screenPos.y >= 0.0)
     {
-        newState.screenPos = CGPointMake((stateB.screenPos.x - stateA.screenPos.x)*t + stateA.screenPos.x,(stateB.screenPos.y - stateA.screenPos.y)*t + stateA.screenPos.y);
+        newState.screenPos = CGPointMake((stateB.screenPos.x - stateA.screenPos.x)*t + stateA.screenPos.x,
+                                         (stateB.screenPos.y - stateA.screenPos.y)*t + stateA.screenPos.y);
     } else
         newState.screenPos = stateB.screenPos;
+    if (stateA.globeCenter.x != -1000 && stateB.globeCenter.x != -1000) {
+        newState.globeCenter = CGPointMake((stateB.globeCenter.x - stateA.globeCenter.x)*t + stateA.globeCenter.x,
+                                           (stateB.globeCenter.y - stateA.globeCenter.y)*t + stateA.globeCenter.y);
+    }
     
     return newState;
 }
@@ -68,6 +74,14 @@ using namespace WhirlyGlobe;
     WhirlyGlobeViewControllerAnimationState *startState;
     WhirlyGlobeViewControllerAnimationState *endState;
     TimeInterval startTime,endTime;
+}
+
+- (instancetype)init
+{
+    self = [super init];
+    _globeCenter = {-1000,-1000};
+    
+    return self;
 }
 
 - (instancetype)initWithState:(WhirlyGlobeViewControllerAnimationState *)inEndState
@@ -89,6 +103,7 @@ using namespace WhirlyGlobe;
         endState.tilt = _tilt;
         endState.pos = _loc;
         endState.roll = _roll;
+        endState.globeCenter = _globeCenter;
     }
     startTime = inStartTime;
     endTime = inEndTime;
@@ -116,7 +131,11 @@ using namespace WhirlyGlobe;
     pos.x = (endState.pos.x - startState.pos.x)*t + startState.pos.x;
     pos.y = (endState.pos.y - startState.pos.y)*t + startState.pos.y;
     state.pos = pos;
-    
+    if (startState.globeCenter.x != -1000 && endState.globeCenter.x != -1000) {
+        state.globeCenter = CGPointMake((endState.globeCenter.x - startState.globeCenter.x)*t + startState.globeCenter.x,
+                                           (endState.globeCenter.y - startState.globeCenter.y)*t + startState.globeCenter.y);
+    }
+
     return state;
 }
 
@@ -161,6 +180,7 @@ public:
 {
     bool isPanning,isRotating,isZooming,isAnimating,isTilting;
     WhirlyGlobeViewWrapper viewWrapper;
+    CGPoint globeCenter;
 }
 
 - (id) init
@@ -175,6 +195,7 @@ public:
     _doubleTapDragGesture = true;
     _zoomTapFactor = 2.0;
     _zoomTapAnimationDuration = 0.1;
+    globeCenter = {-1000,-1000};
     viewWrapper.control = self;
 
     return self;
@@ -231,13 +252,6 @@ public:
     globeView->addWatcher(&viewWrapper);
     
     return globeView;
-}
-
-- (Scene *) loadSetup_scene
-{
-    globeScene = new WhirlyKit::SceneGLES(globeView->coordAdapter);
-    
-    return globeScene;
 }
 
 - (MaplyBaseInteractionLayer *) loadSetup_interactionLayer
@@ -495,6 +509,30 @@ public:
 - (void)setHeight:(float)height
 {
     globeView->setHeightAboveGlobe(height);
+}
+
+- (CGPoint)globeCenter
+{
+    // If it's not set, it's just the center
+    if (globeCenter.x == -1000 || globeCenter.y == -1000) {
+        CGRect bounds = self.view.bounds;
+        CGPoint ret = {CGRectGetMidX(bounds),CGRectGetMidY(bounds)};
+        return ret;
+    }
+
+    return globeCenter;
+}
+
+- (void)setGlobeCenter:(CGPoint)newGlobeCenter
+{
+    globeCenter = newGlobeCenter;
+    
+    if (globeView && self.view.frame.size.width > 0.0 && self.view.frame.size.height > 0.0) {
+        double size = self.view.frame.size.width / 2.0;
+        double offX = (globeCenter.x - self.view.frame.size.width/2.0)/size;
+        double offY = (globeCenter.y - self.view.frame.size.height/2.0)/size;
+        globeView->setCenterOffset(offX, offY, true);
+    }
 }
 
 - (float)getZoomLimitsMin
@@ -1627,6 +1665,14 @@ public:
     globeView->setRoll(animState.roll, false);
 
     globeView->setRotQuat(finalQuat, updateWatchers);
+    
+    if (self.view.frame.size.width > 0.0 && self.view.frame.size.height > 0.0 &&
+        animState.globeCenter.x != -1000 && animState.globeCenter.y != -1000) {
+        double size = self.view.frame.size.width / 2.0;
+        double offX = (animState.globeCenter.x - self.view.frame.size.width/2.0)/size;
+        double offY = (animState.globeCenter.y - self.view.frame.size.height/2.0)/size;
+        globeView->setCenterOffset(offX, offY, true);
+    }
 }
 
 - (WhirlyGlobeViewControllerAnimationState *)getViewState
@@ -1643,6 +1689,7 @@ public:
     [self getPositionD:&pos height:&height];
     state.pos = pos;
     state.height = height;
+    state.globeCenter = [self globeCenter];
     
     return state;
 }

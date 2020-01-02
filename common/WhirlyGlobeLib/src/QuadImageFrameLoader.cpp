@@ -307,6 +307,15 @@ void QIFTileAsset::setupContents(QuadImageFrameLoader *loader,LoadedTileNewRef l
     }
 }
 
+void QIFTileAsset::setColor(QuadImageFrameLoader *loader,const RGBAColor &newColor,ChangeSet &changes)
+{
+    for (auto drawIDs : instanceDrawIDs) {
+        for (auto drawID : drawIDs) {
+            changes.push_back(new ColorChangeRequest(drawID,newColor));
+        }
+    }
+}
+
 // Cancel any outstanding fetches
 void QIFTileAsset::cancelFetches(QuadImageFrameLoader *loader,int frameToCancel,QIFBatchOps *batchOps)
 {
@@ -323,13 +332,21 @@ void QIFTileAsset::cancelFetches(QuadImageFrameLoader *loader,int frameToCancel,
 bool QIFTileAsset::frameLoaded(QuadImageFrameLoader *loader,QuadLoaderReturn *loadReturn,std::vector<Texture *> &texs,ChangeSet &changes) {
     if (frames.size() > 0 && (loadReturn->frame < 0 || loadReturn->frame >= frames.size()))
     {
+        if (!loadReturn->compObjs.empty())
+            loader->compManager->removeComponentObjects(loadReturn->compObjs, changes);
+        if (!loadReturn->ovlCompObjs.empty())
+            loader->compManager->removeComponentObjects(loadReturn->ovlCompObjs, changes);
         wkLogLevel(Warn,"QuadImageFrameLoader: Got frame back outside of range");
         return false;
     }
     
     // Check the generation.  This is how we catch old data that was in transit.
     if (loadReturn->generation < loader->getGeneration()) {
-        wkLogLevel(Debug, "QuadImageFrameLoader: Dropped an old loadReturn after a reload.");
+        if (!loadReturn->compObjs.empty())
+            loader->compManager->removeComponentObjects(loadReturn->compObjs, changes);
+        if (!loadReturn->ovlCompObjs.empty())
+            loader->compManager->removeComponentObjects(loadReturn->ovlCompObjs, changes);
+//        wkLogLevel(Debug, "QuadImageFrameLoader: Dropped an old loadReturn after a reload.");
         return true;
     }
     
@@ -598,6 +615,7 @@ QuadImageFrameLoader::QuadImageFrameLoader(const SamplingParams &params,Mode mod
     requiringTopTilesLoaded(true),
     texType(TexTypeUnsignedByte), flipY(true),
     baseDrawPriority(100), drawPriorityPerLevel(1),
+    colorChanged(false),
     color(RGBAColor(255,255,255,255)),
     control(NULL), builder(NULL),
     changesSinceLastFlush(true),
@@ -712,9 +730,18 @@ int QuadImageFrameLoader::calcLoadPriority(const QuadTreeNew::ImportantNode &ide
     return restPriority;
 }
     
-void QuadImageFrameLoader::setColor(RGBAColor &inColor)
+void QuadImageFrameLoader::setColor(RGBAColor &inColor,ChangeSet *changes)
 {
     color = inColor;
+
+    if (changes) {
+        // Have all the tiles change their base color
+        // For multi-frame tiles, they'll get a new color on the next frame as well
+        for (auto it : tiles) {
+            auto tile = it.second;
+            tile->setColor(this,color,*changes);
+        }
+    }
 }
 
 const RGBAColor &QuadImageFrameLoader::getColor()

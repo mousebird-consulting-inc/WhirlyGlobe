@@ -30,15 +30,59 @@ namespace WhirlyKit
 {
     
 BasicDrawableInstanceMTL::BasicDrawableInstanceMTL(const std::string &name)
-    : BasicDrawableInstance(name), renderState(nil), setupForMTL(false), numInst(0)
+    : BasicDrawableInstance(name), Drawable(name), renderState(nil), setupForMTL(false), numInst(0)
 {
 }
 
+// Place or update the default attribute corresponding to color
+// TODO: Make this more general
+void BasicDrawableInstanceMTL::updateColorDefaultAttr()
+{
+    BasicDrawableMTL *basicDrawMTL = dynamic_cast<BasicDrawableMTL *>(basicDraw.get());
+    if (!basicDrawMTL)
+        return;
+
+    if (hasColor) {
+        VertexAttributeMTL *colorAttrMTL = basicDrawMTL->findVertexAttribute(a_colorNameID);
+        if (colorAttrMTL) {
+            BasicDrawableMTL::AttributeDefault defAttr;
+            defAttr.dataType = MTLDataTypeUChar4;
+            defAttr.bufferIndex = colorAttrMTL->bufferIndex;
+            unsigned char chars[4];
+            color.asUChar4(chars);
+            for (unsigned int ii=0;ii<4;ii++)
+                defAttr.data.chars[ii] = chars[ii];
+            
+            // Might need to replace this one
+            bool found = false;
+            for (int ii=0;ii<defaultAttrs.size();ii++)
+                if (defaultAttrs[ii].bufferIndex == defAttr.bufferIndex) {
+                    defaultAttrs[ii] = defAttr;
+                    found = true;
+                    break;
+                }
+
+            if (!found)
+                defaultAttrs.push_back(defAttr);
+        }
+    }
+}
+
+void BasicDrawableInstanceMTL::setColor(RGBAColor inColor)
+{
+    BasicDrawableInstance::setColor(inColor);
+    
+    updateColorDefaultAttr();
+}
+
+
 void BasicDrawableInstanceMTL::setupForRenderer(const RenderSetupInfo *inSetupInfo)
 {
+    
+    
     if (setupForMTL)
         return;
-        
+
     if (instanceStyle == LocalStyle) {
         RenderSetupInfoMTL *setupInfo = (RenderSetupInfoMTL *)inSetupInfo;
 
@@ -78,22 +122,30 @@ void BasicDrawableInstanceMTL::setupForRenderer(const RenderSetupInfo *inSetupIn
             instBuffer.label = [NSString stringWithFormat:@"%s inst",name.c_str()];
         numInst = insts.size();
     }
-    
+        
     setupForMTL = true;
 }
 
-void BasicDrawableInstanceMTL::teardownForRenderer(const RenderSetupInfo *setupInfo)
+void BasicDrawableInstanceMTL::teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *inScene)
 {
+    SceneMTL *scene = (SceneMTL *)inScene;
+
     setupForMTL = false;
+    scene->releaseBuffer(instBuffer);
     instBuffer = nil;
+    renderState = nil;
+    defaultAttrs.clear();
 }
 
-void BasicDrawableInstanceMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScene)
+void BasicDrawableInstanceMTL::draw(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *inScene)
 {
-    RendererFrameInfoMTL *frameInfo = (RendererFrameInfoMTL *)inFrameInfo;
     SceneMTL *scene = (SceneMTL *)inScene;
     SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
-    BasicDrawableMTL *basicDrawMTL = (BasicDrawableMTL *)basicDraw.get();
+    BasicDrawableMTL *basicDrawMTL = dynamic_cast<BasicDrawableMTL *>(basicDraw.get());
+    if (!basicDrawMTL->setupForMTL) {
+        NSLog(@"BasicDrawableInstance pointing at a bad BasicDrawable");
+        return;
+    }
     if (!basicDrawMTL)
         return;
 
@@ -104,28 +156,29 @@ void BasicDrawableInstanceMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScen
     for (auto vertAttr : basicDrawMTL->vertexAttributes) {
         VertexAttributeMTL *vertAttrMTL = (VertexAttributeMTL *)vertAttr;
         if (vertAttrMTL->buffer)
-            [frameInfo->cmdEncode setVertexBuffer:vertAttrMTL->buffer offset:0 atIndex:vertAttrMTL->bufferIndex];
+            [cmdEncode setVertexBuffer:vertAttrMTL->buffer offset:0 atIndex:vertAttrMTL->bufferIndex];
     }
     
     // And provide defaults for the ones we don't
     // TODO: Consolidate this
     for (auto defAttr : basicDrawMTL->defaultAttrs)
-        [frameInfo->cmdEncode setVertexBytes:&defAttr.data length:sizeof(defAttr.data) atIndex:defAttr.bufferIndex];
+        [cmdEncode setVertexBytes:&defAttr.data length:sizeof(defAttr.data) atIndex:defAttr.bufferIndex];
     for (auto defAttr : defaultAttrs)
-        [frameInfo->cmdEncode setVertexBytes:&defAttr.data length:sizeof(defAttr.data) atIndex:defAttr.bufferIndex];
+        [cmdEncode setVertexBytes:&defAttr.data length:sizeof(defAttr.data) atIndex:defAttr.bufferIndex];
     
     // Wire up the model instances if we have them
     if (instanceStyle == LocalStyle) {
         if (moving)
             uniMI.time = frameInfo->currentTime - startTime;
-        [frameInfo->cmdEncode setVertexBytes:&uniMI length:sizeof(uniMI) atIndex:WKSUniformDrawStateModelInstanceBuffer];
-        [frameInfo->cmdEncode setVertexBuffer:instBuffer offset:0 atIndex:WKSModelInstanceBuffer];
+        [cmdEncode setVertexBytes:&uniMI length:sizeof(uniMI) atIndex:WKSUniformDrawStateModelInstanceBuffer];
+        [cmdEncode setVertexBuffer:instBuffer offset:0 atIndex:WKSModelInstanceBuffer];
     }
 
-    // Pass through the uniform blocks from this drawable
-    BasicDrawableMTL::encodeUniBlocks(frameInfo,uniBlocks);
+    // Pass through the uniform blocks from this drawable (and the one it references)
+    BasicDrawableMTL::encodeUniBlocks(frameInfo,basicDraw->uniBlocks,cmdEncode);
+    BasicDrawableMTL::encodeUniBlocks(frameInfo,uniBlocks,cmdEncode);
     
-    [frameInfo->cmdEncode setRenderPipelineState:renderState];
+    [cmdEncode setRenderPipelineState:renderState];
     
     // TODO: Fill this in
     float fade = 1.0;
@@ -157,7 +210,7 @@ void BasicDrawableInstanceMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScen
         texInd.offset[0] = texOffset.x();  texInd.offset[1] = texOffset.y();
         texInd.scale[0] = texScale; texInd.scale[1] = texScale;
         
-        [frameInfo->cmdEncode setVertexBytes:&texInd length:sizeof(texInd) atIndex:WKSTexIndirectStartBuffer+texIndex];
+        [cmdEncode setVertexBytes:&texInd length:sizeof(texInd) atIndex:WKSTexIndirectStartBuffer+texIndex];
         
         // And the texture itself
         // Note: Should we be setting up the sampler?
@@ -165,12 +218,12 @@ void BasicDrawableInstanceMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScen
         if (thisTexInfo && thisTexInfo->texId != EmptyIdentity)
             tex = dynamic_cast<TextureBaseMTL *>(scene->getTexture(thisTexInfo->texId));
         if (tex) {
-            [frameInfo->cmdEncode setVertexTexture:tex->getMTLID() atIndex:texIndex];
-            [frameInfo->cmdEncode setFragmentTexture:tex->getMTLID() atIndex:texIndex];
+            [cmdEncode setVertexTexture:tex->getMTLID() atIndex:texIndex];
+            [cmdEncode setFragmentTexture:tex->getMTLID() atIndex:texIndex];
             numTextures++;
         } else {
-            [frameInfo->cmdEncode setVertexTexture:nil atIndex:texIndex];
-            [frameInfo->cmdEncode setFragmentTexture:nil atIndex:texIndex];
+//            [frameInfo->cmdEncode setVertexTexture:nil atIndex:texIndex];
+//            [frameInfo->cmdEncode setFragmentTexture:nil atIndex:texIndex];
         }
     }
     
@@ -183,14 +236,14 @@ void BasicDrawableInstanceMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScen
     BasicDrawableMTL::applyUniformsToDrawState(uni, uniforms);
     // TODO: Fill in the override matrix
     bzero(&uni.singleMat,sizeof(uni.singleMat));
-    [frameInfo->cmdEncode setVertexBytes:&uni length:sizeof(uni) atIndex:WKSUniformDrawStateBuffer];
-    [frameInfo->cmdEncode setFragmentBytes:&uni length:sizeof(uni) atIndex:WKSUniformDrawStateBuffer];
+    [cmdEncode setVertexBytes:&uni length:sizeof(uni) atIndex:WKSUniformDrawStateBuffer];
+    [cmdEncode setFragmentBytes:&uni length:sizeof(uni) atIndex:WKSUniformDrawStateBuffer];
     
     // Using the basic drawable geometry with a few tweaks
     if (instanceStyle == ReuseStyle) {
         switch (basicDraw->type) {
             case Lines:
-                [frameInfo->cmdEncode drawPrimitives:MTLPrimitiveTypeLine vertexStart:0 vertexCount:basicDrawMTL->numPts];
+                [cmdEncode drawPrimitives:MTLPrimitiveTypeLine vertexStart:0 vertexCount:basicDrawMTL->numPts];
                 break;
             case Triangles:
                 if (!basicDrawMTL->triBuffer) {
@@ -199,7 +252,7 @@ void BasicDrawableInstanceMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScen
                     return;
                 }
                 // This actually draws the triangles (well, in a bit)
-                [frameInfo->cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:basicDrawMTL->numTris*3 indexType:MTLIndexTypeUInt16 indexBuffer:basicDrawMTL->triBuffer indexBufferOffset:0];
+                [cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:basicDrawMTL->numTris*3 indexType:MTLIndexTypeUInt16 indexBuffer:basicDrawMTL->triBuffer indexBufferOffset:0];
                 break;
             default:
                 break;
@@ -208,10 +261,10 @@ void BasicDrawableInstanceMTL::draw(RendererFrameInfo *inFrameInfo,Scene *inScen
         // Model instancing
         switch (basicDraw->type) {
             case Lines:
-                [frameInfo->cmdEncode drawPrimitives:MTLPrimitiveTypeLine vertexStart:0 vertexCount:basicDrawMTL->numPts instanceCount:numInst];
+                [cmdEncode drawPrimitives:MTLPrimitiveTypeLine vertexStart:0 vertexCount:basicDrawMTL->numPts instanceCount:numInst];
                 break;
             case Triangles:
-                [frameInfo->cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:basicDrawMTL->numTris*3 indexType:MTLIndexTypeUInt16 indexBuffer:basicDrawMTL->triBuffer indexBufferOffset:0 instanceCount:numInst];
+                [cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:basicDrawMTL->numTris*3 indexType:MTLIndexTypeUInt16 indexBuffer:basicDrawMTL->triBuffer indexBufferOffset:0 instanceCount:numInst];
                 break;
             default:
                 break;
@@ -231,6 +284,9 @@ id<MTLRenderPipelineState> BasicDrawableInstanceMTL::getRenderPipelineState(Scen
     renderDesc.vertexDescriptor = basicDrawMTL->getVertexDescriptor(program->vertFunc,basicDrawMTL->defaultAttrs);
     if (!name.empty())
         renderDesc.label = [NSString stringWithFormat:@"%s",name.c_str()];
+    
+    // We also need to set up our default attribute overrides
+    updateColorDefaultAttr();
 
     // Set up a render state
     NSError *err = nil;

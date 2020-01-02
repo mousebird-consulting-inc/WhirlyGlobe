@@ -25,6 +25,7 @@
 #import "VertexAttributeMTL.h"
 #import "SceneRendererMTL.h"
 #import "DefaultShadersMTL.h"
+#import "DrawableMTL.h"
 
 namespace WhirlyKit
 {
@@ -40,7 +41,7 @@ public:
     
 /** Metal Version of the BasicDrawable.
  */
-class BasicDrawableMTL : public BasicDrawable
+class BasicDrawableMTL : virtual public BasicDrawable, virtual public DrawableMTL
 {
 public:
     BasicDrawableMTL(const std::string &name);
@@ -49,11 +50,16 @@ public:
     virtual void setupForRenderer(const RenderSetupInfo *setupInfo);
     
     /// Clean up any rendering objects you may have (e.g. VBOs).
-    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo);
+    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene);
     
     /// Fill this in to draw the basic drawable
-    /// Note: Make this GL only
-    virtual void draw(RendererFrameInfo *frameInfo,Scene *scene);
+    virtual void draw(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene);
+
+    /// Some drawables have a pre-render phase that uses the GPU for calculation
+    virtual void calculate(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene) { };
+
+    /// Find the vertex attribute corresponding to the given name
+    VertexAttributeMTL *findVertexAttribute(int nameID);
     
 public:
     // Apply a list of uniforms to the draw state
@@ -61,7 +67,7 @@ public:
     static void applyUniformsToDrawState(WhirlyKitShader::UniformDrawStateA &drawState,const SingleVertexAttributeSet &uniforms);
     
     // Encode the uniform blocks into the given frame
-    static void encodeUniBlocks(RendererFrameInfoMTL *frameInfo,const std::vector<BasicDrawable::UniformBlock> &uniBlocks);
+    static void encodeUniBlocks(RendererFrameInfoMTL *frameInfo,const std::vector<BasicDrawable::UniformBlock> &uniBlocks,id<MTLRenderCommandEncoder> cmdEncode);
     
     // Defaults for vertex attributes we don't have
     typedef struct {

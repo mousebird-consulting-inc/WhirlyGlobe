@@ -66,7 +66,7 @@ public:
     virtual void setScene(Scene *newScene);
 
     /// Called right after the constructor
-    virtual bool setup(int apiVersion,int sizeX,int sizeY);
+    virtual bool setup(int apiVersion,int sizeX,int sizeY,float scale);
     
     /// Resize framebuffer because something changed
     virtual bool resize(int sizeX,int sizeY);

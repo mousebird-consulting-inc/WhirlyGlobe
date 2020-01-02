@@ -156,6 +156,11 @@ public:
                                const std::vector<SimpleIdentity> &shaderIDs,
                                ChangeSet &changes);
     
+    // Change the color immediately
+    virtual void setColor(QuadImageFrameLoader *loader,
+                          const RGBAColor &newColor,
+                          ChangeSet &changes);
+    
     // Cancel any outstanding fetches
     virtual void cancelFetches(QuadImageFrameLoader *loader,int frame,QIFBatchOps *batchOps);
     
@@ -308,7 +313,7 @@ public:
     QuadDisplayControllerNew *getController();
 
     /// Color for polygons created during loading
-    void setColor(RGBAColor &inColor);
+    void setColor(RGBAColor &inColor,ChangeSet *changes);
     const RGBAColor &getColor();
     
     /// Render target for the geometry being created
@@ -476,6 +481,7 @@ protected:
 
     int baseDrawPriority,drawPriorityPerLevel;
 
+    bool colorChanged;
     RGBAColor color;
     
     // One per focus

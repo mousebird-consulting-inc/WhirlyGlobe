@@ -59,7 +59,7 @@ const RenderSetupInfo *SceneRendererGLES::getRenderSetupInfo() const
     return &setupInfo;
 }
 
-bool SceneRendererGLES::setup(int apiVersion,int sizeX,int sizeY)
+bool SceneRendererGLES::setup(int apiVersion,int sizeX,int sizeY,float inScale)
 {
     frameCount = 0;
     framesPerSec = 0.0;
@@ -70,6 +70,7 @@ bool SceneRendererGLES::setup(int apiVersion,int sizeX,int sizeY)
     clearColor.r = 0;  clearColor.g = 0;  clearColor.b = 0;  clearColor.a = 0;
     perfInterval = -1;
     scene = NULL;
+    scale = inScale;
     theView = NULL;
     
     // All the animations should work now, except for particle systems
@@ -157,10 +158,10 @@ SceneRendererGLES::~SceneRendererGLES()
 class DrawableContainer
 {
 public:
-    DrawableContainer(Drawable *draw) : drawable(draw) { mvpMat = mvpMat.Identity(); mvMat = mvMat.Identity();  mvNormalMat = mvNormalMat.Identity(); }
-    DrawableContainer(Drawable *draw,Matrix4d mvpMat,Matrix4d mvMat,Matrix4d mvNormalMat) : drawable(draw), mvpMat(mvpMat), mvMat(mvMat), mvNormalMat(mvNormalMat) { }
+    DrawableContainer(DrawableGLES *draw) : drawable(draw) { mvpMat = mvpMat.Identity(); mvMat = mvMat.Identity();  mvNormalMat = mvNormalMat.Identity(); }
+    DrawableContainer(DrawableGLES *draw,Matrix4d mvpMat,Matrix4d mvMat,Matrix4d mvNormalMat) : drawable(draw), mvpMat(mvpMat), mvMat(mvMat), mvNormalMat(mvNormalMat) { }
     
-    Drawable *drawable;
+    DrawableGLES *drawable;
     Matrix4d mvpMat,mvMat,mvNormalMat;
 };
 
@@ -430,7 +431,7 @@ void SceneRendererGLES::render(TimeInterval duration)
             DrawableRefSet rawDrawables = scene->getDrawables();
             for (DrawableRefSet::iterator it = rawDrawables.begin(); it != rawDrawables.end(); ++it)
             {
-                Drawable *theDrawable = it->second.get();
+                DrawableGLES *theDrawable = dynamic_cast<DrawableGLES *>(it->second.get());
                 if (theDrawable->isOn(&offFrameInfo))
                 {
                     const Matrix4d *localMat = theDrawable->getMatrix();

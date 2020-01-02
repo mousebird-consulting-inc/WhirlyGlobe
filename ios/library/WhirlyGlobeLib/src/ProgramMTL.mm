@@ -80,17 +80,17 @@ bool ProgramMTL::setTexture(StringIdentity nameID,TextureBase *tex,int textureSl
 const std::string &ProgramMTL::getName()
 { return name; }
 
-void ProgramMTL::teardownForRenderer(const RenderSetupInfo *setupInfo)
+void ProgramMTL::teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene)
 {
     // Don't really need to do anything here
 }
 
-void ProgramMTL::preRender(RendererFrameInfoMTL *frameInfo,SceneMTL *scene)
+void ProgramMTL::addResources(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,SceneMTL *scene)
 {
     // Slot in the textures
     for (auto texEntry : textures) {
-        [frameInfo->cmdEncode setVertexTexture:texEntry.tex atIndex:WKSTextureEntryLookup+texEntry.slot];
-        [frameInfo->cmdEncode setFragmentTexture:texEntry.tex atIndex:WKSTextureEntryLookup+texEntry.slot];
+        [cmdEncode setVertexTexture:texEntry.tex atIndex:WKSTextureEntryLookup+texEntry.slot];
+        [cmdEncode setFragmentTexture:texEntry.tex atIndex:WKSTextureEntryLookup+texEntry.slot];
     }
 }
     

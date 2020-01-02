@@ -26,7 +26,7 @@ namespace WhirlyKit
 {
 
 // Low level drawable used to manage particle systems
-class ParticleSystemDrawable : public Drawable
+class ParticleSystemDrawable : virtual public Drawable
 {
 friend class ParticleSystemDrawableBuilder;
 public:
@@ -95,21 +95,9 @@ public:
     
     /// Set whether we're doing continuous renders (the default)
     void setContinuousUpdate(bool newVal);
-    
-    /// Create our buffers in GL
-    virtual void setupForRenderer(const RenderSetupInfo *) = 0;
-
-    /// Destroy GL buffers
-    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo) = 0;
-    
+        
     /// Set a block of uniforms (Metal only, at the moment)
     virtual void setUniBlock(const BasicDrawable::UniformBlock &uniBlock);
-
-    /// Particles can calculate their positions
-    void calculate(RendererFrameInfo *frameInfo,Scene *scene) = 0;
-
-    /// Called on the rendering thread to draw
-    void draw(RendererFrameInfo *frameInfo,Scene *scene) = 0;
     
     /// Don't need to update the renderer particularly
     void updateRenderer(SceneRenderer *renderer);

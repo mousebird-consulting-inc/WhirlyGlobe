@@ -23,6 +23,7 @@
 #import "RawData_NSData.h"
 #import <Accelerate/Accelerate.h>
 #import "WhirlyKitLog.h"
+#import "SceneMTL.h"
 
 namespace WhirlyKit
 {
@@ -217,9 +218,11 @@ bool TextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
     return mtlID != nil;
 }
 
-void TextureMTL::destroyInRenderer(const RenderSetupInfo *inSetupInfo)
+void TextureMTL::destroyInRenderer(const RenderSetupInfo *inSetupInfo,Scene *inScene)
 {
-    // Seriously?  <swoon>
+    SceneMTL *scene = (SceneMTL *)inScene;
+
+    scene->releaseBuffer(mtlID);
     mtlID = nil;
 }
     

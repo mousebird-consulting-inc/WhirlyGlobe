@@ -65,4 +65,11 @@
                              loadInterp:(NSObject<MaplyLoaderInterpreter> *__nullable)loadInterp
                                   viewC:(MaplyBaseViewController * __nonnull)viewC;
 
+/**
+  Force a reload of the data.
+  <br>
+  All the current loads will be cancelled, any in flight will be ignored and the loader will ask for a whole new set of data.
+  */
+- (void)reload;
+
 @end

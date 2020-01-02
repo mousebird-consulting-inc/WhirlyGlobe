@@ -43,6 +43,7 @@ QuadDisplayControllerNew::QuadDisplayControllerNew(QuadDataStructure *dataStruct
     viewUpdatePeriod = 0.1;
     singleLevel = false;
     keepMinLevel = true;
+    keepMinLevelHeight = 0.0;
     scene = renderer->getScene();
 }
     
@@ -100,14 +101,10 @@ void QuadDisplayControllerNew::setSingleLevel(bool newSingleLevel)
     singleLevel = newSingleLevel;
 }
     
-bool QuadDisplayControllerNew::getKeepMinLevel()
-{
-    return keepMinLevel;
-}
-
-void QuadDisplayControllerNew::setKeepMinLevel(bool newVal)
+void QuadDisplayControllerNew::setKeepMinLevel(bool newVal,double height)
 {
     keepMinLevel = newVal;
+    keepMinLevelHeight = height;
 }
 
 std::vector<int> QuadDisplayControllerNew::getLevelLoads()
@@ -167,11 +164,20 @@ bool QuadDisplayControllerNew::viewUpdate(ViewStateRef inViewState,ChangeSet &ch
     viewState = inViewState;
     dataStructure->newViewState(viewState);
     
+    // We may want to force the min level in, always
+    // Or we may vary that by height
+    bool localKeepMinLevel = keepMinLevel;
+    if (keepMinLevelHeight != 0.0 && localKeepMinLevel) {
+        WhirlyGlobe::GlobeViewStateRef globeViewState = std::dynamic_pointer_cast<WhirlyGlobe::GlobeViewState>(inViewState);
+        if (globeViewState)
+            localKeepMinLevel = globeViewState->heightAboveGlobe > keepMinLevelHeight;
+    }
+    
     // Nodes to load are different for single level vs regular loading
     QuadTreeNew::ImportantNodeSet newNodes;
     int targetLevel = -1;
     if (singleLevel) {
-        std::tie(targetLevel,newNodes) = calcCoverageVisible(minImportancePerLevel, maxTiles, levelLoads, keepMinLevel);
+        std::tie(targetLevel,newNodes) = calcCoverageVisible(minImportancePerLevel, maxTiles, levelLoads, localKeepMinLevel);
     } else {
         newNodes = calcCoverageImportance(minImportancePerLevel,maxTiles,true);
         // Just take the highest level as target

@@ -197,7 +197,7 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
     /// Pass in the content scaling (not 1.0 if we're on retina)
-    SelectionManager(Scene *scene,float viewScale);
+    SelectionManager(Scene *scene);
     ~SelectionManager();
     
     /// When we're selecting multiple objects we'll return a list of these
@@ -300,7 +300,6 @@ protected:
 
     std::mutex mutex;
     Scene *scene;
-    float scale;
     /// The selectable objects themselves
     WhirlyKit::RectSelectable3DSet rect3Dselectables;
     WhirlyKit::RectSelectable2DSet rect2Dselectables;

@@ -43,6 +43,15 @@ using namespace WhirlyKit;
     return self;
 }
 
+// Apparently they change this.  Because of course they can
+- (void)setContentScaleFactor:(CGFloat)contentScaleFactor
+{
+    super.contentScaleFactor = contentScaleFactor;
+    
+    if (_renderer)
+        _renderer->setScale(contentScaleFactor);
+}
+
 - (void)setRenderer:(WhirlyKit::SceneRenderer *)renderer
 {
     SceneRendererMTL *renderMTL = dynamic_cast<SceneRendererMTL *>(renderer);
@@ -50,7 +59,8 @@ using namespace WhirlyKit;
         return;
 
     _renderer = renderer;
-    
+    _renderer->setScale(self.contentScaleFactor);
+
     renderMTL->setup(self.frame.size.width, self.frame.size.height,false);
 }
 

@@ -23,7 +23,7 @@
 
 namespace WhirlyKit {
     
-SceneRendererGLES_iOS::SceneRendererGLES_iOS()
+SceneRendererGLES_iOS::SceneRendererGLES_iOS(float scale)
     : layer(nil), context(nil)
 {
     int version = kEAGLRenderingAPIOpenGLES3;
@@ -37,12 +37,12 @@ SceneRendererGLES_iOS::SceneRendererGLES_iOS()
     EAGLContext *oldContext = [EAGLContext currentContext];
     useContext();
     
-    setup(version,0,0);
+    setup(version,0,0,scale);
     
     [EAGLContext setCurrentContext:oldContext];
 }
     
-SceneRendererGLES_iOS::SceneRendererGLES_iOS(int width,int height)
+SceneRendererGLES_iOS::SceneRendererGLES_iOS(int width,int height,float scale)
 {
     int version = kEAGLRenderingAPIOpenGLES3;
     
@@ -55,7 +55,7 @@ SceneRendererGLES_iOS::SceneRendererGLES_iOS(int width,int height)
     EAGLContext *oldContext = [EAGLContext currentContext];
     useContext();
     
-    setup(version,width,height);
+    setup(version,width,height,scale);
     
     [EAGLContext setCurrentContext:oldContext];
 }

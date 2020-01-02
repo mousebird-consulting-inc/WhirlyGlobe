@@ -40,7 +40,7 @@ typedef enum {Points,Lines,Triangles} GeometryType;
     The get calls are used by the renderer for state to be set up
     outside this drawable.
  */
-class BasicDrawable : public Drawable
+class BasicDrawable : virtual public Drawable
 {
 friend class BasicDrawableInstance;
 friend class BasicDrawableInstanceBuilder;
@@ -179,16 +179,10 @@ public:
         
     /// If present, we'll do a pre-render calculation pass with this program set
     virtual SimpleIdentity getCalculationProgram() const;
-    
-    /// Some drawables have a pre-render phase that uses the GPU for calculation
-    virtual void calculate(RendererFrameInfo *frameInfo,Scene *scene);
-    
+        
     /// For OpenGLES2, this is the program to use to render this drawable.
     virtual SimpleIdentity getProgram() const;
     void setProgram(SimpleIdentity progId);
-
-    /// Set up what you need in the way of context and draw.
-    virtual void draw(RendererFrameInfo *frameInfo,Scene *scene) = 0;
     
 public:
     GeometryType type;

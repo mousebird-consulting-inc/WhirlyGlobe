@@ -54,8 +54,6 @@ public:
     RendererFrameInfoMTL();
     RendererFrameInfoMTL(const RendererFrameInfoMTL &that);
 
-    // Command encoder for just this frame
-    id<MTLRenderCommandEncoder> cmdEncode;
     // Render pass descriptor from the view
     MTLRenderPassDescriptor *renderPassDesc;
     // Current render target
@@ -80,7 +78,7 @@ void CopyIntoMtlFloat4(simd::float4 &dest,const float vals[4]);
 class SceneRendererMTL : public SceneRenderer
 {
 public:
-    SceneRendererMTL(id<MTLDevice> mtlDevice);
+    SceneRendererMTL(id<MTLDevice> mtlDevice,float scale);
     virtual ~SceneRendererMTL();
     
     // Metal (obviously)
@@ -138,7 +136,7 @@ public:
     virtual DynamicTextureRef makeDynamicTexture(const std::string &name) const;
     
     /// Set up the buffer for general uniforms and attach it to its vertex/fragment buffers
-    void setupUniformBuffer(RendererFrameInfoMTL *frameInfo,CoordSystemDisplayAdapter *coordAdapter);
+    void setupUniformBuffer(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,CoordSystemDisplayAdapter *coordAdapter);
 
     /// Set the lights and tie them to a vertex buffer index
     void setupLightBuffer(SceneMTL *scene,id<MTLRenderCommandEncoder> cmdEncode);

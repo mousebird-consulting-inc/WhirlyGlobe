@@ -30,13 +30,14 @@
 #import "SceneGLES.h"
 #import "SceneRendererGLES.h"
 #import "VertexAttributeGLES.h"
+#import "DrawableGLES.h"
 
 namespace WhirlyKit
 {
     
 /** OpenGL Version of the BasicDrawable.
   */
-class BasicDrawableGLES : public BasicDrawable
+class BasicDrawableGLES : virtual public BasicDrawable, virtual public DrawableGLES
 {
 public:
     BasicDrawableGLES(const std::string &name);
@@ -45,13 +46,16 @@ public:
     virtual void setupForRenderer(const RenderSetupInfo *setupInfo);
     
     /// Clean up any rendering objects you may have (e.g. VBOs).
-    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo);
+    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene);
+    
+    /// Some drawables have a pre-render phase that uses the GPU for calculation
+    virtual void calculate(RendererFrameInfoGLES *frameInfo,Scene *scene) { };
     
     /// Called render-thread side to set up a VAO
     virtual GLuint setupVAO(ProgramGLES *prog);
     
     /// Fill this in to draw the basic drawable
-    virtual void draw(RendererFrameInfo *frameInfo,Scene *scene);
+    virtual void draw(RendererFrameInfoGLES *frameInfo,Scene *scene);
     
     /// Check if this has been set up and (more importantly) hasn't been torn down
     virtual bool isSetupInGL();
