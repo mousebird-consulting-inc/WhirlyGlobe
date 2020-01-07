@@ -117,6 +117,7 @@ public:
 
 @implementation MapboxVectorLayerSymbol
 {
+    NSString *uuidField;
 }
 
 - (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
@@ -139,6 +140,8 @@ public:
         NSLog(@"Expecting paint in symbol layer.");
         return nil;
     }
+    
+    uuidField = styleSet.tileStyleSettings.uuidField;
         
     return self;
 }
@@ -305,7 +308,9 @@ public:
             NSLog(@"Failed to find text for label");
             continue;
         }
-        if (_uniqueLabel)
+        if (uuidField) {
+            label.uniqueID  = [vecObj.attributes objectForKey:uuidField];
+        } else if (_uniqueLabel)
             label.uniqueID = [label.text lowercaseString];
 
         // The rank is most important, followed by the zoom level.  This keeps the countries on top.

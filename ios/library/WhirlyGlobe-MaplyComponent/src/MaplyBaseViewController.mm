@@ -1145,6 +1145,20 @@ static const float PerfOutputDelay = 15.0;
         layoutManager->setMaxDisplayObjects(maxLayoutObjects);
 }
 
+- (void)setLayoutOverrideIDs:(NSArray *)uuids
+{
+    std::set<std::string> uuidSet;
+    for (NSString *uuid in uuids) {
+        std::string uuidStr = [uuid cStringUsingEncoding:NSASCIIStringEncoding];
+        if (!uuidStr.empty())
+            uuidSet.insert(uuidStr);
+    }
+    
+    LayoutManager *layoutManager = (LayoutManager *)renderControl->scene->getManager(kWKLayoutManager);
+    if (layoutManager)
+        layoutManager->setOverrideUUIDs(uuidSet);
+}
+
 - (void)runLayout
 {
     [layoutLayer scheduleUpdateNow];
