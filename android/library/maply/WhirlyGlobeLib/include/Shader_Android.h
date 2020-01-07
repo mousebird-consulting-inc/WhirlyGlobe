@@ -44,5 +44,8 @@ public:
     std::vector<std::string> varyings;
 };
 
+// TODO: Switch to storing Shader_AndroidRef
+//       We have some dispose related problems
+
 
 }

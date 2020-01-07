@@ -45,14 +45,14 @@ class CartoTestCase : MaplyTestCase {
 
     fun setupCartoLayer(vc: BaseController) {
         val params = SamplingParams()
-        params.minZoom = 15
+        params.minZoom = 0
         params.maxZoom = 15
         params.minImportance = 1024.0*1024.0
         params.singleLevel = true
         params.coordSystem = SphericalMercatorCoordSystem()
 
         val interp = CartoInterp("SELECT the_geom,address,ownername,numfloors FROM mn_mappluto_13v1 WHERE the_geom && ST_SetSRID(ST_MakeBox2D(ST_Point(%f, %f), ST_Point(%f, %f)), 4326) LIMIT 2000;")
-        interp.minZoom = params.minZoom
+        interp.minZoom = params.maxZoom
         interp.maxZoom = params.maxZoom
 
         loader = QuadPagingLoader(params,interp,interp,vc)
@@ -110,7 +110,7 @@ class CartoTestCase : MaplyTestCase {
         }
 
         // Generate the fetch request for the chunk of data we want
-        override fun fetchInfoForTile(tileID: TileID?, flipY: Boolean): Any {
+        override fun fetchInfoForTile(tileID: TileID?, flipY: Boolean): Any? {
             val bbox = theLoader?.geoBoundsForTile(tileID)
 
             // Construct the query string
