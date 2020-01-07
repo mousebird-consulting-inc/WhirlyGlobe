@@ -49,6 +49,7 @@ public:
 
         jobject typefaceObj;
     };
+    typedef std::shared_ptr<FontManager_Android> FontManager_AndroidRef;
 
     /// Add the given string.  Caller is responsible for deleting
     ///  the DrawableString
@@ -58,7 +59,7 @@ protected:
     JNIEnv *savedEnv;
 
     // Find the appropriate font manager
-    FontManager_Android *findFontManagerForFont(jobject typefaceObj,const LabelInfo &labelInfo);
+    FontManager_AndroidRef findFontManagerForFont(jobject typefaceObj,const LabelInfo &labelInfo);
 
     // Render the glyph with the given font manager
 //    RawDataRef renderGlyph(WKGlyph glyph,FontManageriOS *fm,Point2f &size,Point2f &glyphSize,Point2f &offset,Point2f &textureOffset);

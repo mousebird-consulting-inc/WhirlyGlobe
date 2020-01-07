@@ -26,7 +26,7 @@ namespace WhirlyKit
 {
 
 /// OpenGL variant of BasicDrawableInstance
-class BasicDrawableInstanceGLES : virtual public BasicDrawableInstance
+class BasicDrawableInstanceGLES : virtual public BasicDrawableInstance, virtual public DrawableGLES
 {
 friend class BasicDrawableInstanceBuilderGLES;
 public:
@@ -38,8 +38,11 @@ public:
     /// Clean up any rendering objects you may have (e.g. VBOs).
     virtual void teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene);
     
-    /// Fill this in to draw the basic drawable
-    virtual void draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene);
+    /// Some drawables have a pre-render phase that uses the GPU for calculation
+    virtual void calculate(RendererFrameInfoGLES *frameInfo,Scene *scene);
+
+    /// Set up what you need in the way of context and draw.
+    virtual void draw(RendererFrameInfoGLES *frameInfo,Scene *scene);
 
 protected:
     GLuint setupVAO(RendererFrameInfoGLES *frameInfo);

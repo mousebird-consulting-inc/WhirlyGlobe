@@ -194,13 +194,15 @@ void BasicDrawableInstanceGLES::teardownForRenderer(const RenderSetupInfo *inSet
     }
 }
 
+void BasicDrawableInstanceGLES::calculate(RendererFrameInfoGLES *frameInfo,Scene *scene)
+{
+}
 
 // Used to pass in buffer offsets
 #define CALCBUFOFF(base,off) ((char *)((long)(base) + (off)))
 
-void BasicDrawableInstanceGLES::draw(RendererFrameInfo *inFrameInfo,Scene *inScene)
+void BasicDrawableInstanceGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inScene)
 {
-    RendererFrameInfoGLES *frameInfo = (RendererFrameInfoGLES *)inFrameInfo;
     BasicDrawableGLES *basicDrawGL = dynamic_cast<BasicDrawableGLES *>(basicDraw.get());
     SceneGLES *scene = (SceneGLES *)inScene;
     

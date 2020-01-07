@@ -30,6 +30,7 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/CoordSystem.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/Dictionary.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/Drawable.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/DrawableGLES.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/DynamicTextureAtlas.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/DynamicTextureAtlasGLES.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/FlatMath.cpp"

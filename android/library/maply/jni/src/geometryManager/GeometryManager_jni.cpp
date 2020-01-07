@@ -143,7 +143,9 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addBaseGeometry
                 geoms.push_back(geomRaw);
         }
 
-        return geomManager->addBaseGeometry(geoms,*changeSet);
+        // TODO: Pass in the geomInfo
+        GeometryInfo geomInfo;
+        return geomManager->addBaseGeometry(geoms,geomInfo,*changeSet);
     }
     catch (...)
     {

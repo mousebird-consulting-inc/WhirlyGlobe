@@ -428,10 +428,10 @@ void SceneRendererGLES::render(TimeInterval duration)
             offFrameInfo.pvMat = pvMat4f;
             offFrameInfo.pvMat4d = pvMat;
             
-            DrawableRefSet rawDrawables = scene->getDrawables();
-            for (DrawableRefSet::iterator it = rawDrawables.begin(); it != rawDrawables.end(); ++it)
+            const DrawableRefSet &rawDrawables = scene->getDrawables();
+            for (auto it : rawDrawables)
             {
-                DrawableGLES *theDrawable = dynamic_cast<DrawableGLES *>(it->second.get());
+                DrawableGLESRef theDrawable = std::dynamic_pointer_cast<DrawableGLES>(it.second);
                 if (theDrawable->isOn(&offFrameInfo))
                 {
                     const Matrix4d *localMat = theDrawable->getMatrix();
@@ -440,9 +440,9 @@ void SceneRendererGLES::render(TimeInterval duration)
                         Eigen::Matrix4d newMvpMat = thisMvpMat * (*localMat);
                         Eigen::Matrix4d newMvMat = modelAndViewMat4d * (*localMat);
                         Eigen::Matrix4d newMvNormalMat = newMvMat.inverse().transpose();
-                        drawList.push_back(DrawableContainer(theDrawable,newMvpMat,newMvMat,newMvNormalMat));
+                        drawList.push_back(DrawableContainer(theDrawable.get(),newMvpMat,newMvMat,newMvNormalMat));
                     } else
-                        drawList.push_back(DrawableContainer(theDrawable,thisMvpMat,modelAndViewMat4d,modelAndViewNormalMat4d));
+                        drawList.push_back(DrawableContainer(theDrawable.get(),thisMvpMat,modelAndViewMat4d,modelAndViewNormalMat4d));
                 }
             }
         }

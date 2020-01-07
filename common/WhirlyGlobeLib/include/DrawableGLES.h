@@ -40,5 +40,6 @@ public:
     /// Set up what you need in the way of context and draw.
     virtual void draw(RendererFrameInfoGLES *frameInfo,Scene *scene) = 0;
 };
+typedef std::shared_ptr<DrawableGLES> DrawableGLESRef;
 
 }

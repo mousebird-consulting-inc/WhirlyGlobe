@@ -74,10 +74,6 @@ FontTextureManager_Android::FontTextureManager_Android(JNIEnv *env,SceneRenderer
 
 FontTextureManager_Android::~FontTextureManager_Android()
 {
-    for (FontManagerSet::iterator it = fontManagers.begin();
-         it != fontManagers.end(); ++it)
-        delete *it;
-    fontManagers.clear();
 }
 
 DrawableString *FontTextureManager_Android::addString(JNIEnv *env,const std::vector<int> &codePoints,jobject labelInfoObj,ChangeSet &changes)
@@ -95,7 +91,7 @@ DrawableString *FontTextureManager_Android::addString(JNIEnv *env,const std::vec
     DrawStringRep *drawStringRep = new DrawStringRep(drawString->getId());
 
     // Look for the font manager that manages the typeface/attribute combo we need
-    FontManager_Android *fm = findFontManagerForFont(labelInfo->typefaceObj,*labelInfo);
+    FontManager_AndroidRef fm = findFontManagerForFont(labelInfo->typefaceObj,*labelInfo);
 
 	JavaIntegerClassInfo *intClassInfo = JavaIntegerClassInfo::getClassInfo(env);
 
@@ -201,14 +197,13 @@ DrawableString *FontTextureManager_Android::addString(JNIEnv *env,const std::vec
     return drawString;
 }
 
-FontTextureManager_Android::FontManager_Android *FontTextureManager_Android::findFontManagerForFont(jobject typefaceObj,const LabelInfo &inLabelInfo)
+FontTextureManager_Android::FontManager_AndroidRef FontTextureManager_Android::findFontManagerForFont(jobject typefaceObj,const LabelInfo &inLabelInfo)
 {
 	const LabelInfoAndroid &labelInfo = (LabelInfoAndroid &)inLabelInfo;
 
-	for (FontManagerSet::iterator it = fontManagers.begin();
-			it != fontManagers.end(); ++it)
+	for (auto it : fontManagers)
 	{
-		FontManager_Android *fm = (FontManager_Android *)*it;
+		FontManager_AndroidRef fm = std::dynamic_pointer_cast<FontManager_Android>(it.second);
 
 		if (labelInfo.typefaceIsSame(fm->typefaceObj) &&
                 fm->pointSize == labelInfo.fontSize &&
@@ -219,13 +214,13 @@ FontTextureManager_Android::FontManager_Android *FontTextureManager_Android::fin
 	}
 
 	// Didn't find it, so create it
-	FontManager_Android *fm = new FontManager_Android(labelInfo.env,typefaceObj);
+	FontManager_AndroidRef fm(new FontManager_Android(labelInfo.env,typefaceObj));
 	fm->fontName = "";
 	fm->color = labelInfo.textColor;
 	fm->pointSize = labelInfo.fontSize;
 	fm->outlineColor = labelInfo.outlineColor;
 	fm->outlineSize = labelInfo.outlineSize;
-	fontManagers.insert(fm);
+	fontManagers[fm->getId()] = fm;
 
 	return fm;
 }

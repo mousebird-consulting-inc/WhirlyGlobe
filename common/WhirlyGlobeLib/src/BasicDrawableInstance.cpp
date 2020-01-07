@@ -152,10 +152,6 @@ SimpleIdentity BasicDrawableInstance::getCalculationProgram() const
     return EmptyIdentity;
 }
     
-void BasicDrawableInstance::calculate(RendererFrameInfo *frameInfo,Scene *scene)
-{
-}
-    
 void BasicDrawableInstance::setEnable(bool newEnable)
 {
     enable = newEnable;
