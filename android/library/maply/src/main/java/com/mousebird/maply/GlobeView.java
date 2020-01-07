@@ -133,6 +133,7 @@ public class GlobeView extends View
 		z = Math.max(minHeightAboveSurface(), z);
 		
 	    Quaternion newRot = makeRotationToGeoCoord(loc.getX(),loc.getY(),northUp);
+		newRot = newRot.normalized();
 	    setRotQuatNative(newRot);
 	    setHeight(z);
 		
@@ -193,6 +194,7 @@ public class GlobeView extends View
 
         AngleAxis rot = new AngleAxis(heading,localPt);
         Quaternion newRotQuat = posQuat.multiply(rot);
+		newRotQuat = newRotQuat.normalized();
 
         setRotQuat(newRotQuat);
     }

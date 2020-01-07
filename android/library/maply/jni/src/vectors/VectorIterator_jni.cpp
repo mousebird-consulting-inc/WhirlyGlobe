@@ -117,7 +117,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorIterator_next
 
 		if (vecIter->it == vecIter->vecObj->shapes.end())
 			return NULL;
-		VectorObject *vec = new VectorObject();
+		VectorObjectRef vec(new VectorObject());
 		vec->shapes.insert(*(vecIter->it));
 		jobject retObj = MakeVectorObject(env,vec);
 		vecIter->it++;

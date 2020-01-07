@@ -205,7 +205,10 @@ jobject MakeMatrix3d(JNIEnv *env,const Eigen::Matrix3d &mat)
 {
     // Make a Java Matrix3d
     Matrix3dClassInfo *classInfo = Matrix3dClassInfo::getClassInfo(env,"com/mousebird/maply/Matrix3d");
-    Matrix3d *newMat = new Matrix3d(mat);
-    return classInfo->makeWrapperObject(env,newMat);
+    jobject newObj = classInfo->makeWrapperObject(env,NULL);
+    Eigen::Matrix3d *inst = classInfo->getObject(env,newObj);
+    *inst = mat;
+
+    return newObj;
 }
 

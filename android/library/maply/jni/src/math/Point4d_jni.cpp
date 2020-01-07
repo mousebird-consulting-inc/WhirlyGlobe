@@ -37,8 +37,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Point4d_nativeInit
 JNIEXPORT jobject JNICALL MakePoint4d(JNIEnv *env,const Point4d &pt)
 {
 	Point4dClassInfo *classInfo = Point4dClassInfo::getClassInfo(env,"com/mousebird/maply/Point4d");
-	Point4d *newPt = new Point4d(pt);
-	return classInfo->makeWrapperObject(env,newPt);
+	jobject newObj = classInfo->makeWrapperObject(env,NULL);
+	Point4d *inst = classInfo->getObject(env,newObj);
+	*inst = pt;
+
+	return newObj;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Point4d_initialise

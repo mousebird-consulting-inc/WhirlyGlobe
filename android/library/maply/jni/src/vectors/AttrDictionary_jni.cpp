@@ -38,7 +38,9 @@ JNIEXPORT jobject JNICALL MakeAttrDictionary(JNIEnv *env,MutableDictionary_Andro
 {
 	AttrDictClassInfo *classInfo = AttrDictClassInfo::getClassInfo(env,"com/mousebird/maply/AttrDictionary");
 
-	jobject dictObj = classInfo->makeWrapperObject(env,new MutableDictionary_AndroidRef(dict));
+	jobject dictObj = classInfo->makeWrapperObject(env,NULL);
+    MutableDictionary_AndroidRef *inst = classInfo->getObject(env,dictObj);
+    *(inst->get()) = *(dict.get());
 
 	return dictObj;
 }

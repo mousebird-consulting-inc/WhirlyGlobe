@@ -55,14 +55,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_AngleAxis_dispose
 	try
 	{
 		AngleAxisClassInfo *classInfo = AngleAxisClassInfo::getClassInfo();
-        
-        {
-            std::lock_guard<std::mutex> lock(disposeMutex);
-            AngleAxisd *inst = classInfo->getObject(env,obj);
-            if (!inst)
-                return;
-            delete inst;
-        }
+		std::lock_guard<std::mutex> lock(disposeMutex);
+		AngleAxisd *inst = classInfo->getObject(env,obj);
+		if (!inst)
+			return;
+		delete inst;
 
 		classInfo->clearHandle(env,obj);
 	}

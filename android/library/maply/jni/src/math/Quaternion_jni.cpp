@@ -37,8 +37,11 @@ jobject MakeQuaternion(JNIEnv *env,const Eigen::Quaterniond &quat)
 {
 	// Make a Java Quaternion
 	QuaternionClassInfo *classInfo = QuaternionClassInfo::getClassInfo(env,"com/mousebird/maply/Quaternion");
-	Quaterniond *newQuat = new Quaterniond(quat);
-	return classInfo->makeWrapperObject(env,newQuat);
+	jobject newObj = classInfo->makeWrapperObject(env,NULL);
+	Eigen::Quaterniond *inst = classInfo->getObject(env,newObj);
+	*inst = quat;
+
+	return newObj;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Quaternion_initialise__

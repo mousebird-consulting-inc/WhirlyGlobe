@@ -35,9 +35,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SelectedObject_nativeInit
 JNIEXPORT jobject JNICALL MakeSelectedObject(JNIEnv *env,const WhirlyKit::SelectionManager::SelectedObject &selObj)
 {
     SelectedObjectClassInfo *classInfo = SelectedObjectClassInfo::getClassInfo(env,"com/mousebird/maply/SelectedObject");
-    SelectionManager::SelectedObject *newObj = new SelectionManager::SelectedObject();
-    *newObj = selObj;
-    return classInfo->makeWrapperObject(env,newObj);
+    jobject newObj = classInfo->makeWrapperObject(env,NULL);
+    WhirlyKit::SelectionManager::SelectedObject *inst = classInfo->getObject(env,newObj);
+    *inst = selObj;
+
+    return newObj;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_SelectedObject_initialise

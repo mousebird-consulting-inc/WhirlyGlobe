@@ -36,8 +36,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Point2d_nativeInit
 JNIEXPORT jobject JNICALL MakePoint2d(JNIEnv *env,const WhirlyKit::Point2d &pt)
 {
 	Point2dClassInfo *classInfo = Point2dClassInfo::getClassInfo(env,"com/mousebird/maply/Point2d");
-	Point2d *newPt = new Point2d(pt);
-	return classInfo->makeWrapperObject(env,newPt);
+	jobject newObj = classInfo->makeWrapperObject(env,NULL);
+	WhirlyKit::Point2d *inst = classInfo->getObject(env,newObj);
+	*inst = pt;
+
+	return newObj;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Point2d_initialise

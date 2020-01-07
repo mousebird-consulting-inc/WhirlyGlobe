@@ -37,8 +37,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Point3d_nativeInit
 JNIEXPORT jobject JNICALL MakePoint3d(JNIEnv *env,const Point3d &pt)
 {
 	Point3dClassInfo *classInfo = Point3dClassInfo::getClassInfo(env,"com/mousebird/maply/Point3d");
-	Point3d *newPt = new Point3d(pt);
-	return classInfo->makeWrapperObject(env,newPt);
+	jobject newObj = classInfo->makeWrapperObject(env,NULL);
+	Point3d *inst = classInfo->getObject(env,newObj);
+	*inst = pt;
+
+	return newObj;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Point3d_initialise

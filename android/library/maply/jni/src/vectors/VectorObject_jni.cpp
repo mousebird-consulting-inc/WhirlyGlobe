@@ -33,12 +33,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_nativeInit
 	VectorObjectClassInfo::getClassInfo(env,cls);
 }
 
-JNIEXPORT jobject JNICALL MakeVectorObject(JNIEnv *env,VectorObject *vec)
-{
-	VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo(env,"com/mousebird/maply/VectorObject");
-	return classInfo->makeWrapperObject(env,new VectorObjectRef(vec));
-}
-
 JNIEXPORT jobject JNICALL MakeVectorObject(JNIEnv *env,VectorObjectRef vec)
 {
     VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo(env,"com/mousebird/maply/VectorObject");
@@ -921,7 +915,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorObject_FromGeoJSONAssem
 					it != vecData.end(); ++it)
 			{
 				jstring key = env->NewStringUTF(it->first.c_str());
-				jobject vecObj = MakeVectorObject(env,it->second);
+				jobject vecObj = MakeVectorObject(env,VectorObjectRef(it->second));
 				hashMapClassInfo->addObject(env, hashMap, key, vecObj);
 			}
 
