@@ -56,6 +56,9 @@ public class VectorTileMarkerStyle extends VectorTileStyle {
                 marker.loc = centroid;
                 marker.size = new Point2d(32, 32);
                 marker.selectable = true;
+
+                setAttributes(marker, vector);
+
                 markers.add(marker);
             }
         }
@@ -67,4 +70,11 @@ public class VectorTileMarkerStyle extends VectorTileStyle {
         return null;
     }
 
+    private void setAttributes(ScreenMarker marker, VectorObject vectorObject) {
+        AttrDictionary attributes = vectorObject.getAttributes();
+        AttrDictionary markerAttributes = new AttrDictionary();
+
+        markerAttributes.addEntries(attributes);
+        marker.userObject = markerAttributes;
+    }
 }
