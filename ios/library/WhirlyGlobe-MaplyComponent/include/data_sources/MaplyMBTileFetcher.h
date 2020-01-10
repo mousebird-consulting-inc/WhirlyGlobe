@@ -38,4 +38,7 @@
 // Coordinate system (probably Spherical Mercator)
 - (MaplyCoordinateSystem * __nonnull)coordSys;
 
+/// Format directly from the metadata
+@property (nonatomic,nullable) NSString *format;
+
 @end
