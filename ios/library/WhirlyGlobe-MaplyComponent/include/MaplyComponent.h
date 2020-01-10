@@ -81,6 +81,7 @@
 #import "vector_styles/MapboxVectorStyleRaster.h"
 #import "vector_styles/MapboxVectorStyleSet.h"
 #import "vector_styles/MapboxVectorStyleSymbol.h"
+#import "vector_styles/MapboxVectorStyleCircle.h"
 #import "vector_styles/MapnikStyle.h"
 #import "vector_styles/MapnikStyleRule.h"
 #import "vector_styles/MapnikStyleSet.h"
