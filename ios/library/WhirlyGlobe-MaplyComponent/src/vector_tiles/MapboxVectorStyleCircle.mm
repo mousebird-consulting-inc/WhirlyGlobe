@@ -47,6 +47,7 @@
     MaplyTexture *circleTex;
     CGSize circleSize;
     float importance;
+    NSString *uuidField;
 }
 
 - (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
@@ -92,8 +93,10 @@
     circleTex = [viewC addTexture:image desc:nil mode:MaplyThreadCurrent];
     
     // Larger circles are slightly more important
-    importance = styleSet.tileStyleSettings.markerImportance + radius / 100000.0;
-    
+    importance = drawPriority/1000 + styleSet.tileStyleSettings.markerImportance + radius / 100000.0;
+
+    uuidField = styleSet.tileStyleSettings.uuidField;
+
     return self;
 }
 
@@ -107,10 +110,13 @@
     
     for (MaplyVectorObject *vecObj in vecObjs) {
         MaplyScreenMarker *marker = [[MaplyScreenMarker alloc] init];
+        if (uuidField) {
+            marker.uniqueID = [vecObj.attributes objectForKey:uuidField];
+        }
         marker.image = circleTex;
         marker.size = circleSize;
         marker.loc = [vecObj center];
-        marker.layoutImportance = importance;
+        marker.layoutImportance = importance + (101-tileData.tileID.level)/100.0;
         marker.selectable = self.selectable;
         marker.userObject = vecObj;
         [markers addObject:marker];

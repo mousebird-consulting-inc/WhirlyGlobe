@@ -89,6 +89,13 @@ void LayoutManager::setMaxDisplayObjects(int numObjects)
 
     maxDisplayObjects = numObjects;
 }
+
+void LayoutManager::setOverrideUUIDs(const std::set<std::string> &uuids)
+{
+    std::lock_guard<std::mutex> guardLock(layoutLock);
+
+    overrideUUIDs = uuids;
+}
     
 void LayoutManager::addLayoutObjects(const std::vector<LayoutObject> &newObjects)
 {
@@ -308,9 +315,10 @@ Matrix2d LayoutManager::calcScreenRot(float &screenRot,ViewStateRef viewState,Wh
 class LayoutObjectContainer
 {
 public:
-    LayoutObjectContainer() { }
+    LayoutObjectContainer() : importance(-1.0) { }
     LayoutObjectContainer(LayoutObjectEntry *entry) {
         objs.push_back(entry);
+        importance = objs[0]->obj.importance;
     }
     
     // Objects that share the same unique ID
@@ -319,8 +327,10 @@ public:
     bool operator < (const LayoutObjectContainer &that) const {
         if (objs.empty())  // Never happen
             return false;
-        return objs[0]->obj.importance > that.objs[0]->obj.importance;
+        return importance > that.importance;
     }
+    
+    float importance;
 };
 typedef std::vector<LayoutObjectContainer> LayoutContainerVec;
     
@@ -409,6 +419,10 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
                             LayoutObjectContainer dest;
                             if (it != uniqueLayoutObjs.end())
                                 dest = it->second;
+                            // See if we're overriding this importance
+                            dest.importance = layoutObj->obj.importance;
+                            if (!layoutObj->obj.uniqueID.empty() && overrideUUIDs.find(layoutObj->obj.uniqueID) != overrideUUIDs.end())
+                                dest.importance = MAXFLOAT;
                             dest.objs.push_back(layoutObj);
                             uniqueLayoutObjs[layoutObj->obj.uniqueID] = dest;
                         }
@@ -703,8 +717,8 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
 //                        for (unsigned int xx=0;xx<objPts.size();xx++)
 //                           wkLogLevel(Debug, "  (%f,%f)\n",objPts[xx].x(),objPts[xx].y());
                             
-                            // Now try it
-                            if (overlapMan.addObject(objPts))
+                            // Now try it.  Objects we've pegged as essential always win
+                            if (overlapMan.addObject(objPts) || container.importance >= MAXFLOAT)
                             {
                                 validOrient = true;
                                 pickedOne = true;

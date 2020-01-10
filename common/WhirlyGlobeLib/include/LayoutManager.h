@@ -184,6 +184,9 @@ public:
     /// If set, the maximum number of objects to display
     void setMaxDisplayObjects(int numObjects);
     
+    /// Mark the UUIDs that we'll force to always display
+    void setOverrideUUIDs(const std::set<std::string> &uuids);
+    
     /// Add objects for layout (thread safe)
     void addLayoutObjects(const std::vector<LayoutObject> &newObjects);
 
@@ -228,6 +231,8 @@ protected:
     std::vector<ClusterGenerator::ClusterClassParams> clusterParams;
     /// Cluster generators
     ClusterGenerator *clusterGen;
+    /// Features we'll force to always display
+    std::set<std::string> overrideUUIDs;
 };
 
 }
