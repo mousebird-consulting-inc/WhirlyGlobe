@@ -137,7 +137,9 @@ vertex ProjVertexTriA vertexTri_noLight(VertexTriA vert [[stage_in]],
     else
         outVert.position = uniforms.mvpMatrix * float4(vert.position,1.0);
     outVert.color = float4(vert.color) * uniDrawState.fade;
-    outVert.texCoord = resolveTexCoords(vert.texCoord,texIndirect);
+    
+    if (uniDrawState.numTextures > 0)
+        outVert.texCoord = resolveTexCoords(vert.texCoord,texIndirect);
     
     return outVert;
 }
@@ -160,7 +162,8 @@ vertex ProjVertexTriA vertexTri_light(VertexTriA vert [[stage_in]],
                                     float4(vert.color),
                                     lighting,
                                     uniforms.mvpMatrix) * uniDrawState.fade;
-    outVert.texCoord = resolveTexCoords(vert.texCoord,texIndirect);
+    if (uniDrawState.numTextures > 0)
+        outVert.texCoord = resolveTexCoords(vert.texCoord,texIndirect);
     
     return outVert;
 }

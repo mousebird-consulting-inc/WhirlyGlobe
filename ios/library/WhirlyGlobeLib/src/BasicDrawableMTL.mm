@@ -394,6 +394,16 @@ void BasicDrawableMTL::draw(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandE
         }
     }
     
+    // The shaders get bitchy if we don't supply all the buffers
+    if (numTextures == 0) {
+        WhirlyKitShader::TexIndirect texInd;
+        texInd.offset[0] = 0.0;  texInd.offset[1] = 0.0;
+        texInd.scale[0] = 1.0; texInd.scale[1] = 1.0;
+
+        [cmdEncode setVertexBytes:&texInd length:sizeof(texInd) atIndex:WKSTexIndirectStartBuffer+0];
+        [cmdEncode setVertexBytes:&texInd length:sizeof(texInd) atIndex:WKSTexIndirectStartBuffer+1];
+    }
+    
     // Set the per-drawable draw state
     WhirlyKitShader::UniformDrawStateA uni;
     sceneRender->setupDrawStateA(uni,frameInfo);
