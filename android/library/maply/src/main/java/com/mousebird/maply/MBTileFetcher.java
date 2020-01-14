@@ -80,6 +80,8 @@ public class MBTileFetcher extends  SimpleTileFetcher
     private static String BOUNDS = "bounds";
     private static String MINZOOM = "minzoom";
     private static String MAXZOOM = "maxzoom";
+    private static String MINZOOMLEVEL = "minZoomLevel";
+    private static String MAXZOOMLEVEL = "maxZoomLevel";
     private static String TYPE = "type";
     private static String DESCRIPTION = "description";
     private static String FORMAT = "format";
@@ -88,6 +90,7 @@ public class MBTileFetcher extends  SimpleTileFetcher
     private static String VALUE = "value";
     private static String PNG = "png";
     private static String JPG = "jpg";
+    private static String JPEG = "jpeg";
 
     private static String GET_TILE_SQL = "SELECT tile_data from tiles where zoom_level = ? AND tile_column = ? AND tile_row= ?;";
     private static String TILE_DATA = "tile_data";
@@ -129,15 +132,21 @@ public class MBTileFetcher extends  SimpleTileFetcher
 
                 if (MAXZOOM.equals(meta)) {
                     maxZoom = c.getInt(valueIdx);
+                } else if (MAXZOOMLEVEL.equals(meta)) {
+                    maxZoom = c.getInt(valueIdx);
                 }
 
                 if (MINZOOM.equals(meta)) {
+                    minZoom = c.getInt(valueIdx);
+                } else if (MINZOOMLEVEL.equals(meta)) {
                     minZoom = c.getInt(valueIdx);
                 }
 
                 if (FORMAT.equals(meta)) {
                     String format = c.getString(valueIdx);
                     if (JPG.equals(format)) {
+                        isJpg = true;
+                    } else if (JPEG.equals(format)) {
                         isJpg = true;
                     }
                 }
