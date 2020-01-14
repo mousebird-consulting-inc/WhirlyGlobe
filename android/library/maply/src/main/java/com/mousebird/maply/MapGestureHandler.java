@@ -89,6 +89,15 @@ public class MapGestureHandler
 	}
 
 	/**
+	 * Set minimal allowed height above surface
+	 *
+	 * @param minHeightAboveSurface
+	 */
+	public void setMinHeightAboveSurface(double minHeightAboveSurface) {
+		mapView.setMinHeightAboveSurface(minHeightAboveSurface);
+	}
+
+	/**
 	 * Check that a given position will be within the given bounds.
 	 * This is used by the various gestures for bounds checking.
 	 * 
