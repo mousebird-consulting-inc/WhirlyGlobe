@@ -61,6 +61,9 @@ public:
     /// Calculate the Z buffer resolution
     float calcZbufferRes();
 
+    /// Calculate image plane size
+    double calculateImagePlaneSize();
+
     /// Generate the model view matrix for use by OpenGL.
     virtual Eigen::Matrix4d calcModelMatrix();
     
@@ -78,6 +81,9 @@ public:
 
     /// Minimum valid height above plane
     double minHeightAboveSurface();
+
+    /// Set minimum valid height above plane
+    void setMinHeightAboveSurface(double minHeightAboveSurface);
 
     /// Maximum valid height above plane
     double maxHeightAboveSurface();
