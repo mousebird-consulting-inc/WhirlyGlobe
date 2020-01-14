@@ -194,6 +194,12 @@ double MapView::minHeightAboveSurface()
     return nearPlane;
 }
 
+void MapView::setMinHeightAboveSurface(double minHeightAboveSurface)
+{
+    nearPlane = minHeightAboveSurface;
+    imagePlaneSize = MapView::calculateImagePlaneSize();
+}
+
 double MapView::maxHeightAboveSurface()
 {
     return farPlane;
