@@ -207,7 +207,7 @@ public class MapGestureHandler
 				Point3d pos = maplyControl.mapView.getLoc();
 				mapView.cancelAnimation();
 				Point3d newPos = new Point3d(pos.getX(),pos.getY(),startZ*scale);
-				if (withinBounds(mapView,maplyControl.getViewSize(),newPos,maplyControl.viewBounds) || scale < 1.0) {
+				if (withinBounds(mapView,maplyControl.getViewSize(),newPos,maplyControl.viewBounds)) {
 					double newZ = newPos.getZ();
 					newZ = Math.min(newZ,zoomLimitMax);
 					newZ = Math.max(newZ,zoomLimitMin);
