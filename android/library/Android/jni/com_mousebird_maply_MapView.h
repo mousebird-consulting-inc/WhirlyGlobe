@@ -33,6 +33,14 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_MapView_minHeightAboveSurface
 
 /*
  * Class:     com_mousebird_maply_MapView
+ * Method:    setMinHeightAboveSurface
+ * Signature: (D)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_MapView_setMinHeightAboveSurface
+  (JNIEnv *, jobject, jdouble);
+
+/*
+ * Class:     com_mousebird_maply_MapView
  * Method:    maxHeightAboveSurface
  * Signature: ()D
  */
