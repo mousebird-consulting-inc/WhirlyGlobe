@@ -32,7 +32,7 @@ MapView::MapView(WhirlyKit::CoordSystemDisplayAdapter *inCoordAdapter)
     coordAdapter = inCoordAdapter;
     fieldOfView = 60.0 / 360.0 * 2 * (float)M_PI;  // 60 degree field of view
     nearPlane = 0.00001;
-    imagePlaneSize = nearPlane * tanf(fieldOfView / 2.0);
+    imagePlaneSize = MapView::calculateImagePlaneSize();
     farPlane = 5.0;
     lastChangedTime = TimeGetCurrent();
     continuousZoom = false;
@@ -84,6 +84,11 @@ float MapView::calcZbufferRes()
     double delta = 0.0001;
     
     return delta;
+}
+
+double MapView::calculateImagePlaneSize()
+{
+   return nearPlane * tanf(fieldOfView / 2.0);
 }
 
 Eigen::Matrix4d MapView::calcModelMatrix()
@@ -187,6 +192,12 @@ double MapView::heightAboveSurface()
 double MapView::minHeightAboveSurface()
 {
     return nearPlane;
+}
+
+void MapView::setMinHeightAboveSurface(double minHeightAboveSurface)
+{
+    nearPlane = minHeightAboveSurface;
+    imagePlaneSize = MapView::calculateImagePlaneSize();
 }
 
 double MapView::maxHeightAboveSurface()
