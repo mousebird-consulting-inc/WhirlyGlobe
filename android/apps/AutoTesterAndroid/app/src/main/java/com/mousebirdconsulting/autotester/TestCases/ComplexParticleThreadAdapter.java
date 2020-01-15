@@ -39,12 +39,14 @@ import com.mousebird.maply.QuadPagingLayer;
 import com.mousebird.maply.QuadTracker;
 import com.mousebird.maply.QuadTrackerPointReturn;
 import com.mousebird.maply.SphericalMercatorCoordSystem;
-import com.squareup.okhttp.Call;
-import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
 
+import org.jetbrains.annotations.NotNull;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 import java.io.IOException;
 import java.net.URL;
@@ -379,14 +381,14 @@ public class ComplexParticleThreadAdapter implements QuadPagingLayer.PagingInter
         }
 
         @Override
-        public void onFailure(Request request, IOException e) {
+        public void onFailure(@NotNull Call call, @NotNull IOException e) {
             this.tileDelegate.clearTile(tileID);
             layer.tileFailedToLoad(tileID);
             Log.e("Maply", "Failed to fetch remote tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
         }
 
         @Override
-        public void onResponse(Response response) throws IOException {
+        public void onResponse(@NotNull Call call, @NotNull Response response) {
             if (response.isSuccessful()) {
                 byte[] rawImage = null;
 
