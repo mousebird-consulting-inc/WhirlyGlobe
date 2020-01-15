@@ -1,9 +1,9 @@
 package com.mousebird.maply;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import androidx.fragment.app.Fragment;
 
 /**
  * A fragment that instantiates either a map or a globe.
