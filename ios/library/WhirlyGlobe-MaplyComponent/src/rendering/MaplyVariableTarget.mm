@@ -44,7 +44,7 @@
     _color = [UIColor whiteColor];
     _renderTarget = [[MaplyRenderTarget alloc] init];
     _buildRectangle = true;
-    _clearEveryFrame = false;
+    _clearEveryFrame = true;
     _zBuffer = false;
 
     dispatch_async(dispatch_get_main_queue(), ^{
