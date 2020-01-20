@@ -44,7 +44,7 @@ public class SimpleTileFetcher extends HandlerThread implements TileFetcher
 {
     protected boolean valid = false;
     protected String name;
-    public int minZoom,maxZoom;
+    public int minZoom = -1,maxZoom = -1;
 
     /**
      * Construct with the name, min and max zoom levels.
