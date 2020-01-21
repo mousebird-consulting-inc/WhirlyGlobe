@@ -146,8 +146,12 @@ NSArray * _Nonnull AddMaplyVectorsUsingStyle(NSArray * _Nonnull vecObjs,NSObject
         NSArray *features = featureStyles[key];
         [symbolizer buildObjects:features forTile:tileData viewC:viewC];
     }
+    
+    // Turn all the objects on
+    NSArray *compObjs = [tileData componentObjects];
+    [viewC enableObjects:compObjs mode:threadMode];
 
-    return [tileData componentObjects];
+    return compObjs;
 }
 
 @implementation MaplyVectorTileInfo
