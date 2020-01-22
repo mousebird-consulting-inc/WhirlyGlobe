@@ -209,6 +209,7 @@ public class MBTileFetcher extends  SimpleTileFetcher
             c.moveToFirst();
 
             byte[] data = c.getBlob(tileDataIdx);
+            c.close();
             return data;
 //                    Log.v(TAG, String.format("Returned tile for Z=%s, X=%d, Y=%d", tileID.level, tileID.x, tileID.y));
         }
