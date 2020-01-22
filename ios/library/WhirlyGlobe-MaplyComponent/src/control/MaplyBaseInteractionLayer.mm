@@ -278,6 +278,7 @@ public:
     bool wrapX = [desc boolForKey:kMaplyTexWrapX default:false];
     bool wrapY = [desc boolForKey:kMaplyTexWrapY default:false];
     int magFilter = [desc enumForKey:kMaplyTexMagFilter values:@[kMaplyMinFilterNearest,kMaplyMinFilterLinear] default:0];
+    bool mipmap = [desc boolForKey:kMaplyTexMipmap default:false];
     
     int imgWidth,imgHeight;
     if (image)
@@ -302,6 +303,7 @@ public:
             tex->setWidth(imgWidth);
             tex->setHeight(imgHeight);
             tex->setIsEmptyTexture(true);
+            tex->setUsesMipmaps(mipmap);
         }
     } else {
         // Metal
@@ -312,6 +314,7 @@ public:
             tex->setWidth(imgWidth);
             tex->setHeight(imgHeight);
             tex->setIsEmptyTexture(true);
+            tex->setUsesMipmaps(mipmap);
         }
     }
     tex->setWrap(wrapX, wrapY);
