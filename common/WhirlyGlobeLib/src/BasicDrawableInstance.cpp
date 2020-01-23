@@ -110,11 +110,6 @@ bool BasicDrawableInstance::isOn(WhirlyKit::RendererFrameInfo *frameInfo) const
     
     return true;
 }
-
-bool BasicDrawableInstance::hasAlpha(WhirlyKit::RendererFrameInfo *frameInfo) const
-{
-    return basicDraw->hasAlpha(frameInfo);
-}
     
 void BasicDrawableInstance::setRequestZBuffer(bool val)
 {

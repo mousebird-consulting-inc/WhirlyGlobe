@@ -66,10 +66,7 @@ public:
     
     /// We're allowed to turn drawables off completely
     virtual bool isOn(WhirlyKit::RendererFrameInfo *frameInfo) const;
-    
-    /// Return true if the drawable has alpha.  These will be sorted last.
-    virtual bool hasAlpha(WhirlyKit::RendererFrameInfo *frameInfo) const;
-    
+        
     /// We can ask to use the z buffer
     virtual void setRequestZBuffer(bool val);
     virtual bool getRequestZBuffer() const;

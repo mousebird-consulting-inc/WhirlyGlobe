@@ -57,9 +57,6 @@ Mbr ParticleSystemDrawable::getLocalMbr() const
 const Eigen::Matrix4d *ParticleSystemDrawable::getMatrix() const
     { return NULL; }
 
-bool ParticleSystemDrawable::hasAlpha(RendererFrameInfo *frameInfo) const
-    { return false; }
-
 unsigned int ParticleSystemDrawable::getDrawPriority() const
     { return drawPriority; }
     

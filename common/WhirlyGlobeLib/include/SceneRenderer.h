@@ -277,13 +277,6 @@ protected:
     /// This works well for figuring out when the model matrix changes, but
     ///  not so well with animation such as fades, particles systems and such.
     bool useViewChanged;
-    /// By default we'll sort all alpha-containing drawables to the end.
-    /// Turn this off to tell the renderer you knew what you're doing and
-    ///  don't mess with my draw priorities.
-    bool sortAlphaToEnd;
-    // If this is set, we'll turn off the depth buffering the first time
-    //  we hit a drawable with alpha.  Off by default (not surprisingly).
-    bool depthBufferOffForAlpha;
     
     /// Force a draw at the next opportunity
     bool triggerDraw;

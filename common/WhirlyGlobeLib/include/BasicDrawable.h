@@ -75,9 +75,6 @@ public:
     /// Return the Matrix if there is an active one (ideally not)
     virtual const Eigen::Matrix4d *getMatrix() const;
 
-    /// Return true if the drawable has alpha.  These will be sorted last.
-    virtual bool hasAlpha(RendererFrameInfo *frameInfo) const;
-
     /// Set the time range for enable
     void setEnableTimeRange(TimeInterval inStartEnable,TimeInterval inEndEnable);
 

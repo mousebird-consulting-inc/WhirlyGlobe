@@ -70,8 +70,6 @@ void SceneRenderer::init()
     numDrawables = 0;
     perfInterval = 0.0;
     useViewChanged = true;
-    sortAlphaToEnd = false;
-    depthBufferOffForAlpha = false;
     triggerDraw = true;
     frameCount = 0;
     frameCountStart = 0.0;

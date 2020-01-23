@@ -68,9 +68,6 @@ public:
     /// Return the local MBR, if we're working in a non-geo coordinate system
     virtual Mbr getLocalMbr() const = 0;
 
-    /// Return true if the drawable has alpha.  These will be sorted last.
-    virtual bool hasAlpha(RendererFrameInfo *frameInfo) const = 0;
-
 	/// We use this to sort drawables
 	virtual unsigned int getDrawPriority() const = 0;
     
