@@ -36,7 +36,7 @@ public:
     virtual void calculate(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> frameEncode,Scene *scene) = 0;
 
     /// Set up what you need in the way of context and draw.
-    virtual void draw(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> frameEncode,Scene *scene) = 0;
+    virtual void draw(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> frameEncode,Scene *scene) = 0;    
 };
 
 }

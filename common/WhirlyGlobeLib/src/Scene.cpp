@@ -293,7 +293,7 @@ int Scene::preProcessChanges(WhirlyKit::View *view,SceneRenderer *renderer,TimeI
 
 // Process outstanding changes.
 // We'll grab the lock and we're only expecting to be called in the rendering thread
-void Scene::processChanges(WhirlyKit::View *view,SceneRenderer *renderer,TimeInterval now)
+int Scene::processChanges(WhirlyKit::View *view,SceneRenderer *renderer,TimeInterval now)
 {
     std::lock_guard<std::mutex> guardLock(changeRequestLock);
     // See if any of the timed changes are ready
@@ -319,7 +319,10 @@ void Scene::processChanges(WhirlyKit::View *view,SceneRenderer *renderer,TimeInt
             delete req;
         }
     }
+    int numChanges = changeRequests.size();
     changeRequests.clear();
+    
+    return numChanges;
 }
     
 bool Scene::hasChanges(TimeInterval now)
@@ -540,14 +543,11 @@ void AddDrawableReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::Vie
     }
 
     scene->addDrawable(drawRef);
+    renderer->addDrawable(drawRef);
     
     if (drawRef->getLocalMbr().valid())
         scene->addLocalMbr(drawRef->getLocalMbr());
-    
-    drawRef->setupForRenderer(renderer->getRenderSetupInfo());
-    
-    drawRef->updateRenderer(renderer);
-        
+            
     drawRef = NULL;
 }
 
@@ -556,10 +556,7 @@ void RemDrawableReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::Vie
     auto it = scene->drawables.find(drawable);
     if (it != scene->drawables.end())
     {
-        renderer->removeContinuousRenderRequest(it->second->getId());
-        // Teardown OpenGL foo
-        it->second->teardownForRenderer(renderer->getRenderSetupInfo(),scene);
-
+        renderer->removeDrawable(it->second);
         scene->remDrawable(it->second);
     } else
         wkLogLevel(Warn,"Missing drawable for RemDrawableReq: %llu", drawable);

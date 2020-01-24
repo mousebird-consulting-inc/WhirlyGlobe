@@ -99,8 +99,10 @@ using namespace WhirlyKit;
 
             renderMTL->render(1.0/self.preferredFramesPerSecond,renderPassDesc,self);
         }
-    } else
-        renderMTL->processScene();
+    } else {
+        TimeInterval now = TimeGetCurrent();
+        renderMTL->processScene(now);
+    }
 }
 
 - (BOOL)isAnimating

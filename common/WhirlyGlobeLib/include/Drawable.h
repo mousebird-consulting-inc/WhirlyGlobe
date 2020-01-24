@@ -102,6 +102,9 @@ public:
     /// For OpenGLES2, this is the program to use to render this drawable.
     virtual SimpleIdentity getProgram() const = 0;
     
+    // Which workgroups this is in (might be in multiple if there's a calculation shader)
+    SimpleIDSet workGroupIDs;
+
 protected:
     std::string name;
     DrawableTweakerRefSet tweakers;

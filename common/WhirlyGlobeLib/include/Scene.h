@@ -249,7 +249,7 @@ public:
     
     /// Process change requests
     /// Only the renderer should call this in the rendering thread
-    void processChanges(View *view,SceneRenderer *renderer,TimeInterval now);
+    int processChanges(View *view,SceneRenderer *renderer,TimeInterval now);
     
     /// Some changes generate other changes, so they go first
     int preProcessChanges(View *view,SceneRenderer *renderer,TimeInterval now);

@@ -461,6 +461,8 @@ DrawPriorityChangeRequest::DrawPriorityChangeRequest(SimpleIdentity drawId,int d
 
 void DrawPriorityChangeRequest::execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw)
 {
+    renderer->removeDrawable(draw);
+
     BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDrawable)
         basicDrawable->setDrawPriority(drawPriority);
@@ -469,6 +471,8 @@ void DrawPriorityChangeRequest::execute2(Scene *scene,SceneRenderer *renderer,Dr
         if (basicDrawInst)
             basicDrawInst->setDrawPriority(drawPriority);
     }
+
+    renderer->addDrawable(draw);
 }
 
 LineWidthChangeRequest::LineWidthChangeRequest(SimpleIdentity drawId,float lineWidth)
@@ -512,6 +516,8 @@ RenderTargetChangeRequest::RenderTargetChangeRequest(SimpleIdentity drawID,Simpl
     
 void RenderTargetChangeRequest::execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw)
 {
+    renderer->removeDrawable(draw);
+    
     BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDrawable)
         basicDrawable->setRenderTarget(targetID);
@@ -525,6 +531,8 @@ void RenderTargetChangeRequest::execute2(Scene *scene,SceneRenderer *renderer,Dr
                 partDrawable->setRenderTarget(targetID);
         }
     }
+    
+    renderer->addDrawable(draw);
 }
     
 UniformBlockSetRequest::UniformBlockSetRequest(SimpleIdentity drawID,const RawDataRef &uniData,int bufferID)

@@ -111,6 +111,64 @@ public:
  */
 typedef enum {zBufferOn,zBufferOff,zBufferOffDefault} WhirlyKitSceneRendererZBufferMode;
 
+/**
+  A group of geometry, render targets, etc... that can be rendered in parallel.  The
+    order of work groups determines order of rendering.
+ */
+class WorkGroup : public Identifiable
+{
+public:
+    // The various pre-defined workgroup stages
+    typedef enum {Calculation=0,Offscreen,ReduceOps,ScreenRender} GroupType;
+
+    WorkGroup(GroupType groupType);
+    ~WorkGroup();
+    
+    // All the drawables to draw into a render target
+    class RenderTargetContainer
+    {
+    public:
+        RenderTargetContainer(RenderTargetRef renderTarget) : renderTarget(renderTarget) { }
+        
+        // Sort by draw priority and zbuffer on or off
+        typedef struct {
+            bool operator () (const DrawableRef a,const DrawableRef b) const {
+                if (a->getDrawPriority() == b->getDrawPriority()) {
+                    bool bufferA = a->getRequestZBuffer();
+                    bool bufferB = b->getRequestZBuffer();
+                    if (bufferA == bufferB)
+                        return a->getId() < b->getId();
+                    return !bufferA;
+                }
+                
+                return a->getDrawPriority() < b->getDrawPriority();
+            }
+        } PrioritySorter;
+        
+        RenderTargetRef renderTarget;
+        // Drawables sorted by draw priority
+        std::set<DrawableRef,PrioritySorter> drawables;
+    };
+    typedef std::shared_ptr<RenderTargetContainer> RenderTargetContainerRef;
+    
+    // Put the given render target in this work group
+    void addRenderTarget(RenderTargetRef renderTarget);
+    
+    // Returns turn if this drawable was accepted by the work group
+    bool addDrawable(DrawableRef drawable);
+    
+    // Remove the drawable from any render target
+    void removeDrawable(DrawableRef drawable);
+    
+    std::string name;
+    GroupType groupType;
+
+    std::vector<RenderTargetContainerRef> renderTargetContainers;
+    // TODO: Reductions
+    // TODO: Callbacks
+};
+typedef std::shared_ptr<WorkGroup> WorkGroupRef;
+
 /// Base class for the scene renderer.
 /// It's subclassed for the specific version of OpenGL ES
 class SceneRenderer : public DelayedDeletable
@@ -190,6 +248,14 @@ public:
     
     /// Current view (opengl view) we're tied to
     virtual void setView(View *newView);
+    
+    /// Add a drawable to the scene renderer.  We'll sort it into the appropriate render target
+    virtual void addDrawable(DrawableRef newDrawable);
+    /// Remove the given drawable from
+    virtual void removeDrawable(DrawableRef draw);
+        
+    /// Move things around as required by outside updates
+    virtual void updateWorkGroups(RendererFrameInfo *frameInfo);
         
     /// Add a render target to start rendering too
     virtual void addRenderTarget(RenderTargetRef newTarget);
@@ -210,7 +276,8 @@ public:
     virtual void setDefaultMaterial(const Material &mat);
     
     /// Run the scene changes
-    void processScene();
+    int preProcessScene(TimeInterval now);
+    int processScene(TimeInterval now);
     
     /// Return the render setup info for the appropriate rendering type
     virtual const RenderSetupInfo *getRenderSetupInfo() const = 0;
@@ -248,6 +315,10 @@ public:
     float scale;
 
     std::vector<RenderTargetRef> renderTargets;
+    std::vector<WorkGroupRef> workGroups;
+
+    // Drawables that we currently know about, but are off
+    std::set<DrawableRef,IdentifiableRefSorter> offDrawables;
 
 protected:
     // Called by the subclass
