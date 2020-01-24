@@ -230,7 +230,17 @@ void SceneRenderer::updateWorkGroups(RendererFrameInfo *frameInfo)
     std::vector<DrawableRef> drawsToMoveIn;
     for (auto draw : offDrawables) {
         if (draw->isOn(frameInfo)) {
-            drawsToMoveIn.push_back(draw);
+            bool keep = false;
+            // If there's a render target, we need that too
+            if (draw->getRenderTarget() != EmptyIdentity) {
+                for (auto &renderTarget : renderTargets) {
+                    if (draw->getRenderTarget() == renderTarget->getId())
+                        keep = true;
+                }
+            } else
+                keep = true;
+            if (keep)
+                drawsToMoveIn.push_back(draw);
         }
     }
     for (auto draw : drawsToMoveIn) {
