@@ -195,6 +195,7 @@ void SceneRenderer::setView(View *newView)
     
 void SceneRenderer::addRenderTarget(RenderTargetRef newTarget)
 {
+    workGroups[WorkGroup::Offscreen]->renderTargetContainers.push_back(WorkGroup::RenderTargetContainerRef(new WorkGroup::RenderTargetContainer(newTarget)));
     renderTargets.insert(renderTargets.begin(),newTarget);
 }
 
@@ -278,6 +279,20 @@ void SceneRenderer::removeRenderTarget(SimpleIdentity targetID)
         {
             target->clear();
             renderTargets.erase(renderTargets.begin()+ii);
+            break;
+        }
+    }
+    
+    for (auto &workGroup : workGroups) {
+        int which = 0;
+        for (auto &con : workGroup->renderTargetContainers) {
+            if (con->renderTarget && con->renderTarget->getId() == targetID) {
+                break;
+            }
+            which++;
+        }
+        if (which < workGroup->renderTargetContainers.size()) {
+            workGroup->renderTargetContainers.erase(workGroup->renderTargetContainers.begin()+which);
             break;
         }
     }
