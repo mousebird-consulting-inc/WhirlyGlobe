@@ -60,9 +60,19 @@ public:
     /// Clean up renderer resources
     virtual void teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene) = 0;
     
+    // Reduce operation modes
+    typedef enum {None,TextureReduce} ReduceMode;
+    
+    // If not set to None, this shader is expecting to be run over a mipmap'ed, one level at a time
+    virtual void setReduceMode(ReduceMode reduceMode);
+
+    // Current reduce mode (or off)
+    virtual ReduceMode getReduceMode();
+    
 public:
     std::string name;
     TimeInterval lightsLastUpdated;
+    ReduceMode reduceMode;
     // Uniforms to be passed into a shader (just Metal for now)
     std::vector<BasicDrawable::UniformBlock> uniBlocks;
 };

@@ -62,14 +62,17 @@ public:
     /// Release associated resources (not clear the buffer, very confusing)
     virtual void clear();
     
+    /// If we're tied to a texture, the number of levels in that texture
+    virtual int numLevels();
+    
     /// Return the pixel format.  Important for shader output and such.
     MTLPixelFormat getPixelFormat();
     
     /// Called once per frame to build a render pass descriptor
-    MTLRenderPassDescriptor *makeRenderPassDesc();
+    void makeRenderPassDesc();
     
     /// Get the last render pass descriptor built
-    MTLRenderPassDescriptor *getRenderPassDesc();
+    MTLRenderPassDescriptor *getRenderPassDesc(int level=-1);
     
     /// Return the texture reference, if there is one
     id<MTLTexture> getTex();
@@ -79,7 +82,7 @@ protected:
     MTLPixelFormat pixelFormat;
     id<MTLTexture> depthTex;
     MTLPixelFormat depthPixelFormat;
-    MTLRenderPassDescriptor *renderPassDesc;
+    std::vector<MTLRenderPassDescriptor *> renderPassDesc;
 };
 typedef std::shared_ptr<RenderTargetMTL> RenderTargetMTLRef;
     

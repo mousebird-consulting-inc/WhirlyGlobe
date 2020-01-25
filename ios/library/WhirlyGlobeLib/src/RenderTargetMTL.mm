@@ -25,13 +25,13 @@ namespace WhirlyKit
 {
 
 RenderTargetMTL::RenderTargetMTL()
-    : renderPassDesc(nil), pixelFormat(MTLPixelFormatBGRA8Unorm)
+    : pixelFormat(MTLPixelFormatBGRA8Unorm)
 {
     clearOnce = true;
 }
 
 RenderTargetMTL::RenderTargetMTL(SimpleIdentity newID)
-    : RenderTarget(newID), renderPassDesc(nil), pixelFormat(MTLPixelFormatBGRA8Unorm)
+    : RenderTarget(newID), pixelFormat(MTLPixelFormatBGRA8Unorm)
 {
     clearOnce = true;
 }
@@ -63,7 +63,12 @@ bool RenderTargetMTL::setTargetTexture(SceneRenderer *renderer,Scene *scene,Simp
 void RenderTargetMTL::clear()
 {
     tex = nil;
-    renderPassDesc = nil;
+    renderPassDesc.clear();
+}
+
+int RenderTargetMTL::numLevels()
+{
+    return renderPassDesc.size();
 }
  
 // TODO: Move this somewhere else
@@ -146,38 +151,50 @@ void RenderTargetMTL::setTargetDepthTexture(TextureBaseMTL *inDepthTex)
 }
 
     
-MTLRenderPassDescriptor *RenderTargetMTL::makeRenderPassDesc()
+void RenderTargetMTL::makeRenderPassDesc()
 {
-    renderPassDesc = [[MTLRenderPassDescriptor alloc] init];
-    renderPassDesc.colorAttachments[0].texture = tex;
-    if (clearEveryFrame || clearOnce)
-        renderPassDesc.colorAttachments[0].loadAction = MTLLoadActionClear;
-    else
-        // TODO: This is more work for the renderer.  Narrow down when to do this
-        renderPassDesc.colorAttachments[0].loadAction =  MTLLoadActionLoad;
-    switch (pixelFormat) {
-        case MTLPixelFormatBGRA8Unorm:
-            renderPassDesc.colorAttachments[0].clearColor = MTLClearColorMake(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
-            break;
-        case MTLPixelFormatR32Float:
-        case MTLPixelFormatRG32Float:
-        case MTLPixelFormatRGBA32Float:
-        case MTLPixelFormatRG16Float:
-        case MTLPixelFormatRGBA16Float:
-            renderPassDesc.colorAttachments[0].clearColor = MTLClearColorMake(clearVal, clearVal, clearVal, clearVal);
-            break;
-        default:
-            NSLog(@"RenderTargetMTL: Unknown Pixel Format.  Not clearing.");
-            break;
-    }
-    if (depthTex) {
-        renderPassDesc.depthAttachment.texture = depthTex;
-    }
-    renderPassDesc.colorAttachments[0].storeAction = MTLStoreActionStore;
+    renderPassDesc.clear();
     
+    // TODO: Only regenerate these if something has changed
+    
+    int numLevels = 1;
+    if (tex) {
+        numLevels = tex.mipmapLevelCount;
+    }
+    
+    for (unsigned int ii=0;ii<numLevels;ii++) {
+        MTLRenderPassDescriptor *rpd = [[MTLRenderPassDescriptor alloc] init];
+        rpd.colorAttachments[0].texture = tex;
+        rpd.colorAttachments[0].level = ii;
+        if (clearEveryFrame || clearOnce)
+            rpd.colorAttachments[0].loadAction = MTLLoadActionClear;
+        else
+            // TODO: This is more work for the renderer.  Narrow down when to do this
+            rpd.colorAttachments[0].loadAction =  MTLLoadActionLoad;
+        switch (pixelFormat) {
+            case MTLPixelFormatBGRA8Unorm:
+                rpd.colorAttachments[0].clearColor = MTLClearColorMake(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
+                break;
+            case MTLPixelFormatR32Float:
+            case MTLPixelFormatRG32Float:
+            case MTLPixelFormatRGBA32Float:
+            case MTLPixelFormatRG16Float:
+            case MTLPixelFormatRGBA16Float:
+                rpd.colorAttachments[0].clearColor = MTLClearColorMake(clearVal, clearVal, clearVal, clearVal);
+                break;
+            default:
+                NSLog(@"RenderTargetMTL: Unknown Pixel Format.  Not clearing.");
+                break;
+        }
+        if (depthTex) {
+            rpd.depthAttachment.texture = depthTex;
+        }
+        rpd.colorAttachments[0].storeAction = MTLStoreActionStore;
+        
+        renderPassDesc.push_back(rpd);
+    }
+
     clearOnce = false;
-    
-    return renderPassDesc;
 }
     
 MTLPixelFormat RenderTargetMTL::getPixelFormat()
@@ -185,19 +202,21 @@ MTLPixelFormat RenderTargetMTL::getPixelFormat()
     return pixelFormat;
 }
     
-MTLRenderPassDescriptor *RenderTargetMTL::getRenderPassDesc()
+MTLRenderPassDescriptor *RenderTargetMTL::getRenderPassDesc(int level)
 {
-    if (!renderPassDesc)
+    if (renderPassDesc.empty())
         makeRenderPassDesc();
-    return renderPassDesc;
+    if (level < 0)
+        level = 0;
+    return renderPassDesc[level];
 }
-    
+
 void RenderTargetMTL::setClearColor(const RGBAColor &color)
 {
     color.asUnitFloats(clearColor);
     
-    if (renderPassDesc)
-        renderPassDesc.colorAttachments[0].clearColor = MTLClearColorMake(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
+    for (auto rpd : renderPassDesc)
+        rpd.colorAttachments[0].clearColor = MTLClearColorMake(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
 }
 
 id<MTLTexture> RenderTargetMTL::getTex()

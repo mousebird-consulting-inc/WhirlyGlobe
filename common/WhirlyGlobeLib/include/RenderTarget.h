@@ -53,6 +53,9 @@ public:
     /// Copy the data out of the destination texture and return it
     virtual RawDataRef snapshot() = 0;
     
+    /// If we're tied to a texture, the number of levels in that texture
+    virtual int numLevels();
+    
     /// Copy just a subset out of the destination texture and return it
     virtual RawDataRef snapshot(int startX,int startY,int snapWidth,int snapHeight) = 0;
 

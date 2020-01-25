@@ -303,7 +303,6 @@ public:
             tex->setWidth(imgWidth);
             tex->setHeight(imgHeight);
             tex->setIsEmptyTexture(true);
-            tex->setUsesMipmaps(mipmap);
         }
     } else {
         // Metal
@@ -314,11 +313,10 @@ public:
             tex->setWidth(imgWidth);
             tex->setHeight(imgHeight);
             tex->setIsEmptyTexture(true);
-            tex->setUsesMipmaps(mipmap);
         }
     }
     tex->setWrap(wrapX, wrapY);
-    tex->setUsesMipmaps(false);
+    tex->setUsesMipmaps(mipmap);
     tex->setInterpType(magFilter == 0 ? TexInterpNearest : TexInterpLinear);
     switch (imageFormat)
     {

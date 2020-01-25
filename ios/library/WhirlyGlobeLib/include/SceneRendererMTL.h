@@ -136,7 +136,7 @@ public:
     virtual DynamicTextureRef makeDynamicTexture(const std::string &name) const;
     
     /// Set up the buffer for general uniforms and attach it to its vertex/fragment buffers
-    void setupUniformBuffer(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,CoordSystemDisplayAdapter *coordAdapter);
+    void setupUniformBuffer(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,CoordSystemDisplayAdapter *coordAdapter,int texLevel);
 
     /// Set the lights and tie them to a vertex buffer index
     void setupLightBuffer(SceneMTL *scene,id<MTLRenderCommandEncoder> cmdEncode);

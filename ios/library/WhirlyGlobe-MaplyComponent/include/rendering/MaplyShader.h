@@ -295,6 +295,12 @@ These are the per vertex attributes provided to each vertex shader.
  */
 - (bool)setUniformBlock:(NSData *__nonnull)uniBlock buffer:(int)bufferID;
 
+/**
+   If set, this program is expecting to be called once for each level of a render target's texture.
+ Essentially, it runs a reduce operation, starting from some source and working its way up to the 1x1 texture at the top.
+ */
+- (void)setReduceMode:(bool)reduceMode;
+
 /** 
     Check if the shader is valid.
     

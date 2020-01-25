@@ -51,6 +51,11 @@ void RenderTarget::init()
     clearVal = 0.0;
 }
 
+int RenderTarget::numLevels()
+{
+    return 0;
+}
+
 AddRenderTargetReq::AddRenderTargetReq(SimpleIdentity renderTargetID,int width,int height,SimpleIdentity texID,bool clearEveryFrame,bool blend,const RGBAColor &clearColor, float clearVal)
 : renderTargetID(renderTargetID), width(width), height(height), texID(texID), clearEveryFrame(clearEveryFrame), blend(blend), clearColor(clearColor), clearVal(clearVal)
 {
