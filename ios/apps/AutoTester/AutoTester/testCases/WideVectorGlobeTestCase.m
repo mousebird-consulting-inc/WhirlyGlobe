@@ -127,7 +127,7 @@
 {
     [self addGeoJson:@"USA.geojson" viewC:viewC];
     
-    [self addBigPattern:@"CAN.geojson" viewC:viewC];
+//    [self addBigPattern:@"CAN.geojson" viewC:viewC];
 }
 
 

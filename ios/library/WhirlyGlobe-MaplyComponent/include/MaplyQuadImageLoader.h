@@ -79,6 +79,11 @@
   */
 - (void)parseData:(MaplyLoaderReturn * __nonnull)loadReturn;
 
+/**
+   Called when the loader is done.  Clean up any internal logic.
+ */
+- (void)stop;
+
 @end
 
 /**

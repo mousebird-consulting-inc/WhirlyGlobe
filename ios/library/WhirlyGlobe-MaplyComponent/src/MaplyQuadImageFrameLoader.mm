@@ -1116,6 +1116,11 @@ using namespace WhirlyKit;
     [tileFetcher cancelTileFetches:toCancel];
     
     [layer.layerThread addChangeRequests:changes];
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self->loadInterp stop];
+        self->loadInterp = nil;
+    });
 }
 
 // MARK: Active Object methods (called by updater)
