@@ -78,10 +78,13 @@ using namespace WhirlyKit;
     if (!renderControl->scene)
         return;
     
+    for (auto sampLayer : samplingLayers)
+        [sampLayer cleanupLayers:sampLayer.layerThread scene:renderControl->scene];
+
     for (auto tileFetcher : tileFetchers)
         [tileFetcher shutdown];
     tileFetchers.clear();
-    
+        
     defaultClusterGenerator = nil;
     
     [[NSNotificationCenter defaultCenter] removeObserver:self];
