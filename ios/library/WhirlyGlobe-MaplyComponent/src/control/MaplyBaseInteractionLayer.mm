@@ -372,6 +372,9 @@ public:
         case MaplyImageQuadFloat32:
             tex->setFormat(TexTypeQuadFloat32);
             break;
+        case MaplyImageUInt32:
+            tex->setFormat(TexTypeSingleUInt32);
+            break;
     }
 
     return tex;
