@@ -82,14 +82,12 @@ void BasicDrawableInstanceMTL::setColor(RGBAColor inColor)
 
 void BasicDrawableInstanceMTL::setupForRenderer(const RenderSetupInfo *inSetupInfo)
 {
-    
+    RenderSetupInfoMTL *setupInfo = (RenderSetupInfoMTL *)inSetupInfo;
     
     if (setupForMTL)
         return;
-
+    
     if (instanceStyle == LocalStyle) {
-        RenderSetupInfoMTL *setupInfo = (RenderSetupInfoMTL *)inSetupInfo;
-
         bzero(&uniMI,sizeof(uniMI));
         
         // Set up the instances in their own array
@@ -126,8 +124,11 @@ void BasicDrawableInstanceMTL::setupForRenderer(const RenderSetupInfo *inSetupIn
             instBuffer.label = [NSString stringWithFormat:@"%s inst",name.c_str()];
         numInst = insts.size();
     } else if (instanceStyle == GPUStyle) {
-        // TODO: Fill this in
-        NSLog(@"Got one");
+        // Basic values for the uniforms
+        bzero(&uniMI,sizeof(uniMI));
+        uniMI.time = 0.0;
+        uniMI.useInstanceColor = false;
+        uniMI.hasMotion = false;
     }
         
     setupForMTL = true;
@@ -142,6 +143,48 @@ void BasicDrawableInstanceMTL::teardownForRenderer(const RenderSetupInfo *setupI
     instBuffer = nil;
     renderState = nil;
     defaultAttrs.clear();
+}
+
+void BasicDrawableInstanceMTL::blitMemory(RendererFrameInfoMTL *frameInfo,id<MTLBlitCommandEncoder> bltEncode,Scene *scene)
+{
+    BasicDrawableMTL *basicDrawMTL = dynamic_cast<BasicDrawableMTL *>(basicDraw.get());
+    if (!basicDrawMTL) {
+        NSLog(@"BasicDrawableInstance pointing at a bad BasicDrawable");
+        return;
+    }
+    if (!basicDrawMTL)
+        return;
+    SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
+
+    if (instanceStyle == GPUStyle) {
+        if (!indirectBuffer) {
+            // Set up a buffer for the indirect arguments
+            MTLDrawIndexedPrimitivesIndirectArguments args;
+            args.indexCount = basicDrawMTL->numTris*3;
+            args.instanceCount = 0;
+            args.indexStart = 0;
+            args.baseVertex = 0;
+            args.baseInstance = 0;
+            indirectBuffer = [sceneRender->setupInfo.mtlDevice newBufferWithBytes:&args length:sizeof(MTLDrawIndexedPrimitivesIndirectArguments) options:MTLStorageModeShared];
+        }
+        
+        TextureBaseMTL *tex = dynamic_cast<TextureBaseMTL *>(scene->getTexture(instanceTexSource));
+        if (!tex) {
+            NSLog(@"Missing texture for instance texture source in BasicDrawableInstanceMTL::draw() for tex %d",(int)instanceTexSource);
+            return;
+        }
+
+        // Need the number of instances copied in first
+        [bltEncode copyFromTexture:tex->getMTLID()
+                       sourceSlice:0
+                       sourceLevel:tex->getMTLID().mipmapLevelCount-1
+                      sourceOrigin:MTLOriginMake(0, 0, 0)
+                        sourceSize:MTLSizeMake(1, 1, 1)
+                          toBuffer:indirectBuffer
+                 destinationOffset:sizeof(uint32_t)
+            destinationBytesPerRow:sizeof(uint32_t)
+          destinationBytesPerImage:0];
+    }
 }
 
 void BasicDrawableInstanceMTL::draw(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *inScene)
@@ -251,7 +294,9 @@ void BasicDrawableInstanceMTL::draw(RendererFrameInfoMTL *frameInfo,id<MTLRender
         case ReuseStyle:
             switch (basicDraw->type) {
                 case Lines:
-                    [cmdEncode drawPrimitives:MTLPrimitiveTypeLine vertexStart:0 vertexCount:basicDrawMTL->numPts];
+                    [cmdEncode drawPrimitives:MTLPrimitiveTypeLine
+                                  vertexStart:0
+                                  vertexCount:basicDrawMTL->numPts];
                     break;
                 case Triangles:
                     if (!basicDrawMTL->triBuffer) {
@@ -260,7 +305,11 @@ void BasicDrawableInstanceMTL::draw(RendererFrameInfoMTL *frameInfo,id<MTLRender
                         return;
                     }
                     // This actually draws the triangles (well, in a bit)
-                    [cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:basicDrawMTL->numTris*3 indexType:MTLIndexTypeUInt16 indexBuffer:basicDrawMTL->triBuffer indexBufferOffset:0];
+                    [cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle
+                                          indexCount:basicDrawMTL->numTris*3
+                                           indexType:MTLIndexTypeUInt16
+                                         indexBuffer:basicDrawMTL->triBuffer
+                                   indexBufferOffset:0];
                     break;
                 default:
                     break;
@@ -270,17 +319,42 @@ void BasicDrawableInstanceMTL::draw(RendererFrameInfoMTL *frameInfo,id<MTLRender
             // Model instancing
             switch (basicDraw->type) {
                 case Lines:
-                    [cmdEncode drawPrimitives:MTLPrimitiveTypeLine vertexStart:0 vertexCount:basicDrawMTL->numPts instanceCount:numInst];
+                    [cmdEncode drawPrimitives:MTLPrimitiveTypeLine
+                                  vertexStart:0
+                                  vertexCount:basicDrawMTL->numPts
+                                instanceCount:numInst];
                     break;
                 case Triangles:
-                    [cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:basicDrawMTL->numTris*3 indexType:MTLIndexTypeUInt16 indexBuffer:basicDrawMTL->triBuffer indexBufferOffset:0 instanceCount:numInst];
+                    [cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle
+                                          indexCount:basicDrawMTL->numTris*3
+                                           indexType:MTLIndexTypeUInt16
+                                         indexBuffer:basicDrawMTL->triBuffer
+                                   indexBufferOffset:0
+                                       instanceCount:numInst];
                     break;
                 default:
                     break;
             }
             break;
         case GPUStyle:
-            // TODO: Fill this in
+            // These use the indirect buffer defined above and, hopefully, with the number of instances copied in
+            switch (basicDraw->type) {
+                case Lines:
+                    [cmdEncode drawPrimitives:MTLPrimitiveTypeLine
+                               indirectBuffer:indirectBuffer
+                         indirectBufferOffset:0];
+                    break;
+                case Triangles:
+                    [cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle
+                                           indexType:MTLIndexTypeUInt16
+                                         indexBuffer:basicDrawMTL->triBuffer
+                                   indexBufferOffset:0
+                                      indirectBuffer:indirectBuffer
+                                indirectBufferOffset:0];
+                    break;
+                default:
+                    break;
+            }
             break;
     }
 }

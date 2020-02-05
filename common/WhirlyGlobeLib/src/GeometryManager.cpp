@@ -904,6 +904,7 @@ SimpleIdentity GeometryManager::addGPUGeomInstance(SimpleIdentity baseGeomID,Sim
         drawInst->setMasterID(baseDrawID,BasicDrawableInstance::GPUStyle);
         geomInfo.setupBasicDrawableInstance(drawInst);
         //                    draw->setColor([geomInfo.color asRGBAColor]);
+        drawInst->setProgram(programID);
         drawInst->setInstanceTexSource(texSourceID);
         
         sceneRep->drawIDs.insert(drawInst->getDrawableID());

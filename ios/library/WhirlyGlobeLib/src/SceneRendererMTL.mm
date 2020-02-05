@@ -493,9 +493,18 @@ void SceneRendererMTL::render(TimeInterval duration,
             renderTarget->makeRenderPassDesc();
             baseFrameInfo.renderTarget = renderTarget.get();
 
+            // Each render target needs its own buffer and command queue
+            id<MTLCommandBuffer> cmdBuff = [cmdQueue commandBuffer];
+
+            // Some of the drawables want memory copied before they draw
+            id<MTLBlitCommandEncoder> bltEncode = [cmdBuff blitCommandEncoder];
+            for (auto &draw : targetContainer->drawables) {
+                DrawableMTL *drawMTL = dynamic_cast<DrawableMTL *>(draw.get());
+                drawMTL->blitMemory(&baseFrameInfo,bltEncode,scene);
+            }
+            [bltEncode endEncoding];
+
             for (unsigned int level=0;level<renderTarget->numLevels();level++) {                
-                // Each render target needs its own buffer and command queue
-                id<MTLCommandBuffer> cmdBuff = [cmdQueue commandBuffer];
 
                 // Set up a master encoder for all the little encoders
                 id<MTLRenderCommandEncoder> cmdEncode = nil;
@@ -652,20 +661,20 @@ void SceneRendererMTL::render(TimeInterval duration,
                 }
                 
                 [cmdEncode endEncoding];
-
-                // Main screen has to be committed
-                if (drawGetter != nil && workGroup->groupType == WorkGroup::ScreenRender) {
-                    id<CAMetalDrawable> drawable = [drawGetter getDrawable];
-                    [cmdBuff presentDrawable:drawable];
-                }
-
-                [cmdBuff commit];
-
-                // TODO: See if we can set a callback instead
-                // This happens for offline rendering and we want to wait until the render finishes to return it
-                if (!drawGetter)
-                    [cmdBuff waitUntilCompleted];
             }
+
+            // Main screen has to be committed
+            if (drawGetter != nil && workGroup->groupType == WorkGroup::ScreenRender) {
+                id<CAMetalDrawable> drawable = [drawGetter getDrawable];
+                [cmdBuff presentDrawable:drawable];
+            }
+
+            [cmdBuff commit];
+
+            // TODO: See if we can set a callback instead
+            // This happens for offline rendering and we want to wait until the render finishes to return it
+            if (!drawGetter)
+                [cmdBuff waitUntilCompleted];
         }
                 
         if (perfInterval > 0)

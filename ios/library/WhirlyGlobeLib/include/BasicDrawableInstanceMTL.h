@@ -47,6 +47,9 @@ public:
     /// Fill this in to draw the basic drawable
     virtual void draw(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene);
     
+    /// Copy memory into places for indirect
+    virtual void blitMemory(RendererFrameInfoMTL *frameInfo,id<MTLBlitCommandEncoder> blitEncode,Scene *scene);
+
 protected:
     id<MTLRenderPipelineState> getRenderPipelineState(SceneRendererMTL *sceneRender,RendererFrameInfoMTL *frameInfo,BasicDrawableMTL *basicDrawMTL);
     void updateColorDefaultAttr();
@@ -56,6 +59,7 @@ protected:
     bool setupForMTL;
     WhirlyKitShader::UniformModelInstance uniMI;
     id<MTLBuffer> instBuffer;  // Stores instances
+    id<MTLBuffer> indirectBuffer;   // Indirect arguments for drawIndexed
     int numInst;
 };
     
