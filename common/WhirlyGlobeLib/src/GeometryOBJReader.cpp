@@ -477,12 +477,11 @@ void GeometryModelOBJ::toRawGeometry(std::vector<std::string> &textures,std::vec
         geom.type = WhirlyKitGeometryTriangles;
         
         // Figure out if there's a texture ID
-        geom.texId = EmptyIdentity;
         if (it.mtlID > -1)
         {
             Material &mtl = materials[it.mtlID];
             if (mtl.tex_diffuseID > -1)
-                geom.texId = mtl.tex_diffuseID;
+                geom.texIDs.push_back(mtl.tex_diffuseID);
         }
         
         // Work through the faces

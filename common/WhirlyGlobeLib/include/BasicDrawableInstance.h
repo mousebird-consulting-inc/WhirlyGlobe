@@ -39,7 +39,7 @@ friend class BasicDrawableInstanceBuilder;
     
 public:
     /// Either the old style where we reuse drawables or the new style, largely for models
-    typedef enum {ReuseStyle,LocalStyle} Style;
+    typedef enum {ReuseStyle,LocalStyle,GPUStyle} Style;
     
     /// Construct empty
     BasicDrawableInstance(const std::string &name);
@@ -190,6 +190,8 @@ protected:
 
     // If set, we'll instance this one multiple times
     std::vector<SingleInstance> instances;
+    // Or we might get the number of instances from a texture (possibly a reduce)
+    SimpleIdentity instanceTexSource;
 };
 
 /// Reference counted version of BasicDrawableInstance

@@ -125,6 +125,9 @@ void BasicDrawableInstanceMTL::setupForRenderer(const RenderSetupInfo *inSetupIn
         if (!name.empty())
             instBuffer.label = [NSString stringWithFormat:@"%s inst",name.c_str()];
         numInst = insts.size();
+    } else if (instanceStyle == GPUStyle) {
+        // TODO: Fill this in
+        NSLog(@"Got one");
     }
         
     setupForMTL = true;
@@ -171,7 +174,7 @@ void BasicDrawableInstanceMTL::draw(RendererFrameInfoMTL *frameInfo,id<MTLRender
         [cmdEncode setVertexBytes:&defAttr.data length:sizeof(defAttr.data) atIndex:defAttr.bufferIndex];
     
     // Wire up the model instances if we have them
-    if (instanceStyle == LocalStyle) {
+    if (instanceStyle == LocalStyle || instanceStyle == GPUStyle) {
         if (moving)
             uniMI.time = frameInfo->currentTime - startTime;
         [cmdEncode setVertexBytes:&uniMI length:sizeof(uniMI) atIndex:WKSUniformDrawStateModelInstanceBuffer];
@@ -244,35 +247,41 @@ void BasicDrawableInstanceMTL::draw(RendererFrameInfoMTL *frameInfo,id<MTLRender
     [cmdEncode setFragmentBytes:&uni length:sizeof(uni) atIndex:WKSUniformDrawStateBuffer];
     
     // Using the basic drawable geometry with a few tweaks
-    if (instanceStyle == ReuseStyle) {
-        switch (basicDraw->type) {
-            case Lines:
-                [cmdEncode drawPrimitives:MTLPrimitiveTypeLine vertexStart:0 vertexCount:basicDrawMTL->numPts];
-                break;
-            case Triangles:
-                if (!basicDrawMTL->triBuffer) {
-                    // TODO: Figure out why this happens
-                    // NSLog(@"BasicDrawableInstanceMTL: Bad basic drawable with no triangles.");
-                    return;
-                }
-                // This actually draws the triangles (well, in a bit)
-                [cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:basicDrawMTL->numTris*3 indexType:MTLIndexTypeUInt16 indexBuffer:basicDrawMTL->triBuffer indexBufferOffset:0];
-                break;
-            default:
-                break;
-        }
-    } else {
-        // Model instancing
-        switch (basicDraw->type) {
-            case Lines:
-                [cmdEncode drawPrimitives:MTLPrimitiveTypeLine vertexStart:0 vertexCount:basicDrawMTL->numPts instanceCount:numInst];
-                break;
-            case Triangles:
-                [cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:basicDrawMTL->numTris*3 indexType:MTLIndexTypeUInt16 indexBuffer:basicDrawMTL->triBuffer indexBufferOffset:0 instanceCount:numInst];
-                break;
-            default:
-                break;
-        }
+    switch (instanceStyle) {
+        case ReuseStyle:
+            switch (basicDraw->type) {
+                case Lines:
+                    [cmdEncode drawPrimitives:MTLPrimitiveTypeLine vertexStart:0 vertexCount:basicDrawMTL->numPts];
+                    break;
+                case Triangles:
+                    if (!basicDrawMTL->triBuffer) {
+                        // TODO: Figure out why this happens
+                        // NSLog(@"BasicDrawableInstanceMTL: Bad basic drawable with no triangles.");
+                        return;
+                    }
+                    // This actually draws the triangles (well, in a bit)
+                    [cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:basicDrawMTL->numTris*3 indexType:MTLIndexTypeUInt16 indexBuffer:basicDrawMTL->triBuffer indexBufferOffset:0];
+                    break;
+                default:
+                    break;
+            }
+            break;
+        case LocalStyle:
+            // Model instancing
+            switch (basicDraw->type) {
+                case Lines:
+                    [cmdEncode drawPrimitives:MTLPrimitiveTypeLine vertexStart:0 vertexCount:basicDrawMTL->numPts instanceCount:numInst];
+                    break;
+                case Triangles:
+                    [cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:basicDrawMTL->numTris*3 indexType:MTLIndexTypeUInt16 indexBuffer:basicDrawMTL->triBuffer indexBufferOffset:0 instanceCount:numInst];
+                    break;
+                default:
+                    break;
+            }
+            break;
+        case GPUStyle:
+            // TODO: Fill this in
+            break;
     }
 }
     

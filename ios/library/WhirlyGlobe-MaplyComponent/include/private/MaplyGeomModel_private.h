@@ -59,3 +59,5 @@ public:
 - (WhirlyKit::SimpleIdentity)getBaseModel:(MaplyBaseInteractionLayer *)inLayer fontTexManager:(WhirlyKit::FontTextureManager_iOS *)fontTexManager compObj:(MaplyComponentObject *)compObj mode:(MaplyThreadMode)threadMode;
 
 @end
+
+

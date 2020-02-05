@@ -93,6 +93,9 @@ public:
     /// Add a instance to the stack of instances this instance represents (mmm, noun overload)
     void addInstances(const std::vector<BasicDrawableInstance::SingleInstance> &insts);
     
+    /// We can get the number of instances from a texture instead of being defined ahead of time
+    void setInstanceTexSource(SimpleIdentity texID);
+    
     /// Set the uniforms applied to the Program before rendering
     virtual void setUniforms(const SingleVertexAttributeSet &uniforms);
     

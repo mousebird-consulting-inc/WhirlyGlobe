@@ -80,9 +80,11 @@ using namespace Eigen;
     // Remap the texture IDs to something used by the scene
     for (auto geom : rawGeom)
     {
-        if (geom.texId >= 0 && geom.texId < texFileMap.size())
-        {
-            geom.texId = (int)texFileMap[geom.texId];
+        for (unsigned int ii=0;ii<geom.texIDs.size();ii++) {
+            if (geom.texIDs[ii] >= 0 && geom.texIDs[ii] < texFileMap.size())
+            {
+                geom.texIDs[ii] = (int)texFileMap[geom.texIDs[ii]];
+            }
         }
         outRawGeom.push_back(geom);
     }
@@ -159,7 +161,7 @@ using namespace Eigen;
                 {
                     stringGeom[rect.subTex.texId] = GeometryRaw();
                     geom = &stringGeom[rect.subTex.texId];
-                    geom->texId = (int)rect.subTex.texId;
+                    geom->texIDs.push_back((int)rect.subTex.texId);
                 } else
                     geom = &stringGeom[rect.subTex.texId];
 
@@ -226,3 +228,8 @@ using namespace Eigen;
 @implementation MaplyMovingGeomModelInstance
 
 @end
+
+@implementation MaplyGeomModelGPUInstance
+
+@end
+
