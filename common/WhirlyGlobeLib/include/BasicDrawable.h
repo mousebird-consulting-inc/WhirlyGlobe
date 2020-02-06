@@ -126,6 +126,7 @@ public:
         TexInfo() : texId(EmptyIdentity), texCoordEntry(0),
         relLevel(0), relX(0), relY(0),
         size(0), borderTexel(0) { }
+                
         /// Texture ID within the scene
         SimpleIdentity texId;
         /// Vertex attribute entry for this set of texture coordinates

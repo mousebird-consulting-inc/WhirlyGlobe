@@ -141,6 +141,10 @@ public:
     {
     public:
         TexInfo() : texId(EmptyIdentity), relLevel(0), relX(0), relY(0), size(0), borderTexel(0) { }
+        
+        // Initialize from a basic drawable's version of the tex info
+        TexInfo(BasicDrawable::TexInfo &basicTexInfo);
+
         /// Texture ID within the scene
         SimpleIdentity texId;
         /// Our use of this texture relative to its native resolution

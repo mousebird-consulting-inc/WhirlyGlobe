@@ -232,13 +232,23 @@ void BasicDrawableInstanceMTL::draw(RendererFrameInfoMTL *frameInfo,id<MTLRender
     
     // TODO: Fill this in
     float fade = 1.0;
+        
+    // Sometimes it's just boring geometry and the texture's in the base
+    // Sometimes we're doing something clever and it's in the instance
+    std::vector<TexInfo> allTexInfo(std::max(texInfo.size(),basicDraw->texInfo.size()));
+    for (unsigned int texIndex=0;texIndex<allTexInfo.size();texIndex++) {
+        if (texIndex < basicDraw->texInfo.size())
+            allTexInfo[texIndex] = TexInfo(basicDraw->texInfo[texIndex]);
+        if (texIndex < texInfo.size())
+            allTexInfo[texIndex] = texInfo[texIndex];
+    }
     
     // Pass in the textures (and offsets)
     // Note: We could precalculate most of then when the texture changes
     //       And we should figure out how many textures they actually have
     int numTextures = 0;
-    for (unsigned int texIndex=0;texIndex<std::max((int)texInfo.size(),2);texIndex++) {
-        TexInfo *thisTexInfo = (texIndex < texInfo.size()) ? &texInfo[texIndex] : NULL;
+    for (unsigned int texIndex=0;texIndex<std::max((int)allTexInfo.size(),2);texIndex++) {
+        TexInfo *thisTexInfo = (texIndex < allTexInfo.size()) ? &allTexInfo[texIndex] : NULL;
         
         // Figure out texture adjustment for parent textures
         float texScale = 1.0;

@@ -37,6 +37,12 @@ BasicDrawableInstance::~BasicDrawableInstance()
 {
 }
 
+BasicDrawableInstance::TexInfo::TexInfo(BasicDrawable::TexInfo &basicTexInfo)
+: texId(basicTexInfo.texId), size(basicTexInfo.size), borderTexel(basicTexInfo.borderTexel),
+relLevel(basicTexInfo.relLevel), relX(basicTexInfo.relX), relY(basicTexInfo.relY)
+{
+}
+
 BasicDrawableRef BasicDrawableInstance::getMaster() const
 {
     return basicDraw;
