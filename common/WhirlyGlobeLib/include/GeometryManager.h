@@ -321,6 +321,9 @@ public:
     /// Remove a group of billboards named by the given ID
     void removeGeometry(SimpleIDSet &billIDs,ChangeSet &changes);
     
+    /// Apply the given uniform block to the geometry
+    void setUniformBlock(const SimpleIDSet &geomIDs,const RawDataRef &uniBlock,int bufferID,ChangeSet &changes);
+    
 protected:
     std::mutex geomLock;
     GeomSceneRepSet sceneReps;

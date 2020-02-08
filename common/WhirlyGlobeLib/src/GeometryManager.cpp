@@ -1013,4 +1013,19 @@ void GeometryManager::removeGeometry(SimpleIDSet &geomIDs,ChangeSet &changes)
     }
 }
 
+void GeometryManager::setUniformBlock(const SimpleIDSet &geomID,const RawDataRef &uniBlock,int bufferID,ChangeSet &changes)
+{
+    std::lock_guard<std::mutex> guardLock(geomLock);
+
+    for (auto geomID : geomID) {
+        GeomSceneRep dummyRep(geomID);
+        auto sit = sceneReps.find(&dummyRep);
+        if (sit != sceneReps.end()) {
+            for (auto drawID : (*sit)->drawIDs)
+                changes.push_back(new UniformBlockSetRequest(drawID,uniBlock,bufferID));
+        }
+    }
+}
+
+
 }
