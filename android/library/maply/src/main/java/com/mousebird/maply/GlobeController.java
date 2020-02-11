@@ -563,6 +563,7 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 			return;
 
 		globeView.cancelAnimation();
+		globeView.setHeading(heading);
 	}
 
 	/**
