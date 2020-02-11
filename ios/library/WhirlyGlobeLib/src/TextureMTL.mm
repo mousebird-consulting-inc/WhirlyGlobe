@@ -217,6 +217,9 @@ bool TextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
     // If there's no data, then we're using this as a target
     if (!texData) {
         desc.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
+#if TARGET_OS_SIMULATOR
+    desc.storageMode = MTLStorageModePrivate;
+#endif
     }
     
     mtlID = [setupInfo->mtlDevice newTextureWithDescriptor:desc];

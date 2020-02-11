@@ -300,6 +300,7 @@ NSString* const kMaplyMinFilterLinear = @"texfilterlinear";
 NSString* const kMaplyTexAtlas = @"texatlas";
 NSString* const kMaplyTexWrapX = @"texwrapx";
 NSString* const kMaplyTexWrapY = @"texwrapy";
+NSString* const kMaplyTexMipmap = @"texmipmap";
 
 /// These are the various shader programs we set up by default
 NSString* const kMaplyShaderDefaultTri = @"Default Triangle;lighting=yes";

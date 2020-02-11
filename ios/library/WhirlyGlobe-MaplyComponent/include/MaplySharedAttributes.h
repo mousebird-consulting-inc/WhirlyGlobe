@@ -328,6 +328,7 @@ extern NSString* const kMaplyMinFilterLinear;
 extern NSString* const kMaplyTexAtlas;
 extern NSString* const kMaplyTexWrapX;
 extern NSString* const kMaplyTexWrapY;
+extern NSString* const kMaplyTexMipmap;
 
 /// These are the various shader programs we set up by default
 extern NSString* const kMaplyShaderDefaultTri;

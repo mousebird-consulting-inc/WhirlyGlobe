@@ -419,8 +419,9 @@ using namespace WhirlyGlobe;
 
 - (bool)linearMiddle:(MaplyCoordinate *)middle rot:(double *)rot
 {
+    double retRot;
     Point2d mid;
-    bool ret = vObj->linearMiddle(mid, *rot);
+    bool ret = vObj->linearMiddle(mid, retRot);
     if (ret) {
         middle->x = mid.x();
         middle->y = mid.y();
@@ -429,13 +430,16 @@ using namespace WhirlyGlobe;
         middle->y = 0.0;
     }
     
+    if (rot)
+        *rot = retRot;
     return ret;
 }
 
 - (bool)linearMiddle:(MaplyCoordinate *)middle rot:(double *)rot displayCoordSys:(MaplyCoordinateSystem *)maplyCoordSys
 {
+    double retRot;
     Point2d mid;
-    bool ret = vObj->linearMiddle(mid, *rot, maplyCoordSys->coordSystem.get());
+    bool ret = vObj->linearMiddle(mid, retRot, maplyCoordSys->coordSystem.get());
     if (ret) {
         middle->x = mid.x();
         middle->y = mid.y();
@@ -444,6 +448,8 @@ using namespace WhirlyGlobe;
         middle->y = 0.0;
     }
     
+    if (rot)
+        *rot = retRot;
     return ret;
 }
 

@@ -35,7 +35,7 @@
  @see http://schemas.opengis.net/filter/1.0.0/expr.xsd for SLD v1.0.0
  */
 @interface SLDLiteralExpression : SLDExpression
-@property (nonatomic, strong) NSString * _Nonnull literal;
+@property (nonatomic, strong) id _Nonnull literal;
 - (_Nullable id)initWithElement:(DDXMLElement * _Nonnull)element;
 @end
 

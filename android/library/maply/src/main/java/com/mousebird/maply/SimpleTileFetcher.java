@@ -44,7 +44,7 @@ public class SimpleTileFetcher extends HandlerThread implements TileFetcher
 {
     protected boolean valid = false;
     protected String name;
-    public int minZoom,maxZoom;
+    public int minZoom = -1,maxZoom = -1;
 
     /**
      * Construct with the name, min and max zoom levels.
@@ -220,6 +220,9 @@ public class SimpleTileFetcher extends HandlerThread implements TileFetcher
     private static final int MaxParsing = 8;
     private int numParsing = 0;
     protected Queue<AsyncTask<Void, Void, Void> > tasks = new LinkedList<>();
+    // If set by the subclass, we'll just treat null data as valid
+    // This is helpful when you have sparse data sets
+    protected boolean neverFail = false;
 
     // Load a tile and pass off the results
     protected void updateLoading()
@@ -241,7 +244,7 @@ public class SimpleTileFetcher extends HandlerThread implements TileFetcher
         // We assume they'll be parsing things which will take time
         tasks.add(new AsyncTask<Void, Void, Void>() {
             protected Void doInBackground(Void... unused) {
-                if (data != null)
+                if (data != null || neverFail)
                     tileInfo.request.callback.success(tileInfo.request, data);
                 else
                     tileInfo.request.callback.failure(tileInfo.request,"Failed to read MBTiles File");
