@@ -7,7 +7,7 @@
 //
 
 #import "VectorStyleTestCase.h"
-#import "GeographyClassTestCase.h"
+#import "AutoTester-Swift.h"
 
 @implementation VectorStyleTestCase
 {

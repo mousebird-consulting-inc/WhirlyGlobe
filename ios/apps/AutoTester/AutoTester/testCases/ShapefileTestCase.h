@@ -8,6 +8,8 @@
 
 #import "MaplyTestCase.h"
 
+@class GeographyClassTestCase;
+
 @interface ShapefileTestCase : MaplyTestCase
 
 @end

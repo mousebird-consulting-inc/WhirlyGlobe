@@ -11,8 +11,8 @@
 #import "MaplyBaseViewController.h"
 #import "MaplyGeomModel.h"
 #import "MaplyMatrix.h"
-#import "GeographyClassTestCase.h"
 #import "MaplyViewController.h"
+#import "AutoTester-Swift.h"
 
 
 // Simple representation of locations and name for testing
