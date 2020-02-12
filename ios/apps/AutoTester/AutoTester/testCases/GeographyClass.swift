@@ -17,15 +17,19 @@ public class GeographyClassTestCase: MaplyTestCase {
         self.implementations = [.globe, .map]
     }
     
-    typealias ImageLayer = (loader: MaplyQuadImageLoader, fetcher: MaplyMBTileFetcher, target: MaplyVariableTarget?)
+    typealias ImageLayer = (loader: MaplyQuadImageLoader, fetcher: MaplyMBTileFetcher)
     var layers : [ImageLayer] = []
+    var varTarget : MaplyVariableTarget? = nil
     
-    func setupMBTiles(_ name: String, offscreen: Bool, drawPriority: Int32, viewC: MaplyBaseViewController) -> ImageLayer? {
+    func setupMBTiles(_ name: String, offscreen: Bool, transparent: Bool, drawPriority: Int32, viewC: MaplyBaseViewController) -> ImageLayer? {
         guard let fetcher = MaplyMBTileFetcher(mbTiles: name) else {
             return nil
         }
         
         let params = MaplySamplingParams()
+        if (transparent) {
+            params.forceMinLevel = false
+        }
         params.minZoom = 0
         params.maxZoom = fetcher.maxZoom()
         params.coordSys = MaplySphericalMercator(webStandard: ())
@@ -37,25 +41,30 @@ public class GeographyClassTestCase: MaplyTestCase {
         loader.setTileFetcher(fetcher)
         loader.baseDrawPriority = drawPriority
         
-        var layer = ImageLayer(loader: loader, fetcher: fetcher, target: nil)
+        let layer = ImageLayer(loader: loader, fetcher: fetcher)
 
         // For offscreen rendering, we need a target
         if offscreen {
-            let target = MaplyVariableTarget(type: .imageIntRGBA, viewC: viewC)
-            target.setScale(1.0)
-            target.drawPriority = drawPriority
-            target.buildRectangle = true
-            loader.setRenderTarget(target.renderTarget)
-            layer.target = target
+            if varTarget == nil {
+                let target = MaplyVariableTarget(type: .imageIntRGBA, viewC: viewC)
+                target.setScale(1.0)
+                target.drawPriority = drawPriority
+                target.buildRectangle = true
+                varTarget = target
+            }
+            loader.setRenderTarget(varTarget!.renderTarget)
         }
         
         return layer
     }
     
     func setupLayers(_ viewC: MaplyBaseViewController) {
-        if let layer = setupMBTiles("geography-class_medres",offscreen: false, drawPriority: kMaplyImageLayerDrawPriorityDefault, viewC: viewC) {
+        if let layer = setupMBTiles("geography-class_medres",
+                                    offscreen: false,
+                                    transparent: false,
+                                    drawPriority: kMaplyImageLayerDrawPriorityDefault,
+                                    viewC: viewC) {
             layers.append(layer)
-        }
         }
     }
     
@@ -63,6 +72,11 @@ public class GeographyClassTestCase: MaplyTestCase {
         for layer in layers {
             layer.loader.shutdown()
         }
+        layers = []
+        if let target = varTarget {
+            target.shutdown()
+        }
+        varTarget = nil
     }
     
     public override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
