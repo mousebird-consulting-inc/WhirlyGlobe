@@ -471,7 +471,7 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 
 		ViewState viewState = new ViewState();
 		viewState.pos = new Point2d(geoLoc.getX(),geoLoc.getY());
-		viewState.height = geoLoc.getZ();
+		viewState.height = loc.getZ();
 		viewState.heading = globeView.getHeading();
 		viewState.tilt = globeView.getTilt();
 
