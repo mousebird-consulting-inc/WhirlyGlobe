@@ -17,6 +17,7 @@ import com.mousebird.maply.QuadImageLoader;
 import com.mousebird.maply.SamplingParams;
 import com.mousebird.maply.SelectedObject;
 import com.mousebird.maply.SphericalMercatorCoordSystem;
+import com.mousebird.maply.VariableTarget;
 import com.mousebirdconsulting.autotester.ConfigOptions;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 
@@ -108,13 +109,15 @@ public class GeographyClass extends MaplyTestCase {
         this.implementation = TestExecutionImplementation.Both;
     }
 
-    private void setupImageLoader(BaseController baseController, ConfigOptions.TestType testType) throws Exception
+    VariableTarget varTarget = null;
+
+    private void setupImageLoader(BaseController baseController, String mbTilesName, int drawPriority, boolean useOffscreen, ConfigOptions.TestType testType) throws Exception
     {
         File mbTiles;
 
         // We need to copy the file from the asset so that it can be used as a file
         try {
-            mbTiles = this.getMbTileFile("mbtiles/geography-class_medres.mbtiles", "geography-class.mbtiles");
+            mbTiles = this.getMbTileFile("mbtiles/" + mbTilesName, mbTilesName);
         }
         catch (Exception e)
         {
@@ -140,16 +143,28 @@ public class GeographyClass extends MaplyTestCase {
             params.setEdgeMatching(true);
         }
         params.setSingleLevel(true);
-        params.setMinZoom(mbTileFetcher.minZoom);
+        params.setMinZoom(0);
         params.setMaxZoom(mbTileFetcher.maxZoom);
+
+        // Render this to an offscreen buffer first
+        if (useOffscreen) {
+            varTarget = new VariableTarget(baseController);
+            varTarget.buildRectangle = true;
+            varTarget.drawPriority = drawPriority;
+            varTarget.scale = 1.0;
+        }
 
         QuadImageLoader loader = new QuadImageLoader(params,mbTileFetcher.getTileInfo(),baseController);
         loader.setTileFetcher(mbTileFetcher);
+        loader.setBaseDrawPriority(drawPriority);
+        if (useOffscreen) {
+            loader.setRenderTarget(varTarget.renderTarget);
+        }
     }
 
     @Override
     public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
-        setupImageLoader(globeVC, ConfigOptions.TestType.GlobeTest);
+        setupImageLoader(globeVC, "geography-class_medres.mbtiles", 1000, false, ConfigOptions.TestType.GlobeTest);
 
         globeVC.gestureDelegate = gestureDelegate;
 
@@ -158,7 +173,7 @@ public class GeographyClass extends MaplyTestCase {
 
     @Override
     public boolean setUpWithMap(MapController mapVC) throws Exception {
-        setupImageLoader(mapVC, ConfigOptions.TestType.MapTest);
+        setupImageLoader(mapVC, "geography-class_medres.mbtiles", 1000, false, ConfigOptions.TestType.MapTest);
         return true;
     }
 
