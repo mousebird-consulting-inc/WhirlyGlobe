@@ -111,7 +111,7 @@ public class GeographyClass extends MaplyTestCase {
 
     VariableTarget varTarget = null;
 
-    private void setupImageLoader(BaseController baseController, String mbTilesName, int drawPriority, boolean useOffscreen, ConfigOptions.TestType testType) throws Exception
+    private void setupImageLoader(BaseController baseController, String mbTilesName, int drawPriority, boolean useOffscreen, boolean transparent, ConfigOptions.TestType testType) throws Exception
     {
         File mbTiles;
 
@@ -142,6 +142,8 @@ public class GeographyClass extends MaplyTestCase {
             params.setCoverPoles(true);
             params.setEdgeMatching(true);
         }
+        if (transparent)
+            params.setForceMinLevel(false);
         params.setSingleLevel(true);
         params.setMinZoom(0);
         params.setMaxZoom(mbTileFetcher.maxZoom);
@@ -164,7 +166,7 @@ public class GeographyClass extends MaplyTestCase {
 
     @Override
     public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
-        setupImageLoader(globeVC, "geography-class_medres.mbtiles", 1000, false, ConfigOptions.TestType.GlobeTest);
+        setupImageLoader(globeVC, "geography-class_medres.mbtiles", 1000,  false, false, ConfigOptions.TestType.GlobeTest);
 
         globeVC.gestureDelegate = gestureDelegate;
 
@@ -173,7 +175,7 @@ public class GeographyClass extends MaplyTestCase {
 
     @Override
     public boolean setUpWithMap(MapController mapVC) throws Exception {
-        setupImageLoader(mapVC, "geography-class_medres.mbtiles", 1000, false, ConfigOptions.TestType.MapTest);
+        setupImageLoader(mapVC, "geography-class_medres.mbtiles", 1000, false, false, ConfigOptions.TestType.MapTest);
         return true;
     }
 

@@ -145,6 +145,13 @@ public class SamplingParams
     public native void setTesselation(int tessX,int tessY);
 
     /**
+     * If set, we'll always make sure the min level is loaded in
+     * to provide some background.  Turn it off for true single level
+     * loading.  Not great for basemaps.  On by default.
+     */
+    public native void setForceMinLevel(boolean force);
+
+    /**
      * Return the tesselation in X for a single tile.
      */
     public native int getTesselationX();
