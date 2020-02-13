@@ -10,9 +10,9 @@
 #import "MaplyBaseViewController.h"
 #import "MaplyTextureBuilder.h"
 #import "MaplyScreenLabel.h"
-#import "GeographyClassTestCase.h"
 #import "WhirlyGlobeViewController.h"
 #import "MaplyViewController.h"
+#import "AutoTester-Swift.h"
 
 @implementation WideVectorsTestCase
 {

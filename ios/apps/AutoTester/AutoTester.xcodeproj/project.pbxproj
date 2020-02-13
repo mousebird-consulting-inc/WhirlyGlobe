@@ -11,6 +11,7 @@
 		2B1806D322AECF4300DD3DB1 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B1806D122AECF4200DD3DB1 /* Accelerate.framework */; };
 		2B1C26531C91037100C71B0A /* France.mbtiles in Resources */ = {isa = PBXBuildFile; fileRef = 2B1C26511C9100A500C71B0A /* France.mbtiles */; };
 		2B1E85A622B44D5800AB7208 /* BillboardTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B1E85A522B44D5800AB7208 /* BillboardTestCase.swift */; };
+		2B249F3F23F4A82600CFA3D0 /* GeographyClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B249F3E23F4A82600CFA3D0 /* GeographyClass.swift */; };
 		2B2A417E1D83454900098E12 /* ActiveObjectTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B2A417D1D83454900098E12 /* ActiveObjectTestCase.m */; };
 		2B392B711C5AC59D001EE40B /* RunwayBuilderTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B392B701C5AC59D001EE40B /* RunwayBuilderTestCase.m */; };
 		2B446AAE21EFE29B0078A975 /* WMSTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = E5679F451CB72DE800369A15 /* WMSTestCase.m */; };
@@ -76,7 +77,6 @@
 		2BFC7E511D132DCB0040E2A3 /* ScreenMarkersTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BFC7E501D132DCB0040E2A3 /* ScreenMarkersTestCase.m */; };
 		8820852B1DC81051008F8E76 /* Issue721TestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8820852A1DC81051008F8E76 /* Issue721TestCase.swift */; };
 		88BF11491BCD3DA40002205E /* MaplyTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 88BF11481BCD3DA40002205E /* MaplyTestCase.m */; };
-		88BF115D1BCDA9530002205E /* GeographyClassTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 88BF115C1BCDA9530002205E /* GeographyClassTestCase.m */; };
 		88E4B8CA1B83B6AB0050D21B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 88E4B8C81B83B6AB0050D21B /* Main.storyboard */; };
 		88E4B8CC1B83B6AB0050D21B /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 88E4B8CB1B83B6AB0050D21B /* Images.xcassets */; };
 		88E4B8CF1B83B6AB0050D21B /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 88E4B8CD1B83B6AB0050D21B /* LaunchScreen.xib */; };
@@ -569,6 +569,7 @@
 		2B1C264E1C90FFFC00C71B0A /* VectorMBTilesTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VectorMBTilesTestCase.swift; sourceTree = "<group>"; };
 		2B1C26511C9100A500C71B0A /* France.mbtiles */ = {isa = PBXFileReference; lastKnownFileType = file; name = France.mbtiles; path = ../../../resources/vectors/France.mbtiles; sourceTree = "<group>"; };
 		2B1E85A522B44D5800AB7208 /* BillboardTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BillboardTestCase.swift; sourceTree = "<group>"; };
+		2B249F3E23F4A82600CFA3D0 /* GeographyClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeographyClass.swift; sourceTree = "<group>"; };
 		2B2A417C1D83454900098E12 /* ActiveObjectTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ActiveObjectTestCase.h; sourceTree = "<group>"; };
 		2B2A417D1D83454900098E12 /* ActiveObjectTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ActiveObjectTestCase.m; sourceTree = "<group>"; };
 		2B361E3921237CFE0074D06D /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
@@ -638,8 +639,6 @@
 		8895D8AF1CA4ABA9004387FB /* ParticleTest.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ParticleTest.mm; sourceTree = "<group>"; };
 		88BF11471BCD3DA40002205E /* MaplyTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyTestCase.h; sourceTree = "<group>"; };
 		88BF11481BCD3DA40002205E /* MaplyTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MaplyTestCase.m; sourceTree = "<group>"; };
-		88BF115B1BCDA9530002205E /* GeographyClassTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeographyClassTestCase.h; sourceTree = "<group>"; };
-		88BF115C1BCDA9530002205E /* GeographyClassTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeographyClassTestCase.m; sourceTree = "<group>"; };
 		88BF115E1BCDA9730002205E /* StamenWatercolorRemote.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StamenWatercolorRemote.swift; sourceTree = "<group>"; };
 		88E4B8BF1B83B6AB0050D21B /* AutoTester.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AutoTester.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		88E4B8C31B83B6AB0050D21B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -1214,8 +1213,7 @@
 				D84AA59B1C1A2E9900413B76 /* ElevationLocalDatabase.m */,
 				2BDEB3001C924842003259B3 /* ExtrudedModelTestCase.h */,
 				2BDEB3011C924842003259B3 /* ExtrudedModelTestCase.m */,
-				88BF115B1BCDA9530002205E /* GeographyClassTestCase.h */,
-				88BF115C1BCDA9530002205E /* GeographyClassTestCase.m */,
+				2B249F3E23F4A82600CFA3D0 /* GeographyClass.swift */,
 				2BDEB3121C9391EB003259B3 /* GreatCircleTestCase.h */,
 				2BDEB3131C9391EB003259B3 /* GreatCircleTestCase.m */,
 				D8F2FE251BE7BD630058A310 /* LabelsTestCase.h */,
@@ -2422,7 +2420,6 @@
 				2BC3D6F3220B901000CE91D0 /* AppDelegate.swift in Sources */,
 				2BC3D6F2220B900D00CE91D0 /* TestCell.swift in Sources */,
 				2BB8A40021ED46E10025DA98 /* StamenWatercolorRemote.swift in Sources */,
-				88BF115D1BCDA9530002205E /* GeographyClassTestCase.m in Sources */,
 				2B392B711C5AC59D001EE40B /* RunwayBuilderTestCase.m in Sources */,
 				2B68A43C225D06A8009CC720 /* ImageReloadTestCase.swift in Sources */,
 				D8F2FE2E1BE7CF310058A310 /* ModelsTestCase.swift in Sources */,
@@ -2450,6 +2447,7 @@
 				8820852B1DC81051008F8E76 /* Issue721TestCase.swift in Sources */,
 				2B753DDB21EEB41700DE98BA /* NASAGIBSTestCase.swift in Sources */,
 				2BC0FB781DCAA18A004125F1 /* TextureVectorTestCase.m in Sources */,
+				2B249F3F23F4A82600CFA3D0 /* GeographyClass.swift in Sources */,
 				D8F2FE291BE7C2000058A310 /* MarkersTestCase.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

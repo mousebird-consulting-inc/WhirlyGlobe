@@ -7,7 +7,7 @@
 //
 
 #import "ShapefileTestCase.h"
-#import "GeographyClassTestCase.h"
+#import "AutoTester-Swift.h"
 
 @implementation ShapefileTestCase
 {

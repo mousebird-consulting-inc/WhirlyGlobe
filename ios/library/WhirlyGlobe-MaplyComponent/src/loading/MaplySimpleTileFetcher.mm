@@ -134,6 +134,7 @@ typedef std::map<MaplyTileFetchRequest *,TileInfoRef> TileFetchMap;
     _name = name;
     minZoom = inMinZoom;
     maxZoom = inMaxZoom;
+    _neverFail = true;
     
     tileInfo = [[MaplySimpleTileInfo alloc] initWithMinZoom:minZoom maxZoom:maxZoom];
     _queue = dispatch_queue_create([_name cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_SERIAL);
@@ -194,7 +195,7 @@ typedef std::map<MaplyTileFetchRequest *,TileInfoRef> TileFetchMap;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
                    ^{
                        // We assume the parsing is going to take some time
-                       if (tileData) {
+                       if (tileData || self.neverFail) {
                            tile->request.success(tile->request,tileData);
                        } else {
                            tile->request.failure(tile->request, error);

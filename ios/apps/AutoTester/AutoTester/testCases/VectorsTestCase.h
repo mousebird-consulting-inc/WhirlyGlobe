@@ -7,9 +7,9 @@
 //
 
 #import "MaplyTestCase.h"
-#import "GeographyClassTestCase.h"
 
 @class MaplyVectorObject;
+@class GeographyClassTestCase;
 
 @interface VectorsTestCase : MaplyTestCase
 

@@ -37,7 +37,6 @@
                                                viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC
 {
     MaplyVectorStyleSimple *style;
-    uuidCount = 0;
     
     // Look for existing layer
     @synchronized (self) {
@@ -93,7 +92,8 @@
 
 - (long long)generateID
 {
-    return uuidCount++;
+    uuidCount = uuidCount + 1;
+    return uuidCount;
 }
 
 @end

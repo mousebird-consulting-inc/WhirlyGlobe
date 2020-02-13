@@ -7,11 +7,11 @@
 //
 
 #import "VectorsTestCase.h"
-#import "GeographyClassTestCase.h"
 #import "MaplyBaseViewController.h"
 #include <stdlib.h>
 #import "MaplyViewController.h"
 #import "WhirlyGlobeViewController.h"
+#import "AutoTester-Swift.h"
 
 @interface VectorsTestCase()
 

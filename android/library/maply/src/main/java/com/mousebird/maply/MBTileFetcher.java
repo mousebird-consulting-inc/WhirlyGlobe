@@ -54,6 +54,7 @@ public class MBTileFetcher extends  SimpleTileFetcher
     public MBTileFetcher(File mbTileFile)
     {
         super("MBTiles Fetcher");
+        neverFail = true;
 
         coordSys = new SphericalMercatorCoordSystem();
 

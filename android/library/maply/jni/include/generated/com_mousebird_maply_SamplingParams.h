@@ -167,6 +167,9 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_SamplingParams_getTesselationX
 JNIEXPORT jint JNICALL Java_com_mousebird_maply_SamplingParams_getTesselationY
   (JNIEnv *, jobject);
 
+JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setForceMinLevel
+        (JNIEnv *, jobject, jboolean);
+
 /*
  * Class:     com_mousebird_maply_SamplingParams
  * Method:    setSingleLevel

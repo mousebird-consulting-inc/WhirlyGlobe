@@ -39,6 +39,9 @@
 /// Dispatch queue the data fetcher is doing its work on
 @property (nonnull) dispatch_queue_t queue;
 
+/// Set by default.  We won't every return an error on failing to load.  Useful for sparse data sets
+@property bool neverFail;
+
 /// Name used for debugging
 @property NSString * __nonnull name;
 

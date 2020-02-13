@@ -36,7 +36,7 @@ class StamenWatercolorRemote: MaplyTestCase {
         sampleParams.minZoom = tileInfo.minZoom()
         sampleParams.maxZoom = tileInfo.maxZoom()
         sampleParams.singleLevel = true
-//        sampleParams.minImportance = 1024.0 * 1024.0
+        sampleParams.minImportance = 1024.0 * 1024.0 / 2.0
         
         guard let imageLoader = MaplyQuadImageLoader(params: sampleParams, tileInfo: tileInfo, viewC: baseVC) else {
             return nil
