@@ -3,6 +3,7 @@ package com.mousebirdconsulting.autotester.TestCases;
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.graphics.Color;
 import android.util.Log;
 
 import com.mousebird.maply.GlobeController;
@@ -11,6 +12,7 @@ import com.mousebird.maply.MBTiles;
 import com.mousebird.maply.MapController;
 import com.mousebird.maply.BaseController;
 import com.mousebird.maply.Mbr;
+import com.mousebird.maply.OvlDebugImageLoaderInterpreter;
 import com.mousebird.maply.Point2d;
 import com.mousebird.maply.Point3d;
 import com.mousebird.maply.QuadImageLoader;
@@ -159,6 +161,10 @@ public class GeographyClass extends MaplyTestCase {
         QuadImageLoader loader = new QuadImageLoader(params,mbTileFetcher.getTileInfo(),baseController);
         loader.setTileFetcher(mbTileFetcher);
         loader.setBaseDrawPriority(drawPriority);
+        if (transparent) {
+            OvlDebugImageLoaderInterpreter interp = new OvlDebugImageLoaderInterpreter();
+            loader.setLoaderInterpreter(interp);
+        }
         if (useOffscreen) {
             loader.setRenderTarget(varTarget.renderTarget);
         }

@@ -36,6 +36,10 @@ public class ImageLoaderInterpreter implements LoaderInterpreter
     // Set if we can use the premultiply option for images
     boolean hasPremultiplyOption = false;
 
+    // Turn this off we need the loader to not mess with values in the channels
+    // This happens for data loading
+    public boolean usePremultiply = false;
+
     public ImageLoaderInterpreter()
     {
         // See if the premultiplied option is available
@@ -65,7 +69,7 @@ public class ImageLoaderInterpreter implements LoaderInterpreter
 
         BitmapFactory.Options options = new BitmapFactory.Options();
 // 		                options.inScaled = false;
-        if (hasPremultiplyOption)
+        if (hasPremultiplyOption && usePremultiply)
             options.inPremultiplied = false;
 
         byte[][] images =loadReturn.getTileData();
