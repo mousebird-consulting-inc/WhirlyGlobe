@@ -233,10 +233,10 @@ public:
     }
     
     // TODO: They mean displayed level here, which is different from loaded level
-//    if (self.minzoom > tileInfo.tileID.level)
-//        return compObjs;
-//    if (self.maxzoom < tileInfo.tileID.level)
-//        return compObjs;
+    if (self.minzoom > tileInfo.tileID.level)
+        return;
+    if (self.maxzoom < tileInfo.tileID.level)
+        return;
     
     NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:
                   @{
