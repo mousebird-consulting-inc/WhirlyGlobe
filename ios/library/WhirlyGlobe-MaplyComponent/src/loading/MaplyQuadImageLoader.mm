@@ -73,6 +73,11 @@ using namespace WhirlyKit;
     return ret;
 }
 
+- (void)clearImages
+{
+    loadReturn->images.clear();
+}
+
 - (void)addCompObjs:(NSArray<MaplyComponentObject *> *)compObjs
 {
     for (MaplyComponentObject *compObj in compObjs)
@@ -91,6 +96,11 @@ using namespace WhirlyKit;
     return ret;
 }
 
+- (void)clearCompObjs
+{
+    loadReturn->compObjs.clear();
+}
+
 - (void)addOvlCompObjs:(NSArray<MaplyComponentObject *> *)compObjs
 {
     for (MaplyComponentObject *compObj in compObjs)
@@ -107,6 +117,11 @@ using namespace WhirlyKit;
     }
     
     return ret;
+}
+
+- (void)clearOvlCompObjs
+{
+    loadReturn->ovlCompObjs.clear();
 }
 
 @end

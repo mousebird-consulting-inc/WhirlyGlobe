@@ -56,12 +56,24 @@ public class ImageLoaderReturn extends LoaderReturn
     public native ImageTile[] getImages();
 
     /**
+     * Clear out the current images.  Presumably to replace them.
+     */
+    public native void clearImages();
+
+    /**
      * If any component objects are associated with the tile, these are them.
      * They need to start disabled.  The system will enable and delete them when it is time.
      */
     public void addComponentObjects(ComponentObject[] compObjs)
     {
         addComponentObjects(compObjs,false);
+    }
+
+    /**
+     * Clear out the component objects, presumably to replace them.
+     */
+    public void clearComponentObjects() {
+        clearComponentObjectsNative(false);
     }
 
     /**
@@ -83,5 +95,10 @@ public class ImageLoaderReturn extends LoaderReturn
         addComponentObjects(compObjs,true);
     }
 
+    public void clearOverlayComponentObjects() {
+        clearComponentObjectsNative(true);
+    }
+
     private native void addComponentObjects(ComponentObject[] compObjs,boolean isOverlay);
+    private native void clearComponentObjectsNative(boolean isOverlay);
 }
