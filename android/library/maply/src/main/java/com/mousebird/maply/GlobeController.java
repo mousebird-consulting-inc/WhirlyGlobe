@@ -455,7 +455,7 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 		if (viewState.tilt != Double.MAX_VALUE)
 			globeView.setTilt(viewState.tilt);
 
-		if (viewState.height != Double.MAX_VALUE && !getKeepNorthUp())
+		if (viewState.heading != Double.MAX_VALUE && !getKeepNorthUp())
 			globeView.setHeading(viewState.heading);
 	}
 
@@ -471,7 +471,7 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 
 		ViewState viewState = new ViewState();
 		viewState.pos = new Point2d(geoLoc.getX(),geoLoc.getY());
-		viewState.height = geoLoc.getZ();
+		viewState.height = loc.getZ();
 		viewState.heading = globeView.getHeading();
 		viewState.tilt = globeView.getTilt();
 
@@ -563,6 +563,7 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 			return;
 
 		globeView.cancelAnimation();
+		globeView.setHeading(heading);
 	}
 
 	/**

@@ -420,6 +420,22 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_SamplingParams_getTesselationY
 	return 0;
 }
 
+JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setForceMinLevel
+		(JNIEnv *env, jobject obj, jboolean forceMinLevel)
+{
+	try
+	{
+		SamplingParams *params = SamplingParamsClassInfo::getClassInfo()->getObject(env,obj);
+		if (!params)
+			return;
+		params->forceMinLevel = forceMinLevel;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SamplingParams::setForceMinLevel()");
+	}
+}
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setSingleLevel
   (JNIEnv *env, jobject obj, jboolean singleLevel)
 {

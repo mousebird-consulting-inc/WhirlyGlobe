@@ -10,12 +10,10 @@ import Foundation
 
 class VectorMBTilesTestCase: MaplyTestCase {
     
-    var baseCase = VectorsTestCase()
+    var baseCase = GeographyClassTestCase()
     
-    var tileFetcher : MaplyMBTileFetcher? = nil
-    var loader : MaplyQuadPagingLoader? = nil
-    var vectorStyle : MaplyVectorStyleSimpleGenerator? = nil
-    var interp : MapboxVectorInterpreter? = nil
+    typealias VecTileWrap = (tileFetcher: MaplyMBTileFetcher, loader: MaplyQuadPagingLoader, vectorStyle: MaplyVectorStyleSimpleGenerator, interp: MapboxVectorInterpreter)
+    var vecTiles : [VecTileWrap] = []
     
     override init() {
         super.init()
@@ -24,12 +22,11 @@ class VectorMBTilesTestCase: MaplyTestCase {
        self.implementations = [.map, .globe]
     }
     
-    func setupLoader(_ baseVC: MaplyBaseViewController) {
+    func addVectorTiles(_ name: String, baseVC: MaplyBaseViewController) -> VecTileWrap? {
         // Fetcher for MBTiles
-        guard let tileFetcher = MaplyMBTileFetcher(mbTiles: "France") else {
-            return
+        guard let tileFetcher = MaplyMBTileFetcher(mbTiles: name) else {
+            return nil
         }
-        self.tileFetcher = tileFetcher
 
         // Parameters describing how we want the space broken down
         let sampleParams = MaplySamplingParams()
@@ -38,16 +35,33 @@ class VectorMBTilesTestCase: MaplyTestCase {
         sampleParams.singleLevel = true
         sampleParams.coverPoles = false
         sampleParams.edgeMatching = false
-        sampleParams.minZoom = tileFetcher.minZoom()
+        sampleParams.minZoom = 0
         sampleParams.maxZoom = tileFetcher.maxZoom()
-        
+            
         // This parses the actual vector data and turns it into geometry
-        vectorStyle = MaplyVectorStyleSimpleGenerator(viewC: baseVC)
-        interp = MapboxVectorInterpreter(vectorStyle: vectorStyle!, viewC: baseVC)
+        let vectorStyle = MaplyVectorStyleSimpleGenerator(viewC: baseVC)
+        let interp = MapboxVectorInterpreter(vectorStyle: vectorStyle!, viewC: baseVC)
 
         // Loader does the actual loading
-        loader = MaplyQuadPagingLoader(params: sampleParams, tileInfo: tileFetcher.tileInfo(), loadInterp: interp!, viewC: baseVC)
+        let loader = MaplyQuadPagingLoader(params: sampleParams, tileInfo: tileFetcher.tileInfo(), loadInterp: interp!, viewC: baseVC)
         loader?.setTileFetcher(tileFetcher)
+        
+        return (tileFetcher, loader!, vectorStyle!, interp!)
+    }
+    
+    func setupLoader(_ baseVC: MaplyBaseViewController) {
+//        if let wrap = addVectorTiles("93f80180-7bed-4a2c-be77-ef437f1cb935", baseVC: baseVC) {
+//            vecTiles.append(wrap)
+//        }
+//        if let wrap = addVectorTiles("states-countries", baseVC: baseVC) {
+//            vecTiles.append(wrap)
+//        }
+//        if let wrap = addVectorTiles("out-3", baseVC: baseVC) {
+//            vecTiles.append(wrap)
+//        }
+        if let wrap = addVectorTiles("France", baseVC: baseVC) {
+            vecTiles.append(wrap)
+        }
     }
 
     override func setUpWithMap(_ mapVC: MaplyViewController) {
@@ -68,12 +82,11 @@ class VectorMBTilesTestCase: MaplyTestCase {
     
     override func stop() {
         baseCase.stop()
-        
-        tileFetcher?.shutdown()
-        tileFetcher = nil
-        loader?.shutdown()
-        loader = nil
-        vectorStyle = nil
-        interp = nil
+
+        for wrap in vecTiles {
+            wrap.tileFetcher.shutdown()
+            wrap.loader.shutdown()
+        }
+        vecTiles = []
     }
 }

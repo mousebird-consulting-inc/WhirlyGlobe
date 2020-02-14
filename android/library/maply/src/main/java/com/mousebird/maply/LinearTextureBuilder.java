@@ -52,7 +52,7 @@ public class LinearTextureBuilder
 
         int[] rawColors = new int[size];
         for (int ii=0;ii<size;ii++)
-            rawColors[ii] = Color.BLACK;
+            rawColors[ii] = Color.TRANSPARENT;
 
         int width = 1;
 
@@ -64,7 +64,7 @@ public class LinearTextureBuilder
             int eleLen = elements[ii];
             if (onOrOff) {
                 for (int jj = 0; jj < eleLen; jj++) {
-                    rawColors[curY] = Color.BLACK;
+                    rawColors[curY] = Color.WHITE;
                     curY++;
                 }
             } else

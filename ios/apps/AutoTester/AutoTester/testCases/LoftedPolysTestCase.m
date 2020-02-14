@@ -7,11 +7,9 @@
 //
 
 #import "LoftedPolysTestCase.h"
-#import "GeographyClassTestCase.h"
 #import "MaplyVectorObject.h"
 #import "WhirlyGlobeViewController.h"
 #import "MaplyComponentObject.h"
-#import "GeographyClassTestCase.h"
 #import "VectorsTestCase.h"
 
 @implementation LoftedPolysTestCase

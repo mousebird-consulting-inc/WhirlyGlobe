@@ -21,12 +21,13 @@ package com.mousebirdconsulting.autotester.TestCases
 
 import android.app.Activity
 import android.content.Context
+import android.content.ContextWrapper
+import android.graphics.Color
 import com.mousebird.maply.*
 import com.mousebirdconsulting.autotester.ConfigOptions
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase
 import java.io.File
-import android.content.Context.MODE_PRIVATE
-import android.content.ContextWrapper
+import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
 
@@ -41,68 +42,155 @@ class VectorMBTilesTestCase : MaplyTestCase {
         implementation = TestExecutionImplementation.Both
     }
 
-    var loader: QuadPagingLoader? = null
-    var fetcher: MBTileFetcher? = null
-    var interp: MapboxVectorInterpreter? = null
-    var debugInterp: OvlDebugImageLoaderInterpreter? = null
-    var styleGen: VectorStyleSimpleGenerator? = null
+    fun setupCountriesRaster(control: BaseController) {
+        val mbTiles: File
 
-    fun setupLoader(control: BaseController) {
-        val mbTileFile = getMbTileFile("mbtiles/France.mbtiles", "France.mbtiles")
-        fetcher = MBTileFetcher(mbTileFile)
+        // We need to copy the file from the asset so that it can be used as a file
+        // We need to copy the file from the asset so that it can be used as a file
+        try {
+            mbTiles = this.getFile("mbtiles", "mbtiles/countries-raster.mbtiles", "countries-raster.mbtiles")
+        } catch (e: Exception) {
+            return
+        }
+
+        if (!mbTiles.exists()) {
+            throw FileNotFoundException(String.format("Could not copy MBTiles asset to \"%s\"", mbTiles.absolutePath))
+        }
+
+        // The fetcher fetches tile from the MBTiles file
+        // The fetcher fetches tile from the MBTiles file
+        val mbTileFetcher = MBTileFetcher(mbTiles) ?: return
+
+        // Set up the parameters to match the MBTile file
+        // Set up the parameters to match the MBTile file
+        val params = SamplingParams()
+        params.coordSystem = SphericalMercatorCoordSystem()
+        params.coverPoles = true
+        params.edgeMatching = true
+        params.singleLevel = true
+        params.minZoom = 0
+        params.maxZoom = mbTileFetcher.maxZoom
+
+        val loader = QuadImageLoader(params, mbTileFetcher.tileInfo, control)
+        loader.tileFetcher = mbTileFetcher
+    }
+
+    fun setupContriesVector(control: BaseController) {
+        val mbTiles: File
+
+        // We need to copy the file from the asset so that it can be used as a file
+        // We need to copy the file from the asset so that it can be used as a file
+        try {
+            mbTiles = this.getFile("mbtiles", "mbtiles/countries.mbtiles", "countries.mbtiles")
+        } catch (e: Exception) {
+            return
+        }
+
+        if (!mbTiles.exists()) {
+            throw FileNotFoundException(String.format("Could not copy MBTiles asset to \"%s\"", mbTiles.absolutePath))
+        }
+
+        // The fetcher fetches tile from the MBTiles file
+        // The fetcher fetches tile from the MBTiles file
+        val mbTileFetcher = MBTileFetcher(mbTiles) ?: return
+
+        // Set up the parameters to match the MBTile file
+        // Set up the parameters to match the MBTile file
+        val params = SamplingParams()
+        params.coordSystem = SphericalMercatorCoordSystem()
+        params.coverPoles = true
+        params.edgeMatching = true
+        params.singleLevel = true
+        params.minZoom = 0
+        params.maxZoom = mbTileFetcher.maxZoom
+
+        // Simple style generator just picks random colors
+        val styleGen = VectorStyleSimpleGenerator(control)
+
+        // Mapbox interpreter uses the parser and style to create visual data
+        val interp = MapboxVectorInterpreter(styleGen, control)
+
+        // Overlay the tile number on top
+        val debugInterp = OvlDebugImageLoaderInterpreter()
+        debugInterp!!.setParentInterpreter(interp)
+
+        val loader = QuadPagingLoader(params, mbTileFetcher!!.tileInfo, debugInterp, control)
+        loader!!.setTileFetcher(mbTileFetcher)
+    }
+
+    fun setupFranceVector(control: BaseController) {
+        val mbTileFile = getFile("mbtiles", "mbtiles/France.mbtiles", "France.mbtiles")
+        val fetcher = MBTileFetcher(mbTileFile)
 
         // Sampling params define how the globe is broken up, including the depth
         var params = SamplingParams()
         params.coordSystem = SphericalMercatorCoordSystem()
         params.singleLevel = true
-        params.minZoom = fetcher!!.minZoom
+        params.minZoom = 0
         params.maxZoom = fetcher!!.maxZoom
 
         // Simple style generator just picks random colors
-        styleGen = VectorStyleSimpleGenerator(control)
+        val styleGen = VectorStyleSimpleGenerator(control)
 
         // Mapbox interpreter uses the parser and style to create visual data
-        interp = MapboxVectorInterpreter(styleGen, control)
+        val interp = MapboxVectorInterpreter(styleGen, control)
 
         // Overlay the tile number on top
-        debugInterp = OvlDebugImageLoaderInterpreter()
-        debugInterp!!.setParentInterpreter(interp)
+//        val debugInterp = OvlDebugImageLoaderInterpreter()
+//        debugInterp!!.setParentInterpreter(interp)
 
-        loader = QuadPagingLoader(params, fetcher!!.tileInfo, debugInterp, control)
+        val loader = QuadPagingLoader(params, fetcher!!.tileInfo, interp, control)
         loader!!.setTileFetcher(fetcher)
+    }
+
+    fun setupShapefile(control: BaseController) {
+        // Load a shapefile too
+        val shpData = VectorObject()
+        getFile("ne_10m_roads", "ne_10m_roads/ne_10m_roads.dbf", "ne_10m_roads.dbf")
+        val shpFile = getFile("ne_10m_roads", "ne_10m_roads/ne_10m_roads.shp", "ne_10m_roads.shp")
+        getFile("ne_10m_roads", "ne_10m_roads/ne_10m_roads.shx", "ne_10m_roads.shx")
+        shpData.fromShapeFile(shpFile.absolutePath)
+        val vecInfo = VectorInfo()
+        vecInfo.setColor(Color.MAGENTA)
+        vecInfo.drawPriority = 1000000
+        control.addVector(shpData,vecInfo,RenderControllerInterface.ThreadMode.ThreadAny)
     }
 
     var baseCase: VectorsTestCase? = null
 
     override fun setUpWithMap(mapVC: MapController?): Boolean {
-        baseCase = VectorsTestCase(mapVC!!.getActivity())
-        baseCase?.setUpWithMap(mapVC)
+//        baseCase = VectorsTestCase(mapVC!!.getActivity())
+//        baseCase?.setUpWithMap(mapVC)
 
-        setupLoader(mapVC)
+//        setupCountriesRaster(mapVC as BaseController)
+//        setupContriesVector(mapVC as BaseController)
+        setupFranceVector(mapVC as BaseController)
+//        setupShapefile(mapVC as BaseController)
 
         return true
     }
 
     override fun setUpWithGlobe(globeVC: GlobeController?): Boolean {
-        baseCase = VectorsTestCase(globeVC!!.getActivity())
-        baseCase?.setUpWithGlobe(globeVC)
+//        baseCase = VectorsTestCase(globeVC!!.getActivity())
+//        baseCase?.setUpWithGlobe(globeVC)
 
-        setupLoader(globeVC)
+//        setupCountriesRaster(globeVC as BaseController)
+//        setupContriesVector(globeVC as BaseController)
+        setupFranceVector(globeVC as BaseController)
+//        setupShapefile(globeVC as BaseController)
 
         return true
     }
 
-    private val MBTILES_DIR = "mbtiles"
-
     // Copy an MBTiles file out of the package for direct use
     @Throws(IOException::class)
-    private fun getMbTileFile(assetMbTile: String, mbTileFilename: String): File {
+    private fun getFile(dir: String, fileName: String, outputFileName: String): File {
 
         val wrapper = ContextWrapper(activity)
-        val mbTilesDirectory = wrapper.getDir(MBTILES_DIR, Context.MODE_PRIVATE)
+        val destDir = wrapper.getDir(dir, Context.MODE_PRIVATE)
 
-        val inStream = activity.assets.open(assetMbTile)
-        val of = File(mbTilesDirectory, mbTileFilename)
+        val inStream = activity.assets.open(fileName)
+        val of = File(destDir, outputFileName)
 
         if (of.exists()) {
             return of
