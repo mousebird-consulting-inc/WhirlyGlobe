@@ -47,6 +47,9 @@
 /// Return an array of Images
 - (NSArray<MaplyImageTile *> * __nonnull)getImages;
 
+/// Clear out any images.  Presumably to replace them.
+- (void)clearImages;
+
 /// If any component objects are associated with the tile, these are them.
 /// They need to start disabled.  The system will enable and delete them when it is time.
 - (void)addCompObjs:(NSArray<MaplyComponentObject *> * __nonnull)compObjs;
@@ -54,12 +57,18 @@
 /// Return the component objects added for this loader return
 - (NSArray<MaplyComponentObject *> *__nonnull)getCompObjs;
 
+/// Clear out any component objects, presumably to replace them
+- (void)clearCompObjs;
+
 /// These component objects are assumed to be overlaid and so only one
 /// set will be displayed at a time.
 - (void)addOvlCompObjs:(NSArray<MaplyComponentObject *> * __nonnull)compObjs;
 
 /// Return the overlay component objects added for this loader return
 - (NSArray<MaplyComponentObject *> *__nonnull)getOvlCompObjs;
+
+/// Clear out any component objects, presumably to replace them
+- (void)clearOvlCompObjs;
 
 @end
 

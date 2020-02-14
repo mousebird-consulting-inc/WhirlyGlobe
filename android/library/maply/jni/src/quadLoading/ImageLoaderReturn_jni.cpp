@@ -70,6 +70,23 @@ JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_ImageLoaderReturn_getIma
     return NULL;
 }
 
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ImageLoaderReturn_clearImages
+		(JNIEnv *env, jobject obj)
+{
+	try
+	{
+		QuadLoaderReturn *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
+		if (!loadReturn)
+			return;
+
+		loadReturn->images.clear();
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ImageLoaderReturn::clearImages()");
+	}
+}
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ImageLoaderReturn_addComponentObjects
   (JNIEnv *env, jobject obj, jobjectArray compObjs, jboolean isOverlay)
 {
@@ -96,4 +113,25 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ImageLoaderReturn_addComponentOb
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ImageLoaderReturn::addComponentObjects()");
 	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ImageLoaderReturn_clearComponentObjectsNative
+		(JNIEnv *env, jobject obj, jboolean isOverlay)
+{
+	try
+	{
+		QuadLoaderReturn *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
+		if (!loadReturn)
+			return;
+
+		if (isOverlay)
+			loadReturn->ovlCompObjs.clear();
+		else
+			loadReturn->compObjs.clear();
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ImageLoaderReturn::clearCompObjs()");
+	}
+
 }
