@@ -184,6 +184,8 @@ void BasicDrawableInstanceMTL::blitMemory(RendererFrameInfoMTL *frameInfo,id<MTL
                  destinationOffset:sizeof(uint32_t)
             destinationBytesPerRow:sizeof(uint32_t)
           destinationBytesPerImage:0];
+        // If the source texture is bigger than uint32, we get garbage in the later fields
+        [bltEncode fillBuffer:indirectBuffer range:NSMakeRange(2*sizeof(uint32_t), 3*sizeof(uint32_t)) value:0];
     }
 }
 
