@@ -375,6 +375,9 @@ public:
         case MaplyImageUInt32:
             tex->setFormat(TexTypeSingleUInt32);
             break;
+        case MaplyImageDoubleUInt32:
+            tex->setFormat(TexTypeDoubleUInt32);
+            break;
     }
 
     return tex;
