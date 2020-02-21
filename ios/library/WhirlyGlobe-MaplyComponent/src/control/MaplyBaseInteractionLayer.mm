@@ -2327,8 +2327,11 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
             SimpleIdentity srcTexID = EmptyIdentity;
             if (geomInst.numInstSource)
                 srcTexID = geomInst.numInstSource.texID;
+            SimpleIdentity srcProgramID = EmptyIdentity;
+            if (geomInst.numInstShader)
+                srcProgramID = geomInst.numInstShader.program->getId();
             
-            SimpleIdentity geomID = geomManager->addGPUGeomInstance(baseModelID, programID, srcTexID, geomInfo, changes);
+            SimpleIdentity geomID = geomManager->addGPUGeomInstance(baseModelID, programID, srcTexID, srcProgramID, geomInfo, changes);
             if (geomID != EmptyIdentity)
                 compObj->contents->geomIDs.insert(geomID);
         }

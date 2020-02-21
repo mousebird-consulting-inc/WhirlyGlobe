@@ -310,7 +310,7 @@ public:
     SimpleIdentity addGeometryInstances(SimpleIdentity baseGeomID,const std::vector<GeometryInstance> &instances,GeometryInfo &geomInfo,ChangeSet &changes);
     
     /// Add a GPU geometry instance
-    SimpleIdentity addGPUGeomInstance(SimpleIdentity baseGeomID,SimpleIdentity programID,SimpleIdentity texSourceID,GeometryInfo &geomInfo,ChangeSet &changes);
+    SimpleIdentity addGPUGeomInstance(SimpleIdentity baseGeomID,SimpleIdentity programID,SimpleIdentity texSourceID,SimpleIdentity srcProgramID,GeometryInfo &geomInfo,ChangeSet &changes);
     
     /// Add raw geometry points.
     SimpleIdentity addGeometryPoints(const GeometryRawPoints &geomPoints,const Eigen::Matrix4d &mat,GeometryInfo &geomInfo,ChangeSet &changes);

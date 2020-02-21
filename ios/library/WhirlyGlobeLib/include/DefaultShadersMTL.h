@@ -170,7 +170,10 @@ struct VertexTriModelInstance
     simd::float3 center;
     simd::float3 dir;
 };
-    
+// If we're using the indirect instancing (can be driven by the GPU) this is
+//  where the indirect buffer lives
+#define WKSInstanceIndirectBuffer 17
+
 #define WKSUniformDrawStateBillboardBuffer 15
 // Instructions to the billboard shaders, per-drawable
 struct UniformBillboard {

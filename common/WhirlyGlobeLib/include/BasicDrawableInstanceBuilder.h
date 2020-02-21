@@ -94,7 +94,8 @@ public:
     void addInstances(const std::vector<BasicDrawableInstance::SingleInstance> &insts);
     
     /// We can get the number of instances from a texture instead of being defined ahead of time
-    void setInstanceTexSource(SimpleIdentity texID);
+    /// It's easier to do this with a program than a copy, though
+    void setInstanceTexSource(SimpleIdentity texID,SimpleIdentity srcProgID);
     
     /// Set the uniforms applied to the Program before rendering
     virtual void setUniforms(const SingleVertexAttributeSet &uniforms);

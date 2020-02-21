@@ -196,6 +196,7 @@ protected:
     std::vector<SingleInstance> instances;
     // Or we might get the number of instances from a texture (possibly a reduce)
     SimpleIdentity instanceTexSource;
+    SimpleIdentity instanceTexProg;
 };
 
 /// Reference counted version of BasicDrawableInstance

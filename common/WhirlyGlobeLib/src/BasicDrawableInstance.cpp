@@ -29,7 +29,7 @@ namespace WhirlyKit
 {
 
 BasicDrawableInstance::BasicDrawableInstance(const std::string &name)
-: Drawable(name)
+: Drawable(name), instanceTexSource(EmptyIdentity), instanceTexProg(EmptyIdentity)
 {
 }
     
@@ -150,7 +150,7 @@ void BasicDrawableInstance::updateRenderer(WhirlyKit::SceneRenderer *renderer)
     
 SimpleIdentity BasicDrawableInstance::getCalculationProgram() const
 {
-    return EmptyIdentity;
+    return instanceTexProg;
 }
     
 void BasicDrawableInstance::setEnable(bool newEnable)
