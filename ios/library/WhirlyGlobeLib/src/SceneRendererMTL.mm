@@ -210,6 +210,8 @@ void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,id<MTL
     Point2f pixDispSize(frameInfo->screenSizeInDisplayCoords.x()/frameInfo->sceneRenderer->framebufferWidth,
                         frameInfo->screenSizeInDisplayCoords.y()/frameInfo->sceneRenderer->framebufferHeight);
     CopyIntoMtlFloat2(uniforms.pixDispSize,pixDispSize);
+    Point2f frameSize(frameInfo->sceneRenderer->framebufferWidth,frameInfo->sceneRenderer->framebufferHeight);
+    CopyIntoMtlFloat2(uniforms.frameSize, frameSize);
     uniforms.outputTexLevel = texLevel;
     uniforms.globeMode = !coordAdapter->isFlat();
     
