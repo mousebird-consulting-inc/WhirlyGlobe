@@ -60,6 +60,12 @@
         return nil;
     }
     
+    // Mess directly with the opacity because we're using it for other purposes
+    if (styleEntry[@"alphaoverride"])
+    {
+        [_paint.color setAlphaOverride:[styleEntry[@"alphaoverride"] doubleValue]];
+    }
+
     return self;
 }
 
