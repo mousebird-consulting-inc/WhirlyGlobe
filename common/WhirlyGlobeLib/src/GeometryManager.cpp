@@ -879,7 +879,7 @@ SimpleIdentity GeometryManager::addGeometryInstances(SimpleIdentity baseGeomID,c
     return geomID;
 }
 
-SimpleIdentity GeometryManager::addGPUGeomInstance(SimpleIdentity baseGeomID,SimpleIdentity programID,SimpleIdentity texSourceID,GeometryInfo &geomInfo,ChangeSet &changes)
+SimpleIdentity GeometryManager::addGPUGeomInstance(SimpleIdentity baseGeomID,SimpleIdentity programID,SimpleIdentity texSourceID,SimpleIdentity srcProgramID,GeometryInfo &geomInfo,ChangeSet &changes)
 {
     std::lock_guard<std::mutex> guardLock(geomLock);
 
@@ -905,7 +905,7 @@ SimpleIdentity GeometryManager::addGPUGeomInstance(SimpleIdentity baseGeomID,Sim
         geomInfo.setupBasicDrawableInstance(drawInst);
         //                    draw->setColor([geomInfo.color asRGBAColor]);
         drawInst->setProgram(programID);
-        drawInst->setInstanceTexSource(texSourceID);
+        drawInst->setInstanceTexSource(texSourceID,srcProgramID);
         
         sceneRep->drawIDs.insert(drawInst->getDrawableID());
         changes.push_back(new AddDrawableReq(drawInst->getDrawable()));

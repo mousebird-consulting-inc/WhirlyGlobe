@@ -210,6 +210,8 @@ void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,id<MTL
     Point2f pixDispSize(frameInfo->screenSizeInDisplayCoords.x()/frameInfo->sceneRenderer->framebufferWidth,
                         frameInfo->screenSizeInDisplayCoords.y()/frameInfo->sceneRenderer->framebufferHeight);
     CopyIntoMtlFloat2(uniforms.pixDispSize,pixDispSize);
+    Point2f frameSize(frameInfo->sceneRenderer->framebufferWidth,frameInfo->sceneRenderer->framebufferHeight);
+    CopyIntoMtlFloat2(uniforms.frameSize, frameSize);
     uniforms.outputTexLevel = texLevel;
     uniforms.globeMode = !coordAdapter->isFlat();
     
@@ -500,16 +502,24 @@ void SceneRendererMTL::render(TimeInterval duration,
             id<MTLCommandBuffer> cmdBuff = [cmdQueue commandBuffer];
 
             // Some of the drawables want memory copied before they draw
-            id<MTLBlitCommandEncoder> bltEncode = [cmdBuff blitCommandEncoder];
-            for (auto &draw : targetContainer->drawables) {
-                DrawableMTL *drawMTL = dynamic_cast<DrawableMTL *>(draw.get());
-                drawMTL->blitMemory(&baseFrameInfo,bltEncode,scene);
-            }
-            [bltEncode endEncoding];
+            // TODO: Check with them before creating the encoder
+//            id<MTLBlitCommandEncoder> bltEncode = [cmdBuff blitCommandEncoder];
+//            for (auto &draw : targetContainer->drawables) {
+//                DrawableMTL *drawMTL = dynamic_cast<DrawableMTL *>(draw.get());
+//                drawMTL->blitMemory(&baseFrameInfo,bltEncode,scene);
+//            }
+//            [bltEncode endEncoding];
+            
+            // If we're forcing a mipmap calculation, then we're just going to use this render target once
+            // If not, then we run some program over it multiple times
+            // TODO: Make the reduce operation more explicit
+            int numLevels = renderTarget->numLevels();
+            if (renderTarget->mipmapType != RenderTargetMipmapNone)
+                numLevels = 1;
 
-            for (unsigned int level=0;level<renderTarget->numLevels();level++) {                
+            for (unsigned int level=0;level<numLevels;level++) {
 
-                // Set up a master encoder for all the little encoders
+                // Set up the encoder
                 id<MTLRenderCommandEncoder> cmdEncode = nil;
                 if (renderTarget->getTex() == nil) {
                     // This happens if the dev wants an instantaneous render
@@ -665,6 +675,9 @@ void SceneRendererMTL::render(TimeInterval duration,
                 
                 [cmdEncode endEncoding];
             }
+            
+            // Some render targets like to do extra work on their images
+            renderTarget->addPostProcessing(mtlDevice,cmdBuff);
 
             // Main screen has to be committed
             if (drawGetter != nil && workGroup->groupType == WorkGroup::ScreenRender) {

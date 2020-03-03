@@ -255,6 +255,9 @@ typedef enum {MBGeomPoint,MBGeomLineString,MBGeomPolygon,MBGeomNone} MapboxVecto
 // Might be stops, might be a single value
 @interface MapboxTransColor : NSObject
 
+// If set, we're using the alpha to indicate some other value, so just pass it through
+- (void)setAlphaOverride:(double)alpha;
+
 // Return a color for the given zoom level
 - (UIColor * __nonnull)colorForZoom:(double)zoom;
 

@@ -145,7 +145,33 @@ void BasicDrawableInstanceMTL::teardownForRenderer(const RenderSetupInfo *setupI
     defaultAttrs.clear();
 }
 
-void BasicDrawableInstanceMTL::blitMemory(RendererFrameInfoMTL *frameInfo,id<MTLBlitCommandEncoder> bltEncode,Scene *scene)
+// Render state for calculation pass
+id<MTLRenderPipelineState> BasicDrawableInstanceMTL::getCalcRenderPipelineState(SceneRendererMTL *sceneRender,RendererFrameInfoMTL *frameInfo)
+{
+    if (calcRenderState)
+        return calcRenderState;
+    
+    id<MTLDevice> mtlDevice = sceneRender->setupInfo.mtlDevice;
+    
+    MTLRenderPipelineDescriptor *renderDesc = sceneRender->defaultRenderPipelineState(sceneRender,frameInfo);
+    // Note: Disable this to debug the shader
+    renderDesc.rasterizationEnabled = false;
+    renderDesc.vertexDescriptor = nil;
+    if (!name.empty())
+        renderDesc.label = [NSString stringWithFormat:@"%s",name.c_str()];
+    
+    // Set up a render state
+    NSError *err = nil;
+    calcRenderState = [mtlDevice newRenderPipelineStateWithDescriptor:renderDesc error:&err];
+    if (err) {
+        NSLog(@"BasicDrawableMTL: Failed to set up render state because:\n%@",err);
+        return nil;
+    }
+    
+    return calcRenderState;
+}
+
+void BasicDrawableInstanceMTL::calculate(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene)
 {
     BasicDrawableMTL *basicDrawMTL = dynamic_cast<BasicDrawableMTL *>(basicDraw.get());
     if (!basicDrawMTL) {
@@ -155,6 +181,9 @@ void BasicDrawableInstanceMTL::blitMemory(RendererFrameInfoMTL *frameInfo,id<MTL
     if (!basicDrawMTL)
         return;
     SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
+    // Render state is pretty simple, so apply that
+    id<MTLRenderPipelineState> renderState = getCalcRenderPipelineState(sceneRender,frameInfo);
+    [cmdEncode setRenderPipelineState:renderState];
 
     if (instanceStyle == GPUStyle) {
         if (!indirectBuffer) {
@@ -173,17 +202,13 @@ void BasicDrawableInstanceMTL::blitMemory(RendererFrameInfoMTL *frameInfo,id<MTL
             NSLog(@"Missing texture for instance texture source in BasicDrawableInstanceMTL::draw() for tex %d",(int)instanceTexSource);
             return;
         }
-
-        // Need the number of instances copied in first
-        [bltEncode copyFromTexture:tex->getMTLID()
-                       sourceSlice:0
-                       sourceLevel:tex->getMTLID().mipmapLevelCount-1
-                      sourceOrigin:MTLOriginMake(0, 0, 0)
-                        sourceSize:MTLSizeMake(1, 1, 1)
-                          toBuffer:indirectBuffer
-                 destinationOffset:sizeof(uint32_t)
-            destinationBytesPerRow:sizeof(uint32_t)
-          destinationBytesPerImage:0];
+        
+        // Set up the inputs for the program to copy into the indirect buffer
+        [cmdEncode setVertexBuffer:indirectBuffer offset:0 atIndex:WKSInstanceIndirectBuffer];
+        [cmdEncode setVertexTexture:tex->getMTLID() atIndex:0];
+        Point3f pt(0.0,0.0,0.0);
+        [cmdEncode setVertexBytes:&pt length:sizeof(float)*3 atIndex:0];
+        [cmdEncode drawPrimitives:MTLPrimitiveTypePoint vertexStart:0 vertexCount:1];
     }
 }
 

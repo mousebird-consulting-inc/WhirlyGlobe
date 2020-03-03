@@ -54,6 +54,7 @@ void BasicDrawableInstanceBuilder::Init()
     drawInst->hasDrawPriority = false;
     drawInst->hasLineWidth = false;
     drawInst->instanceTexSource = EmptyIdentity;
+    drawInst->instanceTexProg = EmptyIdentity;
 }
 
 void BasicDrawableInstanceBuilder::setMasterID(SimpleIdentity baseDrawID,BasicDrawableInstance::Style style)
@@ -137,9 +138,10 @@ void BasicDrawableInstanceBuilder::addInstances(const std::vector<BasicDrawableI
     drawInst->instances.insert(drawInst->instances.end(), insts.begin(), insts.end());
 }
 
-void BasicDrawableInstanceBuilder::setInstanceTexSource(SimpleIdentity texID)
+void BasicDrawableInstanceBuilder::setInstanceTexSource(SimpleIdentity texID,SimpleIdentity srcProgID)
 {
     drawInst->instanceTexSource = texID;
+    drawInst->instanceTexProg = srcProgID;
 }
 
 void BasicDrawableInstanceBuilder::setUniforms(const SingleVertexAttributeSet &uniforms)

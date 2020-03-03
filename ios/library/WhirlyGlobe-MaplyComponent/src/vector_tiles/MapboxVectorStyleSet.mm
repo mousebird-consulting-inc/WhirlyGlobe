@@ -121,12 +121,16 @@
 @public
     UIColor *color;
     MaplyVectorFunctionStops *stops;
+    bool useAlphaOverride;
+    double alpha;
 }
 
 - (id)initWithColor:(UIColor *)inColor
 {
     self = [super init];
     color = inColor;
+    useAlphaOverride = false;
+    alpha = 0.0;
     
     return self;
 }
@@ -138,13 +142,23 @@
     
     return self;
 }
- 
+
+- (void)setAlphaOverride:(double)alphaOverride
+{
+    useAlphaOverride = true;
+    alpha = alphaOverride;
+}
+
 - (UIColor *)colorForZoom:(double)zoom
 {
-    if (stops) {
-        return [stops colorForZoom:(int)zoom];
-    } else
-        return color;
+    UIColor *theColor = stops ? [stops colorForZoom:(int)zoom] : color;
+
+    if (useAlphaOverride) {
+        const CGFloat *colors = CGColorGetComponents(theColor.CGColor);
+        color = [UIColor colorWithRed:colors[0] green:colors[1] blue:colors[2] alpha:alpha];
+    }
+    
+    return color;
 }
 
 @end

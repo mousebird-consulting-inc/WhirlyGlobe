@@ -181,6 +181,7 @@ void RenderTargetMTL::makeRenderPassDesc()
             case MTLPixelFormatRG16Float:
             case MTLPixelFormatRGBA16Float:
             case MTLPixelFormatR32Uint:
+            case MTLPixelFormatRG32Uint:
                 rpd.colorAttachments[0].clearColor = MTLClearColorMake(clearVal, clearVal, clearVal, clearVal);
                 break;
             default:
@@ -211,6 +212,34 @@ MTLRenderPassDescriptor *RenderTargetMTL::getRenderPassDesc(int level)
         level = 0;
     return renderPassDesc[level];
 }
+
+/// Encodes any post processing commands
+void RenderTargetMTL::addPostProcessing(id<MTLDevice> mtlDevice,id<MTLCommandBuffer> cmdBuff)
+{
+    switch (mipmapType) {
+        case RenderTargetMipmapNone:
+            break;
+        case RenderTargetMimpapAverage:
+        {
+            id <MTLBlitCommandEncoder> encoder = [cmdBuff blitCommandEncoder];
+            [encoder generateMipmapsForTexture:tex];
+            [encoder endEncoding];
+            break;
+        }
+        case RenderTargetMipmapGauss:
+        {
+            if (!mipmapKernel) {
+                MPSImageGaussianPyramid *blurKernel = [[MPSImageGaussianPyramid alloc] initWithDevice:mtlDevice];
+                mipmapKernel = blurKernel;
+            }
+            if (mipmapKernel) {
+                [mipmapKernel encodeToCommandBuffer:cmdBuff inPlaceTexture:&tex fallbackCopyAllocator:nil];
+            }
+            break;
+        }
+    }
+}
+
 
 void RenderTargetMTL::setClearColor(const RGBAColor &color)
 {

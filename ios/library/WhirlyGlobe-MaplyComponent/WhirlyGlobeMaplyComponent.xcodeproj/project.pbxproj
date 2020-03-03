@@ -97,6 +97,7 @@
 		2B4B30B82395E40500854073 /* MapboxVectorStyleCircle.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B30B62395E40500854073 /* MapboxVectorStyleCircle.mm */; };
 		2B4B63A5236102DA0008C8C1 /* MaplyGlobeRenderController.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B63A4236102DA0008C8C1 /* MaplyGlobeRenderController.h */; };
 		2B4B63A7236102EC0008C8C1 /* MaplyGlobeRenderController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B63A6236102EC0008C8C1 /* MaplyGlobeRenderController.mm */; };
+		2B526BDC240DE04B00647336 /* MetalPerformanceShaders.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B526BDB240DE04B00647336 /* MetalPerformanceShaders.framework */; };
 		2B541C171ECFAA2300EC35A0 /* MaplyRenderTarget.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B541C161ECFAA2300EC35A0 /* MaplyRenderTarget.h */; };
 		2B68A43F225D4469009CC720 /* MapboxVectorTileParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B68A43E225D4469009CC720 /* MapboxVectorTileParser.h */; };
 		2B68A441225D447F009CC720 /* MapboxVectorTileParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B68A440225D447E009CC720 /* MapboxVectorTileParser.cpp */; };
@@ -1223,6 +1224,7 @@
 		2B4B30B62395E40500854073 /* MapboxVectorStyleCircle.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MapboxVectorStyleCircle.mm; sourceTree = "<group>"; };
 		2B4B63A4236102DA0008C8C1 /* MaplyGlobeRenderController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyGlobeRenderController.h; sourceTree = "<group>"; };
 		2B4B63A6236102EC0008C8C1 /* MaplyGlobeRenderController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyGlobeRenderController.mm; sourceTree = "<group>"; };
+		2B526BDB240DE04B00647336 /* MetalPerformanceShaders.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalPerformanceShaders.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk/System/Library/Frameworks/MetalPerformanceShaders.framework; sourceTree = DEVELOPER_DIR; };
 		2B541C161ECFAA2300EC35A0 /* MaplyRenderTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyRenderTarget.h; sourceTree = "<group>"; };
 		2B68A43E225D4469009CC720 /* MapboxVectorTileParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MapboxVectorTileParser.h; path = ../../../../common/WhirlyGlobeLib/include/MapboxVectorTileParser.h; sourceTree = "<group>"; };
 		2B68A440225D447E009CC720 /* MapboxVectorTileParser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MapboxVectorTileParser.cpp; path = ../../../../common/WhirlyGlobeLib/src/MapboxVectorTileParser.cpp; sourceTree = "<group>"; };
@@ -2193,6 +2195,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2B526BDC240DE04B00647336 /* MetalPerformanceShaders.framework in Frameworks */,
 				2B1806D822AED08200DD3DB1 /* Accelerate.framework in Frameworks */,
 				2B69987D228DE2EF00C31E3F /* MetalKit.framework in Frameworks */,
 				2B69987B228DE06000C31E3F /* Metal.framework in Frameworks */,
@@ -3150,6 +3153,7 @@
 		2B84ED111F83FC5A00B34D73 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				2B526BDB240DE04B00647336 /* MetalPerformanceShaders.framework */,
 				2B1806D622AED03300DD3DB1 /* Accelerate.framework */,
 				2B69987C228DE2EF00C31E3F /* MetalKit.framework */,
 				2B69987A228DE06000C31E3F /* Metal.framework */,

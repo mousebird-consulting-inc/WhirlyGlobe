@@ -347,6 +347,9 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
         case MaplyImageUInt32:
             loader->setTexType(TexTypeSingleUInt32);
             break;
+        case MaplyImageDoubleUInt32:
+            loader->setTexType(TexTypeDoubleUInt32);
+            break;
     }
     
     for (unsigned int ii=0;ii<loader->getNumFocus();ii++) {

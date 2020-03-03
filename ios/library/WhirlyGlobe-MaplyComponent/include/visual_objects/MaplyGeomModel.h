@@ -113,6 +113,9 @@
 /// Texture to derive the number of instances from (picked out of the highest, smallest level)
 @property (nonatomic,nullable) MaplyTexture *numInstSource;
 
+/// Need a shader to pull the number of instances out of a texture and shove them in the indirect buffer
+@property (nonatomic,nullable) MaplyShader *numInstShader;
+
 /// Shader to run over for this instance
 @property (nonatomic,nullable) MaplyShader *shader;
 
