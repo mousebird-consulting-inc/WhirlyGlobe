@@ -87,15 +87,15 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_setDrawPrior
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_setColor
-(JNIEnv *env, jobject obj, jfloat red, jfloat green, jfloat blue, jfloat alpha)
+(JNIEnv *env, jobject obj, jfloat red, jfloat green, jfloat blue, jfloat alpha, jobject changeSetObj)
 {
     try {
         QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
+        ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
         if (!loader)
             return;
         RGBAColor color(red*255,green*255,blue*255,alpha*255);
-        // TODO: This can take a change list if we want it to work interactively
-        (*loader)->setColor(color,NULL);
+        (*loader)->setColor(color,changeSet);
     }
     catch (...)
     {

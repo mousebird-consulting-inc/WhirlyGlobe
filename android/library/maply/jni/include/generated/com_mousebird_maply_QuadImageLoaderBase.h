@@ -34,10 +34,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_setDrawPrior
 /*
  * Class:     com_mousebird_maply_QuadImageLoaderBase
  * Method:    setColor
- * Signature: (FFFF)V
+ * Signature: (FFFFLcom/mousebird/maply/ChangeSet;)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_setColor
-  (JNIEnv *, jobject, jfloat, jfloat, jfloat, jfloat);
+  (JNIEnv *, jobject, jfloat, jfloat, jfloat, jfloat, jobject);
 
 /*
  * Class:     com_mousebird_maply_QuadImageLoaderBase

@@ -112,8 +112,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRaw_setTextureNative
         GeometryRaw *rawGeom = classInfo->getObject(env, obj);
         if (!rawGeom)
             return;
-        
-        rawGeom->texId = texID;
+
+        rawGeom->texIDs.push_back(texID);
     }
     catch (...)
     {
