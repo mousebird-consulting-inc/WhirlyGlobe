@@ -92,9 +92,23 @@ public class QuadImageLoaderBase extends QuadLoaderBase
      * Set the color used by the geometry.
      * @param color Color in Android format, including alpha.
      */
-    public void setColor(int color)
+    public void setColor(final int color)
     {
-        setColor(Color.red(color)/255.f,Color.green(color)/255.f,Color.blue(color)/255.f,Color.alpha(color)/255.f);
+        if(samplingLayer.get() == null) {
+            setColor(Color.red(color) / 255.f, Color.green(color) / 255.f, Color.blue(color) / 255.f, Color.alpha(color) / 255.f, null);
+        }
+
+        samplingLayer.get().layerThread.addTask(new Runnable() {
+            @Override
+            public void run() {
+                ChangeSet changes = new ChangeSet();
+                setColor(Color.red(color) / 255.f, Color.green(color) / 255.f, Color.blue(color) / 255.f, Color.alpha(color) / 255.f, changes);
+                BaseController control = getController();
+                if (control != null && control.renderControl != null) {
+                    changes.process(control.renderControl, control.getScene());
+                }
+            }
+        });
     }
 
     /**
@@ -105,7 +119,7 @@ public class QuadImageLoaderBase extends QuadLoaderBase
      * @param b Blue component.
      * @param a Alpha component.
      */
-    public native void setColor(float r,float g,float b,float a);
+    public native void setColor(float r,float g,float b,float a, ChangeSet changes);
 
     /**
      * Write to the z buffer when rendering.  On by default.

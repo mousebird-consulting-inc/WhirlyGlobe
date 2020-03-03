@@ -65,15 +65,23 @@ public class StamenRemoteTestCase extends MaplyTestCase {
 
 		QuadImageLoader loader = new QuadImageLoader(params,tileInfo,baseController);
 		loader.setImageFormat(RenderController.ImageFormat.MaplyImageUShort565);
-//		loader.setDebugMode(true);
+		loader.setDebugMode(true);
 
-		//		final Handler handler = new Handler();
-//		handler.postDelayed(new Runnable() {
-//			@Override
-//			public void run() {
-//				baseLayer.reload();
-//			}
-//		}, 4000);
+		// Change the color and then change it back
+		final Handler handler = new Handler();
+		handler.postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				loader.setColor(Color.RED);
+				final Handler handler = new Handler();
+				handler.postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						loader.setColor(Color.WHITE);
+					}
+				}, 4000);
+			}
+		}, 4000);
 
 		return loader;
 	}
