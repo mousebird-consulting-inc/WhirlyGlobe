@@ -28,6 +28,9 @@ namespace WhirlyKit
 {
 class SceneRenderer;
 
+// If we're doing mipmaps for the render target texture, how they're calculated
+typedef enum {RenderTargetMipmapNone,RenderTargetMimpapAverage,RenderTargetMipmapGauss} RenderTargetMipmapType;
+
 /** What and where we're rendering.  This can be a regular framebuffer
  to the screen or to a texture.
  */
@@ -47,6 +50,9 @@ public:
     /// Set the clear color
     virtual void setClearColor(const RGBAColor &color) = 0;
     
+    /// If we're generating mipmaps for the render target, this is how
+    virtual void setMipmap(RenderTargetMipmapType inMipmapType) { mipmapType = inMipmapType; }
+    
     // Clear up resources from the render target (not clear the buffer)
     virtual void clear() = 0;
 
@@ -58,10 +64,10 @@ public:
     
     /// Copy just a subset out of the destination texture and return it
     virtual RawDataRef snapshot(int startX,int startY,int snapWidth,int snapHeight) = 0;
-
+    
     /// Output framebuffer size
     int width,height;
-    /// Set if we've set up background and suchs
+    /// Set if we've set up background and such
     bool isSetup;
 
     // Clear color, if we're clearing
@@ -74,7 +80,8 @@ public:
     // Control how the blending into a destination works
     bool blendEnable;
     
-protected:
+public:
+    RenderTargetMipmapType mipmapType;
     virtual void init();
 };
 typedef std::shared_ptr<RenderTarget> RenderTargetRef;
@@ -83,7 +90,14 @@ typedef std::shared_ptr<RenderTarget> RenderTargetRef;
 class AddRenderTargetReq : public ChangeRequest
 {
 public:
-    AddRenderTargetReq(SimpleIdentity renderTargetID,int width,int height,SimpleIdentity texID,bool clearEveryFrame,bool blend,const RGBAColor &clearColor,float clearVal);
+    AddRenderTargetReq(SimpleIdentity renderTargetID,
+                       int width,int height,
+                       SimpleIdentity texID,
+                       bool clearEveryFrame,
+                       bool blend,
+                       const RGBAColor &clearColor,
+                       float clearVal,
+                       RenderTargetMipmapType mipmapType);
     
     /// Add the render target to the renderer
     void execute(Scene *scene,SceneRenderer *renderer,View *view);
@@ -96,6 +110,7 @@ protected:
     RGBAColor clearColor;
     float clearVal;
     bool blend;
+    RenderTargetMipmapType mipmapType;
 };
 
 // Change details about a rendering target.  In this case, just texture.

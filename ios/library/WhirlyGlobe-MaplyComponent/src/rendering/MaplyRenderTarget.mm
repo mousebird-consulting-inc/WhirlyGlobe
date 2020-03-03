@@ -32,6 +32,7 @@ using namespace WhirlyKit;
     _blend = false;
     _clearColor = nil;
     _clearVal = 0.0;
+    _mipmapType = MaplyMipmapNone;
     
     return self;
 }

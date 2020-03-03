@@ -21,6 +21,15 @@
 #import <UIKit/UIKit.h>
 #import "visual_objects/MaplyTexture.h"
 
+typedef NS_ENUM(NSUInteger,MaplyMipmapType) {
+    /// Don't generate a mipmap
+    MaplyMipmapNone,
+    /// Generate a basic mipmap
+    MaplyMipmapAverage,
+    /// Generate a mipmap using Gauss blurring
+    MaplyMipmapGauss
+};
+
 /** 
     Represents a render target (other than the screen)
     
@@ -48,6 +57,12 @@
     True by default.
   */
 @property (nonatomic) bool clearEveryFrame;
+
+/**
+    If we're generating a mipmap for the attached texture of a render target, this controls
+        how we do it. The default is none.
+ */
+@property (nonatomic) MaplyMipmapType mipmapType;
 
 /**
     Clear the render target to this color every frame.

@@ -22,6 +22,7 @@
 #import "WrapperMTL.h"
 #import "SceneRendererMTL.h"
 #import "TextureMTL.h"
+#import <MetalPerformanceShaders/MetalPerformanceShaders.h>
 
 namespace WhirlyKit
 {
@@ -53,11 +54,14 @@ public:
     /// Copy just a subset of data out of the destination texture
     virtual RawDataRef snapshot(int startX,int startY,int snapWidth,int snapHeight);
 
-    /// Set the GL texture directly
+    /// Set the texture directly
     void setTargetTexture(TextureBaseMTL *tex);
     
     /// Set a texture for depth directly
     void setTargetDepthTexture(TextureBaseMTL *tex);
+        
+    /// Encodes any post processing commands
+    void addPostProcessing(id<MTLDevice> mtlDevice,id<MTLCommandBuffer> cmdBuff);
     
     /// Release associated resources (not clear the buffer, very confusing)
     virtual void clear();
@@ -83,6 +87,7 @@ protected:
     id<MTLTexture> depthTex;
     MTLPixelFormat depthPixelFormat;
     std::vector<MTLRenderPassDescriptor *> renderPassDesc;
+    MPSImagePyramid *mipmapKernel;
 };
 typedef std::shared_ptr<RenderTargetMTL> RenderTargetMTLRef;
     

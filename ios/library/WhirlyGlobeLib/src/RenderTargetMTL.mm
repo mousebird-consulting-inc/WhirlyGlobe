@@ -213,6 +213,34 @@ MTLRenderPassDescriptor *RenderTargetMTL::getRenderPassDesc(int level)
     return renderPassDesc[level];
 }
 
+/// Encodes any post processing commands
+void RenderTargetMTL::addPostProcessing(id<MTLDevice> mtlDevice,id<MTLCommandBuffer> cmdBuff)
+{
+    switch (mipmapType) {
+        case RenderTargetMipmapNone:
+            break;
+        case RenderTargetMimpapAverage:
+        {
+            id <MTLBlitCommandEncoder> encoder = [cmdBuff blitCommandEncoder];
+            [encoder generateMipmapsForTexture:tex];
+            [encoder endEncoding];
+            break;
+        }
+        case RenderTargetMipmapGauss:
+        {
+            if (!mipmapKernel) {
+                MPSImageGaussianPyramid *blurKernel = [[MPSImageGaussianPyramid alloc] initWithDevice:mtlDevice];
+                mipmapKernel = blurKernel;
+            }
+            if (mipmapKernel) {
+                [mipmapKernel encodeToCommandBuffer:cmdBuff inPlaceTexture:&tex fallbackCopyAllocator:nil];
+            }
+            break;
+        }
+    }
+}
+
+
 void RenderTargetMTL::setClearColor(const RGBAColor &color)
 {
     color.asUnitFloats(clearColor);
