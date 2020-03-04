@@ -230,6 +230,10 @@ bool TextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
 #endif
     }
     
+    // If there are mipmaps, we probably expect to write to them
+    if (usesMipmaps)
+        desc.usage |= MTLTextureUsageShaderWrite;
+    
     mtlID = [setupInfo->mtlDevice newTextureWithDescriptor:desc];
     if (!name.empty())
         [mtlID setLabel:[NSString stringWithFormat:@"%s",name.c_str()]];
