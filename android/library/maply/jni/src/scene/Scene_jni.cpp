@@ -162,7 +162,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_addRenderTargetNative
         
         ChangeSet changes;
         RGBAColor color(r,g,b,a);
-        changes.push_back(new AddRenderTargetReq(renderTargetID,width,height,texID,clearEveryFrame,blend,color,0.0));
+        changes.push_back(new AddRenderTargetReq(renderTargetID,width,height,texID,clearEveryFrame,blend,color,0.0,RenderTargetMipmapNone,false));
         
         scene->addChangeRequests(changes);
     }
