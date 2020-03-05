@@ -76,7 +76,7 @@ void GeomSceneRep::enableContents(SelectionManager *selectManager,bool enable,Ch
 }
     
 GeometryRaw::GeometryRaw()
-    : type(WhirlyKitGeometryTriangles), texId(EmptyIdentity)
+    : type(WhirlyKitGeometryTriangles)
 {
 }
 
@@ -88,12 +88,12 @@ GeometryRaw::GeometryRaw(const GeometryRaw &that)
     texCoords = that.texCoords;
     colors = that.colors;
     triangles = that.triangles;
-    texId = that.texId;
+    texIDs = that.texIDs;
 }
     
 bool GeometryRaw::operator == (const GeometryRaw &that) const
 {
-    return texId == that.texId && type == that.type;
+    return texIDs == that.texIDs && type == that.type;
 }
 
 bool GeometryRaw::isValid() const
@@ -111,8 +111,6 @@ bool GeometryRaw::isValid() const
     if (!colors.empty() && colors.size() != numPoints)
         return false;
     if (type == WhirlyKitGeometryTriangles && triangles.empty())
-        return false;
-    if (texId > 0 && texCoords.empty())
         return false;
     for (unsigned int ii=0;ii<triangles.size();ii++)
     {
@@ -183,8 +181,8 @@ void GeometryRaw::buildDrawables(std::vector<BasicDrawableBuilderRef> &draws,con
             if (colorOverride)
                 draw->setColor(*colorOverride);
             draw->setType(Triangles);
-            if (texId > 0)
-                draw->setTexId(0,texId);
+            if (!texIDs.empty())
+                draw->setTexIDs(texIDs);
             draws.push_back(draw);
         }
         
@@ -205,7 +203,7 @@ void GeometryRaw::buildDrawables(std::vector<BasicDrawableBuilderRef> &draws,con
                 newNorm.normalize();
                 draw->addNormal(newNorm);
             }
-            if (texId > 0)
+            if (!texCoords.empty())
                 draw->addTexCoord(0,texCoords[tri.verts[jj]]);
             if (!colors.empty() && !colorOverride)
                 draw->addColor(colors[tri.verts[jj]]);
@@ -880,6 +878,44 @@ SimpleIdentity GeometryManager::addGeometryInstances(SimpleIdentity baseGeomID,c
     
     return geomID;
 }
+
+SimpleIdentity GeometryManager::addGPUGeomInstance(SimpleIdentity baseGeomID,SimpleIdentity programID,SimpleIdentity texSourceID,SimpleIdentity srcProgramID,GeometryInfo &geomInfo,ChangeSet &changes)
+{
+    std::lock_guard<std::mutex> guardLock(geomLock);
+
+    // Look for the scene rep we're basing this on
+    GeomSceneRep *baseSceneRep = NULL;
+    GeomSceneRep dummyRep(baseGeomID);
+    GeomSceneRepSet::iterator it = sceneReps.find(&dummyRep);
+    if (it != sceneReps.end())
+        baseSceneRep = *it;
+    
+    if (!baseSceneRep)
+    {
+        return EmptyIdentity;
+    }
+
+    GeomSceneRep *sceneRep = new GeomSceneRep();
+
+    // Instance each of the drawables in the base
+    for (SimpleIdentity baseDrawID : baseSceneRep->drawIDs)
+    {
+        BasicDrawableInstanceBuilderRef drawInst = renderer->makeBasicDrawableInstanceBuilder("GeometryManager");
+        drawInst->setMasterID(baseDrawID,BasicDrawableInstance::GPUStyle);
+        geomInfo.setupBasicDrawableInstance(drawInst);
+        //                    draw->setColor([geomInfo.color asRGBAColor]);
+        drawInst->setProgram(programID);
+        drawInst->setInstanceTexSource(texSourceID,srcProgramID);
+        
+        sceneRep->drawIDs.insert(drawInst->getDrawableID());
+        changes.push_back(new AddDrawableReq(drawInst->getDrawable()));
+    }
+    
+    SimpleIdentity geomID = sceneRep->getId();
+    sceneReps.insert(sceneRep);
+    
+    return geomID;
+}
     
 SimpleIdentity GeometryManager::addGeometryPoints(const GeometryRawPoints &geomPoints,const Eigen::Matrix4d &mat,GeometryInfo &geomInfo,ChangeSet &changes)
 {
@@ -976,5 +1012,20 @@ void GeometryManager::removeGeometry(SimpleIDSet &geomIDs,ChangeSet &changes)
         }
     }
 }
+
+void GeometryManager::setUniformBlock(const SimpleIDSet &geomID,const RawDataRef &uniBlock,int bufferID,ChangeSet &changes)
+{
+    std::lock_guard<std::mutex> guardLock(geomLock);
+
+    for (auto geomID : geomID) {
+        GeomSceneRep dummyRep(geomID);
+        auto sit = sceneReps.find(&dummyRep);
+        if (sit != sceneReps.end()) {
+            for (auto drawID : (*sit)->drawIDs)
+                changes.push_back(new UniformBlockSetRequest(drawID,uniBlock,bufferID));
+        }
+    }
+}
+
 
 }

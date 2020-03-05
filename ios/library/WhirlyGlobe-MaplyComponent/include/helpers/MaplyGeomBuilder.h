@@ -40,6 +40,9 @@
 /// UIImage for MaplyTexture to apply to geometry
 @property (nonatomic,strong) id texture;
 
+/// For more than one texture, use addTexture
+- (void)addTexture:(MaplyTexture *)texture;
+
 @end
 
 /** 

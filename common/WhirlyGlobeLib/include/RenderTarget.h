@@ -28,6 +28,9 @@ namespace WhirlyKit
 {
 class SceneRenderer;
 
+// If we're doing mipmaps for the render target texture, how they're calculated
+typedef enum {RenderTargetMipmapNone,RenderTargetMimpapAverage,RenderTargetMipmapGauss} RenderTargetMipmapType;
+
 /** What and where we're rendering.  This can be a regular framebuffer
  to the screen or to a texture.
  */
@@ -47,18 +50,30 @@ public:
     /// Set the clear color
     virtual void setClearColor(const RGBAColor &color) = 0;
     
+    /// If we're generating mipmaps for the render target, this is how
+    virtual void setMipmap(RenderTargetMipmapType inMipmapType) { mipmapType = inMipmapType; }
+    
+    /// Calculate the min/max values for a given render target every frame
+    virtual void setCalcMinMax(bool newVal) { calcMinMax = newVal; }
+    
     // Clear up resources from the render target (not clear the buffer)
     virtual void clear() = 0;
-
-    /// Copy the data out of the destination texture and return it
-    virtual RawDataRef snapshot() = 0;
     
-    /// Copy just a subset out of the destination texture and return it
-    virtual RawDataRef snapshot(int startX,int startY,int snapWidth,int snapHeight) = 0;
+    /// If we're tied to a texture, the number of levels in that texture
+    virtual int numLevels();
+    
+    /// Copy the data out of the destination texture and return it
+    virtual RawDataRef snapshot() { return RawDataRef(); };
 
+    /// Copy just a subset out of the destination texture and return it
+    virtual RawDataRef snapshot(int startX,int startY,int snapWidth,int snapHeight) { return RawDataRef(); };
+    
+    /// If we've asked for a min/max calculation, this is where we get it
+    virtual RawDataRef snapshotMinMax() { return RawDataRef(); }
+    
     /// Output framebuffer size
     int width,height;
-    /// Set if we've set up background and suchs
+    /// Set if we've set up background and such
     bool isSetup;
 
     // Clear color, if we're clearing
@@ -71,7 +86,9 @@ public:
     // Control how the blending into a destination works
     bool blendEnable;
     
-protected:
+public:
+    RenderTargetMipmapType mipmapType;
+    bool calcMinMax;
     virtual void init();
 };
 typedef std::shared_ptr<RenderTarget> RenderTargetRef;
@@ -80,7 +97,15 @@ typedef std::shared_ptr<RenderTarget> RenderTargetRef;
 class AddRenderTargetReq : public ChangeRequest
 {
 public:
-    AddRenderTargetReq(SimpleIdentity renderTargetID,int width,int height,SimpleIdentity texID,bool clearEveryFrame,bool blend,const RGBAColor &clearColor,float clearVal);
+    AddRenderTargetReq(SimpleIdentity renderTargetID,
+                       int width,int height,
+                       SimpleIdentity texID,
+                       bool clearEveryFrame,
+                       bool blend,
+                       const RGBAColor &clearColor,
+                       float clearVal,
+                       RenderTargetMipmapType mipmapType,
+                       bool calcMinMax);
     
     /// Add the render target to the renderer
     void execute(Scene *scene,SceneRenderer *renderer,View *view);
@@ -93,6 +118,8 @@ protected:
     RGBAColor clearColor;
     float clearVal;
     bool blend;
+    RenderTargetMipmapType mipmapType;
+    bool calcMinMax;
 };
 
 // Change details about a rendering target.  In this case, just texture.

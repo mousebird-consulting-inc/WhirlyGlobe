@@ -85,6 +85,10 @@
 /// If you want a specific render target, return it.  Otherwise nil for the screen.
 - (MaplyRenderTarget * __nullable)renderTarget;
 
+@optional
+/// If a render target calculates the min/max values after rendering, this snapshot callback will be called as well
+- (void)snapshotMinMax:(NSData * __nonnull)snapshotData;
+
 @end
 
 

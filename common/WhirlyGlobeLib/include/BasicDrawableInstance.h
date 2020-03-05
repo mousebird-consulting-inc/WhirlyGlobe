@@ -39,7 +39,7 @@ friend class BasicDrawableInstanceBuilder;
     
 public:
     /// Either the old style where we reuse drawables or the new style, largely for models
-    typedef enum {ReuseStyle,LocalStyle} Style;
+    typedef enum {ReuseStyle,LocalStyle,GPUStyle} Style;
     
     /// Construct empty
     BasicDrawableInstance(const std::string &name);
@@ -66,10 +66,7 @@ public:
     
     /// We're allowed to turn drawables off completely
     virtual bool isOn(WhirlyKit::RendererFrameInfo *frameInfo) const;
-    
-    /// Return true if the drawable has alpha.  These will be sorted last.
-    virtual bool hasAlpha(WhirlyKit::RendererFrameInfo *frameInfo) const;
-    
+        
     /// We can ask to use the z buffer
     virtual void setRequestZBuffer(bool val);
     virtual bool getRequestZBuffer() const;
@@ -144,6 +141,10 @@ public:
     {
     public:
         TexInfo() : texId(EmptyIdentity), relLevel(0), relX(0), relY(0), size(0), borderTexel(0) { }
+        
+        // Initialize from a basic drawable's version of the tex info
+        TexInfo(BasicDrawable::TexInfo &basicTexInfo);
+
         /// Texture ID within the scene
         SimpleIdentity texId;
         /// Our use of this texture relative to its native resolution
@@ -193,6 +194,9 @@ protected:
 
     // If set, we'll instance this one multiple times
     std::vector<SingleInstance> instances;
+    // Or we might get the number of instances from a texture (possibly a reduce)
+    SimpleIdentity instanceTexSource;
+    SimpleIdentity instanceTexProg;
 };
 
 /// Reference counted version of BasicDrawableInstance

@@ -51,9 +51,6 @@ public:
     /// No offset matrix (at the moment)
     const Eigen::Matrix4d *getMatrix() const;
     
-    /// Not using this mechanism
-    bool hasAlpha(RendererFrameInfo *frameInfo) const;
-
     /// Draw priority for ordering
     unsigned int getDrawPriority() const;
     void setDrawPriority(int newPriority);

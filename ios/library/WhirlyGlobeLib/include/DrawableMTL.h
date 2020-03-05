@@ -37,6 +37,9 @@ public:
 
     /// Set up what you need in the way of context and draw.
     virtual void draw(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> frameEncode,Scene *scene) = 0;
+    
+    /// An optional  step to copy memory into places (via a Blit incoder) before the calculate or draw commands
+    virtual void blitMemory(RendererFrameInfoMTL *frameInfo,id<MTLBlitCommandEncoder> blitEncode,Scene *scene) { }
 };
 
 }

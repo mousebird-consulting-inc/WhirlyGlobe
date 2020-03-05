@@ -25,7 +25,7 @@
 namespace WhirlyKit
 {
 
-Program::Program()
+Program::Program() : reduceMode(None)
 {
 }
 
@@ -36,6 +36,16 @@ Program::~Program()
 const std::string &Program::getName()
 {
     return name;
+}
+
+void Program::setReduceMode(ReduceMode inReduceMode)
+{
+    reduceMode = inReduceMode;
+}
+
+Program::ReduceMode Program::getReduceMode()
+{
+    return reduceMode;
 }
 
 void Program::setUniBlock(const BasicDrawable::UniformBlock &uniBlock)

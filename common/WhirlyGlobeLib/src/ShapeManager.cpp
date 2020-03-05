@@ -654,7 +654,6 @@ void ShapeManager::convertShape(Shape &shape,std::vector<WhirlyKit::GeometryRaw>
     rawGeom.resize(1);
     GeometryRaw &outGeom = rawGeom.front();
     outGeom.type = WhirlyKitGeometryTriangles;
-    outGeom.texId = EmptyIdentity;
     for (const BasicDrawableBuilderRef &draw : drawBuildTri.drawables)
     {
         int basePts = (int)outGeom.pts.size();

@@ -274,6 +274,9 @@ void ComponentManager::setUniformBlock(const SimpleIDSet &compIDs,const RawDataR
         if (partSysManager && !compObj->partSysIDs.empty()) {
             partSysManager->setUniformBlock(compObj->partSysIDs,uniBlock,bufferID,changes);
         }
+        if (geomManager && !compObj->geomIDs.empty()) {
+            geomManager->setUniformBlock(compObj->geomIDs,uniBlock,bufferID,changes);
+        }
         // TODO: Fill this in for the other object types
     }
 }

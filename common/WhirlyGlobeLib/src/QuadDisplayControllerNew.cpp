@@ -40,6 +40,7 @@ QuadDisplayControllerNew::QuadDisplayControllerNew(QuadDataStructure *dataStruct
     minZoom = dataStructure->getMinZoom();
     maxZoom = dataStructure->getMaxZoom();
     maxTiles = 128;
+    // TODO: Set this to 0.2 for older devices
     viewUpdatePeriod = 0.1;
     singleLevel = false;
     keepMinLevel = true;

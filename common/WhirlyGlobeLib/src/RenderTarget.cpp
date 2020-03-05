@@ -49,10 +49,17 @@ void RenderTarget::init()
     blendEnable = false;
     clearColor[0] = 0.0; clearColor[1] = 0.0; clearColor[2] = 0.0; clearColor[3] = 0.0;
     clearVal = 0.0;
+    calcMinMax = false;
+    mipmapType = RenderTargetMipmapNone;
 }
 
-AddRenderTargetReq::AddRenderTargetReq(SimpleIdentity renderTargetID,int width,int height,SimpleIdentity texID,bool clearEveryFrame,bool blend,const RGBAColor &clearColor, float clearVal)
-: renderTargetID(renderTargetID), width(width), height(height), texID(texID), clearEveryFrame(clearEveryFrame), blend(blend), clearColor(clearColor), clearVal(clearVal)
+int RenderTarget::numLevels()
+{
+    return 0;
+}
+
+AddRenderTargetReq::AddRenderTargetReq(SimpleIdentity renderTargetID,int width,int height,SimpleIdentity texID,bool clearEveryFrame,bool blend,const RGBAColor &clearColor, float clearVal, RenderTargetMipmapType mipmapType, bool calcMinMax)
+: renderTargetID(renderTargetID), width(width), height(height), texID(texID), clearEveryFrame(clearEveryFrame), blend(blend), clearColor(clearColor), clearVal(clearVal), mipmapType(mipmapType), calcMinMax(calcMinMax)
 {
 }
 
@@ -70,6 +77,8 @@ void AddRenderTargetReq::execute(Scene *scene,SceneRenderer *renderer,View *view
     renderTarget->clearColor[3] = clearColor.a / 255.0;
     renderTarget->clearVal = clearVal;
     renderTarget->blendEnable = blend;
+    renderTarget->setMipmap(mipmapType);
+    renderTarget->calcMinMax = calcMinMax;
     renderTarget->init(renderer,scene,texID);
     
     renderer->addRenderTarget(renderTarget);

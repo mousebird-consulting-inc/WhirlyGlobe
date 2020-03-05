@@ -29,6 +29,10 @@ using namespace Eigen;
 using namespace WhirlyKit;
 
 @implementation MaplyGeomState
+{
+@public
+    std::vector<id> textures;
+}
 
 - (id)init
 {
@@ -36,6 +40,24 @@ using namespace WhirlyKit;
     _color = [UIColor whiteColor];
     
     return self;
+}
+
+- (void)setTexture:(id)texture
+{
+    textures.resize(1);
+    textures[0] = texture;
+}
+
+- (id)texture
+{
+    if (textures.empty())
+        return nil;
+    return textures[0];
+}
+
+- (void)addTexture:(MaplyTexture *)tex
+{
+    textures.push_back(tex);
 }
 
 @end
@@ -159,37 +181,36 @@ using namespace WhirlyKit;
 
 - (GeometryRaw *)findMatchingGeom:(MaplyGeomState *)state hasNorms:(bool)hasNorms hasTexCoords:(bool)hasTexCoords hasColors:(bool)hasColors
 {
-    int texID = -1;
+    std::vector<SimpleIdentity> texIDs;
     
-    if (state.texture)
-    {
+    // Turn textures into indices for use later
+    for (id tex : state->textures) {
+        int texID = -1;
         int which = 0;
-        for (id thisTex : textures)
-        {
-            if (thisTex == state.texture)
-            {
+        for (id thisTex : textures) {
+            if (tex == thisTex) {
                 texID = which;
                 break;
             }
             which++;
         }
-
-        if (texID == -1)
-        {
-            textures.push_back(state.texture);
-            texID = (int)textures.size()-1;
+        if (texID == -1) {
+            textures.push_back(tex);
+            texIDs.push_back((int)textures.size()-1);
         }
-
     }
     
     for (auto &geom : rawGeom)
-        if (geom.texId == texID && (hasNorms == !geom.norms.empty()) && (hasTexCoords == !geom.texCoords.empty()) && (hasColors == !geom.colors.empty()))
+        if (geom.texIDs == texIDs &&
+            (hasNorms == !geom.norms.empty()) &&
+            (hasTexCoords == !geom.texCoords.empty()) &&
+            (hasColors == !geom.colors.empty()))
             return &geom;
     
     rawGeom.resize(rawGeom.size()+1);
     GeometryRaw *geom = &rawGeom[rawGeom.size()-1];
 
-    geom->texId = texID;
+    geom->texIDs = texIDs;
     
     return geom;
 }
@@ -353,9 +374,11 @@ using namespace WhirlyKit;
     for (auto &geom : modelBuilder->rawGeom)
     {
         MaplyGeomState *tmpState = [[MaplyGeomState alloc] init];
-        if (geom.texId >= 0)
+        if (!geom.texIDs.empty())
         {
-            tmpState.texture = modelBuilder->textures[geom.texId];
+            for (auto texID : geom.texIDs) {
+                tmpState->textures.push_back(modelBuilder->textures[texID]);
+            }
         }
         GeometryRaw *dest = [self findMatchingGeom:tmpState hasNorms:!geom.norms.empty() hasTexCoords:!geom.texCoords.empty() hasColors:!geom.colors.empty()];
         
@@ -503,12 +526,11 @@ using namespace WhirlyKit;
     {
         GeometryRaw thisGeom = geomRaw;
         
-        // Remap texture
-        if (thisGeom.texId >= 0)
-        {
-            std::map<int,SimpleIdentity>::iterator it = texMap.find(thisGeom.texId);
+        // Remap texture back to real IDs
+        for (unsigned int ii=0;ii<thisGeom.texIDs.size();ii++) {
+            auto it = texMap.find(thisGeom.texIDs[ii]);
             if (it != texMap.end())
-                thisGeom.texId = (int)texMap[thisGeom.texId];
+                thisGeom.texIDs[ii] = it->second;
         }
         
         model->rawGeom.push_back(thisGeom);

@@ -129,8 +129,8 @@ public:
     std::vector<WhirlyKit::RGBAColor> colors;
     /// The triangles, which reference points
     std::vector<RawTriangle> triangles;
-    /// A texture ID for the geometry
-    int texId;
+    /// Texture IDs for the geometry
+    std::vector<SimpleIdentity> texIDs;
 };
 
 /// Represents a single Geometry Instance
@@ -309,6 +309,9 @@ public:
     /// Add instances that reuse base geometry
     SimpleIdentity addGeometryInstances(SimpleIdentity baseGeomID,const std::vector<GeometryInstance> &instances,GeometryInfo &geomInfo,ChangeSet &changes);
     
+    /// Add a GPU geometry instance
+    SimpleIdentity addGPUGeomInstance(SimpleIdentity baseGeomID,SimpleIdentity programID,SimpleIdentity texSourceID,SimpleIdentity srcProgramID,GeometryInfo &geomInfo,ChangeSet &changes);
+    
     /// Add raw geometry points.
     SimpleIdentity addGeometryPoints(const GeometryRawPoints &geomPoints,const Eigen::Matrix4d &mat,GeometryInfo &geomInfo,ChangeSet &changes);
 
@@ -317,6 +320,9 @@ public:
     
     /// Remove a group of billboards named by the given ID
     void removeGeometry(SimpleIDSet &billIDs,ChangeSet &changes);
+    
+    /// Apply the given uniform block to the geometry
+    void setUniformBlock(const SimpleIDSet &geomIDs,const RawDataRef &uniBlock,int bufferID,ChangeSet &changes);
     
 protected:
     std::mutex geomLock;

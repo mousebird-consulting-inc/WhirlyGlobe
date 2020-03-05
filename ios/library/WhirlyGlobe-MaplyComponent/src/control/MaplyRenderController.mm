@@ -30,6 +30,7 @@
 #import "SceneMTL.h"
 #import "SceneRendererMTL.h"
 #import "MaplyActiveObject_private.h"
+#import "MaplyRenderTarget_private.h"
 
 using namespace WhirlyKit;
 using namespace Eigen;
@@ -304,12 +305,9 @@ using namespace Eigen;
 
         [EAGLContext setCurrentContext:oldContext];
     } else {
-        // TODO: Convert to image
-
+//        NSData *data = sceneRendererMTL->getSnapshot();
+        // TODO: Convert the NSData to UIImage
     }
-
-        // Note: Convert to image
-        
     
     return toRet;
 }
@@ -339,12 +337,12 @@ using namespace Eigen;
     } else {
         SceneRendererMTLRef sceneRendererMTL = std::dynamic_pointer_cast<SceneRendererMTL>(sceneRenderer);
         
-        sceneRendererMTL->addSnapshotDelegate(self);
         sceneRendererMTL->forceDrawNextFrame();
         sceneRendererMTL->render(1.0/60.0,nil,nil);
-        toRet = snapshotData;
-        snapshotData = nil;
-        sceneRendererMTL->removeSnapshotDelegate(self);
+        RawDataRef dataRef = sceneRendererMTL->getSnapshot(EmptyIdentity);
+        RawNSDataReaderRef rawData = std::dynamic_pointer_cast<RawNSDataReader>(dataRef);
+        if (rawData)
+            toRet = rawData->getData();
     }
     
     return toRet;
@@ -800,6 +798,7 @@ using namespace Eigen;
     if (![self startOfWork])
         return;
 
+    renderTarget.renderControl = self;
     [interactLayer addRenderTarget:renderTarget];
 
     [self endOfWork];
@@ -830,6 +829,7 @@ using namespace Eigen;
     if (![self startOfWork])
         return;
 
+    renderTarget.renderControl = nil;
     [interactLayer removeRenderTarget:renderTarget];
 
     [self endOfWork];

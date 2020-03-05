@@ -567,6 +567,17 @@ using namespace WhirlyKit;
     return true;
 }
 
+- (void)setReduceMode:(bool)reduceMode
+{
+    if (!_program)
+        return;
+    
+    if (reduceMode)
+        _program->setReduceMode(Program::TextureReduce);
+    else
+        _program->setReduceMode(Program::None);
+}
+
 // We're assuming the view controller has set the proper context
 - (void)teardown
 {

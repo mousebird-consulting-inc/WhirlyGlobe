@@ -75,12 +75,6 @@ bool SceneRendererGLES::setup(int apiVersion,int sizeX,int sizeY,float inScale)
     
     // All the animations should work now, except for particle systems
     useViewChanged = true;
-
-    // No longer really ncessary
-    sortAlphaToEnd = false;
-    
-    // Off by default.  Because duh.
-    depthBufferOffForAlpha = false;
     
     extraFrameMode = false;
     
@@ -170,16 +164,15 @@ public:
 class DrawListSortStruct2
 {
 public:
-    DrawListSortStruct2(bool useAlpha,bool useZBuffer,RendererFrameInfo *frameInfo) : useAlpha(useAlpha), useZBuffer(useZBuffer), frameInfo(frameInfo)
+    DrawListSortStruct2(bool useZBuffer,RendererFrameInfo *frameInfo) : useZBuffer(useZBuffer), frameInfo(frameInfo)
     {
     }
     DrawListSortStruct2() { }
-    DrawListSortStruct2(const DrawListSortStruct2 &that) : useAlpha(that.useAlpha), useZBuffer(that.useZBuffer), frameInfo(that.frameInfo)
+    DrawListSortStruct2(const DrawListSortStruct2 &that) : useZBuffer(that.useZBuffer), frameInfo(that.frameInfo)
     {
     }
     DrawListSortStruct2 & operator = (const DrawListSortStruct2 &that)
     {
-        useAlpha = that.useAlpha;
         useZBuffer= that.useZBuffer;
         frameInfo = that.frameInfo;
         return *this;
@@ -188,11 +181,7 @@ public:
     {
         Drawable *a = conA.drawable;
         Drawable *b = conB.drawable;
-        // We may or may not sort all alpha containing drawables to the end
-        if (useAlpha)
-            if (a->hasAlpha(frameInfo) != b->hasAlpha(frameInfo))
-                return !a->hasAlpha(frameInfo);
-        
+
         if (a->getDrawPriority() == b->getDrawPriority())
         {
             if (useZBuffer)
@@ -207,7 +196,7 @@ public:
         return a->getDrawPriority() < b->getDrawPriority();
     }
     
-    bool useAlpha,useZBuffer;
+    bool useZBuffer;
     RendererFrameInfo *frameInfo;
 };
     
@@ -449,7 +438,7 @@ void SceneRendererGLES::render(TimeInterval duration)
         
         // Sort the drawables (possibly multiple of the same if we have offset matrices)
         bool sortLinesToEnd = (zBufferMode == zBufferOffDefault);
-        std::sort(drawList.begin(),drawList.end(),DrawListSortStruct2(sortAlphaToEnd,sortLinesToEnd,&baseFrameInfo));
+        std::sort(drawList.begin(),drawList.end(),DrawListSortStruct2(sortLinesToEnd,&baseFrameInfo));
         
         if (perfInterval > 0)
             perfTimer.startTiming("Calculation Shaders");
@@ -525,18 +514,7 @@ void SceneRendererGLES::render(TimeInterval duration)
             for (unsigned int ii=0;ii<drawList.size();ii++)
             {
                 DrawableContainer &drawContain = drawList[ii];
-                
-                // The first time we hit an explicitly alpha drawable
-                //  turn off the depth buffer
-                if (depthBufferOffForAlpha && !(zBufferMode == zBufferOffDefault))
-                {
-                    if (depthMaskOn && depthBufferOffForAlpha && drawContain.drawable->hasAlpha(&baseFrameInfo))
-                    {
-                        depthMaskOn = false;
-                        glDisable(GL_DEPTH_TEST);
-                    }
-                }
-                
+                                
                 // For this mode we turn the z buffer off until we get a request to turn it on
                 if (zBufferMode == zBufferOffDefault)
                 {

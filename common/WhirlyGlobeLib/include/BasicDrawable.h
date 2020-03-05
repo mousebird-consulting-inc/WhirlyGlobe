@@ -75,9 +75,6 @@ public:
     /// Return the Matrix if there is an active one (ideally not)
     virtual const Eigen::Matrix4d *getMatrix() const;
 
-    /// Return true if the drawable has alpha.  These will be sorted last.
-    virtual bool hasAlpha(RendererFrameInfo *frameInfo) const;
-
     /// Set the time range for enable
     void setEnableTimeRange(TimeInterval inStartEnable,TimeInterval inEndEnable);
 
@@ -129,6 +126,7 @@ public:
         TexInfo() : texId(EmptyIdentity), texCoordEntry(0),
         relLevel(0), relX(0), relY(0),
         size(0), borderTexel(0) { }
+                
         /// Texture ID within the scene
         SimpleIdentity texId;
         /// Vertex attribute entry for this set of texture coordinates

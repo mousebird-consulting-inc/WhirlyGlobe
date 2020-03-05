@@ -42,20 +42,24 @@ public:
     /// Clean up any rendering objects you may have (e.g. VBOs).
     virtual void teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene);
     
-    virtual void calculate(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> frameEncode,Scene *scene) { };
+    /// We use the calculation step to set up indirect rendering when we're doing that
+    virtual void calculate(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> frameEncode,Scene *scene);
     
     /// Fill this in to draw the basic drawable
     virtual void draw(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene);
     
 protected:
     id<MTLRenderPipelineState> getRenderPipelineState(SceneRendererMTL *sceneRender,RendererFrameInfoMTL *frameInfo,BasicDrawableMTL *basicDrawMTL);
+    id<MTLRenderPipelineState> getCalcRenderPipelineState(SceneRendererMTL *sceneRender,RendererFrameInfoMTL *frameInfo);
     void updateColorDefaultAttr();
     
     id<MTLRenderPipelineState> renderState;
+    id<MTLRenderPipelineState> calcRenderState;
     std::vector<BasicDrawableMTL::AttributeDefault> defaultAttrs;
     bool setupForMTL;
     WhirlyKitShader::UniformModelInstance uniMI;
     id<MTLBuffer> instBuffer;  // Stores instances
+    id<MTLBuffer> indirectBuffer;   // Indirect arguments for drawIndexed
     int numInst;
 };
     

@@ -68,9 +68,6 @@ public:
     /// Return the local MBR, if we're working in a non-geo coordinate system
     virtual Mbr getLocalMbr() const = 0;
 
-    /// Return true if the drawable has alpha.  These will be sorted last.
-    virtual bool hasAlpha(RendererFrameInfo *frameInfo) const = 0;
-
 	/// We use this to sort drawables
 	virtual unsigned int getDrawPriority() const = 0;
     
@@ -105,6 +102,9 @@ public:
     /// For OpenGLES2, this is the program to use to render this drawable.
     virtual SimpleIdentity getProgram() const = 0;
     
+    // Which workgroups this is in (might be in multiple if there's a calculation shader)
+    SimpleIDSet workGroupIDs;
+
 protected:
     std::string name;
     DrawableTweakerRefSet tweakers;

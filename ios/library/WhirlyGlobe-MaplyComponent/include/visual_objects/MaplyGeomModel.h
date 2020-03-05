@@ -23,6 +23,8 @@
 #import "math/MaplyMatrix.h"
 #import "visual_objects/MaplyShape.h"
 
+@class MaplyShader;
+
 /** 
     Contains a big pile of geometry and textures (e.g. a model).
     
@@ -98,3 +100,23 @@
 
 @end
 
+/**
+ Sometimes we don't know how many instances there will be of a model until
+ some logic runs on the GPU.  We can then take that number and run that
+ number of instances of the given model.  [Metal only]
+ */
+@interface MaplyGeomModelGPUInstance : NSObject
+
+/// The model to instance
+@property (nonatomic,strong,nullable) MaplyGeomModel *model;
+
+/// Texture to derive the number of instances from (picked out of the highest, smallest level)
+@property (nonatomic,nullable) MaplyTexture *numInstSource;
+
+/// Need a shader to pull the number of instances out of a texture and shove them in the indirect buffer
+@property (nonatomic,nullable) MaplyShader *numInstShader;
+
+/// Shader to run over for this instance
+@property (nonatomic,nullable) MaplyShader *shader;
+
+@end

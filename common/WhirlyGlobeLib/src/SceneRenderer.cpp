@@ -49,6 +49,76 @@ RendererFrameInfo::RendererFrameInfo(const RendererFrameInfo &that)
 {
     *this = that;
 }
+
+WorkGroup::WorkGroup(GroupType groupType) : groupType(groupType)
+{
+    switch (groupType) {
+        case Calculation:
+            // For calculation we don't really have a render target
+            renderTargetContainers.push_back(RenderTargetContainerRef(new RenderTargetContainer(RenderTargetRef())));
+            break;
+        case Offscreen:
+            break;
+        case ReduceOps:
+            break;
+        case ScreenRender:
+            break;
+    }
+}
+
+WorkGroup::~WorkGroup()
+{
+    for (auto &targetCon : renderTargetContainers) {
+        for (auto &draw : targetCon->drawables) {
+            auto it = draw->workGroupIDs.find(getId());
+            if (it != draw->workGroupIDs.end())
+                draw->workGroupIDs.erase(it);
+        }
+    }
+}
+
+bool WorkGroup::addDrawable(DrawableRef drawable)
+{
+    for (auto &renderTargetCon : renderTargetContainers) {
+        // If there is no render target set, this is the calculation group
+        // Or if there's no render target in the drawable, this is probably the ScreenRender group
+        // Or if it actually matches
+        if (!renderTargetCon->renderTarget || drawable->getRenderTarget() == EmptyIdentity ||
+            renderTargetCon->renderTarget->getId() == drawable->getRenderTarget()) {
+            renderTargetCon->drawables.insert(drawable);
+            drawable->workGroupIDs.insert(getId());
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+void WorkGroup::removeDrawable(DrawableRef drawable)
+{
+    for (auto &renderTargetCon : renderTargetContainers) {
+        auto it = renderTargetCon->drawables.find(drawable);
+        if (it != renderTargetCon->drawables.end()) {
+            renderTargetCon->drawables.erase(it);
+        }
+    }
+    
+    auto it = drawable->workGroupIDs.find(getId());
+    if (it != drawable->workGroupIDs.end()) {
+        drawable->workGroupIDs.erase(it);
+    }
+}
+
+void WorkGroup::addRenderTarget(RenderTargetRef renderTarget)
+{
+    // See if it's already in here
+    for (auto &renderTargetCon : renderTargetContainers)
+        if (renderTargetCon->renderTarget && renderTarget->getId() == renderTargetCon->renderTarget->getId()) {
+            return;
+        }
+    
+    renderTargetContainers.push_back(RenderTargetContainerRef(new RenderTargetContainer(renderTarget)));
+}
     
 SceneRenderer::SceneRenderer()
 {
@@ -70,8 +140,6 @@ void SceneRenderer::init()
     numDrawables = 0;
     perfInterval = 0.0;
     useViewChanged = true;
-    sortAlphaToEnd = false;
-    depthBufferOffForAlpha = false;
     triggerDraw = true;
     frameCount = 0;
     frameCountStart = 0.0;
@@ -90,6 +158,15 @@ void SceneRenderer::init()
     addLight(light);
     
     lightsLastUpdated = 0.0;
+
+    // Calculation shaders
+    workGroups.push_back(WorkGroupRef(new WorkGroup(WorkGroup::Calculation)));
+    // Offscreen target render group
+    workGroups.push_back(WorkGroupRef(new WorkGroup(WorkGroup::Offscreen)));
+    // Middle one for weird stuff
+    workGroups.push_back(WorkGroupRef(new WorkGroup(WorkGroup::ReduceOps)));
+    // Last workgroup is used for on screen rendering
+    workGroups.push_back(WorkGroupRef(new WorkGroup(WorkGroup::ScreenRender)));
 }
 
 Scene *SceneRenderer::getScene()
@@ -118,7 +195,89 @@ void SceneRenderer::setView(View *newView)
     
 void SceneRenderer::addRenderTarget(RenderTargetRef newTarget)
 {
+    workGroups[WorkGroup::Offscreen]->renderTargetContainers.push_back(WorkGroup::RenderTargetContainerRef(new WorkGroup::RenderTargetContainer(newTarget)));
     renderTargets.insert(renderTargets.begin(),newTarget);
+}
+
+void SceneRenderer::addDrawable(DrawableRef newDrawable)
+{
+    newDrawable->setupForRenderer(getRenderSetupInfo());
+    newDrawable->updateRenderer(this);
+    
+    // This will sort it into the appropriate work group later
+    offDrawables.insert(newDrawable);
+}
+
+void SceneRenderer::removeDrawable(DrawableRef draw)
+{
+    // TODO: Can make this simpler
+    for (auto &workGroup : workGroups) {
+        workGroup->removeDrawable(draw);
+    }
+    auto it = offDrawables.find(draw);
+    if (it != offDrawables.end()) {
+        offDrawables.erase(it);
+    }
+    
+    removeContinuousRenderRequest(draw->getId());
+    // Teardown OpenGL foo
+    draw->teardownForRenderer(getRenderSetupInfo(),scene);
+}
+
+void SceneRenderer::updateWorkGroups(RendererFrameInfo *frameInfo)
+{
+    // Look at drawables to move into the active set
+    std::vector<DrawableRef> drawsToMoveIn;
+    for (auto draw : offDrawables) {
+        if (draw->isOn(frameInfo)) {
+            bool keep = false;
+            // If there's a render target, we need that too
+            if (draw->getRenderTarget() != EmptyIdentity) {
+                for (auto &renderTarget : renderTargets) {
+                    if (draw->getRenderTarget() == renderTarget->getId())
+                        keep = true;
+                }
+            } else
+                keep = true;
+            if (keep)
+                drawsToMoveIn.push_back(draw);
+        }
+    }
+    for (auto draw : drawsToMoveIn) {
+        auto it = offDrawables.find(draw);
+        if (it != offDrawables.end()) {
+            offDrawables.erase(it);
+        }
+
+        // If there's a calculation program, it always goes in there
+        if (draw->getCalculationProgram() != EmptyIdentity) {
+            workGroups[WorkGroup::Calculation]->addDrawable(draw);
+        }
+        // Sort into offscreen or onscreen buckets
+        if (draw->getRenderTarget() != EmptyIdentity) {
+            workGroups[WorkGroup::Offscreen]->addDrawable(draw);
+        } else {
+            workGroups[WorkGroup::ScreenRender]->addDrawable(draw);
+        }
+    }
+    
+    // Look for active drawables to move out of the active set
+    for (auto workGroup : workGroups) {
+        for (auto renderTargetCon : workGroup->renderTargetContainers) {
+            std::vector<DrawableRef> drawsToMoveOut;
+            for (auto draw : renderTargetCon->drawables) {
+                if (!draw->isOn(frameInfo)) {
+                    drawsToMoveOut.push_back(draw);
+                }
+            }
+            for (auto draw : drawsToMoveOut) {
+                auto it = renderTargetCon->drawables.find(draw);
+                if (it != renderTargetCon->drawables.end())
+                    renderTargetCon->drawables.erase(it);
+                offDrawables.insert(draw);
+            }
+        }
+    }
 }
 
 void SceneRenderer::removeRenderTarget(SimpleIdentity targetID)
@@ -130,6 +289,20 @@ void SceneRenderer::removeRenderTarget(SimpleIdentity targetID)
         {
             target->clear();
             renderTargets.erase(renderTargets.begin()+ii);
+            break;
+        }
+    }
+    
+    for (auto &workGroup : workGroups) {
+        int which = 0;
+        for (auto &con : workGroup->renderTargetContainers) {
+            if (con->renderTarget && con->renderTarget->getId() == targetID) {
+                break;
+            }
+            which++;
+        }
+        if (which < workGroup->renderTargetContainers.size()) {
+            workGroup->renderTargetContainers.erase(workGroup->renderTargetContainers.begin()+which);
             break;
         }
     }
@@ -274,12 +447,20 @@ void SceneRenderer::setClearColor(const RGBAColor &color)
     forceRenderSetup();
 }
 
-void SceneRenderer::processScene()
+int SceneRenderer::preProcessScene(TimeInterval now)
 {
     if (!scene)
-        return;
+        return 0;
+
+    return scene->preProcessChanges(theView, this, now);
+}
+
+int SceneRenderer::processScene(TimeInterval now)
+{
+    if (!scene)
+        return 0;
     
-    scene->processChanges(theView,this,scene->getCurrentTime());
+    return scene->processChanges(theView,this,now);
 }
 
 bool SceneRenderer::hasChanges()

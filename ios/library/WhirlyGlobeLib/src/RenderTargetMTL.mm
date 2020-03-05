@@ -25,13 +25,13 @@ namespace WhirlyKit
 {
 
 RenderTargetMTL::RenderTargetMTL()
-    : renderPassDesc(nil), pixelFormat(MTLPixelFormatBGRA8Unorm)
+    : pixelFormat(MTLPixelFormatBGRA8Unorm)
 {
     clearOnce = true;
 }
 
 RenderTargetMTL::RenderTargetMTL(SimpleIdentity newID)
-    : RenderTarget(newID), renderPassDesc(nil), pixelFormat(MTLPixelFormatBGRA8Unorm)
+    : RenderTarget(newID), pixelFormat(MTLPixelFormatBGRA8Unorm)
 {
     clearOnce = true;
 }
@@ -63,7 +63,12 @@ bool RenderTargetMTL::setTargetTexture(SceneRenderer *renderer,Scene *scene,Simp
 void RenderTargetMTL::clear()
 {
     tex = nil;
-    renderPassDesc = nil;
+    renderPassDesc.clear();
+}
+
+int RenderTargetMTL::numLevels()
+{
+    return renderPassDesc.size();
 }
  
 // TODO: Move this somewhere else
@@ -120,11 +125,27 @@ RawDataRef RenderTargetMTL::snapshot(int startX,int startY,int snapWidth,int sna
     MTLRegion region = MTLRegionMake2D(startX,startY,snapWidth,snapHeight);
     int pixSize = calcPixelSize([tex pixelFormat]);
     
-    NSMutableData *data = [[NSMutableData alloc] initWithCapacity:snapWidth*snapHeight*pixSize];
+    NSMutableData *data = [[NSMutableData alloc] initWithLength:snapWidth*snapHeight*pixSize];
 #if !TARGET_OS_SIMULATOR
-    [tex getBytes:[data mutableBytes] bytesPerRow:snapWidth*pixSize fromRegion:region mipmapLevel:0];
+    [tex getBytes:[data mutableBytes] bytesPerRow:width*pixSize fromRegion:region mipmapLevel:0];
 #endif
     
+    return RawDataRef(new RawNSDataReader(data));
+}
+
+RawDataRef RenderTargetMTL::snapshotMinMax()
+{
+    if (!minMaxOutTex)
+        return RawDataRef();
+    
+    MTLRegion region = MTLRegionMake2D(0,0,2,1);
+    int pixSize = calcPixelSize([minMaxOutTex pixelFormat]);
+    
+    NSMutableData *data = [[NSMutableData alloc] initWithLength:2*1*pixSize];
+#if !TARGET_OS_SIMULATOR
+    [minMaxOutTex getBytes:[data mutableBytes] bytesPerRow:2*pixSize fromRegion:region mipmapLevel:0];
+#endif
+        
     return RawDataRef(new RawNSDataReader(data));
 }
 
@@ -146,38 +167,52 @@ void RenderTargetMTL::setTargetDepthTexture(TextureBaseMTL *inDepthTex)
 }
 
     
-MTLRenderPassDescriptor *RenderTargetMTL::makeRenderPassDesc()
+void RenderTargetMTL::makeRenderPassDesc()
 {
-    renderPassDesc = [[MTLRenderPassDescriptor alloc] init];
-    renderPassDesc.colorAttachments[0].texture = tex;
-    if (clearEveryFrame || clearOnce)
-        renderPassDesc.colorAttachments[0].loadAction = MTLLoadActionClear;
-    else
-        // TODO: This is more work for the renderer.  Narrow down when to do this
-        renderPassDesc.colorAttachments[0].loadAction =  MTLLoadActionLoad;
-    switch (pixelFormat) {
-        case MTLPixelFormatBGRA8Unorm:
-            renderPassDesc.colorAttachments[0].clearColor = MTLClearColorMake(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
-            break;
-        case MTLPixelFormatR32Float:
-        case MTLPixelFormatRG32Float:
-        case MTLPixelFormatRGBA32Float:
-        case MTLPixelFormatRG16Float:
-        case MTLPixelFormatRGBA16Float:
-            renderPassDesc.colorAttachments[0].clearColor = MTLClearColorMake(clearVal, clearVal, clearVal, clearVal);
-            break;
-        default:
-            NSLog(@"RenderTargetMTL: Unknown Pixel Format.  Not clearing.");
-            break;
-    }
-    if (depthTex) {
-        renderPassDesc.depthAttachment.texture = depthTex;
-    }
-    renderPassDesc.colorAttachments[0].storeAction = MTLStoreActionStore;
+    renderPassDesc.clear();
     
+    // TODO: Only regenerate these if something has changed
+    
+    int numLevels = 1;
+    if (tex) {
+        numLevels = tex.mipmapLevelCount;
+    }
+    
+    for (unsigned int ii=0;ii<numLevels;ii++) {
+        MTLRenderPassDescriptor *rpd = [[MTLRenderPassDescriptor alloc] init];
+        rpd.colorAttachments[0].texture = tex;
+        rpd.colorAttachments[0].level = ii;
+        if (clearEveryFrame || clearOnce)
+            rpd.colorAttachments[0].loadAction = MTLLoadActionClear;
+        else
+            // TODO: This is more work for the renderer.  Narrow down when to do this
+            rpd.colorAttachments[0].loadAction =  MTLLoadActionLoad;
+        switch (pixelFormat) {
+            case MTLPixelFormatBGRA8Unorm:
+                rpd.colorAttachments[0].clearColor = MTLClearColorMake(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
+                break;
+            case MTLPixelFormatR32Float:
+            case MTLPixelFormatRG32Float:
+            case MTLPixelFormatRGBA32Float:
+            case MTLPixelFormatRG16Float:
+            case MTLPixelFormatRGBA16Float:
+            case MTLPixelFormatR32Uint:
+            case MTLPixelFormatRG32Uint:
+                rpd.colorAttachments[0].clearColor = MTLClearColorMake(clearVal, clearVal, clearVal, clearVal);
+                break;
+            default:
+                NSLog(@"RenderTargetMTL: Unknown Pixel Format.  Not clearing.");
+                break;
+        }
+        if (depthTex) {
+            rpd.depthAttachment.texture = depthTex;
+        }
+        rpd.colorAttachments[0].storeAction = MTLStoreActionStore;
+        
+        renderPassDesc.push_back(rpd);
+    }
+
     clearOnce = false;
-    
-    return renderPassDesc;
 }
     
 MTLPixelFormat RenderTargetMTL::getPixelFormat()
@@ -185,19 +220,64 @@ MTLPixelFormat RenderTargetMTL::getPixelFormat()
     return pixelFormat;
 }
     
-MTLRenderPassDescriptor *RenderTargetMTL::getRenderPassDesc()
+MTLRenderPassDescriptor *RenderTargetMTL::getRenderPassDesc(int level)
 {
-    if (!renderPassDesc)
+    if (renderPassDesc.empty())
         makeRenderPassDesc();
-    return renderPassDesc;
+    if (level < 0)
+        level = 0;
+    return renderPassDesc[level];
 }
+
+/// Encodes any post processing commands
+void RenderTargetMTL::addPostProcessing(id<MTLDevice> mtlDevice,id<MTLCommandBuffer> cmdBuff)
+{
+    switch (mipmapType) {
+        case RenderTargetMipmapNone:
+            break;
+        case RenderTargetMimpapAverage:
+        {
+            id <MTLBlitCommandEncoder> encoder = [cmdBuff blitCommandEncoder];
+            [encoder generateMipmapsForTexture:tex];
+            [encoder endEncoding];
+            break;
+        }
+        case RenderTargetMipmapGauss:
+        {
+            if (!mipmapKernel) {
+                MPSImageGaussianPyramid *blurKernel = [[MPSImageGaussianPyramid alloc] initWithDevice:mtlDevice];
+                mipmapKernel = blurKernel;
+            }
+            if (mipmapKernel) {
+                [mipmapKernel encodeToCommandBuffer:cmdBuff inPlaceTexture:&tex fallbackCopyAllocator:nil];
+            }
+            break;
+        }
+    }
     
+    // Calculate the min/max every frame
+    if (@available(iOS 11.0, *)) {
+        if (calcMinMax) {
+            if (!minMaxOutTex) {
+                minMaxKernel = [[MPSImageStatisticsMinAndMax alloc] initWithDevice:mtlDevice];
+
+                MTLTextureDescriptor *desc = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:[tex pixelFormat] width:2 height:1 mipmapped:false];
+                desc.usage = MTLTextureUsageShaderWrite | MTLTextureUsageShaderRead;
+                minMaxOutTex = [mtlDevice newTextureWithDescriptor:desc];
+            }
+            
+            [minMaxKernel encodeToCommandBuffer:cmdBuff sourceTexture:tex destinationTexture:minMaxOutTex];
+        }
+    }
+}
+
+
 void RenderTargetMTL::setClearColor(const RGBAColor &color)
 {
     color.asUnitFloats(clearColor);
     
-    if (renderPassDesc)
-        renderPassDesc.colorAttachments[0].clearColor = MTLClearColorMake(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
+    for (auto rpd : renderPassDesc)
+        rpd.colorAttachments[0].clearColor = MTLClearColorMake(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
 }
 
 id<MTLTexture> RenderTargetMTL::getTex()

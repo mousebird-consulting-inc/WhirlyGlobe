@@ -161,10 +161,13 @@ using namespace WhirlyKit;
             sceneRender->render(displayLink.frameInterval * 1/60.0);
         else {
             // Process the scene even if the window isn't up
-            sceneRender->processScene();
+            TimeInterval now = TimeGetCurrent();
+            sceneRender->processScene(now);
         }
-    } else
-        sceneRender->processScene();
+    } else {
+        TimeInterval now = TimeGetCurrent();
+        sceneRender->processScene(now);
+    }
     
     [EAGLContext setCurrentContext:oldContext];
 }

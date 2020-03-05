@@ -20,7 +20,11 @@
 
 #import <UIKit/UIKit.h>
 
-/// Fill this in to get a view snapshot on the next draw
+/**
+ Fill this in to get a view snapshot on the next draw.
+  For OpenGL ES, you'll actually get data in the snapshotData call.
+ For Metal, we just notify you the frame is ready and it's up to you to call the render targets for your data.
+  */
 @protocol WhirlyKitSnapshot
 
 /// Returns true if we really want a snapshot
@@ -30,9 +34,11 @@
 - (WhirlyKit::SimpleIdentity)renderTargetID;
 
 /// If we just want a subset, this is it
+/// Only for OpenGL ES.  Not called for Metal.
 - (CGRect)snapshotRect;
 
-/// Called with the raw image data
+/// Called with the raw image data.
+/// For Metal, data is always nil.  You need to call the right render target to get what you want.
 - (void)snapshotData:(NSData *)data;
 
 @end
