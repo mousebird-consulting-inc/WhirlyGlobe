@@ -125,11 +125,27 @@ RawDataRef RenderTargetMTL::snapshot(int startX,int startY,int snapWidth,int sna
     MTLRegion region = MTLRegionMake2D(startX,startY,snapWidth,snapHeight);
     int pixSize = calcPixelSize([tex pixelFormat]);
     
-    NSMutableData *data = [[NSMutableData alloc] initWithCapacity:snapWidth*snapHeight*pixSize];
+    NSMutableData *data = [[NSMutableData alloc] initWithLength:snapWidth*snapHeight*pixSize];
 #if !TARGET_OS_SIMULATOR
-    [tex getBytes:[data mutableBytes] bytesPerRow:snapWidth*pixSize fromRegion:region mipmapLevel:0];
+    [tex getBytes:[data mutableBytes] bytesPerRow:width*pixSize fromRegion:region mipmapLevel:0];
 #endif
     
+    return RawDataRef(new RawNSDataReader(data));
+}
+
+RawDataRef RenderTargetMTL::snapshotMinMax()
+{
+    if (!minMaxOutTex)
+        return RawDataRef();
+    
+    MTLRegion region = MTLRegionMake2D(0,0,2,1);
+    int pixSize = calcPixelSize([minMaxOutTex pixelFormat]);
+    
+    NSMutableData *data = [[NSMutableData alloc] initWithLength:2*1*pixSize];
+#if !TARGET_OS_SIMULATOR
+    [minMaxOutTex getBytes:[data mutableBytes] bytesPerRow:2*pixSize fromRegion:region mipmapLevel:0];
+#endif
+        
     return RawDataRef(new RawNSDataReader(data));
 }
 
@@ -236,6 +252,21 @@ void RenderTargetMTL::addPostProcessing(id<MTLDevice> mtlDevice,id<MTLCommandBuf
                 [mipmapKernel encodeToCommandBuffer:cmdBuff inPlaceTexture:&tex fallbackCopyAllocator:nil];
             }
             break;
+        }
+    }
+    
+    // Calculate the min/max every frame
+    if (@available(iOS 11.0, *)) {
+        if (calcMinMax) {
+            if (!minMaxOutTex) {
+                minMaxKernel = [[MPSImageStatisticsMinAndMax alloc] initWithDevice:mtlDevice];
+
+                MTLTextureDescriptor *desc = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:[tex pixelFormat] width:2 height:1 mipmapped:false];
+                desc.usage = MTLTextureUsageShaderWrite | MTLTextureUsageShaderRead;
+                minMaxOutTex = [mtlDevice newTextureWithDescriptor:desc];
+            }
+            
+            [minMaxKernel encodeToCommandBuffer:cmdBuff sourceTexture:tex destinationTexture:minMaxOutTex];
         }
     }
 }

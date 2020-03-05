@@ -31,6 +31,7 @@
 #import "WhirlyKitLog.h"
 #import "DefaultShadersMTL.h"
 #import "RawData_NSData.h"
+#import "RenderTargetMTL.h"
 
 using namespace Eigen;
 
@@ -674,6 +675,8 @@ void SceneRendererMTL::render(TimeInterval duration,
                 }
                 
                 [cmdEncode endEncoding];
+                
+                
             }
             
             // Some render targets like to do extra work on their images
@@ -684,10 +687,27 @@ void SceneRendererMTL::render(TimeInterval duration,
                 id<CAMetalDrawable> drawable = [drawGetter getDrawable];
                 [cmdBuff presentDrawable:drawable];
             }
+            
+            // This particular target may want a snapshot
+            // TODO: Sort these into the render targets
+            [cmdBuff addCompletedHandler:^(id<MTLCommandBuffer> _Nonnull) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    // Look for the snapshot delegate that wants this render target
+                    for (auto snapshotDelegate : snapshotDelegates) {
+                        if (![snapshotDelegate needSnapshot:now])
+                            continue;
+                        
+                        if (renderTarget->getId() != [snapshotDelegate renderTargetID]) {
+                            continue;
+                        }
+                        
+                        [snapshotDelegate snapshotData:nil];
+                    }
+                });
+            }];
 
             [cmdBuff commit];
-
-            // TODO: See if we can set a callback instead
+            
             // This happens for offline rendering and we want to wait until the render finishes to return it
             if (!drawGetter)
                 [cmdBuff waitUntilCompleted];
@@ -696,9 +716,6 @@ void SceneRendererMTL::render(TimeInterval duration,
         if (perfInterval > 0)
             perfTimer.stopTiming("Work Group: " + workGroup->name);
     }
-
-    // Snapshots tend to be platform specific
-    snapshotCallback(now);
         
     if (perfInterval > 0)
         perfTimer.stopTiming("Render Frame");
@@ -720,48 +737,52 @@ void SceneRendererMTL::render(TimeInterval duration,
     
     sceneMTL->endOfFrameBufferClear();
 }
-    
-void SceneRendererMTL::snapshotCallback(TimeInterval now)
-{
-    for (auto snapshotDelegate : snapshotDelegates) {
-        if (![snapshotDelegate needSnapshot:now])
-            continue;
-        
-        // They'll want a snapshot of a specific render target (or the screen)
-        for (auto inTarget: renderTargets) {
-            RenderTargetMTL *target = (RenderTargetMTL *)inTarget.get();
-            if (target->getId() == [snapshotDelegate renderTargetID]) {
-                CGRect snapshotRect = [snapshotDelegate snapshotRect];
-                NSData *dataWrapper = nil;
 
-                // Has a destination texture
-                if (target->getTex()) {
-                    // Offscreen render buffer
-                    RawDataRef rawData;
-                    if (snapshotRect.size.width == 0.0)
-                        rawData = target->snapshot();
-                    else
-                        rawData = target->snapshot(snapshotRect.origin.x,snapshotRect.origin.y,snapshotRect.size.width,snapshotRect.size.height);
-                    
-                    RawNSDataReaderRef rawNSData = std::dynamic_pointer_cast<RawNSDataReader>(rawData);
-                    if (!rawNSData) {
-                        NSLog(@"SceneRendererMTL::snapshotCallback() Bad NSData return");
-                    } else {
-                        dataWrapper = rawNSData->getData();
-                    }
-                } else {
-                    NSLog(@"SceneRendererMTL: Whole screen snapshot not currently implemented.");
-                }
-                
-                [snapshotDelegate snapshotData:dataWrapper];
-                
+RenderTargetMTLRef SceneRendererMTL::getRenderTarget(SimpleIdentity renderTargetID)
+{
+    RenderTargetMTLRef renderTarget;
+    
+    if (renderTargetID == EmptyIdentity) {
+        renderTarget = std::dynamic_pointer_cast<RenderTargetMTL>(renderTargets.back());
+    } else {
+        for (auto target : renderTargets) {
+            if (target->getId() == renderTargetID) {
+                renderTarget = std::dynamic_pointer_cast<RenderTargetMTL>(target);
                 break;
             }
         }
     }
-
+    
+    return renderTarget;
 }
 
+RawDataRef SceneRendererMTL::getSnapshot(SimpleIdentity renderTargetID)
+{
+    RenderTargetMTLRef renderTarget = getRenderTarget(renderTargetID);
+    if (!renderTarget)
+        return nil;
+    
+    return renderTarget->snapshot();
+}
+
+RawDataRef SceneRendererMTL::getSnapshotAt(SimpleIdentity renderTargetID,int x,int y)
+{
+    RenderTargetMTLRef renderTarget = getRenderTarget(renderTargetID);
+    if (!renderTarget)
+        return nil;
+
+    return renderTarget->snapshot(x, y, 1, 1);
+}
+
+RawDataRef SceneRendererMTL::getSnapshotMinMax(SimpleIdentity renderTargetID)
+{
+    RenderTargetMTLRef renderTarget = getRenderTarget(renderTargetID);
+    if (!renderTarget)
+        return nil;
+
+    return renderTarget->snapshotMinMax();
+}
+    
 BasicDrawableBuilderRef SceneRendererMTL::makeBasicDrawableBuilder(const std::string &name) const
 {
     return BasicDrawableBuilderRef(new BasicDrawableBuilderMTL(name));

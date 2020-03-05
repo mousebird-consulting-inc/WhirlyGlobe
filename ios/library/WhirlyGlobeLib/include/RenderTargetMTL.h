@@ -51,8 +51,11 @@ public:
     /// Copy the data out of the destination texture and return it
     virtual RawDataRef snapshot();
 
-    /// Copy just a subset of data out of the destination texture
+    /// Copy just a subset out of the destination texture and return it
     virtual RawDataRef snapshot(int startX,int startY,int snapWidth,int snapHeight);
+    
+    /// If we've asked for a min/max calculation, this is where we get it
+    virtual RawDataRef snapshotMinMax();
 
     /// Set the texture directly
     void setTargetTexture(TextureBaseMTL *tex);
@@ -88,7 +91,8 @@ protected:
     MTLPixelFormat depthPixelFormat;
     std::vector<MTLRenderPassDescriptor *> renderPassDesc;
     MPSImagePyramid *mipmapKernel;
+    id<MTLTexture> minMaxOutTex;
+    API_AVAILABLE(ios(11.0)) MPSImageStatisticsMinAndMax *minMaxKernel;
 };
-typedef std::shared_ptr<RenderTargetMTL> RenderTargetMTLRef;
     
 }

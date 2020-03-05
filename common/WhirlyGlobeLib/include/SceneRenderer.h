@@ -264,7 +264,7 @@ public:
     virtual void removeRenderTarget(SimpleIdentity targetID);
     
     /// Called before we present the render buffer.  Can do snapshot logic here.
-    virtual void snapshotCallback(TimeInterval now) = 0;
+    virtual void snapshotCallback(TimeInterval now) { };
     
     /// Add a light to the existing set
     virtual void addLight(const DirectionalLight &light);

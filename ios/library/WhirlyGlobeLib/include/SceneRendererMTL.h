@@ -41,12 +41,12 @@
 
 @end
 
-
 namespace WhirlyKit
 {
 
 class RenderTargetMTL;
-    
+typedef std::shared_ptr<RenderTargetMTL> RenderTargetMTLRef;
+
 /// Metal stores a bit more per-frame information
 class RendererFrameInfoMTL : public RendererFrameInfo
 {
@@ -101,10 +101,7 @@ public:
     
     /// Set the clear color we're using
     virtual void setClearColor(const RGBAColor &color);
-    
-    /// Run the snapshot logic
-    virtual void snapshotCallback(TimeInterval now);
-    
+        
     /// Want a snapshot, set up this delegate
     void addSnapshotDelegate(NSObject<WhirlyKitSnapshot> *);
     
@@ -147,7 +144,18 @@ public:
     // Generate a render pipeline descriptor matching the given frame
     MTLRenderPipelineDescriptor *defaultRenderPipelineState(SceneRendererMTL *sceneRender,RendererFrameInfoMTL *frameInfo);
     
+    // Return the whole buffer for a given render target
+    RawDataRef getSnapshot(SimpleIdentity renderTargetID);
+    
+    // Return data values at a single pixel for the given render target
+    RawDataRef getSnapshotAt(SimpleIdentity renderTargetID,int x,int y);
+    
+    // Return the min/max values (assuming that option is on) for a render target
+    RawDataRef getSnapshotMinMax(SimpleIdentity renderTargetID);
+    
 public:
+    RenderTargetMTLRef getRenderTarget(SimpleIdentity renderTargetID);
+    
     // By default offscreen rendering turns on or off blend enable
     bool offscreenBlendEnable;
     // Information about the renderer passed around to various calls

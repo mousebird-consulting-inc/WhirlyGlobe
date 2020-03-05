@@ -53,17 +53,23 @@ public:
     /// If we're generating mipmaps for the render target, this is how
     virtual void setMipmap(RenderTargetMipmapType inMipmapType) { mipmapType = inMipmapType; }
     
+    /// Calculate the min/max values for a given render target every frame
+    virtual void setCalcMinMax(bool newVal) { calcMinMax = newVal; }
+    
     // Clear up resources from the render target (not clear the buffer)
     virtual void clear() = 0;
-
-    /// Copy the data out of the destination texture and return it
-    virtual RawDataRef snapshot() = 0;
     
     /// If we're tied to a texture, the number of levels in that texture
     virtual int numLevels();
     
+    /// Copy the data out of the destination texture and return it
+    virtual RawDataRef snapshot() { return RawDataRef(); };
+
     /// Copy just a subset out of the destination texture and return it
-    virtual RawDataRef snapshot(int startX,int startY,int snapWidth,int snapHeight) = 0;
+    virtual RawDataRef snapshot(int startX,int startY,int snapWidth,int snapHeight) { return RawDataRef(); };
+    
+    /// If we've asked for a min/max calculation, this is where we get it
+    virtual RawDataRef snapshotMinMax() { return RawDataRef(); }
     
     /// Output framebuffer size
     int width,height;
@@ -82,6 +88,7 @@ public:
     
 public:
     RenderTargetMipmapType mipmapType;
+    bool calcMinMax;
     virtual void init();
 };
 typedef std::shared_ptr<RenderTarget> RenderTargetRef;
@@ -97,7 +104,8 @@ public:
                        bool blend,
                        const RGBAColor &clearColor,
                        float clearVal,
-                       RenderTargetMipmapType mipmapType);
+                       RenderTargetMipmapType mipmapType,
+                       bool calcMinMax);
     
     /// Add the render target to the renderer
     void execute(Scene *scene,SceneRenderer *renderer,View *view);
@@ -111,6 +119,7 @@ protected:
     float clearVal;
     bool blend;
     RenderTargetMipmapType mipmapType;
+    bool calcMinMax;
 };
 
 // Change details about a rendering target.  In this case, just texture.
