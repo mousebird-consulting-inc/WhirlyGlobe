@@ -87,11 +87,12 @@ bool BasicDrawableInstance::isOn(WhirlyKit::RendererFrameInfo *frameInfo) const
 {
     if (startEnable != endEnable)
     {
-        if (frameInfo->currentTime < startEnable ||
-            endEnable < frameInfo->currentTime)
+        if (frameInfo->currentTime < startEnable)
+            return false;
+        if (endEnable != 0.0 && endEnable < frameInfo->currentTime)
             return false;
     }
-    
+
     if (!enable)
         return false;
     

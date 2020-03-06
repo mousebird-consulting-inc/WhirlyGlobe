@@ -83,8 +83,9 @@ bool BasicDrawable::isOn(RendererFrameInfo *frameInfo) const
 {
     if (startEnable != endEnable)
     {
-        if (frameInfo->currentTime < startEnable ||
-            endEnable < frameInfo->currentTime)
+        if (frameInfo->currentTime < startEnable)
+            return false;
+        if (endEnable != 0.0 && endEnable < frameInfo->currentTime)
             return false;
     }
     
@@ -213,16 +214,14 @@ void BasicDrawable::updateRenderer(SceneRenderer *renderer)
     renderer->setRenderUntil(fadeUp);
     renderer->setRenderUntil(fadeDown);
     
-    if (motion)
+    if (startEnable != endEnable)
     {
-        if (startEnable != endEnable)
-        {
-            // Note: This still means we'll render until startEnable
-            renderer->setRenderUntil(endEnable);
-        } else {
-            // Motion requires continuous rendering
-            renderer->addContinuousRenderRequest(getId());
-        }
+        // Note: This still means we'll render until endEnable
+        renderer->setRenderUntil(startEnable);
+        renderer->setRenderUntil(endEnable);
+    } else if (motion) {
+        // Motion requires continuous rendering
+        renderer->addContinuousRenderRequest(getId());
     }
 }
 

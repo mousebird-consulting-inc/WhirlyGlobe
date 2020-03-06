@@ -890,7 +890,7 @@ void LayoutManager::updateLayout(ViewStateRef viewState,ChangeSet &changes)
 
                 // Hold off on adding the new one
                 ScreenSpaceObject shortObj = cluster.layoutObj;
-                shortObj.setEnableTime(curTime+params.markerAnimationTime, curTime+1e10);
+                shortObj.setEnableTime(curTime+params.markerAnimationTime, 0.0);
                 ssBuild.addScreenObject(shortObj);
                 
             } else

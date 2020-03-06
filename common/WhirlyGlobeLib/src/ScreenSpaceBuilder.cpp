@@ -88,7 +88,8 @@ ScreenSpaceBuilder::DrawableWrap::DrawableWrap(SceneRenderer *render,const Drawa
     locDraw->setWriteZBuffer(false);
     locDraw->setVertexAttributes(state.vertexAttrs);
     locDraw->setOnOff(state.enable);
-    locDraw->setEnableTimeRange(state.startEnable, state.endEnable);
+    if (state.startEnable != state.endEnable)
+        locDraw->setEnableTimeRange(state.startEnable, state.endEnable);
     
     // If we've got more than one texture ID and a period, we need a tweaker
     if (state.texIDs.size() > 1 && state.period != 0.0)

@@ -155,7 +155,8 @@ void BaseInfo::setupBasicDrawable(BasicDrawableBuilderRef drawBuild) const
 void BaseInfo::setupBasicDrawable(BasicDrawableBuilder *drawBuild) const
 {
     drawBuild->setOnOff(enable);
-    drawBuild->setEnableTimeRange(startEnable, endEnable);
+    if (startEnable != endEnable)
+        drawBuild->setEnableTimeRange(startEnable, endEnable);
     drawBuild->setDrawPriority(drawPriority);
     drawBuild->setVisibleRange(minVis,maxVis);
     drawBuild->setViewerVisibility(minViewerDist,maxViewerDist,viewerCenter);
