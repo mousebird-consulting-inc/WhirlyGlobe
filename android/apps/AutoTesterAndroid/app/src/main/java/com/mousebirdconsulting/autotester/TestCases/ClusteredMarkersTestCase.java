@@ -83,7 +83,8 @@ public class ClusteredMarkersTestCase extends MaplyTestCase {
 
         int which = 0;
         for (VectorObject v : vectors) {
-            for (int ii=0;ii<10;ii++) {
+            // Note: Increase this to test capacity
+            for (int ii=0;ii<1;ii++) {
                 ScreenMarker marker = new ScreenMarker();
                 marker.tex = tex;
                 marker.loc = v.centroid();
