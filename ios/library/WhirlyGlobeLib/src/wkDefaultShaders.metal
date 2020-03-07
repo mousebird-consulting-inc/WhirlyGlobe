@@ -24,24 +24,28 @@
 using namespace metal;
 using namespace WhirlyKitShader;
 
+struct VertexArgBufferA {
+    device Uniforms *uniforms               [[ id(WKSUniformArgBuffer) ]];
+    device UniformDrawStateA *uniDrawState  [[ id(WKSUniformDrawStateArgBuffer) ]];
+};
+
 // Vertex shader for simple line on the globe
 vertex ProjVertexA vertexLineOnly_globe(
     VertexA vert [[stage_in]],
-    constant Uniforms &uniforms [[buffer(WKSUniformBuffer)]],
-    constant UniformDrawStateA &uniDrawState [[buffer(WKSUniformDrawStateBuffer)]])
+    const device VertexArgBufferA & vertArgs [[buffer(WKSArgBuffer)]])
 {
     ProjVertexA outVert;
     
-    outVert.color = float4(vert.color) * uniDrawState.fade;
-    if (uniDrawState.clipCoords) {
+    outVert.color = float4(vert.color) * vertArgs.uniDrawState->fade;
+    if (vertArgs.uniDrawState->clipCoords) {
         outVert.dotProd = 1.0;
-        outVert.position = uniforms.mvpMatrix * float4(vert.position,1.0);
+        outVert.position = vertArgs.uniforms->mvpMatrix * float4(vert.position,1.0);
     } else {
-        float4 pt = uniforms.mvMatrix * float4(vert.position, 1.0);
+        float4 pt = vertArgs.uniforms->mvMatrix * float4(vert.position, 1.0);
         pt /= pt.w;
-        float4 testNorm = uniforms.mvNormalMatrix * float4(vert.normal,0.0);
+        float4 testNorm = vertArgs.uniforms->mvNormalMatrix * float4(vert.normal,0.0);
         outVert.dotProd = dot(-pt.xyz,testNorm.xyz);
-        outVert.position = uniforms.mvpMatrix * float4(vert.position,1.0);
+        outVert.position = vertArgs.uniforms->mvpMatrix * float4(vert.position,1.0);
     }
     
     return outVert;
@@ -57,39 +61,37 @@ fragment float4 framentLineOnly_globe(
 }
 
 // Back facing calculation for the globe
-float calcGlobeDotProd(constant Uniforms &uniforms,float3 pos, float3 norm)
+float calcGlobeDotProd(const device Uniforms *uniforms,float3 pos, float3 norm)
 {
-    if (!uniforms.globeMode)
+    if (!uniforms->globeMode)
         return 1.0;
     
     // Used to evaluate pixels behind the globe
-    float4 pt = uniforms.mvMatrix * float4(pos,1.0);
+    float4 pt = uniforms->mvMatrix * float4(pos,1.0);
     pt /= pt.w;
-    float4 testNorm = uniforms.mvNormalMatrix * float4(norm,0.0);
+    float4 testNorm = uniforms->mvNormalMatrix * float4(norm,0.0);
     return dot(-pt.xyz,testNorm.xyz);
 }
 
 // Vertex shader for simple line on the flat map (no backface checking)
 vertex ProjVertexB vertexLineOnly_flat(
     VertexA vert [[stage_in]],
-    constant Uniforms &uniforms [[buffer(WKSUniformBuffer)]],
-    constant UniformDrawStateA &uniDrawState [[buffer(WKSUniformDrawStateBuffer)]])
+    const device VertexArgBufferA & vertArgs [[buffer(WKSArgBuffer)]])
 {
     ProjVertexB outVert;
     
-    outVert.color = float4(vert.color) * uniDrawState.fade;
-    if (uniDrawState.clipCoords)
+    outVert.color = float4(vert.color) * vertArgs.uniDrawState->fade;
+    if (vertArgs.uniDrawState->clipCoords)
         outVert.position = float4(vert.position,1.0);
     else
-        outVert.position = uniforms.mvpMatrix * float4(vert.position,1.0);
+        outVert.position = vertArgs.uniforms->mvpMatrix * float4(vert.position,1.0);
     
     return outVert;
 }
 
 // Simple fragment shader for lines on flat map
 fragment float4 fragmentLineOnly_flat(
-    ProjVertexB vert [[stage_in]],
-    constant Uniforms &uniforms [[buffer(WKSUniformBuffer)]])
+    ProjVertexB vert [[stage_in]])
 {
     return vert.color;
 }
@@ -107,111 +109,119 @@ float2 resolveTexCoords(float2 texCoord,TexIndirect texIndr)
 float4 resolveLighting(float3 pos,
                       float3 norm,
                       float4 color,
-                      constant Lighting &lighting,
-                      constant float4x4 &mvpMatrix)
+                      const device Lighting *lighting,
+                      float4x4 mvpMatrix)
 {
     float4 ambient(0.0,0.0,0.0,0.0);
     float4 diffuse(0.0,0.0,0.0,0.0);
 
-    for (int ii=0;ii<lighting.numLights;ii++) {
-        constant Light &light = lighting.lights[ii];
-        float3 adjNorm = light.viewDepend > 0.0 ? normalize((mvpMatrix * float4(norm.xyz, 0.0)).xyz) : norm.xzy;
-        float ndotl = max(0.0, dot(adjNorm, light.direction));
-        ambient += light.ambient;
-        diffuse += ndotl * light.diffuse;
+    for (int ii=0;ii<lighting->numLights;ii++) {
+        const device Light *light = &lighting->lights[ii];
+        float3 adjNorm = light->viewDepend > 0.0 ? normalize((mvpMatrix * float4(norm.xyz, 0.0)).xyz) : norm.xzy;
+        float ndotl = max(0.0, dot(adjNorm, light->direction));
+        ambient += light->ambient;
+        diffuse += ndotl * light->diffuse;
     }
     
-    return float4(ambient.xyz * lighting.mat.ambient.xyz * color.xyz + diffuse.xyz * color.xyz,color.a);
+    return float4(ambient.xyz * lighting->mat.ambient.xyz * color.xyz + diffuse.xyz * color.xyz,color.a);
 }
 
+struct VertexTriArgBufferA {
+    device Uniforms *uniforms                   [[ id(WKSUniformArgBuffer) ]];
+    device UniformDrawStateA *uniDrawState      [[ id(WKSUniformDrawStateArgBuffer) ]];
+    device TexIndirect *texIndirect             [[ id(WKSTexIndirectArgBuffer) ]];
+    array<texture2d<float>, WKSTextureMax> tex  [[ id(WKSTextureArgBuffer) ]];
+};
+
 // Simple vertex shader for triangle with no lighting
-vertex ProjVertexTriA vertexTri_noLight(VertexTriA vert [[stage_in]],
-                                        constant Uniforms &uniforms [[buffer(WKSUniformBuffer)]],
-                                        constant UniformDrawStateA &uniDrawState [[buffer(WKSUniformDrawStateBuffer)]],
-                                        constant TexIndirect &texIndirect [[buffer(WKSTexIndirectStartBuffer)]])
+vertex ProjVertexTriA vertexTri_noLight(
+                VertexTriA vert [[stage_in]],
+                const device VertexTriArgBufferA & vertArgs [[buffer(WKSArgBuffer)]])
 {
     ProjVertexTriA outVert;
     
-    if (uniDrawState.clipCoords)
+    if (vertArgs.uniDrawState->clipCoords)
         outVert.position = float4(vert.position,1.0);
     else
-        outVert.position = uniforms.mvpMatrix * float4(vert.position,1.0);
-    outVert.color = float4(vert.color) * uniDrawState.fade;
+        outVert.position = vertArgs.uniforms->mvpMatrix * float4(vert.position,1.0);
+    outVert.color = float4(vert.color) * vertArgs.uniDrawState->fade;
     
-    if (uniDrawState.numTextures > 0)
-        outVert.texCoord = resolveTexCoords(vert.texCoord,texIndirect);
+    if (vertArgs.uniDrawState->numTextures > 0)
+        outVert.texCoord = resolveTexCoords(vert.texCoord,vertArgs.texIndirect[0]);
     
     return outVert;
 }
 
+struct VertexTriArgBufferB {
+    device Uniforms *uniforms                   [[ id(WKSUniformArgBuffer) ]];
+    device UniformDrawStateA *uniDrawState      [[ id(WKSUniformDrawStateArgBuffer) ]];
+    device Lighting *lighting                   [[ id(WKSLightingArgBuffer) ]];
+    device TexIndirect *texIndirect             [[ id(WKSTexIndirectArgBuffer) ]];
+    array<texture2d<float>, WKSTextureMax> tex  [[ id(WKSTextureArgBuffer) ]];
+};
+
 // Simple vertex shader for triangle with basic lighting
-vertex ProjVertexTriA vertexTri_light(VertexTriA vert [[stage_in]],
-                                      constant Uniforms &uniforms [[buffer(WKSUniformBuffer)]],
-                                      constant UniformDrawStateA &uniDrawState [[buffer(WKSUniformDrawStateBuffer)]],
-                                      constant Lighting &lighting [[buffer(WKSLightingBuffer)]],
-                                      constant TexIndirect &texIndirect [[buffer(WKSTexIndirectStartBuffer)]])
+vertex ProjVertexTriA vertexTri_light(
+                VertexTriA vert [[stage_in]],
+                const device VertexTriArgBufferB & vertArgs [[buffer(WKSArgBuffer)]])
 {
     ProjVertexTriA outVert;
     
-    if (uniDrawState.clipCoords)
+    if (vertArgs.uniDrawState->clipCoords)
         outVert.position = float4(vert.position,1.0);
     else
-        outVert.position = uniforms.mvpMatrix * float4(vert.position,1.0);
+        outVert.position = vertArgs.uniforms->mvpMatrix * float4(vert.position,1.0);
     outVert.color = resolveLighting(vert.position,
                                     vert.normal,
                                     float4(vert.color),
-                                    lighting,
-                                    uniforms.mvpMatrix) * uniDrawState.fade;
-    if (uniDrawState.numTextures > 0)
-        outVert.texCoord = resolveTexCoords(vert.texCoord,texIndirect);
+                                    vertArgs.lighting,
+                                    vertArgs.uniforms->mvpMatrix) * vertArgs.uniDrawState->fade;
+    if (vertArgs.uniDrawState->numTextures > 0)
+        outVert.texCoord = resolveTexCoords(vert.texCoord,vertArgs.texIndirect[0]);
     
     return outVert;
 }
 
 // Simple fragment shader for lines on flat map
-fragment float4 fragmentTri_basic(ProjVertexTriA vert [[stage_in]],
-                                      constant Uniforms &uniforms [[buffer(WKSUniformBuffer)]],
-                                      constant UniformDrawStateA &uniDrawState [[buffer(WKSUniformDrawStateBuffer)]],
-                                      texture2d<float,access::sample> tex [[texture(0)]])
+fragment float4 fragmentTri_basic(
+                ProjVertexTriA vert [[stage_in]],
+                const device VertexTriArgBufferA & vertArgs [[buffer(WKSArgBuffer)]])
 {
-    if (uniDrawState.numTextures > 0) {
+    if (vertArgs.uniDrawState->numTextures > 0) {
         constexpr sampler sampler2d(coord::normalized, filter::linear);
-        return vert.color * tex.sample(sampler2d, vert.texCoord);
+        return vert.color * vertArgs.tex[0].sample(sampler2d, vert.texCoord);
     } else
         return vert.color;
 }
 
 // Vertex shader that handles up to two textures
-vertex ProjVertexTriB vertexTri_multiTex(VertexTriB vert [[stage_in]],
-                                         constant Uniforms &uniforms [[buffer(WKSUniformBuffer)]],
-                                         constant UniformDrawStateA &uniDrawState [[buffer(WKSUniformDrawStateBuffer)]],
-                                         constant Lighting &lighting [[buffer(WKSLightingBuffer)]],
-                                         constant TexIndirect &texIndirect0 [[buffer(WKSTexIndirectStartBuffer)]],
-                                         constant TexIndirect &texIndirect1 [[buffer(WKSTexIndirectStartBuffer+1)]])
+vertex ProjVertexTriB vertexTri_multiTex(
+                VertexTriB vert [[stage_in]],
+                const device VertexTriArgBufferB & vertArgs [[buffer(WKSArgBuffer)]])
 {
     ProjVertexTriB outVert;
     
-    if (uniDrawState.clipCoords)
+    if (vertArgs.uniDrawState->clipCoords)
         outVert.position = float4(vert.position,1.0);
     else
-        outVert.position = uniforms.mvpMatrix * float4(vert.position,1.0);
+        outVert.position = vertArgs.uniforms->mvpMatrix * float4(vert.position,1.0);
     outVert.color = resolveLighting(vert.position,
                                     vert.normal,
                                     float4(vert.color),
-                                    lighting,
-                                    uniforms.mvpMatrix) * uniDrawState.fade;
+                                    vertArgs.lighting,
+                                    vertArgs.uniforms->mvpMatrix) * vertArgs.uniDrawState->fade;
 
     // Handle the various texture coordinate input options (none, 1, or 2)
-    if (uniDrawState.numTextures == 0) {
+    if (vertArgs.uniDrawState->numTextures == 0) {
         outVert.texCoord0 = float2(0.0,0.0);
         outVert.texCoord1 = float2(0.0,0.0);
-    } else if (uniDrawState.numTextures == 1) {
-        outVert.texCoord0 = resolveTexCoords(vert.texCoord0,texIndirect0);
+    } else if (vertArgs.uniDrawState->numTextures == 1) {
+        outVert.texCoord0 = resolveTexCoords(vert.texCoord0,vertArgs.texIndirect[0]);
         outVert.texCoord1 = outVert.texCoord0;
     } else {
-        outVert.texCoord0 = resolveTexCoords(vert.texCoord0,texIndirect0);
+        outVert.texCoord0 = resolveTexCoords(vert.texCoord0,vertArgs.texIndirect[0]);
         // Note: Rather than reusing texCoord0, we should just attach the same data to texCoord1
-        outVert.texCoord1 = resolveTexCoords(vert.texCoord0,texIndirect1);
+        outVert.texCoord1 = resolveTexCoords(vert.texCoord0,vertArgs.texIndirect[1]);
     }
     
     return outVert;
@@ -219,198 +229,211 @@ vertex ProjVertexTriB vertexTri_multiTex(VertexTriB vert [[stage_in]],
 
 // Fragment shader that handles to two textures
 fragment float4 fragmentTri_multiTex(ProjVertexTriB vert [[stage_in]],
-                                     constant Uniforms &uniforms [[buffer(WKSUniformBuffer)]],
-                                     constant UniformDrawStateA &uniDrawState [[buffer(WKSUniformDrawStateBuffer)]],
-                                     texture2d<float,access::sample> tex0 [[texture(0)]],
-                                     texture2d<float,access::sample> tex1 [[texture(1)]])
+                                     const device VertexTriArgBufferB & fragArgs [[buffer(WKSArgBuffer)]])
 {
     // Handle none, 1 or 2 textures
-    if (uniDrawState.numTextures == 0) {
+    if (fragArgs.uniDrawState->numTextures == 0) {
         return vert.color;
-    } else if (uniDrawState.numTextures == 1) {
+    } else if (fragArgs.uniDrawState->numTextures == 1) {
         constexpr sampler sampler2d(coord::normalized, filter::linear);
-        return vert.color * tex0.sample(sampler2d, vert.texCoord0);
+        return vert.color * fragArgs.tex[0].sample(sampler2d, vert.texCoord0);
     } else {
         constexpr sampler sampler2d(coord::normalized, filter::linear);
-        float4 color0 = tex0.sample(sampler2d, vert.texCoord0);
+        float4 color0 = fragArgs.tex[0].sample(sampler2d, vert.texCoord0);
         // Note: There are times we may not want to reuse the same texture coordinates
-        float4 color1 = tex1.sample(sampler2d, vert.texCoord0);
-        return vert.color * mix(color0,color1,uniDrawState.interp);
+        float4 color1 = fragArgs.tex[1].sample(sampler2d, vert.texCoord0);
+        return vert.color * mix(color0,color1,fragArgs.uniDrawState->interp);
     }
 }
 
 // Fragment shader that handles two textures and does a ramp lookup
 fragment float4 fragmentTri_multiTexRamp(ProjVertexTriB vert [[stage_in]],
-                                         constant Uniforms &uniforms [[buffer(WKSUniformBuffer)]],
-                                         constant UniformDrawStateA &uniDrawState [[buffer(WKSUniformDrawStateBuffer)]],
-                                         texture2d<float,access::sample> tex0 [[texture(0)]],
-                                         texture2d<float,access::sample> tex1 [[texture(1)]],
-                                         texture2d<float,access::sample> rampTex [[texture(WKSTextureEntryLookup)]])
+                                         const device VertexTriArgBufferB & fragArgs [[buffer(WKSArgBuffer)]])
 {
     // Handle none, 1 or 2 textures
-    if (uniDrawState.numTextures == 0) {
+    if (fragArgs.uniDrawState->numTextures == 0) {
         return vert.color;
-    } else if (uniDrawState.numTextures == 1) {
+    } else if (fragArgs.uniDrawState->numTextures == 1) {
         constexpr sampler sampler2d(coord::normalized, filter::linear);
-        float index = tex0.sample(sampler2d, vert.texCoord0).r;
+        float index = fragArgs.tex[0].sample(sampler2d, vert.texCoord0).r;
 //        return vert.color * index;
-        return vert.color * rampTex.sample(sampler2d,float2(index,0.5));
+        return vert.color * fragArgs.tex[WKSTextureEntryLookup].sample(sampler2d,float2(index,0.5));
     } else {
         constexpr sampler sampler2d(coord::normalized, filter::linear);
-        float index0 = tex0.sample(sampler2d, vert.texCoord0).r;
+        float index0 = fragArgs.tex[0].sample(sampler2d, vert.texCoord0).r;
         // Note: There are times we may not want to reuse the same texture coordinates
-        float index1 = tex1.sample(sampler2d, vert.texCoord0).r;
-        float index = mix(index0,index1,uniDrawState.interp);
-        return vert.color * rampTex.sample(sampler2d,float2(index,0.5));
+        float index1 = fragArgs.tex[1].sample(sampler2d, vert.texCoord0).r;
+        float index = mix(index0,index1,fragArgs.uniDrawState->interp);
+        return vert.color * fragArgs.tex[WKSTextureEntryLookup].sample(sampler2d,float2(index,0.5));
 //        return vert.color * index;
     }
 }
 
-vertex ProjVertexTriWideVec vertexTri_wideVec(VertexTriWideVec vert [[stage_in]],
-                                            constant Uniforms &uniforms [[buffer(WKSUniformBuffer)]],
-                                            constant UniformDrawStateA &uniDrawState [[buffer(WKSUniformDrawStateBuffer)]],
-                                            constant UniformWideVec &uniSS [[buffer(WKSUniformDrawStateWideVecBuffer)]])
+struct VertexTriWideArgBuffer {
+    device Uniforms *uniforms                   [[ id(WKSUniformArgBuffer) ]];
+    device UniformDrawStateA *uniDrawState      [[ id(WKSUniformDrawStateArgBuffer) ]];
+    device UniformWideVec *wideVec              [[ id(WKSUniformDrawStateWideVecArgBuffer) ]];
+    array<texture2d<float>, WKSTextureMax> tex  [[ id(WKSTextureArgBuffer) ]];
+};
+
+vertex ProjVertexTriWideVec vertexTri_wideVec(
+            VertexTriWideVec vert [[stage_in]],
+            const device VertexTriWideArgBuffer & vertArgs [[buffer(WKSArgBuffer)]])
 {
     ProjVertexTriWideVec outVert;
     
-    outVert.color = uniSS.color * uniDrawState.fade;
+    outVert.color = vertArgs.wideVec->color * vertArgs.uniDrawState->fade;
     
-    float t0 = vert.c0 * uniSS.real_w2;
+    float t0 = vert.c0 * vertArgs.wideVec->real_w2;
     t0 = clamp(t0,0.0,1.0);
-    float3 realPos = (vert.p1 - vert.position) * t0 + vert.n0 * uniSS.real_w2 + vert.position;
-    float texPos = ((vert.texInfo.z - vert.texInfo.y) * t0 + vert.texInfo.y + vert.texInfo.w * uniSS.real_w2) * uniSS.texScale;
+    float3 realPos = (vert.p1 - vert.position) * t0 + vert.n0 * vertArgs.wideVec->real_w2 + vert.position;
+    float texPos = ((vert.texInfo.z - vert.texInfo.y) * t0 + vert.texInfo.y + vert.texInfo.w * vertArgs.wideVec->real_w2) * vertArgs.wideVec->texScale;
     outVert.texCoord = float2(vert.texInfo.x, texPos);
-    float4 screenPos = uniforms.mvpMatrix * float4(realPos,1.0);
+    float4 screenPos = vertArgs.uniforms->mvpMatrix * float4(realPos,1.0);
     screenPos /= screenPos.w;
     outVert.position = float4(screenPos.xy,0,1.0);
 
-    outVert.dotProd = calcGlobeDotProd(uniforms,vert.position,vert.normal);
+    outVert.dotProd = calcGlobeDotProd(vertArgs.uniforms,vert.position,vert.normal);
     
     return outVert;
 }
 
 // Fragment share that takes the back of the globe into account
-fragment float4 fragmentTri_wideVec(ProjVertexTriWideVec vert [[stage_in]],
-                                        constant Uniforms &uniforms [[buffer(WKSUniformBuffer)]],
-                                        constant UniformDrawStateA &uniDrawState [[buffer(WKSUniformDrawStateBuffer)]],
-                                        constant UniformWideVec &uniSS [[buffer(WKSUniformDrawStateWideVecBuffer)]],
-                                        texture2d<float,access::sample> tex [[texture(0)]])
+fragment float4 fragmentTri_wideVec(
+            ProjVertexTriWideVec vert [[stage_in]],
+            const device VertexTriWideArgBuffer & fragArgs [[buffer(WKSArgBuffer)]])
 {
     // Dot/dash pattern
     float patternVal = 1.0;
-    if (uniDrawState.numTextures > 0) {
+    if (fragArgs.uniDrawState->numTextures > 0) {
         constexpr sampler sampler2d(coord::normalized, address::repeat, filter::linear);
-        patternVal = tex.sample(sampler2d, float2(0.5,vert.texCoord.y)).r;
+        patternVal = fragArgs.tex[0].sample(sampler2d, float2(0.5,vert.texCoord.y)).r;
     }
     float alpha = 1.0;
-    float across = vert.texCoord.x * uniSS.w2;
-    if (across < uniSS.edge)
-        alpha = across/uniSS.edge;
-    if (across > uniSS.w2-uniSS.edge)
-        alpha = (uniSS.w2-across)/uniSS.edge;
-    return vert.dotProd > 0.0 ? uniSS.color * alpha * patternVal * uniDrawState.fade : float4(0.0);
+    float across = vert.texCoord.x * fragArgs.wideVec->w2;
+    if (across < fragArgs.wideVec->edge)
+        alpha = across/fragArgs.wideVec->edge;
+    if (across > fragArgs.wideVec->w2-fragArgs.wideVec->edge)
+        alpha = (fragArgs.wideVec->w2-across)/fragArgs.wideVec->edge;
+    return vert.dotProd > 0.0 ? fragArgs.wideVec->color * alpha * patternVal * fragArgs.uniDrawState->fade : float4(0.0);
 }
 
+struct VertexTriSSArgBuffer {
+    device Uniforms *uniforms                   [[ id(WKSUniformArgBuffer) ]];
+    device UniformDrawStateA *uniDrawState      [[ id(WKSUniformDrawStateArgBuffer) ]];
+    device UniformScreenSpace *ss               [[ id(WKSUniformDrawStateScreenSpaceArgBuffer) ]];
+    array<texture2d<float>, WKSTextureMax> tex  [[ id(WKSTextureArgBuffer) ]];
+};
+
 // Screen space (no motion) vertex shader
-vertex ProjVertexTriA vertexTri_screenSpace(VertexTriScreenSpace vert [[stage_in]],
-                                      constant Uniforms &uniforms [[buffer(WKSUniformBuffer)]],
-                                      constant UniformDrawStateA &uniDrawState [[buffer(WKSUniformDrawStateBuffer)]],
-                                      constant UniformScreenSpace &uniSS [[buffer(WKSUniformDrawStateScreenSpaceBuffer)]])
+vertex ProjVertexTriA vertexTri_screenSpace(
+            VertexTriScreenSpace vert [[stage_in]],
+            const device VertexTriSSArgBuffer & vertArgs [[buffer(WKSArgBuffer)]])
 {
     ProjVertexTriA outVert;
     
     float3 pos = vert.position;
-    if (uniSS.hasMotion)
-        pos += uniSS.time * vert.dir;
+    if (vertArgs.ss->hasMotion)
+        pos += vertArgs.ss->time * vert.dir;
     
-    outVert.color = vert.color * uniDrawState.fade;
+    outVert.color = vert.color * vertArgs.uniDrawState->fade;
     outVert.texCoord = vert.texCoord;
     
     // Convert from model space into display space
-    float4 pt = uniforms.mvMatrix * float4(pos,1.0);
+    float4 pt = vertArgs.uniforms->mvMatrix * float4(pos,1.0);
     pt /= pt.w;
     
     // Make sure the object is facing the user (only for the globe)
     float dotProd = 1.0;
-    if (uniforms.globeMode) {
-        float4 testNorm = uniforms.mvNormalMatrix * float4(vert.normal,0.0);
+    if (vertArgs.uniforms->globeMode) {
+        float4 testNorm = vertArgs.uniforms->mvNormalMatrix * float4(vert.normal,0.0);
         dotProd = dot(-pt.xyz,testNorm.xyz);
     }
     
     // Project the point all the way to screen space
-    float4 screenPt = uniforms.mvpMatrix * float4(pos,1.0);
+    float4 screenPt = vertArgs.uniforms->mvpMatrix * float4(pos,1.0);
     screenPt /= screenPt.w;
     
     // Project the rotation into display space and drop the Z
     float2 screenOffset;
-    if (uniSS.activeRot) {
-        float4 projRot = uniforms.mvNormalMatrix * float4(vert.rot,0.0);
+    if (vertArgs.ss->activeRot) {
+        float4 projRot = vertArgs.uniforms->mvNormalMatrix * float4(vert.rot,0.0);
         float2 rotY = normalize(projRot.xy);
         float2 rotX(rotY.y,-rotY.x);
         screenOffset = vert.offset.x*rotX + vert.offset.y*rotY;
     } else
         screenOffset = vert.offset;
     
-    outVert.position = (dotProd > 0.0 && pt.z <= 0.0) ? float4(screenPt.xy + float2(screenOffset.x*uniSS.scale.x,screenOffset.y*uniSS.scale.y),0.0,1.0) : float4(0.0,0.0,0.0,0.0);
+    outVert.position = (dotProd > 0.0 && pt.z <= 0.0) ? float4(screenPt.xy + float2(screenOffset.x*vertArgs.ss->scale.x,screenOffset.y*vertArgs.ss->scale.y),0.0,1.0) : float4(0.0,0.0,0.0,0.0);
     
     return outVert;
 }
 
+struct VertexTriModelArgBuffer {
+    device Uniforms *uniforms                   [[ id(WKSUniformArgBuffer) ]];
+    device UniformDrawStateA *uniDrawState      [[ id(WKSUniformDrawStateArgBuffer) ]];
+    device Lighting *lighting                   [[ id(WKSLightingArgBuffer) ]];
+    device UniformModelInstance *uniMI          [[ id(WKSUniformDrawStateModelInstanceArgBuffer) ]];
+    device VertexTriModelInstance *modelInsts   [[ id(WKSModelInstanceArgBuffer) ]];
+};
+
 // Vertex shader for models
-vertex ProjVertexTriB vertexTri_model(VertexTriB vert [[stage_in]],
-                                      constant VertexTriModelInstance *modelInsts [[buffer(WKSModelInstanceBuffer)]],
-                                      constant Uniforms &uniforms [[buffer(WKSUniformBuffer)]],
-                                      constant UniformDrawStateA &uniDrawState [[buffer(WKSUniformDrawStateBuffer)]],
-                                      constant UniformModelInstance &uniMI [[buffer(WKSUniformDrawStateModelInstanceBuffer)]],
-                                      constant Lighting &lighting [[buffer(WKSLightingBuffer)]],
-                                      uint instanceID [[instance_id]])
+vertex ProjVertexTriB vertexTri_model(
+          VertexTriB vert [[stage_in]],
+          uint instanceID [[instance_id]],
+          const device VertexTriModelArgBuffer & vertArgs [[buffer(WKSArgBuffer)]])
 {
     ProjVertexTriB outVert;
     
-    VertexTriModelInstance inst = modelInsts[instanceID];
+    VertexTriModelInstance inst = vertArgs.modelInsts[instanceID];
     
     // Take movement into account
     float3 center = inst.center;
-    if (uniMI.hasMotion)
-        center += uniMI.time * inst.dir;
+    if (vertArgs.uniMI->hasMotion)
+        center += vertArgs.uniMI->time * inst.dir;
     float3 vertPos = (inst.mat * float4(vert.position,1.0)).xyz + center;
     
-    outVert.position = uniforms.mvpMatrix * float4(vertPos,1.0);
-    float4 color = uniMI.useInstanceColor ? inst.color : vert.color;
+    outVert.position = vertArgs.uniforms->mvpMatrix * float4(vertPos,1.0);
+    float4 color = vertArgs.uniMI->useInstanceColor ? inst.color : vert.color;
     outVert.color = resolveLighting(vert.position,
                                     vert.normal,
                                     color,
-                                    lighting,
-                                    uniforms.mvpMatrix) * uniDrawState.fade;
+                                    vertArgs.lighting,
+                                    vertArgs.uniforms->mvpMatrix) * vertArgs.uniDrawState->fade;
     outVert.texCoord0 = vert.texCoord0;
     outVert.texCoord1 = vert.texCoord1;
 
     return outVert;
 }
 
+struct VertexTriBillboardArgBuffer {
+    device Uniforms *uniforms                   [[ id(WKSUniformArgBuffer) ]];
+    device UniformDrawStateA *uniDrawState      [[ id(WKSUniformDrawStateArgBuffer) ]];
+    device Lighting *lighting                   [[ id(WKSLightingArgBuffer) ]];
+    device UniformBillboard *uniBB              [[ id(WKSUniformDrawStateBillboardArgBuffer) ]];
+};
+
 // Vertex shader for billboards
 // TODO: These should be model instances.  Ew.
-vertex ProjVertexTriA vertexTri_billboard(VertexTriBillboard vert [[stage_in]],
-                                  constant Uniforms &uniforms [[buffer(WKSUniformBuffer)]],
-                                  constant UniformDrawStateA &uniDrawState [[buffer(WKSUniformDrawStateBuffer)]],
-                                  constant UniformBillboard &uniBB [[buffer(WKSUniformDrawStateBillboardBuffer)]],
-                                  constant Lighting &lighting [[buffer(WKSLightingBuffer)]])
+vertex ProjVertexTriA vertexTri_billboard(
+            VertexTriBillboard vert [[stage_in]],
+            const device VertexTriBillboardArgBuffer & vertArgs [[buffer(WKSArgBuffer)]])
 {
     ProjVertexTriA outVert;
     
     float3 newPos;
     // Billboard is rooted to its position
-    if (uniBB.groundMode) {
-        float3 axisX = normalize(cross(uniBB.eyeVec,vert.normal));
+    if (vertArgs.uniBB->groundMode) {
+        float3 axisX = normalize(cross(vertArgs.uniBB->eyeVec,vert.normal));
         float3 axisZ = normalize(cross(axisX,vert.normal));
         newPos = vert.position + axisX * vert.offset.x + vert.normal * vert.offset.y + axisZ * vert.offset.z;
     } else {
         // Billboard orients fully toward the eye
-        float4 pos = uniforms.mvMatrix * float4(vert.position,1.0);
+        float4 pos = vertArgs.uniforms->mvMatrix * float4(vert.position,1.0);
         float3 pos3 = (pos/pos.w).xyz;
         newPos = float3(pos3.x + vert.offset.x,pos3.y+vert.offset.y,pos3.z+vert.offset.z);
     }
-    outVert.position = uniforms.mvpMatrix * float4(newPos,1.0);
+    outVert.position = vertArgs.uniforms->mvpMatrix * float4(newPos,1.0);
 
     // TODO: Support lighting.  Maybe
 //    outVert.color = resolveLighting(vert.position,

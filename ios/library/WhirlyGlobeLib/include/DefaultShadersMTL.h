@@ -30,20 +30,17 @@ namespace WhirlyKitShader
 #define WKSVertexTextureCoordMax 2
     
 // Wide Vector vertex attribute positions
-// TODO: Combine these
 #define WKSVertexWideVecTexInfoAttribute 6
 #define WKSVertexWideVecP1Attribute 7
 #define WKSVertexWideVecN0Attribute 8
 #define WKSVertexWideVecC0Attribute 9
     
 // Screen space vertex attribute positions
-// TODO: Combine these
 #define WKSVertexScreenSpaceOffsetAttribute 6
 #define WKSVertexScreenSpaceRotAttribute 7
 #define WKSVertexScreenSpaceDirAttribute 8
     
 // Model instance vertex attribute positions
-// TODO: Combine these
 #define WKSVertexInstanceColorAttribute 6
 #define WKSVertexInstanceMatrixAttribute 7
 #define WKSVertexInstanceCenterAttribute 8
@@ -52,14 +49,18 @@ namespace WhirlyKitShader
 // Billboard offsets
 // TODO: Billboards should be instances
 #define WKSVertexBillboardOffsetAttribute 6
-    
-// Where we start with basic textures
-#define WKSTextureEntryBase 0
-    
-// Where we start with data lookup texture (like color ramps)
-#define WKSTextureEntryLookup 4
-    
-#define WKSUniformBuffer 10
+
+// Maximum number of textures we currently support
+#define WKSTextureMax 8
+// Textures passed into the shader start here
+#define WKSTextureEntryLookup 5
+// Base argument buffer index for textures
+#define WKSTextureArgBuffer 40
+
+// The entire set of arguments goes in the first buffer
+#define WKSArgBuffer 0
+
+#define WKSUniformArgBuffer 20
 // Uniforms for the basic case.  Nothing fancy.
 struct Uniforms
 {
@@ -74,7 +75,7 @@ struct Uniforms
     bool globeMode;
 };
 
-#define WKSUniformDrawStateBuffer 11
+#define WKSUniformDrawStateArgBuffer 21
 // Things that change per drawable (like fade)
 struct UniformDrawStateA {
     int numTextures;           // Number of textures we may find on input
@@ -86,7 +87,7 @@ struct UniformDrawStateA {
 };
     
 // Things that change per particle drawable
-#define WKSUniformDrawStateParticleBuffer 13
+#define WKSUniformDrawStateParticleArgBuffer 22
 struct UniformDrawStateParticle {
     float pointSize;   // If set, the size of points to be rendered
     float time; // Relative time globally
@@ -95,7 +96,7 @@ struct UniformDrawStateParticle {
 };
 
 // Input buffer for the particles
-#define WKSParticleBuffer 6
+#define WKSParticleArgBuffer 23
 
 //// Lighting support //////
 
@@ -117,7 +118,7 @@ struct Material {
     float specularExponent;
 };
 
-#define WKSLightingBuffer 12
+#define WKSLightingArgBuffer 24
 // Lighting together in one struct
 struct Lighting {
     Material mat;
@@ -125,7 +126,7 @@ struct Lighting {
     Light lights[8];
 };
     
-#define WKSTexIndirectStartBuffer 13
+#define WKSTexIndirectArgBuffer 25
 // Texture lookup indirection
 // Used for treating one texture's coordinates as coordinates in the parent
 struct TexIndirect {
@@ -133,7 +134,7 @@ struct TexIndirect {
     simd::float2 scale;
 };
 
-#define WKSUniformDrawStateWideVecBuffer 15
+#define WKSUniformDrawStateWideVecArgBuffer 26
 // Instructions to the wide vector shaders, usually per-drawable
 struct UniformWideVec {
     float w2;       // Width / 2.0 in screen space
@@ -143,7 +144,7 @@ struct UniformWideVec {
     simd::float4 color;  // Color override.  TODO: Use the standard one.  Seriously.
 };
     
-#define WKSUniformDrawStateScreenSpaceBuffer 15
+#define WKSUniformDrawStateScreenSpaceArgBuffer 27
 // Instructions to the screen space shaders, usually per-drawable
 struct UniformScreenSpace {
     simd::float2 scale;
@@ -153,7 +154,7 @@ struct UniformScreenSpace {
     bool hasMotion;            // For objects that can move, check this
 };
     
-#define WKSUniformDrawStateModelInstanceBuffer 15
+#define WKSUniformDrawStateModelInstanceArgBuffer 28
 // Instructions to the model instance shaders, per-drawable
 struct UniformModelInstance {
     float time;                // For moving objects, this is the base time
@@ -161,7 +162,7 @@ struct UniformModelInstance {
     bool useInstanceColor;     // For model instance, if set use the instance color
 };
 
-#define WKSModelInstanceBuffer 16
+#define WKSModelInstanceArgBuffer 29
 // Input model instance info
 struct VertexTriModelInstance
 {
@@ -175,7 +176,7 @@ struct VertexTriModelInstance
 //  where the indirect buffer lives
 #define WKSInstanceIndirectBuffer 17
 
-#define WKSUniformDrawStateBillboardBuffer 15
+#define WKSUniformDrawStateBillboardArgBuffer 30
 // Instructions to the billboard shaders, per-drawable
 struct UniformBillboard {
     simd::float3 eyeVec;
