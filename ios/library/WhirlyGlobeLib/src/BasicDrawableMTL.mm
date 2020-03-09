@@ -330,7 +330,7 @@ void BasicDrawableMTL::encodeUniBlocks(RendererFrameInfoMTL *frameInfo,
     // TODO: Can merge these into one buffer
     for (const UniformBlock &uniBlock : uniBlocks) {
         if (entries.find(uniBlock.bufferID) != entries.end()) {
-            id<MTLBuffer> buff = [sceneRender->setupInfo.mtlDevice newBufferWithBytes:uniBlock.blockData->getRawData() length:uniBlock.blockData->getLen() options:MTLStorageModePrivate];
+            id<MTLBuffer> buff = [sceneRender->setupInfo.mtlDevice newBufferWithBytes:uniBlock.blockData->getRawData() length:uniBlock.blockData->getLen() options:MTLStorageModeShared];
             [argEncode setBuffer:buff offset:0 atIndex:uniBlock.bufferID];
         }
     }
@@ -419,13 +419,13 @@ id<MTLBuffer> BasicDrawableMTL::encodeArgumentBuffer(SceneMTL *scene,
         if (thisTexInfo && thisTexInfo->texId != EmptyIdentity)
             tex = dynamic_cast<TextureBaseMTL *>(scene->getTexture(thisTexInfo->texId));
         if (tex && tex->getMTLID()) {
-            if (argEntries.find(WKSTextureArgBuffer) != argEntries.end()) {
-                [argEncode setTexture:tex->getMTLID() atIndex:texIndex];
+            if (argEntries.find(WKSTextureArgBuffer+texIndex) != argEntries.end()) {
+                [argEncode setTexture:tex->getMTLID() atIndex:WKSTextureArgBuffer+texIndex];
             }
             numTextures++;
         } else {
-            if (argEntries.find(WKSTextureArgBuffer) != argEntries.end()) {
-                [argEncode setTexture:nil atIndex:texIndex];
+            if (argEntries.find(WKSTextureArgBuffer+texIndex) != argEntries.end()) {
+                [argEncode setTexture:nil atIndex:WKSTextureArgBuffer+texIndex];
             }
         }
     }

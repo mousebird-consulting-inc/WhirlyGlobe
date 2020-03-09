@@ -25,14 +25,14 @@ using namespace metal;
 using namespace WhirlyKitShader;
 
 struct VertexArgBufferA {
-    device Uniforms *uniforms               [[ id(WKSUniformArgBuffer) ]];
-    device UniformDrawStateA *uniDrawState  [[ id(WKSUniformDrawStateArgBuffer) ]];
+    const constant Uniforms *uniforms               [[ id(WKSUniformArgBuffer) ]];
+    const constant UniformDrawStateA *uniDrawState  [[ id(WKSUniformDrawStateArgBuffer) ]];
 };
 
 // Vertex shader for simple line on the globe
 vertex ProjVertexA vertexLineOnly_globe(
     VertexA vert [[stage_in]],
-    const device VertexArgBufferA & vertArgs [[buffer(WKSVertexArgBuffer)]])
+    const constant VertexArgBufferA & vertArgs [[buffer(WKSVertexArgBuffer)]])
 {
     ProjVertexA outVert;
     
