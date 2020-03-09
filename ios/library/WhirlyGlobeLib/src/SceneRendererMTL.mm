@@ -216,11 +216,10 @@ void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,id<MTL
     uniforms.outputTexLevel = texLevel;
     uniforms.globeMode = !coordAdapter->isFlat();
     
-    [cmdEncode setVertexBytes:&uniforms length:sizeof(uniforms) atIndex:WKSUniformBuffer];
-    [cmdEncode setFragmentBytes:&uniforms length:sizeof(uniforms) atIndex:WKSUniformBuffer];
+    frameInfo->uniformBuff = [setupInfo.mtlDevice newBufferWithBytes:&uniforms length:sizeof(uniforms) options:MTLStorageModeShared];
 }
 
-void SceneRendererMTL::setupLightBuffer(SceneMTL *scene,id<MTLRenderCommandEncoder> cmdEncode)
+void SceneRendererMTL::setupLightBuffer(SceneMTL *scene,RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode)
 {
     WhirlyKitShader::Lighting lighting;
     lighting.numLights = lights.size();
@@ -243,7 +242,7 @@ void SceneRendererMTL::setupLightBuffer(SceneMTL *scene,id<MTLRenderCommandEncod
     CopyIntoMtlFloat4(lighting.mat.specular,defaultMat.getSpecular());
     lighting.mat.specularExponent = defaultMat.getSpecularExponent();
     
-    [cmdEncode setVertexBytes:&lighting length:sizeof(lighting) atIndex:WKSLightingBuffer];
+    frameInfo->lightingBuff = [setupInfo.mtlDevice newBufferWithBytes:&lighting length:sizeof(lighting) options:MTLStorageModeShared];
 }
     
 void SceneRendererMTL::setupDrawStateA(WhirlyKitShader::UniformDrawStateA &drawState,RendererFrameInfoMTL *frameInfo)
@@ -558,9 +557,6 @@ void SceneRendererMTL::render(TimeInterval duration,
                         // TODO: Can we do this just once?
                         setupUniformBuffer(&baseFrameInfo,cmdEncode,scene->getCoordAdapter(),level);
 
-                        // Per program uniforms need to be set up
-                        BasicDrawableMTL::encodeUniBlocks(&baseFrameInfo, calcProgram->uniBlocks, cmdEncode);
-
                         // Run the calculation phase
                         drawMTL->calculate(&baseFrameInfo,cmdEncode,scene);
                     }
@@ -574,7 +570,7 @@ void SceneRendererMTL::render(TimeInterval duration,
                     bool lastZBufferRead = zBufferRead;
 
                     // TODO: Set this up once and reuse the buffer
-                    setupLightBuffer(sceneMTL,cmdEncode);
+                    setupLightBuffer(sceneMTL,&baseFrameInfo,cmdEncode);
 
                     // Backface culling on by default
                     // Note: Would like to not set this every time

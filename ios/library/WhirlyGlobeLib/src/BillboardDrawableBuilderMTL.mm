@@ -46,7 +46,7 @@ void BillboardTweakerMTL::tweakForFrame(Drawable *inDraw,RendererFrameInfo *inFr
     // Note: There are other ways to do this
     BasicDrawable::UniformBlock uniBlock;
     uniBlock.blockData = RawDataRef(new RawNSDataReader([[NSData alloc] initWithBytes:&uniBB length:sizeof(uniBB)]));
-    uniBlock.bufferID = WKSUniformDrawStateBillboardBuffer;
+    uniBlock.bufferID = WKSUniformDrawStateBillboardArgBuffer;
     basicDraw->setUniBlock(uniBlock);
 }
 

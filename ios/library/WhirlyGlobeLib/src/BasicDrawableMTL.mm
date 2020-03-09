@@ -320,41 +320,77 @@ void BasicDrawableMTL::applyUniformsToDrawState(WhirlyKitShader::UniformDrawStat
     }
 }
     
-void BasicDrawableMTL::encodeUniBlocks(RendererFrameInfoMTL *frameInfo,const std::vector<BasicDrawable::UniformBlock> &uniBlocks,id<MTLRenderCommandEncoder> cmdEncode)
+void BasicDrawableMTL::encodeUniBlocks(RendererFrameInfoMTL *frameInfo,
+                                       const std::vector<BasicDrawable::UniformBlock> &uniBlocks,
+                                       id<MTLArgumentEncoder> argEncode,
+                                       const std::set<int> &entries)
 {
+    SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
+
+    // TODO: Can merge these into one buffer
     for (const UniformBlock &uniBlock : uniBlocks) {
-        [cmdEncode setVertexBytes:uniBlock.blockData->getRawData() length:uniBlock.blockData->getLen() atIndex:uniBlock.bufferID];
-        [cmdEncode setFragmentBytes:uniBlock.blockData->getRawData() length:uniBlock.blockData->getLen() atIndex:uniBlock.bufferID];
+        if (entries.find(uniBlock.bufferID) != entries.end()) {
+            id<MTLBuffer> buff = [sceneRender->setupInfo.mtlDevice newBufferWithBytes:uniBlock.blockData->getRawData() length:uniBlock.blockData->getLen() options:MTLStorageModePrivate];
+            [argEncode setBuffer:buff offset:0 atIndex:uniBlock.bufferID];
+        }
     }
 }
 
-void BasicDrawableMTL::draw(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *inScene)
+id<MTLBuffer> BasicDrawableMTL::encodeArgumentBuffer(SceneMTL *scene,
+                                                     RendererFrameInfoMTL *frameInfo,
+                                                     id<MTLFunction> func,
+                                                     int bufferIndex,
+                                                     std::vector< id<MTLBuffer> > &buffers)
 {
-    SceneMTL *scene = (SceneMTL *)inScene;
     SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
+    ProgramMTL *program = (ProgramMTL *)frameInfo->program;
 
-    float fade = calcFade(frameInfo);
+    MTLAutoreleasedArgument argInfo;
+    id<MTLArgumentEncoder> argEncode = [func newArgumentEncoderWithBufferIndex:bufferIndex reflection:&argInfo];
+    if (!argEncode)
+        return nil;
     
-    id<MTLRenderPipelineState> renderState = getRenderPipelineState(sceneRender,frameInfo);
-    
-    // Wire up the various inputs that we know about
-    for (auto vertAttr : vertexAttributes) {
-        VertexAttributeMTL *vertAttrMTL = (VertexAttributeMTL *)vertAttr;
-        if (vertAttrMTL->buffer && (vertAttrMTL->bufferIndex >= 0))
-            [cmdEncode setVertexBuffer:vertAttrMTL->buffer offset:0 atIndex:vertAttrMTL->bufferIndex];
+    // Figure out which entries are allowed within the argument buffer
+    if (argInfo.bufferDataType != MTLDataTypeStruct) {
+        NSLog(@"Unexpected buffer data type in Metal Function %@",func.name);
+        return nil;
+    }
+    NSArray<MTLStructMember *> *members = argInfo.bufferStructType.members;
+    if (!members) {
+        NSLog(@"Unexpected buffer structure in Metal Function %@",func.name);
+        return nil;
+    }
+    std::set<int> argEntries;
+    for (MTLStructMember *mem in members) {
+        argEntries.insert(mem.argumentIndex);
     }
     
-    // And provide defaults for the ones we don't
-    for (auto defAttr : defaultAttrs)
-        [cmdEncode setVertexBytes:&defAttr.data length:sizeof(defAttr.data) atIndex:defAttr.bufferIndex];
+    // Create a buffer to store the arguments in
+    id<MTLBuffer> buff = [sceneRender->setupInfo.mtlDevice newBufferWithLength:[argEncode encodedLength] options:MTLStorageModeShared];
+    buffers.push_back(buff);
+    [argEncode setArgumentBuffer:buff offset:0];
     
-    [cmdEncode setRenderPipelineState:renderState];
+    // All of these are optional, but here's what we're expecting
+    //   Uniforms
+    //   UniformDrawStateA
+    //   TexIndirect[WKSTextureMax]
+    //   tex[WKTextureMax]
+    //   [Program's custom uniforms]
+    //   [Custom Uniforms]
     
-    // Pass in the textures (and offsets)
-    // Note: We could precalculate most of then when the texture changes
-    //       And we should figure out how many textures they actually have
+    if (argEntries.find(WKSUniformArgBuffer) != argEntries.end()) {
+        buffers.push_back(frameInfo->uniformBuff);
+        [argEncode setBuffer:frameInfo->uniformBuff offset:0 atIndex:WKSUniformArgBuffer];
+    }
+    if (argEntries.find(WKSLightingArgBuffer) != argEntries.end()) {
+        buffers.push_back(frameInfo->lightingBuff);
+        [argEncode setBuffer:frameInfo->lightingBuff offset:0 atIndex:WKSLightingArgBuffer];
+    }
+    
+    // Wire up the textures and texture indirection values
     int numTextures = 0;
-    for (unsigned int texIndex=0;texIndex<texInfo.size();texIndex++) {
+    WhirlyKitShader::TexIndirect texIndirect[WKSTextureMax];
+    for (unsigned int texIndex=0;texIndex<WKSTextureMax;texIndex++) {
         TexInfo *thisTexInfo = (texIndex < texInfo.size()) ? &texInfo[texIndex] : NULL;
         
         // Figure out texture adjustment for parent textures
@@ -373,50 +409,91 @@ void BasicDrawableMTL::draw(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandE
         }
 
         // Calculate offset and scales
-        WhirlyKitShader::TexIndirect texInd;
+        WhirlyKitShader::TexIndirect &texInd = texIndirect[texIndex];
         texInd.offset[0] = texOffset.x();  texInd.offset[1] = texOffset.y();
         texInd.scale[0] = texScale; texInd.scale[1] = texScale;
-
-        [cmdEncode setVertexBytes:&texInd length:sizeof(texInd) atIndex:WKSTexIndirectStartBuffer+numTextures];
-
+        
         // And the texture itself
         // Note: Should we be setting up the sampler?
         TextureBaseMTL *tex = NULL;
         if (thisTexInfo && thisTexInfo->texId != EmptyIdentity)
             tex = dynamic_cast<TextureBaseMTL *>(scene->getTexture(thisTexInfo->texId));
         if (tex && tex->getMTLID()) {
-            [cmdEncode setVertexTexture:tex->getMTLID() atIndex:numTextures];
-            [cmdEncode setFragmentTexture:tex->getMTLID() atIndex:numTextures];
+            if (argEntries.find(WKSTextureArgBuffer) != argEntries.end()) {
+                [argEncode setTexture:tex->getMTLID() atIndex:texIndex];
+            }
             numTextures++;
         } else {
-//            [frameInfo->cmdEncode setVertexTexture:nil atIndex:texIndex];
-//            [frameInfo->cmdEncode setFragmentTexture:nil atIndex:texIndex];
+            if (argEntries.find(WKSTextureArgBuffer) != argEntries.end()) {
+                [argEncode setTexture:nil atIndex:texIndex];
+            }
+        }
+    }
+    if (argEntries.find(WKSTexIndirectArgBuffer) != argEntries.end()) {
+        id<MTLBuffer> texIndBuff = [sceneRender->setupInfo.mtlDevice newBufferWithBytes:&texIndirect[0] length:sizeof(WhirlyKitShader::TexIndirect)*WKSTextureMax options:MTLStorageModeShared];
+        buffers.push_back(texIndBuff);
+        [argEncode setBuffer:texIndBuff offset:0 atIndex:WKSTexIndirectArgBuffer];
+    }
+
+    // Per drawable draw state in its own buffer
+    if (argEntries.find(WKSUniformDrawStateArgBuffer) != argEntries.end()) {
+        WhirlyKitShader::UniformDrawStateA uni;
+        sceneRender->setupDrawStateA(uni,frameInfo);
+        uni.numTextures = numTextures;
+        // TODO: Move into shader
+        uni.fade = calcFade(frameInfo);
+        uni.clipCoords = clipCoords;
+        applyUniformsToDrawState(uni,uniforms);
+        id<MTLBuffer> uniABuff = [sceneRender->setupInfo.mtlDevice newBufferWithBytes:&uni length:sizeof(uni) options:MTLStorageModeShared];
+        buffers.push_back(uniABuff);
+        [argEncode setBuffer:uniABuff offset:0 atIndex:WKSUniformDrawStateArgBuffer];
+    }
+    
+    // Uniform blocks associated with the program
+    encodeUniBlocks(frameInfo, program->uniBlocks, argEncode, argEntries);
+    
+    // And the uniforms passed through the drawable
+    encodeUniBlocks(frameInfo, uniBlocks, argEncode, argEntries);
+    
+    return buff;
+}
+
+void BasicDrawableMTL::draw(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *inScene)
+{
+    SceneMTL *scene = (SceneMTL *)inScene;
+    SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
+    ProgramMTL *prog = (ProgramMTL *)frameInfo->program;
+    std::vector< id<MTLBuffer> > buffers;
+    
+    id<MTLRenderPipelineState> renderState = getRenderPipelineState(sceneRender,frameInfo);
+    
+    // Wire up the various inputs that we know about
+    for (auto vertAttr : vertexAttributes) {
+        VertexAttributeMTL *vertAttrMTL = (VertexAttributeMTL *)vertAttr;
+        if (vertAttrMTL->buffer && (vertAttrMTL->bufferIndex >= 0)) {
+            [cmdEncode setVertexBuffer:vertAttrMTL->buffer offset:0 atIndex:vertAttrMTL->bufferIndex];
+            buffers.push_back(vertAttrMTL->buffer);
         }
     }
     
-    // The shaders get bitchy if we don't supply all the buffers
-    if (numTextures == 0) {
-        WhirlyKitShader::TexIndirect texInd;
-        texInd.offset[0] = 0.0;  texInd.offset[1] = 0.0;
-        texInd.scale[0] = 1.0; texInd.scale[1] = 1.0;
-
-        [cmdEncode setVertexBytes:&texInd length:sizeof(texInd) atIndex:WKSTexIndirectStartBuffer+0];
-        [cmdEncode setVertexBytes:&texInd length:sizeof(texInd) atIndex:WKSTexIndirectStartBuffer+1];
+    // And provide defaults for the ones we don't
+    for (auto defAttr : defaultAttrs)
+        [cmdEncode setVertexBytes:&defAttr.data length:sizeof(defAttr.data) atIndex:defAttr.bufferIndex];
+    
+    [cmdEncode setRenderPipelineState:renderState];
+    
+    // Encode the argument buffers and wire them up
+    id<MTLBuffer> argVertBuff = encodeArgumentBuffer(scene,frameInfo,prog->vertFunc,WKSVertexArgBuffer,buffers);
+    if (argVertBuff)
+        [cmdEncode setVertexBuffer:argVertBuff offset:0 atIndex:WKSVertexArgBuffer];
+    id<MTLBuffer> argFragBuff = encodeArgumentBuffer(scene,frameInfo,prog->fragFunc,WKSFragmentArgBuffer,buffers);
+    if (argFragBuff)
+        [cmdEncode setFragmentBuffer:argFragBuff offset:0 atIndex:WKSFragmentArgBuffer];
+    
+    for (id<MTLBuffer> buff : buffers) {
+        [cmdEncode useResource:buff usage:MTLResourceUsageRead];
     }
-    
-    // Set the per-drawable draw state
-    WhirlyKitShader::UniformDrawStateA uni;
-    sceneRender->setupDrawStateA(uni,frameInfo);
-    uni.numTextures = numTextures;
-    uni.fade = fade;
-    uni.clipCoords = clipCoords;
-    applyUniformsToDrawState(uni,uniforms);
-    [cmdEncode setVertexBytes:&uni length:sizeof(uni) atIndex:WKSUniformDrawStateBuffer];
-    [cmdEncode setFragmentBytes:&uni length:sizeof(uni) atIndex:WKSUniformDrawStateBuffer];
-    
-    // And the uniforms passed through the drawable
-    encodeUniBlocks(frameInfo, uniBlocks, cmdEncode);
-    
+
     // Render the primitives themselves
     switch (type) {
         case Lines:

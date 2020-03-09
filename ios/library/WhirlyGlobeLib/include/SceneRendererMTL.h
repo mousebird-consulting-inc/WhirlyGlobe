@@ -58,6 +58,11 @@ public:
     MTLRenderPassDescriptor *renderPassDesc;
     // Current render target
     RenderTargetMTL *renderTarget;
+    
+    // Buffers created for shared uniforms.
+    // Wired into the various drawables individually
+    id<MTLBuffer> uniformBuff;
+    id<MTLBuffer> lightingBuff;
 };
 
 /// Copy one of our matrices into Metal format
@@ -136,7 +141,7 @@ public:
     void setupUniformBuffer(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,CoordSystemDisplayAdapter *coordAdapter,int texLevel);
 
     /// Set the lights and tie them to a vertex buffer index
-    void setupLightBuffer(SceneMTL *scene,id<MTLRenderCommandEncoder> cmdEncode);
+    void setupLightBuffer(SceneMTL *scene,RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode);
     
     // Apply the various defaults to DrawStateA
     void setupDrawStateA(WhirlyKitShader::UniformDrawStateA &drawState,RendererFrameInfoMTL *frameInfo);

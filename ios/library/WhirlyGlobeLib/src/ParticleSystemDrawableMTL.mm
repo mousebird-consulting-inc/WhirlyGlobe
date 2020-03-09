@@ -173,13 +173,13 @@ id<MTLRenderPipelineState> ParticleSystemDrawableMTL::getRenderPipelineState(Sce
 void ParticleSystemDrawableMTL::bindParticleUniforms(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode)
 {
     // Uniforms just for this particle drawable
-    WhirlyKitShader::UniformDrawStateParticle uniPart;
-    uniPart.pointSize = pointSize;
-    uniPart.time = frameInfo->currentTime-baseTime;
-    uniPart.lifetime = lifetime;
-    uniPart.frameLen = frameInfo->frameLen;
-    [cmdEncode setVertexBytes:&uniPart length:sizeof(uniPart) atIndex:WKSUniformDrawStateParticleBuffer];
-    [cmdEncode setFragmentBytes:&uniPart length:sizeof(uniPart) atIndex:WKSUniformDrawStateParticleBuffer];
+//    WhirlyKitShader::UniformDrawStateParticle uniPart;
+//    uniPart.pointSize = pointSize;
+//    uniPart.time = frameInfo->currentTime-baseTime;
+//    uniPart.lifetime = lifetime;
+//    uniPart.frameLen = frameInfo->frameLen;
+//    [cmdEncode setVertexBytes:&uniPart length:sizeof(uniPart) atIndex:WKSUniformDrawStateParticleBuffer];
+//    [cmdEncode setFragmentBytes:&uniPart length:sizeof(uniPart) atIndex:WKSUniformDrawStateParticleBuffer];
 }
 
 void ParticleSystemDrawableMTL::calculate(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *inScene)
@@ -187,45 +187,45 @@ void ParticleSystemDrawableMTL::calculate(RendererFrameInfoMTL *frameInfo,id<MTL
     SceneMTL *scene = (SceneMTL *)inScene;
     SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
     
-    // Render state is pretty simple, so apply that
-    id<MTLRenderPipelineState> renderState = getCalcRenderPipelineState(sceneRender,frameInfo);
-    [cmdEncode setRenderPipelineState:renderState];
-
-    // Pass in the textures (and offsets)
-    // Note: We could precalculate most of then when the texture changes
-    //       And we should figure out how many textures they actually have
-    int numTextures = 0,texIndex = 0;
-    for (auto texID : texIDs) {
-        // And the texture itself
-        // Note: Should we be setting up the sampler?
-        TextureBaseMTL *tex = NULL;
-        if (texID != EmptyIdentity)
-            tex = dynamic_cast<TextureBaseMTL *>(scene->getTexture(texID));
-        if (tex) {
-            [cmdEncode setVertexTexture:tex->getMTLID() atIndex:texIndex];
-            [cmdEncode setFragmentTexture:tex->getMTLID() atIndex:texIndex];
-            numTextures++;
-        } else {
-//            [frameInfo->cmdEncode setVertexTexture:nil atIndex:texIndex];
-//            [frameInfo->cmdEncode setFragmentTexture:nil atIndex:texIndex];
-        }
-        texIndex++;
-    }
-    
-    // Uniforms we pass in for all particles
-    bindParticleUniforms(frameInfo,cmdEncode);
-    
-    // Note: Do we want UniformDrawStateA here too?
-
-    // Send along the uniform blocks
-    BasicDrawableMTL::encodeUniBlocks(frameInfo, uniBlocks, cmdEncode);
-
-    // Switch between buffers, one input & one output
-    [cmdEncode setVertexBuffer:pointBuffer[curPointBuffer] offset:0 atIndex:WKSParticleBuffer];
-    [cmdEncode setVertexBuffer:pointBuffer[curPointBuffer == 0 ? 1 : 0] offset:0 atIndex:WKSParticleBuffer+1];
-    curPointBuffer = (curPointBuffer == 0) ? 1 : 0;
-
-    [cmdEncode drawPrimitives:MTLPrimitiveTypePoint vertexStart:0 vertexCount:numTotalPoints];
+//    // Render state is pretty simple, so apply that
+//    id<MTLRenderPipelineState> renderState = getCalcRenderPipelineState(sceneRender,frameInfo);
+//    [cmdEncode setRenderPipelineState:renderState];
+//
+//    // Pass in the textures (and offsets)
+//    // Note: We could precalculate most of then when the texture changes
+//    //       And we should figure out how many textures they actually have
+//    int numTextures = 0,texIndex = 0;
+//    for (auto texID : texIDs) {
+//        // And the texture itself
+//        // Note: Should we be setting up the sampler?
+//        TextureBaseMTL *tex = NULL;
+//        if (texID != EmptyIdentity)
+//            tex = dynamic_cast<TextureBaseMTL *>(scene->getTexture(texID));
+//        if (tex) {
+//            [cmdEncode setVertexTexture:tex->getMTLID() atIndex:texIndex];
+//            [cmdEncode setFragmentTexture:tex->getMTLID() atIndex:texIndex];
+//            numTextures++;
+//        } else {
+////            [frameInfo->cmdEncode setVertexTexture:nil atIndex:texIndex];
+////            [frameInfo->cmdEncode setFragmentTexture:nil atIndex:texIndex];
+//        }
+//        texIndex++;
+//    }
+//
+//    // Uniforms we pass in for all particles
+//    bindParticleUniforms(frameInfo,cmdEncode);
+//
+//    // Note: Do we want UniformDrawStateA here too?
+//
+//    // Send along the uniform blocks
+//    BasicDrawableMTL::encodeUniBlocks(frameInfo, uniBlocks, cmdEncode);
+//
+//    // Switch between buffers, one input & one output
+//    [cmdEncode setVertexBuffer:pointBuffer[curPointBuffer] offset:0 atIndex:WKSParticleBuffer];
+//    [cmdEncode setVertexBuffer:pointBuffer[curPointBuffer == 0 ? 1 : 0] offset:0 atIndex:WKSParticleBuffer+1];
+//    curPointBuffer = (curPointBuffer == 0) ? 1 : 0;
+//
+//    [cmdEncode drawPrimitives:MTLPrimitiveTypePoint vertexStart:0 vertexCount:numTotalPoints];
 }
 
 void ParticleSystemDrawableMTL::draw(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *inScene)
@@ -233,49 +233,49 @@ void ParticleSystemDrawableMTL::draw(RendererFrameInfoMTL *frameInfo,id<MTLRende
     SceneMTL *scene = (SceneMTL *)inScene;
     SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
     
-    // Render state is pretty simple, so apply that
-    id<MTLRenderPipelineState> renderState = getRenderPipelineState(sceneRender,frameInfo);
-    [cmdEncode setRenderPipelineState:renderState];
-    
-    // Pass in the textures (and offsets)
-    // TODO: Call out textures we need for calculation vs. rendering
-    // Note: We could precalculate most of then when the texture changes
-    //       And we should figure out how many textures they actually have
-    int numTextures = 0,texIndex = 0;
-    for (auto texID : texIDs) {
-        // And the texture itself
-        // Note: Should we be setting up the sampler?
-        TextureBaseMTL *tex = NULL;
-        if (texID != EmptyIdentity)
-            tex = dynamic_cast<TextureBaseMTL *>(scene->getTexture(texID));
-        if (tex) {
-            [cmdEncode setVertexTexture:tex->getMTLID() atIndex:texIndex];
-            [cmdEncode setFragmentTexture:tex->getMTLID() atIndex:texIndex];
-            numTextures++;
-        } else {
-            NSLog(@"Missing texture in particle system.  Skipping.");
-            return;
-        }
-        texIndex++;
-    }
-    
-    // Note: Do we want UniformDrawStateA here too?
-
-    // Uniforms we pass in for all particles
-    bindParticleUniforms(frameInfo,cmdEncode);
-
-    // Send along the uniform blocks
-    BasicDrawableMTL::encodeUniBlocks(frameInfo, uniBlocks, cmdEncode);
-
-    if (useRectangles) {
-        [cmdEncode setVertexBuffer:rectVertBuffer offset:0 atIndex:WKSVertexPositionAttribute];
-        [cmdEncode setVertexBuffer:rectTexCoordBuffer offset:0 atIndex:WKSVertexTextureBaseAttribute];
-        [cmdEncode setVertexBuffer:pointBuffer[curPointBuffer] offset:0 atIndex:WKSParticleBuffer];
-        [cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:numRectTris*3 indexType:MTLIndexTypeUInt16 indexBuffer:rectTriBuffer indexBufferOffset:0 instanceCount:numTotalPoints];
-    } else {
-        [cmdEncode setVertexBuffer:pointBuffer[curPointBuffer] offset:0 atIndex:WKSParticleBuffer];
-        [cmdEncode drawPrimitives:MTLPrimitiveTypePoint vertexStart:0 vertexCount:numTotalPoints];
-    }
+//    // Render state is pretty simple, so apply that
+//    id<MTLRenderPipelineState> renderState = getRenderPipelineState(sceneRender,frameInfo);
+//    [cmdEncode setRenderPipelineState:renderState];
+//
+//    // Pass in the textures (and offsets)
+//    // TODO: Call out textures we need for calculation vs. rendering
+//    // Note: We could precalculate most of then when the texture changes
+//    //       And we should figure out how many textures they actually have
+//    int numTextures = 0,texIndex = 0;
+//    for (auto texID : texIDs) {
+//        // And the texture itself
+//        // Note: Should we be setting up the sampler?
+//        TextureBaseMTL *tex = NULL;
+//        if (texID != EmptyIdentity)
+//            tex = dynamic_cast<TextureBaseMTL *>(scene->getTexture(texID));
+//        if (tex) {
+//            [cmdEncode setVertexTexture:tex->getMTLID() atIndex:texIndex];
+//            [cmdEncode setFragmentTexture:tex->getMTLID() atIndex:texIndex];
+//            numTextures++;
+//        } else {
+//            NSLog(@"Missing texture in particle system.  Skipping.");
+//            return;
+//        }
+//        texIndex++;
+//    }
+//
+//    // Note: Do we want UniformDrawStateA here too?
+//
+//    // Uniforms we pass in for all particles
+//    bindParticleUniforms(frameInfo,cmdEncode);
+//
+//    // Send along the uniform blocks
+//    BasicDrawableMTL::encodeUniBlocks(frameInfo, uniBlocks, cmdEncode);
+//
+//    if (useRectangles) {
+//        [cmdEncode setVertexBuffer:rectVertBuffer offset:0 atIndex:WKSVertexPositionAttribute];
+//        [cmdEncode setVertexBuffer:rectTexCoordBuffer offset:0 atIndex:WKSVertexTextureBaseAttribute];
+//        [cmdEncode setVertexBuffer:pointBuffer[curPointBuffer] offset:0 atIndex:WKSParticleBuffer];
+//        [cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:numRectTris*3 indexType:MTLIndexTypeUInt16 indexBuffer:rectTriBuffer indexBufferOffset:0 instanceCount:numTotalPoints];
+//    } else {
+//        [cmdEncode setVertexBuffer:pointBuffer[curPointBuffer] offset:0 atIndex:WKSParticleBuffer];
+//        [cmdEncode drawPrimitives:MTLPrimitiveTypePoint vertexStart:0 vertexCount:numTotalPoints];
+//    }
 }
 
 }

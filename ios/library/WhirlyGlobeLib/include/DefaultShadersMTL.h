@@ -22,12 +22,10 @@
 namespace WhirlyKitShader
 {
     
-#define WKSVertexPositionAttribute 0
-#define WKSVertexColorAttribute 1
-#define WKSVertexNormalAttribute 2
-#define WKSVertexTextureBaseAttribute 3
-// A maximum of two texture coordinates at the moment
-#define WKSVertexTextureCoordMax 2
+#define WKSVertexPositionAttribute 2
+#define WKSVertexColorAttribute 3
+#define WKSVertexNormalAttribute 4
+#define WKSVertexTextureBaseAttribute 5
     
 // Wide Vector vertex attribute positions
 #define WKSVertexWideVecTexInfoAttribute 6
@@ -58,7 +56,8 @@ namespace WhirlyKitShader
 #define WKSTextureArgBuffer 40
 
 // The entire set of arguments goes in the first buffer
-#define WKSArgBuffer 0
+#define WKSVertexArgBuffer 0
+#define WKSFragmentArgBuffer 1
 
 #define WKSUniformArgBuffer 20
 // Uniforms for the basic case.  Nothing fancy.

@@ -32,7 +32,7 @@ struct VertexArgBufferA {
 // Vertex shader for simple line on the globe
 vertex ProjVertexA vertexLineOnly_globe(
     VertexA vert [[stage_in]],
-    const device VertexArgBufferA & vertArgs [[buffer(WKSArgBuffer)]])
+    const device VertexArgBufferA & vertArgs [[buffer(WKSVertexArgBuffer)]])
 {
     ProjVertexA outVert;
     
@@ -51,9 +51,16 @@ vertex ProjVertexA vertexLineOnly_globe(
     return outVert;
 }
 
+// An empty argument buffer for fragments
+// TODO: Figure out how to do without this
+struct FragmentArgEmpty {
+    float nothing [[ id(0) ]];
+};
+
 // Fragment shader for simple line case
 fragment float4 framentLineOnly_globe(
-    ProjVertexA in [[stage_in]])
+    ProjVertexA in [[stage_in]],
+    const device FragmentArgEmpty *uniEmpty [[buffer(WKSFragmentArgBuffer)]])
 {
     if (in.dotProd <= 0.0)
         discard_fragment();
@@ -76,7 +83,7 @@ float calcGlobeDotProd(const device Uniforms *uniforms,float3 pos, float3 norm)
 // Vertex shader for simple line on the flat map (no backface checking)
 vertex ProjVertexB vertexLineOnly_flat(
     VertexA vert [[stage_in]],
-    const device VertexArgBufferA & vertArgs [[buffer(WKSArgBuffer)]])
+    const device VertexArgBufferA & vertArgs [[buffer(WKSVertexArgBuffer)]])
 {
     ProjVertexB outVert;
     
@@ -91,7 +98,8 @@ vertex ProjVertexB vertexLineOnly_flat(
 
 // Simple fragment shader for lines on flat map
 fragment float4 fragmentLineOnly_flat(
-    ProjVertexB vert [[stage_in]])
+    ProjVertexB vert [[stage_in]],
+    const device FragmentArgEmpty *uniEmpty [[buffer(WKSFragmentArgBuffer)]])
 {
     return vert.color;
 }
@@ -136,7 +144,7 @@ struct VertexTriArgBufferA {
 // Simple vertex shader for triangle with no lighting
 vertex ProjVertexTriA vertexTri_noLight(
                 VertexTriA vert [[stage_in]],
-                const device VertexTriArgBufferA & vertArgs [[buffer(WKSArgBuffer)]])
+                const device VertexTriArgBufferA & vertArgs [[buffer(WKSVertexArgBuffer)]])
 {
     ProjVertexTriA outVert;
     
@@ -163,7 +171,7 @@ struct VertexTriArgBufferB {
 // Simple vertex shader for triangle with basic lighting
 vertex ProjVertexTriA vertexTri_light(
                 VertexTriA vert [[stage_in]],
-                const device VertexTriArgBufferB & vertArgs [[buffer(WKSArgBuffer)]])
+                const device VertexTriArgBufferB & vertArgs [[buffer(WKSVertexArgBuffer)]])
 {
     ProjVertexTriA outVert;
     
@@ -185,7 +193,7 @@ vertex ProjVertexTriA vertexTri_light(
 // Simple fragment shader for lines on flat map
 fragment float4 fragmentTri_basic(
                 ProjVertexTriA vert [[stage_in]],
-                const device VertexTriArgBufferA & vertArgs [[buffer(WKSArgBuffer)]])
+                const device VertexTriArgBufferA & vertArgs [[buffer(WKSFragmentArgBuffer)]])
 {
     if (vertArgs.uniDrawState->numTextures > 0) {
         constexpr sampler sampler2d(coord::normalized, filter::linear);
@@ -197,7 +205,7 @@ fragment float4 fragmentTri_basic(
 // Vertex shader that handles up to two textures
 vertex ProjVertexTriB vertexTri_multiTex(
                 VertexTriB vert [[stage_in]],
-                const device VertexTriArgBufferB & vertArgs [[buffer(WKSArgBuffer)]])
+                const device VertexTriArgBufferB & vertArgs [[buffer(WKSVertexArgBuffer)]])
 {
     ProjVertexTriB outVert;
     
@@ -229,7 +237,7 @@ vertex ProjVertexTriB vertexTri_multiTex(
 
 // Fragment shader that handles to two textures
 fragment float4 fragmentTri_multiTex(ProjVertexTriB vert [[stage_in]],
-                                     const device VertexTriArgBufferB & fragArgs [[buffer(WKSArgBuffer)]])
+                                     const device VertexTriArgBufferB & fragArgs [[buffer(WKSFragmentArgBuffer)]])
 {
     // Handle none, 1 or 2 textures
     if (fragArgs.uniDrawState->numTextures == 0) {
@@ -248,7 +256,7 @@ fragment float4 fragmentTri_multiTex(ProjVertexTriB vert [[stage_in]],
 
 // Fragment shader that handles two textures and does a ramp lookup
 fragment float4 fragmentTri_multiTexRamp(ProjVertexTriB vert [[stage_in]],
-                                         const device VertexTriArgBufferB & fragArgs [[buffer(WKSArgBuffer)]])
+                                         const device VertexTriArgBufferB & fragArgs [[buffer(WKSFragmentArgBuffer)]])
 {
     // Handle none, 1 or 2 textures
     if (fragArgs.uniDrawState->numTextures == 0) {
@@ -278,7 +286,7 @@ struct VertexTriWideArgBuffer {
 
 vertex ProjVertexTriWideVec vertexTri_wideVec(
             VertexTriWideVec vert [[stage_in]],
-            const device VertexTriWideArgBuffer & vertArgs [[buffer(WKSArgBuffer)]])
+            const device VertexTriWideArgBuffer & vertArgs [[buffer(WKSVertexArgBuffer)]])
 {
     ProjVertexTriWideVec outVert;
     
@@ -301,7 +309,7 @@ vertex ProjVertexTriWideVec vertexTri_wideVec(
 // Fragment share that takes the back of the globe into account
 fragment float4 fragmentTri_wideVec(
             ProjVertexTriWideVec vert [[stage_in]],
-            const device VertexTriWideArgBuffer & fragArgs [[buffer(WKSArgBuffer)]])
+            const device VertexTriWideArgBuffer & fragArgs [[buffer(WKSFragmentArgBuffer)]])
 {
     // Dot/dash pattern
     float patternVal = 1.0;
@@ -328,7 +336,7 @@ struct VertexTriSSArgBuffer {
 // Screen space (no motion) vertex shader
 vertex ProjVertexTriA vertexTri_screenSpace(
             VertexTriScreenSpace vert [[stage_in]],
-            const device VertexTriSSArgBuffer & vertArgs [[buffer(WKSArgBuffer)]])
+            const device VertexTriSSArgBuffer & vertArgs [[buffer(WKSVertexArgBuffer)]])
 {
     ProjVertexTriA outVert;
     
@@ -381,7 +389,7 @@ struct VertexTriModelArgBuffer {
 vertex ProjVertexTriB vertexTri_model(
           VertexTriB vert [[stage_in]],
           uint instanceID [[instance_id]],
-          const device VertexTriModelArgBuffer & vertArgs [[buffer(WKSArgBuffer)]])
+          const device VertexTriModelArgBuffer & vertArgs [[buffer(WKSVertexArgBuffer)]])
 {
     ProjVertexTriB outVert;
     
@@ -417,7 +425,7 @@ struct VertexTriBillboardArgBuffer {
 // TODO: These should be model instances.  Ew.
 vertex ProjVertexTriA vertexTri_billboard(
             VertexTriBillboard vert [[stage_in]],
-            const device VertexTriBillboardArgBuffer & vertArgs [[buffer(WKSArgBuffer)]])
+            const device VertexTriBillboardArgBuffer & vertArgs [[buffer(WKSVertexArgBuffer)]])
 {
     ProjVertexTriA outVert;
     

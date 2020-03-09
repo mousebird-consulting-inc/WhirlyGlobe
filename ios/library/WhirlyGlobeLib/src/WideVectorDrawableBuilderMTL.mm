@@ -60,7 +60,7 @@ void WideVectorTweakerMTL::tweakForFrame(Drawable *inDraw,RendererFrameInfo *inF
     
     BasicDrawable::UniformBlock uniBlock;
     uniBlock.blockData = RawDataRef(new RawNSDataReader([[NSData alloc] initWithBytes:&uniWV length:sizeof(uniWV)]));
-    uniBlock.bufferID = WKSUniformDrawStateWideVecBuffer;
+    uniBlock.bufferID = WKSUniformDrawStateWideVecArgBuffer;
     basicDraw->setUniBlock(uniBlock);
 }
 

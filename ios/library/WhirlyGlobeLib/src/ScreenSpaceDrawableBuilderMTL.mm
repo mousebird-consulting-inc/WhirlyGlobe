@@ -45,7 +45,7 @@ void ScreenSpaceTweakerMTL::tweakForFrame(Drawable *inDraw,RendererFrameInfo *in
     
     BasicDrawable::UniformBlock uniBlock;
     uniBlock.blockData = RawDataRef(new RawNSDataReader([[NSData alloc] initWithBytes:&uniSS length:sizeof(uniSS)]));
-    uniBlock.bufferID = WKSUniformDrawStateScreenSpaceBuffer;
+    uniBlock.bufferID = WKSUniformDrawStateScreenSpaceArgBuffer;
     basicDraw->setUniBlock(uniBlock);
 }
     
