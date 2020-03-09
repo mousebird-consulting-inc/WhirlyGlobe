@@ -983,7 +983,7 @@ using namespace Eigen;
     
     ProgramRef defaultLineShader = ProgramRef(new ProgramMTL([kMaplyShaderDefaultLine cStringUsingEncoding:NSASCIIStringEncoding],
                                                              [mtlLib newFunctionWithName:@"vertexLineOnly_globe"],
-                                                             [mtlLib newFunctionWithName:@"framentLineOnly_globe"]));
+                                                             [mtlLib newFunctionWithName:@"fragmentLineOnly_globe"]));
     ProgramRef defaultLineShaderNoBack = ProgramRef(new ProgramMTL([kMaplyShaderDefaultLineNoBackface cStringUsingEncoding:NSASCIIStringEncoding],
                                                              [mtlLib newFunctionWithName:@"vertexLineOnly_flat"],
                                                              [mtlLib newFunctionWithName:@"fragmentLineOnly_flat"]));

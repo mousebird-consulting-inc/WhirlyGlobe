@@ -58,9 +58,9 @@ struct FragmentArgEmpty {
 };
 
 // Fragment shader for simple line case
-fragment float4 framentLineOnly_globe(
+fragment float4 fragmentLineOnly_globe(
     ProjVertexA in [[stage_in]],
-    const device FragmentArgEmpty *uniEmpty [[buffer(WKSFragmentArgBuffer)]])
+    const constant FragmentArgEmpty *uniEmpty [[buffer(WKSFragmentArgBuffer)]])
 {
     if (in.dotProd <= 0.0)
         discard_fragment();
@@ -68,7 +68,7 @@ fragment float4 framentLineOnly_globe(
 }
 
 // Back facing calculation for the globe
-float calcGlobeDotProd(const device Uniforms *uniforms,float3 pos, float3 norm)
+float calcGlobeDotProd(const constant Uniforms *uniforms,float3 pos, float3 norm)
 {
     if (!uniforms->globeMode)
         return 1.0;
@@ -83,7 +83,7 @@ float calcGlobeDotProd(const device Uniforms *uniforms,float3 pos, float3 norm)
 // Vertex shader for simple line on the flat map (no backface checking)
 vertex ProjVertexB vertexLineOnly_flat(
     VertexA vert [[stage_in]],
-    const device VertexArgBufferA & vertArgs [[buffer(WKSVertexArgBuffer)]])
+    const constant VertexArgBufferA & vertArgs [[buffer(WKSVertexArgBuffer)]])
 {
     ProjVertexB outVert;
     
@@ -99,7 +99,7 @@ vertex ProjVertexB vertexLineOnly_flat(
 // Simple fragment shader for lines on flat map
 fragment float4 fragmentLineOnly_flat(
     ProjVertexB vert [[stage_in]],
-    const device FragmentArgEmpty *uniEmpty [[buffer(WKSFragmentArgBuffer)]])
+    const constant FragmentArgEmpty *uniEmpty [[buffer(WKSFragmentArgBuffer)]])
 {
     return vert.color;
 }
@@ -117,14 +117,14 @@ float2 resolveTexCoords(float2 texCoord,TexIndirect texIndr)
 float4 resolveLighting(float3 pos,
                       float3 norm,
                       float4 color,
-                      const device Lighting *lighting,
+                      const constant Lighting *lighting,
                       float4x4 mvpMatrix)
 {
     float4 ambient(0.0,0.0,0.0,0.0);
     float4 diffuse(0.0,0.0,0.0,0.0);
 
     for (int ii=0;ii<lighting->numLights;ii++) {
-        const device Light *light = &lighting->lights[ii];
+        const constant Light *light = &lighting->lights[ii];
         float3 adjNorm = light->viewDepend > 0.0 ? normalize((mvpMatrix * float4(norm.xyz, 0.0)).xyz) : norm.xzy;
         float ndotl = max(0.0, dot(adjNorm, light->direction));
         ambient += light->ambient;
@@ -135,16 +135,16 @@ float4 resolveLighting(float3 pos,
 }
 
 struct VertexTriArgBufferA {
-    device Uniforms *uniforms                   [[ id(WKSUniformArgBuffer) ]];
-    device UniformDrawStateA *uniDrawState      [[ id(WKSUniformDrawStateArgBuffer) ]];
-    device TexIndirect *texIndirect             [[ id(WKSTexIndirectArgBuffer) ]];
+    constant Uniforms *uniforms                   [[ id(WKSUniformArgBuffer) ]];
+    constant UniformDrawStateA *uniDrawState      [[ id(WKSUniformDrawStateArgBuffer) ]];
+    constant TexIndirect *texIndirect             [[ id(WKSTexIndirectArgBuffer) ]];
     array<texture2d<float>, WKSTextureMax> tex  [[ id(WKSTextureArgBuffer) ]];
 };
 
 // Simple vertex shader for triangle with no lighting
 vertex ProjVertexTriA vertexTri_noLight(
                 VertexTriA vert [[stage_in]],
-                const device VertexTriArgBufferA & vertArgs [[buffer(WKSVertexArgBuffer)]])
+                const constant VertexTriArgBufferA & vertArgs [[buffer(WKSVertexArgBuffer)]])
 {
     ProjVertexTriA outVert;
     
@@ -161,17 +161,17 @@ vertex ProjVertexTriA vertexTri_noLight(
 }
 
 struct VertexTriArgBufferB {
-    device Uniforms *uniforms                   [[ id(WKSUniformArgBuffer) ]];
-    device UniformDrawStateA *uniDrawState      [[ id(WKSUniformDrawStateArgBuffer) ]];
-    device Lighting *lighting                   [[ id(WKSLightingArgBuffer) ]];
-    device TexIndirect *texIndirect             [[ id(WKSTexIndirectArgBuffer) ]];
+    constant Uniforms *uniforms                   [[ id(WKSUniformArgBuffer) ]];
+    constant UniformDrawStateA *uniDrawState      [[ id(WKSUniformDrawStateArgBuffer) ]];
+    constant Lighting *lighting                   [[ id(WKSLightingArgBuffer) ]];
+    constant TexIndirect *texIndirect             [[ id(WKSTexIndirectArgBuffer) ]];
     array<texture2d<float>, WKSTextureMax> tex  [[ id(WKSTextureArgBuffer) ]];
 };
 
 // Simple vertex shader for triangle with basic lighting
 vertex ProjVertexTriA vertexTri_light(
                 VertexTriA vert [[stage_in]],
-                const device VertexTriArgBufferB & vertArgs [[buffer(WKSVertexArgBuffer)]])
+                const constant VertexTriArgBufferB & vertArgs [[buffer(WKSVertexArgBuffer)]])
 {
     ProjVertexTriA outVert;
     
@@ -193,7 +193,7 @@ vertex ProjVertexTriA vertexTri_light(
 // Simple fragment shader for lines on flat map
 fragment float4 fragmentTri_basic(
                 ProjVertexTriA vert [[stage_in]],
-                const device VertexTriArgBufferA & vertArgs [[buffer(WKSFragmentArgBuffer)]])
+                const constant VertexTriArgBufferA & vertArgs [[buffer(WKSFragmentArgBuffer)]])
 {
     if (vertArgs.uniDrawState->numTextures > 0) {
         constexpr sampler sampler2d(coord::normalized, filter::linear);
@@ -205,7 +205,7 @@ fragment float4 fragmentTri_basic(
 // Vertex shader that handles up to two textures
 vertex ProjVertexTriB vertexTri_multiTex(
                 VertexTriB vert [[stage_in]],
-                const device VertexTriArgBufferB & vertArgs [[buffer(WKSVertexArgBuffer)]])
+                const constant VertexTriArgBufferB & vertArgs [[buffer(WKSVertexArgBuffer)]])
 {
     ProjVertexTriB outVert;
     
@@ -237,7 +237,7 @@ vertex ProjVertexTriB vertexTri_multiTex(
 
 // Fragment shader that handles to two textures
 fragment float4 fragmentTri_multiTex(ProjVertexTriB vert [[stage_in]],
-                                     const device VertexTriArgBufferB & fragArgs [[buffer(WKSFragmentArgBuffer)]])
+                                     const constant VertexTriArgBufferB & fragArgs [[buffer(WKSFragmentArgBuffer)]])
 {
     // Handle none, 1 or 2 textures
     if (fragArgs.uniDrawState->numTextures == 0) {
@@ -256,7 +256,7 @@ fragment float4 fragmentTri_multiTex(ProjVertexTriB vert [[stage_in]],
 
 // Fragment shader that handles two textures and does a ramp lookup
 fragment float4 fragmentTri_multiTexRamp(ProjVertexTriB vert [[stage_in]],
-                                         const device VertexTriArgBufferB & fragArgs [[buffer(WKSFragmentArgBuffer)]])
+                                         const constant VertexTriArgBufferB & fragArgs [[buffer(WKSFragmentArgBuffer)]])
 {
     // Handle none, 1 or 2 textures
     if (fragArgs.uniDrawState->numTextures == 0) {
@@ -278,15 +278,15 @@ fragment float4 fragmentTri_multiTexRamp(ProjVertexTriB vert [[stage_in]],
 }
 
 struct VertexTriWideArgBuffer {
-    device Uniforms *uniforms                   [[ id(WKSUniformArgBuffer) ]];
-    device UniformDrawStateA *uniDrawState      [[ id(WKSUniformDrawStateArgBuffer) ]];
-    device UniformWideVec *wideVec              [[ id(WKSUniformDrawStateWideVecArgBuffer) ]];
+    constant Uniforms *uniforms                   [[ id(WKSUniformArgBuffer) ]];
+    constant UniformDrawStateA *uniDrawState      [[ id(WKSUniformDrawStateArgBuffer) ]];
+    constant UniformWideVec *wideVec              [[ id(WKSUniformDrawStateWideVecArgBuffer) ]];
     array<texture2d<float>, WKSTextureMax> tex  [[ id(WKSTextureArgBuffer) ]];
 };
 
 vertex ProjVertexTriWideVec vertexTri_wideVec(
             VertexTriWideVec vert [[stage_in]],
-            const device VertexTriWideArgBuffer & vertArgs [[buffer(WKSVertexArgBuffer)]])
+            const constant VertexTriWideArgBuffer & vertArgs [[buffer(WKSVertexArgBuffer)]])
 {
     ProjVertexTriWideVec outVert;
     
@@ -309,7 +309,7 @@ vertex ProjVertexTriWideVec vertexTri_wideVec(
 // Fragment share that takes the back of the globe into account
 fragment float4 fragmentTri_wideVec(
             ProjVertexTriWideVec vert [[stage_in]],
-            const device VertexTriWideArgBuffer & fragArgs [[buffer(WKSFragmentArgBuffer)]])
+            const constant VertexTriWideArgBuffer & fragArgs [[buffer(WKSFragmentArgBuffer)]])
 {
     // Dot/dash pattern
     float patternVal = 1.0;
@@ -327,16 +327,16 @@ fragment float4 fragmentTri_wideVec(
 }
 
 struct VertexTriSSArgBuffer {
-    device Uniforms *uniforms                   [[ id(WKSUniformArgBuffer) ]];
-    device UniformDrawStateA *uniDrawState      [[ id(WKSUniformDrawStateArgBuffer) ]];
-    device UniformScreenSpace *ss               [[ id(WKSUniformDrawStateScreenSpaceArgBuffer) ]];
+    constant Uniforms *uniforms                   [[ id(WKSUniformArgBuffer) ]];
+    constant UniformDrawStateA *uniDrawState      [[ id(WKSUniformDrawStateArgBuffer) ]];
+    constant UniformScreenSpace *ss               [[ id(WKSUniformDrawStateScreenSpaceArgBuffer) ]];
     array<texture2d<float>, WKSTextureMax> tex  [[ id(WKSTextureArgBuffer) ]];
 };
 
 // Screen space (no motion) vertex shader
 vertex ProjVertexTriA vertexTri_screenSpace(
             VertexTriScreenSpace vert [[stage_in]],
-            const device VertexTriSSArgBuffer & vertArgs [[buffer(WKSVertexArgBuffer)]])
+            const constant VertexTriSSArgBuffer & vertArgs [[buffer(WKSVertexArgBuffer)]])
 {
     ProjVertexTriA outVert;
     
@@ -378,18 +378,18 @@ vertex ProjVertexTriA vertexTri_screenSpace(
 }
 
 struct VertexTriModelArgBuffer {
-    device Uniforms *uniforms                   [[ id(WKSUniformArgBuffer) ]];
-    device UniformDrawStateA *uniDrawState      [[ id(WKSUniformDrawStateArgBuffer) ]];
-    device Lighting *lighting                   [[ id(WKSLightingArgBuffer) ]];
-    device UniformModelInstance *uniMI          [[ id(WKSUniformDrawStateModelInstanceArgBuffer) ]];
-    device VertexTriModelInstance *modelInsts   [[ id(WKSModelInstanceArgBuffer) ]];
+    constant Uniforms *uniforms                   [[ id(WKSUniformArgBuffer) ]];
+    constant UniformDrawStateA *uniDrawState      [[ id(WKSUniformDrawStateArgBuffer) ]];
+    constant Lighting *lighting                   [[ id(WKSLightingArgBuffer) ]];
+    constant UniformModelInstance *uniMI          [[ id(WKSUniformDrawStateModelInstanceArgBuffer) ]];
+    constant VertexTriModelInstance *modelInsts   [[ id(WKSModelInstanceArgBuffer) ]];
 };
 
 // Vertex shader for models
 vertex ProjVertexTriB vertexTri_model(
           VertexTriB vert [[stage_in]],
           uint instanceID [[instance_id]],
-          const device VertexTriModelArgBuffer & vertArgs [[buffer(WKSVertexArgBuffer)]])
+          const constant VertexTriModelArgBuffer & vertArgs [[buffer(WKSVertexArgBuffer)]])
 {
     ProjVertexTriB outVert;
     
@@ -415,17 +415,17 @@ vertex ProjVertexTriB vertexTri_model(
 }
 
 struct VertexTriBillboardArgBuffer {
-    device Uniforms *uniforms                   [[ id(WKSUniformArgBuffer) ]];
-    device UniformDrawStateA *uniDrawState      [[ id(WKSUniformDrawStateArgBuffer) ]];
-    device Lighting *lighting                   [[ id(WKSLightingArgBuffer) ]];
-    device UniformBillboard *uniBB              [[ id(WKSUniformDrawStateBillboardArgBuffer) ]];
+    constant Uniforms *uniforms                   [[ id(WKSUniformArgBuffer) ]];
+    constant UniformDrawStateA *uniDrawState      [[ id(WKSUniformDrawStateArgBuffer) ]];
+    constant Lighting *lighting                   [[ id(WKSLightingArgBuffer) ]];
+    constant UniformBillboard *uniBB              [[ id(WKSUniformDrawStateBillboardArgBuffer) ]];
 };
 
 // Vertex shader for billboards
 // TODO: These should be model instances.  Ew.
 vertex ProjVertexTriA vertexTri_billboard(
             VertexTriBillboard vert [[stage_in]],
-            const device VertexTriBillboardArgBuffer & vertArgs [[buffer(WKSVertexArgBuffer)]])
+            const constant VertexTriBillboardArgBuffer & vertArgs [[buffer(WKSVertexArgBuffer)]])
 {
     ProjVertexTriA outVert;
     
