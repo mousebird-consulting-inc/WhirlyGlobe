@@ -49,6 +49,7 @@ public:
     virtual void draw(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene);
     
 protected:
+    id<MTLBuffer> encodeArgumentBuffer(SceneMTL *scene,RendererFrameInfoMTL *frameInfo,id<MTLFunction> func,int bufferIndex,std::set< id<MTLBuffer> > &buffers,std::set< id<MTLTexture> > &textures);
     id<MTLRenderPipelineState> getRenderPipelineState(SceneRendererMTL *sceneRender,RendererFrameInfoMTL *frameInfo,BasicDrawableMTL *basicDrawMTL);
     id<MTLRenderPipelineState> getCalcRenderPipelineState(SceneRendererMTL *sceneRender,RendererFrameInfoMTL *frameInfo);
     void updateColorDefaultAttr();

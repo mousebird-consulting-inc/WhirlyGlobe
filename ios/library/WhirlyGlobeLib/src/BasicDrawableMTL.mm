@@ -417,7 +417,6 @@ id<MTLBuffer> BasicDrawableMTL::encodeArgumentBuffer(SceneMTL *scene,
         texInd.scale[0] = texScale; texInd.scale[1] = texScale;
         
         // And the texture itself
-        // Note: Should we be setting up the sampler?
         TextureBaseMTL *tex = NULL;
         if (thisTexInfo && thisTexInfo->texId != EmptyIdentity)
             tex = dynamic_cast<TextureBaseMTL *>(scene->getTexture(thisTexInfo->texId));
@@ -496,12 +495,10 @@ void BasicDrawableMTL::draw(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandE
         [cmdEncode setFragmentBuffer:argFragBuff offset:0 atIndex:WKSFragmentArgBuffer];
     
     // Wire up resources that we use
-    for (id<MTLBuffer> buff : buffers) {
+    for (id<MTLBuffer> buff : buffers)
         [cmdEncode useResource:buff usage:MTLResourceUsageRead];
-    }
-    for (id<MTLTexture> tex : textures) {
+    for (id<MTLTexture> tex : textures)
         [cmdEncode useResource:tex usage:MTLResourceUsageRead];
-    }
 
     // Render the primitives themselves
     switch (type) {
