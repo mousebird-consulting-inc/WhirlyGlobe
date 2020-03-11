@@ -130,6 +130,8 @@ void BasicDrawableInstanceMTL::setupForRenderer(const RenderSetupInfo *inSetupIn
         uniMI.useInstanceColor = false;
         uniMI.hasMotion = false;
     }
+    
+    
         
     setupForMTL = true;
 }
@@ -329,7 +331,7 @@ id<MTLBuffer> BasicDrawableInstanceMTL::encodeArgumentBuffer(SceneMTL *scene,
     // Set the per-drawable draw state
     if (argEntries.find(WKSUniformDrawStateArgBuffer) != argEntries.end()) {
         WhirlyKitShader::UniformDrawStateA uni;
-        sceneRender->setupDrawStateA(uni,frameInfo);
+        sceneRender->setupDrawStateA(uni);
         uni.numTextures = numTextures;
         // TODO: Turn fade back on
 //        uni.fade = calcFade(frameInfo);
@@ -365,10 +367,10 @@ id<MTLBuffer> BasicDrawableInstanceMTL::encodeArgumentBuffer(SceneMTL *scene,
 
 // An all-purpose pre-render that sets up textures, uniforms and such in preparation for rendering
 // Also adds to the list of resources being used by this drawable
-void BasicDrawableInstanceMTL::preProcess(RendererFrameInfoMTL *frameInfo,
+void BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
                 id<MTLCommandBuffer> cmdBuff,
                 id<MTLBlitCommandEncoder> bltEncode,
-                Scene *inScene,
+                SceneMTL *scene,
                 ResourceRefsMTL &resources)
 {
     // TODO: Fill this in

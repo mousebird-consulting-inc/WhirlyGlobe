@@ -377,11 +377,9 @@ void BasicDrawableMTL::setupArgBuffers(id<MTLDevice> mtlDevice,RenderSetupInfoMT
 }
 
 // Called before anything starts calculating or drawing to fill in buffers and such
-void BasicDrawableMTL::preProcess(RendererFrameInfoMTL *frameInfo,id<MTLCommandBuffer> cmdBuff,id<MTLBlitCommandEncoder> bltEncode,Scene *inScene,ResourceRefsMTL &resources)
+void BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuffer> cmdBuff,id<MTLBlitCommandEncoder> bltEncode,SceneMTL *scene,ResourceRefsMTL &resources)
 {
     if (texturesChanged || valuesChanged) {
-        SceneMTL *scene = (SceneMTL *)inScene;
-        SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
         ProgramMTL *prog = (ProgramMTL *)scene->getProgram(programId);
         id<MTLDevice> mtlDevice = sceneRender->setupInfo.mtlDevice;
 
@@ -455,10 +453,11 @@ void BasicDrawableMTL::preProcess(RendererFrameInfoMTL *frameInfo,id<MTLCommandB
 
         // Per drawable draw state in its own buffer
         WhirlyKitShader::UniformDrawStateA uni;
-        sceneRender->setupDrawStateA(uni,frameInfo);
+        sceneRender->setupDrawStateA(uni);
         uni.numTextures = numTextures;
         // TODO: Move into shader
-        uni.fade = calcFade(frameInfo);
+        uni.fade = 1.0;
+//        uni.fade = calcFade(frameInfo);
         uni.clipCoords = clipCoords;
         applyUniformsToDrawState(uni,uniforms);
         if (vertABInfo)
@@ -471,11 +470,11 @@ void BasicDrawableMTL::preProcess(RendererFrameInfoMTL *frameInfo,id<MTLCommandB
     }
     
     // Always need the resource lists
-    resourceRefs(frameInfo,resources);
+    resourceRefs(resources);
 }
 
 // Add to the list of resources (buffers, textures, heaps) in use by this drawable
-void BasicDrawableMTL::resourceRefs(RendererFrameInfoMTL *frameInfo,ResourceRefsMTL &resourceRefs)
+void BasicDrawableMTL::resourceRefs(ResourceRefsMTL &resourceRefs)
 {
     if (vertABInfo)
         vertABInfo->addResources(resourceRefs);

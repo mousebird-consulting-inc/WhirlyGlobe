@@ -44,10 +44,10 @@ public:
     
     // An all-purpose pre-render that sets up textures, uniforms and such in preparation for rendering
     // Also adds to the list of resources being used by this drawable
-    void preProcess(RendererFrameInfoMTL *frameInfo,
+    void preProcess(SceneRendererMTL *sceneRender,
                     id<MTLCommandBuffer> cmdBuff,
                     id<MTLBlitCommandEncoder> bltEncode,
-                    Scene *inScene,
+                    SceneMTL *scene,
                     ResourceRefsMTL &resources);
 
     /// Fill this in to draw the basic drawable

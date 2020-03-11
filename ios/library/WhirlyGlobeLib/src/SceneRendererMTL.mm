@@ -257,7 +257,7 @@ void SceneRendererMTL::setupLightBuffer(SceneMTL *scene,RendererFrameInfoMTL *fr
     [bltEncode copyFromBuffer:buff sourceOffset:0 toBuffer:sceneRender->setupInfo.lightingBuff destinationOffset:0 size:sizeof(lighting)];
 }
     
-void SceneRendererMTL::setupDrawStateA(WhirlyKitShader::UniformDrawStateA &drawState,RendererFrameInfoMTL *frameInfo)
+void SceneRendererMTL::setupDrawStateA(WhirlyKitShader::UniformDrawStateA &drawState)
 {
     // That was anti-climactic
     bzero(&drawState,sizeof(drawState));
@@ -518,7 +518,7 @@ void SceneRendererMTL::render(TimeInterval duration,
             ResourceRefsMTL resources;
             for (auto &draw : targetContainer->drawables) {
                 DrawableMTL *drawMTL = dynamic_cast<DrawableMTL *>(draw.get());
-                drawMTL->preProcess(&baseFrameInfo, cmdBuff, bltEncode, scene, resources);
+                drawMTL->preProcess(this, cmdBuff, bltEncode, sceneMTL, resources);
             }
             // TODO: Just set this up once and copy it into position
             setupLightBuffer(sceneMTL,&baseFrameInfo,bltEncode);

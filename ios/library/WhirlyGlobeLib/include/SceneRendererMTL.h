@@ -142,7 +142,7 @@ public:
     void setupLightBuffer(SceneMTL *scene,RendererFrameInfoMTL *frameInfo,id<MTLBlitCommandEncoder> bltEncode);
     
     // Apply the various defaults to DrawStateA
-    void setupDrawStateA(WhirlyKitShader::UniformDrawStateA &drawState,RendererFrameInfoMTL *frameInfo);
+    void setupDrawStateA(WhirlyKitShader::UniformDrawStateA &drawState);
     
     // Generate a render pipeline descriptor matching the given frame
     MTLRenderPipelineDescriptor *defaultRenderPipelineState(SceneRendererMTL *sceneRender,RendererFrameInfoMTL *frameInfo);
