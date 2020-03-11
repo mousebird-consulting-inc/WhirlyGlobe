@@ -379,99 +379,99 @@ void BasicDrawableMTL::setupArgBuffers(id<MTLDevice> mtlDevice,RenderSetupInfoMT
 // Called before anything starts calculating or drawing to fill in buffers and such
 void BasicDrawableMTL::preProcess(RendererFrameInfoMTL *frameInfo,id<MTLCommandBuffer> cmdBuff,id<MTLBlitCommandEncoder> bltEncode,Scene *inScene,ResourceRefsMTL &resources)
 {
-    if (!texturesChanged && !valuesChanged)
-        return;
-    
-    SceneMTL *scene = (SceneMTL *)inScene;
-    SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
-    ProgramMTL *prog = (ProgramMTL *)scene->getProgram(programId);
-    id<MTLDevice> mtlDevice = sceneRender->setupInfo.mtlDevice;
-    
-    if (!prog) {
-        NSLog(@"Drawable %s missing program.",name.c_str());
-        return;
-    }
+    if (texturesChanged || valuesChanged) {
+        SceneMTL *scene = (SceneMTL *)inScene;
+        SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
+        ProgramMTL *prog = (ProgramMTL *)scene->getProgram(programId);
+        id<MTLDevice> mtlDevice = sceneRender->setupInfo.mtlDevice;
 
-    if (!vertABInfo || texturesChanged)
-        setupArgBuffers(mtlDevice,&sceneRender->setupInfo,scene);
-
-    // Wire up the textures and texture indirection values
-    int numTextures = 0;
-    WhirlyKitShader::TexIndirect texIndirect[WKSTextureMax];
-    for (unsigned int texIndex=0;texIndex<WKSTextureMax;texIndex++) {
-        TexInfo *thisTexInfo = (texIndex < texInfo.size()) ? &texInfo[texIndex] : NULL;
-        
-        // Figure out texture adjustment for parent textures
-        float texScale = 1.0;
-        Vector2f texOffset(0.0,0.0);
-        // Adjust for border pixels
-        if (thisTexInfo && thisTexInfo->borderTexel > 0 && thisTexInfo->size > 0) {
-            texScale = (thisTexInfo->size - 2 * thisTexInfo->borderTexel) / (double)thisTexInfo->size;
-            float offset = thisTexInfo->borderTexel / (double)thisTexInfo->size;
-            texOffset = Vector2f(offset,offset);
-        }
-        // Adjust for a relative texture lookup (using lower zoom levels)
-        if (thisTexInfo && thisTexInfo->relLevel > 0) {
-            texScale = texScale/(1<<thisTexInfo->relLevel);
-            texOffset = Vector2f(texScale*thisTexInfo->relX,texScale*thisTexInfo->relY) + texOffset;
+        if (!prog) {
+            NSLog(@"Drawable %s missing program.",name.c_str());
+            return;
         }
 
-        // Calculate offset and scales
-        WhirlyKitShader::TexIndirect &texInd = texIndirect[texIndex];
-        texInd.offset[0] = texOffset.x();  texInd.offset[1] = texOffset.y();
-        texInd.scale[0] = texScale; texInd.scale[1] = texScale;
-        
-        // And the texture itself
-        TextureBaseMTL *tex = NULL;
-        if (thisTexInfo && thisTexInfo->texId != EmptyIdentity)
-            tex = dynamic_cast<TextureBaseMTL *>(scene->getTexture(thisTexInfo->texId));
-        if (tex && tex->getMTLID()) {
-            if (vertABInfo)
-                vertABInfo->setTexture(texIndex, tex->getMTLID());
-            if (fragABInfo)
-                fragABInfo->setTexture(texIndex, tex->getMTLID());
-            numTextures++;
-        } else {
-            if (vertABInfo)
-                vertABInfo->setTexture(texIndex, nil);
-            if (fragABInfo)
-                fragABInfo->setTexture(texIndex, nil);
+        if (!vertABInfo || texturesChanged)
+            setupArgBuffers(mtlDevice,&sceneRender->setupInfo,scene);
+
+        // Wire up the textures and texture indirection values
+        int numTextures = 0;
+        WhirlyKitShader::TexIndirect texIndirect[WKSTextureMax];
+        for (unsigned int texIndex=0;texIndex<WKSTextureMax;texIndex++) {
+            TexInfo *thisTexInfo = (texIndex < texInfo.size()) ? &texInfo[texIndex] : NULL;
+            
+            // Figure out texture adjustment for parent textures
+            float texScale = 1.0;
+            Vector2f texOffset(0.0,0.0);
+            // Adjust for border pixels
+            if (thisTexInfo && thisTexInfo->borderTexel > 0 && thisTexInfo->size > 0) {
+                texScale = (thisTexInfo->size - 2 * thisTexInfo->borderTexel) / (double)thisTexInfo->size;
+                float offset = thisTexInfo->borderTexel / (double)thisTexInfo->size;
+                texOffset = Vector2f(offset,offset);
+            }
+            // Adjust for a relative texture lookup (using lower zoom levels)
+            if (thisTexInfo && thisTexInfo->relLevel > 0) {
+                texScale = texScale/(1<<thisTexInfo->relLevel);
+                texOffset = Vector2f(texScale*thisTexInfo->relX,texScale*thisTexInfo->relY) + texOffset;
+            }
+
+            // Calculate offset and scales
+            WhirlyKitShader::TexIndirect &texInd = texIndirect[texIndex];
+            texInd.offset[0] = texOffset.x();  texInd.offset[1] = texOffset.y();
+            texInd.scale[0] = texScale; texInd.scale[1] = texScale;
+            
+            // And the texture itself
+            TextureBaseMTL *tex = NULL;
+            if (thisTexInfo && thisTexInfo->texId != EmptyIdentity)
+                tex = dynamic_cast<TextureBaseMTL *>(scene->getTexture(thisTexInfo->texId));
+            if (tex && tex->getMTLID()) {
+                if (vertABInfo)
+                    vertABInfo->setTexture(texIndex, tex->getMTLID());
+                if (fragABInfo)
+                    fragABInfo->setTexture(texIndex, tex->getMTLID());
+                numTextures++;
+            } else {
+                if (vertABInfo)
+                    vertABInfo->setTexture(texIndex, nil);
+                if (fragABInfo)
+                    fragABInfo->setTexture(texIndex, nil);
+            }
         }
-    }
-    if (vertABInfo)
-        vertABInfo->updateEntry(mtlDevice,bltEncode,WKSTexIndirectArgBuffer, &texIndirect[0], sizeof(WhirlyKitShader::TexIndirect)*WKSTextureMax);
-    if (fragABInfo)
-        fragABInfo->updateEntry(mtlDevice,bltEncode,WKSTexIndirectArgBuffer, &texIndirect[0], sizeof(WhirlyKitShader::TexIndirect)*WKSTextureMax);
+        if (vertABInfo)
+            vertABInfo->updateEntry(mtlDevice,bltEncode,WKSTexIndirectArgBuffer, &texIndirect[0], sizeof(WhirlyKitShader::TexIndirect)*WKSTextureMax);
+        if (fragABInfo)
+            fragABInfo->updateEntry(mtlDevice,bltEncode,WKSTexIndirectArgBuffer, &texIndirect[0], sizeof(WhirlyKitShader::TexIndirect)*WKSTextureMax);
 
-    // Uniform blocks associated with the program
-    for (const UniformBlock &uniBlock : prog->uniBlocks) {
-        vertABInfo->updateEntry(mtlDevice,bltEncode,uniBlock.bufferID, (void *)uniBlock.blockData->getRawData(), uniBlock.blockData->getLen());
-        fragABInfo->updateEntry(mtlDevice,bltEncode,uniBlock.bufferID, (void *)uniBlock.blockData->getRawData(), uniBlock.blockData->getLen());
+        // Uniform blocks associated with the program
+        for (const UniformBlock &uniBlock : prog->uniBlocks) {
+            vertABInfo->updateEntry(mtlDevice,bltEncode,uniBlock.bufferID, (void *)uniBlock.blockData->getRawData(), uniBlock.blockData->getLen());
+            fragABInfo->updateEntry(mtlDevice,bltEncode,uniBlock.bufferID, (void *)uniBlock.blockData->getRawData(), uniBlock.blockData->getLen());
+        }
+
+        // And the uniforms passed through the drawable
+        for (const UniformBlock &uniBlock : uniBlocks) {
+            vertABInfo->updateEntry(mtlDevice,bltEncode, uniBlock.bufferID, (void *)uniBlock.blockData->getRawData(), uniBlock.blockData->getLen());
+            fragABInfo->updateEntry(mtlDevice,bltEncode, uniBlock.bufferID, (void *)uniBlock.blockData->getRawData(), uniBlock.blockData->getLen());
+        }
+
+        // Per drawable draw state in its own buffer
+        WhirlyKitShader::UniformDrawStateA uni;
+        sceneRender->setupDrawStateA(uni,frameInfo);
+        uni.numTextures = numTextures;
+        // TODO: Move into shader
+        uni.fade = calcFade(frameInfo);
+        uni.clipCoords = clipCoords;
+        applyUniformsToDrawState(uni,uniforms);
+        if (vertABInfo)
+            vertABInfo->updateEntry(mtlDevice,bltEncode, WKSUniformDrawStateArgBuffer, &uni, sizeof(uni));
+        if (fragABInfo)
+            fragABInfo->updateEntry(mtlDevice,bltEncode, WKSUniformDrawStateArgBuffer, &uni, sizeof(uni));
+
+        texturesChanged = false;
+        valuesChanged = false;
     }
     
-    // And the uniforms passed through the drawable
-    for (const UniformBlock &uniBlock : uniBlocks) {
-        vertABInfo->updateEntry(mtlDevice,bltEncode, uniBlock.bufferID, (void *)uniBlock.blockData->getRawData(), uniBlock.blockData->getLen());
-        fragABInfo->updateEntry(mtlDevice,bltEncode, uniBlock.bufferID, (void *)uniBlock.blockData->getRawData(), uniBlock.blockData->getLen());
-    }
-
-    // Per drawable draw state in its own buffer
-    WhirlyKitShader::UniformDrawStateA uni;
-    sceneRender->setupDrawStateA(uni,frameInfo);
-    uni.numTextures = numTextures;
-    // TODO: Move into shader
-    uni.fade = calcFade(frameInfo);
-    uni.clipCoords = clipCoords;
-    applyUniformsToDrawState(uni,uniforms);
-    if (vertABInfo)
-        vertABInfo->updateEntry(mtlDevice,bltEncode, WKSUniformDrawStateArgBuffer, &uni, sizeof(uni));
-    if (fragABInfo)
-        fragABInfo->updateEntry(mtlDevice,bltEncode, WKSUniformDrawStateArgBuffer, &uni, sizeof(uni));
-    
+    // Always need the resource lists
     resourceRefs(frameInfo,resources);
-    
-    texturesChanged = false;
-    valuesChanged = false;
 }
 
 // Add to the list of resources (buffers, textures, heaps) in use by this drawable
