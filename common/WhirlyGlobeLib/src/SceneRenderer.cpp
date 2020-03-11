@@ -201,7 +201,7 @@ void SceneRenderer::addRenderTarget(RenderTargetRef newTarget)
 
 void SceneRenderer::addDrawable(DrawableRef newDrawable)
 {
-    newDrawable->setupForRenderer(getRenderSetupInfo());
+    newDrawable->setupForRenderer(getRenderSetupInfo(),scene);
     newDrawable->updateRenderer(this);
     
     // This will sort it into the appropriate work group later

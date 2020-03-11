@@ -19,6 +19,7 @@
  */
 
 #import "VertexAttributeMTL.h"
+#import "DrawableMTL.h"
 
 namespace WhirlyKit
 {

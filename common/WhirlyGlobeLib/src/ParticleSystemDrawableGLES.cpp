@@ -34,7 +34,7 @@ ParticleSystemDrawableGLES::ParticleSystemDrawableGLES(const std::string &name)
 {
 }
 
-void ParticleSystemDrawableGLES::setupForRenderer(const RenderSetupInfo *inSetupInfo)
+void ParticleSystemDrawableGLES::setupForRenderer(const RenderSetupInfo *inSetupInfo,Scene *scene)
 {
     RenderSetupInfoGLES *setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
     

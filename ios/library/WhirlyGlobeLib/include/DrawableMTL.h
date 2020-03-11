@@ -33,20 +33,6 @@ public:
     RawDataRef blockData;
 };
 
-// Resources we need for a given render (buffers, textures, etc..)
-class ResourceRefsMTL {
-public:
-    void addBuffer(id<MTLBuffer> buffer);
-    void addTexture(id<MTLTexture> texture);
-    
-    // Wire up the resources listed
-    void use(id<MTLRenderCommandEncoder> cmdEncode);
-    
-protected:
-    std::set< id<MTLBuffer> > buffers;
-    std::set< id<MTLTexture> > textures;
-};
-
 /**
    Used to track the contents of an argument buffer.
  Includes the buffers we set up to track things.
@@ -55,11 +41,17 @@ class ArgBuffContentsMTL {
 public:
     // Set up the buffers corresponding to the various entries
     ArgBuffContentsMTL(id<MTLDevice> mtlDevice,
+                       RenderSetupInfoMTL *setupInfoMTL,
                        id<MTLFunction> func,
                        int bufferArgIdx);
     
     // Create empty buffers for the various entries we don't have yet
-    void createBuffers(id<MTLDevice> mtlDevice);
+    void createBuffers(id<MTLDevice> mtlDevice,BufferBuilderMTL &buffBuild);
+    
+    // Call this to actually assign the buffers
+    // Have to do this because we're trying to share a big buffer for a whole drawable
+    //  so we don't have the buffer yet when we "define" it
+    void wireUpBuffers();
     
     // True if this argument buffer has the given entry
     bool hasEntry(int entryID);
@@ -71,7 +63,7 @@ public:
                      void *rawData,size_t size);
     
     // Set the buffer for a specific entry
-    void setEntry(int entryID,id<MTLBuffer> buffer);
+    void setEntry(int entryID,BufferEntryMTLRef buffer);
     
     // Clear the MTLTextures we're holding
     void clearTextures();
@@ -83,7 +75,7 @@ public:
     void addResources(ResourceRefsMTL &resources);
     
     // Return the buffer created for the argument buffer
-    id<MTLBuffer> getBuffer();
+    BufferEntryMTLRef getBuffer();
         
     // False if this failed to set up correctly
     bool isValid();
@@ -95,8 +87,7 @@ protected:
     typedef struct {
         int entryID;
         size_t size;
-        id<MTLBuffer> buff;  // Buffer we created to store the data
-        int offset;
+        BufferEntryMTLRef buffer;
     } Entry;
     typedef std::shared_ptr<Entry> EntryRef;
         
@@ -104,7 +95,7 @@ protected:
     std::map<int,id<MTLTexture> > textures;
     
     // Buffer that contains the argument buffer
-    id<MTLBuffer> buff;
+    BufferEntryMTLRef buff;
     
     // Used to encode everything initially and then textures later
     id<MTLArgumentEncoder> encode;

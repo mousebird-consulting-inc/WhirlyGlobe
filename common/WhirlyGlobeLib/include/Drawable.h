@@ -91,7 +91,7 @@ public:
     
     /// Do any initialization you may want.
     /// For instance, set up VBOs.
-    virtual void setupForRenderer(const RenderSetupInfo *setupInfo) = 0;
+    virtual void setupForRenderer(const RenderSetupInfo *setupInfo,Scene *scene) = 0;
     
     /// Clean up any rendering objects you may have (e.g. VBOs).
     virtual void teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene) = 0;

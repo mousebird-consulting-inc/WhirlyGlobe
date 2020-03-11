@@ -31,7 +31,7 @@ ChangeRequest::~ChangeRequest()
 
 bool ChangeRequest::needsFlush() { return false; }
 
-void ChangeRequest::setupForRenderer(const RenderSetupInfo *) { }
+void ChangeRequest::setupForRenderer(const RenderSetupInfo *,Scene *scene) { }
 
 bool ChangeRequest::needPreExecute() { return false; }
 

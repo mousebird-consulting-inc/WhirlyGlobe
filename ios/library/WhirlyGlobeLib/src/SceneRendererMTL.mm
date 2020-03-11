@@ -48,13 +48,14 @@ RendererFrameInfoMTL::RendererFrameInfoMTL(const RendererFrameInfoMTL &that)
 }
 
 SceneRendererMTL::SceneRendererMTL(id<MTLDevice> mtlDevice, float inScale)
+: setupInfo(mtlDevice)
 {
     offscreenBlendEnable = false;
     init();
     scale = inScale;
     setupInfo.mtlDevice = mtlDevice;
-    setupInfo.uniformBuff = [mtlDevice newBufferWithLength:sizeof(WhirlyKitShader::Uniforms) options:MTLResourceStorageModeShared];
-    setupInfo.lightingBuff = [mtlDevice newBufferWithLength:sizeof(WhirlyKitShader::Lighting) options:MTLResourceStorageModeShared];
+    setupInfo.uniformBuff = setupInfo.heapManage.allocateBuffer(HeapManagerMTL::Drawable,sizeof(WhirlyKitShader::Uniforms));
+    setupInfo.lightingBuff = setupInfo.heapManage.allocateBuffer(HeapManagerMTL::Drawable,sizeof(WhirlyKitShader::Lighting));
 }
     
 SceneRendererMTL::~SceneRendererMTL()
@@ -223,7 +224,7 @@ void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,id<MTL
     // Copy this to a buffer and then blit that buffer into place
     // TODO: Try to reuse these
     id<MTLBuffer> buff = [setupInfo.mtlDevice newBufferWithBytes:&uniforms length:sizeof(uniforms) options:MTLResourceStorageModeShared];
-    [bltEncode copyFromBuffer:buff sourceOffset:0 toBuffer:sceneRender->setupInfo.uniformBuff destinationOffset:0 size:sizeof(uniforms)];
+    [bltEncode copyFromBuffer:buff sourceOffset:0 toBuffer:sceneRender->setupInfo.uniformBuff->buffer destinationOffset:sceneRender->setupInfo.uniformBuff->offset size:sizeof(uniforms)];
 }
 
 void SceneRendererMTL::setupLightBuffer(SceneMTL *scene,RendererFrameInfoMTL *frameInfo,id<MTLBlitCommandEncoder> bltEncode)
@@ -254,7 +255,7 @@ void SceneRendererMTL::setupLightBuffer(SceneMTL *scene,RendererFrameInfoMTL *fr
     // Copy this to a buffer and then blit that buffer into place
     // TODO: Try to reuse these
     id<MTLBuffer> buff = [setupInfo.mtlDevice newBufferWithBytes:&lighting length:sizeof(lighting) options:MTLResourceStorageModeShared];
-    [bltEncode copyFromBuffer:buff sourceOffset:0 toBuffer:sceneRender->setupInfo.lightingBuff destinationOffset:0 size:sizeof(lighting)];
+    [bltEncode copyFromBuffer:buff sourceOffset:0 toBuffer:sceneRender->setupInfo.lightingBuff->buffer destinationOffset:sceneRender->setupInfo.lightingBuff->offset size:sizeof(lighting)];
 }
     
 void SceneRendererMTL::setupDrawStateA(WhirlyKitShader::UniformDrawStateA &drawState)

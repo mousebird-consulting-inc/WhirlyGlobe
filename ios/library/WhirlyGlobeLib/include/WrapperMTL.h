@@ -23,20 +23,108 @@
 
 namespace WhirlyKit
 {
+
+class RenderSetupInfoMTL;
+
+/// Entry in a larger buffer structure
+class BufferEntryMTL {
+public:
+    BufferEntryMTL();
     
+    id<MTLHeap> heap;      // Set if this is in a heap
+    id<MTLBuffer> buffer;  // Buffer reference
+    int offset;            // Offset within the buffer
+};
+typedef std::shared_ptr<BufferEntryMTL> BufferEntryMTLRef;
+
+// Used to construct unified buffers for drawables (or whatever)
+class BufferBuilderMTL
+{
+public:
+    BufferBuilderMTL(RenderSetupInfoMTL *setupInfo);
+    
+    // Add the given data to the current buffer construction
+    // Will take strides into account so this can be directly referenced within a buffer
+    BufferEntryMTLRef addData(const void *data,size_t size);
+    
+    // Reserve the given space for use by a buffer
+    BufferEntryMTLRef reserveData(size_t size);
+    
+    // Construct the buffer from the data we got
+    BufferEntryMTLRef buildBuffer();
+public:
+    RenderSetupInfoMTL *setupInfo;
+    std::vector<BufferEntryMTLRef> bufferRefs;
+    NSMutableData *data;
+};
+
+// Resources we need for a given render (buffers, textures, etc..)
+class ResourceRefsMTL {
+public:
+    void addEntry(BufferEntryMTLRef entry);
+    void addBuffer(id<MTLBuffer> buffer);
+    void addTexture(id<MTLTexture> texture);
+    
+    // Wire up the resources listed
+    void use(id<MTLRenderCommandEncoder> cmdEncode);
+    
+protected:
+    std::set< id<MTLHeap> > heaps;
+    std::set< id<MTLBuffer> > buffers;
+    std::set< id<MTLTexture> > textures;
+};
+
+/**
+   Used to manage the various MTLHeaps we depend on.
+ Heaps are sorted by type and usage.
+ */
+class HeapManagerMTL
+{
+public:
+    HeapManagerMTL(id<MTLDevice> mtlDevice);
+    
+    // Types of heaps for sorting
+    typedef enum {Drawable,Other,MaxType} HeapType;
+    
+    // Allocate a buffer of the given type and size
+    // It may be an entry in a heap, it might not.
+    // The BufferEntryMTLRef will track it
+    BufferEntryMTLRef allocateBuffer(HeapType,size_t size);
+    
+    // This version copies data into the buffer
+    BufferEntryMTLRef allocateBuffer(HeapType,void *data,size_t size);
+
+protected:
+    id<MTLHeap> findHeap(HeapType heapType,size_t &size);
+
+    class HeapGroup
+    {
+    public:
+        std::vector<id<MTLHeap> > heaps;
+    };
+
+    id<MTLDevice> mtlDevice;
+    HeapGroup heapGroups[MaxType];
+};
+
 /// Passed around to various init and teardown routines
 class RenderSetupInfoMTL : public RenderSetupInfo
 {
 public:
-    RenderSetupInfoMTL();
-    RenderSetupInfoMTL(Scene *scene);
+    RenderSetupInfoMTL(id<MTLDevice> mtlDevice);
+    RenderSetupInfoMTL(Scene *scene,id<MTLDevice> mtlDevice);
     
     id<MTLDevice> mtlDevice;
+    
+    HeapManagerMTL heapManage;
+    
+    // Keep Metal allocations aligned to this
+    size_t memAlign;
 
     // Buffers created for shared uniforms.
     // Wired into the various drawables individually
-    id<MTLBuffer> uniformBuff;
-    id<MTLBuffer> lightingBuff;
+    BufferEntryMTLRef uniformBuff;
+    BufferEntryMTLRef lightingBuff;
 };
 
     

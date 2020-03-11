@@ -55,7 +55,7 @@ public:
     virtual bool needsFlush();
     
     /// Fill this in to set up whatever resources we need on the GL side
-    virtual void setupForRenderer(const RenderSetupInfo *);
+    virtual void setupForRenderer(const RenderSetupInfo *,Scene *scene);
     
     /// Make a change to the scene.  For the renderer.  Never call this.
     virtual void execute(Scene *scene,SceneRenderer *renderer,View *view) = 0;

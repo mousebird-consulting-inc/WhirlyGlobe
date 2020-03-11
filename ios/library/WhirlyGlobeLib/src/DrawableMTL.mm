@@ -25,26 +25,7 @@ using namespace Eigen;
 namespace WhirlyKit
 {
 
-
-void ResourceRefsMTL::addBuffer(id<MTLBuffer> buffer)
-{
-    buffers.insert(buffer);
-}
-
-void ResourceRefsMTL::addTexture(id<MTLTexture> texture)
-{
-    textures.insert(texture);
-}
-
-void ResourceRefsMTL::use(id<MTLRenderCommandEncoder> cmdEncode)
-{
-    for (id<MTLBuffer> buff : buffers)
-        [cmdEncode useResource:buff usage:MTLResourceUsageRead];
-    for (id<MTLTexture> tex : textures)
-        [cmdEncode useResource:tex usage:MTLResourceUsageRead];
-}
-
-ArgBuffContentsMTL::ArgBuffContentsMTL(id<MTLDevice> mtlDevice,id<MTLFunction> func,int bufferArgIdx)
+ArgBuffContentsMTL::ArgBuffContentsMTL(id<MTLDevice> mtlDevice,RenderSetupInfoMTL *setupInfoMTL,id<MTLFunction> func,int bufferArgIdx)
 {
     valid = false;
     
@@ -62,14 +43,12 @@ ArgBuffContentsMTL::ArgBuffContentsMTL(id<MTLDevice> mtlDevice,id<MTLFunction> f
         NSLog(@"Unexpected buffer structure in Metal Function %@",func.name);
     }
     
-    // Work through the members, adding an entry for each one we're too fill in
+    // Work through the members, adding an entry for each one we're to fill in
     for (MTLStructMember *mem in members) {
         if (mem.dataType == MTLDataTypePointer) {
             EntryRef entry(new Entry());
             entry->entryID = mem.argumentIndex;
             entry->size = mem.pointerType.dataSize;
-            entry->offset = 0;
-            entry->buff = nil;
             entries[entry->entryID] = entry;
         } else if (mem.dataType == MTLDataTypeTexture) {
             textures[mem.argumentIndex] = nil;
@@ -77,21 +56,37 @@ ArgBuffContentsMTL::ArgBuffContentsMTL(id<MTLDevice> mtlDevice,id<MTLFunction> f
     }
     
     // Create a buffer to store the arguments in
-    buff = [mtlDevice newBufferWithLength:[encode encodedLength] options:MTLResourceStorageModeShared];
-    [encode setArgumentBuffer:buff offset:0];
+    buff = setupInfoMTL->heapManage.allocateBuffer(HeapManagerMTL::Drawable,[encode encodedLength]);
+    [encode setArgumentBuffer:buff->buffer offset:buff->offset];
     
     valid = true;
 }
 
-void ArgBuffContentsMTL::createBuffers(id<MTLDevice> mtlDevice)
+void ArgBuffContentsMTL::createBuffers(id<MTLDevice> mtlDevice,BufferBuilderMTL &buffBuild)
 {
     // Create buffers for entries that don't have them
     for (auto it : entries) {
         auto entry = it.second;
-        if (!entry->buff) {
-            entry->buff = [mtlDevice newBufferWithLength:entry->size options:MTLResourceStorageModeShared];
-            [encode setBuffer:entry->buff offset:0 atIndex:entry->entryID];
+        if (!entry->buffer) {
+            entry->buffer = buffBuild.reserveData(entry->size);
         }
+    }
+}
+
+void ArgBuffContentsMTL::setEntry(int entryID,BufferEntryMTLRef buffer)
+{
+    auto it = entries.find(entryID);
+    if (it == entries.end())
+        return;
+    auto entry = it->second;
+    entry->buffer = buffer;
+}
+
+void ArgBuffContentsMTL::wireUpBuffers()
+{
+    for (auto it : entries) {
+        auto entry = it.second;
+        [encode setBuffer:entry->buffer->buffer offset:entry->buffer->offset atIndex:entry->entryID];
     }
 }
 
@@ -108,19 +103,9 @@ void ArgBuffContentsMTL::updateEntry(id<MTLDevice> mtlDevice,id<MTLBlitCommandEn
     auto entry = it->second;
     
     // TODO: Try to reuse these buffers
-    // This schedules a copy from our buffer to the other, thus not interferring with an ongoing render
+    // This schedules a copy from our buffer to the other, thus not interfering with an ongoing render
     id<MTLBuffer> srcBuffer = [mtlDevice newBufferWithBytes:rawData length:size options:MTLResourceStorageModeShared];
-    [blitEncode copyFromBuffer:srcBuffer sourceOffset:0 toBuffer:entry->buff destinationOffset:0 size:size];
-}
-
-void ArgBuffContentsMTL::setEntry(int entryID,id<MTLBuffer> buffer)
-{
-    auto it = entries.find(entryID);
-    if (it == entries.end())
-        return;
-    auto entry = it->second;
-    entry->buff = buffer;
-    [encode setBuffer:entry->buff offset:0 atIndex:entry->entryID];
+    [blitEncode copyFromBuffer:srcBuffer sourceOffset:0 toBuffer:entry->buffer->buffer destinationOffset:entry->buffer->offset size:size];
 }
 
 void ArgBuffContentsMTL::clearTextures()
@@ -140,11 +125,11 @@ void ArgBuffContentsMTL::setTexture(int texIndex,id<MTLTexture> tex)
 void ArgBuffContentsMTL::addResources(ResourceRefsMTL &resources)
 {
     for (auto it : entries) {
-        resources.addBuffer(it.second->buff);
+        resources.addEntry(it.second->buffer);
     }
 }
 
-id<MTLBuffer> ArgBuffContentsMTL::getBuffer()
+BufferEntryMTLRef ArgBuffContentsMTL::getBuffer()
 {
     return buff;
 }

@@ -117,7 +117,7 @@ SimpleIdentity ParticleSystemManager::addParticleSystem(const ParticleSystem &ne
     draw->getDrawable()->setRequestZBuffer(sceneRep->partSys.zBufferRead);
     draw->getDrawable()->setWriteZbuffer(sceneRep->partSys.zBufferWrite);
     draw->getDrawable()->setRenderTarget(sceneRep->partSys.renderTargetID);
-    draw->getDrawable()->setupForRenderer(renderer->getRenderSetupInfo());
+    draw->getDrawable()->setupForRenderer(renderer->getRenderSetupInfo(),renderer->getScene());
     changes.push_back(new AddDrawableReq(draw->getDrawable()));
     sceneRep->draws.insert(draw->getDrawable());
     

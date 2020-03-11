@@ -480,7 +480,7 @@ void Scene::removeProgram(SimpleIdentity progId)
     }
 }
 
-void AddTextureReq::setupForRenderer(const RenderSetupInfo *setupInfo)
+void AddTextureReq::setupForRenderer(const RenderSetupInfo *setupInfo,Scene *scene)
 {
     if (texRef)
         texRef->createInRenderer(setupInfo);
@@ -516,10 +516,10 @@ void RemTextureReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View
         wkLogLevel(Warn,"RemTextureReq: No such texture.");
 }
     
-void AddDrawableReq::setupForRenderer(const RenderSetupInfo *setupInfo)
+void AddDrawableReq::setupForRenderer(const RenderSetupInfo *setupInfo,Scene *scene)
 {
     if (drawRef)
-        drawRef->setupForRenderer(setupInfo);
+        drawRef->setupForRenderer(setupInfo,scene);
 }
 
 AddDrawableReq::~AddDrawableReq()

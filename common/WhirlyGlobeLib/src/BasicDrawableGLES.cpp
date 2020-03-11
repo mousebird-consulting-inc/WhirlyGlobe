@@ -93,7 +93,7 @@ void BasicDrawableGLES::addPointToBuffer(unsigned char *basePtr,int which,const 
 }
 
 // Create VBOs and such
-void BasicDrawableGLES::setupForRenderer(const RenderSetupInfo *inSetupInfo)
+void BasicDrawableGLES::setupForRenderer(const RenderSetupInfo *inSetupInfo,Scene *scene)
 {
     RenderSetupInfoGLES *setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
     

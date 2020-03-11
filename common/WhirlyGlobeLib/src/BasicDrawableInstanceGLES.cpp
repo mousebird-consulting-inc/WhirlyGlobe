@@ -109,7 +109,7 @@ GLuint BasicDrawableInstanceGLES::setupVAO(RendererFrameInfoGLES *frameInfo)
 
 
 /// Set up local rendering structures (e.g. VBOs)
-void BasicDrawableInstanceGLES::setupForRenderer(const RenderSetupInfo *inSetupInfo)
+void BasicDrawableInstanceGLES::setupForRenderer(const RenderSetupInfo *inSetupInfo,Scene *scene)
 {
     RenderSetupInfoGLES *setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
     

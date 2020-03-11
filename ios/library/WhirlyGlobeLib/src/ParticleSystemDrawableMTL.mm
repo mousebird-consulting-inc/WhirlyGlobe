@@ -55,7 +55,7 @@ void ParticleSystemDrawableMTL::addAttributeData(const RenderSetupInfo *setupInf
     }
 }
 
-void ParticleSystemDrawableMTL::setupForRenderer(const RenderSetupInfo *inSetupInfo)
+void ParticleSystemDrawableMTL::setupForRenderer(const RenderSetupInfo *inSetupInfo,Scene *scene)
 {
     if (setupForMTL)
         return;

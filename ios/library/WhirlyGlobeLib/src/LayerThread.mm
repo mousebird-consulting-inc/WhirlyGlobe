@@ -219,7 +219,7 @@ using namespace WhirlyKit;
         if (change)
         {
             requiresFlush |= change->needsFlush();
-            change->setupForRenderer(_renderer->getRenderSetupInfo());
+            change->setupForRenderer(_renderer->getRenderSetupInfo(),_scene);
             changesToAdd.push_back(changesToProcess[ii]);
         } else
             // A NULL change request is just a flush request

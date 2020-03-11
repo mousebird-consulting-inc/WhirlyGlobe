@@ -48,7 +48,7 @@ public:
     void addAttributeData(const RenderSetupInfo *setupInfo,const std::vector<AttributeData> &attrData,const Batch &batch);
 
     /// Create our buffers in GL
-    virtual void setupForRenderer(const RenderSetupInfo *);
+    virtual void setupForRenderer(const RenderSetupInfo *,Scene *scene);
     
     /// Destroy GL buffers
     virtual void teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene);

@@ -486,7 +486,7 @@ public:
             if (change)
             {
                 requiresFlush |= change->needsFlush();
-                change->setupForRenderer(sceneRender->getRenderSetupInfo());
+                change->setupForRenderer(sceneRender->getRenderSetupInfo(),scene);
                 changesToAdd.push_back(change);
             } else
                 // A NULL change request is just a flush request
@@ -715,7 +715,7 @@ public:
         if (currentThread != mainThread)
             for (auto &change : theseChanges.changes) {
                 if (change)
-                    change->setupForRenderer(sceneRender->getRenderSetupInfo());
+                    change->setupForRenderer(sceneRender->getRenderSetupInfo(),scene);
             }
         scene->addChangeRequests(theseChanges.changes);
         perThreadChanges.erase(it);

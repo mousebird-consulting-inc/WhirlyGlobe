@@ -22,10 +22,10 @@
 #import "WhirlyVector.h"
 #import "BasicDrawable.h"
 #import "WrapperMTL.h"
+#import "DrawableMTL.h"
 #import "VertexAttributeMTL.h"
 #import "SceneRendererMTL.h"
 #import "DefaultShadersMTL.h"
-#import "DrawableMTL.h"
 
 namespace WhirlyKit
 {
@@ -38,7 +38,7 @@ public:
     BasicDrawableMTL(const std::string &name);
     
     /// Set up local rendering structures (e.g. VBOs)
-    virtual void setupForRenderer(const RenderSetupInfo *setupInfo);
+    virtual void setupForRenderer(const RenderSetupInfo *setupInfo,Scene *scene);
     
     /// Clean up any rendering objects you may have (e.g. VBOs).
     virtual void teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene);
@@ -70,6 +70,7 @@ public:
             unsigned char chars[4];
         } data;
         int bufferIndex;
+        BufferEntryMTLRef buffer;
     } AttributeDefault;
 
     // Apply a list of uniforms to the draw state
@@ -83,7 +84,7 @@ public:
     id<MTLRenderPipelineState> getRenderPipelineState(SceneRendererMTL *sceneRender,RendererFrameInfoMTL *frameInfo);
 
     // Set up the memory and defaults for the argument buffers (vertex, fragment, calculate)
-    void setupArgBuffers(id<MTLDevice> mtlDevice,RenderSetupInfoMTL *setupInfo,SceneMTL *scene);
+    void setupArgBuffers(id<MTLDevice> mtlDevice,RenderSetupInfoMTL *setupInfo,SceneMTL *scene,BufferBuilderMTL &buffBuild);
         
     // Adds in the resources this drawable needs wired up (buffers, textures, heaps)
     void resourceRefs(ResourceRefsMTL &resourceRefs);
@@ -95,9 +96,10 @@ public:
     int numPts,numTris;
     id<MTLRenderPipelineState> renderState; // Cacheable render state
     MTLVertexDescriptor *vertDesc;     // Description of vertices
-    id<MTLBuffer> triBuffer;           // Metal side buffer for triangles
+    BufferEntryMTLRef triBuffer;           // Metal side buffer for triangles
     std::vector<AttributeDefault> defaultAttrs;
     
+    BufferEntryMTLRef mainBuffer;        // We're storing all the bits and pieces in here
     ArgBuffContentsMTLRef vertABInfo,fragABInfo;
 };
     

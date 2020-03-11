@@ -56,7 +56,7 @@ public:
     virtual bool needsFlush() { return true; }
     
     /// Create the texture on its native thread
-    virtual void setupForRenderer(const RenderSetupInfo *setupInfo);
+    virtual void setupForRenderer(const RenderSetupInfo *setupInfo,Scene *scene);
 
 	/// Add to the renderer.  Never call this.
 	void execute(Scene *scene,SceneRenderer *renderer,View *view);
@@ -98,7 +98,7 @@ public:
     virtual bool needsFlush() { return true; }
     
     /// Create the drawable on its native thread
-    virtual void setupForRenderer(const RenderSetupInfo *);
+    virtual void setupForRenderer(const RenderSetupInfo *,Scene *scene);
 
 	/// Add to the renderer.  Never call this
 	void execute(Scene *scene,SceneRenderer *renderer,View *view);
