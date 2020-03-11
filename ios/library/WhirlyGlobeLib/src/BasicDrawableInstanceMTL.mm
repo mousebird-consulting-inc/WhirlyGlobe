@@ -256,14 +256,14 @@ id<MTLBuffer> BasicDrawableInstanceMTL::encodeArgumentBuffer(SceneMTL *scene,
     //   [Program's custom uniforms]
     //   [Custom Uniforms]
     
-    if (argEntries.find(WKSUniformArgBuffer) != argEntries.end()) {
-        buffers.insert(frameInfo->uniformBuff);
-        [argEncode setBuffer:frameInfo->uniformBuff offset:0 atIndex:WKSUniformArgBuffer];
-    }
-    if (argEntries.find(WKSLightingArgBuffer) != argEntries.end()) {
-        buffers.insert(frameInfo->lightingBuff);
-        [argEncode setBuffer:frameInfo->lightingBuff offset:0 atIndex:WKSLightingArgBuffer];
-    }
+//    if (argEntries.find(WKSUniformArgBuffer) != argEntries.end()) {
+//        buffers.insert(frameInfo->uniformBuff);
+//        [argEncode setBuffer:frameInfo->uniformBuff offset:0 atIndex:WKSUniformArgBuffer];
+//    }
+//    if (argEntries.find(WKSLightingArgBuffer) != argEntries.end()) {
+//        buffers.insert(frameInfo->lightingBuff);
+//        [argEncode setBuffer:frameInfo->lightingBuff offset:0 atIndex:WKSLightingArgBuffer];
+//    }
 
     // Sometimes it's just boring geometry and the texture's in the base
     // Sometimes we're doing something clever and it's in the instance
@@ -355,17 +355,29 @@ id<MTLBuffer> BasicDrawableInstanceMTL::encodeArgumentBuffer(SceneMTL *scene,
     }
     
     // Uniform blocks associated with the program
-    BasicDrawableMTL::encodeUniBlocks(frameInfo, program->uniBlocks, argEncode, argEntries, buffers);
+//    BasicDrawableMTL::encodeUniBlocks(frameInfo, program->uniBlocks, argEncode, argEntries, buffers);
     
     // And the uniforms passed through the drawable
-    BasicDrawableMTL::encodeUniBlocks(frameInfo, uniBlocks, argEncode, argEntries, buffers);
+//    BasicDrawableMTL::encodeUniBlocks(frameInfo, uniBlocks, argEncode, argEntries, buffers);
     
     return buff;
 }
 
+// An all-purpose pre-render that sets up textures, uniforms and such in preparation for rendering
+// Also adds to the list of resources being used by this drawable
+void BasicDrawableInstanceMTL::preProcess(RendererFrameInfoMTL *frameInfo,
+                id<MTLCommandBuffer> cmdBuff,
+                id<MTLBlitCommandEncoder> bltEncode,
+                Scene *inScene,
+                ResourceRefsMTL &resources)
+{
+    // TODO: Fill this in
+}
 
 void BasicDrawableInstanceMTL::draw(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *inScene)
 {
+    return;
+    
     SceneMTL *scene = (SceneMTL *)inScene;
     SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
     BasicDrawableMTL *basicDrawMTL = dynamic_cast<BasicDrawableMTL *>(basicDraw.get());

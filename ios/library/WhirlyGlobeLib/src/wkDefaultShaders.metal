@@ -330,7 +330,7 @@ struct VertexTriSSArgBuffer {
     constant Uniforms *uniforms                   [[ id(WKSUniformArgBuffer) ]];
     constant UniformDrawStateA *uniDrawState      [[ id(WKSUniformDrawStateArgBuffer) ]];
     constant UniformScreenSpace *ss               [[ id(WKSUniformDrawStateScreenSpaceArgBuffer) ]];
-    array<texture2d<float>, WKSTextureMax> tex  [[ id(WKSTextureArgBuffer) ]];
+    array<texture2d<float>, WKSTextureMax> tex    [[ id(WKSTextureArgBuffer) ]];
 };
 
 // Screen space (no motion) vertex shader

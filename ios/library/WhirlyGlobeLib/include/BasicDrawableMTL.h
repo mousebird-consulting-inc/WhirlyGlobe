@@ -29,16 +29,7 @@
 
 namespace WhirlyKit
 {
-    
-// Block of data to be passed into a given buffer ID
-// We do this rather than setting individual uniforms
-class UniformBlockMTL
-{
-public:
-    int bufferID;
-    RawDataRef blockData;
-};
-    
+        
 /** Metal Version of the BasicDrawable.
  */
 class BasicDrawableMTL : virtual public BasicDrawable, virtual public DrawableMTL
@@ -52,6 +43,14 @@ public:
     /// Clean up any rendering objects you may have (e.g. VBOs).
     virtual void teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene);
     
+    // An all-purpose pre-render that sets up textures, uniforms and such in preparation for rendering
+    // Also adds to the list of resources being used by this drawable
+    void preProcess(RendererFrameInfoMTL *frameInfo,
+                    id<MTLCommandBuffer> cmdBuff,
+                    id<MTLBlitCommandEncoder> bltEncode,
+                    Scene *inScene,
+                    ResourceRefsMTL &resources);
+
     /// Fill this in to draw the basic drawable
     virtual void draw(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene);
 
@@ -62,16 +61,6 @@ public:
     VertexAttributeMTL *findVertexAttribute(int nameID);
     
 public:
-    // Build the argument buffer
-    id<MTLBuffer> encodeArgumentBuffer(SceneMTL *scene,RendererFrameInfoMTL *frameInfo, id<MTLFunction> func,int bufferIndex,std::set< id<MTLBuffer> > &buffers,std::set< id<MTLTexture> > &textures);
-    
-    // Apply a list of uniforms to the draw state
-    // We hard wire some of these uniforms into a single buffer
-    static void applyUniformsToDrawState(WhirlyKitShader::UniformDrawStateA &drawState,const SingleVertexAttributeSet &uniforms);
-    
-    // Encode the uniform blocks into the given frame
-    static void encodeUniBlocks(RendererFrameInfoMTL *frameInfo,const std::vector<BasicDrawable::UniformBlock> &uniBlocks,id<MTLArgumentEncoder> argEncode,const std::set<int> &entries,std::set< id<MTLBuffer> > &buffers);
-    
     // Defaults for vertex attributes we don't have
     typedef struct {
         MTLDataType dataType;
@@ -83,9 +72,23 @@ public:
         int bufferIndex;
     } AttributeDefault;
 
-    float calcFade(RendererFrameInfo *frameInfo);
+    // Apply a list of uniforms to the draw state
+    // This is for backward compatibility.  Some of the named uniforms are now just in a big struct
+    static void applyUniformsToDrawState(WhirlyKitShader::UniformDrawStateA &drawState,const SingleVertexAttributeSet &uniforms);
+
+    // Vertex descriptor lays out the wiring for vertex data
     MTLVertexDescriptor *getVertexDescriptor(id<MTLFunction> vertFunc,std::vector<AttributeDefault> &defAttrs);
+    
+    // Pipeline render state for the encoder
     id<MTLRenderPipelineState> getRenderPipelineState(SceneRendererMTL *sceneRender,RendererFrameInfoMTL *frameInfo);
+
+    // Set up the memory and defaults for the argument buffers (vertex, fragment, calculate)
+    void setupArgBuffers(id<MTLDevice> mtlDevice,RenderSetupInfoMTL *setupInfo,SceneMTL *scene);
+        
+    // Adds in the resources this drawable needs wired up (buffers, textures, heaps)
+    void resourceRefs(RendererFrameInfoMTL *frameInfo,ResourceRefsMTL &resourceRefs);
+        
+    float calcFade(RendererFrameInfo *frameInfo);
 
     bool setupForMTL;
     std::vector<Triangle> tris;
@@ -94,6 +97,8 @@ public:
     MTLVertexDescriptor *vertDesc;     // Description of vertices
     id<MTLBuffer> triBuffer;           // Metal side buffer for triangles
     std::vector<AttributeDefault> defaultAttrs;
+    
+    ArgBuffContentsMTLRef vertABInfo,fragABInfo;
 };
     
 }

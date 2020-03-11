@@ -53,6 +53,8 @@ SceneRendererMTL::SceneRendererMTL(id<MTLDevice> mtlDevice, float inScale)
     init();
     scale = inScale;
     setupInfo.mtlDevice = mtlDevice;
+    setupInfo.uniformBuff = [mtlDevice newBufferWithLength:sizeof(WhirlyKitShader::Uniforms) options:MTLResourceStorageModeShared];
+    setupInfo.lightingBuff = [mtlDevice newBufferWithLength:sizeof(WhirlyKitShader::Lighting) options:MTLResourceStorageModeShared];
 }
     
 SceneRendererMTL::~SceneRendererMTL()
@@ -199,8 +201,10 @@ void CopyIntoMtlFloat4(simd::float4 &dest,const float vals[4])
     dest[3] = vals[3];
 }
     
-void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,CoordSystemDisplayAdapter *coordAdapter,int texLevel)
+void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,id<MTLBlitCommandEncoder> bltEncode,CoordSystemDisplayAdapter *coordAdapter,int texLevel)
 {
+    SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
+    
     WhirlyKitShader::Uniforms uniforms;
     bzero(&uniforms,sizeof(uniforms));
     CopyIntoMtlFloat4x4(uniforms.mvpMatrix,frameInfo->mvpMat);
@@ -216,11 +220,16 @@ void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,id<MTL
     uniforms.outputTexLevel = texLevel;
     uniforms.globeMode = !coordAdapter->isFlat();
     
-    frameInfo->uniformBuff = [setupInfo.mtlDevice newBufferWithBytes:&uniforms length:sizeof(uniforms) options:MTLStorageModeShared];
+    // Copy this to a buffer and then blit that buffer into place
+    // TODO: Try to reuse these
+    id<MTLBuffer> buff = [setupInfo.mtlDevice newBufferWithBytes:&uniforms length:sizeof(uniforms) options:MTLResourceStorageModeShared];
+    [bltEncode copyFromBuffer:buff sourceOffset:0 toBuffer:sceneRender->setupInfo.uniformBuff destinationOffset:0 size:sizeof(uniforms)];
 }
 
-void SceneRendererMTL::setupLightBuffer(SceneMTL *scene,RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode)
+void SceneRendererMTL::setupLightBuffer(SceneMTL *scene,RendererFrameInfoMTL *frameInfo,id<MTLBlitCommandEncoder> bltEncode)
 {
+    SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
+
     WhirlyKitShader::Lighting lighting;
     lighting.numLights = lights.size();
     for (unsigned int ii=0;ii<lighting.numLights;ii++) {
@@ -242,7 +251,10 @@ void SceneRendererMTL::setupLightBuffer(SceneMTL *scene,RendererFrameInfoMTL *fr
     CopyIntoMtlFloat4(lighting.mat.specular,defaultMat.getSpecular());
     lighting.mat.specularExponent = defaultMat.getSpecularExponent();
     
-    frameInfo->lightingBuff = [setupInfo.mtlDevice newBufferWithBytes:&lighting length:sizeof(lighting) options:MTLStorageModeShared];
+    // Copy this to a buffer and then blit that buffer into place
+    // TODO: Try to reuse these
+    id<MTLBuffer> buff = [setupInfo.mtlDevice newBufferWithBytes:&lighting length:sizeof(lighting) options:MTLResourceStorageModeShared];
+    [bltEncode copyFromBuffer:buff sourceOffset:0 toBuffer:sceneRender->setupInfo.lightingBuff destinationOffset:0 size:sizeof(lighting)];
 }
     
 void SceneRendererMTL::setupDrawStateA(WhirlyKitShader::UniformDrawStateA &drawState,RendererFrameInfoMTL *frameInfo)
@@ -476,7 +488,7 @@ void SceneRendererMTL::render(TimeInterval duration,
         offFrameInfo.pvMat4d = pvMat;
         offFrameInfos.push_back(offFrameInfo);
     }
-
+    
     // Workgroups force us to draw things in order
     for (auto &workGroup : workGroups) {
         if (perfInterval > 0)
@@ -500,16 +512,18 @@ void SceneRendererMTL::render(TimeInterval duration,
 
             // Each render target needs its own buffer and command queue
             id<MTLCommandBuffer> cmdBuff = [cmdQueue commandBuffer];
-
-            // Some of the drawables want memory copied before they draw
-            // TODO: Check with them before creating the encoder
-//            id<MTLBlitCommandEncoder> bltEncode = [cmdBuff blitCommandEncoder];
-//            for (auto &draw : targetContainer->drawables) {
-//                DrawableMTL *drawMTL = dynamic_cast<DrawableMTL *>(draw.get());
-//                drawMTL->blitMemory(&baseFrameInfo,bltEncode,scene);
-//            }
-//            [bltEncode endEncoding];
             
+            // Ask all the drawables to set themselves up.  Mostly memory stuff.
+            id<MTLBlitCommandEncoder> bltEncode = [cmdBuff blitCommandEncoder];
+            ResourceRefsMTL resources;
+            for (auto &draw : targetContainer->drawables) {
+                DrawableMTL *drawMTL = dynamic_cast<DrawableMTL *>(draw.get());
+                drawMTL->preProcess(&baseFrameInfo, cmdBuff, bltEncode, scene, resources);
+            }
+            // TODO: Just set this up once and copy it into position
+            setupLightBuffer(sceneMTL,&baseFrameInfo,bltEncode);
+            [bltEncode endEncoding];
+                        
             // If we're forcing a mipmap calculation, then we're just going to use this render target once
             // If not, then we run some program over it multiple times
             // TODO: Make the reduce operation more explicit
@@ -518,6 +532,13 @@ void SceneRendererMTL::render(TimeInterval duration,
                 numLevels = 1;
 
             for (unsigned int level=0;level<numLevels;level++) {
+                
+                // Regular uniforms are per level, unfortunately
+                // Set up and then copied into place
+                id<MTLBlitCommandEncoder> bltEncode = [cmdBuff blitCommandEncoder];
+                // TODO: Just set this up once and copy it into position
+                setupUniformBuffer(&baseFrameInfo,bltEncode,scene->getCoordAdapter(),level);
+                [bltEncode endEncoding];
 
                 // Set up the encoder
                 id<MTLRenderCommandEncoder> cmdEncode = nil;
@@ -531,6 +552,10 @@ void SceneRendererMTL::render(TimeInterval duration,
                     baseFrameInfo.renderPassDesc = renderTarget->getRenderPassDesc(level);
                 }
                 cmdEncode = [cmdBuff renderCommandEncoderWithDescriptor:baseFrameInfo.renderPassDesc];
+
+                // Wire up all the resources we need to use
+                // These are buffers created or used by the various drawables
+                resources.use(cmdEncode);
 
                 // Just run the calculation portion
                 if (workGroup->groupType == WorkGroup::Calculation) {
@@ -553,10 +578,6 @@ void SceneRendererMTL::render(TimeInterval duration,
                         // Tweakers probably not necessary, but who knows
                         draw->runTweakers(&baseFrameInfo);
                         
-                        // Regular uniforms
-                        // TODO: Can we do this just once?
-                        setupUniformBuffer(&baseFrameInfo,cmdEncode,scene->getCoordAdapter(),level);
-
                         // Run the calculation phase
                         drawMTL->calculate(&baseFrameInfo,cmdEncode,scene);
                     }
@@ -568,9 +589,6 @@ void SceneRendererMTL::render(TimeInterval duration,
 
                     bool lastZBufferWrite = zBufferWrite;
                     bool lastZBufferRead = zBufferRead;
-
-                    // TODO: Set this up once and reuse the buffer
-                    setupLightBuffer(sceneMTL,&baseFrameInfo,cmdEncode);
 
                     // Backface culling on by default
                     // Note: Would like to not set this every time
@@ -646,9 +664,6 @@ void SceneRendererMTL::render(TimeInterval duration,
                                 baseFrameInfo.viewAndModelMat = Matrix4dToMatrix4f(modelAndViewMat4d);
                                 baseFrameInfo.viewModelNormalMat = Matrix4dToMatrix4f(modelAndViewNormalMat4d);
                             }
-
-                            // TODO: Try to do this once rather than per drawable
-                            setupUniformBuffer(&baseFrameInfo,cmdEncode,scene->getCoordAdapter(),level);
                             
                             baseFrameInfo.program = program;
                             

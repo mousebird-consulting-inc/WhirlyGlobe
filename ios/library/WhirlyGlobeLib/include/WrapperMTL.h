@@ -32,6 +32,11 @@ public:
     RenderSetupInfoMTL(Scene *scene);
     
     id<MTLDevice> mtlDevice;
+
+    // Buffers created for shared uniforms.
+    // Wired into the various drawables individually
+    id<MTLBuffer> uniformBuff;
+    id<MTLBuffer> lightingBuff;
 };
 
     

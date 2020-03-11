@@ -58,11 +58,9 @@ public:
     MTLRenderPassDescriptor *renderPassDesc;
     // Current render target
     RenderTargetMTL *renderTarget;
-    
-    // Buffers created for shared uniforms.
-    // Wired into the various drawables individually
-    id<MTLBuffer> uniformBuff;
-    id<MTLBuffer> lightingBuff;
+
+    id<MTLBlitCommandEncoder> bltEncode;
+    id<MTLRenderCommandEncoder> cmdEncode;    
 };
 
 /// Copy one of our matrices into Metal format
@@ -138,10 +136,10 @@ public:
     virtual DynamicTextureRef makeDynamicTexture(const std::string &name) const;
     
     /// Set up the buffer for general uniforms and attach it to its vertex/fragment buffers
-    void setupUniformBuffer(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,CoordSystemDisplayAdapter *coordAdapter,int texLevel);
+    void setupUniformBuffer(RendererFrameInfoMTL *frameInfo, id<MTLBlitCommandEncoder> bltEncode,CoordSystemDisplayAdapter *coordAdapter,int texLevel);
 
     /// Set the lights and tie them to a vertex buffer index
-    void setupLightBuffer(SceneMTL *scene,RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode);
+    void setupLightBuffer(SceneMTL *scene,RendererFrameInfoMTL *frameInfo,id<MTLBlitCommandEncoder> bltEncode);
     
     // Apply the various defaults to DrawStateA
     void setupDrawStateA(WhirlyKitShader::UniformDrawStateA &drawState,RendererFrameInfoMTL *frameInfo);

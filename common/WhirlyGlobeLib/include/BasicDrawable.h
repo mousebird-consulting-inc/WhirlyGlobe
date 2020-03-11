@@ -45,7 +45,16 @@ class BasicDrawable : virtual public Drawable
 friend class BasicDrawableInstance;
 friend class BasicDrawableInstanceBuilder;
 friend class BasicDrawableBuilder;
-
+friend class WideVectorDrawableBuilder;
+friend class WideVectorDrawableBuilderMTL;
+friend class ShapeManager;
+friend class ScreenSpaceDrawableBuilderMTL;
+friend class BasicDrawableInstanceGLES;
+friend class BasicDrawableInstanceMTL;
+friend class BillboardDrawableBuilderMTL;
+friend class BasicDrawableBuilderGLES;
+friend class BasicDrawableBuilderMTL;
+    
 public:
     /// Simple triangle.  Can obviously only have 2^16 vertices
     class Triangle
@@ -180,7 +189,7 @@ public:
     virtual SimpleIdentity getProgram() const;
     void setProgram(SimpleIdentity progId);
     
-public:
+protected:
     GeometryType type;
     bool on;  // If set, draw.  If not, not
     TimeInterval startEnable,endEnable;
@@ -225,6 +234,11 @@ public:
         
     // If set the geometry is already in OpenGL clip coordinates, so no transform
     bool clipCoords;
+    
+    // Set if we changed one of the general values (presumably during execution)
+    bool valuesChanged;
+    // Set if the textures changed
+    bool texturesChanged;
 };
 
 /** Drawable Tweaker that cycles through textures.

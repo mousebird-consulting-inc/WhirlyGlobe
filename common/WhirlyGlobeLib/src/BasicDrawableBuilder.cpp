@@ -81,6 +81,9 @@ void BasicDrawableBuilder::Init()
     basicDraw->clipCoords = false;
     
     basicDraw->hasMatrix = false;
+    
+    basicDraw->valuesChanged = true;
+    basicDraw->texturesChanged = true;
 }
     
 void BasicDrawableBuilder::setupStandardAttributes(int numReserve)

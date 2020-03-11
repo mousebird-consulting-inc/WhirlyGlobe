@@ -182,6 +182,15 @@ void ParticleSystemDrawableMTL::bindParticleUniforms(RendererFrameInfoMTL *frame
 //    [cmdEncode setFragmentBytes:&uniPart length:sizeof(uniPart) atIndex:WKSUniformDrawStateParticleBuffer];
 }
 
+void ParticleSystemDrawableMTL::preProcess(RendererFrameInfoMTL *frameInfo,
+                                            id<MTLCommandBuffer> cmdBuff,
+                                            id<MTLBlitCommandEncoder> bltEncode,
+                                            Scene *inScene,
+                                            ResourceRefsMTL &resources)
+{
+    
+}
+
 void ParticleSystemDrawableMTL::calculate(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *inScene)
 {
     SceneMTL *scene = (SceneMTL *)inScene;

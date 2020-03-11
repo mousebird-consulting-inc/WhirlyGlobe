@@ -42,12 +42,20 @@ public:
     /// Clean up any rendering objects you may have (e.g. VBOs).
     virtual void teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene);
     
-    /// We use the calculation step to set up indirect rendering when we're doing that
-    virtual void calculate(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> frameEncode,Scene *scene);
-    
+    // An all-purpose pre-render that sets up textures, uniforms and such in preparation for rendering
+    // Also adds to the list of resources being used by this drawable
+    void preProcess(RendererFrameInfoMTL *frameInfo,
+                    id<MTLCommandBuffer> cmdBuff,
+                    id<MTLBlitCommandEncoder> bltEncode,
+                    Scene *inScene,
+                    ResourceRefsMTL &resources);
+
     /// Fill this in to draw the basic drawable
     virtual void draw(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene);
-    
+
+    /// Some drawables have a pre-render phase that uses the GPU for calculation
+    virtual void calculate(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene);
+
 protected:
     id<MTLBuffer> encodeArgumentBuffer(SceneMTL *scene,RendererFrameInfoMTL *frameInfo,id<MTLFunction> func,int bufferIndex,std::set< id<MTLBuffer> > &buffers,std::set< id<MTLTexture> > &textures);
     id<MTLRenderPipelineState> getRenderPipelineState(SceneRendererMTL *sceneRender,RendererFrameInfoMTL *frameInfo,BasicDrawableMTL *basicDrawMTL);

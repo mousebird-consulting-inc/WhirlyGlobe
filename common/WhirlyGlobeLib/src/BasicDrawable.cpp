@@ -53,6 +53,8 @@ BasicDrawable::~BasicDrawable()
 
 void BasicDrawable::setTexRelative(int which,int size,int borderTexel,int relLevel,int relX,int relY)
 {
+    texturesChanged = true;
+    
     if (which >= texInfo.size())
         return;
     
@@ -71,6 +73,8 @@ SimpleIdentity BasicDrawable::getProgram() const
 
 void BasicDrawable::setProgram(SimpleIdentity progId)
 {
+    valuesChanged = true;
+    
     programId = progId;
 }
 
@@ -116,6 +120,8 @@ bool BasicDrawable::isOn(RendererFrameInfo *frameInfo) const
 
 void BasicDrawable::setOnOff(bool onOff)
 {
+    valuesChanged = true;
+    
     on = onOff;
 }
     
@@ -131,11 +137,15 @@ Mbr BasicDrawable::getLocalMbr() const
 
 void BasicDrawable::setDrawPriority(unsigned int newPriority)
 {
+    valuesChanged = true;
+    
     drawPriority = newPriority;
 }
     
 void BasicDrawable::setMatrix(const Eigen::Matrix4d *inMat)
 {
+    valuesChanged = true;
+
     mat = *inMat; hasMatrix = true;
 }
     
@@ -146,12 +156,16 @@ const std::vector<BasicDrawable::TexInfo> &BasicDrawable::getTexInfo()
 
 void BasicDrawable::setTexId(unsigned int which,SimpleIdentity inId)
 {
+    texturesChanged = true;
+    
     if (which >= 0 && which < texInfo.size())
         texInfo[which].texId = inId;
 }
 
 void BasicDrawable::setTexIDs(const std::vector<SimpleIdentity> &texIDs)
 {
+    texturesChanged = true;
+
     for (unsigned int ii=0;ii<std::min(texIDs.size(),texInfo.size());ii++)
     {
         texInfo[ii].texId = texIDs[ii];
@@ -160,40 +174,65 @@ void BasicDrawable::setTexIDs(const std::vector<SimpleIdentity> &texIDs)
     
 void BasicDrawable::setOverrideColor(RGBAColor inColor)
 {
+    valuesChanged = true;
+
     color = inColor;
     hasOverrideColor = true;
 }
 
 void BasicDrawable::setOverrideColor(unsigned char inColor[])
 {
+    valuesChanged = true;
+
     color.r = inColor[0];  color.g = inColor[1];  color.b = inColor[2];  color.a = inColor[3];
     hasOverrideColor = true;
 }
 
 void BasicDrawable::setVisibleRange(float minVis,float maxVis,float minVisBand,float maxVisBand)
-{ minVisible = minVis;  maxVisible = maxVis;  minVisibleFadeBand = minVisBand; maxVisibleFadeBand = maxVisBand; }
+{
+    valuesChanged = true;
+
+    minVisible = minVis;  maxVisible = maxVis;  minVisibleFadeBand = minVisBand; maxVisibleFadeBand = maxVisBand;
+}
     
 void BasicDrawable::setViewerVisibility(double inMinViewerDist,double inMaxViewerDist,const Point3d &inViewerCenter)
 {
+    valuesChanged = true;
+
     minViewerDist = inMinViewerDist;
     maxViewerDist = inMaxViewerDist;
     viewerCenter = inViewerCenter;
 }
 
 void BasicDrawable::setFade(TimeInterval inFadeDown,TimeInterval inFadeUp)
-{ fadeUp = inFadeUp;  fadeDown = inFadeDown; }
+{
+    valuesChanged = true;
+    
+    fadeUp = inFadeUp;  fadeDown = inFadeDown;
+}
 
 void BasicDrawable::setLineWidth(float inWidth)
-{ lineWidth = inWidth; }
+{
+    valuesChanged = true;
+
+    lineWidth = inWidth;
+}
 
 void BasicDrawable::setRequestZBuffer(bool val)
-{ requestZBuffer = val; }
+{
+    valuesChanged = true;
+
+    requestZBuffer = val;
+}
 
 bool BasicDrawable::getRequestZBuffer() const
 { return requestZBuffer; }
 
 void BasicDrawable::setWriteZBuffer(bool val)
-{ writeZBuffer = val; }
+{
+    valuesChanged = true;
+    writeZBuffer = val;
+}
 
 bool BasicDrawable::getWriteZbuffer() const
 { return writeZBuffer; }
@@ -205,6 +244,8 @@ SimpleIdentity BasicDrawable::getRenderTarget() const
     
 void BasicDrawable::setRenderTarget(SimpleIdentity newRenderTarget)
 {
+    valuesChanged = true;
+
     renderTargetID = newRenderTarget;
 }
     
@@ -236,11 +277,15 @@ const Eigen::Matrix4d *BasicDrawable::getMatrix() const
     
 void BasicDrawable::setUniforms(const SingleVertexAttributeSet &newUniforms)
 {
+    valuesChanged = true;
+
     uniforms = newUniforms;
 }
     
 void BasicDrawable::setUniBlock(const UniformBlock &uniBlock)
 {
+    valuesChanged = true;
+
     for (int ii=0;ii<uniBlocks.size();ii++)
         if (uniBlocks[ii].bufferID == uniBlock.bufferID) {
             uniBlocks[ii] = uniBlock;
@@ -252,6 +297,8 @@ void BasicDrawable::setUniBlock(const UniformBlock &uniBlock)
     
 void BasicDrawable::addTweaker(DrawableTweakerRef tweak)
 {
+    valuesChanged = true;
+
     tweakers.insert(tweak);
 }
     
@@ -415,7 +462,7 @@ void DrawTexChangeRequest::execute2(Scene *scene,SceneRenderer *renderer,Drawabl
         if (refDrawable) {
             BasicDrawableRef orgDrawable = refDrawable->getMaster();
             if (orgDrawable) {
-                if (orgDrawable->texInfo.size() < which) {
+                if (orgDrawable->getTexInfo().size() < which) {
                     wkLogLevel(Error,"DrawTexChangeRequest: Asked to change texture entry that doesn't exit.");
                     return;
                 }
