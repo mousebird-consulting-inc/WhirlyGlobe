@@ -37,6 +37,38 @@ using namespace Eigen;
 
 namespace WhirlyKit
 {
+
+WorkGroupMTL::WorkGroupMTL(GroupType inGroupType)
+{
+    groupType = inGroupType;
+    
+    switch (groupType) {
+        case Calculation:
+            // For calculation we don't really have a render target
+            renderTargetContainers.push_back(makeRenderTargetContainer());
+            break;
+        case Offscreen:
+            break;
+        case ReduceOps:
+            break;
+        case ScreenRender:
+            break;
+    }
+}
+
+WorkGroupMTL::~WorkGroupMTL()
+{
+}
+
+WorkGroupMTL::RenderTargetContainerMTL::RenderTargetContainerMTL(RenderTargetRef renderTarget)
+: RenderTargetContainer(renderTarget)
+{
+}
+
+WorkGroupMTL::RenderTargetContainerRef WorkGroupMTL::makeRenderTargetContainer()
+{
+    return RenderTargetContainerRef(new RenderTargetContainerMTL(RenderTargetRef()));
+}
     
 RendererFrameInfoMTL::RendererFrameInfoMTL()
 {
@@ -52,6 +84,16 @@ SceneRendererMTL::SceneRendererMTL(id<MTLDevice> mtlDevice, float inScale)
 {
     offscreenBlendEnable = false;
     init();
+
+    // Calculation shaders
+    workGroups.push_back(WorkGroupRef(new WorkGroupMTL(WorkGroup::Calculation)));
+    // Offscreen target render group
+    workGroups.push_back(WorkGroupRef(new WorkGroupMTL(WorkGroup::Offscreen)));
+    // Middle one for weird stuff
+    workGroups.push_back(WorkGroupRef(new WorkGroupMTL(WorkGroup::ReduceOps)));
+    // Last workgroup is used for on screen rendering
+    workGroups.push_back(WorkGroupRef(new WorkGroupMTL(WorkGroup::ScreenRender)));
+
     scale = inScale;
     setupInfo.mtlDevice = mtlDevice;
     setupInfo.uniformBuff = setupInfo.heapManage.allocateBuffer(HeapManagerMTL::Drawable,sizeof(WhirlyKitShader::Uniforms));
@@ -264,19 +306,17 @@ void SceneRendererMTL::setupDrawStateA(WhirlyKitShader::UniformDrawStateA &drawS
     bzero(&drawState,sizeof(drawState));
 }
     
-MTLRenderPipelineDescriptor *SceneRendererMTL::defaultRenderPipelineState(SceneRendererMTL *sceneRender,RendererFrameInfoMTL *frameInfo)
+MTLRenderPipelineDescriptor *SceneRendererMTL::defaultRenderPipelineState(SceneRendererMTL *sceneRender,ProgramMTL *program,RenderTargetMTL *renderTarget)
 {
-    ProgramMTL *program = (ProgramMTL *)frameInfo->program;
-    
     MTLRenderPipelineDescriptor *renderDesc = [[MTLRenderPipelineDescriptor alloc] init];
     renderDesc.vertexFunction = program->vertFunc;
     renderDesc.fragmentFunction = program->fragFunc;
     
-    renderDesc.colorAttachments[0].pixelFormat = frameInfo->renderTarget->getPixelFormat();
-    if (frameInfo->renderPassDesc.depthAttachment.texture)
+    renderDesc.colorAttachments[0].pixelFormat = renderTarget->getPixelFormat();
+    if (renderTarget->getRenderPassDesc().depthAttachment.texture)
         renderDesc.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
     
-    if (frameInfo->renderTarget->blendEnable) {
+    if (renderTarget->blendEnable) {
         renderDesc.colorAttachments[0].blendingEnabled = true;
         renderDesc.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
         renderDesc.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
@@ -286,6 +326,10 @@ MTLRenderPipelineDescriptor *SceneRendererMTL::defaultRenderPipelineState(SceneR
         renderDesc.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
     } else {
         renderDesc.colorAttachments[0].blendingEnabled = false;
+    }
+    
+    if (@available(iOS 13.0, *)) {
+        renderDesc.supportIndirectCommandBuffers = true;
     }
     
     return renderDesc;
@@ -299,6 +343,129 @@ void SceneRendererMTL::addSnapshotDelegate(NSObject<WhirlyKitSnapshot> *newDeleg
 void SceneRendererMTL::removeSnapshotDelegate(NSObject<WhirlyKitSnapshot> *oldDelegate)
 {
     snapshotDelegates.erase(std::remove(snapshotDelegates.begin(), snapshotDelegates.end(), oldDelegate), snapshotDelegates.end());
+}
+
+void SceneRendererMTL::updateWorkGroups(RendererFrameInfo *frameInfo)
+{
+    SceneRenderer::updateWorkGroups(frameInfo);
+    
+    // Build the indirect command buffers if they're available
+    if (@available(iOS 13.0, *)) {
+        for (auto &workGroup : workGroups) {
+            for (auto targetContainer : workGroup->renderTargetContainers) {
+                if (targetContainer->drawables.empty() || !targetContainer->modified)
+                    continue;
+                WorkGroupMTL::RenderTargetContainerMTL *targetContainerMTL = static_cast<WorkGroupMTL::RenderTargetContainerMTL *>(targetContainer.get());
+                targetContainerMTL->drawGroups.clear();
+
+                RenderTargetMTLRef renderTarget;
+                if (!targetContainer->renderTarget) {
+                    // Need some sort of render target even if we're not really rendering
+                    renderTarget = std::dynamic_pointer_cast<RenderTargetMTL>(renderTargets.back());
+                } else {
+                    renderTarget = std::dynamic_pointer_cast<RenderTargetMTL>(targetContainer->renderTarget);
+                }
+
+                // Sort the drawables into draw groups by Z buffer usage
+                WorkGroupMTL::DrawGroupMTLRef drawGroup;
+                bool dgZBufferRead = false, dgZBufferWrite = false;
+                for (auto draw : targetContainer->drawables) {
+                    DrawableMTL *drawMTL = dynamic_cast<DrawableMTL *>(draw.get());
+                    
+                    // Sort out what the zbuffer should be
+                    bool zBufferWrite = (zBufferMode == zBufferOn);
+                    bool zBufferRead = (zBufferMode == zBufferOn);
+                    if (renderTarget->getTex() != nil) {
+                        // Off screen render targets don't like z buffering
+                        zBufferRead = false;
+                        zBufferWrite = false;
+                    } else {
+                        // The drawable itself gets a say
+                        zBufferRead = drawMTL->getRequestZBuffer();
+                        zBufferWrite = drawMTL->getWriteZbuffer();
+                    }
+
+                    // If this isn't compatible with the draw group, create a new one
+                    if (!drawGroup || zBufferRead != dgZBufferRead || zBufferWrite != dgZBufferWrite) {
+                        // It's not, so we need to make a new draw group
+                        drawGroup = WorkGroupMTL::DrawGroupMTLRef(new WorkGroupMTL::DrawGroupMTL());
+
+                        // Depth stencil, which goes in the command encoder later
+                        MTLDepthStencilDescriptor *depthDesc = [[MTLDepthStencilDescriptor alloc] init];
+                        if (zBufferRead)
+                            depthDesc.depthCompareFunction = MTLCompareFunctionLess;
+                        else
+                            depthDesc.depthCompareFunction = MTLCompareFunctionAlways;
+                        depthDesc.depthWriteEnabled = zBufferWrite;
+                        
+                        drawGroup->depthStencil = [setupInfo.mtlDevice newDepthStencilStateWithDescriptor:depthDesc];
+                        
+                        targetContainerMTL->drawGroups.push_back(drawGroup);
+                    }
+                    drawGroup->drawables.push_back(draw);
+                }
+
+                // Command buffer description should be the same
+                MTLIndirectCommandBufferDescriptor *cmdBuffDesc = [[MTLIndirectCommandBufferDescriptor alloc] init];
+                cmdBuffDesc.commandTypes = MTLIndirectCommandTypeDraw | MTLIndirectCommandTypeDrawIndexed;
+                cmdBuffDesc.inheritBuffers = false;
+                if (@available(iOS 13.0, *)) {
+                    cmdBuffDesc.inheritPipelineState = false;
+                }
+                cmdBuffDesc.maxVertexBufferBindCount = 8;
+                cmdBuffDesc.maxFragmentBufferBindCount = 3;
+
+                // Build up indirect buffers for each draw group
+                int curCommand = 0;
+                for (auto drawGroup : targetContainerMTL->drawGroups) {
+                    drawGroup->numCommands = drawGroup->drawables.size();
+                    drawGroup->indCmdBuff = [setupInfo.mtlDevice newIndirectCommandBufferWithDescriptor:cmdBuffDesc maxCommandCount:drawGroup->numCommands options:MTLResourceStorageModeShared];
+
+                    // Just run the calculation portion
+                    if (workGroup->groupType == WorkGroup::Calculation) {
+                        // Work through the drawables
+                        for (auto &draw : targetContainer->drawables) {
+                            DrawableMTL *drawMTL = dynamic_cast<DrawableMTL *>(draw.get());
+                            SimpleIdentity calcProgID = drawMTL->getCalculationProgram();
+                            
+                            // Figure out the program to use for drawing
+                            if (calcProgID == EmptyIdentity)
+                                continue;
+                            ProgramMTL *calcProgram = (ProgramMTL *)scene->getProgram(calcProgID);
+                            if (!calcProgram) {
+                                NSLog(@"Invalid calculation program for drawable.  Skipping.");
+                                continue;
+                            }
+                            
+                            id<MTLIndirectRenderCommand> cmdEncode = [drawGroup->indCmdBuff indirectRenderCommandAtIndex:curCommand++];
+                            drawMTL->encodeInirectCalculate(cmdEncode,this,scene,renderTarget.get());
+                        }
+                    } else {
+                        // Work through the drawables
+                        for (auto &draw : targetContainer->drawables) {
+                            DrawableMTL *drawMTL = dynamic_cast<DrawableMTL *>(draw.get());
+
+                            // Figure out the program to use for drawing
+                            SimpleIdentity drawProgramId = drawMTL->getProgram();
+                            ProgramMTL *program = (ProgramMTL *)scene->getProgram(drawProgramId);
+                            if (!program) {
+                                wkLogLevel(Error, "SceneRendererMTL: Drawable without Program");
+                                continue;
+                            }
+                            
+                            id<MTLIndirectRenderCommand> cmdEncode = [drawGroup->indCmdBuff indirectRenderCommandAtIndex:curCommand++];
+
+                            // TODO: Handle the offset matrices by encoding twice
+
+                            drawMTL->encodeIndirect(cmdEncode,this,scene,renderTarget.get());
+                        }
+                    }
+                }
+                
+                targetContainer->modified = false;
+            }
+        }
+    }
 }
 
 void SceneRendererMTL::render(TimeInterval duration,
@@ -357,8 +524,9 @@ void SceneRendererMTL::render(TimeInterval duration,
     if (perfInterval > 0)
         perfTimer.stopTiming("Render Setup");
 
-    // Note: Make this more general
-    auto defaultTarget = renderTargets.back();
+    RenderTargetMTL *defaultTarget = (RenderTargetMTL *)renderTargets.back().get();
+    if (renderPassDesc)
+        defaultTarget->setRenderPassDesc(renderPassDesc);
     auto clearColor = defaultTarget->clearColor;
     renderPassDesc.colorAttachments[0].clearColor = MTLClearColorMake(clearColor[0],clearColor[1],clearColor[2],clearColor[3]);
 
@@ -490,6 +658,8 @@ void SceneRendererMTL::render(TimeInterval duration,
         offFrameInfos.push_back(offFrameInfo);
     }
     
+    bool indirectRender = true;
+        
     // Workgroups force us to draw things in order
     for (auto &workGroup : workGroups) {
         if (perfInterval > 0)
@@ -498,6 +668,7 @@ void SceneRendererMTL::render(TimeInterval duration,
         for (auto &targetContainer : workGroup->renderTargetContainers) {
             if (targetContainer->drawables.empty())
                 continue;
+            WorkGroupMTL::RenderTargetContainerMTL *targetContainerMTL = (WorkGroupMTL::RenderTargetContainerMTL *)targetContainer.get();
             
             RenderTargetMTLRef renderTarget;
             if (!targetContainer->renderTarget) {
@@ -533,7 +704,6 @@ void SceneRendererMTL::render(TimeInterval duration,
                 numLevels = 1;
 
             for (unsigned int level=0;level<numLevels;level++) {
-                
                 // Regular uniforms are per level, unfortunately
                 // Set up and then copied into place
                 id<MTLBlitCommandEncoder> bltEncode = [cmdBuff blitCommandEncoder];
@@ -558,137 +728,144 @@ void SceneRendererMTL::render(TimeInterval duration,
                 // These are buffers created or used by the various drawables
                 resources.use(cmdEncode);
 
-                // Just run the calculation portion
-                if (workGroup->groupType == WorkGroup::Calculation) {
-                    // Work through the drawables
-                    for (auto &draw : targetContainer->drawables) {
-                        DrawableMTL *drawMTL = dynamic_cast<DrawableMTL *>(draw.get());
-                        SimpleIdentity calcProgID = drawMTL->getCalculationProgram();
-                        
-                        // Figure out the program to use for drawing
-                        if (calcProgID == EmptyIdentity)
-                            continue;
-
-                        ProgramMTL *calcProgram = (ProgramMTL *)scene->getProgram(calcProgID);
-                        if (!calcProgram) {
-                            NSLog(@"Invalid calculation program for drawable.  Skipping.");
-                            continue;
+                if (indirectRender) {
+                    if (@available(iOS 12.0, *)) {
+                        for (auto drawGroup : targetContainerMTL->drawGroups) {
+                            if (drawGroup->numCommands > 0)
+                                    [cmdEncode executeCommandsInBuffer:drawGroup->indCmdBuff withRange:NSMakeRange(0,drawGroup->numCommands)];
                         }
-                        baseFrameInfo.program = calcProgram;
-                        
-                        // Tweakers probably not necessary, but who knows
-                        draw->runTweakers(&baseFrameInfo);
-                        
-                        // Run the calculation phase
-                        drawMTL->calculate(&baseFrameInfo,cmdEncode,scene);
                     }
                 } else {
-                    // Keep track of state changes for z buffer state
-                    bool firstDepthState = true;
-                    bool zBufferWrite = (zBufferMode == zBufferOn);
-                    bool zBufferRead = (zBufferMode == zBufferOn);
+                    // Just run the calculation portion
+                    if (workGroup->groupType == WorkGroup::Calculation) {
+                        // Work through the drawables
+                        for (auto &draw : targetContainer->drawables) {
+                            DrawableMTL *drawMTL = dynamic_cast<DrawableMTL *>(draw.get());
+                            SimpleIdentity calcProgID = drawMTL->getCalculationProgram();
+                            
+                            // Figure out the program to use for drawing
+                            if (calcProgID == EmptyIdentity)
+                                continue;
 
-                    bool lastZBufferWrite = zBufferWrite;
-                    bool lastZBufferRead = zBufferRead;
-
-                    // Backface culling on by default
-                    // Note: Would like to not set this every time
-                    [cmdEncode setCullMode:MTLCullModeFront];
-                    
-                    // Work through the drawables
-                    for (auto &draw : targetContainer->drawables) {
-                        DrawableMTL *drawMTL = dynamic_cast<DrawableMTL *>(draw.get());
-
-                        // Figure out the program to use for drawing
-                        SimpleIdentity drawProgramId = drawMTL->getProgram();
-                        ProgramMTL *program = (ProgramMTL *)scene->getProgram(drawProgramId);
-                        if (!program) {
-                            wkLogLevel(Error, "SceneRendererMTL: Drawable without Program");
-                            continue;
+                            ProgramMTL *calcProgram = (ProgramMTL *)scene->getProgram(calcProgID);
+                            if (!calcProgram) {
+                                NSLog(@"Invalid calculation program for drawable.  Skipping.");
+                                continue;
+                            }
+                            baseFrameInfo.program = calcProgram;
+                            
+                            // Tweakers probably not necessary, but who knows
+                            draw->runTweakers(&baseFrameInfo);
+                            
+                            // Run the calculation phase
+                            drawMTL->encodeDirectCalculate(&baseFrameInfo,cmdEncode,scene);
                         }
+                    } else {
+                        // Keep track of state changes for z buffer state
+                        bool firstDepthState = true;
+                        bool zBufferWrite = (zBufferMode == zBufferOn);
+                        bool zBufferRead = (zBufferMode == zBufferOn);
 
-                        // For a reduce operation, we want to draw into the first level of the render
-                        //  target texture and then run the reduce over the rest of those levels
-                        if (level > 0 && program->getReduceMode() == Program::None)
-                            continue;
+                        bool lastZBufferWrite = zBufferWrite;
+                        bool lastZBufferRead = zBufferRead;
 
-                        // For this mode we turn the z buffer off until we get a request to turn it on
-                        zBufferRead = drawMTL->getRequestZBuffer();
+                        // Backface culling on by default
+                        // Note: Would like to not set this every time
+                        [cmdEncode setCullMode:MTLCullModeFront];
                         
-                        // If we're drawing lines or points we don't want to update the z buffer
-                        zBufferWrite = drawMTL->getWriteZbuffer();
-                        
-                        // Off screen render targets don't like z buffering
-                        if (renderTarget->getTex() != nil) {
-                            zBufferRead = false;
-                            zBufferWrite = false;
-                        }
-                        
-                        // TODO: Optimize this a bit
-                        if (firstDepthState ||
-                            (zBufferRead != lastZBufferRead) ||
-                            (zBufferWrite != lastZBufferWrite)) {
-                            
-                            MTLDepthStencilDescriptor *depthDesc = [[MTLDepthStencilDescriptor alloc] init];
-                            if (zBufferRead)
-                                depthDesc.depthCompareFunction = MTLCompareFunctionLess;
-                            else
-                                depthDesc.depthCompareFunction = MTLCompareFunctionAlways;
-                            depthDesc.depthWriteEnabled = zBufferWrite;
-                            
-                            lastZBufferRead = zBufferRead;
-                            lastZBufferWrite = zBufferWrite;
-                            
-                            id<MTLDepthStencilState> depthStencil = [mtlDevice newDepthStencilStateWithDescriptor:depthDesc];
-                            
-                            [cmdEncode setDepthStencilState:depthStencil];
-                            firstDepthState = false;
-                        }
-                        
-                        for (unsigned int off=0;off<offFrameInfos.size();off++) {
-                            // Set up transforms to use right now
-                            Matrix4d &thisMvpMat = mvpMats[off];
-                            const Matrix4d *localMat = drawMTL->getMatrix();
-                            if (localMat)
-                            {
-                                Eigen::Matrix4d newMvpMat = projMat4d * viewTrans4d * offsetMats[off] * modelTrans4d * (*localMat);
-                                Eigen::Matrix4d newMvMat = viewTrans4d * offsetMats[off] * modelTrans4d * (*localMat);
-                                Eigen::Matrix4d newMvNormalMat = newMvMat.inverse().transpose();
+                        // Work through the drawables
+                        for (auto &draw : targetContainer->drawables) {
+                            DrawableMTL *drawMTL = dynamic_cast<DrawableMTL *>(draw.get());
 
-                                baseFrameInfo.mvpMat = Matrix4dToMatrix4f(newMvpMat);
-                                baseFrameInfo.mvpInvMat = Matrix4dToMatrix4f(newMvpMat.inverse());
-                                baseFrameInfo.viewAndModelMat = Matrix4dToMatrix4f(newMvMat);
-                                baseFrameInfo.viewModelNormalMat = Matrix4dToMatrix4f(newMvNormalMat);
-                            } else {
-                                baseFrameInfo.mvpMat = Matrix4dToMatrix4f(thisMvpMat);
-                                baseFrameInfo.mvpInvMat = Matrix4dToMatrix4f(thisMvpMat.inverse());
-                                baseFrameInfo.viewAndModelMat = Matrix4dToMatrix4f(modelAndViewMat4d);
-                                baseFrameInfo.viewModelNormalMat = Matrix4dToMatrix4f(modelAndViewNormalMat4d);
+                            // Figure out the program to use for drawing
+                            SimpleIdentity drawProgramId = drawMTL->getProgram();
+                            ProgramMTL *program = (ProgramMTL *)scene->getProgram(drawProgramId);
+                            if (!program) {
+                                wkLogLevel(Error, "SceneRendererMTL: Drawable without Program");
+                                continue;
+                            }
+
+                            // For a reduce operation, we want to draw into the first level of the render
+                            //  target texture and then run the reduce over the rest of those levels
+                            if (level > 0 && program->getReduceMode() == Program::None)
+                                continue;
+
+                            // For this mode we turn the z buffer off until we get a request to turn it on
+                            zBufferRead = drawMTL->getRequestZBuffer();
+                            
+                            // If we're drawing lines or points we don't want to update the z buffer
+                            zBufferWrite = drawMTL->getWriteZbuffer();
+                            
+                            // Off screen render targets don't like z buffering
+                            if (renderTarget->getTex() != nil) {
+                                zBufferRead = false;
+                                zBufferWrite = false;
                             }
                             
-                            baseFrameInfo.program = program;
+                            // TODO: Optimize this a bit
+                            if (firstDepthState ||
+                                (zBufferRead != lastZBufferRead) ||
+                                (zBufferWrite != lastZBufferWrite)) {
+                                
+                                MTLDepthStencilDescriptor *depthDesc = [[MTLDepthStencilDescriptor alloc] init];
+                                if (zBufferRead)
+                                    depthDesc.depthCompareFunction = MTLCompareFunctionLess;
+                                else
+                                    depthDesc.depthCompareFunction = MTLCompareFunctionAlways;
+                                depthDesc.depthWriteEnabled = zBufferWrite;
+                                
+                                lastZBufferRead = zBufferRead;
+                                lastZBufferWrite = zBufferWrite;
+                                
+                                id<MTLDepthStencilState> depthStencil = [mtlDevice newDepthStencilStateWithDescriptor:depthDesc];
+                                
+                                [cmdEncode setDepthStencilState:depthStencil];
+                                firstDepthState = false;
+                            }
                             
-                            // Activate the program
-                            program->addResources(&baseFrameInfo, cmdEncode, sceneMTL);
-                        
-                            // Run any tweakers right here
-                            drawMTL->runTweakers(&baseFrameInfo);
+                            for (unsigned int off=0;off<offFrameInfos.size();off++) {
+                                // Set up transforms to use right now
+                                Matrix4d &thisMvpMat = mvpMats[off];
+                                const Matrix4d *localMat = drawMTL->getMatrix();
+                                if (localMat)
+                                {
+                                    Eigen::Matrix4d newMvpMat = projMat4d * viewTrans4d * offsetMats[off] * modelTrans4d * (*localMat);
+                                    Eigen::Matrix4d newMvMat = viewTrans4d * offsetMats[off] * modelTrans4d * (*localMat);
+                                    Eigen::Matrix4d newMvNormalMat = newMvMat.inverse().transpose();
+
+                                    baseFrameInfo.mvpMat = Matrix4dToMatrix4f(newMvpMat);
+                                    baseFrameInfo.mvpInvMat = Matrix4dToMatrix4f(newMvpMat.inverse());
+                                    baseFrameInfo.viewAndModelMat = Matrix4dToMatrix4f(newMvMat);
+                                    baseFrameInfo.viewModelNormalMat = Matrix4dToMatrix4f(newMvNormalMat);
+                                } else {
+                                    baseFrameInfo.mvpMat = Matrix4dToMatrix4f(thisMvpMat);
+                                    baseFrameInfo.mvpInvMat = Matrix4dToMatrix4f(thisMvpMat.inverse());
+                                    baseFrameInfo.viewAndModelMat = Matrix4dToMatrix4f(modelAndViewMat4d);
+                                    baseFrameInfo.viewModelNormalMat = Matrix4dToMatrix4f(modelAndViewNormalMat4d);
+                                }
+                                
+                                baseFrameInfo.program = program;
+                                
+                                // Activate the program
+                                program->addResources(&baseFrameInfo, cmdEncode, sceneMTL);
                             
-                            // "Draw" using the given program
-                            drawMTL->draw(&baseFrameInfo,cmdEncode,scene);
-                            
-                            // If we had a local matrix, set the frame info back to the general one
-                            //            if (localMat)
-                            //                offFrameInfo.mvpMat = mvpMat;
-                            
-                            numDrawables++;
+                                // Run any tweakers right here
+                                drawMTL->runTweakers(&baseFrameInfo);
+                                
+                                // "Draw" using the given program
+                                drawMTL->encodeDirect(&baseFrameInfo,cmdEncode,scene);
+                                
+                                // If we had a local matrix, set the frame info back to the general one
+                                //            if (localMat)
+                                //                offFrameInfo.mvpMat = mvpMat;
+                                
+                                numDrawables++;
+                            }
                         }
                     }
                 }
                 
                 [cmdEncode endEncoding];
-                
-                
             }
             
             // Some render targets like to do extra work on their images

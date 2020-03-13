@@ -55,7 +55,7 @@ WorkGroup::WorkGroup(GroupType groupType) : groupType(groupType)
     switch (groupType) {
         case Calculation:
             // For calculation we don't really have a render target
-            renderTargetContainers.push_back(RenderTargetContainerRef(new RenderTargetContainer(RenderTargetRef())));
+            renderTargetContainers.push_back(makeRenderTargetContainer());
             break;
         case Offscreen:
             break;
@@ -77,6 +77,17 @@ WorkGroup::~WorkGroup()
     }
 }
 
+WorkGroup::RenderTargetContainer::RenderTargetContainer(RenderTargetRef renderTarget)
+: renderTarget(renderTarget), modified(true)
+{
+    
+}
+
+WorkGroup::RenderTargetContainerRef WorkGroup::makeRenderTargetContainer()
+{
+    return RenderTargetContainerRef(new RenderTargetContainer(RenderTargetRef()));
+}
+
 bool WorkGroup::addDrawable(DrawableRef drawable)
 {
     for (auto &renderTargetCon : renderTargetContainers) {
@@ -85,6 +96,7 @@ bool WorkGroup::addDrawable(DrawableRef drawable)
         // Or if it actually matches
         if (!renderTargetCon->renderTarget || drawable->getRenderTarget() == EmptyIdentity ||
             renderTargetCon->renderTarget->getId() == drawable->getRenderTarget()) {
+            renderTargetCon->modified = true;
             renderTargetCon->drawables.insert(drawable);
             drawable->workGroupIDs.insert(getId());
             return true;
@@ -117,7 +129,9 @@ void WorkGroup::addRenderTarget(RenderTargetRef renderTarget)
             return;
         }
     
-    renderTargetContainers.push_back(RenderTargetContainerRef(new RenderTargetContainer(renderTarget)));
+    auto renderTargetContainer = makeRenderTargetContainer();
+    renderTargetContainer->renderTarget = renderTarget;
+    renderTargetContainers.push_back(renderTargetContainer);
 }
     
 SceneRenderer::SceneRenderer()
@@ -158,15 +172,6 @@ void SceneRenderer::init()
     addLight(light);
     
     lightsLastUpdated = 0.0;
-
-    // Calculation shaders
-    workGroups.push_back(WorkGroupRef(new WorkGroup(WorkGroup::Calculation)));
-    // Offscreen target render group
-    workGroups.push_back(WorkGroupRef(new WorkGroup(WorkGroup::Offscreen)));
-    // Middle one for weird stuff
-    workGroups.push_back(WorkGroupRef(new WorkGroup(WorkGroup::ReduceOps)));
-    // Last workgroup is used for on screen rendering
-    workGroups.push_back(WorkGroupRef(new WorkGroup(WorkGroup::ScreenRender)));
 }
 
 Scene *SceneRenderer::getScene()

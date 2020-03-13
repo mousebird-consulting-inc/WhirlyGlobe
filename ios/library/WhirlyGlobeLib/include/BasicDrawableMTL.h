@@ -43,19 +43,29 @@ public:
     /// Clean up any rendering objects you may have (e.g. VBOs).
     virtual void teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene);
     
-    // An all-purpose pre-render that sets up textures, uniforms and such in preparation for rendering
-    // Also adds to the list of resources being used by this drawable
+    /** An all-purpose pre-render that sets up textures, uniforms and such in preparation for rendering
+        Also adds to the list of resources being used by this drawable.
+        Both need to be done each frame.
+     */
     void preProcess(SceneRendererMTL *sceneRender,
                     id<MTLCommandBuffer> cmdBuff,
                     id<MTLBlitCommandEncoder> bltEncode,
                     SceneMTL *scene,
                     ResourceRefsMTL &resources);
 
-    /// Fill this in to draw the basic drawable
-    virtual void draw(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene);
-
     /// Some drawables have a pre-render phase that uses the GPU for calculation
-    virtual void calculate(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene) { };
+    virtual void encodeDirectCalculate(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene);
+
+    /// Draw directly, once per frame
+    virtual void encodeDirect(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene);
+    
+    /// Indirect version of calculate encoding.  Called only when things change enough to re-encode.
+    API_AVAILABLE(ios(13.0))
+    virtual void encodeInirectCalculate(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget);
+
+    /// Indirect version of regular encoding.  Called only when things change enough to re-encode.
+    API_AVAILABLE(ios(13.0))
+    virtual void encodeIndirect(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget);
 
     /// Find the vertex attribute corresponding to the given name
     VertexAttributeMTL *findVertexAttribute(int nameID);
@@ -81,7 +91,7 @@ public:
     MTLVertexDescriptor *getVertexDescriptor(id<MTLFunction> vertFunc,std::vector<AttributeDefault> &defAttrs);
     
     // Pipeline render state for the encoder
-    id<MTLRenderPipelineState> getRenderPipelineState(SceneRendererMTL *sceneRender,RendererFrameInfoMTL *frameInfo);
+    id<MTLRenderPipelineState> getRenderPipelineState(SceneRendererMTL *sceneRender,Scene *scene,ProgramMTL *program,RenderTargetMTL *renderTarget);
 
     // Set up the memory and defaults for the argument buffers (vertex, fragment, calculate)
     void setupArgBuffers(id<MTLDevice> mtlDevice,RenderSetupInfoMTL *setupInfo,SceneMTL *scene,BufferBuilderMTL &buffBuild);

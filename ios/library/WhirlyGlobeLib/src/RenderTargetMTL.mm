@@ -219,6 +219,12 @@ MTLPixelFormat RenderTargetMTL::getPixelFormat()
 {
     return pixelFormat;
 }
+
+void RenderTargetMTL::setRenderPassDesc(MTLRenderPassDescriptor *inRenderPassDesc)
+{
+    renderPassDesc.clear();
+    renderPassDesc.push_back(inRenderPassDesc);
+}
     
 MTLRenderPassDescriptor *RenderTargetMTL::getRenderPassDesc(int level)
 {

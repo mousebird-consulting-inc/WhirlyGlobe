@@ -46,7 +46,16 @@ RendererFrameInfoGLES::RendererFrameInfoGLES()
 SceneRendererGLES::SceneRendererGLES()
 {
     init();
-    extraFrameMode = false;
+
+    // Calculation shaders
+    workGroups.push_back(WorkGroupRef(new WorkGroup(WorkGroup::Calculation)));
+    // Offscreen target render group
+    workGroups.push_back(WorkGroupRef(new WorkGroup(WorkGroup::Offscreen)));
+    // Middle one for weird stuff
+    workGroups.push_back(WorkGroupRef(new WorkGroup(WorkGroup::ReduceOps)));
+    // Last workgroup is used for on screen rendering
+    workGroups.push_back(WorkGroupRef(new WorkGroup(WorkGroup::ScreenRender)));
+
     extraFrameMode = false;
 }
     

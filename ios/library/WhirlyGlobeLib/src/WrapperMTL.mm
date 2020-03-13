@@ -159,7 +159,7 @@ BufferEntryMTLRef HeapManagerMTL::allocateBuffer(HeapType heapType,void *data,si
     buffer->buffer = [buffer->heap newBufferWithLength:size options:MTLResourceStorageModeShared];
     memcpy([buffer->buffer contents], data, size);
     buffer->offset = 0;
-    
+
     return buffer;
 }
 

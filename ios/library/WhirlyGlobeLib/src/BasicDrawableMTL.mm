@@ -302,15 +302,13 @@ MTLVertexDescriptor *BasicDrawableMTL::getVertexDescriptor(id<MTLFunction> vertF
     return vertDesc;
 }
     
-id<MTLRenderPipelineState> BasicDrawableMTL::getRenderPipelineState(SceneRendererMTL *sceneRender,RendererFrameInfoMTL *frameInfo)
+id<MTLRenderPipelineState> BasicDrawableMTL::getRenderPipelineState(SceneRendererMTL *sceneRender,Scene *scene,ProgramMTL *program,RenderTargetMTL *renderTarget)
 {
     if (renderState)
         return renderState;
-    
-    ProgramMTL *program = (ProgramMTL *)frameInfo->program;
     id<MTLDevice> mtlDevice = sceneRender->setupInfo.mtlDevice;
 
-    MTLRenderPipelineDescriptor *renderDesc = sceneRender->defaultRenderPipelineState(sceneRender,frameInfo);
+    MTLRenderPipelineDescriptor *renderDesc = sceneRender->defaultRenderPipelineState(sceneRender,program,renderTarget);
     renderDesc.vertexDescriptor = getVertexDescriptor(program->vertFunc,defaultAttrs);
     if (!name.empty())
         renderDesc.label = [NSString stringWithFormat:@"%s",name.c_str()];
@@ -359,8 +357,9 @@ void BasicDrawableMTL::setupArgBuffers(id<MTLDevice> mtlDevice,RenderSetupInfoMT
     if (prog->vertFunc) {
         vertABInfo = ArgBuffContentsMTLRef(new ArgBuffContentsMTL(mtlDevice,
                                                                   setupInfo,
-                                                                 prog->vertFunc,
-                                                                 WKSVertexArgBuffer));
+                                                                  prog->vertFunc,
+                                                                  WKSVertexArgBuffer,
+                                                                  buffBuild));
         vertABInfo->setEntry(WKSUniformArgBuffer,setupInfo->uniformBuff);
         vertABInfo->setEntry(WKSLightingArgBuffer, setupInfo->lightingBuff);
         vertABInfo->createBuffers(mtlDevice,buffBuild);
@@ -368,8 +367,9 @@ void BasicDrawableMTL::setupArgBuffers(id<MTLDevice> mtlDevice,RenderSetupInfoMT
     if (prog->fragFunc) {
         fragABInfo = ArgBuffContentsMTLRef(new ArgBuffContentsMTL(mtlDevice,
                                                                   setupInfo,
-                                                               prog->fragFunc,
-                                                               WKSFragmentArgBuffer));
+                                                                  prog->fragFunc,
+                                                                  WKSFragmentArgBuffer,
+                                                                  buffBuild));
         fragABInfo->setEntry(WKSUniformArgBuffer,setupInfo->uniformBuff);
         fragABInfo->setEntry(WKSLightingArgBuffer, setupInfo->lightingBuff);
         fragABInfo->createBuffers(mtlDevice,buffBuild);
@@ -502,11 +502,15 @@ void BasicDrawableMTL::resourceRefs(ResourceRefsMTL &resourceRefs)
     resourceRefs.addEntry(mainBuffer);
 }
 
-void BasicDrawableMTL::draw(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *inScene)
+void BasicDrawableMTL::encodeDirectCalculate(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene)
+{
+}
+
+void BasicDrawableMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene)
 {
     SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
-        
-    id<MTLRenderPipelineState> renderState = getRenderPipelineState(sceneRender,frameInfo);
+
+    id<MTLRenderPipelineState> renderState = getRenderPipelineState(sceneRender,scene,(ProgramMTL *)frameInfo->program,(RenderTargetMTL *)frameInfo->renderTarget);
     
     // Wire up the various inputs that we know about
     for (auto vertAttr : vertexAttributes) {
@@ -538,6 +542,56 @@ void BasicDrawableMTL::draw(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandE
         case Triangles:
             // This actually draws the triangles (well, in a bit)
             [cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:numTris*3 indexType:MTLIndexTypeUInt16 indexBuffer:triBuffer->buffer indexBufferOffset:triBuffer->offset];
+            break;
+        default:
+            break;
+    }
+}
+
+void BasicDrawableMTL::encodeInirectCalculate(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget)
+{
+}
+
+void BasicDrawableMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget)
+{
+    ProgramMTL *program = (ProgramMTL *)scene->getProgram(programId);
+    if (!program) {
+        NSLog(@"BasicDrawableMTL: Missing programId for %s",name.c_str());
+        return;
+    }
+    
+    id<MTLRenderPipelineState> renderState = getRenderPipelineState(sceneRender,scene,program,renderTarget);
+    
+    // Wire up the various inputs that we know about
+    for (auto vertAttr : vertexAttributes) {
+        VertexAttributeMTL *vertAttrMTL = (VertexAttributeMTL *)vertAttr;
+        if (vertAttrMTL->buffer && (vertAttrMTL->bufferIndex >= 0))
+            [cmdEncode setVertexBuffer:vertAttrMTL->buffer->buffer offset:vertAttrMTL->buffer->offset atIndex:vertAttrMTL->bufferIndex];
+    }
+    
+    // And provide defaults for the ones we don't
+    for (auto defAttr : defaultAttrs)
+        [cmdEncode setVertexBuffer:defAttr.buffer->buffer offset:defAttr.buffer->offset atIndex:defAttr.bufferIndex];
+    
+    [cmdEncode setRenderPipelineState:renderState];
+    
+    if (vertABInfo) {
+        BufferEntryMTLRef buff = vertABInfo->getBuffer();
+        [cmdEncode setVertexBuffer:buff->buffer offset:buff->offset atIndex:WKSVertexArgBuffer];
+    }
+    if (fragABInfo) {
+        BufferEntryMTLRef buff = fragABInfo->getBuffer();
+        [cmdEncode setFragmentBuffer:buff->buffer offset:buff->offset atIndex:WKSFragmentArgBuffer];
+    }
+
+    // Render the primitives themselves
+    switch (type) {
+        case Lines:
+            [cmdEncode drawPrimitives:MTLPrimitiveTypeLine vertexStart:0 vertexCount:numPts instanceCount:1 baseInstance:0];
+            break;
+        case Triangles:
+            // This actually draws the triangles (well, in a bit)
+            [cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:numTris*3 indexType:MTLIndexTypeUInt16 indexBuffer:triBuffer->buffer indexBufferOffset:triBuffer->offset instanceCount:1 baseVertex:0 baseInstance:0];
             break;
         default:
             break;

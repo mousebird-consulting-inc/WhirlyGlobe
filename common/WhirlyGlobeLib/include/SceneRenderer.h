@@ -122,13 +122,13 @@ public:
     typedef enum {Calculation=0,Offscreen,ReduceOps,ScreenRender} GroupType;
 
     WorkGroup(GroupType groupType);
-    ~WorkGroup();
-    
+    virtual ~WorkGroup();
+        
     // All the drawables to draw into a render target
     class RenderTargetContainer
     {
     public:
-        RenderTargetContainer(RenderTargetRef renderTarget) : renderTarget(renderTarget) { }
+        RenderTargetContainer(RenderTargetRef renderTarget);
         
         // Sort by draw priority and zbuffer on or off
         typedef struct {
@@ -144,10 +144,13 @@ public:
                 return a->getDrawPriority() < b->getDrawPriority();
             }
         } PrioritySorter;
-        
+
+        // What we're doing to (the screen if it's empty)
         RenderTargetRef renderTarget;
+
         // Drawables sorted by draw priority
         std::set<DrawableRef,PrioritySorter> drawables;
+        bool modified;   // Set when the contents of the container are modified
     };
     typedef std::shared_ptr<RenderTargetContainer> RenderTargetContainerRef;
     
@@ -164,8 +167,10 @@ public:
     GroupType groupType;
 
     std::vector<RenderTargetContainerRef> renderTargetContainers;
-    // TODO: Reductions
-    // TODO: Callbacks
+    
+protected:
+    WorkGroup()  {}
+    virtual RenderTargetContainerRef makeRenderTargetContainer();
 };
 typedef std::shared_ptr<WorkGroup> WorkGroupRef;
 

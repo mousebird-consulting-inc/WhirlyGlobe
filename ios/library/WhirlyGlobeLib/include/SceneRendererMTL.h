@@ -76,6 +76,44 @@ void CopyIntoMtlFloat3(simd::float3 &dest,const Point3f &src);
 /// Copy one of our 4D points into Metal form
 void CopyIntoMtlFloat4(simd::float4 &dest,const Eigen::Vector4f &src);
 void CopyIntoMtlFloat4(simd::float4 &dest,const float vals[4]);
+
+// Metal version of WorkGroup has a bit more cached info
+class WorkGroupMTL : public WorkGroup
+{
+public:
+    WorkGroupMTL(GroupType groupType);
+    virtual ~WorkGroupMTL();
+
+    // Drawables sorted by draw priority and grouped by state
+    class DrawGroupMTL {
+    public:
+        // Depth/stencil values are the reason for these groups
+        id<MTLDepthStencilState> depthStencil;
+        
+        // Indirect render buffer
+        API_AVAILABLE(ios(12.0)) id<MTLIndirectCommandBuffer> indCmdBuff;
+        int numCommands;
+
+        // Drawables in this group
+        std::vector<DrawableRef> drawables;
+    };
+    typedef std::shared_ptr<DrawGroupMTL> DrawGroupMTLRef;
+
+    // This version stores indirect render command buffers
+    class RenderTargetContainerMTL : public RenderTargetContainer
+    {
+    public:
+        RenderTargetContainerMTL(RenderTargetRef renderTarget);
+        
+        // Drawables sorted into groups for drawing
+        // For Metal we have specialized versions
+        std::vector<DrawGroupMTLRef> drawGroups;
+    };
+    typedef std::shared_ptr<RenderTargetContainer> RenderTargetContainerMTLRef;
+    
+protected:
+    virtual RenderTargetContainerRef makeRenderTargetContainer();
+};
     
 /// Metal version of the Scene Renderer
 class SceneRendererMTL : public SceneRenderer
@@ -110,6 +148,9 @@ public:
     
     /// Remove an existing snapshot delegate
     void removeSnapshotDelegate(NSObject<WhirlyKitSnapshot> *);
+    
+    /// Move things around as required by outside updates
+    virtual void updateWorkGroups(RendererFrameInfo *frameInfo);
 
     /// Construct a basic drawable builder for the appropriate rendering type
     virtual BasicDrawableBuilderRef makeBasicDrawableBuilder(const std::string &name) const;
@@ -145,7 +186,7 @@ public:
     void setupDrawStateA(WhirlyKitShader::UniformDrawStateA &drawState);
     
     // Generate a render pipeline descriptor matching the given frame
-    MTLRenderPipelineDescriptor *defaultRenderPipelineState(SceneRendererMTL *sceneRender,RendererFrameInfoMTL *frameInfo);
+    MTLRenderPipelineDescriptor *defaultRenderPipelineState(SceneRendererMTL *sceneRender,ProgramMTL *program,RenderTargetMTL *renderTarget);
     
     // Return the whole buffer for a given render target
     RawDataRef getSnapshot(SimpleIdentity renderTargetID);

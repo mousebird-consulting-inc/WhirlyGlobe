@@ -25,7 +25,7 @@ using namespace Eigen;
 namespace WhirlyKit
 {
 
-ArgBuffContentsMTL::ArgBuffContentsMTL(id<MTLDevice> mtlDevice,RenderSetupInfoMTL *setupInfoMTL,id<MTLFunction> func,int bufferArgIdx)
+ArgBuffContentsMTL::ArgBuffContentsMTL(id<MTLDevice> mtlDevice,RenderSetupInfoMTL *setupInfoMTL,id<MTLFunction> func,int bufferArgIdx,BufferBuilderMTL &buffBuild)
 {
     valid = false;
     
@@ -56,9 +56,9 @@ ArgBuffContentsMTL::ArgBuffContentsMTL(id<MTLDevice> mtlDevice,RenderSetupInfoMT
     }
     
     // Create a buffer to store the arguments in
-    buff = setupInfoMTL->heapManage.allocateBuffer(HeapManagerMTL::Drawable,[encode encodedLength]);
-    [encode setArgumentBuffer:buff->buffer offset:buff->offset];
+    buff = buffBuild.reserveData([encode encodedLength]);
     
+    isSetup = false;
     valid = true;
 }
 
@@ -84,10 +84,17 @@ void ArgBuffContentsMTL::setEntry(int entryID,BufferEntryMTLRef buffer)
 
 void ArgBuffContentsMTL::wireUpBuffers()
 {
+    [encode setArgumentBuffer:buff->buffer offset:buff->offset];
+
     for (auto it : entries) {
         auto entry = it.second;
         [encode setBuffer:entry->buffer->buffer offset:entry->buffer->offset atIndex:entry->entryID];
     }
+    
+    for (int texIndex=0;texIndex<textures.size();texIndex++)
+        [encode setTexture:textures[texIndex] atIndex:WKSTextureArgBuffer+texIndex];
+    
+    isSetup = true;
 }
 
 bool ArgBuffContentsMTL::hasEntry(int entryID)
@@ -119,7 +126,9 @@ void ArgBuffContentsMTL::setTexture(int texIndex,id<MTLTexture> tex)
     if (textures.find(texIndex) == textures.end())
         return;
     textures[texIndex] = tex;
-    [encode setTexture:tex atIndex:WKSTextureArgBuffer+texIndex];
+    
+    if (isSetup)
+        [encode setTexture:tex atIndex:WKSTextureArgBuffer+texIndex];
 }
 
 void ArgBuffContentsMTL::addResources(ResourceRefsMTL &resources)
@@ -133,6 +142,23 @@ BufferEntryMTLRef ArgBuffContentsMTL::getBuffer()
 {
     return buff;
 }
+
+void DrawableMTL::encodeDirectCalculate(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene)
+{
+}
+
+void DrawableMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene)
+{
+}
+
+void DrawableMTL::encodeInirectCalculate(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget)
+{
+}
+
+void DrawableMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget)
+{
+}
+
     
 }
 

@@ -55,11 +55,19 @@ public:
                     SceneMTL *scene,
                     ResourceRefsMTL &resources);
 
-    /// Fill this in to draw the basic drawable
-    virtual void draw(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene);
-
     /// Some drawables have a pre-render phase that uses the GPU for calculation
-    virtual void calculate(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene);
+    virtual void encodeDirectCalculate(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene);
+
+    /// Draw directly, once per frame
+    virtual void encodeDirect(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene);
+    
+    /// Indirect version of calculate encoding.  Called only when things change enough to re-encode.
+    API_AVAILABLE(ios(13.0))
+    virtual void encodeInirectCalculate(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget);
+
+    /// Indirect version of regular encoding.  Called only when things change enough to re-encode.
+    API_AVAILABLE(ios(13.0))
+    virtual void encodeIndirect(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget);
 
 protected:
     id<MTLRenderPipelineState> getCalcRenderPipelineState(SceneRendererMTL *sceneRender,RendererFrameInfoMTL *frameInfo);

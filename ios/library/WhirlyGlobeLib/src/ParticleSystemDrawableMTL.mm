@@ -126,22 +126,22 @@ id<MTLRenderPipelineState> ParticleSystemDrawableMTL::getCalcRenderPipelineState
     if (calcRenderState)
         return calcRenderState;
     
-    id<MTLDevice> mtlDevice = sceneRender->setupInfo.mtlDevice;
-    
-    MTLRenderPipelineDescriptor *renderDesc = sceneRender->defaultRenderPipelineState(sceneRender,frameInfo);
-    // Note: Disable this to debug the shader
-    renderDesc.rasterizationEnabled = false;
-    renderDesc.vertexDescriptor = nil;
-    if (!name.empty())
-        renderDesc.label = [NSString stringWithFormat:@"%s",name.c_str()];
-    
-    // Set up a render state
-    NSError *err = nil;
-    calcRenderState = [mtlDevice newRenderPipelineStateWithDescriptor:renderDesc error:&err];
-    if (err) {
-        NSLog(@"BasicDrawableMTL: Failed to set up render state because:\n%@",err);
-        return nil;
-    }
+//    id<MTLDevice> mtlDevice = sceneRender->setupInfo.mtlDevice;
+//    
+//    MTLRenderPipelineDescriptor *renderDesc = sceneRender->defaultRenderPipelineState(sceneRender,frameInfo);
+//    // Note: Disable this to debug the shader
+//    renderDesc.rasterizationEnabled = false;
+//    renderDesc.vertexDescriptor = nil;
+//    if (!name.empty())
+//        renderDesc.label = [NSString stringWithFormat:@"%s",name.c_str()];
+//    
+//    // Set up a render state
+//    NSError *err = nil;
+//    calcRenderState = [mtlDevice newRenderPipelineStateWithDescriptor:renderDesc error:&err];
+//    if (err) {
+//        NSLog(@"BasicDrawableMTL: Failed to set up render state because:\n%@",err);
+//        return nil;
+//    }
     
     return calcRenderState;
 }
@@ -152,27 +152,27 @@ id<MTLRenderPipelineState> ParticleSystemDrawableMTL::getRenderPipelineState(Sce
     if (visRenderState)
         return visRenderState;
     
-    id<MTLDevice> mtlDevice = sceneRender->setupInfo.mtlDevice;
-    
-    MTLRenderPipelineDescriptor *renderDesc = sceneRender->defaultRenderPipelineState(sceneRender,frameInfo);
-    renderDesc.vertexDescriptor = nil;
-    if (!name.empty())
-        renderDesc.label = [NSString stringWithFormat:@"%s",name.c_str()];
-    
-    // Set up a render state
-    NSError *err = nil;
-    visRenderState = [mtlDevice newRenderPipelineStateWithDescriptor:renderDesc error:&err];
-    if (err) {
-        NSLog(@"BasicDrawableMTL: Failed to set up render state because:\n%@",err);
-        return nil;
-    }
+//    id<MTLDevice> mtlDevice = sceneRender->setupInfo.mtlDevice;
+//
+//    MTLRenderPipelineDescriptor *renderDesc = sceneRender->defaultRenderPipelineState(sceneRender,frameInfo);
+//    renderDesc.vertexDescriptor = nil;
+//    if (!name.empty())
+//        renderDesc.label = [NSString stringWithFormat:@"%s",name.c_str()];
+//
+//    // Set up a render state
+//    NSError *err = nil;
+//    visRenderState = [mtlDevice newRenderPipelineStateWithDescriptor:renderDesc error:&err];
+//    if (err) {
+//        NSLog(@"BasicDrawableMTL: Failed to set up render state because:\n%@",err);
+//        return nil;
+//    }
     
     return visRenderState;
 }
     
-void ParticleSystemDrawableMTL::bindParticleUniforms(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode)
-{
-    // Uniforms just for this particle drawable
+//void ParticleSystemDrawableMTL::bindParticleUniforms(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode)
+//{
+//    // Uniforms just for this particle drawable
 //    WhirlyKitShader::UniformDrawStateParticle uniPart;
 //    uniPart.pointSize = pointSize;
 //    uniPart.time = frameInfo->currentTime-baseTime;
@@ -180,7 +180,7 @@ void ParticleSystemDrawableMTL::bindParticleUniforms(RendererFrameInfoMTL *frame
 //    uniPart.frameLen = frameInfo->frameLen;
 //    [cmdEncode setVertexBytes:&uniPart length:sizeof(uniPart) atIndex:WKSUniformDrawStateParticleBuffer];
 //    [cmdEncode setFragmentBytes:&uniPart length:sizeof(uniPart) atIndex:WKSUniformDrawStateParticleBuffer];
-}
+//}
 
 void ParticleSystemDrawableMTL::preProcess(SceneRendererMTL *sceneRender,
                                             id<MTLCommandBuffer> cmdBuff,
@@ -188,14 +188,35 @@ void ParticleSystemDrawableMTL::preProcess(SceneRendererMTL *sceneRender,
                                             SceneMTL *scene,
                                             ResourceRefsMTL &resources)
 {
-    
+    // TODO: Fill this in
 }
 
-void ParticleSystemDrawableMTL::calculate(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *inScene)
+void ParticleSystemDrawableMTL::encodeDirectCalculate(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene)
 {
-    SceneMTL *scene = (SceneMTL *)inScene;
-    SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
-    
+    // TODO: Fill this in
+}
+
+void ParticleSystemDrawableMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene)
+{
+    // TODO: Fill this in
+}
+
+void ParticleSystemDrawableMTL::encodeInirectCalculate(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget)
+{
+    // TODO: Fill this in
+}
+
+void ParticleSystemDrawableMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget)
+{
+    // TODO: Fill this in
+}
+
+
+//void ParticleSystemDrawableMTL::calculate(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *inScene)
+//{
+//    SceneMTL *scene = (SceneMTL *)inScene;
+//    SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
+//
 //    // Render state is pretty simple, so apply that
 //    id<MTLRenderPipelineState> renderState = getCalcRenderPipelineState(sceneRender,frameInfo);
 //    [cmdEncode setRenderPipelineState:renderState];
@@ -235,13 +256,13 @@ void ParticleSystemDrawableMTL::calculate(RendererFrameInfoMTL *frameInfo,id<MTL
 //    curPointBuffer = (curPointBuffer == 0) ? 1 : 0;
 //
 //    [cmdEncode drawPrimitives:MTLPrimitiveTypePoint vertexStart:0 vertexCount:numTotalPoints];
-}
-
-void ParticleSystemDrawableMTL::draw(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *inScene)
-{
-    SceneMTL *scene = (SceneMTL *)inScene;
-    SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
-    
+//}
+//
+//void ParticleSystemDrawableMTL::draw(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *inScene)
+//{
+//    SceneMTL *scene = (SceneMTL *)inScene;
+//    SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
+//
 //    // Render state is pretty simple, so apply that
 //    id<MTLRenderPipelineState> renderState = getRenderPipelineState(sceneRender,frameInfo);
 //    [cmdEncode setRenderPipelineState:renderState];
@@ -285,6 +306,6 @@ void ParticleSystemDrawableMTL::draw(RendererFrameInfoMTL *frameInfo,id<MTLRende
 //        [cmdEncode setVertexBuffer:pointBuffer[curPointBuffer] offset:0 atIndex:WKSParticleBuffer];
 //        [cmdEncode drawPrimitives:MTLPrimitiveTypePoint vertexStart:0 vertexCount:numTotalPoints];
 //    }
-}
+//}
 
 }
