@@ -114,62 +114,64 @@ void BasicDrawableMTL::teardownForRenderer(const RenderSetupInfo *setupInfo,Scen
     }
     
     vertDesc = nil;
-    triBuffer.reset();
     triBuffer = nil;
     renderState = nil;
     defaultAttrs.clear();
+    mainBuffer.reset();
+    vertABInfo.reset();
+    fragABInfo.reset();
 }
     
 // TODO: Move into shader
-float BasicDrawableMTL::calcFade(RendererFrameInfo *frameInfo)
-{
-    // Figure out if we're fading in or out
-    float fade = 1.0;
-    if (fadeDown < fadeUp)
-    {
-        // Heading to 1
-        if (frameInfo->currentTime < fadeDown)
-            fade = 0.0;
-        else
-            if (frameInfo->currentTime > fadeUp)
-                fade = 1.0;
-            else
-                fade = (frameInfo->currentTime - fadeDown)/(fadeUp - fadeDown);
-    } else {
-        if (fadeUp < fadeDown)
-        {
-            // Heading to 0
-            if (frameInfo->currentTime < fadeUp)
-                fade = 1.0;
-            else
-                if (frameInfo->currentTime > fadeDown)
-                    fade = 0.0;
-                else
-                    fade = 1.0-(frameInfo->currentTime - fadeUp)/(fadeDown - fadeUp);
-        }
-    }
-    // Deal with the range based fade
-    if (frameInfo->heightAboveSurface > 0.0)
-    {
-        float factor = 1.0;
-        if (minVisibleFadeBand != 0.0)
-        {
-            float a = (frameInfo->heightAboveSurface - minVisible)/minVisibleFadeBand;
-            if (a >= 0.0 && a < 1.0)
-                factor = a;
-        }
-        if (maxVisibleFadeBand != 0.0)
-        {
-            float b = (maxVisible - frameInfo->heightAboveSurface)/maxVisibleFadeBand;
-            if (b >= 0.0 && b < 1.0)
-                factor = b;
-        }
-        
-        fade = fade * factor;
-    }
-
-    return fade;
-}
+//float BasicDrawableMTL::calcFade(RendererFrameInfo *frameInfo)
+//{
+//    // Figure out if we're fading in or out
+//    float fade = 1.0;
+//    if (fadeDown < fadeUp)
+//    {
+//        // Heading to 1
+//        if (frameInfo->currentTime < fadeDown)
+//            fade = 0.0;
+//        else
+//            if (frameInfo->currentTime > fadeUp)
+//                fade = 1.0;
+//            else
+//                fade = (frameInfo->currentTime - fadeDown)/(fadeUp - fadeDown);
+//    } else {
+//        if (fadeUp < fadeDown)
+//        {
+//            // Heading to 0
+//            if (frameInfo->currentTime < fadeUp)
+//                fade = 1.0;
+//            else
+//                if (frameInfo->currentTime > fadeDown)
+//                    fade = 0.0;
+//                else
+//                    fade = 1.0-(frameInfo->currentTime - fadeUp)/(fadeDown - fadeUp);
+//        }
+//    }
+//    // Deal with the range based fade
+//    if (frameInfo->heightAboveSurface > 0.0)
+//    {
+//        float factor = 1.0;
+//        if (minVisibleFadeBand != 0.0)
+//        {
+//            float a = (frameInfo->heightAboveSurface - minVisible)/minVisibleFadeBand;
+//            if (a >= 0.0 && a < 1.0)
+//                factor = a;
+//        }
+//        if (maxVisibleFadeBand != 0.0)
+//        {
+//            float b = (maxVisible - frameInfo->heightAboveSurface)/maxVisibleFadeBand;
+//            if (b >= 0.0 && b < 1.0)
+//                factor = b;
+//        }
+//
+//        fade = fade * factor;
+//    }
+//
+//    return fade;
+//}
     
 MTLVertexDescriptor *BasicDrawableMTL::getVertexDescriptor(id<MTLFunction> vertFunc,std::vector<AttributeDefault> &defAttrs)
 {
@@ -336,7 +338,6 @@ void BasicDrawableMTL::applyUniformsToDrawState(WhirlyKitShader::UniformDrawStat
     }
 }
     
-// Initialize the argument buffers and associated memory empty
 void BasicDrawableMTL::setupArgBuffers(id<MTLDevice> mtlDevice,RenderSetupInfoMTL *setupInfo,SceneMTL *scene,BufferBuilderMTL &buffBuild)
 {
     ProgramMTL *prog = (ProgramMTL *)scene->getProgram(programId);
@@ -492,14 +493,8 @@ void BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
     }
     
     // Always need the resource lists
-    resourceRefs(resources);
-}
-
-// Add to the list of resources (buffers, textures, heaps) in use by this drawable
-void BasicDrawableMTL::resourceRefs(ResourceRefsMTL &resourceRefs)
-{
     // It should all be in one buffer
-    resourceRefs.addEntry(mainBuffer);
+    resources.addEntry(mainBuffer);
 }
 
 void BasicDrawableMTL::encodeDirectCalculate(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene)

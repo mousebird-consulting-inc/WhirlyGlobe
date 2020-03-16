@@ -38,7 +38,7 @@ using namespace WhirlyKit;
     self.depthStencilPixelFormat = MTLPixelFormatDepth32Float;
     self.framebufferOnly = true;
     animating = true;
-//    self.preferredFramesPerSecond = 120;
+    self.preferredFramesPerSecond = 120;
     
     return self;
 }

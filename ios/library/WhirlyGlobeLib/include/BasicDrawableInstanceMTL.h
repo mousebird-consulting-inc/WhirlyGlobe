@@ -42,8 +42,10 @@ public:
     /// Clean up any rendering objects you may have (e.g. VBOs).
     virtual void teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene);
     
-    // An all-purpose pre-render that sets up textures, uniforms and such in preparation for rendering
-    // Also adds to the list of resources being used by this drawable
+    /** An all-purpose pre-render that sets up textures, uniforms and such in preparation for rendering
+        Also adds to the list of resources being used by this drawable.
+        Both need to be done each frame.
+     */
     void preProcess(SceneRendererMTL *sceneRender,
                     id<MTLCommandBuffer> cmdBuff,
                     id<MTLBlitCommandEncoder> bltEncode,
@@ -65,9 +67,15 @@ public:
     virtual void encodeIndirect(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget);
 
 protected:
-    id<MTLBuffer> encodeArgumentBuffer(SceneMTL *scene,RendererFrameInfoMTL *frameInfo,id<MTLFunction> func,int bufferIndex,std::set< id<MTLBuffer> > &buffers,std::set< id<MTLTexture> > &textures);
-    id<MTLRenderPipelineState> getRenderPipelineState(SceneRendererMTL *sceneRender,RendererFrameInfoMTL *frameInfo,BasicDrawableMTL *basicDrawMTL);
-    id<MTLRenderPipelineState> getCalcRenderPipelineState(SceneRendererMTL *sceneRender,RendererFrameInfoMTL *frameInfo);
+    // Pipeline render state for the encoder
+    id<MTLRenderPipelineState> getRenderPipelineState(SceneRendererMTL *sceneRender,Scene *scene,ProgramMTL *program,RenderTargetMTL *renderTarget,BasicDrawableMTL *basicDrawMTL);
+    
+    // Pipeline render state for the calculate encoder
+    id<MTLRenderPipelineState> getCalcRenderPipelineState(SceneRendererMTL *sceneRender,Scene *scene,ProgramMTL *program,RenderTargetMTL *renderTarget);
+    
+    // Set up the memory and defaults for the argument buffers (vertex, fragment, calculate)
+    void setupArgBuffers(id<MTLDevice> mtlDevice,RenderSetupInfoMTL *setupInfo,SceneMTL *scene,BufferBuilderMTL &buffBuild);
+
     void updateColorDefaultAttr();
     
     id<MTLRenderPipelineState> renderState;
@@ -75,9 +83,12 @@ protected:
     std::vector<BasicDrawableMTL::AttributeDefault> defaultAttrs;
     bool setupForMTL;
     WhirlyKitShader::UniformModelInstance uniMI;
-    id<MTLBuffer> instBuffer;  // Stores instances
-    id<MTLBuffer> indirectBuffer;   // Indirect arguments for drawIndexed
+    BufferEntryMTLRef instBuffer;       // Stores instances
+    BufferEntryMTLRef indirectBuffer;   // Indirect arguments for drawIndexed
     int numInst;
+    
+    BufferEntryMTLRef mainBuffer;        // We're storing all the bits and pieces in here
+    ArgBuffContentsMTLRef vertABInfo,fragABInfo;
 };
     
 }

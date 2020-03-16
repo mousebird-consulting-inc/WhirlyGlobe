@@ -23,7 +23,8 @@
     [nav pushViewController:self.baseViewController animated:YES];
     self.globeViewController.view.backgroundColor = [UIColor blackColor];
     self.globeViewController.clearColor = [UIColor blackColor];
-    self.globeViewController.frameInterval = 2;
+//    self.globeViewController.frameInterval = 2;
+    self.globeViewController.performanceOutput = true;
     self.globeViewController.delegate = self;
     
     dispatch_async(dispatch_get_main_queue(), ^{

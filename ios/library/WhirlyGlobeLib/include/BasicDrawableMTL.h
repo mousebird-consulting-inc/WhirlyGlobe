@@ -96,11 +96,6 @@ public:
     // Set up the memory and defaults for the argument buffers (vertex, fragment, calculate)
     void setupArgBuffers(id<MTLDevice> mtlDevice,RenderSetupInfoMTL *setupInfo,SceneMTL *scene,BufferBuilderMTL &buffBuild);
         
-    // Adds in the resources this drawable needs wired up (buffers, textures, heaps)
-    void resourceRefs(ResourceRefsMTL &resourceRefs);
-        
-    float calcFade(RendererFrameInfo *frameInfo);
-
     bool setupForMTL;
     std::vector<Triangle> tris;
     int numPts,numTris;
