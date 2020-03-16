@@ -60,7 +60,7 @@ struct FragmentArgEmpty {
 // Fragment shader for simple line case
 fragment float4 fragmentLineOnly_globe(
     ProjVertexA in [[stage_in]],
-    const constant FragmentArgEmpty *uniEmpty [[buffer(WKSFragmentArgBuffer)]])
+    const constant FragmentArgEmpty & uniEmpty [[buffer(WKSFragmentArgBuffer)]])
 {
     if (in.dotProd <= 0.0)
         discard_fragment();
@@ -99,7 +99,7 @@ vertex ProjVertexB vertexLineOnly_flat(
 // Simple fragment shader for lines on flat map
 fragment float4 fragmentLineOnly_flat(
     ProjVertexB vert [[stage_in]],
-    const constant FragmentArgEmpty *uniEmpty [[buffer(WKSFragmentArgBuffer)]])
+    const constant FragmentArgEmpty & uniEmpty [[buffer(WKSFragmentArgBuffer)]])
 {
     return vert.color;
 }
@@ -138,7 +138,7 @@ struct VertexTriArgBufferA {
     constant Uniforms *uniforms                   [[ id(WKSUniformArgBuffer) ]];
     constant UniformDrawStateA *uniDrawState      [[ id(WKSUniformDrawStateArgBuffer) ]];
     constant TexIndirect *texIndirect             [[ id(WKSTexIndirectArgBuffer) ]];
-    array<texture2d<float>, WKSTextureMax> tex  [[ id(WKSTextureArgBuffer) ]];
+    array<texture2d<float, access::sample>, WKSTextureMax> tex    [[ id(WKSTextureArgBuffer) ]];
 };
 
 // Simple vertex shader for triangle with no lighting
@@ -165,7 +165,7 @@ struct VertexTriArgBufferB {
     constant UniformDrawStateA *uniDrawState      [[ id(WKSUniformDrawStateArgBuffer) ]];
     constant Lighting *lighting                   [[ id(WKSLightingArgBuffer) ]];
     constant TexIndirect *texIndirect             [[ id(WKSTexIndirectArgBuffer) ]];
-    array<texture2d<float>, WKSTextureMax> tex  [[ id(WKSTextureArgBuffer) ]];
+    array<texture2d<float, access::sample>, WKSTextureMax> tex  [[ id(WKSTextureArgBuffer) ]];
 };
 
 // Simple vertex shader for triangle with basic lighting
@@ -208,12 +208,14 @@ vertex ProjVertexTriB vertexTri_multiTex(
                 const constant VertexTriArgBufferB & vertArgs [[buffer(WKSVertexArgBuffer)]])
 {
     ProjVertexTriB outVert;
-    
+
+    float3 vertPos = (vertArgs.uniDrawState->singleMat * float4(vert.position,1.0)).xyz;
     if (vertArgs.uniDrawState->clipCoords)
         outVert.position = float4(vert.position,1.0);
-    else
-        outVert.position = vertArgs.uniforms->mvpMatrix * float4(vert.position,1.0);
-    outVert.color = resolveLighting(vert.position,
+    else {
+        outVert.position = vertArgs.uniforms->mvpMatrix * float4(vertPos,1.0);
+    }
+    outVert.color = resolveLighting(vertPos,
                                     vert.normal,
                                     float4(vert.color),
                                     vertArgs.lighting,
@@ -281,7 +283,7 @@ struct VertexTriWideArgBuffer {
     constant Uniforms *uniforms                   [[ id(WKSUniformArgBuffer) ]];
     constant UniformDrawStateA *uniDrawState      [[ id(WKSUniformDrawStateArgBuffer) ]];
     constant UniformWideVec *wideVec              [[ id(WKSUniformDrawStateWideVecArgBuffer) ]];
-    array<texture2d<float>, WKSTextureMax> tex  [[ id(WKSTextureArgBuffer) ]];
+    array<texture2d<float, access::sample>, WKSTextureMax> tex  [[ id(WKSTextureArgBuffer) ]];
 };
 
 vertex ProjVertexTriWideVec vertexTri_wideVec(
@@ -330,7 +332,7 @@ struct VertexTriSSArgBuffer {
     constant Uniforms *uniforms                   [[ id(WKSUniformArgBuffer) ]];
     constant UniformDrawStateA *uniDrawState      [[ id(WKSUniformDrawStateArgBuffer) ]];
     constant UniformScreenSpace *ss               [[ id(WKSUniformDrawStateScreenSpaceArgBuffer) ]];
-    array<texture2d<float>, WKSTextureMax> tex    [[ id(WKSTextureArgBuffer) ]];
+    array<texture2d<float, access::sample>, WKSTextureMax> tex    [[ id(WKSTextureArgBuffer) ]];
 };
 
 // Screen space (no motion) vertex shader

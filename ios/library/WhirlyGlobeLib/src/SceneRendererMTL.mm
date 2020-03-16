@@ -193,57 +193,7 @@ bool SceneRendererMTL::resize(int sizeX,int sizeY)
     
     return true;
 }
-    
-void CopyIntoMtlFloat4x4(simd::float4x4 &dest,Eigen::Matrix4f &src)
-{
-    for (unsigned int ix=0;ix<4;ix++)
-        for (unsigned int iy=0;iy<4;iy++)
-            dest.columns[ix][iy] = src(ix*4+iy);
-}
-    
-void CopyIntoMtlFloat4x4(simd::float4x4 &dest,Eigen::Matrix4d &src)
-{
-    for (unsigned int ix=0;ix<4;ix++)
-        for (unsigned int iy=0;iy<4;iy++)
-            dest.columns[ix][iy] = src(ix*4+iy);
-}
-    
-void CopyIntoMtlFloat3(simd::float3 &dest,const Point3d &src)
-{
-    dest[0] = src.x();
-    dest[1] = src.y();
-    dest[2] = src.z();
-}
-    
-void CopyIntoMtlFloat3(simd::float3 &dest,const Point3f &src)
-{
-    dest[0] = src.x();
-    dest[1] = src.y();
-    dest[2] = src.z();
-}
-    
-void CopyIntoMtlFloat2(simd::float2 &dest,const Point2f &src)
-{
-    dest[0] = src.x();
-    dest[1] = src.y();
-}
-
-void CopyIntoMtlFloat4(simd::float4 &dest,const Eigen::Vector4f &src)
-{
-    dest[0] = src.x();
-    dest[1] = src.y();
-    dest[2] = src.z();
-    dest[3] = src.w();
-}
-    
-void CopyIntoMtlFloat4(simd::float4 &dest,const float vals[4])
-{
-    dest[0] = vals[0];
-    dest[1] = vals[1];
-    dest[2] = vals[2];
-    dest[3] = vals[3];
-}
-    
+        
 void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,id<MTLBlitCommandEncoder> bltEncode,CoordSystemDisplayAdapter *coordAdapter,int texLevel)
 {
     SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
@@ -416,8 +366,8 @@ void SceneRendererMTL::updateWorkGroups(RendererFrameInfo *frameInfo)
                 cmdBuffDesc.maxFragmentBufferBindCount = 3;
 
                 // Build up indirect buffers for each draw group
-                int curCommand = 0;
                 for (auto drawGroup : targetContainerMTL->drawGroups) {
+                    int curCommand = 0;
                     drawGroup->numCommands = drawGroup->drawables.size();
                     drawGroup->indCmdBuff = [setupInfo.mtlDevice newIndirectCommandBufferWithDescriptor:cmdBuffDesc maxCommandCount:drawGroup->numCommands options:MTLResourceStorageModeShared];
 
@@ -442,7 +392,7 @@ void SceneRendererMTL::updateWorkGroups(RendererFrameInfo *frameInfo)
                         }
                     } else {
                         // Work through the drawables
-                        for (auto &draw : targetContainer->drawables) {
+                        for (auto &draw : drawGroup->drawables) {
                             DrawableMTL *drawMTL = dynamic_cast<DrawableMTL *>(draw.get());
 
                             // Figure out the program to use for drawing
@@ -658,7 +608,8 @@ void SceneRendererMTL::render(TimeInterval duration,
         offFrameInfos.push_back(offFrameInfo);
     }
     
-    bool indirectRender = true;
+    // TODO: Expose this
+    bool indirectRender = false;
         
     // Workgroups force us to draw things in order
     for (auto &workGroup : workGroups) {

@@ -197,6 +197,11 @@ protected:
     // Or we might get the number of instances from a texture (possibly a reduce)
     SimpleIdentity instanceTexSource;
     SimpleIdentity instanceTexProg;
+    
+    // Set if we changed one of the general values (presumably during execution)
+    bool valuesChanged;
+    // Set if the textures changed
+    bool texturesChanged;
 };
 
 /// Reference counted version of BasicDrawableInstance

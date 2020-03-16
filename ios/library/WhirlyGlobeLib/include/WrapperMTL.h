@@ -19,12 +19,27 @@
  */
 
 #import <Metal/Metal.h>
+#import <MetalKit/MetalKit.h>
 #import "ChangeRequest.h"
 
 namespace WhirlyKit
 {
 
 class RenderSetupInfoMTL;
+
+/// Copy one of our matrices into Metal format
+void CopyIntoMtlFloat4x4(simd::float4x4 &dest,const Eigen::Matrix4f &src);
+void CopyIntoMtlFloat4x4(simd::float4x4 &dest,const Eigen::Matrix4d &src);
+void CopyIntoMtlDouble4x4(simd::double4x4 &dest,const Eigen::Matrix4d &src);
+
+/// Copy one of our points into Metal form
+void CopyIntoMtlFloat3(simd::float3 &dest,const Point3d &src);
+void CopyIntoMtlFloat3(simd::float3 &dest,const Point3f &src);
+void CopyIntoMtlFloat2(simd::float2 &dest,const Point2f &src);
+
+/// Copy one of our 4D points into Metal form
+void CopyIntoMtlFloat4(simd::float4 &dest,const Eigen::Vector4f &src);
+void CopyIntoMtlFloat4(simd::float4 &dest,const float vals[4]);
 
 /// Entry in a larger buffer structure
 class BufferEntryMTL {

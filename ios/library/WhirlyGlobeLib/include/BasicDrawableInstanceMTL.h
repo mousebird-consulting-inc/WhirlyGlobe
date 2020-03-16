@@ -78,14 +78,15 @@ protected:
 
     void updateColorDefaultAttr();
     
+    bool setupForMTL;
     id<MTLRenderPipelineState> renderState;
     id<MTLRenderPipelineState> calcRenderState;
     std::vector<BasicDrawableMTL::AttributeDefault> defaultAttrs;
-    bool setupForMTL;
     WhirlyKitShader::UniformModelInstance uniMI;
     BufferEntryMTLRef instBuffer;       // Stores instances
     BufferEntryMTLRef indirectBuffer;   // Indirect arguments for drawIndexed
-    int numInst;
+    BufferEntryMTLRef colorBuffer;      // Used when overriding color
+    int numInst;                        // Number of instances (if we're using that mode)
     
     BufferEntryMTLRef mainBuffer;        // We're storing all the bits and pieces in here
     ArgBuffContentsMTLRef vertABInfo,fragABInfo;

@@ -81,7 +81,7 @@ struct UniformDrawStateA {
     float fade;                // Fade tends to change by time
     float interp;              // Used to interpolate between two textures (if appropriate)
     simd::float2 screenOrigin; // Used for texture pinning in screen space
-    simd::float4x4 singleMat;  // TODO: Use this rather than changing the uniforms
+    simd::float4x4 singleMat; // Individual transform used by model instances
     bool clipCoords;           // If set, the geometry coordinates aren't meant to be transformed
 };
     

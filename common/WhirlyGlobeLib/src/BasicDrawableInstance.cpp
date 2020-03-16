@@ -29,7 +29,7 @@ namespace WhirlyKit
 {
 
 BasicDrawableInstance::BasicDrawableInstance(const std::string &name)
-: Drawable(name), instanceTexSource(EmptyIdentity), instanceTexProg(EmptyIdentity)
+: Drawable(name), instanceTexSource(EmptyIdentity), instanceTexProg(EmptyIdentity), valuesChanged(true), texturesChanged(true)
 {
 }
     
@@ -78,8 +78,10 @@ SimpleIdentity BasicDrawableInstance::getProgram() const
     return basicDraw->getProgram();
 }
     
-    void BasicDrawableInstance::setProgram(SimpleIdentity progID)
+void BasicDrawableInstance::setProgram(SimpleIdentity progID)
 {
+    valuesChanged = true;
+    
     programID = progID;
 }
 
@@ -120,6 +122,8 @@ bool BasicDrawableInstance::isOn(WhirlyKit::RendererFrameInfo *frameInfo) const
     
 void BasicDrawableInstance::setRequestZBuffer(bool val)
 {
+    valuesChanged = true;
+
     requestZBuffer = val;
 }
     
@@ -130,6 +134,8 @@ bool BasicDrawableInstance::getRequestZBuffer() const
     
 void BasicDrawableInstance::setWriteZBuffer(bool val)
 {
+    valuesChanged = true;
+
     writeZBuffer = val;
 }
     
@@ -178,18 +184,24 @@ void BasicDrawableInstance::setViewerVisibility(double inMinViewerDist,double in
 /// Set the color
 void BasicDrawableInstance::setColor(RGBAColor inColor)
 {
+    valuesChanged = true;
+
     hasColor = true; color = inColor;
 }
 
 /// Set the draw priority
 void BasicDrawableInstance::setDrawPriority(int newPriority)
 {
+    valuesChanged = true;
+
     hasDrawPriority = true;  drawPriority = newPriority;
 }
 
 /// Set the line width
 void BasicDrawableInstance::setLineWidth(int newLineWidth)
 {
+    valuesChanged = true;
+
     hasLineWidth = true;  lineWidth = newLineWidth;
 }
     
@@ -226,11 +238,15 @@ SimpleIdentity BasicDrawableInstance::getRenderTarget() const
 
 void BasicDrawableInstance::setRenderTarget(SimpleIdentity newRenderTarget)
 {
+    valuesChanged = true;
+
     renderTargetID = newRenderTarget;
 }
 
 void BasicDrawableInstance::setTexId(unsigned int which,SimpleIdentity inId)
 {
+    texturesChanged = true;
+    
     if (which < texInfo.size())
         texInfo[which].texId = inId;
     else {
@@ -240,6 +256,8 @@ void BasicDrawableInstance::setTexId(unsigned int which,SimpleIdentity inId)
 
 void BasicDrawableInstance::setTexIDs(const std::vector<SimpleIdentity> &texIDs)
 {
+    texturesChanged = true;
+
     for (unsigned int ii=0;ii<std::min(texInfo.size(),texIDs.size());ii++)
     {
         texInfo[ii].texId = texIDs[ii];
@@ -248,6 +266,8 @@ void BasicDrawableInstance::setTexIDs(const std::vector<SimpleIdentity> &texIDs)
 
 void BasicDrawableInstance::setTexRelative(int which,int size,int borderTexel,int relLevel,int relX,int relY)
 {
+    texturesChanged = true;
+
     if (which >= texInfo.size())
         return;
     

@@ -341,6 +341,8 @@ void BasicDrawableMTL::applyUniformsToDrawState(WhirlyKitShader::UniformDrawStat
 void BasicDrawableMTL::setupArgBuffers(id<MTLDevice> mtlDevice,RenderSetupInfoMTL *setupInfo,SceneMTL *scene,BufferBuilderMTL &buffBuild)
 {
     ProgramMTL *prog = (ProgramMTL *)scene->getProgram(programId);
+    if (!prog)  // This happens if we're being used by an instance
+        return;
     
     // All of these are optional, but here's what we're expecting
     //   Uniforms
