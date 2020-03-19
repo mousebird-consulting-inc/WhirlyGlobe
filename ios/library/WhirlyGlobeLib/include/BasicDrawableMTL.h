@@ -106,6 +106,10 @@ public:
     
     BufferEntryMTLRef mainBuffer;        // We're storing all the bits and pieces in here
     ArgBuffContentsMTLRef vertABInfo,fragABInfo;
+    ArgBuffRegularTexturesMTLRef texArgBuffer;
+    
+    // Textures currently in use
+    std::vector< id<MTLTexture> > activeTextures;
 };
     
 }

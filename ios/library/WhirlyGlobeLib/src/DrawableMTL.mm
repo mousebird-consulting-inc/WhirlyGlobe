@@ -138,27 +138,19 @@ BufferEntryMTLRef ArgBuffContentsMTL::getBuffer()
     return buff;
 }
 
-ArgBuffRegularTexturesMTL::ArgBuffRegularTexturesMTL()
-{
-}
-
-void ArgBuffRegularTexturesMTL::addTexture(const Point2f &offset,const Point2f &scale,id<MTLTexture> tex)
-{
-    offsets.push_back(offset);
-    scales.push_back(scale);
-    texs.push_back(tex);
-}
-
-BufferEntryMTLRef ArgBuffRegularTexturesMTL::encode(RenderSetupInfoMTL *setupInfoMTL,id<MTLDevice> mtlDevice)
+ArgBuffRegularTexturesMTL::ArgBuffRegularTexturesMTL(id<MTLDevice> mtlDevice,RenderSetupInfoMTL *setupInfoMTL,BufferBuilderMTL &buildBuff)
 {
     NSMutableArray<MTLArgumentDescriptor *> *args = [NSMutableArray array];
 
-    // Number of textures at start
-    MTLArgumentDescriptor *numTexturesArg = [[MTLArgumentDescriptor alloc] init];
-    numTexturesArg.access = MTLArgumentAccessReadOnly;
-    numTexturesArg.dataType = MTLDataTypeInt;
-    numTexturesArg.index = WKSTexBufNumTextures;
-    [args addObject:numTexturesArg];
+    // Textures themselves
+    for (unsigned int ii=0;ii<WKSTextureMax;ii++) {
+        MTLArgumentDescriptor *tex = [[MTLArgumentDescriptor alloc] init];
+        tex.access = MTLArgumentAccessReadOnly;
+        tex.dataType = MTLDataTypeTexture;
+        tex.index = WKSTexBuffTextures+ii;
+        tex.textureType = MTLTextureType2D;
+        [args addObject:tex];
+    }
     // TexIndirect objects
     for (unsigned int ii=0;ii<WKSTextureMax;ii++) {
         MTLArgumentDescriptor *float2a = [[MTLArgumentDescriptor alloc] init];
@@ -174,21 +166,32 @@ BufferEntryMTLRef ArgBuffRegularTexturesMTL::encode(RenderSetupInfoMTL *setupInf
         float2a.index = WKSTexBuffIndirectScale+ii;
         [args addObject:float2a];
     }
-    // Textures themselves
-    for (unsigned int ii=0;ii<WKSTextureMax;ii++) {
-        MTLArgumentDescriptor *tex = [[MTLArgumentDescriptor alloc] init];
-        tex.access = MTLArgumentAccessReadOnly;
-        tex.dataType = MTLDataTypeTexture;
-        tex.index = WKSTexBuffTextures+ii;
-        tex.textureType = MTLTextureType2D;
-        [args addObject:tex];
-    }
+    // Number of textures at start
+    MTLArgumentDescriptor *numTexturesArg = [[MTLArgumentDescriptor alloc] init];
+    numTexturesArg.access = MTLArgumentAccessReadOnly;
+    numTexturesArg.dataType = MTLDataTypeInt;
+    numTexturesArg.index = WKSTexBufNumTextures;
+    [args addObject:numTexturesArg];
     
-    id<MTLArgumentEncoder> encode = [mtlDevice newArgumentEncoderWithArguments:args];
+    encode = [mtlDevice newArgumentEncoderWithArguments:args];
     size = [encode encodedLength];
-    BufferEntryMTLRef buffer = setupInfoMTL->heapManage.allocateBuffer(HeapManagerMTL::Drawable, size);
+    buffer = buildBuff.reserveData(size);
+}
+
+void ArgBuffRegularTexturesMTL::wireUpBuffer()
+{
     [encode setArgumentBuffer:buffer->buffer offset:buffer->offset];
-    
+}
+
+void ArgBuffRegularTexturesMTL::addTexture(const Point2f &offset,const Point2f &scale,id<MTLTexture> tex)
+{
+    offsets.push_back(offset);
+    scales.push_back(scale);
+    texs.push_back(tex);
+}
+
+BufferEntryMTLRef ArgBuffRegularTexturesMTL::encodeBuffer(RenderSetupInfoMTL *setupInfoMTL,id<MTLDevice> mtlDevice)
+{
     // TexIndirect constants first
     memcpy([encode constantDataAtIndex:WKSTexBuffIndirectOffset], &offsets[0], sizeof(simd::float2)*offsets.size());
     memcpy([encode constantDataAtIndex:WKSTexBuffIndirectScale], &scales[0], sizeof(simd::float2)*scales.size());

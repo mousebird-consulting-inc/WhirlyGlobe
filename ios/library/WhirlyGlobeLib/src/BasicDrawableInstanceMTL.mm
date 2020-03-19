@@ -465,7 +465,7 @@ void BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
         }
 
         if (texturesChanged && (vertABInfo->hasEntry(WKSTextureArgBuffer) || fragABInfo->hasEntry(WKSTextureArgBuffer))) {
-            ArgBuffRegularTexturesMTL texArgBuffer;
+            activeTextures.clear();
 
             // Sometimes it's just boring geometry and the texture's in the base
             // Sometimes we're doing something clever and it's in the instance
@@ -502,11 +502,11 @@ void BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
                 TextureBaseMTL *tex = NULL;
                 if (thisTexInfo && thisTexInfo->texId != EmptyIdentity)
                     tex = dynamic_cast<TextureBaseMTL *>(scene->getTexture(thisTexInfo->texId));
-                texArgBuffer.addTexture(texOffset, Point2f(texScale,texScale), tex != nil ? tex->getMTLID() : nil);
+                texArgBuffer->addTexture(texOffset, Point2f(texScale,texScale), tex != nil ? tex->getMTLID() : nil);
             }
             // TODO: Try to reuse this buffer
-            BufferEntryMTLRef texBuffer = texArgBuffer.encode(&sceneRender->setupInfo,mtlDevice);
-            size_t texBufferSize = texArgBuffer.encodedLength();
+            BufferEntryMTLRef texBuffer = texArgBuffer->encodeBuffer(&sceneRender->setupInfo,mtlDevice);
+            size_t texBufferSize = texArgBuffer->encodedLength();
             if (vertABInfo)
                 vertABInfo->updateEntry(mtlDevice, bltEncode, WKSTextureArgBuffer, texBuffer, texBufferSize);
             if (fragABInfo)

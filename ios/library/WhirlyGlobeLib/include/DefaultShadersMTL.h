@@ -125,10 +125,10 @@ struct Lighting {
 };
 
 // These are in their own structure with the textures
-#define WKSTexBufNumTextures 0
-#define WKSTexBuffIndirectOffset 10
-#define WKSTexBuffIndirectScale 30
-#define WKSTexBuffTextures 50
+#define WKSTexBufNumTextures 70
+#define WKSTexBuffIndirectOffset 30
+#define WKSTexBuffIndirectScale 60
+#define WKSTexBuffTextures 0
 
 #define WKSUniformDrawStateWideVecArgBuffer 26
 // Instructions to the wide vector shaders, usually per-drawable

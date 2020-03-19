@@ -135,18 +135,18 @@ float4 resolveLighting(float3 pos,
 }
 
 struct RegularTextures {
-    // Number of valid textures
-    int numTextures                                               [[ id(WKSTexBufNumTextures) ]];
+    texture2d<float, access::sample> tex [[ id(WKSTexBuffTextures) ]] [WKSTextureMax];
     // Texture indirection (for accessing sub-textures)
     float2 offset [[ id(WKSTexBuffIndirectOffset) ]] [WKSTextureMax];
     float2 scale [[ id(WKSTexBuffIndirectScale) ]] [WKSTextureMax];
-    texture2d<float, access::sample> tex [[ id(WKSTexBuffTextures) ]] [WKSTextureMax];
+    // Number of valid textures
+    int numTextures                                               [[ id(WKSTexBufNumTextures) ]];
 };
 
 struct VertexTriArgBufferA {
     constant Uniforms *uniforms                   [[ id(WKSUniformArgBuffer) ]];
     constant UniformDrawStateA *uniDrawState      [[ id(WKSUniformDrawStateArgBuffer) ]];
-    constant RegularTextures *tex                 [[ id(WKSTextureArgBuffer) ]];
+    device RegularTextures *tex                 [[ id(WKSTextureArgBuffer) ]];
 };
 
 // Simple vertex shader for triangle with no lighting
@@ -172,7 +172,7 @@ struct VertexTriArgBufferB {
     constant Uniforms *uniforms                   [[ id(WKSUniformArgBuffer) ]];
     constant UniformDrawStateA *uniDrawState      [[ id(WKSUniformDrawStateArgBuffer) ]];
     constant Lighting *lighting                   [[ id(WKSLightingArgBuffer) ]];
-    constant RegularTextures *tex                 [[ id(WKSTextureArgBuffer) ]];
+    device RegularTextures *tex                 [[ id(WKSTextureArgBuffer) ]];
 };
 
 // Simple vertex shader for triangle with basic lighting
@@ -205,7 +205,9 @@ fragment float4 fragmentTri_basic(
     if (fragArgs.tex->numTextures > 0) {
         constexpr sampler sampler2d(coord::normalized, filter::linear);
         return vert.color * fragArgs.tex->tex[0].sample(sampler2d, vert.texCoord);
-    } else
+    } else if (fragArgs.tex->numTextures < 0) {
+        return float4(1.0,0.0,0.0,1.0);
+    }
         return vert.color;
 }
 

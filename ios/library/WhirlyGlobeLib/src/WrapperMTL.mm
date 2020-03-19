@@ -165,6 +165,11 @@ void ResourceRefsMTL::addTexture(id<MTLTexture> texture)
     textures.insert(texture);
 }
 
+void ResourceRefsMTL::addTextures(const std::vector< id<MTLTexture> > &newTextures)
+{
+    textures.insert(newTextures.begin(),newTextures.end());
+}
+
 void ResourceRefsMTL::use(id<MTLRenderCommandEncoder> cmdEncode)
 {
     for (id<MTLHeap> heap : heaps)

@@ -79,6 +79,7 @@ public:
     void addEntry(BufferEntryMTLRef entry);
     void addBuffer(id<MTLBuffer> buffer);
     void addTexture(id<MTLTexture> texture);
+    void addTextures(const std::vector< id<MTLTexture> > &textures);
     
     // Wire up the resources listed
     void use(id<MTLRenderCommandEncoder> cmdEncode);

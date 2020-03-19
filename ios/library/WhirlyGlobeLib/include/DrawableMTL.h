@@ -110,23 +110,29 @@ typedef std::shared_ptr<ArgBuffContentsMTL> ArgBuffContentsMTLRef;
 class ArgBuffRegularTexturesMTL
 {
 public:
-    ArgBuffRegularTexturesMTL();
+    ArgBuffRegularTexturesMTL(id<MTLDevice> mtlDevice,RenderSetupInfoMTL *setupInfoMTL,BufferBuilderMTL &buildBuff);
 
     // Add a texture to encode
     void addTexture(const Point2f &offset,const Point2f &scale,id<MTLTexture> tex);
 
     // Encode into the given buffer
-    BufferEntryMTLRef encode(RenderSetupInfoMTL *setupInfoMTL,id<MTLDevice> mtlDevice);
+    BufferEntryMTLRef encodeBuffer(RenderSetupInfoMTL *setupInfoMTL,id<MTLDevice> mtlDevice);
     
     // Size of the texture buffer (fixed)
     size_t encodedLength();
+    
+    // Since we're using a buffer builder, we don't know the actual buffer until it's done
+    void wireUpBuffer();
 
 protected:
+    id<MTLArgumentEncoder> encode;
     size_t size;  // Set after encode
     std::vector<Point2f> offsets;
     std::vector<Point2f> scales;
     std::vector<id<MTLTexture> > texs;
+    BufferEntryMTLRef buffer;
 };
+typedef std::shared_ptr<ArgBuffRegularTexturesMTL> ArgBuffRegularTexturesMTLRef;
 
 /**
     Metal version of drawable doesn't draw, so much as encode.

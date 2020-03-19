@@ -101,6 +101,8 @@ void BasicDrawableMTL::setupForRenderer(const RenderSetupInfo *inSetupInfo,Scene
         vertABInfo->wireUpBuffers();
     if (fragABInfo)
         fragABInfo->wireUpBuffers();
+    if (texArgBuffer)
+        texArgBuffer->wireUpBuffer();
 
     setupForMTL = true;
 }
@@ -377,15 +379,16 @@ void BasicDrawableMTL::setupArgBuffers(id<MTLDevice> mtlDevice,RenderSetupInfoMT
         fragABInfo->setEntry(WKSLightingArgBuffer, setupInfo->lightingBuff);
         fragABInfo->createBuffers(mtlDevice,buffBuild);
     }
+    
+    if (vertABInfo->hasEntry(WKSTextureArgBuffer) || fragABInfo->hasEntry(WKSTextureArgBuffer))
+    {
+        texArgBuffer =  ArgBuffRegularTexturesMTLRef(new ArgBuffRegularTexturesMTL(mtlDevice,setupInfo,buffBuild));
+    }
 }
 
 // Called before anything starts calculating or drawing to fill in buffers and such
 void BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuffer> cmdBuff,id<MTLBlitCommandEncoder> bltEncode,SceneMTL *scene,ResourceRefsMTL &resources)
 {
-    // Note: Debugging
-//    texturesChanged = true;
-//    valuesChanged = true;
-    
     if (texturesChanged || valuesChanged) {
         ProgramMTL *prog = (ProgramMTL *)scene->getProgram(programId);
         id<MTLDevice> mtlDevice = sceneRender->setupInfo.mtlDevice;
@@ -396,7 +399,7 @@ void BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
         }
 
         if (texturesChanged && (vertABInfo->hasEntry(WKSTextureArgBuffer) || fragABInfo->hasEntry(WKSTextureArgBuffer))) {
-            ArgBuffRegularTexturesMTL texArgBuffer;
+            activeTextures.clear();
 
             // Wire up the textures and texture indirection values
             for (unsigned int texIndex=0;texIndex<WKSTextureMax;texIndex++) {
@@ -423,11 +426,13 @@ void BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
                 TextureBaseMTL *tex = NULL;
                 if (thisTexInfo && thisTexInfo->texId != EmptyIdentity)
                     tex = dynamic_cast<TextureBaseMTL *>(scene->getTexture(thisTexInfo->texId));
-                texArgBuffer.addTexture(texOffset, Point2f(texScale,texScale), tex != nil ? tex->getMTLID() : nil);
+                if (tex)
+                    activeTextures.push_back(tex->getMTLID());
+                texArgBuffer->addTexture(texOffset, Point2f(texScale,texScale), tex != nil ? tex->getMTLID() : nil);
             }
             // TODO: Try to reuse this buffer
-            BufferEntryMTLRef texBuffer = texArgBuffer.encode(&sceneRender->setupInfo,mtlDevice);
-            size_t texBufferSize = texArgBuffer.encodedLength();
+            BufferEntryMTLRef texBuffer = texArgBuffer->encodeBuffer(&sceneRender->setupInfo,mtlDevice);
+            size_t texBufferSize = texArgBuffer->encodedLength();
             if (vertABInfo)
                 vertABInfo->updateEntry(mtlDevice, bltEncode, WKSTextureArgBuffer, texBuffer, texBufferSize);
             if (fragABInfo)
@@ -469,6 +474,8 @@ void BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
     // Always need the resource lists
     // It should all be in one buffer
     resources.addEntry(mainBuffer);
+    // TODO: Try to update this less often
+    resources.addTextures(activeTextures);
 }
 
 void BasicDrawableMTL::encodeDirectCalculate(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene)
