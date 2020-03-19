@@ -143,34 +143,35 @@ ArgBuffRegularTexturesMTL::ArgBuffRegularTexturesMTL(id<MTLDevice> mtlDevice,Ren
     NSMutableArray<MTLArgumentDescriptor *> *args = [NSMutableArray array];
 
     // Textures themselves
-    for (unsigned int ii=0;ii<WKSTextureMax;ii++) {
-        MTLArgumentDescriptor *tex = [[MTLArgumentDescriptor alloc] init];
-        tex.access = MTLArgumentAccessReadOnly;
-        tex.dataType = MTLDataTypeTexture;
-        tex.index = WKSTexBuffTextures+ii;
-        tex.textureType = MTLTextureType2D;
-        [args addObject:tex];
-    }
+    MTLArgumentDescriptor *tex = [[MTLArgumentDescriptor alloc] init];
+    tex.access = MTLArgumentAccessReadOnly;
+    tex.dataType = MTLDataTypeTexture;
+    tex.index = WKSTexBuffTextures;
+    tex.textureType = MTLTextureType2D;
+    tex.arrayLength = WKSTextureMax;
+    [args addObject:tex];
+
     // TexIndirect objects
-    for (unsigned int ii=0;ii<WKSTextureMax;ii++) {
-        MTLArgumentDescriptor *float2a = [[MTLArgumentDescriptor alloc] init];
-        float2a.access = MTLArgumentAccessReadOnly;
-        float2a.dataType = MTLDataTypeFloat2;
-        float2a.index = WKSTexBuffIndirectOffset+ii;
-        [args addObject:float2a];
-    }
-    for (unsigned int ii=0;ii<WKSTextureMax;ii++) {
-        MTLArgumentDescriptor *float2a = [[MTLArgumentDescriptor alloc] init];
-        float2a.access = MTLArgumentAccessReadOnly;
-        float2a.dataType = MTLDataTypeFloat2;
-        float2a.index = WKSTexBuffIndirectScale+ii;
-        [args addObject:float2a];
-    }
+    MTLArgumentDescriptor *float2a = [[MTLArgumentDescriptor alloc] init];
+    float2a.access = MTLArgumentAccessReadOnly;
+    float2a.dataType = MTLDataTypeFloat2;
+    float2a.index = WKSTexBuffIndirectOffset;
+    float2a.arrayLength = WKSTextureMax;
+    [args addObject:float2a];
+
+    MTLArgumentDescriptor *float2b = [[MTLArgumentDescriptor alloc] init];
+    float2b.access = MTLArgumentAccessReadOnly;
+    float2b.dataType = MTLDataTypeFloat2;
+    float2b.index = WKSTexBuffIndirectScale;
+    float2b.arrayLength = WKSTextureMax;
+    [args addObject:float2b];
+
     // Number of textures at start
     MTLArgumentDescriptor *numTexturesArg = [[MTLArgumentDescriptor alloc] init];
     numTexturesArg.access = MTLArgumentAccessReadOnly;
     numTexturesArg.dataType = MTLDataTypeInt;
     numTexturesArg.index = WKSTexBufNumTextures;
+    numTexturesArg.arrayLength = 1;
     [args addObject:numTexturesArg];
     
     encode = [mtlDevice newArgumentEncoderWithArguments:args];

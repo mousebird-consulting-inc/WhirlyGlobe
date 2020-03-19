@@ -134,14 +134,14 @@ float4 resolveLighting(float3 pos,
     return float4(ambient.xyz * lighting->mat.ambient.xyz * color.xyz + diffuse.xyz * color.xyz,color.a);
 }
 
-struct RegularTextures {
-    texture2d<float, access::sample> tex [[ id(WKSTexBuffTextures) ]] [WKSTextureMax];
+typedef struct RegularTextures {
+    array<texture2d<float, access::sample>, WKSTextureMax> tex [[ id(WKSTexBuffTextures) ]];
     // Texture indirection (for accessing sub-textures)
-    float2 offset [[ id(WKSTexBuffIndirectOffset) ]] [WKSTextureMax];
-    float2 scale [[ id(WKSTexBuffIndirectScale) ]] [WKSTextureMax];
+    array<float2, WKSTextureMax> offset [[ id(WKSTexBuffIndirectOffset) ]];
+    array<float2, WKSTextureMax> scale [[ id(WKSTexBuffIndirectScale) ]];
     // Number of valid textures
-    int numTextures                                               [[ id(WKSTexBufNumTextures) ]];
-};
+    int numTextures                    [[ id(WKSTexBufNumTextures) ]];
+} RegularTextures;
 
 struct VertexTriArgBufferA {
     constant Uniforms *uniforms                   [[ id(WKSUniformArgBuffer) ]];
@@ -202,7 +202,7 @@ fragment float4 fragmentTri_basic(
                 ProjVertexTriA vert [[stage_in]],
                 constant VertexTriArgBufferA & fragArgs [[buffer(WKSFragmentArgBuffer)]])
 {
-    if (fragArgs.tex->numTextures > 0) {
+    if (fragArgs.tex->numTextures == 1) {
         constexpr sampler sampler2d(coord::normalized, filter::linear);
         return vert.color * fragArgs.tex->tex[0].sample(sampler2d, vert.texCoord);
     } else if (fragArgs.tex->numTextures < 0) {

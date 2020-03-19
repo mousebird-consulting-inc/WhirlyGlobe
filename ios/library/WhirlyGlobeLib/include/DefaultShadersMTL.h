@@ -49,7 +49,7 @@ namespace WhirlyKitShader
 #define WKSVertexBillboardOffsetAttribute 6
 
 // Maximum number of textures we currently support
-#define WKSTextureMax 1
+#define WKSTextureMax 8
 // Textures passed into the shader start here
 #define WKSTextureEntryLookup 5
 // Base argument buffer index for textures
