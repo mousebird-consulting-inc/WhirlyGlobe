@@ -639,6 +639,7 @@ void SceneRendererMTL::render(TimeInterval duration,
             id<MTLCommandBuffer> cmdBuff = [cmdQueue commandBuffer];
             
             // Ask all the drawables to set themselves up.  Mostly memory stuff.
+            id<MTLFence> preProcessFence = [mtlDevice newFence];
             id<MTLBlitCommandEncoder> bltEncode = [cmdBuff blitCommandEncoder];
             ResourceRefsMTL resources;
             for (auto &draw : targetContainer->drawables) {
@@ -647,6 +648,7 @@ void SceneRendererMTL::render(TimeInterval duration,
             }
             // TODO: Just set this up once and copy it into position
             setupLightBuffer(sceneMTL,&baseFrameInfo,bltEncode);
+            [bltEncode updateFence:preProcessFence];
             [bltEncode endEncoding];
                         
             // If we're forcing a mipmap calculation, then we're just going to use this render target once
@@ -659,9 +661,11 @@ void SceneRendererMTL::render(TimeInterval duration,
             for (unsigned int level=0;level<numLevels;level++) {
                 // Regular uniforms are per level, unfortunately
                 // Set up and then copied into place
+                id<MTLFence> uniformFence = [mtlDevice newFence];
                 id<MTLBlitCommandEncoder> bltEncode = [cmdBuff blitCommandEncoder];
                 // TODO: Just set this up once and copy it into position
                 setupUniformBuffer(&baseFrameInfo,bltEncode,scene->getCoordAdapter(),level);
+                [bltEncode updateFence:uniformFence];
                 [bltEncode endEncoding];
 
                 // Set up the encoder
@@ -676,6 +680,8 @@ void SceneRendererMTL::render(TimeInterval duration,
                     baseFrameInfo.renderPassDesc = renderTarget->getRenderPassDesc(level);
                 }
                 cmdEncode = [cmdBuff renderCommandEncoderWithDescriptor:baseFrameInfo.renderPassDesc];
+                [cmdEncode waitForFence:preProcessFence beforeStages:MTLRenderStageVertex];
+                [cmdEncode waitForFence:uniformFence beforeStages:MTLRenderStageVertex];
 
                 // Wire up all the resources we need to use
                 // These are buffers created or used by the various drawables

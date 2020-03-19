@@ -25,14 +25,14 @@ using namespace metal;
 using namespace WhirlyKitShader;
 
 struct VertexArgBufferA {
-    const constant Uniforms *uniforms               [[ id(WKSUniformArgBuffer) ]];
-    const constant UniformDrawStateA *uniDrawState  [[ id(WKSUniformDrawStateArgBuffer) ]];
+    constant Uniforms *uniforms               [[ id(WKSUniformArgBuffer) ]];
+    constant UniformDrawStateA *uniDrawState  [[ id(WKSUniformDrawStateArgBuffer) ]];
 };
 
 // Vertex shader for simple line on the globe
 vertex ProjVertexA vertexLineOnly_globe(
     VertexA vert [[stage_in]],
-    const constant VertexArgBufferA & vertArgs [[buffer(WKSVertexArgBuffer)]])
+    constant VertexArgBufferA & vertArgs [[buffer(WKSVertexArgBuffer)]])
 {
     ProjVertexA outVert;
     
@@ -60,7 +60,7 @@ struct FragmentArgEmpty {
 // Fragment shader for simple line case
 fragment float4 fragmentLineOnly_globe(
     ProjVertexA in [[stage_in]],
-    const constant FragmentArgEmpty & uniEmpty [[buffer(WKSFragmentArgBuffer)]])
+    constant FragmentArgEmpty & uniEmpty [[buffer(WKSFragmentArgBuffer)]])
 {
     if (in.dotProd <= 0.0)
         discard_fragment();
@@ -68,7 +68,7 @@ fragment float4 fragmentLineOnly_globe(
 }
 
 // Back facing calculation for the globe
-float calcGlobeDotProd(const constant Uniforms *uniforms,float3 pos, float3 norm)
+float calcGlobeDotProd(constant Uniforms *uniforms,float3 pos, float3 norm)
 {
     if (!uniforms->globeMode)
         return 1.0;
@@ -83,7 +83,7 @@ float calcGlobeDotProd(const constant Uniforms *uniforms,float3 pos, float3 norm
 // Vertex shader for simple line on the flat map (no backface checking)
 vertex ProjVertexB vertexLineOnly_flat(
     VertexA vert [[stage_in]],
-    const constant VertexArgBufferA & vertArgs [[buffer(WKSVertexArgBuffer)]])
+    constant VertexArgBufferA & vertArgs [[buffer(WKSVertexArgBuffer)]])
 {
     ProjVertexB outVert;
     
@@ -99,7 +99,7 @@ vertex ProjVertexB vertexLineOnly_flat(
 // Simple fragment shader for lines on flat map
 fragment float4 fragmentLineOnly_flat(
     ProjVertexB vert [[stage_in]],
-    const constant FragmentArgEmpty & uniEmpty [[buffer(WKSFragmentArgBuffer)]])
+    constant FragmentArgEmpty & uniEmpty [[buffer(WKSFragmentArgBuffer)]])
 {
     return vert.color;
 }
@@ -117,14 +117,14 @@ float2 resolveTexCoords(float2 texCoord,float2 offset,float2 scale)
 float4 resolveLighting(float3 pos,
                       float3 norm,
                       float4 color,
-                      const constant Lighting *lighting,
+                      constant Lighting *lighting,
                       float4x4 mvpMatrix)
 {
     float4 ambient(0.0,0.0,0.0,0.0);
     float4 diffuse(0.0,0.0,0.0,0.0);
 
     for (int ii=0;ii<lighting->numLights;ii++) {
-        const constant Light *light = &lighting->lights[ii];
+        constant Light *light = &lighting->lights[ii];
         float3 adjNorm = light->viewDepend > 0.0 ? normalize((mvpMatrix * float4(norm.xyz, 0.0)).xyz) : norm.xzy;
         float ndotl = max(0.0, dot(adjNorm, light->direction));
         ambient += light->ambient;
@@ -152,7 +152,7 @@ struct VertexTriArgBufferA {
 // Simple vertex shader for triangle with no lighting
 vertex ProjVertexTriA vertexTri_noLight(
                 VertexTriA vert [[stage_in]],
-                const constant VertexTriArgBufferA & vertArgs [[buffer(WKSVertexArgBuffer)]])
+                constant VertexTriArgBufferA & vertArgs [[buffer(WKSVertexArgBuffer)]])
 {
     ProjVertexTriA outVert;
     
@@ -178,7 +178,7 @@ struct VertexTriArgBufferB {
 // Simple vertex shader for triangle with basic lighting
 vertex ProjVertexTriA vertexTri_light(
                 VertexTriA vert [[stage_in]],
-                const constant VertexTriArgBufferB & vertArgs [[buffer(WKSVertexArgBuffer)]])
+                constant VertexTriArgBufferB & vertArgs [[buffer(WKSVertexArgBuffer)]])
 {
     ProjVertexTriA outVert;
     
@@ -200,7 +200,7 @@ vertex ProjVertexTriA vertexTri_light(
 // Simple fragment shader for lines on flat map
 fragment float4 fragmentTri_basic(
                 ProjVertexTriA vert [[stage_in]],
-                const constant VertexTriArgBufferA & fragArgs [[buffer(WKSFragmentArgBuffer)]])
+                constant VertexTriArgBufferA & fragArgs [[buffer(WKSFragmentArgBuffer)]])
 {
     if (fragArgs.tex->numTextures > 0) {
         constexpr sampler sampler2d(coord::normalized, filter::linear);
@@ -270,7 +270,7 @@ fragment float4 fragmentTri_multiTex(ProjVertexTriB vert [[stage_in]],
 
 // Fragment shader that handles two textures and does a ramp lookup
 fragment float4 fragmentTri_multiTexRamp(ProjVertexTriB vert [[stage_in]],
-                                         const constant VertexTriArgBufferB & fragArgs [[buffer(WKSFragmentArgBuffer)]])
+                                         constant VertexTriArgBufferB & fragArgs [[buffer(WKSFragmentArgBuffer)]])
 {
     // Handle none, 1 or 2 textures
     if (fragArgs.tex->numTextures == 0) {
@@ -300,7 +300,7 @@ struct VertexTriWideArgBuffer {
 
 vertex ProjVertexTriWideVec vertexTri_wideVec(
             VertexTriWideVec vert [[stage_in]],
-            const constant VertexTriWideArgBuffer & vertArgs [[buffer(WKSVertexArgBuffer)]])
+            constant VertexTriWideArgBuffer & vertArgs [[buffer(WKSVertexArgBuffer)]])
 {
     ProjVertexTriWideVec outVert;
     
@@ -323,7 +323,7 @@ vertex ProjVertexTriWideVec vertexTri_wideVec(
 // Fragment share that takes the back of the globe into account
 fragment float4 fragmentTri_wideVec(
             ProjVertexTriWideVec vert [[stage_in]],
-            const constant VertexTriWideArgBuffer & fragArgs [[buffer(WKSFragmentArgBuffer)]])
+            constant VertexTriWideArgBuffer & fragArgs [[buffer(WKSFragmentArgBuffer)]])
 {
     // Dot/dash pattern
     float patternVal = 1.0;
@@ -350,7 +350,7 @@ struct VertexTriSSArgBuffer {
 // Screen space (no motion) vertex shader
 vertex ProjVertexTriA vertexTri_screenSpace(
             VertexTriScreenSpace vert [[stage_in]],
-            const constant VertexTriSSArgBuffer & vertArgs [[buffer(WKSVertexArgBuffer)]])
+            constant VertexTriSSArgBuffer & vertArgs [[buffer(WKSVertexArgBuffer)]])
 {
     ProjVertexTriA outVert;
     
@@ -403,7 +403,7 @@ struct VertexTriModelArgBuffer {
 vertex ProjVertexTriB vertexTri_model(
           VertexTriB vert [[stage_in]],
           uint instanceID [[instance_id]],
-          const constant VertexTriModelArgBuffer & vertArgs [[buffer(WKSVertexArgBuffer)]])
+          constant VertexTriModelArgBuffer & vertArgs [[buffer(WKSVertexArgBuffer)]])
 {
     ProjVertexTriB outVert;
     
@@ -439,7 +439,7 @@ struct VertexTriBillboardArgBuffer {
 // TODO: These should be model instances.  Ew.
 vertex ProjVertexTriA vertexTri_billboard(
             VertexTriBillboard vert [[stage_in]],
-            const constant VertexTriBillboardArgBuffer & vertArgs [[buffer(WKSVertexArgBuffer)]])
+            constant VertexTriBillboardArgBuffer & vertArgs [[buffer(WKSVertexArgBuffer)]])
 {
     ProjVertexTriA outVert;
     
