@@ -83,6 +83,7 @@ SceneRendererMTL::SceneRendererMTL(id<MTLDevice> mtlDevice, float inScale)
 : setupInfo(mtlDevice)
 {
     offscreenBlendEnable = false;
+    indirectRender = false;
     init();
 
     // Calculation shaders
@@ -299,6 +300,9 @@ void SceneRendererMTL::updateWorkGroups(RendererFrameInfo *frameInfo)
 {
     SceneRenderer::updateWorkGroups(frameInfo);
     
+    if (!indirectRender)
+        return;
+    
     // Build the indirect command buffers if they're available
     if (@available(iOS 13.0, *)) {
         for (auto &workGroup : workGroups) {
@@ -362,7 +366,8 @@ void SceneRendererMTL::updateWorkGroups(RendererFrameInfo *frameInfo)
                 if (@available(iOS 13.0, *)) {
                     cmdBuffDesc.inheritPipelineState = false;
                 }
-                cmdBuffDesc.maxVertexBufferBindCount = 8;
+                // TODO: Should query the drawables to get this maximum number
+                cmdBuffDesc.maxVertexBufferBindCount = 12;
                 cmdBuffDesc.maxFragmentBufferBindCount = 3;
 
                 // Build up indirect buffers for each draw group
@@ -608,9 +613,6 @@ void SceneRendererMTL::render(TimeInterval duration,
         offFrameInfos.push_back(offFrameInfo);
     }
     
-    // TODO: Expose this
-    bool indirectRender = false;
-        
     // Workgroups force us to draw things in order
     for (auto &workGroup : workGroups) {
         if (perfInterval > 0)

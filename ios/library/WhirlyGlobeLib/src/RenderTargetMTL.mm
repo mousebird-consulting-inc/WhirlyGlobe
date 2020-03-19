@@ -31,7 +31,7 @@ RenderTargetMTL::RenderTargetMTL()
 }
 
 RenderTargetMTL::RenderTargetMTL(SimpleIdentity newID)
-    : RenderTarget(newID), pixelFormat(MTLPixelFormatBGRA8Unorm)
+    : RenderTarget(newID), pixelFormat(MTLPixelFormatBGRA8Unorm), renderPassDescSetFromOutside(false)
 {
     clearOnce = true;
 }
@@ -64,6 +64,7 @@ void RenderTargetMTL::clear()
 {
     tex = nil;
     renderPassDesc.clear();
+    renderPassDescSetFromOutside = false;
 }
 
 int RenderTargetMTL::numLevels()
@@ -169,6 +170,9 @@ void RenderTargetMTL::setTargetDepthTexture(TextureBaseMTL *inDepthTex)
     
 void RenderTargetMTL::makeRenderPassDesc()
 {
+    if (!renderPassDesc.empty() && renderPassDescSetFromOutside)
+        return;
+    
     renderPassDesc.clear();
     
     // TODO: Only regenerate these if something has changed
@@ -224,6 +228,7 @@ void RenderTargetMTL::setRenderPassDesc(MTLRenderPassDescriptor *inRenderPassDes
 {
     renderPassDesc.clear();
     renderPassDesc.push_back(inRenderPassDesc);
+    renderPassDescSetFromOutside = true;
 }
     
 MTLRenderPassDescriptor *RenderTargetMTL::getRenderPassDesc(int level)

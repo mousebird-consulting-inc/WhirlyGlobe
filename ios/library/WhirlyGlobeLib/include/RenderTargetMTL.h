@@ -92,6 +92,7 @@ protected:
     MTLPixelFormat pixelFormat;
     id<MTLTexture> depthTex;
     MTLPixelFormat depthPixelFormat;
+    bool renderPassDescSetFromOutside;
     std::vector<MTLRenderPassDescriptor *> renderPassDesc;
     MPSImagePyramid *mipmapKernel;
     id<MTLTexture> minMaxOutTex;

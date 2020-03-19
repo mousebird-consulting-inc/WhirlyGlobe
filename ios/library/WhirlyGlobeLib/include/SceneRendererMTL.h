@@ -185,7 +185,9 @@ public:
     
 public:
     RenderTargetMTLRef getRenderTarget(SimpleIdentity renderTargetID);
-    
+
+    // If set, we'll use indirect rendering
+    bool indirectRender;
     // By default offscreen rendering turns on or off blend enable
     bool offscreenBlendEnable;
     // Information about the renderer passed around to various calls

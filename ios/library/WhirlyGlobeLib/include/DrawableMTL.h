@@ -46,6 +46,9 @@ public:
                        int bufferArgIdx,
                        BufferBuilderMTL &buffBuild);
     
+    // Return an argument encoder for the given try (presumably another argument buffer)
+    id<MTLArgumentEncoder> getEncoderFor(SceneRendererMTL *sceneRender,int entryID);
+    
     // Create empty buffers for the various entries we don't have yet
     void createBuffers(id<MTLDevice> mtlDevice,BufferBuilderMTL &buffBuild);
     
@@ -62,16 +65,15 @@ public:
                      id<MTLBlitCommandEncoder> blitEncode,
                      int entryID,
                      void *rawData,size_t size);
+    // This version takes a buffer to copy from
+    void updateEntry(id<MTLDevice> mtlDevice,
+                     id<MTLBlitCommandEncoder> blitEncode,
+                     int entryID,
+                     BufferEntryMTLRef buffer,size_t size);
     
     // Set the buffer for a specific entry
     void setEntry(int entryID,BufferEntryMTLRef buffer);
-    
-    // Clear the MTLTextures we're holding
-    void clearTextures();
-    
-    // Use the encode to directly set a texture
-    void setTexture(int texIndex,id<MTLTexture> tex);
-    
+        
     // Add the resources we're using to the list
     void addResources(ResourceRefsMTL &resources);
     
@@ -92,10 +94,7 @@ protected:
         BufferEntryMTLRef buffer;
     } Entry;
     typedef std::shared_ptr<Entry> EntryRef;
-        
-    // Textures indices and textures we've seen
-    std::map<int,id<MTLTexture> > textures;
-    
+
     // Buffer that contains the argument buffer
     BufferEntryMTLRef buff;
     
@@ -106,6 +105,28 @@ protected:
     std::map<int,EntryRef> entries;
 };
 typedef std::shared_ptr<ArgBuffContentsMTL> ArgBuffContentsMTLRef;
+
+// Assembles the RegularTextures structure for Metal shaders
+class ArgBuffRegularTexturesMTL
+{
+public:
+    ArgBuffRegularTexturesMTL();
+
+    // Add a texture to encode
+    void addTexture(const Point2f &offset,const Point2f &scale,id<MTLTexture> tex);
+
+    // Encode into the given buffer
+    BufferEntryMTLRef encode(RenderSetupInfoMTL *setupInfoMTL,id<MTLDevice> mtlDevice);
+    
+    // Size of the texture buffer (fixed)
+    size_t encodedLength();
+
+protected:
+    size_t size;  // Set after encode
+    std::vector<Point2f> offsets;
+    std::vector<Point2f> scales;
+    std::vector<id<MTLTexture> > texs;
+};
 
 /**
     Metal version of drawable doesn't draw, so much as encode.

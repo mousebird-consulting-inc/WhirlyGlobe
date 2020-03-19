@@ -38,46 +38,9 @@ BasicDrawableInstanceMTL::~BasicDrawableInstanceMTL()
 {
 }
 
-// Place or update the default attribute corresponding to color
-// TODO: Make this more general
-void BasicDrawableInstanceMTL::updateColorDefaultAttr()
-{
-    BasicDrawableMTL *basicDrawMTL = dynamic_cast<BasicDrawableMTL *>(basicDraw.get());
-    if (!basicDrawMTL)
-        return;
-
-    if (hasColor) {
-        VertexAttributeMTL *colorAttrMTL = basicDrawMTL->findVertexAttribute(a_colorNameID);
-        if (colorAttrMTL) {
-            BasicDrawableMTL::AttributeDefault defAttr;
-            defAttr.buffer = colorBuffer;
-            defAttr.dataType = MTLDataTypeUChar4;
-            defAttr.bufferIndex = colorAttrMTL->bufferIndex;
-            unsigned char chars[4];
-            color.asUChar4(chars);
-            for (unsigned int ii=0;ii<4;ii++)
-                defAttr.data.chars[ii] = chars[ii];
-            
-            // Might need to replace this one
-            bool found = false;
-            for (int ii=0;ii<defaultAttrs.size();ii++)
-                if (defaultAttrs[ii].bufferIndex == defAttr.bufferIndex) {
-                    defaultAttrs[ii] = defAttr;
-                    found = true;
-                    break;
-                }
-
-            if (!found)
-                defaultAttrs.push_back(defAttr);
-        }
-    }
-}
-
 void BasicDrawableInstanceMTL::setColor(RGBAColor inColor)
 {
     BasicDrawableInstance::setColor(inColor);
-    
-    updateColorDefaultAttr();
 }
 
 void BasicDrawableInstanceMTL::setupForRenderer(const RenderSetupInfo *inSetupInfo,Scene *inScene)
@@ -146,8 +109,10 @@ void BasicDrawableInstanceMTL::setupForRenderer(const RenderSetupInfo *inSetupIn
     // Last, we'll set up the default attributes in the new buffer as well
     for (auto &defAttr : defaultAttrs)
         defAttr.buffer = buffBuild.addData(&defAttr.data, sizeof(defAttr.data));
-    colorBuffer = buffBuild.reserveData(sizeof(BasicDrawableMTL::AttributeDefault::data));
-
+    unsigned char data[4];
+    color.asUChar4(&data[0]);
+    colorBuffer = buffBuild.addData(&data[0], 4);
+    
     // Construct the buffer we've been adding to
     mainBuffer = buffBuild.buildBuffer();
     
@@ -184,8 +149,32 @@ id<MTLRenderPipelineState> BasicDrawableInstanceMTL::getRenderPipelineState(Scen
     if (!name.empty())
         renderDesc.label = [NSString stringWithFormat:@"%s",name.c_str()];
 
-    // We also need to set up our default attribute overrides
-    updateColorDefaultAttr();
+    // Update the attribute defaults if they're present
+    if (hasColor) {
+        VertexAttributeMTL *colorAttrMTL = basicDrawMTL->findVertexAttribute(a_colorNameID);
+        if (colorAttrMTL) {
+            BasicDrawableMTL::AttributeDefault defAttr;
+            defAttr.buffer = colorBuffer;
+            defAttr.dataType = MTLDataTypeUChar4;
+            defAttr.bufferIndex = colorAttrMTL->bufferIndex;
+            unsigned char chars[4];
+            color.asUChar4(chars);
+            for (unsigned int ii=0;ii<4;ii++)
+                defAttr.data.chars[ii] = chars[ii];
+            
+            // Might need to replace this one
+            bool found = false;
+            for (int ii=0;ii<defaultAttrs.size();ii++)
+                if (defaultAttrs[ii].bufferIndex == defAttr.bufferIndex) {
+                    defaultAttrs[ii] = defAttr;
+                    found = true;
+                    break;
+                }
+
+            if (!found)
+                defaultAttrs.push_back(defAttr);
+        }
+    }
 
     // Set up a render state
     NSError *err = nil;
@@ -238,26 +227,6 @@ void BasicDrawableInstanceMTL::setupArgBuffers(id<MTLDevice> mtlDevice,RenderSet
         fragABInfo->setEntry(WKSLightingArgBuffer, setupInfo->lightingBuff);
         fragABInfo->createBuffers(mtlDevice,buffBuild);
     }
-
-    // Provide empty data for all the textures
-    WhirlyKitShader::TexIndirect texIndirect[WKSTextureMax];
-    for (unsigned int texIndex=0;texIndex<WKSTextureMax;texIndex++) {
-        // Figure out texture adjustment for parent textures
-        float texScale = 1.0;
-        Vector2f texOffset(0.0,0.0);
-
-        // Calculate offset and scales
-        WhirlyKitShader::TexIndirect &texInd = texIndirect[texIndex];
-        texInd.offset[0] = texOffset.x();  texInd.offset[1] = texOffset.y();
-        texInd.scale[0] = texScale; texInd.scale[1] = texScale;
-        
-        // And the texture itself
-        if (vertABInfo)
-            vertABInfo->setTexture(texIndex, nil);
-        if (fragABInfo)
-            fragABInfo->setTexture(texIndex, nil);
-    }
-    // TODO: Clear out the tex indirect buffers to provide defaults
 }
 
 // Render state for calculation pass
@@ -495,8 +464,9 @@ void BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
             return;
         }
 
-        int numTextures = 0;
-        if (texturesChanged) {
+        if (texturesChanged && (vertABInfo->hasEntry(WKSTextureArgBuffer) || fragABInfo->hasEntry(WKSTextureArgBuffer))) {
+            ArgBuffRegularTexturesMTL texArgBuffer;
+
             // Sometimes it's just boring geometry and the texture's in the base
             // Sometimes we're doing something clever and it's in the instance
             std::vector<TexInfo> allTexInfo(std::max(texInfo.size(),basicDraw->texInfo.size()));
@@ -510,8 +480,6 @@ void BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
             // Pass in the textures (and offsets)
             // Note: We could precalculate most of then when the texture changes
             //       And we should figure out how many textures they actually have
-            int numTextures = 0;
-            WhirlyKitShader::TexIndirect texIndirect[WKSTextureMax];
             for (unsigned int texIndex=0;texIndex<WKSTextureMax;texIndex++) {
                 TexInfo *thisTexInfo = (texIndex < allTexInfo.size()) ? &allTexInfo[texIndex] : NULL;
 
@@ -530,33 +498,19 @@ void BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
                     texOffset = Vector2f(texScale*thisTexInfo->relX,texScale*thisTexInfo->relY) + texOffset;
                 }
 
-                // Calculate offset and scales
-                WhirlyKitShader::TexIndirect &texInd = texIndirect[texIndex];
-                texInd.offset[0] = texOffset.x();  texInd.offset[1] = texOffset.y();
-                texInd.scale[0] = texScale; texInd.scale[1] = texScale;
-
                 // And the texture itself
-                // Note: Should we be setting up the sampler?
                 TextureBaseMTL *tex = NULL;
                 if (thisTexInfo && thisTexInfo->texId != EmptyIdentity)
                     tex = dynamic_cast<TextureBaseMTL *>(scene->getTexture(thisTexInfo->texId));
-                if (tex && tex->getMTLID()) {
-                    if (vertABInfo)
-                        vertABInfo->setTexture(texIndex, tex->getMTLID());
-                    if (fragABInfo)
-                        fragABInfo->setTexture(texIndex, tex->getMTLID());
-                    numTextures++;
-                } else {
-                    if (vertABInfo)
-                        vertABInfo->setTexture(texIndex, nil);
-                    if (fragABInfo)
-                        fragABInfo->setTexture(texIndex, nil);
-                }
+                texArgBuffer.addTexture(texOffset, Point2f(texScale,texScale), tex != nil ? tex->getMTLID() : nil);
             }
+            // TODO: Try to reuse this buffer
+            BufferEntryMTLRef texBuffer = texArgBuffer.encode(&sceneRender->setupInfo,mtlDevice);
+            size_t texBufferSize = texArgBuffer.encodedLength();
             if (vertABInfo)
-                vertABInfo->updateEntry(mtlDevice,bltEncode,WKSTexIndirectArgBuffer, &texIndirect[0], sizeof(WhirlyKitShader::TexIndirect)*WKSTextureMax);
+                vertABInfo->updateEntry(mtlDevice, bltEncode, WKSTextureArgBuffer, texBuffer, texBufferSize);
             if (fragABInfo)
-                fragABInfo->updateEntry(mtlDevice,bltEncode,WKSTexIndirectArgBuffer, &texIndirect[0], sizeof(WhirlyKitShader::TexIndirect)*WKSTextureMax);
+                fragABInfo->updateEntry(mtlDevice, bltEncode, WKSTextureArgBuffer, texBuffer, texBufferSize);
         }
 
         if (valuesChanged) {
@@ -576,24 +530,22 @@ void BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
                 vertABInfo->updateEntry(mtlDevice,bltEncode,uniBlock->bufferID, (void *)uniBlock->blockData->getRawData(), uniBlock->blockData->getLen());
                 fragABInfo->updateEntry(mtlDevice,bltEncode,uniBlock->bufferID, (void *)uniBlock->blockData->getRawData(), uniBlock->blockData->getLen());
             }
+            
+            // Per drawable draw state in its own buffer
+            // Has to update if either textures or values updated
+            WhirlyKitShader::UniformDrawStateA uni;
+            sceneRender->setupDrawStateA(uni);
+            // TODO: Move into shader
+            uni.fade = 1.0;
+    //        uni.fade = calcFade(frameInfo);
+            uni.clipCoords = basicDraw->clipCoords;
+            BasicDrawableMTL::applyUniformsToDrawState(uni,uniforms);
+            CopyIntoMtlFloat4x4(uni.singleMat, *getMatrix());
+            if (vertABInfo)
+                vertABInfo->updateEntry(mtlDevice,bltEncode, WKSUniformDrawStateArgBuffer, &uni, sizeof(uni));
+            if (fragABInfo)
+                fragABInfo->updateEntry(mtlDevice,bltEncode, WKSUniformDrawStateArgBuffer, &uni, sizeof(uni));
         }
-
-        // Per drawable draw state in its own buffer
-        // Has to update if either textures or values updated
-        WhirlyKitShader::UniformDrawStateA uni;
-        sceneRender->setupDrawStateA(uni);
-        uni.numTextures = numTextures;
-        // TODO: Move into shader
-        uni.fade = 1.0;
-//        uni.fade = calcFade(frameInfo);
-        uni.clipCoords = basicDraw->clipCoords;
-        BasicDrawableMTL::applyUniformsToDrawState(uni,uniforms);
-        CopyIntoMtlFloat4x4(uni.singleMat, *getMatrix());
-        if (vertABInfo)
-            vertABInfo->updateEntry(mtlDevice,bltEncode, WKSUniformDrawStateArgBuffer, &uni, sizeof(uni));
-        if (fragABInfo)
-            fragABInfo->updateEntry(mtlDevice,bltEncode, WKSUniformDrawStateArgBuffer, &uni, sizeof(uni));
-        
         
         // And do the Model Instance specific stuff
         if (vertABInfo)

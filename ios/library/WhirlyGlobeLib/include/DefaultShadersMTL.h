@@ -49,7 +49,7 @@ namespace WhirlyKitShader
 #define WKSVertexBillboardOffsetAttribute 6
 
 // Maximum number of textures we currently support
-#define WKSTextureMax 8
+#define WKSTextureMax 1
 // Textures passed into the shader start here
 #define WKSTextureEntryLookup 5
 // Base argument buffer index for textures
@@ -77,7 +77,6 @@ struct Uniforms
 #define WKSUniformDrawStateArgBuffer 21
 // Things that change per drawable (like fade)
 struct UniformDrawStateA {
-    int numTextures;           // Number of textures we may find on input
     float fade;                // Fade tends to change by time
     float interp;              // Used to interpolate between two textures (if appropriate)
     simd::float2 screenOrigin; // Used for texture pinning in screen space
@@ -124,14 +123,12 @@ struct Lighting {
     int numLights;
     Light lights[8];
 };
-    
-#define WKSTexIndirectArgBuffer 25
-// Texture lookup indirection
-// Used for treating one texture's coordinates as coordinates in the parent
-struct TexIndirect {
-    simd::float2 offset;
-    simd::float2 scale;
-};
+
+// These are in their own structure with the textures
+#define WKSTexBufNumTextures 0
+#define WKSTexBuffIndirectOffset 10
+#define WKSTexBuffIndirectScale 30
+#define WKSTexBuffTextures 50
 
 #define WKSUniformDrawStateWideVecArgBuffer 26
 // Instructions to the wide vector shaders, usually per-drawable
