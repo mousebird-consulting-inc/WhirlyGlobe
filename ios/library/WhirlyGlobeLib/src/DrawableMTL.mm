@@ -152,11 +152,6 @@ ArgBuffRegularTexturesMTL::ArgBuffRegularTexturesMTL(id<MTLDevice> mtlDevice, Re
     buffer = buildBuff.reserveData(size);
 }
 
-void ArgBuffRegularTexturesMTL::wireUpBuffer()
-{
-    [encode setArgumentBuffer:buffer->buffer offset:buffer->offset];
-}
-
 BufferEntryMTLRef ArgBuffRegularTexturesMTL::getBuffer()
 {
     return buffer;
@@ -169,8 +164,12 @@ void ArgBuffRegularTexturesMTL::addTexture(const Point2f &offset,const Point2f &
     texs.push_back(tex);
 }
 
-BufferEntryMTLRef ArgBuffRegularTexturesMTL::encodeBuffer(RenderSetupInfoMTL *setupInfoMTL,id<MTLDevice> mtlDevice)
+void ArgBuffRegularTexturesMTL::updateBuffer(id<MTLDevice> mtlDevice,id<MTLBlitCommandEncoder> bltEncode)
 {
+    id<MTLBuffer> srcBuffer = [mtlDevice newBufferWithLength:size options:MTLResourceStorageModeShared];
+
+    [encode setArgumentBuffer:srcBuffer offset:0];
+    
     // TexIndirect constants first
     memcpy([encode constantDataAtIndex:WKSTexBuffIndirectOffset], &offsets[0], sizeof(float)*2*offsets.size());
     memcpy([encode constantDataAtIndex:WKSTexBuffIndirectScale], &scales[0], sizeof(float)*2*scales.size());
@@ -186,7 +185,7 @@ BufferEntryMTLRef ArgBuffRegularTexturesMTL::encodeBuffer(RenderSetupInfoMTL *se
     }
     memcpy([encode constantDataAtIndex:WKSTexBufNumTextures], &numTextures, sizeof(int));
     
-    return buffer;
+    [bltEncode copyFromBuffer:srcBuffer sourceOffset:0 toBuffer:buffer->buffer destinationOffset:buffer->offset size:size];
 }
 
 size_t ArgBuffRegularTexturesMTL::encodedLength()

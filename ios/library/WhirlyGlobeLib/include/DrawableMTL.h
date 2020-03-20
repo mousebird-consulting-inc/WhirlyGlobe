@@ -125,15 +125,12 @@ public:
     // Add a texture to encode
     void addTexture(const Point2f &offset,const Point2f &scale,id<MTLTexture> tex);
 
-    // Encode into the given buffer
-    BufferEntryMTLRef encodeBuffer(RenderSetupInfoMTL *setupInfoMTL,id<MTLDevice> mtlDevice);
+    // Encode into a new buffer and schedule an update using 
+    void updateBuffer(id<MTLDevice> mtlDevice,id<MTLBlitCommandEncoder> bltEncode);
     
     // Size of the texture buffer (fixed)
     size_t encodedLength();
-    
-    // Since we're using a buffer builder, we don't know the actual buffer until it's done
-    void wireUpBuffer();
-    
+        
     // Return the buffer created for the argument buffer
     BufferEntryMTLRef getBuffer();
 

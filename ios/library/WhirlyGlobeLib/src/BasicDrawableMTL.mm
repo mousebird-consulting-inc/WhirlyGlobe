@@ -99,12 +99,8 @@ void BasicDrawableMTL::setupForRenderer(const RenderSetupInfo *inSetupInfo,Scene
     
     if (vertABInfo)
         vertABInfo->wireUpBuffers();
-    if (vertTexInfo)
-        vertTexInfo->wireUpBuffer();
     if (fragABInfo)
         fragABInfo->wireUpBuffers();
-    if (fragTexInfo)
-        fragTexInfo->wireUpBuffer();
 
     setupForMTL = true;
 }
@@ -390,8 +386,6 @@ void BasicDrawableMTL::setupArgBuffers(id<MTLDevice> mtlDevice,RenderSetupInfoMT
 // Called before anything starts calculating or drawing to fill in buffers and such
 void BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuffer> cmdBuff,id<MTLBlitCommandEncoder> bltEncode,SceneMTL *scene,ResourceRefsMTL &resources)
 {
-    texturesChanged = true;
-    
     if (texturesChanged || valuesChanged) {
         ProgramMTL *prog = (ProgramMTL *)scene->getProgram(programId);
         id<MTLDevice> mtlDevice = sceneRender->setupInfo.mtlDevice;
@@ -434,11 +428,12 @@ void BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
                 if (fragTexInfo)
                     fragTexInfo->addTexture(texOffset, Point2f(texScale,texScale), tex != nil ? tex->getMTLID() : nil);
             }
-            // TODO: Write to separate buffer then update
-            if (vertTexInfo)
-                vertTexInfo->encodeBuffer(&sceneRender->setupInfo,mtlDevice);
-            if (fragTexInfo)
-                fragTexInfo->encodeBuffer(&sceneRender->setupInfo,mtlDevice);
+            if (vertTexInfo) {
+                vertTexInfo->updateBuffer(mtlDevice,bltEncode);
+            }
+            if (fragTexInfo) {
+                fragTexInfo->updateBuffer(mtlDevice,bltEncode);
+            }
         }
 
         if (valuesChanged) {
