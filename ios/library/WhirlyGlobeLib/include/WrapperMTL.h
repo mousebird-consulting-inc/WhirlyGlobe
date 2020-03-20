@@ -108,7 +108,7 @@ public:
     BufferEntryMTLRef allocateBuffer(HeapType,size_t size);
     
     // This version copies data into the buffer
-    BufferEntryMTLRef allocateBuffer(HeapType,void *data,size_t size);
+    BufferEntryMTLRef allocateBuffer(HeapType,const void *data,size_t size);
 
 protected:
     id<MTLHeap> findHeap(HeapType heapType,size_t &size);
@@ -127,8 +127,7 @@ protected:
 class RenderSetupInfoMTL : public RenderSetupInfo
 {
 public:
-    RenderSetupInfoMTL(id<MTLDevice> mtlDevice);
-    RenderSetupInfoMTL(Scene *scene,id<MTLDevice> mtlDevice);
+    RenderSetupInfoMTL(id<MTLDevice> mtlDevice,id<MTLLibrary> mtlLibrary);
     
     id<MTLDevice> mtlDevice;
     
@@ -140,7 +139,7 @@ public:
     // Buffers created for shared uniforms.
     // Wired into the various drawables individually
     BufferEntryMTLRef uniformBuff;
-    BufferEntryMTLRef lightingBuff;
+    BufferEntryMTLRef lightingBuff;    
 };
 
     

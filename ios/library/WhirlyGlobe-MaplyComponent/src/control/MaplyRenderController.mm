@@ -202,7 +202,13 @@ using namespace Eigen;
         sceneRendererGLES->useContext();
         sceneRenderer = sceneRendererGLES;
     } else {
-        SceneRendererMTLRef sceneRendererMTL = SceneRendererMTLRef(new SceneRendererMTL(MTLCreateSystemDefaultDevice(),1.0));
+        id<MTLDevice> mtlDevice = MTLCreateSystemDefaultDevice();
+        NSError *err = nil;
+        id<MTLLibrary> mtlLib = [mtlDevice newDefaultLibraryWithBundle:[NSBundle bundleForClass:[MaplyRenderController class]] error:&err];
+        if (err) {
+            NSLog(@"Failed to set up default Metal library in MaplyRenderController::loadSetup.  Things will be missing.");
+        }
+        SceneRendererMTLRef sceneRendererMTL = SceneRendererMTLRef(new SceneRendererMTL(mtlDevice,mtlLib,1.0));
         if (offlineMode)
             sceneRendererMTL->setup((int)initialFramebufferSize.width,(int)initialFramebufferSize.height, true);
         sceneRenderer = sceneRendererMTL;

@@ -99,10 +99,12 @@ void BasicDrawableMTL::setupForRenderer(const RenderSetupInfo *inSetupInfo,Scene
     
     if (vertABInfo)
         vertABInfo->wireUpBuffers();
+    if (vertTexInfo)
+        vertTexInfo->wireUpBuffer();
     if (fragABInfo)
         fragABInfo->wireUpBuffers();
-    if (texArgBuffer)
-        texArgBuffer->wireUpBuffer();
+    if (fragTexInfo)
+        fragTexInfo->wireUpBuffer();
 
     setupForMTL = true;
 }
@@ -368,6 +370,8 @@ void BasicDrawableMTL::setupArgBuffers(id<MTLDevice> mtlDevice,RenderSetupInfoMT
         vertABInfo->setEntry(WKSUniformArgBuffer,setupInfo->uniformBuff);
         vertABInfo->setEntry(WKSLightingArgBuffer, setupInfo->lightingBuff);
         vertABInfo->createBuffers(mtlDevice,buffBuild);
+        if (vertABInfo->hasConstant(WKSHasTexturesArg))
+            vertTexInfo = ArgBuffRegularTexturesMTLRef(new ArgBuffRegularTexturesMTL(mtlDevice, setupInfo, prog->vertFunc, WKSTextureArgBuffer, buffBuild));
     }
     if (prog->fragFunc) {
         fragABInfo = ArgBuffContentsMTLRef(new ArgBuffContentsMTL(mtlDevice,
@@ -378,17 +382,16 @@ void BasicDrawableMTL::setupArgBuffers(id<MTLDevice> mtlDevice,RenderSetupInfoMT
         fragABInfo->setEntry(WKSUniformArgBuffer,setupInfo->uniformBuff);
         fragABInfo->setEntry(WKSLightingArgBuffer, setupInfo->lightingBuff);
         fragABInfo->createBuffers(mtlDevice,buffBuild);
-    }
-    
-    if (vertABInfo->hasEntry(WKSTextureArgBuffer) || fragABInfo->hasEntry(WKSTextureArgBuffer))
-    {
-        texArgBuffer =  ArgBuffRegularTexturesMTLRef(new ArgBuffRegularTexturesMTL(mtlDevice,setupInfo,buffBuild));
+        if (vertABInfo->hasConstant(WKSHasTexturesArg))
+            fragTexInfo = ArgBuffRegularTexturesMTLRef(new ArgBuffRegularTexturesMTL(mtlDevice, setupInfo, prog->fragFunc, WKSTextureArgBuffer, buffBuild));
     }
 }
 
 // Called before anything starts calculating or drawing to fill in buffers and such
 void BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuffer> cmdBuff,id<MTLBlitCommandEncoder> bltEncode,SceneMTL *scene,ResourceRefsMTL &resources)
 {
+    texturesChanged = true;
+    
     if (texturesChanged || valuesChanged) {
         ProgramMTL *prog = (ProgramMTL *)scene->getProgram(programId);
         id<MTLDevice> mtlDevice = sceneRender->setupInfo.mtlDevice;
@@ -398,7 +401,7 @@ void BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
             return;
         }
 
-        if (texturesChanged && (vertABInfo->hasEntry(WKSTextureArgBuffer) || fragABInfo->hasEntry(WKSTextureArgBuffer))) {
+        if (texturesChanged && (vertTexInfo || fragTexInfo)) {
             activeTextures.clear();
 
             // Wire up the textures and texture indirection values
@@ -420,23 +423,22 @@ void BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
                     texOffset = Vector2f(texScale*thisTexInfo->relX,texScale*thisTexInfo->relY) + texOffset;
                 }
                 
-                // TODO: Use new texture argument buffer
-                
                 // And the texture itself
                 TextureBaseMTL *tex = NULL;
                 if (thisTexInfo && thisTexInfo->texId != EmptyIdentity)
                     tex = dynamic_cast<TextureBaseMTL *>(scene->getTexture(thisTexInfo->texId));
                 if (tex)
                     activeTextures.push_back(tex->getMTLID());
-                texArgBuffer->addTexture(texOffset, Point2f(texScale,texScale), tex != nil ? tex->getMTLID() : nil);
+                if (vertTexInfo)
+                    vertTexInfo->addTexture(texOffset, Point2f(texScale,texScale), tex != nil ? tex->getMTLID() : nil);
+                if (fragTexInfo)
+                    fragTexInfo->addTexture(texOffset, Point2f(texScale,texScale), tex != nil ? tex->getMTLID() : nil);
             }
-            // TODO: Try to reuse this buffer
-            BufferEntryMTLRef texBuffer = texArgBuffer->encodeBuffer(&sceneRender->setupInfo,mtlDevice);
-            size_t texBufferSize = texArgBuffer->encodedLength();
-            if (vertABInfo)
-                vertABInfo->updateEntry(mtlDevice, bltEncode, WKSTextureArgBuffer, texBuffer, texBufferSize);
-            if (fragABInfo)
-                fragABInfo->updateEntry(mtlDevice, bltEncode, WKSTextureArgBuffer, texBuffer, texBufferSize);
+            // TODO: Write to separate buffer then update
+            if (vertTexInfo)
+                vertTexInfo->encodeBuffer(&sceneRender->setupInfo,mtlDevice);
+            if (fragTexInfo)
+                fragTexInfo->encodeBuffer(&sceneRender->setupInfo,mtlDevice);
         }
 
         if (valuesChanged) {
@@ -505,9 +507,17 @@ void BasicDrawableMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,id<MTLRender
         BufferEntryMTLRef buff = vertABInfo->getBuffer();
         [cmdEncode setVertexBuffer:buff->buffer offset:buff->offset atIndex:WKSVertexArgBuffer];
     }
+    if (vertTexInfo) {
+        BufferEntryMTLRef buff = vertTexInfo->getBuffer();
+        [cmdEncode setVertexBuffer:buff->buffer offset:buff->offset atIndex:WKSTextureArgBuffer];
+    }
     if (fragABInfo) {
         BufferEntryMTLRef buff = fragABInfo->getBuffer();
         [cmdEncode setFragmentBuffer:buff->buffer offset:buff->offset atIndex:WKSFragmentArgBuffer];
+    }
+    if (fragTexInfo) {
+        BufferEntryMTLRef buff = fragTexInfo->getBuffer();
+        [cmdEncode setFragmentBuffer:buff->buffer offset:buff->offset atIndex:WKSTextureArgBuffer];
     }
 
     // Render the primitives themselves

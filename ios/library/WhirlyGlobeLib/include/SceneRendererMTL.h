@@ -105,7 +105,7 @@ protected:
 class SceneRendererMTL : public SceneRenderer
 {
 public:
-    SceneRendererMTL(id<MTLDevice> mtlDevice,float scale);
+    SceneRendererMTL(id<MTLDevice> mtlDevice,id<MTLLibrary> mtlLibrary,float scale);
     virtual ~SceneRendererMTL();
     
     // Metal (obviously)

@@ -52,12 +52,16 @@ namespace WhirlyKitShader
 #define WKSTextureMax 8
 // Textures passed into the shader start here
 #define WKSTextureEntryLookup 5
-// Base argument buffer index for textures
-#define WKSTextureArgBuffer 40
 
 // The entire set of arguments goes in the first buffer
 #define WKSVertexArgBuffer 0
-#define WKSFragmentArgBuffer 1
+#define WKSFragmentArgBuffer 0
+// Texture info is separate and goes in second buffer
+#define WKSTextureArgBuffer 1
+
+// In the main argument buffer structure to tell us there's a second argument buffer
+//  for textures.
+#define WKSHasTexturesArg 0
 
 #define WKSUniformArgBuffer 20
 // Uniforms for the basic case.  Nothing fancy.
@@ -125,10 +129,10 @@ struct Lighting {
 };
 
 // These are in their own structure with the textures
-#define WKSTexBufNumTextures 70
-#define WKSTexBuffIndirectOffset 30
-#define WKSTexBuffIndirectScale 60
-#define WKSTexBuffTextures 0
+#define WKSTexBufNumTextures 100
+#define WKSTexBuffIndirectOffset 110
+#define WKSTexBuffIndirectScale 130
+#define WKSTexBuffTextures 170
 
 #define WKSUniformDrawStateWideVecArgBuffer 26
 // Instructions to the wide vector shaders, usually per-drawable

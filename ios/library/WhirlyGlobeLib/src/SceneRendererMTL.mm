@@ -79,8 +79,8 @@ RendererFrameInfoMTL::RendererFrameInfoMTL(const RendererFrameInfoMTL &that)
 {
 }
 
-SceneRendererMTL::SceneRendererMTL(id<MTLDevice> mtlDevice, float inScale)
-: setupInfo(mtlDevice)
+SceneRendererMTL::SceneRendererMTL(id<MTLDevice> mtlDevice,id<MTLLibrary> mtlLibrary, float inScale)
+: setupInfo(mtlDevice,mtlLibrary)
 {
     offscreenBlendEnable = false;
     indirectRender = false;

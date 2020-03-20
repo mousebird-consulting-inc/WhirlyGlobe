@@ -60,6 +60,9 @@ public:
     // True if this argument buffer has the given entry
     bool hasEntry(int entryID);
     
+    // True if a constant at the given index exists
+    bool hasConstant(int constantID);
+    
     // Copy in the buffer contents for the given entry
     void updateEntry(id<MTLDevice> mtlDevice,
                      id<MTLBlitCommandEncoder> blitEncode,
@@ -103,6 +106,9 @@ protected:
     
     // Individual entries (by ID) in the argument buffer
     std::map<int,EntryRef> entries;
+    
+    // Indices of the various constants
+    std::set<int> constants;
 };
 typedef std::shared_ptr<ArgBuffContentsMTL> ArgBuffContentsMTLRef;
 
@@ -110,7 +116,11 @@ typedef std::shared_ptr<ArgBuffContentsMTL> ArgBuffContentsMTLRef;
 class ArgBuffRegularTexturesMTL
 {
 public:
-    ArgBuffRegularTexturesMTL(id<MTLDevice> mtlDevice,RenderSetupInfoMTL *setupInfoMTL,BufferBuilderMTL &buildBuff);
+    ArgBuffRegularTexturesMTL(id<MTLDevice> mtlDevice,
+                              RenderSetupInfoMTL *setupInfoMTL,
+                              id<MTLFunction> mtlFunction,
+                              int bufferArgIdx,
+                              BufferBuilderMTL &buildBuff);
 
     // Add a texture to encode
     void addTexture(const Point2f &offset,const Point2f &scale,id<MTLTexture> tex);
@@ -123,6 +133,9 @@ public:
     
     // Since we're using a buffer builder, we don't know the actual buffer until it's done
     void wireUpBuffer();
+    
+    // Return the buffer created for the argument buffer
+    BufferEntryMTLRef getBuffer();
 
 protected:
     id<MTLArgumentEncoder> encode;

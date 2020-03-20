@@ -214,7 +214,7 @@ BufferEntryMTLRef HeapManagerMTL::allocateBuffer(HeapType heapType,size_t size)
     return buffer;
 }
 
-BufferEntryMTLRef HeapManagerMTL::allocateBuffer(HeapType heapType,void *data,size_t size)
+BufferEntryMTLRef HeapManagerMTL::allocateBuffer(HeapType heapType,const void *data,size_t size)
 {
     BufferEntryMTLRef buffer(new BufferEntryMTL());
     buffer->heap = findHeap(heapType,size);
@@ -226,15 +226,10 @@ BufferEntryMTLRef HeapManagerMTL::allocateBuffer(HeapType heapType,void *data,si
 }
 
 
-RenderSetupInfoMTL::RenderSetupInfoMTL(id<MTLDevice> mtlDevice)
+RenderSetupInfoMTL::RenderSetupInfoMTL(id<MTLDevice> mtlDevice,id<MTLLibrary> mtlLibrary)
 : mtlDevice(mtlDevice), heapManage(mtlDevice)
 {
     memAlign = [mtlDevice heapBufferSizeAndAlignWithLength:1 options:MTLResourceUsageRead].align;
-}
-
-RenderSetupInfoMTL::RenderSetupInfoMTL(Scene *scene,id<MTLDevice> mtlDevice)
-: mtlDevice(mtlDevice), heapManage(mtlDevice)
-{
 }
     
 }
