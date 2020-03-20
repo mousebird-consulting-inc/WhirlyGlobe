@@ -125,7 +125,8 @@ public:
     // Add a texture to encode
     void addTexture(const Point2f &offset,const Point2f &scale,id<MTLTexture> tex);
 
-    // Encode into a new buffer and schedule an update using 
+    // Encode into a new buffer and schedule an update using
+    // Also clears out contents for next encoding pass
     void updateBuffer(id<MTLDevice> mtlDevice,id<MTLBlitCommandEncoder> bltEncode);
     
     // Size of the texture buffer (fixed)

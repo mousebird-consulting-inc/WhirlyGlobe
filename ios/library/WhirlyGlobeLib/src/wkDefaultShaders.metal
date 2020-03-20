@@ -243,7 +243,6 @@ vertex ProjVertexTriB vertexTri_multiTex(
         outVert.texCoord1 = outVert.texCoord0;
     } else {
         outVert.texCoord0 = resolveTexCoords(vert.texCoord0,texArgs,0);
-        // Note: Rather than reusing texCoord0, we should just attach the same data to texCoord1
         outVert.texCoord1 = resolveTexCoords(vert.texCoord0,texArgs,1);
     }
     
@@ -262,16 +261,14 @@ fragment float4 fragmentTri_multiTex(ProjVertexTriB vert [[stage_in]],
     if (numTextures == 0) {
         return vert.color * drawStateA->fade;
     } else if (numTextures == 1) {
-//        constexpr sampler sampler2d(coord::normalized, filter::linear);
-//        return vert.color * fragArgs.tex->tex[0].sample(sampler2d, vert.texCoord0);
-        return float4(0.0,1.0,0.0,1.0);
+        constexpr sampler sampler2d(coord::normalized, filter::linear);
+        return vert.color * texArgs.tex[0].sample(sampler2d, vert.texCoord0);
     } else {
-        return float4(1.0,0.0,0.0,1.0);
-//        constexpr sampler sampler2d(coord::normalized, filter::linear);
-//        float4 color0 = fragArgs.tex->tex[0].sample(sampler2d, vert.texCoord0);
-//        // Note: There are times we may not want to reuse the same texture coordinates
-//        float4 color1 = fragArgs.tex->tex[1].sample(sampler2d, vert.texCoord0);
-//        return vert.color * mix(color0,color1,fragArgs.uniDrawState->interp);
+        constexpr sampler sampler2d(coord::normalized, filter::linear);
+        float4 color0 = texArgs.tex[0].sample(sampler2d, vert.texCoord0);
+        // Note: There are times we may not want to reuse the same texture coordinates
+        float4 color1 = texArgs.tex[1].sample(sampler2d, vert.texCoord0);
+        return vert.color * mix(color0,color1,fragArgs.uniDrawState->interp);
     }
 }
 
@@ -281,24 +278,22 @@ fragment float4 fragmentTri_multiTexRamp(ProjVertexTriB vert [[stage_in]],
                                          constant RegularTextures & texArgs [[buffer(WKSTextureArgBuffer)]])
 {
     // Handle none, 1 or 2 textures
-//    if (fragArgs.tex->numTextures == 0) {
-//        return vert.color;
-//    } else if (fragArgs.tex->numTextures == 1) {
-//        constexpr sampler sampler2d(coord::normalized, filter::linear);
-//        float index = fragArgs.tex->tex[0].sample(sampler2d, vert.texCoord0).r;
-////        return vert.color * index;
-//        return vert.color * fragArgs.tex->tex[WKSTextureEntryLookup].sample(sampler2d,float2(index,0.5));
-//    } else {
-//        constexpr sampler sampler2d(coord::normalized, filter::linear);
-//        float index0 = fragArgs.tex->tex[0].sample(sampler2d, vert.texCoord0).r;
-//        // Note: There are times we may not want to reuse the same texture coordinates
-//        float index1 = fragArgs.tex->tex[1].sample(sampler2d, vert.texCoord0).r;
-//        float index = mix(index0,index1,fragArgs.uniDrawState->interp);
-//        return vert.color * fragArgs.tex->tex[WKSTextureEntryLookup].sample(sampler2d,float2(index,0.5));
-////        return vert.color * index;
-//    }
-    // Note: Debugging
-    return float4(1.0,0.0,0.0,1.0);
+    if (texArgs.numTextures == 0) {
+        return vert.color;
+    } else if (texArgs.numTextures == 1) {
+        constexpr sampler sampler2d(coord::normalized, filter::linear);
+        float index = texArgs.tex[0].sample(sampler2d, vert.texCoord0).r;
+//        return vert.color * index;
+        return vert.color * texArgs.tex[WKSTextureEntryLookup].sample(sampler2d,float2(index,0.5));
+    } else {
+        constexpr sampler sampler2d(coord::normalized, filter::linear);
+        float index0 = texArgs.tex[0].sample(sampler2d, vert.texCoord0).r;
+        // Note: There are times we may not want to reuse the same texture coordinates
+        float index1 = texArgs.tex[1].sample(sampler2d, vert.texCoord0).r;
+        float index = mix(index0,index1,fragArgs.uniDrawState->interp);
+        return vert.color * texArgs.tex[WKSTextureEntryLookup].sample(sampler2d,float2(index,0.5));
+//        return vert.color * index;
+    }
 }
 
 struct VertexTriWideArgBuffer {

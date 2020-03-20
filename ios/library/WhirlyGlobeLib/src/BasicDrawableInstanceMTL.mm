@@ -506,6 +506,8 @@ void BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
                 TextureBaseMTL *tex = NULL;
                 if (thisTexInfo && thisTexInfo->texId != EmptyIdentity)
                     tex = dynamic_cast<TextureBaseMTL *>(scene->getTexture(thisTexInfo->texId));
+                if (tex)
+                    activeTextures.push_back(tex->getMTLID());
                 if (vertTexInfo)
                     vertTexInfo->addTexture(texOffset, Point2f(texScale,texScale), tex != nil ? tex->getMTLID() : nil);
                 if (fragTexInfo)
@@ -566,6 +568,7 @@ void BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
     // Always need the resource lists
     // It should all be in one buffer
     resources.addEntry(mainBuffer);
+    resources.addTextures(activeTextures);
 }
 
 void BasicDrawableInstanceMTL::encodeDirectCalculate(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene)

@@ -186,6 +186,10 @@ void ArgBuffRegularTexturesMTL::updateBuffer(id<MTLDevice> mtlDevice,id<MTLBlitC
     memcpy([encode constantDataAtIndex:WKSTexBufNumTextures], &numTextures, sizeof(int));
     
     [bltEncode copyFromBuffer:srcBuffer sourceOffset:0 toBuffer:buffer->buffer destinationOffset:buffer->offset size:size];
+    
+    offsets.clear();
+    scales.clear();
+    texs.clear();
 }
 
 size_t ArgBuffRegularTexturesMTL::encodedLength()
