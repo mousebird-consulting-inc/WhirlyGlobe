@@ -83,7 +83,12 @@ SceneRendererMTL::SceneRendererMTL(id<MTLDevice> mtlDevice,id<MTLLibrary> mtlLib
 : setupInfo(mtlDevice,mtlLibrary)
 {
     offscreenBlendEnable = false;
-    indirectRender = false;
+    // Indirect rendering is only on for 13 and later
+    if (@available(iOS 13.0, *)) {
+        indirectRender = false;
+    } else {
+        indirectRender = false;
+    }
     init();
 
     // Calculation shaders

@@ -560,9 +560,17 @@ void BasicDrawableMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEncode,Sce
         BufferEntryMTLRef buff = vertABInfo->getBuffer();
         [cmdEncode setVertexBuffer:buff->buffer offset:buff->offset atIndex:WKSVertexArgBuffer];
     }
+    if (vertTexInfo) {
+        BufferEntryMTLRef buff = vertTexInfo->getBuffer();
+        [cmdEncode setVertexBuffer:buff->buffer offset:buff->offset atIndex:WKSTextureArgBuffer];
+    }
     if (fragABInfo) {
         BufferEntryMTLRef buff = fragABInfo->getBuffer();
         [cmdEncode setFragmentBuffer:buff->buffer offset:buff->offset atIndex:WKSFragmentArgBuffer];
+    }
+    if (fragTexInfo) {
+        BufferEntryMTLRef buff = fragTexInfo->getBuffer();
+        [cmdEncode setFragmentBuffer:buff->buffer offset:buff->offset atIndex:WKSTextureArgBuffer];
     }
 
     // Render the primitives themselves

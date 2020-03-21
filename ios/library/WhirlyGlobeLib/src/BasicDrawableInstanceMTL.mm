@@ -728,11 +728,19 @@ void BasicDrawableInstanceMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEn
         BufferEntryMTLRef buff = vertABInfo->getBuffer();
         [cmdEncode setVertexBuffer:buff->buffer offset:buff->offset atIndex:WKSVertexArgBuffer];
     }
+    if (vertTexInfo) {
+        BufferEntryMTLRef buff = vertTexInfo->getBuffer();
+        [cmdEncode setVertexBuffer:buff->buffer offset:buff->offset atIndex:WKSTextureArgBuffer];
+    }
     if (fragABInfo) {
         BufferEntryMTLRef buff = fragABInfo->getBuffer();
         [cmdEncode setFragmentBuffer:buff->buffer offset:buff->offset atIndex:WKSFragmentArgBuffer];
     }
-    
+    if (fragTexInfo) {
+        BufferEntryMTLRef buff = fragTexInfo->getBuffer();
+        [cmdEncode setFragmentBuffer:buff->buffer offset:buff->offset atIndex:WKSTextureArgBuffer];
+    }
+
     // Using the basic drawable geometry with a few tweaks
     switch (instanceStyle) {
         case ReuseStyle:
