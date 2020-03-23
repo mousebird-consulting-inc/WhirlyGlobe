@@ -38,7 +38,7 @@
 - (void)addCompObj:(MaplyComponentObject * __nullable)compObj;
 
 /// Return an array of component objects that were added to this loader return
-- (NSArray * __nonnull)getCompObjs;
+- (NSArray<MaplyComponentObject *> * __nonnull)getCompObjs;
 
 @end
 

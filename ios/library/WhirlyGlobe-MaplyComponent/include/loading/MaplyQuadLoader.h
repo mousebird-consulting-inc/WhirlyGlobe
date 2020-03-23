@@ -46,13 +46,13 @@
 
 /// Data returned from a tile request.  Unparsed.
 /// You can add multiple of these, but the interpreter should be expecting that
-- (void)addTileData:(NSData *__nonnull) tileData;
+- (void)addTileData:(id __nonnull) tileData;
 
 /// Return the tile NSData objects as an array
-- (NSArray<NSData *> * __nonnull)getTileData;
+- (NSArray<id> * __nonnull)getTileData;
 
 /// Return the first data object.  You're probably only expecting the one.
-- (NSData * __nullable)getFirstData;
+- (id __nullable)getFirstData;
 
 /// If this is set, the tile failed to parse
 /// You can set it and the system will deal with the results

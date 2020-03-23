@@ -65,12 +65,12 @@ using namespace WhirlyKit;
     return loadReturn->frame;
 }
 
-- (void)addTileData:(NSData *__nonnull) inTileData
+- (void)addTileData:(id __nonnull) inTileData
 {
     tileData.push_back(inTileData);
 }
 
-- (NSArray<NSData *> *)getTileData
+- (NSArray<id> *)getTileData
 {
     NSMutableArray *ret = [[NSMutableArray alloc] init];
     for (auto data : tileData) {
@@ -81,7 +81,7 @@ using namespace WhirlyKit;
     return ret;
 }
 
-- (NSData * __nullable)getFirstData
+- (id __nullable)getFirstData
 {
     if (tileData.empty())
         return nil;
