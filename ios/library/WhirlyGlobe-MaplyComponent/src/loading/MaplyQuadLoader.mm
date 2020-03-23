@@ -73,7 +73,7 @@ using namespace WhirlyKit;
 - (NSArray<id> *)getTileData
 {
     NSMutableArray *ret = [[NSMutableArray alloc] init];
-    for (auto data : tileData) {
+    for (id data : tileData) {
         if (data)
             [ret addObject:data];
     }
