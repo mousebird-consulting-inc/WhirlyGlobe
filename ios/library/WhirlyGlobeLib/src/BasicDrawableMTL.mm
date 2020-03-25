@@ -474,6 +474,7 @@ void BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
         resources.addEntry(mainBuffer);
     } else {
         // If we're not consolidating the buffer, list all the buffers
+        resources.addEntry(triBuffer);
         if (vertABInfo)
             vertABInfo->addResources(resources);
         if (vertTexInfo)

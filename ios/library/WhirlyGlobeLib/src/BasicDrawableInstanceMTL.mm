@@ -459,6 +459,8 @@ void BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
                 SceneMTL *scene,
                 ResourceRefsMTL &resources)
 {
+    BasicDrawableMTL *basicDrawMTL = dynamic_cast<BasicDrawableMTL *>(basicDraw.get());
+
     if (texturesChanged || valuesChanged) {
         ProgramMTL *prog = (ProgramMTL *)scene->getProgram(programID);
         id<MTLDevice> mtlDevice = sceneRender->setupInfo.mtlDevice;
@@ -567,7 +569,31 @@ void BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
     
     // Always need the resource lists
     // It should all be in one buffer
-    resources.addEntry(mainBuffer);
+    if (mainBuffer) {
+        resources.addEntry(basicDrawMTL->mainBuffer);
+        resources.addEntry(mainBuffer);
+    } else {
+        // If we're not consolidating the buffer, list all the buffers
+        resources.addEntry(basicDrawMTL->triBuffer);
+        resources.addEntry(indirectBuffer);
+        if (vertABInfo)
+            vertABInfo->addResources(resources);
+        if (vertTexInfo)
+            vertTexInfo->addResources(resources);
+        if (fragABInfo)
+            fragABInfo->addResources(resources);
+        if (fragTexInfo)
+            fragTexInfo->addResources(resources);
+        for (auto vertAttr : basicDrawMTL->vertexAttributes) {
+            VertexAttributeMTL *vertAttrMTL = (VertexAttributeMTL *)vertAttr;
+            if (vertAttrMTL->buffer && (vertAttrMTL->bufferIndex >= 0))
+                resources.addEntry(vertAttrMTL->buffer);
+        }
+        for (auto defAttr : basicDrawMTL->defaultAttrs)
+            resources.addEntry(defAttr.buffer);
+        for (auto defAttr : defaultAttrs)
+            resources.addEntry(defAttr.buffer);
+    }
     resources.addTextures(activeTextures);
 }
 
