@@ -46,6 +46,8 @@
 @property (nonatomic) float markerSize;
 /// Importance for labels in the layout engine
 @property (nonatomic) float labelImportance;
+/// If set we'll use the zoom levels defined in the style
+@property (nonatomic) bool useZoomLevels;
 
 /// For symbols we'll try to pull a UUID out of this field to stick in the marker and label uniqueID
 @property (nonatomic,nullable) NSString *uuidField;

@@ -835,7 +835,10 @@ public:
         if (texs.size() > 1)
             wgMarker->period = marker.period;
         compObj->contents->texs.insert(texs.begin(),texs.end());
-        wgMarker->color = [marker.color asRGBAColor];
+        if (marker.color) {
+            wgMarker->color = [marker.color asRGBAColor];
+            wgMarker->colorSet = true;
+        }
         if (!texs.empty())
         {
             for (unsigned int ii=0;ii<texs.size();ii++)

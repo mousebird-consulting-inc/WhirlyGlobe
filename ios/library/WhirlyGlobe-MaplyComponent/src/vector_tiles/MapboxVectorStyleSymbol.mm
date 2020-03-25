@@ -118,6 +118,7 @@ public:
 @implementation MapboxVectorLayerSymbol
 {
     NSString *uuidField;
+    MaplyVectorStyleSettings *styleSettings;
 }
 
 - (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
@@ -125,6 +126,7 @@ public:
     self = [super initWithStyleEntry:styleEntry parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:viewC];
     if (!self)
         return nil;
+    styleSettings = styleSet.tileStyleSettings;
     
     _layout = [[MapboxVectorSymbolLayout alloc] initWithStyleEntry:styleEntry[@"layout"] styleSet:styleSet viewC:viewC];
     _paint = [[MapboxVectorSymbolPaint alloc] initWithStyleEntry:styleEntry[@"paint"] styleSet:styleSet viewC:viewC];
@@ -233,10 +235,12 @@ public:
     }
     
     // TODO: They mean displayed level here, which is different from loaded level
-    if (self.minzoom > tileInfo.tileID.level)
-        return;
-    if (self.maxzoom < tileInfo.tileID.level)
-        return;
+    if (styleSettings.useZoomLevels) {
+      if (self.minzoom > tileInfo.tileID.level)
+          return;
+      if (self.maxzoom < tileInfo.tileID.level)
+          return;
+    }
     
     NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:
                   @{

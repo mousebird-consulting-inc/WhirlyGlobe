@@ -68,7 +68,7 @@
     WhirlyKit::QuadLoaderReturnRef loadReturn;
 
     // Unparsed data coming back
-    std::vector<NSData *> tileData;
+    std::vector<id> tileData;
 }
 
 @end

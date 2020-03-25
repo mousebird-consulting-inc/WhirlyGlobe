@@ -447,8 +447,10 @@ void GlobeView::cancelAnimation()
 /// Renderer calls this every update.
 void GlobeView::animate()
 {
-    if (delegate)
-        delegate->updateView(this);
+    // Have to hold on to the delegate because it can call cancelAnimation.... which frees the delegate
+    auto theDelegate = delegate;
+    if (theDelegate)
+        theDelegate->updateView(this);
 }
     
 ViewStateRef GlobeView::makeViewState(SceneRenderer *renderer)
