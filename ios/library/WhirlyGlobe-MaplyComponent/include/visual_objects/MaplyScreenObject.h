@@ -75,3 +75,25 @@
 - (void)addScreenObject:(MaplyScreenObject *)screenObj;
 
 @end
+
+/**
+ Features missing to replicate ScreenMarker and ScreenLabel.
+    rotation
+    images (for animation)
+    period (for animation)
+    color
+    layoutImportance
+    layoutSize
+    layoutPlacement (right, left, above, below)
+    vertexAttributes
+    keepUpright
+ 
+ ScreenObjectInstance (new object)
+    location
+    endLoc/duration (moving fields)
+    selectable
+    ScreenObject pointer
+    Selected version ScreenObject pointer
+    uniqueID
+    userObject (for selection)
+ */

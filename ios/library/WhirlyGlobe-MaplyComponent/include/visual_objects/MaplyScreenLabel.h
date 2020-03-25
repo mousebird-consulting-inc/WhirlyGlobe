@@ -95,7 +95,7 @@
 @property (nonatomic,assign) CGPoint offset;
 
 /** 
-    An option color override.
+    An optional color override.
     
     If set, this color will override the color passed in with the NSDictionary in the view controller's add method.
   */

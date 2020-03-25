@@ -276,8 +276,10 @@ void MapView::cancelAnimation()
 /// Renderer calls this every update.
 void MapView::animate()
 {
-    if (delegate)
-        delegate->updateView(this);
+    // Have to hold on to the delegate because it can call cancelAnimation.... which frees the delegate
+    auto theDelegate = delegate;
+    if (theDelegate)
+        theDelegate->updateView(this);
 }
     
 ViewStateRef MapView::makeViewState(SceneRenderer *renderer)
