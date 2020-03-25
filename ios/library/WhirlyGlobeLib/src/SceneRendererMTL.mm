@@ -200,7 +200,7 @@ bool SceneRendererMTL::resize(int sizeX,int sizeY)
     return true;
 }
         
-void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,id<MTLBlitCommandEncoder> bltEncode,CoordSystemDisplayAdapter *coordAdapter,int texLevel)
+void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,id<MTLBlitCommandEncoder> bltEncode,CoordSystemDisplayAdapter *coordAdapter,int texLevel,ResourceRefsMTL &resources)
 {
     SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
     
@@ -223,9 +223,10 @@ void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,id<MTL
     // TODO: Try to reuse these
     id<MTLBuffer> buff = [setupInfo.mtlDevice newBufferWithBytes:&uniforms length:sizeof(uniforms) options:MTLResourceStorageModeShared];
     [bltEncode copyFromBuffer:buff sourceOffset:0 toBuffer:sceneRender->setupInfo.uniformBuff->buffer destinationOffset:sceneRender->setupInfo.uniformBuff->offset size:sizeof(uniforms)];
+    resources.addEntry(sceneRender->setupInfo.uniformBuff);
 }
 
-void SceneRendererMTL::setupLightBuffer(SceneMTL *scene,RendererFrameInfoMTL *frameInfo,id<MTLBlitCommandEncoder> bltEncode)
+void SceneRendererMTL::setupLightBuffer(SceneMTL *scene,RendererFrameInfoMTL *frameInfo,id<MTLBlitCommandEncoder> bltEncode,ResourceRefsMTL &resources)
 {
     SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
 
@@ -254,6 +255,7 @@ void SceneRendererMTL::setupLightBuffer(SceneMTL *scene,RendererFrameInfoMTL *fr
     // TODO: Try to reuse these
     id<MTLBuffer> buff = [setupInfo.mtlDevice newBufferWithBytes:&lighting length:sizeof(lighting) options:MTLResourceStorageModeShared];
     [bltEncode copyFromBuffer:buff sourceOffset:0 toBuffer:sceneRender->setupInfo.lightingBuff->buffer destinationOffset:sceneRender->setupInfo.lightingBuff->offset size:sizeof(lighting)];
+    resources.addEntry(sceneRender->setupInfo.lightingBuff);
 }
     
 void SceneRendererMTL::setupDrawStateA(WhirlyKitShader::UniformDrawStateA &drawState)
@@ -649,10 +651,11 @@ void SceneRendererMTL::render(TimeInterval duration,
             ResourceRefsMTL resources;
             for (auto &draw : targetContainer->drawables) {
                 DrawableMTL *drawMTL = dynamic_cast<DrawableMTL *>(draw.get());
+                drawMTL->runTweakers(&baseFrameInfo);
                 drawMTL->preProcess(this, cmdBuff, bltEncode, sceneMTL, resources);
             }
             // TODO: Just set this up once and copy it into position
-            setupLightBuffer(sceneMTL,&baseFrameInfo,bltEncode);
+            setupLightBuffer(sceneMTL,&baseFrameInfo,bltEncode,resources);
             [bltEncode updateFence:preProcessFence];
             [bltEncode endEncoding];
                         
@@ -669,7 +672,7 @@ void SceneRendererMTL::render(TimeInterval duration,
                 id<MTLFence> uniformFence = [mtlDevice newFence];
                 id<MTLBlitCommandEncoder> bltEncode = [cmdBuff blitCommandEncoder];
                 // TODO: Just set this up once and copy it into position
-                setupUniformBuffer(&baseFrameInfo,bltEncode,scene->getCoordAdapter(),level);
+                setupUniformBuffer(&baseFrameInfo,bltEncode,scene->getCoordAdapter(),level,resources);
                 [bltEncode updateFence:uniformFence];
                 [bltEncode endEncoding];
 
@@ -696,8 +699,10 @@ void SceneRendererMTL::render(TimeInterval duration,
                     if (@available(iOS 12.0, *)) {
                         [cmdEncode setCullMode:MTLCullModeFront];
                         for (auto drawGroup : targetContainerMTL->drawGroups) {
-                            if (drawGroup->numCommands > 0)
-                                    [cmdEncode executeCommandsInBuffer:drawGroup->indCmdBuff withRange:NSMakeRange(0,drawGroup->numCommands)];
+                            if (drawGroup->numCommands > 0) {
+                                [cmdEncode setDepthStencilState:drawGroup->depthStencil];
+                                [cmdEncode executeCommandsInBuffer:drawGroup->indCmdBuff withRange:NSMakeRange(0,drawGroup->numCommands)];
+                            }
                         }
                     }
                 } else {
@@ -812,11 +817,9 @@ void SceneRendererMTL::render(TimeInterval duration,
                                 baseFrameInfo.program = program;
                                 
                                 // Activate the program
+                                // TODO: Move this into the drawable
                                 program->addResources(&baseFrameInfo, cmdEncode, sceneMTL);
-                            
-                                // Run any tweakers right here
-                                drawMTL->runTweakers(&baseFrameInfo);
-                                
+                                                            
                                 // "Draw" using the given program
                                 drawMTL->encodeDirect(&baseFrameInfo,cmdEncode,scene);
                                 

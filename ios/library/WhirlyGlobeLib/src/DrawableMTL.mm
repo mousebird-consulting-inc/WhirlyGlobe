@@ -138,6 +138,7 @@ void ArgBuffContentsMTL::addResources(ResourceRefsMTL &resources)
     for (auto it : entries) {
         resources.addEntry(it.second->buffer);
     }
+    resources.addEntry(buff);
 }
 
 BufferEntryMTLRef ArgBuffContentsMTL::getBuffer()
@@ -195,6 +196,11 @@ void ArgBuffRegularTexturesMTL::updateBuffer(id<MTLDevice> mtlDevice,id<MTLBlitC
 size_t ArgBuffRegularTexturesMTL::encodedLength()
 {
     return size;
+}
+
+void ArgBuffRegularTexturesMTL::addResources(ResourceRefsMTL &resources)
+{
+    resources.addEntry(buffer);
 }
 
 void DrawableMTL::encodeDirectCalculate(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene)

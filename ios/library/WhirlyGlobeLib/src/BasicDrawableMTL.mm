@@ -470,7 +470,27 @@ void BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
     
     // Always need the resource lists
     // It should all be in one buffer
-    resources.addEntry(mainBuffer);
+    if (mainBuffer) {
+        resources.addEntry(mainBuffer);
+    } else {
+        // If we're not consolidating the buffer, list all the buffers
+        if (vertABInfo)
+            vertABInfo->addResources(resources);
+        if (vertTexInfo)
+            vertTexInfo->addResources(resources);
+        if (fragABInfo)
+            fragABInfo->addResources(resources);
+        if (fragTexInfo)
+            fragTexInfo->addResources(resources);
+        for (auto vertAttr : vertexAttributes) {
+            VertexAttributeMTL *vertAttrMTL = (VertexAttributeMTL *)vertAttr;
+            if (vertAttrMTL->buffer && (vertAttrMTL->bufferIndex >= 0))
+                resources.addEntry(vertAttrMTL->buffer);
+        }
+        for (auto defAttr : defaultAttrs)
+            resources.addEntry(defAttr.buffer);
+    }
+
     // TODO: Try to update this less often
     resources.addTextures(activeTextures);
 }

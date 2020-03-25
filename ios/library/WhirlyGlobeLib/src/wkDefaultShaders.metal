@@ -133,6 +133,9 @@ float4 resolveLighting(float3 pos,
 {
     float4 ambient(0.0,0.0,0.0,0.0);
     float4 diffuse(0.0,0.0,0.0,0.0);
+    
+    if (lighting->numLights == 0)
+        return float4(1.0,1.0,1.0,1.0);
 
     for (int ii=0;ii<lighting->numLights;ii++) {
         constant Light *light = &lighting->lights[ii];
@@ -146,9 +149,9 @@ float4 resolveLighting(float3 pos,
 }
 
 struct VertexTriArgBufferA {
-    bool hasTextures                              [[ id(WKSHasTexturesArg)] ];
     constant Uniforms *uniforms                   [[ id(WKSUniformArgBuffer) ]];
     constant UniformDrawStateA *uniDrawState      [[ id(WKSUniformDrawStateArgBuffer) ]];
+    bool hasTextures                              [[ id(WKSHasTexturesArg)] ];
 };
 
 // Simple vertex shader for triangle with no lighting
@@ -172,10 +175,10 @@ vertex ProjVertexTriA vertexTri_noLight(
 }
 
 struct VertexTriArgBufferB {
-    bool hasTextures                              [[ id(WKSHasTexturesArg)] ];
     constant Uniforms *uniforms                   [[ id(WKSUniformArgBuffer) ]];
     constant UniformDrawStateA *uniDrawState      [[ id(WKSUniformDrawStateArgBuffer) ]];
     constant Lighting *lighting                   [[ id(WKSLightingArgBuffer) ]];
+    bool hasTextures                              [[ id(WKSHasTexturesArg)] ];
 };
 
 // Simple vertex shader for triangle with basic lighting
@@ -194,7 +197,8 @@ vertex ProjVertexTriA vertexTri_light(
                                     vert.normal,
                                     float4(vert.color),
                                     vertArgs.lighting,
-                                    vertArgs.uniforms->mvpMatrix) * vertArgs.uniDrawState->fade;
+                                    vertArgs.uniforms->mvpMatrix); // * vertArgs.uniDrawState->fade;
+                                                                    // TODO: Figure out why this doesn't work
     if (texArgs.numTextures > 0)
         outVert.texCoord = resolveTexCoords(vert.texCoord,texArgs,0);
     
@@ -209,7 +213,7 @@ fragment float4 fragmentTri_basic(
 {
     if (texArgs.numTextures == 1) {
         constexpr sampler sampler2d(coord::normalized, filter::linear);
-        return vert.color *  texArgs.tex[0].sample(sampler2d, vert.texCoord);
+        return vert.color * texArgs.tex[0].sample(sampler2d, vert.texCoord);
     }
     return vert.color;
 }
@@ -297,10 +301,10 @@ fragment float4 fragmentTri_multiTexRamp(ProjVertexTriB vert [[stage_in]],
 }
 
 struct VertexTriWideArgBuffer {
-    bool hasTextures                              [[ id(WKSHasTexturesArg)] ];
     constant Uniforms *uniforms                   [[ id(WKSUniformArgBuffer) ]];
     constant UniformDrawStateA *uniDrawState      [[ id(WKSUniformDrawStateArgBuffer) ]];
     constant UniformWideVec *wideVec              [[ id(WKSUniformDrawStateWideVecArgBuffer) ]];
+    bool hasTextures                              [[ id(WKSHasTexturesArg)] ];
 };
 
 vertex ProjVertexTriWideVec vertexTri_wideVec(
@@ -349,10 +353,10 @@ fragment float4 fragmentTri_wideVec(
 }
 
 struct VertexTriSSArgBuffer {
-    bool hasTextures                              [[ id(WKSHasTexturesArg)] ];
     constant Uniforms *uniforms                   [[ id(WKSUniformArgBuffer) ]];
     constant UniformDrawStateA *uniDrawState      [[ id(WKSUniformDrawStateArgBuffer) ]];
     constant UniformScreenSpace *ss               [[ id(WKSUniformDrawStateScreenSpaceArgBuffer) ]];
+    bool hasTextures                              [[ id(WKSHasTexturesArg)] ];
 };
 
 // Screen space (no motion) vertex shader

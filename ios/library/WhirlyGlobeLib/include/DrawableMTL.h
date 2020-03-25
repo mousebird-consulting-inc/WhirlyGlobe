@@ -135,6 +135,9 @@ public:
     // Return the buffer created for the argument buffer
     BufferEntryMTLRef getBuffer();
 
+    // Add the resources we're using to the list
+    void addResources(ResourceRefsMTL &resources);
+
 protected:
     id<MTLArgumentEncoder> encode;
     size_t size;  // Set after encode

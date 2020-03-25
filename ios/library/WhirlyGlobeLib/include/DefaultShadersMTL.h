@@ -61,7 +61,7 @@ namespace WhirlyKitShader
 
 // In the main argument buffer structure to tell us there's a second argument buffer
 //  for textures.
-#define WKSHasTexturesArg 0
+#define WKSHasTexturesArg 100
 
 #define WKSUniformArgBuffer 20
 // Uniforms for the basic case.  Nothing fancy.
@@ -104,11 +104,11 @@ struct UniformDrawStateParticle {
 
 // A single light
 struct Light {
-    simd::float3 direction;
-    simd::float3 halfPlane;
     simd::float4 ambient;
     simd::float4 diffuse;
     simd::float4 specular;
+    simd::float3 direction;
+    simd::float3 halfPlane;
     float viewDepend;
 };
 

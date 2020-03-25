@@ -102,6 +102,9 @@ public:
     // Types of heaps for sorting
     typedef enum {Drawable,Other,MaxType} HeapType;
     
+    // If false, we'll allocate individual buffers
+    static bool UseHeaps;
+    
     // Allocate a buffer of the given type and size
     // It may be an entry in a heap, it might not.
     // The BufferEntryMTLRef will track it
