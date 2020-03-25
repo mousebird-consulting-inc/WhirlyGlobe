@@ -196,7 +196,7 @@ void ResourceRefsMTL::use(id<MTLRenderCommandEncoder> cmdEncode)
         [cmdEncode useResource:tex usage:MTLResourceUsageRead];
 }
 
-bool HeapManagerMTL::UseHeaps = false;
+bool HeapManagerMTL::UseHeaps = true;
 
 HeapManagerMTL::HeapManagerMTL(id<MTLDevice> mtlDevice)
 : mtlDevice(mtlDevice)
