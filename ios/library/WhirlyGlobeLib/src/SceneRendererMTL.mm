@@ -85,7 +85,7 @@ SceneRendererMTL::SceneRendererMTL(id<MTLDevice> mtlDevice,id<MTLLibrary> mtlLib
     offscreenBlendEnable = false;
     // Indirect rendering is only on for 13 and later
     if (@available(iOS 13.0, *)) {
-        indirectRender = false;
+        indirectRender = true;
     } else {
         indirectRender = false;
     }
@@ -694,6 +694,7 @@ void SceneRendererMTL::render(TimeInterval duration,
 
                 if (indirectRender) {
                     if (@available(iOS 12.0, *)) {
+                        [cmdEncode setCullMode:MTLCullModeFront];
                         for (auto drawGroup : targetContainerMTL->drawGroups) {
                             if (drawGroup->numCommands > 0)
                                     [cmdEncode executeCommandsInBuffer:drawGroup->indCmdBuff withRange:NSMakeRange(0,drawGroup->numCommands)];
