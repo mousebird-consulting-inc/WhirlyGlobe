@@ -362,6 +362,9 @@ void SceneRendererMTL::updateWorkGroups(RendererFrameInfo *frameInfo)
                         drawGroup->depthStencil = [setupInfo.mtlDevice newDepthStencilStateWithDescriptor:depthDesc];
                         
                         targetContainerMTL->drawGroups.push_back(drawGroup);
+                        
+                        dgZBufferRead = zBufferRead;
+                        dgZBufferWrite = zBufferWrite;
                     }
                     drawGroup->drawables.push_back(draw);
                 }
