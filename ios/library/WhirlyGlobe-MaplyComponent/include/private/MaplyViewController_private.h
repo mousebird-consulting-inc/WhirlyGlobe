@@ -34,9 +34,6 @@
 
 @interface MaplyViewController()
 {
-    /// Custom map scene
-    WhirlyKit::Scene *mapScene;
-
 @protected
     /// Coordinate system and display adapter
     WhirlyKit::CoordSystemDisplayAdapterRef coordAdapter;
