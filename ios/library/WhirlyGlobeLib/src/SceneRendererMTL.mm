@@ -85,7 +85,7 @@ SceneRendererMTL::SceneRendererMTL(id<MTLDevice> mtlDevice,id<MTLLibrary> mtlLib
     offscreenBlendEnable = false;
     // Indirect rendering is only on for 13 and later
     if (@available(iOS 13.0, *)) {
-        indirectRender = true;
+        indirectRender = false;
     } else {
         indirectRender = false;
     }
@@ -384,7 +384,7 @@ void SceneRendererMTL::updateWorkGroups(RendererFrameInfo *frameInfo)
                 for (auto drawGroup : targetContainerMTL->drawGroups) {
                     int curCommand = 0;
                     drawGroup->numCommands = drawGroup->drawables.size();
-                    drawGroup->indCmdBuff = [setupInfo.mtlDevice newIndirectCommandBufferWithDescriptor:cmdBuffDesc maxCommandCount:drawGroup->numCommands options:MTLResourceStorageModeShared];
+                    drawGroup->indCmdBuff = [setupInfo.mtlDevice newIndirectCommandBufferWithDescriptor:cmdBuffDesc maxCommandCount:drawGroup->numCommands options:0];
 
                     // Just run the calculation portion
                     if (workGroup->groupType == WorkGroup::Calculation) {

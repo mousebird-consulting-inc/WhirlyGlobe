@@ -227,6 +227,7 @@ vertex ProjVertexTriB vertexTri_multiTex(
     ProjVertexTriB outVert;
 
     float3 vertPos = (vertArgs.uniDrawState->singleMat * float4(vert.position,1.0)).xyz;
+//    float3 vertPos = vert.position;
     if (vertArgs.uniDrawState->clipCoords)
         outVert.position = float4(vert.position,1.0);
     else {
@@ -237,6 +238,7 @@ vertex ProjVertexTriB vertexTri_multiTex(
                                     float4(vert.color),
                                     vertArgs.lighting,
                                     vertArgs.uniforms->mvpMatrix) * vertArgs.uniDrawState->fade;
+    outVert.color = vert.color;
 
     // Handle the various texture coordinate input options (none, 1, or 2)
     if (texArgs.numTextures == 0) {
@@ -340,8 +342,7 @@ fragment float4 fragmentTri_wideVec(
     float patternVal = 1.0;
     if (texArgs.numTextures > 0) {
         constexpr sampler sampler2d(coord::normalized, address::repeat, filter::linear);
-//        patternVal = fragArgs.tex->tex[0].sample(sampler2d, float2(0.5,vert.texCoord.y)).r;
-        // Note: Debugging
+        patternVal = texArgs.tex[0].sample(sampler2d, float2(0.5,vert.texCoord.y)).r;
     }
     float alpha = 1.0;
     float across = vert.texCoord.x * fragArgs.wideVec->w2;

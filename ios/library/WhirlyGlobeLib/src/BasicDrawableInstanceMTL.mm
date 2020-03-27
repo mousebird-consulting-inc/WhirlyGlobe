@@ -734,7 +734,8 @@ void BasicDrawableInstanceMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEn
     }
 
     id<MTLRenderPipelineState> renderState = getRenderPipelineState(sceneRender, scene, program, renderTarget, basicDrawMTL);
-    
+    [cmdEncode setRenderPipelineState:renderState];
+
     // Wire up the various inputs that we know about
     for (auto vertAttr : basicDrawMTL->vertexAttributes) {
         VertexAttributeMTL *vertAttrMTL = (VertexAttributeMTL *)vertAttr;
@@ -748,7 +749,6 @@ void BasicDrawableInstanceMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEn
     for (auto defAttr : defaultAttrs)
         [cmdEncode setVertexBuffer:defAttr.buffer->buffer offset:defAttr.buffer->offset atIndex:defAttr.bufferIndex];
     
-    [cmdEncode setRenderPipelineState:renderState];
     
     if (vertABInfo) {
         BufferEntryMTLRef buff = vertABInfo->getBuffer();
