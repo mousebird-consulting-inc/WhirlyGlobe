@@ -34,7 +34,6 @@ using namespace WhirlyGlobe;
 
 @implementation MaplyInteractionLayer
 {
-    WhirlyKit::Scene *mapScene;
     Maply::MapViewRef mapView;
 }
 
@@ -51,7 +50,6 @@ using namespace WhirlyGlobe;
 - (void)startWithThread:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)inScene
 {
     [super startWithThread:inLayerThread scene:inScene];
-    mapScene = inScene;
     
     layerThread = inLayerThread;
     scene = inScene;

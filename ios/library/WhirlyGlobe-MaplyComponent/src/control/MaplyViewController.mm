@@ -253,7 +253,6 @@ public:
     
     [super clear];
     
-    mapScene = NULL;
     mapView = nil;
     wrapView = nil;
 
@@ -1068,7 +1067,7 @@ public:
 
 - (void)animateWithDelegate:(NSObject<MaplyViewControllerAnimationDelegate> *)inAnimationDelegate time:(TimeInterval)howLong
 {
-    TimeInterval now = mapScene->getCurrentTime();
+    TimeInterval now = renderControl->scene->getCurrentTime();
     animationDelegate = inAnimationDelegate;
     animationDelegateEnd = now+howLong;
     
@@ -1087,7 +1086,7 @@ public:
     if (!renderControl)
         return;
     
-    TimeInterval now = mapScene->getCurrentTime();
+    TimeInterval now = renderControl->scene->getCurrentTime();
     if (!animationDelegate)
     {
         theMapView->cancelAnimation();
