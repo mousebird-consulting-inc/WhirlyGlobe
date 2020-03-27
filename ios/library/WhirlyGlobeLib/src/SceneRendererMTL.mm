@@ -376,8 +376,8 @@ void SceneRendererMTL::updateWorkGroups(RendererFrameInfo *frameInfo)
                     cmdBuffDesc.inheritPipelineState = false;
                 }
                 // TODO: Should query the drawables to get this maximum number
-                cmdBuffDesc.maxVertexBufferBindCount = 12;
-                cmdBuffDesc.maxFragmentBufferBindCount = 3;
+                cmdBuffDesc.maxVertexBufferBindCount = WhirlyKitShader::WKSVertMaxBuffer;
+                cmdBuffDesc.maxFragmentBufferBindCount = WhirlyKitShader::WKSFragMaxBuffer;
 
                 // Build up indirect buffers for each draw group
                 for (auto drawGroup : targetContainerMTL->drawGroups) {
@@ -656,6 +656,9 @@ void SceneRendererMTL::render(TimeInterval duration,
                 drawMTL->runTweakers(&baseFrameInfo);
                 drawMTL->preProcess(this, cmdBuff, bltEncode, sceneMTL, resources);
             }
+            resources.addEntry(setupInfo.lightingBuff);
+            resources.addEntry(setupInfo.uniformBuff);
+
             // TODO: Just set these up once and copy it into position
             setupLightBuffer(sceneMTL,&baseFrameInfo,bltEncode,resources);
             setupUniformBuffer(&baseFrameInfo,bltEncode,scene->getCoordAdapter(),resources);

@@ -49,7 +49,7 @@ typedef enum {
     
 // Model instance vertex attribute positions
 typedef enum {
-    WKSVertexInstanceColorAttribute = 6,
+    WKSVertexInstanceColorAttribute = 5,
     WKSVertexInstanceMatrixAttribute,
     WKSVertexInstanceCenterAttribute,
     WKSVertexInstanceDirAttribute
@@ -66,21 +66,30 @@ typedef enum {
 // Textures passed into the shader start here
 #define WKSTextureEntryLookup 5
 
-// The entire set of arguments goes in the first buffer
+// All the buffer entries (other than stage_in) for the vertex shaders
 typedef enum {
-    WKSUniformArgBuffer = 16,
-    WKSLightingArgBuffer = 17,
+    WKSVertUniformArgBuffer = 10,
+    WKSVertLightingArgBuffer = 11,
     // These are free form with their own subsections
-    WKSVertexArgBuffer = 18,
-    WKSFragmentArgBuffer = 19,
+    WKSVertexArgBuffer = 12,
     // Textures are optional
-    WKSTextureArgBuffer = 20,
+    WKSVertTextureArgBuffer = 13,
     // Model instances
-    WKSModelInstanceArgBuffer = 21,
+    WKSVertModelInstanceArgBuffer = 14,
     // If we're using the indirect instancing (can be driven by the GPU) this is
     //  where the indirect buffer lives
-    WKSInstanceIndirectBuffer = 22
-} WKSArgumentBuffers;
+    WKSVertInstanceIndirectBuffer = 15,
+    WKSVertMaxBuffer
+} WKSVertexArgumentBuffers;
+
+// All the buffer entries for the fragment shaders
+typedef enum {
+    WKSFragUniformArgBuffer = 0,
+    WKSFragLightingArgBuffer = 1,
+    WKSFragmentArgBuffer = 2,
+    WKSFragTextureArgBuffer = 4,
+    WKSFragMaxBuffer
+} WKSFragArgumentBuffer;
 
 // Entries in the free form argument buffer
 // These must be in order, but you can add new ones at the end
