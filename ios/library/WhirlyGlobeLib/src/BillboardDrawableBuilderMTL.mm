@@ -46,7 +46,7 @@ void BillboardTweakerMTL::tweakForFrame(Drawable *inDraw,RendererFrameInfo *inFr
     // Note: There are other ways to do this
     BasicDrawable::UniformBlock uniBlock;
     uniBlock.blockData = RawDataRef(new RawNSDataReader([[NSData alloc] initWithBytes:&uniBB length:sizeof(uniBB)]));
-    uniBlock.bufferID = WKSUniformDrawStateBillboardArgBuffer;
+    uniBlock.bufferID = WhirlyKitShader::WKSUniformBillboardEntry;
     basicDraw->setUniBlock(uniBlock);
 }
 
@@ -61,7 +61,7 @@ void BillboardDrawableBuilderMTL::Init()
     BillboardDrawableBuilder::Init();
     
     // Wire up the buffers we use
-    ((VertexAttributeMTL *)basicDraw->vertexAttributes[offsetIndex])->bufferIndex = WKSVertexBillboardOffsetAttribute;
+    ((VertexAttributeMTL *)basicDraw->vertexAttributes[offsetIndex])->bufferIndex = WhirlyKitShader::WKSVertexBillboardOffsetAttribute;
 }
     
 BasicDrawable *BillboardDrawableBuilderMTL::getDrawable()

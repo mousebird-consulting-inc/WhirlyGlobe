@@ -45,7 +45,7 @@ void ScreenSpaceTweakerMTL::tweakForFrame(Drawable *inDraw,RendererFrameInfo *in
     
     BasicDrawable::UniformBlock uniBlock;
     uniBlock.blockData = RawDataRef(new RawNSDataReader([[NSData alloc] initWithBytes:&uniSS length:sizeof(uniSS)]));
-    uniBlock.bufferID = WKSUniformDrawStateScreenSpaceArgBuffer;
+    uniBlock.bufferID = WhirlyKitShader::WKSUniformDrawStateEntry;
     basicDraw->setUniBlock(uniBlock);
 }
     
@@ -65,9 +65,9 @@ void ScreenSpaceDrawableBuilderMTL::Init(bool hasMotion,bool hasRotation,bool bu
     
     // Wire up the buffers
     // TODO: Merge these into a single data structure
-    ((VertexAttributeMTL *)basicDraw->vertexAttributes[offsetIndex])->bufferIndex = WKSVertexScreenSpaceOffsetAttribute;
-    ((VertexAttributeMTL *)basicDraw->vertexAttributes[rotIndex])->bufferIndex = WKSVertexScreenSpaceRotAttribute;
-    ((VertexAttributeMTL *)basicDraw->vertexAttributes[dirIndex])->bufferIndex = WKSVertexScreenSpaceDirAttribute;
+    ((VertexAttributeMTL *)basicDraw->vertexAttributes[offsetIndex])->bufferIndex = WhirlyKitShader::WKSVertexScreenSpaceOffsetAttribute;
+    ((VertexAttributeMTL *)basicDraw->vertexAttributes[rotIndex])->bufferIndex = WhirlyKitShader::WKSVertexScreenSpaceRotAttribute;
+    ((VertexAttributeMTL *)basicDraw->vertexAttributes[dirIndex])->bufferIndex = WhirlyKitShader::WKSVertexScreenSpaceDirAttribute;
 }
 
 ScreenSpaceTweaker *ScreenSpaceDrawableBuilderMTL::makeTweaker()

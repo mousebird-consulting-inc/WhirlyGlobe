@@ -169,7 +169,7 @@ public:
     class UniformBlock
     {
     public:
-        int bufferID;
+        int bufferID;  // Actually an index into a shared shader structure, not a buffer
         RawDataRef blockData;
     };
 

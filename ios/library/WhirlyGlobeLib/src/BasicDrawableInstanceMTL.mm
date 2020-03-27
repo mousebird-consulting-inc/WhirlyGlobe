@@ -30,7 +30,7 @@ namespace WhirlyKit
 {
     
 BasicDrawableInstanceMTL::BasicDrawableInstanceMTL(const std::string &name)
-    : BasicDrawableInstance(name), Drawable(name), renderState(nil), setupForMTL(false), numInst(0)
+    : BasicDrawableInstance(name), Drawable(name), renderState(nil), setupForMTL(false), numInst(0), vertHasTextures(false),fragHasTextures(false),vertHasLighting(false),fragHasLighting(false)
 {
 }
 
@@ -116,11 +116,6 @@ void BasicDrawableInstanceMTL::setupForRenderer(const RenderSetupInfo *inSetupIn
     // Construct the buffer we've been adding to
     mainBuffer = buffBuild.buildBuffer();
     
-    if (vertABInfo)
-        vertABInfo->wireUpBuffers();
-    if (fragABInfo)
-        fragABInfo->wireUpBuffers();
-
     setupForMTL = true;
 }
 
@@ -209,27 +204,23 @@ void BasicDrawableInstanceMTL::setupArgBuffers(id<MTLDevice> mtlDevice,RenderSet
         vertABInfo = ArgBuffContentsMTLRef(new ArgBuffContentsMTL(mtlDevice,
                                                                   setupInfo,
                                                                   prog->vertFunc,
-                                                                  WKSVertexArgBuffer,
+                                                                  WhirlyKitShader::WKSVertexArgBuffer,
                                                                   buffBuild));
-        vertABInfo->setEntry(WKSUniformArgBuffer,setupInfo->uniformBuff);
-        vertABInfo->setEntry(WKSLightingArgBuffer, setupInfo->lightingBuff);
-        if (instBuffer)
-            vertABInfo->setEntry(WKSModelInstanceArgBuffer, instBuffer);
-        vertABInfo->createBuffers(mtlDevice,buffBuild);
-        if (vertABInfo->hasConstant(WKSHasTexturesArg))
-            vertTexInfo = ArgBuffRegularTexturesMTLRef(new ArgBuffRegularTexturesMTL(mtlDevice, setupInfo, prog->vertFunc, WKSTextureArgBuffer, buffBuild));
+        vertHasTextures = vertABInfo->hasConstant("hasTextures");
+        vertHasLighting = vertABInfo->hasConstant("hasLighting");
+        if (vertHasTextures)
+            vertTexInfo = ArgBuffRegularTexturesMTLRef(new ArgBuffRegularTexturesMTL(mtlDevice, setupInfo, prog->vertFunc, WhirlyKitShader::WKSTextureArgBuffer, buffBuild));
     }
     if (prog->fragFunc) {
         fragABInfo = ArgBuffContentsMTLRef(new ArgBuffContentsMTL(mtlDevice,
                                                                   setupInfo,
                                                                   prog->fragFunc,
-                                                                  WKSFragmentArgBuffer,
+                                                                  WhirlyKitShader::WKSFragmentArgBuffer,
                                                                   buffBuild));
-        fragABInfo->setEntry(WKSUniformArgBuffer,setupInfo->uniformBuff);
-        fragABInfo->setEntry(WKSLightingArgBuffer, setupInfo->lightingBuff);
-        fragABInfo->createBuffers(mtlDevice,buffBuild);
-        if (vertABInfo->hasConstant(WKSHasTexturesArg))
-            fragTexInfo = ArgBuffRegularTexturesMTLRef(new ArgBuffRegularTexturesMTL(mtlDevice, setupInfo, prog->fragFunc, WKSTextureArgBuffer, buffBuild));
+        fragHasTextures = fragABInfo->hasConstant("hasTextures");
+        fragHasLighting = fragABInfo->hasConstant("hasLighting");
+        if (fragHasTextures)
+            fragTexInfo = ArgBuffRegularTexturesMTLRef(new ArgBuffRegularTexturesMTL(mtlDevice, setupInfo, prog->fragFunc, WhirlyKitShader::WKSTextureArgBuffer, buffBuild));
     }
 }
 
@@ -524,6 +515,11 @@ void BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
         }
 
         if (valuesChanged) {
+            if (vertABInfo)
+                vertABInfo->startEncoding(mtlDevice);
+            if (fragABInfo)
+                fragABInfo->startEncoding(mtlDevice);
+            
             // Put together a set of uniform blocks to apply
             std::map<int,const BasicDrawable::UniformBlock *> allUniBlocks;
             
@@ -552,16 +548,22 @@ void BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
             BasicDrawableMTL::applyUniformsToDrawState(uni,uniforms);
             CopyIntoMtlFloat4x4(uni.singleMat, *getMatrix());
             if (vertABInfo)
-                vertABInfo->updateEntry(mtlDevice,bltEncode, WKSUniformDrawStateArgBuffer, &uni, sizeof(uni));
+                vertABInfo->updateEntry(mtlDevice,bltEncode, WhirlyKitShader::WKSUniformDrawStateEntry, &uni, sizeof(uni));
             if (fragABInfo)
-                fragABInfo->updateEntry(mtlDevice,bltEncode, WKSUniformDrawStateArgBuffer, &uni, sizeof(uni));
+                fragABInfo->updateEntry(mtlDevice,bltEncode, WhirlyKitShader::WKSUniformDrawStateEntry, &uni, sizeof(uni));
+            
+            // And do the Model Instance specific stuff
+            if (vertABInfo)
+                vertABInfo->updateEntry(mtlDevice, bltEncode, WhirlyKitShader::WKSModelInstanceArgBuffer, &uniMI, sizeof(uniMI));
+            if (fragABInfo)
+                fragABInfo->updateEntry(mtlDevice, bltEncode, WhirlyKitShader::WKSModelInstanceArgBuffer, &uniMI, sizeof(uniMI));
+            
+            if (vertABInfo)
+                vertABInfo->endEncoding(mtlDevice, bltEncode);
+            if (fragABInfo)
+                fragABInfo->endEncoding(mtlDevice, bltEncode);
         }
         
-        // And do the Model Instance specific stuff
-        if (vertABInfo)
-            vertABInfo->updateEntry(mtlDevice, bltEncode, WKSUniformDrawStateModelInstanceArgBuffer, &uniMI, sizeof(uniMI));
-        if (fragABInfo)
-            fragABInfo->updateEntry(mtlDevice, bltEncode, WKSUniformDrawStateModelInstanceArgBuffer, &uniMI, sizeof(uniMI));
 
         texturesChanged = false;
         valuesChanged = false;
@@ -632,21 +634,41 @@ void BasicDrawableInstanceMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,id<M
     
     [cmdEncode setRenderPipelineState:renderState];
     
+    // Everything takes the uniforms
+    [cmdEncode setVertexBuffer:sceneRender->setupInfo.uniformBuff->buffer offset:sceneRender->setupInfo.uniformBuff->offset atIndex:WhirlyKitShader::WKSUniformArgBuffer];
+    [cmdEncode setFragmentBuffer:sceneRender->setupInfo.uniformBuff->buffer offset:sceneRender->setupInfo.uniformBuff->offset atIndex:WhirlyKitShader::WKSUniformArgBuffer];
+
+    // Some shaders take the lighting
+    if (vertHasLighting) {
+        [cmdEncode setVertexBuffer:sceneRender->setupInfo.lightingBuff->buffer offset:sceneRender->setupInfo.lightingBuff->offset atIndex:WhirlyKitShader::WKSLightingArgBuffer];
+    }
+    if (fragHasLighting) {
+        [cmdEncode setFragmentBuffer:sceneRender->setupInfo.lightingBuff->buffer offset:sceneRender->setupInfo.lightingBuff->offset atIndex:WhirlyKitShader::WKSLightingArgBuffer];
+    }
+    
+    // Instances go to the vertex shader if they're present
+    if (instBuffer) {
+        [cmdEncode setVertexBuffer:instBuffer->buffer offset:instBuffer->offset atIndex:WhirlyKitShader::WKSModelInstanceArgBuffer];
+    }
+    
+    // More flexible data structures passed in to the shaders
     if (vertABInfo) {
         BufferEntryMTLRef buff = vertABInfo->getBuffer();
-        [cmdEncode setVertexBuffer:buff->buffer offset:buff->offset atIndex:WKSVertexArgBuffer];
-    }
-    if (vertTexInfo) {
-        BufferEntryMTLRef buff = vertTexInfo->getBuffer();
-        [cmdEncode setVertexBuffer:buff->buffer offset:buff->offset atIndex:WKSTextureArgBuffer];
+        [cmdEncode setVertexBuffer:buff->buffer offset:buff->offset atIndex:WhirlyKitShader::WKSVertexArgBuffer];
     }
     if (fragABInfo) {
         BufferEntryMTLRef buff = fragABInfo->getBuffer();
-        [cmdEncode setFragmentBuffer:buff->buffer offset:buff->offset atIndex:WKSFragmentArgBuffer];
+        [cmdEncode setFragmentBuffer:buff->buffer offset:buff->offset atIndex:WhirlyKitShader::WKSFragmentArgBuffer];
+    }
+
+    // Textures may or may not be passed in to shaders
+    if (vertTexInfo) {
+        BufferEntryMTLRef buff = vertTexInfo->getBuffer();
+        [cmdEncode setVertexBuffer:buff->buffer offset:buff->offset atIndex:WhirlyKitShader::WKSTextureArgBuffer];
     }
     if (fragTexInfo) {
         BufferEntryMTLRef buff = fragTexInfo->getBuffer();
-        [cmdEncode setFragmentBuffer:buff->buffer offset:buff->offset atIndex:WKSTextureArgBuffer];
+        [cmdEncode setFragmentBuffer:buff->buffer offset:buff->offset atIndex:WhirlyKitShader::WKSTextureArgBuffer];
     }
 
     // Using the basic drawable geometry with a few tweaks
@@ -752,19 +774,19 @@ void BasicDrawableInstanceMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEn
     
     if (vertABInfo) {
         BufferEntryMTLRef buff = vertABInfo->getBuffer();
-        [cmdEncode setVertexBuffer:buff->buffer offset:buff->offset atIndex:WKSVertexArgBuffer];
+        [cmdEncode setVertexBuffer:buff->buffer offset:buff->offset atIndex:WhirlyKitShader::WKSVertexArgBuffer];
     }
     if (vertTexInfo) {
         BufferEntryMTLRef buff = vertTexInfo->getBuffer();
-        [cmdEncode setVertexBuffer:buff->buffer offset:buff->offset atIndex:WKSTextureArgBuffer];
+        [cmdEncode setVertexBuffer:buff->buffer offset:buff->offset atIndex:WhirlyKitShader::WKSTextureArgBuffer];
     }
     if (fragABInfo) {
         BufferEntryMTLRef buff = fragABInfo->getBuffer();
-        [cmdEncode setFragmentBuffer:buff->buffer offset:buff->offset atIndex:WKSFragmentArgBuffer];
+        [cmdEncode setFragmentBuffer:buff->buffer offset:buff->offset atIndex:WhirlyKitShader::WKSFragmentArgBuffer];
     }
     if (fragTexInfo) {
         BufferEntryMTLRef buff = fragTexInfo->getBuffer();
-        [cmdEncode setFragmentBuffer:buff->buffer offset:buff->offset atIndex:WKSTextureArgBuffer];
+        [cmdEncode setFragmentBuffer:buff->buffer offset:buff->offset atIndex:WhirlyKitShader::WKSTextureArgBuffer];
     }
 
     // Using the basic drawable geometry with a few tweaks

@@ -200,7 +200,7 @@ bool SceneRendererMTL::resize(int sizeX,int sizeY)
     return true;
 }
         
-void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,id<MTLBlitCommandEncoder> bltEncode,CoordSystemDisplayAdapter *coordAdapter,int texLevel,ResourceRefsMTL &resources)
+void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,id<MTLBlitCommandEncoder> bltEncode,CoordSystemDisplayAdapter *coordAdapter,ResourceRefsMTL &resources)
 {
     SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
     
@@ -216,7 +216,6 @@ void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,id<MTL
     CopyIntoMtlFloat2(uniforms.pixDispSize,pixDispSize);
     Point2f frameSize(frameInfo->sceneRenderer->framebufferWidth,frameInfo->sceneRenderer->framebufferHeight);
     CopyIntoMtlFloat2(uniforms.frameSize, frameSize);
-    uniforms.outputTexLevel = texLevel;
     uniforms.globeMode = !coordAdapter->isFlat();
     
     // Copy this to a buffer and then blit that buffer into place
@@ -657,8 +656,9 @@ void SceneRendererMTL::render(TimeInterval duration,
                 drawMTL->runTweakers(&baseFrameInfo);
                 drawMTL->preProcess(this, cmdBuff, bltEncode, sceneMTL, resources);
             }
-            // TODO: Just set this up once and copy it into position
+            // TODO: Just set these up once and copy it into position
             setupLightBuffer(sceneMTL,&baseFrameInfo,bltEncode,resources);
+            setupUniformBuffer(&baseFrameInfo,bltEncode,scene->getCoordAdapter(),resources);
             [bltEncode updateFence:preProcessFence];
             [bltEncode endEncoding];
                         
@@ -670,15 +670,8 @@ void SceneRendererMTL::render(TimeInterval duration,
                 numLevels = 1;
 
             for (unsigned int level=0;level<numLevels;level++) {
-                // Regular uniforms are per level, unfortunately
-                // Set up and then copied into place
-                id<MTLFence> uniformFence = [mtlDevice newFence];
-                id<MTLBlitCommandEncoder> bltEncode = [cmdBuff blitCommandEncoder];
-                // TODO: Just set this up once and copy it into position
-                setupUniformBuffer(&baseFrameInfo,bltEncode,scene->getCoordAdapter(),level,resources);
-                [bltEncode updateFence:uniformFence];
-                [bltEncode endEncoding];
-
+                // TODO: Pass the level into the draw call
+                //       Also do something about the offset matrices
                 // Set up the encoder
                 id<MTLRenderCommandEncoder> cmdEncode = nil;
                 if (renderTarget->getTex() == nil) {
@@ -692,7 +685,6 @@ void SceneRendererMTL::render(TimeInterval duration,
                 }
                 cmdEncode = [cmdBuff renderCommandEncoderWithDescriptor:baseFrameInfo.renderPassDesc];
                 [cmdEncode waitForFence:preProcessFence beforeStages:MTLRenderStageVertex];
-                [cmdEncode waitForFence:uniformFence beforeStages:MTLRenderStageVertex];
 
                 // Wire up all the resources we need to use
                 // These are buffers created or used by the various drawables

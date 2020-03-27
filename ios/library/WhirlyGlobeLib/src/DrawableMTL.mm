@@ -25,9 +25,10 @@ using namespace Eigen;
 namespace WhirlyKit
 {
 
-ArgBuffContentsMTL::ArgBuffContentsMTL(id<MTLDevice> mtlDevice,RenderSetupInfoMTL *setupInfoMTL,id<MTLFunction> func,int bufferArgIdx,BufferBuilderMTL &buffBuild)
+ArgBuffContentsMTL::ArgBuffContentsMTL(id<MTLDevice> mtlDevice,RenderSetupInfoMTL *inSetupInfoMTL,id<MTLFunction> func,int bufferArgIdx,BufferBuilderMTL &buffBuild)
 {
     valid = false;
+    setupInfoMTL = inSetupInfoMTL;
     
     MTLAutoreleasedArgument argInfo;
     encode = [func newArgumentEncoderWithBufferIndex:bufferArgIdx reflection:&argInfo];
@@ -45,59 +46,20 @@ ArgBuffContentsMTL::ArgBuffContentsMTL(id<MTLDevice> mtlDevice,RenderSetupInfoMT
     
     // Work through the members, adding an entry for each one we're to fill in
     for (MTLStructMember *mem in members) {
-        if (mem.dataType == MTLDataTypePointer) {
+        if (mem.dataType == MTLDataTypeStruct) {
             EntryRef entry(new Entry());
             entry->entryID = mem.argumentIndex;
-            entry->size = mem.pointerType.dataSize;
             entries[entry->entryID] = entry;
         } else if (mem.dataType == MTLDataTypeBool) {
-            constants.insert(mem.argumentIndex);
+            constants.insert([mem.name cStringUsingEncoding:NSASCIIStringEncoding]);
         }
     }
     
     // Create a buffer to store the arguments in
     buff = buffBuild.reserveData([encode encodedLength]);
     
-    isSetup = false;
-    valid = true;
-}
-
-id<MTLArgumentEncoder> ArgBuffContentsMTL::getEncoderFor(SceneRendererMTL *sceneRender,int entryID)
-{
-    id<MTLArgumentEncoder> newEncode = [encode newArgumentEncoderForBufferAtIndex:entryID];
-    return newEncode;
-}
-
-void ArgBuffContentsMTL::createBuffers(id<MTLDevice> mtlDevice,BufferBuilderMTL &buffBuild)
-{
-    // Create buffers for entries that don't have them
-    for (auto it : entries) {
-        auto entry = it.second;
-        if (!entry->buffer) {
-            entry->buffer = buffBuild.reserveData(entry->size);
-        }
-    }
-}
-
-void ArgBuffContentsMTL::setEntry(int entryID,BufferEntryMTLRef buffer)
-{
-    auto it = entries.find(entryID);
-    if (it == entries.end())
-        return;
-    auto entry = it->second;
-    entry->buffer = buffer;
-}
-
-void ArgBuffContentsMTL::wireUpBuffers()
-{
-    [encode setArgumentBuffer:buff->buffer offset:buff->offset];
-
-    for (auto it : entries) {
-        auto entry = it.second;
-        [encode setBuffer:entry->buffer->buffer offset:entry->buffer->offset atIndex:entry->entryID];
-    }
-            
     isSetup = true;
+    valid = true;
 }
 
 bool ArgBuffContentsMTL::hasEntry(int entryID)
@@ -105,9 +67,21 @@ bool ArgBuffContentsMTL::hasEntry(int entryID)
     return entries.find(entryID) != entries.end();
 }
 
-bool ArgBuffContentsMTL::hasConstant(int constantID)
+bool ArgBuffContentsMTL::hasConstant(const std::string &name)
 {
-    return constants.find(constantID) != constants.end();
+    return constants.find(name) != constants.end();
+}
+
+void ArgBuffContentsMTL::startEncoding(id<MTLDevice> mtlDevice)
+{
+    tmpBuff = setupInfoMTL->heapManage.allocateBuffer(HeapManagerMTL::Drawable, [encode encodedLength]);
+    [encode setArgumentBuffer:tmpBuff->buffer offset:tmpBuff->offset];
+}
+
+void ArgBuffContentsMTL::endEncoding(id<MTLDevice> mtlDevice, id<MTLBlitCommandEncoder> blitEncode)
+{
+    [blitEncode copyFromBuffer:tmpBuff->buffer sourceOffset:tmpBuff->offset toBuffer:buff->buffer destinationOffset:buff->offset size:[tmpBuff->buffer length]];
+    tmpBuff.reset();
 }
 
 void ArgBuffContentsMTL::updateEntry(id<MTLDevice> mtlDevice,id<MTLBlitCommandEncoder> blitEncode,int entryID,void *rawData,size_t size)
@@ -117,27 +91,11 @@ void ArgBuffContentsMTL::updateEntry(id<MTLDevice> mtlDevice,id<MTLBlitCommandEn
         return;
     auto entry = it->second;
     
-    // TODO: Try to reuse these buffers
-    // This schedules a copy from our buffer to the other, thus not interfering with an ongoing render
-    id<MTLBuffer> srcBuffer = [mtlDevice newBufferWithBytes:rawData length:size options:MTLResourceStorageModeShared];
-    [blitEncode copyFromBuffer:srcBuffer sourceOffset:0 toBuffer:entry->buffer->buffer destinationOffset:entry->buffer->offset size:size];
-}
-
-void ArgBuffContentsMTL::updateEntry(id<MTLDevice> mtlDevice,id<MTLBlitCommandEncoder> blitEncode,int entryID,BufferEntryMTLRef buffer,size_t size)
-{
-    auto it = entries.find(entryID);
-    if (it == entries.end())
-        return;
-    auto entry = it->second;
-
-    [blitEncode copyFromBuffer:buffer->buffer sourceOffset:buffer->offset toBuffer:entry->buffer->buffer destinationOffset:entry->buffer->offset size:size];
+    memcpy([encode constantDataAtIndex:entry->entryID], rawData, size);
 }
 
 void ArgBuffContentsMTL::addResources(ResourceRefsMTL &resources)
 {
-    for (auto it : entries) {
-        resources.addEntry(it.second->buffer);
-    }
     resources.addEntry(buff);
 }
 

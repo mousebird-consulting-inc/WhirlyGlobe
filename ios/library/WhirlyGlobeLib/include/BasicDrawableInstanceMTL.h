@@ -90,6 +90,8 @@ protected:
     
     BufferEntryMTLRef mainBuffer;        // We're storing all the bits and pieces in here
     ArgBuffContentsMTLRef vertABInfo,fragABInfo;
+    bool vertHasTextures,fragHasTextures;
+    bool vertHasLighting,fragHasLighting;
     ArgBuffRegularTexturesMTLRef vertTexInfo,fragTexInfo;
 
     // Textures currently in use

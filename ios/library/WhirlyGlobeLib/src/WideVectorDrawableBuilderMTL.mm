@@ -60,7 +60,7 @@ void WideVectorTweakerMTL::tweakForFrame(Drawable *inDraw,RendererFrameInfo *inF
     
     BasicDrawable::UniformBlock uniBlock;
     uniBlock.blockData = RawDataRef(new RawNSDataReader([[NSData alloc] initWithBytes:&uniWV length:sizeof(uniWV)]));
-    uniBlock.bufferID = WKSUniformDrawStateWideVecArgBuffer;
+    uniBlock.bufferID = WhirlyKitShader::WKSUniformWideVecEntry;
     basicDraw->setUniBlock(uniBlock);
 }
 
@@ -77,12 +77,12 @@ void WideVectorDrawableBuilderMTL::Init(unsigned int numVert, unsigned int numTr
     // Wire up the buffers
     // TODO: Merge these into a single data structure
     if (globeMode)
-        ((VertexAttributeMTL *)basicDraw->vertexAttributes[basicDraw->normalEntry])->bufferIndex = WKSVertexNormalAttribute;
-    ((VertexAttributeMTL *)basicDraw->vertexAttributes[basicDraw->colorEntry])->bufferIndex = WKSVertexColorAttribute;
-    ((VertexAttributeMTL *)basicDraw->vertexAttributes[p1_index])->bufferIndex = WKSVertexWideVecP1Attribute;
-    ((VertexAttributeMTL *)basicDraw->vertexAttributes[tex_index])->bufferIndex = WKSVertexWideVecTexInfoAttribute;
-    ((VertexAttributeMTL *)basicDraw->vertexAttributes[n0_index])->bufferIndex = WKSVertexWideVecN0Attribute;
-    ((VertexAttributeMTL *)basicDraw->vertexAttributes[c0_index])->bufferIndex = WKSVertexWideVecC0Attribute;
+        ((VertexAttributeMTL *)basicDraw->vertexAttributes[basicDraw->normalEntry])->bufferIndex = WhirlyKitShader::WKSVertexNormalAttribute;
+    ((VertexAttributeMTL *)basicDraw->vertexAttributes[basicDraw->colorEntry])->bufferIndex = WhirlyKitShader::WKSVertexColorAttribute;
+    ((VertexAttributeMTL *)basicDraw->vertexAttributes[p1_index])->bufferIndex = WhirlyKitShader::WKSVertexWideVecP1Attribute;
+    ((VertexAttributeMTL *)basicDraw->vertexAttributes[tex_index])->bufferIndex = WhirlyKitShader::WKSVertexWideVecTexInfoAttribute;
+    ((VertexAttributeMTL *)basicDraw->vertexAttributes[n0_index])->bufferIndex = WhirlyKitShader::WKSVertexWideVecN0Attribute;
+    ((VertexAttributeMTL *)basicDraw->vertexAttributes[c0_index])->bufferIndex = WhirlyKitShader::WKSVertexWideVecC0Attribute;
 }
 
 WideVectorTweaker *WideVectorDrawableBuilderMTL::makeTweaker()

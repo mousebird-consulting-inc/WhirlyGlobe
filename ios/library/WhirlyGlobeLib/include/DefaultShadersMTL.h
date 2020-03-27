@@ -21,32 +21,45 @@
 
 namespace WhirlyKitShader
 {
+
+/** Attributes within the [[stage_in]] for vertex shaders **/
     
-#define WKSVertexPositionAttribute 2
-#define WKSVertexColorAttribute 3
-#define WKSVertexNormalAttribute 4
-#define WKSVertexTextureBaseAttribute 5
+// Basic vertex attribute positions
+typedef enum {
+    WKSVertexPositionAttribute = 0,
+    WKSVertexColorAttribute,
+    WKSVertexNormalAttribute,
+    WKSVertexTextureBaseAttribute
+} WKSVertexAttributes;
     
 // Wide Vector vertex attribute positions
-#define WKSVertexWideVecTexInfoAttribute 6
-#define WKSVertexWideVecP1Attribute 7
-#define WKSVertexWideVecN0Attribute 8
-#define WKSVertexWideVecC0Attribute 9
+typedef enum {
+    WKSVertexWideVecTexInfoAttribute = 5,
+    WKSVertexWideVecP1Attribute,
+    WKSVertexWideVecN0Attribute,
+    WKSVertexWideVecC0Attribute
+} WKSVertexWideVecAttributes;
     
 // Screen space vertex attribute positions
-#define WKSVertexScreenSpaceOffsetAttribute 6
-#define WKSVertexScreenSpaceRotAttribute 7
-#define WKSVertexScreenSpaceDirAttribute 8
+typedef enum {
+    WKSVertexScreenSpaceOffsetAttribute = 5,
+    WKSVertexScreenSpaceRotAttribute,
+    WKSVertexScreenSpaceDirAttribute
+} WKSVertexScreenSpaceAttributes;
     
 // Model instance vertex attribute positions
-#define WKSVertexInstanceColorAttribute 6
-#define WKSVertexInstanceMatrixAttribute 7
-#define WKSVertexInstanceCenterAttribute 8
-#define WKSVertexInstanceDirAttribute 9
+typedef enum {
+    WKSVertexInstanceColorAttribute = 6,
+    WKSVertexInstanceMatrixAttribute,
+    WKSVertexInstanceCenterAttribute,
+    WKSVertexInstanceDirAttribute
+} WKSVertexInstanceAttributes;
     
 // Billboard offsets
 // TODO: Billboards should be instances
-#define WKSVertexBillboardOffsetAttribute 6
+typedef enum {
+    WKSVertexBillboardOffsetAttribute = 6
+} WKSVertexBillboardAttributes;
 
 // Maximum number of textures we currently support
 #define WKSTextureMax 8
@@ -54,16 +67,31 @@ namespace WhirlyKitShader
 #define WKSTextureEntryLookup 5
 
 // The entire set of arguments goes in the first buffer
-#define WKSVertexArgBuffer 0
-#define WKSFragmentArgBuffer 0
-// Texture info is separate and goes in second buffer
-#define WKSTextureArgBuffer 1
+typedef enum {
+    WKSUniformArgBuffer = 16,
+    WKSLightingArgBuffer = 17,
+    // These are free form with their own subsections
+    WKSVertexArgBuffer = 18,
+    WKSFragmentArgBuffer = 19,
+    // Textures are optional
+    WKSTextureArgBuffer = 20,
+    // Model instances
+    WKSModelInstanceArgBuffer = 21,
+    // If we're using the indirect instancing (can be driven by the GPU) this is
+    //  where the indirect buffer lives
+    WKSInstanceIndirectBuffer = 22
+} WKSArgumentBuffers;
 
-// In the main argument buffer structure to tell us there's a second argument buffer
-//  for textures.
-#define WKSHasTexturesArg 100
+// Entries in the free form argument buffer
+// These must be in order, but you can add new ones at the end
+typedef enum {
+    WKSUniformDrawStateEntry = 0,
+    WKSUniformWideVecEntry = 100,
+    WKSUniformScreenSpaceEntry = 200,
+    WKSUniformModelInstanceEntry = 300,
+    WKSUniformBillboardEntry = 400
+} WKSArgBufferEntries;
 
-#define WKSUniformArgBuffer 20
 // Uniforms for the basic case.  Nothing fancy.
 struct Uniforms
 {
@@ -74,31 +102,27 @@ struct Uniforms
     simd::float3 eyePos;
     simd::float2 pixDispSize;  // Size of a single pixel in display coordinates
     simd::float2 frameSize;    // Output framebuffer size
-    int outputTexLevel;        // Normally 0, unless we're running a reduce
     bool globeMode;
 };
 
-#define WKSUniformDrawStateArgBuffer 21
 // Things that change per drawable (like fade)
 struct UniformDrawStateA {
+    simd::float4x4 singleMat; // Individual transform used by model instances
+    simd::float2 screenOrigin; // Used for texture pinning in screen space
     float fade;                // Fade tends to change by time
     float interp;              // Used to interpolate between two textures (if appropriate)
-    simd::float2 screenOrigin; // Used for texture pinning in screen space
-    simd::float4x4 singleMat; // Individual transform used by model instances
+    int outputTexLevel;        // Normally 0, unless we're running a reduce
+    int whichOffsetMatrix;     // Normally 0, unless we're in 2D mode drawing the same stuff multiple times
     bool clipCoords;           // If set, the geometry coordinates aren't meant to be transformed
 };
     
 // Things that change per particle drawable
-#define WKSUniformDrawStateParticleArgBuffer 22
 struct UniformDrawStateParticle {
     float pointSize;   // If set, the size of points to be rendered
     float time; // Relative time globally
     float lifetime;  // Total lifetime of a particle
     float frameLen; // Length of a single frame
 };
-
-// Input buffer for the particles
-#define WKSParticleArgBuffer 23
 
 //// Lighting support //////
 
@@ -120,7 +144,6 @@ struct Material {
     float specularExponent;
 };
 
-#define WKSLightingArgBuffer 24
 // Lighting together in one struct
 struct Lighting {
     Material mat;
@@ -134,7 +157,6 @@ struct Lighting {
 #define WKSTexBuffIndirectScale 130
 #define WKSTexBuffTextures 170
 
-#define WKSUniformDrawStateWideVecArgBuffer 26
 // Instructions to the wide vector shaders, usually per-drawable
 struct UniformWideVec {
     float w2;       // Width / 2.0 in screen space
@@ -144,7 +166,6 @@ struct UniformWideVec {
     simd::float4 color;  // Color override.  TODO: Use the standard one.  Seriously.
 };
     
-#define WKSUniformDrawStateScreenSpaceArgBuffer 27
 // Instructions to the screen space shaders, usually per-drawable
 struct UniformScreenSpace {
     simd::float2 scale;
@@ -154,7 +175,6 @@ struct UniformScreenSpace {
     bool hasMotion;            // For objects that can move, check this
 };
     
-#define WKSUniformDrawStateModelInstanceArgBuffer 28
 // Instructions to the model instance shaders, per-drawable
 struct UniformModelInstance {
     float time;                // For moving objects, this is the base time
@@ -162,7 +182,6 @@ struct UniformModelInstance {
     bool useInstanceColor;     // For model instance, if set use the instance color
 };
 
-#define WKSModelInstanceArgBuffer 29
 // Input model instance info
 struct VertexTriModelInstance
 {
@@ -172,11 +191,7 @@ struct VertexTriModelInstance
     simd::float3 center;
     simd::float3 dir;
 };
-// If we're using the indirect instancing (can be driven by the GPU) this is
-//  where the indirect buffer lives
-#define WKSInstanceIndirectBuffer 17
 
-#define WKSUniformDrawStateBillboardArgBuffer 30
 // Instructions to the billboard shaders, per-drawable
 struct UniformBillboard {
     simd::float3 eyeVec;
@@ -191,9 +206,9 @@ struct UniformBillboard {
 // Vertices with position, color, and normal
 struct VertexA
 {
-    float3 position [[attribute(WKSVertexPositionAttribute)]];
-    float4 color [[attribute(WKSVertexColorAttribute)]];
-    float3 normal [[attribute(WKSVertexNormalAttribute)]];
+    float3 position [[attribute(WhirlyKitShader::WKSVertexPositionAttribute)]];
+    float4 color [[attribute(WhirlyKitShader::WKSVertexColorAttribute)]];
+    float3 normal [[attribute(WhirlyKitShader::WKSVertexNormalAttribute)]];
 };
 
 // Position, color, and dot project (for backface checking)
@@ -214,10 +229,10 @@ struct ProjVertexB
 // Ye olde triangle vertex
 struct VertexTriA
 {
-    float3 position [[attribute(WKSVertexPositionAttribute)]];
-    float4 color [[attribute(WKSVertexColorAttribute)]];
-    float3 normal [[attribute(WKSVertexNormalAttribute)]];
-    float2 texCoord [[attribute(WKSVertexTextureBaseAttribute)]];
+    float3 position [[attribute(WhirlyKitShader::WKSVertexPositionAttribute)]];
+    float4 color [[attribute(WhirlyKitShader::WKSVertexColorAttribute)]];
+    float3 normal [[attribute(WhirlyKitShader::WKSVertexNormalAttribute)]];
+    float2 texCoord [[attribute(WhirlyKitShader::WKSVertexTextureBaseAttribute)]];
 };
 
 // Output vertex to the fragment shader
@@ -230,11 +245,11 @@ struct ProjVertexTriA {
 // Triangle vertex with a couple of texture coordinates
 struct VertexTriB
 {
-    float3 position [[attribute(WKSVertexPositionAttribute)]];
-    float4 color [[attribute(WKSVertexColorAttribute)]];
-    float3 normal [[attribute(WKSVertexNormalAttribute)]];
-    float2 texCoord0 [[attribute(WKSVertexTextureBaseAttribute)]];
-    float2 texCoord1 [[attribute(WKSVertexTextureBaseAttribute+1)]];
+    float3 position [[attribute(WhirlyKitShader::WKSVertexPositionAttribute)]];
+    float4 color [[attribute(WhirlyKitShader::WKSVertexColorAttribute)]];
+    float3 normal [[attribute(WhirlyKitShader::WKSVertexNormalAttribute)]];
+    float2 texCoord0 [[attribute(WhirlyKitShader::WKSVertexTextureBaseAttribute)]];
+    float2 texCoord1 [[attribute(WhirlyKitShader::WKSVertexTextureBaseAttribute+1)]];
 };
 
 // Output vertex to the fragment shader
@@ -253,12 +268,12 @@ struct ProjVertexTriB {
 
 struct VertexTriWideVec
 {
-    float3 position [[attribute(WKSVertexPositionAttribute)]];
-    float3 normal [[attribute(WKSVertexNormalAttribute)]];
-    float4 texInfo [[attribute(WKSVertexWideVecTexInfoAttribute)]];
-    float3 p1 [[attribute(WKSVertexWideVecP1Attribute)]];
-    float3 n0 [[attribute(WKSVertexWideVecN0Attribute)]];
-    float c0 [[attribute(WKSVertexWideVecC0Attribute)]];
+    float3 position [[attribute(WhirlyKitShader::WKSVertexPositionAttribute)]];
+    float3 normal [[attribute(WhirlyKitShader::WKSVertexNormalAttribute)]];
+    float4 texInfo [[attribute(WhirlyKitShader::WKSVertexWideVecTexInfoAttribute)]];
+    float3 p1 [[attribute(WhirlyKitShader::WKSVertexWideVecP1Attribute)]];
+    float3 n0 [[attribute(WhirlyKitShader::WKSVertexWideVecN0Attribute)]];
+    float c0 [[attribute(WhirlyKitShader::WKSVertexWideVecC0Attribute)]];
 };
 
 // Wide Vector vertex passed to fragment shader
@@ -272,23 +287,23 @@ struct ProjVertexTriWideVec {
 // Input vertex data for Screen Space shaders
 struct VertexTriScreenSpace
 {
-    float3 position [[attribute(WKSVertexPositionAttribute)]];
-    float3 normal [[attribute(WKSVertexNormalAttribute)]];
-    float2 texCoord [[attribute(WKSVertexTextureBaseAttribute)]];
-    float4 color [[attribute(WKSVertexColorAttribute)]];
-    float2 offset [[attribute(WKSVertexScreenSpaceOffsetAttribute)]];
-    float3 rot [[attribute(WKSVertexScreenSpaceRotAttribute)]];
-    float3 dir [[attribute(WKSVertexScreenSpaceDirAttribute)]];
+    float3 position [[attribute(WhirlyKitShader::WKSVertexPositionAttribute)]];
+    float3 normal [[attribute(WhirlyKitShader::WKSVertexNormalAttribute)]];
+    float2 texCoord [[attribute(WhirlyKitShader::WKSVertexTextureBaseAttribute)]];
+    float4 color [[attribute(WhirlyKitShader::WKSVertexColorAttribute)]];
+    float2 offset [[attribute(WhirlyKitShader::WKSVertexScreenSpaceOffsetAttribute)]];
+    float3 rot [[attribute(WhirlyKitShader::WKSVertexScreenSpaceRotAttribute)]];
+    float3 dir [[attribute(WhirlyKitShader::WKSVertexScreenSpaceDirAttribute)]];
 };
 
 // Triangle vertex with a couple of texture coordinates
 struct VertexTriBillboard
 {
-    float3 position [[attribute(WKSVertexPositionAttribute)]];
-    float3 offset [[attribute(WKSVertexBillboardOffsetAttribute)]];
-    float4 color [[attribute(WKSVertexColorAttribute)]];
-    float3 normal [[attribute(WKSVertexNormalAttribute)]];
-    float2 texCoord [[attribute(WKSVertexTextureBaseAttribute)]];
+    float3 position [[attribute(WhirlyKitShader::WKSVertexPositionAttribute)]];
+    float3 offset [[attribute(WhirlyKitShader::WKSVertexBillboardOffsetAttribute)]];
+    float4 color [[attribute(WhirlyKitShader::WKSVertexColorAttribute)]];
+    float3 normal [[attribute(WhirlyKitShader::WKSVertexNormalAttribute)]];
+    float2 texCoord [[attribute(WhirlyKitShader::WKSVertexTextureBaseAttribute)]];
 };
     
 #endif

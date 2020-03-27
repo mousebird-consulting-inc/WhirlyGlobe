@@ -45,42 +45,32 @@ public:
                        id<MTLFunction> func,
                        int bufferArgIdx,
                        BufferBuilderMTL &buffBuild);
-    
-    // Return an argument encoder for the given try (presumably another argument buffer)
-    id<MTLArgumentEncoder> getEncoderFor(SceneRendererMTL *sceneRender,int entryID);
-    
+        
     // Create empty buffers for the various entries we don't have yet
     void createBuffers(id<MTLDevice> mtlDevice,BufferBuilderMTL &buffBuild);
-    
-    // Call this to actually assign the buffers
-    // Have to do this because we're trying to share a big buffer for a whole drawable
-    //  so we don't have the buffer yet when we "define" it
-    void wireUpBuffers();
-    
+        
     // True if this argument buffer has the given entry
     bool hasEntry(int entryID);
     
-    // True if a constant at the given index exists
-    bool hasConstant(int constantID);
+    // True if a constant of the given name exists
+    bool hasConstant(const std::string &);
     
-    // Copy in the buffer contents for the given entry
+    // Make a new buffer, ready to copy arguments into
+    void startEncoding(id<MTLDevice> mtlDevice);
+    
+    // Copy the given entry into the current buffer
     void updateEntry(id<MTLDevice> mtlDevice,
                      id<MTLBlitCommandEncoder> blitEncode,
                      int entryID,
                      void *rawData,size_t size);
-    // This version takes a buffer to copy from
-    void updateEntry(id<MTLDevice> mtlDevice,
-                     id<MTLBlitCommandEncoder> blitEncode,
-                     int entryID,
-                     BufferEntryMTLRef buffer,size_t size);
     
-    // Set the buffer for a specific entry
-    void setEntry(int entryID,BufferEntryMTLRef buffer);
-        
+    // Finished copying arguments into the temp buffer, schedule it to be copied over to the real one
+    void endEncoding(id<MTLDevice> mtlDevice,id<MTLBlitCommandEncoder> blitEncode);
+            
     // Add the resources we're using to the list
     void addResources(ResourceRefsMTL &resources);
     
-    // Return the buffer created for the argument buffer
+    // Return the buffer created for the arguments (the one used by the shader)
     BufferEntryMTLRef getBuffer();
         
     // False if this failed to set up correctly
@@ -89,17 +79,19 @@ public:
 protected:
     bool valid;
     bool isSetup;
+    RenderSetupInfoMTL *setupInfoMTL;
     
     // Single entry (for a buffer) in the argument buffer
     typedef struct {
         int entryID;
-        size_t size;
-        BufferEntryMTLRef buffer;
+        std::string name;
     } Entry;
     typedef std::shared_ptr<Entry> EntryRef;
 
     // Buffer that contains the argument buffer
     BufferEntryMTLRef buff;
+    // Buffer we update into before we copy it over
+    BufferEntryMTLRef tmpBuff;
     
     // Used to encode everything initially and then textures later
     id<MTLArgumentEncoder> encode;
@@ -108,7 +100,7 @@ protected:
     std::map<int,EntryRef> entries;
     
     // Indices of the various constants
-    std::set<int> constants;
+    std::set<std::string> constants;
 };
 typedef std::shared_ptr<ArgBuffContentsMTL> ArgBuffContentsMTLRef;
 
