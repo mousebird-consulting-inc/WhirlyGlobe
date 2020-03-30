@@ -156,6 +156,13 @@ typedef NS_ENUM(NSInteger, MaplyVectorObjectType) {
   */
 - (nonnull instancetype)initWithAreal:(MaplyCoordinate *__nonnull)coords numCoords:(int)numCoords attributes:(NSDictionary *__nullable)attr;
 
+/**
+  Inintialize as an areal feature.
+  
+  This version takes an array of coordinates (2 numbers per coordinate).  With this it will make a single area feature with one (exterior) loop.  To add loops, call addHole:numCoords:
+*/
+- (nonnull instancetype)initWithArealArray:(NSArray<NSNumber *> *__nonnull)coords attributes:(NSDictionary *__nullable)attr;
+
 /** 
     Initializes with vectors parsed from geoJSON.
 	

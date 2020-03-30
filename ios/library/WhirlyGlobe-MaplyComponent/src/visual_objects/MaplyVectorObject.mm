@@ -202,6 +202,33 @@ using namespace WhirlyGlobe;
     return self;
 }
 
+- (nonnull instancetype)initWithArealArray:(NSArray<NSNumber *> *__nonnull)coords attributes:(NSDictionary *__nullable)attr
+{
+    self = [super init];
+    if ([coords count] % 1 != 0) {
+        NSLog(@"Expecting an even number of coordinates in initWithArealArray:");
+        return nil;
+    }
+    
+    if (self)
+    {
+        vObj = VectorObjectRef(new VectorObject());
+
+        VectorArealRef areal = VectorAreal::createAreal();
+        VectorRing pts;
+        for (unsigned int ii=0;ii<[coords count];ii+=2)
+            pts.push_back(GeoCoord([[coords objectAtIndex:ii] doubleValue],[[coords objectAtIndex:ii+1] doubleValue]));
+        areal->loops.push_back(pts);
+        iosMutableDictionary *dict = new iosMutableDictionary([NSMutableDictionary dictionaryWithDictionary:attr]);
+        areal->setAttrDict(MutableDictionaryRef(dict));
+        areal->initGeoMbr();
+        vObj->shapes.insert(areal);
+    }
+    
+    return self;
+
+}
+
 /// Construct from GeoJSON
 - (instancetype)initWithGeoJSON:(NSData *)geoJSON
 {
