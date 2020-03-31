@@ -117,7 +117,7 @@
           
             if(!subStyle->markerImage)
             {
-              subStyle->markerImage = [MaplyIconManager iconForName:fileName
+              subStyle->markerImage = [MaplySimpleStyleManager iconForName:fileName
                                                                size:CGSizeMake(settings.markerScale*subStyle->width+2,
                                                                                settings.markerScale*subStyle->height+2)
                                                               color:[UIColor blackColor]
@@ -154,7 +154,7 @@
                 marker.image = subStyle->markerImage;
             else {
                 NSString *markerName = [self formatText:subStyle->markerImageTemplate forObject:vec];
-                marker.image =  [MaplyIconManager iconForName:markerName
+                marker.image =  [MaplySimpleStyleManager iconForName:markerName
                                                        size:CGSizeMake(settings.markerScale*subStyle->width+2,
                                                                        settings.markerScale*subStyle->height+2)
                                                       color:[UIColor blackColor]
