@@ -17,12 +17,12 @@ import com.mousebird.maply.VectorObject;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 import com.mousebirdconsulting.autotester.R;
 
-import org.apache.commons.io.IOUtils;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+
+import okio.Okio;
 
 public class TextureVectorTestCase extends MaplyTestCase
 {
@@ -45,7 +45,7 @@ public class TextureVectorTestCase extends MaplyTestCase
             InputStream stream = assetMgr.open("country_json_50m/" + path);
             try {
                 VectorObject vecObject = new VectorObject();
-                String json = IOUtils.toString(stream, Charset.defaultCharset());
+                String json = Okio.buffer(Okio.source(stream)).readUtf8();
                 if (vecObject.fromGeoJSON(json)) {
                     vecObject.selectable = true;
 

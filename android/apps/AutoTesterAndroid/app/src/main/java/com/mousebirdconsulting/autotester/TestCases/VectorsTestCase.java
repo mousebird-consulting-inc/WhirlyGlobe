@@ -14,13 +14,13 @@ import com.mousebird.maply.VectorInfo;
 import com.mousebird.maply.VectorObject;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 
-import org.apache.commons.io.IOUtils;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Set;
+
+import okio.Okio;
 
 
 public class VectorsTestCase extends MaplyTestCase {
@@ -47,7 +47,7 @@ public class VectorsTestCase extends MaplyTestCase {
 			try {
 				VectorObject vecObject = new VectorObject();
 				vecObject.selectable = true;
-				String json = IOUtils.toString(stream, Charset.defaultCharset());
+				String json = Okio.buffer(Okio.source(stream)).readUtf8();
 				if (vecObject.fromGeoJSON(json)) {
 					vectors.add(vecObject);
 

@@ -7,16 +7,17 @@ import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okio.Okio;
 
 import org.jetbrains.annotations.NotNull;
-
-import org.apache.commons.io.FileUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.ArrayList;
@@ -350,7 +351,8 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
                     if (locFile != null) {
                         cacheFile = new File(locFile);
                         if (cacheFile.exists()) {
-                            tileData = FileUtils.readFileToByteArray(cacheFile);
+                            InputStream stream = new FileInputStream(cacheFile);
+                            tileData = Okio.buffer(Okio.source(stream)).readByteArray();
                             if (debugOutput) {
                                 if (tileData != null)
                                     Log.d("Maply", "Read cached file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");

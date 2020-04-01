@@ -32,8 +32,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import org.apache.commons.io.IOUtils;
-
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -146,13 +144,15 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
                     cacheFile = new File(locFile);
                     if (cacheFile.exists()) {
                         BufferedInputStream aBufferedInputStream = new BufferedInputStream(new FileInputStream(cacheFile));
-			byte[] rawImage = IOUtils.toByteArray(aBufferedInputStream);
+                        final byte[] rawImage = new byte[(int)cacheFile.length()];
+						aBufferedInputStream.read(rawImage, 0, rawImage.length);
+						aBufferedInputStream.close();
 
-			bm = bitmapFromRaw(rawImage);
+						bm = bitmapFromRaw(rawImage);
 
-			if (debugOutput)
-	                       Log.d("Maply", "Read cached file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
-                    }
+						if (debugOutput)
+							Log.d("Maply", "Read cached file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
+                	    }
                 }
 
                 if (bm != null) {
