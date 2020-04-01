@@ -252,7 +252,7 @@ public:
     /// Add a drawable to the scene renderer.  We'll sort it into the appropriate render target
     virtual void addDrawable(DrawableRef newDrawable);
     /// Remove the given drawable from
-    virtual void removeDrawable(DrawableRef draw);
+    virtual void removeDrawable(DrawableRef draw,bool teardown);
         
     /// Move things around as required by outside updates
     virtual void updateWorkGroups(RendererFrameInfo *frameInfo);

@@ -208,7 +208,7 @@ void SceneRenderer::addDrawable(DrawableRef newDrawable)
     offDrawables.insert(newDrawable);
 }
 
-void SceneRenderer::removeDrawable(DrawableRef draw)
+void SceneRenderer::removeDrawable(DrawableRef draw,bool teardown)
 {
     // TODO: Can make this simpler
     for (auto &workGroup : workGroups) {
@@ -220,8 +220,11 @@ void SceneRenderer::removeDrawable(DrawableRef draw)
     }
     
     removeContinuousRenderRequest(draw->getId());
-    // Teardown OpenGL foo
-    draw->teardownForRenderer(getRenderSetupInfo(),scene);
+
+    if (teardown) {
+        // Teardown OpenGL foo
+        draw->teardownForRenderer(getRenderSetupInfo(), scene);
+    }
 }
 
 void SceneRenderer::updateWorkGroups(RendererFrameInfo *frameInfo)
