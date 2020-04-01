@@ -556,7 +556,7 @@ void RemDrawableReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::Vie
     auto it = scene->drawables.find(drawable);
     if (it != scene->drawables.end())
     {
-        renderer->removeDrawable(it->second);
+        renderer->removeDrawable(it->second,true);
         scene->remDrawable(it->second);
     } else
         wkLogLevel(Warn,"Missing drawable for RemDrawableReq: %llu", drawable);

@@ -460,7 +460,7 @@ DrawPriorityChangeRequest::DrawPriorityChangeRequest(SimpleIdentity drawId,int d
 
 void DrawPriorityChangeRequest::execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw)
 {
-    renderer->removeDrawable(draw);
+    renderer->removeDrawable(draw,false);
 
     BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDrawable)
@@ -515,7 +515,7 @@ RenderTargetChangeRequest::RenderTargetChangeRequest(SimpleIdentity drawID,Simpl
     
 void RenderTargetChangeRequest::execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw)
 {
-    renderer->removeDrawable(draw);
+    renderer->removeDrawable(draw,false);
     
     BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDrawable)
