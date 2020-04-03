@@ -41,6 +41,7 @@ BaseInfo::BaseInfo()
     fade(0.0), fadeIn(0.0), fadeOut(0.0), fadeOutTime(0.0),
     startEnable(0.0), endEnable(0.0),
     programID(EmptyIdentity),
+    extraFrames(0),
     zBufferRead(false), zBufferWrite(false),
     renderTargetID(EmptyIdentity)
 {
@@ -71,6 +72,7 @@ BaseInfo::BaseInfo(const Dictionary &dict)
     endEnable = dict.getDouble(MaplyEnableEnd,0.0);
     SimpleIdentity shaderID = dict.getInt(MaplyShaderString,EmptyIdentity);
     programID = dict.getInt("program",shaderID);
+    extraFrames = dict.getInt("extraFrames",extraFrames);
     zBufferRead = dict.getBool(MaplyZBufferRead,false);
     zBufferWrite = dict.getBool(MaplyZBufferWrite, false);
     renderTargetID = dict.getInt(MaplyRenderTargetDesc,EmptyIdentity);
@@ -165,6 +167,7 @@ void BaseInfo::setupBasicDrawable(BasicDrawableBuilder *drawBuild) const
     drawBuild->setRequestZBuffer(zBufferRead);
     drawBuild->setWriteZBuffer(zBufferWrite);
     drawBuild->setProgram(programID);
+    drawBuild->setExtraFrames(extraFrames);
     if (renderTargetID != EmptyIdentity)
         drawBuild->setRenderTarget(renderTargetID);
 }

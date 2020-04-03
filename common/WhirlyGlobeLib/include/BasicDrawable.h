@@ -193,6 +193,7 @@ public:
     float drawOffset;    // Number of units of Z buffer resolution to offset upward (by the normal)
     bool isAlpha;  // Set if we want to be drawn last
     bool motion;   // If set, this need continuous render
+    int extraFrames;   // This needs to draw a bit longer than normal
     
     SimpleIdentity programId;    // Program to use for rendering
     SimpleIdentity renderTargetID;

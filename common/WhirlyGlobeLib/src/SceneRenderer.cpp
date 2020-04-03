@@ -142,9 +142,11 @@ void SceneRenderer::init()
     useViewChanged = true;
     triggerDraw = true;
     frameCount = 0;
+    frameCountLastChanged = 0;
     frameCountStart = 0.0;
     lastDraw = 0.0;
     renderUntil = 0.0;
+    extraFrames = 0;
     clearColor = RGBAColor(0,0,0,0);
     framebufferTex = NULL;
 
@@ -220,6 +222,7 @@ void SceneRenderer::removeDrawable(DrawableRef draw,bool teardown)
     }
     
     removeContinuousRenderRequest(draw->getId());
+    removeExtraFrameRenderRequest(draw->getId());
 
     if (teardown) {
         // Teardown OpenGL foo
@@ -340,6 +343,27 @@ void SceneRenderer::setTriggerDraw()
 void SceneRenderer::addContinuousRenderRequest(SimpleIdentity drawID)
 {
     contRenderRequests.insert(drawID);
+}
+
+void SceneRenderer::addExtraFrameRenderRequest(SimpleIdentity drawID,int numFrames)
+{
+    extraFramesPerID[drawID] = numFrames;
+}
+
+void SceneRenderer::removeExtraFrameRenderRequest(SimpleIdentity drawID)
+{
+    auto it = extraFramesPerID.find(drawID);
+    if (it != extraFramesPerID.end())
+        extraFramesPerID.erase(it);
+    
+    updateExtraFrames();
+}
+
+void SceneRenderer::updateExtraFrames()
+{
+    extraFrames = 0;
+    for (auto it : extraFramesPerID)
+        extraFrames = std::max(extraFrames,it.second);
 }
 
 void SceneRenderer::removeContinuousRenderRequest(SimpleIdentity drawID)
@@ -468,7 +492,12 @@ int SceneRenderer::processScene(TimeInterval now)
 
 bool SceneRenderer::hasChanges()
 {
-    return scene->hasChanges(scene->getCurrentTime()) || viewDidChange() || !contRenderRequests.empty();
+    if (scene->hasChanges(scene->getCurrentTime()) || viewDidChange() || !contRenderRequests.empty()) {
+        frameCountLastChanged = frameCount;
+        return true;
+    }
+    
+    return frameCount - frameCountLastChanged <= extraFrames;
 }
     
 }

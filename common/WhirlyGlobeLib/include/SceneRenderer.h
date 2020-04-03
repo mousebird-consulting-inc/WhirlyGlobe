@@ -193,6 +193,12 @@ public:
     /// Drawable is done with continuous rendering
     virtual void removeContinuousRenderRequest(SimpleIdentity drawID);
     
+    /// Request extra frames after when we'd normally stop rendering
+    virtual void addExtraFrameRenderRequest(SimpleIdentity drawID,int numFrames);
+    
+    /// Remove an extra frame render request
+    virtual void removeExtraFrameRenderRequest(SimpleIdentity drawID);
+    
     /// Call this to force a draw on the next frame.
     /// This turns off the draw optimization, but just for one frame.
     virtual void forceDrawNextFrame();
@@ -330,6 +336,9 @@ protected:
     // Presentation, if required
     virtual void presentRender();
     
+    // Update the extra frame rendering count
+    virtual void updateExtraFrames();
+    
     /// Scene we're drawing.  This is set from outside
     Scene *scene;
     /// The view controls how we're looking at the scene
@@ -353,6 +362,7 @@ protected:
     bool triggerDraw;
     
     unsigned int frameCount;
+    unsigned int frameCountLastChanged;
     TimeInterval frameCountStart;
     PerformanceTimer perfTimer;
     
@@ -361,6 +371,10 @@ protected:
     
     /// Something wants to make sure we render until at least this point.
     TimeInterval renderUntil;
+    
+    /// Extra frames to render after we'd normally stop
+    int extraFrames;
+    std::map<SimpleIdentity,int> extraFramesPerID;
     
     // The drawables that want continuous rendering on
     SimpleIDSet contRenderRequests;

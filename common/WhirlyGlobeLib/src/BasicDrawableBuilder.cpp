@@ -81,6 +81,8 @@ void BasicDrawableBuilder::Init()
     basicDraw->clipCoords = false;
     
     basicDraw->hasMatrix = false;
+    basicDraw->motion = false;
+    basicDraw->extraFrames = 0;
 }
     
 void BasicDrawableBuilder::setupStandardAttributes(int numReserve)
@@ -268,6 +270,11 @@ void BasicDrawableBuilder::setColor(RGBAColor color)
 void BasicDrawableBuilder::setColor(unsigned char color[])
 {
     setColor(RGBAColor(color[0],color[1],color[2],color[3]));
+}
+
+void BasicDrawableBuilder::setExtraFrames(int numFrames)
+{
+    basicDraw->extraFrames = numFrames;
 }
     
 void BasicDrawableBuilder::reserveNumPoints(int numPoints)

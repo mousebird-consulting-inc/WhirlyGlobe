@@ -223,6 +223,8 @@ void BasicDrawable::updateRenderer(SceneRenderer *renderer)
         // Motion requires continuous rendering
         renderer->addContinuousRenderRequest(getId());
     }
+    if (extraFrames > 0)
+        renderer->addExtraFrameRenderRequest(getId(), extraFrames);
 }
 
 SimpleIdentity BasicDrawable::getCalculationProgram() const

@@ -70,6 +70,7 @@ public:
     TimeInterval fadeOutTime;
     TimeInterval startEnable,endEnable;
     SimpleIdentity programID;
+    int extraFrames;
     bool zBufferRead,zBufferWrite;
     SimpleIdentity renderTargetID;
     
