@@ -215,6 +215,7 @@ void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,id<MTL
     CopyIntoMtlFloat2(uniforms.frameSize, frameSize);
     uniforms.outputTexLevel = texLevel;
     uniforms.globeMode = !coordAdapter->isFlat();
+    uniforms.frameCount = frameCount;
     
     [cmdEncode setVertexBytes:&uniforms length:sizeof(uniforms) atIndex:WKSUniformBuffer];
     [cmdEncode setFragmentBytes:&uniforms length:sizeof(uniforms) atIndex:WKSUniformBuffer];
