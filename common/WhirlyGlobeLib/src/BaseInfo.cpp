@@ -72,7 +72,7 @@ BaseInfo::BaseInfo(const Dictionary &dict)
     endEnable = dict.getDouble(MaplyEnableEnd,0.0);
     SimpleIdentity shaderID = dict.getInt(MaplyShaderString,EmptyIdentity);
     programID = dict.getInt("program",shaderID);
-    extraFrames = dict.getInt("extraFrames",extraFrames);
+    extraFrames = dict.getInt("extraFrames",0);
     zBufferRead = dict.getBool(MaplyZBufferRead,false);
     zBufferWrite = dict.getBool(MaplyZBufferWrite, false);
     renderTargetID = dict.getInt(MaplyRenderTargetDesc,EmptyIdentity);
