@@ -322,6 +322,11 @@ public class MapboxKindaMap {
             sampleParams.coordSys = MaplySphericalMercator(webStandard: ())
             sampleParams.minImportance = self.minImportance
             sampleParams.singleLevel = true
+            // If we don't have a solid underlayer for each tile, we can't really
+            //  keep level 0 around all the time
+            if !backgroundAllPolys {
+                sampleParams.forceMinLevel = false
+            }
             if viewC is WhirlyGlobeViewController {
                 sampleParams.coverPoles = true
                 sampleParams.edgeMatching = true
@@ -403,6 +408,15 @@ public class MapboxKindaMap {
                     return
             }
             self.styleSheetVector = styleSheetVector
+
+            if !(viewC is WhirlyGlobeViewController) {
+                // Set the background clear to the color at level 0
+                // TODO: Make this change by level
+                if let backgroundLayer = styleSheetVector.layersByName?["background"] as? MapboxVectorLayerBackground {
+                    let color = backgroundLayer.paint.color.color(forZoom: 0.0)
+                    viewC.clearColor = color
+                }
+            }
 
             if let offlineRender = offlineRender,
                 let styleSheetImage = styleSheetImage {
