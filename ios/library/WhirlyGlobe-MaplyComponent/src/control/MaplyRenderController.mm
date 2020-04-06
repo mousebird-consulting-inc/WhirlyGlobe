@@ -203,8 +203,10 @@ using namespace Eigen;
         sceneRenderer = sceneRendererGLES;
     } else {
         SceneRendererMTLRef sceneRendererMTL = SceneRendererMTLRef(new SceneRendererMTL(MTLCreateSystemDefaultDevice(),1.0));
-        if (offlineMode)
+        if (offlineMode) {
+            sceneRendererMTL->offscreenBlendEnable = true;
             sceneRendererMTL->setup((int)initialFramebufferSize.width,(int)initialFramebufferSize.height, true);
+        }
         sceneRenderer = sceneRendererMTL;
     }
 
