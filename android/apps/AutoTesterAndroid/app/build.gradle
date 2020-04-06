@@ -43,7 +43,6 @@ dependencies {
     implementation project(path: ':maply')
     implementation 'androidx.appcompat:appcompat:1.0.0'
     implementation 'com.google.android.material:material:1.0.0'
-    implementation 'org.apache.directory.studio:org.apache.commons.io:2.4'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.squareup.okhttp3:okhttp:3.14.2'
 }

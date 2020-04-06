@@ -16,11 +16,11 @@ import com.mousebird.maply.VectorObject;
 import com.mousebird.maply.WideVectorInfo;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 
-import org.apache.commons.io.IOUtils;
-
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+
+import okio.Okio;
 
 public class WideVectorsTestCase extends MaplyTestCase {
     public WideVectorsTestCase(Activity activity) {
@@ -57,7 +57,7 @@ public class WideVectorsTestCase extends MaplyTestCase {
 
         try {
             InputStream stream = getActivity().getAssets().open("wide_vecs/" + name);
-            String json = IOUtils.toString(stream, Charset.defaultCharset());
+            String json = Okio.buffer(Okio.source(stream)).readUtf8();
 
             VectorObject vecObj = new VectorObject();
             vecObj.fromGeoJSON(json);

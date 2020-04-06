@@ -25,7 +25,7 @@ import android.graphics.Color
 import com.mousebird.maply.*
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase
 import com.mousebirdconsulting.autotester.R
-import org.apache.commons.io.IOUtils
+import okio.Okio
 import java.lang.Exception
 import java.nio.charset.Charset
 import java.util.*
@@ -60,7 +60,7 @@ class TextureVectorTestCase : MaplyTestCase {
             try {
                 val vecObj = VectorObject()
                 vecObj.selectable = true
-                val json = IOUtils.toString(stream, Charset.defaultCharset())
+                val json = Okio.buffer(Okio.source(stream)).readUtf8()
                 if (vecObj.fromGeoJSON(json)) {
                     // Work through each individual loop
                     for (thisVecObj in vecObj) {

@@ -155,10 +155,10 @@
 
     if (useAlphaOverride) {
         const CGFloat *colors = CGColorGetComponents(theColor.CGColor);
-        color = [UIColor colorWithRed:colors[0] green:colors[1] blue:colors[2] alpha:alpha];
+        theColor = [UIColor colorWithRed:colors[0] green:colors[1] blue:colors[2] alpha:alpha];
     }
     
-    return color;
+    return theColor;
 }
 
 @end
