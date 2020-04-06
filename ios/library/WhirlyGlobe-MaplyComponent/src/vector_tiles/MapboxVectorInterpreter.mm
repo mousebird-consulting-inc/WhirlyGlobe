@@ -208,8 +208,8 @@ static int BackImageWidth = 16, BackImageHeight = 16;
             }
             
             NSArray *compObjs = [vecTileReturn componentObjects];
-            if (!loadReturn.error && compObjs) {
-                
+            if (!loadReturn.error && [compObjs count] > 0) {
+
                 // Turn all those objects on
                 [offlineRender enableObjects:compObjs mode:MaplyThreadCurrent];
                 
