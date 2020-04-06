@@ -447,61 +447,6 @@
 		2B8797212203BF7900EF801D /* MaplyLight.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537B21D249A1200B60FAD /* MaplyLight.m */; };
 		2B8797222203BF7900EF801D /* MaplyBillboard.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537A21D249A1200B60FAD /* MaplyBillboard.mm */; };
 		2B8797232203BF7900EF801D /* MaplyComponentObject.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537A61D249A1200B60FAD /* MaplyComponentObject.mm */; };
-		2B884A421E3803170027C397 /* arithmeticdecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B884A0A1E3803170027C397 /* arithmeticdecoder.cpp */; };
-		2B884A431E3803170027C397 /* arithmeticdecoder.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A0B1E3803170027C397 /* arithmeticdecoder.hpp */; };
-		2B884A441E3803170027C397 /* arithmeticencoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B884A0C1E3803170027C397 /* arithmeticencoder.cpp */; };
-		2B884A451E3803170027C397 /* arithmeticencoder.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A0D1E3803170027C397 /* arithmeticencoder.hpp */; };
-		2B884A461E3803170027C397 /* arithmeticmodel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B884A0E1E3803170027C397 /* arithmeticmodel.cpp */; };
-		2B884A471E3803170027C397 /* arithmeticmodel.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A0F1E3803170027C397 /* arithmeticmodel.hpp */; };
-		2B884A481E3803170027C397 /* bytestreamin_array.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A101E3803170027C397 /* bytestreamin_array.hpp */; };
-		2B884A491E3803170027C397 /* bytestreamin_file.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A111E3803170027C397 /* bytestreamin_file.hpp */; };
-		2B884A4A1E3803170027C397 /* bytestreamin_istream.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A121E3803170027C397 /* bytestreamin_istream.hpp */; };
-		2B884A4B1E3803170027C397 /* bytestreamin.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A131E3803170027C397 /* bytestreamin.hpp */; };
-		2B884A4C1E3803170027C397 /* bytestreaminout_file.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A141E3803170027C397 /* bytestreaminout_file.hpp */; };
-		2B884A4D1E3803170027C397 /* bytestreaminout.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A151E3803170027C397 /* bytestreaminout.hpp */; };
-		2B884A4E1E3803170027C397 /* bytestreamout_array.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A161E3803170027C397 /* bytestreamout_array.hpp */; };
-		2B884A4F1E3803170027C397 /* bytestreamout_file.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A171E3803170027C397 /* bytestreamout_file.hpp */; };
-		2B884A501E3803170027C397 /* bytestreamout_nil.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A181E3803170027C397 /* bytestreamout_nil.hpp */; };
-		2B884A511E3803170027C397 /* bytestreamout_ostream.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A191E3803170027C397 /* bytestreamout_ostream.hpp */; };
-		2B884A521E3803170027C397 /* bytestreamout.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A1A1E3803170027C397 /* bytestreamout.hpp */; };
-		2B884A541E3803170027C397 /* endian.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A1C1E3803170027C397 /* endian.hpp */; };
-		2B884A551E3803170027C397 /* integercompressor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B884A1D1E3803170027C397 /* integercompressor.cpp */; };
-		2B884A561E3803170027C397 /* integercompressor.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A1E1E3803170027C397 /* integercompressor.hpp */; };
-		2B884A571E3803170027C397 /* lasattributer.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A1F1E3803170027C397 /* lasattributer.hpp */; };
-		2B884A581E3803170027C397 /* lasindex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B884A201E3803170027C397 /* lasindex.cpp */; };
-		2B884A591E3803170027C397 /* lasindex.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A211E3803170027C397 /* lasindex.hpp */; };
-		2B884A5A1E3803170027C397 /* lasinterval.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B884A221E3803170027C397 /* lasinterval.cpp */; };
-		2B884A5B1E3803170027C397 /* lasinterval.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A231E3803170027C397 /* lasinterval.hpp */; };
-		2B884A5C1E3803170027C397 /* laspoint.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A241E3803170027C397 /* laspoint.hpp */; };
-		2B884A5D1E3803170027C397 /* lasquadtree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B884A251E3803170027C397 /* lasquadtree.cpp */; };
-		2B884A5E1E3803170027C397 /* lasquadtree.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A261E3803170027C397 /* lasquadtree.hpp */; };
-		2B884A5F1E3803170027C397 /* lasquantizer.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A271E3803170027C397 /* lasquantizer.hpp */; };
-		2B884A601E3803170027C397 /* lasreaditem.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A281E3803170027C397 /* lasreaditem.hpp */; };
-		2B884A611E3803170027C397 /* lasreaditemcompressed_v1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B884A291E3803170027C397 /* lasreaditemcompressed_v1.cpp */; };
-		2B884A621E3803170027C397 /* lasreaditemcompressed_v1.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A2A1E3803170027C397 /* lasreaditemcompressed_v1.hpp */; };
-		2B884A631E3803170027C397 /* lasreaditemcompressed_v2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B884A2B1E3803170027C397 /* lasreaditemcompressed_v2.cpp */; };
-		2B884A641E3803170027C397 /* lasreaditemcompressed_v2.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A2C1E3803170027C397 /* lasreaditemcompressed_v2.hpp */; };
-		2B884A651E3803170027C397 /* lasreaditemraw.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A2D1E3803170027C397 /* lasreaditemraw.hpp */; };
-		2B884A661E3803170027C397 /* lasreadpoint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B884A2E1E3803170027C397 /* lasreadpoint.cpp */; };
-		2B884A671E3803170027C397 /* lasreadpoint.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A2F1E3803170027C397 /* lasreadpoint.hpp */; };
-		2B884A681E3803170027C397 /* lasunzipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B884A301E3803170027C397 /* lasunzipper.cpp */; };
-		2B884A691E3803170027C397 /* lasunzipper.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A311E3803170027C397 /* lasunzipper.hpp */; };
-		2B884A6A1E3803170027C397 /* laswriteitem.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A321E3803170027C397 /* laswriteitem.hpp */; };
-		2B884A6B1E3803170027C397 /* laswriteitemcompressed_v1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B884A331E3803170027C397 /* laswriteitemcompressed_v1.cpp */; };
-		2B884A6C1E3803170027C397 /* laswriteitemcompressed_v1.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A341E3803170027C397 /* laswriteitemcompressed_v1.hpp */; };
-		2B884A6D1E3803170027C397 /* laswriteitemcompressed_v2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B884A351E3803170027C397 /* laswriteitemcompressed_v2.cpp */; };
-		2B884A6E1E3803170027C397 /* laswriteitemcompressed_v2.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A361E3803170027C397 /* laswriteitemcompressed_v2.hpp */; };
-		2B884A6F1E3803170027C397 /* laswriteitemraw.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A371E3803170027C397 /* laswriteitemraw.hpp */; };
-		2B884A701E3803170027C397 /* laswritepoint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B884A381E3803170027C397 /* laswritepoint.cpp */; };
-		2B884A711E3803170027C397 /* laswritepoint.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A391E3803170027C397 /* laswritepoint.hpp */; };
-		2B884A721E3803170027C397 /* laszip_common_v1.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A3A1E3803170027C397 /* laszip_common_v1.hpp */; };
-		2B884A731E3803170027C397 /* laszip_common_v2.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A3B1E3803170027C397 /* laszip_common_v2.hpp */; };
-		2B884A741E3803170027C397 /* laszip_dll.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B884A3C1E3803170027C397 /* laszip_dll.cpp */; };
-		2B884A751E3803170027C397 /* laszip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B884A3D1E3803170027C397 /* laszip.cpp */; };
-		2B884A761E3803170027C397 /* laszip.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A3E1E3803170027C397 /* laszip.hpp */; };
-		2B884A771E3803170027C397 /* laszipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B884A3F1E3803170027C397 /* laszipper.cpp */; };
-		2B884A781E3803170027C397 /* laszipper.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A401E3803170027C397 /* laszipper.hpp */; };
-		2B884A791E3803170027C397 /* mydefs.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A411E3803170027C397 /* mydefs.hpp */; };
 		2B8A785B22849294008B0A1F /* BaseInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1621F158EA00EF2A82 /* BaseInfo.cpp */; };
 		2B8A785D2284C3C0008B0A1F /* UtilsGLES.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B6621F7E7E00078A975 /* UtilsGLES.cpp */; };
 		2B8A785E2284C3C0008B0A1F /* WrapperGLES.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BC90D4B222DAB3900D8B606 /* WrapperGLES.cpp */; };
@@ -1573,61 +1518,6 @@
 		2B8796E121FFD5B900EF801D /* SceneRendererGLES_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SceneRendererGLES_iOS.mm; sourceTree = "<group>"; };
 		2B87970422039D6300EF801D /* TextureGLES_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureGLES_iOS.h; sourceTree = "<group>"; };
 		2B87970622039D6F00EF801D /* Texture_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Texture_iOS.mm; sourceTree = "<group>"; };
-		2B884A0A1E3803170027C397 /* arithmeticdecoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = arithmeticdecoder.cpp; path = ../../../common/local_libs/laszip/src/arithmeticdecoder.cpp; sourceTree = "<group>"; };
-		2B884A0B1E3803170027C397 /* arithmeticdecoder.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = arithmeticdecoder.hpp; path = ../../../common/local_libs/laszip/src/arithmeticdecoder.hpp; sourceTree = "<group>"; };
-		2B884A0C1E3803170027C397 /* arithmeticencoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = arithmeticencoder.cpp; path = ../../../common/local_libs/laszip/src/arithmeticencoder.cpp; sourceTree = "<group>"; };
-		2B884A0D1E3803170027C397 /* arithmeticencoder.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = arithmeticencoder.hpp; path = ../../../common/local_libs/laszip/src/arithmeticencoder.hpp; sourceTree = "<group>"; };
-		2B884A0E1E3803170027C397 /* arithmeticmodel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = arithmeticmodel.cpp; path = ../../../common/local_libs/laszip/src/arithmeticmodel.cpp; sourceTree = "<group>"; };
-		2B884A0F1E3803170027C397 /* arithmeticmodel.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = arithmeticmodel.hpp; path = ../../../common/local_libs/laszip/src/arithmeticmodel.hpp; sourceTree = "<group>"; };
-		2B884A101E3803170027C397 /* bytestreamin_array.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = bytestreamin_array.hpp; path = ../../../common/local_libs/laszip/src/bytestreamin_array.hpp; sourceTree = "<group>"; };
-		2B884A111E3803170027C397 /* bytestreamin_file.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = bytestreamin_file.hpp; path = ../../../common/local_libs/laszip/src/bytestreamin_file.hpp; sourceTree = "<group>"; };
-		2B884A121E3803170027C397 /* bytestreamin_istream.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = bytestreamin_istream.hpp; path = ../../../common/local_libs/laszip/src/bytestreamin_istream.hpp; sourceTree = "<group>"; };
-		2B884A131E3803170027C397 /* bytestreamin.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = bytestreamin.hpp; path = ../../../common/local_libs/laszip/src/bytestreamin.hpp; sourceTree = "<group>"; };
-		2B884A141E3803170027C397 /* bytestreaminout_file.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = bytestreaminout_file.hpp; path = ../../../common/local_libs/laszip/src/bytestreaminout_file.hpp; sourceTree = "<group>"; };
-		2B884A151E3803170027C397 /* bytestreaminout.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = bytestreaminout.hpp; path = ../../../common/local_libs/laszip/src/bytestreaminout.hpp; sourceTree = "<group>"; };
-		2B884A161E3803170027C397 /* bytestreamout_array.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = bytestreamout_array.hpp; path = ../../../common/local_libs/laszip/src/bytestreamout_array.hpp; sourceTree = "<group>"; };
-		2B884A171E3803170027C397 /* bytestreamout_file.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = bytestreamout_file.hpp; path = ../../../common/local_libs/laszip/src/bytestreamout_file.hpp; sourceTree = "<group>"; };
-		2B884A181E3803170027C397 /* bytestreamout_nil.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = bytestreamout_nil.hpp; path = ../../../common/local_libs/laszip/src/bytestreamout_nil.hpp; sourceTree = "<group>"; };
-		2B884A191E3803170027C397 /* bytestreamout_ostream.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = bytestreamout_ostream.hpp; path = ../../../common/local_libs/laszip/src/bytestreamout_ostream.hpp; sourceTree = "<group>"; };
-		2B884A1A1E3803170027C397 /* bytestreamout.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = bytestreamout.hpp; path = ../../../common/local_libs/laszip/src/bytestreamout.hpp; sourceTree = "<group>"; };
-		2B884A1C1E3803170027C397 /* endian.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = endian.hpp; path = ../../../common/local_libs/laszip/src/endian.hpp; sourceTree = "<group>"; };
-		2B884A1D1E3803170027C397 /* integercompressor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = integercompressor.cpp; path = ../../../common/local_libs/laszip/src/integercompressor.cpp; sourceTree = "<group>"; };
-		2B884A1E1E3803170027C397 /* integercompressor.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = integercompressor.hpp; path = ../../../common/local_libs/laszip/src/integercompressor.hpp; sourceTree = "<group>"; };
-		2B884A1F1E3803170027C397 /* lasattributer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = lasattributer.hpp; path = ../../../common/local_libs/laszip/src/lasattributer.hpp; sourceTree = "<group>"; };
-		2B884A201E3803170027C397 /* lasindex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = lasindex.cpp; path = ../../../common/local_libs/laszip/src/lasindex.cpp; sourceTree = "<group>"; };
-		2B884A211E3803170027C397 /* lasindex.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = lasindex.hpp; path = ../../../common/local_libs/laszip/src/lasindex.hpp; sourceTree = "<group>"; };
-		2B884A221E3803170027C397 /* lasinterval.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = lasinterval.cpp; path = ../../../common/local_libs/laszip/src/lasinterval.cpp; sourceTree = "<group>"; };
-		2B884A231E3803170027C397 /* lasinterval.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = lasinterval.hpp; path = ../../../common/local_libs/laszip/src/lasinterval.hpp; sourceTree = "<group>"; };
-		2B884A241E3803170027C397 /* laspoint.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = laspoint.hpp; path = ../../../common/local_libs/laszip/src/laspoint.hpp; sourceTree = "<group>"; };
-		2B884A251E3803170027C397 /* lasquadtree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = lasquadtree.cpp; path = ../../../common/local_libs/laszip/src/lasquadtree.cpp; sourceTree = "<group>"; };
-		2B884A261E3803170027C397 /* lasquadtree.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = lasquadtree.hpp; path = ../../../common/local_libs/laszip/src/lasquadtree.hpp; sourceTree = "<group>"; };
-		2B884A271E3803170027C397 /* lasquantizer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = lasquantizer.hpp; path = ../../../common/local_libs/laszip/src/lasquantizer.hpp; sourceTree = "<group>"; };
-		2B884A281E3803170027C397 /* lasreaditem.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = lasreaditem.hpp; path = ../../../common/local_libs/laszip/src/lasreaditem.hpp; sourceTree = "<group>"; };
-		2B884A291E3803170027C397 /* lasreaditemcompressed_v1.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = lasreaditemcompressed_v1.cpp; path = ../../../common/local_libs/laszip/src/lasreaditemcompressed_v1.cpp; sourceTree = "<group>"; };
-		2B884A2A1E3803170027C397 /* lasreaditemcompressed_v1.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = lasreaditemcompressed_v1.hpp; path = ../../../common/local_libs/laszip/src/lasreaditemcompressed_v1.hpp; sourceTree = "<group>"; };
-		2B884A2B1E3803170027C397 /* lasreaditemcompressed_v2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = lasreaditemcompressed_v2.cpp; path = ../../../common/local_libs/laszip/src/lasreaditemcompressed_v2.cpp; sourceTree = "<group>"; };
-		2B884A2C1E3803170027C397 /* lasreaditemcompressed_v2.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = lasreaditemcompressed_v2.hpp; path = ../../../common/local_libs/laszip/src/lasreaditemcompressed_v2.hpp; sourceTree = "<group>"; };
-		2B884A2D1E3803170027C397 /* lasreaditemraw.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = lasreaditemraw.hpp; path = ../../../common/local_libs/laszip/src/lasreaditemraw.hpp; sourceTree = "<group>"; };
-		2B884A2E1E3803170027C397 /* lasreadpoint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = lasreadpoint.cpp; path = ../../../common/local_libs/laszip/src/lasreadpoint.cpp; sourceTree = "<group>"; };
-		2B884A2F1E3803170027C397 /* lasreadpoint.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = lasreadpoint.hpp; path = ../../../common/local_libs/laszip/src/lasreadpoint.hpp; sourceTree = "<group>"; };
-		2B884A301E3803170027C397 /* lasunzipper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = lasunzipper.cpp; path = ../../../common/local_libs/laszip/src/lasunzipper.cpp; sourceTree = "<group>"; };
-		2B884A311E3803170027C397 /* lasunzipper.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = lasunzipper.hpp; path = ../../../common/local_libs/laszip/src/lasunzipper.hpp; sourceTree = "<group>"; };
-		2B884A321E3803170027C397 /* laswriteitem.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = laswriteitem.hpp; path = ../../../common/local_libs/laszip/src/laswriteitem.hpp; sourceTree = "<group>"; };
-		2B884A331E3803170027C397 /* laswriteitemcompressed_v1.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = laswriteitemcompressed_v1.cpp; path = ../../../common/local_libs/laszip/src/laswriteitemcompressed_v1.cpp; sourceTree = "<group>"; };
-		2B884A341E3803170027C397 /* laswriteitemcompressed_v1.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = laswriteitemcompressed_v1.hpp; path = ../../../common/local_libs/laszip/src/laswriteitemcompressed_v1.hpp; sourceTree = "<group>"; };
-		2B884A351E3803170027C397 /* laswriteitemcompressed_v2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = laswriteitemcompressed_v2.cpp; path = ../../../common/local_libs/laszip/src/laswriteitemcompressed_v2.cpp; sourceTree = "<group>"; };
-		2B884A361E3803170027C397 /* laswriteitemcompressed_v2.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = laswriteitemcompressed_v2.hpp; path = ../../../common/local_libs/laszip/src/laswriteitemcompressed_v2.hpp; sourceTree = "<group>"; };
-		2B884A371E3803170027C397 /* laswriteitemraw.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = laswriteitemraw.hpp; path = ../../../common/local_libs/laszip/src/laswriteitemraw.hpp; sourceTree = "<group>"; };
-		2B884A381E3803170027C397 /* laswritepoint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = laswritepoint.cpp; path = ../../../common/local_libs/laszip/src/laswritepoint.cpp; sourceTree = "<group>"; };
-		2B884A391E3803170027C397 /* laswritepoint.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = laswritepoint.hpp; path = ../../../common/local_libs/laszip/src/laswritepoint.hpp; sourceTree = "<group>"; };
-		2B884A3A1E3803170027C397 /* laszip_common_v1.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = laszip_common_v1.hpp; path = ../../../common/local_libs/laszip/src/laszip_common_v1.hpp; sourceTree = "<group>"; };
-		2B884A3B1E3803170027C397 /* laszip_common_v2.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = laszip_common_v2.hpp; path = ../../../common/local_libs/laszip/src/laszip_common_v2.hpp; sourceTree = "<group>"; };
-		2B884A3C1E3803170027C397 /* laszip_dll.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = laszip_dll.cpp; path = ../../../common/local_libs/laszip/src/laszip_dll.cpp; sourceTree = "<group>"; };
-		2B884A3D1E3803170027C397 /* laszip.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = laszip.cpp; path = ../../../common/local_libs/laszip/src/laszip.cpp; sourceTree = "<group>"; };
-		2B884A3E1E3803170027C397 /* laszip.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = laszip.hpp; path = ../../../common/local_libs/laszip/src/laszip.hpp; sourceTree = "<group>"; };
-		2B884A3F1E3803170027C397 /* laszipper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = laszipper.cpp; path = ../../../common/local_libs/laszip/src/laszipper.cpp; sourceTree = "<group>"; };
-		2B884A401E3803170027C397 /* laszipper.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = laszipper.hpp; path = ../../../common/local_libs/laszip/src/laszipper.hpp; sourceTree = "<group>"; };
-		2B884A411E3803170027C397 /* mydefs.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = mydefs.hpp; path = ../../../common/local_libs/laszip/src/mydefs.hpp; sourceTree = "<group>"; };
 		2B8A785F2284C408008B0A1F /* BasicDrawableBuilder.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = BasicDrawableBuilder.cpp; path = ../../../../common/WhirlyGlobeLib/src/BasicDrawableBuilder.cpp; sourceTree = "<group>"; };
 		2B8A78632284D876008B0A1F /* BasicDrawableBuilderGLES.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = BasicDrawableBuilderGLES.h; path = ../../../../common/WhirlyGlobeLib/include/BasicDrawableBuilderGLES.h; sourceTree = "<group>"; };
 		2B8A78642284DA30008B0A1F /* BasicDrawableBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BasicDrawableBuilder.h; path = ../../../../common/WhirlyGlobeLib/include/BasicDrawableBuilder.h; sourceTree = "<group>"; };
@@ -3313,68 +3203,6 @@
 			path = math;
 			sourceTree = "<group>";
 		};
-		2B884A091E3802EE0027C397 /* laszip */ = {
-			isa = PBXGroup;
-			children = (
-				2B884A0A1E3803170027C397 /* arithmeticdecoder.cpp */,
-				2B884A0B1E3803170027C397 /* arithmeticdecoder.hpp */,
-				2B884A0C1E3803170027C397 /* arithmeticencoder.cpp */,
-				2B884A0D1E3803170027C397 /* arithmeticencoder.hpp */,
-				2B884A0E1E3803170027C397 /* arithmeticmodel.cpp */,
-				2B884A0F1E3803170027C397 /* arithmeticmodel.hpp */,
-				2B884A101E3803170027C397 /* bytestreamin_array.hpp */,
-				2B884A111E3803170027C397 /* bytestreamin_file.hpp */,
-				2B884A121E3803170027C397 /* bytestreamin_istream.hpp */,
-				2B884A131E3803170027C397 /* bytestreamin.hpp */,
-				2B884A141E3803170027C397 /* bytestreaminout_file.hpp */,
-				2B884A151E3803170027C397 /* bytestreaminout.hpp */,
-				2B884A161E3803170027C397 /* bytestreamout_array.hpp */,
-				2B884A171E3803170027C397 /* bytestreamout_file.hpp */,
-				2B884A181E3803170027C397 /* bytestreamout_nil.hpp */,
-				2B884A191E3803170027C397 /* bytestreamout_ostream.hpp */,
-				2B884A1A1E3803170027C397 /* bytestreamout.hpp */,
-				2B884A1C1E3803170027C397 /* endian.hpp */,
-				2B884A1D1E3803170027C397 /* integercompressor.cpp */,
-				2B884A1E1E3803170027C397 /* integercompressor.hpp */,
-				2B884A1F1E3803170027C397 /* lasattributer.hpp */,
-				2B884A201E3803170027C397 /* lasindex.cpp */,
-				2B884A211E3803170027C397 /* lasindex.hpp */,
-				2B884A221E3803170027C397 /* lasinterval.cpp */,
-				2B884A231E3803170027C397 /* lasinterval.hpp */,
-				2B884A241E3803170027C397 /* laspoint.hpp */,
-				2B884A251E3803170027C397 /* lasquadtree.cpp */,
-				2B884A261E3803170027C397 /* lasquadtree.hpp */,
-				2B884A271E3803170027C397 /* lasquantizer.hpp */,
-				2B884A281E3803170027C397 /* lasreaditem.hpp */,
-				2B884A291E3803170027C397 /* lasreaditemcompressed_v1.cpp */,
-				2B884A2A1E3803170027C397 /* lasreaditemcompressed_v1.hpp */,
-				2B884A2B1E3803170027C397 /* lasreaditemcompressed_v2.cpp */,
-				2B884A2C1E3803170027C397 /* lasreaditemcompressed_v2.hpp */,
-				2B884A2D1E3803170027C397 /* lasreaditemraw.hpp */,
-				2B884A2E1E3803170027C397 /* lasreadpoint.cpp */,
-				2B884A2F1E3803170027C397 /* lasreadpoint.hpp */,
-				2B884A301E3803170027C397 /* lasunzipper.cpp */,
-				2B884A311E3803170027C397 /* lasunzipper.hpp */,
-				2B884A321E3803170027C397 /* laswriteitem.hpp */,
-				2B884A331E3803170027C397 /* laswriteitemcompressed_v1.cpp */,
-				2B884A341E3803170027C397 /* laswriteitemcompressed_v1.hpp */,
-				2B884A351E3803170027C397 /* laswriteitemcompressed_v2.cpp */,
-				2B884A361E3803170027C397 /* laswriteitemcompressed_v2.hpp */,
-				2B884A371E3803170027C397 /* laswriteitemraw.hpp */,
-				2B884A381E3803170027C397 /* laswritepoint.cpp */,
-				2B884A391E3803170027C397 /* laswritepoint.hpp */,
-				2B884A3A1E3803170027C397 /* laszip_common_v1.hpp */,
-				2B884A3B1E3803170027C397 /* laszip_common_v2.hpp */,
-				2B884A3C1E3803170027C397 /* laszip_dll.cpp */,
-				2B884A3D1E3803170027C397 /* laszip.cpp */,
-				2B884A3E1E3803170027C397 /* laszip.hpp */,
-				2B884A3F1E3803170027C397 /* laszipper.cpp */,
-				2B884A401E3803170027C397 /* laszipper.hpp */,
-				2B884A411E3803170027C397 /* mydefs.hpp */,
-			);
-			name = laszip;
-			sourceTree = "<group>";
-		};
 		2BA827C2225E580000324594 /* data formats */ = {
 			isa = PBXGroup;
 			children = (
@@ -3669,7 +3497,6 @@
 				2BE53AB11D249CA200B60FAD /* SMCalloutView */,
 				2BE538D71D249BD800B60FAD /* astronomy */,
 				2BE539C41D249C0B00B60FAD /* google */,
-				2B884A091E3802EE0027C397 /* laszip */,
 				2BE53A7E1D249C5800B60FAD /* KissXML */,
 				2BE5370D1D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests */,
 				2BE537001D2499E500B60FAD /* Products */,
@@ -4165,7 +3992,6 @@
 				2B82B5F31E82E2490095FB14 /* sweep.h in Headers */,
 				2BE5395E1D249BEF00B60FAD /* AAEquationOfTime.h in Headers */,
 				2B82B6131E82E2490095FB14 /* JSONPreparse.h in Headers */,
-				2B884A6C1E3803170027C397 /* laswriteitemcompressed_v1.hpp in Headers */,
 				2B846F0E21F158E100EF2A82 /* MarkerManager.h in Headers */,
 				2BE5397C1D249BEF00B60FAD /* AAPlanetaryPhenomena.h in Headers */,
 				2B8A787F2284DB3E008B0A1F /* ParticleSystemDrawableGLES.h in Headers */,
@@ -4177,7 +4003,6 @@
 				2B8A787D2284DB3E008B0A1F /* ChangeRequest.h in Headers */,
 				2BE539661D249BEF00B60FAD /* AAJupiter.h in Headers */,
 				2B462EF623A9547E0050438C /* NSDictionary+StyleRules.h in Headers */,
-				2B884A541E3803170027C397 /* endian.hpp in Headers */,
 				2BE538441D249A1200B60FAD /* MaplyPoints_private.h in Headers */,
 				2B23133821F942D2006AA344 /* Dictionary.h in Headers */,
 				2BE53A8A1D249C8900B60FAD /* DDXMLElementAdditions.h in Headers */,
@@ -4218,7 +4043,6 @@
 				2B446B5721F7E7B80078A975 /* BasicDrawableInstance.h in Headers */,
 				2B82B5F11E82E2490095FB14 /* render.h in Headers */,
 				2BE5380F1D249A1200B60FAD /* MaplyLabel.h in Headers */,
-				2B884A5E1E3803170027C397 /* lasquadtree.hpp in Headers */,
 				2BE538291D249A1200B60FAD /* MaplySun.h in Headers */,
 				2BE539811D249BEF00B60FAD /* AARiseTransitSet.h in Headers */,
 				2BE5395B1D249BEF00B60FAD /* AAEclipticalElements.h in Headers */,
@@ -4228,7 +4052,6 @@
 				2BE538221D249A1200B60FAD /* MaplyScreenObject.h in Headers */,
 				2B23133C21FA919E006AA344 /* Dictionary_NSDictionary.h in Headers */,
 				2B82B71D1E82E24A0095FB14 /* LayerThread.h in Headers */,
-				2B884A5F1E3803170027C397 /* lasquantizer.hpp in Headers */,
 				2B4B63A5236102DA0008C8C1 /* MaplyGlobeRenderController.h in Headers */,
 				2BE53A721D249C4600B60FAD /* once.h in Headers */,
 				2B846F0921F158E100EF2A82 /* ShapeManager.h in Headers */,
@@ -4279,8 +4102,6 @@
 				2BC3D6BF2202537600CE91D0 /* GlobeView_iOS.h in Headers */,
 				2BE5396A1D249BEF00B60FAD /* AAMoon.h in Headers */,
 				2B82B7181E82E24A0095FB14 /* LayoutLayer.h in Headers */,
-				2B884A4F1E3803170027C397 /* bytestreamout_file.hpp in Headers */,
-				2B884A491E3803170027C397 /* bytestreamin_file.hpp in Headers */,
 				2BE538211D249A1200B60FAD /* MaplyScreenMarker.h in Headers */,
 				2B82B6041E82E2490095FB14 /* JSONDebug.h in Headers */,
 				2BE53A011D249C2900B60FAD /* dynamic_message.h in Headers */,
@@ -4299,21 +4120,18 @@
 				2BE53A761D249C4700B60FAD /* stringprintf.h in Headers */,
 				2BB8A3FB21ED43D10025DA98 /* GlobeTapDelegate.h in Headers */,
 				2B69984E228DD31F00C31E3F /* WideVectorDrawableBuilderMTL.h in Headers */,
-				2B884A6F1E3803170027C397 /* laswriteitemraw.hpp in Headers */,
 				2BE5396D1D249BEF00B60FAD /* AAMoonNodes.h in Headers */,
 				2BBC338322173F8A0038A229 /* ComponentManager.h in Headers */,
 				2BE5386B1D249A1200B60FAD /* MaplyVectorTileTextStyle.h in Headers */,
 				2BE539691D249BEF00B60FAD /* AAMercury.h in Headers */,
 				2B82B6DB1E82E24A0095FB14 /* UIColor+Stuff.h in Headers */,
 				2BC3D6AE22024EB300CE91D0 /* GlobeAnimateHeight.h in Headers */,
-				2B884A4E1E3803170027C397 /* bytestreamout_array.hpp in Headers */,
 				2B846F0D21F158E100EF2A82 /* SphericalEarthChunkManager.h in Headers */,
 				E5D2D6631DE67B1400E02305 /* MaplyLocationTracker.h in Headers */,
 				2BE538521D249A1200B60FAD /* MaplyViewController_private.h in Headers */,
 				2BE1E78B22138A8100815D9C /* MaplyQuadLoader_private.h in Headers */,
 				2B699857228DD31F00C31E3F /* BillboardDrawableBuilderMTL.h in Headers */,
 				2BE538231D249A1200B60FAD /* MaplyShader.h in Headers */,
-				2B884A651E3803170027C397 /* lasreaditemraw.hpp in Headers */,
 				2BE53A411D249C3D00B60FAD /* zero_copy_stream_impl.h in Headers */,
 				2B0387F8206ABD7B00DD5C40 /* MaplyQuadSampler.h in Headers */,
 				2BE5398A1D249BEF00B60FAD /* stdafx.h in Headers */,
@@ -4369,7 +4187,6 @@
 				2BE538671D249A1200B60FAD /* MaplyVectorTileMarkerStyle.h in Headers */,
 				2B82B6D91E82E24A0095FB14 /* UIImage+Stuff.h in Headers */,
 				2BC90D6622405DD200D8B606 /* Sun.h in Headers */,
-				2B884A511E3803170027C397 /* bytestreamout_ostream.hpp in Headers */,
 				2B446B2721F7A0D70078A975 /* Platform.h in Headers */,
 				2B82B5E71E82E2490095FB14 /* memalloc.h in Headers */,
 				2B82B5EF1E82E2490095FB14 /* priorityq.h in Headers */,
@@ -4380,7 +4197,6 @@
 				2BC3D6E2220B5AC200CE91D0 /* VectorData_iOS.h in Headers */,
 				2B846F0B21F158E100EF2A82 /* GeometryManager.h in Headers */,
 				2BE5396B1D249BEF00B60FAD /* AAMoonIlluminatedFraction.h in Headers */,
-				2B884A5B1E3803170027C397 /* lasinterval.hpp in Headers */,
 				2B846F0521F158E100EF2A82 /* WideVectorManager.h in Headers */,
 				2BE539FA1D249C2900B60FAD /* descriptor.h in Headers */,
 				2B82B5ED1E82E2490095FB14 /* priorityq-sort.h in Headers */,
@@ -4401,16 +4217,13 @@
 				2BE5397F1D249BEF00B60FAD /* AAPrecession.h in Headers */,
 				2BE538321D249A1200B60FAD /* MaplyViewTracker.h in Headers */,
 				2B69984B228DD31F00C31E3F /* RenderTargetMTL.h in Headers */,
-				2B884A781E3803170027C397 /* laszipper.hpp in Headers */,
 				2BE538501D249A1200B60FAD /* MaplyVectorObject_private.h in Headers */,
 				2BE539891D249BEF00B60FAD /* AAVenus.h in Headers */,
 				2BE53A1A1D249C2900B60FAD /* wire_format.h in Headers */,
 				2B69984D228DD31F00C31E3F /* ScreenSpaceDrawableBuilderMTL.h in Headers */,
 				2B127BFB2012A1390099F405 /* MaplyRenderTarget_private.h in Headers */,
 				2BE53A7D1D249C4700B60FAD /* type_traits.h in Headers */,
-				2B884A591E3803170027C397 /* lasindex.hpp in Headers */,
 				2B446B2321F79BDF0078A975 /* QuadTreeNew.h in Headers */,
-				2B884A5C1E3803170027C397 /* laspoint.hpp in Headers */,
 				2B446AB021EFE5DA0078A975 /* MaplyWMSTileSource.h in Headers */,
 				2B82B5E51E82E2490095FB14 /* geom.h in Headers */,
 				2BE539851D249BEF00B60FAD /* AASidereal.h in Headers */,
@@ -4428,9 +4241,7 @@
 				2B446B9621FBA8520078A975 /* Program.h in Headers */,
 				2BE5383E1D249A1200B60FAD /* MaplyGeomBuilder_private.h in Headers */,
 				2B73D6C2207D224100AF5095 /* MaplyQuadImageLoader_private.h in Headers */,
-				2B884A451E3803170027C397 /* arithmeticencoder.hpp in Headers */,
 				2BE538341D249A1200B60FAD /* NSData+Zlib.h in Headers */,
-				2B884A691E3803170027C397 /* lasunzipper.hpp in Headers */,
 				2BE53AB41D249CAF00B60FAD /* SMCalloutView.h in Headers */,
 				2B82B71C1E82E24A0095FB14 /* LayerViewWatcher.h in Headers */,
 				E56E02A71E11F99500C1DD85 /* GeoJSONSource.h in Headers */,
@@ -4456,7 +4267,6 @@
 				2BE53A0D1D249C2900B60FAD /* message_lite.h in Headers */,
 				2B699848228DD31F00C31E3F /* BasicDrawableMTL.h in Headers */,
 				2BE537F81D249A1200B60FAD /* Maply3dTouchPreviewDelegate.h in Headers */,
-				2B884A4B1E3803170027C397 /* bytestreamin.hpp in Headers */,
 				2BE53A0B1D249C2900B60FAD /* message.h in Headers */,
 				2BE539651D249BEF00B60FAD /* AAJewishCalendar.h in Headers */,
 				2BE53A1C1D249C2900B60FAD /* wire_format_lite.h in Headers */,
@@ -4466,15 +4276,12 @@
 				2BE53A6A1D249C4600B60FAD /* atomicops_internals_pnacl.h in Headers */,
 				2BE5382A1D249A1200B60FAD /* MaplyTexture.h in Headers */,
 				2B446AFD21F79A600078A975 /* StringIndexer.h in Headers */,
-				2B884A641E3803170027C397 /* lasreaditemcompressed_v2.hpp in Headers */,
 				2BE53A3D1D249C3D00B60FAD /* tokenizer.h in Headers */,
 				2BE53A671D249C4600B60FAD /* atomicops_internals_atomicword_compat.h in Headers */,
 				2BA827D02261382800324594 /* vector_tile.pb.h in Headers */,
 				2BB8A3D721ED43C00025DA98 /* MaplyVariableTarget_private.h in Headers */,
 				2BE53A321D249C3D00B60FAD /* strtod.h in Headers */,
-				2B884A571E3803170027C397 /* lasattributer.hpp in Headers */,
 				2B446AFE21F79A600078A975 /* WhirlyGeometry.h in Headers */,
-				2B884A561E3803170027C397 /* integercompressor.hpp in Headers */,
 				2B446B8321FB97C40078A975 /* ShapeReader.h in Headers */,
 				2B446B4E21F7E7B80078A975 /* Drawable.h in Headers */,
 				2BE538071D249A1200B60FAD /* MaplyCoordinateSystem.h in Headers */,
@@ -4493,19 +4300,16 @@
 				2BE5383F1D249A1200B60FAD /* MaplyGeomModel_private.h in Headers */,
 				2BA827C1225E57FA00324594 /* MapboxVectorTileParser_iOS.h in Headers */,
 				2BC90D5D223308C700D8B606 /* ScreenObject_iOS.h in Headers */,
-				2B884A791E3803170027C397 /* mydefs.hpp in Headers */,
 				2BE539671D249BEF00B60FAD /* AAKepler.h in Headers */,
 				2BE5385B1D249A1200B60FAD /* WhirlyGlobeViewController_private.h in Headers */,
 				2BE53A791D249C4700B60FAD /* strutil.h in Headers */,
 				2B446AF921F79A600078A975 /* GlobeMath.h in Headers */,
-				2B884A731E3803170027C397 /* laszip_common_v2.hpp in Headers */,
 				2BE538051D249A1200B60FAD /* MaplyComponentObject.h in Headers */,
 				2BB8A3F721ED43D10025DA98 /* GlobePanDelegate.h in Headers */,
 				2B446B4B21F7E7B80078A975 /* Scene.h in Headers */,
 				2B846F0F21F158E100EF2A82 /* LabelManager.h in Headers */,
 				2B446AE121F288090078A975 /* LabelRenderer.h in Headers */,
 				2B8796E021FFD59100EF801D /* SceneRendererGLES_iOS.h in Headers */,
-				2B884A671E3803170027C397 /* lasreadpoint.hpp in Headers */,
 				2B87970522039D6300EF801D /* TextureGLES_iOS.h in Headers */,
 				2BE1E7922213977F00815D9C /* QuadTileBuilder.h in Headers */,
 				2B82B5F81E82E2490095FB14 /* JSONOptions.h in Headers */,
@@ -4515,11 +4319,9 @@
 				2BB8A3DB21ED43C00025DA98 /* ViewPlacementActiveModel.h in Headers */,
 				2BE538641D249A1200B60FAD /* MaplyVectorStyle.h in Headers */,
 				2B446B8D21FB99C00078A975 /* ScreenImportance.h in Headers */,
-				2B884A4C1E3803170027C397 /* bytestreaminout_file.hpp in Headers */,
 				2BE1E79B2215F4D800815D9C /* ImageTile.h in Headers */,
 				2B446B7B21FB948B0078A975 /* VectorData.h in Headers */,
 				2B8A78762284DAF6008B0A1F /* RenderTargetGLES.h in Headers */,
-				2B884A721E3803170027C397 /* laszip_common_v1.hpp in Headers */,
 				2B23132E21F93661006AA344 /* RawData.h in Headers */,
 				2B092BB42373574E00E27CD8 /* MaplyGlobeRenderController_private.h in Headers */,
 				2BF4FC98227D02240012CEFD /* MapboxVectorStyleSprites.h in Headers */,
@@ -4531,7 +4333,6 @@
 				2BE5383A1D249A1200B60FAD /* MaplyBaseViewController_private.h in Headers */,
 				2BB8A3F021ED43D10025DA98 /* GlobeDoubleTapDragDelegate.h in Headers */,
 				2B82B6211E82E2490095FB14 /* shapefil.h in Headers */,
-				2B884A471E3803170027C397 /* arithmeticmodel.hpp in Headers */,
 				2BE53A161D249C2900B60FAD /* text_format.h in Headers */,
 				2BE7E7B9221B22DE00E4EFBA /* QuadImageFrameLoader_iOS.h in Headers */,
 				2BE53A101D249C2900B60FAD /* reflection_ops.h in Headers */,
@@ -4558,16 +4359,13 @@
 				2BE539F61D249C2900B60FAD /* arena.h in Headers */,
 				2BE538491D249A1200B60FAD /* MaplyScreenObject_private.h in Headers */,
 				2BBC3394221C6F000038A229 /* MaplyQuadImageLoader.h in Headers */,
-				2B884A431E3803170027C397 /* arithmeticdecoder.hpp in Headers */,
 				2B82B5F51E82E2490095FB14 /* tess.h in Headers */,
 				2BE5385A1D249A1200B60FAD /* WGViewControllerLayer_private.h in Headers */,
 				2BE1E7912213977F00815D9C /* LoadedTileNew.h in Headers */,
 				2BE538651D249A1200B60FAD /* MaplyVectorStyleSimple.h in Headers */,
-				2B884A521E3803170027C397 /* bytestreamout.hpp in Headers */,
 				2BE53A701D249C4600B60FAD /* hash.h in Headers */,
 				2BB476772000486F006AAACB /* MapboxVectorStyleBackground.h in Headers */,
 				2BE53A931D249C9000B60FAD /* DDXML.h in Headers */,
-				2B884A4A1E3803170027C397 /* bytestreamin_istream.hpp in Headers */,
 				2B82B6161E82E2490095FB14 /* JSONStats.h in Headers */,
 				2B446B0321F79A600078A975 /* WhirlyVector.h in Headers */,
 				2BE538301D249A1200B60FAD /* MaplyViewController.h in Headers */,
@@ -4575,19 +4373,15 @@
 				2B82B60D1E82E2490095FB14 /* JSONMemory.h in Headers */,
 				2BB8A3CE21ED43A40025DA98 /* MaplyMBTileFetcher.h in Headers */,
 				2BE537F91D249A1200B60FAD /* MaplyActiveObject.h in Headers */,
-				2B884A711E3803170027C397 /* laswritepoint.hpp in Headers */,
-				2B884A481E3803170027C397 /* bytestreamin_array.hpp in Headers */,
 				2B82B5E91E82E2490095FB14 /* mesh.h in Headers */,
 				E56DB3D51D6B1B17007000D2 /* SLDStyleSet.h in Headers */,
 				2BE539541D249BEF00B60FAD /* AACoordinateTransformation.h in Headers */,
-				2B884A501E3803170027C397 /* bytestreamout_nil.hpp in Headers */,
 				2BB8A3D021ED43A40025DA98 /* MaplyQuadImageFrameLoader.h in Headers */,
 				2BE5394F1D249BEF00B60FAD /* AA2DCoordinate.h in Headers */,
 				2BE539531D249BEF00B60FAD /* AABinaryStar.h in Headers */,
 				2B82B5FB1E82E2490095FB14 /* mempool.h in Headers */,
 				2BE539571D249BEF00B60FAD /* AADynamicalTime.h in Headers */,
 				2B446B0021F79A600078A975 /* Proj4CoordSystem.h in Headers */,
-				2B884A6A1E3803170027C397 /* laswriteitem.hpp in Headers */,
 				2BE53A381D249C3D00B60FAD /* gzip_stream.h in Headers */,
 				2B68A43F225D4469009CC720 /* MapboxVectorTileParser.h in Headers */,
 				2BE53A181D249C2900B60FAD /* unknown_field_set.h in Headers */,
@@ -4595,7 +4389,6 @@
 				2BE5396E1D249BEF00B60FAD /* AAMoonPerigeeApogee.h in Headers */,
 				2BB8A3FC21ED43D10025DA98 /* MaplyTwoFingerTapDelegate.h in Headers */,
 				2B82B6841E82E24A0095FB14 /* pj_list.h in Headers */,
-				2B884A6E1E3803170027C397 /* laswriteitemcompressed_v2.hpp in Headers */,
 				2BC3D6AA22024EB300CE91D0 /* MaplyAnimateTranslateMomentum.h in Headers */,
 				2BE5382B1D249A1200B60FAD /* MaplyTextureBuilder.h in Headers */,
 				2B8A78722284DAF6008B0A1F /* TextureGLES.h in Headers */,
@@ -4609,9 +4402,7 @@
 				2BE539F81D249C2900B60FAD /* arenastring.h in Headers */,
 				2BE5384D1D249A1200B60FAD /* MaplyTexture_private.h in Headers */,
 				2B7B84D821223F0300D11447 /* MaplyTextureAtlas_private.h in Headers */,
-				2B884A601E3803170027C397 /* lasreaditem.hpp in Headers */,
 				2BBC337B22163AE90038A229 /* QuadSamplingParams.h in Headers */,
-				2B884A621E3803170027C397 /* lasreaditemcompressed_v1.hpp in Headers */,
 				2B846F0821F158E100EF2A82 /* SelectionManager.h in Headers */,
 				2BE539FC1D249C2900B60FAD /* descriptor.pb.h in Headers */,
 				2B82B5EB1E82E2490095FB14 /* normal.h in Headers */,
@@ -4623,7 +4414,6 @@
 				2B82B6021E82E2490095FB14 /* JSONChildren.h in Headers */,
 				2B446B5021F7E7B80078A975 /* ScreenSpaceBuilder.h in Headers */,
 				2B82B6E31E82E24A0095FB14 /* EAGLView.h in Headers */,
-				2B884A761E3803170027C397 /* laszip.hpp in Headers */,
 				2BE5397E1D249BEF00B60FAD /* AAPluto.h in Headers */,
 				2B8A78692284DAA9008B0A1F /* BasicDrawable.h in Headers */,
 				2BBC338B221746950038A229 /* ComponentManager_iOS.h in Headers */,
@@ -4638,7 +4428,6 @@
 				2BE539771D249BEF00B60FAD /* AAParallax.h in Headers */,
 				2BE538251D249A1200B60FAD /* MaplySharedAttributes.h in Headers */,
 				2BE538531D249A1200B60FAD /* MaplyControllerLayer_private.h in Headers */,
-				2B884A4D1E3803170027C397 /* bytestreaminout.hpp in Headers */,
 				2BE5384A1D249A1200B60FAD /* MaplyShader_private.h in Headers */,
 				2B446B3021F7CE670078A975 /* WrapperGLES.h in Headers */,
 				2B7B84DA2122403700D11447 /* MaplyTapMessage.h in Headers */,
@@ -4848,12 +4637,9 @@
 				2B8A78A522864E4F008B0A1F /* SphericalEarthChunkManager.cpp in Sources */,
 				2B82B64D1E82E2490095FB14 /* PJ_cass.c in Sources */,
 				2B82B6B41E82E24A0095FB14 /* PJ_tmerc.c in Sources */,
-				2B884A6D1E3803170027C397 /* laswriteitemcompressed_v2.cpp in Sources */,
 				2B8796D321FFC59D00EF801D /* NSString+Stuff.mm in Sources */,
 				2B8A788B228607B3008B0A1F /* Program.cpp in Sources */,
 				2B8797222203BF7900EF801D /* MaplyBillboard.mm in Sources */,
-				2B884A751E3803170027C397 /* laszip.cpp in Sources */,
-				2B884A741E3803170027C397 /* laszip_dll.cpp in Sources */,
 				2B4B30B82395E40500854073 /* MapboxVectorStyleCircle.mm in Sources */,
 				2BC90D60223308DB00D8B606 /* ScreenObject_iOS.mm in Sources */,
 				2BE1E766220A567100815D9C /* MaplyControllerLayer.mm in Sources */,
@@ -4884,7 +4670,6 @@
 				2B82B6951E82E24A0095FB14 /* PJ_nell.c in Sources */,
 				2B446B2521F79BF30078A975 /* QuadTreeNew.cpp in Sources */,
 				2B82B6521E82E2490095FB14 /* PJ_crast.c in Sources */,
-				2B884A551E3803170027C397 /* integercompressor.cpp in Sources */,
 				2B69986A228DD36A00C31E3F /* RenderTargetMTL.mm in Sources */,
 				2BE1E74F2208EAEB00815D9C /* MaplyUpdateLayer.mm in Sources */,
 				2B82B6A31E82E24A0095FB14 /* PJ_putp2.c in Sources */,
@@ -4914,7 +4699,6 @@
 				2B8796C821FFC57700EF801D /* ShapeReader.cpp in Sources */,
 				2B699877228DD36A00C31E3F /* WideVectorDrawableBuilderMTL.mm in Sources */,
 				2B82B67F1E82E24A0095FB14 /* PJ_lask.c in Sources */,
-				2B884A6B1E3803170027C397 /* laswriteitemcompressed_v1.cpp in Sources */,
 				2B82B5F21E82E2490095FB14 /* sweep.c in Sources */,
 				2B82B6A81E82E24A0095FB14 /* pj_qsfn.c in Sources */,
 				2BE539971D249BEF00B60FAD /* AAElliptical.cpp in Sources */,
@@ -4964,7 +4748,6 @@
 				2B8A78DF228C8526008B0A1F /* MaplyRenderController.mm in Sources */,
 				2BA827C4225E581100324594 /* MapboxVectorTileParser_iOS.mm in Sources */,
 				2B82B69A1E82E24A0095FB14 /* PJ_ocea.c in Sources */,
-				2B884A441E3803170027C397 /* arithmeticencoder.cpp in Sources */,
 				2B446B1E21F79AE40078A975 /* GlobeMath.cpp in Sources */,
 				2B82B6B01E82E24A0095FB14 /* pj_strerrno.c in Sources */,
 				2B82B69E1E82E24A0095FB14 /* PJ_ortho.c in Sources */,
@@ -4989,7 +4772,6 @@
 				2BE53A171D249C2900B60FAD /* unknown_field_set.cc in Sources */,
 				2B8A788F22860D14008B0A1F /* StringIndexer.cpp in Sources */,
 				2B8796FC2203861200EF801D /* LayerViewWatcher.mm in Sources */,
-				2B884A461E3803170027C397 /* arithmeticmodel.cpp in Sources */,
 				2B82B6691E82E24A0095FB14 /* PJ_geos.c in Sources */,
 				2BE1E763220A43FD00815D9C /* MaplyInteractionLayer.mm in Sources */,
 				2B8797182203B77900EF801D /* MaplyLocationTracker.mm in Sources */,
@@ -5003,7 +4785,6 @@
 				2B6997EE228CAF7C00C31E3F /* ChangeRequest.cpp in Sources */,
 				2B82B6121E82E2490095FB14 /* JSONPreparse.cpp in Sources */,
 				2B846EE721F137D300EF2A82 /* emess.c in Sources */,
-				2B884A581E3803170027C397 /* lasindex.cpp in Sources */,
 				2B8A78A422864D64008B0A1F /* ShapeManager.cpp in Sources */,
 				2BC3D6E0220B553100CE91D0 /* MaplyVectorObject.mm in Sources */,
 				2BC3D6DA220B520D00CE91D0 /* MaplyAtmosphere.mm in Sources */,
@@ -5012,7 +4793,6 @@
 				2B82B6A91E82E24A0095FB14 /* pj_release.c in Sources */,
 				2BE1E7402208BE1400815D9C /* MaplyTapMessage.mm in Sources */,
 				2BE53A081D249C2900B60FAD /* generated_message_util.cc in Sources */,
-				2B884A611E3803170027C397 /* lasreaditemcompressed_v1.cpp in Sources */,
 				2BC3D6C22202538700CE91D0 /* GlobeView_iOS.mm in Sources */,
 				2B82B6911E82E24A0095FB14 /* pj_msfn.c in Sources */,
 				2BE539B71D249BEF00B60FAD /* AAPlanetPerihelionAphelion.cpp in Sources */,
@@ -5039,7 +4819,6 @@
 				2B82B6741E82E24A0095FB14 /* PJ_igh.c in Sources */,
 				2B699872228DD36A00C31E3F /* SceneRendererMTL.mm in Sources */,
 				2B846EE921F1380D00EF2A82 /* aasincos.c in Sources */,
-				2B884A631E3803170027C397 /* lasreaditemcompressed_v2.cpp in Sources */,
 				2B8A78A322864B5C008B0A1F /* ShapeDrawableBuilder.cpp in Sources */,
 				2B82B6901E82E24A0095FB14 /* PJ_moll.c in Sources */,
 				2B8A78BC228B3AE9008B0A1F /* TextureAtlas.cpp in Sources */,
@@ -5061,7 +4840,6 @@
 				2B446B7D21FB94A00078A975 /* VectorData.cpp in Sources */,
 				2BE1E780220A6B6700815D9C /* SLDExpressions.m in Sources */,
 				2BE539A61D249BEF00B60FAD /* AAMoonMaxDeclinations.cpp in Sources */,
-				2B884A661E3803170027C397 /* lasreadpoint.cpp in Sources */,
 				2B8A78AE2289E426008B0A1F /* SceneRenderer.cpp in Sources */,
 				2B82B7C31E82E68E0095FB14 /* clipper.cpp in Sources */,
 				2B82B5EE1E82E2490095FB14 /* priorityq.c in Sources */,
@@ -5112,12 +4890,10 @@
 				2B82B6191E82E2490095FB14 /* JSONValidator.cpp in Sources */,
 				2B82B6981E82E24A0095FB14 /* PJ_nzmg.c in Sources */,
 				2B82B6861E82E24A0095FB14 /* PJ_loxim.c in Sources */,
-				2B884A681E3803170027C397 /* lasunzipper.cpp in Sources */,
 				2BE1E7432208C75200815D9C /* GlobeDoubleTapDragDelegate.mm in Sources */,
 				2B82B6581E82E2490095FB14 /* PJ_eck1.c in Sources */,
 				2BE1E7492208D04C00815D9C /* GlobeTwoFingerTapDelegate.mm in Sources */,
 				2B699871228DD36A00C31E3F /* ScreenSpaceDrawableBuilderMTL.mm in Sources */,
-				2B884A421E3803170027C397 /* arithmeticdecoder.cpp in Sources */,
 				2B82B6221E82E2490095FB14 /* dbfopen.c in Sources */,
 				2BE53A3A1D249C3D00B60FAD /* printer.cc in Sources */,
 				2B82B6B61E82E24A0095FB14 /* pj_transform.c in Sources */,
@@ -5134,7 +4910,6 @@
 				2B82B6421E82E2490095FB14 /* PJ_aeqd.c in Sources */,
 				2B846EE321F1372600EF2A82 /* pj_open_lib.c in Sources */,
 				2BE53A611D249C4600B60FAD /* int128.cc in Sources */,
-				2B884A771E3803170027C397 /* laszipper.cpp in Sources */,
 				2B846EE021F136E100EF2A82 /* pj_tsfn.c in Sources */,
 				2B82B65D1E82E24A0095FB14 /* pj_ell_set.c in Sources */,
 				2B8797132203B76000EF801D /* NSData+Zlib.m in Sources */,
@@ -5188,7 +4963,6 @@
 				2BE53A751D249C4700B60FAD /* stringprintf.cc in Sources */,
 				2BE1E774220A6B6700815D9C /* MaplyVectorStyle.mm in Sources */,
 				2B699873228DD36A00C31E3F /* ParticleSystemDrawableBuilderMTL.mm in Sources */,
-				2B884A5A1E3803170027C397 /* lasinterval.cpp in Sources */,
 				2BE539AD1D249BEF00B60FAD /* AANodes.cpp in Sources */,
 				2B82B6A11E82E24A0095FB14 /* PJ_poly.c in Sources */,
 				2B8A78B6228A185A008B0A1F /* VertexAttributeGLES.cpp in Sources */,
@@ -5209,7 +4983,6 @@
 				2B82B6801E82E24A0095FB14 /* pj_latlong.c in Sources */,
 				2B82B6A01E82E24A0095FB14 /* pj_phi2.c in Sources */,
 				2BC3D6D62203ED9200CE91D0 /* MaplyTouchCancelAnimationDelegate.mm in Sources */,
-				2B884A5D1E3803170027C397 /* lasquadtree.cpp in Sources */,
 				2B69986C228DD36A00C31E3F /* ProgramMTL.mm in Sources */,
 				2BE7E7BC221B99FA00E4EFBA /* MaplyQuadLoader.mm in Sources */,
 				2BC3D6C6220255EA00CE91D0 /* MapView_iOS.mm in Sources */,
@@ -5317,7 +5090,6 @@
 				2B82B6751E82E24A0095FB14 /* PJ_imw_p.c in Sources */,
 				2B82B6C81E82E24A0095FB14 /* proj_rouss.c in Sources */,
 				2B8A78D7228B95C2008B0A1F /* LineAndPointShadersGLES.cpp in Sources */,
-				2B884A701E3803170027C397 /* laswritepoint.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5468,7 +5240,6 @@
 					"$(inherited)",
 					"HAVE_PTHREAD=1",
 					"UNORDERED=1",
-					"LASZIPDLL_EXPORTS=1",
 					__IPHONEOS__,
 					__USE_SDL_GLES__,
 				);
@@ -5521,7 +5292,6 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"HAVE_PTHREAD=1",
 					"UNORDERED=1",
-					"LASZIPDLL_EXPORTS=1",
 					__USE_SDL_GLES__,
 					__IPHONEOS__,
 				);
