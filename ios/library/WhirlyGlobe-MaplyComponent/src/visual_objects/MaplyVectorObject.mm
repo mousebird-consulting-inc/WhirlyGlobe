@@ -464,6 +464,9 @@ using namespace WhirlyGlobe;
 
 - (bool)linearMiddle:(MaplyCoordinate *)middle rot:(double *)rot displayCoordSys:(MaplyCoordinateSystem *)maplyCoordSys
 {
+    if (!maplyCoordSys)
+        return false;
+
     double retRot;
     Point2d mid;
     bool ret = vObj->linearMiddle(mid, retRot, maplyCoordSys->coordSystem.get());
