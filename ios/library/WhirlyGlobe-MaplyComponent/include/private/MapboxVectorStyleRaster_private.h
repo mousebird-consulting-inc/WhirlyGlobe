@@ -18,7 +18,7 @@
  *
  */
 
-#import "vector_styles/MapboxVectorStyleSet.h"
+#import "private/MapboxVectorStyleSet_private.h"
 
 /// @brief Raster tiles
 @interface MapboxVectorLayerRaster : MaplyMapboxVectorStyleLayer

@@ -18,8 +18,9 @@
  *
  */
 
-#import "vector_styles/MapboxVectorStyleSymbol.h"
+#import "private/MapboxVectorStyleSymbol_private.h"
 #import "visual_objects/MaplyScreenLabel.h"
+#import "private/MapboxVectorStyleSet_private.h"
 #import <vector>
 
 // Used to track text data

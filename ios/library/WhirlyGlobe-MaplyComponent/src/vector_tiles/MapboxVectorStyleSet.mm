@@ -18,13 +18,13 @@
  *
  */
 
-#import "vector_styles/MapboxVectorStyleSet.h"
-#import "vector_styles/MapboxVectorStyleBackground.h"
-#import "vector_styles/MapboxVectorStyleFill.h"
-#import "vector_styles/MapboxVectorStyleLine.h"
-#import "vector_styles/MapboxVectorStyleRaster.h"
-#import "vector_styles/MapboxVectorStyleSymbol.h"
-#import "vector_styles/MapboxVectorStyleCircle.h"
+#import "private/MapboxVectorStyleSet_private.h"
+#import "private/MapboxVectorStyleBackground_private.h"
+#import "private/MapboxVectorStyleFill_private.h"
+#import "private/MapboxVectorStyleLine_private.h"
+#import "private/MapboxVectorStyleRaster_private.h"
+#import "private/MapboxVectorStyleSymbol_private.h"
+#import "private/MapboxVectorStyleCircle_private.h"
 #import <map>
 
 /// @brief A single zoom and value
@@ -280,6 +280,16 @@
     return [layersByUUID allValues];
 }
 
+- (UIColor *)backgroundColorForZoom:(double)zoom;
+{
+    MaplyMapboxVectorStyleLayer *layer = [_layersByName objectForKey:@"background"];
+    if ([layer isKindOfClass:[MapboxVectorLayerBackground class]]) {
+        MapboxVectorLayerBackground *backLayer = (MapboxVectorLayerBackground *)layer;
+        return [backLayer.paint.color colorForZoom:zoom];
+    }
+    
+    return nil;
+}
 
 - (id)constantSubstitution:(id)thing forField:(NSString *)field
 {

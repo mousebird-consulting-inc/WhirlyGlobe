@@ -18,7 +18,7 @@
  *
  */
 
-#import "vector_styles/MapboxVectorStyleSet.h"
+#import "private/MapboxVectorStyleSet_private.h"
 
 typedef enum {MBLineCapButt,MBLineCapRound,MBLineCapSquare} MapboxVectorLineCap;
 typedef enum {MBLineJoinBevel,MBLineJoinRound,MBLineJoinMiter} MapboxVectorLineJoin;

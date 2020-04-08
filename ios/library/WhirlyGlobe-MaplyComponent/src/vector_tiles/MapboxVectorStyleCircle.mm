@@ -18,7 +18,8 @@
 *
 */
 
-#import "MapboxVectorStyleCircle.h"
+#import "private/MapboxVectorStyleCircle_private.h"
+#import "MapboxVectorStyleSet_private.h"
 
 @implementation MapboxVectorCirclePaint
 

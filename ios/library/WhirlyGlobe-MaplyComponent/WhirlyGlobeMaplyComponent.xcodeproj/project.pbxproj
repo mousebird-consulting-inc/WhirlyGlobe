@@ -93,12 +93,20 @@
 		2B446B9A21FBA9D50078A975 /* PerformanceTimer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B9921FBA9D50078A975 /* PerformanceTimer.h */; };
 		2B462EF623A9547E0050438C /* NSDictionary+StyleRules.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B462EF523A9547E0050438C /* NSDictionary+StyleRules.h */; };
 		2B462EF823A954870050438C /* NSDictionary+StyleRules.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B462EF723A954870050438C /* NSDictionary+StyleRules.m */; };
-		2B4B30B42395E38D00854073 /* MapboxVectorStyleCircle.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B30B22395E38D00854073 /* MapboxVectorStyleCircle.h */; };
 		2B4B30B82395E40500854073 /* MapboxVectorStyleCircle.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B30B62395E40500854073 /* MapboxVectorStyleCircle.mm */; };
 		2B4B63A5236102DA0008C8C1 /* MaplyGlobeRenderController.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B63A4236102DA0008C8C1 /* MaplyGlobeRenderController.h */; };
 		2B4B63A7236102EC0008C8C1 /* MaplyGlobeRenderController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B63A6236102EC0008C8C1 /* MaplyGlobeRenderController.mm */; };
 		2B526BDC240DE04B00647336 /* MetalPerformanceShaders.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B526BDB240DE04B00647336 /* MetalPerformanceShaders.framework */; };
 		2B541C171ECFAA2300EC35A0 /* MaplyRenderTarget.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B541C161ECFAA2300EC35A0 /* MaplyRenderTarget.h */; };
+		2B63C45F243E44A0002B481C /* MapboxVectorStyleSetC.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B63C45E243E44A0002B481C /* MapboxVectorStyleSetC.h */; };
+		2B63C461243E44B6002B481C /* MapboxVectorStyleSetC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B63C460243E44B6002B481C /* MapboxVectorStyleSetC.cpp */; };
+		2B63C463243E474E002B481C /* MapboxVectorStyleSet_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B63C462243E474E002B481C /* MapboxVectorStyleSet_private.h */; };
+		2B63C46E243E4C41002B481C /* MapboxVectorStyleLine_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B63C468243E4C40002B481C /* MapboxVectorStyleLine_private.h */; };
+		2B63C46F243E4C41002B481C /* MapboxVectorStyleRaster_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B63C469243E4C40002B481C /* MapboxVectorStyleRaster_private.h */; };
+		2B63C470243E4C41002B481C /* MapboxVectorStyleFill_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B63C46A243E4C40002B481C /* MapboxVectorStyleFill_private.h */; };
+		2B63C471243E4C41002B481C /* MapboxVectorStyleBackground_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B63C46B243E4C41002B481C /* MapboxVectorStyleBackground_private.h */; };
+		2B63C472243E4C41002B481C /* MapboxVectorStyleCircle_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B63C46C243E4C41002B481C /* MapboxVectorStyleCircle_private.h */; };
+		2B63C473243E4C41002B481C /* MapboxVectorStyleSymbol_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B63C46D243E4C41002B481C /* MapboxVectorStyleSymbol_private.h */; };
 		2B68A43F225D4469009CC720 /* MapboxVectorTileParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B68A43E225D4469009CC720 /* MapboxVectorTileParser.h */; };
 		2B68A441225D447F009CC720 /* MapboxVectorTileParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B68A440225D447E009CC720 /* MapboxVectorTileParser.cpp */; };
 		2B6997EC228CAA3B00C31E3F /* BillboardDrawableBuilderGLES.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B6997EB228CAA3B00C31E3F /* BillboardDrawableBuilderGLES.cpp */; };
@@ -543,11 +551,6 @@
 		2BA827CE225EBDD300324594 /* GeoJSONSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = E56E02A91E11F9AD00C1DD85 /* GeoJSONSource.mm */; };
 		2BA827D02261382800324594 /* vector_tile.pb.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA827CF2261382800324594 /* vector_tile.pb.h */; };
 		2BA827D4226139AC00324594 /* vector_tile.pb.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BA827D3226139AC00324594 /* vector_tile.pb.cpp */; };
-		2BB476762000486F006AAACB /* MapboxVectorStyleSymbol.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB476702000486E006AAACB /* MapboxVectorStyleSymbol.h */; };
-		2BB476772000486F006AAACB /* MapboxVectorStyleBackground.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB476712000486F006AAACB /* MapboxVectorStyleBackground.h */; };
-		2BB476782000486F006AAACB /* MapboxVectorStyleLine.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB476722000486F006AAACB /* MapboxVectorStyleLine.h */; };
-		2BB476792000486F006AAACB /* MapboxVectorStyleFill.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB476732000486F006AAACB /* MapboxVectorStyleFill.h */; };
-		2BB4767A2000486F006AAACB /* MapboxVectorStyleRaster.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB476742000486F006AAACB /* MapboxVectorStyleRaster.h */; };
 		2BB4767B2000486F006AAACB /* MapboxVectorStyleSet.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB476752000486F006AAACB /* MapboxVectorStyleSet.h */; };
 		2BB8A3CD21ED43A40025DA98 /* MaplyTileSourceNew.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB8A3C921ED43A30025DA98 /* MaplyTileSourceNew.h */; };
 		2BB8A3CE21ED43A40025DA98 /* MaplyMBTileFetcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB8A3CA21ED43A30025DA98 /* MaplyMBTileFetcher.h */; };
@@ -1165,12 +1168,20 @@
 		2B446B9B21FBA9E90078A975 /* PerformanceTimer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PerformanceTimer.cpp; path = ../../../../common/WhirlyGlobeLib/src/PerformanceTimer.cpp; sourceTree = "<group>"; };
 		2B462EF523A9547E0050438C /* NSDictionary+StyleRules.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+StyleRules.h"; sourceTree = "<group>"; };
 		2B462EF723A954870050438C /* NSDictionary+StyleRules.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+StyleRules.m"; sourceTree = "<group>"; };
-		2B4B30B22395E38D00854073 /* MapboxVectorStyleCircle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapboxVectorStyleCircle.h; sourceTree = "<group>"; };
 		2B4B30B62395E40500854073 /* MapboxVectorStyleCircle.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MapboxVectorStyleCircle.mm; sourceTree = "<group>"; };
 		2B4B63A4236102DA0008C8C1 /* MaplyGlobeRenderController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyGlobeRenderController.h; sourceTree = "<group>"; };
 		2B4B63A6236102EC0008C8C1 /* MaplyGlobeRenderController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyGlobeRenderController.mm; sourceTree = "<group>"; };
 		2B526BDB240DE04B00647336 /* MetalPerformanceShaders.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalPerformanceShaders.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk/System/Library/Frameworks/MetalPerformanceShaders.framework; sourceTree = DEVELOPER_DIR; };
 		2B541C161ECFAA2300EC35A0 /* MaplyRenderTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyRenderTarget.h; sourceTree = "<group>"; };
+		2B63C45E243E44A0002B481C /* MapboxVectorStyleSetC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MapboxVectorStyleSetC.h; path = ../../../../common/WhirlyGlobeLib/include/MapboxVectorStyleSetC.h; sourceTree = "<group>"; };
+		2B63C460243E44B6002B481C /* MapboxVectorStyleSetC.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MapboxVectorStyleSetC.cpp; path = ../../../../common/WhirlyGlobeLib/src/MapboxVectorStyleSetC.cpp; sourceTree = "<group>"; };
+		2B63C462243E474E002B481C /* MapboxVectorStyleSet_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapboxVectorStyleSet_private.h; sourceTree = "<group>"; };
+		2B63C468243E4C40002B481C /* MapboxVectorStyleLine_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapboxVectorStyleLine_private.h; sourceTree = "<group>"; };
+		2B63C469243E4C40002B481C /* MapboxVectorStyleRaster_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapboxVectorStyleRaster_private.h; sourceTree = "<group>"; };
+		2B63C46A243E4C40002B481C /* MapboxVectorStyleFill_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapboxVectorStyleFill_private.h; sourceTree = "<group>"; };
+		2B63C46B243E4C41002B481C /* MapboxVectorStyleBackground_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapboxVectorStyleBackground_private.h; sourceTree = "<group>"; };
+		2B63C46C243E4C41002B481C /* MapboxVectorStyleCircle_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapboxVectorStyleCircle_private.h; sourceTree = "<group>"; };
+		2B63C46D243E4C41002B481C /* MapboxVectorStyleSymbol_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapboxVectorStyleSymbol_private.h; sourceTree = "<group>"; };
 		2B68A43E225D4469009CC720 /* MapboxVectorTileParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MapboxVectorTileParser.h; path = ../../../../common/WhirlyGlobeLib/include/MapboxVectorTileParser.h; sourceTree = "<group>"; };
 		2B68A440225D447E009CC720 /* MapboxVectorTileParser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MapboxVectorTileParser.cpp; path = ../../../../common/WhirlyGlobeLib/src/MapboxVectorTileParser.cpp; sourceTree = "<group>"; };
 		2B6997EA228CAA2200C31E3F /* BillboardDrawableBuilderGLES.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = BillboardDrawableBuilderGLES.h; path = ../../../../common/WhirlyGlobeLib/include/BillboardDrawableBuilderGLES.h; sourceTree = "<group>"; };
@@ -1571,11 +1582,6 @@
 		2BA827CA225E719D00324594 /* MapboxVectorTiles_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapboxVectorTiles_private.h; sourceTree = "<group>"; };
 		2BA827CF2261382800324594 /* vector_tile.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = vector_tile.pb.h; path = ../../../../common/WhirlyGlobeLib/include/vector_tile.pb.h; sourceTree = "<group>"; };
 		2BA827D3226139AC00324594 /* vector_tile.pb.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = vector_tile.pb.cpp; path = ../../../../common/WhirlyGlobeLib/src/vector_tile.pb.cpp; sourceTree = "<group>"; };
-		2BB476702000486E006AAACB /* MapboxVectorStyleSymbol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapboxVectorStyleSymbol.h; sourceTree = "<group>"; };
-		2BB476712000486F006AAACB /* MapboxVectorStyleBackground.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapboxVectorStyleBackground.h; sourceTree = "<group>"; };
-		2BB476722000486F006AAACB /* MapboxVectorStyleLine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapboxVectorStyleLine.h; sourceTree = "<group>"; };
-		2BB476732000486F006AAACB /* MapboxVectorStyleFill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapboxVectorStyleFill.h; sourceTree = "<group>"; };
-		2BB476742000486F006AAACB /* MapboxVectorStyleRaster.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapboxVectorStyleRaster.h; sourceTree = "<group>"; };
 		2BB476752000486F006AAACB /* MapboxVectorStyleSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapboxVectorStyleSet.h; sourceTree = "<group>"; };
 		2BB4767C2000488C006AAACB /* MapboxVectorStyleFill.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MapboxVectorStyleFill.mm; sourceTree = "<group>"; };
 		2BB4767D2000488C006AAACB /* MapboxVectorStyleSet.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MapboxVectorStyleSet.mm; sourceTree = "<group>"; };
@@ -2376,6 +2382,7 @@
 		2B446B7E21FB97990078A975 /* data formats */ = {
 			isa = PBXGroup;
 			children = (
+				2B63C45E243E44A0002B481C /* MapboxVectorStyleSetC.h */,
 				2BA827CF2261382800324594 /* vector_tile.pb.h */,
 				2B68A43E225D4469009CC720 /* MapboxVectorTileParser.h */,
 				2B446B8221FB97C40078A975 /* GeometryOBJReader.h */,
@@ -2387,6 +2394,7 @@
 		2B446B7F21FB97A80078A975 /* data formats */ = {
 			isa = PBXGroup;
 			children = (
+				2B63C460243E44B6002B481C /* MapboxVectorStyleSetC.cpp */,
 				2BA827D3226139AC00324594 /* vector_tile.pb.cpp */,
 				2B68A440225D447E009CC720 /* MapboxVectorTileParser.cpp */,
 				2B446B8621FB97D50078A975 /* GeometryOBJReader.cpp */,
@@ -3371,7 +3379,6 @@
 		2BC41C9221F108A9002926B7 /* vector_styles */ = {
 			isa = PBXGroup;
 			children = (
-				2B4B30B22395E38D00854073 /* MapboxVectorStyleCircle.h */,
 				2BF4FC97227D02240012CEFD /* MapboxVectorStyleSprites.h */,
 				E56DB3D41D6B1B17007000D2 /* SLDStyleSet.h */,
 				E5EF69F31D6B931500A2A660 /* SLDExpressions.h */,
@@ -3385,12 +3392,7 @@
 				2BE5378E1D249A1200B60FAD /* MaplyVectorTilePolygonStyle.h */,
 				2BE537901D249A1200B60FAD /* MaplyVectorTileStyle.h */,
 				2BE537911D249A1200B60FAD /* MaplyVectorTileTextStyle.h */,
-				2BB476712000486F006AAACB /* MapboxVectorStyleBackground.h */,
-				2BB476732000486F006AAACB /* MapboxVectorStyleFill.h */,
-				2BB476722000486F006AAACB /* MapboxVectorStyleLine.h */,
-				2BB476742000486F006AAACB /* MapboxVectorStyleRaster.h */,
 				2BB476752000486F006AAACB /* MapboxVectorStyleSet.h */,
-				2BB476702000486E006AAACB /* MapboxVectorStyleSymbol.h */,
 				2BE537921D249A1200B60FAD /* MapnikStyle.h */,
 				2BE537931D249A1200B60FAD /* MapnikStyleRule.h */,
 				2BE537941D249A1200B60FAD /* MapnikStyleSet.h */,
@@ -3560,6 +3562,13 @@
 		2BE5375A1D249A1200B60FAD /* private */ = {
 			isa = PBXGroup;
 			children = (
+				2B63C46B243E4C41002B481C /* MapboxVectorStyleBackground_private.h */,
+				2B63C46C243E4C41002B481C /* MapboxVectorStyleCircle_private.h */,
+				2B63C46A243E4C40002B481C /* MapboxVectorStyleFill_private.h */,
+				2B63C468243E4C40002B481C /* MapboxVectorStyleLine_private.h */,
+				2B63C469243E4C40002B481C /* MapboxVectorStyleRaster_private.h */,
+				2B63C46D243E4C41002B481C /* MapboxVectorStyleSymbol_private.h */,
+				2B63C462243E474E002B481C /* MapboxVectorStyleSet_private.h */,
 				2B092BB32373574E00E27CD8 /* MaplyGlobeRenderController_private.h */,
 				2BA827CA225E719D00324594 /* MapboxVectorTiles_private.h */,
 				2BA827C0225E57FA00324594 /* MapboxVectorTileParser_iOS.h */,
@@ -4005,6 +4014,7 @@
 				2B462EF623A9547E0050438C /* NSDictionary+StyleRules.h in Headers */,
 				2BE538441D249A1200B60FAD /* MaplyPoints_private.h in Headers */,
 				2B23133821F942D2006AA344 /* Dictionary.h in Headers */,
+				2B63C472243E4C41002B481C /* MapboxVectorStyleCircle_private.h in Headers */,
 				2BE53A8A1D249C8900B60FAD /* DDXMLElementAdditions.h in Headers */,
 				2BE538111D249A1200B60FAD /* MaplyMarker.h in Headers */,
 				2B23133421F9395F006AA344 /* RawData_NSData.h in Headers */,
@@ -4031,10 +4041,10 @@
 				2BE539551D249BEF00B60FAD /* AADate.h in Headers */,
 				2BE539681D249BEF00B60FAD /* AAMars.h in Headers */,
 				2BB8A3F921ED43D10025DA98 /* GlobeTiltDelegate.h in Headers */,
-				2BB476762000486F006AAACB /* MapboxVectorStyleSymbol.h in Headers */,
 				2B2EA04F23427FB7006F2F34 /* DrawableMTL.h in Headers */,
 				2BC3D6C4220255E500CE91D0 /* MapView_iOS.h in Headers */,
 				2B846ED421F1356E00EF2A82 /* geod_interface.h in Headers */,
+				2B63C470243E4C41002B481C /* MapboxVectorStyleFill_private.h in Headers */,
 				2BE53A361D249C3D00B60FAD /* coded_stream_inl.h in Headers */,
 				2BE53A731D249C4700B60FAD /* platform_macros.h in Headers */,
 				2BE539641D249BEF00B60FAD /* AAInterpolate.h in Headers */,
@@ -4060,12 +4070,14 @@
 				2BE5386C1D249A1200B60FAD /* MapnikStyle.h in Headers */,
 				2BE53A431D249C3D00B60FAD /* zero_copy_stream_impl_lite.h in Headers */,
 				2BE538431D249A1200B60FAD /* MaplyParticleSystem_private.h in Headers */,
+				2B63C473243E4C41002B481C /* MapboxVectorStyleSymbol_private.h in Headers */,
 				2B82B6C51E82E24A0095FB14 /* proj_api.h in Headers */,
 				2B82B6081E82E2490095FB14 /* Visual_C.h in Headers */,
 				2B8A78752284DAF6008B0A1F /* BasicDrawableGLES.h in Headers */,
 				2B446AFA21F79A600078A975 /* CoordSystem.h in Headers */,
 				2B82B5DF1E82E2490095FB14 /* glues.h in Headers */,
 				2BE539731D249BEF00B60FAD /* AANodes.h in Headers */,
+				2B63C46E243E4C41002B481C /* MapboxVectorStyleLine_private.h in Headers */,
 				2BE5384F1D249A1200B60FAD /* MaplyUpdateLayer_private.h in Headers */,
 				2B82B60E1E82E2490095FB14 /* JSONMemoryPool.h in Headers */,
 				2BE539601D249BEF00B60FAD /* AAFK5.h in Headers */,
@@ -4102,6 +4114,7 @@
 				2BC3D6BF2202537600CE91D0 /* GlobeView_iOS.h in Headers */,
 				2BE5396A1D249BEF00B60FAD /* AAMoon.h in Headers */,
 				2B82B7181E82E24A0095FB14 /* LayoutLayer.h in Headers */,
+				2B63C45F243E44A0002B481C /* MapboxVectorStyleSetC.h in Headers */,
 				2BE538211D249A1200B60FAD /* MaplyScreenMarker.h in Headers */,
 				2B82B6041E82E2490095FB14 /* JSONDebug.h in Headers */,
 				2BE53A011D249C2900B60FAD /* dynamic_message.h in Headers */,
@@ -4152,7 +4165,6 @@
 				2B0387F22069BC2E00DD5C40 /* QuadDisplayLayerNew.h in Headers */,
 				2BE7E7B12214C6DE00E4EFBA /* QuadDisplayControllerNew.h in Headers */,
 				2BE5395F1D249BEF00B60FAD /* AAEquinoxesAndSolstices.h in Headers */,
-				2BB476782000486F006AAACB /* MapboxVectorStyleLine.h in Headers */,
 				2BE53A3B1D249C3D00B60FAD /* printer.h in Headers */,
 				2BE5386A1D249A1200B60FAD /* MaplyVectorTileStyle.h in Headers */,
 				2BE539501D249BEF00B60FAD /* AA3DCoordinate.h in Headers */,
@@ -4182,7 +4194,6 @@
 				2B8A78652284DA30008B0A1F /* BasicDrawableBuilder.h in Headers */,
 				2BE5383B1D249A1200B60FAD /* MaplyComponentObject_private.h in Headers */,
 				2BE5384B1D249A1200B60FAD /* MaplyShape_private.h in Headers */,
-				2BB4767A2000486F006AAACB /* MapboxVectorStyleRaster.h in Headers */,
 				2B82B6001E82E2490095FB14 /* JSONAllocator.h in Headers */,
 				2BE538671D249A1200B60FAD /* MaplyVectorTileMarkerStyle.h in Headers */,
 				2B82B6D91E82E24A0095FB14 /* UIImage+Stuff.h in Headers */,
@@ -4217,6 +4228,7 @@
 				2BE5397F1D249BEF00B60FAD /* AAPrecession.h in Headers */,
 				2BE538321D249A1200B60FAD /* MaplyViewTracker.h in Headers */,
 				2B69984B228DD31F00C31E3F /* RenderTargetMTL.h in Headers */,
+				2B63C471243E4C41002B481C /* MapboxVectorStyleBackground_private.h in Headers */,
 				2BE538501D249A1200B60FAD /* MaplyVectorObject_private.h in Headers */,
 				2BE539891D249BEF00B60FAD /* AAVenus.h in Headers */,
 				2BE53A1A1D249C2900B60FAD /* wire_format.h in Headers */,
@@ -4245,6 +4257,7 @@
 				2BE53AB41D249CAF00B60FAD /* SMCalloutView.h in Headers */,
 				2B82B71C1E82E24A0095FB14 /* LayerViewWatcher.h in Headers */,
 				E56E02A71E11F99500C1DD85 /* GeoJSONSource.h in Headers */,
+				2B63C463243E474E002B481C /* MapboxVectorStyleSet_private.h in Headers */,
 				2BE538041D249A1200B60FAD /* MaplyComponent.h in Headers */,
 				2B82B5EC1E82E2490095FB14 /* priorityq-heap.h in Headers */,
 				2BE537FC1D249A1200B60FAD /* MaplyAnnotation.h in Headers */,
@@ -4260,7 +4273,6 @@
 				2BE538581D249A1200B60FAD /* WGInteractionLayer_private.h in Headers */,
 				2BE1E79F2215F6FC00815D9C /* ImageTile_iOS.h in Headers */,
 				2BB8A3FD21ED43D10025DA98 /* MaplyDoubleTapDelegate.h in Headers */,
-				2B4B30B42395E38D00854073 /* MapboxVectorStyleCircle.h in Headers */,
 				2B23131921F8DD61006AA344 /* GlobeView.h in Headers */,
 				2B699854228DD31F00C31E3F /* ParticleSystemDrawableBuilderMTL.h in Headers */,
 				2B846F1021F158E100EF2A82 /* LayoutManager.h in Headers */,
@@ -4291,6 +4303,7 @@
 				2BE5382E1D249A1200B60FAD /* MaplyVectorObject.h in Headers */,
 				2BE5386D1D249A1200B60FAD /* MapnikStyleRule.h in Headers */,
 				2BE53A741D249C4700B60FAD /* stl_util.h in Headers */,
+				2B63C46F243E4C41002B481C /* MapboxVectorStyleRaster_private.h in Headers */,
 				2BBC339022178AFF0038A229 /* QuadImageFrameLoader.h in Headers */,
 				2BE537F71D249A1200B60FAD /* Maply3DTouchPreviewDatasource.h in Headers */,
 				2BA827C7225E6F1700324594 /* MapboxVectorTiles.h in Headers */,
@@ -4364,7 +4377,6 @@
 				2BE1E7912213977F00815D9C /* LoadedTileNew.h in Headers */,
 				2BE538651D249A1200B60FAD /* MaplyVectorStyleSimple.h in Headers */,
 				2BE53A701D249C4600B60FAD /* hash.h in Headers */,
-				2BB476772000486F006AAACB /* MapboxVectorStyleBackground.h in Headers */,
 				2BE53A931D249C9000B60FAD /* DDXML.h in Headers */,
 				2B82B6161E82E2490095FB14 /* JSONStats.h in Headers */,
 				2B446B0321F79A600078A975 /* WhirlyVector.h in Headers */,
@@ -4385,7 +4397,6 @@
 				2BE53A381D249C3D00B60FAD /* gzip_stream.h in Headers */,
 				2B68A43F225D4469009CC720 /* MapboxVectorTileParser.h in Headers */,
 				2BE53A181D249C2900B60FAD /* unknown_field_set.h in Headers */,
-				2BB476792000486F006AAACB /* MapboxVectorStyleFill.h in Headers */,
 				2BE5396E1D249BEF00B60FAD /* AAMoonPerigeeApogee.h in Headers */,
 				2BB8A3FC21ED43D10025DA98 /* MaplyTwoFingerTapDelegate.h in Headers */,
 				2B82B6841E82E24A0095FB14 /* pj_list.h in Headers */,
@@ -4851,6 +4862,7 @@
 				2B82B6871E82E24A0095FB14 /* PJ_lsat.c in Sources */,
 				2BE1E76B220A6B6700815D9C /* MapboxVectorInterpreter.mm in Sources */,
 				2B846EEE21F1393900EF2A82 /* dict.c in Sources */,
+				2B63C461243E44B6002B481C /* MapboxVectorStyleSetC.cpp in Sources */,
 				2BE1E771220A6B6700815D9C /* MapboxVectorStyleSymbol.mm in Sources */,
 				2BE539AC1D249BEF00B60FAD /* AANeptune.cpp in Sources */,
 				2BE539B41D249BEF00B60FAD /* AAPhysicalMoon.cpp in Sources */,

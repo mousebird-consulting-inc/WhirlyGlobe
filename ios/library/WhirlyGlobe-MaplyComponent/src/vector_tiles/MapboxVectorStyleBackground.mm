@@ -18,7 +18,8 @@
  *
  */
 
-#import "vector_styles/MapboxVectorStyleBackground.h"
+#import "private/MapboxVectorStyleBackground_private.h"
+#import "MapboxVectorStyleSet_private.h"
 
 @implementation MapboxVectorBackgroundPaint
 

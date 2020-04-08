@@ -18,7 +18,7 @@
  *
  */
 
-#import "MapboxVectorStyleSet.h"
+#import "MapboxVectorStyleSet_private.h"
 
 /**
   This class corresponds to the paint portion of the Mapbox Vector Style definition

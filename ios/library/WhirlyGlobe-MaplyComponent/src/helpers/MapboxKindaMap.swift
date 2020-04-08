@@ -412,8 +412,7 @@ public class MapboxKindaMap {
             if !(viewC is WhirlyGlobeViewController) {
                 // Set the background clear to the color at level 0
                 // TODO: Make this change by level
-                if let backgroundLayer = styleSheetVector.layersByName?["background"] as? MapboxVectorLayerBackground {
-                    let color = backgroundLayer.paint.color.color(forZoom: 0.0)
+                if let color = styleSheetVector.backgroundColor(forZoom: 0.0) {
                     viewC.clearColor = color
                 }
             }

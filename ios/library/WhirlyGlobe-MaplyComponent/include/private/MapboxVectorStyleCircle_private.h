@@ -18,7 +18,7 @@
 *
 */
 
-#import "MapboxVectorStyleSet.h"
+#import "MapboxVectorStyleSet_private.h"
 
 /**
  This is the pain portion o the MapboxVectorLayer Circle.
