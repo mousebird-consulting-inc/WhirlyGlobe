@@ -40,6 +40,22 @@
 		2B3F4518243F8F8100F85414 /* MaplyVectorStyleC.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3F4517243F8F8100F85414 /* MaplyVectorStyleC.h */; };
 		2B3F451A243F8FBF00F85414 /* MaplyVectorStyleC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3F4519243F8FBF00F85414 /* MaplyVectorStyleC.cpp */; };
 		2B3F451C243F968200F85414 /* MaplyVectorStyle_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3F451B243F968200F85414 /* MaplyVectorStyle_private.h */; };
+		2B3F451D243FD82200F85414 /* GeoJSONSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = E56E02A91E11F9AD00C1DD85 /* GeoJSONSource.mm */; };
+		2B3F451E243FD82200F85414 /* MaplyVectorStyle.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537E51D249A1200B60FAD /* MaplyVectorStyle.mm */; };
+		2B3F451F243FD82200F85414 /* MaplyVectorStyleSimple.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537E61D249A1200B60FAD /* MaplyVectorStyleSimple.m */; };
+		2B3F4520243FD82200F85414 /* MaplyVectorTileLineStyle.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537E71D249A1200B60FAD /* MaplyVectorTileLineStyle.mm */; };
+		2B3F4521243FD82200F85414 /* MaplyVectorTileMarkerStyle.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537E81D249A1200B60FAD /* MaplyVectorTileMarkerStyle.mm */; };
+		2B3F4522243FD82200F85414 /* MaplyVectorTilePolygonStyle.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537E91D249A1200B60FAD /* MaplyVectorTilePolygonStyle.mm */; };
+		2B3F4523243FD82200F85414 /* MaplyVectorTileStyle.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537EB1D249A1200B60FAD /* MaplyVectorTileStyle.mm */; };
+		2B3F4524243FD82200F85414 /* MaplyVectorTileTextStyle.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537EC1D249A1200B60FAD /* MaplyVectorTileTextStyle.mm */; };
+		2B3F4525243FD82200F85414 /* MapnikStyle.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537ED1D249A1200B60FAD /* MapnikStyle.m */; };
+		2B3F4526243FD82200F85414 /* MapnikStyleRule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537EE1D249A1200B60FAD /* MapnikStyleRule.m */; };
+		2B3F4527243FD82200F85414 /* MapnikStyleSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537EF1D249A1200B60FAD /* MapnikStyleSet.m */; };
+		2B3F4528243FD82200F85414 /* SLDStyleSet.m in Sources */ = {isa = PBXBuildFile; fileRef = E56DB3D71D6B1B5A007000D2 /* SLDStyleSet.m */; };
+		2B3F4529243FD82200F85414 /* SLDExpressions.m in Sources */ = {isa = PBXBuildFile; fileRef = E5EF69FA1D6B938800A2A660 /* SLDExpressions.m */; };
+		2B3F452A243FD82200F85414 /* SLDOperators.m in Sources */ = {isa = PBXBuildFile; fileRef = E5EF69FB1D6B938800A2A660 /* SLDOperators.m */; };
+		2B3F452B243FD82200F85414 /* SLDSymbolizers.m in Sources */ = {isa = PBXBuildFile; fileRef = E5EF69FC1D6B938800A2A660 /* SLDSymbolizers.m */; };
+		2B3F452C243FD82200F85414 /* SLDWellKnownMarkers.m in Sources */ = {isa = PBXBuildFile; fileRef = E5EB67AA1D6DD19700FB3679 /* SLDWellKnownMarkers.m */; };
 		2B446AB021EFE5DA0078A975 /* MaplyWMSTileSource.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446AAF21EFE5DA0078A975 /* MaplyWMSTileSource.h */; };
 		2B446ABB21F25C330078A975 /* WhirlyKitLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446AB921F25C330078A975 /* WhirlyKitLog.h */; };
 		2B446ABC21F25C330078A975 /* WhirlyTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446ABA21F25C330078A975 /* WhirlyTypes.h */; };
@@ -4552,6 +4568,7 @@
 				2BE1E73E2208BD9000815D9C /* MaplyRotateDelegate.mm in Sources */,
 				2B446B1F21F79AE40078A975 /* Proj4CoordSystem.cpp in Sources */,
 				2B82B61E1E82E2490095FB14 /* libjson.cpp in Sources */,
+				2B3F4528243FD82200F85414 /* SLDStyleSet.m in Sources */,
 				2B699878228DD36A00C31E3F /* ParticleSystemDrawableMTL.mm in Sources */,
 				2B8A78CB228B66B7008B0A1F /* ParticleSystemDrawableBuilderGLES.cpp in Sources */,
 				2BE539B31D249BEF00B60FAD /* AAPhysicalMars.cpp in Sources */,
@@ -4587,6 +4604,7 @@
 				2BE539F51D249C2900B60FAD /* arena.cc in Sources */,
 				2B82B68E1E82E24A0095FB14 /* pj_mlfn.c in Sources */,
 				2BE53A341D249C3D00B60FAD /* coded_stream.cc in Sources */,
+				2B3F4522243FD82200F85414 /* MaplyVectorTilePolygonStyle.mm in Sources */,
 				2B846EE821F1380400EF2A82 /* adjlon.c in Sources */,
 				2B82B62D1E82E2490095FB14 /* PJ_qsc.c in Sources */,
 				2B82B6971E82E24A0095FB14 /* PJ_nsper.c in Sources */,
@@ -4596,6 +4614,7 @@
 				2B8A789422862F4B008B0A1F /* BasicDrawableInstanceGLES.cpp in Sources */,
 				2BC3D6EE220B714100CE91D0 /* sqlhelpers.mm in Sources */,
 				2B82B6771E82E24A0095FB14 /* pj_initcache.c in Sources */,
+				2B3F452B243FD82200F85414 /* SLDSymbolizers.m in Sources */,
 				2B8A789B22864721008B0A1F /* IntersectionManager.cpp in Sources */,
 				2B82B67B1E82E24A0095FB14 /* PJ_labrd.c in Sources */,
 				2BE53A6B1D249C4600B60FAD /* atomicops_internals_x86_gcc.cc in Sources */,
@@ -4628,6 +4647,7 @@
 				2B82B64D1E82E2490095FB14 /* PJ_cass.c in Sources */,
 				2B82B6B41E82E24A0095FB14 /* PJ_tmerc.c in Sources */,
 				2B8796D321FFC59D00EF801D /* NSString+Stuff.mm in Sources */,
+				2B3F451E243FD82200F85414 /* MaplyVectorStyle.mm in Sources */,
 				2B8A788B228607B3008B0A1F /* Program.cpp in Sources */,
 				2B8797222203BF7900EF801D /* MaplyBillboard.mm in Sources */,
 				2BC90D60223308DB00D8B606 /* ScreenObject_iOS.mm in Sources */,
@@ -4687,6 +4707,7 @@
 				2B82B67F1E82E24A0095FB14 /* PJ_lask.c in Sources */,
 				2B82B5F21E82E2490095FB14 /* sweep.c in Sources */,
 				2B82B6A81E82E24A0095FB14 /* pj_qsfn.c in Sources */,
+				2B3F451D243FD82200F85414 /* GeoJSONSource.mm in Sources */,
 				2BE539971D249BEF00B60FAD /* AAElliptical.cpp in Sources */,
 				2BE539B21D249BEF00B60FAD /* AAPhysicalJupiter.cpp in Sources */,
 				2BE1E75B2208F33900815D9C /* SingleLabel_iOS.mm in Sources */,
@@ -4696,6 +4717,7 @@
 				2B82B6C11E82E24A0095FB14 /* PJ_wag7.c in Sources */,
 				2BE1E7512208ECA700815D9C /* MaplyCluster.mm in Sources */,
 				2BE539B81D249BEF00B60FAD /* AAPluto.cpp in Sources */,
+				2B3F4527243FD82200F85414 /* MapnikStyleSet.m in Sources */,
 				2B699876228DD36A00C31E3F /* VertexAttributeMTL.mm in Sources */,
 				2BE1E7392208A97100815D9C /* MaplyPinchDelegate.mm in Sources */,
 				2B8A785B22849294008B0A1F /* BaseInfo.cpp in Sources */,
@@ -4723,6 +4745,7 @@
 				2B699870228DD36A00C31E3F /* DynamicTextureAtlasMTL.mm in Sources */,
 				2B87971A2203B77900EF801D /* MaplyTextureBuilder.mm in Sources */,
 				2B8796B721FFB2DE00EF801D /* Platform.mm in Sources */,
+				2B3F4521243FD82200F85414 /* MaplyVectorTileMarkerStyle.mm in Sources */,
 				2B8A789D2286474A008B0A1F /* LabelManager.cpp in Sources */,
 				2BE539AA1D249BEF00B60FAD /* AAMoslemCalendar.cpp in Sources */,
 				2B82B6AE1E82E24A0095FB14 /* PJ_stere.c in Sources */,
@@ -4741,6 +4764,7 @@
 				2B82B63F1E82E2490095FB14 /* nad_intr.c in Sources */,
 				2B82B6A41E82E24A0095FB14 /* PJ_putp3.c in Sources */,
 				2BC90D6A22405DE700D8B606 /* Moon.cpp in Sources */,
+				2B3F452A243FD82200F85414 /* SLDOperators.m in Sources */,
 				2BE539A31D249BEF00B60FAD /* AAMercury.cpp in Sources */,
 				2BB8E20621FFAAA000154CDC /* PerformanceTimer.cpp in Sources */,
 				2BE53A991D249C9000B60FAD /* DDXMLNode.m in Sources */,
@@ -4775,6 +4799,7 @@
 				2B82B6A91E82E24A0095FB14 /* pj_release.c in Sources */,
 				2BE1E7402208BE1400815D9C /* MaplyTapMessage.mm in Sources */,
 				2BE53A081D249C2900B60FAD /* generated_message_util.cc in Sources */,
+				2B3F4523243FD82200F85414 /* MaplyVectorTileStyle.mm in Sources */,
 				2BC3D6C22202538700CE91D0 /* GlobeView_iOS.mm in Sources */,
 				2B82B6911E82E24A0095FB14 /* pj_msfn.c in Sources */,
 				2BE539B71D249BEF00B60FAD /* AAPlanetPerihelionAphelion.cpp in Sources */,
@@ -4837,8 +4862,10 @@
 				2B82B6641E82E24A0095FB14 /* PJ_fouc_s.c in Sources */,
 				2B446B1521F79AD00078A975 /* WhirlyVector.cpp in Sources */,
 				2BE53A061D249C2900B60FAD /* generated_message_reflection.cc in Sources */,
+				2B3F452C243FD82200F85414 /* SLDWellKnownMarkers.m in Sources */,
 				2B8797162203B77900EF801D /* MaplyColorRampGenerator.m in Sources */,
 				2BE5398D1D249BEF00B60FAD /* AABinaryStar.cpp in Sources */,
+				2B3F4526243FD82200F85414 /* MapnikStyleRule.m in Sources */,
 				2B82B5FC1E82E2490095FB14 /* internalJSONNode.cpp in Sources */,
 				2B8A78D0228B832E008B0A1F /* ScreenSpaceDrawableBuilderGLES.cpp in Sources */,
 				2B8A78DC228B9725008B0A1F /* LayerThread.mm in Sources */,
@@ -4871,6 +4898,7 @@
 				2BE1E7492208D04C00815D9C /* GlobeTwoFingerTapDelegate.mm in Sources */,
 				2B699871228DD36A00C31E3F /* ScreenSpaceDrawableBuilderMTL.mm in Sources */,
 				2B82B6221E82E2490095FB14 /* dbfopen.c in Sources */,
+				2B3F4524243FD82200F85414 /* MaplyVectorTileTextStyle.mm in Sources */,
 				2BE53A3A1D249C3D00B60FAD /* printer.cc in Sources */,
 				2B82B6B61E82E24A0095FB14 /* pj_transform.c in Sources */,
 				2BC3D6CC2203E9E000CE91D0 /* MaplyParticleSystem.mm in Sources */,
@@ -4905,6 +4933,7 @@
 				2B82B6891E82E24A0095FB14 /* PJ_mbt_fps.c in Sources */,
 				2BC3D6CD2203E9FE00CE91D0 /* MaplyScreenLabel.m in Sources */,
 				2B846EEA21F1381400EF2A82 /* pj_strtod.c in Sources */,
+				2B3F4529243FD82200F85414 /* SLDExpressions.m in Sources */,
 				2BC3D6C722025CAC00CE91D0 /* MaplyAnimateTranslation.cpp in Sources */,
 				2B8A78E3228C853A008B0A1F /* MaplyTextureAtlas.mm in Sources */,
 				2B462EF823A954870050438C /* NSDictionary+StyleRules.m in Sources */,
@@ -4936,6 +4965,7 @@
 				2B8A78CC228B6AAA008B0A1F /* ParticleSystemManager.cpp in Sources */,
 				2BE53A751D249C4700B60FAD /* stringprintf.cc in Sources */,
 				2B699873228DD36A00C31E3F /* ParticleSystemDrawableBuilderMTL.mm in Sources */,
+				2B3F4525243FD82200F85414 /* MapnikStyle.m in Sources */,
 				2BE539AD1D249BEF00B60FAD /* AANodes.cpp in Sources */,
 				2B82B6A11E82E24A0095FB14 /* PJ_poly.c in Sources */,
 				2B8A78B6228A185A008B0A1F /* VertexAttributeGLES.cpp in Sources */,
@@ -4945,6 +4975,7 @@
 				2B82B66D1E82E24A0095FB14 /* PJ_goode.c in Sources */,
 				2B446B8F21FB99D60078A975 /* ScreenImportance.cpp in Sources */,
 				2B82B6201E82E2490095FB14 /* safileio.c in Sources */,
+				2B3F4520243FD82200F85414 /* MaplyVectorTileLineStyle.mm in Sources */,
 				2B82B6701E82E24A0095FB14 /* PJ_gstmerc.c in Sources */,
 				2BE539BF1D249BEF00B60FAD /* AASidereal.cpp in Sources */,
 				2B8796FF22038DF200EF801D /* UpdateDisplayLayer.mm in Sources */,
@@ -4969,6 +5000,7 @@
 				2BE1E74E2208E8D500815D9C /* MaplyTileSourceNew.mm in Sources */,
 				2BE1E761220A1A2700815D9C /* MaplyShape.mm in Sources */,
 				2B8A78A222864B41008B0A1F /* SelectionManager.cpp in Sources */,
+				2B3F451F243FD82200F85414 /* MaplyVectorStyleSimple.m in Sources */,
 				2B446B1D21F79AE40078A975 /* SphericalMercator.cpp in Sources */,
 				2B3D7E3922874B2D0065FA18 /* QuadTileBuilder.cpp in Sources */,
 				2BE53A401D249C3D00B60FAD /* zero_copy_stream_impl.cc in Sources */,

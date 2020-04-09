@@ -35,7 +35,7 @@ using namespace WhirlyKit;
 {
     self = [super init];
 
-    impl = MaplyVectorStyleSettingsImplRef(new MaplyVectorStyleSettingsImpl(scale));
+    impl = VectorStyleSettingsImplRef(new VectorStyleSettingsImpl(scale));
     impl->baseDrawPriority = kMaplyVectorDrawPriorityDefault;
 
     return self;
@@ -168,7 +168,7 @@ using namespace WhirlyKit;
 
 - (void)setUseWideVectors:(bool)useWideVectors
 {
-    impl->useWideVector = useWideVectors;
+    impl->useWideVectors = useWideVectors;
 }
 
 - (bool)useWideVectors
@@ -218,7 +218,7 @@ using namespace WhirlyKit;
 
 - (bool)selectable
 {
-    return selectable;
+    return impl->selectable;
 }
 
 - (void)setIconDirectory:(NSString *)iconDirectory
@@ -239,7 +239,7 @@ using namespace WhirlyKit;
 - (void)setFontName:(NSString *)fontName
 {
     if (fontName)
-        impl->fontName = [arealShaderName cStringUsingEncoding:NSASCIIStringEncoding];
+        impl->fontName = [fontName cStringUsingEncoding:NSASCIIStringEncoding];
     else
         impl->fontName.clear();
 }

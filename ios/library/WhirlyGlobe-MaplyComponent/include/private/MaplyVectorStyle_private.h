@@ -23,7 +23,7 @@
 
 @interface MaplyVectorStyleSettings()
 {
-    WhirlyKit::MaplyVectorStyleImplRef impl;
+    WhirlyKit::VectorStyleSettingsImplRef impl;
 }
 
 @end
@@ -35,23 +35,23 @@ namespace WhirlyKit
  Wrapper class for older implementations of MaplyVectorStyleDelegate or ones users have made.
  This way we can leave those in place while still doing our low level C++ implementation.
  */
-class VectorStyleDelegateWrapper : MaplyVectorStyleDelegateImpl
+class VectorStyleDelegateWrapper : VectorStyleDelegateImpl
 {
 public:
     VectorStyleDelegateWrapper(NSObject<MaplyVectorStyleDelegate> *delegate);
     
-    virtual std::vector<MaplyVectorStyleImplRef> stylesForFeature(MaplyVectorStyleDelegateImplRef styleDelegate,
+    virtual std::vector<VectorStyleImplRef> stylesForFeature(VectorStyleImplRef styleDelegate,
                                                                   const Dictionary &attrs,
                                                                   const QuadTreeNew::Node &tileID,
                                                                   const std::string &layerName);
     
-    virtual bool layerShouldDisplay(MaplyVectorStyleDelegateImplRef styleDelegate,
+    virtual bool layerShouldDisplay(VectorStyleImplRef styleDelegate,
                                     const std::string &name,
                                     const QuadTreeNew::Node &tileID);
 
-    virtual MaplyVectorStyleImplRef styleForUUID(MaplyVectorStyleDelegateImplRef styleDelegate,long long uuid);
+    virtual VectorStyleImplRef styleForUUID(VectorStyleImplRef styleDelegate,long long uuid);
 
-    virtual std::vector<MaplyVectorStyleImplRef> allStyles();
+    virtual std::vector<VectorStyleImplRef> allStyles();
 };
 
 typedef std::shared_ptr<VectorStyleDelegateWrapper> VectorStyleDelegateWrapperRef;
