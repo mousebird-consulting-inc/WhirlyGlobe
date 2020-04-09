@@ -20,6 +20,7 @@
 
 #import "private/MapboxVectorStyleFill_private.h"
 #import "MapboxVectorStyleSet_private.h"
+#import "private/MapboxVectorTiles_private.h"
 
 @implementation MapboxVectorFillLayout
 
@@ -85,6 +86,11 @@
     }
 
     return self;
+}
+
+- (void)buildObjects:(std::vector<WhirlyKit::VectorObjectRef> &)vecObjs forTile:(WhirlyKit::VectorTileDataRef)tileInfo vectorStyle:(WhirlyKit::MapboxVectorStyleSetImplRef)impl
+{
+    
 }
 
 - (void)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileData *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC

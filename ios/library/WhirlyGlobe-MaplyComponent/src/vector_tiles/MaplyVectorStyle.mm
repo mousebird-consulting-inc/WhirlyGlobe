@@ -19,7 +19,7 @@
  */
 
 #import "vector_tiles/MapboxVectorTiles.h"
-#import "vector_styles/MaplyVectorStyle.h"
+#import "private/MaplyVectorStyle_private.h"
 #import "WhirlyGlobe.h"
 
 using namespace WhirlyKit;
@@ -28,50 +28,227 @@ using namespace WhirlyKit;
 
 - (instancetype)init
 {
-    self = [super init];
-    _lineScale = 1.0;
-    _textScale = 1.0;
-    _markerScale = 1.0;
-    _markerImportance = 2.0;
-    _labelImportance = 1.5;
-    _markerSize = 10.0;
-    _mapScaleScale = 1.0;
-    _dashPatternScale = 1.0;
-    _useWideVectors = false;
-    _wideVecCuttoff = 0.0;
-    _oldVecWidthScale = 1.0;
-    _selectable = false;
-    _baseDrawPriority = kMaplyVectorDrawPriorityDefault;
-    _drawPriorityPerLevel = 0;
-  
-    return self;
+    return [self initWithScale:[UIScreen mainScreen].scale];
 }
 
 - (instancetype)initWithScale:(CGFloat)scale
 {
     self = [super init];
-    _lineScale = scale;
-    _textScale = scale;
-    _markerScale = scale;
-    _markerImportance = 2.0;
-    _labelImportance = 1.5;
-    _markerSize = 10.0;
-    _mapScaleScale = 1.0;
-    _dashPatternScale = 1.0;
-    _useWideVectors = false;
-    _wideVecCuttoff = 0.0;
-    _oldVecWidthScale = 1.0;
-    _selectable = false;
-    _baseDrawPriority = kMaplyVectorDrawPriorityDefault;
-    _drawPriorityPerLevel = 0;
+
+    impl = MaplyVectorStyleSettingsImplRef(new MaplyVectorStyleSettingsImpl(scale));
+    impl->baseDrawPriority = kMaplyVectorDrawPriorityDefault;
 
     return self;
 }
 
-- (NSString*)description
+- (void)setLineScale:(float)lineScale
 {
-  return [NSString stringWithFormat:@"%@: lineScale:%f textScale:%f markerScale:%f mapScaleScale:%f",
-          [[self class] description], _lineScale, _textScale, _markerScale, _mapScaleScale];
+    impl->lineScale = lineScale;
+}
+
+- (float)lineScale
+{
+    return impl->lineScale;
+}
+
+- (void)setTextScale:(float)textScale
+{
+    impl->textScale = textScale;
+}
+
+- (float)textScale
+{
+    return impl->textScale;
+}
+
+- (void)setMarkerScale:(float)markerScale
+{
+    impl->markerScale = markerScale;
+}
+
+- (float)markerScale
+{
+    return impl->markerScale;
+}
+
+- (void)setMarkerImportance:(float)markerImportance
+{
+    impl->markerImportance = markerImportance;
+}
+
+- (float)markerImportance
+{
+    return impl->markerImportance;
+}
+
+- (void)setMarkerSize:(float)markerSize
+{
+    impl->markerSize = markerSize;
+}
+
+- (float)markerSize
+{
+    return impl->markerSize;
+}
+
+- (void)setLabelImportance:(float)labelImportance
+{
+    impl->labelImportance = labelImportance;
+}
+
+- (float)labelImportance
+{
+    return impl->labelImportance;
+}
+
+- (void)setUseZoomLevels:(bool)useZoomLevels
+{
+    impl->useZoomLevels = useZoomLevels;
+}
+
+- (bool)useZoomLevels
+{
+    return impl->useZoomLevels;
+}
+
+- (void)setUuidField:(NSString *)uuidField
+{
+    if (uuidField)
+        impl->uuidField = [uuidField cStringUsingEncoding:NSASCIIStringEncoding];
+    else
+        impl->uuidField.clear();
+}
+
+- (NSString *)uuidField
+{
+    if (impl->uuidField.empty())
+        return nil;
+    return [NSString stringWithCString:impl->uuidField.c_str() encoding:NSASCIIStringEncoding];
+}
+
+- (void)setBaseDrawPriority:(int)baseDrawPriority
+{
+    impl->baseDrawPriority = baseDrawPriority;
+}
+
+- (int)baseDrawPriority
+{
+    return impl->baseDrawPriority;
+}
+
+- (void)setDrawPriorityPerLevel:(int)drawPriorityPerLevel
+{
+    impl->drawPriorityPerLevel = drawPriorityPerLevel;
+}
+
+- (int)drawPriorityPerLevel
+{
+    return impl->drawPriorityPerLevel;
+}
+
+- (void)setMapScaleScale:(float)mapScaleScale
+{
+    impl->mapScaleScale = mapScaleScale;
+}
+
+- (float)mapScaleScale
+{
+    return impl->mapScaleScale;
+}
+
+- (void)setDashPatternScale:(float)dashPatternScale
+{
+    impl->dashPatternScale = dashPatternScale;
+}
+
+- (float)dashPatternScale
+{
+    return impl->dashPatternScale;
+}
+
+- (void)setUseWideVectors:(bool)useWideVectors
+{
+    impl->useWideVector = useWideVectors;
+}
+
+- (bool)useWideVectors
+{
+    return impl->useWideVectors;
+}
+
+- (void)setOldVecWidthScale:(float)oldVecWidthScale
+{
+    impl->oldVecWidthScale = oldVecWidthScale;
+}
+
+- (float)oldVecWidthScale
+{
+    return impl->oldVecWidthScale;
+}
+
+- (void)setWideVecCuttoff:(float)wideVecCuttoff
+{
+    impl->wideVecCuttoff = wideVecCuttoff;
+}
+
+- (float)wideVecCuttoff
+{
+    return impl->wideVecCuttoff;
+}
+
+- (void)setArealShaderName:(NSString *)arealShaderName
+{
+    if (arealShaderName)
+        impl->arealShaderName = [arealShaderName cStringUsingEncoding:NSASCIIStringEncoding];
+    else
+        impl->arealShaderName.clear();
+}
+
+- (NSString *)arealShaderName
+{
+    if (impl->arealShaderName.empty())
+        return nil;
+    return [NSString stringWithCString:impl->arealShaderName.c_str() encoding:NSASCIIStringEncoding];
+}
+
+- (void)setSelectable:(bool)selectable
+{
+    impl->selectable = selectable;
+}
+
+- (bool)selectable
+{
+    return selectable;
+}
+
+- (void)setIconDirectory:(NSString *)iconDirectory
+{
+    if (iconDirectory)
+        impl->iconDirectory = [iconDirectory cStringUsingEncoding:NSASCIIStringEncoding];
+    else
+        impl->iconDirectory.clear();
+}
+
+- (NSString *)iconDirectory
+{
+    if (impl->iconDirectory.empty())
+        return nil;
+    return [NSString stringWithCString:impl->iconDirectory.c_str() encoding:NSASCIIStringEncoding];
+}
+
+- (void)setFontName:(NSString *)fontName
+{
+    if (fontName)
+        impl->fontName = [arealShaderName cStringUsingEncoding:NSASCIIStringEncoding];
+    else
+        impl->fontName.clear();
+}
+
+- (NSString *)fontName
+{
+    if (impl->fontName.empty())
+        return nil;
+    return [NSString stringWithCString:impl->fontName.c_str() encoding:NSASCIIStringEncoding];
 }
 
 @end
@@ -153,6 +330,3 @@ NSArray * _Nonnull AddMaplyVectorsUsingStyle(NSArray * _Nonnull vecObjs,NSObject
 
     return compObjs;
 }
-
-@implementation MaplyVectorTileInfo
-@end

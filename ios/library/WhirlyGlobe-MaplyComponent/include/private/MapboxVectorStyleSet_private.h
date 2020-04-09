@@ -19,8 +19,12 @@
 */
 
 #import "MapboxVectorStyleSet.h"
+#import "MapboxVectorStyleSetC.h"
 
 @interface MapboxVectorStyleSet()
+{
+    WhirlyKit::MapboxVectorStyleSetImplRef impl;
+}
 
 /// @brief Default settings and scale factor for Mapnik vector geometry.
 @property (nonatomic, strong, nonnull) MaplyVectorStyleSettings *tileStyleSettings;
@@ -94,6 +98,33 @@
 
 @end
 
+namespace WhirlyKit
+{
+
+/**
+  Base class for Mapbox Vector Styles.
+ */
+class MapboxVectorStyleLayerImpl : public VectorStyleImpl
+{
+public:
+    
+    /// Unique Identifier for this style
+    virtual long long getUuid();
+
+    /// Category used for sorting
+    virtual const std::string &getCategory();
+
+    /// Set if this geometry is additive (e.g. sticks around) rather than replacement
+    virtual bool geomAdditive();
+
+    /// Construct objects related to this style based on the input data.
+    virtual void buildObject(std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo,MapboxVectorStyleSetImplRef impl);
+    
+protected:
+    MapboxVectorStyleSetImplRef style;
+};
+
+}
 
 /** @brief Layer definition from the Style Sheet.
     @details This is a single layer from the Mapbox style sheet.  It's also used to build visible objects.

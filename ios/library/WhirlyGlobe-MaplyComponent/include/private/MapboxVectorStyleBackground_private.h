@@ -20,10 +20,13 @@
 
 #import "MapboxVectorStyleSet_private.h"
 
+namespace WhirlyKit
+{
 /**
   This class corresponds to the paint portion of the Mapbox Vector Style definition
     of the background.  You get one of these from parsing a Style, don't generate one.
  */
+class MapboxVectorBackgroundPaint : public MapboxVectorStyleLayerImpl
 @interface MapboxVectorBackgroundPaint : NSObject
 
 @property (nonatomic) MapboxTransColor *color;
@@ -49,3 +52,5 @@
 - (id)initWithStyleEntry:(NSDictionary *)styleEntry parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 
 @end
+
+}
