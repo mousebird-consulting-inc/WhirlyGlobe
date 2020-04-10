@@ -108,6 +108,7 @@ public:
 	
 	unsigned char r,g,b,a;
 };
+typedef std::shared_ptr<RGBAColor> RGBAColorRef;
     
 class MbrD;
 	

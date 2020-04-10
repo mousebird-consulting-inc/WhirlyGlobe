@@ -277,8 +277,8 @@ DictionaryRef iosMutableDictionary::getDict(const std::string &name) const
     NSString *theName = StdStringToString(name);
 
     id thing = dict[theName];
-    if ([thing isKindOfClass:[NSDictionary class]])
-        return iosMutableDictionaryRef(new iosMutableDictionary((NSDictionary *)thing));
+    if ([thing isKindOfClass:[NSMutableDictionary class]])
+        return iosMutableDictionaryRef(new iosMutableDictionary((NSMutableDictionary *)thing));
     
     return nil;
 }

@@ -32,6 +32,9 @@ typedef enum {DictTypeNone,DictTypeString,DictTypeInt,DictTypeIdentity,DictTypeD
 class Dictionary;
 typedef std::shared_ptr<Dictionary> DictionaryRef;
 
+class DictionaryEntry;
+typedef std::shared_ptr<DictionaryEntry> DictionaryEntryRef;
+
 /// The Dictionary is my cross platform replacement for NSDictionary
 class Dictionary
 {
@@ -61,10 +64,41 @@ public:
     virtual std::string getString(const std::string &name,const std::string &defVal) const = 0;
     /// Return a dictionary as an entry
     virtual DictionaryRef getDict(const std::string &name) const = 0;
+    // Return a generic entry
+    virtual DictionaryEntryRef getEntry(const std::string &name) const;
 };
-    
+
 class MutableDictionary;
 typedef std::shared_ptr<MutableDictionary> MutableDictionaryRef;
+
+// A reference to an entry in the dictionary (kind of a hack)
+class DictionaryEntry
+{
+public:
+    DictionaryEntry(const Dictionary *dict,const std::string &name);
+    
+    /// Returns the field type
+    DictionaryType getType() const;
+    /// Return an int, using the default if it's missing
+    int getInt() const;
+    /// Return a 64 bit unique identity or 0 if missing
+    SimpleIdentity getIdentity() const;
+    /// Interpret an int as a boolean
+    bool getBool() const;
+    /// Interpret an int as a RGBA color
+    RGBAColor getColor() const;
+    /// Return a double, using the default if it's missing
+    double getDouble() const;
+    /// Return a string, or empty if it's missing
+    std::string getString() const;
+    /// Return a dictionary as an entry
+    DictionaryRef getDict() const;
+
+protected:
+    DictionaryRef dict;
+    DictionaryType type;
+    std::string name;
+};
 
 /// This version of the dictionary can be modified
 class MutableDictionary : public Dictionary

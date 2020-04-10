@@ -60,7 +60,7 @@ bool MapboxVectorLayerBackground::parse(MapboxVectorStyleSetImplRef styleSet,
     return true;
 }
 
-void MapboxVectorLayerBackground::buildObject(std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo,VectorStyleDelegateImplRef impl)
+void MapboxVectorLayerBackground::buildObjects(std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo)
 {
     // Nothing to build
 }

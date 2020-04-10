@@ -48,7 +48,7 @@ public:
                        MapboxVectorStyleLayerRef refLayer,
                        int drawPriority);
     
-    virtual void buildObject(std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo,VectorStyleDelegateImplRef impl);
+    virtual void buildObjects(std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo);
 
 protected:
     /// Controls how the background looks.

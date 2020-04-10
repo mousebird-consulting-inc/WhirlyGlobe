@@ -57,6 +57,7 @@
 		2B3F452B243FD82200F85414 /* SLDSymbolizers.m in Sources */ = {isa = PBXBuildFile; fileRef = E5EF69FC1D6B938800A2A660 /* SLDSymbolizers.m */; };
 		2B3F452C243FD82200F85414 /* SLDWellKnownMarkers.m in Sources */ = {isa = PBXBuildFile; fileRef = E5EB67AA1D6DD19700FB3679 /* SLDWellKnownMarkers.m */; };
 		2B3F452E2440E12100F85414 /* MapboxVectorStyleBackground.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB4767E2000488C006AAACB /* MapboxVectorStyleBackground.mm */; };
+		2B3F452F244124CC00F85414 /* MapboxVectorStyleCircle.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B30B62395E40500854073 /* MapboxVectorStyleCircle.mm */; };
 		2B446AB021EFE5DA0078A975 /* MaplyWMSTileSource.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446AAF21EFE5DA0078A975 /* MaplyWMSTileSource.h */; };
 		2B446ABB21F25C330078A975 /* WhirlyKitLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446AB921F25C330078A975 /* WhirlyKitLog.h */; };
 		2B446ABC21F25C330078A975 /* WhirlyTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446ABA21F25C330078A975 /* WhirlyTypes.h */; };
@@ -4922,6 +4923,7 @@
 				2BBC338E2217853E0038A229 /* MaplyQuadImageFrameLoader.mm in Sources */,
 				2B846EE521F1379C00EF2A82 /* nad_init.c in Sources */,
 				2B82B6851E82E24A0095FB14 /* pj_log.c in Sources */,
+				2B3F452F244124CC00F85414 /* MapboxVectorStyleCircle.mm in Sources */,
 				2BE5398F1D249BEF00B60FAD /* AADate.cpp in Sources */,
 				2B82B69B1E82E24A0095FB14 /* PJ_oea.c in Sources */,
 				2B82B6261E82E2490095FB14 /* pj_fwd3d.c in Sources */,

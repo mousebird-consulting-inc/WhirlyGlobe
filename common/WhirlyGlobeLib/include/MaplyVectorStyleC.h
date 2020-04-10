@@ -137,7 +137,7 @@ public:
     virtual bool geomAdditive() = 0;
 
     /// Construct objects related to this style based on the input data.
-    virtual void buildObject(std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo,VectorStyleDelegateImplRef impl) = 0;
+    virtual void buildObjects(std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo) = 0;
 };
 
 }

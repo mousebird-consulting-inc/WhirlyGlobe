@@ -79,12 +79,7 @@ class MapboxVectorStyleSetImpl
 {
 public:
     MapboxVectorStyleSetImpl(Scene *scene);
-    
-    VectorManager *vecManage;
-    WideVectorManager *wideVecManage;
-    MarkerManager *markerManage;
-    ComponentManager *compManage;
-    
+        
     /// @brief Default settings and scale factor for Mapnik vector geometry.
     VectorStyleSettingsImpl *tileStyleSettings;
 
@@ -116,7 +111,7 @@ public:
     double doubleValue(const std::string &name,DictionaryRef dict,double defVal);
 
     /// @brief Return a double value for the given name, taking the constants into account
-//    - (double)doubleValue:(id __nonnull)entry defVal:(double)defVal;
+    double doubleValue(DictionaryEntryRef entry,double defVal);
         
     /// @brief Return a bool for the given name.  True if it matches the onString.  Default if it's missing
     bool boolValue(const std::string &name,DictionaryRef dict,const std::string &onString,bool defVal);
@@ -125,7 +120,7 @@ public:
     std::string stringValue(const std::string &name,DictionaryRef dict,const std::string &defVal);
 
     /// @brief Return a color for the given name, taking the constants into account
-//    - (UIColor *_Nullable)colorValue:(NSString * __nullable)name val:(id __nullable )val dict:(NSDictionary *__nullable)dict defVal:(UIColor * __nullable)defVal multiplyAlpha:(bool)multiplyAlpha;
+    RGBAColorRef colorValue(const std::string &name,DictionaryEntryRef val,DictionaryRef dict,const RGBAColor &defVal,bool multiplyAlpha);
 
     /// @brief Return an array for the given name, taking the constants into account
     std::vector<DictionaryRef> arrayValue(const std::string &name,DictionaryRef dict);
@@ -151,9 +146,20 @@ public:
 
     /// @brief Check if the given thing is a constant and return its value if it is.  Otherwise just return it.
 //    - (id __nullable)constantSubstitution:(id __nonnull)thing forField:(NSString * __nullable)field;
+    
+    /// Local platform implementation for generating a circle and adding it as a texture
+    virtual SimpleIdentity makeCircleTexture(double radius,const RGBAColor &fillColor,const RGBAColor &strokeColor,Point2f *circleSize) = 0;
 
-protected:
+public:
     Scene *scene;
+
+    VectorManager *vecManage;
+    WideVectorManager *wideVecManage;
+    MarkerManager *markerManage;
+    ComponentManager *compManage;
+    
+    // ID's for the various programs
+    SimpleIdentity screenMarkerProgramID;
 };
 typedef std::shared_ptr<MapboxVectorStyleSetImpl> MapboxVectorStyleSetImplRef;
 
@@ -226,7 +232,10 @@ public:
     virtual bool geomAdditive();
 
     /// Construct objects related to this style based on the input data.
-    virtual void buildObject(std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo,VectorStyleDelegateImplRef impl) = 0;
+    virtual void buildObjects(std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo) = 0;
+    
+    /// Clean up any objects (textures, probably)
+    virtual void cleanup(ChangeSet &changes);
 
     MapboxVectorStyleSetImplRef styleSet;
 

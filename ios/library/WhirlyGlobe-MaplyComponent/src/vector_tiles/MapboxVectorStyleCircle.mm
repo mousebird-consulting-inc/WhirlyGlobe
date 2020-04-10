@@ -20,113 +20,132 @@
 
 #import "private/MapboxVectorStyleCircle_private.h"
 #import "MapboxVectorStyleSet_private.h"
+#import "WhirlyKitLog.h"
 
-@implementation MapboxVectorCirclePaint
-
-- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+namespace WhirlyKit
 {
-    self = [super init];
-    if (!self)
-        return nil;
+
+bool MapboxVectorCirlePaint::parse(MapboxVectorStyleSetImplRef styleSet,DictionaryRef styleEntry)
+{
+    radius = styleSet->doubleValue("circle-radius",styleEntry,5.0);
+    fillColor = styleSet->colorValue("circle-color",NULL,styleEntry,RGBAColor::white(),false);
+    opacity = styleSet->doubleValue("circle-opacity",styleEntry,1.0);
+    strokeWidth = styleSet->doubleValue("circle-stroke-width",styleEntry,0.0);
+    strokeColor = styleSet->colorValue("circle-stroke-color",NULL,styleEntry,RGBAColor::black(),false);
+    strokeOpacity = styleSet->doubleValue("circle-stroke-opacity",styleEntry,1.0);
     
-    _radius = [styleSet doubleValue:@"circle-radius" dict:styleEntry defVal:5.0];
-    _fillColor = [styleSet colorValue:@"circle-color" val:nil dict:styleEntry defVal:[UIColor blackColor] multiplyAlpha:false];
-    _opacity = [styleSet doubleValue:@"circle-opacity" dict:styleEntry defVal:1.0];
-
-    _strokeWidth = [styleSet doubleValue:@"circle-stroke-width" dict:styleEntry defVal:0.0];
-    _strokeColor = [styleSet colorValue:@"circle-stroke-color" val:nil dict:styleEntry defVal:[UIColor blackColor] multiplyAlpha:false];
-    _strokeOpacity = [styleSet doubleValue:@"circle-stroke-opacity" dict:styleEntry defVal:1.0];
-
-    return self;
+    return true;
 }
 
-@end
-
-@implementation MapboxVectorLayerCircle
+bool MapboxVectorLayerCircle::parse(MapboxVectorStyleSetImplRef styleSet,
+                                    DictionaryRef styleEntry,
+                                    MapboxVectorStyleLayerRef refLayer,
+                                    int drawPriority)
 {
-    // TODO: When does this get cleaned up?
-    MaplyTexture *circleTex;
-    CGSize circleSize;
-    float importance;
-    NSString *uuidField;
-}
-
-- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
-{
-    self = [super initWithStyleEntry:styleEntry parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:viewC];
-    if (!self)
-        return nil;
-
-    // We want the texture a bit bigger than specified
-    float scale = styleSet.tileStyleSettings.markerScale * 2;
-
-    _paint = [[MapboxVectorCirclePaint alloc] initWithStyleEntry:styleEntry[@"paint"] styleSet:styleSet viewC:viewC];
-
-    // Build an image for the circle
-    float buffer = 1.0 * scale;
-    float radius = _paint.radius*scale;
-    float strokeWidth = _paint.strokeWidth*scale;
-    float size = ceil(buffer + radius + strokeWidth)*2;
-    circleSize = CGSizeMake(size / 2, size / 2);
-    UIGraphicsBeginImageContext(CGSizeMake(size, size));
-    // TODO: Use the opacity
-    [[UIColor clearColor] setFill];
-    CGContextRef ctx = UIGraphicsGetCurrentContext();
-    CGContextFillRect(ctx, CGRectMake(0.0, 0.0, size, size));
-    
-    // Outer stroke
-    if (strokeWidth > 0.0) {
-        CGContextBeginPath(ctx);
-        CGContextAddEllipseInRect(ctx, CGRectMake(size/2.0-radius-strokeWidth, size/2.0-radius-strokeWidth, 2*(radius+strokeWidth), 2*(radius+strokeWidth)));
-        [_paint.strokeColor setFill];
-        CGContextDrawPath(ctx, kCGPathFill);
+    if (!MapboxVectorStyleLayer::parse(styleSet,styleEntry,refLayer,drawPriority)) {
+        return false;
     }
+    
+//    // We want the texture a bit bigger than specified
+//    float scale = styleSet.tileStyleSettings.markerScale * 2;
+//
+//    // Build an image for the circle
+//    float buffer = 1.0 * scale;
+//    float radius = _paint.radius*scale;
+//    float strokeWidth = _paint.strokeWidth*scale;
+//    float size = ceil(buffer + radius + strokeWidth)*2;
+//    circleSize = CGSizeMake(size / 2, size / 2);
+//    UIGraphicsBeginImageContext(CGSizeMake(size, size));
+//    // TODO: Use the opacity
+//    [[UIColor clearColor] setFill];
+//    CGContextRef ctx = UIGraphicsGetCurrentContext();
+//    CGContextFillRect(ctx, CGRectMake(0.0, 0.0, size, size));
+//
+//    // Outer stroke
+//    if (strokeWidth > 0.0) {
+//        CGContextBeginPath(ctx);
+//        CGContextAddEllipseInRect(ctx, CGRectMake(size/2.0-radius-strokeWidth, size/2.0-radius-strokeWidth, 2*(radius+strokeWidth), 2*(radius+strokeWidth)));
+//        [_paint.strokeColor setFill];
+//        CGContextDrawPath(ctx, kCGPathFill);
+//    }
+//
+//    // Inner circle
+//    CGContextBeginPath(ctx);
+//    CGContextAddEllipseInRect(ctx, CGRectMake(size/2.0-radius, size/2.0-radius, 2*radius, 2*radius));
+//    [_paint.fillColor setFill];
+//    CGContextDrawPath(ctx, kCGPathFill);
+//
+//    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+//    UIGraphicsEndImageContext();
+    
+    RGBAColor theFillColor = (*paint.fillColor) * paint.opacity;
+    RGBAColor theStrokeColor = (*paint.strokeColor) * paint.strokeOpacity;
+    circleTexID = styleSet->makeCircleTexture(paint.radius,theFillColor,theStrokeColor,&circleSize);
 
-    // Inner circle
-    CGContextBeginPath(ctx);
-    CGContextAddEllipseInRect(ctx, CGRectMake(size/2.0-radius, size/2.0-radius, 2*radius, 2*radius));
-    [_paint.fillColor setFill];
-    CGContextDrawPath(ctx, kCGPathFill);
-        
-    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    
-    circleTex = [viewC addTexture:image desc:nil mode:MaplyThreadCurrent];
-    
     // Larger circles are slightly more important
-    importance = drawPriority/1000 + styleSet.tileStyleSettings.markerImportance + radius / 100000.0;
+    importance = drawPriority/1000 + styleSet->tileStyleSettings->markerImportance + paint.radius / 100000.0;
 
-    uuidField = styleSet.tileStyleSettings.uuidField;
-
-    return self;
+    uuidField = styleSet->tileStyleSettings->uuidField;
+    
+    return true;
 }
 
-- (void)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileData *)tileData viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+void MapboxVectorLayerCircle::cleanup(ChangeSet &changes)
 {
-    if (!self.visible) {
-        return;
-    }
-    
-    NSMutableArray *markers = [NSMutableArray array];
-    
-    for (MaplyVectorObject *vecObj in vecObjs) {
-        MaplyScreenMarker *marker = [[MaplyScreenMarker alloc] init];
-        if (uuidField) {
-            marker.uniqueID = [vecObj.attributes objectForKey:uuidField];
-        }
-        marker.image = circleTex;
-        marker.size = circleSize;
-        marker.loc = [vecObj center];
-        marker.layoutImportance = importance + (101-tileData.tileID.level)/100.0;
-        marker.selectable = self.selectable;
-        marker.userObject = vecObj;
-        [markers addObject:marker];
-    }
-    
-    MaplyComponentObject *compObj = [viewC addScreenMarkers:markers desc:nil mode:MaplyThreadCurrent];
-    
-    [tileData addComponentObject:compObj];
+    if (circleTexID != EmptyIdentity)
+        changes.push_back(new RemTextureReq(circleTexID));
 }
 
-@end
+void MapboxVectorLayerCircle::buildObjects(std::vector<VectorObjectRef> &vecObjs,
+                                          VectorTileDataRef tileInfo)
+{
+    if (!visible)
+        return;
+    
+    ComponentObjectRef compObj(new ComponentObject());
+    
+    // Default settings
+    MarkerInfo markerInfo(true);
+    markerInfo.drawPriority = drawPriority;
+    markerInfo.programID = styleSet->screenMarkerProgramID;
+    
+    // Need to find all the points, way down deep
+    std::vector<WhirlyKit::Marker *> markers;
+    for (auto vecObj : vecObjs) {
+        if (vecObj->getVectorType() == VectorPointType) {
+            for (VectorShapeRef shape : vecObj->shapes) {
+                VectorPointsRef pts = std::dynamic_pointer_cast<VectorPoints>(shape);
+                if (pts) {
+                    for (auto pt : pts->pts) {
+                        // Add a marker per point
+                        WhirlyKit::Marker *marker = new WhirlyKit::Marker();
+                        marker->loc = GeoCoord(pt.x(),pt.y());
+                        marker->texIDs.push_back(circleTexID);
+                        marker->width = circleSize.x(); marker->height = circleSize.y();
+                        marker->layoutWidth = circleSize.x(); marker->layoutHeight = circleSize.y();
+                        marker->layoutImportance = importance + (101-tileInfo->ident.level)/100.0;
+                        if (selectable) {
+                            marker->isSelectable = true;
+                            marker->selectID = Identifiable::genId();
+                            // TODO: Figure out selection
+//                            styleSet->compManage->addSelectObject(marker->SelectID,marker);
+                            compObj->selectIDs.insert(marker->selectID);
+                        }
+                        if (!uuidField.empty())
+                            marker->uniqueID = uuidField;
+                        markers.push_back(marker);
+                    }
+                }
+            }
+        }
+    }
+    
+    // Set up the markers and get a change set
+    SimpleIdentity markerID = styleSet->markerManage->addMarkers(markers, markerInfo, tileInfo->changes);
+    if (markerID != EmptyIdentity)
+        compObj->markerIDs.insert(markerID);
+    styleSet->compManage->addComponentObject(compObj);
+    tileInfo->compObjs.push_back(compObj);
+}
 
+}

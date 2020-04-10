@@ -84,6 +84,9 @@ public:
 
     /// If there are any wkcategory tags, we'll sort the component objects into groups
     std::map<std::string,std::vector<ComponentObjectRef> > categories;
+    
+    /// In some cases we're just creating low level ChangeSets
+    ChangeSet changes;
 };
 typedef std::shared_ptr<VectorTileData> VectorTileDataRef;
   
