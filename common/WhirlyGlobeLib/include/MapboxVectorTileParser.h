@@ -85,15 +85,17 @@ public:
     /// If there are any wkcategory tags, we'll sort the component objects into groups
     std::map<std::string,std::vector<ComponentObjectRef> > categories;
 };
-    
 typedef std::shared_ptr<VectorTileData> VectorTileDataRef;
-    
+  
+class VectorStyleDelegateImpl;
+typedef std::shared_ptr<VectorStyleDelegateImpl> VectorStyleDelegateImplRef;
+
 /** This object parses the data in Mapbox Vector Tile format.
   */
 class MapboxVectorTileParser
 {
 public:
-    MapboxVectorTileParser();
+    MapboxVectorTileParser(VectorStyleDelegateImplRef styleDelegate);
     ~MapboxVectorTileParser();
     
     /// If set, we'll parse into local coordinates as specified by the bounding box, rather than geo coords
@@ -116,7 +118,7 @@ public:
     virtual bool layerShouldParse(const std::string &layerName,VectorTileData *tileData);
     
     // Subclass returns the style IDs that get a shot at the given feature
-    virtual SimpleIDSet stylesForFeature(MutableDictionaryRef attributes,const std::string &layerName,VectorTileData *tileData) = 0;
+    virtual SimpleIDSet stylesForFeature(MutableDictionaryRef attributes,const std::string &layerName,VectorTileData *tileData);
 
     // Parse the vector tile and return a list of vectors.
     // Returns false on failure.
@@ -124,10 +126,19 @@ public:
     
     // The subclass calls the appropriate style to build component objects
     //  which are then returned in the VectorTileData
-    virtual void buildForStyle(long long styleID,std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef data) = 0;
-        
+    virtual void buildForStyle(long long styleID,std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef data);
+    
+    // If set, we'll tack a debug label in the middle of the tile
+    bool debugLabel;
+    
+    // If set, we'll put an outline around the tile
+    bool debugOutline;
+
 protected:
+    VectorStyleDelegateImplRef styleDelegate;
     std::map<long long,std::string> styleCategories;
 };
+
+typedef std::shared_ptr<MapboxVectorTileParser> MapboxVectorTileParserRef;
 
 }

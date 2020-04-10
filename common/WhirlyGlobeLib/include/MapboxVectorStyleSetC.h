@@ -24,10 +24,53 @@
 #import "MarkerManager.h"
 #import "ComponentManager.h"
 #import "MapboxVectorTileParser.h"
+#import "MaplyVectorStyleC.h"
 #import <set>
 
 namespace WhirlyKit
 {
+
+class MapboxVectorStyleLayer;
+typedef std::shared_ptr<MapboxVectorStyleLayer> MapboxVectorStyleLayerRef;
+
+// A transitionable double value
+// This may be stops or a single value
+class MapboxTransDouble
+{
+public:
+    // Return the value for a given level
+    double valForZoom(double zoom);
+
+    // Minimum possible value
+    double minVal();
+
+    // Maximum possible value
+    double maxVal();
+    
+protected:
+};
+typedef std::shared_ptr<MapboxTransDouble> MapboxTransDoubleRef;
+
+// Transitionable color
+// Might be stops, might be a single value
+class MapboxTransColor
+{
+public:
+    // If set, we're using the alpha to indicate some other value, so just pass it through
+    void setAlphaOverride(double alpha);
+
+    // Return a color for the given zoom level
+    RGBAColor colorForZoom(double zoom);
+    
+protected:
+};
+typedef std::shared_ptr<MapboxTransColor> MapboxTransColorRef;
+
+// Used for combining color and opacity
+typedef enum {
+    MBResolveColorOpacityReplaceAlpha,
+    MBResolveColorOpacityMultiply
+} MBResolveColorType;
 
 /**
   Holds the low level implementation for Mapbox Style Sheet parsing and object construction.
@@ -41,11 +84,205 @@ public:
     WideVectorManager *wideVecManage;
     MarkerManager *markerManage;
     ComponentManager *compManage;
+    
+    /// @brief Default settings and scale factor for Mapnik vector geometry.
+    VectorStyleSettingsImpl *tileStyleSettings;
+
+    /// @brief Style name
+    std::string name;
+
+    /// @brief Version number from the style
+    int version;
+
+    /// @brief Constants from the Style sheet
+    DictionaryRef constants;
+
+    /// @brief Layers parsed from the style sheet
+    std::vector<MapboxVectorStyleLayerRef> layers;
+
+    /// @brief Layers sorted by their ID
+    std::map<std::string, MapboxVectorStyleLayerRef> layersByName;
+
+    /// @brief Layers sorted by source layer name
+    std::map<std::string, MapboxVectorStyleLayerRef> layersBySource;
+
+    /// @brief Generates a unique ID for a style
+    long long generateID();
+
+    /// @brief Return an integer value for the given name, taking the constants into account.
+    int intValue(const std::string &name,DictionaryRef dict,int defVal);
+
+    /// @brief Return a double value for the given name, taking the constants into account
+    double doubleValue(const std::string &name,DictionaryRef dict,double defVal);
+
+    /// @brief Return a double value for the given name, taking the constants into account
+//    - (double)doubleValue:(id __nonnull)entry defVal:(double)defVal;
+        
+    /// @brief Return a bool for the given name.  True if it matches the onString.  Default if it's missing
+    bool boolValue(const std::string &name,DictionaryRef dict,const std::string &onString,bool defVal);
+
+    /// @brief Return a string for the given name, taking the constants into account
+    std::string stringValue(const std::string &name,DictionaryRef dict,const std::string &defVal);
+
+    /// @brief Return a color for the given name, taking the constants into account
+//    - (UIColor *_Nullable)colorValue:(NSString * __nullable)name val:(id __nullable )val dict:(NSDictionary *__nullable)dict defVal:(UIColor * __nullable)defVal multiplyAlpha:(bool)multiplyAlpha;
+
+    /// @brief Return an array for the given name, taking the constants into account
+    std::vector<DictionaryRef> arrayValue(const std::string &name,DictionaryRef dict);
+
+    /// Builds a transitionable double object and returns that
+//    - (MapboxTransDouble *__nullable)transDouble:(NSString * __nonnull)name entry:(NSDictionary *__nonnull)entry defVal:(double)defVal;
+
+    /// Builds a transitionable color object and returns that
+//    - (MapboxTransColor *__nullable)transColor:(NSString *__nonnull)name entry:(NSDictionary *__nonnull)entry defVal:(UIColor * __nullable)defVal;
+
+    /// Resolve transitionable color and opacity into a single color for the zoom
+    /// If this returns nil, then the object shouldn't appear
+    RGBAColor resolveColor(MapboxTransColorRef color,MapboxTransDoubleRef opacity,double zoom,MBResolveColorType resolveMode);
+
+    /// @brief Scale the color by the given opacity
+    RGBAColor color(RGBAColor color,double opacity);
+
+    /// @brief Return the integer corresponding to the name.  Basically parse the enumerated type.
+//    - (NSUInteger)enumValue:(NSString * __nonnull)name options:(NSArray * __nonnull)options defVal:(NSUInteger)defVal;
+
+    /// @brief Check for and report an unsupported field
+    void unsupportedCheck(const std::string &field,const std::string &what,DictionaryRef styleEntry);
+
+    /// @brief Check if the given thing is a constant and return its value if it is.  Otherwise just return it.
+//    - (id __nullable)constantSubstitution:(id __nonnull)thing forField:(NSString * __nullable)field;
 
 protected:
     Scene *scene;
 };
-
 typedef std::shared_ptr<MapboxVectorStyleSetImpl> MapboxVectorStyleSetImplRef;
+
+/// @brief Mapbox filter operator types
+typedef enum {MBFilterEqual,MBFilterNotEqual,MBFilterGreaterThan,MBFilterGreaterThanEqual,MBFilterLessThan,MBFilterLessThanEqual,MBFilterIn,MBFilterNotIn,MBFilterHas,MBFilterNotHas,MBFilterAll,MBFilterAny,MBFilterNone} MapboxVectorFilterType;
+
+/// @brief Mapbox geometry types
+typedef enum {MBGeomPoint,MBGeomLineString,MBGeomPolygon,MBGeomNone} MapboxVectorGeometryType;
+
+class MapboxVectorFilter;
+typedef std::shared_ptr<MapboxVectorFilter> MapboxVectorFilterRef;
+
+/// @brief Filter is used to match data in a layer to styles
+class MapboxVectorFilter
+{
+public:
+    /// @brief Parse the filter info out of the style entry
+    MapboxVectorFilter(const std::vector<DictionaryRef> &styleEntry,MapboxVectorStyleSetImplRef styleSet);
+
+    /// @brief Test a feature's attributes against the filter
+    bool testFeature(DictionaryRef attrs,const QuadTreeIdentifier &tileID);
+
+    /// @brief The comparison type for this filter
+    MapboxVectorFilterType filterType;
+
+    /// @brief Attribute name for all the types that take two arguments
+    std::string attrName;
+
+    /// @brief Set if we're comparing geometry type instead of an attribute
+    MapboxVectorGeometryType geomType;
+
+    /// @brief Attribute value to compare for all the type that take two arguments
+//    id attrVal;
+
+    /// @brief Attribute values for the in and !in operators
+//    NSArray *attrVals;
+
+    /// @brief For All and Any these are the MapboxVectorFilters to evaluate
+    std::vector<MapboxVectorFilterRef> subFilters;
+};
+
+/**
+  Base class for Mapbox Vector Styles.
+ */
+class MapboxVectorStyleLayerImpl : public VectorStyleImpl
+{
+public:
+    
+    /// Unique Identifier for this style
+    virtual long long getUuid();
+
+    /// Category used for sorting
+    virtual const std::string &getCategory();
+
+    /// Set if this geometry is additive (e.g. sticks around) rather than replacement
+    virtual bool geomAdditive();
+
+    /// Construct objects related to this style based on the input data.
+    virtual void buildObject(std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo,MapboxVectorStyleSetImplRef impl);
+    
+protected:
+    MapboxVectorStyleSetImplRef style;
+};
+
+/** @brief Layer definition from the Style Sheet.
+    @details This is a single layer from the Mapbox style sheet.  It's also used to build visible objects.
+  */
+class MapboxVectorStyleLayer : public VectorStyleImpl
+{
+public:
+
+    /// @brief Initialize with the style sheet and the entry for this layer
+    static MapboxVectorStyleLayerRef VectorStyleLayer(MapboxVectorStyleSetImplRef styleSet,DictionaryRef layerDict,int drawPriority);
+
+    /// @brief Base class initialization.  Copies data out of the refLayer
+    MapboxVectorStyleLayer(DictionaryRef styleEntry,MapboxVectorStyleLayerRef parentLayer,MapboxVectorStyleLayerRef styleSet,int drawPriority);
+
+    /// Unique Identifier for this style
+    virtual long long getUuid();
+    
+    /// Category used for sorting
+    virtual const std::string &getCategory();
+    
+    // Note: This no longer really holds
+    /// Set if this geometry is additive (e.g. sticks around) rather than replacement
+    virtual bool geomAdditive();
+
+    /// Construct objects related to this style based on the input data.
+    virtual void buildObject(std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo,VectorStyleDelegateImplRef impl) = 0;
+
+    MapboxVectorStyleSetImplRef styleSet;
+
+    /// Set if we actually use this layer.  Copied from the layout
+    bool visible;
+
+    /// @brief ID on the layer style entry
+    std::string ident;
+
+    /// @brief Source from layer defn
+    std::string source;
+
+    /// @brief Source layer from layer defn
+    std::string sourceLayer;
+
+    /// @brief Min/max zoom levels
+    int minzoom,maxzoom;
+
+    /// @brief Filter this layer uses to match up to data
+    MapboxVectorFilterRef filter;
+
+    /// @brief DrawPriority based on location in the style sheet
+    int drawPriority;
+
+    /// If non-zero we set the draw priority differently per level
+    int drawPriorityPerLevel;
+
+    // If set, the features produced will be selectable (if they can be)
+    // Inherited from the settings
+    bool selectable;
+
+    /// @brief Unique Identifier for this style
+    long long uuid;
+
+    /// @brief Set if this geometry is additive (e.g. sticks around) rather than replacement
+    bool geomAdditiveVal;
+
+    /// @brief metadata tag from the JSON file
+    DictionaryRef metadata;
+};
+typedef std::shared_ptr<MapboxVectorStyleLayer> MapboxVectorStyleLayerRef;
 
 }

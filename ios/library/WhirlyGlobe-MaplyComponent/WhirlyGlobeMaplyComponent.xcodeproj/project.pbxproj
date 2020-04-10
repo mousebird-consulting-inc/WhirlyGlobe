@@ -561,7 +561,6 @@
 		2B8A78E4228C8543008B0A1F /* MaplyShader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537C51D249A1200B60FAD /* MaplyShader.mm */; };
 		2B8E608920D458A600FB96F0 /* MaplyQuadSampler_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8E608820D458A500FB96F0 /* MaplyQuadSampler_private.h */; };
 		2B8E608B20D47FEE00FB96F0 /* MaplyRemoteTileFetcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8E608A20D47FEE00FB96F0 /* MaplyRemoteTileFetcher.h */; };
-		2BA827C1225E57FA00324594 /* MapboxVectorTileParser_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA827C0225E57FA00324594 /* MapboxVectorTileParser_iOS.h */; };
 		2BA827C7225E6F1700324594 /* MapboxVectorTiles.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA827C6225E6F1600324594 /* MapboxVectorTiles.h */; };
 		2BA827CB225E719D00324594 /* MapboxVectorTiles_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA827CA225E719D00324594 /* MapboxVectorTiles_private.h */; };
 		2BA827D02261382800324594 /* vector_tile.pb.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA827CF2261382800324594 /* vector_tile.pb.h */; };
@@ -1570,8 +1569,6 @@
 		2B8E608A20D47FEE00FB96F0 /* MaplyRemoteTileFetcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyRemoteTileFetcher.h; sourceTree = "<group>"; };
 		2B8E608E20D4800000FB96F0 /* MaplyRemoteTileFetcher.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyRemoteTileFetcher.mm; sourceTree = "<group>"; };
 		2BA24D5222B1B47400879D99 /* Snapshot_iOS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Snapshot_iOS.h; sourceTree = "<group>"; };
-		2BA827C0225E57FA00324594 /* MapboxVectorTileParser_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapboxVectorTileParser_iOS.h; sourceTree = "<group>"; };
-		2BA827C3225E581100324594 /* MapboxVectorTileParser_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MapboxVectorTileParser_iOS.mm; sourceTree = "<group>"; };
 		2BA827C6225E6F1600324594 /* MapboxVectorTiles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapboxVectorTiles.h; sourceTree = "<group>"; };
 		2BA827C8225E6F2100324594 /* MapboxVectorTiles.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MapboxVectorTiles.mm; sourceTree = "<group>"; };
 		2BA827CA225E719D00324594 /* MapboxVectorTiles_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapboxVectorTiles_private.h; sourceTree = "<group>"; };
@@ -3569,7 +3566,6 @@
 				2B63C462243E474E002B481C /* MapboxVectorStyleSet_private.h */,
 				2B092BB32373574E00E27CD8 /* MaplyGlobeRenderController_private.h */,
 				2BA827CA225E719D00324594 /* MapboxVectorTiles_private.h */,
-				2BA827C0225E57FA00324594 /* MapboxVectorTileParser_iOS.h */,
 				2BE1E78A22138A8100815D9C /* MaplyQuadLoader_private.h */,
 				2BC3D6EB220B713700CE91D0 /* sqlhelpers.h */,
 				2B7B84D721223F0200D11447 /* MaplyTextureAtlas_private.h */,
@@ -3643,7 +3639,6 @@
 				2B4B30B62395E40500854073 /* MapboxVectorStyleCircle.mm */,
 				2BF4FC99227D022C0012CEFD /* MapboxVectorStyleSprites.mm */,
 				2BA827C8225E6F2100324594 /* MapboxVectorTiles.mm */,
-				2BA827C3225E581100324594 /* MapboxVectorTileParser_iOS.mm */,
 				2B127C06201911DC0099F405 /* MapboxVectorInterpreter.mm */,
 				2BB4767E2000488C006AAACB /* MapboxVectorStyleBackground.mm */,
 				2BB4767C2000488C006AAACB /* MapboxVectorStyleFill.mm */,
@@ -4311,7 +4306,6 @@
 				2BB8A3F621ED43D10025DA98 /* MaplyPinchDelegate.h in Headers */,
 				2B810091221E07EE00CFF779 /* VectorObject.h in Headers */,
 				2BE5383F1D249A1200B60FAD /* MaplyGeomModel_private.h in Headers */,
-				2BA827C1225E57FA00324594 /* MapboxVectorTileParser_iOS.h in Headers */,
 				2BC90D5D223308C700D8B606 /* ScreenObject_iOS.h in Headers */,
 				2BE539671D249BEF00B60FAD /* AAKepler.h in Headers */,
 				2BE5385B1D249A1200B60FAD /* WhirlyGlobeViewController_private.h in Headers */,

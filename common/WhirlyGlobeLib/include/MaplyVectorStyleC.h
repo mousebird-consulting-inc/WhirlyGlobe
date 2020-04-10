@@ -18,7 +18,6 @@
 *
 */
 
-#import "MaplyVectorStyleC.h"
 #import "VectorObject.h"
 #import "MapboxVectorTileParser.h"
 #import <string>
@@ -135,10 +134,10 @@ public:
     
     // Note: This no longer really holds
     /// Set if this geometry is additive (e.g. sticks around) rather than replacement
-    virtual bool geomAdditive();
+    virtual bool geomAdditive() = 0;
 
     /// Construct objects related to this style based on the input data.
-    virtual void buildObject(std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo,VectorStyleDelegateImplRef impl);
+    virtual void buildObject(std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo,VectorStyleDelegateImplRef impl) = 0;
 };
 
 }

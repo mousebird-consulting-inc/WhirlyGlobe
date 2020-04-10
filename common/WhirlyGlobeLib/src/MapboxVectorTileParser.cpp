@@ -76,8 +76,8 @@ void VectorTileData::clear()
     categories.clear();
 }
 
-MapboxVectorTileParser::MapboxVectorTileParser()
-    : localCoords(false), keepVectors(false), parseAll(false)
+MapboxVectorTileParser::MapboxVectorTileParser(VectorStyleDelegateImplRef styleDelegate)
+    : localCoords(false), keepVectors(false), parseAll(false), styleDelegate(styleDelegate)
 {
 }
 
@@ -416,6 +416,50 @@ bool MapboxVectorTileParser::parse(RawData *rawData,VectorTileData *tileData)
         // Merge this into the general return data
         tileData->mergeFrom(styleData.get());
     }
+    
+    // These are layered on top for debugging
+//    if(debugLabel || debugOutline) {
+//        QuadTreeNew::Node tileID = tileData->ident;
+//        MbrD geoBounds = tileData->geoBBox;
+//        Point2d sw = geoBounds.ll(), ne = geoBounds.ur();
+//        if(debugLabel) {
+//            MaplyScreenLabel *label = [[MaplyScreenLabel alloc] init];
+//            label.text = [NSString stringWithFormat:@"%d: (%d,%d)\n%lu items", tileID.level, tileID.x,
+//                          tileID.y, (unsigned long)tileData->compObjs.size()];
+//            MaplyCoordinate tileCenter;
+//            tileCenter.x = (ne.x() + sw.x())/2.0;
+//            tileCenter.y = (ne.y() + sw.y())/2.0;
+//            label.loc = tileCenter;
+//
+//            MaplyComponentObject *c = [viewC addScreenLabels:@[label]
+//                                                         desc:@{kMaplyFont : [UIFont boldSystemFontOfSize:12],
+//                                                                kMaplyTextColor : [UIColor colorWithRed:0.25 green:0.25 blue:0.25 alpha:0.25],
+//                                                                kMaplyDrawPriority : @(kMaplyMaxDrawPriorityDefault+100000000),
+//                                                                kMaplyEnable: @(NO)
+//                                                                }
+//                                                         mode:MaplyThreadCurrent];
+//            tileData->compObjs.push_back(c->contents);
+//        }
+//        if(debugOutline) {
+//            MaplyCoordinate outline[5];
+//            outline[0].x = ne.x();            outline[0].y = ne.y();
+//            outline[1].x = ne.x();            outline[1].y = sw.y();
+//            outline[2].x = sw.x();            outline[2].y = sw.y();
+//            outline[3].x = sw.x();            outline[3].y = ne.y();
+//            outline[4].x = ne.x();            outline[4].y = ne.y();
+//            MaplyVectorObject *outlineObj = [[MaplyVectorObject alloc] initWithLineString:outline
+//                                                                                numCoords:5
+//                                                                               attributes:nil];
+//            MaplyComponentObject *c = [viewC addVectors:@[outlineObj]
+//                                                    desc:@{kMaplyColor: [UIColor redColor],
+//                                                           kMaplyVecWidth:@(4),
+//                                                           kMaplyDrawPriority : @(kMaplyMaxDrawPriorityDefault+100000000),
+//                                                           kMaplyEnable: @(NO)
+//                                                           }
+//                                                    mode:MaplyThreadCurrent];
+//            tileData->compObjs.push_back(c->contents);
+//        }
+//    }
     
     return true;
 }

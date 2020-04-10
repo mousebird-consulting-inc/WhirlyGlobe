@@ -60,9 +60,9 @@ static int BackImageWidth = 16, BackImageHeight = 16;
     NSObject<MaplyVectorStyleDelegate> *vecStyle;
     MaplySphericalMercator *coordSys;
     MaplyRenderController *offlineRender;
-    MapboxTransColor *backColor;
+    MapboxTransColorRef backColor;
 
-    MapboxVectorTileParser_iOSRef imageTileParser,vecTileParser;
+    MapboxVectorTileParserRef imageTileParser,vecTileParser;
 }
 
 - (instancetype) initWithImageStyle:(MapboxVectorStyleSet *)inImageStyle
@@ -78,9 +78,9 @@ static int BackImageWidth = 16, BackImageHeight = 16;
     coordSys = [[MaplySphericalMercator alloc] initWebStandard];
 
     offlineRender.clearColor = [UIColor blueColor];
-    imageTileParser = MapboxVectorTileParser_iOSRef(new MapboxVectorTileParser_iOS(imageStyle,offlineRender));
+    imageTileParser = MapboxVectorTileParser_iOSRef(new MapboxVectorTileParser(imageStyle,offlineRender));
     imageTileParser->localCoords = true;
-    vecTileParser = MapboxVectorTileParser_iOSRef(new MapboxVectorTileParser_iOS(vecStyle,viewC));
+    vecTileParser = MapboxVectorTileParser_iOSRef(new MapboxVectorTileParser(vecStyle,viewC));
 
     MapboxVectorLayerBackground *backLayer = imageStyle.layersByName[@"background"];
     backColor = backLayer.paint.color;

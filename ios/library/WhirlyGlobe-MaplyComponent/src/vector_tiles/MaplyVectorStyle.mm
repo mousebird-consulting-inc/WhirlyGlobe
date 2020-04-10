@@ -330,3 +330,70 @@ NSArray * _Nonnull AddMaplyVectorsUsingStyle(NSArray * _Nonnull vecObjs,NSObject
 
     return compObjs;
 }
+
+// TODO: These need to be turned into appropriate wrappers
+//MapboxVectorTileParser_iOS::MapboxVectorTileParser_iOS(NSObject<MaplyVectorStyleDelegate> * styleDelegate,NSObject<MaplyRenderControllerProtocol> *viewC)
+//    : styleDelegate(styleDelegate), viewC(viewC), debugLabel(false), debugOutline(false)
+//{
+//    // Index all the categories ahead of time.  Once.
+//    NSArray *allStyles = [styleDelegate allStyles];
+//    for (NSObject<MaplyVectorStyle> *style in allStyles) {
+//        NSString *category = [style getCategory];
+//        if (category) {
+//            long long styleID = style.uuid;
+//            std::string categoryStr = [category cStringUsingEncoding:NSUTF8StringEncoding];
+//            addCategory(categoryStr, styleID);
+//        }
+//    }
+//}
+//
+//MapboxVectorTileParser_iOS::~MapboxVectorTileParser_iOS()
+//{
+//}
+//    
+//VectorTileDataRef MapboxVectorTileParser_iOS::makeTileDataCopy(VectorTileData *inTileData)
+//{
+//    return VectorTileDataRef(new VectorTileData(*inTileData));
+//}
+//    
+//bool MapboxVectorTileParser_iOS::layerShouldParse(const std::string &layerName,VectorTileData *tileData)
+//{
+//    NSString *layerNameStr = [NSString stringWithUTF8String:layerName.c_str()];
+//    MaplyTileID tileID;
+//    tileID.x = tileData->ident.x;  tileID.y = tileData->ident.y;  tileID.level = tileData->ident.level;
+//
+//    return [styleDelegate layerShouldDisplay:layerNameStr tile:tileID];
+//}
+//
+//// Return a set of styles that will parse the given feature
+//SimpleIDSet MapboxVectorTileParser_iOS::stylesForFeature(MutableDictionaryRef attributes,const std::string &layerName,VectorTileData *tileData)
+//{
+//    iosMutableDictionaryRef dict = std::dynamic_pointer_cast<iosMutableDictionary>(attributes);
+//    NSString *layerNameStr = [NSString stringWithUTF8String:layerName.c_str()];
+//    MaplyTileID tileID;
+//    tileID.x = tileData->ident.x;  tileID.y = tileData->ident.y;  tileID.level = tileData->ident.level;
+//
+//    NSArray *styles = [styleDelegate stylesForFeatureWithAttributes:dict->dict onTile:tileID inLayer:layerNameStr viewC:viewC];
+//    SimpleIDSet styleIDs;
+//    for (NSObject<MaplyVectorStyle> *style in styles) {
+//        styleIDs.insert(style.uuid);
+//    }
+//    
+//    return styleIDs;
+//}
+//    
+//void MapboxVectorTileParser_iOS::buildForStyle(long long styleID,std::vector<VectorObjectRef> &vecs,VectorTileDataRef data)
+//{
+//    // Make up an NSArray for this since it's outward facing
+//    NSMutableArray *vecObjs = [[NSMutableArray alloc] init];
+//    for (auto vec : vecs) {
+//        MaplyVectorObject *wrapObj = [[MaplyVectorObject alloc] initWithRef:vec];
+//        [vecObjs addObject:wrapObj];
+//    }
+//    
+//    NSObject<MaplyVectorStyle> *style = [styleDelegate styleForUUID:styleID viewC:viewC];
+//    if (!style)
+//        return;
+//    MaplyVectorTileData *tileDataWrap = [[MaplyVectorTileData alloc] initWithTileData:data];
+//    [style buildObjects:vecObjs forTile:tileDataWrap viewC:viewC];
+//}

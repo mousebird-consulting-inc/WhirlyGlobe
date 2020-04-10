@@ -28,12 +28,6 @@
 @class MapboxTransDouble;
 @class MapboxTransColor;
 
-// Used for combining color and opacity
-typedef enum : NSUInteger {
-    MBResolveColorOpacityReplaceAlpha,
-    MBResolveColorOpacityMultiply
-} MBResolveColorType;
-
 /** @brief The Mapbox Vector Style Set parses Mapbox GL Style sheets and turns them into Maply compatible styles.
     @details A style delegate is required by the Mapnik parser to build geometry out of Mapnik vector tiles.  This style delegate can read a Mapbox GL Style sheet and produce compatible styles.
  */

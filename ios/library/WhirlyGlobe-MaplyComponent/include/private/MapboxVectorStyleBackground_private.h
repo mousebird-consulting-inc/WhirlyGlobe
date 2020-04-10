@@ -22,35 +22,37 @@
 
 namespace WhirlyKit
 {
+
 /**
   This class corresponds to the paint portion of the Mapbox Vector Style definition
     of the background.  You get one of these from parsing a Style, don't generate one.
  */
-class MapboxVectorBackgroundPaint : public MapboxVectorStyleLayerImpl
-@interface MapboxVectorBackgroundPaint : NSObject
+class MapboxVectorBackgroundPaint
+{
+public:
+    MapboxVectorBackgroundPaint(DictionaryRef styleEntry,MapboxVectorStyleLayerRef styleSet);
 
-@property (nonatomic) MapboxTransColor *color;
-@property (nonatomic) MapboxTransDouble *opacity;
-
-/// :nodoc:
-- (id)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
-
-@end
+    MapboxTransColorRef color;
+    MapboxTransDoubleRef opacity;
+};
 
 /**
  This is the layer corresponding to the background in a Mapbox Vector Style definition.
  You don't create these.  They come from a Style sheet.
  */
-@interface MapboxVectorLayerBackground : MaplyMapboxVectorStyleLayer
+class MapboxVectorLayerBackground : public MapboxVectorStyleLayer
+{
+public:
+    MapboxVectorLayerBackground(DictionaryRef styleEntry,
+                                MapboxVectorStyleLayerRef refLayer,
+                                MapboxVectorStyleLayerRef styleSet,
+                                int drawPriority);
+    
+    virtual void buildObject(std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo,VectorStyleDelegateImplRef impl);
 
-//@property (nonatomic) MapboxVectorLayoutBackground *layout;
-
-/// Controls how the background looks.
-@property (nonatomic,strong) MapboxVectorBackgroundPaint *paint;
-
-/// :nodoc:
-- (id)initWithStyleEntry:(NSDictionary *)styleEntry parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
-
-@end
+protected:
+    /// Controls how the background looks.
+    MapboxVectorBackgroundPaint paint;
+};
 
 }
