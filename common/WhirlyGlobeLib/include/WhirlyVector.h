@@ -83,7 +83,16 @@ public:
 	RGBAColor() { }
 	RGBAColor(unsigned char r,unsigned char g,unsigned char b,unsigned char a) : r(r), g(g), b(b), a(a) { }
 	RGBAColor(unsigned char r,unsigned char g,unsigned char b) : r(r), g(g), b(b), a(255) { }
-    
+
+    // Standard colors to create & return
+
+    static RGBAColor black() { return RGBAColor(0,0,0,255); }
+    static RGBAColor white() { return RGBAColor(255,255,255,255); }
+    static RGBAColor red() { return RGBAColor(255,0,0,255); }
+    static RGBAColor green() { return RGBAColor(0,255,0,255); }
+    static RGBAColor blue() { return RGBAColor(0,0,255,255); }
+    static RGBAColor clear() { return RGBAColor(0,0,0,0); }
+
     /// Returns an an array of 4 floats
     void asUnitFloats(float *ret) const { ret[0] = (float)r / 255.0;  ret[1] = (float)g / 255.0; ret[2] = (float)b / 255.0; ret[3] = (float)a / 255.0; }
     

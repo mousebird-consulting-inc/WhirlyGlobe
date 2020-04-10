@@ -20,58 +20,49 @@
 
 #import "private/MapboxVectorStyleBackground_private.h"
 #import "MapboxVectorStyleSet_private.h"
+#import "WhirlyKitLog.h"
 
-@implementation MapboxVectorBackgroundPaint
-
-- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+namespace WhirlyKit
 {
-    self = [super init];
-    if (!self)
-        return nil;
+
+bool MapboxVectorBackgroundPaint::parse(MapboxVectorStyleSetImplRef styleSet,DictionaryRef styleEntry)
+{
+    color = styleSet->transColor("background-color",styleEntry,RGBAColor::black());
+    if (styleEntry->hasField("background-image"))
+        wkLogLevel(Warn,"MapboxStyleSet: Ignoring background image");
+
+    opacity = styleSet->transDouble("background-opacity",styleEntry,1.0);
     
-    _color = [styleSet transColor:@"background-color" entry:styleEntry defVal:[UIColor blackColor]];
-    if (styleEntry[@"background-image"])
-    {
-        NSLog(@"MapboxStyleSet: Ignoring background image");
-    }
-    _opacity = [styleSet transDouble:@"background-opacity" entry:styleEntry defVal:1.0];
-    
-    return self;
+    return true;
 }
 
-@end
-
-@implementation MapboxVectorLayerBackground
-
-- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+bool MapboxVectorLayerBackground::parse(MapboxVectorStyleSetImplRef styleSet,
+                                        DictionaryRef styleEntry,
+                                        MapboxVectorStyleLayerRef refLayer,
+                                        int drawPriority)
 {
-    self = [super initWithStyleEntry:styleEntry parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:viewC];
-    if (!self)
-        return nil;
-    
-    if (styleEntry[@"layout"])
-    {
-        NSLog(@"Ignoring background layout");
+    if (!MapboxVectorStyleLayer::parse(styleSet,styleEntry,refLayer,drawPriority)) {
+        return false;
     }
     
-    _paint = [[MapboxVectorBackgroundPaint alloc] initWithStyleEntry:styleEntry[@"paint"] styleSet:styleSet viewC:viewC];
-    if (!_paint)
-    {
-        NSLog(@"Expecting paint in background layer");
-        return nil;
+    if (styleEntry->hasField("layout"))
+        wkLogLevel(Warn,"MapboxStyleSet: Ignoring background layout");
+    
+    if (!paint.parse(styleSet,styleEntry->getDict("paint"))) {
+        return false;
     }
     
     // Mess directly with the opacity because we're using it for other purposes
-    if (styleEntry[@"alphaoverride"])
-    {
-        [_paint.color setAlphaOverride:[styleEntry[@"alphaoverride"] doubleValue]];
+    if (styleEntry->hasField("alphaoverride")) {
+        paint.color->setAlphaOverride(styleEntry->getDouble("alphaoverride"));
     }
-
-    return self;
+    
+    return true;
 }
 
-- (void)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileData *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+void MapboxVectorLayerBackground::buildObject(std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo,VectorStyleDelegateImplRef impl)
 {
+    // Nothing to build
 }
 
-@end
+}

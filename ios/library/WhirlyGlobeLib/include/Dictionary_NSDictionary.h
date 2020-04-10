@@ -23,7 +23,10 @@
 
 namespace WhirlyKit
 {
-    
+
+class iosDictionary;
+typedef std::shared_ptr<iosDictionary> iosDictionaryRef;
+
 /// The Dictionary is my cross platform replacement for NSDictionary
 /// On iOS its just a wrapper
 class iosDictionary : public Dictionary
@@ -55,10 +58,15 @@ public:
     std::string getString(const std::string &name) const;
     /// Return a string, using the default if it's missing
     std::string getString(const std::string &name,const std::string &defVal) const;
-    
+    /// Return a dictionary as an entry
+    DictionaryRef getDict(const std::string &name) const;
+
 public:
     NSDictionary *dict;
 };
+
+class iosMutableDictionary;
+typedef std::shared_ptr<iosMutableDictionary> iosMutableDictionaryRef;
 
 /// This version of the dictionary can be modified
 class iosMutableDictionary : public MutableDictionary
@@ -92,6 +100,8 @@ public:
     std::string getString(const std::string &name) const;
     /// Return a string, using the default if it's missing
     std::string getString(const std::string &name,const std::string &defVal) const;
+    /// Return a dictionary as an entry
+    DictionaryRef getDict(const std::string &name) const;
 
     /// Clean out the contents
     void clear();
@@ -114,7 +124,5 @@ public:
 public:
     NSMutableDictionary *dict;
 };
-    
-typedef std::shared_ptr<iosMutableDictionary> iosMutableDictionaryRef;
-    
+
 }

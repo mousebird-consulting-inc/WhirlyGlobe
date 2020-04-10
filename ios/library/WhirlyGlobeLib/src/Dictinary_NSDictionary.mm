@@ -144,6 +144,16 @@ std::string iosDictionary::getString(const std::string &name,const std::string &
     return StringToStdString([dict stringForKey:theName default:StdStringToString(defVal)]);
 }
 
+DictionaryRef iosDictionary::getDict(const std::string &name) const
+{
+    NSString *theName = StdStringToString(name);
+
+    id thing = dict[theName];
+    if ([thing isKindOfClass:[NSDictionary class]])
+        return iosDictionaryRef(new iosDictionary((NSDictionary *)thing));
+    
+    return nil;
+}
 
 iosMutableDictionary::iosMutableDictionary()
 {
@@ -260,6 +270,17 @@ std::string iosMutableDictionary::getString(const std::string &name,const std::s
     NSString *theName = StdStringToString(name);
     
     return StringToStdString([dict stringForKey:theName default:StdStringToString(defVal)]);
+}
+
+DictionaryRef iosMutableDictionary::getDict(const std::string &name) const
+{
+    NSString *theName = StdStringToString(name);
+
+    id thing = dict[theName];
+    if ([thing isKindOfClass:[NSDictionary class]])
+        return iosMutableDictionaryRef(new iosMutableDictionary((NSDictionary *)thing));
+    
+    return nil;
 }
     
 void iosMutableDictionary::clear()

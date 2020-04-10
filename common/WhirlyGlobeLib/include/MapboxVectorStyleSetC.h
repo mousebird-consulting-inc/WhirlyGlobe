@@ -131,10 +131,10 @@ public:
     std::vector<DictionaryRef> arrayValue(const std::string &name,DictionaryRef dict);
 
     /// Builds a transitionable double object and returns that
-//    - (MapboxTransDouble *__nullable)transDouble:(NSString * __nonnull)name entry:(NSDictionary *__nonnull)entry defVal:(double)defVal;
+    MapboxTransDoubleRef transDouble(const std::string &name,DictionaryRef entry,double defVal);
 
     /// Builds a transitionable color object and returns that
-//    - (MapboxTransColor *__nullable)transColor:(NSString *__nonnull)name entry:(NSDictionary *__nonnull)entry defVal:(UIColor * __nullable)defVal;
+    MapboxTransColorRef transColor(const std::string &name,DictionaryRef entry,const RGBAColor &defVal);
 
     /// Resolve transitionable color and opacity into a single color for the zoom
     /// If this returns nil, then the object shouldn't appear
@@ -195,29 +195,6 @@ public:
     std::vector<MapboxVectorFilterRef> subFilters;
 };
 
-/**
-  Base class for Mapbox Vector Styles.
- */
-class MapboxVectorStyleLayerImpl : public VectorStyleImpl
-{
-public:
-    
-    /// Unique Identifier for this style
-    virtual long long getUuid();
-
-    /// Category used for sorting
-    virtual const std::string &getCategory();
-
-    /// Set if this geometry is additive (e.g. sticks around) rather than replacement
-    virtual bool geomAdditive();
-
-    /// Construct objects related to this style based on the input data.
-    virtual void buildObject(std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo,MapboxVectorStyleSetImplRef impl);
-    
-protected:
-    MapboxVectorStyleSetImplRef style;
-};
-
 /** @brief Layer definition from the Style Sheet.
     @details This is a single layer from the Mapbox style sheet.  It's also used to build visible objects.
   */
@@ -229,7 +206,14 @@ public:
     static MapboxVectorStyleLayerRef VectorStyleLayer(MapboxVectorStyleSetImplRef styleSet,DictionaryRef layerDict,int drawPriority);
 
     /// @brief Base class initialization.  Copies data out of the refLayer
-    MapboxVectorStyleLayer(DictionaryRef styleEntry,MapboxVectorStyleLayerRef parentLayer,MapboxVectorStyleLayerRef styleSet,int drawPriority);
+    MapboxVectorStyleLayer();
+    virtual ~MapboxVectorStyleLayer();
+
+    // Parse the layer entry out of the style sheet
+    virtual bool parse(MapboxVectorStyleSetImplRef styleSet,
+                       DictionaryRef styleEntry,
+                       MapboxVectorStyleLayerRef parentLayer,
+                       int drawPriority);
 
     /// Unique Identifier for this style
     virtual long long getUuid();
