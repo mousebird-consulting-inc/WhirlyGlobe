@@ -366,14 +366,14 @@
 /** 
     Returns the closest a viewer is allowed to get to the map surface.
  
-    @return FLT_MIN if there's no pitchDelegate set
+    @return FLT_MIN if there's no pinchDelegate set
  */
 - (float)getZoomLimitsMin;
 
 /** 
     Returns the farthest away a viewer is allowed to get from the map surface
  
-    @return FLT_MIN if there's no pitchDelegate set
+    @return FLT_MIN if there's no pinchDelegate set
  */
 - (float)getZoomLimitsMax;
 

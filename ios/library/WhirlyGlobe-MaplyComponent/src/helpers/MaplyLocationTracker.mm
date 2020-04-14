@@ -309,8 +309,15 @@
     float d1 = sqrtf(powf(dispPt1.x-dispPt0.x, 2.0) + powf(dispPt1.y-dispPt0.y, 2.0));
     float d2 = sqrtf(powf(dispPt2.x-dispPt0.x, 2.0) + powf(dispPt2.y-dispPt0.y, 2.0));
     shapeCircle.radius = (d1 + d2) / 2.0;
-    shapeCircle.height = 0.00001;
-    
+    float minHeight = 0.0;
+    if (_globeVC)
+        minHeight = [_globeVC getZoomLimitsMin];
+    else {
+        float maxHeight;
+        [_mapVC getZoomLimitsMin:&minHeight max:&maxHeight];
+    }
+    shapeCircle.height = minHeight * 0.01;
+
     return shapeCircle;
 }
 
