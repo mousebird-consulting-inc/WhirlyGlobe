@@ -172,10 +172,12 @@
     
     // Draw direction indicator triangle
     if (directional) {
+        float len = 20.0;
+        float height = 12.0;
         CGMutablePathRef path = CGPathCreateMutable();
-        CGPathMoveToPoint(path, NULL,    size/2, size/2-radius-20);
-        CGPathAddLineToPoint(path, NULL, size/2-12, size/2-radius);
-        CGPathAddLineToPoint(path, NULL, size/2+12, size/2-radius);
+        CGPathMoveToPoint(path, NULL,    size/2, size/2-radius-len);
+        CGPathAddLineToPoint(path, NULL, size/2-height, size/2-radius);
+        CGPathAddLineToPoint(path, NULL, size/2+height, size/2-radius);
         CGPathCloseSubpath(path);
         CGContextSetFillColorWithColor(ctx, color1.CGColor);
         CGContextAddPath(ctx, path);
