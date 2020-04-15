@@ -142,6 +142,9 @@ using namespace WhirlyKit;
     
     MaplyBoundingBoxD bounds;
     QuadDisplayControllerNewRef control = [samplingLayer.quadLayer getController];
+    if (!control)
+        return bounds;
+
     MbrD mbrD = control->getQuadTree()->generateMbrForNode(WhirlyKit::QuadTreeNew::Node(tileID.x,tileID.y,tileID.level));
     
     CoordSystem *wkCoordSys = control->getCoordSys();
@@ -183,7 +186,11 @@ using namespace WhirlyKit;
     
     MaplyBoundingBoxD bounds;
     
+    
     QuadDisplayControllerNewRef control = [samplingLayer.quadLayer getController];
+    if (!control)
+        return bounds;
+    
     MbrD mbrD = control->getQuadTree()->generateMbrForNode(WhirlyKit::QuadTreeNew::Node(tileID.x,tileID.y,tileID.level));
     bounds.ll = MaplyCoordinateDMake(mbrD.ll().x(), mbrD.ll().y());
     bounds.ur = MaplyCoordinateDMake(mbrD.ur().x(), mbrD.ur().y());
@@ -194,6 +201,9 @@ using namespace WhirlyKit;
 - (MaplyCoordinate3d)displayCenterForTile:(MaplyTileID)tileID
 {
     QuadDisplayControllerNewRef control = [samplingLayer.quadLayer getController];
+    if (!control)
+        return MaplyCoordinate3dMake(0.0, 0.0, 0.0);
+
     Mbr mbr = control->getQuadTree()->generateMbrForNode(WhirlyKit::QuadTreeNew::Node(tileID.x,tileID.y,tileID.level));
     Point2d pt((mbr.ll().x()+mbr.ur().x())/2.0,(mbr.ll().y()+mbr.ur().y())/2.0);
     Scene *scene = control->getScene();
