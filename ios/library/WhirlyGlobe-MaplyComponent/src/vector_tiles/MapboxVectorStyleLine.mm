@@ -20,233 +20,184 @@
 
 #import "private/MapboxVectorStyleLine_private.h"
 #import "MapboxVectorStyleSet_private.h"
-#import "helpers/MaplyTextureBuilder.h"
+#import "WhirlyKitLog.h"
 
-@implementation MapboxVectorLineLayout
-
-- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+namespace WhirlyKit
 {
-    self = [super init];
-    if (!self)
-        return nil;
 
-    _cap = (MapboxVectorLineCap)[styleSet enumValue:styleEntry[@"line-cap"] options:@[@"butt",@"round",@"square"] defVal:MBLineCapButt];
-    _join = (MapboxVectorLineJoin)[styleSet enumValue:styleEntry[@"line-join"] options:@[@"bevel",@"round",@"miter"] defVal:MBLineJoinMiter];
-    _miterLimit = [styleSet doubleValue:@"line-miter-limit" dict:styleEntry defVal:2.0];
-    _roundLimit = [styleSet doubleValue:@"line-round-limit" dict:styleEntry defVal:1.0];
-    
-    return self;
+static const char *lineCapVals[] = {"butt","round","square"};
+static const char *joinVals[] = {"bevel","round","miter"};
+
+bool MapboxVectorLineLayout::parse(MapboxVectorStyleSetImplRef styleSet,DictionaryRef styleEntry)
+{
+    cap = (MapboxVectorLineCap)styleSet->enumValue("line-cap",lineCapVals,(int)MBLineCapButt);
+    join = (MapboxVectorLineJoin)styleSet->enumValue("line-join",joinVals,(int)MBLineJoinMiter);
+    miterLimit = styleSet->doubleValue("line-miter-limit", styleEntry, 2.0);
+    roundLimit = styleSet->doubleValue("line-round-limit", styleEntry, 1.0);
+
+    return true;
 }
 
-@end
-
-@implementation MapboxVectorLineDashArray
-
-- (instancetype)initWithStyleEntry:(NSArray *)styleEntry styleSet:(MapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+bool MapboxVectorLinePaint::parse(MapboxVectorStyleSetImplRef styleSet,DictionaryRef styleEntry)
 {
-    self = [super init];
-    if (!self)
-        return nil;
+    styleSet->unsupportedCheck("line-translate", "line-paint", styleEntry);
+    styleSet->unsupportedCheck("line-translate-anchor", "line-paint", styleEntry);
+    styleSet->unsupportedCheck("line-gap-width", "line-paint", styleEntry);
+    styleSet->unsupportedCheck("line-blur", "line-paint", styleEntry);
+    styleSet->unsupportedCheck("line-image", "line-paint", styleEntry);
     
-    NSMutableArray *dashes = [NSMutableArray array];
-    for (NSNumber *num in styleEntry)
-        [dashes addObject:@([num doubleValue])];
+    opacity = styleSet->transDouble("line-opacity", styleEntry, 1.0);
+    width = styleSet->transDouble("line-width", styleEntry, 1.0);
+    color = styleSet->transColor("line-color", styleEntry, RGBAColor::black());
     
-    _dashes = dashes;
-    
-    return self;
-}
-
-@end
-
-@implementation MapboxVectorLinePaint
-
-- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
-{
-    self = [super init];
-    if (!self)
-        return nil;
-
-    [styleSet unsupportedCheck:@"line-translate" in:@"line-paint" styleEntry:styleEntry];
-    [styleSet unsupportedCheck:@"line-translate-anchor" in:@"line-paint" styleEntry:styleEntry];
-    [styleSet unsupportedCheck:@"line-gap-width" in:@"line-paint" styleEntry:styleEntry];
-    [styleSet unsupportedCheck:@"line-blur" in:@"line-paint" styleEntry:styleEntry];
-    [styleSet unsupportedCheck:@"line-image" in:@"line-paint" styleEntry:styleEntry];
-
-    _opacity = [styleSet transDouble:@"line-opacity" entry:styleEntry defVal:1.0];
-    _width = [styleSet transDouble:@"line-width" entry:styleEntry defVal:1.0];
-    _color = [styleSet transColor:@"line-color" entry:styleEntry defVal:[UIColor blackColor]];
-    id dashArrayEntry = styleEntry[@"line-dasharray"];
-    if (dashArrayEntry)
-    {
-        if ([dashArrayEntry isKindOfClass:[NSArray class]])
-            _lineDashArray = [[MapboxVectorLineDashArray alloc] initWithStyleEntry:dashArrayEntry styleSet:styleSet viewC:viewC];
+    if (styleEntry->getType("line-dasharray") == DictTypeArray) {
+        auto vecArray = styleEntry->getArray("line-dasharray");
+        for (auto entry : vecArray) {
+            if (entry->getType() == DictTypeDouble) {
+                lineDashArray.push_back(entry->getDouble());
+            } else {
+                wkLogLevel(Warn,"Encountered non-double type in MapboxVectorLinePaint dashArray");
+            }
+        }
     }
-
-    return self;
+    
+    return true;
 }
 
-@end
-
-@implementation MapboxVectorLayerLine
+bool MapboxVectorLayerLine::parse(MapboxVectorStyleSetImplRef styleSet,
+                                   DictionaryRef styleEntry,
+                                   MapboxVectorStyleLayerRef refLayer,
+                                   int drawPriority)
 {
-    MaplyTexture *filledLineTex;
-    double lineScale;
-    double totLen;
-    double fade;
-}
-
-// Courtesy: http://acius2.blogspot.com/2007/11/calculating-next-power-of-2.html
-static unsigned int NextPowOf2(unsigned int val)
-{
-    val--;
-    val = (val >> 1) | val;
-    val = (val >> 2) | val;
-    val = (val >> 4) | val;
-    val = (val >> 8) | val;
-    val = (val >> 16) | val;
+    if (!MapboxVectorStyleLayer::parse(styleSet,styleEntry,refLayer,drawPriority) ||
+        !layout.parse(styleSet, styleEntry->getDict("layout")) ||
+        !paint.parse(styleSet, styleEntry->getDict("paint")))
+        return false;
     
-    return (val + 1);
-}
-
-- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
-{
-    self = [super initWithStyleEntry:styleEntry parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:viewC];
-    if (!self)
-        return nil;
+    this->drawPriority = styleSet->intValue("drawPriority", styleEntry, drawPriority);
+    linearClipToBounds = styleSet->boolValue("linearize-clip-to-bounds", styleEntry, "yes", false);
+    dropGridLines = styleSet->boolValue("drop-grid-lines", styleEntry, "yes", false);
+    subdivToGlobe = styleSet->doubleValue("subdiv-to-globe", styleEntry, 0.0);
     
-    _layout = [[MapboxVectorLineLayout alloc] initWithStyleEntry:styleEntry[@"layout"] styleSet:styleSet viewC:viewC];
-    _paint = [[MapboxVectorLinePaint alloc] initWithStyleEntry:styleEntry[@"paint"] styleSet:styleSet viewC:viewC];
-    self.drawPriority = [styleSet intValue:@"drawPriority" dict:styleEntry defVal:drawPriority];
-    _linearClipToBounds = [styleSet boolValue:@"linearize-clip-to-bounds" dict:styleEntry onValue:@"yes" defVal:false];
-    _dropGridLines = [styleSet boolValue:@"drop-grid-lines" dict:styleEntry onValue:@"yes" defVal:false];
-    _subdivToGlobe = [styleSet doubleValue:@"subdiv-to-globe" dict:styleEntry defVal:0.0];
-    
-    if (!_paint)
+    if (!paint.lineDashArray.empty())
     {
-        NSLog(@"Expecting paint in line layer");
-        return nil;
-    }
-
-    if (_paint.lineDashArray != nil)
-    {
-        NSMutableArray *dashComponents = [NSMutableArray array];
         totLen = 0.0;
-        double maxWidth = [_paint.width maxVal] * styleSet.tileStyleSettings.lineScale;
+        double maxWidth = paint.width->maxVal() * styleSet->tileStyleSettings->lineScale;
 
         // Figure out the total length
-        for (NSNumber *num in _paint.lineDashArray.dashes)
-            totLen += [num doubleValue] * maxWidth;
-        
+        for (double val : paint.lineDashArray)
+            totLen += val * maxWidth;
+
         int totLenRounded = NextPowOf2(totLen);
-        for (NSNumber *num in _paint.lineDashArray.dashes)
+        std::vector<double> dashComponents;
+        for (double val : paint.lineDashArray)
         {
-            double len = [num doubleValue] * maxWidth * totLenRounded / totLen;
-            [dashComponents addObject:@(len)];
+            double len = val * maxWidth * totLenRounded / totLen;
+            dashComponents.push_back(len);
         }
         
-        MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] init];
-        [lineTexBuilder setPattern:dashComponents];
-        UIImage *lineImage = [lineTexBuilder makeImage];
-        filledLineTex = [viewC addTexture:lineImage
-                                                   desc:@{kMaplyTexFormat: @(MaplyImageIntRGBA),
-                                                          kMaplyTexWrapY: @(MaplyImageWrapY)
-                                                          }
-                                                   mode:MaplyThreadCurrent];
+        filledLineTexID = styleSet->makeLineTexture(dashComponents);
+//
+//        MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] init];
+//        [lineTexBuilder setPattern:dashComponents];
+//        UIImage *lineImage = [lineTexBuilder makeImage];
+//        filledLineTex = [viewC addTexture:lineImage
+//                                                   desc:@{kMaplyTexFormat: @(MaplyImageIntRGBA),
+//                                                          kMaplyTexWrapY: @(MaplyImageWrapY)
+//                                                          }
+//                                                   mode:MaplyThreadCurrent];
     }
-    fade = [styleSet doubleValue:@"fade" dict:styleEntry defVal:0.0];
+    fade = styleSet->doubleValue("fad",styleEntry,0.0);
 
-    lineScale = styleSet.tileStyleSettings.lineScale;
+    lineScale = styleSet->tileStyleSettings->lineScale;
 
-    return self;
+    return true;
 }
 
-
-- (void)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileData *)tileInfo  viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+void MapboxVectorLayerLine::buildObjects(std::vector<VectorObjectRef> &inVecObjs,VectorTileDataRef tileInfo)
 {
-    if (!self.visible) {
+    if (!visible) {
         return;
     }
-
-    NSMutableArray *compObjs = [NSMutableArray array];
+    
+    ComponentObjectRef compObj(new ComponentObject());
     
     // TODO: Do level based animation instead
     float levelBias = 0.9;
 
+    std::vector<VectorObjectRef> vecObjs = inVecObjs;
+    
     // Turn into linears (if not already) and then clip to the bounds
-    if (_linearClipToBounds) {
-        MaplyCoordinate ll = MaplyCoordinateMake(tileInfo.geoBounds.ll.x, tileInfo.geoBounds.ll.y);
-        MaplyCoordinate ur = MaplyCoordinateMake(tileInfo.geoBounds.ur.x, tileInfo.geoBounds.ur.y);
-        NSMutableArray *outVecObjs = [NSMutableArray array];
-        for (MaplyVectorObject *vecObj in vecObjs) {
-            MaplyVectorObject *linVec = nil;
-            if (_dropGridLines)
-                linVec = [vecObj filterClippedEdges];
+    if (linearClipToBounds) {
+        std::vector<VectorObjectRef> newVecObjs;
+        for (auto vecObj : inVecObjs) {
+            VectorObjectRef newVecObj = vecObj;
+            if (dropGridLines)
+                newVecObj = newVecObj->filterClippedEdges();
             else
-                linVec = [vecObj arealsToLinears];
-            MaplyVectorObject *clipVec = [linVec clipToMbr:ll upperRight:ur];
-            [outVecObjs addObject:clipVec];
+                newVecObj = newVecObj->arealsToLinears();
+            if (newVecObj)
+                newVecObj = VectorObjectRef(newVecObj->clipToMbr(tileInfo->geoBBox.ll(), tileInfo->geoBBox.ur()));
+            if (newVecObj)
+                newVecObjs.push_back(newVecObj);
         }
-        vecObjs = outVecObjs;
+        vecObjs = newVecObjs;
     }
 
     // Subdivide long-ish lines to the globe, if set
-    if (_subdivToGlobe > 0.0) {
-        for (MaplyVectorObject *vecObj in vecObjs) {
-            [vecObj subdivideToGlobe:_subdivToGlobe];
+    if (subdivToGlobe > 0.0) {
+        std::vector<VectorObjectRef> newVecObjs;
+        for (auto vecObj : vecObjs) {
+            vecObj->subdivideToGlobe(subdivToGlobe);
+            newVecObjs.push_back(vecObj);
         }
+        vecObjs = newVecObjs;
     }
     
     // TODO: Eventually we need width animation
-    NSMutableDictionary *desc;
-    if (filledLineTex) {
-        desc = [NSMutableDictionary dictionaryWithDictionary:
-                @{kMaplyVecTexture: filledLineTex,
-                  kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
-                  // Note: Hack
-                  kMaplyWideVecTexRepeatLen: @(totLen/4.0),
-                  kMaplyFade: @0.0,
-                  kMaplyVecCentered: @YES,
-                  kMaplySelectable: @(self.selectable),
-                  kMaplyEnable: @NO
-                  }];
-    } else {
-        // Simple filled line
-        desc = [NSMutableDictionary dictionaryWithDictionary:
-                @{kMaplyDrawPriority: @(self.drawPriority),
-                  kMaplyFade: @0.0,
-                  kMaplyVecCentered: @YES,
-                  kMaplySelectable: @(self.selectable),
-                  kMaplyEnable: @NO
-                  }];
+    WideVectorInfo vecInfo;
+    vecInfo.coordType = WideVecCoordScreen;
+    vecInfo.programID = styleSet->wideVectorProgramID;
+    vecInfo.fade = fade;
+    if (filledLineTexID != EmptyIdentity) {
+        vecInfo.texID = filledLineTexID;
+        vecInfo.repeatSize = totLen/4.0;
     }
     
-    UIColor *color = [self.styleSet resolveColor:_paint.color opacity:_paint.opacity forZoom:tileInfo.tileID.level+levelBias mode:MBResolveColorOpacityMultiply];
-    if (color) {
-        desc[kMaplyColor] = color;
-    }
-    double width = [_paint.width valForZoom:tileInfo.tileID.level+levelBias] * lineScale;
+    RGBAColorRef color = styleSet->resolveColor(paint.color, paint.opacity, tileInfo->ident.level+levelBias, MBResolveColorOpacityMultiply);
+    if (color)
+        vecInfo.color = *color;
+    
+    double width = paint.width->valForZoom(tileInfo->ident.level+levelBias) * lineScale;
     if (width > 0.0) {
-        desc[kMaplyVecWidth] = @(width);
+        vecInfo.width = width;
     }
-    if (fade != 0.0)
-        desc[kMaplyFade] = @(fade);
-    bool include = color != nil && width > 0.0;
+    bool include = color && width > 0.0;
     
-    if (self.drawPriorityPerLevel > 0) {
-        desc[kMaplyDrawPriority] = @(self.drawPriority + tileInfo.tileID.level * self.drawPriorityPerLevel);
-    } else {
-        desc[kMaplyDrawPriority] = @(self.drawPriority);
-    }
+    if (drawPriorityPerLevel > 0)
+        vecInfo.drawPriority = drawPriority + tileInfo->ident.level * drawPriorityPerLevel;
+    else
+        vecInfo.drawPriority = drawPriority;
 
     if (include)
     {
-        MaplyComponentObject *compObj = [viewC addWideVectors:vecObjs desc:desc mode:MaplyThreadCurrent];
-        if (compObj)
-            [compObjs addObject:compObj];
+        // Gather all the linear features
+        ShapeSet shapes;
+        for (auto vecObj : vecObjs) {
+            if (vecObj->getVectorType() == VectorArealType) {
+                shapes.insert(vecObj->shapes.begin(),vecObj->shapes.end());
+            }
+        }
+
+        SimpleIdentity wideVecID = styleSet->wideVecManage->addVectors(&shapes, vecInfo, tileInfo->changes);
+        if (wideVecID != EmptyIdentity)
+            compObj->wideVectorIDs.insert(wideVecID);
     }
     
-    [tileInfo addComponentObjects:compObjs];
+    if (!compObj->vectorIDs.empty()) {
+        styleSet->compManage->addComponentObject(compObj);
+        tileInfo->compObjs.push_back(compObj);
+    }
 }
 
-@end
+}

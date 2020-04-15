@@ -27,7 +27,7 @@ namespace WhirlyKit
 {
     
 /// Data types in dictionary
-typedef enum {DictTypeNone,DictTypeString,DictTypeInt,DictTypeIdentity,DictTypeDouble,DictTypeObject} DictionaryType;
+typedef enum {DictTypeNone,DictTypeString,DictTypeInt,DictTypeIdentity,DictTypeDouble,DictTypeObject,DictTypeDictionary,DictTypeArray} DictionaryType;
 
 class Dictionary;
 typedef std::shared_ptr<Dictionary> DictionaryRef;
@@ -65,7 +65,9 @@ public:
     /// Return a dictionary as an entry
     virtual DictionaryRef getDict(const std::string &name) const = 0;
     // Return a generic entry
-    virtual DictionaryEntryRef getEntry(const std::string &name) const;
+    virtual DictionaryEntryRef getEntry(const std::string &name) const = 0;
+    // Return an array (if it is an array)
+    virtual std::vector<DictionaryEntryRef> getArray(const std::string &name) const = 0;
 };
 
 class MutableDictionary;
@@ -75,29 +77,22 @@ typedef std::shared_ptr<MutableDictionary> MutableDictionaryRef;
 class DictionaryEntry
 {
 public:
-    DictionaryEntry(const Dictionary *dict,const std::string &name);
-    
     /// Returns the field type
-    DictionaryType getType() const;
+    virtual DictionaryType getType() const = 0;
     /// Return an int, using the default if it's missing
-    int getInt() const;
+    virtual int getInt() const = 0;
     /// Return a 64 bit unique identity or 0 if missing
-    SimpleIdentity getIdentity() const;
+    virtual SimpleIdentity getIdentity() const = 0;
     /// Interpret an int as a boolean
-    bool getBool() const;
+    virtual bool getBool() const = 0;
     /// Interpret an int as a RGBA color
-    RGBAColor getColor() const;
+    virtual RGBAColor getColor() const = 0;
     /// Return a double, using the default if it's missing
-    double getDouble() const;
+    virtual double getDouble() const = 0;
     /// Return a string, or empty if it's missing
-    std::string getString() const;
+    virtual std::string getString() const = 0;
     /// Return a dictionary as an entry
-    DictionaryRef getDict() const;
-
-protected:
-    DictionaryRef dict;
-    DictionaryType type;
-    std::string name;
+    virtual DictionaryRef getDict() const = 0;
 };
 
 /// This version of the dictionary can be modified

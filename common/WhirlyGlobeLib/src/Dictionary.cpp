@@ -28,61 +28,8 @@ Dictionary::Dictionary()
 {
 }
 
-DictionaryEntryRef Dictionary::getEntry(const std::string &name) const
-{
-    DictionaryEntry *entry = new DictionaryEntry(this,name);
-    return DictionaryEntryRef(entry);
-}
-
 MutableDictionary::MutableDictionary()
 {
-}
-
-DictionaryEntry::DictionaryEntry(const Dictionary *dict,const std::string &name)
-: dict(const_cast<Dictionary *>(dict)), name(name)
-{
-    if (dict)
-        type = dict->getType(name);
-}
-
-DictionaryType DictionaryEntry::getType() const
-{
-    return type;
-}
-
-int DictionaryEntry::getInt() const
-{
-    return dict->getInt(name);
-}
-
-SimpleIdentity DictionaryEntry::getIdentity() const
-{
-    return dict->getIdentity(name);
-}
-
-bool DictionaryEntry::getBool() const
-{
-    return dict->getBool(name);
-}
-
-RGBAColor DictionaryEntry::getColor() const
-{
-    return dict->getColor(name, RGBAColor::white());
-}
-
-double DictionaryEntry::getDouble() const
-{
-    return dict->getDouble(name);
-}
-
-std::string DictionaryEntry::getString() const
-{
-    return dict->getString(name);
-}
-
-DictionaryRef DictionaryEntry::getDict() const
-{
-    return dict->getDict(name);
 }
     
 }

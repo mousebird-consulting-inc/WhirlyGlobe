@@ -27,6 +27,9 @@ namespace WhirlyKit
 
 bool MapboxVectorCirclePaint::parse(MapboxVectorStyleSetImplRef styleSet,DictionaryRef styleEntry)
 {
+    if (!styleSet)
+        return false;
+    
     radius = styleSet->doubleValue("circle-radius",styleEntry,5.0);
     fillColor = styleSet->colorValue("circle-color",NULL,styleEntry,RGBAColor::white(),false);
     opacity = styleSet->doubleValue("circle-opacity",styleEntry,1.0);
@@ -42,7 +45,8 @@ bool MapboxVectorLayerCircle::parse(MapboxVectorStyleSetImplRef styleSet,
                                     MapboxVectorStyleLayerRef refLayer,
                                     int drawPriority)
 {
-    if (!MapboxVectorStyleLayer::parse(styleSet,styleEntry,refLayer,drawPriority))
+    if (!MapboxVectorStyleLayer::parse(styleSet,styleEntry,refLayer,drawPriority) ||
+        !paint.parse(styleSet, styleEntry->getDict("paint")))
         return false;
     
 //    // We want the texture a bit bigger than specified

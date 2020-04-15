@@ -569,6 +569,7 @@
 		2BA827D4226139AC00324594 /* vector_tile.pb.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BA827D3226139AC00324594 /* vector_tile.pb.cpp */; };
 		2BA98A0F24476D58006955DD /* MapboxVectorStyleFill.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB4767C2000488C006AAACB /* MapboxVectorStyleFill.mm */; };
 		2BA98A1024478255006955DD /* MapboxVectorStyleRaster.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB476812000488C006AAACB /* MapboxVectorStyleRaster.mm */; };
+		2BA98A11244782E3006955DD /* MapboxVectorStyleLine.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB4767F2000488C006AAACB /* MapboxVectorStyleLine.mm */; };
 		2BB4767B2000486F006AAACB /* MapboxVectorStyleSet.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB476752000486F006AAACB /* MapboxVectorStyleSet.h */; };
 		2BB8A3CD21ED43A40025DA98 /* MaplyTileSourceNew.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB8A3C921ED43A30025DA98 /* MaplyTileSourceNew.h */; };
 		2BB8A3CE21ED43A40025DA98 /* MaplyMBTileFetcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB8A3CA21ED43A30025DA98 /* MaplyMBTileFetcher.h */; };
@@ -4826,6 +4827,7 @@
 				2B699872228DD36A00C31E3F /* SceneRendererMTL.mm in Sources */,
 				2B846EE921F1380D00EF2A82 /* aasincos.c in Sources */,
 				2B8A78A322864B5C008B0A1F /* ShapeDrawableBuilder.cpp in Sources */,
+				2BA98A11244782E3006955DD /* MapboxVectorStyleLine.mm in Sources */,
 				2B82B6901E82E24A0095FB14 /* PJ_moll.c in Sources */,
 				2B8A78BC228B3AE9008B0A1F /* TextureAtlas.cpp in Sources */,
 				2B82B6791E82E24A0095FB14 /* PJ_isea.c in Sources */,

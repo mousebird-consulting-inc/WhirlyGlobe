@@ -20,50 +20,66 @@
 
 #import "private/MapboxVectorStyleSet_private.h"
 
+namespace WhirlyKit
+{
+
 typedef enum {MBLineCapButt,MBLineCapRound,MBLineCapSquare} MapboxVectorLineCap;
 typedef enum {MBLineJoinBevel,MBLineJoinRound,MBLineJoinMiter} MapboxVectorLineJoin;
 
-@interface MapboxVectorLineLayout : NSObject
+/**
+ Controls how the lines are laid out (geometry, largely).
+ */
+class MapboxVectorLineLayout
+{
+public:
+    bool parse(MapboxVectorStyleSetImplRef styleSet,DictionaryRef styleEntry);
 
-@property (nonatomic) bool visible;
-@property (nonatomic) MapboxVectorLineCap cap;
-@property (nonatomic) MapboxVectorLineJoin join;
-@property (nonatomic) double miterLimit;
-@property (nonatomic) double roundLimit;
+    MapboxVectorLineCap cap;
+    MapboxVectorLineJoin join;
+    double miterLimit;
+    double roundLimit;
+};
 
-- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
+/**
+ Controls how the vector line looks.
+ */
+class MapboxVectorLinePaint
+{
+public:
+    bool parse(MapboxVectorStyleSetImplRef styleSet,DictionaryRef styleEntry);
 
-@end
-
-@interface MapboxVectorLineDashArray : NSObject
-/// @brief Array of NSNumbers with alternating dashes and gaps
-@property (nonatomic,strong) NSArray *dashes;
-
-- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
-
-@end
-
-@interface MapboxVectorLinePaint : NSObject
-
-@property (nonatomic) MapboxTransDouble *opacity;
-@property (nonatomic) MapboxTransColor *color;
-@property (nonatomic) MapboxTransDouble *width;
-@property (nonatomic) MapboxVectorLineDashArray *lineDashArray;
-
-- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
-
-@end
+    MapboxTransDoubleRef opacity;
+    MapboxTransColorRef color;
+    MapboxTransDoubleRef width;
+    std::vector<double> lineDashArray;
+};
 
 /// @brief The line style
-@interface MapboxVectorLayerLine : MaplyMapboxVectorStyleLayer
+class MapboxVectorLayerLine : public MapboxVectorStyleLayer
+{
+public:
+    virtual bool parse(MapboxVectorStyleSetImplRef styleSet,
+                       DictionaryRef styleEntry,
+                       MapboxVectorStyleLayerRef refLayer,
+                       int drawPriority);
+    
+    virtual void buildObjects(std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo);
+    
+    virtual void cleanup(ChangeSet &changes);
+    
+protected:
+    MapboxVectorLineLayout layout;
+    MapboxVectorLinePaint paint;
+    bool linearClipToBounds;
+    bool dropGridLines;
 
-@property (nonatomic,strong) MapboxVectorLineLayout *layout;
-@property (nonatomic,strong) MapboxVectorLinePaint *paint;
-@property (nonatomic) bool linearClipToBounds;
-@property (nonatomic) bool dropGridLines;
-// If non-zero we'll subdivide the line along a globe to the given tolerance
-@property (nonatomic) double subdivToGlobe;
+    // If non-zero we'll subdivide the line along a globe to the given tolerance
+    double subdivToGlobe;
 
-- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
+    double lineScale;
+    double totLen;
+    double fade;
+    SimpleIdentity filledLineTexID;
+};
 
-@end
+}

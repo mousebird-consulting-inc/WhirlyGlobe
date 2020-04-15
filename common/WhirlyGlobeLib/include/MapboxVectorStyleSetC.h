@@ -139,8 +139,8 @@ public:
     /// @brief Scale the color by the given opacity
     RGBAColor color(RGBAColor color,double opacity);
 
-    /// @brief Return the integer corresponding to the name.  Basically parse the enumerated type.
-//    - (NSUInteger)enumValue:(NSString * __nonnull)name options:(NSArray * __nonnull)options defVal:(NSUInteger)defVal;
+    /// @brief Return the integer corresponding to the name.  Basically parse the enumerated type
+    int enumValue(const std::string &name,const char *options[],int defVal);
 
     /// @brief Check for and report an unsupported field
     void unsupportedCheck(const std::string &field,const std::string &what,DictionaryRef styleEntry);
@@ -150,6 +150,9 @@ public:
     
     /// Local platform implementation for generating a circle and adding it as a texture
     virtual SimpleIdentity makeCircleTexture(double radius,const RGBAColor &fillColor,const RGBAColor &strokeColor,Point2f *circleSize) = 0;
+    
+    /// Local platform implementation for generating a repeating line texture
+    virtual SimpleIdentity makeLineTexture(const std::vector<double> &dashComponents);
 
 public:
     Scene *scene;
@@ -163,6 +166,7 @@ public:
     SimpleIdentity screenMarkerProgramID;
     SimpleIdentity vectorArealProgramID;
     SimpleIdentity vectorLinearProgramID;
+    SimpleIdentity wideVectorProgramID;
 };
 typedef std::shared_ptr<MapboxVectorStyleSetImpl> MapboxVectorStyleSetImplRef;
 

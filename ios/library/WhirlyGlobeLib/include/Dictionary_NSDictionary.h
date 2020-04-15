@@ -27,6 +27,31 @@ namespace WhirlyKit
 class iosDictionary;
 typedef std::shared_ptr<iosDictionary> iosDictionaryRef;
 
+/// Wrapper around a single value
+class iosDictionaryEntry : public DictionaryEntry
+{
+public:
+    /// Returns the field type
+    virtual DictionaryType getType() const;
+    /// Return an int, using the default if it's missing
+    virtual int getInt() const;
+    /// Return a 64 bit unique identity or 0 if missing
+    virtual SimpleIdentity getIdentity() const;
+    /// Interpret an int as a boolean
+    virtual bool getBool() const;
+    /// Interpret an int as a RGBA color
+    virtual RGBAColor getColor() const;
+    /// Return a double, using the default if it's missing
+    virtual double getDouble() const;
+    /// Return a string, or empty if it's missing
+    virtual std::string getString() const;
+    /// Return a dictionary as an entry
+    virtual DictionaryRef getDict() const;
+protected:
+    DictionaryType type;
+    id value;
+};
+
 /// The Dictionary is my cross platform replacement for NSDictionary
 /// On iOS its just a wrapper
 class iosDictionary : public Dictionary
@@ -60,6 +85,10 @@ public:
     std::string getString(const std::string &name,const std::string &defVal) const;
     /// Return a dictionary as an entry
     DictionaryRef getDict(const std::string &name) const;
+    // Return a generic entry
+    virtual DictionaryEntryRef getEntry(const std::string &name) const;
+    // Return an array (if it is an array)
+    virtual std::vector<DictionaryEntryRef> getArray(const std::string &name) const;
 
 public:
     NSDictionary *dict;
@@ -102,6 +131,10 @@ public:
     std::string getString(const std::string &name,const std::string &defVal) const;
     /// Return a dictionary as an entry
     DictionaryRef getDict(const std::string &name) const;
+    // Return a generic entry
+    DictionaryEntryRef getEntry(const std::string &name) const;
+    // Return an array (if it is an array)
+    std::vector<DictionaryEntryRef> getArray(const std::string &name) const;
 
     /// Clean out the contents
     void clear();
