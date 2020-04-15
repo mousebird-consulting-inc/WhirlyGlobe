@@ -691,21 +691,25 @@ void SceneRendererMTL::render(TimeInterval duration,
             
             // This particular target may want a snapshot
             // TODO: Sort these into the render targets
-            [cmdBuff addCompletedHandler:^(id<MTLCommandBuffer> _Nonnull) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    // Look for the snapshot delegate that wants this render target
-                    for (auto snapshotDelegate : snapshotDelegates) {
-                        if (![snapshotDelegate needSnapshot:now])
-                            continue;
-                        
-                        if (renderTarget->getId() != [snapshotDelegate renderTargetID]) {
-                            continue;
+            if (!snapshotDelegates.empty()) {
+                // TODO: Still have a race condition here.  If the renderer is shutdown before this
+                //       is called, we'll get a crash
+                [cmdBuff addCompletedHandler:^(id<MTLCommandBuffer> _Nonnull) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        // Look for the snapshot delegate that wants this render target
+                        for (auto snapshotDelegate : snapshotDelegates) {
+                            if (![snapshotDelegate needSnapshot:now])
+                                continue;
+                            
+                            if (renderTarget->getId() != [snapshotDelegate renderTargetID]) {
+                                continue;
+                            }
+                            
+                            [snapshotDelegate snapshotData:nil];
                         }
-                        
-                        [snapshotDelegate snapshotData:nil];
-                    }
-                });
-            }];
+                    });
+                }];
+            }
 
             [cmdBuff commit];
             
