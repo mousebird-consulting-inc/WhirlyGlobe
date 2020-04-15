@@ -91,6 +91,9 @@ public:
 
     /// The default font family for all text
     std::string fontName;
+    
+    /// If we're using a dfiferent areal shader, set it up here
+    SimpleIdentity settingsArealShaderID;
 };
 typedef std::shared_ptr<VectorStyleSettingsImpl> VectorStyleSettingsImplRef;
 

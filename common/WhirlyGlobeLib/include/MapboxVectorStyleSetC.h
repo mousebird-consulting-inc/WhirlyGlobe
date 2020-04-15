@@ -129,11 +129,12 @@ public:
     MapboxTransDoubleRef transDouble(const std::string &name,DictionaryRef entry,double defVal);
 
     /// Builds a transitionable color object and returns that
-    MapboxTransColorRef transColor(const std::string &name,DictionaryRef entry,const RGBAColor &defVal);
+    MapboxTransColorRef transColor(const std::string &name,DictionaryRef entry,const RGBAColor *);
+    MapboxTransColorRef transColor(const std::string &name,DictionaryRef entry,const RGBAColor &);
 
     /// Resolve transitionable color and opacity into a single color for the zoom
     /// If this returns nil, then the object shouldn't appear
-    RGBAColor resolveColor(MapboxTransColorRef color,MapboxTransDoubleRef opacity,double zoom,MBResolveColorType resolveMode);
+    RGBAColorRef resolveColor(MapboxTransColorRef color,MapboxTransDoubleRef opacity,double zoom,MBResolveColorType resolveMode);
 
     /// @brief Scale the color by the given opacity
     RGBAColor color(RGBAColor color,double opacity);
@@ -160,6 +161,8 @@ public:
     
     // ID's for the various programs
     SimpleIdentity screenMarkerProgramID;
+    SimpleIdentity vectorArealProgramID;
+    SimpleIdentity vectorLinearProgramID;
 };
 typedef std::shared_ptr<MapboxVectorStyleSetImpl> MapboxVectorStyleSetImplRef;
 

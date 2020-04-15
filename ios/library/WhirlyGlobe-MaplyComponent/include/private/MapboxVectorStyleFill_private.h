@@ -20,9 +20,36 @@
 
 #import "private/MapboxVectorStyleSet_private.h"
 
-/// @brief The fill (e.g. fill polygon) style
-@interface MapboxVectorLayerFill : MaplyMapboxVectorStyleLayer
+namespace WhirlyKit
+{
 
-- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
+// Paint for the vector layer fill
+class MapboxVectorFillPaint
+{
+public:
+    bool parse(MapboxVectorStyleSetImplRef styleSet,DictionaryRef styleEntry);
 
-@end
+    MapboxTransDoubleRef opacity;
+    MapboxTransColorRef color;
+    MapboxTransColorRef outlineColor;
+};
+
+// Polygon fill layer
+class MapboxVectorLayerFill : public MapboxVectorStyleLayer
+{
+public:
+    virtual bool parse(MapboxVectorStyleSetImplRef styleSet,
+                       DictionaryRef styleEntry,
+                       MapboxVectorStyleLayerRef refLayer,
+                       int drawPriority);
+    
+    virtual void buildObjects(std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo);
+    
+    virtual void cleanup(ChangeSet &changes);
+    
+protected:
+    MapboxVectorFillPaint paint;
+    SimpleIdentity arealShaderID;
+};
+
+}

@@ -42,9 +42,8 @@ bool MapboxVectorLayerCircle::parse(MapboxVectorStyleSetImplRef styleSet,
                                     MapboxVectorStyleLayerRef refLayer,
                                     int drawPriority)
 {
-    if (!MapboxVectorStyleLayer::parse(styleSet,styleEntry,refLayer,drawPriority)) {
+    if (!MapboxVectorStyleLayer::parse(styleSet,styleEntry,refLayer,drawPriority))
         return false;
-    }
     
 //    // We want the texture a bit bigger than specified
 //    float scale = styleSet.tileStyleSettings.markerScale * 2;

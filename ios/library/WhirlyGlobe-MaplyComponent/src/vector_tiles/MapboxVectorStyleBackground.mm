@@ -28,8 +28,7 @@ namespace WhirlyKit
 bool MapboxVectorBackgroundPaint::parse(MapboxVectorStyleSetImplRef styleSet,DictionaryRef styleEntry)
 {
     color = styleSet->transColor("background-color",styleEntry,RGBAColor::black());
-    if (styleEntry->hasField("background-image"))
-        wkLogLevel(Warn,"MapboxStyleSet: Ignoring background image");
+    styleSet->unsupportedCheck("background-image","paint_background",styleEntry);
 
     opacity = styleSet->transDouble("background-opacity",styleEntry,1.0);
     
@@ -45,8 +44,7 @@ bool MapboxVectorLayerBackground::parse(MapboxVectorStyleSetImplRef styleSet,
         return false;
     }
     
-    if (styleEntry->hasField("layout"))
-        wkLogLevel(Warn,"MapboxStyleSet: Ignoring background layout");
+    styleSet->unsupportedCheck("layout","background",styleEntry);
     
     if (!paint.parse(styleSet,styleEntry->getDict("paint"))) {
         return false;

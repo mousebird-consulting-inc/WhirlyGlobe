@@ -48,6 +48,7 @@ public:
     float strokeOpacity;
 };
 
+/// Circles for individual points
 class MapboxVectorLayerCircle : public MapboxVectorStyleLayer
 {
 public:

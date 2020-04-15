@@ -22,164 +22,154 @@
 #import "MapboxVectorStyleSet_private.h"
 #import "private/MapboxVectorTiles_private.h"
 
-@implementation MapboxVectorFillLayout
-
-- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+namespace WhirlyKit
 {
-    self = [super init];
-    if (!self)
-        return nil;
-        
-    return self;
+
+bool MapboxVectorFillPaint::parse(MapboxVectorStyleSetImplRef styleSet,DictionaryRef styleEntry)
+{
+    styleSet->unsupportedCheck("fill-antialias","paint_fill",styleEntry);
+    styleSet->unsupportedCheck("fill-translate","paint_fill",styleEntry);
+    styleSet->unsupportedCheck("fill-translate-anchor","paint_fill",styleEntry);
+    styleSet->unsupportedCheck("fill-image","paint_fill",styleEntry);
+    
+    opacity = styleSet->transDouble("fill-opacity",styleEntry,1.0);
+    color = styleSet->transColor("fill-color",styleEntry,NULL);
+    outlineColor = styleSet->transColor("fill-outline-color",styleEntry,NULL);
+    
+    return true;
 }
 
-@end
-
-@implementation MapboxVectorFillPaint
-
-- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+bool MapboxVectorLayerFill::parse(MapboxVectorStyleSetImplRef styleSet,
+                                    DictionaryRef styleEntry,
+                                    MapboxVectorStyleLayerRef refLayer,
+                                    int drawPriority)
 {
-    self = [super init];
-    if (!self)
-        return nil;
+    if (!MapboxVectorStyleLayer::parse(styleSet,styleEntry,refLayer,drawPriority))
+        return false;
     
-    [styleSet unsupportedCheck:@"fill-antialias" in:@"paint_fill" styleEntry:styleEntry];
-    [styleSet unsupportedCheck:@"fill-translate" in:@"paint_fill" styleEntry:styleEntry];
-    [styleSet unsupportedCheck:@"fill-translate-anchor" in:@"paint_fill" styleEntry:styleEntry];
-    [styleSet unsupportedCheck:@"fill-image" in:@"paint_fill" styleEntry:styleEntry];
-
-    _opacity = [styleSet transDouble:@"fill-opacity" entry:styleEntry defVal:1.0];
-    _color = [styleSet transColor:@"fill-color" entry:styleEntry defVal:nil];
-    _outlineColor = [styleSet transColor:@"fill-outline-color" entry:styleEntry defVal:nil];
+    arealShaderID = styleSet->tileStyleSettings->settingsArealShaderID;
     
-    return self;
-}
-
-@end
-
-@implementation MapboxVectorLayerFill
-{
-    NSString *arealShaderName;
-}
-
-- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
-{
-    self = [super initWithStyleEntry:styleEntry parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:viewC];
-    if (!self)
-        return nil;
-    
-    _layout = [[MapboxVectorFillLayout alloc] initWithStyleEntry:styleEntry[@"layout"] styleSet:styleSet viewC:viewC];
-    _paint = [[MapboxVectorFillPaint alloc] initWithStyleEntry:styleEntry[@"paint"] styleSet:styleSet viewC:viewC];
-    if (!_paint)
-    {
-        NSLog(@"Expecting paint in fill layer");
-        return nil;
-    }
-    
-    if (styleSet.tileStyleSettings.arealShaderName)
-        arealShaderName = styleSet.tileStyleSettings.arealShaderName;
-
     // Mess directly with the opacity because we're using it for other purposes
-    if (styleEntry[@"alphaoverride"])
-    {
-        [_paint.color setAlphaOverride:[styleEntry[@"alphaoverride"] doubleValue]];
+    if (styleEntry->hasField("alphaoverride")) {
+        paint.color->setAlphaOverride(styleEntry->getDouble("alphaoverride"));
     }
-
-    return self;
-}
-
-- (void)buildObjects:(std::vector<WhirlyKit::VectorObjectRef> &)vecObjs forTile:(WhirlyKit::VectorTileDataRef)tileInfo vectorStyle:(WhirlyKit::MapboxVectorStyleSetImplRef)impl
-{
     
+    drawPriority = drawPriority;
+    
+    return true;
 }
 
-- (void)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileData *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+void MapboxVectorLayerFill::cleanup(ChangeSet &changes)
 {
-    if (!self.visible) {
+}
+
+void MapboxVectorLayerFill::buildObjects(std::vector<VectorObjectRef> &vecObjs,
+                                           VectorTileDataRef tileInfo)
+{
+    if (!visible)
         return;
-    }
-
-    NSMutableArray *compObjs = [NSMutableArray array];
     
+    ComponentObjectRef compObj(new ComponentObject());
+
     // Filled polygons
-    if (_paint.color)
-    {
-        NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:
-                     @{kMaplyFilled: @(YES),
-                       kMaplyVecCentered: @(true),
-                       kMaplySelectable: @(self.selectable),
-                       kMaplyEnable: @(NO)
-                      }];
-        if (arealShaderName)
-            desc[kMaplyShader] = arealShaderName;
+    if (paint.color) {
+        ShapeSet shapes;
 
-        NSMutableArray *tessVecObjs = [NSMutableArray array];
-        for (MaplyVectorObject *vecObj in vecObjs)
+        // Gather all the areal features
+        for (auto vecObj : vecObjs) {
+            if (vecObj->getVectorType() == VectorArealType) {
+                shapes.insert(vecObj->shapes.begin(),vecObj->shapes.end());
+            }
+        }
+        
+        ShapeSet tessShapes;
+        for (ShapeSet::iterator it = shapes.begin();it!=shapes.end();it++)
         {
-            MaplyVectorObject *tessVecObj = [vecObj tesselate];
-            if (tessVecObj)
-                [tessVecObjs addObject:tessVecObj];
+            VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
+            if (ar)
+            {
+                VectorTrianglesRef trisRef = VectorTriangles::createTriangles();
+                TesselateLoops(ar->loops, trisRef);
+                trisRef->setAttrDict(ar->getAttrDict());
+                trisRef->initGeoMbr();
+                tessShapes.insert(trisRef);
+            }
         }
         
+        // Set up the description for constructing vectors
+        VectorInfo vecInfo;
         bool include = true;
-        UIColor *color = [self.styleSet resolveColor:_paint.color opacity:_paint.opacity forZoom:tileInfo.tileID.level mode:MBResolveColorOpacityMultiply];
+        vecInfo.filled = true;
+        vecInfo.centered = true;
+        if (arealShaderID != EmptyIdentity)
+            vecInfo.programID = arealShaderID;
+        else
+            vecInfo.programID = styleSet->vectorArealProgramID;
+        RGBAColorRef color = styleSet->resolveColor(paint.color, paint.opacity, tileInfo->ident.level, MBResolveColorOpacityMultiply);
         if (color) {
-            // For fill we want the alpha multiplied through
-            // TODO: When we do this, it's a mess.  Need to track colors more exactly (some have alpha, some don't)
-//            CGFloat red,green,blue,alpha;
-//            [color getRed:&red green:&green blue:&blue alpha:&alpha];
-//            color = [UIColor colorWithRed:red*alpha green:green*alpha blue:blue*alpha alpha:alpha];
-            desc[kMaplyColor] = color;
-            include = true;
-        }
-        
-        
-        if (self.drawPriorityPerLevel > 0) {
-            desc[kMaplyDrawPriority] = @(self.drawPriority + tileInfo.tileID.level * self.drawPriorityPerLevel);
+            vecInfo.color = *color;
         } else {
-            desc[kMaplyDrawPriority] = @(self.drawPriority);
+            include = false;
         }
+        if (drawPriorityPerLevel > 0)
+            vecInfo.drawPriority = drawPriority + tileInfo->ident.level * drawPriorityPerLevel;
+        else
+            vecInfo.drawPriority = drawPriority;
+        
+        if (include) {
+            SimpleIdentity vecID = styleSet->vecManage->addVectors(&tessShapes, vecInfo, tileInfo->changes);
+            if (vecID != EmptyIdentity) {
+                compObj->vectorIDs.insert(vecID);
                 
-        if (include)
-        {
-            MaplyComponentObject *compObj = [viewC addVectors:tessVecObjs desc:desc mode:MaplyThreadCurrent];
-            if (compObj)
-                [compObjs addObject:compObj];
+                if (selectable)
+                    compObj->vecObjs = vecObjs;
+            }
         }
     }
     
-    // Outline
-    if (_paint.outlineColor)
-    {
-        NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:
-                    @{kMaplyFilled: @(NO),
-                      kMaplyVecCentered: @(true),
-                      kMaplySelectable: @(self.selectable),
-                      kMaplyEnable: @(NO)
-                      }];
+    // Outlines
+    if (paint.outlineColor) {
+        ShapeSet shapes;
 
+        // Gather all the areal features
+        for (auto vecObj : vecObjs) {
+            if (vecObj->getVectorType() == VectorArealType) {
+                shapes.insert(vecObj->shapes.begin(),vecObj->shapes.end());
+            }
+        }
+        
+        // Set up the description for constructing vectors
+        VectorInfo vecInfo;
         bool include = true;
-        UIColor *color = [self.styleSet resolveColor:_paint.outlineColor opacity:nil forZoom:tileInfo.tileID.level mode:MBResolveColorOpacityMultiply];
+        vecInfo.filled = false;
+        vecInfo.centered = true;
+        if (arealShaderID != EmptyIdentity)
+            vecInfo.programID = arealShaderID;
+        else
+            vecInfo.programID = styleSet->vectorArealProgramID;
+        RGBAColorRef color = styleSet->resolveColor(paint.outlineColor, paint.opacity, tileInfo->ident.level, MBResolveColorOpacityMultiply);
         if (color) {
-            desc[kMaplyColor] = color;
-            include = true;
-        }
-
-        if (self.drawPriorityPerLevel > 0) {
-            desc[kMaplyDrawPriority] = @(self.drawPriority + tileInfo.tileID.level * self.drawPriorityPerLevel+1);
+            vecInfo.color = *color;
         } else {
-            desc[kMaplyDrawPriority] = @(self.drawPriority+1);
+            include = false;
         }
-
-        if (include)
-        {
-            MaplyComponentObject *compObj = [viewC addVectors:vecObjs desc:desc mode:MaplyThreadCurrent];
-            if (compObj)
-                [compObjs addObject:compObj];
+        if (drawPriorityPerLevel > 0)
+            vecInfo.drawPriority = drawPriority + tileInfo->ident.level * drawPriorityPerLevel;
+        else
+            vecInfo.drawPriority = drawPriority;
+        
+        if (include) {
+            SimpleIdentity vecID = styleSet->vecManage->addVectors(&shapes, vecInfo, tileInfo->changes);
+            if (vecID != EmptyIdentity) {
+                compObj->vectorIDs.insert(vecID);
+            }
         }
     }
     
-    [tileInfo addComponentObjects:compObjs];
+    if (!compObj->vectorIDs.empty()) {
+        styleSet->compManage->addComponentObject(compObj);
+        tileInfo->compObjs.push_back(compObj);
+    }
 }
 
-@end
+}

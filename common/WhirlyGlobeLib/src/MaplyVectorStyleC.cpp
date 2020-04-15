@@ -40,6 +40,7 @@ VectorStyleSettingsImpl::VectorStyleSettingsImpl(double scale)
     oldVecWidthScale = 1.0;
     wideVecCuttoff = 0.0;
     selectable = false;
+    settingsArealShaderID = EmptyIdentity;
 }
 
 }
