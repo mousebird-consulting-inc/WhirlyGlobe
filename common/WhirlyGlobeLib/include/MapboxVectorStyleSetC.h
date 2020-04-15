@@ -120,7 +120,7 @@ public:
     std::string stringValue(const std::string &name,DictionaryRef dict,const std::string &defVal);
 
     /// @brief Return a color for the given name, taking the constants into account
-    RGBAColorRef colorValue(const std::string &name,DictionaryEntryRef val,DictionaryRef dict,const RGBAColor &defVal,bool multiplyAlpha);
+    RGBAColorRef colorValue(const std::string &name,DictionaryEntryRef val,DictionaryRef dict,RGBAColorRef defVal,bool multiplyAlpha);
 
     /// @brief Return an array for the given name, taking the constants into account
     std::vector<DictionaryRef> arrayValue(const std::string &name,DictionaryRef dict);

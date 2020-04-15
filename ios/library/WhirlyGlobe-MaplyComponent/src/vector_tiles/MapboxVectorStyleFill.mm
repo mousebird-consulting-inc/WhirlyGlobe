@@ -44,7 +44,8 @@ bool MapboxVectorLayerFill::parse(MapboxVectorStyleSetImplRef styleSet,
                                     MapboxVectorStyleLayerRef refLayer,
                                     int drawPriority)
 {
-    if (!MapboxVectorStyleLayer::parse(styleSet,styleEntry,refLayer,drawPriority))
+    if (!MapboxVectorStyleLayer::parse(styleSet,styleEntry,refLayer,drawPriority) ||
+        !paint.parse(styleSet,styleEntry->getDict("paint")))
         return false;
     
     arealShaderID = styleSet->tileStyleSettings->settingsArealShaderID;

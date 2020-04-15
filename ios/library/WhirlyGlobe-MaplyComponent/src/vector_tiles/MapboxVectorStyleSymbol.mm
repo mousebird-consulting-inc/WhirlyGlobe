@@ -19,9 +19,11 @@
  */
 
 #import "private/MapboxVectorStyleSymbol_private.h"
-#import "visual_objects/MaplyScreenLabel.h"
-#import "private/MapboxVectorStyleSet_private.h"
+#import "MapboxVectorStyleSet_private.h"
 #import <vector>
+
+namespace WhirlyKit
+{
 
 // Used to track text data
 class TextChunk {
@@ -34,20 +36,12 @@ public:
     std::vector<NSString *> keys;
 };
 
-@implementation MapboxVectorSymbolLayout
-{
-@public
-    std::vector<TextChunk> textChunks;
-    float layoutImportance;
-}
+static const char *
 
-- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+bool MapboxVectorSymbolLayout::parse(MapboxVectorStyleSetImplRef styleSet,DictionaryRef styleEntry)
 {
-    self = [super init];
-    if (!self)
-        return nil;
-    
-    _globalTextScale = styleSet.tileStyleSettings.textScale;
+    globalTextScale = styleSet->tileStyleSettings->textScale;
+    placement = styleSet->enumValue("symbol-placement", <#const char **options#>, <#int defVal#>)
     _placement = (MapboxSymbolPlacement)[styleSet enumValue:styleEntry[@"symbol-placement"] options:@[@"point",@"line"] defVal:MBPlacePoint];
     _textTransform = (MapboxTextTransform)[styleSet enumValue:styleEntry[@"text-transform"] options:@[@"none",@"uppercase",@"lowercase"] defVal:MBTextTransNone];
     
@@ -96,57 +90,31 @@ public:
     return self;
 }
 
-@end
-
-@implementation MapboxVectorSymbolPaint
-
-- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+bool MapboxVectorSymbolPaint::parse(MapboxVectorStyleSetImplRef styleSet,DictionaryRef styleEntry)
 {
-    self = [super init];
-    if (!self)
-        return nil;
-    
-    _textColor = [styleSet transColor:@"text-color" entry:styleEntry defVal:[UIColor blackColor]];
-    _textOpacity = [styleSet transDouble:@"text-opacity" entry:styleEntry defVal:1.0];
-    _textHaloColor = [styleSet colorValue:@"text-halo-color" val:nil dict:styleEntry defVal:nil multiplyAlpha:false];
-    _textHaloWidth = [styleSet doubleValue:@"text-halo-width" dict:styleEntry defVal:0.0];
+    textColor = styleSet->transColor("text-color", styleEntry, RGBAColor::black());
+    textOpacity = styleSet->transDouble("text-opacity", styleEntry, 1.0);
+    textHaloColor = styleSet->colorValue("text-halo-color", NULL, styleEntry, RGBAColorRef(), false);
+    textHaloWidth = styleSet->doubleValue("text-halo-width", DictionaryRef(), styleEntry, 0.0);
 
-    return self;
+    return true;
 }
 
-@end
-
-@implementation MapboxVectorLayerSymbol
+bool MapboxVectorLayerSymbol::parse(MapboxVectorStyleSetImplRef styleSet,
+                                   DictionaryRef styleEntry,
+                                   MapboxVectorStyleLayerRef refLayer,
+                                   int drawPriority)
 {
-    NSString *uuidField;
-    MaplyVectorStyleSettings *styleSettings;
-}
+    if (!MapboxVectorStyleLayer::parse(styleSet,styleEntry,refLayer,drawPriority) ||
+        !layout.parse(styleSet,styleEntry->getDict("layout")) ||
+        !paint.parse(styleSet, styleEntry->getDict("paint")))
+        return false;
 
-- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
-{
-    self = [super initWithStyleEntry:styleEntry parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:viewC];
-    if (!self)
-        return nil;
-    styleSettings = styleSet.tileStyleSettings;
+    uniqueLabel = styleSet->boolValue("unique-label", styleEntry, "yes", false);
     
-    _layout = [[MapboxVectorSymbolLayout alloc] initWithStyleEntry:styleEntry[@"layout"] styleSet:styleSet viewC:viewC];
-    _paint = [[MapboxVectorSymbolPaint alloc] initWithStyleEntry:styleEntry[@"paint"] styleSet:styleSet viewC:viewC];
-    _uniqueLabel = [styleSet boolValue:@"unique-label" dict:styleEntry onValue:@"yes" defVal:false];
-
-    if (!_layout)
-    {
-        NSLog(@"Expecting layout in symbol layer.");
-        return nil;
-    }
-    if (!_paint)
-    {
-        NSLog(@"Expecting paint in symbol layer.");
-        return nil;
-    }
-    
-    uuidField = styleSet.tileStyleSettings.uuidField;
+    uuidField = styleSet->tileStyleSettings->uuidField;
         
-    return self;
+    return true;
 }
 
 // Break up text into multiple lines if needed
@@ -393,4 +361,4 @@ public:
     [tileInfo addComponentObject:[viewC addScreenLabels:labels desc:desc mode:MaplyThreadCurrent]];
 }
 
-@end
+}

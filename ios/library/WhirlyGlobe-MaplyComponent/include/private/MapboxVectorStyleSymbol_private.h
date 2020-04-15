@@ -20,56 +20,74 @@
 
 #import "private/MapboxVectorStyleSet_private.h"
 
+namespace WhirlyKit
+{
+
 typedef enum {MBTextCenter,MBTextLeft,MBTextRight,MBTextTop,MBTextBottom,MBTextTopLeft,MBTextTopRight,MBTextBottomLeft,MBTextBottomRight} MapboxTextAnchor;
 typedef enum {MBPlacePoint,MBPlaceLine} MapboxSymbolPlacement;
 typedef enum {MBTextTransNone,MBTextTransUppercase,MBTextTransLowercase} MapboxTextTransform;
 
 /** Controls the layout logic for Mapbox Symbols.
   */
-@interface MapboxVectorSymbolLayout : NSObject
+class MapboxVectorSymbolLayout
+{
+public:
+    bool parse(MapboxVectorStyleSetImplRef styleSet,DictionaryRef styleEntry);
 
-@property (nonatomic) bool visible;
-/// How we place the symbol (at a point, or along a line)
-@property (nonatomic) MapboxSymbolPlacement placement;
-/// If set, turn the text uppercase
-@property (nonatomic) MapboxTextTransform textTransform;
-/// @brief Font to use for display
-@property (nonatomic,strong) NSString *textFontName;
-/// @brief The maximum line width for wrapping
-@property (nonatomic) MapboxTransDouble *textMaxWidth;
-/// If set, the immutable text size
-@property (nonatomic) MapboxTransDouble *textSize;
-/// Text scale from the global settings
-@property (nonatomic) double globalTextScale;
-/// How the text is laid out in relation to it's attach point
-@property (nonatomic) MapboxTextAnchor textAnchor;
+    /// How we place the symbol (at a point, or along a line)
+    MapboxSymbolPlacement placement;
+    /// If set, turn the text uppercase
+    MapboxTextTransform textTransform;
+    /// @brief Font to use for display
+    std::string textFontName;
+    /// @brief The maximum line width for wrapping
+    MapboxTransDoubleRef textMaxWidth;
+    /// If set, the immutable text size
+    MapboxTransDoubleRef textSize;
+    /// Text scale from the global settings
+    double globalTextScale;
+    /// How the text is laid out in relation to it's attach point
+    MapboxTextAnchor textAnchor;
+protected:
+    float layoutImportance;
+    std::vector<TextChunk> textChunks;
+}
 
-- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
+// Symbol visuals
+class MapboxVectorSymbolPaint
+{
+public:
+    bool parse(MapboxVectorStyleSetImplRef styleSet,DictionaryRef styleEntry);
 
-@end
-
-@interface MapboxVectorSymbolPaint : NSObject
-
-// Default text color
-@property (nonatomic) MapboxTransColor *textColor;
-@property (nonatomic) MapboxTransDouble *textOpacity;
-// If there's a halo, this is the color
-@property (nonatomic,strong) UIColor *textHaloColor;
-// If there's a halo, this is the size
-@property (nonatomic) double textHaloWidth;
-
-- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
-
-@end
+    // Default text color
+    MapboxTransColorRef textColor;
+    MapboxTransDoubleRef textOpacity;
+    // If there's a halo, this is the color
+    RGBAColorRef textHaloColor;
+    // If there's a halo, this is the size
+    double textHaloWidth;
+};
 
 /// @brief Icons and symbols
-@interface MapboxVectorLayerSymbol : MaplyMapboxVectorStyleLayer
+class MapboxVectorLayerSymbol : public MapboxVectorStyleLayer
+{
+public:
+    virtual bool parse(MapboxVectorStyleSetImplRef styleSet,
+                       DictionaryRef styleEntry,
+                       MapboxVectorStyleLayerRef refLayer,
+                       int drawPriority);
+    
+    virtual void buildObjects(std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo);
+    
+    virtual void cleanup(ChangeSet &changes);
 
-@property (nonatomic,strong) MapboxVectorSymbolLayout *layout;
-@property (nonatomic,strong) MapboxVectorSymbolPaint *paint;
-/// If set, only one label with its text will be displayed.  Sorted out by the layout manager.
-@property (nonatomic) bool uniqueLabel;
+protected:
+    MapboxVectorSymbolLayout layout;
+    MapboxVectorSymbolPaint paint;
 
-- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
+    /// If set, only one label with its text will be displayed.  Sorted out by the layout manager.
+    bool uniqueLabel;
+    std::string uuidField;
+};
 
-@end
+}
