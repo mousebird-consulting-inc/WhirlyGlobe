@@ -25,7 +25,7 @@
 namespace WhirlyKit
 {
 
-bool MapboxVectorCirlePaint::parse(MapboxVectorStyleSetImplRef styleSet,DictionaryRef styleEntry)
+bool MapboxVectorCirclePaint::parse(MapboxVectorStyleSetImplRef styleSet,DictionaryRef styleEntry)
 {
     radius = styleSet->doubleValue("circle-radius",styleEntry,5.0);
     fillColor = styleSet->colorValue("circle-color",NULL,styleEntry,RGBAColor::white(),false);

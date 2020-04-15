@@ -28,7 +28,7 @@ namespace WhirlyKit
  
  You control the look of any rendered circles with this.  It would typically be produced in parsing a Mapbox Vector Style.
  */
-class MapboxVectorCirlePaint
+class MapboxVectorCirclePaint
 {
 public:
     bool parse(MapboxVectorStyleSetImplRef styleSet,DictionaryRef styleEntry);
@@ -62,7 +62,7 @@ public:
     virtual void cleanup(ChangeSet &changes);
 
 protected:
-    MapboxVectorCirlePaint paint;
+    MapboxVectorCirclePaint paint;
     
     SimpleIdentity circleTexID;
     Point2f circleSize;

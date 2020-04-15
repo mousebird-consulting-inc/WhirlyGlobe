@@ -20,9 +20,23 @@
 
 #import "private/MapboxVectorStyleSet_private.h"
 
+namespace WhirlyKit
+{
+
 /// @brief Raster tiles
-@interface MapboxVectorLayerRaster : MaplyMapboxVectorStyleLayer
+class MapboxVectorLayerRaster : public MapboxVectorStyleLayer
+{
+public:
+    virtual bool parse(MapboxVectorStyleSetImplRef styleSet,
+                       DictionaryRef styleEntry,
+                       MapboxVectorStyleLayerRef refLayer,
+                       int drawPriority);
+    
+    virtual void buildObjects(std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo);
+    
+    virtual void cleanup(ChangeSet &changes);
 
-- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
+protected:
+};
 
-@end
+}
