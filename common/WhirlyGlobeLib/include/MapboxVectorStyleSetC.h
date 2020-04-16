@@ -92,15 +92,6 @@ public:
     /// @brief Constants from the Style sheet
     DictionaryRef constants;
 
-    /// @brief Layers parsed from the style sheet
-    std::vector<MapboxVectorStyleLayerRef> layers;
-
-    /// @brief Layers sorted by their ID
-    std::map<std::string, MapboxVectorStyleLayerRef> layersByName;
-
-    /// @brief Layers sorted by source layer name
-    std::map<std::string, MapboxVectorStyleLayerRef> layersBySource;
-
     /// @brief Generates a unique ID for a style
     long long generateID();
 
@@ -149,6 +140,9 @@ public:
     /// @brief Check if the given thing is a constant and return its value if it is.  Otherwise just return it.
 //    - (id __nullable)constantSubstitution:(id __nonnull)thing forField:(NSString * __nullable)field;
     
+    /// Fetch a layer by name
+    virtual MapboxVectorStyleLayerRef getLayer(const std::string &name);
+    
     /// Local platform implementation for generating a circle and adding it as a texture
     virtual SimpleIdentity makeCircleTexture(double radius,const RGBAColor &fillColor,const RGBAColor &strokeColor,Point2f *circleSize) = 0;
     
@@ -163,6 +157,15 @@ public:
 
 public:
     Scene *scene;
+
+    /// @brief Layers parsed from the style sheet
+    std::vector<MapboxVectorStyleLayerRef> layers;
+
+    /// @brief Layers sorted by their ID
+    std::map<std::string, MapboxVectorStyleLayerRef> layersByName;
+
+    /// @brief Layers sorted by source layer name
+    std::map<std::string, MapboxVectorStyleLayerRef> layersBySource;
 
     VectorManager *vecManage;
     WideVectorManager *wideVecManage;

@@ -39,12 +39,11 @@ bool MapboxVectorFillPaint::parse(MapboxVectorStyleSetImplRef styleSet,Dictionar
     return true;
 }
 
-bool MapboxVectorLayerFill::parse(MapboxVectorStyleSetImplRef styleSet,
-                                    DictionaryRef styleEntry,
+bool MapboxVectorLayerFill::parse(DictionaryRef styleEntry,
                                     MapboxVectorStyleLayerRef refLayer,
                                     int drawPriority)
 {
-    if (!MapboxVectorStyleLayer::parse(styleSet,styleEntry,refLayer,drawPriority) ||
+    if (!MapboxVectorStyleLayer::parse(styleEntry,refLayer,drawPriority) ||
         !paint.parse(styleSet,styleEntry->getDict("paint")))
         return false;
     

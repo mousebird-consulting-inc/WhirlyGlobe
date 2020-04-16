@@ -39,8 +39,9 @@ public:
 class MapboxVectorLayerFill : public MapboxVectorStyleLayer
 {
 public:
-    virtual bool parse(MapboxVectorStyleSetImplRef styleSet,
-                       DictionaryRef styleEntry,
+    MapboxVectorLayerFill(MapboxVectorStyleSetImplRef styleSet) : MapboxVectorStyleLayer(styleSet) { }
+    
+    virtual bool parse(DictionaryRef styleEntry,
                        MapboxVectorStyleLayerRef refLayer,
                        int drawPriority);
     

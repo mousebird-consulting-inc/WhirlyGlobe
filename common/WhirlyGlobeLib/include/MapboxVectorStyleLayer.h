@@ -39,12 +39,11 @@ public:
     static MapboxVectorStyleLayerRef VectorStyleLayer(MapboxVectorStyleSetImplRef styleSet,DictionaryRef layerDict,int drawPriority);
 
     /// @brief Base class initialization.  Copies data out of the refLayer
-    MapboxVectorStyleLayer();
+    MapboxVectorStyleLayer(MapboxVectorStyleSetImplRef styleSet);
     virtual ~MapboxVectorStyleLayer();
 
     // Parse the layer entry out of the style sheet
-    virtual bool parse(MapboxVectorStyleSetImplRef styleSet,
-                       DictionaryRef styleEntry,
+    virtual bool parse(DictionaryRef styleEntry,
                        MapboxVectorStyleLayerRef parentLayer,
                        int drawPriority);
 
@@ -59,7 +58,7 @@ public:
     virtual bool geomAdditive();
 
     /// Construct objects related to this style based on the input data.
-    virtual void buildObjects(MapboxVectorStyleSetImplRef styleSet,std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo) = 0;
+    virtual void buildObjects(std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo) = 0;
     
     /// Clean up any objects (textures, probably)
     virtual void cleanup(ChangeSet &changes);
@@ -102,6 +101,9 @@ public:
 
     /// @brief metadata tag from the JSON file
     DictionaryRef metadata;
+    
+    /// Category value, if set
+    std::string category;
 };
 
 

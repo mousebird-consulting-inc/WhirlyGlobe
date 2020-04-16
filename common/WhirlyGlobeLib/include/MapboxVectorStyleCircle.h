@@ -53,8 +53,9 @@ public:
 class MapboxVectorLayerCircle : public MapboxVectorStyleLayer
 {
 public:
-    virtual bool parse(MapboxVectorStyleSetImplRef styleSet,
-                       DictionaryRef styleEntry,
+    MapboxVectorLayerCircle(MapboxVectorStyleSetImplRef styleSet) : MapboxVectorStyleLayer(styleSet) { }
+
+    virtual bool parse(DictionaryRef styleEntry,
                        MapboxVectorStyleLayerRef refLayer,
                        int drawPriority);
     

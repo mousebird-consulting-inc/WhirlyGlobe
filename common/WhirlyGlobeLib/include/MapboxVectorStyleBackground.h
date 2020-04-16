@@ -44,8 +44,9 @@ public:
 class MapboxVectorLayerBackground : public MapboxVectorStyleLayer
 {
 public:
-    virtual bool parse(MapboxVectorStyleSetImplRef styleSet,
-                       DictionaryRef styleEntry,
+    MapboxVectorLayerBackground(MapboxVectorStyleSetImplRef styleSet) : MapboxVectorStyleLayer(styleSet) { }
+
+    virtual bool parse(DictionaryRef styleEntry,
                        MapboxVectorStyleLayerRef refLayer,
                        int drawPriority);
     

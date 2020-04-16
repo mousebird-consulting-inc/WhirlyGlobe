@@ -63,12 +63,11 @@ bool MapboxVectorLinePaint::parse(MapboxVectorStyleSetImplRef styleSet,Dictionar
     return true;
 }
 
-bool MapboxVectorLayerLine::parse(MapboxVectorStyleSetImplRef styleSet,
-                                   DictionaryRef styleEntry,
+bool MapboxVectorLayerLine::parse(DictionaryRef styleEntry,
                                    MapboxVectorStyleLayerRef refLayer,
                                    int drawPriority)
 {
-    if (!MapboxVectorStyleLayer::parse(styleSet,styleEntry,refLayer,drawPriority) ||
+    if (!MapboxVectorStyleLayer::parse(styleEntry,refLayer,drawPriority) ||
         !layout.parse(styleSet, styleEntry->getDict("layout")) ||
         !paint.parse(styleSet, styleEntry->getDict("paint")))
         return false;
@@ -111,6 +110,10 @@ bool MapboxVectorLayerLine::parse(MapboxVectorStyleSetImplRef styleSet,
     lineScale = styleSet->tileStyleSettings->lineScale;
 
     return true;
+}
+
+void MapboxVectorLayerLine::cleanup(ChangeSet &changes)
+{
 }
 
 void MapboxVectorLayerLine::buildObjects(std::vector<VectorObjectRef> &inVecObjs,VectorTileDataRef tileInfo)

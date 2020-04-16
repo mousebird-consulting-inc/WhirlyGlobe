@@ -84,12 +84,13 @@ public:
 class MapboxVectorLayerSymbol : public MapboxVectorStyleLayer
 {
 public:
-    virtual bool parse(MapboxVectorStyleSetImplRef styleSet,
-                       DictionaryRef styleEntry,
+    MapboxVectorLayerSymbol(MapboxVectorStyleSetImplRef styleSet) : MapboxVectorStyleLayer(styleSet) { }
+
+    virtual bool parse(DictionaryRef styleEntry,
                        MapboxVectorStyleLayerRef refLayer,
                        int drawPriority);
     
-    virtual void buildObjects(MapboxVectorStyleSetImplRef styleSet,std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo);
+    virtual void buildObjects(std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo);
     
     virtual void cleanup(ChangeSet &changes);
 

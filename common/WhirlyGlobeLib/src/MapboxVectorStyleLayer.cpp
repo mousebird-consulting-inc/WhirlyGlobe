@@ -19,125 +19,112 @@
 */
 
 #import "MapboxVectorStyleLayer.h"
+#import "MapboxVectorStyleSetC.h"
+#import "MapboxVectorStyleBackground.h"
+#import "MapboxVectorStyleSymbol.h"
+#import "MapboxVectorStyleRaster.h"
+#import "MapboxVectorStyleLine.h"
+#import "MapboxVectorStyleFill.h"
+#import "MapboxVectorStyleCircle.h"
+#import "MapboxVectorFilter.h"
+#import "WhirlyKitLog.h"
 
 namespace WhirlyKit
 {
 
-//@implementation MaplyMapboxVectorStyleLayer
-//{
-//    NSString *category;
-//}
-//
-//+ (id)VectorStyleLayer:(MapboxVectorStyleSet *)styleSet JSON:(NSDictionary *)layerDict drawPriority:(int)drawPriority
-//{
-//    MaplyMapboxVectorStyleLayer *layer = nil;
-//    MaplyMapboxVectorStyleLayer *refLayer = nil;
-//
-//    // Look for the layer with that name
-//    NSString *refLayerName = layerDict[@"ref"];
-//    if (refLayer)
-//    {
-//        if (![refLayerName isKindOfClass:[NSString class]])
-//        {
-//            NSLog(@"Was expecting string for ref in layer");
-//            return nil;
-//        }
-//
-//        refLayer = styleSet.layersByName[refLayerName];
-//        if (!refLayer)
-//        {
-//            NSLog(@"Didn't find layer named (%@)",refLayerName);
-//            return nil;
-//        }
-//    }
-//
-//    NSString *type = layerDict[@"type"];
-//    if (type && ![type isKindOfClass:[NSString class]])
-//    {
-//        NSLog(@"Expecting string type for layer");
-//        return nil;
-//    }
-//    if ([type isEqualToString:@"fill"])
-//    {
-//        MapboxVectorLayerFill *fillLayer = [[MapboxVectorLayerFill alloc] initWithStyleEntry:layerDict parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:styleSet.viewC];
-//        layer = fillLayer;
-//    } else if ([type isEqualToString:@"line"])
-//    {
-//        MapboxVectorLayerLine *lineLayer = [[MapboxVectorLayerLine alloc] initWithStyleEntry:layerDict parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:styleSet.viewC];
-//        layer = lineLayer;
-//    } else if ([type isEqualToString:@"symbol"])
-//    {
-//        MapboxVectorLayerSymbol *symbolLayer = [[MapboxVectorLayerSymbol alloc] initWithStyleEntry:layerDict parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:styleSet.viewC];
-//        layer = symbolLayer;
-//    } else if ([type isEqualToString:@"circle"])
-//    {
-//        MapboxVectorLayerCircle *circleLayer = [[MapboxVectorLayerCircle alloc] initWithStyleEntry:layerDict parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:styleSet.viewC];
-//        layer = circleLayer;
-//    } else if ([type isEqualToString:@"raster"])
-//    {
-//        MapboxVectorLayerRaster *rasterLayer = [[MapboxVectorLayerRaster alloc] initWithStyleEntry:layerDict parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:styleSet.viewC];
-//        layer = rasterLayer;
-//    } else if ([type isEqualToString:@"background"])
-//    {
-//        MapboxVectorLayerBackground *backLayer = [[MapboxVectorLayerBackground alloc] initWithStyleEntry:layerDict parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:styleSet.viewC];
-//        layer = backLayer;
-//    }
-//    if (layerDict[@"filter"])
-//    {
-//        layer.filter = [[MapboxVectorFilter alloc] initWithArray:[styleSet arrayValue:@"filter" dict:layerDict defVal:nil] styleSet:styleSet viewC:styleSet.viewC];
-//        if (!layer.filter)
-//        {
-//            NSLog(@"MapboxStyleSet: Failed to parse filter for layer %@",layerDict[@"id"]);
-//        }
-//    }
-//
-//    layer.visible = [styleSet boolValue:@"visibility" dict:layerDict[@"layout"] onValue:@"visible" defVal:true];
-//    layer.selectable = styleSet.tileStyleSettings.selectable;
-//
-//    if (layerDict[@"metadata"])
-//    {
-//        NSDictionary *metadataDict = layerDict[@"metadata"];
-//        if ([metadataDict isKindOfClass:[NSDictionary class]])
-//            layer.metadata = metadataDict;
-//    }
-//
-//    return layer;
-//}
-//
-//- (id)initWithStyleEntry:(NSDictionary *)layerDict parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
-//{
-//    self = [super init];
-//    if (!self)
-//        return nil;
-//
-//    self.styleSet = styleSet;
-//    self.drawPriorityPerLevel = styleSet.tileStyleSettings.drawPriorityPerLevel;
-//    self.drawPriority = drawPriority;
-//    self.uuid = [styleSet generateID];
-//
-//    _minzoom = -1;
-//    _maxzoom = -1;
-//
-//    self.ident = layerDict[@"id"];
-//    self.source = [styleSet stringValue:@"source" dict:layerDict defVal:refLayer.source];
-//    self.sourceLayer = [styleSet stringValue:@"source-layer" dict:layerDict defVal:refLayer.sourceLayer];
-//    self.minzoom = [styleSet intValue:@"minzoom" dict:layerDict defVal:refLayer.minzoom];
-//    self.maxzoom = [styleSet intValue:@"maxzoom" dict:layerDict defVal:refLayer.maxzoom];
-//    category = [styleSet stringValue:@"wkcategory" dict:layerDict defVal:nil];
-//
-//    return self;
-//}
-//
-//- (NSString *)getCategory
-//{
-//    return category;
-//}
-//
-//- (void)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileData *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
-//{
-//}
-//
-//@end
+MapboxVectorStyleLayerRef MapboxVectorStyleLayer::VectorStyleLayer(MapboxVectorStyleSetImplRef styleSet,DictionaryRef layerDict,int drawPriority)
+{
+    MapboxVectorStyleLayerRef layer;
+    MapboxVectorStyleLayerRef refLayer;
+    
+    if (layerDict->getType("ref") == DictTypeString) {
+        std::string ref = layerDict->getString("ref");
+        refLayer = styleSet->getLayer(ref);
+        
+        if (!refLayer)
+            wkLogLevel(Warn,"Didn't find layer named %s",ref.c_str());
+    }
 
+    std::string type = layerDict->getString("type");
+    if (type.empty()) {
+        wkLogLevel(Warn, "Expecting string type for layer");
+        return NULL;
+    }
+    
+    if (type == "fill") {
+        layer = MapboxVectorStyleLayerRef(new MapboxVectorLayerFill(styleSet));
+    } else if (type == "line") {
+        layer = MapboxVectorStyleLayerRef(new MapboxVectorLayerLine(styleSet));
+    } else if (type == "symbol") {
+        layer = MapboxVectorStyleLayerRef(new MapboxVectorLayerSymbol(styleSet));
+    } else if (type == "circle") {
+        layer = MapboxVectorStyleLayerRef(new MapboxVectorLayerCircle(styleSet));
+    } else if (type == "raster") {
+        layer = MapboxVectorStyleLayerRef(new MapboxVectorLayerRaster(styleSet));
+    } else if (type == "background") {
+        layer = MapboxVectorStyleLayerRef(new MapboxVectorLayerBackground(styleSet));
+    }
+    layer->parse(layerDict, refLayer, drawPriority);
+    
+    if (layerDict->getType("filter") == DictTypeArray) {
+        layer->filter = MapboxVectorFilterRef(new MapboxVectorFilter(layerDict->getArray("filter"),styleSet));
+    }
+    
+    layer->visible = styleSet->boolValue("visibility", layerDict->getDict("layout"), "visible", true);
+    layer->selectable = styleSet->tileStyleSettings->selectable;
+    
+    layer->metadata = layerDict->getDict("metadata");
+    
+    return layer;
+}
+
+MapboxVectorStyleLayer::MapboxVectorStyleLayer(MapboxVectorStyleSetImplRef styleSet)
+: visible(true), minzoom(0), maxzoom(0), drawPriority(0), drawPriorityPerLevel(0),
+selectable(false), uuid(0), geomAdditiveVal(false), styleSet(styleSet)
+{
+}
+
+MapboxVectorStyleLayer::~MapboxVectorStyleLayer()
+{
+}
+
+bool MapboxVectorStyleLayer::parse(DictionaryRef styleEntry,
+                                   MapboxVectorStyleLayerRef refLayer,
+                                   int inDrawPriority)
+{
+    drawPriorityPerLevel = styleSet->tileStyleSettings->drawPriorityPerLevel;
+    drawPriority = inDrawPriority;
+    uuid = styleSet->generateID();
+    
+    ident = styleEntry->getInt("id");
+    source = styleSet->stringValue("source", styleEntry, refLayer->source);
+    sourceLayer = styleSet->stringValue("source-layer", styleEntry, refLayer->sourceLayer);
+    
+    minzoom = styleSet->intValue("minzoom", styleEntry, -1);
+    maxzoom = styleSet->intValue("maxzoom", styleEntry, -1);
+    
+    category = styleSet->stringValue("wkcategory", styleEntry, "");
+    
+    return true;
+}
+
+long long MapboxVectorStyleLayer::getUuid()
+{
+    return styleSet->generateID();
+}
+
+const std::string &MapboxVectorStyleLayer::getCategory()
+{
+    return category;
+}
+
+bool MapboxVectorStyleLayer::geomAdditive()
+{
+    return geomAdditiveVal;
+}
+
+void MapboxVectorStyleLayer::cleanup(ChangeSet &changes)
+{
+}
 
 }

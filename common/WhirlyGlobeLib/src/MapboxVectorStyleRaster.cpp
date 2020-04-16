@@ -23,8 +23,7 @@
 namespace WhirlyKit
 {
 
-bool MapboxVectorLayerRaster::parse(MapboxVectorStyleSetImplRef styleSet,
-                   DictionaryRef styleEntry,
+bool MapboxVectorLayerRaster::parse(DictionaryRef styleEntry,
                    MapboxVectorStyleLayerRef refLayer,
                    int drawPriority)
 {

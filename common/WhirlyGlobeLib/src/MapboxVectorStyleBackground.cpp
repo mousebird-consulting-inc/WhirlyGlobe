@@ -34,12 +34,11 @@ bool MapboxVectorBackgroundPaint::parse(MapboxVectorStyleSetImplRef styleSet,Dic
     return true;
 }
 
-bool MapboxVectorLayerBackground::parse(MapboxVectorStyleSetImplRef styleSet,
-                                        DictionaryRef styleEntry,
+bool MapboxVectorLayerBackground::parse(DictionaryRef styleEntry,
                                         MapboxVectorStyleLayerRef refLayer,
                                         int drawPriority)
 {
-    if (!MapboxVectorStyleLayer::parse(styleSet,styleEntry,refLayer,drawPriority)) {
+    if (!MapboxVectorStyleLayer::parse(styleEntry,refLayer,drawPriority)) {
         return false;
     }
     

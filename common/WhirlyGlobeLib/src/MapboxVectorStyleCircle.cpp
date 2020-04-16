@@ -39,12 +39,11 @@ bool MapboxVectorCirclePaint::parse(MapboxVectorStyleSetImplRef styleSet,Diction
     return true;
 }
 
-bool MapboxVectorLayerCircle::parse(MapboxVectorStyleSetImplRef styleSet,
-                                    DictionaryRef styleEntry,
+bool MapboxVectorLayerCircle::parse(DictionaryRef styleEntry,
                                     MapboxVectorStyleLayerRef refLayer,
                                     int drawPriority)
 {
-    if (!MapboxVectorStyleLayer::parse(styleSet,styleEntry,refLayer,drawPriority) ||
+    if (!MapboxVectorStyleLayer::parse(styleEntry,refLayer,drawPriority) ||
         !paint.parse(styleSet, styleEntry->getDict("paint")))
         return false;
     

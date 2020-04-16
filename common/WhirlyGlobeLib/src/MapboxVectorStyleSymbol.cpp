@@ -89,12 +89,11 @@ bool MapboxVectorSymbolPaint::parse(MapboxVectorStyleSetImplRef styleSet,Diction
     return true;
 }
 
-bool MapboxVectorLayerSymbol::parse(MapboxVectorStyleSetImplRef styleSet,
-                                   DictionaryRef styleEntry,
+bool MapboxVectorLayerSymbol::parse(DictionaryRef styleEntry,
                                    MapboxVectorStyleLayerRef refLayer,
                                    int drawPriority)
 {
-    if (!MapboxVectorStyleLayer::parse(styleSet,styleEntry,refLayer,drawPriority) ||
+    if (!MapboxVectorStyleLayer::parse(styleEntry,refLayer,drawPriority) ||
         !layout.parse(styleSet,styleEntry->getDict("layout")) ||
         !paint.parse(styleSet, styleEntry->getDict("paint")))
         return false;
@@ -189,7 +188,7 @@ void MapboxVectorLayerSymbol::cleanup(ChangeSet &changes)
 {
 }
 
-void MapboxVectorLayerSymbol::buildObjects(MapboxVectorStyleSetImplRef styleSet,std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo)
+void MapboxVectorLayerSymbol::buildObjects(std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo)
 {
     if (!visible)
         return;
