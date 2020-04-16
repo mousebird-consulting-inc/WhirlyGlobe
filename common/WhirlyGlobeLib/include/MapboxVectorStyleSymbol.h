@@ -19,6 +19,7 @@
  */
 
 #import "MapboxVectorStyleSetC.h"
+#import "MapboxVectorStyleLayer.h"
 
 namespace WhirlyKit
 {
