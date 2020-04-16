@@ -18,8 +18,7 @@
  *
  */
 
-#import "private/MapboxVectorStyleRaster_private.h"
-#import "MapboxVectorStyleSet_private.h"
+#import "MapboxVectorStyleRaster.h"
 
 namespace WhirlyKit
 {

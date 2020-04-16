@@ -1,5 +1,5 @@
 /*
- *  MapboxVectorStyleLine.h
+ *  MapboxVectorStyleFill.h
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 2/17/15.
@@ -18,44 +18,24 @@
  *
  */
 
-#import "private/MapboxVectorStyleSet_private.h"
+#import "MapboxVectorStyleSetC.h"
 
 namespace WhirlyKit
 {
 
-typedef enum {MBLineCapButt,MBLineCapRound,MBLineCapSquare} MapboxVectorLineCap;
-typedef enum {MBLineJoinBevel,MBLineJoinRound,MBLineJoinMiter} MapboxVectorLineJoin;
-
-/**
- Controls how the lines are laid out (geometry, largely).
- */
-class MapboxVectorLineLayout
-{
-public:
-    bool parse(MapboxVectorStyleSetImplRef styleSet,DictionaryRef styleEntry);
-
-    MapboxVectorLineCap cap;
-    MapboxVectorLineJoin join;
-    double miterLimit;
-    double roundLimit;
-};
-
-/**
- Controls how the vector line looks.
- */
-class MapboxVectorLinePaint
+// Paint for the vector layer fill
+class MapboxVectorFillPaint
 {
 public:
     bool parse(MapboxVectorStyleSetImplRef styleSet,DictionaryRef styleEntry);
 
     MapboxTransDoubleRef opacity;
     MapboxTransColorRef color;
-    MapboxTransDoubleRef width;
-    std::vector<double> lineDashArray;
+    MapboxTransColorRef outlineColor;
 };
 
-/// @brief The line style
-class MapboxVectorLayerLine : public MapboxVectorStyleLayer
+// Polygon fill layer
+class MapboxVectorLayerFill : public MapboxVectorStyleLayer
 {
 public:
     virtual bool parse(MapboxVectorStyleSetImplRef styleSet,
@@ -68,18 +48,8 @@ public:
     virtual void cleanup(ChangeSet &changes);
     
 protected:
-    MapboxVectorLineLayout layout;
-    MapboxVectorLinePaint paint;
-    bool linearClipToBounds;
-    bool dropGridLines;
-
-    // If non-zero we'll subdivide the line along a globe to the given tolerance
-    double subdivToGlobe;
-
-    double lineScale;
-    double totLen;
-    double fade;
-    SimpleIdentity filledLineTexID;
+    MapboxVectorFillPaint paint;
+    SimpleIdentity arealShaderID;
 };
 
 }

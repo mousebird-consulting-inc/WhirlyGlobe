@@ -18,8 +18,7 @@
  *
  */
 
-#import "private/MapboxVectorStyleBackground_private.h"
-#import "MapboxVectorStyleSet_private.h"
+#import "MapboxVectorStyleBackground.h"
 #import "WhirlyKitLog.h"
 
 namespace WhirlyKit

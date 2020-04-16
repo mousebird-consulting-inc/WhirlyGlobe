@@ -1,5 +1,5 @@
 /*
- *  MapboxVectorStyleRaster.h
+ *  MapboxVectorStyleBackground.h
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 2/17/15.
@@ -18,13 +18,29 @@
  *
  */
 
-#import "private/MapboxVectorStyleSet_private.h"
+#import "MapboxVectorStyleSetC.h"
 
 namespace WhirlyKit
 {
 
-/// @brief Raster tiles
-class MapboxVectorLayerRaster : public MapboxVectorStyleLayer
+/**
+  This class corresponds to the paint portion of the Mapbox Vector Style definition
+    of the background.  You get one of these from parsing a Style, don't generate one.
+ */
+class MapboxVectorBackgroundPaint
+{
+public:
+    bool parse(MapboxVectorStyleSetImplRef styleSet,DictionaryRef styleEntry);
+
+    MapboxTransColorRef color;
+    MapboxTransDoubleRef opacity;
+};
+
+/**
+ This is the layer corresponding to the background in a Mapbox Vector Style definition.
+ You don't create these.  They come from a Style sheet.
+ */
+class MapboxVectorLayerBackground : public MapboxVectorStyleLayer
 {
 public:
     virtual bool parse(MapboxVectorStyleSetImplRef styleSet,
@@ -33,10 +49,10 @@ public:
                        int drawPriority);
     
     virtual void buildObjects(std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo);
-    
-    virtual void cleanup(ChangeSet &changes);
 
 protected:
+    /// Controls how the background looks.
+    MapboxVectorBackgroundPaint paint;
 };
 
 }

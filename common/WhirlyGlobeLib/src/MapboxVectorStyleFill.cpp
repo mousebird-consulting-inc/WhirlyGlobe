@@ -18,9 +18,9 @@
  *
  */
 
-#import "private/MapboxVectorStyleFill_private.h"
-#import "MapboxVectorStyleSet_private.h"
-#import "private/MapboxVectorTiles_private.h"
+#import "MapboxVectorStyleFill.h"
+#import "VectorObject.h"
+#import "Tesselator.h"
 
 namespace WhirlyKit
 {

@@ -18,8 +18,7 @@
  *
  */
 
-#import "private/MapboxVectorStyleSymbol_private.h"
-#import "MapboxVectorStyleSet_private.h"
+#import "MapboxVectorStyleSymbol.h"
 #import "WhirlyKitLog.h"
 #import <vector>
 #import <regex>
