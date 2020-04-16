@@ -31,6 +31,8 @@ typedef std::shared_ptr<iosDictionary> iosDictionaryRef;
 class iosDictionaryEntry : public DictionaryEntry
 {
 public:
+    iosDictionaryEntry(id value);
+    
     /// Returns the field type
     virtual DictionaryType getType() const;
     /// Return an int, using the default if it's missing
@@ -48,7 +50,6 @@ public:
     /// Return a dictionary as an entry
     virtual DictionaryRef getDict() const;
 protected:
-    DictionaryType type;
     id value;
 };
 

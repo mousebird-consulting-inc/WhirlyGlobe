@@ -45,6 +45,16 @@ LabelManager::LabelManager()
 LabelManager::~LabelManager()
 {
 }
+
+SimpleIdentity LabelManager::addLabels(std::vector<SingleLabelRef> &labels,const LabelInfo &desc,ChangeSet &changes)
+{
+    std::vector<SingleLabel *> unwrapLabels;
+    
+    for (auto label: labels)
+        unwrapLabels.push_back(label.get());
+    
+    return addLabels(unwrapLabels, desc, changes);
+}
     
 SimpleIdentity LabelManager::addLabels(std::vector<SingleLabel *> &labels,const LabelInfo &labelInfo,ChangeSet &changes)
 {

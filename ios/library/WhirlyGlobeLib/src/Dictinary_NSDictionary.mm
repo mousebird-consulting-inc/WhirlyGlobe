@@ -41,6 +41,67 @@ static std::string StringToStdString(NSString *str)
         return "";
     return std::string([str cStringUsingEncoding:NSASCIIStringEncoding]);
 }
+
+iosDictionaryEntry::iosDictionaryEntry(id inValue)
+{
+    value = inValue;
+}
+
+DictionaryType iosDictionaryEntry::getType() const
+{
+    if ([value isKindOfClass:[NSNumber class]])
+        return DictTypeDouble;
+    else if ([value isKindOfClass:[UIColor class]])
+        return DictTypeObject;
+    else if ([value isKindOfClass:[NSString class]])
+        return DictTypeString;
+    else if ([value isKindOfClass:[NSDictionary class]])
+        return DictTypeDictionary;
+    else if ([value isKindOfClass:[NSArray class]])
+        return DictTypeArray;
+    
+    return DictTypeNone;
+}
+
+int iosDictionaryEntry::getInt() const
+{
+    return [value intValue];
+}
+
+SimpleIdentity iosDictionaryEntry::getIdentity() const
+{
+    return [value longLongValue];
+}
+
+bool iosDictionaryEntry::getBool() const
+{
+    return [value boolValue];
+}
+
+RGBAColor iosDictionaryEntry::getColor() const
+{
+    return [value asRGBAColor];
+}
+
+double iosDictionaryEntry::getDouble() const
+{
+    return [value doubleValue];
+}
+
+std::string iosDictionaryEntry::getString() const
+{
+    return [(NSString *)value cStringUsingEncoding:NSUTF8StringEncoding];
+}
+
+DictionaryRef iosDictionaryEntry::getDict() const
+{
+    if ([value isKindOfClass:[NSDictionary class]]) {
+        return DictionaryRef(new iosDictionary(value));
+    }
+    
+    return DictionaryRef();
+}
+
     
 iosDictionary::iosDictionary()
 {
@@ -153,6 +214,29 @@ DictionaryRef iosDictionary::getDict(const std::string &name) const
         return iosDictionaryRef(new iosDictionary((NSDictionary *)thing));
     
     return nil;
+}
+
+DictionaryEntryRef iosDictionary::getEntry(const std::string &name) const
+{
+    NSString *theName = StdStringToString(name);
+
+    id value = dict[theName];
+    return DictionaryEntryRef(new iosDictionaryEntry(value));
+}
+
+std::vector<DictionaryEntryRef> iosDictionary::getArray(const std::string &name) const
+{
+    std::vector<DictionaryEntryRef> refs;
+    
+    NSString *theName = StdStringToString(name);
+    id value = dict[theName];
+    if ([value isKindOfClass:[NSArray class]]) {
+        for (id val in (NSArray *)value) {
+            refs.push_back(DictionaryEntryRef(new iosDictionaryEntry(val)));
+        }
+    }
+    
+    return refs;
 }
 
 iosMutableDictionary::iosMutableDictionary()
@@ -281,6 +365,29 @@ DictionaryRef iosMutableDictionary::getDict(const std::string &name) const
         return iosMutableDictionaryRef(new iosMutableDictionary((NSMutableDictionary *)thing));
     
     return nil;
+}
+
+DictionaryEntryRef iosMutableDictionary::getEntry(const std::string &name) const
+{
+    NSString *theName = StdStringToString(name);
+
+    id value = dict[theName];
+    return DictionaryEntryRef(new iosDictionaryEntry(value));
+}
+
+std::vector<DictionaryEntryRef> iosMutableDictionary::getArray(const std::string &name) const
+{
+    std::vector<DictionaryEntryRef> refs;
+    
+    NSString *theName = StdStringToString(name);
+    id value = dict[theName];
+    if ([value isKindOfClass:[NSArray class]]) {
+        for (id val in (NSArray *)value) {
+            refs.push_back(DictionaryEntryRef(new iosDictionaryEntry(val)));
+        }
+    }
+    
+    return refs;
 }
     
 void iosMutableDictionary::clear()

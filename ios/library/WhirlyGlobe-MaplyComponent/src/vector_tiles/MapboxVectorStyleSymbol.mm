@@ -186,6 +186,10 @@ static float calcStringHash(const std::string &str)
     return val;
 }
 
+void MapboxVectorLayerSymbol::cleanup(ChangeSet &changes)
+{
+}
+
 void MapboxVectorLayerSymbol::buildObjects(MapboxVectorStyleSetImplRef styleSet,std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo)
 {
     if (!visible)
