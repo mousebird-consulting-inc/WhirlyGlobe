@@ -82,6 +82,7 @@ public:
     // Used to build the drawable string on specific platforms
     virtual std::vector<DrawableString *> generateDrawableStrings(const LabelInfo *,FontTextureManager *fontTexManager,float &lineHeight,ChangeSet &changes) = 0;
 };
+typedef std::shared_ptr<SingleLabel> SingleLabelRef;
     
 #define kWKLabelManager "WKLabelManager"
 
@@ -96,7 +97,8 @@ public:
 
     /// Add the given set of labels, returning an ID that represents the whole thing
     SimpleIdentity addLabels(std::vector<SingleLabel *> &labels,const LabelInfo &desc,ChangeSet &changes);
-    
+    SimpleIdentity addLabels(std::vector<SingleLabelRef> &labels,const LabelInfo &desc,ChangeSet &changes);
+
     /// Change visual attributes (just the visibility range)
     void changeLabel(SimpleIdentity labelID,const LabelInfo &desc,ChangeSet &changes);
     

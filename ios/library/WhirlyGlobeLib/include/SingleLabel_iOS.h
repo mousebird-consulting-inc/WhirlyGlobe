@@ -34,6 +34,7 @@ public:
     // Pass this around as an NSString
     NSString *text;
 };
+typedef std::shared_ptr<SingleLabel_iOS> SingleLabel_iOSRef;
     
 /// LabelInfo variant knows UIFont and related stuff
 class LabelInfo_iOS: public LabelInfo
@@ -43,5 +44,6 @@ public:
     
     UIFont *font;
 };
+typedef std::shared_ptr<LabelInfo_iOS> LabelInfo_iOSRef;
     
 }

@@ -48,10 +48,21 @@ public:
     double globalTextScale;
     /// How the text is laid out in relation to it's attach point
     MapboxTextAnchor textAnchor;
-protected:
+    
+    // Used to track text data
+    class TextChunk {
+    public:
+        // Set if this is a simple string
+        std::string str;
+
+        // Possible key names in the data. Tried in this order.
+        // Not set if this is a simple string
+        std::vector<std::string> keys;
+    };
+
     float layoutImportance;
     std::vector<TextChunk> textChunks;
-}
+};
 
 // Symbol visuals
 class MapboxVectorSymbolPaint
@@ -77,7 +88,7 @@ public:
                        MapboxVectorStyleLayerRef refLayer,
                        int drawPriority);
     
-    virtual void buildObjects(std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo);
+    virtual void buildObjects(MapboxVectorStyleSetImplRef styleSet,std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo);
     
     virtual void cleanup(ChangeSet &changes);
 
@@ -88,6 +99,7 @@ protected:
     /// If set, only one label with its text will be displayed.  Sorted out by the layout manager.
     bool uniqueLabel;
     std::string uuidField;
+    bool useZoomLevels;
 };
 
 }

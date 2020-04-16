@@ -121,6 +121,7 @@ public:
 
     /// @brief Return a color for the given name, taking the constants into account
     RGBAColorRef colorValue(const std::string &name,DictionaryEntryRef val,DictionaryRef dict,RGBAColorRef defVal,bool multiplyAlpha);
+    RGBAColorRef colorValue(const std::string &name,DictionaryEntryRef val,DictionaryRef dict,RGBAColor defVal,bool multiplyAlpha);
 
     /// @brief Return an array for the given name, taking the constants into account
     std::vector<DictionaryRef> arrayValue(const std::string &name,DictionaryRef dict);
@@ -153,6 +154,12 @@ public:
     
     /// Local platform implementation for generating a repeating line texture
     virtual SimpleIdentity makeLineTexture(const std::vector<double> &dashComponents);
+    
+    /// Create a local platform LabelInfo (since fonts are local)
+    virtual LabelInfoRef makeLabelInfo(const std::string &fontName);
+    
+    /// Create a local platform label (fonts are local, and other stuff)
+    virtual SingleLabelRef makeSingleLabel(const std::string &text);
 
 public:
     Scene *scene;
@@ -160,6 +167,7 @@ public:
     VectorManager *vecManage;
     WideVectorManager *wideVecManage;
     MarkerManager *markerManage;
+    LabelManager *labelManage;
     ComponentManager *compManage;
     
     // ID's for the various programs
@@ -239,7 +247,7 @@ public:
     virtual bool geomAdditive();
 
     /// Construct objects related to this style based on the input data.
-    virtual void buildObjects(std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo) = 0;
+    virtual void buildObjects(MapboxVectorStyleSetImplRef styleSet,std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo) = 0;
     
     /// Clean up any objects (textures, probably)
     virtual void cleanup(ChangeSet &changes);

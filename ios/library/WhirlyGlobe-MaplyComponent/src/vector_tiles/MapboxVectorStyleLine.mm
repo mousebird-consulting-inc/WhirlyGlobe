@@ -116,9 +116,8 @@ bool MapboxVectorLayerLine::parse(MapboxVectorStyleSetImplRef styleSet,
 
 void MapboxVectorLayerLine::buildObjects(std::vector<VectorObjectRef> &inVecObjs,VectorTileDataRef tileInfo)
 {
-    if (!visible) {
+    if (!visible)
         return;
-    }
     
     ComponentObjectRef compObj(new ComponentObject());
     
