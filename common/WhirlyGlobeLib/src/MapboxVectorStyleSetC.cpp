@@ -20,6 +20,7 @@
 
 #import "MapboxVectorStyleSetC.h"
 #import "WhirlyKitLog.h"
+#import <regex>
 
 namespace WhirlyKit
 {
@@ -29,7 +30,7 @@ MaplyVectorFunctionStop::MaplyVectorFunctionStop()
 {
 }
 
-bool MaplyVectorFunctionStops::parse(const std::vector<DictionaryEntryRef> &dataArray,MapboxVectorStyleSetImplRef styleSet)
+bool MaplyVectorFunctionStops::parse(const std::vector<DictionaryEntryRef> &dataArray,MapboxVectorStyleSetImpl *styleSet)
 {
     if (dataArray.size() < 2)
     {
@@ -302,6 +303,192 @@ std::vector<DictionaryEntryRef> MapboxVectorStyleSetImpl::arrayValue(const std::
     return ret;
 }
 
+RGBAColorRef MapboxVectorStyleSetImpl::colorValue(const std::string &name,DictionaryEntryRef val,DictionaryRef dict,RGBAColorRef defVal,bool multiplyAlpha)
+{
+    DictionaryEntryRef thing;
+    if (dict)
+        thing = dict->getEntry(name);
+    else
+        thing = val;
+    if (!thing)
+        return defVal;
+
+    thing = constantSubstitution(thing, name);
+
+    if (thing->getType() != DictTypeString) {
+        wkLogLevel(Warn,"Expecting a string for color (%s)",name.c_str());
+        return defVal;
+    }
+
+    std::string str = thing->getString();
+    if (str.empty())
+    {
+        wkLogLevel(Warn,"Expecting non-empty string for color (%s)",name.c_str());
+        return defVal;
+    }
+    // Hex string
+    if (str[0] == '#')
+    {
+        // Hex string
+        unsigned int iVal = 0;
+        try {
+            iVal = std::stoul(str.substr(1), nullptr, 16);
+        }
+        catch (...) {
+            wkLogLevel(Warn,"Invalid hex value (%s) in color (%s)",str.c_str(),name.c_str());
+            return defVal;
+        }
+
+        int red,green,blue;
+        int alpha = 255;
+        if (str.size() == 4)
+        {
+            red = (iVal >> 8) & 0xf;  red |= red << 4;
+            green = (iVal >> 4) & 0xf;  green |= green << 4;
+            blue = iVal & 0xf;  blue |= blue << 4;
+        } else if (str.size() > 7) {
+            red = (iVal >> 24) & 0xff;
+            green = (iVal >> 16) & 0xff;
+            blue = (iVal >> 8) & 0xff;
+            alpha = iVal & 0xff;
+        } else {
+            red = (iVal >> 16) & 0xff;
+            green = (iVal >> 8) & 0xff;
+            blue = iVal & 0xff;
+        }
+        return RGBAColorRef(new RGBAColor(red,green,blue,alpha));
+    } else if (str.find("rgb(") == 0) {
+        std::string sstr = str.substr(4);
+        std::regex_replace(sstr, std::regex("(), "), " ");
+        std::stringstream ss(sstr);
+        int red,green,blue;
+        ss >> red;
+        ss >> green;
+        ss >> blue;
+        return RGBAColorRef(new RGBAColor(red,green,blue,1.0));
+    } else if (str.find("rgba(") == 0) {
+        std::string sstr = str.substr(4);
+        std::regex_replace(sstr, std::regex("(), "), " ");
+        std::stringstream ss(sstr);
+        int red,green,blue;
+        float alpha;
+        ss >> red;
+        ss >> green;
+        ss >> blue;
+        ss >> alpha;
+        
+        if (multiplyAlpha)
+            return RGBAColorRef(new RGBAColor(red * alpha,green * alpha,blue * alpha,255.0*alpha));
+        else
+            return RGBAColorRef(new RGBAColor(red,green,blue,255.0*alpha));
+    } else if (str.find("hsl(") == 0) {
+        std::string sstr = str.substr(4);
+        std::regex_replace(sstr, std::regex("(),% "), " ");
+        std::stringstream ss(sstr);
+        int hue,sat,light;
+        ss >> hue;
+        ss >> sat;
+        ss >> light;
+        float newLight = light / 100.0;
+        float newSat = sat / 100.0;
+        newSat = newSat * (newLight < 0.5 ? newLight : 1.0-newLight);
+
+        return RGBAColorRef(new RGBAColor(RGBAColor::FromHSL(hue, newSat, newLight)));
+    } else if (str.find("hsla(") == 0) {
+        std::string sstr = str.substr(4);
+        std::regex_replace(sstr, std::regex("(),% "), " ");
+        std::stringstream ss(sstr);
+        int hue,sat,light;
+        ss >> hue;
+        ss >> sat;
+        ss >> light;
+        float alpha;
+        ss >> alpha;
+        float newLight = light / 100.0;
+        float newSat = sat / 100.0;
+        newSat = newSat * (newLight < 0.5 ? newLight : 1.0-newLight);
+
+        RGBAColorRef color(new RGBAColor(RGBAColor::FromHSL(hue, newSat, newLight)));
+        color->a = alpha * 255.0;
+        
+        return color;
+    }
+
+    wkLogLevel(Warn,"Didn't recognize format of color (%s)",name.c_str());
+    return defVal;
+}
+
+RGBAColorRef MapboxVectorStyleSetImpl::colorValue(const std::string &name,DictionaryEntryRef val,DictionaryRef dict,RGBAColor defVal,bool multiplyAlpha)
+{
+    RGBAColorRef color(new RGBAColor(defVal));
+    
+    return colorValue(name, val, dict, color, multiplyAlpha);
+}
+
+MapboxTransDoubleRef MapboxVectorStyleSetImpl::transDouble(const std::string &name,DictionaryRef entry,double defVal)
+{
+    // They pass in the whole dictionary and let us look the field up
+    DictionaryEntryRef theEntry = entry->getEntry(name);
+    if (!theEntry)
+        return MapboxTransDoubleRef(new MapboxTransDouble(defVal));
+    
+    theEntry = constantSubstitution(theEntry, "");
+
+    // This is probably stops
+    if (theEntry->getType() == DictTypeDictionary) {
+        MaplyVectorFunctionStopsRef stops(new MaplyVectorFunctionStops());
+        stops->parse(theEntry->getArray(), this);
+        if (stops) {
+            return MapboxTransDoubleRef(new MapboxTransDouble(stops));
+        } else {
+            wkLogLevel(Warn, "Expecting key word 'stops' in entry %s",name.c_str());
+        }
+    } else if (theEntry->getType() == DictTypeDouble) {
+        return MapboxTransDoubleRef(new MapboxTransDouble(theEntry->getDouble()));
+    } else {
+        wkLogLevel(Warn,"Unexpected type found in entry %s. Was expecting a double.",name.c_str());
+    }
+
+    return MapboxTransDoubleRef();
+}
+
+MapboxTransColorRef MapboxVectorStyleSetImpl::transColor(const std::string &name,DictionaryRef entry,const RGBAColor *defVal)
+{
+    RGBAColorRef defValRef;
+    if (defVal)
+        defValRef = RGBAColorRef(new RGBAColor(*defVal));
+
+    // They pass in the whole dictionary and let us look the field up
+    DictionaryEntryRef theEntry = entry->getEntry(name);
+    if (!theEntry) {
+        if (defVal)
+            return MapboxTransColorRef(new MapboxTransColor(RGBAColorRef(new RGBAColor(*defVal))));
+        return MapboxTransColorRef();
+    }
+    theEntry = constantSubstitution(theEntry, "");
+    
+    // This is probably stops
+    if (theEntry->getType() == DictTypeDictionary) {
+        MaplyVectorFunctionStopsRef stops(new MaplyVectorFunctionStops());
+        stops->parse(theEntry->getArray(), this);
+        if (stops) {
+            return MapboxTransColorRef(new MapboxTransColor(stops));;
+        } else {
+            wkLogLevel(Warn, "Expecting key word 'stops' in entry %s",name.c_str());
+        }
+    } else if (theEntry->getType() == DictTypeString) {
+        RGBAColorRef color = colorValue(name, theEntry, DictionaryRef(), defValRef, false);
+        if (color)
+            return MapboxTransColorRef(new MapboxTransColor(color));
+        else {
+            wkLogLevel(Warn,"Unexpected type found in entry %s. Was expecting a color.",name.c_str());
+        }
+    } else {
+        wkLogLevel(Warn,"Unexpected type found in entry %s. Was expecting a color.",name.c_str());
+    }
+
+    return MapboxTransColorRef();
+}
 
 //- (NSArray*)stylesForFeatureWithAttributes:(NSDictionary*)attributes
 //                                    onTile:(MaplyTileID)tileID
@@ -398,64 +585,6 @@ std::vector<DictionaryEntryRef> MapboxVectorStyleSetImpl::arrayValue(const std::
 //    return defEntry;
 //}
 //
-//- (MapboxTransDouble *__nullable)transDouble:(NSString * __nonnull)name entry:(NSDictionary *__nonnull)entry defVal:(double)defVal
-//{
-//    // They pass in the whole dictionary and let us look the field up
-//    id theEntry = entry[name];
-//    if (!theEntry)
-//        return [[MapboxTransDouble alloc] initWithDouble:defVal];
-//    theEntry = [self constantSubstitution:theEntry forField:nil];
-//
-//    // This is probably stops
-//    if ([theEntry isKindOfClass:[NSDictionary class]]) {
-//        MaplyVectorFunctionStops *stops = [self stopsValue:theEntry defVal:name];
-//        if (stops) {
-//            return [[MapboxTransDouble alloc] initWithStops:stops];
-//        } else {
-//            NSLog(@"Expecting key word 'stops' in entry %@",name);
-//        }
-//    } else if ([theEntry isKindOfClass:[NSNumber class]]) {
-//        return [[MapboxTransDouble alloc] initWithDouble:[theEntry doubleValue]];
-//    } else {
-//        NSLog(@"Unexpected type found in entry %@. Was expecting a double.",name);
-//    }
-//
-//    return nil;
-//}
-//
-//- (MapboxTransColor *__nullable)transColor:(NSString *__nonnull)name entry:(NSDictionary *__nonnull)entry defVal:(UIColor * __nullable)defVal
-//{
-//    // They pass in the whole dictionary and let us look the field up
-//    id theEntry = entry[name];
-//    if (!theEntry) {
-//        if (defVal)
-//            return [[MapboxTransColor alloc] initWithColor:defVal];
-//        return nil;
-//    }
-//    theEntry = [self constantSubstitution:theEntry forField:nil];
-//
-//    // This is probably stops
-//    if ([theEntry isKindOfClass:[NSDictionary class]]) {
-//        MaplyVectorFunctionStops *stops = [self stopsValue:theEntry defVal:name];
-//        if (stops) {
-//            return [[MapboxTransColor alloc] initWithStops:stops];
-//        } else {
-//            NSLog(@"Expecting key word 'stops' in entry %@",name);
-//        }
-//    } else if ([theEntry isKindOfClass:[NSString class]]) {
-//        UIColor *color = [self colorValue:name val:theEntry dict:nil defVal:defVal multiplyAlpha:false];
-//        if (color)
-//            return [[MapboxTransColor alloc] initWithColor:color];
-//        else {
-//            NSLog(@"Unexpected type found in entry %@. Was expecting a color.",name);
-//        }
-//    } else {
-//        NSLog(@"Unexpected type found in entry %@. Was expecting a color.",name);
-//    }
-//
-//    return nil;
-//}
-//
 //- (UIColor *__nullable)resolveColor:(MapboxTransColor * __nullable)color opacity:(MapboxTransDouble * __nullable)opacity forZoom:(double)zoom mode:(MBResolveColorType)resolveMode
 //{
 //    // No color means no color
@@ -488,133 +617,6 @@ std::vector<DictionaryEntryRef> MapboxVectorStyleSetImpl::arrayValue(const std::
 //    CGFloat red,green,blue,alpha;
 //    [color getRed:&red green:&green blue:&blue alpha:&alpha];
 //    return [UIColor colorWithRed:red*opacity green:green*opacity blue:blue*opacity alpha:alpha*opacity];
-//}
-//
-//- (UIColor *)colorValue:(NSString *)name val:(id)val dict:(NSDictionary *)dict defVal:(UIColor *)defVal multiplyAlpha:(bool)multiplyAlpha
-//{
-//    id thing = nil;
-//    if (dict)
-//        thing = dict[name];
-//    else
-//        thing = val;
-//    if (!thing)
-//        return defVal;
-//
-//    thing = [self constantSubstitution:thing forField:name];
-//
-//    if (![thing isKindOfClass:[NSString class]])
-//    {
-//        NSLog(@"Expecting a string for color (%@)",name);
-//        return defVal;
-//    }
-//
-//    NSString *str = thing;
-//    if ([str length] == 0)
-//    {
-//        NSLog(@"Expecting non-empty string for color (%@)",name);
-//        return defVal;
-//    }
-//    // Hex string
-//    if ([str characterAtIndex:0] == '#')
-//    {
-//        // Hex string
-//        NSScanner *scanner = [NSScanner scannerWithString:str];
-//        [scanner setScanLocation:1];
-//        unsigned int iVal;
-//        if (![scanner scanHexInt:&iVal])
-//        {
-//            NSLog(@"Invalid hex value (%@) in color (%@)",str,name);
-//            return defVal;
-//        }
-//
-//        int red,green,blue;
-//        int alpha = 255;
-//        if ([str length] == 4)
-//        {
-//            red = (iVal >> 8) & 0xf;  red |= red << 4;
-//            green = (iVal >> 4) & 0xf;  green |= green << 4;
-//            blue = iVal & 0xf;  blue |= blue << 4;
-//        } else if ([str length] > 7) {
-//            red = (iVal >> 24) & 0xff;
-//            green = (iVal >> 16) & 0xff;
-//            blue = (iVal >> 8) & 0xff;
-//            alpha = iVal & 0xff;
-//        } else {
-//            red = (iVal >> 16) & 0xff;
-//            green = (iVal >> 8) & 0xff;
-//            blue = iVal & 0xff;
-//        }
-//        return [UIColor colorWithRed:(double)red/255.0 green:(double)green/255.0 blue:(double)blue/255.0 alpha:alpha/255.0];
-//    } else if ([str rangeOfString:@"rgb("].location == 0)
-//    {
-//        NSScanner *scanner = [NSScanner scannerWithString:str];
-//        NSMutableCharacterSet *skipSet = [[NSMutableCharacterSet alloc] init];
-//        [skipSet addCharactersInString:@"(), "];
-//        [scanner setCharactersToBeSkipped:skipSet];
-//        [scanner setScanLocation:4];
-//        int red,green,blue;
-//        [scanner scanInt:&red];
-//        [scanner scanInt:&green];
-//        [scanner scanInt:&blue];
-//
-//        return [UIColor colorWithRed:red/255.0 green:green/255.0 blue:blue/255.0 alpha:1.0];
-//    } else if ([str rangeOfString:@"rgba("].location == 0)
-//    {
-//        NSScanner *scanner = [NSScanner scannerWithString:str];
-//        NSMutableCharacterSet *skipSet = [[NSMutableCharacterSet alloc] init];
-//        [skipSet addCharactersInString:@"(), "];
-//        [scanner setCharactersToBeSkipped:skipSet];
-//        [scanner setScanLocation:5];
-//        int red,green,blue;
-//        [scanner scanInt:&red];
-//        [scanner scanInt:&green];
-//        [scanner scanInt:&blue];
-//        float alpha;
-//        [scanner scanFloat:&alpha];
-//
-//        if (multiplyAlpha)
-//            return [UIColor colorWithRed:red/255.0*alpha green:green/255.0*alpha blue:blue/255.0*alpha alpha:alpha];
-//        else
-//            return [UIColor colorWithRed:red/255.0 green:green/255.0 blue:blue/255.0 alpha:alpha];
-//    } else if ([str rangeOfString:@"hsl("].location == 0)
-//    {
-//        NSScanner *scanner = [NSScanner scannerWithString:str];
-//        NSMutableCharacterSet *skipSet = [[NSMutableCharacterSet alloc] init];
-//        [skipSet addCharactersInString:@"(),% "];
-//        [scanner setCharactersToBeSkipped:skipSet];
-//        [scanner setScanLocation:4];
-//        int hue,sat,light;
-//        [scanner scanInt:&hue];
-//        [scanner scanInt:&sat];
-//        [scanner scanInt:&light];
-//        float newLight = light / 100.0;
-//        float newSat = sat / 100.0;
-//        newSat = newSat * (newLight < 0.5 ? newLight : 1.0-newLight);
-//
-//        return [UIColor colorWithHue:hue/360.0 saturation:2.0*newSat/(newLight+newSat) brightness:newLight+newSat alpha:1.0];
-//    } else if ([str rangeOfString:@"hsla("].location == 0)
-//    {
-//        NSScanner *scanner = [NSScanner scannerWithString:str];
-//        NSMutableCharacterSet *skipSet = [[NSMutableCharacterSet alloc] init];
-//        [skipSet addCharactersInString:@"(),% "];
-//        [scanner setCharactersToBeSkipped:skipSet];
-//        [scanner setScanLocation:4];
-//        int hue,sat,light;
-//        float alpha;
-//        [scanner scanInt:&hue];
-//        [scanner scanInt:&sat];
-//        [scanner scanInt:&light];
-//        [scanner scanFloat:&alpha];
-//        float newLight = light / 100.0;
-//        float newSat = sat / 100.0;
-//        newSat = newSat * (newLight < 0.5 ? newLight : 1.0-newLight);
-//
-//        return [UIColor colorWithHue:hue/360.0 saturation:2.0*newSat/(newLight+newSat) brightness:newLight+newSat alpha:alpha];
-//    }
-//
-//
-//    NSLog(@"Didn't recognize format of color (%@)",name);
-//    return defVal;
 //}
 //
 //- (NSUInteger)enumValue:(NSString *)name options:(NSArray *)options defVal:(NSUInteger)defVal

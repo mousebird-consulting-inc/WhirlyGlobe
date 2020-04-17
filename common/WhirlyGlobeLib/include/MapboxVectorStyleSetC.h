@@ -56,7 +56,7 @@ public:
 class MaplyVectorFunctionStops
 {
 public:
-    bool parse(const std::vector<DictionaryEntryRef> &dataArray,MapboxVectorStyleSetImplRef styleSet);
+    bool parse(const std::vector<DictionaryEntryRef> &dataArray,MapboxVectorStyleSetImpl *styleSet);
 
     /// @brief Calculate a value given the zoom level
     double valueForZoom(double zoom);
@@ -161,7 +161,6 @@ public:
     /// @brief Return an array for the given name, taking the constants into account
     std::vector<DictionaryEntryRef> arrayValue(const std::string &name,DictionaryRef dict);
 
-    
     /// @brief Return a color for the given name, taking the constants into account
     RGBAColorRef colorValue(const std::string &name,DictionaryEntryRef val,DictionaryRef dict,RGBAColorRef defVal,bool multiplyAlpha);
     RGBAColorRef colorValue(const std::string &name,DictionaryEntryRef val,DictionaryRef dict,RGBAColor defVal,bool multiplyAlpha);

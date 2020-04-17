@@ -88,6 +88,29 @@ public:
     static RGBAColor FromUnitFloats(float *ret) {
         return RGBAColor(ret[0] * 255.0,ret[1] * 255.0,ret[2] * 255.0,ret[3] * 255.0);
     }
+    
+    // Create an
+    static RGBAColor FromHSL(int hue,double s,double v) {
+        double c = s * v;
+        double x = c * (1 - std::abs(fmod(hue / 60.0, 2.0) - 1));
+        double m = v - c;
+        double rs,gs,bs;
+        if (hue >= 0 && hue < 60) {
+            rs= c;  gs = x;  bs = 0;
+        } else if(hue >= 60 && hue < 120) {
+            rs = x;  gs = c;  bs = 0;
+        } else if(hue >= 120 && hue < 180) {
+            rs = 0;  gs = c;  bs = x;
+        } else if(hue >= 180 && hue < 240) {
+            rs = 0;  gs = x;  bs = c;
+        } else if(hue >= 240 && hue < 300) {
+            rs = x;  gs = 0;  bs = c;
+        } else {
+            rs = c;  gs = 0;  bs = x;
+        }
+        
+        return RGBAColor((rs + m) * 255.0, (gs + m) * 255.0, (bs + m) * 255.0);
+    }
 
     // Standard colors to create & return
 
