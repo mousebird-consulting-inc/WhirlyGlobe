@@ -210,6 +210,8 @@ MapboxVectorStyleSetImpl::MapboxVectorStyleSetImpl(Scene *inScene)
     markerManage = (MarkerManager *)scene->getManager(kWKMarkerManager);
     labelManage = (LabelManager *)scene->getManager(kWKLabelManager);
     compManage = (ComponentManager *)scene->getManager(kWKComponentManager);
+    
+    // TODO: Set up the program ID
 }
 
 long long MapboxVectorStyleSetImpl::generateID()
@@ -425,6 +427,23 @@ RGBAColorRef MapboxVectorStyleSetImpl::colorValue(const std::string &name,Dictio
     return colorValue(name, val, dict, color, multiplyAlpha);
 }
 
+int MapboxVectorStyleSetImpl::enumValue(const std::string &name,const char *options[],int defVal)
+{
+    if (name.empty())
+        return defVal;
+
+    int which = 0;
+    while (options[which]) {
+        const char *val = options[which];
+        if (!strcmp(val, name.c_str()))
+            return which;
+        which++;
+    }
+
+    wkLogLevel(Warn,"Found unexpected value (%s) in enumerated type",name.c_str());
+    return defVal;
+}
+
 MapboxTransDoubleRef MapboxVectorStyleSetImpl::transDouble(const std::string &name,DictionaryRef entry,double defVal)
 {
     // They pass in the whole dictionary and let us look the field up
@@ -490,6 +509,83 @@ MapboxTransColorRef MapboxVectorStyleSetImpl::transColor(const std::string &name
     return MapboxTransColorRef();
 }
 
+MapboxTransColorRef MapboxVectorStyleSetImpl::transColor(const std::string &name,DictionaryRef entry,const RGBAColor &inColor)
+{
+    RGBAColor color = inColor;
+    return transColor(name, entry, &color);
+}
+
+DictionaryEntryRef MapboxVectorStyleSetImpl::constantSubstitution(DictionaryEntryRef thing,const std::string &field)
+{
+    // Look for a constant substitution
+    if (thing->getType() == DictTypeString) {
+        std::string stringThing = thing->getString();
+        // Note: This just handles simple ones with full substitution
+        if (stringThing[0] == '@')
+        {
+            auto it = constants.find(stringThing);
+            if (it != constants.end()) {
+                return it->second;
+            } else {
+                wkLogLevel(Warn,"Failed to substitute constant %s for field %s",stringThing.c_str(),field.c_str());
+                return thing;
+            }
+        }
+    }
+
+    return thing;
+}
+
+void MapboxVectorStyleSetImpl::unsupportedCheck(const std::string &field,const std::string &what,DictionaryRef styleEntry)
+{
+    if (styleEntry->hasField(field))
+        wkLogLevel(Warn,"Found unsupported field (%s) for (%s)",field.c_str(),what.c_str());
+}
+
+RGBAColorRef MapboxVectorStyleSetImpl::resolveColor(MapboxTransColorRef color,MapboxTransDoubleRef opacity,double zoom,MBResolveColorType resolveMode)
+{
+    // No color means no color
+    if (!color)
+        return RGBAColorRef();
+
+    RGBAColor thisColor = color->colorForZoom(zoom);
+
+    // No opacity, means full opacity
+    if (!opacity)
+        return RGBAColorRef(new RGBAColor(thisColor));
+
+    double thisOpacity = opacity->valForZoom(zoom);
+
+    float vals[4];
+    thisColor.asUnitFloats(vals);
+    switch (resolveMode)
+    {
+        case MBResolveColorOpacityMultiply:
+            return RGBAColorRef(new RGBAColor(vals[0]*thisOpacity*255,vals[1]*thisOpacity*255,vals[2]*thisOpacity*255,vals[3]*thisOpacity*255));
+            break;
+        case MBResolveColorOpacityReplaceAlpha:
+            return RGBAColorRef(new RGBAColor(vals[0]*255,vals[1]*255,vals[2]*255,thisOpacity*255));
+            break;
+    }
+}
+
+RGBAColor MapboxVectorStyleSetImpl::color(RGBAColor color,double opacity)
+{
+    float vals[4];
+    color.asUnitFloats(vals);
+
+    return RGBAColor(vals[0]*opacity*255,vals[1]*opacity*255,vals[2]*opacity*255,vals[3]*opacity*255);
+}
+
+MapboxVectorStyleLayerRef MapboxVectorStyleSetImpl::getLayer(const std::string &name)
+{
+    auto it = layersByName.find(name);
+    if (it == layersByName.end())
+        return MapboxVectorStyleLayerRef();
+    
+    return it->second;
+}
+
 //- (NSArray*)stylesForFeatureWithAttributes:(NSDictionary*)attributes
 //                                    onTile:(MaplyTileID)tileID
 //                                   inLayer:(NSString*)sourceLayer
@@ -535,28 +631,6 @@ MapboxTransColorRef MapboxVectorStyleSetImpl::transColor(const std::string &name
 //    return nil;
 //}
 //
-//- (id)constantSubstitution:(id)thing forField:(NSString *)field
-//{
-//    // Look for a constant substitution
-//    if ([thing isKindOfClass:[NSString class]])
-//    {
-//        NSString *stringThing = thing;
-//        // Note: This just handles simple ones with full substitution
-//        if ([stringThing characterAtIndex:0] == '@')
-//        {
-//            id constant = _constants[stringThing];
-//            if (constant)
-//                thing = constant;
-//            else {
-//                NSLog(@"Failed to substitute constant %@ for field %@",stringThing,field);
-//                return thing;
-//            }
-//        }
-//    }
-//
-//    return thing;
-//}
-//
 //
 //- (MaplyVectorFunctionStops *)stopsValue:(id)entry defVal:(id)defEntry
 //{
@@ -584,69 +658,5 @@ MapboxTransColorRef MapboxVectorStyleSetImpl::transColor(const std::string &name
 //    }
 //    return defEntry;
 //}
-//
-//- (UIColor *__nullable)resolveColor:(MapboxTransColor * __nullable)color opacity:(MapboxTransDouble * __nullable)opacity forZoom:(double)zoom mode:(MBResolveColorType)resolveMode
-//{
-//    // No color means no color
-//    if (!color)
-//        return nil;
-//
-//    UIColor *thisColor = [color colorForZoom:zoom];
-//
-//    // No opacity, means full opacity
-//    if (!opacity)
-//        return thisColor;
-//
-//    double thisOpacity = [opacity valForZoom:zoom];
-//
-//    CGFloat red,green,blue,alpha;
-//    [thisColor getRed:&red green:&green blue:&blue alpha:&alpha];
-//    switch (resolveMode)
-//    {
-//        case MBResolveColorOpacityMultiply:
-//            return [UIColor colorWithRed:red*thisOpacity green:green*thisOpacity blue:blue*thisOpacity alpha:alpha*thisOpacity];
-//            break;
-//        case MBResolveColorOpacityReplaceAlpha:
-//            return [UIColor colorWithRed:red green:green blue:blue alpha:thisOpacity];
-//            break;
-//    }
-//}
-//
-//- (UIColor *)color:(UIColor *)color withOpacity:(double)opacity
-//{
-//    CGFloat red,green,blue,alpha;
-//    [color getRed:&red green:&green blue:&blue alpha:&alpha];
-//    return [UIColor colorWithRed:red*opacity green:green*opacity blue:blue*opacity alpha:alpha*opacity];
-//}
-//
-//- (NSUInteger)enumValue:(NSString *)name options:(NSArray *)options defVal:(NSUInteger)defVal
-//{
-//    if (!name)
-//        return defVal;
-//
-//    if (![name isKindOfClass:[NSString class]])
-//    {
-//        NSLog(@"Expecting string for enumerated type.");
-//        return defVal;
-//    }
-//
-//    int which = 0;
-//    for (NSString *val in options)
-//    {
-//        if ([val isEqualToString:name])
-//            return which;
-//        which++;
-//    }
-//
-//    NSLog(@"Found unexpected value (%@) in enumerated type",name);
-//    return defVal;
-//}
-//
-//- (void)unsupportedCheck:(NSString *)field in:(NSString *)what styleEntry:(NSDictionary *)styleEntry
-//{
-//    if (styleEntry[field])
-//        NSLog(@"Found unsupported field (%@) for (%@)",field,what);
-//}
-
 
 }

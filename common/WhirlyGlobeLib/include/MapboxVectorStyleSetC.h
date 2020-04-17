@@ -165,6 +165,9 @@ public:
     RGBAColorRef colorValue(const std::string &name,DictionaryEntryRef val,DictionaryRef dict,RGBAColorRef defVal,bool multiplyAlpha);
     RGBAColorRef colorValue(const std::string &name,DictionaryEntryRef val,DictionaryRef dict,RGBAColor defVal,bool multiplyAlpha);
 
+    /// @brief Return the integer corresponding to the name.  Basically parse the enumerated type
+    int enumValue(const std::string &name,const char *options[],int defVal);
+
     /// Builds a transitionable double object and returns that
     MapboxTransDoubleRef transDouble(const std::string &name,DictionaryRef entry,double defVal);
 
@@ -179,9 +182,6 @@ public:
     /// @brief Scale the color by the given opacity
     RGBAColor color(RGBAColor color,double opacity);
 
-    /// @brief Return the integer corresponding to the name.  Basically parse the enumerated type
-    int enumValue(const std::string &name,const char *options[],int defVal);
-
     /// @brief Check for and report an unsupported field
     void unsupportedCheck(const std::string &field,const std::string &what,DictionaryRef styleEntry);
 
@@ -195,13 +195,13 @@ public:
     virtual SimpleIdentity makeCircleTexture(double radius,const RGBAColor &fillColor,const RGBAColor &strokeColor,Point2f *circleSize) = 0;
     
     /// Local platform implementation for generating a repeating line texture
-    virtual SimpleIdentity makeLineTexture(const std::vector<double> &dashComponents);
+    virtual SimpleIdentity makeLineTexture(const std::vector<double> &dashComponents) = 0;
     
     /// Create a local platform LabelInfo (since fonts are local)
-    virtual LabelInfoRef makeLabelInfo(const std::string &fontName);
+    virtual LabelInfoRef makeLabelInfo(const std::string &fontName) = 0;
     
     /// Create a local platform label (fonts are local, and other stuff)
-    virtual SingleLabelRef makeSingleLabel(const std::string &text);
+    virtual SingleLabelRef makeSingleLabel(const std::string &text) = 0;
 
 public:
     Scene *scene;
@@ -213,7 +213,7 @@ public:
     int version;
 
     /// @brief Constants from the Style sheet
-    DictionaryRef constants;
+    std::map<std::string,DictionaryEntryRef> constants;
 
     /// @brief Layers parsed from the style sheet
     std::vector<MapboxVectorStyleLayerRef> layers;
