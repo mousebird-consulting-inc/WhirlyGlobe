@@ -33,11 +33,59 @@ namespace WhirlyKit
 class MapboxVectorStyleLayer;
 typedef std::shared_ptr<MapboxVectorStyleLayer> MapboxVectorStyleLayerRef;
 
+class MapboxVectorStyleSetImpl;
+typedef std::shared_ptr<MapboxVectorStyleSetImpl> MapboxVectorStyleSetImplRef;
+
+// One value correlated with a zoom level
+class MaplyVectorFunctionStop
+{
+public:
+    MaplyVectorFunctionStop();
+    
+    /// @brief Zoom level this applies to
+    double zoom;
+
+    /// @brief Value at that zoom level
+    double val;
+
+    /// @brief Could also just be a color
+    RGBAColorRef color;
+};
+
+// Collection of function stops
+class MaplyVectorFunctionStops
+{
+public:
+    bool parse(const std::vector<DictionaryEntryRef> &dataArray,MapboxVectorStyleSetImplRef styleSet);
+
+    /// @brief Calculate a value given the zoom level
+    double valueForZoom(double zoom);
+
+    /// @brief This version returns colors, assuming we're dealing with colors
+    RGBAColorRef colorForZoom(int zoom);
+
+    /// @brief Returns the minimum value
+    double minValue();
+
+    /// @brief Returns the maximum value
+    double maxValue();
+
+protected:
+    std::vector<MaplyVectorFunctionStop> stops;
+    
+    /// @brief Used in exponential calculation
+    double base;
+};
+typedef std::shared_ptr<MaplyVectorFunctionStops> MaplyVectorFunctionStopsRef;
+
 // A transitionable double value
 // This may be stops or a single value
 class MapboxTransDouble
 {
 public:
+    MapboxTransDouble(double value);
+    MapboxTransDouble(MaplyVectorFunctionStopsRef stops);
+    
     // Return the value for a given level
     double valForZoom(double zoom);
 
@@ -48,6 +96,8 @@ public:
     double maxVal();
     
 protected:
+    double val;
+    MaplyVectorFunctionStopsRef stops;
 };
 typedef std::shared_ptr<MapboxTransDouble> MapboxTransDoubleRef;
 
@@ -56,6 +106,9 @@ typedef std::shared_ptr<MapboxTransDouble> MapboxTransDoubleRef;
 class MapboxTransColor
 {
 public:
+    MapboxTransColor(RGBAColorRef color);
+    MapboxTransColor(MaplyVectorFunctionStopsRef stops);
+    
     // If set, we're using the alpha to indicate some other value, so just pass it through
     void setAlphaOverride(double alpha);
 
@@ -63,6 +116,10 @@ public:
     RGBAColor colorForZoom(double zoom);
     
 protected:
+    RGBAColorRef color;
+    bool useAlphaOverride;
+    double alpha;
+    MaplyVectorFunctionStopsRef stops;
 };
 typedef std::shared_ptr<MapboxTransColor> MapboxTransColorRef;
 
@@ -179,6 +236,5 @@ public:
     SimpleIdentity vectorLinearProgramID;
     SimpleIdentity wideVectorProgramID;
 };
-typedef std::shared_ptr<MapboxVectorStyleSetImpl> MapboxVectorStyleSetImplRef;
 
 }

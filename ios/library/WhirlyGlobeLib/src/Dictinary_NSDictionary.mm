@@ -102,6 +102,19 @@ DictionaryRef iosDictionaryEntry::getDict() const
     return DictionaryRef();
 }
 
+std::vector<DictionaryEntryRef> iosDictionaryEntry::getArray() const
+{
+    std::vector<DictionaryEntryRef> refs;
+    
+    if ([value isKindOfClass:[NSArray class]]) {
+        for (id val in (NSArray *)value) {
+            refs.push_back(DictionaryEntryRef(new iosDictionaryEntry(val)));
+        }
+    }
+    
+    return refs;
+}
+
     
 iosDictionary::iosDictionary()
 {

@@ -49,6 +49,8 @@ public:
     virtual std::string getString() const;
     /// Return a dictionary as an entry
     virtual DictionaryRef getDict() const;
+    /// Return an array of refs
+    virtual std::vector<DictionaryEntryRef> getArray() const;
 protected:
     id value;
 };

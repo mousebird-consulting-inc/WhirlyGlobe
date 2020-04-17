@@ -83,6 +83,11 @@ public:
 	RGBAColor() { }
 	RGBAColor(unsigned char r,unsigned char g,unsigned char b,unsigned char a) : r(r), g(g), b(b), a(a) { }
 	RGBAColor(unsigned char r,unsigned char g,unsigned char b) : r(r), g(g), b(b), a(255) { }
+    
+    // Create an RGBColor from unit floats
+    static RGBAColor FromUnitFloats(float *ret) {
+        return RGBAColor(ret[0] * 255.0,ret[1] * 255.0,ret[2] * 255.0,ret[3] * 255.0);
+    }
 
     // Standard colors to create & return
 

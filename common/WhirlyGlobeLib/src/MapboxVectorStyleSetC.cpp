@@ -19,6 +19,7 @@
 */
 
 #import "MapboxVectorStyleSetC.h"
+#import "WhirlyKitLog.h"
 
 namespace WhirlyKit
 {
@@ -32,141 +33,183 @@ MapboxVectorStyleSetImpl::MapboxVectorStyleSetImpl(Scene *inScene)
     compManage = (ComponentManager *)scene->getManager(kWKComponentManager);
 }
 
-///// @brief A single zoom and value
-//@interface MaplyVectorFunctionStop : NSObject
-//
-///// @brief Zoom level this applies to
-//@property (nonatomic) double zoom;
-//
-///// @brief Value at that zoom level
-//@property (nonatomic) double val;
-//
-///// @brief Could also just be a color
-//@property (nonatomic,nullable,strong) UIColor *color;
-//
-//@end
-//
-///// @brief These are used to control simple values based on zoom level
-//@interface MaplyVectorFunctionStops : NSObject
-//
-///// @brief Array of function stops as they apply to value.  These are MaplyVectorFunctionStop objects.
-//@property (nonatomic,strong,nullable) NSArray *stops;
-//
-///// @brief Used in exponential calculation
-//@property (nonatomic,assign) double base;
-//
-///// @brief Parse out of a JSON array
-//- (id _Nullable)initWithArray:(NSArray * __nonnull)dataArray styleSet:(MapboxVectorStyleSet * __nonnull)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)viewC;
-//
-///// @brief Calculate a value given the zoom level
-//- (double)valueForZoom:(double)zoom;
-//
-///// @brief This version returns colors, assuming we're dealing with colors
-//- (UIColor * _Nonnull)colorForZoom:(int)zoom;
-//
-///// @brief Returns the minimum value
-//- (double)minValue;
-//
-///// @brief Returns the maximum value
-//- (double)maxValue;
-//
-//@end
-//
-//@implementation MapboxTransDouble
-//{
-//@public
-//    double val;
-//    MaplyVectorFunctionStops *stops;
-//}
-//
-//- (id)initWithDouble:(double)value
-//{
-//    self = [super init];
-//    val = value;
-//
-//    return self;
-//}
-//
-//- (id)initWithStops:(MaplyVectorFunctionStops *)inStops
-//{
-//    self = [super init];
-//    stops = inStops;
-//
-//    return self;
-//}
-//
-//- (double)valForZoom:(double)zoom
-//{
-//    if (stops) {
-//        return [stops valueForZoom:zoom];
-//    } else
-//        return val;
-//}
-//
-//- (double)minVal
-//{
-//    if (stops) {
-//        return [stops minValue];
-//    } else
-//        return val;
-//}
-//
-//- (double)maxVal
-//{
-//    if (stops) {
-//        return [stops maxValue];
-//    } else
-//        return val;
-//}
-//
-//@end
-//
-//@implementation MapboxTransColor
-//{
-//@public
-//    UIColor *color;
-//    MaplyVectorFunctionStops *stops;
-//    bool useAlphaOverride;
-//    double alpha;
-//}
-//
-//- (id)initWithColor:(UIColor *)inColor
-//{
-//    self = [super init];
-//    color = inColor;
-//    useAlphaOverride = false;
-//    alpha = 0.0;
-//
-//    return self;
-//}
-//
-//- (id)initWithStops:(MaplyVectorFunctionStops *)inStops
-//{
-//    self = [super init];
-//    stops = inStops;
-//
-//    return self;
-//}
-//
-//- (void)setAlphaOverride:(double)alphaOverride
-//{
-//    useAlphaOverride = true;
-//    alpha = alphaOverride;
-//}
-//
-//- (UIColor *)colorForZoom:(double)zoom
-//{
-//    UIColor *theColor = stops ? [stops colorForZoom:(int)zoom] : color;
-//
-//    if (useAlphaOverride) {
-//        const CGFloat *colors = CGColorGetComponents(theColor.CGColor);
-//        theColor = [UIColor colorWithRed:colors[0] green:colors[1] blue:colors[2] alpha:alpha];
-//    }
-//
-//    return theColor;
-//}
-//
-//@end
+MaplyVectorFunctionStop::MaplyVectorFunctionStop()
+: zoom(-1.0), val(0.0)
+{
+}
+
+bool MaplyVectorFunctionStops::parse(const std::vector<DictionaryEntryRef> &dataArray,MapboxVectorStyleSetImplRef styleSet)
+{
+    if (dataArray.size() < 2)
+    {
+        wkLogLevel(Warn, "Expecting at least two arguments for function stops.");
+        return false;
+    }
+    
+    for (auto stop : dataArray) {
+        if (stop->getType() != DictTypeArray) {
+            std::vector<DictionaryEntryRef> stopEntries = stop->getArray();
+            if (stopEntries.size() != 2) {
+                wkLogLevel(Warn,"Expecting two arguments in each entry for a function stop.");
+                return false;
+            }
+            
+            MaplyVectorFunctionStop fStop;
+            fStop.zoom = stopEntries[0]->getDouble();
+            if (stopEntries[1]->getType() == DictTypeDouble) {
+                fStop.val = stopEntries[1]->getDouble();
+            } else {
+                fStop.color = RGBAColorRef(new RGBAColor(stopEntries[1]->getColor()));
+            }
+            
+            stops.push_back(fStop);
+        }
+    }
+
+    base = 1.0;
+    
+    return true;
+}
+
+double MaplyVectorFunctionStops::valueForZoom(double zoom)
+{
+    MaplyVectorFunctionStop *a = &stops[0],*b = NULL;
+    if (zoom <= a->zoom)
+        return a->val;
+    for (int which = 1;which < stops.size(); which++)
+    {
+        b = &stops[which];
+        if (a->zoom <= zoom && zoom < b->zoom)
+        {
+            double ratio = 1.0;
+            if (base == 1.0) {
+                ratio = (zoom-a->zoom)/(b->zoom-a->zoom);
+            } else {
+                double soFar = zoom-a->zoom;
+                ratio = (pow(base, soFar) - 1.0) / (pow(base,b->zoom-a->zoom) - 1.0);
+            }
+            return ratio * (b->val-a->val) + a->val;
+        }
+        a = b;
+    }
+
+    return b->val;
+}
+
+RGBAColorRef MaplyVectorFunctionStops::colorForZoom(int zoom)
+{
+    MaplyVectorFunctionStop *a = &stops[0],*b = NULL;
+    if (zoom <= a->zoom)
+        return a->color;
+    for (int which = 1;which < stops.size(); which++)
+    {
+        b = &stops[which];
+        if (a->zoom <= zoom && zoom < b->zoom)
+        {
+            double ratio = 1.0;
+            if (base == 1.0) {
+                ratio = (zoom-a->zoom)/(b->zoom-a->zoom);
+            } else {
+                double soFar = zoom-a->zoom;
+                ratio = (pow(base, soFar) - 1.0) / (pow(base,b->zoom-a->zoom) - 1.0);
+            }
+            float ac[4],bc[4];
+            a->color->asUnitFloats(ac);
+            b->color->asUnitFloats(bc);
+            float res[4];
+            for (unsigned int ii=0;ii<4;ii++)
+                res[ii] = ratio * (bc[ii]-ac[ii]) + ac[ii];
+            return RGBAColorRef(new RGBAColor(RGBAColor::FromUnitFloats(res)));
+        }
+        a = b;
+    }
+
+    return b->color;
+}
+
+double MaplyVectorFunctionStops::minValue()
+{
+    double val = MAXFLOAT;
+
+    for (auto stop : stops)
+        val = std::min(val,stop.val);
+
+    return val;
+}
+
+double MaplyVectorFunctionStops::maxValue()
+{
+    double val = -MAXFLOAT;
+
+    for (auto stop : stops) {
+        val = std::max(val,stop.val);
+    }
+
+    return val;
+}
+
+MapboxTransDouble::MapboxTransDouble(double value)
+{
+    val = value;
+}
+
+MapboxTransDouble::MapboxTransDouble(MaplyVectorFunctionStopsRef inStops)
+{
+    val = 0.0;
+    stops = inStops;
+}
+
+double MapboxTransDouble::valForZoom(double zoom)
+{
+    if (stops) {
+        return stops->valueForZoom(zoom);
+    } else
+        return val;
+}
+
+double MapboxTransDouble::minVal()
+{
+    if (stops) {
+        return stops->minValue();
+    } else
+        return val;
+}
+
+double MapboxTransDouble::maxVal()
+{
+    if (stops) {
+        return stops->maxValue();
+    } else
+        return val;
+}
+
+MapboxTransColor::MapboxTransColor(RGBAColorRef color)
+: color(color), useAlphaOverride(false), alpha(1.0)
+{
+}
+
+MapboxTransColor::MapboxTransColor(MaplyVectorFunctionStopsRef stops)
+: useAlphaOverride(false), alpha(1.0), stops(stops)
+{
+}
+
+void MapboxTransColor::setAlphaOverride(double alphaOverride)
+{
+    useAlphaOverride = true;
+    alpha = alphaOverride;
+}
+
+RGBAColor MapboxTransColor::colorForZoom(double zoom)
+{
+    RGBAColor theColor = *(stops ? stops->colorForZoom(zoom) : color);
+
+    if (useAlphaOverride) {
+        theColor.a = alpha * 255.0;
+    }
+
+    return theColor;
+}
+
 
 //- (long long)generateID
 //{
@@ -593,137 +636,6 @@ MapboxVectorStyleSetImpl::MapboxVectorStyleSetImpl(Scene *inScene)
 //    if (styleEntry[field])
 //        NSLog(@"Found unsupported field (%@) for (%@)",field,what);
 //}
-
-
-//@implementation MaplyVectorFunctionStop
-//@end
-//
-//@implementation MaplyVectorFunctionStops
-//
-//- (id)initWithArray:(NSArray *)dataArray styleSet:(MapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
-//{
-//    if (![dataArray isKindOfClass:[NSArray class]])
-//    {
-//        NSLog(@"Expected JSON array for function stops.");
-//        return nil;
-//    }
-//    if ([dataArray count] < 2)
-//    {
-//        NSLog(@"Expecting at least two arguments for function stops.");
-//        return nil;
-//    }
-//    
-//    NSMutableArray *stops = [NSMutableArray array];
-//    for (NSArray *stop in dataArray)
-//    {
-//        if (![stop isKindOfClass:[NSArray class]] || [stop count] != 2)
-//        {
-//            NSLog(@"Expecting two arguments in each entry for a function stop.");
-//            return nil;
-//        }
-//        
-//        MaplyVectorFunctionStop *fStop = [[MaplyVectorFunctionStop alloc] init];
-//        fStop.zoom = [[stop objectAtIndex:0] doubleValue];
-//        id valObj = [stop objectAtIndex:1];
-//        if ([valObj isKindOfClass:[NSNumber class]])
-//            fStop.val = [valObj doubleValue];
-//        else {
-//            // Maybe a color?
-//            fStop.color = [styleSet colorValue:nil val:valObj dict:nil defVal:nil multiplyAlpha:true];
-//        }
-//        [stops addObject:fStop];
-//    }
-//    
-//    self = [super init];
-//    if (!self)
-//        return nil;
-//    
-//    _base = 1.0;
-//    _stops = stops;
-//    
-//    return self;
-//}
-//
-//- (double)valueForZoom:(double)zoom
-//{
-//    MaplyVectorFunctionStop *a = _stops[0],*b = nil;
-//    if (zoom <= a.zoom)
-//        return a.val;
-//    for (int which = 1;which < _stops.count; which++)
-//    {
-//        b = _stops[which];
-//        if (a.zoom <= zoom && zoom < b.zoom)
-//        {
-//            double ratio = 1.0;
-//            if (_base == 1.0) {
-//                ratio = (zoom-a.zoom)/(b.zoom-a.zoom);
-//            } else {
-//                double soFar = zoom-a.zoom;
-//                ratio = (pow(_base, soFar) - 1.0) / (pow(_base,b.zoom-a.zoom) - 1.0);
-//            }
-//            return ratio * (b.val-a.val) + a.val;
-//        }
-//        a = b;
-//    }
-//    
-//    return b.val;
-//}
-//
-//- (UIColor *)colorForZoom:(int)zoom
-//{
-//    MaplyVectorFunctionStop *a = _stops[0],*b = nil;
-//    if (zoom <= a.zoom)
-//        return a.color;
-//    for (int which = 1;which < _stops.count; which++)
-//    {
-//        b = _stops[which];
-//        if (a.zoom <= zoom && zoom < b.zoom)
-//        {
-//            double ratio = 1.0;
-//            if (_base == 1.0) {
-//                ratio = (zoom-a.zoom)/(b.zoom-a.zoom);
-//            } else {
-//                double soFar = zoom-a.zoom;
-//                ratio = (pow(_base, soFar) - 1.0) / (pow(_base,b.zoom-a.zoom) - 1.0);
-//            }
-//            CGFloat ac[4],bc[4];
-//            [a.color getRed:&ac[0] green:&ac[1] blue:&ac[2] alpha:&ac[3]];
-//            [b.color getRed:&bc[0] green:&bc[1] blue:&bc[2] alpha:&bc[3]];
-//            CGFloat res[4];
-//            for (unsigned int ii=0;ii<4;ii++)
-//                res[ii] = ratio * (bc[ii]-ac[ii]) + ac[ii];
-//            return [UIColor colorWithRed:res[0] green:res[1] blue:res[2] alpha:res[3]];
-//        }
-//        a = b;
-//    }
-//    
-//    return b.color;
-//}
-//
-//- (double)minValue
-//{
-//    double val = MAXFLOAT;
-//    
-//    for (MaplyVectorFunctionStop *stop in _stops) {
-//        val = MIN(val,stop.val);
-//    }
-//    
-//    return val;
-//}
-//
-//- (double)maxValue
-//{
-//    double val = -MAXFLOAT;
-//    
-//    for (MaplyVectorFunctionStop *stop in _stops) {
-//        val = MAX(val,stop.val);
-//    }
-//    
-//    return val;
-//}
-//
-//
-//@end
 
 
 }

@@ -93,6 +93,8 @@ public:
     virtual std::string getString() const = 0;
     /// Return a dictionary as an entry
     virtual DictionaryRef getDict() const = 0;
+    /// Return an array of refs
+    virtual std::vector<DictionaryEntryRef> getArray() const = 0;
 };
 
 /// This version of the dictionary can be modified
