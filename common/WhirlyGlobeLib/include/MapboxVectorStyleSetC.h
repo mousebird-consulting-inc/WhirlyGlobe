@@ -140,15 +140,6 @@ public:
     /// @brief Default settings and scale factor for Mapnik vector geometry.
     VectorStyleSettingsImpl *tileStyleSettings;
 
-    /// @brief Style name
-    std::string name;
-
-    /// @brief Version number from the style
-    int version;
-
-    /// @brief Constants from the Style sheet
-    DictionaryRef constants;
-
     /// @brief Generates a unique ID for a style
     long long generateID();
 
@@ -156,10 +147,10 @@ public:
     int intValue(const std::string &name,DictionaryRef dict,int defVal);
 
     /// @brief Return a double value for the given name, taking the constants into account
-    double doubleValue(const std::string &name,DictionaryRef dict,double defVal);
+    double doubleValue(DictionaryEntryRef entry,double defVal);
 
     /// @brief Return a double value for the given name, taking the constants into account
-    double doubleValue(DictionaryEntryRef entry,double defVal);
+    double doubleValue(const std::string &name,DictionaryRef dict,double defVal);
         
     /// @brief Return a bool for the given name.  True if it matches the onString.  Default if it's missing
     bool boolValue(const std::string &name,DictionaryRef dict,const std::string &onString,bool defVal);
@@ -167,12 +158,13 @@ public:
     /// @brief Return a string for the given name, taking the constants into account
     std::string stringValue(const std::string &name,DictionaryRef dict,const std::string &defVal);
 
+    /// @brief Return an array for the given name, taking the constants into account
+    std::vector<DictionaryEntryRef> arrayValue(const std::string &name,DictionaryRef dict);
+
+    
     /// @brief Return a color for the given name, taking the constants into account
     RGBAColorRef colorValue(const std::string &name,DictionaryEntryRef val,DictionaryRef dict,RGBAColorRef defVal,bool multiplyAlpha);
     RGBAColorRef colorValue(const std::string &name,DictionaryEntryRef val,DictionaryRef dict,RGBAColor defVal,bool multiplyAlpha);
-
-    /// @brief Return an array for the given name, taking the constants into account
-    std::vector<DictionaryRef> arrayValue(const std::string &name,DictionaryRef dict);
 
     /// Builds a transitionable double object and returns that
     MapboxTransDoubleRef transDouble(const std::string &name,DictionaryRef entry,double defVal);
@@ -215,6 +207,15 @@ public:
 public:
     Scene *scene;
 
+    /// @brief Style name
+    std::string name;
+
+    /// @brief Version number from the style
+    int version;
+
+    /// @brief Constants from the Style sheet
+    DictionaryRef constants;
+
     /// @brief Layers parsed from the style sheet
     std::vector<MapboxVectorStyleLayerRef> layers;
 
@@ -235,6 +236,8 @@ public:
     SimpleIdentity vectorArealProgramID;
     SimpleIdentity vectorLinearProgramID;
     SimpleIdentity wideVectorProgramID;
+    
+    long long currentID;
 };
 
 }

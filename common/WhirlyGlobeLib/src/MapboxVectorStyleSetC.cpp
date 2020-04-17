@@ -24,15 +24,6 @@
 namespace WhirlyKit
 {
 
-MapboxVectorStyleSetImpl::MapboxVectorStyleSetImpl(Scene *inScene)
-{
-    scene = inScene;
-    vecManage = (VectorManager *)scene->getManager(kWKVectorManager);
-    wideVecManage = (WideVectorManager *)scene->getManager(kWKWideVectorManager);
-    markerManage = (MarkerManager *)scene->getManager(kWKMarkerManager);
-    compManage = (ComponentManager *)scene->getManager(kWKComponentManager);
-}
-
 MaplyVectorFunctionStop::MaplyVectorFunctionStop()
 : zoom(-1.0), val(0.0)
 {
@@ -210,12 +201,108 @@ RGBAColor MapboxTransColor::colorForZoom(double zoom)
     return theColor;
 }
 
+MapboxVectorStyleSetImpl::MapboxVectorStyleSetImpl(Scene *inScene)
+: scene(inScene), currentID(0)
+{
+    vecManage = (VectorManager *)scene->getManager(kWKVectorManager);
+    wideVecManage = (WideVectorManager *)scene->getManager(kWKWideVectorManager);
+    markerManage = (MarkerManager *)scene->getManager(kWKMarkerManager);
+    labelManage = (LabelManager *)scene->getManager(kWKLabelManager);
+    compManage = (ComponentManager *)scene->getManager(kWKComponentManager);
+}
 
-//- (long long)generateID
-//{
-//    return currentID++;
-//}
-//
+long long MapboxVectorStyleSetImpl::generateID()
+{
+    return currentID++;
+}
+
+int MapboxVectorStyleSetImpl::intValue(const std::string &name,DictionaryRef dict,int defVal)
+{
+    DictionaryEntryRef thing = dict->getEntry(name);
+    if (!thing)
+        return defVal;
+    
+    thing = constantSubstitution(thing, name);
+    
+    if (thing->getType() == DictTypeDouble)
+        return thing->getInt();
+
+    wkLogLevel(Warn, "Expected integer for %s but got something else",name.c_str());
+    return defVal;
+}
+
+double MapboxVectorStyleSetImpl::doubleValue(DictionaryEntryRef thing,double defVal)
+{
+    thing = constantSubstitution(thing, "");
+    
+    if (thing->getType() == DictTypeDouble)
+        return thing->getDouble();
+
+    wkLogLevel(Warn, "Expected double for %s but got something else",name.c_str());
+    return defVal;
+}
+
+double MapboxVectorStyleSetImpl::doubleValue(const std::string &name,DictionaryRef dict,double defVal)
+{
+    DictionaryEntryRef thing = dict->getEntry(name);
+    if (!thing)
+        return defVal;
+    
+    thing = constantSubstitution(thing, name);
+    
+    if (thing->getType() == DictTypeDouble)
+        return thing->getDouble();
+    
+    wkLogLevel(Warn, "Expected double for %s but got something else",name.c_str());
+    return defVal;
+}
+
+bool MapboxVectorStyleSetImpl::boolValue(const std::string &name,DictionaryRef dict,const std::string &onString,bool defVal)
+{
+    DictionaryEntryRef thing = dict->getEntry(name);
+    if (!thing)
+        return defVal;
+    
+    thing = constantSubstitution(thing, name);
+    
+    if (thing->getType() == DictTypeString)
+        return thing->getString() == onString;
+    else
+        return defVal;
+}
+
+std::string MapboxVectorStyleSetImpl::stringValue(const std::string &name,DictionaryRef dict,const std::string &defVal)
+{
+    DictionaryEntryRef thing = dict->getEntry(name);
+    if (!thing)
+        return defVal;
+
+    thing = constantSubstitution(thing, name);
+    
+    if (thing->getType() == DictTypeString)
+        return thing->getString();
+
+    wkLogLevel(Warn, "Expected string for %s but got something else",name.c_str());
+    return defVal;
+}
+
+std::vector<DictionaryEntryRef> MapboxVectorStyleSetImpl::arrayValue(const std::string &name,DictionaryRef dict)
+{
+    DictionaryEntryRef thing = dict->getEntry(name);
+    std::vector<DictionaryEntryRef> ret;
+    if (!thing)
+        return ret;
+    
+    thing = constantSubstitution(thing, name);
+    
+    if (thing->getType() == DictTypeArray)
+        return thing->getArray();
+    
+    wkLogLevel(Warn, "Expected string for %s but got something else",name.c_str());
+    return ret;
+}
+
+
 //- (NSArray*)stylesForFeatureWithAttributes:(NSDictionary*)attributes
 //                                    onTile:(MaplyTileID)tileID
 //                                   inLayer:(NSString*)sourceLayer
@@ -283,84 +370,6 @@ RGBAColor MapboxTransColor::colorForZoom(double zoom)
 //    return thing;
 //}
 //
-//- (int)intValue:(NSString *)name dict:(NSDictionary *)dict defVal:(int)defVal
-//{
-//    id thing = dict[name];
-//    if (!thing)
-//        return defVal;
-//
-//    thing = [self constantSubstitution:thing forField:name];
-//
-//    if ([thing respondsToSelector:@selector(integerValue)])
-//        return [thing integerValue];
-//
-//    NSLog(@"Expected integer for %@ but got something else",name);
-//    return defVal;
-//}
-//
-//- (double)doubleValue:(id)thing defVal:(double)defVal
-//{
-//    thing = [self constantSubstitution:thing forField:nil];
-//
-//    if ([thing respondsToSelector:@selector(doubleValue)])
-//        return [thing doubleValue];
-//
-//    NSLog(@"Expected double but got something else (%@)",thing);
-//    return defVal;
-//}
-//
-//- (double)doubleValue:(NSString *)name dict:(NSDictionary *)dict defVal:(double)defVal
-//{
-//    id thing = dict[name];
-//    if (!thing)
-//        return defVal;
-//
-//    return [self doubleValue:thing defVal:defVal];
-//}
-//
-//- (bool)boolValue:(NSString *)name dict:(NSDictionary *)dict onValue:(NSString *)onString defVal:(bool)defVal
-//{
-//    id thing = dict[name];
-//    if (!thing)
-//        return defVal;
-//
-//    if ([thing isKindOfClass:[NSString class]]) {
-//        return [thing isEqualToString:onString];
-//    } else
-//        return defVal;
-//}
-//
-//- (NSString *)stringValue:(NSString *)name dict:(NSDictionary *)dict defVal:(NSString *)defVal
-//{
-//    id thing = dict[name];
-//    if (!thing)
-//        return defVal;
-//
-//    thing = [self constantSubstitution:thing forField:name];
-//
-//    if ([thing isKindOfClass:[NSString class]])
-//        return thing;
-//    if ([thing respondsToSelector:@selector(stringValue)])
-//        return [thing stringValue];
-//
-//    NSLog(@"Expected string for %@ but got something else",name);
-//    return defVal;
-//}
-//
-//- (NSArray *)arrayValue:(NSString *)name dict:(NSDictionary *)dict defVal:(NSArray *)defVal
-//{
-//    id thing = dict[name];
-//    if (!thing)
-//        return defVal;
-//
-//    thing = [self constantSubstitution:thing forField:name];
-//
-//    if ([thing isKindOfClass:[NSArray class]])
-//        return thing;
-//
-//    NSLog(@"Expected array for %@ but got something else",name);
-//    return defVal;
-//}
 //
 //- (MaplyVectorFunctionStops *)stopsValue:(id)entry defVal:(id)defEntry
 //{
