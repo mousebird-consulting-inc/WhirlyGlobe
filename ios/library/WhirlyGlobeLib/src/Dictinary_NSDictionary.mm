@@ -115,6 +115,29 @@ std::vector<DictionaryEntryRef> iosDictionaryEntry::getArray() const
     return refs;
 }
 
+bool iosDictionaryEntry::isEqual(DictionaryEntryRef other) const
+{
+    if (!other)
+        return false;
+    
+    iosDictionaryEntry *entry = (iosDictionaryEntry *)other.get();
+    if ([value isKindOfClass:[NSNumber class]])
+        return [value isEqual:entry->value];
+    if ([value isKindOfClass:[NSString class]] && [entry->value isKindOfClass:[NSString class]])
+        return [value isEqualToString:entry->value];
+    if ([value isKindOfClass:[UIColor class]] && [entry->value isKindOfClass:[UIColor class]]) {
+        CGFloat v1[4],v2[4];
+        [(UIColor *)value getRed:&v1[0] green:&v1[1] blue:&v1[2] alpha:&v1[3]];
+        [(UIColor *)value getRed:&v2[0] green:&v2[1] blue:&v2[2] alpha:&v2[3]];
+        for (unsigned int ii=0;ii<4;ii++)
+            if (v1[ii] != v2[ii])
+                return false;
+        return true;
+    }
+    // TODO: Dictionary
+    
+    return false;
+}
     
 iosDictionary::iosDictionary()
 {

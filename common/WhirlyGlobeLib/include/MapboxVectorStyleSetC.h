@@ -195,7 +195,7 @@ public:
     void unsupportedCheck(const std::string &field,const std::string &what,DictionaryRef styleEntry);
 
     /// @brief Check if the given thing is a constant and return its value if it is.  Otherwise just return it.
-//    - (id __nullable)constantSubstitution:(id __nonnull)thing forField:(NSString * __nullable)field;
+    DictionaryEntryRef constantSubstitution(DictionaryEntryRef thing,const std::string &field);
     
     /// Fetch a layer by name
     virtual MapboxVectorStyleLayerRef getLayer(const std::string &name);

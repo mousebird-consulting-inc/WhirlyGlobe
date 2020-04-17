@@ -51,6 +51,8 @@ public:
     virtual DictionaryRef getDict() const;
     /// Return an array of refs
     virtual std::vector<DictionaryEntryRef> getArray() const;
+    /// Compare to other
+    virtual bool isEqual(DictionaryEntryRef other) const;
 protected:
     id value;
 };

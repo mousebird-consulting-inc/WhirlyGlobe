@@ -19,244 +19,231 @@
 */
 
 #import "MapboxVectorFilter.h"
+#import "MapboxVectorStyleSetC.h"
+#import "WhirlyKitLog.h"
 
 namespace WhirlyKit
 {
 
-//@implementation MapboxVectorFilter
-//
-//- (id)initWithArray:(NSArray *)filterArray styleSet:(MapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
-//{
-//    if (![filterArray isKindOfClass:[NSArray class]])
-//    {
-//        NSLog(@"Expecting array for filter");
-//        return nil;
-//    }
-//    if ([filterArray count] < 1)
-//    {
-//        NSLog(@"Expecting at least one entry in filter");
-//        return nil;
-//    }
-//
-//    self = [super init];
-//    if (!self)
-//        return nil;
-//
-//    _geomType = MBGeomNone;
-//
-//    _filterType = (MapboxVectorFilterType)[styleSet enumValue:[filterArray objectAtIndex:0]
-//                options:@[@"==",@"!=",@">",@">=",@"<",@"<=",@"in",@"!in",@"has",@"!has",@"all",@"any",@"none"]
-//                 defVal:MBFilterNone];
-//
-//    // Filter with two arguments
-//    if (_filterType == MBFilterNone)
-//    {
-//        // That's easy
-//    } else if (_filterType <= MBFilterLessThanEqual)
-//    {
-//        // Filters with two arguments
-//        if ([filterArray count] < 3)
-//        {
-//            NSLog(@"Expecting three arugments for filter of type (%@)",[filterArray objectAtIndex:0]);
-//            return nil;
-//        }
-//
-//        // Attribute name can be name or geometry type
-//        _attrName = [filterArray objectAtIndex:1];
-//        if ([_attrName isEqualToString:@"$type"])
-//        {
-//            _geomType = (MapboxVectorGeometryType)[styleSet enumValue:[filterArray objectAtIndex:2] options:@[@"Point",@"LineString",@"Polygon"] defVal:MBGeomNone];
-//            if (_geomType == MBGeomNone)
-//            {
-//                NSLog(@"Unrecognized geometry type (%@) in filter",_attrName);
-//                return nil;
-//            }
-//        }
-//
-//        _attrVal = [styleSet constantSubstitution:[filterArray objectAtIndex:2] forField:@"Filter attribute value"];
-//        if (!_attrVal)
-//            return nil;
-//    } else if (_filterType <= MBFilterNotIn)
-//    {
-//        // Filters with inclusion
-//        NSMutableArray *inclVals = [NSMutableArray array];
-//        if ([filterArray count] < 3)
-//        {
-//            NSLog(@"Expecting at least three arguments for filter of type (%@)",[filterArray objectAtIndex:0]);
-//            return nil;
-//        }
-//        _attrName = [filterArray objectAtIndex:1];
-//        for (unsigned int ii=2;ii<[filterArray count];ii++)
-//        {
-//            id val = [filterArray objectAtIndex:ii];
-//            val = [styleSet constantSubstitution:val forField:@"Filter attribute value"];
-//            if (!val)
-//                return nil;
-//            [inclVals addObject:val];
-//        }
-//        _attrVals = inclVals;
-//    } else if (_filterType <= MBFilterNotHas)
-//    {
-//        // Filters with existence
-//        if ([filterArray count] < 2)
-//        {
-//            NSLog(@"Expecting at least two arguments for filter of type (%@)",[filterArray objectAtIndex:0]);
-//            return nil;
-//        }
-//        _attrName = [filterArray objectAtIndex:1];
-//    } else if (_filterType == MBFilterAll || _filterType == MBFilterAny)
-//    {
-//        // Any and all have subfilters
-//        NSMutableArray *subFilters = [NSMutableArray array];
-//        for (unsigned int ii=1;ii<[filterArray count];ii++)
-//        {
-//            id val = [filterArray objectAtIndex:ii];
-//            MapboxVectorFilter *subFilter = [[MapboxVectorFilter alloc] initWithArray:val styleSet:styleSet viewC:viewC];
-//            if (!subFilter)
-//                return nil;
-//            [subFilters addObject:subFilter];
-//        }
-//        _subFilters = subFilters;
-//    }
-//
-//    return self;
-//}
-//
-//- (bool)testFeature:(NSDictionary *)attrs tile:(MaplyTileID)tileID viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
-//{
-//    bool ret = true;
-//
-//    // Compare geometry type
-//    if (_geomType != MBGeomNone)
-//    {
-//        int attrGeomType = [attrs[@"geometry_type"] integerValue] - 1;
-//        switch (_filterType)
-//        {
-//            case MBFilterEqual:
-//                ret = attrGeomType == _geomType;
-//                break;
-//            case MBFilterNotEqual:
-//                ret = attrGeomType != _geomType;
-//                break;
-//            default:
-//                break;
-//        }
-//    } else if (_filterType == MBFilterAll || _filterType == MBFilterAny)
-//    {
-//        // Run each of the rules as either AND or OR
-//        if (_filterType == MBFilterAll)
-//        {
-//            for (MapboxVectorFilter *filter in _subFilters)
-//            {
-//                ret &= [filter testFeature:attrs tile:tileID viewC:viewC];
-//                if (!ret)
-//                    break;
-//            }
-//        } else if (_filterType == MBFilterAny)
-//        {
-//            ret = false;
-//            for (MapboxVectorFilter *filter in _subFilters)
-//            {
-//                ret |= [filter testFeature:attrs tile:tileID viewC:viewC];
-//                if (ret)
-//                    break;
-//            }
-//        } else
-//            ret = false;
-//    } else if (_filterType == MBFilterIn || _filterType == MBFilterNotIn)
-//    {
-//        // Check for attribute value membership
-//        bool isIn = false;
-//
-//        // Note: Not dealing with differing types well
-//        id featAttrVal = attrs[_attrName];
-//        if (featAttrVal)
-//        {
-//            for (id match in _attrVals)
-//            {
-//                if ([match isEqual:featAttrVal])
-//                {
-//                    isIn = true;
-//                    break;
-//                }
-//            }
-//        }
-//
-//        ret = (_filterType == MBFilterIn ? isIn : !isIn);
-//    } else if (_filterType == MBFilterHas || _filterType == MBFilterNotHas)
-//    {
-//        // Check for attribute existence
-//        bool canHas = false;
-//
-//        id featAttrVal = attrs[_attrName];
-//        if (featAttrVal)
-//            canHas = true;
-//
-//        ret = (_filterType == MBFilterHas ? canHas : !canHas);
-//    } else {
-//        // Equality related operators
-//        id featAttrVal = attrs[_attrName];
-//        if (featAttrVal)
-//        {
-//            if ([featAttrVal isKindOfClass:[NSString class]])
-//            {
-//                switch (_filterType)
-//                {
-//                    case MBFilterEqual:
-//                        ret = [featAttrVal isEqualToString:_attrVal];
-//                        break;
-//                    case MBFilterNotEqual:
-//                        ret = ![featAttrVal isEqualToString:_attrVal];
-//                        break;
-//                    default:
-//                        // Note: Not expecting other comparisons to strings
-//                        break;
-//                }
-//            } else {
-//                NSNumber *featAttrNum = (NSNumber *)featAttrVal;
-//                NSNumber *attrNum = (NSNumber *)_attrVal;
-//                if ([featAttrNum isKindOfClass:[NSNumber class]])
-//                {
-//                    switch (_filterType)
-//                    {
-//                        case MBFilterEqual:
-//                            ret = [featAttrNum doubleValue] == [attrNum doubleValue];
-//                            break;
-//                        case MBFilterNotEqual:
-//                            ret = [featAttrNum doubleValue] != [attrNum doubleValue];
-//                            break;
-//                        case MBFilterGreaterThan:
-//                            ret = [featAttrNum doubleValue] > [attrNum doubleValue];
-//                            break;
-//                        case MBFilterGreaterThanEqual:
-//                            ret = [featAttrNum doubleValue] >= [attrNum doubleValue];
-//                            break;
-//                        case MBFilterLessThan:
-//                            ret = [featAttrNum doubleValue] < [attrNum doubleValue];
-//                            break;
-//                        case MBFilterLessThanEqual:
-//                            ret = [featAttrNum doubleValue] <= [attrNum doubleValue];
-//                            break;
-//                        default:
-//                            break;
-//                    }
-//                } else {
-//                    NSLog(@"MapboxVectorFilter: Found numeric comparison that doesn't use numbers.");
-//                }
-//            }
-//        } else {
-//            // No attribute means no pass
-//            ret = false;
-//
-//            // A missing value and != is valid
-//            if (_filterType == MBFilterNotEqual)
-//                ret = true;
-//        }
-//    }
-//
-//    return ret;
-//}
-//
-//@end
+MapboxVectorFilter::MapboxVectorFilter()
+{
+}
+
+static const char *filterTypes[] = {"==","!=",">",">=","<","<=","in","!in","has","!has","all","any","none"};
+static const char *geomTypes[] = {"Point","LineString","Polygon"};
+
+bool MapboxVectorFilter::parse(const std::vector<DictionaryEntryRef> &filterArray,MapboxVectorStyleSetImplRef styleSet)
+{
+    if (filterArray.empty()) {
+        wkLogLevel(Warn, "Expecting array for filter");
+        return false;
+    }
+    
+    geomType = MBGeomNone;
+    filterType = (MapboxVectorFilterType)styleSet->enumValue(filterArray[0]->getString(),filterTypes,MBFilterNone);
+    
+    if (filterType == MBFilterNone)
+    {
+        // No filter is easy
+    } else if (filterType <= MBFilterLessThanEqual)
+    {
+        // Filters with two arguments
+        if (filterArray.size() < 3)
+        {
+            wkLogLevel(Warn,"Expecting three arguments for the filter type.");
+            return false;
+        }
+
+        // Attribute name can be name or geometry type
+        attrName = filterArray[1]->getString();
+        if (attrName == "$type")
+        {
+            geomType = (MapboxVectorGeometryType)styleSet->enumValue(filterArray[2]->getString(), geomTypes, MBGeomNone);
+            if (geomType == MBGeomNone)
+            {
+                wkLogLevel(Warn,"Unrecognized geometry type (%s) in filter",attrName.c_str());
+                return false;
+            }
+        }
+
+        attrVal = styleSet->constantSubstitution(filterArray[2], "Filter attribute value");
+        if (!attrVal)
+            return false;
+    } else if (filterType <= MBFilterNotIn) {
+        // Filters with inclusion
+        std::vector<DictionaryEntryRef> inclVals;
+        if (filterArray.size() < 3)
+        {
+            wkLogLevel(Warn,"Expecting three arugments for the filter type.");
+            return false;
+        }
+        attrName = filterArray[1]->getString();
+        for (unsigned int ii=2;ii<filterArray.size();ii++)
+        {
+            DictionaryEntryRef val = filterArray[ii];
+            val = styleSet->constantSubstitution(filterArray[ii], "Filter attribute value");
+            if (!val)
+                return false;
+            inclVals.push_back(val);
+        }
+        attrVals = inclVals;
+    } else if (filterType <= MBFilterNotHas)
+    {
+        // Filters with existence
+        if (filterArray.size() < 2)
+        {
+            wkLogLevel(Warn,"Expecting at least two arguments for filter of type (%s)",filterArray[0]->getString().c_str());
+            return false;
+        }
+        attrName = filterArray[1]->getString();
+    } else if (filterType == MBFilterAll || filterType == MBFilterAny)
+    {
+        // Any and all have subfilters
+        for (unsigned int ii=1;ii<filterArray.size();ii++)
+        {
+            MapboxVectorFilterRef subFilter(new MapboxVectorFilter());
+            if (!subFilter->parse(filterArray[ii]->getArray(), styleSet))
+                return false;
+            subFilters.push_back(subFilter);
+        }
+    }
+    
+    return true;
+}
+
+bool MapboxVectorFilter::testFeature(DictionaryRef attrs,const QuadTreeIdentifier &tileID)
+{
+    bool ret = true;
+
+    // Compare geometry type
+    if (geomType != MBGeomNone)
+    {
+        int attrGeomType = attrs->getInt("geometry_type") - 1;
+        switch (filterType)
+        {
+            case MBFilterEqual:
+                ret = attrGeomType == geomType;
+                break;
+            case MBFilterNotEqual:
+                ret = attrGeomType != geomType;
+                break;
+            default:
+                break;
+        }
+    } else if (filterType == MBFilterAll || filterType == MBFilterAny)
+    {
+        // Run each of the rules as either AND or OR
+        if (filterType == MBFilterAll)
+        {
+            for (auto filter : subFilters)
+            {
+                ret &= filter->testFeature(attrs, tileID);
+                if (!ret)
+                    break;
+            }
+        } else if (filterType == MBFilterAny)
+        {
+            ret = false;
+            for (auto filter : subFilters)
+            {
+                ret |= filter->testFeature(attrs, tileID);
+                if (ret)
+                    break;
+            }
+        } else
+            ret = false;
+    } else if (filterType == MBFilterIn || filterType == MBFilterNotIn)
+    {
+        // Check for attribute value membership
+        bool isIn = false;
+
+        // Note: Not dealing with differing types well
+        DictionaryEntryRef featAttrVal = attrs->getEntry(attrName);
+        if (featAttrVal)
+        {
+            for (auto match : attrVals)
+            {
+                if (match->isEqual(featAttrVal))
+                {
+                    isIn = true;
+                    break;
+                }
+            }
+        }
+
+        ret = (filterType == MBFilterIn ? isIn : !isIn);
+    } else if (filterType == MBFilterHas || filterType == MBFilterNotHas)
+    {
+        // Check for attribute existence
+        bool canHas = false;
+
+        DictionaryEntryRef featAttrVal = attrs->getEntry(attrName);
+        if (featAttrVal)
+            canHas = true;
+
+        ret = (filterType == MBFilterHas ? canHas : !canHas);
+    } else {
+        // Equality related operators
+        DictionaryEntryRef featAttrVal = attrs->getEntry(attrName);
+        if (featAttrVal)
+        {
+            if (featAttrVal->getType() == DictTypeString)
+            {
+                switch (filterType)
+                {
+                    case MBFilterEqual:
+                        ret = featAttrVal->isEqual(attrVal);
+                        break;
+                    case MBFilterNotEqual:
+                        ret = !featAttrVal->isEqual(attrVal);
+                        break;
+                    default:
+                        // Note: Not expecting other comparisons to strings
+                        break;
+                }
+            } else {
+                if (featAttrVal->getType() == DictTypeDouble)
+                {
+                    double val1 = featAttrVal->getDouble();
+                    double val2 = attrVal->getDouble();
+                    switch (filterType)
+                    {
+                        case MBFilterEqual:
+                            ret = val1 == val2;
+                            break;
+                        case MBFilterNotEqual:
+                            ret = val1 != val2;
+                            break;
+                        case MBFilterGreaterThan:
+                            ret = val1 > val2;
+                            break;
+                        case MBFilterGreaterThanEqual:
+                            ret = val1 >= val2;
+                            break;
+                        case MBFilterLessThan:
+                            ret = val1 < val2;
+                            break;
+                        case MBFilterLessThanEqual:
+                            ret = val1 <= val2;
+                            break;
+                        default:
+                            break;
+                    }
+                } else {
+                    wkLogLevel(Warn,"MapboxVectorFilter: Found numeric comparison that doesn't use numbers.");
+                }
+            }
+        } else {
+            // No attribute means no pass
+            ret = false;
+
+            // A missing value and != is valid
+            if (filterType == MBFilterNotEqual)
+                ret = true;
+        }
+    }
+
+    return ret;
+}
 
 }

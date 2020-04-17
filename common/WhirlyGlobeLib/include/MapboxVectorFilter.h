@@ -41,8 +41,10 @@ typedef std::shared_ptr<MapboxVectorFilter> MapboxVectorFilterRef;
 class MapboxVectorFilter
 {
 public:
+    MapboxVectorFilter();
+    
     /// @brief Parse the filter info out of the style entry
-    MapboxVectorFilter(const std::vector<DictionaryEntryRef> &styleEntry,MapboxVectorStyleSetImplRef styleSet);
+    bool parse(const std::vector<DictionaryEntryRef> &styleEntry,MapboxVectorStyleSetImplRef styleSet);
 
     /// @brief Test a feature's attributes against the filter
     bool testFeature(DictionaryRef attrs,const QuadTreeIdentifier &tileID);
@@ -57,10 +59,10 @@ public:
     MapboxVectorGeometryType geomType;
 
     /// @brief Attribute value to compare for all the type that take two arguments
-//    id attrVal;
+    DictionaryEntryRef attrVal;
 
     /// @brief Attribute values for the in and !in operators
-//    NSArray *attrVals;
+    std::vector<DictionaryEntryRef> attrVals;
 
     /// @brief For All and Any these are the MapboxVectorFilters to evaluate
     std::vector<MapboxVectorFilterRef> subFilters;
