@@ -110,9 +110,7 @@ RawDataRef RenderTargetMTL::snapshot()
     int pixSize = calcPixelSize([tex pixelFormat]);
     
     NSMutableData *data = [[NSMutableData alloc] initWithLength:width*height*pixSize];
-#if !TARGET_OS_SIMULATOR
     [tex getBytes:[data mutableBytes] bytesPerRow:width*pixSize fromRegion:region mipmapLevel:0];
-#endif
 
     return RawDataRef(new RawNSDataReader(data));
 }

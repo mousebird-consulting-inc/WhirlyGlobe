@@ -229,7 +229,10 @@ bool TextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
     if (!texData) {
         desc.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
 #if TARGET_OS_SIMULATOR
-    desc.storageMode = MTLStorageModePrivate;
+        if (pixFormat != MTLPixelFormatDepth32Float)
+            desc.storageMode = MTLStorageModeShared;
+        else
+            desc.storageMode = MTLStorageModePrivate;
 #endif
     }
     
