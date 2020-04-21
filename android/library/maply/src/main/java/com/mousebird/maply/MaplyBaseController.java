@@ -12,6 +12,7 @@ import android.graphics.PixelFormat;
 import android.graphics.drawable.ColorDrawable;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -633,10 +634,18 @@ public class MaplyBaseController
 
 			if (httpClient != null)
 			{
-				if (httpClient.dispatcher() != null && httpClient.dispatcher().executorService() != null)
-					httpClient.dispatcher().executorService().shutdown();
-				if (httpClient.connectionPool() != null)
-					httpClient.connectionPool().evictAll();
+				final OkHttpClient theHttpClient = httpClient;
+
+				// Android gets annoyed sometimes if you run this on the main thread
+				AsyncTask.execute(new Runnable() {
+					@Override
+					public void run() {
+						if (theHttpClient.dispatcher() != null && theHttpClient.dispatcher().executorService() != null)
+							theHttpClient.dispatcher().executorService().shutdown();
+						if (theHttpClient.connectionPool() != null)
+							theHttpClient.connectionPool().evictAll();
+					}
+				});
 				httpClient = null;
 			}
 
