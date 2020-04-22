@@ -66,6 +66,7 @@ public:
 @implementation MaplySimpleStyleManager
 {
     NSCache *imageCache;
+    NSMutableDictionary *texCache;
     NSObject<MaplyRenderControllerProtocol> *viewC;
 }
 
@@ -86,11 +87,13 @@ public:
 {
     self = [super init];
     imageCache = [[NSCache alloc] init];
+    texCache = [NSMutableDictionary dictionary];
     _scale = [UIScreen mainScreen].scale;
     _smallSize = CGSizeMake(16.0, 16.0);
     _medSize = CGSizeMake(32.0, 32.0);
     _largeSize = CGSizeMake(64.0, 64.0);
     _strokeWidthForIcons = 1.0 * _scale;
+    _centerIcon = true;
 
     return self;
 }
@@ -223,15 +226,22 @@ public:
     return defVal;
 }
 
+- (bool)parseBool:(NSString *)val default:(bool)defVal
+{
+    if (val)
+        return [val boolValue];
+    return defVal;
+}
+
 // Does much the same work as the image version above, but is slightly different for the simple styel
-- (MaplyTexture *)textureForStyle:(MaplySimpleStyle *)style symbol:(NSString *)symbol strokeSize:(CGFloat)strokeSize
+- (MaplyTexture *)textureForStyle:(MaplySimpleStyle *)style symbol:(NSString *)symbol strokeSize:(CGFloat)strokeSize clearBackground:(bool)clearBackground
 {
     NSString *cacheKey = [NSString stringWithFormat:@"%@_%d_%d_%.1f_%0.6X",
                           symbol,
                           (int)style.markerSize.width, (int)style.markerSize.height,
                           strokeSize, [style.color asHexRGB]];
     
-    id cached = [imageCache objectForKey:cacheKey];
+    id cached = [texCache objectForKey:cacheKey];
     if ([cached isKindOfClass:[MaplyTexture class]])
         return cached;
 
@@ -260,7 +270,7 @@ public:
                 
                 if (!iconImage)
                 {
-                    [imageCache setObject:[NSNull null] forKey:cacheKey];
+                    [texCache setObject:[NSNull null] forKey:cacheKey];
                     NSLog(@"Couldn't find: %@",shortName);
                     return nil;
                 }
@@ -285,10 +295,12 @@ public:
         CGContextDrawPath(ctx, kCGPathFill);
     }
     
-    CGContextBeginPath(ctx);
-    CGContextAddEllipseInRect(ctx, CGRectMake(1+strokeSize,1+strokeSize,style.markerSize.width-2-2*strokeSize,style.markerSize.height-2-2*strokeSize));
-    [style.color setFill];
-    CGContextDrawPath(ctx, kCGPathFill);
+    if (!clearBackground) {
+        CGContextBeginPath(ctx);
+        CGContextAddEllipseInRect(ctx, CGRectMake(1+strokeSize,1+strokeSize,style.markerSize.width-2-2*strokeSize,style.markerSize.height-2-2*strokeSize));
+        [style.color setFill];
+        CGContextDrawPath(ctx, kCGPathFill);
+    }
     
     CGContextTranslateCTM(ctx, 0, style.markerSize.height);
     CGContextScaleCTM(ctx, 1.0, -1.0);
@@ -303,64 +315,80 @@ public:
     
     if (retImage) {
         MaplyTexture *tex = [viewC addTexture:retImage desc:nil mode:MaplyThreadCurrent];
-        [imageCache setObject:tex forKey:cacheKey];
+        [texCache setObject:tex forKey:cacheKey];
         return tex;
     }
     
     return nil;
 }
 
+- (void)shutdown
+{
+    @synchronized (self) {
+        NSMutableArray<MaplyTexture *> *texs = [NSMutableArray array];
+        for (MaplyTexture *tex in texCache.allValues)
+            [texs addObject:tex];
+        [viewC removeTextures:texs mode:MaplyThreadCurrent];
+        texCache = nil;
+    }
+}
+
 - (MaplySimpleStyle * __nonnull)makeStyle:(NSDictionary *__nonnull)dict
 {
-    MaplySimpleStyle *style = [[MaplySimpleStyle alloc] init];
-    style.title = dict[@"title"];
-    style.desc = dict[@"description"];
-    
-    // Sort out marker size
-    NSString *markerSizeStr = dict[@"marker-size"];
-    int markerSizeInt = 1;  // Medium
-    if (markerSizeStr) {
-        markerSizeStr = [markerSizeStr lowercaseString];
-        if ([markerSizeStr isEqualToString:@"small"])
-            markerSizeInt = 0;
-        else if ([markerSizeStr isEqualToString:@"medium"])
-            markerSizeInt = 1;
-        else if ([markerSizeStr isEqualToString:@"large"])
-            markerSizeInt = 2;
-    }
-    switch (markerSizeInt) {
-        case 0:
-            style.markerSize = _smallSize;
-            break;
-        case 1:
-            style.markerSize = _medSize;
-            break;
-        case 2:
-            style.markerSize = _largeSize;
-            break;
-    }
-    
-    // It's either a texture or a single character
-    NSString *symbol = dict[@"marker-symbol"];
-    if ([symbol length] == 1) {
-        style.markerString = symbol;
-        symbol = nil;
-    }
-    
-    style.color = [self parseColor:dict[@"marker-color"] default:[UIColor whiteColor]];
-    style.strokeColor = [self parseColor:dict[@"stroke"] default:[UIColor colorFromHexRGB:0x555555]];
-    style.strokeOpacity = [self parseNumber:dict[@"stroke-opactiy"] default:1.0];
-    style.strokeWidth = [self parseNumber:dict[@"stroke-width"] default:2.0];
-    style.fillColor = [self parseColor:dict[@"fill"] default:[UIColor colorFromHexRGB:0x555555]];
-    style.fillOpacity = [self parseNumber:dict[@"fill-opacity"] default:0.6];
+    @synchronized (self) {
+        MaplySimpleStyle *style = [[MaplySimpleStyle alloc] init];
+        style.title = dict[@"title"];
+        style.desc = dict[@"description"];
+        
+        // Sort out marker size
+        NSString *markerSizeStr = dict[@"marker-size"];
+        int markerSizeInt = 1;  // Medium
+        if (markerSizeStr) {
+            markerSizeStr = [markerSizeStr lowercaseString];
+            if ([markerSizeStr isEqualToString:@"small"])
+                markerSizeInt = 0;
+            else if ([markerSizeStr isEqualToString:@"medium"])
+                markerSizeInt = 1;
+            else if ([markerSizeStr isEqualToString:@"large"])
+                markerSizeInt = 2;
+        }
+        switch (markerSizeInt) {
+            case 0:
+                style.markerSize = _smallSize;
+                break;
+            case 1:
+                style.markerSize = _medSize;
+                break;
+            case 2:
+                style.markerSize = _largeSize;
+                break;
+        }
+        
+        // It's either a texture or a single character
+        NSString *symbol = dict[@"marker-symbol"];
+        if ([symbol length] == 1) {
+            style.markerString = symbol;
+            symbol = nil;
+        }
+        
+        style.color = [self parseColor:dict[@"marker-color"] default:[UIColor whiteColor]];
+        style.strokeColor = [self parseColor:dict[@"stroke"] default:[UIColor colorFromHexRGB:0x555555]];
+        style.strokeOpacity = [self parseNumber:dict[@"stroke-opactiy"] default:1.0];
+        style.strokeWidth = [self parseNumber:dict[@"stroke-width"] default:2.0];
+        style.fillColor = [self parseColor:dict[@"fill"] default:[UIColor colorFromHexRGB:0x555555]];
+        style.fillOpacity = [self parseNumber:dict[@"fill-opacity"] default:0.6];
+        bool centerIcon = [self parseBool:dict[@"marker-center"] default:_centerIcon];
+        if (!centerIcon)
+            style.markerOffset = CGPointMake(0.0, style.markerSize.height/2.0);
+        bool clearBackground = [self parseBool:dict[@"marker-circle"] default:true];
 
-    // Need a texture for the marker
-    if ([symbol length] > 1) {
-        style.markerTex = [self textureForStyle:style symbol:symbol strokeSize:_strokeWidthForIcons];
+        // Need a texture for the marker
+        float strokeWidth = [self parseNumber:dict[@"stroke-width"] default:_strokeWidthForIcons];
+        style.markerTex = [self textureForStyle:style symbol:symbol strokeSize:strokeWidth clearBackground:clearBackground];
+        // TODO: Handle the single character case
+        
+        return style;
     }
-    // TODO: Handle the single character case
-    
-    return style;
 }
 
 - (UIColor *)resolveColor:(UIColor *)color opacity:(CGFloat)opacity
@@ -384,6 +412,7 @@ public:
                 marker.loc = [vecObj center];
                 marker.image = style.markerTex;
                 marker.size = style.markerSize;
+                marker.offset = style.markerOffset;
                 compObj = [viewC addScreenMarkers:@[marker] desc:nil mode:mode];
             }
             break;

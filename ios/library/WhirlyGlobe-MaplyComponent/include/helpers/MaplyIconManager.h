@@ -36,6 +36,9 @@
 /// Size (in pixels) of the marker to be built
 @property (nonatomic) CGSize markerSize;
 
+/// Offset applied to marker
+@property (nonatomic) CGPoint markerOffset;
+
 /// Texture constructed for this icon, if there was a symbol
 @property (nonatomic,nullable) MaplyTexture *markerTex;
 
@@ -92,6 +95,9 @@
 /// This is the width (in pixels) of that stroek
 @property (nonatomic) CGFloat strokeWidthForIcons;
 
+/// If set (default) we'll center the marker.  If off we'll offset vertically
+@property (nonatomic) bool centerIcon;
+
 /**
  Mapbox defines a simple style spec that's usually associated with GeoJSON data.  Github is a prominent user.
 
@@ -113,6 +119,9 @@
 
  mode controls if this work is done on this thread or another.
  */
-- (NSArray<MaplyComponentObject *> * __nonnull)addFeatures:(NSArray<MaplyVectorObject *> * __nonnull)vecObjs mode:(MaplyThreadMode)mode;;
+- (NSArray<MaplyComponentObject *> * __nonnull)addFeatures:(NSArray<MaplyVectorObject *> * __nonnull)vecObjs mode:(MaplyThreadMode)mode;
+
+/// Delete any cached textures and such
+- (void)shutdown;
 
 @end
