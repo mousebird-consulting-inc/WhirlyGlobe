@@ -19,8 +19,10 @@
  */
 
 #import "MapboxVectorTileParser.h"
+#import "MaplyVectorStyleC.h"
 #import "VectorObject.h"
 #import "vector_tile.pb.h"
+#import <vector>
 
 static double MAX_EXTENT = 20037508.342789244;
 
@@ -79,6 +81,15 @@ void VectorTileData::clear()
 MapboxVectorTileParser::MapboxVectorTileParser(VectorStyleDelegateImplRef styleDelegate)
     : localCoords(false), keepVectors(false), parseAll(false), styleDelegate(styleDelegate)
 {
+    // Index all the categories ahead of time.  Once.
+    std::vector<VectorStyleImplRef> allStyles = styleDelegate->allStyles();
+    for (VectorStyleImplRef style: allStyles) {
+        std::string category = style->getCategory();
+        if (!category.empty()) {
+            long long styleID = style->getUuid();
+            addCategory(category, styleID);
+        }
+    }
 }
 
 MapboxVectorTileParser::~MapboxVectorTileParser()
@@ -88,12 +99,6 @@ MapboxVectorTileParser::~MapboxVectorTileParser()
 void MapboxVectorTileParser::addCategory(const std::string &category,long long styleID)
 {
     styleCategories[styleID] = category;
-}
-
-// Subclass can fill this in to check if a layer has any styles
-bool MapboxVectorTileParser::layerShouldParse(const std::string &layerName,VectorTileData *tileData)
-{
-    return true;
 }
     
 bool MapboxVectorTileParser::parse(RawData *rawData,VectorTileData *tileData)
@@ -137,7 +142,7 @@ bool MapboxVectorTileParser::parse(RawData *rawData,VectorTileData *tileData)
             scale = tileLayer.extent() / 256.0;
             
             // if we dont have any styles for a layer, dont bother parsing the features
-            if (!layerShouldParse(tileLayer.name(),tileData))
+            if (!styleDelegate->layerShouldDisplay(tileLayer.name(), tileData->ident))
                 continue;
             
             // Work through features
@@ -187,7 +192,11 @@ bool MapboxVectorTileParser::parse(RawData *rawData,VectorTileData *tileData)
                 
                 // Ask for the styles that correspond to this feature
                 // If there are none, we can skip this
-                SimpleIDSet styleIDs = stylesForFeature(attributes, tileLayer.name(), tileData);
+                SimpleIDSet styleIDs;
+                std::vector<VectorStyleImplRef> styles = styleDelegate->stylesForFeature(attributes, tileData->ident, tileLayer.name());
+                for (auto style: styles) {
+                    styleIDs.insert(style->getUuid());
+                }
                 if (styleIDs.empty() && !parseAll)
                     continue;
                 
@@ -396,7 +405,7 @@ bool MapboxVectorTileParser::parse(RawData *rawData,VectorTileData *tileData)
     for (auto it : tileData->vecObjsByStyle) {
         std::vector<VectorObjectRef> *vecs = it.second;
 
-        auto styleData = makeTileDataCopy(tileData);
+        auto styleData = VectorTileDataRef(new VectorTileData(*tileData));
 
         // Ask the subclass to run the style and fill in the VectorTileData
         buildForStyle(it.first,*vecs,styleData);
@@ -462,6 +471,13 @@ bool MapboxVectorTileParser::parse(RawData *rawData,VectorTileData *tileData)
 //    }
     
     return true;
+}
+
+void MapboxVectorTileParser::buildForStyle(long long styleID,std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef data)
+{
+    VectorStyleImplRef style = styleDelegate->styleForUUID(styleID);
+    if (style)
+        style->buildObjects(vecObjs, data);
 }
     
 }

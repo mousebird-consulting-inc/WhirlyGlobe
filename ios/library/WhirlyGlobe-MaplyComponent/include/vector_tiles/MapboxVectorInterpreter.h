@@ -43,7 +43,7 @@
     Image tiles will be used as a background and vectors put on top of them.
     This is very nice for the globe, but requires specialized style sheets.
   */
-- (instancetype _Nullable ) initWithImageStyle:(MapboxVectorStyleSet *__nonnull)imageStyle
+- (instancetype _Nullable ) initWithImageStyle:(NSObject<MaplyVectorStyleDelegate> *__nonnull)imageStyle
                          offlineRender:(MaplyRenderController *__nonnull)renderControl
                            vectorStyle:(NSObject<MaplyVectorStyleDelegate> *__nonnull)vectorStyle
                                  viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC;

@@ -34,6 +34,16 @@ using namespace Eigen;
     return [UIColor colorWithRed:red green:green blue:blue alpha:1.0];
 }
 
++ (UIColor *) colorFromRGBA:(const WhirlyKit::RGBAColor &)color
+{
+    float red = color.r / 255.0;
+    float green = color.g / 255.0;
+    float blue = color.b / 255.0;
+    float alpha = color.a / 255.0;
+
+    return [UIColor colorWithRed:red green:green blue:blue alpha:alpha];
+}
+
 - (int) asHexRGB
 {
   RGBAColor rgb = [self asRGBAColor];

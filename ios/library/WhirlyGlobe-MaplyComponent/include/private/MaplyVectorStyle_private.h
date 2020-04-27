@@ -20,58 +20,93 @@
 
 #import "MaplyVectorStyle.h"
 #import "WhirlyGlobe.h"
+#import "Dictionary_NSDictionary.h"
 
 @interface MaplyVectorStyleSettings()
 {
+@public
     WhirlyKit::VectorStyleSettingsImplRef impl;
 }
+
+@end
+
+// Used to identify Vector Styles with an underlying C++ implementation
+@protocol MaplyVectorStyleDelegateSecret <NSObject>
+
+@optional
+- (WhirlyKit::VectorStyleDelegateImplRef) getVectorStyleImpl;
 
 @end
 
 namespace WhirlyKit
 {
 
+// iOS version wants the view controller for some of the variants
+class MapboxVectorStyleSetImpl_iOS : public MapboxVectorStyleSetImpl
+{
+public:
+    MapboxVectorStyleSetImpl_iOS(Scene *scene,VectorStyleSettingsImplRef settings);
+    ~MapboxVectorStyleSetImpl_iOS();
+
+    NSObject<MaplyRenderControllerProtocol> *viewC;
+    
+    /// Local platform implementation for generating a circle and adding it as a texture
+    virtual SimpleIdentity makeCircleTexture(double radius,const RGBAColor &fillColor,const RGBAColor &strokeColor,float strokeWidth,Point2f *circleSize);
+    
+    /// Local platform implementation for generating a repeating line texture
+    virtual SimpleIdentity makeLineTexture(const std::vector<double> &dashComponents);
+    
+    /// Create a local platform LabelInfo (since fonts are local)
+    virtual LabelInfoRef makeLabelInfo(const std::string &fontName);
+    
+    /// Create a local platform label (fonts are local, and other stuff)
+    virtual SingleLabelRef makeSingleLabel(const std::string &text);
+};
+
 /**
  Wrapper class for older implementations of MaplyVectorStyleDelegate or ones users have made.
  This way we can leave those in place while still doing our low level C++ implementation.
  */
-class VectorStyleDelegateWrapper : VectorStyleDelegateImpl
+class VectorStyleDelegateWrapper : public VectorStyleDelegateImpl
 {
 public:
-    VectorStyleDelegateWrapper(NSObject<MaplyVectorStyleDelegate> *delegate);
+    VectorStyleDelegateWrapper(NSObject<MaplyRenderControllerProtocol> *viewC,NSObject<MaplyVectorStyleDelegate> *delegate);
     
-    virtual std::vector<VectorStyleImplRef> stylesForFeature(VectorStyleImplRef styleDelegate,
-                                                                  const Dictionary &attrs,
-                                                                  const QuadTreeNew::Node &tileID,
-                                                                  const std::string &layerName);
+    virtual std::vector<VectorStyleImplRef> stylesForFeature(DictionaryRef attrs,
+                                                            const QuadTreeIdentifier &tileID,
+                                                            const std::string &layerName);
     
-    virtual bool layerShouldDisplay(VectorStyleImplRef styleDelegate,
-                                    const std::string &name,
+    virtual bool layerShouldDisplay(const std::string &name,
                                     const QuadTreeNew::Node &tileID);
 
-    virtual VectorStyleImplRef styleForUUID(VectorStyleImplRef styleDelegate,long long uuid);
+    virtual VectorStyleImplRef styleForUUID(long long uuid);
 
     virtual std::vector<VectorStyleImplRef> allStyles();
+    
+protected:
+    NSObject<MaplyRenderControllerProtocol> * __weak viewC;
+    NSObject<MaplyVectorStyleDelegate> *delegate;
 };
-
 typedef std::shared_ptr<VectorStyleDelegateWrapper> VectorStyleDelegateWrapperRef;
 
 /**
  Wrapper class for existing vector styles implemented in Obj-C.
  This C++ version is presented to the low level code.
  */
-class VectorStyleWrapper : VectorStyleImpl
+class VectorStyleWrapper : public VectorStyleImpl
 {
 public:
-    VectorStyleWrapper(NSObject<MaplyVectorStyle> *style);
+    VectorStyleWrapper(NSObject<MaplyRenderControllerProtocol> *viewC,NSObject<MaplyVectorStyle> *style);
     
-    virtual long long getUuid() = 0;
-    
-    virtual const std::string &getCategory() = 0;
-    
+    virtual long long getUuid();
+    virtual std::string getCategory();
     virtual bool geomAdditive();
-
-    virtual void buildObject(std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo,MapboxVectorStyleSetImplRef impl);
+    virtual void buildObjects(std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo);
+    
+protected:
+    NSObject<MaplyRenderControllerProtocol> * __weak viewC;
+    NSObject<MaplyVectorStyle> * __weak style;
 };
+typedef std::shared_ptr<VectorStyleWrapper> VectorStyleWrapperRef;
 
 }

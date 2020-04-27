@@ -23,20 +23,17 @@
 #import "vector_styles/MapboxVectorStyleSprites.h"
 #import "vector_tiles/MapboxVectorTiles.h"
 
-@class MapboxVectorFilter;
-@class MaplyVectorFunctionStops;
-@class MapboxTransDouble;
-@class MapboxTransColor;
-
 /** @brief The Mapbox Vector Style Set parses Mapbox GL Style sheets and turns them into Maply compatible styles.
     @details A style delegate is required by the Mapnik parser to build geometry out of Mapnik vector tiles.  This style delegate can read a Mapbox GL Style sheet and produce compatible styles.
  */
-@interface MapboxVectorStyleSet : NSObject <MaplyVectorStyleDelegate>
+@interface MapboxVectorStyleSet : NSObject<MaplyVectorStyleDelegate>
 
 /// @brief Initialize with the style JSON and the view controller
 /// @details We'll parse the style JSON passed in and return nil on failure.
 /// @details The optional filter can be used to reject layers we won't use
-- (id __nullable)initWithJSON:(NSData * __nonnull)styleJSON settings:(MaplyVectorStyleSettings * __nonnull)settings viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)viewC filter:(bool (^_Nullable)(NSMutableDictionary * __nonnull))filterBlock;
+- (id __nullable)initWithJSON:(NSData * __nonnull)styleJSON
+                     settings:(MaplyVectorStyleSettings * __nonnull)settings
+                        viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)viewC;
 
 /// @brief Where we can fetch the sprites
 @property (nonatomic, strong, nullable) NSString *spriteURL;
@@ -47,6 +44,8 @@
 /// If there is a background layer, calculate the color for a given zoom level.
 /// Otherwise return nil
 - (UIColor * __nullable)backgroundColorForZoom:(double)zoom;
+
+@property (nonatomic, weak, nullable) NSObject<MaplyRenderControllerProtocol> *viewC;
 
 @end
 

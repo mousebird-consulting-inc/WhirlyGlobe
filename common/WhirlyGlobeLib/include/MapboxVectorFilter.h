@@ -44,7 +44,7 @@ public:
     MapboxVectorFilter();
     
     /// @brief Parse the filter info out of the style entry
-    bool parse(const std::vector<DictionaryEntryRef> &styleEntry,MapboxVectorStyleSetImplRef styleSet);
+    bool parse(const std::vector<DictionaryEntryRef> &styleEntry,MapboxVectorStyleSetImpl *styleSet);
 
     /// @brief Test a feature's attributes against the filter
     bool testFeature(DictionaryRef attrs,const QuadTreeIdentifier &tileID);

@@ -30,7 +30,7 @@ static const char *placementVals[] = {"point","line"};
 static const char *transformVals[] = {"none","uppercase","lowercase"};
 static const char *anchorVals[] = {"center","left","right","top","bottom","top-left","top-right","bottom-left","bottom-right"};
 
-bool MapboxVectorSymbolLayout::parse(MapboxVectorStyleSetImplRef styleSet,DictionaryRef styleEntry)
+bool MapboxVectorSymbolLayout::parse(MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry)
 {
     globalTextScale = styleSet->tileStyleSettings->textScale;
     placement = (MapboxSymbolPlacement)styleSet->enumValue("symbol-placement", placementVals, (int)MBPlacePoint);
@@ -79,7 +79,7 @@ bool MapboxVectorSymbolLayout::parse(MapboxVectorStyleSetImplRef styleSet,Dictio
     return true;
 }
 
-bool MapboxVectorSymbolPaint::parse(MapboxVectorStyleSetImplRef styleSet,DictionaryRef styleEntry)
+bool MapboxVectorSymbolPaint::parse(MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry)
 {
     textColor = styleSet->transColor("text-color", styleEntry, RGBAColor::black());
     textOpacity = styleSet->transDouble("text-opacity", styleEntry, 1.0);

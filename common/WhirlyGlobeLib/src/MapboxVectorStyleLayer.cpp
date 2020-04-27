@@ -32,7 +32,7 @@
 namespace WhirlyKit
 {
 
-MapboxVectorStyleLayerRef MapboxVectorStyleLayer::VectorStyleLayer(MapboxVectorStyleSetImplRef styleSet,DictionaryRef layerDict,int drawPriority)
+MapboxVectorStyleLayerRef MapboxVectorStyleLayer::VectorStyleLayer(MapboxVectorStyleSetImpl *styleSet,DictionaryRef layerDict,int drawPriority)
 {
     MapboxVectorStyleLayerRef layer;
     MapboxVectorStyleLayerRef refLayer;
@@ -79,7 +79,7 @@ MapboxVectorStyleLayerRef MapboxVectorStyleLayer::VectorStyleLayer(MapboxVectorS
     return layer;
 }
 
-MapboxVectorStyleLayer::MapboxVectorStyleLayer(MapboxVectorStyleSetImplRef styleSet)
+MapboxVectorStyleLayer::MapboxVectorStyleLayer(MapboxVectorStyleSetImpl *styleSet)
 : visible(true), minzoom(0), maxzoom(0), drawPriority(0), drawPriorityPerLevel(0),
 selectable(false), uuid(0), geomAdditiveVal(false), styleSet(styleSet)
 {
@@ -114,7 +114,7 @@ long long MapboxVectorStyleLayer::getUuid()
     return styleSet->generateID();
 }
 
-const std::string &MapboxVectorStyleLayer::getCategory()
+std::string MapboxVectorStyleLayer::getCategory()
 {
     return category;
 }

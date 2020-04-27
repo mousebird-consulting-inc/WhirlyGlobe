@@ -33,7 +33,7 @@ typedef enum {MBTextTransNone,MBTextTransUppercase,MBTextTransLowercase} MapboxT
 class MapboxVectorSymbolLayout
 {
 public:
-    bool parse(MapboxVectorStyleSetImplRef styleSet,DictionaryRef styleEntry);
+    bool parse(MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry);
 
     /// How we place the symbol (at a point, or along a line)
     MapboxSymbolPlacement placement;
@@ -69,7 +69,7 @@ public:
 class MapboxVectorSymbolPaint
 {
 public:
-    bool parse(MapboxVectorStyleSetImplRef styleSet,DictionaryRef styleEntry);
+    bool parse(MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry);
 
     // Default text color
     MapboxTransColorRef textColor;
@@ -84,7 +84,7 @@ public:
 class MapboxVectorLayerSymbol : public MapboxVectorStyleLayer
 {
 public:
-    MapboxVectorLayerSymbol(MapboxVectorStyleSetImplRef styleSet) : MapboxVectorStyleLayer(styleSet) { }
+    MapboxVectorLayerSymbol(MapboxVectorStyleSetImpl *styleSet) : MapboxVectorStyleLayer(styleSet) { }
 
     virtual bool parse(DictionaryRef styleEntry,
                        MapboxVectorStyleLayerRef refLayer,

@@ -32,7 +32,7 @@ MapboxVectorFilter::MapboxVectorFilter()
 static const char *filterTypes[] = {"==","!=",">",">=","<","<=","in","!in","has","!has","all","any","none"};
 static const char *geomTypes[] = {"Point","LineString","Polygon"};
 
-bool MapboxVectorFilter::parse(const std::vector<DictionaryEntryRef> &filterArray,MapboxVectorStyleSetImplRef styleSet)
+bool MapboxVectorFilter::parse(const std::vector<DictionaryEntryRef> &filterArray,MapboxVectorStyleSetImpl *styleSet)
 {
     if (filterArray.empty()) {
         wkLogLevel(Warn, "Expecting array for filter");
@@ -66,7 +66,7 @@ bool MapboxVectorFilter::parse(const std::vector<DictionaryEntryRef> &filterArra
             }
         }
 
-        attrVal = styleSet->constantSubstitution(filterArray[2], "Filter attribute value");
+        attrVal = filterArray[2];
         if (!attrVal)
             return false;
     } else if (filterType <= MBFilterNotIn) {
@@ -81,7 +81,7 @@ bool MapboxVectorFilter::parse(const std::vector<DictionaryEntryRef> &filterArra
         for (unsigned int ii=2;ii<filterArray.size();ii++)
         {
             DictionaryEntryRef val = filterArray[ii];
-            val = styleSet->constantSubstitution(filterArray[ii], "Filter attribute value");
+            val = filterArray[ii];
             if (!val)
                 return false;
             inclVals.push_back(val);

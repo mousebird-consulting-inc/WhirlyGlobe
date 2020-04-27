@@ -23,7 +23,8 @@
 
 @interface MapboxVectorStyleSet()
 {
-    WhirlyKit::MapboxVectorStyleSetImplRef impl;
+@public
+    WhirlyKit::MapboxVectorStyleSetImplRef style;
 }
 @end
 

@@ -31,7 +31,7 @@ namespace WhirlyKit
 class MapboxVectorBackgroundPaint
 {
 public:
-    bool parse(MapboxVectorStyleSetImplRef styleSet,DictionaryRef styleEntry);
+    bool parse(MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry);
 
     MapboxTransColorRef color;
     MapboxTransDoubleRef opacity;
@@ -44,7 +44,7 @@ public:
 class MapboxVectorLayerBackground : public MapboxVectorStyleLayer
 {
 public:
-    MapboxVectorLayerBackground(MapboxVectorStyleSetImplRef styleSet) : MapboxVectorStyleLayer(styleSet) { }
+    MapboxVectorLayerBackground(MapboxVectorStyleSetImpl *styleSet) : MapboxVectorStyleLayer(styleSet) { }
 
     virtual bool parse(DictionaryRef styleEntry,
                        MapboxVectorStyleLayerRef refLayer,

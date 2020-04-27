@@ -32,7 +32,7 @@ namespace WhirlyKit
 class MapboxVectorCirclePaint
 {
 public:
-    bool parse(MapboxVectorStyleSetImplRef styleSet,DictionaryRef styleEntry);
+    bool parse(MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry);
 
     /// Radius, in pixels, of the circle to be produced
     float radius;
@@ -53,7 +53,7 @@ public:
 class MapboxVectorLayerCircle : public MapboxVectorStyleLayer
 {
 public:
-    MapboxVectorLayerCircle(MapboxVectorStyleSetImplRef styleSet) : MapboxVectorStyleLayer(styleSet) { }
+    MapboxVectorLayerCircle(MapboxVectorStyleSetImpl *styleSet) : MapboxVectorStyleLayer(styleSet) { }
 
     virtual bool parse(DictionaryRef styleEntry,
                        MapboxVectorStyleLayerRef refLayer,

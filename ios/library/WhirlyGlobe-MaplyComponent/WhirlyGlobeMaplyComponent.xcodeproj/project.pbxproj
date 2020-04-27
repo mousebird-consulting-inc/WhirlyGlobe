@@ -132,6 +132,10 @@
 		2B4B63A7236102EC0008C8C1 /* MaplyGlobeRenderController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B63A6236102EC0008C8C1 /* MaplyGlobeRenderController.mm */; };
 		2B526BDC240DE04B00647336 /* MetalPerformanceShaders.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B526BDB240DE04B00647336 /* MetalPerformanceShaders.framework */; };
 		2B541C171ECFAA2300EC35A0 /* MaplyRenderTarget.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B541C161ECFAA2300EC35A0 /* MaplyRenderTarget.h */; };
+		2B60F43C24523B5800CF9339 /* MapboxVectorTiles.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA827C8225E6F2100324594 /* MapboxVectorTiles.mm */; };
+		2B60F43E24523FAB00CF9339 /* MapboxVectorStyleSet.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB4767D2000488C006AAACB /* MapboxVectorStyleSet.mm */; };
+		2B60F43F2452401500CF9339 /* MapboxVectorStyleSprites.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF4FC99227D022C0012CEFD /* MapboxVectorStyleSprites.mm */; };
+		2B60F4472452709B00CF9339 /* MapboxVectorInterpreter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B127C06201911DC0099F405 /* MapboxVectorInterpreter.mm */; };
 		2B63C45F243E44A0002B481C /* MapboxVectorStyleSetC.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B63C45E243E44A0002B481C /* MapboxVectorStyleSetC.h */; };
 		2B63C461243E44B6002B481C /* MapboxVectorStyleSetC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B63C460243E44B6002B481C /* MapboxVectorStyleSetC.cpp */; };
 		2B63C463243E474E002B481C /* MapboxVectorStyleSet_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B63C462243E474E002B481C /* MapboxVectorStyleSet_private.h */; };
@@ -4669,6 +4673,7 @@
 				2B8797222203BF7900EF801D /* MaplyBillboard.mm in Sources */,
 				2BC90D60223308DB00D8B606 /* ScreenObject_iOS.mm in Sources */,
 				2BE1E766220A567100815D9C /* MaplyControllerLayer.mm in Sources */,
+				2B60F43E24523FAB00CF9339 /* MapboxVectorStyleSet.mm in Sources */,
 				2B82B64C1E82E2490095FB14 /* PJ_bonne.c in Sources */,
 				2B82B6111E82E2490095FB14 /* JSONNode_Mutex.cpp in Sources */,
 				2B82B6BA1E82E24A0095FB14 /* PJ_urmfps.c in Sources */,
@@ -4866,6 +4871,7 @@
 				2B82B7C31E82E68E0095FB14 /* clipper.cpp in Sources */,
 				2B82B5EE1E82E2490095FB14 /* priorityq.c in Sources */,
 				2B82B5F61E82E2490095FB14 /* tessmono.c in Sources */,
+				2B60F43C24523B5800CF9339 /* MapboxVectorTiles.mm in Sources */,
 				2B846EDC21F1365000EF2A82 /* pj_apply_gridshift.c in Sources */,
 				2BC3D6DB220B526D00CE91D0 /* ViewPlacementActiveModel.mm in Sources */,
 				2BC3D6D32203EA6300CE91D0 /* MaplyTexture.mm in Sources */,
@@ -5037,6 +5043,7 @@
 				2B82B5E61E82E2490095FB14 /* memalloc.c in Sources */,
 				2BE539901D249BEF00B60FAD /* AADiameters.cpp in Sources */,
 				2B69986F228DD36A00C31E3F /* SceneMTL.mm in Sources */,
+				2B60F4472452709B00CF9339 /* MapboxVectorInterpreter.mm in Sources */,
 				2BC3D6CE2203EA1500CE91D0 /* MaplyScreenMarker.m in Sources */,
 				2BE53A0C1D249C2900B60FAD /* message_lite.cc in Sources */,
 				2B82B6B21E82E24A0095FB14 /* PJ_tcc.c in Sources */,
@@ -5102,6 +5109,7 @@
 				2BE539F71D249C2900B60FAD /* arenastring.cc in Sources */,
 				2B82B67A1E82E24A0095FB14 /* PJ_krovak.c in Sources */,
 				2BE53A0A1D249C2900B60FAD /* message.cc in Sources */,
+				2B60F43F2452401500CF9339 /* MapboxVectorStyleSprites.mm in Sources */,
 				2B8A78CD228B7B63008B0A1F /* ScreenSpaceDrawableBuilder.cpp in Sources */,
 				2BE53A331D249C3D00B60FAD /* strtod.cc in Sources */,
 				2BC3D6F8220CAAC700CE91D0 /* WhirlyKitLog.mm in Sources */,

@@ -19,6 +19,7 @@
 */
 
 #import "MapboxVectorStyleSetC.h"
+#import "MapboxVectorStyleLayer.h"
 #import "WhirlyKitLog.h"
 #import <regex>
 
@@ -202,8 +203,8 @@ RGBAColor MapboxTransColor::colorForZoom(double zoom)
     return theColor;
 }
 
-MapboxVectorStyleSetImpl::MapboxVectorStyleSetImpl(Scene *inScene)
-: scene(inScene), currentID(0)
+MapboxVectorStyleSetImpl::MapboxVectorStyleSetImpl(Scene *inScene,VectorStyleSettingsImplRef settings)
+: scene(inScene), currentID(0), tileStyleSettings(settings)
 {
     vecManage = (VectorManager *)scene->getManager(kWKVectorManager);
     wideVecManage = (WideVectorManager *)scene->getManager(kWKWideVectorManager);
@@ -211,7 +212,48 @@ MapboxVectorStyleSetImpl::MapboxVectorStyleSetImpl(Scene *inScene)
     labelManage = (LabelManager *)scene->getManager(kWKLabelManager);
     compManage = (ComponentManager *)scene->getManager(kWKComponentManager);
     
-    // TODO: Set up the program ID
+    // TODO: Set up the program IDs
+}
+
+MapboxVectorStyleSetImpl::~MapboxVectorStyleSetImpl()
+{
+}
+
+bool MapboxVectorStyleSetImpl::parse(DictionaryRef styleDict)
+{
+    name = styleDict->getString("name");
+    version = styleDict->getInt("version");
+    
+    // Layers are where the action is
+    std::vector<DictionaryEntryRef> layerStyles = styleDict->getArray("layers");
+    int which = 0;
+    for (auto layerStyle : layerStyles) {
+        if (layerStyle->getType() == DictTypeDictionary) {
+            MapboxVectorStyleLayerRef layer(MapboxVectorStyleLayer::VectorStyleLayer(this,layerStyle->getDict(),(1*which + tileStyleSettings->baseDrawPriority)));
+            if (!layer) {
+                wkLogLevel(Warn,"Failed to parse layer in Mapbox vector style sheet.");
+                return false;
+            } else {
+                // Sort into various buckets for quick lookup
+                layersByName[layer->ident] = layer;
+                layersByUUID[layer->getUuid()] = layer;
+                if (!layer->sourceLayer.empty()) {
+                    auto it = layersBySource.find(layer->sourceLayer);
+                    if (it != layersBySource.end()) {
+                        it->second.push_back(layer);
+                    } else {
+                        std::vector<MapboxVectorStyleLayerRef> layers;
+                        layers.push_back(layer);
+                        layersBySource[layer->sourceLayer] = layers;
+                    }
+                }
+                layers.push_back(layer);
+            }
+        }
+        which++;
+    }
+    
+    return true;
 }
 
 long long MapboxVectorStyleSetImpl::generateID()
@@ -224,9 +266,7 @@ int MapboxVectorStyleSetImpl::intValue(const std::string &name,DictionaryRef dic
     DictionaryEntryRef thing = dict->getEntry(name);
     if (!thing)
         return defVal;
-    
-    thing = constantSubstitution(thing, name);
-    
+        
     if (thing->getType() == DictTypeDouble)
         return thing->getInt();
 
@@ -236,8 +276,6 @@ int MapboxVectorStyleSetImpl::intValue(const std::string &name,DictionaryRef dic
 
 double MapboxVectorStyleSetImpl::doubleValue(DictionaryEntryRef thing,double defVal)
 {
-    thing = constantSubstitution(thing, "");
-    
     if (thing->getType() == DictTypeDouble)
         return thing->getDouble();
 
@@ -250,8 +288,6 @@ double MapboxVectorStyleSetImpl::doubleValue(const std::string &name,DictionaryR
     DictionaryEntryRef thing = dict->getEntry(name);
     if (!thing)
         return defVal;
-    
-    thing = constantSubstitution(thing, name);
     
     if (thing->getType() == DictTypeDouble)
         return thing->getDouble();
@@ -266,8 +302,6 @@ bool MapboxVectorStyleSetImpl::boolValue(const std::string &name,DictionaryRef d
     if (!thing)
         return defVal;
     
-    thing = constantSubstitution(thing, name);
-    
     if (thing->getType() == DictTypeString)
         return thing->getString() == onString;
     else
@@ -280,8 +314,6 @@ std::string MapboxVectorStyleSetImpl::stringValue(const std::string &name,Dictio
     if (!thing)
         return defVal;
 
-    thing = constantSubstitution(thing, name);
-    
     if (thing->getType() == DictTypeString)
         return thing->getString();
 
@@ -295,8 +327,6 @@ std::vector<DictionaryEntryRef> MapboxVectorStyleSetImpl::arrayValue(const std::
     std::vector<DictionaryEntryRef> ret;
     if (!thing)
         return ret;
-    
-    thing = constantSubstitution(thing, name);
     
     if (thing->getType() == DictTypeArray)
         return thing->getArray();
@@ -314,8 +344,6 @@ RGBAColorRef MapboxVectorStyleSetImpl::colorValue(const std::string &name,Dictio
         thing = val;
     if (!thing)
         return defVal;
-
-    thing = constantSubstitution(thing, name);
 
     if (thing->getType() != DictTypeString) {
         wkLogLevel(Warn,"Expecting a string for color (%s)",name.c_str());
@@ -451,8 +479,6 @@ MapboxTransDoubleRef MapboxVectorStyleSetImpl::transDouble(const std::string &na
     if (!theEntry)
         return MapboxTransDoubleRef(new MapboxTransDouble(defVal));
     
-    theEntry = constantSubstitution(theEntry, "");
-
     // This is probably stops
     if (theEntry->getType() == DictTypeDictionary) {
         MaplyVectorFunctionStopsRef stops(new MaplyVectorFunctionStops());
@@ -484,8 +510,7 @@ MapboxTransColorRef MapboxVectorStyleSetImpl::transColor(const std::string &name
             return MapboxTransColorRef(new MapboxTransColor(RGBAColorRef(new RGBAColor(*defVal))));
         return MapboxTransColorRef();
     }
-    theEntry = constantSubstitution(theEntry, "");
-    
+
     // This is probably stops
     if (theEntry->getType() == DictTypeDictionary) {
         MaplyVectorFunctionStopsRef stops(new MaplyVectorFunctionStops());
@@ -513,27 +538,6 @@ MapboxTransColorRef MapboxVectorStyleSetImpl::transColor(const std::string &name
 {
     RGBAColor color = inColor;
     return transColor(name, entry, &color);
-}
-
-DictionaryEntryRef MapboxVectorStyleSetImpl::constantSubstitution(DictionaryEntryRef thing,const std::string &field)
-{
-    // Look for a constant substitution
-    if (thing->getType() == DictTypeString) {
-        std::string stringThing = thing->getString();
-        // Note: This just handles simple ones with full substitution
-        if (stringThing[0] == '@')
-        {
-            auto it = constants.find(stringThing);
-            if (it != constants.end()) {
-                return it->second;
-            } else {
-                wkLogLevel(Warn,"Failed to substitute constant %s for field %s",stringThing.c_str(),field.c_str());
-                return thing;
-            }
-        }
-    }
-
-    return thing;
 }
 
 void MapboxVectorStyleSetImpl::unsupportedCheck(const std::string &field,const std::string &what,DictionaryRef styleEntry)
@@ -586,40 +590,52 @@ MapboxVectorStyleLayerRef MapboxVectorStyleSetImpl::getLayer(const std::string &
     return it->second;
 }
 
-//- (NSArray*)stylesForFeatureWithAttributes:(NSDictionary*)attributes
-//                                    onTile:(MaplyTileID)tileID
-//                                   inLayer:(NSString*)sourceLayer
-//                                     viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
-//{
-//    NSArray *layersToRun = _layersBySource[sourceLayer];
-//    if (!layersToRun)
-//        return nil;
-//    NSMutableArray *passedLayers = [NSMutableArray array];
-//    for (MaplyMapboxVectorStyleLayer *layer in layersToRun)
-//    {
-//        if (!layer.filter || [layer.filter testFeature:attributes tile:tileID viewC:viewC])
-//            [passedLayers addObject:layer];
-//    }
-//
-//    return passedLayers;
-//}
-//
-//- (BOOL)layerShouldDisplay:(NSString*)sourceLayer tile:(MaplyTileID)tileID
-//{
-//    NSArray *layersToRun = _layersBySource[sourceLayer];
-//
-//    return (layersToRun.count != 0);
-//}
-//
-//- (MaplyVectorTileStyle*)styleForUUID:(long long)uuid viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
-//{
-//    return layersByUUID[@(uuid)];
-//}
-//
-//- (NSArray * _Nonnull)allStyles {
-//    return [layersByUUID allValues];
-//}
-//
+std::vector<VectorStyleImplRef> MapboxVectorStyleSetImpl::stylesForFeature(DictionaryRef attrs,
+                                                         const QuadTreeIdentifier &tileID,
+                                                         const std::string &layerName)
+{
+    std::vector<VectorStyleImplRef> styles;
+    
+    auto it = layersBySource.find(layerName);
+    if (it != layersBySource.end()) {
+        for (auto layer : it->second)
+            if (layer->filter && layer->filter->testFeature(attrs, tileID))
+                styles.push_back(layer);
+    }
+    
+    return styles;
+}
+
+/// Return true if the given layer is meant to display for the given tile (zoom level)
+bool MapboxVectorStyleSetImpl::layerShouldDisplay(const std::string &layerName,
+                                                  const QuadTreeNew::Node &tileID)
+{
+    auto it = layersBySource.find(layerName);
+    return it != layersBySource.end();
+}
+
+/// Return the style associated with the given UUID.
+VectorStyleImplRef MapboxVectorStyleSetImpl::styleForUUID(long long uuid)
+{
+    auto it = layersByUUID.find(uuid);
+    if (it == layersByUUID.end())
+        return NULL;
+    
+    return it->second;
+}
+
+// Return a list of all the styles in no particular order.  Needed for categories and indexing
+std::vector<VectorStyleImplRef> MapboxVectorStyleSetImpl::allStyles()
+{
+    std::vector<VectorStyleImplRef> styles;
+    
+    for (auto layer : layers)
+        styles.push_back(layer);
+    
+    return styles;
+}
+
+
 //- (UIColor *)backgroundColorForZoom:(double)zoom;
 //{
 //    MaplyMapboxVectorStyleLayer *layer = [_layersByName objectForKey:@"background"];

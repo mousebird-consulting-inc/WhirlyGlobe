@@ -29,6 +29,12 @@ LabelInfo_iOS::LabelInfo_iOS(NSDictionary *iosDict,const Dictionary &dict,bool s
 {
     font = [iosDict objectForKey:@"font"];
 }
+
+LabelInfo_iOS::LabelInfo_iOS(UIFont *font,bool screenObject)
+: font(font),LabelInfo(screenObject)
+{
+}
+
     
 // Used to build the drawable string on specific platforms
 std::vector<DrawableString *> SingleLabel_iOS::generateDrawableStrings(const LabelInfo *inLabelInfo,FontTextureManager *inFontTexManager,float &lineHeight,ChangeSet &changes)

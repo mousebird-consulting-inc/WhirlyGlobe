@@ -62,7 +62,7 @@ public:
     void clear();
     
     /// Tile ID for this tile
-    QuadTreeNew::Node ident;
+    QuadTreeIdentifier ident;
     
     /// Bounding box in local coordinates
     MbrD bbox;
@@ -113,16 +113,7 @@ public:
     // Add a category for a particulary style ID
     // These are used for sorting later on
     void addCategory(const std::string &category,long long styleID);
-
-    // Make a platform specific copy of the tile data
-    virtual VectorTileDataRef makeTileDataCopy(VectorTileData *inTileData) = 0;
-
-    // Subclass can fill this in to check if a layer has any styles
-    virtual bool layerShouldParse(const std::string &layerName,VectorTileData *tileData);
     
-    // Subclass returns the style IDs that get a shot at the given feature
-    virtual SimpleIDSet stylesForFeature(MutableDictionaryRef attributes,const std::string &layerName,VectorTileData *tileData);
-
     // Parse the vector tile and return a list of vectors.
     // Returns false on failure.
     virtual bool parse(RawData *rawData,VectorTileData *tileData);

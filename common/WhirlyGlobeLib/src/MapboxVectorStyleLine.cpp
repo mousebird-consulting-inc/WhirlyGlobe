@@ -27,7 +27,7 @@ namespace WhirlyKit
 static const char *lineCapVals[] = {"butt","round","square"};
 static const char *joinVals[] = {"bevel","round","miter"};
 
-bool MapboxVectorLineLayout::parse(MapboxVectorStyleSetImplRef styleSet,DictionaryRef styleEntry)
+bool MapboxVectorLineLayout::parse(MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry)
 {
     cap = (MapboxVectorLineCap)styleSet->enumValue("line-cap",lineCapVals,(int)MBLineCapButt);
     join = (MapboxVectorLineJoin)styleSet->enumValue("line-join",joinVals,(int)MBLineJoinMiter);
@@ -37,7 +37,7 @@ bool MapboxVectorLineLayout::parse(MapboxVectorStyleSetImplRef styleSet,Dictiona
     return true;
 }
 
-bool MapboxVectorLinePaint::parse(MapboxVectorStyleSetImplRef styleSet,DictionaryRef styleEntry)
+bool MapboxVectorLinePaint::parse(MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry)
 {
     styleSet->unsupportedCheck("line-translate", "line-paint", styleEntry);
     styleSet->unsupportedCheck("line-translate-anchor", "line-paint", styleEntry);
@@ -95,15 +95,6 @@ bool MapboxVectorLayerLine::parse(DictionaryRef styleEntry,
         }
         
         filledLineTexID = styleSet->makeLineTexture(dashComponents);
-//
-//        MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] init];
-//        [lineTexBuilder setPattern:dashComponents];
-//        UIImage *lineImage = [lineTexBuilder makeImage];
-//        filledLineTex = [viewC addTexture:lineImage
-//                                                   desc:@{kMaplyTexFormat: @(MaplyImageIntRGBA),
-//                                                          kMaplyTexWrapY: @(MaplyImageWrapY)
-//                                                          }
-//                                                   mode:MaplyThreadCurrent];
     }
     fade = styleSet->doubleValue("fad",styleEntry,0.0);
 

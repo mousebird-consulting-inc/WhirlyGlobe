@@ -107,8 +107,8 @@ class VectorStyleDelegateImpl
 {
 public:
     /// Return the styles that apply to the given feature (attributes).
-    virtual std::vector<VectorStyleImplRef> stylesForFeature(const Dictionary &attrs,
-                                                             const QuadTreeNew::Node &tileID,
+    virtual std::vector<VectorStyleImplRef> stylesForFeature(DictionaryRef attrs,
+                                                             const QuadTreeIdentifier &tileID,
                                                              const std::string &layerName) = 0;
     
     /// Return true if the given layer is meant to display for the given tile (zoom level)
@@ -133,7 +133,7 @@ public:
     virtual long long getUuid() = 0;
     
     /// Category used for sorting
-    virtual const std::string &getCategory() = 0;
+    virtual std::string getCategory() = 0;
     
     // Note: This no longer really holds
     /// Set if this geometry is additive (e.g. sticks around) rather than replacement

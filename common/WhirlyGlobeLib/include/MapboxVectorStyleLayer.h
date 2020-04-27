@@ -36,10 +36,10 @@ class MapboxVectorStyleLayer : public VectorStyleImpl
 public:
 
     /// @brief Initialize with the style sheet and the entry for this layer
-    static MapboxVectorStyleLayerRef VectorStyleLayer(MapboxVectorStyleSetImplRef styleSet,DictionaryRef layerDict,int drawPriority);
+    static MapboxVectorStyleLayerRef VectorStyleLayer(MapboxVectorStyleSetImpl *styleSet,DictionaryRef layerDict,int drawPriority);
 
     /// @brief Base class initialization.  Copies data out of the refLayer
-    MapboxVectorStyleLayer(MapboxVectorStyleSetImplRef styleSet);
+    MapboxVectorStyleLayer(MapboxVectorStyleSetImpl *styleSet);
     virtual ~MapboxVectorStyleLayer();
 
     // Parse the layer entry out of the style sheet
@@ -51,7 +51,7 @@ public:
     virtual long long getUuid();
     
     /// Category used for sorting
-    virtual const std::string &getCategory();
+    virtual std::string getCategory();
     
     // Note: This no longer really holds
     /// Set if this geometry is additive (e.g. sticks around) rather than replacement
@@ -63,7 +63,7 @@ public:
     /// Clean up any objects (textures, probably)
     virtual void cleanup(ChangeSet &changes);
 
-    MapboxVectorStyleSetImplRef styleSet;
+    MapboxVectorStyleSetImpl *styleSet;
 
     /// Set if we actually use this layer.  Copied from the layout
     bool visible;

@@ -132,13 +132,17 @@ typedef enum {
 /**
   Holds the low level implementation for Mapbox Style Sheet parsing and object construction.
  */
-class MapboxVectorStyleSetImpl
+class MapboxVectorStyleSetImpl : public VectorStyleDelegateImpl
 {
 public:
-    MapboxVectorStyleSetImpl(Scene *scene);
+    MapboxVectorStyleSetImpl(Scene *scene,VectorStyleSettingsImplRef settings);
+    virtual ~MapboxVectorStyleSetImpl();
+    
+    // Parse the entire style sheet.  False on failure
+    bool parse(DictionaryRef dict);
         
     /// @brief Default settings and scale factor for Mapnik vector geometry.
-    VectorStyleSettingsImpl *tileStyleSettings;
+    VectorStyleSettingsImplRef tileStyleSettings;
 
     /// @brief Generates a unique ID for a style
     long long generateID();
@@ -184,15 +188,32 @@ public:
 
     /// @brief Check for and report an unsupported field
     void unsupportedCheck(const std::string &field,const std::string &what,DictionaryRef styleEntry);
-
-    /// @brief Check if the given thing is a constant and return its value if it is.  Otherwise just return it.
-    DictionaryEntryRef constantSubstitution(DictionaryEntryRef thing,const std::string &field);
     
     /// Fetch a layer by name
     virtual MapboxVectorStyleLayerRef getLayer(const std::string &name);
     
+    /** VectorStyleDelegateImpl **/
+    
+    /// Return the styles that apply to the given feature (attributes).
+    virtual std::vector<VectorStyleImplRef> stylesForFeature(DictionaryRef attrs,
+                                                             const QuadTreeIdentifier &tileID,
+                                                             const std::string &layerName);
+    
+    /// Return true if the given layer is meant to display for the given tile (zoom level)
+    virtual bool layerShouldDisplay(const std::string &name,
+                                    const QuadTreeNew::Node &tileID);
+
+    /// Return the style associated with the given UUID.
+    virtual VectorStyleImplRef styleForUUID(long long uuid);
+
+    // Return a list of all the styles in no particular order.  Needed for categories and indexing
+    virtual std::vector<VectorStyleImplRef> allStyles();
+
+    
+    /** Platform specific implementation **/
+    
     /// Local platform implementation for generating a circle and adding it as a texture
-    virtual SimpleIdentity makeCircleTexture(double radius,const RGBAColor &fillColor,const RGBAColor &strokeColor,Point2f *circleSize) = 0;
+    virtual SimpleIdentity makeCircleTexture(double radius,const RGBAColor &fillColor,const RGBAColor &strokeColor,float strokeWidth,Point2f *circleSize) = 0;
     
     /// Local platform implementation for generating a repeating line texture
     virtual SimpleIdentity makeLineTexture(const std::vector<double> &dashComponents) = 0;
@@ -212,17 +233,17 @@ public:
     /// @brief Version number from the style
     int version;
 
-    /// @brief Constants from the Style sheet
-    std::map<std::string,DictionaryEntryRef> constants;
-
     /// @brief Layers parsed from the style sheet
     std::vector<MapboxVectorStyleLayerRef> layers;
 
     /// @brief Layers sorted by their ID
     std::map<std::string, MapboxVectorStyleLayerRef> layersByName;
+    
+    /// Layers sorted by UUID
+    std::map<long long, MapboxVectorStyleLayerRef> layersByUUID;
 
     /// @brief Layers sorted by source layer name
-    std::map<std::string, MapboxVectorStyleLayerRef> layersBySource;
+    std::map<std::string, std::vector<MapboxVectorStyleLayerRef> > layersBySource;
 
     VectorManager *vecManage;
     WideVectorManager *wideVecManage;

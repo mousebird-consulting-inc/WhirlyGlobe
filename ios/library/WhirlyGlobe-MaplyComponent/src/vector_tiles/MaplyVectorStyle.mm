@@ -20,7 +20,11 @@
 
 #import "vector_tiles/MapboxVectorTiles.h"
 #import "private/MaplyVectorStyle_private.h"
+#import "private/MapboxVectorTiles_private.h"
+#import "private/MaplyVectorObject_private.h"
+#import "helpers/MaplyTextureBuilder.h"
 #import "WhirlyGlobe.h"
+#import "MaplyTexture_private.h"
 
 using namespace WhirlyKit;
 
@@ -331,69 +335,186 @@ NSArray * _Nonnull AddMaplyVectorsUsingStyle(NSArray * _Nonnull vecObjs,NSObject
     return compObjs;
 }
 
-// TODO: These need to be turned into appropriate wrappers
-//MapboxVectorTileParser_iOS::MapboxVectorTileParser_iOS(NSObject<MaplyVectorStyleDelegate> * styleDelegate,NSObject<MaplyRenderControllerProtocol> *viewC)
-//    : styleDelegate(styleDelegate), viewC(viewC), debugLabel(false), debugOutline(false)
-//{
-//    // Index all the categories ahead of time.  Once.
-//    NSArray *allStyles = [styleDelegate allStyles];
-//    for (NSObject<MaplyVectorStyle> *style in allStyles) {
-//        NSString *category = [style getCategory];
-//        if (category) {
-//            long long styleID = style.uuid;
-//            std::string categoryStr = [category cStringUsingEncoding:NSUTF8StringEncoding];
-//            addCategory(categoryStr, styleID);
-//        }
-//    }
-//}
-//
-//MapboxVectorTileParser_iOS::~MapboxVectorTileParser_iOS()
-//{
-//}
-//    
-//VectorTileDataRef MapboxVectorTileParser_iOS::makeTileDataCopy(VectorTileData *inTileData)
-//{
-//    return VectorTileDataRef(new VectorTileData(*inTileData));
-//}
-//    
-//bool MapboxVectorTileParser_iOS::layerShouldParse(const std::string &layerName,VectorTileData *tileData)
-//{
-//    NSString *layerNameStr = [NSString stringWithUTF8String:layerName.c_str()];
-//    MaplyTileID tileID;
-//    tileID.x = tileData->ident.x;  tileID.y = tileData->ident.y;  tileID.level = tileData->ident.level;
-//
-//    return [styleDelegate layerShouldDisplay:layerNameStr tile:tileID];
-//}
-//
-//// Return a set of styles that will parse the given feature
-//SimpleIDSet MapboxVectorTileParser_iOS::stylesForFeature(MutableDictionaryRef attributes,const std::string &layerName,VectorTileData *tileData)
-//{
-//    iosMutableDictionaryRef dict = std::dynamic_pointer_cast<iosMutableDictionary>(attributes);
-//    NSString *layerNameStr = [NSString stringWithUTF8String:layerName.c_str()];
-//    MaplyTileID tileID;
-//    tileID.x = tileData->ident.x;  tileID.y = tileData->ident.y;  tileID.level = tileData->ident.level;
-//
-//    NSArray *styles = [styleDelegate stylesForFeatureWithAttributes:dict->dict onTile:tileID inLayer:layerNameStr viewC:viewC];
-//    SimpleIDSet styleIDs;
-//    for (NSObject<MaplyVectorStyle> *style in styles) {
-//        styleIDs.insert(style.uuid);
-//    }
-//    
-//    return styleIDs;
-//}
-//    
-//void MapboxVectorTileParser_iOS::buildForStyle(long long styleID,std::vector<VectorObjectRef> &vecs,VectorTileDataRef data)
-//{
-//    // Make up an NSArray for this since it's outward facing
-//    NSMutableArray *vecObjs = [[NSMutableArray alloc] init];
-//    for (auto vec : vecs) {
-//        MaplyVectorObject *wrapObj = [[MaplyVectorObject alloc] initWithRef:vec];
-//        [vecObjs addObject:wrapObj];
-//    }
-//    
-//    NSObject<MaplyVectorStyle> *style = [styleDelegate styleForUUID:styleID viewC:viewC];
-//    if (!style)
-//        return;
-//    MaplyVectorTileData *tileDataWrap = [[MaplyVectorTileData alloc] initWithTileData:data];
-//    [style buildObjects:vecObjs forTile:tileDataWrap viewC:viewC];
-//}
+namespace WhirlyKit
+{
+
+MapboxVectorStyleSetImpl_iOS::MapboxVectorStyleSetImpl_iOS(Scene *scene,VectorStyleSettingsImplRef settings)
+: MapboxVectorStyleSetImpl(scene,settings)
+{
+}
+
+MapboxVectorStyleSetImpl_iOS::~MapboxVectorStyleSetImpl_iOS()
+{
+}
+
+SimpleIdentity MapboxVectorStyleSetImpl_iOS::makeCircleTexture(double inRadius,const RGBAColor &fillColor,const RGBAColor &strokeColor,float inStrokeWidth,Point2f *circleSize)
+{
+    // We want the texture a bit bigger than specified
+    float scale = tileStyleSettings->markerScale * 2;
+
+    // Build an image for the circle
+    float buffer = 1.0 * scale;
+    float radius = inRadius*scale;
+    float strokeWidth = inStrokeWidth*scale;
+    float size = ceil(buffer + radius + strokeWidth)*2;
+    circleSize->x() = size / 2;
+    circleSize->y() = size / 2;
+    UIGraphicsBeginImageContext(CGSizeMake(size, size));
+    // TODO: Use the opacity
+    [[UIColor clearColor] setFill];
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    CGContextFillRect(ctx, CGRectMake(0.0, 0.0, size, size));
+
+    // Outer stroke
+    if (strokeWidth > 0.0) {
+        CGContextBeginPath(ctx);
+        CGContextAddEllipseInRect(ctx, CGRectMake(size/2.0-radius-strokeWidth, size/2.0-radius-strokeWidth, 2*(radius+strokeWidth), 2*(radius+strokeWidth)));
+        [[UIColor colorFromRGBA:strokeColor] setFill];
+        CGContextDrawPath(ctx, kCGPathFill);
+    }
+
+    // Inner circle
+    CGContextBeginPath(ctx);
+    CGContextAddEllipseInRect(ctx, CGRectMake(size/2.0-radius, size/2.0-radius, 2*radius, 2*radius));
+    [[UIColor colorFromRGBA:fillColor] setFill];
+    CGContextDrawPath(ctx, kCGPathFill);
+
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    MaplyTexture *tex = [viewC addTexture:image desc:nil mode:MaplyThreadCurrent];
+    return tex.texID;
+}
+
+SimpleIdentity MapboxVectorStyleSetImpl_iOS::makeLineTexture(const std::vector<double> &inComp)
+{
+    NSMutableArray *dashComp = [NSMutableArray array];
+    for (double comp: inComp)
+        [dashComp addObject:[NSNumber numberWithDouble:comp]];
+    
+    MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] init];
+    [lineTexBuilder setPattern:dashComp];
+    UIImage *lineImage = [lineTexBuilder makeImage];
+    MaplyTexture *tex = [viewC addTexture:lineImage
+                                               desc:@{kMaplyTexFormat: @(MaplyImageIntRGBA),
+                                                      kMaplyTexWrapY: @(MaplyImageWrapY)
+                                                      }
+                                               mode:MaplyThreadCurrent];
+    
+    return tex.texID;
+}
+
+LabelInfoRef MapboxVectorStyleSetImpl_iOS::makeLabelInfo(const std::string &fontName)
+{
+    // TODO: Do we need the size here?
+    NSString *fontNameStr = [NSString stringWithFormat:@"%s",fontName.c_str()];
+    UIFont *font = [UIFont fontWithName:fontNameStr size:64.0];
+    
+    return LabelInfoRef(new LabelInfo_iOS(font,true));
+}
+
+SingleLabelRef MapboxVectorStyleSetImpl_iOS::makeSingleLabel(const std::string &text)
+{
+    NSString *textStr = [NSString stringWithFormat:@"%s",text.c_str()];
+    
+    SingleLabel_iOS *label = new SingleLabel_iOS();
+    label->text = textStr;
+    
+    return SingleLabelRef(label);
+}
+
+VectorStyleDelegateWrapper::VectorStyleDelegateWrapper(NSObject<MaplyRenderControllerProtocol> *viewC,NSObject<MaplyVectorStyleDelegate> *delegate)
+: viewC(viewC), delegate(delegate)
+{
+}
+
+std::vector<VectorStyleImplRef>
+VectorStyleDelegateWrapper::stylesForFeature(DictionaryRef attrs,
+                                              const QuadTreeIdentifier &tileID,
+                                              const std::string &layerName)
+{
+    iosDictionaryRef dictRef = std::dynamic_pointer_cast<iosDictionary>(attrs);
+    NSDictionary *dict = dictRef->dict;
+    
+    MaplyTileID theTileID;
+    theTileID.x = tileID.x;  theTileID.y = tileID.y; theTileID.level = tileID.level;
+    NSString *layerStr = [NSString stringWithFormat:@"%s",layerName.c_str()];
+    NSArray *styles = [delegate stylesForFeatureWithAttributes:dict onTile:theTileID inLayer:layerStr viewC:viewC];
+    
+    std::vector<VectorStyleImplRef> retStyles;
+    for (NSObject<MaplyVectorStyle> *style : styles) {
+        VectorStyleWrapperRef wrap(new VectorStyleWrapper(viewC,style));
+        retStyles.push_back(wrap);
+    }
+    
+    return retStyles;
+}
+
+bool VectorStyleDelegateWrapper::layerShouldDisplay(const std::string &name,
+                                const QuadTreeNew::Node &tileID)
+{
+    MaplyTileID theTileID;
+    theTileID.x = tileID.x;  theTileID.y = tileID.y; theTileID.level = tileID.level;
+    NSString *layerStr = [NSString stringWithFormat:@"%s",name.c_str()];
+    return [delegate layerShouldDisplay:layerStr tile:theTileID];
+}
+
+VectorStyleImplRef VectorStyleDelegateWrapper::styleForUUID(long long uuid)
+{
+    NSObject<MaplyVectorStyle> *style = [delegate styleForUUID:uuid viewC:viewC];
+    return VectorStyleImplRef(new VectorStyleWrapper(viewC,style));
+}
+
+std::vector<VectorStyleImplRef> VectorStyleDelegateWrapper::allStyles()
+{
+    NSArray *styles = [delegate allStyles];
+
+    std::vector<VectorStyleImplRef> retStyles;
+    for (NSObject<MaplyVectorStyle> *style : styles) {
+        VectorStyleWrapperRef wrap(new VectorStyleWrapper(viewC,style));
+        retStyles.push_back(wrap);
+    }
+    
+    return retStyles;
+}
+
+VectorStyleWrapper::VectorStyleWrapper(NSObject<MaplyRenderControllerProtocol> *viewC,NSObject<MaplyVectorStyle> *style)
+: viewC(viewC),style(style)
+{
+}
+
+long long VectorStyleWrapper::VectorStyleWrapper::getUuid()
+{
+    return [style uuid];
+}
+
+std::string VectorStyleWrapper::getCategory()
+{
+    std::string category;
+    NSString *catStr = [style getCategory];
+    category = [catStr cStringUsingEncoding:NSUTF8StringEncoding];
+    
+    return category;
+}
+
+bool VectorStyleWrapper::geomAdditive()
+{
+    return [style geomAdditive];
+}
+
+void VectorStyleWrapper::buildObjects(std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo)
+{
+    MaplyVectorTileData *tileData = [[MaplyVectorTileData alloc] init];
+    tileData->data = tileInfo;
+    
+    NSMutableArray *vecArray = [NSMutableArray array];
+    for (VectorObjectRef vecObj: vecObjs) {
+        MaplyVectorObject *mVecObj = [[MaplyVectorObject alloc] init];
+        mVecObj->vObj = vecObj;
+        [vecArray addObject:mVecObj];
+    }
+        
+    [style buildObjects:vecArray forTile:tileData viewC:viewC];
+}
+
+}

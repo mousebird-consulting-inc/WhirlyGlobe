@@ -169,8 +169,7 @@ public class MapboxKindaMap {
             DispatchQueue.main.async {
                 guard let styleSheet = MapboxVectorStyleSet(json: data,
                                                       settings: self.styleSettings,
-                                                        viewC: viewC,
-                                                        filter: nil) else {
+                                                        viewC: viewC) else {
                     print("Failed to parse style sheet")
                     return
                 }
@@ -363,46 +362,47 @@ public class MapboxKindaMap {
                 imageStyleSettings.arealShaderName = kMaplyShaderDefaultTriNoLighting
 
                 // We only want the polygons in the image
-                guard let styleSheetImage = MapboxVectorStyleSet.init(json: styleSheetData,
+                guard let styleSheetImage = MapboxVectorStyleSet(json: styleSheetData,
                                                                     settings: imageStyleSettings,
-                                                                    viewC: offlineRender,
-                                                                    filter:
-                    { (styleAttrs) -> Bool in
-                        // We only want polygons for the image
-                        if let type = styleAttrs["type"] as? String {
-                            if type == "background" || type == "fill" {
-                                return true
-                            }
-                        }
-                        return false
-                }) else {
+                                                                    viewC: offlineRender) else {
                         print("Failed to set up image style sheet.  Nothing will appear.")
                         self.stop()
                         return
                 }
+                // TODO: Replace the filters
+//                                                                    filter:
+//                    { (styleAttrs) -> Bool in
+//                        // We only want polygons for the image
+//                        if let type = styleAttrs["type"] as? String {
+//                            if type == "background" || type == "fill" {
+//                                return true
+//                            }
+//                        }
+//                        return false
+//                })
                 self.styleSheetImage = styleSheetImage
             }
             
             // Just the linear and point vectors in the overlay
-            guard let styleSheetVector = MapboxVectorStyleSet.init(json: styleSheetData,
+            guard let styleSheetVector = MapboxVectorStyleSet(json: styleSheetData,
                                                                  settings: styleSettings,
-                                                                 viewC: viewC,
-                                                                 filter:
-                { (styleAttrs) -> Bool in
-                    if self.backgroundAllPolys {
-                        // We want everything but the polygons
-                        if let type = styleAttrs["type"] as? String {
-                            if type != "background" && type != "fill" {
-                                return true
-                            }
-                        }
-                        return false
-                    } else {
-                        // That mode's not on, so leave it alone
-                        return true
-                    }
-            })
-                else {
+                                                                 viewC: viewC) else {
+// TODO: Replace the filters
+//                { (styleAttrs) -> Bool in
+//                    if self.backgroundAllPolys {
+//                        // We want everything but the polygons
+//                        if let type = styleAttrs["type"] as? String {
+//                            if type != "background" && type != "fill" {
+//                                return true
+//                            }
+//                        }
+//                        return false
+//                    } else {
+//                        // That mode's not on, so leave it alone
+//                        return true
+//                    }
+//            })
+//                else {
                     print("Failed to set up vector style sheet.  Nothing will appear.")
                     self.stop()
                     return

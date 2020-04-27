@@ -24,7 +24,7 @@
 namespace WhirlyKit
 {
 
-bool MapboxVectorBackgroundPaint::parse(MapboxVectorStyleSetImplRef styleSet,DictionaryRef styleEntry)
+bool MapboxVectorBackgroundPaint::parse(MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry)
 {
     color = styleSet->transColor("background-color",styleEntry,RGBAColor::black());
     styleSet->unsupportedCheck("background-image","paint_background",styleEntry);

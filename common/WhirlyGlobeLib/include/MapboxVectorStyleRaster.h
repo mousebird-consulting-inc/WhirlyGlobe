@@ -28,7 +28,7 @@ namespace WhirlyKit
 class MapboxVectorLayerRaster : public MapboxVectorStyleLayer
 {
 public:
-    MapboxVectorLayerRaster(MapboxVectorStyleSetImplRef styleSet) : MapboxVectorStyleLayer(styleSet) { }
+    MapboxVectorLayerRaster(MapboxVectorStyleSetImpl *styleSet) : MapboxVectorStyleLayer(styleSet) { }
 
     virtual bool parse(DictionaryRef styleEntry,
                        MapboxVectorStyleLayerRef refLayer,

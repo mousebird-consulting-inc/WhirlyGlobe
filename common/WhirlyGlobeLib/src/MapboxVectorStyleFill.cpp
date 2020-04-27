@@ -25,7 +25,7 @@
 namespace WhirlyKit
 {
 
-bool MapboxVectorFillPaint::parse(MapboxVectorStyleSetImplRef styleSet,DictionaryRef styleEntry)
+bool MapboxVectorFillPaint::parse(MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry)
 {
     styleSet->unsupportedCheck("fill-antialias","paint_fill",styleEntry);
     styleSet->unsupportedCheck("fill-translate","paint_fill",styleEntry);

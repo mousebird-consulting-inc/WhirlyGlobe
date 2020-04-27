@@ -18,22 +18,19 @@
  *
  */
 
+#import <WhirlyGlobe.h>
 #import "private/MapboxVectorStyleSet_private.h"
-#import "private/MapboxVectorStyleBackground_private.h"
-#import "private/MapboxVectorStyleFill_private.h"
-#import "private/MapboxVectorStyleLine_private.h"
-#import "private/MapboxVectorStyleRaster_private.h"
-#import "private/MapboxVectorStyleSymbol_private.h"
-#import "private/MapboxVectorStyleCircle_private.h"
+#import "private/MaplyVectorStyle_private.h"
+#import "MaplyRenderController_private.h"
 #import <map>
 
-@implementation MapboxVectorStyleSet
-{
-    int currentID;
-    NSMutableDictionary *layersByUUID;
-}
+using namespace WhirlyKit;
 
-- (id)initWithJSON:(NSData *)styleJSON settings:(MaplyVectorStyleSettings *)settings viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC filter:(bool (^)(NSMutableDictionary * __nonnull))filterBlock
+@implementation MapboxVectorStyleSet
+
+- (id)initWithJSON:(NSData *)styleJSON
+          settings:(MaplyVectorStyleSettings *)settings
+             viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     self = [super init];
     if (!self)
@@ -41,16 +38,23 @@
     
     _viewC = viewC;
     NSError *error = nil;
-    _tileStyleSettings = settings;
-    if (!_tileStyleSettings)
-        _tileStyleSettings = [[MaplyVectorStyleSettings alloc] initWithScale:UIScreen.mainScreen.scale];
+    
+    VectorStyleSettingsImplRef styleSettings;
+    if (settings)
+        styleSettings = settings->impl;
+    else
+        styleSettings = VectorStyleSettingsImplRef(new VectorStyleSettingsImpl([UIScreen mainScreen].scale));
+    
+    style = MapboxVectorStyleSetImplRef(new MapboxVectorStyleSetImpl_iOS([viewC getRenderControl]->scene,styleSettings));
+    
     NSDictionary *styleDict = [NSJSONSerialization JSONObjectWithData:styleJSON options:NULL error:&error];
     if (!styleDict)
         return nil;
     
-    _name = styleDict[@"name"];
-    _version = [styleDict[@"version"] integerValue];
-    _constants = styleDict[@"constants"];
+    iosDictionaryRef dictWrap(new iosDictionary(styleDict));
+    if (!style->parse(dictWrap))
+        return nil;
+    
     _spriteURL = styleDict[@"sprite"];
     
     // Sources tell us where to get tiles
@@ -63,46 +67,40 @@
             [sources addObject:source];
     }
     
-    // Layers are where the action is
-    NSArray *layerStyles = styleDict[@"layers"];
-    NSMutableArray *layers = [NSMutableArray array];
-    NSMutableDictionary *sourceLayers = [NSMutableDictionary dictionary];
-    layersByUUID = [NSMutableDictionary dictionary];
-    NSMutableDictionary *layersByName = [NSMutableDictionary dictionary];
-    int which = 0;
-    for (NSDictionary *layerStyleIter in layerStyles)
-    {
-        NSDictionary *layerStyle = layerStyleIter;
-        if (filterBlock) {
-            NSMutableDictionary *layerStyleMod = [NSMutableDictionary dictionaryWithDictionary:layerStyle];
-            if (!(filterBlock(layerStyleMod)))
-                continue;
-            layerStyle = layerStyleMod;
-        }
-        MaplyMapboxVectorStyleLayer *layer = [MaplyMapboxVectorStyleLayer VectorStyleLayer:self JSON:layerStyle drawPriority:(1*which + settings.baseDrawPriority)];
-        if (layer)
-        {
-            [layers addObject:layer];
-            layersByUUID[@(layer.uuid)] = layer;
-            layersByName[layer.ident] = layer;
-            if (layer.sourceLayer)
-            {
-                NSMutableArray *sourceEntry = sourceLayers[layer.sourceLayer];
-                if (!sourceEntry)
-                    sourceEntry = [NSMutableArray array];
-                [sourceEntry addObject:layer];
-                sourceLayers[layer.sourceLayer] = sourceEntry;
-            }
-        }
-        
-        which++;
-    }
-    _layers = layers;
     _sources = sources;
-    _layersBySource = sourceLayers;
-    _layersByName = layersByName;
     
     return self;
+}
+
+// These are here just to satisfy the compiler.  We use the underlying C++ calls instead
+
+- (nullable NSArray *)stylesForFeatureWithAttributes:(NSDictionary *__nonnull)attributes
+                                              onTile:(MaplyTileID)tileID
+                                             inLayer:(NSString *__nonnull)layer
+                                               viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC
+{
+    return nil;
+}
+
+- (BOOL)layerShouldDisplay:(NSString *__nonnull)layer tile:(MaplyTileID)tileID
+{
+    return false;
+}
+
+- (nullable NSObject<MaplyVectorStyle> *)styleForUUID:(long long)uiid viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC
+{
+    return nil;
+}
+
+- (NSArray * __nonnull)allStyles
+{
+    return [NSMutableArray array];
+}
+
+// Returns the C++ class that does the work
+- (WhirlyKit::VectorStyleDelegateImplRef) getVectorStyleImpl
+{
+    return style;
 }
 
 @end

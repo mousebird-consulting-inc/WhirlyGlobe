@@ -24,7 +24,7 @@
 namespace WhirlyKit
 {
 
-bool MapboxVectorCirclePaint::parse(MapboxVectorStyleSetImplRef styleSet,DictionaryRef styleEntry)
+bool MapboxVectorCirclePaint::parse(MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry)
 {
     if (!styleSet)
         return false;
@@ -46,42 +46,10 @@ bool MapboxVectorLayerCircle::parse(DictionaryRef styleEntry,
     if (!MapboxVectorStyleLayer::parse(styleEntry,refLayer,drawPriority) ||
         !paint.parse(styleSet, styleEntry->getDict("paint")))
         return false;
-    
-//    // We want the texture a bit bigger than specified
-//    float scale = styleSet.tileStyleSettings.markerScale * 2;
-//
-//    // Build an image for the circle
-//    float buffer = 1.0 * scale;
-//    float radius = _paint.radius*scale;
-//    float strokeWidth = _paint.strokeWidth*scale;
-//    float size = ceil(buffer + radius + strokeWidth)*2;
-//    circleSize = CGSizeMake(size / 2, size / 2);
-//    UIGraphicsBeginImageContext(CGSizeMake(size, size));
-//    // TODO: Use the opacity
-//    [[UIColor clearColor] setFill];
-//    CGContextRef ctx = UIGraphicsGetCurrentContext();
-//    CGContextFillRect(ctx, CGRectMake(0.0, 0.0, size, size));
-//
-//    // Outer stroke
-//    if (strokeWidth > 0.0) {
-//        CGContextBeginPath(ctx);
-//        CGContextAddEllipseInRect(ctx, CGRectMake(size/2.0-radius-strokeWidth, size/2.0-radius-strokeWidth, 2*(radius+strokeWidth), 2*(radius+strokeWidth)));
-//        [_paint.strokeColor setFill];
-//        CGContextDrawPath(ctx, kCGPathFill);
-//    }
-//
-//    // Inner circle
-//    CGContextBeginPath(ctx);
-//    CGContextAddEllipseInRect(ctx, CGRectMake(size/2.0-radius, size/2.0-radius, 2*radius, 2*radius));
-//    [_paint.fillColor setFill];
-//    CGContextDrawPath(ctx, kCGPathFill);
-//
-//    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
-//    UIGraphicsEndImageContext();
-    
+
     RGBAColor theFillColor = (*paint.fillColor) * paint.opacity;
     RGBAColor theStrokeColor = (*paint.strokeColor) * paint.strokeOpacity;
-    circleTexID = styleSet->makeCircleTexture(paint.radius,theFillColor,theStrokeColor,&circleSize);
+    circleTexID = styleSet->makeCircleTexture(paint.radius,theFillColor,theStrokeColor,paint.strokeWidth,&circleSize);
 
     // Larger circles are slightly more important
     importance = drawPriority/1000 + styleSet->tileStyleSettings->markerImportance + paint.radius / 100000.0;
