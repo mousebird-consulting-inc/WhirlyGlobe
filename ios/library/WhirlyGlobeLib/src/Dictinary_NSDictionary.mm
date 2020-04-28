@@ -257,6 +257,9 @@ DictionaryEntryRef iosDictionary::getEntry(const std::string &name) const
     NSString *theName = StdStringToString(name);
 
     id value = dict[theName];
+    if (!value)
+        return DictionaryEntryRef();
+    
     return DictionaryEntryRef(new iosDictionaryEntry(value));
 }
 

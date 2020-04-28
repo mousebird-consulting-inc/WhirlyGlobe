@@ -72,6 +72,12 @@ using namespace WhirlyKit;
     return self;
 }
 
+// TODO: Get this working again
+- (UIColor * __nullable)backgroundColorForZoom:(double)zoom
+{
+    return [UIColor whiteColor];
+}
+
 // These are here just to satisfy the compiler.  We use the underlying C++ calls instead
 
 - (nullable NSArray *)stylesForFeatureWithAttributes:(NSDictionary *__nonnull)attributes

@@ -24,13 +24,13 @@
 namespace WhirlyKit
 {
 
-static const char *lineCapVals[] = {"butt","round","square"};
-static const char *joinVals[] = {"bevel","round","miter"};
+static const char *lineCapVals[] = {"butt","round","square",NULL};
+static const char *joinVals[] = {"bevel","round","miter",NULL};
 
 bool MapboxVectorLineLayout::parse(MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry)
 {
-    cap = (MapboxVectorLineCap)styleSet->enumValue("line-cap",lineCapVals,(int)MBLineCapButt);
-    join = (MapboxVectorLineJoin)styleSet->enumValue("line-join",joinVals,(int)MBLineJoinMiter);
+    cap = (MapboxVectorLineCap)styleSet->enumValue(styleEntry->getEntry("line-cap"),lineCapVals,(int)MBLineCapButt);
+    join = (MapboxVectorLineJoin)styleSet->enumValue(styleEntry->getEntry("line-join"),joinVals,(int)MBLineJoinMiter);
     miterLimit = styleSet->doubleValue("line-miter-limit", styleEntry, 2.0);
     roundLimit = styleSet->doubleValue("line-round-limit", styleEntry, 1.0);
 

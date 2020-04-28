@@ -56,7 +56,7 @@ public:
 class MaplyVectorFunctionStops
 {
 public:
-    bool parse(const std::vector<DictionaryEntryRef> &dataArray,MapboxVectorStyleSetImpl *styleSet);
+    bool parse(DictionaryRef entry,MapboxVectorStyleSetImpl *styleSet);
 
     /// @brief Calculate a value given the zoom level
     double valueForZoom(double zoom);
@@ -170,7 +170,7 @@ public:
     RGBAColorRef colorValue(const std::string &name,DictionaryEntryRef val,DictionaryRef dict,RGBAColor defVal,bool multiplyAlpha);
 
     /// @brief Return the integer corresponding to the name.  Basically parse the enumerated type
-    int enumValue(const std::string &name,const char *options[],int defVal);
+    int enumValue(DictionaryEntryRef entry,const char *options[],int defVal);
 
     /// Builds a transitionable double object and returns that
     MapboxTransDoubleRef transDouble(const std::string &name,DictionaryRef entry,double defVal);
@@ -187,7 +187,7 @@ public:
     RGBAColor color(RGBAColor color,double opacity);
 
     /// @brief Check for and report an unsupported field
-    void unsupportedCheck(const std::string &field,const std::string &what,DictionaryRef styleEntry);
+    void unsupportedCheck(const char *field,const char *what,DictionaryRef styleEntry);
     
     /// Fetch a layer by name
     virtual MapboxVectorStyleLayerRef getLayer(const std::string &name);

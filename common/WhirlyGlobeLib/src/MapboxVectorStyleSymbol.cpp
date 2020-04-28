@@ -26,15 +26,15 @@
 namespace WhirlyKit
 {
 
-static const char *placementVals[] = {"point","line"};
-static const char *transformVals[] = {"none","uppercase","lowercase"};
-static const char *anchorVals[] = {"center","left","right","top","bottom","top-left","top-right","bottom-left","bottom-right"};
+static const char *placementVals[] = {"point","line",NULL};
+static const char *transformVals[] = {"none","uppercase","lowercase",NULL};
+static const char *anchorVals[] = {"center","left","right","top","bottom","top-left","top-right","bottom-left","bottom-right",NULL};
 
 bool MapboxVectorSymbolLayout::parse(MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry)
 {
     globalTextScale = styleSet->tileStyleSettings->textScale;
-    placement = (MapboxSymbolPlacement)styleSet->enumValue("symbol-placement", placementVals, (int)MBPlacePoint);
-    textTransform = (MapboxTextTransform)styleSet->enumValue("text-transform", transformVals, (int)MBTextTransNone);
+    placement = (MapboxSymbolPlacement)styleSet->enumValue(styleEntry->getEntry("symbol-placement"), placementVals, (int)MBPlacePoint);
+    textTransform = (MapboxTextTransform)styleSet->enumValue(styleEntry->getEntry("text-transform"), transformVals, (int)MBTextTransNone);
     
     std::string textField = styleSet->stringValue("text-field", styleEntry, "");
     if (!textField.empty()) {
@@ -72,7 +72,7 @@ bool MapboxVectorSymbolLayout::parse(MapboxVectorStyleSetImpl *styleSet,Dictiona
 
     textAnchor = MBTextCenter;
     if (styleEntry->getType("text-anchor") == DictTypeArray) {
-        textAnchor = (MapboxTextAnchor)styleSet->enumValue("text-anchor", anchorVals, (int)MBTextCenter);
+        textAnchor = (MapboxTextAnchor)styleSet->enumValue(styleEntry->getEntry("text-anchor"), anchorVals, (int)MBTextCenter);
     }
     layoutImportance = styleSet->tileStyleSettings->labelImportance;
     

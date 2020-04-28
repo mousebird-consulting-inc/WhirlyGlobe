@@ -64,6 +64,10 @@ MapboxVectorStyleLayerRef MapboxVectorStyleLayer::VectorStyleLayer(MapboxVectorS
     } else if (type == "background") {
         layer = MapboxVectorStyleLayerRef(new MapboxVectorLayerBackground(styleSet));
     }
+    if (!layer) {
+        wkLogLevel(Warn,"Unknown layer type %s",type.c_str());
+        return NULL;
+    }
     layer->parse(layerDict, refLayer, drawPriority);
     
     if (layerDict->getType("filter") == DictTypeArray) {
@@ -97,9 +101,9 @@ bool MapboxVectorStyleLayer::parse(DictionaryRef styleEntry,
     drawPriority = inDrawPriority;
     uuid = styleSet->generateID();
     
-    ident = styleEntry->getInt("id");
-    source = styleSet->stringValue("source", styleEntry, refLayer->source);
-    sourceLayer = styleSet->stringValue("source-layer", styleEntry, refLayer->sourceLayer);
+    ident = styleEntry->getString("id");
+    source = styleSet->stringValue("source", styleEntry, refLayer ? refLayer->source : "");
+    sourceLayer = styleSet->stringValue("source-layer", styleEntry, refLayer ? refLayer->sourceLayer : "");
     
     minzoom = styleSet->intValue("minzoom", styleEntry, -1);
     maxzoom = styleSet->intValue("maxzoom", styleEntry, -1);
@@ -111,7 +115,7 @@ bool MapboxVectorStyleLayer::parse(DictionaryRef styleEntry,
 
 long long MapboxVectorStyleLayer::getUuid()
 {
-    return styleSet->generateID();
+    return uuid;
 }
 
 std::string MapboxVectorStyleLayer::getCategory()

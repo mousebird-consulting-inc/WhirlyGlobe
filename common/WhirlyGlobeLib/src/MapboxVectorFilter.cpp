@@ -40,7 +40,7 @@ bool MapboxVectorFilter::parse(const std::vector<DictionaryEntryRef> &filterArra
     }
     
     geomType = MBGeomNone;
-    filterType = (MapboxVectorFilterType)styleSet->enumValue(filterArray[0]->getString(),filterTypes,MBFilterNone);
+    filterType = (MapboxVectorFilterType)styleSet->enumValue(filterArray[0],filterTypes,MBFilterNone);
     
     if (filterType == MBFilterNone)
     {
@@ -58,7 +58,7 @@ bool MapboxVectorFilter::parse(const std::vector<DictionaryEntryRef> &filterArra
         attrName = filterArray[1]->getString();
         if (attrName == "$type")
         {
-            geomType = (MapboxVectorGeometryType)styleSet->enumValue(filterArray[2]->getString(), geomTypes, MBGeomNone);
+            geomType = (MapboxVectorGeometryType)styleSet->enumValue(filterArray[2], geomTypes, MBGeomNone);
             if (geomType == MBGeomNone)
             {
                 wkLogLevel(Warn,"Unrecognized geometry type (%s) in filter",attrName.c_str());

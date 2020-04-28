@@ -31,14 +31,16 @@ MaplyVectorFunctionStop::MaplyVectorFunctionStop()
 {
 }
 
-bool MaplyVectorFunctionStops::parse(const std::vector<DictionaryEntryRef> &dataArray,MapboxVectorStyleSetImpl *styleSet)
+bool MaplyVectorFunctionStops::parse(DictionaryRef entry,MapboxVectorStyleSetImpl *styleSet)
 {
+    base = entry->getDouble("base",1.0);
+    
+    std::vector<DictionaryEntryRef> dataArray = entry->getArray("stops");
     if (dataArray.size() < 2)
     {
         wkLogLevel(Warn, "Expecting at least two arguments for function stops.");
         return false;
     }
-    
     for (auto stop : dataArray) {
         if (stop->getType() != DictTypeArray) {
             std::vector<DictionaryEntryRef> stopEntries = stop->getArray();
@@ -276,6 +278,9 @@ int MapboxVectorStyleSetImpl::intValue(const std::string &name,DictionaryRef dic
 
 double MapboxVectorStyleSetImpl::doubleValue(DictionaryEntryRef thing,double defVal)
 {
+    if (!thing)
+        return defVal;
+    
     if (thing->getType() == DictTypeDouble)
         return thing->getDouble();
 
@@ -285,6 +290,9 @@ double MapboxVectorStyleSetImpl::doubleValue(DictionaryEntryRef thing,double def
 
 double MapboxVectorStyleSetImpl::doubleValue(const std::string &name,DictionaryRef dict,double defVal)
 {
+    if (!dict)
+        return defVal;
+
     DictionaryEntryRef thing = dict->getEntry(name);
     if (!thing)
         return defVal;
@@ -298,6 +306,9 @@ double MapboxVectorStyleSetImpl::doubleValue(const std::string &name,DictionaryR
 
 bool MapboxVectorStyleSetImpl::boolValue(const std::string &name,DictionaryRef dict,const std::string &onString,bool defVal)
 {
+    if (!dict)
+        return defVal;
+    
     DictionaryEntryRef thing = dict->getEntry(name);
     if (!thing)
         return defVal;
@@ -310,6 +321,9 @@ bool MapboxVectorStyleSetImpl::boolValue(const std::string &name,DictionaryRef d
 
 std::string MapboxVectorStyleSetImpl::stringValue(const std::string &name,DictionaryRef dict,const std::string &defVal)
 {
+    if (!dict)
+        return defVal;
+    
     DictionaryEntryRef thing = dict->getEntry(name);
     if (!thing)
         return defVal;
@@ -323,8 +337,12 @@ std::string MapboxVectorStyleSetImpl::stringValue(const std::string &name,Dictio
 
 std::vector<DictionaryEntryRef> MapboxVectorStyleSetImpl::arrayValue(const std::string &name,DictionaryRef dict)
 {
-    DictionaryEntryRef thing = dict->getEntry(name);
     std::vector<DictionaryEntryRef> ret;
+
+    if (!dict)
+        return ret;
+    
+    DictionaryEntryRef thing = dict->getEntry(name);
     if (!thing)
         return ret;
     
@@ -455,11 +473,13 @@ RGBAColorRef MapboxVectorStyleSetImpl::colorValue(const std::string &name,Dictio
     return colorValue(name, val, dict, color, multiplyAlpha);
 }
 
-int MapboxVectorStyleSetImpl::enumValue(const std::string &name,const char *options[],int defVal)
+int MapboxVectorStyleSetImpl::enumValue(DictionaryEntryRef entry,const char *options[],int defVal)
 {
-    if (name.empty())
+    if (!entry || entry->getType() != DictTypeString)
         return defVal;
 
+    std::string name = entry->getString();
+    
     int which = 0;
     while (options[which]) {
         const char *val = options[which];
@@ -482,7 +502,7 @@ MapboxTransDoubleRef MapboxVectorStyleSetImpl::transDouble(const std::string &na
     // This is probably stops
     if (theEntry->getType() == DictTypeDictionary) {
         MaplyVectorFunctionStopsRef stops(new MaplyVectorFunctionStops());
-        stops->parse(theEntry->getArray(), this);
+        stops->parse(theEntry->getDict(), this);
         if (stops) {
             return MapboxTransDoubleRef(new MapboxTransDouble(stops));
         } else {
@@ -514,7 +534,7 @@ MapboxTransColorRef MapboxVectorStyleSetImpl::transColor(const std::string &name
     // This is probably stops
     if (theEntry->getType() == DictTypeDictionary) {
         MaplyVectorFunctionStopsRef stops(new MaplyVectorFunctionStops());
-        stops->parse(theEntry->getArray(), this);
+        stops->parse(theEntry->getDict(), this);
         if (stops) {
             return MapboxTransColorRef(new MapboxTransColor(stops));;
         } else {
@@ -540,10 +560,10 @@ MapboxTransColorRef MapboxVectorStyleSetImpl::transColor(const std::string &name
     return transColor(name, entry, &color);
 }
 
-void MapboxVectorStyleSetImpl::unsupportedCheck(const std::string &field,const std::string &what,DictionaryRef styleEntry)
+void MapboxVectorStyleSetImpl::unsupportedCheck(const char *field,const char *what,DictionaryRef styleEntry)
 {
     if (styleEntry->hasField(field))
-        wkLogLevel(Warn,"Found unsupported field (%s) for (%s)",field.c_str(),what.c_str());
+        wkLogLevel(Warn,"Found unsupported field (%s) for (%s)",field,what);
 }
 
 RGBAColorRef MapboxVectorStyleSetImpl::resolveColor(MapboxTransColorRef color,MapboxTransDoubleRef opacity,double zoom,MBResolveColorType resolveMode)
@@ -599,7 +619,7 @@ std::vector<VectorStyleImplRef> MapboxVectorStyleSetImpl::stylesForFeature(Dicti
     auto it = layersBySource.find(layerName);
     if (it != layersBySource.end()) {
         for (auto layer : it->second)
-            if (layer->filter && layer->filter->testFeature(attrs, tileID))
+            if (!layer->filter || layer->filter->testFeature(attrs, tileID))
                 styles.push_back(layer);
     }
     
