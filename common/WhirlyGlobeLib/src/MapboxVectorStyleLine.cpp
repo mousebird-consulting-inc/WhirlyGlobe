@@ -112,8 +112,8 @@ void MapboxVectorLayerLine::buildObjects(std::vector<VectorObjectRef> &inVecObjs
     if (!visible)
         return;
     
-    ComponentObjectRef compObj(new ComponentObject());
-    
+    ComponentObjectRef compObj = styleSet->makeComponentObject();
+
     // TODO: Do level based animation instead
     float levelBias = 0.9;
 

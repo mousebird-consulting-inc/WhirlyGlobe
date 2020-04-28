@@ -71,8 +71,8 @@ void MapboxVectorLayerCircle::buildObjects(std::vector<VectorObjectRef> &vecObjs
     if (!visible)
         return;
     
-    ComponentObjectRef compObj(new ComponentObject());
-    
+    ComponentObjectRef compObj = styleSet->makeComponentObject();
+
     // Default settings
     MarkerInfo markerInfo(true);
     markerInfo.drawPriority = drawPriority;

@@ -39,7 +39,7 @@ static std::string StringToStdString(NSString *str)
 {
     if (!str)
         return "";
-    return std::string([str cStringUsingEncoding:NSASCIIStringEncoding]);
+    return std::string([str cStringUsingEncoding:NSUTF8StringEncoding]);
 }
 
 iosDictionaryEntry::iosDictionaryEntry(id inValue)

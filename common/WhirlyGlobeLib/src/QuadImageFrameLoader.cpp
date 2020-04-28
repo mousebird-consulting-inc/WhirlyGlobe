@@ -334,6 +334,11 @@ void QIFTileAsset::cancelFetches(QuadImageFrameLoader *loader,int frameToCancel,
 
 // A single frame loaded successfully
 bool QIFTileAsset::frameLoaded(QuadImageFrameLoader *loader,QuadLoaderReturn *loadReturn,std::vector<Texture *> &texs,ChangeSet &changes) {
+    // Sometimes changes are made directly with the managers and we need to reflect that
+    //  even if those features are immediately deleted
+    if (!loadReturn->changes.empty())
+        changes.insert(changes.end(),loadReturn->changes.begin(),loadReturn->changes.end());
+    
     if (frames.size() > 0 && (loadReturn->frame < 0 || loadReturn->frame >= frames.size()))
     {
         if (!loadReturn->compObjs.empty())

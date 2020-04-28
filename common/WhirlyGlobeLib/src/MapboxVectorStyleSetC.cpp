@@ -20,6 +20,7 @@
 
 #import "MapboxVectorStyleSetC.h"
 #import "MapboxVectorStyleLayer.h"
+#import "SharedAttributes.h"
 #import "WhirlyKitLog.h"
 #import <regex>
 
@@ -42,7 +43,7 @@ bool MaplyVectorFunctionStops::parse(DictionaryRef entry,MapboxVectorStyleSetImp
         return false;
     }
     for (auto stop : dataArray) {
-        if (stop->getType() != DictTypeArray) {
+        if (stop->getType() == DictTypeArray) {
             std::vector<DictionaryEntryRef> stopEntries = stop->getArray();
             if (stopEntries.size() != 2) {
                 wkLogLevel(Warn,"Expecting two arguments in each entry for a function stop.");
@@ -54,15 +55,28 @@ bool MaplyVectorFunctionStops::parse(DictionaryRef entry,MapboxVectorStyleSetImp
             if (stopEntries[1]->getType() == DictTypeDouble) {
                 fStop.val = stopEntries[1]->getDouble();
             } else {
-                fStop.color = RGBAColorRef(new RGBAColor(stopEntries[1]->getColor()));
+                switch (stopEntries[1]->getType())
+                {
+                    case DictTypeString:
+                        fStop.color = styleSet->colorValue("", stopEntries[1], NULL, NULL, false);
+                        break;
+                    case DictTypeObject:
+                        fStop.color = RGBAColorRef(new RGBAColor(stopEntries[1]->getColor()));
+                        break;
+                    default:
+                        wkLogLevel(Warn, "Expecting color compatible object in function stop.");
+                        return false;
+                        break;
+                }
             }
             
             stops.push_back(fStop);
+        } else {
+            wkLogLevel(Warn, "Expecting arrays in the function stops.");
+            return false;
         }
     }
 
-    base = 1.0;
-    
     return true;
 }
 
@@ -213,8 +227,19 @@ MapboxVectorStyleSetImpl::MapboxVectorStyleSetImpl(Scene *inScene,VectorStyleSet
     markerManage = (MarkerManager *)scene->getManager(kWKMarkerManager);
     labelManage = (LabelManager *)scene->getManager(kWKLabelManager);
     compManage = (ComponentManager *)scene->getManager(kWKComponentManager);
-    
-    // TODO: Set up the program IDs
+
+    Program *prog = scene->findProgramByName(MaplyScreenSpaceDefaultShader);
+    if (prog)
+        screenMarkerProgramID = prog->getId();
+    prog = scene->findProgramByName(MaplyDefaultTriangleShader);
+    if (prog)
+        vectorArealProgramID = prog->getId();
+    prog = scene->findProgramByName(MaplyNoLightTriangleShader);
+    if (prog)
+        vectorLinearProgramID = prog->getId();
+    prog = scene->findProgramByName(MaplyDefaultWideVectorShader);
+    if (prog)
+        wideVectorProgramID = prog->getId();
 }
 
 MapboxVectorStyleSetImpl::~MapboxVectorStyleSetImpl()
@@ -406,52 +431,71 @@ RGBAColorRef MapboxVectorStyleSetImpl::colorValue(const std::string &name,Dictio
         }
         return RGBAColorRef(new RGBAColor(red,green,blue,alpha));
     } else if (str.find("rgb(") == 0) {
-        std::string sstr = str.substr(4);
-        std::regex_replace(sstr, std::regex("(), "), " ");
-        std::stringstream ss(sstr);
-        int red,green,blue;
-        ss >> red;
-        ss >> green;
-        ss >> blue;
+        std::regex reg("[(),]");
+        std::sregex_token_iterator iter(str.begin()+4, str.end(), reg, -1);
+        std::sregex_token_iterator end;
+        std::vector<std::string> toks(iter, end);
+
+        if (toks.size() != 3) {
+            wkLogLevel(Warn, "Unrecognized format in color %s",name.c_str());
+            return defVal;
+        }
+        int red = std::stoi(toks[0]);
+        int green = std::stoi(toks[1]);
+        int blue = std::stoi(toks[2]);
+
         return RGBAColorRef(new RGBAColor(red,green,blue,1.0));
     } else if (str.find("rgba(") == 0) {
-        std::string sstr = str.substr(4);
-        std::regex_replace(sstr, std::regex("(), "), " ");
-        std::stringstream ss(sstr);
-        int red,green,blue;
-        float alpha;
-        ss >> red;
-        ss >> green;
-        ss >> blue;
-        ss >> alpha;
+        std::regex reg("[(),]");
+        std::sregex_token_iterator iter(str.begin()+5, str.end(), reg, -1);
+        std::sregex_token_iterator end;
+        std::vector<std::string> toks(iter, end);
+
+        if (toks.size() != 4) {
+            wkLogLevel(Warn, "Unrecognized format in color %s",name.c_str());
+            return defVal;
+        }
+        int red = std::stoi(toks[0]);
+        int green = std::stoi(toks[1]);
+        int blue = std::stoi(toks[2]);
+        int alpha = std::stoi(toks[3]);
         
         if (multiplyAlpha)
             return RGBAColorRef(new RGBAColor(red * alpha,green * alpha,blue * alpha,255.0*alpha));
         else
             return RGBAColorRef(new RGBAColor(red,green,blue,255.0*alpha));
     } else if (str.find("hsl(") == 0) {
-        std::string sstr = str.substr(4);
-        std::regex_replace(sstr, std::regex("(),% "), " ");
-        std::stringstream ss(sstr);
-        int hue,sat,light;
-        ss >> hue;
-        ss >> sat;
-        ss >> light;
+        std::regex reg("[(),]");
+        std::sregex_token_iterator iter(str.begin()+4, str.end(), reg, -1);
+        std::sregex_token_iterator end;
+        std::vector<std::string> toks(iter, end);
+
+        if (toks.size() != 3) {
+            wkLogLevel(Warn, "Unrecognized format in color %s",name.c_str());
+            return defVal;
+        }
+        int hue = std::stoi(toks[0]);
+        int sat = std::stoi(toks[1]);
+        int light = std::stoi(toks[2]);
         float newLight = light / 100.0;
         float newSat = sat / 100.0;
         newSat = newSat * (newLight < 0.5 ? newLight : 1.0-newLight);
 
         return RGBAColorRef(new RGBAColor(RGBAColor::FromHSL(hue, newSat, newLight)));
     } else if (str.find("hsla(") == 0) {
-        std::string sstr = str.substr(4);
-        std::regex_replace(sstr, std::regex("(),% "), " ");
-        std::stringstream ss(sstr);
-        int hue,sat,light;
-        ss >> hue;
-        ss >> sat;
-        ss >> light;
-        float alpha;
-        ss >> alpha;
+        std::regex reg("[(),]");
+        std::sregex_token_iterator iter(str.begin()+5, str.end(), reg, -1);
+        std::sregex_token_iterator end;
+        std::vector<std::string> toks(iter, end);
+
+        if (toks.size() != 4) {
+            wkLogLevel(Warn, "Unrecognized format in color %s",name.c_str());
+            return defVal;
+        }
+        int hue = std::stoi(toks[0]);
+        int sat = std::stoi(toks[1]);
+        int light = std::stoi(toks[2]);
+        float alpha = std::stod(toks[3]);
         float newLight = light / 100.0;
         float newSat = sat / 100.0;
         newSat = newSat * (newLight < 0.5 ? newLight : 1.0-newLight);

@@ -69,7 +69,7 @@ void MapboxVectorLayerFill::buildObjects(std::vector<VectorObjectRef> &vecObjs,
     if (!visible)
         return;
     
-    ComponentObjectRef compObj(new ComponentObject());
+    ComponentObjectRef compObj = styleSet->makeComponentObject();
 
     // Filled polygons
     if (paint.color) {

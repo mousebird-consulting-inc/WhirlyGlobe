@@ -91,7 +91,7 @@ bool MapboxVectorSymbolPaint::parse(MapboxVectorStyleSetImpl *styleSet,Dictionar
 
 bool MapboxVectorLayerSymbol::parse(DictionaryRef styleEntry,
                                    MapboxVectorStyleLayerRef refLayer,
-                                   int drawPriority)
+                                   int inDrawPriority)
 {
     if (!MapboxVectorStyleLayer::parse(styleEntry,refLayer,drawPriority) ||
         !layout.parse(styleSet,styleEntry->getDict("layout")) ||
@@ -103,7 +103,9 @@ bool MapboxVectorLayerSymbol::parse(DictionaryRef styleEntry,
     uuidField = styleSet->tileStyleSettings->uuidField;
     
     useZoomLevels = styleSet->tileStyleSettings->useZoomLevels;
-        
+
+    drawPriority = inDrawPriority;
+    
     return true;
 }
 
@@ -193,7 +195,7 @@ void MapboxVectorLayerSymbol::buildObjects(std::vector<VectorObjectRef> &vecObjs
     if (!visible)
         return;
     
-    ComponentObjectRef compObj(new ComponentObject());
+    ComponentObjectRef compObj = styleSet->makeComponentObject();
 
     // TODO: They mean displayed level here, which is different from loaded level
     if (useZoomLevels) {
@@ -204,8 +206,14 @@ void MapboxVectorLayerSymbol::buildObjects(std::vector<VectorObjectRef> &vecObjs
     }
     
     LabelInfoRef labelInfo = styleSet->makeLabelInfo(layout.textFontName);
+    labelInfo->screenObject = true;
     labelInfo->fade = 0.0;
     labelInfo->textJustify = WhirlyKitTextCenter;
+    
+    if (drawPriorityPerLevel > 0)
+        labelInfo->drawPriority = drawPriority + tileInfo->ident.level * drawPriorityPerLevel;
+    else
+        labelInfo->drawPriority = drawPriority;
 
     RGBAColorRef textColor = styleSet->resolveColor(paint.textColor, paint.textOpacity, tileInfo->ident.level, MBResolveColorOpacityReplaceAlpha);
     if (textColor)

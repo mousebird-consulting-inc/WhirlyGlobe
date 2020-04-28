@@ -51,6 +51,9 @@ public:
     // Overlay component objects added for a tile
     std::vector<ComponentObjectRef> ovlCompObjs;
     
+    // If we make changes directly with the managers, they are reflected in this change set
+    ChangeSet changes;
+    
     // The generation associated with the loader.
     // We use this to catch lagging loads after a reload
     int generation;

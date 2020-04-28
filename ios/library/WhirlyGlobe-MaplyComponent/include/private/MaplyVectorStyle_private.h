@@ -61,6 +61,9 @@ public:
     
     /// Create a local platform label (fonts are local, and other stuff)
     virtual SingleLabelRef makeSingleLabel(const std::string &text);
+    
+    /// Create a platform specific variant of the component object
+    ComponentObjectRef makeComponentObject();
 };
 
 /**

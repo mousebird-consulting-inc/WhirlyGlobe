@@ -63,6 +63,9 @@ void VectorTileData::mergeFrom(VectorTileData *that)
         categories[it.first] = it.second;
     }
     
+    if (!that->changes.empty())
+        changes.insert(changes.end(),that->changes.begin(),that->changes.end());
+    
     that->clear();
 }
 
@@ -76,6 +79,8 @@ void VectorTileData::clear()
         delete it.second;
     vecObjsByStyle.clear();
     categories.clear();
+    
+    changes.clear();
 }
 
 MapboxVectorTileParser::MapboxVectorTileParser(VectorStyleDelegateImplRef styleDelegate)

@@ -409,8 +409,15 @@ LabelInfoRef MapboxVectorStyleSetImpl_iOS::makeLabelInfo(const std::string &font
     // TODO: Do we need the size here?
     NSString *fontNameStr = [NSString stringWithFormat:@"%s",fontName.c_str()];
     UIFont *font = [UIFont fontWithName:fontNameStr size:64.0];
+    if (!font) {
+        NSLog(@"Failed to find font %@",fontNameStr);
+        font = [UIFont systemFontOfSize:64.0];
+    }
     
-    return LabelInfoRef(new LabelInfo_iOS(font,true));
+    LabelInfoRef labelInfo(new LabelInfo_iOS(font,true));
+    labelInfo->programID = screenMarkerProgramID;
+    
+    return labelInfo;
 }
 
 SingleLabelRef MapboxVectorStyleSetImpl_iOS::makeSingleLabel(const std::string &text)
@@ -421,6 +428,11 @@ SingleLabelRef MapboxVectorStyleSetImpl_iOS::makeSingleLabel(const std::string &
     label->text = textStr;
     
     return SingleLabelRef(label);
+}
+
+ComponentObjectRef MapboxVectorStyleSetImpl_iOS::makeComponentObject()
+{
+    return ComponentObjectRef(new ComponentObject_iOS());
 }
 
 VectorStyleDelegateWrapper::VectorStyleDelegateWrapper(NSObject<MaplyRenderControllerProtocol> *viewC,NSObject<MaplyVectorStyleDelegate> *delegate)

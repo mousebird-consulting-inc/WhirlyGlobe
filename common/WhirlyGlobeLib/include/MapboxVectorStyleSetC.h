@@ -223,6 +223,9 @@ public:
     
     /// Create a local platform label (fonts are local, and other stuff)
     virtual SingleLabelRef makeSingleLabel(const std::string &text) = 0;
+    
+    /// Create a local platform component object
+    virtual ComponentObjectRef makeComponentObject() = 0;
 
 public:
     Scene *scene;
