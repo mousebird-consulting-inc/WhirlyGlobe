@@ -18,7 +18,7 @@ public class VectorStyleSettings {
     private double markerSize;
 
     /** @brief The overall map scale calculations will be scaled by this amount
-     *  @details We use the map scale calculations to figure out what is dispalyed and when.  Not
+     *  @details We use the map scale calculations to figure out what is displayed and when.  Not
      *  what to load in, mind you, that's a separate, but related calculation.  This controls the
      *  scaling of those calculations.  Scale it down to load things in later, up to load them in
      *  sooner.
@@ -150,8 +150,5 @@ public class VectorStyleSettings {
     public void setFontName(String fontName) {
         this.fontName = fontName;
     }
-
-
-
 
 }
