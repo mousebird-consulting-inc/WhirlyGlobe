@@ -59,7 +59,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorTileData_initialise__IIILc
         if (!boundLL || !boundUR || !geoLL || !geoUR)
             return;
         VectorTileData_AndroidRef *tileData = new VectorTileData_AndroidRef(new VectorTileData_Android());
-        (*tileData)->ident = QuadTreeNew::Node(x,y,level);
+        (*tileData)->ident = QuadTreeIdentifier(x,y,level);
         (*tileData)->bbox.ll() = *boundLL;
         (*tileData)->bbox.ur() = *boundUR;
         (*tileData)->geoBBox.ll() = *geoLL;

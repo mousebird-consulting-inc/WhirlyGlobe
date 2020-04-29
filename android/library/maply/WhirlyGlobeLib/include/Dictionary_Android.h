@@ -27,8 +27,10 @@
 
 namespace WhirlyKit
 {
-    
-/// The Dictionary is my cross platform replacement for NSDictionary
+class MutableDictionary_Android;
+typedef std::shared_ptr<MutableDictionary_Android> MutableDictionary_AndroidRef;
+
+    /// The Dictionary is my cross platform replacement for NSDictionary
 class MutableDictionary_Android : public MutableDictionary
 {
 public:
@@ -73,7 +75,13 @@ public:
     virtual std::string getString(const std::string &name,const std::string &defVal) const;
     /// Return an object pointer
     DelayedDeletableRef getObject(const std::string &name);
-    
+    /// Return a dictionary as an entry
+    virtual DictionaryRef getDict(const std::string &name) const;
+    // Return a generic entry
+    virtual DictionaryEntryRef getEntry(const std::string &name) const;
+    // Return an array (if it is an array)
+    virtual std::vector<DictionaryEntryRef> getArray(const std::string &name) const;
+
     /// Set field as int
     void setInt(const std::string &name,int val);
     /// Set field as 64 bit unique value
@@ -93,108 +101,179 @@ public:
 
     // Merge in key-value pairs from another dictionary
     void addEntries(const Dictionary *other);
-    
-protected:
+
+    class Value;
+    typedef std::shared_ptr<Value> ValueRef;
+
     class Value
     {
     public:
         Value() { }
         virtual ~Value() { }
-        
+
         virtual DictionaryType type() = 0;
-        virtual Value *copy() = 0;
+        virtual ValueRef copy() = 0;
         virtual int asInt() = 0;
         virtual SimpleIdentity asIdentity() = 0;
         virtual void asString(std::string &retStr) = 0;
         virtual double asDouble() = 0;
         virtual DelayedDeletableRef asObject() { return DelayedDeletableRef(); }
+        virtual DictionaryRef asDict() { return DictionaryRef(); }
     };
-    
+
     class StringValue : public Value
     {
     public:
         StringValue() { }
         StringValue(const std::string &inVal) : val(inVal) { }
-        
+
         virtual DictionaryType type() { return DictTypeString; }
-        virtual Value *copy() { return new StringValue(val); }
+        virtual ValueRef copy() { return ValueRef(new StringValue(val)); }
         virtual int asInt();
         virtual SimpleIdentity asIdentity();
         virtual void asString(std::string &retStr) { retStr = val; }
         virtual double asDouble();
-        
+
         std::string val;
     };
-    
+
     class IntValue : public Value
     {
     public:
         IntValue() : val(0) { }
         IntValue(int inVal) : val(inVal) { }
-        
+
         virtual DictionaryType type() { return DictTypeInt; }
-        virtual Value *copy() { return new IntValue(val); }
+        virtual ValueRef copy() { return ValueRef(new IntValue(val)); }
         virtual int asInt() { return val; }
         virtual SimpleIdentity asIdentity() { return val; }
         virtual void asString(std::string &retStr);
         virtual double asDouble() { return (double)val; }
-        
+
         int val;
     };
-    
+
     class DoubleValue : public Value
     {
     public:
         DoubleValue() : val(0.0) { }
         DoubleValue(double inVal) : val(inVal) { }
-        
+
         virtual DictionaryType type() { return DictTypeDouble; }
-        virtual Value *copy() { return new DoubleValue(val); }
+        virtual ValueRef copy() { return ValueRef(new DoubleValue(val)); }
         virtual int asInt() { return (int)val; }
         virtual SimpleIdentity asIdentity() { return EmptyIdentity; }
         virtual void asString(std::string &retStr);
         virtual double asDouble() { return val; }
-        
+
         double val;
     };
-    
+
     class IdentityValue : public Value
     {
     public:
         IdentityValue() : val(0) { }
         IdentityValue(SimpleIdentity inVal) : val(inVal) { }
-        
+
         virtual DictionaryType type() { return DictTypeIdentity; }
-        virtual Value *copy() { return new IdentityValue(val); }
+        virtual ValueRef copy() { return ValueRef(new IdentityValue(val)); }
         virtual int asInt() { return (int)val; }
         virtual SimpleIdentity asIdentity() { return val; }
         virtual void asString(std::string &retStr);
         virtual double asDouble() { return (double)val; }
-        
+
         SimpleIdentity val;
     };
-    
+
     class ObjectValue : public Value
     {
     public:
         ObjectValue() { }
         ObjectValue(DelayedDeletableRef inVal) : val(inVal) { }
-        
+
         virtual DictionaryType type() { return DictTypeObject; }
-        virtual Value *copy() { return new ObjectValue(val); }
+        virtual ValueRef copy() { return ValueRef(new ObjectValue(val)); }
         virtual int asInt() { return 0; }
         virtual void asString(std::string &retStr) { }
         virtual SimpleIdentity asIdentity() { return EmptyIdentity; }
         virtual double asDouble() { return 0.0; }
         virtual DelayedDeletableRef asObject() { return val; }
-        
+
         DelayedDeletableRef val;
     };
 
-    typedef std::map<std::string,Value *> FieldMap;
+    class DictionaryValue : public Value
+    {
+    public:
+        DictionaryValue() { }
+        DictionaryValue(MutableDictionary_AndroidRef inVal) : val(inVal) { }
+
+        virtual DictionaryType type() { return DictTypeObject; }
+        virtual ValueRef copy() { return ValueRef(new DictionaryValue(val)); }
+        virtual int asInt() { return 0; }
+        virtual void asString(std::string &retStr) { }
+        virtual SimpleIdentity asIdentity() { return EmptyIdentity; }
+        virtual double asDouble() { return 0.0; }
+        virtual DictionaryRef asDict();
+
+        MutableDictionary_AndroidRef val;
+    };
+    typedef std::shared_ptr<DictionaryValue> DictionaryValueRef;
+
+    class ArrayValue : public Value
+    {
+    public:
+        ArrayValue() { }
+        ~ArrayValue();
+        ArrayValue(std::vector<ValueRef> &inVal);
+
+        virtual DictionaryType type() { return DictTypeArray; }
+        virtual ValueRef copy() { return ValueRef(new ArrayValue(val)); }
+        virtual int asInt() { return 0; }
+        virtual void asString(std::string &retStr) { }
+        virtual SimpleIdentity asIdentity() { return EmptyIdentity; }
+        virtual double asDouble() { return 0.0; }
+
+        std::vector<ValueRef> val;
+    };
+    typedef std::shared_ptr<ArrayValue> ArrayValueRef;
+
+protected:
+    typedef std::map<std::string,ValueRef> FieldMap;
     FieldMap fields;
 };
 
-typedef std::shared_ptr<MutableDictionary_Android> MutableDictionary_AndroidRef;
-    
+/// Wrapper around a single value
+class DictionaryEntry_Android : public DictionaryEntry
+{
+public:
+    DictionaryEntry_Android(MutableDictionary_Android::ValueRef val);
+
+    /// Returns the field type
+    virtual DictionaryType getType() const;
+    /// Return an int, using the default if it's missing
+    virtual int getInt() const;
+    /// Return a 64 bit unique identity or 0 if missing
+    virtual SimpleIdentity getIdentity() const;
+    /// Interpret an int as a boolean
+    virtual bool getBool() const;
+    /// Interpret an int as a RGBA color
+    virtual RGBAColor getColor() const;
+    /// Return a double, using the default if it's missing
+    virtual double getDouble() const;
+    /// Return a string, or empty if it's missing
+    virtual std::string getString() const;
+    /// Return a dictionary as an entry
+    virtual DictionaryRef getDict() const;
+    /// Return an array of refs
+    virtual std::vector<DictionaryEntryRef> getArray() const;
+    /// Compare to other
+    virtual bool isEqual(DictionaryEntryRef other) const;
+
+protected:
+    DictionaryType type;
+    MutableDictionary_Android::ValueRef val;
+};
+typedef std::shared_ptr<DictionaryEntry_Android> DictionaryEntry_AndroidRef;
+
 }
