@@ -1,24 +1,56 @@
 package com.mousebird.maply;
 
-public class MapboxVectorStyleSet {
-//    - (id __nullable)initWithJSON:(NSData * __nonnull)styleJSON
-//    settings:(MaplyVectorStyleSettings * __nonnull)settings
-//    viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)viewC;
-//
-///// @brief Where we can fetch the sprites
-//    @property (nonatomic, strong, nullable) NSString *spriteURL;
-//
-///// Tile sources
-//    @property (nonatomic, strong, nonnull) NSArray *sources;
-//
-///// If there is a background layer, calculate the color for a given zoom level.
-///// Otherwise return nil
-//- (UIColor * __nullable)backgroundColorForZoom:(double)zoom;
-//
-//    @property (nonatomic, weak, nullable) NSObject<MaplyRenderControllerProtocol> *viewC;
+import android.graphics.Color;
 
-    MapboxVectorStyleSet(String styleJSON,VectorStyleSettings settings,RenderController control) {
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 
+/**
+ * Mapbox Vector Style Set.
+ * This parses a Mapbox style sheet and interfaces with the vector parser
+ */
+public class MapboxVectorStyleSet implements VectorStyleInterface {
+
+    MapboxVectorStyleSet(String styleJSON,VectorStyleSettings inSettings,BaseController inControl)
+    {
+        this(styleJSON,inSettings,inControl.renderControl);
+    }
+
+    // Construct with the JSON data from a string
+    MapboxVectorStyleSet(String styleJSON,VectorStyleSettings inSettings,RenderController inControl) {
+        control = new WeakReference<RenderController>(inControl);
+        if (inSettings == null)
+            inSettings = new VectorStyleSettings();
+        settings = inSettings;
+
+        AttrDictionary styleDict = new AttrDictionary();
+        if (!styleDict.parseFromJSON(styleJSON)) {
+            throw new IllegalArgumentException("Bad JSON for style sheet in MapboxVectorStyleSet");
+        }
+
+        spriteURL = styleDict.getString("sprite");
+
+        // Sources tell us where to get tiles
+        AttrDictionary sourcesDict = styleDict.getDict("sources");
+        if (sourcesDict != null) {
+            String[] keys = styleDict.getKeys();
+            for (String key : keys) {
+                Source source = new Source(sourcesDict.getDict(key));
+                sources.add(source);
+            }
+        }
+
+        initialise(styleJSON);
+    }
+
+    VectorStyleSettings settings;
+    WeakReference<RenderController> control;
+
+    // Calculate an appropriate background color given the zoom level
+    int backgroundColorForZoom(double zoom)
+    {
+        // TODO: Fill in the color calculation
+        return Color.WHITE;
     }
 
     // If there's a sprite sheet, where it's at
@@ -60,4 +92,42 @@ public class MapboxVectorStyleSet {
             }
         }
     }
+
+    ArrayList<Source> sources = new ArrayList<Source>();
+
+    /**
+     * These are actually implemented on the C++ side, which communicates
+     * with itself.  But we need to here to appear to be using the standard
+     * interface.
+     */
+    public VectorStyle[] stylesForFeature(AttrDictionary attrs,TileID tileID,String layerName,RenderControllerInterface controller)
+    {
+        return null;
+    }
+    public VectorStyle[] allStyles()
+    {
+        return null;
+    }
+    public boolean layerShouldDisplay(String layerName,TileID tileID)
+    {
+        return false;
+    }
+    public VectorStyle styleForUUID(long uuid,RenderControllerInterface controller)
+    {
+        return null;
+    }
+
+    public void finalize()
+    {
+        dispose();
+    }
+
+    static
+    {
+        nativeInit();
+    }
+    native void initialise();
+    native void dispose();
+    private static native void nativeInit();
+    protected long nativeHandle;
 }
