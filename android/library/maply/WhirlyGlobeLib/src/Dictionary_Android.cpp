@@ -105,6 +105,61 @@ MutableDictionary_Android::~MutableDictionary_Android()
     clear();
 }
 
+bool MutableDictionary_Android::parseJSON(const std::string jsonString)
+{
+    json_string json = jsonString;
+
+    JSONNode topNode = libjson::parse(json);
+    return parseJSONNode(topNode);
+}
+
+MutableDictionary_Android::ValueRef MutableDictionary_Android::parseJSONValue(JSONNode::iterator &nodeIt)
+{
+    switch (nodeIt->type()) {
+        case JSON_NULL:
+            break;
+        case JSON_STRING:
+            return ValueRef(new StringValue(nodeIt->as_string()));
+            break;
+        case JSON_NUMBER:
+            return ValueRef(new DoubleValue(nodeIt->as_float()));
+            break;
+        case JSON_BOOL:
+            return ValueRef(new IntValue(nodeIt->as_bool()));
+            break;
+        case JSON_ARRAY:
+        {
+            auto nodes = nodeIt->as_array();
+            std::vector<ValueRef> values;
+            for (JSONNode::iterator arrNodeIt = nodes.begin(); nodeIt != nodes.end(); ++nodeIt) {
+                values.push_back(parseJSONValue(arrNodeIt));
+            }
+            return ArrayValueRef(new ArrayValue(values));
+        }
+            break;
+        case JSON_NODE:
+        {
+            MutableDictionary_AndroidRef dict(new MutableDictionary_Android());
+            auto node = nodeIt->as_node();
+            dict->parseJSONNode(node);
+            return DictionaryValueRef(new DictionaryValue(dict));
+        }
+            break;
+    }
+
+    return ValueRef();
+}
+
+bool MutableDictionary_Android::parseJSONNode(JSONNode &node)
+{
+    for (JSONNode::iterator nodeIt = node.begin(); nodeIt != node.end(); ++nodeIt) {
+        auto name = nodeIt->name();
+        ValueRef val = parseJSONValue(nodeIt);
+    }
+
+    return true;
+}
+
 void MutableDictionary_Android::clear()
 {
     fields.clear();

@@ -24,6 +24,7 @@
 #import "CoordSystem.h"
 #import "RawData.h"
 #import "Dictionary.h"
+#import "libjson.h"
 
 namespace WhirlyKit
 {
@@ -43,7 +44,15 @@ public:
     MutableDictionary_Android &operator = (const MutableDictionary_Android &that);
     virtual MutableDictionaryRef copy();
     virtual ~MutableDictionary_Android();
-    
+
+    class Value;
+    typedef std::shared_ptr<Value> ValueRef;
+
+    // Parse from a JSON string
+    bool parseJSON(const std::string jsonString);
+    bool parseJSONNode(JSONNode &node);
+    ValueRef parseJSONValue(JSONNode::iterator &nodeIt);
+
     /// Clean out the contents
     void clear();
     
@@ -101,9 +110,6 @@ public:
 
     // Merge in key-value pairs from another dictionary
     void addEntries(const Dictionary *other);
-
-    class Value;
-    typedef std::shared_ptr<Value> ValueRef;
 
     class Value
     {
