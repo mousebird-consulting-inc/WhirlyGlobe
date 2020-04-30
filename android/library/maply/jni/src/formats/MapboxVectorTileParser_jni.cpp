@@ -40,7 +40,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorTileParser_initialis
     try
     {
         if (isMapboxStyle) {
-            MapboxVectorStyleSetImplRef *style = MapboxVectorStyleSetClassInfo::getClassInfo()->getObject(env,obj);
+            MapboxVectorStyleSetImplRef *style = MapboxVectorStyleSetClassInfo::getClassInfo()->getObject(env,vecStyleObj);
             if (!style)
                 return;
 
