@@ -9,6 +9,14 @@ extern "C" {
 #endif
 /*
  * Class:     com_mousebird_maply_AttrDictionary
+ * Method:    parseFromJSON
+ * Signature: (Ljava/lang/String;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_AttrDictionary_parseFromJSON
+  (JNIEnv *, jobject, jstring);
+
+/*
+ * Class:     com_mousebird_maply_AttrDictionary
  * Method:    getString
  * Signature: (Ljava/lang/String;)Ljava/lang/String;
  */
@@ -46,6 +54,22 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_AttrDictionary_getIdentity
  */
 JNIEXPORT jobject JNICALL Java_com_mousebird_maply_AttrDictionary_get
   (JNIEnv *, jobject, jstring);
+
+/*
+ * Class:     com_mousebird_maply_AttrDictionary
+ * Method:    getDict
+ * Signature: (Ljava/lang/String;)Lcom/mousebird/maply/AttrDictionary;
+ */
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_AttrDictionary_getDict
+  (JNIEnv *, jobject, jstring);
+
+/*
+ * Class:     com_mousebird_maply_AttrDictionary
+ * Method:    getKeys
+ * Signature: ()[Ljava/lang/String;
+ */
+JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_AttrDictionary_getKeys
+  (JNIEnv *, jobject);
 
 /*
  * Class:     com_mousebird_maply_AttrDictionary

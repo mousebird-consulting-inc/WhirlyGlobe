@@ -34,6 +34,7 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/ImageTile_Android.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/LabelInfo_Android.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/MapboxVectorTileParser_Android.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/MapboxVectorStyleSet_Android.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/ParticleBatch_Android.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/platform.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/QuadImageFrameLoader_Android.cpp"

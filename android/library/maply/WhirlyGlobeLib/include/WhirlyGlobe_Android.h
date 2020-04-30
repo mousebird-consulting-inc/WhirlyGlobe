@@ -27,6 +27,7 @@
 #import "ImageTile_Android.h"
 #import "LabelInfo_Android.h"
 #import "MapboxVectorTileParser_Android.h"
+#import "MapboxVectorStyleSet_Android.h"
 #import "ParticleBatch_Android.h"
 #import "QuadImageFrameLoader_Android.h"
 #import "QuadSamplingController_Android.h"

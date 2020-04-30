@@ -36,6 +36,12 @@ public class AttrDictionary
 	{
 		initialise();
 	}
+
+	/**
+	 * Parse from a JSON file.
+	 * Returns false on failure.
+	 */
+	public native boolean parseFromJSON(String json);
 	
 	/**
 	 * Return a string corresponding to the given attribute name.
@@ -71,6 +77,18 @@ public class AttrDictionary
 	 * @return Returns an Object for the given attribute or null if there was none.
 	 */
 	public native Object get(String attrName);
+
+	/**
+	 * Fetch a dictionary corresponding to the given attribute name.
+	 * @param attrName Name of the attribute we're looking for.
+	 * @return Returns the dictionary for the attribute name or null if there was none.
+	 */
+	public native AttrDictionary getDict(String attrName);
+
+	/**
+	 * Return all the top level attribute names.
+	 */
+	public native String[] getKeys();
 
 	/**
 	 * Set a string value.

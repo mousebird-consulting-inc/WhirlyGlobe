@@ -11,14 +11,9 @@ import java.util.ArrayList;
  */
 public class MapboxVectorStyleSet implements VectorStyleInterface {
 
-    MapboxVectorStyleSet(String styleJSON,VectorStyleSettings inSettings,BaseController inControl)
-    {
-        this(styleJSON,inSettings,inControl.renderControl);
-    }
-
     // Construct with the JSON data from a string
-    MapboxVectorStyleSet(String styleJSON,VectorStyleSettings inSettings,RenderController inControl) {
-        control = new WeakReference<RenderController>(inControl);
+    public MapboxVectorStyleSet(String styleJSON,VectorStyleSettings inSettings,RenderControllerInterface inControl) {
+        control = new WeakReference<RenderControllerInterface>(inControl);
         if (inSettings == null)
             inSettings = new VectorStyleSettings();
         settings = inSettings;
@@ -35,31 +30,31 @@ public class MapboxVectorStyleSet implements VectorStyleInterface {
         if (sourcesDict != null) {
             String[] keys = styleDict.getKeys();
             for (String key : keys) {
-                Source source = new Source(sourcesDict.getDict(key));
+                Source source = new Source(key,sourcesDict.getDict(key),this);
                 sources.add(source);
             }
         }
 
-        initialise(styleJSON);
+        initialise(inControl.getScene(),settings,styleJSON);
     }
 
     VectorStyleSettings settings;
-    WeakReference<RenderController> control;
+    WeakReference<RenderControllerInterface> control;
 
     // Calculate an appropriate background color given the zoom level
-    int backgroundColorForZoom(double zoom)
+    public int backgroundColorForZoom(double zoom)
     {
         // TODO: Fill in the color calculation
         return Color.WHITE;
     }
 
     // If there's a sprite sheet, where it's at
-    String spriteURL;
+    public String spriteURL;
 
-    enum SourceType {Vector,Raster};
+    public enum SourceType {Vector,Raster};
 
     // Source for vector tile (or raster) data
-    class Source {
+    public class Source {
         // Name as it appears in the file
         String name;
 
@@ -72,7 +67,7 @@ public class MapboxVectorStyleSet implements VectorStyleInterface {
         // If the TileJSON spec is inline, it's here
         AttrDictionary tileSpec;
 
-        Source(String inName,AttrDictionary styleEntry, MapboxVectorStyleSet styleSet,RenderController control) {
+        Source(String inName,AttrDictionary styleEntry, MapboxVectorStyleSet styleSet) {
             name = inName;
 
             String typeStr = styleEntry.getString("type");
@@ -93,7 +88,7 @@ public class MapboxVectorStyleSet implements VectorStyleInterface {
         }
     }
 
-    ArrayList<Source> sources = new ArrayList<Source>();
+    public ArrayList<Source> sources = new ArrayList<Source>();
 
     /**
      * These are actually implemented on the C++ side, which communicates
@@ -126,7 +121,7 @@ public class MapboxVectorStyleSet implements VectorStyleInterface {
     {
         nativeInit();
     }
-    native void initialise();
+    native void initialise(Scene scene,VectorStyleSettings settings,String styleJSON);
     native void dispose();
     private static native void nativeInit();
     protected long nativeHandle;

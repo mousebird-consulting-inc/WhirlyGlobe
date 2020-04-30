@@ -477,5 +477,7 @@ jlongArray BuildLongArray(JNIEnv *env,std::vector<WhirlyKit::SimpleIdentity> &lo
 jintArray BuildIntArray(JNIEnv *env,std::vector<int> &longVec);
 // Return a new Java object array
 jobjectArray BuildObjectArray(JNIEnv *env,jclass cls,std::vector<jobject> &objVec);
+// Return new Java string array
+jobjectArray BuildStringArray(JNIEnv *env,std::vector<std::string> &objVec);
 
 #endif /* Maply_JNI_h_ */

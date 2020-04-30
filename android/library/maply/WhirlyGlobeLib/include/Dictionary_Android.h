@@ -90,6 +90,8 @@ public:
     virtual DictionaryEntryRef getEntry(const std::string &name) const;
     // Return an array (if it is an array)
     virtual std::vector<DictionaryEntryRef> getArray(const std::string &name) const;
+    // Return an array of keys
+    virtual std::vector<std::string> getKeys() const;
 
     /// Set field as int
     void setInt(const std::string &name,int val);
@@ -230,8 +232,8 @@ public:
     {
     public:
         ArrayValue() { }
-        ~ArrayValue();
-        ArrayValue(std::vector<ValueRef> &inVal);
+        ~ArrayValue() { }
+        ArrayValue(std::vector<ValueRef> &inVal) : val(inVal) { }
 
         virtual DictionaryType type() { return DictTypeArray; }
         virtual ValueRef copy() { return ValueRef(new ArrayValue(val)); }
@@ -253,7 +255,7 @@ protected:
 class DictionaryEntry_Android : public DictionaryEntry
 {
 public:
-    DictionaryEntry_Android(MutableDictionary_Android::ValueRef val);
+    DictionaryEntry_Android(MutableDictionary_Android::ValueRef val) : val(val) { }
 
     /// Returns the field type
     virtual DictionaryType getType() const;

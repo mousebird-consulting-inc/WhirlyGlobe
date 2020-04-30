@@ -148,5 +148,6 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/src/renderer/RenderController_jni.cpp"
 
         "${CMAKE_CURRENT_LIST_DIR}/src/formats/MapboxVectorTileParser_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/formats/MapboxVectorStyleSet_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/formats/VectorTileData_jni.cpp"
 )

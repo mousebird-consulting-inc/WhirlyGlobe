@@ -254,3 +254,17 @@ jobjectArray BuildObjectArray(JNIEnv *env,jclass cls,std::vector<jobject> &objVe
         env->SetObjectArrayElement(newArray,ii,objVec[ii]);
     return newArray;
 }
+
+jobjectArray BuildStringArray(JNIEnv *env,std::vector<std::string> &objVec)
+{
+    if (objVec.empty())
+        return NULL;
+
+    jobjectArray newArray = env->NewObjectArray(objVec.size(),env->FindClass("java/lang/String"),NULL);
+    if (!newArray)
+        return NULL;
+
+    for (unsigned int ii=0;ii<objVec.size();ii++)
+        env->SetObjectArrayElement(newArray,ii,env->NewStringUTF(objVec[ii].c_str()));
+    return newArray;
+}

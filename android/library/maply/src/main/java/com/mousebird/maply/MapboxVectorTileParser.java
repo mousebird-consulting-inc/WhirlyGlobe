@@ -40,7 +40,14 @@ public class MapboxVectorTileParser
         styleDelegate = inStyleDelegate;
         viewC = new WeakReference<RenderControllerInterface>(inViewC);
 
-        initialise();
+        // If the style delegate is backed by a C++ object, we
+        //  can just use that directly.
+        if (inStyleDelegate instanceof MapboxVectorStyleSet) {
+            initialise(inStyleDelegate,true);
+        } else {
+            // If not, then the C++ needs to build a wrapper for it
+            initialise(inStyleDelegate,false);
+        }
     }
 
     public final static int GeomTypeUnknown = 0;
@@ -100,7 +107,7 @@ public class MapboxVectorTileParser
     {
         nativeInit();
     }
-    native void initialise();
+    native void initialise(Object vectorStyleDelegate,boolean isMapboxStyle);
     native void dispose();
     private static native void nativeInit();
     protected long nativeHandle;

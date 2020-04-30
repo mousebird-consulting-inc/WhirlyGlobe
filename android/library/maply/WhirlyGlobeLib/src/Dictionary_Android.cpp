@@ -429,6 +429,15 @@ std::vector<DictionaryEntryRef> MutableDictionary_Android::getArray(const std::s
     return std::vector<DictionaryEntryRef>();
 }
 
+std::vector<std::string> MutableDictionary_Android::getKeys() const
+{
+    std::vector<std::string> keys;
+    for (auto it: fields)
+        keys.push_back(it.first);
+
+    return keys;
+}
+
 void MutableDictionary_Android::setInt(const std::string &name,int val)
 {
     removeField(name);

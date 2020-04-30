@@ -83,6 +83,28 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_dispose
 	}
 }
 
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_AttrDictionary_parseFromJSON
+		(JNIEnv *env, jobject obj, jstring inJsonStr)
+{
+	try
+	{
+		AttrDictClassInfo *classInfo = AttrDictClassInfo::getClassInfo();
+		MutableDictionary_AndroidRef *dict = classInfo->getObject(env,obj);
+		if (!dict)
+			return false;
+
+		JavaString jsonStr(env,inJsonStr);
+
+		return (*dict)->parseJSON(jsonStr.cStr);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Dictionary::parseFromJSON()");
+	}
+
+	return true;
+}
+
 JNIEXPORT jstring JNICALL Java_com_mousebird_maply_AttrDictionary_getString
   (JNIEnv *env, jobject obj, jstring attrNameStr)
 {
@@ -93,13 +115,9 @@ JNIEXPORT jstring JNICALL Java_com_mousebird_maply_AttrDictionary_getString
 		if (!dict)
 			return NULL;
 
-		const char *cStr = env->GetStringUTFChars(attrNameStr,0);
-		if (!cStr)
-			return NULL;
-		std::string attrName(cStr);
-		env->ReleaseStringUTFChars(attrNameStr, cStr);
+		JavaString attrName(env,attrNameStr);
 
-		std::string str = (*dict)->getString(attrName);
+		std::string str = (*dict)->getString(attrName.cStr);
 		if (!str.empty())
 		{
 			return env->NewStringUTF(str.c_str());
@@ -123,15 +141,11 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_AttrDictionary_getInt
 		if (!dict)
 			return NULL;
 
-		const char *cStr = env->GetStringUTFChars(attrNameStr,0);
-		if (!cStr)
-			return NULL;
-		std::string attrName(cStr);
-		env->ReleaseStringUTFChars(attrNameStr, cStr);
+		JavaString attrName(env,attrNameStr);
 
-		if ((*dict)->hasField(attrName))
+		if ((*dict)->hasField(attrName.cStr))
 		{
-			int val = (*dict)->getInt(attrName);
+			int val = (*dict)->getInt(attrName.cStr);
 			return JavaIntegerClassInfo::getClassInfo(env)->makeInteger(env,val);
 		}
 	}
@@ -153,15 +167,11 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_AttrDictionary_getDouble
 		if (!dict)
 			return NULL;
 
-		const char *cStr = env->GetStringUTFChars(attrNameStr,0);
-		if (!cStr)
-			return NULL;
-		std::string attrName(cStr);
-		env->ReleaseStringUTFChars(attrNameStr, cStr);
+		JavaString attrName(env,attrNameStr);
 
-		if ((*dict)->hasField(attrName))
+		if ((*dict)->hasField(attrName.cStr))
 		{
-			double val = (*dict)->getDouble(attrName);
+			double val = (*dict)->getDouble(attrName.cStr);
 		    return JavaDoubleClassInfo::getClassInfo(env)->makeDouble(env,val);
 		}
 	}
@@ -183,15 +193,11 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_AttrDictionary_getIdentity
 		if (!dict)
 			return NULL;
 
-		const char *cStr = env->GetStringUTFChars(attrNameStr,0);
-		if (!cStr)
-			return NULL;
-		std::string attrName(cStr);
-		env->ReleaseStringUTFChars(attrNameStr, cStr);
+		JavaString attrName(env,attrNameStr);
 
-		if ((*dict)->hasField(attrName))
+		if ((*dict)->hasField(attrName.cStr))
 		{
-			long long val = (*dict)->getIdentity(attrName);
+			long long val = (*dict)->getIdentity(attrName.cStr);
 		    return JavaLongClassInfo::getClassInfo(env)->makeLong(env,val);
 		}
 	}
@@ -201,6 +207,52 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_AttrDictionary_getIdentity
 	}
 
 	return NULL;
+}
+
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_AttrDictionary_getDict
+		(JNIEnv *env, jobject obj, jstring attrNameStr)
+{
+	try
+	{
+		AttrDictClassInfo *classInfo = AttrDictClassInfo::getClassInfo();
+		MutableDictionary_AndroidRef *dict = classInfo->getObject(env,obj);
+		if (!dict)
+			return NULL;
+
+		JavaString attrName(env,attrNameStr);
+
+		MutableDictionary_AndroidRef subDict = std::dynamic_pointer_cast<MutableDictionary_Android>((*dict)->getDict(attrName.cStr));
+		if (subDict)
+		    return MakeAttrDictionary(env,subDict);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Dictionary::getDict()");
+	}
+
+	return NULL;
+}
+
+JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_AttrDictionary_getKeys
+		(JNIEnv *env, jobject obj)
+{
+	try
+	{
+		AttrDictClassInfo *classInfo = AttrDictClassInfo::getClassInfo();
+		MutableDictionary_AndroidRef *dict = classInfo->getObject(env,obj);
+		if (!dict)
+			return NULL;
+
+		auto keys = (*dict)->getKeys();
+		return BuildStringArray(env,keys);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Dictionary::getKeys()");
+	}
+
+	return NULL;
+
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_setString
@@ -296,18 +348,14 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_AttrDictionary_get
 		if (!dict)
 			return NULL;
 
-		const char *cStr = env->GetStringUTFChars(attrNameStr,0);
-		if (!cStr)
-			return NULL;
-		std::string attrName(cStr);
-		env->ReleaseStringUTFChars(attrNameStr, cStr);
+		JavaString attrName(env,attrNameStr);
 
-		if ((*dict)->hasField(attrName))
+		if ((*dict)->hasField(attrName.cStr))
 		{
-            DictionaryType dictType = (*dict)->getType(attrName);
+            DictionaryType dictType = (*dict)->getType(attrName.cStr);
             if (dictType == DictTypeString)
             {
-        		std::string str = (*dict)->getString(attrName);
+        		std::string str = (*dict)->getString(attrName.cStr);
         		if (!str.empty())
         		{
         			return env->NewStringUTF(str.c_str());
@@ -315,12 +363,12 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_AttrDictionary_get
             }
             else if (dictType == DictTypeInt)
             {
-			    int val = (*dict)->getInt(attrName);
+			    int val = (*dict)->getInt(attrName.cStr);
 			    return JavaIntegerClassInfo::getClassInfo(env)->makeInteger(env,val);
             }
             else if (dictType == DictTypeDouble)
             {
-			    double val = (*dict)->getDouble(attrName);
+			    double val = (*dict)->getDouble(attrName.cStr);
 		        return JavaDoubleClassInfo::getClassInfo(env)->makeDouble(env,val);
             }
             else

@@ -28,7 +28,7 @@ namespace WhirlyKit
 class MapboxVectorTileParser_Android : public MapboxVectorTileParser
 {
 public:
-    MapboxVectorTileParser_Android();
+    MapboxVectorTileParser_Android(VectorStyleDelegateImplRef styleDelegate);
     ~MapboxVectorTileParser_Android();
 
     // Set the Java environment and object for callbacks

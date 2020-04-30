@@ -24,8 +24,8 @@
 
 namespace WhirlyKit
 {
-MapboxVectorTileParser_Android::MapboxVectorTileParser_Android()
-: shouldParseMethod(NULL), styleForFeatureMethod(NULL), buildForStyleMethod(NULL)
+MapboxVectorTileParser_Android::MapboxVectorTileParser_Android(VectorStyleDelegateImplRef styleDelegate)
+: shouldParseMethod(NULL), styleForFeatureMethod(NULL), buildForStyleMethod(NULL), MapboxVectorTileParser(styleDelegate)
 {
 }
 

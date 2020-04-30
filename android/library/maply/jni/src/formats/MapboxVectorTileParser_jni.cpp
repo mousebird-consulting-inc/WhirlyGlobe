@@ -35,12 +35,20 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorTileParser_nativeIni
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorTileParser_initialise
-(JNIEnv *env, jobject obj)
+(JNIEnv *env, jobject obj, jobject vecStyleObj, jboolean isMapboxStyle)
 {
     try
     {
-        MapboxVectorTileParser_Android *inst = new MapboxVectorTileParser_Android();
-        MapboxVectorTileParserClassInfo::getClassInfo()->setHandle(env,obj,inst);
+        if (isMapboxStyle) {
+            MapboxVectorStyleSetImplRef *style = MapboxVectorStyleSetClassInfo::getClassInfo()->getObject(env,obj);
+            if (!style)
+                return;
+
+            MapboxVectorTileParser_Android *inst = new MapboxVectorTileParser_Android(*style);
+            MapboxVectorTileParserClassInfo::getClassInfo()->setHandle(env,obj,inst);
+        } else {
+            // TODO: Set up the wrapper for a style implemented on the Java side
+        }
     }
     catch (...)
     {
@@ -56,7 +64,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorTileParser_dispose
     try
     {
         MapboxVectorTileParserClassInfo *classInfo = MapboxVectorTileParserClassInfo::getClassInfo();
-
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
             MapboxVectorTileParser_Android *inst = classInfo->getObject(env,obj);
