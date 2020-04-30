@@ -216,7 +216,7 @@ public:
         DictionaryValue() { }
         DictionaryValue(MutableDictionary_AndroidRef inVal) : val(inVal) { }
 
-        virtual DictionaryType type() { return DictTypeObject; }
+        virtual DictionaryType type() { return DictTypeDictionary; }
         virtual ValueRef copy() { return ValueRef(new DictionaryValue(val)); }
         virtual int asInt() { return 0; }
         virtual void asString(std::string &retStr) { }
@@ -255,7 +255,7 @@ protected:
 class DictionaryEntry_Android : public DictionaryEntry
 {
 public:
-    DictionaryEntry_Android(MutableDictionary_Android::ValueRef val) : val(val) { }
+    DictionaryEntry_Android(MutableDictionary_Android::ValueRef val) : val(val) { type = val->type(); }
 
     /// Returns the field type
     virtual DictionaryType getType() const;

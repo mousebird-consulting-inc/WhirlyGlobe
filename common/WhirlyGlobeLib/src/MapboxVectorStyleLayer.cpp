@@ -72,7 +72,8 @@ MapboxVectorStyleLayerRef MapboxVectorStyleLayer::VectorStyleLayer(MapboxVectorS
     
     if (layerDict->getType("filter") == DictTypeArray) {
         layer->filter = MapboxVectorFilterRef(new MapboxVectorFilter());
-        layer->filter->parse(layerDict->getArray("filter"),styleSet);
+        auto filterArray = layerDict->getArray("filter");
+        layer->filter->parse(filterArray,styleSet);
     }
     
     layer->visible = styleSet->boolValue("visibility", layerDict->getDict("layout"), "visible", true);

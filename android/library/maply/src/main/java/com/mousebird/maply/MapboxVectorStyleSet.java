@@ -28,7 +28,7 @@ public class MapboxVectorStyleSet implements VectorStyleInterface {
         // Sources tell us where to get tiles
         AttrDictionary sourcesDict = styleDict.getDict("sources");
         if (sourcesDict != null) {
-            String[] keys = styleDict.getKeys();
+            String[] keys = sourcesDict.getKeys();
             for (String key : keys) {
                 Source source = new Source(key,sourcesDict.getDict(key),this);
                 sources.add(source);
@@ -71,9 +71,9 @@ public class MapboxVectorStyleSet implements VectorStyleInterface {
             name = inName;
 
             String typeStr = styleEntry.getString("type");
-            if (typeStr == "vector") {
+            if (typeStr.equals("vector")) {
                 type = SourceType.Vector;
-            } else if (typeStr == "raster") {
+            } else if (typeStr.equals("raster")) {
                 type = SourceType.Raster;
             } else {
                 throw new IllegalArgumentException("Unexpected type string in Mapbox Source");

@@ -33,6 +33,7 @@ class MapTilerTestCase : MaplyTestCase {
     }
 
     override fun setUpWithMap(mapVC: MapController?): Boolean {
+        setupLoader(mapVC!!, ConfigOptions.TestType.GlobeTest)
 
         return true
     }

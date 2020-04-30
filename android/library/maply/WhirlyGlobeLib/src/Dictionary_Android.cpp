@@ -131,7 +131,7 @@ MutableDictionary_Android::ValueRef MutableDictionary_Android::parseJSONValue(JS
         {
             auto nodes = nodeIt->as_array();
             std::vector<ValueRef> values;
-            for (JSONNode::iterator arrNodeIt = nodes.begin(); nodeIt != nodes.end(); ++nodeIt) {
+            for (JSONNode::iterator arrNodeIt = nodes.begin(); arrNodeIt != nodes.end(); ++arrNodeIt) {
                 values.push_back(parseJSONValue(arrNodeIt));
             }
             return ArrayValueRef(new ArrayValue(values));
@@ -155,6 +155,9 @@ bool MutableDictionary_Android::parseJSONNode(JSONNode &node)
     for (JSONNode::iterator nodeIt = node.begin(); nodeIt != node.end(); ++nodeIt) {
         auto name = nodeIt->name();
         ValueRef val = parseJSONValue(nodeIt);
+        if (name.empty() || !val)
+            return false;
+        fields[name] = val;
     }
 
     return true;
@@ -588,10 +591,10 @@ std::vector<DictionaryEntryRef> DictionaryEntry_Android::getArray() const
     if (type != DictTypeArray)
         return std::vector<DictionaryEntryRef>();
 
-    MutableDictionary_Android::ArrayValueRef val = std::dynamic_pointer_cast<MutableDictionary_Android::ArrayValue>(val);
-    if (val) {
+    MutableDictionary_Android::ArrayValueRef theVal = std::dynamic_pointer_cast<MutableDictionary_Android::ArrayValue>(val);
+    if (theVal) {
         std::vector<DictionaryEntryRef> ret;
-        for (auto entry: val->val)
+        for (auto entry: theVal->val)
             ret.push_back(DictionaryEntryRef(new DictionaryEntry_Android(entry)));
         return ret;
     }

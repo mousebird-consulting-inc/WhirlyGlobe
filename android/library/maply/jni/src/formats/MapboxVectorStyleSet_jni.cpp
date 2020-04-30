@@ -44,8 +44,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_initialise
             return;
 
         // TODO: Use the vector style setting passed in
-        MapboxVectorStyleSetImplRef *inst = new MapboxVectorStyleSetImplRef(new MapboxVectorStyleSetImpl_Android(scene,NULL));
-        (*inst)->parse(jsonDict);
+        VectorStyleSettingsImplRef settings(new VectorStyleSettingsImpl(1.0));
+        MapboxVectorStyleSetImplRef *inst = new MapboxVectorStyleSetImplRef(new MapboxVectorStyleSetImpl_Android(scene,settings));
+        bool success = (*inst)->parse(jsonDict);
         MapboxVectorStyleSetClassInfo::getClassInfo()->setHandle(env,obj,inst);
     }
     catch (...)
