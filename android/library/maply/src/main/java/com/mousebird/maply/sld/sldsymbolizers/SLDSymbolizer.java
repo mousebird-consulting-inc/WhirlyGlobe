@@ -61,7 +61,7 @@ public abstract class SLDSymbolizer {
         RenderControllerInterface viewC = symbolizerParams.getBaseController();
         VectorStyleSettings vectorStyleSettings = symbolizerParams.getVectorStyleSettings();
 
-        boolean useWideVectors = vectorStyleSettings.isUseWideVectors();
+        boolean useWideVectors = vectorStyleSettings.getUseWideVectors();
         BaseInfo baseInfo;
         VectorInfo vectorInfo = null;
         WideVectorInfo wideVectorInfo = null;

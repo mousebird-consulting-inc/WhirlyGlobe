@@ -24,3 +24,4 @@
 typedef JavaClassInfo<WhirlyKit::VectorTileData_AndroidRef> VectorTileDataClassInfo;
 typedef JavaClassInfo<WhirlyKit::MapboxVectorTileParser_Android> MapboxVectorTileParserClassInfo;
 typedef JavaClassInfo<WhirlyKit::MapboxVectorStyleSetImplRef> MapboxVectorStyleSetClassInfo;
+typedef JavaClassInfo<WhirlyKit::VectorStyleSettingsImplRef> VectorStyleSettingsClassInfo;
