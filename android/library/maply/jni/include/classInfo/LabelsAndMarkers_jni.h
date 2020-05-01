@@ -25,5 +25,5 @@ typedef JavaClassInfo<WhirlyKit::MarkerInfo> MarkerInfoClassInfo;
 typedef JavaClassInfo<WhirlyKit::Marker> MarkerClassInfo;
 typedef JavaClassInfo<WhirlyKit::MarkerManager> MarkerManagerClassInfo;
 
-typedef JavaClassInfo<WhirlyKit::LabelInfo> LabelInfoClassInfo;
+typedef JavaClassInfo<WhirlyKit::LabelInfoAndroid> LabelInfoClassInfo;
 typedef JavaClassInfo<WhirlyKit::SingleLabelAndroid> LabelClassInfo;

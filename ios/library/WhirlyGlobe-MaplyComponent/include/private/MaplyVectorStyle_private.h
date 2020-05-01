@@ -56,14 +56,15 @@ public:
     /// Local platform implementation for generating a repeating line texture
     virtual SimpleIdentity makeLineTexture(const std::vector<double> &dashComponents);
     
-    /// Create a local platform LabelInfo (since fonts are local)
-    virtual LabelInfoRef makeLabelInfo(const std::string &fontName);
-    
+    /// Make platform specific label info object (ideally we're caching these)
+    virtual LabelInfoRef makeLabelInfo(const std::string &fontName,float fontSize);
+
     /// Create a local platform label (fonts are local, and other stuff)
     virtual SingleLabelRef makeSingleLabel(const std::string &text);
     
     /// Create a platform specific variant of the component object
     ComponentObjectRef makeComponentObject();
+        
 };
 
 /**

@@ -49,8 +49,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_initialise
             settings = *(VectorStyleSettingsClassInfo::getClassInfo()->getObject(env,settingsObj));
         } else
             settings = VectorStyleSettingsImplRef(new VectorStyleSettingsImpl(1.0));
-        MapboxVectorStyleSetImplRef *inst = new MapboxVectorStyleSetImplRef(new MapboxVectorStyleSetImpl_Android(scene,settings));
+        MapboxVectorStyleSetImpl_AndroidRef *inst = new MapboxVectorStyleSetImpl_AndroidRef(new MapboxVectorStyleSetImpl_Android(scene,settings));
         bool success = (*inst)->parse(jsonDict);
+        (*inst)->setEnv(env);
+        (*inst)->thisObj = env->NewGlobalRef(obj);
         MapboxVectorStyleSetClassInfo::getClassInfo()->setHandle(env,obj,inst);
     }
     catch (...)
@@ -69,9 +71,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_dispose
         MapboxVectorStyleSetClassInfo *classInfo = MapboxVectorStyleSetClassInfo::getClassInfo();
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
-            MapboxVectorStyleSetImplRef *inst = classInfo->getObject(env,obj);
+            MapboxVectorStyleSetImpl_AndroidRef *inst = classInfo->getObject(env,obj);
             if (!inst)
                 return;
+            env->DeleteGlobalRef((*inst)->thisObj);
             delete inst;
         }
 

@@ -122,6 +122,9 @@ public class LabelInfo extends BaseInfo
 
 	native void setTypefaceNative(Typeface typeface);
 
+	/// Optional font name used for tracking and nothing else
+	public String fontName;
+
 	/**
 	 * Return the typeface used for the labels.
 	 */

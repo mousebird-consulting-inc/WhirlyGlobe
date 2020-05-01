@@ -205,11 +205,15 @@ void MapboxVectorLayerSymbol::buildObjects(std::vector<VectorObjectRef> &vecObjs
           return;
     }
     
-    LabelInfoRef labelInfo = styleSet->makeLabelInfo(layout.textFontName);
+    double textSize = layout.textSize->valForZoom(tileInfo->ident.level);
+    // Snap to an integer.  Not clear we need to, just because.
+    textSize = (int)(textSize * layout.globalTextScale+0.5);
+
+    LabelInfoRef labelInfo = styleSet->makeLabelInfo(layout.textFontName,textSize);
     labelInfo->screenObject = true;
     labelInfo->fade = 0.0;
     labelInfo->textJustify = WhirlyKitTextCenter;
-    
+
     if (drawPriorityPerLevel > 0)
         labelInfo->drawPriority = drawPriority + tileInfo->ident.level * drawPriorityPerLevel;
     else
@@ -224,9 +228,6 @@ void MapboxVectorLayerSymbol::buildObjects(std::vector<VectorObjectRef> &vecObjs
         labelInfo->outlineColor = *paint.textHaloColor;
         labelInfo->outlineSize = paint.textHaloWidth;
     }
-    double textSize = layout.textSize->valForZoom(tileInfo->ident.level);
-    // Snap to an integer.  Not clear we need to, just because.
-    textSize = (int)(textSize * layout.globalTextScale+0.5);
 
 //    // Note: Cache the font.
 //    UIFont *font = nil;

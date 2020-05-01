@@ -128,7 +128,7 @@ public:
     // If set, we'll put an outline around the tile
     bool debugOutline;
 
-protected:
+public:
     VectorStyleDelegateImplRef styleDelegate;
     std::map<long long,std::string> styleCategories;
 };

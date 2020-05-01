@@ -25,7 +25,7 @@
 #import <vector>
 #import <android/log.h>
 #import <jni.h>
-#import <WhirlyGlobe_Android.h>
+#import "WhirlyGlobe.h"
 
 /* Java Class Info
  * This tracks JNI info about classes we implement.

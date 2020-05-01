@@ -404,14 +404,14 @@ SimpleIdentity MapboxVectorStyleSetImpl_iOS::makeLineTexture(const std::vector<d
     return tex.texID;
 }
 
-LabelInfoRef MapboxVectorStyleSetImpl_iOS::makeLabelInfo(const std::string &fontName)
+LabelInfoRef MapboxVectorStyleSetImpl_iOS::makeLabelInfo(const std::string &fontName,float fontSize)
 {
     // TODO: Do we need the size here?
     NSString *fontNameStr = [NSString stringWithFormat:@"%s",fontName.c_str()];
-    UIFont *font = [UIFont fontWithName:fontNameStr size:64.0];
+    UIFont *font = [UIFont fontWithName:fontNameStr size:fontSize];
     if (!font) {
         NSLog(@"Failed to find font %@",fontNameStr);
-        font = [UIFont systemFontOfSize:64.0];
+        font = [UIFont systemFontOfSize:fontSize];
     }
     
     LabelInfoRef labelInfo(new LabelInfo_iOS(font,true));

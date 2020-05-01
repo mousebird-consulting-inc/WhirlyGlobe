@@ -28,6 +28,11 @@ LabelInfoAndroid::LabelInfoAndroid(bool screenObject)
 {
 }
 
+LabelInfoAndroid::LabelInfoAndroid(const LabelInfoAndroid &that)
+: LabelInfo(that.screenObject), typefaceObj(that.typefaceObj), env(that.env), labelInfoObj(that.labelInfoObj)
+{
+}
+
 void LabelInfoAndroid::clearRefs(JNIEnv *env)
 {
 	if (typefaceObj)

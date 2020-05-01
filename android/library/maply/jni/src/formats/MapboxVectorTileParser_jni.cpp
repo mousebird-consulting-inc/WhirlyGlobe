@@ -22,6 +22,7 @@
 #import <Geometry_jni.h>
 #import <Vectors_jni.h>
 #import <Components_jni.h>
+#import "WhirlyGlobe_Android.h"
 #import "com_mousebird_maply_MapboxVectorTileParser.h"
 
 using namespace WhirlyKit;
@@ -40,11 +41,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorTileParser_initialis
     try
     {
         if (isMapboxStyle) {
-            MapboxVectorStyleSetImplRef *style = MapboxVectorStyleSetClassInfo::getClassInfo()->getObject(env,vecStyleObj);
+            MapboxVectorStyleSetImpl_AndroidRef *style = MapboxVectorStyleSetClassInfo::getClassInfo()->getObject(env,vecStyleObj);
             if (!style)
                 return;
 
-            MapboxVectorTileParser_Android *inst = new MapboxVectorTileParser_Android(*style);
+            MapboxVectorTileParser *inst = new MapboxVectorTileParser(*style);
             MapboxVectorTileParserClassInfo::getClassInfo()->setHandle(env,obj,inst);
         } else {
             // TODO: Set up the wrapper for a style implemented on the Java side
@@ -66,7 +67,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorTileParser_dispose
         MapboxVectorTileParserClassInfo *classInfo = MapboxVectorTileParserClassInfo::getClassInfo();
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
-            MapboxVectorTileParser_Android *inst = classInfo->getObject(env,obj);
+            MapboxVectorTileParser *inst = classInfo->getObject(env,obj);
             if (!inst)
                 return;
             delete inst;
@@ -85,7 +86,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_MapboxVectorTileParser_parse
 {
     try
     {
-        MapboxVectorTileParser_Android *inst = MapboxVectorTileParserClassInfo::getClassInfo()->getObject(env,obj);
+        MapboxVectorTileParser *inst = MapboxVectorTileParserClassInfo::getClassInfo()->getObject(env,obj);
         VectorTileData_AndroidRef *tileData = VectorTileDataClassInfo::getClassInfo()->getObject(env,vecTileDataObj);
         if (!obj || !tileData)
             return false;
@@ -94,8 +95,11 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_MapboxVectorTileParser_parse
         //  than per parser.  Thus we can use a parser on multiple thread.
         (*tileData)->setEnv(env,obj,vecTileDataObj);
 
-        // Set up the method references if they're not done yet
-        (*inst).setupJavaMethods(env);
+        // Notify the style delegate of the new environment so it can make Java calls if need be
+        MapboxVectorStyleSetImpl_AndroidRef theStyleDelegate = dynamic_pointer_cast<MapboxVectorStyleSetImpl_Android>(inst->styleDelegate);
+        if (theStyleDelegate) {
+            theStyleDelegate->setEnv(env);
+        }
 
         // Copy data into a temporary buffer (must we?)
         int len = env->GetArrayLength(data);

@@ -1,6 +1,7 @@
 package com.mousebird.maply;
 
 import android.graphics.Color;
+import android.graphics.Typeface;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -46,6 +47,29 @@ public class MapboxVectorStyleSet implements VectorStyleInterface {
     {
         // TODO: Fill in the color calculation
         return Color.WHITE;
+    }
+
+    // TODO: Optimize the lookup a bit
+    ArrayList<LabelInfo> labelInfos = new ArrayList<LabelInfo>();
+
+    // Return a label info
+    public LabelInfo labelInfoForFont(String fontName,float fontSize) {
+        synchronized (this) {
+            for (LabelInfo labelInfo: labelInfos) {
+                if (labelInfo.fontSize == fontSize && labelInfo.fontName.equals(fontName))
+                    return labelInfo;
+            }
+
+            // Didn't find it, so make one up
+            // TODO: What about bold, italic, etc??
+            Typeface typeface = Typeface.create(fontName,Typeface.NORMAL);
+            LabelInfo labelInfo = new LabelInfo();
+            labelInfo.setTypeface(typeface);
+            labelInfo.setFontSize(fontSize);
+            labelInfos.add(labelInfo);
+
+            return labelInfo;
+        }
     }
 
     // If there's a sprite sheet, where it's at

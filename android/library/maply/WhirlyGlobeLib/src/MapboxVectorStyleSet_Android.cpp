@@ -19,13 +19,37 @@
  */
 
 #import "MapboxVectorStyleSet_Android.h"
+#import <string>
+#import <iostream>
+#import <sstream>
+#import "Formats_jni.h"
+#import "LabelsAndMarkers_jni.h"
 
 namespace WhirlyKit
 {
 
 MapboxVectorStyleSetImpl_Android::MapboxVectorStyleSetImpl_Android(Scene *scene,VectorStyleSettingsImplRef settings)
-: MapboxVectorStyleSetImpl(scene,settings)
+: MapboxVectorStyleSetImpl(scene,settings), env(NULL), thisObj(NULL),
+    makeLabelInfoMethod(NULL), makeCircleTextureMethod(NULL), makeLineTextureMethod(NULL)
 {
+}
+
+void MapboxVectorStyleSetImpl_Android::setEnv(JNIEnv *inEnv)
+{
+    env = inEnv;
+
+    // TODO: Turn global reference into local reference for this object
+
+    if (!makeLabelInfoMethod) {
+        jclass thisClass = MapboxVectorStyleSetClassInfo::getClassInfo()->getClass();
+        // TODO: Get the right signatures
+        makeLabelInfoMethod = env->GetMethodID(thisClass, "makeLabelInfo",
+                                               "(Ljava/lang/String;F)Lcom/mousebird/maply/LabelInfo;");
+        makeCircleTextureMethod = env->GetMethodID(thisClass, "makeLabelInfo",
+                                                   "");
+        makeLineTextureMethod = env->GetMethodID(thisClass, "makeLabelInfo",
+                                                 "");
+    }
 }
 
 MapboxVectorStyleSetImpl_Android::~MapboxVectorStyleSetImpl_Android()
@@ -44,22 +68,47 @@ SimpleIdentity MapboxVectorStyleSetImpl_Android::makeLineTexture(const std::vect
     return EmptyIdentity;
 }
 
-LabelInfoRef MapboxVectorStyleSetImpl_Android::makeLabelInfo(const std::string &fontName)
+LabelInfoRef MapboxVectorStyleSetImpl_Android::makeLabelInfo(const std::string &fontName,float fontSize)
 {
-    // TODO: Implement
-    return LabelInfoRef();
+    std::pair<std::string, float> entry(fontName,fontSize);
+
+    LabelInfoAndroid *refLabelInfo = NULL;
+    auto it = labelInfos.find(entry);
+    if (it != labelInfos.end())
+        refLabelInfo = it->second;
+    else {
+        jstring jFontNameStr = env->NewStringUTF(fontName.c_str());
+        jobject labelInfoObj = env->CallObjectMethod(thisObj,makeLabelInfoMethod,jFontNameStr,fontSize);
+        env->DeleteLocalRef(jFontNameStr);
+        refLabelInfo = LabelInfoClassInfo::getClassInfo()->getObject(env,labelInfoObj);
+        labelInfos[entry] = refLabelInfo;
+    }
+
+    return LabelInfoRef(new LabelInfoAndroid(*refLabelInfo));
 }
 
 SingleLabelRef MapboxVectorStyleSetImpl_Android::makeSingleLabel(const std::string &text)
 {
-    // TODO: Implement
-    return SingleLabelRef();
+    SingleLabelAndroid *label = new SingleLabelAndroid();
+
+    // Break up the lines and turn the characters into code points for Java
+    std::stringstream ss(text);
+    std::string line;
+    while (std::getline(ss,line)) {
+        std::u32string str32;
+        std::copy(line.begin(),line.end(),str32.begin());
+        std::vector<int> codePoints;
+        std::copy(str32.begin(),str32.end(),codePoints.begin());
+
+        label->codePointsLines.push_back(codePoints);
+    }
+
+    return SingleLabelRef(label);
 }
 
 ComponentObjectRef MapboxVectorStyleSetImpl_Android::makeComponentObject()
 {
-    // TODO: Implement
-    return ComponentObjectRef();
+    return ComponentObjectRef(new ComponentObject());
 }
 
 }

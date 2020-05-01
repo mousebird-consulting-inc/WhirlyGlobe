@@ -35,12 +35,13 @@ class LabelInfoAndroid : public LabelInfo
 {
 public:
 	LabelInfoAndroid(bool screenObject);
+	LabelInfoAndroid(const LabelInfoAndroid &that);
 
 	// Clear any global refs we may be holding
 	void clearRefs(JNIEnv *env);
 
 	// Add the typeface to the label info.  Needed for rendering
-	void setTypeface(JNIEnv *env,jobject typefacObj);
+	void setTypeface(JNIEnv *env,jobject typefaceObj);
 
 	// Compare typefaces
 	bool typefaceIsSame(const jobject inTypeface) const;

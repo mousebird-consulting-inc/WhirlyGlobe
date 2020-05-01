@@ -20,6 +20,7 @@
 
 #import <jni.h>
 #import "WhirlyGlobe.h"
+#import "LabelInfo_Android.h"
 
 namespace WhirlyKit
 {
@@ -41,7 +42,7 @@ public:
     virtual SimpleIdentity makeLineTexture(const std::vector<double> &dashComponents);
 
     /// Create a local platform LabelInfo (since fonts are local)
-    virtual LabelInfoRef makeLabelInfo(const std::string &fontName);
+    virtual LabelInfoRef makeLabelInfo(const std::string &fontName,float fontSize);
 
     /// Create a local platform label (fonts are local, and other stuff)
     virtual SingleLabelRef makeSingleLabel(const std::string &text);
@@ -49,7 +50,19 @@ public:
     /// Create a local platform component object
     virtual ComponentObjectRef makeComponentObject();
 
-protected:
+    /// Set the current env (being used for whatever calls we're making right now)
+    void setEnv(JNIEnv *env);
+
+public:
+    JNIEnv *env;
+    jobject thisObj;
+    jmethodID makeLabelInfoMethod;
+    jmethodID makeCircleTextureMethod;
+    jmethodID makeLineTextureMethod;
+
+    // Map fontName/size to Java-side labelInfo objects
+    std::map<std::pair<std::string, float>, LabelInfoAndroid *> labelInfos;
 };
+typedef std::shared_ptr<MapboxVectorStyleSetImpl_Android> MapboxVectorStyleSetImpl_AndroidRef;
 
 }

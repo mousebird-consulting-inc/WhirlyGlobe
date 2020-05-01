@@ -219,7 +219,7 @@ public:
     virtual SimpleIdentity makeLineTexture(const std::vector<double> &dashComponents) = 0;
     
     /// Create a local platform LabelInfo (since fonts are local)
-    virtual LabelInfoRef makeLabelInfo(const std::string &fontName) = 0;
+    virtual LabelInfoRef makeLabelInfo(const std::string &fontName,float fontSize) = 0;
     
     /// Create a local platform label (fonts are local, and other stuff)
     virtual SingleLabelRef makeSingleLabel(const std::string &text) = 0;
