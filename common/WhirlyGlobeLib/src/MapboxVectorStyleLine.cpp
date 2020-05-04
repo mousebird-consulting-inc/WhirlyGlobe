@@ -27,7 +27,7 @@ namespace WhirlyKit
 static const char *lineCapVals[] = {"butt","round","square",NULL};
 static const char *joinVals[] = {"bevel","round","miter",NULL};
 
-bool MapboxVectorLineLayout::parse(MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry)
+bool MapboxVectorLineLayout::parse(VectorStyleInst *inst,MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry)
 {
     cap = (MapboxVectorLineCap)styleSet->enumValue(styleEntry->getEntry("line-cap"),lineCapVals,(int)MBLineCapButt);
     join = (MapboxVectorLineJoin)styleSet->enumValue(styleEntry->getEntry("line-join"),joinVals,(int)MBLineJoinMiter);
@@ -37,7 +37,7 @@ bool MapboxVectorLineLayout::parse(MapboxVectorStyleSetImpl *styleSet,Dictionary
     return true;
 }
 
-bool MapboxVectorLinePaint::parse(MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry)
+bool MapboxVectorLinePaint::parse(VectorStyleInst *inst,MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry)
 {
     styleSet->unsupportedCheck("line-translate", "line-paint", styleEntry);
     styleSet->unsupportedCheck("line-translate-anchor", "line-paint", styleEntry);
@@ -63,13 +63,14 @@ bool MapboxVectorLinePaint::parse(MapboxVectorStyleSetImpl *styleSet,DictionaryR
     return true;
 }
 
-bool MapboxVectorLayerLine::parse(DictionaryRef styleEntry,
-                                   MapboxVectorStyleLayerRef refLayer,
-                                   int drawPriority)
+bool MapboxVectorLayerLine::parse(VectorStyleInst *inst,
+                                  DictionaryRef styleEntry,
+                                  MapboxVectorStyleLayerRef refLayer,
+                                  int drawPriority)
 {
-    if (!MapboxVectorStyleLayer::parse(styleEntry,refLayer,drawPriority) ||
-        !layout.parse(styleSet, styleEntry->getDict("layout")) ||
-        !paint.parse(styleSet, styleEntry->getDict("paint")))
+    if (!MapboxVectorStyleLayer::parse(inst, styleEntry,refLayer,drawPriority) ||
+        !layout.parse(inst, styleSet, styleEntry->getDict("layout")) ||
+        !paint.parse(inst, styleSet, styleEntry->getDict("paint")))
         return false;
     
     this->drawPriority = styleSet->intValue("drawPriority", styleEntry, drawPriority);
@@ -94,7 +95,7 @@ bool MapboxVectorLayerLine::parse(DictionaryRef styleEntry,
             dashComponents.push_back(len);
         }
         
-        filledLineTexID = styleSet->makeLineTexture(dashComponents);
+        filledLineTexID = styleSet->makeLineTexture(inst,dashComponents);
     }
     fade = styleSet->doubleValue("fad",styleEntry,0.0);
 
@@ -103,16 +104,18 @@ bool MapboxVectorLayerLine::parse(DictionaryRef styleEntry,
     return true;
 }
 
-void MapboxVectorLayerLine::cleanup(ChangeSet &changes)
+void MapboxVectorLayerLine::cleanup(VectorStyleInst *inst,ChangeSet &changes)
 {
 }
 
-void MapboxVectorLayerLine::buildObjects(std::vector<VectorObjectRef> &inVecObjs,VectorTileDataRef tileInfo)
+void MapboxVectorLayerLine::buildObjects(VectorStyleInst *inst,
+                                         std::vector<VectorObjectRef> &inVecObjs,
+                                         VectorTileDataRef tileInfo)
 {
     if (!visible)
         return;
     
-    ComponentObjectRef compObj = styleSet->makeComponentObject();
+    ComponentObjectRef compObj = styleSet->makeComponentObject(inst);
 
     // TODO: Do level based animation instead
     float levelBias = 0.9;

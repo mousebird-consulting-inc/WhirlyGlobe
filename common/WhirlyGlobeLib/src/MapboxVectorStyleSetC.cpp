@@ -246,7 +246,7 @@ MapboxVectorStyleSetImpl::~MapboxVectorStyleSetImpl()
 {
 }
 
-bool MapboxVectorStyleSetImpl::parse(DictionaryRef styleDict)
+bool MapboxVectorStyleSetImpl::parse(VectorStyleInst *inst,DictionaryRef styleDict)
 {
     name = styleDict->getString("name");
     version = styleDict->getInt("version");
@@ -256,7 +256,7 @@ bool MapboxVectorStyleSetImpl::parse(DictionaryRef styleDict)
     int which = 0;
     for (auto layerStyle : layerStyles) {
         if (layerStyle->getType() == DictTypeDictionary) {
-            MapboxVectorStyleLayerRef layer(MapboxVectorStyleLayer::VectorStyleLayer(this,layerStyle->getDict(),(1*which + tileStyleSettings->baseDrawPriority)));
+            MapboxVectorStyleLayerRef layer(MapboxVectorStyleLayer::VectorStyleLayer(inst,this,layerStyle->getDict(),(1*which + tileStyleSettings->baseDrawPriority)));
             if (!layer) {
                 wkLogLevel(Warn,"Failed to parse layer in Mapbox vector style sheet.");
                 return false;

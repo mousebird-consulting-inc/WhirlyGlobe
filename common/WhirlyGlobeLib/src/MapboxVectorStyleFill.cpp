@@ -25,7 +25,9 @@
 namespace WhirlyKit
 {
 
-bool MapboxVectorFillPaint::parse(MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry)
+bool MapboxVectorFillPaint::parse(VectorStyleInst *inst,
+                                  MapboxVectorStyleSetImpl *styleSet,
+                                  DictionaryRef styleEntry)
 {
     styleSet->unsupportedCheck("fill-antialias","paint_fill",styleEntry);
     styleSet->unsupportedCheck("fill-translate","paint_fill",styleEntry);
@@ -39,12 +41,13 @@ bool MapboxVectorFillPaint::parse(MapboxVectorStyleSetImpl *styleSet,DictionaryR
     return true;
 }
 
-bool MapboxVectorLayerFill::parse(DictionaryRef styleEntry,
-                                    MapboxVectorStyleLayerRef refLayer,
-                                    int drawPriority)
+bool MapboxVectorLayerFill::parse(VectorStyleInst *inst,
+                                  DictionaryRef styleEntry,
+                                  MapboxVectorStyleLayerRef refLayer,
+                                  int drawPriority)
 {
-    if (!MapboxVectorStyleLayer::parse(styleEntry,refLayer,drawPriority) ||
-        !paint.parse(styleSet,styleEntry->getDict("paint")))
+    if (!MapboxVectorStyleLayer::parse(inst,styleEntry,refLayer,drawPriority) ||
+        !paint.parse(inst,styleSet,styleEntry->getDict("paint")))
         return false;
     
     arealShaderID = styleSet->tileStyleSettings->settingsArealShaderID;
@@ -59,17 +62,18 @@ bool MapboxVectorLayerFill::parse(DictionaryRef styleEntry,
     return true;
 }
 
-void MapboxVectorLayerFill::cleanup(ChangeSet &changes)
+void MapboxVectorLayerFill::cleanup(VectorStyleInst *inst,ChangeSet &changes)
 {
 }
 
-void MapboxVectorLayerFill::buildObjects(std::vector<VectorObjectRef> &vecObjs,
-                                           VectorTileDataRef tileInfo)
+void MapboxVectorLayerFill::buildObjects(VectorStyleInst *inst,
+                                         std::vector<VectorObjectRef> &vecObjs,
+                                         VectorTileDataRef tileInfo)
 {
     if (!visible)
         return;
     
-    ComponentObjectRef compObj = styleSet->makeComponentObject();
+    ComponentObjectRef compObj = styleSet->makeComponentObject(inst);
 
     // Filled polygons
     if (paint.color) {

@@ -222,7 +222,7 @@ static int BackImageWidth = 16, BackImageHeight = 16;
                 RawNSDataReader thisTileDataWrap(thisTileData);
                 vecTileReturn = [[MaplyVectorTileData alloc] initWithID:tileID bbox:imageBBox geoBBox:geoBBox];
                 // Parse the tile data and flush it out to the scene immediately
-                imageTileParser->parse(&thisTileDataWrap, vecTileReturn->data.get());
+                imageTileParser->parse(NULL,&thisTileDataWrap, vecTileReturn->data.get());
                 offlineRender->scene->addChangeRequests(vecTileReturn->data->changes);
                 
 //                if (vecTileReturn) {
@@ -276,7 +276,7 @@ static int BackImageWidth = 16, BackImageHeight = 16;
         RawNSDataReader thisTileDataWrap(thisTileData);
         MaplyVectorTileData *vecTileReturn = [[MaplyVectorTileData alloc] initWithID:tileID bbox:spherMercBBox geoBBox:geoBBox];
         // Parse the vector features and then merge them into the change set in the load return
-        vecTileParser->parse(&thisTileDataWrap,vecTileReturn->data.get());
+        vecTileParser->parse(NULL,&thisTileDataWrap,vecTileReturn->data.get());
         loadReturn->loadReturn->changes.insert(loadReturn->loadReturn->changes.end(),vecTileReturn->data->changes.begin(),vecTileReturn->data->changes.end());
         
         if (!vecTileReturn->data->compObjs.empty())

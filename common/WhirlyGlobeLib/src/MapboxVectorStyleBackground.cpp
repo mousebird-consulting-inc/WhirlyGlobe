@@ -24,7 +24,9 @@
 namespace WhirlyKit
 {
 
-bool MapboxVectorBackgroundPaint::parse(MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry)
+bool MapboxVectorBackgroundPaint::parse(VectorStyleInst *inst,
+                                        MapboxVectorStyleSetImpl *styleSet,
+                                        DictionaryRef styleEntry)
 {
     color = styleSet->transColor("background-color",styleEntry,RGBAColor::black());
     styleSet->unsupportedCheck("background-image","paint_background",styleEntry);
@@ -34,17 +36,18 @@ bool MapboxVectorBackgroundPaint::parse(MapboxVectorStyleSetImpl *styleSet,Dicti
     return true;
 }
 
-bool MapboxVectorLayerBackground::parse(DictionaryRef styleEntry,
+bool MapboxVectorLayerBackground::parse(VectorStyleInst *inst,
+                                        DictionaryRef styleEntry,
                                         MapboxVectorStyleLayerRef refLayer,
                                         int drawPriority)
 {
-    if (!MapboxVectorStyleLayer::parse(styleEntry,refLayer,drawPriority)) {
+    if (!MapboxVectorStyleLayer::parse(inst,styleEntry,refLayer,drawPriority)) {
         return false;
     }
     
     styleSet->unsupportedCheck("layout","background",styleEntry);
     
-    if (!paint.parse(styleSet,styleEntry->getDict("paint"))) {
+    if (!paint.parse(inst,styleSet,styleEntry->getDict("paint"))) {
         return false;
     }
     
@@ -56,7 +59,9 @@ bool MapboxVectorLayerBackground::parse(DictionaryRef styleEntry,
     return true;
 }
 
-void MapboxVectorLayerBackground::buildObjects(std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo)
+void MapboxVectorLayerBackground::buildObjects(VectorStyleInst *inst,
+                                               std::vector<VectorObjectRef> &vecObjs,
+                                               VectorTileDataRef tileInfo)
 {
     // Nothing to build
 }

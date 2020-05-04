@@ -41,6 +41,8 @@ typedef enum {
     SEG_CLOSE = (0x40 | 0x0f)
 } MapnikCommandType;
 
+class VectorStyleInst;
+
 /**
  Information about a single vector tile being parsed.  This is passed into the buildObjects:
  method of a MaplyVectorStyle.
@@ -116,11 +118,14 @@ public:
     
     // Parse the vector tile and return a list of vectors.
     // Returns false on failure.
-    virtual bool parse(RawData *rawData,VectorTileData *tileData);
+    virtual bool parse(VectorStyleInst *styleInst,RawData *rawData,VectorTileData *tileData);
     
     // The subclass calls the appropriate style to build component objects
     //  which are then returned in the VectorTileData
-    virtual void buildForStyle(long long styleID,std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef data);
+    virtual void buildForStyle(VectorStyleInst *styleInst,
+                               long long styleID,
+                               std::vector<VectorObjectRef> &vecObjs,
+                               VectorTileDataRef data);
     
     // If set, we'll tack a debug label in the middle of the tile
     bool debugLabel;

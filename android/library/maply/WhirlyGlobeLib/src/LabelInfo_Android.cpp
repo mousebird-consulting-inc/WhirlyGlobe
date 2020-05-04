@@ -29,7 +29,7 @@ LabelInfoAndroid::LabelInfoAndroid(bool screenObject)
 }
 
 LabelInfoAndroid::LabelInfoAndroid(const LabelInfoAndroid &that)
-: LabelInfo(that.screenObject), typefaceObj(that.typefaceObj), env(that.env), labelInfoObj(that.labelInfoObj)
+: LabelInfo(that.screenObject), typefaceObj(that.typefaceObj), fontSize(that.fontSize), env(that.env), labelInfoObj(that.labelInfoObj)
 {
 }
 

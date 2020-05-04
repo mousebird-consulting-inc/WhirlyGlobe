@@ -347,7 +347,12 @@ MapboxVectorStyleSetImpl_iOS::~MapboxVectorStyleSetImpl_iOS()
 {
 }
 
-SimpleIdentity MapboxVectorStyleSetImpl_iOS::makeCircleTexture(double inRadius,const RGBAColor &fillColor,const RGBAColor &strokeColor,float inStrokeWidth,Point2f *circleSize)
+SimpleIdentity MapboxVectorStyleSetImpl_iOS::makeCircleTexture(VectorStyleInst *inst,
+                                                               double inRadius,
+                                                               const RGBAColor &fillColor,
+                                                               const RGBAColor &strokeColor,
+                                                               float inStrokeWidth,
+                                                               Point2f *circleSize)
 {
     // We want the texture a bit bigger than specified
     float scale = tileStyleSettings->markerScale * 2;
@@ -386,7 +391,7 @@ SimpleIdentity MapboxVectorStyleSetImpl_iOS::makeCircleTexture(double inRadius,c
     return tex.texID;
 }
 
-SimpleIdentity MapboxVectorStyleSetImpl_iOS::makeLineTexture(const std::vector<double> &inComp)
+SimpleIdentity MapboxVectorStyleSetImpl_iOS::makeLineTexture(VectorStyleInst *inst,const std::vector<double> &inComp)
 {
     NSMutableArray *dashComp = [NSMutableArray array];
     for (double comp: inComp)
@@ -404,7 +409,7 @@ SimpleIdentity MapboxVectorStyleSetImpl_iOS::makeLineTexture(const std::vector<d
     return tex.texID;
 }
 
-LabelInfoRef MapboxVectorStyleSetImpl_iOS::makeLabelInfo(const std::string &fontName,float fontSize)
+LabelInfoRef MapboxVectorStyleSetImpl_iOS::makeLabelInfo(VectorStyleInst *inst,const std::string &fontName,float fontSize)
 {
     // TODO: Do we need the size here?
     NSString *fontNameStr = [NSString stringWithFormat:@"%s",fontName.c_str()];
@@ -420,7 +425,7 @@ LabelInfoRef MapboxVectorStyleSetImpl_iOS::makeLabelInfo(const std::string &font
     return labelInfo;
 }
 
-SingleLabelRef MapboxVectorStyleSetImpl_iOS::makeSingleLabel(const std::string &text)
+SingleLabelRef MapboxVectorStyleSetImpl_iOS::makeSingleLabel(VectorStyleInst *inst,const std::string &text)
 {
     NSString *textStr = [NSString stringWithFormat:@"%s",text.c_str()];
     
@@ -430,7 +435,7 @@ SingleLabelRef MapboxVectorStyleSetImpl_iOS::makeSingleLabel(const std::string &
     return SingleLabelRef(label);
 }
 
-ComponentObjectRef MapboxVectorStyleSetImpl_iOS::makeComponentObject()
+ComponentObjectRef MapboxVectorStyleSetImpl_iOS::makeComponentObject(VectorStyleInst *inst)
 {
     return ComponentObjectRef(new ComponentObject_iOS());
 }
@@ -514,7 +519,9 @@ bool VectorStyleWrapper::geomAdditive()
     return [style geomAdditive];
 }
 
-void VectorStyleWrapper::buildObjects(std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo)
+void VectorStyleWrapper::buildObjects(VectorStyleInst *inst,
+                                      std::vector<VectorObjectRef> &vecObjs,
+                                      VectorTileDataRef tileInfo)
 {
     MaplyVectorTileData *tileData = [[MaplyVectorTileData alloc] init];
     tileData->data = tileInfo;

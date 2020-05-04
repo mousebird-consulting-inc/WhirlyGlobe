@@ -80,6 +80,7 @@ DrawableString *FontTextureManager_Android::addString(JNIEnv *env,const std::vec
 {
 	LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
 	LabelInfoAndroid *labelInfo = (LabelInfoAndroid *)classInfo->getObject(env,labelInfoObj);
+	labelInfo->env = env;
 
 	// Could be more granular if this slows things down
     std::lock_guard<std::mutex> guardLock(lock);

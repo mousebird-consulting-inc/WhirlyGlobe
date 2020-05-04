@@ -96,16 +96,20 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_MapboxVectorTileParser_parse
         (*tileData)->setEnv(env,obj,vecTileDataObj);
 
         // Notify the style delegate of the new environment so it can make Java calls if need be
-        MapboxVectorStyleSetImpl_AndroidRef theStyleDelegate = dynamic_pointer_cast<MapboxVectorStyleSetImpl_Android>(inst->styleDelegate);
-        if (theStyleDelegate) {
-            theStyleDelegate->setEnv(env);
-        }
+        MapboxVectorStyleSetImpl_AndroidRef theStyleDelegate = std::dynamic_pointer_cast<MapboxVectorStyleSetImpl_Android>(inst->styleDelegate);
+
+        if (theStyleDelegate)
+            theStyleDelegate->setupMethods(env);
+
+        // Need a pointer to this JNIEnv for low level parsing callbacks
+        VectorStyleInst_Android threadInst;
+        threadInst.env = env;
 
         // Copy data into a temporary buffer (must we?)
         int len = env->GetArrayLength(data);
         jbyte *rawData = env->GetByteArrayElements(data,NULL);
         RawDataWrapper rawDataWrap(rawData,len,false);
-        bool ret = inst->parse(&rawDataWrap,(*tileData).get());
+        bool ret = inst->parse(&threadInst,&rawDataWrap,(*tileData).get());
         if (rawData)
             env->ReleaseByteArrayElements(data,rawData,JNI_ABORT);
 

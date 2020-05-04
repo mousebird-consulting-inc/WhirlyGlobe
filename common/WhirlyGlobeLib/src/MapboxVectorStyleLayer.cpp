@@ -32,7 +32,10 @@
 namespace WhirlyKit
 {
 
-MapboxVectorStyleLayerRef MapboxVectorStyleLayer::VectorStyleLayer(MapboxVectorStyleSetImpl *styleSet,DictionaryRef layerDict,int drawPriority)
+MapboxVectorStyleLayerRef MapboxVectorStyleLayer::VectorStyleLayer(VectorStyleInst *inst,
+                                                                   MapboxVectorStyleSetImpl *styleSet,
+                                                                   DictionaryRef layerDict,
+                                                                   int drawPriority)
 {
     MapboxVectorStyleLayerRef layer;
     MapboxVectorStyleLayerRef refLayer;
@@ -68,7 +71,7 @@ MapboxVectorStyleLayerRef MapboxVectorStyleLayer::VectorStyleLayer(MapboxVectorS
         wkLogLevel(Warn,"Unknown layer type %s",type.c_str());
         return NULL;
     }
-    layer->parse(layerDict, refLayer, drawPriority);
+    layer->parse(inst, layerDict, refLayer, drawPriority);
     
     if (layerDict->getType("filter") == DictTypeArray) {
         layer->filter = MapboxVectorFilterRef(new MapboxVectorFilter());
@@ -94,7 +97,8 @@ MapboxVectorStyleLayer::~MapboxVectorStyleLayer()
 {
 }
 
-bool MapboxVectorStyleLayer::parse(DictionaryRef styleEntry,
+bool MapboxVectorStyleLayer::parse(VectorStyleInst *inst,
+                                   DictionaryRef styleEntry,
                                    MapboxVectorStyleLayerRef refLayer,
                                    int inDrawPriority)
 {
@@ -129,7 +133,7 @@ bool MapboxVectorStyleLayer::geomAdditive()
     return geomAdditiveVal;
 }
 
-void MapboxVectorStyleLayer::cleanup(ChangeSet &changes)
+void MapboxVectorStyleLayer::cleanup(VectorStyleInst *inst,ChangeSet &changes)
 {
 }
 

@@ -23,18 +23,21 @@
 namespace WhirlyKit
 {
 
-bool MapboxVectorLayerRaster::parse(DictionaryRef styleEntry,
-                   MapboxVectorStyleLayerRef refLayer,
-                   int drawPriority)
+bool MapboxVectorLayerRaster::parse(VectorStyleInst *inst,
+                                    DictionaryRef styleEntry,
+                                    MapboxVectorStyleLayerRef refLayer,
+                                    int drawPriority)
 {
     return true;
 }
 
-void MapboxVectorLayerRaster::buildObjects(std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo)
+void MapboxVectorLayerRaster::buildObjects(VectorStyleInst *inst,
+                                           std::vector<VectorObjectRef> &vecObjs,
+                                           VectorTileDataRef tileInfo)
 {
 }
 
-void MapboxVectorLayerRaster::cleanup(ChangeSet &changes)
+void MapboxVectorLayerRaster::cleanup(VectorStyleInst *inst,ChangeSet &changes)
 {
 }
 

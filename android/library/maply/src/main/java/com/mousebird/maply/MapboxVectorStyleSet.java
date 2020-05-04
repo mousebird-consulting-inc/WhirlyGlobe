@@ -14,6 +14,10 @@ public class MapboxVectorStyleSet implements VectorStyleInterface {
 
     // Construct with the JSON data from a string
     public MapboxVectorStyleSet(String styleJSON,VectorStyleSettings inSettings,RenderControllerInterface inControl) {
+        // Fault in the ComponentObject native implementation.
+        // Because the first time it can be called in this case is C++ side
+        ComponentObject testObj = new ComponentObject();
+
         control = new WeakReference<RenderControllerInterface>(inControl);
         if (inSettings == null)
             inSettings = new VectorStyleSettings();
@@ -66,6 +70,7 @@ public class MapboxVectorStyleSet implements VectorStyleInterface {
             LabelInfo labelInfo = new LabelInfo();
             labelInfo.setTypeface(typeface);
             labelInfo.setFontSize(fontSize);
+            labelInfo.fontName = fontName;
             labelInfos.add(labelInfo);
 
             return labelInfo;

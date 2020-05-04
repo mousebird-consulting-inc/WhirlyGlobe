@@ -52,7 +52,7 @@ using namespace WhirlyKit;
         return nil;
     
     iosDictionaryRef dictWrap(new iosDictionary(styleDict));
-    if (!style->parse(dictWrap))
+    if (!style->parse(NULL,dictWrap))
         return nil;
     
     _spriteURL = styleDict[@"sprite"];

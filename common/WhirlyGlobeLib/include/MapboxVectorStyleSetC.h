@@ -139,7 +139,7 @@ public:
     virtual ~MapboxVectorStyleSetImpl();
     
     // Parse the entire style sheet.  False on failure
-    bool parse(DictionaryRef dict);
+    bool parse(VectorStyleInst *inst,DictionaryRef dict);
         
     /// @brief Default settings and scale factor for Mapnik vector geometry.
     VectorStyleSettingsImplRef tileStyleSettings;
@@ -213,19 +213,23 @@ public:
     /** Platform specific implementation **/
     
     /// Local platform implementation for generating a circle and adding it as a texture
-    virtual SimpleIdentity makeCircleTexture(double radius,const RGBAColor &fillColor,const RGBAColor &strokeColor,float strokeWidth,Point2f *circleSize) = 0;
+    virtual SimpleIdentity makeCircleTexture(VectorStyleInst *inst,
+                                             double radius,
+                                             const RGBAColor &fillColor,
+                                             const RGBAColor &strokeColor,
+                                             float strokeWidth,Point2f *circleSize) = 0;
     
     /// Local platform implementation for generating a repeating line texture
-    virtual SimpleIdentity makeLineTexture(const std::vector<double> &dashComponents) = 0;
+    virtual SimpleIdentity makeLineTexture(VectorStyleInst *inst,const std::vector<double> &dashComponents) = 0;
     
     /// Create a local platform LabelInfo (since fonts are local)
-    virtual LabelInfoRef makeLabelInfo(const std::string &fontName,float fontSize) = 0;
+    virtual LabelInfoRef makeLabelInfo(VectorStyleInst *inst,const std::string &fontName,float fontSize) = 0;
     
     /// Create a local platform label (fonts are local, and other stuff)
-    virtual SingleLabelRef makeSingleLabel(const std::string &text) = 0;
+    virtual SingleLabelRef makeSingleLabel(VectorStyleInst *inst,const std::string &text) = 0;
     
     /// Create a local platform component object
-    virtual ComponentObjectRef makeComponentObject() = 0;
+    virtual ComponentObjectRef makeComponentObject(VectorStyleInst *inst) = 0;
 
 public:
     Scene *scene;

@@ -24,7 +24,9 @@
 namespace WhirlyKit
 {
 
-bool MapboxVectorCirclePaint::parse(MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry)
+bool MapboxVectorCirclePaint::parse(VectorStyleInst *inst,
+                                    MapboxVectorStyleSetImpl *styleSet,
+                                    DictionaryRef styleEntry)
 {
     if (!styleSet)
         return false;
@@ -39,17 +41,18 @@ bool MapboxVectorCirclePaint::parse(MapboxVectorStyleSetImpl *styleSet,Dictionar
     return true;
 }
 
-bool MapboxVectorLayerCircle::parse(DictionaryRef styleEntry,
+bool MapboxVectorLayerCircle::parse(VectorStyleInst *inst,
+                                    DictionaryRef styleEntry,
                                     MapboxVectorStyleLayerRef refLayer,
                                     int drawPriority)
 {
-    if (!MapboxVectorStyleLayer::parse(styleEntry,refLayer,drawPriority) ||
-        !paint.parse(styleSet, styleEntry->getDict("paint")))
+    if (!MapboxVectorStyleLayer::parse(inst,styleEntry,refLayer,drawPriority) ||
+        !paint.parse(inst, styleSet, styleEntry->getDict("paint")))
         return false;
 
     RGBAColor theFillColor = (*paint.fillColor) * paint.opacity;
     RGBAColor theStrokeColor = (*paint.strokeColor) * paint.strokeOpacity;
-    circleTexID = styleSet->makeCircleTexture(paint.radius,theFillColor,theStrokeColor,paint.strokeWidth,&circleSize);
+    circleTexID = styleSet->makeCircleTexture(inst,paint.radius,theFillColor,theStrokeColor,paint.strokeWidth,&circleSize);
 
     // Larger circles are slightly more important
     importance = drawPriority/1000 + styleSet->tileStyleSettings->markerImportance + paint.radius / 100000.0;
@@ -65,13 +68,14 @@ void MapboxVectorLayerCircle::cleanup(ChangeSet &changes)
         changes.push_back(new RemTextureReq(circleTexID));
 }
 
-void MapboxVectorLayerCircle::buildObjects(std::vector<VectorObjectRef> &vecObjs,
+void MapboxVectorLayerCircle::buildObjects(VectorStyleInst *inst,
+                                           std::vector<VectorObjectRef> &vecObjs,
                                           VectorTileDataRef tileInfo)
 {
     if (!visible)
         return;
     
-    ComponentObjectRef compObj = styleSet->makeComponentObject();
+    ComponentObjectRef compObj = styleSet->makeComponentObject(inst);
 
     // Default settings
     MarkerInfo markerInfo(true);

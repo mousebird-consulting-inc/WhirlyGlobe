@@ -100,6 +100,15 @@ typedef std::shared_ptr<VectorStyleSettingsImpl> VectorStyleSettingsImplRef;
 class VectorStyleImpl;
 typedef std::shared_ptr<VectorStyleImpl> VectorStyleImplRef;
 
+
+/**
+ * On Android we have to pass around per-thread information.
+ * So this is a base class passed in to the parse and build methods.  Platforms put whatever per-thread info they need into it.
+ */
+class VectorStyleInst
+{
+};
+
 /**
     Base class for styling vectors.  This is set up to manage the styles.
 */
@@ -140,7 +149,7 @@ public:
     virtual bool geomAdditive() = 0;
 
     /// Construct objects related to this style based on the input data.
-    virtual void buildObjects(std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo) = 0;
+    virtual void buildObjects(VectorStyleInst *inst, std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo) = 0;
 };
 
 }

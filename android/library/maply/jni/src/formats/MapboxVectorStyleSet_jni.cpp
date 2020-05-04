@@ -50,8 +50,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_initialise
         } else
             settings = VectorStyleSettingsImplRef(new VectorStyleSettingsImpl(1.0));
         MapboxVectorStyleSetImpl_AndroidRef *inst = new MapboxVectorStyleSetImpl_AndroidRef(new MapboxVectorStyleSetImpl_Android(scene,settings));
-        bool success = (*inst)->parse(jsonDict);
-        (*inst)->setEnv(env);
+
+        // Need a pointer to this JNIEnv for low level parsing callbacks
+        VectorStyleInst_Android threadInst;
+        threadInst.env = env;
+
+        bool success = (*inst)->parse(&threadInst,jsonDict);
         (*inst)->thisObj = env->NewGlobalRef(obj);
         MapboxVectorStyleSetClassInfo::getClassInfo()->setHandle(env,obj,inst);
     }
@@ -74,6 +78,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_dispose
             MapboxVectorStyleSetImpl_AndroidRef *inst = classInfo->getObject(env,obj);
             if (!inst)
                 return;
+            (*inst)->cleanup(env);
             env->DeleteGlobalRef((*inst)->thisObj);
             delete inst;
         }

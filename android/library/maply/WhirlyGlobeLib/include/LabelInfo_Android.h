@@ -56,5 +56,6 @@ public:
 	JNIEnv *env;
 	jobject labelInfoObj;
 };
+typedef std::shared_ptr<LabelInfoAndroid> LabelInfoAndroidRef;
 
 }

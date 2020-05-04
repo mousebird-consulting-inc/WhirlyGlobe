@@ -106,7 +106,7 @@ void MapboxVectorTileParser::addCategory(const std::string &category,long long s
     styleCategories[styleID] = category;
 }
     
-bool MapboxVectorTileParser::parse(RawData *rawData,VectorTileData *tileData)
+bool MapboxVectorTileParser::parse(VectorStyleInst *styleInst,RawData *rawData,VectorTileData *tileData)
 {
     //calulate tile bounds and coordinate shift
     int tileSize = 256;
@@ -413,7 +413,7 @@ bool MapboxVectorTileParser::parse(RawData *rawData,VectorTileData *tileData)
         auto styleData = VectorTileDataRef(new VectorTileData(*tileData));
 
         // Ask the subclass to run the style and fill in the VectorTileData
-        buildForStyle(it.first,*vecs,styleData);
+        buildForStyle(styleInst,it.first,*vecs,styleData);
         
         // Sort the results into categories if needed
         auto catIt = styleCategories.find(it.first);
@@ -478,11 +478,14 @@ bool MapboxVectorTileParser::parse(RawData *rawData,VectorTileData *tileData)
     return true;
 }
 
-void MapboxVectorTileParser::buildForStyle(long long styleID,std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef data)
+void MapboxVectorTileParser::buildForStyle(VectorStyleInst *styleInst,
+                                           long long styleID,
+                                           std::vector<VectorObjectRef> &vecObjs,
+                                           VectorTileDataRef data)
 {
     VectorStyleImplRef style = styleDelegate->styleForUUID(styleID);
     if (style)
-        style->buildObjects(vecObjs, data);
+        style->buildObjects(styleInst,vecObjs, data);
 }
     
 }

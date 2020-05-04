@@ -30,7 +30,9 @@ static const char *placementVals[] = {"point","line",NULL};
 static const char *transformVals[] = {"none","uppercase","lowercase",NULL};
 static const char *anchorVals[] = {"center","left","right","top","bottom","top-left","top-right","bottom-left","bottom-right",NULL};
 
-bool MapboxVectorSymbolLayout::parse(MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry)
+bool MapboxVectorSymbolLayout::parse(VectorStyleInst *inst,
+                                     MapboxVectorStyleSetImpl *styleSet,
+                                     DictionaryRef styleEntry)
 {
     globalTextScale = styleSet->tileStyleSettings->textScale;
     placement = (MapboxSymbolPlacement)styleSet->enumValue(styleEntry->getEntry("symbol-placement"), placementVals, (int)MBPlacePoint);
@@ -79,7 +81,9 @@ bool MapboxVectorSymbolLayout::parse(MapboxVectorStyleSetImpl *styleSet,Dictiona
     return true;
 }
 
-bool MapboxVectorSymbolPaint::parse(MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry)
+bool MapboxVectorSymbolPaint::parse(VectorStyleInst *inst,
+                                    MapboxVectorStyleSetImpl *styleSet,
+                                    DictionaryRef styleEntry)
 {
     textColor = styleSet->transColor("text-color", styleEntry, RGBAColor::black());
     textOpacity = styleSet->transDouble("text-opacity", styleEntry, 1.0);
@@ -89,13 +93,14 @@ bool MapboxVectorSymbolPaint::parse(MapboxVectorStyleSetImpl *styleSet,Dictionar
     return true;
 }
 
-bool MapboxVectorLayerSymbol::parse(DictionaryRef styleEntry,
+bool MapboxVectorLayerSymbol::parse(VectorStyleInst *inst,
+                                    DictionaryRef styleEntry,
                                    MapboxVectorStyleLayerRef refLayer,
                                    int inDrawPriority)
 {
-    if (!MapboxVectorStyleLayer::parse(styleEntry,refLayer,drawPriority) ||
-        !layout.parse(styleSet,styleEntry->getDict("layout")) ||
-        !paint.parse(styleSet, styleEntry->getDict("paint")))
+    if (!MapboxVectorStyleLayer::parse(inst,styleEntry,refLayer,drawPriority) ||
+        !layout.parse(inst,styleSet,styleEntry->getDict("layout")) ||
+        !paint.parse(inst,styleSet, styleEntry->getDict("paint")))
         return false;
 
     uniqueLabel = styleSet->boolValue("unique-label", styleEntry, "yes", false);
@@ -186,16 +191,18 @@ static float calcStringHash(const std::string &str)
     return val;
 }
 
-void MapboxVectorLayerSymbol::cleanup(ChangeSet &changes)
+void MapboxVectorLayerSymbol::cleanup(VectorStyleInst *inst,ChangeSet &changes)
 {
 }
 
-void MapboxVectorLayerSymbol::buildObjects(std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo)
+void MapboxVectorLayerSymbol::buildObjects(VectorStyleInst *inst,
+                                           std::vector<VectorObjectRef> &vecObjs,
+                                           VectorTileDataRef tileInfo)
 {
     if (!visible)
         return;
     
-    ComponentObjectRef compObj = styleSet->makeComponentObject();
+    ComponentObjectRef compObj = styleSet->makeComponentObject(inst);
 
     // TODO: They mean displayed level here, which is different from loaded level
     if (useZoomLevels) {
@@ -209,7 +216,7 @@ void MapboxVectorLayerSymbol::buildObjects(std::vector<VectorObjectRef> &vecObjs
     // Snap to an integer.  Not clear we need to, just because.
     textSize = (int)(textSize * layout.globalTextScale+0.5);
 
-    LabelInfoRef labelInfo = styleSet->makeLabelInfo(layout.textFontName,textSize);
+    LabelInfoRef labelInfo = styleSet->makeLabelInfo(inst,layout.textFontName,textSize);
     labelInfo->screenObject = true;
     labelInfo->fade = 0.0;
     labelInfo->textJustify = WhirlyKitTextCenter;
@@ -265,8 +272,10 @@ void MapboxVectorLayerSymbol::buildObjects(std::vector<VectorObjectRef> &vecObjs
                                 for (auto key : textChunk.keys) {
                                     if (vecObj->getAttributes()->hasField(key)) {
                                         std::string keyVal = vecObj->getAttributes()->getString(key);
-                                        if (!keyVal.empty())
+                                        if (!keyVal.empty()) {
                                             text += keyVal;
+                                            break;
+                                        }
                                     }
                                 }
                             }
@@ -294,7 +303,7 @@ void MapboxVectorLayerSymbol::buildObjects(std::vector<VectorObjectRef> &vecObjs
 //                            }
                             
                             // Construct the label
-                            SingleLabelRef label = styleSet->makeSingleLabel(text);
+                            SingleLabelRef label = styleSet->makeSingleLabel(inst,text);
                             label->loc = GeoCoord(pt.x(),pt.y());
                             label->isSelectable = selectable;
                             

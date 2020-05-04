@@ -93,7 +93,7 @@ public class MapboxVectorTileParser
      */
     public boolean parseData(byte[] data,VectorTileData tileData)
     {
-        return parseDataNative(data,tileData);
+        return parseDataNative(data, tileData);
     }
 
     native boolean parseDataNative(byte[] data,VectorTileData tileData);

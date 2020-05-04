@@ -51,19 +51,23 @@ public:
     NSObject<MaplyRenderControllerProtocol> *viewC;
     
     /// Local platform implementation for generating a circle and adding it as a texture
-    virtual SimpleIdentity makeCircleTexture(double radius,const RGBAColor &fillColor,const RGBAColor &strokeColor,float strokeWidth,Point2f *circleSize);
+    virtual SimpleIdentity makeCircleTexture(VectorStyleInst *inst,
+                                             double radius,
+                                             const RGBAColor &fillColor,
+                                             const RGBAColor &strokeColor,
+                                             float strokeWidth,Point2f *circleSize);
     
     /// Local platform implementation for generating a repeating line texture
-    virtual SimpleIdentity makeLineTexture(const std::vector<double> &dashComponents);
+    virtual SimpleIdentity makeLineTexture(VectorStyleInst *inst,const std::vector<double> &dashComponents);
     
     /// Make platform specific label info object (ideally we're caching these)
-    virtual LabelInfoRef makeLabelInfo(const std::string &fontName,float fontSize);
+    virtual LabelInfoRef makeLabelInfo(VectorStyleInst *inst,const std::string &fontName,float fontSize);
 
     /// Create a local platform label (fonts are local, and other stuff)
-    virtual SingleLabelRef makeSingleLabel(const std::string &text);
+    virtual SingleLabelRef makeSingleLabel(VectorStyleInst *inst,const std::string &text);
     
     /// Create a platform specific variant of the component object
-    ComponentObjectRef makeComponentObject();
+    ComponentObjectRef makeComponentObject(VectorStyleInst *inst);
         
 };
 
@@ -105,7 +109,7 @@ public:
     virtual long long getUuid();
     virtual std::string getCategory();
     virtual bool geomAdditive();
-    virtual void buildObjects(std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo);
+    virtual void buildObjects(VectorStyleInst *inst,std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo);
     
 protected:
     NSObject<MaplyRenderControllerProtocol> * __weak viewC;
