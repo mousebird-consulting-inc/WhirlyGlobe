@@ -19,6 +19,7 @@
  */
 
 #import "QuadLoading_jni.h"
+#import "Scene_jni.h"
 #import "com_mousebird_maply_LoaderReturn.h"
 
 using namespace Eigen;
@@ -143,4 +144,22 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_LoaderReturn_getFrame
 	}
 
 	return -1;
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_mergeChanges
+		(JNIEnv *env, jobject obj, jobject changeObj)
+{
+	try
+	{
+		QuadLoaderReturn *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
+		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeObj);
+		if (!loadReturn || !changeSet)
+			return;
+
+		loadReturn->changes.insert(loadReturn->changes.end(),changeSet->begin(),changeSet->end());
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LoaderReturn::mergeChanges()");
+	}
 }

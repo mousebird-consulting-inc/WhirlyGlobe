@@ -202,7 +202,7 @@ bool MapboxVectorFilter::testFeature(DictionaryRef attrs,const QuadTreeIdentifie
                         break;
                 }
             } else {
-                if (featAttrVal->getType() == DictTypeDouble)
+                if (featAttrVal->getType() == DictTypeDouble || featAttrVal->getType() == DictTypeInt)
                 {
                     double val1 = featAttrVal->getDouble();
                     double val2 = attrVal->getDouble();

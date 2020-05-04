@@ -99,6 +99,11 @@ public class LoaderReturn
     }
 
     /**
+     * Merge in the given changes requests to be handled upstream.
+     */
+    public native void mergeChanges(ChangeSet changes);
+
+    /**
      * If set, some part of the parser is letting us know about an error.
      */
     String errorString = null;

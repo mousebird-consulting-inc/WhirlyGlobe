@@ -30,3 +30,6 @@ typedef JavaClassInfo<WhirlyKit::Shader_Android> ShaderClassInfo;
 
 // Construct a Java-side Shader object around an existing Shader_Android.
 jobject MakeShader(JNIEnv *env,WhirlyKit::Shader_Android *shader);
+
+// Construct a Java-side ChangeSet object
+jobject MakeChangeSet(JNIEnv *env,const WhirlyKit::ChangeSet &changeSet);

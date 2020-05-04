@@ -41,6 +41,14 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_LoaderReturn_getFrame
 
 /*
  * Class:     com_mousebird_maply_LoaderReturn
+ * Method:    mergeChanges
+ * Signature: (Lcom/mousebird/maply/ChangeSet;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_mergeChanges
+  (JNIEnv *, jobject, jobject);
+
+/*
+ * Class:     com_mousebird_maply_LoaderReturn
  * Method:    nativeInit
  * Signature: ()V
  */

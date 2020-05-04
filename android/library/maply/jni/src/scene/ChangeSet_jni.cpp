@@ -33,6 +33,16 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_nativeInit
 	ChangeSetClassInfo::getClassInfo(env,cls);
 }
 
+JNIEXPORT jobject JNICALL MakeChangeSet(JNIEnv *env,const ChangeSet &changeSet)
+{
+	ChangeSetClassInfo *classInfo = ChangeSetClassInfo::getClassInfo(env,"com/mousebird/maply/ChangeSet");
+	jobject newObj = classInfo->makeWrapperObject(env,NULL);
+	WhirlyKit::ChangeSet *inst = classInfo->getObject(env,newObj);
+	inst->insert(inst->end(),changeSet.begin(),changeSet.end());
+
+	return newObj;
+}
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_initialise
   (JNIEnv *env, jobject obj)
 {

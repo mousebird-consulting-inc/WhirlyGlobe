@@ -56,10 +56,10 @@ class MapTilerTestCase : MaplyTestCase {
         }
 
         // Need a standalone renderer
-//        tileRenderer = RenderController(512,512)
+        tileRenderer = RenderController(512,512)
 
         // The interpreter renders some of the data into images and overlays the rest
-        interp = MapboxVectorInterpreter(null, null, polyStyle, control)
+        interp = MapboxVectorInterpreter(polyStyle, tileRenderer, polyStyle, control)
 
         // Finally the loader asks for tiles
         loader = QuadImageLoader(params,tileInfo,control)

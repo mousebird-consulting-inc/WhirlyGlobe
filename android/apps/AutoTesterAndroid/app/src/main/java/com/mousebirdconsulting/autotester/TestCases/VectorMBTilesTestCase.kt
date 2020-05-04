@@ -59,7 +59,7 @@ class VectorMBTilesTestCase : MaplyTestCase {
 
         // The fetcher fetches tile from the MBTiles file
         // The fetcher fetches tile from the MBTiles file
-        val mbTileFetcher = MBTileFetcher(mbTiles) ?: return
+        val mbTileFetcher = MBTileFetcher(mbTiles)
 
         // Set up the parameters to match the MBTile file
         // Set up the parameters to match the MBTile file
@@ -92,7 +92,7 @@ class VectorMBTilesTestCase : MaplyTestCase {
 
         // The fetcher fetches tile from the MBTiles file
         // The fetcher fetches tile from the MBTiles file
-        val mbTileFetcher = MBTileFetcher(mbTiles) ?: return
+        val mbTileFetcher = MBTileFetcher(mbTiles)
 
         // Set up the parameters to match the MBTile file
         // Set up the parameters to match the MBTile file
@@ -112,10 +112,10 @@ class VectorMBTilesTestCase : MaplyTestCase {
 
         // Overlay the tile number on top
         val debugInterp = OvlDebugImageLoaderInterpreter()
-        debugInterp!!.setParentInterpreter(interp)
+        debugInterp.setParentInterpreter(interp)
 
-        val loader = QuadPagingLoader(params, mbTileFetcher!!.tileInfo, debugInterp, control)
-        loader!!.setTileFetcher(mbTileFetcher)
+        val loader = QuadPagingLoader(params, mbTileFetcher.tileInfo, debugInterp, control)
+        loader.setTileFetcher(mbTileFetcher)
     }
 
     fun setupFranceVector(control: BaseController) {
@@ -127,7 +127,7 @@ class VectorMBTilesTestCase : MaplyTestCase {
         params.coordSystem = SphericalMercatorCoordSystem()
         params.singleLevel = true
         params.minZoom = 0
-        params.maxZoom = fetcher!!.maxZoom
+        params.maxZoom = fetcher.maxZoom
 
         // Simple style generator just picks random colors
         val styleGen = VectorStyleSimpleGenerator(control)
@@ -139,8 +139,8 @@ class VectorMBTilesTestCase : MaplyTestCase {
 //        val debugInterp = OvlDebugImageLoaderInterpreter()
 //        debugInterp!!.setParentInterpreter(interp)
 
-        val loader = QuadPagingLoader(params, fetcher!!.tileInfo, interp, control)
-        loader!!.setTileFetcher(fetcher)
+        val loader = QuadPagingLoader(params, fetcher.tileInfo, interp, control)
+        loader.setTileFetcher(fetcher)
     }
 
     fun setupShapefile(control: BaseController) {

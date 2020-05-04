@@ -132,6 +132,10 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
         locBounds.ur = toMerc(locBounds.ur);
         VectorTileData tileData = new VectorTileData(tileID,locBounds,loader.geoBoundsForTile(tileID));
         parser.parseData(data,tileData);
+        BaseController theVC = vc.get();
+        if (theVC != null) {
+            loadReturn.mergeChanges(tileData.getChangeSet());
+        }
 
         // If we have a tile renderer, draw the data into that
         Bitmap tileBitmap = null;
@@ -140,6 +144,7 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
             VectorTileData imageTileData = new VectorTileData(tileID,imageBounds,imageBounds);
             synchronized (tileRender) {
                 imageParser.parseData(data,imageTileData);
+                imageTileData.getChangeSet().process(tileRender,tileRender.getScene());
                 tileBitmap = tileRender.renderToBitmap();
             }
         }

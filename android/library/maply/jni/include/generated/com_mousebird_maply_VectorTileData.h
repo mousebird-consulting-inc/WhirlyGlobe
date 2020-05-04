@@ -65,6 +65,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorTileData_addComponentObjec
 
 /*
  * Class:     com_mousebird_maply_VectorTileData
+ * Method:    getChangeSet
+ * Signature: ()Lcom/mousebird/maply/ChangeSet;
+ */
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorTileData_getChangeSet
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_VectorTileData
  * Method:    getVectors
  * Signature: ()[Lcom/mousebird/maply/VectorObject;
  */
