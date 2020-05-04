@@ -15,11 +15,11 @@ class MapTilerTestCase : MaplyTestCase {
         implementation = TestExecutionImplementation.Both
     }
 
-    var loader: QuadImageLoader? = null
-    var interp: MapboxVectorInterpreter? = null
+    var loader: QuadPagingLoader? = null
     var polyStyle: VectorStyleSimpleGenerator? = null
+    var interp: MapboxVectorInterpreter? = null
 //    var lineStyleGen: VectorStyleSimpleGenerator? = null
-    var tileRenderer: RenderController? = null
+//    var tileRenderer: RenderController? = null
 
     // Set up the loader (and all the stuff it needs) for the map tiles
     fun setupLoader(control: BaseController, testType: ConfigOptions.TestType) {
@@ -56,13 +56,15 @@ class MapTilerTestCase : MaplyTestCase {
         }
 
         // Need a standalone renderer
-        tileRenderer = RenderController(512,512)
+//        tileRenderer = RenderController(512,512)
 
         // The interpreter renders some of the data into images and overlays the rest
-        interp = MapboxVectorInterpreter(polyStyle, tileRenderer, polyStyle, control)
+//        interp = MapboxVectorInterpreter(polyStyle, tileRenderer, polyStyle, control)
+        interp = MapboxVectorInterpreter(null, null, polyStyle, control)
 
         // Finally the loader asks for tiles
-        loader = QuadImageLoader(params,tileInfo,control)
+        loader = QuadPagingLoader(params, tileInfo, interp, control)
+//        loader = QuadImageLoader(params,tileInfo,control)
         loader?.setLoaderInterpreter(interp)
     }
 

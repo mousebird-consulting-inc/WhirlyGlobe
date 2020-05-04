@@ -279,7 +279,9 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorTileData_getChangeSet
         VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
         if (!tileData)
             return NULL;
-        return MakeChangeSet(env,(*tileData)->changes);
+        jobject newObj = MakeChangeSet(env,(*tileData)->changes);
+        (*tileData)->changes.clear();
+        return newObj;
     }
     catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorTileData::getChangeSet");
