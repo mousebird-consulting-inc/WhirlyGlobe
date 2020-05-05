@@ -22,6 +22,7 @@
 #import "MapboxVectorStyleLayer.h"
 #import "SharedAttributes.h"
 #import "WhirlyKitLog.h"
+#import "MapboxVectorStyleBackground.h"
 #import <regex>
 
 namespace WhirlyKit
@@ -215,7 +216,7 @@ RGBAColor MapboxTransColor::colorForZoom(double zoom)
     if (useAlphaOverride) {
         theColor.a = alpha * 255.0;
     }
-
+    
     return theColor;
 }
 
@@ -653,6 +654,20 @@ MapboxVectorStyleLayerRef MapboxVectorStyleSetImpl::getLayer(const std::string &
     
     return it->second;
 }
+
+RGBAColorRef MapboxVectorStyleSetImpl::backgroundColor(double zoom)
+{
+    auto it = layersByName.find("background");
+    if (it != layersByName.end()) {
+        MapboxVectorLayerBackgroundRef backLayer = std::dynamic_pointer_cast<MapboxVectorLayerBackground>(it->second);
+        if (backLayer) {
+            return RGBAColorRef(new RGBAColor(backLayer->paint.color->colorForZoom(zoom)));
+        }
+    }
+    
+    return RGBAColorRef();
+}
+
 
 std::vector<VectorStyleImplRef> MapboxVectorStyleSetImpl::stylesForFeature(DictionaryRef attrs,
                                                          const QuadTreeIdentifier &tileID,

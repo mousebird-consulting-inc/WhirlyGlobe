@@ -361,48 +361,62 @@ public class MapboxKindaMap {
                 imageStyleSettings.baseDrawPriority = styleSettings.baseDrawPriority
                 imageStyleSettings.arealShaderName = kMaplyShaderDefaultTriNoLighting
 
+                guard var styleDictImage = try? JSONSerialization.jsonObject(with: styleSheetData, options: []) as? [String: Any] else {
+                    print("Failed to parse JSON style")
+                    self.stop()
+                    return
+                }
+                
+                // Leave only the background and fill layers
+                if let layers = styleDictImage["layers"] as? [[String: Any]] {
+                    var newLayers = [ [String: Any] ]()
+                    for layer in layers {
+                        if let type = layer["type"] as? String {
+                            if type == "background" || type == "fill" {
+                                newLayers.append(layer)
+                            }
+                        }
+                    }
+                    styleDictImage["layers"] = newLayers
+                }
+                
                 // We only want the polygons in the image
-                guard let styleSheetImage = MapboxVectorStyleSet(json: styleSheetData,
-                                                                    settings: imageStyleSettings,
-                                                                    viewC: offlineRender) else {
+                guard let styleSheetImage = MapboxVectorStyleSet(dict: styleDictImage,
+                                                             settings: imageStyleSettings,
+                                                                viewC: offlineRender) else {
                         print("Failed to set up image style sheet.  Nothing will appear.")
                         self.stop()
                         return
                 }
-                // TODO: Replace the filters
-//                                                                    filter:
-//                    { (styleAttrs) -> Bool in
-//                        // We only want polygons for the image
-//                        if let type = styleAttrs["type"] as? String {
-//                            if type == "background" || type == "fill" {
-//                                return true
-//                            }
-//                        }
-//                        return false
-//                })
+                                
                 self.styleSheetImage = styleSheetImage
             }
             
+            guard var styleDictVector = try? JSONSerialization.jsonObject(with: styleSheetData, options: []) as? [String: Any] else {
+                print("Failed to parse JSON style")
+                self.stop()
+                return
+            }
+            
+            // If we're backgrounding all the polys, we don't want them in this version
+            if self.backgroundAllPolys {
+                if let layers = styleDictVector["layers"] as? [[String: Any]] {
+                    var newLayers = [ [String: Any] ]()
+                    for layer in layers {
+                        if let type = layer["type"] as? String {
+                            if type != "background" && type != "fill" {
+                                newLayers.append(layer)
+                            }
+                        }
+                    }
+                    styleDictVector["layers"] = newLayers
+                }
+            }
+            
             // Just the linear and point vectors in the overlay
-            guard let styleSheetVector = MapboxVectorStyleSet(json: styleSheetData,
-                                                                 settings: styleSettings,
-                                                                 viewC: viewC) else {
-// TODO: Replace the filters
-//                { (styleAttrs) -> Bool in
-//                    if self.backgroundAllPolys {
-//                        // We want everything but the polygons
-//                        if let type = styleAttrs["type"] as? String {
-//                            if type != "background" && type != "fill" {
-//                                return true
-//                            }
-//                        }
-//                        return false
-//                    } else {
-//                        // That mode's not on, so leave it alone
-//                        return true
-//                    }
-//            })
-//                else {
+            guard let styleSheetVector = MapboxVectorStyleSet(dict: styleDictVector,
+                                                          settings: styleSettings,
+                                                             viewC: viewC) else {
                     print("Failed to set up vector style sheet.  Nothing will appear.")
                     self.stop()
                     return

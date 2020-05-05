@@ -201,7 +201,7 @@ void MapboxVectorLayerSymbol::buildObjects(VectorStyleInst *inst,
 {
     if (!visible)
         return;
-    
+
     ComponentObjectRef compObj = styleSet->makeComponentObject(inst);
 
     // TODO: They mean displayed level here, which is different from loaded level

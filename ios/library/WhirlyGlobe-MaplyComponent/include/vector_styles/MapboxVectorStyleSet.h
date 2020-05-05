@@ -28,6 +28,13 @@
  */
 @interface MapboxVectorStyleSet : NSObject<MaplyVectorStyleDelegate>
 
+/// @brief Initialize with the style dictionary alreayd parsed from JSON
+/// @details We'll parse the style JSON passed in and return nil on failure.
+/// @details The optional filter can be used to reject layers we won't use
+- (id __nullable)initWithDict:(NSDictionary * __nonnull)styleDict
+                     settings:(MaplyVectorStyleSettings * __nonnull)settings
+                        viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)viewC;
+
 /// @brief Initialize with the style JSON and the view controller
 /// @details We'll parse the style JSON passed in and return nil on failure.
 /// @details The optional filter can be used to reject layers we won't use

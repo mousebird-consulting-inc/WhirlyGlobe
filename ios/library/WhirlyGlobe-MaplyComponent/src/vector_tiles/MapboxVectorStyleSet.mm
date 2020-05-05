@@ -28,17 +28,15 @@ using namespace WhirlyKit;
 
 @implementation MapboxVectorStyleSet
 
-- (id)initWithJSON:(NSData *)styleJSON
-          settings:(MaplyVectorStyleSettings *)settings
-             viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+- (id __nullable)initWithDict:(NSDictionary * __nonnull)styleDict
+                    settings:(MaplyVectorStyleSettings * __nonnull)settings
+                       viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)viewC
 {
     self = [super init];
     if (!self)
         return nil;
-    
+
     _viewC = viewC;
-    NSError *error = nil;
-    
     VectorStyleSettingsImplRef styleSettings;
     if (settings)
         styleSettings = settings->impl;
@@ -46,11 +44,7 @@ using namespace WhirlyKit;
         styleSettings = VectorStyleSettingsImplRef(new VectorStyleSettingsImpl([UIScreen mainScreen].scale));
     
     style = MapboxVectorStyleSetImplRef(new MapboxVectorStyleSetImpl_iOS([viewC getRenderControl]->scene,styleSettings));
-    
-    NSDictionary *styleDict = [NSJSONSerialization JSONObjectWithData:styleJSON options:NULL error:&error];
-    if (!styleDict)
-        return nil;
-    
+
     iosDictionaryRef dictWrap(new iosDictionary(styleDict));
     if (!style->parse(NULL,dictWrap))
         return nil;
@@ -72,10 +66,28 @@ using namespace WhirlyKit;
     return self;
 }
 
-// TODO: Get this working again
+- (id)initWithJSON:(NSData *)styleJSON
+          settings:(MaplyVectorStyleSettings *)settings
+             viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+{
+    self = [super init];
+    if (!self)
+        return nil;
+        
+    NSError *error = nil;
+    NSDictionary *styleDict = [NSJSONSerialization JSONObjectWithData:styleJSON options:NULL error:&error];
+    if (!styleDict)
+        return nil;
+    
+    return [self initWithDict:styleDict settings:settings viewC:viewC];
+}
+
 - (UIColor * __nullable)backgroundColorForZoom:(double)zoom
 {
-    return [UIColor whiteColor];
+    RGBAColorRef color = style->backgroundColor(zoom);
+    if (!color)
+        return [UIColor blackColor];
+    return [UIColor colorFromRGBA:*color];
 }
 
 // These are here just to satisfy the compiler.  We use the underlying C++ calls instead

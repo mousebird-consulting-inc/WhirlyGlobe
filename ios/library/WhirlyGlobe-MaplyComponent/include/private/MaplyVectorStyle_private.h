@@ -91,6 +91,8 @@ public:
 
     virtual std::vector<VectorStyleImplRef> allStyles();
     
+    RGBAColorRef backgroundColor(double zoom);
+    
 protected:
     NSObject<MaplyRenderControllerProtocol> * __weak viewC;
     NSObject<MaplyVectorStyleDelegate> *delegate;

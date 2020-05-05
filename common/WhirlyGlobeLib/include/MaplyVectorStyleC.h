@@ -129,6 +129,9 @@ public:
 
     // Return a list of all the styles in no particular order.  Needed for categories and indexing
     virtual std::vector<VectorStyleImplRef> allStyles() = 0;
+    
+    /// Return the background color for a given zoom level
+    virtual RGBAColorRef backgroundColor(double zoom) = 0;
 };
 typedef std::shared_ptr<VectorStyleDelegateImpl> VectorStyleDelegateImplRef;
 

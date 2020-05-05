@@ -55,9 +55,10 @@ public:
                               std::vector<VectorObjectRef> &vecObjs,
                               VectorTileDataRef tileInfo);
 
-protected:
+public:
     /// Controls how the background looks.
     MapboxVectorBackgroundPaint paint;
 };
+typedef std::shared_ptr<MapboxVectorLayerBackground> MapboxVectorLayerBackgroundRef;
 
 }

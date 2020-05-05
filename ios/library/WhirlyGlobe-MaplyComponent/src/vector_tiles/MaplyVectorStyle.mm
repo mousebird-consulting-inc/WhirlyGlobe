@@ -495,6 +495,11 @@ std::vector<VectorStyleImplRef> VectorStyleDelegateWrapper::allStyles()
     return retStyles;
 }
 
+RGBAColorRef VectorStyleDelegateWrapper::backgroundColor(double zoom)
+{
+    return RGBAColorRef(new RGBAColor(RGBAColor::black()));
+}
+
 VectorStyleWrapper::VectorStyleWrapper(NSObject<MaplyRenderControllerProtocol> *viewC,NSObject<MaplyVectorStyle> *style)
 : viewC(viewC),style(style)
 {

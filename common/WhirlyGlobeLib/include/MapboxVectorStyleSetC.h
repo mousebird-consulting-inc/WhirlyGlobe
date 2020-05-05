@@ -192,6 +192,9 @@ public:
     /// Fetch a layer by name
     virtual MapboxVectorStyleLayerRef getLayer(const std::string &name);
     
+    /// Fish out the background color for a given zoom level
+    RGBAColorRef backgroundColor(double zoom);
+    
     /** VectorStyleDelegateImpl **/
     
     /// Return the styles that apply to the given feature (attributes).

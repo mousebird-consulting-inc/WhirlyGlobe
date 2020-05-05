@@ -61,7 +61,6 @@ static int BackImageWidth = 16, BackImageHeight = 16;
     VectorStyleDelegateImplRef vecStyle;
     MaplySphericalMercator *coordSys;
     MaplyRenderController *offlineRender;
-    MapboxTransColorRef backColor;
 
     MapboxVectorTileParserRef imageTileParser,vecTileParser;
 }
@@ -95,11 +94,6 @@ static int BackImageWidth = 16, BackImageHeight = 16;
     imageTileParser = MapboxVectorTileParserRef(new MapboxVectorTileParser(imageStyle));
     imageTileParser->localCoords = true;
     vecTileParser = MapboxVectorTileParserRef(new MapboxVectorTileParser(vecStyle));
-
-    // TODO: Put the background color back
-//    MapboxVectorLayerBackground *backLayer = imageStyle.layersByName[@"background"];
-//    backColor = backLayer.paint.color;
-    backColor = MapboxTransColorRef(new MapboxTransColor(RGBAColorRef(new RGBAColor(RGBAColor::white()))));
     
     return self;
 }
@@ -118,14 +112,6 @@ static int BackImageWidth = 16, BackImageHeight = 16;
         vecStyle = VectorStyleDelegateImplRef(new VectorStyleDelegateWrapper(viewC,inVectorStyle));
 
     vecTileParser = MapboxVectorTileParserRef(new MapboxVectorTileParser(vecStyle));
-
-    // TODO: Put the background color back
-    backColor = MapboxTransColorRef(new MapboxTransColor(RGBAColorRef(new RGBAColor(RGBAColor::white()))));
-//    if ([vecStyle isKindOfClass:[MapboxVectorStyleSet class]]) {
-//        MapboxVectorStyleSet *mbStyleSet = (MapboxVectorStyleSet *)vecStyle;
-//        MapboxVectorLayerBackground *backLayer = mbStyleSet.layersByName[@"background"];
-//        backColor = backLayer.paint.color;
-//    }
     
     return self;
 }
@@ -215,7 +201,8 @@ static int BackImageWidth = 16, BackImageHeight = 16;
         @synchronized(offlineRender)
         {
             // Build the vector objects for use in the image tile
-            offlineRender.clearColor = [UIColor colorFromRGBA:backColor->colorForZoom(tileID.level)];
+            RGBAColorRef backColor = imageStyle->backgroundColor(tileID.level);
+            offlineRender.clearColor = backColor ? [UIColor colorFromRGBA:*backColor] : [UIColor blackColor];
             MaplyVectorTileData *vecTileReturn;
 
             for (NSData *thisTileData : pbfDatas) {
@@ -304,7 +291,8 @@ static int BackImageWidth = 16, BackImageHeight = 16;
                 NSData *backImageData = [[NSMutableData alloc] initWithLength:4*BackImageWidth*BackImageHeight];
                 unsigned int *data = (unsigned int *)[backImageData bytes];
                 CGFloat red,green,blue,alpha;
-                UIColor *thisBackColor = [UIColor colorFromRGBA:backColor->colorForZoom(tileID.level)];
+                RGBAColorRef backColor = vecStyle->backgroundColor(tileID.level);
+                UIColor *thisBackColor = backColor ? [UIColor colorFromRGBA:*backColor] : [UIColor blackColor];
                 [thisBackColor getRed:&red green:&green blue:&blue alpha:&alpha];
                 unsigned int pixel = 0xff << 24 | (int)(blue * 255) << 16 | (int)(green * 255) << 8 | (int)(red * 255);
                 for (unsigned int pix=0;pix<BackImageWidth*BackImageHeight;pix++) {
