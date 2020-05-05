@@ -66,6 +66,9 @@ MapboxVectorStyleLayerRef MapboxVectorStyleLayer::VectorStyleLayer(VectorStyleIn
         layer = MapboxVectorStyleLayerRef(new MapboxVectorLayerRaster(styleSet));
     } else if (type == "background") {
         layer = MapboxVectorStyleLayerRef(new MapboxVectorLayerBackground(styleSet));
+    } else if (type == "fill-extrusion") {
+        wkLogLevel(Warn,"Skipping layer type %s",type.c_str());
+        return NULL;
     }
     if (!layer) {
         wkLogLevel(Warn,"Unknown layer type %s",type.c_str());

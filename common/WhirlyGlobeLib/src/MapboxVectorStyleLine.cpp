@@ -29,6 +29,14 @@ static const char *joinVals[] = {"bevel","round","miter",NULL};
 
 bool MapboxVectorLineLayout::parse(VectorStyleInst *inst,MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry)
 {
+    if (!styleEntry) {
+        cap = MBLineCapButt;
+        join = MBLineJoinMiter;
+        miterLimit = 2.0;
+        roundLimit = 1.0;
+        return true;
+    }
+    
     cap = (MapboxVectorLineCap)styleSet->enumValue(styleEntry->getEntry("line-cap"),lineCapVals,(int)MBLineCapButt);
     join = (MapboxVectorLineJoin)styleSet->enumValue(styleEntry->getEntry("line-join"),joinVals,(int)MBLineJoinMiter);
     miterLimit = styleSet->doubleValue("line-miter-limit", styleEntry, 2.0);

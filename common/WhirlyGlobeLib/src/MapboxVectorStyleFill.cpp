@@ -21,6 +21,7 @@
 #import "MapboxVectorStyleFill.h"
 #import "VectorObject.h"
 #import "Tesselator.h"
+#import "WhirlyKitLog.h"
 
 namespace WhirlyKit
 {
@@ -44,7 +45,7 @@ bool MapboxVectorFillPaint::parse(VectorStyleInst *inst,
 bool MapboxVectorLayerFill::parse(VectorStyleInst *inst,
                                   DictionaryRef styleEntry,
                                   MapboxVectorStyleLayerRef refLayer,
-                                  int drawPriority)
+                                  int inDrawPriority)
 {
     if (!MapboxVectorStyleLayer::parse(inst,styleEntry,refLayer,drawPriority) ||
         !paint.parse(inst,styleSet,styleEntry->getDict("paint")))
@@ -57,7 +58,7 @@ bool MapboxVectorLayerFill::parse(VectorStyleInst *inst,
         paint.color->setAlphaOverride(styleEntry->getDouble("alphaoverride"));
     }
     
-    drawPriority = drawPriority;
+    drawPriority = inDrawPriority;
     
     return true;
 }
@@ -110,6 +111,9 @@ void MapboxVectorLayerFill::buildObjects(VectorStyleInst *inst,
         else
             vecInfo.programID = styleSet->vectorArealProgramID;
         RGBAColorRef color = styleSet->resolveColor(paint.color, paint.opacity, tileInfo->ident.level, MBResolveColorOpacityMultiply);
+
+//        wkLogLevel(Debug, "Color: %s %d %d %d %d",ident.c_str(),(int)color->r,(int)color->g,(int)color->b,(int)color->a);
+
         if (color) {
             vecInfo.color = *color;
         } else {

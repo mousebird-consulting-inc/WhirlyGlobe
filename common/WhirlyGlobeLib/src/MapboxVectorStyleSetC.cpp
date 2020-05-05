@@ -259,8 +259,7 @@ bool MapboxVectorStyleSetImpl::parse(VectorStyleInst *inst,DictionaryRef styleDi
         if (layerStyle->getType() == DictTypeDictionary) {
             MapboxVectorStyleLayerRef layer(MapboxVectorStyleLayer::VectorStyleLayer(inst,this,layerStyle->getDict(),(1*which + tileStyleSettings->baseDrawPriority)));
             if (!layer) {
-                wkLogLevel(Warn,"Failed to parse layer in Mapbox vector style sheet.");
-                return false;
+                continue;
             } else {
                 // Sort into various buckets for quick lookup
                 layersByName[layer->ident] = layer;

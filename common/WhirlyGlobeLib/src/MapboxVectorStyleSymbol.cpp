@@ -205,12 +205,12 @@ void MapboxVectorLayerSymbol::buildObjects(VectorStyleInst *inst,
     ComponentObjectRef compObj = styleSet->makeComponentObject(inst);
 
     // TODO: They mean displayed level here, which is different from loaded level
-    if (useZoomLevels) {
-        if (minzoom > tileInfo->ident.level)
-          return;
-      if (maxzoom < tileInfo->ident.level)
-          return;
-    }
+//    if (useZoomLevels) {
+//        if (minzoom > tileInfo->ident.level)
+//          return;
+//      if (maxzoom < tileInfo->ident.level)
+//          return;
+//    }
     
     double textSize = layout.textSize->valForZoom(tileInfo->ident.level);
     // Snap to an integer.  Not clear we need to, just because.

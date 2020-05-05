@@ -176,6 +176,10 @@ DictionaryType iosDictionary::getType(const std::string &name) const
         return DictTypeString;
     else if ([obj isKindOfClass:[NSNumber class]]) {
         return DictTypeDouble;
+    } else if ([obj isKindOfClass:[NSArray class]]) {
+        return DictTypeArray;
+    } else if ([obj isKindOfClass:[NSDictionary class]]) {
+        return DictTypeDictionary;
     }
     
     return DictTypeObject;
