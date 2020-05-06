@@ -362,7 +362,8 @@ public:
     @synchronized (self) {
         NSMutableArray<MaplyTexture *> *texs = [NSMutableArray array];
         for (MaplyTexture *tex in texCache.allValues)
-            [texs addObject:tex];
+            if ([tex isKindOfClass:[MaplyTexture class]])
+                [texs addObject:tex];
         [viewC removeTextures:texs mode:MaplyThreadCurrent];
         texCache = nil;
     }
