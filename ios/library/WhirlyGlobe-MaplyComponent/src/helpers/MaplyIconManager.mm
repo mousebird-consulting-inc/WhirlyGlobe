@@ -67,7 +67,7 @@ public:
 {
     NSCache *imageCache;
     NSMutableDictionary *texCache;
-    NSObject<MaplyRenderControllerProtocol> *viewC;
+    NSObject<MaplyRenderControllerProtocol> * __weak viewC;
 }
 
 + (MaplySimpleStyleManager *)shared
