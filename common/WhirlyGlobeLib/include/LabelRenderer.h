@@ -88,6 +88,7 @@ public:
     RGBAColor outlineColor;
     float outlineSize;
     float lineHeight;
+    float fontPointSize;
 };
 
 typedef std::shared_ptr<LabelInfo> LabelInfoRef;

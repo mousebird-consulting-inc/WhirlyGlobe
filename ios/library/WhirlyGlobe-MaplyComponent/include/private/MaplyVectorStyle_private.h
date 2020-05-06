@@ -69,6 +69,8 @@ public:
     /// Create a platform specific variant of the component object
     ComponentObjectRef makeComponentObject(VectorStyleInst *inst);
         
+    /// Return the width of the given line of text
+    double calculateTextWidth(LabelInfoRef labelInfo,const std::string &testStr);
 };
 
 /**

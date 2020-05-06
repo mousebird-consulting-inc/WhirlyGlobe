@@ -40,7 +40,7 @@ LabelInfo::LabelInfo(bool screenObject)
     labelJustify(WhirlyKitLabelMiddle), textJustify(WhirlyKitTextCenter),
     shadowColor(0,0,0,0), shadowSize(-1.0),
     outlineColor(0,0,0,0), outlineSize(-1.0),
-    lineHeight(0.0)
+    lineHeight(0.0), fontPointSize(16.0)
 {
     if (screenObject) {
         width = 16.0;
@@ -52,7 +52,7 @@ LabelInfo::LabelInfo(bool screenObject)
 }
     
 LabelInfo::LabelInfo(const Dictionary &dict, bool screenObject)
-    : screenObject(screenObject)
+: screenObject(screenObject), fontPointSize(16.0)
 {
     hasTextColor = dict.hasField(MaplyTextColor);
     textColor = dict.getColor(MaplyTextColor, RGBAColor(255,255,255,255));

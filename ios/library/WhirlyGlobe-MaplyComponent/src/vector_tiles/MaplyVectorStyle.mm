@@ -427,7 +427,7 @@ LabelInfoRef MapboxVectorStyleSetImpl_iOS::makeLabelInfo(VectorStyleInst *inst,c
 
 SingleLabelRef MapboxVectorStyleSetImpl_iOS::makeSingleLabel(VectorStyleInst *inst,const std::string &text)
 {
-    NSString *textStr = [NSString stringWithFormat:@"%s",text.c_str()];
+    NSString *textStr = [NSString stringWithUTF8String:text.c_str()];
     
     SingleLabel_iOS *label = new SingleLabel_iOS();
     label->text = textStr;
@@ -438,6 +438,18 @@ SingleLabelRef MapboxVectorStyleSetImpl_iOS::makeSingleLabel(VectorStyleInst *in
 ComponentObjectRef MapboxVectorStyleSetImpl_iOS::makeComponentObject(VectorStyleInst *inst)
 {
     return ComponentObjectRef(new ComponentObject_iOS());
+}
+
+double MapboxVectorStyleSetImpl_iOS::calculateTextWidth(LabelInfoRef inLabelInfo,const std::string &testStr)
+{
+    LabelInfo_iOSRef labelInfo = std::dynamic_pointer_cast<LabelInfo_iOS>(inLabelInfo);
+    if (!labelInfo)
+        return 0.0;
+    
+    NSAttributedString *testAttrStr = [[NSAttributedString alloc] initWithString:[NSString stringWithUTF8String:testStr.c_str()] attributes:@{NSFontAttributeName:labelInfo->font}];
+    CGSize size = [testAttrStr size];
+    
+    return size.width;
 }
 
 VectorStyleDelegateWrapper::VectorStyleDelegateWrapper(NSObject<MaplyRenderControllerProtocol> *viewC,NSObject<MaplyVectorStyleDelegate> *delegate)

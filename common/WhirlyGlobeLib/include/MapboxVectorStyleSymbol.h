@@ -98,6 +98,8 @@ public:
     virtual void cleanup(VectorStyleInst *inst,ChangeSet &changes);
 
 protected:
+    std::string breakUpText(const std::string &text,double textMaxWidth,LabelInfoRef labelInfo);
+    
     MapboxVectorSymbolLayout layout;
     MapboxVectorSymbolPaint paint;
 

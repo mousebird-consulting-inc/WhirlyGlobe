@@ -114,69 +114,51 @@ bool MapboxVectorLayerSymbol::parse(VectorStyleInst *inst,
     return true;
 }
 
-// Break up text into multiple lines if needed
-//- (NSString *)breakUpText:(NSString *)text width:(double)maxWidth font:(UIFont *)font
-//{
-//    // If there's no spaces, let's not
-//    if (![text containsString:@" "])
-//        return text;
-//
-//    NSMutableString *retStr = [[NSMutableString alloc] init];
-//
-//    // Unfortunately this stuff will break long names across character boundaries which is completely awful
-////    NSAttributedString *textAttrStr = [[NSAttributedString alloc] initWithString:text attributes:@{NSFontAttributeName:font}];
-////    NSTextContainer *textCon = [[NSTextContainer alloc] initWithSize:CGSizeMake(maxWidth,CGFLOAT_MAX)];
-////    textCon.lineBreakMode = NSLineBreakByWordWrapping;
-////    NSLayoutManager *layoutMan = [[NSLayoutManager alloc] init];
-////    NSTextStorage *textStore = [[NSTextStorage alloc] initWithAttributedString:textAttrStr];
-////    [textStore addLayoutManager:layoutMan];
-////    [layoutMan addTextContainer:textCon];
-////    bool __block started = false;
-////    [layoutMan enumerateLineFragmentsForGlyphRange:NSMakeRange(0, layoutMan.numberOfGlyphs)
-////                                        usingBlock:^(CGRect rect, CGRect usedRect, NSTextContainer * _Nonnull textContainer, NSRange glyphRange, BOOL * _Nonnull stop)
-////    {
-////        NSRange r = [layoutMan characterRangeForGlyphRange:glyphRange  actualGlyphRange:nil];
-////        NSString *lineStr = [textAttrStr.string substringWithRange:r];
-////        if (started)
-////            [retStr appendString:@"\n"];
-////        [retStr appendString:lineStr];
-////        started = true;
-////    }];
-////
-////    CGSize size = [textAttrStr size];
-////    NSLog(@"Input: %@, output: %@, size = (%f,%f)",text,retStr,size.width,size.height);
-//
-//    // Work through the string chunk by chunk
-//    NSArray *pieces = [text componentsSeparatedByString:@" "];
-//    NSString *soFar = nil;
-//    for (NSString *chunk in pieces) {
-//        if ([soFar length] == 0) {
-//            soFar = chunk;
-//            continue;
-//        }
-//
-//        // Try the string with the next chunk
-//        NSString *testStr = [[NSString alloc] initWithFormat:@"%@ %@",soFar,chunk];
-//        NSAttributedString *testAttrStr = [[NSAttributedString alloc] initWithString:testStr attributes:@{NSFontAttributeName:font}];
-//        CGSize size = [testAttrStr size];
-//
-//        // Flush out what we have so far and start with this new chunk
-//        if (size.width > maxWidth) {
-//            if ([retStr length] > 0)
-//                [retStr appendString:@"\n"];
-//            [retStr appendString:soFar];
-//            soFar = chunk;
-//        } else {
-//            // Keep adding to this string
-//            soFar = testStr;
-//        }
-//    }
-//    if ([retStr length] > 0)
-//        [retStr appendString:@"\n"];
-//    [retStr appendString:soFar];
-//
-//    return retStr;
-//}
+std::string MapboxVectorLayerSymbol::breakUpText(const std::string &text,double textMaxWidth,LabelInfoRef labelInfo)
+{
+    // If there are no spaces, let's not break it up
+    if (text.find(" ") == std::string::npos)
+        return text;
+    
+    size_t start, end = 0;
+    std::vector<std::string> chunks;
+    while ((start = text.find_first_not_of(" ", end)) != std::string::npos) {
+        end = text.find(" ",start);
+        chunks.push_back(text.substr(start, end - start));
+    }
+    
+    std::string soFar,retStr;
+    for (auto chunk : chunks) {
+        if (soFar.empty()) {
+            soFar = chunk;
+            continue;
+        }
+        
+        // Try the string with the next chunk
+        std::string testStr = soFar.empty() ? chunk : soFar + " " + chunk;
+        double width = styleSet->calculateTextWidth(labelInfo,testStr);
+        
+        // Flush out what we have so far and start with this new chunk
+        if (width > textMaxWidth) {
+            if (soFar.empty())
+                soFar = testStr;
+
+            if (retStr.size() > 0) {
+                retStr.append("\n");
+            }
+            retStr.append(soFar);
+            soFar = chunk;
+        } else {
+            // Keep adding to it
+            soFar = testStr;
+        }
+    }
+    if (retStr.size() > 0)
+        retStr.append("\n");
+    retStr.append(soFar);
+    
+    return retStr;
+}
 
 // Calculate a value [0.0,1.0] for this string
 static float calcStringHash(const std::string &str)
@@ -297,10 +279,9 @@ void MapboxVectorLayerSymbol::buildObjects(VectorStyleInst *inst,
 
                             // TODO: Put this back, but we need information about the font
                             // Break it up into lines, if necessary
-//                            double textMaxWidth = [_layout.textMaxWidth valForZoom:tileInfo.tileID.level];
-//                            if (textMaxWidth != 0.0) {
-//                                label.text = [self breakUpText:label.text width:textMaxWidth * font.pointSize * _layout.globalTextScale font:font];
-//                            }
+                            double textMaxWidth = layout.textMaxWidth->valForZoom(tileInfo->ident.level);
+                            if (textMaxWidth != 0.0)
+                                text = breakUpText(text,textMaxWidth * labelInfo->fontPointSize * styleSet->tileStyleSettings->textScale,labelInfo);
                             
                             // Construct the label
                             SingleLabelRef label = styleSet->makeSingleLabel(inst,text);
@@ -321,7 +302,7 @@ void MapboxVectorLayerSymbol::buildObjects(VectorStyleInst *inst,
                             }
                             // Random tweak to cut down on flashing
                             // TODO: Move the layout importance into the label itself
-//                            float strHash = calcStringHash(text);
+                            float strHash = calcStringHash(text);
 //                            label->layoutImportance = layout.layoutImportance + 1.0 - (rank + (101-tileInfo->ident.level)/100.0)/1000.0 + strHash/1000.0;
                             
                             // TODO: Need access to the coordinate system

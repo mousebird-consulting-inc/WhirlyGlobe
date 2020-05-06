@@ -28,11 +28,13 @@ LabelInfo_iOS::LabelInfo_iOS(NSDictionary *iosDict,const Dictionary &dict,bool s
     : LabelInfo(dict,screenObject)
 {
     font = [iosDict objectForKey:@"font"];
+    fontPointSize = [font pointSize];
 }
 
 LabelInfo_iOS::LabelInfo_iOS(UIFont *font,bool screenObject)
 : font(font),LabelInfo(screenObject)
 {
+    fontPointSize = [font pointSize];
 }
 
     

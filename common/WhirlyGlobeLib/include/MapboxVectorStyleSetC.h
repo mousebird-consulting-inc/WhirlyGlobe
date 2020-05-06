@@ -230,6 +230,9 @@ public:
     
     /// Create a local platform label (fonts are local, and other stuff)
     virtual SingleLabelRef makeSingleLabel(VectorStyleInst *inst,const std::string &text) = 0;
+
+    /// Return the width of the given line of text
+    virtual double calculateTextWidth(LabelInfoRef labelInfo,const std::string &testStr) = 0;
     
     /// Create a local platform component object
     virtual ComponentObjectRef makeComponentObject(VectorStyleInst *inst) = 0;
