@@ -233,42 +233,32 @@ public:
     return defVal;
 }
 
-// Does much the same work as the image version above, but is slightly different for the simple styel
-- (MaplyTexture *)textureForStyle:(MaplySimpleStyle *)style symbol:(NSString *)symbol strokeSize:(CGFloat)strokeSize clearBackground:(bool)clearBackground
+- (UIImage *)loadImage:(NSString *)symbol cacheKey:(NSString *)cacheKey
 {
-    NSString *cacheKey = [NSString stringWithFormat:@"%@_%d_%d_%.1f_%0.6X",
-                          symbol,
-                          (int)style.markerSize.width, (int)style.markerSize.height,
-                          strokeSize, [style.color asHexRGB]];
+    UIImage *mainImage = nil;
     
-    id cached = [texCache objectForKey:cacheKey];
-    if ([cached isKindOfClass:[MaplyTexture class]])
-        return cached;
-
-    UIImage *iconImage;
-    if(symbol.isAbsolutePath)
-    {
-        iconImage = [UIImage imageWithContentsOfFile:symbol];
+    if(symbol.isAbsolutePath) {
+        mainImage = [UIImage imageWithContentsOfFile:symbol];
     } else if (symbol)
     {
         NSString *fullName = nil;
         NSString *fileName = [symbol lastPathComponent];
-        iconImage = [UIImage imageNamed:fileName];
-        if (!iconImage)
+        mainImage = [UIImage imageNamed:fileName];
+        if (!mainImage)
         {
             fullName = [NSString stringWithFormat:@"%@-24@2x.png",symbol];
-            iconImage = [UIImage imageNamed:fullName];
-            if (!iconImage)
+            mainImage = [UIImage imageNamed:fullName];
+            if (!mainImage)
             {
                 // Try without the extension
                 NSString *shortName = [symbol stringByDeletingPathExtension];
                 if (shortName)
                 {
                     fullName = [NSString stringWithFormat:@"%@@2x.png",shortName];
-                    iconImage = [UIImage imageNamed:fullName];
+                    mainImage = [UIImage imageNamed:fullName];
                 }
                 
-                if (!iconImage)
+                if (!mainImage)
                 {
                     [texCache setObject:[NSNull null] forKey:cacheKey];
                     NSLog(@"Couldn't find: %@",shortName);
@@ -278,13 +268,39 @@ public:
         }
     }
     
+    return mainImage;
+}
+
+// Does much the same work as the image version above, but is slightly different for the simple styel
+- (MaplyTexture *)textureForStyle:(MaplySimpleStyle *)style
+                       backSymbol:(NSString *)backSymbol
+                           symbol:(NSString *)symbol
+                       strokeSize:(CGFloat)strokeSize
+                           center:(CGPoint)center
+                  clearBackground:(bool)clearBackground
+{
+    NSString *cacheKey = [NSString stringWithFormat:@"%@_%@_%d_%d_%.1f_%0.6X",
+                          backSymbol,
+                          symbol,
+                          (int)style.markerSize.width, (int)style.markerSize.height,
+                          strokeSize, [style.color asHexRGB]];
+    
+    id cached = [texCache objectForKey:cacheKey];
+    if ([cached isKindOfClass:[MaplyTexture class]])
+        return cached;
+
+    UIImage *mainImage = [self loadImage:symbol cacheKey:[cacheKey stringByAppendingString:@"_main"]];
+    UIImage *backImage = [self loadImage:backSymbol cacheKey:[cacheKey stringByAppendingString:@"_back"]];
+    
     // Draw it into a circle
     UIGraphicsBeginImageContext(style.markerSize);
     
     // Draw into the image context
-    [[UIColor clearColor] setFill];
     CGContextRef ctx = UIGraphicsGetCurrentContext();
-    CGContextFillRect(ctx, CGRectMake(0,0,style.markerSize.width,style.markerSize.height));
+    CGContextSetBlendMode(ctx, kCGBlendModeNormal);
+    [[UIColor blackColor] setFill];
+    CGRect rect = CGRectMake(0,0,style.markerSize.width,style.markerSize.height);
+    CGContextFillRect(ctx, rect);
     
     if (strokeSize > 0.0)
     {
@@ -295,19 +311,37 @@ public:
         CGContextDrawPath(ctx, kCGPathFill);
     }
     
-    if (!clearBackground) {
-        CGContextBeginPath(ctx);
-        CGContextAddEllipseInRect(ctx, CGRectMake(1+strokeSize,1+strokeSize,style.markerSize.width-2-2*strokeSize,style.markerSize.height-2-2*strokeSize));
+    // We want a custom background image, rather than just the circle
+    if (backImage) {
+        // Courtesy: https://stackoverflow.com/questions/3514066/how-to-tint-a-transparent-png-image-in-iphone
+        CGContextSaveGState(ctx);
+        CGContextTranslateCTM(ctx, 0, style.markerSize.height);
+        CGContextScaleCTM(ctx, 1.0, -1.0);
+        CGContextSetBlendMode(ctx, kCGBlendModeNormal);
+        
         [style.color setFill];
-        CGContextDrawPath(ctx, kCGPathFill);
+        CGContextFillRect(ctx, rect);
+        CGContextSetBlendMode(ctx, kCGBlendModeDestinationIn);
+        CGContextDrawImage(ctx, rect, backImage.CGImage);
+        
+        CGContextRestoreGState(ctx);
+    } else {
+        if (!clearBackground) {
+            CGContextBeginPath(ctx);
+            CGContextAddEllipseInRect(ctx, CGRectMake(1+strokeSize,1+strokeSize,style.markerSize.width-2-2*strokeSize,style.markerSize.height-2-2*strokeSize));
+            [style.color setFill];
+            CGContextDrawPath(ctx, kCGPathFill);
+        }
     }
     
-    CGContextTranslateCTM(ctx, 0, style.markerSize.height);
-    CGContextScaleCTM(ctx, 1.0, -1.0);
-    [[UIColor blackColor] setFill];
-    CGFloat offset = 3+strokeSize;
-    CGContextDrawImage(ctx, CGRectMake(offset, offset,
-                                       style.markerSize.width-2*offset, style.markerSize.height-2*offset), iconImage.CGImage);
+    if (mainImage) {
+        CGContextTranslateCTM(ctx, 0, style.markerSize.height);
+        CGContextScaleCTM(ctx, 1.0, -1.0);
+        [[UIColor blackColor] setFill];
+        CGFloat offset = 3+strokeSize;
+        CGContextDrawImage(ctx, CGRectMake(offset, offset,
+                                           style.markerSize.width-2*offset, style.markerSize.height-2*offset), mainImage.CGImage);
+    }
     
     // Grab the image and shut things down
     UIImage *retImage = UIGraphicsGetImageFromCurrentImageContext();
@@ -370,6 +404,7 @@ public:
             style.markerString = symbol;
             symbol = nil;
         }
+        NSString *backSymbol = dict[@"marker-background-symbol"];
         
         style.color = [self parseColor:dict[@"marker-color"] default:[UIColor whiteColor]];
         style.strokeColor = [self parseColor:dict[@"stroke"] default:[UIColor colorFromHexRGB:0x555555]];
@@ -377,14 +412,14 @@ public:
         style.strokeWidth = [self parseNumber:dict[@"stroke-width"] default:2.0];
         style.fillColor = [self parseColor:dict[@"fill"] default:[UIColor colorFromHexRGB:0x555555]];
         style.fillOpacity = [self parseNumber:dict[@"fill-opacity"] default:0.6];
-        bool centerIcon = [self parseBool:dict[@"marker-center"] default:_centerIcon];
-        if (!centerIcon)
-            style.markerOffset = CGPointMake(0.0, style.markerSize.height/2.0);
+        CGPoint center = CGPointMake(-1000.0, -1000.0);
+        center.x = [self parseNumber:dict[@"marker-background-center-x"] default:center.x];
+        center.y = [self parseNumber:dict[@"marker-background-center-y"] default:center.y];
         bool clearBackground = [self parseBool:dict[@"marker-circle"] default:true];
 
         // Need a texture for the marker
         float strokeWidth = [self parseNumber:dict[@"stroke-width"] default:_strokeWidthForIcons];
-        style.markerTex = [self textureForStyle:style symbol:symbol strokeSize:strokeWidth clearBackground:clearBackground];
+        style.markerTex = [self textureForStyle:style backSymbol:backSymbol symbol:symbol strokeSize:strokeWidth center:center clearBackground:clearBackground];
         // TODO: Handle the single character case
         
         return style;
