@@ -50,6 +50,7 @@
     bool _useHeading, _useCourse;
     MaplyLocationLockType _lockType;
     int _forwardTrackOffset;
+    int _markerDrawPriority;
 }
 
 - (nonnull instancetype)initWithViewC:(MaplyBaseViewController *__nullable)viewC delegate:(NSObject<MaplyLocationTrackerDelegate> *__nullable)delegate useHeading:(bool)useHeading useCourse:(bool)useCourse simulate:(bool)simulate {
@@ -136,6 +137,17 @@
     
 }
 
+- (int)markerDrawPriority
+{
+    return _markerDrawPriority;
+}
+
+- (void)setMarkerDrawPriority:(int)markerDrawPriority
+{
+    _markerDrawPriority = markerDrawPriority;
+    
+    [self setupMarkerImages];
+}
 
 - (UIImage *)radialGradientMarkerWithSize:(int)size color0:(UIColor *)color0 color1:(UIColor *)color1 gradLocation:(float)gradLocation radius:(float)radius directional:(bool)directional {
     

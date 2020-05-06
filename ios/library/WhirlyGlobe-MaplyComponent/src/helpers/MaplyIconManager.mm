@@ -67,7 +67,7 @@ public:
 {
     NSCache *imageCache;
     NSMutableDictionary *texCache;
-    NSObject<MaplyRenderControllerProtocol> *viewC;
+    NSObject<MaplyRenderControllerProtocol> * __weak viewC;
 }
 
 + (MaplySimpleStyleManager *)shared
@@ -301,16 +301,7 @@ public:
     [[UIColor blackColor] setFill];
     CGRect rect = CGRectMake(0,0,style.markerSize.width,style.markerSize.height);
     CGContextFillRect(ctx, rect);
-    
-    if (strokeSize > 0.0)
-    {
-        UIColor *strokeColor = [style.color lighterColor];
-        CGContextBeginPath(ctx);
-        CGContextAddEllipseInRect(ctx, CGRectMake(1,1,style.markerSize.width-2,style.markerSize.height-2));
-        [strokeColor setFill];
-        CGContextDrawPath(ctx, kCGPathFill);
-    }
-    
+        
     // We want a custom background image, rather than just the circle
     if (backImage) {
         // Courtesy: https://stackoverflow.com/questions/3514066/how-to-tint-a-transparent-png-image-in-iphone
@@ -326,6 +317,14 @@ public:
         
         CGContextRestoreGState(ctx);
     } else {
+        if (strokeSize > 0.0) {
+            UIColor *strokeColor = [style.color lighterColor];
+            CGContextBeginPath(ctx);
+            CGContextAddEllipseInRect(ctx, CGRectMake(1,1,style.markerSize.width-2,style.markerSize.height-2));
+            [strokeColor setFill];
+            CGContextDrawPath(ctx, kCGPathFill);
+        }
+
         if (!clearBackground) {
             CGContextBeginPath(ctx);
             CGContextAddEllipseInRect(ctx, CGRectMake(1+strokeSize,1+strokeSize,style.markerSize.width-2-2*strokeSize,style.markerSize.height-2-2*strokeSize));
@@ -338,9 +337,11 @@ public:
         CGContextTranslateCTM(ctx, 0, style.markerSize.height);
         CGContextScaleCTM(ctx, 1.0, -1.0);
         [[UIColor blackColor] setFill];
-        CGFloat offset = 3+strokeSize;
-        CGContextDrawImage(ctx, CGRectMake(offset, offset,
-                                           style.markerSize.width-2*offset, style.markerSize.height-2*offset), mainImage.CGImage);
+        CGPoint theCenter;
+        theCenter.x = center.x > -1000.0 ? center.x/mainImage.size.width * style.markerSize.width : style.markerSize.width/2.0;
+        theCenter.y = center.y > -1000.0 && backImage ? center.y/backImage.size.height * style.markerSize.height : style.markerSize.height/2.0;
+        CGContextDrawImage(ctx, CGRectMake(theCenter.x - mainImage.size.width/2.0, (style.markerSize.height-theCenter.y) - mainImage.size.height/2.0,
+                                           mainImage.size.width, mainImage.size.height), mainImage.CGImage);
     }
     
     // Grab the image and shut things down
@@ -361,7 +362,8 @@ public:
     @synchronized (self) {
         NSMutableArray<MaplyTexture *> *texs = [NSMutableArray array];
         for (MaplyTexture *tex in texCache.allValues)
-            [texs addObject:tex];
+            if ([tex isKindOfClass:[MaplyTexture class]])
+                [texs addObject:tex];
         [viewC removeTextures:texs mode:MaplyThreadCurrent];
         texCache = nil;
     }
