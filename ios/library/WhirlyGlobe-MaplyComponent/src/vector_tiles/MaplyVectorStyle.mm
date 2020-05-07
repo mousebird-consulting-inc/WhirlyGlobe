@@ -338,8 +338,8 @@ NSArray * _Nonnull AddMaplyVectorsUsingStyle(NSArray * _Nonnull vecObjs,NSObject
 namespace WhirlyKit
 {
 
-MapboxVectorStyleSetImpl_iOS::MapboxVectorStyleSetImpl_iOS(Scene *scene,VectorStyleSettingsImplRef settings)
-: MapboxVectorStyleSetImpl(scene,settings)
+MapboxVectorStyleSetImpl_iOS::MapboxVectorStyleSetImpl_iOS(Scene *scene,CoordSystem *coordSys,VectorStyleSettingsImplRef settings)
+: MapboxVectorStyleSetImpl(scene,coordSys,settings)
 {
 }
 

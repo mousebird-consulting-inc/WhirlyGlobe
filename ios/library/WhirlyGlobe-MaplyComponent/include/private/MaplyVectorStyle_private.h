@@ -45,7 +45,7 @@ namespace WhirlyKit
 class MapboxVectorStyleSetImpl_iOS : public MapboxVectorStyleSetImpl
 {
 public:
-    MapboxVectorStyleSetImpl_iOS(Scene *scene,VectorStyleSettingsImplRef settings);
+    MapboxVectorStyleSetImpl_iOS(Scene *scene,CoordSystem *coordSys,VectorStyleSettingsImplRef settings);
     ~MapboxVectorStyleSetImpl_iOS();
 
     NSObject<MaplyRenderControllerProtocol> *viewC;

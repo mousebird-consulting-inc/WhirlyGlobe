@@ -43,7 +43,7 @@ using namespace WhirlyKit;
     else
         styleSettings = VectorStyleSettingsImplRef(new VectorStyleSettingsImpl([UIScreen mainScreen].scale));
     
-    style = MapboxVectorStyleSetImplRef(new MapboxVectorStyleSetImpl_iOS([viewC getRenderControl]->scene,styleSettings));
+    style = MapboxVectorStyleSetImplRef(new MapboxVectorStyleSetImpl_iOS([viewC getRenderControl]->scene,[viewC getRenderControl]->visualView->coordAdapter->getCoordSystem(),styleSettings));
 
     iosDictionaryRef dictWrap(new iosDictionary(styleDict));
     if (!style->parse(NULL,dictWrap))

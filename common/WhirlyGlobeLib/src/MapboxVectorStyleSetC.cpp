@@ -220,8 +220,8 @@ RGBAColor MapboxTransColor::colorForZoom(double zoom)
     return theColor;
 }
 
-MapboxVectorStyleSetImpl::MapboxVectorStyleSetImpl(Scene *inScene,VectorStyleSettingsImplRef settings)
-: scene(inScene), currentID(0), tileStyleSettings(settings)
+MapboxVectorStyleSetImpl::MapboxVectorStyleSetImpl(Scene *inScene,CoordSystem *coordSys,VectorStyleSettingsImplRef settings)
+: scene(inScene), currentID(0), tileStyleSettings(settings), coordSys(coordSys)
 {
     vecManage = (VectorManager *)scene->getManager(kWKVectorManager);
     wideVecManage = (WideVectorManager *)scene->getManager(kWKWideVectorManager);

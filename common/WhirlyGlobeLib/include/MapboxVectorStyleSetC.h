@@ -135,7 +135,7 @@ typedef enum {
 class MapboxVectorStyleSetImpl : public VectorStyleDelegateImpl
 {
 public:
-    MapboxVectorStyleSetImpl(Scene *scene,VectorStyleSettingsImplRef settings);
+    MapboxVectorStyleSetImpl(Scene *scene,CoordSystem *coordSys,VectorStyleSettingsImplRef settings);
     virtual ~MapboxVectorStyleSetImpl();
     
     // Parse the entire style sheet.  False on failure
@@ -239,6 +239,7 @@ public:
 
 public:
     Scene *scene;
+    CoordSystem *coordSys;
 
     /// @brief Style name
     std::string name;

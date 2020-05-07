@@ -294,17 +294,16 @@ void MapboxVectorLayerSymbol::buildObjects(VectorStyleInst *inst,
                             label->layoutImportance = layout.layoutImportance + 1.0 - (rank + (101-tileInfo->ident.level)/100.0)/1000.0 + strHash/1000.0;
                             
                             // Point or line placement
-//                            if (layout.placement == MBPlaceLine) {
-//                                MaplyCoordinate middle;
-//                                double rot;
-//                                [vecObj linearMiddle:&middle rot:&rot displayCoordSys:viewC.coordSystem];
-//                                label.loc = middle;
-//                                label.rotation = -1 * rot+M_PI/2.0;
-//                                if(label.rotation > M_PI_2 || label.rotation < -M_PI_2) {
-//                                    label.rotation += M_PI;
-//                                }
-//                                label.keepUpright = true;
-//                            }
+                            if (layout.placement == MBPlaceLine) {
+                                Point2d middle;
+                                double rot;
+                                vecObj->linearMiddle(middle, rot, styleSet->coordSys);
+                                label->loc = GeoCoord(middle.x(),middle.y());
+                                label->rotation = -1 * rot + M_PI/2.0;
+                                if (label->rotation > M_PI_2 || label->rotation < -M_PI_2)
+                                    label->rotation += M_PI;
+                                label->keepUpright = true;
+                            }
                             
                             // Anchor options for the layout engine
                             switch (layout.textAnchor) {
