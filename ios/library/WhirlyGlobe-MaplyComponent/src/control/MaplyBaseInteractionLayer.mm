@@ -1378,9 +1378,9 @@ public:
             }
             if (label.layoutImportance < MAXFLOAT)
             {
-                thisLabelInfo->layoutEngine = true;
-                thisLabelInfo->layoutImportance = label.layoutImportance;
-                thisLabelInfo->layoutPlacement = label.layoutPlacement;
+                wgLabel->layoutEngine = true;
+                wgLabel->layoutImportance = label.layoutImportance;
+                wgLabel->layoutPlacement = label.layoutPlacement;
             }
         }
         wgLabel->infoOverride = thisLabelInfo;

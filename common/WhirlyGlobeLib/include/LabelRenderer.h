@@ -77,9 +77,6 @@ public:
     bool hasTextColor;
     RGBAColor textColor,backColor;
     bool screenObject;
-    bool layoutEngine;
-    float layoutImportance;
-    int layoutPlacement;
     float width,height;
     LabelJustify labelJustify;
     TextJustify textJustify;

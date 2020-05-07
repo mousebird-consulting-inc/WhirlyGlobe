@@ -75,7 +75,13 @@ public:
     Point2d layoutSize;
     /// If non-empty, used to identify a set of labels of which only one should be displayed
     std::string uniqueID;
-    
+    /// Set if we're participating in layout
+    bool layoutEngine;
+    /// Layout importance, if being used
+    float layoutImportance;
+    /// Layout placement
+    int layoutPlacement;
+
     /// Some attributes can be overridden per label
     LabelInfoRef infoOverride;
 

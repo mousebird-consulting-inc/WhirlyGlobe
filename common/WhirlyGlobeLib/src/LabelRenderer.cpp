@@ -34,8 +34,7 @@ namespace WhirlyKit
 
 LabelInfo::LabelInfo(bool screenObject)
 : hasTextColor(false), textColor(255,255,255,255), backColor(0,0,0,0),
-    screenObject(screenObject), layoutEngine(false), layoutImportance(MAXFLOAT),
-    layoutPlacement(0),
+    screenObject(screenObject),
     width(-1.0), height(-1.0),
     labelJustify(WhirlyKitLabelMiddle), textJustify(WhirlyKitTextCenter),
     shadowColor(0,0,0,0), shadowSize(-1.0),
@@ -57,9 +56,6 @@ LabelInfo::LabelInfo(const Dictionary &dict, bool screenObject)
     hasTextColor = dict.hasField(MaplyTextColor);
     textColor = dict.getColor(MaplyTextColor, RGBAColor(255,255,255,255));
     backColor = dict.getColor(MaplyBackgroundColor, RGBAColor(0,0,0,0));
-    layoutEngine = dict.getBool(MaplyLayout,false);
-    layoutImportance = dict.getDouble(MaplyLayoutImportance,0.0);
-    layoutPlacement = dict.getInt(MaplyLayoutPlacement,-1);
     width = dict.getDouble(MaplyLabelWidth,0.0);
     height = dict.getDouble(MaplyLabelHeight,screenObject ? 16.0 : 0.001);
     std::string labelJustifyStr = dict.getString(MaplyLabelJustifyName);
@@ -163,18 +159,9 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
         }
 
         // Set if we're letting the layout engine control placement
-        bool layoutEngine = false;
-        float layoutImportance = MAXFLOAT;
-        int layoutPlacement = 0;
-        if (labelInfo->layoutEngine) {
-            layoutEngine = true;
-            layoutImportance = labelInfo->layoutImportance;
-            layoutPlacement = labelInfo->layoutPlacement;
-        } else if (label->infoOverride && label->infoOverride->layoutEngine) {
-            layoutEngine = true;
-            layoutImportance = label->infoOverride->layoutImportance;
-            layoutPlacement = label->infoOverride->layoutPlacement;
-        }
+        bool layoutEngine = label->layoutEngine;
+        float layoutImportance = label->layoutImportance;
+        int layoutPlacement = label->layoutPlacement;
         
         ScreenSpaceObject *screenShape = NULL;
 //        ScreenSpaceObject *backScreenShape = NULL;

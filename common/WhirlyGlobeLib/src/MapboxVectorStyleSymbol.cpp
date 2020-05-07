@@ -217,19 +217,6 @@ void MapboxVectorLayerSymbol::buildObjects(VectorStyleInst *inst,
         labelInfo->outlineColor = *paint.textHaloColor;
         labelInfo->outlineSize = paint.textHaloWidth;
     }
-
-//    // Note: Cache the font.
-//    UIFont *font = nil;
-//    if (_layout.textFontName) {
-//        UIFontDescriptor *fontDesc = [[UIFontDescriptor alloc] initWithFontAttributes:@{UIFontDescriptorNameAttribute: _layout.textFontName}];
-//        font = [UIFont fontWithDescriptor:fontDesc size:textSize];
-////        NSLog(@"Asked for: %@,  Got: %@, %f",_layout.textFontName,font.fontName,textSize);
-//        if (!font)
-//            NSLog(@"Found unsupported font %@",fontDesc);
-//    }
-//    if (!font)
-//        font = [UIFont systemFontOfSize:textSize];
-//    desc[kMaplyFont] = font;
     
 //    // Note: Made up value for pushing multi-line text together
 //    desc[kMaplyTextLineSpacing] = @(4.0 / 5.0 * font.lineHeight);
@@ -303,10 +290,10 @@ void MapboxVectorLayerSymbol::buildObjects(VectorStyleInst *inst,
                             // Random tweak to cut down on flashing
                             // TODO: Move the layout importance into the label itself
                             float strHash = calcStringHash(text);
-//                            label->layoutImportance = layout.layoutImportance + 1.0 - (rank + (101-tileInfo->ident.level)/100.0)/1000.0 + strHash/1000.0;
+                            label->layoutEngine = true;
+                            label->layoutImportance = layout.layoutImportance + 1.0 - (rank + (101-tileInfo->ident.level)/100.0)/1000.0 + strHash/1000.0;
                             
-                            // TODO: Need access to the coordinate system
-//                            // Point or line placement
+                            // Point or line placement
 //                            if (layout.placement == MBPlaceLine) {
 //                                MaplyCoordinate middle;
 //                                double rot;
@@ -319,38 +306,37 @@ void MapboxVectorLayerSymbol::buildObjects(VectorStyleInst *inst,
 //                                label.keepUpright = true;
 //                            }
                             
-                            // TODO: Move the layoutPlacement into the label itself
                             // Anchor options for the layout engine
-//                            switch (layout.textAnchor) {
-//                                case MBTextCenter:
-//                                    label->layoutPlacement = kMaplyLayoutCenter;
-//                                    break;
-//                                case MBTextLeft:
-//                                    label.layoutPlacement = kMaplyLayoutLeft;
-//                                    break;
-//                                case MBTextRight:
-//                                    label.layoutPlacement = kMaplyLayoutRight;
-//                                    break;
-//                                case MBTextTop:
-//                                    label.layoutPlacement = kMaplyLayoutAbove;
-//                                    break;
-//                                case MBTextBottom:
-//                                    label.layoutPlacement = kMaplyLayoutBelow;
-//                                    break;
-//                                    // Note: The rest of these aren't quite right
-//                                case MBTextTopLeft:
-//                                    label.layoutPlacement = kMaplyLayoutLeft;
-//                                    break;
-//                                case MBTextTopRight:
-//                                    label.layoutPlacement = kMaplyLayoutRight;
-//                                    break;
-//                                case MBTextBottomLeft:
-//                                    label.layoutPlacement = kMaplyLayoutBelow;
-//                                    break;
-//                                case MBTextBottomRight:
-//                                    label.layoutPlacement = kMaplyLayoutBelow;
-//                                    break;
-//                            }
+                            switch (layout.textAnchor) {
+                                case MBTextCenter:
+                                    label->layoutPlacement = WhirlyKitLayoutPlacementNone;
+                                    break;
+                                case MBTextLeft:
+                                    label->layoutPlacement = WhirlyKitLayoutPlacementLeft;
+                                    break;
+                                case MBTextRight:
+                                    label->layoutPlacement = WhirlyKitLayoutPlacementRight;
+                                    break;
+                                case MBTextTop:
+                                    label->layoutPlacement = WhirlyKitLayoutPlacementAbove;
+                                    break;
+                                case MBTextBottom:
+                                    label->layoutPlacement = WhirlyKitLayoutPlacementBelow;
+                                    break;
+                                    // Note: The rest of these aren't quite right
+                                case MBTextTopLeft:
+                                    label->layoutPlacement = WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementAbove;
+                                    break;
+                                case MBTextTopRight:
+                                    label->layoutPlacement = WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove;
+                                    break;
+                                case MBTextBottomLeft:
+                                    label->layoutPlacement = WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementBelow;
+                                    break;
+                                case MBTextBottomRight:
+                                    label->layoutPlacement = WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementBelow;
+                                    break;
+                            }
                             
                             labels.push_back(label);
                         } else {
