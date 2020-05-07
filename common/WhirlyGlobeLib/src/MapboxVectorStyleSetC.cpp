@@ -458,7 +458,7 @@ RGBAColorRef MapboxVectorStyleSetImpl::colorValue(const std::string &name,Dictio
         int red = std::stoi(toks[0]);
         int green = std::stoi(toks[1]);
         int blue = std::stoi(toks[2]);
-        int alpha = std::stoi(toks[3]);
+        double alpha = std::stod(toks[3]);
         
         if (multiplyAlpha)
             return RGBAColorRef(new RGBAColor(red * alpha,green * alpha,blue * alpha,255.0*alpha));
