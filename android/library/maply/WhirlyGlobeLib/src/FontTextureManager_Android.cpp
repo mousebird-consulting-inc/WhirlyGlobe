@@ -101,11 +101,6 @@ DrawableString *FontTextureManager_Android::addString(PlatformThreadInfo *inThre
     float offsetX = 0.0;
     for (int glyph : codePoints)
     {
-		if (glyph < 0) {
-			wkLogLevel(Warn,"Bad glyph passed into FontTextureManager_Android: %d",glyph);
-			continue;
-		}
-
 		// Look for an existing glyph
     	FontManager::GlyphInfo *glyphInfo = fm->findGlyph(glyph);
     	if (!glyphInfo)

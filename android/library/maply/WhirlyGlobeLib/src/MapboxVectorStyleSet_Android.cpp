@@ -22,7 +22,8 @@
 #import <string>
 #import <iostream>
 #import <sstream>
-#import <cstdlib>
+#import <locale>
+#import <codecvt>
 #import "Formats_jni.h"
 #import "LabelsAndMarkers_jni.h"
 
@@ -113,9 +114,12 @@ SingleLabelRef MapboxVectorStyleSetImpl_Android::makeSingleLabel(PlatformThreadI
     std::istringstream ss(text);
     std::string line;
     while (std::getline(ss, line, ss.widen('\n'))) {
+        std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> utf16conv;
+        std::u16string utf16 = utf16conv.from_bytes(line);
+
         std::vector<int> codePoints;
-        for (const char *chr = line.c_str();*chr;++chr)
-            codePoints.push_back(*chr);
+        for (auto it = utf16.begin(); it != utf16.end(); ++it)
+            codePoints.push_back(*it);
         label->codePointsLines.push_back(codePoints);
     }
 
