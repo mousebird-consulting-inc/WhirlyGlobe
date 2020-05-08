@@ -55,22 +55,22 @@ public:
                                              double radius,
                                              const RGBAColor &fillColor,
                                              const RGBAColor &strokeColor,
-                                             float strokeWidth,Point2f *circleSize);
+                                             float strokeWidth,Point2f *circleSize) override;
     
     /// Local platform implementation for generating a repeating line texture
-    virtual SimpleIdentity makeLineTexture(PlatformThreadInfo *inst,const std::vector<double> &dashComponents);
+    virtual SimpleIdentity makeLineTexture(PlatformThreadInfo *inst,const std::vector<double> &dashComponents) override;
     
     /// Make platform specific label info object (ideally we're caching these)
-    virtual LabelInfoRef makeLabelInfo(PlatformThreadInfo *inst,const std::string &fontName,float fontSize);
+    virtual LabelInfoRef makeLabelInfo(PlatformThreadInfo *inst,const std::string &fontName,float fontSize) override;
 
     /// Create a local platform label (fonts are local, and other stuff)
-    virtual SingleLabelRef makeSingleLabel(PlatformThreadInfo *inst,const std::string &text);
+    virtual SingleLabelRef makeSingleLabel(PlatformThreadInfo *inst,const std::string &text) override;
     
     /// Create a platform specific variant of the component object
-    ComponentObjectRef makeComponentObject(PlatformThreadInfo *inst);
+    ComponentObjectRef makeComponentObject(PlatformThreadInfo *inst) override;
         
     /// Return the width of the given line of text
-    double calculateTextWidth(PlatformThreadInfo *threadInfo,LabelInfoRef labelInfo,const std::string &testStr);
+    double calculateTextWidth(PlatformThreadInfo *threadInfo,LabelInfoRef labelInfo,const std::string &testStr) override;
 };
 
 /**

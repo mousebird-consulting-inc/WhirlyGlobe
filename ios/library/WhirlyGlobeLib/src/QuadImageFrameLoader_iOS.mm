@@ -126,7 +126,7 @@ QIFFrameAssetRef QIFTileAsset_ios::makeFrameAsset(PlatformThreadInfo *threadInfo
     return QIFFrameAssetRef(new QIFFrameAsset_ios());
 }
     
-void QIFTileAsset_ios::startFetching(QuadImageFrameLoader *inLoader,int frameToLoad,QIFBatchOps *inBatchOps)
+void QIFTileAsset_ios::startFetching(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *inLoader,int frameToLoad,QIFBatchOps *inBatchOps)
 {
     QuadImageFrameLoader_ios *loader = (QuadImageFrameLoader_ios *)inLoader;
     QIFBatchOps_ios *batchOps = (QIFBatchOps_ios *)inBatchOps;

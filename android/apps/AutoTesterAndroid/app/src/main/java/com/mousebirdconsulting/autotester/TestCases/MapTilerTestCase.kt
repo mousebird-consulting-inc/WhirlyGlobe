@@ -46,6 +46,8 @@ class MapTilerTestCase : MaplyTestCase {
         // Sampling params define how the globe is broken up, including the depth
         var params = SamplingParams()
         params.coordSystem = SphericalMercatorCoordSystem()
+        params.minImportanceTop = 0.0
+        params.minImportance = 1024.0 * 1024.0
         params.singleLevel = true
         params.minZoom = tileInfo.minZoom
         params.maxZoom = tileInfo.maxZoom
@@ -65,6 +67,8 @@ class MapTilerTestCase : MaplyTestCase {
         loader = QuadPagingLoader(params, tileInfo, interp, control)
 //        loader = QuadImageLoader(params,tileInfo,control)
         loader?.setLoaderInterpreter(interp)
+
+        control.setClearColor(polyStyle.backgroundColorForZoom(0.0))
     }
 
     override fun setUpWithGlobe(globeVC: GlobeController?): Boolean {
@@ -75,8 +79,6 @@ class MapTilerTestCase : MaplyTestCase {
 
     override fun setUpWithMap(mapVC: MapController?): Boolean {
         setupLoader(mapVC!!, ConfigOptions.TestType.GlobeTest)
-
-        mapVC.setClearColor(Color.RED);
 
         return true
     }

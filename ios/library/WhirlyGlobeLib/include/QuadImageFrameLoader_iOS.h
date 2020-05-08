@@ -60,22 +60,22 @@ public:
     MaplyTileFetchRequest *setupFetch(QuadImageFrameLoader *loader,id fetchInfo,id frameInfo,int priority,double importance);
     
     // Clear out the texture and reset
-    virtual void clear(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QIFBatchOps *batchOps,ChangeSet &changes);
+    virtual void clear(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QIFBatchOps *batchOps,ChangeSet &changes) override;
     
     // Update priority for an existing fetch request
-    virtual bool updateFetching(QuadImageFrameLoader *loader,int newPriority,double newImportance);
+    virtual bool updateFetching(QuadImageFrameLoader *loader,int newPriority,double newImportance) override;
 
     // Cancel an outstanding fetch
-    virtual void cancelFetch(QuadImageFrameLoader *loader,QIFBatchOps *batchOps);
+    virtual void cancelFetch(QuadImageFrameLoader *loader,QIFBatchOps *batchOps) override;
     
     // Keep track of the texture ID
-    virtual void loadSuccess(QuadImageFrameLoader *loader,const std::vector<Texture *> &texs);
+    virtual void loadSuccess(QuadImageFrameLoader *loader,const std::vector<Texture *> &texs) override;
     
     // Clear out state
-    virtual void loadFailed(QuadImageFrameLoader *loader);
+    virtual void loadFailed(QuadImageFrameLoader *loader) override;
     
     // We're not bothering to load it, but pretend like it succeeded
-    virtual void loadSkipped();
+    virtual void loadSkipped() override;
 
 protected:
     // Returned by the TileFetcher
@@ -91,11 +91,11 @@ public:
         
     // Fetch the tile frames.  Just fetch them all for now if frameToLoad is set to -1
     // Otherwise, just fetch the specified frame
-    virtual void startFetching(QuadImageFrameLoader *loader,int frameToLoad,QIFBatchOps *batchOps);
+    virtual void startFetching(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,int frameToLoad,QIFBatchOps *batchOps) override;
 
 protected:
     // Specialized frame asset
-    virtual QIFFrameAssetRef makeFrameAsset(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader);
+    virtual QIFFrameAssetRef makeFrameAsset(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader) override;
 };
     
 // iOS version of the QuadFrameLoader
@@ -116,21 +116,21 @@ public:
     NSObject<QuadImageFrameLoaderLayer> * __weak layer;
 
     /// Number of frames we're representing
-    virtual int getNumFrames();
+    virtual int getNumFrames() override;
     
     // Contruct a platform specific BatchOps for passing to tile fetcher
     // (we don't know about tile fetchers down here)
-    virtual QIFBatchOps *makeBatchOps(PlatformThreadInfo *threadInfo);
+    virtual QIFBatchOps *makeBatchOps(PlatformThreadInfo *threadInfo) override;
     
     // Process whatever ops we batched up during the load phase
-    virtual void processBatchOps(PlatformThreadInfo *threadInfo,QIFBatchOps *);
+    virtual void processBatchOps(PlatformThreadInfo *threadInfo,QIFBatchOps *) override;
     
     // Change the tile sources for upcoming loads
     virtual void setTileInfos(NSArray<NSObject<MaplyTileInfoNew> *> *tileInfos);
 
 protected:
     // Make an iOS specific tile/frame assets
-    virtual QIFTileAssetRef makeTileAsset(PlatformThreadInfo *threadInfo,const QuadTreeNew::ImportantNode &ident);
+    virtual QIFTileAssetRef makeTileAsset(PlatformThreadInfo *threadInfo,const QuadTreeNew::ImportantNode &ident) override;
 };
     
 typedef std::shared_ptr<QuadImageFrameLoader_ios> QuadImageFrameLoader_iosRef;
