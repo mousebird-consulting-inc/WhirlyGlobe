@@ -86,7 +86,8 @@ public:
     
     /// Load some tiles, unload others, and the rest had their importance values change
     /// Return the nodes we wanted to keep rather than delete
-    virtual QuadTreeNew::NodeSet quadLoaderUpdate(const WhirlyKit::QuadTreeNew::ImportantNodeSet &loadTiles,
+    virtual QuadTreeNew::NodeSet quadLoaderUpdate(PlatformThreadInfo *threadInfo,
+                                                  const WhirlyKit::QuadTreeNew::ImportantNodeSet &loadTiles,
                                                   const WhirlyKit::QuadTreeNew::NodeSet &unloadTiles,
                                                   const WhirlyKit::QuadTreeNew::ImportantNodeSet &updateTiles,
                                                   int targetLevel,
@@ -96,7 +97,7 @@ public:
     virtual void quadLoaderPreSceenFlush(ChangeSet &changes) = 0;
     
     /// Called when a layer is shutting down (on the layer thread)
-    virtual void quadLoaderShutdown(ChangeSet &changes) = 0;
+    virtual void quadLoaderShutdown(PlatformThreadInfo *threadInfo,ChangeSet &changes) = 0;
     
 protected:
     QuadDisplayControllerNew *control;
@@ -155,11 +156,11 @@ public:
     virtual void start();
     
     // Called when the layer thread is tearing down
-    virtual void stop(ChangeSet &changes);
+    virtual void stop(PlatformThreadInfo *threadInfo,ChangeSet &changes);
     
     // Called when the view updates.  Does the heavy lifting.
     // Returns true if it wants to be called again in a bit
-    virtual bool viewUpdate(ViewStateRef viewState,ChangeSet &changes);
+    virtual bool viewUpdate(PlatformThreadInfo *threadInfo,ViewStateRef viewState,ChangeSet &changes);
     
     // Called right before we flush the layer thread changes to the scene
     virtual void preSceneFlush(ChangeSet &changes);

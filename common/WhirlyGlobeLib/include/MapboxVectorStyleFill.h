@@ -28,7 +28,7 @@ namespace WhirlyKit
 class MapboxVectorFillPaint
 {
 public:
-    bool parse(VectorStyleInst *inst,
+    bool parse(PlatformThreadInfo *inst,
                MapboxVectorStyleSetImpl *styleSet,
                DictionaryRef styleEntry);
 
@@ -43,16 +43,16 @@ class MapboxVectorLayerFill : public MapboxVectorStyleLayer
 public:
     MapboxVectorLayerFill(MapboxVectorStyleSetImpl *styleSet) : MapboxVectorStyleLayer(styleSet) { }
     
-    virtual bool parse(VectorStyleInst *inst,
+    virtual bool parse(PlatformThreadInfo *inst,
                        DictionaryRef styleEntry,
                        MapboxVectorStyleLayerRef refLayer,
                        int drawPriority);
     
-    virtual void buildObjects(VectorStyleInst *inst,
+    virtual void buildObjects(PlatformThreadInfo *inst,
                               std::vector<VectorObjectRef> &vecObjs,
                               VectorTileDataRef tileInfo);
     
-    virtual void cleanup(VectorStyleInst *inst,ChangeSet &changes);
+    virtual void cleanup(PlatformThreadInfo *inst,ChangeSet &changes);
     
 protected:
     MapboxVectorFillPaint paint;

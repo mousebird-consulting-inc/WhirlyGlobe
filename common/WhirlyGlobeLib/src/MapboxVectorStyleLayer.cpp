@@ -32,7 +32,7 @@
 namespace WhirlyKit
 {
 
-MapboxVectorStyleLayerRef MapboxVectorStyleLayer::VectorStyleLayer(VectorStyleInst *inst,
+MapboxVectorStyleLayerRef MapboxVectorStyleLayer::VectorStyleLayer(PlatformThreadInfo *inst,
                                                                    MapboxVectorStyleSetImpl *styleSet,
                                                                    DictionaryRef layerDict,
                                                                    int drawPriority)
@@ -100,7 +100,7 @@ MapboxVectorStyleLayer::~MapboxVectorStyleLayer()
 {
 }
 
-bool MapboxVectorStyleLayer::parse(VectorStyleInst *inst,
+bool MapboxVectorStyleLayer::parse(PlatformThreadInfo *inst,
                                    DictionaryRef styleEntry,
                                    MapboxVectorStyleLayerRef refLayer,
                                    int inDrawPriority)
@@ -136,7 +136,7 @@ bool MapboxVectorStyleLayer::geomAdditive()
     return geomAdditiveVal;
 }
 
-void MapboxVectorStyleLayer::cleanup(VectorStyleInst *inst,ChangeSet &changes)
+void MapboxVectorStyleLayer::cleanup(PlatformThreadInfo *inst,ChangeSet &changes)
 {
 }
 

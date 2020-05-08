@@ -27,7 +27,7 @@ namespace WhirlyKit
 static const char *lineCapVals[] = {"butt","round","square",NULL};
 static const char *joinVals[] = {"bevel","round","miter",NULL};
 
-bool MapboxVectorLineLayout::parse(VectorStyleInst *inst,MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry)
+bool MapboxVectorLineLayout::parse(PlatformThreadInfo *inst,MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry)
 {
     if (!styleEntry) {
         cap = MBLineCapButt;
@@ -45,7 +45,7 @@ bool MapboxVectorLineLayout::parse(VectorStyleInst *inst,MapboxVectorStyleSetImp
     return true;
 }
 
-bool MapboxVectorLinePaint::parse(VectorStyleInst *inst,MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry)
+bool MapboxVectorLinePaint::parse(PlatformThreadInfo *inst,MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry)
 {
     styleSet->unsupportedCheck("line-translate", "line-paint", styleEntry);
     styleSet->unsupportedCheck("line-translate-anchor", "line-paint", styleEntry);
@@ -71,7 +71,7 @@ bool MapboxVectorLinePaint::parse(VectorStyleInst *inst,MapboxVectorStyleSetImpl
     return true;
 }
 
-bool MapboxVectorLayerLine::parse(VectorStyleInst *inst,
+bool MapboxVectorLayerLine::parse(PlatformThreadInfo *inst,
                                   DictionaryRef styleEntry,
                                   MapboxVectorStyleLayerRef refLayer,
                                   int drawPriority)
@@ -112,11 +112,11 @@ bool MapboxVectorLayerLine::parse(VectorStyleInst *inst,
     return true;
 }
 
-void MapboxVectorLayerLine::cleanup(VectorStyleInst *inst,ChangeSet &changes)
+void MapboxVectorLayerLine::cleanup(PlatformThreadInfo *inst,ChangeSet &changes)
 {
 }
 
-void MapboxVectorLayerLine::buildObjects(VectorStyleInst *inst,
+void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
                                          std::vector<VectorObjectRef> &inVecObjs,
                                          VectorTileDataRef tileInfo)
 {

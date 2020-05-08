@@ -456,6 +456,19 @@ protected:
 	jobject curObj;
 };
 
+namespace WhirlyKit {
+/**
+ * For more complex parts of the system we need the JNIEnv associated
+ * with the thread we're current on.  But we really like to reuse
+ * objects between threads, so this thing has to be passed way, way down.
+ */
+class PlatformInfo_Android : public WhirlyKit::PlatformThreadInfo {
+public:
+    PlatformInfo_Android(JNIEnv *env) : env(env) {}
+	JNIEnv *env;
+};
+}
+
 // Convert a Java int array into a std::vector of ints
 void ConvertIntArray(JNIEnv *env,jintArray &intArray,std::vector<int> &intVec);
 // Convert a Java float array into a std::vector of floats

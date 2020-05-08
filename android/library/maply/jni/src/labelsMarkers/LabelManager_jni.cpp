@@ -87,10 +87,8 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_LabelManager_addLabels
         // Need to tell the font texture manager what the current environment is
         //  so it can delete things if it needs to
         FontTextureManager_Android *fontTexManager = (FontTextureManager_Android *)labelManager->getScene()->getFontTextureManager();
-        fontTexManager->setEnv(env);
 
 		// We need this in the depths of the engine
-		labelInfo->env = env;
 		labelInfo->labelInfoObj = labelInfoObj;
 
 		// Collect the labels
@@ -116,9 +114,9 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_LabelManager_addLabels
             if (prog)
                 labelInfo->programID = prog->getId();
         }
-		SimpleIdentity labelId = labelManager->addLabels(labels,*labelInfo,*changeSet);
+		PlatformInfo_Android platformInfo(env);
+		SimpleIdentity labelId = labelManager->addLabels(&platformInfo,labels,*labelInfo,*changeSet);
 
-		labelInfo->env = NULL;
 		labelInfo->labelInfoObj = NULL;
 
 		return labelId;
@@ -145,12 +143,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelManager_removeLabels
         // Need to tell the font texture manager what the current environment is
         //  so it can delete things if it needs to
         FontTextureManager_Android *fontTexManager = (FontTextureManager_Android *)labelManager->getScene()->getFontTextureManager();
-        fontTexManager->setEnv(env);
 
         SimpleIDSet idSet;
         ConvertLongArrayToSet(env,idArrayObj,idSet);
 
-		labelManager->removeLabels(idSet,*changeSet);
+		PlatformInfo_Android platformInfo(env);
+		labelManager->removeLabels(&platformInfo,idSet,*changeSet);
 	}
 	catch (...)
 	{

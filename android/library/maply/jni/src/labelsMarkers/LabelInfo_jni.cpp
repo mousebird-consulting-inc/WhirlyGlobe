@@ -58,7 +58,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_dispose
             LabelInfoAndroid *info = (LabelInfoAndroid *)classInfo->getObject(env,obj);
             if (!info)
                 return;
-            info->clearRefs(env);
+            PlatformInfo_Android platformInfo(env);
+            info->clearRefs(&platformInfo);
             delete info;
 
             classInfo->clearHandle(env,obj);
@@ -155,7 +156,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setTypefaceNative
 		LabelInfoAndroid *info = (LabelInfoAndroid *)classInfo->getObject(env,obj);
 		if (!info)
 			return;
-		info->setTypeface(env,typefaceObj);
+        PlatformInfo_Android platformInfo(env);
+        info->setTypeface(&platformInfo,typefaceObj);
 	}
 	catch (...)
 	{
@@ -310,43 +312,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setShadowSize
     catch (...)
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::setShadowSize()");
-    }
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setLayoutImportance
-  (JNIEnv *env, jobject obj, jfloat importance)
-{
-	try
-	{
-		LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
-		LabelInfoAndroid *info = (LabelInfoAndroid *)classInfo->getObject(env,obj);
-		if (!info)
-			return;
-
-		info->layoutImportance = importance;
-        info->layoutEngine = info->layoutImportance < 1e20;
-	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::setLayoutImportance()");
-	}
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setLayoutPlacement
-(JNIEnv *env, jobject obj, jint layoutPlacement)
-{
-    try
-    {
-        LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
-        LabelInfoAndroid *info = (LabelInfoAndroid *)classInfo->getObject(env,obj);
-        if (!info)
-            return;
-        
-        info->layoutPlacement = layoutPlacement;
-    }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::setLayoutPlacement()");
     }
 }
 

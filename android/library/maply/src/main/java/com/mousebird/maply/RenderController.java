@@ -77,6 +77,11 @@ public class RenderController implements RenderControllerInterface
     }
 
     /**
+     * Return the current coordinate system.
+     */
+    public CoordSystem getCoordSystem() { return coordAdapter.coordSys; }
+
+    /**
      * This constructor assumes we'll be hooking up to surface provided later.
      */
     RenderController()
@@ -763,7 +768,7 @@ public class RenderController implements RenderControllerInterface
                         for (ScreenMovingLabel label : labels)
                         {
                             if (label.text != null && label.text.length() > 0) {
-                                InternalLabel intLabel = new InternalLabel(label,now);
+                                InternalLabel intLabel = new InternalLabel(label,labelInfo,now);
                                 intLabels.add(intLabel);
 
                                 // Keep track of this one for selection

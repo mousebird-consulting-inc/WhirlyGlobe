@@ -59,10 +59,10 @@ MaplyTileFetchRequest *QIFFrameAsset_ios::setupFetch(QuadImageFrameLoader *loade
     return request;
 }
 
-void QIFFrameAsset_ios::clear(QuadImageFrameLoader *loader,QIFBatchOps *inBatchOps,ChangeSet &changes) {
+void QIFFrameAsset_ios::clear(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QIFBatchOps *inBatchOps,ChangeSet &changes) {
     QIFBatchOps_ios *batchOps = (QIFBatchOps_ios *)inBatchOps;
     
-    QIFFrameAsset::clear(loader,batchOps,changes);
+    QIFFrameAsset::clear(threadInfo,loader,batchOps,changes);
     
     if (request) {
         [batchOps->toCancel addObject:request];
@@ -121,7 +121,7 @@ QIFTileAsset_ios::~QIFTileAsset_ios()
 {
 }
     
-QIFFrameAssetRef QIFTileAsset_ios::makeFrameAsset(QuadImageFrameLoader *loader)
+QIFFrameAssetRef QIFTileAsset_ios::makeFrameAsset(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader)
 {
     return QIFFrameAssetRef(new QIFFrameAsset_ios());
 }
@@ -191,10 +191,10 @@ QuadImageFrameLoader_ios::~QuadImageFrameLoader_ios()
 {
 }
 
-QIFTileAssetRef QuadImageFrameLoader_ios::makeTileAsset(const QuadTreeNew::ImportantNode &ident)
+QIFTileAssetRef QuadImageFrameLoader_ios::makeTileAsset(PlatformThreadInfo *threadInfo,const QuadTreeNew::ImportantNode &ident)
 {
     auto tileAsset = QIFTileAssetRef(new QIFTileAsset_ios(ident));
-    tileAsset->setupFrames(this,[frameInfos count]);
+    tileAsset->setupFrames(threadInfo,this,[frameInfos count]);
     return tileAsset;
 }
     
@@ -203,14 +203,14 @@ int QuadImageFrameLoader_ios::getNumFrames()
     return [frameInfos count];
 }
     
-QIFBatchOps *QuadImageFrameLoader_ios::makeBatchOps()
+QIFBatchOps *QuadImageFrameLoader_ios::makeBatchOps(PlatformThreadInfo *threadInfo)
 {
     QIFBatchOps_ios *batchOps = new QIFBatchOps_ios();
     
     return batchOps;
 }
     
-void QuadImageFrameLoader_ios::processBatchOps(QIFBatchOps *inBatchOps)
+void QuadImageFrameLoader_ios::processBatchOps(PlatformThreadInfo *threadInfo,QIFBatchOps *inBatchOps)
 {
     QIFBatchOps_ios *batchOps = (QIFBatchOps_ios *)inBatchOps;
 

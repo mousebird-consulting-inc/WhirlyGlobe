@@ -151,7 +151,7 @@ using namespace Eigen;
         for (const GeomStringWrapper &strWrap : strings)
         {
             // Convert the string to polygons
-            DrawableString *drawStr = fontTexManager->addString(strWrap.str,changes);
+            DrawableString *drawStr = fontTexManager->addString(NULL,strWrap.str,changes);
             for (const DrawableString::Rect &rect : drawStr->glyphPolys)
             {
                 // Find the appropriate geometry bucket

@@ -106,7 +106,7 @@ void MapboxVectorTileParser::addCategory(const std::string &category,long long s
     styleCategories[styleID] = category;
 }
     
-bool MapboxVectorTileParser::parse(VectorStyleInst *styleInst,RawData *rawData,VectorTileData *tileData)
+bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst,RawData *rawData,VectorTileData *tileData)
 {
     //calulate tile bounds and coordinate shift
     int tileSize = 256;
@@ -478,7 +478,7 @@ bool MapboxVectorTileParser::parse(VectorStyleInst *styleInst,RawData *rawData,V
     return true;
 }
 
-void MapboxVectorTileParser::buildForStyle(VectorStyleInst *styleInst,
+void MapboxVectorTileParser::buildForStyle(PlatformThreadInfo *styleInst,
                                            long long styleID,
                                            std::vector<VectorObjectRef> &vecObjs,
                                            VectorTileDataRef data)

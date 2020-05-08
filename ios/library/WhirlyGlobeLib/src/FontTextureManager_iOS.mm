@@ -194,7 +194,7 @@ NSData *FontTextureManager_iOS::renderGlyph(CGGlyph glyph,FontManager_iOSRef fm,
 }
 
 /// Add the given string.  Caller is responsible for deleting the DrawableString
-WhirlyKit::DrawableString *FontTextureManager_iOS::addString(NSAttributedString *str,ChangeSet &changes)
+WhirlyKit::DrawableString *FontTextureManager_iOS::addString(PlatformThreadInfo *threadInfo,NSAttributedString *str,ChangeSet &changes)
 {
     // We could make this more granular
     std::lock_guard<std::mutex> guardLock(lock);

@@ -99,6 +99,11 @@ public class BaseController implements RenderController.TaskManager, RenderContr
         return scene;
     }
 
+	/**
+	 * Return the current coordinate system.
+	 */
+	public CoordSystem getCoordSystem() { return coordAdapter.coordSys; }
+
 	public void takeScreenshot(ScreenshotListener listener)
 	{
 		if (baseView instanceof GLTextureView) {

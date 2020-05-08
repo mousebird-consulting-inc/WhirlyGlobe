@@ -245,7 +245,7 @@ using namespace WhirlyKit;
     }
     
     loader->setTileInfos(tileInfos);
-    loader->reload(-1);
+    loader->reload(NULL,-1);
 }
 
 - (void)changeInterpreter:(NSObject<MaplyLoaderInterpreter> *)interp
@@ -259,7 +259,7 @@ using namespace WhirlyKit;
     }
     
     loadInterp = interp;
-    loader->reload(-1);
+    loader->reload(NULL,-1);
 }
 
 - (void)reload
@@ -272,7 +272,7 @@ using namespace WhirlyKit;
         return;
     }
 
-    loader->reload(-1);
+    loader->reload(NULL,-1);
 }
 
 // Called on a random dispatch queue
@@ -378,7 +378,7 @@ using namespace WhirlyKit;
         return;
     
     ChangeSet changes;
-    loader->mergeLoadedTile(loadReturn->loadReturn.get(),changes);
+    loader->mergeLoadedTile(NULL,loadReturn->loadReturn.get(),changes);
     
     [samplingLayer.layerThread addChangeRequests:changes];
 }
@@ -387,7 +387,7 @@ using namespace WhirlyKit;
 {
     ChangeSet changes;
     
-    loader->cleanup(changes);
+    loader->cleanup(NULL,changes);
     [samplingLayer.layerThread addChangeRequests:changes];
     
     loader = nil;

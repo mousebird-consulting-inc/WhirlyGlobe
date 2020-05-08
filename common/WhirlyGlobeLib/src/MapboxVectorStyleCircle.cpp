@@ -24,7 +24,7 @@
 namespace WhirlyKit
 {
 
-bool MapboxVectorCirclePaint::parse(VectorStyleInst *inst,
+bool MapboxVectorCirclePaint::parse(PlatformThreadInfo *inst,
                                     MapboxVectorStyleSetImpl *styleSet,
                                     DictionaryRef styleEntry)
 {
@@ -41,7 +41,7 @@ bool MapboxVectorCirclePaint::parse(VectorStyleInst *inst,
     return true;
 }
 
-bool MapboxVectorLayerCircle::parse(VectorStyleInst *inst,
+bool MapboxVectorLayerCircle::parse(PlatformThreadInfo *inst,
                                     DictionaryRef styleEntry,
                                     MapboxVectorStyleLayerRef refLayer,
                                     int drawPriority)
@@ -68,7 +68,7 @@ void MapboxVectorLayerCircle::cleanup(ChangeSet &changes)
         changes.push_back(new RemTextureReq(circleTexID));
 }
 
-void MapboxVectorLayerCircle::buildObjects(VectorStyleInst *inst,
+void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
                                            std::vector<VectorObjectRef> &vecObjs,
                                           VectorTileDataRef tileInfo)
 {

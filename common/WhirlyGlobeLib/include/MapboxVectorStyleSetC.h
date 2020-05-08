@@ -139,7 +139,7 @@ public:
     virtual ~MapboxVectorStyleSetImpl();
     
     // Parse the entire style sheet.  False on failure
-    bool parse(VectorStyleInst *inst,DictionaryRef dict);
+    bool parse(PlatformThreadInfo *inst,DictionaryRef dict);
         
     /// @brief Default settings and scale factor for Mapnik vector geometry.
     VectorStyleSettingsImplRef tileStyleSettings;
@@ -216,26 +216,26 @@ public:
     /** Platform specific implementation **/
     
     /// Local platform implementation for generating a circle and adding it as a texture
-    virtual SimpleIdentity makeCircleTexture(VectorStyleInst *inst,
+    virtual SimpleIdentity makeCircleTexture(PlatformThreadInfo *inst,
                                              double radius,
                                              const RGBAColor &fillColor,
                                              const RGBAColor &strokeColor,
                                              float strokeWidth,Point2f *circleSize) = 0;
     
     /// Local platform implementation for generating a repeating line texture
-    virtual SimpleIdentity makeLineTexture(VectorStyleInst *inst,const std::vector<double> &dashComponents) = 0;
+    virtual SimpleIdentity makeLineTexture(PlatformThreadInfo *inst,const std::vector<double> &dashComponents) = 0;
     
     /// Create a local platform LabelInfo (since fonts are local)
-    virtual LabelInfoRef makeLabelInfo(VectorStyleInst *inst,const std::string &fontName,float fontSize) = 0;
+    virtual LabelInfoRef makeLabelInfo(PlatformThreadInfo *inst,const std::string &fontName,float fontSize) = 0;
     
     /// Create a local platform label (fonts are local, and other stuff)
-    virtual SingleLabelRef makeSingleLabel(VectorStyleInst *inst,const std::string &text) = 0;
+    virtual SingleLabelRef makeSingleLabel(PlatformThreadInfo *inst,const std::string &text) = 0;
 
     /// Return the width of the given line of text
-    virtual double calculateTextWidth(LabelInfoRef labelInfo,const std::string &testStr) = 0;
+    virtual double calculateTextWidth(PlatformThreadInfo *inInst,LabelInfoRef labelInfo,const std::string &testStr) = 0;
     
     /// Create a local platform component object
-    virtual ComponentObjectRef makeComponentObject(VectorStyleInst *inst) = 0;
+    virtual ComponentObjectRef makeComponentObject(PlatformThreadInfo *inst) = 0;
 
 public:
     Scene *scene;

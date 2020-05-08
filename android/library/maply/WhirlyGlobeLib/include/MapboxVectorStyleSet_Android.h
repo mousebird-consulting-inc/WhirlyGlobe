@@ -25,25 +25,18 @@
 namespace WhirlyKit
 {
 
-/// Used to pass around the JNIEnv per thread
-class VectorStyleInst_Android : public VectorStyleInst
-{
-public:
-    JNIEnv *env;
-};
-
 /// Android version of the Mapbox Vector Style Set
 /// Just implements the platform local stuff
 class MapboxVectorStyleSetImpl_Android : public MapboxVectorStyleSetImpl
 {
 public:
-    MapboxVectorStyleSetImpl_Android(Scene *scene,VectorStyleSettingsImplRef settings);
+    MapboxVectorStyleSetImpl_Android(Scene *scene,CoordSystem *coordSys,VectorStyleSettingsImplRef settings);
     ~MapboxVectorStyleSetImpl_Android();
 
     /** Platform specific implementation **/
 
     /// Local platform implementation for generating a circle and adding it as a texture
-    virtual SimpleIdentity makeCircleTexture(VectorStyleInst *inst,
+    virtual SimpleIdentity makeCircleTexture(PlatformThreadInfo *inst,
             double radius,
             const RGBAColor &fillColor,
             const RGBAColor &strokeColor,
@@ -51,16 +44,19 @@ public:
             Point2f *circleSize);
 
     /// Local platform implementation for generating a repeating line texture
-    virtual SimpleIdentity makeLineTexture(VectorStyleInst *inst,const std::vector<double> &dashComponents);
+    virtual SimpleIdentity makeLineTexture(PlatformThreadInfo *inst,const std::vector<double> &dashComponents);
 
     /// Create a local platform LabelInfo (since fonts are local)
-    virtual LabelInfoRef makeLabelInfo(VectorStyleInst *inst,const std::string &fontName,float fontSize);
+    virtual LabelInfoRef makeLabelInfo(PlatformThreadInfo *inst,const std::string &fontName,float fontSize);
 
     /// Create a local platform label (fonts are local, and other stuff)
-    virtual SingleLabelRef makeSingleLabel(VectorStyleInst *inst,const std::string &text);
+    virtual SingleLabelRef makeSingleLabel(PlatformThreadInfo *inst,const std::string &text);
 
     /// Create a local platform component object
-    virtual ComponentObjectRef makeComponentObject(VectorStyleInst *inst);
+    virtual ComponentObjectRef makeComponentObject(PlatformThreadInfo *inst);
+
+    /// Return the width of the given line of text
+    virtual double calculateTextWidth(PlatformThreadInfo *inInst,LabelInfoRef labelInfo,const std::string &testStr);
 
     /// Set up the Java side method references
     void setupMethods(JNIEnv *env);
@@ -71,6 +67,7 @@ public:
 public:
     jobject thisObj;
     jmethodID makeLabelInfoMethod;
+    jmethodID calculateTextWidthMethod;
     jmethodID makeCircleTextureMethod;
     jmethodID makeLineTextureMethod;
 

@@ -227,6 +227,24 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setOffset
 	}
 }
 
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setLayoutPlacement
+		(JNIEnv *env, jobject obj, jint layoutPlacement)
+{
+	try
+	{
+		LabelClassInfo *classInfo = LabelClassInfo::getClassInfo();
+		SingleLabel *label = classInfo->getObject(env,obj);
+		if (!label)
+			return;
+		label->layoutPlacement = layoutPlacement;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in InternalLabel::setLayoutPlacement()");
+	}
+
+}
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setLayoutImportance
 (JNIEnv *env, jobject obj, jfloat layoutImportance)
 {
@@ -236,9 +254,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setLayoutImportanc
         SingleLabel *label = classInfo->getObject(env,obj);
         if (!label)
             return;
-        if (!label->infoOverride)
-            label->infoOverride = LabelInfoRef(new LabelInfo(true));
-        label->infoOverride->layoutImportance = layoutImportance;
+        label->layoutImportance = layoutImportance;
     }
     catch (...)
     {

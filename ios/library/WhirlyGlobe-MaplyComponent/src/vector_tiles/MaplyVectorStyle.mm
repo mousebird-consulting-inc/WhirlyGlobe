@@ -347,7 +347,7 @@ MapboxVectorStyleSetImpl_iOS::~MapboxVectorStyleSetImpl_iOS()
 {
 }
 
-SimpleIdentity MapboxVectorStyleSetImpl_iOS::makeCircleTexture(VectorStyleInst *inst,
+SimpleIdentity MapboxVectorStyleSetImpl_iOS::makeCircleTexture(PlatformThreadInfo *inst,
                                                                double inRadius,
                                                                const RGBAColor &fillColor,
                                                                const RGBAColor &strokeColor,
@@ -391,7 +391,7 @@ SimpleIdentity MapboxVectorStyleSetImpl_iOS::makeCircleTexture(VectorStyleInst *
     return tex.texID;
 }
 
-SimpleIdentity MapboxVectorStyleSetImpl_iOS::makeLineTexture(VectorStyleInst *inst,const std::vector<double> &inComp)
+SimpleIdentity MapboxVectorStyleSetImpl_iOS::makeLineTexture(PlatformThreadInfo *inst,const std::vector<double> &inComp)
 {
     NSMutableArray *dashComp = [NSMutableArray array];
     for (double comp: inComp)
@@ -409,7 +409,7 @@ SimpleIdentity MapboxVectorStyleSetImpl_iOS::makeLineTexture(VectorStyleInst *in
     return tex.texID;
 }
 
-LabelInfoRef MapboxVectorStyleSetImpl_iOS::makeLabelInfo(VectorStyleInst *inst,const std::string &fontName,float fontSize)
+LabelInfoRef MapboxVectorStyleSetImpl_iOS::makeLabelInfo(PlatformThreadInfo *inst,const std::string &fontName,float fontSize)
 {
     // TODO: Do we need the size here?
     NSString *fontNameStr = [NSString stringWithFormat:@"%s",fontName.c_str()];
@@ -425,7 +425,7 @@ LabelInfoRef MapboxVectorStyleSetImpl_iOS::makeLabelInfo(VectorStyleInst *inst,c
     return labelInfo;
 }
 
-SingleLabelRef MapboxVectorStyleSetImpl_iOS::makeSingleLabel(VectorStyleInst *inst,const std::string &text)
+SingleLabelRef MapboxVectorStyleSetImpl_iOS::makeSingleLabel(PlatformThreadInfo *inst,const std::string &text)
 {
     NSString *textStr = [NSString stringWithUTF8String:text.c_str()];
     
@@ -435,12 +435,12 @@ SingleLabelRef MapboxVectorStyleSetImpl_iOS::makeSingleLabel(VectorStyleInst *in
     return SingleLabelRef(label);
 }
 
-ComponentObjectRef MapboxVectorStyleSetImpl_iOS::makeComponentObject(VectorStyleInst *inst)
+ComponentObjectRef MapboxVectorStyleSetImpl_iOS::makeComponentObject(PlatformThreadInfo *inst)
 {
     return ComponentObjectRef(new ComponentObject_iOS());
 }
 
-double MapboxVectorStyleSetImpl_iOS::calculateTextWidth(LabelInfoRef inLabelInfo,const std::string &testStr)
+double MapboxVectorStyleSetImpl_iOS::calculateTextWidth(PlatformThreadInfo *inst,LabelInfoRef inLabelInfo,const std::string &testStr)
 {
     LabelInfo_iOSRef labelInfo = std::dynamic_pointer_cast<LabelInfo_iOS>(inLabelInfo);
     if (!labelInfo)
@@ -536,7 +536,7 @@ bool VectorStyleWrapper::geomAdditive()
     return [style geomAdditive];
 }
 
-void VectorStyleWrapper::buildObjects(VectorStyleInst *inst,
+void VectorStyleWrapper::buildObjects(PlatformThreadInfo *inst,
                                       std::vector<VectorObjectRef> &vecObjs,
                                       VectorTileDataRef tileInfo)
 {

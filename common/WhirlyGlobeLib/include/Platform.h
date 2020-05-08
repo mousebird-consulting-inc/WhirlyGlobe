@@ -32,5 +32,14 @@ namespace WhirlyKit
 
 // Wrapper for platform specific time function
 extern TimeInterval TimeGetCurrent();
-        
+
+/**
+ * On Android we have to pass around per-thread information.
+ * So this is a base class passed in to the parse and build methods.  Platforms put whatever per-thread info they need into it.
+*/
+class PlatformThreadInfo
+{
+public:
+};
+
 }

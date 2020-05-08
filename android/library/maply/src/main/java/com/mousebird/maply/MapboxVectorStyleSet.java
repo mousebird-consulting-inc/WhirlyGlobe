@@ -1,7 +1,10 @@
 package com.mousebird.maply;
 
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.util.DisplayMetrics;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -13,7 +16,7 @@ import java.util.ArrayList;
 public class MapboxVectorStyleSet implements VectorStyleInterface {
 
     // Construct with the JSON data from a string
-    public MapboxVectorStyleSet(String styleJSON,VectorStyleSettings inSettings,RenderControllerInterface inControl) {
+    public MapboxVectorStyleSet(String styleJSON,VectorStyleSettings inSettings,DisplayMetrics inDisplayMetrics,RenderControllerInterface inControl) {
         // Fault in the ComponentObject native implementation.
         // Because the first time it can be called in this case is C++ side
         ComponentObject testObj = new ComponentObject();
@@ -40,9 +43,12 @@ public class MapboxVectorStyleSet implements VectorStyleInterface {
             }
         }
 
-        initialise(inControl.getScene(),settings,styleJSON);
+        displayMetrics = inDisplayMetrics;
+
+        initialise(inControl.getScene(),inControl.getCoordSystem(),settings,styleJSON);
     }
 
+    DisplayMetrics displayMetrics;
     VectorStyleSettings settings;
     WeakReference<RenderControllerInterface> control;
 
@@ -75,6 +81,18 @@ public class MapboxVectorStyleSet implements VectorStyleInterface {
 
             return labelInfo;
         }
+    }
+
+    // Calculate text width based on the typeface
+    public double calculateTextWidth(String text,LabelInfo labelInfo)
+    {
+        Paint paint = new Paint();
+        paint.setTextSize(labelInfo.fontSize);
+        paint.setTypeface(labelInfo.getTypeface());
+        Rect bounds = new Rect();
+        paint.getTextBounds(text,0,text.length(), bounds);
+
+        return bounds.right - bounds.left;
     }
 
     // If there's a sprite sheet, where it's at
@@ -150,7 +168,7 @@ public class MapboxVectorStyleSet implements VectorStyleInterface {
     {
         nativeInit();
     }
-    native void initialise(Scene scene,VectorStyleSettings settings,String styleJSON);
+    native void initialise(Scene scene,CoordSystem coordSystem,VectorStyleSettings settings,String styleJSON);
     native void dispose();
     private static native void nativeInit();
     protected long nativeHandle;

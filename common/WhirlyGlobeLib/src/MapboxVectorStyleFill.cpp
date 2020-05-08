@@ -26,7 +26,7 @@
 namespace WhirlyKit
 {
 
-bool MapboxVectorFillPaint::parse(VectorStyleInst *inst,
+bool MapboxVectorFillPaint::parse(PlatformThreadInfo *inst,
                                   MapboxVectorStyleSetImpl *styleSet,
                                   DictionaryRef styleEntry)
 {
@@ -42,7 +42,7 @@ bool MapboxVectorFillPaint::parse(VectorStyleInst *inst,
     return true;
 }
 
-bool MapboxVectorLayerFill::parse(VectorStyleInst *inst,
+bool MapboxVectorLayerFill::parse(PlatformThreadInfo *inst,
                                   DictionaryRef styleEntry,
                                   MapboxVectorStyleLayerRef refLayer,
                                   int inDrawPriority)
@@ -63,11 +63,11 @@ bool MapboxVectorLayerFill::parse(VectorStyleInst *inst,
     return true;
 }
 
-void MapboxVectorLayerFill::cleanup(VectorStyleInst *inst,ChangeSet &changes)
+void MapboxVectorLayerFill::cleanup(PlatformThreadInfo *inst,ChangeSet &changes)
 {
 }
 
-void MapboxVectorLayerFill::buildObjects(VectorStyleInst *inst,
+void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
                                          std::vector<VectorObjectRef> &vecObjs,
                                          VectorTileDataRef tileInfo)
 {

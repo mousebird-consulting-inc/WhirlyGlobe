@@ -125,7 +125,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentManager_removeComponent
                 compObjIDs.insert((*compObj)->getId());
         }
 
-        compManager->removeComponentObjects(compObjIDs,*changeSet);
+        PlatformInfo_Android platformInfo(env);
+        compManager->removeComponentObjects(&platformInfo,compObjIDs,*changeSet);
     }
     catch (...)
     {

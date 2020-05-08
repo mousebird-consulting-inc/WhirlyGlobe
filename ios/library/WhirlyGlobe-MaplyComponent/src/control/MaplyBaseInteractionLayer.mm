@@ -1416,7 +1416,7 @@ public:
     {
         // Set up a description and create the markers in the marker layer
         ChangeSet changes;
-        SimpleIdentity labelID = labelManager->addLabels(wgLabels, labelInfo, changes);
+        SimpleIdentity labelID = labelManager->addLabels(NULL, wgLabels, labelInfo, changes);
         [self flushChanges:changes mode:threadMode];
         if (labelID != EmptyIdentity)
             compObj->contents->labelIDs.insert(labelID);
@@ -1529,7 +1529,7 @@ public:
     {
         ChangeSet changes;
         // Set up a description and create the markers in the marker layer
-        SimpleIdentity labelID = labelManager->addLabels(wgLabels, labelInfo, changes);
+        SimpleIdentity labelID = labelManager->addLabels(NULL, wgLabels, labelInfo, changes);
         [self flushChanges:changes mode:threadMode];
         if (labelID != EmptyIdentity)
             compObj->contents->labelIDs.insert(labelID);
@@ -2796,7 +2796,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
             {
                 StringWrapper_iOSRef strWrap = std::dynamic_pointer_cast<StringWrapper_iOS>(theStrWrap);
                 // Convert the string to polygons
-                DrawableString *drawStr = fontTexManager->addString(strWrap->str,changes);
+                DrawableString *drawStr = fontTexManager->addString(NULL, strWrap->str,changes);
                 for (const DrawableString::Rect &rect : drawStr->glyphPolys)
                 {
                     SingleBillboardPoly billPoly;
@@ -3245,7 +3245,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
             if (compObj->contents) {
                 // This does the visual and the selection data
-                compManager->removeComponentObject(compObj->contents->getId(),changes);
+                compManager->removeComponentObject(NULL,compObj->contents->getId(),changes);
             }
         }
     }

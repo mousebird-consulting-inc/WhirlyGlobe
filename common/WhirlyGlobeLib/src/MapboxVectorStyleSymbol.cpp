@@ -30,7 +30,7 @@ static const char *placementVals[] = {"point","line",NULL};
 static const char *transformVals[] = {"none","uppercase","lowercase",NULL};
 static const char *anchorVals[] = {"center","left","right","top","bottom","top-left","top-right","bottom-left","bottom-right",NULL};
 
-bool MapboxVectorSymbolLayout::parse(VectorStyleInst *inst,
+bool MapboxVectorSymbolLayout::parse(PlatformThreadInfo *inst,
                                      MapboxVectorStyleSetImpl *styleSet,
                                      DictionaryRef styleEntry)
 {
@@ -81,7 +81,7 @@ bool MapboxVectorSymbolLayout::parse(VectorStyleInst *inst,
     return true;
 }
 
-bool MapboxVectorSymbolPaint::parse(VectorStyleInst *inst,
+bool MapboxVectorSymbolPaint::parse(PlatformThreadInfo *inst,
                                     MapboxVectorStyleSetImpl *styleSet,
                                     DictionaryRef styleEntry)
 {
@@ -93,7 +93,7 @@ bool MapboxVectorSymbolPaint::parse(VectorStyleInst *inst,
     return true;
 }
 
-bool MapboxVectorLayerSymbol::parse(VectorStyleInst *inst,
+bool MapboxVectorLayerSymbol::parse(PlatformThreadInfo *inst,
                                     DictionaryRef styleEntry,
                                    MapboxVectorStyleLayerRef refLayer,
                                    int inDrawPriority)
@@ -114,7 +114,7 @@ bool MapboxVectorLayerSymbol::parse(VectorStyleInst *inst,
     return true;
 }
 
-std::string MapboxVectorLayerSymbol::breakUpText(const std::string &text,double textMaxWidth,LabelInfoRef labelInfo)
+std::string MapboxVectorLayerSymbol::breakUpText(PlatformThreadInfo *inst,const std::string &text,double textMaxWidth,LabelInfoRef labelInfo)
 {
     // If there are no spaces, let's not break it up
     if (text.find(" ") == std::string::npos)
@@ -136,7 +136,7 @@ std::string MapboxVectorLayerSymbol::breakUpText(const std::string &text,double 
         
         // Try the string with the next chunk
         std::string testStr = soFar.empty() ? chunk : soFar + " " + chunk;
-        double width = styleSet->calculateTextWidth(labelInfo,testStr);
+        double width = styleSet->calculateTextWidth(inst,labelInfo,testStr);
         
         // Flush out what we have so far and start with this new chunk
         if (width > textMaxWidth) {
@@ -173,11 +173,11 @@ static float calcStringHash(const std::string &str)
     return val;
 }
 
-void MapboxVectorLayerSymbol::cleanup(VectorStyleInst *inst,ChangeSet &changes)
+void MapboxVectorLayerSymbol::cleanup(PlatformThreadInfo *inst,ChangeSet &changes)
 {
 }
 
-void MapboxVectorLayerSymbol::buildObjects(VectorStyleInst *inst,
+void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                                            std::vector<VectorObjectRef> &vecObjs,
                                            VectorTileDataRef tileInfo)
 {
@@ -268,7 +268,7 @@ void MapboxVectorLayerSymbol::buildObjects(VectorStyleInst *inst,
                             // Break it up into lines, if necessary
                             double textMaxWidth = layout.textMaxWidth->valForZoom(tileInfo->ident.level);
                             if (textMaxWidth != 0.0)
-                                text = breakUpText(text,textMaxWidth * labelInfo->fontPointSize * styleSet->tileStyleSettings->textScale,labelInfo);
+                                text = breakUpText(inst,text,textMaxWidth * labelInfo->fontPointSize * styleSet->tileStyleSettings->textScale,labelInfo);
                             
                             // Construct the label
                             SingleLabelRef label = styleSet->makeSingleLabel(inst,text);
@@ -348,7 +348,7 @@ void MapboxVectorLayerSymbol::buildObjects(VectorStyleInst *inst,
     }
 
     if (!labels.empty()) {
-        SimpleIdentity labelID = styleSet->labelManage->addLabels(labels, *labelInfo, tileInfo->changes);
+        SimpleIdentity labelID = styleSet->labelManage->addLabels(inst, labels, *labelInfo, tileInfo->changes);
         if (labelID != EmptyIdentity)
             compObj->labelIDs.insert(labelID);
     }

@@ -86,7 +86,7 @@ public:
     LabelInfoRef infoOverride;
 
     // Used to build the drawable string on specific platforms
-    virtual std::vector<DrawableString *> generateDrawableStrings(const LabelInfo *,FontTextureManager *fontTexManager,float &lineHeight,ChangeSet &changes) = 0;
+    virtual std::vector<DrawableString *> generateDrawableStrings(PlatformThreadInfo *threadInfo,const LabelInfo *,FontTextureManager *fontTexManager,float &lineHeight,ChangeSet &changes) = 0;
 };
 typedef std::shared_ptr<SingleLabel> SingleLabelRef;
     
@@ -102,14 +102,14 @@ public:
     virtual ~LabelManager();
 
     /// Add the given set of labels, returning an ID that represents the whole thing
-    SimpleIdentity addLabels(std::vector<SingleLabel *> &labels,const LabelInfo &desc,ChangeSet &changes);
-    SimpleIdentity addLabels(std::vector<SingleLabelRef> &labels,const LabelInfo &desc,ChangeSet &changes);
+    SimpleIdentity addLabels(PlatformThreadInfo *threadInfo,std::vector<SingleLabel *> &labels,const LabelInfo &desc,ChangeSet &changes);
+    SimpleIdentity addLabels(PlatformThreadInfo *threadInfo,std::vector<SingleLabelRef> &labels,const LabelInfo &desc,ChangeSet &changes);
 
     /// Change visual attributes (just the visibility range)
-    void changeLabel(SimpleIdentity labelID,const LabelInfo &desc,ChangeSet &changes);
+    void changeLabel(PlatformThreadInfo *threadInfo,SimpleIdentity labelID,const LabelInfo &desc,ChangeSet &changes);
     
     /// Remove the given label(s)
-    void removeLabels(SimpleIDSet &labelID,ChangeSet &changes);
+    void removeLabels(PlatformThreadInfo *threadInfo,SimpleIDSet &labelID,ChangeSet &changes);
     
     /// Enable/disable labels
     void enableLabels(SimpleIDSet labelID,bool enable,ChangeSet &changes);

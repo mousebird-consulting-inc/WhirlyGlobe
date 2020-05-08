@@ -144,16 +144,16 @@ void QuadDisplayControllerNew::start()
     loader->setController(this);
 }
     
-void QuadDisplayControllerNew::stop(ChangeSet &changes)
+void QuadDisplayControllerNew::stop(PlatformThreadInfo *threadInfo,ChangeSet &changes)
 {
-    loader->quadLoaderShutdown(changes);
+    loader->quadLoaderShutdown(threadInfo,changes);
     dataStructure = NULL;
     loader = NULL;
     
     scene = NULL;
 }
     
-bool QuadDisplayControllerNew::viewUpdate(ViewStateRef inViewState,ChangeSet &changes)
+bool QuadDisplayControllerNew::viewUpdate(PlatformThreadInfo *threadInfo,ViewStateRef inViewState,ChangeSet &changes)
 {
     if (!scene)
         return true;
@@ -215,7 +215,7 @@ bool QuadDisplayControllerNew::viewUpdate(ViewStateRef inViewState,ChangeSet &ch
             toUpdate.insert(node);
     
     QuadTreeNew::NodeSet removesToKeep;
-    removesToKeep = loader->quadLoaderUpdate(toAdd, toRemove, toUpdate, targetLevel,changes);
+    removesToKeep = loader->quadLoaderUpdate(threadInfo, toAdd, toRemove, toUpdate, targetLevel,changes);
     
     bool needsDelayCheck = !removesToKeep.empty();
     

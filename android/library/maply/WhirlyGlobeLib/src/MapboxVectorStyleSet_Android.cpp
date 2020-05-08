@@ -29,8 +29,8 @@
 namespace WhirlyKit
 {
 
-MapboxVectorStyleSetImpl_Android::MapboxVectorStyleSetImpl_Android(Scene *scene,VectorStyleSettingsImplRef settings)
-: MapboxVectorStyleSetImpl(scene,settings), thisObj(NULL),
+MapboxVectorStyleSetImpl_Android::MapboxVectorStyleSetImpl_Android(Scene *scene,CoordSystem *coordSys,VectorStyleSettingsImplRef settings)
+: MapboxVectorStyleSetImpl(scene,coordSys,settings), thisObj(NULL),
     makeLabelInfoMethod(NULL), makeCircleTextureMethod(NULL), makeLineTextureMethod(NULL)
 {
 }
@@ -44,6 +44,8 @@ void MapboxVectorStyleSetImpl_Android::setupMethods(JNIEnv *env)
         // TODO: Get the right signatures
         makeLabelInfoMethod = env->GetMethodID(thisClass, "labelInfoForFont",
                                                "(Ljava/lang/String;F)Lcom/mousebird/maply/LabelInfo;");
+        calculateTextWidthMethod = env->GetMethodID(thisClass, "calculateTextWidth",
+                "(Ljava/lang/String;Lcom/mousebird/maply/LabelInfo;)D");
 //        makeCircleTextureMethod = env->GetMethodID(thisClass, "makeLabelInfo",
 //                                                   "");
 //        makeLineTextureMethod = env->GetMethodID(thisClass, "makeLabelInfo",
@@ -62,7 +64,7 @@ MapboxVectorStyleSetImpl_Android::~MapboxVectorStyleSetImpl_Android()
 {
 }
 
-SimpleIdentity MapboxVectorStyleSetImpl_Android::makeCircleTexture(VectorStyleInst *inInst,
+SimpleIdentity MapboxVectorStyleSetImpl_Android::makeCircleTexture(PlatformThreadInfo *inInst,
         double radius,
         const RGBAColor &fillColor,
         const RGBAColor &strokeColor,
@@ -73,15 +75,15 @@ SimpleIdentity MapboxVectorStyleSetImpl_Android::makeCircleTexture(VectorStyleIn
     return EmptyIdentity;
 }
 
-SimpleIdentity MapboxVectorStyleSetImpl_Android::makeLineTexture(VectorStyleInst *inInst,const std::vector<double> &dashComponents)
+SimpleIdentity MapboxVectorStyleSetImpl_Android::makeLineTexture(PlatformThreadInfo *inInst,const std::vector<double> &dashComponents)
 {
     // TODO: Implement
     return EmptyIdentity;
 }
 
-LabelInfoRef MapboxVectorStyleSetImpl_Android::makeLabelInfo(VectorStyleInst *inInst,const std::string &fontName,float fontSize)
+LabelInfoRef MapboxVectorStyleSetImpl_Android::makeLabelInfo(PlatformThreadInfo *inInst,const std::string &fontName,float fontSize)
 {
-    VectorStyleInst_Android *inst = (VectorStyleInst_Android *)inInst;
+    PlatformInfo_Android *inst = (PlatformInfo_Android *)inInst;
     std::pair<std::string, float> entry(fontName,fontSize);
 
     LabelInfoAndroid *refLabelInfo = NULL;
@@ -99,11 +101,10 @@ LabelInfoRef MapboxVectorStyleSetImpl_Android::makeLabelInfo(VectorStyleInst *in
 
     // The current labelInfo object needs to point at the active Env for this call
     LabelInfoAndroidRef labelInfo(new LabelInfoAndroid(*refLabelInfo));
-    labelInfo->env = inst->env;
     return labelInfo;
 }
 
-SingleLabelRef MapboxVectorStyleSetImpl_Android::makeSingleLabel(VectorStyleInst *inInst,const std::string &text)
+SingleLabelRef MapboxVectorStyleSetImpl_Android::makeSingleLabel(PlatformThreadInfo *inInst,const std::string &text)
 {
     SingleLabelAndroid *label = new SingleLabelAndroid();
 
@@ -120,9 +121,21 @@ SingleLabelRef MapboxVectorStyleSetImpl_Android::makeSingleLabel(VectorStyleInst
     return SingleLabelRef(label);
 }
 
-ComponentObjectRef MapboxVectorStyleSetImpl_Android::makeComponentObject(VectorStyleInst *inInst)
+ComponentObjectRef MapboxVectorStyleSetImpl_Android::makeComponentObject(PlatformThreadInfo *inInst)
 {
     return ComponentObjectRef(new ComponentObject());
+}
+
+double MapboxVectorStyleSetImpl_Android::calculateTextWidth(PlatformThreadInfo *inInst,LabelInfoRef inLabelInfo,const std::string &text)
+{
+    PlatformInfo_Android *inst = (PlatformInfo_Android *)inInst;
+    LabelInfoAndroidRef labelInfo = std::dynamic_pointer_cast<LabelInfoAndroid>(inLabelInfo);
+
+    jstring jText = inst->env->NewStringUTF(text.c_str());
+    jdouble width = inst->env->CallDoubleMethod(thisObj,calculateTextWidthMethod,jText,labelInfo->labelInfoObj);
+    inst->env->DeleteLocalRef(jText);
+
+    return width;
 }
 
 }

@@ -31,7 +31,7 @@ class InternalLabel
 		initialise();
 	}
 
-	private void setupScreenLabel(ScreenLabel label)
+	private void setupScreenLabel(ScreenLabel label,LabelInfo labelInfo)
 	{
 		if (label.selectable) {
 			setSelectID(label.ident);
@@ -60,7 +60,16 @@ class InternalLabel
 			setLayoutSize(label.layoutSize.getX(),label.layoutSize.getY());
 		if (label.offset != null)
 			setOffset(label.offset);
-		setLayoutImportance(label.layoutImportance);
+
+		if (labelInfo.layoutPlacement != -1)
+			setLayoutImportance(labelInfo.layoutPlacement);
+		if (label.layoutPlacement != -1)
+			setLayoutPlacement(label.layoutPlacement);
+
+		if (labelInfo.layoutImportance != Float.MAX_VALUE)
+			setLayoutImportance(labelInfo.layoutImportance);
+		if (label.layoutImportance != Float.MAX_VALUE)
+			setLayoutImportance(label.layoutImportance);
 		if (label.uniqueID != null)
 			setUniqueID(label.uniqueID);
 	}
@@ -71,21 +80,21 @@ class InternalLabel
 	 * 
 	 * @param label Screen label we're going to represent.
 	 */
-	InternalLabel(ScreenLabel label)
+	InternalLabel(ScreenLabel label,LabelInfo labelInfo)
 	{
 		initialise();
 
-		setupScreenLabel(label);
+		setupScreenLabel(label,labelInfo);
 	}
 
 	/**
 	 * Construct with a moving label.
 	 */
-	InternalLabel(ScreenMovingLabel label,double startTime)
+	InternalLabel(ScreenMovingLabel label,LabelInfo labelInfo,double startTime)
 	{
 		initialise();
 
-		setupScreenLabel(label);
+		setupScreenLabel(label,labelInfo);
 
 		setEndLoc(label.endLoc);
 		setAnimationRange(startTime,startTime+label.duration);
@@ -100,6 +109,7 @@ class InternalLabel
 	public native void addText(int[] codePoints,int len);
 	public native void setOffset(Point2d offset);
 	public native void setLayoutImportance(float layoutImportance);
+	public native void setLayoutPlacement(int layoutPlacement);
 	public native void setLayoutSize(double sizeX,double sizeY);
 	public native void setUniqueID(String uniqueStr);
 

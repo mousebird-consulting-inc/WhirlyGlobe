@@ -113,22 +113,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setShadowSize
 
 /*
  * Class:     com_mousebird_maply_LabelInfo
- * Method:    setLayoutImportance
- * Signature: (F)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setLayoutImportance
-  (JNIEnv *, jobject, jfloat);
-
-/*
- * Class:     com_mousebird_maply_LabelInfo
- * Method:    setLayoutPlacement
- * Signature: (I)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setLayoutPlacement
-  (JNIEnv *, jobject, jint);
-
-/*
- * Class:     com_mousebird_maply_LabelInfo
  * Method:    setTextJustifyNative
  * Signature: (I)V
  */

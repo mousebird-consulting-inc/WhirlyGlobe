@@ -37,7 +37,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QIFBatchOps_initialise
 {
     try {
         QIFBatchOpsClassInfo *info = QIFBatchOpsClassInfo::getClassInfo();
-        QIFBatchOps_Android *batchOps = new QIFBatchOps_Android(env);
+        PlatformInfo_Android platformInfo(env);
+        QIFBatchOps_Android *batchOps = new QIFBatchOps_Android(&platformInfo);
         batchOps->batchOpsObj = obj;
         info->setHandle(env, obj, batchOps);
     } catch (...) {
@@ -48,19 +49,19 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QIFBatchOps_initialise
 static std::mutex disposeMutex;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QIFBatchOps_dispose
-        (JNIEnv *env, jobject obj)
+        (PlatformInfo_Android *threadInfo, jobject obj)
 {
     try {
         QIFBatchOpsClassInfo *info = QIFBatchOpsClassInfo::getClassInfo();
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
-            QIFBatchOps_Android *batchOps = info->getObject(env,obj);
+            QIFBatchOps_Android *batchOps = info->getObject(threadInfo->env,obj);
             // We don't actually delete the batch ops here.  They're deleted the in the same method they're created
 //            if (!batchOps)
 //                return;
 //            delete batchOps;
 
-            info->clearHandle(env, obj);
+            info->clearHandle(threadInfo->env, obj);
         }
 
     } catch (...) {

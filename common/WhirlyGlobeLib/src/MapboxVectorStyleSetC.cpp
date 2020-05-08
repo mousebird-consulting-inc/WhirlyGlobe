@@ -247,7 +247,7 @@ MapboxVectorStyleSetImpl::~MapboxVectorStyleSetImpl()
 {
 }
 
-bool MapboxVectorStyleSetImpl::parse(VectorStyleInst *inst,DictionaryRef styleDict)
+bool MapboxVectorStyleSetImpl::parse(PlatformThreadInfo *inst,DictionaryRef styleDict)
 {
     name = styleDict->getString("name");
     version = styleDict->getInt("version");

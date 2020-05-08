@@ -103,13 +103,13 @@ public:
     virtual bool hasComponentObject(SimpleIdentity compID);
 
     /// Remove the given Component Object and all its associated data
-    virtual void removeComponentObject(SimpleIdentity compID,ChangeSet &changes);
+    virtual void removeComponentObject(PlatformThreadInfo *threadInfo,SimpleIdentity compID,ChangeSet &changes);
 
     /// Remove a list of Component Objects
-    virtual void removeComponentObjects(const SimpleIDSet &compIDs,ChangeSet &changes);
+    virtual void removeComponentObjects(PlatformThreadInfo *threadInfo,const SimpleIDSet &compIDs,ChangeSet &changes);
     
     /// Remove a vector of Component Objects
-    virtual void removeComponentObjects(const std::vector<ComponentObjectRef> &compObjs,ChangeSet &changes);
+    virtual void removeComponentObjects(PlatformThreadInfo *threadInfo,const std::vector<ComponentObjectRef> &compObjs,ChangeSet &changes);
 
     /// Enable/disable the contents of a Component Object
     virtual void enableComponentObject(SimpleIdentity compID,bool enable,ChangeSet &changes);

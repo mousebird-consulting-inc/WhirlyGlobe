@@ -30,16 +30,16 @@ class MapboxVectorLayerRaster : public MapboxVectorStyleLayer
 public:
     MapboxVectorLayerRaster(MapboxVectorStyleSetImpl *styleSet) : MapboxVectorStyleLayer(styleSet) { }
 
-    virtual bool parse(VectorStyleInst *inst,
+    virtual bool parse(PlatformThreadInfo *inst,
                        DictionaryRef styleEntry,
                        MapboxVectorStyleLayerRef refLayer,
                        int drawPriority);
     
-    virtual void buildObjects(VectorStyleInst *inst,
+    virtual void buildObjects(PlatformThreadInfo *inst,
                               std::vector<VectorObjectRef> &vecObjs,
                               VectorTileDataRef tileInfo);
     
-    virtual void cleanup(VectorStyleInst *inst,ChangeSet &changes);
+    virtual void cleanup(PlatformThreadInfo *inst,ChangeSet &changes);
 
 protected:
 };

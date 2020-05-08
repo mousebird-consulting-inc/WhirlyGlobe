@@ -46,17 +46,17 @@ LabelManager::~LabelManager()
 {
 }
 
-SimpleIdentity LabelManager::addLabels(std::vector<SingleLabelRef> &labels,const LabelInfo &desc,ChangeSet &changes)
+SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,std::vector<SingleLabelRef> &labels,const LabelInfo &desc,ChangeSet &changes)
 {
     std::vector<SingleLabel *> unwrapLabels;
     
     for (auto label: labels)
         unwrapLabels.push_back(label.get());
     
-    return addLabels(unwrapLabels, desc, changes);
+    return addLabels(threadInfo,unwrapLabels, desc, changes);
 }
     
-SimpleIdentity LabelManager::addLabels(std::vector<SingleLabel *> &labels,const LabelInfo &labelInfo,ChangeSet &changes)
+SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,std::vector<SingleLabel *> &labels,const LabelInfo &labelInfo,ChangeSet &changes)
 {
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
 
@@ -78,7 +78,7 @@ SimpleIdentity LabelManager::addLabels(std::vector<SingleLabel *> &labels,const 
     labelRenderer.fontTexManager = (labelInfo.screenObject ? fontTexManager : NULL);
     labelRenderer.scale = renderer->getScale();
    
-    labelRenderer.render(labels, changes);
+    labelRenderer.render(threadInfo, labels, changes);
     
     changes.insert(changes.end(),labelRenderer.changeRequests.begin(), labelRenderer.changeRequests.end());
 
@@ -137,7 +137,7 @@ SimpleIdentity LabelManager::addLabels(std::vector<SingleLabel *> &labels,const 
     return labelID;
 }
 
-void LabelManager::changeLabel(SimpleIdentity labelID,const LabelInfo &labelInfo,ChangeSet &changes)
+void LabelManager::changeLabel(PlatformThreadInfo *threadInfo,SimpleIdentity labelID,const LabelInfo &labelInfo,ChangeSet &changes)
 {
     std::lock_guard<std::mutex> guardLock(labelLock);
 
@@ -183,7 +183,7 @@ void LabelManager::enableLabels(SimpleIDSet labelIDs,bool enable,ChangeSet &chan
 }
 
 
-void LabelManager::removeLabels(SimpleIDSet &labelIDs,ChangeSet &changes)
+void LabelManager::removeLabels(PlatformThreadInfo *threadInfo,SimpleIDSet &labelIDs,ChangeSet &changes)
 {
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);

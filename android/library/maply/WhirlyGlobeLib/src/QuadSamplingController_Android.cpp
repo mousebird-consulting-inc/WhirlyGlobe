@@ -31,19 +31,4 @@ QuadSamplingController_Android::~QuadSamplingController_Android()
 {
 }
 
-void QuadSamplingController_Android::setEnv(JNIEnv *env)
-{
-    auto displayControl = getDisplayControl();
-    if (!displayControl)
-        return;
-
-    // All the builders will need their ENV updated so they can create valid Java objects
-    for (QuadTileBuilderDelegateRef builder : builderDelegates) {
-        JNIEnvDependent *envDep = dynamic_cast<JNIEnvDependent *>(builder.get());
-        if (envDep) {
-            envDep->setEnv(env);
-        }
-    }
-}
-
 }

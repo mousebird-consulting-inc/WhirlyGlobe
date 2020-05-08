@@ -61,7 +61,7 @@ public:
     virtual void setupFetch(QuadImageFrameLoader *loader);
     
     // Clear out the texture and reset
-    virtual void clear(QuadImageFrameLoader *loader,QIFBatchOps *batchOps,ChangeSet &changes);
+    virtual void clear(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QIFBatchOps *batchOps,ChangeSet &changes);
 
     // Update priority for an existing fetch request
     virtual bool updateFetching(QuadImageFrameLoader *loader,int newPriority,double newImportance);
@@ -112,7 +112,7 @@ class QIFTileAsset
     friend class QuadImageFrameLoader;
 public:
     QIFTileAsset(const QuadTreeNew::ImportantNode &ident);
-    void setupFrames(QuadImageFrameLoader *loader,int numFrames);
+    void setupFrames(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,int numFrames);
     virtual ~QIFTileAsset();
     
     typedef enum {Waiting,Active} State;
@@ -144,10 +144,10 @@ public:
     virtual void setImportance(QuadImageFrameLoader *loader,double import);
     
     // Clear out the individual frames, loads and all
-    virtual void clearFrames(QuadImageFrameLoader *loader,QIFBatchOps *batchOps,ChangeSet &changes);
+    virtual void clearFrames(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QIFBatchOps *batchOps,ChangeSet &changes);
     
     // Clear out geometry and all the frame info
-    virtual void clear(QuadImageFrameLoader *loader,QIFBatchOps *batchOps, ChangeSet &changes);
+    virtual void clear(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QIFBatchOps *batchOps, ChangeSet &changes);
     
     // Start fetching data for this tile
     virtual void startFetching(QuadImageFrameLoader *loader,int frameToLoad,QIFBatchOps *batchOps);
@@ -168,7 +168,8 @@ public:
     virtual void cancelFetches(QuadImageFrameLoader *loader,int frame,QIFBatchOps *batchOps);
     
     // A single frame loaded successfully
-    virtual bool frameLoaded(QuadImageFrameLoader *loader,
+    virtual bool frameLoaded(PlatformThreadInfo *threadInfo,
+                             QuadImageFrameLoader *loader,
                              QuadLoaderReturn *loadReturn,
                              std::vector<Texture *> &texs,
                              ChangeSet &changes);
@@ -187,7 +188,7 @@ public:
     
 protected:
     // Specialized frame asset
-    virtual QIFFrameAssetRef makeFrameAsset(QuadImageFrameLoader *) = 0;
+    virtual QIFFrameAssetRef makeFrameAsset(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *) = 0;
 
     State state;
     QuadTreeNew::ImportantNode ident;
@@ -354,7 +355,7 @@ public:
     int getGeneration();
     
     /// Reload the given frame (or everything)
-    virtual void reload(int frame);
+    virtual void reload(PlatformThreadInfo *threadInfo,int frame);
     
     /// **** QuadTileBuilderDelegate methods ****
     
@@ -369,7 +370,8 @@ public:
                                                     int targetLevel);
     
     /// Load the given group of tiles.  If you don't load them immediately, up to you to cancel any requests
-    virtual void builderLoad(QuadTileBuilder *builder,
+    virtual void builderLoad(PlatformThreadInfo *threadInfo,
+                             QuadTileBuilder *builder,
                              const WhirlyKit::TileBuilderDelegateInfo &updates,
                              ChangeSet &changes);
     
@@ -377,7 +379,7 @@ public:
     virtual void builderPreSceneFlush(QuadTileBuilder *builder,ChangeSet &changes);
     
     /// Shutdown called on the layer thread if you stuff to clean up
-    virtual void builderShutdown(QuadTileBuilder *builder,ChangeSet &changes);
+    virtual void builderShutdown(PlatformThreadInfo *threadInfo,QuadTileBuilder *builder,ChangeSet &changes);
     
     /// Returns true if we're in the middle of loading things
     virtual bool builderIsLoading();
@@ -425,7 +427,7 @@ public:
     Stats getStats();
     
     /// Shut everything down and remove our geometry and resources
-    void cleanup(ChangeSet &changes);
+    void cleanup(PlatformThreadInfo *threadInfo,ChangeSet &changes);
     
     /// Check if a frame is in the process of loading
     bool isFrameLoading(const QuadTreeIdentifier &ident,int frame);
@@ -441,7 +443,7 @@ public:
     void updateRenderState(ChangeSet &changes);
     
     // Run on the layer thread.  Merge the loaded tile into the data.
-    virtual void mergeLoadedTile(QuadLoaderReturn *loadReturn,ChangeSet &changes);
+    virtual void mergeLoadedTile(PlatformThreadInfo *threadInfo,QuadLoaderReturn *loadReturn,ChangeSet &changes);
 
     ComponentManager *compManager;
 
@@ -453,17 +455,17 @@ protected:
     void makeStats();
     
     // Construct a platform specific tile/frame assets in the subclass
-    virtual QIFTileAssetRef makeTileAsset(const QuadTreeNew::ImportantNode &ident) = 0;
+    virtual QIFTileAssetRef makeTileAsset(PlatformThreadInfo *threadInfo,const QuadTreeNew::ImportantNode &ident) = 0;
     
     // Contruct a platform specific BatchOps for passing to tile fetcher
     // (we don't know about tile fetchers down here)
-    virtual QIFBatchOps *makeBatchOps() = 0;
+    virtual QIFBatchOps *makeBatchOps(PlatformThreadInfo *threadInfo) = 0;
     
     // Process whatever ops we batched up during the load phase
-    virtual void processBatchOps(QIFBatchOps *) = 0;
+    virtual void processBatchOps(PlatformThreadInfo *threadInfo,QIFBatchOps *) = 0;
     
-    virtual void removeTile(const QuadTreeNew::Node &ident, QIFBatchOps *batchOps, ChangeSet &changes);
-    QIFTileAssetRef addNewTile(const QuadTreeNew::ImportantNode &ident,QIFBatchOps *batchOps,ChangeSet &changes);
+    virtual void removeTile(PlatformThreadInfo *threadInfo,const QuadTreeNew::Node &ident, QIFBatchOps *batchOps, ChangeSet &changes);
+    QIFTileAssetRef addNewTile(PlatformThreadInfo *threadInfo,const QuadTreeNew::ImportantNode &ident,QIFBatchOps *batchOps,ChangeSet &changes);
     
     Mode mode;
     LoadMode loadMode;

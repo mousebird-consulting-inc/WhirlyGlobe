@@ -10,10 +10,10 @@ extern "C" {
 /*
  * Class:     com_mousebird_maply_MapboxVectorStyleSet
  * Method:    initialise
- * Signature: (Lcom/mousebird/maply/Scene;Lcom/mousebird/maply/VectorStyleSettings;Ljava/lang/String;)V
+ * Signature: (Lcom/mousebird/maply/Scene;Lcom/mousebird/maply/CoordSystem;Lcom/mousebird/maply/VectorStyleSettings;Ljava/lang/String;)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_initialise
-  (JNIEnv *, jobject, jobject, jobject, jstring);
+  (JNIEnv *, jobject, jobject, jobject, jobject, jstring);
 
 /*
  * Class:     com_mousebird_maply_MapboxVectorStyleSet

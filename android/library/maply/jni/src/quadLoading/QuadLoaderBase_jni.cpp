@@ -40,7 +40,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_initialise
     try {
         QuadImageFrameLoaderClassInfo *info = QuadImageFrameLoaderClassInfo::getClassInfo();
         SamplingParams *params = SamplingParamsClassInfo::getClassInfo()->getObject(env,sampleObj);
-        QuadImageFrameLoader_AndroidRef *loader = new QuadImageFrameLoader_AndroidRef(new QuadImageFrameLoader_Android(*params,numFrames,(QuadImageFrameLoader::Mode)mode,env));
+        PlatformInfo_Android platformInfo(env);
+        QuadImageFrameLoader_AndroidRef *loader = new QuadImageFrameLoader_AndroidRef(new QuadImageFrameLoader_Android(&platformInfo,*params,numFrames,(QuadImageFrameLoader::Mode)mode,env));
         (*loader)->frameLoaderObj = env->NewGlobalRef(obj);
         (*loader)->setFlipY(true);
         info->setHandle(env, obj, loader);
@@ -222,8 +223,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_cleanupNative
             loader->get()->getController()->getScene()->removeActiveModel(*loader);
         }
 
-        (*loader)->setEnv(env);
-        (*loader)->cleanup(*changes);
+        PlatformInfo_Android platformInfo(env);
+        (*loader)->cleanup(&platformInfo,*changes);
     }
     catch (...)
     {
@@ -240,7 +241,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_mergeLoaderReturn
         ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changeObj);
         if (!loader || !loadReturn || !changes)
             return;
-        (*loader)->mergeLoadedTile(loadReturn,*changes);
+        PlatformInfo_Android platformInfo(env);
+        (*loader)->mergeLoadedTile(&platformInfo,loadReturn,*changes);
     }
     catch (...)
     {
@@ -258,10 +260,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_samplingLayerConn
         if (!loader || !control || !changes)
             return;
 
-        if (control->addBuilderDelegate(*loader)) {
+        PlatformInfo_Android platformInfo(env);
+        if (control->addBuilderDelegate(&platformInfo,*loader)) {
             // This will result in callbacks to the Java side
-            control->setEnv(env);
-            control->notifyDelegateStartup(((QuadTileBuilderDelegate *) (*loader).get())->getId(),
+            PlatformInfo_Android platformInfo(env);
+            control->notifyDelegateStartup(&platformInfo,((QuadTileBuilderDelegate *) (*loader).get())->getId(),
                                            *changes);
         }
     }
@@ -281,7 +284,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_samplingLayerDisc
         if (!loader || !control)
             return;
 
-        control->removeBuilderDelegate(*loader);
+        PlatformInfo_Android platformInfo(env);
+        control->removeBuilderDelegate(&platformInfo,*loader);
     }
     catch (...)
     {
@@ -297,7 +301,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_reloadNative
         if (!loader)
             return;
 
-        (*loader)->reload(-1);
+        PlatformInfo_Android platformInfo(env);
+        (*loader)->reload(&platformInfo,-1);
     }
     catch (...)
     {

@@ -20,6 +20,7 @@
 
 #import <Formats_jni.h>
 #import <Scene_jni.h>
+#import <CoordSystem_jni.h>
 #import "com_mousebird_maply_MapboxVectorStyleSet.h"
 
 using namespace WhirlyKit;
@@ -33,11 +34,15 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_nativeInit
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_initialise
-(JNIEnv *env, jobject obj, jobject sceneObj, jobject settingsObj, jstring inJsonStr)
+(JNIEnv *env, jobject obj, jobject sceneObj, jobject coordSysObj, jobject settingsObj, jstring inJsonStr)
 {
     try
     {
         Scene *scene = SceneClassInfo::getClassInfo()->getObject(env,sceneObj);
+        CoordSystemRef *coordSystem = CoordSystemRefClassInfo::getClassInfo()->getObject(env,coordSysObj);
+        if (!scene || !coordSystem)
+            return;
+
         JavaString jsonStr(env,inJsonStr);
         MutableDictionary_AndroidRef jsonDict(new MutableDictionary_Android());
         if (!jsonDict->parseJSON(jsonStr.cStr))
@@ -49,11 +54,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_initialise
             settings = *(VectorStyleSettingsClassInfo::getClassInfo()->getObject(env,settingsObj));
         } else
             settings = VectorStyleSettingsImplRef(new VectorStyleSettingsImpl(1.0));
-        MapboxVectorStyleSetImpl_AndroidRef *inst = new MapboxVectorStyleSetImpl_AndroidRef(new MapboxVectorStyleSetImpl_Android(scene,settings));
+        MapboxVectorStyleSetImpl_AndroidRef *inst = new MapboxVectorStyleSetImpl_AndroidRef(new MapboxVectorStyleSetImpl_Android(scene,(*coordSystem).get(),settings));
 
         // Need a pointer to this JNIEnv for low level parsing callbacks
-        VectorStyleInst_Android threadInst;
-        threadInst.env = env;
+        PlatformInfo_Android threadInst(env);
 
         bool success = (*inst)->parse(&threadInst,jsonDict);
         (*inst)->thisObj = env->NewGlobalRef(obj);

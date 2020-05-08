@@ -17,6 +17,7 @@ import javax.microedition.khronos.egl.EGLSurface;
 public interface RenderControllerInterface
 {
     Scene getScene();
+    CoordSystem getCoordSystem();
 
     // When adding features we can run on the current thread or delay the work till later
     public enum ThreadMode {ThreadCurrent,ThreadAny};

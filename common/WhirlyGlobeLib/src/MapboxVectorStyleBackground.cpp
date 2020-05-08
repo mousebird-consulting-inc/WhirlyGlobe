@@ -24,7 +24,7 @@
 namespace WhirlyKit
 {
 
-bool MapboxVectorBackgroundPaint::parse(VectorStyleInst *inst,
+bool MapboxVectorBackgroundPaint::parse(PlatformThreadInfo *inst,
                                         MapboxVectorStyleSetImpl *styleSet,
                                         DictionaryRef styleEntry)
 {
@@ -36,7 +36,7 @@ bool MapboxVectorBackgroundPaint::parse(VectorStyleInst *inst,
     return true;
 }
 
-bool MapboxVectorLayerBackground::parse(VectorStyleInst *inst,
+bool MapboxVectorLayerBackground::parse(PlatformThreadInfo *inst,
                                         DictionaryRef styleEntry,
                                         MapboxVectorStyleLayerRef refLayer,
                                         int drawPriority)
@@ -59,7 +59,7 @@ bool MapboxVectorLayerBackground::parse(VectorStyleInst *inst,
     return true;
 }
 
-void MapboxVectorLayerBackground::buildObjects(VectorStyleInst *inst,
+void MapboxVectorLayerBackground::buildObjects(PlatformThreadInfo *inst,
                                                std::vector<VectorObjectRef> &vecObjs,
                                                VectorTileDataRef tileInfo)
 {

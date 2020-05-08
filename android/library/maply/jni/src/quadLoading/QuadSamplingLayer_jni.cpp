@@ -100,8 +100,8 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadSamplingLayer_viewUpdate
         ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changeObj);
         if (!control || !viewState || !changes || !control->getDisplayControl())
             return true;
-        control->setEnv(env);
-        return control->getDisplayControl()->viewUpdate(*viewState,*changes);
+        PlatformInfo_Android platformInfo(env);
+        return control->getDisplayControl()->viewUpdate(&platformInfo,*viewState,*changes);
     }
     catch (...)
     {
@@ -122,7 +122,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadSamplingLayer_startNative
         SceneRendererGLES_Android *render = SceneRendererInfo::getClassInfo()->getObject(env,renderObj);
         if (!control || !params || !scene || !render)
             return;
-        control->setEnv(env);
+        PlatformInfo_Android platformInfo(env);
         control->start(*params,scene,render);
         control->getDisplayControl()->start();
     }
@@ -141,7 +141,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadSamplingLayer_preSceneFlushN
         ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changeObj);
         if (!control || !changes || !control->getDisplayControl())
             return;
-        control->setEnv(env);
         control->getDisplayControl()->preSceneFlush(*changes);
     }
     catch (...)
@@ -159,8 +158,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadSamplingLayer_shutdownNative
         ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changeObj);
         if (!control || !changes || !control->getDisplayControl())
             return;
-        control->setEnv(env);
-        control->getDisplayControl()->stop(*changes);
+        PlatformInfo_Android platformInfo(env);
+        control->getDisplayControl()->stop(&platformInfo,*changes);
         control->stop();
     }
     catch (...)

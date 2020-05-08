@@ -103,8 +103,7 @@ void MapboxVectorTileParser_Android::buildForStyle(long long styleID,std::vector
 
 bool MapboxVectorTileParser_Android::parse(JNIEnv *env,RawData *rawData,VectorTileData *tileData)
 {
-    VectorStyleInst_Android inst;
-    inst.env = env;
+    PlatformInfo_Android inst(env);
 
     return MapboxVectorTileParser::parse(&inst,rawData,tileData);
 }

@@ -33,7 +33,7 @@ typedef enum {MBTextTransNone,MBTextTransUppercase,MBTextTransLowercase} MapboxT
 class MapboxVectorSymbolLayout
 {
 public:
-    bool parse(VectorStyleInst *inst,MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry);
+    bool parse(PlatformThreadInfo *inst,MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry);
 
     /// How we place the symbol (at a point, or along a line)
     MapboxSymbolPlacement placement;
@@ -69,7 +69,7 @@ public:
 class MapboxVectorSymbolPaint
 {
 public:
-    bool parse(VectorStyleInst *inst,MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry);
+    bool parse(PlatformThreadInfo *inst,MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry);
 
     // Default text color
     MapboxTransColorRef textColor;
@@ -86,19 +86,19 @@ class MapboxVectorLayerSymbol : public MapboxVectorStyleLayer
 public:
     MapboxVectorLayerSymbol(MapboxVectorStyleSetImpl *styleSet) : MapboxVectorStyleLayer(styleSet) { }
 
-    virtual bool parse(VectorStyleInst *inst,
+    virtual bool parse(PlatformThreadInfo *inst,
                        DictionaryRef styleEntry,
                        MapboxVectorStyleLayerRef refLayer,
                        int drawPriority);
     
-    virtual void buildObjects(VectorStyleInst *inst,
+    virtual void buildObjects(PlatformThreadInfo *inst,
                               std::vector<VectorObjectRef> &vecObjs,
                               VectorTileDataRef tileInfo);
     
-    virtual void cleanup(VectorStyleInst *inst,ChangeSet &changes);
+    virtual void cleanup(PlatformThreadInfo *inst,ChangeSet &changes);
 
 protected:
-    std::string breakUpText(const std::string &text,double textMaxWidth,LabelInfoRef labelInfo);
+    std::string breakUpText(PlatformThreadInfo *inst,const std::string &text,double textMaxWidth,LabelInfoRef labelInfo);
     
     MapboxVectorSymbolLayout layout;
     MapboxVectorSymbolPaint paint;

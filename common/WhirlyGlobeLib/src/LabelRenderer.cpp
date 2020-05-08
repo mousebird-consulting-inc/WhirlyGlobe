@@ -104,7 +104,7 @@ LabelRenderer::LabelRenderer(Scene *scene,FontTextureManager *fontTexManager,con
 
 typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
 
-void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes)
+void LabelRenderer::render(PlatformThreadInfo *threadInfo,std::vector<SingleLabel *> &labels,ChangeSet &changes)
 {
     TimeInterval curTime = scene->getCurrentTime();
 
@@ -138,7 +138,7 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
         // Ask the label to build the strings.  There are OS specific things in there
         // We also need the real line height back (because it's in the font)
         float lineHeight=0.0;
-        std::vector<DrawableString *> drawStrs = label->generateDrawableStrings(labelInfo,fontTexManager,lineHeight,changes);
+        std::vector<DrawableString *> drawStrs = label->generateDrawableStrings(threadInfo,labelInfo,fontTexManager,lineHeight,changes);
         Mbr drawMbr;
         Mbr layoutMbr;
 

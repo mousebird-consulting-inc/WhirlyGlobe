@@ -36,7 +36,7 @@ class MapboxVectorStyleLayer : public VectorStyleImpl
 public:
 
     /// @brief Initialize with the style sheet and the entry for this layer
-    static MapboxVectorStyleLayerRef VectorStyleLayer(VectorStyleInst *inst,
+    static MapboxVectorStyleLayerRef VectorStyleLayer(PlatformThreadInfo *inst,
                                                       MapboxVectorStyleSetImpl *styleSet,
                                                       DictionaryRef layerDict,
                                                       int drawPriority);
@@ -46,7 +46,7 @@ public:
     virtual ~MapboxVectorStyleLayer();
 
     // Parse the layer entry out of the style sheet
-    virtual bool parse(VectorStyleInst *inst,
+    virtual bool parse(PlatformThreadInfo *inst,
                        DictionaryRef styleEntry,
                        MapboxVectorStyleLayerRef parentLayer,
                        int drawPriority);
@@ -62,12 +62,12 @@ public:
     virtual bool geomAdditive();
 
     /// Construct objects related to this style based on the input data.
-    virtual void buildObjects(VectorStyleInst *inst,
+    virtual void buildObjects(PlatformThreadInfo *inst,
                               std::vector<VectorObjectRef> &vecObjs,
                               VectorTileDataRef tileInfo) = 0;
     
     /// Clean up any objects (textures, probably)
-    virtual void cleanup(VectorStyleInst *inst,ChangeSet &changes);
+    virtual void cleanup(PlatformThreadInfo *inst,ChangeSet &changes);
 
     MapboxVectorStyleSetImpl *styleSet;
 

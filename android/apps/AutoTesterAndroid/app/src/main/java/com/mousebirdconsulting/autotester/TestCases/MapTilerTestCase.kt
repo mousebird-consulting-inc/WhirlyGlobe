@@ -25,11 +25,10 @@ class MapTilerTestCase : MaplyTestCase {
     fun setupLoader(control: BaseController, testType: ConfigOptions.TestType) {
         val assetMgr = getActivity().assets
         val stream = assetMgr.open("maptiler_basic.json")
-        val paths = assetMgr.list("country_json_50m")
-        var polyStyle: MapboxVectorStyleSet? = null
+        var polyStyle: MapboxVectorStyleSet?
         try {
             val json = Okio.buffer(Okio.source(stream)).readUtf8()
-            polyStyle = MapboxVectorStyleSet(json, null, control)
+            polyStyle = MapboxVectorStyleSet(json, null, control.getActivity().resources.displayMetrics, control)
         }
         catch (e: IOException) {
             return
