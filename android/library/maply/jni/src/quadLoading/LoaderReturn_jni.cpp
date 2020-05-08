@@ -157,6 +157,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_mergeChanges
 			return;
 
 		loadReturn->changes.insert(loadReturn->changes.end(),changeSet->begin(),changeSet->end());
+		changeSet->clear();
 	}
 	catch (...)
 	{
