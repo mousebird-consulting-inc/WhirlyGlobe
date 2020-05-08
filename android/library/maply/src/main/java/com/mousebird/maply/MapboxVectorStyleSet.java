@@ -53,11 +53,7 @@ public class MapboxVectorStyleSet implements VectorStyleInterface {
     WeakReference<RenderControllerInterface> control;
 
     // Calculate an appropriate background color given the zoom level
-    public int backgroundColorForZoom(double zoom)
-    {
-        // TODO: Fill in the color calculation
-        return Color.WHITE;
-    }
+    public native int backgroundColorForZoom(double zoom);
 
     ArrayList<LabelInfo> labelInfos = new ArrayList<LabelInfo>();
 

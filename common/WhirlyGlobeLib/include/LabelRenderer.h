@@ -72,6 +72,7 @@ class LabelInfo : public BaseInfo
 {
 public:
     LabelInfo(bool screenObject);
+    LabelInfo(const LabelInfo &that);
     LabelInfo(const Dictionary &dict,bool screenObject);
 
     bool hasTextColor;

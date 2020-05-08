@@ -92,10 +92,11 @@ LabelInfoRef MapboxVectorStyleSetImpl_Android::makeLabelInfo(PlatformThreadInfo 
         refLabelInfo = it->second;
     else {
         jstring jFontNameStr = inst->env->NewStringUTF(fontName.c_str());
-        jobject labelInfoGlobeObj = inst->env->NewGlobalRef(inst->env->CallObjectMethod(thisObj,makeLabelInfoMethod,jFontNameStr,fontSize));
+        jobject labelInfoGlobeObj = inst->env->NewGlobalRef(inst->env->CallObjectMethod(thisObj,makeLabelInfoMethod,jFontNameStr,2.0*fontSize));
         inst->env->DeleteLocalRef(jFontNameStr);
         refLabelInfo = LabelInfoClassInfo::getClassInfo()->getObject(inst->env,labelInfoGlobeObj);
         refLabelInfo->labelInfoObj = labelInfoGlobeObj;
+        refLabelInfo->programID = screenMarkerProgramID;
         labelInfos[entry] = refLabelInfo;
     }
 

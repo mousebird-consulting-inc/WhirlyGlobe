@@ -46,6 +46,17 @@ BaseInfo::BaseInfo()
     renderTargetID(EmptyIdentity)
 {
 }
+
+BaseInfo::BaseInfo(const BaseInfo &that)
+: minVis(that.minVis), maxVis(that.minVis), minVisBand(that.minVisBand), maxVisBand(that.maxVisBand),
+  minViewerDist(that.minViewerDist), maxViewerDist(that.maxViewerDist), viewerCenter(that.viewerCenter),
+  drawOffset(that.drawOffset), drawPriority(that.drawPriority), enable(that.enable),
+  fade(that.fade), fadeIn(that.fadeIn), fadeOut(that.fadeOut), fadeOutTime(that.fadeOutTime),
+  startEnable(that.startEnable), endEnable(that.endEnable), programID(that.programID),
+  extraFrames(that.extraFrames), zBufferRead(that.zBufferRead), zBufferWrite(that.zBufferWrite),
+  renderTargetID(that.renderTargetID)
+{
+}
     
 BaseInfo::BaseInfo(const Dictionary &dict)
 {

@@ -292,7 +292,7 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                             float strHash = calcStringHash(text);
                             label->layoutEngine = true;
                             label->layoutImportance = layout.layoutImportance + 1.0 - (rank + (101-tileInfo->ident.level)/100.0)/1000.0 + strHash/1000.0;
-                            
+
                             // Point or line placement
                             if (layout.placement == MBPlaceLine) {
                                 Point2d middle;

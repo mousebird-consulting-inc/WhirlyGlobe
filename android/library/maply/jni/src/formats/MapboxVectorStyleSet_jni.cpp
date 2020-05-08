@@ -94,3 +94,27 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_dispose
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MapboxVectorStyleSet::dispose()");
     }
 }
+
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_backgroundColorForZoom
+        (JNIEnv *env, jobject obj, jdouble zoom)
+{
+    try
+    {
+        MapboxVectorStyleSetClassInfo *classInfo = MapboxVectorStyleSetClassInfo::getClassInfo();
+        MapboxVectorStyleSetImpl_AndroidRef *inst = classInfo->getObject(env,obj);
+        if (!inst)
+            return 0;
+
+        RGBAColorRef backColor = (*inst)->backgroundColor(zoom);
+        if (!backColor)
+            return 0;
+
+        return backColor->asInt();
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MapboxVectorStyleSet::backgroundColorForZoom()");
+    }
+
+    return 0;
+}

@@ -49,7 +49,17 @@ LabelInfo::LabelInfo(bool screenObject)
         height = 0.001;
     }
 }
-    
+
+LabelInfo::LabelInfo(const LabelInfo &that)
+: BaseInfo(that), hasTextColor(that.hasTextColor), textColor(that.textColor), backColor(that.backColor),
+screenObject(that.screenObject), width(that.width), height(that.height),
+labelJustify(that.labelJustify), textJustify(that.textJustify),
+shadowColor(that.shadowColor), shadowSize(that.shadowSize),
+outlineColor(that.outlineColor), outlineSize(that.outlineSize),
+lineHeight(that.lineHeight), fontPointSize(that.fontPointSize)
+{
+}
+
 LabelInfo::LabelInfo(const Dictionary &dict, bool screenObject)
 : screenObject(screenObject), fontPointSize(16.0)
 {

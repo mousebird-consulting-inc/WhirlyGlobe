@@ -9,6 +9,14 @@ extern "C" {
 #endif
 /*
  * Class:     com_mousebird_maply_MapboxVectorStyleSet
+ * Method:    backgroundColorForZoom
+ * Signature: (D)I
+ */
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_backgroundColorForZoom
+  (JNIEnv *, jobject, jdouble);
+
+/*
+ * Class:     com_mousebird_maply_MapboxVectorStyleSet
  * Method:    initialise
  * Signature: (Lcom/mousebird/maply/Scene;Lcom/mousebird/maply/CoordSystem;Lcom/mousebird/maply/VectorStyleSettings;Ljava/lang/String;)V
  */
