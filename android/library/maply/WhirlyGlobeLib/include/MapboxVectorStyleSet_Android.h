@@ -72,7 +72,7 @@ public:
     jmethodID makeLineTextureMethod;
 
     // Map fontName/size to Java-side labelInfo objects
-    std::map<std::pair<std::string, float>, LabelInfoAndroid *> labelInfos;
+    std::map<std::pair<std::string, float>, LabelInfoAndroidRef> labelInfos;
 };
 typedef std::shared_ptr<MapboxVectorStyleSetImpl_Android> MapboxVectorStyleSetImpl_AndroidRef;
 

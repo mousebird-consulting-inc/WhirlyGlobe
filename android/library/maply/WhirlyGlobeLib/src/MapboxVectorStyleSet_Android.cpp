@@ -87,7 +87,7 @@ LabelInfoRef MapboxVectorStyleSetImpl_Android::makeLabelInfo(PlatformThreadInfo 
     PlatformInfo_Android *inst = (PlatformInfo_Android *)inInst;
     std::pair<std::string, float> entry(fontName,fontSize);
 
-    LabelInfoAndroid *refLabelInfo = NULL;
+    LabelInfoAndroidRef refLabelInfo = NULL;
     auto it = labelInfos.find(entry);
     if (it != labelInfos.end())
         refLabelInfo = it->second;
@@ -95,15 +95,14 @@ LabelInfoRef MapboxVectorStyleSetImpl_Android::makeLabelInfo(PlatformThreadInfo 
         jstring jFontNameStr = inst->env->NewStringUTF(fontName.c_str());
         jobject labelInfoGlobeObj = inst->env->NewGlobalRef(inst->env->CallObjectMethod(thisObj,makeLabelInfoMethod,jFontNameStr,2.0*fontSize));
         inst->env->DeleteLocalRef(jFontNameStr);
-        refLabelInfo = LabelInfoClassInfo::getClassInfo()->getObject(inst->env,labelInfoGlobeObj);
+        LabelInfoAndroidRef *newRef = LabelInfoClassInfo::getClassInfo()->getObject(inst->env,labelInfoGlobeObj);
+        refLabelInfo = *newRef;
         refLabelInfo->labelInfoObj = labelInfoGlobeObj;
         refLabelInfo->programID = screenMarkerProgramID;
         labelInfos[entry] = refLabelInfo;
     }
 
-    // The current labelInfo object needs to point at the active Env for this call
-    LabelInfoAndroidRef labelInfo(new LabelInfoAndroid(*refLabelInfo));
-    return labelInfo;
+    return refLabelInfo;
 }
 
 SingleLabelRef MapboxVectorStyleSetImpl_Android::makeSingleLabel(PlatformThreadInfo *inInst,const std::string &text)

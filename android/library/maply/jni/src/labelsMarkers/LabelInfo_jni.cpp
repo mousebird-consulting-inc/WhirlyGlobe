@@ -36,7 +36,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_initialise
 {
 	try
 	{
-		LabelInfoAndroid *info = new LabelInfoAndroid(true);
+		LabelInfoAndroidRef *info = new LabelInfoAndroidRef(new LabelInfoAndroid(true));
 		LabelInfoClassInfo::getClassInfo()->setHandle(env,obj,info);
 	}
 	catch (...)
@@ -77,11 +77,11 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_LabelInfo_getTextColor
 	try
 	{
 		LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
-		LabelInfoAndroid *info = (LabelInfoAndroid *)classInfo->getObject(env,obj);
+		LabelInfoAndroidRef *info = classInfo->getObject(env,obj);
 		if (!info)
 			return 0;
 
-		int textColor = info->textColor.asInt();
+		int textColor = (*info)->textColor.asInt();
 		return textColor;
 	}
 	catch (...)
@@ -98,10 +98,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setTextColor
 	try
 	{
 		LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
-		LabelInfo *info = classInfo->getObject(env,obj);
+		LabelInfoAndroidRef *info = classInfo->getObject(env,obj);
 		if (!info)
 			return;
-		info->textColor = RGBAColor(r*255,g*255,b*255,a*255);
+        (*info)->textColor = RGBAColor(r*255,g*255,b*255,a*255);
 	}
 	catch (...)
 	{
@@ -115,10 +115,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setBackgroundColor
 	try
 	{
 		LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
-		LabelInfo *info = classInfo->getObject(env,obj);
+        LabelInfoAndroidRef *info = classInfo->getObject(env,obj);
 		if (!info)
 			return;
-		info->backColor = RGBAColor(r*255,g*255,b*255,a*255);
+        (*info)->backColor = RGBAColor(r*255,g*255,b*255,a*255);
 	}
 	catch (...)
 	{
@@ -132,11 +132,11 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_LabelInfo_getBackgroundColor
 	try
 	{
 		LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
-		LabelInfoAndroid *info = (LabelInfoAndroid *)classInfo->getObject(env,obj);
+		LabelInfoAndroidRef *info = classInfo->getObject(env,obj);
 		if (!info)
 			return 0;
 
-		int backColor = info->backColor.asInt();
+		int backColor = (*info)->backColor.asInt();
 		return backColor;
 	}
 	catch (...)
@@ -153,11 +153,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setTypefaceNative
 	try
 	{
 		LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
-		LabelInfoAndroid *info = (LabelInfoAndroid *)classInfo->getObject(env,obj);
+		LabelInfoAndroidRef *info = classInfo->getObject(env,obj);
 		if (!info)
 			return;
         PlatformInfo_Android platformInfo(env);
-        info->setTypeface(&platformInfo,typefaceObj);
+        (*info)->setTypeface(&platformInfo,typefaceObj);
 	}
 	catch (...)
 	{
@@ -171,11 +171,11 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_LabelInfo_getTypeface
 	try
 	{
 		LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
-		LabelInfoAndroid *info = (LabelInfoAndroid *)classInfo->getObject(env,obj);
+		LabelInfoAndroidRef *info = classInfo->getObject(env,obj);
 		if (!info)
 			return NULL;
 
-		return info->typefaceObj;
+		return (*info)->typefaceObj;
 	}
 	catch (...)
 	{
@@ -191,11 +191,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setFontSizeNative
 	try
 	{
 		LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
-		LabelInfoAndroid *info = (LabelInfoAndroid *)classInfo->getObject(env,obj);
+		LabelInfoAndroidRef *info = classInfo->getObject(env,obj);
 		if (!info)
 			return;
 
-		info->fontSize = fontSize;
+        (*info)->fontSize = fontSize;
 	}
 	catch (...)
 	{
@@ -209,10 +209,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setOutlineColor
     try
     {
         LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
-        LabelInfo *info = classInfo->getObject(env,obj);
+        LabelInfoAndroidRef *info = classInfo->getObject(env,obj);
         if (!info)
             return;
-        info->outlineColor = RGBAColor(r*255,g*255,b*255,a*255);
+        (*info)->outlineColor = RGBAColor(r*255,g*255,b*255,a*255);
     }
     catch (...)
     {
@@ -226,11 +226,11 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_LabelInfo_getOutlineColor
     try
     {
         LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
-        LabelInfoAndroid *info = (LabelInfoAndroid *)classInfo->getObject(env,obj);
+        LabelInfoAndroidRef *info = classInfo->getObject(env,obj);
         if (!info)
             return 0;
 
-        int outlineColor = info->outlineColor.asInt();
+        int outlineColor = (*info)->outlineColor.asInt();
         return outlineColor;
     }
     catch (...)
@@ -247,11 +247,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setOutlineSize
     try
     {
         LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
-        LabelInfoAndroid *info = (LabelInfoAndroid *)classInfo->getObject(env,obj);
+        LabelInfoAndroidRef *info = classInfo->getObject(env,obj);
         if (!info)
             return;
 
-        info->outlineSize = outlineSize;
+        (*info)->outlineSize = outlineSize;
     }
     catch (...)
     {
@@ -265,11 +265,11 @@ JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_LabelInfo_getOutlineSize
     try
     {
         LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
-        LabelInfoAndroid *info = (LabelInfoAndroid *)classInfo->getObject(env,obj);
+        LabelInfoAndroidRef *info = classInfo->getObject(env,obj);
         if (!info)
             return 0;
 
-        float outlineSize = info->outlineSize;
+        float outlineSize = (*info)->outlineSize;
         return outlineSize;
     }
     catch (...)
@@ -286,10 +286,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setShadowColor
     try
     {
         LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
-        LabelInfo *info = classInfo->getObject(env,obj);
+        LabelInfoAndroidRef *info = classInfo->getObject(env,obj);
         if (!info)
             return;
-        info->shadowColor = RGBAColor(r*255,g*255,b*255,a*255);
+        (*info)->shadowColor = RGBAColor(r*255,g*255,b*255,a*255);
     }
     catch (...)
     {
@@ -303,11 +303,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setShadowSize
     try
     {
         LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
-        LabelInfoAndroid *info = (LabelInfoAndroid *)classInfo->getObject(env,obj);
+        LabelInfoAndroidRef *info = classInfo->getObject(env,obj);
         if (!info)
             return;
 
-        info->shadowSize = shadowSize;
+        (*info)->shadowSize = shadowSize;
     }
     catch (...)
     {
@@ -321,11 +321,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setTextJustifyNative
     try
     {
         LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
-        LabelInfoAndroid *info = (LabelInfoAndroid *)classInfo->getObject(env,obj);
+        LabelInfoAndroidRef *info = classInfo->getObject(env,obj);
         if (!info)
             return;
         
-        info->textJustify = (WhirlyKit::TextJustify)textLayout;
+        (*info)->textJustify = (WhirlyKit::TextJustify)textLayout;
     }
     catch (...)
     {
@@ -339,11 +339,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setLineHeight
     try
     {
         LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
-        LabelInfoAndroid *info = (LabelInfoAndroid *)classInfo->getObject(env,obj);
+        LabelInfoAndroidRef *info = classInfo->getObject(env,obj);
         if (!info)
             return;
 
-        info->lineHeight = lineSize;
+        (*info)->lineHeight = lineSize;
     }
     catch (...)
     {

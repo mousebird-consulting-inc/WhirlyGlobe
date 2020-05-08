@@ -25,6 +25,8 @@
 namespace WhirlyKit
 {
 
+class LabelInfoAndroid;
+
 /**
  *  This is the platform specific font texture manager for Android.
  */
@@ -51,7 +53,7 @@ public:
 
     /// Add the given string.  Caller is responsible for deleting
     ///  the DrawableString
-    DrawableString *addString(PlatformThreadInfo *threadInfo,const std::vector<int> &codePoints,jobject labelInfoObj,ChangeSet &changes);
+    DrawableString *addString(PlatformThreadInfo *threadInfo,const std::vector<int> &codePoints,const LabelInfoAndroid *,ChangeSet &changes);
     
 protected:
     // Find the appropriate font manager

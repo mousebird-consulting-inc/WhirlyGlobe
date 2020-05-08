@@ -76,11 +76,10 @@ FontTextureManager_Android::~FontTextureManager_Android()
 {
 }
 
-DrawableString *FontTextureManager_Android::addString(PlatformThreadInfo *inThreadInfo,const std::vector<int> &codePoints,jobject labelInfoObj,ChangeSet &changes)
+DrawableString *FontTextureManager_Android::addString(PlatformThreadInfo *inThreadInfo,const std::vector<int> &codePoints,const LabelInfoAndroid *labelInfo,ChangeSet &changes)
 {
 	LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
 	PlatformInfo_Android *threadInfo = (PlatformInfo_Android *)inThreadInfo;
-	LabelInfoAndroid *labelInfo = (LabelInfoAndroid *)classInfo->getObject(threadInfo->env,labelInfoObj);
 
 	// Could be more granular if this slows things down
     std::lock_guard<std::mutex> guardLock(lock);
@@ -106,7 +105,7 @@ DrawableString *FontTextureManager_Android::addString(PlatformThreadInfo *inThre
     	if (!glyphInfo)
     	{
         	// Call the renderer
-        	jobject glyphObj = threadInfo->env->CallObjectMethod(charRenderObj,renderMethodID,glyph,labelInfoObj,labelInfo->fontSize);
+        	jobject glyphObj = threadInfo->env->CallObjectMethod(charRenderObj,renderMethodID,glyph,labelInfo->labelInfoObj,labelInfo->fontSize);
         	if (!glyphObj) {
         		wkLogLevel(Warn,"Bad glyph passed into FontTextureManager_Android: %d",glyph);
 				continue;
