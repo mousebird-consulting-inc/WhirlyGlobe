@@ -141,8 +141,6 @@ public class RenderController implements RenderControllerInterface
                 setEGLContext(offlineGLContext);
 
                 run.run();
-
-                // TODO: Clear back to the old context
             }
         };
 
@@ -353,7 +351,6 @@ public class RenderController implements RenderControllerInterface
 
         texManager = null;
 
-        // TODO: Do we have to explicity shut these down?
         offlineGLContext = null;
     }
 
@@ -1292,9 +1289,6 @@ public class RenderController implements RenderControllerInterface
         return compObj;
     }
 
-    // TODO: Fill this in
-//    public ComponentObject addLoftedPolygons();
-
     /**
      * Add the geometry points.  These are raw points that get fed to a shader.
 
@@ -1665,8 +1659,6 @@ public class RenderController implements RenderControllerInterface
 
         removeObjects(compObjs,mode);
     }
-
-    // TODO: StartChanges/EndChanges interface ??
 
     // All the shaders currently in use
     private ArrayList<Shader> shaders = new ArrayList<>();

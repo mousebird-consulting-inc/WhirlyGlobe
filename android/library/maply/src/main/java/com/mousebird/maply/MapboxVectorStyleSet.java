@@ -59,7 +59,6 @@ public class MapboxVectorStyleSet implements VectorStyleInterface {
         return Color.WHITE;
     }
 
-    // TODO: Optimize the lookup a bit
     ArrayList<LabelInfo> labelInfos = new ArrayList<LabelInfo>();
 
     // Return a label info

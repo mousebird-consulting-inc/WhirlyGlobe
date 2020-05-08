@@ -125,17 +125,7 @@ public class VectorTileTextStyle extends VectorTileStyle {
 
                 matcher = pattern.matcher(formatString);
             }
-
-            // replace \n with a newline
-            // TODO: Do I need to do this?
-
-            // replace + and surrounding whitespace
-            // TODO: Do I need to do this?
-
-            // replace quotes around quoted strings
-            // TODO: Do I need to do this?
-
-
+            
             return formatString;
 
         } catch (Exception e) {

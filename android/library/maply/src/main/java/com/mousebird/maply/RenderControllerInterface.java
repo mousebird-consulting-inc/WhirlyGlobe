@@ -105,8 +105,6 @@ public interface RenderControllerInterface
     public void removeObjects(final List<ComponentObject> compObjs,ThreadMode mode);
     public void removeObject(final ComponentObject compObj,ThreadMode mode);
 
-    // TODO: StartChanges/EndChanges interface
-
     public void addShaderProgram(final Shader shader);
     public Shader getShader(String name);
     public void removeShader(Shader shader);

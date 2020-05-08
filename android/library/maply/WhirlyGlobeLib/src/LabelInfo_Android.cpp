@@ -49,7 +49,6 @@ bool LabelInfoAndroid::typefaceIsSame(PlatformInfo_Android *threadInfo,const job
 		return true;
 
 	// Now for a deeper comparison
-	// TODO: Can we find a cheaper way to do this?
 	jclass typefaceClass = threadInfo->env->GetObjectClass(inTypeface);
 	jmethodID jmethodID = threadInfo->env->GetMethodID(typefaceClass, "equals", "(Ljava/lang/Object;)Z");
 	bool res = threadInfo->env->CallBooleanMethod(typefaceObj,jmethodID,inTypeface);
