@@ -702,7 +702,7 @@ public class RenderController implements RenderControllerInterface
                         for (ScreenLabel label : labels)
                         {
                             if (label.text != null && label.text.length() > 0) {
-                                InternalLabel intLabel = new InternalLabel(label);
+                                InternalLabel intLabel = new InternalLabel(label,labelInfo);
                                 intLabels.add(intLabel);
 
                                 // Keep track of this one for selection

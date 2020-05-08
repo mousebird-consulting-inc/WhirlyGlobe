@@ -121,8 +121,9 @@ QIFFrameAssetRef QIFTileAsset_Android::makeFrameAsset(PlatformThreadInfo *inThre
     return QIFFrameAssetRef(frame);
 }
 
-void QIFTileAsset_Android::startFetching(PlatformInfo_Android *threadInfo,QuadImageFrameLoader *inLoader,int frameToLoad,QIFBatchOps *inBatchOps)
+void QIFTileAsset_Android::startFetching(PlatformThreadInfo *inThreadInfo,QuadImageFrameLoader *inLoader,int frameToLoad,QIFBatchOps *inBatchOps)
 {
+    PlatformInfo_Android *threadInfo = (PlatformInfo_Android *)inThreadInfo;
     QuadImageFrameLoader_Android *loader = (QuadImageFrameLoader_Android *)inLoader;
     QIFBatchOps_Android *batchOps = (QIFBatchOps_Android *)inBatchOps;
 

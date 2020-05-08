@@ -256,7 +256,7 @@ void QIFTileAsset::clear(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *lo
     shouldEnable = false;
 }
     
-void QIFTileAsset::startFetching(QuadImageFrameLoader *inLoader,int frameToLoad,QIFBatchOps *inBatchOps)
+void QIFTileAsset::startFetching(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *inLoader,int frameToLoad,QIFBatchOps *inBatchOps)
 {
     state = Active;
 }
@@ -843,7 +843,7 @@ void QuadImageFrameLoader::reload(PlatformThreadInfo *threadInfo,int frame)
         QIFTileAssetRef tile = it.second;
         
         tile->cancelFetches(this, frame, batchOps);
-        tile->startFetching(this, frame, batchOps);
+        tile->startFetching(threadInfo,this, frame, batchOps);
     }
     
     // Process all the fetches and cancels at once
@@ -872,7 +872,7 @@ QIFTileAssetRef QuadImageFrameLoader::addNewTile(PlatformThreadInfo *threadInfo,
         wkLogLevel(Debug,"Starting fetch for tile %d: (%d,%d)",ident.level,ident.x,ident.y);
     
     // Normal remote data fetching
-    newTile->startFetching(this, -1, batchOps);
+    newTile->startFetching(threadInfo,this, -1, batchOps);
         
     return newTile;
 }

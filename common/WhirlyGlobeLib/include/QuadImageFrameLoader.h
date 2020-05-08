@@ -150,7 +150,7 @@ public:
     virtual void clear(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QIFBatchOps *batchOps, ChangeSet &changes);
     
     // Start fetching data for this tile
-    virtual void startFetching(QuadImageFrameLoader *loader,int frameToLoad,QIFBatchOps *batchOps);
+    virtual void startFetching(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,int frameToLoad,QIFBatchOps *batchOps);
 
     // Set up the geometry for this tile
     virtual void setupContents(QuadImageFrameLoader *loader,
