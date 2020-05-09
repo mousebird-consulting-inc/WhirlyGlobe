@@ -39,7 +39,8 @@ std::vector<DrawableString *> SingleLabelAndroid::generateDrawableStrings(Platfo
     for (std::vector<int> &codePoints : codePointsLines)
     {
         DrawableString *drawStr = fontTexManager->addString(threadInfo,codePoints,labelInfo,changes);
-        drawStrs.push_back(drawStr);
+        if (drawStr)
+            drawStrs.push_back(drawStr);
 
         // Modify the MBR if this is a multi-line label
         if (whichLine > 0) {

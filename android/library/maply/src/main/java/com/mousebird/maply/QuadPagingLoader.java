@@ -29,10 +29,34 @@ public class QuadPagingLoader extends QuadLoaderBase {
      */
     public QuadPagingLoader(final SamplingParams params,TileInfoNew tileInfo,LoaderInterpreter inInterp,BaseController control)
     {
+        this(params,new TileInfoNew[]{tileInfo},inInterp,control);
+    }
+
+    /**
+     * Initialize with the objects needed to run.
+     *
+     * @param params Sampling params describe how the space is broken down into tiles.
+     * @param inInterp The loader interpreter takes input data (if any) per tile and turns it into visual objects
+     * @param control The globe or map controller we're adding objects to.
+     */
+    public QuadPagingLoader(final SamplingParams params,LoaderInterpreter inInterp,BaseController control)
+    {
+        this(params,new TileInfoNew[] { },inInterp,control);
+    }
+
+    /**
+     * Initialize with the objects needed to run.
+     *
+     * @param params Sampling params describe how the space is broken down into tiles.
+     * @param inTileInfos If fetching data remotely, these are the remote URLs (and other info).  Can be null.
+     * @param inInterp The loader interpreter takes input data (if any) per tile and turns it into visual objects
+     * @param control The globe or map controller we're adding objects to.
+     */
+    public QuadPagingLoader(final SamplingParams params,TileInfoNew inTileInfos[],LoaderInterpreter inInterp,BaseController control)
+    {
         super(control, params, 1, Mode.Object);
 
-        tileInfos = new TileInfoNew[1];
-        tileInfos[0] = tileInfo;
+        tileInfos = inTileInfos;
         loadInterp = inInterp;
         valid = true;
 

@@ -187,7 +187,7 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
         // Gather all the linear features
         ShapeSet shapes;
         for (auto vecObj : vecObjs) {
-            if (vecObj->getVectorType() == VectorArealType) {
+            if (vecObj->getVectorType() == VectorLinearType) {
                 shapes.insert(vecObj->shapes.begin(),vecObj->shapes.end());
             }
         }
