@@ -145,9 +145,11 @@ bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst,RawData *rawDat
         for (unsigned i=0;i<tile.layers_size();++i) {
             vector_tile::Tile_Layer const& tileLayer = tile.layers(i);
             scale = tileLayer.extent() / 256.0;
+
+            std::string layerName = tileLayer.name();
             
             // if we dont have any styles for a layer, dont bother parsing the features
-            if (!styleDelegate->layerShouldDisplay(tileLayer.name(), tileData->ident))
+            if (!styleDelegate->layerShouldDisplay(layerName, tileData->ident))
                 continue;
             
             // Work through features
@@ -159,7 +161,7 @@ bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst,RawData *rawDat
                 //Parse attributes
                 MutableDictionaryRef attributes = MutableDictionaryMake();
                 attributes->setInt("geometry_type", (int)g_type);
-                attributes->setString("layer_name", tileLayer.name());
+                attributes->setString("layer_name", layerName);
                 attributes->setInt("layer_order",i);
                 
                 for (int m = 0; m < f.tags_size(); m += 2) {
