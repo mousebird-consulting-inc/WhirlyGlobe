@@ -255,6 +255,13 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	RenderController renderControl = null;
 
 	/**
+	 * The underlying render controller.  Only get this if you know what it does.
+	 */
+	public RenderController getRenderController() {
+		return renderControl;
+	}
+
+	/**
 	 * Construct the maply controller with an Activity.  We need access to a few
 	 * of the usual Android resources.
 	 * <p>

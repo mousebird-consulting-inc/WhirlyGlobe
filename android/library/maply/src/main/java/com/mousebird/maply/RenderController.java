@@ -92,12 +92,10 @@ public class RenderController implements RenderControllerInterface
     // Set if this is a standalone renderer
     protected boolean offlineMode = false;
 
-    /**
-     * This constructor sets up its own render target.  Used for offline rendering.
-     */
-    public RenderController(int width,int height)
+    // Construct a new render control based on an existing one
+    public RenderController(RenderController baseControl,int width,int height)
     {
-        setConfig(null);
+        setConfig(baseControl, null);
 
         // Set up our own EGL context for offline work
         EGL10 egl = (EGL10) EGLContext.getEGL();
@@ -146,6 +144,14 @@ public class RenderController implements RenderControllerInterface
 
         // This will properly wire things up
         Init(scene,coordAdapter,taskMan);
+    }
+
+    /**
+     * This constructor sets up its own render target.  Used for offline rendering.
+     */
+    public RenderController(int width,int height)
+    {
+        this(null,width,height);
     }
 
     /**
@@ -260,11 +266,18 @@ public class RenderController implements RenderControllerInterface
     public EGLDisplay display = null;
     public EGLConfig config = null;
     public EGLContext context = null;
-    public void setConfig(EGLConfig inConfig)
+    public void setConfig(RenderController otherControl,EGLConfig inConfig)
     {
         EGL10 egl = (EGL10) EGLContext.getEGL();
-        display = egl.eglGetCurrentDisplay();
-        context = egl.eglGetCurrentContext();
+
+        if (otherControl == null) {
+            display = egl.eglGetCurrentDisplay();
+            context = egl.eglGetCurrentContext();
+        } else {
+            display = otherControl.display;
+            context = otherControl.context;
+            inConfig = otherControl.config;
+        }
 
         // If we didn't pass in one, we're in offline mode and need to make one
         if (inConfig == null) {

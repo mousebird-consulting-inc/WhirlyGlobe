@@ -15,8 +15,23 @@ import java.util.ArrayList;
  */
 public class MapboxVectorStyleSet implements VectorStyleInterface {
 
-    // Construct with the JSON data from a string
     public MapboxVectorStyleSet(String styleJSON,VectorStyleSettings inSettings,DisplayMetrics inDisplayMetrics,RenderControllerInterface inControl) {
+        AttrDictionary styleDict = new AttrDictionary();
+        if (!styleDict.parseFromJSON(styleJSON)) {
+            throw new IllegalArgumentException("Bad JSON for style sheet in MapboxVectorStyleSet");
+        }
+
+        combinedInit(styleDict,inSettings,inDisplayMetrics,inControl);
+    }
+
+    // Construct with the JSON data from a string
+    public MapboxVectorStyleSet(AttrDictionary styleDict,VectorStyleSettings inSettings,DisplayMetrics inDisplayMetrics,RenderControllerInterface inControl) {
+        combinedInit(styleDict,inSettings,inDisplayMetrics,inControl);
+    }
+
+    // Used by both constructors
+    private void combinedInit(AttrDictionary styleDict,VectorStyleSettings inSettings,DisplayMetrics inDisplayMetrics,RenderControllerInterface inControl)
+    {
         // Fault in the ComponentObject native implementation.
         // Because the first time it can be called in this case is C++ side
         ComponentObject testObj = new ComponentObject();
@@ -25,11 +40,6 @@ public class MapboxVectorStyleSet implements VectorStyleInterface {
         if (inSettings == null)
             inSettings = new VectorStyleSettings();
         settings = inSettings;
-
-        AttrDictionary styleDict = new AttrDictionary();
-        if (!styleDict.parseFromJSON(styleJSON)) {
-            throw new IllegalArgumentException("Bad JSON for style sheet in MapboxVectorStyleSet");
-        }
 
         spriteURL = styleDict.getString("sprite");
 
@@ -45,7 +55,7 @@ public class MapboxVectorStyleSet implements VectorStyleInterface {
 
         displayMetrics = inDisplayMetrics;
 
-        initialise(inControl.getScene(),inControl.getCoordSystem(),settings,styleJSON);
+        initialise(inControl.getScene(),inControl.getCoordSystem(),settings,styleDict);
     }
 
     DisplayMetrics displayMetrics;
@@ -163,7 +173,7 @@ public class MapboxVectorStyleSet implements VectorStyleInterface {
     {
         nativeInit();
     }
-    native void initialise(Scene scene,CoordSystem coordSystem,VectorStyleSettings settings,String styleJSON);
+    native void initialise(Scene scene,CoordSystem coordSystem,VectorStyleSettings settings,AttrDictionary styleDict);
     native void dispose();
     private static native void nativeInit();
     protected long nativeHandle;
