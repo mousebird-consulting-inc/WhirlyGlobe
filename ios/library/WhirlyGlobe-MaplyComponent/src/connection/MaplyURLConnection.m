@@ -77,7 +77,8 @@
     
     
     self.completion = completion;
-    self.dataTask = [self.session dataTaskWithRequest:request completionHandler:completion];    
+    self.dataTask = [self.session dataTaskWithRequest:request completionHandler:completion];
+    [self.dataTask resume];
     [self.condition wait];
 }
 
