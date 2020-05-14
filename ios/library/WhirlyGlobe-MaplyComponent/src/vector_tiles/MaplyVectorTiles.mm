@@ -33,6 +33,7 @@
 #import <string>
 #import <map>
 #import <vector>
+#import "MaplyHttpManager+Private.h"
 
 using namespace Maply;
 
@@ -63,72 +64,72 @@ typedef std::map<std::string,MaplyVectorTileStyle *> StyleMap;
     request.cachePolicy = NSURLRequestReloadIgnoringLocalCacheData;
 
 
-    NSURLSession *session = [NSURLSession sharedSession];
-    NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:
-    ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        NSError *jsonError;
-        NSDictionary *jsonDict;
-        if (!error) {
-            jsonDict = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&jsonError];
-        }
-        if (!error && !jsonError) {
-            // We're expecting one or more tile URLs and the styles
-            NSString *styleURL = jsonDict[@"style"];
-            NSArray *tileURLs = jsonDict[@"tiles"];
-            if (![styleURL isKindOfClass:[NSString class]])
-            {
-                NSLog(@"Expecting style URL in vector tile spec from: %@",jsonURL);
-            } else if (![tileURLs isKindOfClass:[NSArray class]] || [tileURLs count] == 0)
-            {
-                NSLog(@"Expecting one or more tile URLs in vector tile spec from: %@",jsonURL);
-            } else {
-                // Success, go get the styles
-                NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:styleURL]];
-                request.cachePolicy = NSURLRequestReloadIgnoringLocalCacheData;
+   MaplyURLConnection * task = [MaplyHttpManager.sharedInstance asyncRequest:request
+                                       completion:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+                                           NSError *jsonError;
+                                           NSDictionary *jsonDict;
+                                           if (!error) {
+                                               jsonDict = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&jsonError];
+                                           }
+                                           if (!error && !jsonError) {
+                                               // We're expecting one or more tile URLs and the styles
+                                               NSString *styleURL = jsonDict[@"style"];
+                                               NSArray *tileURLs = jsonDict[@"tiles"];
+                                               if (![styleURL isKindOfClass:[NSString class]])
+                                               {
+                                                   NSLog(@"Expecting style URL in vector tile spec from: %@",jsonURL);
+                                               } else if (![tileURLs isKindOfClass:[NSArray class]] || [tileURLs count] == 0)
+                                               {
+                                                   NSLog(@"Expecting one or more tile URLs in vector tile spec from: %@",jsonURL);
+                                               } else {
+                                                   // Success, go get the styles
+                                                   NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:styleURL]];
+                                                   request.cachePolicy = NSURLRequestReloadIgnoringLocalCacheData;
 
-                NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:
-                ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-                    NSError *styleError;
-                    NSDictionary *styleDict;
-                    if (!error)
-                        styleDict = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&styleError];
+                                                   MaplyURLConnection * task = [MaplyHttpManager.sharedInstance asyncRequest:request
+                                                   completion:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+                                                       NSError *styleError;
+                                                       NSDictionary *styleDict;
+                                                       if (!error)
+                                                           styleDict = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&styleError];
 
-                    if (!error && !styleError) {
-                        // This should be enough to start, so let's do that
-                        MaplyVectorTiles *vecTiles = [[MaplyVectorTiles alloc] initWithTileSpec:jsonDict styles:styleDict viewC:viewC];
-                        vecTiles.cacheDir = cacheDir;
-                        if (vecTiles)
-                        {
-                            // Up to the "caller" to do something with it
-                            dispatch_async(dispatch_get_main_queue(),
-                                ^{
-                                    callbackBlock(vecTiles);
-                                });
-                        } else {
-                            NSLog(@"Unable to create MaplyVectorTiles from URL: %@",jsonURL);
-                            dispatch_async(dispatch_get_main_queue(),
-                                ^{
-                                    callbackBlock(nil);
-                                });
-                        }
-                    } else {
-                        NSLog(@"Failed to reach vector styles at: %@",styleURL);
-                        dispatch_async(dispatch_get_main_queue(),
-                            ^{
-                                callbackBlock(nil);
-                            });
-                    }
-                }];
-				[task resume];
-            }
-        } else {
-            NSLog(@"Failed to reach JSON vector tile spec at: %@",jsonURL);
-            dispatch_async(dispatch_get_main_queue(),
-                ^{
-                    callbackBlock(nil);
-                });
-        }
-    }];
+                                                       if (!error && !styleError) {
+                                                           // This should be enough to start, so let's do that
+                                                           MaplyVectorTiles *vecTiles = [[MaplyVectorTiles alloc] initWithTileSpec:jsonDict styles:styleDict viewC:viewC];
+                                                           vecTiles.cacheDir = cacheDir;
+                                                           if (vecTiles)
+                                                           {
+                                                               // Up to the "caller" to do something with it
+                                                               dispatch_async(dispatch_get_main_queue(),
+                                                                   ^{
+                                                                       callbackBlock(vecTiles);
+                                                                   });
+                                                           } else {
+                                                               NSLog(@"Unable to create MaplyVectorTiles from URL: %@",jsonURL);
+                                                               dispatch_async(dispatch_get_main_queue(),
+                                                                   ^{
+                                                                       callbackBlock(nil);
+                                                                   });
+                                                           }
+                                                       } else {
+                                                           NSLog(@"Failed to reach vector styles at: %@",styleURL);
+                                                           dispatch_async(dispatch_get_main_queue(),
+                                                               ^{
+                                                                   callbackBlock(nil);
+                                                               });
+                                                       }
+                                                   }];
+                                                   [task resume];
+                                               }
+                                           } else {
+                                               NSLog(@"Failed to reach JSON vector tile spec at: %@",jsonURL);
+                                               dispatch_async(dispatch_get_main_queue(),
+                                                   ^{
+                                                       callbackBlock(nil);
+                                                   });
+                                           }
+                                       }];
+  
     [task resume];
 }
 
@@ -581,9 +582,8 @@ typedef std::map<std::string,NSMutableArray *> VecsForStyles;
                    NSMutableURLRequest *urlReq = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
                    urlReq.cachePolicy = NSURLRequestReloadIgnoringLocalCacheData;
                    // Note: Should set the timeout
-                   NSURLSession *session = [NSURLSession sharedSession];
-                   NSURLSessionDataTask *task = [session dataTaskWithRequest:urlReq completionHandler:
-                    ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+                   MaplyURLConnection * task = [MaplyHttpManager.sharedInstance asyncRequest:urlReq
+                   completion:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
                         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                             if (!error) {
                                 // Uncompress the data

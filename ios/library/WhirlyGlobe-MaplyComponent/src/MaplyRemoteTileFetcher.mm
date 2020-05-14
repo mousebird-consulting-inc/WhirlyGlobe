@@ -20,7 +20,7 @@
 
 #import "MaplyRemoteTileFetcher.h"
 #import "MaplyRenderController_private.h"
-
+#import "MaplyHttpManager+Private.h"
 namespace WhirlyKit
 {
 
@@ -86,7 +86,7 @@ public:
     MaplyRemoteTileFetchInfo *fetchInfo;
     
     // If we're loading it, this is the data task associated with it
-    NSURLSessionDataTask *task;
+    MaplyURLConnection *task;
 };
 
 
@@ -262,7 +262,6 @@ using namespace WhirlyKit;
 {
     bool active;
     NSString *name;
-    NSURLSession *session;
     dispatch_queue_t queue;
     
     TileInfoSet loading;  // Tiles that are currently loading
@@ -282,7 +281,6 @@ using namespace WhirlyKit;
     _numConnections = numConnections;
     // All the internal work is done on a single queue.  Nothing significant, really.
     queue = dispatch_queue_create("MaplyRemoteTileFetcher", nil);
-    session = [NSURLSession sharedSession];
     allStats = [[MaplyRemoteTileFetcherStats alloc] init];
     recentStats = [[MaplyRemoteTileFetcherStats alloc] init];
     
@@ -513,18 +511,20 @@ using namespace WhirlyKit;
         
         // Set up the fetch task so we can use it in a couple places
         MaplyRemoteTileFetcher * __weak weakSelf = self;
-        tile->task = [session dataTaskWithRequest:urlReq completionHandler:
-                      ^(NSData * _Nullable data, NSURLResponse * _Nullable inResponse, NSError * _Nullable error) {
-                          NSHTTPURLResponse *response = (NSHTTPURLResponse *)inResponse;
+        
+        tile->task = [MaplyHttpManager.sharedInstance asyncRequest:urlReq
+                                           completion:^(NSData * _Nullable data, NSURLResponse * _Nullable inResponse, NSError * _Nullable error) {
+            NSHTTPURLResponse *response = (NSHTTPURLResponse *)inResponse;
 
-                          dispatch_queue_t queue = [weakSelf getQueue];
-                          if (queue)
-                              dispatch_async(queue,
-                                 ^{
-                                     if (weakSelf)
-                                         [weakSelf handleData:data response:response error:error tile:tile fetchStart:fetchStartTile];
-                                 });
-                        }];
+            dispatch_queue_t queue = [weakSelf getQueue];
+            if (queue)
+                dispatch_async(queue,
+                               ^{
+                    if (weakSelf)
+                        [weakSelf handleData:data response:response error:error tile:tile fetchStart:fetchStartTile];
+                });
+        }];
+        
         
         // Look for it cached
         if ([self isTileLocal:tile fileName:tile->fetchInfo.cacheFile]) {

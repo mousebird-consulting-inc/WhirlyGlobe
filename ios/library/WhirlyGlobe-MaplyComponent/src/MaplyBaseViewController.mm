@@ -28,7 +28,7 @@
 #import "MaplyTexture_private.h"
 #import "MaplyRenderTarget_private.h"
 #import <sys/utsname.h>
-
+#import "MaplyHttpManager+Private.h"
 using namespace Eigen;
 using namespace WhirlyKit;
 
@@ -238,15 +238,15 @@ using namespace WhirlyKit;
     [req setHTTPMethod:@"POST"];
     [req setHTTPBody:[postArgs dataUsingEncoding:NSASCIIStringEncoding]];
     
-    NSURLSession *session = [NSURLSession sharedSession];
-    NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:req completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+    [MaplyHttpManager.sharedInstance asyncRequest:req
+                                       completion:^(NSData * _Nullable data, NSURLResponse * _Nullable inResponse, NSError * _Nullable error) {
         NSTimeInterval now = CFAbsoluteTimeGetCurrent();
-        NSHTTPURLResponse *resp = (NSHTTPURLResponse *)response;
+        NSHTTPURLResponse *resp = (NSHTTPURLResponse *)inResponse;
         if (resp.statusCode == 200) {
             [userDefaults setDouble:now forKey:@"wgmaplyanalytictime"];
         }
     }];
-    [dataTask resume];
+   
 }
 
 // Create the Maply or Globe view.

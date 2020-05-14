@@ -23,7 +23,7 @@
 #import "MaplyCoordinateSystem_private.h"
 #import "MaplyQuadImageTilesLayer.h"
 #import "MaplyRemoteTileSource_private.h"
-
+#import "MaplyHttpManager+Private.h"
 using namespace Eigen;
 using namespace WhirlyKit;
 
@@ -40,7 +40,7 @@ using namespace WhirlyKit;
 @implementation MaplyRemoteTileElevationInfo
 {
     bool cacheInit;
-
+    
     int _minZoom,_maxZoom;
 }
 
@@ -55,7 +55,7 @@ using namespace WhirlyKit;
     _minZoom = minZoom;
     _maxZoom = maxZoom;
     _timeOut = 0.0;
-	_pixelsPerSide = 256;
+    _pixelsPerSide = 256;
     _coordSys = [[MaplySphericalMercator alloc] initWebStandard];
     
     return self;
@@ -98,10 +98,10 @@ using namespace WhirlyKit;
             {
                 return true;
             }
-//            else
-//            {
-//                NSLog(@"TileIsLocal returned false due to tile age: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
-//            }
+            //            else
+            //            {
+            //                NSLog(@"TileIsLocal returned false due to tile age: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
+            //            }
         }
         else // no lifetime set for cached files
         {
@@ -122,8 +122,8 @@ using namespace WhirlyKit;
 
 - (NSURLRequest *)requestForTile:(MaplyTileID)tileID
 {
-	NSAssert(NO, @"requestForTile is intended to be overriden");
-	return nil;
+    NSAssert(NO, @"requestForTile is intended to be overriden");
+    return nil;
 }
 
 @end
@@ -247,17 +247,17 @@ using namespace WhirlyKit;
             NSData *tileData = [NSData dataWithContentsOfFile:fileName];
             if (tileData)
             {
-				MaplyElevationChunk *elevChunk = [self decodeElevationData:tileData];
+                MaplyElevationChunk *elevChunk = [self decodeElevationData:tileData];
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
                 if ([_delegate respondsToSelector:@selector(remoteTileSource:modifyElevReturn:forTile:)])
                 {
-
+                    
                     elevChunk = [_delegate remoteTileElevationSource:self modifyElevReturn:elevChunk forTile:tileID];
                 }
-
-				//TODO(JM) is this return missing in MaplyRemoteTileElevationSource::imageForTile??
-				return elevChunk;
+                
+                //TODO(JM) is this return missing in MaplyRemoteTileElevationSource::imageForTile??
+                return elevChunk;
             }
         }
     }
@@ -265,10 +265,21 @@ using namespace WhirlyKit;
     NSURLRequest *urlReq = [_tileInfo requestForTile:tileID];
     if(urlReq)
     {
-        NSURLResponse *response;
-        NSError *error;
-        NSData *tileData = [NSURLConnection sendSynchronousRequest:urlReq
-                                                 returningResponse:&response error:&error];
+        
+        
+        __block NSData *tileData;
+        __block  NSURLResponse *response = nil;
+        __block NSError * error = nil;
+        
+        
+        
+        [MaplyHttpManager.sharedInstance syncRequest:urlReq
+                                          completion:^(NSData * _Nullable data, NSURLResponse * _Nullable _response, NSError * _Nullable _error) {
+            tileData = data;
+            error = _error;
+            response = _response;
+        }];
+        
         
         // Look at the response
         NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
@@ -282,17 +293,17 @@ using namespace WhirlyKit;
             // We're already on another thread.  No need to do that in the background.
             if (_tileInfo.cacheDir && tileData)
                 [tileData writeToFile:[_tileInfo fileNameForTile:tileID] atomically:YES];
-
+            
             elevChunk = [self decodeElevationData:tileData];
-
+            
             //TODO(JM) what about to serialize & cache MaplyElevationChunk decoded data instead of raw server data?
             // We would save the decoding time when we hit the cache
-
+            
             if ([_delegate respondsToSelector:@selector(remoteTileElevationSource:modifyTileReturn:forTile:)]) {
                 elevChunk = [_delegate remoteTileElevationSource:self modifyElevReturn:elevChunk forTile:tileID];
             }
         }
-
+        
         return elevChunk;
     }
     
@@ -301,8 +312,8 @@ using namespace WhirlyKit;
 
 - (MaplyElevationChunk *)decodeElevationData:(NSData *)data
 {
-	NSAssert(NO, @"decodeElevationData is intended to be overriden");
-	return nil;
+    NSAssert(NO, @"decodeElevationData is intended to be overriden");
+    return nil;
 }
 
 - (void)startFetchLayer:(MaplyQuadImageTilesLayer *)layer tile:(MaplyTileID)tileID
@@ -323,7 +334,7 @@ using namespace WhirlyKit;
     {
         if ([_delegate respondsToSelector:@selector(remoteTileElevationSource:tileDidLoad:)])
             [_delegate remoteTileElevationSource:self tileDidLoad:tileID];
-
+        
         // Let the paging layer know about it
         [layer loadedElevation:elevChunk forTile:tileID];
         
@@ -331,7 +342,7 @@ using namespace WhirlyKit;
         NSURLRequest *urlReq = [_tileInfo requestForTile:tileID];
         if(!urlReq)
         {
-			NSError *error = [NSError errorWithDomain:@"maply" code:1 userInfo:@{}];
+            NSError *error = [NSError errorWithDomain:@"maply" code:1 userInfo:@{}];
             [layer loadError:error forTile:tileID];
             if (self.delegate && [self.delegate respondsToSelector:@selector(remoteTileElevationSource:tileDidNotLoad:error:)])
                 [self.delegate remoteTileElevationSource:self tileDidNotLoad:tileID error:error];
@@ -342,35 +353,34 @@ using namespace WhirlyKit;
         
         // Kick off an async request for the data
         MaplyRemoteTileElevationSource __weak *weakSelf = self;
-        NSURLSession *session = [NSURLSession sharedSession];
-        NSURLSessionDataTask *task = [session dataTaskWithRequest:urlReq completionHandler:
-        ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        MaplyURLConnection * task = [MaplyHttpManager.sharedInstance asyncRequest:urlReq
+                                                                       completion:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                 if (!error) {
                     if (weakSelf)
                     {
                         NSData *elevData = data;
-
+                        
                         // Let the delegate know we loaded successfully
                         if (weakSelf.delegate && [weakSelf.delegate respondsToSelector:@selector(remoteTileSource:tileDidLoad:)])
                             [weakSelf.delegate remoteTileElevationSource:weakSelf tileDidLoad:tileID];
-
+                        
                         // Let's also write it back out for the cache
                         if (weakSelf.tileInfo.cacheDir)
                             //TODO(JM) is it worth to delegate this write to a different worker thread?
                             [elevData writeToFile:fileName atomically:YES];
-
+                        
                         MaplyElevationChunk *elevChunk = [weakSelf decodeElevationData:elevData];
-
+                        
                         if ([self->_delegate respondsToSelector:@selector(remoteTileElevationSource:modifyTileReturn:forTile:)])
                             elevChunk = [self->_delegate remoteTileElevationSource:self modifyElevReturn:elevChunk forTile:tileID];
-
+                        
                         // Let the paging layer know about it
                         [layer loadedElevation:elevChunk forTile:tileID];
-
+                        
                         [weakSelf clearTile:tileID];
                     }
-
+                    
                 } else {
                     if (weakSelf)
                     {
@@ -383,7 +393,7 @@ using namespace WhirlyKit;
                 }
             });
         }];
-
+        
         Maply::TileFetchOp fetchOp(tileID);
         fetchOp.task = task;
         @synchronized(self)
@@ -401,14 +411,14 @@ using namespace WhirlyKit;
 
 - (instancetype)initWithBaseURL:(NSString *)baseURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom
 {
-	MaplyRemoteTileElevationInfo *info = [[MaplyRemoteTileElevationCesiumInfo alloc] initWithBaseURL:baseURL ext:ext minZoom:minZoom maxZoom:maxZoom];
-
+    MaplyRemoteTileElevationInfo *info = [[MaplyRemoteTileElevationCesiumInfo alloc] initWithBaseURL:baseURL ext:ext minZoom:minZoom maxZoom:maxZoom];
+    
     return [super initWithInfo:info];
 }
 
 - (MaplyElevationChunk *)decodeElevationData:(NSData *)data
 {
-	MaplyElevationCesiumChunk *elevChunk = [[MaplyElevationCesiumChunk alloc] initWithCesiumData:data sizeX:self.tileInfo.pixelsPerSide sizeY:self.tileInfo.pixelsPerSide];
+    MaplyElevationCesiumChunk *elevChunk = [[MaplyElevationCesiumChunk alloc] initWithCesiumData:data sizeX:self.tileInfo.pixelsPerSide sizeY:self.tileInfo.pixelsPerSide];
     if (_scale > 0.0 && elevChunk)
         elevChunk.scale = _scale;
     
@@ -422,7 +432,7 @@ using namespace WhirlyKit;
 
 - (NSURLRequest *)requestForTile:(MaplyTileID)tileID
 {
-//    int y = ((int)(1<<tileID.level)-tileID.y)-1;
+    //    int y = ((int)(1<<tileID.level)-tileID.y)-1;
     int y = tileID.y;
     NSMutableURLRequest *urlReq = nil;
     int level = tileID.level;
@@ -431,13 +441,13 @@ using namespace WhirlyKit;
     NSMutableString *fullURLStr = [NSMutableString stringWithFormat:@"%@%d/%d/%d.%@",self.baseURL,level,tileID.x,y,self.ext];
     if (self.queryStr)
         [fullURLStr appendFormat:@"?%@", self.queryStr];
-
+    
     urlReq = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
     if (self.timeOut != 0.0)
         [urlReq setTimeoutInterval:self.timeOut];
-
-	[urlReq setValue:@"application/vnd.quantized-mesh;extensions=octvertexnormals,application/octet-stream;q=0.9" forHTTPHeaderField:@"Accept"];
-	[urlReq setValue:@"gzip, deflate" forHTTPHeaderField:@"Accept-Encoding"];
+    
+    [urlReq setValue:@"application/vnd.quantized-mesh;extensions=octvertexnormals,application/octet-stream;q=0.9" forHTTPHeaderField:@"Accept"];
+    [urlReq setValue:@"gzip, deflate" forHTTPHeaderField:@"Accept-Encoding"];
     
     return urlReq;
 }

@@ -21,7 +21,7 @@
 #import "MaplyWMSTileSource.h"
 #import "DDXMLElementAdditions.h"
 #import "DDXML.h"
-
+#import "MaplyHttpManager+Private.h"
 @implementation MaplyWMSLayerBoundingBox
 
 - (instancetype)initWithXML:(DDXMLElement *)el
@@ -369,9 +369,20 @@
         NSURLRequest *urlReq = [NSURLRequest requestWithURL:[NSURL URLWithString:fullReqStr]];
         
         // Fetch the image synchronously
-        NSURLResponse *resp = nil;
-        NSError *error = nil;
-        imgData = [NSURLConnection sendSynchronousRequest:urlReq returningResponse:&resp error:&error];
+        __block NSData * imgData = nil;
+        __block NSError * error = nil;
+        __block NSURLResponse * resp = nil;
+        
+        [MaplyHttpManager.sharedInstance syncRequest:urlReq
+                                          completion:^(NSData * _Nullable data, NSURLResponse * _Nullable _response, NSError * _Nullable _error) {
+            imgData = data;
+            error = _error;
+            resp = _response;
+        }];
+        
+       
+        
+        
         if (error || !imgData)
         {
             NSLog(@"Failed to fetch image at: %@",reqStr);

@@ -20,6 +20,7 @@
 
 #import <vector>
 #import <set>
+#import "MaplyURLConnection.h"
 
 namespace Maply
 {
@@ -42,7 +43,7 @@ public:
     }
     
     MaplyTileID tileID;
-    NSURLSessionDataTask * __weak task;
+    MaplyURLConnection * __weak task;
 };
 typedef std::set<TileFetchOp> TileFetchOpSet;
 }

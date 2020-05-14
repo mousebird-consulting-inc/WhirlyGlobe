@@ -24,7 +24,7 @@
 #import "MaplyQuadImageTilesLayer.h"
 #import "MaplyRemoteTileSource_private.h"
 #import "MaplyQuadImageLoader.h"
-
+#import "MaplyHttpManager+Private.h"
 using namespace Eigen;
 using namespace WhirlyKit;
 
@@ -121,8 +121,8 @@ static bool trackConnections = false;
 - (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox)bbox
 {
     if(tileID.level > _maxZoom)
-      return false;
-
+        return false;
+    
     if (mbrs.empty())
         return true;
     
@@ -184,10 +184,10 @@ static bool trackConnections = false;
             {
                 return true;
             }
-//            else
-//            {
-//                NSLog(@"TileIsLocal returned false due to tile age: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
-//            }
+            //            else
+            //            {
+            //                NSLog(@"TileIsLocal returned false due to tile age: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
+            //            }
         }
         else // no lifetime set for cached files
         {
@@ -442,9 +442,9 @@ static bool trackConnections = false;
 {
     if (trackConnections)
         @synchronized([MaplyRemoteTileSource class])
-        {
-            numConnections++;
-        }
+    {
+        numConnections++;
+    }
     
     if ([_tileInfo tileIsLocal:tileID frame:-1])
     {
@@ -475,10 +475,20 @@ static bool trackConnections = false;
     NSURLRequest *urlReq = [_tileInfo requestForTile:tileID];
     if(urlReq)
     {
-        NSURLResponse *response;
-        NSError *error;
-        NSData *tileData = [NSURLConnection sendSynchronousRequest:urlReq
-                                                 returningResponse:&response error:&error];
+        
+        __block NSData *tileData;
+        __block  NSURLResponse *response = nil;
+        
+        
+        
+        [MaplyHttpManager.sharedInstance syncRequest:urlReq
+                                          completion:^(NSData * _Nullable data, NSURLResponse * _Nullable _response, NSError * _Nullable _error) {
+            tileData = data;
+            response = _response;
+        }];
+        
+        
+        
         
         // Look at the response
         NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
@@ -522,12 +532,12 @@ static bool trackConnections = false;
     } else {
         MaplyQuadImageLoader *qLoad = nil;
         qLoad = inLayer;
-
+        
         NSLog(@"MaplyRemoteTileSource: Not handling QuadImageLoader case currently.");
-//        MaplyQuadImageLoaderReturn *ret = [[MaplyQuadImageLoaderReturn alloc] init];
-//        ret.tileID = tileID;
-//        ret.image = imgData;
-//        return [qLoad loadedReturn:ret];
+        //        MaplyQuadImageLoaderReturn *ret = [[MaplyQuadImageLoaderReturn alloc] init];
+        //        ret.tileID = tileID;
+        //        ret.image = imgData;
+        //        return [qLoad loadedReturn:ret];
         return false;
     }
 }
@@ -543,10 +553,10 @@ static bool trackConnections = false;
         qLoad = inLayer;
         
         NSLog(@"MaplyRemoteTileSource: Not handling QuadImageLoader case currently.");
-//        MaplyQuadImageLoaderReturn *ret = [[MaplyQuadImageLoaderReturn alloc] init];
-//        ret.tileID = tileID;
-//        ret.error = error;
-//        [qLoad loadedReturn:ret];
+        //        MaplyQuadImageLoaderReturn *ret = [[MaplyQuadImageLoaderReturn alloc] init];
+        //        ret.tileID = tileID;
+        //        ret.error = error;
+        //        [qLoad loadedReturn:ret];
         return;
     }
 }
@@ -570,7 +580,7 @@ static bool trackConnections = false;
     {
         if ([_delegate respondsToSelector:@selector(remoteTileSource:tileDidLoad:)])
             [_delegate remoteTileSource:self tileDidLoad:tileID];
-
+        
         // Let the paging layer know about it
         [self reportSuccess:inLayer data:imgData forTile:tileID];
         
@@ -583,7 +593,7 @@ static bool trackConnections = false;
         NSURLRequest *urlReq = [_tileInfo requestForTile:tileID];
         if(!urlReq)
         {
-			NSError *error = [NSError errorWithDomain:@"maply" code:1 userInfo:@{}];
+            NSError *error = [NSError errorWithDomain:@"maply" code:1 userInfo:@{}];
             [self reportFailure:inLayer error:error forTile:tileID];
             if (self.delegate && [self.delegate respondsToSelector:@selector(remoteTileSource:tileDidNotLoad:error:)])
                 [self.delegate remoteTileSource:self tileDidNotLoad:tileID error:error];
@@ -600,9 +610,8 @@ static bool trackConnections = false;
         // Kick off an async request for the data
         MaplyRemoteTileSource __weak *weakSelf = self;
         
-        NSURLSession *session = [NSURLSession sharedSession];
-        NSURLSessionDataTask *task = [session dataTaskWithRequest:urlReq completionHandler:
-        ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        MaplyURLConnection * task = [MaplyHttpManager.sharedInstance asyncRequest:urlReq
+                                                                       completion:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                 if (!error) {
                     if (weakSelf)
@@ -611,10 +620,10 @@ static bool trackConnections = false;
                         
                         if ([weakSelf.delegate respondsToSelector:@selector(remoteTileSource:modifyTileReturn:forTile:)])
                             imgData = [weakSelf.delegate remoteTileSource:self modifyTileReturn:imgData forTile:tileID];
-
+                        
                         // Let the paging layer know about it
                         bool convertSuccess = [self reportSuccess:inLayer data:imgData forTile:tileID];
-
+                        
                         // Let the delegate know we loaded successfully
                         if (weakSelf.delegate && [weakSelf.delegate respondsToSelector:@selector(remoteTileSource:tileDidLoad:)])
                         {
@@ -624,35 +633,35 @@ static bool trackConnections = false;
                                 if ([weakSelf.delegate respondsToSelector:@selector(remoteTileSource:tileDidNotLoad:error:)])
                                     [weakSelf.delegate remoteTileSource:weakSelf tileDidNotLoad:tileID error:nil];
                         }
-
+                        
                         // Let's also write it back out for the cache
                         if (convertSuccess)
                             [weakSelf.tileInfo writeToCache:tileID tileData:imgData];
-
+                        
                         [weakSelf clearTile:tileID];
                     }
-
+                    
                     if (trackConnections)
                         @synchronized([MaplyRemoteTileSource class])
                     {
                         numConnections--;
                     }
-
+                    
                 } else {
                     // May have cancelled this one
                     if (![weakSelf areWeFetching:tileID])
                         return;
-
+                    
                     if (weakSelf)
                     {
-//                        NSLog(@"Failed to load: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
+                        //                        NSLog(@"Failed to load: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
                         // Unsucessful load
                         [self reportFailure:inLayer error:error forTile:tileID];
                         if (weakSelf.delegate && [weakSelf.delegate respondsToSelector:@selector(remoteTileSource:tileDidNotLoad:error:)])
                             [weakSelf.delegate remoteTileSource:weakSelf tileDidNotLoad:tileID error:error];
                         [weakSelf clearTile:tileID];
                     }
-
+                    
                     if (trackConnections)
                         @synchronized([MaplyRemoteTileSource class])
                     {
@@ -661,7 +670,7 @@ static bool trackConnections = false;
                 }
             });
         }];
-
+        
         Maply::TileFetchOp fetchOp(tileID);
         fetchOp.task = task;
         @synchronized(self)
@@ -683,9 +692,9 @@ static bool trackConnections = false;
 
 - (void)cancelTile:(MaplyTileID)tileID frame:(int)frame tileData:(id)tileData
 {
-//    NSLog(@"Cancelled tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
+    //    NSLog(@"Cancelled tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
     
-    NSURLSessionDataTask *toCancel = nil;
+    MaplyURLConnection *toCancel = nil;
     @synchronized(self)
     {
         Maply::TileFetchOpSet::iterator it = tileSet.find(Maply::TileFetchOp(tileID));
