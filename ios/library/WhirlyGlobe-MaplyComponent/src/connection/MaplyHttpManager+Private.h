@@ -14,11 +14,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MaplyHttpManager (Private)
 
 
--(void)handelChanllenge:(NSURLAuthenticationChallenge*)challenge
-      completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition,
-                                  NSURLCredential * __nullable credential))completionHandler;
-
-
 
 -(MaplyURLConnection*)syncRequest:(NSURLRequest*)request
         completion:(void(^)(NSData * _Nullable, NSURLResponse *  _Nullable response, NSError * _Nullable error))completion;

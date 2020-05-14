@@ -3877,11 +3877,11 @@
 			isa = PBXGroup;
 			children = (
 				95A6D774246DB341006E2342 /* MaplyHttpManager.h */,
-				95A6D775246DB341006E2342 /* MaplyURLConnection.h */,
-				95A6D776246DB341006E2342 /* MaplyHttpManagerr+Private.m */,
-				95A6D777246DB341006E2342 /* MaplyHttpManager+Private.h */,
-				95A6D778246DB341006E2342 /* MaplyURLConnection.m */,
 				95A6D779246DB341006E2342 /* MaplyHttpManager.m */,
+				95A6D777246DB341006E2342 /* MaplyHttpManager+Private.h */,
+				95A6D776246DB341006E2342 /* MaplyHttpManagerr+Private.m */,
+				95A6D775246DB341006E2342 /* MaplyURLConnection.h */,
+				95A6D778246DB341006E2342 /* MaplyURLConnection.m */,
 			);
 			path = connection;
 			sourceTree = "<group>";

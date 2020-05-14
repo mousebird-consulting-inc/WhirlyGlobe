@@ -11,32 +11,34 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
-    this object will used to perform all the http requests
-*/
+ this object will used to perform all the http requests
+ */
 
 @interface MaplyURLConnection : NSObject
 
 
 /**
-    send the http request synchronously
-*/
-
+ send the http request synchronously
+ */
 -(void)syncRequest:(NSURLRequest*)request
+           session:(NSURLSession*)session
         completion:(void(^)(NSData * _Nullable, NSURLResponse *  _Nullable response, NSError * _Nullable error))completion;
 
 /**
-    send the http request assynchronously
-*/
+ send the http request assynchronously
+ */
 -(void)asyncRequest:(NSURLRequest*)request
-        completion:(void(^)(NSData * _Nullable, NSURLResponse *  _Nullable response, NSError * _Nullable error))completion;
+            session:(NSURLSession*)session
+         completion:(void(^)(NSData * _Nullable, NSURLResponse *  _Nullable response, NSError * _Nullable error))completion;
+
 
 /**
-    resume the current task
-*/
+ resume the current task
+ */
 -(void)resume;
 /**
-    cancel the current task
-*/
+ cancel the current task
+ */
 -(void)cancel;
 @end
 

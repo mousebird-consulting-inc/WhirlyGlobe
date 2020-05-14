@@ -10,9 +10,10 @@
 #import "MaplyURLConnection.h"
 static MaplyHttpManager * sharedInstance;
 
-@interface MaplyHttpManager ()
+@interface MaplyHttpManager () <NSURLSessionDelegate>
 @property (strong,nonatomic) NSMutableArray <MaplyURLConnection*> * requests;
 @property (strong,nonatomic) NSLock * lock;
+@property (nonatomic,strong) NSURLSession *  session;
 @end
 @implementation MaplyHttpManager
 
@@ -30,7 +31,14 @@ static MaplyHttpManager * sharedInstance;
 -(void)configure{
     sharedInstance.lock = [[NSLock alloc] init];
     self.requests = [NSMutableArray array];
+    NSURLSessionConfiguration * configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
+     
+       
+    self.session = [NSURLSession sessionWithConfiguration:configuration
+                                                   delegate:self
+                                              delegateQueue:[NSOperationQueue mainQueue]];
 }
+
 -(void)handelChanllenge:(NSURLAuthenticationChallenge*)challenge
 completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition,
                             NSURLCredential * __nullable credential))completionHandler{
@@ -53,7 +61,7 @@ completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition,
     [self.lock lock];
     [self.requests addObject:connection];
     [self.lock unlock];
-    [connection syncRequest:request completion:^(NSData * data, NSURLResponse * response, NSError * error) {
+    [connection syncRequest:request session:self.session completion:^(NSData * data, NSURLResponse * response, NSError * error) {
     
         if(completion){
             completion(data,response,error);
@@ -73,7 +81,7 @@ completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition,
     [self.lock lock];
     [self.requests addObject:connection];
     [self.lock unlock];
-    [connection asyncRequest:request completion:^(NSData * data, NSURLResponse * response, NSError * error) {
+    [connection asyncRequest:request session:self.session completion:^(NSData * data, NSURLResponse * response, NSError * error) {
     
         if(completion){
             completion(data,response,error);
@@ -85,4 +93,16 @@ completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition,
     
     return connection;
 }
+
+
+
+#pragma mark - NSURLSessionDelegate
+- (void)URLSession:(NSURLSession *)session didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
+ completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential * __nullable credential))completionHandler
+{
+    [self handelChanllenge:challenge completionHandler:completionHandler];
+}
+
+
+
 @end
