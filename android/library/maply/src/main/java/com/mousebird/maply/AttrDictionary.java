@@ -42,6 +42,11 @@ public class AttrDictionary
 	 * Returns false on failure.
 	 */
 	public native boolean parseFromJSON(String json);
+
+	/**
+	 * True if there's a field with the given name.
+	 */
+	public native boolean hasField(String attrName);
 	
 	/**
 	 * Return a string corresponding to the given attribute name.

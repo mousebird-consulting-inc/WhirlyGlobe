@@ -17,6 +17,14 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_AttrDictionary_parseFromJSON
 
 /*
  * Class:     com_mousebird_maply_AttrDictionary
+ * Method:    hasField
+ * Signature: (Ljava/lang/String;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_AttrDictionary_hasField
+  (JNIEnv *, jobject, jstring);
+
+/*
+ * Class:     com_mousebird_maply_AttrDictionary
  * Method:    getString
  * Signature: (Ljava/lang/String;)Ljava/lang/String;
  */

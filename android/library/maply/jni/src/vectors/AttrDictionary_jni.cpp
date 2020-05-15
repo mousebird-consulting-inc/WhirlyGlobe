@@ -105,6 +105,28 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_AttrDictionary_parseFromJSON
 	return true;
 }
 
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_AttrDictionary_hasField
+		(JNIEnv *env, jobject obj, jstring attrNameStr)
+{
+	try
+	{
+		AttrDictClassInfo *classInfo = AttrDictClassInfo::getClassInfo();
+		MutableDictionary_AndroidRef *dict = classInfo->getObject(env,obj);
+		if (!dict)
+			return false;
+
+		JavaString attrName(env,attrNameStr);
+
+		return (*dict)->hasField(attrName.cStr);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Dictionary::hasField()");
+	}
+
+	return false;
+}
+
 JNIEXPORT jstring JNICALL Java_com_mousebird_maply_AttrDictionary_getString
   (JNIEnv *env, jobject obj, jstring attrNameStr)
 {
