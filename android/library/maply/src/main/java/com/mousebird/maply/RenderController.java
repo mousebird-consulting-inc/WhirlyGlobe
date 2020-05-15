@@ -95,6 +95,7 @@ public class RenderController implements RenderControllerInterface
     // Construct a new render control based on an existing one
     public RenderController(RenderController baseControl,int width,int height)
     {
+        frameSize = new Point2d(width,height);
         setConfig(baseControl, null);
 
         // Set up our own EGL context for offline work
@@ -1819,6 +1820,13 @@ public class RenderController implements RenderControllerInterface
     {
     }
 
+    // Render to and return a Bitmap
+    public Bitmap renderToBitmap() {
+        Bitmap bitmap = Bitmap.createBitmap((int)frameSize.getX(), (int)frameSize.getY(), Bitmap.Config.ARGB_8888);
+        renderToBitmapNative(bitmap);
+        return bitmap;
+    }
+
     public native void setScene(Scene scene);
     public native void setupShadersNative();
     public native void setViewNative(View view);
@@ -1830,7 +1838,7 @@ public class RenderController implements RenderControllerInterface
     public native void setPerfInterval(int perfInterval);
     public native void addLight(DirectionalLight light);
     public native void replaceLights(DirectionalLight[] lights);
-    public native Bitmap renderToBitmap();
+    protected native void renderToBitmapNative(Bitmap outBitmap);
 
     public void finalize()
     {

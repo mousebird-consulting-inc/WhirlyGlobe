@@ -18,6 +18,7 @@
  *
  */
 
+#import <android/bitmap.h>
 #import "Renderer_jni.h"
 #import "Scene_jni.h"
 #import "View_jni.h"
@@ -363,6 +364,51 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_render
             else
                 renderer->extraFrameCount--;
 		}
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in RenderController::render()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_renderToBitmapNative
+        (JNIEnv *env, jobject obj, jobject bitmapObj)
+{
+	try
+	{
+		SceneRendererGLES_Android *renderer = SceneRendererInfo::getClassInfo()->getObject(env,obj);
+		if (!renderer)
+			return;
+
+		/// TODO: Make sure this is actually what we're using
+		renderer->forceDrawNextFrame();
+		renderer->render(1/60.0);
+
+		// Read out the results
+		auto size = renderer->getFramebufferSize();
+		int width = size.x(), height = size.y();
+		uint32_t data[width*height];
+
+		void* bitmapPixels;
+		if (AndroidBitmap_lockPixels(env, bitmapObj, &bitmapPixels) < 0)
+			return;
+        glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, bitmapPixels);
+		AndroidBitmap_unlockPixels(env, bitmapObj);
+
+//		for (int i=0, k=0; i<h; i++, k++) {
+//			// remember, that OpenGL bitmap is incompatible with Android bitmap
+//			// and so, some correction need.
+//			for (int j=0; j<w; j++) {
+//				int pix = b[i*w+j];
+//				int pb = (pix>>16) & 0xff;
+//				int pr = (pix<<16) & 0x00ff0000;
+//				int pix1 = (pix & 0xff00ff00) | pr | pb;
+//				bt[(h-k-1)*w+j] = pix1;
+//			}
+//		}
+//
+//		return Bitmap.createBitmap(bt, w, h, Bitmap.Config.ARGB_8888);
+
 	}
 	catch (...)
 	{

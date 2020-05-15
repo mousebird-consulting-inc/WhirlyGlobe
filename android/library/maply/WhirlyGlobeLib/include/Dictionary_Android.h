@@ -31,7 +31,10 @@ namespace WhirlyKit
 class MutableDictionary_Android;
 typedef std::shared_ptr<MutableDictionary_Android> MutableDictionary_AndroidRef;
 
-    /// The Dictionary is my cross platform replacement for NSDictionary
+class DictionaryEntry_Android;
+typedef std::shared_ptr<DictionaryEntry_Android> DictionaryEntry_AndroidRef;
+
+/// The Dictionary is my cross platform replacement for NSDictionary
 class MutableDictionary_Android : public MutableDictionary
 {
 public:
@@ -101,6 +104,12 @@ public:
     void setDouble(const std::string &name,double val);
     /// Set field as string
     void setString(const std::string &name,const std::string &val);
+    /// Set the dictionary at the given attribute name
+    void setDict(const std::string &name,MutableDictionary_AndroidRef dict);
+    /// Set the entry at the given attribute name
+    void setEntry(const std::string &name,DictionaryEntry_AndroidRef entry);
+    /// Set the array at the given attribute name
+    void setArray(const std::string &name,std::vector<DictionaryEntryRef> &entries);
     /// Set field as pointer
     void setObject(const std::string &name,DelayedDeletableRef obj);
     
@@ -112,6 +121,9 @@ public:
 
     // Merge in key-value pairs from another dictionary
     void addEntries(const Dictionary *other);
+
+    // Make a generic ValueRef from a generic entry (yeah, they're different
+    static ValueRef makeValueRef(DictionaryEntry_AndroidRef entry);
 
     class Value
     {
@@ -234,6 +246,7 @@ public:
         ArrayValue() { }
         ~ArrayValue() { }
         ArrayValue(std::vector<ValueRef> &inVal) : val(inVal) { }
+        ArrayValue(std::vector<DictionaryEntryRef> &inVal);
 
         virtual DictionaryType type() { return DictTypeArray; }
         virtual ValueRef copy() { return ValueRef(new ArrayValue(val)); }
@@ -255,7 +268,9 @@ protected:
 class DictionaryEntry_Android : public DictionaryEntry
 {
 public:
+    DictionaryEntry_Android() : type(DictTypeNone) { };
     DictionaryEntry_Android(MutableDictionary_Android::ValueRef val) : val(val) { type = val->type(); }
+    DictionaryEntry_Android &operator = (const DictionaryEntry_Android &that) { val = that.val;  type = that.type; return *this; }
 
     /// Returns the field type
     virtual DictionaryType getType() const;
@@ -282,6 +297,5 @@ protected:
     DictionaryType type;
     MutableDictionary_Android::ValueRef val;
 };
-typedef std::shared_ptr<DictionaryEntry_Android> DictionaryEntry_AndroidRef;
 
 }

@@ -84,6 +84,15 @@ DictionaryRef MutableDictionary_Android::DictionaryValue::asDict()
 {
     return val;
 }
+
+MutableDictionary_Android::ArrayValue::ArrayValue(std::vector<DictionaryEntryRef> &entries)
+{
+    for (auto entry: entries) {
+        ValueRef valRef = makeValueRef(std::dynamic_pointer_cast<DictionaryEntry_Android>(entry));
+        if (valRef)
+            val.push_back(valRef);
+    }
+}
     
 MutableDictionaryRef MutableDictionary_Android::copy()
 {
@@ -475,6 +484,65 @@ void MutableDictionary_Android::setString(const std::string &name,const std::str
     StringValue *sVal = new StringValue();
     sVal->val = val;
     fields[name] = ValueRef(sVal);
+}
+
+void MutableDictionary_Android::setDict(const std::string &name,MutableDictionary_AndroidRef dict)
+{
+    removeField(name);
+
+    DictionaryValue *dVal = new DictionaryValue();
+    dVal->val = dict;
+    fields[name] = ValueRef(dVal);
+}
+
+MutableDictionary_Android::ValueRef MutableDictionary_Android::makeValueRef(DictionaryEntry_AndroidRef entry)
+{
+    Value *value = NULL;
+
+    switch(entry->getType()) {
+        case DictTypeNone:
+        default:
+        case DictTypeArray: {
+            std::vector<DictionaryEntryRef> entries;
+            for (auto thisEntry: entry->getArray()) {
+                entries.push_back(thisEntry);
+            }
+            value = new ArrayValue(entries);
+        }
+            break;
+        case DictTypeDictionary:
+            value = new DictionaryValue(std::dynamic_pointer_cast<MutableDictionary_Android>(entry->getDict()));
+            break;
+        case DictTypeIdentity:
+            value = new IdentityValue(entry->getIdentity());
+            break;
+        case DictTypeInt:
+            value = new IntValue(entry->getInt());
+            break;
+        case DictTypeDouble:
+            value = new DoubleValue(entry->getDouble());
+            break;
+        case DictTypeString:
+            value = new StringValue(entry->getString());
+            break;
+    }
+
+    return ValueRef(value);
+}
+
+void MutableDictionary_Android::setEntry(const std::string &name,DictionaryEntry_AndroidRef entry)
+{
+    removeField(name);
+
+    fields[name] = makeValueRef(entry);
+}
+
+void MutableDictionary_Android::setArray(const std::string &name,std::vector<DictionaryEntryRef> &entries)
+{
+    removeField(name);
+
+    ArrayValue *aVal = new ArrayValue(entries);
+    fields[name] = ValueRef(aVal);
 }
     
 void MutableDictionary_Android::setObject(const std::string &name, DelayedDeletableRef obj)
