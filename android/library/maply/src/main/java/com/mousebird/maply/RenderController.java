@@ -128,6 +128,7 @@ public class RenderController implements RenderControllerInterface
         Mbr extents = new Mbr(new Point2d(ll.getX(),ll.getY()),new Point2d(ur.getX(),ur.getY()));
         flatView.setExtents(extents);
         flatView.setWindow(new Point2d(width,height),new Point2d(0.0,0.0));
+        view = flatView;
 
         scene = new Scene(coordAdapter,this);
 
@@ -145,6 +146,11 @@ public class RenderController implements RenderControllerInterface
 
         // This will properly wire things up
         Init(scene,coordAdapter,taskMan);
+        setScene(scene);
+        setView(view);
+
+        // Need all the default shaders
+        setupShadersNative();
     }
 
     /**

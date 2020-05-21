@@ -392,7 +392,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_renderToBitmapN
 		void* bitmapPixels;
 		if (AndroidBitmap_lockPixels(env, bitmapObj, &bitmapPixels) < 0)
 			return;
-        glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, bitmapPixels);
+		// Set to blank white
+		unsigned int *pix = (unsigned int *)bitmapPixels;
+		for (unsigned int ii=0;ii<width*height;ii++,++pix) {
+			*pix = 0xffffffff;
+		}
+//        glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, bitmapPixels);
 		AndroidBitmap_unlockPixels(env, bitmapObj);
 
 //		for (int i=0, k=0; i<h; i++, k++) {

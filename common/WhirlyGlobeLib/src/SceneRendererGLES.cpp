@@ -548,8 +548,10 @@ void SceneRendererGLES::render(TimeInterval duration)
                 
                 // Figure out the program to use for drawing
                 SimpleIdentity drawProgramId = drawContain.drawable->getProgram();
-                if (drawProgramId == EmptyIdentity)
-                    drawProgramId = 3;
+                if (drawProgramId == EmptyIdentity) {
+                    wkLogLevel(Error, "Drawable missing program ID.  Skipping.");
+                    continue;
+                }
                 if (drawProgramId != curProgramId)
                 {
                     curProgramId = drawProgramId;
@@ -565,6 +567,9 @@ void SceneRendererGLES::render(TimeInterval duration)
                         program->setUniform(u_numLightsNameID, (int)lights.size());
                         
                         baseFrameInfo.program = program;
+                    } else {
+                        wkLogLevel(Error, "Missing OpenGL ES Program.");
+                        continue;
                     }
                 }
                 if (drawProgramId == EmptyIdentity)
