@@ -140,12 +140,18 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
         // If we have a tile renderer, draw the data into that
         Bitmap tileBitmap = null;
         if (tileRender != null) {
-            Mbr imageBounds = new Mbr(new Point2d(0.0,0.0), tileRender.frameSize);
-            VectorTileData imageTileData = new VectorTileData(tileID,imageBounds,imageBounds);
             synchronized (tileRender) {
+                Mbr imageBounds = new Mbr(new Point2d(0.0,0.0), tileRender.frameSize);
+                VectorTileData imageTileData = new VectorTileData(tileID,imageBounds,locBounds);
+
+                // Need to activate the renderer, add the data, enable the objects and then clean it all up
+                tileRender.setEGLContext(null);
                 imageParser.parseData(data,imageTileData);
                 imageTileData.getChangeSet().process(tileRender,tileRender.getScene());
+                tileRender.enableObjects(imageTileData.getComponentObjects(), RenderControllerInterface.ThreadMode.ThreadCurrent);
                 tileBitmap = tileRender.renderToBitmap();
+                tileRender.removeObjects(imageTileData.getComponentObjects(), RenderControllerInterface.ThreadMode.ThreadCurrent);
+                tileRender.clearContext();
             }
         }
 

@@ -115,6 +115,8 @@ public class RenderController implements RenderControllerInterface
                 };
         offlineGLContext.eglSurface = egl.eglCreatePbufferSurface(display, config, surface_attrs);
 
+        setEGLContext(offlineGLContext);
+
         initialise(width,height);
 
         // Set up a passthrough coordinate system, view, and so on
@@ -151,6 +153,8 @@ public class RenderController implements RenderControllerInterface
 
         // Need all the default shaders
         setupShadersNative();
+
+        clearContext();
     }
 
     /**
@@ -1612,10 +1616,24 @@ public class RenderController implements RenderControllerInterface
      */
     public void enableObjects(final List<ComponentObject> compObjs,ThreadMode mode)
     {
-        if (compObjs == null || compObjs.size() == 0)
+        if (compObjs == null)
             return;
 
         final ComponentObject[] localCompObjs = compObjs.toArray(new ComponentObject[compObjs.size()]);
+        enableObjects(localCompObjs,mode);
+    }
+
+    /**
+     * Enable the display for the given objects.  These objects were returned
+     * by the various add calls.  To disable the display, call disableObjects().
+     *
+     * @param compObjs Objects to enable disable.
+     * @param mode Where to execute the enable.  Choose ThreadAny by default.
+     */
+    public void enableObjects(final ComponentObject[] compObjs,ThreadMode mode) {
+        if (compObjs.length == 0)
+            return;
+
         final RenderController renderControl = this;
 
         Runnable run =
@@ -1625,7 +1643,7 @@ public class RenderController implements RenderControllerInterface
                     public void run()
                     {
                         ChangeSet changes = new ChangeSet();
-                        for (ComponentObject compObj : localCompObjs)
+                        for (ComponentObject compObj : compObjs)
                             if (compObj != null)
                                 componentManager.enableComponentObject(compObj,true,changes);
                         if (scene != null)
@@ -1645,8 +1663,23 @@ public class RenderController implements RenderControllerInterface
      */
     public void removeObjects(final List<ComponentObject> compObjs,ThreadMode mode)
     {
-        if (compObjs == null || compObjs.size() == 0)
+        if (compObjs == null)
             return;
+
+        removeObjects(compObjs.toArray(new ComponentObject[0]),mode);
+    }
+
+    /**
+     * Remove the given component objects from the display.  This will permanently remove them
+     * from Maply.  The component objects were returned from the various add calls.
+     *
+     * @param compObjs Component Objects to remove.
+     * @param mode Where to execute the remove.  Choose ThreadAny by default.
+     */
+    public void removeObjects(final ComponentObject[] compObjs,ThreadMode mode) {
+        if (compObjs.length == 0)
+            return;
+
         final RenderController renderControl = this;
 
         Runnable run = new Runnable()
@@ -1656,7 +1689,7 @@ public class RenderController implements RenderControllerInterface
             {
                 ChangeSet changes = new ChangeSet();
 
-                componentManager.removeComponentObjects(compObjs.toArray(new ComponentObject[0]),changes,disposeAfterRemoval);
+                componentManager.removeComponentObjects(compObjs,changes,disposeAfterRemoval);
 
                 if (scene != null)
                     changes.process(renderControl,scene);
@@ -1826,10 +1859,24 @@ public class RenderController implements RenderControllerInterface
     {
     }
 
-    // Render to and return a Bitmap
+    /**
+     * In offline render mode, clear the context
+     * Only do this if you're working in offline mode
+     */
+    public void clearContext()
+    {
+        EGL10 egl = (EGL10) EGLContext.getEGL();
+        egl.eglMakeCurrent(display, egl.EGL_NO_SURFACE, egl.EGL_NO_SURFACE, egl.EGL_NO_CONTEXT);
+    }
+
+    /**
+     * Render to and return a Bitmap
+     * You should have already set the context at this point
+     */
     public Bitmap renderToBitmap() {
         Bitmap bitmap = Bitmap.createBitmap((int)frameSize.getX(), (int)frameSize.getY(), Bitmap.Config.ARGB_8888);
         renderToBitmapNative(bitmap);
+
         return bitmap;
     }
 

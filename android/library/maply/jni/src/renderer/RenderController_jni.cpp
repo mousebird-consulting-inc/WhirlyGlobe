@@ -380,40 +380,43 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_renderToBitmapN
 		if (!renderer)
 			return;
 
-		/// TODO: Make sure this is actually what we're using
+        Snapshot_AndroidImplRef snapshot(new Snapshot_AndroidImpl(EmptyIdentity));
+		renderer->addSnapshotDelegate(snapshot);
+
 		renderer->forceDrawNextFrame();
 		renderer->render(1/60.0);
 
-		// Read out the results
+		// Framebuffer info
 		auto size = renderer->getFramebufferSize();
 		int width = size.x(), height = size.y();
-		uint32_t data[width*height];
 
-		void* bitmapPixels;
-		if (AndroidBitmap_lockPixels(env, bitmapObj, &bitmapPixels) < 0)
-			return;
-		// Set to blank white
-		unsigned int *pix = (unsigned int *)bitmapPixels;
-		for (unsigned int ii=0;ii<width*height;ii++,++pix) {
-			*pix = 0xffffffff;
+		if (snapshot->data) {
+			// Make sure sizes match
+			AndroidBitmapInfo bitmapInfo;
+			AndroidBitmap_getInfo(env, bitmapObj, &bitmapInfo);
+			if (width != bitmapInfo.width || height != bitmapInfo.height) {
+				wkLogLevel(Warn,"Failed to snapshot in RenderController:renderToBitmapNative() due to size.");
+
+				renderer->removeSnapshotDelegate(snapshot);
+				return;
+			}
+
+			// Copy the data
+			void* bitmapPixels;
+			if (AndroidBitmap_lockPixels(env, bitmapObj, &bitmapPixels) < 0) {
+				wkLogLevel(Warn,"Failed to snapshot in RenderController:renderToBitmapNative() because of lockPiels.");
+
+				renderer->removeSnapshotDelegate(snapshot);
+				return;
+			}
+			memmove(bitmapPixels,snapshot->data->getRawData(),snapshot->data->getLen());
+
+			AndroidBitmap_unlockPixels(env, bitmapObj);
+		} else {
+			wkLogLevel(Warn,"Failed to snapshot in RenderController:renderToBitmapNative()");
 		}
-//        glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, bitmapPixels);
-		AndroidBitmap_unlockPixels(env, bitmapObj);
 
-//		for (int i=0, k=0; i<h; i++, k++) {
-//			// remember, that OpenGL bitmap is incompatible with Android bitmap
-//			// and so, some correction need.
-//			for (int j=0; j<w; j++) {
-//				int pix = b[i*w+j];
-//				int pb = (pix>>16) & 0xff;
-//				int pr = (pix<<16) & 0x00ff0000;
-//				int pix1 = (pix & 0xff00ff00) | pr | pb;
-//				bt[(h-k-1)*w+j] = pix1;
-//			}
-//		}
-//
-//		return Bitmap.createBitmap(bt, w, h, Bitmap.Config.ARGB_8888);
-
+		renderer->removeSnapshotDelegate(snapshot);
 	}
 	catch (...)
 	{
