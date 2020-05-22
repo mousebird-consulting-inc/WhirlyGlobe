@@ -197,7 +197,7 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
             compObj->wideVectorIDs.insert(wideVecID);
     }
     
-    if (!compObj->vectorIDs.empty()) {
+    if (!compObj->wideVectorIDs.empty()) {
         styleSet->compManage->addComponentObject(compObj);
         tileInfo->compObjs.push_back(compObj);
     }
