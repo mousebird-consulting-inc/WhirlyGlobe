@@ -21,6 +21,7 @@
 package com.mousebird.maply;
 
 import android.graphics.Bitmap;
+import android.graphics.Color;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -146,6 +147,8 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
 
                 // Need to activate the renderer, add the data, enable the objects and then clean it all up
                 tileRender.setEGLContext(null);
+//                tileRender.setClearColor(imageStyleGen.backgroundColorForZoom(tileID.level));
+                tileRender.setClearColor(Color.RED);
                 imageParser.parseData(data,imageTileData);
                 imageTileData.getChangeSet().process(tileRender,tileRender.getScene());
                 tileRender.enableObjects(imageTileData.getComponentObjects(), RenderControllerInterface.ThreadMode.ThreadCurrent);

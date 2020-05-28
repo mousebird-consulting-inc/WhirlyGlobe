@@ -230,4 +230,9 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
     {
         return stylesByLayerName.values().toArray(new VectorStyle[0]);
     }
+
+    @Override
+    public int backgroundColorForZoom(double zoom) {
+        return Color.BLACK;
+    }
 }

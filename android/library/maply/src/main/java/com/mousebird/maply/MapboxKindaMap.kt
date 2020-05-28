@@ -357,7 +357,7 @@ public open class MapboxKindaMap {
             if (!backgroundAllPolys) {
                 sampleParams.setForceMinLevel(false)
             }
-            if (control.get() is GlobeController) {
+            if (control?.get() is GlobeController) {
                 sampleParams.coverPoles = true
                 sampleParams.edgeMatching = true
             } else {
@@ -419,7 +419,7 @@ public open class MapboxKindaMap {
             vectorStyleDict.setArray("layers",newVectorLayers.toTypedArray())
             styleSheetVector = MapboxVectorStyleSet(vectorStyleDict, styleSettings, theControl.activity.resources.displayMetrics, theControl)
 
-            if (control !is GlobeController) {
+            if (control?.get() !is GlobeController) {
                 // Set the background clear to the color at level 0
                 // TODO: Make this change by level
                 val color = styleSheetVector?.backgroundColorForZoom(0.0)

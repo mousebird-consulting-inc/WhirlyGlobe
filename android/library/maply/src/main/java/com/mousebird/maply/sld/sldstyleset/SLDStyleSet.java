@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import android.content.res.AssetManager;
+import android.graphics.Color;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
@@ -186,4 +187,7 @@ public class SLDStyleSet implements VectorStyleInterface {
     {
         return stylesByUUID.values().toArray(new VectorStyle[0]);
     }
+
+    @Override
+    public int backgroundColorForZoom(double zoom) { return Color.BLACK; }
 }
