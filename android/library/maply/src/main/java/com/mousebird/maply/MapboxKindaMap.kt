@@ -22,7 +22,7 @@ import java.net.URL
  * Set the various settings before it gets going to modify how it works.
  * Callbacks control various pieces that might need to be intercepted.
  */
-class MapboxKindaMap {
+public open class MapboxKindaMap {
     var styleURL : Uri? = null
     var control : WeakReference<BaseController>? = null
 
@@ -45,7 +45,7 @@ class MapboxKindaMap {
      * For example, if you want to load from the bundle, but not have to change
      *  anything in the style sheet, just do this
      */
-    public fun mapboxURLFor(file: Uri) : Uri {
+    public open fun mapboxURLFor(file: Uri) : Uri {
         return file
     }
 
@@ -53,7 +53,7 @@ class MapboxKindaMap {
      *  font name in the style.  Font names in the style often don't map
      *  directly to local font names.
      */
-    public fun mapboxFontFor(name: String) : String {
+    public open fun mapboxFontFor(name: String) : String {
         return name
     }
 
@@ -66,6 +66,13 @@ class MapboxKindaMap {
     constructor(styleURL: Uri, control: BaseController) {
         this.control = WeakReference<BaseController>(control)
         this.styleURL = styleURL
+        styleSettings.baseDrawPriority = QuadImageLoaderBase.BaseDrawPriorityDefault
+        styleSettings.drawPriorityPerLevel = 1
+    }
+
+    constructor(styleJSON: String, control: BaseController) {
+        this.control = WeakReference<BaseController>(control)
+        this.styleSheetJSON = styleJSON
         styleSettings.baseDrawPriority = QuadImageLoaderBase.BaseDrawPriorityDefault
         styleSettings.drawPriorityPerLevel = 1
     }
@@ -158,28 +165,30 @@ class MapboxKindaMap {
             return null
 
         // It's already local
-        if (url.toFile().exists())
+        if (url.scheme == "file" && url.toFile().exists())
             return url.toFile()
 
         // Make up a cache name from the URL
-        val cacheName = url.toString().replace("/","_").replace(":","_")
+        val cacheName = url.toString().replace("/","_").replace(":","_").replace("?","_").replace(".","_")
         return File(theCacheDir,cacheName)
     }
 
     // Write a file to cache if appropriate
     protected fun cacheFile(url: Uri, data: ByteArray) {
         // If there's no cache dir or the file is local, don't cache
-        if (cacheDir == null || url.toFile().exists())
+        if (cacheDir == null || (url.scheme == "file" && url.toFile().exists()))
             return
 
-        val theCacheName = cacheName(url)
-
         try {
+            val theCacheName = cacheName(url)
+            cacheDir?.mkdirs()
+
             val fOut: OutputStream
             fOut = FileOutputStream(theCacheName)
             fOut.write(data)
             fOut.close()
         } catch (e: Exception) {
+            Log.w("Maply", "Failed to cache file $e")
         }
     }
 
@@ -189,89 +198,108 @@ class MapboxKindaMap {
      * Then it'll start the actual loader.
      */
     public fun start() {
-        val theStyleURL = styleURL
         val theControl = control?.get()
-        if (theControl == null || theStyleURL == null)
+        if (theControl == null)
             return
 
-        // Dev might be overriding the source
-        val resolvedURL = cacheResolve(mapboxURLFor(theStyleURL))
+        if (styleSheetJSON != null) {
+            // Style sheet is already loaded, so skip that part
+            processStyleSheet()
+        } else {
+            val theStyleURL = styleURL
+            if (theStyleURL == null)
+                return
+            // Dev might be overriding the source
+            val resolvedURL = cacheResolve(mapboxURLFor(theStyleURL))
 
-        // Go get the style sheet (this will also handle local)
-        val client = theControl.getHttpClient()
-        val builder = Request.Builder().url(resolvedURL)
-        val task = client.newCall(builder.build())
-        addTask(task)
-        task.enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                Log.w("Maply", "Error fetching style sheet: \n$e")
+            // Go get the style sheet (this will also handle local)
+            val client = theControl.getHttpClient()
+            val builder = Request.Builder().url(resolvedURL)
+            val task = client.newCall(builder.build())
+            addTask(task)
+            task.enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    Log.w("Maply", "Error fetching style sheet: \n$e")
 
-                stop()
-            }
-
-            @Throws(IOException::class)
-            override fun onResponse(call: Call, response: Response) {
-                if (finished)
-                    return
-
-                val jsonStr = response.body()?.string()
-                if (jsonStr == null) {
-                    Log.w("Maply", "Error parsing style sheet")
-                    return
-                }
-                val styleSheet = MapboxVectorStyleSet(jsonStr, styleSettings, theControl.activity.resources.displayMetrics, theControl)
-                styleSheetJSON = jsonStr
-                cacheFile(theStyleURL, response.body()!!.bytes())
-
-                // Fetch what we need to for the sources
-                var success = true
-                styleSheet.sources.forEach {
-                    val source = it
-                    // If the tile spec isn't embedded, we need to go get it
-                    if (source.tileSpec == null && success) {
-                        if (source.url.isEmpty()) {
-                            Log.w("Maply", "Expecting either URL or tile info for a source.  Giving up.")
-                            success = false
-                        }
-                        val url = cacheResolve(mapboxURLFor(Uri.parse(source.url)))
-
-                        // Go fetch the TileJSON
-                        val builder2 = Request.Builder().url(url)
-                        val task2 = client.newCall(builder2.build())
-                        addTask(task2)
-                        task2.enqueue(object : Callback {
-                            override fun onFailure(call: Call, e: IOException) {
-                                Log.w("Maply", "Error trying to fetch tileJson: \n$e")
-
-                                stop()
-                            }
-
-                            override fun onResponse(call: Call, response: Response) {
-                                val jsonStr2 = response.body()?.string()
-                                val resp = AttrDictionary()
-                                resp.parseFromJSON(jsonStr2)
-                                source.tileSpec = resp
-
-                                cacheFile(Uri.parse(url.toString()),response.body()!!.bytes())
-
-                                clearTask(task2)
-                                checkFinished()
-                            }
-                        })
-                    }
-                }
-
-                if (!success)
                     stop()
+                }
 
-                clearTask(task)
-                checkFinished()
-            }
-        })
+                @Throws(IOException::class)
+                override fun onResponse(call: Call, response: Response) {
+                    if (finished)
+                        return
+
+                    val jsonStr = response.body()?.string()
+                    if (jsonStr == null) {
+                        Log.w("Maply", "Error parsing style sheet")
+                        return
+                    }
+                    styleSheetJSON = jsonStr
+                    cacheFile(theStyleURL, response.body()!!.bytes())
+
+                    processStyleSheet()
+
+                    clearTask(task)
+                    checkFinished()
+                }
+            })
+        }
 
         // TODO: Look for the sprite sheets
 
         checkFinished()
+    }
+
+    // Style sheet has been loaded
+    fun processStyleSheet() {
+        val theControl = control?.get()
+        if (theControl == null || (styleURL == null && styleSheetJSON == null))
+            return
+        val client = theControl.getHttpClient()
+        styleSheet = MapboxVectorStyleSet(styleSheetJSON, styleSettings, theControl.activity.resources.displayMetrics, theControl)
+
+        // Fetch what we need to for the sources
+        var success = true
+        styleSheet?.sources?.forEach {
+            val source = it
+            // If the tile spec isn't embedded, we need to go get it
+            if (source.tileSpec == null && success) {
+                if (source.url.isEmpty()) {
+                    Log.w("Maply", "Expecting either URL or tile info for a source.  Giving up.")
+                    success = false
+                }
+                val newURI = Uri.parse(source.url)
+                val url = cacheResolve(mapboxURLFor(newURI))
+
+                // Go fetch the TileJSON
+                val builder2 = Request.Builder().url(url)
+                val task2 = client.newCall(builder2.build())
+                addTask(task2)
+                task2.enqueue(object : Callback {
+                    override fun onFailure(call: Call, e: IOException) {
+                        Log.w("Maply", "Error trying to fetch tileJson: \n$e")
+
+                        stop()
+                    }
+
+                    override fun onResponse(call: Call, response: Response) {
+                        val jsonStr2 = response.body()?.string()
+                        val resp = AttrDictionary()
+                        resp.parseFromJSON(jsonStr2)
+                        source.tileSpec = resp
+
+                        val newUri = Uri.parse(url.toString())
+                        cacheFile(newUri,response.body()!!.bytes())
+
+                        clearTask(task2)
+                        checkFinished()
+                    }
+                })
+            }
+        }
+
+        if (!success)
+            stop()
     }
 
     // Everything has been fetched, so fire up the loader
@@ -309,7 +337,9 @@ class MapboxKindaMap {
                     val tileSrc = tiles.get(0).string
                     val tileSource = RemoteTileInfoNew(tileSrc, source.tileSpec.getInt("minzoom"), source.tileSpec.getInt("maxzoom"))
                     if (cacheDir != null) {
-                        tileSource.cacheDir = File(cacheDir!!,tileSrc.replace("/","_").replace(":","_"))
+                        tileSource.cacheDir = File(cacheDir!!,tileSrc.replace("/","_").
+                                        replace(":","_").replace("?","_").replace(".","_").
+                                        replace("{","_").replace("}","_"))
                     }
                     tileInfos.add(tileSource)
                 } else {
@@ -369,7 +399,7 @@ class MapboxKindaMap {
                     }
                 }
                 imageStyleDict.setArray("layers",newImageLayers.toTypedArray())
-                styleSheetImage = MapboxVectorStyleSet(imageStyleDict, styleSettings, theControl.activity.resources.displayMetrics, theControl)
+                styleSheetImage = MapboxVectorStyleSet(imageStyleDict, styleSettings, theControl.activity.resources.displayMetrics, offlineRender)
             }
 
             // We only want the polygons in the image
