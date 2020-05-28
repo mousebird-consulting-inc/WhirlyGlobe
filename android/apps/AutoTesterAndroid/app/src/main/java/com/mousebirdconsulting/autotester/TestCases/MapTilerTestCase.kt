@@ -2,6 +2,7 @@ package com.mousebirdconsulting.autotester.TestCases
 
 import android.app.Activity
 import android.graphics.Color
+import android.net.Uri
 import com.mousebird.maply.*
 import com.mousebirdconsulting.autotester.ConfigOptions
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase
@@ -15,60 +16,34 @@ class MapTilerTestCase : MaplyTestCase {
         implementation = TestExecutionImplementation.Both
     }
 
-    var loader: QuadPagingLoader? = null
-    var polyStyle: VectorStyleSimpleGenerator? = null
-    var interp: MapboxVectorInterpreter? = null
-//    var lineStyleGen: VectorStyleSimpleGenerator? = null
-//    var tileRenderer: RenderController? = null
+    var map: MapboxKindaMap? = null
 
     // Set up the loader (and all the stuff it needs) for the map tiles
     fun setupLoader(control: BaseController, testType: ConfigOptions.TestType) {
         val assetMgr = getActivity().assets
         val stream = assetMgr.open("maptiler_basic.json")
         var polyStyle: MapboxVectorStyleSet?
+
+        // Maptiler token
+        // Go to maptiler.com, setup an account and get your own
+        val token = "GetYerOwnToken"
+
         try {
             val json = Okio.buffer(Okio.source(stream)).readUtf8()
-            polyStyle = MapboxVectorStyleSet(json, null, control.getActivity().resources.displayMetrics, control)
+            map = object: MapboxKindaMap(json,control) {
+                override fun mapboxURLFor(file: Uri): Uri {
+                    val str = file.toString()
+                    return Uri.parse(str.replace("MapTilerKey",token))
+                }
+            }
+            if (map == null)
+                return
+            map?.backgroundAllPolys = true
+            map?.start()
         }
         catch (e: IOException) {
             return
         }
-
-        // Ya basic, MapTiler
-        val cacheDirName = "maptiler-basic"
-        val cacheDir = File(getActivity().cacheDir, cacheDirName)
-        cacheDir.mkdir()
-
-        val tileInfo = RemoteTileInfoNew("https://api.maptiler.com/tiles/v3/{z}/{x}/{y}.pbf?key=8iZUKgsBTIFhFIZjA5lm",
-                0, 14)
-        tileInfo.cacheDir = cacheDir
-
-        // Sampling params define how the globe is broken up, including the depth
-        var params = SamplingParams()
-        params.coordSystem = SphericalMercatorCoordSystem()
-        params.minImportanceTop = 0.0
-        params.minImportance = 1024.0 * 1024.0
-        params.singleLevel = true
-        params.minZoom = tileInfo.minZoom
-        params.maxZoom = tileInfo.maxZoom
-        if (testType == ConfigOptions.TestType.GlobeTest) {
-            params.coverPoles = true
-            params.edgeMatching = true
-        }
-
-        // Need a standalone renderer
-//        tileRenderer = RenderController(512,512)
-
-        // The interpreter renders some of the data into images and overlays the rest
-//        interp = MapboxVectorInterpreter(polyStyle, tileRenderer, polyStyle, control)
-        interp = MapboxVectorInterpreter(null, null, polyStyle, control)
-
-        // Finally the loader asks for tiles
-        loader = QuadPagingLoader(params, tileInfo, interp, control)
-//        loader = QuadImageLoader(params,tileInfo,control)
-        loader?.setLoaderInterpreter(interp)
-
-        control.setClearColor(polyStyle.backgroundColorForZoom(0.0))
     }
 
     override fun setUpWithGlobe(globeVC: GlobeController?): Boolean {

@@ -357,7 +357,7 @@ public open class MapboxKindaMap {
             if (!backgroundAllPolys) {
                 sampleParams.setForceMinLevel(false)
             }
-            if (control is GlobeController) {
+            if (control.get() is GlobeController) {
                 sampleParams.coverPoles = true
                 sampleParams.edgeMatching = true
             } else {
@@ -400,6 +400,7 @@ public open class MapboxKindaMap {
                 }
                 imageStyleDict.setArray("layers",newImageLayers.toTypedArray())
                 styleSheetImage = MapboxVectorStyleSet(imageStyleDict, styleSettings, theControl.activity.resources.displayMetrics, offlineRender)
+                offlineRender.setClearColor(styleSheetImage!!.backgroundColorForZoom(0.0))
             }
 
             // We only want the polygons in the image
