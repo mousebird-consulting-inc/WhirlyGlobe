@@ -75,8 +75,10 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
         vc = new WeakReference<BaseController>(inVC);
 
         parser = new MapboxVectorTileParser(styleGen,inVC);
-        if (inTileRender != null)
-            imageParser = new MapboxVectorTileParser(imageStyleGen,inTileRender);
+        if (inTileRender != null) {
+            imageParser = new MapboxVectorTileParser(imageStyleGen, inTileRender);
+            imageParser.setLocalCoords(true);
+        }
     }
 
     WeakReference<QuadPagingLoader> objectLoader;

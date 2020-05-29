@@ -81,6 +81,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorTileParser_dispose
     }
 }
 
+JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorTileParser_setLocalCoords
+        (JNIEnv *env, jobject obj, jboolean localCoords)
+{
+    try {
+        MapboxVectorTileParser *inst = MapboxVectorTileParserClassInfo::getClassInfo()->getObject(
+                env, obj);
+        if (!obj)
+            return;
+        inst->localCoords = localCoords;
+    }
+    catch (...) {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply",
+                            "Crash in MapboxVectorTileParser::setLocalCoords()");
+    }
+}
+
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_MapboxVectorTileParser_parseDataNative
         (JNIEnv *env, jobject obj, jbyteArray data, jobject vecTileDataObj)
 {

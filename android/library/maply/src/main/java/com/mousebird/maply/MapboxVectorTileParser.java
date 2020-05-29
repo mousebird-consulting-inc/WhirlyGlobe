@@ -98,6 +98,9 @@ public class MapboxVectorTileParser
 
     native boolean parseDataNative(byte[] data,VectorTileData tileData);
 
+    /// If set, we'll parse into local coordinates as specified by the bounding box, rather than geo coords
+    native void setLocalCoords(boolean localCoords);
+
     public void finalize()
     {
         dispose();
