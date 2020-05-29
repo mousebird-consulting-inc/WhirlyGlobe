@@ -404,12 +404,28 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_renderToBitmapN
 			// Copy the data
 			void* bitmapPixels;
 			if (AndroidBitmap_lockPixels(env, bitmapObj, &bitmapPixels) < 0) {
-				wkLogLevel(Warn,"Failed to snapshot in RenderController:renderToBitmapNative() because of lockPiels.");
+				wkLogLevel(Warn,"Failed to snapshot in RenderController:renderToBitmapNative() because of lockPixels.");
 
 				renderer->removeSnapshotDelegate(snapshot);
 				return;
 			}
-			memmove(bitmapPixels,snapshot->data->getRawData(),snapshot->data->getLen());
+
+			// Convert pixels to Bitmap order
+			int *b = (int *)snapshot->data->getRawData();
+			int *bt = (int *)bitmapPixels;
+			for(int i=0, k=0; i<height; i++, k++)
+			{
+				for(int j=0; j<width; j++)
+				{
+					int pix=b[i*width+j];
+					int pr = pix & 0xff;
+					int pg = (pix>>8) & 0xff;
+					int pb = (pix>>16) & 0xff;
+					int pa = (pix>>24) & 0xff;
+					bt[(height-k-1)*width+j] = (pa << 24) | (pb << 16) | (pg << 8) | pr;
+				}
+			}
+//			memmove(bitmapPixels,snapshot->data->getRawData(),snapshot->data->getLen());
 
 			AndroidBitmap_unlockPixels(env, bitmapObj);
 		} else {

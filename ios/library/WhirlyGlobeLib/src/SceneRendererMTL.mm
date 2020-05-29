@@ -485,9 +485,6 @@ void SceneRendererMTL::render(TimeInterval duration,
             perfTimer.startTiming("Work Group: " + workGroup->name);
 
         for (auto &targetContainer : workGroup->renderTargetContainers) {
-            if (targetContainer->drawables.empty())
-                continue;
-            
             RenderTargetMTLRef renderTarget;
             if (!targetContainer->renderTarget) {
                 // Need some sort of render target even if we're not really rendering

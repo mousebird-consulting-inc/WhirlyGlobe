@@ -144,13 +144,12 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
         Bitmap tileBitmap = null;
         if (tileRender != null) {
             synchronized (tileRender) {
+                tileRender.setClearColor(imageStyleGen.backgroundColorForZoom(tileID.level));
                 Mbr imageBounds = new Mbr(new Point2d(0.0,0.0), tileRender.frameSize);
                 VectorTileData imageTileData = new VectorTileData(tileID,imageBounds,locBounds);
 
                 // Need to activate the renderer, add the data, enable the objects and then clean it all up
                 tileRender.setEGLContext(null);
-//                tileRender.setClearColor(imageStyleGen.backgroundColorForZoom(tileID.level));
-                tileRender.setClearColor(Color.RED);
                 imageParser.parseData(data,imageTileData);
                 imageTileData.getChangeSet().process(tileRender,tileRender.getScene());
                 tileRender.enableObjects(imageTileData.getComponentObjects(), RenderControllerInterface.ThreadMode.ThreadCurrent);
