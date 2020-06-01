@@ -19,7 +19,7 @@
  */
 
 #import "MaplyGDALRetileSource.h"
-
+#import "MaplyHttpManager+Private.h"
 @implementation MaplyGDALRetileSource
 {
     NSString *_baseURL,*_baseName,*_ext;
@@ -103,7 +103,7 @@
         testNumPerSide /= 10;
     }
     
-    NSData *imgData = nil;
+    __block NSData *imgData = nil;
     bool wasCached = false;
     NSString *fileName = nil;
 
@@ -133,12 +133,23 @@
     [urlReq setTimeoutInterval:15.0];
     
     // Fetch the image synchronously
-    NSURLResponse *resp = nil;
-    NSError *error = nil;
-    imgData = [NSURLConnection sendSynchronousRequest:urlReq returningResponse:&resp error:&error];
+    __block  NSURLResponse *resp = nil;
+    __block NSError * error = nil;
+    
+    
+    [MaplyHttpManager.sharedInstance syncRequest:urlReq
+                                      completion:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable _error) {
+        imgData = data;
+        error = _error;
+        resp = response;
+    }];
+                             
+                             
+    
     
     // Let's look at the response
     NSHTTPURLResponse *urlResp = (NSHTTPURLResponse *)resp;
+    
     if (urlResp.statusCode != 200)
     {
         NSString *urlRespDesc = [urlResp description];

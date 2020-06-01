@@ -20,7 +20,7 @@
 
 #import "NetworkTileQuadSource.h"
 #import "GlobeLayerViewWatcher.h"
-
+#import "MaplyHttpManager+Private.h"
 using namespace WhirlyKit;
 
 @implementation WhirlyKitNetworkTileQuadSourceBase
@@ -95,7 +95,7 @@ using namespace WhirlyKit;
     self = [super init];
     
     if (self)
-    {    
+    {
         _baseURL = base;
         _ext = imageExt;
         
@@ -142,7 +142,7 @@ using namespace WhirlyKit;
     int y = ((int)(1<<level)-row)-1;
     
     // Let's just do this in a block
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), 
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
                    ^{
                        NSData *imgData;
                        
@@ -164,9 +164,20 @@ using namespace WhirlyKit;
                            NSMutableURLRequest *urlReq = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
                                             
                            // Fetch the image synchronously
-                           NSURLResponse *resp = nil;
-                           NSError *error = nil;
-                           imgData = [NSURLConnection sendSynchronousRequest:urlReq returningResponse:&resp error:&error];
+                          
+                           __block NSData * imgData = nil;
+                           __block NSError * error = nil;
+                           
+                           
+                           [MaplyHttpManager.sharedInstance syncRequest:urlReq
+                                                             completion:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable _error) {
+                               imgData = data;
+                               error = _error;
+                           }];
+                           
+                           
+                           
+                          
                            
                            if (error || !imgData)
                                imgData = nil;
@@ -277,7 +288,7 @@ using namespace WhirlyKit;
     // Let's just do this in a block
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
                    ^{
-                       NSData *imgData = nil;
+                       __block NSData *imgData = nil;
                        
                        // Look for it in the local cache first
                        NSString *localName = nil;
@@ -298,10 +309,18 @@ using namespace WhirlyKit;
                                                    stringByReplacingOccurrencesOfString:@"{y}" withString:[@(y) stringValue]];
                            NSURLRequest *urlReq = [NSURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
                            
-                           // Fetch the image synchronously
-                           NSURLResponse *resp = nil;
-                           NSError *error = nil;
-                           imgData = [NSURLConnection sendSynchronousRequest:urlReq returningResponse:&resp error:&error];
+                           
+                           __block  NSURLResponse *resp = nil;
+                           __block NSError * error = nil;
+                           
+                           [MaplyHttpManager.sharedInstance syncRequest:urlReq
+                                                             completion:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable _error) {
+                               imgData = data;
+                               error = _error;
+                               resp = response;
+                           }];
+                           
+                        
                            
                            if (error || !imgData)
                                imgData = nil;

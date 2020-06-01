@@ -11,7 +11,7 @@
 #import "MaplyVectorTiles.h"
 #import "MaplyScreenLabel.h"
 #import "DDXML.h"
-
+#import "MaplyHttpManager+Private.h"
 @implementation SLDSymbolizer
 
 /** 
@@ -214,18 +214,17 @@
     dispatch_group_t group = dispatch_group_create();
     dispatch_group_enter(group);
     
-    NSURLSessionConfiguration *defaultConfigObject = [NSURLSessionConfiguration defaultSessionConfiguration];
-    NSURLSession *defaultSession = [NSURLSession sessionWithConfiguration: defaultConfigObject];
+    
     NSURL * url = [NSURL URLWithString:href relativeToURL:baseURL];
     
     __block NSData *imageData;
-    
-    NSURLSessionDataTask * dataTask = [defaultSession dataTaskWithURL:url completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-        
+    NSURLRequest * req = [NSURLRequest requestWithURL:url];
+    MaplyURLConnection * dataTask = [MaplyHttpManager.sharedInstance asyncRequest:req
+                                                                       completion:^(NSData *  _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         imageData = data;
-        
         dispatch_group_leave(group);
     }];
+    
     
     [dataTask resume];
     

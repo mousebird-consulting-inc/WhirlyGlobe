@@ -20,7 +20,7 @@
 
 #import "MaplyAerisTiles.h"
 #import "MaplyRemoteTileSource.h"
-
+#import "MaplyHttpManager+Private.h"
 @implementation MaplyAerisLayerInfo
 
 
@@ -98,49 +98,53 @@
 
 - (void)startFetchWithSuccess:(nonnull void (^)(NSArray *__nullable tileSources)) successBlock failure:(nullable void(^)(NSError *__nonnull error)) failureBlock {
     
-    NSURLSession *session = [NSURLSession sharedSession];
+    
   
     NSURL *jsonURL = [NSURL URLWithString:[NSString stringWithFormat:@"http://maps.aerisapi.com/%@_%@/%@.json", _aerisID, _secretKey, _layerInfo.layerCode]];
     
-    NSURLSessionDataTask *task = [session dataTaskWithURL:jsonURL completionHandler:
-    ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+    NSURLRequest * request = [[NSURLRequest alloc] initWithURL:jsonURL];
+    
+    [MaplyHttpManager.sharedInstance asyncRequest:request
+                                       completion:^(NSData * _Nullable data, NSURLResponse * _Nullable inResponse, NSError * _Nullable error) {
         
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
                        ^{
-           NSError *jsonError;
-           NSDictionary *layerDict;
-           if (!error)
-               layerDict = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&jsonError];
-           if (!error && !jsonError) {
-               
-               NSMutableArray *tileInfoArray = [NSMutableArray array];
-               NSArray *files = layerDict[@"files"];
-               NSSortDescriptor *descriptor = [NSSortDescriptor sortDescriptorWithKey:@"timestamp" ascending:NO];
-               NSArray *sortedFiles = [files sortedArrayUsingDescriptors:@[descriptor]];
-               NSDictionary *fileEntry;
-               MaplyRemoteTileInfo *tileSource;
-               NSString *cacheDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)  objectAtIndex:0];
-               for (int i=0; i<MIN(self->_tileSetCount,sortedFiles.count); i++) {
-                   fileEntry = sortedFiles[i];
-                   NSString *baseURL = [NSString stringWithFormat:@"http://maps.aerisapi.com/%@_%@/%@/{z}/{x}/{y}/%@", self->_aerisID, self->_secretKey, self->_layerInfo.layerCode, fileEntry[@"time"]];
-                   tileSource = [[MaplyRemoteTileInfo alloc] initWithBaseURL:baseURL ext:@"png" minZoom:self->_layerInfo.minZoom maxZoom:self->_layerInfo.maxZoom];
-                   tileSource.cacheDir = [NSString stringWithFormat:@"%@/MaplyAeris/%@/%@", cacheDir, self->_layerInfo.layerCode, fileEntry[@"time"]];
-                   [tileInfoArray addObject:tileSource];
-               }
-               dispatch_async(dispatch_get_main_queue(), ^{
-                   successBlock(tileInfoArray);
-               });
-               
-           } else {
-               dispatch_async(dispatch_get_main_queue(), ^{
-                   failureBlock([[NSError alloc] initWithDomain:@"MaplyAerisTileSet" code:0 userInfo:@{NSLocalizedDescriptionKey: @"Failed to reach JSON layer spec"}]);
-               });
-           }
+            NSError *jsonError;
+            NSDictionary *layerDict;
+            if (!error)
+                layerDict = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&jsonError];
+            if (!error && !jsonError) {
+                
+                NSMutableArray *tileInfoArray = [NSMutableArray array];
+                NSArray *files = layerDict[@"files"];
+                NSSortDescriptor *descriptor = [NSSortDescriptor sortDescriptorWithKey:@"timestamp" ascending:NO];
+                NSArray *sortedFiles = [files sortedArrayUsingDescriptors:@[descriptor]];
+                NSDictionary *fileEntry;
+                MaplyRemoteTileInfo *tileSource;
+                NSString *cacheDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)  objectAtIndex:0];
+                for (int i=0; i<MIN(self->_tileSetCount,sortedFiles.count); i++) {
+                    fileEntry = sortedFiles[i];
+                    NSString *baseURL = [NSString stringWithFormat:@"http://maps.aerisapi.com/%@_%@/%@/{z}/{x}/{y}/%@", self->_aerisID, self->_secretKey, self->_layerInfo.layerCode, fileEntry[@"time"]];
+                    tileSource = [[MaplyRemoteTileInfo alloc] initWithBaseURL:baseURL ext:@"png" minZoom:self->_layerInfo.minZoom maxZoom:self->_layerInfo.maxZoom];
+                    tileSource.cacheDir = [NSString stringWithFormat:@"%@/MaplyAeris/%@/%@", cacheDir, self->_layerInfo.layerCode, fileEntry[@"time"]];
+                    [tileInfoArray addObject:tileSource];
+                }
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    successBlock(tileInfoArray);
+                });
+                
+            } else {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    failureBlock([[NSError alloc] initWithDomain:@"MaplyAerisTileSet" code:0 userInfo:@{NSLocalizedDescriptionKey: @"Failed to reach JSON layer spec"}]);
+                });
+            }
         });
         
     }];
-    [task resume];
+    
+    
 }
+    
 
 @end
 

@@ -1056,6 +1056,13 @@
 		2BE53AB41D249CAF00B60FAD /* SMCalloutView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE53AB21D249CAF00B60FAD /* SMCalloutView.h */; };
 		2BE53AB51D249CAF00B60FAD /* SMCalloutView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE53AB31D249CAF00B60FAD /* SMCalloutView.m */; };
 		2BE53AC71D249E1500B60FAD /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE53AC61D249E1500B60FAD /* CoreLocation.framework */; };
+		95A6D772246DAD24006E2342 /* MaplyHttpManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 95A6D771246DAD23006E2342 /* MaplyHttpManager.h */; };
+		95A6D77A246DB341006E2342 /* MaplyHttpManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 95A6D774246DB341006E2342 /* MaplyHttpManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		95A6D77B246DB341006E2342 /* MaplyURLConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = 95A6D775246DB341006E2342 /* MaplyURLConnection.h */; };
+		95A6D77C246DB341006E2342 /* MaplyHttpManagerr+Private.m in Sources */ = {isa = PBXBuildFile; fileRef = 95A6D776246DB341006E2342 /* MaplyHttpManagerr+Private.m */; };
+		95A6D77D246DB341006E2342 /* MaplyHttpManager+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 95A6D777246DB341006E2342 /* MaplyHttpManager+Private.h */; };
+		95A6D77E246DB341006E2342 /* MaplyURLConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 95A6D778246DB341006E2342 /* MaplyURLConnection.m */; };
+		95A6D77F246DB341006E2342 /* MaplyHttpManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 95A6D779246DB341006E2342 /* MaplyHttpManager.m */; };
 		E56DB3D51D6B1B17007000D2 /* SLDStyleSet.h in Headers */ = {isa = PBXBuildFile; fileRef = E56DB3D41D6B1B17007000D2 /* SLDStyleSet.h */; };
 		E56DB3D81D6B1B5A007000D2 /* SLDStyleSet.m in Sources */ = {isa = PBXBuildFile; fileRef = E56DB3D71D6B1B5A007000D2 /* SLDStyleSet.m */; };
 		E56E02A71E11F99500C1DD85 /* GeoJSONSource.h in Headers */ = {isa = PBXBuildFile; fileRef = E56E02A61E11F99500C1DD85 /* GeoJSONSource.h */; };
@@ -2141,6 +2148,13 @@
 		2BE53AC21D249DDE00B60FAD /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 		2BE53AC41D249E0600B60FAD /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		2BE53AC61D249E1500B60FAD /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		95A6D771246DAD23006E2342 /* MaplyHttpManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyHttpManager.h; sourceTree = "<group>"; };
+		95A6D774246DB341006E2342 /* MaplyHttpManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyHttpManager.h; sourceTree = "<group>"; };
+		95A6D775246DB341006E2342 /* MaplyURLConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyURLConnection.h; sourceTree = "<group>"; };
+		95A6D776246DB341006E2342 /* MaplyHttpManagerr+Private.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MaplyHttpManagerr+Private.m"; sourceTree = "<group>"; };
+		95A6D777246DB341006E2342 /* MaplyHttpManager+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MaplyHttpManager+Private.h"; sourceTree = "<group>"; };
+		95A6D778246DB341006E2342 /* MaplyURLConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MaplyURLConnection.m; sourceTree = "<group>"; };
+		95A6D779246DB341006E2342 /* MaplyHttpManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MaplyHttpManager.m; sourceTree = "<group>"; };
 		E56DB3D41D6B1B17007000D2 /* SLDStyleSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLDStyleSet.h; sourceTree = "<group>"; };
 		E56DB3D71D6B1B5A007000D2 /* SLDStyleSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SLDStyleSet.m; sourceTree = "<group>"; };
 		E56E02A61E11F99500C1DD85 /* GeoJSONSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeoJSONSource.h; sourceTree = "<group>"; };
@@ -3240,6 +3254,7 @@
 		2BE537191D249A1200B60FAD /* include */ = {
 			isa = PBXGroup;
 			children = (
+				95A6D771246DAD23006E2342 /* MaplyHttpManager.h */,
 				2B8BD179216A72C400078602 /* MaplyLAZMeshBuilder.h */,
 				2B40DBA5214B10B800EF77DC /* MaplyQuadImageFrameLoader.h */,
 				2B40DBA1214AE21F00EF77DC /* MaplyMBTileFetcher.h */,
@@ -3415,6 +3430,7 @@
 		2BE537991D249A1200B60FAD /* src */ = {
 			isa = PBXGroup;
 			children = (
+				95A6D773246DB340006E2342 /* connection */,
 				2BD797B521516752007CBAA3 /* MaplyVariableTarget.mm */,
 				2B40DBA7214B10C200EF77DC /* MaplyQuadImageFrameLoader.mm */,
 				2B40DBA3214AE22500EF77DC /* MaplyMBTileFetcher.mm */,
@@ -3857,6 +3873,19 @@
 			name = SMCalloutView;
 			sourceTree = "<group>";
 		};
+		95A6D773246DB340006E2342 /* connection */ = {
+			isa = PBXGroup;
+			children = (
+				95A6D774246DB341006E2342 /* MaplyHttpManager.h */,
+				95A6D779246DB341006E2342 /* MaplyHttpManager.m */,
+				95A6D777246DB341006E2342 /* MaplyHttpManager+Private.h */,
+				95A6D776246DB341006E2342 /* MaplyHttpManagerr+Private.m */,
+				95A6D775246DB341006E2342 /* MaplyURLConnection.h */,
+				95A6D778246DB341006E2342 /* MaplyURLConnection.m */,
+			);
+			path = connection;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -3911,6 +3940,7 @@
 				2BE53A361D249C3D00B60FAD /* coded_stream_inl.h in Headers */,
 				2BE53A731D249C4700B60FAD /* platform_macros.h in Headers */,
 				2BE539641D249BEF00B60FAD /* AAInterpolate.h in Headers */,
+				95A6D772246DAD24006E2342 /* MaplyHttpManager.h in Headers */,
 				2BE53A641D249C4600B60FAD /* atomicops.h in Headers */,
 				2B82B5F11E82E2490095FB14 /* render.h in Headers */,
 				2BE5380F1D249A1200B60FAD /* MaplyLabel.h in Headers */,
@@ -3954,6 +3984,7 @@
 				2B8E608B20D47FEE00FB96F0 /* MaplyRemoteTileFetcher.h in Headers */,
 				2B82B6CE1E82E24A0095FB14 /* WhirlyVector.h in Headers */,
 				2BE538031D249A1200B60FAD /* MaplyColorRampGenerator.h in Headers */,
+				95A6D77B246DB341006E2342 /* MaplyURLConnection.h in Headers */,
 				2B82B5FE1E82E2490095FB14 /* JSON_Base64.h in Headers */,
 				2BE539631D249BEF00B60FAD /* AAIlluminatedFraction.h in Headers */,
 				2BE539581D249BEF00B60FAD /* AAEarth.h in Headers */,
@@ -4029,6 +4060,7 @@
 				2B82B5FA1E82E2490095FB14 /* libbase64++.h in Headers */,
 				2BE5382D1D249A1200B60FAD /* MaplyUpdateLayer.h in Headers */,
 				2B8E608920D458A600FB96F0 /* MaplyQuadSampler_private.h in Headers */,
+				95A6D77D246DB341006E2342 /* MaplyHttpManager+Private.h in Headers */,
 				2B82B7381E82E24A0095FB14 /* MaplyAnimateFlat.h in Headers */,
 				2B0387F22069BC2E00DD5C40 /* QuadDisplayLayerNew.h in Headers */,
 				2B82B7081E82E24A0095FB14 /* OverlapHelper.h in Headers */,
@@ -4248,6 +4280,7 @@
 				2B884A471E3803170027C397 /* arithmeticmodel.hpp in Headers */,
 				2BE53A161D249C2900B60FAD /* text_format.h in Headers */,
 				2BE53A101D249C2900B60FAD /* reflection_ops.h in Headers */,
+				95A6D77A246DB341006E2342 /* MaplyHttpManager.h in Headers */,
 				2B82B6061E82E2490095FB14 /* Strings_Defs.h in Headers */,
 				2B82B7C41E82E68E0095FB14 /* clipper.hpp in Headers */,
 				2BE537FB1D249A1200B60FAD /* MaplyAnimationTestTileSource.h in Headers */,
@@ -4613,6 +4646,7 @@
 				2B884A6B1E3803170027C397 /* laswriteitemcompressed_v1.cpp in Sources */,
 				2B82B5F21E82E2490095FB14 /* sweep.c in Sources */,
 				2BE538B11D249A1200B60FAD /* NSDictionary+StyleRules.m in Sources */,
+				95A6D77C246DB341006E2342 /* MaplyHttpManagerr+Private.m in Sources */,
 				2B82B7BD1E82E24B0095FB14 /* SphericalEarthQuadLayer.mm in Sources */,
 				2B82B6A81E82E24A0095FB14 /* pj_qsfn.c in Sources */,
 				2B82B7BF1E82E24B0095FB14 /* SphericalEarthChunkLayer.mm in Sources */,
@@ -4828,6 +4862,7 @@
 				2B82B7B41E82E24B0095FB14 /* UpdateDisplayLayer.mm in Sources */,
 				2BE539A71D249BEF00B60FAD /* AAMoonNodes.cpp in Sources */,
 				2B82B76E1E82E24A0095FB14 /* RotateDelegate.mm in Sources */,
+				95A6D77E246DB341006E2342 /* MaplyURLConnection.m in Sources */,
 				2B82B6AB1E82E24A0095FB14 /* PJ_rpoly.c in Sources */,
 				2B82B6421E82E2490095FB14 /* PJ_aeqd.c in Sources */,
 				2BE5387F1D249A1200B60FAD /* MaplyComponentObject.mm in Sources */,
@@ -4915,6 +4950,7 @@
 				2B82B74B1E82E24A0095FB14 /* UIImage+Stuff.mm in Sources */,
 				2BE538BF1D249A1200B60FAD /* MaplyVectorTileLineStyle.mm in Sources */,
 				2BE539F31D249C2900B60FAD /* map_field.cc in Sources */,
+				95A6D77F246DB341006E2342 /* MaplyHttpManager.m in Sources */,
 				2BE53A401D249C3D00B60FAD /* zero_copy_stream_impl.cc in Sources */,
 				2B82B6551E82E2490095FB14 /* pj_datums.c in Sources */,
 				2BE538971D249A1200B60FAD /* MaplyQuadPagingLayer.mm in Sources */,
