@@ -264,8 +264,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_setupShadersNat
             rendWrap.addShader(MaplyDefaultWideVectorShader,BuildWideVectorProgramGLES(MaplyDefaultWideVectorShader,renderer));
 		}
 		// Screen space
-		rendWrap.addShader(MaplyScreenSpaceDefaultMotionShader,BuildScreenSpaceProgramGLES(MaplyScreenSpaceDefaultMotionShader,renderer));
-		rendWrap.addShader(MaplyScreenSpaceDefaultShader,BuildScreenSpaceMotionProgramGLES(MaplyScreenSpaceDefaultShader,renderer));
+		rendWrap.addShader(MaplyScreenSpaceDefaultMotionShader,BuildScreenSpaceMotionProgramGLES(MaplyScreenSpaceDefaultMotionShader,renderer));
+		rendWrap.addShader(MaplyScreenSpaceDefaultShader,BuildScreenSpaceProgramGLES(MaplyScreenSpaceDefaultShader,renderer));
 		// Particles
 		rendWrap.addShader(MaplyParticleSystemPointDefaultShader,BuildParticleSystemProgramGLES(MaplyParticleSystemPointDefaultShader,renderer));
 	}

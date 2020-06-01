@@ -177,6 +177,8 @@ void MapboxVectorLayerSymbol::cleanup(PlatformThreadInfo *inst,ChangeSet &change
 {
 }
 
+static const int ScreenDrawPriorityOffset = 1000000;
+
 void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                                            std::vector<VectorObjectRef> &vecObjs,
                                            VectorTileDataRef tileInfo)
@@ -204,9 +206,9 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
     labelInfo->textJustify = WhirlyKitTextCenter;
 
     if (drawPriorityPerLevel > 0)
-        labelInfo->drawPriority = drawPriority + tileInfo->ident.level * drawPriorityPerLevel;
+        labelInfo->drawPriority = drawPriority + tileInfo->ident.level * drawPriorityPerLevel + ScreenDrawPriorityOffset;
     else
-        labelInfo->drawPriority = drawPriority;
+        labelInfo->drawPriority = drawPriority + ScreenDrawPriorityOffset;
 
     RGBAColorRef textColor = styleSet->resolveColor(paint.textColor, paint.textOpacity, tileInfo->ident.level, MBResolveColorOpacityReplaceAlpha);
     if (textColor)
