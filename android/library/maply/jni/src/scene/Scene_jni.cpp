@@ -100,12 +100,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_addShaderProgram
         SceneClassInfo *classInfo = SceneClassInfo::getClassInfo();
         Scene *scene = classInfo->getObject(env,obj);
         ShaderClassInfo *shaderClassInfo = ShaderClassInfo::getClassInfo();
-        Shader_Android *shader = shaderClassInfo->getObject(env,shaderObj);
+        Shader_AndroidRef *shader = shaderClassInfo->getObject(env,shaderObj);
         
         if (!scene || !shader)
             return;
         
-        scene->addProgram(shader->prog);
+        scene->addProgram((*shader)->prog);
     }
     catch (...)
     {

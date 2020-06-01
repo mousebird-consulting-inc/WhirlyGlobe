@@ -73,6 +73,7 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
         styleGen = inVectorStyle;
         tileRender = inTileRender;
         vc = new WeakReference<BaseController>(inVC);
+        tileRender.clearLights();
 
         parser = new MapboxVectorTileParser(styleGen,inVC);
         if (inTileRender != null) {

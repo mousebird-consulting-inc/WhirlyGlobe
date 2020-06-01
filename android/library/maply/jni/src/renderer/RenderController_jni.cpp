@@ -197,8 +197,8 @@ public:
 	// Add a shader and let the Java side RenderController keep it
 	void addShader(const std::string &name,ProgramGLES *prog)
 	{
-		Shader_Android *localShader = new Shader_Android();
-		localShader->setupPreBuildProgram(prog);
+		Shader_AndroidRef localShader(new Shader_Android());
+		localShader->setupPreBuildProgram(ProgramGLESRef(prog));
 		scene->addProgram(localShader->prog);
 		jobject shaderObj = MakeShader(env,localShader);
 		env->CallVoidMethod(renderControlObj,addShaderID,shaderObj);

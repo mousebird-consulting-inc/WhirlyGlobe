@@ -141,7 +141,7 @@ public open class MapboxKindaMap {
     }
 
     public var mapboxInterp: MapboxVectorInterpreter? = null
-    public var loader: QuadImageLoader? = null
+    public var loader: QuadLoaderBase? = null
     public var offlineRender: RenderController? = null
 
     // If we're using a cache dir, look for the file there
@@ -367,10 +367,6 @@ public open class MapboxKindaMap {
             sampleParams.minZoom = minZoom
             sampleParams.maxZoom = maxZoom
 
-            // TODO: Handle more than one source
-            val imageLoader = QuadImageLoader(sampleParams, tileInfos[0], theControl)
-            loader = imageLoader
-
             if (styleSheetJSON == null)
                 return
 
@@ -403,20 +399,23 @@ public open class MapboxKindaMap {
                 offlineRender.setClearColor(styleSheetImage!!.backgroundColorForZoom(0.0))
             }
 
-            // We only want the polygons in the image
             val vectorStyleDict = AttrDictionary()
             vectorStyleDict.parseFromJSON(styleSheetJSON)
-            val vectorLayers =  vectorStyleDict.getArray("layers")
-            var newVectorLayers = ArrayList<AttrDictionaryEntry>()
-            for (layer in vectorLayers) {
-                if (layer.type == AttrDictionaryEntry.Type.DictTypeDictionary) {
-                    val layerDict = layer.dict
-                    val type = layerDict.getString("type")
-                    if (type != null && (type != "background" && type != "fill"))
-                        newVectorLayers.add(layer)
+
+            // The polygons only go into the background in this case
+            if (backgroundAllPolys) {
+                val vectorLayers = vectorStyleDict.getArray("layers")
+                var newVectorLayers = ArrayList<AttrDictionaryEntry>()
+                for (layer in vectorLayers) {
+                    if (layer.type == AttrDictionaryEntry.Type.DictTypeDictionary) {
+                        val layerDict = layer.dict
+                        val type = layerDict.getString("type")
+                        if (type != null && (type != "background" && type != "fill"))
+                            newVectorLayers.add(layer)
+                    }
                 }
+                vectorStyleDict.setArray("layers", newVectorLayers.toTypedArray())
             }
-            vectorStyleDict.setArray("layers",newVectorLayers.toTypedArray())
             styleSheetVector = MapboxVectorStyleSet(vectorStyleDict, styleSettings, theControl.activity.resources.displayMetrics, theControl)
 
             if (control?.get() !is GlobeController) {
@@ -436,7 +435,17 @@ public open class MapboxKindaMap {
                 Log.w("Maply", "Failed to set up Mapbox interpreter.  Nothing will appear.")
                 stop()
             }
-            imageLoader.setLoaderInterpreter(mapboxInterp!!)
+
+            // TODO: Handle more than one source
+            if (backgroundAllPolys) {
+                val imageLoader = QuadImageLoader(sampleParams, tileInfos[0], theControl)
+                imageLoader.setLoaderInterpreter(mapboxInterp!!)
+                loader = imageLoader
+            } else {
+                val vecLoader = QuadPagingLoader(sampleParams, tileInfos[0], mapboxInterp, theControl)
+                loader = vecLoader
+            }
+
         } else {
             Log.w("Maply", "Non-hybrid case not currently hooked up for 3.0")
         }

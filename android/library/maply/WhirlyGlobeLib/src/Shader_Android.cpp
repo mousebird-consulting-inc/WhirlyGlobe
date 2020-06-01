@@ -41,9 +41,9 @@ void Shader_Android::setupProgram(const std::string &name,const std::string &ver
         prog = ProgramGLESRef(new ProgramGLES(name,vertProg,fragProg,&varyings));
 }
 
-void Shader_Android::setupPreBuildProgram(ProgramGLES *inProg)
+void Shader_Android::setupPreBuildProgram(ProgramGLESRef inProg)
 {
-    prog = ProgramGLESRef(inProg);
+    prog = inProg;
 }
 
 }
