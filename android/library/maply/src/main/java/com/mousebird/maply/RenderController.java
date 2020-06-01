@@ -1843,6 +1843,16 @@ public class RenderController implements RenderControllerInterface
         return false;
     }
 
+    // Return a description of the current context
+    static public ContextInfo getEGLContext() {
+        ContextInfo cInfo = new ContextInfo();
+        EGL10 egl = (EGL10) EGLContext.getEGL();
+        cInfo.eglContext = egl.eglGetCurrentContext();
+        cInfo.eglSurface = egl.eglGetCurrentSurface(egl.EGL_DRAW);
+
+        return cInfo;
+    }
+
     public void processChangeSet(ChangeSet changes)
     {
         changes.process(this, scene);

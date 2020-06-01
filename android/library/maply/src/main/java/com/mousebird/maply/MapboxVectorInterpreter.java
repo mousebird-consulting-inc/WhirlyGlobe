@@ -29,6 +29,9 @@ import java.lang.ref.WeakReference;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 
+import javax.microedition.khronos.egl.EGL10;
+import javax.microedition.khronos.egl.EGLContext;
+
 /**
  * The Mapbox Vector (Tile) Interpreter parses raw vector tile data
  * and turns it into visual objects.
@@ -150,6 +153,8 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
                 VectorTileData imageTileData = new VectorTileData(tileID,imageBounds,locBounds);
 
                 // Need to activate the renderer, add the data, enable the objects and then clean it all up
+                // We need to use a specific context that comes with the tile renderer
+                RenderControllerInterface.ContextInfo cInfo = RenderController.getEGLContext();
                 tileRender.setEGLContext(null);
                 imageParser.parseData(data,imageTileData);
                 imageTileData.getChangeSet().process(tileRender,tileRender.getScene());
@@ -157,6 +162,10 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
                 tileBitmap = tileRender.renderToBitmap();
                 tileRender.removeObjects(imageTileData.getComponentObjects(), RenderControllerInterface.ThreadMode.ThreadCurrent);
                 tileRender.clearContext();
+
+                // Reset the OpenGL context back to what it was before
+                // It would have been set up by our own renderer for us on a specific thread
+                theVC.renderControl.setEGLContext(cInfo);
             }
         }
 

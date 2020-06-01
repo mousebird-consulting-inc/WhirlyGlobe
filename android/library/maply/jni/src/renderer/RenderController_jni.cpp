@@ -195,10 +195,10 @@ public:
 	}
 
 	// Add a shader and let the Java side RenderController keep it
-	void addShader(const std::string &name,ProgramGLES *prog)
+	void addShader(const std::string &name,ProgramGLESRef prog)
 	{
 		Shader_AndroidRef localShader(new Shader_Android());
-		localShader->setupPreBuildProgram(ProgramGLESRef(prog));
+		localShader->setupPreBuildProgram(prog);
 		scene->addProgram(localShader->prog);
 		jobject shaderObj = MakeShader(env,localShader);
 		env->CallVoidMethod(renderControlObj,addShaderID,shaderObj);
@@ -224,8 +224,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_setupShadersNat
 		SceneRendererWrapper rendWrap(env,renderer->getScene(),obj);
 
 		// Default line shaders
-		ProgramGLES *defaultLineShader = BuildDefaultLineShaderCullingGLES(MaplyDefaultLineShader,renderer);
-		ProgramGLES *defaultLineShaderNoBack = BuildDefaultLineShaderNoCullingGLES(MaplyNoBackfaceLineShader,renderer);
+		ProgramGLESRef defaultLineShader(BuildDefaultLineShaderCullingGLES(MaplyDefaultLineShader,renderer));
+		ProgramGLESRef defaultLineShaderNoBack(BuildDefaultLineShaderNoCullingGLES(MaplyNoBackfaceLineShader,renderer));
 		if (isGlobe)
 			rendWrap.addShader(MaplyDefaultLineShader,defaultLineShader);
 		else
@@ -233,41 +233,41 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_setupShadersNat
 		rendWrap.addShader(MaplyNoBackfaceLineShader,defaultLineShaderNoBack);
 
 		// Default triangle shaders
-		rendWrap.addShader(MaplyDefaultTriangleShader,BuildDefaultTriShaderLightingGLES(MaplyDefaultTriangleShader,renderer));
-		rendWrap.addShader(MaplyNoLightTriangleShader,BuildDefaultTriShaderNoLightingGLES(MaplyNoLightTriangleShader,renderer));
+		rendWrap.addShader(MaplyDefaultTriangleShader,ProgramGLESRef(BuildDefaultTriShaderLightingGLES(MaplyDefaultTriangleShader,renderer)));
+		rendWrap.addShader(MaplyNoLightTriangleShader,ProgramGLESRef(BuildDefaultTriShaderNoLightingGLES(MaplyNoLightTriangleShader,renderer)));
 
 		// Model instancing
-		rendWrap.addShader(MaplyDefaultModelTriShader,BuildDefaultTriShaderModelGLES(MaplyDefaultModelTriShader,renderer));
+		rendWrap.addShader(MaplyDefaultModelTriShader,ProgramGLESRef(BuildDefaultTriShaderModelGLES(MaplyDefaultModelTriShader,renderer)));
 
 		// Screen space texture application
-		rendWrap.addShader(MaplyDefaultTriScreenTexShader,BuildDefaultTriShaderScreenTextureGLES(MaplyDefaultTriScreenTexShader,renderer));
+		rendWrap.addShader(MaplyDefaultTriScreenTexShader,ProgramGLESRef(BuildDefaultTriShaderScreenTextureGLES(MaplyDefaultTriScreenTexShader,renderer)));
 
 		// Multi-texture support
-		rendWrap.addShader(MaplyDefaultTriMultiTexShader,BuildDefaultTriShaderMultitexGLES(MaplyDefaultTriMultiTexShader,renderer));
-		rendWrap.addShader(MaplyDefaultMarkerShader,BuildDefaultTriShaderMultitexGLES(MaplyDefaultMarkerShader,renderer));
+		rendWrap.addShader(MaplyDefaultTriMultiTexShader,ProgramGLESRef(BuildDefaultTriShaderMultitexGLES(MaplyDefaultTriMultiTexShader,renderer)));
+		rendWrap.addShader(MaplyDefaultMarkerShader,ProgramGLESRef(BuildDefaultTriShaderMultitexGLES(MaplyDefaultMarkerShader,renderer)));
 
 		// Ramp texture support
-		rendWrap.addShader(MaplyDefaultTriMultiTexRampShader,BuildDefaultTriShaderRamptexGLES(MaplyDefaultTriMultiTexRampShader,renderer));
+		rendWrap.addShader(MaplyDefaultTriMultiTexRampShader,ProgramGLESRef(BuildDefaultTriShaderRamptexGLES(MaplyDefaultTriMultiTexRampShader,renderer)));
 
 		// Night/day shading for globe
-		rendWrap.addShader(MaplyDefaultTriNightDayShader,BuildDefaultTriShaderNightDayGLES(MaplyDefaultTriNightDayShader,renderer));
+		rendWrap.addShader(MaplyDefaultTriNightDayShader,ProgramGLESRef(BuildDefaultTriShaderNightDayGLES(MaplyDefaultTriNightDayShader,renderer)));
 
 		// Billboards
-		rendWrap.addShader(MaplyBillboardGroundShader,BuildBillboardGroundProgramGLES(MaplyBillboardGroundShader,renderer));
-		rendWrap.addShader(MaplyBillboardEyeShader,BuildBillboardEyeProgramGLES(MaplyBillboardEyeShader,renderer));
+		rendWrap.addShader(MaplyBillboardGroundShader,ProgramGLESRef(BuildBillboardGroundProgramGLES(MaplyBillboardGroundShader,renderer)));
+		rendWrap.addShader(MaplyBillboardEyeShader,ProgramGLESRef(BuildBillboardEyeProgramGLES(MaplyBillboardEyeShader,renderer)));
 
 		// Wide vectors
-		rendWrap.addShader(MaplyDefaultWideVectorGlobeShader,BuildWideVectorGlobeProgramGLES(MaplyDefaultWideVectorGlobeShader,renderer));
+		rendWrap.addShader(MaplyDefaultWideVectorGlobeShader,ProgramGLESRef(BuildWideVectorGlobeProgramGLES(MaplyDefaultWideVectorGlobeShader,renderer)));
 		if (isGlobe) {
-            rendWrap.addShader(MaplyDefaultWideVectorShader,BuildWideVectorGlobeProgramGLES(MaplyDefaultWideVectorShader,renderer));
+            rendWrap.addShader(MaplyDefaultWideVectorShader,ProgramGLESRef(BuildWideVectorGlobeProgramGLES(MaplyDefaultWideVectorShader,renderer)));
 		} else {
-            rendWrap.addShader(MaplyDefaultWideVectorShader,BuildWideVectorProgramGLES(MaplyDefaultWideVectorShader,renderer));
+            rendWrap.addShader(MaplyDefaultWideVectorShader,ProgramGLESRef(BuildWideVectorProgramGLES(MaplyDefaultWideVectorShader,renderer)));
 		}
 		// Screen space
-		rendWrap.addShader(MaplyScreenSpaceDefaultMotionShader,BuildScreenSpaceMotionProgramGLES(MaplyScreenSpaceDefaultMotionShader,renderer));
-		rendWrap.addShader(MaplyScreenSpaceDefaultShader,BuildScreenSpaceProgramGLES(MaplyScreenSpaceDefaultShader,renderer));
+		rendWrap.addShader(MaplyScreenSpaceDefaultMotionShader,ProgramGLESRef(BuildScreenSpaceMotionProgramGLES(MaplyScreenSpaceDefaultMotionShader,renderer)));
+		rendWrap.addShader(MaplyScreenSpaceDefaultShader,ProgramGLESRef(BuildScreenSpaceProgramGLES(MaplyScreenSpaceDefaultShader,renderer)));
 		// Particles
-		rendWrap.addShader(MaplyParticleSystemPointDefaultShader,BuildParticleSystemProgramGLES(MaplyParticleSystemPointDefaultShader,renderer));
+		rendWrap.addShader(MaplyParticleSystemPointDefaultShader,ProgramGLESRef(BuildParticleSystemProgramGLES(MaplyParticleSystemPointDefaultShader,renderer)));
 	}
 	catch (...)
 	{
