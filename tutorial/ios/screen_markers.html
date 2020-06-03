@@ -132,8 +132,8 @@
   
 <figure class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">addBars</span>
 <span class="p">{</span>
-    <span class="c1">// set up some locations
-</span>    <span class="n">MaplyCoordinate</span> <span class="n">capitals</span><span class="p">[</span><span class="mi">10</span><span class="p">];</span>
+    <span class="c1">// set up some locations</span>
+    <span class="n">MaplyCoordinate</span> <span class="n">capitals</span><span class="p">[</span><span class="mi">10</span><span class="p">];</span>
     <span class="n">capitals</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">MaplyCoordinateMakeWithDegrees</span><span class="p">(</span><span class="o">-</span><span class="mi">77</span><span class="p">.</span><span class="mo">036667</span><span class="p">,</span> <span class="mi">38</span><span class="p">.</span><span class="mi">895111</span><span class="p">);</span>
     <span class="n">capitals</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">MaplyCoordinateMakeWithDegrees</span><span class="p">(</span><span class="mi">120</span><span class="p">.</span><span class="mi">966667</span><span class="p">,</span> <span class="mi">14</span><span class="p">.</span><span class="mi">583333</span><span class="p">);</span>
     <span class="n">capitals</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">MaplyCoordinateMakeWithDegrees</span><span class="p">(</span><span class="mi">55</span><span class="p">.</span><span class="mi">75</span><span class="p">,</span> <span class="mi">37</span><span class="p">.</span><span class="mi">616667</span><span class="p">);</span>
@@ -145,8 +145,8 @@
     <span class="n">capitals</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span> <span class="o">=</span> <span class="n">MaplyCoordinateMakeWithDegrees</span><span class="p">(</span><span class="o">-</span><span class="mi">74</span><span class="p">.</span><span class="mo">075</span><span class="mi">833</span><span class="p">,</span> <span class="mi">4</span><span class="p">.</span><span class="mi">598056</span><span class="p">);</span>
     <span class="n">capitals</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span> <span class="o">=</span> <span class="n">MaplyCoordinateMakeWithDegrees</span><span class="p">(</span><span class="o">-</span><span class="mi">79</span><span class="p">.</span><span class="mi">516667</span><span class="p">,</span> <span class="mi">8</span><span class="p">.</span><span class="mi">983333</span><span class="p">);</span>
 
-    <span class="c1">// get the image and create the markers
-</span>    <span class="n">UIImage</span> <span class="o">*</span><span class="n">icon</span> <span class="o">=</span> <span class="p">[</span><span class="n">UIImage</span> <span class="nf">imageNamed</span><span class="p">:</span><span class="s">@"alcohol-shop-24@2x.png"</span><span class="p">];</span>
+    <span class="c1">// get the image and create the markers</span>
+    <span class="n">UIImage</span> <span class="o">*</span><span class="n">icon</span> <span class="o">=</span> <span class="p">[</span><span class="n">UIImage</span> <span class="nf">imageNamed</span><span class="p">:</span><span class="s">@"alcohol-shop-24@2x.png"</span><span class="p">];</span>
     <span class="n">NSMutableArray</span> <span class="o">*</span><span class="n">markers</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSMutableArray</span> <span class="nf">array</span><span class="p">];</span>
     <span class="k">for</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">ii</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">ii</span><span class="o">&lt;</span><span class="mi">10</span><span class="p">;</span><span class="n">ii</span><span class="o">++</span><span class="p">)</span>
     <span class="p">{</span>
@@ -156,8 +156,8 @@
         <span class="n">marker</span><span class="p">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">CGSizeMake</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span><span class="mi">40</span><span class="p">);</span>
         <span class="p">[</span><span class="n">markers</span> <span class="nf">addObject</span><span class="p">:</span><span class="n">marker</span><span class="p">];</span>
     <span class="p">}</span>
-    <span class="c1">// add them all at once (for efficency)
-</span>    <span class="p">[</span><span class="n">theViewC</span> <span class="nf">addScreenMarkers</span><span class="p">:</span><span class="n">markers</span> <span class="nf">desc</span><span class="p">:</span><span class="nb">nil</span><span class="p">];</span>
+    <span class="c1">// add them all at once (for efficency)</span>
+    <span class="p">[</span><span class="n">theViewC</span> <span class="nf">addScreenMarkers</span><span class="p">:</span><span class="n">markers</span> <span class="nf">desc</span><span class="p">:</span><span class="nb">nil</span><span class="p">];</span>
 <span class="p">}</span>
   </code></pre></figure>
 
@@ -202,8 +202,8 @@
 <div class="multiple_code_header"><a href="#" data-index="0">&nbsp;</a><a href="#" data-index="1">&nbsp;</a></div>
 <ul class="multiple_code"><li data-index="0">
   
-<figure class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="c1">// add the bar icons
-</span><span class="p">[</span><span class="n">self</span> <span class="nf">addBars</span><span class="p">];</span>
+<figure class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="c1">// add the bar icons</span>
+<span class="p">[</span><span class="n">self</span> <span class="nf">addBars</span><span class="p">];</span>
 <span class="err">­</span>  </code></pre></figure>
 
 
@@ -295,28 +295,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/getting_started.html">Before You Start</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -601,28 +580,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/building_from_source.html">Source Distribution</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -925,25 +883,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/building_from_cocoapod.html">Cocoapods</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -1128,34 +1068,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/globe_or_map.html">Globe Or Map</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -1551,19 +1464,10 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/your_first_map.html">Your First Map</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -1572,15 +1476,6 @@
                       
                       <li class="sidebar-header-item">Image Based Maps</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -1826,187 +1721,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/remote_image_layer.html">Remote Image Layer</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/remote_NASA_image_layers.html">NASA Image Layers</a></li>
                       
                       
                       
@@ -2081,33 +1796,6 @@
                       
                       
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/adding_vector_data.html">Vector Data</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -2509,31 +2197,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/screen_labels.html">Screen Labels</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -2733,25 +2397,13 @@
                       
                       
                       
+                      
+                      
+                      
                       </ol>
                       
                       <li class="sidebar-header-item">Shapes</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -2903,25 +2555,13 @@
                       
                       
                       
+                      
+                      
+                      
                       </ol>
                       
                       <li class="sidebar-header-item">Interaction</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -3182,25 +2822,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/screen_marker_selection.html">Screen Marker Selection</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -3400,9 +3022,6 @@
                       
                       
                       
-                      
-                      
-                      
                       </ol>
                       
                       <li class="sidebar-header-item">Advanced</li>
@@ -3445,13 +3064,13 @@
                       
                       
                       
+                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/cartodb_layer.html">Carto Layer</a></li>
                       
                       
                       
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/cartodb_layer.html">CartoDB Layer</a></li>
                       
                       
                       
@@ -3482,522 +3101,6 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/aeris_weather.html">Aeris Weather Layer</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/component_tester.html">Component Tester</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/micello_map.html">Micello Indoor Maps</a></li>
                       
                       
                       
@@ -4230,9 +3333,6 @@
                       
                       
                       
-                      
-                      
-                      
                       </ol>
                       
                     </ol>
@@ -4303,12 +3403,6 @@
             
             
             
-            
-            
-            
-            
-            
-
             
             
             
@@ -4425,24 +3519,6 @@
             
             
 
-            
-            
-            
-            
-            
-
-            
-            
-            
-            
-            
-
-            
-            
-            
-            
-            
-
           </div>
         </div>
 
@@ -4505,7 +3581,7 @@
             An open source geospatial display toolkit<br /> for iOS and Android.
           </p>
           <p class="site-description">
-            <small>Ⓒ 2017 mousebird consulting.</small>
+            <small>Ⓒ 2020 mousebird consulting.</small>
           </p>
         </div>
 

@@ -113,41 +113,39 @@
 
 <p>This Java class will extend <code class="highlighter-rouge">AsyncTask</code> , allowing you to do an HTTP request in the background. Doing a long-lasting task in as an AsyncTask keeps your main UI thread from locking up. Paste the following boilerplate code in your <code class="highlighter-rouge">GeoJsonHttpTask.java</code> file.</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kn">package</span> <span class="n">io</span><span class="o">.</span><span class="na">theoutpost</span><span class="o">.</span><span class="na">helloearth</span><span class="o">;</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="n">io</span><span class="o">.</span><span class="na">theoutpost</span><span class="o">.</span><span class="na">helloearth</span><span class="o">;</span>
 
 <span class="kn">import</span> <span class="nn">android.os.AsyncTask</span><span class="o">;</span>
 <span class="kn">import</span> <span class="nn">com.mousebird.maply.MaplyBaseController</span><span class="o">;</span>
 
-<span class="kd">public</span> <span class="kd">class</span> <span class="nc">GeoJsonHttpTask</span> <span class="kd">extends</span> <span class="n">AsyncTask</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Void</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="o">{</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">GeoJsonHttpTask</span> <span class="kd">extends</span> <span class="nc">AsyncTask</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">Void</span><span class="o">,</span> <span class="nc">String</span><span class="o">&gt;</span> <span class="o">{</span>
 
-    <span class="n">MaplyBaseController</span> <span class="n">controller</span><span class="o">;</span>
+    <span class="nc">MaplyBaseController</span> <span class="n">controller</span><span class="o">;</span>
 
-    <span class="kd">public</span> <span class="nf">GeoJsonHttpTask</span><span class="o">(</span><span class="n">MaplyBaseController</span> <span class="n">maplyBaseController</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="nf">GeoJsonHttpTask</span><span class="o">(</span><span class="nc">MaplyBaseController</span> <span class="n">maplyBaseController</span><span class="o">)</span> <span class="o">{</span>
         <span class="n">controller</span> <span class="o">=</span> <span class="n">maplyBaseController</span><span class="o">;</span>
     <span class="o">}</span>
 
     <span class="nd">@Override</span>
-    <span class="kd">protected</span> <span class="n">String</span> <span class="nf">doInBackground</span><span class="o">(</span><span class="n">String</span><span class="o">...</span> <span class="n">params</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kd">protected</span> <span class="nc">String</span> <span class="nf">doInBackground</span><span class="o">(</span><span class="nc">String</span><span class="o">...</span> <span class="n">params</span><span class="o">)</span> <span class="o">{</span>
         <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
     <span class="o">}</span>
 
     <span class="nd">@Override</span>
-    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onPostExecute</span><span class="o">(</span><span class="n">String</span> <span class="n">string</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onPostExecute</span><span class="o">(</span><span class="nc">String</span> <span class="n">string</span><span class="o">)</span> <span class="o">{</span>
 
     <span class="o">}</span>
 <span class="o">}</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h3 id="instantiate-geojsonhttptask">Instantiate GeoJsonHttpTask</h3>
 
 <p>In <code class="highlighter-rouge">HelloMapFragment.java</code>, place the <a href="https://github.com/mousebird/AndroidTutorialProject/blob/edf4f6f3414c79f5c4e43a3f0c79e0d64c41a866/app/src/main/java/io/theoutpost/helloearth/HelloMapFragment.java#L102-L104">following code</a> at the end of the <code class="highlighter-rouge">controlHasStarted</code> method.</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">final</span> <span class="n">String</span> <span class="n">url</span> <span class="o">=</span> <span class="s">"https://s3.amazonaws.com/whirlyglobedocs/tutorialsupport/RUS.geojson"</span><span class="o">;</span>
-<span class="n">GeoJsonHttpTask</span> <span class="n">task</span> <span class="o">=</span> <span class="k">new</span> <span class="n">GeoJsonHttpTask</span><span class="o">(</span><span class="n">mapControl</span><span class="o">);</span>
-<span class="n">task</span><span class="o">.</span><span class="na">executeOnExecutor</span><span class="o">(</span><span class="n">AsyncTask</span><span class="o">.</span><span class="na">THREAD_POOL_EXECUTOR</span><span class="o">,</span> <span class="n">url</span><span class="o">);</span>
-</code></pre>
-</div>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">final</span> <span class="nc">String</span> <span class="n">url</span> <span class="o">=</span> <span class="s">"https://s3.amazonaws.com/whirlyglobedocs/tutorialsupport/RUS.geojson"</span><span class="o">;</span>
+<span class="nc">GeoJsonHttpTask</span> <span class="n">task</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">GeoJsonHttpTask</span><span class="o">(</span><span class="n">mapControl</span><span class="o">);</span>
+<span class="n">task</span><span class="o">.</span><span class="na">executeOnExecutor</span><span class="o">(</span><span class="nc">AsyncTask</span><span class="o">.</span><span class="na">THREAD_POOL_EXECUTOR</span><span class="o">,</span> <span class="n">url</span><span class="o">);</span>
+</code></pre></div></div>
 
 <p>This will instantiate your GeoJsonHttpTask AsyncTask and give it a reference to the map controller. Then, we execute the task from a background thread pool and give it a URL to the GeoJSON you want on the map.</p>
 
@@ -155,34 +153,33 @@
 
 <p>The <code class="highlighter-rouge">doInBackground</code> method is where work is done in a background thread. Here we will make our HTTP request and build the response buffer into a string. The following code will return a GeoJSON string back to the UI thread for further action.</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="nd">@Override</span>
-<span class="kd">protected</span> <span class="n">String</span> <span class="nf">doInBackground</span><span class="o">(</span><span class="n">String</span><span class="o">...</span> <span class="n">params</span><span class="o">)</span> <span class="o">{</span>
-    <span class="n">HttpURLConnection</span> <span class="n">urlConnection</span><span class="o">;</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Override</span>
+<span class="kd">protected</span> <span class="nc">String</span> <span class="nf">doInBackground</span><span class="o">(</span><span class="nc">String</span><span class="o">...</span> <span class="n">params</span><span class="o">)</span> <span class="o">{</span>
+    <span class="nc">HttpURLConnection</span> <span class="n">urlConnection</span><span class="o">;</span>
     <span class="k">try</span> <span class="o">{</span>
-        <span class="n">String</span> <span class="n">urlStr</span> <span class="o">=</span> <span class="n">params</span><span class="o">[</span><span class="mi">0</span><span class="o">];</span>
-        <span class="n">URL</span> <span class="n">url</span> <span class="o">=</span> <span class="k">new</span> <span class="n">URL</span><span class="o">(</span><span class="n">urlStr</span><span class="o">);</span>
-        <span class="n">urlConnection</span> <span class="o">=</span> <span class="o">(</span><span class="n">HttpURLConnection</span><span class="o">)</span> <span class="n">url</span><span class="o">.</span><span class="na">openConnection</span><span class="o">();</span>
+        <span class="nc">String</span> <span class="n">urlStr</span> <span class="o">=</span> <span class="n">params</span><span class="o">[</span><span class="mi">0</span><span class="o">];</span>
+        <span class="no">URL</span> <span class="n">url</span> <span class="o">=</span> <span class="k">new</span> <span class="no">URL</span><span class="o">(</span><span class="n">urlStr</span><span class="o">);</span>
+        <span class="n">urlConnection</span> <span class="o">=</span> <span class="o">(</span><span class="nc">HttpURLConnection</span><span class="o">)</span> <span class="n">url</span><span class="o">.</span><span class="na">openConnection</span><span class="o">();</span>
         <span class="n">urlConnection</span><span class="o">.</span><span class="na">setConnectTimeout</span><span class="o">(</span><span class="mi">3000</span><span class="o">);</span>
         <span class="n">urlConnection</span><span class="o">.</span><span class="na">setReadTimeout</span><span class="o">(</span><span class="mi">7000</span><span class="o">);</span>
         <span class="kt">int</span> <span class="n">statusCode</span> <span class="o">=</span> <span class="n">urlConnection</span><span class="o">.</span><span class="na">getResponseCode</span><span class="o">();</span>
 
         <span class="c1">// 200 represents HTTP OK</span>
         <span class="k">if</span> <span class="o">(</span><span class="n">statusCode</span> <span class="o">==</span> <span class="mi">200</span><span class="o">)</span> <span class="o">{</span>
-            <span class="n">BufferedReader</span> <span class="n">r</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BufferedReader</span><span class="o">(</span><span class="k">new</span> <span class="n">InputStreamReader</span><span class="o">(</span><span class="n">urlConnection</span><span class="o">.</span><span class="na">getInputStream</span><span class="o">()));</span>
-            <span class="n">StringBuilder</span> <span class="n">response</span> <span class="o">=</span> <span class="k">new</span> <span class="n">StringBuilder</span><span class="o">();</span>
-            <span class="n">String</span> <span class="n">line</span><span class="o">;</span>
+            <span class="nc">BufferedReader</span> <span class="n">r</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">BufferedReader</span><span class="o">(</span><span class="k">new</span> <span class="nc">InputStreamReader</span><span class="o">(</span><span class="n">urlConnection</span><span class="o">.</span><span class="na">getInputStream</span><span class="o">()));</span>
+            <span class="nc">StringBuilder</span> <span class="n">response</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">StringBuilder</span><span class="o">();</span>
+            <span class="nc">String</span> <span class="n">line</span><span class="o">;</span>
             <span class="k">while</span> <span class="o">((</span><span class="n">line</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="na">readLine</span><span class="o">())</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
                 <span class="n">response</span><span class="o">.</span><span class="na">append</span><span class="o">(</span><span class="n">line</span><span class="o">);</span>
             <span class="o">}</span>
             <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="na">toString</span><span class="o">();</span>
         <span class="o">}</span>
-    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
         <span class="c1">// didn't work</span>
     <span class="o">}</span>
     <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
 <span class="o">}</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>If the request fails and we do not get a string of GeoJSON, we return <code class="highlighter-rouge">null</code>.</p>
 
@@ -190,18 +187,17 @@
 
 <p>Once we have created our GeoJSON string, we can add it to the map in <code class="highlighter-rouge">onPostExectue</code>.</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="nd">@Override</span>
-<span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onPostExecute</span><span class="o">(</span><span class="n">String</span> <span class="n">json</span><span class="o">)</span> <span class="o">{</span>
-    <span class="n">VectorInfo</span> <span class="n">vectorInfo</span> <span class="o">=</span> <span class="k">new</span> <span class="n">VectorInfo</span><span class="o">();</span>
-    <span class="n">vectorInfo</span><span class="o">.</span><span class="na">setColor</span><span class="o">(</span><span class="n">Color</span><span class="o">.</span><span class="na">RED</span><span class="o">);</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Override</span>
+<span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onPostExecute</span><span class="o">(</span><span class="nc">String</span> <span class="n">json</span><span class="o">)</span> <span class="o">{</span>
+    <span class="nc">VectorInfo</span> <span class="n">vectorInfo</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">VectorInfo</span><span class="o">();</span>
+    <span class="n">vectorInfo</span><span class="o">.</span><span class="na">setColor</span><span class="o">(</span><span class="nc">Color</span><span class="o">.</span><span class="na">RED</span><span class="o">);</span>
     <span class="n">vectorInfo</span><span class="o">.</span><span class="na">setLineWidth</span><span class="o">(</span><span class="mi">4</span><span class="o">.</span><span class="na">f</span><span class="o">);</span>
-    <span class="n">VectorObject</span> <span class="n">object</span> <span class="o">=</span> <span class="k">new</span> <span class="n">VectorObject</span><span class="o">();</span>
+    <span class="nc">VectorObject</span> <span class="n">object</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">VectorObject</span><span class="o">();</span>
     <span class="k">if</span> <span class="o">(</span><span class="n">object</span><span class="o">.</span><span class="na">fromGeoJSON</span><span class="o">(</span><span class="n">json</span><span class="o">))</span> <span class="o">{</span>
-        <span class="n">controller</span><span class="o">.</span><span class="na">addVector</span><span class="o">(</span><span class="n">object</span><span class="o">,</span> <span class="n">vectorInfo</span><span class="o">,</span> <span class="n">MaplyBaseController</span><span class="o">.</span><span class="na">ThreadMode</span><span class="o">.</span><span class="na">ThreadAny</span><span class="o">);</span>
+        <span class="n">controller</span><span class="o">.</span><span class="na">addVector</span><span class="o">(</span><span class="n">object</span><span class="o">,</span> <span class="n">vectorInfo</span><span class="o">,</span> <span class="nc">MaplyBaseController</span><span class="o">.</span><span class="na">ThreadMode</span><span class="o">.</span><span class="na">ThreadAny</span><span class="o">);</span>
     <span class="o">}</span>
 <span class="o">}</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>The <code class="highlighter-rouge">if</code> statement checks if we were able to create a vector object from the JSON string. If it is null or invalid GeoJSON, <code class="highlighter-rouge">fromGeoJSON</code> returns false. Also notice that when you add the vector to the map controller, the 3rd argument is <code class="highlighter-rouge">MaplyBaseController.ThreadMode.ThreadAny</code>. This <code class="highlighter-rouge">enum</code> states that the underlying tesselation and geometry processing work is done in a worker thread in the WhirlyGlobe library. You can alternatively use <code class="highlighter-rouge">MaplyBaseController.ThreadMode.ThreadCurrent</code> if you want to have control over what thread this underlying work is executed on.</p>
 
@@ -271,28 +267,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/getting-started.html">Before You Start</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -568,193 +543,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/building-from-repository.html">Building From Repository</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/building-from-nightly.html">Building From Nightly</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
+                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/building-from-binary.html">Building From Nightly</a></li>
                       
                       
                       
@@ -1041,31 +830,10 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
                       </ol>
                       
                       <li class="sidebar-header-item">Basics of Display</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -1293,16 +1061,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/local-image-layer.html">Local Image Layer</a></li>
-                      
-                      
-                      
                       
                       
                       
@@ -1517,34 +1276,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item current"><a class="page-link" href="/WhirlyGlobe/tutorial/android/vector-data.html">Vector Data</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -1814,19 +1546,10 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/screen-labels.html">Screen Labels</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -2002,22 +1725,10 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/spheres-android.html">Spheres</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -2056,21 +1767,6 @@
                       
                       <li class="sidebar-header-item">Interaction</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -2322,19 +2018,10 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/screen-marker-selection.html">Screen Marker Selection</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -2391,9 +2078,6 @@
                       
                       <li class="sidebar-header-item">Advanced</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
                       
                       
                       
@@ -2548,15 +2232,6 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       </ol>
                       
                     </ol>
@@ -2573,12 +2248,6 @@
           <div class="col-sm-9" id="prev-next">
             
             
-            
-            
-            
-            
-            
-
             
             
             
@@ -2763,7 +2432,7 @@
             An open source geospatial display toolkit<br /> for iOS and Android.
           </p>
           <p class="site-description">
-            <small>Ⓒ 2017 mousebird consulting.</small>
+            <small>Ⓒ 2020 mousebird consulting.</small>
           </p>
         </div>
 

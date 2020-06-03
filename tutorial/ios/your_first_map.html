@@ -107,7 +107,7 @@
             <h2>Your First Map</h2>
             <p>You’ll need to start with the <a href="hello_earth.html">HelloEarth app</a> you wrote earlier.  Go do that if you haven’t already.</p>
 
-<p>Open HelloEarth in Xcode.  The template we used earlier should have ViewController.h and ViewController.m files.</p>
+<p>Open HelloEarth in Xcode.  The template we used earlier should have a ViewController.swift file.</p>
 
 <p><img src="/WhirlyGlobe/images/tutorial/globe_snap_1.png" alt="Xcode HelloEarth" /></p>
 
@@ -115,7 +115,7 @@
 
 <figure class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="cp">#import &lt;MaplyComponent.h&gt;</span></code></pre></figure>
 
-<p>On the other hand, if you’re using Swift, you’ll need to setup your bridging header and add the previous import to that header.</p>
+<p>If you’re using Swift, the bridging header you set up earlier should work fine.</p>
 
 <p>Now let’s actually add a MaplyViewController. We’re going to keep it very simple at first – we just want to verify the project setup before getting much further along.</p>
 
@@ -123,22 +123,24 @@
 
 <div class="multiple_code_header"><a href="#" data-index="0">&nbsp;</a><a href="#" data-index="1">&nbsp;</a></div>
 <ul class="multiple_code"><li data-index="0">
+
+
+<figure class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="kd">class</span> <span class="kt">ViewController</span> <span class="p">:</span> <span class="kt">UIViewController</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="k">var</span> <span class="nv">theViewC</span><span class="p">:</span> <span class="kt">MaplyBaseViewController</span><span class="p">?</span>
   
-<figure class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="k">@implementation</span> <span class="nc">ViewController</span>
-<span class="p">{</span>
-  <span class="n">MaplyViewController</span> <span class="o">*</span><span class="n">theViewC</span><span class="p">;</span>
+  <span class="o">...</span>
 <span class="p">}</span></code></pre></figure>
 
 
   </li><li data-index="1">
 
-  
-<figure class="highlight"><pre><code class="language-swift" data-lang="swift">  <span class="kd">class</span> <span class="kt">ViewController</span> <span class="p">:</span> <span class="kt">UIViewController</span> <span class="p">{</span>
-      <span class="kd">private</span> <span class="k">var</span> <span class="nv">theViewC</span><span class="p">:</span> <span class="kt">MaplyBaseViewController</span><span class="p">?</span>
     
-    <span class="o">...</span>
+<figure class="highlight"><pre><code class="language-objc" data-lang="objc">  <span class="k">@implementation</span> <span class="nc">ViewController</span>
+  <span class="p">{</span>
+    <span class="n">MaplyViewController</span> <span class="o">*</span><span class="n">theViewC</span><span class="p">;</span>
   <span class="p">}</span>
   </code></pre></figure>
+
 
 </li></ul>
 
@@ -146,21 +148,6 @@
 
 <div class="multiple_code_header"><a href="#" data-index="0">&nbsp;</a><a href="#" data-index="1">&nbsp;</a></div>
 <ul class="multiple_code"><li data-index="0">
-  
-<figure class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">viewDidLoad</span>
-<span class="p">{</span>
-  <span class="p">[</span><span class="n">super</span> <span class="nf">viewDidLoad</span><span class="p">];</span>
-
-  <span class="c1">// Create an empty globe and add it to the view
-</span>  <span class="n">theViewC</span> <span class="o">=</span> <span class="p">[[</span><span class="n">MaplyViewController</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">initWithMapType</span><span class="p">:</span><span class="n">MaplyMapTypeFlat</span><span class="p">];</span>
-  <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">view</span> <span class="nf">addSubview</span><span class="p">:</span><span class="n">theViewC</span><span class="p">.</span><span class="n">view</span><span class="p">];</span>
-  <span class="n">theViewC</span><span class="p">.</span><span class="n">view</span><span class="p">.</span><span class="n">frame</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">view</span><span class="p">.</span><span class="n">bounds</span><span class="p">;</span>
-  <span class="p">[</span><span class="n">self</span> <span class="nf">addChildViewController</span><span class="p">:</span><span class="n">theViewC</span><span class="p">];</span>
-<span class="p">}</span>
-  </code></pre></figure>
-
-
-  </li><li data-index="1">
 
   
 <figure class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="k">override</span> <span class="kd">func</span> <span class="nf">viewDidLoad</span><span class="p">()</span> <span class="p">{</span>
@@ -170,13 +157,30 @@
   <span class="n">theViewC</span> <span class="o">=</span> <span class="kt">MaplyViewController</span><span class="p">(</span><span class="nv">mapType</span><span class="p">:</span> <span class="o">.</span><span class="kt">TypeFlat</span><span class="p">)</span>
   <span class="k">self</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="nf">addSubview</span><span class="p">(</span><span class="n">theViewC</span><span class="o">!.</span><span class="n">view</span><span class="p">)</span>
   <span class="n">theViewC</span><span class="o">!.</span><span class="n">view</span><span class="o">.</span><span class="n">frame</span> <span class="o">=</span> <span class="k">self</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">bounds</span>
-  <span class="nf">addChildViewController</span><span class="p">(</span><span class="n">theViewC</span><span class="o">!</span><span class="p">)</span>
+  <span class="nf">addChild</span><span class="p">(</span><span class="n">theViewC</span><span class="o">!</span><span class="p">)</span>
 <span class="p">}</span>
   </code></pre></figure>
 
+
+  </li><li data-index="1">
+
+    
+<figure class="highlight"><pre><code class="language-objc" data-lang="objc">  <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">viewDidLoad</span>
+  <span class="p">{</span>
+    <span class="p">[</span><span class="n">super</span> <span class="nf">viewDidLoad</span><span class="p">];</span>
+
+    <span class="c1">// Create an empty globe and add it to the view</span>
+    <span class="n">theViewC</span> <span class="o">=</span> <span class="p">[[</span><span class="n">MaplyViewController</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">initWithMapType</span><span class="p">:</span><span class="n">MaplyMapTypeFlat</span><span class="p">];</span>
+    <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">view</span> <span class="nf">addSubview</span><span class="p">:</span><span class="n">theViewC</span><span class="p">.</span><span class="n">view</span><span class="p">];</span>
+    <span class="n">theViewC</span><span class="p">.</span><span class="n">view</span><span class="p">.</span><span class="n">frame</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">view</span><span class="p">.</span><span class="n">bounds</span><span class="p">;</span>
+    <span class="p">[</span><span class="n">self</span> <span class="nf">addChildViewController</span><span class="p">:</span><span class="n">theViewC</span><span class="p">];</span>
+  <span class="p">}</span>
+    </code></pre></figure>
+
+
 </li></ul>
 
-<p>That’s it! Pick a real or virtual iOS device and run the app. If you get a blank screen (and no build errors), you win. At this point you can be certain that your project setup is correct, and you can proceed to add WhirlyGlobe-­Maply features with confidence.</p>
+<p>That’s it! Pick a real or simulated iOS device and run the app. If you get a blank screen (and no build errors), you win. At this point you can be certain that your project setup is correct, and you can proceed to add WhirlyGlobe-­Maply features with confidence.</p>
 
 <p>If you encounter build errors, or something other than a black screen comes up on the device review the above steps, and ensure that you have done everything correctly.</p>
 
@@ -247,28 +251,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/getting_started.html">Before You Start</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -553,28 +536,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/building_from_source.html">Source Distribution</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -877,25 +839,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/building_from_cocoapod.html">Cocoapods</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -1080,34 +1024,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/globe_or_map.html">Globe Or Map</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -1503,19 +1420,10 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item current"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/your_first_map.html">Your First Map</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -1524,15 +1432,6 @@
                       
                       <li class="sidebar-header-item">Image Based Maps</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -1778,187 +1677,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/remote_image_layer.html">Remote Image Layer</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/remote_NASA_image_layers.html">NASA Image Layers</a></li>
                       
                       
                       
@@ -2033,33 +1752,6 @@
                       
                       
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/adding_vector_data.html">Vector Data</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -2461,31 +2153,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/screen_labels.html">Screen Labels</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -2685,25 +2353,13 @@
                       
                       
                       
+                      
+                      
+                      
                       </ol>
                       
                       <li class="sidebar-header-item">Shapes</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -2855,25 +2511,13 @@
                       
                       
                       
+                      
+                      
+                      
                       </ol>
                       
                       <li class="sidebar-header-item">Interaction</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -3134,25 +2778,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/screen_marker_selection.html">Screen Marker Selection</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -3352,9 +2978,6 @@
                       
                       
                       
-                      
-                      
-                      
                       </ol>
                       
                       <li class="sidebar-header-item">Advanced</li>
@@ -3397,13 +3020,13 @@
                       
                       
                       
+                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/cartodb_layer.html">Carto Layer</a></li>
                       
                       
                       
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/cartodb_layer.html">CartoDB Layer</a></li>
                       
                       
                       
@@ -3434,522 +3057,6 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/aeris_weather.html">Aeris Weather Layer</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/component_tester.html">Component Tester</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/micello_map.html">Micello Indoor Maps</a></li>
                       
                       
                       
@@ -4182,9 +3289,6 @@
                       
                       
                       
-                      
-                      
-                      
                       </ol>
                       
                     </ol>
@@ -4267,7 +3371,7 @@
             An open source geospatial display toolkit<br /> for iOS and Android.
           </p>
           <p class="site-description">
-            <small>Ⓒ 2017 mousebird consulting.</small>
+            <small>Ⓒ 2020 mousebird consulting.</small>
           </p>
         </div>
 

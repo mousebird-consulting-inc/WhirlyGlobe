@@ -128,32 +128,30 @@
 
 <p>In your <a href="https://github.com/mousebird/AndroidTutorialProject/blob/8156d82acd42ec2c238fbe06c5658bd4cc796f5b/app/src/main/java/io/theoutpost/helloearth/HelloMapFragment.java#L115">HelloMapFragment.java</a>, we are going to insert our markers right after we add our GeoJSON to the map. Create a new method called <code class="highlighter-rouge">insertMarkers</code>.</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="nd">@Override</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Override</span>
 <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">controlHasStarted</span><span class="o">()</span> <span class="o">{</span>
     <span class="o">...</span>
     <span class="c1">// Insert Markers</span>
     <span class="n">insertMarkers</span><span class="o">();</span>
 <span class="o">}</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Adding your first marker is easy.</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">private</span> <span class="kt">void</span> <span class="nf">insertMarkers</span><span class="o">()</span> <span class="o">{</span>
-    <span class="n">MarkerInfo</span> <span class="n">markerInfo</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MarkerInfo</span><span class="o">();</span>
-    <span class="n">Bitmap</span> <span class="n">icon</span> <span class="o">=</span> <span class="n">BitmapFactory</span><span class="o">.</span><span class="na">decodeResource</span><span class="o">(</span><span class="n">getActivity</span><span class="o">().</span><span class="na">getResources</span><span class="o">(),</span> <span class="n">R</span><span class="o">.</span><span class="na">drawable</span><span class="o">.</span><span class="na">ic_city</span><span class="o">);</span>
-    <span class="n">Point2d</span> <span class="n">markerSize</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Point2d</span><span class="o">(</span><span class="mi">144</span><span class="o">,</span> <span class="mi">144</span><span class="o">);</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">private</span> <span class="kt">void</span> <span class="nf">insertMarkers</span><span class="o">()</span> <span class="o">{</span>
+    <span class="nc">MarkerInfo</span> <span class="n">markerInfo</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">MarkerInfo</span><span class="o">();</span>
+    <span class="nc">Bitmap</span> <span class="n">icon</span> <span class="o">=</span> <span class="nc">BitmapFactory</span><span class="o">.</span><span class="na">decodeResource</span><span class="o">(</span><span class="n">getActivity</span><span class="o">().</span><span class="na">getResources</span><span class="o">(),</span> <span class="no">R</span><span class="o">.</span><span class="na">drawable</span><span class="o">.</span><span class="na">ic_city</span><span class="o">);</span>
+    <span class="nc">Point2d</span> <span class="n">markerSize</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Point2d</span><span class="o">(</span><span class="mi">144</span><span class="o">,</span> <span class="mi">144</span><span class="o">);</span>
 
     <span class="c1">// Moskow - Москва</span>
-    <span class="n">ScreenMarker</span> <span class="n">moskow</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ScreenMarker</span><span class="o">();</span>
-    <span class="n">moskow</span><span class="o">.</span><span class="na">loc</span> <span class="o">=</span> <span class="n">Point2d</span><span class="o">.</span><span class="na">FromDegrees</span><span class="o">(</span><span class="mf">37.616667</span><span class="o">,</span> <span class="mf">55.75</span><span class="o">);</span> <span class="c1">// Longitude, Latitude</span>
+    <span class="nc">ScreenMarker</span> <span class="n">moskow</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ScreenMarker</span><span class="o">();</span>
+    <span class="n">moskow</span><span class="o">.</span><span class="na">loc</span> <span class="o">=</span> <span class="nc">Point2d</span><span class="o">.</span><span class="na">FromDegrees</span><span class="o">(</span><span class="mf">37.616667</span><span class="o">,</span> <span class="mf">55.75</span><span class="o">);</span> <span class="c1">// Longitude, Latitude</span>
     <span class="n">moskow</span><span class="o">.</span><span class="na">image</span> <span class="o">=</span> <span class="n">icon</span><span class="o">;</span>
     <span class="n">moskow</span><span class="o">.</span><span class="na">size</span> <span class="o">=</span> <span class="n">markerSize</span><span class="o">;</span>
 
-    <span class="n">mapControl</span><span class="o">.</span><span class="na">addScreenMarker</span><span class="o">(</span><span class="n">moskow</span><span class="o">,</span> <span class="n">markerInfo</span><span class="o">,</span> <span class="n">MaplyBaseController</span><span class="o">.</span><span class="na">ThreadMode</span><span class="o">.</span><span class="na">ThreadAny</span><span class="o">);</span>
+    <span class="n">mapControl</span><span class="o">.</span><span class="na">addScreenMarker</span><span class="o">(</span><span class="n">moskow</span><span class="o">,</span> <span class="n">markerInfo</span><span class="o">,</span> <span class="nc">MaplyBaseController</span><span class="o">.</span><span class="na">ThreadMode</span><span class="o">.</span><span class="na">ThreadAny</span><span class="o">);</span>
 <span class="o">}</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p><code class="highlighter-rouge">MarkerInfo</code> is an options object used to configure special options for a marker, such as clustering and zoom restrictions. You specify the marker size with a <code class="highlighter-rouge">Point2d</code> object, then this dictates the (x, y) dimensions of the icon. In our example we gave it the exact width and height of the image supplied. However, you can change these parameters as you see fit, and the toolkit will scale the icon accordingly.</p>
 
@@ -167,54 +165,53 @@
 
 <p>To make a tutorial a little bit more interesting, we are going to add some more markers. Below you can see the code that adds to the map the five most populous cities in Russia.</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">private</span> <span class="kt">void</span> <span class="nf">insertMarkers</span><span class="o">()</span> <span class="o">{</span>
-    <span class="n">List</span><span class="o">&lt;</span><span class="n">ScreenMarker</span><span class="o">&gt;</span> <span class="n">markers</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;&gt;();</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">private</span> <span class="kt">void</span> <span class="nf">insertMarkers</span><span class="o">()</span> <span class="o">{</span>
+    <span class="nc">List</span><span class="o">&lt;</span><span class="nc">ScreenMarker</span><span class="o">&gt;</span> <span class="n">markers</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ArrayList</span><span class="o">&lt;&gt;();</span>
 
-    <span class="n">MarkerInfo</span> <span class="n">markerInfo</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MarkerInfo</span><span class="o">();</span>
-    <span class="n">Bitmap</span> <span class="n">icon</span> <span class="o">=</span> <span class="n">BitmapFactory</span><span class="o">.</span><span class="na">decodeResource</span><span class="o">(</span><span class="n">getActivity</span><span class="o">().</span><span class="na">getResources</span><span class="o">(),</span> <span class="n">R</span><span class="o">.</span><span class="na">drawable</span><span class="o">.</span><span class="na">ic_city</span><span class="o">);</span>
-    <span class="n">Point2d</span> <span class="n">markerSize</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Point2d</span><span class="o">(</span><span class="mi">144</span><span class="o">,</span> <span class="mi">144</span><span class="o">);</span>
+    <span class="nc">MarkerInfo</span> <span class="n">markerInfo</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">MarkerInfo</span><span class="o">();</span>
+    <span class="nc">Bitmap</span> <span class="n">icon</span> <span class="o">=</span> <span class="nc">BitmapFactory</span><span class="o">.</span><span class="na">decodeResource</span><span class="o">(</span><span class="n">getActivity</span><span class="o">().</span><span class="na">getResources</span><span class="o">(),</span> <span class="no">R</span><span class="o">.</span><span class="na">drawable</span><span class="o">.</span><span class="na">ic_city</span><span class="o">);</span>
+    <span class="nc">Point2d</span> <span class="n">markerSize</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Point2d</span><span class="o">(</span><span class="mi">144</span><span class="o">,</span> <span class="mi">144</span><span class="o">);</span>
 
     <span class="c1">// Moskow - Москва</span>
-    <span class="n">ScreenMarker</span> <span class="n">moskow</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ScreenMarker</span><span class="o">();</span>
-    <span class="n">moskow</span><span class="o">.</span><span class="na">loc</span> <span class="o">=</span> <span class="n">Point2d</span><span class="o">.</span><span class="na">FromDegrees</span><span class="o">(</span><span class="mf">37.616667</span><span class="o">,</span> <span class="mf">55.75</span><span class="o">);</span> <span class="c1">// Longitude, Latitude</span>
+    <span class="nc">ScreenMarker</span> <span class="n">moskow</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ScreenMarker</span><span class="o">();</span>
+    <span class="n">moskow</span><span class="o">.</span><span class="na">loc</span> <span class="o">=</span> <span class="nc">Point2d</span><span class="o">.</span><span class="na">FromDegrees</span><span class="o">(</span><span class="mf">37.616667</span><span class="o">,</span> <span class="mf">55.75</span><span class="o">);</span> <span class="c1">// Longitude, Latitude</span>
     <span class="n">moskow</span><span class="o">.</span><span class="na">image</span> <span class="o">=</span> <span class="n">icon</span><span class="o">;</span>
     <span class="n">moskow</span><span class="o">.</span><span class="na">size</span> <span class="o">=</span> <span class="n">markerSize</span><span class="o">;</span>
     <span class="n">markers</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">moskow</span><span class="o">);</span>
 
     <span class="c1">//  Saint Petersburg - Санкт-Петербург</span>
-    <span class="n">ScreenMarker</span> <span class="n">stPetersburg</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ScreenMarker</span><span class="o">();</span>
-    <span class="n">stPetersburg</span><span class="o">.</span><span class="na">loc</span> <span class="o">=</span> <span class="n">Point2d</span><span class="o">.</span><span class="na">FromDegrees</span><span class="o">(</span><span class="mf">30.3</span><span class="o">,</span> <span class="mf">59.95</span><span class="o">);</span>
+    <span class="nc">ScreenMarker</span> <span class="n">stPetersburg</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ScreenMarker</span><span class="o">();</span>
+    <span class="n">stPetersburg</span><span class="o">.</span><span class="na">loc</span> <span class="o">=</span> <span class="nc">Point2d</span><span class="o">.</span><span class="na">FromDegrees</span><span class="o">(</span><span class="mf">30.3</span><span class="o">,</span> <span class="mf">59.95</span><span class="o">);</span>
     <span class="n">stPetersburg</span><span class="o">.</span><span class="na">image</span> <span class="o">=</span> <span class="n">icon</span><span class="o">;</span>
     <span class="n">stPetersburg</span><span class="o">.</span><span class="na">size</span> <span class="o">=</span> <span class="n">markerSize</span><span class="o">;</span>
     <span class="n">markers</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">stPetersburg</span><span class="o">);</span>
 
     <span class="c1">// Novosibirsk - Новосибирск</span>
-    <span class="n">ScreenMarker</span> <span class="n">novosibirsk</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ScreenMarker</span><span class="o">();</span>
-    <span class="n">novosibirsk</span><span class="o">.</span><span class="na">loc</span> <span class="o">=</span> <span class="n">Point2d</span><span class="o">.</span><span class="na">FromDegrees</span><span class="o">(</span><span class="mf">82.95</span><span class="o">,</span> <span class="mf">55.05</span><span class="o">);</span>
+    <span class="nc">ScreenMarker</span> <span class="n">novosibirsk</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ScreenMarker</span><span class="o">();</span>
+    <span class="n">novosibirsk</span><span class="o">.</span><span class="na">loc</span> <span class="o">=</span> <span class="nc">Point2d</span><span class="o">.</span><span class="na">FromDegrees</span><span class="o">(</span><span class="mf">82.95</span><span class="o">,</span> <span class="mf">55.05</span><span class="o">);</span>
     <span class="n">novosibirsk</span><span class="o">.</span><span class="na">image</span> <span class="o">=</span> <span class="n">icon</span><span class="o">;</span>
     <span class="n">novosibirsk</span><span class="o">.</span><span class="na">size</span> <span class="o">=</span> <span class="n">markerSize</span><span class="o">;</span>
     <span class="n">markers</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">novosibirsk</span><span class="o">);</span>
 
     <span class="c1">// Yekaterinburg - Екатеринбург</span>
-    <span class="n">ScreenMarker</span> <span class="n">yekaterinburg</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ScreenMarker</span><span class="o">();</span>
-    <span class="n">yekaterinburg</span><span class="o">.</span><span class="na">loc</span> <span class="o">=</span> <span class="n">Point2d</span><span class="o">.</span><span class="na">FromDegrees</span><span class="o">(</span><span class="mf">60.583333</span><span class="o">,</span> <span class="mf">56.833333</span><span class="o">);</span>
+    <span class="nc">ScreenMarker</span> <span class="n">yekaterinburg</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ScreenMarker</span><span class="o">();</span>
+    <span class="n">yekaterinburg</span><span class="o">.</span><span class="na">loc</span> <span class="o">=</span> <span class="nc">Point2d</span><span class="o">.</span><span class="na">FromDegrees</span><span class="o">(</span><span class="mf">60.583333</span><span class="o">,</span> <span class="mf">56.833333</span><span class="o">);</span>
     <span class="n">yekaterinburg</span><span class="o">.</span><span class="na">image</span> <span class="o">=</span> <span class="n">icon</span><span class="o">;</span>
     <span class="n">yekaterinburg</span><span class="o">.</span><span class="na">size</span> <span class="o">=</span> <span class="n">markerSize</span><span class="o">;</span>
     <span class="n">markers</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">yekaterinburg</span><span class="o">);</span>
 
     <span class="c1">// Nizhny Novgorod - Нижний Новгород</span>
-    <span class="n">ScreenMarker</span> <span class="n">nizhnyNovgorod</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ScreenMarker</span><span class="o">();</span>
-    <span class="n">nizhnyNovgorod</span><span class="o">.</span><span class="na">loc</span> <span class="o">=</span> <span class="n">Point2d</span><span class="o">.</span><span class="na">FromDegrees</span><span class="o">(</span><span class="mf">44.0075</span><span class="o">,</span> <span class="mf">56.326944</span><span class="o">);</span>
+    <span class="nc">ScreenMarker</span> <span class="n">nizhnyNovgorod</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ScreenMarker</span><span class="o">();</span>
+    <span class="n">nizhnyNovgorod</span><span class="o">.</span><span class="na">loc</span> <span class="o">=</span> <span class="nc">Point2d</span><span class="o">.</span><span class="na">FromDegrees</span><span class="o">(</span><span class="mf">44.0075</span><span class="o">,</span> <span class="mf">56.326944</span><span class="o">);</span>
     <span class="n">nizhnyNovgorod</span><span class="o">.</span><span class="na">image</span> <span class="o">=</span> <span class="n">icon</span><span class="o">;</span>
     <span class="n">nizhnyNovgorod</span><span class="o">.</span><span class="na">size</span> <span class="o">=</span> <span class="n">markerSize</span><span class="o">;</span>
-    <span class="n">nizhnyNovgorod</span><span class="o">.</span><span class="na">rotation</span> <span class="o">=</span> <span class="n">Math</span><span class="o">.</span><span class="na">PI</span><span class="o">;</span>
+    <span class="n">nizhnyNovgorod</span><span class="o">.</span><span class="na">rotation</span> <span class="o">=</span> <span class="nc">Math</span><span class="o">.</span><span class="na">PI</span><span class="o">;</span>
     <span class="n">markers</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">nizhnyNovgorod</span><span class="o">);</span>
 
     <span class="c1">// Add your markers to the map controller.</span>
-    <span class="n">ComponentObject</span> <span class="n">markersComponentObject</span> <span class="o">=</span> <span class="n">mapControl</span><span class="o">.</span><span class="na">addScreenMarkers</span><span class="o">(</span><span class="n">markers</span><span class="o">,</span> <span class="n">markerInfo</span><span class="o">,</span> <span class="n">MaplyBaseController</span><span class="o">.</span><span class="na">ThreadMode</span><span class="o">.</span><span class="na">ThreadAny</span><span class="o">);</span>
+    <span class="nc">ComponentObject</span> <span class="n">markersComponentObject</span> <span class="o">=</span> <span class="n">mapControl</span><span class="o">.</span><span class="na">addScreenMarkers</span><span class="o">(</span><span class="n">markers</span><span class="o">,</span> <span class="n">markerInfo</span><span class="o">,</span> <span class="nc">MaplyBaseController</span><span class="o">.</span><span class="na">ThreadMode</span><span class="o">.</span><span class="na">ThreadAny</span><span class="o">);</span>
 <span class="o">}</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Here we are adding all of our markers to an <code class="highlighter-rouge">ArrayList</code>. Then, we add this list to the map with <code class="highlighter-rouge">addScreenMarkers</code> instead of <code class="highlighter-rouge">addScreenMarker</code>.</p>
 
@@ -224,9 +221,8 @@
 
 <p>Lastly, <code class="highlighter-rouge">addScreenMarkers</code> returns a <code class="highlighter-rouge">ComponentObject</code> that you can keep track of. This object is your handle to the marker, vector, or other <em>component</em> object that you have added to your map controller. You can then later remove, enable, or disable your object in the controller.</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">mapControl</span><span class="o">.</span><span class="na">removeObject</span><span class="o">(</span><span class="n">markersComponentObject</span><span class="o">,</span> <span class="n">MaplyBaseController</span><span class="o">.</span><span class="na">ThreadMode</span><span class="o">.</span><span class="na">ThreadAny</span><span class="o">);</span>
-</code></pre>
-</div>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">mapControl</span><span class="o">.</span><span class="na">removeObject</span><span class="o">(</span><span class="n">markersComponentObject</span><span class="o">,</span> <span class="nc">MaplyBaseController</span><span class="o">.</span><span class="na">ThreadMode</span><span class="o">.</span><span class="na">ThreadAny</span><span class="o">);</span>
+</code></pre></div></div>
 
 <p>The <a href="https://github.com/mousebird/AndroidTutorialProject/blob/8156d82acd42ec2c238fbe06c5658bd4cc796f5b/app/src/main/java/io/theoutpost/helloearth/HelloMapFragment.java">completed code</a> for this tutorial is on Github for your reference.</p>
 
@@ -292,28 +288,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/getting-started.html">Before You Start</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -589,193 +564,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/building-from-repository.html">Building From Repository</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/building-from-nightly.html">Building From Nightly</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
+                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/building-from-binary.html">Building From Nightly</a></li>
                       
                       
                       
@@ -1062,31 +851,10 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
                       </ol>
                       
                       <li class="sidebar-header-item">Basics of Display</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -1314,16 +1082,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/local-image-layer.html">Local Image Layer</a></li>
-                      
-                      
-                      
                       
                       
                       
@@ -1538,34 +1297,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/vector-data.html">Vector Data</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -1835,19 +1567,10 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/screen-labels.html">Screen Labels</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -2023,22 +1746,10 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/spheres-android.html">Spheres</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -2077,21 +1788,6 @@
                       
                       <li class="sidebar-header-item">Interaction</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -2343,19 +2039,10 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/screen-marker-selection.html">Screen Marker Selection</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -2412,9 +2099,6 @@
                       
                       <li class="sidebar-header-item">Advanced</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
                       
                       
                       
@@ -2569,15 +2253,6 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       </ol>
                       
                     </ol>
@@ -2594,12 +2269,6 @@
           <div class="col-sm-9" id="prev-next">
             
             
-            
-            
-            
-            
-            
-
             
             
             
@@ -2787,7 +2456,7 @@
             An open source geospatial display toolkit<br /> for iOS and Android.
           </p>
           <p class="site-description">
-            <small>Ⓒ 2017 mousebird consulting.</small>
+            <small>Ⓒ 2020 mousebird consulting.</small>
           </p>
         </div>
 

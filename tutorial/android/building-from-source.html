@@ -113,23 +113,20 @@
 
 <p>First you will want to clone the toolkit from Github.</p>
 
-<div class="language-sh highlighter-rouge"><pre class="highlight"><code>git clone https://github.com/mousebird/WhirlyGlobe.git
-</code></pre>
-</div>
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git clone https://github.com/mousebird/WhirlyGlobe.git
+</code></pre></div></div>
 
 <p>The Android portion of the SDK is in the <code class="highlighter-rouge">develop_3_0</code> branch. Check out this branch.</p>
 
-<div class="language-sh highlighter-rouge"><pre class="highlight"><code><span class="nb">cd </span>WhirlyGlobe
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd </span>WhirlyGlobe
 git checkout develop_3_0
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>WhirlyGlobe-Maply uses a bunch of submodules for its dependencies.</p>
 
-<div class="language-sh highlighter-rouge"><pre class="highlight"><code>git submodule init
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git submodule init
 git submodule update
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>There are 13 git submodules that need to be cloned and initialized. This usually takes about a minute.</p>
 
@@ -137,10 +134,9 @@ git submodule update
 
 <p>Our build scripts need to know the location of your Android SDK and Android NDK. This is done by creating a <code class="highlighter-rouge">local.properties</code> file in the <code class="highlighter-rouge">WhirlyGlobe/WhirlyGlobeSrc/Android/</code> directory. My <code class="highlighter-rouge">local.properties</code> file is below. Replace these paths to the paths of your Android SDK and NDK respectively.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>sdk.dir=/Users/njh/Library/Android/sdk
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sdk.dir=/Users/njh/Library/Android/sdk
 ndk.dir=/usr/local/Cellar/android-ndk/r10e
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Homebrew usually places packages in <code class="highlighter-rouge">/usr/local/Cellar</code>. This is a good place to look to find your NDK. You can find the location of your Android SDK your Android Studio Preferences (Android Studio &gt; Preferences):</p>
 
@@ -150,23 +146,20 @@ ndk.dir=/usr/local/Cellar/android-ndk/r10e
 
 <p>The <code class="highlighter-rouge">.aar</code> is the binary package container format Android uses, an extension to Java’s <code class="highlighter-rouge">.jar</code> container. Through gradle, we create an AAR of WhirlyGlobe-Maply that you can copy over to your Hello Earth project. First, make sure you are in the Android directory:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>WhirlyGlobe/WhirlyGlobeSrc/Android
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>WhirlyGlobe/WhirlyGlobeSrc/Android
+</code></pre></div></div>
 
 <p>Then, execute the <code class="highlighter-rouge">gradlew</code> build script:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>./gradlew assemble
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./gradlew assemble
+</code></pre></div></div>
 
 <p>This will take several minutes. You will be compiling the entirety of WhirlyGlobe-Maply into an AAR file. In fact, there will be two AAR files–one in Debug mode and the other in Release mode.</p>
 
 <p>These AAR files will be located in:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>WhirlyGlobe/WhirlyGlobeSrc/Android/build/outputs/aar
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>WhirlyGlobe/WhirlyGlobeSrc/Android/build/outputs/aar
+</code></pre></div></div>
 
 <p>Unless you need to debug the underlying library, you should use the <code class="highlighter-rouge">Android-release.aar</code> in your Hello Earth project. Keep track of this file, you will need to copy it into your app’s project.</p>
 
@@ -174,15 +167,14 @@ ndk.dir=/usr/local/Cellar/android-ndk/r10e
 
 <p>Copy your <code class="highlighter-rouge">Android-release.aar</code> that you built into your app’s <code class="highlighter-rouge">libs</code> directory.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>WhirlyGlobe/WhirlyGlobeSrc/HelloEarth/app/libs
-</code></pre>
-</div>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>WhirlyGlobe/WhirlyGlobeSrc/HelloEarth/app/libs
+</code></pre></div></div>
 
 <p>Rename it to <code class="highlighter-rouge">WhirlyGlobeMaply.aar</code>.</p>
 
 <p>Add the following <code class="highlighter-rouge">flatDir</code> directive to your <code class="highlighter-rouge">Build.gradle (Project: HelloEarth)</code> file inside of the <code class="highlighter-rouge">allprojects &gt; repositories</code> directive.</p>
 
-<div class="language-gradle highlighter-rouge"><pre class="highlight"><code><span class="k">allprojects</span> <span class="o">{</span>
+<div class="language-gradle highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">allprojects</span> <span class="o">{</span>
     <span class="k">repositories</span> <span class="o">{</span>
         <span class="n">jcenter</span><span class="o">()</span>
         <span class="n">flatDir</span> <span class="o">{</span>
@@ -190,8 +182,7 @@ ndk.dir=/usr/local/Cellar/android-ndk/r10e
         <span class="o">}</span>
     <span class="o">}</span>
 <span class="o">}</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Next add the following packages to the end of the <code class="highlighter-rouge">dependencies</code> directive in <code class="highlighter-rouge">Build.gradle (Module: app)</code>.</p>
 
@@ -200,7 +191,7 @@ ndk.dir=/usr/local/Cellar/android-ndk/r10e
   <li><code class="highlighter-rouge">compile(name:'WhirlyGlobeMaply', ext:'aar')</code></li>
 </ul>
 
-<div class="language-gradle highlighter-rouge"><pre class="highlight"><code><span class="k">dependencies</span> <span class="o">{</span>
+<div class="language-gradle highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">dependencies</span> <span class="o">{</span>
     <span class="n">compile</span> <span class="nf">fileTree</span><span class="o">(</span><span class="nl">dir:</span> <span class="s1">'libs'</span><span class="o">,</span> <span class="nl">include:</span> <span class="o">[</span><span class="s1">'*.jar'</span><span class="o">])</span>
     <span class="n">testCompile</span> <span class="s1">'junit:junit:4.12'</span>
     <span class="n">compile</span> <span class="s1">'com.android.support:appcompat-v7:24.0.0'</span>
@@ -208,8 +199,7 @@ ndk.dir=/usr/local/Cellar/android-ndk/r10e
     <span class="n">compile</span> <span class="s1">'com.squareup.okhttp:okhttp:2.3.0'</span>
     <span class="n">compile</span><span class="o">(</span><span class="nl">name:</span> <span class="s1">'WhirlyGlobeMaply'</span><span class="o">,</span> <span class="nl">ext:</span> <span class="s1">'aar'</span><span class="o">)</span>
 <span class="o">}</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Android Studio will ask you to sync Gradle. If all goes well, it will sync without complaint.</p>
 
@@ -282,28 +272,7 @@ ndk.dir=/usr/local/Cellar/android-ndk/r10e
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/getting-started.html">Before You Start</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -579,193 +548,7 @@ ndk.dir=/usr/local/Cellar/android-ndk/r10e
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/building-from-repository.html">Building From Repository</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/building-from-nightly.html">Building From Nightly</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
+                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/building-from-binary.html">Building From Nightly</a></li>
                       
                       
                       
@@ -1052,31 +835,10 @@ ndk.dir=/usr/local/Cellar/android-ndk/r10e
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
                       </ol>
                       
                       <li class="sidebar-header-item">Basics of Display</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -1304,16 +1066,7 @@ ndk.dir=/usr/local/Cellar/android-ndk/r10e
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/local-image-layer.html">Local Image Layer</a></li>
-                      
-                      
-                      
                       
                       
                       
@@ -1528,34 +1281,7 @@ ndk.dir=/usr/local/Cellar/android-ndk/r10e
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/vector-data.html">Vector Data</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -1825,19 +1551,10 @@ ndk.dir=/usr/local/Cellar/android-ndk/r10e
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/screen-labels.html">Screen Labels</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -2013,22 +1730,10 @@ ndk.dir=/usr/local/Cellar/android-ndk/r10e
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/spheres-android.html">Spheres</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -2067,21 +1772,6 @@ ndk.dir=/usr/local/Cellar/android-ndk/r10e
                       
                       <li class="sidebar-header-item">Interaction</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -2333,19 +2023,10 @@ ndk.dir=/usr/local/Cellar/android-ndk/r10e
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/screen-marker-selection.html">Screen Marker Selection</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -2419,19 +2100,7 @@ ndk.dir=/usr/local/Cellar/android-ndk/r10e
                       
                       
                       
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/auto-tester-android.html">AutoTesterAndroid Example App</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -2650,7 +2319,7 @@ ndk.dir=/usr/local/Cellar/android-ndk/r10e
             An open source geospatial display toolkit<br /> for iOS and Android.
           </p>
           <p class="site-description">
-            <small>Ⓒ 2017 mousebird consulting.</small>
+            <small>Ⓒ 2020 mousebird consulting.</small>
           </p>
         </div>
 

@@ -2,36 +2,35 @@
 //  ViewController.swift
 //  HelloEarth
 //
-//  Created by jmnavarro on 24/07/15.
-//  Copyright (c) 2015 Mousebird. All rights reserved.
+//  Created by Steve Gifford on 12/18/19.
+//  Copyright © 2019 Steve Gifford. All rights reserved.
 //
 
 import UIKit
 
 class ViewController: UIViewController {
+    
+    let DoGlobe = true
+    
+    var theViewC : MaplyBaseViewController? = nil
+        
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        // Start with either globe or map
+        if DoGlobe {
+            let globeViewC = WhirlyGlobeViewController()
+            theViewC = globeViewC
+        } else {
+            let mapViewC = MaplyViewController()
+            theViewC = mapViewC
+        }
 
-	private var theViewC: MaplyBaseViewController?
-	private var globeViewC: WhirlyGlobeViewController?
-	private var mapViewC: MaplyViewController?
+        // Wire this into the view hierarchy
+        self.view.addSubview(theViewC!.view)
+        theViewC!.view.frame = self.view.bounds
+        addChild(theViewC!)
+    }
 
-	private let doGlobe = true
-
-
-	override func viewDidLoad() {
-		super.viewDidLoad()
-
-		if doGlobe {
-			globeViewC = WhirlyGlobeViewController()
-			theViewC = globeViewC
-		}
-		else {
-			mapViewC = MaplyViewController(mapType: .TypeFlat)
-			theViewC = mapViewC
-		}
-
-		self.view.addSubview(theViewC!.view)
-		theViewC!.view.frame = self.view.bounds
-		addChildViewController(theViewC!)
-	}
-	
 }
+

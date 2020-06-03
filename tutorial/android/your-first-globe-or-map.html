@@ -135,9 +135,9 @@
 
 <p>Open <code class="highlighter-rouge">app/src/main/res/layout/activity_hello_globe.xml</code>. Delete the padding in the <code class="highlighter-rouge">RelativeLayout</code> as well as the <code class="highlighter-rouge">TextView</code>. Inside of the relative layout, place a fragment element as shown below.</p>
 
-<h4 id="activitymainxml">activity_main.xml</h4>
+<h4 id="activity_mainxml">activity_main.xml</h4>
 
-<div class="language-xml highlighter-rouge"><pre class="highlight"><code><span class="cp">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span>
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span>
 <span class="nt">&lt;RelativeLayout</span> <span class="na">xmlns:android=</span><span class="s">"http://schemas.android.com/apk/res/android"</span>
     <span class="na">xmlns:tools=</span><span class="s">"http://schemas.android.com/tools"</span>
     <span class="na">android:layout_width=</span><span class="s">"match_parent"</span>
@@ -152,8 +152,7 @@
         <span class="na">android:layout_centerVertical=</span><span class="s">"true"</span>
         <span class="na">android:layout_centerHorizontal=</span><span class="s">"true"</span> <span class="nt">/&gt;</span>
 <span class="nt">&lt;/RelativeLayout&gt;</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>When you look in the <strong>Design</strong> view of the layout xml, don’t worry if there is a warning that there is no fragment layout. The fragment’s layout is set up for you automatically at runtime.</p>
 
@@ -161,7 +160,7 @@
 
 <p>Open your <code class="highlighter-rouge">HelloGlobeFragment.java</code> file and delete the boilerplate code. Replace it with the following:</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kn">package</span> <span class="n">io</span><span class="o">.</span><span class="na">theoutpost</span><span class="o">.</span><span class="na">helloearth</span><span class="o">;</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="n">io</span><span class="o">.</span><span class="na">theoutpost</span><span class="o">.</span><span class="na">helloearth</span><span class="o">;</span>
 
 <span class="kn">import</span> <span class="nn">android.os.Bundle</span><span class="o">;</span>
 <span class="kn">import</span> <span class="nn">android.view.LayoutInflater</span><span class="o">;</span>
@@ -176,11 +175,11 @@
 <span class="kn">import</span> <span class="nn">java.io.File</span><span class="o">;</span>
 
 
-<span class="kd">public</span> <span class="kd">class</span> <span class="nc">HelloGlobeFragment</span> <span class="kd">extends</span> <span class="n">GlobeMapFragment</span> <span class="o">{</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">HelloGlobeFragment</span> <span class="kd">extends</span> <span class="nc">GlobeMapFragment</span> <span class="o">{</span>
 
     <span class="nd">@Override</span>
-    <span class="kd">public</span> <span class="n">View</span> <span class="nf">onCreateView</span><span class="o">(</span><span class="n">LayoutInflater</span> <span class="n">inflater</span><span class="o">,</span> <span class="n">ViewGroup</span> <span class="n">container</span><span class="o">,</span>
-                             <span class="n">Bundle</span> <span class="n">inState</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="nc">View</span> <span class="nf">onCreateView</span><span class="o">(</span><span class="nc">LayoutInflater</span> <span class="n">inflater</span><span class="o">,</span> <span class="nc">ViewGroup</span> <span class="n">container</span><span class="o">,</span>
+                             <span class="nc">Bundle</span> <span class="n">inState</span><span class="o">)</span> <span class="o">{</span>
         <span class="kd">super</span><span class="o">.</span><span class="na">onCreateView</span><span class="o">(</span><span class="n">inflater</span><span class="o">,</span> <span class="n">container</span><span class="o">,</span> <span class="n">inState</span><span class="o">);</span>
 
         <span class="c1">// Do app specific setup logic.</span>
@@ -189,23 +188,23 @@
     <span class="o">}</span>
 
     <span class="nd">@Override</span>
-    <span class="kd">protected</span> <span class="n">MapDisplayType</span> <span class="nf">chooseDisplayType</span><span class="o">()</span> <span class="o">{</span>
-        <span class="k">return</span> <span class="n">MapDisplayType</span><span class="o">.</span><span class="na">Globe</span><span class="o">;</span>
+    <span class="kd">protected</span> <span class="nc">MapDisplayType</span> <span class="nf">chooseDisplayType</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="nc">MapDisplayType</span><span class="o">.</span><span class="na">Globe</span><span class="o">;</span>
     <span class="o">}</span>
 
     <span class="nd">@Override</span>
     <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">controlHasStarted</span><span class="o">()</span> <span class="o">{</span>
         <span class="c1">// setup base layer tiles</span>
-        <span class="n">String</span> <span class="n">cacheDirName</span> <span class="o">=</span> <span class="s">"stamen_watercolor"</span><span class="o">;</span>
-        <span class="n">File</span> <span class="n">cacheDir</span> <span class="o">=</span> <span class="k">new</span> <span class="n">File</span><span class="o">(</span><span class="n">getActivity</span><span class="o">().</span><span class="na">getCacheDir</span><span class="o">(),</span> <span class="n">cacheDirName</span><span class="o">);</span>
+        <span class="nc">String</span> <span class="n">cacheDirName</span> <span class="o">=</span> <span class="s">"stamen_watercolor"</span><span class="o">;</span>
+        <span class="nc">File</span> <span class="n">cacheDir</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">File</span><span class="o">(</span><span class="n">getActivity</span><span class="o">().</span><span class="na">getCacheDir</span><span class="o">(),</span> <span class="n">cacheDirName</span><span class="o">);</span>
         <span class="n">cacheDir</span><span class="o">.</span><span class="na">mkdir</span><span class="o">();</span>
-        <span class="n">RemoteTileSource</span> <span class="n">remoteTileSource</span> <span class="o">=</span> <span class="k">new</span> <span class="n">RemoteTileSource</span><span class="o">(</span><span class="k">new</span> <span class="n">RemoteTileInfo</span><span class="o">(</span><span class="s">"http://tile.stamen.com/watercolor/"</span><span class="o">,</span> <span class="s">"png"</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">18</span><span class="o">));</span>
+        <span class="nc">RemoteTileSource</span> <span class="n">remoteTileSource</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">RemoteTileSource</span><span class="o">(</span><span class="k">new</span> <span class="nc">RemoteTileInfo</span><span class="o">(</span><span class="s">"http://tile.stamen.com/watercolor/"</span><span class="o">,</span> <span class="s">"png"</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">18</span><span class="o">));</span>
         <span class="n">remoteTileSource</span><span class="o">.</span><span class="na">setCacheDir</span><span class="o">(</span><span class="n">cacheDir</span><span class="o">);</span>
-        <span class="n">SphericalMercatorCoordSystem</span> <span class="n">coordSystem</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SphericalMercatorCoordSystem</span><span class="o">();</span>
+        <span class="nc">SphericalMercatorCoordSystem</span> <span class="n">coordSystem</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">SphericalMercatorCoordSystem</span><span class="o">();</span>
 
         <span class="c1">// globeControl is the controller when using MapDisplayType.Globe</span>
         <span class="c1">// mapControl is the controller when using MapDisplayType.Map</span>
-        <span class="n">QuadImageTileLayer</span> <span class="n">baseLayer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">QuadImageTileLayer</span><span class="o">(</span><span class="n">globeControl</span><span class="o">,</span> <span class="n">coordSystem</span><span class="o">,</span> <span class="n">remoteTileSource</span><span class="o">);</span>
+        <span class="nc">QuadImageTileLayer</span> <span class="n">baseLayer</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">QuadImageTileLayer</span><span class="o">(</span><span class="n">globeControl</span><span class="o">,</span> <span class="n">coordSystem</span><span class="o">,</span> <span class="n">remoteTileSource</span><span class="o">);</span>
         <span class="n">baseLayer</span><span class="o">.</span><span class="na">setImageDepth</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
         <span class="n">baseLayer</span><span class="o">.</span><span class="na">setSingleLevelLoading</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
         <span class="n">baseLayer</span><span class="o">.</span><span class="na">setUseTargetZoomLevel</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
@@ -218,8 +217,7 @@
     <span class="o">}</span>
 
 <span class="o">}</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>You can download <a href="resources/HelloGlobeFragment.java">HelloGlobeFragment.java</a> and place it directly in your project if you’d like. Notice that it is extending <code class="highlighter-rouge">com.mousebird.maply.GlobeMapFragment</code>, which is a part of the WhirlyGlobe-Maply library.</p>
 
@@ -247,7 +245,7 @@
 
 <p>In your <code class="highlighter-rouge">activity_main.xml</code>, comment out the <code class="highlighter-rouge">HelloGlobeFragment</code> and replace it with your new <code class="highlighter-rouge">HelloMapFragment</code>.</p>
 
-<div class="language-xml highlighter-rouge"><pre class="highlight"><code><span class="cp">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span>
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span>
 <span class="nt">&lt;RelativeLayout</span> <span class="na">xmlns:android=</span><span class="s">"http://schemas.android.com/apk/res/android"</span>
     <span class="na">xmlns:tools=</span><span class="s">"http://schemas.android.com/tools"</span>
     <span class="na">android:layout_width=</span><span class="s">"match_parent"</span>
@@ -270,14 +268,13 @@
         <span class="na">android:layout_centerVertical=</span><span class="s">"true"</span>
         <span class="na">android:layout_centerHorizontal=</span><span class="s">"true"</span> <span class="nt">/&gt;</span>
 <span class="nt">&lt;/RelativeLayout&gt;</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h3 id="setup-hellomapfragmentjava">Setup HelloMapFragment.java</h3>
 
 <p>Open your <code class="highlighter-rouge">HelloMapFragment.java</code> file and delete the boilerplate code. Replace it with the following:</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kn">package</span> <span class="n">io</span><span class="o">.</span><span class="na">theoutpost</span><span class="o">.</span><span class="na">helloearth</span><span class="o">;</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="n">io</span><span class="o">.</span><span class="na">theoutpost</span><span class="o">.</span><span class="na">helloearth</span><span class="o">;</span>
 
 <span class="kn">import</span> <span class="nn">android.os.Bundle</span><span class="o">;</span>
 <span class="kn">import</span> <span class="nn">android.view.LayoutInflater</span><span class="o">;</span>
@@ -292,11 +289,11 @@
 <span class="kn">import</span> <span class="nn">java.io.File</span><span class="o">;</span>
 
 
-<span class="kd">public</span> <span class="kd">class</span> <span class="nc">HelloMapFragment</span> <span class="kd">extends</span> <span class="n">GlobeMapFragment</span> <span class="o">{</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">HelloMapFragment</span> <span class="kd">extends</span> <span class="nc">GlobeMapFragment</span> <span class="o">{</span>
 
     <span class="nd">@Override</span>
-    <span class="kd">public</span> <span class="n">View</span> <span class="nf">onCreateView</span><span class="o">(</span><span class="n">LayoutInflater</span> <span class="n">inflater</span><span class="o">,</span> <span class="n">ViewGroup</span> <span class="n">container</span><span class="o">,</span>
-                             <span class="n">Bundle</span> <span class="n">inState</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="nc">View</span> <span class="nf">onCreateView</span><span class="o">(</span><span class="nc">LayoutInflater</span> <span class="n">inflater</span><span class="o">,</span> <span class="nc">ViewGroup</span> <span class="n">container</span><span class="o">,</span>
+                             <span class="nc">Bundle</span> <span class="n">inState</span><span class="o">)</span> <span class="o">{</span>
         <span class="kd">super</span><span class="o">.</span><span class="na">onCreateView</span><span class="o">(</span><span class="n">inflater</span><span class="o">,</span> <span class="n">container</span><span class="o">,</span> <span class="n">inState</span><span class="o">);</span>
 
         <span class="c1">// Do app specific setup logic.</span>
@@ -305,23 +302,23 @@
     <span class="o">}</span>
 
     <span class="nd">@Override</span>
-    <span class="kd">protected</span> <span class="n">MapDisplayType</span> <span class="nf">chooseDisplayType</span><span class="o">()</span> <span class="o">{</span>
-        <span class="k">return</span> <span class="n">MapDisplayType</span><span class="o">.</span><span class="na">Map</span><span class="o">;</span>
+    <span class="kd">protected</span> <span class="nc">MapDisplayType</span> <span class="nf">chooseDisplayType</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="nc">MapDisplayType</span><span class="o">.</span><span class="na">Map</span><span class="o">;</span>
     <span class="o">}</span>
 
     <span class="nd">@Override</span>
     <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">controlHasStarted</span><span class="o">()</span> <span class="o">{</span>
         <span class="c1">// setup base layer tiles</span>
-        <span class="n">String</span> <span class="n">cacheDirName</span> <span class="o">=</span> <span class="s">"stamen_watercolor"</span><span class="o">;</span>
-        <span class="n">File</span> <span class="n">cacheDir</span> <span class="o">=</span> <span class="k">new</span> <span class="n">File</span><span class="o">(</span><span class="n">getActivity</span><span class="o">().</span><span class="na">getCacheDir</span><span class="o">(),</span> <span class="n">cacheDirName</span><span class="o">);</span>
+        <span class="nc">String</span> <span class="n">cacheDirName</span> <span class="o">=</span> <span class="s">"stamen_watercolor"</span><span class="o">;</span>
+        <span class="nc">File</span> <span class="n">cacheDir</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">File</span><span class="o">(</span><span class="n">getActivity</span><span class="o">().</span><span class="na">getCacheDir</span><span class="o">(),</span> <span class="n">cacheDirName</span><span class="o">);</span>
         <span class="n">cacheDir</span><span class="o">.</span><span class="na">mkdir</span><span class="o">();</span>
-        <span class="n">RemoteTileSource</span> <span class="n">remoteTileSource</span> <span class="o">=</span> <span class="k">new</span> <span class="n">RemoteTileSource</span><span class="o">(</span><span class="k">new</span> <span class="n">RemoteTileInfo</span><span class="o">(</span><span class="s">"http://tile.stamen.com/watercolor/"</span><span class="o">,</span> <span class="s">"png"</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">18</span><span class="o">));</span>
+        <span class="nc">RemoteTileSource</span> <span class="n">remoteTileSource</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">RemoteTileSource</span><span class="o">(</span><span class="k">new</span> <span class="nc">RemoteTileInfo</span><span class="o">(</span><span class="s">"http://tile.stamen.com/watercolor/"</span><span class="o">,</span> <span class="s">"png"</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">18</span><span class="o">));</span>
         <span class="n">remoteTileSource</span><span class="o">.</span><span class="na">setCacheDir</span><span class="o">(</span><span class="n">cacheDir</span><span class="o">);</span>
-        <span class="n">SphericalMercatorCoordSystem</span> <span class="n">coordSystem</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SphericalMercatorCoordSystem</span><span class="o">();</span>
+        <span class="nc">SphericalMercatorCoordSystem</span> <span class="n">coordSystem</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">SphericalMercatorCoordSystem</span><span class="o">();</span>
 
         <span class="c1">// globeControl is the controller when using MapDisplayType.Globe</span>
         <span class="c1">// mapControl is the controller when using MapDisplayType.Map</span>
-        <span class="n">QuadImageTileLayer</span> <span class="n">baseLayer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">QuadImageTileLayer</span><span class="o">(</span><span class="n">mapControl</span><span class="o">,</span> <span class="n">coordSystem</span><span class="o">,</span> <span class="n">remoteTileSource</span><span class="o">);</span>
+        <span class="nc">QuadImageTileLayer</span> <span class="n">baseLayer</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">QuadImageTileLayer</span><span class="o">(</span><span class="n">mapControl</span><span class="o">,</span> <span class="n">coordSystem</span><span class="o">,</span> <span class="n">remoteTileSource</span><span class="o">);</span>
         <span class="n">baseLayer</span><span class="o">.</span><span class="na">setImageDepth</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
         <span class="n">baseLayer</span><span class="o">.</span><span class="na">setSingleLevelLoading</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
         <span class="n">baseLayer</span><span class="o">.</span><span class="na">setUseTargetZoomLevel</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
@@ -335,8 +332,7 @@
     <span class="o">}</span>
 
 <span class="o">}</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>You can download <a href="resources/HelloMapFragment.java">HelloMapFragment.java</a> and place it directly in your project.</p>
 
@@ -415,28 +411,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/getting-started.html">Before You Start</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -712,193 +687,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/building-from-repository.html">Building From Repository</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/building-from-nightly.html">Building From Nightly</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
+                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/building-from-binary.html">Building From Nightly</a></li>
                       
                       
                       
@@ -1185,31 +974,10 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
                       </ol>
                       
                       <li class="sidebar-header-item">Basics of Display</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -1437,16 +1205,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/local-image-layer.html">Local Image Layer</a></li>
-                      
-                      
-                      
                       
                       
                       
@@ -1661,34 +1420,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/vector-data.html">Vector Data</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -1958,19 +1690,10 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/screen-labels.html">Screen Labels</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -2146,22 +1869,10 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/spheres-android.html">Spheres</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -2200,21 +1911,6 @@
                       
                       <li class="sidebar-header-item">Interaction</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -2466,19 +2162,10 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/screen-marker-selection.html">Screen Marker Selection</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -2535,9 +2222,6 @@
                       
                       <li class="sidebar-header-item">Advanced</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
                       
                       
                       
@@ -2692,15 +2376,6 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       </ol>
                       
                     </ol>
@@ -2717,12 +2392,6 @@
           <div class="col-sm-9" id="prev-next">
             
             
-            
-            
-            
-            
-            
-
             
             
             
@@ -2907,7 +2576,7 @@
             An open source geospatial display toolkit<br /> for iOS and Android.
           </p>
           <p class="site-description">
-            <small>Ⓒ 2017 mousebird consulting.</small>
+            <small>Ⓒ 2020 mousebird consulting.</small>
           </p>
         </div>
 

@@ -139,10 +139,10 @@
 <h3 id="arcgis-base-map---national-geographic-world-map">ArcGIS Base Map - National Geographic World Map</h3>
 <p>So first thing we’re going to load up one of ArcGIS’s base maps, the beautiful &amp; revered <a href="http://services.arcgisonline.com/arcgis/rest/services/NatGeo_World_Map/MapServer">National Geographic World Map</a>.  All we have to do change the URL reference in the existing code &amp; the new map should appear, as if by magic.  Find the following code in viewDidLoad, and replace the URL string in the MaplyRemoteTileSource designated initializer with the URL of the ArcGIS webpage below;</p>
 
-<figure class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="c1">// Data by OpenStreetMap under the Open Data Commons Open Database License.
-</span><span class="n">MaplyRemoteTileSource</span> <span class="o">*</span><span class="n">tileSource</span> <span class="o">=</span>  <span class="p">[[</span><span class="n">MaplyRemoteTileSource</span> <span class="nf">alloc</span><span class="p">]</span>
-<span class="nf">initWithBaseURL</span><span class="p">:</span><span class="s">@"http://services.arcgisonline.com/arcgis/rest/services/NatGeo_World_Map/MapServ/tile/{z}/{y}/{x}"</span>
-<span class="nf">ext</span><span class="p">:</span><span class="s">@"png"</span> <span class="n">minZoom</span><span class="o">:</span><span class="mi">0</span> <span class="n">maxZoom</span><span class="o">:</span><span class="n">maxZoom</span><span class="p">];</span></code></pre></figure>
+<figure class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="c1">// Data by OpenStreetMap under the Open Data Commons Open Database License.</span>
+<span class="n">MaplyRemoteTileSource</span> <span class="o">*</span><span class="n">tileSource</span> <span class="o">=</span>  <span class="p">[[</span><span class="n">MaplyRemoteTileSource</span> <span class="nf">alloc</span><span class="p">]</span>
+<span class="nl">initWithBaseURL:</span><span class="s">@"http://services.arcgisonline.com/arcgis/rest/services/NatGeo_World_Map/MapServ/tile/{z}/{y}/{x}"</span>
+<span class="nl">ext:</span><span class="s">@"png"</span> <span class="nf">minZoom</span><span class="p">:</span><span class="mi">0</span> <span class="nf">maxZoom</span><span class="p">:</span><span class="n">maxZoom</span><span class="p">];</span></code></pre></figure>
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">http://services.arcgisonline.com/arcgis/rest/services/NatGeo_World_Map/MapServer</code></pre></figure>
 
@@ -162,8 +162,8 @@
 <p>in the CartoDBLayer constructRequest code.</p>
 
 <figure class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="k">-</span> <span class="p">(</span><span class="n">NSURLRequest</span> <span class="o">*</span><span class="p">)</span><span class="nf">constructRequest</span><span class="p">:(</span><span class="n">MaplyBoundingBox</span><span class="p">)</span><span class="nv">bbox</span> <span class="p">{</span>
-<span class="c1">// construct a query string
-</span><span class="kt">double</span> <span class="n">toDeg</span> <span class="o">=</span> <span class="mi">180</span><span class="o">/</span><span class="n">M_PI</span><span class="p">;</span>
+<span class="c1">// construct a query string</span>
+<span class="kt">double</span> <span class="n">toDeg</span> <span class="o">=</span> <span class="mi">180</span><span class="o">/</span><span class="n">M_PI</span><span class="p">;</span>
 <span class="n">NSString</span> <span class="o">*</span><span class="n">query</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSString</span> <span class="nf">stringWithFormat</span><span class="p">:</span><span class="n">search</span><span class="p">,</span><span class="n">bbox</span><span class="p">.</span><span class="n">ll</span><span class="p">.</span><span class="n">x</span><span class="o">*</span><span class="n">toDeg</span><span class="p">,</span><span class="n">bbox</span><span class="p">.</span><span class="n">ll</span><span class="p">.</span><span class="n">y</span><span class="o">*</span><span class="n">toDeg</span><span class="p">,</span><span class="n">bbox</span><span class="p">.</span><span class="n">ur</span><span class="p">.</span><span class="n">x</span><span class="o">*</span><span class="n">toDeg</span><span class="p">,</span><span class="n">bbox</span><span class="p">.</span><span class="n">ur</span><span class="p">.</span><span class="n">y</span><span class="o">*</span><span class="n">toDeg</span><span class="p">];</span>
 <span class="n">NSString</span> <span class="o">*</span><span class="n">encodeQuery</span> <span class="o">=</span> <span class="p">[</span><span class="n">query</span> <span class="nf">stringByAddingPercentEscapesUsingEncoding</span><span class="p">:</span><span class="n">NSUTF8StringEncoding</span><span class="p">];</span>
 <span class="n">encodeQuery</span> <span class="o">=</span> <span class="p">[</span><span class="n">encodeQuery</span> <span class="nf">stringByReplacingOccurrencesOfString</span><span class="p">:</span><span class="s">@"&amp;"</span> <span class="nf">withString</span><span class="p">:</span><span class="s">@"%26"</span><span class="p">];</span>
@@ -178,8 +178,8 @@
 <figure class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">addBuildings</span>
 <span class="p">{</span>
 <span class="n">NSString</span> <span class="o">*</span><span class="n">search</span> <span class="o">=</span> <span class="s">@"WHERE=Zone&gt;=1&amp;f=pgeojson&amp;outSR=4326"</span><span class="p">;</span>
-<span class="c1">// NSString *search = @"SELECT the_geom,address,ownername,numfloors FROM mn_mappluto_13v1 WHERE the_geom &amp;&amp; ST_SetSRID(ST_MakeBox2D(ST_Point(%f, %f), ST_Point(%f, %f)), 4326) LIMIT 2000;";
-</span>
+<span class="c1">// NSString *search = @"SELECT the_geom,address,ownername,numfloors FROM mn_mappluto_13v1 WHERE the_geom &amp;&amp; ST_SetSRID(ST_MakeBox2D(ST_Point(%f, %f), ST_Point(%f, %f)), 4326) LIMIT 2000;";</span>
+
 <span class="n">CartoDBLayer</span> <span class="o">*</span><span class="n">cartoLayer</span> <span class="o">=</span> <span class="p">[[</span><span class="n">CartoDBLayer</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">initWithSearch</span><span class="p">:</span><span class="n">search</span><span class="p">];</span>
 <span class="n">cartoLayer</span><span class="p">.</span><span class="n">minZoom</span> <span class="o">=</span> <span class="mi">13</span><span class="p">;</span>
 <span class="n">cartoLayer</span><span class="p">.</span><span class="n">maxZoom</span> <span class="o">=</span> <span class="mi">15</span><span class="p">;</span></code></pre></figure>
@@ -285,28 +285,7 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/getting_started.html">Before You Start</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -591,28 +570,7 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/building_from_source.html">Source Distribution</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -915,25 +873,7 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/building_from_cocoapod.html">Cocoapods</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -1118,34 +1058,7 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/globe_or_map.html">Globe Or Map</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -1541,19 +1454,10 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/your_first_map.html">Your First Map</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -1562,15 +1466,6 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
                       
                       <li class="sidebar-header-item">Image Based Maps</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -1816,187 +1711,7 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/remote_image_layer.html">Remote Image Layer</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/remote_NASA_image_layers.html">NASA Image Layers</a></li>
                       
                       
                       
@@ -2071,33 +1786,6 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
                       
                       
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/adding_vector_data.html">Vector Data</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -2499,31 +2187,7 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/screen_labels.html">Screen Labels</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -2723,25 +2387,13 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
                       
                       
                       
+                      
+                      
+                      
                       </ol>
                       
                       <li class="sidebar-header-item">Shapes</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -2893,25 +2545,13 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
                       
                       
                       
+                      
+                      
+                      
                       </ol>
                       
                       <li class="sidebar-header-item">Interaction</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -3172,25 +2812,7 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/screen_marker_selection.html">Screen Marker Selection</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -3390,9 +3012,6 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
                       
                       
                       
-                      
-                      
-                      
                       </ol>
                       
                       <li class="sidebar-header-item">Advanced</li>
@@ -3435,13 +3054,13 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
                       
                       
                       
+                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/cartodb_layer.html">Carto Layer</a></li>
                       
                       
                       
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/cartodb_layer.html">CartoDB Layer</a></li>
                       
                       
                       
@@ -3472,522 +3091,6 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/aeris_weather.html">Aeris Weather Layer</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/component_tester.html">Component Tester</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/micello_map.html">Micello Indoor Maps</a></li>
                       
                       
                       
@@ -4220,9 +3323,6 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
                       
                       
                       
-                      
-                      
-                      
                       </ol>
                       
                     </ol>
@@ -4310,12 +3410,6 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
             
             
             
-
-            
-            
-            
-            
-            
             
             
             
@@ -4371,24 +3465,6 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
             
             
             
-            
-            
-            
-            
-            
-
-            
-            
-            
-            
-            
-
-            
-            
-            
-            
-            
-
             
             
             
@@ -4469,7 +3545,7 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
             An open source geospatial display toolkit<br /> for iOS and Android.
           </p>
           <p class="site-description">
-            <small>Ⓒ 2017 mousebird consulting.</small>
+            <small>Ⓒ 2020 mousebird consulting.</small>
           </p>
         </div>
 

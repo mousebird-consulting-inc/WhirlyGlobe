@@ -113,7 +113,7 @@
 
 <p>This feature is availible only in the globe controller, not the map. Go into <a href="https://github.com/mousebird/AndroidTutorialProject/blob/114123ea3ce55c65de7160429e453198ea958592/app/src/main/res/layout/activity_main.xml">activity_main.xml</a> and re-activate your <code class="highlighter-rouge">HelloGlobeFragment</code>. Your activity XML should look like this:</p>
 
-<div class="language-xml highlighter-rouge"><pre class="highlight"><code><span class="cp">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span>
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span>
 <span class="nt">&lt;RelativeLayout</span> <span class="na">xmlns:android=</span><span class="s">"http://schemas.android.com/apk/res/android"</span>
     <span class="na">xmlns:tools=</span><span class="s">"http://schemas.android.com/tools"</span>
     <span class="na">android:layout_width=</span><span class="s">"match_parent"</span>
@@ -136,14 +136,13 @@
         <span class="c">&lt;!--android:layout_centerVertical="true"--&gt;</span>
         <span class="c">&lt;!--android:layout_centerHorizontal="true" /&gt;--&gt;</span>
 <span class="nt">&lt;/RelativeLayout&gt;</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h3 id="insert-spheres">Insert Spheres</h3>
 
 <p>Add a <code class="highlighter-rouge">private void insertSpheres()</code> method and call it at the end of <code class="highlighter-rouge">controlHasStarted</code> in your <a href="https://github.com/mousebird/AndroidTutorialProject/blob/114123ea3ce55c65de7160429e453198ea958592/app/src/main/java/io/theoutpost/helloearth/HelloGlobeFragment.java">HelloGlobeFragment.java</a>.</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="nd">@Override</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Override</span>
 <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">controlHasStarted</span><span class="o">()</span> <span class="o">{</span>
     <span class="o">...</span>
     <span class="n">insertSpheres</span><span class="o">();</span>
@@ -152,46 +151,44 @@
 <span class="kd">private</span> <span class="kt">void</span> <span class="nf">insertSpheres</span><span class="o">()</span> <span class="o">{</span>
 
 <span class="o">}</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Inside of <code class="highlighter-rouge">insertSpheres</code>, we are going to add four spheres, each with a different location and size.</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">private</span> <span class="kt">void</span> <span class="nf">insertSpheres</span><span class="o">()</span> <span class="o">{</span>
-    <span class="n">List</span><span class="o">&lt;</span><span class="n">Shape</span><span class="o">&gt;</span> <span class="n">shapes</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;&gt;();</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">private</span> <span class="kt">void</span> <span class="nf">insertSpheres</span><span class="o">()</span> <span class="o">{</span>
+    <span class="nc">List</span><span class="o">&lt;</span><span class="nc">Shape</span><span class="o">&gt;</span> <span class="n">shapes</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ArrayList</span><span class="o">&lt;&gt;();</span>
 
     <span class="c1">// Kansas City</span>
-    <span class="n">ShapeSphere</span> <span class="n">shape</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ShapeSphere</span><span class="o">();</span>
-    <span class="n">shape</span><span class="o">.</span><span class="na">setLoc</span><span class="o">(</span><span class="n">Point2d</span><span class="o">.</span><span class="na">FromDegrees</span><span class="o">(-</span><span class="mf">94.58</span><span class="o">,</span> <span class="mf">39.1</span><span class="o">));</span>
+    <span class="nc">ShapeSphere</span> <span class="n">shape</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ShapeSphere</span><span class="o">();</span>
+    <span class="n">shape</span><span class="o">.</span><span class="na">setLoc</span><span class="o">(</span><span class="nc">Point2d</span><span class="o">.</span><span class="na">FromDegrees</span><span class="o">(-</span><span class="mf">94.58</span><span class="o">,</span> <span class="mf">39.1</span><span class="o">));</span>
     <span class="n">shape</span><span class="o">.</span><span class="na">setRadius</span><span class="o">(</span><span class="mf">0.04f</span><span class="o">);</span> <span class="c1">// 1.0 is the radius of the Earth</span>
     <span class="n">shapes</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">shape</span><span class="o">);</span>
 
     <span class="c1">// Washington D.C.</span>
-    <span class="n">shape</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ShapeSphere</span><span class="o">();</span>
-    <span class="n">shape</span><span class="o">.</span><span class="na">setLoc</span><span class="o">(</span><span class="n">Point2d</span><span class="o">.</span><span class="na">FromDegrees</span><span class="o">(-</span><span class="mf">77.036667</span><span class="o">,</span> <span class="mf">38.895111</span><span class="o">));</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ShapeSphere</span><span class="o">();</span>
+    <span class="n">shape</span><span class="o">.</span><span class="na">setLoc</span><span class="o">(</span><span class="nc">Point2d</span><span class="o">.</span><span class="na">FromDegrees</span><span class="o">(-</span><span class="mf">77.036667</span><span class="o">,</span> <span class="mf">38.895111</span><span class="o">));</span>
     <span class="n">shape</span><span class="o">.</span><span class="na">setRadius</span><span class="o">(</span><span class="mf">0.1f</span><span class="o">);</span>
     <span class="n">shapes</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">shape</span><span class="o">);</span>
 
     <span class="c1">// McMurdo Station</span>
-    <span class="n">shape</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ShapeSphere</span><span class="o">();</span>
-    <span class="n">shape</span><span class="o">.</span><span class="na">setLoc</span><span class="o">(</span><span class="n">Point2d</span><span class="o">.</span><span class="na">FromDegrees</span><span class="o">(</span><span class="mf">166.666667</span><span class="o">,</span> <span class="o">-</span><span class="mf">77.85</span><span class="o">));</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ShapeSphere</span><span class="o">();</span>
+    <span class="n">shape</span><span class="o">.</span><span class="na">setLoc</span><span class="o">(</span><span class="nc">Point2d</span><span class="o">.</span><span class="na">FromDegrees</span><span class="o">(</span><span class="mf">166.666667</span><span class="o">,</span> <span class="o">-</span><span class="mf">77.85</span><span class="o">));</span>
     <span class="n">shape</span><span class="o">.</span><span class="na">setRadius</span><span class="o">(</span><span class="mf">0.2f</span><span class="o">);</span>
     <span class="n">shapes</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">shape</span><span class="o">);</span>
 
     <span class="c1">// Windhoek</span>
-    <span class="n">shape</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ShapeSphere</span><span class="o">();</span>
-    <span class="n">shape</span><span class="o">.</span><span class="na">setLoc</span><span class="o">(</span><span class="n">Point2d</span><span class="o">.</span><span class="na">FromDegrees</span><span class="o">(</span><span class="mf">17.083611</span><span class="o">,</span> <span class="o">-</span><span class="mf">22.57</span><span class="o">));</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ShapeSphere</span><span class="o">();</span>
+    <span class="n">shape</span><span class="o">.</span><span class="na">setLoc</span><span class="o">(</span><span class="nc">Point2d</span><span class="o">.</span><span class="na">FromDegrees</span><span class="o">(</span><span class="mf">17.083611</span><span class="o">,</span> <span class="o">-</span><span class="mf">22.57</span><span class="o">));</span>
     <span class="n">shape</span><span class="o">.</span><span class="na">setRadius</span><span class="o">(</span><span class="mf">0.08f</span><span class="o">);</span>
     <span class="n">shapes</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">shape</span><span class="o">);</span>
 
-    <span class="n">ShapeInfo</span> <span class="n">shapeInfo</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ShapeInfo</span><span class="o">();</span>
+    <span class="nc">ShapeInfo</span> <span class="n">shapeInfo</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ShapeInfo</span><span class="o">();</span>
     <span class="n">shapeInfo</span><span class="o">.</span><span class="na">setColor</span><span class="o">(</span><span class="mf">0.7f</span><span class="o">,</span> <span class="mf">0.2f</span><span class="o">,</span> <span class="mf">0.7f</span><span class="o">,</span> <span class="mf">0.8f</span><span class="o">);</span> <span class="c1">// R,G,B,A - values [0.0 =&gt; 1.0]</span>
     <span class="n">shapeInfo</span><span class="o">.</span><span class="na">setDrawPriority</span><span class="o">(</span><span class="mi">1000000</span><span class="o">);</span>
 
-    <span class="n">ComponentObject</span> <span class="n">componentObject</span> <span class="o">=</span> <span class="n">globeControl</span><span class="o">.</span><span class="na">addShapes</span><span class="o">(</span><span class="n">shapes</span><span class="o">,</span> <span class="n">shapeInfo</span><span class="o">,</span> <span class="n">MaplyBaseController</span><span class="o">.</span><span class="na">ThreadMode</span><span class="o">.</span><span class="na">ThreadAny</span><span class="o">);</span>
+    <span class="nc">ComponentObject</span> <span class="n">componentObject</span> <span class="o">=</span> <span class="n">globeControl</span><span class="o">.</span><span class="na">addShapes</span><span class="o">(</span><span class="n">shapes</span><span class="o">,</span> <span class="n">shapeInfo</span><span class="o">,</span> <span class="nc">MaplyBaseController</span><span class="o">.</span><span class="na">ThreadMode</span><span class="o">.</span><span class="na">ThreadAny</span><span class="o">);</span>
 <span class="o">}</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Here you will see that these spheres are placed on the globe and extrude above the surface of the globe.</p>
 
@@ -270,28 +267,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/getting-started.html">Before You Start</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -567,193 +543,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/building-from-repository.html">Building From Repository</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/building-from-nightly.html">Building From Nightly</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
+                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/building-from-binary.html">Building From Nightly</a></li>
                       
                       
                       
@@ -1040,31 +830,10 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
                       </ol>
                       
                       <li class="sidebar-header-item">Basics of Display</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -1292,16 +1061,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/local-image-layer.html">Local Image Layer</a></li>
-                      
-                      
-                      
                       
                       
                       
@@ -1516,34 +1276,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/vector-data.html">Vector Data</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -1813,19 +1546,10 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/screen-labels.html">Screen Labels</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -2001,22 +1725,10 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item current"><a class="page-link" href="/WhirlyGlobe/tutorial/android/spheres-android.html">Spheres</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -2055,21 +1767,6 @@
                       
                       <li class="sidebar-header-item">Interaction</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -2321,19 +2018,10 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/screen-marker-selection.html">Screen Marker Selection</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -2390,9 +2078,6 @@
                       
                       <li class="sidebar-header-item">Advanced</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
                       
                       
                       
@@ -2547,15 +2232,6 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       </ol>
                       
                     </ol>
@@ -2572,12 +2248,6 @@
           <div class="col-sm-9" id="prev-next">
             
             
-            
-            
-            
-            
-            
-
             
             
             
@@ -2762,7 +2432,7 @@
             An open source geospatial display toolkit<br /> for iOS and Android.
           </p>
           <p class="site-description">
-            <small>Ⓒ 2017 mousebird consulting.</small>
+            <small>Ⓒ 2020 mousebird consulting.</small>
           </p>
         </div>
 

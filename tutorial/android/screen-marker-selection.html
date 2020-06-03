@@ -113,14 +113,14 @@
 
 <p>As with vector selection, we need to set the marker object to be selectable. In the <a href="https://github.com/mousebird/AndroidTutorialProject/blob/3318085f5192b6cf28a7294968a480006817804a/app/src/main/java/io/theoutpost/helloearth/HelloMapFragment.java#L160"><code class="highlighter-rouge">insertMarkers</code></a> method in HelloMapFragment.java, go through each <code class="highlighter-rouge">ScreenMarker</code> and make <code class="highlighter-rouge">moskow.selectable = true;</code>.</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">private</span> <span class="kt">void</span> <span class="nf">insertMarkers</span><span class="o">()</span> <span class="o">{</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">private</span> <span class="kt">void</span> <span class="nf">insertMarkers</span><span class="o">()</span> <span class="o">{</span>
     <span class="o">...</span>
     <span class="c1">// Moskow - Москва</span>
-    <span class="n">MarkerProperties</span> <span class="n">properties</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MarkerProperties</span><span class="o">();</span>
+    <span class="nc">MarkerProperties</span> <span class="n">properties</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">MarkerProperties</span><span class="o">();</span>
     <span class="n">properties</span><span class="o">.</span><span class="na">city</span> <span class="o">=</span> <span class="s">"Moskow"</span><span class="o">;</span>
     <span class="n">properties</span><span class="o">.</span><span class="na">subject</span> <span class="o">=</span> <span class="s">"Moskow"</span><span class="o">;</span>
-    <span class="n">ScreenMarker</span> <span class="n">moskow</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ScreenMarker</span><span class="o">();</span>
-    <span class="n">moskow</span><span class="o">.</span><span class="na">loc</span> <span class="o">=</span> <span class="n">Point2d</span><span class="o">.</span><span class="na">FromDegrees</span><span class="o">(</span><span class="mf">37.616667</span><span class="o">,</span> <span class="mf">55.75</span><span class="o">);</span> <span class="c1">// Longitude, Latitude</span>
+    <span class="nc">ScreenMarker</span> <span class="n">moskow</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ScreenMarker</span><span class="o">();</span>
+    <span class="n">moskow</span><span class="o">.</span><span class="na">loc</span> <span class="o">=</span> <span class="nc">Point2d</span><span class="o">.</span><span class="na">FromDegrees</span><span class="o">(</span><span class="mf">37.616667</span><span class="o">,</span> <span class="mf">55.75</span><span class="o">);</span> <span class="c1">// Longitude, Latitude</span>
     <span class="n">moskow</span><span class="o">.</span><span class="na">image</span> <span class="o">=</span> <span class="n">icon</span><span class="o">;</span>
     <span class="n">moskow</span><span class="o">.</span><span class="na">size</span> <span class="o">=</span> <span class="n">markerSize</span><span class="o">;</span>
     <span class="n">moskow</span><span class="o">.</span><span class="na">selectable</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
@@ -128,8 +128,7 @@
     <span class="n">markers</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">moskow</span><span class="o">);</span>
     <span class="o">...</span>
 <span class="o">}</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h3 id="create-userobject">Create userObject</h3>
 
@@ -137,12 +136,11 @@
 
 <p>In our tutorial, we create a very simple class called <code class="highlighter-rouge">MarkerProperties</code>. This class is defined in <a href="https://github.com/mousebird/AndroidTutorialProject/blob/3318085f5192b6cf28a7294968a480006817804a/app/src/main/java/io/theoutpost/helloearth/HelloMapFragment.java#L136-L139">HelloMapFragment</a>, and it entails the following:</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MarkerProperties</span> <span class="o">{</span>
-    <span class="kd">public</span> <span class="n">String</span> <span class="n">city</span><span class="o">;</span>
-    <span class="kd">public</span> <span class="n">String</span> <span class="n">subject</span><span class="o">;</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MarkerProperties</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="nc">String</span> <span class="n">city</span><span class="o">;</span>
+    <span class="kd">public</span> <span class="nc">String</span> <span class="n">subject</span><span class="o">;</span>
 <span class="o">}</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>As detailed above, when we create a <code class="highlighter-rouge">ScreenMarker</code>, we also create a <code class="highlighter-rouge">MarkerProperties</code> object where we assign values.</p>
 
@@ -150,13 +148,12 @@
 
 <p>As explained in the <a href="vector-selection.html">Vector Selection Tutorial</a>, we create a <code class="highlighter-rouge">userDidSelect</code> delegate method. In <a href="https://github.com/mousebird/AndroidTutorialProject/blob/3318085f5192b6cf28a7294968a480006817804a/app/src/main/java/io/theoutpost/helloearth/HelloMapFragment.java#L273-L274">HelloMapFragment.java</a>, create the following method:</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="nd">@Override</span>
-<span class="kd">public</span> <span class="kt">void</span> <span class="nf">userDidSelect</span><span class="o">(</span><span class="n">MapController</span> <span class="n">mapControl</span><span class="o">,</span> <span class="n">SelectedObject</span><span class="o">[]</span> <span class="n">selObjs</span><span class="o">,</span> 
-                          <span class="n">Point2d</span> <span class="n">loc</span><span class="o">,</span> <span class="n">Point2d</span> <span class="n">screenLoc</span><span class="o">)</span> <span class="o">{</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Override</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">userDidSelect</span><span class="o">(</span><span class="nc">MapController</span> <span class="n">mapControl</span><span class="o">,</span> <span class="nc">SelectedObject</span><span class="o">[]</span> <span class="n">selObjs</span><span class="o">,</span> 
+                          <span class="nc">Point2d</span> <span class="n">loc</span><span class="o">,</span> <span class="nc">Point2d</span> <span class="n">screenLoc</span><span class="o">)</span> <span class="o">{</span>
 
 <span class="o">}</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>This method will be called whenver a vector object is selected.</p>
 
@@ -164,7 +161,7 @@
 
 <p>We also need to <a href="(https://github.com/mousebird/AndroidTutorialProject/blob/3318085f5192b6cf28a7294968a480006817804a/app/src/main/java/io/theoutpost/helloearth/HelloMapFragment.java#L122)">notify our map controller</a> that <code class="highlighter-rouge">HelloMapFragment</code> is the delegate that should be notified of a selection.</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="nd">@Override</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Override</span>
 <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">controlHasStarted</span><span class="o">()</span> <span class="o">{</span>
     <span class="o">...</span>
     <span class="c1">// Set controller to be gesture delegate.</span>
@@ -172,37 +169,35 @@
     <span class="n">mapControl</span><span class="o">.</span><span class="na">gestureDelegate</span> <span class="o">=</span> <span class="k">this</span><span class="o">;</span>
     <span class="o">...</span>
 <span class="o">}</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h3 id="notify-user-of-selection">Notify User of Selection</h3>
 
 <p>Just like in the <a href="vector-selection.html">vector selection tutorial</a>, we are notified of a selected marker in <code class="highlighter-rouge">userDidSelect</code>. Let’s extend <code class="highlighter-rouge">userDidSelect</code> from the previous tutorial and notify the user of the <code class="highlighter-rouge">MarkerProperties</code> data found in the screen marker’s <code class="highlighter-rouge">userObject</code>.</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="nd">@Override</span>
-<span class="kd">public</span> <span class="kt">void</span> <span class="nf">userDidSelect</span><span class="o">(</span><span class="n">MapController</span> <span class="n">mapControl</span><span class="o">,</span> <span class="n">SelectedObject</span><span class="o">[]</span> <span class="n">selObjs</span><span class="o">,</span> 
-                          <span class="n">Point2d</span> <span class="n">loc</span><span class="o">,</span> <span class="n">Point2d</span> <span class="n">screenLoc</span><span class="o">)</span> <span class="o">{</span>
-    <span class="n">String</span> <span class="n">msg</span> <span class="o">=</span> <span class="s">"Selected feature count: "</span> <span class="o">+</span> <span class="n">selObjs</span><span class="o">.</span><span class="na">length</span><span class="o">;</span>
-    <span class="k">for</span> <span class="o">(</span><span class="n">SelectedObject</span> <span class="n">obj</span> <span class="o">:</span> <span class="n">selObjs</span><span class="o">)</span> <span class="o">{</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Override</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">userDidSelect</span><span class="o">(</span><span class="nc">MapController</span> <span class="n">mapControl</span><span class="o">,</span> <span class="nc">SelectedObject</span><span class="o">[]</span> <span class="n">selObjs</span><span class="o">,</span> 
+                          <span class="nc">Point2d</span> <span class="n">loc</span><span class="o">,</span> <span class="nc">Point2d</span> <span class="n">screenLoc</span><span class="o">)</span> <span class="o">{</span>
+    <span class="nc">String</span> <span class="n">msg</span> <span class="o">=</span> <span class="s">"Selected feature count: "</span> <span class="o">+</span> <span class="n">selObjs</span><span class="o">.</span><span class="na">length</span><span class="o">;</span>
+    <span class="k">for</span> <span class="o">(</span><span class="nc">SelectedObject</span> <span class="n">obj</span> <span class="o">:</span> <span class="n">selObjs</span><span class="o">)</span> <span class="o">{</span>
         <span class="c1">// GeoJSON</span>
-        <span class="k">if</span> <span class="o">(</span><span class="n">obj</span><span class="o">.</span><span class="na">selObj</span> <span class="k">instanceof</span> <span class="n">VectorObject</span><span class="o">)</span> <span class="o">{</span>
-            <span class="n">VectorObject</span> <span class="n">vectorObject</span> <span class="o">=</span> <span class="o">(</span><span class="n">VectorObject</span><span class="o">)</span> <span class="n">obj</span><span class="o">.</span><span class="na">selObj</span><span class="o">;</span>
-            <span class="n">AttrDictionary</span> <span class="n">attributes</span> <span class="o">=</span> <span class="n">vectorObject</span><span class="o">.</span><span class="na">getAttributes</span><span class="o">();</span>
-            <span class="n">String</span> <span class="n">adminName</span> <span class="o">=</span> <span class="n">attributes</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="s">"ADMIN"</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">obj</span><span class="o">.</span><span class="na">selObj</span> <span class="k">instanceof</span> <span class="nc">VectorObject</span><span class="o">)</span> <span class="o">{</span>
+            <span class="nc">VectorObject</span> <span class="n">vectorObject</span> <span class="o">=</span> <span class="o">(</span><span class="nc">VectorObject</span><span class="o">)</span> <span class="n">obj</span><span class="o">.</span><span class="na">selObj</span><span class="o">;</span>
+            <span class="nc">AttrDictionary</span> <span class="n">attributes</span> <span class="o">=</span> <span class="n">vectorObject</span><span class="o">.</span><span class="na">getAttributes</span><span class="o">();</span>
+            <span class="nc">String</span> <span class="n">adminName</span> <span class="o">=</span> <span class="n">attributes</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="s">"ADMIN"</span><span class="o">);</span>
             <span class="n">msg</span> <span class="o">+=</span> <span class="s">"\nVector Object: "</span> <span class="o">+</span> <span class="n">adminName</span><span class="o">;</span>
         <span class="o">}</span>
         <span class="c1">// Screen Marker</span>
-        <span class="k">else</span> <span class="nf">if</span> <span class="o">(</span><span class="n">obj</span><span class="o">.</span><span class="na">selObj</span> <span class="k">instanceof</span> <span class="n">ScreenMarker</span><span class="o">)</span> <span class="o">{</span>
-            <span class="n">ScreenMarker</span> <span class="n">screenMarker</span> <span class="o">=</span> <span class="o">(</span><span class="n">ScreenMarker</span><span class="o">)</span> <span class="n">obj</span><span class="o">.</span><span class="na">selObj</span><span class="o">;</span>
-            <span class="n">MarkerProperties</span> <span class="n">properties</span> <span class="o">=</span> <span class="o">(</span><span class="n">MarkerProperties</span><span class="o">)</span> <span class="n">screenMarker</span><span class="o">.</span><span class="na">userObject</span><span class="o">;</span>
+        <span class="k">else</span> <span class="nf">if</span> <span class="o">(</span><span class="n">obj</span><span class="o">.</span><span class="na">selObj</span> <span class="k">instanceof</span> <span class="nc">ScreenMarker</span><span class="o">)</span> <span class="o">{</span>
+            <span class="nc">ScreenMarker</span> <span class="n">screenMarker</span> <span class="o">=</span> <span class="o">(</span><span class="nc">ScreenMarker</span><span class="o">)</span> <span class="n">obj</span><span class="o">.</span><span class="na">selObj</span><span class="o">;</span>
+            <span class="nc">MarkerProperties</span> <span class="n">properties</span> <span class="o">=</span> <span class="o">(</span><span class="nc">MarkerProperties</span><span class="o">)</span> <span class="n">screenMarker</span><span class="o">.</span><span class="na">userObject</span><span class="o">;</span>
             <span class="n">msg</span> <span class="o">+=</span> <span class="s">"\nScreen Marker: "</span> <span class="o">+</span> <span class="n">properties</span><span class="o">.</span><span class="na">city</span> <span class="o">+</span> <span class="s">", "</span> <span class="o">+</span> <span class="n">properties</span><span class="o">.</span><span class="na">subject</span><span class="o">;</span>
         <span class="o">}</span>
     <span class="o">}</span>
 
-    <span class="n">Toast</span><span class="o">.</span><span class="na">makeText</span><span class="o">(</span><span class="n">getActivity</span><span class="o">(),</span> <span class="n">msg</span><span class="o">,</span> <span class="n">Toast</span><span class="o">.</span><span class="na">LENGTH_LONG</span><span class="o">).</span><span class="na">show</span><span class="o">();</span>
+    <span class="nc">Toast</span><span class="o">.</span><span class="na">makeText</span><span class="o">(</span><span class="n">getActivity</span><span class="o">(),</span> <span class="n">msg</span><span class="o">,</span> <span class="nc">Toast</span><span class="o">.</span><span class="na">LENGTH_LONG</span><span class="o">).</span><span class="na">show</span><span class="o">();</span>
 <span class="o">}</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p><img src="resources/marker-selection.jpg" alt="Marker Selection" /></p>
 
@@ -214,33 +209,31 @@
 
 <p>Create the <a href="https://github.com/mousebird/AndroidTutorialProject/blob/18e6c25f8282ab0d0cb0910dacb8f5daba62fc66/app/src/main/java/io/theoutpost/helloearth/HelloMapFragment.java#L312-L324">following method</a> in <code class="highlighter-rouge">HelloMapFragment</code>:</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="kt">void</span> <span class="nf">drawScreenMarkerAsSelected</span><span class="o">(</span><span class="n">ScreenMarker</span> <span class="n">screenMarker</span><span class="o">)</span> <span class="o">{</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kt">void</span> <span class="nf">drawScreenMarkerAsSelected</span><span class="o">(</span><span class="nc">ScreenMarker</span> <span class="n">screenMarker</span><span class="o">)</span> <span class="o">{</span>
     <span class="k">if</span> <span class="o">(</span><span class="n">selectedMarkerComponent</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
-        <span class="n">mapControl</span><span class="o">.</span><span class="na">removeObject</span><span class="o">(</span><span class="n">selectedMarkerComponent</span><span class="o">,</span> <span class="n">MaplyBaseController</span><span class="o">.</span><span class="na">ThreadMode</span><span class="o">.</span><span class="na">ThreadAny</span><span class="o">);</span>
+        <span class="n">mapControl</span><span class="o">.</span><span class="na">removeObject</span><span class="o">(</span><span class="n">selectedMarkerComponent</span><span class="o">,</span> <span class="nc">MaplyBaseController</span><span class="o">.</span><span class="na">ThreadMode</span><span class="o">.</span><span class="na">ThreadAny</span><span class="o">);</span>
     <span class="o">}</span>
-    <span class="n">MarkerInfo</span> <span class="n">markerInfo</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MarkerInfo</span><span class="o">();</span>
-    <span class="n">markerInfo</span><span class="o">.</span><span class="na">setDrawPriority</span><span class="o">(</span><span class="n">Integer</span><span class="o">.</span><span class="na">MAX_VALUE</span><span class="o">);</span>
-    <span class="n">Bitmap</span> <span class="n">icon</span> <span class="o">=</span> <span class="n">BitmapFactory</span><span class="o">.</span><span class="na">decodeResource</span><span class="o">(</span><span class="n">getActivity</span><span class="o">().</span><span class="na">getResources</span><span class="o">(),</span> <span class="n">R</span><span class="o">.</span><span class="na">drawable</span><span class="o">.</span><span class="na">maply_ic_launcher</span><span class="o">);</span>
-    <span class="n">Point2d</span> <span class="n">markerSize</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Point2d</span><span class="o">(</span><span class="mi">200</span><span class="o">,</span> <span class="mi">200</span><span class="o">);</span>
+    <span class="nc">MarkerInfo</span> <span class="n">markerInfo</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">MarkerInfo</span><span class="o">();</span>
+    <span class="n">markerInfo</span><span class="o">.</span><span class="na">setDrawPriority</span><span class="o">(</span><span class="nc">Integer</span><span class="o">.</span><span class="na">MAX_VALUE</span><span class="o">);</span>
+    <span class="nc">Bitmap</span> <span class="n">icon</span> <span class="o">=</span> <span class="nc">BitmapFactory</span><span class="o">.</span><span class="na">decodeResource</span><span class="o">(</span><span class="n">getActivity</span><span class="o">().</span><span class="na">getResources</span><span class="o">(),</span> <span class="no">R</span><span class="o">.</span><span class="na">drawable</span><span class="o">.</span><span class="na">maply_ic_launcher</span><span class="o">);</span>
+    <span class="nc">Point2d</span> <span class="n">markerSize</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Point2d</span><span class="o">(</span><span class="mi">200</span><span class="o">,</span> <span class="mi">200</span><span class="o">);</span>
     <span class="n">screenMarker</span><span class="o">.</span><span class="na">image</span> <span class="o">=</span> <span class="n">icon</span><span class="o">;</span>
     <span class="n">screenMarker</span><span class="o">.</span><span class="na">size</span> <span class="o">=</span> <span class="n">markerSize</span><span class="o">;</span>
     <span class="n">screenMarker</span><span class="o">.</span><span class="na">selectable</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
-    <span class="n">selectedMarkerComponent</span><span class="o">=</span> <span class="n">mapControl</span><span class="o">.</span><span class="na">addScreenMarker</span><span class="o">(</span><span class="n">screenMarker</span><span class="o">,</span> <span class="n">markerInfo</span><span class="o">,</span> <span class="n">MaplyBaseController</span><span class="o">.</span><span class="na">ThreadMode</span><span class="o">.</span><span class="na">ThreadAny</span><span class="o">);</span>
+    <span class="n">selectedMarkerComponent</span><span class="o">=</span> <span class="n">mapControl</span><span class="o">.</span><span class="na">addScreenMarker</span><span class="o">(</span><span class="n">screenMarker</span><span class="o">,</span> <span class="n">markerInfo</span><span class="o">,</span> <span class="nc">MaplyBaseController</span><span class="o">.</span><span class="na">ThreadMode</span><span class="o">.</span><span class="na">ThreadAny</span><span class="o">);</span>
 <span class="o">}</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>This method is to be called in <code class="highlighter-rouge">userDidSelect</code> when we are <a href="https://github.com/mousebird/AndroidTutorialProject/blob/18e6c25f8282ab0d0cb0910dacb8f5daba62fc66/app/src/main/java/io/theoutpost/helloearth/HelloMapFragment.java#L294">handling</a> a selected <code class="highlighter-rouge">ScreenMarker</code>.</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="c1">// Screen Marker</span>
-<span class="k">else</span> <span class="nf">if</span> <span class="o">(</span><span class="n">obj</span><span class="o">.</span><span class="na">selObj</span> <span class="k">instanceof</span> <span class="n">ScreenMarker</span><span class="o">)</span> <span class="o">{</span>
-    <span class="n">ScreenMarker</span> <span class="n">screenMarker</span> <span class="o">=</span> <span class="o">(</span><span class="n">ScreenMarker</span><span class="o">)</span> <span class="n">obj</span><span class="o">.</span><span class="na">selObj</span><span class="o">;</span>
-    <span class="n">MarkerProperties</span> <span class="n">properties</span> <span class="o">=</span> <span class="o">(</span><span class="n">MarkerProperties</span><span class="o">)</span> <span class="n">screenMarker</span><span class="o">.</span><span class="na">userObject</span><span class="o">;</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Screen Marker</span>
+<span class="k">else</span> <span class="nf">if</span> <span class="o">(</span><span class="n">obj</span><span class="o">.</span><span class="na">selObj</span> <span class="k">instanceof</span> <span class="nc">ScreenMarker</span><span class="o">)</span> <span class="o">{</span>
+    <span class="nc">ScreenMarker</span> <span class="n">screenMarker</span> <span class="o">=</span> <span class="o">(</span><span class="nc">ScreenMarker</span><span class="o">)</span> <span class="n">obj</span><span class="o">.</span><span class="na">selObj</span><span class="o">;</span>
+    <span class="nc">MarkerProperties</span> <span class="n">properties</span> <span class="o">=</span> <span class="o">(</span><span class="nc">MarkerProperties</span><span class="o">)</span> <span class="n">screenMarker</span><span class="o">.</span><span class="na">userObject</span><span class="o">;</span>
     <span class="n">msg</span> <span class="o">+=</span> <span class="s">"\nScreen Marker: "</span> <span class="o">+</span> <span class="n">properties</span><span class="o">.</span><span class="na">city</span> <span class="o">+</span> <span class="s">", "</span> <span class="o">+</span> <span class="n">properties</span><span class="o">.</span><span class="na">subject</span><span class="o">;</span>
     <span class="n">drawScreenMarkerAsSelected</span><span class="o">(</span><span class="n">screenMarker</span><span class="o">);</span>
 <span class="o">}</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>We also need to have a class member <code class="highlighter-rouge">ComponentObject selectedMarkerComponent;</code> to keep track of previously selected markers.</p>
 
@@ -310,28 +303,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/getting-started.html">Before You Start</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -607,193 +579,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/building-from-repository.html">Building From Repository</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/building-from-nightly.html">Building From Nightly</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
+                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/building-from-binary.html">Building From Nightly</a></li>
                       
                       
                       
@@ -1080,31 +866,10 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
                       </ol>
                       
                       <li class="sidebar-header-item">Basics of Display</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -1332,16 +1097,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/local-image-layer.html">Local Image Layer</a></li>
-                      
-                      
-                      
                       
                       
                       
@@ -1556,34 +1312,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/vector-data.html">Vector Data</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -1853,19 +1582,10 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/screen-labels.html">Screen Labels</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -2041,22 +1761,10 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/spheres-android.html">Spheres</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -2095,21 +1803,6 @@
                       
                       <li class="sidebar-header-item">Interaction</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -2361,19 +2054,10 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item current"><a class="page-link" href="/WhirlyGlobe/tutorial/android/screen-marker-selection.html">Screen Marker Selection</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -2430,9 +2114,6 @@
                       
                       <li class="sidebar-header-item">Advanced</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
                       
                       
                       
@@ -2587,15 +2268,6 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       </ol>
                       
                     </ol>
@@ -2612,12 +2284,6 @@
           <div class="col-sm-9" id="prev-next">
             
             
-            
-            
-            
-            
-            
-
             
             
             
@@ -2805,7 +2471,7 @@
             An open source geospatial display toolkit<br /> for iOS and Android.
           </p>
           <p class="site-description">
-            <small>Ⓒ 2017 mousebird consulting.</small>
+            <small>Ⓒ 2020 mousebird consulting.</small>
           </p>
         </div>
 

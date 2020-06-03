@@ -125,13 +125,12 @@
 
 <p>In your <a href="https://github.com/mousebird/AndroidTutorialProject/blob/cb8f82ed651cbd8b61524febc9321ec5045e10fd/app/src/main/AndroidManifest.xml#L5">AndroidManifest.xml</a>, add the following line to your manifest:</p>
 
-<div class="language-xml highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;uses-permission</span> <span class="na">android:name=</span><span class="s">"android.permission.WRITE_EXTERNAL_STORAGE"</span> <span class="nt">/&gt;</span>
-</code></pre>
-</div>
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;uses-permission</span> <span class="na">android:name=</span><span class="s">"android.permission.WRITE_EXTERNAL_STORAGE"</span> <span class="nt">/&gt;</span>
+</code></pre></div></div>
 
 <p>Your manifest should now look like the following:</p>
 
-<div class="language-xml highlighter-rouge"><pre class="highlight"><code><span class="cp">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span>
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span>
 <span class="nt">&lt;manifest</span> <span class="na">xmlns:android=</span><span class="s">"http://schemas.android.com/apk/res/android"</span>
     <span class="na">package=</span><span class="s">"io.theoutpost.helloearth"</span><span class="nt">&gt;</span>
 
@@ -153,32 +152,30 @@
     <span class="nt">&lt;/application&gt;</span>
 
 <span class="nt">&lt;/manifest&gt;</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Also, you will need to prompt the user for permission to access files on the device. Let’s do this in your <a href="https://github.com/mousebird/AndroidTutorialProject/blob/cb8f82ed651cbd8b61524febc9321ec5045e10fd/app/src/main/java/io/theoutpost/helloearth/HelloMapFragment.java#L44-L59">HelloMapFragment.java</a>.</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">protected</span> <span class="kt">void</span> <span class="nf">controlHasStarted</span><span class="o">()</span> <span class="o">{</span>
-    <span class="n">Activity</span> <span class="n">activity</span> <span class="o">=</span> <span class="n">getActivity</span><span class="o">();</span>
-    <span class="kd">final</span> <span class="kt">int</span> <span class="n">REQUEST_EXTERNAL_STORAGE</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
-    <span class="n">String</span><span class="o">[]</span> <span class="n">PERMISSIONS_STORAGE</span> <span class="o">=</span> <span class="o">{</span>
-            <span class="n">Manifest</span><span class="o">.</span><span class="na">permission</span><span class="o">.</span><span class="na">READ_EXTERNAL_STORAGE</span><span class="o">,</span>
-            <span class="n">Manifest</span><span class="o">.</span><span class="na">permission</span><span class="o">.</span><span class="na">WRITE_EXTERNAL_STORAGE</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">protected</span> <span class="kt">void</span> <span class="nf">controlHasStarted</span><span class="o">()</span> <span class="o">{</span>
+    <span class="nc">Activity</span> <span class="n">activity</span> <span class="o">=</span> <span class="n">getActivity</span><span class="o">();</span>
+    <span class="kd">final</span> <span class="kt">int</span> <span class="no">REQUEST_EXTERNAL_STORAGE</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
+    <span class="nc">String</span><span class="o">[]</span> <span class="no">PERMISSIONS_STORAGE</span> <span class="o">=</span> <span class="o">{</span>
+            <span class="nc">Manifest</span><span class="o">.</span><span class="na">permission</span><span class="o">.</span><span class="na">READ_EXTERNAL_STORAGE</span><span class="o">,</span>
+            <span class="nc">Manifest</span><span class="o">.</span><span class="na">permission</span><span class="o">.</span><span class="na">WRITE_EXTERNAL_STORAGE</span>
     <span class="o">};</span>
-    <span class="kt">int</span> <span class="n">permission</span> <span class="o">=</span> <span class="n">ActivityCompat</span><span class="o">.</span><span class="na">checkSelfPermission</span><span class="o">(</span><span class="n">activity</span><span class="o">,</span> <span class="n">Manifest</span><span class="o">.</span><span class="na">permission</span><span class="o">.</span><span class="na">WRITE_EXTERNAL_STORAGE</span><span class="o">);</span>
+    <span class="kt">int</span> <span class="n">permission</span> <span class="o">=</span> <span class="nc">ActivityCompat</span><span class="o">.</span><span class="na">checkSelfPermission</span><span class="o">(</span><span class="n">activity</span><span class="o">,</span> <span class="nc">Manifest</span><span class="o">.</span><span class="na">permission</span><span class="o">.</span><span class="na">WRITE_EXTERNAL_STORAGE</span><span class="o">);</span>
 
-    <span class="k">if</span> <span class="o">(</span><span class="n">permission</span> <span class="o">!=</span> <span class="n">PackageManager</span><span class="o">.</span><span class="na">PERMISSION_GRANTED</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">permission</span> <span class="o">!=</span> <span class="nc">PackageManager</span><span class="o">.</span><span class="na">PERMISSION_GRANTED</span><span class="o">)</span> <span class="o">{</span>
         <span class="c1">// We don't have permission so prompt the user</span>
-        <span class="n">ActivityCompat</span><span class="o">.</span><span class="na">requestPermissions</span><span class="o">(</span>
+        <span class="nc">ActivityCompat</span><span class="o">.</span><span class="na">requestPermissions</span><span class="o">(</span>
                 <span class="n">activity</span><span class="o">,</span>
-                <span class="n">PERMISSIONS_STORAGE</span><span class="o">,</span>
-                <span class="n">REQUEST_EXTERNAL_STORAGE</span>
+                <span class="no">PERMISSIONS_STORAGE</span><span class="o">,</span>
+                <span class="no">REQUEST_EXTERNAL_STORAGE</span>
         <span class="o">);</span>
     <span class="o">}</span>
     <span class="o">...</span>
 <span class="o">}</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>This is just some boilerplate code you need to do in newer SDKs when accessing files in external storage.</p>
 
@@ -186,35 +183,33 @@
 
 <p>Our previous tutorial had code that adds Stamen Watercolor as a remote tile source to the map. Let’s comment out the <a href="https://github.com/mousebird/AndroidTutorialProject/blob/cb8f82ed651cbd8b61524febc9321ec5045e10fd/app/src/main/java/io/theoutpost/helloearth/HelloMapFragment.java#L79-L83">following code</a> in HelloMapFragment.java.</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="c1">//        String cacheDirName = "stamen_watercolor";</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//        String cacheDirName = "stamen_watercolor";</span>
 <span class="c1">//        File cacheDir = new File(getActivity().getCacheDir(), cacheDirName);</span>
 <span class="c1">//        cacheDir.mkdir();</span>
 <span class="c1">//        RemoteTileSource remoteTileSource = new RemoteTileSource(new RemoteTileInfo("http://tile.stamen.com/watercolor/", "png", 0, 18));</span>
 <span class="c1">//        remoteTileSource.setCacheDir(cacheDir);</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h3 id="create-mbtilesimagesource">Create MBTilesImageSource</h3>
 
 <p>In place of the <code class="highlighter-rouge">RemoteTileSource</code>, we want to create an <code class="highlighter-rouge">MBTilesImageSource</code>. We get the MBTiles file, check if it is valid, and then create the local image source.</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">File</span> <span class="n">storageDir</span> <span class="o">=</span> <span class="n">Environment</span><span class="o">.</span><span class="na">getExternalStorageDirectory</span><span class="o">();</span>
-<span class="n">File</span> <span class="n">mbtilesDir</span> <span class="o">=</span> <span class="k">new</span> <span class="n">File</span><span class="o">(</span><span class="n">storageDir</span><span class="o">,</span> <span class="s">"mbtiles"</span><span class="o">);</span>
-<span class="n">File</span> <span class="n">mbtilesFile</span> <span class="o">=</span> <span class="k">new</span> <span class="n">File</span><span class="o">(</span><span class="n">mbtilesDir</span><span class="o">,</span> <span class="s">"geography-class_medres.mbtiles"</span><span class="o">);</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">File</span> <span class="n">storageDir</span> <span class="o">=</span> <span class="nc">Environment</span><span class="o">.</span><span class="na">getExternalStorageDirectory</span><span class="o">();</span>
+<span class="nc">File</span> <span class="n">mbtilesDir</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">File</span><span class="o">(</span><span class="n">storageDir</span><span class="o">,</span> <span class="s">"mbtiles"</span><span class="o">);</span>
+<span class="nc">File</span> <span class="n">mbtilesFile</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">File</span><span class="o">(</span><span class="n">mbtilesDir</span><span class="o">,</span> <span class="s">"geography-class_medres.mbtiles"</span><span class="o">);</span>
 <span class="k">if</span> <span class="o">(!</span><span class="n">mbtilesFile</span><span class="o">.</span><span class="na">exists</span><span class="o">())</span> <span class="o">{</span>
-    <span class="k">new</span> <span class="n">AlertDialog</span><span class="o">.</span><span class="na">Builder</span><span class="o">(</span><span class="n">activity</span><span class="o">)</span>
+    <span class="k">new</span> <span class="nc">AlertDialog</span><span class="o">.</span><span class="na">Builder</span><span class="o">(</span><span class="n">activity</span><span class="o">)</span>
             <span class="o">.</span><span class="na">setTitle</span><span class="o">(</span><span class="s">"Missing MBTiles"</span><span class="o">)</span>
             <span class="o">.</span><span class="na">setMessage</span><span class="o">(</span><span class="s">"Could not find MBTiles file."</span><span class="o">)</span>
-            <span class="o">.</span><span class="na">setPositiveButton</span><span class="o">(</span><span class="n">android</span><span class="o">.</span><span class="na">R</span><span class="o">.</span><span class="na">string</span><span class="o">.</span><span class="na">yes</span><span class="o">,</span> <span class="k">new</span> <span class="n">DialogInterface</span><span class="o">.</span><span class="na">OnClickListener</span><span class="o">()</span> <span class="o">{</span>
-                <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">DialogInterface</span> <span class="n">dialog</span><span class="o">,</span> <span class="kt">int</span> <span class="n">which</span><span class="o">)</span> <span class="o">{</span>
+            <span class="o">.</span><span class="na">setPositiveButton</span><span class="o">(</span><span class="n">android</span><span class="o">.</span><span class="na">R</span><span class="o">.</span><span class="na">string</span><span class="o">.</span><span class="na">yes</span><span class="o">,</span> <span class="k">new</span> <span class="nc">DialogInterface</span><span class="o">.</span><span class="na">OnClickListener</span><span class="o">()</span> <span class="o">{</span>
+                <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="nc">DialogInterface</span> <span class="n">dialog</span><span class="o">,</span> <span class="kt">int</span> <span class="n">which</span><span class="o">)</span> <span class="o">{</span>
                     <span class="c1">// do nothing</span>
                 <span class="o">}</span>
             <span class="o">}).</span><span class="na">show</span><span class="o">();</span>
 <span class="o">}</span>
-<span class="n">MBTiles</span> <span class="n">mbtiles</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MBTiles</span><span class="o">(</span><span class="n">mbtilesFile</span><span class="o">);</span>
-<span class="n">MBTilesImageSource</span> <span class="n">localTileSource</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MBTilesImageSource</span><span class="o">(</span><span class="n">mbtiles</span><span class="o">);</span>
-</code></pre>
-</div>
+<span class="nc">MBTiles</span> <span class="n">mbtiles</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">MBTiles</span><span class="o">(</span><span class="n">mbtilesFile</span><span class="o">);</span>
+<span class="nc">MBTilesImageSource</span> <span class="n">localTileSource</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">MBTilesImageSource</span><span class="o">(</span><span class="n">mbtiles</span><span class="o">);</span>
+</code></pre></div></div>
 
 <p>Put this <a href="https://github.com/mousebird/AndroidTutorialProject/blob/cb8f82ed651cbd8b61524febc9321ec5045e10fd/app/src/main/java/io/theoutpost/helloearth/HelloMapFragment.java#L61-L75">right before</a> the commented out <code class="highlighter-rouge">RemoteTileSource</code> code.</p>
 
@@ -222,9 +217,8 @@
 
 <p>Now, let’s add the <code class="highlighter-rouge">MBTilesImageSource</code> to the <code class="highlighter-rouge">QuadImageTileLayer</code> in place of the <code class="highlighter-rouge">RemoteTileSource</code>.</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">QuadImageTileLayer</span> <span class="n">baseLayer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">QuadImageTileLayer</span><span class="o">(</span><span class="n">mapControl</span><span class="o">,</span> <span class="n">coordSystem</span><span class="o">,</span> <span class="n">localTileSource</span><span class="o">);</span>
-</code></pre>
-</div>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">QuadImageTileLayer</span> <span class="n">baseLayer</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">QuadImageTileLayer</span><span class="o">(</span><span class="n">mapControl</span><span class="o">,</span> <span class="n">coordSystem</span><span class="o">,</span> <span class="n">localTileSource</span><span class="o">);</span>
+</code></pre></div></div>
 
 <p>That’s it! Now you can see a local tile source being drawn on your map.</p>
 
@@ -292,28 +286,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/getting-started.html">Before You Start</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -589,193 +562,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/building-from-repository.html">Building From Repository</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/building-from-nightly.html">Building From Nightly</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
+                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/building-from-binary.html">Building From Nightly</a></li>
                       
                       
                       
@@ -1062,31 +849,10 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
                       </ol>
                       
                       <li class="sidebar-header-item">Basics of Display</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -1314,16 +1080,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item current"><a class="page-link" href="/WhirlyGlobe/tutorial/android/local-image-layer.html">Local Image Layer</a></li>
-                      
-                      
-                      
                       
                       
                       
@@ -1538,34 +1295,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/vector-data.html">Vector Data</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -1835,19 +1565,10 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/screen-labels.html">Screen Labels</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -2023,22 +1744,10 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/spheres-android.html">Spheres</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -2077,21 +1786,6 @@
                       
                       <li class="sidebar-header-item">Interaction</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -2343,19 +2037,10 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/screen-marker-selection.html">Screen Marker Selection</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -2412,9 +2097,6 @@
                       
                       <li class="sidebar-header-item">Advanced</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
                       
                       
                       
@@ -2569,15 +2251,6 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       </ol>
                       
                     </ol>
@@ -2594,12 +2267,6 @@
           <div class="col-sm-9" id="prev-next">
             
             
-            
-            
-            
-            
-            
-
             
             
             
@@ -2787,7 +2454,7 @@
             An open source geospatial display toolkit<br /> for iOS and Android.
           </p>
           <p class="site-description">
-            <small>Ⓒ 2017 mousebird consulting.</small>
+            <small>Ⓒ 2020 mousebird consulting.</small>
           </p>
         </div>
 

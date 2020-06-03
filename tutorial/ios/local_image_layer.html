@@ -113,13 +113,13 @@
 
 <p><img src="/WhirlyGlobe/images/tutorial/local_image_layer_1.png" alt="Xcode ViewController.m" /></p>
 
-<p>If you haven’t got one here is a suitable ViewController (for <a href="/WhirlyGlobe/tutorial/ios/code/ViewController_globe_and_map.m">Objective-C</a> or <a href="/WhirlyGlobe/tutorial/ios/code/ViewController_globe_and_map.swift">Swift</a>) file to start with.  This version handles both a globe and a map and makes a nice starting point.</p>
+<p>If you haven’t got one here is a suitable ViewController  for <a href="/WhirlyGlobe/tutorial/ios/code/ViewController_globe_and_map.swift">Swift</a> file to start with.  This version handles both a globe and a map and makes a nice starting point.</p>
 
 <h3 id="geography-class-mbtiles">Geography Class MBTiles</h3>
 
 <p>We need the Geography Class MBTiles file from Mapbox.  Luckily, you’ll can download the mbtiles file and add it to your project easily. (http://openstreetmap.org/)</p>
 
-<p>First, download the [MBTile file] (https://s3.amazonaws.com/whirlyglobedocs/tutorialsupport/geography-class_medres.mbtiles) and save it into your projects directory.</p>
+<p>First, download the <a href="https://s3.amazonaws.com/whirlyglobedocs/tutorialsupport/geography-class_medres.mbtiles">MBTile file</a> and save it into your projects directory.</p>
 
 <p>Add <strong>geography­class_medres.mbtiles</strong> to your project by dragging it into HelloEarth in your Project Navigator view. You can create a Resources folder there if you like, but it’s not necessary. The same goes for ‘Copy items into the destination group’s folder’ – if you want your project to have its own copy of the file, check that box. What you must do, however is check the ‘Add to targets’ box for HelloEarth, to ensure that the data is packaged with your app when it is built.</p>
 
@@ -129,110 +129,144 @@
 
 <h3 id="adding-a-layer">Adding a Layer</h3>
 
-<p>There are a few steps to displaying an MBTiles file on your globe or map.</p>
-
-<ul>
-  <li>Create the MaplyMBTileSource to read it.</li>
-  <li>Spin up a MaplyQuadImageTilesLayer to display it.</li>
-  <li>Start in a useful position on the globe</li>
-</ul>
-
 <p>If you worked through the globe or the map example, you’ll need to add this little bit of code to your viewDidLoad method.  This will make the examples work with either globe or map.  If you’re using the ViewController file from above, you don’t need it.</p>
 
 <div class="multiple_code_header"><a href="#" data-index="0">&nbsp;</a><a href="#" data-index="1">&nbsp;</a></div>
 <ul class="multiple_code"><li data-index="0">
-  
-<figure class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="c1">// this logic makes it work for either globe or map
-</span><span class="n">WhirlyGlobeViewController</span> <span class="o">*</span><span class="n">globeViewC</span> <span class="o">=</span> <span class="nb">nil</span><span class="p">;</span>
-<span class="n">MaplyViewController</span> <span class="o">*</span><span class="n">mapViewC</span> <span class="o">=</span> <span class="nb">nil</span><span class="p">;</span>
-<span class="k">if</span> <span class="p">([</span><span class="n">theViewC</span> <span class="nf">isKindOfClass</span><span class="p">:[</span><span class="n">WhirlyGlobeViewController</span> <span class="nf">class</span><span class="p">]])</span>
-    <span class="n">globeViewC</span> <span class="o">=</span> <span class="p">(</span><span class="n">WhirlyGlobeViewController</span> <span class="o">*</span><span class="p">)</span><span class="n">theViewC</span><span class="p">;</span>
-<span class="k">else</span>
-    <span class="n">mapViewC</span> <span class="o">=</span> <span class="p">(</span><span class="n">MaplyViewController</span> <span class="o">*</span><span class="p">)</span><span class="n">theViewC</span><span class="p">;</span>
-  </code></pre></figure>
-
-
-  </li><li data-index="1">
 
   
 <figure class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="k">let</span> <span class="nv">globeViewC</span> <span class="o">=</span> <span class="n">theViewC</span> <span class="k">as?</span> <span class="kt">WhirlyGlobeViewController</span>
 <span class="k">let</span> <span class="nv">mapViewC</span> <span class="o">=</span> <span class="n">theViewC</span> <span class="k">as?</span> <span class="kt">MaplyViewController</span>
   </code></pre></figure>
 
-</li></ul>
-
-<p>Here’s how you open the MBTiles database, create the layer and add it to the globe or map.  These changes go in the viewDidLoad method.</p>
-
-<div class="multiple_code_header"><a href="#" data-index="0">&nbsp;</a><a href="#" data-index="1">&nbsp;</a></div>
-<ul class="multiple_code"><li data-index="0">
-  
-<figure class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="c1">// we want a black background for a globe, a white background for a map.
-</span><span class="n">theViewC</span><span class="p">.</span><span class="n">clearColor</span> <span class="o">=</span> <span class="p">(</span><span class="n">globeViewC</span> <span class="o">!=</span> <span class="nb">nil</span><span class="p">)</span> <span class="p">?</span> <span class="p">[</span><span class="n">UIColor</span> <span class="nf">blackColor</span><span class="p">]</span> <span class="p">:</span> <span class="p">[</span><span class="n">UIColor</span> <span class="nf">whiteColor</span><span class="p">];</span>
-
-<span class="c1">// and thirty fps if we can get it ­ change this to 3 if you find your app is struggling
-</span><span class="n">theViewC</span><span class="p">.</span><span class="n">frameInterval</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
-
-<span class="c1">// set up the data source
-</span><span class="n">MaplyMBTileSource</span> <span class="o">*</span><span class="n">tileSource</span> <span class="o">=</span> 
-    <span class="p">[[</span><span class="n">MaplyMBTileSource</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">initWithMBTiles</span><span class="p">:</span><span class="s">@"geography-class_medres"</span><span class="p">];</span>
-
-<span class="c1">// set up the layer
-</span><span class="n">MaplyQuadImageTilesLayer</span> <span class="o">*</span><span class="n">layer</span> <span class="o">=</span> 
-    <span class="p">[[</span><span class="n">MaplyQuadImageTilesLayer</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">initWithCoordSystem</span><span class="p">:</span><span class="n">tileSource</span><span class="p">.</span><span class="n">coordSys</span> 
-                                      <span class="nf">tileSource</span><span class="p">:</span><span class="n">tileSource</span><span class="p">];</span>
-<span class="n">layer</span><span class="p">.</span><span class="n">handleEdges</span> <span class="o">=</span> <span class="p">(</span><span class="n">globeViewC</span> <span class="o">!=</span> <span class="nb">nil</span><span class="p">);</span>
-<span class="n">layer</span><span class="p">.</span><span class="n">coverPoles</span> <span class="o">=</span> <span class="p">(</span><span class="n">globeViewC</span> <span class="o">!=</span> <span class="nb">nil</span><span class="p">);</span>
-<span class="n">layer</span><span class="p">.</span><span class="n">requireElev</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
-<span class="n">layer</span><span class="p">.</span><span class="n">waitLoad</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
-<span class="n">layer</span><span class="p">.</span><span class="n">drawPriority</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-<span class="n">layer</span><span class="p">.</span><span class="n">singleLevelLoading</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
-<span class="p">[</span><span class="n">theViewC</span> <span class="nf">addLayer</span><span class="p">:</span><span class="n">layer</span><span class="p">];</span>
-
-<span class="c1">// start up over San Francisco, center of the universe
-</span><span class="k">if</span> <span class="p">(</span><span class="n">globeViewC</span> <span class="o">!=</span> <span class="nb">nil</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">globeViewC</span><span class="p">.</span><span class="n">height</span> <span class="o">=</span> <span class="mi">0</span><span class="p">.</span><span class="mi">8</span><span class="p">;</span>
-    <span class="p">[</span><span class="n">globeViewC</span> <span class="nf">animateToPosition</span><span class="p">:</span><span class="n">MaplyCoordinateMakeWithDegrees</span><span class="p">(</span><span class="o">-</span><span class="mi">122</span><span class="p">.</span><span class="mi">4192</span><span class="p">,</span><span class="mi">37</span><span class="p">.</span><span class="mi">7793</span><span class="p">)</span>
-                <span class="nf">time</span><span class="p">:</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">];</span>
-<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-    <span class="n">mapViewC</span><span class="p">.</span><span class="n">height</span> <span class="o">=</span> <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">;</span>
-    <span class="p">[</span><span class="n">mapViewC</span> <span class="nf">animateToPosition</span><span class="p">:</span><span class="n">MaplyCoordinateMakeWithDegrees</span><span class="p">(</span><span class="o">-</span><span class="mi">122</span><span class="p">.</span><span class="mi">4192</span><span class="p">,</span><span class="mi">37</span><span class="p">.</span><span class="mi">7793</span><span class="p">)</span>
-            <span class="nf">time</span><span class="p">:</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">];</span>
-<span class="p">}</span>
-  </code></pre></figure>
-
 
   </li><li data-index="1">
 
+    
+<figure class="highlight"><pre><code class="language-objc" data-lang="objc">  <span class="c1">// this logic makes it work for either globe or map</span>
+  <span class="n">WhirlyGlobeViewController</span> <span class="o">*</span><span class="n">globeViewC</span> <span class="o">=</span> <span class="nb">nil</span><span class="p">;</span>
+  <span class="n">MaplyViewController</span> <span class="o">*</span><span class="n">mapViewC</span> <span class="o">=</span> <span class="nb">nil</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">([</span><span class="n">theViewC</span> <span class="nf">isKindOfClass</span><span class="p">:[</span><span class="n">WhirlyGlobeViewController</span> <span class="nf">class</span><span class="p">]])</span>
+      <span class="n">globeViewC</span> <span class="o">=</span> <span class="p">(</span><span class="n">WhirlyGlobeViewController</span> <span class="o">*</span><span class="p">)</span><span class="n">theViewC</span><span class="p">;</span>
+  <span class="k">else</span>
+      <span class="n">mapViewC</span> <span class="o">=</span> <span class="p">(</span><span class="n">MaplyViewController</span> <span class="o">*</span><span class="p">)</span><span class="n">theViewC</span><span class="p">;</span>
+    </code></pre></figure>
+
+
+</li></ul>
+
+<p>Now, add these declarations to your ViewController.</p>
+
+<div class="multiple_code_header"><a href="#" data-index="0">&nbsp;</a><a href="#" data-index="1">&nbsp;</a></div>
+<ul class="multiple_code"><li data-index="0">
+
   
-<figure class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="c1">// we want a black background for a globe, a white background for a map.</span>
+<figure class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="k">var</span> <span class="nv">mbTilesFetcher</span> <span class="p">:</span> <span class="kt">MaplyMBTileFetcher</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span>
+<span class="k">var</span> <span class="nv">imageLoader</span> <span class="p">:</span> <span class="kt">MaplyQuadImageLoader</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span>
+  </code></pre></figure>
+
+
+</li><li data-index="1">
+
+  
+<figure class="highlight"><pre><code class="language-objc" data-lang="objc">    <span class="c1">// These go well in your @implementation block</span>
+    <span class="n">MaplyMBTileFetcher</span> <span class="o">*</span><span class="n">mbTilesFetcher</span><span class="p">;</span>
+    <span class="n">MaplyQuadImageLoader</span> <span class="o">*</span><span class="n">imageLoader</span><span class="p">;</span>
+    </code></pre></figure>
+
+    
+</li></ul>
+
+<p>To open the MBTiles database, create the loader and add it to the globe or map, add these changes go in the viewDidLoad method.</p>
+
+<div class="multiple_code_header"><a href="#" data-index="0">&nbsp;</a><a href="#" data-index="1">&nbsp;</a></div>
+<ul class="multiple_code"><li data-index="0">
+
+  
+<figure class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="k">let</span> <span class="nv">globeViewC</span> <span class="o">=</span> <span class="n">theViewC</span> <span class="k">as?</span> <span class="kt">WhirlyGlobeViewController</span>
+<span class="k">let</span> <span class="nv">mapViewC</span> <span class="o">=</span> <span class="n">theViewC</span> <span class="k">as?</span> <span class="kt">MaplyViewController</span>
+
+<span class="c1">// we want a black background for a globe, a white background for a map.</span>
 <span class="n">theViewC</span><span class="o">!.</span><span class="n">clearColor</span> <span class="o">=</span> <span class="p">(</span><span class="n">globeViewC</span> <span class="o">!=</span> <span class="kc">nil</span><span class="p">)</span> <span class="p">?</span> <span class="kt">UIColor</span><span class="o">.</span><span class="nv">black</span> <span class="p">:</span> <span class="kt">UIColor</span><span class="o">.</span><span class="n">white</span>
 
-<span class="c1">// and thirty fps if we can get it ­ change this to 3 if you find your app is struggling</span>
+<span class="c1">// and 30 frames per second</span>
 <span class="n">theViewC</span><span class="o">!.</span><span class="n">frameInterval</span> <span class="o">=</span> <span class="mi">2</span>
 
-<span class="c1">// set up the data source</span>
-<span class="k">if</span> <span class="k">let</span> <span class="nv">tileSource</span> <span class="o">=</span> <span class="kt">MaplyMBTileSource</span><span class="p">(</span><span class="nv">mbTiles</span><span class="p">:</span> <span class="s">"geography-class_medres"</span><span class="p">),</span>
-       <span class="k">let</span> <span class="nv">layer</span> <span class="o">=</span> <span class="kt">MaplyQuadImageTilesLayer</span><span class="p">(</span><span class="nv">tileSource</span><span class="p">:</span> <span class="n">tileSource</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">layer</span><span class="o">.</span><span class="n">handleEdges</span> <span class="o">=</span> <span class="p">(</span><span class="n">globeViewC</span> <span class="o">!=</span> <span class="kc">nil</span><span class="p">)</span>
-    <span class="n">layer</span><span class="o">.</span><span class="n">coverPoles</span> <span class="o">=</span> <span class="p">(</span><span class="n">globeViewC</span> <span class="o">!=</span> <span class="kc">nil</span><span class="p">)</span>
-    <span class="n">layer</span><span class="o">.</span><span class="n">requireElev</span> <span class="o">=</span> <span class="kc">false</span>
-    <span class="n">layer</span><span class="o">.</span><span class="n">waitLoad</span> <span class="o">=</span> <span class="kc">false</span>
-    <span class="n">layer</span><span class="o">.</span><span class="n">drawPriority</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">layer</span><span class="o">.</span><span class="n">singleLevelLoading</span> <span class="o">=</span> <span class="kc">false</span>
-    <span class="n">theViewC</span><span class="o">!.</span><span class="nf">add</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
-<span class="p">}</span>
+<span class="c1">// Set up an MBTiles file and read the header</span>
+<span class="n">mbTilesFetcher</span> <span class="o">=</span> <span class="kt">MaplyMBTileFetcher</span><span class="p">(</span><span class="nv">mbTiles</span><span class="p">:</span> <span class="s">"geography-class_medres"</span><span class="p">)</span>
+
+<span class="c1">// Sampling parameters define how we break down the globe</span>
+<span class="k">let</span> <span class="nv">sampleParams</span> <span class="o">=</span> <span class="kt">MaplySamplingParams</span><span class="p">()</span>
+<span class="n">sampleParams</span><span class="o">.</span><span class="n">coordSys</span> <span class="o">=</span> <span class="n">mbTilesFetcher</span><span class="o">!.</span><span class="nf">coordSys</span><span class="p">()</span>
+<span class="n">sampleParams</span><span class="o">.</span><span class="n">coverPoles</span> <span class="o">=</span> <span class="kc">true</span>
+<span class="n">sampleParams</span><span class="o">.</span><span class="n">edgeMatching</span> <span class="o">=</span> <span class="kc">true</span>
+<span class="n">sampleParams</span><span class="o">.</span><span class="n">minZoom</span> <span class="o">=</span> <span class="n">mbTilesFetcher</span><span class="o">!.</span><span class="nf">minZoom</span><span class="p">()</span>
+<span class="n">sampleParams</span><span class="o">.</span><span class="n">maxZoom</span> <span class="o">=</span> <span class="n">mbTilesFetcher</span><span class="o">!.</span><span class="nf">maxZoom</span><span class="p">()</span>
+<span class="n">sampleParams</span><span class="o">.</span><span class="n">singleLevel</span> <span class="o">=</span> <span class="kc">true</span>
+
+<span class="c1">// The Image Loader does the actual work</span>
+<span class="n">imageLoader</span> <span class="o">=</span> <span class="kt">MaplyQuadImageLoader</span><span class="p">(</span><span class="nv">params</span><span class="p">:</span> <span class="n">sampleParams</span><span class="p">,</span> 
+    <span class="nv">tileInfo</span><span class="p">:</span> <span class="n">mbTilesFetcher</span><span class="o">!.</span><span class="nf">tileInfo</span><span class="p">(),</span> 
+    <span class="nv">viewC</span><span class="p">:</span> <span class="n">theViewC</span><span class="o">!</span><span class="p">)</span>
+<span class="n">imageLoader</span><span class="o">!.</span><span class="nf">setTileFetcher</span><span class="p">(</span><span class="n">mbTilesFetcher</span><span class="o">!</span><span class="p">)</span>
+<span class="n">imageLoader</span><span class="o">!.</span><span class="n">baseDrawPriority</span> <span class="o">=</span> <span class="n">kMaplyImageLayerDrawPriorityDefault</span>
 
 <span class="c1">// start up over Madrid, center of the old-world</span>
 <span class="k">if</span> <span class="k">let</span> <span class="nv">globeViewC</span> <span class="o">=</span> <span class="n">globeViewC</span> <span class="p">{</span>
     <span class="n">globeViewC</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="mf">0.8</span>
-    <span class="n">globeViewC</span><span class="o">.</span><span class="nf">animate</span><span class="p">(</span><span class="nv">toPosition</span><span class="p">:</span> <span class="kt">MaplyCoordinateMakeWithDegrees</span><span class="p">(</span><span class="o">-</span><span class="mf">3.6704803</span><span class="p">,</span> <span class="mf">40.5023056</span><span class="p">),</span> <span class="nv">time</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">globeViewC</span><span class="o">.</span><span class="nf">animate</span><span class="p">(</span><span class="nv">toPosition</span><span class="p">:</span> <span class="kt">MaplyCoordinateMakeWithDegrees</span><span class="p">(</span><span class="o">-</span><span class="mf">3.6704</span><span class="p">,</span> <span class="mf">40.5023</span><span class="p">),</span> 
+    <span class="nv">time</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">)</span>
 <span class="p">}</span>
 <span class="k">else</span> <span class="k">if</span> <span class="k">let</span> <span class="nv">mapViewC</span> <span class="o">=</span> <span class="n">mapViewC</span> <span class="p">{</span>
     <span class="n">mapViewC</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="mf">1.0</span>
-    <span class="n">mapViewC</span><span class="o">.</span><span class="nf">animate</span><span class="p">(</span><span class="nv">toPosition</span><span class="p">:</span> <span class="kt">MaplyCoordinateMakeWithDegrees</span><span class="p">(</span><span class="o">-</span><span class="mf">3.6704803</span><span class="p">,</span> <span class="mf">40.5023056</span><span class="p">),</span> <span class="nv">time</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">mapViewC</span><span class="o">.</span><span class="nf">animate</span><span class="p">(</span><span class="nv">toPosition</span><span class="p">:</span> <span class="kt">MaplyCoordinateMakeWithDegrees</span><span class="p">(</span><span class="o">-</span><span class="mf">3.6704</span><span class="p">,</span> <span class="mf">40.5023</span><span class="p">),</span> 
+    <span class="nv">time</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">)</span>
 <span class="p">}</span>
+
   </code></pre></figure>
 
+  
+  </li><li data-index="1">
+
+    
+<figure class="highlight"><pre><code class="language-objc" data-lang="objc">  <span class="c1">// we want a black background for a globe, a white background for a map.</span>
+  <span class="n">theViewC</span><span class="p">.</span><span class="n">clearColor</span> <span class="o">=</span> <span class="p">(</span><span class="n">globeViewC</span> <span class="o">!=</span> <span class="nb">nil</span><span class="p">)</span> <span class="p">?</span> <span class="p">[</span><span class="n">UIColor</span> <span class="nf">blackColor</span><span class="p">]</span> <span class="p">:</span> <span class="p">[</span><span class="n">UIColor</span> <span class="nf">whiteColor</span><span class="p">];</span>
+
+  <span class="c1">// and thirty fps if we can get it ­ change this to 3 if you find your app is struggling</span>
+  <span class="n">theViewC</span><span class="p">.</span><span class="n">frameInterval</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+  
+  <span class="c1">// Reads from the MBTiles file</span>
+  <span class="n">mbTilesFetcher</span> <span class="o">=</span> <span class="p">[[</span><span class="n">MaplyMBTileFetcher</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">initWithMBTiles</span><span class="p">:</span><span class="s">@"geography-class_medres"</span><span class="p">];</span>
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">mbTilesFetcher</span><span class="p">)</span>
+      <span class="k">return</span><span class="p">;</span>
+
+  <span class="c1">// Describes what the file covers and how deep</span>
+  <span class="n">MaplySamplingParams</span> <span class="o">*</span><span class="n">sampleParams</span> <span class="o">=</span> <span class="p">[[</span><span class="n">MaplySamplingParams</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">init</span><span class="p">];</span>
+  <span class="n">sampleParams</span><span class="p">.</span><span class="n">coordSys</span> <span class="o">=</span> <span class="n">mbTilesFetcher</span><span class="p">.</span><span class="n">coordSys</span><span class="p">;</span>
+  <span class="n">sampleParams</span><span class="p">.</span><span class="n">coverPoles</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+  <span class="n">sampleParams</span><span class="p">.</span><span class="n">edgeMatching</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+  <span class="n">sampleParams</span><span class="p">.</span><span class="n">minZoom</span> <span class="o">=</span> <span class="n">mbTilesFetcher</span><span class="p">.</span><span class="n">minZoom</span><span class="p">;</span>
+  <span class="n">sampleParams</span><span class="p">.</span><span class="n">maxZoom</span> <span class="o">=</span> <span class="n">mbTilesFetcher</span><span class="p">.</span><span class="n">maxZoom</span><span class="p">;</span>
+  <span class="n">sampleParams</span><span class="p">.</span><span class="n">singleLevel</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+
+  <span class="c1">// Actually loads the images</span>
+  <span class="n">imageLoader</span> <span class="o">=</span> <span class="p">[[</span><span class="n">MaplyQuadImageLoader</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">initWithParams</span><span class="p">:</span><span class="n">sampleParams</span> <span class="nf">tileInfo</span><span class="p">:</span><span class="n">mbTilesFetcher</span><span class="p">.</span><span class="n">tileInfo</span> <span class="n">viewC</span><span class="o">:</span><span class="n">theViewC</span><span class="p">];</span>
+  <span class="p">[</span><span class="n">imageLoader</span> <span class="nf">setTileFetcher</span><span class="p">:</span><span class="n">mbTilesFetcher</span><span class="p">];</span>
+  <span class="n">imageLoader</span><span class="p">.</span><span class="n">baseDrawPriority</span> <span class="o">=</span> <span class="n">kMaplyImageLayerDrawPriorityDefault</span><span class="p">;</span>
+
+  <span class="c1">// start up over San Francisco, center of the universe</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">globeViewC</span> <span class="o">!=</span> <span class="nb">nil</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">globeViewC</span><span class="p">.</span><span class="n">height</span> <span class="o">=</span> <span class="mi">0</span><span class="p">.</span><span class="mi">8</span><span class="p">;</span>
+      <span class="p">[</span><span class="n">globeViewC</span> <span class="nf">animateToPosition</span><span class="p">:</span><span class="n">MaplyCoordinateMakeWithDegrees</span><span class="p">(</span><span class="o">-</span><span class="mi">122</span><span class="p">.</span><span class="mi">4192</span><span class="p">,</span><span class="mi">37</span><span class="p">.</span><span class="mi">7793</span><span class="p">)</span>
+                  <span class="nl">time:</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">];</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="n">mapViewC</span><span class="p">.</span><span class="n">height</span> <span class="o">=</span> <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">;</span>
+      <span class="p">[</span><span class="n">mapViewC</span> <span class="nf">animateToPosition</span><span class="p">:</span><span class="n">MaplyCoordinateMakeWithDegrees</span><span class="p">(</span><span class="o">-</span><span class="mi">122</span><span class="p">.</span><span class="mi">4192</span><span class="p">,</span><span class="mi">37</span><span class="p">.</span><span class="mi">7793</span><span class="p">)</span>
+              <span class="nl">time:</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">];</span>
+  <span class="p">}</span>
+    </code></pre></figure>
+
+    
 </li></ul>
 
 <p>Now, when you run HelloEarth, you should see a colorful set of countries looking back at you.</p>
@@ -243,19 +277,19 @@
 
 <h3 id="deeper-dive">Deeper Dive</h3>
 
-<p>You might notice there were two interesting objects there.  First was the MaplyMBTileSource and the second a MaplyQuadImageTilesLayer.</p>
+<p>You might notice there were three interesting objects there: MaplySamplingParams, MaplyQuadImageLoader, and the MaplyMBTileFetcher.</p>
 
-<p>The MaplyMBTileSource is responsible for reading the MBTiles file, which is just a big sqlite file with a bunch of images in it.  The MaplyQuadImageTilesLayer is much more complicated.  It responds to changes in viewer position and loads the most appropriate image tiles.</p>
+<p>Loading image and vector tiles is the most common (and complex) thing WG-Maply does and we’ve got it all pretty well abstracted.  The data fetching is separate from the parsing which is separate from the display.</p>
 
-<p>The MaplyQuadImageTilesLayer is pretty flexible.  Let’s look at some of the properties.</p>
+<p>In this case, we start with a MaplyMBTileFetcher which knows how to read Mapbox Tiles files (sqlite with a bit of extra structure).  There’s an image pyramid in that file which we’ll pull out as needed.</p>
 
-<ul>
-  <li><em>handleEdges</em> will add some extra geometry to ensure there’s no gap when mismatching levels of detail abut. You’ll never need this for a flat map, but for a globe or a 3D map, you might.</li>
-  <li><em>coverPoles</em> will create ‘caps’ for the north and south poles. If you’re using a globe, and your projection doesn’t go all the way to the poles (this is common), you’ll want to turn this on.</li>
-  <li><em>drawPriority</em> sets the priority of geometry created.  You can use this to overlay image layers, with one caveat: it must be set immediately after the layer is created. You can’t change it later.</li>
-</ul>
+<p>To tell WG-Maply how to do that, we set up a MaplySamplingParams, instructing it what the coordinate system is (probably Spherical Mercator) and how many levels are in the data.  We also tell it if we’d like coverage over the poles, which only makes sense for the globe, and if we’d like edge matching between tiles.  We usually do.</p>
 
-<p>There are plenty of other properties we haven’t touched on here.  Browse through the documentation and you’ll see a lot more.</p>
+<p>We also want it to try to display only a single level of detail.  Now it will always display the lowest level, so you have something to look at.  But this ensures we don’t load anything between that level and the one we <em>ought</em> to see.</p>
+
+<p>Then we set up the object that does all the work, a MaplyQuadImageLoader.  This takes the the MBTiles fetcher, the sampling parameters and starts fetching data.  You can call its shutdown() method to make it stop.</p>
+
+<p>There’s a lot more to the MaplyQuadImageLoader and its siblings: The MaplyQuadPagingLoader and the MaplyQuadImageFrameLoader.  But for now, we’re starting simple.  Browse through the documentation and you’ll see a lot more.</p>
 
 <p>Next up, an image layer you page over the network.</p>
 
@@ -324,28 +358,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/getting_started.html">Before You Start</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -630,28 +643,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/building_from_source.html">Source Distribution</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -954,25 +946,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/building_from_cocoapod.html">Cocoapods</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -1157,34 +1131,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/globe_or_map.html">Globe Or Map</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -1580,19 +1527,10 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/your_first_map.html">Your First Map</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -1601,15 +1539,6 @@
                       
                       <li class="sidebar-header-item">Image Based Maps</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -1855,187 +1784,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/remote_image_layer.html">Remote Image Layer</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/remote_NASA_image_layers.html">NASA Image Layers</a></li>
                       
                       
                       
@@ -2110,33 +1859,6 @@
                       
                       
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/adding_vector_data.html">Vector Data</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -2538,31 +2260,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/screen_labels.html">Screen Labels</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -2762,25 +2460,13 @@
                       
                       
                       
+                      
+                      
+                      
                       </ol>
                       
                       <li class="sidebar-header-item">Shapes</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -2932,25 +2618,13 @@
                       
                       
                       
+                      
+                      
+                      
                       </ol>
                       
                       <li class="sidebar-header-item">Interaction</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -3211,25 +2885,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/screen_marker_selection.html">Screen Marker Selection</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -3429,9 +3085,6 @@
                       
                       
                       
-                      
-                      
-                      
                       </ol>
                       
                       <li class="sidebar-header-item">Advanced</li>
@@ -3474,13 +3127,13 @@
                       
                       
                       
+                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/cartodb_layer.html">Carto Layer</a></li>
                       
                       
                       
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/cartodb_layer.html">CartoDB Layer</a></li>
                       
                       
                       
@@ -3511,522 +3164,6 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/aeris_weather.html">Aeris Weather Layer</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/component_tester.html">Component Tester</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/micello_map.html">Micello Indoor Maps</a></li>
                       
                       
                       
@@ -4259,9 +3396,6 @@
                       
                       
                       
-                      
-                      
-                      
                       </ol>
                       
                     </ol>
@@ -4372,12 +3506,6 @@
             
             
             
-
-            
-            
-            
-            
-            
             
             
             
@@ -4433,24 +3561,6 @@
             
             
             
-            
-            
-            
-            
-            
-
-            
-            
-            
-            
-            
-
-            
-            
-            
-            
-            
-
             
             
             
@@ -4531,7 +3641,7 @@
             An open source geospatial display toolkit<br /> for iOS and Android.
           </p>
           <p class="site-description">
-            <small>Ⓒ 2017 mousebird consulting.</small>
+            <small>Ⓒ 2020 mousebird consulting.</small>
           </p>
         </div>
 

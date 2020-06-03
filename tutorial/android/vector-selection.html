@@ -113,31 +113,29 @@
 
 <p>Vector selection in WhirlyGlobe–Maply is easy to enable. First, make sure that you have set your <code class="highlighter-rouge">VectorObject</code> to be selectable. In <a href="https://github.com/mousebird/AndroidTutorialProject/blob/3318085f5192b6cf28a7294968a480006817804a/app/src/main/java/io/theoutpost/helloearth/GeoJsonHttpTask.java#L55">GeoJsonHttpTask.java</a>, set <code class="highlighter-rouge">object.selectable = true;</code>.</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="nd">@Override</span>
-<span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onPostExecute</span><span class="o">(</span><span class="n">String</span> <span class="n">json</span><span class="o">)</span> <span class="o">{</span>
-    <span class="n">VectorInfo</span> <span class="n">vectorInfo</span> <span class="o">=</span> <span class="k">new</span> <span class="n">VectorInfo</span><span class="o">();</span>
-    <span class="n">vectorInfo</span><span class="o">.</span><span class="na">setColor</span><span class="o">(</span><span class="n">Color</span><span class="o">.</span><span class="na">RED</span><span class="o">);</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Override</span>
+<span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onPostExecute</span><span class="o">(</span><span class="nc">String</span> <span class="n">json</span><span class="o">)</span> <span class="o">{</span>
+    <span class="nc">VectorInfo</span> <span class="n">vectorInfo</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">VectorInfo</span><span class="o">();</span>
+    <span class="n">vectorInfo</span><span class="o">.</span><span class="na">setColor</span><span class="o">(</span><span class="nc">Color</span><span class="o">.</span><span class="na">RED</span><span class="o">);</span>
     <span class="n">vectorInfo</span><span class="o">.</span><span class="na">setLineWidth</span><span class="o">(</span><span class="mi">4</span><span class="o">.</span><span class="na">f</span><span class="o">);</span>
-    <span class="n">VectorObject</span> <span class="n">object</span> <span class="o">=</span> <span class="k">new</span> <span class="n">VectorObject</span><span class="o">();</span>
+    <span class="nc">VectorObject</span> <span class="n">object</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">VectorObject</span><span class="o">();</span>
     <span class="n">object</span><span class="o">.</span><span class="na">selectable</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
     <span class="k">if</span> <span class="o">(</span><span class="n">object</span><span class="o">.</span><span class="na">fromGeoJSON</span><span class="o">(</span><span class="n">json</span><span class="o">))</span> <span class="o">{</span>
-        <span class="n">controller</span><span class="o">.</span><span class="na">addVector</span><span class="o">(</span><span class="n">object</span><span class="o">,</span> <span class="n">vectorInfo</span><span class="o">,</span> <span class="n">MaplyBaseController</span><span class="o">.</span><span class="na">ThreadMode</span><span class="o">.</span><span class="na">ThreadAny</span><span class="o">);</span>
+        <span class="n">controller</span><span class="o">.</span><span class="na">addVector</span><span class="o">(</span><span class="n">object</span><span class="o">,</span> <span class="n">vectorInfo</span><span class="o">,</span> <span class="nc">MaplyBaseController</span><span class="o">.</span><span class="na">ThreadMode</span><span class="o">.</span><span class="na">ThreadAny</span><span class="o">);</span>
     <span class="o">}</span>
 <span class="o">}</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <h3 id="create-gesture-delegate-method">Create Gesture Delegate Method</h3>
 
 <p>The super class of <code class="highlighter-rouge">HelloMapFragment</code> is <code class="highlighter-rouge">GlobeMapFragment</code>. One of the methods defined is <code class="highlighter-rouge">userDidSelect</code>. This is a delegate method that you can override that gets called whenever a map object is selected. In <a href="https://github.com/mousebird/AndroidTutorialProject/blob/3318085f5192b6cf28a7294968a480006817804a/app/src/main/java/io/theoutpost/helloearth/HelloMapFragment.java#L273-L274">HelloMapFragment.java</a>, create the following method:</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="nd">@Override</span>
-<span class="kd">public</span> <span class="kt">void</span> <span class="nf">userDidSelect</span><span class="o">(</span><span class="n">MapController</span> <span class="n">mapControl</span><span class="o">,</span> <span class="n">SelectedObject</span><span class="o">[]</span> <span class="n">selObjs</span><span class="o">,</span> 
-                          <span class="n">Point2d</span> <span class="n">loc</span><span class="o">,</span> <span class="n">Point2d</span> <span class="n">screenLoc</span><span class="o">)</span> <span class="o">{</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Override</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">userDidSelect</span><span class="o">(</span><span class="nc">MapController</span> <span class="n">mapControl</span><span class="o">,</span> <span class="nc">SelectedObject</span><span class="o">[]</span> <span class="n">selObjs</span><span class="o">,</span> 
+                          <span class="nc">Point2d</span> <span class="n">loc</span><span class="o">,</span> <span class="nc">Point2d</span> <span class="n">screenLoc</span><span class="o">)</span> <span class="o">{</span>
 
 <span class="o">}</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>This method will be called whenver a vector object is selected.</p>
 
@@ -145,7 +143,7 @@
 
 <p>Your map controller needs to know that your <code class="highlighter-rouge">HelloMapFragment</code> should be notified as the gesture delegate whenever a selection occurs. In the <a href="https://github.com/mousebird/AndroidTutorialProject/blob/3318085f5192b6cf28a7294968a480006817804a/app/src/main/java/io/theoutpost/helloearth/HelloMapFragment.java#L122"><code class="highlighter-rouge">controlHasStarted</code></a> method, set:</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="nd">@Override</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Override</span>
 <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">controlHasStarted</span><span class="o">()</span> <span class="o">{</span>
     <span class="o">...</span>
     <span class="c1">// Set controller to be gesture delegate.</span>
@@ -153,8 +151,7 @@
     <span class="n">mapControl</span><span class="o">.</span><span class="na">gestureDelegate</span> <span class="o">=</span> <span class="k">this</span><span class="o">;</span>
     <span class="o">...</span>
 <span class="o">}</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>It doesn’t matter when you set this fragment as the delegate, as long as it happens before the user actually selects the vector. <code class="highlighter-rouge">controlHasStarted</code> is the most logical place for us to do this.</p>
 
@@ -162,23 +159,22 @@
 
 <p>There are a lot of things you can do when <code class="highlighter-rouge">userDidSelect</code> is fired. To keep things simple, the following implementation will create a <code class="highlighter-rouge">Toast</code> message that displays the admin name of the polygon that was selected.</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="nd">@Override</span>
-<span class="kd">public</span> <span class="kt">void</span> <span class="nf">userDidSelect</span><span class="o">(</span><span class="n">MapController</span> <span class="n">mapControl</span><span class="o">,</span> <span class="n">SelectedObject</span><span class="o">[]</span> <span class="n">selObjs</span><span class="o">,</span> <span class="n">Point2d</span> <span class="n">loc</span><span class="o">,</span> <span class="n">Point2d</span> <span class="n">screenLoc</span><span class="o">)</span> <span class="o">{</span>
-    <span class="n">String</span> <span class="n">msg</span> <span class="o">=</span> <span class="s">"Selected feature count: "</span> <span class="o">+</span> <span class="n">selObjs</span><span class="o">.</span><span class="na">length</span><span class="o">;</span>
-    <span class="k">for</span> <span class="o">(</span><span class="n">SelectedObject</span> <span class="n">obj</span> <span class="o">:</span> <span class="n">selObjs</span><span class="o">)</span> <span class="o">{</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Override</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">userDidSelect</span><span class="o">(</span><span class="nc">MapController</span> <span class="n">mapControl</span><span class="o">,</span> <span class="nc">SelectedObject</span><span class="o">[]</span> <span class="n">selObjs</span><span class="o">,</span> <span class="nc">Point2d</span> <span class="n">loc</span><span class="o">,</span> <span class="nc">Point2d</span> <span class="n">screenLoc</span><span class="o">)</span> <span class="o">{</span>
+    <span class="nc">String</span> <span class="n">msg</span> <span class="o">=</span> <span class="s">"Selected feature count: "</span> <span class="o">+</span> <span class="n">selObjs</span><span class="o">.</span><span class="na">length</span><span class="o">;</span>
+    <span class="k">for</span> <span class="o">(</span><span class="nc">SelectedObject</span> <span class="n">obj</span> <span class="o">:</span> <span class="n">selObjs</span><span class="o">)</span> <span class="o">{</span>
         <span class="c1">// GeoJSON</span>
-        <span class="k">if</span> <span class="o">(</span><span class="n">obj</span><span class="o">.</span><span class="na">selObj</span> <span class="k">instanceof</span> <span class="n">VectorObject</span><span class="o">)</span> <span class="o">{</span>
-            <span class="n">VectorObject</span> <span class="n">vectorObject</span> <span class="o">=</span> <span class="o">(</span><span class="n">VectorObject</span><span class="o">)</span> <span class="n">obj</span><span class="o">.</span><span class="na">selObj</span><span class="o">;</span>
-            <span class="n">AttrDictionary</span> <span class="n">attributes</span> <span class="o">=</span> <span class="n">vectorObject</span><span class="o">.</span><span class="na">getAttributes</span><span class="o">();</span>
-            <span class="n">String</span> <span class="n">adminName</span> <span class="o">=</span> <span class="n">attributes</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="s">"ADMIN"</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">obj</span><span class="o">.</span><span class="na">selObj</span> <span class="k">instanceof</span> <span class="nc">VectorObject</span><span class="o">)</span> <span class="o">{</span>
+            <span class="nc">VectorObject</span> <span class="n">vectorObject</span> <span class="o">=</span> <span class="o">(</span><span class="nc">VectorObject</span><span class="o">)</span> <span class="n">obj</span><span class="o">.</span><span class="na">selObj</span><span class="o">;</span>
+            <span class="nc">AttrDictionary</span> <span class="n">attributes</span> <span class="o">=</span> <span class="n">vectorObject</span><span class="o">.</span><span class="na">getAttributes</span><span class="o">();</span>
+            <span class="nc">String</span> <span class="n">adminName</span> <span class="o">=</span> <span class="n">attributes</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="s">"ADMIN"</span><span class="o">);</span>
             <span class="n">msg</span> <span class="o">+=</span> <span class="s">"\nVector Object: "</span> <span class="o">+</span> <span class="n">adminName</span><span class="o">;</span>
         <span class="o">}</span>
     <span class="o">}</span>
 
-    <span class="n">Toast</span><span class="o">.</span><span class="na">makeText</span><span class="o">(</span><span class="n">getActivity</span><span class="o">(),</span> <span class="n">msg</span><span class="o">,</span> <span class="n">Toast</span><span class="o">.</span><span class="na">LENGTH_LONG</span><span class="o">).</span><span class="na">show</span><span class="o">();</span>
+    <span class="nc">Toast</span><span class="o">.</span><span class="na">makeText</span><span class="o">(</span><span class="n">getActivity</span><span class="o">(),</span> <span class="n">msg</span><span class="o">,</span> <span class="nc">Toast</span><span class="o">.</span><span class="na">LENGTH_LONG</span><span class="o">).</span><span class="na">show</span><span class="o">();</span>
 <span class="o">}</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p><img src="resources/vector-selection.jpg" alt="Vector Selection" /></p>
 
@@ -188,31 +184,29 @@
 
 <p>Create the <a href="https://github.com/mousebird/AndroidTutorialProject/blob/edd635806ffe7f62039fb40f3fdef3c8c5d1becd/app/src/main/java/io/theoutpost/helloearth/HelloMapFragment.java#L299-L308">following method</a> in <code class="highlighter-rouge">HelloMapFragment</code>:</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">public</span> <span class="kt">void</span> <span class="nf">drawVectorObjectAsSelected</span><span class="o">(</span><span class="n">VectorObject</span> <span class="n">vectorObject</span><span class="o">)</span> <span class="o">{</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kt">void</span> <span class="nf">drawVectorObjectAsSelected</span><span class="o">(</span><span class="nc">VectorObject</span> <span class="n">vectorObject</span><span class="o">)</span> <span class="o">{</span>
     <span class="k">if</span> <span class="o">(</span><span class="n">selectedComponentObject</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
-        <span class="n">mapControl</span><span class="o">.</span><span class="na">removeObject</span><span class="o">(</span><span class="n">selectedComponentObject</span><span class="o">,</span> <span class="n">MaplyBaseController</span><span class="o">.</span><span class="na">ThreadMode</span><span class="o">.</span><span class="na">ThreadAny</span><span class="o">);</span>
+        <span class="n">mapControl</span><span class="o">.</span><span class="na">removeObject</span><span class="o">(</span><span class="n">selectedComponentObject</span><span class="o">,</span> <span class="nc">MaplyBaseController</span><span class="o">.</span><span class="na">ThreadMode</span><span class="o">.</span><span class="na">ThreadAny</span><span class="o">);</span>
     <span class="o">}</span>
-    <span class="n">VectorInfo</span> <span class="n">vectorInfo</span> <span class="o">=</span> <span class="k">new</span> <span class="n">VectorInfo</span><span class="o">();</span>
-    <span class="n">vectorInfo</span><span class="o">.</span><span class="na">setColor</span><span class="o">(</span><span class="n">Color</span><span class="o">.</span><span class="na">argb</span><span class="o">(</span><span class="mi">255</span><span class="o">,</span><span class="mi">255</span><span class="o">,</span><span class="mi">140</span><span class="o">,</span><span class="mi">0</span><span class="o">));</span> <span class="c1">// Gold</span>
+    <span class="nc">VectorInfo</span> <span class="n">vectorInfo</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">VectorInfo</span><span class="o">();</span>
+    <span class="n">vectorInfo</span><span class="o">.</span><span class="na">setColor</span><span class="o">(</span><span class="nc">Color</span><span class="o">.</span><span class="na">argb</span><span class="o">(</span><span class="mi">255</span><span class="o">,</span><span class="mi">255</span><span class="o">,</span><span class="mi">140</span><span class="o">,</span><span class="mi">0</span><span class="o">));</span> <span class="c1">// Gold</span>
     <span class="n">vectorInfo</span><span class="o">.</span><span class="na">setLineWidth</span><span class="o">(</span><span class="mi">10</span><span class="o">.</span><span class="na">f</span><span class="o">);</span>
-    <span class="n">vectorInfo</span><span class="o">.</span><span class="na">setDrawPriority</span><span class="o">(</span><span class="n">Integer</span><span class="o">.</span><span class="na">MAX_VALUE</span><span class="o">);</span> <span class="c1">// Make sure it draws on top of unselected vector</span>
-    <span class="n">selectedComponentObject</span> <span class="o">=</span> <span class="n">mapControl</span><span class="o">.</span><span class="na">addVector</span><span class="o">(</span><span class="n">vectorObject</span><span class="o">,</span> <span class="n">vectorInfo</span><span class="o">,</span> <span class="n">MaplyBaseController</span><span class="o">.</span><span class="na">ThreadMode</span><span class="o">.</span><span class="na">ThreadAny</span><span class="o">);</span>
+    <span class="n">vectorInfo</span><span class="o">.</span><span class="na">setDrawPriority</span><span class="o">(</span><span class="nc">Integer</span><span class="o">.</span><span class="na">MAX_VALUE</span><span class="o">);</span> <span class="c1">// Make sure it draws on top of unselected vector</span>
+    <span class="n">selectedComponentObject</span> <span class="o">=</span> <span class="n">mapControl</span><span class="o">.</span><span class="na">addVector</span><span class="o">(</span><span class="n">vectorObject</span><span class="o">,</span> <span class="n">vectorInfo</span><span class="o">,</span> <span class="nc">MaplyBaseController</span><span class="o">.</span><span class="na">ThreadMode</span><span class="o">.</span><span class="na">ThreadAny</span><span class="o">);</span>
 <span class="o">}</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>This method is to be called in <code class="highlighter-rouge">userDidSelect</code> when we are <a href="https://github.com/mousebird/AndroidTutorialProject/blob/edd635806ffe7f62039fb40f3fdef3c8c5d1becd/app/src/main/java/io/theoutpost/helloearth/HelloMapFragment.java#L286">handling</a> a selected <code class="highlighter-rouge">VectorObject</code>.</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="c1">// GeoJSON</span>
-<span class="k">if</span> <span class="o">(</span><span class="n">obj</span><span class="o">.</span><span class="na">selObj</span> <span class="k">instanceof</span> <span class="n">VectorObject</span><span class="o">)</span> <span class="o">{</span>
-    <span class="n">VectorObject</span> <span class="n">vectorObject</span> <span class="o">=</span> <span class="o">(</span><span class="n">VectorObject</span><span class="o">)</span> <span class="n">obj</span><span class="o">.</span><span class="na">selObj</span><span class="o">;</span>
-    <span class="n">AttrDictionary</span> <span class="n">attributes</span> <span class="o">=</span> <span class="n">vectorObject</span><span class="o">.</span><span class="na">getAttributes</span><span class="o">();</span>
-    <span class="n">String</span> <span class="n">adminName</span> <span class="o">=</span> <span class="n">attributes</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="s">"ADMIN"</span><span class="o">);</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// GeoJSON</span>
+<span class="k">if</span> <span class="o">(</span><span class="n">obj</span><span class="o">.</span><span class="na">selObj</span> <span class="k">instanceof</span> <span class="nc">VectorObject</span><span class="o">)</span> <span class="o">{</span>
+    <span class="nc">VectorObject</span> <span class="n">vectorObject</span> <span class="o">=</span> <span class="o">(</span><span class="nc">VectorObject</span><span class="o">)</span> <span class="n">obj</span><span class="o">.</span><span class="na">selObj</span><span class="o">;</span>
+    <span class="nc">AttrDictionary</span> <span class="n">attributes</span> <span class="o">=</span> <span class="n">vectorObject</span><span class="o">.</span><span class="na">getAttributes</span><span class="o">();</span>
+    <span class="nc">String</span> <span class="n">adminName</span> <span class="o">=</span> <span class="n">attributes</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="s">"ADMIN"</span><span class="o">);</span>
     <span class="n">msg</span> <span class="o">+=</span> <span class="s">"\nVector Object: "</span> <span class="o">+</span> <span class="n">adminName</span><span class="o">;</span>
     <span class="n">drawVectorObjectAsSelected</span><span class="o">(</span><span class="n">vectorObject</span><span class="o">);</span>
 <span class="o">}</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Lastly, make sure you have a class member <code class="highlighter-rouge">ComponentObject selectedComponentObject;</code>. Whenever a selection is made, we check to see if there was a previous selection and remove it from the map controller.</p>
 
@@ -282,28 +276,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/getting-started.html">Before You Start</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -579,193 +552,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/building-from-repository.html">Building From Repository</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/building-from-nightly.html">Building From Nightly</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
+                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/building-from-binary.html">Building From Nightly</a></li>
                       
                       
                       
@@ -1052,31 +839,10 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
                       </ol>
                       
                       <li class="sidebar-header-item">Basics of Display</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -1304,16 +1070,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/local-image-layer.html">Local Image Layer</a></li>
-                      
-                      
-                      
                       
                       
                       
@@ -1528,34 +1285,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/vector-data.html">Vector Data</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -1825,19 +1555,10 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/screen-labels.html">Screen Labels</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -2013,22 +1734,10 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/spheres-android.html">Spheres</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -2067,21 +1776,6 @@
                       
                       <li class="sidebar-header-item">Interaction</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -2333,19 +2027,10 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/screen-marker-selection.html">Screen Marker Selection</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -2402,9 +2087,6 @@
                       
                       <li class="sidebar-header-item">Advanced</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
                       
                       
                       
@@ -2559,15 +2241,6 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       </ol>
                       
                     </ol>
@@ -2584,12 +2257,6 @@
           <div class="col-sm-9" id="prev-next">
             
             
-            
-            
-            
-            
-            
-
             
             
             
@@ -2774,7 +2441,7 @@
             An open source geospatial display toolkit<br /> for iOS and Android.
           </p>
           <p class="site-description">
-            <small>Ⓒ 2017 mousebird consulting.</small>
+            <small>Ⓒ 2020 mousebird consulting.</small>
           </p>
         </div>
 

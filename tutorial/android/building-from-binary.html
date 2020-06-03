@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width initial-scale=1" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-  <title>Building From Repository</title>
+  <title>Building From Nightly</title>
   <meta name="description" content="A high performance map and globe toolkit for iOS and Android.
 ">
 
@@ -20,7 +20,7 @@
   <![endif]-->
 
   <link rel="stylesheet" href="/WhirlyGlobe/css/main.css">
-  <link rel="canonical" href="http://mousebird.github.io//WhirlyGlobe/tutorial/android/building-from-repository.html">
+  <link rel="canonical" href="http://mousebird.github.io//WhirlyGlobe/tutorial/android/building-from-binary.html">
 
   <!-- Fontwork -->
   <link rel="stylesheet" type="text/css" href="/WhirlyGlobe/css/MyFontsWebfontsKit.css">
@@ -104,70 +104,63 @@
         <div class="row">
           <div class="col-sm-9 tutorial tutorial-main">
 
-            <h2>Building From Repository</h2>
-            <p>Probably the simplest way to build your WhirlyGlobe-Maply app on Android is to use a central repository.  A repo is where you are probably getting the rest of your libraries, including ones provided by Google and it’s a place where most <em>compiled</em> Android libraries live.</p>
+            <h2>Building From Nightly</h2>
+            <p>If you want the latest and greatest improvements to WhirlyGlobe-Maply you can use nightly or feature based builds.  Take a look at the <a href="/WhirlyGlobe/builds/builds.html">nightly versions</a> page.  From there you can get feature branch builds or just a nightly build.  We’ll show you how to use them here.</p>
 
-<p>Popular repositories include Maven, JCenter, and Bintray.  We’re somewhat confused by their relationships with each other, but we do publish our library out there.</p>
+<h3 id="pick-the-version-you-need">Pick the version you need</h3>
 
-<h3 id="check-the-repository">Check the repository</h3>
+<p>Just go to the <a href="/WhirlyGlobe/builds/builds.html">Automated Builds</a> page and choose the version you want to use.</p>
 
-<p>JCenter is an easy repository to use because it’s included by default in every Android project. If you open the <code class="highlighter-rouge">YOUR_PROJECT_HOME/build.gradle</code> file, you’ll see:</p>
+<p>You have two flavours:</p>
 
-<div class="language-gradle highlighter-rouge"><pre class="highlight"><code><span class="k">allprojects</span> <span class="o">{</span>
+<ul>
+  <li><em>Nightly builds</em>: surprisingly, this is the version built every night (it’s night for us, anyway). Use this version if you’re sure that one specific change was included in that or previous days.</li>
+  <li><em>Commit or Push builds</em>: this happens when someone pushes a change to one of the development branches. Use this version if you know the build number that includes your desired change or we pointed you here directly.</li>
+</ul>
+
+<p>Once you’ve chosen the right version, just download the <code class="highlighter-rouge">.aar</code> file from the <a href="/WhirlyGlobe/builds/builds.html">builds table</a>.</p>
+
+<h3 id="copy-and-include-aar">Copy and Include AAR</h3>
+
+<p>Copy your just downloaded <code class="highlighter-rouge">.aar</code> file into your app’s <code class="highlighter-rouge">libs</code> directory.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>WhirlyGlobe/WhirlyGlobeSrc/HelloEarth/app/libs
+</code></pre></div></div>
+
+<p>Rename it to <code class="highlighter-rouge">WhirlyGlobeMaply.aar</code>.</p>
+
+<p>Add the following <code class="highlighter-rouge">flatDir</code> directive to your <code class="highlighter-rouge">Build.gradle (Project: HelloEarth)</code> file inside of the <code class="highlighter-rouge">allprojects &gt; repositories</code> directive.</p>
+
+<div class="language-gradle highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">allprojects</span> <span class="o">{</span>
     <span class="k">repositories</span> <span class="o">{</span>
         <span class="n">jcenter</span><span class="o">()</span>
-    <span class="o">}</span>
-<span class="o">}</span>
-</code></pre>
-</div>
-
-<h3 id="add-the-dependency">Add the dependency</h3>
-
-<p>Once the repository is configured, you just need to add the dependency. In <code class="highlighter-rouge">YOUR_PROJECT_HOME/app/build.gradle</code> file, you need to add this line:</p>
-
-<div class="language-gradle highlighter-rouge"><pre class="highlight"><code><span class="k">dependencies</span> <span class="o">{</span>
-    <span class="n">compile</span> <span class="nf">fileTree</span><span class="o">(</span><span class="nl">dir:</span> <span class="s1">'libs'</span><span class="o">,</span> <span class="nl">include:</span> <span class="o">[</span><span class="s1">'*.jar'</span><span class="o">])</span>
-    <span class="n">compile</span> <span class="s1">'com.android.support:appcompat-v7:23.4.0'</span>
-    
-    <span class="c1">// other libraries will appear here</span>
-
-    <span class="n">compile</span> <span class="s1">'com.mousebirdconsulting.maply:Android:2.5'</span>
-<span class="o">}</span>
-</code></pre>
-</div>
-
-<p>The trailing <code class="highlighter-rouge">0.7</code> is the version to use. You can replace that with future version numbers.</p>
-
-<h3 id="downloading-and-compiling">Downloading and compiling</h3>
-
-<p>If everything is in place, you just need to clean and compile the project (Build &gt; Clean) and check the Gradle Console panel to make sure the library was downloaded and included in the build.</p>
-
-<p>It may happen that the specified version is not included in JCenter yet (it happens when the version is quite new, because JCenter needs some time to get synchronized). If you get this error:</p>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>Could not find com.mousebirdconsulting.maply:Android:2.5.
-</code></pre>
-</div>
-
-<p>or maybe this one</p>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>Failed to resolve: com.mousebirdconsulting.maply:Android:2.5
-</code></pre>
-</div>
-
-<p>then add the following “maven” section to your <code class="highlighter-rouge">YOUR_PROJECT_HOME/build.gradle</code> file</p>
-
-<div class="language-gradle highlighter-rouge"><pre class="highlight"><code><span class="k">allprojects</span> <span class="o">{</span>
-    <span class="k">repositories</span> <span class="o">{</span>
-        <span class="n">jcenter</span><span class="o">()</span>
-        <span class="n">maven</span> <span class="o">{</span>
-            <span class="n">url</span> <span class="s2">"https://dl.bintray.com/mousebirdconsulting/WhirlyGlobe/"</span>
+        <span class="n">flatDir</span> <span class="o">{</span>
+            <span class="n">dirs</span> <span class="s1">'libs'</span>
         <span class="o">}</span>
     <span class="o">}</span>
 <span class="o">}</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
-<p>This way you’ll make sure the dependency will be found either in JCenter or in our own repository (inside Bintray too).</p>
+<p>Next add the following packages to the end of the <code class="highlighter-rouge">dependencies</code> directive in <code class="highlighter-rouge">Build.gradle (Module: app)</code>.</p>
+
+<ul>
+  <li><code class="highlighter-rouge">compile 'com.squareup.okhttp:okhttp:2.3.0'</code></li>
+  <li><code class="highlighter-rouge">compile(name:'WhirlyGlobeMaply', ext:'aar')</code></li>
+</ul>
+
+<div class="language-gradle highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">dependencies</span> <span class="o">{</span>
+    <span class="n">compile</span> <span class="nf">fileTree</span><span class="o">(</span><span class="nl">dir:</span> <span class="s1">'libs'</span><span class="o">,</span> <span class="nl">include:</span> <span class="o">[</span><span class="s1">'*.jar'</span><span class="o">])</span>
+    <span class="n">testCompile</span> <span class="s1">'junit:junit:4.12'</span>
+    <span class="n">compile</span> <span class="s1">'com.android.support:appcompat-v7:24.0.0'</span>
+    <span class="n">compile</span> <span class="s1">'com.android.support:support-v4:24.0.0'</span>
+    <span class="n">compile</span> <span class="s1">'com.squareup.okhttp:okhttp:2.3.0'</span>
+    <span class="n">compile</span><span class="o">(</span><span class="nl">name:</span> <span class="s1">'WhirlyGlobeMaply'</span><span class="o">,</span> <span class="nl">ext:</span> <span class="s1">'aar'</span><span class="o">)</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>Android Studio will ask you to sync Gradle. If all goes well, it will sync without complaint.</p>
+
+<p><img src="resources/gradle-sync.png" alt="Gradle Sync" /></p>
 
 
 
@@ -232,28 +225,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/getting-started.html">Before You Start</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -529,193 +501,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item current"><a class="page-link" href="/WhirlyGlobe/tutorial/android/building-from-repository.html">Building From Repository</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/building-from-nightly.html">Building From Nightly</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
+                      <li class="sidebar-list-item current"><a class="page-link" href="/WhirlyGlobe/tutorial/android/building-from-binary.html">Building From Nightly</a></li>
                       
                       
                       
@@ -1002,31 +788,10 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
                       </ol>
                       
                       <li class="sidebar-header-item">Basics of Display</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -1254,16 +1019,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/local-image-layer.html">Local Image Layer</a></li>
-                      
-                      
-                      
                       
                       
                       
@@ -1478,34 +1234,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/vector-data.html">Vector Data</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -1775,19 +1504,10 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/screen-labels.html">Screen Labels</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -1963,22 +1683,10 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/spheres-android.html">Spheres</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -2017,21 +1725,6 @@
                       
                       <li class="sidebar-header-item">Interaction</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -2283,19 +1976,10 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/screen-marker-selection.html">Screen Marker Selection</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -2369,19 +2053,7 @@
                       
                       
                       
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/auto-tester-android.html">AutoTesterAndroid Example App</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -2600,7 +2272,7 @@
             An open source geospatial display toolkit<br /> for iOS and Android.
           </p>
           <p class="site-description">
-            <small>Ⓒ 2017 mousebird consulting.</small>
+            <small>Ⓒ 2020 mousebird consulting.</small>
           </p>
         </div>
 

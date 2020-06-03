@@ -113,61 +113,63 @@
 
 <h3 id="whirlyglobe-maply-pod">WhirlyGlobe-Maply Pod</h3>
 
-<p>All credit goes to <a href="https://github.com/jcollas" target="_blank">Juan Collas</a> who put together the latest pod (and the old one).  We contributed… absolutely nothing.  Now that’s what we call open source!</p>
-
-<p>The pod is named WhirlyGlobe, but Maply is in there too.  If you go looking for it on cocoapods.org you’ll see this.</p>
-
-<p><img src="/WhirlyGlobe/images/tutorial/whirlyglobecocoapod.png" alt="CocoaPods" /></p>
-
-<h3 id="using-the-pod">Using the Pod</h3>
+<p>There is a pod in the central Cocoapods repo.  It’s really old, so don’t use it.  Instead, use the podpsec we provide.</p>
 
 <p>Pods are pretty easy to use, which is kind of the point.  If you haven’t installed the pod gem, go <a href="http://guides.cocoapods.org/using/getting-started.html#getting-started" target="_blank">follow their instructions</a>.  You’ll need that software to do the rest of this.</p>
 
-<p>Every project you use Cocoapods in is going to need a Podfile.  Yours should look like this.</p>
+<p>Every project you use Cocoapods in is going to need a Podfile.  Yours should look something like this.</p>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">platform :ios, <span class="s1">'8.1'</span>
-
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">platform :ios, <span class="s1">'13.0'</span>
+<span class="nb">install</span><span class="o">!</span> <span class="s1">'cocoapods'</span>, :deterministic_uuids <span class="o">=&gt;</span> <span class="nb">false
+</span>project <span class="s1">'HelloEarth.xcodeproj'</span>
 inhibit_all_warnings!
 
-xcodeproj <span class="s1">'HelloEarth.xcodeproj'</span>
-
-target <span class="s1">'HelloEarth'</span>
-	pod <span class="s1">'WhirlyGlobe'</span>, <span class="s1">'2.4'</span>
-	pod <span class="s1">'WhirlyGlobeResources'</span>
+target <span class="s1">'HelloEarth'</span> <span class="k">do
+        </span>pod <span class="s1">'WhirlyGlobe'</span>, :git <span class="o">=&gt;</span> <span class="s1">'https://github.com/mousebird/WhirlyGlobe-3.git'</span>, :branch <span class="o">=&gt;</span> <span class="s1">'master'</span>
 end</code></pre></figure>
 
 <p>Make sure you’ve closed the HelloEarth project in Xcode.  The install process is going to mess with it.</p>
 
 <p>The next step is to set up the dependencies with the podspec.  You do that in the Terminal like so.  Navigate to the directory containing your HelloEarth.xcodeproj.</p>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="gp">% </span>pod install</code></pre></figure>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">% pod <span class="nb">install</span></code></pre></figure>
 
 <p>If all goes well it should say something like this.</p>
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">Analyzing dependencies
-
+Pre-downloading: <span class="sb">`</span>WhirlyGlobe<span class="sb">`</span> from <span class="sb">`</span>https://github.com/mousebird/WhirlyGlobe-3.git<span class="sb">`</span>, branch <span class="sb">`</span>master<span class="sb">`</span>
 Downloading dependencies
-Installing AFNetworking <span class="o">(</span>2.4.1<span class="o">)</span>
-Installing FMDB <span class="o">(</span>2.4<span class="o">)</span>
-Installing GoogleProtobuf <span class="o">(</span>2.5.0<span class="o">)</span>
-Installing KissXML <span class="o">(</span>5.0<span class="o">)</span>
-Installing SMCalloutView <span class="o">(</span>2.0.3<span class="o">)</span>
-Installing WhirlyGlobe <span class="o">(</span>2.3<span class="o">)</span>
-Installing WhirlyGlobeResources <span class="o">(</span>2.3<span class="o">)</span>
-Installing boost <span class="o">(</span>1.51.0a<span class="o">)</span>
-Installing clipper <span class="o">(</span>6.1.3a<span class="o">)</span>
-Installing eigen <span class="o">(</span>3.1.2<span class="o">)</span>
-Installing glues <span class="o">(</span>1.5<span class="o">)</span>
+Installing FMDB <span class="o">(</span>2.7.5<span class="o">)</span>
+Installing KissXML <span class="o">(</span>5.3.1<span class="o">)</span>
+Installing SMCalloutView <span class="o">(</span>2.1.5<span class="o">)</span>
+Installing WhirlyGlobe <span class="o">(</span>2.6.1<span class="o">)</span>
+Installing eigen <span class="o">(</span>3.2.10<span class="o">)</span>
 Installing libjson <span class="o">(</span>7.6.1<span class="o">)</span>
 Installing proj4 <span class="o">(</span>4.8.0<span class="o">)</span>
-Installing shapelib <span class="o">(</span>1.3<span class="o">)</span>
-Installing tinyxml <span class="o">(</span>2.1.0<span class="o">)</span>
 Generating Pods project
 Integrating client project</code></pre></figure>
 
 <p>We love our fellow open source projects.  That’s why we include so many of them!</p>
 
-<p>Up next, let’s compile the thing.</p>
+<p>Soon we’ll compile.  But one more thing first</p>
+
+<h3 id="bridging-objective-c-to-swift">Bridging Objective C to Swift</h3>
+
+<p>If you’re using Objective-C for your project, you can ignore this.  Also welcome back from your coma!</p>
+
+<p>You’re probably using Swift and the toolkit works well with it, but you have to do one more thing.</p>
+
+<p>Open the HelloEarth workspace and create a new Objective C file.  I call mine “Stub” because it’s not going to do anything.  It doesn’t even matter what’s in it.  The important bit is next.</p>
+
+<p>Xcode will prompt you to create a Create Bridging Header.  Select that option.</p>
+
+<p><img src="/WhirlyGlobe/images/tutorial/bridging_header.png" alt="CocoaPods" /></p>
+
+<p>Now open that header.  It should be called HelloEarth-Bridging-Header.h.  Add MaplyComponent like so.</p>
+
+<p><img src="/WhirlyGlobe/images/tutorial/bridging_header2.png" alt="CocoaPods" /></p>
+
+<p>With that you should be ready to compile and use the toolkit in a Swift project.</p>
 
 <h3 id="compiling-with-the-pod">Compiling With the Pod</h3>
 
@@ -246,28 +248,7 @@ Integrating client project</code></pre></figure>
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/getting_started.html">Before You Start</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -552,28 +533,7 @@ Integrating client project</code></pre></figure>
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/building_from_source.html">Source Distribution</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -876,25 +836,7 @@ Integrating client project</code></pre></figure>
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item current"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/building_from_cocoapod.html">Cocoapods</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -1079,34 +1021,7 @@ Integrating client project</code></pre></figure>
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/globe_or_map.html">Globe Or Map</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -1502,19 +1417,10 @@ Integrating client project</code></pre></figure>
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/your_first_map.html">Your First Map</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -1523,15 +1429,6 @@ Integrating client project</code></pre></figure>
                       
                       <li class="sidebar-header-item">Image Based Maps</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -1777,187 +1674,7 @@ Integrating client project</code></pre></figure>
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/remote_image_layer.html">Remote Image Layer</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/remote_NASA_image_layers.html">NASA Image Layers</a></li>
                       
                       
                       
@@ -2032,33 +1749,6 @@ Integrating client project</code></pre></figure>
                       
                       
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/adding_vector_data.html">Vector Data</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -2460,31 +2150,7 @@ Integrating client project</code></pre></figure>
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/screen_labels.html">Screen Labels</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -2684,25 +2350,13 @@ Integrating client project</code></pre></figure>
                       
                       
                       
+                      
+                      
+                      
                       </ol>
                       
                       <li class="sidebar-header-item">Shapes</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -2854,25 +2508,13 @@ Integrating client project</code></pre></figure>
                       
                       
                       
+                      
+                      
+                      
                       </ol>
                       
                       <li class="sidebar-header-item">Interaction</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -3133,25 +2775,7 @@ Integrating client project</code></pre></figure>
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/screen_marker_selection.html">Screen Marker Selection</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -3351,9 +2975,6 @@ Integrating client project</code></pre></figure>
                       
                       
                       
-                      
-                      
-                      
                       </ol>
                       
                       <li class="sidebar-header-item">Advanced</li>
@@ -3396,13 +3017,13 @@ Integrating client project</code></pre></figure>
                       
                       
                       
+                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/cartodb_layer.html">Carto Layer</a></li>
                       
                       
                       
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/cartodb_layer.html">CartoDB Layer</a></li>
                       
                       
                       
@@ -3433,522 +3054,6 @@ Integrating client project</code></pre></figure>
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/aeris_weather.html">Aeris Weather Layer</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/component_tester.html">Component Tester</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/micello_map.html">Micello Indoor Maps</a></li>
                       
                       
                       
@@ -4181,9 +3286,6 @@ Integrating client project</code></pre></figure>
                       
                       
                       
-                      
-                      
-                      
                       </ol>
                       
                     </ol>
@@ -4266,7 +3368,7 @@ Integrating client project</code></pre></figure>
             An open source geospatial display toolkit<br /> for iOS and Android.
           </p>
           <p class="site-description">
-            <small>Ⓒ 2017 mousebird consulting.</small>
+            <small>Ⓒ 2020 mousebird consulting.</small>
           </p>
         </div>
 

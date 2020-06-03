@@ -111,128 +111,129 @@
 
 <p>Let’s add a remote tile source, and take a closer look at the Earth. We’ll use the Stamen Terrain tile set. If you end up wanting to use these tiles in an app that you distribute, check out the <a href="http://maps.stamen.com/#terrain">requirements</a>. (Full attribution: Map tiles by <a href="http://stamen.com/">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org/">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.)</p>
 
-<p>You’ll need to have done the <a href="local_image_tiles.html">Local Image Layer</a> tutorial.  Open your HelloEarth project and get ready.</p>
+<p>You’ll need to have done the <a href="your_first_globe.html">globe</a> or <a href="your_first_map.html">map</a> tutorials, either is fine.  Open your HelloEarth project and get ready.</p>
 
 <p><img src="/WhirlyGlobe/images/tutorial/local_image_layer_1.png" alt="Xcode ViewController.m" /></p>
 
-<p>If you haven’t got one here is a suitable ViewController (for <a href="/WhirlyGlobe/tutorial/ios/code/ViewController_remote_image_layer.m">Objective-C</a> or <a href="/WhirlyGlobe/tutorial/ios/code/ViewController_remote_image_layer.swift">Swift</a>) file to start with.  This version handles both a globe and a map and makes a nice starting point.</p>
+<p>If you haven’t got one here is a suitable ViewController  for <a href="/WhirlyGlobe/tutorial/ios/code/ViewController_globe_and_map.swift">Swift</a> file to start with.  This version handles both a globe and a map and makes a nice starting point.</p>
+
+<h3 id="the-basics">The Basics</h3>
+
+<p>If you’ve done the Local Image Layer tutorial, you’ve got the basics.  The only difference is we’re going to get the image tiles from a remote server.  Weirdly enough, this is  simpler than a local image layer.</p>
+
+<p>If you worked through the globe or the map example, you’ll need to add this little bit of code to your viewDidLoad method.  This will make the examples work with either globe or map.  If you’re using the ViewController file from above, you don’t need it.</p>
+
+<div class="multiple_code_header"><a href="#" data-index="0">&nbsp;</a><a href="#" data-index="1">&nbsp;</a></div>
+<ul class="multiple_code"><li data-index="0">
+
+  
+<figure class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="k">let</span> <span class="nv">globeViewC</span> <span class="o">=</span> <span class="n">theViewC</span> <span class="k">as?</span> <span class="kt">WhirlyGlobeViewController</span>
+<span class="k">let</span> <span class="nv">mapViewC</span> <span class="o">=</span> <span class="n">theViewC</span> <span class="k">as?</span> <span class="kt">MaplyViewController</span>
+  </code></pre></figure>
+
+
+  </li><li data-index="1">
+
+    
+<figure class="highlight"><pre><code class="language-objc" data-lang="objc">  <span class="c1">// this logic makes it work for either globe or map</span>
+  <span class="n">WhirlyGlobeViewController</span> <span class="o">*</span><span class="n">globeViewC</span> <span class="o">=</span> <span class="nb">nil</span><span class="p">;</span>
+  <span class="n">MaplyViewController</span> <span class="o">*</span><span class="n">mapViewC</span> <span class="o">=</span> <span class="nb">nil</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">([</span><span class="n">theViewC</span> <span class="nf">isKindOfClass</span><span class="p">:[</span><span class="n">WhirlyGlobeViewController</span> <span class="nf">class</span><span class="p">]])</span>
+      <span class="n">globeViewC</span> <span class="o">=</span> <span class="p">(</span><span class="n">WhirlyGlobeViewController</span> <span class="o">*</span><span class="p">)</span><span class="n">theViewC</span><span class="p">;</span>
+  <span class="k">else</span>
+      <span class="n">mapViewC</span> <span class="o">=</span> <span class="p">(</span><span class="n">MaplyViewController</span> <span class="o">*</span><span class="p">)</span><span class="n">theViewC</span><span class="p">;</span>
+    </code></pre></figure>
+
+
+</li></ul>
+
+<p>Now, add this declaration to your ViewController.</p>
+
+<div class="multiple_code_header"><a href="#" data-index="0">&nbsp;</a><a href="#" data-index="1">&nbsp;</a></div>
+<ul class="multiple_code"><li data-index="0">
+
+  
+<figure class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="k">var</span> <span class="nv">imageLoader</span> <span class="p">:</span> <span class="kt">MaplyQuadImageLoader</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span>
+  </code></pre></figure>
+
+
+</li><li data-index="1">
+
+  
+<figure class="highlight"><pre><code class="language-objc" data-lang="objc">    <span class="c1">// These go well in your @implementation block</span>
+    <span class="n">MaplyQuadImageLoader</span> <span class="o">*</span><span class="n">imageLoader</span><span class="p">;</span>
+    </code></pre></figure>
+
+    
+</li></ul>
+
+<p>One more bit of housekeeping.  Our tile source does not support HTTPS, so we need to configure the app to be allowed to make HTTP requests. Just open your Info.plist file, and add the key “App Transport Security Settings”. Inside that, add “Allow Arbitrary Loads” key with value “YES”.</p>
+
+<p><img src="/WhirlyGlobe/images/tutorial/remote_image_layer_3.png" alt="App Transport Security Settings" /></p>
 
 <h3 id="remote-tile-source">Remote Tile Source</h3>
 
-<p>We’ll set this up to use either the local or remote tiles. Look for the following lines in your source code.</p>
+<p>Now for the fun bit.  We’re going to point WG-Maply at a remote tile source and have it do the rest.</p>
 
 <div class="multiple_code_header"><a href="#" data-index="0">&nbsp;</a><a href="#" data-index="1">&nbsp;</a></div>
 <ul class="multiple_code"><li data-index="0">
-  
-<figure class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="c1">// Set up the layer
-</span><span class="n">MaplyMBTileSource</span> <span class="o">*</span><span class="n">tileSource</span> <span class="o">=</span> 
-    <span class="p">[[</span><span class="n">MaplyMBTileSource</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">initWithMBTiles</span><span class="p">:</span><span class="s">@"geography-­class_medres"</span><span class="p">];</span>
 
-<span class="n">MaplyQuadImageTilesLayer</span> <span class="o">*</span><span class="n">layer</span> <span class="o">=</span> 
-    <span class="p">[[</span><span class="n">MaplyQuadImageTilesLayer</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">initWithCoordSystem</span><span class="p">:</span><span class="n">tileSource</span><span class="p">.</span><span class="n">coordSys</span> 
-                                      <span class="nf">tileSource</span><span class="p">:</span><span class="n">tileSource</span><span class="p">];</span>
+  
+<figure class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="c1">// Where do we get the tiles and were do we cache them?</span>
+<span class="k">let</span> <span class="nv">cacheDir</span> <span class="o">=</span> <span class="kt">NSSearchPathForDirectoriesInDomains</span><span class="p">(</span><span class="o">.</span><span class="n">cachesDirectory</span><span class="p">,</span> <span class="o">.</span><span class="n">userDomainMask</span><span class="p">,</span> <span class="kc">true</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="k">let</span> <span class="nv">thisCacheDir</span> <span class="o">=</span> <span class="s">"</span><span class="se">\(</span><span class="n">cacheDir</span><span class="se">)</span><span class="s">/stamentiles/"</span>
+<span class="k">let</span> <span class="nv">maxZoom</span> <span class="o">=</span> <span class="kt">Int32</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
+<span class="k">let</span> <span class="nv">tileInfo</span> <span class="o">=</span> <span class="kt">MaplyRemoteTileInfoNew</span><span class="p">(</span><span class="nv">baseURL</span><span class="p">:</span> <span class="s">"http://tile.stamen.com/watercolor/{z}/{x}/{y}.png"</span><span class="p">,</span>
+                                      <span class="nv">minZoom</span><span class="p">:</span> <span class="kt">Int32</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+                                      <span class="nv">maxZoom</span><span class="p">:</span> <span class="kt">Int32</span><span class="p">(</span><span class="n">maxZoom</span><span class="p">))</span>
+<span class="n">tileInfo</span><span class="o">.</span><span class="n">cacheDir</span> <span class="o">=</span> <span class="n">thisCacheDir</span>
+
+<span class="c1">// Sampling parameters define how we break down the globe</span>
+<span class="k">let</span> <span class="nv">sampleParams</span> <span class="o">=</span> <span class="kt">MaplySamplingParams</span><span class="p">()</span>
+<span class="n">sampleParams</span><span class="o">.</span><span class="n">coordSys</span> <span class="o">=</span> <span class="kt">MaplySphericalMercator</span><span class="p">(</span><span class="nv">webStandard</span><span class="p">:</span> <span class="p">())</span>
+<span class="n">sampleParams</span><span class="o">.</span><span class="n">coverPoles</span> <span class="o">=</span> <span class="kc">true</span>
+<span class="n">sampleParams</span><span class="o">.</span><span class="n">edgeMatching</span> <span class="o">=</span> <span class="kc">true</span>
+<span class="n">sampleParams</span><span class="o">.</span><span class="n">minZoom</span> <span class="o">=</span> <span class="n">tileInfo</span><span class="o">.</span><span class="n">minZoom</span>
+<span class="n">sampleParams</span><span class="o">.</span><span class="n">maxZoom</span> <span class="o">=</span> <span class="n">tileInfo</span><span class="o">.</span><span class="n">maxZoom</span>
+<span class="n">sampleParams</span><span class="o">.</span><span class="n">singleLevel</span> <span class="o">=</span> <span class="kc">true</span>
+
+<span class="c1">// The Image Loader does the actual work</span>
+<span class="n">imageLoader</span> <span class="o">=</span> <span class="kt">MaplyQuadImageLoader</span><span class="p">(</span><span class="nv">params</span><span class="p">:</span> <span class="n">sampleParams</span><span class="p">,</span> <span class="nv">tileInfo</span><span class="p">:</span> <span class="n">tileInfo</span><span class="p">,</span> <span class="nv">viewC</span><span class="p">:</span> <span class="n">theViewC</span><span class="o">!</span><span class="p">)</span>
+<span class="n">imageLoader</span><span class="o">!.</span><span class="n">baseDrawPriority</span> <span class="o">=</span> <span class="n">kMaplyImageLayerDrawPriorityDefault</span>
   </code></pre></figure>
 
 
   </li><li data-index="1">
 
-  
-<figure class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="c1">// set up the data source</span>
-<span class="k">if</span> <span class="k">let</span> <span class="nv">tileSource</span> <span class="o">=</span> <span class="kt">MaplyMBTileSource</span><span class="p">(</span><span class="nv">mbTiles</span><span class="p">:</span> <span class="s">"geography-class_medres"</span><span class="p">),</span>
-        <span class="c1">// set up the layer</span>
-        <span class="n">layer</span> <span class="o">=</span> <span class="kt">MaplyQuadImageTilesLayer</span><span class="p">(</span><span class="nv">tileSource</span><span class="p">:</span> <span class="n">tileSource</span><span class="p">)</span> <span class="p">{</span>
+    
+<figure class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="c1">// Where do we get the tiles and were do we cache them?</span>
+<span class="n">NSString</span> <span class="o">*</span><span class="n">cacheDir</span> <span class="o">=</span> <span class="n">NSSearchPathForDirectoriesInDomains</span><span class="p">(</span><span class="n">NSCachesDirectory</span><span class="p">,</span> <span class="n">NSUserDomainMask</span><span class="p">,</span> <span class="nb">true</span><span class="p">)[</span><span class="mi">0</span><span class="p">];</span>
+<span class="n">NSString</span> <span class="o">*</span><span class="n">thisCacheDir</span> <span class="o">=</span> <span class="p">[</span><span class="n">cacheDir</span> <span class="nf">stringByAppendingString</span><span class="p">:</span><span class="s">@"/stamentiles/"</span><span class="p">];</span>
+<span class="n">MaplyRemoteTileInfoNew</span> <span class="o">*</span><span class="n">tileInfo</span> <span class="o">=</span> <span class="p">[[</span><span class="n">MaplyRemoteTileInfoNew</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">initWithBaseURL</span><span class="p">:</span><span class="s">@"http://tile.stamen.com/watercolor/{z}/{x}/{y}.png"</span> <span class="nf">minZoom</span><span class="p">:</span><span class="mi">0</span> <span class="n">maxZoom</span><span class="o">:</span><span class="mi">16</span><span class="p">];</span>
+<span class="n">tileInfo</span><span class="p">.</span><span class="n">cacheDir</span> <span class="o">=</span> <span class="n">thisCacheDir</span><span class="p">;</span>
 
-<span class="p">}</span>
-  </code></pre></figure>
+<span class="c1">// Describes what the file covers and how deep</span>
+<span class="n">MaplySamplingParams</span> <span class="o">*</span><span class="n">sampleParams</span> <span class="o">=</span> <span class="p">[[</span><span class="n">MaplySamplingParams</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">init</span><span class="p">];</span>
+<span class="n">sampleParams</span><span class="p">.</span><span class="n">coordSys</span> <span class="o">=</span> <span class="p">[[</span><span class="n">MaplySphericalMercator</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">initWebStandard</span><span class="p">];</span>
+<span class="n">sampleParams</span><span class="p">.</span><span class="n">coverPoles</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+<span class="n">sampleParams</span><span class="p">.</span><span class="n">edgeMatching</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+<span class="n">sampleParams</span><span class="p">.</span><span class="n">minZoom</span> <span class="o">=</span> <span class="n">tileInfo</span><span class="p">.</span><span class="n">minZoom</span><span class="p">;</span>
+<span class="n">sampleParams</span><span class="p">.</span><span class="n">maxZoom</span> <span class="o">=</span> <span class="n">tileInfo</span><span class="p">.</span><span class="n">maxZoom</span><span class="p">;</span>
+<span class="n">sampleParams</span><span class="p">.</span><span class="n">singleLevel</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+
+<span class="c1">// Actually loads the images</span>
+<span class="n">imageLoader</span> <span class="o">=</span> <span class="p">[[</span><span class="n">MaplyQuadImageLoader</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">initWithParams</span><span class="p">:</span><span class="n">sampleParams</span> <span class="nf">tileInfo</span><span class="p">:</span><span class="n">tileInfo</span> <span class="n">viewC</span><span class="o">:</span><span class="n">theViewC</span><span class="p">];</span>
+<span class="n">imageLoader</span><span class="p">.</span><span class="n">baseDrawPriority</span> <span class="o">=</span> <span class="n">kMaplyImageLayerDrawPriorityDefault</span><span class="p">;</span>
+    </code></pre></figure>
+
 
 </li></ul>
 
-<p>Now replace that with these lines instead.  This will let you use either local or remote data.</p>
+<p>If you worked through the Local Imager Layer example, this is pretty familiar.  The new bit is setting up the MaplyRemoteTileInfoNew object.  We give that a replacement URL with the x, y, and z to be filled in.  We also provide a min and max zoom level.</p>
 
-<div class="multiple_code_header"><a href="#" data-index="0">&nbsp;</a><a href="#" data-index="1">&nbsp;</a></div>
-<ul class="multiple_code"><li data-index="0">
-  
-<figure class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="c1">// add the capability to use the local tiles or remote tiles
-</span><span class="n">bool</span> <span class="n">useLocalTiles</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+<p>We don’t want to keep fetching the same data repeatedly, so we’ll give that TileInfo object a cache directory to use as it sees fit.  The system will clean these up over time, so don’t sweat it.  If you need to clear the cache, just clear the directory.</p>
 
-<span class="c1">// we'll need this layer in a second
-</span><span class="n">MaplyQuadImageTilesLayer</span> <span class="o">*</span><span class="n">layer</span><span class="p">;</span>
-
-<span class="k">if</span> <span class="p">(</span><span class="n">useLocalTiles</span><span class="p">)</span>
-<span class="p">{</span>
-  <span class="n">MaplyMBTileSource</span> <span class="o">*</span><span class="n">tileSource</span> <span class="o">=</span> 
-        <span class="p">[[</span><span class="n">MaplyMBTileSource</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">initWithMBTiles</span><span class="p">:</span><span class="s">@"geography­-class_medres"</span><span class="p">];</span>
-  <span class="n">layer</span> <span class="o">=</span> <span class="p">[[</span><span class="n">MaplyQuadImageTilesLayer</span> <span class="nf">alloc</span><span class="p">]</span> 
-                <span class="nf">initWithCoordSystem</span><span class="p">:</span><span class="n">tileSource</span><span class="p">.</span><span class="n">coordSys</span> <span class="nf">tileSource</span><span class="p">:</span><span class="n">tileSource</span><span class="p">];</span>
-<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-  <span class="c1">// Because this is a remote tile set, we'll want a cache directory
-</span>  <span class="n">NSString</span> <span class="o">*</span><span class="n">baseCacheDir</span> <span class="o">=</span> 
-    <span class="p">[</span><span class="n">NSSearchPathForDirectoriesInDomains</span><span class="p">(</span><span class="n">NSCachesDirectory</span><span class="p">,</span> <span class="n">NSUserDomainMask</span><span class="p">,</span> <span class="nb">YES</span><span class="p">)</span> 
-            <span class="nf">objectAtIndex</span><span class="p">:</span><span class="mi">0</span><span class="p">];</span>
-  <span class="n">NSString</span> <span class="o">*</span><span class="n">tilesCacheDir</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSString</span> <span class="nf">stringWithFormat</span><span class="p">:</span><span class="s">@"%@/stamentiles/"</span><span class="p">,</span>
-                                                <span class="n">baseCacheDir</span><span class="p">];</span>
-  <span class="kt">int</span> <span class="n">maxZoom</span> <span class="o">=</span> <span class="mi">18</span><span class="p">;</span>
-
-  <span class="c1">// Stamen Terrain Tiles, courtesy of Stamen Design under the Creative Commons Attribution License.
-</span>  <span class="c1">// Data by OpenStreetMap under the Open Data Commons Open Database License.
-</span>  <span class="n">MaplyRemoteTileSource</span> <span class="o">*</span><span class="n">tileSource</span> <span class="o">=</span> 
-    <span class="p">[[</span><span class="n">MaplyRemoteTileSource</span> <span class="nf">alloc</span><span class="p">]</span> 
-            <span class="nf">initWithBaseURL</span><span class="p">:</span><span class="s">@"http://tile.stamen.com/terrain/"</span> 
-            <span class="nf">ext</span><span class="p">:</span><span class="s">@"png"</span> <span class="n">minZoom</span><span class="o">:</span><span class="mi">0</span> <span class="n">maxZoom</span><span class="o">:</span><span class="n">maxZoom</span><span class="p">];</span>
-  <span class="n">tileSource</span><span class="p">.</span><span class="n">cacheDir</span> <span class="o">=</span> <span class="n">tilesCacheDir</span><span class="p">;</span>
-  <span class="n">layer</span> <span class="o">=</span> <span class="p">[[</span><span class="n">MaplyQuadImageTilesLayer</span> <span class="nf">alloc</span><span class="p">]</span> 
-            <span class="nf">initWithCoordSystem</span><span class="p">:</span><span class="n">tileSource</span><span class="p">.</span><span class="n">coordSys</span> <span class="nf">tileSource</span><span class="p">:</span><span class="n">tileSource</span><span class="p">];</span>
-<span class="p">}</span>
-  </code></pre></figure>
-
-
-  </li><li data-index="1">
-
-  
-<figure class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="c1">// add the capability to use the local tiles or remote tiles</span>
-<span class="k">let</span> <span class="nv">useLocalTiles</span> <span class="o">=</span> <span class="kc">false</span>
-
-<span class="c1">// we'll need this layer in a second</span>
-<span class="k">let</span> <span class="nv">layer</span><span class="p">:</span> <span class="kt">MaplyQuadImageTilesLayer</span>
-
-<span class="k">if</span> <span class="n">useLocalTiles</span> <span class="p">{</span>
-    <span class="k">guard</span> <span class="k">let</span> <span class="nv">tileSource</span> <span class="o">=</span> <span class="kt">MaplyMBTileSource</span><span class="p">(</span><span class="nv">mbTiles</span><span class="p">:</span> <span class="s">"geography-class_medres"</span><span class="p">)</span> <span class="k">else</span> <span class="p">{</span>
-        <span class="c1">// can't load local tile set</span>
-    <span class="p">}</span>
-    <span class="n">layer</span> <span class="o">=</span> <span class="kt">MaplyQuadImageTilesLayer</span><span class="p">(</span><span class="nv">tileSource</span><span class="p">:</span> <span class="n">tileSource</span><span class="p">)</span><span class="o">!</span>
-<span class="p">}</span>
-<span class="k">else</span> <span class="p">{</span>
-    <span class="c1">// Because this is a remote tile set, we'll want a cache directory</span>
-    <span class="k">let</span> <span class="nv">baseCacheDir</span> <span class="o">=</span> <span class="kt">NSSearchPathForDirectoriesInDomains</span><span class="p">(</span><span class="o">.</span><span class="n">cachesDirectory</span><span class="p">,</span> <span class="o">.</span><span class="n">userDomainMask</span><span class="p">,</span> <span class="kc">true</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="k">let</span> <span class="nv">tilesCacheDir</span> <span class="o">=</span> <span class="s">"</span><span class="se">\(</span><span class="n">baseCacheDir</span><span class="se">)</span><span class="s">/stamentiles/"</span>
-    <span class="k">let</span> <span class="nv">maxZoom</span> <span class="o">=</span> <span class="kt">Int32</span><span class="p">(</span><span class="mi">18</span><span class="p">)</span>
-
-    <span class="c1">// Stamen Terrain Tiles, courtesy of Stamen Design under the Creative Commons Attribution License.</span>
-    <span class="c1">// Data by OpenStreetMap under the Open Data Commons Open Database License.</span>
-    <span class="k">guard</span> <span class="k">let</span> <span class="nv">tileSource</span> <span class="o">=</span> <span class="kt">MaplyRemoteTileSource</span><span class="p">(</span>
-            <span class="nv">baseURL</span><span class="p">:</span> <span class="s">"http://tile.stamen.com/terrain/"</span><span class="p">,</span>
-            <span class="nv">ext</span><span class="p">:</span> <span class="s">"png"</span><span class="p">,</span>
-            <span class="nv">minZoom</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> 
-            <span class="nv">maxZoom</span><span class="p">:</span> <span class="n">maxZoom</span><span class="p">)</span> <span class="k">else</span> <span class="p">{</span>
-        <span class="c1">// can't create remote tile source</span>
-        <span class="k">return</span>
-    <span class="p">}</span>
-    <span class="n">tileSource</span><span class="o">.</span><span class="n">cacheDir</span> <span class="o">=</span> <span class="n">tilesCacheDir</span>
-    <span class="n">layer</span> <span class="o">=</span> <span class="kt">MaplyQuadImageTilesLayer</span><span class="p">(</span><span class="nv">tileSource</span><span class="p">:</span> <span class="n">tileSource</span><span class="p">)</span><span class="o">!</span>
-<span class="p">}</span>
-  </code></pre></figure>
-
-</li></ul>
-
-<p>Don’t forget the call to addLayer below this.  We’re just creating a slightly different data source, we still need to add the layer to the globe or map.</p>
-
-<p>There’s only one important change here.  Rather than use a MaplyMBTileSource we create a MaplyRemoteTileSource.  It does just what it sounds like, loads its tiles from a remote source.</p>
-
-<p>We also set up a cache for the tiles because it’s rude to thrash the server.  We set up the MaplyQuadImageTilesLayer as before.  It can handle a variety of data sources.</p>
-
-<p>And finally, if you’re running iOS 9 or later, you’ll need to configure the app to be allowed to make HTTP requests. If not, only HTTPS requests are allowed. Just open your Info.plist file, and add the key “App Transport Security Settings”. Inside that, add “Allow Arbitrary Loads” key with value “YES”.</p>
-
-<p><img src="/WhirlyGlobe/images/tutorial/remote_image_layer_3.png" alt="App Transport Security Settings" /></p>
+<p>You may also notice we’re not setting a Fetcher this time.  There is one behind the scenes, a RemoteTileFetcher, but we don’t make you set it up.  You can if you like.</p>
 
 <h3 id="build-and-run">Build and Run</h3>
 
@@ -309,28 +310,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/getting_started.html">Before You Start</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -615,28 +595,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/building_from_source.html">Source Distribution</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -939,25 +898,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/building_from_cocoapod.html">Cocoapods</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -1142,34 +1083,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/globe_or_map.html">Globe Or Map</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -1565,19 +1479,10 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/your_first_map.html">Your First Map</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -1586,15 +1491,6 @@
                       
                       <li class="sidebar-header-item">Image Based Maps</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -1840,187 +1736,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item current"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/remote_image_layer.html">Remote Image Layer</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/remote_NASA_image_layers.html">NASA Image Layers</a></li>
                       
                       
                       
@@ -2095,33 +1811,6 @@
                       
                       
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/adding_vector_data.html">Vector Data</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -2523,31 +2212,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/screen_labels.html">Screen Labels</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -2747,25 +2412,13 @@
                       
                       
                       
+                      
+                      
+                      
                       </ol>
                       
                       <li class="sidebar-header-item">Shapes</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -2917,25 +2570,13 @@
                       
                       
                       
+                      
+                      
+                      
                       </ol>
                       
                       <li class="sidebar-header-item">Interaction</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -3196,25 +2837,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/screen_marker_selection.html">Screen Marker Selection</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -3414,9 +3037,6 @@
                       
                       
                       
-                      
-                      
-                      
                       </ol>
                       
                       <li class="sidebar-header-item">Advanced</li>
@@ -3459,13 +3079,13 @@
                       
                       
                       
+                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/cartodb_layer.html">Carto Layer</a></li>
                       
                       
                       
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/cartodb_layer.html">CartoDB Layer</a></li>
                       
                       
                       
@@ -3496,522 +3116,6 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/aeris_weather.html">Aeris Weather Layer</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/component_tester.html">Component Tester</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/micello_map.html">Micello Indoor Maps</a></li>
                       
                       
                       
@@ -4244,9 +3348,6 @@
                       
                       
                       
-                      
-                      
-                      
                       </ol>
                       
                     </ol>
@@ -4353,15 +3454,9 @@
             
 
             <!-- deliver next/prev links -->
-            <a class="prev" href="/WhirlyGlobe/tutorial/ios/local_image_layer.html">Previous</a><a class="next" href="/WhirlyGlobe/tutorial/ios/remote_NASA_image_layers.html">Next</a>
+            <a class="prev" href="/WhirlyGlobe/tutorial/ios/local_image_layer.html">Previous</a><a class="next" href="/WhirlyGlobe/tutorial/ios/adding_vector_data.html">Next</a>
 
 
-            
-            
-            
-            
-
-            
             
             
             
@@ -4421,24 +3516,6 @@
             
             
             
-            
-            
-            
-            
-            
-
-            
-            
-            
-            
-            
-
-            
-            
-            
-            
-            
-
             
             
             
@@ -4519,7 +3596,7 @@
             An open source geospatial display toolkit<br /> for iOS and Android.
           </p>
           <p class="site-description">
-            <small>Ⓒ 2017 mousebird consulting.</small>
+            <small>Ⓒ 2020 mousebird consulting.</small>
           </p>
         </div>
 

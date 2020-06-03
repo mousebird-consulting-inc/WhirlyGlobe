@@ -115,60 +115,59 @@
 
 <p>Now, we are going to paste in what we going to declare our labels in a similar way that we did with our markers. Paste in the following method.</p>
 
-<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kd">private</span> <span class="kt">void</span> <span class="nf">insertLabels</span><span class="o">()</span> <span class="o">{</span>
-        <span class="n">List</span><span class="o">&lt;</span><span class="n">ScreenLabel</span><span class="o">&gt;</span> <span class="n">labels</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;&gt;();</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">private</span> <span class="kt">void</span> <span class="nf">insertLabels</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nc">List</span><span class="o">&lt;</span><span class="nc">ScreenLabel</span><span class="o">&gt;</span> <span class="n">labels</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ArrayList</span><span class="o">&lt;&gt;();</span>
 
-        <span class="n">LabelInfo</span> <span class="n">labelInfo</span> <span class="o">=</span> <span class="k">new</span> <span class="n">LabelInfo</span><span class="o">();</span>
+        <span class="nc">LabelInfo</span> <span class="n">labelInfo</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">LabelInfo</span><span class="o">();</span>
         <span class="n">labelInfo</span><span class="o">.</span><span class="na">setFontSize</span><span class="o">(</span><span class="mi">30</span><span class="n">f</span><span class="o">);</span>
-        <span class="n">labelInfo</span><span class="o">.</span><span class="na">setTextColor</span><span class="o">(</span><span class="n">Color</span><span class="o">.</span><span class="na">BLACK</span><span class="o">);</span>
-        <span class="n">labelInfo</span><span class="o">.</span><span class="na">setTypeface</span><span class="o">(</span><span class="n">Typeface</span><span class="o">.</span><span class="na">SERIF</span><span class="o">);</span>
-        <span class="n">labelInfo</span><span class="o">.</span><span class="na">setLayoutPlacement</span><span class="o">(</span><span class="n">LabelInfo</span><span class="o">.</span><span class="na">LayoutRight</span><span class="o">);</span>
-        <span class="n">labelInfo</span><span class="o">.</span><span class="na">setOutlineColor</span><span class="o">(</span><span class="n">Color</span><span class="o">.</span><span class="na">WHITE</span><span class="o">);</span>
+        <span class="n">labelInfo</span><span class="o">.</span><span class="na">setTextColor</span><span class="o">(</span><span class="nc">Color</span><span class="o">.</span><span class="na">BLACK</span><span class="o">);</span>
+        <span class="n">labelInfo</span><span class="o">.</span><span class="na">setTypeface</span><span class="o">(</span><span class="nc">Typeface</span><span class="o">.</span><span class="na">SERIF</span><span class="o">);</span>
+        <span class="n">labelInfo</span><span class="o">.</span><span class="na">setLayoutPlacement</span><span class="o">(</span><span class="nc">LabelInfo</span><span class="o">.</span><span class="na">LayoutRight</span><span class="o">);</span>
+        <span class="n">labelInfo</span><span class="o">.</span><span class="na">setOutlineColor</span><span class="o">(</span><span class="nc">Color</span><span class="o">.</span><span class="na">WHITE</span><span class="o">);</span>
         <span class="n">labelInfo</span><span class="o">.</span><span class="na">setOutlineSize</span><span class="o">(</span><span class="mi">1</span><span class="o">.</span><span class="na">f</span><span class="o">);</span>
 
         <span class="kt">float</span> <span class="n">layoutImportance</span> <span class="o">=</span> <span class="mi">1</span><span class="o">.</span><span class="na">f</span><span class="o">;</span>
 
         <span class="c1">// Moskow - Москва</span>
-        <span class="n">ScreenLabel</span> <span class="n">moskow</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ScreenLabel</span><span class="o">();</span>
-        <span class="n">moskow</span><span class="o">.</span><span class="na">loc</span> <span class="o">=</span> <span class="n">Point2d</span><span class="o">.</span><span class="na">FromDegrees</span><span class="o">(</span><span class="mf">37.616667</span><span class="o">,</span> <span class="mf">55.75</span><span class="o">);</span> <span class="c1">// Longitude, Latitude</span>
+        <span class="nc">ScreenLabel</span> <span class="n">moskow</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ScreenLabel</span><span class="o">();</span>
+        <span class="n">moskow</span><span class="o">.</span><span class="na">loc</span> <span class="o">=</span> <span class="nc">Point2d</span><span class="o">.</span><span class="na">FromDegrees</span><span class="o">(</span><span class="mf">37.616667</span><span class="o">,</span> <span class="mf">55.75</span><span class="o">);</span> <span class="c1">// Longitude, Latitude</span>
         <span class="n">moskow</span><span class="o">.</span><span class="na">text</span> <span class="o">=</span> <span class="s">"Москва"</span><span class="o">;</span>
         <span class="n">moskow</span><span class="o">.</span><span class="na">layoutImportance</span> <span class="o">=</span> <span class="n">layoutImportance</span><span class="o">++;</span>
         <span class="n">labels</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">moskow</span><span class="o">);</span>
 
         <span class="c1">//  Saint Petersburg - Санкт-Петербург</span>
-        <span class="n">ScreenLabel</span> <span class="n">stPetersburg</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ScreenLabel</span><span class="o">();</span>
-        <span class="n">stPetersburg</span><span class="o">.</span><span class="na">loc</span> <span class="o">=</span> <span class="n">Point2d</span><span class="o">.</span><span class="na">FromDegrees</span><span class="o">(</span><span class="mf">30.3</span><span class="o">,</span> <span class="mf">59.95</span><span class="o">);</span>
+        <span class="nc">ScreenLabel</span> <span class="n">stPetersburg</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ScreenLabel</span><span class="o">();</span>
+        <span class="n">stPetersburg</span><span class="o">.</span><span class="na">loc</span> <span class="o">=</span> <span class="nc">Point2d</span><span class="o">.</span><span class="na">FromDegrees</span><span class="o">(</span><span class="mf">30.3</span><span class="o">,</span> <span class="mf">59.95</span><span class="o">);</span>
         <span class="n">stPetersburg</span><span class="o">.</span><span class="na">text</span> <span class="o">=</span> <span class="s">"Санкт-Петербург"</span><span class="o">;</span>
         <span class="n">stPetersburg</span><span class="o">.</span><span class="na">layoutImportance</span> <span class="o">=</span> <span class="n">layoutImportance</span><span class="o">++;</span>
         <span class="n">labels</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">stPetersburg</span><span class="o">);</span>
 
         <span class="c1">// Novosibirsk - Новосибирск</span>
-        <span class="n">ScreenLabel</span> <span class="n">novosibirsk</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ScreenLabel</span><span class="o">();</span>
-        <span class="n">novosibirsk</span><span class="o">.</span><span class="na">loc</span> <span class="o">=</span> <span class="n">Point2d</span><span class="o">.</span><span class="na">FromDegrees</span><span class="o">(</span><span class="mf">82.95</span><span class="o">,</span> <span class="mf">55.05</span><span class="o">);</span>
+        <span class="nc">ScreenLabel</span> <span class="n">novosibirsk</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ScreenLabel</span><span class="o">();</span>
+        <span class="n">novosibirsk</span><span class="o">.</span><span class="na">loc</span> <span class="o">=</span> <span class="nc">Point2d</span><span class="o">.</span><span class="na">FromDegrees</span><span class="o">(</span><span class="mf">82.95</span><span class="o">,</span> <span class="mf">55.05</span><span class="o">);</span>
         <span class="n">novosibirsk</span><span class="o">.</span><span class="na">text</span> <span class="o">=</span> <span class="s">"Новосибирск"</span><span class="o">;</span>
         <span class="n">novosibirsk</span><span class="o">.</span><span class="na">layoutImportance</span> <span class="o">=</span> <span class="n">layoutImportance</span><span class="o">++;</span>
         <span class="n">labels</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">novosibirsk</span><span class="o">);</span>
 
         <span class="c1">// Yekaterinburg - Екатеринбург</span>
-        <span class="n">ScreenLabel</span> <span class="n">yekaterinburg</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ScreenLabel</span><span class="o">();</span>
-        <span class="n">yekaterinburg</span><span class="o">.</span><span class="na">loc</span> <span class="o">=</span> <span class="n">Point2d</span><span class="o">.</span><span class="na">FromDegrees</span><span class="o">(</span><span class="mf">60.583333</span><span class="o">,</span> <span class="mf">56.833333</span><span class="o">);</span>
+        <span class="nc">ScreenLabel</span> <span class="n">yekaterinburg</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ScreenLabel</span><span class="o">();</span>
+        <span class="n">yekaterinburg</span><span class="o">.</span><span class="na">loc</span> <span class="o">=</span> <span class="nc">Point2d</span><span class="o">.</span><span class="na">FromDegrees</span><span class="o">(</span><span class="mf">60.583333</span><span class="o">,</span> <span class="mf">56.833333</span><span class="o">);</span>
         <span class="n">yekaterinburg</span><span class="o">.</span><span class="na">text</span> <span class="o">=</span> <span class="s">"Екатеринбург"</span><span class="o">;</span>
         <span class="n">yekaterinburg</span><span class="o">.</span><span class="na">layoutImportance</span> <span class="o">=</span> <span class="n">layoutImportance</span><span class="o">++;</span>
         <span class="n">labels</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">yekaterinburg</span><span class="o">);</span>
 
         <span class="c1">// Nizhny Novgorod - Нижний Новгород</span>
-        <span class="n">ScreenLabel</span> <span class="n">nizhnyNovgorod</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ScreenLabel</span><span class="o">();</span>
-        <span class="n">nizhnyNovgorod</span><span class="o">.</span><span class="na">loc</span> <span class="o">=</span> <span class="n">Point2d</span><span class="o">.</span><span class="na">FromDegrees</span><span class="o">(</span><span class="mf">44.0075</span><span class="o">,</span> <span class="mf">56.326944</span><span class="o">);</span>
+        <span class="nc">ScreenLabel</span> <span class="n">nizhnyNovgorod</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ScreenLabel</span><span class="o">();</span>
+        <span class="n">nizhnyNovgorod</span><span class="o">.</span><span class="na">loc</span> <span class="o">=</span> <span class="nc">Point2d</span><span class="o">.</span><span class="na">FromDegrees</span><span class="o">(</span><span class="mf">44.0075</span><span class="o">,</span> <span class="mf">56.326944</span><span class="o">);</span>
         <span class="n">nizhnyNovgorod</span><span class="o">.</span><span class="na">text</span> <span class="o">=</span> <span class="s">"Нижний Новгород"</span><span class="o">;</span>
         <span class="n">nizhnyNovgorod</span><span class="o">.</span><span class="na">layoutImportance</span> <span class="o">=</span> <span class="n">layoutImportance</span><span class="o">++;</span>
-        <span class="n">nizhnyNovgorod</span><span class="o">.</span><span class="na">rotation</span> <span class="o">=</span> <span class="n">Math</span><span class="o">.</span><span class="na">PI</span> <span class="o">/</span> <span class="mi">8</span><span class="o">;</span>
+        <span class="n">nizhnyNovgorod</span><span class="o">.</span><span class="na">rotation</span> <span class="o">=</span> <span class="nc">Math</span><span class="o">.</span><span class="na">PI</span> <span class="o">/</span> <span class="mi">8</span><span class="o">;</span>
         <span class="n">labels</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">nizhnyNovgorod</span><span class="o">);</span>
 
         <span class="c1">// Add your markers to the map controller.</span>
-        <span class="n">ComponentObject</span> <span class="n">labelsComponentObject</span> <span class="o">=</span> <span class="n">mapControl</span><span class="o">.</span><span class="na">addScreenLabels</span><span class="o">(</span><span class="n">labels</span><span class="o">,</span> <span class="n">labelInfo</span><span class="o">,</span> <span class="n">MaplyBaseController</span><span class="o">.</span><span class="na">ThreadMode</span><span class="o">.</span><span class="na">ThreadAny</span><span class="o">);</span>
+        <span class="nc">ComponentObject</span> <span class="n">labelsComponentObject</span> <span class="o">=</span> <span class="n">mapControl</span><span class="o">.</span><span class="na">addScreenLabels</span><span class="o">(</span><span class="n">labels</span><span class="o">,</span> <span class="n">labelInfo</span><span class="o">,</span> <span class="nc">MaplyBaseController</span><span class="o">.</span><span class="na">ThreadMode</span><span class="o">.</span><span class="na">ThreadAny</span><span class="o">);</span>
     <span class="o">}</span>
-</code></pre>
-</div>
+</code></pre></div></div>
 
 <p>Notice there is a <code class="highlighter-rouge">LabelInfo</code> options object that defines how the text is going to look. <code class="highlighter-rouge">setLayoutPlacement</code> is an important <code class="highlighter-rouge">LabelInfo</code>property to set, because this determines the placement of the label in relation to the <code class="highlighter-rouge">loc</code> point. <code class="highlighter-rouge">LabelInfo.LayoutRight</code> means that the label is placed directly to the right of the <code class="highlighter-rouge">loc</code> point. Your other options are <code class="highlighter-rouge">LabelInfo.LayoutLeft</code> and <code class="highlighter-rouge">LabelInfo.LayoutCenter</code>.</p>
 
@@ -244,28 +243,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/getting-started.html">Before You Start</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -541,193 +519,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/building-from-repository.html">Building From Repository</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/building-from-nightly.html">Building From Nightly</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
+                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/building-from-binary.html">Building From Nightly</a></li>
                       
                       
                       
@@ -1014,31 +806,10 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
                       </ol>
                       
                       <li class="sidebar-header-item">Basics of Display</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -1266,16 +1037,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/local-image-layer.html">Local Image Layer</a></li>
-                      
-                      
-                      
                       
                       
                       
@@ -1490,34 +1252,7 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/vector-data.html">Vector Data</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -1787,19 +1522,10 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item current"><a class="page-link" href="/WhirlyGlobe/tutorial/android/screen-labels.html">Screen Labels</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -1975,22 +1701,10 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/spheres-android.html">Spheres</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -2029,21 +1743,6 @@
                       
                       <li class="sidebar-header-item">Interaction</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -2295,19 +1994,10 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/screen-marker-selection.html">Screen Marker Selection</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -2364,9 +2054,6 @@
                       
                       <li class="sidebar-header-item">Advanced</li>
                       <ol class="list-unstyled sidebar-list-items">
-                      
-                      
-                      
                       
                       
                       
@@ -2521,15 +2208,6 @@
                       
                       
                       
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       </ol>
                       
                     </ol>
@@ -2546,12 +2224,6 @@
           <div class="col-sm-9" id="prev-next">
             
             
-            
-            
-            
-            
-            
-
             
             
             
@@ -2739,7 +2411,7 @@
             An open source geospatial display toolkit<br /> for iOS and Android.
           </p>
           <p class="site-description">
-            <small>Ⓒ 2017 mousebird consulting.</small>
+            <small>Ⓒ 2020 mousebird consulting.</small>
           </p>
         </div>
 
