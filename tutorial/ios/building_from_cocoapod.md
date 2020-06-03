@@ -18,7 +18,7 @@ There is a pod in the central Cocoapods repo.  It's really old, so don't use it.
 
 Pods are pretty easy to use, which is kind of the point.  If you haven't installed the pod gem, go <a href= "http://guides.cocoapods.org/using/getting-started.html#getting-started" target="_blank">follow their instructions</a>.  You'll need that software to do the rest of this.
 
-Every project you use Cocoapods in is going to need a Podfile.  Yours should look like this.
+Every project you use Cocoapods in is going to need a Podfile.  Yours should look something like this.
 
 {% highlight bash %}
 platform :ios, '13.0'
@@ -27,7 +27,7 @@ project 'HelloEarth.xcodeproj'
 inhibit_all_warnings!
 
 target 'HelloEarth' do
-        pod 'WhirlyGlobe', :git => 'https://github.com/mousebird/WhirlyGlobe-3.git', :branch => 'develop'
+        pod 'WhirlyGlobe', :git => 'https://github.com/mousebird/WhirlyGlobe-3.git', :branch => 'master'
 end
 {% endhighlight %}
 
@@ -43,7 +43,7 @@ If all goes well it should say something like this.
 
 {% highlight bash %}
 Analyzing dependencies
-Pre-downloading: `WhirlyGlobe` from `https://github.com/mousebird/WhirlyGlobe-3.git`, branch `develop`
+Pre-downloading: `WhirlyGlobe` from `https://github.com/mousebird/WhirlyGlobe-3.git`, branch `master`
 Downloading dependencies
 Installing FMDB (2.7.5)
 Installing KissXML (5.3.1)
@@ -58,7 +58,25 @@ Integrating client project
 
 We love our fellow open source projects.  That's why we include so many of them!
 
-Up next, let's compile the thing.
+Soon we'll compile.  But one more thing first
+
+### Bridging Objective C to Swift
+
+If you're using Objective-C for your project, you can ignore this.  Also welcome back from your coma!
+
+You're probably using Swift and the toolkit works well with it, but you have to do one more thing.
+
+Open the HelloEarth workspace and create a new Objective C file.  I call mine "Stub" because it's not going to do anything.  It doesn't even matter what's in it.  The important bit is next.
+
+Xcode will prompt you to create a Create Bridging Header.  Select that option.
+
+![CocoaPods]({{ site.baseurl }}/images/tutorial/bridging_header.png)
+
+Now open that header.  It should be called HelloEarth-Bridging-Header.h.  Add MaplyComponent like so.
+
+![CocoaPods]({{ site.baseurl }}/images/tutorial/bridging_header2.png)
+
+With that you should be ready to compile and use the toolkit in a Swift project.
 
 ### Compiling With the Pod
 
