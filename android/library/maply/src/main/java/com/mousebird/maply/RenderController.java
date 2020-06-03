@@ -1631,7 +1631,7 @@ public class RenderController implements RenderControllerInterface
      * @param mode Where to execute the enable.  Choose ThreadAny by default.
      */
     public void enableObjects(final ComponentObject[] compObjs,ThreadMode mode) {
-        if (compObjs.length == 0)
+        if (compObjs == null || compObjs.length == 0)
             return;
 
         final RenderController renderControl = this;
