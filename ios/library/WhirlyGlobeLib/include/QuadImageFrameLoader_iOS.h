@@ -53,7 +53,7 @@ public:
 class QIFFrameAsset_ios : public QIFFrameAsset
 {
 public:
-    QIFFrameAsset_ios();
+    QIFFrameAsset_ios(QuadFrameInfoRef frameInfo);
     virtual ~QIFFrameAsset_ios();
     
     // Put together a fetch request and return it
@@ -81,6 +81,7 @@ protected:
     // Returned by the TileFetcher
     MaplyTileFetchRequest *request;
 };
+typedef std::shared_ptr<QIFFrameAsset_ios> QIFFrameAsset_iosRef;
     
 // iOS version of the tile asset keeps the platform specific stuff around
 class QIFTileAsset_ios : public QIFTileAsset
@@ -91,11 +92,11 @@ public:
         
     // Fetch the tile frames.  Just fetch them all for now if frameToLoad is set to -1
     // Otherwise, just fetch the specified frame
-    virtual void startFetching(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,int frameToLoad,QIFBatchOps *batchOps) override;
+    virtual void startFetching(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QuadFrameInfoRef frameToLoad,QIFBatchOps *batchOps) override;
 
 protected:
     // Specialized frame asset
-    virtual QIFFrameAssetRef makeFrameAsset(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader) override;
+    virtual QIFFrameAssetRef makeFrameAsset(PlatformThreadInfo *threadInfo,QuadFrameInfoRef frameInfo,QuadImageFrameLoader *loader) override;
 };
     
 // iOS version of the QuadFrameLoader

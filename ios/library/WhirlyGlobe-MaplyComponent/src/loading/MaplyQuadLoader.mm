@@ -55,14 +55,9 @@ using namespace WhirlyKit;
     return tileID;
 }
 
-- (void)setFrame:(int)frame
-{
-    loadReturn->frame = frame;
-}
-
 - (int)frame
 {
-    return loadReturn->frame;
+    return loadReturn->frame->frameIndex;
 }
 
 - (void)addTileData:(id __nonnull) inTileData
@@ -288,11 +283,11 @@ using namespace WhirlyKit;
     if ([data isKindOfClass:[MaplyLoaderReturn class]]) {
         loadData = data;
         loadData.tileID = tileID;
-        loadData.frame = frame;
+        loadData->loadReturn->frame = loader->getFrameInfo(frame);
     } else {
         loadData = [self makeLoaderReturn];
         loadData.tileID = tileID;
-        loadData.frame = frame;
+        loadData->loadReturn->frame = loader->getFrameInfo(frame);
         if ([data isKindOfClass:[NSData class]]) {
             [loadData addTileData:data];
         } else if (data != nil) {
@@ -335,7 +330,7 @@ using namespace WhirlyKit;
     // Don't actually want this one
     if (!loader->isFrameLoading(tileID,loadReturn->loadReturn->frame)) {
         if (_debugMode)
-            NSLog(@"MaplyQuadImageLoader: Dropping fetched tile %d: (%d,%d) frame %d",tileID.level,tileID.x,tileID.y,loadReturn->loadReturn->frame);
+            NSLog(@"MaplyQuadImageLoader: Dropping fetched tile %d: (%d,%d) frame %d",tileID.level,tileID.x,tileID.y,loadReturn->loadReturn->frame->frameIndex);
         return;
     }
     

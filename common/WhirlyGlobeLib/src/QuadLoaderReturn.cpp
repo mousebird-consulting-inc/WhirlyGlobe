@@ -22,9 +22,14 @@
 
 namespace WhirlyKit
 {
+
+QuadFrameInfo::QuadFrameInfo()
+: frameIndex(-1)
+{
+}
     
 QuadLoaderReturn::QuadLoaderReturn(int generation)
-    : frame(-1), ident(0,0,0), hasError(false), generation(generation)
+    : ident(0,0,0), hasError(false), generation(generation)
 {
 }
 
