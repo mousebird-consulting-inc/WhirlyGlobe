@@ -26,7 +26,7 @@ package com.mousebird.maply;
  */
 class QIFFrameAsset
 {
-    QIFFrameAsset() { }
+    QIFFrameAsset() { initialise(); }
 
     // The tile fetch request, if active
     TileFetchRequest request = null;

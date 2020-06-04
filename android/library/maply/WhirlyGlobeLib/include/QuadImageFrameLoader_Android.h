@@ -44,7 +44,7 @@ public:
 class QIFFrameAsset_Android : public QIFFrameAsset
 {
 public:
-    QIFFrameAsset_Android(PlatformInfo_Android *threadInfo);
+    QIFFrameAsset_Android(PlatformInfo_Android *threadInfo,QuadFrameInfoRef frameInfo);
     virtual ~QIFFrameAsset_Android();
 
     // Clear out the texture and reset
@@ -85,7 +85,7 @@ public:
 
 protected:
     // Specialized frame asset
-    virtual QIFFrameAssetRef makeFrameAsset(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *);
+    virtual QIFFrameAssetRef makeFrameAsset(PlatformThreadInfo *threadInfo,QuadFrameInfoRef frameInfo,QuadImageFrameLoader *);
 };
 
 // Android version of the QuadFrameLoader

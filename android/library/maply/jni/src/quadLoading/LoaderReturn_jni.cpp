@@ -97,7 +97,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_setFrame
         QuadLoaderReturn *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
         if (!loadReturn)
             return;
-        loadReturn->frame = frame;
+        loadReturn->frame->frameIndex = frame;
     }
     catch (...)
     {
@@ -136,7 +136,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_LoaderReturn_getFrame
 		QuadLoaderReturn *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
 		if (!loadReturn)
 		    return -1;
-		return loadReturn->frame;
+		return loadReturn->frame->frameIndex;
 	}
 	catch (...)
 	{

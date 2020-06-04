@@ -33,7 +33,8 @@ QIFBatchOps_Android::~QIFBatchOps_Android()
 {
 }
 
-QIFFrameAsset_Android::QIFFrameAsset_Android(PlatformInfo_Android *threadInfo)
+QIFFrameAsset_Android::QIFFrameAsset_Android(PlatformInfo_Android *threadInfo,QuadFrameInfoRef frameInfo)
+: QIFFrameAsset(frameInfo)
 {
 }
 
@@ -110,12 +111,12 @@ QIFTileAsset_Android::~QIFTileAsset_Android()
 {
 }
 
-QIFFrameAssetRef QIFTileAsset_Android::makeFrameAsset(PlatformThreadInfo *inThreadInfo,QuadImageFrameLoader *inLoader)
+QIFFrameAssetRef QIFTileAsset_Android::makeFrameAsset(PlatformThreadInfo *inThreadInfo,QuadFrameInfoRef frameInfo,QuadImageFrameLoader *inLoader)
 {
     QuadImageFrameLoader_Android *loader = (QuadImageFrameLoader_Android *)inLoader;
     PlatformInfo_Android *threadInfo = (PlatformInfo_Android *)inThreadInfo;
 
-    QIFFrameAsset_Android *frame = new QIFFrameAsset_Android((PlatformInfo_Android *)threadInfo);
+    QIFFrameAsset_Android *frame = new QIFFrameAsset_Android((PlatformInfo_Android *)threadInfo,frameInfo);
     MakeQIFFrameAsset(threadInfo->env,frame);
 
     return QIFFrameAssetRef(frame);
@@ -162,6 +163,8 @@ QuadImageFrameLoader_Android::QuadImageFrameLoader_Android(PlatformInfo_Android 
     updateFrameMethod = threadInfo->env->GetMethodID(frameClass,"updateFetch","(Lcom/mousebird/maply/QuadLoaderBase;ID)V");
     clearFrameMethod = threadInfo->env->GetMethodID(frameClass,"clearFrameAsset","(Lcom/mousebird/maply/QuadLoaderBase;Lcom/mousebird/maply/QIFBatchOps;)V");
     clearRequestMethod = threadInfo->env->GetMethodID(frameClass, "clearRequest","()V");
+
+    frames.resize(numFrames);
 }
 
 QuadImageFrameLoader_Android::~QuadImageFrameLoader_Android()
