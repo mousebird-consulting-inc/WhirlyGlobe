@@ -254,7 +254,7 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
     private native void samplingLayerDisconnectNative(QuadSamplingLayer layer,ChangeSet changes);
 
     // Used to initialize the loader for certain types of data.
-    enum Mode {SingleFrame,MultiFrame,Object};
+    public enum Mode {SingleFrame,MultiFrame,Object};
 
     /* --- Callback from C++ side --- */
 

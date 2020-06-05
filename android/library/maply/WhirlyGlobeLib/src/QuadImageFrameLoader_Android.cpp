@@ -165,6 +165,12 @@ QuadImageFrameLoader_Android::QuadImageFrameLoader_Android(PlatformInfo_Android 
     clearRequestMethod = threadInfo->env->GetMethodID(frameClass, "clearRequest","()V");
 
     frames.resize(numFrames);
+    // TODO: Shouldn't we be creating Android side objects for this?
+    for (unsigned int ii=0;ii!=numFrames;ii++) {
+        auto frameInfo = QuadFrameInfoRef(new QuadFrameInfo());
+        frameInfo->frameIndex = ii;
+        frames[ii] = frameInfo;
+    }
 }
 
 QuadImageFrameLoader_Android::~QuadImageFrameLoader_Android()

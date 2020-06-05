@@ -231,6 +231,11 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		 * for slower devices.
 		 */
 		public int height = 0;
+		/**
+		 * If set, we'll use a different library name rather than the default.
+		 * Super special option.  You probably don't need that.
+		 */
+		public String loadLibraryName = null;
 	}
 
 	// Set if we're using a TextureView rather than a SurfaceView
@@ -262,6 +267,11 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	}
 
 	/**
+	 * Load in the shared C++ library if needed.
+	 */
+	String loadLibraryName = "whirlyglobemaply";
+
+	/**
 	 * Construct the maply controller with an Activity.  We need access to a few
 	 * of the usual Android resources.
 	 * <p>
@@ -278,8 +288,11 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	{
 		// Note: Can't pull this one in anymore in Android Studio.  Hopefully not still necessary
 //		System.loadLibrary("gnustl_shared");
-		System.loadLibrary("whirlyglobemaply");
+		if (settings != null && settings.loadLibraryName != null)
+			loadLibraryName = settings.loadLibraryName;
+		System.loadLibrary(loadLibraryName);
 		libraryLoaded = true;
+
 		activity = mainActivity;
 		if (settings != null) {
 			useTextureView = !settings.useSurfaceView;
@@ -298,7 +311,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		if (!libraryLoaded)
 		{
 //			System.loadLibrary("gnustl_shared");
-			System.loadLibrary("whirlyglobemaply");
+			System.loadLibrary(loadLibraryName);
 			libraryLoaded = true;
 		}
 
