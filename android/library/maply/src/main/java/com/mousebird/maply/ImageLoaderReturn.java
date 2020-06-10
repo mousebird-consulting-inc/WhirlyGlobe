@@ -30,8 +30,8 @@ import android.graphics.Bitmap;
  */
 public class ImageLoaderReturn extends LoaderReturn
 {
-    public ImageLoaderReturn(Object loader) {
-        super(loader);
+    public ImageLoaderReturn(int generation) {
+        super(generation);
     }
 
     /**

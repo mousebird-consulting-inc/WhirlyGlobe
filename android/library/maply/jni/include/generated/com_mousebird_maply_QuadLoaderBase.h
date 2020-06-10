@@ -97,6 +97,14 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_QuadLoaderBase_getFrameID
 
 /*
  * Class:     com_mousebird_maply_QuadLoaderBase
+ * Method:    getGeneration
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadLoaderBase_getGeneration
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_QuadLoaderBase
  * Method:    reloadNative
  * Signature: ()V
  */

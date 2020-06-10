@@ -199,7 +199,7 @@ public class QuadImageLoaderBase extends QuadLoaderBase
 
     protected LoaderReturn makeLoaderReturn()
     {
-        return new ImageLoaderReturn(this);
+        return new ImageLoaderReturn(this.getGeneration());
     }
 
     /**

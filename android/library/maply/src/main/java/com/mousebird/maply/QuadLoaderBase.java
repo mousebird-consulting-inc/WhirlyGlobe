@@ -382,6 +382,12 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
      */
     public native long getFrameID(int frame);
 
+    /**
+     * When you refresh the loader, we get a new generation.
+     * This is how we track data in transit.
+     */
+    public native int getGeneration();
+
     protected native void reloadNative();
 
     public void finalize()

@@ -32,8 +32,9 @@ public class LoaderReturn
 {
     protected LoaderReturn() {}
 
-    LoaderReturn(Object loader) {
-        initialise(loader);
+    LoaderReturn(int generation) {
+        initialise();
+        setGeneration(generation);
     }
 
     /**
@@ -45,7 +46,7 @@ public class LoaderReturn
      * Frames have unique 64 bit IDs as well as their location in the frame array.
      */
     public native void setFrame(long frameID,int frameIndex);
-    
+
     /**
      * Tile this data belongs to.
      */
@@ -99,6 +100,16 @@ public class LoaderReturn
     }
 
     /**
+     * Don't call this yourself.
+     */
+    public native void setGeneration(int generation);
+
+    /**
+     * Return the generation this LoaderReturn has been given.
+     */
+    public native int getGeneration();
+
+    /**
      * Merge in the given changes requests to be handled upstream.
      */
     public native void mergeChanges(ChangeSet changes);
@@ -118,7 +129,7 @@ public class LoaderReturn
         nativeInit();
     }
     private static native void nativeInit();
-    native void initialise(Object loader);
+    native void initialise();
     native void dispose();
     private long nativeHandle;
 }

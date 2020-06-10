@@ -30,7 +30,7 @@ package com.mousebird.maply;
 public class ObjectLoaderReturn extends LoaderReturn
 {
     ObjectLoaderReturn(QuadLoaderBase loader) {
-        super(loader);
+        super(loader.getGeneration());
     }
 
     /**
