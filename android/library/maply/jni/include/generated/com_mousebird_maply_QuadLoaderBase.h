@@ -89,6 +89,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_samplingLayerDisc
 
 /*
  * Class:     com_mousebird_maply_QuadLoaderBase
+ * Method:    getFrameID
+ * Signature: (I)J
+ */
+JNIEXPORT jlong JNICALL Java_com_mousebird_maply_QuadLoaderBase_getFrameID
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     com_mousebird_maply_QuadLoaderBase
  * Method:    reloadNative
  * Signature: ()V
  */

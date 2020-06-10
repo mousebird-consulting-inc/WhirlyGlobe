@@ -293,6 +293,23 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_samplingLayerDisc
     }
 }
 
+JNIEXPORT jlong JNICALL Java_com_mousebird_maply_QuadLoaderBase_getFrameID
+        (JNIEnv *env, jobject obj, jint frameIndex)
+{
+    try {
+        QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
+
+        if (frameIndex < 0 || frameIndex >= (*loader)->getNumFrames())
+            return 0;
+
+        return (*loader)->getFrameInfo(frameIndex)->getId();
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadLoaderBase::getFrameID()");
+    }
+}
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_reloadNative
         (JNIEnv *env, jobject obj)
 {

@@ -92,6 +92,24 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_setTileID
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_setFrame
+		(JNIEnv *env, jobject obj, jlong frameID, jint frameIndex)
+{
+	try
+	{
+		QuadLoaderReturn *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
+		if (!loadReturn)
+			return;
+		loadReturn->frame = QuadFrameInfoRef(new QuadFrameInfo());
+		loadReturn->frame->setId(frameID);
+		loadReturn->frame->frameIndex = frameIndex;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LoaderReturn::setTileID()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_setFrame
         (JNIEnv *env, jobject obj, jint frame)
 {
     try

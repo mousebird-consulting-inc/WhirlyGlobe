@@ -63,16 +63,16 @@ public:
     virtual void clear(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QIFBatchOps *batchOps,ChangeSet &changes) override;
     
     // Update priority for an existing fetch request
-    virtual bool updateFetching(QuadImageFrameLoader *loader,int newPriority,double newImportance) override;
+    virtual bool updateFetching(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,int newPriority,double newImportance) override;
 
     // Cancel an outstanding fetch
-    virtual void cancelFetch(QuadImageFrameLoader *loader,QIFBatchOps *batchOps) override;
+    virtual void cancelFetch(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QIFBatchOps *batchOps) override;
     
     // Keep track of the texture ID
-    virtual void loadSuccess(QuadImageFrameLoader *loader,const std::vector<Texture *> &texs) override;
+    virtual void loadSuccess(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,const std::vector<Texture *> &texs) override;
     
     // Clear out state
-    virtual void loadFailed(QuadImageFrameLoader *loader) override;
+    virtual void loadFailed(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader) override;
     
     // We're not bothering to load it, but pretend like it succeeded
     virtual void loadSkipped() override;

@@ -311,7 +311,7 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
                     // Build a loader return object, fill in the data and then parse it
                     final LoaderReturn loadReturn = makeLoaderReturn();
                     loadReturn.setTileID(tileX, tileY, tileLevel);
-                    loadReturn.setFrame(fFrame);
+                    loadReturn.setFrame(getFrameID(fFrame),fFrame);
                     if (data != null)
                         loadReturn.addTileData(data);
 
@@ -376,6 +376,11 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
             frame++;
         }
     }
+
+    /**
+     * Each frame has a 64 bit frame ID (other than just 0 through whatever)
+     */
+    public native long getFrameID(int frame);
 
     protected native void reloadNative();
 
