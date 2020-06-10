@@ -191,15 +191,31 @@ public class RemoteTileInfoNew extends TileInfoNew
     // OkHTTP wants to track requests by source
     Object NET_TAG = new Object();
 
+    protected ArrayList<String> headerNames = new ArrayList<String>();
+    protected ArrayList<String> headerVals = new ArrayList<String>();
+
+    /**
+     * Add a header key/value to the HTTP request before it goes out.
+     */
+    public void addHeader(String name,String val)
+    {
+        headerNames.add(name);
+        headerVals.add(val);
+    }
+
     /**
      * Build an okHTTP request
      */
     public Request buildRequest(URL url, Object OkHTTP_TAG)
     {
-        if (OkHTTP_TAG == null)
-            return new Request.Builder().url(url).build();
-        else
-            return new Request.Builder().url(url).tag(OkHTTP_TAG).build();
+        Request.Builder builder = new Request.Builder();
+        builder.url(url);
+        if (OkHTTP_TAG != null)
+            builder.tag(OkHTTP_TAG);
+        for (int ii=0;ii<headerNames.size();ii++)
+            builder.addHeader(headerNames.get(ii),headerVals.get(ii));
+
+        return builder.build();
     }
 
     /**

@@ -47,20 +47,20 @@ public:
     QIFFrameAsset_Android(PlatformInfo_Android *threadInfo,QuadFrameInfoRef frameInfo);
     virtual ~QIFFrameAsset_Android();
 
-    // Clear out the texture and reset
-    virtual void clear(PlatformInfo_Android *threadInfo,QuadImageFrameLoader *loader,QIFBatchOps *batchOps,ChangeSet &changes);
+    // Clear out the texture and d
+    virtual void clear(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QIFBatchOps *batchOps,ChangeSet &changes) override;
 
     // Update priority for an existing fetch request
-    virtual bool updateFetching(PlatformInfo_Android *threadInfo,QuadImageFrameLoader *loader,int newPriority,double newImportance);
+    virtual bool updateFetching(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,int newPriority,double newImportance) override;
 
     // Cancel an outstanding fetch
-    virtual void cancelFetch(PlatformInfo_Android *threadInfo,QuadImageFrameLoader *loader,QIFBatchOps *batchOps);
+    virtual void cancelFetch(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QIFBatchOps *batchOps) override;
 
     // Keep track of the texture ID
-    virtual void loadSuccess(PlatformInfo_Android *threadInfo,QuadImageFrameLoader *loader,const std::vector<Texture *> &texs);
+    virtual void loadSuccess(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,const std::vector<Texture *> &texs) override;
 
     // Clear out state
-    virtual void loadFailed(PlatformInfo_Android *threadInfo,QuadImageFrameLoader *loader);
+    virtual void loadFailed(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader) override;
 
 public:
     // Cancel the fetch (with the tile fetcher) on the Java side
@@ -77,15 +77,15 @@ public:
 class QIFTileAsset_Android : public QIFTileAsset
 {
 public:
-    QIFTileAsset_Android(PlatformInfo_Android *threadInfo,const QuadTreeNew::ImportantNode &ident);;
+    QIFTileAsset_Android(PlatformInfo_Android *threadInfo,const QuadTreeNew::ImportantNode &ident);
     virtual ~QIFTileAsset_Android();
 
     // Fetch the tile frames.  Just fetch them all for now.
-    virtual void startFetching(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,int frameToLoad,QIFBatchOps *batchOps);
+    virtual void startFetching(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QuadFrameInfoRef frameToLoad,QIFBatchOps *batchOps) override;
 
 protected:
     // Specialized frame asset
-    virtual QIFFrameAssetRef makeFrameAsset(PlatformThreadInfo *threadInfo,QuadFrameInfoRef frameInfo,QuadImageFrameLoader *);
+    virtual QIFFrameAssetRef makeFrameAsset(PlatformThreadInfo *threadInfo,QuadFrameInfoRef frameInfo,QuadImageFrameLoader *) override;
 };
 
 // Android version of the QuadFrameLoader
@@ -98,18 +98,18 @@ public:
     ~QuadImageFrameLoader_Android();
 
     /// Number of frames we're representing
-    virtual int getNumFrames();
+    virtual int getNumFrames() override;
 
     // Contruct a platform specific BatchOps for passing to tile fetcher
     // (we don't know about tile fetchers down here)
-    virtual QIFBatchOps *makeBatchOps(PlatformThreadInfo *threadInfo);
+    virtual QIFBatchOps *makeBatchOps(PlatformThreadInfo *threadInfo) override;
 
     // Process whatever ops we batched up during the load phase
-    virtual void processBatchOps(PlatformThreadInfo *threadInfo,QIFBatchOps *);
+    virtual void processBatchOps(PlatformThreadInfo *threadInfo,QIFBatchOps *) override;
 
 public:
     // Make an Android specific tile/frame assets
-    virtual QIFTileAssetRef makeTileAsset(PlatformThreadInfo *threadInfo,const QuadTreeNew::ImportantNode &ident);
+    virtual QIFTileAssetRef makeTileAsset(PlatformThreadInfo *threadInfo,const QuadTreeNew::ImportantNode &ident) override;
 
     int numFrames;
 

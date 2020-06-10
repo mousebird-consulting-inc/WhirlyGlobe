@@ -67,16 +67,16 @@ public:
     virtual void clear(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QIFBatchOps *batchOps,ChangeSet &changes);
 
     // Update priority for an existing fetch request
-    virtual bool updateFetching(QuadImageFrameLoader *loader,int newPriority,double newImportance);
+    virtual bool updateFetching(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,int newPriority,double newImportance);
     
     // Cancel an outstanding fetch
-    virtual void cancelFetch(QuadImageFrameLoader *loader,QIFBatchOps *batchOps);
+    virtual void cancelFetch(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QIFBatchOps *batchOps);
 
     // Keep track of the texture ID
-    virtual void loadSuccess(QuadImageFrameLoader *loader,const std::vector<Texture *> &texs);
+    virtual void loadSuccess(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,const std::vector<Texture *> &texs);
     
     // Clear out state
-    virtual void loadFailed(QuadImageFrameLoader *loader);
+    virtual void loadFailed(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader);
     
     // We're not bothering to load it, but pretend like it succeeded
     virtual void loadSkipped();
@@ -165,7 +165,7 @@ public:
     virtual bool anythingLoading();
     
     // Importance value changed, so update the fetcher
-    virtual void setImportance(QuadImageFrameLoader *loader,double import);
+    virtual void setImportance(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,double import);
     
     // Clear out the individual frames, loads and all
     virtual void clearFrames(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QIFBatchOps *batchOps,ChangeSet &changes);
@@ -189,7 +189,8 @@ public:
                           ChangeSet &changes);
     
     // Cancel any outstanding fetches
-    virtual void cancelFetches(QuadImageFrameLoader *loader,
+    virtual void cancelFetches(PlatformThreadInfo *threadInfo,
+                               QuadImageFrameLoader *loader,
                                QuadFrameInfoRef frameToCancel,
                                QIFBatchOps *batchOps);
     
@@ -201,7 +202,7 @@ public:
                              ChangeSet &changes);
     
     // A single frame failed to load
-    virtual void frameFailed(QuadImageFrameLoader *loader,QuadLoaderReturn *loadReturn,ChangeSet &changes);
+    virtual void frameFailed(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QuadLoaderReturn *loadReturn,ChangeSet &changes);
     
     // Keep track of the load return data (just for single frame + multiple source mode)
     virtual void mergeLoadedFrame(QuadImageFrameLoader *loader,QuadFrameInfoRef frameInfo,const RawDataRef &data);

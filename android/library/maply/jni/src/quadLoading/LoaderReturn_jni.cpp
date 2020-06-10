@@ -40,6 +40,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_initialise
 	{
 		QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,loaderObj);
 	    QuadLoaderReturn *load = new QuadLoaderReturn((*loader)->getGeneration());
+	    load->frame = QuadFrameInfoRef(new QuadFrameInfo());
+	    load->frame->frameIndex = 0;
 		LoaderReturnClassInfo::getClassInfo()->setHandle(env,obj,load);
 	}
 	catch (...)
@@ -97,7 +99,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_setFrame
         QuadLoaderReturn *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
         if (!loadReturn)
             return;
-        loadReturn->frame->frameIndex = frame;
+        if (loadReturn->frame)
+	        loadReturn->frame->frameIndex = frame;
     }
     catch (...)
     {

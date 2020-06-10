@@ -32,7 +32,7 @@ public class LoaderReturn
 {
     protected LoaderReturn() {}
 
-    LoaderReturn(QuadLoaderBase loader) {
+    LoaderReturn(Object loader) {
         initialise(loader);
     }
 
@@ -106,7 +106,7 @@ public class LoaderReturn
     /**
      * If set, some part of the parser is letting us know about an error.
      */
-    String errorString = null;
+    public String errorString = null;
 
     public void finalize()
     {
@@ -118,7 +118,7 @@ public class LoaderReturn
         nativeInit();
     }
     private static native void nativeInit();
-    native void initialise(QuadLoaderBase loader);
+    native void initialise(Object loader);
     native void dispose();
     private long nativeHandle;
 }

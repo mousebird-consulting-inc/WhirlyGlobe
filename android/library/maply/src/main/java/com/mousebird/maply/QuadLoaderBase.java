@@ -34,9 +34,14 @@ import java.util.HashSet;
  */
 public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
 {
-    private QuadLoaderBase() { }
+    protected QuadLoaderBase() { }
 
     protected WeakReference<QuadSamplingLayer> samplingLayer;
+
+    protected QuadLoaderBase(BaseController inControl)
+    {
+        control = new WeakReference<BaseController>(inControl);
+    }
 
     protected QuadLoaderBase(BaseController inControl,SamplingParams params,int numFrames,Mode mode)
     {

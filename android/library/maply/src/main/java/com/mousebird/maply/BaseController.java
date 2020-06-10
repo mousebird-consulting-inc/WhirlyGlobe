@@ -257,7 +257,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	/**
 	 * The render controller handles marshalling objects and the actual run loop.
 	 */
-	RenderController renderControl = null;
+	public RenderController renderControl = null;
 
 	/**
 	 * The underlying render controller.  Only get this if you know what it does.
@@ -1130,7 +1130,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 * Sampling layers can be shared for efficiency.  Don't be calling this yourself.
 	 * The loaders do it for you.
 	 */
-	QuadSamplingLayer findSamplingLayer(SamplingParams params,final QuadSamplingLayer.ClientInterface user)
+	public QuadSamplingLayer findSamplingLayer(SamplingParams params,final QuadSamplingLayer.ClientInterface user)
 	{
 		QuadSamplingLayer theLayer = null;
 
@@ -1169,7 +1169,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 * @param samplingLayer
 	 * @param user
 	 */
-	void releaseSamplingLayer(final QuadSamplingLayer samplingLayer,final QuadSamplingLayer.ClientInterface user)
+	public void releaseSamplingLayer(final QuadSamplingLayer samplingLayer,final QuadSamplingLayer.ClientInterface user)
 	{
 		if (!samplingLayers.contains(samplingLayer))
 			return;
