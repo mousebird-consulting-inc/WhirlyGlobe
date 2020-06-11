@@ -72,7 +72,7 @@ void QIFFrameAsset::clear(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *l
     texIDs.clear();
 }
 
-bool QIFFrameAsset::updateFetching(QuadImageFrameLoader *loader,int newPriority,double newImportance)
+bool QIFFrameAsset::updateFetching(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,int newPriority,double newImportance)
 {
     if (priority == newPriority && importance == newImportance)
         return false;
@@ -82,12 +82,12 @@ bool QIFFrameAsset::updateFetching(QuadImageFrameLoader *loader,int newPriority,
     return true;
 }
 
-void QIFFrameAsset::cancelFetch(QuadImageFrameLoader *loader,QIFBatchOps *batchOps)
+void QIFFrameAsset::cancelFetch(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QIFBatchOps *batchOps)
 {
     state = Empty;
 }
 
-void QIFFrameAsset::loadSuccess(QuadImageFrameLoader *loader,const std::vector<Texture *> &texs)
+void QIFFrameAsset::loadSuccess(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,const std::vector<Texture *> &texs)
 {
     state = Loaded;
     texIDs.clear();
@@ -95,7 +95,7 @@ void QIFFrameAsset::loadSuccess(QuadImageFrameLoader *loader,const std::vector<T
         texIDs.push_back(tex->getId());
 }
 
-void QIFFrameAsset::loadFailed(QuadImageFrameLoader *loader)
+void QIFFrameAsset::loadFailed(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader)
 {
     state = Empty;
 }
@@ -211,10 +211,10 @@ bool QIFTileAsset::anyFramesLoaded(QuadImageFrameLoader *loader)
     return false;
 }
 
-void QIFTileAsset::setImportance(QuadImageFrameLoader *loader,double import)
+void QIFTileAsset::setImportance(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,double import)
 {
     for (auto frame : frames) {
-        frame->updateFetching(loader, frame->getPriority(), import);
+        frame->updateFetching(threadInfo,loader, frame->getPriority(), import);
     }
     ident.importance = import;
 }
@@ -378,7 +378,7 @@ bool QIFTileAsset::frameLoaded(PlatformThreadInfo *threadInfo,
                 changes.push_back(new RemTextureReq(texID));
         }
         
-        frame->loadSuccess(loader,texs);
+        frame->loadSuccess(threadInfo,loader,texs);
     }
     
     if (!texs.empty()) {
@@ -398,7 +398,7 @@ void QIFTileAsset::mergeLoadedFrame(QuadImageFrameLoader *loader,QuadFrameInfoRe
 }
 
 // A single frame failed to load
-void QIFTileAsset::frameFailed(QuadImageFrameLoader *loader,QuadLoaderReturn *loadReturn,ChangeSet &changes) {
+void QIFTileAsset::frameFailed(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QuadLoaderReturn *loadReturn,ChangeSet &changes) {
     if (frames.size() > 0 && (loadReturn->frame->frameIndex < 0 || loadReturn->frame->frameIndex >= frames.size()))
     {
         wkLogLevel(Warn,"MaplyQuadImageFrameLoader: Got frame back outside of range.");
@@ -407,7 +407,7 @@ void QIFTileAsset::frameFailed(QuadImageFrameLoader *loader,QuadLoaderReturn *lo
     
     auto frame = findFrameFor(loadReturn->frame);
     if (frame)
-        frame->loadFailed(loader);
+        frame->loadFailed(threadInfo,loader);
 }
     
 void QIFTileAsset::getLoadedData(std::vector<RawDataRef> &allData)
@@ -481,14 +481,14 @@ bool QIFTileAsset::isFrameLoading(QuadFrameInfoRef frameInfo)
     return false;
 }
     
-void QIFTileAsset::cancelFetches(QuadImageFrameLoader *loader,QuadFrameInfoRef frameToCancel,QIFBatchOps *batchOps)
+void QIFTileAsset::cancelFetches(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QuadFrameInfoRef frameToCancel,QIFBatchOps *batchOps)
 {
     if (!frameToCancel) {
         for (auto frame : frames) {
-            frame->cancelFetch(loader,batchOps);
+            frame->cancelFetch(threadInfo,loader,batchOps);
         }
     } else
-        findFrameFor(frameToCancel)->cancelFetch(loader, batchOps);
+        findFrameFor(frameToCancel)->cancelFetch(threadInfo, loader, batchOps);
 }
 
 
@@ -934,7 +934,7 @@ void QuadImageFrameLoader::reload(PlatformThreadInfo *threadInfo,int frameIndex)
     for (auto it: tiles) {
         QIFTileAssetRef tile = it.second;
         
-        tile->cancelFetches(this, frame, batchOps);
+        tile->cancelFetches(threadInfo, this, frame, batchOps);
         tile->startFetching(threadInfo, this, frame, batchOps);
     }
     
@@ -1037,7 +1037,7 @@ void QuadImageFrameLoader::mergeLoadedTile(PlatformThreadInfo *threadInfo,QuadLo
     if (it != tiles.end()) {
         auto tile = it->second;
         if (failed) {
-            tile->frameFailed(this, loadReturn, changes);
+            tile->frameFailed(threadInfo, this, loadReturn, changes);
         } else {
             if (!tile->frameLoaded(threadInfo, this, loadReturn, texs, changes))
                 failed = true;

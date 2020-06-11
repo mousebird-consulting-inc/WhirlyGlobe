@@ -18,10 +18,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_setTileID
 /*
  * Class:     com_mousebird_maply_LoaderReturn
  * Method:    setFrame
- * Signature: (I)V
+ * Signature: (JI)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_setFrame
-  (JNIEnv *, jobject, jint);
+  (JNIEnv *, jobject, jlong, jint);
 
 /*
  * Class:     com_mousebird_maply_LoaderReturn
@@ -37,6 +37,22 @@ JNIEXPORT jintArray JNICALL Java_com_mousebird_maply_LoaderReturn_getTileIDNativ
  * Signature: ()I
  */
 JNIEXPORT jint JNICALL Java_com_mousebird_maply_LoaderReturn_getFrame
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_LoaderReturn
+ * Method:    setGeneration
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_setGeneration
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     com_mousebird_maply_LoaderReturn
+ * Method:    getGeneration
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_LoaderReturn_getGeneration
   (JNIEnv *, jobject);
 
 /*
@@ -58,10 +74,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_nativeInit
 /*
  * Class:     com_mousebird_maply_LoaderReturn
  * Method:    initialise
- * Signature: (Lcom/mousebird/maply/QuadLoaderBase;)V
+ * Signature: ()V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_initialise
-  (JNIEnv *, jobject, jobject);
+  (JNIEnv *, jobject);
 
 /*
  * Class:     com_mousebird_maply_LoaderReturn

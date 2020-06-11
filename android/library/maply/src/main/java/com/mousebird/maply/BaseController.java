@@ -231,6 +231,11 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		 * for slower devices.
 		 */
 		public int height = 0;
+		/**
+		 * If set, we'll use a different library name rather than the default.
+		 * Super special option.  You probably don't need that.
+		 */
+		public String loadLibraryName = null;
 	}
 
 	// Set if we're using a TextureView rather than a SurfaceView
@@ -252,7 +257,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	/**
 	 * The render controller handles marshalling objects and the actual run loop.
 	 */
-	RenderController renderControl = null;
+	public RenderController renderControl = null;
 
 	/**
 	 * The underlying render controller.  Only get this if you know what it does.
@@ -260,6 +265,11 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	public RenderController getRenderController() {
 		return renderControl;
 	}
+
+	/**
+	 * Load in the shared C++ library if needed.
+	 */
+	String loadLibraryName = "whirlyglobemaply";
 
 	/**
 	 * Construct the maply controller with an Activity.  We need access to a few
@@ -278,8 +288,11 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	{
 		// Note: Can't pull this one in anymore in Android Studio.  Hopefully not still necessary
 //		System.loadLibrary("gnustl_shared");
-		System.loadLibrary("whirlyglobemaply");
+		if (settings != null && settings.loadLibraryName != null)
+			loadLibraryName = settings.loadLibraryName;
+		System.loadLibrary(loadLibraryName);
 		libraryLoaded = true;
+
 		activity = mainActivity;
 		if (settings != null) {
 			useTextureView = !settings.useSurfaceView;
@@ -298,7 +311,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		if (!libraryLoaded)
 		{
 //			System.loadLibrary("gnustl_shared");
-			System.loadLibrary("whirlyglobemaply");
+			System.loadLibrary(loadLibraryName);
 			libraryLoaded = true;
 		}
 
@@ -1117,7 +1130,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 * Sampling layers can be shared for efficiency.  Don't be calling this yourself.
 	 * The loaders do it for you.
 	 */
-	QuadSamplingLayer findSamplingLayer(SamplingParams params,final QuadSamplingLayer.ClientInterface user)
+	public QuadSamplingLayer findSamplingLayer(SamplingParams params,final QuadSamplingLayer.ClientInterface user)
 	{
 		QuadSamplingLayer theLayer = null;
 
@@ -1156,7 +1169,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 * @param samplingLayer
 	 * @param user
 	 */
-	void releaseSamplingLayer(final QuadSamplingLayer samplingLayer,final QuadSamplingLayer.ClientInterface user)
+	public void releaseSamplingLayer(final QuadSamplingLayer samplingLayer,final QuadSamplingLayer.ClientInterface user)
 	{
 		if (!samplingLayers.contains(samplingLayer))
 			return;

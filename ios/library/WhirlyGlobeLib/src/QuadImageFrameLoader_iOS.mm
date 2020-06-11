@@ -70,39 +70,39 @@ void QIFFrameAsset_ios::clear(PlatformThreadInfo *threadInfo,QuadImageFrameLoade
     }
 }
 
-bool QIFFrameAsset_ios::updateFetching(QuadImageFrameLoader *inLoader,int newPriority,double newImportance)
+bool QIFFrameAsset_ios::updateFetching(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *inLoader,int newPriority,double newImportance)
 {
     QuadImageFrameLoader_ios *loader = (QuadImageFrameLoader_ios *)inLoader;
     
     if (!request)
         return false;
-    QIFFrameAsset::updateFetching(loader, newPriority, newImportance);
+    QIFFrameAsset::updateFetching(threadInfo,loader, newPriority, newImportance);
     
     [loader->tileFetcher updateTileFetch:request priority:priority importance:importance];
     
     return true;
 }
     
-void QIFFrameAsset_ios::cancelFetch(QuadImageFrameLoader *loader,QIFBatchOps *inBatchOps)
+void QIFFrameAsset_ios::cancelFetch(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QIFBatchOps *inBatchOps)
 {
     QIFBatchOps_ios *batchOps = (QIFBatchOps_ios *)inBatchOps;
     
-    QIFFrameAsset::cancelFetch(loader, batchOps);
+    QIFFrameAsset::cancelFetch(threadInfo, loader, batchOps);
     
     if (request)
         [batchOps->toCancel addObject:request];
     request = nil;
 }
     
-void QIFFrameAsset_ios::loadSuccess(QuadImageFrameLoader *loader,const std::vector<Texture *> &texs)
+void QIFFrameAsset_ios::loadSuccess(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,const std::vector<Texture *> &texs)
 {
-    QIFFrameAsset::loadSuccess(loader, texs);
+    QIFFrameAsset::loadSuccess(threadInfo,loader, texs);
     request = nil;
 }
 
-void QIFFrameAsset_ios::loadFailed(QuadImageFrameLoader *loader)
+void QIFFrameAsset_ios::loadFailed(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader)
 {
-    QIFFrameAsset::loadFailed(loader);
+    QIFFrameAsset::loadFailed(threadInfo,loader);
     request = nil;
 }
     

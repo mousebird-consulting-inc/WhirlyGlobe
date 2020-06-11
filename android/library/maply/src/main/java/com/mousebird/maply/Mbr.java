@@ -45,6 +45,7 @@ public class Mbr
 	 */
 	public Mbr()
 	{
+		initialize();
 	}
 
 	/**

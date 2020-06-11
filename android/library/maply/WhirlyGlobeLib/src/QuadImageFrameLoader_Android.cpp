@@ -33,7 +33,8 @@ QIFBatchOps_Android::~QIFBatchOps_Android()
 {
 }
 
-QIFFrameAsset_Android::QIFFrameAsset_Android(PlatformInfo_Android *threadInfo)
+QIFFrameAsset_Android::QIFFrameAsset_Android(PlatformInfo_Android *threadInfo,QuadFrameInfoRef frameInfo)
+: QIFFrameAsset(frameInfo)
 {
 }
 
@@ -58,47 +59,48 @@ void QIFFrameAsset_Android::clearRequestJava(PlatformInfo_Android *threadInfo,Qu
     threadInfo->env->CallVoidMethod(frameAssetObj,loader->clearRequestMethod);
 }
 
-void QIFFrameAsset_Android::clear(PlatformInfo_Android *threadInfo,QuadImageFrameLoader *inLoader,QIFBatchOps *inBatchOps,ChangeSet &changes)
+void QIFFrameAsset_Android::clear(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *inLoader,QIFBatchOps *inBatchOps,ChangeSet &changes)
 {
     QuadImageFrameLoader_Android *loader = (QuadImageFrameLoader_Android *)inLoader;
     QIFBatchOps_Android *batchOps = (QIFBatchOps_Android *)inBatchOps;
 
     QIFFrameAsset::clear(threadInfo,loader,batchOps,changes);
 
-    clearFrameAssetJava(threadInfo,loader,batchOps);
+    clearFrameAssetJava((PlatformInfo_Android *)threadInfo,loader,batchOps);
 }
 
-bool QIFFrameAsset_Android::updateFetching(PlatformInfo_Android *threadInfo,QuadImageFrameLoader *inLoader,int newPriority,double newImportance)
+bool QIFFrameAsset_Android::updateFetching(PlatformThreadInfo *inThreadInfo,QuadImageFrameLoader *inLoader,int newPriority,double newImportance)
 {
     QuadImageFrameLoader_Android *loader = (QuadImageFrameLoader_Android *)inLoader;
+    PlatformInfo_Android *threadInfo = (PlatformInfo_Android *)inThreadInfo;
 
-    QIFFrameAsset::updateFetching(loader, newPriority, newImportance);
+    QIFFrameAsset::updateFetching(threadInfo, loader, newPriority, newImportance);
 
     threadInfo->env->CallVoidMethod(frameAssetObj,loader->updateFrameMethod,loader->frameLoaderObj,newPriority,newImportance);
 
     return true;
 }
 
-void QIFFrameAsset_Android::cancelFetch(PlatformInfo_Android *threadInfo,QuadImageFrameLoader *inLoader,QIFBatchOps *inBatchOps)
+void QIFFrameAsset_Android::cancelFetch(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *inLoader,QIFBatchOps *inBatchOps)
 {
     QuadImageFrameLoader_Android *loader = (QuadImageFrameLoader_Android *)inLoader;
     QIFBatchOps_Android *batchOps = (QIFBatchOps_Android *)inBatchOps;
 
-    QIFFrameAsset::cancelFetch(loader, batchOps);
+    QIFFrameAsset::cancelFetch(threadInfo,loader, batchOps);
 }
 
-void QIFFrameAsset_Android::loadSuccess(PlatformInfo_Android *threadInfo,QuadImageFrameLoader *loader,const std::vector<Texture *> &texs)
+void QIFFrameAsset_Android::loadSuccess(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,const std::vector<Texture *> &texs)
 {
-    QIFFrameAsset::loadSuccess(loader, texs);
+    QIFFrameAsset::loadSuccess(threadInfo, loader, texs);
 
-    clearRequestJava(threadInfo,(QuadImageFrameLoader_Android *)loader);
+    clearRequestJava((PlatformInfo_Android *) threadInfo,(QuadImageFrameLoader_Android *)loader);
 }
 
-void QIFFrameAsset_Android::loadFailed(PlatformInfo_Android *threadInfo,QuadImageFrameLoader *loader)
+void QIFFrameAsset_Android::loadFailed(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader)
 {
-    QIFFrameAsset::loadFailed(loader);
+    QIFFrameAsset::loadFailed(threadInfo,loader);
 
-    clearRequestJava(threadInfo,(QuadImageFrameLoader_Android *)loader);
+    clearRequestJava((PlatformInfo_Android *) threadInfo,(QuadImageFrameLoader_Android *)loader);
 }
 
 QIFTileAsset_Android::QIFTileAsset_Android(PlatformInfo_Android *threadInfo,const QuadTreeNew::ImportantNode &ident)
@@ -110,18 +112,18 @@ QIFTileAsset_Android::~QIFTileAsset_Android()
 {
 }
 
-QIFFrameAssetRef QIFTileAsset_Android::makeFrameAsset(PlatformThreadInfo *inThreadInfo,QuadImageFrameLoader *inLoader)
+QIFFrameAssetRef QIFTileAsset_Android::makeFrameAsset(PlatformThreadInfo *inThreadInfo,QuadFrameInfoRef frameInfo,QuadImageFrameLoader *inLoader)
 {
     QuadImageFrameLoader_Android *loader = (QuadImageFrameLoader_Android *)inLoader;
     PlatformInfo_Android *threadInfo = (PlatformInfo_Android *)inThreadInfo;
 
-    QIFFrameAsset_Android *frame = new QIFFrameAsset_Android((PlatformInfo_Android *)threadInfo);
+    QIFFrameAsset_Android *frame = new QIFFrameAsset_Android((PlatformInfo_Android *)threadInfo,frameInfo);
     MakeQIFFrameAsset(threadInfo->env,frame);
 
     return QIFFrameAssetRef(frame);
 }
 
-void QIFTileAsset_Android::startFetching(PlatformThreadInfo *inThreadInfo,QuadImageFrameLoader *inLoader,int frameToLoad,QIFBatchOps *inBatchOps)
+void QIFTileAsset_Android::startFetching(PlatformThreadInfo *inThreadInfo,QuadImageFrameLoader *inLoader,QuadFrameInfoRef frameToLoad,QIFBatchOps *inBatchOps)
 {
     PlatformInfo_Android *threadInfo = (PlatformInfo_Android *)inThreadInfo;
     QuadImageFrameLoader_Android *loader = (QuadImageFrameLoader_Android *)inLoader;
@@ -132,7 +134,7 @@ void QIFTileAsset_Android::startFetching(PlatformThreadInfo *inThreadInfo,QuadIm
     std::vector<jobject> objVec(frames.size(),NULL);
     for (unsigned int ii=0;ii<frames.size();ii++)
     {
-        if (frameToLoad == -1 || frameToLoad == ii) {
+        if (!frameToLoad || frameToLoad->frameIndex == -1 || frameToLoad->frameIndex == ii) {
             QIFFrameAsset_Android *frame = (QIFFrameAsset_Android *) (frames[ii].get());
             frame->setupFetch(loader);
             int priority = loader->calcLoadPriority(ident,ii);
@@ -162,6 +164,14 @@ QuadImageFrameLoader_Android::QuadImageFrameLoader_Android(PlatformInfo_Android 
     updateFrameMethod = threadInfo->env->GetMethodID(frameClass,"updateFetch","(Lcom/mousebird/maply/QuadLoaderBase;ID)V");
     clearFrameMethod = threadInfo->env->GetMethodID(frameClass,"clearFrameAsset","(Lcom/mousebird/maply/QuadLoaderBase;Lcom/mousebird/maply/QIFBatchOps;)V");
     clearRequestMethod = threadInfo->env->GetMethodID(frameClass, "clearRequest","()V");
+
+    frames.resize(numFrames);
+    // TODO: Shouldn't we be creating Android side objects for this?
+    for (unsigned int ii=0;ii!=numFrames;ii++) {
+        auto frameInfo = QuadFrameInfoRef(new QuadFrameInfo());
+        frameInfo->frameIndex = ii;
+        frames[ii] = frameInfo;
+    }
 }
 
 QuadImageFrameLoader_Android::~QuadImageFrameLoader_Android()

@@ -33,7 +33,7 @@ package com.mousebird.maply;
  */
 public class TileID implements Comparable<TileID>
 {
-	TileID() { }
+	public TileID() { }
 
 	/**
 	 * Construct with x,y, and level.

@@ -12,7 +12,16 @@ import android.os.Handler;
  */
 public class QuadImageFrameLoader extends QuadImageLoaderBase
 {
-    boolean valid = false;
+    protected boolean valid = false;
+
+    protected QuadImageFrameLoader() { }
+
+    public QuadImageFrameLoader(BaseController control)
+    {
+        super(control);
+
+        valid = true;
+    }
 
     public QuadImageFrameLoader(final SamplingParams params,TileInfoNew inTileInfos[],BaseController control)
     {
