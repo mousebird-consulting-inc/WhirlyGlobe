@@ -331,15 +331,16 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadLoaderBase_getGeneration
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_reloadNative
-        (JNIEnv *env, jobject obj)
+        (JNIEnv *env, jobject obj, jobject changeSetObj)
 {
     try {
         QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
-        if (!loader)
+        ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+        if (!loader || !changeSet)
             return;
 
         PlatformInfo_Android platformInfo(env);
-        (*loader)->reload(&platformInfo,-1);
+        (*loader)->reload(&platformInfo,-1, *changeSet);
     }
     catch (...)
     {

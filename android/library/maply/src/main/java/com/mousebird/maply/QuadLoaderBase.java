@@ -179,7 +179,9 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
             public void run() {
                 loadInterp = newInterp;
                 newInterp.setLoader(theLoader);
-                reloadNative();
+                ChangeSet changes = new ChangeSet();
+                reloadNative(changes);
+                samplingLayer.get().layerThread.addChanges(changes);
             }
         });
     }
@@ -388,7 +390,7 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
      */
     public native int getGeneration();
 
-    protected native void reloadNative();
+    protected native void reloadNative(ChangeSet changes);
 
     public void finalize()
     {

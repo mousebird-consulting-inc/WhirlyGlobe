@@ -214,7 +214,9 @@ public class QuadImageLoaderBase extends QuadLoaderBase
             @Override
             public void run() {
                 tileInfos = newTileInfo;
-                reloadNative();
+                ChangeSet changes = new ChangeSet();
+                reloadNative(changes);
+                samplingLayer.get().layerThread.addChanges(changes);
             }
         });
     }
@@ -230,7 +232,9 @@ public class QuadImageLoaderBase extends QuadLoaderBase
         samplingLayer.get().layerThread.addTask(new Runnable() {
             @Override
             public void run() {
-                reloadNative();
+                ChangeSet changes = new ChangeSet();
+                reloadNative(changes);
+                samplingLayer.get().layerThread.addChanges(changes);
             }
         });
     }
