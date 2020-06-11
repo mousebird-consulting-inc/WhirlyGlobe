@@ -92,7 +92,7 @@ public:
         
     // Fetch the tile frames.  Just fetch them all for now if frameToLoad is set to -1
     // Otherwise, just fetch the specified frame
-    virtual void startFetching(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QuadFrameInfoRef frameToLoad,QIFBatchOps *batchOps) override;
+    virtual void startFetching(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QuadFrameInfoRef frameToLoad,QIFBatchOps *batchOps,ChangeSet &changes) override;
 
 protected:
     // Specialized frame asset

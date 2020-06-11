@@ -251,7 +251,7 @@ void QIFTileAsset::clear(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *lo
     shouldEnable = false;
 }
     
-void QIFTileAsset::startFetching(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *inLoader,QuadFrameInfoRef frameToLoad,QIFBatchOps *inBatchOps)
+void QIFTileAsset::startFetching(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *inLoader,QuadFrameInfoRef frameToLoad,QIFBatchOps *inBatchOps,ChangeSet &changes)
 {
     state = Active;
 }
@@ -333,7 +333,8 @@ bool QIFTileAsset::frameLoaded(PlatformThreadInfo *threadInfo,
     if (!loadReturn->changes.empty())
         changes.insert(changes.end(),loadReturn->changes.begin(),loadReturn->changes.end());
     
-    if (frames.size() > 0 && (loadReturn->frame->frameIndex < 0 || loadReturn->frame->frameIndex >= frames.size()))
+    auto frame = findFrameFor(loadReturn->frame);
+    if (!frame)
     {
         if (!loadReturn->compObjs.empty())
             loader->compManager->removeComponentObjects(threadInfo,loadReturn->compObjs, changes);
@@ -369,7 +370,6 @@ bool QIFTileAsset::frameLoaded(PlatformThreadInfo *threadInfo,
     for (ComponentObjectRef ovlCompObj : loadReturn->ovlCompObjs)
         ovlCompObjs.insert(ovlCompObj->getId());
     
-    auto frame = findFrameFor(loadReturn->frame);
     if (frame) {
         // Clear out the old texture if it's there
         // Happens in the reload case
@@ -914,7 +914,7 @@ int QuadImageFrameLoader::getGeneration()
     return generation;
 }
     
-void QuadImageFrameLoader::reload(PlatformThreadInfo *threadInfo,int frameIndex)
+void QuadImageFrameLoader::reload(PlatformThreadInfo *threadInfo,int frameIndex, ChangeSet &changes)
 {
     if (debugMode)
         wkLogLevel(Debug, "QuadImageFrameLoader: Starting reload of frame %d",frameIndex);
@@ -935,7 +935,7 @@ void QuadImageFrameLoader::reload(PlatformThreadInfo *threadInfo,int frameIndex)
         QIFTileAssetRef tile = it.second;
         
         tile->cancelFetches(threadInfo, this, frame, batchOps);
-        tile->startFetching(threadInfo, this, frame, batchOps);
+        tile->startFetching(threadInfo, this, frame, batchOps, changes);
     }
     
     // Process all the fetches and cancels at once
@@ -964,7 +964,7 @@ QIFTileAssetRef QuadImageFrameLoader::addNewTile(PlatformThreadInfo *threadInfo,
         wkLogLevel(Debug,"Starting fetch for tile %d: (%d,%d)",ident.level,ident.x,ident.y);
     
     // Normal remote data fetching
-    newTile->startFetching(threadInfo,this, NULL, batchOps);
+    newTile->startFetching(threadInfo,this, NULL, batchOps, changes);
         
     return newTile;
 }

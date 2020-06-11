@@ -238,9 +238,12 @@ using namespace WhirlyKit;
         [self performSelector:@selector(changeTileInfos:) onThread:samplingLayer.layerThread withObject:tileInfos waitUntilDone:false];
         return;
     }
+
     
+    ChangeSet changes;
     loader->setTileInfos(tileInfos);
-    loader->reload(NULL,-1);
+    loader->reload(NULL,-1,changes);
+    [samplingLayer.layerThread addChangeRequests:changes];
 }
 
 - (void)changeInterpreter:(NSObject<MaplyLoaderInterpreter> *)interp
@@ -253,8 +256,10 @@ using namespace WhirlyKit;
         return;
     }
     
+    ChangeSet changes;
     loadInterp = interp;
-    loader->reload(NULL,-1);
+    loader->reload(NULL,-1,changes);
+    [samplingLayer.layerThread addChangeRequests:changes];
 }
 
 - (void)reload
@@ -267,7 +272,9 @@ using namespace WhirlyKit;
         return;
     }
 
-    loader->reload(NULL,-1);
+    ChangeSet changes;
+    loader->reload(NULL,-1,changes);
+    [samplingLayer.layerThread addChangeRequests:changes];
 }
 
 // Called on a random dispatch queue
@@ -344,6 +351,7 @@ using namespace WhirlyKit;
         if (loader->getMode() == QuadImageFrameLoader::SingleFrame && loader->getNumFrames() > 1) {
             loadReturn->tileData.clear();
             loadReturn->loadReturn->frame = QuadFrameInfoRef(new QuadFrameInfo());
+            loadReturn->loadReturn->frame->setId(loader->getFrameInfo(0)->getId());
             loadReturn->loadReturn->frame->frameIndex = 0;
             for (auto data : allData) {
                 RawNSDataReader *rawData = dynamic_cast<RawNSDataReader *>(data.get());

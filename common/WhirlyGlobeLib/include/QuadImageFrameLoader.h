@@ -174,7 +174,7 @@ public:
     virtual void clear(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QIFBatchOps *batchOps, ChangeSet &changes);
     
     // Start fetching data for this tile
-    virtual void startFetching(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QuadFrameInfoRef frameToLoad,QIFBatchOps *batchOps);
+    virtual void startFetching(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QuadFrameInfoRef frameToLoad,QIFBatchOps *batchOps, ChangeSet &changes);
 
     // Set up the geometry for this tile
     virtual void setupContents(QuadImageFrameLoader *loader,
@@ -404,7 +404,7 @@ public:
     int getGeneration();
     
     /// Reload the given frame (or everything)
-    virtual void reload(PlatformThreadInfo *threadInfo,int frame);
+    virtual void reload(PlatformThreadInfo *threadInfo,int frame, ChangeSet &changes);
     
     /// **** QuadTileBuilderDelegate methods ****
     
