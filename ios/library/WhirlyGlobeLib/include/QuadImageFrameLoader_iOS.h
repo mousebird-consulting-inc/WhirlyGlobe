@@ -109,7 +109,7 @@ public:
     // Displaying multiple animated frames (or one with multiple data sources)
     QuadImageFrameLoader_ios(const SamplingParams &params,NSArray<NSObject<MaplyTileInfoNew> *> *inFrameInfos,Mode mode);
     ~QuadImageFrameLoader_ios();
-    
+        
     NSObject<MaplyTileFetcher> * __weak tileFetcher;
     NSArray<NSObject<MaplyTileInfoNew> *> *frameInfos;
     
@@ -130,6 +130,9 @@ public:
     virtual void setTileInfos(NSArray<NSObject<MaplyTileInfoNew> *> *tileInfos);
 
 protected:
+    // Convenience routine used to set up C++ version of frames
+    void setupFrames();
+
     // Make an iOS specific tile/frame assets
     virtual QIFTileAssetRef makeTileAsset(PlatformThreadInfo *threadInfo,const QuadTreeNew::ImportantNode &ident) override;
 };

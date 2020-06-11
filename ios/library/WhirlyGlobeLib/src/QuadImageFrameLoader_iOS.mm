@@ -180,12 +180,25 @@ QuadImageFrameLoader_ios::QuadImageFrameLoader_ios(const SamplingParams &params,
         frameInfos = @[inTileInfo];
     else
         frameInfos = nil;
+    
+    setupFrames();
 }
 
 QuadImageFrameLoader_ios::QuadImageFrameLoader_ios(const SamplingParams &params,NSArray<NSObject<MaplyTileInfoNew> *> *inFrameInfos,Mode mode)
     : QuadImageFrameLoader(params,mode), tileFetcher(nil), layer(nil)
 {
     frameInfos = inFrameInfos;
+    
+    setupFrames();
+}
+
+void QuadImageFrameLoader_ios::setupFrames()
+{
+    for (unsigned int ii=0;ii<[frameInfos count];ii++) {
+        QuadFrameInfoRef frame(new QuadFrameInfo());
+        frame->frameIndex = ii;
+        frames.push_back(frame);
+    }
 }
     
 QuadImageFrameLoader_ios::~QuadImageFrameLoader_ios()

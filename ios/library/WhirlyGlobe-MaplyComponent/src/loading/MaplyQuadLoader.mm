@@ -343,7 +343,8 @@ using namespace WhirlyKit;
         // In this mode we need to adjust the loader return to contain everything at once
         if (loader->getMode() == QuadImageFrameLoader::SingleFrame && loader->getNumFrames() > 1) {
             loadReturn->tileData.clear();
-            loadReturn->loadReturn->frame = 0;
+            loadReturn->loadReturn->frame = QuadFrameInfoRef(new QuadFrameInfo());
+            loadReturn->loadReturn->frame->frameIndex = 0;
             for (auto data : allData) {
                 RawNSDataReader *rawData = dynamic_cast<RawNSDataReader *>(data.get());
                 if (rawData) {

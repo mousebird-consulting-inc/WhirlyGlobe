@@ -1493,17 +1493,19 @@ void QuadImageFrameLoader::makeStats()
         
         for (int frameID = 0;frameID<numFrames;frameID++) {
             auto frame = tile->getFrame(frameID);
-            auto &frameStat = newStats.frameStats[frameID];
-            switch (frame->getState()) {
-                case QIFFrameAsset::Empty:
-                    break;
-                case QIFFrameAsset::Loaded:
-                    break;
-                case QIFFrameAsset::Loading:
-                    frameStat.tilesToLoad++;
-                    break;
+            if (frame) {
+                auto &frameStat = newStats.frameStats[frameID];
+                switch (frame->getState()) {
+                    case QIFFrameAsset::Empty:
+                        break;
+                    case QIFFrameAsset::Loaded:
+                        break;
+                    case QIFFrameAsset::Loading:
+                        frameStat.tilesToLoad++;
+                        break;
+                }
+                frameStat.totalTiles++;
             }
-            frameStat.totalTiles++;
         }
     }
     

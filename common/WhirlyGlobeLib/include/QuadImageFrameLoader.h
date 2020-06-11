@@ -344,6 +344,10 @@ public:
     /// Set a separate set of zoom limits
     virtual void setZoomLimits(int minZoom,int maxZoom);
     
+    // We potentially have a separate set of zoom limits
+    virtual int getMinZoom() { return minZoom; }
+    virtual int getMaxZoom() { return maxZoom; }
+
     /// Set if we need the top tiles to load before we'll display a frame
     virtual void setRequireTopTilesLoaded(bool newVal);
 

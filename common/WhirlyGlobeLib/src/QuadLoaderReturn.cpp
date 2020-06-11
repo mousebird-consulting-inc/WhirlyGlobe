@@ -29,8 +29,9 @@ QuadFrameInfo::QuadFrameInfo()
 }
     
 QuadLoaderReturn::QuadLoaderReturn(int generation)
-    : ident(0,0,0), hasError(false), generation(generation)
+    : ident(0,0,0), hasError(false), generation(generation), frame(new QuadFrameInfo())
 {
+    frame->frameIndex = -1;
 }
 
 QuadLoaderReturn::~QuadLoaderReturn()
