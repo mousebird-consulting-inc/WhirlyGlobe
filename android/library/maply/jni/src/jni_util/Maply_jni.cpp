@@ -80,6 +80,16 @@ void ConvertIntArray(JNIEnv *env,jintArray &intArray,std::vector<int> &intVec)
 	env->ReleaseIntArrayElements(intArray,ints,0);
 }
 
+void ConvertLongLongArray(JNIEnv *env,jlongArray &longArray,std::vector<WhirlyKit::SimpleIdentity> &longVec)
+{
+    jlong *longs = env->GetLongArrayElements(longArray, NULL);
+    int len = env->GetArrayLength(longArray);
+    longVec.resize(len);
+    for (int ii=0;ii<len;ii++)
+        longVec[ii] = longs[ii];
+    env->ReleaseLongArrayElements(longArray,longs,0);
+}
+
 void ConvertFloatArray(JNIEnv *env,jfloatArray &floatArray,std::vector<float> &floatVec)
 {
     float *floats = env->GetFloatArrayElements(floatArray, NULL);
@@ -88,6 +98,16 @@ void ConvertFloatArray(JNIEnv *env,jfloatArray &floatArray,std::vector<float> &f
     for (int ii=0;ii<len;ii++)
         floatVec[ii] = floats[ii];
     env->ReleaseFloatArrayElements(floatArray,floats,0);
+}
+
+void ConvertDoubleArray(JNIEnv *env,jdoubleArray &doubleArray,std::vector<double> &doubleVec)
+{
+    double *doubles = env->GetDoubleArrayElements(doubleArray, NULL);
+    int len = env->GetArrayLength(doubleArray);
+    doubleVec.resize(len);
+    for (int ii=0;ii<len;ii++)
+        doubleVec[ii] = doubles[ii];
+    env->ReleaseDoubleArrayElements(doubleArray,doubles,0);
 }
 
 void ConvertFloat2fArray(JNIEnv *env,jfloatArray &floatArray,Point2fVector &ptVec)

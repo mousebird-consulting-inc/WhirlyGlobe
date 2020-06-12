@@ -471,8 +471,12 @@ public:
 
 // Convert a Java int array into a std::vector of ints
 void ConvertIntArray(JNIEnv *env,jintArray &intArray,std::vector<int> &intVec);
+// Convert a Java long array into a std::vector of longs
+void ConvertLongLongArray(JNIEnv *env,jlongArray &longArray,std::vector<WhirlyKit::SimpleIdentity> &longVec);
 // Convert a Java float array into a std::vector of floats
 void ConvertFloatArray(JNIEnv *env,jfloatArray &floatArray,std::vector<float> &floatVec);
+// Convert a Java double array into a std::vector of doubles
+void ConvertDoubleArray(JNIEnv *env,jdoubleArray &doubleArray,std::vector<double> &doubleVec);
 // Convert a Java float array into a std::vector of Point2f
 void ConvertFloat2fArray(JNIEnv *env,jfloatArray &floatArray,WhirlyKit::Point2fVector &ptVec);
 // Convert a Java float array into a std::vector of Point3f
