@@ -47,6 +47,12 @@ MapboxVectorTileParser_iOS::~MapboxVectorTileParser_iOS()
 {
 }
     
+void MapboxVectorTileParser_iOS::setUUIDs(const std::string &name,const std::set<std::string> &uuids)
+{
+    uuidName = name;
+    uuidValues = uuids;
+}
+
 VectorTileDataRef MapboxVectorTileParser_iOS::makeTileDataCopy(VectorTileData *inTileData)
 {
     return VectorTileDataRef(new VectorTileData(*inTileData));
@@ -64,13 +70,21 @@ bool MapboxVectorTileParser_iOS::layerShouldParse(const std::string &layerName,V
 // Return a set of styles that will parse the given feature
 SimpleIDSet MapboxVectorTileParser_iOS::stylesForFeature(MutableDictionaryRef attributes,const std::string &layerName,VectorTileData *tileData)
 {
+    SimpleIDSet styleIDs;
+
+    // Do a quick inclusion check
+    if (!uuidName.empty()) {
+        std::string uuidVal = attributes->getString(uuidName);
+        if (uuidValues.find(uuidVal) == uuidValues.end())
+            return styleIDs;
+    }
+
     iosMutableDictionaryRef dict = std::dynamic_pointer_cast<iosMutableDictionary>(attributes);
     NSString *layerNameStr = [NSString stringWithUTF8String:layerName.c_str()];
     MaplyTileID tileID;
     tileID.x = tileData->ident.x;  tileID.y = tileData->ident.y;  tileID.level = tileData->ident.level;
 
     NSArray *styles = [styleDelegate stylesForFeatureWithAttributes:dict->dict onTile:tileID inLayer:layerNameStr viewC:viewC];
-    SimpleIDSet styleIDs;
     for (NSObject<MaplyVectorStyle> *style in styles) {
         styleIDs.insert(style.uuid);
     }

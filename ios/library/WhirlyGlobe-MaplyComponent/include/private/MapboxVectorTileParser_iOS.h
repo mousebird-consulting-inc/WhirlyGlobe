@@ -55,7 +55,14 @@ public:
     // Build the objects for the appropriate style
     virtual void buildForStyle(long long styleID,std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef data);
 
+    // Only include features that have the given name and one of the values
+    void setUUIDs(const std::string &name,const std::set<std::string> &uuids);
+
 protected:
+    // Used for feature inclusion.  Only keep the features that have this attribute and one of the UUIDs.
+    std::string uuidName;
+    std::set<std::string> uuidValues;
+        
     /// The styling delegate turns vector data into visible objects in the toolkit
     NSObject<MaplyVectorStyleDelegate> * __nullable styleDelegate;
     
