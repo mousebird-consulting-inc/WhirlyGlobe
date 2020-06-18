@@ -30,12 +30,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ImageLoaderReturn_addImageTile
 {
 	try
 	{
-		QuadLoaderReturn *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
+		QuadLoaderReturnRef *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
 		ImageTileClassInfo *tileClassInfo = ImageTileClassInfo::getClassInfo();
 		ImageTile_AndroidRef *imageTile = tileClassInfo->getObject(env,imageObj);
 		if (!loadReturn || !imageTile)
 		    return;
-		loadReturn->images.push_back(*imageTile);
+		(*loadReturn)->images.push_back(*imageTile);
 	}
 	catch (...)
 	{
@@ -48,15 +48,15 @@ JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_ImageLoaderReturn_getIma
 {
     try
     {
-		QuadLoaderReturn *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
+		QuadLoaderReturnRef *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
 		ImageTileClassInfo *tileClassInfo = ImageTileClassInfo::getClassInfo();
 		if (!loadReturn)
 		    return NULL;
 
-        jobjectArray ret = env->NewObjectArray(loadReturn->images.size(), ImageTileClassInfo::getClassInfo(env,"com/mousebird/maply/ImageTile")->getClass(), NULL);
-        for (unsigned int ii=0;ii<loadReturn->images.size();ii++)
+        jobjectArray ret = env->NewObjectArray((*loadReturn)->images.size(), ImageTileClassInfo::getClassInfo(env,"com/mousebird/maply/ImageTile")->getClass(), NULL);
+        for (unsigned int ii=0;ii<(*loadReturn)->images.size();ii++)
         {
-            jobject imageTileObj = MakeImageTile(env,std::dynamic_pointer_cast<ImageTile_Android>(loadReturn->images[ii]));
+            jobject imageTileObj = MakeImageTile(env,std::dynamic_pointer_cast<ImageTile_Android>((*loadReturn)->images[ii]));
             env->SetObjectArrayElement(ret, ii, imageTileObj);
         }
 
@@ -75,11 +75,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ImageLoaderReturn_clearImages
 {
 	try
 	{
-		QuadLoaderReturn *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
+		QuadLoaderReturnRef *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
 		if (!loadReturn)
 			return;
 
-		loadReturn->images.clear();
+		(*loadReturn)->images.clear();
 	}
 	catch (...)
 	{
@@ -92,7 +92,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ImageLoaderReturn_addComponentOb
 {
 	try
 	{
-		QuadLoaderReturn *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
+		QuadLoaderReturnRef *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
 		if (!loadReturn || !compObjs)
 		    return;
 
@@ -104,9 +104,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ImageLoaderReturn_addComponentOb
 		while (jobject compObjObj = compObjHelp.getNextObject()) {
 			ComponentObjectRef *compObj = compObjClassInfo->getObject(env,compObjObj);
 			if (isOverlay)
-				loadReturn->ovlCompObjs.push_back(*compObj);
+				(*loadReturn)->ovlCompObjs.push_back(*compObj);
 			else
-				loadReturn->compObjs.push_back(*compObj);
+				(*loadReturn)->compObjs.push_back(*compObj);
 		}
 	}
 	catch (...)
@@ -120,14 +120,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ImageLoaderReturn_clearComponent
 {
 	try
 	{
-		QuadLoaderReturn *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
+		QuadLoaderReturnRef *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
 		if (!loadReturn)
 			return;
 
 		if (isOverlay)
-			loadReturn->ovlCompObjs.clear();
+			(*loadReturn)->ovlCompObjs.clear();
 		else
-			loadReturn->compObjs.clear();
+			(*loadReturn)->compObjs.clear();
 	}
 	catch (...)
 	{

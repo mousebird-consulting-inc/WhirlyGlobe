@@ -38,9 +38,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_initialise
 {
 	try
 	{
-	    QuadLoaderReturn *load = new QuadLoaderReturn(0);
-	    load->frame = QuadFrameInfoRef(new QuadFrameInfo());
-	    load->frame->frameIndex = 0;
+	    QuadLoaderReturnRef *load = new QuadLoaderReturnRef(new QuadLoaderReturn(0));
+		(*load)->frame = QuadFrameInfoRef(new QuadFrameInfo());
+		(*load)->frame->frameIndex = 0;
 		LoaderReturnClassInfo::getClassInfo()->setHandle(env,obj,load);
 	}
 	catch (...)
@@ -59,7 +59,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_dispose
 		LoaderReturnClassInfo *classInfo = LoaderReturnClassInfo::getClassInfo();
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
-            QuadLoaderReturn *loader = classInfo->getObject(env,obj);
+            QuadLoaderReturnRef *loader = classInfo->getObject(env,obj);
             if (!loader)
                 return;
             delete loader;
@@ -77,12 +77,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_setTileID
 {
     try
     {
-        QuadLoaderReturn *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
+        QuadLoaderReturnRef *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
         if (!loadReturn)
             return;
-        loadReturn->ident.x = tileX;
-        loadReturn->ident.y = tileY;
-        loadReturn->ident.level = tileLevel;
+		(*loadReturn)->ident.x = tileX;
+		(*loadReturn)->ident.y = tileY;
+		(*loadReturn)->ident.level = tileLevel;
     }
     catch (...)
     {
@@ -95,12 +95,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_setFrame
 {
 	try
 	{
-		QuadLoaderReturn *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
+		QuadLoaderReturnRef *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
 		if (!loadReturn)
 			return;
-		loadReturn->frame = QuadFrameInfoRef(new QuadFrameInfo());
-		loadReturn->frame->setId(frameID);
-		loadReturn->frame->frameIndex = frameIndex;
+		(*loadReturn)->frame = QuadFrameInfoRef(new QuadFrameInfo());
+		(*loadReturn)->frame->setId(frameID);
+		(*loadReturn)->frame->frameIndex = frameIndex;
 	}
 	catch (...)
 	{
@@ -113,11 +113,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_setFrame
 {
     try
     {
-        QuadLoaderReturn *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
+        QuadLoaderReturnRef *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
         if (!loadReturn)
             return;
-        if (loadReturn->frame)
-	        loadReturn->frame->frameIndex = frame;
+        if ((*loadReturn)->frame)
+			(*loadReturn)->frame->frameIndex = frame;
     }
     catch (...)
     {
@@ -130,13 +130,13 @@ JNIEXPORT jintArray JNICALL Java_com_mousebird_maply_LoaderReturn_getTileIDNativ
 {
 	try
 	{
-		QuadLoaderReturn *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
+		QuadLoaderReturnRef *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
 		if (!loadReturn)
 		    return NULL;
 		std::vector<int> rets(3);
-		rets[0] = loadReturn->ident.x;
-		rets[1] = loadReturn->ident.y;
-		rets[2] = loadReturn->ident.level;
+		rets[0] = (*loadReturn)->ident.x;
+		rets[1] = (*loadReturn)->ident.y;
+		rets[2] = (*loadReturn)->ident.level;
 
 		return BuildIntArray(env,rets);
 	}
@@ -153,10 +153,10 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_LoaderReturn_getFrame
 {
 	try
 	{
-		QuadLoaderReturn *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
+		QuadLoaderReturnRef *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
 		if (!loadReturn)
 		    return -1;
-		return loadReturn->frame->frameIndex;
+		return (*loadReturn)->frame->frameIndex;
 	}
 	catch (...)
 	{
@@ -171,12 +171,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_mergeChanges
 {
 	try
 	{
-		QuadLoaderReturn *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
+		QuadLoaderReturnRef *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
 		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeObj);
 		if (!loadReturn || !changeSet)
 			return;
 
-		loadReturn->changes.insert(loadReturn->changes.end(),changeSet->begin(),changeSet->end());
+		(*loadReturn)->changes.insert((*loadReturn)->changes.end(),changeSet->begin(),changeSet->end());
 		changeSet->clear();
 	}
 	catch (...)
@@ -190,10 +190,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_setGeneration
 {
 	try
 	{
-		QuadLoaderReturn *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
+		QuadLoaderReturnRef *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
 		if (!loadReturn)
 			return;
-		loadReturn->generation = generation;
+		(*loadReturn)->generation = generation;
 	}
 	catch (...)
 	{
@@ -206,10 +206,10 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_LoaderReturn_getGeneration
 {
 	try
 	{
-		QuadLoaderReturn *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
+		QuadLoaderReturnRef *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
 		if (!loadReturn)
 			return 0;
-		return loadReturn->generation;
+		return (*loadReturn)->generation;
 	}
 	catch (...)
 	{

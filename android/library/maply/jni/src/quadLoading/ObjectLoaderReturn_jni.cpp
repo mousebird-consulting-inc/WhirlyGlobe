@@ -30,7 +30,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ObjectLoaderReturn_addComponentO
 {
 	try
 	{
-		QuadLoaderReturn *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
+		QuadLoaderReturnRef *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
 		if (!loadReturn || !compObjs)
 		    return;
 
@@ -39,7 +39,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ObjectLoaderReturn_addComponentO
 		JavaObjectArrayHelper compObjHelp(env,compObjs);
 		while (jobject compObjObj = compObjHelp.getNextObject()) {
 			ComponentObjectRef *compObj = compObjClassInfo->getObject(env,compObjObj);
-			loadReturn->compObjs.push_back(*compObj);
+			(*loadReturn)->compObjs.push_back(*compObj);
 		}
 	}
 	catch (...)
