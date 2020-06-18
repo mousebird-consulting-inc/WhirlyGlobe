@@ -292,7 +292,7 @@ void QIFTileAsset::setupContents(QuadImageFrameLoader *loader,
             auto drawInst = loader->getController()->getRenderer()->makeBasicDrawableInstanceBuilder("MaplyQuadImageFrameLoader");
             drawInst->setMasterID(di.drawID, BasicDrawableInstance::ReuseStyle);
             drawInst->setTexId(0, EmptyIdentity);
-            if (frames.size() > 1)
+            if (loader->getNumFrames() > 1)
                 drawInst->setTexId(1, EmptyIdentity);
             drawInst->setDrawPriority(newDrawPriority);
             drawInst->setOnOff(false);
