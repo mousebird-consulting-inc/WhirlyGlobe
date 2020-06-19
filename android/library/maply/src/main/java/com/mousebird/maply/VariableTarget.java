@@ -22,6 +22,7 @@ package com.mousebird.maply;
 
 import android.graphics.Color;
 import android.os.Handler;
+import android.os.Looper;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -50,7 +51,7 @@ public class VariableTarget
         renderTarget = new RenderTarget();
 
         if (setupNow) {
-            Handler handler = new Handler();
+            Handler handler = new Handler(Looper.getMainLooper());
             handler.post(new Runnable() {
                 @Override
                 public void run() {
