@@ -81,6 +81,7 @@ class RGBAColor
 {
 public:
 	RGBAColor() { }
+	RGBAColor(int color) : a(color >> 24), r((color >> 16) & 0xff), g((color >> 8)&0xff), (color&0xff) { }
 	RGBAColor(unsigned char r,unsigned char g,unsigned char b,unsigned char a) : r(r), g(g), b(b), a(a) { }
 	RGBAColor(unsigned char r,unsigned char g,unsigned char b) : r(r), g(g), b(b), a(255) { }
     

@@ -230,6 +230,34 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Lja
     return false;
 }
 
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformByIndexNative
+		(JNIEnv *env, jobject obj, jstring nameStr, jdouble uni, jint index)
+{
+	try
+	{
+		ShaderClassInfo *classInfo = ShaderClassInfo::getClassInfo();
+		Shader_AndroidRef *inst = classInfo->getObject(env,obj);
+		if (!inst)
+			return false;
+
+		glUseProgram((*inst)->prog->getProgram());
+
+		const char *cName = env->GetStringUTFChars(nameStr,0);
+		std::string name = cName;
+		env->ReleaseStringUTFChars(nameStr, cName);
+
+		(*inst)->prog->setUniform(StringIndexer::getStringID(name),(float)uni,index);
+		return true;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shader::setUniformByIndex()");
+	}
+
+	return false;
+}
+
+
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Ljava_lang_String_2I
   (JNIEnv *env, jobject obj, jstring nameStr, jint uni)
 {
@@ -336,6 +364,68 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Lja
 	}
     
     return false;
+}
+
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformColorByIndexNative
+		(JNIEnv *env, jobject obj, jstring nameStr, jint colorInt, jint index)
+{
+	try
+	{
+		ShaderClassInfo *classInfo = ShaderClassInfo::getClassInfo();
+		Shader_AndroidRef *inst = classInfo->getObject(env,obj);
+		if (!inst)
+			return false;
+
+		glUseProgram((*inst)->prog->getProgram());
+
+		const char *cName = env->GetStringUTFChars(nameStr,0);
+		std::string name = cName;
+		env->ReleaseStringUTFChars(nameStr, cName);
+
+		RGBAColor color(colorInt);
+		float[4] colors;
+		color.asUnitFloats(colors);
+		Eigen::Vector4f colorVec(colors[0],colors[1],colors[2],colors[3]);
+		(*inst)->prog->setUniform(StringIndexer::getStringID(name),colorVec,index);
+		return true;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shader::setUniform()");
+	}
+
+	return false;
+}
+
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformColorNative
+		(JNIEnv *env, jobject obj, jstring nameStr, jint colorInt)
+{
+	try
+	{
+		ShaderClassInfo *classInfo = ShaderClassInfo::getClassInfo();
+		Shader_AndroidRef *inst = classInfo->getObject(env,obj);
+		if (!inst)
+			return false;
+
+		glUseProgram((*inst)->prog->getProgram());
+
+		const char *cName = env->GetStringUTFChars(nameStr,0);
+		std::string name = cName;
+		env->ReleaseStringUTFChars(nameStr, cName);
+
+		RGBAColor color(colorInt);
+		float[4] colors;
+		color.asUnitFloats(colors);
+		Eigen::Vector4f colorVec(colors[0],colors[1],colors[2],colors[3]);
+		(*inst)->prog->setUniform(StringIndexer::getStringID(name),colorVec);
+		return true;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shader::setUniform()");
+	}
+
+	return false;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_addVarying

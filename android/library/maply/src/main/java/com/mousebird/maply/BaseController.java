@@ -176,6 +176,16 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	private int lastLayerThreadReturned = 0;
 
 	/**
+	 * Utility routine to run a task on the main thread.
+	 * Doesn't do anything clever, but it does end up looking very simple
+	 * in Kotlin.
+	 */
+	public void addMainThreadTask(Runnable run) {
+		Handler handler = new Handler(activity.getMainLooper());
+		handler.post(run);
+	}
+
+	/**
 	 * Activity for the whole app.
      */
 	public Activity getActivity() { return activity; }

@@ -179,7 +179,24 @@ public class Shader
 		return ret;
 	}
 
+	/**
+	 * Set a float uniform in the shader with a given name at the given index.
+	 * Specifically for arrays.
+	 */
+	public boolean setUniformByIndex(String name,double uni,int index)
+	{
+		RenderControllerInterface.ContextInfo context = control.get().setupTempContext(RenderController.ThreadMode.ThreadCurrent);
+
+		control.get().requestRender();
+
+		boolean ret = setUniformByIndexNative(name,uni,index);
+		control.get().clearTempContext(context);
+
+		return ret;
+	}
+
 	public native boolean setUniformNative(String name,double uni);
+	public native boolean setUniformByIndexNative(String name,double uni,int index);
 
 	/** Set an int uniform in the shader with the given name.
 	 * <p>
@@ -253,9 +270,41 @@ public class Shader
 		return ret;
 	}
 
+	/**
+	 * Set the 4 component color value for a uniform with the given index (e.g. it's an array)
+	 */
+	public boolean setUniformColorByIndex(String name,int color,int index)
+	{
+		RenderControllerInterface.ContextInfo context = control.get().setupTempContext(RenderController.ThreadMode.ThreadCurrent);
+
+		control.get().requestRender();
+
+		boolean ret = setUniformColorByIndexNative(name, color, index);
+		control.get().clearTempContext(context);
+
+		return ret;
+	}
+
+	/**
+	 * Set the 4 component color value for a uniform.
+	 */
+	public boolean setUniformColor(String name,int color)
+	{
+		RenderControllerInterface.ContextInfo context = control.get().setupTempContext(RenderController.ThreadMode.ThreadCurrent);
+
+		control.get().requestRender();
+
+		boolean ret = setUniformColorNative(name,color);
+		control.get().clearTempContext(context);
+
+		return ret;
+	}
+
 	native boolean setUniformNative(String name,double uniX,double uniY);
 	native boolean setUniformNative(String name,double uniX,double uniY,double uniZ);
 	native boolean setUniformNative(String name,double uniX,double uniY,double uniZ,double uniW);
+	native boolean setUniformColorNative(String name,int color);
+	native boolean setUniformColorByIndexNative(String name,int color,int index);
 
 	/**
 	 * Varyings will be passed from one shader to another using transform feedback.

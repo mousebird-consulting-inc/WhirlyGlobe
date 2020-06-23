@@ -41,6 +41,14 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Lja
 
 /*
  * Class:     com_mousebird_maply_Shader
+ * Method:    setUniformByIndexNative
+ * Signature: (Ljava/lang/String;DI)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformByIndexNative
+  (JNIEnv *, jobject, jstring, jdouble, jint);
+
+/*
+ * Class:     com_mousebird_maply_Shader
  * Method:    setUniformNative
  * Signature: (Ljava/lang/String;I)Z
  */
@@ -70,6 +78,22 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Lja
  */
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Ljava_lang_String_2DDDD
   (JNIEnv *, jobject, jstring, jdouble, jdouble, jdouble, jdouble);
+
+/*
+ * Class:     com_mousebird_maply_Shader
+ * Method:    setUniformColorNative
+ * Signature: (Ljava/lang/String;I)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformColorNative
+  (JNIEnv *, jobject, jstring, jint);
+
+/*
+ * Class:     com_mousebird_maply_Shader
+ * Method:    setUniformColorByIndexNative
+ * Signature: (Ljava/lang/String;II)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformColorByIndexNative
+  (JNIEnv *, jobject, jstring, jint, jint);
 
 /*
  * Class:     com_mousebird_maply_Shader
