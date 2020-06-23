@@ -171,6 +171,8 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_Shader_getID
     {
         ShaderClassInfo *classInfo = ShaderClassInfo::getClassInfo();
 		Shader_AndroidRef *inst = classInfo->getObject(env,obj);
+		if (!inst)
+		    return EmptyIdentity;
         return (*inst)->prog->getId();
     }
     catch (...)

@@ -78,14 +78,12 @@ public class Shader
 	public Shader(String name,String vertexSrc, String fragSrc,RenderControllerInterface inControl)
 	{
         control = new WeakReference<RenderControllerInterface>(inControl);
-		boolean okay = true;
-		if (Looper.myLooper() == Looper.getMainLooper())
-			okay = control.get().setEGLContext(null);
+		RenderControllerInterface.ContextInfo context = control.get().setupTempContext(RenderController.ThreadMode.ThreadCurrent);
 
-		if (okay)
-			initialise(name,vertexSrc,fragSrc);
-		else
-			Log.i("Maply","Shader was set up before context was created.  Shader won't work.");
+		initialise(name,vertexSrc,fragSrc);
+
+		if (context != null)
+			control.get().clearTempContext(context);
 	}
 
 	/**
@@ -96,14 +94,16 @@ public class Shader
 	public Shader(RenderControllerInterface inControl)
 	{
 		control = new WeakReference<RenderControllerInterface>(inControl);
-		boolean okay = true;
-		if (Looper.myLooper() == Looper.getMainLooper())
-			okay = control.get().setEGLContext(null);
 
-		if (okay)
-			initialise();
-		else
+		RenderControllerInterface.ContextInfo context = control.get().setupTempContext(RenderController.ThreadMode.ThreadCurrent);
+		if (context == null) {
 			Log.i("Maply","Shader was set up before context was created.  Shader won't work.");
+			return;
+		}
+
+		initialise();
+
+		control.get().clearTempContext(context);
 	}
 
 	/**
@@ -116,14 +116,19 @@ public class Shader
 	 */
 	public void delayedSetup(String name,String vertexSrc,String fragSrc)
 	{
-		boolean okay = true;
-		if (Looper.myLooper() == Looper.getMainLooper())
-			okay = control.get().setEGLContext(null);
+		RenderControllerInterface theControl = control.get();
+		if (theControl == null)
+			return;
 
-		if (okay)
-			delayedSetupNative(name,vertexSrc,fragSrc);
-		else
+		RenderControllerInterface.ContextInfo context = theControl.setupTempContext(RenderController.ThreadMode.ThreadCurrent);
+		if (context == null) {
 			Log.i("Maply","Shader was set up before context was created.  Shader won't work.");
+			return;
+		}
+
+		delayedSetupNative(name,vertexSrc,fragSrc);
+
+		theControl.clearTempContext(context);
 	}
 
     protected Shader()
