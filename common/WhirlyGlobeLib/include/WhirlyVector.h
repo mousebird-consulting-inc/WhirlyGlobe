@@ -81,7 +81,6 @@ class RGBAColor
 {
 public:
 	RGBAColor() { }
-	RGBAColor(int color) : a(color >> 24), r((color >> 16) & 0xff), g((color >> 8)&0xff), (color&0xff) { }
 	RGBAColor(unsigned char r,unsigned char g,unsigned char b,unsigned char a) : r(r), g(g), b(b), a(a) { }
 	RGBAColor(unsigned char r,unsigned char g,unsigned char b) : r(r), g(g), b(b), a(255) { }
     
@@ -89,6 +88,11 @@ public:
     static RGBAColor FromUnitFloats(float *ret) {
         return RGBAColor(ret[0] * 255.0,ret[1] * 255.0,ret[2] * 255.0,ret[3] * 255.0);
     }
+
+    // Create an RGBAColor from an int
+    static RGBAColor FromInt(int color) {
+	    return RGBAColor((color >> 16) & 0xff,(color >> 8)&0xff,color&0xff, color >> 24);
+	}
     
     // Create an
     static RGBAColor FromHSL(int hue,double s,double v) {

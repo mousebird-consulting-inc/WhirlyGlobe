@@ -382,8 +382,8 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformColorByInde
 		std::string name = cName;
 		env->ReleaseStringUTFChars(nameStr, cName);
 
-		RGBAColor color(colorInt);
-		float[4] colors;
+		RGBAColor color = RGBAColor::FromInt(colorInt);
+		float colors[4];
 		color.asUnitFloats(colors);
 		Eigen::Vector4f colorVec(colors[0],colors[1],colors[2],colors[3]);
 		(*inst)->prog->setUniform(StringIndexer::getStringID(name),colorVec,index);
@@ -413,8 +413,8 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformColorNative
 		std::string name = cName;
 		env->ReleaseStringUTFChars(nameStr, cName);
 
-		RGBAColor color(colorInt);
-		float[4] colors;
+        RGBAColor color = RGBAColor::FromInt(colorInt);
+		float colors[4];
 		color.asUnitFloats(colors);
 		Eigen::Vector4f colorVec(colors[0],colors[1],colors[2],colors[3]);
 		(*inst)->prog->setUniform(StringIndexer::getStringID(name),colorVec);
