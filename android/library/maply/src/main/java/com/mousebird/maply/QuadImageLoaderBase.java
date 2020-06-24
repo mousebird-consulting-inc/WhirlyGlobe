@@ -116,6 +116,7 @@ public class QuadImageLoaderBase extends QuadLoaderBase
                 BaseController control = getController();
                 if (control != null && control.renderControl != null) {
                     changes.process(control.renderControl, control.getScene());
+                    changes.dispose();
                 }
             }
         });

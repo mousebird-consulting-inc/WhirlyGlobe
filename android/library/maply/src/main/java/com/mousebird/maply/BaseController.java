@@ -2013,8 +2013,10 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 				if (particleSystemID != RenderController.EmptyIdentity) {
 					compObj.addParticleSystemID(particleSystemID);
 				}
-				if (scene != null)
+				if (scene != null) {
 					changes.process(renderControl, scene);
+					changes.dispose();
+				}
 			}
 		};
 
@@ -2038,8 +2040,10 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 				public void run() {
 					ChangeSet changes = new ChangeSet();
 					renderControl.particleSystemManager.addParticleBatch(particleBatch.partSys.getID(), particleBatch,changes);
-					if (scene != null)
+					if (scene != null) {
 						changes.process(renderControl, scene);
+						changes.dispose();
+					}
 				}
 			};
 			addTask(run, mode);
@@ -2198,5 +2202,6 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	public void processChangeSet(ChangeSet changes)
 	{
 		changes.process(renderControl, scene);
+		changes.dispose();
 	}
 }

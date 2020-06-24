@@ -157,7 +157,9 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
                 RenderControllerInterface.ContextInfo cInfo = RenderController.getEGLContext();
                 tileRender.setEGLContext(null);
                 imageParser.parseData(data,imageTileData);
-                imageTileData.getChangeSet().process(tileRender,tileRender.getScene());
+                ChangeSet changes = imageTileData.getChangeSet();
+                changes.process(tileRender,tileRender.getScene());
+                changes.dispose();
                 tileRender.enableObjects(imageTileData.getComponentObjects(), RenderControllerInterface.ThreadMode.ThreadCurrent);
                 tileBitmap = tileRender.renderToBitmap();
                 tileRender.removeObjects(imageTileData.getComponentObjects(), RenderControllerInterface.ThreadMode.ThreadCurrent);
