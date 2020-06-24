@@ -77,7 +77,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_LabelManager_addLabels
 		LabelManagerClassInfo *classInfo = LabelManagerClassInfo::getClassInfo();
 		LabelManager *labelManager = classInfo->getObject(env,obj);
 		LabelInfoAndroid *labelInfo = (LabelInfoAndroid *)LabelInfoClassInfo::getClassInfo()->getObject(env,labelInfoObj);
-		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+		ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
 		if (!labelManager || !labelInfo || !changeSet)
 		{
 			__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "One of the inputs was null in LabelManager::addLabels()");
@@ -115,7 +115,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_LabelManager_addLabels
                 labelInfo->programID = prog->getId();
         }
 		PlatformInfo_Android platformInfo(env);
-		SimpleIdentity labelId = labelManager->addLabels(&platformInfo,labels,*labelInfo,*changeSet);
+		SimpleIdentity labelId = labelManager->addLabels(&platformInfo,labels,*labelInfo,*(changeSet->get()));
 
 		labelInfo->labelInfoObj = NULL;
 
@@ -136,7 +136,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelManager_removeLabels
 	{
 		LabelManagerClassInfo *classInfo = LabelManagerClassInfo::getClassInfo();
 		LabelManager *labelManager = classInfo->getObject(env,obj);
-		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+		ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
 		if (!labelManager || !changeSet)
 			return;
         
@@ -148,7 +148,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelManager_removeLabels
         ConvertLongArrayToSet(env,idArrayObj,idSet);
 
 		PlatformInfo_Android platformInfo(env);
-		labelManager->removeLabels(&platformInfo,idSet,*changeSet);
+		labelManager->removeLabels(&platformInfo,idSet,*(changeSet->get()));
 	}
 	catch (...)
 	{
@@ -163,14 +163,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelManager_enableLabels
 	{
 		LabelManagerClassInfo *classInfo = LabelManagerClassInfo::getClassInfo();
 		LabelManager *labelManager = classInfo->getObject(env,obj);
-		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+		ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
 		if (!labelManager || !changeSet)
 			return;
 
         SimpleIDSet idSet;
         ConvertLongArrayToSet(env,idArrayObj,idSet);
 
-		labelManager->enableLabels(idSet,enable,*changeSet);
+		labelManager->enableLabels(idSet,enable,*(changeSet->get()));
 	}
 	catch (...)
 	{

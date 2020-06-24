@@ -161,6 +161,11 @@ public class AttrDictionary
 	 */
 	public native void setArray(String attrName,AttrDictionaryEntry[] entries);
 
+	/**
+	 * Assign the given array to the given attribute name.
+	 */
+	public native void setArray(String attrName,AttrDictionary[] entries);
+
 	// Convert to a string for debugging
 	public native String toString();
 

@@ -75,7 +75,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_ShapeManager_addShapes
         ShapeManagerClassInfo *classInfo = ShapeManagerClassInfo::getClassInfo();
         ShapeManager *inst = classInfo->getObject(env, obj);
         ShapeInfo *shapeInfo = ShapeInfoClassInfo::getClassInfo()->getObject(env, shapeInfoObj);
-        ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env, changeObj);
+        ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env, changeObj);
 
         if (!inst || !shapeInfo || !changeSet)
             return EmptyIdentity;
@@ -106,7 +106,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_ShapeManager_addShapes
                 shapeInfo->programID = prog->getId();
         }
 
-        SimpleIdentity shapeId = inst->addShapes(shapes, *shapeInfo, *changeSet);
+        SimpleIdentity shapeId = inst->addShapes(shapes, *shapeInfo, *(changeSet->get()));
         return shapeId;
     }
     catch (...)
@@ -124,7 +124,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeManager_removeShapes
     {
         ShapeManagerClassInfo *classInfo = ShapeManagerClassInfo::getClassInfo();
         ShapeManager *inst = classInfo->getObject(env, obj);
-        ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env, changeObj);
+        ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env, changeObj);
         if (!inst || !changeSet)
             return;
 
@@ -135,7 +135,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeManager_removeShapes
             idSet.insert(ids.rawLong[ii]);
         }
         
-        inst->removeShapes(idSet, *changeSet);
+        inst->removeShapes(idSet, *(changeSet->get()));
     }
     
     catch (...)
@@ -151,7 +151,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeManager_enableShapes
     {
         ShapeManagerClassInfo *classInfo = ShapeManagerClassInfo::getClassInfo();
         ShapeManager *inst = classInfo->getObject(env, obj);
-        ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env, changeObj);
+        ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env, changeObj);
         if (!inst || !changeSet)
             return;
 
@@ -162,7 +162,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeManager_enableShapes
             idSet.insert(ids.rawLong[ii]);
         }
         
-        inst->enableShapes(idSet, enable, *changeSet);
+        inst->enableShapes(idSet, enable, *(changeSet->get()));
     }
     
     catch (...)

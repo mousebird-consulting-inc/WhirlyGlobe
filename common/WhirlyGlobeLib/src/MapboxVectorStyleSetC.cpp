@@ -294,7 +294,7 @@ int MapboxVectorStyleSetImpl::intValue(const std::string &name,DictionaryRef dic
     if (!thing)
         return defVal;
         
-    if (thing->getType() == DictTypeDouble)
+    if (thing->getType() == DictTypeDouble || thing->getType() == DictTypeInt || thing->getType() == DictTypeIdentity)
         return thing->getInt();
 
     wkLogLevel(Warn, "Expected integer for %s but got something else",name.c_str());
@@ -306,7 +306,7 @@ double MapboxVectorStyleSetImpl::doubleValue(DictionaryEntryRef thing,double def
     if (!thing)
         return defVal;
     
-    if (thing->getType() == DictTypeDouble)
+    if (thing->getType() == DictTypeDouble || thing->getType() == DictTypeInt || thing->getType() == DictTypeIdentity)
         return thing->getDouble();
 
     wkLogLevel(Warn, "Expected double for %s but got something else",name.c_str());
@@ -322,7 +322,7 @@ double MapboxVectorStyleSetImpl::doubleValue(const std::string &name,DictionaryR
     if (!thing)
         return defVal;
     
-    if (thing->getType() == DictTypeDouble)
+    if (thing->getType() == DictTypeDouble || thing->getType() == DictTypeInt || thing->getType() == DictTypeIdentity)
         return thing->getDouble();
     
     wkLogLevel(Warn, "Expected double for %s but got something else",name.c_str());
@@ -340,6 +340,8 @@ bool MapboxVectorStyleSetImpl::boolValue(const std::string &name,DictionaryRef d
     
     if (thing->getType() == DictTypeString)
         return thing->getString() == onString;
+    else if (thing->getType() == DictTypeInt)
+        return thing->getInt();
     else
         return defVal;
 }

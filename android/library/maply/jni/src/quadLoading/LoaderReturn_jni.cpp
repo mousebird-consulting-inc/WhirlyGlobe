@@ -172,12 +172,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_mergeChanges
 	try
 	{
 		QuadLoaderReturnRef *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
-		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeObj);
+		ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeObj);
 		if (!loadReturn || !changeSet)
 			return;
 
-		(*loadReturn)->changes.insert((*loadReturn)->changes.end(),changeSet->begin(),changeSet->end());
-		changeSet->clear();
+		(*loadReturn)->changes.insert((*loadReturn)->changes.end(),(*changeSet)->begin(),(*changeSet)->end());
+		(*changeSet)->clear();
 	}
 	catch (...)
 	{

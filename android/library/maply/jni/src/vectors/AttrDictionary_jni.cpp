@@ -415,7 +415,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_setDict
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_setArray
+JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_setArray__Ljava_lang_String_2_3Lcom_mousebird_maply_AttrDictionaryEntry_2
 		(JNIEnv *env, jobject obj, jstring attrNameObj, jobjectArray entryArrObj)
 {
 	try
@@ -434,6 +434,35 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_setArray
 			jobject entryObj = arrayHelper.getNextObject();
 			DictionaryEntry_AndroidRef *entry = entryClassInfo->getObject(env,entryObj);
 			entries.push_back(DictionaryEntry_AndroidRef(*entry));
+		}
+
+		(*dict)->setArray(attrName.cStr,entries);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Dictionary::setArray()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_setArray__Ljava_lang_String_2_3Lcom_mousebird_maply_AttrDictionary_2
+		(JNIEnv *env, jobject obj, jstring attrNameObj, jobjectArray dictArrayObj)
+{
+	try
+	{
+		AttrDictClassInfo *classInfo = AttrDictClassInfo::getClassInfo();
+		AttrDictClassInfo *entryClassInfo = AttrDictClassInfo::getClassInfo();
+		MutableDictionary_AndroidRef *dict = classInfo->getObject(env,obj);
+		if (!dict)
+			return;
+		JavaString attrName(env,attrNameObj);
+
+		// Pull the entries out of the array of objects
+		std::vector<DictionaryRef> entries;
+		JavaObjectArrayHelper arrayHelper(env,dictArrayObj);
+		for (unsigned int ii=0;ii<arrayHelper.numObjects();ii++) {
+			jobject entryObj = arrayHelper.getNextObject();
+			MutableDictionary_AndroidRef *entry = entryClassInfo->getObject(env,entryObj);
+			entries.push_back(MutableDictionary_AndroidRef(*entry));
 		}
 
 		(*dict)->setArray(attrName.cStr,entries);

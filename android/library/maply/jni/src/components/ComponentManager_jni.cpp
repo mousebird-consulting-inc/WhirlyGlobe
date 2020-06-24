@@ -111,7 +111,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentManager_removeComponent
     try
     {
         ComponentManager *compManager = ComponentManagerClassInfo::getClassInfo()->getObject(env,obj);
-        ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+        ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
         if (!compManager || !changeSet)
             return;
 
@@ -126,7 +126,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentManager_removeComponent
         }
 
         PlatformInfo_Android platformInfo(env);
-        compManager->removeComponentObjects(&platformInfo,compObjIDs,*changeSet);
+        compManager->removeComponentObjects(&platformInfo,compObjIDs,*(changeSet->get()));
     }
     catch (...)
     {
@@ -140,7 +140,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentManager_enableComponent
     try
     {
         ComponentManager *compManager = ComponentManagerClassInfo::getClassInfo()->getObject(env,obj);
-        ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+        ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
         if (!compManager || !changeSet)
             return;
 
@@ -154,7 +154,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentManager_enableComponent
                 compObjIDs.insert((*compObj)->getId());
         }
 
-        compManager->enableComponentObjects(compObjIDs,enable,*changeSet);
+        compManager->enableComponentObjects(compObjIDs,enable,*(changeSet->get()));
     }
     catch (...)
     {

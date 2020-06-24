@@ -78,7 +78,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_LoftedPolyManager_addPolys
     {
         LoftManager *loftManager = LoftManagerClassInfo::getClassInfo()->getObject(env,obj);
         LoftedPolyInfo *loftInfo = LoftedPolyInfoClassInfo::getClassInfo()->getObject(env,loftInfoObj);
-        ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+        ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
         if (!loftManager || !loftInfo || !changeSet)
             return EmptyIdentity;
 
@@ -101,7 +101,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_LoftedPolyManager_addPolys
                 loftInfo->programID = prog->getId();
         }
 
-        SimpleIdentity loftID = loftManager->addLoftedPolys(&shapes,*loftInfo,*changeSet);
+        SimpleIdentity loftID = loftManager->addLoftedPolys(&shapes,*loftInfo,*(changeSet->get()));
 
         return loftID;
     }

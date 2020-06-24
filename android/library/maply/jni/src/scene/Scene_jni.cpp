@@ -82,9 +82,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_addChangesNative
 	{
 		SceneClassInfo *classInfo = SceneClassInfo::getClassInfo();
 		Scene *scene = classInfo->getObject(env,obj);
-		ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changesObj);
-		scene->addChangeRequests(*changes);
-		changes->clear();
+		ChangeSetRef *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changesObj);
+		scene->addChangeRequests(*(changes->get()));
+        (*changes)->clear();
 	}
 	catch (...)
 	{

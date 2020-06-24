@@ -93,6 +93,16 @@ MutableDictionary_Android::ArrayValue::ArrayValue(std::vector<DictionaryEntryRef
             val.push_back(valRef);
     }
 }
+
+MutableDictionary_Android::ArrayValue::ArrayValue(std::vector<DictionaryRef> &entries)
+{
+    for (auto entry: entries) {
+        ValueRef valRef(new DictionaryValue(std::dynamic_pointer_cast<MutableDictionary_Android>(entry)));
+        if (valRef)
+           val.push_back(valRef);
+    }
+}
+
     
 MutableDictionaryRef MutableDictionary_Android::copy()
 {
@@ -538,6 +548,14 @@ void MutableDictionary_Android::setEntry(const std::string &name,DictionaryEntry
 }
 
 void MutableDictionary_Android::setArray(const std::string &name,std::vector<DictionaryEntryRef> &entries)
+{
+    removeField(name);
+
+    ArrayValue *aVal = new ArrayValue(entries);
+    fields[name] = ValueRef(aVal);
+}
+
+void MutableDictionary_Android::setArray(const std::string &name,std::vector<DictionaryRef> &entries)
 {
     removeField(name);
 

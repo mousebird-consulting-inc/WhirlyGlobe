@@ -21,7 +21,7 @@
 #import "Maply_jni.h"
 #import "WhirlyGlobe_Android.h"
 
-typedef JavaClassInfo<WhirlyKit::ChangeSet> ChangeSetClassInfo;
+typedef JavaClassInfo<WhirlyKit::ChangeSetRef> ChangeSetClassInfo;
 typedef JavaClassInfo<WhirlyKit::DirectionalLight> DirectionalLightClassInfo;
 typedef JavaClassInfo<WhirlyKit::Scene> SceneClassInfo;
 typedef JavaClassInfo<WhirlyKit::Texture> TextureClassInfo;

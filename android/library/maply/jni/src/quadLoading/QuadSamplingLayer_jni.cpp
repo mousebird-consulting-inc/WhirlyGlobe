@@ -97,11 +97,11 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadSamplingLayer_viewUpdate
     {
         QuadSamplingController_Android *control = QuadSamplingControllerInfo::getClassInfo()->getObject(env,obj);
         ViewStateRef *viewState = ViewStateRefClassInfo::getClassInfo()->getObject(env,viewStateObj);
-        ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changeObj);
+        ChangeSetRef *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changeObj);
         if (!control || !viewState || !changes || !control->getDisplayControl())
             return true;
         PlatformInfo_Android platformInfo(env);
-        return control->getDisplayControl()->viewUpdate(&platformInfo,*viewState,*changes);
+        return control->getDisplayControl()->viewUpdate(&platformInfo,*viewState,*(changes->get()));
     }
     catch (...)
     {
@@ -138,10 +138,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadSamplingLayer_preSceneFlushN
     try
     {
         QuadSamplingController_Android *control = QuadSamplingControllerInfo::getClassInfo()->getObject(env,obj);
-        ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changeObj);
+        ChangeSetRef *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changeObj);
         if (!control || !changes || !control->getDisplayControl())
             return;
-        control->getDisplayControl()->preSceneFlush(*changes);
+        control->getDisplayControl()->preSceneFlush(*(changes->get()));
     }
     catch (...)
     {
@@ -155,11 +155,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadSamplingLayer_shutdownNative
     try
     {
         QuadSamplingController_Android *control = QuadSamplingControllerInfo::getClassInfo()->getObject(env,obj);
-        ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changeObj);
+        ChangeSetRef *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changeObj);
         if (!control || !changes || !control->getDisplayControl())
             return;
         PlatformInfo_Android platformInfo(env);
-        control->getDisplayControl()->stop(&platformInfo,*changes);
+        control->getDisplayControl()->stop(&platformInfo,*(changes->get()));
         control->stop();
     }
     catch (...)

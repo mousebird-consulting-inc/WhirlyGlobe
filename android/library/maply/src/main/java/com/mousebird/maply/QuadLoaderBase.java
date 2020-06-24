@@ -331,6 +331,7 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
                                     ChangeSet changes = new ChangeSet();
                                     mergeLoaderReturn(loadReturn, changes);
                                     layer.layerThread.addChanges(changes);
+                                    loadReturn.dispose();
                                 }
                             }
                         });

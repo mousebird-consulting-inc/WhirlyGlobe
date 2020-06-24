@@ -132,7 +132,15 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_setDict
  * Method:    setArray
  * Signature: (Ljava/lang/String;[Lcom/mousebird/maply/AttrDictionaryEntry;)V
  */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_setArray
+JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_setArray__Ljava_lang_String_2_3Lcom_mousebird_maply_AttrDictionaryEntry_2
+  (JNIEnv *, jobject, jstring, jobjectArray);
+
+/*
+ * Class:     com_mousebird_maply_AttrDictionary
+ * Method:    setArray
+ * Signature: (Ljava/lang/String;[Lcom/mousebird/maply/AttrDictionary;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_setArray__Ljava_lang_String_2_3Lcom_mousebird_maply_AttrDictionary_2
   (JNIEnv *, jobject, jstring, jobjectArray);
 
 /*

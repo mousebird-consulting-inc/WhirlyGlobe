@@ -215,7 +215,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_cleanupNative
 {
     try {
         QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
-        ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changeObj);
+        ChangeSetRef *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changeObj);
         if (!loader || !changes)
             return;
 
@@ -224,7 +224,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_cleanupNative
         }
 
         PlatformInfo_Android platformInfo(env);
-        (*loader)->cleanup(&platformInfo,*changes);
+        (*loader)->cleanup(&platformInfo,*(changes->get()));
     }
     catch (...)
     {
@@ -238,11 +238,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_mergeLoaderReturn
     try {
         QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
         QuadLoaderReturnRef *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,loadRetObj);
-        ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changeObj);
+        ChangeSetRef *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changeObj);
         if (!loader || !loadReturn || !changes)
             return;
         PlatformInfo_Android platformInfo(env);
-        (*loader)->mergeLoadedTile(&platformInfo,loadReturn->get(),*changes);
+        (*loader)->mergeLoadedTile(&platformInfo,loadReturn->get(),*(changes->get()));
     }
     catch (...)
     {
@@ -256,7 +256,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_samplingLayerConn
     try {
         QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
         QuadSamplingController_Android *control = QuadSamplingControllerInfo::getClassInfo()->getObject(env,layerObj);
-        ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changeObj);
+        ChangeSetRef *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changeObj);
         if (!loader || !control || !changes)
             return;
 
@@ -265,7 +265,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_samplingLayerConn
             // This will result in callbacks to the Java side
             PlatformInfo_Android platformInfo(env);
             control->notifyDelegateStartup(&platformInfo,((QuadTileBuilderDelegate *) (*loader).get())->getId(),
-                                           *changes);
+                                           *(changes->get()));
         }
     }
     catch (...)
@@ -280,7 +280,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_samplingLayerDisc
     try {
         QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
         QuadSamplingController_Android *control = QuadSamplingControllerInfo::getClassInfo()->getObject(env,layerObj);
-        ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changeObj);
+        ChangeSetRef *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changeObj);
         if (!loader || !control)
             return;
 
@@ -335,12 +335,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_reloadNative
 {
     try {
         QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
-        ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+        ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
         if (!loader || !changeSet)
             return;
 
         PlatformInfo_Android platformInfo(env);
-        (*loader)->reload(&platformInfo,-1, *changeSet);
+        (*loader)->reload(&platformInfo,-1, *(changeSet->get()));
     }
     catch (...)
     {

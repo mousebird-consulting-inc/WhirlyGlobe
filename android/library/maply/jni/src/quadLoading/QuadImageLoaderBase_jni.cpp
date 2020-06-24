@@ -91,11 +91,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_setColor
 {
     try {
         QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
-        ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+        ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
         if (!loader)
             return;
         RGBAColor color(red*255,green*255,blue*255,alpha*255);
-        (*loader)->setColor(color,changeSet);
+        (*loader)->setColor(color,(changeSet->get()));
     }
     catch (...)
     {

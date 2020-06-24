@@ -162,6 +162,7 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
                 tileBitmap = tileRender.renderToBitmap();
                 tileRender.removeObjects(imageTileData.getComponentObjects(), RenderControllerInterface.ThreadMode.ThreadCurrent);
                 tileRender.clearContext();
+                imageTileData.dispose();
 
                 // Reset the OpenGL context back to what it was before
                 // It would have been set up by our own renderer for us on a specific thread

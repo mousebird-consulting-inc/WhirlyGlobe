@@ -110,6 +110,8 @@ public:
     void setEntry(const std::string &name,DictionaryEntry_AndroidRef entry);
     /// Set the array at the given attribute name
     void setArray(const std::string &name,std::vector<DictionaryEntryRef> &entries);
+    /// Set the array at the given attribute name
+    void setArray(const std::string &name,std::vector<DictionaryRef> &entries);
     /// Set field as pointer
     void setObject(const std::string &name,DelayedDeletableRef obj);
     
@@ -247,6 +249,7 @@ public:
         ~ArrayValue() { }
         ArrayValue(std::vector<ValueRef> &inVal) : val(inVal) { }
         ArrayValue(std::vector<DictionaryEntryRef> &inVal);
+        ArrayValue(std::vector<DictionaryRef> &inVal);
 
         virtual DictionaryType type() { return DictTypeArray; }
         virtual ValueRef copy() { return ValueRef(new ArrayValue(val)); }
