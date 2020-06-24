@@ -1616,7 +1616,7 @@ public class RenderController implements RenderControllerInterface
      */
     public void enableObjects(final List<ComponentObject> compObjs,ThreadMode mode)
     {
-        if (compObjs == null)
+        if (compObjs == null || compObjs == null)
             return;
 
         final ComponentObject[] localCompObjs = compObjs.toArray(new ComponentObject[compObjs.size()]);
@@ -1631,7 +1631,7 @@ public class RenderController implements RenderControllerInterface
      * @param mode Where to execute the enable.  Choose ThreadAny by default.
      */
     public void enableObjects(final ComponentObject[] compObjs,ThreadMode mode) {
-        if (compObjs.length == 0)
+        if (compObjs == null || compObjs.length == 0)
             return;
 
         final RenderController renderControl = this;
@@ -1663,7 +1663,7 @@ public class RenderController implements RenderControllerInterface
      */
     public void removeObjects(final List<ComponentObject> compObjs,ThreadMode mode)
     {
-        if (compObjs == null)
+        if (compObjs == null || compObjs == null)
             return;
 
         removeObjects(compObjs.toArray(new ComponentObject[0]),mode);
@@ -1677,7 +1677,7 @@ public class RenderController implements RenderControllerInterface
      * @param mode Where to execute the remove.  Choose ThreadAny by default.
      */
     public void removeObjects(final ComponentObject[] compObjs,ThreadMode mode) {
-        if (compObjs.length == 0)
+        if (compObjs == null || compObjs.length == 0)
             return;
 
         final RenderController renderControl = this;
