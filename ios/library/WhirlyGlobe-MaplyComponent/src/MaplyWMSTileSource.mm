@@ -340,7 +340,9 @@
     {
         fileName = [self cacheFileForTile:tileID];
         imgData = [NSData dataWithContentsOfFile:fileName];
-        wasCached = true;
+        if(imgData != nil) {
+            wasCached = true;
+        }
     }
     
     if (!imgData)
