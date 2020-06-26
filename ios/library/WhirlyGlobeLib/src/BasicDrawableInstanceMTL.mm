@@ -115,13 +115,20 @@ void BasicDrawableInstanceMTL::setupForRenderer(const RenderSetupInfo *inSetupIn
     
     // Construct the buffer we've been adding to
     mainBuffer = buffBuild.buildBuffer();
+    baseMainBuffer = basicDrawMTL->mainBuffer;
     
     setupForMTL = true;
 }
 
 void BasicDrawableInstanceMTL::teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *inScene)
 {
+    SceneMTL *scene = (SceneMTL *)inScene;
     setupForMTL = false;
+
+    if (mainBuffer)
+        scene->releaseBuffer(mainBuffer->buffer);
+    if (baseMainBuffer)
+        scene->releaseBuffer(baseMainBuffer->buffer);
 
     instBuffer.reset();
     indirectBuffer.reset();
@@ -555,8 +562,6 @@ void BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
             // And do the Model Instance specific stuff
             if (vertABInfo)
                 vertABInfo->updateEntry(mtlDevice, bltEncode, WhirlyKitShader::WKSVertModelInstanceArgBuffer, &uniMI, sizeof(uniMI));
-            if (fragABInfo)
-                fragABInfo->updateEntry(mtlDevice, bltEncode, WhirlyKitShader::WKSModelInstanceArgBuffer, &uniMI, sizeof(uniMI));
             
             if (vertABInfo)
                 vertABInfo->endEncoding(mtlDevice, bltEncode);
@@ -756,7 +761,6 @@ void BasicDrawableInstanceMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEn
     }
 
     id<MTLRenderPipelineState> renderState = getRenderPipelineState(sceneRender, scene, program, renderTarget, basicDrawMTL);
-    [cmdEncode setRenderPipelineState:renderState];
 
     // Wire up the various inputs that we know about
     for (auto vertAttr : basicDrawMTL->vertexAttributes) {
@@ -789,10 +793,6 @@ void BasicDrawableInstanceMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEn
     if (vertABInfo) {
         BufferEntryMTLRef buff = vertABInfo->getBuffer();
         [cmdEncode setVertexBuffer:buff->buffer offset:buff->offset atIndex:WhirlyKitShader::WKSVertexArgBuffer];
-    }
-    if (vertTexInfo) {
-        BufferEntryMTLRef buff = vertTexInfo->getBuffer();
-        [cmdEncode setVertexBuffer:buff->buffer offset:buff->offset atIndex:WhirlyKitShader::WKSTextureArgBuffer];
     }
     if (fragABInfo) {
         BufferEntryMTLRef buff = fragABInfo->getBuffer();

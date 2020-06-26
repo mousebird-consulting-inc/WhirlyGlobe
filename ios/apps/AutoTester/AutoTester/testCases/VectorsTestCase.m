@@ -28,7 +28,6 @@
 		self.compObjs = [[NSMutableArray alloc] init];
         self.vecList = [[NSMutableArray alloc] init];
 		self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
-
 	}
 	
 	return self;
@@ -70,8 +69,8 @@
 
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
-	 self.baseView = [[GeographyClassTestCase alloc]init];
-//	[self.baseView setUpWithGlobe:globeVC];
+	 self.baseCase = [[GeographyClassTestCase alloc]init];
+	[self.baseCase setUpWithGlobe:globeVC];
 	//Overlay Countries
 	[self overlayCountries:(MaplyBaseViewController*)globeVC];
 }
@@ -79,8 +78,8 @@
 
 - (void)setUpWithMap:(MaplyViewController *)mapVC
 {	
-	 self.baseView = [[GeographyClassTestCase alloc]init];
-	[self.baseView setUpWithMap:mapVC];
+	 self.baseCase = [[GeographyClassTestCase alloc]init];
+	[self.baseCase setUpWithMap:mapVC];
 	[self overlayCountries:(MaplyBaseViewController*)mapVC];
 }
 
@@ -103,7 +102,7 @@
 
 - (void) stop
 {
-    [self.baseView stop];
+    [self.baseCase stop];
     if (_compObjs) {
         [self.baseViewController removeObjects:_compObjs];
         [_compObjs removeAllObjects];

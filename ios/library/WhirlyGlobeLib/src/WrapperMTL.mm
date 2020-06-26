@@ -155,7 +155,7 @@ BufferEntryMTLRef BufferBuilderMTL::buildBuffer()
         
         return buffer;
     }
-
+    
     bufferRefs.clear();
     return nil;
 }

@@ -89,6 +89,7 @@ protected:
     int numInst;                        // Number of instances (if we're using that mode)
     
     BufferEntryMTLRef mainBuffer;        // We're storing all the bits and pieces in here
+    BufferEntryMTLRef baseMainBuffer;    // Holding reference to the BasicDrawable's buffer too
     ArgBuffContentsMTLRef vertABInfo,fragABInfo;
     bool vertHasTextures,fragHasTextures;
     bool vertHasLighting,fragHasLighting;

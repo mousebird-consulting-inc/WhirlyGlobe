@@ -102,7 +102,12 @@ void BasicDrawableMTL::setupForRenderer(const RenderSetupInfo *inSetupInfo,Scene
 
 void BasicDrawableMTL::teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *inScene)
 {
+    SceneMTL *scene = (SceneMTL *)inScene;
     setupForMTL = false;
+
+    if (mainBuffer)
+        scene->releaseBuffer(mainBuffer->buffer);
+    
     for (VertexAttribute *vertAttr : vertexAttributes) {
         VertexAttributeMTL *vertAttrMTL = (VertexAttributeMTL *)vertAttr;
         vertAttrMTL->buffer.reset();
@@ -607,10 +612,6 @@ void BasicDrawableMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEncode,Sce
     if (vertABInfo) {
         BufferEntryMTLRef buff = vertABInfo->getBuffer();
         [cmdEncode setVertexBuffer:buff->buffer offset:buff->offset atIndex:WhirlyKitShader::WKSVertexArgBuffer];
-    }
-    if (vertTexInfo) {
-        BufferEntryMTLRef buff = vertTexInfo->getBuffer();
-        [cmdEncode setVertexBuffer:buff->buffer offset:buff->offset atIndex:WhirlyKitShader::WKSTextureArgBuffer];
     }
     if (fragABInfo) {
         BufferEntryMTLRef buff = fragABInfo->getBuffer();

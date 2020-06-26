@@ -15,5 +15,5 @@
 
 @property (nonatomic, strong) NSMutableArray<MaplyVectorObject*> *vecList;
 @property (nonatomic, strong) NSMutableArray<MaplyComponentObject*> *compObjs;
-@property (nonatomic) GeographyClassTestCase *baseView;
+@property (nonatomic) GeographyClassTestCase *baseCase;
 @end
