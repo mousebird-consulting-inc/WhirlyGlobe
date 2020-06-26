@@ -142,20 +142,21 @@ using namespace WhirlyGlobe;
 
 - (instancetype)initWithLineString:(NSArray *)inCoords attributes:(NSDictionary *)attr
 {
-	MaplyCoordinate *coords = (MaplyCoordinate *) malloc(sizeof(int) * [inCoords count]/2);
+    int numCoords = [inCoords count]/2;
+    MaplyCoordinate *coords = (MaplyCoordinate *) malloc(sizeof(MaplyCoordinate) * numCoords);
 
-	for (int i = 0; i < [inCoords count]/2; i++) {
-		float x = [inCoords[2*i] floatValue];
-		float y = [inCoords[2*i+1] floatValue];
+    for (int i = 0; i < numCoords; i++) {
+        float x = [inCoords[2*i] floatValue];
+        float y = [inCoords[2*i+1] floatValue];
 
-		coords[i] = MaplyCoordinateMakeWithDegrees(x, y);
-	}
+        coords[i] = MaplyCoordinateMakeWithDegrees(x, y);
+    }
 
-	self = [self initWithLineString:coords numCoords:(int)[inCoords count]/2 attributes:attr];
+    self = [self initWithLineString:coords numCoords:numCoords attributes:attr];
 
-	free(coords);
+    free(coords);
 
-	return self;
+    return self;
 }
 
 /// Construct with a linear feature (e.g. line string)
