@@ -122,13 +122,7 @@ void BasicDrawableInstanceMTL::setupForRenderer(const RenderSetupInfo *inSetupIn
 
 void BasicDrawableInstanceMTL::teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *inScene)
 {
-    SceneMTL *scene = (SceneMTL *)inScene;
     setupForMTL = false;
-
-    if (mainBuffer)
-        scene->releaseBuffer(mainBuffer->buffer);
-    if (baseMainBuffer)
-        scene->releaseBuffer(baseMainBuffer->buffer);
 
     instBuffer.reset();
     indirectBuffer.reset();
@@ -136,6 +130,7 @@ void BasicDrawableInstanceMTL::teardownForRenderer(const RenderSetupInfo *setupI
     calcRenderState = nil;
     defaultAttrs.clear();
     mainBuffer.reset();
+    baseMainBuffer.reset();
     vertABInfo.reset();
     fragABInfo.reset();
 }
@@ -577,8 +572,13 @@ void BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
     // Always need the resource lists
     // It should all be in one buffer
     if (mainBuffer) {
+        // TODO: Are we missing buffers from the ABInfo above?
         resources.addEntry(basicDrawMTL->mainBuffer);
         resources.addEntry(mainBuffer);
+        if (vertABInfo)
+            resources.addEntry(vertABInfo->getBuffer());
+        if (fragABInfo)
+            resources.addEntry(fragABInfo->getBuffer());
     } else {
         // If we're not consolidating the buffer, list all the buffers
         resources.addEntry(basicDrawMTL->triBuffer);

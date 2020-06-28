@@ -84,11 +84,15 @@ public:
     // Wire up the resources listed
     void use(id<MTLRenderCommandEncoder> cmdEncode);
     
+    // Drop our references to all the various resources
+    void clear();
+    
 protected:
     std::set< id<MTLHeap> > heaps;
     std::set< id<MTLBuffer> > buffers;
     std::set< id<MTLTexture> > textures;
 };
+typedef std::shared_ptr<ResourceRefsMTL> ResourceRefsMTLRef;
 
 /**
    Used to manage the various MTLHeaps we depend on.

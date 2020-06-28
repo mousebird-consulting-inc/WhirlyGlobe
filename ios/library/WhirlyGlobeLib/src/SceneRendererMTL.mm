@@ -85,7 +85,7 @@ SceneRendererMTL::SceneRendererMTL(id<MTLDevice> mtlDevice,id<MTLLibrary> mtlLib
     offscreenBlendEnable = false;
     // Indirect rendering is only on for 13 and later
     if (@available(iOS 13.0, *)) {
-        indirectRender = false;
+        indirectRender = true;
     } else {
         indirectRender = false;
     }
@@ -221,6 +221,7 @@ void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,id<MTL
     // Copy this to a buffer and then blit that buffer into place
     // TODO: Try to reuse these
     id<MTLBuffer> buff = [setupInfo.mtlDevice newBufferWithBytes:&uniforms length:sizeof(uniforms) options:MTLResourceStorageModeShared];
+    resources.addBuffer(buff);
     [bltEncode copyFromBuffer:buff sourceOffset:0 toBuffer:sceneRender->setupInfo.uniformBuff->buffer destinationOffset:sceneRender->setupInfo.uniformBuff->offset size:sizeof(uniforms)];
     resources.addEntry(sceneRender->setupInfo.uniformBuff);
 }
@@ -253,6 +254,7 @@ void SceneRendererMTL::setupLightBuffer(SceneMTL *scene,RendererFrameInfoMTL *fr
     // Copy this to a buffer and then blit that buffer into place
     // TODO: Try to reuse these
     id<MTLBuffer> buff = [setupInfo.mtlDevice newBufferWithBytes:&lighting length:sizeof(lighting) options:MTLResourceStorageModeShared];
+    resources.addBuffer(buff);
     [bltEncode copyFromBuffer:buff sourceOffset:0 toBuffer:sceneRender->setupInfo.lightingBuff->buffer destinationOffset:sceneRender->setupInfo.lightingBuff->offset size:sizeof(lighting)];
     resources.addEntry(sceneRender->setupInfo.lightingBuff);
 }
@@ -650,18 +652,18 @@ void SceneRendererMTL::render(TimeInterval duration,
             // Ask all the drawables to set themselves up.  Mostly memory stuff.
             id<MTLFence> preProcessFence = [mtlDevice newFence];
             id<MTLBlitCommandEncoder> bltEncode = [cmdBuff blitCommandEncoder];
-            ResourceRefsMTL resources;
+            ResourceRefsMTLRef resources(new ResourceRefsMTL());
             for (auto &draw : targetContainer->drawables) {
                 DrawableMTL *drawMTL = dynamic_cast<DrawableMTL *>(draw.get());
                 drawMTL->runTweakers(&baseFrameInfo);
-                drawMTL->preProcess(this, cmdBuff, bltEncode, sceneMTL, resources);
+                drawMTL->preProcess(this, cmdBuff, bltEncode, sceneMTL, *resources);
             }
-            resources.addEntry(setupInfo.lightingBuff);
-            resources.addEntry(setupInfo.uniformBuff);
+            resources->addEntry(setupInfo.lightingBuff);
+            resources->addEntry(setupInfo.uniformBuff);
 
             // TODO: Just set these up once and copy it into position
-            setupLightBuffer(sceneMTL,&baseFrameInfo,bltEncode,resources);
-            setupUniformBuffer(&baseFrameInfo,bltEncode,scene->getCoordAdapter(),resources);
+            setupLightBuffer(sceneMTL,&baseFrameInfo,bltEncode,*resources);
+            setupUniformBuffer(&baseFrameInfo,bltEncode,scene->getCoordAdapter(),*resources);
             [bltEncode updateFence:preProcessFence];
             [bltEncode endEncoding];
                         
@@ -691,7 +693,7 @@ void SceneRendererMTL::render(TimeInterval duration,
 
                 // Wire up all the resources we need to use
                 // These are buffers created or used by the various drawables
-                resources.use(cmdEncode);
+                resources->use(cmdEncode);
 
                 if (indirectRender) {
                     if (@available(iOS 12.0, *)) {
@@ -815,7 +817,6 @@ void SceneRendererMTL::render(TimeInterval duration,
                                 baseFrameInfo.program = program;
                                 
                                 // Activate the program
-                                // TODO: Move this into the drawable
                                 program->addResources(&baseFrameInfo, cmdEncode, sceneMTL);
                                                             
                                 // "Draw" using the given program
@@ -844,8 +845,9 @@ void SceneRendererMTL::render(TimeInterval duration,
             }
             
             // This particular target may want a snapshot
-            // TODO: Sort these into the render targets
             [cmdBuff addCompletedHandler:^(id<MTLCommandBuffer> _Nonnull) {
+                // TODO: Sort these into the render targets
+                // TODO: Not sure this works with more frames in flight.  Maybe need to copy to a snapshot target
                 dispatch_async(dispatch_get_main_queue(), ^{
                     // Look for the snapshot delegate that wants this render target
                     for (auto snapshotDelegate : snapshotDelegates) {
@@ -859,6 +861,9 @@ void SceneRendererMTL::render(TimeInterval duration,
                         [snapshotDelegate snapshotData:nil];
                     }
                 });
+                
+                // And release all the resources we were sitting on
+                resources->clear();
             }];
 
             [cmdBuff commit];
@@ -889,8 +894,6 @@ void SceneRendererMTL::render(TimeInterval duration,
         perfTimer.log();
         perfTimer.clear();
     }
-    
-    sceneMTL->endOfFrameBufferClear();
 }
 
 RenderTargetMTLRef SceneRendererMTL::getRenderTarget(SimpleIdentity renderTargetID)

@@ -196,6 +196,13 @@ void ResourceRefsMTL::use(id<MTLRenderCommandEncoder> cmdEncode)
         [cmdEncode useResource:tex usage:MTLResourceUsageRead];
 }
 
+void ResourceRefsMTL::clear()
+{
+    heaps.clear();
+    buffers.clear();
+    textures.clear();
+}
+
 bool HeapManagerMTL::UseHeaps = true;
 
 HeapManagerMTL::HeapManagerMTL(id<MTLDevice> mtlDevice)

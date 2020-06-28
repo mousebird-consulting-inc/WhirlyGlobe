@@ -102,12 +102,8 @@ void BasicDrawableMTL::setupForRenderer(const RenderSetupInfo *inSetupInfo,Scene
 
 void BasicDrawableMTL::teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *inScene)
 {
-    SceneMTL *scene = (SceneMTL *)inScene;
     setupForMTL = false;
 
-    if (mainBuffer)
-        scene->releaseBuffer(mainBuffer->buffer);
-    
     for (VertexAttribute *vertAttr : vertexAttributes) {
         VertexAttributeMTL *vertAttrMTL = (VertexAttributeMTL *)vertAttr;
         vertAttrMTL->buffer.reset();

@@ -60,7 +60,7 @@ public:
     RenderTargetMTL *renderTarget;
 
     id<MTLBlitCommandEncoder> bltEncode;
-    id<MTLRenderCommandEncoder> cmdEncode;    
+    id<MTLRenderCommandEncoder> cmdEncode;
 };
 
 // Metal version of WorkGroup has a bit more cached info

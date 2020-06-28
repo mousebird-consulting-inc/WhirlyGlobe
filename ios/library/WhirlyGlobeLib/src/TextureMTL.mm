@@ -254,9 +254,6 @@ bool TextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
 
 void TextureMTL::destroyInRenderer(const RenderSetupInfo *inSetupInfo,Scene *inScene)
 {
-    SceneMTL *scene = (SceneMTL *)inScene;
-
-    scene->releaseBuffer(mtlID);
     mtlID = nil;
 }
     
