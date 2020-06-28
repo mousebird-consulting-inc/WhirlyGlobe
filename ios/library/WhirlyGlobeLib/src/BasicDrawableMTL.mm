@@ -423,18 +423,18 @@ void BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
                     fragTexInfo->addTexture(texOffset, Point2f(texScale,texScale), tex != nil ? tex->getMTLID() : nil);
             }
             if (vertTexInfo) {
-                vertTexInfo->updateBuffer(mtlDevice,bltEncode);
+                vertTexInfo->updateBuffer(mtlDevice, bltEncode, resources);
             }
             if (fragTexInfo) {
-                fragTexInfo->updateBuffer(mtlDevice,bltEncode);
+                fragTexInfo->updateBuffer(mtlDevice, bltEncode, resources);
             }
         }
 
         if (valuesChanged) {
             if (vertABInfo)
-                vertABInfo->startEncoding(mtlDevice);
+                vertABInfo->startEncoding(mtlDevice, resources);
             if (fragABInfo)
-                fragABInfo->startEncoding(mtlDevice);
+                fragABInfo->startEncoding(mtlDevice, resources);
             
             // Uniform blocks associated with the program
             for (const UniformBlock &uniBlock : prog->uniBlocks) {
@@ -463,11 +463,9 @@ void BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
                 fragABInfo->updateEntry(mtlDevice,bltEncode, WhirlyKitShader::WKSUniformDrawStateEntry, &uni, sizeof(uni));
 
             if (vertABInfo) {
-                resources.addEntry(vertABInfo->tmpBuff);
                 vertABInfo->endEncoding(mtlDevice, bltEncode);
             }
             if (fragABInfo) {
-                resources.addEntry(fragABInfo->tmpBuff);
                 fragABInfo->endEncoding(mtlDevice, bltEncode);
             }
         }
@@ -481,9 +479,9 @@ void BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
     if (mainBuffer) {
         resources.addEntry(mainBuffer);
         if (vertABInfo)
-            resources.addEntry(vertABInfo->buff);
+            vertABInfo->addResources(resources);
         if (fragABInfo)
-            resources.addEntry(fragABInfo->buff);
+            fragABInfo->addResources(resources);
     } else {
         // If we're not consolidating the buffer, list all the buffers
         resources.addEntry(triBuffer);

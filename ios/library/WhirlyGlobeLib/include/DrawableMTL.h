@@ -56,7 +56,7 @@ public:
     bool hasConstant(const std::string &);
     
     // Make a new buffer, ready to copy arguments into
-    void startEncoding(id<MTLDevice> mtlDevice);
+    void startEncoding(id<MTLDevice> mtlDevice,ResourceRefsMTL &resources);
     
     // Copy the given entry into the current buffer
     void updateEntry(id<MTLDevice> mtlDevice,
@@ -76,7 +76,7 @@ public:
     // False if this failed to set up correctly
     bool isValid();
     
-public:
+protected:
     bool valid;
     bool isSetup;
     RenderSetupInfoMTL *setupInfoMTL;
@@ -119,7 +119,7 @@ public:
 
     // Encode into a new buffer and schedule an update using
     // Also clears out contents for next encoding pass
-    void updateBuffer(id<MTLDevice> mtlDevice,id<MTLBlitCommandEncoder> bltEncode);
+    void updateBuffer(id<MTLDevice> mtlDevice,id<MTLBlitCommandEncoder> bltEncode, ResourceRefsMTL &resources);
     
     // Size of the texture buffer (fixed)
     size_t encodedLength();

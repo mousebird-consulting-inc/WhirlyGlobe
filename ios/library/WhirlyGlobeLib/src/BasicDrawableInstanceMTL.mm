@@ -509,18 +509,18 @@ void BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
                     fragTexInfo->addTexture(texOffset, Point2f(texScale,texScale), tex != nil ? tex->getMTLID() : nil);
             }
             if (vertTexInfo) {
-                vertTexInfo->updateBuffer(mtlDevice,bltEncode);
+                vertTexInfo->updateBuffer(mtlDevice, bltEncode, resources);
             }
             if (fragTexInfo) {
-                fragTexInfo->updateBuffer(mtlDevice,bltEncode);
+                fragTexInfo->updateBuffer(mtlDevice, bltEncode, resources);
             }
         }
 
         if (valuesChanged) {
             if (vertABInfo)
-                vertABInfo->startEncoding(mtlDevice);
+                vertABInfo->startEncoding(mtlDevice, resources);
             if (fragABInfo)
-                fragABInfo->startEncoding(mtlDevice);
+                fragABInfo->startEncoding(mtlDevice, resources);
             
             // Put together a set of uniform blocks to apply
             std::map<int,const BasicDrawable::UniformBlock *> allUniBlocks;
@@ -559,11 +559,9 @@ void BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
                 vertABInfo->updateEntry(mtlDevice, bltEncode, WhirlyKitShader::WKSVertModelInstanceArgBuffer, &uniMI, sizeof(uniMI));
             
             if (vertABInfo) {
-                resources.addEntry(vertABInfo->tmpBuff);
                 vertABInfo->endEncoding(mtlDevice, bltEncode);
             }
             if (fragABInfo) {
-                resources.addEntry(fragABInfo->tmpBuff);
                 fragABInfo->endEncoding(mtlDevice, bltEncode);
             }
         }
@@ -576,13 +574,12 @@ void BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
     // Always need the resource lists
     // It should all be in one buffer
     if (mainBuffer) {
-        // TODO: Are we missing buffers from the ABInfo above?
         resources.addEntry(basicDrawMTL->mainBuffer);
         resources.addEntry(mainBuffer);
         if (vertABInfo)
-            resources.addEntry(vertABInfo->getBuffer());
+            vertABInfo->addResources(resources);
         if (fragABInfo)
-            resources.addEntry(fragABInfo->getBuffer());
+            fragABInfo->addResources(resources);
     } else {
         // If we're not consolidating the buffer, list all the buffers
         resources.addEntry(basicDrawMTL->triBuffer);

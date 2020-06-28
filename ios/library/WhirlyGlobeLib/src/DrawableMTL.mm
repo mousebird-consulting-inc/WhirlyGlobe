@@ -72,9 +72,10 @@ bool ArgBuffContentsMTL::hasConstant(const std::string &name)
     return constants.find(name) != constants.end();
 }
 
-void ArgBuffContentsMTL::startEncoding(id<MTLDevice> mtlDevice)
+void ArgBuffContentsMTL::startEncoding(id<MTLDevice> mtlDevice,ResourceRefsMTL &resources)
 {
     tmpBuff = setupInfoMTL->heapManage.allocateBuffer(HeapManagerMTL::Drawable, [encode encodedLength]);
+    resources.addEntry(tmpBuff);
     [encode setArgumentBuffer:tmpBuff->buffer offset:tmpBuff->offset];
 }
 
@@ -123,9 +124,10 @@ void ArgBuffRegularTexturesMTL::addTexture(const Point2f &offset,const Point2f &
     texs.push_back(tex);
 }
 
-void ArgBuffRegularTexturesMTL::updateBuffer(id<MTLDevice> mtlDevice,id<MTLBlitCommandEncoder> bltEncode)
+void ArgBuffRegularTexturesMTL::updateBuffer(id<MTLDevice> mtlDevice,id<MTLBlitCommandEncoder> bltEncode,ResourceRefsMTL &resources)
 {
     id<MTLBuffer> srcBuffer = [mtlDevice newBufferWithLength:size options:MTLResourceStorageModeShared];
+    resources.addBuffer(srcBuffer);
 
     [encode setArgumentBuffer:srcBuffer offset:0];
     

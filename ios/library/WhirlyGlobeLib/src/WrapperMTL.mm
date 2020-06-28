@@ -93,48 +93,40 @@ BufferBuilderMTL::BufferBuilderMTL(RenderSetupInfoMTL *setupInfo)
 
 BufferEntryMTLRef BufferBuilderMTL::addData(const void *inData,size_t size)
 {
-    if (HeapManagerMTL::UseHeaps) {
-        size_t start = [data length];
-        [data appendBytes:inData length:size];
+    size_t start = [data length];
+    [data appendBytes:inData length:size];
 
-        // Keep the allocations on the alignment Metal wants
-        size_t extra = size % setupInfo->memAlign;
-        if (extra > 0) {
-            [data increaseLengthBy:setupInfo->memAlign - extra];
-            [data resetBytesInRange:NSMakeRange(start + size, setupInfo->memAlign - extra)];
-        }
-
-        BufferEntryMTLRef buffer(new BufferEntryMTL());
-        buffer->offset = start;
-        bufferRefs.push_back(buffer);
-        
-        return buffer;
-    } else {
-        return setupInfo->heapManage.allocateBuffer(HeapManagerMTL::Drawable, inData, size);
+    // Keep the allocations on the alignment Metal wants
+    size_t extra = size % setupInfo->memAlign;
+    if (extra > 0) {
+        [data increaseLengthBy:setupInfo->memAlign - extra];
+        [data resetBytesInRange:NSMakeRange(start + size, setupInfo->memAlign - extra)];
     }
+
+    BufferEntryMTLRef buffer(new BufferEntryMTL());
+    buffer->offset = start;
+    bufferRefs.push_back(buffer);
+    
+    return buffer;
 }
 
 BufferEntryMTLRef BufferBuilderMTL::reserveData(size_t size)
 {
-    if (HeapManagerMTL::UseHeaps) {
-        // Keep the allocations on the alignment Metal wants
-        size_t extra = size % setupInfo->memAlign;
-        if (extra > 0) {
-            size += setupInfo->memAlign - extra;
-        }
-
-        int start = [data length];
-        [data increaseLengthBy:size];
-        [data resetBytesInRange:NSMakeRange(start, size)];
-
-        BufferEntryMTLRef buffer(new BufferEntryMTL());
-        buffer->offset = start;
-        bufferRefs.push_back(buffer);
-
-        return buffer;
-    } else {
-        return setupInfo->heapManage.allocateBuffer(HeapManagerMTL::Drawable, size);
+    // Keep the allocations on the alignment Metal wants
+    size_t extra = size % setupInfo->memAlign;
+    if (extra > 0) {
+        size += setupInfo->memAlign - extra;
     }
+
+    int start = [data length];
+    [data increaseLengthBy:size];
+    [data resetBytesInRange:NSMakeRange(start, size)];
+
+    BufferEntryMTLRef buffer(new BufferEntryMTL());
+    buffer->offset = start;
+    bufferRefs.push_back(buffer);
+
+    return buffer;
 }
 
 BufferEntryMTLRef BufferBuilderMTL::buildBuffer()
@@ -142,22 +134,17 @@ BufferEntryMTLRef BufferBuilderMTL::buildBuffer()
     if ([data length] == 0)
         return BufferEntryMTLRef();
         
-    if (HeapManagerMTL::UseHeaps) {
-        BufferEntryMTLRef buffer = setupInfo->heapManage.allocateBuffer(HeapManagerMTL::Drawable, [data mutableBytes],[data length]);
-        
-        // Update all the buffer references we already created
-        for (auto bufRef : bufferRefs) {
-            bufRef->heap = buffer->heap;
-            bufRef->buffer = buffer->buffer;
-        }
-
-        bufferRefs.clear();
-        
-        return buffer;
-    }
+    BufferEntryMTLRef buffer = setupInfo->heapManage.allocateBuffer(HeapManagerMTL::Drawable, [data mutableBytes],[data length]);
     
+    // Update all the buffer references we already created
+    for (auto bufRef : bufferRefs) {
+        bufRef->heap = buffer->heap;
+        bufRef->buffer = buffer->buffer;
+    }
+
     bufferRefs.clear();
-    return nil;
+    
+    return buffer;
 }
 
 
@@ -169,6 +156,8 @@ void ResourceRefsMTL::addEntry(BufferEntryMTLRef entry)
         heaps.insert(entry->heap);
     else if (entry->buffer)
         buffers.insert(entry->buffer);
+    
+    buffersToHold.insert(entry->buffer);
 }
 
 void ResourceRefsMTL::addBuffer(id<MTLBuffer> buffer)
@@ -201,6 +190,7 @@ void ResourceRefsMTL::clear()
     heaps.clear();
     buffers.clear();
     textures.clear();
+    buffersToHold.clear();
 }
 
 bool HeapManagerMTL::UseHeaps = true;

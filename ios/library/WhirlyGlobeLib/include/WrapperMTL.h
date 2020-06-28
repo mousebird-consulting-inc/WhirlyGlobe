@@ -91,6 +91,9 @@ protected:
     std::set< id<MTLHeap> > heaps;
     std::set< id<MTLBuffer> > buffers;
     std::set< id<MTLTexture> > textures;
+    
+    // We're just hanging on to these till the end of the frame
+    std::set< id<MTLBuffer> > buffersToHold;
 };
 typedef std::shared_ptr<ResourceRefsMTL> ResourceRefsMTLRef;
 
