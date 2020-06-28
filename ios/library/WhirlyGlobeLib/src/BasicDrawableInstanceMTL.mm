@@ -558,10 +558,14 @@ void BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
             if (vertABInfo)
                 vertABInfo->updateEntry(mtlDevice, bltEncode, WhirlyKitShader::WKSVertModelInstanceArgBuffer, &uniMI, sizeof(uniMI));
             
-            if (vertABInfo)
+            if (vertABInfo) {
+                resources.addEntry(vertABInfo->tmpBuff);
                 vertABInfo->endEncoding(mtlDevice, bltEncode);
-            if (fragABInfo)
+            }
+            if (fragABInfo) {
+                resources.addEntry(fragABInfo->tmpBuff);
                 fragABInfo->endEncoding(mtlDevice, bltEncode);
+            }
         }
         
 

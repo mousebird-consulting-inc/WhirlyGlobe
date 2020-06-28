@@ -462,10 +462,14 @@ void BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
             if (fragABInfo)
                 fragABInfo->updateEntry(mtlDevice,bltEncode, WhirlyKitShader::WKSUniformDrawStateEntry, &uni, sizeof(uni));
 
-            if (vertABInfo)
+            if (vertABInfo) {
+                resources.addEntry(vertABInfo->tmpBuff);
                 vertABInfo->endEncoding(mtlDevice, bltEncode);
-            if (fragABInfo)
+            }
+            if (fragABInfo) {
+                resources.addEntry(fragABInfo->tmpBuff);
                 fragABInfo->endEncoding(mtlDevice, bltEncode);
+            }
         }
 
         texturesChanged = false;
@@ -476,6 +480,10 @@ void BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
     // It should all be in one buffer
     if (mainBuffer) {
         resources.addEntry(mainBuffer);
+        if (vertABInfo)
+            resources.addEntry(vertABInfo->buff);
+        if (fragABInfo)
+            resources.addEntry(fragABInfo->buff);
     } else {
         // If we're not consolidating the buffer, list all the buffers
         resources.addEntry(triBuffer);

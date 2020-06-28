@@ -76,7 +76,7 @@ public:
     // False if this failed to set up correctly
     bool isValid();
     
-protected:
+public:
     bool valid;
     bool isSetup;
     RenderSetupInfoMTL *setupInfoMTL;
