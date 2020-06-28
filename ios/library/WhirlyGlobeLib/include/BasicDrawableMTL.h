@@ -36,6 +36,7 @@ class BasicDrawableMTL : virtual public BasicDrawable, virtual public DrawableMT
 {
 public:
     BasicDrawableMTL(const std::string &name);
+    ~BasicDrawableMTL();
     
     /// Set up local rendering structures (e.g. VBOs)
     virtual void setupForRenderer(const RenderSetupInfo *setupInfo,Scene *scene);

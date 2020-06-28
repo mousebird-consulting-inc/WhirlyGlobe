@@ -36,6 +36,10 @@ BasicDrawableMTL::BasicDrawableMTL(const std::string &name)
 {
 }
 
+BasicDrawableMTL::~BasicDrawableMTL()
+{
+}
+
 VertexAttributeMTL *BasicDrawableMTL::findVertexAttribute(int nameID)
 {
     VertexAttributeMTL *foundVertAttr = NULL;
