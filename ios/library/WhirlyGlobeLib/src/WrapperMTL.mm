@@ -175,14 +175,29 @@ void ResourceRefsMTL::addTextures(const std::vector< id<MTLTexture> > &newTextur
     textures.insert(newTextures.begin(),newTextures.end());
 }
 
+void ResourceRefsMTL::addResources(ResourceRefsMTL &other)
+{
+    heaps.insert(other.heaps.begin(),other.heaps.end());
+    buffers.insert(other.buffers.begin(),other.buffers.end());
+    textures.insert(other.textures.begin(),other.textures.end());
+    buffersToHold.insert(other.buffersToHold.begin(),other.buffersToHold.end());
+}
+
 void ResourceRefsMTL::use(id<MTLRenderCommandEncoder> cmdEncode)
 {
-    for (id<MTLHeap> heap : heaps)
-        [cmdEncode useHeap:heap];
+    if (heaps.empty() && buffers.empty() && textures.empty())
+        return;
+    int count = 0;
+    id<MTLResource> all[heaps.size()+buffers.size()+textures.size()];
+    
+//    for (id<MTLHeap> heap : heaps)
+//        all[count++] = heap;
     for (id<MTLBuffer> buff : buffers)
-        [cmdEncode useResource:buff usage:MTLResourceUsageRead];
+        all[count++] = buff;
     for (id<MTLTexture> tex : textures)
-        [cmdEncode useResource:tex usage:MTLResourceUsageRead];
+        all[count++] = tex;
+    
+    [cmdEncode useResources:all count:count usage:MTLResourceUsageRead];
 }
 
 void ResourceRefsMTL::clear()
@@ -193,7 +208,7 @@ void ResourceRefsMTL::clear()
     buffersToHold.clear();
 }
 
-bool HeapManagerMTL::UseHeaps = true;
+bool HeapManagerMTL::UseHeaps = false;
 
 HeapManagerMTL::HeapManagerMTL(id<MTLDevice> mtlDevice)
 : mtlDevice(mtlDevice)
@@ -225,6 +240,9 @@ BufferEntryMTLRef HeapManagerMTL::allocateBuffer(HeapType heapType,size_t size)
     if (UseHeaps) {
         buffer->heap = findHeap(heapType,size);
         buffer->buffer = [buffer->heap newBufferWithLength:size options:MTLResourceStorageModeShared];
+        if (!buffer->buffer) {
+            NSLog(@"Uh oh!  Ran out of buffer space");
+        }
         buffer->offset = 0;
     } else {
         buffer->buffer = [mtlDevice newBufferWithLength:size options:MTLResourceStorageModeShared];
@@ -241,6 +259,9 @@ BufferEntryMTLRef HeapManagerMTL::allocateBuffer(HeapType heapType,const void *d
     if (UseHeaps) {
         buffer->heap = findHeap(heapType,size);
         buffer->buffer = [buffer->heap newBufferWithLength:size options:MTLResourceStorageModeShared];
+        if (!buffer->buffer) {
+            NSLog(@"Uh oh!  Ran out of buffer space");
+        }
         memcpy([buffer->buffer contents], data, size);
         buffer->offset = 0;
     } else {

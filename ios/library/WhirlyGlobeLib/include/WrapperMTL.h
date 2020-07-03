@@ -81,6 +81,8 @@ public:
     void addTexture(id<MTLTexture> texture);
     void addTextures(const std::vector< id<MTLTexture> > &textures);
     
+    void addResources(ResourceRefsMTL &other);
+    
     // Wire up the resources listed
     void use(id<MTLRenderCommandEncoder> cmdEncode);
     

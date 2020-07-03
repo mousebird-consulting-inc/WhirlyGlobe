@@ -62,12 +62,12 @@ public:
     
     /// Indirect version of calculate encoding.  Called only when things change enough to re-encode.
     API_AVAILABLE(ios(13.0))
-    virtual void encodeInirectCalculate(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget);
+    virtual void encodeIndirectCalculate(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget,ResourceRefsMTL &resources);
 
     /// Indirect version of regular encoding.  Called only when things change enough to re-encode.
     API_AVAILABLE(ios(13.0))
-    virtual void encodeIndirect(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget);
-
+    virtual void encodeIndirect(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget,ResourceRefsMTL &resources);
+    
     /// Find the vertex attribute corresponding to the given name
     VertexAttributeMTL *findVertexAttribute(int nameID);
     

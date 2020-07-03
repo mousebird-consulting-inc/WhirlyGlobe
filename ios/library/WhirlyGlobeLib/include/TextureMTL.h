@@ -35,6 +35,7 @@ class TextureBaseMTL : virtual public TextureBase
 public:
     TextureBaseMTL(SimpleIdentity thisId) : TextureBase(thisId), mtlID(nil) { }
     TextureBaseMTL(const std::string &name) : TextureBase(name), mtlID(nil) { }
+    ~TextureBaseMTL();
     
     /// Return the unique GL ID.
     id<MTLTexture> getMTLID() const { return mtlID; }

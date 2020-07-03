@@ -71,6 +71,10 @@ TextureMTL::TextureMTL(const std::string &name,UIImage *inImage)
     
     texData = RawDataRef(new RawNSDataReader(data));
 }
+
+TextureBaseMTL::~TextureBaseMTL()
+{
+}
     
 RawDataRef TextureMTL::convertData()
 {

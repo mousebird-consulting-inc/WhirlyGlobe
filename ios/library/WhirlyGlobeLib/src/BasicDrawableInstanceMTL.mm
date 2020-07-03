@@ -509,18 +509,18 @@ void BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
                     fragTexInfo->addTexture(texOffset, Point2f(texScale,texScale), tex != nil ? tex->getMTLID() : nil);
             }
             if (vertTexInfo) {
-                vertTexInfo->updateBuffer(mtlDevice, bltEncode, resources);
+                vertTexInfo->updateBuffer(mtlDevice, bltEncode);
             }
             if (fragTexInfo) {
-                fragTexInfo->updateBuffer(mtlDevice, bltEncode, resources);
+                fragTexInfo->updateBuffer(mtlDevice, bltEncode);
             }
         }
 
         if (valuesChanged) {
             if (vertABInfo)
-                vertABInfo->startEncoding(mtlDevice, resources);
+                vertABInfo->startEncoding(mtlDevice);
             if (fragABInfo)
-                fragABInfo->startEncoding(mtlDevice, resources);
+                fragABInfo->startEncoding(mtlDevice);
             
             // Put together a set of uniform blocks to apply
             std::map<int,const BasicDrawable::UniformBlock *> allUniBlocks;
@@ -570,38 +570,7 @@ void BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
         texturesChanged = false;
         valuesChanged = false;
     }
-    
-    // Always need the resource lists
-    // It should all be in one buffer
-    if (mainBuffer) {
-        resources.addEntry(basicDrawMTL->mainBuffer);
-        resources.addEntry(mainBuffer);
-        if (vertABInfo)
-            vertABInfo->addResources(resources);
-        if (fragABInfo)
-            fragABInfo->addResources(resources);
-    } else {
-        // If we're not consolidating the buffer, list all the buffers
-        resources.addEntry(basicDrawMTL->triBuffer);
-        resources.addEntry(indirectBuffer);
-        if (vertABInfo)
-            vertABInfo->addResources(resources);
-        if (vertTexInfo)
-            vertTexInfo->addResources(resources);
-        if (fragABInfo)
-            fragABInfo->addResources(resources);
-        if (fragTexInfo)
-            fragTexInfo->addResources(resources);
-        for (auto vertAttr : basicDrawMTL->vertexAttributes) {
-            VertexAttributeMTL *vertAttrMTL = (VertexAttributeMTL *)vertAttr;
-            if (vertAttrMTL->buffer && (vertAttrMTL->bufferIndex >= 0))
-                resources.addEntry(vertAttrMTL->buffer);
-        }
-        for (auto defAttr : basicDrawMTL->defaultAttrs)
-            resources.addEntry(defAttr.buffer);
-        for (auto defAttr : defaultAttrs)
-            resources.addEntry(defAttr.buffer);
-    }
+
     resources.addTextures(activeTextures);
 }
 
@@ -747,12 +716,12 @@ void BasicDrawableInstanceMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,id<M
     }
 }
 
-void BasicDrawableInstanceMTL::encodeInirectCalculate(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget)
+void BasicDrawableInstanceMTL::encodeIndirectCalculate(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget,ResourceRefsMTL &resources)
 {
     // TODO: Fill this in
 }
 
-void BasicDrawableInstanceMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget)
+void BasicDrawableInstanceMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget,ResourceRefsMTL &resources)
 {
     BasicDrawableMTL *basicDrawMTL = dynamic_cast<BasicDrawableMTL *>(basicDraw.get());
     ProgramMTL *program = (ProgramMTL *)scene->getProgram(programID);
@@ -766,47 +735,60 @@ void BasicDrawableInstanceMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEn
     // Wire up the various inputs that we know about
     for (auto vertAttr : basicDrawMTL->vertexAttributes) {
         VertexAttributeMTL *vertAttrMTL = (VertexAttributeMTL *)vertAttr;
-        if (vertAttrMTL->buffer && (vertAttrMTL->bufferIndex >= 0))
+        if (vertAttrMTL->buffer && (vertAttrMTL->bufferIndex >= 0)) {
+            resources.addEntry(vertAttrMTL->buffer);
             [cmdEncode setVertexBuffer:vertAttrMTL->buffer->buffer offset:vertAttrMTL->buffer->offset atIndex:vertAttrMTL->bufferIndex];
+        }
     }
     
     // And provide defaults for the ones we don't.  Both in the basic drawable and our instance
-    for (auto defAttr : basicDrawMTL->defaultAttrs)
+    for (auto defAttr : basicDrawMTL->defaultAttrs) {
+        resources.addEntry(defAttr.buffer);
         [cmdEncode setVertexBuffer:defAttr.buffer->buffer offset:defAttr.buffer->offset atIndex:defAttr.bufferIndex];
-    for (auto defAttr : defaultAttrs)
+    }
+    for (auto defAttr : defaultAttrs) {
+        resources.addEntry(defAttr.buffer);
         [cmdEncode setVertexBuffer:defAttr.buffer->buffer offset:defAttr.buffer->offset atIndex:defAttr.bufferIndex];
+    }
     
     [cmdEncode setRenderPipelineState:renderState];
 
     // Everything takes the uniforms
+    resources.addEntry(sceneRender->setupInfo.uniformBuff);
     [cmdEncode setVertexBuffer:sceneRender->setupInfo.uniformBuff->buffer offset:sceneRender->setupInfo.uniformBuff->offset atIndex:WhirlyKitShader::WKSVertUniformArgBuffer];
     [cmdEncode setFragmentBuffer:sceneRender->setupInfo.uniformBuff->buffer offset:sceneRender->setupInfo.uniformBuff->offset atIndex:WhirlyKitShader::WKSFragUniformArgBuffer];
 
     // Some shaders take the lighting
     if (vertHasLighting) {
+        resources.addEntry(sceneRender->setupInfo.lightingBuff);
         [cmdEncode setVertexBuffer:sceneRender->setupInfo.lightingBuff->buffer offset:sceneRender->setupInfo.lightingBuff->offset atIndex:WhirlyKitShader::WKSVertLightingArgBuffer];
     }
     if (fragHasLighting) {
+        resources.addEntry(sceneRender->setupInfo.lightingBuff);
         [cmdEncode setFragmentBuffer:sceneRender->setupInfo.lightingBuff->buffer offset:sceneRender->setupInfo.lightingBuff->offset atIndex:WhirlyKitShader::WKSFragLightingArgBuffer];
     }
 
     // More flexible data structures passed in to the shaders
     if (vertABInfo) {
         BufferEntryMTLRef buff = vertABInfo->getBuffer();
+        resources.addEntry(buff);
         [cmdEncode setVertexBuffer:buff->buffer offset:buff->offset atIndex:WhirlyKitShader::WKSVertexArgBuffer];
     }
     if (fragABInfo) {
         BufferEntryMTLRef buff = fragABInfo->getBuffer();
+        resources.addEntry(buff);
         [cmdEncode setFragmentBuffer:buff->buffer offset:buff->offset atIndex:WhirlyKitShader::WKSFragmentArgBuffer];
     }
 
     // Textures may or may not be passed in to shaders
     if (vertTexInfo) {
         BufferEntryMTLRef buff = vertTexInfo->getBuffer();
+        resources.addEntry(buff);
         [cmdEncode setVertexBuffer:buff->buffer offset:buff->offset atIndex:WhirlyKitShader::WKSVertTextureArgBuffer];
     }
     if (fragTexInfo) {
         BufferEntryMTLRef buff = fragTexInfo->getBuffer();
+        resources.addEntry(buff);
         [cmdEncode setFragmentBuffer:buff->buffer offset:buff->offset atIndex:WhirlyKitShader::WKSFragTextureArgBuffer];
     }
 
@@ -828,6 +810,7 @@ void BasicDrawableInstanceMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEn
                         return;
                     }
                     // This actually draws the triangles (well, in a bit)
+                    resources.addEntry(basicDrawMTL->triBuffer);
                     [cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle
                                           indexCount:basicDrawMTL->numTris*3
                                            indexType:MTLIndexTypeUInt16
@@ -852,6 +835,7 @@ void BasicDrawableInstanceMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEn
                                  baseInstance:0];
                     break;
                 case Triangles:
+                    resources.addEntry(basicDrawMTL->triBuffer);
                     [cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle
                                           indexCount:basicDrawMTL->numTris*3
                                            indexType:MTLIndexTypeUInt16

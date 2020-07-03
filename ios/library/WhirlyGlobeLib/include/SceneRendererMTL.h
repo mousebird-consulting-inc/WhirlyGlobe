@@ -82,6 +82,9 @@ public:
 
         // Drawables in this group
         std::vector<DrawableRef> drawables;
+        
+        // Resources used by this group
+        ResourceRefsMTL resources;
     };
     typedef std::shared_ptr<DrawGroupMTL> DrawGroupMTLRef;
 
@@ -163,10 +166,10 @@ public:
     virtual DynamicTextureRef makeDynamicTexture(const std::string &name) const;
     
     /// Set up the buffer for general uniforms and attach it to its vertex/fragment buffers
-    void setupUniformBuffer(RendererFrameInfoMTL *frameInfo, id<MTLBlitCommandEncoder> bltEncode,CoordSystemDisplayAdapter *coordAdapter,ResourceRefsMTL &resources);
+    void setupUniformBuffer(RendererFrameInfoMTL *frameInfo, id<MTLBlitCommandEncoder> bltEncode,CoordSystemDisplayAdapter *coordAdapter);
 
     /// Set the lights and tie them to a vertex buffer index
-    void setupLightBuffer(SceneMTL *scene,RendererFrameInfoMTL *frameInfo,id<MTLBlitCommandEncoder> bltEncode,ResourceRefsMTL &resources);
+    void setupLightBuffer(SceneMTL *scene,RendererFrameInfoMTL *frameInfo,id<MTLBlitCommandEncoder> bltEncode);
     
     // Apply the various defaults to DrawStateA
     void setupDrawStateA(WhirlyKitShader::UniformDrawStateA &drawState);

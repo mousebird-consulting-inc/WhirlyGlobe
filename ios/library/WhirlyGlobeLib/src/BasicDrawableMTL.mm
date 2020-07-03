@@ -365,6 +365,8 @@ void BasicDrawableMTL::setupArgBuffers(id<MTLDevice> mtlDevice,RenderSetupInfoMT
                                                                   buffBuild));
         vertHasTextures = vertABInfo->hasConstant("hasTextures");
         vertHasLighting = vertABInfo->hasConstant("hasLighting");
+        if (vertABInfo->isEmpty())
+            vertABInfo = NULL;
         if (vertHasTextures)
             vertTexInfo = ArgBuffRegularTexturesMTLRef(new ArgBuffRegularTexturesMTL(mtlDevice, setupInfo, prog->vertFunc, WhirlyKitShader::WKSVertTextureArgBuffer, buffBuild));
     }
@@ -376,6 +378,8 @@ void BasicDrawableMTL::setupArgBuffers(id<MTLDevice> mtlDevice,RenderSetupInfoMT
                                                                   buffBuild));
         fragHasTextures = fragABInfo->hasConstant("hasTextures");
         fragHasLighting = fragABInfo->hasConstant("hasLighting");
+        if (fragABInfo->isEmpty())
+            fragABInfo = NULL;
         if (fragHasTextures)
             fragTexInfo = ArgBuffRegularTexturesMTLRef(new ArgBuffRegularTexturesMTL(mtlDevice, setupInfo, prog->fragFunc, WhirlyKitShader::WKSFragTextureArgBuffer, buffBuild));
     }
@@ -427,18 +431,18 @@ void BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
                     fragTexInfo->addTexture(texOffset, Point2f(texScale,texScale), tex != nil ? tex->getMTLID() : nil);
             }
             if (vertTexInfo) {
-                vertTexInfo->updateBuffer(mtlDevice, bltEncode, resources);
+                vertTexInfo->updateBuffer(mtlDevice, bltEncode);
             }
             if (fragTexInfo) {
-                fragTexInfo->updateBuffer(mtlDevice, bltEncode, resources);
+                fragTexInfo->updateBuffer(mtlDevice, bltEncode);
             }
         }
 
         if (valuesChanged) {
             if (vertABInfo)
-                vertABInfo->startEncoding(mtlDevice, resources);
+                vertABInfo->startEncoding(mtlDevice);
             if (fragABInfo)
-                fragABInfo->startEncoding(mtlDevice, resources);
+                fragABInfo->startEncoding(mtlDevice);
             
             // Uniform blocks associated with the program
             for (const UniformBlock &uniBlock : prog->uniBlocks) {
@@ -477,36 +481,7 @@ void BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
         texturesChanged = false;
         valuesChanged = false;
     }
-    
-    // Always need the resource lists
-    // It should all be in one buffer
-    if (mainBuffer) {
-        resources.addEntry(mainBuffer);
-        if (vertABInfo)
-            vertABInfo->addResources(resources);
-        if (fragABInfo)
-            fragABInfo->addResources(resources);
-    } else {
-        // If we're not consolidating the buffer, list all the buffers
-        resources.addEntry(triBuffer);
-        if (vertABInfo)
-            vertABInfo->addResources(resources);
-        if (vertTexInfo)
-            vertTexInfo->addResources(resources);
-        if (fragABInfo)
-            fragABInfo->addResources(resources);
-        if (fragTexInfo)
-            fragTexInfo->addResources(resources);
-        for (auto vertAttr : vertexAttributes) {
-            VertexAttributeMTL *vertAttrMTL = (VertexAttributeMTL *)vertAttr;
-            if (vertAttrMTL->buffer && (vertAttrMTL->bufferIndex >= 0))
-                resources.addEntry(vertAttrMTL->buffer);
-        }
-        for (auto defAttr : defaultAttrs)
-            resources.addEntry(defAttr.buffer);
-    }
 
-    // TODO: Try to update this less often
     resources.addTextures(activeTextures);
 }
 
@@ -577,11 +552,11 @@ void BasicDrawableMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,id<MTLRender
     }
 }
 
-void BasicDrawableMTL::encodeInirectCalculate(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget)
+void BasicDrawableMTL::encodeIndirectCalculate(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget,ResourceRefsMTL &resources)
 {
 }
 
-void BasicDrawableMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget)
+void BasicDrawableMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget,ResourceRefsMTL &resources)
 {
     ProgramMTL *program = (ProgramMTL *)scene->getProgram(programId);
     if (!program) {
@@ -594,43 +569,56 @@ void BasicDrawableMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEncode,Sce
     // Wire up the various inputs that we know about
     for (auto vertAttr : vertexAttributes) {
         VertexAttributeMTL *vertAttrMTL = (VertexAttributeMTL *)vertAttr;
-        if (vertAttrMTL->buffer && (vertAttrMTL->bufferIndex >= 0))
+        if (vertAttrMTL->buffer && (vertAttrMTL->bufferIndex >= 0)) {
+            resources.addEntry(vertAttrMTL->buffer);
             [cmdEncode setVertexBuffer:vertAttrMTL->buffer->buffer offset:vertAttrMTL->buffer->offset atIndex:vertAttrMTL->bufferIndex];
+        }
     }
     
     // And provide defaults for the ones we don't
-    for (auto defAttr : defaultAttrs)
+    for (auto defAttr : defaultAttrs) {
+        resources.addEntry(defAttr.buffer);
         [cmdEncode setVertexBuffer:defAttr.buffer->buffer offset:defAttr.buffer->offset atIndex:defAttr.bufferIndex];
+    }
     
     [cmdEncode setRenderPipelineState:renderState];
     
     // Everything takes the uniforms
+    resources.addEntry(sceneRender->setupInfo.uniformBuff);
     [cmdEncode setVertexBuffer:sceneRender->setupInfo.uniformBuff->buffer offset:sceneRender->setupInfo.uniformBuff->offset atIndex:WhirlyKitShader::WKSVertUniformArgBuffer];
     [cmdEncode setFragmentBuffer:sceneRender->setupInfo.uniformBuff->buffer offset:sceneRender->setupInfo.uniformBuff->offset atIndex:WhirlyKitShader::WKSFragUniformArgBuffer];
 
     // Some shaders take the lighting
-    if (vertHasLighting)
+    if (vertHasLighting) {
+        resources.addEntry(sceneRender->setupInfo.lightingBuff);
         [cmdEncode setVertexBuffer:sceneRender->setupInfo.lightingBuff->buffer offset:sceneRender->setupInfo.lightingBuff->offset atIndex:WhirlyKitShader::WKSVertLightingArgBuffer];
-    if (fragHasLighting)
+    }
+    if (fragHasLighting) {
+        resources.addEntry(sceneRender->setupInfo.lightingBuff);
         [cmdEncode setFragmentBuffer:sceneRender->setupInfo.lightingBuff->buffer offset:sceneRender->setupInfo.lightingBuff->offset atIndex:WhirlyKitShader::WKSFragLightingArgBuffer];
+    }
 
     // More flexible data structures passed in to the shaders
     if (vertABInfo) {
         BufferEntryMTLRef buff = vertABInfo->getBuffer();
+        resources.addEntry(buff);
         [cmdEncode setVertexBuffer:buff->buffer offset:buff->offset atIndex:WhirlyKitShader::WKSVertexArgBuffer];
     }
     if (fragABInfo) {
         BufferEntryMTLRef buff = fragABInfo->getBuffer();
+        resources.addEntry(buff);
         [cmdEncode setFragmentBuffer:buff->buffer offset:buff->offset atIndex:WhirlyKitShader::WKSFragmentArgBuffer];
     }
 
     // Textures may or may not be passed in to shaders
     if (vertTexInfo) {
         BufferEntryMTLRef buff = vertTexInfo->getBuffer();
+        resources.addEntry(buff);
         [cmdEncode setVertexBuffer:buff->buffer offset:buff->offset atIndex:WhirlyKitShader::WKSVertTextureArgBuffer];
     }
     if (fragTexInfo) {
         BufferEntryMTLRef buff = fragTexInfo->getBuffer();
+        resources.addEntry(buff);
         [cmdEncode setFragmentBuffer:buff->buffer offset:buff->offset atIndex:WhirlyKitShader::WKSFragTextureArgBuffer];
     }
 
@@ -640,6 +628,7 @@ void BasicDrawableMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEncode,Sce
             [cmdEncode drawPrimitives:MTLPrimitiveTypeLine vertexStart:0 vertexCount:numPts instanceCount:1 baseInstance:0];
             break;
         case Triangles:
+            resources.addEntry(triBuffer);
             // This actually draws the triangles (well, in a bit)
             [cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:numTris*3 indexType:MTLIndexTypeUInt16 indexBuffer:triBuffer->buffer indexBufferOffset:triBuffer->offset instanceCount:1 baseVertex:0 baseInstance:0];
             break;

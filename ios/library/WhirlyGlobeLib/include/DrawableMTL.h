@@ -45,6 +45,9 @@ public:
                        id<MTLFunction> func,
                        int bufferArgIdx,
                        BufferBuilderMTL &buffBuild);
+    
+    // Check if this is just empty
+    bool isEmpty();
         
     // Create empty buffers for the various entries we don't have yet
     void createBuffers(id<MTLDevice> mtlDevice,BufferBuilderMTL &buffBuild);
@@ -56,7 +59,7 @@ public:
     bool hasConstant(const std::string &);
     
     // Make a new buffer, ready to copy arguments into
-    void startEncoding(id<MTLDevice> mtlDevice,ResourceRefsMTL &resources);
+    void startEncoding(id<MTLDevice> mtlDevice);
     
     // Copy the given entry into the current buffer
     void updateEntry(id<MTLDevice> mtlDevice,
@@ -119,16 +122,13 @@ public:
 
     // Encode into a new buffer and schedule an update using
     // Also clears out contents for next encoding pass
-    void updateBuffer(id<MTLDevice> mtlDevice,id<MTLBlitCommandEncoder> bltEncode, ResourceRefsMTL &resources);
+    void updateBuffer(id<MTLDevice> mtlDevice,id<MTLBlitCommandEncoder> bltEncode);
     
     // Size of the texture buffer (fixed)
     size_t encodedLength();
         
     // Return the buffer created for the argument buffer
     BufferEntryMTLRef getBuffer();
-
-    // Add the resources we're using to the list
-    void addResources(ResourceRefsMTL &resources);
 
 protected:
     id<MTLArgumentEncoder> encode;
@@ -157,18 +157,18 @@ public:
                     ResourceRefsMTL &resources) = 0;
 
     /// Some drawables have a pre-render phase that uses the GPU for calculation
-    virtual void encodeDirectCalculate(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene);
+    virtual void encodeDirectCalculate(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene) = 0;
 
     /// Draw directly, once per frame
-    virtual void encodeDirect(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene);
+    virtual void encodeDirect(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene) = 0;
     
     /// Indirect version of calculate encoding.  Called only when things change enough to re-encode.
     API_AVAILABLE(ios(13.0))
-    virtual void encodeInirectCalculate(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget);
+    virtual void encodeIndirectCalculate(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget,ResourceRefsMTL &resources) = 0;
 
     /// Indirect version of regular encoding.  Called only when things change enough to re-encode.
     API_AVAILABLE(ios(13.0))
-    virtual void encodeIndirect(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget);
+    virtual void encodeIndirect(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget,ResourceRefsMTL &resources) = 0;
 };
 
 }

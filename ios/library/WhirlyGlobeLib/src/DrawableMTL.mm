@@ -62,6 +62,11 @@ ArgBuffContentsMTL::ArgBuffContentsMTL(id<MTLDevice> mtlDevice,RenderSetupInfoMT
     valid = true;
 }
 
+bool ArgBuffContentsMTL::isEmpty()
+{
+    return [encode encodedLength] == 0;
+}
+
 bool ArgBuffContentsMTL::hasEntry(int entryID)
 {
     return entries.find(entryID) != entries.end();
@@ -72,15 +77,19 @@ bool ArgBuffContentsMTL::hasConstant(const std::string &name)
     return constants.find(name) != constants.end();
 }
 
-void ArgBuffContentsMTL::startEncoding(id<MTLDevice> mtlDevice,ResourceRefsMTL &resources)
+void ArgBuffContentsMTL::startEncoding(id<MTLDevice> mtlDevice)
 {
-    tmpBuff = setupInfoMTL->heapManage.allocateBuffer(HeapManagerMTL::Drawable, [encode encodedLength]);
-    resources.addEntry(tmpBuff);
-    [encode setArgumentBuffer:tmpBuff->buffer offset:tmpBuff->offset];
+    NSUInteger len = [encode encodedLength];
+    if (len > 0) {
+        tmpBuff = setupInfoMTL->heapManage.allocateBuffer(HeapManagerMTL::Drawable, len);
+        [encode setArgumentBuffer:tmpBuff->buffer offset:tmpBuff->offset];
+    }
 }
 
 void ArgBuffContentsMTL::endEncoding(id<MTLDevice> mtlDevice, id<MTLBlitCommandEncoder> blitEncode)
 {
+    if (!tmpBuff)
+        return;
     [blitEncode copyFromBuffer:tmpBuff->buffer sourceOffset:tmpBuff->offset toBuffer:buff->buffer destinationOffset:buff->offset size:[tmpBuff->buffer length]];
     tmpBuff.reset();
 }
@@ -124,10 +133,9 @@ void ArgBuffRegularTexturesMTL::addTexture(const Point2f &offset,const Point2f &
     texs.push_back(tex);
 }
 
-void ArgBuffRegularTexturesMTL::updateBuffer(id<MTLDevice> mtlDevice,id<MTLBlitCommandEncoder> bltEncode,ResourceRefsMTL &resources)
+void ArgBuffRegularTexturesMTL::updateBuffer(id<MTLDevice> mtlDevice,id<MTLBlitCommandEncoder> bltEncode)
 {
     id<MTLBuffer> srcBuffer = [mtlDevice newBufferWithLength:size options:MTLResourceStorageModeShared];
-    resources.addBuffer(srcBuffer);
 
     [encode setArgumentBuffer:srcBuffer offset:0];
     
@@ -157,28 +165,6 @@ size_t ArgBuffRegularTexturesMTL::encodedLength()
 {
     return size;
 }
-
-void ArgBuffRegularTexturesMTL::addResources(ResourceRefsMTL &resources)
-{
-    resources.addEntry(buffer);
-}
-
-void DrawableMTL::encodeDirectCalculate(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene)
-{
-}
-
-void DrawableMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene)
-{
-}
-
-void DrawableMTL::encodeInirectCalculate(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget)
-{
-}
-
-void DrawableMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget)
-{
-}
-
     
 }
 

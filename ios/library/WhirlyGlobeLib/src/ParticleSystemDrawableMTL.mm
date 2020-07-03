@@ -194,12 +194,12 @@ void ParticleSystemDrawableMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,id<
     // TODO: Fill this in
 }
 
-void ParticleSystemDrawableMTL::encodeInirectCalculate(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget)
+void ParticleSystemDrawableMTL::encodeIndirectCalculate(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget,ResourceRefsMTL &resources)
 {
     // TODO: Fill this in
 }
 
-void ParticleSystemDrawableMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget)
+void ParticleSystemDrawableMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget,ResourceRefsMTL &resources)
 {
     // TODO: Fill this in
 }
