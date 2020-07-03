@@ -111,6 +111,7 @@ void WorkGroup::removeDrawable(DrawableRef drawable)
     for (auto &renderTargetCon : renderTargetContainers) {
         auto it = renderTargetCon->drawables.find(drawable);
         if (it != renderTargetCon->drawables.end()) {
+            renderTargetCon->modified = true;
             renderTargetCon->drawables.erase(it);
         }
     }
