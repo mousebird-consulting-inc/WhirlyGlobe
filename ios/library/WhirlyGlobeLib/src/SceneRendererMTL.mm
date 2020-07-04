@@ -890,7 +890,7 @@ void SceneRendererMTL::render(TimeInterval duration,
                     }
                 });
                 
-                // Sit on all the various buffers until we're (hopefully) done with them
+                // Sit on all the various buffers until we're done with them
                 trackedResources->clear();
             }];
 

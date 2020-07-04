@@ -190,14 +190,16 @@ void ResourceRefsMTL::use(id<MTLRenderCommandEncoder> cmdEncode)
     int count = 0;
     id<MTLResource> all[heaps.size()+buffers.size()+textures.size()];
     
-//    for (id<MTLHeap> heap : heaps)
-//        all[count++] = heap;
+    for (id<MTLHeap> heap : heaps)
+        [cmdEncode useHeap:heap];
     for (id<MTLBuffer> buff : buffers)
-        all[count++] = buff;
+        [cmdEncode useResource:buff usage:MTLResourceUsageRead];
+//        all[count++] = buff;
     for (id<MTLTexture> tex : textures)
-        all[count++] = tex;
+        [cmdEncode useResource:tex usage:MTLResourceUsageRead];
+//        all[count++] = tex;
     
-    [cmdEncode useResources:all count:count usage:MTLResourceUsageRead];
+//    [cmdEncode useResources:all count:count usage:MTLResourceUsageRead];
 }
 
 void ResourceRefsMTL::clear()
