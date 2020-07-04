@@ -147,6 +147,11 @@ BufferEntryMTLRef BufferBuilderMTL::buildBuffer()
     return buffer;
 }
 
+TextureEntryMTL::TextureEntryMTL()
+: heap(nil), tex(nil)
+{
+    
+}
 
 void ResourceRefsMTL::addEntry(BufferEntryMTLRef entry)
 {
@@ -165,14 +170,20 @@ void ResourceRefsMTL::addBuffer(id<MTLBuffer> buffer)
     buffers.insert(buffer);
 }
 
-void ResourceRefsMTL::addTexture(id<MTLTexture> texture)
+void ResourceRefsMTL::addTexture(TextureEntryMTL &tex)
 {
-    textures.insert(texture);
+    if (tex.heap)
+        heaps.insert(tex.heap);
+    else
+        textures.insert(tex.tex);
+    
+    texturesToHold.insert(tex.tex);
 }
 
-void ResourceRefsMTL::addTextures(const std::vector< id<MTLTexture> > &newTextures)
+void ResourceRefsMTL::addTextures(const std::vector<TextureEntryMTL> &textures)
 {
-    textures.insert(newTextures.begin(),newTextures.end());
+    for (auto tex: textures)
+        addTexture(tex);
 }
 
 void ResourceRefsMTL::addResources(ResourceRefsMTL &other)
@@ -181,14 +192,15 @@ void ResourceRefsMTL::addResources(ResourceRefsMTL &other)
     buffers.insert(other.buffers.begin(),other.buffers.end());
     textures.insert(other.textures.begin(),other.textures.end());
     buffersToHold.insert(other.buffersToHold.begin(),other.buffersToHold.end());
+    texturesToHold.insert(other.texturesToHold.begin(),other.texturesToHold.end());
 }
 
 void ResourceRefsMTL::use(id<MTLRenderCommandEncoder> cmdEncode)
 {
     if (heaps.empty() && buffers.empty() && textures.empty())
         return;
-    int count = 0;
-    id<MTLResource> all[heaps.size()+buffers.size()+textures.size()];
+//    int count = 0;
+//    id<MTLResource> all[heaps.size()+buffers.size()+textures.size()];
     
     for (id<MTLHeap> heap : heaps)
         [cmdEncode useHeap:heap];
@@ -210,7 +222,7 @@ void ResourceRefsMTL::clear()
     buffersToHold.clear();
 }
 
-bool HeapManagerMTL::UseHeaps = false;
+bool HeapManagerMTL::UseHeaps = true;
 
 HeapManagerMTL::HeapManagerMTL(id<MTLDevice> mtlDevice)
 : mtlDevice(mtlDevice)
@@ -232,6 +244,25 @@ id<MTLHeap> HeapManagerMTL::findHeap(HeapType heapType,size_t &size)
     heapDesc.storageMode = MTLStorageModeShared;
     id<MTLHeap> newHeap = [mtlDevice newHeapWithDescriptor:heapDesc];
     heapGroup.heaps.push_back(newHeap);
+    
+    return newHeap;
+}
+
+id<MTLHeap> HeapManagerMTL::findTextureHeap(MTLTextureDescriptor *desc,size_t size)
+{
+    for (auto heap : texGroups.heaps) {
+        MTLSizeAndAlign sAlign = [mtlDevice heapBufferSizeAndAlignWithLength:size options:MTLResourceUsageRead];
+        size = sAlign.size;
+        if ([heap maxAvailableSizeWithAlignment:sAlign.align] >= size)
+            return heap;
+    }
+    
+    MTLHeapDescriptor *heapDesc = [[MTLHeapDescriptor alloc] init];
+    heapDesc.size = 16*1024*10214;  // 16MB, at a guess
+    // TODO: Don't need this for most things
+    heapDesc.storageMode = MTLStorageModeShared;
+    id<MTLHeap> newHeap = [mtlDevice newHeapWithDescriptor:heapDesc];
+    texGroups.heaps.push_back(newHeap);
     
     return newHeap;
 }
@@ -275,6 +306,19 @@ BufferEntryMTLRef HeapManagerMTL::allocateBuffer(HeapType heapType,const void *d
     return buffer;
 }
 
+TextureEntryMTL HeapManagerMTL::newTextureWithDescriptor(MTLTextureDescriptor *desc,size_t size)
+{
+    TextureEntryMTL tex;
+    
+    if (UseHeaps) {
+        tex.heap = findTextureHeap(desc, size);
+        tex.tex = [tex.heap newTextureWithDescriptor:desc];
+    } else {
+        tex.tex = [mtlDevice newTextureWithDescriptor:desc];
+    }
+    
+    return tex;
+}
 
 RenderSetupInfoMTL::RenderSetupInfoMTL(id<MTLDevice> mtlDevice,id<MTLLibrary> mtlLibrary)
 : mtlDevice(mtlDevice), heapManage(mtlDevice)

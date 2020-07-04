@@ -98,7 +98,7 @@ protected:
     ArgBuffRegularTexturesMTLRef vertTexInfo,fragTexInfo;
 
     // Textures currently in use
-    std::vector< id<MTLTexture> > activeTextures;
+    std::vector< TextureEntryMTL > activeTextures;
 };
     
 }

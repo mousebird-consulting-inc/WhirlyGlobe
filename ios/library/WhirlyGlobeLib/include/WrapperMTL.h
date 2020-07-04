@@ -52,6 +52,15 @@ public:
 };
 typedef std::shared_ptr<BufferEntryMTL> BufferEntryMTLRef;
 
+/// Description of what and where a texture is
+class TextureEntryMTL {
+public:
+    TextureEntryMTL();
+    
+    id<MTLHeap> heap;    // Set if this is in a heap
+    id<MTLTexture> tex;  // The texture itself
+};
+
 // Used to construct unified buffers for drawables (or whatever)
 class BufferBuilderMTL
 {
@@ -78,9 +87,9 @@ class ResourceRefsMTL {
 public:
     void addEntry(BufferEntryMTLRef entry);
     void addBuffer(id<MTLBuffer> buffer);
-    void addTexture(id<MTLTexture> texture);
-    void addTextures(const std::vector< id<MTLTexture> > &textures);
-    
+    void addTexture(TextureEntryMTL &texture);
+    void addTextures(const std::vector<TextureEntryMTL> &textures);
+
     void addResources(ResourceRefsMTL &other);
     
     // Wire up the resources listed
@@ -96,6 +105,7 @@ protected:
     
     // We're just hanging on to these till the end of the frame
     std::set< id<MTLBuffer> > buffersToHold;
+    std::set< id<MTLTexture> > texturesToHold;
 };
 typedef std::shared_ptr<ResourceRefsMTL> ResourceRefsMTLRef;
 
@@ -121,9 +131,13 @@ public:
     
     // This version copies data into the buffer
     BufferEntryMTLRef allocateBuffer(HeapType,const void *data,size_t size);
+    
+    // Allocate a texture with the given descriptor off of a heap (or not)
+    TextureEntryMTL newTextureWithDescriptor(MTLTextureDescriptor *desc,size_t size);
 
 protected:
     id<MTLHeap> findHeap(HeapType heapType,size_t &size);
+    id<MTLHeap> findTextureHeap(MTLTextureDescriptor *desc,size_t size);
 
     class HeapGroup
     {
@@ -133,6 +147,7 @@ protected:
 
     id<MTLDevice> mtlDevice;
     HeapGroup heapGroups[MaxType];
+    HeapGroup texGroups;
 };
 
 /// Passed around to various init and teardown routines

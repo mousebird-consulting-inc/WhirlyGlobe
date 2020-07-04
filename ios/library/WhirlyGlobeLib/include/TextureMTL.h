@@ -33,16 +33,17 @@ namespace WhirlyKit
 class TextureBaseMTL : virtual public TextureBase
 {
 public:
-    TextureBaseMTL(SimpleIdentity thisId) : TextureBase(thisId), mtlID(nil) { }
-    TextureBaseMTL(const std::string &name) : TextureBase(name), mtlID(nil) { }
+    TextureBaseMTL(SimpleIdentity thisId) : TextureBase(thisId) { }
+    TextureBaseMTL(const std::string &name) : TextureBase(name) { }
     ~TextureBaseMTL();
     
     /// Return the unique GL ID.
-    id<MTLTexture> getMTLID() const { return mtlID; }
+    id<MTLTexture> getMTLID() const { return texBuf.tex; }
+    TextureEntryMTL getMTLTex() const { return texBuf; }
 protected:
     /// OpenGL ES ID
     /// Set to 0 if we haven't loaded yet
-    id<MTLTexture> mtlID;
+    TextureEntryMTL texBuf;
 };
 
 typedef std::shared_ptr<TextureBaseMTL> TextureBaseMTLRef;

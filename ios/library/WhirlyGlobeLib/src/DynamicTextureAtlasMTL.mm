@@ -70,7 +70,7 @@ void DynamicTextureMTL::setup(int texSize,int cellSize,TextureType inType,bool c
 
 bool DynamicTextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
 {
-    if (mtlID)
+    if (texBuf.tex)
         return true;
     
     if (type != TexTypeUnsignedByte && type != TexTypeSingleChannel)
@@ -79,10 +79,10 @@ bool DynamicTextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
     
     // Set up an empty texture
     MTLTextureDescriptor *desc = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:pixFormat width:texSize height:texSize mipmapped:false];
-    mtlID = [setupInfo->mtlDevice newTextureWithDescriptor:desc];
+    texBuf = setupInfo->heapManage.newTextureWithDescriptor(desc,bytesPerRow * texSize);
     if (!this->name.empty())
-        mtlID.label = [NSString stringWithFormat:@"%s dynamic texture",this->name.c_str()];
-    if (!mtlID) {
+        texBuf.tex.label = [NSString stringWithFormat:@"%s dynamic texture",this->name.c_str()];
+    if (!texBuf.tex) {
         valid = false;
         return false;
     }
@@ -92,13 +92,13 @@ bool DynamicTextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
 
 void DynamicTextureMTL::destroyInRenderer(const RenderSetupInfo *setupInfo,Scene *scene)
 {
-    mtlID = nil;
+    texBuf.tex = nil;
 }
 
 void DynamicTextureMTL::addTextureData(int startX,int startY,int width,int height,RawDataRef data)
 {
     MTLRegion region = MTLRegionMake2D(startX,startY,width,height);
-    [mtlID replaceRegion:region mipmapLevel:0 withBytes:data->getRawData() bytesPerRow:width*4];    
+    [texBuf.tex replaceRegion:region mipmapLevel:0 withBytes:data->getRawData() bytesPerRow:width*4];    
 }
 
 void DynamicTextureMTL::clearTextureData(int startX,int startY,int width,int height,ChangeSet &changes,bool mainThreadMerge,unsigned char *emptyData)

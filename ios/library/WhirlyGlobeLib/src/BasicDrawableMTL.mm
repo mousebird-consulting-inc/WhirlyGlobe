@@ -428,7 +428,7 @@ bool BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
                 if (thisTexInfo && thisTexInfo->texId != EmptyIdentity)
                     tex = dynamic_cast<TextureBaseMTL *>(scene->getTexture(thisTexInfo->texId));
                 if (tex)
-                    activeTextures.push_back(tex->getMTLID());
+                    activeTextures.push_back(tex->getMTLTex());
                 if (vertTexInfo)
                     vertTexInfo->addTexture(texOffset, Point2f(texScale,texScale), tex != nil ? tex->getMTLID() : nil);
                 if (fragTexInfo)
