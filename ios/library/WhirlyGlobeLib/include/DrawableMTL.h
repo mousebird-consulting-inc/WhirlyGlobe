@@ -150,11 +150,13 @@ public:
         
     // An all-purpose pre-render that sets up textures, uniforms and such in preparation for rendering
     // Also adds to the list of resources being used by this drawable
-    virtual void preProcess(SceneRendererMTL *sceneRender,
+    virtual bool preProcess(SceneRendererMTL *sceneRender,
                     id<MTLCommandBuffer> cmdBuff,
                     id<MTLBlitCommandEncoder> bltEncode,
-                    SceneMTL *scene,
-                    ResourceRefsMTL &resources) = 0;
+                    SceneMTL *scene) = 0;
+    
+    /// List all the resources used by the drawable
+    virtual void enumerateResources(RendererFrameInfoMTL *frameInfo,ResourceRefsMTL &resources) = 0;
 
     /// Some drawables have a pre-render phase that uses the GPU for calculation
     virtual void encodeDirectCalculate(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene) = 0;
@@ -164,11 +166,11 @@ public:
     
     /// Indirect version of calculate encoding.  Called only when things change enough to re-encode.
     API_AVAILABLE(ios(13.0))
-    virtual void encodeIndirectCalculate(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget,ResourceRefsMTL &resources) = 0;
+    virtual void encodeIndirectCalculate(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget) = 0;
 
     /// Indirect version of regular encoding.  Called only when things change enough to re-encode.
     API_AVAILABLE(ios(13.0))
-    virtual void encodeIndirect(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget,ResourceRefsMTL &resources) = 0;
+    virtual void encodeIndirect(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget) = 0;
 };
 
 }

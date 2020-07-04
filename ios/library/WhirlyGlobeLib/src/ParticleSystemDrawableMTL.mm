@@ -175,11 +175,16 @@ id<MTLRenderPipelineState> ParticleSystemDrawableMTL::getRenderPipelineState(Sce
 //    [cmdEncode setFragmentBytes:&uniPart length:sizeof(uniPart) atIndex:WKSUniformDrawStateParticleBuffer];
 //}
 
-void ParticleSystemDrawableMTL::preProcess(SceneRendererMTL *sceneRender,
+bool ParticleSystemDrawableMTL::preProcess(SceneRendererMTL *sceneRender,
                                             id<MTLCommandBuffer> cmdBuff,
                                             id<MTLBlitCommandEncoder> bltEncode,
-                                            SceneMTL *scene,
-                                            ResourceRefsMTL &resources)
+                                            SceneMTL *scene)
+{
+    // TODO: Fill this in
+    return false;
+}
+
+void ParticleSystemDrawableMTL::enumerateResources(RendererFrameInfoMTL *frameInfo,ResourceRefsMTL &resources)
 {
     // TODO: Fill this in
 }
@@ -194,12 +199,12 @@ void ParticleSystemDrawableMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,id<
     // TODO: Fill this in
 }
 
-void ParticleSystemDrawableMTL::encodeIndirectCalculate(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget,ResourceRefsMTL &resources)
+void ParticleSystemDrawableMTL::encodeIndirectCalculate(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget)
 {
     // TODO: Fill this in
 }
 
-void ParticleSystemDrawableMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget,ResourceRefsMTL &resources)
+void ParticleSystemDrawableMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget)
 {
     // TODO: Fill this in
 }

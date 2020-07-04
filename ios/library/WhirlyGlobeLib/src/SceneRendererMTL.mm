@@ -300,8 +300,9 @@ void SceneRendererMTL::removeSnapshotDelegate(NSObject<WhirlyKitSnapshot> *oldDe
     snapshotDelegates.erase(std::remove(snapshotDelegates.begin(), snapshotDelegates.end(), oldDelegate), snapshotDelegates.end());
 }
 
-void SceneRendererMTL::updateWorkGroups(RendererFrameInfo *frameInfo)
+void SceneRendererMTL::updateWorkGroups(RendererFrameInfo *inFrameInfo)
 {
+    RendererFrameInfoMTL *frameInfo = (RendererFrameInfoMTL *)inFrameInfo;
     SceneRenderer::updateWorkGroups(frameInfo);
     
     if (!indirectRender)
@@ -400,7 +401,8 @@ void SceneRendererMTL::updateWorkGroups(RendererFrameInfo *frameInfo)
                             }
                             
                             id<MTLIndirectRenderCommand> cmdEncode = [drawGroup->indCmdBuff indirectRenderCommandAtIndex:curCommand++];
-                            drawMTL->encodeIndirectCalculate(cmdEncode,this,scene,renderTarget.get(),drawGroup->resources);
+                            drawMTL->encodeIndirectCalculate(cmdEncode,this,scene,renderTarget.get());
+                            drawMTL->enumerateResources(frameInfo, drawGroup->resources);
                         }
                     } else {
                         // Work through the drawables
@@ -419,7 +421,8 @@ void SceneRendererMTL::updateWorkGroups(RendererFrameInfo *frameInfo)
 
                             // TODO: Handle the offset matrices by encoding twice
 
-                            drawMTL->encodeIndirect(cmdEncode,this,scene,renderTarget.get(),drawGroup->resources);
+                            drawMTL->encodeIndirect(cmdEncode,this,scene,renderTarget.get());
+                            drawMTL->enumerateResources(frameInfo, drawGroup->resources);
                         }
                     }
                 }
@@ -648,16 +651,44 @@ void SceneRendererMTL::render(TimeInterval duration,
             // Ask all the drawables to set themselves up.  Mostly memory stuff.
             id<MTLFence> preProcessFence = [mtlDevice newFence];
             id<MTLBlitCommandEncoder> bltEncode = [cmdBuff blitCommandEncoder];
-            // TODO: Figure this out ahead of timer rather than here
-            //       Update the resources in the DrawGroup instead.
-            ResourceRefsMTL tempResources;
+            
+            // Resources used by this container
+            ResourceRefsMTL resources;
+            
+            // Resources we'll sit on till the frame is rendered
             ResourceRefsMTLRef trackedResources(new ResourceRefsMTL());
-            for (auto &draw : targetContainer->drawables) {
-                DrawableMTL *drawMTL = dynamic_cast<DrawableMTL *>(draw.get());
-                drawMTL->runTweakers(&baseFrameInfo);
-                drawMTL->preProcess(this, cmdBuff, bltEncode, sceneMTL,tempResources);
+
+            if (indirectRender) {
+                // Run pre-process on the draw groups
+                for (auto &drawGroup : targetContainerMTL->drawGroups) {
+                    if (drawGroup->numCommands > 0) {
+                        bool resourcesChanged = false;
+                        for (auto &draw : drawGroup->drawables) {
+                            DrawableMTL *drawMTL = dynamic_cast<DrawableMTL *>(draw.get());
+                            drawMTL->runTweakers(&baseFrameInfo);
+                            if (drawMTL->preProcess(this, cmdBuff, bltEncode, sceneMTL))
+                                resourcesChanged = true;
+                        }
+                        // At least one of the drawables is pointing at different resources, so we need to redo this
+                        if (resourcesChanged) {
+                            drawGroup->resources.clear();
+                            for (auto &draw : drawGroup->drawables) {
+                                DrawableMTL *drawMTL = dynamic_cast<DrawableMTL *>(draw.get());
+                                drawMTL->enumerateResources(&baseFrameInfo, drawGroup->resources);
+                            }
+                        }
+                        resources.addResources(drawGroup->resources);
+                    }
+                }
+            } else {
+                // Run pre-process ahead of time
+                for (auto &draw : targetContainer->drawables) {
+                    DrawableMTL *drawMTL = dynamic_cast<DrawableMTL *>(draw.get());
+                    drawMTL->runTweakers(&baseFrameInfo);
+                    drawMTL->preProcess(this, cmdBuff, bltEncode, sceneMTL);
+                    drawMTL->enumerateResources(&baseFrameInfo, resources);
+                }
             }
-            trackedResources->addResources(tempResources);
 
             // TODO: Just set these up once and copy it into position
             setupLightBuffer(sceneMTL,&baseFrameInfo,bltEncode);
@@ -688,17 +719,15 @@ void SceneRendererMTL::render(TimeInterval duration,
                 }
                 cmdEncode = [cmdBuff renderCommandEncoderWithDescriptor:baseFrameInfo.renderPassDesc];
                 [cmdEncode waitForFence:preProcessFence beforeStages:MTLRenderStageVertex];
+                
+                resources.use(cmdEncode);
+                trackedResources->addResources(resources);
 
                 if (indirectRender) {
                     if (@available(iOS 12.0, *)) {
                         [cmdEncode setCullMode:MTLCullModeFront];
                         for (auto drawGroup : targetContainerMTL->drawGroups) {
                             if (drawGroup->numCommands > 0) {
-                                ResourceRefsMTL mergedResources;
-                                mergedResources.addResources(tempResources);
-                                mergedResources.addResources(drawGroup->resources);
-                                mergedResources.use(cmdEncode);
-                                trackedResources->addResources(mergedResources);
                                 [cmdEncode setDepthStencilState:drawGroup->depthStencil];
                                 [cmdEncode executeCommandsInBuffer:drawGroup->indCmdBuff withRange:NSMakeRange(0,drawGroup->numCommands)];
                             }
