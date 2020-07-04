@@ -29,7 +29,7 @@ namespace WhirlyKit
 // Metal version of the tweaker
 void WideVectorTweakerMTL::tweakForFrame(Drawable *inDraw,RendererFrameInfo *inFrameInfo)
 {
-    if (!inFrameInfo->program || inFrameInfo->sceneRenderer->getType() != SceneRenderer::RenderMetal)
+    if (inFrameInfo->sceneRenderer->getType() != SceneRenderer::RenderMetal)
         return;
     BasicDrawable *basicDraw = dynamic_cast<BasicDrawable *>(inDraw);
     if (!basicDraw)

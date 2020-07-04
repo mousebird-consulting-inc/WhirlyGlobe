@@ -386,7 +386,7 @@ vertex ProjVertexTriA vertexTri_screenSpace(
 {
     ProjVertexTriA outVert;
     
-    float3 pos = vert.position;
+    float3 pos = (vertArgs.uniDrawState.singleMat * float4(vert.position,1.0)).xyz;
     if (vertArgs.ss.hasMotion)
         pos += vertArgs.ss.time * vert.dir;
     
@@ -410,15 +410,16 @@ vertex ProjVertexTriA vertexTri_screenSpace(
     
     // Project the rotation into display space and drop the Z
     float2 screenOffset;
-    if (vertArgs.ss.activeRot) {
-        float4 projRot = uniforms.mvNormalMatrix * float4(vert.rot,0.0);
-        float2 rotY = normalize(projRot.xy);
-        float2 rotX(rotY.y,-rotY.x);
-        screenOffset = vert.offset.x*rotX + vert.offset.y*rotY;
-    } else
+//    if (vertArgs.ss.activeRot) {
+//        float4 projRot = uniforms.mvNormalMatrix * float4(vert.rot,0.0);
+//        float2 rotY = normalize(projRot.xy);
+//        float2 rotX(rotY.y,-rotY.x);
+//        screenOffset = vert.offset.x*rotX + vert.offset.y*rotY;
+//    } else
         screenOffset = vert.offset;
     
-    outVert.position = (dotProd > 0.0 && pt.z <= 0.0) ? float4(screenPt.xy + float2(screenOffset.x*vertArgs.ss.scale.x,screenOffset.y*vertArgs.ss.scale.y),0.0,1.0) : float4(0.0,0.0,0.0,0.0);
+    float2 scale(2.0/uniforms.frameSize.x,2.0/uniforms.frameSize.y);
+    outVert.position = (dotProd > 0.0 && pt.z <= 0.0) ? float4(screenPt.xy + float2(screenOffset.x*scale.x,screenOffset.y*scale.y),0.0,1.0) : float4(0.0,0.0,0.0,0.0);
     
     return outVert;
 }

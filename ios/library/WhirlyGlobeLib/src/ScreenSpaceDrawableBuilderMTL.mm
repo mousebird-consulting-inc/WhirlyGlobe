@@ -25,9 +25,15 @@
 namespace WhirlyKit
 {
 
+ScreenSpaceTweakerMTL::ScreenSpaceTweakerMTL()
+: setup(false)
+{
+}
+
 void ScreenSpaceTweakerMTL::tweakForFrame(Drawable *inDraw,RendererFrameInfo *inFrameInfo)
 {
-    if (inFrameInfo->sceneRenderer->getType() != SceneRenderer::RenderMetal || !inFrameInfo->program)
+    // Only need to do this one
+    if (inFrameInfo->sceneRenderer->getType() != SceneRenderer::RenderMetal || setup)
         return;
     BasicDrawable *basicDraw = dynamic_cast<BasicDrawable *>(inDraw);
     RendererFrameInfoMTL *frameInfo = (RendererFrameInfoMTL *)inFrameInfo;
@@ -47,6 +53,8 @@ void ScreenSpaceTweakerMTL::tweakForFrame(Drawable *inDraw,RendererFrameInfo *in
     uniBlock.blockData = RawDataRef(new RawNSDataReader([[NSData alloc] initWithBytes:&uniSS length:sizeof(uniSS)]));
     uniBlock.bufferID = WhirlyKitShader::WKSUniformDrawStateEntry;
     basicDraw->setUniBlock(uniBlock);
+    
+    setup = true;
 }
     
 ScreenSpaceDrawableBuilderMTL::ScreenSpaceDrawableBuilderMTL(const std::string &name)

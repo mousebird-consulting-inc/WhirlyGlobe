@@ -28,7 +28,10 @@ namespace WhirlyKit
 class ScreenSpaceTweakerMTL : public ScreenSpaceTweaker
 {
 public:
+    ScreenSpaceTweakerMTL();
     void tweakForFrame(Drawable *inDraw,RendererFrameInfo *frameInfo);
+    
+    bool setup;
 };
     
 /** OpenGL version of ScreenSpaceDrawable Builder
