@@ -121,6 +121,22 @@ bool MaplyBoundingBoxContains(MaplyBoundingBox bbox, MaplyCoordinate c)
     return mbr.insideOrOnEdge(point);
 }
 
+MaplyBoundingBox MaplyBoundingBoxIntersection(MaplyBoundingBox bbox0,MaplyBoundingBox bbox1)
+{
+    Mbr mbr0;
+    mbr0.ll() = Point2f(bbox0.ll.x,bbox0.ll.y);
+    mbr0.ur() = Point2f(bbox0.ur.x,bbox0.ur.y);
+    Mbr mbr1;
+    mbr1.ll() = Point2f(bbox1.ll.x,bbox1.ll.y);
+    mbr1.ur() = Point2f(bbox1.ur.x,bbox1.ur.y);
+    Mbr inter = mbr0.intersect(mbr1);
+    
+    MaplyBoundingBox ret;
+    ret.ll.x = inter.ll().x();  ret.ll.y = inter.ll().y();
+    ret.ur.x = inter.ur().x();  ret.ur.y = inter.ur().y();
+    
+    return ret;
+}
 
 MaplyBoundingBox MaplyBoundingBoxExpandByFraction(MaplyBoundingBox bbox, float buffer)
 {

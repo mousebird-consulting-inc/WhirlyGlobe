@@ -254,6 +254,11 @@ bool MaplyBoundingBoxesOverlap(MaplyBoundingBox bbox0,MaplyBoundingBox bbox1);
   */
 bool MaplyBoundingBoxContains(MaplyBoundingBox bbox, MaplyCoordinate c);
     
+/**
+ Return the intersection of two bounding boxes.
+ */
+MaplyBoundingBox MaplyBoundingBoxIntersection(MaplyBoundingBox bbox0,MaplyBoundingBox bbox1);
+
 /** 
     Expands a bounding box by a given fraction of its size.
      
