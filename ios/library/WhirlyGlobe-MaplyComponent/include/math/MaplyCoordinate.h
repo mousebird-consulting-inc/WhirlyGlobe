@@ -19,6 +19,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <CoreLocation/CoreLocation.h>
 
 /** 
     A 2D coordinate representation.
@@ -253,7 +254,12 @@ bool MaplyBoundingBoxesOverlap(MaplyBoundingBox bbox0,MaplyBoundingBox bbox1);
     @return Returns true if the bounding box contains the coordinate.
   */
 bool MaplyBoundingBoxContains(MaplyBoundingBox bbox, MaplyCoordinate c);
-    
+
+/**
+  Set up a bounding box from a list of 2D locations.
+ */
+MaplyBoundingBox MaplyBoundingBoxFromLocations(const CLLocationCoordinate2D locs[], unsigned int numLocs);
+
 /**
  Return the intersection of two bounding boxes.
  */

@@ -121,6 +121,23 @@ bool MaplyBoundingBoxContains(MaplyBoundingBox bbox, MaplyCoordinate c)
     return mbr.insideOrOnEdge(point);
 }
 
+MaplyBoundingBox MaplyBoundingBoxFromLocations(const CLLocationCoordinate2D locs[], unsigned int numLocs)
+{
+    Mbr mbr;
+
+    for (unsigned int ii=0;ii<numLocs;ii++) {
+        CLLocationCoordinate2D loc = locs[ii];
+        MaplyCoordinate coord = MaplyCoordinateMakeWithDegrees(loc.longitude, loc.latitude);
+        mbr.addPoint(Point2d(coord.x,coord.y));
+    }
+        
+    MaplyBoundingBox ret;
+    ret.ll.x = mbr.ll().x();  ret.ll.y = mbr.ll().y();
+    ret.ur.x = mbr.ur().x();  ret.ur.y = mbr.ur().y();
+
+    return ret;
+}
+
 MaplyBoundingBox MaplyBoundingBoxIntersection(MaplyBoundingBox bbox0,MaplyBoundingBox bbox1)
 {
     Mbr mbr0;
