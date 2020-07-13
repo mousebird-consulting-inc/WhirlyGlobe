@@ -20,6 +20,7 @@
 
 #import "QuadLoading_jni.h"
 #import "Scene_jni.h"
+#import "Components_jni.h"
 #import "com_mousebird_maply_LoaderReturn.h"
 
 using namespace Eigen;
@@ -216,4 +217,53 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_LoaderReturn_getGeneration
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LoaderReturn::getGeneration()");
 	}
 	return 0;
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_addComponentObjects
+		(JNIEnv *env, jobject obj, jobjectArray compObjs, jboolean isOverlay)
+{
+	try
+	{
+		QuadLoaderReturnRef *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
+		if (!loadReturn || !compObjs)
+			return;
+
+		// Work through the component object array
+		ComponentObjectRefClassInfo *compObjClassInfo = ComponentObjectRefClassInfo::getClassInfo();
+		JavaObjectArrayHelper compObjHelp(env,compObjs);
+		if (compObjHelp.numObjects() == 0)
+			return;
+		while (jobject compObjObj = compObjHelp.getNextObject()) {
+			ComponentObjectRef *compObj = compObjClassInfo->getObject(env,compObjObj);
+			if (isOverlay)
+				(*loadReturn)->ovlCompObjs.push_back(*compObj);
+			else
+				(*loadReturn)->compObjs.push_back(*compObj);
+		}
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LoaderReturn::addComponentObjects()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_clearComponentObjectsNative
+		(JNIEnv *env, jobject obj, jboolean isOverlay)
+{
+	try
+	{
+		QuadLoaderReturnRef *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
+		if (!loadReturn)
+			return;
+
+		if (isOverlay)
+			(*loadReturn)->ovlCompObjs.clear();
+		else
+			(*loadReturn)->compObjs.clear();
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LoaderReturn::clearCompObjs()");
+	}
+
 }

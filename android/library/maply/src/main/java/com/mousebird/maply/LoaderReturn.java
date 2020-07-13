@@ -115,6 +115,48 @@ public class LoaderReturn
     public native void mergeChanges(ChangeSet changes);
 
     /**
+     * If any component objects are associated with the tile, these are them.
+     * They need to start disabled.  The system will enable and delete them when it is time.
+     */
+    public void addComponentObjects(ComponentObject[] compObjs)
+    {
+        addComponentObjects(compObjs,false);
+    }
+
+    /**
+     * Clear out the component objects, presumably to replace them.
+     */
+    public void clearComponentObjects() {
+        clearComponentObjectsNative(false);
+    }
+
+    /**
+     * Add a single component object to the tile
+     */
+    public void addComponentObject(ComponentObject compObj)
+    {
+        ComponentObject[] compArr = new ComponentObject[1];
+        compArr[0] = compObj;
+        addComponentObjects(compArr);
+    }
+
+    /**
+     * These component objects are assumed to be overlaid and so only one
+     * set will be displayed at a time.
+     */
+    public void addOverlayComponentObjects(ComponentObject[] compObjs)
+    {
+        addComponentObjects(compObjs,true);
+    }
+
+    public void clearOverlayComponentObjects() {
+        clearComponentObjectsNative(true);
+    }
+
+    private native void addComponentObjects(ComponentObject[] compObjs,boolean isOverlay);
+    private native void clearComponentObjectsNative(boolean isOverlay);
+
+    /**
      * If set, some part of the parser is letting us know about an error.
      */
     public String errorString = null;

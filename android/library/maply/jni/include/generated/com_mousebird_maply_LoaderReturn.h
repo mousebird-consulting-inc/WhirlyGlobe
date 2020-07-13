@@ -65,6 +65,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_mergeChanges
 
 /*
  * Class:     com_mousebird_maply_LoaderReturn
+ * Method:    addComponentObjects
+ * Signature: ([Lcom/mousebird/maply/ComponentObject;Z)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_addComponentObjects
+  (JNIEnv *, jobject, jobjectArray, jboolean);
+
+/*
+ * Class:     com_mousebird_maply_LoaderReturn
+ * Method:    clearComponentObjectsNative
+ * Signature: (Z)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_clearComponentObjectsNative
+  (JNIEnv *, jobject, jboolean);
+
+/*
+ * Class:     com_mousebird_maply_LoaderReturn
  * Method:    nativeInit
  * Signature: ()V
  */

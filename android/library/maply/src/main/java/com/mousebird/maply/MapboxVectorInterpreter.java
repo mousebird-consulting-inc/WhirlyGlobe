@@ -26,6 +26,8 @@ import android.graphics.Color;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 
@@ -140,7 +142,11 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
         VectorTileData tileData = new VectorTileData(tileID,locBounds,loader.geoBoundsForTile(tileID));
         parser.parseData(data,tileData);
         BaseController theVC = vc.get();
+        ArrayList<ComponentObject> ovlObjs = new ArrayList<ComponentObject>();
         if (theVC != null) {
+            ComponentObject[] thisOvjObjs = tileData.getComponentObjects("overlay");
+            if (thisOvjObjs != null)
+                Collections.addAll(ovlObjs,thisOvjObjs);
             loadReturn.mergeChanges(tileData.getChangeSet());
         }
 
@@ -172,13 +178,39 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
             }
         }
 
+        // Sort out overlays if they're there
+        ComponentObject[] regObjs = tileData.getComponentObjects();
+        if (!ovlObjs.isEmpty()) {
+            // Filter the overlays out of regular objects
+            ArrayList<ComponentObject> minusOvls = new ArrayList<ComponentObject>();
+            for (ComponentObject compObj : regObjs) {
+                // Look for it in the overlays
+                boolean found = false;
+                for (ComponentObject ovlObj : ovlObjs) {
+                    if (ovlObj.getID() == compObj.getID()) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                    minusOvls.add(compObj);
+            }
+
+            regObjs = minusOvls.toArray(new ComponentObject[1]);
+        }
+
         // Merge the results into the loadReturn
         if (objectLoader != null) {
             ObjectLoaderReturn objLoadReturn = (ObjectLoaderReturn)loadReturn;
-            objLoadReturn.addComponentObjects(tileData.getComponentObjects());
+            if (!ovlObjs.isEmpty())
+                objLoadReturn.addOverlayComponentObjects(ovlObjs.toArray(new ComponentObject[1]));
+            objLoadReturn.addComponentObjects(regObjs);
         } else if (imageLoader != null) {
             ImageLoaderReturn imgLoadReturn = (ImageLoaderReturn)loadReturn;
-            imgLoadReturn.addComponentObjects(tileData.getComponentObjects());
+            if (!ovlObjs.isEmpty())
+                imgLoadReturn.addOverlayComponentObjects(ovlObjs.toArray(new ComponentObject[1]));
+            imgLoadReturn.addComponentObjects(regObjs);
             if (tileBitmap != null)
                 imgLoadReturn.addBitmap(tileBitmap);
         }

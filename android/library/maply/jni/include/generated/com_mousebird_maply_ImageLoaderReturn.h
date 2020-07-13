@@ -31,22 +31,6 @@ JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_ImageLoaderReturn_getIma
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ImageLoaderReturn_clearImages
   (JNIEnv *, jobject);
 
-/*
- * Class:     com_mousebird_maply_ImageLoaderReturn
- * Method:    addComponentObjects
- * Signature: ([Lcom/mousebird/maply/ComponentObject;Z)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ImageLoaderReturn_addComponentObjects
-  (JNIEnv *, jobject, jobjectArray, jboolean);
-
-/*
- * Class:     com_mousebird_maply_ImageLoaderReturn
- * Method:    clearComponentObjectsNative
- * Signature: (Z)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ImageLoaderReturn_clearComponentObjectsNative
-  (JNIEnv *, jobject, jboolean);
-
 #ifdef __cplusplus
 }
 #endif
