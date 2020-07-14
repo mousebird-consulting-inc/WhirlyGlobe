@@ -186,6 +186,17 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	}
 
 	/**
+	 * Utility routine to run a task on the main thread after
+	 * a period of time.
+	 * Doesn't do anything clever, but it does end up looking very simple
+	 * in Kotlin.
+	 */
+	public void addMainThreadTaskAfter(double when,Runnable run) {
+		Handler handler = new Handler(activity.getMainLooper());
+		handler.postDelayed(run, (long)(when * 1000.0));
+	}
+
+	/**
 	 * Activity for the whole app.
      */
 	public Activity getActivity() { return activity; }
