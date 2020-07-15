@@ -614,14 +614,21 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
         if (tile.fetchInfo.cacheFile == null)
             return;
 
+        OutputStream fOut = null;
         try {
-            OutputStream fOut;
             fOut = new FileOutputStream(tile.fetchInfo.cacheFile);
             fOut.write(data);
-            fOut.close();
         }
         catch (Exception e)
         {
+        }
+        finally {
+            try {
+                fOut.close();
+            }
+            catch (Exception e)
+            {
+            }
         }
     }
 

@@ -179,16 +179,18 @@ public open class MapboxKindaMap {
         if (cacheDir == null || (url.scheme == "file" && url.toFile().exists()))
             return
 
+        var fOut: OutputStream? = null
         try {
             val theCacheName = cacheName(url)
             cacheDir?.mkdirs()
 
-            val fOut: OutputStream
             fOut = FileOutputStream(theCacheName)
             fOut.write(data)
-            fOut.close()
         } catch (e: Exception) {
             Log.w("Maply", "Failed to cache file $e")
+        }
+        finally {
+            fOut?.close()
         }
     }
 

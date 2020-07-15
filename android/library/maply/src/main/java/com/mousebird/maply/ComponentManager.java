@@ -70,6 +70,8 @@ public class ComponentManager
         }
 
         removeComponentObjectsNative(compObjs,changes);
+        for (ComponentObject compObj : compObjs)
+            compObj.dispose();
     }
 
     /**
