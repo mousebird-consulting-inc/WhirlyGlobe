@@ -243,6 +243,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_mergeLoaderReturn
             return;
         PlatformInfo_Android platformInfo(env);
         (*loader)->mergeLoadedTile(&platformInfo,loadReturn->get(),*(changes->get()));
+        LoaderReturnClassInfo::getClassInfo()->clearHandle(env,loadRetObj);
+        delete loadReturn;
     }
     catch (...)
     {
