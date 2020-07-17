@@ -1607,9 +1607,11 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		Point2d frameLoc = new Point2d(scale.getX()*screenLoc.getX(),scale.getY()*screenLoc.getY());
 
 		// Ask the selection manager
-		SelectedObject selManObjs[] = renderControl.selectionManager.pickObjects(renderControl.componentManager,view.makeViewState(renderControl), frameLoc);
+		ViewState theViewState = view.makeViewState(renderControl);
+		SelectedObject selManObjs[] = renderControl.selectionManager.pickObjects(renderControl.componentManager,theViewState, frameLoc);
 		if (selManObjs != null)
 			renderControl.componentManager.remapSelectableObjects(selManObjs);
+		theViewState.dispose();
 
 		Point2d geoPt = geoPointFromScreen(screenLoc);
 		if (geoPt == null)

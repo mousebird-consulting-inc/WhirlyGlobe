@@ -42,16 +42,10 @@ public class GlobeViewState extends ViewState
 		initialise(view,renderer);
 	}
 
-	public void finalize()
-	{
-		dispose();
-	}
-
 	static
 	{
 		nativeInit();
 	}
 	private static native void nativeInit();
 	native void initialise(GlobeView view,RenderController renderer);
-	native void dispose();
 }

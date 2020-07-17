@@ -41,10 +41,16 @@ public class ViewState
 	 */
 	public native boolean isEqual(ViewState viewState);
 
+	public void finalize()
+	{
+		dispose();
+	}
+
 	static
 	{
 		nativeInit();
 	}
 	private static native void nativeInit();
+	native void dispose();
 	private long nativeHandle;
 }

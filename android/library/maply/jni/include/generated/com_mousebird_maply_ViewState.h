@@ -23,6 +23,14 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_ViewState_isEqual
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ViewState_nativeInit
   (JNIEnv *, jclass);
 
+/*
+ * Class:     com_mousebird_maply_ViewState
+ * Method:    dispose
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ViewState_dispose
+  (JNIEnv *, jobject);
+
 #ifdef __cplusplus
 }
 #endif

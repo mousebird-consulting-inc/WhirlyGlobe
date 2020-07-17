@@ -45,10 +45,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapViewState_initialise
 		if (!mapView || !renderer)
 			return;
 
-//		if (dynamic_cast<WhirlyGlobe::GlobeView *>(mapView))
-//		{
-//			viewState = new WhirlyGlobe::GlobeViewState((WhirlyGlobe::GlobeView *)view,renderer);
-//		} else if (dynamic_cast<Maply::MapView *>(mapView))
 		MapViewStateRef *mapViewState = new MapViewStateRef(new Maply::MapViewState(mapView,renderer));
 
 		if (mapViewState)
@@ -57,29 +53,5 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapViewState_initialise
 	catch (...)
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorInfo::initialise()");
-	}
-}
-
-static std::mutex disposeMutex;
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_MapViewState_dispose
-  (JNIEnv *env, jobject obj)
-{
-	try
-	{
-		MapViewStateRefClassInfo *classInfo = MapViewStateRefClassInfo::getClassInfo();
-        {
-            std::lock_guard<std::mutex> lock(disposeMutex);
-            MapViewStateRef *mapViewState = classInfo->getObject(env,obj);
-            if (!mapViewState)
-                return;
-            delete mapViewState;
-
-            classInfo->clearHandle(env,obj);
-        }
-	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MapViewState::dispose()");
 	}
 }

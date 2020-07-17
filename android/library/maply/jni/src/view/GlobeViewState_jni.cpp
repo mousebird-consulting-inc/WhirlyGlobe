@@ -54,27 +54,3 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GlobeViewState_initialise
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorInfo::initialise()");
 	}
 }
-
-static std::mutex disposeMutex;
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_GlobeViewState_dispose
-  (JNIEnv *env, jobject obj)
-{
-	try
-	{
-		GlobeViewStateRefClassInfo *classInfo = GlobeViewStateRefClassInfo::getClassInfo();
-        {
-            std::lock_guard<std::mutex> lock(disposeMutex);
-            GlobeViewStateRef *globeViewState = classInfo->getObject(env,obj);
-            if (!globeViewState)
-                return;
-            delete globeViewState;
-
-            classInfo->clearHandle(env,obj);
-        }
-	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in GlobeViewState::dispose()");
-	}
-}

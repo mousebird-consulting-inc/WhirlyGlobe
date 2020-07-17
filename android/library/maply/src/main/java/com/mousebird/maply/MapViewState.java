@@ -42,16 +42,10 @@ public class MapViewState extends ViewState
 		initialise(view,renderer);
 	}
 
-	public void finalize()
-	{
-		dispose();
-	}
-
 	static
 	{
 		nativeInit();
 	}
 	private static native void nativeInit();
 	native void initialise(MapView view,RenderController renderer);
-	native void dispose();
 }
