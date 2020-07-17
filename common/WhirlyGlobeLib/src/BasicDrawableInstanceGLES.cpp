@@ -216,6 +216,11 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inS
         // New style makes use of OpenGL instancing and makes its own copy of the geometry
         ProgramGLES *prog = (ProgramGLES *)frameInfo->program;
 
+        if (!prog) {
+            wkLogLevel(Error,"Missing program in BasicDrawableInstanceGLES");
+            return;
+        }
+
         // Figure out if we're fading in or out
         float fade = 1.0;
         // Note: Time based fade isn't represented in the instance.  Probably should be.
