@@ -248,6 +248,19 @@ jlongArray BuildLongArray(JNIEnv *env,std::vector<SimpleIdentity> &longVec)
     return newArray;
 }
 
+jdoubleArray BuildDoubleArray(JNIEnv *env,std::vector<double> &doubleVec)
+{
+    if (doubleVec.empty())
+        return NULL;
+
+    jdoubleArray newArray = env->NewDoubleArray(doubleVec.size());
+    if (!newArray)
+        return NULL;
+
+    env->SetDoubleArrayRegion(newArray, 0, doubleVec.size(), (jdouble *)&doubleVec[0]);
+    return newArray;
+}
+
 jintArray BuildIntArray(JNIEnv *env,std::vector<int> &intVec)
 {
     if (intVec.empty())

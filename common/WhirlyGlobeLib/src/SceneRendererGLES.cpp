@@ -651,6 +651,22 @@ void SceneRendererGLES::render(TimeInterval duration)
     }
 }
 
+RawDataRef SceneRendererGLES::getSnapshotAt(SimpleIdentity renderTargetID, int x, int y, int width, int height)
+{
+    for (auto renderTarget: renderTargets) {
+        if (renderTarget->getId() == renderTargetID) {
+            if (width <= 0 || height <= 0) {
+                return renderTarget->snapshot();
+            } else {
+                return renderTarget->snapshot(x,y,width,height);
+            }
+        }
+    }
+
+    return RawDataRef();
+}
+
+
 BasicDrawableBuilderRef SceneRendererGLES::makeBasicDrawableBuilder(const std::string &name) const
 {
     return BasicDrawableBuilderRef(new BasicDrawableBuilderGLES(name));

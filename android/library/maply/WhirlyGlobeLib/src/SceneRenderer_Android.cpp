@@ -60,18 +60,15 @@ void SceneRendererGLES_Android::snapshotCallback(TimeInterval now)
         if (!snapshotDelegate->needsSnapshot(now))
             continue;
 
-        // They'll want a snapshot of a specific render target (or the screen)
-        for (auto target: renderTargets) {
-            if (target->getId() == snapshotDelegate->getRenderTarget()) {
-                RawDataRef data = target->snapshot();
-                snapshotDelegate->snapshotData(data);
-            }
-        }
+        snapshotDelegate->runSnapshot(this);
     }
 }
 
 void SceneRendererGLES_Android::addSnapshotDelegate(Snapshot_AndroidRef snapshotDelegate)
 {
+    for (unsigned int which = 0;which<snapshotDelegates.size();which++)
+        if (snapshotDelegate == snapshotDelegates[which])
+            return;
     snapshotDelegates.push_back(snapshotDelegate);
 }
 

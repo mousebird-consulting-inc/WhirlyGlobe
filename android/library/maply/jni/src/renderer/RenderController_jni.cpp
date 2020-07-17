@@ -380,7 +380,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_renderToBitmapN
 		if (!renderer)
 			return;
 
-        Snapshot_AndroidImplRef snapshot(new Snapshot_AndroidImpl(EmptyIdentity));
+        Snapshot_AndroidRef snapshot(new Snapshot_Android());
 		renderer->addSnapshotDelegate(snapshot);
 
 		renderer->forceDrawNextFrame();
@@ -390,7 +390,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_renderToBitmapN
 		auto size = renderer->getFramebufferSize();
 		int width = size.x(), height = size.y();
 
-		if (snapshot->data) {
+		RawDataRef data = renderer->getSnapshotAt(EmptyIdentity,0,0,0,0);
+		if (data) {
 			// Make sure sizes match
 			AndroidBitmapInfo bitmapInfo;
 			AndroidBitmap_getInfo(env, bitmapObj, &bitmapInfo);
@@ -411,7 +412,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_renderToBitmapN
 			}
 
 			// Convert pixels to Bitmap order
-			int *b = (int *)snapshot->data->getRawData();
+			int *b = (int *)data->getRawData();
 			int *bt = (int *)bitmapPixels;
 			for(int i=0, k=0; i<height; i++, k++)
 			{

@@ -490,6 +490,8 @@ void ConvertLongArrayToSet(JNIEnv *env,jlongArray &longArray,std::set<WhirlyKit:
 
 // Return a Java long array
 jlongArray BuildLongArray(JNIEnv *env,std::vector<WhirlyKit::SimpleIdentity> &longVec);
+// Return a Java double array
+jdoubleArray BuildDoubleArray(JNIEnv *env,std::vector<double> &doubleVec);
 // Return a Java int array
 jintArray BuildIntArray(JNIEnv *env,std::vector<int> &longVec);
 // Return a new Java object array
