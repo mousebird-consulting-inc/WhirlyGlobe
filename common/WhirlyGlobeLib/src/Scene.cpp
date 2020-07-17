@@ -553,13 +553,11 @@ void AddDrawableReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::Vie
 
 RemDrawableReq::RemDrawableReq(SimpleIdentity drawId) : drawID(drawId)
 {
-    wkLogLevel(Info, "RemDrawableReq::RemDrawableReq %llu", drawID);
 }
 
 RemDrawableReq::RemDrawableReq(SimpleIdentity drawId,TimeInterval inWhen)
 : drawID(drawId)
 {
-    wkLogLevel(Info, "RemDrawableReq::RemDrawableReq %llu, when = %f", drawID,inWhen);
     when = inWhen;
 }
 
