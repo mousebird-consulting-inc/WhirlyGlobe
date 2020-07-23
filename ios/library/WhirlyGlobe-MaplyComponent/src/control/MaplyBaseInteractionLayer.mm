@@ -1048,10 +1048,19 @@ public:
     smGeom.texCoords.push_back(TexCoord(1,0));
     smGeom.coords.push_back(Point2d(-group.size.width/2.0,group.size.height/2.0));
     smGeom.texCoords.push_back(TexCoord(0,0));
+        
     smGeom.color = RGBAColor(255,255,255,255);
     
-    retObj.layoutPts = smGeom.coords;
-    retObj.selectPts = smGeom.coords;
+    if (group.layoutSize.width > 0.0 && group.layoutSize.height > 0.0) {
+        retObj.layoutPts.push_back(Point2d(-group.layoutSize.width/2.0,-group.layoutSize.height/2.0));
+        retObj.layoutPts.push_back(Point2d(group.layoutSize.width/2.0,-group.layoutSize.height/2.0));
+        retObj.layoutPts.push_back(Point2d(group.layoutSize.width/2.0,group.layoutSize.height/2.0));
+        retObj.layoutPts.push_back(Point2d(-group.layoutSize.width/2.0,group.layoutSize.height/2.0));
+        retObj.selectPts = retObj.layoutPts;
+    } else {
+        retObj.layoutPts = smGeom.coords;
+        retObj.selectPts = smGeom.coords;
+    }
     retObj.importance = sampleObj->importance;
     
     // Create the texture

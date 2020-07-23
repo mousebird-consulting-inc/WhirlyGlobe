@@ -399,6 +399,7 @@ public:
                 style.markerSize = _largeSize;
                 break;
         }
+        style.layoutSize = style.markerSize;
         
         // It's either a texture or a single character
         NSString *symbol = dict[@"marker-symbol"];
