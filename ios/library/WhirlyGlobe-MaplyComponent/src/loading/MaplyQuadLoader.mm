@@ -382,6 +382,10 @@ using namespace WhirlyKit;
         return;
     
     ChangeSet changes;
+    if (!loadReturn->loadReturn->changes.empty()) {
+        [samplingLayer.layerThread addChangeRequests:loadReturn->loadReturn->changes];
+        loadReturn->loadReturn->changes.clear();
+    }
     loader->mergeLoadedTile(NULL,loadReturn->loadReturn.get(),changes);
     
     [samplingLayer.layerThread addChangeRequests:changes];
