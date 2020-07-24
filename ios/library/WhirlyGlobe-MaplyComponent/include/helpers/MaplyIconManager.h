@@ -36,6 +36,10 @@
 /// Size (in pixels) of the marker to be built
 @property (nonatomic) CGSize markerSize;
 
+/// How big we consider the marker to be when doing layout.
+/// By default, same as the marker size
+@property (nonatomic) CGSize layoutSize;
+
 /// Offset applied to marker
 @property (nonatomic) CGPoint markerOffset;
 

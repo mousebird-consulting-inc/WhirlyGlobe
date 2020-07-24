@@ -101,6 +101,12 @@ MapboxVectorTileParser::~MapboxVectorTileParser()
 {
 }
     
+void MapboxVectorTileParser::setUUIDs(const std::string &name,const std::set<std::string> &uuids)
+{
+    uuidName = name;
+    uuidValues = uuids;
+}
+
 void MapboxVectorTileParser::addCategory(const std::string &category,long long styleID)
 {
     styleCategories[styleID] = category;
@@ -200,6 +206,12 @@ bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst,RawData *rawDat
                 // Ask for the styles that correspond to this feature
                 // If there are none, we can skip this
                 SimpleIDSet styleIDs;
+                // Do a quick inclusion check
+                if (!uuidName.empty()) {
+                    std::string uuidVal = attributes->getString(uuidName);
+                    if (uuidValues.find(uuidVal) == uuidValues.end())
+                        continue;
+                }
                 std::vector<VectorStyleImplRef> styles = styleDelegate->stylesForFeature(attributes, tileData->ident, tileLayer.name());
                 for (auto style: styles) {
                     styleIDs.insert(style->getUuid());

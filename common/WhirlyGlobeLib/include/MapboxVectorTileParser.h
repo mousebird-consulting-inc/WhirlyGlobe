@@ -127,6 +127,9 @@ public:
                                std::vector<VectorObjectRef> &vecObjs,
                                VectorTileDataRef data);
     
+    // Only include features that have the given name and one of the values
+    void setUUIDs(const std::string &name,const std::set<std::string> &uuids);
+    
     // If set, we'll tack a debug label in the middle of the tile
     bool debugLabel;
     
@@ -134,6 +137,10 @@ public:
     bool debugOutline;
 
 public:
+    // Used for feature inclusion.  Only keep the features that have this attribute and one of the UUIDs.
+    std::string uuidName;
+    std::set<std::string> uuidValues;
+    
     VectorStyleDelegateImplRef styleDelegate;
     std::map<long long,std::string> styleCategories;
 };

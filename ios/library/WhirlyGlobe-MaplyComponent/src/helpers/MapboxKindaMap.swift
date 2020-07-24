@@ -15,8 +15,8 @@ import UIKit
     Callbacks control various pieces that might need to be intercepted.
  */
 public class MapboxKindaMap {
-    public var styleURL: URL? = nil
-    public weak var viewC : MaplyBaseViewController? = nil
+    public var styleURL: URL?
+    public weak var viewC: MaplyBaseViewController?
 
     // If set, we build an image/vector hybrid where the polygons go into
     //  the image layer and the linears and points are represented as vectors
@@ -28,7 +28,7 @@ public class MapboxKindaMap {
     public var backgroundAllPolys = true
     
     // If set, a top level directory where we'll cache everything
-    public var cacheDir : URL? = nil
+    public var cacheDir: URL?
     
     // If set, you can override the file loaded for a particular purpose.
     // This includes: the TileJSON files, sprite sheets, and the style sheet itself
@@ -57,15 +57,15 @@ public class MapboxKindaMap {
     }
     
     public var styleSettings = MaplyVectorStyleSettings()
-    public var styleSheet : MapboxVectorStyleSet? = nil
-    public var styleSheetImage : MapboxVectorStyleSet? = nil
-    public var styleSheetVector : MapboxVectorStyleSet? = nil
-    public var styleSheetData : Data? = nil
-    public var spriteJSON : Data? = nil
-    public var spritePNG : UIImage? = nil
+    public var styleSheet: MapboxVectorStyleSet?
+    public var styleSheetImage: MapboxVectorStyleSet?
+    public var styleSheetVector: MapboxVectorStyleSet?
+    public var styleSheetData: Data?
+    public var spriteJSON: Data?
+    public var spritePNG: UIImage?
     
     // Information about the sources as we fetch them
-    public var outstandingFetches : [URLSessionDataTask?] = []
+    public var outstandingFetches: [URLSessionDataTask?] = []
     private var finished = false
     
     // Check if we've finished loading stuff
@@ -96,9 +96,9 @@ public class MapboxKindaMap {
         }
     }
     
-    public var mapboxInterp : MapboxVectorInterpreter? = nil
-    public var loader : MaplyQuadImageLoader? = nil
-    public var offlineRender : MaplyRenderController? = nil
+    public var mapboxInterp: MapboxVectorInterpreter?
+    public var loader: MaplyQuadImageLoader?
+    public var offlineRender: MaplyRenderController?
     
     // If we're using a cache dir, look for the file there
     private func cacheResolve(_ url: URL) -> URL {
@@ -157,8 +157,7 @@ public class MapboxKindaMap {
         styleURL = cacheResolve(styleURL)
         
         // Go get the style sheet (this will also handle local
-        let dataTask = URLSession.shared.dataTask(with: styleURL) {
-            (data, resp, error) in
+        let dataTask = URLSession.shared.dataTask(with: styleURL) { (data, resp, error) in
             guard error == nil, let data = data else {
                 print("Error fetching style sheet:\n\(String(describing: error))")
                 
@@ -171,6 +170,7 @@ public class MapboxKindaMap {
                                                       settings: self.styleSettings,
                                                         viewC: viewC) else {
                     print("Failed to parse style sheet")
+                    self.stop()
                     return
                 }
                 self.styleSheetData = data
@@ -186,26 +186,25 @@ public class MapboxKindaMap {
                             let origURL = URL(string: urlStr) else {
                             print("Expecting either URL or tile info for a source.  Giving up.")
                             success = false
+                            self.stop()
                             return
                         }
                         let url = self.cacheResolve(self.fileOverride(origURL))
                         
                         // Go fetch the TileJSON
-                        let dataTask = URLSession.shared.dataTask(with: url) {
-                            (data, resp, error) in
+                        let dataTask = URLSession.shared.dataTask(with: url) { (data, resp, error) in
                             guard error == nil else {
                                 print("Error trying to fetch tileJson from \(urlStr)")
                                 self.stop()
                                 return
                             }
                             
-                            DispatchQueue.main.async {
-                                if let data = data,
-                                    let resp = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
-                                    source.tileSpec = resp
-                                    
-                                    self.cacheFile(origURL, data: data)
+                            if let data = data,
+                                let resp = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
+                                source.tileSpec = resp
+                                self.cacheFile(origURL, data: data)
 
+                                DispatchQueue.main.async {
                                     self.checkFinished()
                                 }
                             }
@@ -219,40 +218,38 @@ public class MapboxKindaMap {
                 if let spriteURLStr = styleSheet.spriteURL,
                     let spriteJSONurl = URL(string: spriteURLStr)?.appendingPathComponent("sprite@2x.json"),
                     let spritePNGurl = URL(string: spriteURLStr)?.appendingPathComponent("sprite@2x.png") {
-                        let dataTask1 = URLSession.shared.dataTask(with: self.cacheResolve(self.fileOverride(spriteJSONurl))) {
-                            (data, resp, error) in
+                        let dataTask1 = URLSession.shared.dataTask(with: self.cacheResolve(self.fileOverride(spriteJSONurl))) { (data, _, error) in
                             guard error == nil else {
                                 print("Failed to fetch spriteJSON from \(spriteURLStr)")
                                 self.stop()
                                 return
                             }
                             
+                            if let data = data {
+                                self.spriteJSON = data
+
+                                self.cacheFile(spriteJSONurl, data: data)
+                            }
+
                             DispatchQueue.main.async {
-                                if let data = data {
-                                    self.spriteJSON = data
-
-                                    self.cacheFile(spriteJSONurl, data: data)
-                                }
-
                                 self.checkFinished()
                             }
                         }
                         self.outstandingFetches.append(dataTask1)
                         dataTask1.resume()
-                        let dataTask2 = URLSession.shared.dataTask(with: self.cacheResolve(self.fileOverride(spritePNGurl))) {
-                            (data, resp, error) in
+                        let dataTask2 = URLSession.shared.dataTask(with: self.cacheResolve(self.fileOverride(spritePNGurl))) { (data, _, error) in
                             guard error == nil else {
                                 print("Failed to fetch spritePNG from \(spriteURLStr)")
                                 self.stop()
                                 return
                             }
-                            DispatchQueue.main.async {
-                                if let data = data {
-                                    self.spritePNG = UIImage(data: data)
-                                    
-                                    self.cacheFile(spritePNGurl, data: data)
-                                }
+                            if let data = data {
+                                self.spritePNG = UIImage(data: data)
                                 
+                                self.cacheFile(spritePNGurl, data: data)
+                            }
+
+                            DispatchQueue.main.async {
                                 self.checkFinished()
                             }
                         }
@@ -275,7 +272,7 @@ public class MapboxKindaMap {
             let viewC = viewC else {
             return
         }
-
+        
         // Figure out overall min/max zoom
         var zoom : (min: Int32, max: Int32) = (10000, -1)
         styleSheet.sources.forEach {
@@ -285,8 +282,8 @@ public class MapboxKindaMap {
             }
             if let minZoom = source.tileSpec?["minzoom"] as? Int32,
                 let maxZoom = source.tileSpec?["maxzoom"] as? Int32 {
-                zoom.min = min(minZoom,zoom.min)
-                zoom.max = max(maxZoom,zoom.max)
+                zoom.min = min(minZoom, zoom.min)
+                zoom.max = max(maxZoom, zoom.max)
             }
         }
         
@@ -299,7 +296,7 @@ public class MapboxKindaMap {
         // Image/vector hybrids draw the polygons into a background image
         if imageVectorHybrid {
             // Put together the tileInfoNew objects
-            var tileInfos : [MaplyRemoteTileInfoNew] = []
+            var tileInfos: [MaplyRemoteTileInfoNew] = []
             styleSheet.sources.forEach {
                 guard let source = $0 as? MaplyMapboxVectorStyleSource else {
                     print("Bad format in tileInfo for style sheet")

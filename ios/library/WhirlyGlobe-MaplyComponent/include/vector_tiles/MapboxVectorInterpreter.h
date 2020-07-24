@@ -56,4 +56,10 @@
 - (instancetype __nullable) initWithVectorStyle:(NSObject<MaplyVectorStyleDelegate> *__nonnull)vectorStyle
                                           viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC;
 
+/**
+ Set an optional list of unique features we'll filter on.
+ Any feature we want to pass through must have the given attribute name and one of the values.
+ */
+- (void)setUUIDName:(NSString * __nonnull)uuidName uuidValues:(NSArray<NSString *> * __nonnull)uuids;
+
 @end

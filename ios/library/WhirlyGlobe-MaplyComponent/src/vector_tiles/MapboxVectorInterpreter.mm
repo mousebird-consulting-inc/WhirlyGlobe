@@ -116,6 +116,21 @@ static int BackImageWidth = 16, BackImageHeight = 16;
     return self;
 }
 
+- (void)setUUIDName:(NSString *)inUuidName uuidValues:(NSArray<NSString *> *)uuids
+{
+    std::string uuidName = [inUuidName cStringUsingEncoding:NSUTF8StringEncoding];
+    std::set<std::string> uuidValues;
+    for (NSString *uuid in uuids) {
+        std::string uuidStr = [uuid cStringUsingEncoding:NSUTF8StringEncoding];
+        uuidValues.insert(uuidStr);
+    }
+    
+    if (imageTileParser)
+        imageTileParser->setUUIDs(uuidName,uuidValues);
+    if (vecTileParser)
+        vecTileParser->setUUIDs(uuidName,uuidValues);
+}
+
 - (void)setLoader:(MaplyQuadLoaderBase *)inLoader
 {
     if ([inLoader isKindOfClass:[MaplyQuadImageLoaderBase class]]) {

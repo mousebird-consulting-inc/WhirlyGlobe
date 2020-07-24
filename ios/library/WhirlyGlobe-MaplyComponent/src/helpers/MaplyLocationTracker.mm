@@ -94,13 +94,13 @@
         [self teardownLocationManager];
     _delegate = nil;
     if (_markerObj) {
-        [_theViewC removeObject:_markerObj];
-        [_theViewC removeObject:_movingMarkerObj];
+        [_theViewC removeObjects:@[_markerObj] mode:MaplyThreadCurrent];
+        [_theViewC removeObjects:@[_movingMarkerObj] mode:MaplyThreadCurrent];
         _markerObj = nil;
         _movingMarkerObj = nil;
     }
     if (_shapeCircleObj) {
-        [_theViewC removeObject:_shapeCircleObj];
+        [_theViewC removeObjects:@[_shapeCircleObj] mode:MaplyThreadCurrent];
         _shapeCircleObj = nil;
     }
 }
@@ -343,24 +343,26 @@
     MaplyCoordinate endLoc = MaplyCoordinateMakeWithDegrees(location.coordinate.longitude, location.coordinate.latitude);
     MaplyCoordinate startLoc;
     
-    if (_markerObj) {
+    if (_markerObj || _movingMarkerObj) {
         startLoc = _prevLoc;
-        [_theViewC removeObject:_markerObj];
-        [_theViewC removeObject:_movingMarkerObj];
+        if (_markerObj)
+            [_theViewC removeObjects:@[_markerObj] mode:MaplyThreadCurrent];
+        if (_movingMarkerObj)
+            [_theViewC removeObjects:@[_movingMarkerObj] mode:MaplyThreadCurrent];
         _markerObj = nil;
         _movingMarkerObj = nil;
     } else
         startLoc = endLoc;
     
     if (_shapeCircleObj) {
-        [theViewC removeObject:_shapeCircleObj];
+        [theViewC removeObjects:@[_shapeCircleObj] mode:MaplyThreadCurrent];
         _shapeCircleObj = nil;
     }
     
     if (location.horizontalAccuracy >= 0) {
         MaplyShapeCircle *shapeCircle = [self shapeCircleForCoord:endLoc AndHorizontalAccuracy:location.horizontalAccuracy];
         if (shapeCircle) {
-            _shapeCircleObj = [_theViewC addShapes:@[shapeCircle] desc:_shapeCircleDesc];
+            _shapeCircleObj = [_theViewC addShapes:@[shapeCircle] desc:_shapeCircleDesc mode:MaplyThreadCurrent];
         }
         
         NSNumber *orientation;
@@ -400,8 +402,8 @@
         NSTimeInterval ti = [NSDate timeIntervalSinceReferenceDate]+0.5;
         _markerDesc[kMaplyEnableStart] = _movingMarkerDesc[kMaplyEnableEnd] = @(ti);
         
-        _movingMarkerObj = [_theViewC addScreenMarkers:@[movingMarker] desc:_movingMarkerDesc];
-        _markerObj = [_theViewC addScreenMarkers:@[marker] desc:_markerDesc];
+        _movingMarkerObj = [_theViewC addScreenMarkers:@[movingMarker] desc:_movingMarkerDesc mode:MaplyThreadCurrent];
+        _markerObj = [_theViewC addScreenMarkers:@[marker] desc:_markerDesc mode:MaplyThreadCurrent];
         
         [self lockToLocation:endLoc heading:(orientation ? orientation.floatValue : 0.0)];
         

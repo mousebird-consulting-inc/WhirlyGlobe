@@ -25,6 +25,16 @@
 @end
 
 @implementation MaplyClusterGroup
+
+- (id)init
+{
+    self = [super init];
+    
+    _layoutSize = CGSizeMake(-1.0, -1.0);
+    
+    return self;
+}
+
 @end
 
 @implementation MaplyBasicClusterGenerator

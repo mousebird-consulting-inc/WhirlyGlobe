@@ -121,6 +121,39 @@ bool MaplyBoundingBoxContains(MaplyBoundingBox bbox, MaplyCoordinate c)
     return mbr.insideOrOnEdge(point);
 }
 
+MaplyBoundingBox MaplyBoundingBoxFromLocations(const CLLocationCoordinate2D locs[], unsigned int numLocs)
+{
+    Mbr mbr;
+
+    for (unsigned int ii=0;ii<numLocs;ii++) {
+        CLLocationCoordinate2D loc = locs[ii];
+        MaplyCoordinate coord = MaplyCoordinateMakeWithDegrees(loc.longitude, loc.latitude);
+        mbr.addPoint(Point2d(coord.x,coord.y));
+    }
+        
+    MaplyBoundingBox ret;
+    ret.ll.x = mbr.ll().x();  ret.ll.y = mbr.ll().y();
+    ret.ur.x = mbr.ur().x();  ret.ur.y = mbr.ur().y();
+
+    return ret;
+}
+
+MaplyBoundingBox MaplyBoundingBoxIntersection(MaplyBoundingBox bbox0,MaplyBoundingBox bbox1)
+{
+    Mbr mbr0;
+    mbr0.ll() = Point2f(bbox0.ll.x,bbox0.ll.y);
+    mbr0.ur() = Point2f(bbox0.ur.x,bbox0.ur.y);
+    Mbr mbr1;
+    mbr1.ll() = Point2f(bbox1.ll.x,bbox1.ll.y);
+    mbr1.ur() = Point2f(bbox1.ur.x,bbox1.ur.y);
+    Mbr inter = mbr0.intersect(mbr1);
+    
+    MaplyBoundingBox ret;
+    ret.ll.x = inter.ll().x();  ret.ll.y = inter.ll().y();
+    ret.ur.x = inter.ur().x();  ret.ur.y = inter.ur().y();
+    
+    return ret;
+}
 
 MaplyBoundingBox MaplyBoundingBoxExpandByFraction(MaplyBoundingBox bbox, float buffer)
 {
