@@ -487,8 +487,11 @@ void QIFTileAsset::cancelFetches(PlatformThreadInfo *threadInfo,QuadImageFrameLo
         for (auto frame : frames) {
             frame->cancelFetch(threadInfo,loader,batchOps);
         }
-    } else
-        findFrameFor(frameToCancel)->cancelFetch(threadInfo, loader, batchOps);
+    } else {
+        QIFFrameAssetRef frame = findFrameFor(frameToCancel);
+        if (frame)
+            frame->cancelFetch(threadInfo, loader, batchOps);
+    }
 }
 
 

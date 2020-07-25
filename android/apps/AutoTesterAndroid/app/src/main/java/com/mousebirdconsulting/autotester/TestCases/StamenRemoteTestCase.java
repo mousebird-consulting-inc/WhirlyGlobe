@@ -65,7 +65,6 @@ public class StamenRemoteTestCase extends MaplyTestCase {
 
 		QuadImageLoader loader = new QuadImageLoader(params,tileInfo,baseController);
 		loader.setImageFormat(RenderController.ImageFormat.MaplyImageUShort565);
-		loader.setDebugMode(true);
 
 		// Change the color and then change it back
 		final Handler handler = new Handler();

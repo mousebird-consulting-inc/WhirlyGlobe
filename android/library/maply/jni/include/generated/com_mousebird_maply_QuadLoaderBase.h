@@ -106,10 +106,10 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadLoaderBase_getGeneration
 /*
  * Class:     com_mousebird_maply_QuadLoaderBase
  * Method:    reloadNative
- * Signature: ()V
+ * Signature: (Lcom/mousebird/maply/ChangeSet;)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_reloadNative
-  (JNIEnv *, jobject);
+  (JNIEnv *, jobject, jobject);
 
 /*
  * Class:     com_mousebird_maply_QuadLoaderBase
