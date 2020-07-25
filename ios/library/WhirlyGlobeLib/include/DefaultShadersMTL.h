@@ -109,7 +109,7 @@ struct Uniforms
     simd::float4x4 mvMatrix;
     simd::float4x4 mvNormalMatrix;
     simd::float3 eyePos;
-    simd::float2 pixDispSize;  // Size of a single pixel in display coordinates
+    simd::float2 screenSizeInDisplayCoords;  // Size of the whole frame in display coords
     simd::float2 frameSize;    // Output framebuffer size
     uint frameCount;            // Starts at zero and goes up from there every frame
     int outputTexLevel;        // Normally 0, unless we're running a reduce
