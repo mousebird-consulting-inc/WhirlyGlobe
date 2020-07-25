@@ -64,7 +64,7 @@ using namespace WhirlyKit;
     if (_layerThread.viewWatcher)
         [_layerThread.viewWatcher removeWatcherTarget:self selector:@selector(viewUpdate:)];
 
-    controller->stop(changes);
+    controller->stop(NULL,changes);
     controller = NULL;
     
     [_layerThread addChangeRequests:changes];
@@ -92,7 +92,7 @@ static const float DelayPeriod = 0.1;
     ChangeSet changes;
     // Controller is sitting on some unloads, so call it back in a bit
     // Note: We don't need to go through the view update logic here.  We should just process the unloads.
-    if (controller->viewUpdate(inViewState.viewState,changes)) {
+    if (controller->viewUpdate(NULL,inViewState.viewState,changes)) {
         [self performSelector:@selector(delayCheck) withObject:nil afterDelay:DelayPeriod];
     }
     

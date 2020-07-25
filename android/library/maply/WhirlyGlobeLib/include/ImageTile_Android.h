@@ -40,7 +40,6 @@ public:
     virtual ~ImageTile_Android();
 
     /// Scoop the contents out of a Bitmap
-    /// TODO: Deal with some of the other variants (not just 8888)
     void setBitmap(JNIEnv *env,jobject bitmapObj);
 
     /// Construct and return a texture suitable for the renderer

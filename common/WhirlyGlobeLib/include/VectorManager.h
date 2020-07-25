@@ -84,6 +84,7 @@ public:
     bool                        vecCenterSet;
     Point2f                     vecCenter;
 };
+typedef std::shared_ptr<VectorInfo> VectorInfoRef;
 
 #define kWKVectorManager "WKVectorManager"
 

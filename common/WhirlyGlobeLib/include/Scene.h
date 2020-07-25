@@ -112,15 +112,15 @@ class RemDrawableReq : public ChangeRequest
 {
 public:
     /// Construct with the drawable ID and an optional fade interval
-	RemDrawableReq(SimpleIdentity drawId) : drawable(drawId) { }
+	RemDrawableReq(SimpleIdentity drawId);
     /// This version is a timed delete
-    RemDrawableReq(SimpleIdentity drawId,TimeInterval inWhen) : drawable(drawId) { when = inWhen; }
+    RemDrawableReq(SimpleIdentity drawId,TimeInterval inWhen);
 
     /// Remove the drawable.  Never call this
 	void execute(Scene *scene,SceneRenderer *renderer,View *view);
 	
 protected:	
-	SimpleIdentity drawable;
+	SimpleIdentity drawID;
 };
     
 /// Add an OpenGL ES 2.0 program to the scene for user later

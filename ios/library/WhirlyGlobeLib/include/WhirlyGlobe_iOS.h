@@ -31,7 +31,6 @@
 #import "GlobeView_iOS.h"
 #import "VectorData_iOS.h"
 #import "FontTextureManager_iOS.h"
-#import "MapboxVectorTileParser_iOS.h"
 #import "ScreenObject_iOS.h"
 #import "SingleLabel_iOS.h"
 #import "ComponentManager_iOS.h"

@@ -32,8 +32,8 @@ QIFBatchOps::~QIFBatchOps()
 {
 }
     
-QIFFrameAsset::QIFFrameAsset()
-: state(Empty), priority(0), importance(0.0), loadReturnSet(false)
+QIFFrameAsset::QIFFrameAsset(QuadFrameInfoRef frameInfo)
+: frameInfo(frameInfo), state(Empty), priority(0), importance(0.0), loadReturnSet(false)
 { }
     
 QIFFrameAsset::~QIFFrameAsset()
@@ -54,20 +54,25 @@ const std::vector<SimpleIdentity> &QIFFrameAsset::getTexIDs()
 {
     return texIDs;
 }
+
+QuadFrameInfoRef QIFFrameAsset::getFrameInfo()
+{
+    return frameInfo;
+}
     
 void QIFFrameAsset::setupFetch(QuadImageFrameLoader *loader)
 {
     state = Loading;
 }
 
-void QIFFrameAsset::clear(QuadImageFrameLoader *loader,QIFBatchOps *batchOps,ChangeSet &changes) {
+void QIFFrameAsset::clear(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QIFBatchOps *batchOps,ChangeSet &changes) {
     state = Empty;
     for (auto texID : texIDs)
         changes.push_back(new RemTextureReq(texID));
     texIDs.clear();
 }
 
-bool QIFFrameAsset::updateFetching(QuadImageFrameLoader *loader,int newPriority,double newImportance)
+bool QIFFrameAsset::updateFetching(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,int newPriority,double newImportance)
 {
     if (priority == newPriority && importance == newImportance)
         return false;
@@ -77,12 +82,12 @@ bool QIFFrameAsset::updateFetching(QuadImageFrameLoader *loader,int newPriority,
     return true;
 }
 
-void QIFFrameAsset::cancelFetch(QuadImageFrameLoader *loader,QIFBatchOps *batchOps)
+void QIFFrameAsset::cancelFetch(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QIFBatchOps *batchOps)
 {
     state = Empty;
 }
 
-void QIFFrameAsset::loadSuccess(QuadImageFrameLoader *loader,const std::vector<Texture *> &texs)
+void QIFFrameAsset::loadSuccess(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,const std::vector<Texture *> &texs)
 {
     state = Loaded;
     texIDs.clear();
@@ -90,7 +95,7 @@ void QIFFrameAsset::loadSuccess(QuadImageFrameLoader *loader,const std::vector<T
         texIDs.push_back(tex->getId());
 }
 
-void QIFFrameAsset::loadFailed(QuadImageFrameLoader *loader)
+void QIFFrameAsset::loadFailed(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader)
 {
     state = Empty;
 }
@@ -127,11 +132,11 @@ QIFTileAsset::QIFTileAsset(const QuadTreeNew::ImportantNode &ident) : state(Wait
 {
 }
     
-void QIFTileAsset::setupFrames(QuadImageFrameLoader *loader,int numFrames)
+void QIFTileAsset::setupFrames(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,int numFrames)
 {
     frames.reserve(numFrames);
     for (unsigned int ii = 0; ii < numFrames; ii++) {
-        frames.push_back(makeFrameAsset(loader));
+        frames.push_back(makeFrameAsset(threadInfo,loader->getFrameInfo(ii),loader));
     }
 }
     
@@ -181,7 +186,7 @@ bool QIFTileAsset::anyFramesLoading(QuadImageFrameLoader *loader)
             return false;
         return frames[0]->getState() == QIFFrameAsset::Loading;
     }
-    
+
     for (auto frame : frames)
         if (frame->getState() == QIFFrameAsset::Loading)
             return true;
@@ -206,35 +211,25 @@ bool QIFTileAsset::anyFramesLoaded(QuadImageFrameLoader *loader)
     return false;
 }
 
-// True if the given frame is loading
-bool QIFTileAsset::isFrameLoading(int which)
-{
-    if (which < 0 || which >= frames.size())
-        return false;
-    
-    auto frame = frames[which];
-    return frame->getState() == QIFFrameAsset::Loading;
-}
-
-void QIFTileAsset::setImportance(QuadImageFrameLoader *loader,double import)
+void QIFTileAsset::setImportance(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,double import)
 {
     for (auto frame : frames) {
-        frame->updateFetching(loader, frame->getPriority(), import);
+        frame->updateFetching(threadInfo,loader, frame->getPriority(), import);
     }
     ident.importance = import;
 }
 
 // Clear out the individual frames, loads and all
-void QIFTileAsset::clearFrames(QuadImageFrameLoader *loader,QIFBatchOps *batchOps,ChangeSet &changes)
+void QIFTileAsset::clearFrames(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QIFBatchOps *batchOps,ChangeSet &changes)
 {
     for (auto frame : frames)
-        frame->clear(loader,batchOps, changes);
+        frame->clear(threadInfo,loader,batchOps, changes);
 }
 
 // Clear out geometry and all the frame info
-void QIFTileAsset::clear(QuadImageFrameLoader *loader,QIFBatchOps *batchOps, ChangeSet &changes)
+void QIFTileAsset::clear(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QIFBatchOps *batchOps, ChangeSet &changes)
 {
-    clearFrames(loader,batchOps, changes);
+    clearFrames(threadInfo,loader,batchOps, changes);
     
     state = Waiting;
     for (auto drawIDs : instanceDrawIDs) {
@@ -245,24 +240,28 @@ void QIFTileAsset::clear(QuadImageFrameLoader *loader,QIFBatchOps *batchOps, Cha
     instanceDrawIDs.clear();
     
     if (!compObjs.empty()) {
-        loader->compManager->removeComponentObjects(compObjs,changes);
+        loader->compManager->removeComponentObjects(threadInfo,compObjs,changes);
         compObjs.clear();
     }
     if (!ovlCompObjs.empty()) {
-        loader->compManager->removeComponentObjects(ovlCompObjs, changes);
+        loader->compManager->removeComponentObjects(threadInfo,ovlCompObjs, changes);
         ovlCompObjs.clear();
     }
 
     shouldEnable = false;
 }
     
-void QIFTileAsset::startFetching(QuadImageFrameLoader *inLoader,int frameToLoad,QIFBatchOps *inBatchOps)
+void QIFTileAsset::startFetching(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *inLoader,QuadFrameInfoRef frameToLoad,QIFBatchOps *inBatchOps,ChangeSet &changes)
 {
     state = Active;
 }
 
 // Set up the geometry for this tile
-void QIFTileAsset::setupContents(QuadImageFrameLoader *loader,LoadedTileNewRef loadedTile,int defaultDrawPriority,const std::vector<SimpleIdentity> &shaderIDs,ChangeSet &changes)
+void QIFTileAsset::setupContents(QuadImageFrameLoader *loader,
+                                 LoadedTileNewRef loadedTile,
+                                 int defaultDrawPriority,
+                                 const std::vector<SimpleIdentity> &shaderIDs,
+                                 ChangeSet &changes)
 {
     drawPriority = defaultDrawPriority;
     
@@ -293,11 +292,14 @@ void QIFTileAsset::setupContents(QuadImageFrameLoader *loader,LoadedTileNewRef l
             auto drawInst = loader->getController()->getRenderer()->makeBasicDrawableInstanceBuilder("MaplyQuadImageFrameLoader");
             drawInst->setMasterID(di.drawID, BasicDrawableInstance::ReuseStyle);
             drawInst->setTexId(0, EmptyIdentity);
-            if (frames.size() > 1)
+            if (loader->getNumFrames() > 1)
                 drawInst->setTexId(1, EmptyIdentity);
             drawInst->setDrawPriority(newDrawPriority);
             drawInst->setOnOff(false);
             drawInst->setProgram(shaderIDs[focusID]);
+            auto uniBlock = loader->getUniBlock();
+            if (uniBlock.blockData)
+                drawInst->setUniBlock(uniBlock);
             drawInst->setColor(loader->getColor());
             drawInst->setRequestZBuffer(zBufferRead);
             drawInst->setWriteZBuffer(zBufferWrite);
@@ -320,26 +322,24 @@ void QIFTileAsset::setColor(QuadImageFrameLoader *loader,const RGBAColor &newCol
     }
 }
 
-// Cancel any outstanding fetches
-void QIFTileAsset::cancelFetches(QuadImageFrameLoader *loader,int frameToCancel,QIFBatchOps *batchOps)
-{
-    if (frameToCancel == -1) {
-        for (auto frame : frames) {
-            frame->cancelFetch(loader,batchOps);
-        }
-    } else {
-        frames[frameToCancel]->cancelFetch(loader, batchOps);
-    }
-}
-
 // A single frame loaded successfully
-bool QIFTileAsset::frameLoaded(QuadImageFrameLoader *loader,QuadLoaderReturn *loadReturn,std::vector<Texture *> &texs,ChangeSet &changes) {
-    if (frames.size() > 0 && (loadReturn->frame < 0 || loadReturn->frame >= frames.size()))
+bool QIFTileAsset::frameLoaded(PlatformThreadInfo *threadInfo,
+                               QuadImageFrameLoader *loader,
+                               QuadLoaderReturn *loadReturn,
+                               std::vector<Texture *> &texs,
+                               ChangeSet &changes) {
+    // Sometimes changes are made directly with the managers and we need to reflect that
+    //  even if those features are immediately deleted
+    if (!loadReturn->changes.empty())
+        changes.insert(changes.end(),loadReturn->changes.begin(),loadReturn->changes.end());
+    
+    auto frame = findFrameFor(loadReturn->frame);
+    if (!frame)
     {
         if (!loadReturn->compObjs.empty())
-            loader->compManager->removeComponentObjects(loadReturn->compObjs, changes);
+            loader->compManager->removeComponentObjects(threadInfo,loadReturn->compObjs, changes);
         if (!loadReturn->ovlCompObjs.empty())
-            loader->compManager->removeComponentObjects(loadReturn->ovlCompObjs, changes);
+            loader->compManager->removeComponentObjects(threadInfo,loadReturn->ovlCompObjs, changes);
         wkLogLevel(Warn,"QuadImageFrameLoader: Got frame back outside of range");
         return false;
     }
@@ -347,20 +347,20 @@ bool QIFTileAsset::frameLoaded(QuadImageFrameLoader *loader,QuadLoaderReturn *lo
     // Check the generation.  This is how we catch old data that was in transit.
     if (loadReturn->generation < loader->getGeneration()) {
         if (!loadReturn->compObjs.empty())
-            loader->compManager->removeComponentObjects(loadReturn->compObjs, changes);
+            loader->compManager->removeComponentObjects(threadInfo,loadReturn->compObjs, changes);
         if (!loadReturn->ovlCompObjs.empty())
-            loader->compManager->removeComponentObjects(loadReturn->ovlCompObjs, changes);
+            loader->compManager->removeComponentObjects(threadInfo,loadReturn->ovlCompObjs, changes);
 //        wkLogLevel(Debug, "QuadImageFrameLoader: Dropped an old loadReturn after a reload.");
         return true;
     }
     
     // We may be replacing data that's already there
     if (!compObjs.empty()) {
-        loader->compManager->removeComponentObjects(compObjs, changes);
+        loader->compManager->removeComponentObjects(threadInfo,compObjs, changes);
         compObjs.clear();
     }
     if (!ovlCompObjs.empty()) {
-        loader->compManager->removeComponentObjects(ovlCompObjs, changes);
+        loader->compManager->removeComponentObjects(threadInfo,ovlCompObjs, changes);
         ovlCompObjs.clear();
     }
     
@@ -370,9 +370,7 @@ bool QIFTileAsset::frameLoaded(QuadImageFrameLoader *loader,QuadLoaderReturn *lo
     for (ComponentObjectRef ovlCompObj : loadReturn->ovlCompObjs)
         ovlCompObjs.insert(ovlCompObj->getId());
     
-    if (loadReturn->frame >= 0 && frames.size() > 0) {
-        auto frame = frames[loadReturn->frame];
-        
+    if (frame) {
         // Clear out the old texture if it's there
         // Happens in the reload case
         if (!frame->getTexIDs().empty()) {
@@ -380,7 +378,7 @@ bool QIFTileAsset::frameLoaded(QuadImageFrameLoader *loader,QuadLoaderReturn *lo
                 changes.push_back(new RemTextureReq(texID));
         }
         
-        frame->loadSuccess(loader,texs);
+        frame->loadSuccess(threadInfo,loader,texs);
     }
     
     if (!texs.empty()) {
@@ -392,12 +390,24 @@ bool QIFTileAsset::frameLoaded(QuadImageFrameLoader *loader,QuadLoaderReturn *lo
     return true;
 }
     
-void QIFTileAsset::mergeLoadedFrame(QuadImageFrameLoader *loader,int frameID,const RawDataRef &data)
+void QIFTileAsset::mergeLoadedFrame(QuadImageFrameLoader *loader,QuadFrameInfoRef frameInfo,const RawDataRef &data)
 {
-    if (frameID >= 0 && frameID < frames.size()) {
-        auto frame = frames[frameID];
+    auto frame = findFrameFor(frameInfo);
+    if (frame)
         frame->setLoadReturn(data);
+}
+
+// A single frame failed to load
+void QIFTileAsset::frameFailed(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QuadLoaderReturn *loadReturn,ChangeSet &changes) {
+    if (frames.size() > 0 && (loadReturn->frame->frameIndex < 0 || loadReturn->frame->frameIndex >= frames.size()))
+    {
+        wkLogLevel(Warn,"MaplyQuadImageFrameLoader: Got frame back outside of range.");
+        return;
     }
+    
+    auto frame = findFrameFor(loadReturn->frame);
+    if (frame)
+        frame->loadFailed(threadInfo,loader);
 }
     
 void QIFTileAsset::getLoadedData(std::vector<RawDataRef> &allData)
@@ -422,19 +432,68 @@ bool QIFTileAsset::allFramesLoaded()
     return true;
 }
 
-// A single frame failed to load
-void QIFTileAsset::frameFailed(QuadImageFrameLoader *loader,QuadLoaderReturn *loadReturn,ChangeSet &changes) {
-    if (frames.size() > 0 && (loadReturn->frame < 0 || loadReturn->frame >= frames.size()))
-    {
-        wkLogLevel(Warn,"MaplyQuadImageFrameLoader: Got frame back outside of range.");
-        return;
+bool QIFTileAsset::anythingLoading() {
+    for (const auto &frame : frames)
+        if (frame->getState() == QIFFrameAsset::Loading)
+            return true;
+
+    return false;
+}
+
+// Find the frame corresponding to the given source
+QIFFrameAssetRef QIFTileAsset::findFrameFor(QuadFrameInfoRef frameInfo) {
+    for (const auto &frame : frames) {
+        if (frame->getFrameInfo()->getId() == frameInfo->getId())
+            return frame;
     }
     
-    if (loadReturn->frame >= 0 && loadReturn->frame < frames.size()) {
-        auto frame = frames[loadReturn->frame];
-        frame->loadFailed(loader);
+    return QIFFrameAssetRef();
+}
+
+// Check if we're in the process of loading any of the given frames
+bool QIFTileAsset::anyFramesLoading(const std::set<QuadFrameInfoRef> &frameInfos) {
+    for (const auto &frame : frames) {
+        if (frame->getState() == QIFFrameAsset::Loading && frameInfos.find(frame->getFrameInfo()) != frameInfos.end())
+            return true;
+    }
+    
+    return false;
+}
+
+// Check if we've already loaded any of the given frames
+bool QIFTileAsset::anyFramesLoaded(const std::set<QuadFrameInfoRef> &frameInfos) {
+    for (const auto &frame : frames) {
+        if (frame->getState() == QIFFrameAsset::Loaded && frameInfos.find(frame->getFrameInfo()) != frameInfos.end())
+            return true;
+    }
+    
+    return false;
+}
+    
+bool QIFTileAsset::isFrameLoading(QuadFrameInfoRef frameInfo)
+{
+    for (const auto &frame : frames) {
+        if (frame->getFrameInfo()->getId() == frameInfo->getId()) {
+            return frame->getState() == QIFFrameAsset::Loading;
+        }
+    }
+    
+    return false;
+}
+    
+void QIFTileAsset::cancelFetches(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QuadFrameInfoRef frameToCancel,QIFBatchOps *batchOps)
+{
+    if (!frameToCancel) {
+        for (auto frame : frames) {
+            frame->cancelFetch(threadInfo,loader,batchOps);
+        }
+    } else {
+        QIFFrameAssetRef frame = findFrameFor(frameToCancel);
+        if (frame)
+            frame->cancelFetch(threadInfo, loader, batchOps);
     }
 }
+
 
 QIFTileState::QIFTileState(int numFrames,const QuadTreeNew::Node &node)
 : node(node), enable(false)
@@ -636,6 +695,9 @@ QuadImageFrameLoader::QuadImageFrameLoader(const SamplingParams &params,Mode mod
     curFrames.push_back(0.0);
     
     updatePriorityDefaults();
+    
+    minZoom = params.minZoom;
+    maxZoom = params.maxZoom;
 }
     
 void QuadImageFrameLoader::addFocus()
@@ -663,6 +725,17 @@ QuadImageFrameLoader::~QuadImageFrameLoader()
 void QuadImageFrameLoader::setSamplingParams(const SamplingParams &inParams)
 {
     params = inParams;
+}
+
+const SamplingParams &QuadImageFrameLoader::getSamplingParams()
+{
+    return params;
+}
+
+void QuadImageFrameLoader::setZoomLimits(int inMinZoom,int inMaxZoom)
+{
+    minZoom = inMinZoom;
+    maxZoom = inMaxZoom;
 }
     
 void QuadImageFrameLoader::setRequireTopTilesLoaded(bool newVal)
@@ -778,6 +851,17 @@ SimpleIdentity QuadImageFrameLoader::getShaderID(int focusID)
     return shaderIDs[focusID];
 }
     
+
+void QuadImageFrameLoader::setUniBlock(BasicDrawable::UniformBlock &inUniBlock)
+{
+    uniBlock = inUniBlock;
+}
+
+BasicDrawable::UniformBlock &QuadImageFrameLoader::getUniBlock()
+{
+    return uniBlock;
+}
+
 void QuadImageFrameLoader::setTexType(TextureType inTexType)
 {
     texType = inTexType;
@@ -812,20 +896,36 @@ bool QuadImageFrameLoader::getFlipY()
 {
     return flipY;
 }
+
+int QuadImageFrameLoader::getNumFrames()
+{
+    return frames.size();
+}
+
+QuadFrameInfoRef QuadImageFrameLoader::getFrameInfo(int which)
+{
+    return frames[which];
+}
+
+void QuadImageFrameLoader::setFrames(const std::vector<QuadFrameInfoRef> &newFrames)
+{
+    frames = newFrames;
+}
     
 int QuadImageFrameLoader::getGeneration()
 {
     return generation;
 }
     
-void QuadImageFrameLoader::reload(int frame)
+void QuadImageFrameLoader::reload(PlatformThreadInfo *threadInfo,int frameIndex, ChangeSet &changes)
 {
     if (debugMode)
-        wkLogLevel(Debug, "QuadImageFrameLoader: Starting reload of frame %d",frame);
+        wkLogLevel(Debug, "QuadImageFrameLoader: Starting reload of frame %d",frameIndex);
     
     loadingStatus = true;
     
-    QIFBatchOps *batchOps = makeBatchOps();
+    QIFBatchOps *batchOps = makeBatchOps(threadInfo);
+    auto frame = frames[frameIndex];
 
     generation++;
     
@@ -837,20 +937,20 @@ void QuadImageFrameLoader::reload(int frame)
     for (auto it: tiles) {
         QIFTileAssetRef tile = it.second;
         
-        tile->cancelFetches(this, frame, batchOps);
-        tile->startFetching(this, frame, batchOps);
+        tile->cancelFetches(threadInfo, this, frame, batchOps);
+        tile->startFetching(threadInfo, this, frame, batchOps, changes);
     }
     
     // Process all the fetches and cancels at once
     // We're not making any visual changes here, just messing with loading so no ChangeSet
-    processBatchOps(batchOps);
+    processBatchOps(threadInfo,batchOps);
     delete batchOps;
 }
     
-QIFTileAssetRef QuadImageFrameLoader::addNewTile(const QuadTreeNew::ImportantNode &ident,QIFBatchOps *batchOps,ChangeSet &changes)
+QIFTileAssetRef QuadImageFrameLoader::addNewTile(PlatformThreadInfo *threadInfo,const QuadTreeNew::ImportantNode &ident,QIFBatchOps *batchOps,ChangeSet &changes)
 {
     // Set up a new tile
-    auto newTile = makeTileAsset(ident);
+    auto newTile = makeTileAsset(threadInfo,ident);
     int defaultDrawPriority = baseDrawPriority + drawPriorityPerLevel * ident.level;
     tiles[ident] = newTile;
     
@@ -867,12 +967,12 @@ QIFTileAssetRef QuadImageFrameLoader::addNewTile(const QuadTreeNew::ImportantNod
         wkLogLevel(Debug,"Starting fetch for tile %d: (%d,%d)",ident.level,ident.x,ident.y);
     
     // Normal remote data fetching
-    newTile->startFetching(this, -1, batchOps);
+    newTile->startFetching(threadInfo,this, NULL, batchOps, changes);
         
     return newTile;
 }
 
-void QuadImageFrameLoader::removeTile(const QuadTreeNew::Node &ident, QIFBatchOps *batchOps, ChangeSet &changes)
+void QuadImageFrameLoader::removeTile(PlatformThreadInfo *threadInfo,const QuadTreeNew::Node &ident, QIFBatchOps *batchOps, ChangeSet &changes)
 {
     auto it = tiles.find(ident);
     // If it's here, let's get rid of it.
@@ -880,7 +980,7 @@ void QuadImageFrameLoader::removeTile(const QuadTreeNew::Node &ident, QIFBatchOp
         if (debugMode)
             wkLogLevel(Debug,"Unloading tile %d: (%d,%d)",ident.level,ident.x,ident.y);
         
-        it->second->clear(this, batchOps, changes);
+        it->second->clear(threadInfo, this, batchOps, changes);
         
         batchOps->deletes.push_back(QuadTreeIdentifier(ident.x,ident.y,ident.level));
         
@@ -889,7 +989,7 @@ void QuadImageFrameLoader::removeTile(const QuadTreeNew::Node &ident, QIFBatchOp
 }
     
     
-void QuadImageFrameLoader::mergeLoadedTile(QuadLoaderReturn *loadReturn,ChangeSet &changes)
+void QuadImageFrameLoader::mergeLoadedTile(PlatformThreadInfo *threadInfo,QuadLoaderReturn *loadReturn,ChangeSet &changes)
 {
     changesSinceLastFlush = true;
 
@@ -940,9 +1040,9 @@ void QuadImageFrameLoader::mergeLoadedTile(QuadLoaderReturn *loadReturn,ChangeSe
     if (it != tiles.end()) {
         auto tile = it->second;
         if (failed) {
-            tile->frameFailed(this, loadReturn, changes);
+            tile->frameFailed(threadInfo, this, loadReturn, changes);
         } else {
-            if (!tile->frameLoaded(this, loadReturn, texs, changes))
+            if (!tile->frameLoaded(threadInfo, this, loadReturn, texs, changes))
                 failed = true;
         }
     }
@@ -958,7 +1058,7 @@ void QuadImageFrameLoader::mergeLoadedTile(QuadLoaderReturn *loadReturn,ChangeSe
             compObjs.insert(compObj->getId());
         for (auto compObj : loadReturn->ovlCompObjs)
             compObjs.insert(compObj->getId());
-        compManager->removeComponentObjects(compObjs, changes);
+        compManager->removeComponentObjects(threadInfo, compObjs, changes);
         loadReturn->compObjs.clear();
         loadReturn->ovlCompObjs.clear();
     }
@@ -1147,6 +1247,16 @@ void QuadImageFrameLoader::buildRenderState(ChangeSet &changes)
     changes.push_back(mergeReq);
 }
 
+const std::set<QuadFrameInfoRef> QuadImageFrameLoader::getActiveFrames()
+{
+    std::set<QuadFrameInfoRef> activeFrames;
+    for (auto frame : frames)
+        activeFrames.insert(frame);
+    
+    return activeFrames;
+}
+
+
 // MARK: Quad Build Delegate
 
 /// Called when the builder first starts up.  Keep this around if you need it.
@@ -1170,12 +1280,14 @@ QuadTreeNew::NodeSet QuadImageFrameLoader::builderUnloadCheck(QuadTileBuilder *b
     if (!this->builder)
         return toKeep;
     
+    auto theActiveFrames = getActiveFrames();
+    
     // List all the tiles that we're going to load or are loading
     QuadTreeNew::NodeSet allLoads;
     for (auto node : loadTiles)
         allLoads.insert(node);
     for (auto node : tiles)
-        if (node.second->anyFramesLoading(this))
+        if (node.second->anyFramesLoading(theActiveFrames))
             allLoads.insert(node.first);
     
     // For all those loading or will be loading nodes, nail down their parents
@@ -1187,7 +1299,7 @@ QuadTreeNew::NodeSet QuadImageFrameLoader::builderUnloadCheck(QuadTileBuilder *b
             {
                 auto it = tiles.find(parent);
                 // Nail down the parent that's loaded, but don't care otherwise
-                if (it != tiles.end() && it->second->anyFramesLoaded(this)) {
+                if (it != tiles.end() && it->second->anyFramesLoaded(theActiveFrames)) {
                     toKeep.insert(parent);
                     break;
                 }
@@ -1201,7 +1313,7 @@ QuadTreeNew::NodeSet QuadImageFrameLoader::builderUnloadCheck(QuadTileBuilder *b
         if (it == tiles.end())
             continue;
         // If this tile (to be unloaded) isn't loaded, then we don't care about it
-        if (!it->second->anyFramesLoaded(this))
+        if (!it->second->anyFramesLoaded(theActiveFrames))
             continue;
         
         // Check that it's not already being kept around
@@ -1229,7 +1341,8 @@ QuadTreeNew::NodeSet QuadImageFrameLoader::builderUnloadCheck(QuadTileBuilder *b
 }
 
 /// Load the given group of tiles.  If you don't load them immediately, up to you to cancel any requests
-void QuadImageFrameLoader::builderLoad(QuadTileBuilder *builder,
+void QuadImageFrameLoader::builderLoad(PlatformThreadInfo *threadInfo,
+                                       QuadTileBuilder *builder,
                          const WhirlyKit::TileBuilderDelegateInfo &updates,
                          ChangeSet &changes)
 {
@@ -1245,16 +1358,16 @@ void QuadImageFrameLoader::builderLoad(QuadTileBuilder *builder,
     
     targetLevel = updates.targetLevel;
     
-    QIFBatchOps *batchOps = makeBatchOps();
+    QIFBatchOps *batchOps = makeBatchOps(threadInfo);
     
     // Add new tiles
     for (auto it = updates.loadTiles.rbegin(); it != updates.loadTiles.rend(); ++it) {
         auto tile = *it;
         // If it's already there, clear it out
-        removeTile(tile->ident,batchOps,changes);
+        removeTile(threadInfo,tile->ident,batchOps,changes);
         
         // Create the new tile and put in the toLoad queue
-        auto newTile = addNewTile(tile->ident, batchOps, changes);
+        auto newTile = addNewTile(threadInfo,tile->ident, batchOps, changes);
         somethingChanged = true;
     }
     
@@ -1267,12 +1380,14 @@ void QuadImageFrameLoader::builderLoad(QuadTileBuilder *builder,
         auto tile = it->second;
         
         // Clear out any associated data and remove it from our list
-        removeTile(inTile, batchOps, changes);
+        removeTile(threadInfo,inTile, batchOps, changes);
         somethingChanged = true;
     }
+
+    builderLoadAdditional(threadInfo,builder,updates,changes);
     
     // Process all the fetches and cancels at once
-    processBatchOps(batchOps);
+    processBatchOps(threadInfo,batchOps);
     delete batchOps;
     
     if (debugMode)
@@ -1280,7 +1395,25 @@ void QuadImageFrameLoader::builderLoad(QuadTileBuilder *builder,
     
     changesSinceLastFlush |= somethingChanged;
     
-    loadingStatus = somethingChanged;
+    updateLoadingStatus();
+}
+
+void QuadImageFrameLoader::builderLoadAdditional(PlatformThreadInfo *threadInfo,
+                                                 QuadTileBuilder *builder,
+                                                 const WhirlyKit::TileBuilderDelegateInfo &updates,
+                                                 ChangeSet &changes)
+{
+}
+
+void QuadImageFrameLoader::updateLoadingStatus()
+{
+    int numTilesLoading = 0;
+    for (auto tile : tiles)
+        if (tile.second->anythingLoading()) {
+//            wkLogLevel(Debug,"  Tile %d: (%d,%d)  for %d",tile.first.level,tile.first.x,tile.first.y,(long)this);
+            numTilesLoading++;
+        }
+    this->loadingStatus = numTilesLoading != 0;
 }
 
 /// Called right before the layer thread flushes all its current changes
@@ -1309,7 +1442,7 @@ void QuadImageFrameLoader::builderPreSceneFlush(QuadTileBuilder *builder,ChangeS
 }
 
 /// Shutdown called on the layer thread if you stuff to clean up
-void QuadImageFrameLoader::builderShutdown(QuadTileBuilder *builder,ChangeSet &changes)
+void QuadImageFrameLoader::builderShutdown(PlatformThreadInfo *threadInfo,QuadTileBuilder *builder,ChangeSet &changes)
 {
     if (lastRunReqFlag)
         *lastRunReqFlag = false;
@@ -1363,17 +1496,19 @@ void QuadImageFrameLoader::makeStats()
         
         for (int frameID = 0;frameID<numFrames;frameID++) {
             auto frame = tile->getFrame(frameID);
-            auto &frameStat = newStats.frameStats[frameID];
-            switch (frame->getState()) {
-                case QIFFrameAsset::Empty:
-                    break;
-                case QIFFrameAsset::Loaded:
-                    break;
-                case QIFFrameAsset::Loading:
-                    frameStat.tilesToLoad++;
-                    break;
+            if (frame) {
+                auto &frameStat = newStats.frameStats[frameID];
+                switch (frame->getState()) {
+                    case QIFFrameAsset::Empty:
+                        break;
+                    case QIFFrameAsset::Loaded:
+                        break;
+                    case QIFFrameAsset::Loading:
+                        frameStat.tilesToLoad++;
+                        break;
+                }
+                frameStat.totalTiles++;
             }
-            frameStat.totalTiles++;
         }
     }
     
@@ -1391,20 +1526,20 @@ QuadImageFrameLoader::Stats QuadImageFrameLoader::getStats()
     }
 }
     
-void QuadImageFrameLoader::cleanup(ChangeSet &changes)
+void QuadImageFrameLoader::cleanup(PlatformThreadInfo *threadInfo,ChangeSet &changes)
 {
-    QIFBatchOps *batchOps = makeBatchOps();
+    QIFBatchOps *batchOps = makeBatchOps(threadInfo);
     
     for (auto tile : tiles) {
-        tile.second->clear(this, batchOps, changes);
+        tile.second->clear(threadInfo,this, batchOps, changes);
     }
     tiles.clear();
 
-    processBatchOps(batchOps);
+    processBatchOps(threadInfo,batchOps);
     delete batchOps;
 }
 
-bool QuadImageFrameLoader::isFrameLoading(const QuadTreeIdentifier &ident,int frame)
+bool QuadImageFrameLoader::isFrameLoading(const QuadTreeIdentifier &ident,QuadFrameInfoRef frame)
 {
     auto it = tiles.find(ident);
     if (it == tiles.end()) {
@@ -1418,7 +1553,7 @@ bool QuadImageFrameLoader::isFrameLoading(const QuadTreeIdentifier &ident,int fr
         return true;
 }
     
-bool QuadImageFrameLoader::mergeLoadedFrame(const QuadTreeIdentifier &ident,int frame,const RawDataRef &data,std::vector<RawDataRef> &allData)
+bool QuadImageFrameLoader::mergeLoadedFrame(const QuadTreeIdentifier &ident,QuadFrameInfoRef frame,const RawDataRef &data,std::vector<RawDataRef> &allData)
 {
     changesSinceLastFlush = true;
 

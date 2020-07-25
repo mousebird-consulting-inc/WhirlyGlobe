@@ -1449,6 +1449,11 @@ static const float PerfOutputDelay = 15.0;
     _locationTracker = [[MaplyLocationTracker alloc] initWithViewC:self delegate:delegate useHeading:useHeading useCourse:useCourse simulate:simulate];
 }
 
+- (MaplyLocationTracker *)getLocationTracker
+{
+    return _locationTracker;
+}
+
 - (void)changeLocationTrackingLockType:(MaplyLocationLockType)lockType {
     [self changeLocationTrackingLockType:lockType forwardTrackOffset:0];
 }

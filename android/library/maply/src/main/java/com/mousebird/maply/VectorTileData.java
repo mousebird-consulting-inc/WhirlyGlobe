@@ -108,6 +108,11 @@ public class VectorTileData
     public native void addComponentObjects(ComponentObject[] compObjs);
 
     /**
+     * Return any changes put into the change set rather than ComponentObjects.
+     */
+    public native ChangeSet getChangeSet();
+
+    /**
      * Add a list of component objects to the tile we've parsed.
      */
     public void addComponentObjects(ArrayList<ComponentObject> compObjs) {

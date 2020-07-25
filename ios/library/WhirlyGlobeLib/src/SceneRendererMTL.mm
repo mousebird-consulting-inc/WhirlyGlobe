@@ -217,6 +217,7 @@ void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,id<MTL
     Point2f frameSize(frameInfo->sceneRenderer->framebufferWidth,frameInfo->sceneRenderer->framebufferHeight);
     CopyIntoMtlFloat2(uniforms.frameSize, frameSize);
     uniforms.globeMode = !coordAdapter->isFlat();
+    uniforms.frameCount = frameCount;
     
     // Copy this to a buffer and then blit that buffer into place
     // TODO: Try to reuse these

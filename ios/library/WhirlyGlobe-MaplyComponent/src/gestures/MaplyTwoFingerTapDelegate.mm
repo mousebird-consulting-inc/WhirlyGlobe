@@ -48,6 +48,8 @@ using namespace Maply;
     UIView<WhirlyKitViewWrapper> *wrapView = (UIView<WhirlyKitViewWrapper> *)tap.view;
     SceneRenderer *sceneRenderer = wrapView.renderer;
 	
+    [[NSNotificationCenter defaultCenter] postNotificationName:kZoomGestureDelegateDidStart object:self.mapView->tag];
+
     Point3d curLoc = self.mapView->getLoc();
     // Just figure out where we tapped
 	Point3d hit;
@@ -73,6 +75,8 @@ using namespace Maply;
     } else {
         // Not expecting this case
     }
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:kZoomGestureDelegateDidEnd object:self.mapView->tag];
 }
 
 @end

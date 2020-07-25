@@ -847,7 +847,7 @@ void LayoutManager::updateLayout(ViewStateRef viewState,ChangeSet &changes)
                 
                 // And hold off on adding it
                 ScreenSpaceObject shortObj = layoutObj->obj;
-                shortObj.setEnableTime(curTime+params.markerAnimationTime, curTime+1e10);
+                shortObj.setEnableTime(curTime+params.markerAnimationTime, 0.0);
                 ssBuild.addScreenObject(shortObj);
             } else {
                 // It's boring, just add it

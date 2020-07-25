@@ -69,6 +69,7 @@ public:
 
 /// Representation of a list of changes.  Might get more complex in the future.
 typedef std::vector<ChangeRequest *> ChangeSet;
+typedef std::shared_ptr<ChangeSet> ChangeSetRef;
 
 typedef struct
 {

@@ -32,8 +32,9 @@ public class LoaderReturn
 {
     protected LoaderReturn() {}
 
-    LoaderReturn(QuadLoaderBase loader) {
-        initialise(loader);
+    LoaderReturn(int generation) {
+        initialise();
+        setGeneration(generation);
     }
 
     /**
@@ -42,9 +43,9 @@ public class LoaderReturn
     public native void setTileID(int tileX,int tileY,int tileLevel);
 
     /**
-     * Set the frame at creation (-1 not acceptable)
+     * Frames have unique 64 bit IDs as well as their location in the frame array.
      */
-    public native void setFrame(int frame);
+    public native void setFrame(long frameID,int frameIndex);
 
     /**
      * Tile this data belongs to.
@@ -99,9 +100,66 @@ public class LoaderReturn
     }
 
     /**
+     * Don't call this yourself.
+     */
+    public native void setGeneration(int generation);
+
+    /**
+     * Return the generation this LoaderReturn has been given.
+     */
+    public native int getGeneration();
+
+    /**
+     * Merge in the given changes requests to be handled upstream.
+     */
+    public native void mergeChanges(ChangeSet changes);
+
+    /**
+     * If any component objects are associated with the tile, these are them.
+     * They need to start disabled.  The system will enable and delete them when it is time.
+     */
+    public void addComponentObjects(ComponentObject[] compObjs)
+    {
+        addComponentObjects(compObjs,false);
+    }
+
+    /**
+     * Clear out the component objects, presumably to replace them.
+     */
+    public void clearComponentObjects() {
+        clearComponentObjectsNative(false);
+    }
+
+    /**
+     * Add a single component object to the tile
+     */
+    public void addComponentObject(ComponentObject compObj)
+    {
+        ComponentObject[] compArr = new ComponentObject[1];
+        compArr[0] = compObj;
+        addComponentObjects(compArr);
+    }
+
+    /**
+     * These component objects are assumed to be overlaid and so only one
+     * set will be displayed at a time.
+     */
+    public void addOverlayComponentObjects(ComponentObject[] compObjs)
+    {
+        addComponentObjects(compObjs,true);
+    }
+
+    public void clearOverlayComponentObjects() {
+        clearComponentObjectsNative(true);
+    }
+
+    private native void addComponentObjects(ComponentObject[] compObjs,boolean isOverlay);
+    private native void clearComponentObjectsNative(boolean isOverlay);
+
+    /**
      * If set, some part of the parser is letting us know about an error.
      */
-    String errorString = null;
+    public String errorString = null;
 
     public void finalize()
     {
@@ -113,7 +171,7 @@ public class LoaderReturn
         nativeInit();
     }
     private static native void nativeInit();
-    native void initialise(QuadLoaderBase loader);
-    native void dispose();
+    native void initialise();
+    public native void dispose();
     private long nativeHandle;
 }

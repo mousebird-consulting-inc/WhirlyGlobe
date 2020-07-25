@@ -21,8 +21,7 @@
 #import "vector_tiles/MapboxVectorInterpreter.h"
 #import "vector_tiles/MapboxVectorTiles.h"
 #import "loading/MaplyTileSourceNew.h"
-#import "vector_styles/MapboxVectorStyleSet.h"
-#import "vector_styles/MapboxVectorStyleBackground.h"
+#import "private/MapboxVectorStyleSet_private.h"
 #import "loading/MaplyQuadImageFrameLoader.h"
 #import "MaplyImageTile_private.h"
 #import "MapboxVectorTiles_private.h"
@@ -36,8 +35,9 @@
 #include <set>
 #import <Accelerate/Accelerate.h>
 
-#import "CoordSystem.h"
+#import "WhirlyGlobe.h"
 #import "vector_styles/MaplyVectorStyle.h"
+#import "private/MaplyVectorStyle_private.h"
 #import "MaplyVectorObject_private.h"
 #import "visual_objects/MaplyScreenLabel.h"
 #import "UIKit/NSData+Zlib.h"
@@ -45,6 +45,7 @@
 #import "vector_tile.pb.h"
 #import "VectorData.h"
 #import "vector_styles/MapnikStyleSet.h"
+#import "private/MapboxVectorStyleSet_private.h"
 #import "MaplyRenderController_private.h"
 
 using namespace WhirlyKit;
@@ -56,54 +57,78 @@ static int BackImageWidth = 16, BackImageHeight = 16;
 @implementation MapboxVectorInterpreter
 {
     NSObject<MaplyRenderControllerProtocol> * __weak viewC;
-    MapboxVectorStyleSet *imageStyle;
-    NSObject<MaplyVectorStyleDelegate> *vecStyle;
+    VectorStyleDelegateImplRef imageStyle;
+    VectorStyleDelegateImplRef vecStyle;
     MaplySphericalMercator *coordSys;
     MaplyRenderController *offlineRender;
-    MapboxTransColor *backColor;
 
-    MapboxVectorTileParser_iOSRef imageTileParser,vecTileParser;
+    MapboxVectorTileParserRef imageTileParser,vecTileParser;
 }
 
-- (instancetype) initWithImageStyle:(MapboxVectorStyleSet *)inImageStyle
+- (instancetype) initWithImageStyle:(NSObject<MaplyVectorStyleDelegate> *)inImageStyle
                       offlineRender:(MaplyRenderController *)inOfflineRender
-                        vectorStyle:(MapboxVectorStyleSet *)inVectorStyle
+                        vectorStyle:(NSObject<MaplyVectorStyleDelegate> *)inVectorStyle
                               viewC:(NSObject<MaplyRenderControllerProtocol> *)inViewC
 {
     self = [super init];
-    imageStyle = inImageStyle;
     offlineRender = inOfflineRender;
-    vecStyle = inVectorStyle;
     viewC = inViewC;
     coordSys = [[MaplySphericalMercator alloc] initWebStandard];
 
     offlineRender.clearColor = [UIColor blueColor];
-    imageTileParser = MapboxVectorTileParser_iOSRef(new MapboxVectorTileParser_iOS(imageStyle,offlineRender));
-    imageTileParser->localCoords = true;
-    vecTileParser = MapboxVectorTileParser_iOSRef(new MapboxVectorTileParser_iOS(vecStyle,viewC));
+    
+    // If the vector style is backed with the C++ implementation, just grab that
+    NSObject<MaplyVectorStyleDelegateSecret> *testImageStyle = (NSObject<MaplyVectorStyleDelegateSecret> *)inImageStyle;
+    if ([testImageStyle respondsToSelector:@selector(getVectorStyleImpl)]) {
+        imageStyle = [testImageStyle getVectorStyleImpl];
+    } else
+        imageStyle = VectorStyleDelegateImplRef(new VectorStyleDelegateWrapper(viewC,inImageStyle));
+    
+    // Same for the vector, uh, vector styles
+    NSObject<MaplyVectorStyleDelegateSecret> *testVecStyle = (NSObject<MaplyVectorStyleDelegateSecret> *)inVectorStyle;
+    if ([testVecStyle respondsToSelector:@selector(getVectorStyleImpl)]) {
+        vecStyle = [testVecStyle getVectorStyleImpl];
+    } else
+        vecStyle = VectorStyleDelegateImplRef(new VectorStyleDelegateWrapper(viewC,inVectorStyle));
 
-    MapboxVectorLayerBackground *backLayer = imageStyle.layersByName[@"background"];
-    backColor = backLayer.paint.color;
+    imageTileParser = MapboxVectorTileParserRef(new MapboxVectorTileParser(imageStyle));
+    imageTileParser->localCoords = true;
+    vecTileParser = MapboxVectorTileParserRef(new MapboxVectorTileParser(vecStyle));
     
     return self;
 }
 
-- (instancetype) initWithVectorStyle:(MapboxVectorStyleSet *)inVectorStyle
+- (instancetype) initWithVectorStyle:(NSObject<MaplyVectorStyleDelegate> *)inVectorStyle
                                viewC:(NSObject<MaplyRenderControllerProtocol> *)inViewC
 {
     self = [super init];
-    vecStyle = inVectorStyle;
     viewC = inViewC;
-    
-    vecTileParser = MapboxVectorTileParser_iOSRef(new MapboxVectorTileParser_iOS(vecStyle,viewC));
-    
-    if ([vecStyle isKindOfClass:[MapboxVectorStyleSet class]]) {
-        MapboxVectorStyleSet *mbStyleSet = (MapboxVectorStyleSet *)vecStyle;
-        MapboxVectorLayerBackground *backLayer = mbStyleSet.layersByName[@"background"];
-        backColor = backLayer.paint.color;
-    }
+
+    // Same for the vector, uh, vector styles
+    NSObject<MaplyVectorStyleDelegateSecret> *testVecStyle = (NSObject<MaplyVectorStyleDelegateSecret> *)inVectorStyle;
+    if ([testVecStyle respondsToSelector:@selector(getVectorStyleImpl)]) {
+        vecStyle = [testVecStyle getVectorStyleImpl];
+    } else
+        vecStyle = VectorStyleDelegateImplRef(new VectorStyleDelegateWrapper(viewC,inVectorStyle));
+
+    vecTileParser = MapboxVectorTileParserRef(new MapboxVectorTileParser(vecStyle));
     
     return self;
+}
+
+- (void)setUUIDName:(NSString *)inUuidName uuidValues:(NSArray<NSString *> *)uuids
+{
+    std::string uuidName = [inUuidName cStringUsingEncoding:NSUTF8StringEncoding];
+    std::set<std::string> uuidValues;
+    for (NSString *uuid in uuids) {
+        std::string uuidStr = [uuid cStringUsingEncoding:NSUTF8StringEncoding];
+        uuidValues.insert(uuidStr);
+    }
+    
+    if (imageTileParser)
+        imageTileParser->setUUIDs(uuidName,uuidValues);
+    if (vecTileParser)
+        vecTileParser->setUUIDs(uuidName,uuidValues);
 }
 
 - (void)setLoader:(MaplyQuadLoaderBase *)inLoader
@@ -111,11 +136,10 @@ static int BackImageWidth = 16, BackImageHeight = 16;
     if ([inLoader isKindOfClass:[MaplyQuadImageLoaderBase class]]) {
         MaplyQuadImageLoaderBase *loader = (MaplyQuadImageLoaderBase *)inLoader;
 
-        if ([vecStyle isKindOfClass:[MapboxVectorStyleSet class]]) {
-            MapboxVectorStyleSet *mapboxVecStyle = (MapboxVectorStyleSet *)vecStyle;
-
-            loader.baseDrawPriority = mapboxVecStyle.tileStyleSettings.baseDrawPriority;
-            loader.drawPriorityPerLevel = mapboxVecStyle.tileStyleSettings.drawPriorityPerLevel;
+        MapboxVectorStyleSetImpl *mapboxVecStyle = dynamic_cast<MapboxVectorStyleSetImpl *>(vecStyle.get());
+        if (mapboxVecStyle) {
+            loader.baseDrawPriority = mapboxVecStyle->tileStyleSettings->baseDrawPriority;
+            loader.drawPriorityPerLevel = mapboxVecStyle->tileStyleSettings->drawPriorityPerLevel;
         }
     }
 }
@@ -192,13 +216,16 @@ static int BackImageWidth = 16, BackImageHeight = 16;
         @synchronized(offlineRender)
         {
             // Build the vector objects for use in the image tile
-            offlineRender.clearColor = [backColor colorForZoom:tileID.level];
+            RGBAColorRef backColor = imageStyle->backgroundColor(tileID.level);
+            offlineRender.clearColor = backColor ? [UIColor colorFromRGBA:*backColor] : [UIColor blackColor];
             MaplyVectorTileData *vecTileReturn;
 
             for (NSData *thisTileData : pbfDatas) {
                 RawNSDataReader thisTileDataWrap(thisTileData);
                 vecTileReturn = [[MaplyVectorTileData alloc] initWithID:tileID bbox:imageBBox geoBBox:geoBBox];
-                imageTileParser->parse(&thisTileDataWrap, vecTileReturn->data.get());
+                // Parse the tile data and flush it out to the scene immediately
+                imageTileParser->parse(NULL,&thisTileDataWrap, vecTileReturn->data.get());
+                offlineRender->scene->addChangeRequests(vecTileReturn->data->changes);
                 
 //                if (vecTileReturn) {
 //                } else {
@@ -208,8 +235,8 @@ static int BackImageWidth = 16, BackImageHeight = 16;
             }
             
             NSArray *compObjs = [vecTileReturn componentObjects];
-            if (!loadReturn.error && compObjs) {
-                
+            if (!loadReturn.error && [compObjs count] > 0) {
+
                 // Turn all those objects on
                 [offlineRender enableObjects:compObjs mode:MaplyThreadCurrent];
                 
@@ -250,7 +277,9 @@ static int BackImageWidth = 16, BackImageHeight = 16;
     for (NSData *thisTileData : pbfDatas) {
         RawNSDataReader thisTileDataWrap(thisTileData);
         MaplyVectorTileData *vecTileReturn = [[MaplyVectorTileData alloc] initWithID:tileID bbox:spherMercBBox geoBBox:geoBBox];
-        vecTileParser->parse(&thisTileDataWrap,vecTileReturn->data.get());
+        // Parse the vector features and then merge them into the change set in the load return
+        vecTileParser->parse(NULL,&thisTileDataWrap,vecTileReturn->data.get());
+        loadReturn->loadReturn->changes.insert(loadReturn->loadReturn->changes.end(),vecTileReturn->data->changes.begin(),vecTileReturn->data->changes.end());
         
         if (!vecTileReturn->data->compObjs.empty())
             compObjs.insert(compObjs.end(),vecTileReturn->data->compObjs.begin(),vecTileReturn->data->compObjs.end());
@@ -277,7 +306,8 @@ static int BackImageWidth = 16, BackImageHeight = 16;
                 NSData *backImageData = [[NSMutableData alloc] initWithLength:4*BackImageWidth*BackImageHeight];
                 unsigned int *data = (unsigned int *)[backImageData bytes];
                 CGFloat red,green,blue,alpha;
-                UIColor *thisBackColor = [backColor colorForZoom:tileID.level];
+                RGBAColorRef backColor = vecStyle->backgroundColor(tileID.level);
+                UIColor *thisBackColor = backColor ? [UIColor colorFromRGBA:*backColor] : [UIColor blackColor];
                 [thisBackColor getRed:&red green:&green blue:&blue alpha:&alpha];
                 unsigned int pixel = 0xff << 24 | (int)(blue * 255) << 16 | (int)(green * 255) << 8 | (int)(red * 255);
                 for (unsigned int pix=0;pix<BackImageWidth*BackImageHeight;pix++) {

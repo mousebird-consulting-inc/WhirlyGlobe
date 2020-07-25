@@ -24,42 +24,46 @@ namespace WhirlyKit
 {
 
 LabelInfoAndroid::LabelInfoAndroid(bool screenObject)
-: LabelInfo(screenObject), typefaceObj(NULL), env(NULL), labelInfoObj(NULL)
+: LabelInfo(screenObject), typefaceObj(NULL), labelInfoObj(NULL)
 {
 }
 
-void LabelInfoAndroid::clearRefs(JNIEnv *env)
+LabelInfoAndroid::LabelInfoAndroid(const LabelInfoAndroid &that)
+: LabelInfo(that), typefaceObj(that.typefaceObj), fontSize(that.fontSize), labelInfoObj(that.labelInfoObj)
+{
+}
+
+void LabelInfoAndroid::clearRefs(PlatformInfo_Android *threadInfo)
 {
 	if (typefaceObj)
 	{
-		env->DeleteGlobalRef(typefaceObj);
+		threadInfo->env->DeleteGlobalRef(typefaceObj);
 		typefaceObj = NULL;
 	}
 }
 
-bool LabelInfoAndroid::typefaceIsSame(const jobject inTypeface) const
+bool LabelInfoAndroid::typefaceIsSame(PlatformInfo_Android *threadInfo,const jobject inTypeface) const
 {
 	// Obviously true here
 	if (inTypeface == typefaceObj)
 		return true;
 
 	// Now for a deeper comparison
-	// TODO: Can we find a cheaper way to do this?
-	jclass typefaceClass = env->GetObjectClass(inTypeface);
-	jmethodID jmethodID = env->GetMethodID(typefaceClass, "equals", "(Ljava/lang/Object;)Z");
-	bool res = env->CallBooleanMethod(typefaceObj,jmethodID,inTypeface);
-    env->DeleteLocalRef(typefaceClass);
+	jclass typefaceClass = threadInfo->env->GetObjectClass(inTypeface);
+	jmethodID jmethodID = threadInfo->env->GetMethodID(typefaceClass, "equals", "(Ljava/lang/Object;)Z");
+	bool res = threadInfo->env->CallBooleanMethod(typefaceObj,jmethodID,inTypeface);
+    threadInfo->env->DeleteLocalRef(typefaceClass);
 
 	return res;
 }
 
-void LabelInfoAndroid::setTypeface(JNIEnv *env,jobject inTypefaceObj)
+void LabelInfoAndroid::setTypeface(PlatformInfo_Android *threadInfo,jobject inTypefaceObj)
 {
 	if (typefaceObj)
-		clearRefs(env);
+		clearRefs(threadInfo);
 
 	if (inTypefaceObj)
-		typefaceObj = env->NewGlobalRef(inTypefaceObj);
+		typefaceObj = threadInfo->env->NewGlobalRef(inTypefaceObj);
 }
 
 }

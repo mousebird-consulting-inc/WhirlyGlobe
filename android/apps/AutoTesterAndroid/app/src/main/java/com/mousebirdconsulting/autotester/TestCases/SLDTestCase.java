@@ -42,8 +42,6 @@ import com.mousebird.maply.GeoJSONSource;
 
 import android.util.Log;
 
-import org.apache.commons.io.IOUtils;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;

@@ -32,7 +32,7 @@ import static android.R.attr.typeface;
  * Rather than specifying them individually they all go here.  You would
  * use this class in the course of an addLabels() or addScreenLabels()
  * call on the MaplyController.
- * 
+ *
  * @author sjg
  */
 public class LabelInfo extends BaseInfo
@@ -49,13 +49,11 @@ public class LabelInfo extends BaseInfo
 		setBackgroundColor(0.f,0.f,0.f,0.f);
 		setTypeface(Typeface.DEFAULT);
 		setFontSize(24.f);
-		setLayoutImportance(Float.MAX_VALUE);
-		setLayoutPlacement(LayoutRight | LayoutLeft | LayoutAbove | LayoutBelow);
 		setTextJustify(TextJustify.TextLeft);
 
 		setDrawPriority(LabelPriorityDefault);
 	}
-	
+
 	public void finalize()
 	{
 		dispose();
@@ -77,7 +75,7 @@ public class LabelInfo extends BaseInfo
 
 	/**
 	 * Set the text color as float values from 0.0 to 1.0
-	 * 
+	 *
 	 * @param r red
 	 * @param g green
 	 * @param b blue
@@ -97,7 +95,7 @@ public class LabelInfo extends BaseInfo
 	/**
 	 * Set the background color of text.  This is what appears in the rectangles behind the text.
 	 * Color components range from 0.0 to 1.0.
-	 * 
+	 *
 	 * @param r red
 	 * @param g green
 	 * @param b blue
@@ -121,6 +119,9 @@ public class LabelInfo extends BaseInfo
 	}
 
 	native void setTypefaceNative(Typeface typeface);
+
+	/// Optional font name used for tracking and nothing else
+	public String fontName;
 
 	/**
 	 * Return the typeface used for the labels.
@@ -203,16 +204,6 @@ public class LabelInfo extends BaseInfo
 	 */
 	public native void setShadowSize(float size);
 
-	/**
-	 * The layout engine controls how text is displayed.  It tries to avoid overlaps
-	 * and takes priority into account.  The layout importance controls which labels
-	 * (or other features) are laid out first.  Bigger is more important.
-	 * <p>
-	 * Defaults to MAXFLOAT, which is off.  That means the layout engine does not control
-	 * the associated labels.
-	 */
-	public native void setLayoutImportance(float importance);
-
 	// Importance value for the layout engine
 	public float layoutImportance = Float.MAX_VALUE;
 
@@ -227,7 +218,24 @@ public class LabelInfo extends BaseInfo
 	 * The layout placement controls where we can put the label relative to
 	 * its point.
 	 */
-	public native void setLayoutPlacement(int newPlacement);
+	public void setLayoutPlacement(int newPlacement)
+	{
+		layoutPlacement = newPlacement;
+	}
+	public int layoutPlacement = -1;
+
+	/**
+	 * The layout engine controls how text is displayed.  It tries to avoid overlaps
+	 * and takes priority into account.  The layout importance controls which labels
+	 * (or other features) are laid out first.  Bigger is more important.
+	 * <p>
+	 * Defaults to MAXFLOAT, which is off.  That means the layout engine does not control
+	 * the associated labels.
+	 */
+	public void setLayoutImportance(float newImport)
+	{
+		layoutImportance = newImport;
+	}
 
 	/**
 	 * Justification values for text.  Can be center, left, or right.
@@ -244,7 +252,7 @@ public class LabelInfo extends BaseInfo
 	}
 	native void setTextJustifyNative(int textJustify);
 
-
+	// Update C++ side for values it needs
 	void updateLineHeight()
 	{
 		if (fontSize == 0.0 || getTypeface() == null)

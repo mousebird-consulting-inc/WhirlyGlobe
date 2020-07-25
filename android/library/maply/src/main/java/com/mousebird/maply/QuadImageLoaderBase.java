@@ -34,6 +34,16 @@ public class QuadImageLoaderBase extends QuadLoaderBase
     public static int BaseDrawPriorityDefault = 100;
     public static int DrawPriorityPerLevelDefault = 100;
 
+    protected QuadImageLoaderBase() { }
+
+    protected QuadImageLoaderBase(BaseController control)
+    {
+        super(control);
+
+        setBaseDrawPriority(BaseDrawPriorityDefault);
+        setDrawPriorityPerLevel(DrawPriorityPerLevelDefault);
+    }
+
     protected QuadImageLoaderBase(BaseController control,SamplingParams params,int numFrames)
     {
         super(control,params,numFrames,(numFrames <= 1 ? Mode.SingleFrame : Mode.MultiFrame));
@@ -106,6 +116,7 @@ public class QuadImageLoaderBase extends QuadLoaderBase
                 BaseController control = getController();
                 if (control != null && control.renderControl != null) {
                     changes.process(control.renderControl, control.getScene());
+                    changes.dispose();
                 }
             }
         });
@@ -189,7 +200,7 @@ public class QuadImageLoaderBase extends QuadLoaderBase
 
     protected LoaderReturn makeLoaderReturn()
     {
-        return new ImageLoaderReturn(this);
+        return new ImageLoaderReturn(this.getGeneration());
     }
 
     /**
@@ -204,7 +215,9 @@ public class QuadImageLoaderBase extends QuadLoaderBase
             @Override
             public void run() {
                 tileInfos = newTileInfo;
-                reloadNative();
+                ChangeSet changes = new ChangeSet();
+                reloadNative(changes);
+                samplingLayer.get().layerThread.addChanges(changes);
             }
         });
     }
@@ -220,7 +233,9 @@ public class QuadImageLoaderBase extends QuadLoaderBase
         samplingLayer.get().layerThread.addTask(new Runnable() {
             @Override
             public void run() {
-                reloadNative();
+                ChangeSet changes = new ChangeSet();
+                reloadNative(changes);
+                samplingLayer.get().layerThread.addChanges(changes);
             }
         });
     }

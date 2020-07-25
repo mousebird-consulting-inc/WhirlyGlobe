@@ -43,6 +43,7 @@ public:
     int boundingBox;
     float pointSize;
 };
+typedef std::shared_ptr<GeometryInfo> GeometryInfoRef;
     
 /** The geometry scene representation keeps track of drawables and other
  resources we've created to represent generic geometry passed in by the

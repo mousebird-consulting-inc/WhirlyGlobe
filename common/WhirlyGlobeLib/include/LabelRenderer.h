@@ -72,14 +72,12 @@ class LabelInfo : public BaseInfo
 {
 public:
     LabelInfo(bool screenObject);
+    LabelInfo(const LabelInfo &that);
     LabelInfo(const Dictionary &dict,bool screenObject);
 
     bool hasTextColor;
     RGBAColor textColor,backColor;
     bool screenObject;
-    bool layoutEngine;
-    float layoutImportance;
-    int layoutPlacement;
     float width,height;
     LabelJustify labelJustify;
     TextJustify textJustify;
@@ -88,6 +86,7 @@ public:
     RGBAColor outlineColor;
     float outlineSize;
     float lineHeight;
+    float fontPointSize;
 };
 
 typedef std::shared_ptr<LabelInfo> LabelInfoRef;
@@ -132,7 +131,7 @@ public:
     float scale;
 
     /// Renders the labels into a big texture and stores the resulting info
-    void render(std::vector<SingleLabel *> &labels,ChangeSet &changes);
+    void render(PlatformThreadInfo *threadInfo,std::vector<SingleLabel *> &labels,ChangeSet &changes);
 };
 
 }

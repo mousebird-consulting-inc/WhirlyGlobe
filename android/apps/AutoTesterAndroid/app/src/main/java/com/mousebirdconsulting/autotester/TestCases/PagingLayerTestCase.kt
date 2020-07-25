@@ -46,7 +46,7 @@ class PagingLayerTestCase(activity: Activity) : MaplyTestCase(activity) {
         interp = OvlDebugImageLoaderInterpreter()
 
         // The paging loader isn't assuming an image.  More generic.
-        loader = QuadPagingLoader(params,null,interp,vc)
+        loader = QuadPagingLoader(params,interp,vc)
     }
 
     var baseCase : CartoLightTestCase? = null

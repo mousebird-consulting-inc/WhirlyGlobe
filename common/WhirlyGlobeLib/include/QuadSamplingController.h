@@ -46,10 +46,10 @@ public:
     
     // Add a new builder delegate to watch tile related events
     // Returns true if we need to notify the delegate
-    bool addBuilderDelegate(QuadTileBuilderDelegateRef delegate);
+    bool addBuilderDelegate(PlatformThreadInfo *threadInfo,QuadTileBuilderDelegateRef delegate);
     
     // Remove the given builder delegate that was watching tile related events
-    void removeBuilderDelegate(QuadTileBuilderDelegateRef delegate);
+    void removeBuilderDelegate(PlatformThreadInfo *threadInfo,QuadTileBuilderDelegateRef delegate);
 
     // Called right before we start using the controller
     void start(const SamplingParams &params,Scene *scene,SceneRenderer *renderer);
@@ -57,7 +57,7 @@ public:
     void stop();
     
     // Called on the layer thread to initialize a new builder
-    void notifyDelegateStartup(SimpleIdentity delegateID,ChangeSet &changes);
+    void notifyDelegateStartup(PlatformThreadInfo *threadInfo,SimpleIdentity delegateID,ChangeSet &changes);
     
     /// **** QuadDataStructure methods ****
     
@@ -105,7 +105,8 @@ public:
                                                     int targetLevel);
     
     /// Load the given group of tiles.  If you don't load them immediately, up to you to cancel any requests
-    virtual void builderLoad(QuadTileBuilder *builder,
+    virtual void builderLoad(PlatformThreadInfo *threadInfo,
+                             QuadTileBuilder *builder,
                              const WhirlyKit::TileBuilderDelegateInfo &updates,
                              ChangeSet &changes);
     
@@ -113,7 +114,7 @@ public:
     virtual void builderPreSceneFlush(QuadTileBuilder *builder,ChangeSet &changes);
     
     /// Shutdown called on the layer thread if you have stuff to clean up
-    virtual void builderShutdown(QuadTileBuilder *builder,ChangeSet &changes);
+    virtual void builderShutdown(PlatformThreadInfo *threadInfo,QuadTileBuilder *builder,ChangeSet &changes);
 
     /// Quick loading status check
     virtual bool builderIsLoading();

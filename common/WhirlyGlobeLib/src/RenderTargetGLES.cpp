@@ -141,6 +141,8 @@ RawDataRef RenderTargetGLES::snapshot()
     int len = width * height * sizeof(GLubyte) * 4;
     GLubyte* pixels = (GLubyte*) malloc(len);
     glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+
+    CheckGLError("RenderTargetGLES::snapshot: glReadPixels");
     
     RawDataWrapper *rawData = new RawDataWrapper(pixels,len,true);
     

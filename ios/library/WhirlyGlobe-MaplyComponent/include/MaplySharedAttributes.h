@@ -83,6 +83,9 @@ extern NSString* const kMaplyShader;
 /// An NSDictionary containing uniforms to apply to a shader before drawing
 extern NSString* const kMaplyShaderUniforms;
 
+/// Keep drawing for this number of frames after we'd normally stop
+extern NSString* const kMaplyExtraFrames;
+
 /// Stars, moon, stars, atmosphere
 extern const int kMaplyStarsDrawPriorityDefault;
 extern const int kMaplySunDrawPriorityDefault;

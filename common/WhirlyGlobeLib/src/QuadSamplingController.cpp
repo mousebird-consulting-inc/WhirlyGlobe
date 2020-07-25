@@ -85,7 +85,7 @@ QuadDisplayControllerNewRef QuadSamplingController::getDisplayControl()
     return displayControl;
 }
 
-bool QuadSamplingController::addBuilderDelegate(QuadTileBuilderDelegateRef delegate)
+bool QuadSamplingController::addBuilderDelegate(PlatformThreadInfo *threadInfo,QuadTileBuilderDelegateRef delegate)
 {
     std::lock_guard<std::mutex> guardLock(lock);
     
@@ -94,7 +94,7 @@ bool QuadSamplingController::addBuilderDelegate(QuadTileBuilderDelegateRef deleg
     return builderStarted;
 }
 
-void QuadSamplingController::notifyDelegateStartup(SimpleIdentity delegateID,ChangeSet &changes)
+void QuadSamplingController::notifyDelegateStartup(PlatformThreadInfo *threadInfo,SimpleIdentity delegateID,ChangeSet &changes)
 {
     QuadTileBuilderDelegateRef delegate;
     {
@@ -113,17 +113,17 @@ void QuadSamplingController::notifyDelegateStartup(SimpleIdentity delegateID,Cha
     
     // Pretend we just loaded everything (to the delegate)
     WhirlyKit::TileBuilderDelegateInfo updates = builder->getLoadingState();
-    delegate->builderLoad(builder.get(), updates, changes);
+    delegate->builderLoad(threadInfo,builder.get(), updates, changes);
 }
 
-void QuadSamplingController::removeBuilderDelegate(QuadTileBuilderDelegateRef delegate)
+void QuadSamplingController::removeBuilderDelegate(PlatformThreadInfo *threadInfo,QuadTileBuilderDelegateRef delegate)
 {
     ChangeSet changes;
     
     std::lock_guard<std::mutex> guardLock(lock);
     auto it = std::find(builderDelegates.begin(), builderDelegates.end(), delegate);
     if (it != builderDelegates.end()) {
-        (*it)->builderShutdown(builder.get(), changes);
+        (*it)->builderShutdown(threadInfo,builder.get(), changes);
         builderDelegates.erase(it);
     }
     
@@ -233,9 +233,10 @@ QuadTreeNew::NodeSet QuadSamplingController::builderUnloadCheck(QuadTileBuilder 
     return toKeep;
 }
     
-void QuadSamplingController::builderLoad(QuadTileBuilder *builder,
-                const WhirlyKit::TileBuilderDelegateInfo &updates,
-                ChangeSet &changes)
+void QuadSamplingController::builderLoad(PlatformThreadInfo *threadInfo,
+                                         QuadTileBuilder *builder,
+                                        const WhirlyKit::TileBuilderDelegateInfo &updates,
+                                        ChangeSet &changes)
 {
     std::vector<QuadTileBuilderDelegateRef> delegates;
     {
@@ -251,7 +252,7 @@ void QuadSamplingController::builderLoad(QuadTileBuilder *builder,
     }
     
     for (auto delegate : delegates) {
-        delegate->builderLoad(builder, updates, changes);
+        delegate->builderLoad(threadInfo, builder, updates, changes);
     }
     
     if (debugMode) {
@@ -272,7 +273,7 @@ void QuadSamplingController::builderPreSceneFlush(QuadTileBuilder *builder,Chang
     }
 }
     
-void QuadSamplingController::builderShutdown(QuadTileBuilder *builder,ChangeSet &changes)
+void QuadSamplingController::builderShutdown(PlatformThreadInfo *threadInfo,QuadTileBuilder *builder,ChangeSet &changes)
 {
     builder = NULL;
 }

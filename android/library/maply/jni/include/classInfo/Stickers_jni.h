@@ -21,6 +21,6 @@
 #import "Maply_jni.h"
 #import "WhirlyGlobe_Android.h"
 
-typedef JavaClassInfo<WhirlyKit::SphericalChunkInfo> SphericalChunkInfoClassInfo;
+typedef JavaClassInfo<WhirlyKit::SphericalChunkInfoRef> SphericalChunkInfoClassInfo;
 typedef JavaClassInfo<WhirlyKit::SphericalChunk> SphericalChunkClassInfo;
 typedef JavaClassInfo<WhirlyKit::SphericalChunkManager> StickerManagerClassInfo;

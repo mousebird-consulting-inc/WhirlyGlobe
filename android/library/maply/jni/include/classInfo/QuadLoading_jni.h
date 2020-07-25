@@ -23,7 +23,7 @@
 #import "../../../WhirlyGlobeLib/include/QuadImageFrameLoader_Android.h"
 
 typedef JavaClassInfo<WhirlyKit::SamplingParams> SamplingParamsClassInfo;
-typedef JavaClassInfo<WhirlyKit::QuadLoaderReturn> LoaderReturnClassInfo;
+typedef JavaClassInfo<WhirlyKit::QuadLoaderReturnRef> LoaderReturnClassInfo;
 typedef JavaClassInfo<WhirlyKit::ImageTile_AndroidRef> ImageTileClassInfo;
 typedef JavaClassInfo<WhirlyKit::QuadImageFrameLoader_AndroidRef> QuadImageFrameLoaderClassInfo;
 typedef JavaClassInfo<WhirlyKit::QuadSamplingController_Android> QuadSamplingControllerInfo;

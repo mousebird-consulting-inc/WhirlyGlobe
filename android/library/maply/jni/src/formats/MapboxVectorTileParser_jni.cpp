@@ -22,6 +22,7 @@
 #import <Geometry_jni.h>
 #import <Vectors_jni.h>
 #import <Components_jni.h>
+#import "WhirlyGlobe_Android.h"
 #import "com_mousebird_maply_MapboxVectorTileParser.h"
 
 using namespace WhirlyKit;
@@ -35,12 +36,20 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorTileParser_nativeIni
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorTileParser_initialise
-(JNIEnv *env, jobject obj)
+(JNIEnv *env, jobject obj, jobject vecStyleObj, jboolean isMapboxStyle)
 {
     try
     {
-        MapboxVectorTileParser_Android *inst = new MapboxVectorTileParser_Android();
-        MapboxVectorTileParserClassInfo::getClassInfo()->setHandle(env,obj,inst);
+        if (isMapboxStyle) {
+            MapboxVectorStyleSetImpl_AndroidRef *style = MapboxVectorStyleSetClassInfo::getClassInfo()->getObject(env,vecStyleObj);
+            if (!style)
+                return;
+
+            MapboxVectorTileParser *inst = new MapboxVectorTileParser(*style);
+            MapboxVectorTileParserClassInfo::getClassInfo()->setHandle(env,obj,inst);
+        } else {
+            // TODO: Set up the wrapper for a style implemented on the Java side
+        }
     }
     catch (...)
     {
@@ -56,10 +65,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorTileParser_dispose
     try
     {
         MapboxVectorTileParserClassInfo *classInfo = MapboxVectorTileParserClassInfo::getClassInfo();
-
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
-            MapboxVectorTileParser_Android *inst = classInfo->getObject(env,obj);
+            MapboxVectorTileParser *inst = classInfo->getObject(env,obj);
             if (!inst)
                 return;
             delete inst;
@@ -73,12 +81,28 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorTileParser_dispose
     }
 }
 
+JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorTileParser_setLocalCoords
+        (JNIEnv *env, jobject obj, jboolean localCoords)
+{
+    try {
+        MapboxVectorTileParser *inst = MapboxVectorTileParserClassInfo::getClassInfo()->getObject(
+                env, obj);
+        if (!obj)
+            return;
+        inst->localCoords = localCoords;
+    }
+    catch (...) {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply",
+                            "Crash in MapboxVectorTileParser::setLocalCoords()");
+    }
+}
+
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_MapboxVectorTileParser_parseDataNative
         (JNIEnv *env, jobject obj, jbyteArray data, jobject vecTileDataObj)
 {
     try
     {
-        MapboxVectorTileParser_Android *inst = MapboxVectorTileParserClassInfo::getClassInfo()->getObject(env,obj);
+        MapboxVectorTileParser *inst = MapboxVectorTileParserClassInfo::getClassInfo()->getObject(env,obj);
         VectorTileData_AndroidRef *tileData = VectorTileDataClassInfo::getClassInfo()->getObject(env,vecTileDataObj);
         if (!obj || !tileData)
             return false;
@@ -87,14 +111,20 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_MapboxVectorTileParser_parse
         //  than per parser.  Thus we can use a parser on multiple thread.
         (*tileData)->setEnv(env,obj,vecTileDataObj);
 
-        // Set up the method references if they're not done yet
-        (*inst).setupJavaMethods(env);
+        // Notify the style delegate of the new environment so it can make Java calls if need be
+        MapboxVectorStyleSetImpl_AndroidRef theStyleDelegate = std::dynamic_pointer_cast<MapboxVectorStyleSetImpl_Android>(inst->styleDelegate);
+
+        if (theStyleDelegate)
+            theStyleDelegate->setupMethods(env);
+
+        // Need a pointer to this JNIEnv for low level parsing callbacks
+        PlatformInfo_Android platformInfo(env);
 
         // Copy data into a temporary buffer (must we?)
         int len = env->GetArrayLength(data);
         jbyte *rawData = env->GetByteArrayElements(data,NULL);
         RawDataWrapper rawDataWrap(rawData,len,false);
-        bool ret = inst->parse(&rawDataWrap,(*tileData).get());
+        bool ret = inst->parse(&platformInfo,&rawDataWrap,(*tileData).get());
         if (rawData)
             env->ReleaseByteArrayElements(data,rawData,JNI_ABORT);
 

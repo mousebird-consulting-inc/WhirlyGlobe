@@ -30,6 +30,7 @@ import com.mousebirdconsulting.autotester.TestCases.GeographyClass;
 import com.mousebirdconsulting.autotester.TestCases.GreatCircleTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ImageReloadTestCase;
 import com.mousebirdconsulting.autotester.TestCases.LoftedPolyTestCase;
+import com.mousebirdconsulting.autotester.TestCases.MapTilerTestCase;
 import com.mousebirdconsulting.autotester.TestCases.MarkersTestCase;
 import com.mousebirdconsulting.autotester.TestCases.OpenMapTilesHybridTestCase;
 import com.mousebirdconsulting.autotester.TestCases.PagingLayerTestCase;
@@ -126,6 +127,7 @@ public class TestListFragment extends Fragment {
 			testCases.add(new StickersTestCase(getActivity()));
 			testCases.add(new PagingLayerTestCase(getActivity()));
 			testCases.add(new VectorMBTilesTestCase(getActivity()));
+			testCases.add(new MapTilerTestCase(getActivity()));
 			testCases.add(new OpenMapTilesHybridTestCase(getActivity()));
 			testCases.add(new CartoTestCase(getActivity()));
 			testCases.add(new ShapesTestCase(getActivity()));

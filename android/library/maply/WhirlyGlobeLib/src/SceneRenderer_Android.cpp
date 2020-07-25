@@ -56,7 +56,30 @@ bool SceneRendererGLES_Android::resize(int width, int height)
 
 void SceneRendererGLES_Android::snapshotCallback(TimeInterval now)
 {
-    // TODO: Implement snapshots
+    for (auto snapshotDelegate : snapshotDelegates) {
+        if (!snapshotDelegate->needsSnapshot(now))
+            continue;
+
+        snapshotDelegate->runSnapshot(this);
+    }
+}
+
+void SceneRendererGLES_Android::addSnapshotDelegate(Snapshot_AndroidRef snapshotDelegate)
+{
+    for (unsigned int which = 0;which<snapshotDelegates.size();which++)
+        if (snapshotDelegate == snapshotDelegates[which])
+            return;
+    snapshotDelegates.push_back(snapshotDelegate);
+}
+
+void SceneRendererGLES_Android::removeSnapshotDelegate(Snapshot_AndroidRef snapshotDelegate)
+{
+    for (unsigned int which = 0;which<snapshotDelegates.size();which++) {
+        if (snapshotDelegate == snapshotDelegates[which]) {
+            snapshotDelegates.erase(snapshotDelegates.begin()+which);
+            return;
+        }
+    }
 }
 
 }

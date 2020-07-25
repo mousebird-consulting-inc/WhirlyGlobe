@@ -30,7 +30,7 @@ namespace WhirlyKit
 class SingleLabelAndroid : public SingleLabel
 {
 public:
-    std::vector<DrawableString *> generateDrawableStrings(const LabelInfo *inLabelInfo,FontTextureManager *fontTexManager,float &lineHeight,ChangeSet &changes);
+    std::vector<DrawableString *> generateDrawableStrings(PlatformThreadInfo *threadInfo,const LabelInfo *inLabelInfo,FontTextureManager *fontTexManager,float &lineHeight,ChangeSet &changes);
 
     // Sometimes rather than strings, we pass around the code points
     std::vector<std::vector<int>> codePointsLines;

@@ -19,8 +19,10 @@
  */
 
 #import "MapboxVectorTileParser.h"
+#import "MaplyVectorStyleC.h"
 #import "VectorObject.h"
 #import "vector_tile.pb.h"
+#import <vector>
 
 static double MAX_EXTENT = 20037508.342789244;
 
@@ -61,6 +63,9 @@ void VectorTileData::mergeFrom(VectorTileData *that)
         categories[it.first] = it.second;
     }
     
+    if (!that->changes.empty())
+        changes.insert(changes.end(),that->changes.begin(),that->changes.end());
+    
     that->clear();
 }
 
@@ -74,29 +79,40 @@ void VectorTileData::clear()
         delete it.second;
     vecObjsByStyle.clear();
     categories.clear();
+    
+    changes.clear();
 }
 
-MapboxVectorTileParser::MapboxVectorTileParser()
-    : localCoords(false), keepVectors(false), parseAll(false)
+MapboxVectorTileParser::MapboxVectorTileParser(VectorStyleDelegateImplRef styleDelegate)
+    : localCoords(false), keepVectors(false), parseAll(false), styleDelegate(styleDelegate)
 {
+    // Index all the categories ahead of time.  Once.
+    std::vector<VectorStyleImplRef> allStyles = styleDelegate->allStyles();
+    for (VectorStyleImplRef style: allStyles) {
+        std::string category = style->getCategory();
+        if (!category.empty()) {
+            long long styleID = style->getUuid();
+            addCategory(category, styleID);
+        }
+    }
 }
 
 MapboxVectorTileParser::~MapboxVectorTileParser()
 {
 }
     
+void MapboxVectorTileParser::setUUIDs(const std::string &name,const std::set<std::string> &uuids)
+{
+    uuidName = name;
+    uuidValues = uuids;
+}
+
 void MapboxVectorTileParser::addCategory(const std::string &category,long long styleID)
 {
     styleCategories[styleID] = category;
 }
-
-// Subclass can fill this in to check if a layer has any styles
-bool MapboxVectorTileParser::layerShouldParse(const std::string &layerName,VectorTileData *tileData)
-{
-    return true;
-}
     
-bool MapboxVectorTileParser::parse(RawData *rawData,VectorTileData *tileData)
+bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst,RawData *rawData,VectorTileData *tileData)
 {
     //calulate tile bounds and coordinate shift
     int tileSize = 256;
@@ -135,9 +151,11 @@ bool MapboxVectorTileParser::parse(RawData *rawData,VectorTileData *tileData)
         for (unsigned i=0;i<tile.layers_size();++i) {
             vector_tile::Tile_Layer const& tileLayer = tile.layers(i);
             scale = tileLayer.extent() / 256.0;
+
+            std::string layerName = tileLayer.name();
             
             // if we dont have any styles for a layer, dont bother parsing the features
-            if (!layerShouldParse(tileLayer.name(),tileData))
+            if (!styleDelegate->layerShouldDisplay(layerName, tileData->ident))
                 continue;
             
             // Work through features
@@ -149,7 +167,7 @@ bool MapboxVectorTileParser::parse(RawData *rawData,VectorTileData *tileData)
                 //Parse attributes
                 MutableDictionaryRef attributes = MutableDictionaryMake();
                 attributes->setInt("geometry_type", (int)g_type);
-                attributes->setString("layer_name", tileLayer.name());
+                attributes->setString("layer_name", layerName);
                 attributes->setInt("layer_order",i);
                 
                 for (int m = 0; m < f.tags_size(); m += 2) {
@@ -187,7 +205,17 @@ bool MapboxVectorTileParser::parse(RawData *rawData,VectorTileData *tileData)
                 
                 // Ask for the styles that correspond to this feature
                 // If there are none, we can skip this
-                SimpleIDSet styleIDs = stylesForFeature(attributes, tileLayer.name(), tileData);
+                SimpleIDSet styleIDs;
+                // Do a quick inclusion check
+                if (!uuidName.empty()) {
+                    std::string uuidVal = attributes->getString(uuidName);
+                    if (uuidValues.find(uuidVal) == uuidValues.end())
+                        continue;
+                }
+                std::vector<VectorStyleImplRef> styles = styleDelegate->stylesForFeature(attributes, tileData->ident, tileLayer.name());
+                for (auto style: styles) {
+                    styleIDs.insert(style->getUuid());
+                }
                 if (styleIDs.empty() && !parseAll)
                     continue;
                 
@@ -396,10 +424,10 @@ bool MapboxVectorTileParser::parse(RawData *rawData,VectorTileData *tileData)
     for (auto it : tileData->vecObjsByStyle) {
         std::vector<VectorObjectRef> *vecs = it.second;
 
-        auto styleData = makeTileDataCopy(tileData);
+        auto styleData = VectorTileDataRef(new VectorTileData(*tileData));
 
         // Ask the subclass to run the style and fill in the VectorTileData
-        buildForStyle(it.first,*vecs,styleData);
+        buildForStyle(styleInst,it.first,*vecs,styleData);
         
         // Sort the results into categories if needed
         auto catIt = styleCategories.find(it.first);
@@ -417,7 +445,61 @@ bool MapboxVectorTileParser::parse(RawData *rawData,VectorTileData *tileData)
         tileData->mergeFrom(styleData.get());
     }
     
+    // These are layered on top for debugging
+//    if(debugLabel || debugOutline) {
+//        QuadTreeNew::Node tileID = tileData->ident;
+//        MbrD geoBounds = tileData->geoBBox;
+//        Point2d sw = geoBounds.ll(), ne = geoBounds.ur();
+//        if(debugLabel) {
+//            MaplyScreenLabel *label = [[MaplyScreenLabel alloc] init];
+//            label.text = [NSString stringWithFormat:@"%d: (%d,%d)\n%lu items", tileID.level, tileID.x,
+//                          tileID.y, (unsigned long)tileData->compObjs.size()];
+//            MaplyCoordinate tileCenter;
+//            tileCenter.x = (ne.x() + sw.x())/2.0;
+//            tileCenter.y = (ne.y() + sw.y())/2.0;
+//            label.loc = tileCenter;
+//
+//            MaplyComponentObject *c = [viewC addScreenLabels:@[label]
+//                                                         desc:@{kMaplyFont : [UIFont boldSystemFontOfSize:12],
+//                                                                kMaplyTextColor : [UIColor colorWithRed:0.25 green:0.25 blue:0.25 alpha:0.25],
+//                                                                kMaplyDrawPriority : @(kMaplyMaxDrawPriorityDefault+100000000),
+//                                                                kMaplyEnable: @(NO)
+//                                                                }
+//                                                         mode:MaplyThreadCurrent];
+//            tileData->compObjs.push_back(c->contents);
+//        }
+//        if(debugOutline) {
+//            MaplyCoordinate outline[5];
+//            outline[0].x = ne.x();            outline[0].y = ne.y();
+//            outline[1].x = ne.x();            outline[1].y = sw.y();
+//            outline[2].x = sw.x();            outline[2].y = sw.y();
+//            outline[3].x = sw.x();            outline[3].y = ne.y();
+//            outline[4].x = ne.x();            outline[4].y = ne.y();
+//            MaplyVectorObject *outlineObj = [[MaplyVectorObject alloc] initWithLineString:outline
+//                                                                                numCoords:5
+//                                                                               attributes:nil];
+//            MaplyComponentObject *c = [viewC addVectors:@[outlineObj]
+//                                                    desc:@{kMaplyColor: [UIColor redColor],
+//                                                           kMaplyVecWidth:@(4),
+//                                                           kMaplyDrawPriority : @(kMaplyMaxDrawPriorityDefault+100000000),
+//                                                           kMaplyEnable: @(NO)
+//                                                           }
+//                                                    mode:MaplyThreadCurrent];
+//            tileData->compObjs.push_back(c->contents);
+//        }
+//    }
+    
     return true;
+}
+
+void MapboxVectorTileParser::buildForStyle(PlatformThreadInfo *styleInst,
+                                           long long styleID,
+                                           std::vector<VectorObjectRef> &vecObjs,
+                                           VectorTileDataRef data)
+{
+    VectorStyleImplRef style = styleDelegate->styleForUUID(styleID);
+    if (style)
+        style->buildObjects(styleInst,vecObjs, data);
 }
     
 }

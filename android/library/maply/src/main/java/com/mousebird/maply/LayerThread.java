@@ -283,7 +283,7 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	
 	// Note: Need a removeLayer()
 	
-	ChangeSet changes = new ChangeSet();
+	protected ChangeSet changes = new ChangeSet();
 	Handler changeHandler = null;
 
 	/**
@@ -298,9 +298,10 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 
 		final LayerThread layerThread = this;
 
-		synchronized(changes)
+		synchronized(this)
 		{
 			changes.merge(newChanges);
+			newChanges.dispose();
 			// Schedule a merge with the scene
 			if (changeHandler == null)
 			{
@@ -314,10 +315,14 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 							layer.preSceneFlush(layerThread);
 
 						// Now merge in the changes
-						synchronized (changes) {
+						synchronized (this) {
 							changeHandler = null;
-							if (scene != null)
+							if (scene != null) {
 								changes.process(renderer, scene);
+								changes.dispose();
+
+								changes = new ChangeSet();
+							}
 						}
 					}
 				},true);

@@ -216,6 +216,11 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inS
         // New style makes use of OpenGL instancing and makes its own copy of the geometry
         ProgramGLES *prog = (ProgramGLES *)frameInfo->program;
 
+        if (!prog) {
+            wkLogLevel(Error,"Missing program in BasicDrawableInstanceGLES");
+            return;
+        }
+
         // Figure out if we're fading in or out
         float fade = 1.0;
         // Note: Time based fade isn't represented in the instance.  Probably should be.
@@ -269,7 +274,7 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inS
                 GLuint glTexID = EmptyIdentity;
                 if (texID != EmptyIdentity)
                 {
-                    glTexID = scene->getGLTexture(texID);\
+                    glTexID = scene->getGLTexture(texID);
                     if (glTexID != 0)
                     {
                         anyTextures = true;
@@ -319,6 +324,8 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inS
         for (unsigned int ii=0;ii<progTexBound;ii++)
             hasTexture[ii] = true;
 
+        bool boundElements = false;
+
         // Zero or more textures in the drawable
         for (unsigned int ii=0;ii<WhirlyKitMaxTextures-progTexBound;ii++)
         {
@@ -362,22 +369,36 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inS
             }
         }
 
-        // If necessary, set up the VAO (once)
-        if (vertArrayObj == 0 && basicDrawGL->sharedBuffer !=0)
-            setupVAO(frameInfo);
+        if (hasVertexArraySupport) {
+            // If necessary, set up the VAO (once)
+            if (vertArrayObj == 0 && basicDrawGL->sharedBuffer != 0)
+                vertArrayObj = setupVAO(frameInfo);
+        }
 
         // Figure out what we're using
         const OpenGLESAttribute *vertAttr = prog->findAttribute(a_PositionNameID);
 
         // Vertex array
         bool usedLocalVertices = false;
-        if (vertAttr && !(basicDrawGL->sharedBuffer || basicDrawGL->pointBuffer))
+        if (vertAttr)
         {
-            usedLocalVertices = true;
-            glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, 0, &basicDrawGL->points[0]);
-            CheckGLError("BasicDrawable::drawVBO2() glVertexAttribPointer");
-            glEnableVertexAttribArray ( vertAttr->index );
-            CheckGLError("BasicDrawable::drawVBO2() glEnableVertexAttribArray");
+            if (basicDrawGL->sharedBuffer) {
+                glBindBuffer(GL_ARRAY_BUFFER,basicDrawGL->sharedBuffer);
+                CheckGLError("BasicDrawable::drawVBO2() shared glBindBuffer");
+                glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, basicDrawGL->vertexSize, 0);
+                glEnableVertexAttribArray ( vertAttr->index );
+            } else if (basicDrawGL->pointBuffer) {
+                glBindBuffer(GL_ARRAY_BUFFER,basicDrawGL->pointBuffer);
+                CheckGLError("BasicDrawable::drawVBO2() shared glBindBuffer");
+                glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, basicDrawGL->vertexSize, 0);
+                glEnableVertexAttribArray ( vertAttr->index );
+            } else {
+                usedLocalVertices = true;
+                glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, 0, &basicDrawGL->points[0]);
+                CheckGLError("BasicDrawable::drawVBO2() glVertexAttribPointer");
+                glEnableVertexAttribArray ( vertAttr->index );
+                CheckGLError("BasicDrawable::drawVBO2() glEnableVertexAttribArray");
+            }
         }
 
         // Other vertex attributes
@@ -404,6 +425,10 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inS
 
                             progAttrs[ii] = progAttr;
                         }
+                    } else {
+                        // Just need to wire these up
+                        glEnableVertexAttribArray(progAttr->index);
+                        glVertexAttribPointer(progAttr->index, attr->glEntryComponents(), attr->glType(), attr->glNormalize(), basicDrawGL->vertexSize, CALCBUFOFF(0,attr->buffer));
                     }
                 }
             }
@@ -489,6 +514,15 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inS
 
             glBindVertexArray(0);
         } else {
+            // Bind the element array
+            if (basicDrawGL->type == Triangles && basicDrawGL->sharedBuffer)
+            {
+                boundElements = true;
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, basicDrawGL->sharedBuffer);
+                //            WHIRLYKIT_LOGD("BasicDrawable glBindBuffer %d",sharedBuffer);
+                CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
+            }
+
             // Draw without a VAO
             switch (basicDraw->type)
             {
@@ -496,13 +530,14 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inS
                 {
                     if (basicDrawGL->triBuffer)
                     {
-                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, basicDrawGL->triBuffer);
+                        if (!boundElements)
+                            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, basicDrawGL->triBuffer);
                         CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
                         if (instBuffer)
                         {
                             glDrawElementsInstanced(GL_TRIANGLES, basicDrawGL->numTris*3, GL_UNSIGNED_SHORT, 0, numInstances);
                         } else
-                            glDrawElements(GL_TRIANGLES, basicDrawGL->numTris*3, GL_UNSIGNED_SHORT, 0);
+                            glDrawElements(GL_TRIANGLES, basicDrawGL->numTris*3, GL_UNSIGNED_SHORT, (void *)((uintptr_t)basicDrawGL->triBuffer));
                         CheckGLError("BasicDrawable::drawVBO2() glDrawElements");
                         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
                     } else {
@@ -555,9 +590,11 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inS
         // Tear down the various arrays, if we stood them up
         if (usedLocalVertices)
             glDisableVertexAttribArray(vertAttr->index);
-        for (unsigned int ii=0;ii<progAttrs.size();ii++)
-            if (progAttrs[ii])
-                glDisableVertexAttribArray(progAttrs[ii]->index);
+        if (!vertArrayObj) {
+            for (unsigned int ii = 0; ii < progAttrs.size(); ii++)
+                if (progAttrs[ii])
+                    glDisableVertexAttribArray(progAttrs[ii]->index);
+        }
 
         if (instBuffer)
         {
@@ -587,6 +624,32 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inS
                 CheckGLError("BasicDrawableInstance::draw() glDisableVertexAttribArray");
             }
         }
+
+        if (!hasVertexArraySupport)
+        {
+            // Now tear down all that state
+            if (vertAttr)
+            {
+                glDisableVertexAttribArray(vertAttr->index);
+                //            WHIRLYKIT_LOGD("BasicDrawable glDisableVertexAttribArray %d",vertAttr->index);
+            }
+            for (unsigned int ii=0;ii<basicDrawGL->vertexAttributes.size();ii++)
+                if (progAttrs[ii])
+                {
+                    glDisableVertexAttribArray(progAttrs[ii]->index);
+                    //                WHIRLYKIT_LOGD("BasicDrawable glDisableVertexAttribArray %d",progAttrs[ii]->index);
+                }
+            if (boundElements) {
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+                //            WHIRLYKIT_LOGD("BasicDrawable glBindBuffer 0");
+            }
+            if (basicDrawGL->sharedBuffer)
+            {
+                glBindBuffer(GL_ARRAY_BUFFER, 0);
+                //            WHIRLYKIT_LOGD("BasicDrawable glBindBuffer 0");
+            }
+        }
+
     } else {
         int oldDrawPriority = basicDraw->getDrawPriority();
         RGBAColor oldColor = basicDrawGL->color;

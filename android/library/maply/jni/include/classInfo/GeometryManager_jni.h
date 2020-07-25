@@ -22,7 +22,7 @@
 #import "WhirlyGlobe_Android.h"
 
 typedef JavaClassInfo<WhirlyKit::GeometryManager> GeometryManagerClassInfo;
-typedef JavaClassInfo<WhirlyKit::GeometryInfo> GeometryInfoClassInfo;
+typedef JavaClassInfo<WhirlyKit::GeometryInfoRef> GeometryInfoClassInfo;
 typedef JavaClassInfo<WhirlyKit::GeometryRaw> GeometryRawClassInfo;
 typedef JavaClassInfo<WhirlyKit::GeometryRawPoints> GeometryRawPointsClassInfo;
 typedef JavaClassInfo<WhirlyKit::GeometryInstance> GeometryInstanceClassInfo;

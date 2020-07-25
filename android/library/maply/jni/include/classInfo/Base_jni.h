@@ -21,5 +21,5 @@
 #import "Maply_jni.h"
 #import "WhirlyGlobe_Android.h"
 
-typedef JavaClassInfo<WhirlyKit::BaseInfo> BaseInfoClassInfo;
+typedef JavaClassInfo<WhirlyKit::BaseInfoRef> BaseInfoClassInfo;
 typedef JavaClassInfo<WhirlyKit::SingleVertexAttribute> SingleVertexAttributeClassInfo;

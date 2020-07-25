@@ -31,7 +31,7 @@ import java.util.logging.Handler;
  *  tiles to load.  We hook up other things to this to actually do
  *  the loading.
  */
-class QuadSamplingLayer extends Layer implements LayerThread.ViewWatcherInterface
+public class QuadSamplingLayer extends Layer implements LayerThread.ViewWatcherInterface
 {
     WeakReference<BaseController> control;
     SamplingParams params;
@@ -46,7 +46,7 @@ class QuadSamplingLayer extends Layer implements LayerThread.ViewWatcherInterfac
     }
 
     // Used to hook
-    interface ClientInterface {
+    public interface ClientInterface {
         void samplingLayerConnect(QuadSamplingLayer layer,ChangeSet changes);
         void samplingLayerDisconnect(QuadSamplingLayer layer,ChangeSet changes);
     }

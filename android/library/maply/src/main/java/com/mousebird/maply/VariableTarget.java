@@ -22,6 +22,7 @@ package com.mousebird.maply;
 
 import android.graphics.Color;
 import android.os.Handler;
+import android.os.Looper;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -43,23 +44,32 @@ public class VariableTarget
     public static final int VariableTargetDrawPriority = 60000;
 
     /**
+     * This version can be set up explicitly later.
+     */
+    public VariableTarget(RenderControllerInterface inVc,boolean setupNow) {
+        vc = new WeakReference<RenderControllerInterface>(inVc);
+        renderTarget = new RenderTarget();
+
+        if (setupNow) {
+            Handler handler = new Handler(Looper.getMainLooper());
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (!valid)
+                        return;
+
+                    delayedSetup();
+                }
+            });
+        }
+    }
+
+    /**
      * The variable target is actually created a tick later than this
      * so you can tweak its settings.
      */
     public VariableTarget(RenderControllerInterface inVc) {
-        vc = new WeakReference<RenderControllerInterface>(inVc);
-        renderTarget = new RenderTarget();
-
-        Handler handler = new Handler();
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                if (!valid)
-                    return;
-
-                delayedSetup();
-            }
-        });
+        this(inVc,true);
     }
 
     /**
@@ -76,6 +86,8 @@ public class VariableTarget
      * Draw priority of the rectangle we'll use to draw the render target to the screen
      */
     public int drawPriority = VariableTargetDrawPriority;
+
+    public RenderController.ImageFormat imageFormat = RenderController.ImageFormat.MaplyImage4Layer8Bit;
 
     Shader shader = null;
 
@@ -111,6 +123,15 @@ public class VariableTarget
     public RenderTarget renderTarget = null;
     public ComponentObject compObj = null;
 
+    /**
+     * Call setup explicitly after setting values.
+     */
+    public void setup() {
+        if (setup)
+            return;
+        delayedSetup();
+    }
+
     // We let the setup go a tick so the caller and set settings
     protected void delayedSetup() {
         setup = true;
@@ -124,7 +145,9 @@ public class VariableTarget
         frameSize[0] = (int)((double)frameSize[0] * scale);
         frameSize[1] = (int)((double)frameSize[1] * scale);
 
-        renderTex = viewC.createTexture(frameSize[0], frameSize[1],null, RenderControllerInterface.ThreadMode.ThreadCurrent);
+        RenderControllerInterface.TextureSettings settings = new RenderControllerInterface.TextureSettings();
+        settings.imageFormat = imageFormat;
+        renderTex = viewC.createTexture(frameSize[0], frameSize[1],settings, RenderControllerInterface.ThreadMode.ThreadCurrent);
         renderTarget.texture = renderTex;
         viewC.addRenderTarget(renderTarget);
 

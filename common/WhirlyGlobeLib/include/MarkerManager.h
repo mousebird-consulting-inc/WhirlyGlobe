@@ -72,6 +72,7 @@ public:
     float layoutImportance;
     int clusterGroup;
 };
+typedef std::shared_ptr<MarkerInfo> MarkerInfoRef;
 
 /** WhirlyKit Marker
  A single marker object to be placed on the globe.  It will show

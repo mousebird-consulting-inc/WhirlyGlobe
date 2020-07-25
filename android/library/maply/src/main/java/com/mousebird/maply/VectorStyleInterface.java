@@ -62,4 +62,9 @@ public interface VectorStyleInterface
      * @return Vector Style to be used in displaying geometry.
      */
     public VectorStyle styleForUUID(long uuid,RenderControllerInterface controller);
+
+    /**
+     * Return a color for the background (clear color).
+     */
+    public int backgroundColorForZoom(double zoom);
 }

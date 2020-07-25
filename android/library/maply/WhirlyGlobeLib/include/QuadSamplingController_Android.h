@@ -30,9 +30,6 @@ class QuadSamplingController_Android : public QuadSamplingController
 public:
     QuadSamplingController_Android();
     ~QuadSamplingController_Android();
-
-    // Set the JNI environment of any subordinate objects
-    void setEnv(JNIEnv *env);
 };
 
 }

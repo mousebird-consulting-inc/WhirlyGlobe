@@ -31,23 +31,23 @@ public class TileFetchRequest
     /**
      * Priority before importance.  Less is more important
      */
-    int priority;
+    public int priority;
 
     /**
      * How important this is to us.  Probably screen space.
      */
-    float importance;
+    public float importance;
 
     /**
      * If all other values are equal, sort by this.
      * It keeps requests we're waiting for grouped together
      */
-    int group;
+    public int group;
 
     /**
      * A unique ID used for sorting.  Not accessed by the fetcher.
      */
-    long tileSource;
+    public long tileSource;
 
     /**
      * This is requested from a TileInfo object by a loader and then passed
@@ -55,7 +55,7 @@ public class TileFetchRequest
      *  The RemoteTileFetcher wants a RemoteFetchInfo object and will check.
      *  Other fetchers will want other things.
      */
-    Object fetchInfo;
+    public Object fetchInfo;
 
     public interface Callback {
         /**
@@ -75,5 +75,5 @@ public class TileFetchRequest
     /**
      * Fill in these callbacks to get status back from a tile fetch.
      */
-    Callback callback = null;
+    public Callback callback = null;
 }

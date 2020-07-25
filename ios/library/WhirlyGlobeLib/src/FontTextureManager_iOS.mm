@@ -27,6 +27,7 @@
 #import "Scene.h"
 #import "SceneRenderer.h"
 #import "RawData_NSData.h"
+#import "UIImage+Stuff.h"
 
 // We scale the fonts up so they look better sampled down.
 static const float BogusFontScale = 2.0;
@@ -171,17 +172,19 @@ NSData *FontTextureManager_iOS::renderGlyph(CGGlyph glyph,FontManager_iOSRef fm,
     //    CGContextAddLineToPoint(theContext, width, -baselineOffY+textureOffset.y);
     //    CGContextStrokePath(theContext);
 
-    //    UIImage *theImage = [UIImage imageWithRawData:retData width:width height:height];
-    //    if (theImage)
-    //    {
-    //        NSData *imageData = UIImagePNGRepresentation(theImage);
-    //        if (imageData)
-    //        {
-    //            NSArray *myPathList = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
-    //            NSString *myPath    = [myPathList  objectAtIndex:0];
-    //            [imageData writeToFile:[NSString stringWithFormat:@"%@/%d.png",myPath,glyph] atomically:YES];
-    //        }
-    //    }
+//        UIImage *theImage = [UIImage imageWithRawData:retData width:width height:height];
+//        if (theImage)
+//        {
+//            NSData *imageData = UIImagePNGRepresentation(theImage);
+//            if (imageData)
+//            {
+//                NSArray *myPathList = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+//                NSString *myPath    = [myPathList  objectAtIndex:0];
+//                NSString *path = [NSString stringWithFormat:@"%@/%d.png",myPath,glyph];
+//                [imageData writeToFile:path atomically:YES];
+//                NSLog(@"Glyph: %@",path);
+//            }
+//        }
 
     CGContextRelease(theContext);
 
@@ -191,7 +194,7 @@ NSData *FontTextureManager_iOS::renderGlyph(CGGlyph glyph,FontManager_iOSRef fm,
 }
 
 /// Add the given string.  Caller is responsible for deleting the DrawableString
-WhirlyKit::DrawableString *FontTextureManager_iOS::addString(NSAttributedString *str,ChangeSet &changes)
+WhirlyKit::DrawableString *FontTextureManager_iOS::addString(PlatformThreadInfo *threadInfo,NSAttributedString *str,ChangeSet &changes)
 {
     // We could make this more granular
     std::lock_guard<std::mutex> guardLock(lock);

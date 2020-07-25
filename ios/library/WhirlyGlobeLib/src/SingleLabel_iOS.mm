@@ -28,10 +28,18 @@ LabelInfo_iOS::LabelInfo_iOS(NSDictionary *iosDict,const Dictionary &dict,bool s
     : LabelInfo(dict,screenObject)
 {
     font = [iosDict objectForKey:@"font"];
+    fontPointSize = [font pointSize];
 }
+
+LabelInfo_iOS::LabelInfo_iOS(UIFont *font,bool screenObject)
+: font(font),LabelInfo(screenObject)
+{
+    fontPointSize = [font pointSize];
+}
+
     
 // Used to build the drawable string on specific platforms
-std::vector<DrawableString *> SingleLabel_iOS::generateDrawableStrings(const LabelInfo *inLabelInfo,FontTextureManager *inFontTexManager,float &lineHeight,ChangeSet &changes)
+std::vector<DrawableString *> SingleLabel_iOS::generateDrawableStrings(PlatformThreadInfo *threadInfo,const LabelInfo *inLabelInfo,FontTextureManager *inFontTexManager,float &lineHeight,ChangeSet &changes)
 {
     FontTextureManager_iOS *fontTexManager = (FontTextureManager_iOS *)inFontTexManager;
     const LabelInfo_iOS *labelInfo = (LabelInfo_iOS *)inLabelInfo;
@@ -61,7 +69,7 @@ std::vector<DrawableString *> SingleLabel_iOS::generateDrawableStrings(const Lab
             [attrStr addAttribute:NSForegroundColorAttributeName value:textColor range:NSMakeRange(0, strLen)];
         }
 
-        DrawableString *drawStr = fontTexManager->addString(attrStr, changes);
+        DrawableString *drawStr = fontTexManager->addString(threadInfo, attrStr, changes);
         if (!drawStr)
             continue;
         

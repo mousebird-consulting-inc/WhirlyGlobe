@@ -21,7 +21,7 @@
 #import "View_jni.h"
 #import "CoordSystem_jni.h"
 #import "Geometry_jni.h"
-#import "com_mousebird_maply_MapView.h"
+#import "com_mousebird_maply_FlatView.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;

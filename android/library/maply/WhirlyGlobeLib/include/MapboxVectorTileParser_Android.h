@@ -24,11 +24,11 @@
 namespace WhirlyKit
 {
 
-
+// TODO: Turn this into a wrapper
 class MapboxVectorTileParser_Android : public MapboxVectorTileParser
 {
 public:
-    MapboxVectorTileParser_Android();
+    MapboxVectorTileParser_Android(VectorStyleDelegateImplRef styleDelegate);
     ~MapboxVectorTileParser_Android();
 
     // Set the Java environment and object for callbacks
@@ -47,7 +47,7 @@ public:
     virtual void buildForStyle(long long styleID,std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef data);
 
     // Parse the data and add specific iOS level stuff on top
-    virtual bool parse(RawData *rawData,VectorTileData *tileData);
+    virtual bool parse(JNIEnv *env,RawData *rawData,VectorTileData *tileData);
 
 protected:
     jmethodID shouldParseMethod;

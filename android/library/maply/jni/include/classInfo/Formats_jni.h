@@ -22,4 +22,6 @@
 #import "WhirlyGlobe_Android.h"
 
 typedef JavaClassInfo<WhirlyKit::VectorTileData_AndroidRef> VectorTileDataClassInfo;
-typedef JavaClassInfo<WhirlyKit::MapboxVectorTileParser_Android> MapboxVectorTileParserClassInfo;
+typedef JavaClassInfo<WhirlyKit::MapboxVectorTileParser> MapboxVectorTileParserClassInfo;
+typedef JavaClassInfo<WhirlyKit::MapboxVectorStyleSetImpl_AndroidRef> MapboxVectorStyleSetClassInfo;
+typedef JavaClassInfo<WhirlyKit::VectorStyleSettingsImplRef> VectorStyleSettingsClassInfo;

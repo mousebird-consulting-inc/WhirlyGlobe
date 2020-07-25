@@ -29,19 +29,22 @@ class SingleLabel_iOS: public SingleLabel
 {
 public:
     // Used to build the drawable string on specific platforms
-    virtual std::vector<DrawableString *> generateDrawableStrings(const LabelInfo *,FontTextureManager *fontTexManager,float &lineHeight,ChangeSet &changes);
+    virtual std::vector<DrawableString *> generateDrawableStrings(PlatformThreadInfo *threadInfo,const LabelInfo *,FontTextureManager *fontTexManager,float &lineHeight,ChangeSet &changes) override;
     
     // Pass this around as an NSString
     NSString *text;
 };
+typedef std::shared_ptr<SingleLabel_iOS> SingleLabel_iOSRef;
     
 /// LabelInfo variant knows UIFont and related stuff
 class LabelInfo_iOS: public LabelInfo
 {
 public:
     LabelInfo_iOS(NSDictionary *iosDict,const Dictionary &dict,bool screenObject);
+    LabelInfo_iOS(UIFont *font,bool screenObject);
     
     UIFont *font;
 };
+typedef std::shared_ptr<LabelInfo_iOS> LabelInfo_iOSRef;
     
 }

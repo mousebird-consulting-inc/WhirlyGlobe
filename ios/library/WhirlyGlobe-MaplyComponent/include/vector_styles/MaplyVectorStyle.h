@@ -121,22 +121,6 @@
 
 @end
 
-/**
-    Vector Tile Info
- 
-    Information about a single vector tile being parsed.  This is passe dinto the buildObjects:
-    method of a MaplyVectorStyle
-  */
-@interface MaplyVectorTileInfo : NSObject
-
-/// Tile ID for this tile
-@property (nonatomic) MaplyTileID tileID;
-
-/// Bounding box in geographic
-@property (nonatomic,assign) MaplyBoundingBoxD geoBBox;
-
-@end
-
 /** 
     Base protocol for the vector styles.
     

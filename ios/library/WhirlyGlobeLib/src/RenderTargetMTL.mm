@@ -111,9 +111,7 @@ RawDataRef RenderTargetMTL::snapshot()
     int pixSize = calcPixelSize([tex pixelFormat]);
     
     NSMutableData *data = [[NSMutableData alloc] initWithLength:width*height*pixSize];
-#if !TARGET_OS_SIMULATOR
     [tex getBytes:[data mutableBytes] bytesPerRow:width*pixSize fromRegion:region mipmapLevel:0];
-#endif
 
     return RawDataRef(new RawNSDataReader(data));
 }
@@ -202,6 +200,7 @@ void RenderTargetMTL::makeRenderPassDesc()
             case MTLPixelFormatRGBA16Float:
             case MTLPixelFormatR32Uint:
             case MTLPixelFormatRG32Uint:
+            case MTLPixelFormatRGBA32Uint:
                 rpd.colorAttachments[0].clearColor = MTLClearColorMake(clearVal, clearVal, clearVal, clearVal);
                 break;
             default:

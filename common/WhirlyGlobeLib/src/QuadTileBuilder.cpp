@@ -165,7 +165,7 @@ void QuadTileBuilder::setController(QuadDisplayControllerNew *inControl)
     
 /// Load some tiles, unload others, and the rest had their importance values change
 /// Return the nodes we wanted to keep rather than delete
-QuadTreeNew::NodeSet QuadTileBuilder::quadLoaderUpdate(const WhirlyKit::QuadTreeNew::ImportantNodeSet &loadTiles,const WhirlyKit::QuadTreeNew::NodeSet &unloadTiles,const WhirlyKit::QuadTreeNew::ImportantNodeSet &updateTiles,int targetLevel, ChangeSet &changes)
+QuadTreeNew::NodeSet QuadTileBuilder::quadLoaderUpdate(PlatformThreadInfo *threadInfo,const WhirlyKit::QuadTreeNew::ImportantNodeSet &loadTiles,const WhirlyKit::QuadTreeNew::NodeSet &unloadTiles,const WhirlyKit::QuadTreeNew::ImportantNodeSet &updateTiles,int targetLevel, ChangeSet &changes)
 {
     TileBuilderDelegateInfo info;
     info.unloadTiles = unloadTiles;
@@ -189,7 +189,7 @@ QuadTreeNew::NodeSet QuadTileBuilder::quadLoaderUpdate(const WhirlyKit::QuadTree
     info.loadTiles = tileChanges.addedTiles;
     info.enableTiles = tileChanges.enabledTiles;
     info.disableTiles = tileChanges.disabledTiles;
-    delegate->builderLoad(this, info, changes);
+    delegate->builderLoad(threadInfo, this, info, changes);
     
     if (debugMode)
     {
@@ -230,10 +230,10 @@ void QuadTileBuilder::quadLoaderPreSceenFlush(ChangeSet &changes)
 }
 
 /// Called when a layer is shutting down (on the layer thread)
-void QuadTileBuilder::quadLoaderShutdown(ChangeSet &changes)
+void QuadTileBuilder::quadLoaderShutdown(PlatformThreadInfo *threadInfo,ChangeSet &changes)
 {
     geomManage.cleanup(changes);
-    delegate->builderShutdown(this,changes);
+    delegate->builderShutdown(threadInfo,this,changes);
 
     delegate = NULL;
 }

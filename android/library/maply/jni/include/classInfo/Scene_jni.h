@@ -21,12 +21,15 @@
 #import "Maply_jni.h"
 #import "WhirlyGlobe_Android.h"
 
-typedef JavaClassInfo<WhirlyKit::ChangeSet> ChangeSetClassInfo;
+typedef JavaClassInfo<WhirlyKit::ChangeSetRef> ChangeSetClassInfo;
 typedef JavaClassInfo<WhirlyKit::DirectionalLight> DirectionalLightClassInfo;
 typedef JavaClassInfo<WhirlyKit::Scene> SceneClassInfo;
 typedef JavaClassInfo<WhirlyKit::Texture> TextureClassInfo;
 typedef JavaClassInfo<WhirlyKit::Material> MaterialClassInfo;
-typedef JavaClassInfo<WhirlyKit::Shader_Android> ShaderClassInfo;
+typedef JavaClassInfo<WhirlyKit::Shader_AndroidRef> ShaderClassInfo;
 
 // Construct a Java-side Shader object around an existing Shader_Android.
-jobject MakeShader(JNIEnv *env,WhirlyKit::Shader_Android *shader);
+jobject MakeShader(JNIEnv *env,WhirlyKit::Shader_AndroidRef shader);
+
+// Construct a Java-side ChangeSet object
+jobject MakeChangeSet(JNIEnv *env,const WhirlyKit::ChangeSet &changeSet);

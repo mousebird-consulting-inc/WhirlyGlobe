@@ -92,15 +92,15 @@ bool ComponentManager::hasComponentObject(SimpleIdentity compID)
     return it != compObjs.end();
 }
     
-void ComponentManager::removeComponentObject(SimpleIdentity compID, ChangeSet &changes)
+void ComponentManager::removeComponentObject(PlatformThreadInfo *threadInfo,SimpleIdentity compID, ChangeSet &changes)
 {
     SimpleIDSet compIDs;
     compIDs.insert(compID);
     
-    removeComponentObjects(compIDs, changes);
+    removeComponentObjects(threadInfo,compIDs, changes);
 }
 
-void ComponentManager::removeComponentObjects(const std::vector<ComponentObjectRef> &compObjs,ChangeSet &changes)
+void ComponentManager::removeComponentObjects(PlatformThreadInfo *threadInfo,const std::vector<ComponentObjectRef> &compObjs,ChangeSet &changes)
 {
     SimpleIDSet compIDs;
     
@@ -108,10 +108,10 @@ void ComponentManager::removeComponentObjects(const std::vector<ComponentObjectR
         compIDs.insert(compObj->getId());
     }
     
-    removeComponentObjects(compIDs, changes);
+    removeComponentObjects(threadInfo,compIDs, changes);
 }
 
-void ComponentManager::removeComponentObjects(const SimpleIDSet &compIDs,ChangeSet &changes)
+void ComponentManager::removeComponentObjects(PlatformThreadInfo *threadInfo,const SimpleIDSet &compIDs,ChangeSet &changes)
 {
     std::vector<ComponentObjectRef> compRefs;
     
@@ -143,7 +143,7 @@ void ComponentManager::removeComponentObjects(const SimpleIDSet &compIDs,ChangeS
         if (!compObj->markerIDs.empty())
             markerManager->removeMarkers(compObj->markerIDs, changes);
         if (!compObj->labelIDs.empty())
-            labelManager->removeLabels(compObj->labelIDs, changes);
+            labelManager->removeLabels(threadInfo,compObj->labelIDs, changes);
         if (!compObj->vectorIDs.empty())
             vectorManager->removeVectors(compObj->vectorIDs, changes);
         if (!compObj->wideVectorIDs.empty())

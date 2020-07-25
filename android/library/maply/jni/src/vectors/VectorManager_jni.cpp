@@ -77,8 +77,8 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_VectorManager_addVectors
 	try
 	{
         VectorManager *vecManager = VectorManagerClassInfo::getClassInfo()->getObject(env,obj);
-		VectorInfo *vecInfo = VectorInfoClassInfo::getClassInfo()->getObject(env,vecInfoObj);
-		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+		VectorInfoRef *vecInfo = VectorInfoClassInfo::getClassInfo()->getObject(env,vecInfoObj);
+		ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
 		if (!vecManager || !vecInfo || !changeSet)
 			return EmptyIdentity;
 
@@ -93,18 +93,18 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_VectorManager_addVectors
 		}
 
         // Resolve a missing program
-        if (vecInfo->programID == EmptyIdentity)
+        if ((*vecInfo)->programID == EmptyIdentity)
         {
             ProgramGLES *prog = NULL;
-            if (vecInfo->filled)
+            if ((*vecInfo)->filled)
 				prog = (ProgramGLES *)vecManager->getScene()->findProgramByName(MaplyDefaultTriangleShader);
             else
             	prog = (ProgramGLES *)vecManager->getScene()->findProgramByName(MaplyDefaultLineShader);
             if (prog)
-                vecInfo->programID = prog->getId();
+				(*vecInfo)->programID = prog->getId();
         }
 
-		SimpleIdentity vecID = vecManager->addVectors(&shapes,*vecInfo,*changeSet);
+		SimpleIdentity vecID = vecManager->addVectors(&shapes,*(*vecInfo),*(changeSet->get()));
 
 		return vecID;
 	}
@@ -121,8 +121,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_changeVectors
 {
     try {
         VectorManager *vecManager = VectorManagerClassInfo::getClassInfo()->getObject(env,obj);
-        VectorInfo *vecInfo = VectorInfoClassInfo::getClassInfo()->getObject(env,vecInfoObj);
-        ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+		VectorInfoRef *vecInfo = VectorInfoClassInfo::getClassInfo()->getObject(env,vecInfoObj);
+        ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
         if (!vecManager || !vecInfo || !changeSet)
             return;
         
@@ -130,7 +130,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_changeVectors
         SimpleIDSet idSet;
         for (unsigned int ii=0;ii<ids.len;ii++)
         {
-            vecManager->changeVectors(ids.rawLong[ii],*vecInfo,*changeSet);
+            vecManager->changeVectors(ids.rawLong[ii],*(*vecInfo),*(changeSet->get()));
         }
     }
     catch (...)
@@ -145,14 +145,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_removeVectors
 	try
 	{
         VectorManager *vecManager = VectorManagerClassInfo::getClassInfo()->getObject(env,obj);
-		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+		ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
 		if (!vecManager || !changeSet)
 			return;
 
         SimpleIDSet idSet;
         ConvertLongArrayToSet(env,idArrayObj,idSet);
 
-		vecManager->removeVectors(idSet,*changeSet);
+		vecManager->removeVectors(idSet,*(changeSet->get()));
 	}
 	catch (...)
 	{
@@ -166,14 +166,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_enableVectors
 	try
 	{
         VectorManager *vecManager = VectorManagerClassInfo::getClassInfo()->getObject(env,obj);
-		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+		ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
 		if (!vecManager || !changeSet)
 			return;
 
         SimpleIDSet idSet;
         ConvertLongArrayToSet(env,idArrayObj,idSet);
 
-		vecManager->enableVectors(idSet,enable,*changeSet);
+		vecManager->enableVectors(idSet,enable,*(changeSet->get()));
 	}
 	catch (...)
 	{
@@ -187,12 +187,12 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_VectorManager_instanceVectors
 	try
 	{
         VectorManager *vecManager = VectorManagerClassInfo::getClassInfo()->getObject(env,obj);
-        VectorInfo *vecInfo = VectorInfoClassInfo::getClassInfo()->getObject(env,vecInfoObj);
-		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+		VectorInfoRef *vecInfo = VectorInfoClassInfo::getClassInfo()->getObject(env,vecInfoObj);
+		ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
 		if (!vecManager || !vecInfo || !changeSet)
 			return EmptyIdentity;
 
-		return vecManager->instanceVectors(vecID,*vecInfo,*changeSet);
+		return vecManager->instanceVectors(vecID,*(*vecInfo),*(changeSet->get()));
 	}
 	catch (...)
 	{

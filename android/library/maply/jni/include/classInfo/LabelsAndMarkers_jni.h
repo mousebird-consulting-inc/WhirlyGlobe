@@ -21,9 +21,9 @@
 #import "Maply_jni.h"
 #import "WhirlyGlobe_Android.h"
 
-typedef JavaClassInfo<WhirlyKit::MarkerInfo> MarkerInfoClassInfo;
+typedef JavaClassInfo<WhirlyKit::MarkerInfoRef> MarkerInfoClassInfo;
 typedef JavaClassInfo<WhirlyKit::Marker> MarkerClassInfo;
 typedef JavaClassInfo<WhirlyKit::MarkerManager> MarkerManagerClassInfo;
 
-typedef JavaClassInfo<WhirlyKit::LabelInfo> LabelInfoClassInfo;
+typedef JavaClassInfo<WhirlyKit::LabelInfoAndroidRef> LabelInfoClassInfo;
 typedef JavaClassInfo<WhirlyKit::SingleLabelAndroid> LabelClassInfo;

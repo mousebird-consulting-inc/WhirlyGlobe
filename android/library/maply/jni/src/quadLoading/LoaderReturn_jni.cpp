@@ -19,6 +19,8 @@
  */
 
 #import "QuadLoading_jni.h"
+#import "Scene_jni.h"
+#import "Components_jni.h"
 #import "com_mousebird_maply_LoaderReturn.h"
 
 using namespace Eigen;
@@ -33,12 +35,13 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_nativeInit
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_initialise
-  (JNIEnv *env, jobject obj, jobject loaderObj)
+  (JNIEnv *env, jobject obj)
 {
 	try
 	{
-		QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,loaderObj);
-	    QuadLoaderReturn *load = new QuadLoaderReturn((*loader)->getGeneration());
+	    QuadLoaderReturnRef *load = new QuadLoaderReturnRef(new QuadLoaderReturn(0));
+		(*load)->frame = QuadFrameInfoRef(new QuadFrameInfo());
+		(*load)->frame->frameIndex = 0;
 		LoaderReturnClassInfo::getClassInfo()->setHandle(env,obj,load);
 	}
 	catch (...)
@@ -57,7 +60,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_dispose
 		LoaderReturnClassInfo *classInfo = LoaderReturnClassInfo::getClassInfo();
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
-            QuadLoaderReturn *loader = classInfo->getObject(env,obj);
+            QuadLoaderReturnRef *loader = classInfo->getObject(env,obj);
             if (!loader)
                 return;
             delete loader;
@@ -75,12 +78,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_setTileID
 {
     try
     {
-        QuadLoaderReturn *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
+        QuadLoaderReturnRef *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
         if (!loadReturn)
             return;
-        loadReturn->ident.x = tileX;
-        loadReturn->ident.y = tileY;
-        loadReturn->ident.level = tileLevel;
+		(*loadReturn)->ident.x = tileX;
+		(*loadReturn)->ident.y = tileY;
+		(*loadReturn)->ident.level = tileLevel;
     }
     catch (...)
     {
@@ -89,14 +92,33 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_setTileID
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_setFrame
+		(JNIEnv *env, jobject obj, jlong frameID, jint frameIndex)
+{
+	try
+	{
+		QuadLoaderReturnRef *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
+		if (!loadReturn)
+			return;
+		(*loadReturn)->frame = QuadFrameInfoRef(new QuadFrameInfo());
+		(*loadReturn)->frame->setId(frameID);
+		(*loadReturn)->frame->frameIndex = frameIndex;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LoaderReturn::setTileID()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_setFrame
         (JNIEnv *env, jobject obj, jint frame)
 {
     try
     {
-        QuadLoaderReturn *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
+        QuadLoaderReturnRef *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
         if (!loadReturn)
             return;
-        loadReturn->frame = frame;
+        if ((*loadReturn)->frame)
+			(*loadReturn)->frame->frameIndex = frame;
     }
     catch (...)
     {
@@ -109,13 +131,13 @@ JNIEXPORT jintArray JNICALL Java_com_mousebird_maply_LoaderReturn_getTileIDNativ
 {
 	try
 	{
-		QuadLoaderReturn *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
+		QuadLoaderReturnRef *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
 		if (!loadReturn)
 		    return NULL;
 		std::vector<int> rets(3);
-		rets[0] = loadReturn->ident.x;
-		rets[1] = loadReturn->ident.y;
-		rets[2] = loadReturn->ident.level;
+		rets[0] = (*loadReturn)->ident.x;
+		rets[1] = (*loadReturn)->ident.y;
+		rets[2] = (*loadReturn)->ident.level;
 
 		return BuildIntArray(env,rets);
 	}
@@ -132,10 +154,10 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_LoaderReturn_getFrame
 {
 	try
 	{
-		QuadLoaderReturn *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
+		QuadLoaderReturnRef *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
 		if (!loadReturn)
 		    return -1;
-		return loadReturn->frame;
+		return (*loadReturn)->frame->frameIndex;
 	}
 	catch (...)
 	{
@@ -143,4 +165,105 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_LoaderReturn_getFrame
 	}
 
 	return -1;
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_mergeChanges
+		(JNIEnv *env, jobject obj, jobject changeObj)
+{
+	try
+	{
+		QuadLoaderReturnRef *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
+		ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeObj);
+		if (!loadReturn || !changeSet)
+			return;
+
+		(*loadReturn)->changes.insert((*loadReturn)->changes.end(),(*changeSet)->begin(),(*changeSet)->end());
+		(*changeSet)->clear();
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LoaderReturn::mergeChanges()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_setGeneration
+		(JNIEnv *env, jobject obj, jint generation)
+{
+	try
+	{
+		QuadLoaderReturnRef *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
+		if (!loadReturn)
+			return;
+		(*loadReturn)->generation = generation;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LoaderReturn::setGeneration()");
+	}
+}
+
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_LoaderReturn_getGeneration
+		(JNIEnv *env, jobject obj)
+{
+	try
+	{
+		QuadLoaderReturnRef *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
+		if (!loadReturn)
+			return 0;
+		return (*loadReturn)->generation;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LoaderReturn::getGeneration()");
+	}
+	return 0;
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_addComponentObjects
+		(JNIEnv *env, jobject obj, jobjectArray compObjs, jboolean isOverlay)
+{
+	try
+	{
+		QuadLoaderReturnRef *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
+		if (!loadReturn || !compObjs)
+			return;
+
+		// Work through the component object array
+		ComponentObjectRefClassInfo *compObjClassInfo = ComponentObjectRefClassInfo::getClassInfo();
+		JavaObjectArrayHelper compObjHelp(env,compObjs);
+		if (compObjHelp.numObjects() == 0)
+			return;
+		while (jobject compObjObj = compObjHelp.getNextObject()) {
+			ComponentObjectRef *compObj = compObjClassInfo->getObject(env,compObjObj);
+			if (isOverlay)
+				(*loadReturn)->ovlCompObjs.push_back(*compObj);
+			else
+				(*loadReturn)->compObjs.push_back(*compObj);
+		}
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LoaderReturn::addComponentObjects()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_clearComponentObjectsNative
+		(JNIEnv *env, jobject obj, jboolean isOverlay)
+{
+	try
+	{
+		QuadLoaderReturnRef *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
+		if (!loadReturn)
+			return;
+
+		if (isOverlay)
+			(*loadReturn)->ovlCompObjs.clear();
+		else
+			(*loadReturn)->compObjs.clear();
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LoaderReturn::clearCompObjs()");
+	}
+
 }

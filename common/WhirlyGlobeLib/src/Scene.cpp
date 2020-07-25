@@ -551,15 +551,25 @@ void AddDrawableReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::Vie
     drawRef = NULL;
 }
 
+RemDrawableReq::RemDrawableReq(SimpleIdentity drawId) : drawID(drawId)
+{
+}
+
+RemDrawableReq::RemDrawableReq(SimpleIdentity drawId,TimeInterval inWhen)
+: drawID(drawId)
+{
+    when = inWhen;
+}
+
 void RemDrawableReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *view)
 {
-    auto it = scene->drawables.find(drawable);
+    auto it = scene->drawables.find(drawID);
     if (it != scene->drawables.end())
     {
-        renderer->removeDrawable(it->second);
+        renderer->removeDrawable(it->second,true);
         scene->remDrawable(it->second);
     } else
-        wkLogLevel(Warn,"Missing drawable for RemDrawableReq: %llu", drawable);
+        wkLogLevel(Warn,"Missing drawable for RemDrawableReq: %llu", drawID);
 }
 
 void AddProgramReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *view)

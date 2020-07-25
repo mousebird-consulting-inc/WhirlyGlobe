@@ -20,6 +20,7 @@
 
 #import <jni.h>
 #import "QuadImageFrameLoader.h"
+#import "Maply_jni.h"
 
 namespace WhirlyKit
 {
@@ -31,7 +32,7 @@ class QuadImageFrameLoader_Android;
 class QIFBatchOps_Android : public QIFBatchOps
 {
 public:
-    QIFBatchOps_Android(JNIEnv *env);
+    QIFBatchOps_Android(PlatformInfo_Android *threadInfo);
     virtual ~QIFBatchOps_Android();
 
 public:
@@ -43,31 +44,31 @@ public:
 class QIFFrameAsset_Android : public QIFFrameAsset
 {
 public:
-    QIFFrameAsset_Android(JNIEnv *env);
+    QIFFrameAsset_Android(PlatformInfo_Android *threadInfo,QuadFrameInfoRef frameInfo);
     virtual ~QIFFrameAsset_Android();
 
-    // Clear out the texture and reset
-    virtual void clear(QuadImageFrameLoader *loader,QIFBatchOps *batchOps,ChangeSet &changes);
+    // Clear out the texture and d
+    virtual void clear(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QIFBatchOps *batchOps,ChangeSet &changes) override;
 
     // Update priority for an existing fetch request
-    virtual bool updateFetching(QuadImageFrameLoader *loader,int newPriority,double newImportance);
+    virtual bool updateFetching(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,int newPriority,double newImportance) override;
 
     // Cancel an outstanding fetch
-    virtual void cancelFetch(QuadImageFrameLoader *loader,QIFBatchOps *batchOps);
+    virtual void cancelFetch(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QIFBatchOps *batchOps) override;
 
     // Keep track of the texture ID
-    virtual void loadSuccess(QuadImageFrameLoader *loader,const std::vector<Texture *> &texs);
+    virtual void loadSuccess(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,const std::vector<Texture *> &texs) override;
 
     // Clear out state
-    virtual void loadFailed(QuadImageFrameLoader *loader);
+    virtual void loadFailed(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader) override;
 
 public:
     // Cancel the fetch (with the tile fetcher) on the Java side
-    void cancelFetchJava(QuadImageFrameLoader_Android *loader,QIFBatchOps_Android *batchOps);
+    void cancelFetchJava(PlatformInfo_Android *threadInfo,QuadImageFrameLoader_Android *loader,QIFBatchOps_Android *batchOps);
     // Dispose of the Java side frame asset object and cancel any fetches
-    void clearFrameAssetJava(QuadImageFrameLoader_Android *loader,QIFBatchOps_Android *batchOps);
+    void clearFrameAssetJava(PlatformInfo_Android *threadInfo,QuadImageFrameLoader_Android *loader,QIFBatchOps_Android *batchOps);
     // Clear the reference to a fetch request
-    void clearRequestJava(QuadImageFrameLoader_Android *loader);
+    void clearRequestJava(PlatformInfo_Android *threadInfo,QuadImageFrameLoader_Android *loader);
 
     jobject frameAssetObj;
 };
@@ -76,54 +77,39 @@ public:
 class QIFTileAsset_Android : public QIFTileAsset
 {
 public:
-    QIFTileAsset_Android(const QuadTreeNew::ImportantNode &ident);;
+    QIFTileAsset_Android(PlatformInfo_Android *threadInfo,const QuadTreeNew::ImportantNode &ident);
     virtual ~QIFTileAsset_Android();
 
     // Fetch the tile frames.  Just fetch them all for now.
-    virtual void startFetching(QuadImageFrameLoader *loader,int frameToLoad,QIFBatchOps *batchOps);
+    virtual void startFetching(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QuadFrameInfoRef frameToLoad,QIFBatchOps *batchOps,ChangeSet &changes) override;
 
 protected:
     // Specialized frame asset
-    virtual QIFFrameAssetRef makeFrameAsset(QuadImageFrameLoader *);
-};
-
-// Class that's dependent on a valid JNEnv
-// These have to be refreshed before we use them
-class JNIEnvDependent
-{
-public:
-    JNIEnvDependent() : env(NULL) { }
-
-    void setEnv(JNIEnv *inEnv) { env = inEnv; }
-
-    JNIEnv *env;
+    virtual QIFFrameAssetRef makeFrameAsset(PlatformThreadInfo *threadInfo,QuadFrameInfoRef frameInfo,QuadImageFrameLoader *) override;
 };
 
 // Android version of the QuadFrameLoader
 // Mostly just builds the right objects and tweaks things here and there
-class QuadImageFrameLoader_Android : public QuadImageFrameLoader, public JNIEnvDependent
+class QuadImageFrameLoader_Android : public QuadImageFrameLoader
 {
 public:
     // Displaying a single frame
-    QuadImageFrameLoader_Android(const SamplingParams &params,int numFrames,Mode mode,JNIEnv *env);
+    QuadImageFrameLoader_Android(PlatformInfo_Android *threadInfo,const SamplingParams &params,int numFrames,Mode mode,JNIEnv *env);
     ~QuadImageFrameLoader_Android();
 
     /// Number of frames we're representing
-    virtual int getNumFrames();
+    virtual int getNumFrames() override;
 
     // Contruct a platform specific BatchOps for passing to tile fetcher
     // (we don't know about tile fetchers down here)
-    virtual QIFBatchOps *makeBatchOps();
+    virtual QIFBatchOps *makeBatchOps(PlatformThreadInfo *threadInfo) override;
 
     // Process whatever ops we batched up during the load phase
-    virtual void processBatchOps(QIFBatchOps *);
-
-    // Used when we need to create Java objects
-    JNIEnv *getEnv() { return env; }
+    virtual void processBatchOps(PlatformThreadInfo *threadInfo,QIFBatchOps *) override;
 
 public:
     // Make an Android specific tile/frame assets
-    virtual QIFTileAssetRef makeTileAsset(const QuadTreeNew::ImportantNode &ident);
+    virtual QIFTileAssetRef makeTileAsset(PlatformThreadInfo *threadInfo,const QuadTreeNew::ImportantNode &ident) override;
 
     int numFrames;
 

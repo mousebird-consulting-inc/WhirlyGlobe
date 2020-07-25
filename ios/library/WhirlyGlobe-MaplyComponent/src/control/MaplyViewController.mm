@@ -185,27 +185,27 @@ public:
 
 - (instancetype)initWithMapType:(MaplyMapType)mapType
 {
-	self = [super init];
-	if (!self)
-		return nil;
+    self = [super init];
+    if (!self)
+        return nil;
     animWrapper.control = self;
 
-	if (mapType == MaplyMapType3D) {
-		_autoMoveToTap = true;
-	}
-	else {
-		// Turn off lighting
-		[self setHints:@{kMaplyRendererLightingMode: @"none"}];
-	}
+    if (mapType == MaplyMapType3D) {
+        _autoMoveToTap = true;
+    }
+    else {
+        // Turn off lighting
+        [self setHints:@{kMaplyRendererLightingMode: @"none"}];
+    }
 
     _pinchGesture = true;
-	_rotateGesture = true;
-	_doubleTapDragGesture = true;
-	_twoFingerTapGesture = true;
-	_doubleTapZoomGesture = true;
+    _rotateGesture = true;
+    _doubleTapDragGesture = true;
+    _twoFingerTapGesture = true;
+    _doubleTapZoomGesture = true;
 //    self.useOpenGLES = true;
 
-	return self;
+    return self;
 }
 
 - (instancetype)init
@@ -450,7 +450,7 @@ public:
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-	
+    
     [self registerForEvents];
 }
 
@@ -468,7 +468,7 @@ public:
     // The display link will still be active, not much will happen
     [super viewWillDisappear:animated];
     
-	// Stop tracking notifications
+    // Stop tracking notifications
     [self unregisterForEvents];
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
 }
@@ -698,12 +698,12 @@ public:
 /// Return the view extents.  This is the box the view point is allowed to be within.
 - (MaplyBoundingBox)getViewExtents
 {
-	MaplyBoundingBox box;
+    MaplyBoundingBox box;
 
-	box.ll = boundLL;
-	box.ur = boundUR;
+    box.ll = boundLL;
+    box.ur = boundUR;
 
-	return box;
+    return box;
 }
 
 /// Return the view extents.  This is the box the view point is allowed to be within.
@@ -728,7 +728,7 @@ public:
 /// Set the view extents.  This is the box the view point is allowed to be within.
 - (void)setViewExtents:(MaplyBoundingBox)box
 {
-	[self setViewExtentsLL:box.ll ur:box.ur];
+    [self setViewExtentsLL:box.ll ur:box.ur];
 }
 
 /// Set the view extents.  This is the box the view point is allowed to be within.
@@ -793,7 +793,7 @@ public:
 // Note: This may not work with a tilt
 - (bool)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc time:(TimeInterval)howLong
 {
-    if (!renderControl)
+    if (!renderControl || !renderControl->scene)
         return false;
     
     // Figure out where the point lands on the map
@@ -818,6 +818,9 @@ public:
 // This version takes a height as well
 - (void)animateToPosition:(MaplyCoordinate)newPos height:(float)newHeight time:(TimeInterval)howLong
 {
+    if (!renderControl || !renderControl->scene)
+        return;
+
     if (pinchDelegate)
     {
         if (newHeight < pinchDelegate.minZoom)
@@ -840,6 +843,9 @@ public:
 
 - (bool)animateToPosition:(MaplyCoordinate)newPos height:(float)newHeight heading:(float)newHeading time:(TimeInterval)howLong
 {
+    if (!renderControl || !renderControl->scene)
+        return false;
+
     if (isnan(newPos.x) || isnan(newPos.y) || isnan(newHeight))
     {
         NSLog(@"MaplyViewController: Invalid location passed to animationToPosition:");
@@ -859,6 +865,9 @@ public:
 
 - (bool)animateToPositionD:(MaplyCoordinateD)newPos height:(double)newHeight heading:(double)newHeading time:(TimeInterval)howLong
 {
+    if (!renderControl || !renderControl->scene)
+        return false;
+
     if (isnan(newPos.x) || isnan(newPos.y) || isnan(newHeight))
     {
         NSLog(@"MaplyViewController: Invalid location passed to animationToPosition:");
@@ -883,9 +892,9 @@ public:
         NSLog(@"MaplyViewController: Invalid location passed to animationToPosition:");
         return false;
     }
-    if (!renderControl)
+    if (!renderControl || !renderControl->scene)
         return false;
-    
+
     mapView->cancelAnimation();
 
     // save current view state
@@ -980,14 +989,14 @@ public:
 
 - (MaplyCoordinate)getPosition
 {
-	GeoCoord geoCoord = mapView->coordAdapter->getCoordSystem()->localToGeographic(mapView->coordAdapter->displayToLocal(mapView->getLoc()));
+    GeoCoord geoCoord = mapView->coordAdapter->getCoordSystem()->localToGeographic(mapView->coordAdapter->displayToLocal(mapView->getLoc()));
 
-	return {.x = geoCoord.x(), .y = geoCoord.y()};
+    return {.x = geoCoord.x(), .y = geoCoord.y()};
 }
 
 - (float)getHeight
 {
-	return mapView->getLoc().z();
+    return mapView->getLoc().z();
 }
 
 - (void)getPosition:(MaplyCoordinate *)pos height:(float *)height
@@ -1140,18 +1149,18 @@ public:
 
 - (float)getMinZoom
 {
-	if (pinchDelegate)
-		return pinchDelegate.minZoom;
+    if (pinchDelegate)
+        return pinchDelegate.minZoom;
 
-	return FLT_MIN;
+    return FLT_MIN;
 }
 
 - (float)getMaxZoom
 {
-	if (pinchDelegate)
-		return pinchDelegate.maxZoom;
+    if (pinchDelegate)
+        return pinchDelegate.maxZoom;
 
-	return FLT_MIN;
+    return FLT_MIN;
 }
 
 /// Return the min and max heights above the globe for zooming
@@ -1464,7 +1473,7 @@ public:
 }
 
 - (MaplyCoordinate)geoFromScreenPoint:(CGPoint)point {
-  	Point3d hit;
+      Point3d hit;
     SceneRenderer *sceneRender = wrapView.renderer;
     Eigen::Matrix4d theTransform = mapView->calcFullMatrix();
     auto frameSizeScaled = sceneRender->getFramebufferSizeScaled();
@@ -1472,7 +1481,7 @@ public:
     if (mapView->pointOnPlaneFromScreen(point2f, &theTransform, frameSizeScaled, &hit, true))
     {
         Point3d localPt = coordAdapter->displayToLocal(hit);
-		GeoCoord coord = coordAdapter->getCoordSystem()->localToGeographic(localPt);
+        GeoCoord coord = coordAdapter->getCoordSystem()->localToGeographic(localPt);
         MaplyCoordinate maplyCoord;
         maplyCoord.x = coord.x();
         maplyCoord.y  = coord.y();
@@ -1532,7 +1541,7 @@ public:
         for(MaplyAnnotation *annotation in self.annotations) {
             if(annotation.calloutView == calloutView) {
 #pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"                
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
                 [self.delegate maplyViewController:self didClickAnnotation:annotation];
                 return;
 #pragma clang diagostic pop

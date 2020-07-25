@@ -286,13 +286,13 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_updateLayout
         LayoutManagerWrapperClassInfo *classInfo = LayoutManagerWrapperClassInfo::getClassInfo();
         LayoutManagerWrapper *wrap = classInfo->getObject(env, obj);
         ViewStateRef *viewState = ViewStateRefClassInfo::getClassInfo()->getObject(env,viewStateObj);
-        ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+        ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
         if (!wrap || !viewState || !changeSet)
             return;
         wrap->setEnv(env);
         wrap->updateShader();
 
-        wrap->layoutManager->updateLayout(*viewState,*changeSet);
+        wrap->layoutManager->updateLayout(*viewState,*(changeSet->get()));
     }
     catch (...)
     {

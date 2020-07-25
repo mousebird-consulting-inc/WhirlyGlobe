@@ -61,6 +61,7 @@ public:
     SimpleIdentity texID;
     float miterLimit;
 };
+typedef std::shared_ptr<WideVectorInfo> WideVectorInfoRef;
     
 /// Used to track the
 class WideVectorSceneRep : public Identifiable

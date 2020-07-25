@@ -19,6 +19,7 @@
  */
 
 #import "MapboxVectorStyleSprites.h"
+#import "MapboxVectorStyleSet_private.h"
 #import <map>
 #import <string>
 

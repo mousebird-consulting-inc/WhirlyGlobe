@@ -30,7 +30,7 @@ package com.mousebird.maply;
  */
 public class Layer
 {
-	protected LayerThread layerThread = null;
+	public LayerThread layerThread = null;
 
 	/**
 	 * Once your layer is created and handed to the LayerThread, it needs to

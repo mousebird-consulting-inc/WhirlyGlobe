@@ -37,7 +37,7 @@ void WideVectorTweakerMTL::tweakForFrame(Drawable *inDraw,RendererFrameInfo *inF
  
     RendererFrameInfoMTL *frameInfo = (RendererFrameInfoMTL *)inFrameInfo;
     
-    float scale = std::max(frameInfo->sceneRenderer->framebufferWidth,frameInfo->sceneRenderer->framebufferHeight);
+    float scale = std::min(frameInfo->sceneRenderer->framebufferWidth,frameInfo->sceneRenderer->framebufferHeight);
     float screenSize = frameInfo->screenSizeInDisplayCoords.x();
     float pixDispSize = std::min(frameInfo->screenSizeInDisplayCoords.x(),frameInfo->screenSizeInDisplayCoords.y()) / scale;
     float texScale = scale/(screenSize*texRepeat);

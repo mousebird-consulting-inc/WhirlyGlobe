@@ -1,157 +1,107 @@
 package com.mousebird.maply;
 
+/**
+ Settings that control how vector tiles look in relation to their styles.
+
+ These are set based on the sort of device we're on, particularly retina vs. non-retina.  They can be manipulated directly as well for your needs.
+
+ This is the object backing the ObjC and Android versions.
+ */
 public class VectorStyleSettings {
 
-    /// @brief Line widths will be scaled by this amount before display.
-    private double lineScale;
+    public VectorStyleSettings() {
+        initialise();
+    }
 
-    /// @brief Text sizes will be scaled by this amount before display.
-    private double textScale;
+    /// Line widths will be scaled by this amount before display.
+    native public double getLineScale();
+    native public void setLineScale(double scale);
 
-    /// @brief Markers will be scaled by this amount before display.
-    private double markerScale;
+    /// Text sizes will be scaled by this amount before display.
+    native public double getTextScale();
+    native public void setTextScale(double scale);
 
-    /// @brief Importance for markers in the layout engine
-    private double markerImportance;
+    /// Markers will be scaled by this amount before display.
+    native public double getMarkerScale();
+    native public void setMarkerScale(double scale);
 
-    /// @brief Default marker size when none is specified
-    private double markerSize;
+    /// Importance for markers in the layout engine
+    native public double getMarkerImportance();
+    native public void setMarkerImportance(double importance);
+
+    /// Default marker size when none is specified
+    native public double getMarkerSize();
+    native public void setMarkerSize(double size);
+
+    /// Importance for labels in the layout engine
+    native public double getLabelImportance();
+    native public void setLabelImportance(double importance);
+
+    /// If set we'll use the zoom levels defined in the style
+    native public boolean getUseZoomLevels();
+    native public void setUseZoomLabels(boolean useZoomLabels);
+
+    /// For symbols we'll try to pull a UUID out of this field to stick in the marker and label uniqueID
+    native public String getUuidField();
+    native public void setUuidField(String uuidField);
+
+    /// Draw priority calculated as offset from here
+    native public int getBaseDrawPriority();
+    native public void setBaseDrawPriority(int drawPriority);
+
+    /// Offset between levels
+    native public int getDrawPriorityPerLevel();
+    native public void setDrawPriorityPerLevel(int drawPriorityPerLevel);
+
 
     /** @brief The overall map scale calculations will be scaled by this amount
-     *  @details We use the map scale calculations to figure out what is dispalyed and when.  Not
+     *  @details We use the map scale calculations to figure out what is displayed and when.  Not
      *  what to load in, mind you, that's a separate, but related calculation.  This controls the
      *  scaling of those calculations.  Scale it down to load things in later, up to load them in
      *  sooner.
      */
-    private double mapScale;
+    native public double getMapScaleScale();
+    native public void setMapScaleScale(double scale);
 
     /// @brief Dashed lines will be scaled by this amount before display.
-    private double dashPatternScale;
+    native public double getDashPatternScale();
+    native public void setDashPatternScale(double scale);
 
     /// @brief Use widened vectors (which do anti-aliasing and such)
-    private boolean useWideVectors;
+    native public boolean getUseWideVectors();
+    native public void setUseWideVectors(boolean useWideVectors);
 
     /// @brief Where we're using old vectors (e.g. not wide) scale them by this amount
-    private double oldVecWidthScale;
+    native public double getOldVecWidthScale();
+    native public void setOldVecWidthScale(double widthScale);
 
     /// @brief If we're using widened vectors, only active them for strokes wider than this.  Defaults to zero.
-    private double wideVecCutoff;
+    native public double getWideVecCutoff();
+    native public void setWideVecCutoff(double cutoff);
 
     /// @brief If set, we'll make the areal features selectable.  If not, this saves memory.
-    private boolean selectable;
+    native public boolean getSelectable();
+    native public void setSelectable(boolean selectable);
 
     /// @brief If set, icons will be loaded from this directory
-    private String iconDirectory;
+    native public String getIconDirectory();
+    native public void setIconDirectory(String iconDirectory);
 
     /// @brief The default font family for all text
-    private String fontName;
+    native public String getFontName();
+    native public void setFontName(String fontName);
 
-
-    public double getLineScale() {
-        return lineScale;
+    public void finalize()
+    {
+        dispose();
     }
 
-    public void setLineScale(double lineScale) {
-        this.lineScale = lineScale;
+    static
+    {
+        nativeInit();
     }
-
-    public double getTextScale() {
-        return textScale;
-    }
-
-    public void setTextScale(double textScale) {
-        this.textScale = textScale;
-    }
-
-    public double getMarkerScale() {
-        return markerScale;
-    }
-
-    public void setMarkerScale(double markerScale) {
-        this.markerScale = markerScale;
-    }
-
-    public double getMarkerImportance() {
-        return markerImportance;
-    }
-
-    public void setMarkerImportance(double markerImportance) {
-        this.markerImportance = markerImportance;
-    }
-
-    public double getMarkerSize() {
-        return markerSize;
-    }
-
-    public void setMarkerSize(double markerSize) {
-        this.markerSize = markerSize;
-    }
-
-    public double getMapScale() {
-        return mapScale;
-    }
-
-    public void setMapScale(double mapScale) {
-        this.mapScale = mapScale;
-    }
-
-    public double getDashPatternScale() {
-        return dashPatternScale;
-    }
-
-    public void setDashPatternScale(double dashPatternScale) {
-        this.dashPatternScale = dashPatternScale;
-    }
-
-    public boolean isUseWideVectors() {
-        return useWideVectors;
-    }
-
-    public void setUseWideVectors(boolean useWideVectors) {
-        this.useWideVectors = useWideVectors;
-    }
-
-    public double getOldVecWidthScale() {
-        return oldVecWidthScale;
-    }
-
-    public void setOldVecWidthScale(double oldVecWidthScale) {
-        this.oldVecWidthScale = oldVecWidthScale;
-    }
-
-    public double getWideVecCutoff() {
-        return wideVecCutoff;
-    }
-
-    public void setWideVecCutoff(double wideVecCutoff) {
-        this.wideVecCutoff = wideVecCutoff;
-    }
-
-    public boolean isSelectable() {
-        return selectable;
-    }
-
-    public void setSelectable(boolean selectable) {
-        this.selectable = selectable;
-    }
-
-    public String getIconDirectory() {
-        return iconDirectory;
-    }
-
-    public void setIconDirectory(String iconDirectory) {
-        this.iconDirectory = iconDirectory;
-    }
-
-    public String getFontName() {
-        return fontName;
-    }
-
-    public void setFontName(String fontName) {
-        this.fontName = fontName;
-    }
-
-
-
-
+    native void initialise();
+    native void dispose();
+    private static native void nativeInit();
+    protected long nativeHandle;
 }

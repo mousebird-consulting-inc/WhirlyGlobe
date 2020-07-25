@@ -23,7 +23,6 @@ import android.app.Activity;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import org.apache.commons.io.IOUtils;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -34,6 +33,8 @@ import java.util.Calendar;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import okio.Okio;
 
 
 public class MaplyStarModel {
@@ -115,7 +116,7 @@ public class MaplyStarModel {
                 Matcher m;
                 try {
                     inputStream = assetMgr.open("maplystarmodel/" + path);
-                    String stars = IOUtils.toString(inputStream, Charset.defaultCharset());
+                    String stars = Okio.buffer(Okio.source(inputStream)).readUtf8();
                     Pattern p = Pattern.compile("[-]?[0-9]*\\.?[0-9]+");
                     m = p.matcher(stars);
                 } finally {

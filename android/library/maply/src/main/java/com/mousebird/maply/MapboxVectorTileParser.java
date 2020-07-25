@@ -40,7 +40,14 @@ public class MapboxVectorTileParser
         styleDelegate = inStyleDelegate;
         viewC = new WeakReference<RenderControllerInterface>(inViewC);
 
-        initialise();
+        // If the style delegate is backed by a C++ object, we
+        //  can just use that directly.
+        if (inStyleDelegate instanceof MapboxVectorStyleSet) {
+            initialise(inStyleDelegate,true);
+        } else {
+            // If not, then the C++ needs to build a wrapper for it
+            initialise(inStyleDelegate,false);
+        }
     }
 
     public final static int GeomTypeUnknown = 0;
@@ -86,10 +93,13 @@ public class MapboxVectorTileParser
      */
     public boolean parseData(byte[] data,VectorTileData tileData)
     {
-        return parseDataNative(data,tileData);
+        return parseDataNative(data, tileData);
     }
 
     native boolean parseDataNative(byte[] data,VectorTileData tileData);
+
+    /// If set, we'll parse into local coordinates as specified by the bounding box, rather than geo coords
+    native void setLocalCoords(boolean localCoords);
 
     public void finalize()
     {
@@ -100,7 +110,7 @@ public class MapboxVectorTileParser
     {
         nativeInit();
     }
-    native void initialise();
+    native void initialise(Object vectorStyleDelegate,boolean isMapboxStyle);
     native void dispose();
     private static native void nativeInit();
     protected long nativeHandle;

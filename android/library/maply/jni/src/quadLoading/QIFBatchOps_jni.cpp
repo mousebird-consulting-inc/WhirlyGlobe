@@ -37,7 +37,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QIFBatchOps_initialise
 {
     try {
         QIFBatchOpsClassInfo *info = QIFBatchOpsClassInfo::getClassInfo();
-        QIFBatchOps_Android *batchOps = new QIFBatchOps_Android(env);
+        PlatformInfo_Android platformInfo(env);
+        QIFBatchOps_Android *batchOps = new QIFBatchOps_Android(&platformInfo);
         batchOps->batchOpsObj = obj;
         info->setHandle(env, obj, batchOps);
     } catch (...) {
@@ -48,7 +49,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QIFBatchOps_initialise
 static std::mutex disposeMutex;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QIFBatchOps_dispose
-        (JNIEnv *env, jobject obj)
+        (JNIEnv *env,jobject obj)
 {
     try {
         QIFBatchOpsClassInfo *info = QIFBatchOpsClassInfo::getClassInfo();

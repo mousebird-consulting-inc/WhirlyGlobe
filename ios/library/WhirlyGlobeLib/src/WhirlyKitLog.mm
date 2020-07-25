@@ -24,38 +24,25 @@
 #import <Foundation/Foundation.h>
 #import "WhirlyKitLog.h"
 
-/*  Note: Move these over to Android
-#ifdef ANDROID
-#include <android/log.h>
-
-#define  LOG_TAG    "WhirlyKit"
-
-#define WHIRLYKIT_LOGV(...) __android_log_print(ANDROID_LOG_VERBOSE, LOG_TAG,__VA_ARGS__)
-#define WHIRLYKIT_LOGD(...) __android_log_print(ANDROID_LOG_DEBUG  , LOG_TAG,__VA_ARGS__)
-#define WHIRLYKIT_LOGI(...) __android_log_print(ANDROID_LOG_INFO   , LOG_TAG,__VA_ARGS__)
-#define WHIRLYKIT_LOGW(...) __android_log_print(ANDROID_LOG_WARN   , LOG_TAG,__VA_ARGS__)
-#define WHIRLYKIT_LOGE(...) __android_log_print(ANDROID_LOG_ERROR  , LOG_TAG,__VA_ARGS__)
-#define WHIRLYKIT_LOGSIMPLE LOGSIMPLE
-
- */
-
-void wkLogInternal(const char *formatStr,va_list args)
-{
-    // Scan once for the size and then form the string
-    int len = std::vsnprintf(NULL,0,formatStr,args);
-    
-    char str[len+2];
-    std::vsnprintf(str,len+1,formatStr,args);
-    
-    NSLog(@"%s",str);
-}
-
 void wkLog(const char *formatStr,...)
 {
     va_list args;
     
     va_start(args, formatStr);
-    wkLogInternal(formatStr, args);
+    int len = std::vsnprintf(NULL,0,formatStr,args);
+    if (len < 0) {
+        NSLog(@"wkLogLevel: Malformed format string");
+        return;
+    }
+
+    va_end(args);
+    va_start(args, formatStr);
+    
+    char str[len+2];
+    std::vsnprintf(str,len+1,formatStr,args);
+    
+    NSLog(@"%s",str);
+    
     va_end(args);
 }
 
@@ -67,7 +54,21 @@ void wkLogLevel(WKLogLevel level,const char *formatStr,...)
     va_start(args, formatStr);
 
     std::string fullFormatStr = std::string(levels[level]) + ": " + formatStr;
-    wkLogInternal(fullFormatStr.c_str(),args);
+
+    // Scan once for the size and then form the string
+    int len = std::vsnprintf(NULL,0,formatStr,args);
+    if (len < 0) {
+        NSLog(@"wkLogLevel: Malformed format string");
+        return;
+    }
+
+    va_end(args);
+    va_start(args, formatStr);
+    
+    char str[len+2];
+    std::vsnprintf(str,len+1,formatStr,args);
+    
+    NSLog(@"%s",str);
     
     va_end(args);
 }

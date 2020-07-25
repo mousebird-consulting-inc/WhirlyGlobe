@@ -84,6 +84,48 @@ public:
 	RGBAColor(unsigned char r,unsigned char g,unsigned char b,unsigned char a) : r(r), g(g), b(b), a(a) { }
 	RGBAColor(unsigned char r,unsigned char g,unsigned char b) : r(r), g(g), b(b), a(255) { }
     
+    // Create an RGBColor from unit floats
+    static RGBAColor FromUnitFloats(float *ret) {
+        return RGBAColor(ret[0] * 255.0,ret[1] * 255.0,ret[2] * 255.0,ret[3] * 255.0);
+    }
+
+    // Create an RGBAColor from an int
+    static RGBAColor FromInt(int color) {
+	    return RGBAColor((color >> 16) & 0xff,(color >> 8)&0xff,color&0xff, color >> 24);
+	}
+    
+    // Create an
+    static RGBAColor FromHSL(int hue,double s,double v) {
+        double c = s * v;
+        double x = c * (1 - std::abs(fmod(hue / 60.0, 2.0) - 1));
+        double m = v - c;
+        double rs,gs,bs;
+        if (hue >= 0 && hue < 60) {
+            rs= c;  gs = x;  bs = 0;
+        } else if(hue >= 60 && hue < 120) {
+            rs = x;  gs = c;  bs = 0;
+        } else if(hue >= 120 && hue < 180) {
+            rs = 0;  gs = c;  bs = x;
+        } else if(hue >= 180 && hue < 240) {
+            rs = 0;  gs = x;  bs = c;
+        } else if(hue >= 240 && hue < 300) {
+            rs = x;  gs = 0;  bs = c;
+        } else {
+            rs = c;  gs = 0;  bs = x;
+        }
+        
+        return RGBAColor((rs + m) * 255.0, (gs + m) * 255.0, (bs + m) * 255.0);
+    }
+
+    // Standard colors to create & return
+
+    static RGBAColor black() { return RGBAColor(0,0,0,255); }
+    static RGBAColor white() { return RGBAColor(255,255,255,255); }
+    static RGBAColor red() { return RGBAColor(255,0,0,255); }
+    static RGBAColor green() { return RGBAColor(0,255,0,255); }
+    static RGBAColor blue() { return RGBAColor(0,0,255,255); }
+    static RGBAColor clear() { return RGBAColor(0,0,0,0); }
+
     /// Returns an an array of 4 floats
     void asUnitFloats(float *ret) const { ret[0] = (float)r / 255.0;  ret[1] = (float)g / 255.0; ret[2] = (float)b / 255.0; ret[3] = (float)a / 255.0; }
     
@@ -99,6 +141,7 @@ public:
 	
 	unsigned char r,g,b,a;
 };
+typedef std::shared_ptr<RGBAColor> RGBAColorRef;
     
 class MbrD;
 	

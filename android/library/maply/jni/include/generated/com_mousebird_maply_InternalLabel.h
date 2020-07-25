@@ -81,6 +81,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setLayoutImportanc
 
 /*
  * Class:     com_mousebird_maply_InternalLabel
+ * Method:    setLayoutPlacement
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setLayoutPlacement
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     com_mousebird_maply_InternalLabel
  * Method:    setLayoutSize
  * Signature: (DD)V
  */

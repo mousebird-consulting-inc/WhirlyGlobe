@@ -33,12 +33,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_nativeInit
 	ChangeSetClassInfo::getClassInfo(env,cls);
 }
 
+JNIEXPORT jobject JNICALL MakeChangeSet(JNIEnv *env,const ChangeSet &changeSet)
+{
+	ChangeSetClassInfo *classInfo = ChangeSetClassInfo::getClassInfo(env,"com/mousebird/maply/ChangeSet");
+	jobject newObj = classInfo->makeWrapperObject(env,NULL);
+	WhirlyKit::ChangeSetRef *inst = classInfo->getObject(env,newObj);
+	(*inst)->insert((*inst)->end(),changeSet.begin(),changeSet.end());
+
+	return newObj;
+}
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_initialise
   (JNIEnv *env, jobject obj)
 {
 	try
 	{
-		ChangeSet *changeSet = new ChangeSet();
+		ChangeSetRef *changeSet = new ChangeSetRef(new ChangeSet());
 		ChangeSetClassInfo::getClassInfo()->setHandle(env,obj,changeSet);
 	}
 	catch (...)
@@ -57,13 +67,13 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_dispose
 		ChangeSetClassInfo *classInfo = ChangeSetClassInfo::getClassInfo();
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
-            ChangeSet *changeSet = classInfo->getObject(env,obj);
+            ChangeSetRef *changeSet = classInfo->getObject(env,obj);
             if (!changeSet)
                 return;
 
             // Be sure to delete the contents
-            for (unsigned int ii = 0;ii<changeSet->size();ii++)
-                delete changeSet->at(ii);
+            for (unsigned int ii = 0;ii<(*changeSet)->size();ii++)
+                delete (*changeSet)->at(ii);
 
             delete changeSet;
 
@@ -82,12 +92,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_merge
 	try
 	{
 		ChangeSetClassInfo *classInfo = ChangeSetClassInfo::getClassInfo();
-		ChangeSet *changeSet = classInfo->getObject(env,obj);
-		ChangeSet *otherChangeSet = classInfo->getObject(env,otherObj);
+		ChangeSetRef *changeSet = classInfo->getObject(env,obj);
+		ChangeSetRef *otherChangeSet = classInfo->getObject(env,otherObj);
 		if (!changeSet || !otherChangeSet)
 			return;
-		changeSet->insert(changeSet->end(),otherChangeSet->begin(),otherChangeSet->end());
-		otherChangeSet->clear();
+		(*changeSet)->insert((*changeSet)->end(),(*otherChangeSet)->begin(),(*otherChangeSet)->end());
+		(*otherChangeSet)->clear();
 	}
 	catch (...)
 	{
@@ -100,7 +110,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_process
 {
 	try
 	{
-		ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,obj);
+		ChangeSetRef *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,obj);
 		SceneRendererGLES_Android *sceneRender = SceneRendererInfo::getClassInfo()->getObject(env,renderControlObj);
 		Scene *scene = SceneClassInfo::getClassInfo()->getObject(env,sceneObj);
 		if (!changes || !sceneRender || !scene)
@@ -109,9 +119,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_process
 	    bool requiresFlush = false;
 	    // Set up anything that needs to be set up
 	    ChangeSet changesToAdd;
-	    for (unsigned int ii = 0;ii<changes->size();ii++)
+	    for (unsigned int ii = 0;ii<(*changes)->size();ii++)
 	    {
-	        ChangeRequest *change = changes->at(ii);
+	        ChangeRequest *change = (*changes)->at(ii);
 	        if (change)
 	        {
 	            requiresFlush |= change->needsFlush();
@@ -131,7 +141,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_process
 //	    __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Processed %d changes",changesToAdd.size());
 
 	    scene->addChangeRequests(changesToAdd);
-	    changes->clear();
+		(*changes)->clear();
 	}
 	catch (...)
 	{
@@ -145,7 +155,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_addTexture
 	try
 	{
 		ChangeSetClassInfo *classInfo = ChangeSetClassInfo::getClassInfo();
-		ChangeSet *changeSet = classInfo->getObject(env,obj);
+		ChangeSetRef *changeSet = classInfo->getObject(env,obj);
 		Texture *texture = TextureClassInfo::getClassInfo()->getObject(env,texObj);
         Scene *scene = SceneClassInfo::getClassInfo()->getObject(env,sceneObj);
 		if (!changeSet || !texture || !scene)
@@ -163,7 +173,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_addTexture
                 break;
         }
 
-		changeSet->push_back(new AddTextureReq(texture));
+		(*changeSet)->push_back(new AddTextureReq(texture));
 	}
 	catch (...)
 	{
@@ -181,11 +191,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_removeTexture
 {
 	try
 	{
-		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,obj);
+		ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,obj);
 		if (!changeSet)
 			return;
 
-		changeSet->push_back(new RemTextureReq(texID));
+		(*changeSet)->push_back(new RemTextureReq(texID));
 	}
 	catch (...)
 	{

@@ -1363,6 +1363,11 @@
  */
 - (void)startLocationTrackingWithDelegate:(NSObject<MaplyLocationTrackerDelegate> *__nullable)delegate useHeading:(bool)useHeading useCourse:(bool)useCourse simulate:(bool)simulate;
 
+/**
+ Return the current location tracker, if there is one.
+ */
+- (MaplyLocationTracker * __nullable)getLocationTracker;
+
 /** 
     Change lock type for location tracking
     

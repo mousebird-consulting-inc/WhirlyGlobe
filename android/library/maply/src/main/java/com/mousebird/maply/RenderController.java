@@ -77,6 +77,11 @@ public class RenderController implements RenderControllerInterface
     }
 
     /**
+     * Return the current coordinate system.
+     */
+    public CoordSystem getCoordSystem() { return coordAdapter.coordSys; }
+
+    /**
      * This constructor assumes we'll be hooking up to surface provided later.
      */
     RenderController()
@@ -87,12 +92,11 @@ public class RenderController implements RenderControllerInterface
     // Set if this is a standalone renderer
     protected boolean offlineMode = false;
 
-    /**
-     * This constructor sets up its own render target.  Used for offline rendering.
-     */
-    public RenderController(int width,int height)
+    // Construct a new render control based on an existing one
+    public RenderController(RenderController baseControl,int width,int height)
     {
-        setConfig(null);
+        frameSize = new Point2d(width,height);
+        setConfig(baseControl, null);
 
         // Set up our own EGL context for offline work
         EGL10 egl = (EGL10) EGLContext.getEGL();
@@ -111,6 +115,8 @@ public class RenderController implements RenderControllerInterface
                 };
         offlineGLContext.eglSurface = egl.eglCreatePbufferSurface(display, config, surface_attrs);
 
+        setEGLContext(offlineGLContext);
+
         initialise(width,height);
 
         // Set up a passthrough coordinate system, view, and so on
@@ -124,6 +130,7 @@ public class RenderController implements RenderControllerInterface
         Mbr extents = new Mbr(new Point2d(ll.getX(),ll.getY()),new Point2d(ur.getX(),ur.getY()));
         flatView.setExtents(extents);
         flatView.setWindow(new Point2d(width,height),new Point2d(0.0,0.0));
+        view = flatView;
 
         scene = new Scene(coordAdapter,this);
 
@@ -136,13 +143,26 @@ public class RenderController implements RenderControllerInterface
                 setEGLContext(offlineGLContext);
 
                 run.run();
-
-                // TODO: Clear back to the old context
             }
         };
 
         // This will properly wire things up
         Init(scene,coordAdapter,taskMan);
+        setScene(scene);
+        setView(view);
+
+        // Need all the default shaders
+        setupShadersNative();
+
+        clearContext();
+    }
+
+    /**
+     * This constructor sets up its own render target.  Used for offline rendering.
+     */
+    public RenderController(int width,int height)
+    {
+        this(null,width,height);
     }
 
     /**
@@ -257,11 +277,18 @@ public class RenderController implements RenderControllerInterface
     public EGLDisplay display = null;
     public EGLConfig config = null;
     public EGLContext context = null;
-    public void setConfig(EGLConfig inConfig)
+    public void setConfig(RenderController otherControl,EGLConfig inConfig)
     {
         EGL10 egl = (EGL10) EGLContext.getEGL();
-        display = egl.eglGetCurrentDisplay();
-        context = egl.eglGetCurrentContext();
+
+        if (otherControl == null) {
+            display = egl.eglGetCurrentDisplay();
+            context = egl.eglGetCurrentContext();
+        } else {
+            display = otherControl.display;
+            context = otherControl.context;
+            inConfig = otherControl.config;
+        }
 
         // If we didn't pass in one, we're in offline mode and need to make one
         if (inConfig == null) {
@@ -348,7 +375,6 @@ public class RenderController implements RenderControllerInterface
 
         texManager = null;
 
-        // TODO: Do we have to explicity shut these down?
         offlineGLContext = null;
     }
 
@@ -488,8 +514,10 @@ public class RenderController implements RenderControllerInterface
 
                         // Add the markers and flush the changes
                         long markerId = markerManager.addScreenMarkers(intMarkers.toArray(new InternalMarker[0]), markerInfo, changes);
-                        if (scene != null)
-                            changes.process(renderControl,scene);
+                        if (scene != null) {
+                            changes.process(renderControl, scene);
+                            changes.dispose();
+                        }
 
                         if (markerId != EmptyIdentity)
                         {
@@ -566,8 +594,10 @@ public class RenderController implements RenderControllerInterface
 
                         // Add the markers and flush the changes
                         long markerId = markerManager.addScreenMarkers(intMarkers.toArray(new InternalMarker[0]), markerInfo, changes);
-                        if (scene != null)
-                            changes.process(renderControl,scene);
+                        if (scene != null) {
+                            changes.process(renderControl, scene);
+                            changes.dispose();
+                        }
 
                         if (markerId != EmptyIdentity)
                         {
@@ -648,8 +678,10 @@ public class RenderController implements RenderControllerInterface
 
                         // Add the markers and flush the changes
                         long markerId = markerManager.addMarkers(intMarkers.toArray(new InternalMarker[0]), markerInfo, changes);
-                        if (scene != null)
-                            changes.process(renderControl,scene);
+                        if (scene != null) {
+                            changes.process(renderControl, scene);
+                            changes.dispose();
+                        }
 
                         if (markerId != EmptyIdentity)
                         {
@@ -697,7 +729,7 @@ public class RenderController implements RenderControllerInterface
                         for (ScreenLabel label : labels)
                         {
                             if (label.text != null && label.text.length() > 0) {
-                                InternalLabel intLabel = new InternalLabel(label);
+                                InternalLabel intLabel = new InternalLabel(label,labelInfo);
                                 intLabels.add(intLabel);
 
                                 // Keep track of this one for selection
@@ -718,8 +750,10 @@ public class RenderController implements RenderControllerInterface
                             compObj.addLabelID(labelId);
 
                         // Flush the text changes
-                        if (scene != null)
-                            changes.process(renderControl,scene);
+                        if (scene != null) {
+                            changes.process(renderControl, scene);
+                            changes.dispose();
+                        }
 
                         for (InternalLabel label : intLabels)
                             label.dispose();
@@ -763,7 +797,7 @@ public class RenderController implements RenderControllerInterface
                         for (ScreenMovingLabel label : labels)
                         {
                             if (label.text != null && label.text.length() > 0) {
-                                InternalLabel intLabel = new InternalLabel(label,now);
+                                InternalLabel intLabel = new InternalLabel(label,labelInfo,now);
                                 intLabels.add(intLabel);
 
                                 // Keep track of this one for selection
@@ -784,8 +818,10 @@ public class RenderController implements RenderControllerInterface
                             compObj.addLabelID(labelId);
 
                         // Flush the text changes
-                        if (scene != null)
-                            changes.process(renderControl,scene);
+                        if (scene != null) {
+                            changes.process(renderControl, scene);
+                            changes.dispose();
+                        }
 
                         for (InternalLabel label : intLabels)
                             label.dispose();
@@ -825,8 +861,10 @@ public class RenderController implements RenderControllerInterface
                         // Vectors are simple enough to just add
                         ChangeSet changes = new ChangeSet();
                         long vecId = vecManager.addVectors(vecs.toArray(new VectorObject[0]), vecInfo, changes);
-                        if (scene != null)
-                            changes.process(renderControl,scene);
+                        if (scene != null) {
+                            changes.process(renderControl, scene);
+                            changes.dispose();
+                        }
 
                         // Track the vector ID for later use
                         if (vecId != EmptyIdentity)
@@ -881,8 +919,10 @@ public class RenderController implements RenderControllerInterface
                         // Vectors are simple enough to just add
                         ChangeSet changes = new ChangeSet();
                         long loftID = loftManager.addPolys(vecs.toArray(new VectorObject[0]), loftInfo, changes);
-                        if (scene != null)
-                            changes.process(renderControl,scene);
+                        if (scene != null) {
+                            changes.process(renderControl, scene);
+                            changes.dispose();
+                        }
 
                         // Track the vector ID for later use
                         if (loftID != EmptyIdentity)
@@ -935,8 +975,10 @@ public class RenderController implements RenderControllerInterface
                         long[] vecIDs = vecObj.getVectorIDs();
                         if (vecIDs != null) {
                             vecManager.changeVectors(vecIDs, vecInfo, changes);
-                            if (scene != null)
-                                changes.process(renderControl,scene);
+                            if (scene != null) {
+                                changes.process(renderControl, scene);
+                                changes.dispose();
+                            }
                         }
                     }
                 };
@@ -972,8 +1014,10 @@ public class RenderController implements RenderControllerInterface
                                 if (newID != EmptyIdentity)
                                     compObj.addVectorID(newID);
                             }
-                            if (scene != null)
-                                changes.process(renderControl,scene);
+                            if (scene != null) {
+                                changes.process(renderControl, scene);
+                                changes.dispose();
+                            }
                         }
 
                         componentManager.addComponentObject(compObj);
@@ -1014,8 +1058,10 @@ public class RenderController implements RenderControllerInterface
                         // Vectors are simple enough to just add
                         ChangeSet changes = new ChangeSet();
                         long vecId = wideVecManager.addVectors(vecs.toArray(new VectorObject[0]), wideVecInfo, changes);
-                        if (scene != null)
-                            changes.process(renderControl,scene);
+                        if (scene != null) {
+                            changes.process(renderControl, scene);
+                            changes.dispose();
+                        }
 
                         // Track the vector ID for later use
                         if (vecId != EmptyIdentity)
@@ -1077,8 +1123,10 @@ public class RenderController implements RenderControllerInterface
                                 compObj.addWideVectorID(instID);
                         }
 
-                        if (scene != null)
-                            changes.process(renderControl,scene);
+                        if (scene != null) {
+                            changes.process(renderControl, scene);
+                            changes.dispose();
+                        }
 
                         componentManager.addComponentObject(compObj);
                     }
@@ -1111,8 +1159,10 @@ public class RenderController implements RenderControllerInterface
                 long shapeId = shapeManager.addShapes(shapes.toArray(new Shape[0]), shapeInfo, changes);
                 if (shapeId != EmptyIdentity)
                     compObj.addShapeID(shapeId);
-                if (scene != null)
-                    changes.process(renderControl,scene);
+                if (scene != null) {
+                    changes.process(renderControl, scene);
+                    changes.dispose();
+                }
 
                 for (Shape shape : shapes)
                     if (shape.isSelectable())
@@ -1161,8 +1211,10 @@ public class RenderController implements RenderControllerInterface
                         if (stickerID != EmptyIdentity) {
                             compObj.addStickerID(stickerID);
                         }
-                        if (scene != null)
-                            changes.process(renderControl,scene);
+                        if (scene != null) {
+                            changes.process(renderControl, scene);
+                            changes.dispose();
+                        }
 
                         if (stickerInfo.disposeAfterUse || disposeAfterRemoval)
                             for (Sticker sticker : stickers)
@@ -1205,8 +1257,10 @@ public class RenderController implements RenderControllerInterface
                                 stickerManager.changeSticker(stickerID, stickerInfo, changes);
                         }
 
-                        if (scene != null)
-                            changes.process(renderControl,scene);
+                        if (scene != null) {
+                            changes.process(renderControl, scene);
+                            changes.dispose();
+                        }
 
                         componentManager.addComponentObject(compObj);
                     }
@@ -1270,8 +1324,10 @@ public class RenderController implements RenderControllerInterface
                         compObj.addBillboardID(billId);
 
                         // Flush the text changes
-                        if (scene != null)
-                            changes.process(renderControl,scene);
+                        if (scene != null) {
+                            changes.process(renderControl, scene);
+                            changes.dispose();
+                        }
 
                         if (info.disposeAfterUse || disposeAfterRemoval)
                             for (Billboard bill : bills)
@@ -1286,9 +1342,6 @@ public class RenderController implements RenderControllerInterface
 
         return compObj;
     }
-
-    // TODO: Fill this in
-//    public ComponentObject addLoftedPolygons();
 
     /**
      * Add the geometry points.  These are raw points that get fed to a shader.
@@ -1322,8 +1375,10 @@ public class RenderController implements RenderControllerInterface
                             }
                         }
 
-                        if (scene != null)
-                            changes.process(renderControl,scene);
+                        if (scene != null) {
+                            changes.process(renderControl, scene);
+                            changes.dispose();
+                        }
 
                         if (geomInfo.disposeAfterUse || disposeAfterRemoval)
                             for (Points pts: ptList)
@@ -1365,8 +1420,10 @@ public class RenderController implements RenderControllerInterface
                         changes.addTexture(rawTex, scene, settings.filterType.ordinal());
 
                         // Flush the texture changes
-                        if (scene != null)
-                            changes.process(renderControl,scene);
+                        if (scene != null) {
+                            changes.process(renderControl, scene);
+                            changes.dispose();
+                        }
                     }
                 };
 
@@ -1398,8 +1455,10 @@ public class RenderController implements RenderControllerInterface
                         changes.addTexture(rawTex, scene, settings.filterType.ordinal());
 
                         // Flush the texture changes
-                        if (scene != null)
-                            changes.process(renderControl,scene);
+                        if (scene != null) {
+                            changes.process(renderControl, scene);
+                            changes.dispose();
+                        }
                     }
                 };
 
@@ -1439,8 +1498,10 @@ public class RenderController implements RenderControllerInterface
                         changes.addTexture(rawTex, scene, settings.filterType.ordinal());
 
                         // Flush the texture changes
-                        if (scene != null)
-                            changes.process(renderControl,scene);
+                        if (scene != null) {
+                            changes.process(renderControl, scene);
+                            changes.dispose();
+                        }
                     }
                 };
 
@@ -1471,8 +1532,10 @@ public class RenderController implements RenderControllerInterface
                             changes.removeTexture(tex.texID);
 
                         // Flush the texture changes
-                        if (scene != null)
-                            changes.process(renderControl,scene);
+                        if (scene != null) {
+                            changes.process(renderControl, scene);
+                            changes.dispose();
+                        }
                     }
                 };
 
@@ -1511,8 +1574,10 @@ public class RenderController implements RenderControllerInterface
                             changes.removeTexture(texID);
 
                         // Flush the texture changes
-                        if (scene != null)
-                            changes.process(renderControl,scene);
+                        if (scene != null) {
+                            changes.process(renderControl, scene);
+                            changes.dispose();
+                        }
                     }
                 };
 
@@ -1576,8 +1641,10 @@ public class RenderController implements RenderControllerInterface
                 for (ComponentObject compObj : localCompObjs)
                     if (compObj != null)
                         componentManager.enableComponentObject(compObj,false,changes);
-                if (scene != null)
-                    changes.process(renderControl,scene);
+                if (scene != null) {
+                    changes.process(renderControl, scene);
+                    changes.dispose();
+                }
             }
         };
 
@@ -1593,10 +1660,24 @@ public class RenderController implements RenderControllerInterface
      */
     public void enableObjects(final List<ComponentObject> compObjs,ThreadMode mode)
     {
-        if (compObjs == null || compObjs.size() == 0)
+        if (compObjs == null || compObjs == null)
             return;
 
         final ComponentObject[] localCompObjs = compObjs.toArray(new ComponentObject[compObjs.size()]);
+        enableObjects(localCompObjs,mode);
+    }
+
+    /**
+     * Enable the display for the given objects.  These objects were returned
+     * by the various add calls.  To disable the display, call disableObjects().
+     *
+     * @param compObjs Objects to enable disable.
+     * @param mode Where to execute the enable.  Choose ThreadAny by default.
+     */
+    public void enableObjects(final ComponentObject[] compObjs,ThreadMode mode) {
+        if (compObjs == null || compObjs.length == 0)
+            return;
+
         final RenderController renderControl = this;
 
         Runnable run =
@@ -1606,11 +1687,13 @@ public class RenderController implements RenderControllerInterface
                     public void run()
                     {
                         ChangeSet changes = new ChangeSet();
-                        for (ComponentObject compObj : localCompObjs)
+                        for (ComponentObject compObj : compObjs)
                             if (compObj != null)
                                 componentManager.enableComponentObject(compObj,true,changes);
-                        if (scene != null)
-                            changes.process(renderControl,scene);
+                        if (scene != null) {
+                            changes.process(renderControl, scene);
+                            changes.dispose();
+                        }
                     }
                 };
 
@@ -1626,8 +1709,23 @@ public class RenderController implements RenderControllerInterface
      */
     public void removeObjects(final List<ComponentObject> compObjs,ThreadMode mode)
     {
-        if (compObjs == null || compObjs.size() == 0)
+        if (compObjs == null || compObjs == null)
             return;
+
+        removeObjects(compObjs.toArray(new ComponentObject[0]),mode);
+    }
+
+    /**
+     * Remove the given component objects from the display.  This will permanently remove them
+     * from Maply.  The component objects were returned from the various add calls.
+     *
+     * @param compObjs Component Objects to remove.
+     * @param mode Where to execute the remove.  Choose ThreadAny by default.
+     */
+    public void removeObjects(final ComponentObject[] compObjs,ThreadMode mode) {
+        if (compObjs == null || compObjs.length == 0)
+            return;
+
         final RenderController renderControl = this;
 
         Runnable run = new Runnable()
@@ -1637,10 +1735,12 @@ public class RenderController implements RenderControllerInterface
             {
                 ChangeSet changes = new ChangeSet();
 
-                componentManager.removeComponentObjects(compObjs.toArray(new ComponentObject[0]),changes,disposeAfterRemoval);
+                componentManager.removeComponentObjects(compObjs,changes,disposeAfterRemoval);
 
-                if (scene != null)
-                    changes.process(renderControl,scene);
+                if (scene != null) {
+                    changes.process(renderControl, scene);
+                    changes.dispose();
+                }
             }
         };
 
@@ -1660,8 +1760,6 @@ public class RenderController implements RenderControllerInterface
 
         removeObjects(compObjs,mode);
     }
-
-    // TODO: StartChanges/EndChanges interface ??
 
     // All the shaders currently in use
     private ArrayList<Shader> shaders = new ArrayList<>();
@@ -1793,9 +1891,20 @@ public class RenderController implements RenderControllerInterface
         return false;
     }
 
+    // Return a description of the current context
+    static public ContextInfo getEGLContext() {
+        ContextInfo cInfo = new ContextInfo();
+        EGL10 egl = (EGL10) EGLContext.getEGL();
+        cInfo.eglContext = egl.eglGetCurrentContext();
+        cInfo.eglSurface = egl.eglGetCurrentSurface(egl.EGL_DRAW);
+
+        return cInfo;
+    }
+
     public void processChangeSet(ChangeSet changes)
     {
         changes.process(this, scene);
+        changes.dispose();
     }
 
     // Don't need this in standalone mode
@@ -1809,6 +1918,27 @@ public class RenderController implements RenderControllerInterface
     {
     }
 
+    /**
+     * In offline render mode, clear the context
+     * Only do this if you're working in offline mode
+     */
+    public void clearContext()
+    {
+        EGL10 egl = (EGL10) EGLContext.getEGL();
+        egl.eglMakeCurrent(display, egl.EGL_NO_SURFACE, egl.EGL_NO_SURFACE, egl.EGL_NO_CONTEXT);
+    }
+
+    /**
+     * Render to and return a Bitmap
+     * You should have already set the context at this point
+     */
+    public Bitmap renderToBitmap() {
+        Bitmap bitmap = Bitmap.createBitmap((int)frameSize.getX(), (int)frameSize.getY(), Bitmap.Config.ARGB_8888);
+        renderToBitmapNative(bitmap);
+
+        return bitmap;
+    }
+
     public native void setScene(Scene scene);
     public native void setupShadersNative();
     public native void setViewNative(View view);
@@ -1820,7 +1950,7 @@ public class RenderController implements RenderControllerInterface
     public native void setPerfInterval(int perfInterval);
     public native void addLight(DirectionalLight light);
     public native void replaceLights(DirectionalLight[] lights);
-    public native Bitmap renderToBitmap();
+    protected native void renderToBitmapNative(Bitmap outBitmap);
 
     public void finalize()
     {

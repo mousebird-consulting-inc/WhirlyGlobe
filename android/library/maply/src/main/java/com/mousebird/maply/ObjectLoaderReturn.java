@@ -30,23 +30,6 @@ package com.mousebird.maply;
 public class ObjectLoaderReturn extends LoaderReturn
 {
     ObjectLoaderReturn(QuadLoaderBase loader) {
-        super(loader);
-    }
-
-    /**
-     * If any component objects are associated with the tile, these are them.
-     * They need to start disabled.  The system will enable and delete them when it is time.
-     */
-    public native void addComponentObjects(ComponentObject[] compObjs);
-
-    /**
-     * Add a single component object to the tile.
-     * The system will manage it after that.
-     * @param compObj
-     */
-    public void addComponentObject(ComponentObject compObj) {
-        ComponentObject[] compObjs = new ComponentObject[1];
-        compObjs[0] = compObj;
-        addComponentObjects(compObjs);
+        super(loader.getGeneration());
     }
 }

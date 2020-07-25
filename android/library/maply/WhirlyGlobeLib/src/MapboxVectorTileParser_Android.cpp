@@ -24,8 +24,8 @@
 
 namespace WhirlyKit
 {
-MapboxVectorTileParser_Android::MapboxVectorTileParser_Android()
-: shouldParseMethod(NULL), styleForFeatureMethod(NULL), buildForStyleMethod(NULL)
+MapboxVectorTileParser_Android::MapboxVectorTileParser_Android(VectorStyleDelegateImplRef styleDelegate)
+: shouldParseMethod(NULL), styleForFeatureMethod(NULL), buildForStyleMethod(NULL), MapboxVectorTileParser(styleDelegate)
 {
 }
 
@@ -101,9 +101,11 @@ void MapboxVectorTileParser_Android::buildForStyle(long long styleID,std::vector
         tileData->env->DeleteLocalRef(objJava);
 }
 
-bool MapboxVectorTileParser_Android::parse(RawData *rawData,VectorTileData *tileData)
+bool MapboxVectorTileParser_Android::parse(JNIEnv *env,RawData *rawData,VectorTileData *tileData)
 {
-    return MapboxVectorTileParser::parse(rawData,tileData);
+    PlatformInfo_Android inst(env);
+
+    return MapboxVectorTileParser::parse(&inst,rawData,tileData);
 }
 
 }

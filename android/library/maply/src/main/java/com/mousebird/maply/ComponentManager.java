@@ -42,7 +42,6 @@ public class ComponentManager
         dispose();
     }
 
-    // TODO: Register this as it's created
     public ComponentObject makeComponentObject()
     {
         return new ComponentObject();
@@ -71,6 +70,8 @@ public class ComponentManager
         }
 
         removeComponentObjectsNative(compObjs,changes);
+        for (ComponentObject compObj : compObjs)
+            compObj.dispose();
     }
 
     /**

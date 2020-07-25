@@ -28,6 +28,17 @@
 namespace WhirlyKit
 {
 
+// Base class for the FrameInfo, which we don't make strong use of in the base
+class QuadFrameInfo : public WhirlyKit::Identifiable
+{
+public:
+    QuadFrameInfo();
+    
+    // Either the position in the frame list or -1 if there's just one frame
+    int frameIndex;
+};
+typedef std::shared_ptr<QuadFrameInfo> QuadFrameInfoRef;
+
 /** Quad Loader Return wrapper for data coming back
   */
 class QuadLoaderReturn
@@ -39,8 +50,8 @@ public:
     // Which node this is in the quad tree
     QuadTreeIdentifier ident;
     
-    // Frame, or -1 if there are no frames
-    int frame;
+    // Frame identifier
+    QuadFrameInfoRef frame;
         
     // Any images that may have been added, in whatever state
     std::vector<ImageTileRef> images;
@@ -51,6 +62,9 @@ public:
     // Overlay component objects added for a tile
     std::vector<ComponentObjectRef> ovlCompObjs;
     
+    // If we make changes directly with the managers, they are reflected in this change set
+    ChangeSet changes;
+    
     // The generation associated with the loader.
     // We use this to catch lagging loads after a reload
     int generation;
@@ -59,7 +73,7 @@ public:
     bool hasError;
     
     // Clean out references to everything
-    void clear();
+    virtual void clear();
 };
     
 typedef std::shared_ptr<QuadLoaderReturn> QuadLoaderReturnRef;

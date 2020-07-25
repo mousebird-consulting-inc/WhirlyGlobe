@@ -42,7 +42,7 @@
 @property (nonatomic) MaplyTileID tileID;
 
 /// If set, the frame.  -1 by default
-@property (nonatomic) int frame;
+@property (nonatomic,readonly) int frame;
 
 /// Data returned from a tile request.  Unparsed.
 /// You can add multiple of these, but the interpreter should be expecting that

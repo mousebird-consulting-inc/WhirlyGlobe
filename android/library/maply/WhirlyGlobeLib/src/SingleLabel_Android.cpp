@@ -25,10 +25,11 @@
 namespace WhirlyKit
 {
 
-std::vector<DrawableString *> SingleLabelAndroid::generateDrawableStrings(const LabelInfo *inLabelInfo,FontTextureManager *inFontTexManager,float &lineHeight,ChangeSet &changes)
+std::vector<DrawableString *> SingleLabelAndroid::generateDrawableStrings(PlatformThreadInfo *inThreadInfo,const LabelInfo *inLabelInfo,FontTextureManager *inFontTexManager,float &lineHeight,ChangeSet &changes)
 {
 	FontTextureManager_Android *fontTexManager = (FontTextureManager_Android *)inFontTexManager;
 	const LabelInfoAndroid *labelInfo = (LabelInfoAndroid *)inLabelInfo;
+    PlatformInfo_Android *threadInfo = (PlatformInfo_Android *)inThreadInfo;
 
     // May need the line height for multi-line labels
     lineHeight = labelInfo->lineHeight;
@@ -37,8 +38,9 @@ std::vector<DrawableString *> SingleLabelAndroid::generateDrawableStrings(const 
     int whichLine = 0;
     for (std::vector<int> &codePoints : codePointsLines)
     {
-        DrawableString *drawStr = fontTexManager->addString(labelInfo->env,codePoints,labelInfo->labelInfoObj,changes);
-        drawStrs.push_back(drawStr);
+        DrawableString *drawStr = fontTexManager->addString(threadInfo,codePoints,labelInfo,changes);
+        if (drawStr)
+            drawStrs.push_back(drawStr);
 
         // Modify the MBR if this is a multi-line label
         if (whichLine > 0) {

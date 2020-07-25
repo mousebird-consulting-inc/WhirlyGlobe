@@ -44,6 +44,7 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
     BaseInfo();
+    BaseInfo(const BaseInfo &that);
     BaseInfo(const Dictionary &dict);
     
     // Convert contents to a string for debugging
@@ -70,10 +71,12 @@ public:
     TimeInterval fadeOutTime;
     TimeInterval startEnable,endEnable;
     SimpleIdentity programID;
+    int extraFrames;
     bool zBufferRead,zBufferWrite;
     SimpleIdentity renderTargetID;
     
     SingleVertexAttributeSet uniforms;
 };
+typedef std::shared_ptr<BaseInfo> BaseInfoRef;
 
 }

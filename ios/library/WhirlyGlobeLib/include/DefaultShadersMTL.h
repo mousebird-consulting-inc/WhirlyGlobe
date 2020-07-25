@@ -111,6 +111,8 @@ struct Uniforms
     simd::float3 eyePos;
     simd::float2 pixDispSize;  // Size of a single pixel in display coordinates
     simd::float2 frameSize;    // Output framebuffer size
+    uint frameCount;            // Starts at zero and goes up from there every frame
+    int outputTexLevel;        // Normally 0, unless we're running a reduce
     bool globeMode;
 };
 

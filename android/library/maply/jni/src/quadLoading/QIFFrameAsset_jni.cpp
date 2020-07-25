@@ -37,7 +37,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QIFFrameAsset_initialise
 {
     try {
         QIFFrameAssetClassInfo *info = QIFFrameAssetClassInfo::getClassInfo();
-        QIFFrameAsset_Android *frame = new QIFFrameAsset_Android(env);
+        PlatformInfo_Android platformInfo(env);
+        QIFFrameAsset_Android *frame = new QIFFrameAsset_Android(&platformInfo,NULL);
         frame->frameAssetObj = env->NewGlobalRef(obj);
         info->setHandle(env, obj, frame);
     } catch (...) {

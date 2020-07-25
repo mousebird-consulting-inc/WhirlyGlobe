@@ -36,43 +36,47 @@ class OpenMapTilesHybridTestCase: MaplyTestCase {
         }
         let imageStyleSettings = MaplyVectorStyleSettings.init(scale: UIScreen.main.scale)
         imageStyleSettings.arealShaderName = kMaplyShaderDefaultTriNoLighting
-        guard let imageStyleSet = MapboxVectorStyleSet.init(json: styleData as Data,
+        guard let imageStyleSet = MapboxVectorStyleSet(json: styleData as Data,
                                                             settings: imageStyleSettings,
-                                                            viewC: offlineRender,
-                                                            filter:
-            { (styleAttrs) -> Bool in
-                // We only want polygons for the image
-                if let type = styleAttrs["type"] as? String {
-                    if type == "background" || type == "fill" {
-                        return true
-                    }
-                }
-                return false
-        })
-            else {
+                                                            viewC: offlineRender) else {
                 return nil
         }
-        
+        // TODO: Need to put the filter back here
+        //            { (styleAttrs) -> Bool in
+        //                // We only want polygons for the image
+        //                if let type = styleAttrs["type"] as? String {
+        //                    if type == "background" || type == "fill" {
+        //                        return true
+        //                    }
+        //                }
+        //                return false
+        //        })
+        //            else {
+        //                return nil
+        //        }
+
         // Set up a style for just the vector data we want to overlay
         let vectorSettings = MaplyVectorStyleSettings.init(scale: UIScreen.main.scale)
         vectorSettings.baseDrawPriority = 100+1
         vectorSettings.drawPriorityPerLevel = 1000
-        guard let vectorStyleSet = MapboxVectorStyleSet.init(json: styleData as Data,
+        guard let vectorStyleSet = MapboxVectorStyleSet(json: styleData as Data,
                                                              settings: vectorSettings,
-                                                             viewC: baseVC,
-                                                             filter:
-            { (styleAttrs) -> Bool in
-                // We want everything but the polygons
-                if let type = styleAttrs["type"] as? String {
-                    if type != "background" && type != "fill" {
-                        return true
-                    }
-                }
-                return false
-        })
-            else {
-                return nil
+                                                             viewC: baseVC) else {
+            return nil
         }
+// TODO: Need to put the filter back here
+//            { (styleAttrs) -> Bool in
+//                // We want everything but the polygons
+//                if let type = styleAttrs["type"] as? String {
+//                    if type != "background" && type != "fill" {
+//                        return true
+//                    }
+//                }
+//                return false
+//        })
+//            else {
+//                return nil
+//        }
         
         // Set up the tile info (where the data is) and the tile source to interpet it
         let tileInfo = MaplyRemoteTileInfoNew(baseURL: "http://public-mobile-data-stage-saildrone-com.s3-us-west-1.amazonaws.com/openmaptiles/{z}/{x}/{y}.png",

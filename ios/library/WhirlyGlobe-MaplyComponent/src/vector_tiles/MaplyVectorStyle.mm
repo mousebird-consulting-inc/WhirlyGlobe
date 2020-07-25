@@ -19,8 +19,12 @@
  */
 
 #import "vector_tiles/MapboxVectorTiles.h"
-#import "vector_styles/MaplyVectorStyle.h"
+#import "private/MaplyVectorStyle_private.h"
+#import "private/MapboxVectorTiles_private.h"
+#import "private/MaplyVectorObject_private.h"
+#import "helpers/MaplyTextureBuilder.h"
 #import "WhirlyGlobe.h"
+#import "MaplyTexture_private.h"
 
 using namespace WhirlyKit;
 
@@ -28,50 +32,227 @@ using namespace WhirlyKit;
 
 - (instancetype)init
 {
-    self = [super init];
-    _lineScale = 1.0;
-    _textScale = 1.0;
-    _markerScale = 1.0;
-    _markerImportance = 2.0;
-    _labelImportance = 1.5;
-    _markerSize = 10.0;
-    _mapScaleScale = 1.0;
-    _dashPatternScale = 1.0;
-    _useWideVectors = false;
-    _wideVecCuttoff = 0.0;
-    _oldVecWidthScale = 1.0;
-    _selectable = false;
-    _baseDrawPriority = kMaplyVectorDrawPriorityDefault;
-    _drawPriorityPerLevel = 0;
-  
-    return self;
+    return [self initWithScale:[UIScreen mainScreen].scale];
 }
 
 - (instancetype)initWithScale:(CGFloat)scale
 {
     self = [super init];
-    _lineScale = scale;
-    _textScale = scale;
-    _markerScale = scale;
-    _markerImportance = 2.0;
-    _labelImportance = 1.5;
-    _markerSize = 10.0;
-    _mapScaleScale = 1.0;
-    _dashPatternScale = 1.0;
-    _useWideVectors = false;
-    _wideVecCuttoff = 0.0;
-    _oldVecWidthScale = 1.0;
-    _selectable = false;
-    _baseDrawPriority = kMaplyVectorDrawPriorityDefault;
-    _drawPriorityPerLevel = 0;
+
+    impl = VectorStyleSettingsImplRef(new VectorStyleSettingsImpl(scale));
+    impl->baseDrawPriority = kMaplyVectorDrawPriorityDefault;
 
     return self;
 }
 
-- (NSString*)description
+- (void)setLineScale:(float)lineScale
 {
-  return [NSString stringWithFormat:@"%@: lineScale:%f textScale:%f markerScale:%f mapScaleScale:%f",
-          [[self class] description], _lineScale, _textScale, _markerScale, _mapScaleScale];
+    impl->lineScale = lineScale;
+}
+
+- (float)lineScale
+{
+    return impl->lineScale;
+}
+
+- (void)setTextScale:(float)textScale
+{
+    impl->textScale = textScale;
+}
+
+- (float)textScale
+{
+    return impl->textScale;
+}
+
+- (void)setMarkerScale:(float)markerScale
+{
+    impl->markerScale = markerScale;
+}
+
+- (float)markerScale
+{
+    return impl->markerScale;
+}
+
+- (void)setMarkerImportance:(float)markerImportance
+{
+    impl->markerImportance = markerImportance;
+}
+
+- (float)markerImportance
+{
+    return impl->markerImportance;
+}
+
+- (void)setMarkerSize:(float)markerSize
+{
+    impl->markerSize = markerSize;
+}
+
+- (float)markerSize
+{
+    return impl->markerSize;
+}
+
+- (void)setLabelImportance:(float)labelImportance
+{
+    impl->labelImportance = labelImportance;
+}
+
+- (float)labelImportance
+{
+    return impl->labelImportance;
+}
+
+- (void)setUseZoomLevels:(bool)useZoomLevels
+{
+    impl->useZoomLevels = useZoomLevels;
+}
+
+- (bool)useZoomLevels
+{
+    return impl->useZoomLevels;
+}
+
+- (void)setUuidField:(NSString *)uuidField
+{
+    if (uuidField)
+        impl->uuidField = [uuidField cStringUsingEncoding:NSASCIIStringEncoding];
+    else
+        impl->uuidField.clear();
+}
+
+- (NSString *)uuidField
+{
+    if (impl->uuidField.empty())
+        return nil;
+    return [NSString stringWithCString:impl->uuidField.c_str() encoding:NSASCIIStringEncoding];
+}
+
+- (void)setBaseDrawPriority:(int)baseDrawPriority
+{
+    impl->baseDrawPriority = baseDrawPriority;
+}
+
+- (int)baseDrawPriority
+{
+    return impl->baseDrawPriority;
+}
+
+- (void)setDrawPriorityPerLevel:(int)drawPriorityPerLevel
+{
+    impl->drawPriorityPerLevel = drawPriorityPerLevel;
+}
+
+- (int)drawPriorityPerLevel
+{
+    return impl->drawPriorityPerLevel;
+}
+
+- (void)setMapScaleScale:(float)mapScaleScale
+{
+    impl->mapScaleScale = mapScaleScale;
+}
+
+- (float)mapScaleScale
+{
+    return impl->mapScaleScale;
+}
+
+- (void)setDashPatternScale:(float)dashPatternScale
+{
+    impl->dashPatternScale = dashPatternScale;
+}
+
+- (float)dashPatternScale
+{
+    return impl->dashPatternScale;
+}
+
+- (void)setUseWideVectors:(bool)useWideVectors
+{
+    impl->useWideVectors = useWideVectors;
+}
+
+- (bool)useWideVectors
+{
+    return impl->useWideVectors;
+}
+
+- (void)setOldVecWidthScale:(float)oldVecWidthScale
+{
+    impl->oldVecWidthScale = oldVecWidthScale;
+}
+
+- (float)oldVecWidthScale
+{
+    return impl->oldVecWidthScale;
+}
+
+- (void)setWideVecCuttoff:(float)wideVecCuttoff
+{
+    impl->wideVecCuttoff = wideVecCuttoff;
+}
+
+- (float)wideVecCuttoff
+{
+    return impl->wideVecCuttoff;
+}
+
+- (void)setArealShaderName:(NSString *)arealShaderName
+{
+    if (arealShaderName)
+        impl->arealShaderName = [arealShaderName cStringUsingEncoding:NSASCIIStringEncoding];
+    else
+        impl->arealShaderName.clear();
+}
+
+- (NSString *)arealShaderName
+{
+    if (impl->arealShaderName.empty())
+        return nil;
+    return [NSString stringWithCString:impl->arealShaderName.c_str() encoding:NSASCIIStringEncoding];
+}
+
+- (void)setSelectable:(bool)selectable
+{
+    impl->selectable = selectable;
+}
+
+- (bool)selectable
+{
+    return impl->selectable;
+}
+
+- (void)setIconDirectory:(NSString *)iconDirectory
+{
+    if (iconDirectory)
+        impl->iconDirectory = [iconDirectory cStringUsingEncoding:NSASCIIStringEncoding];
+    else
+        impl->iconDirectory.clear();
+}
+
+- (NSString *)iconDirectory
+{
+    if (impl->iconDirectory.empty())
+        return nil;
+    return [NSString stringWithCString:impl->iconDirectory.c_str() encoding:NSASCIIStringEncoding];
+}
+
+- (void)setFontName:(NSString *)fontName
+{
+    if (fontName)
+        impl->fontName = [fontName cStringUsingEncoding:NSASCIIStringEncoding];
+    else
+        impl->fontName.clear();
+}
+
+- (NSString *)fontName
+{
+    if (impl->fontName.empty())
+        return nil;
+    return [NSString stringWithCString:impl->fontName.c_str() encoding:NSASCIIStringEncoding];
 }
 
 @end
@@ -154,5 +335,222 @@ NSArray * _Nonnull AddMaplyVectorsUsingStyle(NSArray * _Nonnull vecObjs,NSObject
     return compObjs;
 }
 
-@implementation MaplyVectorTileInfo
-@end
+namespace WhirlyKit
+{
+
+MapboxVectorStyleSetImpl_iOS::MapboxVectorStyleSetImpl_iOS(Scene *scene,CoordSystem *coordSys,VectorStyleSettingsImplRef settings)
+: MapboxVectorStyleSetImpl(scene,coordSys,settings)
+{
+}
+
+MapboxVectorStyleSetImpl_iOS::~MapboxVectorStyleSetImpl_iOS()
+{
+}
+
+SimpleIdentity MapboxVectorStyleSetImpl_iOS::makeCircleTexture(PlatformThreadInfo *inst,
+                                                               double inRadius,
+                                                               const RGBAColor &fillColor,
+                                                               const RGBAColor &strokeColor,
+                                                               float inStrokeWidth,
+                                                               Point2f *circleSize)
+{
+    // We want the texture a bit bigger than specified
+    float scale = tileStyleSettings->markerScale * 2;
+
+    // Build an image for the circle
+    float buffer = 1.0 * scale;
+    float radius = inRadius*scale;
+    float strokeWidth = inStrokeWidth*scale;
+    float size = ceil(buffer + radius + strokeWidth)*2;
+    circleSize->x() = size / 2;
+    circleSize->y() = size / 2;
+    UIGraphicsBeginImageContext(CGSizeMake(size, size));
+    // TODO: Use the opacity
+    [[UIColor clearColor] setFill];
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    CGContextFillRect(ctx, CGRectMake(0.0, 0.0, size, size));
+
+    // Outer stroke
+    if (strokeWidth > 0.0) {
+        CGContextBeginPath(ctx);
+        CGContextAddEllipseInRect(ctx, CGRectMake(size/2.0-radius-strokeWidth, size/2.0-radius-strokeWidth, 2*(radius+strokeWidth), 2*(radius+strokeWidth)));
+        [[UIColor colorFromRGBA:strokeColor] setFill];
+        CGContextDrawPath(ctx, kCGPathFill);
+    }
+
+    // Inner circle
+    CGContextBeginPath(ctx);
+    CGContextAddEllipseInRect(ctx, CGRectMake(size/2.0-radius, size/2.0-radius, 2*radius, 2*radius));
+    [[UIColor colorFromRGBA:fillColor] setFill];
+    CGContextDrawPath(ctx, kCGPathFill);
+
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    MaplyTexture *tex = [viewC addTexture:image desc:nil mode:MaplyThreadCurrent];
+    return tex.texID;
+}
+
+SimpleIdentity MapboxVectorStyleSetImpl_iOS::makeLineTexture(PlatformThreadInfo *inst,const std::vector<double> &inComp)
+{
+    NSMutableArray *dashComp = [NSMutableArray array];
+    for (double comp: inComp)
+        [dashComp addObject:[NSNumber numberWithDouble:comp]];
+    
+    MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] init];
+    [lineTexBuilder setPattern:dashComp];
+    UIImage *lineImage = [lineTexBuilder makeImage];
+    MaplyTexture *tex = [viewC addTexture:lineImage
+                                               desc:@{kMaplyTexFormat: @(MaplyImageIntRGBA),
+                                                      kMaplyTexWrapY: @(MaplyImageWrapY)
+                                                      }
+                                               mode:MaplyThreadCurrent];
+    
+    return tex.texID;
+}
+
+LabelInfoRef MapboxVectorStyleSetImpl_iOS::makeLabelInfo(PlatformThreadInfo *inst,const std::string &fontName,float fontSize)
+{
+    // TODO: Do we need the size here?
+    NSString *fontNameStr = [NSString stringWithFormat:@"%s",fontName.c_str()];
+    UIFont *font = [UIFont fontWithName:fontNameStr size:fontSize];
+    if (!font) {
+        NSLog(@"Failed to find font %@",fontNameStr);
+        font = [UIFont systemFontOfSize:fontSize];
+    }
+    
+    LabelInfoRef labelInfo(new LabelInfo_iOS(font,true));
+    labelInfo->programID = screenMarkerProgramID;
+    
+    return labelInfo;
+}
+
+SingleLabelRef MapboxVectorStyleSetImpl_iOS::makeSingleLabel(PlatformThreadInfo *inst,const std::string &text)
+{
+    NSString *textStr = [NSString stringWithUTF8String:text.c_str()];
+    
+    SingleLabel_iOS *label = new SingleLabel_iOS();
+    label->text = textStr;
+    
+    return SingleLabelRef(label);
+}
+
+ComponentObjectRef MapboxVectorStyleSetImpl_iOS::makeComponentObject(PlatformThreadInfo *inst)
+{
+    return ComponentObjectRef(new ComponentObject_iOS());
+}
+
+double MapboxVectorStyleSetImpl_iOS::calculateTextWidth(PlatformThreadInfo *inst,LabelInfoRef inLabelInfo,const std::string &testStr)
+{
+    LabelInfo_iOSRef labelInfo = std::dynamic_pointer_cast<LabelInfo_iOS>(inLabelInfo);
+    if (!labelInfo)
+        return 0.0;
+    
+    NSAttributedString *testAttrStr = [[NSAttributedString alloc] initWithString:[NSString stringWithUTF8String:testStr.c_str()] attributes:@{NSFontAttributeName:labelInfo->font}];
+    CGSize size = [testAttrStr size];
+    
+    return size.width;
+}
+
+VectorStyleDelegateWrapper::VectorStyleDelegateWrapper(NSObject<MaplyRenderControllerProtocol> *viewC,NSObject<MaplyVectorStyleDelegate> *delegate)
+: viewC(viewC), delegate(delegate)
+{
+}
+
+std::vector<VectorStyleImplRef>
+VectorStyleDelegateWrapper::stylesForFeature(DictionaryRef attrs,
+                                              const QuadTreeIdentifier &tileID,
+                                              const std::string &layerName)
+{
+    iosDictionaryRef dictRef = std::dynamic_pointer_cast<iosDictionary>(attrs);
+    NSDictionary *dict = dictRef->dict;
+    
+    MaplyTileID theTileID;
+    theTileID.x = tileID.x;  theTileID.y = tileID.y; theTileID.level = tileID.level;
+    NSString *layerStr = [NSString stringWithFormat:@"%s",layerName.c_str()];
+    NSArray *styles = [delegate stylesForFeatureWithAttributes:dict onTile:theTileID inLayer:layerStr viewC:viewC];
+    
+    std::vector<VectorStyleImplRef> retStyles;
+    for (NSObject<MaplyVectorStyle> *style : styles) {
+        VectorStyleWrapperRef wrap(new VectorStyleWrapper(viewC,style));
+        retStyles.push_back(wrap);
+    }
+    
+    return retStyles;
+}
+
+bool VectorStyleDelegateWrapper::layerShouldDisplay(const std::string &name,
+                                const QuadTreeNew::Node &tileID)
+{
+    MaplyTileID theTileID;
+    theTileID.x = tileID.x;  theTileID.y = tileID.y; theTileID.level = tileID.level;
+    NSString *layerStr = [NSString stringWithFormat:@"%s",name.c_str()];
+    return [delegate layerShouldDisplay:layerStr tile:theTileID];
+}
+
+VectorStyleImplRef VectorStyleDelegateWrapper::styleForUUID(long long uuid)
+{
+    NSObject<MaplyVectorStyle> *style = [delegate styleForUUID:uuid viewC:viewC];
+    return VectorStyleImplRef(new VectorStyleWrapper(viewC,style));
+}
+
+std::vector<VectorStyleImplRef> VectorStyleDelegateWrapper::allStyles()
+{
+    NSArray *styles = [delegate allStyles];
+
+    std::vector<VectorStyleImplRef> retStyles;
+    for (NSObject<MaplyVectorStyle> *style : styles) {
+        VectorStyleWrapperRef wrap(new VectorStyleWrapper(viewC,style));
+        retStyles.push_back(wrap);
+    }
+    
+    return retStyles;
+}
+
+RGBAColorRef VectorStyleDelegateWrapper::backgroundColor(double zoom)
+{
+    return RGBAColorRef(new RGBAColor(RGBAColor::black()));
+}
+
+VectorStyleWrapper::VectorStyleWrapper(NSObject<MaplyRenderControllerProtocol> *viewC,NSObject<MaplyVectorStyle> *style)
+: viewC(viewC),style(style)
+{
+}
+
+long long VectorStyleWrapper::VectorStyleWrapper::getUuid()
+{
+    return [style uuid];
+}
+
+std::string VectorStyleWrapper::getCategory()
+{
+    std::string category;
+    NSString *catStr = [style getCategory];
+    category = [catStr cStringUsingEncoding:NSUTF8StringEncoding];
+    
+    return category;
+}
+
+bool VectorStyleWrapper::geomAdditive()
+{
+    return [style geomAdditive];
+}
+
+void VectorStyleWrapper::buildObjects(PlatformThreadInfo *inst,
+                                      std::vector<VectorObjectRef> &vecObjs,
+                                      VectorTileDataRef tileInfo)
+{
+    MaplyVectorTileData *tileData = [[MaplyVectorTileData alloc] init];
+    tileData->data = tileInfo;
+    
+    NSMutableArray *vecArray = [NSMutableArray array];
+    for (VectorObjectRef vecObj: vecObjs) {
+        MaplyVectorObject *mVecObj = [[MaplyVectorObject alloc] init];
+        mVecObj->vObj = vecObj;
+        [vecArray addObject:mVecObj];
+    }
+        
+    [style buildObjects:vecArray forTile:tileData viewC:viewC];
+}
+
+}

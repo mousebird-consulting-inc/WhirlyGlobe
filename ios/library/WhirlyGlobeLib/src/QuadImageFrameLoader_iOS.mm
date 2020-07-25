@@ -36,8 +36,8 @@ QIFBatchOps_ios::~QIFBatchOps_ios()
     toStart = nil;
 }
     
-QIFFrameAsset_ios::QIFFrameAsset_ios()
-: request(nil)
+QIFFrameAsset_ios::QIFFrameAsset_ios(QuadFrameInfoRef frameInfo)
+: QIFFrameAsset(frameInfo), request(nil)
 {
 }
     
@@ -59,10 +59,10 @@ MaplyTileFetchRequest *QIFFrameAsset_ios::setupFetch(QuadImageFrameLoader *loade
     return request;
 }
 
-void QIFFrameAsset_ios::clear(QuadImageFrameLoader *loader,QIFBatchOps *inBatchOps,ChangeSet &changes) {
+void QIFFrameAsset_ios::clear(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QIFBatchOps *inBatchOps,ChangeSet &changes) {
     QIFBatchOps_ios *batchOps = (QIFBatchOps_ios *)inBatchOps;
     
-    QIFFrameAsset::clear(loader,batchOps,changes);
+    QIFFrameAsset::clear(threadInfo,loader,batchOps,changes);
     
     if (request) {
         [batchOps->toCancel addObject:request];
@@ -70,39 +70,39 @@ void QIFFrameAsset_ios::clear(QuadImageFrameLoader *loader,QIFBatchOps *inBatchO
     }
 }
 
-bool QIFFrameAsset_ios::updateFetching(QuadImageFrameLoader *inLoader,int newPriority,double newImportance)
+bool QIFFrameAsset_ios::updateFetching(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *inLoader,int newPriority,double newImportance)
 {
     QuadImageFrameLoader_ios *loader = (QuadImageFrameLoader_ios *)inLoader;
     
     if (!request)
         return false;
-    QIFFrameAsset::updateFetching(loader, newPriority, newImportance);
+    QIFFrameAsset::updateFetching(threadInfo,loader, newPriority, newImportance);
     
     [loader->tileFetcher updateTileFetch:request priority:priority importance:importance];
     
     return true;
 }
     
-void QIFFrameAsset_ios::cancelFetch(QuadImageFrameLoader *loader,QIFBatchOps *inBatchOps)
+void QIFFrameAsset_ios::cancelFetch(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QIFBatchOps *inBatchOps)
 {
     QIFBatchOps_ios *batchOps = (QIFBatchOps_ios *)inBatchOps;
     
-    QIFFrameAsset::cancelFetch(loader, batchOps);
+    QIFFrameAsset::cancelFetch(threadInfo, loader, batchOps);
     
     if (request)
         [batchOps->toCancel addObject:request];
     request = nil;
 }
     
-void QIFFrameAsset_ios::loadSuccess(QuadImageFrameLoader *loader,const std::vector<Texture *> &texs)
+void QIFFrameAsset_ios::loadSuccess(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,const std::vector<Texture *> &texs)
 {
-    QIFFrameAsset::loadSuccess(loader, texs);
+    QIFFrameAsset::loadSuccess(threadInfo,loader, texs);
     request = nil;
 }
 
-void QIFFrameAsset_ios::loadFailed(QuadImageFrameLoader *loader)
+void QIFFrameAsset_ios::loadFailed(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader)
 {
-    QIFFrameAsset::loadFailed(loader);
+    QIFFrameAsset::loadFailed(threadInfo,loader);
     request = nil;
 }
     
@@ -121,12 +121,13 @@ QIFTileAsset_ios::~QIFTileAsset_ios()
 {
 }
     
-QIFFrameAssetRef QIFTileAsset_ios::makeFrameAsset(QuadImageFrameLoader *loader)
+QIFFrameAssetRef QIFTileAsset_ios::makeFrameAsset(PlatformThreadInfo *threadInfo,QuadFrameInfoRef frameInfo,QuadImageFrameLoader *loader)
 {
-    return QIFFrameAssetRef(new QIFFrameAsset_ios());
+    auto frameAsset = QIFFrameAssetRef(new QIFFrameAsset_ios(frameInfo));
+    return frameAsset;
 }
     
-void QIFTileAsset_ios::startFetching(QuadImageFrameLoader *inLoader,int frameToLoad,QIFBatchOps *inBatchOps)
+void QIFTileAsset_ios::startFetching(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *inLoader,QuadFrameInfoRef frameToLoad,QIFBatchOps *inBatchOps,ChangeSet &changes)
 {
     QuadImageFrameLoader_ios *loader = (QuadImageFrameLoader_ios *)inLoader;
     QIFBatchOps_ios *batchOps = (QIFBatchOps_ios *)inBatchOps;
@@ -136,35 +137,35 @@ void QIFTileAsset_ios::startFetching(QuadImageFrameLoader *inLoader,int frameToL
     MaplyTileID tileID;  tileID.level = ident.level;  tileID.x = ident.x;  tileID.y = ident.y;
     if (loader->frameInfos) {
         // Normal remote (or local) fetching case
-        int frame = 0;
+        int whichFrame = 0;
         for (NSObject<MaplyTileInfoNew> *frameInfo in loader->frameInfos) {
+            auto frame = loader->getFrameInfo(whichFrame);
             // If we're not loading all frames, then just load the one we need
-            if (frameToLoad == -1 || frameToLoad == frame) {
-                QIFFrameAsset_ios *frameAsset = (QIFFrameAsset_ios *)frames[frame].get();
+            if (!frameToLoad || frameToLoad->getId() == frame->getId()) {
+                QIFFrameAsset_iosRef frameAsset = std::dynamic_pointer_cast<QIFFrameAsset_ios>(findFrameFor(frame));
                 id fetchInfo = nil;
                 if (frameInfo.minZoom <= tileID.level && tileID.level <= frameInfo.maxZoom)
                     fetchInfo = [frameInfo fetchInfoForTile:tileID flipY:loader->getFlipY()];
                 if (fetchInfo) {
-                    MaplyTileFetchRequest *request = frameAsset->setupFetch(loader,fetchInfo,frameInfo,loader->calcLoadPriority(ident,frame),ident.importance);
+                    MaplyTileFetchRequest *request = frameAsset->setupFetch(loader,fetchInfo,frameInfo,loader->calcLoadPriority(ident,frame->frameIndex),ident.importance);
                     NSObject<QuadImageFrameLoaderLayer> * __weak layer = loader->layer;
 
                     // This means there's no data fetch.  Interpreter does all the work.
                     if ([fetchInfo isKindOfClass:[NSNull class]]) {
-                        [layer fetchRequestSuccess:request tileID:tileID frame:frame data:nil];
+                        [layer fetchRequestSuccess:request tileID:tileID frame:frame->frameIndex data:nil];
                     } else {
                         request.success = ^(MaplyTileFetchRequest *request, id data) {
-                            [layer fetchRequestSuccess:request tileID:tileID frame:frame data:data];
+                            [layer fetchRequestSuccess:request tileID:tileID frame:frame->frameIndex data:data];
                         };
                         request.failure = ^(MaplyTileFetchRequest *request, NSError *error) {
-                            [layer fetchRequestFail:request tileID:tileID frame:frame error:error];
+                            [layer fetchRequestFail:request tileID:tileID frame:frame->frameIndex error:error];
                         };
                         [batchOps->toStart addObject:request];
                     }
                 } else
                     frameAsset->loadSkipped();
             }
-                
-            frame++;
+            whichFrame++;
         }
     } else {
         // There's no data source, so we always succeed and then the interpreter does the work
@@ -179,22 +180,35 @@ QuadImageFrameLoader_ios::QuadImageFrameLoader_ios(const SamplingParams &params,
         frameInfos = @[inTileInfo];
     else
         frameInfos = nil;
+    
+    setupFrames();
 }
 
 QuadImageFrameLoader_ios::QuadImageFrameLoader_ios(const SamplingParams &params,NSArray<NSObject<MaplyTileInfoNew> *> *inFrameInfos,Mode mode)
     : QuadImageFrameLoader(params,mode), tileFetcher(nil), layer(nil)
 {
     frameInfos = inFrameInfos;
+    
+    setupFrames();
+}
+
+void QuadImageFrameLoader_ios::setupFrames()
+{
+    for (unsigned int ii=0;ii<[frameInfos count];ii++) {
+        QuadFrameInfoRef frame(new QuadFrameInfo());
+        frame->frameIndex = ii;
+        frames.push_back(frame);
+    }
 }
     
 QuadImageFrameLoader_ios::~QuadImageFrameLoader_ios()
 {
 }
 
-QIFTileAssetRef QuadImageFrameLoader_ios::makeTileAsset(const QuadTreeNew::ImportantNode &ident)
+QIFTileAssetRef QuadImageFrameLoader_ios::makeTileAsset(PlatformThreadInfo *threadInfo,const QuadTreeNew::ImportantNode &ident)
 {
     auto tileAsset = QIFTileAssetRef(new QIFTileAsset_ios(ident));
-    tileAsset->setupFrames(this,[frameInfos count]);
+    tileAsset->setupFrames(threadInfo,this,[frameInfos count]);
     return tileAsset;
 }
     
@@ -203,14 +217,14 @@ int QuadImageFrameLoader_ios::getNumFrames()
     return [frameInfos count];
 }
     
-QIFBatchOps *QuadImageFrameLoader_ios::makeBatchOps()
+QIFBatchOps *QuadImageFrameLoader_ios::makeBatchOps(PlatformThreadInfo *threadInfo)
 {
     QIFBatchOps_ios *batchOps = new QIFBatchOps_ios();
     
     return batchOps;
 }
     
-void QuadImageFrameLoader_ios::processBatchOps(QIFBatchOps *inBatchOps)
+void QuadImageFrameLoader_ios::processBatchOps(PlatformThreadInfo *threadInfo,QIFBatchOps *inBatchOps)
 {
     QIFBatchOps_ios *batchOps = (QIFBatchOps_ios *)inBatchOps;
 

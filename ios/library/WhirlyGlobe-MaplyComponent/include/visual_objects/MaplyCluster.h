@@ -53,6 +53,9 @@
 /// Screen size to use for the resulting marker
 @property (nonatomic,assign) CGSize size;
 
+/// Size used for layout.  If it's not set, we use the regular size.
+@property (nonatomic,assign) CGSize layoutSize;
+
 @end
 
 /** 

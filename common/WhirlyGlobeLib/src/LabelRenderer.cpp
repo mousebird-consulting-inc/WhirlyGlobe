@@ -34,13 +34,12 @@ namespace WhirlyKit
 
 LabelInfo::LabelInfo(bool screenObject)
 : hasTextColor(false), textColor(255,255,255,255), backColor(0,0,0,0),
-    screenObject(screenObject), layoutEngine(false), layoutImportance(MAXFLOAT),
-    layoutPlacement(0),
+    screenObject(screenObject),
     width(-1.0), height(-1.0),
     labelJustify(WhirlyKitLabelMiddle), textJustify(WhirlyKitTextCenter),
     shadowColor(0,0,0,0), shadowSize(-1.0),
     outlineColor(0,0,0,0), outlineSize(-1.0),
-    lineHeight(0.0)
+    lineHeight(0.0), fontPointSize(16.0)
 {
     if (screenObject) {
         width = 16.0;
@@ -50,16 +49,23 @@ LabelInfo::LabelInfo(bool screenObject)
         height = 0.001;
     }
 }
-    
+
+LabelInfo::LabelInfo(const LabelInfo &that)
+: BaseInfo(that), hasTextColor(that.hasTextColor), textColor(that.textColor), backColor(that.backColor),
+screenObject(that.screenObject), width(that.width), height(that.height),
+labelJustify(that.labelJustify), textJustify(that.textJustify),
+shadowColor(that.shadowColor), shadowSize(that.shadowSize),
+outlineColor(that.outlineColor), outlineSize(that.outlineSize),
+lineHeight(that.lineHeight), fontPointSize(that.fontPointSize)
+{
+}
+
 LabelInfo::LabelInfo(const Dictionary &dict, bool screenObject)
-    : screenObject(screenObject)
+: screenObject(screenObject), fontPointSize(16.0)
 {
     hasTextColor = dict.hasField(MaplyTextColor);
     textColor = dict.getColor(MaplyTextColor, RGBAColor(255,255,255,255));
     backColor = dict.getColor(MaplyBackgroundColor, RGBAColor(0,0,0,0));
-    layoutEngine = dict.getBool(MaplyLayout,false);
-    layoutImportance = dict.getDouble(MaplyLayoutImportance,0.0);
-    layoutPlacement = dict.getInt(MaplyLayoutPlacement,-1);
     width = dict.getDouble(MaplyLabelWidth,0.0);
     height = dict.getDouble(MaplyLabelHeight,screenObject ? 16.0 : 0.001);
     std::string labelJustifyStr = dict.getString(MaplyLabelJustifyName);
@@ -108,7 +114,7 @@ LabelRenderer::LabelRenderer(Scene *scene,FontTextureManager *fontTexManager,con
 
 typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
 
-void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes)
+void LabelRenderer::render(PlatformThreadInfo *threadInfo,std::vector<SingleLabel *> &labels,ChangeSet &changes)
 {
     TimeInterval curTime = scene->getCurrentTime();
 
@@ -142,7 +148,7 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
         // Ask the label to build the strings.  There are OS specific things in there
         // We also need the real line height back (because it's in the font)
         float lineHeight=0.0;
-        std::vector<DrawableString *> drawStrs = label->generateDrawableStrings(labelInfo,fontTexManager,lineHeight,changes);
+        std::vector<DrawableString *> drawStrs = label->generateDrawableStrings(threadInfo,labelInfo,fontTexManager,lineHeight,changes);
         Mbr drawMbr;
         Mbr layoutMbr;
 
@@ -163,18 +169,9 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
         }
 
         // Set if we're letting the layout engine control placement
-        bool layoutEngine = false;
-        float layoutImportance = MAXFLOAT;
-        int layoutPlacement = 0;
-        if (labelInfo->layoutEngine) {
-            layoutEngine = true;
-            layoutImportance = labelInfo->layoutImportance;
-            layoutPlacement = labelInfo->layoutPlacement;
-        } else if (label->infoOverride && label->infoOverride->layoutEngine) {
-            layoutEngine = true;
-            layoutImportance = label->infoOverride->layoutImportance;
-            layoutPlacement = label->infoOverride->layoutPlacement;
-        }
+        bool layoutEngine = label->layoutEngine;
+        float layoutImportance = label->layoutImportance;
+        int layoutPlacement = label->layoutPlacement;
         
         ScreenSpaceObject *screenShape = NULL;
 //        ScreenSpaceObject *backScreenShape = NULL;

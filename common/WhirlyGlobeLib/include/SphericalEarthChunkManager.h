@@ -79,6 +79,7 @@ public:
     bool doEdgeMatching;
     std::vector<SimpleIdentity> texIDs;
 };
+typedef std::shared_ptr<SphericalChunkInfo> SphericalChunkInfoRef;
 
 /** This defines a chunk of the globe to overlay with a single
  image.  In general you should use one of the quad layers

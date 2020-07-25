@@ -82,7 +82,7 @@ class RendererWrapper implements GLSurfaceView.Renderer, GLTextureView.Renderer
 		if (valid) {
 			maplyRender.get().setScene(scene);
 			maplyRender.get().setView(view);
-			maplyRender.get().setConfig(config);
+			maplyRender.get().setConfig(null,config);
 			renderThread = Thread.currentThread();
 			maplyControl.get().surfaceCreated(this);
 		}

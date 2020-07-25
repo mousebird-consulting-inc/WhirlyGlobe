@@ -32,6 +32,13 @@ public class GlobeMapFragment extends Fragment implements MapController.GestureD
     }
 
     /**
+     * Override this if you've got a different name for the core WG-Maply library.
+     */
+    public String loadLibraryName() {
+        return "whirlyglobemaply";
+    }
+
+    /**
      * Override this to be called right before the map or globe is created.
      * This is where you can mess with the globe or map settings.
      */
@@ -61,10 +68,12 @@ public class GlobeMapFragment extends Fragment implements MapController.GestureD
         preControlCreated();
 
         if (mapDisplayType == MapDisplayType.Map) {
+            mapSettings.loadLibraryName = loadLibraryName();
             mapControl = new MapController(getActivity(), mapSettings);
             mapControl.gestureDelegate = this;
             baseControl = mapControl;
         } else {
+            globeSettings.loadLibraryName = loadLibraryName();
             globeControl = new GlobeController(getActivity(), globeSettings);
             globeControl.gestureDelegate = this;
             baseControl = globeControl;

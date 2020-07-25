@@ -76,22 +76,16 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_LabelManager_addLabels
 	{
 		LabelManagerClassInfo *classInfo = LabelManagerClassInfo::getClassInfo();
 		LabelManager *labelManager = classInfo->getObject(env,obj);
-		LabelInfoAndroid *labelInfo = (LabelInfoAndroid *)LabelInfoClassInfo::getClassInfo()->getObject(env,labelInfoObj);
-		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+        LabelInfoAndroidRef *labelInfo = LabelInfoClassInfo::getClassInfo()->getObject(env,labelInfoObj);
+		ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
 		if (!labelManager || !labelInfo || !changeSet)
 		{
 			__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "One of the inputs was null in LabelManager::addLabels()");
 			return EmptyIdentity;
 		}
-        
-        // Need to tell the font texture manager what the current environment is
-        //  so it can delete things if it needs to
-        FontTextureManager_Android *fontTexManager = (FontTextureManager_Android *)labelManager->getScene()->getFontTextureManager();
-        fontTexManager->setEnv(env);
 
 		// We need this in the depths of the engine
-		labelInfo->env = env;
-		labelInfo->labelInfoObj = labelInfoObj;
+        (*labelInfo)->labelInfoObj = labelInfoObj;
 
 		// Collect the labels
 		std::vector<SingleLabel *> labels;
@@ -106,7 +100,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_LabelManager_addLabels
 		}
 
 		// Resolve a missing program
-		if (labelInfo->programID == EmptyIdentity)
+		if ((*labelInfo)->programID == EmptyIdentity)
         {
 			ProgramGLES *prog = NULL;
             if (isMoving)
@@ -114,12 +108,12 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_LabelManager_addLabels
             else
                 prog = (ProgramGLES *)labelManager->getScene()->findProgramByName(MaplyScreenSpaceDefaultShader);
             if (prog)
-                labelInfo->programID = prog->getId();
+                (*labelInfo)->programID = prog->getId();
         }
-		SimpleIdentity labelId = labelManager->addLabels(labels,*labelInfo,*changeSet);
+		PlatformInfo_Android platformInfo(env);
+		SimpleIdentity labelId = labelManager->addLabels(&platformInfo,labels,*(*labelInfo),*(changeSet->get()));
 
-		labelInfo->env = NULL;
-		labelInfo->labelInfoObj = NULL;
+        (*labelInfo)->labelInfoObj = NULL;
 
 		return labelId;
 	}
@@ -138,19 +132,15 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelManager_removeLabels
 	{
 		LabelManagerClassInfo *classInfo = LabelManagerClassInfo::getClassInfo();
 		LabelManager *labelManager = classInfo->getObject(env,obj);
-		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+		ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
 		if (!labelManager || !changeSet)
 			return;
-        
-        // Need to tell the font texture manager what the current environment is
-        //  so it can delete things if it needs to
-        FontTextureManager_Android *fontTexManager = (FontTextureManager_Android *)labelManager->getScene()->getFontTextureManager();
-        fontTexManager->setEnv(env);
 
         SimpleIDSet idSet;
         ConvertLongArrayToSet(env,idArrayObj,idSet);
 
-		labelManager->removeLabels(idSet,*changeSet);
+		PlatformInfo_Android platformInfo(env);
+		labelManager->removeLabels(&platformInfo,idSet,*(changeSet->get()));
 	}
 	catch (...)
 	{
@@ -165,14 +155,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelManager_enableLabels
 	{
 		LabelManagerClassInfo *classInfo = LabelManagerClassInfo::getClassInfo();
 		LabelManager *labelManager = classInfo->getObject(env,obj);
-		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+		ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
 		if (!labelManager || !changeSet)
 			return;
 
         SimpleIDSet idSet;
         ConvertLongArrayToSet(env,idArrayObj,idSet);
 
-		labelManager->enableLabels(idSet,enable,*changeSet);
+		labelManager->enableLabels(idSet,enable,*(changeSet->get()));
 	}
 	catch (...)
 	{

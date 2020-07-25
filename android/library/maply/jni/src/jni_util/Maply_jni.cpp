@@ -80,6 +80,16 @@ void ConvertIntArray(JNIEnv *env,jintArray &intArray,std::vector<int> &intVec)
 	env->ReleaseIntArrayElements(intArray,ints,0);
 }
 
+void ConvertLongLongArray(JNIEnv *env,jlongArray &longArray,std::vector<WhirlyKit::SimpleIdentity> &longVec)
+{
+    jlong *longs = env->GetLongArrayElements(longArray, NULL);
+    int len = env->GetArrayLength(longArray);
+    longVec.resize(len);
+    for (int ii=0;ii<len;ii++)
+        longVec[ii] = longs[ii];
+    env->ReleaseLongArrayElements(longArray,longs,0);
+}
+
 void ConvertFloatArray(JNIEnv *env,jfloatArray &floatArray,std::vector<float> &floatVec)
 {
     float *floats = env->GetFloatArrayElements(floatArray, NULL);
@@ -88,6 +98,16 @@ void ConvertFloatArray(JNIEnv *env,jfloatArray &floatArray,std::vector<float> &f
     for (int ii=0;ii<len;ii++)
         floatVec[ii] = floats[ii];
     env->ReleaseFloatArrayElements(floatArray,floats,0);
+}
+
+void ConvertDoubleArray(JNIEnv *env,jdoubleArray &doubleArray,std::vector<double> &doubleVec)
+{
+    double *doubles = env->GetDoubleArrayElements(doubleArray, NULL);
+    int len = env->GetArrayLength(doubleArray);
+    doubleVec.resize(len);
+    for (int ii=0;ii<len;ii++)
+        doubleVec[ii] = doubles[ii];
+    env->ReleaseDoubleArrayElements(doubleArray,doubles,0);
 }
 
 void ConvertFloat2fArray(JNIEnv *env,jfloatArray &floatArray,Point2fVector &ptVec)
@@ -228,6 +248,19 @@ jlongArray BuildLongArray(JNIEnv *env,std::vector<SimpleIdentity> &longVec)
     return newArray;
 }
 
+jdoubleArray BuildDoubleArray(JNIEnv *env,std::vector<double> &doubleVec)
+{
+    if (doubleVec.empty())
+        return NULL;
+
+    jdoubleArray newArray = env->NewDoubleArray(doubleVec.size());
+    if (!newArray)
+        return NULL;
+
+    env->SetDoubleArrayRegion(newArray, 0, doubleVec.size(), (jdouble *)&doubleVec[0]);
+    return newArray;
+}
+
 jintArray BuildIntArray(JNIEnv *env,std::vector<int> &intVec)
 {
     if (intVec.empty())
@@ -252,5 +285,19 @@ jobjectArray BuildObjectArray(JNIEnv *env,jclass cls,std::vector<jobject> &objVe
 
     for (unsigned int ii=0;ii<objVec.size();ii++)
         env->SetObjectArrayElement(newArray,ii,objVec[ii]);
+    return newArray;
+}
+
+jobjectArray BuildStringArray(JNIEnv *env,std::vector<std::string> &objVec)
+{
+    if (objVec.empty())
+        return NULL;
+
+    jobjectArray newArray = env->NewObjectArray(objVec.size(),env->FindClass("java/lang/String"),NULL);
+    if (!newArray)
+        return NULL;
+
+    for (unsigned int ii=0;ii<objVec.size();ii++)
+        env->SetObjectArrayElement(newArray,ii,env->NewStringUTF(objVec[ii].c_str()));
     return newArray;
 }

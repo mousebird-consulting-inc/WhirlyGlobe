@@ -38,7 +38,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoftedPolyInfo_initialise
 {
     try
     {
-        LoftedPolyInfo *loftInfo = new LoftedPolyInfo();
+        LoftedPolyInfoRef *loftInfo = new LoftedPolyInfoRef(new LoftedPolyInfo());
         LoftedPolyInfoClassInfo::getClassInfo()->setHandle(env,obj,loftInfo);
     }
     catch (...)
@@ -57,7 +57,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoftedPolyInfo_dispose
         LoftedPolyInfoClassInfo *classInfo = LoftedPolyInfoClassInfo::getClassInfo();
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
-            LoftedPolyInfo *loftInfo = classInfo->getObject(env,obj);
+            LoftedPolyInfoRef *loftInfo = classInfo->getObject(env,obj);
             if (!loftInfo)
                 return;
             delete loftInfo;
@@ -76,10 +76,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoftedPolyInfo_setHeight
 {
     try
     {
-        LoftedPolyInfo *loftInfo = LoftedPolyInfoClassInfo::getClassInfo()->getObject(env,obj);
+        LoftedPolyInfoRef *loftInfo = LoftedPolyInfoClassInfo::getClassInfo()->getObject(env,obj);
         if (!loftInfo)
             return;
-        loftInfo->height = height;
+        (*loftInfo)->height = height;
     }
     catch (...)
     {
@@ -92,10 +92,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoftedPolyInfo_setBase
 {
     try
     {
-        LoftedPolyInfo *loftInfo = LoftedPolyInfoClassInfo::getClassInfo()->getObject(env,obj);
+        LoftedPolyInfoRef *loftInfo = LoftedPolyInfoClassInfo::getClassInfo()->getObject(env,obj);
         if (!loftInfo)
             return;
-        loftInfo->base = base;
+        (*loftInfo)->base = base;
     }
     catch (...)
     {
@@ -108,10 +108,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoftedPolyInfo_setTop
 {
     try
     {
-        LoftedPolyInfo *loftInfo = LoftedPolyInfoClassInfo::getClassInfo()->getObject(env,obj);
+        LoftedPolyInfoRef *loftInfo = LoftedPolyInfoClassInfo::getClassInfo()->getObject(env,obj);
         if (!loftInfo)
             return;
-        loftInfo->top = top;
+        (*loftInfo)->top = top;
     }
     catch (...)
     {
@@ -124,10 +124,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoftedPolyInfo_setSide
 {
     try
     {
-        LoftedPolyInfo *loftInfo = LoftedPolyInfoClassInfo::getClassInfo()->getObject(env,obj);
+        LoftedPolyInfoRef *loftInfo = LoftedPolyInfoClassInfo::getClassInfo()->getObject(env,obj);
         if (!loftInfo)
             return;
-        loftInfo->side = side;
+        (*loftInfo)->side = side;
     }
     catch (...)
     {
@@ -140,10 +140,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoftedPolyInfo_setOutline
 {
     try
     {
-        LoftedPolyInfo *loftInfo = LoftedPolyInfoClassInfo::getClassInfo()->getObject(env,obj);
+        LoftedPolyInfoRef *loftInfo = LoftedPolyInfoClassInfo::getClassInfo()->getObject(env,obj);
         if (!loftInfo)
             return;
-        loftInfo->outline = outline;
+        (*loftInfo)->outline = outline;
     }
     catch (...)
     {
@@ -156,10 +156,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoftedPolyInfo_setOutlineSide
 {
     try
     {
-        LoftedPolyInfo *loftInfo = LoftedPolyInfoClassInfo::getClassInfo()->getObject(env,obj);
+        LoftedPolyInfoRef *loftInfo = LoftedPolyInfoClassInfo::getClassInfo()->getObject(env,obj);
         if (!loftInfo)
             return;
-        loftInfo->outlineSide = outlineSide;
+        (*loftInfo)->outlineSide = outlineSide;
     }
     catch (...)
     {
@@ -172,10 +172,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoftedPolyInfo_setOutlineBottom
 {
     try
     {
-        LoftedPolyInfo *loftInfo = LoftedPolyInfoClassInfo::getClassInfo()->getObject(env,obj);
+        LoftedPolyInfoRef *loftInfo = LoftedPolyInfoClassInfo::getClassInfo()->getObject(env,obj);
         if (!loftInfo)
             return;
-        loftInfo->outlineBottom = outlineBottom;
+        (*loftInfo)->outlineBottom = outlineBottom;
     }
     catch (...)
     {
@@ -188,10 +188,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoftedPolyInfo_setOutlineDrawPri
 {
     try
     {
-        LoftedPolyInfo *loftInfo = LoftedPolyInfoClassInfo::getClassInfo()->getObject(env,obj);
+        LoftedPolyInfoRef *loftInfo = LoftedPolyInfoClassInfo::getClassInfo()->getObject(env,obj);
         if (!loftInfo)
             return;
-        loftInfo->outlineDrawPriority = outlineDrawPriority;
+        (*loftInfo)->outlineDrawPriority = outlineDrawPriority;
     }
     catch (...)
     {
@@ -204,10 +204,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoftedPolyInfo_setColor
 {
     try
     {
-        LoftedPolyInfo *loftInfo = LoftedPolyInfoClassInfo::getClassInfo()->getObject(env,obj);
+        LoftedPolyInfoRef *loftInfo = LoftedPolyInfoClassInfo::getClassInfo()->getObject(env,obj);
         if (!loftInfo)
             return;
-        loftInfo->color = RGBAColor(r*255.0,g*255.0,b*255.0,a*255.0);
+        (*loftInfo)->color = RGBAColor(r*255.0,g*255.0,b*255.0,a*255.0);
     }
     catch (...)
     {
@@ -220,10 +220,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoftedPolyInfo_setOutlineColor
 {
     try
     {
-        LoftedPolyInfo *loftInfo = LoftedPolyInfoClassInfo::getClassInfo()->getObject(env,obj);
+        LoftedPolyInfoRef *loftInfo = LoftedPolyInfoClassInfo::getClassInfo()->getObject(env,obj);
         if (!loftInfo)
             return;
-        loftInfo->outlineColor = RGBAColor(r*255.0,g*255.0,b*255.0,a*255.0);
+        (*loftInfo)->outlineColor = RGBAColor(r*255.0,g*255.0,b*255.0,a*255.0);
     }
     catch (...)
     {
@@ -236,10 +236,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoftedPolyInfo_setOutlineWidth
 {
     try
     {
-        LoftedPolyInfo *loftInfo = LoftedPolyInfoClassInfo::getClassInfo()->getObject(env,obj);
+        LoftedPolyInfoRef *loftInfo = LoftedPolyInfoClassInfo::getClassInfo()->getObject(env,obj);
         if (!loftInfo)
             return;
-        loftInfo->outlineWidth = width;
+        (*loftInfo)->outlineWidth = width;
     }
     catch (...)
     {
@@ -252,11 +252,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoftedPolyInfo_setCenter
 {
     try
     {
-        LoftedPolyInfo *loftInfo = LoftedPolyInfoClassInfo::getClassInfo()->getObject(env,obj);
+        LoftedPolyInfoRef *loftInfo = LoftedPolyInfoClassInfo::getClassInfo()->getObject(env,obj);
         Point2d *center = Point2dClassInfo::getClassInfo()->getObject(env,centerObj);
         if (!loftInfo || !center)
             return;
-        loftInfo->center = *center;
+        (*loftInfo)->center = *center;
     }
     catch (...)
     {
@@ -269,10 +269,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoftedPolyInfo_setUseCenter
 {
     try
     {
-        LoftedPolyInfo *loftInfo = LoftedPolyInfoClassInfo::getClassInfo()->getObject(env,obj);
+        LoftedPolyInfoRef *loftInfo = LoftedPolyInfoClassInfo::getClassInfo()->getObject(env,obj);
         if (!loftInfo)
             return;
-        loftInfo->centered = useCenter;
+        (*loftInfo)->centered = useCenter;
     }
     catch (...)
     {
@@ -284,10 +284,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoftedPolyInfo_setGridSize
         (JNIEnv *env, jobject obj, jdouble gridSize)
 {    try
     {
-        LoftedPolyInfo *loftInfo = LoftedPolyInfoClassInfo::getClassInfo()->getObject(env,obj);
+        LoftedPolyInfoRef *loftInfo = LoftedPolyInfoClassInfo::getClassInfo()->getObject(env,obj);
         if (!loftInfo)
             return;
-        loftInfo->gridSize = gridSize;
+        (*loftInfo)->gridSize = gridSize;
     }
     catch (...)
     {

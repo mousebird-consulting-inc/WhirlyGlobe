@@ -37,7 +37,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_initialise
 {
 	try
 	{
-		VectorInfo *vecInfo = new VectorInfo();
+		VectorInfoRef *vecInfo = new VectorInfoRef(new VectorInfo());
 		VectorInfoClassInfo::getClassInfo()->setHandle(env,obj,vecInfo);
 	}
 	catch (...)
@@ -56,7 +56,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_dispose
 		VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
-            VectorInfo *vecInfo = classInfo->getObject(env,obj);
+			VectorInfoRef *vecInfo = classInfo->getObject(env,obj);
             if (!vecInfo)
                 return;
             delete vecInfo;
@@ -76,10 +76,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setFilled
 	try
 	{
 		VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
-		VectorInfo *vecInfo = classInfo->getObject(env,obj);
+		VectorInfoRef *vecInfo = classInfo->getObject(env,obj);
 		if (!vecInfo)
 			return;
-		vecInfo->filled = bVal;
+		(*vecInfo)->filled = bVal;
 	}
 	catch (...)
 	{
@@ -93,10 +93,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setSampleEpsilon
 	try
 	{
 		VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
-		VectorInfo *vecInfo = classInfo->getObject(env,obj);
+		VectorInfoRef *vecInfo = classInfo->getObject(env,obj);
 		if (!vecInfo)
 			return;
-		vecInfo->sample = sample;
+		(*vecInfo)->sample = sample;
 	}
 	catch (...)
 	{
@@ -110,10 +110,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setTextureID
 	try
 	{
 		VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
-		VectorInfo *vecInfo = classInfo->getObject(env,obj);
+		VectorInfoRef *vecInfo = classInfo->getObject(env,obj);
 		if (!vecInfo)
 			return;
-		vecInfo->texId = texID;
+		(*vecInfo)->texId = texID;
 	}
 	catch (...)
 	{
@@ -127,11 +127,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setTexScale
 	try
 	{
 		VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
-		VectorInfo *vecInfo = classInfo->getObject(env,obj);
+		VectorInfoRef *vecInfo = classInfo->getObject(env,obj);
 		if (!vecInfo)
 			return;
-		vecInfo->texScale.x() = s;
-		vecInfo->texScale.y() = t;
+		(*vecInfo)->texScale.x() = s;
+		(*vecInfo)->texScale.y() = t;
 	}
 	catch (...)
 	{
@@ -145,11 +145,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setSubdivEps
 	try
 	{
 		VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
-		VectorInfo *vecInfo = classInfo->getObject(env,obj);
+		VectorInfoRef *vecInfo = classInfo->getObject(env,obj);
 		if (!vecInfo)
 			return;
-		vecInfo->subdivEps = subdiv;
-		vecInfo->gridSubdiv = true;
+		(*vecInfo)->subdivEps = subdiv;
+		(*vecInfo)->gridSubdiv = true;
 	}
 	catch (...)
 	{
@@ -163,10 +163,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setTextureProjectionN
     try
     {
         VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
-        VectorInfo *vecInfo = classInfo->getObject(env,obj);
+		VectorInfoRef *vecInfo = classInfo->getObject(env,obj);
         if (!vecInfo)
             return;
-        vecInfo->texProj = (TextureProjections)texProj;
+		(*vecInfo)->texProj = (TextureProjections)texProj;
     }
     catch (...)
     {
@@ -180,10 +180,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setColor
 	try
 	{
 		VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
-		VectorInfo *vecInfo = classInfo->getObject(env,obj);
+		VectorInfoRef *vecInfo = classInfo->getObject(env,obj);
 		if (!vecInfo)
 			return;
-		vecInfo->color = RGBAColor(r*255.0,g*255.0,b*255.0,a*255.0);
+		(*vecInfo)->color = RGBAColor(r*255.0,g*255.0,b*255.0,a*255.0);
 	}
 	catch (...)
 	{
@@ -197,10 +197,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setLineWidth
 	try
 	{
 		VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
-		VectorInfo *vecInfo = classInfo->getObject(env,obj);
+		VectorInfoRef *vecInfo = classInfo->getObject(env,obj);
 		if (!vecInfo)
 			return;
-		vecInfo->lineWidth = val;
+		(*vecInfo)->lineWidth = val;
 	}
 	catch (...)
 	{
@@ -214,10 +214,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setUseCenter
 	try
 	{
 		VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
-		VectorInfo *vecInfo = classInfo->getObject(env,obj);
+		VectorInfoRef *vecInfo = classInfo->getObject(env,obj);
 		if (!vecInfo)
 			return;
-		vecInfo->centered = true;
+		(*vecInfo)->centered = true;
 	}
 	catch (...)
 	{
@@ -231,12 +231,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setVecCenterNative
     try
     {
         VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
-        VectorInfo *vecInfo = classInfo->getObject(env,obj);
+		VectorInfoRef *vecInfo = classInfo->getObject(env,obj);
         if (!vecInfo)
             return;
-        vecInfo->centered = true;
-        vecInfo->vecCenterSet = true;
-        vecInfo->vecCenter = Point2f(centerX,centerY);
+		(*vecInfo)->centered = true;
+		(*vecInfo)->vecCenterSet = true;
+		(*vecInfo)->vecCenter = Point2f(centerX,centerY);
     }
     catch (...)
     {
@@ -250,11 +250,11 @@ JNIEXPORT jstring JNICALL Java_com_mousebird_maply_VectorInfo_toString
     try
     {
         VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
-        VectorInfo *vecInfo = classInfo->getObject(env,obj);
+		VectorInfoRef *vecInfo = classInfo->getObject(env,obj);
         if (!vecInfo)
             return NULL;
 
-        std::string outStr = vecInfo->toString();
+        std::string outStr = (*vecInfo)->toString();
         return env->NewStringUTF(outStr.c_str());
     }
     catch (...)

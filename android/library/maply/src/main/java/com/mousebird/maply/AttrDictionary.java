@@ -28,7 +28,7 @@ package com.mousebird.maply;
  *
  */
 public class AttrDictionary
-{	
+{
 	/**
 	 * Construct an empty attribution dictionary
 	 */
@@ -36,6 +36,17 @@ public class AttrDictionary
 	{
 		initialise();
 	}
+
+	/**
+	 * Parse from a JSON file.
+	 * Returns false on failure.
+	 */
+	public native boolean parseFromJSON(String json);
+
+	/**
+	 * True if there's a field with the given name.
+	 */
+	public native boolean hasField(String attrName);
 	
 	/**
 	 * Return a string corresponding to the given attribute name.
@@ -66,11 +77,58 @@ public class AttrDictionary
 	public native Long getIdentity(String attrName);
 
 	/**
+	 * Convert the given attribute to a boolean or return false if it's not there.
+	 */
+	public boolean getBoolean(String attrName) {
+		AttrDictionaryEntry entry = getEntry(attrName);
+		if (entry == null)
+			return false;
+		switch (entry.getType()) {
+			case DictTypeDouble:
+				return entry.getDouble() != 0.0;
+			case DictTypeInt:
+				return entry.getInt() != 0;
+			case DictTypeIdentity:
+				return entry.getIdentity() != 0;
+			case DictTypeString:
+				String val = entry.getString().toLowerCase();
+				return val == "true" || val == "yes";
+			default:
+				return false;
+		}
+	}
+
+	/**
 	 * Fetch an Object corresponding to the given attribute name.
 	 * @param attrName Name of the attribute we're looking for.
 	 * @return Returns an Object for the given attribute or null if there was none.
 	 */
 	public native Object get(String attrName);
+
+	/**
+	 * Fetch a dictionary corresponding to the given attribute name.
+	 * @param attrName Name of the attribute we're looking for.
+	 * @return Returns the dictionary for the attribute name or null if there was none.
+	 */
+	public native AttrDictionary getDict(String attrName);
+
+	/**
+	 * Return a generic dictionary entry for the given attribute.
+	 * Returns null if there wasn't one.
+	 */
+	public native AttrDictionaryEntry getEntry(String attrName);
+
+	/**
+	 * Return an array of Entry objects, if the given attribute name
+	 * corresponds to an array.
+	 * @param attrName Name of the attribute to get.
+	 */
+	public native AttrDictionaryEntry[] getArray(String attrName);
+
+	/**
+	 * Return all the top level attribute names.
+	 */
+	public native String[] getKeys();
 
 	/**
 	 * Set a string value.
@@ -92,6 +150,21 @@ public class AttrDictionary
 	 * @param attrVal Double value to set.
      */
 	public native void setDouble(String attrName,double attrVal);
+
+	/**
+	 * Assign the given dictionary to the given attribute name.
+	 */
+	public native void setDict(String attrName,AttrDictionary dict);
+
+	/**
+	 * Assign the given array to the given attribute name.
+	 */
+	public native void setArray(String attrName,AttrDictionaryEntry[] entries);
+
+	/**
+	 * Assign the given array to the given attribute name.
+	 */
+	public native void setArray(String attrName,AttrDictionary[] entries);
 
 	// Convert to a string for debugging
 	public native String toString();

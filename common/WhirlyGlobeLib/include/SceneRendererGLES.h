@@ -103,6 +103,12 @@ public:
     
     /// Construct a renderer-specific dynamic texture
     virtual DynamicTextureRef makeDynamicTexture(const std::string &name) const;
+
+    /** Return the snapshot for the given render target.
+     *  EmptyIdentity refers to the whole
+     *  width <= 0 means the whole screen.
+     */
+    virtual RawDataRef getSnapshotAt(SimpleIdentity renderTargetID, int x, int y, int width, int height);
     
 public:
     // Possible post-target creation init

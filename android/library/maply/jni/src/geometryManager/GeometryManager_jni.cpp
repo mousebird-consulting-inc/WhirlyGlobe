@@ -73,8 +73,8 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addGeometry
     try
     {
         GeometryManager *geomManager = GeometryManagerClassInfo::getClassInfo()->getObject(env, obj);
-        ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
-        GeometryInfo *geomInfo = GeometryInfoClassInfo::getClassInfo()->getObject(env,geomInfoObj);
+        ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+        GeometryInfoRef *geomInfo = GeometryInfoClassInfo::getClassInfo()->getObject(env,geomInfoObj);
         if (!geomManager || !changeSet || !geomInfo)
         {
             __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "One of the inputs was null in GeometryManager::addGeometry()");
@@ -102,15 +102,15 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addGeometry
         }
 
         // Resolve a missing program
-        if (geomInfo->programID == EmptyIdentity)
+        if ((*geomInfo)->programID == EmptyIdentity)
         {
             Program *prog = geomManager->getScene()->findProgramByName(MaplyDefaultTriangleShader);
             if (prog)
-                geomInfo->programID = prog->getId();
+                (*geomInfo)->programID = prog->getId();
         }
 
 
-        return geomManager->addGeometry(geoms,geomInsts,*geomInfo,*changeSet);
+        return geomManager->addGeometry(geoms,geomInsts,*(*geomInfo),*(changeSet->get()));
     }
     catch (...)
     {
@@ -126,7 +126,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addBaseGeometry
     try
     {
         GeometryManager *geomManager = GeometryManagerClassInfo::getClassInfo()->getObject(env, obj);
-        ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+        ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
         if (!geomManager || !changeSet)
         {
             __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "One of the inputs was null in GeometryManager::addBaseGeometry()");
@@ -145,7 +145,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addBaseGeometry
 
         // TODO: Pass in the geomInfo
         GeometryInfo geomInfo;
-        return geomManager->addBaseGeometry(geoms,geomInfo,*changeSet);
+        return geomManager->addBaseGeometry(geoms,geomInfo,*(changeSet->get()));
     }
     catch (...)
     {
@@ -161,8 +161,8 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addGeometryInst
     try
     {
         GeometryManager *geomManager = GeometryManagerClassInfo::getClassInfo()->getObject(env, obj);
-        ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
-        GeometryInfo *geomInfo = GeometryInfoClassInfo::getClassInfo()->getObject(env,geomInfoObj);
+        ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+        GeometryInfoRef *geomInfo = GeometryInfoClassInfo::getClassInfo()->getObject(env,geomInfoObj);
         if (!geomManager || !changeSet || !geomInfo)
         {
             __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "One of the inputs was null in GeometryManager::addGeometryInstances()");
@@ -179,7 +179,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addGeometryInst
                 geomInsts.push_back(*geomInst);
         }
 
-        return geomManager->addGeometryInstances(baseGeomID,geomInsts,*geomInfo,*changeSet);
+        return geomManager->addGeometryInstances(baseGeomID,geomInsts,*(*geomInfo),*(changeSet->get()));
     }
     catch (...)
     {
@@ -196,10 +196,10 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addGeometryPoin
     {
         GeometryManagerClassInfo *classInfo = GeometryManagerClassInfo::getClassInfo();
         GeometryManager *geomManager = classInfo->getObject(env, obj);
-        ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+        ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
         GeometryRawPoints *rawPoints = GeometryRawPointsClassInfo::getClassInfo()->getObject(env,pointsObj);
         Matrix4d *mat = Matrix4dClassInfo::getClassInfo()->getObject(env,matObj);
-        GeometryInfo *geomInfo = GeometryInfoClassInfo::getClassInfo()->getObject(env,geomInfoObj);
+        GeometryInfoRef *geomInfo = GeometryInfoClassInfo::getClassInfo()->getObject(env,geomInfoObj);
         
         if (!geomManager || !rawPoints || !mat || !changeSet)
         {
@@ -207,7 +207,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addGeometryPoin
             return EmptyIdentity;
         }
 
-        return geomManager->addGeometryPoints(*rawPoints,*mat,*geomInfo,*changeSet);
+        return geomManager->addGeometryPoints(*rawPoints,*mat,*(*geomInfo),*(changeSet->get()));
     }
     catch (...)
     {
@@ -224,14 +224,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryManager_enableGeometry
     {
         GeometryManagerClassInfo *classInfo = GeometryManagerClassInfo::getClassInfo();
         GeometryManager *geomManager = classInfo->getObject(env, obj);
-        ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+        ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
         if (!geomManager || !changeSet)
             return;
         
         SimpleIDSet idSet;
         ConvertLongArrayToSet(env,geomIDs,idSet);
 
-        geomManager->enableGeometry(idSet,enable,*changeSet);
+        geomManager->enableGeometry(idSet,enable,*(changeSet->get()));
     }
     catch (...)
     {
@@ -246,14 +246,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryManager_removeGeometry
     {
         GeometryManagerClassInfo *classInfo = GeometryManagerClassInfo::getClassInfo();
         GeometryManager *geomManager = classInfo->getObject(env, obj);
-        ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+        ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
         if (!geomManager || !changeSet)
             return;
 
         SimpleIDSet idSet;
         ConvertLongArrayToSet(env,geomIDs,idSet);
         
-        geomManager->removeGeometry(idSet,*changeSet);
+        geomManager->removeGeometry(idSet,*(changeSet->get()));
     }
     catch (...)
     {

@@ -34,9 +34,14 @@ import java.util.HashSet;
  */
 public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
 {
-    private QuadLoaderBase() { }
+    protected QuadLoaderBase() { }
 
     protected WeakReference<QuadSamplingLayer> samplingLayer;
+
+    protected QuadLoaderBase(BaseController inControl)
+    {
+        control = new WeakReference<BaseController>(inControl);
+    }
 
     protected QuadLoaderBase(BaseController inControl,SamplingParams params,int numFrames,Mode mode)
     {
@@ -174,7 +179,9 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
             public void run() {
                 loadInterp = newInterp;
                 newInterp.setLoader(theLoader);
-                reloadNative();
+                ChangeSet changes = new ChangeSet();
+                reloadNative(changes);
+                samplingLayer.get().layerThread.addChanges(changes);
             }
         });
     }
@@ -254,7 +261,7 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
     private native void samplingLayerDisconnectNative(QuadSamplingLayer layer,ChangeSet changes);
 
     // Used to initialize the loader for certain types of data.
-    enum Mode {SingleFrame,MultiFrame,Object};
+    public enum Mode {SingleFrame,MultiFrame,Object};
 
     /* --- Callback from C++ side --- */
 
@@ -306,7 +313,7 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
                     // Build a loader return object, fill in the data and then parse it
                     final LoaderReturn loadReturn = makeLoaderReturn();
                     loadReturn.setTileID(tileX, tileY, tileLevel);
-                    loadReturn.setFrame(fFrame);
+                    loadReturn.setFrame(getFrameID(fFrame),fFrame);
                     if (data != null)
                         loadReturn.addTileData(data);
 
@@ -324,6 +331,7 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
                                     ChangeSet changes = new ChangeSet();
                                     mergeLoaderReturn(loadReturn, changes);
                                     layer.layerThread.addChanges(changes);
+                                    loadReturn.dispose();
                                 }
                             }
                         });
@@ -372,7 +380,18 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
         }
     }
 
-    protected native void reloadNative();
+    /**
+     * Each frame has a 64 bit frame ID (other than just 0 through whatever)
+     */
+    public native long getFrameID(int frame);
+
+    /**
+     * When you refresh the loader, we get a new generation.
+     * This is how we track data in transit.
+     */
+    public native int getGeneration();
+
+    protected native void reloadNative(ChangeSet changes);
 
     public void finalize()
     {

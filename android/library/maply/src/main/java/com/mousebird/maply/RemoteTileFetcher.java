@@ -32,6 +32,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.ref.WeakReference;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -264,10 +265,13 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
             recentStats.maxActiveRequests = recentStats.activeRequests;
     }
 
+    WeakReference<BaseController> control = null;
+
     RemoteTileFetcher(BaseController baseController, String name)
     {
         super(name);
 
+        control = new WeakReference<BaseController>(baseController);
         client = baseController.getHttpClient();
         valid = true;
 
@@ -459,7 +463,8 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
                         Log.d("RemoteTileFetcher","Dropping a tile request because it was cancelled: " + inTile.fetchInfo.urlReq);
 
                     try {
-                        response.body().close();
+                        if (response != null)
+                            response.body().close();
                     }
                     catch (Exception fooE) {
                     }
@@ -568,12 +573,16 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
         if (tile.state == TileInfoState.None)
             return;
 
-        // Let the caller know on a random thread because parsing may take a while
-        AsyncTask<Void,Void,Void> task = new AsyncTask<Void, Void, Void>() {
-            protected Void doInBackground(Void... unused) {
+        BaseController theControl = control.get();
 
+        // Let the caller know on a random thread because parsing may take a while
+        // Has to be a worker thread because we need an OpenGL context
+        LayerThread backThread = theControl.getWorkingThread();
+        backThread.addTask(new Runnable() {
+            @Override
+            public void run() {
                 if (!valid)
-                    return null;
+                    return;
 
                 if (debugMode)
                     Log.d("RemoteTileFetcher","Returning fetch: " + tile.fetchInfo.urlReq);
@@ -585,7 +594,7 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
                     tile.request.callback.failure(tile.request,error.toString());
 
                 if (!valid)
-                    return null;
+                    return;
 
                 // Now get rid of the tile and kick off a new request
                 Handler handler = new Handler(getLooper());
@@ -596,11 +605,8 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
                         scheduleLoading();
                     }
                 });
-
-                return null;
             }
-        };
-        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void)null);
+        });
     }
 
     // Write to the local cache.  Called on a random thread.
@@ -609,14 +615,21 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
         if (tile.fetchInfo.cacheFile == null)
             return;
 
+        OutputStream fOut = null;
         try {
-            OutputStream fOut;
             fOut = new FileOutputStream(tile.fetchInfo.cacheFile);
             fOut.write(data);
-            fOut.close();
         }
         catch (Exception e)
         {
+        }
+        finally {
+            try {
+                fOut.close();
+            }
+            catch (Exception e)
+            {
+            }
         }
     }
 

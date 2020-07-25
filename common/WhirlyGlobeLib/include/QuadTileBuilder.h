@@ -59,7 +59,8 @@ public:
                                                   int targetLevel) = 0;
     
     /// Load the given group of tiles.  If you don't load them immediately, up to you to cancel any requests
-    virtual void builderLoad(QuadTileBuilder *builder,
+    virtual void builderLoad(PlatformThreadInfo *threadInfo,
+                             QuadTileBuilder *builder,
                            const WhirlyKit::TileBuilderDelegateInfo &updates,
                            ChangeSet &changes) = 0;
     
@@ -67,7 +68,7 @@ public:
     virtual void builderPreSceneFlush(QuadTileBuilder *builder,ChangeSet &changes) = 0;
 
     /// Shutdown called on the layer thread if you stuff to clean up
-    virtual void builderShutdown(QuadTileBuilder *builder,ChangeSet &changes) = 0;
+    virtual void builderShutdown(PlatformThreadInfo *threadInfo,QuadTileBuilder *builder,ChangeSet &changes) = 0;
     
     /// Simple status check.  Is this builder in the process of loading something?
     virtual bool builderIsLoading() = 0;
@@ -136,7 +137,8 @@ protected:
     
     /// Load some tiles, unload others, and the rest had their importance values change
     /// Return the nodes we wanted to keep rather than delete
-    virtual QuadTreeNew::NodeSet quadLoaderUpdate(const WhirlyKit::QuadTreeNew::ImportantNodeSet &loadTiles,
+    virtual QuadTreeNew::NodeSet quadLoaderUpdate(PlatformThreadInfo *threadInfo,
+                                                  const WhirlyKit::QuadTreeNew::ImportantNodeSet &loadTiles,
                                                   const WhirlyKit::QuadTreeNew::NodeSet &unloadTiles,
                                                   const WhirlyKit::QuadTreeNew::ImportantNodeSet &updateTiles,
                                                   int targetLevel,
@@ -146,7 +148,7 @@ protected:
     virtual void quadLoaderPreSceenFlush(ChangeSet &changes);
     
     /// Called when a layer is shutting down (on the layer thread)
-    virtual void quadLoaderShutdown(ChangeSet &changes);
+    virtual void quadLoaderShutdown(PlatformThreadInfo *threadInfo,ChangeSet &changes);
     
     bool debugMode;
     

@@ -77,8 +77,8 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_LoftedPolyManager_addPolys
     try
     {
         LoftManager *loftManager = LoftManagerClassInfo::getClassInfo()->getObject(env,obj);
-        LoftedPolyInfo *loftInfo = LoftedPolyInfoClassInfo::getClassInfo()->getObject(env,loftInfoObj);
-        ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+        LoftedPolyInfoRef *loftInfo = LoftedPolyInfoClassInfo::getClassInfo()->getObject(env,loftInfoObj);
+        ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
         if (!loftManager || !loftInfo || !changeSet)
             return EmptyIdentity;
 
@@ -93,15 +93,15 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_LoftedPolyManager_addPolys
         }
 
         // Resolve a missing program
-        if (loftInfo->programID == EmptyIdentity)
+        if ((*loftInfo)->programID == EmptyIdentity)
         {
             ProgramGLES *prog = NULL;
             prog = (ProgramGLES *)loftManager->getScene()->findProgramByName(MaplyDefaultTriangleShader);
             if (prog)
-                loftInfo->programID = prog->getId();
+                (*loftInfo)->programID = prog->getId();
         }
 
-        SimpleIdentity loftID = loftManager->addLoftedPolys(&shapes,*loftInfo,*changeSet);
+        SimpleIdentity loftID = loftManager->addLoftedPolys(&shapes,*(*loftInfo),*(changeSet->get()));
 
         return loftID;
     }

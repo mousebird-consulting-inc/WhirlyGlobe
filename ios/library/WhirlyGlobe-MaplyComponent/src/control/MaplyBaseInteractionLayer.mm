@@ -378,6 +378,9 @@ public:
         case MaplyImageDoubleUInt32:
             tex->setFormat(TexTypeDoubleUInt32);
             break;
+        case MaplyImageQuadUInt32:
+            tex->setFormat(TexTypeQuadUInt32);
+            break;
     }
 
     return tex;
@@ -1045,10 +1048,19 @@ public:
     smGeom.texCoords.push_back(TexCoord(1,0));
     smGeom.coords.push_back(Point2d(-group.size.width/2.0,group.size.height/2.0));
     smGeom.texCoords.push_back(TexCoord(0,0));
+        
     smGeom.color = RGBAColor(255,255,255,255);
     
-    retObj.layoutPts = smGeom.coords;
-    retObj.selectPts = smGeom.coords;
+    if (group.layoutSize.width > 0.0 && group.layoutSize.height > 0.0) {
+        retObj.layoutPts.push_back(Point2d(-group.layoutSize.width/2.0,-group.layoutSize.height/2.0));
+        retObj.layoutPts.push_back(Point2d(group.layoutSize.width/2.0,-group.layoutSize.height/2.0));
+        retObj.layoutPts.push_back(Point2d(group.layoutSize.width/2.0,group.layoutSize.height/2.0));
+        retObj.layoutPts.push_back(Point2d(-group.layoutSize.width/2.0,group.layoutSize.height/2.0));
+        retObj.selectPts = retObj.layoutPts;
+    } else {
+        retObj.layoutPts = smGeom.coords;
+        retObj.selectPts = smGeom.coords;
+    }
     retObj.importance = sampleObj->importance;
     
     // Create the texture
@@ -1375,9 +1387,9 @@ public:
             }
             if (label.layoutImportance < MAXFLOAT)
             {
-                thisLabelInfo->layoutEngine = true;
-                thisLabelInfo->layoutImportance = label.layoutImportance;
-                thisLabelInfo->layoutPlacement = label.layoutPlacement;
+                wgLabel->layoutEngine = true;
+                wgLabel->layoutImportance = label.layoutImportance;
+                wgLabel->layoutPlacement = label.layoutPlacement;
             }
         }
         wgLabel->infoOverride = thisLabelInfo;
@@ -1413,7 +1425,7 @@ public:
     {
         // Set up a description and create the markers in the marker layer
         ChangeSet changes;
-        SimpleIdentity labelID = labelManager->addLabels(wgLabels, labelInfo, changes);
+        SimpleIdentity labelID = labelManager->addLabels(NULL, wgLabels, labelInfo, changes);
         [self flushChanges:changes mode:threadMode];
         if (labelID != EmptyIdentity)
             compObj->contents->labelIDs.insert(labelID);
@@ -1526,7 +1538,7 @@ public:
     {
         ChangeSet changes;
         // Set up a description and create the markers in the marker layer
-        SimpleIdentity labelID = labelManager->addLabels(wgLabels, labelInfo, changes);
+        SimpleIdentity labelID = labelManager->addLabels(NULL, wgLabels, labelInfo, changes);
         [self flushChanges:changes mode:threadMode];
         if (labelID != EmptyIdentity)
             compObj->contents->labelIDs.insert(labelID);
@@ -2793,7 +2805,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
             {
                 StringWrapper_iOSRef strWrap = std::dynamic_pointer_cast<StringWrapper_iOS>(theStrWrap);
                 // Convert the string to polygons
-                DrawableString *drawStr = fontTexManager->addString(strWrap->str,changes);
+                DrawableString *drawStr = fontTexManager->addString(NULL, strWrap->str,changes);
                 for (const DrawableString::Rect &rect : drawStr->glyphPolys)
                 {
                     SingleBillboardPoly billPoly;
@@ -3242,7 +3254,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
             if (compObj->contents) {
                 // This does the visual and the selection data
-                compManager->removeComponentObject(compObj->contents->getId(),changes);
+                compManager->removeComponentObject(NULL,compObj->contents->getId(),changes);
             }
         }
     }

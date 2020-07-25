@@ -21,7 +21,7 @@
 #import "Maply_jni.h"
 #import "WhirlyGlobe_Android.h"
 
-typedef JavaClassInfo<WhirlyKit::BillboardInfo> BillboardInfoClassInfo;
+typedef JavaClassInfo<WhirlyKit::BillboardInfoRef> BillboardInfoClassInfo;
 typedef JavaClassInfo<WhirlyKit::Billboard> BillboardClassInfo;
 typedef JavaClassInfo<WhirlyKit::BillboardManager> BillboardManagerClassInfo;
 typedef JavaClassInfo<WhirlyKit::ScreenObject> ScreenObjectClassInfo;

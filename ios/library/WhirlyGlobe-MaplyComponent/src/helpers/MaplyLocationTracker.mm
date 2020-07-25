@@ -50,6 +50,7 @@
     bool _useHeading, _useCourse;
     MaplyLocationLockType _lockType;
     int _forwardTrackOffset;
+    int _markerDrawPriority;
 }
 
 - (nonnull instancetype)initWithViewC:(MaplyBaseViewController *__nullable)viewC delegate:(NSObject<MaplyLocationTrackerDelegate> *__nullable)delegate useHeading:(bool)useHeading useCourse:(bool)useCourse simulate:(bool)simulate {
@@ -93,13 +94,13 @@
         [self teardownLocationManager];
     _delegate = nil;
     if (_markerObj) {
-        [_theViewC removeObject:_markerObj];
-        [_theViewC removeObject:_movingMarkerObj];
+        [_theViewC removeObjects:@[_markerObj] mode:MaplyThreadCurrent];
+        [_theViewC removeObjects:@[_movingMarkerObj] mode:MaplyThreadCurrent];
         _markerObj = nil;
         _movingMarkerObj = nil;
     }
     if (_shapeCircleObj) {
-        [_theViewC removeObject:_shapeCircleObj];
+        [_theViewC removeObjects:@[_shapeCircleObj] mode:MaplyThreadCurrent];
         _shapeCircleObj = nil;
     }
 }
@@ -118,8 +119,14 @@
     _markerImgs = [NSMutableArray array];
     _markerImgsDirectional = [NSMutableArray array];
     for (int i=0; i<16; i++) {
-        [_markerImgs addObject:[self radialGradientMarkerWithSize:size color0:color0 color1:color1 gradLocation:(0.0 + (float)(8-ABS(8-i))/8.0) radius:(float)(size-32-ABS(8-i))/2.0 directional:false]];
-        [_markerImgsDirectional addObject:[self radialGradientMarkerWithSize:size color0:color0 color1:color1 gradLocation:(0.0 + (float)(8-ABS(8-i))/8.0) radius:(float)(size-32-ABS(8-i))/2.0 directional:true]];
+        [_markerImgs addObject:[_theViewC
+                                addTexture:[self radialGradientMarkerWithSize:size color0:color0 color1:color1 gradLocation:(0.0 + (float)(8-ABS(8-i))/8.0) radius:(float)(size-32-ABS(8-i))/2.0 directional:false]
+                                desc:nil
+                                mode:MaplyThreadCurrent]];
+        [_markerImgsDirectional addObject:[_theViewC
+                                           addTexture:[self radialGradientMarkerWithSize:size color0:color0 color1:color1 gradLocation:(0.0 + (float)(8-ABS(8-i))/8.0) radius:(float)(size-32-ABS(8-i))/2.0 directional:true]
+                                            desc:nil
+                                           mode:MaplyThreadCurrent]];
     }
     
     _markerDesc = [NSMutableDictionary dictionaryWithDictionary:@{kMaplyMinVis: @(_markerMinVis), kMaplyMaxVis: @(_markerMaxVis), kMaplyFade: @(0.0), kMaplyDrawPriority:@(_markerDrawPriority), kMaplyEnableEnd: @(MAXFLOAT)}];
@@ -130,6 +137,17 @@
     
 }
 
+- (int)markerDrawPriority
+{
+    return _markerDrawPriority;
+}
+
+- (void)setMarkerDrawPriority:(int)markerDrawPriority
+{
+    _markerDrawPriority = markerDrawPriority;
+    
+    [self setupMarkerImages];
+}
 
 - (UIImage *)radialGradientMarkerWithSize:(int)size color0:(UIColor *)color0 color1:(UIColor *)color1 gradLocation:(float)gradLocation radius:(float)radius directional:(bool)directional {
     
@@ -166,10 +184,12 @@
     
     // Draw direction indicator triangle
     if (directional) {
+        float len = 20.0;
+        float height = 12.0;
         CGMutablePathRef path = CGPathCreateMutable();
-        CGPathMoveToPoint(path, NULL,    size/2, size/2-radius-20);
-        CGPathAddLineToPoint(path, NULL, size/2-12, size/2-radius);
-        CGPathAddLineToPoint(path, NULL, size/2+12, size/2-radius);
+        CGPathMoveToPoint(path, NULL,    size/2, size/2-radius-len);
+        CGPathAddLineToPoint(path, NULL, size/2-height, size/2-radius);
+        CGPathAddLineToPoint(path, NULL, size/2+height, size/2-radius);
         CGPathCloseSubpath(path);
         CGContextSetFillColorWithColor(ctx, color1.CGColor);
         CGContextAddPath(ctx, path);
@@ -303,8 +323,15 @@
     float d1 = sqrtf(powf(dispPt1.x-dispPt0.x, 2.0) + powf(dispPt1.y-dispPt0.y, 2.0));
     float d2 = sqrtf(powf(dispPt2.x-dispPt0.x, 2.0) + powf(dispPt2.y-dispPt0.y, 2.0));
     shapeCircle.radius = (d1 + d2) / 2.0;
-    shapeCircle.height = 0.00001;
-    
+    float minHeight = 0.0;
+    if (_globeVC)
+        minHeight = [_globeVC getZoomLimitsMin];
+    else {
+        float maxHeight;
+        [_mapVC getZoomLimitsMin:&minHeight max:&maxHeight];
+    }
+    shapeCircle.height = minHeight * 0.01;
+
     return shapeCircle;
 }
 
@@ -316,24 +343,26 @@
     MaplyCoordinate endLoc = MaplyCoordinateMakeWithDegrees(location.coordinate.longitude, location.coordinate.latitude);
     MaplyCoordinate startLoc;
     
-    if (_markerObj) {
+    if (_markerObj || _movingMarkerObj) {
         startLoc = _prevLoc;
-        [_theViewC removeObject:_markerObj];
-        [_theViewC removeObject:_movingMarkerObj];
+        if (_markerObj)
+            [_theViewC removeObjects:@[_markerObj] mode:MaplyThreadCurrent];
+        if (_movingMarkerObj)
+            [_theViewC removeObjects:@[_movingMarkerObj] mode:MaplyThreadCurrent];
         _markerObj = nil;
         _movingMarkerObj = nil;
     } else
         startLoc = endLoc;
     
     if (_shapeCircleObj) {
-        [theViewC removeObject:_shapeCircleObj];
+        [theViewC removeObjects:@[_shapeCircleObj] mode:MaplyThreadCurrent];
         _shapeCircleObj = nil;
     }
     
     if (location.horizontalAccuracy >= 0) {
         MaplyShapeCircle *shapeCircle = [self shapeCircleForCoord:endLoc AndHorizontalAccuracy:location.horizontalAccuracy];
         if (shapeCircle) {
-            _shapeCircleObj = [_theViewC addShapes:@[shapeCircle] desc:_shapeCircleDesc];
+            _shapeCircleObj = [_theViewC addShapes:@[shapeCircle] desc:_shapeCircleDesc mode:MaplyThreadCurrent];
         }
         
         NSNumber *orientation;
@@ -373,8 +402,8 @@
         NSTimeInterval ti = [NSDate timeIntervalSinceReferenceDate]+0.5;
         _markerDesc[kMaplyEnableStart] = _movingMarkerDesc[kMaplyEnableEnd] = @(ti);
         
-        _movingMarkerObj = [_theViewC addScreenMarkers:@[movingMarker] desc:_movingMarkerDesc];
-        _markerObj = [_theViewC addScreenMarkers:@[marker] desc:_markerDesc];
+        _movingMarkerObj = [_theViewC addScreenMarkers:@[movingMarker] desc:_movingMarkerDesc mode:MaplyThreadCurrent];
+        _markerObj = [_theViewC addScreenMarkers:@[marker] desc:_markerDesc mode:MaplyThreadCurrent];
         
         [self lockToLocation:endLoc heading:(orientation ? orientation.floatValue : 0.0)];
         

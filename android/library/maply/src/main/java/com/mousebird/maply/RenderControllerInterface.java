@@ -17,6 +17,7 @@ import javax.microedition.khronos.egl.EGLSurface;
 public interface RenderControllerInterface
 {
     Scene getScene();
+    CoordSystem getCoordSystem();
 
     // When adding features we can run on the current thread or delay the work till later
     public enum ThreadMode {ThreadCurrent,ThreadAny};
@@ -103,8 +104,6 @@ public interface RenderControllerInterface
     public void enableObjects(final List<ComponentObject> compObjs,ThreadMode mode);
     public void removeObjects(final List<ComponentObject> compObjs,ThreadMode mode);
     public void removeObject(final ComponentObject compObj,ThreadMode mode);
-
-    // TODO: StartChanges/EndChanges interface
 
     public void addShaderProgram(final Shader shader);
     public Shader getShader(String name);

@@ -37,7 +37,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_initialise
 {
     try
     {
-        WideVectorInfo *vecInfo = new WideVectorInfo();
+        WideVectorInfoRef *vecInfo = new WideVectorInfoRef(new WideVectorInfo());
         WideVectorInfoClassInfo::getClassInfo()->setHandle(env,obj,vecInfo);
     }
     catch (...)
@@ -56,7 +56,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_dispose
         WideVectorInfoClassInfo *classInfo = WideVectorInfoClassInfo::getClassInfo();
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
-            WideVectorInfo *vecInfo = classInfo->getObject(env,obj);
+            WideVectorInfoRef *vecInfo = classInfo->getObject(env,obj);
             if (!vecInfo)
                 return;
             delete vecInfo;
@@ -76,10 +76,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setColor
     try
     {
         WideVectorInfoClassInfo *classInfo = WideVectorInfoClassInfo::getClassInfo();
-        WideVectorInfo *vecInfo = classInfo->getObject(env,obj);
+        WideVectorInfoRef *vecInfo = classInfo->getObject(env,obj);
         if (!vecInfo)
             return;
-        vecInfo->color = RGBAColor(r*255.0,g*255.0,b*255.0,a*255.0);
+        (*vecInfo)->color = RGBAColor(r*255.0,g*255.0,b*255.0,a*255.0);
     }
     catch (...)
     {
@@ -93,10 +93,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setLineWidth
     try
     {
         WideVectorInfoClassInfo *classInfo = WideVectorInfoClassInfo::getClassInfo();
-        WideVectorInfo *vecInfo = classInfo->getObject(env,obj);
+        WideVectorInfoRef *vecInfo = classInfo->getObject(env,obj);
         if (!vecInfo)
             return;
-        vecInfo->width = val;
+        (*vecInfo)->width = val;
     }
     catch (...)
     {
@@ -110,10 +110,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setTextureRepeatL
     try
     {
         WideVectorInfoClassInfo *classInfo = WideVectorInfoClassInfo::getClassInfo();
-        WideVectorInfo *vecInfo = classInfo->getObject(env,obj);
+        WideVectorInfoRef *vecInfo = classInfo->getObject(env,obj);
         if (!vecInfo)
             return;
-        vecInfo->repeatSize = repeatLen;
+        (*vecInfo)->repeatSize = repeatLen;
     }
     catch (...)
     {
@@ -127,10 +127,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setEdgeFalloff
     try
     {
         WideVectorInfoClassInfo *classInfo = WideVectorInfoClassInfo::getClassInfo();
-        WideVectorInfo *vecInfo = classInfo->getObject(env,obj);
+        WideVectorInfoRef *vecInfo = classInfo->getObject(env,obj);
         if (!vecInfo)
             return;
-        vecInfo->edgeSize = edgeFalloff;
+        (*vecInfo)->edgeSize = edgeFalloff;
     }
     catch (...)
     {
@@ -144,10 +144,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setJoinTypeNative
     try
     {
         WideVectorInfoClassInfo *classInfo = WideVectorInfoClassInfo::getClassInfo();
-        WideVectorInfo *vecInfo = classInfo->getObject(env,obj);
+        WideVectorInfoRef *vecInfo = classInfo->getObject(env,obj);
         if (!vecInfo)
             return;
-        vecInfo->joinType = (WideVectorLineJoinType)joinType;
+        (*vecInfo)->joinType = (WideVectorLineJoinType)joinType;
     }
     catch (...)
     {
@@ -161,10 +161,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setMitreLimit
     try
     {
         WideVectorInfoClassInfo *classInfo = WideVectorInfoClassInfo::getClassInfo();
-        WideVectorInfo *vecInfo = classInfo->getObject(env,obj);
+        WideVectorInfoRef *vecInfo = classInfo->getObject(env,obj);
         if (!vecInfo)
             return;
-        vecInfo->miterLimit = mitreLimit;
+        (*vecInfo)->miterLimit = mitreLimit;
     }
     catch (...)
     {
@@ -178,10 +178,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setTexID
     try
     {
         WideVectorInfoClassInfo *classInfo = WideVectorInfoClassInfo::getClassInfo();
-        WideVectorInfo *vecInfo = classInfo->getObject(env,obj);
+        WideVectorInfoRef *vecInfo = classInfo->getObject(env,obj);
         if (!vecInfo)
             return;
-        vecInfo->texID = texID;
+        (*vecInfo)->texID = texID;
     }
     catch (...)
     {

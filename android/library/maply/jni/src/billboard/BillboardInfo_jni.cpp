@@ -40,7 +40,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BillboardInfo_initialise
     try
     {
         BillboardInfoClassInfo *classInfo = BillboardInfoClassInfo::getClassInfo();
-        BillboardInfo *inst= new BillboardInfo();
+        BillboardInfoRef *inst= new BillboardInfoRef(new BillboardInfo());
         classInfo->setHandle(env, obj, inst);
     }
     catch (...) {
@@ -58,7 +58,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BillboardInfo_dispose
         BillboardInfoClassInfo *classInfo = BillboardInfoClassInfo::getClassInfo();
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
-            BillboardInfo *inst= classInfo->getObject(env, obj);
+            BillboardInfoRef *inst= classInfo->getObject(env, obj);
             if (!inst)
                 return;
             delete inst;
@@ -77,10 +77,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BillboardInfo_setColor
     try
     {
         BillboardInfoClassInfo *classInfo = BillboardInfoClassInfo::getClassInfo();
-        BillboardInfo *inst= classInfo->getObject(env, obj);
+        BillboardInfoRef *inst= classInfo->getObject(env, obj);
         if (!inst)
             return;
-        inst->color = RGBAColor(r*255.0,g*255.0,b*255.0,a*255.0);
+        (*inst)->color = RGBAColor(r*255.0,g*255.0,b*255.0,a*255.0);
     }
     catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in BillboardInfo::setColor()");
@@ -93,10 +93,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BillboardInfo_setOrientNative
     try
     {
         BillboardInfoClassInfo *classInfo = BillboardInfoClassInfo::getClassInfo();
-        BillboardInfo *inst= classInfo->getObject(env, obj);
+        BillboardInfoRef *inst= classInfo->getObject(env, obj);
         if (!inst)
             return;
-        inst->orient = (BillboardInfo::Orient)orient;
+        (*inst)->orient = (BillboardInfo::Orient)orient;
     }
     catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in BillboardInfo::setOrientNative()");

@@ -77,7 +77,7 @@ void ComponentManager_iOS::removeSelectObjects(SimpleIDSet selIDs)
     }
 }
     
-void ComponentManager_iOS::removeComponentObject(SimpleIdentity compID,ChangeSet &changes)
+void ComponentManager_iOS::removeComponentObject(PlatformThreadInfo *threadInfo,SimpleIdentity compID,ChangeSet &changes)
 {
     ComponentObjectRef compObj;
     
@@ -93,7 +93,7 @@ void ComponentManager_iOS::removeComponentObject(SimpleIdentity compID,ChangeSet
     if (!compObj->selectIDs.empty())
         removeSelectObjects(compObj->selectIDs);
     
-    ComponentManager::removeComponentObject(compID, changes);
+    ComponentManager::removeComponentObject(threadInfo,compID, changes);
 }
     
 void ComponentManager_iOS::clear()

@@ -27,7 +27,7 @@ namespace WhirlyKit
 /**
  * Android wrapper around a shader.
  */
-class Shader_Android {
+class Shader_Android : ProgramGLES {
 public:
     Shader_Android();
     virtual ~Shader_Android();
@@ -36,16 +36,13 @@ public:
     void setupProgram(const std::string &name,const std::string &vertProg,const std::string &fragProg);
 
     // Set one up that we've built on the C++ side
-    void setupPreBuildProgram(ProgramGLES *prog);
+    void setupPreBuildProgram(ProgramGLESRef prog);
 
     // Program after set up
     ProgramGLESRef prog;
     // Varyings if they exist.  Need to be passed in during creation.
     std::vector<std::string> varyings;
 };
-
-// TODO: Switch to storing Shader_AndroidRef
-//       We have some dispose related problems
-
+typedef std::shared_ptr<Shader_Android> Shader_AndroidRef;
 
 }

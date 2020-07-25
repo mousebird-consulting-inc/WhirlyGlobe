@@ -221,6 +221,9 @@ bool TextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
             pixFormat = MTLPixelFormatRG32Uint;
             bytesPerRow = 8*width;
             break;
+        case TexTypeQuadUInt32:
+            pixFormat = MTLPixelFormatRGBA32Uint;
+            bytesPerRow = 16*width;
     }
     
     // Set up the texture and upload the data
@@ -230,7 +233,10 @@ bool TextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
     if (!texData) {
         desc.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
 #if TARGET_OS_SIMULATOR
-    desc.storageMode = MTLStorageModePrivate;
+        if (pixFormat != MTLPixelFormatDepth32Float)
+            desc.storageMode = MTLStorageModeShared;
+        else
+            desc.storageMode = MTLStorageModePrivate;
 #endif
     }
     

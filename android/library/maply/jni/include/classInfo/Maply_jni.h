@@ -25,7 +25,7 @@
 #import <vector>
 #import <android/log.h>
 #import <jni.h>
-#import <WhirlyGlobe_Android.h>
+#import "WhirlyGlobe.h"
 
 /* Java Class Info
  * This tracks JNI info about classes we implement.
@@ -456,10 +456,27 @@ protected:
 	jobject curObj;
 };
 
+namespace WhirlyKit {
+/**
+ * For more complex parts of the system we need the JNIEnv associated
+ * with the thread we're current on.  But we really like to reuse
+ * objects between threads, so this thing has to be passed way, way down.
+ */
+class PlatformInfo_Android : public WhirlyKit::PlatformThreadInfo {
+public:
+    PlatformInfo_Android(JNIEnv *env) : env(env) {}
+	JNIEnv *env;
+};
+}
+
 // Convert a Java int array into a std::vector of ints
 void ConvertIntArray(JNIEnv *env,jintArray &intArray,std::vector<int> &intVec);
+// Convert a Java long array into a std::vector of longs
+void ConvertLongLongArray(JNIEnv *env,jlongArray &longArray,std::vector<WhirlyKit::SimpleIdentity> &longVec);
 // Convert a Java float array into a std::vector of floats
 void ConvertFloatArray(JNIEnv *env,jfloatArray &floatArray,std::vector<float> &floatVec);
+// Convert a Java double array into a std::vector of doubles
+void ConvertDoubleArray(JNIEnv *env,jdoubleArray &doubleArray,std::vector<double> &doubleVec);
 // Convert a Java float array into a std::vector of Point2f
 void ConvertFloat2fArray(JNIEnv *env,jfloatArray &floatArray,WhirlyKit::Point2fVector &ptVec);
 // Convert a Java float array into a std::vector of Point3f
@@ -473,9 +490,13 @@ void ConvertLongArrayToSet(JNIEnv *env,jlongArray &longArray,std::set<WhirlyKit:
 
 // Return a Java long array
 jlongArray BuildLongArray(JNIEnv *env,std::vector<WhirlyKit::SimpleIdentity> &longVec);
+// Return a Java double array
+jdoubleArray BuildDoubleArray(JNIEnv *env,std::vector<double> &doubleVec);
 // Return a Java int array
 jintArray BuildIntArray(JNIEnv *env,std::vector<int> &longVec);
 // Return a new Java object array
 jobjectArray BuildObjectArray(JNIEnv *env,jclass cls,std::vector<jobject> &objVec);
+// Return new Java string array
+jobjectArray BuildStringArray(JNIEnv *env,std::vector<std::string> &objVec);
 
 #endif /* Maply_JNI_h_ */

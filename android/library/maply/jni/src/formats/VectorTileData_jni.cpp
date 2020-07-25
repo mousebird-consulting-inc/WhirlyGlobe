@@ -22,6 +22,7 @@
 #import <Geometry_jni.h>
 #import <Vectors_jni.h>
 #import <Components_jni.h>
+#import <Scene_jni.h>
 #import "com_mousebird_maply_VectorTileData.h"
 
 using namespace WhirlyKit;
@@ -59,7 +60,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorTileData_initialise__IIILc
         if (!boundLL || !boundUR || !geoLL || !geoUR)
             return;
         VectorTileData_AndroidRef *tileData = new VectorTileData_AndroidRef(new VectorTileData_Android());
-        (*tileData)->ident = QuadTreeNew::Node(x,y,level);
+        (*tileData)->ident = QuadTreeIdentifier(x,y,level);
         (*tileData)->bbox.ll() = *boundLL;
         (*tileData)->bbox.ur() = *boundUR;
         (*tileData)->geoBBox.ll() = *geoLL;
@@ -264,6 +265,26 @@ JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_VectorTileData_getVector
     }
     catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorTileData::getVectors");
+    }
+
+    return NULL;
+}
+
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorTileData_getChangeSet
+        (JNIEnv *env, jobject obj)
+{
+    try
+    {
+        VectorTileData_AndroidRef *tileData = VectorTileDataClassInfo::getClassInfo()->getObject(env,obj);
+        VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
+        if (!tileData)
+            return NULL;
+        jobject newObj = MakeChangeSet(env,(*tileData)->changes);
+        (*tileData)->changes.clear();
+        return newObj;
+    }
+    catch (...) {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorTileData::getChangeSet");
     }
 
     return NULL;

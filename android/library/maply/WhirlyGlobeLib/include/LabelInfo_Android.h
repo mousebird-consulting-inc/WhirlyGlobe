@@ -35,15 +35,16 @@ class LabelInfoAndroid : public LabelInfo
 {
 public:
 	LabelInfoAndroid(bool screenObject);
+	LabelInfoAndroid(const LabelInfoAndroid &that);
 
 	// Clear any global refs we may be holding
-	void clearRefs(JNIEnv *env);
+	void clearRefs(PlatformInfo_Android *threadInfo);
 
 	// Add the typeface to the label info.  Needed for rendering
-	void setTypeface(JNIEnv *env,jobject typefacObj);
+	void setTypeface(PlatformInfo_Android *threadInfo,jobject typefaceObj);
 
 	// Compare typefaces
-	bool typefaceIsSame(const jobject inTypeface) const;
+	bool typefaceIsSame(PlatformInfo_Android *threadInfo,const jobject inTypeface) const;
 
 	// Globe reference to typeface object
 	jobject typefaceObj;
@@ -51,9 +52,9 @@ public:
 	// Font size
 	float fontSize;
 
-	// Used to pass the JNI Env down into the depths
-	JNIEnv *env;
+	// Global object pointing to labelInfo on Java side
 	jobject labelInfoObj;
 };
+typedef std::shared_ptr<LabelInfoAndroid> LabelInfoAndroidRef;
 
 }

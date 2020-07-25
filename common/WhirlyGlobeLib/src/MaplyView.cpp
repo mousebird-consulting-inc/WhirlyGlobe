@@ -31,9 +31,9 @@ MapView::MapView(WhirlyKit::CoordSystemDisplayAdapter *inCoordAdapter)
 {
     coordAdapter = inCoordAdapter;
     fieldOfView = 60.0 / 360.0 * 2 * (float)M_PI;  // 60 degree field of view
-    nearPlane = 0.00001;
+    nearPlane = 0.000001;
     imagePlaneSize = nearPlane * tanf(fieldOfView / 2.0);
-    farPlane = 5.0;
+    farPlane = 4.0;
     lastChangedTime = TimeGetCurrent();
     continuousZoom = false;
     loc = Point3d(0,0,4);

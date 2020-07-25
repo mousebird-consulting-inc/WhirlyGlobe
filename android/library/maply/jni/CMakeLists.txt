@@ -118,6 +118,7 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/src/stickers/StickerManager_jni.cpp"
 
         "${CMAKE_CURRENT_LIST_DIR}/src/vectors/AttrDictionary_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/vectors/AttrDictionaryEntry_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/vectors/VectorObject_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/vectors/VectorIterator_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/vectors/VectorInfo_jni.cpp"
@@ -148,5 +149,7 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/src/renderer/RenderController_jni.cpp"
 
         "${CMAKE_CURRENT_LIST_DIR}/src/formats/MapboxVectorTileParser_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/formats/MapboxVectorStyleSet_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/formats/VectorStyleSettings_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/formats/VectorTileData_jni.cpp"
 )

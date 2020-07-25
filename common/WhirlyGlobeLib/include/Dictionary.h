@@ -27,7 +27,13 @@ namespace WhirlyKit
 {
     
 /// Data types in dictionary
-typedef enum {DictTypeNone,DictTypeString,DictTypeInt,DictTypeIdentity,DictTypeDouble,DictTypeObject} DictionaryType;
+typedef enum {DictTypeNone,DictTypeString,DictTypeInt,DictTypeIdentity,DictTypeDouble,DictTypeObject,DictTypeDictionary,DictTypeArray} DictionaryType;
+
+class Dictionary;
+typedef std::shared_ptr<Dictionary> DictionaryRef;
+
+class DictionaryEntry;
+typedef std::shared_ptr<DictionaryEntry> DictionaryEntryRef;
 
 /// The Dictionary is my cross platform replacement for NSDictionary
 class Dictionary
@@ -56,12 +62,42 @@ public:
     virtual std::string getString(const std::string &name) const = 0;
     /// Return a string, using the default if it's missing
     virtual std::string getString(const std::string &name,const std::string &defVal) const = 0;
+    /// Return a dictionary as an entry
+    virtual DictionaryRef getDict(const std::string &name) const = 0;
+    // Return a generic entry
+    virtual DictionaryEntryRef getEntry(const std::string &name) const = 0;
+    // Return an array (if it is an array)
+    virtual std::vector<DictionaryEntryRef> getArray(const std::string &name) const = 0;
 };
-    
-typedef std::shared_ptr<Dictionary> DictionaryRef;
 
 class MutableDictionary;
 typedef std::shared_ptr<MutableDictionary> MutableDictionaryRef;
+
+// A reference to an entry in the dictionary (kind of a hack)
+class DictionaryEntry
+{
+public:
+    /// Returns the field type
+    virtual DictionaryType getType() const = 0;
+    /// Return an int, using the default if it's missing
+    virtual int getInt() const = 0;
+    /// Return a 64 bit unique identity or 0 if missing
+    virtual SimpleIdentity getIdentity() const = 0;
+    /// Interpret an int as a boolean
+    virtual bool getBool() const = 0;
+    /// Interpret an int as a RGBA color
+    virtual RGBAColor getColor() const = 0;
+    /// Return a double, using the default if it's missing
+    virtual double getDouble() const = 0;
+    /// Return a string, or empty if it's missing
+    virtual std::string getString() const = 0;
+    /// Return a dictionary as an entry
+    virtual DictionaryRef getDict() const = 0;
+    /// Return an array of refs
+    virtual std::vector<DictionaryEntryRef> getArray() const = 0;
+    /// Compare to other
+    virtual bool isEqual(DictionaryEntryRef other) const = 0;
+};
 
 /// This version of the dictionary can be modified
 class MutableDictionary : public Dictionary

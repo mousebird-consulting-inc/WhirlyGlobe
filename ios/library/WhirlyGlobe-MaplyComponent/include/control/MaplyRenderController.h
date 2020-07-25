@@ -56,7 +56,7 @@ typedef NS_ENUM(NSInteger, MaplyQuadImageFormat) {
     MaplyImage4Layer8Bit,
     // Metal only
     MaplyImageSingleFloat16,MaplyImageSingleFloat32,MaplyImageDoubleFloat16,MaplyImageDoubleFloat32,MaplyImageQuadFloat16,MaplyImageQuadFloat32,
-    MaplyImageUInt32,MaplyImageDoubleUInt32
+    MaplyImageUInt32,MaplyImageDoubleUInt32,MaplyImageQuadUInt32
 };
 
 /// Wrap values for certain types of textures

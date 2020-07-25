@@ -35,6 +35,7 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
         ShapefileTestCase(),
 		WideVectorsTestCase(),
 		TextureVectorTestCase(),
+        SimpleStyleTestCase(),
         GeoJSONStyleTestCase(),
         LoftedPolysTestCase(),
 

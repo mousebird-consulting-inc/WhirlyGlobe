@@ -25,6 +25,8 @@
 namespace WhirlyKit
 {
 
+class LabelInfoAndroid;
+
 /**
  *  This is the platform specific font texture manager for Android.
  */
@@ -33,8 +35,6 @@ class FontTextureManager_Android : public FontTextureManager
 public:
 	FontTextureManager_Android(JNIEnv *env,SceneRenderer *sceneRender,Scene *scene,jobject charRenderObj);
     ~FontTextureManager_Android();
-
-    void setEnv(JNIEnv *newEnv)   { savedEnv = newEnv; }
 
     // Wrapper for FontManager.
     class FontManager_Android : public FontManager
@@ -53,13 +53,11 @@ public:
 
     /// Add the given string.  Caller is responsible for deleting
     ///  the DrawableString
-    DrawableString *addString(JNIEnv *env,const std::vector<int> &codePoints,jobject labelInfoObj,ChangeSet &changes);
+    DrawableString *addString(PlatformThreadInfo *threadInfo,const std::vector<int> &codePoints,const LabelInfoAndroid *,ChangeSet &changes);
     
 protected:
-    JNIEnv *savedEnv;
-
     // Find the appropriate font manager
-    FontManager_AndroidRef findFontManagerForFont(jobject typefaceObj,const LabelInfo &labelInfo);
+    FontManager_AndroidRef findFontManagerForFont(PlatformInfo_Android *threadInfo,jobject typefaceObj,const LabelInfo &labelInfo);
 
     // Render the glyph with the given font manager
 //    RawDataRef renderGlyph(WKGlyph glyph,FontManageriOS *fm,Point2f &size,Point2f &glyphSize,Point2f &offset,Point2f &textureOffset);
