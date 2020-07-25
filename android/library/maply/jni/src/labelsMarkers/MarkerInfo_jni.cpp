@@ -36,7 +36,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerInfo_initialise
 {
 	try
 	{
-		MarkerInfo *info = new MarkerInfo(true);
+		MarkerInfoRef *info = new MarkerInfoRef(new MarkerInfo(true));
 		MarkerInfoClassInfo::getClassInfo()->setHandle(env,obj,info);
 	}
 	catch (...)
@@ -55,7 +55,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerInfo_dispose
 		MarkerInfoClassInfo *classInfo = MarkerInfoClassInfo::getClassInfo();
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
-            MarkerInfo *info = classInfo->getObject(env,obj);
+            MarkerInfoRef *info = classInfo->getObject(env,obj);
             if (!info)
                 return;
             delete info;
@@ -75,10 +75,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerInfo_setColor
 	try
 	{
 		MarkerInfoClassInfo *classInfo = MarkerInfoClassInfo::getClassInfo();
-		MarkerInfo *info = classInfo->getObject(env,obj);
+        MarkerInfoRef *info = classInfo->getObject(env,obj);
 		if (!info)
 			return;
-		info->color = RGBAColor(r*255,g*255,b*255,a*255);
+		(*info)->color = RGBAColor(r*255,g*255,b*255,a*255);
 	}
 	catch (...)
 	{
@@ -92,10 +92,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerInfo_setLayoutImportance
     try
     {
         MarkerInfoClassInfo *classInfo = MarkerInfoClassInfo::getClassInfo();
-        MarkerInfo *info = classInfo->getObject(env,obj);
+        MarkerInfoRef *info = classInfo->getObject(env,obj);
         if (!info)
             return;
-        info->layoutImportance = import;
+        (*info)->layoutImportance = import;
     }
     catch (...)
     {
@@ -109,10 +109,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerInfo_setClusterGroup
     try
     {
         MarkerInfoClassInfo *classInfo = MarkerInfoClassInfo::getClassInfo();
-        MarkerInfo *info = classInfo->getObject(env,obj);
+        MarkerInfoRef *info = classInfo->getObject(env,obj);
         if (!info)
             return;
-        info->clusterGroup = clusterGroup;
+        (*info)->clusterGroup = clusterGroup;
     }
     catch (...)
     {

@@ -74,7 +74,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_StickerManager_addStickers
     {
         SphericalChunkManager *chunkManager = StickerManagerClassInfo::getClassInfo()->getObject(env,obj);
         SphericalChunkClassInfo *chunkClassInfo = SphericalChunkClassInfo::getClassInfo();
-        SphericalChunkInfo *chunkInfo = SphericalChunkInfoClassInfo::getClassInfo()->getObject(env,stickerInfoObj);
+        SphericalChunkInfoRef *chunkInfo = SphericalChunkInfoClassInfo::getClassInfo()->getObject(env,stickerInfoObj);
         ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
         if (!chunkManager || !chunkInfo || !changeSet)
         {
@@ -82,10 +82,10 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_StickerManager_addStickers
             return EmptyIdentity;
         }
 
-        if (chunkInfo->programID == EmptyIdentity) {
+        if ((*chunkInfo)->programID == EmptyIdentity) {
             ProgramGLES *prog = (ProgramGLES *)chunkManager->getScene()->findProgramByName(MaplyDefaultTriangleShader);
             if (prog)
-                chunkInfo->programID = prog->getId();
+                (*chunkInfo)->programID = prog->getId();
         }
 
         JavaObjectArrayHelper stickerHelp(env,stickerArr);
@@ -96,7 +96,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_StickerManager_addStickers
                 chunks.push_back(*chunk);
         }
 
-        SimpleIdentity chunkId = chunkManager->addChunks(chunks,*chunkInfo,*(changeSet->get()));
+        SimpleIdentity chunkId = chunkManager->addChunks(chunks,*(*chunkInfo),*(changeSet->get()));
 
         return chunkId;
     }
@@ -115,12 +115,12 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_StickerManager_modifyChunkTe
     {
         StickerManagerClassInfo *classInfo = StickerManagerClassInfo::getClassInfo();
         SphericalChunkManager *chunkManager = classInfo->getObject(env,obj);
-        SphericalChunkInfo *chunkInfo = (SphericalChunkInfo *)SphericalChunkInfoClassInfo::getClassInfo()->getObject(env,stickerInfoObj);
+        SphericalChunkInfoRef *chunkInfo = SphericalChunkInfoClassInfo::getClassInfo()->getObject(env,stickerInfoObj);
         ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
         if (!chunkManager || !chunkInfo || !changeSet)
             return false;
 
-        chunkManager->modifyChunkTextures(stickerID,chunkInfo->texIDs,*(changeSet->get()));
+        chunkManager->modifyChunkTextures(stickerID,(*chunkInfo)->texIDs,*(changeSet->get()));
 
         return true;
     }

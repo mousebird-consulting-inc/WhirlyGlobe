@@ -91,7 +91,7 @@ public:
     Orient orient;
     RGBAColor color;
 };
-
+typedef std::shared_ptr<BillboardInfo> BillboardInfoRef;
 
 /// Used internally to track billboard geometry
 class BillboardSceneRep : public Identifiable

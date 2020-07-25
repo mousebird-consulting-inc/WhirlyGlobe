@@ -73,7 +73,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_MarkerManager_addMarkers
 	{
 		MarkerManagerClassInfo *classInfo = MarkerManagerClassInfo::getClassInfo();
 		MarkerManager *markerManager = classInfo->getObject(env,obj);
-		MarkerInfo *markerInfo = MarkerInfoClassInfo::getClassInfo()->getObject(env,markerInfoObj);
+		MarkerInfoRef *markerInfo = MarkerInfoClassInfo::getClassInfo()->getObject(env,markerInfoObj);
 		ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
 		if (!markerManager || !markerInfo || !changeSet)
 		{
@@ -93,9 +93,9 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_MarkerManager_addMarkers
 			markers.push_back(marker);
 		}
 
-        markerInfo->screenObject = false;
+		(*markerInfo)->screenObject = false;
 		// Resolve the program ID
-		if (markerInfo->programID == EmptyIdentity)
+		if ((*markerInfo)->programID == EmptyIdentity)
         {
             Program *prog = NULL;
             if (hasMultiTex)
@@ -103,10 +103,10 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_MarkerManager_addMarkers
             else
                 prog = markerManager->getScene()->findProgramByName(MaplyDefaultTriangleShader);
             if (prog)
-                markerInfo->programID = prog->getId();
+				(*markerInfo)->programID = prog->getId();
         }
 
-		SimpleIdentity markerId = markerManager->addMarkers(markers,*markerInfo,*(changeSet->get()));
+		SimpleIdentity markerId = markerManager->addMarkers(markers,*(*markerInfo),*(changeSet->get()));
 
 		return markerId;
 	}
@@ -125,7 +125,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_MarkerManager_addScreenMarkers
     {
         MarkerManagerClassInfo *classInfo = MarkerManagerClassInfo::getClassInfo();
         MarkerManager *markerManager = classInfo->getObject(env,obj);
-        MarkerInfo *markerInfo = MarkerInfoClassInfo::getClassInfo()->getObject(env,markerInfoObj);
+		MarkerInfoRef *markerInfo = MarkerInfoClassInfo::getClassInfo()->getObject(env,markerInfoObj);
         ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
         if (!markerManager || !markerInfo || !changeSet)
         {
@@ -145,9 +145,9 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_MarkerManager_addScreenMarkers
 			markers.push_back(marker);
         }
 
-        markerInfo->screenObject = true;
+		(*markerInfo)->screenObject = true;
         // Resolve the program ID
-        if (markerInfo->programID == EmptyIdentity)
+        if ((*markerInfo)->programID == EmptyIdentity)
         {
             Program *prog = NULL;
             if (isMoving)
@@ -155,10 +155,10 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_MarkerManager_addScreenMarkers
             else
                 prog = markerManager->getScene()->findProgramByName(MaplyScreenSpaceDefaultShader);
             if (prog)
-                markerInfo->programID = prog->getId();
+				(*markerInfo)->programID = prog->getId();
         }
 
-        SimpleIdentity markerId = markerManager->addMarkers(markers,*markerInfo,*(changeSet->get()));
+        SimpleIdentity markerId = markerManager->addMarkers(markers,*(*markerInfo),*(changeSet->get()));
         
         return markerId;
     }

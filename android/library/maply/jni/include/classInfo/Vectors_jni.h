@@ -23,10 +23,10 @@
 
 typedef JavaClassInfo<WhirlyKit::MutableDictionary_AndroidRef> AttrDictClassInfo;
 typedef JavaClassInfo<WhirlyKit::DictionaryEntry_AndroidRef> AttrDictEntryClassInfo;
-typedef JavaClassInfo<WhirlyKit::VectorInfo> VectorInfoClassInfo;
-typedef JavaClassInfo<WhirlyKit::WideVectorInfo> WideVectorInfoClassInfo;
+typedef JavaClassInfo<WhirlyKit::VectorInfoRef> VectorInfoClassInfo;
+typedef JavaClassInfo<WhirlyKit::WideVectorInfoRef> WideVectorInfoClassInfo;
 typedef JavaClassInfo<WhirlyKit::VectorObjectRef> VectorObjectClassInfo;
-typedef JavaClassInfo<WhirlyKit::LoftedPolyInfo> LoftedPolyInfoClassInfo;
+typedef JavaClassInfo<WhirlyKit::LoftedPolyInfoRef> LoftedPolyInfoClassInfo;
 //typedef JavaClassInfo<WhirlyKit::MapboxVectorTileParser> MapboxVectorTileParserClassInfo;
 
 // Construct a Java-side AttrDictionary wrapper

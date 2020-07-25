@@ -36,7 +36,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryInfo_initialise
 {
     try
     {
-        GeometryInfo *geomInst = new GeometryInfo();
+        GeometryInfoRef *geomInst = new GeometryInfoRef(new GeometryInfo());
         GeometryInfoClassInfo::getClassInfo()->setHandle(env,obj,geomInst);
     }
     catch (...)
@@ -67,12 +67,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryInfo_setColor
     try
     {
         GeometryInfoClassInfo *classInfo = GeometryInfoClassInfo::getClassInfo();
-        GeometryInfo *info = classInfo->getObject(env,obj);
+        GeometryInfoRef *info = classInfo->getObject(env,obj);
         if (!info)
             return;
 
-        info->colorOverride = true;
-        info->color = RGBAColor(r,g,b,a);
+        (*info)->colorOverride = true;
+        (*info)->color = RGBAColor(r,g,b,a);
     }
     catch (...)
     {
@@ -86,11 +86,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryInfo_setPointSize
     try
     {
         GeometryInfoClassInfo *classInfo = GeometryInfoClassInfo::getClassInfo();
-        GeometryInfo *info = classInfo->getObject(env,obj);
+        GeometryInfoRef *info = classInfo->getObject(env,obj);
         if (!info)
             return;
-        
-        info->pointSize = pointSize;
+
+        (*info)->pointSize = pointSize;
     }
     catch (...)
     {

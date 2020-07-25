@@ -39,11 +39,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setVisibleHeightRange
     try
     {
         BaseInfoClassInfo *classInfo = BaseInfoClassInfo::getClassInfo();
-        BaseInfo *info = classInfo->getObject(env,obj);
+        BaseInfoRef *info = classInfo->getObject(env,obj);
         if (!info)
             return;
-        info->minVis = minVis;
-        info->maxVis = maxVis;
+        (*info)->minVis = minVis;
+        (*info)->maxVis = maxVis;
     }
     catch (...)
     {
@@ -57,10 +57,10 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_BaseInfo_getVisibleHeightMin
     try
     {
         BaseInfoClassInfo *classInfo = BaseInfoClassInfo::getClassInfo();
-        BaseInfo *info = classInfo->getObject(env,obj);
+        BaseInfoRef *info = classInfo->getObject(env,obj);
         if (!info)
             return DrawVisibleInvalid;
-        return info->minVis;
+        return (*info)->minVis;
     }
     catch (...)
     {
@@ -76,10 +76,10 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_BaseInfo_getVisibleHeightMax
     try
     {
         BaseInfoClassInfo *classInfo = BaseInfoClassInfo::getClassInfo();
-        BaseInfo *info = classInfo->getObject(env,obj);
+        BaseInfoRef *info = classInfo->getObject(env,obj);
         if (!info)
             return DrawVisibleInvalid;
-        return info->maxVis;
+        return (*info)->maxVis;
     }
     catch (...)
     {
@@ -95,11 +95,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setViewDistRange
     try
     {
         BaseInfoClassInfo *classInfo = BaseInfoClassInfo::getClassInfo();
-        BaseInfo *info = classInfo->getObject(env,obj);
+        BaseInfoRef *info = classInfo->getObject(env,obj);
         if (!info)
             return;
-        info->minViewerDist = viewMin;
-        info->maxViewerDist = viewMax;
+        (*info)->minViewerDist = viewMin;
+        (*info)->maxViewerDist = viewMax;
     }
     catch (...)
     {
@@ -113,10 +113,10 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_BaseInfo_getViewDistRangeMin
     try
     {
         BaseInfoClassInfo *classInfo = BaseInfoClassInfo::getClassInfo();
-        BaseInfo *info = classInfo->getObject(env,obj);
+        BaseInfoRef *info = classInfo->getObject(env,obj);
         if (!info)
             return DrawVisibleInvalid;
-        return info->minViewerDist;
+        return (*info)->minViewerDist;
     }
     catch (...)
     {
@@ -132,10 +132,10 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_BaseInfo_getViewDistRangeMax
     try
     {
         BaseInfoClassInfo *classInfo = BaseInfoClassInfo::getClassInfo();
-        BaseInfo *info = classInfo->getObject(env,obj);
+        BaseInfoRef *info = classInfo->getObject(env,obj);
         if (!info)
             return DrawVisibleInvalid;
-        return info->maxViewerDist;
+        return (*info)->maxViewerDist;
     }
     catch (...)
     {
@@ -151,12 +151,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setViewerCenter
     try
     {
         BaseInfoClassInfo *classInfo = BaseInfoClassInfo::getClassInfo();
-        BaseInfo *info = classInfo->getObject(env,obj);
+        BaseInfoRef *info = classInfo->getObject(env,obj);
         if (!info)
             return;
 		Point3dClassInfo *pt3dClassInfo = Point3dClassInfo::getClassInfo();
 		Point3d *pt = pt3dClassInfo->getObject(env,ptObj);
-		info->viewerCenter = *pt;
+        (*info)->viewerCenter = *pt;
     }
     catch (...)
     {
@@ -170,10 +170,10 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_BaseInfo_getViewerCenter
     try
     {
         BaseInfoClassInfo *classInfo = BaseInfoClassInfo::getClassInfo();
-        BaseInfo *info = classInfo->getObject(env,obj);
+        BaseInfoRef *info = classInfo->getObject(env,obj);
         if (!info)
             return NULL;
-		jobject ptObj = MakePoint3d(env,info->viewerCenter);
+		jobject ptObj = MakePoint3d(env,(*info)->viewerCenter);
 		return ptObj;
     }
     catch (...)
@@ -190,10 +190,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setDrawOffset
     try
     {
         BaseInfoClassInfo *classInfo = BaseInfoClassInfo::getClassInfo();
-        BaseInfo *info = classInfo->getObject(env,obj);
+        BaseInfoRef *info = classInfo->getObject(env,obj);
         if (!info)
             return;
-        info->drawOffset = drawOffset;
+        (*info)->drawOffset = drawOffset;
     }
     catch (...)
     {
@@ -207,10 +207,10 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_BaseInfo_getDrawOffset
     try
     {
         BaseInfoClassInfo *classInfo = BaseInfoClassInfo::getClassInfo();
-        BaseInfo *info = classInfo->getObject(env,obj);
+        BaseInfoRef *info = classInfo->getObject(env,obj);
         if (!info)
             return 0.0;
-        return info->drawOffset;
+        return (*info)->drawOffset;
     }
     catch (...)
     {
@@ -226,10 +226,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setDrawPriority
     try
     {
         BaseInfoClassInfo *classInfo = BaseInfoClassInfo::getClassInfo();
-        BaseInfo *info = classInfo->getObject(env,obj);
+        BaseInfoRef *info = classInfo->getObject(env,obj);
         if (!info)
             return;
-        info->drawPriority = drawPriority;
+        (*info)->drawPriority = drawPriority;
     }
     catch (...)
     {
@@ -243,10 +243,10 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_BaseInfo_getDrawPriority
     try
     {
         BaseInfoClassInfo *classInfo = BaseInfoClassInfo::getClassInfo();
-        BaseInfo *info = classInfo->getObject(env,obj);
+        BaseInfoRef *info = classInfo->getObject(env,obj);
         if (!info)
             return 0;
-        return info->drawPriority;
+        return (*info)->drawPriority;
     }
     catch (...)
     {
@@ -262,10 +262,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setEnable
     try
     {
         BaseInfoClassInfo *classInfo = BaseInfoClassInfo::getClassInfo();
-        BaseInfo *info = classInfo->getObject(env,obj);
+        BaseInfoRef *info = classInfo->getObject(env,obj);
         if (!info)
             return;
-        info->enable = enable;
+        (*info)->enable = enable;
     }
     catch (...)
     {
@@ -279,10 +279,10 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_BaseInfo_getEnable
     try
     {
         BaseInfoClassInfo *classInfo = BaseInfoClassInfo::getClassInfo();
-        BaseInfo *info = classInfo->getObject(env,obj);
+        BaseInfoRef *info = classInfo->getObject(env,obj);
         if (!info)
             return false;
-        return info->enable;
+        return (*info)->enable;
     }
     catch (...)
     {
@@ -298,10 +298,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setFade
     try
     {
         BaseInfoClassInfo *classInfo = BaseInfoClassInfo::getClassInfo();
-        BaseInfo *info = classInfo->getObject(env,obj);
+        BaseInfoRef *info = classInfo->getObject(env,obj);
         if (!info)
             return;
-        info->fade = fade;
+        (*info)->fade = fade;
     }
     catch (...)
     {
@@ -315,11 +315,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setFadeInOut
     try
     {
         BaseInfoClassInfo *classInfo = BaseInfoClassInfo::getClassInfo();
-        BaseInfo *info = classInfo->getObject(env,obj);
+        BaseInfoRef *info = classInfo->getObject(env,obj);
         if (!info)
             return;
-        info->fadeIn = fadeIn;
-        info->fadeOut = fadeOut;
+        (*info)->fadeIn = fadeIn;
+        (*info)->fadeOut = fadeOut;
     }
     catch (...)
     {
@@ -333,10 +333,10 @@ JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_BaseInfo_getFadeIn
     try
     {
         BaseInfoClassInfo *classInfo = BaseInfoClassInfo::getClassInfo();
-        BaseInfo *info = classInfo->getObject(env,obj);
+        BaseInfoRef *info = classInfo->getObject(env,obj);
         if (!info)
             return 0.0;
-        return info->fadeIn;
+        return (*info)->fadeIn;
     }
     catch (...)
     {
@@ -352,10 +352,10 @@ JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_BaseInfo_getFadeOut
     try
     {
         BaseInfoClassInfo *classInfo = BaseInfoClassInfo::getClassInfo();
-        BaseInfo *info = classInfo->getObject(env,obj);
+        BaseInfoRef *info = classInfo->getObject(env,obj);
         if (!info)
             return 0.0;
-        return info->fadeOut;
+        return (*info)->fadeOut;
     }
     catch (...)
     {
@@ -371,10 +371,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setFadeOutTime
     try
     {
         BaseInfoClassInfo *classInfo = BaseInfoClassInfo::getClassInfo();
-        BaseInfo *info = classInfo->getObject(env,obj);
+        BaseInfoRef *info = classInfo->getObject(env,obj);
         if (!info)
             return;
-        info->fadeOutTime = fadeOutTime;
+        (*info)->fadeOutTime = fadeOutTime;
     }
     catch (...)
     {
@@ -393,10 +393,10 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_BaseInfo_getFadeOutTime
     try
     {
         BaseInfoClassInfo *classInfo = BaseInfoClassInfo::getClassInfo();
-        BaseInfo *info = classInfo->getObject(env,obj);
+        BaseInfoRef *info = classInfo->getObject(env,obj);
         if (!info)
             return 0.0;
-        return info->fadeOutTime;
+        return (*info)->fadeOutTime;
     }
     catch (...)
     {
@@ -412,12 +412,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setEnableTimes
     try
     {
         BaseInfoClassInfo *classInfo = BaseInfoClassInfo::getClassInfo();
-        BaseInfo *info = classInfo->getObject(env,obj);
+        BaseInfoRef *info = classInfo->getObject(env,obj);
         if (!info)
             return;
 
-        info->startEnable = startEnable;
-        info->endEnable = endEnable;
+        (*info)->startEnable = startEnable;
+        (*info)->endEnable = endEnable;
     }
     catch (...)
     {
@@ -431,11 +431,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setShaderID
     try
     {
         BaseInfoClassInfo *classInfo = BaseInfoClassInfo::getClassInfo();
-        BaseInfo *info = classInfo->getObject(env,obj);
+        BaseInfoRef *info = classInfo->getObject(env,obj);
         if (!info)
             return;
 
-        info->programID = shaderID;
+        (*info)->programID = shaderID;
     }
     catch (...)
     {
@@ -449,11 +449,11 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_BaseInfo_getShaderID
     try
     {
         BaseInfoClassInfo *classInfo = BaseInfoClassInfo::getClassInfo();
-        BaseInfo *info = classInfo->getObject(env,obj);
+        BaseInfoRef *info = classInfo->getObject(env,obj);
         if (!info)
             return EmptyIdentity;
 
-        return info->programID;
+        return (*info)->programID;
     }
     catch (...)
     {
@@ -469,11 +469,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setZBufferRead
     try
     {
         BaseInfoClassInfo *classInfo = BaseInfoClassInfo::getClassInfo();
-        BaseInfo *info = classInfo->getObject(env,obj);
+        BaseInfoRef *info = classInfo->getObject(env,obj);
         if (!info)
             return;
 
-        info->zBufferRead = val;
+        (*info)->zBufferRead = val;
     }
     catch (...)
     {
@@ -487,11 +487,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setZBufferWrite
     try
     {
         BaseInfoClassInfo *classInfo = BaseInfoClassInfo::getClassInfo();
-        BaseInfo *info = classInfo->getObject(env,obj);
+        BaseInfoRef *info = classInfo->getObject(env,obj);
         if (!info)
             return;
 
-        info->zBufferWrite = val;
+        (*info)->zBufferWrite = val;
     }
     catch (...)
     {
@@ -505,11 +505,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setRenderTargetNative
     try
     {
         BaseInfoClassInfo *classInfo = BaseInfoClassInfo::getClassInfo();
-        BaseInfo *info = classInfo->getObject(env,obj);
+        BaseInfoRef *info = classInfo->getObject(env,obj);
         if (!info)
             return;
 
-        info->renderTargetID = targetID;
+        (*info)->renderTargetID = targetID;
     }
     catch (...)
     {

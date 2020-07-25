@@ -463,7 +463,8 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
                         Log.d("RemoteTileFetcher","Dropping a tile request because it was cancelled: " + inTile.fetchInfo.urlReq);
 
                     try {
-                        response.body().close();
+                        if (response != null)
+                            response.body().close();
                     }
                     catch (Exception fooE) {
                     }

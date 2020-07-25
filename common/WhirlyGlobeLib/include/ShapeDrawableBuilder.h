@@ -45,6 +45,7 @@ public:
     bool hasCenter;
     WhirlyKit::Point3d center;
 };
+typedef std::shared_ptr<ShapeInfo> ShapeInfoRef;
 
 /** This drawable builder is associated with the shape layer.  It's
     exposed so it can be used by the active model version as well.

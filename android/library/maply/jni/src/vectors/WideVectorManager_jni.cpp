@@ -82,7 +82,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_WideVectorManager_addVectors
     try
     {
         WideVectorManager *vecManager = WideVectorManagerClassInfo::getClassInfo()->getObject(env,obj);
-        WideVectorInfo *vecInfo = WideVectorInfoClassInfo::getClassInfo()->getObject(env,vecInfoObj);
+        WideVectorInfoRef *vecInfo = WideVectorInfoClassInfo::getClassInfo()->getObject(env,vecInfoObj);
         ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
         if (!vecManager || !vecInfo || !changeSet)
             return EmptyIdentity;
@@ -98,14 +98,14 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_WideVectorManager_addVectors
 		}
 
         // Resolve a missing program
-        if (vecInfo->programID == EmptyIdentity)
+        if ((*vecInfo)->programID == EmptyIdentity)
         {
             ProgramGLES *prog = (ProgramGLES *)vecManager->getScene()->findProgramByName(MaplyDefaultWideVectorShader);
             if (prog)
-                vecInfo->programID = prog->getId();
+                (*vecInfo)->programID = prog->getId();
         }
                 
-        SimpleIdentity vecID = vecManager->addVectors(&shapes,*vecInfo,*(changeSet->get()));
+        SimpleIdentity vecID = vecManager->addVectors(&shapes,*(*vecInfo),*(changeSet->get()));
         
         return vecID;
     }
@@ -165,12 +165,12 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_WideVectorManager_instanceVecto
     try
     {
         WideVectorManager *vecManager = WideVectorManagerClassInfo::getClassInfo()->getObject(env,obj);
-        WideVectorInfo *vecInfo = WideVectorInfoClassInfo::getClassInfo()->getObject(env,vecInfoObj);
+        WideVectorInfoRef *vecInfo = WideVectorInfoClassInfo::getClassInfo()->getObject(env,vecInfoObj);
         ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
         if (!vecManager || !vecInfo || !changeSet)
             return EmptyIdentity;
         
-        return vecManager->instanceVectors(vecID,*vecInfo,*(changeSet->get()));
+        return vecManager->instanceVectors(vecID,*(*vecInfo),*(changeSet->get()));
     }
     catch (...)
     {

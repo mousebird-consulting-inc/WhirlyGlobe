@@ -77,5 +77,6 @@ public:
     
     SingleVertexAttributeSet uniforms;
 };
+typedef std::shared_ptr<BaseInfo> BaseInfoRef;
 
 }

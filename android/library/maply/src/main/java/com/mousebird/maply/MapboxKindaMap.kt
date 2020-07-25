@@ -66,14 +66,14 @@ public open class MapboxKindaMap {
     constructor(styleURL: Uri, control: BaseController) {
         this.control = WeakReference<BaseController>(control)
         this.styleURL = styleURL
-        styleSettings.baseDrawPriority = QuadImageLoaderBase.BaseDrawPriorityDefault
+        styleSettings.baseDrawPriority = QuadImageLoaderBase.BaseDrawPriorityDefault+1000
         styleSettings.drawPriorityPerLevel = 1
     }
 
     constructor(styleJSON: String, control: BaseController) {
         this.control = WeakReference<BaseController>(control)
         this.styleSheetJSON = styleJSON
-        styleSettings.baseDrawPriority = QuadImageLoaderBase.BaseDrawPriorityDefault
+        styleSettings.baseDrawPriority = QuadImageLoaderBase.BaseDrawPriorityDefault+1000
         styleSettings.drawPriorityPerLevel = 1
     }
 

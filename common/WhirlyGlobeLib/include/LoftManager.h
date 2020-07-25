@@ -54,6 +54,7 @@ public:
     Point2d     center;
     double      gridSize;
 };
+typedef std::shared_ptr<LoftedPolyInfo> LoftedPolyInfoRef;
 
 /** Representation of one or more lofted polygons.
  Used to keep track of the assets we create.

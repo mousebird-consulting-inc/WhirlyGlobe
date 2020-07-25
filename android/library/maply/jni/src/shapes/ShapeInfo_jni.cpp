@@ -40,7 +40,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeInfo_initialise
     try
     {
         ShapeInfoClassInfo *classInfo = ShapeInfoClassInfo::getClassInfo();
-        ShapeInfo *inst = new ShapeInfo();
+        ShapeInfoRef *inst = new ShapeInfoRef(new ShapeInfo());
         classInfo->setHandle(env, obj, inst);
     }
     catch(...)
@@ -59,7 +59,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeInfo_dispose
         ShapeInfoClassInfo *classInfo = ShapeInfoClassInfo::getClassInfo();
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
-            ShapeInfo *inst = classInfo->getObject(env, obj);
+            ShapeInfoRef *inst = classInfo->getObject(env, obj);
             if (!inst)
                 return;
             delete inst;
@@ -78,11 +78,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeInfo_setColor
     try
     {
         ShapeInfoClassInfo *classInfo = ShapeInfoClassInfo::getClassInfo();
-        ShapeInfo *inst = classInfo->getObject(env, obj);
+        ShapeInfoRef *inst = classInfo->getObject(env, obj);
         if (!inst)
             return;
         
-        inst->color = RGBAColor(r*255.0,g*255.0,b*255.0,a*255.0);
+        (*inst)->color = RGBAColor(r*255.0,g*255.0,b*255.0,a*255.0);
     }
     catch(...)
     {
@@ -96,11 +96,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeInfo_setLineWidth
     try
     {
         ShapeInfoClassInfo *classInfo = ShapeInfoClassInfo::getClassInfo();
-        ShapeInfo *inst = classInfo->getObject(env, obj);
+        ShapeInfoRef *inst = classInfo->getObject(env, obj);
         if (!inst)
             return;
-        
-        inst->lineWidth = lineWidth;
+
+        (*inst)->lineWidth = lineWidth;
     }
     catch(...)
     {
@@ -114,10 +114,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeInfo_setInsideOut
     try
     {
         ShapeInfoClassInfo *classInfo = ShapeInfoClassInfo::getClassInfo();
-        ShapeInfo *inst = classInfo->getObject(env, obj);
+        ShapeInfoRef *inst = classInfo->getObject(env, obj);
         if (!inst)
             return;
-        inst->insideOut = insideOut;
+        (*inst)->insideOut = insideOut;
     }
     catch(...)
     {
@@ -131,12 +131,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeInfo_setCenter
     try
     {
         ShapeInfoClassInfo *classInfo = ShapeInfoClassInfo::getClassInfo();
-        ShapeInfo *inst = classInfo->getObject(env, obj);
+        ShapeInfoRef *inst = classInfo->getObject(env, obj);
         Point3d *center = Point3dClassInfo::getClassInfo()->getObject(env, ptObj);
         if (!inst || !center)
             return;
-        inst->hasCenter = true;
-        inst->center = *center;
+        (*inst)->hasCenter = true;
+        (*inst)->center = *center;
     }
     catch(...)
     {

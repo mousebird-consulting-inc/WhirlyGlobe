@@ -27,7 +27,7 @@ typedef JavaClassInfo<WhirlyKit::Cylinder> CylinderClassInfo;
 typedef JavaClassInfo<WhirlyKit::Extruded> ExtrudedClassInfo;
 typedef JavaClassInfo<WhirlyKit::GreatCircle_Android> GreatCircleClassInfo;
 typedef JavaClassInfo<WhirlyKit::Linear> LinearClassInfo;
-typedef JavaClassInfo<WhirlyKit::ShapeInfo> ShapeInfoClassInfo;
+typedef JavaClassInfo<WhirlyKit::ShapeInfoRef> ShapeInfoClassInfo;
 typedef JavaClassInfo<WhirlyKit::Sphere> SphereClassInfo;
 typedef JavaClassInfo<WhirlyKit::Rectangle> RectangleClassInfo;
 typedef JavaClassInfo<WhirlyKit::ShapeManager> ShapeManagerClassInfo;

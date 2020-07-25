@@ -55,11 +55,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_dispose
 		LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
-            LabelInfoAndroid *info = (LabelInfoAndroid *)classInfo->getObject(env,obj);
+            LabelInfoAndroidRef *info = classInfo->getObject(env,obj);
             if (!info)
                 return;
             PlatformInfo_Android platformInfo(env);
-            info->clearRefs(&platformInfo);
+            (*info)->clearRefs(&platformInfo);
             delete info;
 
             classInfo->clearHandle(env,obj);

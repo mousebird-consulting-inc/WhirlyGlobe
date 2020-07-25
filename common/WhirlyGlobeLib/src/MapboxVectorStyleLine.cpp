@@ -85,7 +85,8 @@ bool MapboxVectorLayerLine::parse(PlatformThreadInfo *inst,
     linearClipToBounds = styleSet->boolValue("linearize-clip-to-bounds", styleEntry, "yes", false);
     dropGridLines = styleSet->boolValue("drop-grid-lines", styleEntry, "yes", false);
     subdivToGlobe = styleSet->doubleValue("subdiv-to-globe", styleEntry, 0.0);
-    
+
+    filledLineTexID = EmptyIdentity;
     if (!paint.lineDashArray.empty())
     {
         totLen = 0.0;
@@ -191,7 +192,7 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
                 shapes.insert(vecObj->shapes.begin(),vecObj->shapes.end());
             }
         }
-
+        
         SimpleIdentity wideVecID = styleSet->wideVecManage->addVectors(&shapes, vecInfo, tileInfo->changes);
         if (wideVecID != EmptyIdentity)
             compObj->wideVectorIDs.insert(wideVecID);

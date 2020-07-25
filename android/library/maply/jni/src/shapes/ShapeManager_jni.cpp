@@ -74,7 +74,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_ShapeManager_addShapes
     {
         ShapeManagerClassInfo *classInfo = ShapeManagerClassInfo::getClassInfo();
         ShapeManager *inst = classInfo->getObject(env, obj);
-        ShapeInfo *shapeInfo = ShapeInfoClassInfo::getClassInfo()->getObject(env, shapeInfoObj);
+        ShapeInfoRef *shapeInfo = ShapeInfoClassInfo::getClassInfo()->getObject(env, shapeInfoObj);
         ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env, changeObj);
 
         if (!inst || !shapeInfo || !changeSet)
@@ -100,13 +100,13 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_ShapeManager_addShapes
             }
         }
 
-        if (shapeInfo->programID == EmptyIdentity) {
+        if ((*shapeInfo)->programID == EmptyIdentity) {
             ProgramGLES *prog = (ProgramGLES *)inst->getScene()->findProgramByName(MaplyDefaultModelTriShader);
             if (prog)
-                shapeInfo->programID = prog->getId();
+                (*shapeInfo)->programID = prog->getId();
         }
 
-        SimpleIdentity shapeId = inst->addShapes(shapes, *shapeInfo, *(changeSet->get()));
+        SimpleIdentity shapeId = inst->addShapes(shapes, *(*shapeInfo), *(changeSet->get()));
         return shapeId;
     }
     catch (...)

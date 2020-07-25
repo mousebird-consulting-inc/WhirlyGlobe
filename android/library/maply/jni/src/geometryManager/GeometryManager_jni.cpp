@@ -74,7 +74,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addGeometry
     {
         GeometryManager *geomManager = GeometryManagerClassInfo::getClassInfo()->getObject(env, obj);
         ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
-        GeometryInfo *geomInfo = GeometryInfoClassInfo::getClassInfo()->getObject(env,geomInfoObj);
+        GeometryInfoRef *geomInfo = GeometryInfoClassInfo::getClassInfo()->getObject(env,geomInfoObj);
         if (!geomManager || !changeSet || !geomInfo)
         {
             __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "One of the inputs was null in GeometryManager::addGeometry()");
@@ -102,15 +102,15 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addGeometry
         }
 
         // Resolve a missing program
-        if (geomInfo->programID == EmptyIdentity)
+        if ((*geomInfo)->programID == EmptyIdentity)
         {
             Program *prog = geomManager->getScene()->findProgramByName(MaplyDefaultTriangleShader);
             if (prog)
-                geomInfo->programID = prog->getId();
+                (*geomInfo)->programID = prog->getId();
         }
 
 
-        return geomManager->addGeometry(geoms,geomInsts,*geomInfo,*(changeSet->get()));
+        return geomManager->addGeometry(geoms,geomInsts,*(*geomInfo),*(changeSet->get()));
     }
     catch (...)
     {
@@ -162,7 +162,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addGeometryInst
     {
         GeometryManager *geomManager = GeometryManagerClassInfo::getClassInfo()->getObject(env, obj);
         ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
-        GeometryInfo *geomInfo = GeometryInfoClassInfo::getClassInfo()->getObject(env,geomInfoObj);
+        GeometryInfoRef *geomInfo = GeometryInfoClassInfo::getClassInfo()->getObject(env,geomInfoObj);
         if (!geomManager || !changeSet || !geomInfo)
         {
             __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "One of the inputs was null in GeometryManager::addGeometryInstances()");
@@ -179,7 +179,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addGeometryInst
                 geomInsts.push_back(*geomInst);
         }
 
-        return geomManager->addGeometryInstances(baseGeomID,geomInsts,*geomInfo,*(changeSet->get()));
+        return geomManager->addGeometryInstances(baseGeomID,geomInsts,*(*geomInfo),*(changeSet->get()));
     }
     catch (...)
     {
@@ -199,7 +199,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addGeometryPoin
         ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
         GeometryRawPoints *rawPoints = GeometryRawPointsClassInfo::getClassInfo()->getObject(env,pointsObj);
         Matrix4d *mat = Matrix4dClassInfo::getClassInfo()->getObject(env,matObj);
-        GeometryInfo *geomInfo = GeometryInfoClassInfo::getClassInfo()->getObject(env,geomInfoObj);
+        GeometryInfoRef *geomInfo = GeometryInfoClassInfo::getClassInfo()->getObject(env,geomInfoObj);
         
         if (!geomManager || !rawPoints || !mat || !changeSet)
         {
@@ -207,7 +207,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addGeometryPoin
             return EmptyIdentity;
         }
 
-        return geomManager->addGeometryPoints(*rawPoints,*mat,*geomInfo,*(changeSet->get()));
+        return geomManager->addGeometryPoints(*rawPoints,*mat,*(*geomInfo),*(changeSet->get()));
     }
     catch (...)
     {
