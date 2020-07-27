@@ -904,6 +904,8 @@ int QuadImageFrameLoader::getNumFrames()
 
 QuadFrameInfoRef QuadImageFrameLoader::getFrameInfo(int which)
 {
+    if (which < 0 || which >= frames.size())
+        return QuadFrameInfoRef();
     return frames[which];
 }
 
@@ -925,7 +927,7 @@ void QuadImageFrameLoader::reload(PlatformThreadInfo *threadInfo,int frameIndex,
     loadingStatus = true;
     
     QIFBatchOps *batchOps = makeBatchOps(threadInfo);
-    auto frame = frames[frameIndex];
+    auto frame = frameIndex >= 0 && frameIndex < frames.size() ? frames[frameIndex] : NULL;
 
     generation++;
     
