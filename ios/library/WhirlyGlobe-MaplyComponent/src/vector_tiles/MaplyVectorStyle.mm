@@ -442,6 +442,18 @@ ComponentObjectRef MapboxVectorStyleSetImpl_iOS::makeComponentObject(PlatformThr
     return ComponentObjectRef(new ComponentObject_iOS());
 }
 
+void MapboxVectorStyleSetImpl_iOS::addSelectionObject(SimpleIdentity selectID,VectorObjectRef vecObj,ComponentObjectRef compObj)
+{
+    if (!compManage)
+        return;
+    
+    ComponentManager_iOS *compManage_iOS = (ComponentManager_iOS *)compManage;
+    
+    MaplyVectorObject *vectorObj = [[MaplyVectorObject alloc] initWithRef:vecObj];
+    compManage_iOS->addSelectObject(selectID, vectorObj);
+}
+
+
 double MapboxVectorStyleSetImpl_iOS::calculateTextWidth(PlatformThreadInfo *inst,LabelInfoRef inLabelInfo,const std::string &testStr)
 {
     LabelInfo_iOSRef labelInfo = std::dynamic_pointer_cast<LabelInfo_iOS>(inLabelInfo);

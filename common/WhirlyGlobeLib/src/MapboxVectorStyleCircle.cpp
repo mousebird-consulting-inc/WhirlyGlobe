@@ -100,8 +100,7 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
                         if (selectable) {
                             marker->isSelectable = true;
                             marker->selectID = Identifiable::genId();
-                            // TODO: Figure out selection
-//                            styleSet->compManage->addSelectObject(marker->SelectID,marker);
+                            styleSet->addSelectionObject(marker->selectID, vecObj, compObj);
                             compObj->selectIDs.insert(marker->selectID);
                         }
                         if (!uuidField.empty())

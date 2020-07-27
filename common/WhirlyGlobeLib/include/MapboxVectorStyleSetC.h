@@ -231,6 +231,9 @@ public:
     /// Create a local platform label (fonts are local, and other stuff)
     virtual SingleLabelRef makeSingleLabel(PlatformThreadInfo *inst,const std::string &text) = 0;
 
+    /// Tie a selection ID to the given vector object
+    virtual void addSelectionObject(SimpleIdentity selectID,VectorObjectRef vecObj,ComponentObjectRef compObj) = 0;
+
     /// Return the width of the given line of text
     virtual double calculateTextWidth(PlatformThreadInfo *inInst,LabelInfoRef labelInfo,const std::string &testStr) = 0;
     

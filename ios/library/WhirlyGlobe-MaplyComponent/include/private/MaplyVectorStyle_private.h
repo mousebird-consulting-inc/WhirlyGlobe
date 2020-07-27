@@ -68,6 +68,9 @@ public:
     
     /// Create a platform specific variant of the component object
     ComponentObjectRef makeComponentObject(PlatformThreadInfo *inst) override;
+
+    /// Tie a selection ID to the given vector object
+    void addSelectionObject(SimpleIdentity selectID,VectorObjectRef vecObj,ComponentObjectRef compObj) override;
         
     /// Return the width of the given line of text
     double calculateTextWidth(PlatformThreadInfo *threadInfo,LabelInfoRef labelInfo,const std::string &testStr) override;
