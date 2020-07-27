@@ -334,7 +334,7 @@ bool QIFTileAsset::frameLoaded(PlatformThreadInfo *threadInfo,
         changes.insert(changes.end(),loadReturn->changes.begin(),loadReturn->changes.end());
     
     auto frame = findFrameFor(loadReturn->frame);
-    if (!frame)
+    if (loadReturn->frame && !frame)
     {
         if (!loadReturn->compObjs.empty())
             loader->compManager->removeComponentObjects(threadInfo,loadReturn->compObjs, changes);

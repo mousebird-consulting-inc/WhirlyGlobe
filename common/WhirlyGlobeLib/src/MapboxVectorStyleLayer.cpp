@@ -74,7 +74,10 @@ MapboxVectorStyleLayerRef MapboxVectorStyleLayer::VectorStyleLayer(PlatformThrea
         wkLogLevel(Warn,"Unknown layer type %s",type.c_str());
         return NULL;
     }
-    layer->parse(inst, layerDict, refLayer, drawPriority);
+    if (!layer->parse(inst, layerDict, refLayer, drawPriority)) {
+        wkLogLevel(Warn, "Failed to parse layer %s",layer->ident.c_str());
+        return NULL;
+    }
     
     if (layerDict->getType("filter") == DictTypeArray) {
         layer->filter = MapboxVectorFilterRef(new MapboxVectorFilter());

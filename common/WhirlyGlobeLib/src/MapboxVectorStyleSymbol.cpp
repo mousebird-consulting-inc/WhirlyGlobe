@@ -85,6 +85,9 @@ bool MapboxVectorSymbolPaint::parse(PlatformThreadInfo *inst,
                                     MapboxVectorStyleSetImpl *styleSet,
                                     DictionaryRef styleEntry)
 {
+    if (!styleEntry)
+        return false;
+    
     textColor = styleSet->transColor("text-color", styleEntry, RGBAColor::black());
     textOpacity = styleSet->transDouble("text-opacity", styleEntry, 1.0);
     textHaloColor = styleSet->colorValue("text-halo-color", NULL, styleEntry, RGBAColorRef(), false);

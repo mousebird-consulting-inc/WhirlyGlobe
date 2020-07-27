@@ -97,7 +97,7 @@ public:
     
     virtual void cleanup(PlatformThreadInfo *inst,ChangeSet &changes) override;
 
-protected:
+public:
     std::string breakUpText(PlatformThreadInfo *inst,const std::string &text,double textMaxWidth,LabelInfoRef labelInfo);
     
     MapboxVectorSymbolLayout layout;

@@ -47,6 +47,9 @@ bool MapboxVectorLineLayout::parse(PlatformThreadInfo *inst,MapboxVectorStyleSet
 
 bool MapboxVectorLinePaint::parse(PlatformThreadInfo *inst,MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry)
 {
+    if (!styleEntry)
+        return false;
+    
     styleSet->unsupportedCheck("line-translate", "line-paint", styleEntry);
     styleSet->unsupportedCheck("line-translate-anchor", "line-paint", styleEntry);
     styleSet->unsupportedCheck("line-gap-width", "line-paint", styleEntry);

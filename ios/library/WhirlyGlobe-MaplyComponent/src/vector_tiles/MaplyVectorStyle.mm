@@ -388,6 +388,7 @@ SimpleIdentity MapboxVectorStyleSetImpl_iOS::makeCircleTexture(PlatformThreadInf
     UIGraphicsEndImageContext();
     
     MaplyTexture *tex = [viewC addTexture:image desc:nil mode:MaplyThreadCurrent];
+    textures.push_back(tex);
     return tex.texID;
 }
 
@@ -405,6 +406,7 @@ SimpleIdentity MapboxVectorStyleSetImpl_iOS::makeLineTexture(PlatformThreadInfo 
                                                       kMaplyTexWrapY: @(MaplyImageWrapY)
                                                       }
                                                mode:MaplyThreadCurrent];
+    textures.push_back(tex);
     
     return tex.texID;
 }

@@ -23,6 +23,16 @@
 #import "vector_styles/MapboxVectorStyleSprites.h"
 #import "vector_tiles/MapboxVectorTiles.h"
 
+typedef NS_ENUM(NSUInteger,MapboxLayerType) {
+    MapboxLayerTypeBackground,
+    MapboxLayerTypeCircle,
+    MapboxLayerTypeFill,
+    MapboxLayerTypeLine,
+    MapboxLayerTypeRaster,
+    MapboxLayerTypeSymbol,
+    MapboxLayerTypeUnknown
+};
+
 /** @brief The Mapbox Vector Style Set parses Mapbox GL Style sheets and turns them into Maply compatible styles.
     @details A style delegate is required by the Mapnik parser to build geometry out of Mapnik vector tiles.  This style delegate can read a Mapbox GL Style sheet and produce compatible styles.
  */
@@ -48,9 +58,26 @@
 /// Tile sources
 @property (nonatomic, strong, nonnull) NSArray *sources;
 
+/// All the layer names
+@property (nonatomic) NSArray<NSString *> * __nonnull layerNames;
+
+/// Type of the given layer
+- (MapboxLayerType) layerType:(NSString * __nonnull)layerName;
+
+/**
+ This method will poke around in the given layer to determine a distinc color for it.
+ For circle layers, you get the circle color.  For fill and line layers, it's the paint color.
+ For symbols, you get the text color.
+ This is useful for visualizing layers, it has nothing to do with rendering them.
+ */
+- (UIColor * __nullable) colorForLayer:(NSString *__nonnull)layerName;
+
 /// If there is a background layer, calculate the color for a given zoom level.
 /// Otherwise return nil
 - (UIColor * __nullable)backgroundColorForZoom:(double)zoom;
+
+/// Make a layer visible/invisible
+- (void)setLayerVisible:(NSString *__nonnull)layerName visible:(bool)visible;
 
 @property (nonatomic, weak, nullable) NSObject<MaplyRenderControllerProtocol> *viewC;
 

@@ -54,7 +54,7 @@ public:
     
     virtual void cleanup(PlatformThreadInfo *inst,ChangeSet &changes);
     
-protected:
+public:
     MapboxVectorFillPaint paint;
     SimpleIdentity arealShaderID;
 };

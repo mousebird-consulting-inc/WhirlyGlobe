@@ -70,7 +70,7 @@ public:
     
     virtual void cleanup(PlatformThreadInfo *inst,ChangeSet &changes);
     
-protected:
+public:
     MapboxVectorLineLayout layout;
     MapboxVectorLinePaint paint;
     bool linearClipToBounds;

@@ -43,7 +43,9 @@ using namespace WhirlyKit;
     else
         styleSettings = VectorStyleSettingsImplRef(new VectorStyleSettingsImpl([UIScreen mainScreen].scale));
     
-    style = MapboxVectorStyleSetImplRef(new MapboxVectorStyleSetImpl_iOS([viewC getRenderControl]->scene,[viewC getRenderControl]->visualView->coordAdapter->getCoordSystem(),styleSettings));
+    MapboxVectorStyleSetImpl_iOS *styleSetImpl = new MapboxVectorStyleSetImpl_iOS([viewC getRenderControl]->scene,[viewC getRenderControl]->visualView->coordAdapter->getCoordSystem(),styleSettings);
+    style = MapboxVectorStyleSetImplRef(styleSetImpl);
+    styleSetImpl->viewC = viewC;
 
     iosDictionaryRef dictWrap(new iosDictionary(styleDict));
     if (!style->parse(NULL,dictWrap))
@@ -88,6 +90,91 @@ using namespace WhirlyKit;
     if (!color)
         return [UIColor blackColor];
     return [UIColor colorFromRGBA:*color];
+}
+
+- (NSArray<NSString *> *)layerNames
+{
+    NSMutableArray *names = [NSMutableArray array];
+    
+    for (auto layer : style->layers) {
+        NSString *name = [NSString stringWithUTF8String:layer->ident.c_str()];
+        if (name)
+            [names addObject:name];
+    }
+    
+    return names;
+}
+
+- (MapboxLayerType) layerType:(NSString * __nonnull)inLayerName
+{
+    std::string layerName = [inLayerName cStringUsingEncoding:NSUTF8StringEncoding];
+    
+    for (auto layer : style->layers) {
+        if (layer->ident == layerName) {
+            if (dynamic_cast<MapboxVectorLayerBackground *>(layer.get()))
+                return MapboxLayerTypeBackground;
+            else if (dynamic_cast<MapboxVectorLayerCircle *>(layer.get()))
+                return MapboxLayerTypeCircle;
+            else if (dynamic_cast<MapboxVectorLayerFill *>(layer.get()))
+                return MapboxLayerTypeFill;
+            else if (dynamic_cast<MapboxVectorLayerLine *>(layer.get()))
+                return MapboxLayerTypeLine;
+            else if (dynamic_cast<MapboxVectorLayerRaster *>(layer.get()))
+                return MapboxLayerTypeRaster;
+            else if (dynamic_cast<MapboxVectorLayerSymbol *>(layer.get()))
+                return MapboxLayerTypeSymbol;
+        }
+    }
+    
+    return MapboxLayerTypeUnknown;
+}
+
+- (void)setLayerVisible:(NSString *__nonnull)inLayerName visible:(bool)visible
+{
+    std::string layerName = [inLayerName cStringUsingEncoding:NSUTF8StringEncoding];
+    
+    for (auto layer : style->layers) {
+        if (layer->ident == layerName) {
+            layer->visible = visible;
+            return;
+        }
+    }
+}
+
+- (UIColor * __nullable) colorForLayer:(NSString *__nonnull)inLayerName
+{
+    std::string layerName = [inLayerName cStringUsingEncoding:NSUTF8StringEncoding];
+
+    for (auto layer : style->layers) {
+        if (layer->ident == layerName) {
+            auto layerBack = std::dynamic_pointer_cast<MapboxVectorLayerBackground>(layer);
+            if (layerBack)
+                return [UIColor colorFromRGBA:layerBack->paint.color->colorForZoom(0.0)];
+            else {
+                auto layerSymbol = std::dynamic_pointer_cast<MapboxVectorLayerSymbol>(layer);
+                if (layerSymbol)
+                    return [UIColor colorFromRGBA:layerSymbol->paint.textColor->colorForZoom(0.0)];
+                else {
+                    auto layerCircle = std::dynamic_pointer_cast<MapboxVectorLayerCircle>(layer);
+                    if (layerCircle)
+                        return [UIColor colorFromRGBA:*(layerCircle->paint.fillColor)];
+                    else {
+                        auto layerLine = std::dynamic_pointer_cast<MapboxVectorLayerLine>(layer);
+                        if (layerLine)
+                            return [UIColor colorFromRGBA:layerLine->paint.color->colorForZoom(0.0)];
+                        else {
+                            auto layerFill = std::dynamic_pointer_cast<MapboxVectorLayerFill>(layer);
+                            if (layerFill)
+                                return [UIColor colorFromRGBA:layerFill->paint.color->colorForZoom(0.0)];
+                        }
+                    }
+                }
+            }
+            return nil;
+        }
+    }
+    
+    return nil;
 }
 
 // These are here just to satisfy the compiler.  We use the underlying C++ calls instead

@@ -71,6 +71,9 @@ public:
         
     /// Return the width of the given line of text
     double calculateTextWidth(PlatformThreadInfo *threadInfo,LabelInfoRef labelInfo,const std::string &testStr) override;
+    
+    // Textures we're holding on to (so they don't get released)
+    std::vector<MaplyTexture *> textures;
 };
 
 /**
