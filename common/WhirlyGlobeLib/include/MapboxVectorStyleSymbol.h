@@ -63,6 +63,11 @@ public:
 
     float layoutImportance;
     std::vector<TextChunk> textChunks;
+
+    // Name of icon, if present
+    std::string iconImage;
+    // Scale of the icon based on its original size
+    double iconSize;
 };
 
 // Symbol visuals
@@ -78,10 +83,6 @@ public:
     RGBAColorRef textHaloColor;
     // If there's a halo, this is the size
     double textHaloWidth;
-    // Name of icon, if present
-    std::string iconImage;
-    // Scale of the icon based on its original size
-    double iconSize;
 };
 
 /// @brief Icons and symbols

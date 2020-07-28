@@ -78,6 +78,11 @@ bool MapboxVectorSymbolLayout::parse(PlatformThreadInfo *inst,
     }
     layoutImportance = styleSet->tileStyleSettings->labelImportance;
     
+    iconImage = styleSet->stringValue("icon-image", styleEntry, "");
+    if (!iconImage.empty())
+        wkLogLevel(Debug, "Got on");
+    iconSize = styleSet->doubleValue("icon-size", styleEntry, 1.0);
+    
     return true;
 }
 
@@ -93,9 +98,6 @@ bool MapboxVectorSymbolPaint::parse(PlatformThreadInfo *inst,
     textHaloColor = styleSet->colorValue("text-halo-color", NULL, styleEntry, RGBAColorRef(), false);
     textHaloWidth = styleSet->doubleValue("text-halo-width", styleEntry, 0.0);
     
-    iconImage = styleSet->stringValue("icon-image", styleEntry, "");
-    iconSize = styleSet->doubleValue("icon-size", styleEntry, 1.0);
-
     return true;
 }
 
@@ -230,10 +232,10 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
     MarkerInfo markerInfo(true);
     SimpleIdentity markerTexID = EmptyIdentity;
     Point2d markerSize;
-    if (!paint.iconImage.empty()) {
-        auto subTex = styleSet->sprites->getTexture(paint.iconImage,markerSize);
-        markerSize.x() *= paint.iconSize;
-        markerSize.y() *= paint.iconSize;
+    if (!layout.iconImage.empty()) {
+        auto subTex = styleSet->sprites->getTexture(layout.iconImage,markerSize);
+        markerSize.x() *= layout.iconSize;
+        markerSize.y() *= layout.iconSize;
         markerTexID = subTex.getId();
     }
     
@@ -241,7 +243,7 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
 //    desc[kMaplyTextLineSpacing] = @(4.0 / 5.0 * font.lineHeight);
     
     bool textInclude = (textColor && textSize > 0.0);
-    bool iconInclude = !paint.iconImage.empty();
+    bool iconInclude = !layout.iconImage.empty();
     if (!textInclude && !iconInclude)
         return;
     
