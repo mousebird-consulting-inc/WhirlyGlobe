@@ -25,6 +25,7 @@
 #import "ComponentManager.h"
 #import "MapboxVectorTileParser.h"
 #import "MaplyVectorStyleC.h"
+#import "MapboxVectorStyleSpritesImpl.h"
 #import <set>
 
 namespace WhirlyKit
@@ -243,6 +244,7 @@ public:
 public:
     Scene *scene;
     CoordSystem *coordSys;
+    MapboxVectorStyleSpritesRef sprites;
 
     /// @brief Style name
     std::string name;
@@ -276,5 +278,6 @@ public:
     
     long long currentID;
 };
+typedef std::shared_ptr<MapboxVectorStyleSetImpl> MapboxVectorStyleSetImplRef;
 
 }

@@ -282,6 +282,16 @@ std::vector<DictionaryEntryRef> iosDictionary::getArray(const std::string &name)
     return refs;
 }
 
+std::vector<std::string> iosDictionary::getKeys() const
+{
+    std::vector<std::string> keys;
+    for (NSString *key in [dict allKeys]) {
+        keys.push_back([key cStringUsingEncoding:NSUTF8StringEncoding]);
+    }
+    
+    return keys;
+}
+
 iosMutableDictionary::iosMutableDictionary()
 {
     dict = [[NSMutableDictionary alloc] init];
@@ -433,6 +443,16 @@ std::vector<DictionaryEntryRef> iosMutableDictionary::getArray(const std::string
     }
     
     return refs;
+}
+
+std::vector<std::string> iosMutableDictionary::getKeys() const
+{
+    std::vector<std::string> keys;
+    for (NSString *key in [dict allKeys]) {
+        keys.push_back([key cStringUsingEncoding:NSUTF8StringEncoding]);
+    }
+    
+    return keys;
 }
     
 void iosMutableDictionary::clear()

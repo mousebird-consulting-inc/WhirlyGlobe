@@ -243,8 +243,10 @@ public class MapboxKindaMap {
                     
                     // And for the sprite sheets
                     if let spriteURLStr = styleSheet.spriteURL,
-                        let spriteJSONurl = URL(string: spriteURLStr)?.appendingPathComponent("sprite@2x.json"),
-                        let spritePNGurl = URL(string: spriteURLStr)?.appendingPathComponent("sprite@2x.png") {
+                        var spriteJSONurl = URL(string: spriteURLStr.appending("@2x.json")),
+                        var spritePNGurl = URL(string: spriteURLStr.appending("@2x.png")) {
+                            spriteJSONurl = self.fileOverride(spriteJSONurl)
+                            spritePNGurl = self.fileOverride(spritePNGurl)
                             let dataTask1 = URLSession.shared.dataTask(with: self.cacheResolve(self.fileOverride(spriteJSONurl))) { (data, _, error) in
                                 guard error == nil else {
                                     print("Failed to fetch spriteJSON from \(spriteURLStr)")
@@ -469,6 +471,20 @@ public class MapboxKindaMap {
                     print("Failed to set up vector style sheet.  Nothing will appear.")
                     self.stop()
                     return
+            }
+            if let spriteJSON = spriteJSON,
+                let image = spritePNG {
+                guard let spriteDict  = try? JSONSerialization.jsonObject(with: spriteJSON, options: []) as? [String: Any] else {
+                    print("Failed to parse sprite sheet JSON")
+                    self.stop()
+                    return
+                }
+
+                if !styleSheetVector.addSprites(spriteDict, image: image) {
+                    print("Failed to parse sprite sheet.")
+                    self.stop()
+                    return
+                }
             }
             self.styleSheetVector = styleSheetVector
 

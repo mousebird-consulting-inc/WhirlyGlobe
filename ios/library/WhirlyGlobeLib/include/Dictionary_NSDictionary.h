@@ -94,7 +94,8 @@ public:
     virtual DictionaryEntryRef getEntry(const std::string &name) const;
     // Return an array (if it is an array)
     virtual std::vector<DictionaryEntryRef> getArray(const std::string &name) const;
-
+    // Return an array of key names
+    virtual std::vector<std::string> getKeys() const;
 public:
     NSDictionary *dict;
 };
@@ -140,6 +141,8 @@ public:
     DictionaryEntryRef getEntry(const std::string &name) const;
     // Return an array (if it is an array)
     std::vector<DictionaryEntryRef> getArray(const std::string &name) const;
+    // Return an array of key names
+    virtual std::vector<std::string> getKeys() const;
 
     /// Clean out the contents
     void clear();

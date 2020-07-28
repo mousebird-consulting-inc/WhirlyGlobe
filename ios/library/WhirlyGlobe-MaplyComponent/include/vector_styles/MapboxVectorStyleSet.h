@@ -20,7 +20,6 @@
 
 #import <Foundation/Foundation.h>
 #import "vector_styles/MaplyVectorStyle.h"
-#import "vector_styles/MapboxVectorStyleSprites.h"
 #import "vector_tiles/MapboxVectorTiles.h"
 
 typedef NS_ENUM(NSUInteger,MapboxLayerType) {
@@ -63,6 +62,9 @@ typedef NS_ENUM(NSUInteger,MapboxLayerType) {
 
 /// Type of the given layer
 - (MapboxLayerType) layerType:(NSString * __nonnull)layerName;
+
+/// Add the sprint sheet for use in symbols.  Return false on failures.
+- (bool)addSprites:(NSDictionary * __nonnull)spriteDict image:(UIImage * __nonnull)image;
 
 /**
  This method will poke around in the given layer to determine a distinc color for it.

@@ -44,7 +44,7 @@ using namespace WhirlyKit;
         styleSettings = VectorStyleSettingsImplRef(new VectorStyleSettingsImpl([UIScreen mainScreen].scale));
     
     MapboxVectorStyleSetImpl_iOS *styleSetImpl = new MapboxVectorStyleSetImpl_iOS([viewC getRenderControl]->scene,[viewC getRenderControl]->visualView->coordAdapter->getCoordSystem(),styleSettings);
-    style = MapboxVectorStyleSetImplRef(styleSetImpl);
+    style = MapboxVectorStyleSetImpl_iOSRef(styleSetImpl);
     styleSetImpl->viewC = viewC;
 
     iosDictionaryRef dictWrap(new iosDictionary(styleDict));
@@ -82,6 +82,22 @@ using namespace WhirlyKit;
         return nil;
     
     return [self initWithDict:styleDict settings:settings viewC:viewC];
+}
+
+- (bool)addSprites:(NSDictionary * __nonnull)spriteDict image:(UIImage * __nonnull)image
+{
+    MaplyTexture *wholeTex = [_viewC addTexture:image desc:nil mode:MaplyThreadCurrent];
+    style->textures.push_back(wholeTex);
+    
+    MapboxVectorStyleSpritesRef newSprites(new MapboxVectorStyleSprites(wholeTex.texID,(int)image.size.width,(int)image.size.height));
+    iosDictionaryRef dictWrap(new iosDictionary(spriteDict));
+    if (newSprites->parse(style, dictWrap)) {
+        style->sprites = newSprites;
+    } else {
+        return false;
+    }
+    
+    return true;
 }
 
 - (UIColor * __nullable)backgroundColorForZoom:(double)zoom

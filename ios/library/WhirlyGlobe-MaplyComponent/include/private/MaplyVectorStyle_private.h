@@ -78,6 +78,7 @@ public:
     // Textures we're holding on to (so they don't get released)
     std::vector<MaplyTexture *> textures;
 };
+typedef std::shared_ptr<MapboxVectorStyleSetImpl_iOS> MapboxVectorStyleSetImpl_iOSRef;
 
 /**
  Wrapper class for older implementations of MaplyVectorStyleDelegate or ones users have made.

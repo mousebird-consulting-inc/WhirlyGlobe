@@ -58,6 +58,7 @@
 #import "MapboxVectorStyleLine.h"
 #import "MapboxVectorStyleRaster.h"
 #import "MapboxVectorStyleSymbol.h"
+#import "MapboxVectorStyleSpritesImpl.h"
 #import "MaplyVectorStyleC.h"
 #import "MaplyAnimateTranslateMomentum.h"
 #import "MaplyAnimateTranslation.h"

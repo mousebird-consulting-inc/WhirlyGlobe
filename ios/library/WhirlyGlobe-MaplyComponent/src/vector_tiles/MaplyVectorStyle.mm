@@ -417,7 +417,7 @@ LabelInfoRef MapboxVectorStyleSetImpl_iOS::makeLabelInfo(PlatformThreadInfo *ins
     NSString *fontNameStr = [NSString stringWithFormat:@"%s",fontName.c_str()];
     UIFont *font = [UIFont fontWithName:fontNameStr size:fontSize];
     if (!font) {
-        NSLog(@"Failed to find font %@",fontNameStr);
+//        NSLog(@"Failed to find font %@",fontNameStr);
         font = [UIFont systemFontOfSize:fontSize];
     }
     
