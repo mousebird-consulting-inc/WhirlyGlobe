@@ -79,8 +79,6 @@ bool MapboxVectorSymbolLayout::parse(PlatformThreadInfo *inst,
     layoutImportance = styleSet->tileStyleSettings->labelImportance;
     
     iconImage = styleSet->stringValue("icon-image", styleEntry, "");
-    if (!iconImage.empty())
-        wkLogLevel(Debug, "Got on");
     iconSize = styleSet->doubleValue("icon-size", styleEntry, 1.0);
     
     return true;
@@ -106,9 +104,11 @@ bool MapboxVectorLayerSymbol::parse(PlatformThreadInfo *inst,
                                    MapboxVectorStyleLayerRef refLayer,
                                    int inDrawPriority)
 {
-    if (!MapboxVectorStyleLayer::parse(inst,styleEntry,refLayer,drawPriority) ||
-        !layout.parse(inst,styleSet,styleEntry->getDict("layout")) ||
-        !paint.parse(inst,styleSet, styleEntry->getDict("paint")))
+    if (!MapboxVectorStyleLayer::parse(inst,styleEntry,refLayer,drawPriority))
+        return false;
+    bool hasLayout = layout.parse(inst,styleSet,styleEntry->getDict("layout"));
+    bool hasPaint = paint.parse(inst,styleSet, styleEntry->getDict("paint"));
+    if (!hasLayout && !hasPaint)
         return false;
 
     uniqueLabel = styleSet->boolValue("unique-label", styleEntry, "yes", false);
@@ -237,6 +237,8 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
         markerSize.x() *= layout.iconSize;
         markerSize.y() *= layout.iconSize;
         markerTexID = subTex.getId();
+        markerInfo.programID = styleSet->screenMarkerProgramID;
+        markerInfo.drawPriority = labelInfo->drawPriority;
     }
     
 //    // Note: Made up value for pushing multi-line text together
@@ -371,7 +373,14 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                             marker->width = markerSize.x();
                             marker->height = markerSize.y();
                             marker->loc = GeoCoord(pt.x(),pt.y());
-                            marker->isSelectable = selectable;
+                            if (selectable) {
+                                marker->isSelectable = true;
+                                marker->selectID = Identifiable::genId();
+                                styleSet->addSelectionObject(marker->selectID, vecObj, compObj);
+                                compObj->selectIDs.insert(marker->selectID);
+                            }
+                            if (markerTexID != EmptyIdentity)
+                                marker->texIDs.push_back(markerTexID);
                             markers.push_back(marker);
                         }
                     }
