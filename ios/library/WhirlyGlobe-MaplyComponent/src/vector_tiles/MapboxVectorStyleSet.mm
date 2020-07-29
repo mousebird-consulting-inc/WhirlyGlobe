@@ -164,24 +164,40 @@ using namespace WhirlyKit;
     for (auto layer : style->layers) {
         if (layer->ident == layerName) {
             auto layerBack = std::dynamic_pointer_cast<MapboxVectorLayerBackground>(layer);
-            if (layerBack)
-                return [UIColor colorFromRGBA:layerBack->paint.color->colorForZoom(0.0)];
-            else {
+            if (layerBack) {
+                auto color = layerBack->paint.color;
+                if (!color)
+                    return nil;
+                return [UIColor colorFromRGBA:color->colorForZoom(0.0)];
+            } else {
                 auto layerSymbol = std::dynamic_pointer_cast<MapboxVectorLayerSymbol>(layer);
-                if (layerSymbol)
-                    return [UIColor colorFromRGBA:layerSymbol->paint.textColor->colorForZoom(0.0)];
-                else {
+                if (layerSymbol) {
+                    auto color = layerSymbol->paint.textColor;
+                    if (!color)
+                        return nil;
+                    return [UIColor colorFromRGBA:color->colorForZoom(0.0)];
+                } else {
                     auto layerCircle = std::dynamic_pointer_cast<MapboxVectorLayerCircle>(layer);
-                    if (layerCircle)
-                        return [UIColor colorFromRGBA:*(layerCircle->paint.fillColor)];
-                    else {
+                    if (layerCircle) {
+                        auto color = layerCircle->paint.fillColor;
+                        if (!color)
+                            return nil;
+                        return [UIColor colorFromRGBA:*color];
+                    } else {
                         auto layerLine = std::dynamic_pointer_cast<MapboxVectorLayerLine>(layer);
-                        if (layerLine)
-                            return [UIColor colorFromRGBA:layerLine->paint.color->colorForZoom(0.0)];
-                        else {
+                        if (layerLine) {
+                            auto color = layerLine->paint.color;
+                            if (!color)
+                                return nil;
+                            return [UIColor colorFromRGBA:color->colorForZoom(0.0)];
+                        } else {
                             auto layerFill = std::dynamic_pointer_cast<MapboxVectorLayerFill>(layer);
-                            if (layerFill)
-                                return [UIColor colorFromRGBA:layerFill->paint.color->colorForZoom(0.0)];
+                            if (layerFill) {
+                                auto color = layerFill->paint.color;
+                                if (!color)
+                                    return nil;
+                                return [UIColor colorFromRGBA:color->colorForZoom(0.0)];
+                            }
                         }
                     }
                 }
