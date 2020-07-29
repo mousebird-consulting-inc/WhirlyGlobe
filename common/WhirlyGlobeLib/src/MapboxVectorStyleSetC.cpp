@@ -481,7 +481,6 @@ RGBAColorRef MapboxVectorStyleSetImpl::colorValue(const std::string &name,Dictio
         int light = std::stoi(toks[2]);
         float newLight = light / 100.0;
         float newSat = sat / 100.0;
-        newSat = newSat * (newLight < 0.5 ? newLight : 1.0-newLight);
 
         return RGBAColorRef(new RGBAColor(RGBAColor::FromHSL(hue, newSat, newLight)));
     } else if (str.find("hsla(") == 0) {
@@ -500,7 +499,6 @@ RGBAColorRef MapboxVectorStyleSetImpl::colorValue(const std::string &name,Dictio
         float alpha = std::stod(toks[3]);
         float newLight = light / 100.0;
         float newSat = sat / 100.0;
-        newSat = newSat * (newLight < 0.5 ? newLight : 1.0-newLight);
 
         RGBAColorRef color(new RGBAColor(RGBAColor::FromHSL(hue, newSat, newLight)));
         color->a = alpha * 255.0;

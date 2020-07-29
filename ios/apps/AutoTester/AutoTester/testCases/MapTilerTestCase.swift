@@ -49,7 +49,8 @@ class MapTilerTestCase: MaplyTestCase {
 
         // Parse it and then let it start itself
         let mapboxMap = MapboxKindaMap(fileName, viewC: viewC)
-        mapboxMap.styleSettings.textScale = 1.2  // Note: Why does this work better than 2.0?
+        mapboxMap.styleSettings.textScale = 1.0  // Note: Why does this work better than 2.0?
+        mapboxMap.styleSettings.lineScale = 1.0
         mapboxMap.backgroundAllPolys = round     // Render all the polygons into an image for the globe
         mapboxMap.cacheDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent(name)
         // Replace the MapTilerKey in any URL with the actual token
@@ -61,8 +62,14 @@ class MapTilerTestCase: MaplyTestCase {
             if url.absoluteString.contains("MapTilerKey") {
                 return URL(string: url.absoluteString.replacingOccurrences(of: "MapTilerKey", with: token))!
             }
-            
-            return url
+            // Tack a key on the end otherwise
+            return URL(string: url.absoluteString.appending("?key=\(token)"))!
+        }
+        mapboxMap.postSetup = { (map) in
+            // After things are parsed, look at the layers
+            if let legend = map.styleSheet?.layerLegend(CGSize(width: 32.0,height: 32.0), group: false) {
+                print("\(legend)")
+            }
         }
         mapboxMap.start()
         self.mapboxMap = mapboxMap

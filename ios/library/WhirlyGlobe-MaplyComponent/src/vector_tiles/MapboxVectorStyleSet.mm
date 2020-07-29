@@ -209,6 +209,123 @@ using namespace WhirlyKit;
     return nil;
 }
 
+- (UIImage *)imageForText:(UIColor *)color size:(CGSize)size
+{
+    UIGraphicsBeginImageContext(size);
+    CGFloat fontSize = size.width - 2.0;
+    UIFont *font = [UIFont fontWithName:@"Arial-BoldMT" size:fontSize];
+    NSString *text = @"T";
+    CGFloat margin = 1.0;
+    [text drawInRect:CGRectMake(margin,margin,size.width-2*margin,size.height-2*margin)
+      withAttributes:@{NSFontAttributeName: font, NSForegroundColorAttributeName: color}];
+    
+    UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    return img;
+}
+
+- (UIImage *)imageForLinear:(UIColor *)color size:(CGSize)size
+{
+    UIGraphicsBeginImageContext(size);
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    CGContextSetLineWidth(ctx, size.width/10.0);
+    [color setStroke];
+    CGContextMoveToPoint(ctx, 0.0, size.height);
+    CGContextAddLineToPoint(ctx, size.width, 0.0);
+    CGContextStrokePath(ctx);
+    
+    UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+
+    return img;
+}
+
+- (UIImage *)imageForSymbol:(const std::string &)symbolName size:(CGSize)size
+{
+    // TODO: Fill this in
+    return nil;
+}
+
+- (UIImage *)imageForPolygon:(UIColor *)color size:(CGSize)size
+{
+    UIGraphicsBeginImageContext(size);
+    [color setFill];
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    CGContextFillRect(ctx, CGRectMake(0.0, 0.0, size.width, size.height));
+    
+    UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+
+    return img;
+}
+
+- (UIImage *)imageForCircle:(UIColor *)color size:(CGSize)size
+{
+    UIGraphicsBeginImageContext(size);
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    [color setFill];
+    CGFloat margin = 1.0;
+    CGContextFillEllipseInRect(ctx, CGRectMake(margin, margin, size.width-2*margin, size.height-2*margin));
+    UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+
+    return img;
+}
+
+- (NSDictionary * __nonnull)layerLegend:(CGSize)imageSize group:(bool)useGroups
+{
+    NSMutableDictionary *legend = [NSMutableDictionary dictionary];
+    
+    for (auto layer : style->layers) {
+        UIImage *image = nil;
+        auto layerBackground = std::dynamic_pointer_cast<MapboxVectorLayerBackground>(layer);
+        if (layerBackground) {
+            if (layerBackground->paint.color) {
+                image = [self imageForPolygon:[UIColor colorFromRGBA:layerBackground->paint.color->colorForZoom(0.0)] size:imageSize];
+            }
+        } else {
+            auto layerSymbol = std::dynamic_pointer_cast<MapboxVectorLayerSymbol>(layer);
+            if (layerSymbol) {
+                if (layerSymbol->paint.textColor) {
+                    image = [self imageForText:[UIColor colorFromRGBA:layerSymbol->paint.textColor->colorForZoom(0.0)] size:imageSize];
+                } else if (!layerSymbol->layout.iconImage.empty()) {
+                    image = [self imageForSymbol:layerSymbol->layout.iconImage size:imageSize];
+                }
+            } else {
+                auto layerCircle = std::dynamic_pointer_cast<MapboxVectorLayerCircle>(layer);
+                if (layerCircle) {
+                    auto color = layerCircle->paint.fillColor;
+                    if (color)
+                        image = [self imageForCircle:[UIColor colorFromRGBA:*color] size:imageSize];
+                } else {
+                    auto layerLine = std::dynamic_pointer_cast<MapboxVectorLayerLine>(layer);
+                    if (layerLine) {
+                        auto color = layerLine->paint.color;
+                        if (color) {
+                            image = [self imageForLinear:[UIColor colorFromRGBA:color->colorForZoom(0.0)] size:imageSize];
+                        }
+                    } else {
+                        auto layerFill = std::dynamic_pointer_cast<MapboxVectorLayerFill>(layer);
+                        if (layerFill) {
+                            auto color = layerFill->paint.color;
+                            if (color) {
+                                image = [self imageForPolygon:[UIColor colorFromRGBA:color->colorForZoom(0.0)] size:imageSize];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        NSString *layerName = [NSString stringWithUTF8String:layer->ident.c_str()];
+        if (layerName)
+            legend[layerName] = image;
+    }
+    
+    return legend;
+}
+
 // These are here just to satisfy the compiler.  We use the underlying C++ calls instead
 
 - (nullable NSArray *)stylesForFeatureWithAttributes:(NSDictionary *__nonnull)attributes

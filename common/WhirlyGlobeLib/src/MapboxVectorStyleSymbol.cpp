@@ -232,7 +232,7 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
     MarkerInfo markerInfo(true);
     SimpleIdentity markerTexID = EmptyIdentity;
     Point2d markerSize;
-    if (!layout.iconImage.empty()) {
+    if (!layout.iconImage.empty() && styleSet->sprites) {
         auto subTex = styleSet->sprites->getTexture(layout.iconImage,markerSize);
         markerSize.x() *= layout.iconSize;
         markerSize.y() *= layout.iconSize;

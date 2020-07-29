@@ -94,11 +94,34 @@ public:
 	    return RGBAColor((color >> 16) & 0xff,(color >> 8)&0xff,color&0xff, color >> 24);
 	}
     
-    // Create an
-    static RGBAColor FromHSL(int hue,double s,double v) {
+    // Create an RGBAColor from HSV
+    static RGBAColor FromHSV(int hue,double s,double v) {
         double c = s * v;
         double x = c * (1 - std::abs(fmod(hue / 60.0, 2.0) - 1));
         double m = v - c;
+        double rs,gs,bs;
+        if (hue >= 0 && hue < 60) {
+            rs= c;  gs = x;  bs = 0;
+        } else if(hue >= 60 && hue < 120) {
+            rs = x;  gs = c;  bs = 0;
+        } else if(hue >= 120 && hue < 180) {
+            rs = 0;  gs = c;  bs = x;
+        } else if(hue >= 180 && hue < 240) {
+            rs = 0;  gs = x;  bs = c;
+        } else if(hue >= 240 && hue < 300) {
+            rs = x;  gs = 0;  bs = c;
+        } else {
+            rs = c;  gs = 0;  bs = x;
+        }
+        
+        return RGBAColor((rs + m) * 255.0, (gs + m) * 255.0, (bs + m) * 255.0);
+    }
+
+    // Create an RGBAColor from HSL
+    static RGBAColor FromHSL(int hue,double s,double l) {
+        double c = (1 - std::abs(2*l - 1)) * s;
+        double x = c * (1 - std::abs(fmod(hue / 60.0, 2.0) - 1));
+        double m = l - c/2.0;
         double rs,gs,bs;
         if (hue >= 0 && hue < 60) {
             rs= c;  gs = x;  bs = 0;

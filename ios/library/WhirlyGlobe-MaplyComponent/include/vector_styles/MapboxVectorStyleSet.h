@@ -81,6 +81,14 @@ typedef NS_ENUM(NSUInteger,MapboxLayerType) {
 /// Make a layer visible/invisible
 - (void)setLayerVisible:(NSString *__nonnull)layerName visible:(bool)visible;
 
+/**
+ Returns a dictionary containing a flexible legend for the layers contained in this style.
+ Each layer is rendered as a representative image at the given size.
+ Layer names that start with the same "<name>_" will be grouped together in the hiearchy if
+  the group parameter is set.  Otherwise they'll be flat.
+ */
+- (NSDictionary * __nonnull)layerLegend:(CGSize)imageSize group:(bool)useGroups;
+
 @property (nonatomic, weak, nullable) NSObject<MaplyRenderControllerProtocol> *viewC;
 
 @end
