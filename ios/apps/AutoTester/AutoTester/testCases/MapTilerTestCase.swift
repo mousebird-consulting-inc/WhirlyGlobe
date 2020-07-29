@@ -66,13 +66,36 @@ class MapTilerTestCase: MaplyTestCase {
             return URL(string: url.absoluteString.appending("?key=\(token)"))!
         }
         mapboxMap.postSetup = { (map) in
-            // After things are parsed, look at the layers
-            if let legend = map.styleSheet?.layerLegend(CGSize(width: 32.0,height: 32.0), group: false) {
-                print("\(legend)")
+            let barItem = UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: #selector(self.editAction))
+            viewC.navigationItem.rightBarButtonItem = barItem
+            // Display the legend
+            if let legendVC = UIStoryboard(name: "LegendViewController", bundle: .main).instantiateInitialViewController() as? LegendViewController {
+                legendVC.styleSheet = map.styleSheet
+                legendVC.preferredContentSize = CGSize(width: 320.0, height: viewC.view.bounds.height)
+                self.legendVC = legendVC
             }
         }
         mapboxMap.start()
         self.mapboxMap = mapboxMap
+    }
+    
+    var legendVisibile = false
+    var legendVC: LegendViewController? = nil
+    
+    @objc func editAction(_ sender: Any) {
+        guard let legendVC = legendVC else {
+            return
+        }
+        
+        if legendVisibile {
+            legendVC.dismiss(animated: true, completion: nil)
+        } else {
+            legendVC.modalPresentationStyle = .popover
+            legendVC.popoverPresentationController?.sourceView = sender as? UIView
+            legendVC.popoverPresentationController?.barButtonItem = sender as? UIBarButtonItem
+
+            baseViewController?.present(legendVC, animated: true)
+        }
     }
     
     override func setUpWithMap(_ mapVC: MaplyViewController) {
