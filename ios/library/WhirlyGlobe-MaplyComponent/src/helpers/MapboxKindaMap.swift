@@ -517,6 +517,9 @@ public class MapboxKindaMap {
                     self.stop()
                     return
                 }
+                
+                // Need this associated if we're looking at the sprite sheet for info
+                styleSheet.addSprites(spriteDict, image: image)
             }
             self.styleSheetVector = styleSheetVector
 

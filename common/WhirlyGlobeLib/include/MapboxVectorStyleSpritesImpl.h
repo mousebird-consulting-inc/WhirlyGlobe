@@ -58,7 +58,10 @@ public:
     bool parse(MapboxVectorStyleSetImplRef styleSet,DictionaryRef spriteDict);
     
     // Return the sub-texture for a given sprite and the total size (in pixels)
-    SubTexture getTexture(const std::string spriteName,Point2d &size);
+    SubTexture getTexture(const std::string &spriteName,Point2d &size);
+    
+    // Return the sprite corresponding to the name
+    MapboxSpriteEntry getSprite(const std::string &spriteName);
     
     // Clean up all the resources associated with the sprite sheet
     void shutdown(MapboxVectorStyleSetImpl *styleSet,ChangeSet &changes);

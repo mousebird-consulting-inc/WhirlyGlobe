@@ -27,6 +27,9 @@
 using namespace WhirlyKit;
 
 @implementation MapboxVectorStyleSet
+{
+    UIImage *spriteImage;
+}
 
 - (id __nullable)initWithDict:(NSDictionary * __nonnull)styleDict
                     settings:(MaplyVectorStyleSettings * __nonnull)settings
@@ -86,6 +89,7 @@ using namespace WhirlyKit;
 
 - (bool)addSprites:(NSDictionary * __nonnull)spriteDict image:(UIImage * __nonnull)image
 {
+    spriteImage = image;
     MaplyTexture *wholeTex = [_viewC addTexture:image desc:nil mode:MaplyThreadCurrent];
     style->textures.push_back(wholeTex);
     
@@ -243,8 +247,19 @@ using namespace WhirlyKit;
 
 - (UIImage *)imageForSymbol:(const std::string &)symbolName size:(CGSize)size
 {
-    // TODO: Fill this in
-    return nil;
+    if (!style->sprites)
+        return nil;
+    
+    auto sprite = style->sprites->getSprite(symbolName);
+    if (sprite.name.empty())
+        return nil;
+
+    CGImageRef drawImage = CGImageCreateWithImageInRect(spriteImage.CGImage,
+                                                        CGRectMake(sprite.x, sprite.y, sprite.width, sprite.height));
+    UIImage *img = [UIImage imageWithCGImage:drawImage];
+    CGImageRelease(drawImage);
+
+    return img;
 }
 
 - (UIImage *)imageForPolygon:(UIColor *)color size:(CGSize)size
@@ -287,10 +302,10 @@ using namespace WhirlyKit;
         } else {
             auto layerSymbol = std::dynamic_pointer_cast<MapboxVectorLayerSymbol>(layer);
             if (layerSymbol) {
-                if (layerSymbol->paint.textColor) {
-                    image = [self imageForText:[UIColor colorFromRGBA:layerSymbol->paint.textColor->colorForZoom(0.0)] size:imageSize];
-                } else if (!layerSymbol->layout.iconImage.empty()) {
+                if (!layerSymbol->layout.iconImage.empty()) {
                     image = [self imageForSymbol:layerSymbol->layout.iconImage size:imageSize];
+                } else if (layerSymbol->paint.textColor) {
+                    image = [self imageForText:[UIColor colorFromRGBA:layerSymbol->paint.textColor->colorForZoom(0.0)] size:imageSize];
                 }
             } else {
                 auto layerCircle = std::dynamic_pointer_cast<MapboxVectorLayerCircle>(layer);

@@ -60,7 +60,7 @@ bool MapboxVectorStyleSprites::parse(MapboxVectorStyleSetImplRef styleSet,Dictio
     return true;
 }
 
-SubTexture MapboxVectorStyleSprites::getTexture(const std::string spriteName,Point2d &size)
+SubTexture MapboxVectorStyleSprites::getTexture(const std::string &spriteName,Point2d &size)
 {
     auto it = sprites.find(spriteName);
     if (it == sprites.end()) {
@@ -72,6 +72,16 @@ SubTexture MapboxVectorStyleSprites::getTexture(const std::string spriteName,Poi
     size.x() = it->second.width;
     size.y() = it->second.height;
     return it->second.subTex;
+}
+
+MapboxSpriteEntry MapboxVectorStyleSprites::getSprite(const std::string &spriteName)
+{    
+    auto it = sprites.find(spriteName);
+    if (it == sprites.end()) {
+        return MapboxSpriteEntry();
+    }
+
+    return it->second;
 }
 
 void MapboxVectorStyleSprites::shutdown(MapboxVectorStyleSetImpl *styleSet,ChangeSet &changes)
