@@ -333,9 +333,34 @@ using namespace WhirlyKit;
             }
         }
         
-        NSString *layerName = [NSString stringWithUTF8String:layer->ident.c_str()];
-        if (layerName)
-            legend[layerName] = image;
+        if (!layer->ident.empty()) {
+            std::string groupName = "";
+            std::string name;
+            if (useGroups) {
+                // Parse the name apart
+                auto pos = layer->ident.find_first_of('_');
+                if (pos != std::string::npos) {
+                    groupName = layer->ident.substr(0,pos);
+                    name = layer->ident.substr(pos+1);
+                } else
+                    name = layer->ident;
+            } else
+                name = layer->ident;
+            NSString *nameStr = [NSString stringWithUTF8String:name.c_str()];
+            if (nameStr) {
+                if (!groupName.empty()) {
+                    NSString *groupNameStr = [NSString stringWithUTF8String:groupName.c_str()];
+                    if (groupNameStr) {
+                        NSMutableDictionary *entry = legend[groupNameStr];
+                        if (!entry)
+                            entry = [NSMutableDictionary dictionary];
+                        entry[nameStr] = image;
+                        legend[groupNameStr] = entry;
+                    }
+                } else
+                    legend[nameStr] = image;
+            }
+        }
     }
     
     return legend;

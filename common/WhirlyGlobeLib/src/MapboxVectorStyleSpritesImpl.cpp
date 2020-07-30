@@ -69,8 +69,8 @@ SubTexture MapboxVectorStyleSprites::getTexture(const std::string &spriteName,Po
         return SubTexture();
     }
 
-    size.x() = it->second.width;
-    size.y() = it->second.height;
+    size.x() = it->second.width / it->second.pixelRatio;
+    size.y() = it->second.height / it->second.pixelRatio;
     return it->second.subTex;
 }
 
