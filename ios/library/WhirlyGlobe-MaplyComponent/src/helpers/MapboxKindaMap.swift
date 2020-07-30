@@ -402,6 +402,9 @@ public class MapboxKindaMap {
             //  keep level 0 around all the time
             if !backgroundAllPolys {
                 sampleParams.forceMinLevel = false
+            } else {
+                sampleParams.forceMinLevel = true
+                sampleParams.minImportanceTop = 0.0
             }
             if viewC is WhirlyGlobeViewController {
                 sampleParams.coverPoles = true
@@ -415,7 +418,6 @@ public class MapboxKindaMap {
 
         // Image/vector hybrids draw the polygons into a background image
         if imageVectorHybrid {
-            // TODO: Handle more than one source
             guard let imageLoader = MaplyQuadImageLoader(params: sampleParams, tileInfos: tileInfos, viewC: viewC) else {
                 print("Failed to start image loader.  Nothing will appear.")
                 self.stop()

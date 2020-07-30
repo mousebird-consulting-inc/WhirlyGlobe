@@ -381,6 +381,15 @@ bool QIFTileAsset::frameLoaded(PlatformThreadInfo *threadInfo,
         frame->loadSuccess(threadInfo,loader,texs);
     }
     
+    // In single frame mode with multiple sources, we have to mark the rest of the frames done
+    if (loader->getMode() == QuadImageFrameLoader::SingleFrame && frames.size() > 1) {
+        std::vector<Texture *> emptyTex;
+        for (auto frame: frames) {
+            if (frame->getState() == QIFFrameAsset::Loading)
+                frame->loadSuccess(threadInfo, loader, emptyTex);
+        }
+    }
+    
     if (!texs.empty()) {
         for (auto tex : texs)
             changes.push_back(new AddTextureReq(tex));

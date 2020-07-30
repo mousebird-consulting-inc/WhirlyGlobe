@@ -719,7 +719,8 @@ using namespace WhirlyKit;
 
 - (void)handleData:(NSData *)data response:(NSHTTPURLResponse *)response error:(NSError *)error tile:(TileInfoRef)tile fetchStart:(TimeInterval)fetchStartTile
 {
-   if (error || response.statusCode != 200) {
+    // 204 means no content, which is just empty data for most cases
+    if (error || (response.statusCode != 200 && response.statusCode != 204)) {
        // Cancels don't count as errors
        if (!error || error.code != NSURLErrorCancelled) {
            allStats.totalFails = allStats.totalFails + 1;
@@ -732,7 +733,7 @@ using namespace WhirlyKit;
            }
            [self finishedLoading:tile data:nil error:error];
        }
-   } else {
+    } else {
        
        int length = [data length];
 
@@ -750,7 +751,7 @@ using namespace WhirlyKit;
        recentStats.totalLatency = recentStats.totalLatency + howLong;
        [self finishedLoading:tile data:data error:error];
        [self writeToCache:tile tileData:data];
-   }
+    }
 }
 
 - (void)handleCache:(TileInfoRef)tile
@@ -821,7 +822,7 @@ using namespace WhirlyKit;
             return;
         
         // We assume the parsing is going to take some time
-        if (data) {
+        if (!error) {
             if (tile->request)
                 tile->request.success(tile->request,data);
         } else {
