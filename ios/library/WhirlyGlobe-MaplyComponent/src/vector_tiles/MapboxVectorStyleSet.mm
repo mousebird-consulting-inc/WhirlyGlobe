@@ -265,10 +265,13 @@ using namespace WhirlyKit;
 - (UIImage *)imageForPolygon:(UIColor *)color size:(CGSize)size
 {
     UIGraphicsBeginImageContext(size);
-    [color setFill];
     CGContextRef ctx = UIGraphicsGetCurrentContext();
+    CGFloat margin = 1.0;
+    [color setFill];
     CGContextFillRect(ctx, CGRectMake(0.0, 0.0, size.width, size.height));
-    
+    [UIColor.blackColor setFill];
+    CGContextStrokeRect(ctx, CGRectMake(margin, margin, size.width-2*margin, size.height-2*margin));
+
     UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
 
@@ -282,6 +285,8 @@ using namespace WhirlyKit;
     [color setFill];
     CGFloat margin = 1.0;
     CGContextFillEllipseInRect(ctx, CGRectMake(margin, margin, size.width-2*margin, size.height-2*margin));
+    [UIColor.blackColor setStroke];
+    CGContextStrokeEllipseInRect(ctx, CGRectMake(margin, margin, size.width-2*margin, size.height-2*margin));
     UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
 
