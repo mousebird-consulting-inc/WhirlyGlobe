@@ -191,6 +191,8 @@ static int BackImageWidth = 16, BackImageHeight = 16;
             pbfDatas.push_back(thisTileData);
     }
     
+//    NSLog(@"MapboxVectorInterpreter: tile %d: (%d,%d), tileData = %d",tileID.level,tileID.x,tileID.y,[tileData count]);
+    
     if (pbfDatas.empty() && images.empty()) {
         loadReturn.error = [[NSError alloc] initWithDomain:@"MapboxVectorTilesImageDelegate" code:0 userInfo:@{NSLocalizedDescriptionKey: @"Tile data was nil after decompression"}];
         return;
@@ -218,14 +220,12 @@ static int BackImageWidth = 16, BackImageHeight = 16;
             // Build the vector objects for use in the image tile
             RGBAColorRef backColor = imageStyle->backgroundColor(tileID.level);
             offlineRender.clearColor = backColor ? [UIColor colorFromRGBA:*backColor] : [UIColor blackColor];
-            MaplyVectorTileData *vecTileReturn;
+            MaplyVectorTileData *vecTileReturn = [[MaplyVectorTileData alloc] initWithID:tileID bbox:imageBBox geoBBox:geoBBox];
 
             for (NSData *thisTileData : pbfDatas) {
                 RawNSDataReader thisTileDataWrap(thisTileData);
-                vecTileReturn = [[MaplyVectorTileData alloc] initWithID:tileID bbox:imageBBox geoBBox:geoBBox];
                 // Parse the tile data and flush it out to the scene immediately
                 imageTileParser->parse(NULL,&thisTileDataWrap, vecTileReturn->data.get());
-                offlineRender->scene->addChangeRequests(vecTileReturn->data->changes);
                 
 //                if (vecTileReturn) {
 //                } else {
@@ -233,7 +233,9 @@ static int BackImageWidth = 16, BackImageHeight = 16;
 //                    loadReturn.error = [[NSError alloc] initWithDomain:@"MapboxVectorTilesImageDelegate" code:0 userInfo:@{NSLocalizedDescriptionKey: errMsg}];
 //                }
             }
-            
+
+            offlineRender->scene->addChangeRequests(vecTileReturn->data->changes);
+
             NSArray *compObjs = [vecTileReturn componentObjects];
             if (!loadReturn.error && [compObjs count] > 0) {
 
