@@ -46,11 +46,10 @@ class LegendViewController: UITableViewController {
                 tableView.reloadData()
                 return
             }
-            if let entries = sheet.layerLegend(CGSize(width: 64, height: 64), group: false) as? [String: Any?] {
-                for key in entries.keys {
-                    if let image = entries[key] as? UIImage? {
-                        self.entries.append(LegendEntry(name: key, image: image, visible: true))
-                    }
+            let entries = sheet.layerLegend(CGSize(width: 64, height: 64), group: false)
+            for entry in entries {
+                if let image = entry.image {
+                    self.entries.append(LegendEntry(name: entry.name, image: image, visible: true))
                 }
             }
             tableView.reloadData()

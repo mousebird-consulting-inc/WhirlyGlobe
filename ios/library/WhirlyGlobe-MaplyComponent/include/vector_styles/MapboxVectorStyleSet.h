@@ -32,6 +32,22 @@ typedef NS_ENUM(NSUInteger,MapboxLayerType) {
     MapboxLayerTypeUnknown
 };
 
+/**
+ A single entry in the legend array returned by
+ */
+@interface MaplyLegendEntry : NSObject
+
+/// Name of this entry
+@property (nonatomic,nonnull) NSString *name;
+
+/// Image for this entry, if this is a single entry
+@property (nonatomic,nullable) UIImage *image;
+
+/// Array of entries if this is a group
+@property (nonatomic,nullable) NSMutableArray<MaplyLegendEntry *> *entries;
+
+@end
+
 /** @brief The Mapbox Vector Style Set parses Mapbox GL Style sheets and turns them into Maply compatible styles.
     @details A style delegate is required by the Mapnik parser to build geometry out of Mapnik vector tiles.  This style delegate can read a Mapbox GL Style sheet and produce compatible styles.
  */
@@ -87,7 +103,7 @@ typedef NS_ENUM(NSUInteger,MapboxLayerType) {
  Layer names that start with the same "<name>_" will be grouped together in the hiearchy if
   the group parameter is set.  Otherwise they'll be flat.
  */
-- (NSDictionary * __nonnull)layerLegend:(CGSize)imageSize group:(bool)useGroups;
+- (NSArray<MaplyLegendEntry *> * __nonnull)layerLegend:(CGSize)imageSize group:(bool)useGroups;
 
 @property (nonatomic, weak, nullable) NSObject<MaplyRenderControllerProtocol> *viewC;
 

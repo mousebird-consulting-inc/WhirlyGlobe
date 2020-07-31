@@ -26,6 +26,9 @@
 
 using namespace WhirlyKit;
 
+@implementation MaplyLegendEntry
+@end
+
 @implementation MapboxVectorStyleSet
 {
     UIImage *spriteImage;
@@ -293,9 +296,10 @@ using namespace WhirlyKit;
     return img;
 }
 
-- (NSDictionary * __nonnull)layerLegend:(CGSize)imageSize group:(bool)useGroups
+- (NSArray<MaplyLegendEntry *> * __nonnull)layerLegend:(CGSize)imageSize group:(bool)useGroups
 {
-    NSMutableDictionary *legend = [NSMutableDictionary dictionary];
+    NSMutableArray *legend = [NSMutableArray array];
+    NSMutableDictionary *groups = [NSMutableDictionary dictionary];
     
     for (auto layer : style->layers) {
         UIImage *image = nil;
@@ -353,17 +357,24 @@ using namespace WhirlyKit;
                 name = layer->ident;
             NSString *nameStr = [NSString stringWithUTF8String:name.c_str()];
             if (nameStr) {
+                MaplyLegendEntry *entry = [[MaplyLegendEntry alloc] init];
+                entry.name = nameStr;
+                entry.image = image;
+
                 if (!groupName.empty()) {
                     NSString *groupNameStr = [NSString stringWithUTF8String:groupName.c_str()];
                     if (groupNameStr) {
-                        NSMutableDictionary *entry = legend[groupNameStr];
-                        if (!entry)
-                            entry = [NSMutableDictionary dictionary];
-                        entry[nameStr] = image;
-                        legend[groupNameStr] = entry;
+                        MaplyLegendEntry *group = groups[groupNameStr];
+                        if (!group) {
+                            group = [[MaplyLegendEntry alloc] init];
+                            groups[groupNameStr] = group;
+                            [legend addObject:group];
+                        }
+                        
+                        [group.entries addObject:entry];
                     }
                 } else
-                    legend[nameStr] = image;
+                    [legend addObject:entry];
             }
         }
     }
