@@ -45,11 +45,11 @@ void WideVectorTweakerMTL::tweakForFrame(Drawable *inDraw,RendererFrameInfo *inF
     WhirlyKitShader::UniformWideVec uniWV;
     if (realWidthSet)
     {
-        uniWV.w2 = (float)(realWidth / pixDispSize);
-        uniWV.real_w2 = realWidth;
+        uniWV.w2 = (float)(realWidth / (2.0*pixDispSize));
+        uniWV.real_w2 = realWidth/2.0;
     } else {
-        uniWV.w2 = lineWidth;
-        uniWV.real_w2 = pixDispSize * lineWidth;
+        uniWV.w2 = lineWidth/2.0;
+        uniWV.real_w2 = pixDispSize * lineWidth/2.0;
     }
     uniWV.edge = edgeSize;
     uniWV.texScale = texScale;

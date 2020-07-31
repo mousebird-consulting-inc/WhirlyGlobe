@@ -59,6 +59,7 @@ bool MapboxVectorLinePaint::parse(PlatformThreadInfo *inst,MapboxVectorStyleSetI
     opacity = styleSet->transDouble("line-opacity", styleEntry, 1.0);
     width = styleSet->transDouble("line-width", styleEntry, 1.0);
     color = styleSet->transColor("line-color", styleEntry, RGBAColor::black());
+    pattern = styleSet->stringValue("line-pattern", styleEntry, "");
     
     if (styleEntry->getType("line-dasharray") == DictTypeArray) {
         auto vecArray = styleEntry->getArray("line-dasharray");
@@ -97,19 +98,22 @@ bool MapboxVectorLayerLine::parse(PlatformThreadInfo *inst,
 
         // Figure out the total length
         for (double val : paint.lineDashArray)
-            totLen += val * maxWidth;
+            totLen += val;
 
         int totLenRounded = NextPowOf2(totLen);
+        if (totLenRounded < 64)
+            totLenRounded = 64;
         std::vector<double> dashComponents;
         for (double val : paint.lineDashArray)
         {
-            double len = val * maxWidth * totLenRounded / totLen;
+            double len = val * totLenRounded / totLen;
             dashComponents.push_back(len);
         }
+        totLen *= maxWidth;
         
         filledLineTexID = styleSet->makeLineTexture(inst,dashComponents);
     }
-    fade = styleSet->doubleValue("fad",styleEntry,0.0);
+    fade = styleSet->doubleValue("fade",styleEntry,0.0);
 
     lineScale = styleSet->tileStyleSettings->lineScale;
 
@@ -130,7 +134,7 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
     ComponentObjectRef compObj = styleSet->makeComponentObject(inst);
 
     // TODO: Do level based animation instead
-    float levelBias = 0.9;
+    float levelBias = 1.9;
 
     std::vector<VectorObjectRef> vecObjs = inVecObjs;
     
@@ -161,14 +165,21 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
         vecObjs = newVecObjs;
     }
     
-    // TODO: Eventually we need width animation
+    // If we have a filled texture, we'll use that
+    SimpleIdentity texID = filledLineTexID;
+    float repeatLen = totLen;
+    
+    // TODO: We can also have a symbol, where we might do the same thing
+    // Problem is, we'll need to pass the subtexture logic through to the renderer
+    //  because right now it's expecting a single texture that can be strung along the line
+    
     WideVectorInfo vecInfo;
     vecInfo.coordType = WideVecCoordScreen;
     vecInfo.programID = styleSet->wideVectorProgramID;
     vecInfo.fade = fade;
     if (filledLineTexID != EmptyIdentity) {
         vecInfo.texID = filledLineTexID;
-        vecInfo.repeatSize = totLen/4.0;
+        vecInfo.repeatSize = repeatLen;
     }
     
     RGBAColorRef color = styleSet->resolveColor(paint.color, paint.opacity, tileInfo->ident.level+levelBias, MBResolveColorOpacityMultiply);

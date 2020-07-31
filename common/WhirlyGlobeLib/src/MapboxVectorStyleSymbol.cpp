@@ -232,7 +232,8 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
     MarkerInfo markerInfo(true);
     SimpleIdentity markerTexID = EmptyIdentity;
     Point2d markerSize;
-    if (!layout.iconImage.empty() && styleSet->sprites) {
+    bool iconInclude = !layout.iconImage.empty() && styleSet->sprites;
+    if (iconInclude) {
         auto subTex = styleSet->sprites->getTexture(layout.iconImage,markerSize);
         markerSize.x() *= layout.iconSize;
         markerSize.y() *= layout.iconSize;
@@ -245,7 +246,6 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
 //    desc[kMaplyTextLineSpacing] = @(4.0 / 5.0 * font.lineHeight);
     
     bool textInclude = (textColor && textSize > 0.0);
-    bool iconInclude = !layout.iconImage.empty();
     if (!textInclude && !iconInclude)
         return;
     

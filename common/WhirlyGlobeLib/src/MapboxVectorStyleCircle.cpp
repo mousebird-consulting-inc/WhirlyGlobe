@@ -94,8 +94,8 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
                         WhirlyKit::Marker *marker = new WhirlyKit::Marker();
                         marker->loc = GeoCoord(pt.x(),pt.y());
                         marker->texIDs.push_back(circleTexID);
-                        marker->width = circleSize.x(); marker->height = circleSize.y();
-                        marker->layoutWidth = circleSize.x(); marker->layoutHeight = circleSize.y();
+                        marker->width = 2*paint.radius * styleSet->tileStyleSettings->markerScale; marker->height = 2*paint.radius * styleSet->tileStyleSettings->markerScale;
+                        marker->layoutWidth = marker->width; marker->layoutHeight = marker->height;
                         marker->layoutImportance = importance + (101-tileInfo->ident.level)/100.0;
                         if (selectable) {
                             marker->isSelectable = true;
