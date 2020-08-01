@@ -19,6 +19,7 @@
  */
 
 #import "MapboxVectorStyleSymbol.h"
+#import "Dictionary.h"
 #import "WhirlyKitLog.h"
 #import <vector>
 #import <regex>
@@ -30,6 +31,64 @@ static const char *placementVals[] = {"point","line",NULL};
 static const char *transformVals[] = {"none","uppercase","lowercase",NULL};
 static const char *anchorVals[] = {"center","left","right","top","bottom","top-left","top-right","bottom-left","bottom-right",NULL};
 
+bool MapboxVectorSymbolLayout::RegexField::parse(const std::string &fieldName,
+                                                 MapboxVectorStyleSetImpl *styleSet,
+                                                 DictionaryRef styleEntry)
+{
+    std::string textField = styleSet->stringValue(fieldName, styleEntry, "");
+    if (!textField.empty()) {
+        // Parse out the {} groups in the text
+        // TODO: We're missing a boatload of stuff in the spec
+        std::regex regex{R"([{}]+)"};
+        std::sregex_token_iterator it{textField.begin(), textField.end(), regex, -1};
+        std::vector<std::string> regexChunks{it, {}};
+        bool isJustText = textField[0] != '{';
+        for (auto regexChunk : regexChunks) {
+            if (regexChunk.empty())
+                continue;
+            MapboxVectorSymbolLayout::TextChunk textChunk;
+            if (isJustText) {
+                textChunk.str = regexChunk;
+            } else {
+                textChunk.keys.push_back(regexChunk);
+                // For some reason name:en is sometimes name_en
+                std::string textVariant = regexChunk;
+                std::regex_replace(textVariant, std::regex(":"), "_");
+                textChunk.keys.push_back(textVariant);
+            }
+            chunks.push_back(textChunk);
+            isJustText = !isJustText;
+        }
+
+        valid = true;
+    }
+    
+    return true;
+}
+
+std::string MapboxVectorSymbolLayout::RegexField::build(DictionaryRef attrs)
+{
+    std::string text = "";
+    
+    for (auto chunk : chunks) {
+        if (!chunk.str.empty())
+            text += chunk.str;
+        else {
+            for (auto key : chunk.keys) {
+                if (attrs->hasField(key)) {
+                    std::string keyVal = attrs->getString(key);
+                    if (!keyVal.empty()) {
+                        text += keyVal;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    return text;
+}
+
 bool MapboxVectorSymbolLayout::parse(PlatformThreadInfo *inst,
                                      MapboxVectorStyleSetImpl *styleSet,
                                      DictionaryRef styleEntry)
@@ -38,31 +97,8 @@ bool MapboxVectorSymbolLayout::parse(PlatformThreadInfo *inst,
     placement = (MapboxSymbolPlacement)styleSet->enumValue(styleEntry->getEntry("symbol-placement"), placementVals, (int)MBPlacePoint);
     textTransform = (MapboxTextTransform)styleSet->enumValue(styleEntry->getEntry("text-transform"), transformVals, (int)MBTextTransNone);
     
-    std::string textField = styleSet->stringValue("text-field", styleEntry, "");
-    if (!textField.empty()) {
-        // Parse out the {} groups in the text
-        // TODO: We're missing a boatload of stuff in the spec
-        std::regex regex{R"([{}]+)"};
-        std::sregex_token_iterator it{textField.begin(), textField.end(), regex, -1};
-        std::vector<std::string> chunks{it, {}};
-        bool isJustText = textField[0] != '{';
-        for (auto chunk : chunks) {
-            if (chunk.empty())
-                continue;
-            MapboxVectorSymbolLayout::TextChunk textChunk;
-            if (isJustText) {
-                textChunk.str = chunk;
-            } else {
-                textChunk.keys.push_back(chunk);
-                // For some reason name:en is sometimes name_en
-                std::string textVariant = chunk;
-                std::regex_replace(textVariant, std::regex(":"), "_");
-                textChunk.keys.push_back(textVariant);
-            }
-            textChunks.push_back(textChunk);
-            isJustText = !isJustText;
-        }
-    }
+    textField.parse("text-field",styleSet,styleEntry);
+
     auto textFontArray = styleEntry->getArray("text-font");
     if (!textFontArray.empty() && textFontArray[0]->getType() == DictTypeString) {
         std::string textField = textFontArray[0]->getString();
@@ -78,7 +114,7 @@ bool MapboxVectorSymbolLayout::parse(PlatformThreadInfo *inst,
     }
     layoutImportance = styleSet->tileStyleSettings->labelImportance;
     
-    iconImage = styleSet->stringValue("icon-image", styleEntry, "");
+    iconImageField.parse("icon-image",styleSet,styleEntry);
     iconSize = styleSet->doubleValue("icon-size", styleEntry, 1.0);
     
     return true;
@@ -230,14 +266,8 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
     
     // Sort out the image for the marker if we're doing that
     MarkerInfo markerInfo(true);
-    SimpleIdentity markerTexID = EmptyIdentity;
-    Point2d markerSize;
-    bool iconInclude = !layout.iconImage.empty() && styleSet->sprites;
+    bool iconInclude = layout.iconImageField.valid && styleSet->sprites;
     if (iconInclude) {
-        auto subTex = styleSet->sprites->getTexture(layout.iconImage,markerSize);
-        markerSize.x() *= layout.iconSize;
-        markerSize.y() *= layout.iconSize;
-        markerTexID = subTex.getId();
         markerInfo.programID = styleSet->screenMarkerProgramID;
         markerInfo.drawPriority = labelInfo->drawPriority;
     }
@@ -259,22 +289,7 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                     for (auto pt : pts->pts) {
                         if (textInclude) {
                             // Reconstruct the string from its replacement form
-                            std::string text;
-                            for (auto textChunk : layout.textChunks) {
-                                if (!textChunk.str.empty())
-                                    text += textChunk.str;
-                                else {
-                                    for (auto key : textChunk.keys) {
-                                        if (vecObj->getAttributes()->hasField(key)) {
-                                            std::string keyVal = vecObj->getAttributes()->getString(key);
-                                            if (!keyVal.empty()) {
-                                                text += keyVal;
-                                                break;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                            std::string text = layout.textField.build(vecObj->getAttributes());
                             
                             if (!text.empty()) {
                                 // Change the text if needed
@@ -369,6 +384,21 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                             }
                         }
                         if (iconInclude) {
+                            // The symbol name might get tricky
+                            std::string symbolName = layout.iconImageField.build(vecObj->getAttributes());
+                                                        
+                            Point2d markerSize;
+                            auto subTex = styleSet->sprites->getTexture(symbolName,markerSize);
+                            
+                            if (markerSize.x() == 0.0) {
+                                wkLogLevel(Warn, "MapboxVectorLayerSymbol: Failed to find symbol %s",symbolName.c_str());
+                                continue;
+                            }
+                            
+                            markerSize.x() *= layout.iconSize;
+                            markerSize.y() *= layout.iconSize;
+                            SimpleIdentity markerTexID = subTex.getId();
+
                             Marker *marker = new Marker();
                             marker->width = markerSize.x();
                             marker->height = markerSize.y();
