@@ -20,8 +20,33 @@
 
 #import <Foundation/Foundation.h>
 #import "vector_styles/MaplyVectorStyle.h"
-#import "vector_styles/MapboxVectorStyleSprites.h"
 #import "vector_tiles/MapboxVectorTiles.h"
+
+typedef NS_ENUM(NSUInteger,MapboxLayerType) {
+    MapboxLayerTypeBackground,
+    MapboxLayerTypeCircle,
+    MapboxLayerTypeFill,
+    MapboxLayerTypeLine,
+    MapboxLayerTypeRaster,
+    MapboxLayerTypeSymbol,
+    MapboxLayerTypeUnknown
+};
+
+/**
+ A single entry in the legend array returned by
+ */
+@interface MaplyLegendEntry : NSObject
+
+/// Name of this entry
+@property (nonatomic,nonnull) NSString *name;
+
+/// Image for this entry, if this is a single entry
+@property (nonatomic,nullable) UIImage *image;
+
+/// Array of entries if this is a group
+@property (nonatomic,nullable) NSMutableArray<MaplyLegendEntry *> *entries;
+
+@end
 
 /** @brief The Mapbox Vector Style Set parses Mapbox GL Style sheets and turns them into Maply compatible styles.
     @details A style delegate is required by the Mapnik parser to build geometry out of Mapnik vector tiles.  This style delegate can read a Mapbox GL Style sheet and produce compatible styles.
@@ -48,9 +73,37 @@
 /// Tile sources
 @property (nonatomic, strong, nonnull) NSArray *sources;
 
+/// All the layer names
+@property (nonatomic) NSArray<NSString *> * __nonnull layerNames;
+
+/// Type of the given layer
+- (MapboxLayerType) layerType:(NSString * __nonnull)layerName;
+
+/// Add the sprint sheet for use in symbols.  Return false on failures.
+- (bool)addSprites:(NSDictionary * __nonnull)spriteDict image:(UIImage * __nonnull)image;
+
+/**
+ This method will poke around in the given layer to determine a distinc color for it.
+ For circle layers, you get the circle color.  For fill and line layers, it's the paint color.
+ For symbols, you get the text color.
+ This is useful for visualizing layers, it has nothing to do with rendering them.
+ */
+- (UIColor * __nullable) colorForLayer:(NSString *__nonnull)layerName;
+
 /// If there is a background layer, calculate the color for a given zoom level.
 /// Otherwise return nil
 - (UIColor * __nullable)backgroundColorForZoom:(double)zoom;
+
+/// Make a layer visible/invisible
+- (void)setLayerVisible:(NSString *__nonnull)layerName visible:(bool)visible;
+
+/**
+ Returns a dictionary containing a flexible legend for the layers contained in this style.
+ Each layer is rendered as a representative image at the given size.
+ Layer names that start with the same "<name>_" will be grouped together in the hiearchy if
+  the group parameter is set.  Otherwise they'll be flat.
+ */
+- (NSArray<MaplyLegendEntry *> * __nonnull)layerLegend:(CGSize)imageSize group:(bool)useGroups;
 
 @property (nonatomic, weak, nullable) NSObject<MaplyRenderControllerProtocol> *viewC;
 

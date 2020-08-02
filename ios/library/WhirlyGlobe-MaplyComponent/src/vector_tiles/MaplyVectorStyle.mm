@@ -388,6 +388,7 @@ SimpleIdentity MapboxVectorStyleSetImpl_iOS::makeCircleTexture(PlatformThreadInf
     UIGraphicsEndImageContext();
     
     MaplyTexture *tex = [viewC addTexture:image desc:nil mode:MaplyThreadCurrent];
+    textures.push_back(tex);
     return tex.texID;
 }
 
@@ -405,6 +406,7 @@ SimpleIdentity MapboxVectorStyleSetImpl_iOS::makeLineTexture(PlatformThreadInfo 
                                                       kMaplyTexWrapY: @(MaplyImageWrapY)
                                                       }
                                                mode:MaplyThreadCurrent];
+    textures.push_back(tex);
     
     return tex.texID;
 }
@@ -415,7 +417,7 @@ LabelInfoRef MapboxVectorStyleSetImpl_iOS::makeLabelInfo(PlatformThreadInfo *ins
     NSString *fontNameStr = [NSString stringWithFormat:@"%s",fontName.c_str()];
     UIFont *font = [UIFont fontWithName:fontNameStr size:fontSize];
     if (!font) {
-        NSLog(@"Failed to find font %@",fontNameStr);
+//        NSLog(@"Failed to find font %@",fontNameStr);
         font = [UIFont systemFontOfSize:fontSize];
     }
     
@@ -439,6 +441,18 @@ ComponentObjectRef MapboxVectorStyleSetImpl_iOS::makeComponentObject(PlatformThr
 {
     return ComponentObjectRef(new ComponentObject_iOS());
 }
+
+void MapboxVectorStyleSetImpl_iOS::addSelectionObject(SimpleIdentity selectID,VectorObjectRef vecObj,ComponentObjectRef compObj)
+{
+    if (!compManage)
+        return;
+    
+    ComponentManager_iOS *compManage_iOS = (ComponentManager_iOS *)compManage;
+    
+    MaplyVectorObject *vectorObj = [[MaplyVectorObject alloc] initWithRef:vecObj];
+    compManage_iOS->addSelectObject(selectID, vectorObj);
+}
+
 
 double MapboxVectorStyleSetImpl_iOS::calculateTextWidth(PlatformThreadInfo *inst,LabelInfoRef inLabelInfo,const std::string &testStr)
 {

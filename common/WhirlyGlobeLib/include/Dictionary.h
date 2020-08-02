@@ -68,6 +68,8 @@ public:
     virtual DictionaryEntryRef getEntry(const std::string &name) const = 0;
     // Return an array (if it is an array)
     virtual std::vector<DictionaryEntryRef> getArray(const std::string &name) const = 0;
+    // Return an array of key names
+    virtual std::vector<std::string> getKeys() const = 0;
 };
 
 class MutableDictionary;

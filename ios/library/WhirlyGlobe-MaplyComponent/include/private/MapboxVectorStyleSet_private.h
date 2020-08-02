@@ -20,11 +20,13 @@
 
 #import "MapboxVectorStyleSet.h"
 #import "MapboxVectorStyleSetC.h"
+#import "MaplyVectorStyle_private.h"
+#import "MapboxVectorStyleSpritesImpl.h"
 
 @interface MapboxVectorStyleSet()
 {
 @public
-    WhirlyKit::MapboxVectorStyleSetImplRef style;
+    WhirlyKit::MapboxVectorStyleSetImpl_iOSRef style;
 }
 @end
 

@@ -110,7 +110,7 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
             vecInfo.programID = arealShaderID;
         else
             vecInfo.programID = styleSet->vectorArealProgramID;
-        RGBAColorRef color = styleSet->resolveColor(paint.color, paint.opacity, tileInfo->ident.level, MBResolveColorOpacityMultiply);
+        RGBAColorRef color = styleSet->resolveColor(paint.color, paint.opacity, tileInfo->ident.level, MBResolveColorOpacityReplaceAlpha);
 
 //        wkLogLevel(Debug, "Color: %s %d %d %d %d",ident.c_str(),(int)color->r,(int)color->g,(int)color->b,(int)color->a);
 

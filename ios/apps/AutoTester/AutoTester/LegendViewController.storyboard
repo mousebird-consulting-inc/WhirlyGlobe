@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16097.2" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="vWs-lm-vw0">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16097.2"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--Legend View Controller-->
+        <scene sceneID="Qqi-f1-NTL">
+            <objects>
+                <tableViewController id="vWs-lm-vw0" customClass="LegendViewController" customModule="AutoTester" customModuleProvider="target" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="48" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="iyD-rO-V8Z">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <prototypes>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="Legend Cell" id="jbs-ba-CyI" customClass="LegendCell" customModule="AutoTester" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="28" width="414" height="48"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="jbs-ba-CyI" id="OSu-qQ-55Z">
+                                    <rect key="frame" x="0.0" y="0.0" width="414" height="48"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <subviews>
+                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="qEj-hz-qLH" userLabel="Symbol">
+                                            <rect key="frame" x="6" y="2.5" width="43" height="43"/>
+                                            <constraints>
+                                                <constraint firstAttribute="width" secondItem="qEj-hz-qLH" secondAttribute="height" multiplier="1:1" id="rit-2d-UVo"/>
+                                            </constraints>
+                                        </imageView>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="b6L-Kf-y3U">
+                                            <rect key="frame" x="55" y="13.5" width="304" height="21"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                            <nil key="textColor"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="checkmark.square" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="uri-dJ-EDE">
+                                            <rect key="frame" x="365" y="3.5" width="43" height="40.5"/>
+                                            <constraints>
+                                                <constraint firstAttribute="width" secondItem="uri-dJ-EDE" secondAttribute="height" multiplier="1:1" id="olp-vT-NRg"/>
+                                            </constraints>
+                                        </imageView>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstItem="b6L-Kf-y3U" firstAttribute="leading" secondItem="qEj-hz-qLH" secondAttribute="trailing" constant="6" id="32W-o2-8h3"/>
+                                        <constraint firstItem="qEj-hz-qLH" firstAttribute="leading" secondItem="OSu-qQ-55Z" secondAttribute="leading" constant="6" id="AgP-gw-BXH"/>
+                                        <constraint firstItem="uri-dJ-EDE" firstAttribute="height" secondItem="OSu-qQ-55Z" secondAttribute="height" multiplier="0.9" id="F2O-n2-e5U"/>
+                                        <constraint firstItem="b6L-Kf-y3U" firstAttribute="trailing" secondItem="uri-dJ-EDE" secondAttribute="leading" constant="-6" id="fVL-xg-fNi"/>
+                                        <constraint firstItem="uri-dJ-EDE" firstAttribute="centerY" secondItem="OSu-qQ-55Z" secondAttribute="centerY" id="hWZ-mb-moL"/>
+                                        <constraint firstItem="qEj-hz-qLH" firstAttribute="height" secondItem="OSu-qQ-55Z" secondAttribute="height" multiplier="0.9" id="jYs-4P-4aU"/>
+                                        <constraint firstAttribute="trailing" secondItem="uri-dJ-EDE" secondAttribute="trailing" constant="6" id="uWf-Dd-DXb"/>
+                                        <constraint firstItem="qEj-hz-qLH" firstAttribute="centerY" secondItem="OSu-qQ-55Z" secondAttribute="centerY" id="vqH-RJ-pAW"/>
+                                        <constraint firstItem="b6L-Kf-y3U" firstAttribute="centerY" secondItem="OSu-qQ-55Z" secondAttribute="centerY" id="xEB-6E-atT"/>
+                                    </constraints>
+                                </tableViewCellContentView>
+                                <connections>
+                                    <outlet property="checkMark" destination="uri-dJ-EDE" id="hZE-D2-enr"/>
+                                    <outlet property="label" destination="b6L-Kf-y3U" id="WHB-eI-Yrg"/>
+                                    <outlet property="symbol" destination="qEj-hz-qLH" id="2dv-Sh-CQS"/>
+                                </connections>
+                            </tableViewCell>
+                        </prototypes>
+                        <connections>
+                            <outlet property="dataSource" destination="vWs-lm-vw0" id="kPT-Vr-64X"/>
+                            <outlet property="delegate" destination="vWs-lm-vw0" id="ExR-TL-V64"/>
+                        </connections>
+                    </tableView>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="LoV-tm-ksY" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="131.8840579710145" y="137.94642857142856"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="checkmark.square" catalog="system" width="128" height="114"/>
+    </resources>
+</document>

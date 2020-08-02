@@ -334,7 +334,7 @@ bool QIFTileAsset::frameLoaded(PlatformThreadInfo *threadInfo,
         changes.insert(changes.end(),loadReturn->changes.begin(),loadReturn->changes.end());
     
     auto frame = findFrameFor(loadReturn->frame);
-    if (!frame)
+    if (loadReturn->frame && !frame)
     {
         if (!loadReturn->compObjs.empty())
             loader->compManager->removeComponentObjects(threadInfo,loadReturn->compObjs, changes);
@@ -379,6 +379,15 @@ bool QIFTileAsset::frameLoaded(PlatformThreadInfo *threadInfo,
         }
         
         frame->loadSuccess(threadInfo,loader,texs);
+    }
+    
+    // In single frame mode with multiple sources, we have to mark the rest of the frames done
+    if (loader->getMode() == QuadImageFrameLoader::SingleFrame && frames.size() > 1) {
+        std::vector<Texture *> emptyTex;
+        for (auto frame: frames) {
+            if (frame->getState() == QIFFrameAsset::Loading)
+                frame->loadSuccess(threadInfo, loader, emptyTex);
+        }
     }
     
     if (!texs.empty()) {
@@ -904,6 +913,8 @@ int QuadImageFrameLoader::getNumFrames()
 
 QuadFrameInfoRef QuadImageFrameLoader::getFrameInfo(int which)
 {
+    if (which < 0 || which >= frames.size())
+        return QuadFrameInfoRef();
     return frames[which];
 }
 
@@ -925,7 +936,7 @@ void QuadImageFrameLoader::reload(PlatformThreadInfo *threadInfo,int frameIndex,
     loadingStatus = true;
     
     QIFBatchOps *batchOps = makeBatchOps(threadInfo);
-    auto frame = frames[frameIndex];
+    auto frame = frameIndex >= 0 && frameIndex < frames.size() ? frames[frameIndex] : NULL;
 
     generation++;
     

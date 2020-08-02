@@ -52,6 +52,7 @@ public:
     MapboxTransDoubleRef opacity;
     MapboxTransColorRef color;
     MapboxTransDoubleRef width;
+    std::string pattern;
     std::vector<double> lineDashArray;
 };
 
@@ -70,7 +71,7 @@ public:
     
     virtual void cleanup(PlatformThreadInfo *inst,ChangeSet &changes);
     
-protected:
+public:
     MapboxVectorLineLayout layout;
     MapboxVectorLinePaint paint;
     bool linearClipToBounds;

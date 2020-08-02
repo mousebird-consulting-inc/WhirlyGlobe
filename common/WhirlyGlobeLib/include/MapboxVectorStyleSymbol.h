@@ -62,7 +62,31 @@ public:
     };
 
     float layoutImportance;
-    std::vector<TextChunk> textChunks;
+    
+    // Encapsulates a regular expression field.  Could be a string, could be more complex
+    class RegexField {
+    public:
+        RegexField() : valid(false) { }
+        
+        // Parse the regex text field out of a field name string
+        bool parse(const std::string &fieldName,MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry);
+        
+        // Build the field based on the attributes
+        std::string build(DictionaryRef attrs);
+        
+        std::vector<TextChunk> chunks;
+        
+        bool valid;
+    };
+    
+    // Text can be expressed in a complex way
+    RegexField textField;
+
+    // Name of icon, if present, can be expressed the same way as text
+    RegexField iconImageField;
+
+    // Scale of the icon based on its original size
+    double iconSize;
 };
 
 // Symbol visuals
@@ -97,7 +121,7 @@ public:
     
     virtual void cleanup(PlatformThreadInfo *inst,ChangeSet &changes) override;
 
-protected:
+public:
     std::string breakUpText(PlatformThreadInfo *inst,const std::string &text,double textMaxWidth,LabelInfoRef labelInfo);
     
     MapboxVectorSymbolLayout layout;

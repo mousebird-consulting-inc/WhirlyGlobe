@@ -68,10 +68,17 @@ public:
     
     /// Create a platform specific variant of the component object
     ComponentObjectRef makeComponentObject(PlatformThreadInfo *inst) override;
+
+    /// Tie a selection ID to the given vector object
+    void addSelectionObject(SimpleIdentity selectID,VectorObjectRef vecObj,ComponentObjectRef compObj) override;
         
     /// Return the width of the given line of text
     double calculateTextWidth(PlatformThreadInfo *threadInfo,LabelInfoRef labelInfo,const std::string &testStr) override;
+    
+    // Textures we're holding on to (so they don't get released)
+    std::vector<MaplyTexture *> textures;
 };
+typedef std::shared_ptr<MapboxVectorStyleSetImpl_iOS> MapboxVectorStyleSetImpl_iOSRef;
 
 /**
  Wrapper class for older implementations of MaplyVectorStyleDelegate or ones users have made.

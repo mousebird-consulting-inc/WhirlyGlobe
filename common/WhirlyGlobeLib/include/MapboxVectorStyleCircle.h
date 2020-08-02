@@ -66,7 +66,7 @@ public:
     
     virtual void cleanup(ChangeSet &changes);
 
-protected:
+public:
     MapboxVectorCirclePaint paint;
     
     SimpleIdentity circleTexID;
