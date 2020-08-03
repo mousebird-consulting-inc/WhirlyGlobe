@@ -75,6 +75,7 @@ bool WorkGroup::addDrawable(DrawableRef drawable)
         // Or if it actually matches
         if (!renderTargetCon->renderTarget || drawable->getRenderTarget() == EmptyIdentity ||
             renderTargetCon->renderTarget->getId() == drawable->getRenderTarget()) {
+            drawable->renderTargetCon = renderTargetCon;
             renderTargetCon->modified = true;
             renderTargetCon->drawables.insert(drawable);
             drawable->workGroupIDs.insert(getId());
@@ -90,6 +91,7 @@ void WorkGroup::removeDrawable(DrawableRef drawable)
     for (auto &renderTargetCon : renderTargetContainers) {
         auto it = renderTargetCon->drawables.find(drawable);
         if (it != renderTargetCon->drawables.end()) {
+            drawable->renderTargetCon = NULL;
             renderTargetCon->modified = true;
             renderTargetCon->drawables.erase(it);
         }

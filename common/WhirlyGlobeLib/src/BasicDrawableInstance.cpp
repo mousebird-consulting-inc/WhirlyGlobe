@@ -80,7 +80,7 @@ SimpleIdentity BasicDrawableInstance::getProgram() const
     
 void BasicDrawableInstance::setProgram(SimpleIdentity progID)
 {
-    valuesChanged = true;
+    setValuesChanged();
     
     programID = progID;
 }
@@ -122,7 +122,7 @@ bool BasicDrawableInstance::isOn(WhirlyKit::RendererFrameInfo *frameInfo) const
     
 void BasicDrawableInstance::setRequestZBuffer(bool val)
 {
-    valuesChanged = true;
+    setValuesChanged();
 
     requestZBuffer = val;
 }
@@ -134,7 +134,7 @@ bool BasicDrawableInstance::getRequestZBuffer() const
     
 void BasicDrawableInstance::setWriteZBuffer(bool val)
 {
-    valuesChanged = true;
+    setValuesChanged();
 
     writeZBuffer = val;
 }
@@ -184,7 +184,7 @@ void BasicDrawableInstance::setViewerVisibility(double inMinViewerDist,double in
 /// Set the color
 void BasicDrawableInstance::setColor(RGBAColor inColor)
 {
-    valuesChanged = true;
+    setValuesChanged();
 
     hasColor = true; color = inColor;
 }
@@ -192,7 +192,7 @@ void BasicDrawableInstance::setColor(RGBAColor inColor)
 /// Set the draw priority
 void BasicDrawableInstance::setDrawPriority(int newPriority)
 {
-    valuesChanged = true;
+    setValuesChanged();
 
     hasDrawPriority = true;  drawPriority = newPriority;
 }
@@ -200,7 +200,7 @@ void BasicDrawableInstance::setDrawPriority(int newPriority)
 /// Set the line width
 void BasicDrawableInstance::setLineWidth(int newLineWidth)
 {
-    valuesChanged = true;
+    setValuesChanged();
 
     hasLineWidth = true;  lineWidth = newLineWidth;
 }
@@ -238,15 +238,15 @@ SimpleIdentity BasicDrawableInstance::getRenderTarget() const
 
 void BasicDrawableInstance::setRenderTarget(SimpleIdentity newRenderTarget)
 {
-    valuesChanged = true;
+    setValuesChanged();
 
     renderTargetID = newRenderTarget;
 }
 
 void BasicDrawableInstance::setTexId(unsigned int which,SimpleIdentity inId)
 {
-    texturesChanged = true;
-    
+    setValuesChanged();
+
     if (which < texInfo.size())
         texInfo[which].texId = inId;
     else {
@@ -277,6 +277,20 @@ void BasicDrawableInstance::setTexRelative(int which,int size,int borderTexel,in
     ti.relLevel = relLevel;
     ti.relX = relX;
     ti.relY = relY;
-}    
+}
+
+void BasicDrawableInstance::setValuesChanged()
+{
+    valuesChanged = true;
+    if (renderTargetCon)
+        renderTargetCon->modified = true;
+}
     
+void BasicDrawableInstance::setTexturesChanged()
+{
+    texturesChanged = true;
+    if (renderTargetCon)
+        renderTargetCon->modified = true;
+}
+
 }

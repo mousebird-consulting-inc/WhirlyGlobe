@@ -184,12 +184,16 @@ public:
         
     /// If present, we'll do a pre-render calculation pass with this program set
     virtual SimpleIdentity getCalculationProgram() const;
-        
+            
     /// For OpenGLES2, this is the program to use to render this drawable.
     virtual SimpleIdentity getProgram() const;
     void setProgram(SimpleIdentity progId);
     
 protected:
+    /// Update rendering for this drawable
+    virtual void setValuesChanged();
+    virtual void setTexturesChanged();
+
     GeometryType type;
     bool on;  // If set, draw.  If not, not
     TimeInterval startEnable,endEnable;

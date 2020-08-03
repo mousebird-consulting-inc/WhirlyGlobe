@@ -163,6 +163,10 @@ public:
     virtual void setTexRelative(int which,int size,int borderTexel,int relLevel,int relX,int relY);
     
 protected:
+    /// Update rendering for this drawable
+    virtual void setValuesChanged();
+    virtual void setTexturesChanged();
+
     Style instanceStyle;
     SimpleIdentity programID;
     bool requestZBuffer,writeZBuffer;

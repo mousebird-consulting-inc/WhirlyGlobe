@@ -50,6 +50,9 @@ public:
 typedef std::shared_ptr<DrawableTweaker> DrawableTweakerRef;
 typedef std::set<DrawableTweakerRef> DrawableTweakerRefSet;
 
+class RenderTargetContainer;
+typedef std::shared_ptr<RenderTargetContainer> RenderTargetContainerRef;
+
 /** The Drawable base class.  Inherit from this and fill in the virtual
     methods.  In general, use the BasicDrawable.
  */
@@ -104,6 +107,9 @@ public:
     
     // Which workgroups this is in (might be in multiple if there's a calculation shader)
     SimpleIDSet workGroupIDs;
+    
+    // If it's being rendered, the target container this belongs to
+    RenderTargetContainerRef renderTargetCon;
 
 protected:
     std::string name;

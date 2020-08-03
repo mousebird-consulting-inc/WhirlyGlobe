@@ -391,6 +391,7 @@ bool BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
     bool ret = false;
     
     if (texturesChanged || valuesChanged) {
+        vertDesc = nil;
         ret = true;
         
         ProgramMTL *prog = (ProgramMTL *)scene->getProgram(programId);

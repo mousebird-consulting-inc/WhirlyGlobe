@@ -1946,10 +1946,15 @@ public:
             iosDictionary dictWrap(desc);
             VectorInfo vectorInfo(dictWrap);
 
+            // Visual changes
             ChangeSet changes;
             for (SimpleIDSet::iterator it = vecObj->contents->vectorIDs.begin();
                  it != vecObj->contents->vectorIDs.end(); ++it)
                 vectorManager->changeVectors(*it, vectorInfo, changes);
+            
+            // On/off
+            compManager->enableComponentObject(vecObj->contents->getId(), vectorInfo.enable, changes);
+
             [self flushChanges:changes mode:threadMode];
         }
     }
