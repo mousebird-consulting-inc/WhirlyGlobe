@@ -50,22 +50,6 @@ RendererFrameInfo::RendererFrameInfo(const RendererFrameInfo &that)
     *this = that;
 }
 
-WorkGroup::WorkGroup(GroupType groupType) : groupType(groupType)
-{
-    switch (groupType) {
-        case Calculation:
-            // For calculation we don't really have a render target
-            renderTargetContainers.push_back(makeRenderTargetContainer());
-            break;
-        case Offscreen:
-            break;
-        case ReduceOps:
-            break;
-        case ScreenRender:
-            break;
-    }
-}
-
 WorkGroup::~WorkGroup()
 {
     for (auto &targetCon : renderTargetContainers) {
@@ -77,15 +61,10 @@ WorkGroup::~WorkGroup()
     }
 }
 
-WorkGroup::RenderTargetContainer::RenderTargetContainer(RenderTargetRef renderTarget)
+RenderTargetContainer::RenderTargetContainer(RenderTargetRef renderTarget)
 : renderTarget(renderTarget), modified(true)
 {
     
-}
-
-WorkGroup::RenderTargetContainerRef WorkGroup::makeRenderTargetContainer()
-{
-    return RenderTargetContainerRef(new RenderTargetContainer(RenderTargetRef()));
 }
 
 bool WorkGroup::addDrawable(DrawableRef drawable)
@@ -130,7 +109,7 @@ void WorkGroup::addRenderTarget(RenderTargetRef renderTarget)
             return;
         }
     
-    auto renderTargetContainer = makeRenderTargetContainer();
+    auto renderTargetContainer = makeRenderTargetContainer(renderTarget);
     renderTargetContainer->renderTarget = renderTarget;
     renderTargetContainers.push_back(renderTargetContainer);
 }
@@ -203,7 +182,8 @@ void SceneRenderer::setView(View *newView)
     
 void SceneRenderer::addRenderTarget(RenderTargetRef newTarget)
 {
-    workGroups[WorkGroup::Offscreen]->renderTargetContainers.push_back(WorkGroup::RenderTargetContainerRef(new WorkGroup::RenderTargetContainer(newTarget)));
+    auto workGroup = workGroups[WorkGroup::Offscreen];
+    workGroup->renderTargetContainers.push_back(workGroup->makeRenderTargetContainer(newTarget));
     renderTargets.insert(renderTargets.begin(),newTarget);
 }
 

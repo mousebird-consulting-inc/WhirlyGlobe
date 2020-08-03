@@ -46,6 +46,19 @@ public:
     int glesVersion;
 };
 
+class WorkGroupGLES : public WorkGroup
+{
+public:
+    WorkGroupGLES(GroupType groupType);
+    virtual RenderTargetContainerRef makeRenderTargetContainer(RenderTargetRef);
+};
+
+class RenderTargetContainerGLES : public RenderTargetContainer
+{
+public:
+    RenderTargetContainerGLES(RenderTargetRef renderTarget) : RenderTargetContainer(renderTarget) { }
+};
+
 /// Base class for the scene renderer.
 /// It's subclassed for the specific version of OpenGL ES
 class SceneRendererGLES : public SceneRenderer

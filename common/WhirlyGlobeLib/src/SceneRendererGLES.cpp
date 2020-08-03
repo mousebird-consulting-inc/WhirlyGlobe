@@ -37,6 +37,29 @@ using namespace WhirlyKit;
 
 namespace WhirlyKit
 {
+
+WorkGroupGLES::WorkGroupGLES(GroupType inGroupType)
+{
+    groupType = inGroupType;
+    
+    switch (groupType) {
+        case Calculation:
+            // For calculation we don't really have a render target
+            renderTargetContainers.push_back(WorkGroupGLES::makeRenderTargetContainer(NULL));
+            break;
+        case Offscreen:
+            break;
+        case ReduceOps:
+            break;
+        case ScreenRender:
+            break;
+    }
+}
+
+RenderTargetContainerRef WorkGroupGLES::makeRenderTargetContainer(RenderTargetRef renderTarget)
+{
+    return RenderTargetContainerRef(new RenderTargetContainerGLES(renderTarget));
+}
     
 RendererFrameInfoGLES::RendererFrameInfoGLES()
 : glesVersion(0)
@@ -48,13 +71,13 @@ SceneRendererGLES::SceneRendererGLES()
     init();
 
     // Calculation shaders
-    workGroups.push_back(WorkGroupRef(new WorkGroup(WorkGroup::Calculation)));
+    workGroups.push_back(WorkGroupRef(new WorkGroupGLES(WorkGroup::Calculation)));
     // Offscreen target render group
-    workGroups.push_back(WorkGroupRef(new WorkGroup(WorkGroup::Offscreen)));
+    workGroups.push_back(WorkGroupRef(new WorkGroupGLES(WorkGroup::Offscreen)));
     // Middle one for weird stuff
-    workGroups.push_back(WorkGroupRef(new WorkGroup(WorkGroup::ReduceOps)));
+    workGroups.push_back(WorkGroupRef(new WorkGroupGLES(WorkGroup::ReduceOps)));
     // Last workgroup is used for on screen rendering
-    workGroups.push_back(WorkGroupRef(new WorkGroup(WorkGroup::ScreenRender)));
+    workGroups.push_back(WorkGroupRef(new WorkGroupGLES(WorkGroup::ScreenRender)));
 
     extraFrameMode = false;
 }

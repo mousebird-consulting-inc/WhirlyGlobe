@@ -111,6 +111,39 @@ public:
  */
 typedef enum {zBufferOn,zBufferOff,zBufferOffDefault} WhirlyKitSceneRendererZBufferMode;
 
+// All the drawables to draw into a render target
+class RenderTargetContainer
+{
+public:
+    virtual ~RenderTargetContainer() { }
+    
+    // Sort by draw priority and zbuffer on or off
+    typedef struct {
+        bool operator () (const DrawableRef a,const DrawableRef b) const {
+            if (a->getDrawPriority() == b->getDrawPriority()) {
+                bool bufferA = a->getRequestZBuffer();
+                bool bufferB = b->getRequestZBuffer();
+                if (bufferA == bufferB)
+                    return a->getId() < b->getId();
+                return !bufferA;
+            }
+            
+            return a->getDrawPriority() < b->getDrawPriority();
+        }
+    } PrioritySorter;
+
+    // What we're doing to (the screen if it's empty)
+    RenderTargetRef renderTarget;
+
+    // Drawables sorted by draw priority
+    std::set<DrawableRef,PrioritySorter> drawables;
+    bool modified;   // Set when the contents of the container are modified
+
+protected:
+    RenderTargetContainer(RenderTargetRef renderTarget);
+};
+typedef std::shared_ptr<RenderTargetContainer> RenderTargetContainerRef;
+
 /**
   A group of geometry, render targets, etc... that can be rendered in parallel.  The
     order of work groups determines order of rendering.
@@ -121,38 +154,7 @@ public:
     // The various pre-defined workgroup stages
     typedef enum {Calculation=0,Offscreen,ReduceOps,ScreenRender} GroupType;
 
-    WorkGroup(GroupType groupType);
     virtual ~WorkGroup();
-        
-    // All the drawables to draw into a render target
-    class RenderTargetContainer
-    {
-    public:
-        RenderTargetContainer(RenderTargetRef renderTarget);
-        
-        // Sort by draw priority and zbuffer on or off
-        typedef struct {
-            bool operator () (const DrawableRef a,const DrawableRef b) const {
-                if (a->getDrawPriority() == b->getDrawPriority()) {
-                    bool bufferA = a->getRequestZBuffer();
-                    bool bufferB = b->getRequestZBuffer();
-                    if (bufferA == bufferB)
-                        return a->getId() < b->getId();
-                    return !bufferA;
-                }
-                
-                return a->getDrawPriority() < b->getDrawPriority();
-            }
-        } PrioritySorter;
-
-        // What we're doing to (the screen if it's empty)
-        RenderTargetRef renderTarget;
-
-        // Drawables sorted by draw priority
-        std::set<DrawableRef,PrioritySorter> drawables;
-        bool modified;   // Set when the contents of the container are modified
-    };
-    typedef std::shared_ptr<RenderTargetContainer> RenderTargetContainerRef;
     
     // Put the given render target in this work group
     void addRenderTarget(RenderTargetRef renderTarget);
@@ -167,10 +169,11 @@ public:
     GroupType groupType;
 
     std::vector<RenderTargetContainerRef> renderTargetContainers;
-    
+
+    virtual RenderTargetContainerRef makeRenderTargetContainer(RenderTargetRef) = 0;
+
 protected:
     WorkGroup()  {}
-    virtual RenderTargetContainerRef makeRenderTargetContainer();
 };
 typedef std::shared_ptr<WorkGroup> WorkGroupRef;
 

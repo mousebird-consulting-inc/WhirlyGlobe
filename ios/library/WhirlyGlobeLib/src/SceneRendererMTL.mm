@@ -45,7 +45,7 @@ WorkGroupMTL::WorkGroupMTL(GroupType inGroupType)
     switch (groupType) {
         case Calculation:
             // For calculation we don't really have a render target
-            renderTargetContainers.push_back(makeRenderTargetContainer());
+            renderTargetContainers.push_back(WorkGroupMTL::makeRenderTargetContainer(NULL));
             break;
         case Offscreen:
             break;
@@ -60,14 +60,14 @@ WorkGroupMTL::~WorkGroupMTL()
 {
 }
 
-WorkGroupMTL::RenderTargetContainerMTL::RenderTargetContainerMTL(RenderTargetRef renderTarget)
+RenderTargetContainerMTL::RenderTargetContainerMTL(RenderTargetRef renderTarget)
 : RenderTargetContainer(renderTarget)
 {
 }
 
-WorkGroupMTL::RenderTargetContainerRef WorkGroupMTL::makeRenderTargetContainer()
+RenderTargetContainerRef WorkGroupMTL::makeRenderTargetContainer(RenderTargetRef renderTarget)
 {
-    return RenderTargetContainerRef(new RenderTargetContainerMTL(RenderTargetRef()));
+    return RenderTargetContainerRef(new RenderTargetContainerMTL(renderTarget));
 }
     
 RendererFrameInfoMTL::RendererFrameInfoMTL()
@@ -313,7 +313,7 @@ void SceneRendererMTL::updateWorkGroups(RendererFrameInfo *inFrameInfo)
             for (auto targetContainer : workGroup->renderTargetContainers) {
                 if (targetContainer->drawables.empty() || !targetContainer->modified)
                     continue;
-                WorkGroupMTL::RenderTargetContainerMTL *targetContainerMTL = static_cast<WorkGroupMTL::RenderTargetContainerMTL *>(targetContainer.get());
+                RenderTargetContainerMTLRef targetContainerMTL = std::dynamic_pointer_cast<RenderTargetContainerMTL>(targetContainer);
                 targetContainerMTL->drawGroups.clear();
 
                 RenderTargetMTLRef renderTarget;
@@ -325,7 +325,7 @@ void SceneRendererMTL::updateWorkGroups(RendererFrameInfo *inFrameInfo)
                 }
 
                 // Sort the drawables into draw groups by Z buffer usage
-                WorkGroupMTL::DrawGroupMTLRef drawGroup;
+                DrawGroupMTLRef drawGroup;
                 bool dgZBufferRead = false, dgZBufferWrite = false;
                 for (auto draw : targetContainer->drawables) {
                     DrawableMTL *drawMTL = dynamic_cast<DrawableMTL *>(draw.get());
@@ -346,7 +346,7 @@ void SceneRendererMTL::updateWorkGroups(RendererFrameInfo *inFrameInfo)
                     // If this isn't compatible with the draw group, create a new one
                     if (!drawGroup || zBufferRead != dgZBufferRead || zBufferWrite != dgZBufferWrite) {
                         // It's not, so we need to make a new draw group
-                        drawGroup = WorkGroupMTL::DrawGroupMTLRef(new WorkGroupMTL::DrawGroupMTL());
+                        drawGroup = DrawGroupMTLRef(new DrawGroupMTL());
 
                         // Depth stencil, which goes in the command encoder later
                         MTLDepthStencilDescriptor *depthDesc = [[MTLDepthStencilDescriptor alloc] init];
@@ -630,7 +630,7 @@ void SceneRendererMTL::render(TimeInterval duration,
         for (auto &targetContainer : workGroup->renderTargetContainers) {
             if (targetContainer->drawables.empty())
                 continue;
-            WorkGroupMTL::RenderTargetContainerMTL *targetContainerMTL = (WorkGroupMTL::RenderTargetContainerMTL *)targetContainer.get();
+            RenderTargetContainerMTL *targetContainerMTL = (RenderTargetContainerMTL *)targetContainer.get();
             
             RenderTargetMTLRef renderTarget;
             if (!targetContainer->renderTarget) {

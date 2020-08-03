@@ -63,45 +63,45 @@ public:
     id<MTLRenderCommandEncoder> cmdEncode;
 };
 
+// Drawables sorted by draw priority and grouped by state
+class DrawGroupMTL {
+public:
+    // Depth/stencil values are the reason for these groups
+    id<MTLDepthStencilState> depthStencil;
+    
+    // Indirect render buffer
+    API_AVAILABLE(ios(12.0)) id<MTLIndirectCommandBuffer> indCmdBuff;
+    int numCommands;
+
+    // Drawables in this group
+    std::vector<DrawableRef> drawables;
+    
+    // Resources used by this group
+    ResourceRefsMTL resources;
+};
+typedef std::shared_ptr<DrawGroupMTL> DrawGroupMTLRef;
+
+// This version stores indirect render command buffers
+class RenderTargetContainerMTL : public RenderTargetContainer
+{
+public:
+    RenderTargetContainerMTL(RenderTargetRef renderTarget);
+    
+    // Drawables sorted into groups for drawing
+    // For Metal we have specialized versions
+    std::vector<DrawGroupMTLRef> drawGroups;
+};
+typedef std::shared_ptr<RenderTargetContainerMTL> RenderTargetContainerMTLRef;
+
 // Metal version of WorkGroup has a bit more cached info
 class WorkGroupMTL : public WorkGroup
 {
 public:
     WorkGroupMTL(GroupType groupType);
     virtual ~WorkGroupMTL();
-
-    // Drawables sorted by draw priority and grouped by state
-    class DrawGroupMTL {
-    public:
-        // Depth/stencil values are the reason for these groups
-        id<MTLDepthStencilState> depthStencil;
-        
-        // Indirect render buffer
-        API_AVAILABLE(ios(12.0)) id<MTLIndirectCommandBuffer> indCmdBuff;
-        int numCommands;
-
-        // Drawables in this group
-        std::vector<DrawableRef> drawables;
-        
-        // Resources used by this group
-        ResourceRefsMTL resources;
-    };
-    typedef std::shared_ptr<DrawGroupMTL> DrawGroupMTLRef;
-
-    // This version stores indirect render command buffers
-    class RenderTargetContainerMTL : public RenderTargetContainer
-    {
-    public:
-        RenderTargetContainerMTL(RenderTargetRef renderTarget);
-        
-        // Drawables sorted into groups for drawing
-        // For Metal we have specialized versions
-        std::vector<DrawGroupMTLRef> drawGroups;
-    };
-    typedef std::shared_ptr<RenderTargetContainer> RenderTargetContainerMTLRef;
     
 protected:
-    virtual RenderTargetContainerRef makeRenderTargetContainer();
+    virtual RenderTargetContainerRef makeRenderTargetContainer(RenderTargetRef renderTarget);
 };
     
 /// Metal version of the Scene Renderer
