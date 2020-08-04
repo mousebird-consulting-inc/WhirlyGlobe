@@ -404,11 +404,34 @@ bool BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
 
         if (texturesChanged && (vertTexInfo || fragTexInfo)) {
             activeTextures.clear();
+            
+            int numEntries = texInfo.size();
+            if (prog && !prog->textures.empty()) {
+                int maxTex = -1;
+                for (auto progTex: prog->textures)
+                    maxTex = std::max(maxTex,progTex.slot);
+                if (maxTex >= 0)
+                    numEntries = WKSTextureEntryLookup+maxTex+1;
+            }
+            std::vector<TexInfo> allTexInfo(numEntries);
+            
+            // Copy in the textures from this drawable instance and the base drawable
+            for (unsigned int texIndex=0;texIndex<allTexInfo.size();texIndex++) {
+                if (texIndex < texInfo.size())
+                    allTexInfo[texIndex] = TexInfo(texInfo[texIndex]);
+            }
+            // And then copy in the textures from the program
+            for (auto progTex: prog->textures) {
+                int texIndex = WKSTextureEntryLookup+progTex.slot;
+                allTexInfo[texIndex].texId = progTex.texID;
+            }
 
             // Wire up the textures and texture indirection values
             for (unsigned int texIndex=0;texIndex<WKSTextureMax;texIndex++) {
-                TexInfo *thisTexInfo = (texIndex < texInfo.size()) ? &texInfo[texIndex] : NULL;
-                
+                TexInfo *thisTexInfo = (texIndex < allTexInfo.size()) ? &allTexInfo[texIndex] : NULL;
+                if (thisTexInfo && thisTexInfo->texId == EmptyIdentity)
+                    thisTexInfo = NULL;
+
                 // Figure out texture adjustment for parent textures
                 float texScale = 1.0;
                 Vector2f texOffset(0.0,0.0);

@@ -57,13 +57,9 @@ public:
     /// Return the name (for tracking purposes)
     const std::string &getName();
     
-    /// Clean up OpenGL resources, rather than letting the destructor do it (which it will)
+    /// Clean up Metal resources, rather than letting the destructor do it (which it will)
     virtual void teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene);
-    void cleanUp();
-    
-    /// Add any external resources the program might need to the encoder
-    void addResources(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,SceneMTL *scene);
-    
+        
 public:
     bool valid;
     id<MTLFunction> vertFunc,fragFunc;
@@ -75,7 +71,8 @@ public:
         TextureEntry();
         
         int slot;
-        id<MTLTexture> tex;
+        TextureEntryMTL texBuf;
+        SimpleIdentity texID;
     } ;
     std::vector<TextureEntry> textures;
 };

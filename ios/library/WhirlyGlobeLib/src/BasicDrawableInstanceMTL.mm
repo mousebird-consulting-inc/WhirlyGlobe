@@ -468,12 +468,27 @@ bool BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
 
             // Sometimes it's just boring geometry and the texture's in the base
             // Sometimes we're doing something clever and it's in the instance
-            std::vector<TexInfo> allTexInfo(std::max(texInfo.size(),basicDraw->texInfo.size()));
+            int numEntries = std::max(texInfo.size(),basicDraw->texInfo.size());
+            if (prog && !prog->textures.empty()) {
+                int maxTex = -1;
+                for (auto progTex: prog->textures)
+                    maxTex = std::max(maxTex,progTex.slot);
+                if (maxTex >= 0)
+                    numEntries = WKSTextureEntryLookup+maxTex+1;
+            }
+            std::vector<TexInfo> allTexInfo(numEntries);
+            
+            // Copy in the textures from this drawable instance and the base drawable
             for (unsigned int texIndex=0;texIndex<allTexInfo.size();texIndex++) {
                 if (texIndex < basicDraw->texInfo.size())
                     allTexInfo[texIndex] = TexInfo(basicDraw->texInfo[texIndex]);
                 if (texIndex < texInfo.size())
                     allTexInfo[texIndex] = texInfo[texIndex];
+            }
+            // And then copy in the textures from the program
+            for (auto progTex: prog->textures) {
+                int texIndex = WKSTextureEntryLookup+progTex.slot;
+                allTexInfo[texIndex].texId = progTex.texID;
             }
 
             // Pass in the textures (and offsets)
@@ -481,6 +496,8 @@ bool BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
             //       And we should figure out how many textures they actually have
             for (unsigned int texIndex=0;texIndex<WKSTextureMax;texIndex++) {
                 TexInfo *thisTexInfo = (texIndex < allTexInfo.size()) ? &allTexInfo[texIndex] : NULL;
+                if (thisTexInfo && thisTexInfo->texId == EmptyIdentity)
+                    thisTexInfo = NULL;
 
                 // Figure out texture adjustment for parent textures
                 float texScale = 1.0;

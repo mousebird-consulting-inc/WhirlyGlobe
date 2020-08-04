@@ -306,7 +306,6 @@ fragment float4 fragmentTri_multiTexRamp(ProjVertexTriB vert [[stage_in]],
     } else if (texArgs.numTextures == 1) {
         constexpr sampler sampler2d(coord::normalized, filter::linear);
         float index = texArgs.tex[0].sample(sampler2d, vert.texCoord0).r;
-//        return vert.color * index;
         return vert.color * texArgs.tex[WKSTextureEntryLookup].sample(sampler2d,float2(index,0.5));
     } else {
         constexpr sampler sampler2d(coord::normalized, filter::linear);
@@ -315,7 +314,6 @@ fragment float4 fragmentTri_multiTexRamp(ProjVertexTriB vert [[stage_in]],
         float index1 = texArgs.tex[1].sample(sampler2d, vert.texCoord0).r;
         float index = mix(index0,index1,fragArgs.uniDrawState.interp);
         return vert.color * texArgs.tex[WKSTextureEntryLookup].sample(sampler2d,float2(index,0.5));
-//        return vert.color * index;
     }
 }
 

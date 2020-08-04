@@ -842,10 +842,7 @@ void SceneRendererMTL::render(TimeInterval duration,
                                 }
                                 
                                 baseFrameInfo.program = program;
-                                
-                                // Activate the program
-                                program->addResources(&baseFrameInfo, cmdEncode, sceneMTL);
-                                                            
+                                                                                            
                                 // "Draw" using the given program
                                 drawMTL->encodeDirect(&baseFrameInfo,cmdEncode,scene);
                                 

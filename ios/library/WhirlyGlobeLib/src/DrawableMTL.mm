@@ -149,7 +149,9 @@ void ArgBuffRegularTexturesMTL::updateBuffer(id<MTLDevice> mtlDevice,id<MTLBlitC
         id<MTLTexture> tex = ii>=texs.size() ? nil : texs[ii];
         [encode setTexture:tex atIndex:WKSTexBuffTextures+ii];
         if (tex) {
-            numTextures++;
+            // numTextures refers to the base textures, rather than program provide textures
+            if (ii<WKSTextureEntryLookup)
+                numTextures++;
         }
     }
     memcpy([encode constantDataAtIndex:WKSTexBufNumTextures], &numTextures, sizeof(int));

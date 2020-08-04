@@ -38,6 +38,7 @@ using namespace WhirlyKit;
     // Texture we created for use in this shader
     SimpleIDSet texIDs;
     std::vector<std::string> varyings;
+    std::vector<MaplyTexture *> textures;  // Used to sit on the textures so they aren't deleted
 }
 
 - (instancetype)initWithName:(NSString *)name vertexFile:(NSString *)vertexFileName fragmentFile:(NSString *)fragFileName viewC:(NSObject<MaplyRenderControllerProtocol> *)baseViewC
@@ -545,6 +546,7 @@ using namespace WhirlyKit;
     }
 
     ProgramMTL *programMTL = (ProgramMTL *)_program.get();
+    textures.push_back(tex);
     scene->addChangeRequest(new ShaderAddTextureReq(programMTL->getId(),-1,tex.texID,idx));
 }
 
