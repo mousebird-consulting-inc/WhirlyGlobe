@@ -111,15 +111,6 @@ fragment float4 fragmentLineOnly_flat(
     return vert.color;
 }
 
-typedef struct RegularTextures {
-    // A bit per texture that's present
-    int texPresent                          [[ id(WKSTexBufTexPresent) ]];
-    // Texture indirection (for accessing sub-textures)
-    float offset                            [[ id(WKSTexBuffIndirectOffset) ]] [2*WKSTextureMax];
-    float scale                             [[ id(WKSTexBuffIndirectScale) ]] [2*WKSTextureMax];
-    texture2d<float, access::sample> tex    [[ id(WKSTexBuffTextures) ]] [WKSTextureMax];
-} RegularTextures;
-
 // True if the given texture entry is there
 bool TextureIsPresent(int bits,int which)
 {
@@ -137,7 +128,6 @@ int TexturesBase(int bits)
     return count;
 }
 
-// Resolve texture coordinates with their parent offsts, if necessary
 float2 resolveTexCoords(float2 texCoord,constant RegularTextures &regTex,int texIdx)
 {
     float2 offset(regTex.offset[texIdx*2],regTex.offset[texIdx*2+1]);
@@ -229,11 +219,6 @@ vertex ProjVertexTriA vertexTri_light(
     
     return outVert;
 }
-
-struct FragTriArgBufferB {
-    UniformDrawStateA uniDrawState      [[ id(WKSUniformDrawStateEntry) ]];
-    bool hasTextures;
-};
 
 // Simple fragment shader for lines on flat map
 fragment float4 fragmentTri_basic(

@@ -68,6 +68,83 @@ using namespace WhirlyKit;
     return self;
 }
 
+- (instancetype)initWithRawImage:(NSData *)data format:(MaplyQuadImageFormat)format width:(int)width height:(int)height viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+{
+    if (![data isKindOfClass:[NSData class]])
+        return nil;
+
+    self = [super init];
+    imageTile = ImageTile_iOSRef(new ImageTile_iOS(viewC.getRenderControl->renderType));
+    imageTile->type = MaplyImgTypeRawImage;
+    switch (viewC.getRenderControl->renderType)
+    {
+        case WhirlyKit::SceneRenderer::RenderGLES:
+            NSLog(@"MaplyImageTile initWithRawImage:width:height:format not implemented for GLES");
+            break;
+        case WhirlyKit::SceneRenderer::RenderMetal:
+            Texture *tex = new TextureMTL("Image Tile");
+            tex->setRawData(new RawNSDataReader(data), width, height);
+            imageTile->tex = tex;
+            // TODO: More this somewhere central
+            switch (format) {
+                case MaplyImageIntRGBA:
+                case MaplyImage4Layer8Bit:
+                default:
+                    tex->setFormat(TexTypeUnsignedByte);
+                    break;
+                case MaplyImageUShort565:
+                    tex->setFormat(TexTypeShort565);
+                    break;
+                case MaplyImageUShort4444:
+                    tex->setFormat(TexTypeShort4444);
+                    break;
+                case MaplyImageUShort5551:
+                    tex->setFormat(TexTypeShort5551);
+                    break;
+                case MaplyImageUByteRed:
+                case MaplyImageUByteGreen:
+                case MaplyImageUByteBlue:
+                case MaplyImageUByteAlpha:
+                case MaplyImageUByteRGB:
+                    tex->setFormat(TexTypeSingleChannel);
+                    break;
+                case MaplyImageSingleFloat16:
+                    tex->setFormat(TexTypeSingleFloat16);
+                    break;
+                case MaplyImageSingleFloat32:
+                    tex->setFormat(TexTypeSingleFloat32);
+                    break;
+                case MaplyImageDoubleFloat16:
+                    tex->setFormat(TexTypeDoubleFloat16);
+                    break;
+                case MaplyImageDoubleFloat32:
+                    tex->setFormat(TexTypeDoubleFloat32);
+                    break;
+                case MaplyImageQuadFloat16:
+                    tex->setFormat(TexTypeQuadFloat16);
+                    break;
+                case MaplyImageQuadFloat32:
+                    tex->setFormat(TexTypeQuadFloat32);
+                    break;
+                case MaplyImageInt16:
+                    tex->setFormat(TexTypeSingleInt16);
+                    break;
+                case MaplyImageUInt32:
+                    tex->setFormat(TexTypeSingleUInt32);
+                    break;
+                case MaplyImageDoubleUInt32:
+                    tex->setFormat(TexTypeDoubleUInt32);
+                    break;
+                case MaplyImageQuadUInt32:
+                    tex->setFormat(TexTypeQuadUInt32);
+                    break;
+            }
+            break;
+    }
+    
+    return self;
+}
+
 - (instancetype)initWithImage:(UIImage *)image viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     if (![image isKindOfClass:[UIImage class]])

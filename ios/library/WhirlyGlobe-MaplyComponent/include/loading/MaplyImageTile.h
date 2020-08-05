@@ -58,6 +58,21 @@
  */
 - (instancetype)initWithRawImage:(NSData *)data width:(int)width height:(int)height components:(int)comp viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 
+/**
+Initialize with an NSData object containing pixels of a given format.
+
+This sets up the tile with an NSData object containing raw pixels.  The pixels are defined by the format.
+
+@param data The NSData object containing pixels.
+ 
+@param format The image format the data is already in.
+
+@param width The width of the raw image contained in the data object.
+
+@param height The height of the raw image contained in the data object.
+*/
+- (instancetype)initWithRawImage:(NSData *)data format:(MaplyQuadImageFormat)format width:(int)width height:(int)height viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
+
 /** 
     Initialize with a single UIImage for the tile.
     

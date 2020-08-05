@@ -316,5 +316,19 @@ struct VertexTriBillboard
     float3 normal [[attribute(WhirlyKitShader::WKSVertexNormalAttribute)]];
     float2 texCoord [[attribute(WhirlyKitShader::WKSVertexTextureBaseAttribute)]];
 };
-    
+
+typedef struct RegularTextures {
+    // A bit per texture that's present
+    int texPresent                          [[ id(WKSTexBufTexPresent) ]];
+    // Texture indirection (for accessing sub-textures)
+    float offset                            [[ id(WKSTexBuffIndirectOffset) ]] [2*WKSTextureMax];
+    float scale                             [[ id(WKSTexBuffIndirectScale) ]] [2*WKSTextureMax];
+    metal::texture2d<float, metal::access::sample> tex    [[ id(WKSTexBuffTextures) ]] [WKSTextureMax];
+} RegularTextures;
+
+struct FragTriArgBufferB {
+    WhirlyKitShader::UniformDrawStateA uniDrawState      [[ id(WhirlyKitShader::WKSUniformDrawStateEntry) ]];
+    bool hasTextures;
+};
+
 #endif

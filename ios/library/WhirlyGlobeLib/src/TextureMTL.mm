@@ -122,6 +122,8 @@ RawDataRef TextureMTL::convertData()
             outDataRef = RawDataRef(new RawNSDataReader(outData));
         }
             break;
+        case TexTypeSingleInt16:
+            break;
         default:
             NSLog(@"TextureMTL: Format %d not supported for passing in data.",(int)format);
             break;
@@ -212,6 +214,10 @@ bool TextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
         case TexTypeDepthFloat32:
             pixFormat = MTLPixelFormatDepth32Float;
             bytesPerRow = 4*width;
+            break;
+        case TexTypeSingleInt16:
+            pixFormat = MTLPixelFormatR16Sint;
+            bytesPerRow = 2*width;
             break;
         case TexTypeSingleUInt32:
             pixFormat = MTLPixelFormatR32Uint;
