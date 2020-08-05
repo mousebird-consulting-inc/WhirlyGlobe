@@ -41,7 +41,6 @@ public:
     id<MTLTexture> getMTLID() const { return texBuf.tex; }
     TextureEntryMTL getMTLTex() const { return texBuf; }
 protected:
-    /// OpenGL ES ID
     /// Set to 0 if we haven't loaded yet
     TextureEntryMTL texBuf;
 };

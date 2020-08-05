@@ -111,16 +111,7 @@ fragment float4 fragmentLineOnly_flat(
     return vert.color;
 }
 
-typedef struct RegularTextures {
-    // Number of valid textures
-    int numTextures                         [[ id(WKSTexBufNumTextures) ]];
-    // Texture indirection (for accessing sub-textures)
-    float offset                            [[ id(WKSTexBuffIndirectOffset) ]] [2*WKSTextureMax];
-    float scale                             [[ id(WKSTexBuffIndirectScale) ]] [2*WKSTextureMax];
-    texture2d<float, access::sample> tex    [[ id(WKSTexBuffTextures) ]] [WKSTextureMax];
-} RegularTextures;
-
-// Resolve texture coordinates with their parent offsts, if necessary
+// Resolve texture coordinates with their parent offsets, if necessary
 float2 resolveTexCoords(float2 texCoord,constant RegularTextures &regTex,int texIdx)
 {
     float2 offset(regTex.offset[texIdx*2],regTex.offset[texIdx*2+1]);
@@ -212,11 +203,6 @@ vertex ProjVertexTriA vertexTri_light(
     
     return outVert;
 }
-
-struct FragTriArgBufferB {
-    UniformDrawStateA uniDrawState      [[ id(WKSUniformDrawStateEntry) ]];
-    bool hasTextures;
-};
 
 // Simple fragment shader for lines on flat map
 fragment float4 fragmentTri_basic(
