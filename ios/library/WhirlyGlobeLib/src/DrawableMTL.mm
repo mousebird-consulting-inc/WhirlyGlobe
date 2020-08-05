@@ -144,17 +144,16 @@ void ArgBuffRegularTexturesMTL::updateBuffer(id<MTLDevice> mtlDevice,id<MTLBlitC
     memcpy([encode constantDataAtIndex:WKSTexBuffIndirectScale], &scales[0], sizeof(float)*2*scales.size());
 
     // Then the textures, which are largely opaque
-    int numTextures = 0;
+    int texturesPresent = 0;
     for (unsigned int ii=0;ii<WKSTextureMax;ii++) {
         id<MTLTexture> tex = ii>=texs.size() ? nil : texs[ii];
         [encode setTexture:tex atIndex:WKSTexBuffTextures+ii];
         if (tex) {
             // numTextures refers to the base textures, rather than program provide textures
-            if (ii<WKSTextureEntryLookup)
-                numTextures++;
+            texturesPresent |= (1<<ii);
         }
     }
-    memcpy([encode constantDataAtIndex:WKSTexBufNumTextures], &numTextures, sizeof(int));
+    memcpy([encode constantDataAtIndex:WKSTexBufTexPresent], &texturesPresent, sizeof(int));
     
     [bltEncode copyFromBuffer:srcBuffer sourceOffset:0 toBuffer:buffer->buffer destinationOffset:buffer->offset size:size];
     

@@ -163,7 +163,7 @@ struct Lighting {
 };
 
 // These are in their own structure with the textures
-#define WKSTexBufNumTextures 100
+#define WKSTexBufTexPresent 100
 #define WKSTexBuffIndirectOffset 110
 #define WKSTexBuffIndirectScale 130
 #define WKSTexBuffTextures 170

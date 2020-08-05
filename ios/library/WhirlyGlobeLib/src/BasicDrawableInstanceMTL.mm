@@ -565,7 +565,10 @@ bool BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
     //        uni.fade = calcFade(frameInfo);
             uni.clipCoords = basicDraw->clipCoords;
             BasicDrawableMTL::applyUniformsToDrawState(uni,uniforms);
-            CopyIntoMtlFloat4x4(uni.singleMat, *getMatrix());
+            auto mat = getMatrix();
+            if (mat)
+                CopyIntoMtlFloat4x4(uni.singleMat, *mat);
+                
             if (vertABInfo)
                 vertABInfo->updateEntry(mtlDevice,bltEncode, WhirlyKitShader::WKSUniformDrawStateEntry, &uni, sizeof(uni));
             if (fragABInfo)
