@@ -51,15 +51,15 @@ Program::ReduceMode Program::getReduceMode()
 
 void Program::setUniBlock(const BasicDrawable::UniformBlock &uniBlock)
 {
+    changed = true;
+
     for (int ii=0;ii<uniBlocks.size();ii++)
         if (uniBlocks[ii].bufferID == uniBlock.bufferID) {
             uniBlocks[ii] = uniBlock;
             return;
         }
     
-    uniBlocks.push_back(uniBlock);
-    
-    changed = true;
+    uniBlocks.push_back(uniBlock);    
 }
     
 ShaderAddTextureReq::ShaderAddTextureReq(SimpleIdentity shaderID,SimpleIdentity nameID,SimpleIdentity texID,int textureSlot)
