@@ -390,17 +390,17 @@ bool BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
 {
     bool ret = false;
     
-    if (texturesChanged || valuesChanged) {
+    ProgramMTL *prog = (ProgramMTL *)scene->getProgram(programId);
+    if (!prog) {
+        NSLog(@"Drawable %s missing program.",name.c_str());
+        return false;
+    }
+
+    if (texturesChanged || valuesChanged || prog->changed) {
         vertDesc = nil;
         ret = true;
         
-        ProgramMTL *prog = (ProgramMTL *)scene->getProgram(programId);
         id<MTLDevice> mtlDevice = sceneRender->setupInfo.mtlDevice;
-
-        if (!prog) {
-            NSLog(@"Drawable %s missing program.",name.c_str());
-            return false;
-        }
 
         if (texturesChanged && (vertTexInfo || fragTexInfo)) {
             activeTextures.clear();
@@ -466,7 +466,7 @@ bool BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
             }
         }
 
-        if (valuesChanged) {
+        if (valuesChanged || prog->changed) {
             if (vertABInfo)
                 vertABInfo->startEncoding(mtlDevice);
             if (fragABInfo)

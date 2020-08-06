@@ -257,6 +257,17 @@ void Scene::setCurrentTime(TimeInterval newTime)
     currentTime = newTime;
 }
 
+void Scene::markProgramsUnchanged()
+{
+    std::lock_guard<std::mutex> guardLock(programLock);
+    
+    for (auto it: programs) {
+        auto prog = it.second;
+        if (prog->changed)
+            prog->changed = false;
+    }
+}
+
 TimeInterval Scene::getCurrentTime()
 {
     if (currentTime == 0.0)

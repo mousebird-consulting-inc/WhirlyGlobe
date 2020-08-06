@@ -76,7 +76,28 @@ bool ProgramMTL::setTexture(StringIdentity nameID,TextureBase *tex,int textureSl
     texEntry.texID = tex->getId();
     textures.push_back(texEntry);
     
+    changed = true;
+    
     return true;
+}
+
+void ProgramMTL::clearTexture(SimpleIdentity texID)
+{
+    std::vector<int> entries;
+
+    int which = 0;
+    for (auto texEntry: textures) {
+        if (texEntry.texID == texID) {
+            entries.push_back(which);
+        }
+        which++;
+    }
+    
+    for (auto entry = entries.rbegin(); entry != entries.rend(); entry++) {
+        textures.erase(textures.begin()+*entry);
+    }
+    
+    changed = true;
 }
 
 const std::string &ProgramMTL::getName()

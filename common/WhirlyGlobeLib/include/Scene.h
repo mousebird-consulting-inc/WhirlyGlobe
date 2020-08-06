@@ -322,6 +322,9 @@ public:
     
     /// Tear down renderer related assets
     virtual void teardown() = 0;
+    
+    /// Mark any changed programs as acknowledged (used in Metal)
+    void markProgramsUnchanged();
 	
 public:
     /// Don't be calling this

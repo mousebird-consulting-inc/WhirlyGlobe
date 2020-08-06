@@ -550,6 +550,33 @@ using namespace WhirlyKit;
     scene->addChangeRequest(new ShaderAddTextureReq(programMTL->getId(),-1,tex.texID,idx));
 }
 
+- (void)removeTexture:(MaplyTexture *)tex viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+{
+    if (!_program || !scene || !renderer || tex.texID == EmptyIdentity)
+        return;
+    
+    if (renderer->getType() != SceneRenderer::RenderMetal)
+    {
+        NSLog(@"MaplyShader method only works with Metal");
+        return;
+    }
+    
+    ProgramMTL *programMTL = (ProgramMTL *)_program.get();
+    std::vector<int> entries;
+    int which = 0;
+    for (auto thisTex: textures) {
+        if (thisTex.texID == tex.texID) {
+            entries.push_back(which);
+        }
+        which++;
+    }
+    if (!entries.empty()) {
+        scene->addChangeRequest(new ShaderRemTextureReq(programMTL->getId(),tex.texID));
+    }
+    for (auto entry = entries.rend(); entry != entries.rbegin(); ++entry)
+        textures.erase(textures.begin()+*entry);
+}
+
 - (bool)setUniformBlock:(NSData *__nonnull)uniBlock buffer:(int)bufferID
 {
     if (!_program || !scene || !renderer)

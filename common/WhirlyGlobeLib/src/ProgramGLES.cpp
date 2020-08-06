@@ -120,6 +120,11 @@ bool ProgramGLES::setTexture(StringIdentity nameID,TextureBase *inTex,int textur
 }
 
 
+void ProgramGLES::clearTexture(SimpleIdentity texID)
+{
+    // Note: Doesn't do anything
+}
+
 bool ProgramGLES::setUniform(StringIdentity nameID,const Eigen::Vector2f &vec)
 {
     OpenGLESUniform *uni = findUniform(nameID);

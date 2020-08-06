@@ -103,7 +103,7 @@ public:
     ProgramGLES(const std::string &name,const std::string &vShaderString,const std::string &fShaderString,const std::vector<std::string> *varyings=NULL);
     
     /// Return true if it was built correctly
-    bool isValid();
+    bool isValid() override;
     
     /// Search for the given uniform name and return the info.  NULL on failure.
     OpenGLESUniform *findUniform(StringIdentity nameID);
@@ -123,10 +123,13 @@ public:
     /// Tie a given texture ID to the given name.
     /// We have to set these up each time before drawing
     /// textureSlot is ignored OpenGLES
-    bool setTexture(StringIdentity nameID,TextureBase *tex,int textureSlot);
+    bool setTexture(StringIdentity nameID,TextureBase *tex,int textureSlot) override;
+    
+    /// Remove a texture entry
+    void clearTexture(SimpleIdentity texID) override;
     
     /// Check for the specific attribute associated with WhirlyKit lights
-    bool hasLights();
+    bool hasLights() override;
     
     /// Set the attributes associated with lighting.
     /// We'll check their last updated time against ours.
@@ -143,7 +146,7 @@ public:
     int bindTextures();
     
     /// Clean up OpenGL resources, rather than letting the destructor do it (which it will)
-    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene);
+    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene) override;
     void cleanUp();
     
 protected:

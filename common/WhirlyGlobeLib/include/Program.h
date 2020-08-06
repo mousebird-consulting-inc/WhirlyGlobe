@@ -54,6 +54,9 @@ public:
     /// We have to set these up each time before drawing
     virtual bool setTexture(StringIdentity nameID,TextureBase *tex,int textureSlot) = 0;
     
+    /// Clear out a texture reference
+    virtual void clearTexture(SimpleIdentity texID) = 0;;
+    
     /// Set a block of uniforms (Metal only, at the moment)
     virtual void setUniBlock(const BasicDrawable::UniformBlock &uniBlock);
 
@@ -70,6 +73,7 @@ public:
     virtual ReduceMode getReduceMode();
     
 public:
+    bool changed;
     std::string name;
     TimeInterval lightsLastUpdated;
     ReduceMode reduceMode;
@@ -93,6 +97,19 @@ protected:
     SimpleIdentity nameID;
     SimpleIdentity texID;
     int textureSlot;
+};
+
+/// Remove a texture ID from a shader (Program)
+class ShaderRemTextureReq : public ChangeRequest
+{
+public:
+    ShaderRemTextureReq(SimpleIdentity shaderID,SimpleIdentity texID);
+    
+    void execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *view);
+
+protected:
+    SimpleIdentity shaderID;
+    SimpleIdentity texID;
 };
 
 /// Add a uniform block to a whole Program (rather than geometry)
