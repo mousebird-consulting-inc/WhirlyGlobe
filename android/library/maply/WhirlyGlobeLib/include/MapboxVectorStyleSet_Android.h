@@ -58,6 +58,9 @@ public:
     /// Return the width of the given line of text
     virtual double calculateTextWidth(PlatformThreadInfo *inInst,LabelInfoRef labelInfo,const std::string &testStr);
 
+    /// Associate the given selection ID with a vector object
+    virtual void addSelectionObject(SimpleIdentity selectID,VectorObjectRef vecObj,ComponentObjectRef compObj);
+
     /// Set up the Java side method references
     void setupMethods(JNIEnv *env);
 
