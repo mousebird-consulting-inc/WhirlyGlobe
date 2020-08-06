@@ -125,7 +125,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_process
 	        if (change)
 	        {
 	            requiresFlush |= change->needsFlush();
-	            change->setupForRenderer(sceneRender->getRenderSetupInfo());
+	            change->setupForRenderer(sceneRender->getRenderSetupInfo(),scene);
 	            changesToAdd.push_back(change);
 	        } else
 	            // A NULL change request is just a flush request

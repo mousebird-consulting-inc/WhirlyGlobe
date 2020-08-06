@@ -142,4 +142,14 @@ double MapboxVectorStyleSetImpl_Android::calculateTextWidth(PlatformThreadInfo *
     return width;
 }
 
+void MapboxVectorStyleSetImpl_Android::addSelectionObject(SimpleIdentity selectID,VectorObjectRef vecObj,ComponentObjectRef compObj)
+{
+    if (!compManage)
+        return;
+
+    // TODO: Fill this in
+    // We need to associate the given VectorObjectRef with the given selectID
+    // There are created on the C++ side by the mapbox style parser and so have no representation on the Java side.
+}
+
 }
