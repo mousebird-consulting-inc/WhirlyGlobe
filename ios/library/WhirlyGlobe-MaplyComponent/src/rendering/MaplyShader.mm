@@ -534,7 +534,7 @@ using namespace WhirlyKit;
     return [self setUniformVector4Named:uniName x:red y:green z:blue w:alpha index:which];
 }
 
-- (void)setTexture:(MaplyTexture *)tex forIndex:(int)idx
+- (void)setTexture:(MaplyTexture * __nonnull)tex forIndex:(int)idx viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)view
 {
     if (!_program || !scene || !renderer)
         return;
