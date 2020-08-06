@@ -53,6 +53,7 @@ protected:
     bool valid;
     MTLPixelFormat pixFormat;
     TextureType type;
+    int bytesPerPixel;
     int bytesPerRow;
 };
     

@@ -24,7 +24,7 @@ namespace WhirlyKit
 {
     
 DynamicTextureMTL::DynamicTextureMTL(const std::string &name)
-: DynamicTexture(name), TextureBase(name), TextureBaseMTL(name), valid(false), bytesPerRow(0)
+: DynamicTexture(name), TextureBase(name), TextureBaseMTL(name), valid(false), bytesPerRow(0), bytesPerPixel(0)
 {
 }
 
@@ -35,27 +35,32 @@ void DynamicTextureMTL::setup(int texSize,int cellSize,TextureType inType,bool c
     switch (inType)
     {
         case TexTypeUnsignedByte:
-            bytesPerRow = texSize * 4;
+            bytesPerPixel = 4;
+            bytesPerRow = texSize * bytesPerPixel;
             pixFormat = MTLPixelFormatRGBA8Unorm;
             type = inType;
             break;
         case TexTypeSingleChannel:
+            bytesPerPixel = 1;
             bytesPerRow = texSize;
             pixFormat = MTLPixelFormatA8Unorm;
             type = inType;
             break;
         case TexTypeShort565:
-            bytesPerRow = texSize * 2;
+            bytesPerPixel = 2;
+            bytesPerRow = texSize * bytesPerPixel;
             pixFormat = MTLPixelFormatB5G6R5Unorm;
             type = inType;
             break;
         case TexTypeShort4444:
-            bytesPerRow = texSize * 2;
+            bytesPerPixel = 2;
+            bytesPerRow = texSize * bytesPerPixel;
             pixFormat = MTLPixelFormatABGR4Unorm;
             type = inType;
             break;
         case TexTypeShort5551:
-            bytesPerRow = texSize * 2;
+            bytesPerPixel = 2;
+            bytesPerRow = texSize * bytesPerPixel;
             pixFormat = MTLPixelFormatBGR5A1Unorm;
             type = inType;
             break;
@@ -73,8 +78,6 @@ bool DynamicTextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
     if (texBuf.tex)
         return true;
     
-    if (type != TexTypeUnsignedByte && type != TexTypeSingleChannel)
-        return false;
     RenderSetupInfoMTL *setupInfo = (RenderSetupInfoMTL *)inSetupInfo;
     
     // Set up an empty texture
@@ -98,7 +101,7 @@ void DynamicTextureMTL::destroyInRenderer(const RenderSetupInfo *setupInfo,Scene
 void DynamicTextureMTL::addTextureData(int startX,int startY,int width,int height,RawDataRef data)
 {
     MTLRegion region = MTLRegionMake2D(startX,startY,width,height);
-    [texBuf.tex replaceRegion:region mipmapLevel:0 withBytes:data->getRawData() bytesPerRow:width*4];    
+    [texBuf.tex replaceRegion:region mipmapLevel:0 withBytes:data->getRawData() bytesPerRow:width*bytesPerPixel];    
 }
 
 void DynamicTextureMTL::clearTextureData(int startX,int startY,int width,int height,ChangeSet &changes,bool mainThreadMerge,unsigned char *emptyData)
