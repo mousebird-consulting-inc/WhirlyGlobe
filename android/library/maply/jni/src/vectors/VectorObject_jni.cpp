@@ -45,12 +45,12 @@ JNIEXPORT jobject JNICALL MakeVectorObjectWrapper(JNIEnv *env,VectorObjectClassI
 }
 
 void Java_com_mousebird_maply_VectorObject_initialise
-  (JNIEnv *env, jobject obj)
+  (JNIEnv *env, jobject obj, jlong ident)
 {
 	try
 	{
 		VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
-        VectorObjectRef *inst = new VectorObjectRef(new VectorObject());
+        VectorObjectRef *inst = new VectorObjectRef(new VectorObject(ident));
 		classInfo->setHandle(env,obj,inst);
 	}
 	catch (...)

@@ -40,11 +40,14 @@ typedef std::shared_ptr<VectorObject> VectorObjectRef;
 /** @brief The C++ object we use to wrap a group of vectors and consolidate the various methods for manipulating vectors.
     @details The VectorObject stores a list of reference counted VectorShape objects.
   */
-class VectorObject
+class VectorObject : public Identifiable
 {
 public:
     /// Construct empty
     VectorObject();
+
+    /// Construct with an ID
+    VectorObject(SimpleIdentity theId);
     
     /// @brief Return the type of vector
     VectorObjectType getVectorType();

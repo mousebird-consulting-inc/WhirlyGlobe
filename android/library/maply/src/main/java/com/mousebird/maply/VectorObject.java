@@ -44,7 +44,7 @@ public class VectorObject implements Iterable<VectorObject>
 	 */
 	public VectorObject()
 	{
-		initialise();
+		initialise(ident);
 	}
 
 	/**
@@ -408,7 +408,7 @@ public class VectorObject implements Iterable<VectorObject>
 		nativeInit();
 	}
 	private static native void nativeInit();
-	native void initialise();
+	native void initialise(long ident);
 	native void dispose();
 
 	private long nativeHandle;

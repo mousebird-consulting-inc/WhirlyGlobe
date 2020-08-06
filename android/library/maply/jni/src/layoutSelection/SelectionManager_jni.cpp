@@ -136,6 +136,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_SelectionManager_pickObj
             selObj.isCluster = false;
             selObj.screenDist = 0.0;
             selObj.vecObj = vecObj.second;
+            selObj.selectIDs.push_back(vecObj.second->getId());
             selObjs.push_back(selObj);
         }
 
