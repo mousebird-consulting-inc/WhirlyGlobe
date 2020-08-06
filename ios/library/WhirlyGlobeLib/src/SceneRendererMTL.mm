@@ -918,6 +918,9 @@ void SceneRendererMTL::render(TimeInterval duration,
         perfTimer.log();
         perfTimer.clear();
     }
+    
+    // Mark any programs that changed as now caught up
+    scene->markProgramsUnchanged();
 }
 
 RenderTargetMTLRef SceneRendererMTL::getRenderTarget(SimpleIdentity renderTargetID)

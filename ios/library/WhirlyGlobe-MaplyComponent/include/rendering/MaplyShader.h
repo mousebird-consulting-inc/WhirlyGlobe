@@ -192,7 +192,14 @@ These are the per vertex attributes provided to each vertex shader.
    For a Metal shader we can pass in zero or more textures starting at WKSTextureEntryLookup (DefaultShadersMTL.h).
    This index is offset from there.  Start at 0.
   */
-- (void)setTexture:(MaplyTexture * __nonnull)tex forIndex:(int)idx;
+- (void)setTexture:(MaplyTexture * __nonnull)tex forIndex:(int)idx viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)viewC;
+
+/**
+ Remove a texture we presented to the Shader ealier.  Metal Only.
+ 
+ The texture itself will not be deleted, just the reference to it in the shader.
+ */
+- (void)removeTexture:(MaplyTexture * __nonnull)tex viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)viewC;
 
 /** 
     Add a texture tied to the given attribute name. OpenGL Only.

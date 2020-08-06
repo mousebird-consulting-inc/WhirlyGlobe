@@ -534,7 +534,7 @@ using namespace WhirlyKit;
     return [self setUniformVector4Named:uniName x:red y:green z:blue w:alpha index:which];
 }
 
-- (void)setTexture:(MaplyTexture *)tex forIndex:(int)idx
+- (void)setTexture:(MaplyTexture * __nonnull)tex forIndex:(int)idx viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)view
 {
     if (!_program || !scene || !renderer)
         return;
@@ -548,6 +548,33 @@ using namespace WhirlyKit;
     ProgramMTL *programMTL = (ProgramMTL *)_program.get();
     textures.push_back(tex);
     scene->addChangeRequest(new ShaderAddTextureReq(programMTL->getId(),-1,tex.texID,idx));
+}
+
+- (void)removeTexture:(MaplyTexture *)tex viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+{
+    if (!_program || !scene || !renderer || tex.texID == EmptyIdentity)
+        return;
+    
+    if (renderer->getType() != SceneRenderer::RenderMetal)
+    {
+        NSLog(@"MaplyShader method only works with Metal");
+        return;
+    }
+    
+    ProgramMTL *programMTL = (ProgramMTL *)_program.get();
+    std::vector<int> entries;
+    int which = 0;
+    for (auto thisTex: textures) {
+        if (thisTex.texID == tex.texID) {
+            entries.push_back(which);
+        }
+        which++;
+    }
+    if (!entries.empty()) {
+        scene->addChangeRequest(new ShaderRemTextureReq(programMTL->getId(),tex.texID));
+    }
+    for (auto entry = entries.rend(); entry != entries.rbegin(); ++entry)
+        textures.erase(textures.begin()+*entry);
 }
 
 - (bool)setUniformBlock:(NSData *__nonnull)uniBlock buffer:(int)bufferID

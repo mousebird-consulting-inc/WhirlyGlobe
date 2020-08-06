@@ -25,7 +25,7 @@
 namespace WhirlyKit
 {
 
-Program::Program() : reduceMode(None)
+Program::Program() : reduceMode(None), changed(true)
 {
 }
 
@@ -41,6 +41,7 @@ const std::string &Program::getName()
 void Program::setReduceMode(ReduceMode inReduceMode)
 {
     reduceMode = inReduceMode;
+    changed = true;
 }
 
 Program::ReduceMode Program::getReduceMode()
@@ -57,6 +58,8 @@ void Program::setUniBlock(const BasicDrawable::UniformBlock &uniBlock)
         }
     
     uniBlocks.push_back(uniBlock);
+    
+    changed = true;
 }
     
 ShaderAddTextureReq::ShaderAddTextureReq(SimpleIdentity shaderID,SimpleIdentity nameID,SimpleIdentity texID,int textureSlot)
@@ -72,6 +75,18 @@ void ShaderAddTextureReq::execute(Scene *scene, SceneRenderer *renderer, View *v
     {
         prog->setTexture(nameID,tex,textureSlot);
     }
+}
+
+ShaderRemTextureReq::ShaderRemTextureReq(SimpleIdentity shaderID,SimpleIdentity texID)
+: shaderID(shaderID), texID(texID)
+{
+}
+
+void ShaderRemTextureReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *view)
+{
+    Program *prog = scene->getProgram(shaderID);
+    if (prog)
+        prog->clearTexture(texID);
 }
 
 ProgramUniformBlockSetRequest::ProgramUniformBlockSetRequest(SimpleIdentity inProgID,const RawDataRef &uniData,int bufferID)

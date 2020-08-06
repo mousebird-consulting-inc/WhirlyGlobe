@@ -114,7 +114,7 @@ fragment float4 fragmentLineOnly_flat(
 // True if the given texture entry is there
 bool TextureIsPresent(int bits,int which)
 {
-    return bits & (1<<0);
+    return bits & (1<<which);
 }
 
 // Return the number of base textures
