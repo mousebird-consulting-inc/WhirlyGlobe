@@ -168,7 +168,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_setAttributes
     {
         VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
         VectorObjectRef *vecObj = classInfo->getObject(env,obj);
-		MutableDictionary_AndroidRef *dict = AttrDictClassInfo::getClassInfo()->getObject(env,obj);
+		MutableDictionary_AndroidRef *dict = AttrDictClassInfo::getClassInfo()->getObject(env,attrObj);
 		if (!vecObj || !dict)
             return;
         (*vecObj)->setAttributes(*dict);
