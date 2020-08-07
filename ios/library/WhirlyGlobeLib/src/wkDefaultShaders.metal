@@ -349,7 +349,8 @@ vertex ProjVertexTriWideVec vertexTri_wideVec(
     float t0 = vert.c0 * realWidth2;
     t0 = clamp(t0,0.0,1.0);
     float3 realPos = (vert.p1 - vert.position) * t0 + vert.n0 * realWidth2 + pos;
-    float texPos = ((vert.texInfo.z - vert.texInfo.y) * t0 + vert.texInfo.y + vert.texInfo.w * realWidth2) * vertArgs.wideVec.texScale;
+    float texScale = min(uniforms.frameSize.x,uniforms.frameSize.y)/(uniforms.screenSizeInDisplayCoords.x * vertArgs.wideVec.texRepeat);
+    float texPos = ((vert.texInfo.z - vert.texInfo.y) * t0 + vert.texInfo.y + vert.texInfo.w * realWidth2) * texScale;
     outVert.texCoord = float2(vert.texInfo.x, texPos);
     float4 screenPos = uniforms.mvpMatrix * float4(realPos,1.0);
     screenPos /= screenPos.w;
