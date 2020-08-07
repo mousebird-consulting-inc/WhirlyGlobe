@@ -290,10 +290,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_nativeInit
 /*
  * Class:     com_mousebird_maply_VectorObject
  * Method:    initialise
- * Signature: ()V
+ * Signature: (J)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_initialise
-  (JNIEnv *, jobject);
+  (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     com_mousebird_maply_VectorObject

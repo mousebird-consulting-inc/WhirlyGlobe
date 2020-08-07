@@ -35,6 +35,11 @@ VectorObject::VectorObject()
     : selectable(true)
 {
 }
+
+VectorObject::VectorObject(SimpleIdentity theId)
+: Identifiable(theId), selectable(true)
+{
+}
     
 bool VectorObject::fromGeoJSON(const std::string &json,std::string &crs)
 {

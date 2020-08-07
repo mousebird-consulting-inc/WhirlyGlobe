@@ -875,6 +875,7 @@ public class RenderController implements RenderControllerInterface
                         {
                             if (vecObj.getSelectable()) {
                                 compObj.addVector(vecObj);
+                                componentManager.addSelectableObject(vecObj.ident, vecObj, compObj);
                             }
                         }
 
