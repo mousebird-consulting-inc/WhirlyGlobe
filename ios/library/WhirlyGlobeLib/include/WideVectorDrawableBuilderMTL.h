@@ -34,7 +34,7 @@ class WideVectorTweakerMTL : public WideVectorTweaker
 class WideVectorDrawableBuilderMTL : virtual public BasicDrawableBuilderMTL, virtual public WideVectorDrawableBuilder
 {
 public:
-    WideVectorDrawableBuilderMTL(const std::string &name);
+    WideVectorDrawableBuilderMTL(const std::string &name,Scene *scene);
     
     // Initialize with an estimate on the number of vertices and triangles
     virtual void Init(unsigned int numVert,unsigned int numTri,bool globeMode);

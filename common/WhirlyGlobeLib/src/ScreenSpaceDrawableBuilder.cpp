@@ -25,7 +25,7 @@ namespace WhirlyKit
 {
     
 ScreenSpaceDrawableBuilder::ScreenSpaceDrawableBuilder()
-: keepUpright(false), motion(false), rotation(false), offsetIndex(-1), rotIndex(-1), dirIndex(-1)
+: keepUpright(false), motion(false), rotation(false), offsetIndex(-1), rotIndex(-1), dirIndex(-1), startTime(0.0)
 {
 }
 

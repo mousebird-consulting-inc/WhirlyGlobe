@@ -28,7 +28,7 @@ namespace WhirlyKit
 class ParticleSystemDrawableBuilderMTL : public ParticleSystemDrawableBuilder
 {
 public:
-    ParticleSystemDrawableBuilderMTL(const std::string &name);
+    ParticleSystemDrawableBuilderMTL(const std::string &name,Scene *scene);
     virtual ~ParticleSystemDrawableBuilderMTL();
     
     void setup(const std::vector<SingleVertexAttributeInfo> &inVertAttrs,

@@ -49,6 +49,15 @@
     UIImage *alcohol = [UIImage imageNamed:@"alcohol-shop-24@2x"];
     NSMutableArray *markers = [NSMutableArray array];
     for (MaplyVectorObject* object in arrayComp) {
+//        MaplyMovingScreenMarker *marker = [[MaplyMovingScreenMarker alloc] init];
+//        marker.image = alcohol;
+//        marker.loc = object.center;
+//        marker.endLoc = MaplyCoordinateMake(marker.loc.x+0.01, marker.loc.y+0.01);
+//        marker.duration = 20.0;
+//        marker.userObject = object.attributes[@"title"];
+//        marker.selectable = true;
+//        marker.layoutImportance = MAXFLOAT;
+
         MaplyScreenMarker *marker = [[MaplyScreenMarker alloc]init];
         marker.image = alcohol;
         marker.loc = object.center;

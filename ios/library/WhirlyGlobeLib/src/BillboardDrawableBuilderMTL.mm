@@ -50,8 +50,8 @@ void BillboardTweakerMTL::tweakForFrame(Drawable *inDraw,RendererFrameInfo *inFr
     basicDraw->setUniBlock(uniBlock);
 }
 
-BillboardDrawableBuilderMTL::BillboardDrawableBuilderMTL(const std::string &name)
-    : BasicDrawableBuilderMTL(name)
+BillboardDrawableBuilderMTL::BillboardDrawableBuilderMTL(const std::string &name,Scene *scene)
+    : BasicDrawableBuilderMTL(name,scene)
 {
     Init();
 }

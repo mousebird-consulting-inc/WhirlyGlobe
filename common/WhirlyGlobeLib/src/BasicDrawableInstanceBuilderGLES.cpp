@@ -23,8 +23,8 @@
 namespace WhirlyKit
 {
 
-BasicDrawableInstanceBuilderGLES::BasicDrawableInstanceBuilderGLES(const std::string &name)
-: BasicDrawableInstanceBuilder(name), drawableGotten(false)
+BasicDrawableInstanceBuilderGLES::BasicDrawableInstanceBuilderGLES(const std::string &name,Scene *scene)
+: BasicDrawableInstanceBuilder(name,scene), drawableGotten(false)
 {
     BasicDrawableInstanceGLES *drawInstGL = new BasicDrawableInstanceGLES(name);
     drawInst = drawInstGL;

@@ -29,7 +29,7 @@ namespace WhirlyKit
 class BasicDrawableInstanceBuilderGLES : public BasicDrawableInstanceBuilder
 {
 public:
-    BasicDrawableInstanceBuilderGLES(const std::string &name);
+    BasicDrawableInstanceBuilderGLES(const std::string &name,Scene *scene);
     ~BasicDrawableInstanceBuilderGLES();
     
     /// Fill out and return the drawable

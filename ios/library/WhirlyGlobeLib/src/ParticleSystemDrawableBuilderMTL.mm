@@ -23,8 +23,8 @@
 namespace WhirlyKit
 {
 
-ParticleSystemDrawableBuilderMTL::ParticleSystemDrawableBuilderMTL(const std::string &name)
-: ParticleSystemDrawableBuilder(name), drawableGotten(false)
+ParticleSystemDrawableBuilderMTL::ParticleSystemDrawableBuilderMTL(const std::string &name,Scene *scene)
+: ParticleSystemDrawableBuilder(name,scene), drawableGotten(false)
 {
     draw = new ParticleSystemDrawableMTL(name);
 }

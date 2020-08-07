@@ -28,7 +28,7 @@ namespace WhirlyKit
 class ParticleSystemDrawableBuilderGLES : public ParticleSystemDrawableBuilder
 {
 public:
-    ParticleSystemDrawableBuilderGLES(const std::string &name);
+    ParticleSystemDrawableBuilderGLES(const std::string &name,Scene *scene);
     virtual ~ParticleSystemDrawableBuilderGLES();
     
     void setup(const std::vector<SingleVertexAttributeInfo> &inVertAttrs,

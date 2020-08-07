@@ -40,7 +40,7 @@ public:
 class BillboardDrawableBuilderMTL : virtual public BasicDrawableBuilderMTL, virtual public BillboardDrawableBuilder
 {
 public:
-    BillboardDrawableBuilderMTL(const std::string &name);
+    BillboardDrawableBuilderMTL(const std::string &name,Scene *scene);
     
     virtual void Init();
     

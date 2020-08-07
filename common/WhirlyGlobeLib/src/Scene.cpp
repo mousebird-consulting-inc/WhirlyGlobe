@@ -82,6 +82,7 @@ Scene::Scene(CoordSystemDisplayAdapter *adapter)
     addManager(kWKComponentManager, MakeComponentManager());
     
     overlapMargin = 0.0;
+    baseTime = TimeGetCurrent();
 }
 
 Scene::~Scene()
@@ -274,6 +275,11 @@ TimeInterval Scene::getCurrentTime()
         return TimeGetCurrent();
     
     return currentTime;
+}
+
+TimeInterval Scene::getBaseTime()
+{
+    return baseTime;
 }
     
 int Scene::preProcessChanges(WhirlyKit::View *view,SceneRenderer *renderer,TimeInterval now)

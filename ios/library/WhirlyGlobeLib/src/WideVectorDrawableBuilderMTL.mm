@@ -64,8 +64,8 @@ void WideVectorTweakerMTL::tweakForFrame(Drawable *inDraw,RendererFrameInfo *inF
     basicDraw->setUniBlock(uniBlock);
 }
 
-WideVectorDrawableBuilderMTL::WideVectorDrawableBuilderMTL(const std::string &name)
-: BasicDrawableBuilderMTL(name)
+WideVectorDrawableBuilderMTL::WideVectorDrawableBuilderMTL(const std::string &name,Scene *scene)
+: BasicDrawableBuilderMTL(name,scene)
 {
 }
     

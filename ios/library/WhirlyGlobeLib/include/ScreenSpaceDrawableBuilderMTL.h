@@ -23,23 +23,13 @@
 
 namespace WhirlyKit
 {
-    
-/// The Metal version sets up a Uniform buffer
-class ScreenSpaceTweakerMTL : public ScreenSpaceTweaker
-{
-public:
-    ScreenSpaceTweakerMTL();
-    void tweakForFrame(Drawable *inDraw,RendererFrameInfo *frameInfo);
-    
-    bool setup;
-};
-    
+        
 /** OpenGL version of ScreenSpaceDrawable Builder
  */
 class ScreenSpaceDrawableBuilderMTL : virtual public BasicDrawableBuilderMTL, virtual public ScreenSpaceDrawableBuilder
 {
 public:
-    ScreenSpaceDrawableBuilderMTL(const std::string &name);
+    ScreenSpaceDrawableBuilderMTL(const std::string &name,Scene *scene);
     
     virtual void Init(bool hasMotion,bool hasRotation, bool buildAnyway = false);
     

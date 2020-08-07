@@ -55,8 +55,8 @@ void WideVectorTweakerGLES::tweakForFrame(Drawable *inDraw,RendererFrameInfo *fr
     
 }
 
-WideVectorDrawableBuilderGLES::WideVectorDrawableBuilderGLES(const std::string &name)
-: BasicDrawableBuilderGLES(name,false)
+WideVectorDrawableBuilderGLES::WideVectorDrawableBuilderGLES(const std::string &name,Scene *scene)
+: BasicDrawableBuilderGLES(name,scene,false)
 {
 }
     

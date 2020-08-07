@@ -27,12 +27,12 @@ namespace WhirlyKit
 {
 
 BasicDrawableBuilder::BasicDrawableBuilder()
-    : basicDraw(NULL)
+    : basicDraw(NULL), scene(NULL)
 {
 }
     
-BasicDrawableBuilder::BasicDrawableBuilder(const std::string &name)
-    : name(name), basicDraw(NULL)
+BasicDrawableBuilder::BasicDrawableBuilder(const std::string &name,Scene *scene)
+    : name(name), basicDraw(NULL), scene(scene)
 {
 }
     

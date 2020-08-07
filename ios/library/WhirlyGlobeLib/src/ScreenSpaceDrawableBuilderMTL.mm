@@ -24,42 +24,11 @@
 
 namespace WhirlyKit
 {
-
-ScreenSpaceTweakerMTL::ScreenSpaceTweakerMTL()
-: setup(false)
+    
+ScreenSpaceDrawableBuilderMTL::ScreenSpaceDrawableBuilderMTL(const std::string &name,Scene *scene)
+    : BasicDrawableBuilderMTL(name,scene)
 {
-}
-
-void ScreenSpaceTweakerMTL::tweakForFrame(Drawable *inDraw,RendererFrameInfo *inFrameInfo)
-{
-    // Only need to do this one
-    if (inFrameInfo->sceneRenderer->getType() != SceneRenderer::RenderMetal || setup)
-        return;
-    BasicDrawable *basicDraw = dynamic_cast<BasicDrawable *>(inDraw);
-    RendererFrameInfoMTL *frameInfo = (RendererFrameInfoMTL *)inFrameInfo;
-
-    Point2f fbSize = frameInfo->sceneRenderer->getFramebufferSize();
-    
-    WhirlyKitShader::UniformScreenSpace uniSS;
-    bzero(&uniSS,sizeof(uniSS));
-    uniSS.scale[0] = 2.f/fbSize.x();
-    uniSS.scale[1] = 2.f/fbSize.y();
-    uniSS.keepUpright = keepUpright;
-    uniSS.time = frameInfo->currentTime - startTime;
-    uniSS.activeRot = activeRot;
-    uniSS.hasMotion = motion;
-    
-    BasicDrawable::UniformBlock uniBlock;
-    uniBlock.blockData = RawDataRef(new RawNSDataReader([[NSData alloc] initWithBytes:&uniSS length:sizeof(uniSS)]));
-    uniBlock.bufferID = WhirlyKitShader::WKSUniformDrawStateEntry;
-    basicDraw->setUniBlock(uniBlock);
-    
-    setup = true;
-}
-    
-ScreenSpaceDrawableBuilderMTL::ScreenSpaceDrawableBuilderMTL(const std::string &name)
-    : BasicDrawableBuilderMTL(name)
-{
+    this->scene = scene;
 }
 
 void ScreenSpaceDrawableBuilderMTL::Init(bool hasMotion,bool hasRotation,bool buildAnyway)
@@ -80,7 +49,7 @@ void ScreenSpaceDrawableBuilderMTL::Init(bool hasMotion,bool hasRotation,bool bu
 
 ScreenSpaceTweaker *ScreenSpaceDrawableBuilderMTL::makeTweaker()
 {
-    return new ScreenSpaceTweakerMTL();
+    return NULL;
 }
 
 BasicDrawable *ScreenSpaceDrawableBuilderMTL::getDrawable()
@@ -89,7 +58,23 @@ BasicDrawable *ScreenSpaceDrawableBuilderMTL::getDrawable()
         return BasicDrawableBuilderMTL::getDrawable();
     
     BasicDrawable *theDraw = BasicDrawableBuilderMTL::getDrawable();
-    setupTweaker(theDraw);
+    
+    WhirlyKitShader::UniformScreenSpace uniSS;
+    bzero(&uniSS,sizeof(uniSS));
+    uniSS.keepUpright = keepUpright;
+    if (motion) {
+        theDraw->motion = true;
+        uniSS.startTime = startTime - scene->getBaseTime();
+    } else
+        uniSS.startTime = 0.0;
+    uniSS.activeRot = rotation;
+    uniSS.hasMotion = motion;
+    
+    BasicDrawable::UniformBlock uniBlock;
+    uniBlock.blockData = RawDataRef(new RawNSDataReader([[NSData alloc] initWithBytes:&uniSS length:sizeof(uniSS)]));
+    uniBlock.bufferID = WhirlyKitShader::WKSUniformScreenSpaceEntry;
+    theDraw->setUniBlock(uniBlock);
+
     
     return theDraw;
 }

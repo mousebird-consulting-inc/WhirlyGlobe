@@ -23,7 +23,8 @@
 namespace WhirlyKit
 {
 
-BasicDrawableInstanceBuilder::BasicDrawableInstanceBuilder(const std::string &name)
+BasicDrawableInstanceBuilder::BasicDrawableInstanceBuilder(const std::string &name,Scene *scene)
+: scene(scene)
 {
 }
     

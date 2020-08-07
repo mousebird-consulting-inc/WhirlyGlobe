@@ -38,7 +38,7 @@ class BasicDrawableBuilder
 {
 public:
     /// Construct empty
-    BasicDrawableBuilder(const std::string &name);
+    BasicDrawableBuilder(const std::string &name,Scene *scene);
     virtual ~BasicDrawableBuilder();
     
     /// Reserve the given amount of space (cuts down on reallocs)
@@ -217,6 +217,7 @@ public:
     virtual void setupTexCoordEntry(int which,int numReserve);
 
 public:
+    Scene *scene;
     std::string name;
     
     // This version is only used by subclasses

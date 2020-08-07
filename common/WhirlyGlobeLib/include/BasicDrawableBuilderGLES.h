@@ -30,7 +30,7 @@ class BasicDrawableBuilderGLES : virtual public BasicDrawableBuilder
 {
 public:
     /// Construct empty
-    BasicDrawableBuilderGLES(const std::string &name,bool setupStandard=true);
+    BasicDrawableBuilderGLES(const std::string &name,Scene *scene,bool setupStandard=true);
     ~BasicDrawableBuilderGLES();
     
     /// Add a new vertex related attribute.  Need a data type and the name the shader refers to

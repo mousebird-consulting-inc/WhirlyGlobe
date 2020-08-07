@@ -23,8 +23,8 @@
 namespace WhirlyKit
 {
 
-ParticleSystemDrawableBuilderGLES::ParticleSystemDrawableBuilderGLES(const std::string &name)
-    : ParticleSystemDrawableBuilder(name), drawableGotten(false)
+ParticleSystemDrawableBuilderGLES::ParticleSystemDrawableBuilderGLES(const std::string &name,Scene *scene)
+    : ParticleSystemDrawableBuilder(name,scene), drawableGotten(false)
 {
     draw = new ParticleSystemDrawableGLES(name);
 }

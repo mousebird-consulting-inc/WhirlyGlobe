@@ -36,7 +36,7 @@ ProgramGLES *BuildBillboardEyeProgramGLES(const std::string &name,SceneRenderer 
 class BillboardDrawableBuilderGLES : public BasicDrawableBuilderGLES, public BillboardDrawableBuilder
 {
 public:
-    BillboardDrawableBuilderGLES(const std::string &name);
+    BillboardDrawableBuilderGLES(const std::string &name,Scene *scene);
     
     virtual int addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings = -1);
 

@@ -70,7 +70,7 @@ class AnimatedBasemapTestCase: MaplyTestCase {
         guard let rampTex = baseVC.addTexture(UIImage.init(named: "colorramp.png")!, desc: nil, mode: .current) else {
             return
         }
-        shader.setTexture(rampTex, for: 0)
+        shader.setTexture(rampTex, for: 0, viewC: baseVC)
         
         // Animator
         imageAnimator = MaplyQuadImageFrameAnimator(frameLoader: imageLayer!, viewC: baseVC)

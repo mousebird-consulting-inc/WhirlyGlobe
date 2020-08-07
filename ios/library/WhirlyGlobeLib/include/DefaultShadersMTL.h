@@ -113,6 +113,7 @@ struct Uniforms
     simd::float2 frameSize;    // Output framebuffer size
     uint frameCount;            // Starts at zero and goes up from there every frame
     int outputTexLevel;        // Normally 0, unless we're running a reduce
+    float currentTime;         // Current time relative to the start of the renderer
     bool globeMode;
 };
 
@@ -179,8 +180,7 @@ struct UniformWideVec {
     
 // Instructions to the screen space shaders, usually per-drawable
 struct UniformScreenSpace {
-    simd::float2 scale;
-    float time;                // For moving objects, this is the base time
+    float startTime;                // For moving objects, this is the base time
     bool keepUpright;
     bool activeRot;
     bool hasMotion;            // For objects that can move, check this

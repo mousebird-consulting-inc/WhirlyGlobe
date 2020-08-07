@@ -313,6 +313,9 @@ public:
     // But in offline render mode, we control this carefully
     TimeInterval getCurrentTime();
     
+    // Base time at system initialization
+    TimeInterval getBaseTime();
+    
     // Used to track overlaps at the edges of a viewable area
     void addLocalMbr(const Mbr &localMbr);
 	
@@ -403,6 +406,8 @@ protected:
     
     // If time is being set externally
     TimeInterval currentTime;
+    // Time at initialization
+    TimeInterval baseTime;
 
     /// All the OpenGL ES 2.0 shader programs we know about
     ProgramSet programs;

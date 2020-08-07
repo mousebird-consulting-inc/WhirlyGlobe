@@ -44,7 +44,7 @@ class WideVectorDrawableBuilderGLES : virtual public BasicDrawableBuilderGLES, v
 {
 public:
     // Initialize with an estimate on the number of vertices and triangles
-    WideVectorDrawableBuilderGLES(const std::string &name);
+    WideVectorDrawableBuilderGLES(const std::string &name,Scene *scene);
     
     void Init(unsigned int numVert,unsigned int numTri,bool globeMode);
     

@@ -27,8 +27,8 @@ using namespace Eigen;
 namespace WhirlyKit
 {
 
-BasicDrawableBuilderMTL::BasicDrawableBuilderMTL(const std::string &name)
-    : BasicDrawableBuilder(name), drawableGotten(false)
+BasicDrawableBuilderMTL::BasicDrawableBuilderMTL(const std::string &name,Scene *scene)
+    : BasicDrawableBuilder(name,scene), drawableGotten(false)
 {
     basicDraw = new BasicDrawableMTL(name);
     BasicDrawableBuilder::Init();

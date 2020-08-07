@@ -38,8 +38,8 @@ void ScreenSpaceTweakerGLES::tweakForFrame(Drawable *inDraw,RendererFrameInfo *f
     programGLES->setUniform(u_activerotNameID, (activeRot ? 1 : 0));
 }
 
-ScreenSpaceDrawableBuilderGLES::ScreenSpaceDrawableBuilderGLES(const std::string &name)
-    : BasicDrawableBuilderGLES(name,true)
+ScreenSpaceDrawableBuilderGLES::ScreenSpaceDrawableBuilderGLES(const std::string &name,Scene *scene)
+    : BasicDrawableBuilderGLES(name,scene,true)
 {
 }
     

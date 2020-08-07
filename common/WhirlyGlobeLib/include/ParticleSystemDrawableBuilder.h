@@ -29,7 +29,7 @@ namespace WhirlyKit
 class ParticleSystemDrawableBuilder
 {
 public:
-    ParticleSystemDrawableBuilder(const std::string &name);
+    ParticleSystemDrawableBuilder(const std::string &name,Scene *scene);
     virtual ~ParticleSystemDrawableBuilder();
     
     // Set up our various attributes at once
@@ -45,6 +45,7 @@ public:
     virtual ParticleSystemDrawable *getDrawable() = 0;
 
 protected:
+    Scene *scene;
     std::string name;
     ParticleSystemDrawable *draw;
 };

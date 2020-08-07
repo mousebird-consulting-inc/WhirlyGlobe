@@ -401,7 +401,7 @@ vertex ProjVertexTriA vertexTri_screenSpace(
     
     float3 pos = (vertArgs.uniDrawState.singleMat * float4(vert.position,1.0)).xyz;
     if (vertArgs.ss.hasMotion)
-        pos += vertArgs.ss.time * vert.dir;
+        pos += (uniforms.currentTime - vertArgs.ss.startTime) * vert.dir;
     
     outVert.color = vert.color * vertArgs.uniDrawState.fade;
     outVert.texCoord = vert.texCoord;

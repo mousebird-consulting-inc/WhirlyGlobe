@@ -40,7 +40,7 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
     /// Construct empty
-    BasicDrawableInstanceBuilder(const std::string &name);
+    BasicDrawableInstanceBuilder(const std::string &name,Scene *scene);
     virtual ~BasicDrawableInstanceBuilder();
     
     /// Set the base draw ID and type
@@ -131,6 +131,7 @@ protected:
     // Called by subclasses
     void Init();
     
+    Scene *scene;
     BasicDrawableInstance *drawInst;
 };
     

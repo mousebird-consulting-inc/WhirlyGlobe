@@ -29,7 +29,7 @@ namespace WhirlyKit
 class BasicDrawableInstanceBuilderMTL : public BasicDrawableInstanceBuilder
 {
 public:
-    BasicDrawableInstanceBuilderMTL(const std::string &name);
+    BasicDrawableInstanceBuilderMTL(const std::string &name,Scene *scene);
     ~BasicDrawableInstanceBuilderMTL();
     
     /// Fill out and return the drawable

@@ -24,8 +24,8 @@ namespace WhirlyKit
 {
 
     
-BasicDrawableInstanceBuilderMTL::BasicDrawableInstanceBuilderMTL(const std::string &name)
-    : BasicDrawableInstanceBuilder(name)
+BasicDrawableInstanceBuilderMTL::BasicDrawableInstanceBuilderMTL(const std::string &name,Scene *scene)
+    : BasicDrawableInstanceBuilder(name,scene)
 {
     drawInst = new BasicDrawableInstanceMTL(name);
 

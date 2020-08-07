@@ -216,6 +216,7 @@ void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,id<MTL
     CopyIntoMtlFloat2(uniforms.frameSize, frameSize);
     uniforms.globeMode = !coordAdapter->isFlat();
     uniforms.frameCount = frameCount;
+    uniforms.currentTime = frameInfo->currentTime - scene->getBaseTime();
     
     // Copy this to a buffer and then blit that buffer into place
     // TODO: Try to reuse these
@@ -970,32 +971,32 @@ RawDataRef SceneRendererMTL::getSnapshotMinMax(SimpleIdentity renderTargetID)
     
 BasicDrawableBuilderRef SceneRendererMTL::makeBasicDrawableBuilder(const std::string &name) const
 {
-    return BasicDrawableBuilderRef(new BasicDrawableBuilderMTL(name));
+    return BasicDrawableBuilderRef(new BasicDrawableBuilderMTL(name,scene));
 }
 
 BasicDrawableInstanceBuilderRef SceneRendererMTL::makeBasicDrawableInstanceBuilder(const std::string &name) const
 {
-    return BasicDrawableInstanceBuilderRef(new BasicDrawableInstanceBuilderMTL(name));
+    return BasicDrawableInstanceBuilderRef(new BasicDrawableInstanceBuilderMTL(name,scene));
 }
 
 BillboardDrawableBuilderRef SceneRendererMTL::makeBillboardDrawableBuilder(const std::string &name) const
 {
-    return BillboardDrawableBuilderRef(new BillboardDrawableBuilderMTL(name));
+    return BillboardDrawableBuilderRef(new BillboardDrawableBuilderMTL(name,scene));
 }
 
 ScreenSpaceDrawableBuilderRef SceneRendererMTL::makeScreenSpaceDrawableBuilder(const std::string &name) const
 {
-    return ScreenSpaceDrawableBuilderRef(new ScreenSpaceDrawableBuilderMTL(name));
+    return ScreenSpaceDrawableBuilderRef(new ScreenSpaceDrawableBuilderMTL(name,scene));
 }
 
 ParticleSystemDrawableBuilderRef  SceneRendererMTL::makeParticleSystemDrawableBuilder(const std::string &name) const
 {
-    return ParticleSystemDrawableBuilderRef(new ParticleSystemDrawableBuilderMTL(name));
+    return ParticleSystemDrawableBuilderRef(new ParticleSystemDrawableBuilderMTL(name,scene));
 }
 
 WideVectorDrawableBuilderRef SceneRendererMTL::makeWideVectorDrawableBuilder(const std::string &name) const
 {
-    return WideVectorDrawableBuilderRef(new WideVectorDrawableBuilderMTL(name));
+    return WideVectorDrawableBuilderRef(new WideVectorDrawableBuilderMTL(name,scene));
 }
 
 RenderTargetRef SceneRendererMTL::makeRenderTarget() const

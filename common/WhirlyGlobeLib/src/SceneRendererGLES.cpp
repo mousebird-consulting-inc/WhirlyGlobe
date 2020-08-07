@@ -701,32 +701,32 @@ RawDataRef SceneRendererGLES::getSnapshotAt(SimpleIdentity renderTargetID, int x
 
 BasicDrawableBuilderRef SceneRendererGLES::makeBasicDrawableBuilder(const std::string &name) const
 {
-    return BasicDrawableBuilderRef(new BasicDrawableBuilderGLES(name));
+    return BasicDrawableBuilderRef(new BasicDrawableBuilderGLES(name,scene));
 }
 
 BasicDrawableInstanceBuilderRef SceneRendererGLES::makeBasicDrawableInstanceBuilder(const std::string &name) const
 {
-    return BasicDrawableInstanceBuilderRef(new BasicDrawableInstanceBuilderGLES(name));
+    return BasicDrawableInstanceBuilderRef(new BasicDrawableInstanceBuilderGLES(name,scene));
 }
 
 BillboardDrawableBuilderRef SceneRendererGLES::makeBillboardDrawableBuilder(const std::string &name) const
 {
-    return BillboardDrawableBuilderRef(new BillboardDrawableBuilderGLES(name));
+    return BillboardDrawableBuilderRef(new BillboardDrawableBuilderGLES(name,scene));
 }
 
 ScreenSpaceDrawableBuilderRef SceneRendererGLES::makeScreenSpaceDrawableBuilder(const std::string &name) const
 {
-    return ScreenSpaceDrawableBuilderRef(new ScreenSpaceDrawableBuilderGLES(name));
+    return ScreenSpaceDrawableBuilderRef(new ScreenSpaceDrawableBuilderGLES(name,scene));
 }
 
 ParticleSystemDrawableBuilderRef  SceneRendererGLES::makeParticleSystemDrawableBuilder(const std::string &name) const
 {
-    return ParticleSystemDrawableBuilderRef(new ParticleSystemDrawableBuilderGLES(name));
+    return ParticleSystemDrawableBuilderRef(new ParticleSystemDrawableBuilderGLES(name,scene));
 }
 
 WideVectorDrawableBuilderRef SceneRendererGLES::makeWideVectorDrawableBuilder(const std::string &name) const
 {
-    return WideVectorDrawableBuilderRef(new WideVectorDrawableBuilderGLES(name));
+    return WideVectorDrawableBuilderRef(new WideVectorDrawableBuilderGLES(name,scene));
 }
 
 RenderTargetRef SceneRendererGLES::makeRenderTarget() const
