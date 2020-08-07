@@ -189,7 +189,7 @@ public:
     virtual SimpleIdentity getProgram() const;
     void setProgram(SimpleIdentity progId);
     
-protected:
+public:
     /// Update rendering for this drawable
     virtual void setValuesChanged();
     virtual void setTexturesChanged();

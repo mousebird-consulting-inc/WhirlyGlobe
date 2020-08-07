@@ -573,7 +573,7 @@ using namespace WhirlyKit;
     if (!entries.empty()) {
         scene->addChangeRequest(new ShaderRemTextureReq(programMTL->getId(),tex.texID));
     }
-    for (auto entry = entries.rend(); entry != entries.rbegin(); ++entry)
+    for (auto entry = entries.rbegin(); entry != entries.rend(); ++entry)
         textures.erase(textures.begin()+*entry);
 }
 
