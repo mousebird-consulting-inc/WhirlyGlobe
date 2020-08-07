@@ -187,7 +187,7 @@ struct UniformScreenSpace {
     
 // Instructions to the model instance shaders, per-drawable
 struct UniformModelInstance {
-    float time;                // For moving objects, this is the base time
+    float startTime;                // For moving objects, this is the base time
     bool hasMotion;            // For objects that can move, check this
     bool useInstanceColor;     // For model instance, if set use the instance color
 };

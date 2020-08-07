@@ -494,6 +494,10 @@ bool BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
             uni.clipCoords = clipCoords;
             if (hasMatrix)
                 CopyIntoMtlFloat4x4(uni.singleMat, *getMatrix());
+            else {
+                Eigen::Matrix4d identMatrix = Eigen::Matrix4d::Identity();
+                CopyIntoMtlFloat4x4(uni.singleMat, identMatrix);
+            }
             applyUniformsToDrawState(uni,uniforms);
             if (vertABInfo)
                 vertABInfo->updateEntry(mtlDevice,bltEncode, WhirlyKitShader::WKSUniformDrawStateEntry, &uni, sizeof(uni));

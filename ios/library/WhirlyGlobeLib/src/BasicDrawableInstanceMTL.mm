@@ -93,7 +93,7 @@ void BasicDrawableInstanceMTL::setupForRenderer(const RenderSetupInfo *inSetupIn
     } else if (instanceStyle == GPUStyle) {
         // Basic values for the uniforms
         bzero(&uniMI,sizeof(uniMI));
-        uniMI.time = 0.0;
+        uniMI.startTime = TimeGetCurrent() - scene->getBaseTime();
         uniMI.useInstanceColor = false;
         uniMI.hasMotion = false;
     }
@@ -569,6 +569,10 @@ bool BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
             auto mat = getMatrix();
             if (mat)
                 CopyIntoMtlFloat4x4(uni.singleMat, *mat);
+            else {
+                Eigen::Matrix4d identMatrix = Eigen::Matrix4d::Identity();
+                CopyIntoMtlFloat4x4(uni.singleMat, identMatrix);
+            }
                 
             if (vertABInfo)
                 vertABInfo->updateEntry(mtlDevice,bltEncode, WhirlyKitShader::WKSUniformDrawStateEntry, &uni, sizeof(uni));
@@ -577,7 +581,7 @@ bool BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
             
             // And do the Model Instance specific stuff
             if (vertABInfo)
-                vertABInfo->updateEntry(mtlDevice, bltEncode, WhirlyKitShader::WKSVertModelInstanceArgBuffer, &uniMI, sizeof(uniMI));
+                vertABInfo->updateEntry(mtlDevice, bltEncode, WhirlyKitShader::WKSUniformModelInstanceEntry, &uniMI, sizeof(uniMI));
             
             if (vertABInfo) {
                 vertABInfo->endEncoding(mtlDevice, bltEncode);
@@ -798,6 +802,10 @@ void BasicDrawableInstanceMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEn
         [cmdEncode setVertexBuffer:sceneRender->setupInfo.lightingBuff->buffer offset:sceneRender->setupInfo.lightingBuff->offset atIndex:WhirlyKitShader::WKSVertLightingArgBuffer];
     if (fragHasLighting)
         [cmdEncode setFragmentBuffer:sceneRender->setupInfo.lightingBuff->buffer offset:sceneRender->setupInfo.lightingBuff->offset atIndex:WhirlyKitShader::WKSFragLightingArgBuffer];
+    
+    // Instances go to the vertex shader if they're present
+    if (instBuffer)
+        [cmdEncode setVertexBuffer:instBuffer->buffer offset:instBuffer->offset atIndex:WhirlyKitShader::WKSVertModelInstanceArgBuffer];
 
     // More flexible data structures passed in to the shaders
     if (vertABInfo) {

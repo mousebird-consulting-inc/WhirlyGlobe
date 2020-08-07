@@ -92,11 +92,13 @@ vertex ProjVertexB vertexLineOnly_flat(
 {
     ProjVertexB outVert;
     
+    float3 vertPos = (vertArgs.uniDrawState.singleMat * float4(vert.position,1.0)).xyz;
+
     outVert.color = float4(vert.color) * vertArgs.uniDrawState.fade;
     if (vertArgs.uniDrawState.clipCoords)
-        outVert.position = float4(vert.position,1.0);
+        outVert.position = float4(vertPos,1.0);
     else
-        outVert.position = uniforms.mvpMatrix * float4(vert.position,1.0);
+        outVert.position = uniforms.mvpMatrix * float4(vertPos,1.0);
     
     return outVert;
 }
@@ -175,11 +177,13 @@ vertex ProjVertexTriA vertexTri_noLight(
                 constant RegularTextures & texArgs  [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriA outVert;
-    
+
+    float3 vertPos = (vertArgs.uniDrawState.singleMat * float4(vert.position,1.0)).xyz;
+
     if (vertArgs.uniDrawState.clipCoords)
-        outVert.position = float4(vert.position,1.0);
+        outVert.position = float4(vertPos,1.0);
     else
-        outVert.position = uniforms.mvpMatrix * float4(vert.position,1.0);
+        outVert.position = uniforms.mvpMatrix * float4(vertPos,1.0);
     outVert.color = float4(vert.color) * vertArgs.uniDrawState.fade;
     
     if (TexturesBase(texArgs.texPresent) > 0)
@@ -204,10 +208,11 @@ vertex ProjVertexTriA vertexTri_light(
 {
     ProjVertexTriA outVert;
     
+    float3 vertPos = (vertArgs.uniDrawState.singleMat * float4(vert.position,1.0)).xyz;
     if (vertArgs.uniDrawState.clipCoords)
-        outVert.position = float4(vert.position,1.0);
+        outVert.position = float4(vertPos,1.0);
     else
-        outVert.position = uniforms.mvpMatrix * float4(vert.position,1.0);
+        outVert.position = uniforms.mvpMatrix * float4(vertPos,1.0);
     outVert.color = resolveLighting(vert.position,
                                     vert.normal,
                                     float4(vert.color),
@@ -245,9 +250,8 @@ vertex ProjVertexTriB vertexTri_multiTex(
     ProjVertexTriB outVert;
 
     float3 vertPos = (vertArgs.uniDrawState.singleMat * float4(vert.position,1.0)).xyz;
-//    float3 vertPos = vert.position;
     if (vertArgs.uniDrawState.clipCoords)
-        outVert.position = float4(vert.position,1.0);
+        outVert.position = float4(vertPos,1.0);
     else {
         outVert.position = uniforms.mvpMatrix * float4(vertPos,1.0);
     }
@@ -460,7 +464,7 @@ vertex ProjVertexTriB vertexTri_model(
     // Take movement into account
     float3 center = inst.center;
     if (vertArgs.uniMI.hasMotion)
-        center += vertArgs.uniMI.time * inst.dir;
+        center += (uniforms.currentTime - vertArgs.uniMI.startTime) * inst.dir;
     float3 vertPos = (inst.mat * (vertArgs.uniDrawState.singleMat * float4(vert.position,1.0))).xyz + center;
     
     outVert.position = uniforms.mvpMatrix * float4(vertPos,1.0);
@@ -491,15 +495,17 @@ vertex ProjVertexTriA vertexTri_billboard(
 {
     ProjVertexTriA outVert;
     
+    float3 vertPos = (vertArgs.uniDrawState.singleMat * float4(vert.position,1.0)).xyz;
+
     float3 newPos;
     // Billboard is rooted to its position
     if (vertArgs.uniBB.groundMode) {
         float3 axisX = normalize(cross(vertArgs.uniBB.eyeVec,vert.normal));
         float3 axisZ = normalize(cross(axisX,vert.normal));
-        newPos = vert.position + axisX * vert.offset.x + vert.normal * vert.offset.y + axisZ * vert.offset.z;
+        newPos = vertPos + axisX * vert.offset.x + vert.normal * vert.offset.y + axisZ * vert.offset.z;
     } else {
         // Billboard orients fully toward the eye
-        float4 pos = uniforms.mvMatrix * float4(vert.position,1.0);
+        float4 pos = uniforms.mvMatrix * float4(vertPos,1.0);
         float3 pos3 = (pos/pos.w).xyz;
         newPos = float3(pos3.x + vert.offset.x,pos3.y+vert.offset.y,pos3.z+vert.offset.z);
     }
