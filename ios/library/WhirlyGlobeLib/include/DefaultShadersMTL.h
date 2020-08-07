@@ -114,6 +114,7 @@ struct Uniforms
     uint frameCount;            // Starts at zero and goes up from there every frame
     int outputTexLevel;        // Normally 0, unless we're running a reduce
     float currentTime;         // Current time relative to the start of the renderer
+    float height;              // Height above the ground/globe
     bool globeMode;
 };
 
@@ -121,11 +122,13 @@ struct Uniforms
 struct UniformDrawStateA {
     simd::float4x4 singleMat; // Individual transform used by model instances
     simd::float2 screenOrigin; // Used for texture pinning in screen space
-    float fade;                // Fade tends to change by time
     float interp;              // Used to interpolate between two textures (if appropriate)
     int outputTexLevel;        // Normally 0, unless we're running a reduce
     int whichOffsetMatrix;     // Normally 0, unless we're in 2D mode drawing the same stuff multiple times
     bool clipCoords;           // If set, the geometry coordinates aren't meant to be transformed
+    float fadeUp,fadeDown;     // Fading in/out values
+    float minVisible,maxVisible;  // Visibility by height
+    float minVisibleFadeBand,maxVisibleFadeBand;
 };
     
 // Things that change per particle drawable

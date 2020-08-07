@@ -561,10 +561,15 @@ bool BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
             // Has to update if either textures or values updated
             WhirlyKitShader::UniformDrawStateA uni;
             sceneRender->setupDrawStateA(uni);
-            // TODO: Move into shader
-            uni.fade = 1.0;
-    //        uni.fade = calcFade(frameInfo);
             uni.clipCoords = basicDraw->clipCoords;
+            // TODO: Put these in the instance as well
+            double baseTime = scene->getBaseTime();
+            uni.fadeUp = basicDraw->fadeUp-baseTime;
+            uni.fadeDown = basicDraw->fadeDown-baseTime;
+            uni.minVisible = basicDraw->minVisible;
+            uni.maxVisible = basicDraw->maxVisible;
+            uni.minVisibleFadeBand = basicDraw->minVisibleFadeBand;
+            uni.maxVisibleFadeBand = basicDraw->maxVisibleFadeBand;
             BasicDrawableMTL::applyUniformsToDrawState(uni,uniforms);
             auto mat = getMatrix();
             if (mat)

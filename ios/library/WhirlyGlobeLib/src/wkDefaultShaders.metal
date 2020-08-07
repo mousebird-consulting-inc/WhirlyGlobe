@@ -24,6 +24,59 @@
 using namespace metal;
 using namespace WhirlyKitShader;
 
+// Calculate fade based on time
+// (or) based on height.
+float calculateFade(constant Uniforms &uni,
+                    constant UniformDrawStateA &uniA)
+{
+    // Figure out if we're fading in or out
+    float fade = 1.0;
+    if (uniA.fadeDown < uniA.fadeUp)
+    {
+        // Heading to 1
+        if (uni.currentTime < uniA.fadeDown)
+            fade = 0.0;
+        else
+            if (uni.currentTime > uniA.fadeUp)
+                fade = 1.0;
+            else
+                fade = (uni.currentTime - uniA.fadeDown)/(uniA.fadeUp - uniA.fadeDown);
+    } else {
+        if (uniA.fadeUp < uniA.fadeDown)
+        {
+            // Heading to 0
+            if (uni.currentTime < uniA.fadeUp)
+                fade = 1.0;
+            else
+                if (uni.currentTime > uniA.fadeDown)
+                    fade = 0.0;
+                else
+                    fade = 1.0-(uni.currentTime - uniA.fadeUp)/(uniA.fadeDown - uniA.fadeUp);
+        }
+    }
+    // Deal with the range based fade
+    if (uni.height > 0.0)
+    {
+        float factor = 1.0;
+        if (uniA.minVisibleFadeBand != 0.0)
+        {
+            float a = (uni.height - uniA.minVisible)/uniA.minVisibleFadeBand;
+            if (a >= 0.0 && a < 1.0)
+                factor = a;
+        }
+        if (uniA.maxVisibleFadeBand != 0.0)
+        {
+            float b = (uniA.maxVisible - uni.height)/uniA.maxVisibleFadeBand;
+            if (b >= 0.0 && b < 1.0)
+                factor = b;
+        }
+
+        fade = fade * factor;
+    }
+
+    return fade;
+}
+
 struct VertexArgBufferA {
     UniformDrawStateA uniDrawState  [[ id(WKSUniformDrawStateEntry) ]];
 };
@@ -37,7 +90,7 @@ vertex ProjVertexA vertexLineOnly_globe(
 {
     ProjVertexA outVert;
     
-    outVert.color = float4(vert.color) * vertArgs.uniDrawState.fade;
+    outVert.color = float4(vert.color) * calculateFade(uniforms,vertArgs.uniDrawState);
     if (vertArgs.uniDrawState.clipCoords) {
         outVert.dotProd = 1.0;
         outVert.position = uniforms.mvpMatrix * float4(vert.position,1.0);
@@ -94,7 +147,7 @@ vertex ProjVertexB vertexLineOnly_flat(
     
     float3 vertPos = (vertArgs.uniDrawState.singleMat * float4(vert.position,1.0)).xyz;
 
-    outVert.color = float4(vert.color) * vertArgs.uniDrawState.fade;
+    outVert.color = float4(vert.color) * calculateFade(uniforms,vertArgs.uniDrawState);
     if (vertArgs.uniDrawState.clipCoords)
         outVert.position = float4(vertPos,1.0);
     else
@@ -184,7 +237,7 @@ vertex ProjVertexTriA vertexTri_noLight(
         outVert.position = float4(vertPos,1.0);
     else
         outVert.position = uniforms.mvpMatrix * float4(vertPos,1.0);
-    outVert.color = float4(vert.color) * vertArgs.uniDrawState.fade;
+    outVert.color = float4(vert.color) * calculateFade(uniforms,vertArgs.uniDrawState);
     
     if (TexturesBase(texArgs.texPresent) > 0)
         outVert.texCoord = resolveTexCoords(vert.texCoord,texArgs,0);
@@ -217,8 +270,8 @@ vertex ProjVertexTriA vertexTri_light(
                                     vert.normal,
                                     float4(vert.color),
                                     lighting,
-                                    uniforms.mvpMatrix); // * vertArgs.uniDrawState->fade;
-                                                                    // TODO: Figure out why this doesn't work
+                                    uniforms.mvpMatrix) *
+                    calculateFade(uniforms,vertArgs.uniDrawState);
     if (TexturesBase(texArgs.texPresent) > 0)
         outVert.texCoord = resolveTexCoords(vert.texCoord,texArgs,0);
     
@@ -259,7 +312,8 @@ vertex ProjVertexTriB vertexTri_multiTex(
                                     vert.normal,
                                     float4(vert.color),
                                     lighting,
-                                    uniforms.mvpMatrix) * vertArgs.uniDrawState.fade;
+                                    uniforms.mvpMatrix) *
+                    calculateFade(uniforms,vertArgs.uniDrawState);
     outVert.color = vert.color;
 
     // Handle the various texture coordinate input options (none, 1, or 2)
@@ -288,7 +342,7 @@ fragment float4 fragmentTri_multiTex(ProjVertexTriB vert [[stage_in]],
     
     // Handle none, 1 or 2 textures
     if (numTextures == 0) {
-        return vert.color * fragArgs.uniDrawState.fade;
+        return vert.color;
     } else if (numTextures == 1) {
         constexpr sampler sampler2d(coord::normalized, filter::linear);
         return vert.color * texArgs.tex[0].sample(sampler2d, vert.texCoord0);
@@ -347,7 +401,7 @@ vertex ProjVertexTriWideVec vertexTri_wideVec(
     
     float3 pos = (vertArgs.uniDrawState.singleMat * float4(vert.position.xyz,1.0)).xyz;
 
-    outVert.color = vertArgs.wideVec.color * vertArgs.uniDrawState.fade;
+    outVert.color = vertArgs.wideVec.color * calculateFade(uniforms,vertArgs.uniDrawState);
     
     float realWidth2 = vertArgs.wideVec.w2 * min(uniforms.screenSizeInDisplayCoords.x,uniforms.screenSizeInDisplayCoords.y) / min(uniforms.frameSize.x,uniforms.frameSize.y);
     float t0 = vert.c0 * realWidth2;
@@ -386,7 +440,7 @@ fragment float4 fragmentTri_wideVec(
         alpha = across/fragArgs.wideVec.edge;
     if (across > fragArgs.wideVec.w2-fragArgs.wideVec.edge)
         alpha = (fragArgs.wideVec.w2-across)/fragArgs.wideVec.edge;
-    return vert.dotProd > 0.0 ? fragArgs.wideVec.color * alpha * patternVal * fragArgs.uniDrawState.fade : float4(0.0);
+    return vert.dotProd > 0.0 ? fragArgs.wideVec.color * alpha * patternVal : float4(0.0);
 }
 
 struct VertexTriSSArgBuffer {
@@ -408,7 +462,7 @@ vertex ProjVertexTriA vertexTri_screenSpace(
     if (vertArgs.ss.hasMotion)
         pos += (uniforms.currentTime - vertArgs.ss.startTime) * vert.dir;
     
-    outVert.color = vert.color * vertArgs.uniDrawState.fade;
+    outVert.color = vert.color * calculateFade(uniforms,vertArgs.uniDrawState);
     outVert.texCoord = vert.texCoord;
     
     // Convert from model space into display space
@@ -473,7 +527,8 @@ vertex ProjVertexTriB vertexTri_model(
                                     vert.normal,
                                     color,
                                     lighting,
-                                    uniforms.mvpMatrix) * vertArgs.uniDrawState.fade;
+                                    uniforms.mvpMatrix) *
+                    calculateFade(uniforms,vertArgs.uniDrawState);
     outVert.texCoord0 = vert.texCoord0;
     outVert.texCoord1 = vert.texCoord1;
 
@@ -517,7 +572,7 @@ vertex ProjVertexTriA vertexTri_billboard(
 //                                    float4(vert.color),
 //                                    lighting,
 //                                    uniforms.mvpMatrix) * uniDrawState.fade;
-    outVert.color = vert.color;
+    outVert.color = vert.color * calculateFade(uniforms,vertArgs.uniDrawState);
     outVert.texCoord = vert.texCoord;
 
     return outVert;

@@ -39,6 +39,7 @@
 	NSDictionary *vectorDict = @{
 			kMaplyColor: [UIColor whiteColor],
 			kMaplySelectable: @(true),
+            kMaplyFade: @(0.2),
 			kMaplyVecWidth: @(4.0)};
 		NSArray * paths = [[NSBundle mainBundle] pathsForResourcesOfType:@"geojson" inDirectory:nil];
 		for (NSString* fileName  in paths) {
@@ -70,7 +71,7 @@
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
 	 self.baseCase = [[GeographyClassTestCase alloc]init];
-	[self.baseCase setUpWithGlobe:globeVC];
+//	[self.baseCase setUpWithGlobe:globeVC];
 	//Overlay Countries
 	[self overlayCountries:(MaplyBaseViewController*)globeVC];
 }

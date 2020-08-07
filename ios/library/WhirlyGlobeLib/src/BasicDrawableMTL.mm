@@ -122,57 +122,6 @@ void BasicDrawableMTL::teardownForRenderer(const RenderSetupInfo *setupInfo,Scen
     fragABInfo.reset();
 }
     
-// TODO: Move into shader
-//float BasicDrawableMTL::calcFade(RendererFrameInfo *frameInfo)
-//{
-//    // Figure out if we're fading in or out
-//    float fade = 1.0;
-//    if (fadeDown < fadeUp)
-//    {
-//        // Heading to 1
-//        if (frameInfo->currentTime < fadeDown)
-//            fade = 0.0;
-//        else
-//            if (frameInfo->currentTime > fadeUp)
-//                fade = 1.0;
-//            else
-//                fade = (frameInfo->currentTime - fadeDown)/(fadeUp - fadeDown);
-//    } else {
-//        if (fadeUp < fadeDown)
-//        {
-//            // Heading to 0
-//            if (frameInfo->currentTime < fadeUp)
-//                fade = 1.0;
-//            else
-//                if (frameInfo->currentTime > fadeDown)
-//                    fade = 0.0;
-//                else
-//                    fade = 1.0-(frameInfo->currentTime - fadeUp)/(fadeDown - fadeUp);
-//        }
-//    }
-//    // Deal with the range based fade
-//    if (frameInfo->heightAboveSurface > 0.0)
-//    {
-//        float factor = 1.0;
-//        if (minVisibleFadeBand != 0.0)
-//        {
-//            float a = (frameInfo->heightAboveSurface - minVisible)/minVisibleFadeBand;
-//            if (a >= 0.0 && a < 1.0)
-//                factor = a;
-//        }
-//        if (maxVisibleFadeBand != 0.0)
-//        {
-//            float b = (maxVisible - frameInfo->heightAboveSurface)/maxVisibleFadeBand;
-//            if (b >= 0.0 && b < 1.0)
-//                factor = b;
-//        }
-//
-//        fade = fade * factor;
-//    }
-//
-//    return fade;
-//}
-    
 MTLVertexDescriptor *BasicDrawableMTL::getVertexDescriptor(id<MTLFunction> vertFunc,std::vector<AttributeDefault> &defAttrs)
 {
     if (vertDesc)
@@ -488,9 +437,6 @@ bool BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
             // Has to update if either textures or values updated
             WhirlyKitShader::UniformDrawStateA uni;
             sceneRender->setupDrawStateA(uni);
-            // TODO: Move into shader
-            uni.fade = 1.0;
-    //        uni.fade = calcFade(frameInfo);
             uni.clipCoords = clipCoords;
             if (hasMatrix)
                 CopyIntoMtlFloat4x4(uni.singleMat, *getMatrix());
@@ -498,6 +444,13 @@ bool BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
                 Eigen::Matrix4d identMatrix = Eigen::Matrix4d::Identity();
                 CopyIntoMtlFloat4x4(uni.singleMat, identMatrix);
             }
+            double baseTime = scene->getBaseTime();
+            uni.fadeUp = fadeUp - baseTime;
+            uni.fadeDown = fadeDown - baseTime;
+            uni.minVisible = minVisible;
+            uni.maxVisible = maxVisible;
+            uni.minVisibleFadeBand = minVisibleFadeBand;
+            uni.maxVisibleFadeBand = maxVisibleFadeBand;
             applyUniformsToDrawState(uni,uniforms);
             if (vertABInfo)
                 vertABInfo->updateEntry(mtlDevice,bltEncode, WhirlyKitShader::WKSUniformDrawStateEntry, &uni, sizeof(uni));
