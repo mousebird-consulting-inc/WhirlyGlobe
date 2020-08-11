@@ -35,8 +35,8 @@ public class WideVectorsTestCase extends MaplyTestCase {
         // Build a dashed pattern
         LinearTextureBuilder texBuild = new LinearTextureBuilder();
         int[] pattern = new int[2];
-        pattern[0] = 8;
-        pattern[1] = 8;
+        pattern[0] = 4;
+        pattern[1] = 4;
         texBuild.setPattern(pattern);
         Bitmap patternImage = texBuild.makeImage();
         RenderController.TextureSettings texSet = new RenderController.TextureSettings();
@@ -47,7 +47,7 @@ public class WideVectorsTestCase extends MaplyTestCase {
         wideVecInfo.setColor(Color.BLUE);
         wideVecInfo.setLineWidth(20.0f);
         wideVecInfo.setTexture(tex);
-        wideVecInfo.setTextureRepeatLength(16.0);
+        wideVecInfo.setTextureRepeatLength(8.0);
 
         VectorInfo vecInfo = new VectorInfo();
         vecInfo.setLineWidth(4.0f);
@@ -62,10 +62,10 @@ public class WideVectorsTestCase extends MaplyTestCase {
             VectorObject vecObj = new VectorObject();
             vecObj.fromGeoJSON(json);
 
-//            ComponentObject compObj = baseController.addVector(vecObj, vecInfo, MaplyBaseController.ThreadMode.ThreadAny);
-//            compObjs.add(compObj);
-            ComponentObject compObj = baseController.addWideVector(vecObj, wideVecInfo, RenderController.ThreadMode.ThreadAny);
+            ComponentObject compObj = baseController.addVector(vecObj, vecInfo, RenderController.ThreadMode.ThreadAny);
             compObjs.add(compObj);
+            ComponentObject compObj2 = baseController.addWideVector(vecObj, wideVecInfo, RenderController.ThreadMode.ThreadAny);
+            compObjs.add(compObj2);
         } catch (Exception e) {
         }
     }
