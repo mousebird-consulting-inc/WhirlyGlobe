@@ -110,6 +110,28 @@ void ConvertDoubleArray(JNIEnv *env,jdoubleArray &doubleArray,std::vector<double
     env->ReleaseDoubleArrayElements(doubleArray,doubles,0);
 }
 
+void ConvertBoolArray(JNIEnv *env,jbooleanArray &boolArray,std::vector<bool> &boolVec)
+{
+    jboolean *bools = env->GetBooleanArrayElements(boolArray, NULL);
+    int len = env->GetArrayLength(boolArray);
+    boolVec.resize(len);
+    for (int ii=0;ii<len;ii++)
+        boolVec[ii] = bools[ii];
+    env->ReleaseBooleanArrayElements(boolArray,bools,0);
+}
+
+void ConvertStringArray(JNIEnv *env,jobjectArray &objArray,std::vector<std::string> &strVec)
+{
+    jsize count = env->GetArrayLength(objArray);
+    for (unsigned int ii=0;ii<count;ii++) {
+        jstring string = (jstring) env->GetObjectArrayElement(objArray,ii);
+        if (string)
+            strVec.push_back(env->GetStringUTFChars(string, NULL));
+        else
+            strVec.push_back("");
+    }
+}
+
 void ConvertFloat2fArray(JNIEnv *env,jfloatArray &floatArray,Point2fVector &ptVec)
 {
     float *floats = env->GetFloatArrayElements(floatArray, NULL);

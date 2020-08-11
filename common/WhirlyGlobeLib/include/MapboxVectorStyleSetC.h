@@ -194,24 +194,26 @@ public:
     virtual MapboxVectorStyleLayerRef getLayer(const std::string &name);
     
     /// Fish out the background color for a given zoom level
-    RGBAColorRef backgroundColor(double zoom);
+    RGBAColorRef backgroundColor(PlatformThreadInfo *inst,double zoom) override;
     
     /** VectorStyleDelegateImpl **/
     
     /// Return the styles that apply to the given feature (attributes).
-    virtual std::vector<VectorStyleImplRef> stylesForFeature(DictionaryRef attrs,
+    virtual std::vector<VectorStyleImplRef> stylesForFeature(PlatformThreadInfo *inst,
+                                                             DictionaryRef attrs,
                                                              const QuadTreeIdentifier &tileID,
-                                                             const std::string &layerName);
+                                                             const std::string &layerName) override;
     
     /// Return true if the given layer is meant to display for the given tile (zoom level)
-    virtual bool layerShouldDisplay(const std::string &name,
-                                    const QuadTreeNew::Node &tileID);
+    virtual bool layerShouldDisplay(PlatformThreadInfo *inst,
+                                    const std::string &name,
+                                    const QuadTreeNew::Node &tileID) override;
 
     /// Return the style associated with the given UUID.
-    virtual VectorStyleImplRef styleForUUID(long long uuid);
+    virtual VectorStyleImplRef styleForUUID(PlatformThreadInfo *inst,long long uuid) override;
 
     // Return a list of all the styles in no particular order.  Needed for categories and indexing
-    virtual std::vector<VectorStyleImplRef> allStyles();
+    virtual std::vector<VectorStyleImplRef> allStyles(PlatformThreadInfo *inst) override;
 
     
     /** Platform specific implementation **/

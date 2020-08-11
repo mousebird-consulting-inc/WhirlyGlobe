@@ -91,9 +91,9 @@ static int BackImageWidth = 16, BackImageHeight = 16;
     } else
         vecStyle = VectorStyleDelegateImplRef(new VectorStyleDelegateWrapper(viewC,inVectorStyle));
 
-    imageTileParser = MapboxVectorTileParserRef(new MapboxVectorTileParser(imageStyle));
+    imageTileParser = MapboxVectorTileParserRef(new MapboxVectorTileParser(NULL,imageStyle));
     imageTileParser->localCoords = true;
-    vecTileParser = MapboxVectorTileParserRef(new MapboxVectorTileParser(vecStyle));
+    vecTileParser = MapboxVectorTileParserRef(new MapboxVectorTileParser(NULL,vecStyle));
     
     return self;
 }
@@ -111,7 +111,7 @@ static int BackImageWidth = 16, BackImageHeight = 16;
     } else
         vecStyle = VectorStyleDelegateImplRef(new VectorStyleDelegateWrapper(viewC,inVectorStyle));
 
-    vecTileParser = MapboxVectorTileParserRef(new MapboxVectorTileParser(vecStyle));
+    vecTileParser = MapboxVectorTileParserRef(new MapboxVectorTileParser(NULL,vecStyle));
     
     return self;
 }
@@ -218,7 +218,7 @@ static int BackImageWidth = 16, BackImageHeight = 16;
         @synchronized(offlineRender)
         {
             // Build the vector objects for use in the image tile
-            RGBAColorRef backColor = imageStyle->backgroundColor(tileID.level);
+            RGBAColorRef backColor = imageStyle->backgroundColor(NULL,tileID.level);
             offlineRender.clearColor = backColor ? [UIColor colorFromRGBA:*backColor] : [UIColor blackColor];
             MaplyVectorTileData *vecTileReturn = [[MaplyVectorTileData alloc] initWithID:tileID bbox:imageBBox geoBBox:geoBBox];
 
@@ -308,7 +308,7 @@ static int BackImageWidth = 16, BackImageHeight = 16;
                 NSData *backImageData = [[NSMutableData alloc] initWithLength:4*BackImageWidth*BackImageHeight];
                 unsigned int *data = (unsigned int *)[backImageData bytes];
                 CGFloat red,green,blue,alpha;
-                RGBAColorRef backColor = vecStyle->backgroundColor(tileID.level);
+                RGBAColorRef backColor = vecStyle->backgroundColor(NULL,tileID.level);
                 UIColor *thisBackColor = backColor ? [UIColor colorFromRGBA:*backColor] : [UIColor blackColor];
                 [thisBackColor getRed:&red green:&green blue:&blue alpha:&alpha];
                 unsigned int pixel = 0xff << 24 | (int)(blue * 255) << 16 | (int)(green * 255) << 8 | (int)(red * 255);

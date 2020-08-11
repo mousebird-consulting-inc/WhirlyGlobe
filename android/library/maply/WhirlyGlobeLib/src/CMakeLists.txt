@@ -30,6 +30,7 @@ target_sources(
         "${WGLIBANDROIDINC}/Shader_Android.h"
         "${WGLIBANDROIDINC}/SingleLabel_Android.h"
         "${WGLIBANDROIDINC}/VectorTileData_Android.h"
+        "${WGLIBANDROIDINC}/VectorStyleSet_Android.h"
 
         "${CMAKE_CURRENT_LIST_DIR}/ComponentManager_Android.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/Dictionary_Android.cpp"
@@ -47,5 +48,6 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/Shader_Android.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/SingleLabel_Android.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/VectorTileData_Android.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/VectorStyleSet_Android.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/WhirlyKitLog.cpp"
 )

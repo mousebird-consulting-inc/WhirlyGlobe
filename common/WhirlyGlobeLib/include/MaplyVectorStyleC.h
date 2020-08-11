@@ -106,23 +106,28 @@ typedef std::shared_ptr<VectorStyleImpl> VectorStyleImplRef;
 class VectorStyleDelegateImpl
 {
 public:
+    VectorStyleDelegateImpl() { }
+    virtual ~VectorStyleDelegateImpl() { }
+
     /// Return the styles that apply to the given feature (attributes).
-    virtual std::vector<VectorStyleImplRef> stylesForFeature(DictionaryRef attrs,
+    virtual std::vector<VectorStyleImplRef> stylesForFeature(PlatformThreadInfo *inst,
+                                                             DictionaryRef attrs,
                                                              const QuadTreeIdentifier &tileID,
                                                              const std::string &layerName) = 0;
     
     /// Return true if the given layer is meant to display for the given tile (zoom level)
-    virtual bool layerShouldDisplay(const std::string &name,
+    virtual bool layerShouldDisplay(PlatformThreadInfo *inst,
+                                    const std::string &name,
                                     const QuadTreeNew::Node &tileID) = 0;
 
     /// Return the style associated with the given UUID.
-    virtual VectorStyleImplRef styleForUUID(long long uuid) = 0;
+    virtual VectorStyleImplRef styleForUUID(PlatformThreadInfo *inst,long long uuid) = 0;
 
     // Return a list of all the styles in no particular order.  Needed for categories and indexing
-    virtual std::vector<VectorStyleImplRef> allStyles() = 0;
+    virtual std::vector<VectorStyleImplRef> allStyles(PlatformThreadInfo *inst) = 0;
     
     /// Return the background color for a given zoom level
-    virtual RGBAColorRef backgroundColor(double zoom) = 0;
+    virtual RGBAColorRef backgroundColor(PlatformThreadInfo *inst,double zoom) = 0;
 };
 typedef std::shared_ptr<VectorStyleDelegateImpl> VectorStyleDelegateImplRef;
 
@@ -132,15 +137,18 @@ typedef std::shared_ptr<VectorStyleDelegateImpl> VectorStyleDelegateImplRef;
 class VectorStyleImpl
 {
 public:
+    VectorStyleImpl() { }
+    virtual ~VectorStyleImpl() { }
+
     /// Unique Identifier for this style
-    virtual long long getUuid() = 0;
+    virtual long long getUuid(PlatformThreadInfo *inst) = 0;
     
     /// Category used for sorting
-    virtual std::string getCategory() = 0;
+    virtual std::string getCategory(PlatformThreadInfo *inst) = 0;
     
     // Note: This no longer really holds
     /// Set if this geometry is additive (e.g. sticks around) rather than replacement
-    virtual bool geomAdditive() = 0;
+    virtual bool geomAdditive(PlatformThreadInfo *inst) = 0;
 
     /// Construct objects related to this style based on the input data.
     virtual void buildObjects(PlatformThreadInfo *inst, std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo) = 0;

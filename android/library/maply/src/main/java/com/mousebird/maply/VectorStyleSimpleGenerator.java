@@ -149,6 +149,9 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
         @Override
         public void buildObjects(VectorObject vecObjs[],VectorTileData tileData,RenderControllerInterface controller)
         {
+            // TODO: Sort by layer name and take layer order into account for the drawPriority
+//            Integer layerOrder = attrs.getInt("layer_order");
+
             VectorInfo vecInfo = new VectorInfo();
             vecInfo.disposeAfterUse = true;
             vecInfo.setColor((float)red,(float)green,(float)blue,1.f);
@@ -163,12 +166,19 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
 
     WeakReference<RenderControllerInterface> controller;
     HashMap<Long,VectorStyleSimple> stylesByUUID = new HashMap<Long,VectorStyleSimple>();
-    HashMap<String,VectorStyleSimple> stylesByLayerName = new HashMap<String,VectorStyleSimple>();
 
+    // One style per geometry type, but we'll tweak it a little based on layer name
+    VectorStyleSimple pointStyle,lineStyle,polyStyle;
 
     public VectorStyleSimpleGenerator(RenderControllerInterface inControl)
     {
         controller = new WeakReference<RenderControllerInterface>(inControl);
+        pointStyle = new VectorStyleSimplePoint(LabelInfo.LabelPriorityDefault);
+        stylesByUUID.put(pointStyle.getUuid(),pointStyle);
+        lineStyle = new VectorStyleSimpleLinear(VectorInfo.VectorPriorityDefault);
+        stylesByUUID.put(lineStyle.getUuid(),lineStyle);
+        polyStyle = new VectorStyleSimplePolygon(VectorInfo.VectorPriorityDefault);
+        stylesByUUID.put(polyStyle.getUuid(),polyStyle);
     }
 
     /**
@@ -178,32 +188,23 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
     public VectorStyle[] stylesForFeature(AttrDictionary attrs,TileID tileID,String layerName,RenderControllerInterface controller)
     {
         // Look for an existing style if we've already done this lookup
-        VectorStyleSimple style = stylesByLayerName.get(layerName);
-        if (style == null)
+        Integer geomType = attrs.getInt("geometry_type");
+        VectorStyle style = null;
+
+        // Each layer gets its own style
+        switch (geomType)
         {
-            Integer layerOrder = attrs.getInt("layer_order");
-            Integer geomType = attrs.getInt("geometry_type");
-
-            int layer = layerOrder == null ? 0 : layerOrder;
-
-            // Each layer gets its own style
-            switch (geomType)
-            {
-                case MapboxVectorTileParser.GeomTypePoint:
-                    style = new VectorStyleSimplePoint(LabelInfo.LabelPriorityDefault+layer);
-                    break;
-                case MapboxVectorTileParser.GeomTypeLineString:
-                    style = new VectorStyleSimpleLinear(VectorInfo.VectorPriorityDefault+layer);
-                    break;
-                case MapboxVectorTileParser.GeomTypePolygon:
-                    style = new VectorStyleSimplePolygon(VectorInfo.VectorPriorityDefault+layer);
-                    break;
-                default:
-                    break;
-            }
-
-            stylesByLayerName.put(layerName,style);
-            stylesByUUID.put(style.getUuid(),style);
+            case MapboxVectorTileParser.GeomTypePoint:
+                style = pointStyle;
+                break;
+            case MapboxVectorTileParser.GeomTypeLineString:
+                style = lineStyle;
+                break;
+            case MapboxVectorTileParser.GeomTypePolygon:
+                style = polyStyle;
+                break;
+            default:
+                break;
         }
 
         return new VectorStyle[]{style};
@@ -228,7 +229,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
     @Override
     public VectorStyle[] allStyles()
     {
-        return stylesByLayerName.values().toArray(new VectorStyle[0]);
+        return stylesByUUID.values().toArray(new VectorStyle[0]);
     }
 
     @Override

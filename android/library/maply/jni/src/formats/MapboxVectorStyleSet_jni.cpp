@@ -102,7 +102,9 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_backgroundC
         if (!inst)
             return 0;
 
-        RGBAColorRef backColor = (*inst)->backgroundColor(zoom);
+        PlatformInfo_Android platformInfo(env);
+
+        RGBAColorRef backColor = (*inst)->backgroundColor(&platformInfo,zoom);
         if (!backColor)
             return 0;
 

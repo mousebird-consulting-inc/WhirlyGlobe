@@ -46,13 +46,13 @@ public:
     virtual bool parse(PlatformThreadInfo *inst,
                        DictionaryRef styleEntry,
                        MapboxVectorStyleLayerRef refLayer,
-                       int drawPriority);
+                       int drawPriority) override;
     
     virtual void buildObjects(PlatformThreadInfo *inst,
                               std::vector<VectorObjectRef> &vecObjs,
-                              VectorTileDataRef tileInfo);
+                              VectorTileDataRef tileInfo) override;
     
-    virtual void cleanup(PlatformThreadInfo *inst,ChangeSet &changes);
+    virtual void cleanup(PlatformThreadInfo *inst,ChangeSet &changes) override;
     
 public:
     MapboxVectorFillPaint paint;

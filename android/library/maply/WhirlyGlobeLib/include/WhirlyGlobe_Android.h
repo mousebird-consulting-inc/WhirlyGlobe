@@ -35,3 +35,4 @@
 #import "SingleLabel_Android.h"
 #import "Shader_Android.h"
 #import "VectorTileData_Android.h"
+#import "VectorStyleSet_Android.h"

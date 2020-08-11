@@ -263,7 +263,7 @@ bool MapboxVectorStyleSetImpl::parse(PlatformThreadInfo *inst,DictionaryRef styl
             } else {
                 // Sort into various buckets for quick lookup
                 layersByName[layer->ident] = layer;
-                layersByUUID[layer->getUuid()] = layer;
+                layersByUUID[layer->getUuid(inst)] = layer;
                 if (!layer->sourceLayer.empty()) {
                     auto it = layersBySource.find(layer->sourceLayer);
                     if (it != layersBySource.end()) {
@@ -654,7 +654,7 @@ MapboxVectorStyleLayerRef MapboxVectorStyleSetImpl::getLayer(const std::string &
     return it->second;
 }
 
-RGBAColorRef MapboxVectorStyleSetImpl::backgroundColor(double zoom)
+RGBAColorRef MapboxVectorStyleSetImpl::backgroundColor(PlatformThreadInfo *inst,double zoom)
 {
     auto it = layersByName.find("background");
     if (it != layersByName.end()) {
@@ -668,7 +668,8 @@ RGBAColorRef MapboxVectorStyleSetImpl::backgroundColor(double zoom)
 }
 
 
-std::vector<VectorStyleImplRef> MapboxVectorStyleSetImpl::stylesForFeature(DictionaryRef attrs,
+std::vector<VectorStyleImplRef> MapboxVectorStyleSetImpl::stylesForFeature(PlatformThreadInfo *inst,
+                                                                           DictionaryRef attrs,
                                                          const QuadTreeIdentifier &tileID,
                                                          const std::string &layerName)
 {
@@ -685,7 +686,8 @@ std::vector<VectorStyleImplRef> MapboxVectorStyleSetImpl::stylesForFeature(Dicti
 }
 
 /// Return true if the given layer is meant to display for the given tile (zoom level)
-bool MapboxVectorStyleSetImpl::layerShouldDisplay(const std::string &layerName,
+bool MapboxVectorStyleSetImpl::layerShouldDisplay(PlatformThreadInfo *inst,
+                                                  const std::string &layerName,
                                                   const QuadTreeNew::Node &tileID)
 {
     auto it = layersBySource.find(layerName);
@@ -693,7 +695,7 @@ bool MapboxVectorStyleSetImpl::layerShouldDisplay(const std::string &layerName,
 }
 
 /// Return the style associated with the given UUID.
-VectorStyleImplRef MapboxVectorStyleSetImpl::styleForUUID(long long uuid)
+VectorStyleImplRef MapboxVectorStyleSetImpl::styleForUUID(PlatformThreadInfo *inst,long long uuid)
 {
     auto it = layersByUUID.find(uuid);
     if (it == layersByUUID.end())
@@ -703,7 +705,7 @@ VectorStyleImplRef MapboxVectorStyleSetImpl::styleForUUID(long long uuid)
 }
 
 // Return a list of all the styles in no particular order.  Needed for categories and indexing
-std::vector<VectorStyleImplRef> MapboxVectorStyleSetImpl::allStyles()
+std::vector<VectorStyleImplRef> MapboxVectorStyleSetImpl::allStyles(PlatformThreadInfo *inst)
 {
     std::vector<VectorStyleImplRef> styles;
     

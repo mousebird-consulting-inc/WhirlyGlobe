@@ -40,15 +40,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorTileParser_initialis
 {
     try
     {
+        PlatformInfo_Android platformInfo(env);
+
         if (isMapboxStyle) {
             MapboxVectorStyleSetImpl_AndroidRef *style = MapboxVectorStyleSetClassInfo::getClassInfo()->getObject(env,vecStyleObj);
             if (!style)
                 return;
 
-            MapboxVectorTileParser *inst = new MapboxVectorTileParser(*style);
+            MapboxVectorTileParser *inst = new MapboxVectorTileParser(&platformInfo, *style);
             MapboxVectorTileParserClassInfo::getClassInfo()->setHandle(env,obj,inst);
         } else {
-            // TODO: Set up the wrapper for a style implemented on the Java side
+            VectorStyleSetWrapper_AndroidRef *style = VectorStyleSetWrapperClassInfo::getClassInfo()->getObject(env,vecStyleObj);
+            if (!style)
+                return;
+
+            MapboxVectorTileParser *inst = new MapboxVectorTileParser(&platformInfo,*style);
+            MapboxVectorTileParserClassInfo::getClassInfo()->setHandle(env,obj,inst);
         }
     }
     catch (...)
@@ -104,7 +111,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_MapboxVectorTileParser_parse
     {
         MapboxVectorTileParser *inst = MapboxVectorTileParserClassInfo::getClassInfo()->getObject(env,obj);
         VectorTileData_AndroidRef *tileData = VectorTileDataClassInfo::getClassInfo()->getObject(env,vecTileDataObj);
-        if (!obj || !tileData)
+        if (!inst || !tileData)
             return false;
 
         // This hold the Java objects so we can associate them per thread rather

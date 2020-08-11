@@ -89,18 +89,19 @@ class VectorStyleDelegateWrapper : public VectorStyleDelegateImpl
 public:
     VectorStyleDelegateWrapper(NSObject<MaplyRenderControllerProtocol> *viewC,NSObject<MaplyVectorStyleDelegate> *delegate);
     
-    virtual std::vector<VectorStyleImplRef> stylesForFeature(DictionaryRef attrs,
+    virtual std::vector<VectorStyleImplRef> stylesForFeature(PlatformThreadInfo *inst,DictionaryRef attrs,
                                                             const QuadTreeIdentifier &tileID,
                                                             const std::string &layerName);
     
-    virtual bool layerShouldDisplay(const std::string &name,
+    virtual bool layerShouldDisplay(PlatformThreadInfo *inst,
+                                    const std::string &name,
                                     const QuadTreeNew::Node &tileID);
 
-    virtual VectorStyleImplRef styleForUUID(long long uuid);
+    virtual VectorStyleImplRef styleForUUID(PlatformThreadInfo *inst,long long uuid);
 
-    virtual std::vector<VectorStyleImplRef> allStyles();
+    virtual std::vector<VectorStyleImplRef> allStyles(PlatformThreadInfo *inst);
     
-    RGBAColorRef backgroundColor(double zoom);
+    RGBAColorRef backgroundColor(PlatformThreadInfo *inst,double zoom);
     
 protected:
     NSObject<MaplyRenderControllerProtocol> * __weak viewC;
@@ -117,9 +118,9 @@ class VectorStyleWrapper : public VectorStyleImpl
 public:
     VectorStyleWrapper(NSObject<MaplyRenderControllerProtocol> *viewC,NSObject<MaplyVectorStyle> *style);
     
-    virtual long long getUuid();
-    virtual std::string getCategory();
-    virtual bool geomAdditive();
+    virtual long long getUuid(PlatformThreadInfo *inst);
+    virtual std::string getCategory(PlatformThreadInfo *inst);
+    virtual bool geomAdditive(PlatformThreadInfo *inst);
     virtual void buildObjects(PlatformThreadInfo *inst,std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo);
     
 protected:

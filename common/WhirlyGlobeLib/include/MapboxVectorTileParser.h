@@ -100,8 +100,8 @@ typedef std::shared_ptr<VectorStyleDelegateImpl> VectorStyleDelegateImplRef;
 class MapboxVectorTileParser
 {
 public:
-    MapboxVectorTileParser(VectorStyleDelegateImplRef styleDelegate);
-    ~MapboxVectorTileParser();
+    MapboxVectorTileParser(PlatformThreadInfo *inst,VectorStyleDelegateImplRef styleDelegate);
+    virtual ~MapboxVectorTileParser();
     
     /// If set, we'll parse into local coordinates as specified by the bounding box, rather than geo coords
     bool localCoords;

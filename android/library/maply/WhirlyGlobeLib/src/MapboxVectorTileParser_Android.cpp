@@ -24,8 +24,8 @@
 
 namespace WhirlyKit
 {
-MapboxVectorTileParser_Android::MapboxVectorTileParser_Android(VectorStyleDelegateImplRef styleDelegate)
-: shouldParseMethod(NULL), styleForFeatureMethod(NULL), buildForStyleMethod(NULL), MapboxVectorTileParser(styleDelegate)
+MapboxVectorTileParser_Android::MapboxVectorTileParser_Android(PlatformThreadInfo *inst,VectorStyleDelegateImplRef styleDelegate)
+: shouldParseMethod(NULL), styleForFeatureMethod(NULL), buildForStyleMethod(NULL), MapboxVectorTileParser(inst,styleDelegate)
 {
 }
 
@@ -51,7 +51,9 @@ VectorTileDataRef MapboxVectorTileParser_Android::makeTileDataCopy(VectorTileDat
     return tileData;
 }
 
-bool MapboxVectorTileParser_Android::layerShouldParse(const std::string &layerName,VectorTileData *inTileData)
+bool MapboxVectorTileParser_Android::layerShouldParse(PlatformThreadInfo *inst,
+        const std::string &layerName,
+        VectorTileData *inTileData)
 {
     VectorTileData_Android *tileData = (VectorTileData_Android *)inTileData;
 
@@ -62,7 +64,10 @@ bool MapboxVectorTileParser_Android::layerShouldParse(const std::string &layerNa
     return ret;
 }
 
-SimpleIDSet MapboxVectorTileParser_Android::stylesForFeature(MutableDictionaryRef inAttrs,const std::string &layerName,VectorTileData *inTileData)
+SimpleIDSet MapboxVectorTileParser_Android::stylesForFeature(PlatformThreadInfo *inst,
+        MutableDictionaryRef inAttrs,
+        const std::string &layerName,
+        VectorTileData *inTileData)
 {
     VectorTileData_Android *tileData = (VectorTileData_Android *)inTileData;
     MutableDictionary_AndroidRef attrs = std::dynamic_pointer_cast<MutableDictionary_Android>(inAttrs);
@@ -81,7 +86,10 @@ SimpleIDSet MapboxVectorTileParser_Android::stylesForFeature(MutableDictionaryRe
     return styleIDs;
 }
 
-void MapboxVectorTileParser_Android::buildForStyle(long long styleID,std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef inTileData)
+void MapboxVectorTileParser_Android::buildForStyle(PlatformThreadInfo *inst,
+        long long styleID,
+        std::vector<VectorObjectRef> &vecObjs,
+        VectorTileDataRef inTileData)
 {
     VectorTileData_AndroidRef tileData = std::dynamic_pointer_cast<VectorTileData_Android>(inTileData);
 

@@ -109,7 +109,7 @@ using namespace WhirlyKit;
 
 - (UIColor * __nullable)backgroundColorForZoom:(double)zoom
 {
-    RGBAColorRef color = style->backgroundColor(zoom);
+    RGBAColorRef color = style->backgroundColor(NULL,zoom);
     if (!color)
         return [UIColor blackColor];
     return [UIColor colorFromRGBA:*color];

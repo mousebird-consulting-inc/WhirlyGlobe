@@ -33,7 +33,13 @@ template<> VectorTileDataClassInfo *VectorTileDataClassInfo::classInfoObj = NULL
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorTileData_nativeInit
 (JNIEnv *env, jclass cls)
 {
-    VectorTileDataClassInfo ::getClassInfo(env, cls);
+    VectorTileDataClassInfo::getClassInfo(env, cls);
+}
+
+JNIEXPORT jobject JNICALL MakeVectorTileDataObject(JNIEnv *env,VectorTileData_AndroidRef tileData)
+{
+    VectorTileDataClassInfo *classInfo = VectorTileDataClassInfo::getClassInfo(env,"com/mousebird/maply/VectorTileData");
+    return classInfo->makeWrapperObject(env,new VectorTileData_AndroidRef(tileData));
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorTileData_initialise__

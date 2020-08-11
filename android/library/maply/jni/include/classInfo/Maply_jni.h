@@ -477,6 +477,8 @@ void ConvertLongLongArray(JNIEnv *env,jlongArray &longArray,std::vector<WhirlyKi
 void ConvertFloatArray(JNIEnv *env,jfloatArray &floatArray,std::vector<float> &floatVec);
 // Convert a Java double array into a std::vector of doubles
 void ConvertDoubleArray(JNIEnv *env,jdoubleArray &doubleArray,std::vector<double> &doubleVec);
+// Convert a Java boolean array into a std::vector of bools
+void ConvertBoolArray(JNIEnv *env,jbooleanArray &boolArray,std::vector<bool> &boolVec);
 // Convert a Java float array into a std::vector of Point2f
 void ConvertFloat2fArray(JNIEnv *env,jfloatArray &floatArray,WhirlyKit::Point2fVector &ptVec);
 // Convert a Java float array into a std::vector of Point3f
@@ -487,6 +489,8 @@ void ConvertFloat3dArray(JNIEnv *env,jdoubleArray &floatArray,WhirlyKit::Point3d
 void ConvertFloat4fArray(JNIEnv *env,jfloatArray &floatArray,WhirlyKit::Vector4fVector &ptVec);
 // Convert a Java long long array into a set of SimpleIdentity values
 void ConvertLongArrayToSet(JNIEnv *env,jlongArray &longArray,std::set<WhirlyKit::SimpleIdentity> &intSet);
+// Convert a Java String object array into a std::vector of std::strings
+void ConvertStringArray(JNIEnv *env,jobjectArray &objArray,std::vector<std::string> &strVec);
 
 // Return a Java long array
 jlongArray BuildLongArray(JNIEnv *env,std::vector<WhirlyKit::SimpleIdentity> &longVec);

@@ -24,12 +24,11 @@
 namespace WhirlyKit
 {
 
-// TODO: Turn this into a wrapper
 class MapboxVectorTileParser_Android : public MapboxVectorTileParser
 {
 public:
-    MapboxVectorTileParser_Android(VectorStyleDelegateImplRef styleDelegate);
-    ~MapboxVectorTileParser_Android();
+    MapboxVectorTileParser_Android(PlatformThreadInfo *inst,VectorStyleDelegateImplRef styleDelegate);
+    virtual ~MapboxVectorTileParser_Android();
 
     // Set the Java environment and object for callbacks
     void setupJavaMethods(JNIEnv *env);
@@ -38,15 +37,22 @@ public:
     virtual VectorTileDataRef makeTileDataCopy(VectorTileData *inTileData);
 
     // Filter out layers we don't care about
-    virtual bool layerShouldParse(const std::string &layerName,VectorTileData *tileData);
+    virtual bool layerShouldParse(PlatformThreadInfo *inst,
+            const std::string &layerName,VectorTileData *tileData);
 
     // Return a set of styles that will parse the given feature
-    virtual SimpleIDSet stylesForFeature(MutableDictionaryRef attributes,const std::string &layerName,VectorTileData *tileData);
+    virtual SimpleIDSet stylesForFeature(PlatformThreadInfo *inst,
+            MutableDictionaryRef attributes,
+            const std::string &layerName,
+            VectorTileData *tileData);
 
     // Build the objects for the appropriate style
-    virtual void buildForStyle(long long styleID,std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef data);
+    virtual void buildForStyle(PlatformThreadInfo *inst,
+            long long styleID,
+            std::vector<VectorObjectRef> &vecObjs,
+            VectorTileDataRef data) override;
 
-    // Parse the data and add specific iOS level stuff on top
+    // Parse the data and add specific Android level stuff on top
     virtual bool parse(JNIEnv *env,RawData *rawData,VectorTileData *tileData);
 
 protected:

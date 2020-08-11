@@ -83,15 +83,15 @@ void VectorTileData::clear()
     changes.clear();
 }
 
-MapboxVectorTileParser::MapboxVectorTileParser(VectorStyleDelegateImplRef styleDelegate)
+MapboxVectorTileParser::MapboxVectorTileParser(PlatformThreadInfo *inst,VectorStyleDelegateImplRef styleDelegate)
     : localCoords(false), keepVectors(false), parseAll(false), styleDelegate(styleDelegate)
 {
     // Index all the categories ahead of time.  Once.
-    std::vector<VectorStyleImplRef> allStyles = styleDelegate->allStyles();
+    std::vector<VectorStyleImplRef> allStyles = styleDelegate->allStyles(inst);
     for (VectorStyleImplRef style: allStyles) {
-        std::string category = style->getCategory();
+        std::string category = style->getCategory(inst);
         if (!category.empty()) {
-            long long styleID = style->getUuid();
+            long long styleID = style->getUuid(inst);
             addCategory(category, styleID);
         }
     }
@@ -155,7 +155,7 @@ bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst,RawData *rawDat
             std::string layerName = tileLayer.name();
             
             // if we dont have any styles for a layer, dont bother parsing the features
-            if (!styleDelegate->layerShouldDisplay(layerName, tileData->ident))
+            if (!styleDelegate->layerShouldDisplay(styleInst, layerName, tileData->ident))
                 continue;
             
             // Work through features
@@ -212,9 +212,9 @@ bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst,RawData *rawDat
                     if (uuidValues.find(uuidVal) == uuidValues.end())
                         continue;
                 }
-                std::vector<VectorStyleImplRef> styles = styleDelegate->stylesForFeature(attributes, tileData->ident, tileLayer.name());
+                std::vector<VectorStyleImplRef> styles = styleDelegate->stylesForFeature(styleInst, attributes, tileData->ident, tileLayer.name());
                 for (auto style: styles) {
-                    styleIDs.insert(style->getUuid());
+                    styleIDs.insert(style->getUuid(styleInst));
                 }
                 if (styleIDs.empty() && !parseAll)
                     continue;
@@ -497,7 +497,7 @@ void MapboxVectorTileParser::buildForStyle(PlatformThreadInfo *styleInst,
                                            std::vector<VectorObjectRef> &vecObjs,
                                            VectorTileDataRef data)
 {
-    VectorStyleImplRef style = styleDelegate->styleForUUID(styleID);
+    VectorStyleImplRef style = styleDelegate->styleForUUID(styleInst,styleID);
     if (style)
         style->buildObjects(styleInst,vecObjs, data);
 }

@@ -124,17 +124,17 @@ bool MapboxVectorStyleLayer::parse(PlatformThreadInfo *inst,
     return true;
 }
 
-long long MapboxVectorStyleLayer::getUuid()
+long long MapboxVectorStyleLayer::getUuid(PlatformThreadInfo *inst)
 {
     return uuid;
 }
 
-std::string MapboxVectorStyleLayer::getCategory()
+std::string MapboxVectorStyleLayer::getCategory(PlatformThreadInfo *inst)
 {
     return category;
 }
 
-bool MapboxVectorStyleLayer::geomAdditive()
+bool MapboxVectorStyleLayer::geomAdditive(PlatformThreadInfo *inst)
 {
     return geomAdditiveVal;
 }

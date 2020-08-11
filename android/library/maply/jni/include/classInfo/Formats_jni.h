@@ -23,5 +23,8 @@
 
 typedef JavaClassInfo<WhirlyKit::VectorTileData_AndroidRef> VectorTileDataClassInfo;
 typedef JavaClassInfo<WhirlyKit::MapboxVectorTileParser> MapboxVectorTileParserClassInfo;
+typedef JavaClassInfo<WhirlyKit::VectorStyleSetWrapper_AndroidRef> VectorStyleSetWrapperClassInfo;
 typedef JavaClassInfo<WhirlyKit::MapboxVectorStyleSetImpl_AndroidRef> MapboxVectorStyleSetClassInfo;
 typedef JavaClassInfo<WhirlyKit::VectorStyleSettingsImplRef> VectorStyleSettingsClassInfo;
+
+JNIEXPORT jobject JNICALL MakeVectorTileDataObject(JNIEnv *env,WhirlyKit::VectorTileData_AndroidRef tileData);

@@ -472,12 +472,19 @@ VectorStyleDelegateWrapper::VectorStyleDelegateWrapper(NSObject<MaplyRenderContr
 }
 
 std::vector<VectorStyleImplRef>
-VectorStyleDelegateWrapper::stylesForFeature(DictionaryRef attrs,
+VectorStyleDelegateWrapper::stylesForFeature(PlatformThreadInfo *inst,
+                                             DictionaryRef attrs,
                                               const QuadTreeIdentifier &tileID,
                                               const std::string &layerName)
 {
+    NSDictionary *dict = nil;
     iosDictionaryRef dictRef = std::dynamic_pointer_cast<iosDictionary>(attrs);
-    NSDictionary *dict = dictRef->dict;
+    if (dictRef) {
+        dict = dictRef->dict;
+    } else {
+        iosMutableDictionaryRef dictRef = std::dynamic_pointer_cast<iosMutableDictionary>(attrs);
+        dict = dictRef->dict;
+    }
     
     MaplyTileID theTileID;
     theTileID.x = tileID.x;  theTileID.y = tileID.y; theTileID.level = tileID.level;
@@ -493,8 +500,9 @@ VectorStyleDelegateWrapper::stylesForFeature(DictionaryRef attrs,
     return retStyles;
 }
 
-bool VectorStyleDelegateWrapper::layerShouldDisplay(const std::string &name,
-                                const QuadTreeNew::Node &tileID)
+bool VectorStyleDelegateWrapper::layerShouldDisplay(PlatformThreadInfo *inst,
+                                                    const std::string &name,
+                                                    const QuadTreeNew::Node &tileID)
 {
     MaplyTileID theTileID;
     theTileID.x = tileID.x;  theTileID.y = tileID.y; theTileID.level = tileID.level;
@@ -502,13 +510,13 @@ bool VectorStyleDelegateWrapper::layerShouldDisplay(const std::string &name,
     return [delegate layerShouldDisplay:layerStr tile:theTileID];
 }
 
-VectorStyleImplRef VectorStyleDelegateWrapper::styleForUUID(long long uuid)
+VectorStyleImplRef VectorStyleDelegateWrapper::styleForUUID(PlatformThreadInfo *inst,long long uuid)
 {
     NSObject<MaplyVectorStyle> *style = [delegate styleForUUID:uuid viewC:viewC];
     return VectorStyleImplRef(new VectorStyleWrapper(viewC,style));
 }
 
-std::vector<VectorStyleImplRef> VectorStyleDelegateWrapper::allStyles()
+std::vector<VectorStyleImplRef> VectorStyleDelegateWrapper::allStyles(PlatformThreadInfo *inst)
 {
     NSArray *styles = [delegate allStyles];
 
@@ -521,7 +529,7 @@ std::vector<VectorStyleImplRef> VectorStyleDelegateWrapper::allStyles()
     return retStyles;
 }
 
-RGBAColorRef VectorStyleDelegateWrapper::backgroundColor(double zoom)
+RGBAColorRef VectorStyleDelegateWrapper::backgroundColor(PlatformThreadInfo *inst,double zoom)
 {
     return RGBAColorRef(new RGBAColor(RGBAColor::black()));
 }
@@ -531,12 +539,12 @@ VectorStyleWrapper::VectorStyleWrapper(NSObject<MaplyRenderControllerProtocol> *
 {
 }
 
-long long VectorStyleWrapper::VectorStyleWrapper::getUuid()
+long long VectorStyleWrapper::VectorStyleWrapper::getUuid(PlatformThreadInfo *inst)
 {
     return [style uuid];
 }
 
-std::string VectorStyleWrapper::getCategory()
+std::string VectorStyleWrapper::getCategory(PlatformThreadInfo *inst)
 {
     std::string category;
     NSString *catStr = [style getCategory];
@@ -545,7 +553,7 @@ std::string VectorStyleWrapper::getCategory()
     return category;
 }
 
-bool VectorStyleWrapper::geomAdditive()
+bool VectorStyleWrapper::geomAdditive(PlatformThreadInfo *inst)
 {
     return [style geomAdditive];
 }

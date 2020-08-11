@@ -152,4 +152,5 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/src/formats/MapboxVectorStyleSet_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/formats/VectorStyleSettings_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/formats/VectorTileData_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/formats/VectorStyleWrapper_jni.cpp"
 )

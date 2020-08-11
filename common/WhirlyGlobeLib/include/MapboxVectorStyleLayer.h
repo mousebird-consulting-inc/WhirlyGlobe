@@ -52,19 +52,19 @@ public:
                        int drawPriority);
 
     /// Unique Identifier for this style
-    virtual long long getUuid();
+    virtual long long getUuid(PlatformThreadInfo *inst) override;
     
     /// Category used for sorting
-    virtual std::string getCategory();
+    virtual std::string getCategory(PlatformThreadInfo *inst) override;
     
     // Note: This no longer really holds
     /// Set if this geometry is additive (e.g. sticks around) rather than replacement
-    virtual bool geomAdditive();
+    virtual bool geomAdditive(PlatformThreadInfo *inst) override;
 
     /// Construct objects related to this style based on the input data.
     virtual void buildObjects(PlatformThreadInfo *inst,
                               std::vector<VectorObjectRef> &vecObjs,
-                              VectorTileDataRef tileInfo) = 0;
+                              VectorTileDataRef tileInfo) override = 0;
     
     /// Clean up any objects (textures, probably)
     virtual void cleanup(PlatformThreadInfo *inst,ChangeSet &changes);
