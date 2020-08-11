@@ -255,6 +255,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setLayoutImportanc
         if (!label)
             return;
         label->layoutImportance = layoutImportance;
+        if (layoutImportance < MAXFLOAT)
+        	label->layoutEngine = true;
     }
     catch (...)
     {

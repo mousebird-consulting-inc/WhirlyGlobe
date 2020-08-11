@@ -62,7 +62,7 @@ class InternalLabel
 			setOffset(label.offset);
 
 		if (labelInfo.layoutPlacement != -1)
-			setLayoutImportance(labelInfo.layoutPlacement);
+			setLayoutPlacement(labelInfo.layoutPlacement);
 		if (label.layoutPlacement != -1)
 			setLayoutPlacement(label.layoutPlacement);
 

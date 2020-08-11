@@ -76,7 +76,7 @@ public class ScreenLabel
 	 * The layout placement controls where we can put the label relative to
 	 * its point.
 	 */
-	public int layoutPlacement = 0;
+	public int layoutPlacement = -1;
 
 	/**
 	 * If set, this is the size of the object as seen by the layout engine.

@@ -80,7 +80,7 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 //		labelInfo.setMaxVis(2.5f);
 		labelInfo.setOutlineColor(Color.WHITE);
 		labelInfo.setOutlineSize(2.f);
-		labelInfo.layoutImportance = Float.MAX_VALUE;
+//		labelInfo.layoutImportance = Float.MAX_VALUE;
 
 		MarkerInfo markerInfo = new MarkerInfo();
 		markerInfo.setDrawPriority(labelInfo.getDrawPriority() - 1);
