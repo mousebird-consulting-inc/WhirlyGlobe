@@ -80,7 +80,7 @@ RendererFrameInfoMTL::RendererFrameInfoMTL(const RendererFrameInfoMTL &that)
 }
 
 SceneRendererMTL::SceneRendererMTL(id<MTLDevice> mtlDevice,id<MTLLibrary> mtlLibrary, float inScale)
-: setupInfo(mtlDevice,mtlLibrary)
+: setupInfo(mtlDevice,mtlLibrary), isShuttingDown(false)
 {
     offscreenBlendEnable = false;
     // Indirect rendering is only on for 13 and later
@@ -655,9 +655,6 @@ void SceneRendererMTL::render(TimeInterval duration,
             // Resources used by this container
             ResourceRefsMTL resources;
             
-            // Resources we'll sit on till the frame is rendered
-            ResourceRefsMTLRef trackedResources(new ResourceRefsMTL());
-
             if (indirectRender) {
                 // Run pre-process on the draw groups
                 for (auto &drawGroup : targetContainerMTL->drawGroups) {
@@ -721,7 +718,6 @@ void SceneRendererMTL::render(TimeInterval duration,
                 [cmdEncode waitForFence:preProcessFence beforeStages:MTLRenderStageVertex];
                 
                 resources.use(cmdEncode);
-                trackedResources->addResources(resources);
 
                 if (indirectRender) {
                     if (@available(iOS 12.0, *)) {
@@ -868,12 +864,18 @@ void SceneRendererMTL::render(TimeInterval duration,
                 id<CAMetalDrawable> drawable = [drawGetter getDrawable];
                 [cmdBuff presentDrawable:drawable];
             }
+            lastCmdBuff = cmdBuff;
             
             // This particular target may want a snapshot
             [cmdBuff addCompletedHandler:^(id<MTLCommandBuffer> _Nonnull) {
+                if (isShuttingDown)
+                    return;
+
                 // TODO: Sort these into the render targets
-                // TODO: Not sure this works with more frames in flight.  Maybe need to copy to a snapshot target
                 dispatch_async(dispatch_get_main_queue(), ^{
+                    if (isShuttingDown)
+                        return;
+                    
                     // Look for the snapshot delegate that wants this render target
                     for (auto snapshotDelegate : snapshotDelegates) {
                         if (![snapshotDelegate needSnapshot:now])
@@ -885,10 +887,7 @@ void SceneRendererMTL::render(TimeInterval duration,
                         
                         [snapshotDelegate snapshotData:nil];
                     }
-                });
-                
-                // Sit on all the various buffers until we're done with them
-                trackedResources->clear();
+                });                
             }];
 
             [cmdBuff commit];
@@ -922,6 +921,23 @@ void SceneRendererMTL::render(TimeInterval duration,
     
     // Mark any programs that changed as now caught up
     scene->markProgramsUnchanged();
+}
+
+void SceneRendererMTL::shutdown()
+{
+    isShuttingDown = true;
+    
+    if (lastCmdBuff)
+        [lastCmdBuff waitUntilCompleted];
+    lastCmdBuff = nil;
+    
+    snapshotDelegates.clear();
+    
+    for (auto draw: scene->drawables) {
+        draw.second->teardownForRenderer(nil, NULL);
+    }
+
+    SceneRenderer::shutdown();
 }
 
 RenderTargetMTLRef SceneRendererMTL::getRenderTarget(SimpleIdentity renderTargetID)

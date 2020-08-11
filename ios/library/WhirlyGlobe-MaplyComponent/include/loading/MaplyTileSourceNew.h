@@ -106,7 +106,7 @@ NSString *__nonnull MaplyTileIDString(MaplyTileID tileID);
 @property (nonatomic) int group;
 
 /// An object representing the tile source.  Used for sorting.  Not accessed by the fetcher.
-@property (nonatomic,nonnull,strong) id tileSource;
+@property (nonatomic,weak,nullable) id tileSource;
 
 /** This is requested from a TileInfo object by a loader and then passed
  along to the TileFetcher.  TileFetchers expect certain objects.

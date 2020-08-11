@@ -487,5 +487,13 @@ bool SceneRenderer::hasChanges()
     
     return frameCount - frameCountLastChanged <= extraFrames;
 }
+
+void SceneRenderer::shutdown()
+{
+    offDrawables.clear();
+    renderTargets.clear();
+    workGroups.clear();
+    lights.clear();
+}
     
 }

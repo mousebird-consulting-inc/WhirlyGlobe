@@ -114,6 +114,10 @@ using namespace Eigen;
 {
     SceneRendererGLES_iOSRef sceneRendererGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(sceneRenderer);
     
+    SceneRendererMTLRef sceneRendererMTL = std::dynamic_pointer_cast<SceneRendererMTL>(sceneRenderer);
+    if (sceneRendererMTL)
+        sceneRendererMTL->shutdown();
+    
     for (auto tileFetcher : tileFetchers)
         [tileFetcher shutdown];
     tileFetchers.clear();

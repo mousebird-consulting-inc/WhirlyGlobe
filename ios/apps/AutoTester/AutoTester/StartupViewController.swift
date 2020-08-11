@@ -75,7 +75,7 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
     override func viewWillAppear(_ animated: Bool) {
         if let last = self.lastInteractiveTestSelected {
             self.navigationController?.popToViewController(self, animated: true)
-            last.baseViewController?.teardown()
+            last.stop()
             lastInteractiveTestSelected = nil
         }
     }

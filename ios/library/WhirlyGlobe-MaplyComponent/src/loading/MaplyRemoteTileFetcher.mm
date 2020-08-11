@@ -55,9 +55,9 @@ public:
     
     // Clean up references to make things happier
     void clear() {
-//        request = nil;
-//        fetchInfo = nil;
-//        task = nil;
+        request = nil;
+        fetchInfo = nil;
+        task = nil;
     }
 
     // We're either loading it or going to load it eventually

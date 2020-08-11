@@ -67,5 +67,7 @@ class StamenWatercolorRemote: MaplyTestCase {
     override func stop() {
         imageLoader?.shutdown()
         imageLoader = nil
+        
+        super.stop()
     }
 }

@@ -186,8 +186,13 @@ public:
     // Return the min/max values (assuming that option is on) for a render target
     RawDataRef getSnapshotMinMax(SimpleIdentity renderTargetID);
     
+    // Explicit wait for shutdown of ongoing frames
+    void shutdown();
+    
 public:
     RenderTargetMTLRef getRenderTarget(SimpleIdentity renderTargetID);
+    bool isShuttingDown;
+    id<MTLCommandBuffer> lastCmdBuff;
 
     // If set, we'll use indirect rendering
     bool indirectRender;

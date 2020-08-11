@@ -333,6 +333,9 @@ public:
 
     // Drawables that we currently know about, but are off
     std::set<DrawableRef,IdentifiableRefSorter> offDrawables;
+    
+    // Explicitly clear any held structures
+    void shutdown();
 
 protected:
     // Called by the subclass

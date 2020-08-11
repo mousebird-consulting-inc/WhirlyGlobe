@@ -123,16 +123,27 @@ void BasicDrawableInstanceMTL::setupForRenderer(const RenderSetupInfo *inSetupIn
 void BasicDrawableInstanceMTL::teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *inScene)
 {
     setupForMTL = false;
-
-    instBuffer.reset();
-    indirectBuffer.reset();
     renderState = nil;
     calcRenderState = nil;
     defaultAttrs.clear();
+    instBuffer.reset();
+    indirectBuffer.reset();
+    colorBuffer.reset();
     mainBuffer.reset();
     baseMainBuffer.reset();
     vertABInfo.reset();
     fragABInfo.reset();
+    vertTexInfo.reset();
+    fragTexInfo.reset();
+    defaultAttrs.clear();
+
+    basicDraw.reset();
+    uniforms.clear();
+    uniBlocks.clear();
+    texInfo.clear();
+    instances.clear();
+
+    renderTargetCon.reset();
 }
 
 id<MTLRenderPipelineState> BasicDrawableInstanceMTL::getRenderPipelineState(SceneRendererMTL *sceneRender,Scene *scene,ProgramMTL *program,RenderTargetMTL *renderTarget,BasicDrawableMTL *basicDrawMTL)

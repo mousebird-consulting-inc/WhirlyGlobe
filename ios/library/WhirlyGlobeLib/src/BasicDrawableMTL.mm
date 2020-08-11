@@ -108,18 +108,25 @@ void BasicDrawableMTL::teardownForRenderer(const RenderSetupInfo *setupInfo,Scen
 {
     setupForMTL = false;
 
-    for (VertexAttribute *vertAttr : vertexAttributes) {
-        VertexAttributeMTL *vertAttrMTL = (VertexAttributeMTL *)vertAttr;
-        vertAttrMTL->buffer.reset();
-    }
-    
+    renderState = nil;
     vertDesc = nil;
     triBuffer = nil;
-    renderState = nil;
     defaultAttrs.clear();
     mainBuffer.reset();
     vertABInfo.reset();
     fragABInfo.reset();
+    vertTexInfo.reset();
+    fragTexInfo.reset();
+    activeTextures.clear();
+
+    for (VertexAttribute *vertAttr : vertexAttributes) {
+        VertexAttributeMTL *vertAttrMTL = (VertexAttributeMTL *)vertAttr;
+        vertAttrMTL->buffer.reset();
+    }
+    vertexAttributes.clear();
+    uniBlocks.clear();
+    uniforms.clear();
+    renderTargetCon.reset();
 }
     
 MTLVertexDescriptor *BasicDrawableMTL::getVertexDescriptor(id<MTLFunction> vertFunc,std::vector<AttributeDefault> &defAttrs)
