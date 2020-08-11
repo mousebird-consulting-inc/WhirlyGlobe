@@ -74,6 +74,7 @@ LabelInfo::LabelInfo(const Dictionary &dict, bool screenObject)
     shadowSize = dict.getDouble(MaplyShadowSize, 0.0);
     outlineSize = dict.getDouble(MaplyTextOutlineSize,0.0);
     outlineColor = dict.getColor(MaplyTextOutlineColor, RGBAColor(0,0,0,255));
+    labelJustify = WhirlyKitLabelMiddle;
     if (!labelJustifyStr.compare(MaplyLabelJustifyNameMiddle))
         labelJustify = WhirlyKitLabelMiddle;
     else {
@@ -136,11 +137,6 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,std::vector<SingleLabe
             if (label->infoOverride->hasTextColor)
                 theTextColor = label->infoOverride->textColor;
         }
-        // Note: Porting
-//        if (theShadowColor == nil)
-//            theShadowColor = [UIColor blackColor];
-//        if (theOutlineColor == nil)
-//            theOutlineColor = [UIColor blackColor];
         
         // We set this if the color is embedded in the "font"
         bool embeddedColor = labelInfo->outlineSize > 0.0 || (label->infoOverride && label->infoOverride->outlineSize > 0.0);
@@ -158,7 +154,8 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,std::vector<SingleLabe
             drawMbr.expand(drawStr->mbr);
             layoutMbr.expand(drawStr->mbr);
         }
-
+        float heightAboveBaseline = drawMbr.ur().y();
+        
         // Override the layout size, but do so from the middle
         if (label->layoutSize.x() >= 0.0 && label->layoutSize.y() >= 0.0) {
             Point2f center = layoutMbr.mid();
@@ -174,7 +171,6 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,std::vector<SingleLabe
         int layoutPlacement = label->layoutPlacement;
         
         ScreenSpaceObject *screenShape = NULL;
-//        ScreenSpaceObject *backScreenShape = NULL;
         LayoutObject *layoutObject = NULL;
 
         // Portions of the label that are shared between substrings
@@ -182,10 +178,12 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,std::vector<SingleLabe
         Point2d justifyOff(0,0);
         if (labelInfo->screenObject)
         {
+            float height = drawMbr.ur().y()-drawMbr.ll().y();
+
             switch (labelInfo->labelJustify)
             {
                 case WhirlyKitLabelLeft:
-                    justifyOff = Point2d(0,0);
+                    justifyOff = Point2d(0,0.0);
                     break;
                 case WhirlyKitLabelMiddle:
                     justifyOff = Point2d(-(drawMbr.ur().x()-drawMbr.ll().x())/2.0,0.0);
@@ -206,6 +204,12 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,std::vector<SingleLabe
             if (layoutEngine)
                 justifyOff = Point2d(0,0);
 
+#ifndef __ANDROID__
+            // Except we do need to tweak things a little, even for the layout engine
+            // Note: But only on iOS because... reasons
+            justifyOff.y() += heightAboveBaseline/2.0;
+#endif
+
             screenShape->setDrawPriority(labelInfo->drawPriority+1);
             screenShape->setVisibility(labelInfo->minVis, labelInfo->maxVis);
             screenShape->setKeepUpright(label->keepUpright);
@@ -220,7 +224,6 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,std::vector<SingleLabe
             screenShape->setWorldLoc(coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(label->loc)));
             
             // If there's an icon, we need to offset
-            float height = drawMbr.ur().y()-drawMbr.ll().y();
             Point2d iconSize = (label->iconTexture==EmptyIdentity ? Point2d(0,0) : (label->iconSize.x() == 0.0 ? Point2d(height,height) : Point2d(label->iconSize.x(),label->iconSize.y())));
             iconOff = iconSize;
             
@@ -231,9 +234,11 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,std::vector<SingleLabe
             {
                 // Note: This is an arbitrary border around the text
                 backBorder = 4.0;
+                justifyOff.x() += backBorder;
                 ScreenSpaceObject::ConvexGeometry smGeom;
                 smGeom.progID = labelInfo->programID;
-                Point2d ll = Point2d(drawMbr.ll().x(),drawMbr.ll().y())+iconOff+Point2d(-backBorder,-backBorder), ur = Point2d(drawMbr.ur().x(),drawMbr.ur().y())+iconOff+Point2d(backBorder,0.0);
+                Point2d ll = Point2d(drawMbr.ll().x(),drawMbr.ll().y())+iconOff+Point2d(-backBorder,-backBorder);
+                Point2d ur = Point2d(drawMbr.ur().x(),drawMbr.ur().y())+iconOff+Point2d(backBorder,backBorder);
                 smGeom.coords.push_back(Point2d(ur.x()+label->screenOffset.x(),ll.y()+label->screenOffset.y())+iconOff+justifyOff);
                 smGeom.texCoords.push_back(TexCoord(0,1));
                 
@@ -375,7 +380,7 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,std::vector<SingleLabe
                 continue;
             
             labelRep->drawStrIDs.insert(drawStr->getId());
-            
+
             if (labelInfo->screenObject)
             {
                 Point2d lineOff(0.0,0.0);

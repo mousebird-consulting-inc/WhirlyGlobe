@@ -71,7 +71,7 @@
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
 	 self.baseCase = [[GeographyClassTestCase alloc]init];
-//	[self.baseCase setUpWithGlobe:globeVC];
+	[self.baseCase setUpWithGlobe:globeVC];
 	//Overlay Countries
 	[self overlayCountries:(MaplyBaseViewController*)globeVC];
 }

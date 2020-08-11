@@ -64,17 +64,17 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 	}
 
 	// If set, we'll put markers around the points for debugging
-	static boolean addMarkers = false;
+	static boolean addMarkers = true;
 
 	private void insertLabels(ArrayList<VectorObject> objects, BaseController baseVC) {
 
 		LabelInfo labelInfo = new LabelInfo();
 		labelInfo.setFontSize(32.f);
 		labelInfo.setTextColor(Color.BLACK);
-//		labelInfo.setBackgroundColor(Color.RED);
+		labelInfo.setBackgroundColor(Color.BLUE);
 		labelInfo.setTypeface(Typeface.DEFAULT);
 		labelInfo.setLayoutImportance(1.f);
-		labelInfo.setLayoutPlacement(LabelInfo.LayoutAbove|LabelInfo.LayoutCenter|LabelInfo.LayoutBelow|LabelInfo.LayoutRight);
+		labelInfo.setLayoutPlacement(LabelInfo.LayoutRight | LabelInfo.LayoutCenter);
 		labelInfo.setTextJustify(LabelInfo.TextJustify.TextLeft);
 //		labelInfo.setMinVis(0.f);
 //		labelInfo.setMaxVis(2.5f);
@@ -83,7 +83,7 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 //		labelInfo.layoutImportance = Float.MAX_VALUE;
 
 		MarkerInfo markerInfo = new MarkerInfo();
-		markerInfo.setDrawPriority(labelInfo.getDrawPriority() - 1);
+		markerInfo.setDrawPriority(labelInfo.getDrawPriority() + 1);
 
 		ArrayList<ScreenLabel> labels = new ArrayList<ScreenLabel>();
 		ArrayList<ScreenMarker> markers = new ArrayList<ScreenMarker>();
@@ -104,7 +104,7 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 					if (addMarkers) {
 						ScreenMarker marker = new ScreenMarker();
 						marker.loc = label.loc;
-						marker.size = new Point2d(32.f,32.f);
+						marker.size = new Point2d(8.f,8.f);
 						markers.add(marker);
 					}
 				}
@@ -125,7 +125,7 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 		{
 			ScreenMarker marker = new ScreenMarker();
 			marker.loc = Point2d.FromDegrees(0.0,0.0);
-			marker.size = new Point2d(32.f, 32.f);
+			marker.size = new Point2d(8.f, 8.f);
 			markers.add(marker);
 		}
 		labels.add(makeLabel(1.0, -5.0, "abcdef\nghijklmn\nopqrstu\nvwxyz", 10.f));
@@ -133,7 +133,7 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 		{
 			ScreenMarker marker = new ScreenMarker();
 			marker.loc = Point2d.FromDegrees(1.0,-5.0);
-			marker.size = new Point2d(32.f, 32.f);
+			marker.size = new Point2d(8.f, 8.f);
 			markers.add(marker);
 		}
 

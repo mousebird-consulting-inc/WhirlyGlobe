@@ -48,7 +48,7 @@ class ScreenLabelsTestCase: MaplyTestCase {
 				label.loc = object.center()
 				label.selectable = true
                 label.userObject = label.text;
-                label.layoutPlacement = kMaplyLayoutRight | kMaplyLayoutLeft | kMaplyLayoutAbove | kMaplyLayoutBelow
+                label.layoutPlacement = kMaplyLayoutCenter
 //                label.rotation = Float(M_PI/2.0)
 //                label.offset = CGPoint(x: 100.0, y: 0.0)
 
@@ -60,24 +60,27 @@ class ScreenLabelsTestCase: MaplyTestCase {
                             kMaplyShadowColor: UIColor.black,
                             kMaplyShadowSize: 1.0,
                             kMaplySelectable: true,
-                            kMaplyTextColor: UIColor.red]) {
+                            kMaplyTextColor: UIColor.red,
+                            kMaplyBackgroundColor: UIColor.blue]) {
                         labelList.append(comp)
                     }
 				}
 				else {
                     label.layoutImportance = 20
+                    label.layoutPlacement = kMaplyLayoutBelow
 					//Some with text outline
                     if let comp = theViewC.addScreenLabels([label], desc: [
                             kMaplyFont: UIFont.boldSystemFont(ofSize: 24.0),
                             kMaplyTextOutlineColor: UIColor.black,
                             kMaplyTextOutlineSize: 2.0,
                             kMaplySelectable: true,
-                            kMaplyTextColor: UIColor.green]) {
+                            kMaplyTextColor: UIColor.green,
+                            kMaplyBackgroundColor: UIColor.red]) {
                         labelList.append(comp)
                     }
 				}
                 
-#if false
+#if true
                 // Marker for reference
                 let marker = MaplyScreenMarker()
                 marker.loc = object.center()
