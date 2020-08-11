@@ -1475,6 +1475,8 @@ void QuadImageFrameLoader::updateForFrame(RendererFrameInfo *frameInfo)
 {
     if (!renderState.hasUpdate(curFrames))
         return;
+    if (!control)
+        return;
 
     ChangeSet changes;
 

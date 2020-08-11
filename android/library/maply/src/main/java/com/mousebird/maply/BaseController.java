@@ -580,13 +580,8 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			// This will make sure we have a valid context
 			setEGLContext(glContext);
 
-			if (renderWrapper != null)
-			     renderWrapper.stopRendering();
-
-			// Shut down the tile fetchers
-			for (RemoteTileFetcher tileFetcher : tileFetchers)
-				tileFetcher.shutdown();
-			tileFetchers.clear();
+			for (QuadSamplingLayer sampleLayer : samplingLayers)
+				sampleLayer.isShuttingDown = true;
 
 			//		Choreographer.getInstance().removeFrameCallback(this);
 			ArrayList<LayerThread> layerThreadsToRemove = null;
@@ -600,6 +595,14 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 					layerThreads.clear();
 				}
 			}
+
+			// Shut down the tile fetchers
+			for (RemoteTileFetcher tileFetcher : tileFetchers)
+				tileFetcher.shutdown();
+			tileFetchers.clear();
+
+			if (renderWrapper != null)
+				renderWrapper.stopRendering();
 
 			if (metroThread != null) {
 				metroThread.shutdown();

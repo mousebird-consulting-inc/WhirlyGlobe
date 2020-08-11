@@ -234,7 +234,6 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 			context = null;
 		}
 
-		// Note: Is this blocking?
 		layers = null;
 		view = null;
 		scene = null;

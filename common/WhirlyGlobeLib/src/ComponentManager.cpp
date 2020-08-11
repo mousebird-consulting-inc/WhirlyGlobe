@@ -113,6 +113,9 @@ void ComponentManager::removeComponentObjects(PlatformThreadInfo *threadInfo,con
 
 void ComponentManager::removeComponentObjects(PlatformThreadInfo *threadInfo,const SimpleIDSet &compIDs,ChangeSet &changes)
 {
+    if (compIDs.empty())
+        return;
+
     std::vector<ComponentObjectRef> compRefs;
     
     {
