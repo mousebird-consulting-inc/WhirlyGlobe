@@ -18,7 +18,6 @@
  *
  */
 
-#import "VectorTileData_Android.h"
 #include "../include/VectorStyleSet_Android.h"
 #import "Maply_jni.h"
 #import "Formats_jni.h"
@@ -163,7 +162,7 @@ void VectorStyleSetWrapper_Android::buildObjects(PlatformThreadInfo *platformInf
         jobject newObj = MakeVectorObject(threadInfo->env,vecObj);
         vecObjVec.push_back(newObj);
     }
-    jobject tileDataObj = MakeVectorTileDataObject(threadInfo->env,std::dynamic_pointer_cast<VectorTileData_Android>(tileInfo));
+    jobject tileDataObj = MakeVectorTileDataObject(threadInfo->env,tileInfo);
     jobject vecObjArray = BuildObjectArray(threadInfo->env,VectorObjectClassInfo::getClassInfo()->getClass(),vecObjVec);
 
     threadInfo->env->CallVoidMethod(wrapperObj,buildObjectsMethod,styleID,vecObjArray,tileDataObj);

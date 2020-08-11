@@ -26,7 +26,6 @@
 #import "GreatCircle_Android.h"
 #import "ImageTile_Android.h"
 #import "LabelInfo_Android.h"
-#import "MapboxVectorTileParser_Android.h"
 #import "MapboxVectorStyleSet_Android.h"
 #import "ParticleBatch_Android.h"
 #import "QuadImageFrameLoader_Android.h"
@@ -34,5 +33,4 @@
 #import "SceneRenderer_Android.h"
 #import "SingleLabel_Android.h"
 #import "Shader_Android.h"
-#import "VectorTileData_Android.h"
 #import "VectorStyleSet_Android.h"

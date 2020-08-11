@@ -36,17 +36,17 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorTileData_nativeInit
     VectorTileDataClassInfo::getClassInfo(env, cls);
 }
 
-JNIEXPORT jobject JNICALL MakeVectorTileDataObject(JNIEnv *env,VectorTileData_AndroidRef tileData)
+JNIEXPORT jobject JNICALL MakeVectorTileDataObject(JNIEnv *env,VectorTileDataRef tileData)
 {
     VectorTileDataClassInfo *classInfo = VectorTileDataClassInfo::getClassInfo(env,"com/mousebird/maply/VectorTileData");
-    return classInfo->makeWrapperObject(env,new VectorTileData_AndroidRef(tileData));
+    return classInfo->makeWrapperObject(env,new VectorTileDataRef(tileData));
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorTileData_initialise__
 (JNIEnv *env, jobject obj)
 {
     try {
-        VectorTileData_AndroidRef *tileData = new VectorTileData_AndroidRef(new VectorTileData_Android());
+        VectorTileDataRef *tileData = new VectorTileDataRef(new VectorTileData());
         VectorTileDataClassInfo::getClassInfo()->setHandle(env,obj,tileData);
     }
     catch (...) {
@@ -65,7 +65,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorTileData_initialise__IIILc
         Point2d *geoUR = pt2dClassInfo->getObject(env,geourobj);
         if (!boundLL || !boundUR || !geoLL || !geoUR)
             return;
-        VectorTileData_AndroidRef *tileData = new VectorTileData_AndroidRef(new VectorTileData_Android());
+        VectorTileDataRef *tileData = new VectorTileDataRef(new VectorTileData());
         (*tileData)->ident = QuadTreeIdentifier(x,y,level);
         (*tileData)->bbox.ll() = *boundLL;
         (*tileData)->bbox.ur() = *boundUR;
@@ -89,7 +89,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorTileData_dispose
 
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
-            VectorTileData_AndroidRef *inst = classInfo->getObject(env,obj);
+            VectorTileDataRef *inst = classInfo->getObject(env,obj);
             if (!inst)
                 return;
             delete inst;
@@ -108,7 +108,7 @@ JNIEXPORT jintArray JNICALL Java_com_mousebird_maply_VectorTileData_getTileIDNat
 {
     try
     {
-        VectorTileData_AndroidRef *tileData = VectorTileDataClassInfo::getClassInfo()->getObject(env,obj);
+        VectorTileDataRef *tileData = VectorTileDataClassInfo::getClassInfo()->getObject(env,obj);
         if (!tileData)
             return NULL;
         std::vector<int> ints(3);
@@ -132,7 +132,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorTileData_getBoundsNative
 {
     try
     {
-        VectorTileData_AndroidRef *tileData = VectorTileDataClassInfo::getClassInfo()->getObject(env,obj);
+        VectorTileDataRef *tileData = VectorTileDataClassInfo::getClassInfo()->getObject(env,obj);
         Point2dClassInfo *pt2dClassInfo = Point2dClassInfo::getClassInfo();
         Point2d *ll = pt2dClassInfo->getObject(env,llObj);
         Point2d *ur = pt2dClassInfo->getObject(env,urObj);
@@ -151,7 +151,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorTileData_getGeoBoundsNativ
 {
     try
     {
-        VectorTileData_AndroidRef *tileData = VectorTileDataClassInfo::getClassInfo()->getObject(env,obj);
+        VectorTileDataRef *tileData = VectorTileDataClassInfo::getClassInfo()->getObject(env,obj);
         Point2dClassInfo *pt2dClassInfo = Point2dClassInfo::getClassInfo();
         Point2d *ll = pt2dClassInfo->getObject(env,llObj);
         Point2d *ur = pt2dClassInfo->getObject(env,urObj);
@@ -170,7 +170,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_VectorTileData_getCompon
 {
     try
     {
-        VectorTileData_AndroidRef *tileData = VectorTileDataClassInfo::getClassInfo()->getObject(env,obj);
+        VectorTileDataRef *tileData = VectorTileDataClassInfo::getClassInfo()->getObject(env,obj);
         if (!tileData)
             return NULL;
         ComponentObjectRefClassInfo *classInfo = ComponentObjectRefClassInfo::getClassInfo();
@@ -193,7 +193,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_VectorTileData_getCompon
 {
     try
     {
-        VectorTileData_AndroidRef *tileData = VectorTileDataClassInfo::getClassInfo()->getObject(env,obj);
+        VectorTileDataRef *tileData = VectorTileDataClassInfo::getClassInfo()->getObject(env,obj);
         if (!tileData)
             return NULL;
 
@@ -223,7 +223,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorTileData_addComponentObjec
 {
     try
     {
-        VectorTileData_AndroidRef *tileData = VectorTileDataClassInfo::getClassInfo()->getObject(env,obj);
+        VectorTileDataRef *tileData = VectorTileDataClassInfo::getClassInfo()->getObject(env,obj);
         ComponentObjectRef *compObj = ComponentObjectRefClassInfo::getClassInfo()->getObject(env,compObjObj);
         if (!tileData || !compObj)
             return;
@@ -239,7 +239,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorTileData_addComponentObjec
 {
     try
     {
-        VectorTileData_AndroidRef *tileData = VectorTileDataClassInfo::getClassInfo()->getObject(env,obj);
+        VectorTileDataRef *tileData = VectorTileDataClassInfo::getClassInfo()->getObject(env,obj);
         ComponentObjectRefClassInfo *classInfo = ComponentObjectRefClassInfo::getClassInfo();
         if (!tileData)
             return;
@@ -259,7 +259,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_VectorTileData_getVector
 {
     try
     {
-        VectorTileData_AndroidRef *tileData = VectorTileDataClassInfo::getClassInfo()->getObject(env,obj);
+        VectorTileDataRef *tileData = VectorTileDataClassInfo::getClassInfo()->getObject(env,obj);
         VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
         if (!tileData)
             return NULL;
@@ -281,7 +281,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorTileData_getChangeSet
 {
     try
     {
-        VectorTileData_AndroidRef *tileData = VectorTileDataClassInfo::getClassInfo()->getObject(env,obj);
+        VectorTileDataRef *tileData = VectorTileDataClassInfo::getClassInfo()->getObject(env,obj);
         VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
         if (!tileData)
             return NULL;

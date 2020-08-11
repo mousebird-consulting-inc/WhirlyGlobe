@@ -21,10 +21,10 @@
 #import "Maply_jni.h"
 #import "WhirlyGlobe_Android.h"
 
-typedef JavaClassInfo<WhirlyKit::VectorTileData_AndroidRef> VectorTileDataClassInfo;
+typedef JavaClassInfo<WhirlyKit::VectorTileDataRef> VectorTileDataClassInfo;
 typedef JavaClassInfo<WhirlyKit::MapboxVectorTileParser> MapboxVectorTileParserClassInfo;
 typedef JavaClassInfo<WhirlyKit::VectorStyleSetWrapper_AndroidRef> VectorStyleSetWrapperClassInfo;
 typedef JavaClassInfo<WhirlyKit::MapboxVectorStyleSetImpl_AndroidRef> MapboxVectorStyleSetClassInfo;
 typedef JavaClassInfo<WhirlyKit::VectorStyleSettingsImplRef> VectorStyleSettingsClassInfo;
 
-JNIEXPORT jobject JNICALL MakeVectorTileDataObject(JNIEnv *env,WhirlyKit::VectorTileData_AndroidRef tileData);
+JNIEXPORT jobject JNICALL MakeVectorTileDataObject(JNIEnv *env,WhirlyKit::VectorTileDataRef tileData);

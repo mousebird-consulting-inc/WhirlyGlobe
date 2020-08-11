@@ -110,13 +110,9 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_MapboxVectorTileParser_parse
     try
     {
         MapboxVectorTileParser *inst = MapboxVectorTileParserClassInfo::getClassInfo()->getObject(env,obj);
-        VectorTileData_AndroidRef *tileData = VectorTileDataClassInfo::getClassInfo()->getObject(env,vecTileDataObj);
+        VectorTileDataRef *tileData = VectorTileDataClassInfo::getClassInfo()->getObject(env,vecTileDataObj);
         if (!inst || !tileData)
             return false;
-
-        // This hold the Java objects so we can associate them per thread rather
-        //  than per parser.  Thus we can use a parser on multiple thread.
-        (*tileData)->setEnv(env,obj,vecTileDataObj);
 
         // Notify the style delegate of the new environment so it can make Java calls if need be
         MapboxVectorStyleSetImpl_AndroidRef theStyleDelegate = std::dynamic_pointer_cast<MapboxVectorStyleSetImpl_Android>(inst->styleDelegate);
