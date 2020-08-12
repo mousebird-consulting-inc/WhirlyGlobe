@@ -373,7 +373,6 @@ static StringIdentity fExposureNameID;
             return;
     }
     
-    EAGLContext *oldContext = [EAGLContext currentContext];
     frameInfo->sceneRenderer->forceDrawNextFrame();
     
     Vector3d cameraPos = frameInfo->eyePos;
@@ -395,46 +394,13 @@ static StringIdentity fExposureNameID;
     for (unsigned int ii=0;ii<2;ii++)
     {
         MaplyShader *thisShader = shaders[ii];
-        ProgramGLESRef programGLES = std::dynamic_pointer_cast<ProgramGLES>(thisShader.program);
-        if (programGLES) {
-            programGLES->setUniform(v3CameraPosNameID, Vector3f(cameraPos.x(),cameraPos.y(),cameraPos.z()));
-            programGLES->setUniform(fCameraHeightNameID, (float)cameraHeight);
-            programGLES->setUniform(fCameraHeight2NameID, (float)(cameraHeight*cameraHeight));
-            programGLES->setUniform(v3LightPosNameID, Vector3f(sunDir3d.x(),sunDir3d.y(),sunDir3d.z()));
-
-            programGLES->setUniform(fInnerRadiusNameID, 1.f);
-            programGLES->setUniform(fInnerRadius2NameID, 1.f);
-            programGLES->setUniform(fOuterRadiusNameID, atm.outerRadius);
-            programGLES->setUniform(fOuterRadius2NameID, atm.outerRadius*atm.outerRadius);
-            programGLES->setUniform(fScaleNameID, scale);
-            programGLES->setUniform(fScaleDepthNameID, scaleDepth);
-            programGLES->setUniform(fScaleOverScaleDepthNameID, scale / scaleDepth);
-            
-            programGLES->setUniform(KrNameID, atm.Kr);
-            programGLES->setUniform(Kr4PINameID, (float)(atm.Kr * 4.0 * M_PI));
-            programGLES->setUniform(KmNameID, atm.Km);
-            programGLES->setUniform(Km4PINameID, (float)(atm.Km * 4.0 * M_PI));
-            programGLES->setUniform(ESunNameID, atm.ESun);
-            programGLES->setUniform(KmESunNameID, atm.Km * atm.ESun);
-            programGLES->setUniform(KrESunNameID, atm.Kr * atm.ESun);
-            programGLES->setUniform(v3InvWavelengthNameID, Vector3f(wavelength[0],wavelength[1],wavelength[2]));
-            programGLES->setUniform(fSamplesNameID, (float)atm.numSamples);
-            programGLES->setUniform(nSamplesNameID, atm.numSamples);
-            
-            programGLES->setUniform(gNameID, atm.g);
-            programGLES->setUniform(g2NameID, atm.g * atm.g);
-            programGLES->setUniform(fExposureNameID, atm.exposure);
-        } else {
-            NSLog(@"MaplyAtmosphere not implemented for Metal.");
-        }
+        // TODO: Update for Metal
+        NSLog(@"MaplyAtmosphere not implemented for Metal.");
     }
     
     changed = false;
     started = true;
-    lastCameraPos = cameraPos;
-    
-    if (oldContext != [EAGLContext currentContext])
-        [EAGLContext setCurrentContext:oldContext];
+    lastCameraPos = cameraPos;    
 }
 
 @end
@@ -535,7 +501,9 @@ static StringIdentity fExposureNameID;
 
 - (MaplyShader *)setupGroundShader
 {
-    MaplyShader *theShader = [[MaplyShader alloc] initWithName:kAtmosphereGroundShader vertex:[NSString stringWithFormat:@"%s",vertexShaderGroundTri] fragment:[NSString stringWithFormat:@"%s",fragmentShaderGroundTri] viewC:viewC];
+    // TODO: Switch to Metal
+//    MaplyShader *theShader = [[MaplyShader alloc] initWithName:kAtmosphereGroundShader vertex:[NSString stringWithFormat:@"%s",vertexShaderGroundTri] fragment:[NSString stringWithFormat:@"%s",fragmentShaderGroundTri] viewC:viewC];
+    MaplyShader *theShader = nil;
     if (!theShader.valid)
         return nil;
     if (theShader)
@@ -552,8 +520,10 @@ static StringIdentity fExposureNameID;
 
 - (MaplyShader *)setupShader
 {
+// TODO: Switch to Metal
 //    MaplyShader *theShader = [[MaplyShader alloc] initWithName:kAtmosphereShader vertex:[NSString stringWithFormat:@"%s",vertexShaderTri] fragment:[NSString stringWithFormat:@"%s",fragmentShaderTri] viewC:viewC];
-    MaplyShader *theShader = [[MaplyShader alloc] initWithName:kAtmosphereShader vertex:[NSString stringWithFormat:@"%s",vertexShaderAtmosTri] fragment:[NSString stringWithFormat:@"%s",fragmentShaderAtmosTri] viewC:viewC];
+//    MaplyShader *theShader = [[MaplyShader alloc] initWithName:kAtmosphereShader vertex:[NSString stringWithFormat:@"%s",vertexShaderAtmosTri] fragment:[NSString stringWithFormat:@"%s",fragmentShaderAtmosTri] viewC:viewC];
+    MaplyShader *theShader = nil;
     if (!theShader.valid)
         return nil;
     if (theShader)

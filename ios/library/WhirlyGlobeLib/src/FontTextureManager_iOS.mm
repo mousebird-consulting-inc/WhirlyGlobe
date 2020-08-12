@@ -21,7 +21,6 @@
 #import <UIKit/UIKit.h>
 #import <CoreText/CoreText.h>
 #import "FontTextureManager_iOS.h"
-#import "TextureGLES_iOS.h"
 #import "TextureMTL.h"
 #import "UIColor+Stuff.h"
 #import "Scene.h"
@@ -271,16 +270,10 @@ WhirlyKit::DrawableString *FontTextureManager_iOS::addString(PlatformThreadInfo 
                     if (glyphImage)
                     {
                         Texture *tex = nil;
-                        if (sceneRender->getType() == SceneRenderer::RenderGLES) {
-                            tex = new TextureGLES_iOS("Font Texture Manager",glyphImage,false);
-                            tex->setWidth(texSize.x());
-                            tex->setHeight(texSize.y());
-                        } else {
-                            RawDataRef glyphImageWrap(new RawNSDataReader(glyphImage));
-                            tex = new TextureMTL("Font Texture Manager",glyphImageWrap,false);
-                            tex->setWidth(texSize.x());
-                            tex->setHeight(texSize.y());
-                        }
+                        RawDataRef glyphImageWrap(new RawNSDataReader(glyphImage));
+                        tex = new TextureMTL("Font Texture Manager",glyphImageWrap,false);
+                        tex->setWidth(texSize.x());
+                        tex->setHeight(texSize.y());
                         SubTexture subTex;
                         Point2f realSize(glyphSize.x()+2*textureOffset.x(),glyphSize.y()+2*textureOffset.y());
                         std::vector<Texture *> texs;

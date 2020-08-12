@@ -25,7 +25,6 @@
 #import "MaplyShader_private.h"
 #import "MaplyCoordinateSystem_private.h"
 #import "MaplyQuadSampler_private.h"
-#import "SceneRendererGLES_iOS.h"
 
 @class MaplyBaseInteractionLayer;
 
@@ -109,8 +108,6 @@
 // Used in shutting down controls
 - (void)teardown;
 - (void)clear;
-
-- (void) useGLContext;
 
 - (void)updateLights;
 

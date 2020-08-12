@@ -76,9 +76,6 @@
 ///  be sure to call [super loadSetup] first and then do your thing.
 - (void) loadSetup;
 
-/// Create the EAGLView
-- (void) loadSetup_glView;
-
 /// Create the MetalView
 - (void) loadSetup_mtlView;
 
@@ -91,9 +88,6 @@
 
 /// The base classes fill this in to return their own interaction layer subclass
 - (MaplyBaseInteractionLayer *) loadSetup_interactionLayer;
-
-/// Make the renderer's GL context active.  This is used internally.
-- (void) useGLContext;
 
 /// Called internally to mark a block of work being done
 - (bool) startOfWork;

@@ -336,17 +336,6 @@ using namespace WhirlyGlobe;
 
     switch ([self getRenderType])
     {
-        case MaplyRenderGLES:
-        {
-            SceneRendererGLES_iOSRef sceneRenderGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(sceneRenderer);
-            sceneRenderGLES->addSnapshotDelegate(target);
-            
-            sceneRenderGLES->forceDrawNextFrame();
-            sceneRenderGLES->render(1/60.0);  // TODO: Set this value for reals
-            
-            sceneRenderGLES->removeSnapshotDelegate(target);
-        }
-            break;
         case MaplyRenderMetal:
         {
             SceneRendererMTLRef sceneRenderMTL = std::dynamic_pointer_cast<SceneRendererMTL>(sceneRenderer);

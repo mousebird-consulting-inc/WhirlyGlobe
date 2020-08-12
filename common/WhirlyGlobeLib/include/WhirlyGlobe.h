@@ -116,6 +116,7 @@
 
 // OpenGL ES Specific includes
 
+#ifdef __ANDROID__
 #import "UtilsGLES.h"
 #import "WrapperGLES.h"
 #import "MemManagerGLES.h"
@@ -135,8 +136,10 @@
 #import "BillboardDrawableBuilderGLES.h"
 #import "WideVectorDrawableBuilderGLES.h"
 #import "ScreenSpaceDrawableBuilderGLES.h"
-#import "ParticleSystemDrawableGLES.h"
+#import "ParticleSystemDrawableGLES.h"eagl
 #import "ParticleSystemDrawableBuilderGLES.h"
 
 #import "LineAndPointShadersGLES.h"
 #import "TriangleShadersGLES.h"
+#endif
+

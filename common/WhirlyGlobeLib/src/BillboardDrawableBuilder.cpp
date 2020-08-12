@@ -19,7 +19,7 @@
  */
 
 #import "BillboardDrawableBuilder.h"
-#import "ProgramGLES.h"
+#import "Program.h"
 #import "SceneRenderer.h"
 
 namespace WhirlyKit

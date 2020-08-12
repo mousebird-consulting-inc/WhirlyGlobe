@@ -26,7 +26,6 @@
 #import "MaplyAnnotation_private.h"
 #import "MaplyAnimateTranslateMomentum.h"
 #import "GlobeView_iOS.h"
-#import "SceneGLES.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;

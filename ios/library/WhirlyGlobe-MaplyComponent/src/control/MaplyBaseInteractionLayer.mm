@@ -43,7 +43,6 @@
 #import "Dictionary_NSDictionary.h"
 #import "SingleLabel_iOS.h"
 #import "FontTextureManager_iOS.h"
-#import "TextureGLES_iOS.h"
 #import "ComponentManager_iOS.h"
 #import "SphericalEarthChunkManager.h"
 #import "UIColor+Stuff.h"
@@ -144,7 +143,6 @@ public:
     // Grab everything to force people to wait, hopefully
     imageLock.lock();
     changeLock.lock();
-    tempContextLock.lock();
     workLock.lock();
     
     compManager = NULL;
@@ -183,7 +181,6 @@ public:
     // We locked these in hopes of slowing down anyone trying to race us.  Unlock 'em.
     imageLock.unlock();
     changeLock.unlock();
-    tempContextLock.unlock();
     workLock.unlock();
 }
 
@@ -196,7 +193,6 @@ public:
     layerThreads = nil;
     ourClusterGen.layer = nil;
     clusterGens.clear();
-    tempContexts.clear();
     compManager->clear();
     
     for (MaplyShader *shader in shaders)
@@ -295,25 +291,14 @@ public:
     
     // Add it and download it
     Texture *tex;
-    if (sceneRender->getType() == WhirlyKit::SceneRendererGLES_iOS::RenderGLES) {
-        if (image)
-            tex = new TextureGLES_iOS("MaplyBaseInteraction",image,imgWidth,imgHeight);
-        else {
-            tex = new TextureGLES_iOS("MaplyBaseInteraction");
-            tex->setWidth(imgWidth);
-            tex->setHeight(imgHeight);
-            tex->setIsEmptyTexture(true);
-        }
-    } else {
-        // Metal
-        if (image)
-            tex = new TextureMTL("MaplyBaseInteraction",image,imgWidth,imgHeight);
-        else {
-            tex = new TextureMTL("MaplyBaseInteraction");
-            tex->setWidth(imgWidth);
-            tex->setHeight(imgHeight);
-            tex->setIsEmptyTexture(true);
-        }
+    // Metal
+    if (image)
+        tex = new TextureMTL("MaplyBaseInteraction",image,imgWidth,imgHeight);
+    else {
+        tex = new TextureMTL("MaplyBaseInteraction");
+        tex->setWidth(imgWidth);
+        tex->setHeight(imgHeight);
+        tex->setIsEmptyTexture(true);
     }
     tex->setWrap(wrapX, wrapY);
     tex->setUsesMipmaps(mipmap);
@@ -454,9 +439,6 @@ public:
 
     ChangeSet changes;
 
-    // May need a temporary context when setting up textures
-    EAGLContext *tmpContext = [self setupTempContext:threadMode];
-
     // Convert to a texture
     Texture *tex = [self createTexture:image desc:desc mode:threadMode];
     if (!tex)
@@ -502,8 +484,6 @@ public:
         // If anything needed a flush after that, let's do it
         if (requiresFlush)
         {
-            glFlush();
-            
             // If there were no changes to add we probably still want to poke the scene
             // Otherwise texture changes don't show up
             if (changesToAdd.empty())
@@ -513,8 +493,6 @@ public:
         scene->addChangeRequests(changesToAdd);
     } else
         scene->addChangeRequests(changes);
-    
-    [self clearTempContext:tmpContext];
     
     return maplyTex;
 }
@@ -574,7 +552,7 @@ public:
 {
     threadMode = [self resolveThreadMode:threadMode];
 
-    return [self addImage:image imageFormat:imageFormat wrapFlags:MaplyImageWrapNone interpType:GL_NEAREST mode:threadMode];
+    return [self addImage:image imageFormat:imageFormat wrapFlags:MaplyImageWrapNone interpType:TexInterpNearest mode:threadMode];
 }
 
 // Add an image to the cache, or find an existing one
@@ -586,7 +564,7 @@ public:
     MaplyTexture *maplyTex = [self addTexture:image desc:@{kMaplyTexFormat: @(imageFormat),
                                kMaplyTexWrapX: @(wrapFlags & MaplyImageWrapX),
                                kMaplyTexWrapY: @(wrapFlags & MaplyImageWrapY),
-                            kMaplyTexMagFilter: (interpType == GL_NEAREST ? kMaplyMinFilterNearest : kMaplyMinFilterLinear)}
+                            kMaplyTexMagFilter: (interpType == TexInterpNearest ? kMaplyMinFilterNearest : kMaplyMinFilterLinear)}
                                          mode:threadMode];
     
     return maplyTex;
@@ -714,8 +692,6 @@ public:
     ThreadChangeSet::iterator it = perThreadChanges.find(changes);
     if (it != perThreadChanges.end())
     {
-        EAGLContext *tmpContext = [self setupTempContext:MaplyThreadCurrent];
-
         ThreadChanges theseChanges = *it;
         // Process the setupGL on this thread rather than making the main thread do it
         if (currentThread != mainThread)
@@ -725,8 +701,6 @@ public:
             }
         scene->addChangeRequests(theseChanges.changes);
         perThreadChanges.erase(it);
-        
-        [self clearTempContext:tmpContext];
     }
 }
 
@@ -820,10 +794,10 @@ public:
             if ([marker.image isKindOfClass:[UIImage class]])
             {
                 UIImage *image = marker.image;
-                GLenum interpType = GL_LINEAR;
+                TextureInterpType interpType = TexInterpLinear;
                 if (image.size.width * image.scale == marker.size.width && image.size.height * image.scale == marker.size.height)
-                    interpType = GL_NEAREST;
-                texs.push_back([self addImage:marker.image imageFormat:MaplyImageIntRGBA wrapFlags:0 interpType:GL_LINEAR mode:threadMode]);
+                    interpType = TexInterpNearest;
+                texs.push_back([self addImage:marker.image imageFormat:MaplyImageIntRGBA wrapFlags:0 interpType:interpType mode:threadMode]);
             } else if ([marker.image isKindOfClass:[MaplyTexture class]])
             {
                 texs.push_back((MaplyTexture *)marker.image);
@@ -833,7 +807,7 @@ public:
             for (id image in marker.images)
             {
                 if ([image isKindOfClass:[UIImage class]])
-                    texs.push_back([self addImage:image imageFormat:MaplyImageIntRGBA wrapFlags:0 interpType:GL_LINEAR mode:threadMode]);
+                    texs.push_back([self addImage:image imageFormat:MaplyImageIntRGBA wrapFlags:0 interpType:TexInterpLinear mode:threadMode]);
                 else if ([image isKindOfClass:[MaplyTexture class]])
                     texs.push_back((MaplyTexture *)image);
             }
@@ -1188,7 +1162,7 @@ public:
             for (id image in marker.images)
             {
                 if ([image isKindOfClass:[UIImage class]])
-                    texs.push_back([self addImage:image imageFormat:MaplyImageIntRGBA wrapFlags:0 interpType:GL_LINEAR mode:threadMode]);
+                    texs.push_back([self addImage:image imageFormat:MaplyImageIntRGBA wrapFlags:0 interpType:TexInterpLinear mode:threadMode]);
                 else if ([image isKindOfClass:[MaplyTexture class]])
                     texs.push_back((MaplyTexture *)image);
             }
@@ -1261,70 +1235,6 @@ public:
     return compObj;
 }
 
-// Make a temporary EAGL context if we need it.
-// This happens if we're making OpenGL calls on a thread that doesn't have a context.
-- (EAGLContext *)setupTempContext:(MaplyThreadMode)threadMode
-{
-    SceneRendererGLES_iOS *sceneRenderGL = dynamic_cast<SceneRendererGLES_iOS *>(sceneRender);
-    if (!sceneRenderGL)
-        return nil;
-    
-    threadMode = [self resolveThreadMode:threadMode];
-
-    EAGLContext *tmpContext = nil;
-    
-    // Use the renderer's context
-    if (threadMode == MaplyThreadCurrent && mainThread == [NSThread currentThread])
-    {
-        sceneRenderGL->useContext();
-    }
-    
-    if (threadMode == MaplyThreadCurrent && ![EAGLContext currentContext])
-    {
-        std::lock_guard<std::mutex> guardLock(tempContextLock);
-
-        // See if we need to create a new one
-        if (tempContexts.empty())
-        {
-            tmpContext = [[EAGLContext alloc] initWithAPI:sceneRenderGL->getContext().API sharegroup:sceneRenderGL->getContext().sharegroup];
-        } else {
-            // We can use an existing one
-            std::set<EAGLContext *>::iterator it = tempContexts.begin();
-            tmpContext = *it;
-            tempContexts.erase(it);
-        }
-        [EAGLContext setCurrentContext:tmpContext];
-    }
-    
-    return tmpContext;
-}
-
-// This just releases the context, but we may want to keep a queue of these in future
-- (void)clearTempContext:(EAGLContext *)context
-{
-    SceneRendererGLES_iOS *sceneRenderGL = dynamic_cast<SceneRendererGLES_iOS *>(sceneRender);
-    if (!sceneRenderGL)
-        return;
-
-    if (mainThread == [NSThread currentThread] && context == sceneRenderGL->getContext())
-    {
-        [EAGLContext setCurrentContext:nil];
-        return;
-    }
-    
-    if (context)
-    {
-        glFlush();
-        [EAGLContext setCurrentContext:nil];
-
-        // Put this one back for use by another thread
-        {
-            std::lock_guard<std::mutex> guardLock(tempContextLock);
-            tempContexts.insert(context);
-        }
-    }
-}
-
 // Actually add the labels.
 // Called in an unknown thread.
 - (void)addScreenLabelsRun:(NSArray *)argArray
@@ -1337,9 +1247,6 @@ public:
     NSDictionary *inDesc = [argArray objectAtIndex:2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
-    // May need a temporary context when setting up screen label textures
-    EAGLContext *tmpContext = [self setupTempContext:threadMode];
-
     TimeInterval now = scene->getCurrentTime();
     
     bool isMotionLabels = false;
@@ -1435,8 +1342,6 @@ public:
     }
 
     compManager->addComponentObject(compObj->contents);
-
-    [self clearTempContext:tmpContext];
 }
 
 // Add screen space (2D) labels
@@ -1484,9 +1389,6 @@ public:
     LabelInfo_iOS labelInfo(inDesc,dictWrap,false);
     [self resolveInfoDefaults:inDesc info:&labelInfo defaultShader:kMaplyShaderDefaultTri];
     [self resolveDrawPriority:inDesc info:&labelInfo drawPriority:kMaplyLabelDrawPriorityDefault offset:0];
-
-    // May need a temporary context when setting up label textures
-    EAGLContext *tmpContext = [self setupTempContext:threadMode];
 
     // Convert to WG labels
     std::vector<SingleLabel *> wgLabels;
@@ -1548,8 +1450,6 @@ public:
     }
     
     compManager->addComponentObject(compObj->contents);
-
-    [self clearTempContext:tmpContext];
 }
 
 // Add 3D labels
@@ -2193,9 +2093,6 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     [self resolveInfoDefaults:inDesc info:&geomInfo defaultShader:kMaplyShaderDefaultModelTri];
     [self resolveDrawPriority:inDesc info:&geomInfo drawPriority:kMaplyModelDrawPriorityDefault offset:0];
 
-    // May need a temporary context when setting up label textures
-    EAGLContext *tmpContext = [self setupTempContext:threadMode];
-
     GeometryManager *geomManager = (GeometryManager *)scene->getManager(kWKGeometryManager);
     FontTextureManager_iOS *fontTexManager = (FontTextureManager_iOS *)scene->getFontTextureManager();
 
@@ -2367,8 +2264,6 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         delete it;
     
     compManager->addComponentObject(compObj->contents);
-
-    [self clearTempContext:tmpContext];
 }
 
 // Called in the layer thread
@@ -2747,9 +2642,6 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                 defaultShader:(billInfo.orient == WhirlyKit::BillboardInfo::Eye ? kMaplyShaderBillboardEye : kMaplyShaderBillboardGround)];
     [self resolveDrawPriority:inDesc info:&billInfo drawPriority:kMaplyBillboardDrawPriorityDefault offset:0];
 
-    // May need a temporary context when setting up label textures
-    EAGLContext *tmpContext = [self setupTempContext:threadMode];
-    
     ChangeSet changes;
     BillboardManager *billManager = (BillboardManager *)scene->getManager(kWKBillboardManager);
     FontTextureManager_iOS *fontTexManager = (FontTextureManager_iOS *)scene->getFontTextureManager();
@@ -2852,8 +2744,6 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     [self flushChanges:changes mode:threadMode];
     
     compManager->addComponentObject(compObj->contents);
-
-    [self clearTempContext:tmpContext];
 }
 
 // Add billboards
@@ -2898,9 +2788,6 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     BaseInfo partInfo(dictWrap);
     [self resolveInfoDefaults:inDesc info:&partInfo defaultShader:kMaplyShaderParticleSystemPointDefault];
     [self resolveDrawPriority:inDesc info:&partInfo drawPriority:kMaplyParticleSystemDrawPriorityDefault offset:0];
-    
-    // May need a temporary context
-    EAGLContext *tmpContext = [self setupTempContext:threadMode];
     
     SimpleIdentity partSysShaderID = [inDesc[kMaplyShader] intValue];
     if (partSysShaderID == EmptyIdentity)
@@ -3000,8 +2887,6 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     [self flushChanges:changes mode:threadMode];
     
     compManager->addComponentObject(compObj->contents);
-
-    [self clearTempContext:tmpContext];
 }
 
 - (MaplyComponentObject *)addParticleSystem:(MaplyParticleSystem *)partSys desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
@@ -3049,9 +2934,6 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     MaplyParticleBatch *batch = argArray[0];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:1] intValue];
     
-    // May need a temporary context
-    EAGLContext *tmpContext = [self setupTempContext:threadMode];
-    
     ParticleSystemManager *partSysManager = (ParticleSystemManager *)scene->getManager(kWKParticleSystemManager);
 
     ChangeSet changes;
@@ -3061,34 +2943,9 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         ParticleBatch wkBatch;
         wkBatch.batchSize = batch.partSys.batchSize;
         
-        if (sceneRender->getType() == WhirlyKit::SceneRendererGLES_iOS::RenderGLES) {
-            // Copy the attributes over in the right order
-            for (auto mainAttr : batch.partSys.attrs)
-            {
-                if (mainAttr.varyName)
-                    continue;
-                
-                bool found = false;
-                // Find the one that matches
-                for (auto thisAttr : batch.attrVals)
-                {
-                    if (thisAttr.attrID == mainAttr.getId())
-                    {
-                        found = true;
-                        wkBatch.attrData.push_back([thisAttr.data bytes]);
-                        break;
-                    }
-                }
-                if (!found)
-                {
-                    NSLog(@"Missing attribute data for particle batch.  Dropping.");
-                    validBatch = false;
-                }
-            }
-        } else {
-            // For Metal, we just pass through the data
-            wkBatch.data = RawNSDataReaderRef(new RawNSDataReader(batch.data));
-        }
+
+        // For Metal, we just pass through the data
+        wkBatch.data = RawNSDataReaderRef(new RawNSDataReader(batch.data));
         
         if (validBatch)
             partSysManager->addParticleBatch(batch.partSys.ident, wkBatch, changes);
@@ -3098,8 +2955,6 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     changes.push_back(NULL);
     
     [self flushChanges:changes mode:threadMode];
-    
-    [self clearTempContext:tmpContext];
 }
 
 - (void)addParticleBatch:(MaplyParticleBatch *)batch mode:(MaplyThreadMode)threadMode
@@ -3134,9 +2989,6 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
     compObj->contents->isSelectable = false;
 
-    // May need a temporary context
-    EAGLContext *tmpContext = [self setupTempContext:threadMode];
-
     GeometryManager *geomManager = (GeometryManager *)scene->getManager(kWKGeometryManager);
     
     ChangeSet changes;
@@ -3158,8 +3010,6 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     [self flushChanges:changes mode:threadMode];
     
     compManager->addComponentObject(compObj->contents);
-
-    [self clearTempContext:tmpContext];
 }
 
 - (MaplyComponentObject *)addPoints:(NSArray *)points desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode

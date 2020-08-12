@@ -19,7 +19,7 @@
  */
 
 #import "ScreenSpaceDrawableBuilder.h"
-#import "ProgramGLES.h"
+#import "Program.h"
 
 namespace WhirlyKit
 {

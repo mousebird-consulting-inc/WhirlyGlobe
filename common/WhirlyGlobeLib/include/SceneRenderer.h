@@ -187,8 +187,8 @@ public:
     SceneRenderer();
     virtual ~SceneRenderer();
     
-    /// Renderer type.  Just two for now.
-    typedef enum {RenderGLES,RenderMetal} Type;
+    /// Renderer type.  Back down to one on iOS.
+    typedef enum {RenderMetal} Type;
     virtual Type getType() = 0;
     
     /// Set the render until time.  This is used by things like fade to keep

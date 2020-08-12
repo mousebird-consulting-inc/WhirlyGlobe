@@ -370,7 +370,7 @@
     if (_style)
         [reqStr appendFormat:@"&STYLES=%@",_style.name];
     
-    NSString *fullReqStr = [reqStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    NSString *fullReqStr = [reqStr stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]];
     info.urlReq = [NSURLRequest requestWithURL:[NSURL URLWithString:fullReqStr]];
     
     return info;

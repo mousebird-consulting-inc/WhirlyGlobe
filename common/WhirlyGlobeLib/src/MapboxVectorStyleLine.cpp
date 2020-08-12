@@ -166,7 +166,7 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
     }
     
     // If we have a filled texture, we'll use that
-    SimpleIdentity texID = filledLineTexID;
+//    SimpleIdentity texID = filledLineTexID;
     float repeatLen = totLen;
     
     // TODO: We can also have a symbol, where we might do the same thing

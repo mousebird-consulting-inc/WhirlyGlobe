@@ -26,7 +26,6 @@
 #import "NSDictionary+Stuff.h"
 #import "UIKit/NSDictionary+StyleRules.h"
 
-#import "SceneGLES.h"
 #import "SceneMTL.h"
 #import "SceneRendererMTL.h"
 #import "MaplyActiveObject_private.h"
@@ -72,12 +71,7 @@ using namespace Eigen;
     offlineMode = true;
     initialFramebufferSize = size;
     
-    EAGLContext *oldContext = [EAGLContext currentContext];
-    if (inRenderType == MaplyRenderGLES) {
-        renderType = SceneRenderer::RenderGLES;
-    } else {
-        renderType = SceneRenderer::RenderMetal;
-    }
+    renderType = SceneRenderer::RenderMetal;
     
     // If the coordinate system hasn't been set up, we'll do a flat one
     if (!coordAdapter) {
@@ -101,19 +95,12 @@ using namespace Eigen;
     
     [self loadSetup_scene:[[MaplyBaseInteractionLayer alloc] initWithView:visualView]];
     [self setupShaders];
-    
-    if (inRenderType == MaplyRenderGLES) {
-        if (oldContext)
-            [EAGLContext setCurrentContext:oldContext];
-    }
-    
+        
     return self;
 }
 
 - (void)teardown
 {
-    SceneRendererGLES_iOSRef sceneRendererGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(sceneRenderer);
-    
     SceneRendererMTLRef sceneRendererMTL = std::dynamic_pointer_cast<SceneRendererMTL>(sceneRenderer);
     if (sceneRendererMTL)
         sceneRendererMTL->shutdown();
@@ -142,11 +129,6 @@ using namespace Eigen;
         baseLayerThread->existenceLock.lock();
     }
 
-    EAGLContext *oldContext = nil;
-    if (sceneRendererGLES) {
-        oldContext = [EAGLContext currentContext];
-        sceneRendererGLES->useContext();
-    }
     // This stuff is our responsibility if we created it
     if (offlineMode)
     {
@@ -161,10 +143,8 @@ using namespace Eigen;
         scene = NULL;
     }
     sceneRenderer = nil;
-    if (sceneRendererGLES && oldContext)
-        [EAGLContext setCurrentContext:oldContext];
     
-        layerThreads = nil;
+    layerThreads = nil;
     //    NSLog(@"BaseViewController: Layers shut down");
     fontTexManager = NULL;
     baseLayerThread = nil;
@@ -193,30 +173,16 @@ using namespace Eigen;
 {    
     screenDrawPriorityOffset = 1000000;
     
-    if (renderType == WhirlyKit::SceneRendererGLES_iOS::RenderGLES) {
-        // Set up the OpenGL ES renderer
-        SceneRendererGLES_iOSRef sceneRendererGLES =
-            SceneRendererGLES_iOSRef(
-            offlineMode ?
-        new SceneRendererGLES_iOS((int)initialFramebufferSize.width,(int)initialFramebufferSize.height,1.0)
-            :
-            new SceneRendererGLES_iOS(1.0)
-                                     );
-            
-        sceneRendererGLES->useContext();
-        sceneRenderer = sceneRendererGLES;
-    } else {
-        id<MTLDevice> mtlDevice = MTLCreateSystemDefaultDevice();
-        NSError *err = nil;
-        id<MTLLibrary> mtlLib = [mtlDevice newDefaultLibraryWithBundle:[NSBundle bundleForClass:[MaplyRenderController class]] error:&err];
-        if (err) {
-            NSLog(@"Failed to set up default Metal library in MaplyRenderController::loadSetup.  Things will be missing.");
-        }
-        SceneRendererMTLRef sceneRendererMTL = SceneRendererMTLRef(new SceneRendererMTL(mtlDevice,mtlLib,1.0));
-        if (offlineMode)
-            sceneRendererMTL->setup((int)initialFramebufferSize.width,(int)initialFramebufferSize.height, true);
-        sceneRenderer = sceneRendererMTL;
+    id<MTLDevice> mtlDevice = MTLCreateSystemDefaultDevice();
+    NSError *err = nil;
+    id<MTLLibrary> mtlLib = [mtlDevice newDefaultLibraryWithBundle:[NSBundle bundleForClass:[MaplyRenderController class]] error:&err];
+    if (err) {
+        NSLog(@"Failed to set up default Metal library in MaplyRenderController::loadSetup.  Things will be missing.");
     }
+    SceneRendererMTLRef sceneRendererMTL = SceneRendererMTLRef(new SceneRendererMTL(mtlDevice,mtlLib,1.0));
+    if (offlineMode)
+        sceneRendererMTL->setup((int)initialFramebufferSize.width,(int)initialFramebufferSize.height, true);
+    sceneRenderer = sceneRendererMTL;
 
     sceneRenderer->setZBufferMode(zBufferOffDefault);
     sceneRenderer->setClearColor([[UIColor blackColor] asRGBAColor]);
@@ -232,13 +198,7 @@ using namespace Eigen;
 
 - (void)loadSetup_scene:(MaplyBaseInteractionLayer *)newInteractLayer
 {
-    SceneRendererGLES_iOSRef sceneRenderGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(sceneRenderer);
-
-    if (sceneRenderGLES) {
-        scene = new SceneGLES(visualView->coordAdapter);
-    } else {
-        scene = new SceneMTL(visualView->coordAdapter);
-    }
+    scene = new SceneMTL(visualView->coordAdapter);
     sceneRenderer->setScene(scene);
 
     // Set up a Font Texture Manager
@@ -295,29 +255,8 @@ using namespace Eigen;
         return nil;
 
     UIImage *toRet = nil;
-    if (sceneRenderer->getType() == SceneRenderer::RenderGLES) {
-        SceneRendererGLES_iOSRef sceneRendererGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(sceneRenderer);
-        
-        // TODO: Implement for Metal
-        
-        EAGLContext *oldContext = [EAGLContext currentContext];
-
-        [self useGLContext];
-
-        sceneRendererGLES->addSnapshotDelegate(self);
-        sceneRendererGLES->forceDrawNextFrame();
-        sceneRendererGLES->render(0.0);
-
-        // TODO: Convert to image
-
-        snapshotData = nil;
-        sceneRendererGLES->removeSnapshotDelegate(self);
-
-        [EAGLContext setCurrentContext:oldContext];
-    } else {
 //        NSData *data = sceneRendererMTL->getSnapshot();
         // TODO: Convert the NSData to UIImage
-    }
     
     return toRet;
 }
@@ -328,43 +267,16 @@ using namespace Eigen;
         return nil;
 
     NSData *toRet = nil;
-    if (sceneRenderer->getType() == SceneRenderer::RenderGLES) {
-        SceneRendererGLES_iOSRef sceneRendererGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(sceneRenderer);
-        
-        EAGLContext *oldContext = [EAGLContext currentContext];
-        
-        [self useGLContext];
-
-        sceneRendererGLES->addSnapshotDelegate(self);
-        sceneRendererGLES->forceDrawNextFrame();
-        sceneRendererGLES->render(0.0);
-        
-        toRet = snapshotData;
-        snapshotData = nil;
-        sceneRendererGLES->removeSnapshotDelegate(self);
-
-        [EAGLContext setCurrentContext:oldContext];
-    } else {
-        SceneRendererMTLRef sceneRendererMTL = std::dynamic_pointer_cast<SceneRendererMTL>(sceneRenderer);
-        
-        sceneRendererMTL->forceDrawNextFrame();
-        sceneRendererMTL->render(1.0/60.0,nil,nil);
-        RawDataRef dataRef = sceneRendererMTL->getSnapshot(EmptyIdentity);
-        RawNSDataReaderRef rawData = std::dynamic_pointer_cast<RawNSDataReader>(dataRef);
-        if (rawData)
-            toRet = rawData->getData();
-    }
+    SceneRendererMTLRef sceneRendererMTL = std::dynamic_pointer_cast<SceneRendererMTL>(sceneRenderer);
+    
+    sceneRendererMTL->forceDrawNextFrame();
+    sceneRendererMTL->render(1.0/60.0,nil,nil);
+    RawDataRef dataRef = sceneRendererMTL->getSnapshot(EmptyIdentity);
+    RawNSDataReaderRef rawData = std::dynamic_pointer_cast<RawNSDataReader>(dataRef);
+    if (rawData)
+        toRet = rawData->getData();
     
     return toRet;
-}
-
-- (void) useGLContext
-{
-    SceneRendererGLES_iOSRef sceneRendererGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(sceneRenderer);
-    if (!sceneRendererGLES)
-        return;
-
-    sceneRendererGLES->useContext();
 }
 
 - (void)clearLights
@@ -961,8 +873,6 @@ using namespace Eigen;
 {
     switch (sceneRenderer->getType())
     {
-        case SceneRenderer::RenderGLES:
-            return MaplyRenderGLES;
         case SceneRenderer::RenderMetal:
             return MaplyRenderMetal;
         default:
@@ -972,10 +882,7 @@ using namespace Eigen;
 
 - (void)setupShaders
 {
-    if (sceneRenderer->getType() == SceneRenderer::RenderGLES)
-        [self setupShadersGL];
-    else
-        [self setupShadersMTL];
+    [self setupShadersMTL];
 }
 
 - (void)setupShadersMTL
@@ -1063,68 +970,6 @@ using namespace Eigen;
     [self addShader:kMaplyScreenSpaceDefaultMotionProgram program:screenSpace];
 
     // TODO: Particles
-}
-
-// Install the various shaders we expect to be running
-- (void)setupShadersGL
-{
-    if (!interactLayer)
-        return;
-    
-    [self useGLContext];
-    
-    bool isGlobe = !scene->getCoordAdapter()->isFlat();
-
-    // Default line shaders
-    ProgramGLESRef defaultLineShader(BuildDefaultLineShaderCullingGLES([kMaplyShaderDefaultLine cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get()));
-    ProgramGLESRef defaultLineShaderNoBack(BuildDefaultLineShaderNoCullingGLES([kMaplyShaderDefaultLineNoBackface cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get()));
-    if (isGlobe)
-        [self addShader:kMaplyShaderDefaultLine program:defaultLineShader];
-    else
-        [self addShader:kMaplyShaderDefaultLine program:defaultLineShaderNoBack];
-    [self addShader:kMaplyShaderDefaultLineNoBackface program:defaultLineShaderNoBack];
-    
-    // Default triangle shaders
-    [self addShader:kMaplyShaderDefaultTri
-            program:ProgramGLESRef(BuildDefaultTriShaderLightingGLES([kMaplyShaderDefaultTri cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get()))];
-    [self addShader:kMaplyShaderDefaultTriNoLighting
-            program:ProgramGLESRef(BuildDefaultTriShaderNoLightingGLES([kMaplyShaderDefaultTriNoLighting cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get()))];
-    
-    // Model instancing
-    [self addShader:kMaplyShaderDefaultModelTri
-            program:ProgramGLESRef(BuildDefaultTriShaderModelGLES([kMaplyShaderDefaultModelTri cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get()))];
-    
-    // Screen space texture application
-    [self addShader:kMaplyShaderDefaultTriScreenTex
-            program:ProgramGLESRef(BuildDefaultTriShaderScreenTextureGLES([kMaplyShaderDefaultTriScreenTex cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get()))];
-    
-    // Multi-texture support
-    [self addShader:kMaplyShaderDefaultTriMultiTex
-            program:ProgramGLESRef(BuildDefaultTriShaderMultitexGLES([kMaplyShaderDefaultTriMultiTex cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get()))];
-    // Same one, but for markers.  This fixes any weird conflicts
-    [self addShader:kMaplyShaderDefaultMarker program:ProgramGLESRef(BuildDefaultTriShaderMultitexGLES([kMaplyShaderDefaultMarker cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get()))];
-    
-    // Ramp texture support
-    [self addShader:kMaplyShaderDefaultTriMultiTexRamp
-            program:ProgramGLESRef(BuildDefaultTriShaderRamptexGLES([kMaplyShaderDefaultTriMultiTexRamp cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get()))];
-
-    // Night/day shading for globe
-    [self addShader:kMaplyShaderDefaultTriNightDay
-            program:ProgramGLESRef(BuildDefaultTriShaderNightDayGLES([kMaplyShaderDefaultTriNightDay cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get()))];
-
-    // Billboards
-    [self addShader:kMaplyShaderBillboardGround program:ProgramGLESRef(BuildBillboardGroundProgramGLES([kMaplyShaderBillboardGround cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get()))];
-    [self addShader:kMaplyShaderBillboardEye program:ProgramGLESRef(BuildBillboardEyeProgramGLES([kMaplyShaderBillboardEye cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get()))];
-    // Wide vectors
-    if (isGlobe)
-        [self addShader:kMaplyShaderDefaultWideVector program:ProgramGLESRef(BuildWideVectorGlobeProgramGLES([kMaplyShaderDefaultWideVector cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get()))];
-    else
-        [self addShader:kMaplyShaderDefaultWideVector program:ProgramGLESRef(BuildWideVectorProgramGLES([kMaplyShaderDefaultWideVector cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get()))];
-    // Screen space
-    [self addShader:kMaplyScreenSpaceDefaultMotionProgram program:ProgramGLESRef(BuildScreenSpaceProgramGLES([kMaplyScreenSpaceDefaultMotionProgram cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get()))];
-    [self addShader:kMaplyScreenSpaceDefaultProgram program:ProgramGLESRef(BuildScreenSpaceMotionProgramGLES([kMaplyScreenSpaceDefaultProgram cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get()))];
-    // Particles
-    [self addShader:kMaplyShaderParticleSystemPointDefault program:ProgramGLESRef(BuildParticleSystemProgramGLES([kMaplyShaderParticleSystemPointDefault cStringUsingEncoding:NSASCIIStringEncoding],sceneRenderer.get()))];
 }
 
 - (void)addActiveObject:(MaplyActiveObject *)theObj

@@ -30,7 +30,6 @@
 #import "MaplyRenderTarget_private.h"
 #import "FontTextureManager_iOS.h"
 #import "UIColor+Stuff.h"
-#import "EAGLView.h"
 #import "MTLView.h"
 #import <sys/utsname.h>
 
@@ -160,15 +159,6 @@ using namespace WhirlyKit;
     return ViewRef(NULL);
 }
 
-- (void)loadSetup_glView
-{
-    if (_frameInterval <= 0)
-        _frameInterval = 1;
-    WhirlyKitEAGLView *glView = [[WhirlyKitEAGLView alloc] init];
-    glView.frameInterval = _frameInterval;
-    wrapView = glView;
-}
-
 - (void)loadSetup_mtlView
 {
     SceneRendererMTL *renderMTL = (SceneRendererMTL *)renderControl->sceneRenderer.get();
@@ -263,22 +253,13 @@ using namespace WhirlyKit;
     if (!renderControl)
         renderControl = [[MaplyRenderController alloc] init];
     
-    renderControl->renderType = _useOpenGLES ? SceneRenderer::RenderGLES : SceneRenderer::RenderMetal;
+    renderControl->renderType = SceneRenderer::RenderMetal;
     
     allowRepositionForAnnnotations = true;
         
     [renderControl loadSetup];
-    if (renderControl->renderType == SceneRenderer::RenderGLES)
-    {
-        [self loadSetup_glView];
-    } else {
-        [self loadSetup_mtlView];
-    }
+    [self loadSetup_mtlView];
     
-    SceneRendererGLES_iOSRef sceneRenderGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(renderControl->sceneRenderer);
-    if (sceneRenderGLES)
-        sceneRenderGLES->setLayer((CAEAGLLayer *)wrapView.layer);
-
     // Set up the GL View to display it in
     [wrapView setRenderer:renderControl->sceneRenderer.get()];
     [self.view insertSubview:wrapView atIndex:0];
@@ -336,11 +317,6 @@ using namespace WhirlyKit;
     return [renderControl getMetalLibrary];
 }
 
-
-- (void) useGLContext
-{
-    [renderControl useGLContext];
-}
 
 - (void)viewDidLoad
 {
@@ -432,10 +408,6 @@ using namespace WhirlyKit;
 - (void)setFrameInterval:(int)frameInterval
 {
     _frameInterval = frameInterval;
-    if ([wrapView isKindOfClass:[WhirlyKitEAGLView class]]) {
-        WhirlyKitEAGLView *glView = (WhirlyKitEAGLView *)wrapView;
-        glView.frameInterval = frameInterval;
-    }
 }
 
 static const float PerfOutputDelay = 15.0;
@@ -1187,12 +1159,6 @@ static const float PerfOutputDelay = 15.0;
     SnapshotTarget *newTarget = [[SnapshotTarget alloc] initWithOutsideDelegate:snapshotDelegate viewC:self];
     switch ([self getRenderType])
     {
-        case MaplyRenderGLES:
-        {
-            SceneRendererGLES_iOSRef sceneRenderGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(renderControl->sceneRenderer);
-            sceneRenderGLES->addSnapshotDelegate(newTarget);
-        }
-            break;
         case MaplyRenderMetal:
         {
             SceneRendererMTLRef sceneRenderMTL = std::dynamic_pointer_cast<SceneRendererMTL>(renderControl->sceneRenderer);
@@ -1211,20 +1177,6 @@ static const float PerfOutputDelay = 15.0;
     
     switch ([self getRenderType])
     {
-        case MaplyRenderGLES:
-        {
-            SceneRendererGLES_iOSRef sceneRenderGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(renderControl->sceneRenderer);
-            for (auto delegate : sceneRenderGLES->snapshotDelegates) {
-                if ([delegate isKindOfClass:[SnapshotTarget class]]) {
-                    SnapshotTarget *thisTarget = (SnapshotTarget *)delegate;
-                    if (thisTarget.outsideDelegate == snapshotDelegate) {
-                        sceneRenderGLES->removeSnapshotDelegate(thisTarget);
-                        break;
-                    }
-                }
-            }
-        }
-            break;
         case MaplyRenderMetal:
         {
             SceneRendererMTLRef sceneRenderMTL = std::dynamic_pointer_cast<SceneRendererMTL>(renderControl->sceneRenderer);
@@ -1249,63 +1201,53 @@ static const float PerfOutputDelay = 15.0;
     if (!renderControl)
         return nil;
 
-    SceneRendererGLES_iOSRef sceneRenderGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(renderControl->sceneRenderer);
-    if (!sceneRenderGLES)
-        return nil;
-
     // TODO: Implement this for Metal
-
-    SnapshotTarget *target = [[SnapshotTarget alloc] init];
-    sceneRenderGLES->addSnapshotDelegate(target);
+    //       We have the data version.
+    return nil;
     
-    sceneRenderGLES->forceDrawNextFrame();
-    sceneRenderGLES->render(0.0);
-    
-    sceneRenderGLES->removeSnapshotDelegate(target);
-    
-    // Courtesy: https://developer.apple.com/library/ios/qa/qa1704/_index.html
-    // Create a CGImage with the pixel data
-    // If your OpenGL ES content is opaque, use kCGImageAlphaNoneSkipLast to ignore the alpha channel
-    // otherwise, use kCGImageAlphaPremultipliedLast
-    CGDataProviderRef ref = CGDataProviderCreateWithData(NULL, [target.data bytes], [target.data length], NULL);
-    CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
-    int framebufferWidth = renderControl->sceneRenderer->framebufferWidth;
-    int framebufferHeight = renderControl->sceneRenderer->framebufferHeight;
-    CGImageRef iref = CGImageCreate(framebufferWidth, framebufferHeight, 8, 32, framebufferWidth * 4, colorspace, kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast,
-                                    ref, NULL, true, kCGRenderingIntentDefault);
-    
-    // OpenGL ES measures data in PIXELS
-    // Create a graphics context with the target size measured in POINTS
-    NSInteger widthInPoints, heightInPoints;
-    {
-        // On iOS 4 and later, use UIGraphicsBeginImageContextWithOptions to take the scale into consideration
-        // Set the scale parameter to your OpenGL ES view's contentScaleFactor
-        // so that you get a high-resolution snapshot when its value is greater than 1.0
-        CGFloat scale = sceneRenderGLES->scale;
-        widthInPoints = framebufferWidth / scale;
-        heightInPoints = framebufferHeight / scale;
-        UIGraphicsBeginImageContextWithOptions(CGSizeMake(widthInPoints, heightInPoints), NO, scale);
-    }
-    
-    CGContextRef cgcontext = UIGraphicsGetCurrentContext();
-    
-    // UIKit coordinate system is upside down to GL/Quartz coordinate system
-    // Flip the CGImage by rendering it to the flipped bitmap context
-    // The size of the destination area is measured in POINTS
-    CGContextSetBlendMode(cgcontext, kCGBlendModeCopy);
-    CGContextDrawImage(cgcontext, CGRectMake(0.0, 0.0, widthInPoints, heightInPoints), iref);
-    
-    // Retrieve the UIImage from the current context
-    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
-    
-    UIGraphicsEndImageContext();
-    
-    // Clean up
-    CFRelease(ref);
-    CFRelease(colorspace);
-    CGImageRelease(iref);
-
-    return image;
+//    // Courtesy: https://developer.apple.com/library/ios/qa/qa1704/_index.html
+//    // Create a CGImage with the pixel data
+//    // If your OpenGL ES content is opaque, use kCGImageAlphaNoneSkipLast to ignore the alpha channel
+//    // otherwise, use kCGImageAlphaPremultipliedLast
+//    CGDataProviderRef ref = CGDataProviderCreateWithData(NULL, [target.data bytes], [target.data length], NULL);
+//    CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
+//    int framebufferWidth = renderControl->sceneRenderer->framebufferWidth;
+//    int framebufferHeight = renderControl->sceneRenderer->framebufferHeight;
+//    CGImageRef iref = CGImageCreate(framebufferWidth, framebufferHeight, 8, 32, framebufferWidth * 4, colorspace, kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast,
+//                                    ref, NULL, true, kCGRenderingIntentDefault);
+//
+//    // OpenGL ES measures data in PIXELS
+//    // Create a graphics context with the target size measured in POINTS
+//    NSInteger widthInPoints, heightInPoints;
+//    {
+//        // On iOS 4 and later, use UIGraphicsBeginImageContextWithOptions to take the scale into consideration
+//        // Set the scale parameter to your OpenGL ES view's contentScaleFactor
+//        // so that you get a high-resolution snapshot when its value is greater than 1.0
+//        CGFloat scale = sceneRenderGLES->scale;
+//        widthInPoints = framebufferWidth / scale;
+//        heightInPoints = framebufferHeight / scale;
+//        UIGraphicsBeginImageContextWithOptions(CGSizeMake(widthInPoints, heightInPoints), NO, scale);
+//    }
+//
+//    CGContextRef cgcontext = UIGraphicsGetCurrentContext();
+//
+//    // UIKit coordinate system is upside down to GL/Quartz coordinate system
+//    // Flip the CGImage by rendering it to the flipped bitmap context
+//    // The size of the destination area is measured in POINTS
+//    CGContextSetBlendMode(cgcontext, kCGBlendModeCopy);
+//    CGContextDrawImage(cgcontext, CGRectMake(0.0, 0.0, widthInPoints, heightInPoints), iref);
+//
+//    // Retrieve the UIImage from the current context
+//    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+//
+//    UIGraphicsEndImageContext();
+//
+//    // Clean up
+//    CFRelease(ref);
+//    CFRelease(colorspace);
+//    CGImageRelease(iref);
+//
+//    return image;
 }
 
 - (NSData *)shapshotRenderTarget:(MaplyRenderTarget *)renderTarget
@@ -1316,21 +1258,12 @@ static const float PerfOutputDelay = 15.0;
     SnapshotTarget *target = [[SnapshotTarget alloc] init];
     target.renderTargetID = renderTarget.renderTargetID;
 
-    if ([self getRenderType] == MaplyRenderGLES) {
-        SceneRendererGLES_iOSRef sceneRenderGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(renderControl->sceneRenderer);
-
-        sceneRenderGLES->addSnapshotDelegate(target);
-        sceneRenderGLES->forceDrawNextFrame();
-        sceneRenderGLES->render(0.0);
-        sceneRenderGLES->removeSnapshotDelegate(target);
-    } else {
-        SceneRendererMTLRef sceneRenderMTL = std::dynamic_pointer_cast<SceneRendererMTL>(renderControl->sceneRenderer);
-        
-        sceneRenderMTL->addSnapshotDelegate(target);
-        sceneRenderMTL->forceDrawNextFrame();
-        sceneRenderMTL->render(0.0, nil, nil);
-        sceneRenderMTL->removeSnapshotDelegate(target);
-    }
+    SceneRendererMTLRef sceneRenderMTL = std::dynamic_pointer_cast<SceneRendererMTL>(renderControl->sceneRenderer);
+    
+    sceneRenderMTL->addSnapshotDelegate(target);
+    sceneRenderMTL->forceDrawNextFrame();
+    sceneRenderMTL->render(0.0, nil, nil);
+    sceneRenderMTL->removeSnapshotDelegate(target);
     
     return target.data;
 }
@@ -1340,21 +1273,20 @@ static const float PerfOutputDelay = 15.0;
     if ([NSThread currentThread] != renderControl->mainThread)
         return NULL;
     
-    SceneRendererGLES_iOSRef sceneRenderGLES = std::dynamic_pointer_cast<SceneRendererGLES_iOS>(renderControl->sceneRenderer);
-    if (!sceneRenderGLES)
-        return nil;
-
-    SnapshotTarget *target = [[SnapshotTarget alloc] init];
-    target.renderTargetID = renderTarget.renderTargetID;
-    target.subsetRect = rect;
-    sceneRenderGLES->addSnapshotDelegate(target);
+    // TODO: Get rid of this.
+    return nil;
     
-    sceneRenderGLES->forceDrawNextFrame();
-    sceneRenderGLES->render(0.0);
-    
-    sceneRenderGLES->removeSnapshotDelegate(target);
-    
-    return target.data;
+//    SnapshotTarget *target = [[SnapshotTarget alloc] init];
+//    target.renderTargetID = renderTarget.renderTargetID;
+//    target.subsetRect = rect;
+//    sceneRenderGLES->addSnapshotDelegate(target);
+//
+//    sceneRenderGLES->forceDrawNextFrame();
+//    sceneRenderGLES->render(0.0);
+//
+//    sceneRenderGLES->removeSnapshotDelegate(target);
+//
+//    return target.data;
 }
 
 
@@ -1483,14 +1415,6 @@ static const float PerfOutputDelay = 15.0;
     return _locationTracker.locationManager;
 }
 
-- (float) getMaxLineWidth
-{
-    GLfloat width[2];
-    glGetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, &width[0]);
-    
-    return width[1];
-}
-
 -(NSArray *)loadedLayers
 {
     return [NSArray arrayWithArray:renderControl->userLayers];
@@ -1516,9 +1440,6 @@ static const float PerfOutputDelay = 15.0;
     
     switch (renderControl->sceneRenderer->getType())
     {
-        case WhirlyKit::SceneRenderer::RenderGLES:
-            return MaplyRenderGLES;
-            break;
         case WhirlyKit::SceneRenderer::RenderMetal:
             return MaplyRenderMetal;
             break;

@@ -68,7 +68,7 @@ typedef NS_ENUM(NSInteger, MaplyQuadImageFormat) {
 
 /// The system can set up as either GL or Metal
 typedef NS_ENUM(NSInteger, MaplyRenderType) {
-    MaplyRenderGLES,
+//    MaplyRenderGLES,
     MaplyRenderMetal,
     MaplyRenderUnknown
 };

@@ -67,47 +67,47 @@ typedef struct
     image = inImage;
 }
 
-static const char *vertexShaderTriPoint = R"(
-precision highp float;
-
-uniform mat4  u_mvpMatrix;
-uniform float u_radius;
-
-attribute vec3 a_position;
-attribute float a_size;
-
-varying vec4 v_color;
-
-void main()
-{
-   v_color = vec4(1.0,1.0,1.0,1.0);
-   gl_PointSize = a_size;
-   gl_Position = u_mvpMatrix * vec4(a_position * u_radius,1.0);
-}
-)";
-
-static const char *fragmentShaderTriPoint = R"(
-precision highp float;
-
-varying vec4      v_color;
-
-void main()
-{
-  gl_FragColor = v_color;
-}
-)";
-
-static const char *fragmentShaderTexTriPoint = R"(
-precision highp float;
-
-uniform sampler2D s_baseMap0;
-varying vec4      v_color;
-
-void main()
-{
-  gl_FragColor = v_color * texture2D(s_baseMap0, gl_PointCoord);
-}
-)";
+//static const char *vertexShaderTriPoint = R"(
+//precision highp float;
+//
+//uniform mat4  u_mvpMatrix;
+//uniform float u_radius;
+//
+//attribute vec3 a_position;
+//attribute float a_size;
+//
+//varying vec4 v_color;
+//
+//void main()
+//{
+//   v_color = vec4(1.0,1.0,1.0,1.0);
+//   gl_PointSize = a_size;
+//   gl_Position = u_mvpMatrix * vec4(a_position * u_radius,1.0);
+//}
+//)";
+//
+//static const char *fragmentShaderTriPoint = R"(
+//precision highp float;
+//
+//varying vec4      v_color;
+//
+//void main()
+//{
+//  gl_FragColor = v_color;
+//}
+//)";
+//
+//static const char *fragmentShaderTexTriPoint = R"(
+//precision highp float;
+//
+//uniform sampler2D s_baseMap0;
+//varying vec4      v_color;
+//
+//void main()
+//{
+//  gl_FragColor = v_color * texture2D(s_baseMap0, gl_PointCoord);
+//}
+//)";
 
 typedef struct
 {
@@ -128,9 +128,11 @@ typedef struct
     double siderealTime = CAASidereal::MeanGreenwichSiderealTime(jd);
 
     // Really simple shader
-    MaplyShader *shader = [[MaplyShader alloc] initWithName:@"Star Shader" vertex:[NSString stringWithFormat:@"%s",vertexShaderTriPoint] fragment:[NSString stringWithFormat:@"%s",(image ? fragmentShaderTexTriPoint : fragmentShaderTriPoint)] viewC:viewC];
+    // TODO: Switch to Metal
+//    MaplyShader *shader = [[MaplyShader alloc] initWithName:@"Star Shader" vertex:[NSString stringWithFormat:@"%s",vertexShaderTriPoint] fragment:[NSString stringWithFormat:@"%s",(image ? fragmentShaderTexTriPoint : fragmentShaderTriPoint)] viewC:viewC];
+    MaplyShader *shader = nil;
     [viewC addShaderProgram:shader];
-    [shader setUniformFloatNamed:@"u_radius" val:6.0];
+//    [shader setUniformFloatNamed:@"u_radius" val:6.0];
     
     NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:inDesc];
     if (!desc[kMaplyDrawPriority])

@@ -78,7 +78,7 @@ using namespace WhirlyKit;
     imageTile->type = MaplyImgTypeRawImage;
     switch (viewC.getRenderControl->renderType)
     {
-        case WhirlyKit::SceneRenderer::RenderGLES:
+        default:
             NSLog(@"MaplyImageTile initWithRawImage:width:height:format not implemented for GLES");
             break;
         case WhirlyKit::SceneRenderer::RenderMetal:

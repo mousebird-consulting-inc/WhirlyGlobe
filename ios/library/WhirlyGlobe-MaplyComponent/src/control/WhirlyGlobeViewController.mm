@@ -21,7 +21,6 @@
 #import <WhirlyGlobe_iOS.h>
 #import "control/WhirlyGlobeViewController.h"
 #import "WhirlyGlobeViewController_private.h"
-#import "SceneGLES.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;

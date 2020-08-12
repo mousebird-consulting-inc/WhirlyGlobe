@@ -103,40 +103,6 @@ These are the per vertex attributes provided to each vertex shader.
   */
 @interface MaplyShader : NSObject
 
-/** 
-    Initialize with the file names for the shader program.  OpenGL Only.
-    
-    See initWithName:vertex:fragment:viewC: for more details on how this works.
-    
-    @param name The name of the shader program.  Used for identification and sometimes lookup.
-    
-    @param vertexFileName The file (in the bundle) containing the vertex shader.
-    
-    @param fragFileName The file (in the bundle) containing the fragment shader.
-    
-    @param baseViewC The view controller where we'll register the new shader.
-    
-    @return Returns a shader program if it succeeded.  It may not work, however, so call valid first.
-  */
-- (nullable instancetype)initWithName:(NSString * __nonnull)name vertexFile:(NSString * __nonnull)vertexFileName fragmentFile:(NSString * __nonnull)fragFileName viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)baseViewC;
-
-/** 
-    Initialize with the shader programs tied to a particular view controller.  OpenGL Only.
-    
-    This initializer will parse the given shader program, link it and return a MaplyShader if it succeeded.  It will tie that shader in to the given view controller (and really, it's renderer).  You can only use that shader in that view controller.
-    
-    @param name The name of the shader program.  Used for identification and sometimes lookup.
-    
-    @param vertexProg The string containing the full vertex program.
-    
-    @param fragProg The string containing the full fragment program.
-    
-    @param baseViewC The view controller where we'll register the new shader.
-    
-    @return Returns a shader program if it succeeded.  IT may not work, however, so call valid first.
- */
-- (nullable instancetype)initWithName:(NSString *__nonnull)name vertex:(NSString *__nonnull)vertexProg fragment:(NSString *__nonnull)fragProg viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)baseViewC;
-
 /**
     Initialize with Metal shader functions tied to a particular view controller.  Metal only.
  
@@ -155,36 +121,12 @@ These are the per vertex attributes provided to each vertex shader.
   */
 - (nullable instancetype)initMetalWithName:(NSString *__nonnull)name vertex:(id<MTLFunction> __nonnull)vertexFunc fragment:(id<MTLFunction> __nullable)fragFunc viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)baseViewC;
 
-/**
-    Minimal initialized used in conjuction with delayed setup.  OpenGL Only.
-  */
-- (instancetype __nullable)initWithViewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)baseViewC;
-
-/**
-    Delayed construction of the shader.  OnlyGL Only.
- 
-    Instead of calling the full init methods you can do a simple init and then call this delayed setup.
-    This is useful if you need to set up one or more varyings, which have to be done at link time.
-  */
-- (bool)delayedSetupWithName:(NSString * __nonnull)name vertex:(NSString * __nonnull)vertexProg fragment:(NSString * __nonnull)fragProg;
-
 /** 
     Name of the shader program.
     
     This is the name passed in to the init call.  You can search by this name in some circumstances.
   */
 @property (nonatomic,strong) NSString * __nullable name;
-
-/** 
-    Add a texture tied to the given attribute name.  OpenGL Only.
-    
-    Shaders can have a variety of attributes passed to them.  This is incompletely implemented and documented.  In this particular case we add the given image, convert it to a texture and tie it to the shader attribute name.
-    
-    @param shaderAttrName The name of the attribute in the shader.  This should be compatible with a texture.
-    
-    @param image The UIImage we'll convert to a texture and pass in.  This UIImage will be tracked by the view controller and disposed of when we're finished with it.
-  */
-- (void)addTextureNamed:(NSString *__nonnull)shaderAttrName image:(UIImage *__nonnull)image;
 
 /**
    Present a texture to this shader for use.  Metal Only.
@@ -200,99 +142,6 @@ These are the per vertex attributes provided to each vertex shader.
  The texture itself will not be deleted, just the reference to it in the shader.
  */
 - (void)removeTexture:(MaplyTexture * __nonnull)tex viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)viewC;
-
-/** 
-    Add a texture tied to the given attribute name. OpenGL Only.
- 
-    Shaders can have a variety of attributes passed to them.  This is incompletely implemented and documented.  In this particular case we add the given image, convert it to a texture and tie it to the shader attribute name.
- 
-    @param shaderAttrName The name of the attribute in the shader.  This should be compatible with a texture.
- 
-    @param image The UIImage we'll convert to a texture and pass in.  This UIImage will be tracked by the view controller and disposed of when we're finished with it.
- 
-    @param desc A description dictionary controlling how the image is converted to a texture and represented in the system.
- 
- |Key|Type|Description|
- |:--|:---|:----------|
- |kMaplyTexFormat|NSNumber|The texture format to use for the image.  Consult addTexture:imageFormat:wrapFlags:mode: for a list.  Default is MaplyImageIntRGBA.|
- |kMaplyTexMinFilter|NSNumber|Filter to use for minification.  This can be kMaplyMinFilterNearest or kMaplyMinFilterLinear. Default is kMaplyMinFilterLinear.|
- |kMaplyTexMagFilter|NSNumber|Filter to use for magnification.  This can be kMaplyMinFilterNearest or kMaplyMinFilterLinear. Default is kMaplyMinFilterLinear.|
- |kMaplyTexWrapX|NSNumber boolean|Texture wraps in x direction.  Off by default.|
- |kMaplyTexWrapY|NSNumber boolean|Texture wraps in y direction.  Off by default.|
- |kMaplyTexAtlas|NSNumber boolean|If set, the texture goes into an appropriate atlas.  If not set, it's a standalone texture (default).|
- */
-- (void)addTextureNamed:(NSString *__nonnull)shaderAttrName image:(UIImage *__nonnull)image desc:(NSDictionary * _Nullable)desc;
-
-/**
-    Add a varying for transform feedback. OpenGL Only.
- 
-    Using transform feedback we can pull one or more varying values out of a shader
-    and feed them into another one.  These have to designated up front.
-  */
-- (void)addVarying:(NSString *__nonnull)varyName;
-
-/** 
-    Set a float uniform in the shader with the given name. OpenGL Only.
-    
-    @return Returns true if there was such a uniform, false otherwise.
-  */
-- (bool)setUniformFloatNamed:(NSString *__nonnull)uniName val:(float)val;
-
-/**
-    Set a float uniform index within an array. OpenGL Only.
- 
-    @return Returns true if there was such a uniform, false otherwise.
- */
-- (bool)setUniformFloatNamed:(NSString *__nonnull)uniName val:(float)val index:(int)idx;
-
-/** 
-    Set an integer uniform in the shader with the given name. OpenGL Only.
-    
-    @return Returns true if there was such a uniform, false otherwise.
- */
-- (bool)setUniformIntNamed:(NSString *__nonnull)uniName val:(int)val;
-
-/** 
-    Set a 2 component float uniform in the shader with the given name. OpenGL Only.
-    
-    @return Returns true if there was such a uniform, false otherwise.
- */
-- (bool)setUniformVector2Named:(NSString *__nonnull)uniName x:(float)x y:(float)y;
-
-/** 
-    Set a 3 component float uniform in the shader with the given name. OpenGL Only.
-    
-    @return Returns true if there was such a uniform, false otherwise.
- */
-- (bool)setUniformVector3Named:(NSString *__nonnull)uniName x:(float)x y:(float)y z:(float)z;
-
-/** 
-    Set a 4 component float uniform in the shader with the given name. OpenGL Only.
-    
-    @return Returns true if there was such a uniform, false otherwise.
- */
-- (bool)setUniformVector4Named:(NSString *__nonnull)uniName x:(float)x y:(float)y z:(float)z w:(float)w;
-
-/**
-    Set a 4 component float uniform in the shader with the given name from a color. OpenGL Only.
-
-    @return Returns true if there was such a uniform, false otherwise.
- */
-- (bool)setUniformVector4Named:(NSString *__nonnull)uniName color:(UIColor * __nonnull)color;
-
-/**
- Set a 4 component float uniform in the shader with the given name at the given index from a color. OpenGL Only.
- 
- @return Returns true if there was such a uniform, false otherwise.
- */
-- (bool)setUniformVector4Named:(NSString *__nonnull)uniName color:(UIColor * __nonnull)color index:(int)which;
-
-/** 
-    Set a 4 component float uniform in the shader with the given name at the given index.  OpenGL Only.
-    
-    @return Returns true if there was such a uniform, false otherwise.
- */
-- (bool)setUniformVector4Named:(NSString *__nonnull)uniName x:(float)x y:(float)y z:(float)z w:(float)w index:(int)which;
 
 /**
     For Metal shaders we don't set the individual uniform values passed in, we set them all together as a block.  These are typically set

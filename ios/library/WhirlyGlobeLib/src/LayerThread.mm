@@ -22,7 +22,6 @@
 #import "Scene.h"
 #import "GlobeView.h"
 #import "Platform.h"
-#import "SceneRendererGLES_iOS.h"
 #import "SceneRendererMTL.h"
 
 using namespace WhirlyKit;
@@ -65,13 +64,6 @@ using namespace WhirlyKit;
         inRunAddChangeRequests = false;
         _viewWatcher = [[WhirlyKitLayerViewWatcher alloc] initWithView:inView thread:self];
         
-        if (_renderer->getType() == SceneRenderer::RenderGLES) {
-            SceneRendererGLES_iOS *renderGL = (SceneRendererGLES_iOS *)_renderer;
-
-            // We'll create the context here and set it in the layer thread, always
-            _glContext = [[EAGLContext alloc] initWithAPI:renderGL->getContext().API sharegroup:renderGL->getContext().sharegroup];
-        }
-
         thingsToRelease = [NSMutableArray array];
         threadsToShutdown = [NSMutableArray array];
         
@@ -193,9 +185,6 @@ using namespace WhirlyKit;
         // Note: Hey, should we be deleting these?
         return;
     
-    if (_glContext)
-        [EAGLContext setCurrentContext:_glContext];
-
     inRunAddChangeRequests = true;
     for (NSObject<WhirlyKitLayer> *layer in layers) {
         if ([layer respondsToSelector:@selector(preSceneFlush:)])
@@ -228,9 +217,7 @@ using namespace WhirlyKit;
     
     // If anything needed a flush after that, let's do it
     if (requiresFlush && _allowFlush)
-    {
-        glFlush();
-        
+    {        
         // If there were no changes to add we probably still want to poke the scene
         // Otherwise texture changes don't show up
         if (changesToAdd.empty())
@@ -277,10 +264,6 @@ using namespace WhirlyKit;
     }
 
     existenceLock.lock();
-
-    // This should be the default context.  If you change it yourself, change it back
-    if (_glContext)
-        [EAGLContext setCurrentContext:_glContext];
 
     @autoreleasepool {
         _runLoop = [NSRunLoop currentRunLoop];
@@ -382,8 +365,6 @@ using namespace WhirlyKit;
     thingsToDelete.clear();
     while ([thingsToRelease count] > 0)
         [thingsToRelease removeObject:[thingsToRelease objectAtIndex:0]];
-    
-    _glContext = nil;
     
     // If this is the main thread, we are well and truly done
     if (_mainLayerThread) {

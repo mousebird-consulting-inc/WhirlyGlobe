@@ -19,7 +19,6 @@
  */
 #import "Lighting.h"
 #import "Program.h"
-#import "ProgramGLES.h"
 
 using namespace Eigen;
 
@@ -39,25 +38,6 @@ DirectionalLight::~DirectionalLight()
 {
 }
 
-bool DirectionalLight::bindToProgram(Program *program, int index, Eigen::Matrix4f modelMat) const
-{
-    Eigen::Vector3f dir = pos.normalized();
-    Eigen::Vector3f halfPlane = (dir + Eigen::Vector3f(0,0,1)).normalized();
-
-    ProgramGLES *programGLES = dynamic_cast<ProgramGLES *>(program);
-    if (programGLES) {
-        programGLES->setUniform(lightViewDependNameIDs[index], (viewDependent ? 0.0f : 1.0f));
-        programGLES->setUniform(lightDirectionNameIDs[index], dir);
-        programGLES->setUniform(lightHalfplaneNameIDs[index], halfPlane);
-        programGLES->setUniform(lightAmbientNameIDs[index], ambient);
-        programGLES->setUniform(lightDiffuseNameIDs[index], diffuse);
-        programGLES->setUniform(lightSpecularNameIDs[index], specular);
-    }
-
-    return true;
-}
-
-
 Material::Material() :
     ambient(Eigen::Vector4f(1,1,1,1)),
     diffuse(Eigen::Vector4f(1,1,1,1)),
@@ -68,19 +48,6 @@ Material::Material() :
 
 Material::~Material()
 {
-}
-
-bool Material::bindToProgram(Program *program)
-{
-    ProgramGLES *programGLES = dynamic_cast<ProgramGLES *>(program);
-    if (programGLES) {
-        programGLES->setUniform(materialAmbientNameID, ambient);
-        programGLES->setUniform(materialDiffuseNameID, diffuse);
-        programGLES->setUniform(materialSpecularNameID, specular);
-        programGLES->setUniform(materialSpecularExponentNameID, specularExponent);
-    }
-
-    return true;
 }
 
 }

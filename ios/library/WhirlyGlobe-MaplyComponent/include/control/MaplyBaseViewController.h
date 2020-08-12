@@ -103,13 +103,6 @@
  */
 @interface MaplyBaseViewController : UIViewController <MaplyRenderControllerProtocol>
 
-/**
-    Use the OpenGL renderer, not Metal.
- 
-    By default, we'll set up with Metal.  But if you need OpenGL ES for some reason, here you go.
-  */
-@property(nonatomic,assign) bool useOpenGLES;
-
 /** 
     Turn selection on or off globally.
     
@@ -1402,13 +1395,6 @@
     @return The CLLocationmanager if it exists, else nil
  */
 - (CLLocationManager * _Nullable )getTrackingLocationManager;
-
-/** 
-    Return the maximum width of regular lines.
-    
-    Return the maximum supported line width from OpenGL ES on this device.
-  */
-- (float) getMaxLineWidth;
 
 /** 
     Return all layers loaded by user.

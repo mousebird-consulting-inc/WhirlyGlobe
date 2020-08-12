@@ -44,8 +44,6 @@
 @property (nonatomic,readonly) NSRunLoop *runLoop;
 /// Used to let layers get view change notices
 @property (nonatomic,strong) WhirlyKitLayerViewWatcher *viewWatcher;
-/// Our own EAGLContext, connected by a share group to the main one
-@property (nonatomic,readonly) EAGLContext *glContext;
 /// The renderer we're working with
 @property (nonatomic) WhirlyKit::SceneRenderer *renderer;
 /// Turn this off to disable flushes to GL on the layer thread.

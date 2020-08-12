@@ -21,7 +21,6 @@
 #import "StringIndexer.h"
 #import "SceneRenderer.h"
 #import "Identifiable.h"
-#import "MemManagerGLES.h"
 
 namespace WhirlyKit {
     
@@ -60,7 +59,10 @@ std::string StringIndexer::getString(StringIdentity strID)
     
     return index.identToString[strID];
 }
-    
+ 
+// Note: This is from OpenGL.  Doesn't hold anymore on iOS
+#define WhirlyKitMaxTextures 8
+
 // Shared global string IDs speed things up a lot
 StringIdentity baseMapNameIDs[WhirlyKitMaxTextures];
 StringIdentity hasBaseMapNameIDs[WhirlyKitMaxTextures];
