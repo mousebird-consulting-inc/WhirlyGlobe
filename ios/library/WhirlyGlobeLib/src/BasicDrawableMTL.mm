@@ -353,10 +353,23 @@ bool BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
     }
 
     if (texturesChanged || valuesChanged || prog->changed) {
-        vertDesc = nil;
         ret = true;
         
         id<MTLDevice> mtlDevice = sceneRender->setupInfo.mtlDevice;
+        
+        // We need to blit the default values into place because we let those change
+        // Typically, this is color
+        BufferBuilderMTL buffBuild(&sceneRender->setupInfo);
+        BufferEntryMTLRef baseBuff;
+        for (auto &defAttr : defaultAttrs) {
+            if (!baseBuff)
+                baseBuff = defAttr.buffer;
+            defAttr.buffer = buffBuild.addData(&defAttr.data, sizeof(defAttr.data));
+        }
+        if (baseBuff) {
+            BufferEntryMTLRef srcBuff = buffBuild.buildBuffer();
+            [bltEncode copyFromBuffer:srcBuff->buffer sourceOffset:0 toBuffer:baseBuff->buffer destinationOffset:baseBuff->offset size:srcBuff->buffer.length];
+        }
 
         if (texturesChanged && (vertTexInfo || fragTexInfo)) {
             activeTextures.clear();
