@@ -51,7 +51,7 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
     WideVectorDrawableBuilder();
-    ~WideVectorDrawableBuilder();
+    virtual ~WideVectorDrawableBuilder();
 
     virtual void Init(unsigned int numVert,unsigned int numTri,bool globeMode);
     

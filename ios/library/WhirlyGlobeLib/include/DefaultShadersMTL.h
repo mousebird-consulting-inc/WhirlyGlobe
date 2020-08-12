@@ -108,7 +108,9 @@ struct Uniforms
     simd::float4x4 mvpInvMatrix;
     simd::float4x4 mvMatrix;
     simd::float4x4 mvNormalMatrix;
+    simd::float4x4 pMatrix;
     simd::float3 eyePos;
+    simd::float3 eyeVec;
     simd::float2 screenSizeInDisplayCoords;  // Size of the whole frame in display coords
     simd::float2 frameSize;    // Output framebuffer size
     uint frameCount;            // Starts at zero and goes up from there every frame
@@ -207,7 +209,6 @@ struct VertexTriModelInstance
 
 // Instructions to the billboard shaders, per-drawable
 struct UniformBillboard {
-    simd::float3 eyeVec;
     bool groundMode;
 };
     

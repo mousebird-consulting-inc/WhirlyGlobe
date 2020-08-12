@@ -210,7 +210,9 @@ void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,id<MTL
     CopyIntoMtlFloat4x4(uniforms.mvpInvMatrix,frameInfo->mvpInvMat);
     CopyIntoMtlFloat4x4(uniforms.mvMatrix,frameInfo->viewAndModelMat);
     CopyIntoMtlFloat4x4(uniforms.mvNormalMatrix,frameInfo->viewModelNormalMat);
+    CopyIntoMtlFloat4x4(uniforms.pMatrix,frameInfo->projMat);
     CopyIntoMtlFloat3(uniforms.eyePos,frameInfo->eyePos);
+    CopyIntoMtlFloat3(uniforms.eyeVec,frameInfo->eyeVec);
     CopyIntoMtlFloat2(uniforms.screenSizeInDisplayCoords,Point2f(frameInfo->screenSizeInDisplayCoords.x(),frameInfo->screenSizeInDisplayCoords.y()));
     Point2f frameSize(frameInfo->sceneRenderer->framebufferWidth,frameInfo->sceneRenderer->framebufferHeight);
     CopyIntoMtlFloat2(uniforms.frameSize, frameSize);

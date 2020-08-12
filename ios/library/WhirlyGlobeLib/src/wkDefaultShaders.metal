@@ -555,16 +555,17 @@ vertex ProjVertexTriA vertexTri_billboard(
     float3 newPos;
     // Billboard is rooted to its position
     if (vertArgs.uniBB.groundMode) {
-        float3 axisX = normalize(cross(vertArgs.uniBB.eyeVec,vert.normal));
+        float3 axisX = normalize(cross(uniforms.eyeVec,vert.normal));
         float3 axisZ = normalize(cross(axisX,vert.normal));
         newPos = vertPos + axisX * vert.offset.x + vert.normal * vert.offset.y + axisZ * vert.offset.z;
+        outVert.position = uniforms.mvpMatrix * float4(newPos,1.0);
     } else {
         // Billboard orients fully toward the eye
         float4 pos = uniforms.mvMatrix * float4(vertPos,1.0);
         float3 pos3 = (pos/pos.w).xyz;
         newPos = float3(pos3.x + vert.offset.x,pos3.y+vert.offset.y,pos3.z+vert.offset.z);
+        outVert.position = uniforms.pMatrix * float4(newPos,1.0);
     }
-    outVert.position = uniforms.mvpMatrix * float4(newPos,1.0);
 
     // TODO: Support lighting.  Maybe
 //    outVert.color = resolveLighting(vert.position,
