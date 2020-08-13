@@ -120,10 +120,16 @@ public class QuadSamplingLayer extends Layer implements LayerThread.ViewWatcherI
 
         ChangeSet changes = new ChangeSet();
         if (viewUpdatedNative(viewState,changes)) {
+            if (isShuttingDown)
+                return;
+
             // Have a few things left to process.  So come back in a bit and do them.
             layerThread.addDelayedTask(new Runnable() {
                 @Override
                 public void run() {
+                    if (isShuttingDown)
+                        return;
+
                     // If we've moved on, then cancel
                     if (thisGeneration < generation)
                         return;
