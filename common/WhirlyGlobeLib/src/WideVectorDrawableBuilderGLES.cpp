@@ -35,24 +35,21 @@ void WideVectorTweakerGLES::tweakForFrame(Drawable *inDraw,RendererFrameInfo *fr
         float pixDispSize = std::min(frameInfo->screenSizeInDisplayCoords.x(),frameInfo->screenSizeInDisplayCoords.y()) / scale;
         float texScale = scale/(screenSize*texRepeat);
         
-        if (frameInfo->sceneRenderer->getType() == SceneRenderer::RenderGLES) {
-            ProgramGLES *programGLES = (ProgramGLES *)frameInfo->program;
-            
-            if (realWidthSet)
-            {
-                programGLES->setUniform(u_w2NameID, (float)(realWidth / pixDispSize));
-                programGLES->setUniform(u_Realw2NameID, (float)realWidth);
-                programGLES->setUniform(u_EdgeNameID, edgeSize);
-            } else {
-                programGLES->setUniform(u_w2NameID, lineWidth);
-                programGLES->setUniform(u_Realw2NameID, pixDispSize * lineWidth);
-                programGLES->setUniform(u_EdgeNameID, edgeSize);
-            }
-            programGLES->setUniform(u_texScaleNameID, texScale);
-            programGLES->setUniform(u_colorNameID, Vector4f(color.r/255.0,color.g/255.0,color.b/255.0,color.a/255.0));
+        ProgramGLES *programGLES = (ProgramGLES *)frameInfo->program;
+
+        if (realWidthSet)
+        {
+            programGLES->setUniform(u_w2NameID, (float)(realWidth / pixDispSize));
+            programGLES->setUniform(u_Realw2NameID, (float)realWidth);
+            programGLES->setUniform(u_EdgeNameID, edgeSize);
+        } else {
+            programGLES->setUniform(u_w2NameID, lineWidth);
+            programGLES->setUniform(u_Realw2NameID, pixDispSize * lineWidth);
+            programGLES->setUniform(u_EdgeNameID, edgeSize);
         }
+        programGLES->setUniform(u_texScaleNameID, texScale);
+        programGLES->setUniform(u_colorNameID, Vector4f(color.r/255.0,color.g/255.0,color.b/255.0,color.a/255.0));
     }
-    
 }
 
 WideVectorDrawableBuilderGLES::WideVectorDrawableBuilderGLES(const std::string &name,Scene *scene)

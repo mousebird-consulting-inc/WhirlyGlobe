@@ -25,7 +25,7 @@ namespace WhirlyKit
     
 void ScreenSpaceTweakerGLES::tweakForFrame(Drawable *inDraw,RendererFrameInfo *frameInfo)
 {
-    if (frameInfo->sceneRenderer->getType() != SceneRenderer::RenderGLES || !frameInfo->program)
+    if (!frameInfo->program)
         return;
     
     BasicDrawable *draw = dynamic_cast<BasicDrawable *>(inDraw);

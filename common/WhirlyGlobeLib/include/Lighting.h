@@ -91,7 +91,7 @@ public:
     void setSpecularExponent(float value){ specularExponent = value; }
     float getSpecularExponent() { return specularExponent; }
 
-private:
+public:
     Eigen::Vector4f ambient;
     Eigen::Vector4f diffuse;
     Eigen::Vector4f specular;

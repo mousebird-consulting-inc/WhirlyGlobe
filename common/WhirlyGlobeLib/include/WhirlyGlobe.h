@@ -136,7 +136,7 @@
 #import "BillboardDrawableBuilderGLES.h"
 #import "WideVectorDrawableBuilderGLES.h"
 #import "ScreenSpaceDrawableBuilderGLES.h"
-#import "ParticleSystemDrawableGLES.h"eagl
+#import "ParticleSystemDrawableGLES.h"
 #import "ParticleSystemDrawableBuilderGLES.h"
 
 #import "LineAndPointShadersGLES.h"
