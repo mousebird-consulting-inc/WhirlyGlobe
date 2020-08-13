@@ -222,7 +222,11 @@ void ResourceRefsMTL::clear()
     buffersToHold.clear();
 }
 
+#if TARGET_OS_SIMULATOR
+bool HeapManagerMTL::UseHeaps = false;
+#else
 bool HeapManagerMTL::UseHeaps = true;
+#endif
 
 HeapManagerMTL::HeapManagerMTL(id<MTLDevice> mtlDevice)
 : mtlDevice(mtlDevice)

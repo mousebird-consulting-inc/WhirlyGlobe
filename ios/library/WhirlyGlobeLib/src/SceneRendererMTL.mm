@@ -83,12 +83,14 @@ SceneRendererMTL::SceneRendererMTL(id<MTLDevice> mtlDevice,id<MTLLibrary> mtlLib
 : setupInfo(mtlDevice,mtlLibrary), isShuttingDown(false)
 {
     offscreenBlendEnable = false;
-    // Indirect rendering is only on for 13 and later
+    indirectRender = false;
     if (@available(iOS 13.0, *)) {
         indirectRender = true;
-    } else {
-        indirectRender = false;
     }
+#if TARGET_OS_SIMULATOR
+    indirectRender = false;
+#endif
+
     init();
 
     // Calculation shaders
@@ -222,7 +224,7 @@ void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,id<MTL
     
     // Copy this to a buffer and then blit that buffer into place
     // TODO: Try to reuse these
-    id<MTLBuffer> buff = [setupInfo.mtlDevice newBufferWithBytes:&uniforms length:sizeof(uniforms) options:MTLResourceStorageModeShared];
+    id<MTLBuffer> buff = [setupInfo.mtlDevice newBufferWithBytes:&uniforms length:sizeof(uniforms) options:MTLResourceStorageModePrivate];
     [bltEncode copyFromBuffer:buff sourceOffset:0 toBuffer:sceneRender->setupInfo.uniformBuff->buffer destinationOffset:sceneRender->setupInfo.uniformBuff->offset size:sizeof(uniforms)];
 }
 
@@ -253,7 +255,7 @@ void SceneRendererMTL::setupLightBuffer(SceneMTL *scene,RendererFrameInfoMTL *fr
     
     // Copy this to a buffer and then blit that buffer into place
     // TODO: Try to reuse these
-    id<MTLBuffer> buff = [setupInfo.mtlDevice newBufferWithBytes:&lighting length:sizeof(lighting) options:MTLResourceStorageModeShared];
+    id<MTLBuffer> buff = [setupInfo.mtlDevice newBufferWithBytes:&lighting length:sizeof(lighting) options:MTLResourceStorageModePrivate];
     [bltEncode copyFromBuffer:buff sourceOffset:0 toBuffer:sceneRender->setupInfo.lightingBuff->buffer destinationOffset:sceneRender->setupInfo.lightingBuff->offset size:sizeof(lighting)];
 }
     
