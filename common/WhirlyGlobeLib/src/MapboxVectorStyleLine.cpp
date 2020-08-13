@@ -29,16 +29,8 @@ static const char *joinVals[] = {"bevel","round","miter",NULL};
 
 bool MapboxVectorLineLayout::parse(PlatformThreadInfo *inst,MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry)
 {
-    if (!styleEntry) {
-        cap = MBLineCapButt;
-        join = MBLineJoinMiter;
-        miterLimit = 2.0;
-        roundLimit = 1.0;
-        return true;
-    }
-    
-    cap = (MapboxVectorLineCap)styleSet->enumValue(styleEntry->getEntry("line-cap"),lineCapVals,(int)MBLineCapButt);
-    join = (MapboxVectorLineJoin)styleSet->enumValue(styleEntry->getEntry("line-join"),joinVals,(int)MBLineJoinMiter);
+    cap = styleEntry ? (MapboxVectorLineCap)styleSet->enumValue(styleEntry->getEntry("line-cap"),lineCapVals,(int)MBLineCapButt) : MBLineCapButt;
+    join = styleEntry ? (MapboxVectorLineJoin)styleSet->enumValue(styleEntry->getEntry("line-join"),joinVals,(int)MBLineJoinMiter) : MBLineJoinMiter;
     miterLimit = styleSet->doubleValue("line-miter-limit", styleEntry, 2.0);
     roundLimit = styleSet->doubleValue("line-round-limit", styleEntry, 1.0);
 
@@ -47,9 +39,6 @@ bool MapboxVectorLineLayout::parse(PlatformThreadInfo *inst,MapboxVectorStyleSet
 
 bool MapboxVectorLinePaint::parse(PlatformThreadInfo *inst,MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry)
 {
-    if (!styleEntry)
-        return false;
-    
     styleSet->unsupportedCheck("line-translate", "line-paint", styleEntry);
     styleSet->unsupportedCheck("line-translate-anchor", "line-paint", styleEntry);
     styleSet->unsupportedCheck("line-gap-width", "line-paint", styleEntry);
@@ -61,7 +50,7 @@ bool MapboxVectorLinePaint::parse(PlatformThreadInfo *inst,MapboxVectorStyleSetI
     color = styleSet->transColor("line-color", styleEntry, RGBAColor::black());
     pattern = styleSet->stringValue("line-pattern", styleEntry, "");
     
-    if (styleEntry->getType("line-dasharray") == DictTypeArray) {
+    if (styleEntry && styleEntry->getType("line-dasharray") == DictTypeArray) {
         auto vecArray = styleEntry->getArray("line-dasharray");
         for (auto entry : vecArray) {
             if (entry->getType() == DictTypeDouble) {
@@ -80,6 +69,9 @@ bool MapboxVectorLayerLine::parse(PlatformThreadInfo *inst,
                                   MapboxVectorStyleLayerRef refLayer,
                                   int drawPriority)
 {
+    if (!styleEntry)
+        return false;
+    
     if (!MapboxVectorStyleLayer::parse(inst, styleEntry,refLayer,drawPriority) ||
         !layout.parse(inst, styleSet, styleEntry->getDict("layout")) ||
         !paint.parse(inst, styleSet, styleEntry->getDict("paint")))

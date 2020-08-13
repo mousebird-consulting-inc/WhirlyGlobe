@@ -46,6 +46,9 @@ bool MapboxVectorLayerCircle::parse(PlatformThreadInfo *inst,
                                     MapboxVectorStyleLayerRef refLayer,
                                     int drawPriority)
 {
+    if (!styleEntry)
+        return false;
+    
     if (!MapboxVectorStyleLayer::parse(inst,styleEntry,refLayer,drawPriority) ||
         !paint.parse(inst, styleSet, styleEntry->getDict("paint")))
         return false;

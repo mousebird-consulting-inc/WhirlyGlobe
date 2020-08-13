@@ -538,6 +538,9 @@ int MapboxVectorStyleSetImpl::enumValue(DictionaryEntryRef entry,const char *opt
 
 MapboxTransDoubleRef MapboxVectorStyleSetImpl::transDouble(const std::string &name,DictionaryRef entry,double defVal)
 {
+    if (!entry)
+        return MapboxTransDoubleRef(new MapboxTransDouble(defVal));
+    
     // They pass in the whole dictionary and let us look the field up
     DictionaryEntryRef theEntry = entry->getEntry(name);
     if (!theEntry)
@@ -566,6 +569,12 @@ MapboxTransColorRef MapboxVectorStyleSetImpl::transColor(const std::string &name
     RGBAColorRef defValRef;
     if (defVal)
         defValRef = RGBAColorRef(new RGBAColor(*defVal));
+
+    if (!entry) {
+        if (defVal)
+            return MapboxTransColorRef(new MapboxTransColor(RGBAColorRef(new RGBAColor(*defVal))));
+        return MapboxTransColorRef();
+    }
 
     // They pass in the whole dictionary and let us look the field up
     DictionaryEntryRef theEntry = entry->getEntry(name);
@@ -606,7 +615,7 @@ MapboxTransColorRef MapboxVectorStyleSetImpl::transColor(const std::string &name
 
 void MapboxVectorStyleSetImpl::unsupportedCheck(const char *field,const char *what,DictionaryRef styleEntry)
 {
-    if (styleEntry->hasField(field))
+    if (styleEntry && styleEntry->hasField(field))
         wkLogLevel(Warn,"Found unsupported field (%s) for (%s)",field,what);
 }
 

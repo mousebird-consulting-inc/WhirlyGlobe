@@ -94,12 +94,14 @@ bool MapboxVectorSymbolLayout::parse(PlatformThreadInfo *inst,
                                      DictionaryRef styleEntry)
 {
     globalTextScale = styleSet->tileStyleSettings->textScale;
-    placement = (MapboxSymbolPlacement)styleSet->enumValue(styleEntry->getEntry("symbol-placement"), placementVals, (int)MBPlacePoint);
-    textTransform = (MapboxTextTransform)styleSet->enumValue(styleEntry->getEntry("text-transform"), transformVals, (int)MBTextTransNone);
+    placement = styleEntry ? (MapboxSymbolPlacement)styleSet->enumValue(styleEntry->getEntry("symbol-placement"), placementVals, (int)MBPlacePoint) : MBPlacePoint;
+    textTransform = styleEntry ? (MapboxTextTransform)styleSet->enumValue(styleEntry->getEntry("text-transform"), transformVals, (int)MBTextTransNone) : MBTextTransNone;
     
     textField.parse("text-field",styleSet,styleEntry);
 
-    auto textFontArray = styleEntry->getArray("text-font");
+    std::vector<DictionaryEntryRef> textFontArray;
+    if (styleEntry)
+        textFontArray = styleEntry->getArray("text-font");
     if (!textFontArray.empty() && textFontArray[0]->getType() == DictTypeString) {
         std::string textField = textFontArray[0]->getString();
         textFontName = textField;
@@ -109,7 +111,7 @@ bool MapboxVectorSymbolLayout::parse(PlatformThreadInfo *inst,
     textSize = styleSet->transDouble("text-size", styleEntry, 24.0);
 
     textAnchor = MBTextCenter;
-    if (styleEntry->getType("text-anchor") == DictTypeArray) {
+    if (styleEntry && styleEntry->getType("text-anchor") == DictTypeArray) {
         textAnchor = (MapboxTextAnchor)styleSet->enumValue(styleEntry->getEntry("text-anchor"), anchorVals, (int)MBTextCenter);
     }
     layoutImportance = styleSet->tileStyleSettings->labelImportance;
@@ -124,9 +126,6 @@ bool MapboxVectorSymbolPaint::parse(PlatformThreadInfo *inst,
                                     MapboxVectorStyleSetImpl *styleSet,
                                     DictionaryRef styleEntry)
 {
-    if (!styleEntry)
-        return false;
-    
     textColor = styleSet->transColor("text-color", styleEntry, RGBAColor::black());
     textOpacity = styleSet->transDouble("text-opacity", styleEntry, 1.0);
     textHaloColor = styleSet->colorValue("text-halo-color", NULL, styleEntry, RGBAColorRef(), false);

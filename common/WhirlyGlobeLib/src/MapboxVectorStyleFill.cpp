@@ -47,6 +47,9 @@ bool MapboxVectorLayerFill::parse(PlatformThreadInfo *inst,
                                   MapboxVectorStyleLayerRef refLayer,
                                   int inDrawPriority)
 {
+    if (!styleEntry)
+        return false;
+
     if (!MapboxVectorStyleLayer::parse(inst,styleEntry,refLayer,drawPriority) ||
         !paint.parse(inst,styleSet,styleEntry->getDict("paint")))
         return false;
@@ -54,7 +57,7 @@ bool MapboxVectorLayerFill::parse(PlatformThreadInfo *inst,
     arealShaderID = styleSet->tileStyleSettings->settingsArealShaderID;
     
     // Mess directly with the opacity because we're using it for other purposes
-    if (styleEntry->hasField("alphaoverride")) {
+    if (styleEntry && styleEntry->hasField("alphaoverride")) {
         paint.color->setAlphaOverride(styleEntry->getDouble("alphaoverride"));
     }
     
