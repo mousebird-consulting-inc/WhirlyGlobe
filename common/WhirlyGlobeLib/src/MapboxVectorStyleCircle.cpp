@@ -99,7 +99,8 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
                         marker->texIDs.push_back(circleTexID);
                         marker->width = 2*paint.radius * styleSet->tileStyleSettings->markerScale; marker->height = 2*paint.radius * styleSet->tileStyleSettings->markerScale;
                         marker->layoutWidth = marker->width; marker->layoutHeight = marker->height;
-                        marker->layoutImportance = importance + (101-tileInfo->ident.level)/100.0;
+                        marker->layoutImportance = MAXFLOAT;
+//                        marker->layoutImportance = importance + (101-tileInfo->ident.level)/100.0;
                         if (selectable) {
                             marker->isSelectable = true;
                             marker->selectID = Identifiable::genId();
