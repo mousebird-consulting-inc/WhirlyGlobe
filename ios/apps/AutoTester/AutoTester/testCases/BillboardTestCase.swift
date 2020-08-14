@@ -34,7 +34,7 @@ class BillboardTestCase : MaplyTestCase {
             bboard.userObject = vecObj.attributes["title"]
             billboards.append(bboard)
         }
-        theViewC.addBillboards(billboards, desc: nil, mode: .any)
+        theViewC.addBillboards(billboards, desc: [kMaplyBillboardOrient: kMaplyBillboardOrientEye], mode: .any)
     }
     
     let baseCase : VectorsTestCase = VectorsTestCase()

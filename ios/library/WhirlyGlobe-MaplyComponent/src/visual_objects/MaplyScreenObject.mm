@@ -57,13 +57,14 @@ using namespace WhirlyKit;
     poly->pts.resize(4);
     poly->texCoords.resize(4);
 
-    poly->pts[0] = Point2d(0,0);
+    CGFloat width2 = size.width/2.0, height2 = size.height/2.0;
+    poly->pts[0] = Point2d(-width2,-height2);
     poly->texCoords[0] = TexCoord(0,1);
-    poly->pts[1] = Point2d(size.width,0);
+    poly->pts[1] = Point2d(width2,-height2);
     poly->texCoords[1] = TexCoord(1,1);
-    poly->pts[2] = Point2d(size.width,size.height);
+    poly->pts[2] = Point2d(width2,height2);
     poly->texCoords[2] = TexCoord(1,0);
-    poly->pts[3] = Point2d(0,size.height);
+    poly->pts[3] = Point2d(-width2,height2);
     poly->texCoords[3] = TexCoord(0,0);
     
     screenObj.polys.push_back(poly);

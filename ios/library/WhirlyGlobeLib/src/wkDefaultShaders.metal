@@ -555,7 +555,7 @@ vertex ProjVertexTriA vertexTri_billboard(
     float3 newPos;
     // Billboard is rooted to its position
     if (vertArgs.uniBB.groundMode) {
-        float3 axisX = normalize(cross(uniforms.eyeVec,vert.normal));
+        float3 axisX = -normalize(cross(uniforms.eyeVec,vert.normal));
         float3 axisZ = normalize(cross(axisX,vert.normal));
         newPos = vertPos + axisX * vert.offset.x + vert.normal * vert.offset.y + axisZ * vert.offset.z;
         outVert.position = uniforms.mvpMatrix * float4(newPos,1.0);
