@@ -242,8 +242,8 @@ public:
     } else if (symbol)
     {
         NSString *fullName = nil;
-        NSString *fileName = [symbol lastPathComponent];
-        mainImage = [UIImage imageNamed:fileName];
+        NSString *fileName = [symbol length] > 0 ? [symbol lastPathComponent] : symbol;
+        mainImage = [fileName length] > 0 ? [UIImage imageNamed:fileName] : nil;
         if (!mainImage)
         {
             fullName = [NSString stringWithFormat:@"%@-24@2x.png",symbol];
