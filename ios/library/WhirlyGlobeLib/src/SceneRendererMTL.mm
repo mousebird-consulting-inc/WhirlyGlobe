@@ -316,7 +316,7 @@ void SceneRendererMTL::updateWorkGroups(RendererFrameInfo *inFrameInfo)
     if (@available(iOS 13.0, *)) {
         for (auto &workGroup : workGroups) {
             for (auto targetContainer : workGroup->renderTargetContainers) {
-                if (targetContainer->drawables.empty() || !targetContainer->modified)
+                if (targetContainer->drawables.empty() && !targetContainer->modified)
                     continue;
                 RenderTargetContainerMTLRef targetContainerMTL = std::dynamic_pointer_cast<RenderTargetContainerMTL>(targetContainer);
                 targetContainerMTL->drawGroups.clear();
@@ -633,7 +633,10 @@ void SceneRendererMTL::render(TimeInterval duration,
             perfTimer.startTiming("Work Group: " + workGroup->name);
 
         for (auto &targetContainer : workGroup->renderTargetContainers) {
-            if (targetContainer->drawables.empty())
+            // We'll skip empty render targets, except for the default one which we need at least to clear
+            // Otherwise we stick on the last things that got rendered, rather than a blank screen
+            if (targetContainer->drawables.empty() &&
+                !(targetContainer && targetContainer->renderTarget && targetContainer->renderTarget->getId() == EmptyIdentity))
                 continue;
             RenderTargetContainerMTL *targetContainerMTL = (RenderTargetContainerMTL *)targetContainer.get();
             

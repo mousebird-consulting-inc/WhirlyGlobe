@@ -934,6 +934,11 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
   */
 - (id<MTLLibrary> __nullable)getMetalLibrary;
 
+/**
+ An explicit teardown.  For render controllers you allocate standalone, this is a good idea.
+ */
+- (void)teardown;
+
 @end
 
 /**

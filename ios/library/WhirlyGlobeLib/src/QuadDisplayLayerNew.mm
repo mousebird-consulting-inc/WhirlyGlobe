@@ -68,6 +68,7 @@ using namespace WhirlyKit;
     controller = NULL;
     
     [_layerThread addChangeRequests:changes];
+    [_layerThread flushChangeRequests];
 }
 
 static const float DelayPeriod = 0.1;
@@ -102,6 +103,8 @@ static const float DelayPeriod = 0.1;
 - (void)preSceneFlush:(WhirlyKitLayerThread *)layerThread
 {
     ChangeSet changes;
+    if (!controller)
+        return;
     controller->preSceneFlush(changes);
     
     [_layerThread addChangeRequests:changes];

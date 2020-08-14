@@ -613,5 +613,6 @@ public class MapboxKindaMap {
         pagingLoader?.shutdown()
         pagingLoader = nil
         mapboxInterp = nil
+        offlineRender = nil
     }
 }

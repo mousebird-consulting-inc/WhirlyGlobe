@@ -136,6 +136,7 @@ void BasicDrawableInstanceMTL::teardownForRenderer(const RenderSetupInfo *setupI
     vertTexInfo.reset();
     fragTexInfo.reset();
     defaultAttrs.clear();
+    activeTextures.clear();
 
     basicDraw.reset();
     uniforms.clear();
@@ -144,6 +145,7 @@ void BasicDrawableInstanceMTL::teardownForRenderer(const RenderSetupInfo *setupI
     instances.clear();
 
     renderTargetCon.reset();
+    tweakers.clear();
 }
 
 id<MTLRenderPipelineState> BasicDrawableInstanceMTL::getRenderPipelineState(SceneRendererMTL *sceneRender,Scene *scene,ProgramMTL *program,RenderTargetMTL *renderTarget,BasicDrawableMTL *basicDrawMTL)

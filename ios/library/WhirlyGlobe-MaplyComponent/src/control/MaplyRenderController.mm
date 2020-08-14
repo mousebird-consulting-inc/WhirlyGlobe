@@ -99,6 +99,11 @@ using namespace Eigen;
     return self;
 }
 
+- (void)dealloc
+{
+    [self teardown];
+}
+
 - (void)teardown
 {
     SceneRendererMTLRef sceneRendererMTL = std::dynamic_pointer_cast<SceneRendererMTL>(sceneRenderer);
@@ -108,6 +113,12 @@ using namespace Eigen;
     for (auto tileFetcher : tileFetchers)
         [tileFetcher shutdown];
     tileFetchers.clear();
+    
+    // This stuff is our responsibility if we created it
+    if (offlineMode) {
+        if (interactLayer)
+            [interactLayer teardown];
+    }
     
     defaultClusterGenerator = nil;
 
@@ -132,8 +143,6 @@ using namespace Eigen;
     // This stuff is our responsibility if we created it
     if (offlineMode)
     {
-        if (interactLayer)
-            [interactLayer teardown];
         interactLayer = nil;
         flatView = NULL;
         genCoordAdapter = NULL;

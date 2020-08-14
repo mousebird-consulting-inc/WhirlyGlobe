@@ -366,6 +366,9 @@ using namespace WhirlyKit;
         if (!theQueue)
             theQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
         dispatch_async(theQueue, ^{
+            if (!self->valid || !self->_viewC)
+                return;
+            
             // No load interpreter means the fetcher created the objects.  Hopefully.
             if (self->loadInterp)
                 [self->loadInterp dataForTile:loadReturn loader:self];
@@ -397,8 +400,12 @@ using namespace WhirlyKit;
     
     loader->cleanup(NULL,changes);
     [samplingLayer.layerThread addChangeRequests:changes];
-    
-    loader = nil;
+    [samplingLayer.layerThread flushChangeRequests];
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[self.viewC getRenderControl] releaseSamplingLayer:self->samplingLayer forUser:self->loader];
+        self->loader = nil;
+    });
 }
 
 - (void)shutdown
@@ -407,8 +414,6 @@ using namespace WhirlyKit;
     
     if (self->samplingLayer && self->samplingLayer.layerThread)
         [self performSelector:@selector(cleanup) onThread:self->samplingLayer.layerThread withObject:nil waitUntilDone:NO];
-    
-    [[self.viewC getRenderControl] releaseSamplingLayer:samplingLayer forUser:loader];
 }
 
 @end

@@ -210,8 +210,6 @@ static int BackImageWidth = 16, BackImageHeight = 16;
     
     NSData *imageData = nil;
     
-    [viewC startChanges];
-    
     if (offlineRender) {
         // Parse the polygons and draw into an image
         // Note: Can we use multiple of these for speed?
@@ -267,6 +265,9 @@ static int BackImageWidth = 16, BackImageHeight = 16;
         }
     }
     
+    if (![[viewC getRenderControl] startOfWork])
+        return;
+    
     // Parse everything else and turn into vectors
     std::vector<ComponentObjectRef> compObjs,ovlCompObjs;
     for (NSData *thisTileData : pbfDatas) {
@@ -285,8 +286,6 @@ static int BackImageWidth = 16, BackImageHeight = 16;
             ovlCompObjs.insert(ovlCompObjs.end(),ids.begin(),ids.end());
         }
     }
-
-    [viewC endChanges];
 
     if ([loadReturn isKindOfClass:[MaplyImageLoaderReturn class]]) {
         if (offlineRender) {
@@ -321,6 +320,8 @@ static int BackImageWidth = 16, BackImageHeight = 16;
             [loadReturn addImageTile:tileData];
         }
     }
+    
+    [[viewC getRenderControl] endOfWork];
         
     if (!ovlCompObjs.empty()) {
         std::vector<ComponentObjectRef> minusOvls;

@@ -122,11 +122,13 @@ void BasicDrawableMTL::teardownForRenderer(const RenderSetupInfo *setupInfo,Scen
     for (VertexAttribute *vertAttr : vertexAttributes) {
         VertexAttributeMTL *vertAttrMTL = (VertexAttributeMTL *)vertAttr;
         vertAttrMTL->buffer.reset();
+        delete vertAttrMTL;
     }
     vertexAttributes.clear();
     uniBlocks.clear();
     uniforms.clear();
     renderTargetCon.reset();
+    tweakers.clear();
 }
     
 MTLVertexDescriptor *BasicDrawableMTL::getVertexDescriptor(id<MTLFunction> vertFunc,std::vector<AttributeDefault> &defAttrs)

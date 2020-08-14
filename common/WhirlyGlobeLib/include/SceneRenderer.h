@@ -332,8 +332,8 @@ public:
     std::vector<WorkGroupRef> workGroups;
 
     // Drawables that we currently know about, but are off
-    std::set<DrawableRef,IdentifiableRefSorter> offDrawables;
-    
+    std::set<DrawableRef> offDrawables;
+
     // Explicitly clear any held structures
     void shutdown();
 

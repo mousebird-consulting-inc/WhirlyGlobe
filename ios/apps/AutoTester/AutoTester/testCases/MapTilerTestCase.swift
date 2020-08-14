@@ -98,6 +98,13 @@ class MapTilerTestCase: MaplyTestCase {
         }
     }
     
+    override func stop() {
+        mapboxMap?.stop()
+        mapboxMap = nil
+        
+        super.stop()
+    }
+    
     override func setUpWithMap(_ mapVC: MaplyViewController) {
         mapVC.performanceOutput = true
         
