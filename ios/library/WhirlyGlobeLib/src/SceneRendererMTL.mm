@@ -224,7 +224,7 @@ void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,id<MTL
     
     // Copy this to a buffer and then blit that buffer into place
     // TODO: Try to reuse these
-    id<MTLBuffer> buff = [setupInfo.mtlDevice newBufferWithBytes:&uniforms length:sizeof(uniforms) options:MTLResourceStorageModePrivate];
+    id<MTLBuffer> buff = [setupInfo.mtlDevice newBufferWithBytes:&uniforms length:sizeof(uniforms) options:MTLResourceStorageModeShared];
     [bltEncode copyFromBuffer:buff sourceOffset:0 toBuffer:sceneRender->setupInfo.uniformBuff->buffer destinationOffset:sceneRender->setupInfo.uniformBuff->offset size:sizeof(uniforms)];
 }
 
@@ -255,7 +255,7 @@ void SceneRendererMTL::setupLightBuffer(SceneMTL *scene,RendererFrameInfoMTL *fr
     
     // Copy this to a buffer and then blit that buffer into place
     // TODO: Try to reuse these
-    id<MTLBuffer> buff = [setupInfo.mtlDevice newBufferWithBytes:&lighting length:sizeof(lighting) options:MTLResourceStorageModePrivate];
+    id<MTLBuffer> buff = [setupInfo.mtlDevice newBufferWithBytes:&lighting length:sizeof(lighting) options:MTLResourceStorageModeShared];
     [bltEncode copyFromBuffer:buff sourceOffset:0 toBuffer:sceneRender->setupInfo.lightingBuff->buffer destinationOffset:sceneRender->setupInfo.lightingBuff->offset size:sizeof(lighting)];
 }
     
