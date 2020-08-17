@@ -159,6 +159,9 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
             vecInfo.setDrawPriority(drawPriority);
             vecInfo.setEnable(false);
 
+            for (VectorObject vecObj: vecObjs)
+                vecObj.setSelectable(true);
+
             ComponentObject compObj = controller.addVectors(new ArrayList<VectorObject>(Arrays.asList(vecObjs)),vecInfo,threadMode);
             tileData.addComponentObject(compObj);
         }

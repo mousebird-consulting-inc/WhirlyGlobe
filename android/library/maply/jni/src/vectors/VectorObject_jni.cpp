@@ -36,12 +36,19 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_nativeInit
 JNIEXPORT jobject JNICALL MakeVectorObject(JNIEnv *env,VectorObjectRef vec)
 {
     VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo(env,"com/mousebird/maply/VectorObject");
-    return classInfo->makeWrapperObject(env,new VectorObjectRef(vec));
+    return MakeVectorObjectWrapper(env,classInfo,vec);
 }
 
-JNIEXPORT jobject JNICALL MakeVectorObjectWrapper(JNIEnv *env,VectorObjectClassInfo *classInfo,VectorObjectRef vecObj)
+JNIEXPORT jobject JNICALL MakeVectorObjectWrapper(JNIEnv *env,VectorObjectClassInfo *classInfo,VectorObjectRef vec)
 {
-    return classInfo->makeWrapperObject(env,new VectorObjectRef(vecObj));
+    jobject newObj = classInfo->makeWrapperObject(env);
+    VectorObjectRef *oldRef = classInfo->getObject(env,newObj);
+    vec->setId((*oldRef)->getId());
+    classInfo->setHandle(env,newObj,new VectorObjectRef(vec));
+    if (oldRef)
+        delete oldRef;
+
+    return newObj;
 }
 
 void Java_com_mousebird_maply_VectorObject_initialise

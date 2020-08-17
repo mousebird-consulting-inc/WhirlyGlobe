@@ -156,10 +156,10 @@ class VectorMBTilesTestCase : MaplyTestCase {
         control.addVector(shpData,vecInfo,RenderControllerInterface.ThreadMode.ThreadAny)
     }
 
-    var baseCase: VectorsTestCase? = null
+    var baseCase: GeographyClass? = null
 
     override fun setUpWithMap(mapVC: MapController?): Boolean {
-        baseCase = VectorsTestCase(mapVC!!.getActivity())
+        baseCase = GeographyClass(mapVC!!.getActivity())
         baseCase?.setUpWithMap(mapVC)
 
 //        setupCountriesRaster(mapVC as BaseController)
@@ -171,7 +171,7 @@ class VectorMBTilesTestCase : MaplyTestCase {
     }
 
     override fun setUpWithGlobe(globeVC: GlobeController?): Boolean {
-        baseCase = VectorsTestCase(globeVC!!.getActivity())
+        baseCase = GeographyClass(globeVC!!.getActivity())
         baseCase?.setUpWithGlobe(globeVC)
 
 //        setupCountriesRaster(globeVC as BaseController)

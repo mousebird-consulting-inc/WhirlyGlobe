@@ -56,7 +56,16 @@ public:
 	virtual jobject makeWrapperObject(JNIEnv *env,T *cObj)
 	{
 		jobject obj = env->NewObject(theClass,initMethodID);
+		T *oldRef = getObject(env,obj);
 		setHandle(env, obj, cObj);
+		if (oldRef && cObj)
+			delete oldRef;
+		return obj;
+	}
+
+	// Make a wrapper object, but don't set the handle
+	virtual jobject makeWrapperObject(JNIEnv *env) {
+		jobject obj = env->NewObject(theClass,initMethodID);
 		return obj;
 	}
 
