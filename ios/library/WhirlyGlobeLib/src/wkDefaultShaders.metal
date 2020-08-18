@@ -217,11 +217,6 @@ float4 resolveLighting(float3 pos,
     return float4(ambient.xyz * lighting.mat.ambient.xyz * color.xyz + diffuse.xyz * color.xyz,color.a);
 }
 
-struct VertexTriArgBufferA {
-    UniformDrawStateA uniDrawState      [[ id(WKSUniformDrawStateEntry) ]];
-    bool hasTextures;
-};
-
 // Simple vertex shader for triangle with no lighting
 vertex ProjVertexTriA vertexTri_noLight(
                 VertexTriA vert [[stage_in]],

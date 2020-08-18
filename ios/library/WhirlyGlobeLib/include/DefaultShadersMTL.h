@@ -329,6 +329,11 @@ typedef struct RegularTextures {
     metal::texture2d<float, metal::access::sample> tex    [[ id(WKSTexBuffTextures) ]] [WKSTextureMax];
 } RegularTextures;
 
+struct VertexTriArgBufferA {
+    WhirlyKitShader::UniformDrawStateA uniDrawState      [[ id(WhirlyKitShader::WKSUniformDrawStateEntry) ]];
+    bool hasTextures;
+};
+
 struct FragTriArgBufferB {
     WhirlyKitShader::UniformDrawStateA uniDrawState      [[ id(WhirlyKitShader::WKSUniformDrawStateEntry) ]];
     bool hasTextures;
