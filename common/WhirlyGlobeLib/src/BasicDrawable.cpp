@@ -182,10 +182,7 @@ void BasicDrawable::setOverrideColor(RGBAColor inColor)
 
 void BasicDrawable::setOverrideColor(unsigned char inColor[])
 {
-    setValuesChanged();
-
-    color.r = inColor[0];  color.g = inColor[1];  color.b = inColor[2];  color.a = inColor[3];
-    hasOverrideColor = true;
+    setOverrideColor(RGBAColor(inColor[0],inColor[1],inColor[2],inColor[3]));
 }
 
 void BasicDrawable::setVisibleRange(float minVis,float maxVis,float minVisBand,float maxVisBand)

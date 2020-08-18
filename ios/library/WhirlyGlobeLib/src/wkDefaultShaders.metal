@@ -204,7 +204,7 @@ float4 resolveLighting(float3 pos,
     float4 diffuse(0.0,0.0,0.0,0.0);
     
     if (lighting.numLights == 0)
-        return float4(1.0,1.0,1.0,1.0);
+        return color;
 
     for (int ii=0;ii<lighting.numLights;ii++) {
         constant Light *light = &lighting.lights[ii];

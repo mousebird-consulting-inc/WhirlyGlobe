@@ -141,6 +141,7 @@ MTLVertexDescriptor *BasicDrawableMTL::getVertexDescriptor(id<MTLFunction> vertF
     std::set<int> buffersFilled;
     
     // Work through the buffers we know about
+    int whichEntry = 0;
     for (VertexAttribute *vertAttr : vertexAttributes) {
         MTLVertexAttributeDescriptor *attrDesc = [[MTLVertexAttributeDescriptor alloc] init];
         VertexAttributeMTL *ourVertAttr = (VertexAttributeMTL *)vertAttr;
@@ -200,6 +201,7 @@ MTLVertexDescriptor *BasicDrawableMTL::getVertexDescriptor(id<MTLFunction> vertF
                 default:
                     break;
             }
+            defAttr.entry = whichEntry;
             defAttr.bufferIndex = ourVertAttr->bufferIndex;
             defAttrs.push_back(defAttr);
         }
@@ -207,6 +209,7 @@ MTLVertexDescriptor *BasicDrawableMTL::getVertexDescriptor(id<MTLFunction> vertF
         vertDesc.layouts[attrDesc.bufferIndex] = layoutDesc;
         
         buffersFilled.insert(ourVertAttr->bufferIndex);
+        whichEntry++;
     }
 
     // Link up the vertex attributes with the buffers
@@ -292,6 +295,27 @@ void BasicDrawableMTL::applyUniformsToDrawState(WhirlyKitShader::UniformDrawStat
         } else if (uni.nameID == u_screenOriginNameID) {
             drawState.screenOrigin[0] = uni.data.vec2[0];
             drawState.screenOrigin[1] = uni.data.vec2[1];
+        }
+    }
+}
+
+void BasicDrawableMTL::setOverrideColor(RGBAColor inColor)
+{
+    BasicDrawable::setOverrideColor(inColor);
+    
+    // Look for it in the default attributes
+    if (colorEntry < 0)
+        return;
+    
+    // Change the vertex attributes first
+    auto vertAttr = vertexAttributes[colorEntry];
+    inColor.asUChar4(vertAttr->defaultData.color);
+
+    // Need to find the corresponding default attribute if we've already set this up
+    for (auto &attr: defaultAttrs) {
+        if (attr.entry == colorEntry) {
+            inColor.asUChar4(attr.data.chars);
+            return;
         }
     }
 }

@@ -38,6 +38,9 @@ public:
     BasicDrawableMTL(const std::string &name);
     ~BasicDrawableMTL();
     
+    /// Tweak the values passed in for the override color
+    virtual void setOverrideColor(RGBAColor inColor) override;
+    
     /// Set up local rendering structures (e.g. VBOs)
     virtual void setupForRenderer(const RenderSetupInfo *setupInfo,Scene *scene);
     
@@ -82,6 +85,7 @@ public:
             int iVal;
             unsigned char chars[4];
         } data;
+        int entry;
         int bufferIndex;
         BufferEntryMTLRef buffer;
     } AttributeDefault;
