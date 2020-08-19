@@ -39,7 +39,7 @@ class LegendViewController: UITableViewController {
     
     var entries: [LegendEntry] = []
     
-    var styleSheet: MapboxVectorStyleSet? {
+    weak var styleSheet: MapboxVectorStyleSet? {
         didSet {
             entries.removeAll()
             guard let sheet = styleSheet else {
