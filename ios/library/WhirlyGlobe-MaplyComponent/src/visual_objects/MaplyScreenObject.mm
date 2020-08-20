@@ -50,6 +50,11 @@ using namespace WhirlyKit;
 
 - (void)addImage:(id)image color:(UIColor *)color size:(CGSize)size
 {
+    [self addImage:image color:color size:size offset:CGPointMake(0.0, 0.0)];
+}
+
+- (void)addImage:(id)image color:(UIColor *)color size:(CGSize)size offset:(CGPoint)offset
+{
     SimplePoly_iOSRef poly(new SimplePoly_iOS);
     poly->texture = image;
     poly->color = [color asRGBAColor];
@@ -58,13 +63,13 @@ using namespace WhirlyKit;
     poly->texCoords.resize(4);
 
     CGFloat width2 = size.width/2.0, height2 = size.height/2.0;
-    poly->pts[0] = Point2d(-width2,-height2);
+    poly->pts[0] = Point2d(-width2+offset.x,-height2+offset.y);
     poly->texCoords[0] = TexCoord(0,1);
-    poly->pts[1] = Point2d(width2,-height2);
+    poly->pts[1] = Point2d(width2+offset.x,-height2+offset.y);
     poly->texCoords[1] = TexCoord(1,1);
-    poly->pts[2] = Point2d(width2,height2);
+    poly->pts[2] = Point2d(width2+offset.x,height2+offset.y);
     poly->texCoords[2] = TexCoord(1,0);
-    poly->pts[3] = Point2d(-width2,height2);
+    poly->pts[3] = Point2d(-width2+offset.x,height2+offset.y);
     poly->texCoords[3] = TexCoord(0,0);
     
     screenObj.polys.push_back(poly);

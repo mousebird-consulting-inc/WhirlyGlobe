@@ -54,6 +54,13 @@
   */
 - (void)addImage:(id)image color:(UIColor *)color size:(CGSize)size;
 
+/**
+    Add an image scaled to the given size and offset by the given amount.
+ 
+    The other version of this call centers around (0,0) so this lets you nudge it.
+ */
+- (void)addImage:(id)image color:(UIColor *)color size:(CGSize)size offset:(CGPoint)offset;
+
 /** 
     Calculate and return the current bounding box of the screen object.
   */
