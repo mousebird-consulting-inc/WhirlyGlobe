@@ -25,8 +25,8 @@ using namespace Eigen;
 namespace WhirlyKit
 {
     
-VertexAttribute::VertexAttribute(BDAttributeDataType dataType,StringIdentity nameID)
-: dataType(dataType), nameID(nameID), data(NULL)
+VertexAttribute::VertexAttribute(BDAttributeDataType dataType,int slot,StringIdentity nameID)
+: dataType(dataType), nameID(nameID), data(NULL), slot(slot)
 {
     defaultData.vec3[0] = 0.0;
     defaultData.vec3[1] = 0.0;
@@ -40,7 +40,7 @@ VertexAttribute::~VertexAttribute()
 }
 
 VertexAttribute::VertexAttribute(const VertexAttribute &that)
-: dataType(that.dataType), nameID(that.nameID), data(NULL), defaultData(that.defaultData)
+: dataType(that.dataType), nameID(that.nameID), data(NULL), defaultData(that.defaultData), slot(that.slot)
 {
 }
 
@@ -288,8 +288,8 @@ SingleVertexAttributeInfo::SingleVertexAttributeInfo()
 {
 }
 
-SingleVertexAttributeInfo::SingleVertexAttributeInfo(StringIdentity nameID,BDAttributeDataType type)
-: nameID(nameID), type(type)
+SingleVertexAttributeInfo::SingleVertexAttributeInfo(StringIdentity nameID,int slot,BDAttributeDataType type)
+: nameID(nameID), type(type), slot(slot)
 {
 }
 
@@ -325,42 +325,42 @@ SingleVertexAttribute::SingleVertexAttribute()
 {
 }
 
-SingleVertexAttribute::SingleVertexAttribute(StringIdentity nameID,float floatVal)
-: SingleVertexAttributeInfo(nameID,BDFloatType)
+SingleVertexAttribute::SingleVertexAttribute(StringIdentity nameID,int slot,float floatVal)
+: SingleVertexAttributeInfo(nameID,slot,BDFloatType)
 {
     data.floatVal = floatVal;
 }
 
-SingleVertexAttribute::SingleVertexAttribute(StringIdentity nameID,int intVal)
-: SingleVertexAttributeInfo(nameID,BDIntType)
+SingleVertexAttribute::SingleVertexAttribute(StringIdentity nameID,int slot,int intVal)
+: SingleVertexAttributeInfo(nameID,slot,BDIntType)
 {
     data.intVal = intVal;
 }
 
-SingleVertexAttribute::SingleVertexAttribute(StringIdentity nameID,unsigned char colorVal[4])
-: SingleVertexAttributeInfo(nameID,BDChar4Type)
+SingleVertexAttribute::SingleVertexAttribute(StringIdentity nameID,int slot,unsigned char colorVal[4])
+: SingleVertexAttributeInfo(nameID,slot,BDChar4Type)
 {
     for (unsigned int ii=0;ii<4;ii++)
         data.color[ii] = colorVal[ii];
 }
 
-SingleVertexAttribute::SingleVertexAttribute(StringIdentity nameID,float vec0,float vec1)
-: SingleVertexAttributeInfo(nameID,BDFloat2Type)
+SingleVertexAttribute::SingleVertexAttribute(StringIdentity nameID,int slot,float vec0,float vec1)
+: SingleVertexAttributeInfo(nameID,slot,BDFloat2Type)
 {
     data.vec2[0] = vec0;
     data.vec2[1] = vec1;
 }
 
-SingleVertexAttribute::SingleVertexAttribute(StringIdentity nameID,float vec0,float vec1,float vec2)
-: SingleVertexAttributeInfo(nameID,BDFloat3Type)
+SingleVertexAttribute::SingleVertexAttribute(StringIdentity nameID,int slot,float vec0,float vec1,float vec2)
+: SingleVertexAttributeInfo(nameID,slot,BDFloat3Type)
 {
     data.vec3[0] = vec0;
     data.vec3[1] = vec1;
     data.vec3[2] = vec2;
 }
 
-SingleVertexAttribute::SingleVertexAttribute(StringIdentity nameID,float vec0,float vec1,float vec2, float vec3)
-: SingleVertexAttributeInfo(nameID,BDFloat4Type)
+SingleVertexAttribute::SingleVertexAttribute(StringIdentity nameID,int slot,float vec0,float vec1,float vec2, float vec3)
+: SingleVertexAttributeInfo(nameID,slot,BDFloat4Type)
 {
     data.vec4[0] = vec0;
     data.vec4[1] = vec1;

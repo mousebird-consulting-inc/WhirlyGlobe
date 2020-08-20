@@ -405,7 +405,7 @@ void BasicDrawableBuilder::setVertexAttributes(const SingleVertexAttributeInfoSe
 {
     for (auto it = attrs.begin();
          it != attrs.end(); ++it)
-        addAttribute(it->type,it->nameID);
+        addAttribute(it->type,it->nameID,it->slot);
 }
 
 void BasicDrawableBuilder::addVertexAttributes(const SingleVertexAttributeSet &attrs)

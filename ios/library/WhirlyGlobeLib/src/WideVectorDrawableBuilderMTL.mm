@@ -39,12 +39,12 @@ void WideVectorDrawableBuilderMTL::Init(unsigned int numVert, unsigned int numTr
     // Wire up the buffers
     // TODO: Merge these into a single data structure
     if (globeMode)
-        ((VertexAttributeMTL *)basicDraw->vertexAttributes[basicDraw->normalEntry])->bufferIndex = WhirlyKitShader::WKSVertexNormalAttribute;
-    ((VertexAttributeMTL *)basicDraw->vertexAttributes[basicDraw->colorEntry])->bufferIndex = WhirlyKitShader::WKSVertexColorAttribute;
-    ((VertexAttributeMTL *)basicDraw->vertexAttributes[p1_index])->bufferIndex = WhirlyKitShader::WKSVertexWideVecP1Attribute;
-    ((VertexAttributeMTL *)basicDraw->vertexAttributes[tex_index])->bufferIndex = WhirlyKitShader::WKSVertexWideVecTexInfoAttribute;
-    ((VertexAttributeMTL *)basicDraw->vertexAttributes[n0_index])->bufferIndex = WhirlyKitShader::WKSVertexWideVecN0Attribute;
-    ((VertexAttributeMTL *)basicDraw->vertexAttributes[c0_index])->bufferIndex = WhirlyKitShader::WKSVertexWideVecC0Attribute;
+        ((VertexAttributeMTL *)basicDraw->vertexAttributes[basicDraw->normalEntry])->slot = WhirlyKitShader::WKSVertexNormalAttribute;
+    ((VertexAttributeMTL *)basicDraw->vertexAttributes[basicDraw->colorEntry])->slot = WhirlyKitShader::WKSVertexColorAttribute;
+    ((VertexAttributeMTL *)basicDraw->vertexAttributes[p1_index])->slot = WhirlyKitShader::WKSVertexWideVecP1Attribute;
+    ((VertexAttributeMTL *)basicDraw->vertexAttributes[tex_index])->slot = WhirlyKitShader::WKSVertexWideVecTexInfoAttribute;
+    ((VertexAttributeMTL *)basicDraw->vertexAttributes[n0_index])->slot = WhirlyKitShader::WKSVertexWideVecN0Attribute;
+    ((VertexAttributeMTL *)basicDraw->vertexAttributes[c0_index])->slot = WhirlyKitShader::WKSVertexWideVecC0Attribute;
 }
 
 WideVectorTweaker *WideVectorDrawableBuilderMTL::makeTweaker()

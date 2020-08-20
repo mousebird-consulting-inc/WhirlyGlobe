@@ -44,7 +44,7 @@ typedef enum {
 class VertexAttribute
 {
 public:
-    VertexAttribute(BDAttributeDataType dataType,StringIdentity nameID);
+    VertexAttribute(BDAttributeDataType dataType,int slot,StringIdentity nameID);
     VertexAttribute(const VertexAttribute &that);
     virtual ~VertexAttribute();
     
@@ -105,6 +105,8 @@ public:
         unsigned char color[4];
         int intVal;
     } defaultData;
+    /// Used by Metal instead of a name
+    int slot;
     /// std::vector of attribute data.  Type is known by the caller.
     void *data;
 };
@@ -116,7 +118,7 @@ class SingleVertexAttributeInfo
 {
 public:
     SingleVertexAttributeInfo();
-    SingleVertexAttributeInfo(StringIdentity nameID,BDAttributeDataType type);
+    SingleVertexAttributeInfo(StringIdentity nameID,int slot,BDAttributeDataType type);
     
     /// Comparison operator for set
     bool operator < (const SingleVertexAttributeInfo &that) const
@@ -140,6 +142,9 @@ public:
     /// Attribute's data type
     BDAttributeDataType type;
     
+    /// Buffer slot for Metal
+    int slot;
+    
     /// Attribute name (e.g. "u_elev")
     StringIdentity nameID;
 };
@@ -153,12 +158,12 @@ class SingleVertexAttribute : public SingleVertexAttributeInfo
 {
 public:
     SingleVertexAttribute();
-    SingleVertexAttribute(StringIdentity nameID,float floatVal);
-    SingleVertexAttribute(StringIdentity nameID,int intVal);
-    SingleVertexAttribute(StringIdentity nameID,unsigned char colorVal[4]);
-    SingleVertexAttribute(StringIdentity nameID,float vec0,float vec1);
-    SingleVertexAttribute(StringIdentity nameID,float vec0,float vec1,float vec2);
-    SingleVertexAttribute(StringIdentity nameID,float vec0,float vec1,float vec2, float vec3);
+    SingleVertexAttribute(StringIdentity nameID,int slot,float floatVal);
+    SingleVertexAttribute(StringIdentity nameID,int slot,int intVal);
+    SingleVertexAttribute(StringIdentity nameID,int slot,unsigned char colorVal[4]);
+    SingleVertexAttribute(StringIdentity nameID,int slot,float vec0,float vec1);
+    SingleVertexAttribute(StringIdentity nameID,int slot,float vec0,float vec1,float vec2);
+    SingleVertexAttribute(StringIdentity nameID,int slot,float vec0,float vec1,float vec2, float vec3);
     
     /// The actual data
     union {

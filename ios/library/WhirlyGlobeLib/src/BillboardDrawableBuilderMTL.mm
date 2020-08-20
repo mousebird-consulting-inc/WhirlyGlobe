@@ -37,7 +37,7 @@ void BillboardDrawableBuilderMTL::Init()
     BillboardDrawableBuilder::Init();
     
     // Wire up the buffers we use
-    ((VertexAttributeMTL *)basicDraw->vertexAttributes[offsetIndex])->bufferIndex = WhirlyKitShader::WKSVertexBillboardOffsetAttribute;
+    ((VertexAttributeMTL *)basicDraw->vertexAttributes[offsetIndex])->slot = WhirlyKitShader::WKSVertexBillboardOffsetAttribute;
 }
     
 BasicDrawable *BillboardDrawableBuilderMTL::getDrawable()

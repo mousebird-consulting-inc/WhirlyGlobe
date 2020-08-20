@@ -24,12 +24,12 @@
 namespace WhirlyKit
 {
 VertexAttributeMTL::VertexAttributeMTL(BDAttributeDataType dataType,StringIdentity nameID)
-    : VertexAttribute(dataType,nameID), buffer(nil), bufferIndex(-1)
+    : VertexAttribute(dataType,-1,nameID), buffer(nil)
 {
 }
 
 VertexAttributeMTL::VertexAttributeMTL(const VertexAttributeMTL &that)
-    : VertexAttribute(that), buffer(that.buffer), bufferIndex(that.bufferIndex)
+    : VertexAttribute(that), buffer(that.buffer)
 {
 }
 

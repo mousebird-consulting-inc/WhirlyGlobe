@@ -146,12 +146,13 @@ MTLVertexDescriptor *BasicDrawableMTL::getVertexDescriptor(id<MTLFunction> vertF
         MTLVertexAttributeDescriptor *attrDesc = [[MTLVertexAttributeDescriptor alloc] init];
         VertexAttributeMTL *ourVertAttr = (VertexAttributeMTL *)vertAttr;
         
-        if (ourVertAttr->bufferIndex < 0)
+        if (ourVertAttr->slot < 0) {
             continue;
+        }
         
         // Describe the vertex attribute
         attrDesc.format = ourVertAttr->formatMTL();
-        attrDesc.bufferIndex = ourVertAttr->bufferIndex;
+        attrDesc.bufferIndex = ourVertAttr->slot;
         attrDesc.offset = 0;
         
         // Add in the buffer
@@ -202,13 +203,13 @@ MTLVertexDescriptor *BasicDrawableMTL::getVertexDescriptor(id<MTLFunction> vertF
                     break;
             }
             defAttr.entry = whichEntry;
-            defAttr.bufferIndex = ourVertAttr->bufferIndex;
+            defAttr.bufferIndex = ourVertAttr->slot;
             defAttrs.push_back(defAttr);
         }
         vertDesc.attributes[attrDesc.bufferIndex] = attrDesc;
         vertDesc.layouts[attrDesc.bufferIndex] = layoutDesc;
         
-        buffersFilled.insert(ourVertAttr->bufferIndex);
+        buffersFilled.insert(ourVertAttr->slot);
         whichEntry++;
     }
 
@@ -552,8 +553,8 @@ void BasicDrawableMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,id<MTLRender
     // Wire up the various inputs that we know about
     for (auto vertAttr : vertexAttributes) {
         VertexAttributeMTL *vertAttrMTL = (VertexAttributeMTL *)vertAttr;
-        if (vertAttrMTL->buffer && (vertAttrMTL->bufferIndex >= 0))
-            [cmdEncode setVertexBuffer:vertAttrMTL->buffer->buffer offset:vertAttrMTL->buffer->offset atIndex:vertAttrMTL->bufferIndex];
+        if (vertAttrMTL->buffer && (vertAttrMTL->slot >= 0))
+            [cmdEncode setVertexBuffer:vertAttrMTL->buffer->buffer offset:vertAttrMTL->buffer->offset atIndex:vertAttrMTL->slot];
     }
     
     // And provide defaults for the ones we don't
@@ -624,8 +625,8 @@ void BasicDrawableMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEncode,Sce
     // Wire up the various inputs that we know about
     for (auto vertAttr : vertexAttributes) {
         VertexAttributeMTL *vertAttrMTL = (VertexAttributeMTL *)vertAttr;
-        if (vertAttrMTL->buffer && (vertAttrMTL->bufferIndex >= 0))
-            [cmdEncode setVertexBuffer:vertAttrMTL->buffer->buffer offset:vertAttrMTL->buffer->offset atIndex:vertAttrMTL->bufferIndex];
+        if (vertAttrMTL->buffer && (vertAttrMTL->slot >= 0))
+            [cmdEncode setVertexBuffer:vertAttrMTL->buffer->buffer offset:vertAttrMTL->buffer->offset atIndex:vertAttrMTL->slot];
     }
     
     // And provide defaults for the ones we don't

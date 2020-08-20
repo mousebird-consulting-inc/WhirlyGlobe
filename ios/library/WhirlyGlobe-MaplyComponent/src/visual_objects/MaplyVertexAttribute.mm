@@ -25,20 +25,22 @@ using namespace WhirlyKit;
 
 @implementation MaplyVertexAttribute
 
-- (instancetype)initWithName:(NSString *)name float:(float)val
+- (instancetype)initWithName:(NSString *)name slot:(int)slot float:(float)val
 {
     self = [super init];
     attr.type = BDFloatType;
+    attr.slot = slot;
     attr.nameID = StringIndexer::getStringID([name cStringUsingEncoding:NSASCIIStringEncoding]);
     attr.data.floatVal = val;
     
     return self;
 }
 
-- (instancetype)initWithName:(NSString *)name floatX:(float)x y:(float)y
+- (instancetype)initWithName:(NSString *)name slot:(int)slot floatX:(float)x y:(float)y
 {
     self = [super init];
     attr.type = BDFloat2Type;
+    attr.slot = slot;
     attr.nameID = StringIndexer::getStringID([name cStringUsingEncoding:NSASCIIStringEncoding]);
     attr.data.vec2[0] = x;
     attr.data.vec2[1] = y;
@@ -46,10 +48,11 @@ using namespace WhirlyKit;
     return self;
 }
 
-- (instancetype)initWithName:(NSString *)name floatX:(float)x y:(float)y z:(float)z
+- (instancetype)initWithName:(NSString *)name slot:(int)slot floatX:(float)x y:(float)y z:(float)z
 {
     self = [super init];
     attr.type = BDFloat3Type;
+    attr.slot = slot;
     attr.nameID = StringIndexer::getStringID([name cStringUsingEncoding:NSASCIIStringEncoding]);
     attr.data.vec3[0] = x;
     attr.data.vec3[1] = y;
@@ -58,10 +61,11 @@ using namespace WhirlyKit;
     return self;
 }
 
-- (instancetype)initWithName:(NSString *)name color:(UIColor *)color
+- (instancetype)initWithName:(NSString *)name slot:(int)slot color:(UIColor *)color
 {
     self = [super init];
     attr.type = BDChar4Type;
+    attr.slot = slot;
     attr.nameID = StringIndexer::getStringID([name cStringUsingEncoding:NSASCIIStringEncoding]);
     WhirlyKit::RGBAColor rgbaColor = [color asRGBAColor];
     attr.data.color[0] = rgbaColor.r;
@@ -72,10 +76,11 @@ using namespace WhirlyKit;
     return self;
 }
 
-- (instancetype)initWithName:(NSString *)name int:(int)val
+- (instancetype)initWithName:(NSString *)name slot:(int)slot int:(int)val
 {
     self = [super init];
     attr.type = BDIntType;
+    attr.slot = slot;
     attr.nameID = StringIndexer::getStringID([name cStringUsingEncoding:NSASCIIStringEncoding]);
     attr.data.intVal = val;
     

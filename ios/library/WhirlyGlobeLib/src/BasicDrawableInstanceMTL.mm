@@ -166,7 +166,7 @@ id<MTLRenderPipelineState> BasicDrawableInstanceMTL::getRenderPipelineState(Scen
             BasicDrawableMTL::AttributeDefault defAttr;
             defAttr.buffer = colorBuffer;
             defAttr.dataType = MTLDataTypeUChar4;
-            defAttr.bufferIndex = colorAttrMTL->bufferIndex;
+            defAttr.bufferIndex = colorAttrMTL->slot;
             unsigned char chars[4];
             color.asUChar4(chars);
             for (unsigned int ii=0;ii<4;ii++)
@@ -513,8 +513,8 @@ void BasicDrawableInstanceMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,id<M
     // Wire up the various inputs that we know about
     for (auto vertAttr : basicDrawMTL->vertexAttributes) {
         VertexAttributeMTL *vertAttrMTL = (VertexAttributeMTL *)vertAttr;
-        if (vertAttrMTL->buffer && (vertAttrMTL->bufferIndex >= 0)) {
-            [cmdEncode setVertexBuffer:vertAttrMTL->buffer->buffer offset:vertAttrMTL->buffer->offset atIndex:vertAttrMTL->bufferIndex];
+        if (vertAttrMTL->buffer && (vertAttrMTL->slot >= 0)) {
+            [cmdEncode setVertexBuffer:vertAttrMTL->buffer->buffer offset:vertAttrMTL->buffer->offset atIndex:vertAttrMTL->slot];
         }
     }
     
@@ -649,8 +649,8 @@ void BasicDrawableInstanceMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEn
     // Wire up the various inputs that we know about
     for (auto vertAttr : basicDrawMTL->vertexAttributes) {
         VertexAttributeMTL *vertAttrMTL = (VertexAttributeMTL *)vertAttr;
-        if (vertAttrMTL->buffer && (vertAttrMTL->bufferIndex >= 0))
-            [cmdEncode setVertexBuffer:vertAttrMTL->buffer->buffer offset:vertAttrMTL->buffer->offset atIndex:vertAttrMTL->bufferIndex];
+        if (vertAttrMTL->buffer && (vertAttrMTL->slot >= 0))
+            [cmdEncode setVertexBuffer:vertAttrMTL->buffer->buffer offset:vertAttrMTL->buffer->offset atIndex:vertAttrMTL->slot];
     }
     
     // And provide defaults for the ones we don't.  Both in the basic drawable and our instance

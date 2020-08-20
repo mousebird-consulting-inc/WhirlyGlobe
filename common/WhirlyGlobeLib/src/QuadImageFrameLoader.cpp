@@ -659,8 +659,8 @@ void QIFRenderState::updateScene(Scene *scene,
                 
                 // We set the interpolation value per drawable
                 SingleVertexAttributeSet attrs;
-                attrs.insert(SingleVertexAttribute(u_interpNameID,(float)t));
-                attrs.insert(SingleVertexAttribute(u_colorNameID,color4));
+                attrs.insert(SingleVertexAttribute(u_interpNameID,-1,(float)t));
+                attrs.insert(SingleVertexAttribute(u_colorNameID,-1,color4));
                 
                 // Turn it all on
                 for (auto drawID : tile->instanceDrawIDs[focusID]) {

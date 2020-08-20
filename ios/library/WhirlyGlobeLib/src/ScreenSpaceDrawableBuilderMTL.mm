@@ -42,9 +42,9 @@ void ScreenSpaceDrawableBuilderMTL::Init(bool hasMotion,bool hasRotation,bool bu
     
     // Wire up the buffers
     // TODO: Merge these into a single data structure
-    ((VertexAttributeMTL *)basicDraw->vertexAttributes[offsetIndex])->bufferIndex = WhirlyKitShader::WKSVertexScreenSpaceOffsetAttribute;
-    ((VertexAttributeMTL *)basicDraw->vertexAttributes[rotIndex])->bufferIndex = WhirlyKitShader::WKSVertexScreenSpaceRotAttribute;
-    ((VertexAttributeMTL *)basicDraw->vertexAttributes[dirIndex])->bufferIndex = WhirlyKitShader::WKSVertexScreenSpaceDirAttribute;
+    ((VertexAttributeMTL *)basicDraw->vertexAttributes[offsetIndex])->slot = WhirlyKitShader::WKSVertexScreenSpaceOffsetAttribute;
+    ((VertexAttributeMTL *)basicDraw->vertexAttributes[rotIndex])->slot = WhirlyKitShader::WKSVertexScreenSpaceRotAttribute;
+    ((VertexAttributeMTL *)basicDraw->vertexAttributes[dirIndex])->slot = WhirlyKitShader::WKSVertexScreenSpaceDirAttribute;
 }
 
 ScreenSpaceTweaker *ScreenSpaceDrawableBuilderMTL::makeTweaker()

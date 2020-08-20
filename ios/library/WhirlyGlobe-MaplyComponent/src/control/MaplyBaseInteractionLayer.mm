@@ -717,12 +717,13 @@ public:
             NSString *shaderName = (NSString *)shader;
             SimpleIdentity shaderID = [self getProgramID:shaderName];
             info->programID = shaderID;
+        } else if ([shader isKindOfClass:[MaplyShader class]]) {
+            info->programID = [(MaplyShader *)shader getShaderID];
         }
     }
     
     if (info->programID == EmptyIdentity)
         info->programID = [self getProgramID:defaultShaderName];
-     
 
     // Look for a render target
     MaplyRenderTarget *renderTarget = inDesc[@"rendertarget"];

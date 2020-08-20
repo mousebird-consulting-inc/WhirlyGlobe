@@ -334,7 +334,7 @@ void BasicDrawableTexTweaker::tweakForFrame(Drawable *draw,RendererFrameInfo *fr
 
     // Interpolation as well
     SingleVertexAttributeSet uniforms;
-    uniforms.insert(SingleVertexAttribute(u_interpNameID,(float)interp));
+    uniforms.insert(SingleVertexAttribute(u_interpNameID,-1,(float)interp));
     basicDraw->setUniforms(uniforms);
 
     // This forces a redraw every frame
@@ -362,9 +362,9 @@ void BasicDrawableScreenTexTweaker::tweakForFrame(Drawable *draw,RendererFrameIn
         newScreenPt.y() /= texScale.y()*u_scale.y();
 
         SingleVertexAttributeSet uniforms;
-        uniforms.insert(SingleVertexAttribute(u_screenOriginNameID, newScreenPt.x(),newScreenPt.y()));
-        uniforms.insert(SingleVertexAttribute(u_ScaleNameID, u_scale.x(), u_scale.y()));
-        uniforms.insert(SingleVertexAttribute(u_texScaleNameID, texScale.x(),texScale.y()));
+        uniforms.insert(SingleVertexAttribute(u_screenOriginNameID, -1, newScreenPt.x(),newScreenPt.y()));
+        uniforms.insert(SingleVertexAttribute(u_ScaleNameID, -1, u_scale.x(), u_scale.y()));
+        uniforms.insert(SingleVertexAttribute(u_texScaleNameID, -1, texScale.x(),texScale.y()));
         basicDraw->setUniforms(uniforms);
     }
 }
