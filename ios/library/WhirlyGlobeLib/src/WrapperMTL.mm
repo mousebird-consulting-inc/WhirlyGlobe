@@ -243,7 +243,10 @@ id<MTLHeap> HeapManagerMTL::findHeap(HeapType heapType,size_t &size)
             return heap;
     }
     MTLHeapDescriptor *heapDesc = [[MTLHeapDescriptor alloc] init];
-    heapDesc.size = 16*1024*10214;  // 16MB, at a guess
+    heapDesc.size = 32*1024*1024;  // 32MB, at a guess
+    if (size > heapDesc.size) {
+        heapDesc.size = size + 1024*1024;   // Silly to make a heap just for this, but this works
+    }
     // TODO: Don't need this for most things
     heapDesc.storageMode = MTLStorageModeShared;
     id<MTLHeap> newHeap = [mtlDevice newHeapWithDescriptor:heapDesc];
@@ -262,7 +265,10 @@ id<MTLHeap> HeapManagerMTL::findTextureHeap(MTLTextureDescriptor *desc,size_t si
     }
     
     MTLHeapDescriptor *heapDesc = [[MTLHeapDescriptor alloc] init];
-    heapDesc.size = 16*1024*10214;  // 16MB, at a guess
+    heapDesc.size = 32*1024*1024;  // 32MB, at a guess
+    if (size > heapDesc.size) {
+        heapDesc.size = size + 1024*1024;   // Silly to make a heap just for this, but this works
+    }
     // TODO: Don't need this for most things
     heapDesc.storageMode = MTLStorageModeShared;
     id<MTLHeap> newHeap = [mtlDevice newHeapWithDescriptor:heapDesc];
