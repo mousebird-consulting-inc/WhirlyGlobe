@@ -42,10 +42,10 @@ public:
     virtual void setOverrideColor(RGBAColor inColor) override;
     
     /// Set up local rendering structures (e.g. VBOs)
-    virtual void setupForRenderer(const RenderSetupInfo *setupInfo,Scene *scene);
+    virtual void setupForRenderer(const RenderSetupInfo *setupInfo,Scene *scene) override;
     
     /// Clean up any rendering objects you may have (e.g. VBOs).
-    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene);
+    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene) override;
     
     /** An all-purpose pre-render that sets up textures, uniforms and such in preparation for rendering
         Also adds to the list of resources being used by this drawable.
@@ -54,24 +54,24 @@ public:
     bool preProcess(SceneRendererMTL *sceneRender,
                     id<MTLCommandBuffer> cmdBuff,
                     id<MTLBlitCommandEncoder> bltEncode,
-                    SceneMTL *scene);
+                    SceneMTL *scene) override;
     
     /// List all the resources used by the drawable
-    virtual void enumerateResources(RendererFrameInfoMTL *frameInfo,ResourceRefsMTL &resources);
+    virtual void enumerateResources(RendererFrameInfoMTL *frameInfo,ResourceRefsMTL &resources) override;
 
     /// Some drawables have a pre-render phase that uses the GPU for calculation
-    virtual void encodeDirectCalculate(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene);
+    virtual void encodeDirectCalculate(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene) override;
 
     /// Draw directly, once per frame
-    virtual void encodeDirect(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene);
+    virtual void encodeDirect(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene) override;
     
     /// Indirect version of calculate encoding.  Called only when things change enough to re-encode.
     API_AVAILABLE(ios(13.0))
-    virtual void encodeIndirectCalculate(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget);
+    virtual void encodeIndirectCalculate(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget) override;
 
     /// Indirect version of regular encoding.  Called only when things change enough to re-encode.
     API_AVAILABLE(ios(13.0))
-    virtual void encodeIndirect(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget);
+    virtual void encodeIndirect(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget) override;
     
     /// Find the vertex attribute corresponding to the given name
     VertexAttributeMTL *findVertexAttribute(int nameID);

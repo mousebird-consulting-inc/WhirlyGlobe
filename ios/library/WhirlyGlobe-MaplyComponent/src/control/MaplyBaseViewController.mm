@@ -1443,6 +1443,8 @@ static const float PerfOutputDelay = 15.0;
         case WhirlyKit::SceneRenderer::RenderMetal:
             return MaplyRenderMetal;
             break;
+        default:
+            return MaplyRenderUnknown;
     }
     
     return MaplyRenderUnknown;
