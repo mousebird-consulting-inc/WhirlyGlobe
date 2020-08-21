@@ -321,8 +321,14 @@ TextureEntryMTL HeapManagerMTL::newTextureWithDescriptor(MTLTextureDescriptor *d
     TextureEntryMTL tex;
     
     if (UseHeaps) {
-        tex.heap = findTextureHeap(desc, size);
-        tex.tex = [tex.heap newTextureWithDescriptor:desc];
+        // It turns out that our estimates on size aren't valid for some formats, so try a few times with bigger estimates
+        for (unsigned int ii=0;ii<3;ii++)
+            if (!tex.tex) {
+                tex.heap = findTextureHeap(desc, (1<<ii)*size);
+                tex.tex = [tex.heap newTextureWithDescriptor:desc];
+                if (tex.tex)
+                    break;
+            }
     } else {
         tex.tex = [mtlDevice newTextureWithDescriptor:desc];
     }
