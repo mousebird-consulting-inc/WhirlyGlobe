@@ -165,6 +165,11 @@ using namespace WhirlyKit;
     
     WhirlyKitMTLView *mtlView = [[WhirlyKitMTLView alloc] initWithDevice:((RenderSetupInfoMTL *) renderMTL->getRenderSetupInfo())->mtlDevice];
     wrapView = mtlView;
+    if (_frameInterval <= 0)
+        mtlView.preferredFramesPerSecond = 120;
+    else {
+        mtlView.preferredFramesPerSecond = 60 / _frameInterval;
+    }
 }
 
 - (MaplyBaseInteractionLayer *) loadSetup_interactionLayer
@@ -408,6 +413,15 @@ using namespace WhirlyKit;
 - (void)setFrameInterval:(int)frameInterval
 {
     _frameInterval = frameInterval;
+    
+    WhirlyKitMTLView *mtlView = (WhirlyKitMTLView *)wrapView;
+    if (mtlView) {
+        if (frameInterval <= 0)
+            mtlView.preferredFramesPerSecond = 120;
+        else {
+            mtlView.preferredFramesPerSecond = 60 / frameInterval;
+        }
+    }
 }
 
 static const float PerfOutputDelay = 15.0;
