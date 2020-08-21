@@ -46,11 +46,12 @@ QIFFrameAsset_ios::~QIFFrameAsset_ios()
     request = nil;
 }
     
-MaplyTileFetchRequest *QIFFrameAsset_ios::setupFetch(QuadImageFrameLoader *loader,id fetchInfo,id frameInfo,int priority,double importance)
+MaplyTileFetchRequest *QIFFrameAsset_ios::setupFetch(QuadImageFrameLoader *loader,MaplyTileID tileID,id fetchInfo,id frameInfo,int priority,double importance)
 {
     QIFFrameAsset::setupFetch(loader);
         
     request = [[MaplyTileFetchRequest alloc] init];
+    request.tileID = tileID;
     request.fetchInfo = fetchInfo;
     request.tileSource = frameInfo;
     request.priority = priority;
@@ -147,7 +148,7 @@ void QIFTileAsset_ios::startFetching(PlatformThreadInfo *threadInfo,QuadImageFra
                 if (frameInfo.minZoom <= tileID.level && tileID.level <= frameInfo.maxZoom)
                     fetchInfo = [frameInfo fetchInfoForTile:tileID flipY:loader->getFlipY()];
                 if (fetchInfo) {
-                    MaplyTileFetchRequest *request = frameAsset->setupFetch(loader,fetchInfo,frameInfo,loader->calcLoadPriority(ident,frame->frameIndex),ident.importance);
+                    MaplyTileFetchRequest *request = frameAsset->setupFetch(loader,tileID,fetchInfo,frameInfo,loader->calcLoadPriority(ident,frame->frameIndex),ident.importance);
                     NSObject<QuadImageFrameLoaderLayer> * __weak layer = loader->layer;
 
                     // This means there's no data fetch.  Interpreter does all the work.

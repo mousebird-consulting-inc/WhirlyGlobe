@@ -64,6 +64,8 @@ public:
     typedef enum {ToLoad,Loading} State;
     State state;
     
+    MaplyTileID tileID;
+    
     // Set if we know the tile is cached
     bool isLocal;
 
@@ -390,6 +392,9 @@ using namespace WhirlyKit;
 {
     bool active;
     NSString *name;
+    
+    NSObject<MaplyTileLocalStorage> __weak *localStorage;
+    
     NSURLSession *session;
     dispatch_queue_t queue;
     
@@ -417,6 +422,11 @@ using namespace WhirlyKit;
     recentStats = [[MaplyRemoteTileFetcherStats alloc] initWithFetcher:self];
             
     return self;
+}
+
+- (void)setLocalStorage:(NSObject<MaplyTileLocalStorage> * __nonnull)inLocalStorage
+{
+    localStorage = inLocalStorage;
 }
 
 /// Return the fetching stats since the beginning or since the last reset
@@ -521,6 +531,7 @@ using namespace WhirlyKit;
     for (MaplyTileFetchRequest *request in requests) {
         // Set up new request
         TileInfoRef tile(new TileInfo());
+        tile->tileID = request.tileID;
         tile->tileSource = request.tileSource;
         tile->importance = request.importance;
         tile->priority = request.priority;
@@ -697,14 +708,28 @@ using namespace WhirlyKit;
                                  });
                         }];
         
-        // Look for it cached
-        if ([self isTileLocal:tile fileName:tile->fetchInfo.cacheFile]) {
-            // Do the reading somewhere else
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                [weakSelf handleCache:tile];
-            });
-        } else {
-            [tile->task resume];
+        // Look for it in local storage first
+        bool inLocalStorage = false;
+        if (localStorage) {
+            NSData *data = [localStorage dataForTile:tile->fetchInfo tileID:tile->tileID];
+            if (data) {
+                inLocalStorage = true;
+                
+                [self finishedLoading:tile data:data error:nil];
+            }
+        }
+        
+        // Next up, deal with local tile or remote tile fetching
+        if (!inLocalStorage) {
+            // Look for it cached
+            if ([self isTileLocal:tile fileName:tile->fetchInfo.cacheFile]) {
+                // Do the reading somewhere else
+                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                    [weakSelf handleCache:tile];
+                });
+            } else {
+                [tile->task resume];
+            }
         }
     }
 

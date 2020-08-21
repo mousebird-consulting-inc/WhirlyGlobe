@@ -105,6 +105,9 @@ NSString *__nonnull MaplyTileIDString(MaplyTileID tileID);
 /// It keeps requests we're waiting for grouped together
 @property (nonatomic) int group;
 
+/// Tile ID for this tile
+@property (nonatomic,assign) MaplyTileID tileID;
+
 /// An object representing the tile source.  Used for sorting.  Not accessed by the fetcher.
 @property (nonatomic,weak,nullable) id tileSource;
 

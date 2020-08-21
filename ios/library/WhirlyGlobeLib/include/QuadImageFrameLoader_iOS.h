@@ -57,7 +57,7 @@ public:
     virtual ~QIFFrameAsset_ios();
     
     // Put together a fetch request and return it
-    MaplyTileFetchRequest *setupFetch(QuadImageFrameLoader *loader,id fetchInfo,id frameInfo,int priority,double importance);
+    MaplyTileFetchRequest *setupFetch(QuadImageFrameLoader *loader,MaplyTileID tileID,id fetchInfo,id frameInfo,int priority,double importance);
     
     // Clear out the texture and reset
     virtual void clear(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QIFBatchOps *batchOps,ChangeSet &changes) override;

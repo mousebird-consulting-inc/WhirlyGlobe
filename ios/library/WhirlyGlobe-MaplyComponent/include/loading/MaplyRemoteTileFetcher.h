@@ -114,8 +114,29 @@
 /// File name for cached file (if present).  Save it here when fetched if set.
 @property (nonatomic,nullable,retain) NSString *cacheFile;
 
+/// If you're using local storage (separate from the cache) this will be passed on to the MaplyTileLocalStorage manager
+@property (nonatomic,nullable,retain) id localStorageKey;
+
 @end
 
+/**
+    If you provide LocalStore the RemoteTileFetcher will look for data in local storage first,
+    then try the local file cache and lastly go to the network.
+ 
+    You can provide the local storage by filling out this protocol and passing it to the RemoteTileFetcher.
+ 
+    Expect to be called on a random thread and block appropriately.
+ */
+@protocol MaplyTileLocalStorage <NSObject>
+
+/**
+ Return the data for the given tile.  nil means you don't have the tile, so we'll try other sources.
+ fetchInfo is a MaplyRemoteTileFetchInfo describing the rest of the tile characteristics.
+ tileID is the tile in question.
+ */
+- (NSData * __nullable)dataForTile:(MaplyRemoteTileFetchInfo * __nonnull)fetchInfo tileID:(MaplyTileID)tileID;
+
+@end
 
 @class MaplyRemoteTileFetcherStats;
 @class MaplyRemoteTileFetcherLog;
@@ -133,6 +154,10 @@
 
 /// Number of outstanding connections in parallel
 @property (nonatomic) int numConnections;
+
+/// Local storage is for pre-downloaded tiles, rather than a cache.  This is consulted *before* we go out to the network.
+/// If it fails, then we hit the local file cache and then we hit the network
+- (void)setLocalStorage:(NSObject<MaplyTileLocalStorage> * __nonnull)localStorage;
 
 /// Return the fetching stats since the beginning or since the last reset
 - (MaplyRemoteTileFetcherStats * __nullable)getStats:(bool)allTime;
