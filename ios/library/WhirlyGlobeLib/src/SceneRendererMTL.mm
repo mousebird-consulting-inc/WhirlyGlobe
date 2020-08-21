@@ -828,6 +828,9 @@ void SceneRendererMTL::render(TimeInterval duration,
                                 // Set up transforms to use right now
                                 Matrix4d &thisMvpMat = mvpMats[off];
                                 const Matrix4d *localMat = drawMTL->getMatrix();
+                                Matrix4f mvpMat = baseFrameInfo.mvpMat, mvpInvMat = baseFrameInfo.mvpInvMat,
+                                            viewAndModelMat = baseFrameInfo.viewAndModelMat, viewModelNormalMat = baseFrameInfo.viewModelNormalMat;
+
                                 if (localMat)
                                 {
                                     Eigen::Matrix4d newMvpMat = projMat4d * viewTrans4d * offsetMats[off] * modelTrans4d * (*localMat);
@@ -851,8 +854,12 @@ void SceneRendererMTL::render(TimeInterval duration,
                                 drawMTL->encodeDirect(&baseFrameInfo,cmdEncode,scene);
                                 
                                 // If we had a local matrix, set the frame info back to the general one
-                                //            if (localMat)
-                                //                offFrameInfo.mvpMat = mvpMat;
+                                if (localMat) {
+                                    baseFrameInfo.mvpMat = mvpMat;
+                                    baseFrameInfo.mvpInvMat = mvpInvMat;
+                                    baseFrameInfo.viewAndModelMat = viewAndModelMat;
+                                    baseFrameInfo.viewModelNormalMat = viewModelNormalMat;
+                                }
                                 
                                 numDrawables++;
                             }
