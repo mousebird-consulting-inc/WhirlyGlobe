@@ -28,9 +28,9 @@ BillboardDrawableBuilderGLES::BillboardDrawableBuilderGLES(const std::string &na
 {
 }
     
-int BillboardDrawableBuilderGLES::addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings)
+int BillboardDrawableBuilderGLES::addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int slot,int numThings)
 {
-    return BasicDrawableBuilderGLES::addAttribute(dataType, nameID, numThings);
+    return BasicDrawableBuilderGLES::addAttribute(dataType, nameID, slot, numThings);
 }
 
 BasicDrawable *BillboardDrawableBuilderGLES::getDrawable()

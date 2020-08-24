@@ -26,7 +26,7 @@ namespace WhirlyKit
 {
     
 VertexAttributeGLES::VertexAttributeGLES(BDAttributeDataType dataType,StringIdentity nameID)
-    : VertexAttribute(dataType,nameID), buffer(0)
+    : VertexAttribute(dataType,-1,nameID), buffer(0)
     {
     }
     

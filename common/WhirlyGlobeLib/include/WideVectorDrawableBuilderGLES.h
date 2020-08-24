@@ -48,7 +48,7 @@ public:
     
     void Init(unsigned int numVert,unsigned int numTri,bool globeMode);
     
-    virtual int addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings = -1);
+    virtual int addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int slot = -1,int numThings = -1);
 
     virtual WideVectorTweaker *makeTweaker();
 

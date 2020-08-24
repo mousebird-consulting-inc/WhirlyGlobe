@@ -40,7 +40,7 @@ BasicDrawableBuilderGLES::~BasicDrawableBuilderGLES()
         delete basicDraw;
 }
 
-int BasicDrawableBuilderGLES::addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings)
+int BasicDrawableBuilderGLES::addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int slot,int numThings)
 {
     VertexAttribute *attr = new VertexAttributeGLES(dataType,nameID);
     if (numThings > 0)

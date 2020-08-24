@@ -43,9 +43,9 @@ ScreenSpaceDrawableBuilderGLES::ScreenSpaceDrawableBuilderGLES(const std::string
 {
 }
     
-int ScreenSpaceDrawableBuilderGLES::addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings)
+int ScreenSpaceDrawableBuilderGLES::addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int slot,int numThings)
 {
-    return BasicDrawableBuilderGLES::addAttribute(dataType, nameID, numThings);
+    return BasicDrawableBuilderGLES::addAttribute(dataType, nameID, slot, numThings);
 }
     
 ScreenSpaceTweaker *ScreenSpaceDrawableBuilderGLES::makeTweaker()

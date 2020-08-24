@@ -63,9 +63,9 @@ void WideVectorDrawableBuilderGLES::Init(unsigned int numVert,unsigned int numTr
     WideVectorDrawableBuilder::Init(numVert,numTri,globeMode);
 }
     
-int WideVectorDrawableBuilderGLES::addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings)
+int WideVectorDrawableBuilderGLES::addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int slot,int numThings)
 {
-    return BasicDrawableBuilderGLES::addAttribute(dataType, nameID, numThings);
+    return BasicDrawableBuilderGLES::addAttribute(dataType, nameID, slot, numThings);
 }
     
 WideVectorTweaker *WideVectorDrawableBuilderGLES::makeTweaker()
