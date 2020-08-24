@@ -85,7 +85,8 @@ SceneRendererMTL::SceneRendererMTL(id<MTLDevice> mtlDevice,id<MTLLibrary> mtlLib
     offscreenBlendEnable = false;
     indirectRender = false;
     if (@available(iOS 13.0, *)) {
-        indirectRender = true;
+        if ([mtlDevice supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily3_v4])
+            indirectRender = true;
     }
 #if TARGET_OS_SIMULATOR
     indirectRender = false;
@@ -288,7 +289,8 @@ MTLRenderPipelineDescriptor *SceneRendererMTL::defaultRenderPipelineState(SceneR
     }
     
     if (@available(iOS 13.0, *)) {
-        renderDesc.supportIndirectCommandBuffers = true;
+        if (indirectRender)
+            renderDesc.supportIndirectCommandBuffers = true;
     }
     
     return renderDesc;
