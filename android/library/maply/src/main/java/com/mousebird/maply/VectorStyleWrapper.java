@@ -10,6 +10,8 @@ public class VectorStyleWrapper {
     VectorStyleInterface vectorStyleSet;
     WeakReference<RenderControllerInterface> control;
 
+    protected VectorStyleWrapper() { }
+
     // Consolidate the vector styles in a way that makes it easier for the JNI side to handle
     VectorStyleWrapper(VectorStyleInterface vectorStyleSet,RenderControllerInterface control) {
         this.vectorStyleSet = vectorStyleSet;
