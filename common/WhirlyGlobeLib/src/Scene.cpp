@@ -83,6 +83,9 @@ Scene::Scene(CoordSystemDisplayAdapter *adapter)
     
     overlapMargin = 0.0;
     baseTime = TimeGetCurrent();
+    
+    for (unsigned int ii=0;ii<MaplyMaxZoomSlots;ii++)
+        zoomSlots[ii] = MAXFLOAT;
 }
 
 Scene::~Scene()
@@ -497,6 +500,36 @@ void Scene::removeProgram(SimpleIdentity progId)
     }
 }
 
+int Scene::retainZoomSlot()
+{
+    std::lock_guard<std::mutex> guardLock(zoomSlotLock);
+    
+    // Look for an open slot
+    int found = -1;
+    for (int ii=0;ii<MaplyMaxZoomSlots;ii++) {
+        if (zoomSlots[ii] == MAXFLOAT) {
+            found = ii;
+            break;
+        }
+    }
+
+    return found;
+}
+
+void Scene::releaseZoomSlot(int zoomSlot)
+{
+    std::lock_guard<std::mutex> guardLock(zoomSlotLock);
+
+    zoomSlots[zoomSlot] = MAXFLOAT;
+}
+
+void Scene::setZoomSlotValue(int zoomSlot,float zoom)
+{
+    std::lock_guard<std::mutex> guardLock(zoomSlotLock);
+
+    zoomSlots[zoomSlot] = zoom;
+}
+
 void AddTextureReq::setupForRenderer(const RenderSetupInfo *setupInfo,Scene *scene)
 {
     if (texRef)
@@ -613,4 +646,19 @@ void RunBlockReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *
     func(scene,renderer,view);
 }
     
+SetZoomSlotReq::SetZoomSlotReq(int zoomSlot,float zoomVal)
+: zoomSlot(zoomSlot), zoomVal(zoomVal)
+{
+}
+
+void SetZoomSlotReq::execute(Scene *scene,SceneRenderer *renderer,View *view)
+{
+    if (zoomVal == MAXFLOAT)
+        scene->releaseZoomSlot(zoomSlot);
+    else
+        scene->setZoomSlotValue(zoomSlot, zoomVal);
+}
+
+
+
 }

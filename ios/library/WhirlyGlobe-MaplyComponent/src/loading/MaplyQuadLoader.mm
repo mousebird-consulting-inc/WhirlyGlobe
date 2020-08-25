@@ -208,6 +208,14 @@ using namespace WhirlyKit;
     return MaplyCoordinate3dMake(dispCoord.x(), dispCoord.y(), dispCoord.z());
 }
 
+- (int)getZoomSlot
+{
+    if (!samplingLayer)
+        return -1;
+    
+    return samplingLayer->sampleControl.getDisplayControl()->getZoomSlot();
+}
+
 
 - (void)setInterpreter:(NSObject<MaplyLoaderInterpreter> *)interp
 {

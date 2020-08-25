@@ -172,6 +172,11 @@
  */
 - (MaplyCoordinate3d)displayCenterForTile:(MaplyTileID)tileID;
 
+/**
+    Each sampling layer allocates a slot to keep track of continuous zoom levels.
+    Those are passed all the way through to the individual shaders.
+ */
+- (int)getZoomSlot;
 
 /// Use a specific tile fetcher rather than the one shared by everyone else
 - (void)setTileFetcher:(NSObject<MaplyTileFetcher> * __nonnull)tileFetcher;

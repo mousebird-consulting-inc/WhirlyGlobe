@@ -221,7 +221,7 @@ RGBAColor MapboxTransColor::colorForZoom(double zoom)
 }
 
 MapboxVectorStyleSetImpl::MapboxVectorStyleSetImpl(Scene *inScene,CoordSystem *coordSys,VectorStyleSettingsImplRef settings)
-: scene(inScene), currentID(0), tileStyleSettings(settings), coordSys(coordSys)
+: scene(inScene), currentID(0), tileStyleSettings(settings), coordSys(coordSys), zoomSlot(-1)
 {
     vecManage = (VectorManager *)scene->getManager(kWKVectorManager);
     wideVecManage = (WideVectorManager *)scene->getManager(kWKWideVectorManager);
@@ -661,6 +661,11 @@ MapboxVectorStyleLayerRef MapboxVectorStyleSetImpl::getLayer(const std::string &
         return MapboxVectorStyleLayerRef();
     
     return it->second;
+}
+
+void MapboxVectorStyleSetImpl::setZoomSlot(int inZoomSlot)
+{
+    zoomSlot = inZoomSlot;
 }
 
 RGBAColorRef MapboxVectorStyleSetImpl::backgroundColor(PlatformThreadInfo *inst,double zoom)

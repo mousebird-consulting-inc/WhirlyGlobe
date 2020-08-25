@@ -97,6 +97,9 @@ typedef NS_ENUM(NSUInteger,MapboxLayerType) {
 /// Make a layer visible/invisible
 - (void)setLayerVisible:(NSString *__nonnull)layerName visible:(bool)visible;
 
+/// Slot for continuous zoom levels.  If not set, we won't use those.
+- (void)setZoomSlot:(int)zoomSlot;
+
 /**
  Returns a dictionary containing a flexible legend for the layers contained in this style.
  Each layer is rendered as a representative image at the given size.

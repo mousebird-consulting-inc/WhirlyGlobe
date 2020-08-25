@@ -415,6 +415,14 @@ using namespace WhirlyKit;
     return style;
 }
 
+- (void)setZoomSlot:(int)zoomSlot
+{
+    if (!style)
+        return;
+    
+    style->setZoomSlot(zoomSlot);
+}
+
 @end
 
 @implementation MaplyMapboxVectorStyleSource

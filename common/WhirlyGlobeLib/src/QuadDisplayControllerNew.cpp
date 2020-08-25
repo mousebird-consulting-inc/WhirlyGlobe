@@ -33,7 +33,7 @@ QuadDataStructure::~QuadDataStructure()
 }
 
 QuadDisplayControllerNew::QuadDisplayControllerNew(QuadDataStructure *dataStructure,QuadLoaderNew *loader,SceneRenderer *renderer)
-    : dataStructure(dataStructure), loader(loader), renderer(renderer), QuadTreeNew(MbrD(dataStructure->getTotalExtents()),dataStructure->getMinZoom(),dataStructure->getMaxZoom())
+    : dataStructure(dataStructure), loader(loader), renderer(renderer), zoomSlot(-1), QuadTreeNew(MbrD(dataStructure->getTotalExtents()),dataStructure->getMinZoom(),dataStructure->getMaxZoom())
 {
     coordSys = dataStructure->getCoordSystem();
     mbr = dataStructure->getValidExtents();
@@ -137,15 +137,22 @@ ViewStateRef QuadDisplayControllerNew::getViewState()
 {
     return viewState;
 }
+
+int QuadDisplayControllerNew::getZoomSlot()
+{
+    return zoomSlot;
+}
     
 // Called on the LayerThread
 void QuadDisplayControllerNew::start()
 {
     loader->setController(this);
+    zoomSlot = scene->retainZoomSlot();
 }
     
 void QuadDisplayControllerNew::stop(PlatformThreadInfo *threadInfo,ChangeSet &changes)
 {
+    scene->releaseZoomSlot(zoomSlot);
     loader->quadLoaderShutdown(threadInfo,changes);
     dataStructure = NULL;
     loader = NULL;
@@ -215,7 +222,7 @@ bool QuadDisplayControllerNew::viewUpdate(PlatformThreadInfo *threadInfo,ViewSta
             toUpdate.insert(node);
     
     QuadTreeNew::NodeSet removesToKeep;
-    removesToKeep = loader->quadLoaderUpdate(threadInfo, toAdd, toRemove, toUpdate, targetLevel,changes);
+    removesToKeep = loader->quadLoaderUpdate(threadInfo, toAdd, toRemove, toUpdate, targetLevel, changes);
     
     bool needsDelayCheck = !removesToKeep.empty();
     
@@ -224,6 +231,13 @@ bool QuadDisplayControllerNew::viewUpdate(PlatformThreadInfo *threadInfo,ViewSta
         currentNodes.insert(QuadTreeNew::ImportantNode(node,0.0));
     }
     
+    // If the level changed (even partially) then update it
+    if (targetLevel != lastTargetLevel) {
+        lastTargetLevel = targetLevel;
+        if (zoomSlot > -1)
+            changes.push_back(new SetZoomSlotReq(zoomSlot,targetLevel));
+    }
+        
     return needsDelayCheck;
 }
     

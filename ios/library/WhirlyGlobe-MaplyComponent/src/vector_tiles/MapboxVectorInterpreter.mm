@@ -138,6 +138,7 @@ static int BackImageWidth = 16, BackImageHeight = 16;
 
         MapboxVectorStyleSetImpl *mapboxVecStyle = dynamic_cast<MapboxVectorStyleSetImpl *>(vecStyle.get());
         if (mapboxVecStyle) {
+            mapboxVecStyle->setZoomSlot(loader->samplingLayer->sampleControl.getDisplayControl()->getZoomSlot());
             loader.baseDrawPriority = mapboxVecStyle->tileStyleSettings->baseDrawPriority;
             loader.drawPriorityPerLevel = mapboxVecStyle->tileStyleSettings->drawPriorityPerLevel;
         }

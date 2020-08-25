@@ -66,6 +66,8 @@ typedef enum {
 // Textures passed into the shader start here
 #define WKSTextureEntryLookup 5
 
+#define MaxZoomSlots 32
+
 // All the buffer entries (other than stage_in) for the vertex shaders
 typedef enum {
     WKSVertUniformArgBuffer = 10,
@@ -118,6 +120,7 @@ struct Uniforms
     float currentTime;         // Current time relative to the start of the renderer
     float height;              // Height above the ground/globe
     bool globeMode;
+    float zoomSlots[MaxZoomSlots];  // Zoom levels calculated by the sampling layers
 };
 
 // Things that change per drawable (like fade)

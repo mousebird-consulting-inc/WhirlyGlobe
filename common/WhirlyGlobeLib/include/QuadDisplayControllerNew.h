@@ -146,6 +146,9 @@ public:
     std::vector<double> getMinImportancePerLevel();
     void setMinImportancePerLevel(const std::vector<double> &imports);
     
+    /// Return the allocated zoom slot (for tracking continuous zoom)
+    int getZoomSlot();
+    
     /// Return the geometry information being used
     QuadDataStructure *getDataStructure();
     
@@ -187,6 +190,9 @@ protected:
     std::vector<int> levelLoads;
 
     QuadTreeNew::ImportantNodeSet currentNodes;
+    
+    float lastTargetLevel;   // For tracking continuous zoom
+    int zoomSlot;
 
     ViewStateRef viewState;
 };

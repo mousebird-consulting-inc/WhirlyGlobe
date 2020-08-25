@@ -30,6 +30,8 @@
 
 namespace WhirlyKit
 {
+
+#define MaplyMaxZoomSlots 32
     
 class SceneRenderer;
 class Scene;
@@ -189,6 +191,20 @@ public:
 protected:
     BlockFunc func;
 };
+
+/// Set the zoom slot to a given zoom value
+class SetZoomSlotReq : public ChangeRequest
+{
+public:
+    SetZoomSlotReq(int zoomSlot,float zoomVal);
+    
+    /// Set the actual values in the scene
+    void execute(Scene *scene,SceneRenderer *renderer,View *view);
+    
+protected:
+    int zoomSlot;
+    float zoomVal;
+};
         
 typedef std::unordered_map<SimpleIdentity,DrawableRef> DrawableRefSet;
 
@@ -328,6 +344,15 @@ public:
     
     /// Mark any changed programs as acknowledged (used in Metal)
     void markProgramsUnchanged();
+    
+    /// Allocate a new zoom slot
+    int retainZoomSlot();
+    
+    /// Release a zoom slot for use somewhere else
+    void releaseZoomSlot(int zoomSlot);
+    
+    /// Update the zoom value for a given slot
+    void setZoomSlotValue(int zoomSlot,float zoom);
 	
 public:
     /// Don't be calling this
@@ -401,6 +426,10 @@ public:
     
     /// For 2D maps we have an overlap margin based on what drawables may overlap the edges
     double getOverlapMargin() { return overlapMargin; }
+    
+    // Sampling layers will set these to talk to shaders
+    std::mutex zoomSlotLock;
+    float zoomSlots[MaplyMaxZoomSlots];
     
 protected:
     
