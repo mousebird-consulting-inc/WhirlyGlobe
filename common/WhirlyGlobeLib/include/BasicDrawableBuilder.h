@@ -65,6 +65,9 @@ public:
     ///  the surface of the globe as at 1.0
     virtual void setVisibleRange(float minVis,float maxVis,float minVisBand=0.0,float maxVisBand=0.0);
     
+    /// Visibility based on zoom level
+    void setZoomInfo(int zoomSlot,double minZoomVis,double maxZoomVis);
+
     /// Set the alpha sorting on or off
     void setAlpha(bool onOff);
 

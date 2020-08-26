@@ -94,7 +94,7 @@ MapboxVectorStyleLayerRef MapboxVectorStyleLayer::VectorStyleLayer(PlatformThrea
 }
 
 MapboxVectorStyleLayer::MapboxVectorStyleLayer(MapboxVectorStyleSetImpl *styleSet)
-: visible(true), minzoom(0), maxzoom(0), drawPriority(0), drawPriorityPerLevel(0),
+: visible(true), minzoom(0), maxzoom(0), drawPriority(0),
 selectable(false), uuid(0), geomAdditiveVal(false), styleSet(styleSet)
 {
 }
@@ -108,7 +108,6 @@ bool MapboxVectorStyleLayer::parse(PlatformThreadInfo *inst,
                                    MapboxVectorStyleLayerRef refLayer,
                                    int inDrawPriority)
 {
-    drawPriorityPerLevel = styleSet->tileStyleSettings->drawPriorityPerLevel;
     drawPriority = inDrawPriority;
     uuid = styleSet->generateID();
     
@@ -116,8 +115,8 @@ bool MapboxVectorStyleLayer::parse(PlatformThreadInfo *inst,
     source = styleSet->stringValue("source", styleEntry, refLayer ? refLayer->source : "");
     sourceLayer = styleSet->stringValue("source-layer", styleEntry, refLayer ? refLayer->sourceLayer : "");
     
-    minzoom = styleSet->intValue("minzoom", styleEntry, -1);
-    maxzoom = styleSet->intValue("maxzoom", styleEntry, -1);
+    minzoom = styleSet->intValue("minzoom", styleEntry, 0);
+    maxzoom = styleSet->intValue("maxzoom", styleEntry, 1000);
     
     category = styleSet->stringValue("wkcategory", styleEntry, "");
     

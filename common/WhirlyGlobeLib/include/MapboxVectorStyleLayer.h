@@ -92,9 +92,6 @@ public:
     /// @brief DrawPriority based on location in the style sheet
     int drawPriority;
 
-    /// If non-zero we set the draw priority differently per level
-    int drawPriorityPerLevel;
-
     // If set, the features produced will be selectable (if they can be)
     // Inherited from the settings
     bool selectable;

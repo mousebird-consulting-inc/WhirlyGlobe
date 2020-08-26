@@ -109,6 +109,12 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
         bool include = true;
         vecInfo.filled = true;
         vecInfo.centered = true;
+        if (minzoom != 0 || maxzoom < 1000) {
+            vecInfo.zoomSlot = styleSet->zoomSlot;
+            vecInfo.minZoomVis = minzoom;
+            vecInfo.maxZoomVis = maxzoom;
+        }
+
         if (arealShaderID != EmptyIdentity)
             vecInfo.programID = arealShaderID;
         else
@@ -122,8 +128,8 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
         } else {
             include = false;
         }
-        if (drawPriorityPerLevel > 0)
-            vecInfo.drawPriority = drawPriority + tileInfo->ident.level * drawPriorityPerLevel;
+        if (styleSet->tileStyleSettings->drawPriorityPerLevel > 0)
+            vecInfo.drawPriority = drawPriority + tileInfo->ident.level * styleSet->tileStyleSettings->drawPriorityPerLevel;
         else
             vecInfo.drawPriority = drawPriority;
         
@@ -154,6 +160,11 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
         bool include = true;
         vecInfo.filled = false;
         vecInfo.centered = true;
+        if (minzoom != 0 || maxzoom < 1000) {
+            vecInfo.zoomSlot = styleSet->zoomSlot;
+            vecInfo.minZoomVis = minzoom;
+            vecInfo.maxZoomVis = maxzoom;
+        }
         if (arealShaderID != EmptyIdentity)
             vecInfo.programID = arealShaderID;
         else
@@ -164,8 +175,8 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
         } else {
             include = false;
         }
-        if (drawPriorityPerLevel > 0)
-            vecInfo.drawPriority = drawPriority + tileInfo->ident.level * drawPriorityPerLevel;
+        if (styleSet->tileStyleSettings->drawPriorityPerLevel > 0)
+            vecInfo.drawPriority = drawPriority + tileInfo->ident.level * styleSet->tileStyleSettings->drawPriorityPerLevel;
         else
             vecInfo.drawPriority = drawPriority;
         

@@ -380,9 +380,67 @@ fragment float4 fragmentTri_multiTexRamp(ProjVertexTriB vert [[stage_in]],
     return vert.color * lookupColor;
 }
 
+// Calculate a float based on the current zoom level
+float ExpCalculateFloat(constant FloatExp &floatExp,float zoom,float defaultVal)
+{
+    if (floatExp.numStops == 0 || floatExp.type == ExpNone)
+        return defaultVal;
+    
+    int stopA=0,stopB=-1;
+    if (zoom <= floatExp.stopInputs[stopA])
+        return floatExp.stopOutputs[stopA];
+    for (int which = 1;which < floatExp.numStops;which++) {
+        stopB = which;
+        if (floatExp.stopInputs[stopA] <= zoom && zoom < floatExp.stopInputs[stopB]) {
+            float zoomA = floatExp.stopInputs[stopA];
+            float zoomB = floatExp.stopInputs[stopB];
+            float valA = floatExp.stopOutputs[stopA];
+            float valB = floatExp.stopOutputs[stopB];
+            switch (floatExp.type) {
+                case WhirlyKitShader::ExpLinear:
+                {
+                    float t = (zoom-zoomA)/(zoomB-zoomB);
+                    return t * (valB-valA) + valA;
+                }
+                    break;
+                case WhirlyKitShader::ExpExponential:
+                {
+                    float ratio = 1.0;
+                    if (floatExp.base == 1.0)
+                        ratio = (zoom-zoomA)/(zoomB-zoomA);
+                    else {
+                        float soFar = zoom-zoomA;
+                        ratio = (pow(floatExp.base, soFar) - 1.0) / (pow(floatExp.base,zoomB-zoomA) - 1.0);
+                    }
+                    return ratio * (valB - valA) + valA;
+                }
+                    break;
+                default:
+                    break;
+            }
+        }
+        stopA = stopB;
+    }
+    
+    return floatExp.stopOutputs[stopB];
+}
+
+// Get zoom from appropriate slot
+float ZoomFromSlot(constant Uniforms &uniforms,int zoomSlot)
+{
+    if (zoomSlot < 0 || zoomSlot >= MaxZoomSlots)
+        return 0.0;
+    float zoom = uniforms.zoomSlots[zoomSlot];
+    if (zoom > 1000000.0)  // MAXFLOAT means it isn't on
+        return 0.0;
+    
+    return zoom;
+}
+
 struct TriWideArgBuffer {
     UniformDrawStateA uniDrawState      [[ id(WKSUniformDrawStateEntry) ]];
     UniformWideVec wideVec              [[ id(WKSUniformWideVecEntry) ]];
+    UniformWideVecExp wideVecExp        [[ id(WKSUniformWideVecEntryExp) ]];
     bool hasTextures;
 };
 
@@ -395,10 +453,17 @@ vertex ProjVertexTriWideVec vertexTri_wideVec(
     ProjVertexTriWideVec outVert;
     
     float3 pos = (vertArgs.uniDrawState.singleMat * float4(vert.position.xyz,1.0)).xyz;
+    
+    // Pull out the width and possibly calculate one
+    float w2 = vertArgs.wideVec.w2;
+//    if (vertArgs.wideVec.hasExp) {
+//        float zoom = ZoomFromSlot(uniforms, vertArgs.uniDrawState.zoomSlot);
+//        w2 = ExpCalculateFloat(vertArgs.wideVecExp.widthExp, zoom, w2);
+//    }
 
     outVert.color = vertArgs.wideVec.color * calculateFade(uniforms,vertArgs.uniDrawState);
     
-    float realWidth2 = vertArgs.wideVec.w2 * min(uniforms.screenSizeInDisplayCoords.x,uniforms.screenSizeInDisplayCoords.y) / min(uniforms.frameSize.x,uniforms.frameSize.y);
+    float realWidth2 = w2 * min(uniforms.screenSizeInDisplayCoords.x,uniforms.screenSizeInDisplayCoords.y) / min(uniforms.frameSize.x,uniforms.frameSize.y);
     float t0 = vert.c0 * realWidth2;
     t0 = clamp(t0,0.0,1.0);
     float3 realPos = (vert.p1 - vert.position) * t0 + vert.n0 * realWidth2 + pos;
@@ -410,6 +475,7 @@ vertex ProjVertexTriWideVec vertexTri_wideVec(
     outVert.position = float4(screenPos.xy,0,1.0);
 
     outVert.dotProd = calcGlobeDotProd(uniforms,pos,vert.normal);
+    outVert.w2 = w2;
     
     return outVert;
 }
@@ -430,11 +496,11 @@ fragment float4 fragmentTri_wideVec(
         patternVal = texArgs.tex[0].sample(sampler2d, float2(0.5,vert.texCoord.y)).r;
     }
     float alpha = 1.0;
-    float across = vert.texCoord.x * fragArgs.wideVec.w2;
+    float across = vert.texCoord.x * vert.w2;
     if (across < fragArgs.wideVec.edge)
         alpha = across/fragArgs.wideVec.edge;
-    if (across > fragArgs.wideVec.w2-fragArgs.wideVec.edge)
-        alpha = (fragArgs.wideVec.w2-across)/fragArgs.wideVec.edge;
+    if (across > vert.w2-fragArgs.wideVec.edge)
+        alpha = (vert.w2-across)/fragArgs.wideVec.edge;
     return vert.dotProd > 0.0 ? fragArgs.wideVec.color * alpha * patternVal : float4(0.0);
 }
 

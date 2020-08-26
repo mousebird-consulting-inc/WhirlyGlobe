@@ -58,6 +58,9 @@ public class MapboxKindaMap {
     //  before you load its children.  1024 is good for vector tiles, 256 good for image tiles
     public var minImportance = 1024.0 * 1024.0
     
+    // If we're doing offline rendering for the map tiles, this is the size
+    public var offlineRenderSize = (width: 1024.0, height: 1024.0)
+    
     // If set, we'll fetch and use the sources from the style sheet
     // If not set, the sources have to be provided externally
     public var fetchSources = true
@@ -70,7 +73,7 @@ public class MapboxKindaMap {
         self.viewC = viewC
         self.styleURL = styleURL
         styleSettings.baseDrawPriority = kMaplyImageLayerDrawPriorityDefault+1000
-        styleSettings.drawPriorityPerLevel = 1
+        styleSettings.drawPriorityPerLevel = 100
     }
     
     // Initialize with the style sheet tiself and a pointer to the MBTiles file
@@ -78,6 +81,8 @@ public class MapboxKindaMap {
         self.viewC = viewC
         self.styleSheetData = styleSheet.data(using: .utf8)
         self.localMBTiles.append(localMBTiles)
+        styleSettings.baseDrawPriority = kMaplyImageLayerDrawPriorityDefault+1000
+        styleSettings.drawPriorityPerLevel = 100
     }
     
     // Initialize with a style sheet that's already been parsed
@@ -85,6 +90,8 @@ public class MapboxKindaMap {
         self.viewC = viewC
         self.styleSheet = styleSheet
         self.localMBTiles.append(localMBTiles)
+        styleSettings.baseDrawPriority = kMaplyImageLayerDrawPriorityDefault+1000
+        styleSettings.drawPriorityPerLevel = 100
     }
     
     public var styleSettings = MaplyVectorStyleSettings()
@@ -361,60 +368,61 @@ public class MapboxKindaMap {
             }
         }
 
-            // Put together the tileInfoNew objects
-            var tileInfos: [MaplyTileInfoNew] = []
-            var localFetchers: [MaplyMBTileFetcher] = []
-            if fetchSources {
-                styleSheet.sources.forEach {
-                    guard let source = $0 as? MaplyMapboxVectorStyleSource else {
-                        print("Bad format in tileInfo for style sheet")
-                        return
-                    }
-                    if let minZoom = source.tileSpec?["minzoom"] as? Int32,
-                        let maxZoom = source.tileSpec?["maxzoom"] as? Int32,
-                        let tiles = source.tileSpec?["tiles"] as? [String] {
-                        let tileSource = MaplyRemoteTileInfoNew(baseURL: tiles[0], minZoom: minZoom, maxZoom: maxZoom)
-                        if let cacheDir = self.cacheDir {
-                            tileSource.cacheDir = cacheDir.appendingPathComponent(tiles[0].replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: ":", with: "_")).absoluteString
-                        }
-                        tileInfos.append(tileSource)
-                    }
+        // Put together the tileInfoNew objects
+        var tileInfos: [MaplyTileInfoNew] = []
+        var localFetchers: [MaplyMBTileFetcher] = []
+        if fetchSources {
+            styleSheet.sources.forEach {
+                guard let source = $0 as? MaplyMapboxVectorStyleSource else {
+                    print("Bad format in tileInfo for style sheet")
+                    return
                 }
-            } else {
-                // Must be local files
-                localMBTiles.forEach {
-                    if let fetcher = MaplyMBTileFetcher(mbTiles: $0),
-                        let tileInfo = fetcher.tileInfo() {
-                        localFetchers.append(fetcher)
-                        tileInfos.append(tileInfo)
-                        zoom.min = min(fetcher.minZoom(), zoom.min)
-                        zoom.max = max(fetcher.maxZoom(), zoom.max)
+                if let minZoom = source.tileSpec?["minzoom"] as? Int32,
+                    let maxZoom = source.tileSpec?["maxzoom"] as? Int32,
+                    let tiles = source.tileSpec?["tiles"] as? [String] {
+                    let tileSource = MaplyRemoteTileInfoNew(baseURL: tiles[0], minZoom: minZoom, maxZoom: maxZoom)
+                    if let cacheDir = self.cacheDir {
+                        tileSource.cacheDir = cacheDir.appendingPathComponent(tiles[0].replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: ":", with: "_")).absoluteString
                     }
+                    tileInfos.append(tileSource)
                 }
             }
-            
-            // Parameters describing how we want a globe broken down
-            let sampleParams = MaplySamplingParams()
-            sampleParams.coordSys = MaplySphericalMercator(webStandard: ())
-            sampleParams.minImportance = self.minImportance
-            sampleParams.singleLevel = true
-            // If we don't have a solid underlayer for each tile, we can't really
-            //  keep level 0 around all the time
-            if !backgroundAllPolys {
-                sampleParams.forceMinLevel = false
-            } else {
-                sampleParams.forceMinLevel = true
-                sampleParams.minImportanceTop = 0.0
+        } else {
+            // Must be local files
+            localMBTiles.forEach {
+                if let fetcher = MaplyMBTileFetcher(mbTiles: $0),
+                    let tileInfo = fetcher.tileInfo() {
+                    localFetchers.append(fetcher)
+                    tileInfos.append(tileInfo)
+                    zoom.min = min(fetcher.minZoom(), zoom.min)
+                    zoom.max = max(fetcher.maxZoom(), zoom.max)
+                }
             }
-            if viewC is WhirlyGlobeViewController {
-                sampleParams.coverPoles = true
-                sampleParams.edgeMatching = true
-            } else {
-                sampleParams.coverPoles = false
-                sampleParams.edgeMatching = false
-            }
-            sampleParams.minZoom = zoom.min
-            sampleParams.maxZoom = zoom.max
+        }
+        
+        // Parameters describing how we want a globe broken down
+        let sampleParams = MaplySamplingParams()
+        sampleParams.coordSys = MaplySphericalMercator(webStandard: ())
+        sampleParams.minImportance = self.minImportance
+        sampleParams.singleLevel = true
+        // If we don't have a solid underlayer for each tile, we can't really
+        //  keep level 0 around all the time
+        if !backgroundAllPolys {
+            sampleParams.forceMinLevel = false
+        } else {
+            sampleParams.forceMinLevel = true
+            sampleParams.minImportanceTop = 0.0
+        }
+        if viewC is WhirlyGlobeViewController {
+            sampleParams.coverPoles = true
+            sampleParams.edgeMatching = true
+        } else {
+            sampleParams.coverPoles = false
+            sampleParams.edgeMatching = false
+        }
+        sampleParams.minZoom = zoom.min
+        sampleParams.maxZoom = zoom.max
+        sampleParams.reportedMaxZoom = 20;
 
         // Image/vector hybrids draw the polygons into a background image
         if imageVectorHybrid {
@@ -427,6 +435,8 @@ public class MapboxKindaMap {
             if !localFetchers.isEmpty {
                 imageLoader.setTileFetcher(localFetchers[0])
             }
+            imageLoader.baseDrawPriority = styleSettings.baseDrawPriority
+            imageLoader.drawPriorityPerLevel = styleSettings.drawPriorityPerLevel
             loader = imageLoader
             
             guard let styleSheetData = styleSheetData else {
@@ -435,7 +445,7 @@ public class MapboxKindaMap {
                         
             if self.backgroundAllPolys {
                 // Set up an offline renderer and a Mapbox vector style handler to render to it
-                let imageSize = (width: 512.0, height: 512.0)
+                let imageSize = (width: offlineRenderSize.width, height: offlineRenderSize.height)
                 guard let offlineRender = MaplyRenderController.init(size: CGSize.init(width: imageSize.width, height: imageSize.height)) else {
                     print("Failed to start offline renderer.  Nothing will appear.")
                     self.stop()

@@ -342,6 +342,8 @@ bool MapboxVectorStyleSetImpl::boolValue(const std::string &name,DictionaryRef d
         return thing->getString() == onString;
     else if (thing->getType() == DictTypeInt)
         return thing->getInt();
+    else if (thing->getType() == DictTypeDouble)
+        return thing->getInt();
     else
         return defVal;
 }
@@ -728,45 +730,5 @@ std::vector<VectorStyleImplRef> MapboxVectorStyleSetImpl::allStyles(PlatformThre
     
     return styles;
 }
-
-
-//- (UIColor *)backgroundColorForZoom:(double)zoom;
-//{
-//    MaplyMapboxVectorStyleLayer *layer = [_layersByName objectForKey:@"background"];
-//    if ([layer isKindOfClass:[MapboxVectorLayerBackground class]]) {
-//        MapboxVectorLayerBackground *backLayer = (MapboxVectorLayerBackground *)layer;
-//        return [backLayer.paint.color colorForZoom:zoom];
-//    }
-//
-//    return nil;
-//}
-//
-//
-//- (MaplyVectorFunctionStops *)stopsValue:(id)entry defVal:(id)defEntry
-//{
-//    entry = [self constantSubstitution:entry forField:nil];
-//
-//    NSNumber *base = nil;
-//    if ([entry isKindOfClass:[NSDictionary class]])
-//    {
-//        base = ((NSDictionary *)entry)[@"base"];
-//        entry = ((NSDictionary *)entry)[@"stops"];
-//    }
-//
-//    if (!entry)
-//    {
-//        NSLog(@"Expecting key word 'stops' in entry %@",defEntry);
-//        return defEntry;
-//    }
-//
-//    MaplyVectorFunctionStops *stops = [[MaplyVectorFunctionStops alloc] initWithArray:entry styleSet:self viewC:self.viewC];
-//    if (stops)
-//    {
-//        if ([base isKindOfClass:[NSNumber class]])
-//            stops.base = [base doubleValue];
-//        return stops;
-//    }
-//    return defEntry;
-//}
 
 }

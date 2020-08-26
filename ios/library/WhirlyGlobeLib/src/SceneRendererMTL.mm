@@ -266,6 +266,7 @@ void SceneRendererMTL::setupDrawStateA(WhirlyKitShader::UniformDrawStateA &drawS
 {
     // That was anti-climactic
     bzero(&drawState,sizeof(drawState));
+    drawState.zoomSlot = -1;
 }
     
 MTLRenderPipelineDescriptor *SceneRendererMTL::defaultRenderPipelineState(SceneRendererMTL *sceneRender,ProgramMTL *program,RenderTargetMTL *renderTarget)

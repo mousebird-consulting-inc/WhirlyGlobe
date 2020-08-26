@@ -114,7 +114,10 @@ bool MapboxVectorSymbolLayout::parse(PlatformThreadInfo *inst,
     if (styleEntry && styleEntry->getType("text-anchor") == DictTypeArray) {
         textAnchor = (MapboxTextAnchor)styleSet->enumValue(styleEntry->getEntry("text-anchor"), anchorVals, (int)MBTextCenter);
     }
-    layoutImportance = styleSet->tileStyleSettings->labelImportance;
+    iconAllowOverlap = styleSet->boolValue("icon-allow-overlap", styleEntry, "on", false);
+    layoutImportance = MAXFLOAT;
+    if (iconAllowOverlap)
+        layoutImportance = styleSet->tileStyleSettings->labelImportance;
     
     iconImageField.parse("icon-image",styleSet,styleEntry);
     iconSize = styleSet->doubleValue("icon-size", styleEntry, 1.0);
@@ -230,26 +233,24 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
         return;
 
     ComponentObjectRef compObj = styleSet->makeComponentObject(inst);
-
-    // TODO: They mean displayed level here, which is different from loaded level
-//    if (useZoomLevels) {
-//        if (minzoom > tileInfo->ident.level)
-//          return;
-//      if (maxzoom < tileInfo->ident.level)
-//          return;
-//    }
-    
+        
     double textSize = layout.textSize->valForZoom(tileInfo->ident.level);
     // Snap to an integer.  Not clear we need to, just because.
     textSize = (int)(textSize * layout.globalTextScale+0.5);
 
     LabelInfoRef labelInfo = styleSet->makeLabelInfo(inst,layout.textFontName,textSize);
+    if (minzoom != 0 || maxzoom < 1000) {
+        labelInfo->zoomSlot = styleSet->zoomSlot;
+        labelInfo->minZoomVis = minzoom;
+        labelInfo->maxZoomVis = maxzoom;
+//        wkLogLevel(Debug, "zoomSlot = %d, minZoom = %f, maxZoom = %f",styleSet->zoomSlot,labelInfo->minZoomVis,labelInfo->maxZoomVis);
+    }
     labelInfo->screenObject = true;
     labelInfo->fade = 0.0;
     labelInfo->textJustify = WhirlyKitTextCenter;
 
-    if (drawPriorityPerLevel > 0)
-        labelInfo->drawPriority = drawPriority + tileInfo->ident.level * drawPriorityPerLevel + ScreenDrawPriorityOffset;
+    if (styleSet->tileStyleSettings->drawPriorityPerLevel > 0)
+        labelInfo->drawPriority = drawPriority + tileInfo->ident.level * styleSet->tileStyleSettings->drawPriorityPerLevel + ScreenDrawPriorityOffset;
     else
         labelInfo->drawPriority = drawPriority + ScreenDrawPriorityOffset;
 
@@ -265,6 +266,11 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
     
     // Sort out the image for the marker if we're doing that
     MarkerInfo markerInfo(true);
+    if (minzoom != 0 || maxzoom < 1000) {
+        markerInfo.zoomSlot = styleSet->zoomSlot;
+        markerInfo.minZoomVis = minzoom;
+        markerInfo.maxZoomVis = maxzoom;
+    }
     bool iconInclude = layout.iconImageField.valid && styleSet->sprites;
     if (iconInclude) {
         markerInfo.programID = styleSet->screenMarkerProgramID;

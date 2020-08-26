@@ -77,6 +77,9 @@ public:
     /// Return the maximum quad tree zoom level.  Must be at least minZoom
     virtual int getMaxZoom();
     
+    /// Max zoom level we want reportable (beyond the loaded max zoom)
+    virtual int getReportedMaxZoom();
+    
     /// Return an importance value for the given tile
     virtual double importanceForTile(const QuadTreeIdentifier &ident,
                                      const Mbr &mbr,

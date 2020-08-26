@@ -424,6 +424,7 @@ bool BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
             // Has to update if either textures or values updated
             WhirlyKitShader::UniformDrawStateA uni;
             sceneRender->setupDrawStateA(uni);
+            uni.zoomSlot = zoomSlot;
             uni.clipCoords = basicDraw->clipCoords;
             // TODO: Put these in the instance as well
             double baseTime = scene->getBaseTime();

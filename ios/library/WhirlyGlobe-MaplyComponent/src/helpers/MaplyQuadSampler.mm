@@ -64,6 +64,16 @@ using namespace WhirlyKit;
     params.maxZoom = maxZoom;
 }
 
+- (int)reportedMaxZoom
+{
+    return params.reportedMaxZoom;
+}
+
+- (void)setReportedMaxZoom:(int)reportedMaxZoom
+{
+    params.reportedMaxZoom = reportedMaxZoom;
+}
+
 - (int)maxTiles
 {
     return params.maxTiles;

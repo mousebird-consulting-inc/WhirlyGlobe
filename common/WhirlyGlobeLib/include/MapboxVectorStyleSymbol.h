@@ -49,6 +49,8 @@ public:
     double globalTextScale;
     /// How the text is laid out in relation to it's attach point
     MapboxTextAnchor textAnchor;
+    /// Whether it goes to the layout engine
+    bool iconAllowOverlap;
     
     // Used to track text data
     class TextChunk {

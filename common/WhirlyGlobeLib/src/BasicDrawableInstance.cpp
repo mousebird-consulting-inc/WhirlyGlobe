@@ -117,6 +117,13 @@ bool BasicDrawableInstance::isOn(WhirlyKit::RendererFrameInfo *frameInfo) const
             return false;
     }
     
+    // Zoom based check.  We need to be in the current zoom range
+    if (zoomSlot > -1 && zoomSlot <= MaplyMaxZoomSlots) {
+        float zoom = frameInfo->scene->zoomSlots[zoomSlot];
+        if (zoom != MAXFLOAT)
+            return (minZoomVis <= zoom && zoom <= maxZoomVis);
+    }
+    
     return true;
 }
     
@@ -179,6 +186,15 @@ void BasicDrawableInstance::setVisibleRange(float inMinVis,float inMaxVis)
 void BasicDrawableInstance::setViewerVisibility(double inMinViewerDist,double inMaxViewerDist,const Point3d &inViewerCenter)
 {
     minViewerDist = inMinViewerDist; maxViewerDist = inMaxViewerDist; viewerCenter = inViewerCenter;
+}
+
+void BasicDrawableInstance::setZoomInfo(int inZoomSlot,double inMinZoomVis,double inMaxZoomVis)
+{
+    setValuesChanged();
+    
+    zoomSlot = inZoomSlot;
+    minZoomVis = inMinZoomVis;
+    maxZoomVis = inMaxZoomVis;
 }
 
 /// Set the color

@@ -56,6 +56,9 @@ public:
     /// Return the maximum quad tree zoom level.  Must be at least minZoom
     virtual int getMaxZoom() = 0;
     
+    /// Max zoom level that we want to report (for continuous zoom and enable)
+    virtual int getReportedMaxZoom() = 0;
+    
     /// Return an importance value for the given tile
     virtual double importanceForTile(const QuadTreeIdentifier &ident,
                                              const Mbr &mbr,
@@ -182,7 +185,8 @@ protected:
     Mbr mbr;
     int maxTiles;
     std::vector<double> minImportancePerLevel;
-    int minZoom,maxZoom;
+    std::vector<double> reportedMinImportancePerLevel;
+    int minZoom,maxZoom,reportedMaxZoom;
     TimeInterval viewUpdatePeriod;
     bool keepMinLevel;
     double keepMinLevelHeight;

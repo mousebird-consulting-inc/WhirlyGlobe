@@ -194,7 +194,7 @@ public:
     virtual MapboxVectorStyleLayerRef getLayer(const std::string &name);
     
     /// Set the zoom slot if we've got continuous zoom going on
-    void setZoomSlot(int zoomSlot);
+    virtual void setZoomSlot(int zoomSlot) override;
     
     /// Fish out the background color for a given zoom level
     RGBAColorRef backgroundColor(PlatformThreadInfo *inst,double zoom) override;

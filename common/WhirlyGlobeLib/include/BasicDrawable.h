@@ -92,6 +92,9 @@ public:
     
     /// Set the viewer based visibility
     virtual void setViewerVisibility(double minViewerDist,double maxViewerDist,const Point3d &viewerCenter);
+    
+    /// Visibility based on zoom level
+    void setZoomInfo(int zoomSlot,double minZoomVis,double maxZoomVis);
 
     /// Set what range we can see this drawable within.
     /// The units are in distance from the center of the globe and
@@ -201,6 +204,8 @@ public:
     float minVisible,maxVisible;
     float minVisibleFadeBand,maxVisibleFadeBand;
     double minViewerDist,maxViewerDist;
+    int zoomSlot;
+    double minZoomVis,maxZoomVis;
     Point3d viewerCenter;
     unsigned int drawPriority;  // Used to sort drawables
     float drawOffset;    // Number of units of Z buffer resolution to offset upward (by the normal)

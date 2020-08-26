@@ -34,6 +34,7 @@ BaseInfo::BaseInfo()
     : minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid),
     minVisBand(DrawVisibleInvalid), maxVisBand(DrawVisibleInvalid),
     minViewerDist(DrawVisibleInvalid), maxViewerDist(DrawVisibleInvalid),
+    zoomSlot(-1),minZoomVis(DrawVisibleInvalid),maxZoomVis(DrawVisibleInvalid),
     viewerCenter(DrawVisibleInvalid,DrawVisibleInvalid,DrawVisibleInvalid),
     drawOffset(0.0),
     drawPriority(0),
@@ -49,7 +50,9 @@ BaseInfo::BaseInfo()
 
 BaseInfo::BaseInfo(const BaseInfo &that)
 : minVis(that.minVis), maxVis(that.minVis), minVisBand(that.minVisBand), maxVisBand(that.maxVisBand),
-  minViewerDist(that.minViewerDist), maxViewerDist(that.maxViewerDist), viewerCenter(that.viewerCenter),
+  minViewerDist(that.minViewerDist), maxViewerDist(that.maxViewerDist),
+  zoomSlot(that.zoomSlot),minZoomVis(that.minZoomVis),maxZoomVis(that.maxZoomVis),
+  viewerCenter(that.viewerCenter),
   drawOffset(that.drawOffset), drawPriority(that.drawPriority), enable(that.enable),
   fade(that.fade), fadeIn(that.fadeIn), fadeOut(that.fadeOut), fadeOutTime(that.fadeOutTime),
   startEnable(that.startEnable), endEnable(that.endEnable), programID(that.programID),
@@ -66,6 +69,9 @@ BaseInfo::BaseInfo(const Dictionary &dict)
     maxVisBand = dict.getDouble(MaplyMaxVisBand,DrawVisibleInvalid);
     minViewerDist = dict.getDouble(MaplyMinViewerDist,DrawVisibleInvalid);
     maxViewerDist = dict.getDouble(MaplyMaxViewerDist,DrawVisibleInvalid);
+    zoomSlot = dict.getInt(MaplyZoomSlot,-1);
+    minZoomVis = dict.getDouble(MaplyMinZoomVis,DrawVisibleInvalid);
+    maxZoomVis = dict.getDouble(MaplyMaxZoomVis,DrawVisibleInvalid);
     viewerCenter.x() = dict.getDouble(MaplyViewableCenterX,DrawVisibleInvalid);
     viewerCenter.y() = dict.getDouble(MaplyViewableCenterY,DrawVisibleInvalid);
     viewerCenter.z() = dict.getDouble(MaplyViewableCenterZ,DrawVisibleInvalid);
@@ -145,6 +151,9 @@ std::string BaseInfo::toString()
     " maxVisBand = " + to_string(maxVisBand) + ";" +
     " minViewerDist = " + to_string(minViewerDist) + ";" +
     " maxViewerDist = " + to_string(maxViewerDist) + ";" +
+    " zoomSlot = " + to_string(zoomSlot) + ";" +
+    " minZoomVis = " + to_string(minZoomVis) + ";" +
+    " maxZoomVis = " + to_string(maxZoomVis) + ";" +
     " viewerCenter = (" + to_string(viewerCenter.x()) + "," + to_string(viewerCenter.y()) + "," + to_string(viewerCenter.z()) + ");" +
     " drawOffset = " + to_string(drawOffset) + ";" +
     " drawPriority = " + to_string(drawPriority) + ";" +
@@ -173,6 +182,7 @@ void BaseInfo::setupBasicDrawable(BasicDrawableBuilder *drawBuild) const
     drawBuild->setDrawPriority(drawPriority);
     drawBuild->setVisibleRange(minVis,maxVis);
     drawBuild->setViewerVisibility(minViewerDist,maxViewerDist,viewerCenter);
+    drawBuild->setZoomInfo(zoomSlot,minZoomVis,maxZoomVis);
     drawBuild->setProgram(programID);
     drawBuild->setUniforms(uniforms);
     drawBuild->setRequestZBuffer(zBufferRead);
@@ -195,6 +205,7 @@ void BaseInfo::setupBasicDrawableInstance(BasicDrawableInstanceBuilder *drawBuil
     drawBuild->setDrawPriority(drawPriority);
     drawBuild->setVisibleRange(minVis,maxVis);
     drawBuild->setViewerVisibility(minViewerDist,maxViewerDist,viewerCenter);
+    drawBuild->setZoomInfo(zoomSlot,minZoomVis,maxZoomVis);
     drawBuild->setUniforms(uniforms);
     drawBuild->setRequestZBuffer(zBufferRead);
     drawBuild->setWriteZBuffer(zBufferWrite);

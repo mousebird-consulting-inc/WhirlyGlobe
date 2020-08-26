@@ -47,6 +47,10 @@
 /// Some geometry supports level of detailing based on distance
 #define MaplyMinViewerDist WKString("minviewerdist")
 #define MaplyMaxViewerDist WKString("maxviewerdist")
+/// Zoom related control
+#define MaplyZoomSlot WKString("zoomslot")
+#define MaplyMinZoomVis WKString("minzoomvis")
+#define MaplyMaxZoomVis WKString("maxzoomvis")
 /// Viewable center if using geometry offsets
 #define MaplyViewableCenterX WKString("viewablecenterx")
 #define MaplyViewableCenterY WKString("viewablecentery")

@@ -40,6 +40,10 @@
 /// Max zoom level for sampling
 @property (nonatomic) int maxZoom;
 
+/// We may want to calculate zoom levels beyond what we actually load.
+/// Useful for zoom scaled features and enable/disable based on zoome
+@property (nonatomic) int reportedMaxZoom;
+
 /// Maximum number of tiles to load
 @property (nonatomic) int maxTiles;
 

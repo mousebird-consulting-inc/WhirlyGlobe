@@ -171,6 +171,11 @@ int QuadSamplingController::getMaxZoom()
     return params.maxZoom;
 }
 
+int QuadSamplingController::getReportedMaxZoom()
+{
+    return params.reportedMaxZoom;
+}
+
 double QuadSamplingController::importanceForTile(const QuadTreeIdentifier &ident,
                                  const Mbr &mbr,
                                  ViewStateRef viewState,

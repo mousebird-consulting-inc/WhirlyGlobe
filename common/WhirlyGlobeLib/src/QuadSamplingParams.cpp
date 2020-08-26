@@ -25,7 +25,7 @@ namespace WhirlyKit
 
 SamplingParams::SamplingParams()
     : coordSys(NULL),
-    minZoom(0), maxZoom(0),
+    minZoom(0), maxZoom(0), reportedMaxZoom(-1),
     maxTiles(128),
     minImportance(256*256), minImportanceTop(0.0),
     coverPoles(true), edgeMatching(true),
@@ -52,7 +52,7 @@ bool SamplingParams::operator == (const SamplingParams &that) const
     if (!coordSys->isSameAs(that.coordSys.get()))
         return false;
     
-    return minZoom == that.minZoom && maxZoom == that.maxZoom &&
+    return minZoom == that.minZoom && maxZoom == that.maxZoom && reportedMaxZoom == that.reportedMaxZoom &&
         maxTiles == that.maxTiles &&
         minImportance == that.minImportance && minImportanceTop == that.minImportanceTop &&
         coverPoles == that.coverPoles && edgeMatching == that.edgeMatching &&

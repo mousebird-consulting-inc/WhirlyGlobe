@@ -484,6 +484,7 @@ bool BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
             // Has to update if either textures or values updated
             WhirlyKitShader::UniformDrawStateA uni;
             sceneRender->setupDrawStateA(uni);
+            uni.zoomSlot = zoomSlot;
             uni.clipCoords = clipCoords;
             if (hasMatrix)
                 CopyIntoMtlFloat4x4(uni.singleMat, *getMatrix());

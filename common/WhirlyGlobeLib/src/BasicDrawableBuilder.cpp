@@ -65,6 +65,8 @@ void BasicDrawableBuilder::Init()
     basicDraw->minVisibleFadeBand = basicDraw->maxVisibleFadeBand = 0.0;
     basicDraw->minViewerDist = basicDraw->maxViewerDist = DrawVisibleInvalid;
     basicDraw->viewerCenter = Point3d(DrawVisibleInvalid,DrawVisibleInvalid,DrawVisibleInvalid);
+    basicDraw->zoomSlot = -1;
+    basicDraw->minZoomVis = basicDraw->maxZoomVis = DrawVisibleInvalid;
     
     basicDraw->fadeDown = basicDraw->fadeUp = 0.0;
     basicDraw->color = RGBAColor(255,255,255,255);
@@ -172,6 +174,13 @@ void BasicDrawableBuilder::setViewerVisibility(double inMinViewerDist,double inM
 void BasicDrawableBuilder::setVisibleRange(float minVis,float maxVis,float minVisBand,float maxVisBand)
 {
     basicDraw->minVisible = minVis;  basicDraw->maxVisible = maxVis;  basicDraw->minVisibleFadeBand = minVisBand; basicDraw->maxVisibleFadeBand = maxVisBand;
+}
+
+void BasicDrawableBuilder::setZoomInfo(int zoomSlot,double minZoomVis,double maxZoomVis)
+{
+    basicDraw->zoomSlot = zoomSlot;
+    basicDraw->minZoomVis = minZoomVis;
+    basicDraw->maxZoomVis = maxZoomVis;
 }
 
 void BasicDrawableBuilder::setAlpha(bool onOff)

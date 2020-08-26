@@ -212,6 +212,7 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,std::vector<SingleLabe
 
             screenShape->setDrawPriority(labelInfo->drawPriority+1);
             screenShape->setVisibility(labelInfo->minVis, labelInfo->maxVis);
+            screenShape->setZoomInfo(labelInfo->zoomSlot, labelInfo->minZoomVis, labelInfo->maxZoomVis);
             screenShape->setKeepUpright(label->keepUpright);
             if (label->rotation != 0.0)
                 screenShape->setRotation(label->rotation);

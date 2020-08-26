@@ -128,6 +128,9 @@ public:
     
     /// Return the background color for a given zoom level
     virtual RGBAColorRef backgroundColor(PlatformThreadInfo *inst,double zoom) = 0;
+    
+    /// Capture the zoom slot if you're going use it
+    virtual void setZoomSlot(int zoomSlot) { };
 };
 typedef std::shared_ptr<VectorStyleDelegateImpl> VectorStyleDelegateImplRef;
 

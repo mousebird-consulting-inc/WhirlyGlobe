@@ -22,6 +22,32 @@
 namespace WhirlyKitShader
 {
 
+/** Expressions are used to change values like width and opacity over zoom levels. **/
+#define WKSExpStops 16
+
+// Expression types
+typedef enum {
+    ExpNone,ExpLinear,ExpExponential
+} ExpType;
+
+// Single floating point value expression
+struct FloatExp {
+    ExpType type;
+    int numStops;
+    float base;
+    float stopInputs[WKSExpStops];
+    float stopOutputs[WKSExpStops];
+};
+
+// Color value expression
+struct ColorExp {
+    ExpType type;
+    int numStops;
+    float base;
+    float stopInputs[WKSExpStops];
+    float stopOutputs[WKSExpStops];
+};
+
 /** Attributes within the [[stage_in]] for vertex shaders **/
     
 // Basic vertex attribute positions
@@ -98,6 +124,7 @@ typedef enum {
 typedef enum {
     WKSUniformDrawStateEntry = 0,
     WKSUniformWideVecEntry = 100,
+    WKSUniformWideVecEntryExp = 110,
     WKSUniformScreenSpaceEntry = 200,
     WKSUniformModelInstanceEntry = 300,
     WKSUniformBillboardEntry = 400
@@ -130,10 +157,11 @@ struct UniformDrawStateA {
     float interp;              // Used to interpolate between two textures (if appropriate)
     int outputTexLevel;        // Normally 0, unless we're running a reduce
     int whichOffsetMatrix;     // Normally 0, unless we're in 2D mode drawing the same stuff multiple times
-    bool clipCoords;           // If set, the geometry coordinates aren't meant to be transformed
     float fadeUp,fadeDown;     // Fading in/out values
     float minVisible,maxVisible;  // Visibility by height
     float minVisibleFadeBand,maxVisibleFadeBand;
+    int zoomSlot;              // Used to pass continuous zoom info
+    bool clipCoords;           // If set, the geometry coordinates aren't meant to be transformed
 };
     
 // Things that change per particle drawable
@@ -183,6 +211,14 @@ struct UniformWideVec {
     float edge;     // Edge falloff control
     float texRepeat;  // Texture scaling specific to wide vectors
     simd::float4 color;  // Color override.  TODO: Use the standard one.  Seriously.
+    bool hasExp;      // Look for a UniformWideVecExp structure for color, opacity, and width
+};
+
+// For variable width (and color, etc) lines we'll
+struct UniformWideVecExp {
+    FloatExp widthExp;
+    FloatExp opacityExp;
+    ColorExp colorExp;
 };
     
 // Instructions to the screen space shaders, usually per-drawable
@@ -299,6 +335,7 @@ struct ProjVertexTriWideVec {
     float4 color;
     float2 texCoord;
     float dotProd;
+    float w2;
 };
 
 // Input vertex data for Screen Space shaders

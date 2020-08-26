@@ -101,6 +101,7 @@ class MapTilerTestCase: MaplyTestCase {
     override func stop() {
         mapboxMap?.stop()
         mapboxMap = nil
+        legendVC = nil
         
         super.stop()
     }

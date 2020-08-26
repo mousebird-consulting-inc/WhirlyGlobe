@@ -115,6 +115,13 @@ bool BasicDrawable::isOn(RendererFrameInfo *frameInfo) const
             return false;
     }
     
+    // Zoom based check.  We need to be in the current zoom range
+    if (zoomSlot > -1 && zoomSlot <= MaplyMaxZoomSlots) {
+        float zoom = frameInfo->scene->zoomSlots[zoomSlot];
+        if (zoom != MAXFLOAT)
+            return (minZoomVis <= zoom && zoom <= maxZoomVis);
+    }
+    
     return true;
 }
 
@@ -199,6 +206,15 @@ void BasicDrawable::setViewerVisibility(double inMinViewerDist,double inMaxViewe
     minViewerDist = inMinViewerDist;
     maxViewerDist = inMaxViewerDist;
     viewerCenter = inViewerCenter;
+}
+
+void BasicDrawable::setZoomInfo(int inZoomSlot,double inMinZoomVis,double inMaxZoomVis)
+{
+    setValuesChanged();
+    
+    zoomSlot = inZoomSlot;
+    minZoomVis = inMinZoomVis;
+    maxZoomVis = inMaxZoomVis;
 }
 
 void BasicDrawable::setFade(TimeInterval inFadeDown,TimeInterval inFadeUp)

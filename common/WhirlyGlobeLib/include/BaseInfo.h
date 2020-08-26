@@ -36,6 +36,44 @@ typedef std::shared_ptr<BasicDrawableBuilder> BasicDrawableBuilderRef;
 class BasicDrawableInstanceBuilder;
 typedef std::shared_ptr<BasicDrawableInstanceBuilder> BasicDrawableInstanceBuilderRef;
 
+/// Types of expressions we'll support for certain fields
+typedef enum {ExpressionLinear,ExpressionExponential} ExpressionInfoType;
+
+/// Base class for expressions
+class ExpressionInfo
+{
+public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
+    ExpressionInfo();
+    ExpressionInfo(const ExpressionInfo &that);
+    
+    ExpressionInfoType type;
+    
+    float base;  // Used for exponential expressions
+    std::vector<float> stopInputs;
+};
+
+/// Single float expression (e.g. opacity or what have you)
+class FloatExpressionInfo: public ExpressionInfo
+{
+public:
+    FloatExpressionInfo();
+    FloatExpressionInfo(const FloatExpressionInfo &that);
+    
+    std::vector<float> stopOutputs;
+};
+
+/// Color expression (e.g. for continuous color changes)
+class ColorExpressionInfo: public ExpressionInfo
+{
+public:
+    ColorExpressionInfo();
+    ColorExpressionInfo(const ColorExpressionInfo &that);
+    
+    std::vector<RGBAColor> stopOutputs;
+};
+
 /** Object use as the base for parsing description dictionaries.
  */
 class BaseInfo
@@ -61,6 +99,8 @@ public:
     double minVis,maxVis;
     double minVisBand,maxVisBand;
     double minViewerDist,maxViewerDist;
+    int zoomSlot;
+    double minZoomVis,maxZoomVis;
     Point3d viewerCenter;
     double drawOffset;
     int drawPriority;

@@ -47,6 +47,8 @@ void BasicDrawableInstanceBuilder::Init()
     drawInst->minViewerDist = DrawVisibleInvalid;
     drawInst->maxViewerDist = DrawVisibleInvalid;
     drawInst->viewerCenter = Point3d(DrawVisibleInvalid,DrawVisibleInvalid,DrawVisibleInvalid);
+    drawInst->zoomSlot = -1;
+    drawInst->minZoomVis = drawInst->maxZoomVis = DrawVisibleInvalid;
     drawInst->startTime = 0;
     drawInst->moving = false;
     drawInst->instanceStyle = BasicDrawableInstance::LocalStyle;
@@ -84,6 +86,13 @@ void BasicDrawableInstanceBuilder::setViewerVisibility(double minViewerDist,doub
 void BasicDrawableInstanceBuilder::setVisibleRange(float minVis,float maxVis)
 {
     drawInst->minVis = minVis;  drawInst->maxVis = maxVis;
+}
+
+void BasicDrawableInstanceBuilder::setZoomInfo(int zoomSlot,double minZoomVis,double maxZoomVis)
+{
+    drawInst->zoomSlot = zoomSlot;
+    drawInst->minZoomVis = minZoomVis;
+    drawInst->maxZoomVis = maxZoomVis;
 }
 
 void BasicDrawableInstanceBuilder::setDrawPriority(unsigned int newPriority)

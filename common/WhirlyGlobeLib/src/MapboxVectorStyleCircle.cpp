@@ -82,6 +82,11 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
 
     // Default settings
     MarkerInfo markerInfo(true);
+    if (minzoom != 0 || maxzoom < 1000) {
+        markerInfo.zoomSlot = styleSet->zoomSlot;
+        markerInfo.minZoomVis = minzoom;
+        markerInfo.maxZoomVis = maxzoom;
+    }
     markerInfo.drawPriority = drawPriority;
     markerInfo.programID = styleSet->screenMarkerProgramID;
     

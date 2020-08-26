@@ -48,6 +48,9 @@ public:
     /// Max zoom level for sampling
     int maxZoom;
     
+    /// We'll report out to this zoom level, even if we don't load them
+    int reportedMaxZoom;
+    
     /// Maximum number of tiles to load
     int maxTiles;
     

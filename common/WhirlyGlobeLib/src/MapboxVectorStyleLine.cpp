@@ -169,6 +169,12 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
     vecInfo.coordType = WideVecCoordScreen;
     vecInfo.programID = styleSet->wideVectorProgramID;
     vecInfo.fade = fade;
+    if (minzoom != 0 || maxzoom < 1000) {
+        vecInfo.zoomSlot = styleSet->zoomSlot;
+        vecInfo.minZoomVis = minzoom;
+        vecInfo.maxZoomVis = maxzoom;
+//        wkLogLevel(Debug, "zoomSlot = %d, minZoom = %f, maxZoom = %f",styleSet->zoomSlot,vecInfo.minZoomVis,vecInfo.maxZoomVis);
+    }
     if (filledLineTexID != EmptyIdentity) {
         vecInfo.texID = filledLineTexID;
         vecInfo.repeatSize = repeatLen;
@@ -184,8 +190,8 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
     }
     bool include = color && width > 0.0;
     
-    if (drawPriorityPerLevel > 0)
-        vecInfo.drawPriority = drawPriority + tileInfo->ident.level * drawPriorityPerLevel;
+    if (styleSet->tileStyleSettings->drawPriorityPerLevel > 0)
+        vecInfo.drawPriority = drawPriority + tileInfo->ident.level * styleSet->tileStyleSettings->drawPriorityPerLevel;
     else
         vecInfo.drawPriority = drawPriority;
 

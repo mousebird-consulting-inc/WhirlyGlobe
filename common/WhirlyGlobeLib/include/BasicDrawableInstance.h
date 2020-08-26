@@ -93,6 +93,9 @@ public:
     /// Set the viewer based visibility
     void setViewerVisibility(double inMinViewerDist,double inMaxViewerDist,const Point3d &inViewerCenter);
     
+    /// Visibility based on zoom level
+    void setZoomInfo(int zoomSlot,double minZoomVis,double maxZoomVis);
+    
     /// Set the color
     virtual void setColor(RGBAColor inColor);
     
@@ -183,6 +186,8 @@ protected:
     float minVis;
     float maxVis;
     double minViewerDist,maxViewerDist;
+    int zoomSlot;
+    double minZoomVis,maxZoomVis;
     Point3d viewerCenter;
     int numInstances;
     

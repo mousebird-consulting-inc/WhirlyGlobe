@@ -27,7 +27,9 @@ namespace WhirlyKit
 ScreenSpaceBuilder::DrawableState::DrawableState()
     : period(0.0), progID(EmptyIdentity), fadeUp(0.0), fadeDown(0.0),
     enable(true), startEnable(0.0), endEnable(0.0),
-    drawPriority(0), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), motion(false), rotation(false), keepUpright(false)
+    drawPriority(0), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid),
+    zoomSlot(-1), minZoomVis(DrawVisibleInvalid), maxZoomVis(DrawVisibleInvalid),
+    motion(false), rotation(false), keepUpright(false)
 {
 }
     
@@ -45,6 +47,12 @@ bool ScreenSpaceBuilder::DrawableState::operator < (const DrawableState &that) c
         return  minVis < that.minVis;
     if (maxVis != that.maxVis)
         return  maxVis < that.maxVis;
+    if (zoomSlot != that.zoomSlot)
+        return zoomSlot < that.zoomSlot;
+    if (minZoomVis != that.minZoomVis)
+        return minZoomVis < that.minZoomVis;
+    if (maxZoomVis != that.maxZoomVis)
+        return maxZoomVis < that.maxZoomVis;
     if (fadeUp != that.fadeUp)
         return fadeUp < that.fadeUp;
     if (fadeDown != that.fadeDown)
@@ -84,6 +92,7 @@ ScreenSpaceBuilder::DrawableWrap::DrawableWrap(SceneRenderer *render,const Drawa
     locDraw->setDrawPriority(state.drawPriority);
     locDraw->setFade(state.fadeDown, state.fadeUp);
     locDraw->setVisibleRange(state.minVis, state.maxVis);
+    locDraw->setZoomInfo(state.zoomSlot, state.minZoomVis, state.maxZoomVis);
     locDraw->setRequestZBuffer(false);
     locDraw->setWriteZBuffer(false);
     locDraw->setVertexAttributes(state.vertexAttrs);
@@ -193,7 +202,14 @@ void ScreenSpaceBuilder::setVisibility(float minVis,float maxVis)
     curState.minVis = minVis;
     curState.maxVis = maxVis;
 }
-    
+
+void ScreenSpaceBuilder::setZoomInfo(int zoomSlot,double minZoomVis,double maxZoomVis)
+{
+    curState.zoomSlot = zoomSlot;
+    curState.minZoomVis = minZoomVis;
+    curState.maxZoomVis = maxZoomVis;
+}
+
 void ScreenSpaceBuilder::setEnable(bool inEnable)
 {
     curState.enable = inEnable;
@@ -422,6 +438,13 @@ void ScreenSpaceObject::setVisibility(float minVis,float maxVis)
 {
     state.minVis = minVis;
     state.maxVis = maxVis;
+}
+
+void ScreenSpaceObject::setZoomInfo(int zoomSlot,double minZoomVis,double maxZoomVis)
+{
+    state.zoomSlot = zoomSlot;
+    state.minZoomVis = minZoomVis;
+    state.maxZoomVis = maxZoomVis;
 }
 
 void ScreenSpaceObject::setDrawPriority(int drawPriority)

@@ -448,6 +448,7 @@ using namespace WhirlyKit;
     
     if (!_url && !_tileSpec) {
         NSLog(@"Expecting either URL or tileSpec in source %@",_name);
+        return nil;
     }
     
     return self;

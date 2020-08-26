@@ -224,7 +224,7 @@ std::tuple<int,QuadTreeNew::ImportantNodeSet> QuadTreeNew::calcCoverageVisible(c
     int targetLevel = -1;
     for (auto node: sortedNodes)
         targetLevel = std::max(targetLevel,node.level);
-
+ 
     targetLevel = std::max(targetLevel,minLevel);
     
     // Try to load the target level (and anything else we're required to)

@@ -64,6 +64,8 @@ public:
         TimeInterval startEnable,endEnable;
         int drawPriority;
         float minVis,maxVis;
+        int zoomSlot;
+        double minZoomVis,maxZoomVis;
         bool motion;
         bool rotation;
         bool keepUpright;
@@ -85,6 +87,8 @@ public:
     void setDrawPriority(int drawPriority);
     /// Set the visibility range
     void setVisibility(float minVis,float maxVis);
+    /// Set enable based on zoom
+    void setZoomInfo(int zoomSlot,double minZoomVis,double maxZoomVis);
     /// Set the start enable
     void setEnable(bool enable);
     /// Set the enable time range
@@ -196,6 +200,7 @@ public:
     void setEnable(bool enable);
     void setEnableTime(TimeInterval startEnable,TimeInterval endEnable);
     void setVisibility(float minVis,float maxVis);
+    void setZoomInfo(int zoomSlot,double minZoomVis,double maxZoomVis);
     void setDrawPriority(int drawPriority);
     int getDrawPriority();
     void setKeepUpright(bool keepUpright);

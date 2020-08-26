@@ -221,6 +221,7 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
             else if (markerInfo.fadeOut > 0.0 && markerInfo.fadeOutTime > 0.0)
                 shape->setFade(markerInfo.fadeOutTime, markerInfo.fadeOutTime+markerInfo.fadeOut);
             shape->setVisibility(markerInfo.minVis, markerInfo.maxVis);
+            shape->setZoomInfo(markerInfo.zoomSlot, markerInfo.minZoomVis, markerInfo.maxZoomVis);
             shape->setDrawPriority(markerInfo.drawPriority);
             shape->setEnable(markerInfo.enable);
             if (markerInfo.startEnable != markerInfo.endEnable)
