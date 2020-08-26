@@ -7,6 +7,24 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2B033BE224F6D7BA00B55248 /* Roboto-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B033BD524F6D7B300B55248 /* Roboto-Black.ttf */; };
+		2B033BE324F6D7BA00B55248 /* Roboto-BlackItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B033BD624F6D7B300B55248 /* Roboto-BlackItalic.ttf */; };
+		2B033BE424F6D7BA00B55248 /* Roboto-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B033BD224F6D7B300B55248 /* Roboto-Bold.ttf */; };
+		2B033BE524F6D7BA00B55248 /* Roboto-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B033BD324F6D7B300B55248 /* Roboto-BoldItalic.ttf */; };
+		2B033BE624F6D7BA00B55248 /* Roboto-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B033BD024F6D7B200B55248 /* Roboto-Italic.ttf */; };
+		2B033BE724F6D7BA00B55248 /* Roboto-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B033BDA24F6D7B300B55248 /* Roboto-Light.ttf */; };
+		2B033BE824F6D7BA00B55248 /* Roboto-LightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B033BDD24F6D7B300B55248 /* Roboto-LightItalic.ttf */; };
+		2B033BE924F6D7BA00B55248 /* Roboto-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B033BE124F6D7B300B55248 /* Roboto-Medium.ttf */; };
+		2B033BEA24F6D7BA00B55248 /* Roboto-MediumItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B033BD724F6D7B300B55248 /* Roboto-MediumItalic.ttf */; };
+		2B033BEB24F6D7BA00B55248 /* Roboto-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B033BDE24F6D7B300B55248 /* Roboto-Regular.ttf */; };
+		2B033BEC24F6D7BA00B55248 /* Roboto-Thin.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B033BD124F6D7B300B55248 /* Roboto-Thin.ttf */; };
+		2B033BED24F6D7BA00B55248 /* Roboto-ThinItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B033BE024F6D7B300B55248 /* Roboto-ThinItalic.ttf */; };
+		2B033BFA24F6DA4600B55248 /* Roboto-Condensed-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B033BF524F6DA4300B55248 /* Roboto-Condensed-Bold.ttf */; };
+		2B033BFB24F6DA4600B55248 /* Roboto-Condensed-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B033BF924F6DA4300B55248 /* Roboto-Condensed-BoldItalic.ttf */; };
+		2B033BFC24F6DA4600B55248 /* Roboto-Condensed-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B033BF424F6DA4300B55248 /* Roboto-Condensed-Italic.ttf */; };
+		2B033BFD24F6DA4600B55248 /* Roboto-Condensed-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B033BF624F6DA4300B55248 /* Roboto-Condensed-Light.ttf */; };
+		2B033BFE24F6DA4600B55248 /* Roboto-Condensed-LightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B033BF724F6DA4300B55248 /* Roboto-Condensed-LightItalic.ttf */; };
+		2B033BFF24F6DA4600B55248 /* Roboto-Condensed-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B033BF824F6DA4300B55248 /* Roboto-Condensed-Regular.ttf */; };
 		2B158BEF1D5D19E900103E04 /* VectorHoleTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B158BEE1D5D19E900103E04 /* VectorHoleTestCase.m */; };
 		2B1806D322AECF4300DD3DB1 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B1806D122AECF4200DD3DB1 /* Accelerate.framework */; };
 		2B1C26531C91037100C71B0A /* France.mbtiles in Resources */ = {isa = PBXBuildFile; fileRef = 2B1C26511C9100A500C71B0A /* France.mbtiles */; };
@@ -45,6 +63,7 @@
 		2B4BA6D91C83A22000DC1562 /* uturn.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2B4BA6CD1C83A22000DC1562 /* uturn.geojson */; };
 		2B5E8AF51E943560000B39E5 /* greensquare.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B5E8AF41E943560000B39E5 /* greensquare.png */; };
 		2B60F4462452706200CF9339 /* VectorMBTilesTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B1C264E1C90FFFC00C71B0A /* VectorMBTilesTestCase.swift */; };
+		2B6597F624E7349500FA26A9 /* overlay_timezones.mbtiles in Resources */ = {isa = PBXBuildFile; fileRef = 2B6597F424E7340C00FA26A9 /* overlay_timezones.mbtiles */; };
 		2B68A43C225D06A8009CC720 /* ImageReloadTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B68A43B225D06A8009CC720 /* ImageReloadTestCase.swift */; };
 		2B6953681C7E67DD007FC51E /* colorramp.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B6953671C7E67DD007FC51E /* colorramp.png */; };
 		2B73D6AE207C0D5F00AF5095 /* NotoSans-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B8F3258201021CF006DDE27 /* NotoSans-Bold.ttf */; };
@@ -564,6 +583,24 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		2B033BD024F6D7B200B55248 /* Roboto-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Roboto-Italic.ttf"; path = "../../../../resources/fonts/Roboto-Italic.ttf"; sourceTree = "<group>"; };
+		2B033BD124F6D7B300B55248 /* Roboto-Thin.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Roboto-Thin.ttf"; path = "../../../../resources/fonts/Roboto-Thin.ttf"; sourceTree = "<group>"; };
+		2B033BD224F6D7B300B55248 /* Roboto-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Roboto-Bold.ttf"; path = "../../../../resources/fonts/Roboto-Bold.ttf"; sourceTree = "<group>"; };
+		2B033BD324F6D7B300B55248 /* Roboto-BoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Roboto-BoldItalic.ttf"; path = "../../../../resources/fonts/Roboto-BoldItalic.ttf"; sourceTree = "<group>"; };
+		2B033BD524F6D7B300B55248 /* Roboto-Black.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Roboto-Black.ttf"; path = "../../../../resources/fonts/Roboto-Black.ttf"; sourceTree = "<group>"; };
+		2B033BD624F6D7B300B55248 /* Roboto-BlackItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Roboto-BlackItalic.ttf"; path = "../../../../resources/fonts/Roboto-BlackItalic.ttf"; sourceTree = "<group>"; };
+		2B033BD724F6D7B300B55248 /* Roboto-MediumItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Roboto-MediumItalic.ttf"; path = "../../../../resources/fonts/Roboto-MediumItalic.ttf"; sourceTree = "<group>"; };
+		2B033BDA24F6D7B300B55248 /* Roboto-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Roboto-Light.ttf"; path = "../../../../resources/fonts/Roboto-Light.ttf"; sourceTree = "<group>"; };
+		2B033BDD24F6D7B300B55248 /* Roboto-LightItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Roboto-LightItalic.ttf"; path = "../../../../resources/fonts/Roboto-LightItalic.ttf"; sourceTree = "<group>"; };
+		2B033BDE24F6D7B300B55248 /* Roboto-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Roboto-Regular.ttf"; path = "../../../../resources/fonts/Roboto-Regular.ttf"; sourceTree = "<group>"; };
+		2B033BE024F6D7B300B55248 /* Roboto-ThinItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Roboto-ThinItalic.ttf"; path = "../../../../resources/fonts/Roboto-ThinItalic.ttf"; sourceTree = "<group>"; };
+		2B033BE124F6D7B300B55248 /* Roboto-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Roboto-Medium.ttf"; path = "../../../../resources/fonts/Roboto-Medium.ttf"; sourceTree = "<group>"; };
+		2B033BF424F6DA4300B55248 /* Roboto-Condensed-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Roboto-Condensed-Italic.ttf"; path = "../../../../resources/fonts/Roboto-Condensed-Italic.ttf"; sourceTree = "<group>"; };
+		2B033BF524F6DA4300B55248 /* Roboto-Condensed-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Roboto-Condensed-Bold.ttf"; path = "../../../../resources/fonts/Roboto-Condensed-Bold.ttf"; sourceTree = "<group>"; };
+		2B033BF624F6DA4300B55248 /* Roboto-Condensed-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Roboto-Condensed-Light.ttf"; path = "../../../../resources/fonts/Roboto-Condensed-Light.ttf"; sourceTree = "<group>"; };
+		2B033BF724F6DA4300B55248 /* Roboto-Condensed-LightItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Roboto-Condensed-LightItalic.ttf"; path = "../../../../resources/fonts/Roboto-Condensed-LightItalic.ttf"; sourceTree = "<group>"; };
+		2B033BF824F6DA4300B55248 /* Roboto-Condensed-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Roboto-Condensed-Regular.ttf"; path = "../../../../resources/fonts/Roboto-Condensed-Regular.ttf"; sourceTree = "<group>"; };
+		2B033BF924F6DA4300B55248 /* Roboto-Condensed-BoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Roboto-Condensed-BoldItalic.ttf"; path = "../../../../resources/fonts/Roboto-Condensed-BoldItalic.ttf"; sourceTree = "<group>"; };
 		2B127BFE201802BB0099F405 /* OpenMapTilesHybridTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenMapTilesHybridTestCase.swift; sourceTree = "<group>"; };
 		2B158BED1D5D19E900103E04 /* VectorHoleTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorHoleTestCase.h; sourceTree = "<group>"; };
 		2B158BEE1D5D19E900103E04 /* VectorHoleTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VectorHoleTestCase.m; sourceTree = "<group>"; };
@@ -608,6 +645,7 @@
 		2B4BA6CC1C83A22000DC1562 /* track.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = track.geojson; sourceTree = "<group>"; };
 		2B4BA6CD1C83A22000DC1562 /* uturn.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = uturn.geojson; sourceTree = "<group>"; };
 		2B5E8AF41E943560000B39E5 /* greensquare.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = greensquare.png; path = resources/greensquare.png; sourceTree = "<group>"; };
+		2B6597F424E7340C00FA26A9 /* overlay_timezones.mbtiles */ = {isa = PBXFileReference; lastKnownFileType = file; name = overlay_timezones.mbtiles; path = ../../../../../../Downloads/overlay_timezones.mbtiles; sourceTree = "<group>"; };
 		2B68A43B225D06A8009CC720 /* ImageReloadTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageReloadTestCase.swift; sourceTree = "<group>"; };
 		2B6953671C7E67DD007FC51E /* colorramp.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = colorramp.png; path = AutoTester/colorramp.png; sourceTree = "<group>"; };
 		2B73D6B2207C106C00AF5095 /* GlobeSamplerTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GlobeSamplerTestCase.swift; sourceTree = "<group>"; };
@@ -618,8 +656,8 @@
 		2B8849E91E37F7CB0027C397 /* LIDARTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LIDARTestCase.h; sourceTree = "<group>"; };
 		2B8849EA1E37F7CB0027C397 /* LIDARTestCase.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LIDARTestCase.mm; sourceTree = "<group>"; };
 		2B8849FA1E37F9B30027C397 /* stadium-utm-quad-data.sqlite */ = {isa = PBXFileReference; lastKnownFileType = text; name = "stadium-utm-quad-data.sqlite"; path = "../../../resources/lidar/stadium-utm-quad-data.sqlite"; sourceTree = "<group>"; };
-		2B8F3256201021CF006DDE27 /* NotoSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "NotoSans-Regular.ttf"; path = "resources/NotoSans-Regular.ttf"; sourceTree = "<group>"; };
-		2B8F3258201021CF006DDE27 /* NotoSans-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "NotoSans-Bold.ttf"; path = "resources/NotoSans-Bold.ttf"; sourceTree = "<group>"; };
+		2B8F3256201021CF006DDE27 /* NotoSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "NotoSans-Regular.ttf"; path = "../resources/NotoSans-Regular.ttf"; sourceTree = "<group>"; };
+		2B8F3258201021CF006DDE27 /* NotoSans-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "NotoSans-Bold.ttf"; path = "../resources/NotoSans-Bold.ttf"; sourceTree = "<group>"; };
 		2BBB70811D5E9079009B67A6 /* VectorStyleTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorStyleTestCase.h; sourceTree = "<group>"; };
 		2BBB70821D5E9079009B67A6 /* VectorStyleTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VectorStyleTestCase.m; sourceTree = "<group>"; };
 		2BC0FB761DCAA18A004125F1 /* TextureVectorTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureVectorTestCase.h; sourceTree = "<group>"; };
@@ -1134,6 +1172,33 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2B033BCE24F6D78400B55248 /* fonts */ = {
+			isa = PBXGroup;
+			children = (
+				2B8F3258201021CF006DDE27 /* NotoSans-Bold.ttf */,
+				2B8F3256201021CF006DDE27 /* NotoSans-Regular.ttf */,
+				2B033BF524F6DA4300B55248 /* Roboto-Condensed-Bold.ttf */,
+				2B033BF924F6DA4300B55248 /* Roboto-Condensed-BoldItalic.ttf */,
+				2B033BF424F6DA4300B55248 /* Roboto-Condensed-Italic.ttf */,
+				2B033BF624F6DA4300B55248 /* Roboto-Condensed-Light.ttf */,
+				2B033BF724F6DA4300B55248 /* Roboto-Condensed-LightItalic.ttf */,
+				2B033BF824F6DA4300B55248 /* Roboto-Condensed-Regular.ttf */,
+				2B033BD524F6D7B300B55248 /* Roboto-Black.ttf */,
+				2B033BD624F6D7B300B55248 /* Roboto-BlackItalic.ttf */,
+				2B033BD224F6D7B300B55248 /* Roboto-Bold.ttf */,
+				2B033BD324F6D7B300B55248 /* Roboto-BoldItalic.ttf */,
+				2B033BD024F6D7B200B55248 /* Roboto-Italic.ttf */,
+				2B033BDA24F6D7B300B55248 /* Roboto-Light.ttf */,
+				2B033BDD24F6D7B300B55248 /* Roboto-LightItalic.ttf */,
+				2B033BE124F6D7B300B55248 /* Roboto-Medium.ttf */,
+				2B033BD724F6D7B300B55248 /* Roboto-MediumItalic.ttf */,
+				2B033BDE24F6D7B300B55248 /* Roboto-Regular.ttf */,
+				2B033BD124F6D7B300B55248 /* Roboto-Thin.ttf */,
+				2B033BE024F6D7B300B55248 /* Roboto-ThinItalic.ttf */,
+			);
+			name = fonts;
+			sourceTree = "<group>";
+		};
 		2B4B30B92395F07000854073 /* vector maps */ = {
 			isa = PBXGroup;
 			children = (
@@ -1313,6 +1378,8 @@
 		88E4B8C21B83B6AB0050D21B /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				2B033BCE24F6D78400B55248 /* fonts */,
+				2B6597F424E7340C00FA26A9 /* overlay_timezones.mbtiles */,
 				88F0951E1ECD041300E7E686 /* AutoTesterJenkins.plist */,
 				88E4B8CD1B83B6AB0050D21B /* LaunchScreen.xib */,
 				88E4B8C41B83B6AB0050D21B /* AppDelegate.swift */,
@@ -1330,8 +1397,6 @@
 				88FF5BE21BC31D53002F15CE /* Smiley_Face_Avatar_by_PixelTwist.png */,
 				88FF5BE41BC31D53002F15CE /* Star.png */,
 				2B4B30B92395F07000854073 /* vector maps */,
-				2B8F3258201021CF006DDE27 /* NotoSans-Bold.ttf */,
-				2B8F3256201021CF006DDE27 /* NotoSans-Regular.ttf */,
 				2B7E288A200EC109007E2965 /* SE_Basic.json */,
 				2B7E2889200EC109007E2965 /* SE_PolygonsLines.json */,
 				2B5E8AF41E943560000B39E5 /* greensquare.png */,
@@ -1974,6 +2039,7 @@
 				2B5E8AF51E943560000B39E5 /* greensquare.png in Resources */,
 				88FF5E9C1BC31D95002F15CE /* NOR.geojson in Resources */,
 				88FF5CCB1BC31D6D002F15CE /* rail-underground-24@2x.png in Resources */,
+				2B033BEA24F6D7BA00B55248 /* Roboto-MediumItalic.ttf in Resources */,
 				88FF5CB01BC31D6D002F15CE /* laundry-24@2x.png in Resources */,
 				88FF5E141BC31D95002F15CE /* BOL.geojson in Resources */,
 				88FF5E461BC31D95002F15CE /* GGY.geojson in Resources */,
@@ -2007,6 +2073,7 @@
 				88FF5C961BC31D6D002F15CE /* circle-stroked-24@2x.png in Resources */,
 				88FF5C7E1BC31D6D002F15CE /* lowres_wtb_4x1.pvrtc in Resources */,
 				2B4B30C52395F08D00854073 /* maptiler_hybrid_satellite.json in Resources */,
+				2B033BFD24F6DA4600B55248 /* Roboto-Condensed-Light.ttf in Resources */,
 				88FF5E7E1BC31D95002F15CE /* MAR.geojson in Resources */,
 				2B7E288C200EC109007E2965 /* SE_Basic.json in Resources */,
 				88FF5EDD1BC31D95002F15CE /* UMI.geojson in Resources */,
@@ -2016,6 +2083,7 @@
 				88FF5EF21BC31D95002F15CE /* tl_2013_06075_roads.shx in Resources */,
 				88FF5EB01BC31D95002F15CE /* REU.geojson in Resources */,
 				88FF5EC41BC31D95002F15CE /* SUR.geojson in Resources */,
+				2B033BE524F6D7BA00B55248 /* Roboto-BoldItalic.ttf in Resources */,
 				88FF5E801BC31D95002F15CE /* MDA.geojson in Resources */,
 				88FF5E7F1BC31D95002F15CE /* MCO.geojson in Resources */,
 				88FF5CE31BC31D6D002F15CE /* triangle-24@2x.png in Resources */,
@@ -2025,12 +2093,14 @@
 				88FF5DFC1BC31D95002F15CE /* ARE.geojson in Resources */,
 				88FF5E4B1BC31D95002F15CE /* GMB.geojson in Resources */,
 				88FF5EA21BC31D95002F15CE /* PAN.geojson in Resources */,
+				2B033BE724F6D7BA00B55248 /* Roboto-Light.ttf in Resources */,
 				88FF5CE71BC31D6D002F15CE /* waste-basket-24@2x.png in Resources */,
 				88FF5C791BC31D6D002F15CE /* lowres_wtb_2x0.pvrtc in Resources */,
 				88FF5E401BC31D95002F15CE /* FRA.geojson in Resources */,
 				88FF5CA31BC31D6D002F15CE /* farm-24@2x.png in Resources */,
 				88FF5E8B1BC31D95002F15CE /* MNP.geojson in Resources */,
 				88FF5E731BC31D95002F15CE /* LBR.geojson in Resources */,
+				2B033BFE24F6DA4600B55248 /* Roboto-Condensed-LightItalic.ttf in Resources */,
 				88FF5E6B1BC31D95002F15CE /* KGZ.geojson in Resources */,
 				88FF5EEE1BC31D95002F15CE /* tl_2013_06075_roads.dbf in Resources */,
 				88FF5E3A1BC31D95002F15CE /* ESP.geojson in Resources */,
@@ -2101,6 +2171,7 @@
 				88FF5CE21BC31D6D002F15CE /* town-hall-24@2x.png in Resources */,
 				2B4BA6D81C83A22000DC1562 /* track.geojson in Resources */,
 				88FF5CF21BC31D6D002F15CE /* starcatalog_orig.txt in Resources */,
+				2B033BFB24F6DA4600B55248 /* Roboto-Condensed-BoldItalic.ttf in Resources */,
 				2B73D6AE207C0D5F00AF5095 /* NotoSans-Bold.ttf in Resources */,
 				E53CF5E81E1EAF73000FB5C1 /* school.png in Resources */,
 				88FF5ECA1BC31D95002F15CE /* SYC.geojson in Resources */,
@@ -2114,14 +2185,17 @@
 				88FF5CA51BC31D6D002F15CE /* ferry-24@2x.png in Resources */,
 				88FF5CC41BC31D6D002F15CE /* playground-24@2x.png in Resources */,
 				88FF5E0A1BC31D95002F15CE /* BFA.geojson in Resources */,
+				2B033BFF24F6DA4600B55248 /* Roboto-Condensed-Regular.ttf in Resources */,
 				88FF5E5D1BC31D95002F15CE /* IND.geojson in Resources */,
 				88FF5DFF1BC31D95002F15CE /* ASM.geojson in Resources */,
+				2B033BE924F6D7BA00B55248 /* Roboto-Medium.ttf in Resources */,
 				88FF5E3C1BC31D95002F15CE /* ETH.geojson in Resources */,
 				88FF5E291BC31D95002F15CE /* CRI.geojson in Resources */,
 				88FF5E631BC31D95002F15CE /* ISR.geojson in Resources */,
 				88FF5EEF1BC31D95002F15CE /* tl_2013_06075_roads.mbr in Resources */,
 				88FF5CA11BC31D6D002F15CE /* embassy-24@2x.png in Resources */,
 				2BC0FB7A1DCAA574004125F1 /* dots.png in Resources */,
+				2B033BE424F6D7BA00B55248 /* Roboto-Bold.ttf in Resources */,
 				88FF5E621BC31D95002F15CE /* ISL.geojson in Resources */,
 				88FF5E391BC31D95002F15CE /* ESH.geojson in Resources */,
 				88FF5CCE1BC31D6D002F15CE /* religious-muslim-24@2x.png in Resources */,
@@ -2137,6 +2211,7 @@
 				88FF5CE51BC31D6D002F15CE /* village-24@2x.png in Resources */,
 				88FF5BE71BC31D53002F15CE /* map_pin.png in Resources */,
 				88FF5E1E1BC31D95002F15CE /* CHE.geojson in Resources */,
+				2B033BEB24F6D7BA00B55248 /* Roboto-Regular.ttf in Resources */,
 				88FF5E451BC31D95002F15CE /* GEO.geojson in Resources */,
 				2B4B30C12395F08D00854073 /* maptiler_streets.json in Resources */,
 				88FF5E571BC31D95002F15CE /* HND.geojson in Resources */,
@@ -2168,6 +2243,7 @@
 				88FF5CC31BC31D6D002F15CE /* place-of-worship-24@2x.png in Resources */,
 				88FF5E3D1BC31D95002F15CE /* FIN.geojson in Resources */,
 				88FF5CB91BC31D6D002F15CE /* monument-24@2x.png in Resources */,
+				2B033BED24F6D7BA00B55248 /* Roboto-ThinItalic.ttf in Resources */,
 				88FF5CEF1BC31D6D002F15CE /* cessna.png in Resources */,
 				88FF5C8A1BC31D6D002F15CE /* basketball-24@2x.png in Resources */,
 				88FF5ED41BC31D95002F15CE /* TON.geojson in Resources */,
@@ -2179,6 +2255,7 @@
 				E53CF5DA1E1EAF63000FB5C1 /* belfast_ireland_amenities.geojson in Resources */,
 				88FF5E761BC31D95002F15CE /* LIE.geojson in Resources */,
 				88FF5C9B1BC31D6D002F15CE /* cricket-24@2x.png in Resources */,
+				2B033BE324F6D7BA00B55248 /* Roboto-BlackItalic.ttf in Resources */,
 				88FF5CAA1BC31D6D002F15CE /* grocery-24@2x.png in Resources */,
 				88FF5CC71BC31D6D002F15CE /* post-24@2x.png in Resources */,
 				88FF5E931BC31D95002F15CE /* MYT.geojson in Resources */,
@@ -2242,6 +2319,7 @@
 				88FF5E4A1BC31D95002F15CE /* GLP.geojson in Resources */,
 				88FF5E611BC31D95002F15CE /* IRQ.geojson in Resources */,
 				88FF5E7D1BC31D95002F15CE /* MAF.geojson in Resources */,
+				2B033BE224F6D7BA00B55248 /* Roboto-Black.ttf in Resources */,
 				88FF5CD71BC31D6D002F15CE /* square-24@2x.png in Resources */,
 				88FF5E9A1BC31D95002F15CE /* NIU.geojson in Resources */,
 				88FF5E0E1BC31D95002F15CE /* BHS.geojson in Resources */,
@@ -2278,6 +2356,7 @@
 				88FF5EB41BC31D95002F15CE /* SAU.geojson in Resources */,
 				88FF5E901BC31D95002F15CE /* MUS.geojson in Resources */,
 				88FF5E1D1BC31D95002F15CE /* CCK.geojson in Resources */,
+				2B033BFC24F6DA4600B55248 /* Roboto-Condensed-Italic.ttf in Resources */,
 				88FF5EBE1BC31D95002F15CE /* SMR.geojson in Resources */,
 				88FF5CD81BC31D6D002F15CE /* square-stroked-24@2x.png in Resources */,
 				88FF5DFB1BC31D95002F15CE /* AND.geojson in Resources */,
@@ -2318,6 +2397,7 @@
 				88FF5CEA1BC31D6D002F15CE /* zoo-24@2x.png in Resources */,
 				88FF5E661BC31D95002F15CE /* JEY.geojson in Resources */,
 				88FF5EA01BC31D95002F15CE /* OMN.geojson in Resources */,
+				2B033BE624F6D7BA00B55248 /* Roboto-Italic.ttf in Resources */,
 				88FF5E071BC31D95002F15CE /* BEL.geojson in Resources */,
 				88FF5EA41BC31D95002F15CE /* PER.geojson in Resources */,
 				88FF5E791BC31D95002F15CE /* LTU.geojson in Resources */,
@@ -2338,6 +2418,7 @@
 				88FF5CE11BC31D6D002F15CE /* town-24@2x.png in Resources */,
 				88FF5C7B1BC31D6D002F15CE /* lowres_wtb_3x0.pvrtc in Resources */,
 				88FF5EC61BC31D95002F15CE /* SVN.geojson in Resources */,
+				2B033BEC24F6D7BA00B55248 /* Roboto-Thin.ttf in Resources */,
 				88FF5EDB1BC31D95002F15CE /* UGA.geojson in Resources */,
 				88FF5E2D1BC31D95002F15CE /* CYM.geojson in Resources */,
 				88FF5E3B1BC31D95002F15CE /* EST.geojson in Resources */,
@@ -2356,6 +2437,7 @@
 				88FF5C861BC31D6D002F15CE /* bakery-24@2x.png in Resources */,
 				E5941DBE1E0CEC8600E1C8B3 /* belfast_ireland_waterareas.geojson in Resources */,
 				88FF5E161BC31D95002F15CE /* BRB.geojson in Resources */,
+				2B033BFA24F6DA4600B55248 /* Roboto-Condensed-Bold.ttf in Resources */,
 				88FF5C881BC31D6D002F15CE /* bar-24@2x.png in Resources */,
 				E53CF5DE1E1EAF6A000FB5C1 /* amenities.sld in Resources */,
 				88FF5ECB1BC31D95002F15CE /* SYR.geojson in Resources */,
@@ -2367,6 +2449,7 @@
 				88FF5CC21BC31D6D002F15CE /* pitch-24@2x.png in Resources */,
 				2B4BA6D91C83A22000DC1562 /* uturn.geojson in Resources */,
 				88FF5E5F1BC31D95002F15CE /* IRL.geojson in Resources */,
+				2B033BE824F6D7BA00B55248 /* Roboto-LightItalic.ttf in Resources */,
 				88FF5ECC1BC31D95002F15CE /* TCA.geojson in Resources */,
 				88FF5E051BC31D95002F15CE /* AZE.geojson in Resources */,
 				88FF5EC31BC31D95002F15CE /* STP.geojson in Resources */,
@@ -2374,6 +2457,7 @@
 				88FF5ED71BC31D95002F15CE /* TUR.geojson in Resources */,
 				88FF5E921BC31D95002F15CE /* MYS.geojson in Resources */,
 				E5941DCC1E0D02A800E1C8B3 /* osm_roads.sld in Resources */,
+				2B6597F624E7349500FA26A9 /* overlay_timezones.mbtiles in Resources */,
 				88FF5EE71BC31D95002F15CE /* VUT.geojson in Resources */,
 				E5941DCD1E0D02A800E1C8B3 /* osm_water.sld in Resources */,
 				E5941DCA1E0D02A800E1C8B3 /* osm_buildings.sld in Resources */,
@@ -2619,7 +2703,7 @@
 					"\"$(SRCROOT)/../../../common/local_libs/eigen\"",
 				);
 				INFOPLIST_FILE = AutoTester/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.mousebirdconsulting.AutoTester;
 				PRODUCT_NAME = AutoTester;
@@ -2651,7 +2735,7 @@
 					"\"$(SRCROOT)/../../../common/local_libs/eigen\"",
 				);
 				INFOPLIST_FILE = AutoTester/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.mousebirdconsulting.AutoTester;
 				PRODUCT_NAME = AutoTester;

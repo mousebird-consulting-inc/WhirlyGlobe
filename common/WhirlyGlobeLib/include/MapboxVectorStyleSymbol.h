@@ -40,7 +40,7 @@ public:
     /// If set, turn the text uppercase
     MapboxTextTransform textTransform;
     /// @brief Font to use for display
-    std::string textFontName;
+    std::vector<std::string> textFontNames;
     /// @brief The maximum line width for wrapping
     MapboxTransDoubleRef textMaxWidth;
     /// If set, the immutable text size
@@ -50,7 +50,7 @@ public:
     /// How the text is laid out in relation to it's attach point
     MapboxTextAnchor textAnchor;
     /// Whether it goes to the layout engine
-    bool iconAllowOverlap;
+    bool iconAllowOverlap,textAllowOverlap;
     
     // Used to track text data
     class TextChunk {

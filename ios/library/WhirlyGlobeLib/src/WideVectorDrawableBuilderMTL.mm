@@ -60,6 +60,7 @@ BasicDrawable *WideVectorDrawableBuilderMTL::getDrawable()
     BasicDrawable *theDraw = BasicDrawableBuilderMTL::getDrawable();
 
     WhirlyKitShader::UniformWideVec uniWV;
+    memset(&uniWV,0,sizeof(uniWV));
     uniWV.w2 = lineWidth/2.0;
     uniWV.edge = edgeSize;
     uniWV.texRepeat = texRepeat;
@@ -67,6 +68,7 @@ BasicDrawable *WideVectorDrawableBuilderMTL::getDrawable()
     uniWV.color[1] = color.g/255.0;
     uniWV.color[2] = color.b/255.0;
     uniWV.color[3] = color.a/255.0;
+    uniWV.hasExp = false;
 
     BasicDrawable::UniformBlock uniBlock;
     uniBlock.blockData = RawDataRef(new RawNSDataReader([[NSData alloc] initWithBytes:&uniWV length:sizeof(uniWV)]));

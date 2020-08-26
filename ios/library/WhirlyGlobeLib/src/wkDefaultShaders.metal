@@ -456,10 +456,10 @@ vertex ProjVertexTriWideVec vertexTri_wideVec(
     
     // Pull out the width and possibly calculate one
     float w2 = vertArgs.wideVec.w2;
-//    if (vertArgs.wideVec.hasExp) {
-//        float zoom = ZoomFromSlot(uniforms, vertArgs.uniDrawState.zoomSlot);
-//        w2 = ExpCalculateFloat(vertArgs.wideVecExp.widthExp, zoom, w2);
-//    }
+    if (vertArgs.wideVec.hasExp) {
+        float zoom = ZoomFromSlot(uniforms, vertArgs.uniDrawState.zoomSlot);
+        w2 = ExpCalculateFloat(vertArgs.wideVecExp.widthExp, zoom, w2);
+    }
 
     outVert.color = vertArgs.wideVec.color * calculateFade(uniforms,vertArgs.uniDrawState);
     

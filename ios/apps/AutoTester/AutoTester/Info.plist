@@ -45,11 +45,29 @@
 		<true/>
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Allow AutoTester to access your device's location when in use.</string>
+	<string>Allow AutoTester to access your device&apos;s location when in use.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>NotoSans-Bold.ttf</string>
 		<string>NotoSans-Regular.ttf</string>
+		<string>Roboto-Black.ttf</string>
+		<string>Roboto-BlackItalic.ttf</string>
+		<string>Roboto-Bold.ttf</string>
+		<string>Roboto-BoldItalic.ttf</string>
+		<string>Roboto-Italic.ttf</string>
+		<string>Roboto-Light.ttf</string>
+		<string>Roboto-LightItalic.ttf</string>
+		<string>Roboto-Medium.ttf</string>
+		<string>Roboto-MediumItalic.ttf</string>
+		<string>Roboto-Regular.ttf</string>
+		<string>Roboto-Thin.ttf</string>
+		<string>Roboto-ThinItalic.ttf</string>
+		<string>Roboto-Condensed-Bold.ttf</string>
+		<string>Roboto-Condensed-BoldItalic.ttf</string>
+		<string>Roboto-Condensed-Italic.ttf</string>
+		<string>Roboto-Condensed-Light.ttf</string>
+		<string>Roboto-Condensed-LightItalic.ttf</string>
+		<string>Roboto-Condensed-Regular.ttf</string>
 	</array>
 	<key>UIFileSharingEnabled</key>
 	<true/>

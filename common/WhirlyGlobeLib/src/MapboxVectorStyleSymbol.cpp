@@ -53,7 +53,7 @@ bool MapboxVectorSymbolLayout::RegexField::parse(const std::string &fieldName,
                 textChunk.keys.push_back(regexChunk);
                 // For some reason name:en is sometimes name_en
                 std::string textVariant = regexChunk;
-                std::regex_replace(textVariant, std::regex(":"), "_");
+                textVariant = std::regex_replace(textVariant, std::regex(":"), "_");
                 textChunk.keys.push_back(textVariant);
             }
             chunks.push_back(textChunk);
@@ -102,10 +102,12 @@ bool MapboxVectorSymbolLayout::parse(PlatformThreadInfo *inst,
     std::vector<DictionaryEntryRef> textFontArray;
     if (styleEntry)
         textFontArray = styleEntry->getArray("text-font");
-    if (!textFontArray.empty() && textFontArray[0]->getType() == DictTypeString) {
-        std::string textField = textFontArray[0]->getString();
-        textFontName = textField;
-        std::regex_replace(textFontName, std::regex(" "), "-");
+    if (!textFontArray.empty()) {
+        for (int ii=0;ii<textFontArray.size();ii++) {
+            std::string textField = textFontArray[ii]->getString();
+            if (!textField.empty())
+                textFontNames.push_back(textField);
+        }
     }
     textMaxWidth = styleSet->transDouble("text-max-width", styleEntry, 10.0);
     textSize = styleSet->transDouble("text-size", styleEntry, 24.0);
@@ -115,9 +117,8 @@ bool MapboxVectorSymbolLayout::parse(PlatformThreadInfo *inst,
         textAnchor = (MapboxTextAnchor)styleSet->enumValue(styleEntry->getEntry("text-anchor"), anchorVals, (int)MBTextCenter);
     }
     iconAllowOverlap = styleSet->boolValue("icon-allow-overlap", styleEntry, "on", false);
-    layoutImportance = MAXFLOAT;
-    if (iconAllowOverlap)
-        layoutImportance = styleSet->tileStyleSettings->labelImportance;
+    textAllowOverlap = styleSet->boolValue("text-allow-overlap", styleEntry, "on", false);
+    layoutImportance = styleSet->tileStyleSettings->labelImportance;
     
     iconImageField.parse("icon-image",styleSet,styleEntry);
     iconSize = styleSet->doubleValue("icon-size", styleEntry, 1.0);
@@ -238,7 +239,7 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
     // Snap to an integer.  Not clear we need to, just because.
     textSize = (int)(textSize * layout.globalTextScale+0.5);
 
-    LabelInfoRef labelInfo = styleSet->makeLabelInfo(inst,layout.textFontName,textSize);
+    LabelInfoRef labelInfo = styleSet->makeLabelInfo(inst,layout.textFontNames,textSize);
     if (minzoom != 0 || maxzoom < 1000) {
         labelInfo->zoomSlot = styleSet->zoomSlot;
         labelInfo->minZoomVis = minzoom;
@@ -337,7 +338,10 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                                 // TODO: Move the layout importance into the label itself
                                 float strHash = calcStringHash(text);
                                 label->layoutEngine = true;
-                                label->layoutImportance = layout.layoutImportance + 1.0 - (rank + (101-tileInfo->ident.level)/100.0)/1000.0 + strHash/1000.0;
+                                if (!layout.textAllowOverlap)
+                                    label->layoutImportance = layout.layoutImportance + 1.0 - (rank + (101-tileInfo->ident.level)/100.0)/1000.0 + strHash/1000.0;
+                                else
+                                    label->layoutImportance = MAXFLOAT;
 
                                 // Point or line placement
                                 if (layout.placement == MBPlaceLine) {
@@ -408,6 +412,10 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                             marker->width = markerSize.x();
                             marker->height = markerSize.y();
                             marker->loc = GeoCoord(pt.x(),pt.y());
+                            if (!layout.iconAllowOverlap)
+                                marker->layoutImportance = layout.layoutImportance;
+                            else
+                                marker->layoutImportance = MAXFLOAT;
                             if (selectable) {
                                 marker->isSelectable = true;
                                 marker->selectID = Identifiable::genId();

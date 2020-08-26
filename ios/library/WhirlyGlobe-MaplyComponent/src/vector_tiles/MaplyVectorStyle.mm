@@ -411,16 +411,53 @@ SimpleIdentity MapboxVectorStyleSetImpl_iOS::makeLineTexture(PlatformThreadInfo 
     return tex.texID;
 }
 
-LabelInfoRef MapboxVectorStyleSetImpl_iOS::makeLabelInfo(PlatformThreadInfo *inst,const std::string &fontName,float fontSize)
+LabelInfoRef MapboxVectorStyleSetImpl_iOS::makeLabelInfo(PlatformThreadInfo *inst,const std::vector<std::string> &fontNames,float fontSize)
 {
-    // TODO: Do we need the size here?
-    NSString *fontNameStr = [NSString stringWithFormat:@"%s",fontName.c_str()];
-    UIFont *font = [UIFont fontWithName:fontNameStr size:fontSize];
-    if (!font) {
-//        NSLog(@"Failed to find font %@",fontNameStr);
-        font = [UIFont systemFontOfSize:fontSize];
-    }
+    UIFont *font = nil;
     
+    // Work through the font names until we find one
+    for (auto fontName: fontNames) {
+        // Let's try just the name
+        NSString *fontNameStr = [NSString stringWithFormat:@"%s",fontName.c_str()];
+        font = [UIFont fontWithName:fontNameStr size:fontSize];
+        if (!font) {
+            // The font names vary a bit on iOS so we'll try reformatting the name
+            NSArray<NSString *> *components = [fontNameStr componentsSeparatedByString:@" "];
+            NSString *fontNameStr2 = nil;
+            switch ([components count])
+            {
+                // One component should already have worked
+                case 1:
+                    break;
+                // For two, we
+                case 2:
+                    if ([components count] == 2) {
+                        fontNameStr2 = [fontNameStr stringByReplacingOccurrencesOfString:@" " withString:@"-"];
+                    }
+                    break;
+                default:
+                    // Probably 3 components
+                    NSMutableString *str = [[NSMutableString alloc] init];
+                    for (unsigned int ii=0;ii<[components count]-1;ii++)
+                        [str appendString:[components objectAtIndex:ii]];
+                    [str appendFormat:@"-%@",[components lastObject]];
+                    fontNameStr2 = str;
+                    break;
+            }
+            
+            if (fontNameStr2) {
+                font = [UIFont fontWithName:fontNameStr2 size:fontSize];
+            }
+        }
+        
+        if (font)
+            break;
+    }
+    if (!font) {
+        font = [UIFont systemFontOfSize:fontSize];
+        NSLog(@"Failed to find font %s",fontNames[0].c_str());
+    }
+        
     LabelInfoRef labelInfo(new LabelInfo_iOS(font,true));
     labelInfo->programID = screenMarkerProgramID;
     
