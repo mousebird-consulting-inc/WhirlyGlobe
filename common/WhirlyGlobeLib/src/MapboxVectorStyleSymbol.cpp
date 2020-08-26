@@ -89,6 +89,8 @@ std::string MapboxVectorSymbolLayout::RegexField::build(DictionaryRef attrs)
     return text;
 }
 
+static const char *justifyVals[] = {"center","left","right",NULL};
+
 bool MapboxVectorSymbolLayout::parse(PlatformThreadInfo *inst,
                                      MapboxVectorStyleSetImpl *styleSet,
                                      DictionaryRef styleEntry)
@@ -108,6 +110,10 @@ bool MapboxVectorSymbolLayout::parse(PlatformThreadInfo *inst,
             if (!textField.empty())
                 textFontNames.push_back(textField);
         }
+    } else {
+        // These are the default fonts
+        textFontNames.push_back("Open Sans Regular");
+        textFontNames.push_back("Arial Unicode MS Regular");
     }
     textMaxWidth = styleSet->transDouble("text-max-width", styleEntry, 10.0);
     textSize = styleSet->transDouble("text-size", styleEntry, 24.0);
@@ -119,6 +125,8 @@ bool MapboxVectorSymbolLayout::parse(PlatformThreadInfo *inst,
     iconAllowOverlap = styleSet->boolValue("icon-allow-overlap", styleEntry, "on", false);
     textAllowOverlap = styleSet->boolValue("text-allow-overlap", styleEntry, "on", false);
     layoutImportance = styleSet->tileStyleSettings->labelImportance;
+    textJustifySet = (styleEntry && styleEntry->getEntry("text-justify"));
+    textJustify = styleEntry ? (TextJustify)styleSet->enumValue(styleEntry->getEntry("text-justify"), justifyVals, WhirlyKitTextCenter) : WhirlyKitTextCenter;
     
     iconImageField.parse("icon-image",styleSet,styleEntry);
     iconSize = styleSet->doubleValue("icon-size", styleEntry, 1.0);
@@ -248,7 +256,7 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
     }
     labelInfo->screenObject = true;
     labelInfo->fade = 0.0;
-    labelInfo->textJustify = WhirlyKitTextCenter;
+    labelInfo->textJustify = layout.textJustify;
 
     if (styleSet->tileStyleSettings->drawPriorityPerLevel > 0)
         labelInfo->drawPriority = drawPriority + tileInfo->ident.level * styleSet->tileStyleSettings->drawPriorityPerLevel + ScreenDrawPriorityOffset;
@@ -338,9 +346,24 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                                 // TODO: Move the layout importance into the label itself
                                 float strHash = calcStringHash(text);
                                 label->layoutEngine = true;
-                                if (!layout.textAllowOverlap)
+                                if (!layout.textAllowOverlap) {
+                                    // If we're allowing layout, then we need to communicate valid text justification
+                                    //  if the style wanted us to do that
+                                    if (layout.textJustifySet) {
+                                        switch (layout.textJustify) {
+                                            case WhirlyKitTextCenter:
+                                                label->layoutPlacement = WhirlyKitLayoutPlacementCenter;
+                                                break;
+                                            case WhirlyKitTextLeft:
+                                                label->layoutPlacement = WhirlyKitLayoutPlacementLeft;
+                                                break;
+                                            case WhirlyKitTextRight:
+                                                label->layoutPlacement = WhirlyKitLayoutPlacementRight;
+                                                break;
+                                        }
+                                    }
                                     label->layoutImportance = layout.layoutImportance + 1.0 - (rank + (101-tileInfo->ident.level)/100.0)/1000.0 + strHash/1000.0;
-                                else
+                                } else
                                     label->layoutImportance = MAXFLOAT;
 
                                 // Point or line placement
@@ -400,7 +423,9 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                             auto subTex = styleSet->sprites->getTexture(symbolName,markerSize);
                             
                             if (markerSize.x() == 0.0) {
+#if DEBUG
                                 wkLogLevel(Warn, "MapboxVectorLayerSymbol: Failed to find symbol %s",symbolName.c_str());
+#endif
                                 continue;
                             }
                             

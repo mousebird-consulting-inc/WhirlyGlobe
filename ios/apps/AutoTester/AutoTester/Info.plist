@@ -68,6 +68,16 @@
 		<string>Roboto-Condensed-Light.ttf</string>
 		<string>Roboto-Condensed-LightItalic.ttf</string>
 		<string>Roboto-Condensed-Regular.ttf</string>
+		<string>OpenSans-Bold.ttf</string>
+		<string>OpenSans-BoldItalic.ttf</string>
+		<string>OpenSans-ExtraBold.ttf</string>
+		<string>OpenSans-ExtraBoldItalic.ttf</string>
+		<string>OpenSans-Italic.ttf</string>
+		<string>OpenSans-Light.ttf</string>
+		<string>OpenSans-LightItalic.ttf</string>
+		<string>OpenSans-Regular.ttf</string>
+		<string>OpenSans-SemiBold.ttf</string>
+		<string>OpenSans-SemiBoldItalic.ttf</string>
 	</array>
 	<key>UIFileSharingEnabled</key>
 	<true/>

@@ -51,6 +51,9 @@ public:
     MapboxTextAnchor textAnchor;
     /// Whether it goes to the layout engine
     bool iconAllowOverlap,textAllowOverlap;
+    /// Text justification
+    bool textJustifySet;
+    TextJustify textJustify;
     
     // Used to track text data
     class TextChunk {
