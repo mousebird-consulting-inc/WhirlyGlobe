@@ -60,6 +60,10 @@ public:
     WideVectorLineCapType capType;
     SimpleIdentity texID;
     float miterLimit;
+    
+    FloatExpressionInfoRef widthExp;
+    FloatExpressionInfoRef opacityExp;
+    ColorExpressionInfoRef colorExp;
 };
 typedef std::shared_ptr<WideVectorInfo> WideVectorInfoRef;
     

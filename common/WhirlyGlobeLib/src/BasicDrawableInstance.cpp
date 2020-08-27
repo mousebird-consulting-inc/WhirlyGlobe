@@ -120,8 +120,12 @@ bool BasicDrawableInstance::isOn(WhirlyKit::RendererFrameInfo *frameInfo) const
     // Zoom based check.  We need to be in the current zoom range
     if (zoomSlot > -1 && zoomSlot <= MaplyMaxZoomSlots) {
         float zoom = frameInfo->scene->zoomSlots[zoomSlot];
-        if (zoom != MAXFLOAT)
-            return (minZoomVis <= zoom && zoom <= maxZoomVis);
+        if (zoom != MAXFLOAT) {
+            if (minZoomVis != DrawVisibleInvalid && zoom < minZoomVis)
+                return false;
+            if (maxZoomVis != DrawVisibleInvalid && zoom >= maxZoomVis)
+                return false;
+        }
     }
     
     return true;

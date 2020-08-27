@@ -71,7 +71,7 @@ public:
     /// @brief Returns the maximum value
     double maxValue();
 
-protected:
+public:
     std::vector<MaplyVectorFunctionStop> stops;
     
     /// @brief Used in exponential calculation
@@ -89,6 +89,9 @@ public:
     
     // Return the value for a given level
     double valForZoom(double zoom);
+    
+    // Build the expression, if this has stops
+    FloatExpressionInfoRef expression();
 
     // Minimum possible value
     double minVal();
@@ -115,6 +118,9 @@ public:
 
     // Return a color for the given zoom level
     RGBAColor colorForZoom(double zoom);
+    
+    // Build the expression, if this has stops
+    ColorExpressionInfoRef expression();
     
 protected:
     RGBAColorRef color;

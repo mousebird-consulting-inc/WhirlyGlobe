@@ -130,7 +130,22 @@ void WideVectorDrawableBuilder::add_c0(float val)
     c0.push_back(val);
 #endif
 }
-    
+
+void WideVectorDrawableBuilder::setWidthExpression(FloatExpressionInfoRef inWidthExp)
+{
+    widthExp = inWidthExp;
+}
+
+void WideVectorDrawableBuilder::setColorExpression(ColorExpressionInfoRef inColorExp)
+{
+    colorExp = inColorExp;
+}
+
+void WideVectorDrawableBuilder::setOpacityExpression(FloatExpressionInfoRef inOpacityExp)
+{
+    opacityExp = inOpacityExp;
+}
+
 void WideVectorDrawableBuilder::setupTweaker(BasicDrawable *theDraw)
 {
     WideVectorTweaker *tweak = makeTweaker();

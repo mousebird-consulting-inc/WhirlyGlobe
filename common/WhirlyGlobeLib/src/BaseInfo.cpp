@@ -30,6 +30,34 @@ using namespace Eigen;
 namespace WhirlyKit
 {
 
+ExpressionInfo::ExpressionInfo()
+: type(ExpressionNone), base(1.0)
+{
+}
+
+ExpressionInfo::ExpressionInfo(const ExpressionInfo &that)
+: type(that.type), base(that.base), stopInputs(that.stopInputs)
+{
+}
+
+FloatExpressionInfo::FloatExpressionInfo()
+{
+}
+
+FloatExpressionInfo::FloatExpressionInfo(const FloatExpressionInfo &that)
+: ExpressionInfo(that), stopOutputs(that.stopOutputs)
+{
+}
+
+ColorExpressionInfo::ColorExpressionInfo()
+{
+}
+
+ColorExpressionInfo::ColorExpressionInfo(const ColorExpressionInfo &that)
+: ExpressionInfo(that), stopOutputs(that.stopOutputs)
+{
+}
+
 BaseInfo::BaseInfo()
     : minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid),
     minVisBand(DrawVisibleInvalid), maxVisBand(DrawVisibleInvalid),

@@ -37,10 +37,10 @@ class BasicDrawableInstanceBuilder;
 typedef std::shared_ptr<BasicDrawableInstanceBuilder> BasicDrawableInstanceBuilderRef;
 
 /// Types of expressions we'll support for certain fields
-typedef enum {ExpressionLinear,ExpressionExponential} ExpressionInfoType;
+typedef enum {ExpressionNone,ExpressionLinear,ExpressionExponential} ExpressionInfoType;
 
 /// Base class for expressions
-class ExpressionInfo
+class ExpressionInfo : public Identifiable
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
@@ -63,6 +63,7 @@ public:
     
     std::vector<float> stopOutputs;
 };
+typedef std::shared_ptr<FloatExpressionInfo> FloatExpressionInfoRef;
 
 /// Color expression (e.g. for continuous color changes)
 class ColorExpressionInfo: public ExpressionInfo
@@ -73,6 +74,7 @@ public:
     
     std::vector<RGBAColor> stopOutputs;
 };
+typedef std::shared_ptr<ColorExpressionInfo> ColorExpressionInfoRef;
 
 /** Object use as the base for parsing description dictionaries.
  */

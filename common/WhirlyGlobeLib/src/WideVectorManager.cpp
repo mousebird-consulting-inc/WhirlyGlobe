@@ -529,12 +529,18 @@ public:
             wideDrawable->setTexRepeat(vecInfo->repeatSize);
             wideDrawable->setEdgeSize(vecInfo->edgeSize);
             wideDrawable->setLineWidth(vecInfo->width);
-            if (vecInfo->coordType == WideVecCoordReal)
-                wideDrawable->setRealWorldWidth(vecInfo->width);
-            
 //            drawMbr.reset();
             drawable->setType(Triangles);
             vecInfo->setupBasicDrawable(drawable);
+            if (vecInfo->coordType == WideVecCoordReal)
+                wideDrawable->setRealWorldWidth(vecInfo->width);
+            if (vecInfo->widthExp)
+                wideDrawable->setWidthExpression(vecInfo->widthExp);
+            if (vecInfo->opacityExp)
+                wideDrawable->setOpacityExpression(vecInfo->opacityExp);
+            if (vecInfo->colorExp)
+                wideDrawable->setColorExpression(vecInfo->colorExp);
+
             drawable->setColor(vecInfo->color);
             if (vecInfo->texID != EmptyIdentity)
                 drawable->setTexId(0, vecInfo->texID);

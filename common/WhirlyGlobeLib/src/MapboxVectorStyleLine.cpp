@@ -125,9 +125,6 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
     
     ComponentObjectRef compObj = styleSet->makeComponentObject(inst);
 
-    // TODO: Do level based animation instead
-    float levelBias = 1.9;
-
     std::vector<VectorObjectRef> vecObjs = inVecObjs;
     
     // Turn into linears (if not already) and then clip to the bounds
@@ -169,8 +166,8 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
     vecInfo.coordType = WideVecCoordScreen;
     vecInfo.programID = styleSet->wideVectorProgramID;
     vecInfo.fade = fade;
+    vecInfo.zoomSlot = styleSet->zoomSlot;
     if (minzoom != 0 || maxzoom < 1000) {
-        vecInfo.zoomSlot = styleSet->zoomSlot;
         vecInfo.minZoomVis = minzoom;
         vecInfo.maxZoomVis = maxzoom;
 //        wkLogLevel(Debug, "zoomSlot = %d, minZoom = %f, maxZoom = %f",styleSet->zoomSlot,vecInfo.minZoomVis,vecInfo.maxZoomVis);
@@ -180,14 +177,17 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
         vecInfo.repeatSize = repeatLen;
     }
     
-    RGBAColorRef color = styleSet->resolveColor(paint.color, paint.opacity, tileInfo->ident.level+levelBias, MBResolveColorOpacityMultiply);
+    RGBAColorRef color = styleSet->resolveColor(paint.color, paint.opacity, tileInfo->ident.level, MBResolveColorOpacityMultiply);
     if (color)
         vecInfo.color = *color;
     
-    double width = paint.width->valForZoom(tileInfo->ident.level+levelBias) * lineScale;
+    double width = paint.width->valForZoom(tileInfo->ident.level) * lineScale;
     if (width > 0.0) {
         vecInfo.width = width;
     }
+    vecInfo.widthExp = paint.width->expression();
+    vecInfo.colorExp = paint.color->expression();
+    vecInfo.opacityExp = paint.opacity->expression();
     bool include = color && width > 0.0;
     
     if (styleSet->tileStyleSettings->drawPriorityPerLevel > 0)

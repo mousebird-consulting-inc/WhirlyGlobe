@@ -399,7 +399,7 @@ float ExpCalculateFloat(constant FloatExp &floatExp,float zoom,float defaultVal)
             switch (floatExp.type) {
                 case WhirlyKitShader::ExpLinear:
                 {
-                    float t = (zoom-zoomA)/(zoomB-zoomB);
+                    float t = (zoom-zoomA)/(zoomB-zoomA);
                     return t * (valB-valA) + valA;
                 }
                     break;
@@ -458,7 +458,7 @@ vertex ProjVertexTriWideVec vertexTri_wideVec(
     float w2 = vertArgs.wideVec.w2;
     if (vertArgs.wideVec.hasExp) {
         float zoom = ZoomFromSlot(uniforms, vertArgs.uniDrawState.zoomSlot);
-        w2 = ExpCalculateFloat(vertArgs.wideVecExp.widthExp, zoom, w2);
+        w2 = ExpCalculateFloat(vertArgs.wideVecExp.widthExp, zoom, w2)/2.0;
     }
 
     outVert.color = vertArgs.wideVec.color * calculateFade(uniforms,vertArgs.uniDrawState);

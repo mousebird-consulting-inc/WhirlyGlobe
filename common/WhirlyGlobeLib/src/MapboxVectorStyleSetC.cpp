@@ -177,6 +177,25 @@ double MapboxTransDouble::valForZoom(double zoom)
         return val;
 }
 
+FloatExpressionInfoRef MapboxTransDouble::expression()
+{
+    if (!stops)
+        return FloatExpressionInfoRef();
+    
+    FloatExpressionInfoRef floatExp(new FloatExpressionInfo());
+    floatExp->type = ExpressionExponential;
+    floatExp->base = stops->base;
+    floatExp->stopInputs.resize(stops->stops.size());
+    floatExp->stopOutputs.resize(stops->stops.size());
+    for (unsigned int ii=0;ii<stops->stops.size();ii++) {
+        floatExp->stopInputs[ii] = stops->stops[ii].zoom;
+        floatExp->stopOutputs[ii] = stops->stops[ii].val;
+    }
+    
+    return floatExp;
+}
+
+
 double MapboxTransDouble::minVal()
 {
     if (stops) {
@@ -219,6 +238,26 @@ RGBAColor MapboxTransColor::colorForZoom(double zoom)
     
     return theColor;
 }
+
+ColorExpressionInfoRef MapboxTransColor::expression()
+{
+    if (!stops)
+        return ColorExpressionInfoRef();
+    
+    ColorExpressionInfoRef colorExp(new ColorExpressionInfo());
+    colorExp->type = ExpressionExponential;
+    colorExp->base = stops->base;
+    colorExp->stopInputs.resize(stops->stops.size());
+    colorExp->stopOutputs.resize(stops->stops.size());
+    for (unsigned int ii=0;ii<stops->stops.size();ii++) {
+        colorExp->stopInputs[ii] = stops->stops[ii].zoom;
+        if (stops->stops[ii].color)
+            colorExp->stopOutputs[ii] = *(stops->stops[ii].color);
+    }
+    
+    return colorExp;
+}
+
 
 MapboxVectorStyleSetImpl::MapboxVectorStyleSetImpl(Scene *inScene,CoordSystem *coordSys,VectorStyleSettingsImplRef settings)
 : scene(inScene), currentID(0), tileStyleSettings(settings), coordSys(coordSys), zoomSlot(-1)

@@ -20,6 +20,7 @@
 
 #import "BasicDrawableBuilder.h"
 #import "Program.h"
+#import "BaseInfo.h"
 
 namespace WhirlyKit
 {
@@ -82,6 +83,15 @@ public:
     
     /// Fix the width to a real world value, rather than letting it change
     void setRealWorldWidth(double width);
+    
+    // Apply a width expression
+    void setWidthExpression(FloatExpressionInfoRef widthExp);
+    
+    // Apply a dynamic color expression
+    void setColorExpression(ColorExpressionInfoRef colorExp);
+    
+    // Apply a dynamic opacity expression
+    void setOpacityExpression(FloatExpressionInfoRef opacityExp);
 
     // The tweaker sets up uniforms before a given drawable draws
     void setupTweaker(BasicDrawable *theDraw);
@@ -102,6 +112,10 @@ protected:
     int n0_index;
     int c0_index;
     int tex_index;
+    
+    FloatExpressionInfoRef widthExp;
+    ColorExpressionInfoRef colorExp;
+    FloatExpressionInfoRef opacityExp;
     
 #ifdef WIDEVECDEBUG
     Point3fVector locPts;

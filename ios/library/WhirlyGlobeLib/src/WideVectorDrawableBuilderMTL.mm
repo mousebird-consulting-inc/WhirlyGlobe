@@ -59,6 +59,7 @@ BasicDrawable *WideVectorDrawableBuilderMTL::getDrawable()
     
     BasicDrawable *theDraw = BasicDrawableBuilderMTL::getDrawable();
 
+    // Uniforms for regular wide vectors
     WhirlyKitShader::UniformWideVec uniWV;
     memset(&uniWV,0,sizeof(uniWV));
     uniWV.w2 = lineWidth/2.0;
@@ -68,12 +69,38 @@ BasicDrawable *WideVectorDrawableBuilderMTL::getDrawable()
     uniWV.color[1] = color.g/255.0;
     uniWV.color[2] = color.b/255.0;
     uniWV.color[3] = color.a/255.0;
-    uniWV.hasExp = false;
+    uniWV.hasExp = widthExp || colorExp || opacityExp;
 
     BasicDrawable::UniformBlock uniBlock;
     uniBlock.blockData = RawDataRef(new RawNSDataReader([[NSData alloc] initWithBytes:&uniWV length:sizeof(uniWV)]));
     uniBlock.bufferID = WhirlyKitShader::WKSUniformWideVecEntry;
     basicDraw->setUniBlock(uniBlock);
+    
+    // Expression uniforms, if we're using those
+    if (uniWV.hasExp) {
+        WhirlyKitShader::UniformWideVecExp wideVecExp;
+        memset(&wideVecExp, 0, sizeof(wideVecExp));
+        if (widthExp) {
+            wideVecExp.widthExp.type = WhirlyKitShader::ExpLinear;
+            wideVecExp.widthExp.numStops = std::min(std::min(widthExp->stopInputs.size(),widthExp->stopOutputs.size()),(size_t)WKSExpStops);
+            for (unsigned int ii=0;ii<wideVecExp.widthExp.numStops;ii++) {
+                wideVecExp.widthExp.base = 1.0;
+                wideVecExp.widthExp.stopInputs[ii] = widthExp->stopInputs[ii];
+                wideVecExp.widthExp.stopOutputs[ii] = widthExp->stopOutputs[ii];
+            }
+        }
+        if (opacityExp) {
+            
+        }
+        if (colorExp) {
+            
+        }
+        
+        BasicDrawable::UniformBlock uniBlock;
+        uniBlock.blockData = RawDataRef(new RawNSDataReader([[NSData alloc] initWithBytes:&wideVecExp length:sizeof(wideVecExp)]));
+        uniBlock.bufferID = WhirlyKitShader::WKSUniformWideVecEntryExp;
+        basicDraw->setUniBlock(uniBlock);
+    }
 
     return theDraw;
 }

@@ -248,8 +248,8 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
     textSize = (int)(textSize * layout.globalTextScale+0.5);
 
     LabelInfoRef labelInfo = styleSet->makeLabelInfo(inst,layout.textFontNames,textSize);
+    labelInfo->zoomSlot = styleSet->zoomSlot;
     if (minzoom != 0 || maxzoom < 1000) {
-        labelInfo->zoomSlot = styleSet->zoomSlot;
         labelInfo->minZoomVis = minzoom;
         labelInfo->maxZoomVis = maxzoom;
 //        wkLogLevel(Debug, "zoomSlot = %d, minZoom = %f, maxZoom = %f",styleSet->zoomSlot,labelInfo->minZoomVis,labelInfo->maxZoomVis);

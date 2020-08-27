@@ -27,7 +27,7 @@ namespace WhirlyKitShader
 
 // Expression types
 typedef enum {
-    ExpNone,ExpLinear,ExpExponential
+    ExpNone = 0,ExpLinear,ExpExponential
 } ExpType;
 
 // Single floating point value expression
@@ -45,7 +45,7 @@ struct ColorExp {
     int numStops;
     float base;
     float stopInputs[WKSExpStops];
-    float stopOutputs[WKSExpStops];
+    simd::float4 stopOutputs[WKSExpStops];
 };
 
 /** Attributes within the [[stage_in]] for vertex shaders **/

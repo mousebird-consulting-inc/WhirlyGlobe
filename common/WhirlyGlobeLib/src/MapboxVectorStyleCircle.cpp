@@ -84,8 +84,8 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
 
     // Default settings
     MarkerInfo markerInfo(true);
+    markerInfo.zoomSlot = styleSet->zoomSlot;
     if (minzoom != 0 || maxzoom < 1000) {
-        markerInfo.zoomSlot = styleSet->zoomSlot;
         markerInfo.minZoomVis = minzoom;
         markerInfo.maxZoomVis = maxzoom;
     }

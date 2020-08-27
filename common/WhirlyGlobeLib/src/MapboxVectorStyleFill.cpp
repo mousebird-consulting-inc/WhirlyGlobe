@@ -109,8 +109,8 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
         bool include = true;
         vecInfo.filled = true;
         vecInfo.centered = true;
+        vecInfo.zoomSlot = styleSet->zoomSlot;
         if (minzoom != 0 || maxzoom < 1000) {
-            vecInfo.zoomSlot = styleSet->zoomSlot;
             vecInfo.minZoomVis = minzoom;
             vecInfo.maxZoomVis = maxzoom;
         }

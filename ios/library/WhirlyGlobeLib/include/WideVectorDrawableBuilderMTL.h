@@ -20,6 +20,7 @@
 
 #import "WideVectorDrawableBuilder.h"
 #import "BasicDrawableBuilderMTL.h"
+#import "BaseInfo.h"
 
 namespace WhirlyKit
 {
@@ -38,10 +39,12 @@ public:
     
     // Initialize with an estimate on the number of vertices and triangles
     virtual void Init(unsigned int numVert,unsigned int numTri,bool globeMode);
-    
+        
     WideVectorTweaker *makeTweaker();
 
     virtual BasicDrawable *getDrawable();
+    
+protected:
 };
 
 }
