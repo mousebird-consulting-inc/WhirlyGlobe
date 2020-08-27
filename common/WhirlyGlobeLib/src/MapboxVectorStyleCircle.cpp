@@ -31,12 +31,12 @@ bool MapboxVectorCirclePaint::parse(PlatformThreadInfo *inst,
     if (!styleSet)
         return false;
     
-    radius = styleSet->doubleValue("circle-radius",styleEntry,5.0);
+    radius = styleSet->transDouble("circle-radius", styleEntry, 5.0);
     fillColor = styleSet->colorValue("circle-color",NULL,styleEntry,RGBAColor::white(),false);
-    opacity = styleSet->doubleValue("circle-opacity",styleEntry,1.0);
-    strokeWidth = styleSet->doubleValue("circle-stroke-width",styleEntry,0.0);
+    opacity = styleSet->transDouble("circle-opacity",styleEntry,1.0);
+    strokeWidth = styleSet->transDouble("circle-stroke-width",styleEntry,0.0);
     strokeColor = styleSet->colorValue("circle-stroke-color",NULL,styleEntry,RGBAColor::black(),false);
-    strokeOpacity = styleSet->doubleValue("circle-stroke-opacity",styleEntry,1.0);
+    strokeOpacity = styleSet->transDouble("circle-stroke-opacity",styleEntry,1.0);
     
     return true;
 }
@@ -53,12 +53,14 @@ bool MapboxVectorLayerCircle::parse(PlatformThreadInfo *inst,
         !paint.parse(inst, styleSet, styleEntry->getDict("paint")))
         return false;
 
-    RGBAColor theFillColor = (*paint.fillColor) * paint.opacity;
-    RGBAColor theStrokeColor = (*paint.strokeColor) * paint.strokeOpacity;
-    circleTexID = styleSet->makeCircleTexture(inst,paint.radius,theFillColor,theStrokeColor,paint.strokeWidth,&circleSize);
+    RGBAColor theFillColor = *paint.fillColor;
+    RGBAColor theStrokeColor = *paint.strokeColor;
+    double maxRadius = paint.radius->maxVal();
+    double maxStrokeWidth = paint.strokeWidth->maxVal();
+    circleTexID = styleSet->makeCircleTexture(inst,maxRadius,theFillColor,theStrokeColor,maxStrokeWidth,&circleSize);
 
     // Larger circles are slightly more important
-    importance = drawPriority/1000 + styleSet->tileStyleSettings->markerImportance + paint.radius / 100000.0;
+    importance = drawPriority/1000 + styleSet->tileStyleSettings->markerImportance + maxRadius / 100000.0;
 
     uuidField = styleSet->tileStyleSettings->uuidField;
     
@@ -87,6 +89,8 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
         markerInfo.minZoomVis = minzoom;
         markerInfo.maxZoomVis = maxzoom;
     }
+    double opacity = paint.opacity->valForZoom(tileInfo->ident.level);
+    markerInfo.color = RGBAColor(255,255,255,opacity*255);
     markerInfo.drawPriority = drawPriority;
     markerInfo.programID = styleSet->screenMarkerProgramID;
     
@@ -102,7 +106,8 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
                         WhirlyKit::Marker *marker = new WhirlyKit::Marker();
                         marker->loc = GeoCoord(pt.x(),pt.y());
                         marker->texIDs.push_back(circleTexID);
-                        marker->width = 2*paint.radius * styleSet->tileStyleSettings->markerScale; marker->height = 2*paint.radius * styleSet->tileStyleSettings->markerScale;
+                        double radius = paint.radius->valForZoom(tileInfo->ident.level);
+                        marker->width = 2*radius * styleSet->tileStyleSettings->markerScale; marker->height = 2*radius * styleSet->tileStyleSettings->markerScale;
                         marker->layoutWidth = marker->width; marker->layoutHeight = marker->height;
                         marker->layoutImportance = MAXFLOAT;
 //                        marker->layoutImportance = importance + (101-tileInfo->ident.level)/100.0;

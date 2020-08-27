@@ -48,7 +48,7 @@ public:
     MapboxVectorStyleSetImpl_iOS(Scene *scene,CoordSystem *coordSys,VectorStyleSettingsImplRef settings);
     ~MapboxVectorStyleSetImpl_iOS();
 
-    NSObject<MaplyRenderControllerProtocol> *viewC;
+    NSObject<MaplyRenderControllerProtocol> * __weak viewC;
     
     /// Local platform implementation for generating a circle and adding it as a texture
     virtual SimpleIdentity makeCircleTexture(PlatformThreadInfo *inst,

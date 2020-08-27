@@ -358,7 +358,7 @@ SimpleIdentity MapboxVectorStyleSetImpl_iOS::makeCircleTexture(PlatformThreadInf
     float scale = tileStyleSettings->markerScale * 2;
 
     // Build an image for the circle
-    float buffer = 1.0 * scale;
+    float buffer = 1.0;
     float radius = inRadius*scale;
     float strokeWidth = inStrokeWidth*scale;
     float size = ceil(buffer + radius + strokeWidth)*2;
@@ -447,6 +447,10 @@ LabelInfoRef MapboxVectorStyleSetImpl_iOS::makeLabelInfo(PlatformThreadInfo *ins
             
             if (fontNameStr2) {
                 font = [UIFont fontWithName:fontNameStr2 size:fontSize];
+            }
+            // Sometimes a font like "Noto Sans Regular" is just "NotoSans" because I hate everyone involved with fonts
+            if (!font && [components count] == 3 && [[components lastObject] isEqualToString:@"Regular"]) {
+                font = [UIFont fontWithName:[NSString stringWithFormat:@"%@%@",[components objectAtIndex:0],[components objectAtIndex:1]] size:fontSize];
             }
         }
         

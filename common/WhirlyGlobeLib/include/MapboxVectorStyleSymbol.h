@@ -91,7 +91,7 @@ public:
     RegexField iconImageField;
 
     // Scale of the icon based on its original size
-    double iconSize;
+    MapboxTransDoubleRef iconSize;
 };
 
 // Symbol visuals

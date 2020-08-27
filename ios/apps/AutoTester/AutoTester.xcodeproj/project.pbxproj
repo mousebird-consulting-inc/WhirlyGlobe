@@ -25,6 +25,16 @@
 		2B033BFD24F6DA4600B55248 /* Roboto-Condensed-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B033BF624F6DA4300B55248 /* Roboto-Condensed-Light.ttf */; };
 		2B033BFE24F6DA4600B55248 /* Roboto-Condensed-LightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B033BF724F6DA4300B55248 /* Roboto-Condensed-LightItalic.ttf */; };
 		2B033BFF24F6DA4600B55248 /* Roboto-Condensed-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B033BF824F6DA4300B55248 /* Roboto-Condensed-Regular.ttf */; };
+		2B033C0A24F6F75300B55248 /* OpenSans-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B033C0524F6F6DB00B55248 /* OpenSans-Bold.ttf */; };
+		2B033C0B24F6F75300B55248 /* OpenSans-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B033C0424F6F6DB00B55248 /* OpenSans-BoldItalic.ttf */; };
+		2B033C0C24F6F75300B55248 /* OpenSans-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B033C0724F6F6DB00B55248 /* OpenSans-ExtraBold.ttf */; };
+		2B033C0D24F6F75300B55248 /* OpenSans-ExtraBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B033C0624F6F6DB00B55248 /* OpenSans-ExtraBoldItalic.ttf */; };
+		2B033C0E24F6F75300B55248 /* OpenSans-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B033C0124F6F6DB00B55248 /* OpenSans-Italic.ttf */; };
+		2B033C0F24F6F75300B55248 /* OpenSans-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B033C0824F6F6DB00B55248 /* OpenSans-Light.ttf */; };
+		2B033C1024F6F75300B55248 /* OpenSans-LightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B033C0024F6F6DA00B55248 /* OpenSans-LightItalic.ttf */; };
+		2B033C1124F6F75300B55248 /* OpenSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B033C0224F6F6DB00B55248 /* OpenSans-Regular.ttf */; };
+		2B033C1224F6F75300B55248 /* OpenSans-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B033C0324F6F6DB00B55248 /* OpenSans-SemiBold.ttf */; };
+		2B033C1324F6F75300B55248 /* OpenSans-SemiBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B033C0924F6F6DB00B55248 /* OpenSans-SemiBoldItalic.ttf */; };
 		2B158BEF1D5D19E900103E04 /* VectorHoleTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B158BEE1D5D19E900103E04 /* VectorHoleTestCase.m */; };
 		2B1806D322AECF4300DD3DB1 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B1806D122AECF4200DD3DB1 /* Accelerate.framework */; };
 		2B1C26531C91037100C71B0A /* France.mbtiles in Resources */ = {isa = PBXBuildFile; fileRef = 2B1C26511C9100A500C71B0A /* France.mbtiles */; };
@@ -601,6 +611,16 @@
 		2B033BF724F6DA4300B55248 /* Roboto-Condensed-LightItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Roboto-Condensed-LightItalic.ttf"; path = "../../../../resources/fonts/Roboto-Condensed-LightItalic.ttf"; sourceTree = "<group>"; };
 		2B033BF824F6DA4300B55248 /* Roboto-Condensed-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Roboto-Condensed-Regular.ttf"; path = "../../../../resources/fonts/Roboto-Condensed-Regular.ttf"; sourceTree = "<group>"; };
 		2B033BF924F6DA4300B55248 /* Roboto-Condensed-BoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Roboto-Condensed-BoldItalic.ttf"; path = "../../../../resources/fonts/Roboto-Condensed-BoldItalic.ttf"; sourceTree = "<group>"; };
+		2B033C0024F6F6DA00B55248 /* OpenSans-LightItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "OpenSans-LightItalic.ttf"; path = "../../../../resources/fonts/OpenSans-LightItalic.ttf"; sourceTree = "<group>"; };
+		2B033C0124F6F6DB00B55248 /* OpenSans-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "OpenSans-Italic.ttf"; path = "../../../../resources/fonts/OpenSans-Italic.ttf"; sourceTree = "<group>"; };
+		2B033C0224F6F6DB00B55248 /* OpenSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "OpenSans-Regular.ttf"; path = "../../../../resources/fonts/OpenSans-Regular.ttf"; sourceTree = "<group>"; };
+		2B033C0324F6F6DB00B55248 /* OpenSans-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "OpenSans-SemiBold.ttf"; path = "../../../../resources/fonts/OpenSans-SemiBold.ttf"; sourceTree = "<group>"; };
+		2B033C0424F6F6DB00B55248 /* OpenSans-BoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "OpenSans-BoldItalic.ttf"; path = "../../../../resources/fonts/OpenSans-BoldItalic.ttf"; sourceTree = "<group>"; };
+		2B033C0524F6F6DB00B55248 /* OpenSans-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "OpenSans-Bold.ttf"; path = "../../../../resources/fonts/OpenSans-Bold.ttf"; sourceTree = "<group>"; };
+		2B033C0624F6F6DB00B55248 /* OpenSans-ExtraBoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "OpenSans-ExtraBoldItalic.ttf"; path = "../../../../resources/fonts/OpenSans-ExtraBoldItalic.ttf"; sourceTree = "<group>"; };
+		2B033C0724F6F6DB00B55248 /* OpenSans-ExtraBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "OpenSans-ExtraBold.ttf"; path = "../../../../resources/fonts/OpenSans-ExtraBold.ttf"; sourceTree = "<group>"; };
+		2B033C0824F6F6DB00B55248 /* OpenSans-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "OpenSans-Light.ttf"; path = "../../../../resources/fonts/OpenSans-Light.ttf"; sourceTree = "<group>"; };
+		2B033C0924F6F6DB00B55248 /* OpenSans-SemiBoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "OpenSans-SemiBoldItalic.ttf"; path = "../../../../resources/fonts/OpenSans-SemiBoldItalic.ttf"; sourceTree = "<group>"; };
 		2B127BFE201802BB0099F405 /* OpenMapTilesHybridTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenMapTilesHybridTestCase.swift; sourceTree = "<group>"; };
 		2B158BED1D5D19E900103E04 /* VectorHoleTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorHoleTestCase.h; sourceTree = "<group>"; };
 		2B158BEE1D5D19E900103E04 /* VectorHoleTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VectorHoleTestCase.m; sourceTree = "<group>"; };
@@ -1175,6 +1195,16 @@
 		2B033BCE24F6D78400B55248 /* fonts */ = {
 			isa = PBXGroup;
 			children = (
+				2B033C0524F6F6DB00B55248 /* OpenSans-Bold.ttf */,
+				2B033C0424F6F6DB00B55248 /* OpenSans-BoldItalic.ttf */,
+				2B033C0724F6F6DB00B55248 /* OpenSans-ExtraBold.ttf */,
+				2B033C0624F6F6DB00B55248 /* OpenSans-ExtraBoldItalic.ttf */,
+				2B033C0124F6F6DB00B55248 /* OpenSans-Italic.ttf */,
+				2B033C0824F6F6DB00B55248 /* OpenSans-Light.ttf */,
+				2B033C0024F6F6DA00B55248 /* OpenSans-LightItalic.ttf */,
+				2B033C0224F6F6DB00B55248 /* OpenSans-Regular.ttf */,
+				2B033C0324F6F6DB00B55248 /* OpenSans-SemiBold.ttf */,
+				2B033C0924F6F6DB00B55248 /* OpenSans-SemiBoldItalic.ttf */,
 				2B8F3258201021CF006DDE27 /* NotoSans-Bold.ttf */,
 				2B8F3256201021CF006DDE27 /* NotoSans-Regular.ttf */,
 				2B033BF524F6DA4300B55248 /* Roboto-Condensed-Bold.ttf */,
@@ -2013,6 +2043,7 @@
 				88FF5C7F1BC31D6D002F15CE /* lowres_wtb_info.plist in Resources */,
 				88FF5E1C1BC31D95002F15CE /* CAN.geojson in Resources */,
 				88FF5EDF1BC31D95002F15CE /* USA.geojson in Resources */,
+				2B033C0A24F6F75300B55248 /* OpenSans-Bold.ttf in Resources */,
 				88FF5C9A1BC31D6D002F15CE /* commercial-24@2x.png in Resources */,
 				88FF5E9B1BC31D95002F15CE /* NLD.geojson in Resources */,
 				88FF5C851BC31D6D002F15CE /* art-gallery-24@2x.png in Resources */,
@@ -2123,6 +2154,7 @@
 				88FF5EBB1BC31D95002F15CE /* SLB.geojson in Resources */,
 				88FF5CD11BC31D6D002F15CE /* rocket-24@2x.png in Resources */,
 				88FF5EE61BC31D95002F15CE /* VNM.geojson in Resources */,
+				2B033C0D24F6F75300B55248 /* OpenSans-ExtraBoldItalic.ttf in Resources */,
 				88FF5E5B1BC31D95002F15CE /* IDN.geojson in Resources */,
 				88FF5E121BC31D95002F15CE /* BLZ.geojson in Resources */,
 				88FF5E9E1BC31D95002F15CE /* NRU.geojson in Resources */,
@@ -2153,6 +2185,7 @@
 				88FF5E491BC31D95002F15CE /* GIN.geojson in Resources */,
 				88FF5EA81BC31D95002F15CE /* POL.geojson in Resources */,
 				88FF5E651BC31D95002F15CE /* JAM.geojson in Resources */,
+				2B033C1124F6F75300B55248 /* OpenSans-Regular.ttf in Resources */,
 				88FF5E541BC31D95002F15CE /* GUY.geojson in Resources */,
 				88FF5EB71BC31D95002F15CE /* SGP.geojson in Resources */,
 				2B7FC0A71E32B67400AF253A /* testJson.json in Resources */,
@@ -2268,6 +2301,7 @@
 				88FF5CDE1BC31D6D002F15CE /* tennis-24@2x.png in Resources */,
 				88FF5C981BC31D6D002F15CE /* clothing-store-24@2x.png in Resources */,
 				88FF5CA91BC31D6D002F15CE /* golf-24@2x.png in Resources */,
+				2B033C0E24F6F75300B55248 /* OpenSans-Italic.ttf in Resources */,
 				88FF5ECF1BC31D95002F15CE /* THA.geojson in Resources */,
 				88FF5E701BC31D95002F15CE /* KWT.geojson in Resources */,
 				88FF5E271BC31D95002F15CE /* COM.geojson in Resources */,
@@ -2315,23 +2349,28 @@
 				88FF5EA51BC31D95002F15CE /* PHL.geojson in Resources */,
 				88FF5E7C1BC31D95002F15CE /* MAC.geojson in Resources */,
 				88FF5CE81BC31D6D002F15CE /* water-24@2x.png in Resources */,
+				2B033C0C24F6F75300B55248 /* OpenSans-ExtraBold.ttf in Resources */,
 				2B4B30C42395F08D00854073 /* default.sld in Resources */,
 				88FF5E4A1BC31D95002F15CE /* GLP.geojson in Resources */,
 				88FF5E611BC31D95002F15CE /* IRQ.geojson in Resources */,
 				88FF5E7D1BC31D95002F15CE /* MAF.geojson in Resources */,
 				2B033BE224F6D7BA00B55248 /* Roboto-Black.ttf in Resources */,
+				2B033C1024F6F75300B55248 /* OpenSans-LightItalic.ttf in Resources */,
 				88FF5CD71BC31D6D002F15CE /* square-24@2x.png in Resources */,
 				88FF5E9A1BC31D95002F15CE /* NIU.geojson in Resources */,
 				88FF5E0E1BC31D95002F15CE /* BHS.geojson in Resources */,
 				88FF5CBA1BC31D6D002F15CE /* museum-24@2x.png in Resources */,
 				88FF5CDB1BC31D6D002F15CE /* suitcase-24@2x.png in Resources */,
+				2B033C0F24F6F75300B55248 /* OpenSans-Light.ttf in Resources */,
 				88FF5DF91BC31D95002F15CE /* ALA.geojson in Resources */,
+				2B033C1324F6F75300B55248 /* OpenSans-SemiBoldItalic.ttf in Resources */,
 				E5C82FCD1E221C890074DF23 /* commercial.png in Resources */,
 				88FF5E191BC31D95002F15CE /* BVT.geojson in Resources */,
 				88FF5E711BC31D95002F15CE /* LAO.geojson in Resources */,
 				E5941DCE1E0D02A800E1C8B3 /* water_lines.sld in Resources */,
 				8F4D91DD1CDFA7DE00F68045 /* map.png in Resources */,
 				88FF5E2B1BC31D95002F15CE /* CUW.geojson in Resources */,
+				2B033C1224F6F75300B55248 /* OpenSans-SemiBold.ttf in Resources */,
 				88FF5E511BC31D95002F15CE /* GTM.geojson in Resources */,
 				88FF5CAB1BC31D6D002F15CE /* harbor-24@2x.png in Resources */,
 				88FF5CBD1BC31D6D002F15CE /* park-24@2x.png in Resources */,
@@ -2438,6 +2477,7 @@
 				E5941DBE1E0CEC8600E1C8B3 /* belfast_ireland_waterareas.geojson in Resources */,
 				88FF5E161BC31D95002F15CE /* BRB.geojson in Resources */,
 				2B033BFA24F6DA4600B55248 /* Roboto-Condensed-Bold.ttf in Resources */,
+				2B033C0B24F6F75300B55248 /* OpenSans-BoldItalic.ttf in Resources */,
 				88FF5C881BC31D6D002F15CE /* bar-24@2x.png in Resources */,
 				E53CF5DE1E1EAF6A000FB5C1 /* amenities.sld in Resources */,
 				88FF5ECB1BC31D95002F15CE /* SYR.geojson in Resources */,

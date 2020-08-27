@@ -129,7 +129,7 @@ bool MapboxVectorSymbolLayout::parse(PlatformThreadInfo *inst,
     textJustify = styleEntry ? (TextJustify)styleSet->enumValue(styleEntry->getEntry("text-justify"), justifyVals, WhirlyKitTextCenter) : WhirlyKitTextCenter;
     
     iconImageField.parse("icon-image",styleSet,styleEntry);
-    iconSize = styleSet->doubleValue("icon-size", styleEntry, 1.0);
+    iconSize = styleSet->transDouble("icon-size", styleEntry, 1.0);
     
     return true;
 }
@@ -289,7 +289,7 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
 //    // Note: Made up value for pushing multi-line text together
 //    desc[kMaplyTextLineSpacing] = @(4.0 / 5.0 * font.lineHeight);
     
-    bool textInclude = (textColor && textSize > 0.0);
+    bool textInclude = (textColor && textSize > 0.0 && !layout.textField.chunks.empty());
     if (!textInclude && !iconInclude)
         return;
     
@@ -429,8 +429,9 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                                 continue;
                             }
                             
-                            markerSize.x() *= layout.iconSize;
-                            markerSize.y() *= layout.iconSize;
+                            double size = layout.iconSize->valForZoom(tileInfo->ident.level);
+                            markerSize.x() *= size;
+                            markerSize.y() *= size;
                             SimpleIdentity markerTexID = subTex.getId();
 
                             Marker *marker = new Marker();

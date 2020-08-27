@@ -35,18 +35,18 @@ public:
     bool parse(PlatformThreadInfo *inst,MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry);
 
     /// Radius, in pixels, of the circle to be produced
-    float radius;
+    MapboxTransDoubleRef radius;
 
     /// Filled color of the circles
     RGBAColorRef fillColor;
     /// Filled opacity of the circles
-    float opacity;
+    MapboxTransDoubleRef opacity;
     /// Stroke width, in pixels, around the outside of the circles
-    float strokeWidth;
+    MapboxTransDoubleRef strokeWidth;
     /// Color of the stroke around the outside of the circles
     RGBAColorRef strokeColor;
     /// Opacity o the stroke around the outside of the circles
-    float strokeOpacity;
+    MapboxTransDoubleRef strokeOpacity;
 };
 
 /// Circles for individual points
