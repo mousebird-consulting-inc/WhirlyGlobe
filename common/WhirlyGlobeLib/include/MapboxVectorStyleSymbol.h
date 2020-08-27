@@ -104,9 +104,9 @@ public:
     MapboxTransColorRef textColor;
     MapboxTransDoubleRef textOpacity;
     // If there's a halo, this is the color
-    RGBAColorRef textHaloColor;
+    MapboxTransColorRef textHaloColor;
     // If there's a halo, this is the size
-    double textHaloWidth;
+    MapboxTransDoubleRef textHaloWidth;
 };
 
 /// @brief Icons and symbols

@@ -433,25 +433,39 @@ LabelInfoRef MapboxVectorStyleSetImpl_iOS::makeLabelInfo(PlatformThreadInfo *ins
                 case 2:
                     if ([components count] == 2) {
                         fontNameStr2 = [fontNameStr stringByReplacingOccurrencesOfString:@" " withString:@"-"];
+                        font = [UIFont fontWithName:fontNameStr2 size:fontSize];
                     }
                     break;
+                case 3:
+                {
+                    // Try <name><name>-<name>
+                    fontNameStr2 = [NSString stringWithFormat:@"%@%@-%@",[components objectAtIndex:0],[components objectAtIndex:1],[components lastObject]];
+                    font = [UIFont fontWithName:fontNameStr2 size:fontSize];
+                    
+                    // Sometimes a font like "Noto Sans Regular" is just "NotoSans" because I hate everyone involved with fonts
+                    if (!font && [[components lastObject] isEqualToString:@"Regular"]) {
+                        font = [UIFont fontWithName:[NSString stringWithFormat:@"%@%@",[components objectAtIndex:0],[components objectAtIndex:1]] size:fontSize];
+                    }
+                    
+                    // Okay, let's try a slightly different construction
+                    if (!font) {
+                        font = [UIFont fontWithName:[NSString stringWithFormat:@"%@-%@%@",[components objectAtIndex:0],[components objectAtIndex:1]] size:fontSize];
+                    }
+                }
+                    break;
                 default:
-                    // Probably 3 components
+                {
+                    // Try <name><name>-<name>
                     NSMutableString *str = [[NSMutableString alloc] init];
                     for (unsigned int ii=0;ii<[components count]-1;ii++)
                         [str appendString:[components objectAtIndex:ii]];
                     [str appendFormat:@"-%@",[components lastObject]];
                     fontNameStr2 = str;
+                    font = [UIFont fontWithName:fontNameStr2 size:fontSize];
+                }
                     break;
             }
             
-            if (fontNameStr2) {
-                font = [UIFont fontWithName:fontNameStr2 size:fontSize];
-            }
-            // Sometimes a font like "Noto Sans Regular" is just "NotoSans" because I hate everyone involved with fonts
-            if (!font && [components count] == 3 && [[components lastObject] isEqualToString:@"Regular"]) {
-                font = [UIFont fontWithName:[NSString stringWithFormat:@"%@%@",[components objectAtIndex:0],[components objectAtIndex:1]] size:fontSize];
-            }
         }
         
         if (font)

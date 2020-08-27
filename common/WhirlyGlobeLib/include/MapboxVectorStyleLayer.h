@@ -73,6 +73,9 @@ public:
 
     /// Set if we actually use this layer.  Copied from the layout
     bool visible;
+    
+    /// Type string (from spec)
+    std::string type;
 
     /// @brief ID on the layer style entry
     std::string ident;

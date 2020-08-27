@@ -49,6 +49,9 @@ MapboxVectorStyleLayerRef MapboxVectorStyleLayer::VectorStyleLayer(PlatformThrea
     }
 
     std::string type = layerDict->getString("type");
+    if (type.empty() && refLayer && !refLayer->type.empty())
+        type = refLayer->type;
+
     if (type.empty()) {
         wkLogLevel(Warn, "Expecting string type for layer");
         return NULL;
@@ -70,6 +73,7 @@ MapboxVectorStyleLayerRef MapboxVectorStyleLayer::VectorStyleLayer(PlatformThrea
         wkLogLevel(Warn,"Skipping layer type %s",type.c_str());
         return NULL;
     }
+    layer->type = type;
     if (!layer) {
         wkLogLevel(Warn,"Unknown layer type %s",type.c_str());
         return NULL;

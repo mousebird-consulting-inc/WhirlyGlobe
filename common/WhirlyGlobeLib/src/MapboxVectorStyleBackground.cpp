@@ -45,7 +45,7 @@ bool MapboxVectorLayerBackground::parse(PlatformThreadInfo *inst,
         return false;
     }
     
-    styleSet->unsupportedCheck("layout","background",styleEntry);
+//    styleSet->unsupportedCheck("layout","background",styleEntry);
     
     if (!paint.parse(inst,styleSet,styleEntry->getDict("paint"))) {
         return false;

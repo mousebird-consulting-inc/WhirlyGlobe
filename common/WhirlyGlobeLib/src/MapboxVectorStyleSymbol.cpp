@@ -140,8 +140,8 @@ bool MapboxVectorSymbolPaint::parse(PlatformThreadInfo *inst,
 {
     textColor = styleSet->transColor("text-color", styleEntry, RGBAColor::black());
     textOpacity = styleSet->transDouble("text-opacity", styleEntry, 1.0);
-    textHaloColor = styleSet->colorValue("text-halo-color", NULL, styleEntry, RGBAColorRef(), false);
-    textHaloWidth = styleSet->doubleValue("text-halo-width", styleEntry, 0.0);
+    textHaloColor = styleSet->transColor("text-halo-color", styleEntry, RGBAColor::black());
+    textHaloWidth = styleSet->transDouble("text-halo-width", styleEntry, 0.0);
     
     return true;
 }
@@ -267,10 +267,10 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
     if (textColor)
         labelInfo->textColor = *textColor;
 
-    if (paint.textHaloColor && paint.textHaloWidth > 0.0)
+    if (paint.textHaloColor && paint.textHaloWidth)
     {
-        labelInfo->outlineColor = *paint.textHaloColor;
-        labelInfo->outlineSize = paint.textHaloWidth;
+        labelInfo->outlineColor = paint.textHaloColor->colorForZoom(tileInfo->ident.level);
+        labelInfo->outlineSize = paint.textHaloWidth->valForZoom(tileInfo->ident.level);
     }
     
     // Sort out the image for the marker if we're doing that
@@ -412,7 +412,9 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                                 
                                 labels.push_back(label);
                             } else {
+#if DEBUG
                                 wkLogLevel(Warn,"Failed to find text for label");
+#endif
                             }
                         }
                         if (iconInclude) {

@@ -617,8 +617,11 @@ MapboxTransColorRef MapboxVectorStyleSetImpl::transColor(const std::string &name
 
 void MapboxVectorStyleSetImpl::unsupportedCheck(const char *field,const char *what,DictionaryRef styleEntry)
 {
-    if (styleEntry && styleEntry->hasField(field))
+    if (styleEntry && styleEntry->hasField(field)) {
+#if DEBUG
         wkLogLevel(Warn,"Found unsupported field (%s) for (%s)",field,what);
+#endif
+    }
 }
 
 RGBAColorRef MapboxVectorStyleSetImpl::resolveColor(MapboxTransColorRef color,MapboxTransDoubleRef opacity,double zoom,MBResolveColorType resolveMode)
