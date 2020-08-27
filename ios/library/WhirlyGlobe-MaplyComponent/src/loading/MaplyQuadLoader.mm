@@ -412,6 +412,7 @@ using namespace WhirlyKit;
 
     dispatch_async(dispatch_get_main_queue(), ^{
         [[self.viewC getRenderControl] releaseSamplingLayer:self->samplingLayer forUser:self->loader];
+        self->loadInterp = nil;
         self->loader = nil;
     });
 }
