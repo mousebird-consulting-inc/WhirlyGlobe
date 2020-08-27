@@ -175,11 +175,16 @@ JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_VectorTileData_getCompon
             return NULL;
         ComponentObjectRefClassInfo *classInfo = ComponentObjectRefClassInfo::getClassInfo();
         std::vector<jobject> compObjs;
-        for (ComponentObjectRef compObj : (*tileData)->compObjs) {
+        for (ComponentObjectRef compObj : (*tileData)->compObjs)
             compObjs.push_back(MakeComponentObjectWrapper(env,classInfo,compObj));
-        }
 
-        return BuildObjectArray(env,classInfo->getClass(),compObjs);
+        jobjectArray retArray = BuildObjectArray(env,classInfo->getClass(),compObjs);
+        for (auto objRef: compObjs) {
+            env->DeleteLocalRef(objRef);
+        }
+        compObjs.clear();
+
+        return retArray;
     }
     catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorTileData::getComponentObjects");
