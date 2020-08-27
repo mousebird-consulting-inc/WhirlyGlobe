@@ -41,25 +41,25 @@ public:
             const RGBAColor &fillColor,
             const RGBAColor &strokeColor,
             float strokeWidth,
-            Point2f *circleSize);
+            Point2f *circleSize) override;
 
     /// Local platform implementation for generating a repeating line texture
-    virtual SimpleIdentity makeLineTexture(PlatformThreadInfo *inst,const std::vector<double> &dashComponents);
+    virtual SimpleIdentity makeLineTexture(PlatformThreadInfo *inst,const std::vector<double> &dashComponents) override;
 
     /// Create a local platform LabelInfo (since fonts are local)
-    virtual LabelInfoRef makeLabelInfo(PlatformThreadInfo *inst,const std::string &fontName,float fontSize);
+    virtual LabelInfoRef makeLabelInfo(PlatformThreadInfo *inst,const std::vector<std::string> &fontName,float fontSize) override;
 
     /// Create a local platform label (fonts are local, and other stuff)
-    virtual SingleLabelRef makeSingleLabel(PlatformThreadInfo *inst,const std::string &text);
+    virtual SingleLabelRef makeSingleLabel(PlatformThreadInfo *inst,const std::string &text) override;
 
     /// Create a local platform component object
-    virtual ComponentObjectRef makeComponentObject(PlatformThreadInfo *inst);
+    virtual ComponentObjectRef makeComponentObject(PlatformThreadInfo *inst) override;
 
     /// Return the width of the given line of text
-    virtual double calculateTextWidth(PlatformThreadInfo *inInst,LabelInfoRef labelInfo,const std::string &testStr);
+    virtual double calculateTextWidth(PlatformThreadInfo *inInst,LabelInfoRef labelInfo,const std::string &testStr) override;
 
     /// Associate the given selection ID with a vector object
-    virtual void addSelectionObject(SimpleIdentity selectID,VectorObjectRef vecObj,ComponentObjectRef compObj);
+    virtual void addSelectionObject(SimpleIdentity selectID,VectorObjectRef vecObj,ComponentObjectRef compObj) override;
 
     /// Set up the Java side method references
     void setupMethods(JNIEnv *env);

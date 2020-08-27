@@ -82,17 +82,17 @@ SimpleIdentity MapboxVectorStyleSetImpl_Android::makeLineTexture(PlatformThreadI
     return EmptyIdentity;
 }
 
-LabelInfoRef MapboxVectorStyleSetImpl_Android::makeLabelInfo(PlatformThreadInfo *inInst,const std::string &fontName,float fontSize)
+LabelInfoRef MapboxVectorStyleSetImpl_Android::makeLabelInfo(PlatformThreadInfo *inInst,const std::vector<std::string> &fontNames,float fontSize)
 {
     PlatformInfo_Android *inst = (PlatformInfo_Android *)inInst;
-    std::pair<std::string, float> entry(fontName,fontSize);
+    std::pair<std::string, float> entry(fontNames[0],fontSize);
 
     LabelInfoAndroidRef refLabelInfo = NULL;
     auto it = labelInfos.find(entry);
     if (it != labelInfos.end())
         refLabelInfo = it->second;
     else {
-        jstring jFontNameStr = inst->env->NewStringUTF(fontName.c_str());
+        jstring jFontNameStr = inst->env->NewStringUTF(fontNames[0].c_str());
         jobject labelInfoGlobeObj = inst->env->NewGlobalRef(inst->env->CallObjectMethod(thisObj,makeLabelInfoMethod,jFontNameStr,2.0*fontSize));
         inst->env->DeleteLocalRef(jFontNameStr);
         LabelInfoAndroidRef *newRef = LabelInfoClassInfo::getClassInfo()->getObject(inst->env,labelInfoGlobeObj);
