@@ -216,7 +216,12 @@ JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_AttrDictionaryEntry_getA
             retObjs.push_back(newObj);
         }
 
-        return BuildObjectArray(env,AttrDictEntryClassInfo::getClassInfo()->getClass(),retObjs);
+        jobjectArray retArray = BuildObjectArray(env,AttrDictEntryClassInfo::getClassInfo()->getClass(),retObjs);
+        for (jobject objRef: retObjs)
+            env->DeleteLocalRef(objRef);
+        retObjs.clear();
+
+        return retArray;
     }
     catch (...)
     {

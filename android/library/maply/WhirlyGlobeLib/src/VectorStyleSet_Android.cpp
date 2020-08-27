@@ -164,12 +164,12 @@ void VectorStyleSetWrapper_Android::buildObjects(PlatformThreadInfo *platformInf
     }
     jobject tileDataObj = MakeVectorTileDataObject(threadInfo->env,tileInfo);
     jobject vecObjArray = BuildObjectArray(threadInfo->env,VectorObjectClassInfo::getClassInfo()->getClass(),vecObjVec);
-
-    threadInfo->env->CallVoidMethod(wrapperObj,buildObjectsMethod,styleID,vecObjArray,tileDataObj);
-
     // Tear down our object wrappers
     for (auto vecObj: vecObjVec)
         threadInfo->env->DeleteLocalRef(vecObj);
+
+    threadInfo->env->CallVoidMethod(wrapperObj,buildObjectsMethod,styleID,vecObjArray,tileDataObj);
+
     threadInfo->env->DeleteLocalRef(tileDataObj);
     threadInfo->env->DeleteLocalRef(vecObjArray);
 }
