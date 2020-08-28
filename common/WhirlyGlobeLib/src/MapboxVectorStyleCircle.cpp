@@ -32,7 +32,7 @@ bool MapboxVectorCirclePaint::parse(PlatformThreadInfo *inst,
         return false;
     
     radius = styleSet->transDouble("circle-radius", styleEntry, 5.0);
-    fillColor = styleSet->colorValue("circle-color",NULL,styleEntry,RGBAColor::white(),false);
+    fillColor = styleSet->colorValue("circle-color",NULL,styleEntry,RGBAColor::black(),false);
     opacity = styleSet->transDouble("circle-opacity",styleEntry,1.0);
     strokeWidth = styleSet->transDouble("circle-stroke-width",styleEntry,0.0);
     strokeColor = styleSet->colorValue("circle-stroke-color",NULL,styleEntry,RGBAColor::black(),false);

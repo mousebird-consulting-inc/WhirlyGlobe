@@ -202,6 +202,8 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
         for (auto vecObj : vecObjs) {
             if (vecObj->getVectorType() == VectorLinearType) {
                 shapes.insert(vecObj->shapes.begin(),vecObj->shapes.end());
+            } else if (vecObj->getVectorType() == VectorArealType) {
+                shapes.insert(vecObj->shapes.begin(),vecObj->shapes.end());
             }
         }
         

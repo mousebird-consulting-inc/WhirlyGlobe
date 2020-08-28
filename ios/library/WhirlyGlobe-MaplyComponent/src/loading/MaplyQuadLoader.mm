@@ -335,6 +335,22 @@ using namespace WhirlyKit;
     });
 }
 
+// If we parsed the data, but need to drop it before it gets merged, we do it here
+// TODO: Not doing anything with the change list in loadReturn
+//       And this seems to have an ordering problem
+- (void)cleanupLoadedData:(MaplyLoaderReturn *)loadReturn
+{
+//    NSLog(@"MaplyQuadLoader: Cleaning orphaned data.");
+    MaplyRenderController *renderC = [_viewC getRenderControl];
+
+    SimpleIDSet compIDs;
+    for (auto comp: loadReturn->loadReturn->compObjs)
+        compIDs.insert(comp->getId());
+    for (auto comp: loadReturn->loadReturn->ovlCompObjs)
+        compIDs.insert(comp->getId());
+    [renderC removeObjectsByID:compIDs mode:MaplyThreadCurrent];
+}
+
 // Called on the SamplingLayer.LayerThread
 - (void)mergeFetchRequest:(MaplyLoaderReturn *)loadReturn
 {
@@ -373,14 +389,24 @@ using namespace WhirlyKit;
         dispatch_queue_t theQueue = _queue;
         if (!theQueue)
             theQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+
+        // Hold on to these till the task runs
+        NSObject<MaplyLoaderInterpreter> *theLoadInterp = self->loadInterp;
+        MaplyQuadSamplingLayer *samplingLayer = self->samplingLayer;
+
         dispatch_async(theQueue, ^{
             if (!self->valid || !self->_viewC)
                 return;
-            
             // No load interpreter means the fetcher created the objects.  Hopefully.
-            if (self->loadInterp)
-                [self->loadInterp dataForTile:loadReturn loader:self];
+            if (theLoadInterp)
+                [theLoadInterp dataForTile:loadReturn loader:self];
             
+            // Need to clean up the loader return objects
+            if ([samplingLayer.layerThread isCancelled]) {
+                [self cleanupLoadedData:loadReturn];
+                return;
+            }
+
             [self performSelector:@selector(mergeLoadedTile:) onThread:self->samplingLayer.layerThread withObject:loadReturn waitUntilDone:NO];
         });
     }
@@ -389,8 +415,10 @@ using namespace WhirlyKit;
 // Called on the SamplingLayer.LayerThread
 - (void)mergeLoadedTile:(MaplyLoaderReturn *)loadReturn
 {
-    if (!loader || !valid)
+    if (!loader || !valid) {
+        [self cleanupLoadedData:loadReturn];
         return;
+    }
     
     ChangeSet changes;
     if (!loadReturn->loadReturn->changes.empty()) {

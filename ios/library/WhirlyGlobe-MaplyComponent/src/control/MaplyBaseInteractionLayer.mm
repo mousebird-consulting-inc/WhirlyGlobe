@@ -3165,6 +3165,44 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     }
 }
 
+- (void)removeObjectByIDRun:(NSArray *)argArray
+{
+    if (isShuttingDown || (!layerThread && !offlineMode))
+        return;
+
+    NSArray *objIDs = argArray[0];
+    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:1] intValue];
+
+    SimpleIDSet idSet;
+    for (NSNumber *objID in objIDs)
+        idSet.insert([objID longLongValue]);
+    
+    ChangeSet changes;
+    compManager->removeComponentObjects(NULL, idSet, changes);
+    [self flushChanges:changes mode:threadMode];
+}
+
+- (void)removeObjectsByID:(const SimpleIDSet &)compObjIDs mode:(MaplyThreadMode)threadMode
+{
+    threadMode = [self resolveThreadMode:threadMode];
+
+    NSMutableArray *ids = [NSMutableArray array];
+    for (auto compObjID: compObjIDs)
+        [ids addObject:[NSNumber numberWithUnsignedLongLong:compObjID]];
+    
+    NSArray *argArray = @[ids, @(threadMode)];
+    
+    switch (threadMode)
+    {
+        case MaplyThreadCurrent:
+            [self removeObjectByIDRun:argArray];
+            break;
+        case MaplyThreadAny:
+            [self performSelector:@selector(removeObjectByIDRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+            break;
+    }
+}
+
 - (void)setUniformBlockRun:(NSArray *)argArray
 {
     if (isShuttingDown || (!layerThread && !offlineMode))
@@ -3280,7 +3318,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         case MaplyThreadAny:
             [self performSelector:@selector(enableObjectsRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
             break;
-    }    
+    }
 }
 
 // Disable objects

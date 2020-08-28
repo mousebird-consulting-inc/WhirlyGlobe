@@ -179,7 +179,7 @@ using namespace Eigen;
 }
 
 - (void)loadSetup
-{    
+{
     screenDrawPriorityOffset = 1000000;
     
     id<MTLDevice> mtlDevice = MTLCreateSystemDefaultDevice();
@@ -772,6 +772,16 @@ using namespace Eigen;
         return;
 
     [interactLayer removeObjects:[NSArray arrayWithArray:theObjs] mode:threadMode];
+
+    [self endOfWork];
+}
+
+- (void)removeObjectsByID:(const SimpleIDSet &)compObjIDs mode:(MaplyThreadMode)threadMode
+{
+    if (![self startOfWork])
+        return;
+
+    [interactLayer removeObjectsByID:compObjIDs mode:threadMode];
 
     [self endOfWork];
 }

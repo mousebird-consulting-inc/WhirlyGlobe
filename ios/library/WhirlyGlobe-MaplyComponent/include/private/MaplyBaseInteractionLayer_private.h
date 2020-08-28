@@ -139,6 +139,9 @@
 // Remove objects associated with the user objects
 - (void)removeObjects:(NSArray *__nonnull)userObjs changes:(WhirlyKit::ChangeSet &)changes;
 
+// Remove objects by ID
+- (void)removeObjectsByID:(const WhirlyKit::SimpleIDSet &)compObjIDs mode:(MaplyThreadMode)threadMode;
+
 // Enable objects
 - (void)enableObjects:(NSArray *__nonnull)userObjs mode:(MaplyThreadMode)threadMode;
 

@@ -128,4 +128,7 @@
 - (void)loadSetup_scene:(MaplyBaseInteractionLayer *)newInteractLayer;
 - (void)loadSetup_view:(WhirlyKit::ViewRef)view;
 
+// Version of remove objects that takes raw IDs
+- (void)removeObjectsByID:(const WhirlyKit::SimpleIDSet &)compObjIDs mode:(MaplyThreadMode)threadMode;
+
 @end
