@@ -26,6 +26,7 @@
 #import "TextureAtlas.h"
 #import "ScreenSpaceDrawableBuilder.h"
 #import "Scene.h"
+#import "BaseInfo.h"
 
 namespace WhirlyKit
 {
@@ -69,6 +70,9 @@ public:
         bool motion;
         bool rotation;
         bool keepUpright;
+        FloatExpressionInfoRef opacityExp;
+        ColorExpressionInfoRef colorExp;
+        FloatExpressionInfoRef scaleExp;
         SingleVertexAttributeInfoSet vertexAttrs;
     };
     
@@ -89,6 +93,12 @@ public:
     void setVisibility(float minVis,float maxVis);
     /// Set enable based on zoom
     void setZoomInfo(int zoomSlot,double minZoomVis,double maxZoomVis);
+    /// Set the opacity function if we have one
+    void setOpacityExp(FloatExpressionInfoRef opacityExp);
+    /// Set the color function if there is one
+    void setColorExp(ColorExpressionInfoRef colorExp);
+    /// Set the size function if there is one
+    void setScaleExp(FloatExpressionInfoRef sizeExp);
     /// Set the start enable
     void setEnable(bool enable);
     /// Set the enable time range
@@ -201,6 +211,9 @@ public:
     void setEnableTime(TimeInterval startEnable,TimeInterval endEnable);
     void setVisibility(float minVis,float maxVis);
     void setZoomInfo(int zoomSlot,double minZoomVis,double maxZoomVis);
+    void setOpacityExp(FloatExpressionInfoRef opacityExp);
+    void setColorExp(ColorExpressionInfoRef colorExp);
+    void setScaleExp(FloatExpressionInfoRef scaleExp);
     void setDrawPriority(int drawPriority);
     int getDrawPriority();
     void setKeepUpright(bool keepUpright);

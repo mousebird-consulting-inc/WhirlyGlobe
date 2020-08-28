@@ -71,6 +71,10 @@ public:
     float width,height;
     float layoutImportance;
     int clusterGroup;
+    
+    FloatExpressionInfoRef opacityExp;
+    ColorExpressionInfoRef colorExp;
+    FloatExpressionInfoRef scaleExp;
 };
 typedef std::shared_ptr<MarkerInfo> MarkerInfoRef;
 

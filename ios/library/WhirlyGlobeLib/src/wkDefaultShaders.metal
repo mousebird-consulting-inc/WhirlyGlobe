@@ -509,6 +509,7 @@ fragment float4 fragmentTri_wideVec(
 struct VertexTriSSArgBuffer {
     UniformDrawStateA uniDrawState      [[ id(WKSUniformDrawStateEntry) ]];
     UniformScreenSpace ss      [[ id(WKSUniformScreenSpaceEntry) ]];
+    UniformScreenSpaceExp ssExp [[ id(WKSUniformScreenSpaceEntryExp)]];
     bool hasTextures;
 };
 
@@ -520,6 +521,12 @@ vertex ProjVertexTriA vertexTri_screenSpace(
             constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriA outVert;
+    
+    float zoomScale = 1.0;
+    if (vertArgs.ss.hasExp) {
+        float zoom = ZoomFromSlot(uniforms, vertArgs.uniDrawState.zoomSlot);
+        zoomScale = ExpCalculateFloat(vertArgs.ssExp.scaleExp, zoom, zoom);
+    }
     
     float3 pos = (vertArgs.uniDrawState.singleMat * float4(vert.position,1.0)).xyz;
     if (vertArgs.ss.hasMotion)
@@ -553,7 +560,7 @@ vertex ProjVertexTriA vertexTri_screenSpace(
 //    } else
         screenOffset = vert.offset;
     
-    float2 scale(2.0/uniforms.frameSize.x,2.0/uniforms.frameSize.y);
+    float2 scale = float2(2.0/uniforms.frameSize.x,2.0/uniforms.frameSize.y) * zoomScale;
     outVert.position = (dotProd > 0.0 && pt.z <= 0.0) ? float4(screenPt.xy + float2(screenOffset.x*scale.x,screenOffset.y*scale.y),0.0,1.0) : float4(0.0,0.0,0.0,0.0);
     
     return outVert;

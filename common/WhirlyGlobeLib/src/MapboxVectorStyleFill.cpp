@@ -39,6 +39,12 @@ bool MapboxVectorFillPaint::parse(PlatformThreadInfo *inst,
     color = styleSet->transColor("fill-color",styleEntry,NULL);
     outlineColor = styleSet->transColor("fill-outline-color",styleEntry,NULL);
     
+    // We're also handling fill-extrusion as a hack
+    if (styleEntry && styleEntry->hasField("fill-extrusion-color"))
+        color = styleSet->transColor("fill-extrusion-color",styleEntry,NULL);
+    if (styleEntry && styleEntry->hasField("fill-extrusion-opacity"))
+        opacity = styleSet->transDouble("fill-extrusion-opacity",styleEntry,NULL);
+
     return true;
 }
 

@@ -80,21 +80,12 @@ BasicDrawable *WideVectorDrawableBuilderMTL::getDrawable()
     if (uniWV.hasExp) {
         WhirlyKitShader::UniformWideVecExp wideVecExp;
         memset(&wideVecExp, 0, sizeof(wideVecExp));
-        if (widthExp) {
-            wideVecExp.widthExp.type = WhirlyKitShader::ExpLinear;
-            wideVecExp.widthExp.numStops = std::min(std::min(widthExp->stopInputs.size(),widthExp->stopOutputs.size()),(size_t)WKSExpStops);
-            for (unsigned int ii=0;ii<wideVecExp.widthExp.numStops;ii++) {
-                wideVecExp.widthExp.base = 1.0;
-                wideVecExp.widthExp.stopInputs[ii] = widthExp->stopInputs[ii];
-                wideVecExp.widthExp.stopOutputs[ii] = widthExp->stopOutputs[ii];
-            }
-        }
-        if (opacityExp) {
-            
-        }
-        if (colorExp) {
-            
-        }
+        if (widthExp)
+            FloatExpressionToMtl(widthExp,wideVecExp.widthExp);
+        if (opacityExp)
+            FloatExpressionToMtl(opacityExp,wideVecExp.opacityExp);
+        if (colorExp)
+            ColorExpressionToMtl(colorExp,wideVecExp.colorExp);
         
         BasicDrawable::UniformBlock uniBlock;
         uniBlock.blockData = RawDataRef(new RawNSDataReader([[NSData alloc] initWithBytes:&wideVecExp length:sizeof(wideVecExp)]));

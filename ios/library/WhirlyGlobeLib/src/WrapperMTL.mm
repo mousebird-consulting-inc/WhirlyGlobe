@@ -342,4 +342,49 @@ RenderSetupInfoMTL::RenderSetupInfoMTL(id<MTLDevice> mtlDevice,id<MTLLibrary> mt
     memAlign = [mtlDevice heapBufferSizeAndAlignWithLength:1 options:MTLResourceUsageRead].align;
 }
     
+void FloatExpressionToMtl(FloatExpressionInfoRef expInfo,WhirlyKitShader::FloatExp &mtlExp)
+{
+    switch (expInfo->type) {
+        case ExpressionNone:
+            mtlExp.type = WhirlyKitShader::ExpNone;
+            break;
+        case ExpressionLinear:
+            mtlExp.type = WhirlyKitShader::ExpLinear;
+            break;
+        case ExpressionExponential:
+            mtlExp.type = WhirlyKitShader::ExpExponential;
+            break;
+    }
+    mtlExp.numStops = std::min(std::min(expInfo->stopInputs.size(),expInfo->stopOutputs.size()),(size_t)WKSExpStops);
+    for (unsigned int ii=0;ii<mtlExp.numStops;ii++) {
+        mtlExp.base = 1.0;
+        mtlExp.stopInputs[ii] = expInfo->stopInputs[ii];
+        mtlExp.stopOutputs[ii] = expInfo->stopOutputs[ii];
+    }
+}
+
+void ColorExpressionToMtl(ColorExpressionInfoRef expInfo,WhirlyKitShader::ColorExp &mtlExp)
+{
+    switch (expInfo->type) {
+        case ExpressionNone:
+            mtlExp.type = WhirlyKitShader::ExpNone;
+            break;
+        case ExpressionLinear:
+            mtlExp.type = WhirlyKitShader::ExpLinear;
+            break;
+        case ExpressionExponential:
+            mtlExp.type = WhirlyKitShader::ExpExponential;
+            break;
+    }
+    mtlExp.numStops = std::min(std::min(expInfo->stopInputs.size(),expInfo->stopOutputs.size()),(size_t)WKSExpStops);
+    for (unsigned int ii=0;ii<mtlExp.numStops;ii++) {
+        mtlExp.base = 1.0;
+        mtlExp.stopInputs[ii] = expInfo->stopInputs[ii];
+        float vals[4];
+        expInfo->stopOutputs[ii].asUnitFloats(vals);
+        for (unsigned int jj=0;jj<4;jj++)
+            mtlExp.stopOutputs[ii][jj] = vals[jj];
+    }
+}
+
 }

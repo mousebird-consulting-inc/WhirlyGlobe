@@ -21,6 +21,8 @@
 #import <Metal/Metal.h>
 #import <MetalKit/MetalKit.h>
 #import "ChangeRequest.h"
+#import "baseInfo.h"
+#import "DefaultShadersMTL.h"
 
 namespace WhirlyKit
 {
@@ -169,5 +171,10 @@ public:
     BufferEntryMTLRef lightingBuff;    
 };
 
-    
+/// Convert  a float expression into its Metal version
+void FloatExpressionToMtl(FloatExpressionInfoRef srcInfo,WhirlyKitShader::FloatExp &destExp);
+
+/// Convert a color expression into its Metal version
+void ColorExpressionToMtl(ColorExpressionInfoRef srcInfo,WhirlyKitShader::ColorExp &destExp);
+
 }

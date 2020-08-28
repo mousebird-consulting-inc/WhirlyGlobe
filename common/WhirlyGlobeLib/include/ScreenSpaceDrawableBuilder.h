@@ -20,6 +20,7 @@
 
 #import "BasicDrawableBuilder.h"
 #import "SceneRenderer.h"
+#import "BaseInfo.h"
 
 namespace WhirlyKit
 {
@@ -67,6 +68,15 @@ public:
     void addRot(const Point3f &dir);
     void addRot(const Point3d &dir);
     
+    // Apply a scale expression
+    void setScaleExpression(FloatExpressionInfoRef scale);
+    
+    // Apply a dynamic color expression
+    void setColorExpression(ColorExpressionInfoRef colorExp);
+    
+    // Apply a dynamic opacity expression
+    void setOpacityExpression(FloatExpressionInfoRef opacityExp);
+    
     // Tweaker runs before we draw and we need different versions for the renderers
     virtual ScreenSpaceTweaker *makeTweaker() = 0;
     
@@ -79,6 +89,9 @@ protected:
     int dirIndex;
     int rotIndex;
     TimeInterval startTime;
+    FloatExpressionInfoRef scaleExp;
+    FloatExpressionInfoRef opacityExp;
+    ColorExpressionInfoRef colorExp;
 };
     
 }

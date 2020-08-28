@@ -275,11 +275,12 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
     
     // Sort out the image for the marker if we're doing that
     MarkerInfo markerInfo(true);
+    markerInfo.zoomSlot = styleSet->zoomSlot;
     if (minzoom != 0 || maxzoom < 1000) {
-        markerInfo.zoomSlot = styleSet->zoomSlot;
         markerInfo.minZoomVis = minzoom;
         markerInfo.maxZoomVis = maxzoom;
     }
+    markerInfo.scaleExp = layout.iconSize->expression();
     bool iconInclude = layout.iconImageField.valid && styleSet->sprites;
     if (iconInclude) {
         markerInfo.programID = styleSet->screenMarkerProgramID;

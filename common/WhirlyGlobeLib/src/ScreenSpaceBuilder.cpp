@@ -71,6 +71,18 @@ bool ScreenSpaceBuilder::DrawableState::operator < (const DrawableState &that) c
         return keepUpright < that.keepUpright;
     if (vertexAttrs != that.vertexAttrs)
         return vertexAttrs < that.vertexAttrs;
+    SimpleIdentity opacityExp0 = opacityExp ? opacityExp->getId() : EmptyIdentity,
+                    opacityExp1 = that.opacityExp ? that.opacityExp->getId() : EmptyIdentity;
+    if (opacityExp0 != opacityExp1)
+        return opacityExp0 < opacityExp1;
+    SimpleIdentity colorExp0 = colorExp ? colorExp->getId() : EmptyIdentity,
+                    colorExp1 = that.colorExp ? that.colorExp->getId() : EmptyIdentity;
+    if (colorExp0 != colorExp1)
+        return colorExp0 < colorExp1;
+    SimpleIdentity scaleExp0 = scaleExp ? scaleExp->getId() : EmptyIdentity,
+                    scaleExp1 = that.scaleExp ? that.scaleExp->getId() : EmptyIdentity;
+    if (scaleExp0 != scaleExp1)
+        return scaleExp0 < scaleExp1;
     
     return false;
 }
@@ -93,6 +105,10 @@ ScreenSpaceBuilder::DrawableWrap::DrawableWrap(SceneRenderer *render,const Drawa
     locDraw->setFade(state.fadeDown, state.fadeUp);
     locDraw->setVisibleRange(state.minVis, state.maxVis);
     locDraw->setZoomInfo(state.zoomSlot, state.minZoomVis, state.maxZoomVis);
+    locDraw->setOpacityExpression(state.opacityExp);
+    locDraw->setColorExpression(state.colorExp);
+    locDraw->setScaleExpression(state.scaleExp);
+    // TODO: Set the opacity/color/scale from the drawable state
     locDraw->setRequestZBuffer(false);
     locDraw->setWriteZBuffer(false);
     locDraw->setVertexAttributes(state.vertexAttrs);
@@ -208,6 +224,21 @@ void ScreenSpaceBuilder::setZoomInfo(int zoomSlot,double minZoomVis,double maxZo
     curState.zoomSlot = zoomSlot;
     curState.minZoomVis = minZoomVis;
     curState.maxZoomVis = maxZoomVis;
+}
+
+void ScreenSpaceBuilder::setOpacityExp(FloatExpressionInfoRef opacityExp)
+{
+    curState.opacityExp = opacityExp;
+}
+
+void ScreenSpaceBuilder::setColorExp(ColorExpressionInfoRef colorExp)
+{
+    curState.colorExp = colorExp;
+}
+
+void ScreenSpaceBuilder::setScaleExp(FloatExpressionInfoRef scaleExp)
+{
+    curState.scaleExp = scaleExp;
 }
 
 void ScreenSpaceBuilder::setEnable(bool inEnable)
@@ -445,6 +476,21 @@ void ScreenSpaceObject::setZoomInfo(int zoomSlot,double minZoomVis,double maxZoo
     state.zoomSlot = zoomSlot;
     state.minZoomVis = minZoomVis;
     state.maxZoomVis = maxZoomVis;
+}
+
+void ScreenSpaceObject::setOpacityExp(FloatExpressionInfoRef opacityExp)
+{
+    state.opacityExp = opacityExp;
+}
+
+void ScreenSpaceObject::setColorExp(ColorExpressionInfoRef colorExp)
+{
+    state.colorExp = colorExp;
+}
+
+void ScreenSpaceObject::setScaleExp(FloatExpressionInfoRef scaleExp)
+{
+    state.scaleExp = scaleExp;
 }
 
 void ScreenSpaceObject::setDrawPriority(int drawPriority)

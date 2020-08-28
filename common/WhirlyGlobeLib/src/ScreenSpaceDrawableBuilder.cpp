@@ -83,6 +83,21 @@ void ScreenSpaceDrawableBuilder::addRot(const Point3f &rotDir)
 {
     addAttributeValue(rotIndex, rotDir);
 }
+
+void ScreenSpaceDrawableBuilder::setScaleExpression(FloatExpressionInfoRef inScaleExp)
+{
+    scaleExp = inScaleExp;
+}
+
+void ScreenSpaceDrawableBuilder::setColorExpression(ColorExpressionInfoRef inColorExp)
+{
+    colorExp = inColorExp;
+}
+
+void ScreenSpaceDrawableBuilder::setOpacityExpression(FloatExpressionInfoRef inOpacityExp)
+{
+    opacityExp = inOpacityExp;
+}
     
 void ScreenSpaceDrawableBuilder::setupTweaker(BasicDrawable *theDraw)
 {

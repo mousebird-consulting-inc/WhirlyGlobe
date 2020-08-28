@@ -126,6 +126,7 @@ typedef enum {
     WKSUniformWideVecEntry = 100,
     WKSUniformWideVecEntryExp = 110,
     WKSUniformScreenSpaceEntry = 200,
+    WKSUniformScreenSpaceEntryExp = 210,
     WKSUniformModelInstanceEntry = 300,
     WKSUniformBillboardEntry = 400
 } WKSArgBufferEntries;
@@ -227,6 +228,14 @@ struct UniformScreenSpace {
     bool keepUpright;
     bool activeRot;
     bool hasMotion;            // For objects that can move, check this
+    bool hasExp;      // Look for a UniformScreenSpaceExp structure for color, opacity, and scale
+};
+
+// For variable width (and color, etc) lines we'll
+struct UniformScreenSpaceExp {
+    FloatExp scaleExp;
+    FloatExp opacityExp;
+    ColorExp colorExp;
 };
     
 // Instructions to the model instance shaders, per-drawable

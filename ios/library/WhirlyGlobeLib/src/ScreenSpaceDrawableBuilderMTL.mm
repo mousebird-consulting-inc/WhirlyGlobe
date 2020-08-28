@@ -69,12 +69,29 @@ BasicDrawable *ScreenSpaceDrawableBuilderMTL::getDrawable()
         uniSS.startTime = 0.0;
     uniSS.activeRot = rotation;
     uniSS.hasMotion = motion;
+    uniSS.hasExp = opacityExp || colorExp || scaleExp;
     
     BasicDrawable::UniformBlock uniBlock;
     uniBlock.blockData = RawDataRef(new RawNSDataReader([[NSData alloc] initWithBytes:&uniSS length:sizeof(uniSS)]));
     uniBlock.bufferID = WhirlyKitShader::WKSUniformScreenSpaceEntry;
     theDraw->setUniBlock(uniBlock);
 
+    // Expression uniforms, if present
+    if (uniSS.hasExp) {
+        WhirlyKitShader::UniformScreenSpaceExp ssExp;
+        memset(&ssExp, 0, sizeof(ssExp));
+        if (scaleExp)
+            FloatExpressionToMtl(scaleExp,ssExp.scaleExp);
+        if (opacityExp)
+            FloatExpressionToMtl(opacityExp,ssExp.opacityExp);
+        if (colorExp)
+            ColorExpressionToMtl(colorExp,ssExp.colorExp);
+
+        BasicDrawable::UniformBlock uniBlock;
+        uniBlock.blockData = RawDataRef(new RawNSDataReader([[NSData alloc] initWithBytes:&ssExp length:sizeof(ssExp)]));
+        uniBlock.bufferID = WhirlyKitShader::WKSUniformScreenSpaceEntryExp;
+        basicDraw->setUniBlock(uniBlock);
+    }
     
     return theDraw;
 }

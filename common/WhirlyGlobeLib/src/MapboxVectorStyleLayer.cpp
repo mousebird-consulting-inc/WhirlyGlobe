@@ -59,6 +59,9 @@ MapboxVectorStyleLayerRef MapboxVectorStyleLayer::VectorStyleLayer(PlatformThrea
     
     if (type == "fill") {
         layer = MapboxVectorStyleLayerRef(new MapboxVectorLayerFill(styleSet));
+    } else if (type == "fill-extrusion") {
+        wkLogLevel(Warn, "Treating fill-extrusion layer as fill");
+        layer = MapboxVectorStyleLayerRef(new MapboxVectorLayerFill(styleSet));
     } else if (type == "line") {
         layer = MapboxVectorStyleLayerRef(new MapboxVectorLayerLine(styleSet));
     } else if (type == "symbol") {
