@@ -50,6 +50,9 @@ public:
 
     NSObject<MaplyRenderControllerProtocol> * __weak viewC;
     
+    /// Parse the style set
+    virtual bool parse(PlatformThreadInfo *inst,DictionaryRef dict) override;
+    
     /// Local platform implementation for generating a circle and adding it as a texture
     virtual SimpleIdentity makeCircleTexture(PlatformThreadInfo *inst,
                                              double radius,
@@ -74,6 +77,9 @@ public:
         
     /// Return the width of the given line of text
     double calculateTextWidth(PlatformThreadInfo *threadInfo,LabelInfoRef labelInfo,const std::string &testStr) override;
+    
+    /// Add a sprite sheet
+    void addSprites(MapboxVectorStyleSpritesRef newSprites,MaplyTexture *tex);
     
     // Textures we're holding on to (so they don't get released)
     std::vector<MaplyTexture *> textures;

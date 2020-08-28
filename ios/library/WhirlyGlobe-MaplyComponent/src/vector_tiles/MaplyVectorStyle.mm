@@ -347,6 +347,15 @@ MapboxVectorStyleSetImpl_iOS::~MapboxVectorStyleSetImpl_iOS()
 {
 }
 
+bool MapboxVectorStyleSetImpl_iOS::parse(PlatformThreadInfo *inst,DictionaryRef dict)
+{
+    // Release the textures we're standing on
+    textures.clear();
+    
+    return MapboxVectorStyleSetImpl::parse(inst,dict);
+}
+
+
 SimpleIdentity MapboxVectorStyleSetImpl_iOS::makeCircleTexture(PlatformThreadInfo *inst,
                                                                double inRadius,
                                                                const RGBAColor &fillColor,
@@ -389,6 +398,7 @@ SimpleIdentity MapboxVectorStyleSetImpl_iOS::makeCircleTexture(PlatformThreadInf
     
     MaplyTexture *tex = [viewC addTexture:image desc:nil mode:MaplyThreadCurrent];
     textures.push_back(tex);
+    
     return tex.texID;
 }
 
@@ -449,7 +459,7 @@ LabelInfoRef MapboxVectorStyleSetImpl_iOS::makeLabelInfo(PlatformThreadInfo *ins
                     
                     // Okay, let's try a slightly different construction
                     if (!font) {
-                        font = [UIFont fontWithName:[NSString stringWithFormat:@"%@-%@%@",[components objectAtIndex:0],[components objectAtIndex:1]] size:fontSize];
+                        font = [UIFont fontWithName:[NSString stringWithFormat:@"%@-%@%@",[components objectAtIndex:0],[components objectAtIndex:2],[components objectAtIndex:1]] size:fontSize];
                     }
                 }
                     break;
@@ -519,6 +529,12 @@ double MapboxVectorStyleSetImpl_iOS::calculateTextWidth(PlatformThreadInfo *inst
     CGSize size = [testAttrStr size];
     
     return size.width;
+}
+
+void MapboxVectorStyleSetImpl_iOS::addSprites(MapboxVectorStyleSpritesRef newSprites,MaplyTexture *tex)
+{
+    textures.push_back(tex);
+    MapboxVectorStyleSetImpl::addSprites(newSprites);
 }
 
 VectorStyleDelegateWrapper::VectorStyleDelegateWrapper(NSObject<MaplyRenderControllerProtocol> *viewC,NSObject<MaplyVectorStyleDelegate> *delegate)

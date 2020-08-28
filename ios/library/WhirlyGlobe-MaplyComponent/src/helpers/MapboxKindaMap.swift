@@ -59,7 +59,7 @@ public class MapboxKindaMap {
     public var minImportance = 1024.0 * 1024.0
     
     // If we're doing offline rendering for the map tiles, this is the size
-    public var offlineRenderSize = (width: 1024.0, height: 1024.0)
+    public var offlineRenderSize = (width: 512.0, height: 512.0)
     
     // If set, we'll fetch and use the sources from the style sheet
     // If not set, the sources have to be provided externally

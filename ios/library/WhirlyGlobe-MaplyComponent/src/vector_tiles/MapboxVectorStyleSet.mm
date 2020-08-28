@@ -78,10 +78,6 @@ using namespace WhirlyKit;
           settings:(MaplyVectorStyleSettings *)settings
              viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
-    self = [super init];
-    if (!self)
-        return nil;
-        
     NSError *error = nil;
     NSDictionary *styleDict = [NSJSONSerialization JSONObjectWithData:styleJSON options:NULL error:&error];
     if (!styleDict)
@@ -90,16 +86,24 @@ using namespace WhirlyKit;
     return [self initWithDict:styleDict settings:settings viewC:viewC];
 }
 
+- (void)dealloc
+{
+    
+}
+
 - (bool)addSprites:(NSDictionary * __nonnull)spriteDict image:(UIImage * __nonnull)image
 {
+    // Make sure this wasn't alreayd added
+    if (spriteImage)
+        return true;
+    
     spriteImage = image;
     MaplyTexture *wholeTex = [_viewC addTexture:image desc:nil mode:MaplyThreadCurrent];
-    style->textures.push_back(wholeTex);
     
     MapboxVectorStyleSpritesRef newSprites(new MapboxVectorStyleSprites(wholeTex.texID,(int)image.size.width,(int)image.size.height));
     iosDictionaryRef dictWrap(new iosDictionary(spriteDict));
     if (newSprites->parse(style, dictWrap)) {
-        style->sprites = newSprites;
+        style->addSprites(newSprites,wholeTex);
     } else {
         return false;
     }

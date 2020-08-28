@@ -146,8 +146,8 @@ public:
     virtual ~MapboxVectorStyleSetImpl();
     
     // Parse the entire style sheet.  False on failure
-    bool parse(PlatformThreadInfo *inst,DictionaryRef dict);
-        
+    virtual bool parse(PlatformThreadInfo *inst,DictionaryRef dict);
+
     /// @brief Default settings and scale factor for Mapnik vector geometry.
     VectorStyleSettingsImplRef tileStyleSettings;
 
@@ -248,6 +248,9 @@ public:
 
     /// Return the width of the given line of text
     virtual double calculateTextWidth(PlatformThreadInfo *inInst,LabelInfoRef labelInfo,const std::string &testStr) = 0;
+    
+    /// Add a sprite sheet for use by the layers
+    virtual void addSprites(MapboxVectorStyleSpritesRef newSprites);
     
     /// Create a local platform component object
     virtual ComponentObjectRef makeComponentObject(PlatformThreadInfo *inst) = 0;

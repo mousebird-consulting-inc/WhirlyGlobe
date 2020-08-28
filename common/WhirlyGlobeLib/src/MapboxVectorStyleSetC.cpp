@@ -773,4 +773,9 @@ std::vector<VectorStyleImplRef> MapboxVectorStyleSetImpl::allStyles(PlatformThre
     return styles;
 }
 
+void MapboxVectorStyleSetImpl::addSprites(MapboxVectorStyleSpritesRef newSprites)
+{
+    sprites = newSprites;
+}
+
 }
