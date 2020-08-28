@@ -460,6 +460,7 @@ vertex ProjVertexTriWideVec vertexTri_wideVec(
         float zoom = ZoomFromSlot(uniforms, vertArgs.uniDrawState.zoomSlot);
         w2 = ExpCalculateFloat(vertArgs.wideVecExp.widthExp, zoom, w2)/2.0;
     }
+    w2 = w2 + vertArgs.wideVec.edge;
 
     outVert.color = vertArgs.wideVec.color * calculateFade(uniforms,vertArgs.uniDrawState);
     
@@ -496,11 +497,12 @@ fragment float4 fragmentTri_wideVec(
         patternVal = texArgs.tex[0].sample(sampler2d, float2(0.5,vert.texCoord.y)).r;
     }
     float alpha = 1.0;
-    float across = vert.texCoord.x * vert.w2;
+    float across = vert.w2 * vert.texCoord.x;
     if (across < fragArgs.wideVec.edge)
         alpha = across/fragArgs.wideVec.edge;
     if (across > vert.w2-fragArgs.wideVec.edge)
         alpha = (vert.w2-across)/fragArgs.wideVec.edge;
+    
     return vert.dotProd > 0.0 ? fragArgs.wideVec.color * alpha * patternVal : float4(0.0);
 }
 
