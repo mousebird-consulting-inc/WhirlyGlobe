@@ -37,6 +37,35 @@ typedef std::shared_ptr<MapboxVectorStyleLayer> MapboxVectorStyleLayerRef;
 class MapboxVectorStyleSetImpl;
 typedef std::shared_ptr<MapboxVectorStyleSetImpl> MapboxVectorStyleSetImplRef;
 
+// Used to track text data
+class MapboxTextChunk {
+public:
+    // Set if this is a simple string
+    std::string str;
+
+    // Possible key names in the data. Tried in this order.
+    // Not set if this is a simple string
+    std::vector<std::string> keys;
+};
+
+// Encapsulates a regular expression field.  Could be a string, could be more complex
+class MapboxRegexField {
+public:
+    MapboxRegexField() : valid(false) { }
+
+    // Simpler version that just takes the text string
+    bool parse(const std::string &textVal);
+    // Parse the regex text field out of a field name string
+    bool parse(const std::string &fieldName,MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry);
+    
+    // Build the field based on the attributes
+    std::string build(DictionaryRef attrs);
+    
+    std::vector<MapboxTextChunk> chunks;
+    
+    bool valid;
+};
+
 // One value correlated with a zoom level
 class MaplyVectorFunctionStop
 {
@@ -51,19 +80,25 @@ public:
 
     /// @brief Could also just be a color
     RGBAColorRef color;
+    
+    /// Might be a string (reg-ex function thing)
+    MapboxRegexField textField;
 };
 
 // Collection of function stops
 class MaplyVectorFunctionStops
 {
 public:
-    bool parse(DictionaryRef entry,MapboxVectorStyleSetImpl *styleSet);
+    bool parse(DictionaryRef entry,MapboxVectorStyleSetImpl *styleSet,bool isText);
 
     /// @brief Calculate a value given the zoom level
     double valueForZoom(double zoom);
 
     /// @brief This version returns colors, assuming we're dealing with colors
-    RGBAColorRef colorForZoom(int zoom);
+    RGBAColorRef colorForZoom(double zoom);
+    
+    /// Return the text for a given zoom level
+    MapboxRegexField textForZoom(double zoom);
 
     /// @brief Returns the minimum value
     double minValue();
@@ -130,6 +165,23 @@ protected:
 };
 typedef std::shared_ptr<MapboxTransColor> MapboxTransColorRef;
 
+// Transitional text
+// Picks a text value at a particular level
+class MapboxTransText
+{
+public:
+    MapboxTransText(const std::string &text);
+    MapboxTransText(MaplyVectorFunctionStopsRef stops);
+    
+    // Return text for the given zoom level
+    MapboxRegexField textForZoom(double zoom);
+    
+protected:
+    MapboxRegexField textField;
+    MaplyVectorFunctionStopsRef stops;
+};
+typedef std::shared_ptr<MapboxTransText> MapboxTransTextRef;
+
 // Used for combining color and opacity
 typedef enum {
     MBResolveColorOpacityReplaceAlpha,
@@ -185,6 +237,9 @@ public:
     /// Builds a transitionable color object and returns that
     MapboxTransColorRef transColor(const std::string &name,DictionaryRef entry,const RGBAColor *);
     MapboxTransColorRef transColor(const std::string &name,DictionaryRef entry,const RGBAColor &);
+    
+    /// Builds a transitional text object
+    MapboxTransTextRef transText(const std::string &name,DictionaryRef entry,const std::string &str);
 
     /// Resolve transitionable color and opacity into a single color for the zoom
     /// If this returns nil, then the object shouldn't appear

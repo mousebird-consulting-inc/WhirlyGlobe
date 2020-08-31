@@ -315,8 +315,10 @@ using namespace WhirlyKit;
         } else {
             auto layerSymbol = std::dynamic_pointer_cast<MapboxVectorLayerSymbol>(layer);
             if (layerSymbol) {
-                if (!layerSymbol->layout.iconImageField.chunks.empty()) {
-                    image = [self imageForSymbol:layerSymbol->layout.iconImageField.chunks[0].str size:imageSize];
+                if (layerSymbol->layout.iconImageField) {
+                    MapboxRegexField textField = layerSymbol->layout.iconImageField->textForZoom(0.0);
+                    if (!textField.chunks.empty())
+                        image = [self imageForSymbol:textField.chunks[0].str size:imageSize];
                 } else if (layerSymbol->paint.textColor) {
                     image = [self imageForText:[UIColor colorFromRGBA:layerSymbol->paint.textColor->colorForZoom(0.0)] size:imageSize];
                 }

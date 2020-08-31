@@ -55,40 +55,13 @@ public:
     bool textJustifySet;
     TextJustify textJustify;
     
-    // Used to track text data
-    class TextChunk {
-    public:
-        // Set if this is a simple string
-        std::string str;
-
-        // Possible key names in the data. Tried in this order.
-        // Not set if this is a simple string
-        std::vector<std::string> keys;
-    };
-
     float layoutImportance;
-    
-    // Encapsulates a regular expression field.  Could be a string, could be more complex
-    class RegexField {
-    public:
-        RegexField() : valid(false) { }
         
-        // Parse the regex text field out of a field name string
-        bool parse(const std::string &fieldName,MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry);
-        
-        // Build the field based on the attributes
-        std::string build(DictionaryRef attrs);
-        
-        std::vector<TextChunk> chunks;
-        
-        bool valid;
-    };
-    
     // Text can be expressed in a complex way
-    RegexField textField;
+    MapboxRegexField textField;
 
     // Name of icon, if present, can be expressed the same way as text
-    RegexField iconImageField;
+    MapboxTransTextRef iconImageField;
 
     // Scale of the icon based on its original size
     MapboxTransDoubleRef iconSize;

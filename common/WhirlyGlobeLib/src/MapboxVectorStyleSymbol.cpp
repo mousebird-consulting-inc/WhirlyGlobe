@@ -31,64 +31,6 @@ static const char *placementVals[] = {"point","line",NULL};
 static const char *transformVals[] = {"none","uppercase","lowercase",NULL};
 static const char *anchorVals[] = {"center","left","right","top","bottom","top-left","top-right","bottom-left","bottom-right",NULL};
 
-bool MapboxVectorSymbolLayout::RegexField::parse(const std::string &fieldName,
-                                                 MapboxVectorStyleSetImpl *styleSet,
-                                                 DictionaryRef styleEntry)
-{
-    std::string textField = styleSet->stringValue(fieldName, styleEntry, "");
-    if (!textField.empty()) {
-        // Parse out the {} groups in the text
-        // TODO: We're missing a boatload of stuff in the spec
-        std::regex regex{R"([{}]+)"};
-        std::sregex_token_iterator it{textField.begin(), textField.end(), regex, -1};
-        std::vector<std::string> regexChunks{it, {}};
-        bool isJustText = textField[0] != '{';
-        for (auto regexChunk : regexChunks) {
-            if (regexChunk.empty())
-                continue;
-            MapboxVectorSymbolLayout::TextChunk textChunk;
-            if (isJustText) {
-                textChunk.str = regexChunk;
-            } else {
-                textChunk.keys.push_back(regexChunk);
-                // For some reason name:en is sometimes name_en
-                std::string textVariant = regexChunk;
-                textVariant = std::regex_replace(textVariant, std::regex(":"), "_");
-                textChunk.keys.push_back(textVariant);
-            }
-            chunks.push_back(textChunk);
-            isJustText = !isJustText;
-        }
-
-        valid = true;
-    }
-    
-    return true;
-}
-
-std::string MapboxVectorSymbolLayout::RegexField::build(DictionaryRef attrs)
-{
-    std::string text = "";
-    
-    for (auto chunk : chunks) {
-        if (!chunk.str.empty())
-            text += chunk.str;
-        else {
-            for (auto key : chunk.keys) {
-                if (attrs->hasField(key)) {
-                    std::string keyVal = attrs->getString(key);
-                    if (!keyVal.empty()) {
-                        text += keyVal;
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    return text;
-}
-
 static const char *justifyVals[] = {"center","left","right",NULL};
 
 bool MapboxVectorSymbolLayout::parse(PlatformThreadInfo *inst,
@@ -128,7 +70,7 @@ bool MapboxVectorSymbolLayout::parse(PlatformThreadInfo *inst,
     textJustifySet = (styleEntry && styleEntry->getEntry("text-justify"));
     textJustify = styleEntry ? (TextJustify)styleSet->enumValue(styleEntry->getEntry("text-justify"), justifyVals, WhirlyKitTextCenter) : WhirlyKitTextCenter;
     
-    iconImageField.parse("icon-image",styleSet,styleEntry);
+    iconImageField = styleSet->transText("icon-image", styleEntry, "");
     iconSize = styleSet->transDouble("icon-size", styleEntry, 1.0);
     
     return true;
@@ -349,7 +291,7 @@ Marker *MapboxVectorLayerSymbol::setupMarker(PlatformThreadInfo *inst,
                                              VectorTileDataRef tileInfo)
 {
     // The symbol name might get tricky
-    std::string symbolName = layout.iconImageField.build(attrs);
+    std::string symbolName = layout.iconImageField->textForZoom(tileInfo->ident.level).build(attrs);
                                 
     Point2d markerSize;
     auto subTex = styleSet->sprites->getTexture(symbolName,markerSize);
@@ -359,7 +301,7 @@ Marker *MapboxVectorLayerSymbol::setupMarker(PlatformThreadInfo *inst,
         wkLogLevel(Warn, "MapboxVectorLayerSymbol: Failed to find symbol %s",symbolName.c_str());
         {
             // Run it again for debugging
-            std::string symbolName = layout.iconImageField.build(attrs);
+            std::string symbolName = layout.iconImageField->textForZoom(tileInfo->ident.level).build(attrs);
         }
 #endif
         return NULL;
@@ -454,7 +396,7 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
         markerInfo.maxZoomVis = maxzoom;
     }
     markerInfo.scaleExp = layout.iconSize->expression();
-    bool iconInclude = layout.iconImageField.valid && styleSet->sprites;
+    bool iconInclude = layout.iconImageField && styleSet->sprites;
     if (iconInclude) {
         markerInfo.programID = styleSet->screenMarkerProgramID;
         markerInfo.drawPriority = labelInfo->drawPriority;

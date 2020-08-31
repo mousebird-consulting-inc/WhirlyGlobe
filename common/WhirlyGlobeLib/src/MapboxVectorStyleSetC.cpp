@@ -28,12 +28,76 @@
 namespace WhirlyKit
 {
 
+bool MapboxRegexField::parse(const std::string &textField)
+{
+    // Parse out the {} groups in the text
+    // TODO: We're missing a boatload of stuff in the spec
+    std::regex regex{R"([{}]+)"};
+    std::sregex_token_iterator it{textField.begin(), textField.end(), regex, -1};
+    std::vector<std::string> regexChunks{it, {}};
+    bool isJustText = textField[0] != '{';
+    for (auto regexChunk : regexChunks) {
+        if (regexChunk.empty())
+            continue;
+        MapboxTextChunk textChunk;
+        if (isJustText) {
+            textChunk.str = regexChunk;
+        } else {
+            textChunk.keys.push_back(regexChunk);
+            // For some reason name:en is sometimes name_en
+            std::string textVariant = regexChunk;
+            textVariant = std::regex_replace(textVariant, std::regex(":"), "_");
+            textChunk.keys.push_back(textVariant);
+        }
+        chunks.push_back(textChunk);
+        isJustText = !isJustText;
+    }
+
+    valid = true;
+    
+    return true;
+}
+
+bool MapboxRegexField::parse(const std::string &fieldName,
+                                                 MapboxVectorStyleSetImpl *styleSet,
+                                                 DictionaryRef styleEntry)
+{
+    std::string textField = styleSet->stringValue(fieldName, styleEntry, "");
+    if (!textField.empty())
+        parse(textField);
+    
+    return true;
+}
+
+std::string MapboxRegexField::build(DictionaryRef attrs)
+{
+    std::string text = "";
+    
+    for (auto chunk : chunks) {
+        if (!chunk.str.empty())
+            text += chunk.str;
+        else {
+            for (auto key : chunk.keys) {
+                if (attrs->hasField(key)) {
+                    std::string keyVal = attrs->getString(key);
+                    if (!keyVal.empty()) {
+                        text += keyVal;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    return text;
+}
+
 MaplyVectorFunctionStop::MaplyVectorFunctionStop()
 : zoom(-1.0), val(0.0)
 {
 }
 
-bool MaplyVectorFunctionStops::parse(DictionaryRef entry,MapboxVectorStyleSetImpl *styleSet)
+bool MaplyVectorFunctionStops::parse(DictionaryRef entry,MapboxVectorStyleSetImpl *styleSet,bool isText)
 {
     base = entry->getDouble("base",1.0);
     
@@ -59,7 +123,10 @@ bool MaplyVectorFunctionStops::parse(DictionaryRef entry,MapboxVectorStyleSetImp
                 switch (stopEntries[1]->getType())
                 {
                     case DictTypeString:
-                        fStop.color = styleSet->colorValue("", stopEntries[1], NULL, NULL, false);
+                        if (isText)
+                            fStop.textField.parse(stopEntries[1]->getString());
+                        else
+                            fStop.color = styleSet->colorValue("", stopEntries[1], NULL, NULL, false);
                         break;
                     case DictTypeObject:
                         fStop.color = RGBAColorRef(new RGBAColor(stopEntries[1]->getColor()));
@@ -106,7 +173,7 @@ double MaplyVectorFunctionStops::valueForZoom(double zoom)
     return b->val;
 }
 
-RGBAColorRef MaplyVectorFunctionStops::colorForZoom(int zoom)
+RGBAColorRef MaplyVectorFunctionStops::colorForZoom(double zoom)
 {
     MaplyVectorFunctionStop *a = &stops[0],*b = NULL;
     if (zoom <= a->zoom)
@@ -135,6 +202,22 @@ RGBAColorRef MaplyVectorFunctionStops::colorForZoom(int zoom)
     }
 
     return b->color;
+}
+
+MapboxRegexField MaplyVectorFunctionStops::textForZoom(double zoom)
+{
+    MaplyVectorFunctionStop *a = &stops[0],*b = NULL;
+    if (zoom <= a->zoom)
+        return a->textField;
+    for (int which = 1;which < stops.size(); which++)
+    {
+        b = &stops[which];
+        if (a->zoom <= zoom && zoom < b->zoom)
+            return a->textField;
+        a = b;
+    }
+
+    return b->textField;
 }
 
 double MaplyVectorFunctionStops::minValue()
@@ -258,6 +341,24 @@ ColorExpressionInfoRef MapboxTransColor::expression()
     return colorExp;
 }
 
+MapboxTransText::MapboxTransText(const std::string &inText)
+{
+    textField.parse(inText);
+}
+
+MapboxTransText::MapboxTransText(MaplyVectorFunctionStopsRef stops)
+: stops(stops)
+{
+}
+
+MapboxRegexField MapboxTransText::textForZoom(double zoom)
+{
+    if (stops) {
+        return stops->textForZoom(zoom);
+    }
+    
+    return textField;
+}
 
 MapboxVectorStyleSetImpl::MapboxVectorStyleSetImpl(Scene *inScene,CoordSystem *coordSys,VectorStyleSettingsImplRef settings)
 : scene(inScene), currentID(0), tileStyleSettings(settings), coordSys(coordSys), zoomSlot(-1)
@@ -590,7 +691,7 @@ MapboxTransDoubleRef MapboxVectorStyleSetImpl::transDouble(const std::string &na
     // This is probably stops
     if (theEntry->getType() == DictTypeDictionary) {
         MaplyVectorFunctionStopsRef stops(new MaplyVectorFunctionStops());
-        stops->parse(theEntry->getDict(), this);
+        stops->parse(theEntry->getDict(), this, false);
         if (stops) {
             return MapboxTransDoubleRef(new MapboxTransDouble(stops));
         } else {
@@ -628,7 +729,7 @@ MapboxTransColorRef MapboxVectorStyleSetImpl::transColor(const std::string &name
     // This is probably stops
     if (theEntry->getType() == DictTypeDictionary) {
         MaplyVectorFunctionStopsRef stops(new MaplyVectorFunctionStops());
-        stops->parse(theEntry->getDict(), this);
+        stops->parse(theEntry->getDict(), this, false);
         if (stops) {
             return MapboxTransColorRef(new MapboxTransColor(stops));;
         } else {
@@ -652,6 +753,41 @@ MapboxTransColorRef MapboxVectorStyleSetImpl::transColor(const std::string &name
 {
     RGBAColor color = inColor;
     return transColor(name, entry, &color);
+}
+
+MapboxTransTextRef MapboxVectorStyleSetImpl::transText(const std::string &name,DictionaryRef entry,const std::string &str)
+{
+    if (!entry) {
+        if (!str.empty())
+            return MapboxTransTextRef(new MapboxTransText(str));
+        return MapboxTransTextRef();
+    }
+    
+    // They pass in the whole dictionary and let us look the field up
+    DictionaryEntryRef theEntry = entry->getEntry(name);
+    if (!theEntry) {
+        if (!str.empty())
+            return MapboxTransTextRef(new MapboxTransText(str));
+        return MapboxTransTextRef();
+    }
+
+    // This is probably stops
+    if (theEntry->getType() == DictTypeDictionary) {
+        MaplyVectorFunctionStopsRef stops(new MaplyVectorFunctionStops());
+        stops->parse(theEntry->getDict(), this, true);
+        if (stops) {
+            return MapboxTransTextRef(new MapboxTransText(stops));;
+        } else {
+            wkLogLevel(Warn, "Expecting key word 'stops' in entry %s",name.c_str());
+        }
+    } else if (theEntry->getType() == DictTypeString) {
+        std::string text = theEntry->getString();
+        return MapboxTransTextRef(new MapboxTransText(text));
+    } else {
+        wkLogLevel(Warn,"Unexpected type found in entry %s. Was expecting a string.",name.c_str());
+    }
+
+    return MapboxTransTextRef();
 }
 
 void MapboxVectorStyleSetImpl::unsupportedCheck(const char *field,const char *what,DictionaryRef styleEntry)
