@@ -1160,10 +1160,14 @@ void QuadImageFrameLoader::updateRenderState(ChangeSet &changes)
                     frameIdentY = (1<<texNode.level)-frameIdentY-1;
                 }
                 int relY = tileIDY - frameIdentY * (1<<relLevel);
-                
+
+                // We'll want to match the draw priority of the tile we're changing to the texture we're using
+                int newDrawPriority = baseDrawPriority + drawPriorityPerLevel * texNode.level;
+
                 for (unsigned int focusID = 0;focusID<getNumFocus();focusID++) {
                     for (auto drawID : tile->getInstanceDrawIDs(focusID)) {
                         changes.push_back(new OnOffChangeRequest(drawID,true));
+                        changes.push_back(new DrawPriorityChangeRequest(drawID,newDrawPriority));
                         int texIDCount = 0;
                         for (auto texID : texIDs) {
                             changes.push_back(new DrawTexChangeRequest(drawID,texIDCount,texID,0,0,relLevel,relX,relY));
@@ -1172,9 +1176,11 @@ void QuadImageFrameLoader::updateRenderState(ChangeSet &changes)
                     }
                 }
             } else {
+                int newDrawPriority = baseDrawPriority + drawPriorityPerLevel * tileID.level;
                 for (unsigned int focusID = 0;focusID<getNumFocus();focusID++) {
                     for (auto drawID : tile->getInstanceDrawIDs(focusID)) {
                         changes.push_back(new OnOffChangeRequest(drawID,false));
+                        changes.push_back(new DrawPriorityChangeRequest(drawID,newDrawPriority));
                     }
                 }
             }
