@@ -128,21 +128,25 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
     std::vector<VectorObjectRef> vecObjs = inVecObjs;
     
     // Turn into linears (if not already) and then clip to the bounds
-    if (linearClipToBounds) {
-        std::vector<VectorObjectRef> newVecObjs;
-        for (auto vecObj : inVecObjs) {
-            VectorObjectRef newVecObj = vecObj;
-            if (dropGridLines)
-                newVecObj = newVecObj->filterClippedEdges();
-            else
-                newVecObj = newVecObj->arealsToLinears();
-            if (newVecObj)
-                newVecObj = VectorObjectRef(newVecObj->clipToMbr(tileInfo->geoBBox.ll(), tileInfo->geoBBox.ur()));
-            if (newVecObj)
-                newVecObjs.push_back(newVecObj);
+    // Slightly different, but we want to clip all the areals that are converted to linears
+    std::vector<VectorObjectRef> newVecObjs;
+    for (auto vecObj : inVecObjs) {
+        bool clip = linearClipToBounds;
+        
+        VectorObjectRef newVecObj = vecObj;
+        if (dropGridLines)
+            newVecObj = newVecObj->filterClippedEdges();
+        
+        if (newVecObj->getVectorType() == VectorArealType) {
+            newVecObj = newVecObj->arealsToLinears();
+            clip = true;
         }
-        vecObjs = newVecObjs;
+        if (newVecObj && clip)
+            newVecObj = VectorObjectRef(newVecObj->clipToMbr(tileInfo->geoBBox.ll(), tileInfo->geoBBox.ur()));
+        if (newVecObj)
+            newVecObjs.push_back(newVecObj);
     }
+    vecObjs = newVecObjs;
 
     // Subdivide long-ish lines to the globe, if set
     if (subdivToGlobe > 0.0) {
@@ -200,11 +204,8 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
         // Gather all the linear features
         ShapeSet shapes;
         for (auto vecObj : vecObjs) {
-            if (vecObj->getVectorType() == VectorLinearType) {
+            if (vecObj->getVectorType() == VectorLinearType)
                 shapes.insert(vecObj->shapes.begin(),vecObj->shapes.end());
-            } else if (vecObj->getVectorType() == VectorArealType) {
-                shapes.insert(vecObj->shapes.begin(),vecObj->shapes.end());
-            }
         }
         
         SimpleIdentity wideVecID = styleSet->wideVecManage->addVectors(&shapes, vecInfo, tileInfo->changes);
