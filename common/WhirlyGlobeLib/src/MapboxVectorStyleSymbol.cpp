@@ -141,6 +141,7 @@ bool MapboxVectorSymbolPaint::parse(PlatformThreadInfo *inst,
     textColor = styleSet->transColor("text-color", styleEntry, RGBAColor::black());
     textOpacity = styleSet->transDouble("text-opacity", styleEntry, 1.0);
     textHaloColor = styleSet->transColor("text-halo-color", styleEntry, RGBAColor::black());
+    textHaloBlur = styleSet->transDouble("text-halo-blur", styleEntry, 0.0);
     textHaloWidth = styleSet->transDouble("text-halo-width", styleEntry, 0.0);
     
     return true;
@@ -232,6 +233,163 @@ void MapboxVectorLayerSymbol::cleanup(PlatformThreadInfo *inst,ChangeSet &change
 {
 }
 
+SingleLabelRef MapboxVectorLayerSymbol::setupLabel(PlatformThreadInfo *inst,
+                                                   const Point2f &pt,
+                                                   LabelInfoRef labelInfo,
+                                                   MutableDictionaryRef attrs,
+                                                   VectorTileDataRef tileInfo)
+{
+    // Reconstruct the string from its replacement form
+    std::string text = layout.textField.build(attrs);
+    
+    if (!text.empty()) {
+        // Change the text if needed
+        switch (layout.textTransform)
+        {
+            case MBTextTransNone:
+                break;
+            case MBTextTransUppercase:
+                std::transform(text.begin(), text.end(), text.begin(), ::toupper);
+                break;
+            case MBTextTransLowercase:
+                std::transform(text.begin(), text.end(), text.begin(), ::tolower);
+                break;
+        }
+
+        // TODO: Put this back, but we need information about the font
+        // Break it up into lines, if necessary
+        double textMaxWidth = layout.textMaxWidth->valForZoom(tileInfo->ident.level);
+        if (textMaxWidth != 0.0)
+            text = breakUpText(inst,text,textMaxWidth * labelInfo->fontPointSize * styleSet->tileStyleSettings->textScale,labelInfo);
+        
+        // Construct the label
+        SingleLabelRef label = styleSet->makeSingleLabel(inst,text);
+        label->loc = GeoCoord(pt.x(),pt.y());
+        label->isSelectable = selectable;
+        
+        if (!uuidField.empty())
+            label->uniqueID = attrs->getString(uuidField);
+        else if (uniqueLabel) {
+            label->uniqueID = text;
+            std::transform(label->uniqueID.begin(), label->uniqueID.end(), label->uniqueID.begin(), ::tolower);
+        }
+        
+        // The rank is most important, followed by the zoom level.  This keeps the countries on top.
+        int rank = 0;
+        if (attrs->hasField("rank")) {
+            rank = attrs->getInt("rank");
+        }
+        // Random tweak to cut down on flashing
+        // TODO: Move the layout importance into the label itself
+        float strHash = calcStringHash(text);
+        label->layoutEngine = true;
+        if (!layout.textAllowOverlap) {
+            // If we're allowing layout, then we need to communicate valid text justification
+            //  if the style wanted us to do that
+            if (layout.textJustifySet) {
+                switch (layout.textJustify) {
+                    case WhirlyKitTextCenter:
+                        label->layoutPlacement = WhirlyKitLayoutPlacementCenter;
+                        break;
+                    case WhirlyKitTextLeft:
+                        label->layoutPlacement = WhirlyKitLayoutPlacementLeft;
+                        break;
+                    case WhirlyKitTextRight:
+                        label->layoutPlacement = WhirlyKitLayoutPlacementRight;
+                        break;
+                }
+            }
+            label->layoutImportance = layout.layoutImportance + 1.0 - (rank + (101-tileInfo->ident.level)/100.0)/1000.0 + strHash/1000.0;
+        } else
+            label->layoutImportance = MAXFLOAT;
+
+        // Anchor options for the layout engine
+        switch (layout.textAnchor) {
+            case MBTextCenter:
+                label->layoutPlacement = WhirlyKitLayoutPlacementCenter;
+                break;
+            case MBTextLeft:
+                label->layoutPlacement = WhirlyKitLayoutPlacementLeft;
+                break;
+            case MBTextRight:
+                label->layoutPlacement = WhirlyKitLayoutPlacementRight;
+                break;
+            case MBTextTop:
+                label->layoutPlacement = WhirlyKitLayoutPlacementAbove;
+                break;
+            case MBTextBottom:
+                label->layoutPlacement = WhirlyKitLayoutPlacementBelow;
+                break;
+                // Note: The rest of these aren't quite right
+            case MBTextTopLeft:
+                label->layoutPlacement = WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementAbove;
+                break;
+            case MBTextTopRight:
+                label->layoutPlacement = WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove;
+                break;
+            case MBTextBottomLeft:
+                label->layoutPlacement = WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementBelow;
+                break;
+            case MBTextBottomRight:
+                label->layoutPlacement = WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementBelow;
+                break;
+        }
+
+        return label;
+    }
+    
+    return SingleLabelRef();
+}
+
+Marker *MapboxVectorLayerSymbol::setupMarker(PlatformThreadInfo *inst,
+                                             const Point2f &pt,
+                                             VectorObjectRef vecObj,
+                                             MutableDictionaryRef attrs,
+                                             ComponentObjectRef compObj,
+                                             VectorTileDataRef tileInfo)
+{
+    // The symbol name might get tricky
+    std::string symbolName = layout.iconImageField.build(attrs);
+                                
+    Point2d markerSize;
+    auto subTex = styleSet->sprites->getTexture(symbolName,markerSize);
+    
+    if (markerSize.x() == 0.0) {
+#if DEBUG
+        wkLogLevel(Warn, "MapboxVectorLayerSymbol: Failed to find symbol %s",symbolName.c_str());
+        {
+            // Run it again for debugging
+            std::string symbolName = layout.iconImageField.build(attrs);
+        }
+#endif
+        return NULL;
+    }
+    
+    double size = layout.iconSize->valForZoom(tileInfo->ident.level);
+    markerSize.x() *= size;
+    markerSize.y() *= size;
+    SimpleIdentity markerTexID = subTex.getId();
+
+    Marker *marker = new Marker();
+    marker->width = markerSize.x();
+    marker->height = markerSize.y();
+    marker->loc = GeoCoord(pt.x(),pt.y());
+    if (!layout.iconAllowOverlap)
+        marker->layoutImportance = layout.layoutImportance;
+    else
+        marker->layoutImportance = MAXFLOAT;
+    if (selectable) {
+        marker->isSelectable = true;
+        marker->selectID = Identifiable::genId();
+        styleSet->addSelectionObject(marker->selectID, vecObj, compObj);
+        compObj->selectIDs.insert(marker->selectID);
+    }
+    if (markerTexID != EmptyIdentity)
+        marker->texIDs.push_back(markerTexID);
+    
+    return marker;
+}
+
 static const int ScreenDrawPriorityOffset = 1000000;
 
 void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
@@ -270,7 +428,10 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
     if (paint.textHaloColor && paint.textHaloWidth)
     {
         labelInfo->outlineColor = paint.textHaloColor->colorForZoom(tileInfo->ident.level);
-        labelInfo->outlineSize = paint.textHaloWidth->valForZoom(tileInfo->ident.level);
+        // Note: We're not using blue right here
+        labelInfo->outlineSize = paint.textHaloWidth->valForZoom(tileInfo->ident.level) - paint.textHaloBlur->valForZoom(tileInfo->ident.level);
+        if (labelInfo->outlineSize < 0.5)
+            labelInfo->outlineSize = 0.5;
     }
     
     // Sort out the image for the marker if we're doing that
@@ -303,114 +464,8 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                 if (pts) {
                     for (auto pt : pts->pts) {
                         if (textInclude) {
-                            // Reconstruct the string from its replacement form
-                            std::string text = layout.textField.build(vecObj->getAttributes());
-                            
-                            if (!text.empty()) {
-                                // Change the text if needed
-                                switch (layout.textTransform)
-                                {
-                                    case MBTextTransNone:
-                                        break;
-                                    case MBTextTransUppercase:
-                                        std::transform(text.begin(), text.end(), text.begin(), ::toupper);
-                                        break;
-                                    case MBTextTransLowercase:
-                                        std::transform(text.begin(), text.end(), text.begin(), ::tolower);
-                                        break;
-                                }
-
-                                // TODO: Put this back, but we need information about the font
-                                // Break it up into lines, if necessary
-                                double textMaxWidth = layout.textMaxWidth->valForZoom(tileInfo->ident.level);
-                                if (textMaxWidth != 0.0)
-                                    text = breakUpText(inst,text,textMaxWidth * labelInfo->fontPointSize * styleSet->tileStyleSettings->textScale,labelInfo);
-                                
-                                // Construct the label
-                                SingleLabelRef label = styleSet->makeSingleLabel(inst,text);
-                                label->loc = GeoCoord(pt.x(),pt.y());
-                                label->isSelectable = selectable;
-                                
-                                if (!uuidField.empty())
-                                    label->uniqueID = vecObj->getAttributes()->getString(uuidField);
-                                else if (uniqueLabel) {
-                                    label->uniqueID = text;
-                                    std::transform(label->uniqueID.begin(), label->uniqueID.end(), label->uniqueID.begin(), ::tolower);
-                                }
-                                
-                                // The rank is most important, followed by the zoom level.  This keeps the countries on top.
-                                int rank = 0;
-                                if (vecObj->getAttributes()->hasField("rank")) {
-                                    rank = vecObj->getAttributes()->getInt("rank");
-                                }
-                                // Random tweak to cut down on flashing
-                                // TODO: Move the layout importance into the label itself
-                                float strHash = calcStringHash(text);
-                                label->layoutEngine = true;
-                                if (!layout.textAllowOverlap) {
-                                    // If we're allowing layout, then we need to communicate valid text justification
-                                    //  if the style wanted us to do that
-                                    if (layout.textJustifySet) {
-                                        switch (layout.textJustify) {
-                                            case WhirlyKitTextCenter:
-                                                label->layoutPlacement = WhirlyKitLayoutPlacementCenter;
-                                                break;
-                                            case WhirlyKitTextLeft:
-                                                label->layoutPlacement = WhirlyKitLayoutPlacementLeft;
-                                                break;
-                                            case WhirlyKitTextRight:
-                                                label->layoutPlacement = WhirlyKitLayoutPlacementRight;
-                                                break;
-                                        }
-                                    }
-                                    label->layoutImportance = layout.layoutImportance + 1.0 - (rank + (101-tileInfo->ident.level)/100.0)/1000.0 + strHash/1000.0;
-                                } else
-                                    label->layoutImportance = MAXFLOAT;
-
-                                // Point or line placement
-                                if (layout.placement == MBPlaceLine) {
-                                    Point2d middle;
-                                    double rot;
-                                    vecObj->linearMiddle(middle, rot, styleSet->coordSys);
-                                    label->loc = GeoCoord(middle.x(),middle.y());
-                                    label->rotation = -1 * rot + M_PI/2.0;
-                                    if (label->rotation > M_PI_2 || label->rotation < -M_PI_2)
-                                        label->rotation += M_PI;
-                                    label->keepUpright = true;
-                                }
-                                
-                                // Anchor options for the layout engine
-                                switch (layout.textAnchor) {
-                                    case MBTextCenter:
-                                        label->layoutPlacement = WhirlyKitLayoutPlacementNone;
-                                        break;
-                                    case MBTextLeft:
-                                        label->layoutPlacement = WhirlyKitLayoutPlacementLeft;
-                                        break;
-                                    case MBTextRight:
-                                        label->layoutPlacement = WhirlyKitLayoutPlacementRight;
-                                        break;
-                                    case MBTextTop:
-                                        label->layoutPlacement = WhirlyKitLayoutPlacementAbove;
-                                        break;
-                                    case MBTextBottom:
-                                        label->layoutPlacement = WhirlyKitLayoutPlacementBelow;
-                                        break;
-                                        // Note: The rest of these aren't quite right
-                                    case MBTextTopLeft:
-                                        label->layoutPlacement = WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementAbove;
-                                        break;
-                                    case MBTextTopRight:
-                                        label->layoutPlacement = WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove;
-                                        break;
-                                    case MBTextBottomLeft:
-                                        label->layoutPlacement = WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementBelow;
-                                        break;
-                                    case MBTextBottomRight:
-                                        label->layoutPlacement = WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementBelow;
-                                        break;
-                                }
-                                
+                            SingleLabelRef label = setupLabel(inst,pt,labelInfo,vecObj->getAttributes(),tileInfo);
+                            if (label) {
                                 labels.push_back(label);
                             } else {
 #if DEBUG
@@ -419,42 +474,43 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                             }
                         }
                         if (iconInclude) {
-                            // The symbol name might get tricky
-                            std::string symbolName = layout.iconImageField.build(vecObj->getAttributes());
-                                                        
-                            Point2d markerSize;
-                            auto subTex = styleSet->sprites->getTexture(symbolName,markerSize);
-                            
-                            if (markerSize.x() == 0.0) {
-#if DEBUG
-                                wkLogLevel(Warn, "MapboxVectorLayerSymbol: Failed to find symbol %s",symbolName.c_str());
-#endif
-                                continue;
-                            }
-                            
-                            double size = layout.iconSize->valForZoom(tileInfo->ident.level);
-                            markerSize.x() *= size;
-                            markerSize.y() *= size;
-                            SimpleIdentity markerTexID = subTex.getId();
-
-                            Marker *marker = new Marker();
-                            marker->width = markerSize.x();
-                            marker->height = markerSize.y();
-                            marker->loc = GeoCoord(pt.x(),pt.y());
-                            if (!layout.iconAllowOverlap)
-                                marker->layoutImportance = layout.layoutImportance;
-                            else
-                                marker->layoutImportance = MAXFLOAT;
-                            if (selectable) {
-                                marker->isSelectable = true;
-                                marker->selectID = Identifiable::genId();
-                                styleSet->addSelectionObject(marker->selectID, vecObj, compObj);
-                                compObj->selectIDs.insert(marker->selectID);
-                            }
-                            if (markerTexID != EmptyIdentity)
-                                marker->texIDs.push_back(markerTexID);
-                            markers.push_back(marker);
+                            Marker *marker = setupMarker(inst, pt, vecObj, vecObj->getAttributes(), compObj, tileInfo);
+                            if (marker)
+                                markers.push_back(marker);
                         }
+                    }
+                }
+            }
+        } else if (vecObj->getVectorType() == VectorLinearType) {
+            for (VectorShapeRef shape : vecObj->shapes) {
+                VectorLinearRef line = std::dynamic_pointer_cast<VectorLinear>(shape);
+                if (line) {
+                    // Place along the line
+                    Point2f pt;
+                    Point2d middle;
+                    double rot;
+                    vecObj->linearMiddle(middle, rot, styleSet->coordSys);
+                    pt = Point2f(middle.x(),middle.y());
+
+                    if (textInclude) {
+                        SingleLabelRef label = setupLabel(inst,pt,labelInfo,vecObj->getAttributes(),tileInfo);
+
+                        if (label) {
+                            if (layout.placement == MBPlaceLine) {
+                                label->rotation = -1 * rot + M_PI/2.0;
+                                if (label->rotation > M_PI_2 || label->rotation < -M_PI_2)
+                                    label->rotation += M_PI;
+                                label->keepUpright = true;
+                            }
+                            
+                            labels.push_back(label);
+                        }
+                    }
+                    
+                    if (iconInclude) {
+                        Marker *marker = setupMarker(inst, pt, vecObj, vecObj->getAttributes(), compObj, tileInfo);
+                        if (marker)
+                            markers.push_back(marker);
                     }
                 }
             }

@@ -460,7 +460,9 @@ vertex ProjVertexTriWideVec vertexTri_wideVec(
         float zoom = ZoomFromSlot(uniforms, vertArgs.uniDrawState.zoomSlot);
         w2 = ExpCalculateFloat(vertArgs.wideVecExp.widthExp, zoom, w2)/2.0;
     }
-    w2 = w2 + vertArgs.wideVec.edge;
+    if (w2 > 0.0) {
+        w2 = w2 + vertArgs.wideVec.edge;
+    }
 
     outVert.color = vertArgs.wideVec.color * calculateFade(uniforms,vertArgs.uniDrawState);
     
@@ -552,12 +554,12 @@ vertex ProjVertexTriA vertexTri_screenSpace(
     
     // Project the rotation into display space and drop the Z
     float2 screenOffset;
-//    if (vertArgs.ss.activeRot) {
-//        float4 projRot = uniforms.mvNormalMatrix * float4(vert.rot,0.0);
-//        float2 rotY = normalize(projRot.xy);
-//        float2 rotX(rotY.y,-rotY.x);
-//        screenOffset = vert.offset.x*rotX + vert.offset.y*rotY;
-//    } else
+    if (vertArgs.ss.activeRot) {
+        float4 projRot = uniforms.mvNormalMatrix * float4(vert.rot,0.0);
+        float2 rotY = normalize(projRot.xy);
+        float2 rotX(rotY.y,-rotY.x);
+        screenOffset = vert.offset.x*rotX + vert.offset.y*rotY;
+    } else
         screenOffset = vert.offset;
     
     float2 scale = float2(2.0/uniforms.frameSize.x,2.0/uniforms.frameSize.y) * zoomScale;

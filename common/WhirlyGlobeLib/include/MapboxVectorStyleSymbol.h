@@ -105,6 +105,8 @@ public:
     MapboxTransDoubleRef textOpacity;
     // If there's a halo, this is the color
     MapboxTransColorRef textHaloColor;
+    // If there's a halo, it blurs out like so
+    MapboxTransDoubleRef textHaloBlur;
     // If there's a halo, this is the size
     MapboxTransDoubleRef textHaloWidth;
 };
@@ -128,6 +130,8 @@ public:
 
 public:
     std::string breakUpText(PlatformThreadInfo *inst,const std::string &text,double textMaxWidth,LabelInfoRef labelInfo);
+    SingleLabelRef setupLabel(PlatformThreadInfo *inst,const Point2f &pt,LabelInfoRef labelInfo,MutableDictionaryRef attrs,VectorTileDataRef tileInfo);
+    Marker *setupMarker(PlatformThreadInfo *inst,const Point2f &pt,VectorObjectRef vecObj,MutableDictionaryRef attrs,ComponentObjectRef compObj,VectorTileDataRef tileInfo);
     
     MapboxVectorSymbolLayout layout;
     MapboxVectorSymbolPaint paint;

@@ -74,11 +74,14 @@
 - (NSString *)stringForKey:(NSString *)name default:(NSString *)theDefault
 {
     id what = [self objectForKey:name];
-    if (!what || ![what isKindOfClass:[NSString class]])
+    if (!what)
         return theDefault;
+    if ([what isKindOfClass:[NSString class]])
+        return (NSString *)what;
+    if ([what isKindOfClass:[NSNumber class]])
+        return [(NSNumber *)what stringValue];
     
-    NSString *str = what;
-    return str;
+    return theDefault;
 }
 
 /// Parse an enumerated type and return an int
