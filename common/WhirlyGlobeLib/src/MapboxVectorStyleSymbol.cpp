@@ -400,10 +400,12 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
         return;
 
     ComponentObjectRef compObj = styleSet->makeComponentObject(inst);
-        
-    double textSize = layout.textSize->valForZoom(tileInfo->ident.level);
-    // Snap to an integer.  Not clear we need to, just because.
+
+    // Render at the max size and then scale dynamically
+    double textSize = layout.textSize->maxVal();
     textSize = (int)(textSize * layout.globalTextScale+0.5);
+    if (textSize <= 0.0)
+        textSize = 1.0;
 
     LabelInfoRef labelInfo = styleSet->makeLabelInfo(inst,layout.textFontNames,textSize);
     labelInfo->zoomSlot = styleSet->zoomSlot;
@@ -421,9 +423,19 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
     else
         labelInfo->drawPriority = drawPriority + ScreenDrawPriorityOffset;
 
-    RGBAColorRef textColor = styleSet->resolveColor(paint.textColor, paint.textOpacity, tileInfo->ident.level, MBResolveColorOpacityReplaceAlpha);
+    // We'll try for one color for the whole thing
+    // Note: To fix this we need to blast the text apart into pieces
+    RGBAColorRef textColor = styleSet->resolveColor(paint.textColor, NULL, tileInfo->ident.level, MBResolveColorOpacityReplaceAlpha);
     if (textColor)
         labelInfo->textColor = *textColor;
+    labelInfo->opacityExp = paint.textOpacity->expression();
+
+    // We can apply a scale, but it needs to be scaled to the current text size
+    labelInfo->scaleExp = layout.textSize->expression();
+    if (labelInfo->scaleExp) {
+        for (unsigned int ii=0;ii<labelInfo->scaleExp->stopOutputs.size();ii++)
+            labelInfo->scaleExp->stopOutputs[ii] /= textSize;
+    }
 
     if (paint.textHaloColor && paint.textHaloWidth)
     {

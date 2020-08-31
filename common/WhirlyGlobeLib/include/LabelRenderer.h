@@ -87,6 +87,10 @@ public:
     float outlineSize;
     float lineHeight;
     float fontPointSize;
+    
+    FloatExpressionInfoRef opacityExp;
+//    ColorExpressionInfoRef colorExp;
+    FloatExpressionInfoRef scaleExp;
 };
 
 typedef std::shared_ptr<LabelInfo> LabelInfoRef;
