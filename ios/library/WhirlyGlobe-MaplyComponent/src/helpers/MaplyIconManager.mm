@@ -418,6 +418,12 @@ public:
         CGPoint center = CGPointMake(-1000.0, -1000.0);
         center.x = [self parseNumber:dict[@"marker-background-center-x"] default:center.x];
         center.y = [self parseNumber:dict[@"marker-background-center-y"] default:center.y];
+        if (dict[@"marker-offset-x"] || dict[@"marker-offset-y"]) {
+            CGFloat offsetX = [self parseNumber:dict[@"marker-offset-x"] default:0.0];
+            CGFloat offsetY = [self parseNumber:dict[@"marker-offset-y"] default:0.0];
+            
+            style.markerOffset = CGPointMake(offsetX * style.markerSize.width, offsetY * style.markerSize.height);
+        }
         bool clearBackground = [self parseBool:dict[@"marker-circle"] default:true];
 
         // Need a texture for the marker
