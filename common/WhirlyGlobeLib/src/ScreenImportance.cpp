@@ -87,6 +87,7 @@ DisplaySolid::DisplaySolid(const QuadTreeIdentifier &nodeIdent,const Mbr &nodeMb
     }
     
     // Build polygons out of those samples (in display space)
+    bool boundingBoxValid = false;
     polys.reserve(numSamplesX*numSamplesY);
     for (int ix=0;ix<numSamplesX-1;ix++) {
         for (int iy=0;iy<numSamplesY-1;iy++) {
@@ -98,6 +99,21 @@ DisplaySolid::DisplaySolid(const QuadTreeIdentifier &nodeIdent,const Mbr &nodeMb
             poly.push_back(dispPoints[(iy+1)*numSamplesX+(ix+1)]);
             poly.push_back(dispPoints[iy*numSamplesX+(ix+1)]);
             polys.push_back(poly);
+            
+            // Update bounding box
+            for (auto pt: poly) {
+                if (!boundingBoxValid) {
+                    bbox0 = pt;  bbox1 = pt;
+                    boundingBoxValid = true;
+                } else {
+                    bbox0.x() = std::min(pt.x(),bbox0.x());
+                    bbox0.y() = std::min(pt.y(),bbox0.y());
+                    bbox0.z() = std::min(pt.z(),bbox0.z());
+                    bbox1.x() = std::max(pt.x(),bbox1.x());
+                    bbox1.y() = std::max(pt.y(),bbox1.y());
+                    bbox1.z() = std::max(pt.z(),bbox1.z());
+                }
+            }
             
             // And a normal
             if (coordAdapter->isFlat())
@@ -192,8 +208,8 @@ double PolyImportance(const Point3dVector &poly,const Point3d &norm,ViewState *v
 
 bool DisplaySolid::isInside(const Point3d &pt)
 {
-    // Note: Fix this.  This will do weird things when we're very close.
-    return false;
+    return bbox0.x() <= pt.x() && bbox0.y() <= pt.y() && bbox0.z() <= pt.z() &&
+        pt.x() < bbox1.x() && pt.y() < bbox1.y() && pt.z() < bbox1.z();
 }
 
 double DisplaySolid::importanceForViewState(ViewState *viewState,const Point2f &frameSize)

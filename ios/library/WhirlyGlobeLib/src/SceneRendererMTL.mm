@@ -478,21 +478,23 @@ void SceneRendererMTL::render(TimeInterval duration,
     
     // Get the model and view matrices
     Eigen::Matrix4d modelTrans4d = theView->calcModelMatrix();
-    Eigen::Matrix4f modelTrans = Matrix4dToMatrix4f(modelTrans4d);
     Eigen::Matrix4d viewTrans4d = theView->calcViewMatrix();
+    Eigen::Matrix4f modelTrans = Matrix4dToMatrix4f(modelTrans4d);
     Eigen::Matrix4f viewTrans = Matrix4dToMatrix4f(viewTrans4d);
     
     // Set up a projection matrix
     Point2f frameSize(framebufferWidth,framebufferHeight);
     Eigen::Matrix4d projMat4d = theView->calcProjectionMatrix(frameSize,0.0);
 
-    Eigen::Matrix4f projMat = Matrix4dToMatrix4f(projMat4d);
-    Eigen::Matrix4f modelAndViewMat = viewTrans * modelTrans;
     Eigen::Matrix4d modelAndViewMat4d = viewTrans4d * modelTrans4d;
-    Eigen::Matrix4d pvMat = projMat4d * viewTrans4d;
-    Eigen::Matrix4f mvpMat = projMat * (modelAndViewMat);
-    Eigen::Matrix4f mvpNormalMat4f = mvpMat.inverse().transpose();
+    Eigen::Matrix4d pvMat4d = projMat4d * viewTrans4d;
     Eigen::Matrix4d modelAndViewNormalMat4d = modelAndViewMat4d.inverse().transpose();
+    Eigen::Matrix4d mvpMat4d = projMat4d * modelAndViewMat4d;
+
+    Eigen::Matrix4f projMat = Matrix4dToMatrix4f(projMat4d);
+    Eigen::Matrix4f modelAndViewMat = Matrix4dToMatrix4f(modelAndViewMat4d);
+    Eigen::Matrix4f mvpMat = Matrix4dToMatrix4f(mvpMat4d);
+    Eigen::Matrix4f mvpNormalMat4f = Matrix4dToMatrix4f(mvpMat4d.inverse().transpose());
     Eigen::Matrix4f modelAndViewNormalMat = Matrix4dToMatrix4f(modelAndViewNormalMat4d);
 
     if (perfInterval > 0)
@@ -529,9 +531,9 @@ void SceneRendererMTL::render(TimeInterval duration,
     baseFrameInfo.viewModelNormalMat = modelAndViewNormalMat;
     baseFrameInfo.viewAndModelMat = modelAndViewMat;
     baseFrameInfo.viewAndModelMat4d = modelAndViewMat4d;
-    Matrix4f pvMat4f = Matrix4dToMatrix4f(pvMat);
+    Matrix4f pvMat4f = Matrix4dToMatrix4f(pvMat4d);
     baseFrameInfo.pvMat = pvMat4f;
-    baseFrameInfo.pvMat4d = pvMat;
+    baseFrameInfo.pvMat4d = pvMat4d;
     theView->getOffsetMatrices(baseFrameInfo.offsetMatrices, frameSize, overlapMarginX);
     Point2d screenSize = theView->screenSizeInDisplayCoords(frameSize);
     baseFrameInfo.screenSizeInDisplayCoords = screenSize;
@@ -611,7 +613,7 @@ void SceneRendererMTL::render(TimeInterval duration,
         RendererFrameInfoMTL offFrameInfo(baseFrameInfo);
         // Tweak with the appropriate offset matrix
         modelAndViewMat4d = viewTrans4d * offsetMats[off] * modelTrans4d;
-        pvMat = projMat4d * viewTrans4d * offsetMats[off];
+        pvMat4d = projMat4d * viewTrans4d * offsetMats[off];
         modelAndViewMat = Matrix4dToMatrix4f(modelAndViewMat4d);
         mvpMats[off] = projMat4d * modelAndViewMat4d;
         mvpInvMats[off] = (Eigen::Matrix4d)mvpMats[off].inverse();
@@ -626,9 +628,9 @@ void SceneRendererMTL::render(TimeInterval duration,
         offFrameInfo.viewModelNormalMat = modelAndViewNormalMat;
         offFrameInfo.viewAndModelMat4d = modelAndViewMat4d;
         offFrameInfo.viewAndModelMat = modelAndViewMat;
-        Matrix4f pvMat4f = Matrix4dToMatrix4f(pvMat);
+        Matrix4f pvMat4f = Matrix4dToMatrix4f(pvMat4d);
         offFrameInfo.pvMat = pvMat4f;
-        offFrameInfo.pvMat4d = pvMat;
+        offFrameInfo.pvMat4d = pvMat4d;
         offFrameInfos.push_back(offFrameInfo);
     }
     

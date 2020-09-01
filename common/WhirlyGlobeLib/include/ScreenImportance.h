@@ -61,6 +61,8 @@ public:
     Point3dVector normals;
     /// Normals for the surface.  We use these to make sure the solid is pointing towards us.
     Point3dVector surfNormals;
+    /// Bounding box for all the generated polygons
+    Point3d bbox0,bbox1;
 };
     
 typedef std::shared_ptr<DisplaySolid> DisplaySolidRef;
