@@ -292,6 +292,10 @@ Marker *MapboxVectorLayerSymbol::setupMarker(PlatformThreadInfo *inst,
 {
     // The symbol name might get tricky
     std::string symbolName = layout.iconImageField->textForZoom(tileInfo->ident.level).build(attrs);
+    
+    // Sometimes they stick an empty text string in there
+    if (symbolName.empty())
+        return NULL;
                                 
     Point2d markerSize;
     auto subTex = styleSet->sprites->getTexture(symbolName,markerSize);
@@ -345,7 +349,7 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
 
     // Render at the max size and then scale dynamically
     double textSize = layout.textSize->maxVal();
-    textSize = (int)(textSize * layout.globalTextScale+0.5);
+    textSize = (int)(textSize + 0.5);
     if (textSize <= 0.0)
         textSize = 1.0;
 
