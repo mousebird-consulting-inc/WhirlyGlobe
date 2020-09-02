@@ -142,6 +142,14 @@ protected:
     bool wrap;
     /// Used to update position based on time
     MapViewAnimationDelegateRef delegate;
+
+    // These are all for continuous zoom mode
+    double absoluteMinHeight;
+    double heightInflection;
+    double defaultNearPlane;
+    double absoluteMinNearPlane;
+    double defaultFarPlane;
+    double absoluteMinFarPlane;
 };
     
 typedef std::shared_ptr<MapView> MapViewRef;

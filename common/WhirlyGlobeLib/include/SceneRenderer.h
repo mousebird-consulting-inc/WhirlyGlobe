@@ -70,6 +70,7 @@ public:
     Eigen::Matrix4d viewAndModelMat4d;
     /// The model, view, and projection matrix all rolled into one
     Eigen::Matrix4f mvpMat;
+    Eigen::Matrix4d mvpMat4d;
     /// Inverse of the model/view/projection matrix
     Eigen::Matrix4f mvpInvMat;
     /// Normal matrix for MVP

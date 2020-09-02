@@ -34,6 +34,9 @@ void CopyIntoMtlFloat4x4(simd::float4x4 &dest,const Eigen::Matrix4f &src);
 void CopyIntoMtlFloat4x4(simd::float4x4 &dest,const Eigen::Matrix4d &src);
 void CopyIntoMtlDouble4x4(simd::double4x4 &dest,const Eigen::Matrix4d &src);
 
+/// This version works like CopyIntoMtlDouble4x4 and then puts the difference into destDiff
+void CopyIntoMtlFloat4x4Pair(simd::float4x4 &dest,simd::float4x4 &destDiff,const Eigen::Matrix4d &src);
+
 /// Copy one of our points into Metal form
 void CopyIntoMtlFloat3(simd::float3 &dest,const Point3d &src);
 void CopyIntoMtlFloat3(simd::float3 &dest,const Point3f &src);

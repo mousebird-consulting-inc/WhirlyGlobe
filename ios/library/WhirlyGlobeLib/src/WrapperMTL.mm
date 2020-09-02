@@ -43,6 +43,19 @@ void CopyIntoMtlDouble4x4(simd::double4x4 &dest,const Eigen::Matrix4d &src)
         for (unsigned int iy=0;iy<4;iy++)
             dest.columns[ix][iy] = src(ix*4+iy);
 }
+
+void CopyIntoMtlFloat4x4Pair(simd::float4x4 &dest,simd::float4x4 &destDiff,const Eigen::Matrix4d &src)
+{
+    for (unsigned int ix=0;ix<4;ix++)
+        for (unsigned int iy=0;iy<4;iy++) {
+            double val = src(ix*4+iy);
+            float fVal = val;
+            float fDiff = val - fVal;
+            
+            dest.columns[ix][iy] = fVal;
+            destDiff.columns[ix][iy] = fDiff;
+        }
+}
     
 void CopyIntoMtlFloat3(simd::float3 &dest,const Point3d &src)
 {

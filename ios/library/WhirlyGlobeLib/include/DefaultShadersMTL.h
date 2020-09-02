@@ -135,10 +135,13 @@ typedef enum {
 struct Uniforms
 {
     simd::float4x4 mvpMatrix;
+    simd::float4x4 mvpMatrixDiff;
     simd::float4x4 mvpInvMatrix;
     simd::float4x4 mvMatrix;
+    simd::float4x4 mvMatrixDiff;
     simd::float4x4 mvNormalMatrix;
     simd::float4x4 pMatrix;
+    simd::float4x4 pMatrixDiff;
     simd::float3 eyePos;
     simd::float3 eyeVec;
     simd::float2 screenSizeInDisplayCoords;  // Size of the whole frame in display coords

@@ -31,18 +31,26 @@ MapView::MapView(WhirlyKit::CoordSystemDisplayAdapter *inCoordAdapter)
 {
     coordAdapter = inCoordAdapter;
     fieldOfView = 60.0 / 360.0 * 2 * (float)M_PI;  // 60 degree field of view
-    nearPlane = 0.000001;
     imagePlaneSize = nearPlane * tanf(fieldOfView / 2.0);
-    farPlane = 4.0;
     lastChangedTime = TimeGetCurrent();
-    continuousZoom = false;
+    continuousZoom = true;
+    absoluteMinNearPlane = 0.000001;
+    absoluteMinFarPlane = 0.001;
+    absoluteMinHeight = 0.000002;
+    heightInflection = 0.011;
     loc = Point3d(0,0,4);
     rotAngle = 0.0;
     wrap = true;
+
+    defaultNearPlane = nearPlane;
+    defaultFarPlane = farPlane;
 }
     
 MapView::MapView(const MapView &that)
-    : View(that), loc(that.loc), rotAngle(that.rotAngle)
+: View(that), loc(that.loc), rotAngle(that.rotAngle), wrap(that.wrap),
+absoluteMinHeight(that.absoluteMinHeight), heightInflection(that.heightInflection),
+defaultNearPlane(that.defaultNearPlane), absoluteMinNearPlane(that.absoluteMinNearPlane),
+defaultFarPlane(that.defaultFarPlane), absoluteMinFarPlane(that.absoluteMinFarPlane)
 {
 }
     
@@ -158,12 +166,15 @@ double MapView::heightAboveSurface()
 
 double MapView::minHeightAboveSurface()
 {
-    return nearPlane;
+    if (continuousZoom)
+        return absoluteMinHeight;
+    else
+        return 1.01*nearPlane;
 }
 
 double MapView::maxHeightAboveSurface()
 {
-    return farPlane;
+    return defaultFarPlane - 1.0;
 }
 
 void MapView::setLoc(WhirlyKit::Point3d newLoc)
@@ -174,6 +185,23 @@ void MapView::setLoc(WhirlyKit::Point3d newLoc)
 void MapView::setLoc(WhirlyKit::Point3d &newLoc,bool runUpdates)
 {
     loc = newLoc;
+    
+    // If we get down below the inflection point we'll start messing
+    //  with the field of view.  Not ideal, but simple.
+    if (continuousZoom)
+    {
+        if (loc.z() < heightInflection)
+        {
+            double t = 1.0 - (heightInflection - loc.z()) / (heightInflection - absoluteMinHeight);
+            nearPlane = t * (defaultNearPlane-absoluteMinNearPlane) + absoluteMinNearPlane;
+            farPlane = loc.z()+nearPlane;
+        } else {
+            nearPlane = defaultNearPlane;
+            farPlane = defaultFarPlane;
+        }
+    }
+    imagePlaneSize = nearPlane * tan(fieldOfView / 2.0);
+
     if (runUpdates)
         runViewUpdates();
 }

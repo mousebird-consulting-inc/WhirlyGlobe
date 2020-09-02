@@ -209,9 +209,9 @@ void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,id<MTL
     
     WhirlyKitShader::Uniforms uniforms;
     bzero(&uniforms,sizeof(uniforms));
-    CopyIntoMtlFloat4x4(uniforms.mvpMatrix,frameInfo->mvpMat);
+    CopyIntoMtlFloat4x4Pair(uniforms.mvpMatrix,uniforms.mvpMatrixDiff,frameInfo->mvpMat4d);
     CopyIntoMtlFloat4x4(uniforms.mvpInvMatrix,frameInfo->mvpInvMat);
-    CopyIntoMtlFloat4x4(uniforms.mvMatrix,frameInfo->viewAndModelMat);
+    CopyIntoMtlFloat4x4Pair(uniforms.mvMatrix,uniforms.mvMatrixDiff,frameInfo->viewAndModelMat4d);
     CopyIntoMtlFloat4x4(uniforms.mvNormalMatrix,frameInfo->viewModelNormalMat);
     CopyIntoMtlFloat4x4(uniforms.pMatrix,frameInfo->projMat);
     CopyIntoMtlFloat3(uniforms.eyePos,frameInfo->eyePos);
@@ -525,6 +525,7 @@ void SceneRendererMTL::render(TimeInterval duration,
     baseFrameInfo.projMat = projMat;
     baseFrameInfo.projMat4d = projMat4d;
     baseFrameInfo.mvpMat = mvpMat;
+    baseFrameInfo.mvpMat4d = mvpMat4d;
     Eigen::Matrix4f mvpInvMat = mvpMat.inverse();
     baseFrameInfo.mvpInvMat = mvpInvMat;
     baseFrameInfo.mvpNormalMat = mvpNormalMat4f;
@@ -622,6 +623,7 @@ void SceneRendererMTL::render(TimeInterval duration,
         modelAndViewNormalMat4d = modelAndViewMat4d.inverse().transpose();
         modelAndViewNormalMat = Matrix4dToMatrix4f(modelAndViewNormalMat4d);
         offFrameInfo.mvpMat = mvpMats4f[off];
+        offFrameInfo.mvpMat4d = mvpMats[off];
         offFrameInfo.mvpInvMat = mvpInvMats4f[off];
         mvpNormalMat4f = Matrix4dToMatrix4f(mvpMats[off].inverse().transpose());
         offFrameInfo.mvpNormalMat = mvpNormalMat4f;
