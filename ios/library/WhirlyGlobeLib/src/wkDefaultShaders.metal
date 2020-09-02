@@ -230,8 +230,11 @@ vertex ProjVertexTriA vertexTri_noLight(
 
     if (vertArgs.uniDrawState.clipCoords)
         outVert.position = float4(vertPos,1.0);
-    else
-        outVert.position = uniforms.mvpMatrix * float4(vertPos,1.0);
+    else {
+        float4 pt = uniforms.pMatrix * (uniforms.mvMatrix * float4(vertPos,1.0) + uniforms.mvMatrixDiff * float4(vertPos,1.0));
+        pt /= pt.w;
+        outVert.position = pt;
+    }
     outVert.color = float4(vert.color) * calculateFade(uniforms,vertArgs.uniDrawState);
     
     if (TexturesBase(texArgs.texPresent) > 0)
@@ -259,8 +262,11 @@ vertex ProjVertexTriA vertexTri_light(
     float3 vertPos = (vertArgs.uniDrawState.singleMat * float4(vert.position,1.0)).xyz;
     if (vertArgs.uniDrawState.clipCoords)
         outVert.position = float4(vertPos,1.0);
-    else
-        outVert.position = uniforms.mvpMatrix * float4(vertPos,1.0);
+    else {
+        float4 pt = uniforms.pMatrix * (uniforms.mvMatrix * float4(vertPos,1.0) + uniforms.mvMatrixDiff * float4(vertPos,1.0));
+        pt /= pt.w;
+        outVert.position = pt;
+    }
     outVert.color = resolveLighting(vert.position,
                                     vert.normal,
                                     float4(vert.color),
@@ -301,7 +307,9 @@ vertex ProjVertexTriB vertexTri_multiTex(
     if (vertArgs.uniDrawState.clipCoords)
         outVert.position = float4(vertPos,1.0);
     else {
-        outVert.position = uniforms.mvpMatrix * float4(vertPos,1.0);
+        float4 pt = uniforms.pMatrix * (uniforms.mvMatrix * float4(vertPos,1.0) + uniforms.mvMatrixDiff * float4(vertPos,1.0));
+        pt /= pt.w;
+        outVert.position = pt;
     }
     outVert.color = resolveLighting(vertPos,
                                     vert.normal,
@@ -473,7 +481,7 @@ vertex ProjVertexTriWideVec vertexTri_wideVec(
     float texScale = min(uniforms.frameSize.x,uniforms.frameSize.y)/(uniforms.screenSizeInDisplayCoords.x * vertArgs.wideVec.texRepeat);
     float texPos = ((vert.texInfo.z - vert.texInfo.y) * t0 + vert.texInfo.y + vert.texInfo.w * realWidth2) * texScale;
     outVert.texCoord = float2(vert.texInfo.x, texPos);
-    float4 screenPos = uniforms.mvpMatrix * float4(realPos,1.0);
+    float4 screenPos = uniforms.pMatrix * (uniforms.mvMatrix * float4(realPos,1.0) + uniforms.mvMatrixDiff * float4(realPos,1.0));
     screenPos /= screenPos.w;
     outVert.position = float4(screenPos.xy,0,1.0);
 
@@ -549,7 +557,7 @@ vertex ProjVertexTriA vertexTri_screenSpace(
     }
     
     // Project the point all the way to screen space
-    float4 screenPt = uniforms.mvpMatrix * float4(pos,1.0);
+    float4 screenPt = uniforms.pMatrix * (uniforms.mvMatrix * float4(pos,1.0) + uniforms.mvMatrixDiff * float4(pos,1.0));
     screenPt /= screenPt.w;
     
     // Project the rotation into display space and drop the Z
