@@ -48,6 +48,8 @@ QuadDisplayControllerNew::QuadDisplayControllerNew(QuadDataStructure *dataStruct
     keepMinLevelHeight = 0.0;
     scene = renderer->getScene();
     zoomSlot = scene->retainZoomSlot();
+    lastTargetLevel = -1.0;
+    lastTargetDecimal = -1.0;
 }
     
 QuadDisplayControllerNew::~QuadDisplayControllerNew()
@@ -192,15 +194,17 @@ bool QuadDisplayControllerNew::viewUpdate(PlatformThreadInfo *threadInfo,ViewSta
     // Nodes to load are different for single level vs regular loading
     QuadTreeNew::ImportantNodeSet newNodes;
     int targetLevel = -1;
+    std::vector<double> maxRejectedImport(reportedMaxZoom+1,0.0);
     if (singleLevel) {
-        std::tie(targetLevel,newNodes) = calcCoverageVisible(minImportancePerLevel, maxTiles, levelLoads, localKeepMinLevel);
+        std::tie(targetLevel,newNodes) = calcCoverageVisible(minImportancePerLevel, maxTiles, levelLoads, localKeepMinLevel, maxRejectedImport);
     } else {
-        newNodes = calcCoverageImportance(minImportancePerLevel,maxTiles,true);
+        newNodes = calcCoverageImportance(minImportancePerLevel,maxTiles,true, maxRejectedImport);
         // Just take the highest level as target
         for (auto node : newNodes)
             targetLevel = std::max(targetLevel,node.level);
     }
-    
+    double maxRatio = targetLevel >= maxRejectedImport.size() ? 0.0 : maxRejectedImport[targetLevel+1];
+
 //    wkLogLevel(Debug,"Selected level %d for %d nodes",targetLevel,(int)newNodes.size());
 //    for (auto node: newNodes) {
 //        wkLogLevel(Debug," %d: (%d,%d), import = %f",node.level,node.x,node.y,node.importance);
@@ -245,16 +249,28 @@ bool QuadDisplayControllerNew::viewUpdate(PlatformThreadInfo *threadInfo,ViewSta
         int oldMaxLevel = maxLevel;
         maxLevel = reportedMaxZoom;
         QuadTreeNew::ImportantNodeSet testNodes;
-        std::tie(testTargetLevel,testNodes) = calcCoverageVisible(reportedMinImportancePerLevel, maxTiles, levelLoads, localKeepMinLevel);
+        std::vector<double> maxRejectedImport(reportedMaxZoom+1,0.0);
+        std::tie(testTargetLevel,testNodes) = calcCoverageVisible(reportedMinImportancePerLevel, maxTiles, levelLoads, localKeepMinLevel, maxRejectedImport);
         maxLevel = oldMaxLevel;
+        maxRatio = testTargetLevel >= maxRejectedImport.size() ? 0.0 : maxRejectedImport[testTargetLevel+1];
     }
-    
-    // If the level changed (even partially) then update it
-    if (testTargetLevel != lastTargetLevel) {
+
+    // We take the largest importance for a tile beyond the one we're loading and use
+    //  that as a proxy for fractional zoom level
+    double testTargetDecimal = maxRatio;
+    // This will rarely be less than 0.25 (quad tree), so we scale accordingly
+    testTargetDecimal = (testTargetDecimal-0.25)/0.75;
+    testTargetDecimal = std::max(std::min(testTargetDecimal,0.99999999999),0.0);
+
+    // If the level changed (at least 1/100) then update it
+    if (testTargetLevel != lastTargetLevel ||
+        std::abs(testTargetDecimal-lastTargetDecimal) > 0.01) {
         lastTargetLevel = testTargetLevel;
+        lastTargetDecimal = testTargetDecimal;
+        float newZoom = lastTargetLevel+lastTargetDecimal;
         if (zoomSlot > -1) {
-//            wkLogLevel(Debug, "zoomSlot = %d, targetLevel = %f",zoomSlot,lastTargetLevel);
-            changes.push_back(new SetZoomSlotReq(zoomSlot,lastTargetLevel));
+//            wkLogLevel(Debug, "zoomSlot = %d, zoom = %f",zoomSlot,newZoom);
+            changes.push_back(new SetZoomSlotReq(zoomSlot,newZoom));
         }
     }
         

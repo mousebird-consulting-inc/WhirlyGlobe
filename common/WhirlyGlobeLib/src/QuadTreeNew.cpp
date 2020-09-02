@@ -105,7 +105,7 @@ QuadTreeNew::~QuadTreeNew()
 {
 }
 
-QuadTreeNew::ImportantNodeSet QuadTreeNew::calcCoverageImportance(const std::vector<double> &minImportance,int maxNodes,bool siblingNodes)
+QuadTreeNew::ImportantNodeSet QuadTreeNew::calcCoverageImportance(const std::vector<double> &minImportance,int maxNodes,bool siblingNodes,std::vector<double> &maxRejectedImport)
 {
     ImportantNodeSet sortedNodes;
     
@@ -115,7 +115,7 @@ QuadTreeNew::ImportantNodeSet QuadTreeNew::calcCoverageImportance(const std::vec
         for (int ix=0;ix<numX;ix++)
         {
             ImportantNode node(ix,iy,minLevel);
-            evalNodeImportance(node,minImportance,sortedNodes);
+            evalNodeImportance(node,minImportance,sortedNodes,maxRejectedImport);
         }
     
     // Add the most important nodes first until we run out
@@ -150,12 +150,22 @@ QuadTreeNew::ImportantNodeSet QuadTreeNew::calcCoverageImportance(const std::vec
     return retNodes;
 }
     
-void QuadTreeNew::evalNodeImportance(ImportantNode node,const std::vector<double> &minImportance,ImportantNodeSet &importSet)
+void QuadTreeNew::evalNodeImportance(ImportantNode node,const std::vector<double> &minImportance,ImportantNodeSet &importSet,std::vector<double> &maxRejectedImport)
 {
     node.importance = importance(node);
     
-    if (node.level > maxLevel || (node.importance < minImportance[node.level] && minImportance[node.level] != MAXFLOAT))
+    if (node.level > maxLevel)
         return;
+    
+    if (node.importance < minImportance[node.level] && minImportance[node.level] != MAXFLOAT) {
+        double ratio = 1.0;
+        double thisMinImport = minImportance[node.level];
+        if (thisMinImport > 0.0 && thisMinImport != MAXFLOAT)
+            ratio = node.importance / minImportance[node.level];
+        
+        maxRejectedImport[node.level] = std::max(ratio,maxRejectedImport[node.level]);
+        return;
+    }
 
     if (node.level >= minLevel)
         importSet.insert(node);
@@ -167,7 +177,7 @@ void QuadTreeNew::evalNodeImportance(ImportantNode node,const std::vector<double
             for (int ix=0;ix<2;ix++) {
                 int indX = 2*node.x + ix;
                 ImportantNode childNode(indX,indY,node.level+1);
-                evalNodeImportance(childNode,minImportance,importSet);
+                evalNodeImportance(childNode,minImportance,importSet,maxRejectedImport);
             }
         }
     }
@@ -212,13 +222,13 @@ bool QuadTreeNew::evalNodeVisible(ImportantNode node,const std::vector<double> &
     return true;
 }
     
-std::tuple<int,QuadTreeNew::ImportantNodeSet> QuadTreeNew::calcCoverageVisible(const std::vector<double> &minImportance,int maxNodes,const std::vector<int> &levelLoads,bool keepMinLevel)
+std::tuple<int,QuadTreeNew::ImportantNodeSet> QuadTreeNew::calcCoverageVisible(const std::vector<double> &minImportance,int maxNodes,const std::vector<int> &levelLoads,bool keepMinLevel,std::vector<double> &maxRejectedImport)
 {
     ImportantNodeSet sortedNodes;
 
     // Start at the lowest level and work our way to higher resolution
     ImportantNode node(0,0,0);
-    evalNodeImportance(node,minImportance,sortedNodes);
+    evalNodeImportance(node,minImportance,sortedNodes,maxRejectedImport);
 
     // Max level is the one we want to load (or try anyway)
     int targetLevel = -1;

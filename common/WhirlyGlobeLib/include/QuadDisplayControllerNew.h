@@ -196,6 +196,7 @@ protected:
     QuadTreeNew::ImportantNodeSet currentNodes;
     
     float lastTargetLevel;   // For tracking continuous zoom
+    float lastTargetDecimal; 
     int zoomSlot;
 
     ViewStateRef viewState;
