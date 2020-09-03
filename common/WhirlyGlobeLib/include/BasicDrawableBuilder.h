@@ -26,6 +26,7 @@
 #import "GlobeView.h"
 #import "Drawable.h"
 #import "TextureAtlas.h"
+#import "BaseInfo.h"
 
 namespace WhirlyKit
 {
@@ -122,6 +123,12 @@ public:
     
     /// Set the color as an array.
     virtual void setColor(unsigned char inColor[]);
+    
+    // Apply a dynamic color expression
+    void setColorExpression(ColorExpressionInfoRef colorExp);
+    
+    // Apply a dynamic opacity expression
+    void setOpacityExpression(FloatExpressionInfoRef opacityExp);
     
     /// Number of extra frames to draw after we'd normally stop
     virtual void setExtraFrames(int numFrames);
@@ -237,6 +244,9 @@ public:
     // Unprocessed data arrays
     std::vector<Eigen::Vector3f> points;
     std::vector<BasicDrawable::Triangle> tris;
+
+    ColorExpressionInfoRef colorExp;
+    FloatExpressionInfoRef opacityExp;
 };
 
 typedef std::shared_ptr<BasicDrawableBuilder> BasicDrawableBuilderRef;

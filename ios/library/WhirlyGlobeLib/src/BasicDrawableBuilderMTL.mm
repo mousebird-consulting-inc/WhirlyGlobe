@@ -21,6 +21,7 @@
 #import <MetalKit/MetalKit.h>
 #import "BasicDrawableBuilderMTL.h"
 #import "DefaultShadersMTL.h"
+#import "RawData_NSData.h"
 
 using namespace Eigen;
 
@@ -101,6 +102,21 @@ BasicDrawable *BasicDrawableBuilderMTL::getDrawable()
         for (auto pt : points)
             ptsAttr->addVector3f(pt);
         draw->tris = tris;
+        
+        // Expression uniforms, if we have those
+        if (colorExp || opacityExp) {
+            WhirlyKitShader::UniformDrawStateExp vecExp;
+            memset(&vecExp, 0, sizeof(vecExp));
+            if (colorExp)
+                ColorExpressionToMtl(colorExp, vecExp.colorExp);
+            if (opacityExp)
+                FloatExpressionToMtl(opacityExp, vecExp.opacityExp);
+            
+            BasicDrawable::UniformBlock uniBlock;
+            uniBlock.blockData = RawDataRef(new RawNSDataReader([[NSData alloc] initWithBytes:&vecExp length:sizeof(vecExp)]));
+            uniBlock.bufferID = WhirlyKitShader::WKSUniformVecEntryExp;
+            basicDraw->setUniBlock(uniBlock);
+        }
         
         drawableGotten = true;
     }

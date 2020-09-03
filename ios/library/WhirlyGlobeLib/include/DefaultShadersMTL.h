@@ -123,6 +123,7 @@ typedef enum {
 // These must be in order, but you can add new ones at the end
 typedef enum {
     WKSUniformDrawStateEntry = 0,
+    WKSUniformVecEntryExp = 99,
     WKSUniformWideVecEntry = 100,
     WKSUniformWideVecEntryExp = 110,
     WKSUniformScreenSpaceEntry = 200,
@@ -166,6 +167,13 @@ struct UniformDrawStateA {
     float minVisibleFadeBand,maxVisibleFadeBand;
     int zoomSlot;              // Used to pass continuous zoom info
     bool clipCoords;           // If set, the geometry coordinates aren't meant to be transformed
+    bool hasExp;                // Look for a UniformWideVecExp structure for color, opacity, and width
+};
+
+// Uniform expressions optionally passed to basic polygon shaders
+struct UniformDrawStateExp {
+    FloatExp opacityExp;
+    ColorExp colorExp;
 };
     
 // Things that change per particle drawable
@@ -383,6 +391,7 @@ typedef struct RegularTextures {
 
 struct VertexTriArgBufferA {
     WhirlyKitShader::UniformDrawStateA uniDrawState      [[ id(WhirlyKitShader::WKSUniformDrawStateEntry) ]];
+    WhirlyKitShader::UniformDrawStateExp drawStateExp    [[ id(WhirlyKitShader::WKSUniformVecEntryExp) ]];
     bool hasTextures;
 };
 

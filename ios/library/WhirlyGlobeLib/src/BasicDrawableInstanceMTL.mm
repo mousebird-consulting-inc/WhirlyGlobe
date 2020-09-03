@@ -414,8 +414,11 @@ bool BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
             for (const BasicDrawable::UniformBlock &uniBlock : uniBlocks)
                 allUniBlocks[uniBlock.bufferID] = &uniBlock;
 
+            bool hasExp = false;
             for (auto it : allUniBlocks) {
                 auto uniBlock = it.second;
+                if (uniBlock->bufferID == WhirlyKitShader::WKSUniformVecEntryExp)
+                    hasExp = true;
                 vertABInfo->updateEntry(mtlDevice,bltEncode,uniBlock->bufferID, (void *)uniBlock->blockData->getRawData(), uniBlock->blockData->getLen());
                 fragABInfo->updateEntry(mtlDevice,bltEncode,uniBlock->bufferID, (void *)uniBlock->blockData->getRawData(), uniBlock->blockData->getLen());
             }
@@ -426,6 +429,7 @@ bool BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
             sceneRender->setupDrawStateA(uni);
             uni.zoomSlot = zoomSlot;
             uni.clipCoords = basicDraw->clipCoords;
+            uni.hasExp = hasExp;
             // TODO: Put these in the instance as well
             double baseTime = scene->getBaseTime();
             uni.fadeUp = basicDraw->fadeUp-baseTime;

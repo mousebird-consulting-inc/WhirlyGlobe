@@ -475,7 +475,10 @@ bool BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
             }
 
             // And the uniforms passed through the drawable
+            bool hasExp = false;
             for (const UniformBlock &uniBlock : uniBlocks) {
+                if (uniBlock.bufferID == WhirlyKitShader::WKSUniformVecEntryExp)
+                    hasExp = true;
                 vertABInfo->updateEntry(mtlDevice,bltEncode, uniBlock.bufferID, (void *)uniBlock.blockData->getRawData(), uniBlock.blockData->getLen());
                 fragABInfo->updateEntry(mtlDevice,bltEncode, uniBlock.bufferID, (void *)uniBlock.blockData->getRawData(), uniBlock.blockData->getLen());
             }
@@ -486,6 +489,7 @@ bool BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
             sceneRender->setupDrawStateA(uni);
             uni.zoomSlot = zoomSlot;
             uni.clipCoords = clipCoords;
+            uni.hasExp = hasExp;
             if (hasMatrix)
                 CopyIntoMtlFloat4x4(uni.singleMat, *getMatrix());
             else {

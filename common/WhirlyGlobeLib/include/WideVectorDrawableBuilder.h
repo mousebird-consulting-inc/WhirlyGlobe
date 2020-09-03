@@ -87,12 +87,6 @@ public:
     // Apply a width expression
     void setWidthExpression(FloatExpressionInfoRef widthExp);
     
-    // Apply a dynamic color expression
-    void setColorExpression(ColorExpressionInfoRef colorExp);
-    
-    // Apply a dynamic opacity expression
-    void setOpacityExpression(FloatExpressionInfoRef opacityExp);
-
     // The tweaker sets up uniforms before a given drawable draws
     void setupTweaker(BasicDrawable *theDraw);
     
@@ -114,8 +108,6 @@ protected:
     int tex_index;
     
     FloatExpressionInfoRef widthExp;
-    ColorExpressionInfoRef colorExp;
-    FloatExpressionInfoRef opacityExp;
     
 #ifdef WIDEVECDEBUG
     Point3fVector locPts;

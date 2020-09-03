@@ -120,6 +120,8 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
             vecInfo.minZoomVis = minzoom;
             vecInfo.maxZoomVis = maxzoom;
         }
+        vecInfo.colorExp = paint.color->expression();
+        vecInfo.opacityExp = paint.opacity->expression();
 
         if (arealShaderID != EmptyIdentity)
             vecInfo.programID = arealShaderID;
@@ -171,6 +173,8 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
             vecInfo.minZoomVis = minzoom;
             vecInfo.maxZoomVis = maxzoom;
         }
+        vecInfo.colorExp = paint.outlineColor->expression();
+        vecInfo.opacityExp = paint.opacity->expression();
         if (arealShaderID != EmptyIdentity)
             vecInfo.programID = arealShaderID;
         else

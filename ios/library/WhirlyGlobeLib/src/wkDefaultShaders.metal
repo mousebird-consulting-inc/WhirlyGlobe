@@ -77,6 +77,109 @@ float calculateFade(constant Uniforms &uni,
     return fade;
 }
 
+// Get zoom from appropriate slot
+float ZoomFromSlot(constant Uniforms &uniforms,int zoomSlot)
+{
+    if (zoomSlot < 0 || zoomSlot >= MaxZoomSlots)
+        return 0.0;
+    float zoom = uniforms.zoomSlots[zoomSlot];
+    if (zoom > 1000000.0)  // MAXFLOAT means it isn't on
+        return 0.0;
+    
+    return zoom;
+}
+
+// Calculate a float based on the current zoom level
+float ExpCalculateFloat(constant FloatExp &floatExp,float zoom,float defaultVal)
+{
+    if (floatExp.numStops == 0 || floatExp.type == ExpNone)
+        return defaultVal;
+    
+    int stopA=0,stopB=-1;
+    if (zoom <= floatExp.stopInputs[stopA])
+        return floatExp.stopOutputs[stopA];
+    for (int which = 1;which < floatExp.numStops;which++) {
+        stopB = which;
+        if (floatExp.stopInputs[stopA] <= zoom && zoom < floatExp.stopInputs[stopB]) {
+            float zoomA = floatExp.stopInputs[stopA];
+            float zoomB = floatExp.stopInputs[stopB];
+            float valA = floatExp.stopOutputs[stopA];
+            float valB = floatExp.stopOutputs[stopB];
+            switch (floatExp.type) {
+                case WhirlyKitShader::ExpLinear:
+                {
+                    float t = (zoom-zoomA)/(zoomB-zoomA);
+                    return t * (valB-valA) + valA;
+                }
+                    break;
+                case WhirlyKitShader::ExpExponential:
+                {
+                    float ratio = 1.0;
+                    if (floatExp.base == 1.0)
+                        ratio = (zoom-zoomA)/(zoomB-zoomA);
+                    else {
+                        float soFar = zoom-zoomA;
+                        ratio = (pow(floatExp.base, soFar) - 1.0) / (pow(floatExp.base,zoomB-zoomA) - 1.0);
+                    }
+                    return ratio * (valB - valA) + valA;
+                }
+                    break;
+                default:
+                    break;
+            }
+        }
+        stopA = stopB;
+    }
+    
+    return floatExp.stopOutputs[stopB];
+}
+
+// Calculate a color based on the current zoom level
+float4 ExpCalculateColor(constant ColorExp &floatExp,float zoom,float4 defaultVal)
+{
+    if (floatExp.numStops == 0 || floatExp.type == ExpNone)
+        return defaultVal;
+    
+    int stopA=0,stopB=-1;
+    if (zoom <= floatExp.stopInputs[stopA])
+        return floatExp.stopOutputs[stopA];
+    for (int which = 1;which < floatExp.numStops;which++) {
+        stopB = which;
+        if (floatExp.stopInputs[stopA] <= zoom && zoom < floatExp.stopInputs[stopB]) {
+            float zoomA = floatExp.stopInputs[stopA];
+            float zoomB = floatExp.stopInputs[stopB];
+            float4 valA = floatExp.stopOutputs[stopA];
+            float4 valB = floatExp.stopOutputs[stopB];
+            switch (floatExp.type) {
+                case WhirlyKitShader::ExpLinear:
+                {
+                    float t = (zoom-zoomA)/(zoomB-zoomA);
+                    return t * (valB-valA) + valA;
+                }
+                    break;
+                case WhirlyKitShader::ExpExponential:
+                {
+                    float ratio = 1.0;
+                    if (floatExp.base == 1.0)
+                        ratio = (zoom-zoomA)/(zoomB-zoomA);
+                    else {
+                        float soFar = zoom-zoomA;
+                        ratio = (pow(floatExp.base, soFar) - 1.0) / (pow(floatExp.base,zoomB-zoomA) - 1.0);
+                    }
+                    return ratio * (valB - valA) + valA;
+                }
+                    break;
+                default:
+                    break;
+            }
+        }
+        stopA = stopB;
+    }
+    
+    return floatExp.stopOutputs[stopB];
+}
+
+
 struct VertexArgBufferA {
     UniformDrawStateA uniDrawState  [[ id(WKSUniformDrawStateEntry) ]];
 };
@@ -227,7 +330,7 @@ vertex ProjVertexTriA vertexTri_noLight(
     ProjVertexTriA outVert;
 
     float3 vertPos = (vertArgs.uniDrawState.singleMat * float4(vert.position,1.0)).xyz;
-
+    
     if (vertArgs.uniDrawState.clipCoords)
         outVert.position = float4(vertPos,1.0);
     else {
@@ -235,7 +338,17 @@ vertex ProjVertexTriA vertexTri_noLight(
         pt /= pt.w;
         outVert.position = pt;
     }
-    outVert.color = float4(vert.color) * calculateFade(uniforms,vertArgs.uniDrawState);
+
+    // Sort out expressions for color and opacity
+    float4 color = vert.color;
+    if (vertArgs.uniDrawState.hasExp) {
+        float zoom = ZoomFromSlot(uniforms, vertArgs.uniDrawState.zoomSlot);
+        color = ExpCalculateColor(vertArgs.drawStateExp.colorExp, zoom, color);
+        float opacity = ExpCalculateFloat(vertArgs.drawStateExp.opacityExp, zoom, 1.0);
+        color.a = color.a * opacity;
+    }
+
+    outVert.color = color * calculateFade(uniforms,vertArgs.uniDrawState);
     
     if (TexturesBase(texArgs.texPresent) > 0)
         outVert.texCoord = resolveTexCoords(vert.texCoord,texArgs,0);
@@ -245,6 +358,7 @@ vertex ProjVertexTriA vertexTri_noLight(
 
 struct VertexTriArgBufferB {
     UniformDrawStateA uniDrawState      [[ id(WKSUniformDrawStateEntry) ]];
+    UniformDrawStateExp drawStateExp    [[ id(WKSUniformVecEntryExp) ]];
     bool hasTextures;
     bool hasLighting;
 };
@@ -267,9 +381,19 @@ vertex ProjVertexTriA vertexTri_light(
         pt /= pt.w;
         outVert.position = pt;
     }
+    
+    // Sort out expressions for color and opacity
+    float4 color = vert.color;
+    if (vertArgs.uniDrawState.hasExp) {
+        float zoom = ZoomFromSlot(uniforms, vertArgs.uniDrawState.zoomSlot);
+        color = ExpCalculateColor(vertArgs.drawStateExp.colorExp, zoom, color);
+        float opacity = ExpCalculateFloat(vertArgs.drawStateExp.opacityExp, zoom, 1.0);
+        color.a = color.a * opacity;
+    }
+
     outVert.color = resolveLighting(vert.position,
                                     vert.normal,
-                                    float4(vert.color),
+                                    color,
                                     lighting,
                                     uniforms.mvpMatrix) *
                     calculateFade(uniforms,vertArgs.uniDrawState);
@@ -388,63 +512,6 @@ fragment float4 fragmentTri_multiTexRamp(ProjVertexTriB vert [[stage_in]],
     return vert.color * lookupColor;
 }
 
-// Calculate a float based on the current zoom level
-float ExpCalculateFloat(constant FloatExp &floatExp,float zoom,float defaultVal)
-{
-    if (floatExp.numStops == 0 || floatExp.type == ExpNone)
-        return defaultVal;
-    
-    int stopA=0,stopB=-1;
-    if (zoom <= floatExp.stopInputs[stopA])
-        return floatExp.stopOutputs[stopA];
-    for (int which = 1;which < floatExp.numStops;which++) {
-        stopB = which;
-        if (floatExp.stopInputs[stopA] <= zoom && zoom < floatExp.stopInputs[stopB]) {
-            float zoomA = floatExp.stopInputs[stopA];
-            float zoomB = floatExp.stopInputs[stopB];
-            float valA = floatExp.stopOutputs[stopA];
-            float valB = floatExp.stopOutputs[stopB];
-            switch (floatExp.type) {
-                case WhirlyKitShader::ExpLinear:
-                {
-                    float t = (zoom-zoomA)/(zoomB-zoomA);
-                    return t * (valB-valA) + valA;
-                }
-                    break;
-                case WhirlyKitShader::ExpExponential:
-                {
-                    float ratio = 1.0;
-                    if (floatExp.base == 1.0)
-                        ratio = (zoom-zoomA)/(zoomB-zoomA);
-                    else {
-                        float soFar = zoom-zoomA;
-                        ratio = (pow(floatExp.base, soFar) - 1.0) / (pow(floatExp.base,zoomB-zoomA) - 1.0);
-                    }
-                    return ratio * (valB - valA) + valA;
-                }
-                    break;
-                default:
-                    break;
-            }
-        }
-        stopA = stopB;
-    }
-    
-    return floatExp.stopOutputs[stopB];
-}
-
-// Get zoom from appropriate slot
-float ZoomFromSlot(constant Uniforms &uniforms,int zoomSlot)
-{
-    if (zoomSlot < 0 || zoomSlot >= MaxZoomSlots)
-        return 0.0;
-    float zoom = uniforms.zoomSlots[zoomSlot];
-    if (zoom > 1000000.0)  // MAXFLOAT means it isn't on
-        return 0.0;
-    
-    return zoom;
-}
-
 struct TriWideArgBuffer {
     UniformDrawStateA uniDrawState      [[ id(WKSUniformDrawStateEntry) ]];
     UniformWideVec wideVec              [[ id(WKSUniformWideVecEntry) ]];
@@ -466,7 +533,7 @@ vertex ProjVertexTriWideVec vertexTri_wideVec(
     float w2 = vertArgs.wideVec.w2;
     if (vertArgs.wideVec.hasExp) {
         float zoom = ZoomFromSlot(uniforms, vertArgs.uniDrawState.zoomSlot);
-        w2 = ExpCalculateFloat(vertArgs.wideVecExp.widthExp, zoom, w2)/2.0;
+        w2 = ExpCalculateFloat(vertArgs.wideVecExp.widthExp, zoom, 2.0*w2)/2.0;
     }
     if (w2 > 0.0) {
         w2 = w2 + vertArgs.wideVec.edge;

@@ -70,13 +70,7 @@ public:
     
     // Apply a scale expression
     void setScaleExpression(FloatExpressionInfoRef scale);
-    
-    // Apply a dynamic color expression
-    void setColorExpression(ColorExpressionInfoRef colorExp);
-    
-    // Apply a dynamic opacity expression
-    void setOpacityExpression(FloatExpressionInfoRef opacityExp);
-    
+        
     // Tweaker runs before we draw and we need different versions for the renderers
     virtual ScreenSpaceTweaker *makeTweaker() = 0;
     

@@ -88,16 +88,6 @@ void ScreenSpaceDrawableBuilder::setScaleExpression(FloatExpressionInfoRef inSca
 {
     scaleExp = inScaleExp;
 }
-
-void ScreenSpaceDrawableBuilder::setColorExpression(ColorExpressionInfoRef inColorExp)
-{
-    colorExp = inColorExp;
-}
-
-void ScreenSpaceDrawableBuilder::setOpacityExpression(FloatExpressionInfoRef inOpacityExp)
-{
-    opacityExp = inOpacityExp;
-}
     
 void ScreenSpaceDrawableBuilder::setupTweaker(BasicDrawable *theDraw)
 {

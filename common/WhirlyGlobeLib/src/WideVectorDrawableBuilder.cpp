@@ -136,16 +136,6 @@ void WideVectorDrawableBuilder::setWidthExpression(FloatExpressionInfoRef inWidt
     widthExp = inWidthExp;
 }
 
-void WideVectorDrawableBuilder::setColorExpression(ColorExpressionInfoRef inColorExp)
-{
-    colorExp = inColorExp;
-}
-
-void WideVectorDrawableBuilder::setOpacityExpression(FloatExpressionInfoRef inOpacityExp)
-{
-    opacityExp = inOpacityExp;
-}
-
 void WideVectorDrawableBuilder::setupTweaker(BasicDrawable *theDraw)
 {
     WideVectorTweaker *tweak = makeTweaker();

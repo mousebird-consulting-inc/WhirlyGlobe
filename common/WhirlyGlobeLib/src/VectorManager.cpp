@@ -163,6 +163,8 @@ public:
             // Adjust according to the vector info
             drawable->setColor(ringColor);
             drawable->setLineWidth(vecInfo->lineWidth);
+            drawable->setColorExpression(vecInfo->colorExp);
+            drawable->setOpacityExpression(vecInfo->opacityExp);
         }
         drawMbr.addPoints(pts);
         
@@ -374,6 +376,8 @@ public:
                 drawMbr.reset();
                 drawable->setType(Triangles);
                 vecInfo->setupBasicDrawable(drawable);
+                drawable->setColorExpression(vecInfo->colorExp);
+                drawable->setOpacityExpression(vecInfo->opacityExp);
                 drawable->setColor(ringColor);
                 if (vecInfo->texId != EmptyIdentity)
                     drawable->setTexId(0, vecInfo->texId);
