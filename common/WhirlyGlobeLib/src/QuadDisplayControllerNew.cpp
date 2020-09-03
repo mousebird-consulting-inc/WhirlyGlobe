@@ -194,7 +194,7 @@ bool QuadDisplayControllerNew::viewUpdate(PlatformThreadInfo *threadInfo,ViewSta
     // Nodes to load are different for single level vs regular loading
     QuadTreeNew::ImportantNodeSet newNodes;
     int targetLevel = -1;
-    std::vector<double> maxRejectedImport(reportedMaxZoom+1,0.0);
+    std::vector<double> maxRejectedImport((reportedMaxZoom > 0 ? reportedMaxZoom : maxLevel) +1,0.0);
     if (singleLevel) {
         std::tie(targetLevel,newNodes) = calcCoverageVisible(minImportancePerLevel, maxTiles, levelLoads, localKeepMinLevel, maxRejectedImport);
     } else {
