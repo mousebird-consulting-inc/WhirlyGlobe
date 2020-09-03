@@ -78,8 +78,10 @@
 #define MaplyShaderString WKString("shader")
 /// This is the shader we'll normally get by default on triangles
 #define MaplyDefaultTriangleShader WKString("Default Triangle;lighting=yes")
+#define MaplyTriangleExpShader WKString("Default Triangle;lighting=yes;exp=yes")
 /// This shader turns off lighting explicitly (doesn't have the code for it)
 #define MaplyNoLightTriangleShader WKString("Default Triangle;lighting=no")
+#define MaplyNoLightTriangleExpShader WKString("Default Triangle;lighting=no;exp=yes")
 /// This is the line/point shader we'll normaly get by default
 #define MaplyDefaultLineShader WKString("Default Line;backface=yes")
 /// This point/line shader turns off the backface logic for lines
@@ -105,10 +107,12 @@
 #define MaplyBillboardEyeShader WKString("Default Billboard eye")
 
 #define MaplyDefaultWideVectorShader WKString("Default Wide Vector")
+#define MaplyWideVectorExpShader WKString("Default Wide Vector with expressions")
 #define MaplyDefaultWideVectorGlobeShader WKString("Default Wide Vector Globe")
 
 #define MaplyScreenSpaceDefaultMotionShader WKString("Default Screenspace Motion")
 #define MaplyScreenSpaceDefaultShader WKString("Default Screenspace")
+#define MaplyScreenSpaceExpShader WKString("Screenspace with expressions")
 
 #define MaplyParticleSystemPointDefaultShader WKString("Default Part Sys (Point)")
 

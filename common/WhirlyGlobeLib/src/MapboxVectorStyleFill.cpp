@@ -113,6 +113,7 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
         // Set up the description for constructing vectors
         VectorInfo vecInfo;
         bool include = true;
+        vecInfo.hasExp = true;
         vecInfo.filled = true;
         vecInfo.centered = true;
         vecInfo.zoomSlot = styleSet->zoomSlot;
@@ -166,6 +167,7 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
         // Set up the description for constructing vectors
         VectorInfo vecInfo;
         bool include = true;
+        vecInfo.hasExp = true;
         vecInfo.filled = false;
         vecInfo.centered = true;
         if (minzoom != 0 || maxzoom < 1000) {

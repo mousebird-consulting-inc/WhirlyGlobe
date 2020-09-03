@@ -354,6 +354,7 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
         textSize = 1.0;
 
     LabelInfoRef labelInfo = styleSet->makeLabelInfo(inst,layout.textFontNames,textSize);
+    labelInfo->hasExp = true;
     labelInfo->zoomSlot = styleSet->zoomSlot;
     if (minzoom != 0 || maxzoom < 1000) {
         labelInfo->minZoomVis = minzoom;
@@ -394,6 +395,7 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
     
     // Sort out the image for the marker if we're doing that
     MarkerInfo markerInfo(true);
+    markerInfo.hasExp = true;
     markerInfo.zoomSlot = styleSet->zoomSlot;
     if (minzoom != 0 || maxzoom < 1000) {
         markerInfo.minZoomVis = minzoom;

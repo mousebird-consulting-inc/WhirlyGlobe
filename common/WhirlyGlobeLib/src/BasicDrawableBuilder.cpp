@@ -88,6 +88,7 @@ void BasicDrawableBuilder::Init()
     
     basicDraw->valuesChanged = true;
     basicDraw->texturesChanged = true;
+    includeExp = false;
 }
     
 void BasicDrawableBuilder::setupStandardAttributes(int numReserve)
@@ -271,6 +272,11 @@ void BasicDrawableBuilder::addTweaker(DrawableTweakerRef tweakRef)
 void BasicDrawableBuilder::setType(GeometryType inType)
 {
     basicDraw->type = inType;
+}
+
+void BasicDrawableBuilder::setIncludeExp(bool newVal)
+{
+    includeExp = newVal;
 }
 
 void BasicDrawableBuilder::setColor(RGBAColor color)

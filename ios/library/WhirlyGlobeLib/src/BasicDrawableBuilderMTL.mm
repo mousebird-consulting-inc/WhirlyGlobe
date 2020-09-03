@@ -104,7 +104,7 @@ BasicDrawable *BasicDrawableBuilderMTL::getDrawable()
         draw->tris = tris;
         
         // Expression uniforms, if we have those
-        if (colorExp || opacityExp) {
+        if (colorExp || opacityExp || includeExp) {
             WhirlyKitShader::UniformDrawStateExp vecExp;
             memset(&vecExp, 0, sizeof(vecExp));
             if (colorExp)

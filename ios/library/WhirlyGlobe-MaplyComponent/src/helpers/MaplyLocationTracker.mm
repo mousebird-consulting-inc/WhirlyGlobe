@@ -133,7 +133,7 @@
     
     _movingMarkerDesc = [NSMutableDictionary dictionaryWithDictionary:@{kMaplyMinVis: @(_markerMinVis), kMaplyMaxVis: @(_markerMaxVis), kMaplyFade: @(0.0), kMaplyDrawPriority:@(_markerDrawPriority), kMaplyEnableStart:@(0.0)}];
     
-    _shapeCircleDesc = [NSMutableDictionary dictionaryWithDictionary:@{kMaplyColor : [UIColor colorWithRed:0.06 green:0.06 blue:0.1 alpha:0.2], kMaplyFade: @(0.0), kMaplyDrawPriority: @(_markerDrawPriority-1), kMaplySampleX: @(100)}];
+    _shapeCircleDesc = [NSMutableDictionary dictionaryWithDictionary:@{kMaplyColor : [UIColor colorWithRed:0.06 green:0.06 blue:0.1 alpha:0.2], kMaplyFade: @(0.0), kMaplyDrawPriority: @(_markerDrawPriority-1), kMaplySampleX: @(100), kMaplyZBufferRead: @(false)}];
     
 }
 

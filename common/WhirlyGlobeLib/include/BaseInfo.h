@@ -116,6 +116,7 @@ public:
     int extraFrames;
     bool zBufferRead,zBufferWrite;
     SimpleIdentity renderTargetID;
+    bool hasExp;   // Set if we're requiring the expressions to be passed through (problem on Metal)
     
     SingleVertexAttributeSet uniforms;
 };

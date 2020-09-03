@@ -308,11 +308,13 @@ NSString* const kMaplyTexMipmap = @"texmipmap";
 /// These are the various shader programs we set up by default
 NSString* const kMaplyShaderDefaultTri = @"Default Triangle;lighting=yes";
 NSString* const kMaplyDefaultTriangleShader = @"Default Triangle;lighting=yes";
+NSString* const kMaplyShaderTriExp = @"Default Triangle;lighting=yes;exp=yes";
 
 NSString* const kMaplyShaderDefaultModelTri = @"Default Triangle;model=yes;lighting=yes";
 
 NSString* const kMaplyShaderDefaultTriNoLighting = @"Default Triangle;lighting=no";
 NSString* const kMaplyNoLightTriangleShader = @"Default Triangle;lighting=no";
+NSString* const kMaplyShaderNoLightTriangleExp = @"Default Triangle;lighting=no;exp=yes";
 
 NSString* const kMaplyShaderDefaultTriScreenTex = @"Default Triangle;screentex=yes;lighting=yes";
 
@@ -332,8 +334,10 @@ NSString* const kMaplyShaderBillboardGround = @"Default Billboard ground";
 NSString* const kMaplyShaderBillboardEye = @"Default Billboard eye";
 
 NSString* const kMaplyShaderDefaultWideVector = @"Default Wide Vector";
+NSString* const kMaplyShaderWideVectorExp = @"Default Wide Vector with expressions";
 
 NSString* const kMaplyScreenSpaceDefaultMotionProgram = @"Default Screenspace Motion";
 NSString* const kMaplyScreenSpaceDefaultProgram = @"Default Screenspace";
+NSString* const kMaplyScreenSpaceExpProgram = @"Screenspace with expressions";
 
 NSString* const kMaplyShaderParticleSystemPointDefault = @"Default Part Sys (Point)";

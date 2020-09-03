@@ -23,7 +23,7 @@ namespace WhirlyKitShader
 {
 
 /** Expressions are used to change values like width and opacity over zoom levels. **/
-#define WKSExpStops 16
+#define WKSExpStops 8
 
 // Expression types
 typedef enum {
@@ -151,8 +151,8 @@ struct Uniforms
     int outputTexLevel;        // Normally 0, unless we're running a reduce
     float currentTime;         // Current time relative to the start of the renderer
     float height;              // Height above the ground/globe
-    bool globeMode;
     float zoomSlots[MaxZoomSlots];  // Zoom levels calculated by the sampling layers
+    bool globeMode;
 };
 
 // Things that change per drawable (like fade)
@@ -390,6 +390,11 @@ typedef struct RegularTextures {
 } RegularTextures;
 
 struct VertexTriArgBufferA {
+    WhirlyKitShader::UniformDrawStateA uniDrawState      [[ id(WhirlyKitShader::WKSUniformDrawStateEntry) ]];
+    bool hasTextures;
+};
+
+struct VertexTriArgBufferAExp {
     WhirlyKitShader::UniformDrawStateA uniDrawState      [[ id(WhirlyKitShader::WKSUniformDrawStateEntry) ]];
     WhirlyKitShader::UniformDrawStateExp drawStateExp    [[ id(WhirlyKitShader::WKSUniformVecEntryExp) ]];
     bool hasTextures;

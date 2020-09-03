@@ -339,6 +339,33 @@ vertex ProjVertexTriA vertexTri_noLight(
         outVert.position = pt;
     }
 
+    outVert.color = vert.color * calculateFade(uniforms,vertArgs.uniDrawState);
+    
+    if (TexturesBase(texArgs.texPresent) > 0)
+        outVert.texCoord = resolveTexCoords(vert.texCoord,texArgs,0);
+    
+    return outVert;
+}
+
+// Simple vertex shader for triangle with no lighting that handles expressions
+vertex ProjVertexTriA vertexTri_noLightExp(
+                VertexTriA vert [[stage_in]],
+                constant Uniforms &uniforms [[ buffer(WKSVertUniformArgBuffer) ]],
+                constant VertexTriArgBufferAExp & vertArgs [[buffer(WKSVertexArgBuffer)]],
+                constant RegularTextures & texArgs  [[buffer(WKSVertTextureArgBuffer)]])
+{
+    ProjVertexTriA outVert;
+
+    float3 vertPos = (vertArgs.uniDrawState.singleMat * float4(vert.position,1.0)).xyz;
+    
+    if (vertArgs.uniDrawState.clipCoords)
+        outVert.position = float4(vertPos,1.0);
+    else {
+        float4 pt = uniforms.pMatrix * (uniforms.mvMatrix * float4(vertPos,1.0) + uniforms.mvMatrixDiff * float4(vertPos,1.0));
+        pt /= pt.w;
+        outVert.position = pt;
+    }
+
     // Sort out expressions for color and opacity
     float4 color = vert.color;
     if (vertArgs.uniDrawState.hasExp) {
@@ -356,9 +383,9 @@ vertex ProjVertexTriA vertexTri_noLight(
     return outVert;
 }
 
+
 struct VertexTriArgBufferB {
     UniformDrawStateA uniDrawState      [[ id(WKSUniformDrawStateEntry) ]];
-    UniformDrawStateExp drawStateExp    [[ id(WKSUniformVecEntryExp) ]];
     bool hasTextures;
     bool hasLighting;
 };
@@ -369,6 +396,44 @@ vertex ProjVertexTriA vertexTri_light(
                 constant Uniforms &uniforms [[ buffer(WKSVertUniformArgBuffer) ]],
                 constant Lighting &lighting [[ buffer(WKSVertLightingArgBuffer) ]],
                 constant VertexTriArgBufferB & vertArgs [[buffer(WKSVertexArgBuffer)]],
+                constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
+{
+    ProjVertexTriA outVert;
+    
+    float3 vertPos = (vertArgs.uniDrawState.singleMat * float4(vert.position,1.0)).xyz;
+    if (vertArgs.uniDrawState.clipCoords)
+        outVert.position = float4(vertPos,1.0);
+    else {
+        float4 pt = uniforms.pMatrix * (uniforms.mvMatrix * float4(vertPos,1.0) + uniforms.mvMatrixDiff * float4(vertPos,1.0));
+        pt /= pt.w;
+        outVert.position = pt;
+    }
+    
+    outVert.color = resolveLighting(vert.position,
+                                    vert.normal,
+                                    vert.color,
+                                    lighting,
+                                    uniforms.mvpMatrix) *
+                    calculateFade(uniforms,vertArgs.uniDrawState);
+    if (TexturesBase(texArgs.texPresent) > 0)
+        outVert.texCoord = resolveTexCoords(vert.texCoord,texArgs,0);
+    
+    return outVert;
+}
+
+struct VertexTriArgBufferC {
+    UniformDrawStateA uniDrawState      [[ id(WKSUniformDrawStateEntry) ]];
+    UniformDrawStateExp drawStateExp    [[ id(WKSUniformVecEntryExp) ]];
+    bool hasTextures;
+    bool hasLighting;
+};
+
+// Simple vertex shader for triangle with basic lighting and handles expressions
+vertex ProjVertexTriA vertexTri_lightExp(
+                VertexTriA vert [[stage_in]],
+                constant Uniforms &uniforms [[ buffer(WKSVertUniformArgBuffer) ]],
+                constant Lighting &lighting [[ buffer(WKSVertLightingArgBuffer) ]],
+                constant VertexTriArgBufferC & vertArgs [[buffer(WKSVertexArgBuffer)]],
                 constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriA outVert;
@@ -399,9 +464,11 @@ vertex ProjVertexTriA vertexTri_light(
                     calculateFade(uniforms,vertArgs.uniDrawState);
     if (TexturesBase(texArgs.texPresent) > 0)
         outVert.texCoord = resolveTexCoords(vert.texCoord,texArgs,0);
+    outVert.color = color;
     
     return outVert;
 }
+
 
 // Simple fragment shader for lines on flat map
 fragment float4 fragmentTri_basic(
@@ -512,17 +579,60 @@ fragment float4 fragmentTri_multiTexRamp(ProjVertexTriB vert [[stage_in]],
     return vert.color * lookupColor;
 }
 
-struct TriWideArgBuffer {
+struct TriWideArgBufferA {
+    UniformDrawStateA uniDrawState      [[ id(WKSUniformDrawStateEntry) ]];
+    UniformWideVec wideVec              [[ id(WKSUniformWideVecEntry) ]];
+    bool hasTextures;
+};
+
+// Default wide vector program
+vertex ProjVertexTriWideVec vertexTri_wideVec(
+            VertexTriWideVec vert [[stage_in]],
+            constant Uniforms &uniforms [[ buffer(WKSVertUniformArgBuffer) ]],
+            constant TriWideArgBufferA & vertArgs [[buffer(WKSVertexArgBuffer)]],
+            constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
+{
+    ProjVertexTriWideVec outVert;
+    
+    float3 pos = (vertArgs.uniDrawState.singleMat * float4(vert.position.xyz,1.0)).xyz;
+    
+    // Pull out the width and possibly calculate one
+    float w2 = vertArgs.wideVec.w2;
+    if (w2 > 0.0) {
+        w2 = w2 + vertArgs.wideVec.edge;
+    }
+
+    outVert.color = vertArgs.wideVec.color * calculateFade(uniforms,vertArgs.uniDrawState);
+    
+    float realWidth2 = w2 * min(uniforms.screenSizeInDisplayCoords.x,uniforms.screenSizeInDisplayCoords.y) / min(uniforms.frameSize.x,uniforms.frameSize.y);
+    float t0 = vert.c0 * realWidth2;
+    t0 = clamp(t0,0.0,1.0);
+    float3 realPos = (vert.p1 - vert.position) * t0 + vert.n0 * realWidth2 + pos;
+    float texScale = min(uniforms.frameSize.x,uniforms.frameSize.y)/(uniforms.screenSizeInDisplayCoords.x * vertArgs.wideVec.texRepeat);
+    float texPos = ((vert.texInfo.z - vert.texInfo.y) * t0 + vert.texInfo.y + vert.texInfo.w * realWidth2) * texScale;
+    outVert.texCoord = float2(vert.texInfo.x, texPos);
+    float4 screenPos = uniforms.pMatrix * (uniforms.mvMatrix * float4(realPos,1.0) + uniforms.mvMatrixDiff * float4(realPos,1.0));
+    screenPos /= screenPos.w;
+    outVert.position = float4(screenPos.xy,0,1.0);
+
+    outVert.dotProd = calcGlobeDotProd(uniforms,pos,vert.normal);
+    outVert.w2 = w2;
+    
+    return outVert;
+}
+
+struct TriWideArgBufferB {
     UniformDrawStateA uniDrawState      [[ id(WKSUniformDrawStateEntry) ]];
     UniformWideVec wideVec              [[ id(WKSUniformWideVecEntry) ]];
     UniformWideVecExp wideVecExp        [[ id(WKSUniformWideVecEntryExp) ]];
     bool hasTextures;
 };
 
-vertex ProjVertexTriWideVec vertexTri_wideVec(
+// This version handles expressions
+vertex ProjVertexTriWideVec vertexTri_wideVecExp(
             VertexTriWideVec vert [[stage_in]],
             constant Uniforms &uniforms [[ buffer(WKSVertUniformArgBuffer) ]],
-            constant TriWideArgBuffer & vertArgs [[buffer(WKSVertexArgBuffer)]],
+            constant TriWideArgBufferB & vertArgs [[buffer(WKSVertexArgBuffer)]],
             constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriWideVec outVert;
@@ -558,11 +668,17 @@ vertex ProjVertexTriWideVec vertexTri_wideVec(
     return outVert;
 }
 
+struct TriWideArgBufferFrag {
+    UniformDrawStateA uniDrawState      [[ id(WKSUniformDrawStateEntry) ]];
+    UniformWideVec wideVec              [[ id(WKSUniformWideVecEntry) ]];
+    bool hasTextures;
+};
+
 // Fragment share that takes the back of the globe into account
 fragment float4 fragmentTri_wideVec(
             ProjVertexTriWideVec vert [[stage_in]],
             constant Uniforms &uniforms [[ buffer(WKSFragUniformArgBuffer) ]],
-            constant TriWideArgBuffer & fragArgs [[buffer(WKSFragmentArgBuffer)]],
+            constant TriWideArgBufferFrag & fragArgs [[buffer(WKSFragmentArgBuffer)]],
             constant RegularTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
 {
     int numTextures = TexturesBase(texArgs.texPresent);
@@ -583,18 +699,71 @@ fragment float4 fragmentTri_wideVec(
     return vert.dotProd > 0.0 ? fragArgs.wideVec.color * alpha * patternVal : float4(0.0);
 }
 
-struct VertexTriSSArgBuffer {
+struct VertexTriSSArgBufferA {
+    UniformDrawStateA uniDrawState      [[ id(WKSUniformDrawStateEntry) ]];
+    UniformScreenSpace ss      [[ id(WKSUniformScreenSpaceEntry) ]];
+    bool hasTextures;
+};
+
+// Screen space vertex shader
+vertex ProjVertexTriA vertexTri_screenSpace(
+            VertexTriScreenSpace vert [[stage_in]],
+            constant Uniforms &uniforms [[ buffer(WKSVertUniformArgBuffer) ]],
+            constant VertexTriSSArgBufferA & vertArgs [[buffer(WKSVertexArgBuffer)]],
+            constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
+{
+    ProjVertexTriA outVert;
+    
+    float3 pos = (vertArgs.uniDrawState.singleMat * float4(vert.position,1.0)).xyz;
+    if (vertArgs.ss.hasMotion)
+        pos += (uniforms.currentTime - vertArgs.ss.startTime) * vert.dir;
+    
+    outVert.color = vert.color * calculateFade(uniforms,vertArgs.uniDrawState);
+    outVert.texCoord = vert.texCoord;
+    
+    // Convert from model space into display space
+    float4 pt = uniforms.mvMatrix * float4(pos,1.0);
+    pt /= pt.w;
+    
+    // Make sure the object is facing the user (only for the globe)
+    float dotProd = 1.0;
+    if (uniforms.globeMode) {
+        float4 testNorm = uniforms.mvNormalMatrix * float4(vert.normal,0.0);
+        dotProd = dot(-pt.xyz,testNorm.xyz);
+    }
+    
+    // Project the point all the way to screen space
+    float4 screenPt = uniforms.pMatrix * (uniforms.mvMatrix * float4(pos,1.0) + uniforms.mvMatrixDiff * float4(pos,1.0));
+    screenPt /= screenPt.w;
+    
+    // Project the rotation into display space and drop the Z
+    float2 screenOffset;
+    if (vertArgs.ss.activeRot) {
+        float4 projRot = uniforms.mvNormalMatrix * float4(vert.rot,0.0);
+        float2 rotY = normalize(projRot.xy);
+        float2 rotX(rotY.y,-rotY.x);
+        screenOffset = vert.offset.x*rotX + vert.offset.y*rotY;
+    } else
+        screenOffset = vert.offset;
+    
+    float2 scale = float2(2.0/uniforms.frameSize.x,2.0/uniforms.frameSize.y);
+    outVert.position = (dotProd > 0.0 && pt.z <= 0.0) ? float4(screenPt.xy + float2(screenOffset.x*scale.x,screenOffset.y*scale.y),0.0,1.0) : float4(0.0,0.0,0.0,0.0);
+    
+    return outVert;
+}
+
+struct VertexTriSSArgBufferB {
     UniformDrawStateA uniDrawState      [[ id(WKSUniformDrawStateEntry) ]];
     UniformScreenSpace ss      [[ id(WKSUniformScreenSpaceEntry) ]];
     UniformScreenSpaceExp ssExp [[ id(WKSUniformScreenSpaceEntryExp)]];
     bool hasTextures;
 };
 
-// Screen space (no motion) vertex shader
-vertex ProjVertexTriA vertexTri_screenSpace(
+// Screen space vertex shader that handles expressions
+vertex ProjVertexTriA vertexTri_screenSpaceExp(
             VertexTriScreenSpace vert [[stage_in]],
             constant Uniforms &uniforms [[ buffer(WKSVertUniformArgBuffer) ]],
-            constant VertexTriSSArgBuffer & vertArgs [[buffer(WKSVertexArgBuffer)]],
+            constant VertexTriSSArgBufferB & vertArgs [[buffer(WKSVertexArgBuffer)]],
             constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriA outVert;

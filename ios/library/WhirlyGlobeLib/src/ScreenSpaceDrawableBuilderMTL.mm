@@ -69,7 +69,7 @@ BasicDrawable *ScreenSpaceDrawableBuilderMTL::getDrawable()
         uniSS.startTime = 0.0;
     uniSS.activeRot = rotation;
     uniSS.hasMotion = motion;
-    uniSS.hasExp = opacityExp || colorExp || scaleExp;
+    uniSS.hasExp = opacityExp || colorExp || scaleExp || includeExp;
     
     BasicDrawable::UniformBlock uniBlock;
     uniBlock.blockData = RawDataRef(new RawNSDataReader([[NSData alloc] initWithBytes:&uniSS length:sizeof(uniSS)]));

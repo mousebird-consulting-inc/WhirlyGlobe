@@ -934,11 +934,19 @@ using namespace Eigen;
             program:ProgramRef(new ProgramMTL([kMaplyShaderDefaultTri cStringUsingEncoding:NSASCIIStringEncoding],
                                               [mtlLib newFunctionWithName:@"vertexTri_light"],
                                               [mtlLib newFunctionWithName:@"fragmentTri_basic"]))];
+    [self addShader:kMaplyShaderTriExp
+            program:ProgramRef(new ProgramMTL([kMaplyShaderTriExp cStringUsingEncoding:NSASCIIStringEncoding],
+                                              [mtlLib newFunctionWithName:@"vertexTri_lightExp"],
+                                              [mtlLib newFunctionWithName:@"fragmentTri_basic"]))];
     [self addShader:kMaplyShaderDefaultTriNoLighting
             program:ProgramRef(new ProgramMTL([kMaplyShaderDefaultTriNoLighting cStringUsingEncoding:NSASCIIStringEncoding],
                                               [mtlLib newFunctionWithName:@"vertexTri_noLight"],
                                               [mtlLib newFunctionWithName:@"fragmentTri_basic"]))];
-    
+    [self addShader:kMaplyShaderNoLightTriangleExp
+            program:ProgramRef(new ProgramMTL([kMaplyShaderNoLightTriangleExp cStringUsingEncoding:NSASCIIStringEncoding],
+                                              [mtlLib newFunctionWithName:@"vertexTri_noLightExp"],
+                                              [mtlLib newFunctionWithName:@"fragmentTri_basic"]))];
+
     // TODO: Screen Space Texture application
 
     // Multitexture shader - Used for animation
@@ -979,6 +987,10 @@ using namespace Eigen;
             program:ProgramRef(new ProgramMTL([kMaplyShaderDefaultWideVector cStringUsingEncoding:NSASCIIStringEncoding],
                                         [mtlLib newFunctionWithName:@"vertexTri_wideVec"],
                                         [mtlLib newFunctionWithName:@"fragmentTri_wideVec"]))];
+    [self addShader:kMaplyShaderWideVectorExp
+            program:ProgramRef(new ProgramMTL([kMaplyShaderWideVectorExp cStringUsingEncoding:NSASCIIStringEncoding],
+                                        [mtlLib newFunctionWithName:@"vertexTri_wideVecExp"],
+                                        [mtlLib newFunctionWithName:@"fragmentTri_wideVec"]))];
 
     // Screen Space (motion and regular are the same)
     ProgramRef screenSpace = ProgramRef(new
@@ -987,6 +999,13 @@ using namespace Eigen;
                        [mtlLib newFunctionWithName:@"fragmentTri_basic"]));
     [self addShader:kMaplyScreenSpaceDefaultProgram program:screenSpace];
     [self addShader:kMaplyScreenSpaceDefaultMotionProgram program:screenSpace];
+    
+    // Screen Space that handles expressions
+    ProgramRef screenSpaceExp = ProgramRef(new
+            ProgramMTL([kMaplyScreenSpaceExpProgram cStringUsingEncoding:NSASCIIStringEncoding],
+                       [mtlLib newFunctionWithName:@"vertexTri_screenSpaceExp"],
+                       [mtlLib newFunctionWithName:@"fragmentTri_basic"]));
+    [self addShader:kMaplyScreenSpaceExpProgram program:screenSpaceExp];
 
     // TODO: Particles
 }

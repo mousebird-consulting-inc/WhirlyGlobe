@@ -369,16 +369,17 @@ MapboxVectorStyleSetImpl::MapboxVectorStyleSetImpl(Scene *inScene,CoordSystem *c
     labelManage = (LabelManager *)scene->getManager(kWKLabelManager);
     compManage = (ComponentManager *)scene->getManager(kWKComponentManager);
 
-    Program *prog = scene->findProgramByName(MaplyScreenSpaceDefaultShader);
+    // TODO: Put in the Android versions of these, or at least default to non-expression versions
+    Program *prog = scene->findProgramByName(MaplyScreenSpaceExpShader);
     if (prog)
         screenMarkerProgramID = prog->getId();
-    prog = scene->findProgramByName(MaplyDefaultTriangleShader);
+    prog = scene->findProgramByName(MaplyTriangleExpShader);
     if (prog)
         vectorArealProgramID = prog->getId();
-    prog = scene->findProgramByName(MaplyNoLightTriangleShader);
+    prog = scene->findProgramByName(MaplyNoLightTriangleExpShader);
     if (prog)
         vectorLinearProgramID = prog->getId();
-    prog = scene->findProgramByName(MaplyDefaultWideVectorShader);
+    prog = scene->findProgramByName(MaplyWideVectorExpShader);
     if (prog)
         wideVectorProgramID = prog->getId();
 }

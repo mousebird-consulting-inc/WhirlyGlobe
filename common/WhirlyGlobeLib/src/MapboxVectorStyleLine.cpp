@@ -166,6 +166,7 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
     //  because right now it's expecting a single texture that can be strung along the line
     
     WideVectorInfo vecInfo;
+    vecInfo.hasExp = true;
     vecInfo.coordType = WideVecCoordScreen;
     vecInfo.programID = styleSet->wideVectorProgramID;
     vecInfo.fade = fade;

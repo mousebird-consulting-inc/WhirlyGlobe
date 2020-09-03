@@ -213,7 +213,7 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
                 shape->setId(marker->selectID);
             shape->setWorldLoc(coordAdapter->localToDisplay(localPt));
             if (marker->hasMotion)
-                shape->setMovingLoc(coordAdapter->getCoordSystem()->geographicToLocal3d(marker->endLoc), marker->startTime, marker->endTime);
+                shape->setMovingLoc(coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(marker->endLoc)), marker->startTime, marker->endTime);
             if (marker->lockRotation)
                 shape->setRotation(marker->rotation);
             if (markerInfo.fadeIn > 0.0)

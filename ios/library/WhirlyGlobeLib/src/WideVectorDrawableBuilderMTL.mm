@@ -69,7 +69,7 @@ BasicDrawable *WideVectorDrawableBuilderMTL::getDrawable()
     uniWV.color[1] = color.g/255.0;
     uniWV.color[2] = color.b/255.0;
     uniWV.color[3] = color.a/255.0;
-    uniWV.hasExp = widthExp || colorExp || opacityExp;
+    uniWV.hasExp = widthExp || colorExp || opacityExp || includeExp;
 
     BasicDrawable::UniformBlock uniBlock;
     uniBlock.blockData = RawDataRef(new RawNSDataReader([[NSData alloc] initWithBytes:&uniWV length:sizeof(uniWV)]));

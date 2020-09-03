@@ -914,8 +914,12 @@ void SceneRendererMTL::render(TimeInterval duration,
                         
                         [snapshotDelegate snapshotData:nil];
                         
-                        // Sit on all the various buffers until we're done with them
-                        trackedResources->clear();
+                        // Clear this is taking more time than it should.
+                        // TODO: Track the resources we're deleting, rather than absolutely everything
+                        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                            // Sit on all the various buffers until we're done with them
+                            trackedResources->clear();
+                        });
                     }
                 });                
             }];

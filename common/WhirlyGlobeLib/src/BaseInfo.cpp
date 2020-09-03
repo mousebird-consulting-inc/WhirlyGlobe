@@ -72,7 +72,8 @@ BaseInfo::BaseInfo()
     programID(EmptyIdentity),
     extraFrames(0),
     zBufferRead(false), zBufferWrite(false),
-    renderTargetID(EmptyIdentity)
+    renderTargetID(EmptyIdentity),
+    hasExp(false)
 {
 }
 
@@ -85,7 +86,8 @@ BaseInfo::BaseInfo(const BaseInfo &that)
   fade(that.fade), fadeIn(that.fadeIn), fadeOut(that.fadeOut), fadeOutTime(that.fadeOutTime),
   startEnable(that.startEnable), endEnable(that.endEnable), programID(that.programID),
   extraFrames(that.extraFrames), zBufferRead(that.zBufferRead), zBufferWrite(that.zBufferWrite),
-  renderTargetID(that.renderTargetID)
+  renderTargetID(that.renderTargetID),
+    hasExp(that.hasExp)
 {
 }
     
@@ -219,6 +221,8 @@ void BaseInfo::setupBasicDrawable(BasicDrawableBuilder *drawBuild) const
     drawBuild->setExtraFrames(extraFrames);
     if (renderTargetID != EmptyIdentity)
         drawBuild->setRenderTarget(renderTargetID);
+    if (hasExp)
+        drawBuild->setIncludeExp(true);
 }
 
 void BaseInfo::setupBasicDrawableInstance(BasicDrawableInstanceBuilderRef drawBuild) const
@@ -240,6 +244,8 @@ void BaseInfo::setupBasicDrawableInstance(BasicDrawableInstanceBuilder *drawBuil
     drawBuild->setProgram(programID);
     if (renderTargetID != EmptyIdentity)
         drawBuild->setRenderTarget(renderTargetID);
+//    if (hasExp)
+//        drawBuild->setIncludeExp(true);
 }
     
 }

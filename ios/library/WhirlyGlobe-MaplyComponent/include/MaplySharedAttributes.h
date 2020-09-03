@@ -336,11 +336,13 @@ extern NSString* const kMaplyTexMipmap;
 /// These are the various shader programs we set up by default
 extern NSString* const kMaplyShaderDefaultTri;
 extern NSString* const kMaplyDefaultTriangleShader;
+extern NSString* const kMaplyShaderTriExp;
 
 extern NSString* const kMaplyShaderDefaultModelTri;
 
 extern NSString* const kMaplyShaderDefaultTriNoLighting;
 extern NSString* const kMaplyNoLightTriangleShader;
+extern NSString* const kMaplyShaderNoLightTriangleExp;
 extern NSString* const kMaplyShaderDefaultMarker;
 
 extern NSString* const kMaplyShaderDefaultTriScreenTex;
@@ -359,8 +361,10 @@ extern NSString* const kMaplyShaderBillboardGround;
 extern NSString* const kMaplyShaderBillboardEye;
 
 extern NSString* const kMaplyShaderDefaultWideVector;
+extern NSString* const kMaplyShaderWideVectorExp;
 
 extern NSString* const kMaplyScreenSpaceDefaultMotionProgram;
 extern NSString* const kMaplyScreenSpaceDefaultProgram;
+extern NSString* const kMaplyScreenSpaceExpProgram;
 
 extern NSString* const kMaplyShaderParticleSystemPointDefault;

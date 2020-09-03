@@ -124,6 +124,9 @@ public:
     /// Set the color as an array.
     virtual void setColor(unsigned char inColor[]);
     
+    // Set if we're requiring the expression block for the shaders
+    void setIncludeExp(bool newVal);
+    
     // Apply a dynamic color expression
     void setColorExpression(ColorExpressionInfoRef colorExp);
     
@@ -245,6 +248,7 @@ public:
     std::vector<Eigen::Vector3f> points;
     std::vector<BasicDrawable::Triangle> tris;
 
+    bool includeExp;
     ColorExpressionInfoRef colorExp;
     FloatExpressionInfoRef opacityExp;
 };
