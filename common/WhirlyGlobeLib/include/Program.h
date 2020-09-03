@@ -61,7 +61,7 @@ public:
     virtual void setUniBlock(const BasicDrawable::UniformBlock &uniBlock);
 
     /// Clean up renderer resources
-    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene) = 0;
+    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene,RenderTeardownInfoRef teardown) = 0;
     
     // Reduce operation modes
     typedef enum {None,TextureReduce} ReduceMode;

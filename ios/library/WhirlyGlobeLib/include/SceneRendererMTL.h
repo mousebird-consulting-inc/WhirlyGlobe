@@ -200,7 +200,7 @@ public:
     bool offscreenBlendEnable;
     // Information about the renderer passed around to various calls
     RenderSetupInfoMTL setupInfo;
-    std::vector<NSObject<WhirlyKitSnapshot> *> snapshotDelegates;
+    std::vector<NSObject<WhirlyKitSnapshot> *> snapshotDelegates;    
 };
     
 typedef std::shared_ptr<SceneRendererMTL> SceneRendererMTLRef;

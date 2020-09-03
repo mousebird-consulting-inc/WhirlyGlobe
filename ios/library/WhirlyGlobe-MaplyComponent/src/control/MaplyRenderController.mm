@@ -389,7 +389,7 @@ using namespace Eigen;
     }
     
     if (shaderToRemove.program)
-        scene->removeProgram(shaderToRemove.program->getId());
+        scene->removeProgram(shaderToRemove.program->getId(),NULL);
 }
 
 - (MaplyShader *__nullable)getShaderByName:(NSString *__nonnull)name

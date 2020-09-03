@@ -61,7 +61,7 @@ public:
     const std::string &getName();
     
     /// Clean up Metal resources, rather than letting the destructor do it (which it will)
-    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene) override;
+    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene,RenderTeardownInfoRef teardown) override;
         
 public:
     bool valid;

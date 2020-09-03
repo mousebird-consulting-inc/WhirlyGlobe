@@ -489,13 +489,13 @@ void Scene::addProgram(ProgramRef prog)
     programs[prog->getId()] = prog;
 }
 
-void Scene::removeProgram(SimpleIdentity progId)
+void Scene::removeProgram(SimpleIdentity progId,RenderTeardownInfoRef teardown)
 {
     std::lock_guard<std::mutex> guardLock(programLock);
 
     auto it = programs.find(progId);
     if (it != programs.end()) {
-        it->second->teardownForRenderer(setupInfo,this);
+        it->second->teardownForRenderer(setupInfo,this,NULL);
         programs.erase(it);
     }
 }
@@ -616,7 +616,7 @@ void RemDrawableReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::Vie
     auto it = scene->drawables.find(drawID);
     if (it != scene->drawables.end())
     {
-        renderer->removeDrawable(it->second,true);
+        renderer->removeDrawable(it->second,true,renderer->teardownInfo);
         scene->remDrawable(it->second);
     } else
         wkLogLevel(Warn,"Missing drawable for RemDrawableReq: %llu", drawID);
@@ -630,7 +630,7 @@ void AddProgramReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View
 
 void RemProgramReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *view)
 {
-    scene->removeProgram(programId);
+    scene->removeProgram(programId,renderer->teardownInfo);
 }
     
 RunBlockReq::RunBlockReq(BlockFunc newFunc) : func(newFunc)

@@ -104,8 +104,13 @@ void BasicDrawableMTL::setupForRenderer(const RenderSetupInfo *inSetupInfo,Scene
     setupForMTL = true;
 }
 
-void BasicDrawableMTL::teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *inScene)
+void BasicDrawableMTL::teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *inScene,RenderTeardownInfoRef inTeardown)
 {
+    RenderTeardownInfoMTLRef teardown = std::dynamic_pointer_cast<RenderTeardownInfoMTL>(inTeardown);
+    
+    if (teardown)
+        enumerateBuffers(*teardown->resources);
+    
     setupForMTL = false;
 
     renderState = nil;
@@ -524,15 +529,9 @@ bool BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
     return ret;
 }
 
-
-void BasicDrawableMTL::enumerateResources(RendererFrameInfoMTL *frameInfo,ResourceRefsMTL &resources)
+void BasicDrawableMTL::enumerateBuffers(ResourceRefsMTL &resources)
 {
-    SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
-
     resources.addEntry(mainBuffer);
-    resources.addEntry(sceneRender->setupInfo.uniformBuff);
-    if (vertHasLighting || fragHasLighting)
-        resources.addEntry(sceneRender->setupInfo.lightingBuff);
     if (vertABInfo)
         resources.addEntry(vertABInfo->getBuffer());
     if (fragABInfo)
@@ -542,6 +541,16 @@ void BasicDrawableMTL::enumerateResources(RendererFrameInfoMTL *frameInfo,Resour
     if (fragTexInfo)
         resources.addEntry(fragTexInfo->getBuffer());
     resources.addTextures(activeTextures);
+}
+
+void BasicDrawableMTL::enumerateResources(RendererFrameInfoMTL *frameInfo,ResourceRefsMTL &resources)
+{
+    SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
+
+    resources.addEntry(sceneRender->setupInfo.uniformBuff);
+    if (vertHasLighting || fragHasLighting)
+        resources.addEntry(sceneRender->setupInfo.lightingBuff);
+    enumerateBuffers(resources);
 }
 
 void BasicDrawableMTL::encodeDirectCalculate(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene)

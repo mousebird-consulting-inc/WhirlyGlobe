@@ -453,6 +453,8 @@ void SceneRendererMTL::render(TimeInterval duration,
     frameCount++;
     
     TimeInterval now = scene->getCurrentTime();
+    
+    teardownInfo = NULL;
 
     if (framebufferWidth <= 0 || framebufferHeight <= 0)
     {
@@ -558,6 +560,9 @@ void SceneRendererMTL::render(TimeInterval duration,
     
     if (perfInterval > 0)
         perfTimer.startTiming("Scene preprocessing");
+    
+    RenderTeardownInfoMTLRef frameTeardownInfo = RenderTeardownInfoMTLRef(new RenderTeardownInfoMTL());
+    teardownInfo = frameTeardownInfo;
     
     // Run the preprocess for the changes.  These modify things the active models need.
     int numPreProcessChanges = preProcessScene(now);;
@@ -671,9 +676,6 @@ void SceneRendererMTL::render(TimeInterval duration,
             // Resources used by this container
             ResourceRefsMTL resources;
 
-            // Resources we'll sit on till the frame is rendered
-            ResourceRefsMTLRef trackedResources(new ResourceRefsMTL());
-
             if (indirectRender) {
                 // Run pre-process on the draw groups
                 for (auto &drawGroup : targetContainerMTL->drawGroups) {
@@ -737,7 +739,6 @@ void SceneRendererMTL::render(TimeInterval duration,
                 [cmdEncode waitForFence:preProcessFence beforeStages:MTLRenderStageVertex];
                 
                 resources.use(cmdEncode);
-                trackedResources->addResources(resources);
 
                 if (indirectRender) {
                     if (@available(iOS 12.0, *)) {
@@ -913,14 +914,10 @@ void SceneRendererMTL::render(TimeInterval duration,
                         }
                         
                         [snapshotDelegate snapshotData:nil];
-                        
-                        // Clear this is taking more time than it should.
-                        // TODO: Track the resources we're deleting, rather than absolutely everything
-                        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                            // Sit on all the various buffers until we're done with them
-                            trackedResources->clear();
-                        });
+
                     }
+                    
+                    frameTeardownInfo->clear();
                 });                
             }];
 
@@ -955,6 +952,9 @@ void SceneRendererMTL::render(TimeInterval duration,
     
     // Mark any programs that changed as now caught up
     scene->markProgramsUnchanged();
+    
+    // No teardown info available between frames
+    teardownInfo = RenderTeardownInfoMTLRef(new RenderTeardownInfoMTL());
 }
 
 void SceneRendererMTL::shutdown()
@@ -968,7 +968,7 @@ void SceneRendererMTL::shutdown()
     snapshotDelegates.clear();
     
     for (auto draw: scene->drawables) {
-        draw.second->teardownForRenderer(nil, NULL);
+        draw.second->teardownForRenderer(nil, NULL, NULL);
     }
 
     SceneRenderer::shutdown();

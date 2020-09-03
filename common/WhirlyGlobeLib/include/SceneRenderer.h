@@ -267,7 +267,7 @@ public:
     /// Add a drawable to the scene renderer.  We'll sort it into the appropriate render target
     virtual void addDrawable(DrawableRef newDrawable);
     /// Remove the given drawable from
-    virtual void removeDrawable(DrawableRef draw,bool teardown);
+    virtual void removeDrawable(DrawableRef draw,bool teardown,RenderTeardownInfoRef teardownInfo);
         
     /// Move things around as required by outside updates
     virtual void updateWorkGroups(RendererFrameInfo *frameInfo);
@@ -338,7 +338,7 @@ public:
     // Explicitly clear any held structures
     void shutdown();
 
-protected:
+public:
     // Called by the subclass
     virtual void init();
     
@@ -402,6 +402,9 @@ protected:
     TimeInterval lightsLastUpdated;
     Material defaultMat;    
     std::vector<DirectionalLight> lights;
+
+    // Everything torn down until the next frame
+    RenderTeardownInfoRef teardownInfo;
 };
 
 typedef std::shared_ptr<SceneRenderer> SceneRendererRef;

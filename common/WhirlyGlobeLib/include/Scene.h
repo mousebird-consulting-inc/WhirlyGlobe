@@ -422,7 +422,7 @@ public:
     void addProgram(ProgramRef prog);
     
     /// Remove the given program by ID (ours, not OpenGL's)
-    void removeProgram(SimpleIdentity progId);
+    void removeProgram(SimpleIdentity progId,RenderTeardownInfoRef teardown);
     
     /// For 2D maps we have an overlap margin based on what drawables may overlap the edges
     double getOverlapMargin() { return overlapMargin; }

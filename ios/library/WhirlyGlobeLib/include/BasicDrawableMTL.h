@@ -45,7 +45,7 @@ public:
     virtual void setupForRenderer(const RenderSetupInfo *setupInfo,Scene *scene) override;
     
     /// Clean up any rendering objects you may have (e.g. VBOs).
-    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene) override;
+    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene,RenderTeardownInfoRef teardown) override;
     
     /** An all-purpose pre-render that sets up textures, uniforms and such in preparation for rendering
         Also adds to the list of resources being used by this drawable.
@@ -58,6 +58,7 @@ public:
     
     /// List all the resources used by the drawable
     virtual void enumerateResources(RendererFrameInfoMTL *frameInfo,ResourceRefsMTL &resources) override;
+    virtual void enumerateBuffers(ResourceRefsMTL &resources);
 
     /// Some drawables have a pre-render phase that uses the GPU for calculation
     virtual void encodeDirectCalculate(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene) override;

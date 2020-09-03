@@ -45,7 +45,7 @@ public:
     virtual void setupForRenderer(const RenderSetupInfo *,Scene *scene);
     
     /// Destroy GL buffers
-    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene);
+    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene,RenderTeardownInfoRef teardown);
     
     // An all-purpose pre-render that sets up textures, uniforms and such in preparation for rendering
     // Also adds to the list of resources being used by this drawable

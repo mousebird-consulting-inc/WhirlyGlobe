@@ -120,8 +120,13 @@ void BasicDrawableInstanceMTL::setupForRenderer(const RenderSetupInfo *inSetupIn
     setupForMTL = true;
 }
 
-void BasicDrawableInstanceMTL::teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *inScene)
+void BasicDrawableInstanceMTL::teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *inScene,RenderTeardownInfoRef inTeardown)
 {
+    RenderTeardownInfoMTLRef teardown = std::dynamic_pointer_cast<RenderTeardownInfoMTL>(inTeardown);
+    
+    if (teardown)
+        enumerateBuffers(*teardown->resources);
+
     setupForMTL = false;
     renderState = nil;
     calcRenderState = nil;
@@ -477,18 +482,13 @@ void BasicDrawableInstanceMTL::encodeDirectCalculate(RendererFrameInfoMTL *frame
     // TODO: Fill this in
 }
 
-void BasicDrawableInstanceMTL::enumerateResources(RendererFrameInfoMTL *frameInfo,ResourceRefsMTL &resources)
+void BasicDrawableInstanceMTL::enumerateBuffers(ResourceRefsMTL &resources)
 {
-    SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
     BasicDrawableMTL *basicDrawMTL = dynamic_cast<BasicDrawableMTL *>(basicDraw.get());
-    if (!basicDrawMTL)
-        return;
-
-    resources.addEntry(basicDrawMTL->mainBuffer);
+    if (basicDrawMTL)
+        resources.addEntry(basicDrawMTL->mainBuffer);
     resources.addEntry(mainBuffer);
-    resources.addEntry(sceneRender->setupInfo.uniformBuff);
-    if (vertHasLighting || fragHasLighting)
-        resources.addEntry(sceneRender->setupInfo.lightingBuff);
+
     if (vertABInfo)
         resources.addEntry(vertABInfo->getBuffer());
     if (fragABInfo)
@@ -498,6 +498,18 @@ void BasicDrawableInstanceMTL::enumerateResources(RendererFrameInfoMTL *frameInf
     if (fragTexInfo)
         resources.addEntry(fragTexInfo->getBuffer());
     resources.addTextures(activeTextures);
+}
+
+void BasicDrawableInstanceMTL::enumerateResources(RendererFrameInfoMTL *frameInfo,ResourceRefsMTL &resources)
+{
+    SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
+    BasicDrawableMTL *basicDrawMTL = dynamic_cast<BasicDrawableMTL *>(basicDraw.get());
+    if (!basicDrawMTL)
+        return;
+
+    resources.addEntry(sceneRender->setupInfo.uniformBuff);
+    if (vertHasLighting || fragHasLighting)
+        resources.addEntry(sceneRender->setupInfo.lightingBuff);
 }
 
 void BasicDrawableInstanceMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene)

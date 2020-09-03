@@ -90,6 +90,9 @@ public:
 // Resources we need for a given render (buffers, textures, etc..)
 class ResourceRefsMTL {
 public:
+    // Construct either track all buffers, or just track what we need to use()
+    ResourceRefsMTL(bool trackHolds=false);
+    
     void addEntry(BufferEntryMTLRef entry);
     void addBuffer(id<MTLBuffer> buffer);
     void addTexture(TextureEntryMTL &texture);
@@ -108,11 +111,25 @@ protected:
     std::set< id<MTLBuffer> > buffers;
     std::set< id<MTLTexture> > textures;
     
+    bool trackHolds;
+    
     // We're just hanging on to these till the end of the frame
     std::set< id<MTLBuffer> > buffersToHold;
     std::set< id<MTLTexture> > texturesToHold;
 };
 typedef std::shared_ptr<ResourceRefsMTL> ResourceRefsMTLRef;
+
+// Used to track resources that we're tearing down
+// We need to hold on to them until after the current frame is done
+class RenderTeardownInfoMTL : public RenderTeardownInfo {
+public:
+    RenderTeardownInfoMTL();
+    
+    void clear();
+    
+    ResourceRefsMTLRef resources;
+};
+typedef std::shared_ptr<RenderTeardownInfoMTL> RenderTeardownInfoMTLRef;
 
 /**
    Used to manage the various MTLHeaps we depend on.

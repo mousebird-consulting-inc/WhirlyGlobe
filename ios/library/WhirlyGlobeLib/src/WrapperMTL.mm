@@ -166,6 +166,11 @@ TextureEntryMTL::TextureEntryMTL()
     
 }
 
+ResourceRefsMTL::ResourceRefsMTL(bool trackHolds)
+: trackHolds(trackHolds)
+{
+}
+
 void ResourceRefsMTL::addEntry(BufferEntryMTLRef entry)
 {
     if (!entry)
@@ -175,7 +180,8 @@ void ResourceRefsMTL::addEntry(BufferEntryMTLRef entry)
     else if (entry->buffer)
         buffers.insert(entry->buffer);
     
-    buffersToHold.insert(entry->buffer);
+    if (trackHolds)
+        buffersToHold.insert(entry->buffer);
 }
 
 void ResourceRefsMTL::addBuffer(id<MTLBuffer> buffer)
@@ -190,7 +196,8 @@ void ResourceRefsMTL::addTexture(TextureEntryMTL &tex)
     else
         textures.insert(tex.tex);
     
-    texturesToHold.insert(tex.tex);
+    if (trackHolds)
+        texturesToHold.insert(tex.tex);
 }
 
 void ResourceRefsMTL::addTextures(const std::vector<TextureEntryMTL> &textures)
@@ -233,6 +240,16 @@ void ResourceRefsMTL::clear()
     buffers.clear();
     textures.clear();
     buffersToHold.clear();
+}
+
+RenderTeardownInfoMTL::RenderTeardownInfoMTL()
+{
+    resources = ResourceRefsMTLRef(new ResourceRefsMTL(true));
+}
+
+void RenderTeardownInfoMTL::clear()
+{
+    resources->clear();
 }
 
 #if TARGET_OS_SIMULATOR

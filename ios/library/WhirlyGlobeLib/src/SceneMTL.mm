@@ -53,7 +53,7 @@ void SceneMTL::teardown()
     for (auto it : drawables) {
         DrawableMTL *draw = dynamic_cast<DrawableMTL *>(it.second.get());
         if (draw)
-            draw->teardownForRenderer((RenderSetupInfoMTL *)setupInfo,this);
+            draw->teardownForRenderer((RenderSetupInfoMTL *)setupInfo,this,NULL);
     }
     drawables.clear();
     for (auto it : textures) {

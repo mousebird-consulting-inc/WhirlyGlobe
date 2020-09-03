@@ -35,6 +35,16 @@ class RenderSetupInfo
 {
 public:
 };
+
+/**
+ Base class for anything we want to pass out of the teardown calls for drawables
+ */
+class RenderTeardownInfo
+{
+public:
+    virtual ~RenderTeardownInfo() { }
+};
+typedef std::shared_ptr<RenderTeardownInfo> RenderTeardownInfoRef;
     
 class Scene;
 class SceneRenderer;

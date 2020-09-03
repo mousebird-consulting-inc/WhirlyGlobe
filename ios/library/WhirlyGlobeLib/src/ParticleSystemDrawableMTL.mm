@@ -102,8 +102,10 @@ void ParticleSystemDrawableMTL::setupForRenderer(const RenderSetupInfo *inSetupI
     setupForMTL = true;
 }
 
-void ParticleSystemDrawableMTL::teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *inScene)
+void ParticleSystemDrawableMTL::teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *inSceneRender,RenderTeardownInfoRef inTeardown)
 {
+    RenderTeardownInfoMTLRef teardown = std::dynamic_pointer_cast<RenderTeardownInfoMTL>(inTeardown);
+
     calcRenderState = nil;
     visRenderState = nil;
     pointBuffer[0] = nil;

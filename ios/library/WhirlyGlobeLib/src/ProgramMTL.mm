@@ -103,8 +103,10 @@ void ProgramMTL::clearTexture(SimpleIdentity texID)
 const std::string &ProgramMTL::getName()
 { return name; }
 
-void ProgramMTL::teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene)
+void ProgramMTL::teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene,RenderTeardownInfoRef inTeardown)
 {
+    RenderTeardownInfoMTLRef teardown = std::dynamic_pointer_cast<RenderTeardownInfoMTL>(inTeardown);
+
     textures.clear();
 }
     
