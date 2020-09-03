@@ -510,6 +510,7 @@ void BasicDrawableInstanceMTL::enumerateResources(RendererFrameInfoMTL *frameInf
     resources.addEntry(sceneRender->setupInfo.uniformBuff);
     if (vertHasLighting || fragHasLighting)
         resources.addEntry(sceneRender->setupInfo.lightingBuff);
+    enumerateBuffers(resources);
 }
 
 void BasicDrawableInstanceMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene)
