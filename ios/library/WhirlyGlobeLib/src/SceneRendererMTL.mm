@@ -670,7 +670,10 @@ void SceneRendererMTL::render(TimeInterval duration,
             
             // Resources used by this container
             ResourceRefsMTL resources;
-            
+
+            // Resources we'll sit on till the frame is rendered
+            ResourceRefsMTLRef trackedResources(new ResourceRefsMTL());
+
             if (indirectRender) {
                 // Run pre-process on the draw groups
                 for (auto &drawGroup : targetContainerMTL->drawGroups) {
@@ -734,6 +737,7 @@ void SceneRendererMTL::render(TimeInterval duration,
                 [cmdEncode waitForFence:preProcessFence beforeStages:MTLRenderStageVertex];
                 
                 resources.use(cmdEncode);
+                trackedResources->addResources(resources);
 
                 if (indirectRender) {
                     if (@available(iOS 12.0, *)) {
@@ -909,6 +913,9 @@ void SceneRendererMTL::render(TimeInterval duration,
                         }
                         
                         [snapshotDelegate snapshotData:nil];
+                        
+                        // Sit on all the various buffers until we're done with them
+                        trackedResources->clear();
                     }
                 });                
             }];
