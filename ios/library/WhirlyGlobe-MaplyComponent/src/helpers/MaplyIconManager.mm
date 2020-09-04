@@ -237,6 +237,9 @@ public:
 {
     UIImage *mainImage = nil;
     
+    if (!symbol || [symbol length] == 0)
+        return nil;
+    
     if(symbol.isAbsolutePath) {
         mainImage = [UIImage imageWithContentsOfFile:symbol];
     } else if (symbol)
@@ -292,21 +295,24 @@ public:
     UIImage *mainImage = [self loadImage:symbol cacheKey:[cacheKey stringByAppendingString:@"_main"]];
     UIImage *backImage = [self loadImage:backSymbol cacheKey:[cacheKey stringByAppendingString:@"_back"]];
     
+    CGFloat renderScale = [UIScreen mainScreen].scale;
+    CGSize renderSize = CGSizeMake(style.markerSize.width * renderScale, style.markerSize.height * renderScale);
+    
     // Draw it into a circle
-    UIGraphicsBeginImageContext(style.markerSize);
+    UIGraphicsBeginImageContext(renderSize);
     
     // Draw into the image context
     CGContextRef ctx = UIGraphicsGetCurrentContext();
     CGContextSetBlendMode(ctx, kCGBlendModeNormal);
     [[UIColor blackColor] setFill];
-    CGRect rect = CGRectMake(0,0,style.markerSize.width,style.markerSize.height);
+    CGRect rect = CGRectMake(0,0,renderSize.width,renderSize.height);
     CGContextFillRect(ctx, rect);
         
     // We want a custom background image, rather than just the circle
     if (backImage) {
         // Courtesy: https://stackoverflow.com/questions/3514066/how-to-tint-a-transparent-png-image-in-iphone
         CGContextSaveGState(ctx);
-        CGContextTranslateCTM(ctx, 0, style.markerSize.height);
+        CGContextTranslateCTM(ctx, 0, renderSize.height);
         CGContextScaleCTM(ctx, 1.0, -1.0);
         CGContextSetBlendMode(ctx, kCGBlendModeNormal);
         
@@ -320,28 +326,30 @@ public:
         if (strokeSize > 0.0) {
             UIColor *strokeColor = [style.color lighterColor];
             CGContextBeginPath(ctx);
-            CGContextAddEllipseInRect(ctx, CGRectMake(1,1,style.markerSize.width-2,style.markerSize.height-2));
+            CGContextAddEllipseInRect(ctx, CGRectMake(1,1,renderSize.width-2,renderSize.height-2));
             [strokeColor setFill];
             CGContextDrawPath(ctx, kCGPathFill);
         }
 
         if (!clearBackground) {
             CGContextBeginPath(ctx);
-            CGContextAddEllipseInRect(ctx, CGRectMake(1+strokeSize,1+strokeSize,style.markerSize.width-2-2*strokeSize,style.markerSize.height-2-2*strokeSize));
+            CGContextAddEllipseInRect(ctx, CGRectMake(1+strokeSize,1+strokeSize,renderSize.width-2-2*strokeSize,renderSize.height-2-2*strokeSize));
             [style.color setFill];
             CGContextDrawPath(ctx, kCGPathFill);
         }
     }
     
     if (mainImage) {
-        CGContextTranslateCTM(ctx, 0, style.markerSize.height);
+        CGContextTranslateCTM(ctx, 0, renderSize.height);
         CGContextScaleCTM(ctx, 1.0, -1.0);
         [[UIColor blackColor] setFill];
         CGPoint theCenter;
-        theCenter.x = center.x > -1000.0 ? center.x/mainImage.size.width * style.markerSize.width : style.markerSize.width/2.0;
-        theCenter.y = center.y > -1000.0 && backImage ? center.y/backImage.size.height * style.markerSize.height : style.markerSize.height/2.0;
-        CGContextDrawImage(ctx, CGRectMake(theCenter.x - mainImage.size.width/2.0, (style.markerSize.height-theCenter.y) - mainImage.size.height/2.0,
-                                           mainImage.size.width, mainImage.size.height), mainImage.CGImage);
+        CGFloat scale = backImage ? renderSize.width / backImage.size.width : 1.0;
+        CGFloat scaleY = backImage ? renderSize.height / backImage.size.height : 1.0;
+        theCenter.x = center.x > -1000.0 ? center.x * scale : renderSize.width/2.0;
+        theCenter.y = center.y > -1000.0 && backImage ? center.y/backImage.size.height * renderSize.height : renderSize.height/2.0;
+        CGContextDrawImage(ctx, CGRectMake(theCenter.x - scale * mainImage.size.width/2.0, (renderSize.height-theCenter.y) - scale * mainImage.size.height/2.0,
+                                           mainImage.size.width * scale, mainImage.size.height * scale), mainImage.CGImage);
     }
     
     // Grab the image and shut things down

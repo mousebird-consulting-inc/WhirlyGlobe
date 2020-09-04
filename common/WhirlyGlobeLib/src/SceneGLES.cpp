@@ -51,7 +51,7 @@ GLuint SceneGLES::getGLTexture(SimpleIdentity texIdent)
 void SceneGLES::teardown()
 {
     for (auto it : drawables)
-        it.second->teardownForRenderer(setupInfo,this);
+        it.second->teardownForRenderer(setupInfo,this, NULL);
     drawables.clear();
     for (auto it : textures) {
         it.second->destroyInRenderer(setupInfo,this);

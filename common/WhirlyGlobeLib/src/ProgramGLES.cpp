@@ -407,7 +407,7 @@ ProgramGLES::ProgramGLES(const std::string &inName,const std::string &vShaderStr
     CheckGLError("ProgramGLES: glGetActiveAttrib");
 }
     
-void ProgramGLES::teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene)
+void ProgramGLES::teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene,RenderTeardownInfoRef teardown)
 {
     cleanUp();
 }

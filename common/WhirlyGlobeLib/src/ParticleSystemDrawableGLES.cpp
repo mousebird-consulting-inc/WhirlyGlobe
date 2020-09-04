@@ -112,7 +112,7 @@ void ParticleSystemDrawableGLES::setupForRenderer(const RenderSetupInfo *inSetup
     //    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void ParticleSystemDrawableGLES::teardownForRenderer(const RenderSetupInfo *inSetupInfo,Scene *scene)
+void ParticleSystemDrawableGLES::teardownForRenderer(const RenderSetupInfo *inSetupInfo,Scene *scene,RenderTeardownInfoRef teardown)
 {
     RenderSetupInfoGLES *setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
 
