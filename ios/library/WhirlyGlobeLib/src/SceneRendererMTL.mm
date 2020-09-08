@@ -650,7 +650,7 @@ void SceneRendererMTL::render(TimeInterval duration,
 
         for (auto &targetContainer : workGroup->renderTargetContainers) {
             // We'll skip empty render targets, except for the default one which we need at least to clear
-            // Otherwise we stick on the last things that got rendered, rather than a blank screen
+            // Otherwise we get stuck on the last render, rather than a blank screen
             if (targetContainer->drawables.empty() &&
                 !(targetContainer && targetContainer->renderTarget && targetContainer->renderTarget->getId() == EmptyIdentity))
                 continue;
@@ -674,7 +674,11 @@ void SceneRendererMTL::render(TimeInterval duration,
             // Ask all the drawables to set themselves up.  Mostly memory stuff.
             id<MTLFence> preProcessFence = [mtlDevice newFence];
             id<MTLBlitCommandEncoder> bltEncode = [cmdBuff blitCommandEncoder];
-            
+
+            // Keeps us from stomping on the last frame's uniforms
+            if (targetContainerMTL->lastRenderFence)
+                [bltEncode waitForFence:targetContainerMTL->lastRenderFence];
+
             // Resources used by this container
             ResourceRefsMTL resources;
 
@@ -715,6 +719,9 @@ void SceneRendererMTL::render(TimeInterval duration,
             setupUniformBuffer(&baseFrameInfo,bltEncode,scene->getCoordAdapter());
             [bltEncode updateFence:preProcessFence];
             [bltEncode endEncoding];
+            
+            // Triggered after rendering is finished
+            id<MTLFence> renderFence = [mtlDevice newFence];
                         
             // If we're forcing a mipmap calculation, then we're just going to use this render target once
             // If not, then we run some program over it multiple times
@@ -841,46 +848,25 @@ void SceneRendererMTL::render(TimeInterval duration,
                             }
                             
                             for (unsigned int off=0;off<offFrameInfos.size();off++) {
-                                // Set up transforms to use right now
-                                Matrix4d &thisMvpMat = mvpMats[off];
-                                const Matrix4d *localMat = drawMTL->getMatrix();
-                                Matrix4f mvpMat = baseFrameInfo.mvpMat, mvpInvMat = baseFrameInfo.mvpInvMat,
-                                            viewAndModelMat = baseFrameInfo.viewAndModelMat, viewModelNormalMat = baseFrameInfo.viewModelNormalMat;
-
-                                if (localMat)
-                                {
-                                    Eigen::Matrix4d newMvpMat = projMat4d * viewTrans4d * offsetMats[off] * modelTrans4d * (*localMat);
-                                    Eigen::Matrix4d newMvMat = viewTrans4d * offsetMats[off] * modelTrans4d * (*localMat);
-                                    Eigen::Matrix4d newMvNormalMat = newMvMat.inverse().transpose();
-
-                                    baseFrameInfo.mvpMat = Matrix4dToMatrix4f(newMvpMat);
-                                    baseFrameInfo.mvpInvMat = Matrix4dToMatrix4f(newMvpMat.inverse());
-                                    baseFrameInfo.viewAndModelMat = Matrix4dToMatrix4f(newMvMat);
-                                    baseFrameInfo.viewModelNormalMat = Matrix4dToMatrix4f(newMvNormalMat);
-                                } else {
-                                    baseFrameInfo.mvpMat = Matrix4dToMatrix4f(thisMvpMat);
-                                    baseFrameInfo.mvpInvMat = Matrix4dToMatrix4f(thisMvpMat.inverse());
-                                    baseFrameInfo.viewAndModelMat = Matrix4dToMatrix4f(modelAndViewMat4d);
-                                    baseFrameInfo.viewModelNormalMat = Matrix4dToMatrix4f(modelAndViewNormalMat4d);
-                                }
+                                // Set up transforms to use right now (one per offset matrix)
+//                                baseFrameInfo.mvpMat = mvpMats4f[off];
+//                                baseFrameInfo.mvpInvMat = mvpInvMats4f[off];
                                 
                                 baseFrameInfo.program = program;
                                                                                             
                                 // "Draw" using the given program
                                 drawMTL->encodeDirect(&baseFrameInfo,cmdEncode,scene);
-                                
-                                // If we had a local matrix, set the frame info back to the general one
-                                if (localMat) {
-                                    baseFrameInfo.mvpMat = mvpMat;
-                                    baseFrameInfo.mvpInvMat = mvpInvMat;
-                                    baseFrameInfo.viewAndModelMat = viewAndModelMat;
-                                    baseFrameInfo.viewModelNormalMat = viewModelNormalMat;
-                                }
-                                
+                                                                
                                 numDrawables++;
                             }
                         }
                     }
+                }
+
+                // Notify anyone waiting that this frame is complete
+                if (level == numLevels-1) {
+                    [cmdEncode updateFence:renderFence afterStages:MTLRenderStageFragment];
+                    targetContainerMTL->lastRenderFence = renderFence;
                 }
                 
                 [cmdEncode endEncoding];
@@ -919,6 +905,7 @@ void SceneRendererMTL::render(TimeInterval duration,
 
                     }
                     
+//                    targetContainerMTL->lastRenderFence = nil;
                     frameTeardownInfo->clear();
                 });                
             }];

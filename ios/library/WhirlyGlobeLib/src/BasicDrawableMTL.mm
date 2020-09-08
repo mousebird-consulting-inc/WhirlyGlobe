@@ -460,10 +460,10 @@ bool BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
                     fragTexInfo->addTexture(texOffset, Point2f(texScale,texScale), tex != nil ? tex->getMTLID() : nil);
             }
             if (vertTexInfo) {
-                vertTexInfo->updateBuffer(mtlDevice, bltEncode);
+                vertTexInfo->updateBuffer(mtlDevice, &sceneRender->setupInfo, bltEncode);
             }
             if (fragTexInfo) {
-                fragTexInfo->updateBuffer(mtlDevice, bltEncode);
+                fragTexInfo->updateBuffer(mtlDevice, &sceneRender->setupInfo, bltEncode);
             }
         }
 
@@ -533,13 +533,13 @@ void BasicDrawableMTL::enumerateBuffers(ResourceRefsMTL &resources)
 {
     resources.addEntry(mainBuffer);
     if (vertABInfo)
-        resources.addEntry(vertABInfo->getBuffer());
+        vertABInfo->addResources(resources);
     if (fragABInfo)
-        resources.addEntry(fragABInfo->getBuffer());
+        fragABInfo->addResources(resources);
     if (vertTexInfo)
-        resources.addEntry(vertTexInfo->getBuffer());
+        vertTexInfo->addResources(resources);
     if (fragTexInfo)
-        resources.addEntry(fragTexInfo->getBuffer());
+        fragTexInfo->addResources(resources);
     resources.addTextures(activeTextures);
 }
 

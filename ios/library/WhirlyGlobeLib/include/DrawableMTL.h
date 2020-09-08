@@ -73,9 +73,8 @@ public:
     // Add the resources we're using to the list
     void addResources(ResourceRefsMTL &resources);
     
-    // Return the buffer created for the arguments (the one used by the shader)
-    BufferEntryMTLRef getBuffer();
-        
+    BufferEntryMTLRef getBuffer() { return buff; }
+
     // False if this failed to set up correctly
     bool isValid();
     
@@ -122,13 +121,15 @@ public:
 
     // Encode into a new buffer and schedule an update using
     // Also clears out contents for next encoding pass
-    void updateBuffer(id<MTLDevice> mtlDevice,id<MTLBlitCommandEncoder> bltEncode);
+    void updateBuffer(id<MTLDevice> mtlDevice,RenderSetupInfoMTL *setupInfoMTL,id<MTLBlitCommandEncoder> bltEncode);
     
     // Size of the texture buffer (fixed)
     size_t encodedLength();
-        
-    // Return the buffer created for the argument buffer
-    BufferEntryMTLRef getBuffer();
+
+    // List the buffers involved (so they can be tracked)
+    void addResources(ResourceRefsMTL &resources);
+    
+    BufferEntryMTLRef getBuffer() { return buffer; }
 
 protected:
     id<MTLArgumentEncoder> encode;
@@ -136,6 +137,7 @@ protected:
     std::vector<Point2f> offsets;
     std::vector<Point2f> scales;
     std::vector<id<MTLTexture> > texs;
+    BufferEntryMTLRef srcBuffer;
     BufferEntryMTLRef buffer;
 };
 typedef std::shared_ptr<ArgBuffRegularTexturesMTL> ArgBuffRegularTexturesMTLRef;

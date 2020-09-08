@@ -171,7 +171,7 @@ ResourceRefsMTL::ResourceRefsMTL(bool trackHolds)
 {
 }
 
-void ResourceRefsMTL::addEntry(BufferEntryMTLRef entry)
+void ResourceRefsMTL::addEntry(BufferEntryMTLRef &entry)
 {
     if (!entry)
         return;

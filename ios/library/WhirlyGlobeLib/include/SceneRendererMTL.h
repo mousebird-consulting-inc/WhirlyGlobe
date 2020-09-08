@@ -90,6 +90,9 @@ public:
     // Drawables sorted into groups for drawing
     // For Metal we have specialized versions
     std::vector<DrawGroupMTLRef> drawGroups;
+    
+    // This keeps us from stomping on the previous frame's uniforms
+    id<MTLFence> lastRenderFence;
 };
 typedef std::shared_ptr<RenderTargetContainerMTL> RenderTargetContainerMTLRef;
 

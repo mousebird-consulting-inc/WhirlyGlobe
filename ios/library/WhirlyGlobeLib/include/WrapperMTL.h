@@ -93,7 +93,7 @@ public:
     // Construct either track all buffers, or just track what we need to use()
     ResourceRefsMTL(bool trackHolds=false);
     
-    void addEntry(BufferEntryMTLRef entry);
+    void addEntry(BufferEntryMTLRef &entry);
     void addBuffer(id<MTLBuffer> buffer);
     void addTexture(TextureEntryMTL &texture);
     void addTextures(const std::vector<TextureEntryMTL> &textures);
