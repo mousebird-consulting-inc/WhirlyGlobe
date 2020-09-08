@@ -275,8 +275,6 @@ id<MTLRenderPipelineState> BasicDrawableMTL::getRenderPipelineState(SceneRendere
 {
     if (renderState)
         return renderState;
-    id<MTLDevice> mtlDevice = sceneRender->setupInfo.mtlDevice;
-
     MTLRenderPipelineDescriptor *renderDesc = sceneRender->defaultRenderPipelineState(sceneRender,program,renderTarget);
     renderDesc.vertexDescriptor = getVertexDescriptor(program->vertFunc,defaultAttrs);
     if (!name.empty())
@@ -284,7 +282,7 @@ id<MTLRenderPipelineState> BasicDrawableMTL::getRenderPipelineState(SceneRendere
 
     // Set up a render state
     NSError *err = nil;
-    renderState = [mtlDevice newRenderPipelineStateWithDescriptor:renderDesc error:&err];
+    renderState = [sceneRender->setupInfo.mtlDevice newRenderPipelineStateWithDescriptor:renderDesc error:&err];
     if (err) {
         NSLog(@"BasicDrawableMTL: Failed to set up render state because:\n%@",err);
         return nil;
@@ -387,8 +385,6 @@ bool BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
     if (texturesChanged || valuesChanged || prog->changed) {
         ret = true;
         
-        id<MTLDevice> mtlDevice = sceneRender->setupInfo.mtlDevice;
-        
         // We need to blit the default values into place because we let those change
         // Typically, this is color
         BufferBuilderMTL buffBuild(&sceneRender->setupInfo);
@@ -460,23 +456,23 @@ bool BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
                     fragTexInfo->addTexture(texOffset, Point2f(texScale,texScale), tex != nil ? tex->getMTLID() : nil);
             }
             if (vertTexInfo) {
-                vertTexInfo->updateBuffer(mtlDevice, &sceneRender->setupInfo, bltEncode);
+                vertTexInfo->updateBuffer(sceneRender->setupInfo.mtlDevice, &sceneRender->setupInfo, bltEncode);
             }
             if (fragTexInfo) {
-                fragTexInfo->updateBuffer(mtlDevice, &sceneRender->setupInfo, bltEncode);
+                fragTexInfo->updateBuffer(sceneRender->setupInfo.mtlDevice, &sceneRender->setupInfo, bltEncode);
             }
         }
 
         if (valuesChanged || prog->changed) {
             if (vertABInfo)
-                vertABInfo->startEncoding(mtlDevice);
+                vertABInfo->startEncoding(sceneRender->setupInfo.mtlDevice);
             if (fragABInfo)
-                fragABInfo->startEncoding(mtlDevice);
+                fragABInfo->startEncoding(sceneRender->setupInfo.mtlDevice);
             
             // Uniform blocks associated with the program
             for (const UniformBlock &uniBlock : prog->uniBlocks) {
-                vertABInfo->updateEntry(mtlDevice,bltEncode,uniBlock.bufferID, (void *)uniBlock.blockData->getRawData(), uniBlock.blockData->getLen());
-                fragABInfo->updateEntry(mtlDevice,bltEncode,uniBlock.bufferID, (void *)uniBlock.blockData->getRawData(), uniBlock.blockData->getLen());
+                vertABInfo->updateEntry(sceneRender->setupInfo.mtlDevice,bltEncode,uniBlock.bufferID, (void *)uniBlock.blockData->getRawData(), uniBlock.blockData->getLen());
+                fragABInfo->updateEntry(sceneRender->setupInfo.mtlDevice,bltEncode,uniBlock.bufferID, (void *)uniBlock.blockData->getRawData(), uniBlock.blockData->getLen());
             }
 
             // And the uniforms passed through the drawable
@@ -484,8 +480,8 @@ bool BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
             for (const UniformBlock &uniBlock : uniBlocks) {
                 if (uniBlock.bufferID == WhirlyKitShader::WKSUniformVecEntryExp)
                     hasExp = true;
-                vertABInfo->updateEntry(mtlDevice,bltEncode, uniBlock.bufferID, (void *)uniBlock.blockData->getRawData(), uniBlock.blockData->getLen());
-                fragABInfo->updateEntry(mtlDevice,bltEncode, uniBlock.bufferID, (void *)uniBlock.blockData->getRawData(), uniBlock.blockData->getLen());
+                vertABInfo->updateEntry(sceneRender->setupInfo.mtlDevice,bltEncode, uniBlock.bufferID, (void *)uniBlock.blockData->getRawData(), uniBlock.blockData->getLen());
+                fragABInfo->updateEntry(sceneRender->setupInfo.mtlDevice,bltEncode, uniBlock.bufferID, (void *)uniBlock.blockData->getRawData(), uniBlock.blockData->getLen());
             }
             
             // Per drawable draw state in its own buffer
@@ -510,15 +506,15 @@ bool BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
             uni.maxVisibleFadeBand = maxVisibleFadeBand;
             applyUniformsToDrawState(uni,uniforms);
             if (vertABInfo)
-                vertABInfo->updateEntry(mtlDevice,bltEncode, WhirlyKitShader::WKSUniformDrawStateEntry, &uni, sizeof(uni));
+                vertABInfo->updateEntry(sceneRender->setupInfo.mtlDevice,bltEncode, WhirlyKitShader::WKSUniformDrawStateEntry, &uni, sizeof(uni));
             if (fragABInfo)
-                fragABInfo->updateEntry(mtlDevice,bltEncode, WhirlyKitShader::WKSUniformDrawStateEntry, &uni, sizeof(uni));
+                fragABInfo->updateEntry(sceneRender->setupInfo.mtlDevice,bltEncode, WhirlyKitShader::WKSUniformDrawStateEntry, &uni, sizeof(uni));
 
             if (vertABInfo) {
-                vertABInfo->endEncoding(mtlDevice, bltEncode);
+                vertABInfo->endEncoding(sceneRender->setupInfo.mtlDevice, bltEncode);
             }
             if (fragABInfo) {
-                fragABInfo->endEncoding(mtlDevice, bltEncode);
+                fragABInfo->endEncoding(sceneRender->setupInfo.mtlDevice, bltEncode);
             }
         }
 

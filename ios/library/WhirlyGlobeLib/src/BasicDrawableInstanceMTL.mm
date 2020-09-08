@@ -157,7 +157,6 @@ id<MTLRenderPipelineState> BasicDrawableInstanceMTL::getRenderPipelineState(Scen
 {
     if (renderState)
         return renderState;
-    id<MTLDevice> mtlDevice = sceneRender->setupInfo.mtlDevice;
 
     MTLRenderPipelineDescriptor *renderDesc = sceneRender->defaultRenderPipelineState(sceneRender,program,renderTarget);
     renderDesc.vertexDescriptor = basicDrawMTL->getVertexDescriptor(program->vertFunc,defaultAttrs);
@@ -193,7 +192,7 @@ id<MTLRenderPipelineState> BasicDrawableInstanceMTL::getRenderPipelineState(Scen
 
     // Set up a render state
     NSError *err = nil;
-    renderState = [mtlDevice newRenderPipelineStateWithDescriptor:renderDesc error:&err];
+    renderState = [sceneRender->setupInfo.mtlDevice newRenderPipelineStateWithDescriptor:renderDesc error:&err];
     if (err) {
         NSLog(@"BasicDrawableMTL: Failed to set up render state because:\n%@",err);
         return nil;
@@ -249,9 +248,7 @@ id<MTLRenderPipelineState> BasicDrawableInstanceMTL::getCalcRenderPipelineState(
 {
     if (calcRenderState)
         return calcRenderState;
-    
-    id<MTLDevice> mtlDevice = sceneRender->setupInfo.mtlDevice;
-    
+        
     MTLRenderPipelineDescriptor *renderDesc = sceneRender->defaultRenderPipelineState(sceneRender,(ProgramMTL *)program,renderTarget);
     // Note: Disable this to debug the shader
     renderDesc.rasterizationEnabled = false;
@@ -261,7 +258,7 @@ id<MTLRenderPipelineState> BasicDrawableInstanceMTL::getCalcRenderPipelineState(
     
     // Set up a render state
     NSError *err = nil;
-    calcRenderState = [mtlDevice newRenderPipelineStateWithDescriptor:renderDesc error:&err];
+    calcRenderState = [sceneRender->setupInfo.mtlDevice newRenderPipelineStateWithDescriptor:renderDesc error:&err];
     if (err) {
         NSLog(@"BasicDrawableMTL: Failed to set up render state because:\n%@",err);
         return nil;
@@ -329,8 +326,6 @@ bool BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
 
     if (texturesChanged || valuesChanged || prog->changed) {
         ret = true;
-        id<MTLDevice> mtlDevice = sceneRender->setupInfo.mtlDevice;
-
         if (texturesChanged && (vertTexInfo || fragTexInfo)) {
             activeTextures.clear();
 
@@ -394,19 +389,19 @@ bool BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
                     fragTexInfo->addTexture(texOffset, Point2f(texScale,texScale), tex != nil ? tex->getMTLID() : nil);
             }
             if (vertTexInfo) {
-                vertTexInfo->updateBuffer(mtlDevice, &sceneRender->setupInfo, bltEncode);
+                vertTexInfo->updateBuffer(sceneRender->setupInfo.mtlDevice, &sceneRender->setupInfo, bltEncode);
             }
             if (fragTexInfo) {
-                fragTexInfo->updateBuffer(mtlDevice, &sceneRender->setupInfo, bltEncode);
+                fragTexInfo->updateBuffer(sceneRender->setupInfo.mtlDevice, &sceneRender->setupInfo, bltEncode);
             }
         }
 
         // TODO: Could break out the program only changes
         if (valuesChanged || prog->changed) {
             if (vertABInfo)
-                vertABInfo->startEncoding(mtlDevice);
+                vertABInfo->startEncoding(sceneRender->setupInfo.mtlDevice);
             if (fragABInfo)
-                fragABInfo->startEncoding(mtlDevice);
+                fragABInfo->startEncoding(sceneRender->setupInfo.mtlDevice);
             
             // Put together a set of uniform blocks to apply
             std::map<int,const BasicDrawable::UniformBlock *> allUniBlocks;
@@ -424,8 +419,8 @@ bool BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
                 auto uniBlock = it.second;
                 if (uniBlock->bufferID == WhirlyKitShader::WKSUniformVecEntryExp)
                     hasExp = true;
-                vertABInfo->updateEntry(mtlDevice,bltEncode,uniBlock->bufferID, (void *)uniBlock->blockData->getRawData(), uniBlock->blockData->getLen());
-                fragABInfo->updateEntry(mtlDevice,bltEncode,uniBlock->bufferID, (void *)uniBlock->blockData->getRawData(), uniBlock->blockData->getLen());
+                vertABInfo->updateEntry(sceneRender->setupInfo.mtlDevice,bltEncode,uniBlock->bufferID, (void *)uniBlock->blockData->getRawData(), uniBlock->blockData->getLen());
+                fragABInfo->updateEntry(sceneRender->setupInfo.mtlDevice,bltEncode,uniBlock->bufferID, (void *)uniBlock->blockData->getRawData(), uniBlock->blockData->getLen());
             }
             
             // Per drawable draw state in its own buffer
@@ -453,19 +448,19 @@ bool BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
             }
                 
             if (vertABInfo)
-                vertABInfo->updateEntry(mtlDevice,bltEncode, WhirlyKitShader::WKSUniformDrawStateEntry, &uni, sizeof(uni));
+                vertABInfo->updateEntry(sceneRender->setupInfo.mtlDevice,bltEncode, WhirlyKitShader::WKSUniformDrawStateEntry, &uni, sizeof(uni));
             if (fragABInfo)
-                fragABInfo->updateEntry(mtlDevice,bltEncode, WhirlyKitShader::WKSUniformDrawStateEntry, &uni, sizeof(uni));
+                fragABInfo->updateEntry(sceneRender->setupInfo.mtlDevice,bltEncode, WhirlyKitShader::WKSUniformDrawStateEntry, &uni, sizeof(uni));
             
             // And do the Model Instance specific stuff
             if (vertABInfo)
-                vertABInfo->updateEntry(mtlDevice, bltEncode, WhirlyKitShader::WKSUniformModelInstanceEntry, &uniMI, sizeof(uniMI));
+                vertABInfo->updateEntry(sceneRender->setupInfo.mtlDevice, bltEncode, WhirlyKitShader::WKSUniformModelInstanceEntry, &uniMI, sizeof(uniMI));
             
             if (vertABInfo) {
-                vertABInfo->endEncoding(mtlDevice, bltEncode);
+                vertABInfo->endEncoding(sceneRender->setupInfo.mtlDevice, bltEncode);
             }
             if (fragABInfo) {
-                fragABInfo->endEncoding(mtlDevice, bltEncode);
+                fragABInfo->endEncoding(sceneRender->setupInfo.mtlDevice, bltEncode);
             }
         }
         
