@@ -119,7 +119,7 @@ bool BasicDrawableInstance::isOn(WhirlyKit::RendererFrameInfo *frameInfo) const
     
     // Zoom based check.  We need to be in the current zoom range
     if (zoomSlot > -1 && zoomSlot <= MaplyMaxZoomSlots) {
-        float zoom = frameInfo->scene->zoomSlots[zoomSlot];
+        float zoom = frameInfo->scene->getZoomSlotValue(zoomSlot);
         if (zoom != MAXFLOAT) {
             if (minZoomVis != DrawVisibleInvalid && zoom < minZoomVis)
                 return false;
@@ -276,27 +276,39 @@ void BasicDrawableInstance::setTexId(unsigned int which,SimpleIdentity inId)
 
 void BasicDrawableInstance::setTexIDs(const std::vector<SimpleIdentity> &texIDs)
 {
-    texturesChanged = true;
-
+    bool changes = false;
+    
     for (unsigned int ii=0;ii<std::min(texInfo.size(),texIDs.size());ii++)
     {
-        texInfo[ii].texId = texIDs[ii];
+        if (texInfo[ii].texId != texIDs[ii]) {
+            texInfo[ii].texId = texIDs[ii];
+            changes = true;
+        }
     }
+
+    if (changes)
+        texturesChanged = true;
 }
 
 void BasicDrawableInstance::setTexRelative(int which,int size,int borderTexel,int relLevel,int relX,int relY)
 {
-    texturesChanged = true;
-
-    if (which >= texInfo.size())
-        return;
+    bool changes = false;
     
+    if (which >= texInfo.size())
+       return;
+
     TexInfo &ti = texInfo[which];
-    ti.size = size;
-    ti.borderTexel = borderTexel;
-    ti.relLevel = relLevel;
-    ti.relX = relX;
-    ti.relY = relY;
+    if (ti.size != size || ti.borderTexel != borderTexel || ti.relLevel != relLevel || ti.relX != relX || ti.relY != relY) {
+        ti.size = size;
+        ti.borderTexel = borderTexel;
+        ti.relLevel = relLevel;
+        ti.relX = relX;
+        ti.relY = relY;
+        changes = true;
+    }
+
+    if (changes)
+        texturesChanged = true;
 }
 
 void BasicDrawableInstance::setValuesChanged()

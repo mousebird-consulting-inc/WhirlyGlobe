@@ -449,9 +449,9 @@ bool BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
                 }
                 
                 // And the texture itself
-                TextureBaseMTL *tex = NULL;
+                TextureBaseMTLRef tex;
                 if (thisTexInfo && thisTexInfo->texId != EmptyIdentity)
-                    tex = dynamic_cast<TextureBaseMTL *>(scene->getTexture(thisTexInfo->texId));
+                    tex = std::dynamic_pointer_cast<TextureBaseMTL>(scene->getTexture(thisTexInfo->texId));
                 if (tex)
                     activeTextures.push_back(tex->getMTLTex());
                 if (vertTexInfo)

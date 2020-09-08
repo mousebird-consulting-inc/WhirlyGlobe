@@ -222,8 +222,9 @@ void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,id<MTL
     uniforms.globeMode = !coordAdapter->isFlat();
     uniforms.frameCount = frameCount;
     uniforms.currentTime = frameInfo->currentTime - scene->getBaseTime();
-    for (unsigned int ii=0;ii<MaplyMaxZoomSlots;ii++)
-        uniforms.zoomSlots[ii] = frameInfo->scene->zoomSlots[ii];
+    for (unsigned int ii=0;ii<MaplyMaxZoomSlots;ii++) {
+        frameInfo->scene->copyZoomSlots(uniforms.zoomSlots);
+    }
     
     // Copy this to a buffer and then blit that buffer into place
     // TODO: Try to reuse these
@@ -578,17 +579,18 @@ void SceneRendererMTL::render(TimeInterval duration,
     
     // Let the active models to their thing
     // That thing had better not take too long
-    for (auto activeModel : scene->activeModels) {
+    auto activeModels = scene->getActiveModels();
+    for (auto activeModel : activeModels) {
         activeModel->updateForFrame(&baseFrameInfo);
     }
     if (perfInterval > 0)
-        perfTimer.addCount("Active Models", (int)scene->activeModels.size());
+        perfTimer.addCount("Active Models", (int)activeModels.size());
     
     if (perfInterval > 0)
         perfTimer.stopTiming("Active Model Runs");
     
     if (perfInterval > 0)
-        perfTimer.addCount("Scene changes", (int)scene->changeRequests.size());
+        perfTimer.addCount("Scene changes", scene->getNumChangeRequests());
     
     if (perfInterval > 0)
         perfTimer.startTiming("Scene processing");
@@ -967,9 +969,9 @@ void SceneRendererMTL::shutdown()
     
     snapshotDelegates.clear();
     
-    for (auto draw: scene->drawables) {
-        draw.second->teardownForRenderer(nil, NULL, NULL);
-    }
+    auto drawables = scene->getDrawables();
+    for (auto draw: drawables)
+        draw->teardownForRenderer(nil, NULL, NULL);
 
     SceneRenderer::shutdown();
 }

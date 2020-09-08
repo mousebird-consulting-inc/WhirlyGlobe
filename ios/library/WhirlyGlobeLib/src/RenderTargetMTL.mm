@@ -51,11 +51,11 @@ bool RenderTargetMTL::init(SceneRenderer *renderer,Scene *scene,SimpleIdentity t
 
 bool RenderTargetMTL::setTargetTexture(SceneRenderer *renderer,Scene *scene,SimpleIdentity newTargetTexID)
 {
-    TextureBase *tex = scene->getTexture(newTargetTexID);
+    TextureBaseRef tex = scene->getTexture(newTargetTexID);
     if (!tex)
         return false;
     
-    setTargetTexture(dynamic_cast<TextureBaseMTL *>(tex));
+    setTargetTexture(dynamic_cast<TextureBaseMTL *>(tex.get()));
     
     return true;
 }

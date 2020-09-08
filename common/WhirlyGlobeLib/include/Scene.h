@@ -295,8 +295,20 @@ public:
     /// The scene is responsible for the Drawable after this call.
     virtual void addDrawable(DrawableRef drawable);
     
+    /// Look for a Drawable by ID
+    DrawableRef getDrawable(SimpleIdentity drawId);
+
     /// Remove a drawable from the scene
     virtual void remDrawable(DrawableRef drawable);
+    
+    /// Add a fully formed texture
+    virtual void addTexture(TextureBaseRef texRef);
+    
+    /// Look for a Texture by ID
+    TextureBaseRef getTexture(SimpleIdentity texId);
+    
+    /// Remove a texture by ID.  Return true if it was there
+    virtual bool removeTexture(SimpleIdentity texID);
 
     /// Called once by the renderer so we can reset any managers that care
     void setRenderer(SceneRenderer *renderer);
@@ -320,7 +332,7 @@ public:
 //    dispatch_queue_t getDispatchQueue() { return dispatchQueue; }
     
     // Return all the drawables in a list.  Only call this on the main thread.
-    const DrawableRefSet &getDrawables();
+    const std::vector<Drawable *> getDrawables();
     
     // Used for offline frame by frame rendering
     void setCurrentTime(TimeInterval newTime);
@@ -353,8 +365,42 @@ public:
     
     /// Update the zoom value for a given slot
     void setZoomSlotValue(int zoomSlot,float zoom);
+    
+    /// Return the given zoom slot value
+    float getZoomSlotValue(int zoomSlot);
+    
+    /// Copy all the zoom slots into a destination array
+    void copyZoomSlots(float *dest);
 	
-public:
+    /// Add a shader for reference, but not with a scene name.
+    /// Presumably you'll call setSceneProgram() shortly.
+    void addProgram(ProgramRef prog);
+    
+    /// Search for a shader program by ID (our ID, not OpenGL's)
+    Program *getProgram(SimpleIdentity programId);
+
+    /// Remove the given program by ID (ours, not OpenGL's)
+    void removeProgram(SimpleIdentity progId,RenderTeardownInfoRef teardown);
+
+    /// Look for a program by its name (last to first)
+    Program *findProgramByName(const std::string &name);
+
+    /// For 2D maps we have an overlap margin based on what drawables may overlap the edges
+    double getOverlapMargin() { return overlapMargin; }
+    
+    /// Return the active models (main thread only)
+    std::vector<ActiveModelRef> &getActiveModels() { return activeModels; }
+    
+    /// Return the number of change requests
+    int getNumChangeRequests();
+
+    /// Set up the font texture manager.  Don't call this yourself.
+    void setFontTextureManager(FontTextureManagerRef newManager);
+
+    /// Returns the font texture manager, which is thread safe
+    FontTextureManager *getFontTextureManager() { return fontTextureManager.get(); }
+
+protected:
     /// Don't be calling this
     void setDisplayAdapter(CoordSystemDisplayAdapter *newCoordAdapter);
     
@@ -365,17 +411,12 @@ public:
     /// The coordinate system display adapter converts from the local space
     ///  to display coordinates.
     CoordSystemDisplayAdapter *coordAdapter;
-    
-    /// Look for a Drawable by ID
-    DrawableRef getDrawable(SimpleIdentity drawId);
-    
-    /// Look for a Texture by ID
-    TextureBase *getTexture(SimpleIdentity texId);
-        
+                
     /// All the active models
     std::vector<ActiveModelRef> activeModels;
     
     /// All the drawables we've been handed, sorted by ID
+    std::mutex drawablesLock;
     DrawableRefSet drawables;
     
     typedef std::unordered_map<SimpleIdentity,TextureBaseRef> TextureRefSet;
@@ -401,32 +442,10 @@ public:
     
     /// Managers for various functionality
     std::map<std::string,SceneManager *> managers;
-    
-    /// Returns the font texture manager, which is thread safe
-    FontTextureManager *getFontTextureManager() { return fontTextureManager.get(); }
-    
-    /// Set up the font texture manager.  Don't call this yourself.
-    void setFontTextureManager(FontTextureManagerRef newManager);
-        
+                
     /// Lock for accessing programs
     std::mutex programLock;
-    
-    /// Search for a shader program by ID (our ID, not OpenGL's)
-    Program *getProgram(SimpleIdentity programId);
-    
-    /// Look for a program by its name (last to first)
-    Program *findProgramByName(const std::string &name);
-    
-    /// Add a shader for reference, but not with a scene name.
-    /// Presumably you'll call setSceneProgram() shortly.
-    void addProgram(ProgramRef prog);
-    
-    /// Remove the given program by ID (ours, not OpenGL's)
-    void removeProgram(SimpleIdentity progId,RenderTeardownInfoRef teardown);
-    
-    /// For 2D maps we have an overlap margin based on what drawables may overlap the edges
-    double getOverlapMargin() { return overlapMargin; }
-    
+                    
     // Sampling layers will set these to talk to shaders
     std::mutex zoomSlotLock;
     float zoomSlots[MaplyMaxZoomSlots];

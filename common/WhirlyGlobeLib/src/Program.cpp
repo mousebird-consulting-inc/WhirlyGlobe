@@ -70,10 +70,10 @@ ShaderAddTextureReq::ShaderAddTextureReq(SimpleIdentity shaderID,SimpleIdentity 
 void ShaderAddTextureReq::execute(Scene *scene, SceneRenderer *renderer, View *view)
 {
     Program *prog = scene->getProgram(shaderID);
-    TextureBase *tex = scene->getTexture(texID);
+    TextureBaseRef tex = scene->getTexture(texID);
     if (prog && tex)
     {
-        prog->setTexture(nameID,tex,textureSlot);
+        prog->setTexture(nameID,tex.get(),textureSlot);
     }
 }
 

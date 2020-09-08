@@ -167,8 +167,8 @@ void DynamicTexture::getUtilization(int &outNumCell,int &usedCell)
     
 void DynamicTextureClearRegion::execute(Scene *scene,SceneRenderer *renderer,View *view)
 {
-    TextureBase *tex = scene->getTexture(texId);
-    DynamicTexture *dynTex = dynamic_cast<DynamicTexture *>(tex);
+    TextureBaseRef tex = scene->getTexture(texId);
+    DynamicTextureRef dynTex = std::dynamic_pointer_cast<DynamicTexture>(tex);
     if (dynTex)
     {
         dynTex->addRegionToClear(region);
@@ -177,8 +177,8 @@ void DynamicTextureClearRegion::execute(Scene *scene,SceneRenderer *renderer,Vie
     
 void DynamicTextureAddRegion::execute(Scene *scene,SceneRenderer *renderer,View *view)
 {
-    TextureBase *tex = scene->getTexture(texId);
-    DynamicTexture *dynTex = dynamic_cast<DynamicTexture *>(tex);
+    TextureBaseRef tex = scene->getTexture(texId);
+    DynamicTextureRef dynTex = std::dynamic_pointer_cast<DynamicTexture>(tex);
     if (dynTex)
     {
         dynTex->addTextureData(startX, startY, width, height, data);

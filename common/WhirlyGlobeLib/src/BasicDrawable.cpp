@@ -117,7 +117,7 @@ bool BasicDrawable::isOn(RendererFrameInfo *frameInfo) const
     
     // Zoom based check.  We need to be in the current zoom range
     if (zoomSlot > -1 && zoomSlot <= MaplyMaxZoomSlots) {
-        float zoom = frameInfo->scene->zoomSlots[zoomSlot];
+        float zoom = frameInfo->scene->getZoomSlotValue(zoomSlot);
         if (zoom != MAXFLOAT) {
             if (minZoomVis != DrawVisibleInvalid && zoom < minZoomVis)
                 return false;
@@ -131,6 +131,9 @@ bool BasicDrawable::isOn(RendererFrameInfo *frameInfo) const
 
 void BasicDrawable::setOnOff(bool onOff)
 {
+    if (on == onOff)
+        return;
+    
     setValuesChanged();
 
     on = onOff;
@@ -167,28 +170,41 @@ const std::vector<BasicDrawable::TexInfo> &BasicDrawable::getTexInfo()
 
 void BasicDrawable::setTexId(unsigned int which,SimpleIdentity inId)
 {
-    setTexturesChanged();
-    
-    if (which >= 0 && which < texInfo.size())
+    if (which >= 0 && which < texInfo.size()) {
+        if (texInfo[which].texId == inId)
+            return;
+
         texInfo[which].texId = inId;
+
+        setTexturesChanged();
+    }
 }
 
 void BasicDrawable::setTexIDs(const std::vector<SimpleIdentity> &texIDs)
 {
-    setTexturesChanged();
-
+    bool changes = false;
+    
     for (unsigned int ii=0;ii<std::min(texIDs.size(),texInfo.size());ii++)
     {
-        texInfo[ii].texId = texIDs[ii];
+        if (texInfo[ii].texId != texIDs[ii]) {
+            texInfo[ii].texId = texIDs[ii];
+            changes = true;
+        }
     }
+
+    if (changes)
+        setTexturesChanged();
 }
     
 void BasicDrawable::setOverrideColor(RGBAColor inColor)
 {
-    setValuesChanged();
-
+    if (hasOverrideColor && color == inColor)
+        return;
+    
     color = inColor;
     hasOverrideColor = true;
+
+    setValuesChanged();
 }
 
 void BasicDrawable::setOverrideColor(unsigned char inColor[])
@@ -540,18 +556,20 @@ DrawPriorityChangeRequest::DrawPriorityChangeRequest(SimpleIdentity drawId,int d
 
 void DrawPriorityChangeRequest::execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw)
 {
-    renderer->removeDrawable(draw,false,NULL);
 
     BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
-    if (basicDrawable)
+    if (basicDrawable && basicDrawable->drawPriority != drawPriority) {
+        renderer->removeDrawable(draw,false,NULL);
         basicDrawable->setDrawPriority(drawPriority);
-    else {
+        renderer->addDrawable(draw);
+    } else {
         BasicDrawableInstanceRef basicDrawInst = std::dynamic_pointer_cast<BasicDrawableInstance>(draw);
-        if (basicDrawInst)
+        if (basicDrawInst && basicDrawInst->getDrawPriority() != drawPriority) {
+            renderer->removeDrawable(draw,false,NULL);
             basicDrawInst->setDrawPriority(drawPriority);
+            renderer->addDrawable(draw);
+        }
     }
-
-    renderer->addDrawable(draw);
 }
 
 LineWidthChangeRequest::LineWidthChangeRequest(SimpleIdentity drawId,float lineWidth)
