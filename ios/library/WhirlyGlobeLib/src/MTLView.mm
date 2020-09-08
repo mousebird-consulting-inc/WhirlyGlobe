@@ -36,6 +36,9 @@ using namespace WhirlyKit;
 
     self.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
     self.depthStencilPixelFormat = MTLPixelFormatDepth32Float;
+    if (@available(iOS 13.0, *)) {
+        self.depthStencilAttachmentTextureUsage = MTLTextureUsageShaderWrite | MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget;
+    }
     self.framebufferOnly = true;
     animating = true;
     self.preferredFramesPerSecond = 120;

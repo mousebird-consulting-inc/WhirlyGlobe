@@ -80,6 +80,9 @@ SimpleIdentity BasicDrawableInstance::getProgram() const
     
 void BasicDrawableInstance::setProgram(SimpleIdentity progID)
 {
+    if (programID == progID)
+        return;
+    
     setValuesChanged();
     
     programID = progID;
@@ -133,6 +136,9 @@ bool BasicDrawableInstance::isOn(WhirlyKit::RendererFrameInfo *frameInfo) const
     
 void BasicDrawableInstance::setRequestZBuffer(bool val)
 {
+    if (requestZBuffer == val)
+        return;
+    
     setValuesChanged();
 
     requestZBuffer = val;
@@ -145,6 +151,9 @@ bool BasicDrawableInstance::getRequestZBuffer() const
     
 void BasicDrawableInstance::setWriteZBuffer(bool val)
 {
+    if (writeZBuffer == val)
+        return;
+    
     setValuesChanged();
 
     writeZBuffer = val;
@@ -194,6 +203,9 @@ void BasicDrawableInstance::setViewerVisibility(double inMinViewerDist,double in
 
 void BasicDrawableInstance::setZoomInfo(int inZoomSlot,double inMinZoomVis,double inMaxZoomVis)
 {
+    if (zoomSlot == inZoomSlot && minZoomVis == inMinZoomVis && maxZoomVis == inMaxZoomVis)
+        return;
+    
     setValuesChanged();
     
     zoomSlot = inZoomSlot;
@@ -204,6 +216,9 @@ void BasicDrawableInstance::setZoomInfo(int inZoomSlot,double inMinZoomVis,doubl
 /// Set the color
 void BasicDrawableInstance::setColor(RGBAColor inColor)
 {
+    if (hasColor && color == inColor)
+        return;
+    
     setValuesChanged();
 
     hasColor = true; color = inColor;
@@ -212,6 +227,9 @@ void BasicDrawableInstance::setColor(RGBAColor inColor)
 /// Set the draw priority
 void BasicDrawableInstance::setDrawPriority(int newPriority)
 {
+    if (hasDrawPriority && drawPriority == newPriority)
+        return;
+    
     setValuesChanged();
 
     hasDrawPriority = true;  drawPriority = newPriority;
@@ -220,6 +238,9 @@ void BasicDrawableInstance::setDrawPriority(int newPriority)
 /// Set the line width
 void BasicDrawableInstance::setLineWidth(int newLineWidth)
 {
+    if (hasLineWidth && lineWidth == newLineWidth)
+        return;
+    
     setValuesChanged();
 
     hasLineWidth = true;  lineWidth = newLineWidth;
@@ -258,6 +279,9 @@ SimpleIdentity BasicDrawableInstance::getRenderTarget() const
 
 void BasicDrawableInstance::setRenderTarget(SimpleIdentity newRenderTarget)
 {
+    if (renderTargetID == newRenderTarget)
+        return;
+    
     setValuesChanged();
 
     renderTargetID = newRenderTarget;
@@ -265,13 +289,17 @@ void BasicDrawableInstance::setRenderTarget(SimpleIdentity newRenderTarget)
 
 void BasicDrawableInstance::setTexId(unsigned int which,SimpleIdentity inId)
 {
-    setValuesChanged();
-
-    if (which < texInfo.size())
+    bool changes = false;
+    
+    if (which < texInfo.size()) {
         texInfo[which].texId = inId;
-    else {
+        changes = true;
+    } else {
         wkLogLevel(Error, "BasicDrawableInstance:setTexId() Tried to set texInfo entry that doesn't exist.");
     }
+    
+    if (changes)
+        setTexturesChanged();
 }
 
 void BasicDrawableInstance::setTexIDs(const std::vector<SimpleIdentity> &texIDs)
@@ -287,7 +315,7 @@ void BasicDrawableInstance::setTexIDs(const std::vector<SimpleIdentity> &texIDs)
     }
 
     if (changes)
-        texturesChanged = true;
+        setTexturesChanged();
 }
 
 void BasicDrawableInstance::setTexRelative(int which,int size,int borderTexel,int relLevel,int relX,int relY)
@@ -308,7 +336,7 @@ void BasicDrawableInstance::setTexRelative(int which,int size,int borderTexel,in
     }
 
     if (changes)
-        texturesChanged = true;
+        setTexturesChanged();
 }
 
 void BasicDrawableInstance::setValuesChanged()

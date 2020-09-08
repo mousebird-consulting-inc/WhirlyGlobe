@@ -53,17 +53,24 @@ BasicDrawable::~BasicDrawable()
 
 void BasicDrawable::setTexRelative(int which,int size,int borderTexel,int relLevel,int relX,int relY)
 {
-    setTexturesChanged();
-
+    bool changes = false;
+    
     if (which >= texInfo.size())
         return;
     
     TexInfo &ti = texInfo[which];
-    ti.size = size;
-    ti.borderTexel = borderTexel;
-    ti.relLevel = relLevel;
-    ti.relX = relX;
-    ti.relY = relY;
+    if (ti.size != size || ti.borderTexel != borderTexel ||
+        ti.relLevel != relLevel || ti.relX != relX || ti.relY != relY) {
+        ti.size = size;
+        ti.borderTexel = borderTexel;
+        ti.relLevel = relLevel;
+        ti.relX = relX;
+        ti.relY = relY;
+        changes = true;
+    }
+    
+    if (changes)
+        setTexturesChanged();
 }
 
 SimpleIdentity BasicDrawable::getProgram() const
@@ -73,6 +80,9 @@ SimpleIdentity BasicDrawable::getProgram() const
 
 void BasicDrawable::setProgram(SimpleIdentity progId)
 {
+    if (programId == progId)
+        return;
+    
     setValuesChanged();
 
     programId = progId;
@@ -151,6 +161,9 @@ Mbr BasicDrawable::getLocalMbr() const
 
 void BasicDrawable::setDrawPriority(unsigned int newPriority)
 {
+    if (drawPriority == newPriority)
+        return;
+    
     setValuesChanged();
 
     drawPriority = newPriority;
@@ -214,6 +227,10 @@ void BasicDrawable::setOverrideColor(unsigned char inColor[])
 
 void BasicDrawable::setVisibleRange(float minVis,float maxVis,float minVisBand,float maxVisBand)
 {
+    if (minVisible == minVis && maxVisible == maxVis &&
+        minVisibleFadeBand == minVisBand && maxVisibleFadeBand == maxVisBand)
+        return;
+    
     setValuesChanged();
 
     minVisible = minVis;  maxVisible = maxVis;  minVisibleFadeBand = minVisBand; maxVisibleFadeBand = maxVisBand;
@@ -221,6 +238,10 @@ void BasicDrawable::setVisibleRange(float minVis,float maxVis,float minVisBand,f
     
 void BasicDrawable::setViewerVisibility(double inMinViewerDist,double inMaxViewerDist,const Point3d &inViewerCenter)
 {
+    if (minViewerDist == inMinViewerDist && maxViewerDist == inMaxViewerDist &&
+        viewerCenter == inViewerCenter)
+        return;
+    
     setValuesChanged();
 
     minViewerDist = inMinViewerDist;
@@ -230,6 +251,9 @@ void BasicDrawable::setViewerVisibility(double inMinViewerDist,double inMaxViewe
 
 void BasicDrawable::setZoomInfo(int inZoomSlot,double inMinZoomVis,double inMaxZoomVis)
 {
+    if (zoomSlot == inZoomSlot && minZoomVis == inMinZoomVis && maxZoomVis == inMaxZoomVis)
+        return;
+    
     setValuesChanged();
     
     zoomSlot = inZoomSlot;
@@ -239,6 +263,9 @@ void BasicDrawable::setZoomInfo(int inZoomSlot,double inMinZoomVis,double inMaxZ
 
 void BasicDrawable::setFade(TimeInterval inFadeDown,TimeInterval inFadeUp)
 {
+    if (fadeUp == inFadeUp && fadeDown == inFadeDown)
+        return;
+    
     setValuesChanged();
 
     fadeUp = inFadeUp;  fadeDown = inFadeDown;
@@ -246,6 +273,9 @@ void BasicDrawable::setFade(TimeInterval inFadeDown,TimeInterval inFadeUp)
 
 void BasicDrawable::setLineWidth(float inWidth)
 {
+    if (lineWidth == inWidth)
+        return;
+    
     setValuesChanged();
 
     lineWidth = inWidth;
@@ -253,6 +283,9 @@ void BasicDrawable::setLineWidth(float inWidth)
 
 void BasicDrawable::setRequestZBuffer(bool val)
 {
+    if (requestZBuffer == val)
+        return;
+    
     setValuesChanged();
 
     requestZBuffer = val;
@@ -263,6 +296,9 @@ bool BasicDrawable::getRequestZBuffer() const
 
 void BasicDrawable::setWriteZBuffer(bool val)
 {
+    if (writeZBuffer == val)
+        return;
+    
     setValuesChanged();
     writeZBuffer = val;
 }
@@ -277,6 +313,9 @@ SimpleIdentity BasicDrawable::getRenderTarget() const
     
 void BasicDrawable::setRenderTarget(SimpleIdentity newRenderTarget)
 {
+    if (renderTargetID == newRenderTarget)
+        return;
+    
     setValuesChanged();
 
     renderTargetID = newRenderTarget;
