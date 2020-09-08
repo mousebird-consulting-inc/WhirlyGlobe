@@ -124,7 +124,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_removeShaderProgram
         if (!scene)
             return;
 
-        scene->removeProgram(shaderID);
+        scene->removeProgram(shaderID,NULL);
     }
     catch (...)
     {
