@@ -56,7 +56,7 @@ ArgBuffContentsMTL::ArgBuffContentsMTL(id<MTLDevice> mtlDevice,RenderSetupInfoMT
     }
     
     // Create a buffer to store the arguments in
-    buff = buffBuild.reserveData([encode encodedLength]);
+    buffBuild.reserveData([encode encodedLength], &buff);
     
     isSetup = true;
     valid = true;
@@ -82,15 +82,15 @@ void ArgBuffContentsMTL::startEncoding(id<MTLDevice> mtlDevice)
     NSUInteger len = [encode encodedLength];
     if (len > 0) {
         tmpBuff = setupInfoMTL->heapManage.allocateBuffer(HeapManagerMTL::Drawable, len);
-        [encode setArgumentBuffer:tmpBuff->buffer offset:tmpBuff->offset];
+        [encode setArgumentBuffer:tmpBuff.buffer offset:tmpBuff.offset];
     }
 }
 
 void ArgBuffContentsMTL::endEncoding(id<MTLDevice> mtlDevice, id<MTLBlitCommandEncoder> blitEncode)
 {
-    if (!tmpBuff)
+    if (!tmpBuff.buffer)
         return;
-    [blitEncode copyFromBuffer:tmpBuff->buffer sourceOffset:tmpBuff->offset toBuffer:buff->buffer destinationOffset:buff->offset size:[tmpBuff->buffer length]];
+    [blitEncode copyFromBuffer:tmpBuff.buffer sourceOffset:tmpBuff.offset toBuffer:buff.buffer destinationOffset:buff.offset size:[tmpBuff.buffer length]];
 }
 
 void ArgBuffContentsMTL::updateEntry(id<MTLDevice> mtlDevice,id<MTLBlitCommandEncoder> blitEncode,int entryID,void *rawData,size_t size)
@@ -113,7 +113,7 @@ ArgBuffRegularTexturesMTL::ArgBuffRegularTexturesMTL(id<MTLDevice> mtlDevice, Re
 {
     encode = [mtlFunction newArgumentEncoderWithBufferIndex:bufferArgIdx];
     size = [encode encodedLength];
-    buffer = buildBuff.reserveData(size);
+    buildBuff.reserveData(size, &buffer);
 }
 
 void ArgBuffRegularTexturesMTL::addTexture(const Point2f &offset,const Point2f &scale,id<MTLTexture> tex)
@@ -127,7 +127,7 @@ void ArgBuffRegularTexturesMTL::updateBuffer(id<MTLDevice> mtlDevice,RenderSetup
 {
     srcBuffer = setupInfoMTL->heapManage.allocateBuffer(HeapManagerMTL::Drawable, size);
 
-    [encode setArgumentBuffer:srcBuffer->buffer offset:srcBuffer->offset];
+    [encode setArgumentBuffer:srcBuffer.buffer offset:srcBuffer.offset];
     
     // TexIndirect constants first
     memcpy([encode constantDataAtIndex:WKSTexBuffIndirectOffset], &offsets[0], sizeof(float)*2*offsets.size());
@@ -145,7 +145,7 @@ void ArgBuffRegularTexturesMTL::updateBuffer(id<MTLDevice> mtlDevice,RenderSetup
     }
     memcpy([encode constantDataAtIndex:WKSTexBufTexPresent], &texturesPresent, sizeof(int));
     
-    [bltEncode copyFromBuffer:srcBuffer->buffer sourceOffset:srcBuffer->offset toBuffer:buffer->buffer destinationOffset:buffer->offset size:size];
+    [bltEncode copyFromBuffer:srcBuffer.buffer sourceOffset:srcBuffer.offset toBuffer:buffer.buffer destinationOffset:buffer.offset size:size];
     
     offsets.clear();
     scales.clear();

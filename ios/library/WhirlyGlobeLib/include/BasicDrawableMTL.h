@@ -88,7 +88,7 @@ public:
         } data;
         int entry;
         int bufferIndex;
-        BufferEntryMTLRef buffer;
+        BufferEntryMTL buffer;
     } AttributeDefault;
 
     // Apply a list of uniforms to the draw state
@@ -109,10 +109,10 @@ public:
     int numPts,numTris;
     id<MTLRenderPipelineState> renderState; // Cacheable render state
     MTLVertexDescriptor *vertDesc;     // Description of vertices
-    BufferEntryMTLRef triBuffer;           // Metal side buffer for triangles
+    BufferEntryMTL triBuffer;           // Metal side buffer for triangles
     std::vector<AttributeDefault> defaultAttrs;
     
-    BufferEntryMTLRef mainBuffer;        // We're storing all the bits and pieces in here
+    BufferEntryMTL mainBuffer;        // We're storing all the bits and pieces in here
     ArgBuffContentsMTLRef vertABInfo,fragABInfo;
     bool vertHasTextures,fragHasTextures;
     bool vertHasLighting,fragHasLighting;

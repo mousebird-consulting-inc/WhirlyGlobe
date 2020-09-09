@@ -50,12 +50,14 @@ void CopyIntoMtlFloat4(simd::float4 &dest,const float vals[4]);
 class BufferEntryMTL {
 public:
     BufferEntryMTL();
+    bool operator == (const BufferEntryMTL &that) { return heap == that.heap && buffer == that.buffer && offset == that.offset; }
+    void clear() { heap = nil;  buffer = nil;  offset = 0; }
+    BufferEntryMTL & operator = (const BufferEntryMTL &that) { heap = that.heap; buffer = that.buffer; offset = that.offset; return *this; }
     
     id<MTLHeap> heap;      // Set if this is in a heap
     id<MTLBuffer> buffer;  // Buffer reference
     int offset;            // Offset within the buffer
 };
-typedef std::shared_ptr<BufferEntryMTL> BufferEntryMTLRef;
 
 /// Description of what and where a texture is
 class TextureEntryMTL {
@@ -74,16 +76,16 @@ public:
     
     // Add the given data to the current buffer construction
     // Will take strides into account so this can be directly referenced within a buffer
-    BufferEntryMTLRef addData(const void *data,size_t size);
+    void addData(const void *data,size_t size,BufferEntryMTL *buffer);
     
     // Reserve the given space for use by a buffer
-    BufferEntryMTLRef reserveData(size_t size);
+    void reserveData(size_t size,BufferEntryMTL *buffer);
     
     // Construct the buffer from the data we got
-    BufferEntryMTLRef buildBuffer();
+    BufferEntryMTL buildBuffer();
 public:
     RenderSetupInfoMTL *setupInfo;
-    std::vector<BufferEntryMTLRef> bufferRefs;
+    std::vector<BufferEntryMTL *> bufferRefs;
     NSMutableData *data;
 };
 
@@ -93,7 +95,7 @@ public:
     // Construct either track all buffers, or just track what we need to use()
     ResourceRefsMTL(bool trackHolds=false);
     
-    void addEntry(BufferEntryMTLRef &entry);
+    void addEntry(BufferEntryMTL &entry);
     void addBuffer(id<MTLBuffer> buffer);
     void addTexture(TextureEntryMTL &texture);
     void addTextures(const std::vector<TextureEntryMTL> &textures);
@@ -149,10 +151,10 @@ public:
     // Allocate a buffer of the given type and size
     // It may be an entry in a heap, it might not.
     // The BufferEntryMTLRef will track it
-    BufferEntryMTLRef allocateBuffer(HeapType,size_t size);
+    BufferEntryMTL allocateBuffer(HeapType,size_t size);
     
     // This version copies data into the buffer
-    BufferEntryMTLRef allocateBuffer(HeapType,const void *data,size_t size);
+    BufferEntryMTL allocateBuffer(HeapType,const void *data,size_t size);
     
     // Allocate a texture with the given descriptor off of a heap (or not)
     TextureEntryMTL newTextureWithDescriptor(MTLTextureDescriptor *desc,size_t size);
@@ -187,8 +189,8 @@ public:
 
     // Buffers created for shared uniforms.
     // Wired into the various drawables individually
-    BufferEntryMTLRef uniformBuff;
-    BufferEntryMTLRef lightingBuff;    
+    BufferEntryMTL uniformBuff;
+    BufferEntryMTL lightingBuff;    
 };
 
 /// Convert  a float expression into its Metal version

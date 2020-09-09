@@ -73,7 +73,7 @@ public:
     // Add the resources we're using to the list
     void addResources(ResourceRefsMTL &resources);
     
-    BufferEntryMTLRef getBuffer() { return buff; }
+    BufferEntryMTL getBuffer() { return buff; }
 
     // False if this failed to set up correctly
     bool isValid();
@@ -91,9 +91,9 @@ protected:
     typedef std::shared_ptr<Entry> EntryRef;
 
     // Buffer that contains the argument buffer
-    BufferEntryMTLRef buff;
+    BufferEntryMTL buff;
     // Buffer we update into before we copy it over
-    BufferEntryMTLRef tmpBuff;
+    BufferEntryMTL tmpBuff;
     
     // Used to encode everything initially and then textures later
     id<MTLArgumentEncoder> encode;
@@ -129,7 +129,7 @@ public:
     // List the buffers involved (so they can be tracked)
     void addResources(ResourceRefsMTL &resources);
     
-    BufferEntryMTLRef getBuffer() { return buffer; }
+    BufferEntryMTL getBuffer() { return buffer; }
 
 protected:
     id<MTLArgumentEncoder> encode;
@@ -137,8 +137,8 @@ protected:
     std::vector<Point2f> offsets;
     std::vector<Point2f> scales;
     std::vector<id<MTLTexture> > texs;
-    BufferEntryMTLRef srcBuffer;
-    BufferEntryMTLRef buffer;
+    BufferEntryMTL srcBuffer;
+    BufferEntryMTL buffer;
 };
 typedef std::shared_ptr<ArgBuffRegularTexturesMTL> ArgBuffRegularTexturesMTLRef;
 

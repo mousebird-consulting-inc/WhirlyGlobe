@@ -104,7 +104,7 @@ BufferBuilderMTL::BufferBuilderMTL(RenderSetupInfoMTL *setupInfo)
     data = [NSMutableData new];
 }
 
-BufferEntryMTLRef BufferBuilderMTL::addData(const void *inData,size_t size)
+void BufferBuilderMTL::addData(const void *inData,size_t size,BufferEntryMTL *buffer)
 {
     size_t start = [data length];
     [data appendBytes:inData length:size];
@@ -116,14 +116,11 @@ BufferEntryMTLRef BufferBuilderMTL::addData(const void *inData,size_t size)
         [data resetBytesInRange:NSMakeRange(start + size, setupInfo->memAlign - extra)];
     }
 
-    BufferEntryMTLRef buffer(new BufferEntryMTL());
     buffer->offset = start;
     bufferRefs.push_back(buffer);
-    
-    return buffer;
 }
 
-BufferEntryMTLRef BufferBuilderMTL::reserveData(size_t size)
+void BufferBuilderMTL::reserveData(size_t size,BufferEntryMTL *buffer)
 {
     // Keep the allocations on the alignment Metal wants
     size_t extra = size % setupInfo->memAlign;
@@ -135,24 +132,21 @@ BufferEntryMTLRef BufferBuilderMTL::reserveData(size_t size)
     [data increaseLengthBy:size];
     [data resetBytesInRange:NSMakeRange(start, size)];
 
-    BufferEntryMTLRef buffer(new BufferEntryMTL());
     buffer->offset = start;
     bufferRefs.push_back(buffer);
-
-    return buffer;
 }
 
-BufferEntryMTLRef BufferBuilderMTL::buildBuffer()
+BufferEntryMTL BufferBuilderMTL::buildBuffer()
 {
     if ([data length] == 0)
-        return BufferEntryMTLRef();
+        return BufferEntryMTL();
         
-    BufferEntryMTLRef buffer = setupInfo->heapManage.allocateBuffer(HeapManagerMTL::Drawable, [data mutableBytes],[data length]);
+    BufferEntryMTL buffer = setupInfo->heapManage.allocateBuffer(HeapManagerMTL::Drawable, [data mutableBytes],[data length]);
     
     // Update all the buffer references we already created
     for (auto bufRef : bufferRefs) {
-        bufRef->heap = buffer->heap;
-        bufRef->buffer = buffer->buffer;
+        bufRef->heap = buffer.heap;
+        bufRef->buffer = buffer.buffer;
     }
 
     bufferRefs.clear();
@@ -171,17 +165,15 @@ ResourceRefsMTL::ResourceRefsMTL(bool trackHolds)
 {
 }
 
-void ResourceRefsMTL::addEntry(BufferEntryMTLRef &entry)
+void ResourceRefsMTL::addEntry(BufferEntryMTL &entry)
 {
-    if (!entry)
-        return;
-    if (entry->heap)
-        heaps.insert(entry->heap);
-    else if (entry->buffer)
-        buffers.insert(entry->buffer);
+    if (entry.heap)
+        heaps.insert(entry.heap);
+    else if (entry.buffer)
+        buffers.insert(entry.buffer);
     
     if (trackHolds)
-        buffersToHold.insert(entry->buffer);
+        buffersToHold.insert(entry.buffer);
 }
 
 void ResourceRefsMTL::addBuffer(id<MTLBuffer> buffer)
@@ -307,40 +299,40 @@ id<MTLHeap> HeapManagerMTL::findTextureHeap(MTLTextureDescriptor *desc,size_t si
     return newHeap;
 }
 
-BufferEntryMTLRef HeapManagerMTL::allocateBuffer(HeapType heapType,size_t size)
+BufferEntryMTL HeapManagerMTL::allocateBuffer(HeapType heapType,size_t size)
 {
-    BufferEntryMTLRef buffer(new BufferEntryMTL());
+    BufferEntryMTL buffer;
     if (UseHeaps) {
-        buffer->heap = findHeap(heapType,size);
-        buffer->buffer = [buffer->heap newBufferWithLength:size options:MTLResourceStorageModeShared];
-        if (!buffer->buffer) {
+        buffer.heap = findHeap(heapType,size);
+        buffer.buffer = [buffer.heap newBufferWithLength:size options:MTLResourceStorageModeShared];
+        if (!buffer.buffer) {
             NSLog(@"Uh oh!  Ran out of buffer space");
         }
-        buffer->offset = 0;
+        buffer.offset = 0;
     } else {
-        buffer->buffer = [mtlDevice newBufferWithLength:size options:MTLResourceStorageModeShared];
-        buffer->heap = nil;
-        buffer->offset = 0;
+        buffer.buffer = [mtlDevice newBufferWithLength:size options:MTLResourceStorageModeShared];
+        buffer.heap = nil;
+        buffer.offset = 0;
     }
     
     return buffer;
 }
 
-BufferEntryMTLRef HeapManagerMTL::allocateBuffer(HeapType heapType,const void *data,size_t size)
+BufferEntryMTL HeapManagerMTL::allocateBuffer(HeapType heapType,const void *data,size_t size)
 {
-    BufferEntryMTLRef buffer(new BufferEntryMTL());
+    BufferEntryMTL buffer;
     if (UseHeaps) {
-        buffer->heap = findHeap(heapType,size);
-        buffer->buffer = [buffer->heap newBufferWithLength:size options:MTLResourceStorageModeShared];
-        if (!buffer->buffer) {
+        buffer.heap = findHeap(heapType,size);
+        buffer.buffer = [buffer.heap newBufferWithLength:size options:MTLResourceStorageModeShared];
+        if (!buffer.buffer) {
             NSLog(@"Uh oh!  Ran out of buffer space");
         }
-        memcpy([buffer->buffer contents], data, size);
-        buffer->offset = 0;
+        memcpy([buffer.buffer contents], data, size);
+        buffer.offset = 0;
     } else {
-        buffer->heap = nil;
-        buffer->buffer = [mtlDevice newBufferWithBytes:data length:size options:MTLResourceStorageModeShared];
-        buffer->offset = 0;
+        buffer.heap = nil;
+        buffer.buffer = [mtlDevice newBufferWithBytes:data length:size options:MTLResourceStorageModeShared];
+        buffer.offset = 0;
     }
 
     return buffer;

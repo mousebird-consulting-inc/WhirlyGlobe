@@ -88,7 +88,7 @@ void BasicDrawableInstanceMTL::setupForRenderer(const RenderSetupInfo *inSetupIn
         }
 
         int bufferSize = sizeof(WhirlyKitShader::VertexTriModelInstance) * insts.size();
-        instBuffer = buffBuild.addData(&insts[0], bufferSize);
+        buffBuild.addData(&insts[0], bufferSize, &instBuffer);
         numInst = insts.size();
     } else if (instanceStyle == GPUStyle) {
         // Basic values for the uniforms
@@ -108,10 +108,10 @@ void BasicDrawableInstanceMTL::setupForRenderer(const RenderSetupInfo *inSetupIn
     
     // Last, we'll set up the default attributes in the new buffer as well
     for (auto &defAttr : defaultAttrs)
-        defAttr.buffer = buffBuild.addData(&defAttr.data, sizeof(defAttr.data));
+         buffBuild.addData(&defAttr.data, sizeof(defAttr.data), &defAttr.buffer);
     unsigned char data[4];
     color.asUChar4(&data[0]);
-    colorBuffer = buffBuild.addData(&data[0], 4);
+    buffBuild.addData(&data[0], 4, &colorBuffer);
     
     // Construct the buffer we've been adding to
     mainBuffer = buffBuild.buildBuffer();
@@ -131,11 +131,11 @@ void BasicDrawableInstanceMTL::teardownForRenderer(const RenderSetupInfo *setupI
     renderState = nil;
     calcRenderState = nil;
     defaultAttrs.clear();
-    instBuffer.reset();
-    indirectBuffer.reset();
-    colorBuffer.reset();
-    mainBuffer.reset();
-    baseMainBuffer.reset();
+    instBuffer.clear();
+    indirectBuffer.clear();
+    colorBuffer.clear();
+    mainBuffer.clear();
+    baseMainBuffer.clear();
     vertABInfo.reset();
     fragABInfo.reset();
     vertTexInfo.reset();
@@ -526,51 +526,51 @@ void BasicDrawableInstanceMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,id<M
     // Wire up the various inputs that we know about
     for (auto vertAttr : basicDrawMTL->vertexAttributes) {
         VertexAttributeMTL *vertAttrMTL = (VertexAttributeMTL *)vertAttr;
-        if (vertAttrMTL->buffer && (vertAttrMTL->slot >= 0)) {
-            [cmdEncode setVertexBuffer:vertAttrMTL->buffer->buffer offset:vertAttrMTL->buffer->offset atIndex:vertAttrMTL->slot];
+        if (vertAttrMTL->buffer.buffer && (vertAttrMTL->slot >= 0)) {
+            [cmdEncode setVertexBuffer:vertAttrMTL->buffer.buffer offset:vertAttrMTL->buffer.offset atIndex:vertAttrMTL->slot];
         }
     }
     
     // And provide defaults for the ones we don't.  Both in the basic drawable and our instance
     for (auto defAttr : basicDrawMTL->defaultAttrs)
-        [cmdEncode setVertexBuffer:defAttr.buffer->buffer offset:defAttr.buffer->offset atIndex:defAttr.bufferIndex];
+        [cmdEncode setVertexBuffer:defAttr.buffer.buffer offset:defAttr.buffer.offset atIndex:defAttr.bufferIndex];
     for (auto defAttr : defaultAttrs)
-        [cmdEncode setVertexBuffer:defAttr.buffer->buffer offset:defAttr.buffer->offset atIndex:defAttr.bufferIndex];
+        [cmdEncode setVertexBuffer:defAttr.buffer.buffer offset:defAttr.buffer.offset atIndex:defAttr.bufferIndex];
     
     [cmdEncode setRenderPipelineState:renderState];
     
     // Everything takes the uniforms
-    [cmdEncode setVertexBuffer:sceneRender->setupInfo.uniformBuff->buffer offset:sceneRender->setupInfo.uniformBuff->offset atIndex:WhirlyKitShader::WKSVertUniformArgBuffer];
-    [cmdEncode setFragmentBuffer:sceneRender->setupInfo.uniformBuff->buffer offset:sceneRender->setupInfo.uniformBuff->offset atIndex:WhirlyKitShader::WKSFragUniformArgBuffer];
+    [cmdEncode setVertexBuffer:sceneRender->setupInfo.uniformBuff.buffer offset:sceneRender->setupInfo.uniformBuff.offset atIndex:WhirlyKitShader::WKSVertUniformArgBuffer];
+    [cmdEncode setFragmentBuffer:sceneRender->setupInfo.uniformBuff.buffer offset:sceneRender->setupInfo.uniformBuff.offset atIndex:WhirlyKitShader::WKSFragUniformArgBuffer];
 
     // Some shaders take the lighting
     if (vertHasLighting)
-        [cmdEncode setVertexBuffer:sceneRender->setupInfo.lightingBuff->buffer offset:sceneRender->setupInfo.lightingBuff->offset atIndex:WhirlyKitShader::WKSVertLightingArgBuffer];
+        [cmdEncode setVertexBuffer:sceneRender->setupInfo.lightingBuff.buffer offset:sceneRender->setupInfo.lightingBuff.offset atIndex:WhirlyKitShader::WKSVertLightingArgBuffer];
     if (fragHasLighting)
-        [cmdEncode setFragmentBuffer:sceneRender->setupInfo.lightingBuff->buffer offset:sceneRender->setupInfo.lightingBuff->offset atIndex:WhirlyKitShader::WKSFragLightingArgBuffer];
+        [cmdEncode setFragmentBuffer:sceneRender->setupInfo.lightingBuff.buffer offset:sceneRender->setupInfo.lightingBuff.offset atIndex:WhirlyKitShader::WKSFragLightingArgBuffer];
     
     // Instances go to the vertex shader if they're present
-    if (instBuffer)
-        [cmdEncode setVertexBuffer:instBuffer->buffer offset:instBuffer->offset atIndex:WhirlyKitShader::WKSVertModelInstanceArgBuffer];
+    if (instBuffer.buffer)
+        [cmdEncode setVertexBuffer:instBuffer.buffer offset:instBuffer.offset atIndex:WhirlyKitShader::WKSVertModelInstanceArgBuffer];
     
     // More flexible data structures passed in to the shaders
     if (vertABInfo) {
-        BufferEntryMTLRef buff = vertABInfo->getBuffer();
-        [cmdEncode setVertexBuffer:buff->buffer offset:buff->offset atIndex:WhirlyKitShader::WKSVertexArgBuffer];
+        BufferEntryMTL buff = vertABInfo->getBuffer();
+        [cmdEncode setVertexBuffer:buff.buffer offset:buff.offset atIndex:WhirlyKitShader::WKSVertexArgBuffer];
     }
     if (fragABInfo) {
-        BufferEntryMTLRef buff = fragABInfo->getBuffer();
-        [cmdEncode setFragmentBuffer:buff->buffer offset:buff->offset atIndex:WhirlyKitShader::WKSFragmentArgBuffer];
+        BufferEntryMTL buff = fragABInfo->getBuffer();
+        [cmdEncode setFragmentBuffer:buff.buffer offset:buff.offset atIndex:WhirlyKitShader::WKSFragmentArgBuffer];
     }
 
     // Textures may or may not be passed in to shaders
     if (vertTexInfo) {
-        BufferEntryMTLRef buff = vertTexInfo->getBuffer();
-        [cmdEncode setVertexBuffer:buff->buffer offset:buff->offset atIndex:WhirlyKitShader::WKSVertTextureArgBuffer];
+        BufferEntryMTL buff = vertTexInfo->getBuffer();
+        [cmdEncode setVertexBuffer:buff.buffer offset:buff.offset atIndex:WhirlyKitShader::WKSVertTextureArgBuffer];
     }
     if (fragTexInfo) {
-        BufferEntryMTLRef buff = fragTexInfo->getBuffer();
-        [cmdEncode setFragmentBuffer:buff->buffer offset:buff->offset atIndex:WhirlyKitShader::WKSFragTextureArgBuffer];
+        BufferEntryMTL buff = fragTexInfo->getBuffer();
+        [cmdEncode setFragmentBuffer:buff.buffer offset:buff.offset atIndex:WhirlyKitShader::WKSFragTextureArgBuffer];
     }
 
     // Using the basic drawable geometry with a few tweaks
@@ -583,7 +583,7 @@ void BasicDrawableInstanceMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,id<M
                                   vertexCount:basicDrawMTL->numPts];
                     break;
                 case Triangles:
-                    if (!basicDrawMTL->triBuffer) {
+                    if (!basicDrawMTL->triBuffer.buffer) {
                         // TODO: Figure out why this happens
                         // NSLog(@"BasicDrawableInstanceMTL: Bad basic drawable with no triangles.");
                         return;
@@ -592,8 +592,8 @@ void BasicDrawableInstanceMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,id<M
                     [cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle
                                           indexCount:basicDrawMTL->numTris*3
                                            indexType:MTLIndexTypeUInt16
-                                         indexBuffer:basicDrawMTL->triBuffer->buffer
-                                   indexBufferOffset:basicDrawMTL->triBuffer->offset];
+                                         indexBuffer:basicDrawMTL->triBuffer.buffer
+                                   indexBufferOffset:basicDrawMTL->triBuffer.offset];
                     break;
                 default:
                     break;
@@ -612,8 +612,8 @@ void BasicDrawableInstanceMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,id<M
                     [cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle
                                           indexCount:basicDrawMTL->numTris*3
                                            indexType:MTLIndexTypeUInt16
-                                         indexBuffer:basicDrawMTL->triBuffer->buffer
-                                   indexBufferOffset:basicDrawMTL->triBuffer->offset
+                                         indexBuffer:basicDrawMTL->triBuffer.buffer
+                                   indexBufferOffset:basicDrawMTL->triBuffer.offset
                                        instanceCount:numInst];
                     break;
                 default:
@@ -625,16 +625,16 @@ void BasicDrawableInstanceMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,id<M
             switch (basicDraw->type) {
                 case Lines:
                     [cmdEncode drawPrimitives:MTLPrimitiveTypeLine
-                               indirectBuffer:indirectBuffer->buffer
-                         indirectBufferOffset:indirectBuffer->offset];
+                               indirectBuffer:indirectBuffer.buffer
+                         indirectBufferOffset:indirectBuffer.offset];
                     break;
                 case Triangles:
                     [cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle
                                            indexType:MTLIndexTypeUInt16
-                                         indexBuffer:basicDrawMTL->triBuffer->buffer
-                                   indexBufferOffset:basicDrawMTL->triBuffer->offset
-                                      indirectBuffer:indirectBuffer->buffer
-                                indirectBufferOffset:indirectBuffer->offset];
+                                         indexBuffer:basicDrawMTL->triBuffer.buffer
+                                   indexBufferOffset:basicDrawMTL->triBuffer.offset
+                                      indirectBuffer:indirectBuffer.buffer
+                                indirectBufferOffset:indirectBuffer.offset];
                     break;
                 default:
                     break;
@@ -662,50 +662,50 @@ void BasicDrawableInstanceMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEn
     // Wire up the various inputs that we know about
     for (auto vertAttr : basicDrawMTL->vertexAttributes) {
         VertexAttributeMTL *vertAttrMTL = (VertexAttributeMTL *)vertAttr;
-        if (vertAttrMTL->buffer && (vertAttrMTL->slot >= 0))
-            [cmdEncode setVertexBuffer:vertAttrMTL->buffer->buffer offset:vertAttrMTL->buffer->offset atIndex:vertAttrMTL->slot];
+        if (vertAttrMTL->buffer.buffer && (vertAttrMTL->slot >= 0))
+            [cmdEncode setVertexBuffer:vertAttrMTL->buffer.buffer offset:vertAttrMTL->buffer.offset atIndex:vertAttrMTL->slot];
     }
     
     // And provide defaults for the ones we don't.  Both in the basic drawable and our instance
     for (auto defAttr : basicDrawMTL->defaultAttrs)
-        [cmdEncode setVertexBuffer:defAttr.buffer->buffer offset:defAttr.buffer->offset atIndex:defAttr.bufferIndex];
+        [cmdEncode setVertexBuffer:defAttr.buffer.buffer offset:defAttr.buffer.offset atIndex:defAttr.bufferIndex];
     for (auto defAttr : defaultAttrs)
-        [cmdEncode setVertexBuffer:defAttr.buffer->buffer offset:defAttr.buffer->offset atIndex:defAttr.bufferIndex];
+        [cmdEncode setVertexBuffer:defAttr.buffer.buffer offset:defAttr.buffer.offset atIndex:defAttr.bufferIndex];
     
     [cmdEncode setRenderPipelineState:renderState];
 
     // Everything takes the uniforms
-    [cmdEncode setVertexBuffer:sceneRender->setupInfo.uniformBuff->buffer offset:sceneRender->setupInfo.uniformBuff->offset atIndex:WhirlyKitShader::WKSVertUniformArgBuffer];
-    [cmdEncode setFragmentBuffer:sceneRender->setupInfo.uniformBuff->buffer offset:sceneRender->setupInfo.uniformBuff->offset atIndex:WhirlyKitShader::WKSFragUniformArgBuffer];
+    [cmdEncode setVertexBuffer:sceneRender->setupInfo.uniformBuff.buffer offset:sceneRender->setupInfo.uniformBuff.offset atIndex:WhirlyKitShader::WKSVertUniformArgBuffer];
+    [cmdEncode setFragmentBuffer:sceneRender->setupInfo.uniformBuff.buffer offset:sceneRender->setupInfo.uniformBuff.offset atIndex:WhirlyKitShader::WKSFragUniformArgBuffer];
 
     // Some shaders take the lighting
     if (vertHasLighting)
-        [cmdEncode setVertexBuffer:sceneRender->setupInfo.lightingBuff->buffer offset:sceneRender->setupInfo.lightingBuff->offset atIndex:WhirlyKitShader::WKSVertLightingArgBuffer];
+        [cmdEncode setVertexBuffer:sceneRender->setupInfo.lightingBuff.buffer offset:sceneRender->setupInfo.lightingBuff.offset atIndex:WhirlyKitShader::WKSVertLightingArgBuffer];
     if (fragHasLighting)
-        [cmdEncode setFragmentBuffer:sceneRender->setupInfo.lightingBuff->buffer offset:sceneRender->setupInfo.lightingBuff->offset atIndex:WhirlyKitShader::WKSFragLightingArgBuffer];
+        [cmdEncode setFragmentBuffer:sceneRender->setupInfo.lightingBuff.buffer offset:sceneRender->setupInfo.lightingBuff.offset atIndex:WhirlyKitShader::WKSFragLightingArgBuffer];
     
     // Instances go to the vertex shader if they're present
-    if (instBuffer)
-        [cmdEncode setVertexBuffer:instBuffer->buffer offset:instBuffer->offset atIndex:WhirlyKitShader::WKSVertModelInstanceArgBuffer];
+    if (instBuffer.buffer)
+        [cmdEncode setVertexBuffer:instBuffer.buffer offset:instBuffer.offset atIndex:WhirlyKitShader::WKSVertModelInstanceArgBuffer];
 
     // More flexible data structures passed in to the shaders
     if (vertABInfo) {
-        BufferEntryMTLRef buff = vertABInfo->getBuffer();
-        [cmdEncode setVertexBuffer:buff->buffer offset:buff->offset atIndex:WhirlyKitShader::WKSVertexArgBuffer];
+        BufferEntryMTL buff = vertABInfo->getBuffer();
+        [cmdEncode setVertexBuffer:buff.buffer offset:buff.offset atIndex:WhirlyKitShader::WKSVertexArgBuffer];
     }
     if (fragABInfo) {
-        BufferEntryMTLRef buff = fragABInfo->getBuffer();
-        [cmdEncode setFragmentBuffer:buff->buffer offset:buff->offset atIndex:WhirlyKitShader::WKSFragmentArgBuffer];
+        BufferEntryMTL buff = fragABInfo->getBuffer();
+        [cmdEncode setFragmentBuffer:buff.buffer offset:buff.offset atIndex:WhirlyKitShader::WKSFragmentArgBuffer];
     }
 
     // Textures may or may not be passed in to shaders
     if (vertTexInfo) {
-        BufferEntryMTLRef buff = vertTexInfo->getBuffer();
-        [cmdEncode setVertexBuffer:buff->buffer offset:buff->offset atIndex:WhirlyKitShader::WKSVertTextureArgBuffer];
+        BufferEntryMTL buff = vertTexInfo->getBuffer();
+        [cmdEncode setVertexBuffer:buff.buffer offset:buff.offset atIndex:WhirlyKitShader::WKSVertTextureArgBuffer];
     }
     if (fragTexInfo) {
-        BufferEntryMTLRef buff = fragTexInfo->getBuffer();
-        [cmdEncode setFragmentBuffer:buff->buffer offset:buff->offset atIndex:WhirlyKitShader::WKSFragTextureArgBuffer];
+        BufferEntryMTL buff = fragTexInfo->getBuffer();
+        [cmdEncode setFragmentBuffer:buff.buffer offset:buff.offset atIndex:WhirlyKitShader::WKSFragTextureArgBuffer];
     }
 
     // Using the basic drawable geometry with a few tweaks
@@ -720,7 +720,7 @@ void BasicDrawableInstanceMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEn
                                  baseInstance:0];
                     break;
                 case Triangles:
-                    if (!basicDrawMTL->triBuffer) {
+                    if (!basicDrawMTL->triBuffer.buffer) {
                         // TODO: Figure out why this happens
                         // NSLog(@"BasicDrawableInstanceMTL: Bad basic drawable with no triangles.");
                         return;
@@ -729,8 +729,8 @@ void BasicDrawableInstanceMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEn
                     [cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle
                                           indexCount:basicDrawMTL->numTris*3
                                            indexType:MTLIndexTypeUInt16
-                                         indexBuffer:basicDrawMTL->triBuffer->buffer
-                                   indexBufferOffset:basicDrawMTL->triBuffer->offset
+                                         indexBuffer:basicDrawMTL->triBuffer.buffer
+                                   indexBufferOffset:basicDrawMTL->triBuffer.offset
                                        instanceCount:1
                                           baseVertex:0
                                         baseInstance:0];
@@ -753,8 +753,8 @@ void BasicDrawableInstanceMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEn
                     [cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle
                                           indexCount:basicDrawMTL->numTris*3
                                            indexType:MTLIndexTypeUInt16
-                                         indexBuffer:basicDrawMTL->triBuffer->buffer
-                                   indexBufferOffset:basicDrawMTL->triBuffer->offset
+                                         indexBuffer:basicDrawMTL->triBuffer.buffer
+                                   indexBufferOffset:basicDrawMTL->triBuffer.offset
                                        instanceCount:numInst
                                           baseVertex:0
                                         baseInstance:0];

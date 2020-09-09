@@ -86,13 +86,13 @@ protected:
     id<MTLRenderPipelineState> calcRenderState;
     std::vector<BasicDrawableMTL::AttributeDefault> defaultAttrs;
     WhirlyKitShader::UniformModelInstance uniMI;
-    BufferEntryMTLRef instBuffer;       // Stores instances
-    BufferEntryMTLRef indirectBuffer;   // Indirect arguments for drawIndexed
-    BufferEntryMTLRef colorBuffer;      // Used when overriding color
+    BufferEntryMTL instBuffer;       // Stores instances
+    BufferEntryMTL indirectBuffer;   // Indirect arguments for drawIndexed
+    BufferEntryMTL colorBuffer;      // Used when overriding color
     int numInst;                        // Number of instances (if we're using that mode)
     
-    BufferEntryMTLRef mainBuffer;        // We're storing all the bits and pieces in here
-    BufferEntryMTLRef baseMainBuffer;    // Holding reference to the BasicDrawable's buffer too
+    BufferEntryMTL mainBuffer;        // We're storing all the bits and pieces in here
+    BufferEntryMTL baseMainBuffer;    // Holding reference to the BasicDrawable's buffer too
     ArgBuffContentsMTLRef vertABInfo,fragABInfo;
     bool vertHasTextures,fragHasTextures;
     bool vertHasLighting,fragHasLighting;

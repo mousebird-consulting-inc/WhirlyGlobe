@@ -39,7 +39,7 @@ public:
     MTLVertexFormat formatMTL() const;
 public:
     // If set, the Metal buffer we've set up for this one
-    BufferEntryMTLRef buffer;
+    BufferEntryMTL buffer;
 };
 
 class SingleVertexAttributeInfoMTL : public SingleVertexAttributeInfo

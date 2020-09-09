@@ -24,7 +24,7 @@
 namespace WhirlyKit
 {
 VertexAttributeMTL::VertexAttributeMTL(BDAttributeDataType dataType,StringIdentity nameID)
-    : VertexAttribute(dataType,-1,nameID), buffer(nil)
+    : VertexAttribute(dataType,-1,nameID)
 {
 }
 
