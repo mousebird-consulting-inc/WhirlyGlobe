@@ -100,9 +100,9 @@ bool RenderTargetGLES::init(SceneRenderer *inRenderer,Scene *scene,SimpleIdentit
     
 bool RenderTargetGLES::setTargetTexture(SceneRenderer *sceneRender,Scene *scene,SimpleIdentity targetTexID)
 {
-    TextureBase *tex = scene->getTexture(targetTexID);
+    TextureBaseRef tex = scene->getTexture(targetTexID);
     if (tex)
-        setTargetTexture(tex);
+        setTargetTexture(tex.get());
     
     return tex != NULL;
 }

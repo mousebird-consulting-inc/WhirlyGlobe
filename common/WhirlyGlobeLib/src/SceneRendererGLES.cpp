@@ -141,6 +141,9 @@ bool SceneRendererGLES::setup(int apiVersion,int sizeX,int sizeY,float inScale)
     }
     defaultTarget->clearEveryFrame = true;
     renderTargets.push_back(defaultTarget);
+
+    // GL doesn't do anything special for teardown
+    teardownInfo = RenderTeardownInfoRef(new RenderTeardownInfo());
     
     return true;
 }
@@ -387,18 +390,19 @@ void SceneRendererGLES::render(TimeInterval duration)
         
         // Let the active models to their thing
         // That thing had better not take too long
-        for (auto activeModel : scene->activeModels) {
+        auto activeModels = scene->getActiveModels();
+        for (auto activeModel : activeModels) {
             activeModel->updateForFrame(&baseFrameInfo);
             // Note: We were setting the GL context here.  Do we need to?
         }
         if (perfInterval > 0)
-            perfTimer.addCount("Active Models", (int)scene->activeModels.size());
+            perfTimer.addCount("Active Models", (int)activeModels.size());
         
         if (perfInterval > 0)
             perfTimer.stopTiming("Active Model Runs");
         
         if (perfInterval > 0)
-            perfTimer.addCount("Scene changes", (int)scene->changeRequests.size());
+            perfTimer.addCount("Scene changes", scene->getNumChangeRequests());
         
         if (perfInterval > 0)
             perfTimer.startTiming("Scene processing");
@@ -448,11 +452,11 @@ void SceneRendererGLES::render(TimeInterval duration)
             Matrix4f pvMat4f = Matrix4dToMatrix4f(pvMat);
             offFrameInfo.pvMat = pvMat4f;
             offFrameInfo.pvMat4d = pvMat;
-            
-            const DrawableRefSet &rawDrawables = scene->getDrawables();
-            for (auto it : rawDrawables)
+
+            auto rawDrawables = scene->getDrawables();
+            for (auto draw : rawDrawables)
             {
-                DrawableGLESRef theDrawable = std::dynamic_pointer_cast<DrawableGLES>(it.second);
+                DrawableGLES *theDrawable = dynamic_cast<DrawableGLES *>(draw);
                 if (theDrawable->isOn(&offFrameInfo))
                 {
                     const Matrix4d *localMat = theDrawable->getMatrix();
@@ -461,9 +465,9 @@ void SceneRendererGLES::render(TimeInterval duration)
                         Eigen::Matrix4d newMvpMat = thisMvpMat * (*localMat);
                         Eigen::Matrix4d newMvMat = modelAndViewMat4d * (*localMat);
                         Eigen::Matrix4d newMvNormalMat = newMvMat.inverse().transpose();
-                        drawList.push_back(DrawableContainer(theDrawable.get(),newMvpMat,newMvMat,newMvNormalMat));
+                        drawList.push_back(DrawableContainer(theDrawable,newMvpMat,newMvMat,newMvNormalMat));
                     } else
-                        drawList.push_back(DrawableContainer(theDrawable.get(),thisMvpMat,modelAndViewMat4d,modelAndViewNormalMat4d));
+                        drawList.push_back(DrawableContainer(theDrawable,thisMvpMat,modelAndViewMat4d,modelAndViewNormalMat4d));
                 }
             }
         }

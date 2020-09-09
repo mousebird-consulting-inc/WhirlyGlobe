@@ -5,6 +5,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.util.DisplayMetrics;
+import android.util.Log;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -48,8 +49,12 @@ public class MapboxVectorStyleSet implements VectorStyleInterface {
         if (sourcesDict != null) {
             String[] keys = sourcesDict.getKeys();
             for (String key : keys) {
-                Source source = new Source(key,sourcesDict.getDict(key),this);
-                sources.add(source);
+                try {
+                    Source source = new Source(key, sourcesDict.getDict(key), this);
+                    sources.add(source);
+                }
+                catch (Exception e) {
+                }
             }
         }
 
@@ -140,6 +145,7 @@ public class MapboxVectorStyleSet implements VectorStyleInterface {
             tileSpec = styleEntry.getDict("tiles");
 
             if (url == null && tileSpec == null) {
+                Log.w("Maply", "Expecting either URL or tileSpec in source " + name);
                 throw new IllegalArgumentException("Expecting either URL or tileSpec in source " + name);
             }
         }
