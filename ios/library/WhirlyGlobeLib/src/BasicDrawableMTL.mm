@@ -162,7 +162,7 @@ MTLVertexDescriptor *BasicDrawableMTL::getVertexDescriptor(id<MTLFunction> vertF
         
         // Add in the buffer
         MTLVertexBufferLayoutDescriptor *layoutDesc = [[MTLVertexBufferLayoutDescriptor alloc] init];
-        if (ourVertAttr->buffer.buffer) {
+        if (ourVertAttr->buffer.valid) {
             // Normal case with one per vertex
             layoutDesc.stepFunction = MTLVertexStepFunctionPerVertex;
             layoutDesc.stepRate = 1;
@@ -390,11 +390,11 @@ bool BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
         BufferBuilderMTL buffBuild(&sceneRender->setupInfo);
         BufferEntryMTL baseBuff;
         for (auto &defAttr : defaultAttrs) {
-            if (!baseBuff.buffer)
+            if (!baseBuff.valid)
                 baseBuff = defAttr.buffer;
             buffBuild.addData(&defAttr.data, sizeof(defAttr.data), &defAttr.buffer);
         }
-        if (baseBuff.buffer) {
+        if (baseBuff.valid) {
             BufferEntryMTL srcBuff = buffBuild.buildBuffer();
             [bltEncode copyFromBuffer:srcBuff.buffer sourceOffset:0 toBuffer:baseBuff.buffer destinationOffset:baseBuff.offset size:srcBuff.buffer.length];
         }

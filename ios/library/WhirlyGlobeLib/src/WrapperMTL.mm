@@ -94,8 +94,30 @@ void CopyIntoMtlFloat4(simd::float4 &dest,const float vals[4])
 }
 
 BufferEntryMTL::BufferEntryMTL()
-: heap(nil), buffer(nil), offset(0)
+: heap(nil), buffer(nil), offset(0), valid(false)
 {
+}
+
+BufferEntryMTL::BufferEntryMTL(const BufferEntryMTL &that)
+: heap(that.heap), buffer(that.buffer), offset(that.offset), valid(that.valid)
+{
+}
+
+bool BufferEntryMTL::operator == (const BufferEntryMTL &that)
+{
+    return heap == that.heap && buffer == that.buffer && offset == that.offset;
+}
+
+void BufferEntryMTL::clear()
+{
+    heap = nil;  buffer = nil;  offset = 0;
+    valid = false;
+}
+
+BufferEntryMTL& BufferEntryMTL::operator = (const BufferEntryMTL &that)
+{
+    heap = that.heap; buffer = that.buffer; offset = that.offset; valid = that.valid;
+    return *this;
 }
 
 BufferBuilderMTL::BufferBuilderMTL(RenderSetupInfoMTL *setupInfo)
@@ -117,6 +139,7 @@ void BufferBuilderMTL::addData(const void *inData,size_t size,BufferEntryMTL *bu
     }
 
     buffer->offset = start;
+    buffer->valid = true;
     bufferRefs.push_back(buffer);
 }
 
@@ -133,6 +156,7 @@ void BufferBuilderMTL::reserveData(size_t size,BufferEntryMTL *buffer)
     [data resetBytesInRange:NSMakeRange(start, size)];
 
     buffer->offset = start;
+    buffer->valid = true;
     bufferRefs.push_back(buffer);
 }
 
@@ -315,6 +339,7 @@ BufferEntryMTL HeapManagerMTL::allocateBuffer(HeapType heapType,size_t size)
         buffer.offset = 0;
     }
     
+    buffer.valid = true;
     return buffer;
 }
 
@@ -335,6 +360,7 @@ BufferEntryMTL HeapManagerMTL::allocateBuffer(HeapType heapType,const void *data
         buffer.offset = 0;
     }
 
+    buffer.valid = true;
     return buffer;
 }
 

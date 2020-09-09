@@ -50,10 +50,12 @@ void CopyIntoMtlFloat4(simd::float4 &dest,const float vals[4]);
 class BufferEntryMTL {
 public:
     BufferEntryMTL();
-    bool operator == (const BufferEntryMTL &that) { return heap == that.heap && buffer == that.buffer && offset == that.offset; }
-    void clear() { heap = nil;  buffer = nil;  offset = 0; }
-    BufferEntryMTL & operator = (const BufferEntryMTL &that) { heap = that.heap; buffer = that.buffer; offset = that.offset; return *this; }
+    BufferEntryMTL(const BufferEntryMTL &that);
+    bool operator == (const BufferEntryMTL &that);
+    void clear();
+    BufferEntryMTL & operator = (const BufferEntryMTL &that);
     
+    bool valid;            // Manipulating functions will set this
     id<MTLHeap> heap;      // Set if this is in a heap
     id<MTLBuffer> buffer;  // Buffer reference
     int offset;            // Offset within the buffer
