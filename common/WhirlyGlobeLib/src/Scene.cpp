@@ -615,7 +615,8 @@ void RemTextureReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View
     TextureBaseRef tex = scene->getTexture(texture);
     if (tex)
     {
-        tex->destroyInRenderer(renderer->getRenderSetupInfo(),scene);
+        if (renderer->teardownInfo)
+            renderer->teardownInfo->destroyTexture(renderer,tex);
         scene->removeTexture(texture);
     } else
         wkLogLevel(Warn,"RemTextureReq: No such texture.");

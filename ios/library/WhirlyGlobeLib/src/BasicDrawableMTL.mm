@@ -568,7 +568,7 @@ void BasicDrawableMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,id<MTLRender
     }
     
     // And provide defaults for the ones we don't
-    for (auto defAttr : defaultAttrs)
+    for (auto &defAttr : defaultAttrs)
         [cmdEncode setVertexBuffer:defAttr.buffer.buffer offset:defAttr.buffer.offset atIndex:defAttr.bufferIndex];
     
     [cmdEncode setRenderPipelineState:renderState];
@@ -585,21 +585,21 @@ void BasicDrawableMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,id<MTLRender
 
     // More flexible data structures passed in to the shaders
     if (vertABInfo) {
-        BufferEntryMTL buff = vertABInfo->getBuffer();
+        BufferEntryMTL &buff = vertABInfo->getBuffer();
         [cmdEncode setVertexBuffer:buff.buffer offset:buff.offset atIndex:WhirlyKitShader::WKSVertexArgBuffer];
     }
     if (fragABInfo) {
-        BufferEntryMTL buff = fragABInfo->getBuffer();
+        BufferEntryMTL &buff = fragABInfo->getBuffer();
         [cmdEncode setFragmentBuffer:buff.buffer offset:buff.offset atIndex:WhirlyKitShader::WKSFragmentArgBuffer];
     }
 
     // Textures may or may not be passed in to shaders
     if (vertTexInfo) {
-        BufferEntryMTL buff = vertTexInfo->getBuffer();
+        BufferEntryMTL &buff = vertTexInfo->getBuffer();
         [cmdEncode setVertexBuffer:buff.buffer offset:buff.offset atIndex:WhirlyKitShader::WKSVertTextureArgBuffer];
     }
     if (fragTexInfo) {
-        BufferEntryMTL buff = fragTexInfo->getBuffer();
+        BufferEntryMTL &buff = fragTexInfo->getBuffer();
         [cmdEncode setFragmentBuffer:buff.buffer offset:buff.offset atIndex:WhirlyKitShader::WKSFragTextureArgBuffer];
     }
 
@@ -657,21 +657,21 @@ void BasicDrawableMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEncode,Sce
 
     // More flexible data structures passed in to the shaders
     if (vertABInfo) {
-        BufferEntryMTL buff = vertABInfo->getBuffer();
+        BufferEntryMTL &buff = vertABInfo->getBuffer();
         [cmdEncode setVertexBuffer:buff.buffer offset:buff.offset atIndex:WhirlyKitShader::WKSVertexArgBuffer];
     }
     if (fragABInfo) {
-        BufferEntryMTL buff = fragABInfo->getBuffer();
+        BufferEntryMTL &buff = fragABInfo->getBuffer();
         [cmdEncode setFragmentBuffer:buff.buffer offset:buff.offset atIndex:WhirlyKitShader::WKSFragmentArgBuffer];
     }
 
     // Textures may or may not be passed in to shaders
     if (vertTexInfo) {
-        BufferEntryMTL buff = vertTexInfo->getBuffer();
+        BufferEntryMTL &buff = vertTexInfo->getBuffer();
         [cmdEncode setVertexBuffer:buff.buffer offset:buff.offset atIndex:WhirlyKitShader::WKSVertTextureArgBuffer];
     }
     if (fragTexInfo) {
-        BufferEntryMTL buff = fragTexInfo->getBuffer();
+        BufferEntryMTL &buff = fragTexInfo->getBuffer();
         [cmdEncode setFragmentBuffer:buff.buffer offset:buff.offset atIndex:WhirlyKitShader::WKSFragTextureArgBuffer];
     }
 

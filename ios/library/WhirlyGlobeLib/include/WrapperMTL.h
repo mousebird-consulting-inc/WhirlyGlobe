@@ -130,8 +130,20 @@ public:
     RenderTeardownInfoMTL();
     
     void clear();
+
+    // Either destroy the texture now or hold on to it for destruction shortly
+    void destroyTexture(SceneRenderer *renderer,TextureBaseRef tex) override;
     
+    // Either destroy the drawable now or hold on to it for destruction shortly
+    void destroyDrawable(SceneRenderer *renderer,DrawableRef draw) override;
+
+public:
     ResourceRefsMTLRef resources;
+
+protected:
+    // Hold these objects and release them on another thread
+    std::vector<DrawableRef> drawables;
+    std::vector<TextureBaseRef> textures;
 };
 typedef std::shared_ptr<RenderTeardownInfoMTL> RenderTeardownInfoMTLRef;
 

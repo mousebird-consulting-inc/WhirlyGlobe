@@ -19,6 +19,8 @@
  */
 
 #import "WrapperMTL.h"
+#import "TextureMTL.h"
+#import "DrawableMTL.h"
 
 namespace WhirlyKit
 {
@@ -266,7 +268,24 @@ RenderTeardownInfoMTL::RenderTeardownInfoMTL()
 void RenderTeardownInfoMTL::clear()
 {
     resources->clear();
+
+    // For Metal, we just drop the references and the rest is cleaned up
+    for (auto &draw: drawables)
+        draw->teardownForRenderer(NULL, NULL, NULL);
+    for (auto &tex: textures)
+        tex->destroyInRenderer(NULL,NULL);
 }
+
+void RenderTeardownInfoMTL::destroyTexture(SceneRenderer *renderer,TextureBaseRef tex)
+{
+    textures.push_back(tex);
+}
+
+void RenderTeardownInfoMTL::destroyDrawable(SceneRenderer *renderer,DrawableRef draw)
+{
+    drawables.push_back(draw);
+}
+
 
 #if TARGET_OS_SIMULATOR
 bool HeapManagerMTL::UseHeaps = false;

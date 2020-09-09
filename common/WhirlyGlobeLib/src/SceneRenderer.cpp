@@ -213,8 +213,7 @@ void SceneRenderer::removeDrawable(DrawableRef draw,bool teardown,RenderTeardown
     removeExtraFrameRenderRequest(draw->getId());
 
     if (teardown) {
-        // Teardown OpenGL foo
-        draw->teardownForRenderer(getRenderSetupInfo(), scene, teardownInfo);
+        teardownInfo->destroyDrawable(this, draw);
     }
 }
 
@@ -222,7 +221,7 @@ void SceneRenderer::updateWorkGroups(RendererFrameInfo *frameInfo)
 {
     // Look at drawables to move into the active set
     std::vector<DrawableRef> drawsToMoveIn;
-    for (auto draw : offDrawables) {
+    for (auto &draw : offDrawables) {
         if (draw->isOn(frameInfo)) {
             bool keep = false;
             // If there's a render target, we need that too
@@ -237,7 +236,7 @@ void SceneRenderer::updateWorkGroups(RendererFrameInfo *frameInfo)
                 drawsToMoveIn.push_back(draw);
         }
     }
-    for (auto draw : drawsToMoveIn) {
+    for (auto &draw : drawsToMoveIn) {
         auto it = offDrawables.find(draw);
         if (it != offDrawables.end()) {
             offDrawables.erase(it);
@@ -256,15 +255,15 @@ void SceneRenderer::updateWorkGroups(RendererFrameInfo *frameInfo)
     }
     
     // Look for active drawables to move out of the active set
-    for (auto workGroup : workGroups) {
-        for (auto renderTargetCon : workGroup->renderTargetContainers) {
+    for (auto &workGroup : workGroups) {
+        for (auto &renderTargetCon : workGroup->renderTargetContainers) {
             std::vector<DrawableRef> drawsToMoveOut;
-            for (auto draw : renderTargetCon->drawables) {
+            for (auto &draw : renderTargetCon->drawables) {
                 if (!draw->isOn(frameInfo)) {
                     drawsToMoveOut.push_back(draw);
                 }
             }
-            for (auto draw : drawsToMoveOut) {
+            for (auto &draw : drawsToMoveOut) {
                 auto it = renderTargetCon->drawables.find(draw);
                 if (it != renderTargetCon->drawables.end())
                     renderTargetCon->drawables.erase(it);

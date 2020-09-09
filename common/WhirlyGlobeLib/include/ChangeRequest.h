@@ -36,6 +36,11 @@ class RenderSetupInfo
 public:
 };
 
+class TextureBase;
+typedef std::shared_ptr<TextureBase> TextureBaseRef;
+class Drawable;
+typedef std::shared_ptr<Drawable> DrawableRef;
+
 /**
  Base class for anything we want to pass out of the teardown calls for drawables
  */
@@ -43,6 +48,10 @@ class RenderTeardownInfo
 {
 public:
     virtual ~RenderTeardownInfo() { }
+    
+    // Normally we'll call the regular destroy calls, but various renderers might do something else
+    virtual void destroyTexture(SceneRenderer *renderer,TextureBaseRef tex);
+    virtual void destroyDrawable(SceneRenderer *renderer,DrawableRef draw);
 };
 typedef std::shared_ptr<RenderTeardownInfo> RenderTeardownInfoRef;
     

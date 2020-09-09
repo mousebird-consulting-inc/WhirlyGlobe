@@ -906,8 +906,12 @@ void SceneRendererMTL::render(TimeInterval duration,
                     }
                     
 //                    targetContainerMTL->lastRenderFence = nil;
-                    frameTeardownInfo->clear();
-                });                
+                    
+                    // We can do the free-ing on a low priority queue
+                    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
+                        frameTeardownInfo->clear();
+                    });
+                });
             }];
 
             [cmdBuff commit];

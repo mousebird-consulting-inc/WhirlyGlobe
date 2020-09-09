@@ -73,7 +73,7 @@ public:
     // Add the resources we're using to the list
     void addResources(ResourceRefsMTL &resources);
     
-    BufferEntryMTL getBuffer() { return buff; }
+    BufferEntryMTL &getBuffer() { return buff; }
 
     // False if this failed to set up correctly
     bool isValid();
@@ -129,7 +129,7 @@ public:
     // List the buffers involved (so they can be tracked)
     void addResources(ResourceRefsMTL &resources);
     
-    BufferEntryMTL getBuffer() { return buffer; }
+    BufferEntryMTL &getBuffer() { return buffer; }
 
 protected:
     id<MTLArgumentEncoder> encode;
