@@ -35,13 +35,16 @@ Pod::Spec.new do |s|
     ll.source_files = 'common/local_libs/aaplus/**/*.{h,cpp}',
         'common/local_libs/clipper/cpp/*.{cpp,hpp}',
         'common/local_libs/protobuf/src/google/protobuf/*.{cc,h}', 'common/local_libs/protobuf/src/google/protobuf/stubs/*.{cc,h}', 'common/local_libs/protobuf/src/google/protobuf/io/*.{cc,h}', 'common/local_libs/protobuf/src/google/protobuf/testing/*.h',
-        'common/local_libs/shapefile/**/*.{c,h}'
+        'common/local_libs/shapefile/**/*.{c,h}',
+        'common/local_libs/eigen/Eigen/*', 'common/local_libs/eigen/Eigen/**/*.h'
     ll.preserve_paths = 'common/local_libs/protobuf/src/google/protobuf/*.h', 'common/local_libs/protobuf/src/google/protobuf/stubs/*.h', 'common/local_libs/protobuf/src/google/protobuf/io/*.h',
-        'common/local_libs/laszip/include/laszip/*.h', 'common/local_libs/laszip/src/*.hpp'
+        'common/local_libs/laszip/include/laszip/*.h', 'common/local_libs/laszip/src/*.hpp',
+        'common/local_libs/eigen/Eigen/*', 'common/local_libs/eigen/Eigen/**/*.h'
     ll.private_header_files = 'common/local_libs/aaplus/**/*.h',
         'common/local_libs/clipper/cpp/*.hpp',
         'common/local_libs/protobuf/src/google/protobuf/*.h', 'common/local_libs/protobuf/src/google/protobuf/stubs/*.h', 'common/local_libs/protobuf/src/google/protobuf/io/*.h', 'common/local_libs/protobuf/src/google/protobuf/testing/*.h',
-        'common/local_libs/shapefile/**/*.h'
+        'common/local_libs/shapefile/**/*.h',
+        'common/local_libs/eigen/Eigen/*', 'common/local_libs/eigen/Eigen/**/*.h'
   end
 
   s.subspec 'glues' do |gl|
@@ -60,7 +63,6 @@ Pod::Spec.new do |s|
     mc.dependency 'FMDB'
     mc.dependency 'libjson'
     mc.dependency 'KissXML'
-    mc.dependency 'eigen'
     mc.dependency 'proj4'
     mc.libraries = 'z', 'xml2', 'c++', 'sqlite3'
     mc.frameworks = 'CoreLocation', 'MobileCoreServices', 'SystemConfiguration', 'CFNetwork', 'UIKit', 'OpenGLES', 'Accelerate', 'MetalKit', 'MetalPerformanceShaders'
