@@ -42,8 +42,7 @@ Pod::Spec.new do |s|
     ll.private_header_files = 'common/local_libs/aaplus/**/*.h',
         'common/local_libs/clipper/cpp/*.hpp',
         'common/local_libs/protobuf/src/google/protobuf/*.h', 'common/local_libs/protobuf/src/google/protobuf/stubs/*.h', 'common/local_libs/protobuf/src/google/protobuf/io/*.h', 'common/local_libs/protobuf/src/google/protobuf/testing/*.h',
-        'common/local_libs/shapefile/**/*.h',
-        'common/local_libs/eigen/Eigen/*', 'common/local_libs/eigen/Eigen/**/*.h'
+        'common/local_libs/shapefile/**/*.h'
   end
 
   s.subspec 'glues' do |gl|
