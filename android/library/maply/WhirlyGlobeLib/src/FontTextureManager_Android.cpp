@@ -162,7 +162,7 @@ DrawableString *FontTextureManager_Android::addString(PlatformThreadInfo *inThre
         {
             // Now we make a rectangle that covers the glyph in its texture atlas
             DrawableString::Rect rect;
-            Point2f offset(offsetX,0.0);
+            Point2f offset(offsetX,-glyphInfo->offset.y());
 
             float scale = 1.0/BogusFontScale;
 
@@ -180,7 +180,7 @@ DrawableString *FontTextureManager_Android::addString(PlatformThreadInfo *inThre
 
             glyphsUsed.insert(glyphInfo->glyph);
 
-            offsetX += rect.pts[1].x()-rect.pts[0].x();
+            offsetX += glyphInfo->size.x();
         }
     }
 

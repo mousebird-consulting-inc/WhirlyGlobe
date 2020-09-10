@@ -70,34 +70,34 @@ class CharRenderer
 
 		//paint for outline
 		Paint textOutlinePaint = null;
-		if(labelInfo.getOutlineSize() > 0) {
+		int outlineSize = (int)(labelInfo.getOutlineSize());
+		if(outlineSize > 0) {
 			textOutlinePaint = new Paint(textFillPaint);
 			textOutlinePaint.setStyle(Paint.Style.STROKE);
-			textOutlinePaint.setStrokeWidth(labelInfo.getOutlineSize());
+			textOutlinePaint.setStrokeWidth(outlineSize);
 			textOutlinePaint.setColor(labelInfo.getOutlineColor());
 			textOutlinePaint.setAntiAlias(true);
 			textOutlinePaint.setTypeface(textFillPaint.getTypeface());
 		}
 
-		Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+		Bitmap bitmap = Bitmap.createBitmap(width+2*outlineSize, height+2*outlineSize, Bitmap.Config.ARGB_8888);
 		bitmap.eraseColor( 0x00000000 );
 		Canvas canvas = new Canvas (bitmap);
 
 		//draw char outline
 		if(textOutlinePaint != null) {
-			canvas.drawText(str, 0, 1, fontPadX, height - fontDescent - fontPadY, textOutlinePaint);
+			canvas.drawText(str, 0, 1, fontPadX + outlineSize, height - fontDescent - fontPadY + outlineSize, textOutlinePaint);
 		}
 
 		//draw char fill
-		canvas.drawText(str, 0, 1, fontPadX, height - fontDescent - fontPadY, textFillPaint);
+		canvas.drawText(str, 0, 1, fontPadX + outlineSize, height - fontDescent - fontPadY + outlineSize, textFillPaint);
 
 		// Send back some useful info
 		Glyph glyph = new Glyph();
 		glyph.bitmap = bitmap;
 		glyph.sizeX = width;  glyph.sizeY = height;
-		glyph.textureOffsetX = 1;  glyph.textureOffsetY = 1;
-		// Note: Porting. Probably not right
-		glyph.offsetX = 0;  glyph.offsetY = 0;
+		glyph.textureOffsetX = 1+outlineSize;  glyph.textureOffsetY = 1+outlineSize;
+		glyph.offsetX = 0;  glyph.offsetY = 1;
 		glyph.glyphSizeX = widths[0];  glyph.glyphSizeY = fontHeight;
 
 //		Log.d("Maply","Rendering char: " + charInt + " sizeX = " + width + " sizeY = " + height);
