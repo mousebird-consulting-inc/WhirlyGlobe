@@ -314,6 +314,28 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		System.loadLibrary(loadLibraryName);
 		libraryLoaded = true;
 
+		// These are objects that can potentially be created on the C++ side
+		//  before we create them on the Java side.  So we need to make sure their
+		//  nativeInit is called.
+		ComponentObject initObj = new ComponentObject();
+		CoordSystem initCoordSys = new CoordSystem();
+		VectorTileData initVecData = new VectorTileData();
+		Point2d initPt2d = new Point2d();
+		Point3d initPt3d = new Point3d();
+		Point4d initPt4d = new Point4d();
+		Matrix3d initMat3d = new Matrix3d();
+		Matrix4d initMat4d = new Matrix4d();
+		Quaternion initQuat = new Quaternion();
+		SelectedObject initSelObj = new SelectedObject();
+		ImageTile initImgTile = new ImageTile();
+		QIFBatchOps initBatchOps = new QIFBatchOps();
+		QIFFrameAsset initFrameAsset = new QIFFrameAsset();
+		Shader initShader = new Shader();
+		ChangeSet initChangeSet = new ChangeSet();
+		AttrDictionary initDict = new AttrDictionary();
+		AttrDictionaryEntry initEntry = new AttrDictionaryEntry();
+		VectorObject initVecObj = new VectorObject();
+
 		activity = mainActivity;
 		if (settings != null) {
 			useTextureView = !settings.useSurfaceView;
