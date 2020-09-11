@@ -210,7 +210,7 @@ public class RenderController implements RenderControllerInterface
     /**
      * Add an active object that will be called right before the render (on the render thread).
      */
-    void addActiveObject(ActiveObject activeObject)
+    public void addActiveObject(ActiveObject activeObject)
     {
         synchronized (activeObjects) {
             activeObjects.add(activeObject);
@@ -221,7 +221,7 @@ public class RenderController implements RenderControllerInterface
      * Add an active object to the beginning of the list.  Do this if you want to make sure
      * yours is run first.
      */
-    void addActiveObjectAtStart(ActiveObject activeObject) {
+    public void addActiveObjectAtStart(ActiveObject activeObject) {
         synchronized (activeObjects) {
             activeObjects.add(0,activeObject);
         }
@@ -230,7 +230,7 @@ public class RenderController implements RenderControllerInterface
     /**
      * Remove an active object added earlier.
      */
-    void removeActiveObject(ActiveObject activeObject)
+    public void removeActiveObject(ActiveObject activeObject)
     {
         synchronized (activeObjects) {
             activeObjects.remove(activeObject);

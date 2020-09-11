@@ -33,6 +33,6 @@ public class MaplyTexture
         texID = 0;
     }
     WeakReference<RenderControllerInterface> controller;
-    long texID;
-    int width,height;
+    public long texID;
+    public int width,height;
 }
