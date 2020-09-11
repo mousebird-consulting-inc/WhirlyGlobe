@@ -81,6 +81,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_clearComponentObjec
 
 /*
  * Class:     com_mousebird_maply_LoaderReturn
+ * Method:    deleteComponentObjects
+ * Signature: (Lcom/mousebird/maply/RenderController;Lcom/mousebird/maply/ComponentManager;Lcom/mousebird/maply/ChangeSet;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_deleteComponentObjects
+  (JNIEnv *, jobject, jobject, jobject, jobject);
+
+/*
+ * Class:     com_mousebird_maply_LoaderReturn
  * Method:    nativeInit
  * Signature: ()V
  */

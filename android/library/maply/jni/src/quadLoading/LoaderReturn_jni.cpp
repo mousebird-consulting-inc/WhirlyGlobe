@@ -21,6 +21,7 @@
 #import "QuadLoading_jni.h"
 #import "Scene_jni.h"
 #import "Components_jni.h"
+#import "Renderer_jni.h"
 #import "com_mousebird_maply_LoaderReturn.h"
 
 using namespace Eigen;
@@ -266,4 +267,39 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_clearComponentObjec
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LoaderReturn::clearCompObjs()");
 	}
 
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_deleteComponentObjects
+		(JNIEnv *env, jobject obj, jobject renderControlObj, jobject compManagerObj, jobject changeSetObj)
+{
+	try
+	{
+		QuadLoaderReturnRef *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
+		SceneRendererGLES_Android *renderer = SceneRendererInfo::getClassInfo()->getObject(env,renderControlObj);
+		ComponentManager *compManager = ComponentManagerClassInfo::getClassInfo()->getObject(env,compManagerObj);
+		ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+		if (!loadReturn || !renderer || !compManager || !changeSet)
+			return;
+
+		// Process the remaining changes (could be deletes in there)
+		if (!(*loadReturn)->changes.empty()) {
+			(*changeSet)->insert((*changeSet)->begin(), (*loadReturn)->changes.begin(),
+								 (*loadReturn)->changes.end());
+			(*loadReturn)->changes.clear();
+		}
+
+		// And then the IDs from the component objects just added
+		SimpleIDSet idSet;
+		for (auto compObj: (*loadReturn)->compObjs)
+			idSet.insert(compObj->getId());
+		for (auto compObj: (*loadReturn)->ovlCompObjs)
+			idSet.insert(compObj->getId());
+
+		PlatformInfo_Android platformInfo(env);
+		compManager->removeComponentObjects(&platformInfo, idSet, *(*changeSet));
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LoaderReturn::deleteComponentObjects()");
+	}
 }

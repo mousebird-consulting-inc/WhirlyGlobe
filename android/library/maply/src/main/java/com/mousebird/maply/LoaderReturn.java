@@ -155,6 +155,7 @@ public class LoaderReturn
 
     private native void addComponentObjects(ComponentObject[] compObjs,boolean isOverlay);
     private native void clearComponentObjectsNative(boolean isOverlay);
+    public native void deleteComponentObjects(RenderController control,ComponentManager compManage,ChangeSet changes);
 
     /**
      * If set, some part of the parser is letting us know about an error.
