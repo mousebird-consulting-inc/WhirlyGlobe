@@ -21,13 +21,13 @@ Pod::Spec.new do |s|
   s.author           = { "Steve Gifford" => "contact@mousebirdconsulting.com" }
   s.social_media_url = 'https://twitter.com/@mousebirdc'
 
-  s.platform     = :ios, '11.0'
+  s.platform     = :ios, '9.0'
   s.requires_arc = true
 
   s.source = { :git => 'https://github.com/mousebird/WhirlyGlobe-3.git', :branch => 'develop' }
 
   s.compiler_flags = '-D__USE_SDL_GLES__ -D__IPHONEOS__ -DSQLITE_OPEN_READONLY -DHAVE_PTHREAD=1 -DUNORDERED=1 -DLASZIPDLL_EXPORTS=1'
-  s.xcconfig = { "HEADER_SEARCH_PATHS" => " \"$(PODS_ROOT)/WhirlyGlobe/ios/library/WhirlyGlobeLib/include/\" \"$(PODS_ROOT)/WhirlyGlobe/common/WhirlyGlobeLib/include/\" \"$(PODS_ROOT)/WhirlyGlobe/common/local_libs/eigen/\" \"$(PODS_ROOT)/KissXML/KissXML/\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/protobuf/src/\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/clipper\" \"$(SDKROOT)/usr/include/libxml2\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/glues/include/\" \"$(PODS_ROOT)/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/\" " }
+  s.xcconfig = { "HEADER_SEARCH_PATHS" => " \"$(PODS_ROOT)/WhirlyGlobe/common/local_libs/eigen/\" \"$(PODS_ROOT)/KissXML/KissXML/\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/protobuf/src/\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/clipper\" \"$(SDKROOT)/usr/include/libxml2\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/glues/include/\" \"$(PODS_ROOT)/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/private/\" \"$(PODS_ROOT)/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/\" \"$(PODS_ROOT)/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_tiles/\" " }
 
   s.default_subspec = 'MaplyComponent'
 
@@ -53,8 +53,8 @@ Pod::Spec.new do |s|
 
   s.subspec 'MaplyComponent' do |mc|
     mc.source_files = 'common/WhirlyGlobeLib/include/*.h', 'common/WhirlyGlobeLib/src/*.cpp', 'ios/library/WhirlyGlobeLib/src/*.{mm,m,cpp,metal}', 'ios/library/WhirlyGlobeLib/include/*.h', 'ios/library/WhirlyGlobe-MaplyComponent/include/**/*.h', 'ios/library/WhirlyGlobe-MaplyComponent/src/**/*.{mm,m,cpp,metal}'
-    mc.public_header_files = 'ios/library/WhirlyGlobe-MaplyComponent/include/*.h', 'ios/library/WhirlyGlobe-MaplyComponent/include/**/*.h'
-    mc.private_header_files = 'ios/library/WhirlyGlobeLib/include/*.h', 'ios/**/vector_tile.pb.h', 'ios/**/MaplyBridge.h', 'ios/library/WhirlyGlobe-MaplyComponent/include/private/*.h'
+    mc.public_header_files = 'ios/library/WhirlyGlobe-MaplyComponent/include/*.h', "ios/library/WhirlyGlobe-MaplyComponent/include/vector_tiles/*.h"
+    mc.private_header_files = 'ios/library/WhirlyGlobeLib/include/*.h', 'ios/**/vector_tile.pb.h', 'ios/**/MaplyBridge.h'
     mc.dependency 'WhirlyGlobe/locallibs'
     mc.dependency 'WhirlyGlobe/glues'
     mc.dependency 'SMCalloutView'
