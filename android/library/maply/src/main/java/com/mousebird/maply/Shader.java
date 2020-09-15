@@ -58,12 +58,13 @@ public class Shader
 	public static final String DefaultScreenSpaceShader = "Default Screenspace";
 
 	// Types used to describe the shader attributes
-	enum AttributeType {
-		Int,
-		Float,
-		Float2,
+	public enum AttributeType {
+		Float4,
 		Float3,
-		Float4
+		Char4,
+		Float2,
+		Float,
+		Int
 	};
 
 	/** Initialize with the file names for the shader program.

@@ -285,7 +285,7 @@ void ParticleSystemDrawableGLES::drawBindAttrs(RendererFrameInfo *frameInfo,Scen
     for (SingleVertexAttributeInfoGLES &varyInfo : varyAttrs) {
         glBindBuffer(GL_ARRAY_BUFFER, varyBuffers[varyWhich].buffers[activeVaryBuffer]);
         
-        const OpenGLESAttribute *thisAttr = prog->findAttribute(varyInfo.nameID);
+        const OpenGLESAttribute *thisAttr = prog->findAttribute(varyNames[varyWhich]);
         if (thisAttr)
         {
             GLuint size = varyInfo.size();
@@ -335,13 +335,15 @@ void ParticleSystemDrawableGLES::drawUnbindAttrs(ProgramGLES *prog)
             glVertexAttribDivisor(thisAttr->index, 0);
         }
     }
+    int which = 0;
     for (SingleVertexAttributeInfo &varyInfo : varyAttrs)
     {
-        const OpenGLESAttribute *thisAttr = prog->findAttribute(varyInfo.nameID);
+        const OpenGLESAttribute *thisAttr = prog->findAttribute(varyNames[which]);
         if (thisAttr) {
             glDisableVertexAttribArray(thisAttr->index);
             glVertexAttribDivisor(thisAttr->index, 0);
         }
+        which++;
     }
 }
 
@@ -397,26 +399,26 @@ void ParticleSystemDrawableGLES::calculate(RendererFrameInfoGLES *frameInfo,Scen
         }
         
         // Check the buffer for debugging
-        //        varyIdx = 0;
-        //        for (SingleVertexAttributeInfo &varyInfo : varyAttrs) {
-        //            GLint attrSize = varyInfo.size();
-        //            glBindBuffer(GL_ARRAY_BUFFER, varyBuffers[varyIdx].buffers[outputVaryBuffer]);
-        //            void *glMem = NULL;
-        //            glMem = glMapBufferRange(GL_ARRAY_BUFFER, chunk.vertexStart*attrSize, chunk.numVertices*attrSize, GL_MAP_READ_BIT);
-        //            float *floatData = (float *)glMem;
-        //            Point3f *vecData = (Point3f *)vecData;
-        //            int numBad = 0;
-        //            for (int ix=0;ix<chunk.numVertices*(attrSize/4);ix++)
-        //                if (isnan(floatData[ix]))
-        //                    numBad++;
-        //            if (numBad > 1)
-        //                NSLog(@"calculate(): Got junk data for %s, vertexStart = %d, numVertex = %d, bad = %d", StringIndexer::getString(varyInfo.nameID).c_str(),chunk.vertexStart,chunk.numVertices,numBad);
-        ////            else
-        ////                NSLog(@"calculate(): Got good data for %s, vertexStart = %d", StringIndexer::getString(varyInfo.nameID).c_str(),chunk.vertexStart);
-        //            glUnmapBuffer(GL_ARRAY_BUFFER);
-        //            glBindBuffer(GL_ARRAY_BUFFER, 0);
-        //            varyIdx++;
-        //        }
+//                varyIdx = 0;
+//                for (SingleVertexAttributeInfo &varyInfo : varyAttrs) {
+//                    GLint attrSize = varyInfo.size();
+//                    glBindBuffer(GL_ARRAY_BUFFER, varyBuffers[varyIdx].buffers[outputVaryBuffer]);
+//                    void *glMem = NULL;
+//                    glMem = glMapBufferRange(GL_ARRAY_BUFFER, chunk.vertexStart*attrSize, chunk.numVertices*attrSize, GL_MAP_READ_BIT);
+//                    float *floatData = (float *)glMem;
+//                    Point3f *vecData = (Point3f *)vecData;
+//                    int numBad = 0;
+//                    for (int ix=0;ix<chunk.numVertices*(attrSize/4);ix++)
+//                        if (isnan(floatData[ix]))
+//                            numBad++;
+//                    if (numBad > 1)
+//                        wkLogLevel(Debug,"calculate(): Got junk data for %s, vertexStart = %d, numVertex = %d, bad = %d", StringIndexer::getString(varyInfo.nameID).c_str(),chunk.vertexStart,chunk.numVertices,numBad);
+//        //            else
+//        //                NSLog(@"calculate(): Got good data for %s, vertexStart = %d", StringIndexer::getString(varyInfo.nameID).c_str(),chunk.vertexStart);
+//                    glUnmapBuffer(GL_ARRAY_BUFFER);
+//                    glBindBuffer(GL_ARRAY_BUFFER, 0);
+//                    varyIdx++;
+//                }
         
         drawUnbindAttrs(prog);
     }

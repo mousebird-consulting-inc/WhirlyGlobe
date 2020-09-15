@@ -31,11 +31,12 @@ public:
     ParticleSystemDrawableBuilderGLES(const std::string &name,Scene *scene);
     virtual ~ParticleSystemDrawableBuilderGLES();
     
-    void setup(const std::vector<SingleVertexAttributeInfo> &inVertAttrs,
+    virtual void setup(const std::vector<SingleVertexAttributeInfo> &inVertAttrs,
                const std::vector<SingleVertexAttributeInfo> &inVaryAttrs,
-               int numTotalPoints,int batchSize,bool useRectangles,bool useInstancing);
+               const std::vector<SimpleIdentity> &inVaryNames,
+               int numTotalPoints,int batchSize,int vertexSize,bool useRectangles,bool useInstancing) override;
     
-    ParticleSystemDrawable *getDrawable();
+    ParticleSystemDrawable *getDrawable() override;
     
 protected:
     bool drawableGotten;

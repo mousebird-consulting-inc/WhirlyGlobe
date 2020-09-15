@@ -45,19 +45,19 @@ public:
     virtual ~ParticleSystemDrawableGLES();
     
     /// Add the vertex data (all of it) at once
-    void addAttributeData(const RenderSetupInfo *setupInfo,const std::vector<AttributeData> &attrData,const Batch &batch);
+    void addAttributeData(const RenderSetupInfo *setupInfo,const std::vector<AttributeData> &attrData,const Batch &batch) override;
 
     /// Create our buffers in GL
-    virtual void setupForRenderer(const RenderSetupInfo *,Scene *scene);
+    virtual void setupForRenderer(const RenderSetupInfo *,Scene *scene) override;
     
     /// Destroy GL buffers
-    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene,RenderTeardownInfoRef teardown);
+    virtual void teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene,RenderTeardownInfoRef teardown) override;
 
     /// Particles can calculate their positions
-    void calculate(RendererFrameInfoGLES *frameInfo,Scene *scene);
+    void calculate(RendererFrameInfoGLES *frameInfo,Scene *scene) override;
     
     /// Called on the rendering thread to draw
-    void draw(RendererFrameInfoGLES *frameInfo,Scene *scene);
+    void draw(RendererFrameInfoGLES *frameInfo,Scene *scene) override;
 
 protected:
     std::vector<SingleVertexAttributeInfoGLES> vertAttrs;
@@ -68,7 +68,8 @@ protected:
         GLuint buffers[2];
     };
     std::vector<VaryBufferPair> varyBuffers;
-    
+    std::vector<SimpleIdentity> varyNames;
+
     GLuint pointBuffer,rectBuffer;
 
     void drawSetupTextures(RendererFrameInfo *frameInfo,Scene *scene,ProgramGLES *prog,bool hasTexture[],int &progTexBound);

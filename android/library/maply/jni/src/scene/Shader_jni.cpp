@@ -440,8 +440,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_addVarying
         if (!inst)
             return;
 
-        glUseProgram((*inst)->prog->getProgram());
-
         const char *cName = env->GetStringUTFChars(nameStr,0);
         std::string name = cName;
         env->ReleaseStringUTFChars(nameStr, cName);

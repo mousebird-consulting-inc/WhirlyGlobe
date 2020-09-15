@@ -31,9 +31,9 @@ ParticleSystemDrawableBuilderGLES::ParticleSystemDrawableBuilderGLES(const std::
     
 void ParticleSystemDrawableBuilderGLES::setup(const std::vector<SingleVertexAttributeInfo> &inVertAttrs,
                    const std::vector<SingleVertexAttributeInfo> &inVaryAttrs,
-                   int numTotalPoints,int batchSize,bool useRectangles,bool useInstancing)
+                   const std::vector<SimpleIdentity> &inVaryNames,
+                   int numTotalPoints,int batchSize,int vertexSize,bool useRectangles,bool useInstancing)
 {
-    ParticleSystemDrawableBuilder::setup(inVertAttrs,inVaryAttrs,numTotalPoints,batchSize,0,useRectangles,useInstancing);
     ParticleSystemDrawableGLES *drawGL = dynamic_cast<ParticleSystemDrawableGLES *>(draw);
 
     for (auto attr : inVertAttrs)
@@ -45,6 +45,9 @@ void ParticleSystemDrawableBuilderGLES::setup(const std::vector<SingleVertexAttr
     {
         drawGL->varyAttrs.push_back(SingleVertexAttributeInfoGLES(varyAttr));
     }
+    drawGL->varyNames = inVaryNames;
+
+    ParticleSystemDrawableBuilder::setup(inVertAttrs,inVaryAttrs,inVaryNames,numTotalPoints,batchSize,drawGL->vertexSize,useRectangles,useInstancing);
 }
     
 ParticleSystemDrawableBuilderGLES::~ParticleSystemDrawableBuilderGLES()

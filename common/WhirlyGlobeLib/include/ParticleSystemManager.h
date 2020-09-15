@@ -54,6 +54,7 @@ public:
     SimpleIdentity renderTargetID;
     std::vector<SingleVertexAttributeInfo> vertAttrs;
     std::vector<SingleVertexAttributeInfo> varyingAttrs;
+    std::vector<SimpleIdentity> varyNames;
     std::vector<SimpleIdentity> texIDs;
 };
 
@@ -87,7 +88,7 @@ public:
     std::set<ParticleSystemDrawable *> draws;
 };
     
-typedef std::set<ParticleSystemSceneRep *,IdentifiableSorter> ParticleSystemSceneRepSet;
+typedef std::map<SimpleIdentity,ParticleSystemSceneRep *> ParticleSystemSceneRepSet;
     
 /// Particle system manager controls the active particle systems
 class ParticleSystemManager : public SceneManager

@@ -113,7 +113,7 @@ public:
     virtual void addAttributeData(const RenderSetupInfo *setupInfo,const RawDataRef &data,const Batch &batch) { };
 
     /// Called once to set up batches
-    void setupBaches();
+    void setupBatches();
     
     /// Look for an empty batch to reuse
     bool findEmptyBatch(Batch &retBatch);
@@ -139,8 +139,6 @@ protected:
     bool usingContinuousRender;
     SimpleIdentity renderTargetID;
 
-    // The vertex attributes we're representing in the buffers
-    std::vector<VertexAttribute> vertexAttributes;
     // Uniforms to be passed into a shader (just Metal for now)
     std::vector<BasicDrawable::UniformBlock> uniBlocks;
 

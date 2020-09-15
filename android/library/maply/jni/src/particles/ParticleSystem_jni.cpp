@@ -356,6 +356,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_addVaryingNative
         attr.nameID = StringIndexer::getStringID(name.cStr);
         attr.type = (BDAttributeDataType) type;
         inst->varyingAttrs.push_back(attr);
+        inst->varyNames.push_back(StringIndexer::getStringID(varyName.cStr));
     }
 	catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::addVaryingNative()");

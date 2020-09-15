@@ -80,13 +80,13 @@ ParticleSystemManager::ParticleSystemManager()
 ParticleSystemManager::~ParticleSystemManager()
 {
     for (auto it : sceneReps)
-        delete it;
+        delete it.second;
     sceneReps.clear();
 }
     
 SimpleIdentity ParticleSystemManager::addParticleSystem(const ParticleSystem &newSystem,ChangeSet &changes)
 {
-    ParticleSystemSceneRep *sceneRep = new ParticleSystemSceneRep();
+    ParticleSystemSceneRep *sceneRep = new ParticleSystemSceneRep(newSystem.getId());
 
     sceneRep->partSys = newSystem;
     
@@ -100,6 +100,7 @@ SimpleIdentity ParticleSystemManager::addParticleSystem(const ParticleSystem &ne
     ParticleSystemDrawableBuilderRef draw = renderer->makeParticleSystemDrawableBuilder(newSystem.name);
     draw->setup(sceneRep->partSys.vertAttrs,
                 sceneRep->partSys.varyingAttrs,
+                sceneRep->partSys.varyNames,
                 totalParticles,
                 sceneRep->partSys.batchSize,
                 newSystem.vertexSize,
@@ -123,7 +124,7 @@ SimpleIdentity ParticleSystemManager::addParticleSystem(const ParticleSystem &ne
     
     {
         std::lock_guard<std::mutex> guardLock(partSysLock);
-        sceneReps.insert(sceneRep);
+        sceneReps[partSysID] = sceneRep;
     }
     
     return partSysID;
@@ -133,21 +134,19 @@ void ParticleSystemManager::enableParticleSystem(SimpleIdentity sysID,bool enabl
 {
     std::lock_guard<std::mutex> guardLock(partSysLock);
 
-    ParticleSystemSceneRep dummyRep(sysID);
-    auto it = sceneReps.find(&dummyRep);
+    auto it = sceneReps.find(sysID);
     if (it != sceneReps.end())
-        (*it)->enableContents(enable, changes);
+        it->second->enableContents(enable, changes);
 }
     
 void ParticleSystemManager::removeParticleSystem(SimpleIdentity sysID,ChangeSet &changes)
 {
     std::lock_guard<std::mutex> guardLock(partSysLock);
 
-    ParticleSystemSceneRep dummyRep(sysID);
-    auto it = sceneReps.find(&dummyRep);
+    auto it = sceneReps.find(sysID);
     if (it != sceneReps.end())
     {
-        (*it)->clearContents(changes);
+        it->second->clearContents(changes);
         sceneReps.erase(it);
     }
 }
@@ -159,28 +158,23 @@ void ParticleSystemManager::addParticleBatch(SimpleIdentity sysID,const Particle
 //    TimeInterval now = TimeGetCurrent();
     
     ParticleSystemSceneRep *sceneRep = NULL;
-    ParticleSystemSceneRep dummyRep(sysID);
-    auto it = sceneReps.find(&dummyRep);
+    auto it = sceneReps.find(sysID);
     if (it != sceneReps.end())
-        sceneRep = *it;
+        sceneRep = it->second;
     
-    if (sceneRep)
-    {
+    if (sceneRep) {
         // Should be one drawable in there
         ParticleSystemDrawable *draw = NULL;
         if (sceneRep->draws.size() == 1)
             draw = *(sceneRep->draws.begin());
         
-        if (draw)
-        {
+        if (draw) {
             ParticleSystemDrawable::Batch theBatch;
-            if (draw->findEmptyBatch(theBatch))
-            {
-                if (!batch.attrData.empty()) {
+            if (draw->findEmptyBatch(theBatch)) {
+                if (renderer->getType() == SceneRenderer::RenderGLES) {
                     // For OpenGL we match everything up
                     std::vector<ParticleSystemDrawable::AttributeData> attrData;
-                    for (unsigned int ii=0;ii<batch.attrData.size();ii++)
-                    {
+                    for (unsigned int ii=0;ii<batch.attrData.size();ii++) {
                         ParticleSystemDrawable::AttributeData thisAttrData;
                         thisAttrData.data = batch.attrData[ii];
                         attrData.push_back(thisAttrData);
@@ -202,10 +196,9 @@ void ParticleSystemManager::changeRenderTarget(SimpleIdentity sysID,SimpleIdenti
     std::lock_guard<std::mutex> guardLock(partSysLock);
 
     ParticleSystemSceneRep *sceneRep = NULL;
-    ParticleSystemSceneRep dummyRep(sysID);
-    auto it = sceneReps.find(&dummyRep);
+    auto it = sceneReps.find(sysID);
     if (it != sceneReps.end())
-        sceneRep = *it;
+        sceneRep = it->second;
     
     if (sceneRep) {
         ParticleSystemDrawable *draw = NULL;
@@ -223,10 +216,9 @@ void ParticleSystemManager::setUniformBlock(const SimpleIDSet &partSysIDs,const 
     std::lock_guard<std::mutex> guardLock(partSysLock);
     
     for (auto sysID : partSysIDs) {
-        ParticleSystemSceneRep dummyRep(sysID);
-        auto it = sceneReps.find(&dummyRep);
+        auto it = sceneReps.find(sysID);
         if (it != sceneReps.end())
-            for (auto draw : (*it)->draws)
+            for (auto draw : it->second->draws)
                 changes.push_back(new UniformBlockSetRequest(draw->getId(),uniBlock,bufferID));
     }
 }

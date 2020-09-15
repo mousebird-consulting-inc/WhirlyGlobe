@@ -130,7 +130,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_ParticleBatch_addAttribute__
         ret = batch->addAttributeDataFloat(name.cStr,body,len);
         env->ReleaseFloatArrayElements(floatArray, body, 0);
     } catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleBatch:addAttributes()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleBatch::addAttribute()");
     }
 
     return ret;
@@ -153,7 +153,27 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_ParticleBatch_addAttribute__
         ret = batch->addAttributeDataChar(name.cStr,(const char *)body,len);
         env->ReleaseCharArrayElements(charArray, body, 0);
     } catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleBatch:addAttributes()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleBatch::addAttribute()");
+    }
+
+    return ret;
+}
+
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_ParticleBatch_isValid
+        (JNIEnv *env, jobject obj)
+{
+    bool ret = false;
+
+    try {
+        ParticleBatchClassInfo *classInfo = ParticleBatchClassInfo::getClassInfo();
+        ParticleBatch_Android *batch = classInfo->getObject(env, obj);
+        if (!batch)
+            return false;
+
+        // TODO: Actually compare the attributes going in
+        ret = true;
+    } catch (...) {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleBatch::isValid()");
     }
 
     return ret;

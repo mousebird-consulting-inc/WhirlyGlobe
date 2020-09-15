@@ -184,7 +184,7 @@ void ParticleSystemDrawable::updateChunks()
     }
 }
     
-void ParticleSystemDrawable::setupBaches()
+void ParticleSystemDrawable::setupBatches()
 {
     // Set up the batches
     int numBatches = numTotalPoints / batchSize;
