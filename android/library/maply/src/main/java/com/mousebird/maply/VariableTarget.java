@@ -124,6 +124,11 @@ public class VariableTarget
     public ComponentObject compObj = null;
 
     /**
+     * If set, we clear the render target every frame.  Otherwise we let data accumulate.
+     */
+    public Boolean clearEveryFrame = true;
+
+    /**
      * Call setup explicitly after setting values.
      */
     public void setup() {
@@ -149,6 +154,7 @@ public class VariableTarget
         settings.imageFormat = imageFormat;
         renderTex = viewC.createTexture(frameSize[0], frameSize[1],settings, RenderControllerInterface.ThreadMode.ThreadCurrent);
         renderTarget.texture = renderTex;
+        renderTarget.clearEveryFrame = clearEveryFrame;
         viewC.addRenderTarget(renderTarget);
 
         // Default shader
