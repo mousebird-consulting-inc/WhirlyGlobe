@@ -41,6 +41,11 @@ public class ViewState
 	 */
 	public native boolean isEqual(ViewState viewState);
 
+	/**
+	 * Return the eye position.
+	 */
+	public native Point3d getEyePos();
+
 	public void finalize()
 	{
 		dispose();

@@ -71,8 +71,28 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_ViewState_isEqual
 	}
 	catch (...)
 	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorInfo::isEqual()");
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ViewState::isEqual()");
 	}
     
     return false;
+}
+
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_ViewState_getEyePos
+		(JNIEnv *env, jobject obj)
+{
+	try
+	{
+		ViewStateRefClassInfo *classInfo = ViewStateRefClassInfo::getClassInfo();
+		ViewStateRef *viewState = classInfo->getObject(env,obj);
+		if (!viewState)
+			return NULL;
+
+        return MakePoint3d(env,(*viewState)->eyePos);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ViewState::getEyePos()");
+	}
+
+	return NULL;
 }

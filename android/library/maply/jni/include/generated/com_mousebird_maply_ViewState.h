@@ -17,6 +17,14 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_ViewState_isEqual
 
 /*
  * Class:     com_mousebird_maply_ViewState
+ * Method:    getEyePos
+ * Signature: ()Lcom/mousebird/maply/Point3d;
+ */
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_ViewState_getEyePos
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_ViewState
  * Method:    nativeInit
  * Signature: ()V
  */
