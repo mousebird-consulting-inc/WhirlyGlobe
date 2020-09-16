@@ -72,6 +72,8 @@ public class UpdateLayer extends Layer implements LayerThread.ViewWatcherInterfa
     public void startLayer(LayerThread inLayerThread) {
         super.startLayer(inLayerThread);
 
+        delegate.start(this);
+
         scheduleUpdate();
         if (maplyControl != null) {
             LayerThread layerThread = maplyControl.get().getLayerThread();

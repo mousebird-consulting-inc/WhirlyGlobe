@@ -207,6 +207,25 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 			return null;
 		return new Point2d(geoCoord.getX(),geoCoord.getY());
 	}
+
+	/**
+	 * Return the model point corresponding to a screen point.
+	 *
+	 * Models space is centered on the globe with a radius of 1.0.
+	 *
+	 * Will return nil if the screen point does not intersect the globe.
+	 */
+	public Point3d modelPointFromScreen(Point2d screenPt)
+	{
+		CoordSystemDisplayAdapter coordAdapter = globeView.getCoordAdapter();
+		CoordSystem coordSys = coordAdapter.getCoordSystem();
+
+		Matrix4d modelMat = globeView.calcModelViewMatrix();
+		Point3d dispPt = globeView.pointOnSphereFromScreen(screenPt, modelMat, renderWrapper.maplyRender.get().frameSize, false);
+
+		return dispPt;
+	}
+
 	
 	/**
 	 * Returns what the user is currently looking at in geographic extents.

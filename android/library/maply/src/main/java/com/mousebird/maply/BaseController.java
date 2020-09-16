@@ -2055,6 +2055,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 					changes.process(renderControl, scene);
 					changes.dispose();
 				}
+				renderControl.componentManager.addComponentObject(compObj);
 			}
 		};
 
