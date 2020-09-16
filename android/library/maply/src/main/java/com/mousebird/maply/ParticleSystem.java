@@ -227,7 +227,17 @@ public class ParticleSystem {
     /**
      * Add a texture to the shader by ID.
      */
-    native void addTextureID(long texID);
+    public native void addTextureID(long texID);
+
+    /**
+     * If set we'll compare against the z buffer.
+     */
+    public native void setZBufferRead(boolean zBufferRead);
+
+    /**
+     * If set, we'll write to the z buffer.
+     */
+    public native void setZBufferWrite(boolean zBufferWrite);
 
     /**
      * If the particle system is drawing to a render target, set it here.

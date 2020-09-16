@@ -153,6 +153,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_addTextureID
 
 /*
  * Class:     com_mousebird_maply_ParticleSystem
+ * Method:    setZBufferRead
+ * Signature: (Z)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setZBufferRead
+  (JNIEnv *, jobject, jboolean);
+
+/*
+ * Class:     com_mousebird_maply_ParticleSystem
+ * Method:    setZBufferWrite
+ * Signature: (Z)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setZBufferWrite
+  (JNIEnv *, jobject, jboolean);
+
+/*
+ * Class:     com_mousebird_maply_ParticleSystem
  * Method:    setRenderTargetNative
  * Signature: (J)V
  */

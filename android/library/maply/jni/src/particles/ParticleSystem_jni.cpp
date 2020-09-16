@@ -394,3 +394,35 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setRenderTargetNa
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::setRenderTargetNative()");
     }
 }
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setZBufferRead
+        (JNIEnv *env, jobject obj, jboolean val)
+{
+    try {
+        ParticleSystemClassInfo *classInfo = ParticleSystemClassInfo::getClassInfo();
+        ParticleSystem *inst = classInfo->getObject(env, obj);
+        if (!inst)
+            return;
+
+        inst->zBufferRead = val;
+    }
+    catch (...) {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::setZBufferRead()");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setZBufferWrite
+        (JNIEnv *env, jobject obj, jboolean val)
+{
+    try {
+        ParticleSystemClassInfo *classInfo = ParticleSystemClassInfo::getClassInfo();
+        ParticleSystem *inst = classInfo->getObject(env, obj);
+        if (!inst)
+            return;
+
+        inst->zBufferWrite = val;
+    }
+    catch (...) {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::setZBufferWrite()");
+    }
+}
