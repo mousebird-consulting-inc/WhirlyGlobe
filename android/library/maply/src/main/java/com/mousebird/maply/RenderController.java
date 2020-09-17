@@ -1618,6 +1618,30 @@ public class RenderController implements RenderControllerInterface
     }
 
     /**
+     * Ask the render target to clear itself.
+     */
+    public void clearRenderTarget(final RenderTarget renderTarget, ThreadMode mode)
+    {
+        final RenderController renderControl = this;
+
+        Runnable run = new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                ChangeSet changes = new ChangeSet();
+                changes.clearRenderTarget(renderTarget.renderTargetID);
+                if (scene != null) {
+                    changes.process(renderControl, scene);
+                    changes.dispose();
+                }
+            }
+        };
+
+        taskMan.addTask(run, mode);
+    }
+
+    /**
      * Disable the given objects. These were the objects returned by the various
      * add calls.  Once called, the objects will be invisible, but can be made
      * visible once again with enableObjects()

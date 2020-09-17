@@ -1824,6 +1824,14 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		renderControl.changeRenderTarget(renderTarget,tex);
 	}
 
+	/**
+	 * Ask the render target to clear itself.
+	 */
+	public void clearRenderTarget(RenderTarget renderTarget,ThreadMode mode)
+	{
+		renderControl.clearRenderTarget(renderTarget,mode);
+	}
+
 	/** Remove the given render target from the system.
 	 * <br>
 	 * Ask the system to stop drawing to the given render target.  It will do this on the next frame.

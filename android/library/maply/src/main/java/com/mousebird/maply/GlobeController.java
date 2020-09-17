@@ -767,9 +767,6 @@ public class GlobeController extends BaseController implements View.OnTouchListe
      */
     public void handleStartMoving(boolean userMotion)
     {
-		if (!userMotion)
-			isAnimating = true;
-
 		if (!isCompletelySetup())
 			return;
 
@@ -781,7 +778,10 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 				if (c != null)
 					c.postFrameCallback(this);
 			}
-    }
+
+		if (!userMotion)
+			isAnimating = true;
+	}
 
 	/**
 	 * Called by the gesture handler to filter out end motion events.

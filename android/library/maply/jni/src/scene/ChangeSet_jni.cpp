@@ -181,11 +181,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_addTexture
 	}
 }
 
-/*
- * Class:     com_mousebird_maply_ChangeSet
- * Method:    removeTexture
- * Signature: (J)V
- */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_removeTexture
   (JNIEnv *env, jobject obj, jlong texID)
 {
@@ -201,4 +196,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_removeTexture
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ChangeSet::removeTexture()");
 	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_clearRenderTarget
+		(JNIEnv *env, jobject obj, jlong renderTargetID)
+{
+	try
+	{
+		ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,obj);
+		if (!changeSet)
+			return;
+
+		(*changeSet)->push_back(new ClearRenderTargetReq(renderTargetID));
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ChangeSet::removeTexture()");
+	}
+
 }
