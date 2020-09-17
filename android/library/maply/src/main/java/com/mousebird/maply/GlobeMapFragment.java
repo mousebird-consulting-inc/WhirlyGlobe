@@ -16,9 +16,7 @@ public class GlobeMapFragment extends Fragment implements MapController.GestureD
     protected GlobeController globeControl;
     protected BaseController baseControl;
 
-    public enum MapDisplayType {Globe, Map}
-
-    ;
+    public enum MapDisplayType {Globe, Map};
     protected MapDisplayType mapDisplayType = MapDisplayType.Map;
 
     protected GlobeController.Settings globeSettings = new GlobeController.Settings();
