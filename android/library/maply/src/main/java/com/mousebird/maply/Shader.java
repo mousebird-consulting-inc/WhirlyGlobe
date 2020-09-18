@@ -96,15 +96,20 @@ public class Shader
 	{
 		control = new WeakReference<RenderControllerInterface>(inControl);
 
-		RenderControllerInterface.ContextInfo context = control.get().setupTempContext(RenderController.ThreadMode.ThreadCurrent);
-		if (context == null) {
-			Log.i("Maply","Shader was set up before context was created.  Shader won't work.");
-			return;
+		RenderControllerInterface.ContextInfo context = null;
+		if (!inControl.getOfflineMode()) {
+			context = control.get().setupTempContext(RenderController.ThreadMode.ThreadCurrent);
+			if (context == null) {
+				Log.i("Maply", "Shader was set up before context was created.  Shader won't work.");
+				return;
+			}
 		}
 
 		initialise();
 
-		control.get().clearTempContext(context);
+		if (!inControl.getOfflineMode()) {
+			control.get().clearTempContext(context);
+		}
 	}
 
 	/**
@@ -121,15 +126,20 @@ public class Shader
 		if (theControl == null)
 			return;
 
-		RenderControllerInterface.ContextInfo context = theControl.setupTempContext(RenderController.ThreadMode.ThreadCurrent);
-		if (context == null) {
-			Log.i("Maply","Shader was set up before context was created.  Shader won't work.");
-			return;
+		RenderControllerInterface.ContextInfo context = null;
+		if (!theControl.getOfflineMode()) {
+			context = theControl.setupTempContext(RenderController.ThreadMode.ThreadCurrent);
+			if (context == null) {
+				Log.i("Maply", "Shader was set up before context was created.  Shader won't work.");
+				return;
+			}
 		}
 
 		delayedSetupNative(name,vertexSrc,fragSrc);
 
-		theControl.clearTempContext(context);
+		if (!theControl.getOfflineMode()) {
+			theControl.clearTempContext(context);
+		}
 	}
 
     protected Shader()

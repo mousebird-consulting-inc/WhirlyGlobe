@@ -41,6 +41,8 @@ VectorStyleSettingsImpl::VectorStyleSettingsImpl(double scale)
     wideVecCuttoff = 0.0;
     selectable = false;
     settingsArealShaderID = EmptyIdentity;
+    zBufferRead = false;
+    zBufferWrite = false;
 }
 
 }

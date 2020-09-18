@@ -150,6 +150,7 @@ public:
     
     // If set, we're using the alpha to indicate some other value, so just pass it through
     void setAlphaOverride(double alpha);
+    bool hasAlphaOverride() { return useAlphaOverride; }
 
     // Return a color for the given zoom level
     RGBAColor colorForZoom(double zoom);

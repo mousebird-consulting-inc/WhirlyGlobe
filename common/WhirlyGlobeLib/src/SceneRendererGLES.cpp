@@ -608,7 +608,7 @@ void SceneRendererGLES::render(TimeInterval duration)
                         continue;
                     }
                 }
-                if (drawProgramId == EmptyIdentity)
+                if (drawProgramId == EmptyIdentity || !baseFrameInfo.program)
                     continue;
                 
                 // Only draw drawables that are active for the current render target

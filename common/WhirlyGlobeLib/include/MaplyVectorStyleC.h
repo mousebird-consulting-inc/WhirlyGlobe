@@ -94,6 +94,12 @@ public:
     
     /// If we're using a dfiferent areal shader, set it up here
     SimpleIdentity settingsArealShaderID;
+
+    /// Read from the z buffer (fill)
+    bool zBufferRead;
+
+    /// Write to the z buffer (fill)
+    bool zBufferWrite;
 };
 typedef std::shared_ptr<VectorStyleSettingsImpl> VectorStyleSettingsImplRef;
 

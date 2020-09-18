@@ -651,3 +651,33 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setFontName
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorStyleSettings::setFontName()");
     }
 }
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setZBufferRead
+        (JNIEnv *env, jobject obj, jboolean val)
+{
+    try
+    {
+        VectorStyleSettingsImplRef *inst = VectorStyleSettingsClassInfo::getClassInfo()->getObject(env,obj);
+        if (inst)
+            (*inst)->zBufferRead = val;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorStyleSettings::setZBufferRead()");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setZBufferWrite
+        (JNIEnv *env, jobject obj, jboolean val)
+{
+    try
+    {
+        VectorStyleSettingsImplRef *inst = VectorStyleSettingsClassInfo::getClassInfo()->getObject(env,obj);
+        if (inst)
+            (*inst)->zBufferWrite = val;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorStyleSettings::setZBufferWrite()");
+    }
+}

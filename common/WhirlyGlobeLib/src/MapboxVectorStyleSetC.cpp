@@ -821,7 +821,7 @@ RGBAColorRef MapboxVectorStyleSetImpl::resolveColor(MapboxTransColorRef color,Ma
     RGBAColor thisColor = color->colorForZoom(zoom);
 
     // No opacity, means full opacity
-    if (!opacity)
+    if (!opacity || color->hasAlphaOverride())
         return RGBAColorRef(new RGBAColor(thisColor));
 
     double thisOpacity = opacity->valForZoom(zoom);

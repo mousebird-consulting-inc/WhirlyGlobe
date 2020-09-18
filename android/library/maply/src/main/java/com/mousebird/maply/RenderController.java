@@ -92,9 +92,17 @@ public class RenderController implements RenderControllerInterface
     // Set if this is a standalone renderer
     protected boolean offlineMode = false;
 
+    /**
+     * If true, the renderer was set up as offline.
+     */
+    public boolean getOfflineMode() {
+        return offlineMode;
+    }
+
     // Construct a new render control based on an existing one
     public RenderController(RenderController baseControl,int width,int height)
     {
+        offlineMode = true;
         frameSize = new Point2d(width,height);
         setConfig(baseControl, null);
 

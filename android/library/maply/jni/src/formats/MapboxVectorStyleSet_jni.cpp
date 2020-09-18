@@ -117,3 +117,21 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_backgroundC
 
     return 0;
 }
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_setArealShaderNative
+        (JNIEnv *env, jobject obj, jlong shaderID)
+{
+    try
+    {
+        MapboxVectorStyleSetClassInfo *classInfo = MapboxVectorStyleSetClassInfo::getClassInfo();
+        MapboxVectorStyleSetImpl_AndroidRef *inst = classInfo->getObject(env,obj);
+        if (!inst || shaderID == EmptyIdentity)
+            return;
+
+        (*inst)->vectorArealProgramID = shaderID;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MapboxVectorStyleSet::setArealShaderNative()");
+    }
+}

@@ -2251,4 +2251,15 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		changes.process(renderControl, scene);
 		changes.dispose();
 	}
+
+	/**
+	 * True if the renderer was set up as offline.
+	 * Never going to be true for this.
+	 */
+	public boolean getOfflineMode() {
+		if (renderControl != null)
+			return false;
+
+		return renderControl.getOfflineMode();
+	}
 }

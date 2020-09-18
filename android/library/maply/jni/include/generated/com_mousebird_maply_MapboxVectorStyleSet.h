@@ -9,6 +9,14 @@ extern "C" {
 #endif
 /*
  * Class:     com_mousebird_maply_MapboxVectorStyleSet
+ * Method:    setArealShaderNative
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_setArealShaderNative
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_mousebird_maply_MapboxVectorStyleSet
  * Method:    backgroundColorForZoomNative
  * Signature: (D)I
  */

@@ -63,6 +63,16 @@ public class MapboxVectorStyleSet implements VectorStyleInterface {
         initialise(inControl.getScene(),inControl.getCoordSystem(),settings,styleDict);
     }
 
+    /**
+     * Set this to override the regular fill shader.
+     * Useful if you're going to mix something else into the polygons.
+     */
+    public void setArealShader(Shader shader) {
+        setArealShaderNative(shader.getID());
+    }
+
+    native private void setArealShaderNative(long shaderID);
+
     DisplayMetrics displayMetrics;
     VectorStyleSettings settings;
     WeakReference<RenderControllerInterface> control;

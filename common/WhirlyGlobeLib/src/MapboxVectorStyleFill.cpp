@@ -117,6 +117,8 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
         vecInfo.filled = true;
         vecInfo.centered = true;
         vecInfo.zoomSlot = styleSet->zoomSlot;
+        vecInfo.zBufferWrite = styleSet->tileStyleSettings->zBufferWrite;
+        vecInfo.zBufferRead = styleSet->tileStyleSettings->zBufferRead;
         if (minzoom != 0 || maxzoom < 1000) {
             vecInfo.minZoomVis = minzoom;
             vecInfo.maxZoomVis = maxzoom;

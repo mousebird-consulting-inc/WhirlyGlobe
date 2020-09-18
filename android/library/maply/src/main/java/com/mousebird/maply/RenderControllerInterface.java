@@ -119,6 +119,8 @@ public interface RenderControllerInterface
 
     public int[] getFrameBufferSize();
 
+    boolean getOfflineMode();
+
     boolean setEGLContext(ContextInfo cInfo);
 
     ContextInfo setupTempContext(ThreadMode threadMode);

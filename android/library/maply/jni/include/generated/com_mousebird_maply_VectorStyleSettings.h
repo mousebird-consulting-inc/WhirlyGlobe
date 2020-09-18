@@ -297,6 +297,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setFontName
 
 /*
  * Class:     com_mousebird_maply_VectorStyleSettings
+ * Method:    setZBufferRead
+ * Signature: (Z)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setZBufferRead
+  (JNIEnv *, jobject, jboolean);
+
+/*
+ * Class:     com_mousebird_maply_VectorStyleSettings
+ * Method:    setZBufferWrite
+ * Signature: (Z)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setZBufferWrite
+  (JNIEnv *, jobject, jboolean);
+
+/*
+ * Class:     com_mousebird_maply_VectorStyleSettings
  * Method:    initialise
  * Signature: ()V
  */
