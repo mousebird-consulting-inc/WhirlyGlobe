@@ -34,7 +34,7 @@ public:
     
     // Set up our various attributes at once
     virtual void setup(const std::vector<SingleVertexAttributeInfo> &inVertAttrs,
-               const std::vector<SingleVertexAttributeInfo> &inVaryAttrs,
+                       const std::vector<SingleVertexAttributeInfo> &inVaryAttrs,
                        const std::vector<SimpleIdentity> &inVaryNames,
                        int numTotalPoints,
                        int batchSize,

@@ -31,9 +31,10 @@ ParticleSystemDrawableBuilderMTL::ParticleSystemDrawableBuilderMTL(const std::st
 
 void ParticleSystemDrawableBuilderMTL::setup(const std::vector<SingleVertexAttributeInfo> &inVertAttrs,
                                               const std::vector<SingleVertexAttributeInfo> &inVaryAttrs,
+                                             const std::vector<SimpleIdentity> &inVaryNames,
                                               int numTotalPoints,int batchSize,int vertexSize,bool useRectangles,bool useInstancing)
 {
-    ParticleSystemDrawableBuilder::setup(inVertAttrs,inVaryAttrs,numTotalPoints,batchSize,vertexSize,useRectangles,useInstancing);
+    ParticleSystemDrawableBuilder::setup(inVertAttrs,inVaryAttrs,inVaryNames,numTotalPoints,batchSize,vertexSize,useRectangles,useInstancing);
 }
 
 ParticleSystemDrawableBuilderMTL::~ParticleSystemDrawableBuilderMTL()
