@@ -212,7 +212,7 @@ void SceneRenderer::removeDrawable(DrawableRef draw,bool teardown,RenderTeardown
     removeContinuousRenderRequest(draw->getId());
     removeExtraFrameRenderRequest(draw->getId());
 
-    if (teardown) {
+    if (teardown && teardownInfo) {
         teardownInfo->destroyDrawable(this, draw);
     }
 }
