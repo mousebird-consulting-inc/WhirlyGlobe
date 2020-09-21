@@ -28,9 +28,21 @@ namespace WhirlyKit
 class ComponentManager_Android : public ComponentManager
 {
 public:
+    /// We'll keep a global reference to the Java-side object
+    ComponentManager_Android();
+    virtual ~ComponentManager_Android();
+
+    // Called by the JNI initialize to set up our link back to the Java side
+    void setupJNI(JNIEnv *env,jobject compManagerObj);
+    void clearJNI(JNIEnv *env);
+
+    /// This version of remove calls back to notify the Java side
+    virtual void removeComponentObjects(PlatformThreadInfo *threadInfo,const SimpleIDSet &compIDs,ChangeSet &changes) override;
 
 protected:
-    virtual ComponentObjectRef makeComponentObject();
+    virtual ComponentObjectRef makeComponentObject() override;
+    jobject compManagerObj;
+    jmethodID objectsRemovedMethod;
 };
 
 }

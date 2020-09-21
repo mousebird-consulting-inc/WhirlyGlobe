@@ -40,7 +40,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentManager_initialise
         Scene *scene = SceneClassInfo::getClassInfo()->getObject(env, sceneObj);
         if (!scene)
             return;
-		ComponentManager *compManager = dynamic_cast<ComponentManager *>(scene->getManager(kWKComponentManager));
+		ComponentManager_Android *compManager = dynamic_cast<ComponentManager_Android *>(scene->getManager(kWKComponentManager));
+		compManager->setupJNI(env,obj);
 		ComponentManagerClassInfo::getClassInfo()->setHandle(env,obj,compManager);
 	}
 	catch (...)
@@ -59,6 +60,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentManager_dispose
 		ComponentManagerClassInfo *classInfo = ComponentManagerClassInfo::getClassInfo();
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
+            ComponentManager_Android *compManager = classInfo->getObject(env,obj);
+            compManager->clearJNI(env);
             classInfo->clearHandle(env,obj);
         }
 	}

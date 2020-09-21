@@ -42,6 +42,8 @@ class VectorMBTilesTestCase : MaplyTestCase {
         implementation = TestExecutionImplementation.Both
     }
 
+    var loader: QuadLoaderBase? = null
+
     fun setupCountriesRaster(control: BaseController) {
         val mbTiles: File
 
@@ -73,12 +75,12 @@ class VectorMBTilesTestCase : MaplyTestCase {
 
         val loader = QuadImageLoader(params, mbTileFetcher.tileInfo, control)
         loader.tileFetcher = mbTileFetcher
+        this.loader = loader
     }
 
     fun setupContriesVector(control: BaseController) {
         val mbTiles: File
 
-        // We need to copy the file from the asset so that it can be used as a file
         // We need to copy the file from the asset so that it can be used as a file
         try {
             mbTiles = this.getFile("mbtiles", "mbtiles/countries.mbtiles", "countries.mbtiles")
@@ -91,10 +93,8 @@ class VectorMBTilesTestCase : MaplyTestCase {
         }
 
         // The fetcher fetches tile from the MBTiles file
-        // The fetcher fetches tile from the MBTiles file
         val mbTileFetcher = MBTileFetcher(mbTiles)
 
-        // Set up the parameters to match the MBTile file
         // Set up the parameters to match the MBTile file
         val params = SamplingParams()
         params.coordSystem = SphericalMercatorCoordSystem()
@@ -116,6 +116,7 @@ class VectorMBTilesTestCase : MaplyTestCase {
 
         val loader = QuadPagingLoader(params, mbTileFetcher.tileInfo, debugInterp, control)
         loader.setTileFetcher(mbTileFetcher)
+        this.loader = loader
     }
 
     fun setupFranceVector(control: BaseController) {
@@ -141,6 +142,7 @@ class VectorMBTilesTestCase : MaplyTestCase {
 
         val loader = QuadPagingLoader(params, fetcher.tileInfo, interp, control)
         loader.setTileFetcher(fetcher)
+        this.loader = loader
     }
 
     fun setupShapefile(control: BaseController) {
@@ -209,4 +211,10 @@ class VectorMBTilesTestCase : MaplyTestCase {
 
         return of
     }
+
+    // Switch maps on long press
+    override fun userDidLongPress(mapController: MapController?, selObjs: Array<SelectedObject?>?, loc: Point2d?, screenLoc: Point2d?) {
+        loader?.reload()
+    }
+
 }

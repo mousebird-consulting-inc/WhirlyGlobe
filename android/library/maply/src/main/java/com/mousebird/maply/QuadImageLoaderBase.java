@@ -221,22 +221,4 @@ public class QuadImageLoaderBase extends QuadLoaderBase
             }
         });
     }
-
-    /**
-     * Forces a reload of all currently loaded tiles.
-     */
-    public void reload()
-    {
-        if (samplingLayer.get() == null)
-            return;
-
-        samplingLayer.get().layerThread.addTask(new Runnable() {
-            @Override
-            public void run() {
-                ChangeSet changes = new ChangeSet();
-                reloadNative(changes);
-                samplingLayer.get().layerThread.addChanges(changes);
-            }
-        });
-    }
 }
