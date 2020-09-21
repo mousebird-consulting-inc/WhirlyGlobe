@@ -1,13 +1,11 @@
 package com.mousebirdconsulting.autotester.TestCases
 
 import android.app.Activity
-import android.graphics.Color
 import android.net.Uri
 import com.mousebird.maply.*
 import com.mousebirdconsulting.autotester.ConfigOptions
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase
 import okio.Okio
-import java.io.File
 import java.io.IOException
 
 class MapTilerTestCase : MaplyTestCase {
@@ -19,9 +17,15 @@ class MapTilerTestCase : MaplyTestCase {
     var map: MapboxKindaMap? = null
 
     // Set up the loader (and all the stuff it needs) for the map tiles
-    fun setupLoader(control: BaseController, testType: ConfigOptions.TestType) {
+    private fun setupLoader(control: BaseController, whichMap: Int) {
+        // Third map is no map
+        if (whichMap > 1)
+            return;
+
+        val mapName = if (whichMap == 0) "maptiler_basic.json" else "maptiler_streets.json"
+
         val assetMgr = getActivity().assets
-        val stream = assetMgr.open("maptiler_basic.json")
+        val stream = assetMgr.open(mapName)
         var polyStyle: MapboxVectorStyleSet?
 
         // Maptiler token
@@ -46,15 +50,31 @@ class MapTilerTestCase : MaplyTestCase {
         }
     }
 
+    // Switch maps on long press
+    override fun userDidLongPress(mapController: MapController?, selObjs: Array<SelectedObject?>?, loc: Point2d?, screenLoc: Point2d?) {
+        map?.stop()
+
+        currentMap = currentMap + 1
+        if (currentMap > 2)
+            currentMap = 0
+        setupLoader(baseViewC!!, currentMap)
+    }
+
+    var currentMap = 0
+    var baseViewC : BaseController? = null
+
     override fun setUpWithGlobe(globeVC: GlobeController?): Boolean {
-        setupLoader(globeVC!!, ConfigOptions.TestType.GlobeTest)
+        baseViewC = globeVC
+        setupLoader(baseViewC!!, currentMap)
 
         return true
     }
 
     override fun setUpWithMap(mapVC: MapController?): Boolean {
-        setupLoader(mapVC!!, ConfigOptions.TestType.GlobeTest)
+        baseViewC = mapVC
+        setupLoader(baseViewC!!, currentMap)
 
         return true
     }
+
 }
