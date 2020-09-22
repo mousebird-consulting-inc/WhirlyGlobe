@@ -25,6 +25,7 @@ namespace WhirlyKit
 
 VectorStyleSettingsImpl::VectorStyleSettingsImpl(double scale)
 {
+    rendererScale = scale;
     lineScale = scale;
     textScale = scale;
     markerScale = scale;

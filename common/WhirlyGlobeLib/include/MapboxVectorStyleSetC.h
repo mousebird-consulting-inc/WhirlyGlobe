@@ -125,6 +125,9 @@ public:
     // Return the value for a given level
     double valForZoom(double zoom);
     
+    // True if this is an expression, rather than a constant
+    bool isExpression();
+    
     // Build the expression, if this has stops
     FloatExpressionInfoRef expression();
 

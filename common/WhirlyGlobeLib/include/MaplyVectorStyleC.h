@@ -37,6 +37,8 @@ class VectorStyleSettingsImpl
 public:
     VectorStyleSettingsImpl(double scale);
 
+    /// Local renderer scale (iOS only)
+    float rendererScale;
     /// Line widths will be scaled by this amount before display.
     float lineScale;
     /// Text sizes will be scaled by this amount before display.

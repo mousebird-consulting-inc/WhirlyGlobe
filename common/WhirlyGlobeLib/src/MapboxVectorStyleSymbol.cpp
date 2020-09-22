@@ -353,6 +353,11 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
     textSize = (int)(textSize + 0.5);
     if (textSize <= 0.0)
         textSize = 1.0;
+    
+    // When there's no dynamic scaling, we need to scale the text size down
+    if (!layout.textSize->isExpression()) {
+        textSize /= styleSet->tileStyleSettings->rendererScale;
+    }
 
     LabelInfoRef labelInfo = styleSet->makeLabelInfo(inst,layout.textFontNames,textSize);
     labelInfo->hasExp = true;

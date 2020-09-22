@@ -268,6 +268,11 @@ double MapboxTransDouble::valForZoom(double zoom)
         return val;
 }
 
+bool MapboxTransDouble::isExpression()
+{
+    return stops.get() != NULL;
+}
+
 FloatExpressionInfoRef MapboxTransDouble::expression()
 {
     if (!stops)
