@@ -287,7 +287,7 @@ struct VertexA
 // Position, color, and dot project (for backface checking)
 struct ProjVertexA
 {
-    float4 position [[position]];
+    float4 position [[invariant]] [[position]];
     float4 color;
     float dotProd;
 };
@@ -295,7 +295,7 @@ struct ProjVertexA
 // Just position and color
 struct ProjVertexB
 {
-    float4 position [[position]];
+    float4 position [[invariant]] [[position]];
     float4 color;
 };
 
@@ -310,7 +310,7 @@ struct VertexTriA
 
 // Output vertex to the fragment shader
 struct ProjVertexTriA {
-    float4 position [[position]];
+    float4 position [[invariant]] [[position]];
     float4 color;
     float2 texCoord;
 };
@@ -327,7 +327,7 @@ struct VertexTriB
 
 // Output vertex to the fragment shader
 struct ProjVertexTriB {
-    float4 position [[position]];
+    float4 position [[invariant]] [[position]];
     float4 color;
     float2 texCoord0;
     float2 texCoord1;
@@ -351,7 +351,7 @@ struct VertexTriWideVec
 
 // Wide Vector vertex passed to fragment shader
 struct ProjVertexTriWideVec {
-    float4 position [[position]];
+    float4 position [[invariant]] [[position]];
     float4 color;
     float2 texCoord;
     float dotProd;

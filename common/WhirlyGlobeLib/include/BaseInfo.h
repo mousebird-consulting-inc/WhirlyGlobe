@@ -61,6 +61,9 @@ public:
     FloatExpressionInfo();
     FloatExpressionInfo(const FloatExpressionInfo &that);
     
+    // Scale the outputs by the given value
+    void scaleBy(double scale);
+    
     std::vector<float> stopOutputs;
 };
 typedef std::shared_ptr<FloatExpressionInfo> FloatExpressionInfoRef;

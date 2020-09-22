@@ -56,7 +56,16 @@ public class MapboxKindaMap {
     // This is the importance value used in the sampler for loading
     // It's roughly the maximum number of pixels you want a tile to be on the screen
     //  before you load its children.  1024 is good for vector tiles, 256 good for image tiles
+    // Vector tiles are nominally at 512 x 512, so we need to scale widths accordingly (below)
     public var minImportance = 1024.0 * 1024.0
+    
+    // We'll scale the width calculations for linears based on this value
+    // If it's set to 0, we'll calculate an appropriate number from minImportance
+    public var lineScale = 0.0
+
+    // We'll scale the text size calculations based on this value
+    // If it's set to 0, we'll figure this out from minImportance
+    public var textScale = 0.0
     
     // If we're doing offline rendering for the map tiles, this is the size
     public var offlineRenderSize = (width: 512.0, height: 512.0)
@@ -422,7 +431,22 @@ public class MapboxKindaMap {
         }
         sampleParams.minZoom = zoom.min
         sampleParams.maxZoom = zoom.max
-        sampleParams.reportedMaxZoom = 20;
+        sampleParams.reportedMaxZoom = 21;
+        
+        // Adjustment for loading (512 vs 1024 or so)
+        if lineScale > 0.0 {
+            styleSettings.lineScale = Float(lineScale)
+        } else {
+            // Calculate this based on how we're loading
+            styleSettings.lineScale = Float(0.5 * minImportance / (512.0 * 512.0))
+        }
+        
+        // Similar adjustment for text
+        if textScale > 0.0 {
+            styleSettings.textScale = Float(textScale)
+        } else {
+            styleSettings.textScale = Float(0.5 * minImportance / (512.0 * 512.0))
+        }        
 
         // Image/vector hybrids draw the polygons into a background image
         if imageVectorHybrid {

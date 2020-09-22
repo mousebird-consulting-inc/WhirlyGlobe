@@ -202,7 +202,7 @@ SingleLabelRef MapboxVectorLayerSymbol::setupLabel(PlatformThreadInfo *inst,
         // Break it up into lines, if necessary
         double textMaxWidth = layout.textMaxWidth->valForZoom(tileInfo->ident.level);
         if (textMaxWidth != 0.0)
-            text = breakUpText(inst,text,textMaxWidth * labelInfo->fontPointSize * styleSet->tileStyleSettings->textScale,labelInfo);
+            text = breakUpText(inst,text,textMaxWidth * labelInfo->fontPointSize,labelInfo);
         
         // Construct the label
         SingleLabelRef label = styleSet->makeSingleLabel(inst,text);
@@ -217,7 +217,7 @@ SingleLabelRef MapboxVectorLayerSymbol::setupLabel(PlatformThreadInfo *inst,
         }
         
         // The rank is most important, followed by the zoom level.  This keeps the countries on top.
-        int rank = 0;
+        int rank = 1000;
         if (attrs->hasField("rank")) {
             rank = attrs->getInt("rank");
         }
@@ -241,7 +241,8 @@ SingleLabelRef MapboxVectorLayerSymbol::setupLabel(PlatformThreadInfo *inst,
                         break;
                 }
             }
-            label->layoutImportance = layout.layoutImportance + 1.0 - (rank + (101-tileInfo->ident.level)/100.0)/1000.0 + strHash/1000.0;
+            label->layoutImportance = layout.layoutImportance + 1.0 - (rank + (101-tileInfo->ident.level)/100.0)/1000.0 + strHash/10000.0;
+//            wkLogLevel(Debug,"\ntext: %s import = %f, rank = %d, level = %d, strHash = %f",text.c_str(),label->layoutImportance,rank,tileInfo->ident.level,strHash);
         } else
             label->layoutImportance = MAXFLOAT;
 
@@ -348,7 +349,7 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
     ComponentObjectRef compObj = styleSet->makeComponentObject(inst);
 
     // Render at the max size and then scale dynamically
-    double textSize = layout.textSize->maxVal();
+    double textSize = layout.textSize->maxVal() * layout.globalTextScale;
     textSize = (int)(textSize + 0.5);
     if (textSize <= 0.0)
         textSize = 1.0;
@@ -388,7 +389,7 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
     {
         labelInfo->outlineColor = paint.textHaloColor->colorForZoom(tileInfo->ident.level);
         // Note: We're not using blue right here
-        labelInfo->outlineSize = paint.textHaloWidth->valForZoom(tileInfo->ident.level) - paint.textHaloBlur->valForZoom(tileInfo->ident.level);
+        labelInfo->outlineSize = (paint.textHaloWidth->valForZoom(tileInfo->ident.level) - paint.textHaloBlur->valForZoom(tileInfo->ident.level)) * layout.globalTextScale;
         if (labelInfo->outlineSize < 0.5)
             labelInfo->outlineSize = 0.5;
     }

@@ -71,6 +71,7 @@ bool MapboxRegexField::parse(const std::string &fieldName,
 
 std::string MapboxRegexField::build(DictionaryRef attrs)
 {
+    bool found = false;
     std::string text = "";
     
     for (auto chunk : chunks) {
@@ -79,6 +80,7 @@ std::string MapboxRegexField::build(DictionaryRef attrs)
         else {
             for (auto key : chunk.keys) {
                 if (attrs->hasField(key)) {
+                    found = true;
                     std::string keyVal = attrs->getString(key);
                     if (!keyVal.empty()) {
                         text += keyVal;
@@ -88,6 +90,12 @@ std::string MapboxRegexField::build(DictionaryRef attrs)
             }
         }
     }
+
+    if (!found)
+        return "";
+    
+    if (!text.empty() && text[text.size()-1] == '\n')
+        text.resize(text.size()-1);
 
     return text;
 }

@@ -49,8 +49,6 @@ class MapTilerTestCase: MaplyTestCase {
 
         // Parse it and then let it start itself
         let mapboxMap = MapboxKindaMap(fileName, viewC: viewC)
-        mapboxMap.styleSettings.textScale = 1.0  // Note: Why does this work better than 2.0?
-        mapboxMap.styleSettings.lineScale = 1.0
         mapboxMap.backgroundAllPolys = round     // Render all the polygons into an image for the globe
         mapboxMap.cacheDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent(name)
         // Replace the MapTilerKey in any URL with the actual token

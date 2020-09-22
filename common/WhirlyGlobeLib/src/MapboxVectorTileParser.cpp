@@ -134,8 +134,8 @@ bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst,RawData *rawDat
     unsigned length;
     int k;
     unsigned cmd_length;
-    Point2f point;
-    Point2f firstCoord;
+    Point2d point;
+    Point2d firstCoord;
     
     unsigned featureCount = 0;
     
@@ -249,7 +249,7 @@ bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst,RawData *rawDat
                                     y += (static_cast<double>(dy) / scale);
                                     //At this point x/y is a coord encoded in tile coord space, from 0 to TILE_SIZE
                                     //Convert to epsg:3785, then to degrees, then to radians
-                                    Point2f loc((tileOriginX + x / sx),(tileOriginY - y / sy));
+                                    Point2d loc((tileOriginX + x / sx),(tileOriginY - y / sy));
                                     if (localCoords) {
                                         point = loc;
                                     } else {
@@ -267,11 +267,11 @@ bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst,RawData *rawDat
                                         firstCoord = point;
                                     }
                                     
-                                    lin->pts.push_back(point);
+                                    lin->pts.push_back(Point2f(point.x(),point.y()));
                                 } else if (cmd == (SEG_CLOSE & ((1 << cmd_bits) - 1))) {
                                     //NSLog(@"Close line, layer:%@", layerName);
                                     if(lin->pts.size() > 0) { //We've already got a line, finish it
-                                        lin->pts.push_back(firstCoord);
+                                        lin->pts.push_back(Point2f(firstCoord.x(),firstCoord.y()));
                                         lin->initGeoMbr();
                                         vecObj->shapes.insert(lin);
                                         lin.reset();
@@ -310,7 +310,7 @@ bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst,RawData *rawDat
                                     y += (static_cast<double>(dy) / scale);
                                     //At this point x/y is a coord is encoded in tile coord space, from 0 to TILE_SIZE
                                     //Convert to epsg:3785, then to degrees, then to radians
-                                    Point2f loc((tileOriginX + x / sx),(tileOriginY - y / sy));
+                                    Point2d loc((tileOriginX + x / sx),(tileOriginY - y / sy));
                                     if (localCoords) {
                                         point = loc;
                                     } else {
@@ -323,10 +323,10 @@ bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst,RawData *rawDat
                                         //TODO: does this ever happen when we are part way through a shape? holes?
                                     }
                                     
-                                    ring.push_back(point);
+                                    ring.push_back(Point2f(point.x(),point.y()));
                                 } else if (cmd == (SEG_CLOSE & ((1 << cmd_bits) - 1))) {
                                     if(ring.size() > 0) { //We've already got a line, finish it
-                                        ring.push_back(firstCoord); //close the loop
+                                        ring.push_back(Point2f(firstCoord.x(),firstCoord.y())); //close the loop
                                         shape->loops.push_back(ring); //add loop to shape
                                         ring.clear(); //reuse the ring
                                     }
@@ -365,14 +365,14 @@ bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst,RawData *rawDat
                                     //At this point x/y is a coord is encoded in tile coord space, from 0 to TILE_SIZE
                                     //Covert to epsg:3785, then to degrees, then to radians
                                     if(x > 0 && x < 256 && y > 0 && y < 256) {
-                                        Point2f loc((tileOriginX + x / sx),(tileOriginY - y / sy));
+                                        Point2d loc((tileOriginX + x / sx),(tileOriginY - y / sy));
                                         if (localCoords) {
                                             point = loc;
                                         } else {
                                             point.x() = DegToRad((loc.x() / MAX_EXTENT) * 180.0);
                                             point.y() = 2 * atan(exp(DegToRad((loc.y() / MAX_EXTENT) * 180.0))) - M_PI_2;
                                         }
-                                        shape->pts.push_back(point);
+                                        shape->pts.push_back(Point2f(point.x(),point.y()));
                                     }
                                 } else if (cmd == (SEG_CLOSE & ((1 << cmd_bits) - 1))) {
 //                                    NSLog(@"Close point feature?");

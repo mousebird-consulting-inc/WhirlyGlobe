@@ -190,6 +190,9 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
         vecInfo.width = width;
     }
     vecInfo.widthExp = paint.width->expression();
+    // Scale by the lineScale
+    if (vecInfo.widthExp)
+        vecInfo.widthExp->scaleBy(lineScale);
     vecInfo.colorExp = paint.color->expression();
     vecInfo.opacityExp = paint.opacity->expression();
     bool include = color && width > 0.0;

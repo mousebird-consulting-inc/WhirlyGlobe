@@ -49,6 +49,12 @@ FloatExpressionInfo::FloatExpressionInfo(const FloatExpressionInfo &that)
 {
 }
 
+void FloatExpressionInfo::scaleBy(double scale)
+{
+    for (unsigned int ii=0;ii<stopOutputs.size();ii++)
+        stopOutputs[ii] *= scale;
+}
+
 ColorExpressionInfo::ColorExpressionInfo()
 {
 }

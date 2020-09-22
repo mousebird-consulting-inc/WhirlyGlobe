@@ -696,7 +696,7 @@ fragment float4 fragmentTri_wideVec(
     if (across > vert.w2-fragArgs.wideVec.edge)
         alpha = (vert.w2-across)/fragArgs.wideVec.edge;
     
-    return vert.dotProd > 0.0 ? fragArgs.wideVec.color * alpha * patternVal : float4(0.0);
+    return vert.dotProd > 0.0 ? float4(fragArgs.wideVec.color.rgb,fragArgs.wideVec.color.a*alpha) * patternVal : float4(0.0);
 }
 
 struct VertexTriSSArgBufferA {

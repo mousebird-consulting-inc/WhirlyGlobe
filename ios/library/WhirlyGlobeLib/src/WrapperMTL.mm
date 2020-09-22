@@ -424,7 +424,7 @@ void FloatExpressionToMtl(FloatExpressionInfoRef expInfo,WhirlyKitShader::FloatE
     }
     mtlExp.numStops = std::min(std::min(expInfo->stopInputs.size(),expInfo->stopOutputs.size()),(size_t)WKSExpStops);
     for (unsigned int ii=0;ii<mtlExp.numStops;ii++) {
-        mtlExp.base = 1.0;
+        mtlExp.base = expInfo->base;
         mtlExp.stopInputs[ii] = expInfo->stopInputs[ii];
         mtlExp.stopOutputs[ii] = expInfo->stopOutputs[ii];
     }
