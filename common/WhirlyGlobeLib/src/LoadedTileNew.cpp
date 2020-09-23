@@ -84,6 +84,9 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
     Point3d ll = geomManage->coordAdapter->localToDisplay(sceneCoordSys->geocentricToLocal(geomManage->coordSys->localToGeocentric(Point3d(theMbr.ll().x(),theMbr.ll().y(),0.0))));
     Point3d ur = geomManage->coordAdapter->localToDisplay(sceneCoordSys->geocentricToLocal(geomManage->coordSys->localToGeocentric(Point3d(theMbr.ur().x(),theMbr.ur().y(),0.0))));
     Point3d dispCenter = (ll+ur)/2.0;
+    // This clips the center to something 32 bit floating point can represent.
+    Point3f dispCenter3f(dispCenter.x(),dispCenter.y(),dispCenter.z());
+    dispCenter = Point3d(dispCenter3f.x(),dispCenter3f.y(),dispCenter3f.z());
 
     // Translation for the middle.  The drawable stores floats which isn't high res enough zoomed way in
     Point3d chunkMidDisp = (geomSettings.useTileCenters ? dispCenter : Point3d(0,0,0));

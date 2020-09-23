@@ -109,7 +109,7 @@ Point3f SphericalMercatorCoordSystem::localToGeocentric(Point3f localPt)
 
 Point3d SphericalMercatorCoordSystem::localToGeocentric(Point3d localPt)
 {
-    GeoCoord geoCoord = localToGeographic(localPt);
+    Point2d geoCoord = localToGeographicD(localPt);
     return GeoCoordSystem::LocalToGeocentric(Point3d(geoCoord.x(),geoCoord.y(),localPt.z()));
 }
     
