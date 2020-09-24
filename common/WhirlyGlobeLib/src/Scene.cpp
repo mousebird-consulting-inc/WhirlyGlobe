@@ -549,6 +549,7 @@ int Scene::retainZoomSlot()
     for (int ii=0;ii<MaplyMaxZoomSlots;ii++) {
         if (zoomSlots[ii] == MAXFLOAT) {
             found = ii;
+            zoomSlots[ii] = 0.0;  // Means we're retaining it for use
             break;
         }
     }
