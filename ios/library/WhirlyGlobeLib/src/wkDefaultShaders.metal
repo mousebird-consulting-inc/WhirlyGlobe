@@ -654,11 +654,12 @@ vertex ProjVertexTriWideVec vertexTri_wideVecExp(
     float realWidth2 = w2 * min(uniforms.screenSizeInDisplayCoords.x,uniforms.screenSizeInDisplayCoords.y) / min(uniforms.frameSize.x,uniforms.frameSize.y);
     float t0 = vert.c0 * realWidth2;
     t0 = clamp(t0,0.0,1.0);
-    float3 realPos = (vert.p1 - vert.position) * t0 + vert.n0 * realWidth2 + pos;
+    float3 posOffset = (vert.p1 - vert.position) * t0 + vert.n0 * realWidth2;
     float texScale = min(uniforms.frameSize.x,uniforms.frameSize.y)/(uniforms.screenSizeInDisplayCoords.x * vertArgs.wideVec.texRepeat);
     float texPos = ((vert.texInfo.z - vert.texInfo.y) * t0 + vert.texInfo.y + vert.texInfo.w * realWidth2) * texScale;
     outVert.texCoord = float2(vert.texInfo.x, texPos);
-    float4 screenPos = uniforms.pMatrix * (uniforms.mvMatrix * float4(realPos,1.0) + uniforms.mvMatrixDiff * float4(realPos,1.0));
+    float4 screenPos = uniforms.pMatrix * (uniforms.mvMatrix * float4(pos,1.0) + uniforms.mvMatrixDiff * float4(pos,1.0)) +
+            uniforms.pMatrix * (uniforms.mvMatrix * float4(posOffset,0.0) + uniforms.mvMatrixDiff * float4(posOffset,0.0));
     screenPos /= screenPos.w;
     outVert.position = float4(screenPos.xy,0,1.0);
 
