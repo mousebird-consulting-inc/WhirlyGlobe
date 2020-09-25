@@ -110,7 +110,9 @@ public:
     void addRectangle(const Point3d &worldLoc,double rotation,bool keepUpright,const Point2d *coord,const TexCoord *texCoords,const RGBAColor &color);
 
     /// Add a whole bunch of predefined Scene Objects
+    /// These will be sorted by orderBy
     void addScreenObjects(std::vector<ScreenSpaceObject> &screenObjects);
+    void addScreenObjects(std::vector<ScreenSpaceObject *> &screenObjects);
     
     /// Add a single screen space object
     void addScreenObject(const ScreenSpaceObject &screenObject);
@@ -223,6 +225,7 @@ public:
     void setFade(TimeInterval fadeUp,TimeInterval fadeDown);
     void setOffset(const Point2d &offset);
     void setPeriod(TimeInterval period);
+    void setOrderBy(long orderBy);
     
     void addGeometry(const ConvexGeometry &geom);
     std::vector<ConvexGeometry> getGeometry() const { return geometry; }
@@ -237,6 +240,7 @@ protected:
     TimeInterval startTime,endTime;
     Point2d offset;
     double rotation;
+    long orderBy;
     bool keepUpright;
     ScreenSpaceBuilder::DrawableState state;
     std::vector<ConvexGeometry> geometry;

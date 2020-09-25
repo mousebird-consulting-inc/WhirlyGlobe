@@ -95,6 +95,13 @@
   */
 @property (nonatomic,assign) CGSize layoutSize;
 
+/**
+    Screen markers are usually grouped together for rendering efficiency.  This controls the order of the marker within that grouping.
+    orderBy is less important than drawPriority.
+    Default is 0 and means no ordering.
+ */
+@property (nonatomic,assign) long orderBy;
+
 /** 
     Offset in screen coordinates.
     

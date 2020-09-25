@@ -837,6 +837,9 @@ public:
             wgMarker->isSelectable = true;
             wgMarker->selectID = Identifiable::genId();
         }
+        if (marker.orderBy > 0) {
+            wgMarker->orderBy = marker.orderBy;
+        }
         wgMarker->layoutImportance = marker.layoutImportance;
 
         if (marker.vertexAttributes)

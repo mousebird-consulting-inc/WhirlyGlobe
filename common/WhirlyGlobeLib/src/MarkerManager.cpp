@@ -97,7 +97,7 @@ Marker::Marker()
     height(0), width(0),
     layoutHeight(-1.0), layoutWidth(-1.0),
     rotation(0), offset(0,0), period(0),
-    timeOffset(0), layoutImportance(MAXFLOAT)
+    timeOffset(0), layoutImportance(MAXFLOAT), orderBy(-1)
 {
 }
 
@@ -193,6 +193,9 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
             
             if (!marker->uniqueID.empty() && layoutObj)
                 layoutObj->uniqueID = marker->uniqueID;
+
+            if (marker->orderBy >= 0)
+                shape->setOrderBy(marker->orderBy);
 
             shape->setPeriod(marker->period);
             
@@ -380,11 +383,9 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
     if (!screenShapes.empty())
     {
         ScreenSpaceBuilder ssBuild(renderer,coordAdapter,renderer->getScale());
+        ssBuild.addScreenObjects(screenShapes);
         for (unsigned int ii=0;ii<screenShapes.size();ii++)
-        {
-            ssBuild.addScreenObject(*(screenShapes[ii]));
             delete screenShapes[ii];
-        }
         ssBuild.flushChanges(changes, markerRep->drawIDs);
     }
     

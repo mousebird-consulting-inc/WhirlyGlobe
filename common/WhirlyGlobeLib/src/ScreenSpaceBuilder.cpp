@@ -318,6 +318,9 @@ void ScreenSpaceBuilder::addRectangle(const Point3d &worldLoc,double rotation,bo
 
 void ScreenSpaceBuilder::addScreenObjects(std::vector<ScreenSpaceObject> &screenObjects)
 {
+    std::sort(screenObjects.begin(),screenObjects.end(),
+                  [](const ScreenSpaceObject &a, const ScreenSpaceObject &b) {return a.orderBy < b.orderBy; });
+    
     for (unsigned int ii=0;ii<screenObjects.size();ii++)
     {
         ScreenSpaceObject &ssObj = screenObjects[ii];
@@ -326,6 +329,19 @@ void ScreenSpaceBuilder::addScreenObjects(std::vector<ScreenSpaceObject> &screen
     }
 }
     
+void ScreenSpaceBuilder::addScreenObjects(std::vector<ScreenSpaceObject *> &screenObjects)
+{
+    std::sort(screenObjects.begin(),screenObjects.end(),
+                  [](const ScreenSpaceObject *a, const ScreenSpaceObject *b) {return a->orderBy < b->orderBy; });
+
+    for (unsigned int ii=0;ii<screenObjects.size();ii++)
+    {
+        ScreenSpaceObject *ssObj = screenObjects[ii];
+        
+        addScreenObject(*ssObj);
+    }
+}
+
 void ScreenSpaceBuilder::addScreenObject(const ScreenSpaceObject &ssObj)
 {
     for (unsigned int ii=0;ii<ssObj.geometry.size();ii++)
@@ -408,7 +424,7 @@ ScreenSpaceObject::ScreenSpaceObject::ConvexGeometry::ConvexGeometry()
 }
     
 ScreenSpaceObject::ScreenSpaceObject()
-    : enable(true), startEnable(0.0), endEnable(0.0), worldLoc(0,0,0), endWorldLoc(0,0,0), startTime(0.0), endTime(0.0), offset(0,0), rotation(0), keepUpright(false)
+    : enable(true), startEnable(0.0), endEnable(0.0), worldLoc(0,0,0), endWorldLoc(0,0,0), startTime(0.0), endTime(0.0), offset(0,0), rotation(0), keepUpright(false), orderBy(-1)
 {
 }
 
@@ -523,6 +539,11 @@ void ScreenSpaceObject::setOffset(const Point2d &inOffset)
 void ScreenSpaceObject::setPeriod(TimeInterval period)
 {
     state.period = period;
+}
+
+void ScreenSpaceObject::setOrderBy(long inOrderBy)
+{
+    orderBy = inOrderBy;
 }
 
 void ScreenSpaceObject::addGeometry(const ConvexGeometry &geom)

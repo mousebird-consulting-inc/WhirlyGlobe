@@ -32,6 +32,7 @@
     _offset = CGPointMake(0, 0);
     _layoutSize = CGSizeMake(-1.0, -1.0);
     _period = 0.0;
+    _orderBy = 0;
     
     return self;
 }

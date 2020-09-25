@@ -133,6 +133,8 @@ public:
     /// Value to use for the layout engine.  Set to MAXFLOAT by
     ///  default, which will always display.
     float layoutImportance;
+    /// Ordering within rendering group
+    long orderBy;
     /// Passed through the system as a unique identifier
     std::string uniqueID;
     /// A list of vertex attributes to apply to the marker
