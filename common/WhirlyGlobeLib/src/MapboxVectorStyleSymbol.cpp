@@ -313,8 +313,10 @@ Marker *MapboxVectorLayerSymbol::setupMarker(PlatformThreadInfo *inst,
     }
     
     double size = layout.iconSize->valForZoom(tileInfo->ident.level);
-    markerSize.x() *= size;
-    markerSize.y() *= size;
+    if (!layout.iconSize->isExpression()) {
+        markerSize.x() *= size;
+        markerSize.y() *= size;
+    }
     SimpleIdentity markerTexID = subTex.getId();
 
     Marker *marker = new Marker();
