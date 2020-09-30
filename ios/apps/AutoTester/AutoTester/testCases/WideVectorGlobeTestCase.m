@@ -27,11 +27,18 @@
 }
 
 
-- (NSArray *)addGeoJson:(NSString*)name dashPattern:(NSArray*)dashPattern width:(CGFloat)width viewC:(MaplyBaseViewController *)baseViewC
+- (NSArray *)addGeoJson:(NSString*)name dashPattern:(NSArray*)dashPattern dashImage:(NSString *)imageName width:(CGFloat)width repeatLen:(CGFloat)repeatLen viewC:(MaplyBaseViewController *)baseViewC
 {
     MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] init];
-    [lineTexBuilder setPattern:dashPattern];
-    UIImage *lineImage = [lineTexBuilder makeImage];
+    
+    // Might be a pre-baked image
+    UIImage *lineImage = imageName ? [UIImage imageNamed:imageName] : nil;
+    
+    // Must just be a pattern
+    if (!lineImage) {
+        [lineTexBuilder setPattern:dashPattern];
+        lineImage = [lineTexBuilder makeImage];
+    }
     MaplyTexture *lineTexture = [baseViewC addTexture:lineImage
                                           imageFormat:MaplyImageIntRGBA
                                             wrapFlags:MaplyImageWrapY
@@ -57,6 +64,7 @@
                                                                       kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
                                                                       // More than 10 degrees need a bevel join
                                                                       kMaplyWideVecMiterLimit: @(10),
+                                                                      kMaplyWideVecTexRepeatLen: @(repeatLen),
                                                                       kMaplyVecWidth: @(width)}
                                                               mode:MaplyThreadCurrent];
             MaplyComponentObject *obj2 = [baseViewC addVectors:@[vecObj]
@@ -78,8 +86,13 @@
 
 - (NSArray *)addGeoJson:(NSString*)name viewC:(MaplyBaseViewController *)viewC
 {
-    return [self addGeoJson:name dashPattern:@[@8, @8] width:4 viewC:viewC];
+    return [self addGeoJson:name dashPattern:@[@8, @8] dashImage:nil width:4 repeatLen:32 viewC:viewC];
     //    return [self addGeoJson:name dashPattern:@[@8, @8] width:20 viewC:viewC];
+}
+
+- (void)addBigPattern:(NSString *)name viewC:(MaplyBaseViewController *)viewC
+{
+    [self addGeoJson:name dashPattern:nil dashImage:@"c-dash" width:50 repeatLen:150.0 viewC:viewC];
 }
 
 - (NSArray *)addWideVectors:(MaplyVectorObject *)vecObj baseViewC: (MaplyBaseViewController*) baseViewC dashedLineTex: (MaplyTexture*) dashedLineTex filledLineTex: (MaplyTexture*) filledLineTex
@@ -113,6 +126,8 @@
 - (void)wideLineTest:(MaplyBaseViewController *)viewC
 {
     [self addGeoJson:@"USA.geojson" viewC:viewC];
+    
+//    [self addBigPattern:@"CAN.geojson" viewC:viewC];
 }
 
 

@@ -20,6 +20,10 @@
 
 package com.mousebird.maply;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * The attribute dictionary is a collection of name/value pairs.
  * We use it to store (and modify) attributes on VectorObject structures,
@@ -91,6 +95,24 @@ public class AttrDictionary
 
     // Merge in key-value pairs from another dictionary
     public native void addEntries(AttrDictionary other);
+
+    // Return the full list of keys
+	public Set<String> keySet() {
+		Set<String> keys = null;
+
+		String[] nativeKeys = getKeySet();
+		if (nativeKeys != null) {
+			keys = new HashSet<String>();
+			for (String key : nativeKeys) {
+				if (key != null)
+					keys.add(key);
+			}
+		}
+
+		return keys;
+	}
+
+	private native String[] getKeySet();
 	
 	static
 	{

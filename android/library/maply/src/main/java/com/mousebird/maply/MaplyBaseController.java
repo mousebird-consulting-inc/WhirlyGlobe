@@ -12,6 +12,7 @@ import android.graphics.PixelFormat;
 import android.graphics.drawable.ColorDrawable;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -20,13 +21,16 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.Dispatcher;
-import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
-import com.squareup.okhttp.Response;
+import org.jetbrains.annotations.NotNull;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Dispatcher;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 import java.io.IOException;
 import java.nio.FloatBuffer;
@@ -148,10 +152,10 @@ public class MaplyBaseController
 
 			// This little dance lets the OKHttp client shutdown and then reject any random calls
 			// we may send its way
-			Dispatcher dispatch = httpClient.getDispatcher();
+			Dispatcher dispatch = httpClient.dispatcher();
 			try {
 				if (dispatch != null) {
-					ExecutorService service = dispatch.getExecutorService();
+					ExecutorService service = dispatch.executorService();
 					if (service != null) {
 						ThreadPoolExecutor exec = (ThreadPoolExecutor) service;
 						exec.setRejectedExecutionHandler(new ThreadPoolExecutor.DiscardPolicy());
@@ -471,11 +475,11 @@ public class MaplyBaseController
 			OkHttpClient client = new OkHttpClient();
 			client.newCall(request).enqueue(new Callback() {
 				@Override
-				public void onFailure(Request request, IOException e) {
+				public void onFailure(@NotNull Call call, @NotNull IOException e) {
 				}
 
 				@Override
-				public void onResponse(Response response) throws IOException {
+				public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
 					// We got a response, so save that in prefs
 					if (activity != null) {
 						SharedPreferences prefs = activity.getSharedPreferences("WGMaplyPrefs", Context.MODE_PRIVATE);
@@ -630,10 +634,18 @@ public class MaplyBaseController
 
 			if (httpClient != null)
 			{
-				if (httpClient.getDispatcher() != null && httpClient.getDispatcher().getExecutorService() != null)
-					httpClient.getDispatcher().getExecutorService().shutdown();
-				if (httpClient.getConnectionPool() != null)
-					httpClient.getConnectionPool().evictAll();
+				final OkHttpClient theHttpClient = httpClient;
+
+				// Android gets annoyed sometimes if you run this on the main thread
+				AsyncTask.execute(new Runnable() {
+					@Override
+					public void run() {
+						if (theHttpClient.dispatcher() != null && theHttpClient.dispatcher().executorService() != null)
+							theHttpClient.dispatcher().executorService().shutdown();
+						if (theHttpClient.connectionPool() != null)
+							theHttpClient.connectionPool().evictAll();
+					}
+				});
 				httpClient = null;
 			}
 

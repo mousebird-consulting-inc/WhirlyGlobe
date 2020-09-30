@@ -24,11 +24,14 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 import org.apache.commons.io.IOUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -110,14 +113,14 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 	}
 
 	// Connection task fetches a single image
-	private class ConnectionTask implements com.squareup.okhttp.Callback {
+	private class ConnectionTask implements Callback {
         MultiplexTileSource tileSource = null;
         QuadImageTileLayerInterface layer = null;
         MaplyTileID tileID = null;
         int frame = -1;
         URL url = null;
         String locFile = null;
-        com.squareup.okhttp.Call call;
+        Call call;
         Bitmap bm = null;
         public File cacheFile = null;
         boolean isCanceled = false;
@@ -182,7 +185,9 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
         }
 
         // Callback from OK HTTP on tile loading failure
-        public void onFailure(Request request, IOException e) {
+
+		@Override
+		public void onFailure(@NotNull Call call, @NotNull IOException e) {
 			// Ignore cancels
 			if (e != null && e.getLocalizedMessage().contains("Canceled"))
 				return;
@@ -191,7 +196,9 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
         }
 
         // Callback from OK HTTP on success
-        public void onResponse(Response response) {
+
+		@Override
+		public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
             if (isCanceled)
                 return;
 

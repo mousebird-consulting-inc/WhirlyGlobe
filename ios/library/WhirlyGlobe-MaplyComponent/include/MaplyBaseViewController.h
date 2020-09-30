@@ -1040,6 +1040,14 @@
 - (void)setMaxLayoutObjects:(int)maxLayoutObjects;
 
 /**
+ Screen markers and labels can have uniqueIDs.  We use these to ensure we're only displaying one version of an object with, say, vector tiles
+ that load multiple levels.
+ 
+ Now let's say you want to select some objects.  This will let you pull them out of the usual layout logic so they'll always be displayed.
+ */
+- (void)setLayoutOverrideIDs:(NSArray *__nullable)uuids;
+
+/**
     Normally the layout layer runs periodically if you change something or when you move around.
     You can ask it to run ASAP right here.  Layout runs on its own thread, so there may still be a delay.
  */

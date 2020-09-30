@@ -58,6 +58,7 @@ public:
 	{
 		jobject obj = env->NewObject(theClass,initMethodID);
 		setHandle(env, obj, cObj);
+
 		return obj;
 	}
 
@@ -88,7 +89,7 @@ public:
 	{
 		if (!t)
 		{
-			__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Null handle in setHandle()");
+//			__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Null handle in setHandle()");
 			return;
 		}
 	    jlong handle = reinterpret_cast<jlong>(t);

@@ -27,7 +27,7 @@ Pod::Spec.new do |s|
   s.source = { :git => 'https://github.com/mousebird/WhirlyGlobe.git', :branch => 'develop' }
 
   s.compiler_flags = '-D__USE_SDL_GLES__ -D__IPHONEOS__ -DSQLITE_OPEN_READONLY -DHAVE_PTHREAD=1 -DUNORDERED=1 -DLASZIPDLL_EXPORTS=1'
-  s.xcconfig = { "HEADER_SEARCH_PATHS" => " \"$(PODS_ROOT)/eigen/\" \"$(PODS_ROOT)/KissXML/KissXML/\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/protobuf/src/\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/laszip/include/\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/clipper\" \"$(SDKROOT)/usr/include/libxml2\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/glues/include/\" \"$(PODS_ROOT)/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/private/\" \"$(PODS_ROOT)/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_tiles/\" " }
+  s.xcconfig = { "HEADER_SEARCH_PATHS" => " \"$(PODS_ROOT)/eigen/\" \"$(PODS_ROOT)/KissXML/KissXML/\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/protobuf/src/\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/laszip/include/\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/clipper\" \"$(SDKROOT)/usr/include/libxml2\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/glues/include/\" \"$(PODS_ROOT)/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/private/\" \"$(PODS_ROOT)/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_tiles/\" \"$(PODS_ROOT)/WhirlyGlobe/common/local_libs/eigen/\" " }
 
   s.default_subspec = 'MaplyComponent'
 
@@ -38,7 +38,8 @@ Pod::Spec.new do |s|
         'common/local_libs/protobuf/src/google/protobuf/*.{cc,h}', 'common/local_libs/protobuf/src/google/protobuf/stubs/*.{cc,h}', 'common/local_libs/protobuf/src/google/protobuf/io/*.{cc,h}', 'common/local_libs/protobuf/src/google/protobuf/testing/*.h',
         'common/local_libs/shapefile/**/*.{c,h}'
     ll.preserve_paths = 'common/local_libs/protobuf/src/google/protobuf/*.h', 'common/local_libs/protobuf/src/google/protobuf/stubs/*.h', 'common/local_libs/protobuf/src/google/protobuf/io/*.h',
-        'common/local_libs/laszip/include/laszip/*.h', 'common/local_libs/laszip/src/*.hpp'
+        'common/local_libs/laszip/include/laszip/*.h', 'common/local_libs/laszip/src/*.hpp',
+        'common/local_libs/eigen/Eigen/*', 'common/local_libs/eigen/Eigen/**/*.h'
     ll.private_header_files = 'common/local_libs/aaplus/**/*.h',
         'common/local_libs/clipper/cpp/*.hpp',
         'common/local_libs/laszip/include/laszip/*.h','common/local_libs/laszip/src/*.hpp',
@@ -62,7 +63,6 @@ Pod::Spec.new do |s|
     mc.dependency 'FMDB'
     mc.dependency 'libjson'
     mc.dependency 'KissXML'
-    mc.dependency 'eigen'
     mc.dependency 'proj4'
     mc.libraries = 'z', 'xml2', 'c++', 'sqlite3'
     mc.frameworks = 'CoreLocation', 'MobileCoreServices', 'SystemConfiguration', 'CFNetwork', 'UIKit', 'OpenGLES'

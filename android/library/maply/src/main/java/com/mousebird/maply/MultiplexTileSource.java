@@ -24,11 +24,13 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
+import org.jetbrains.annotations.NotNull;
 
-import org.apache.commons.io.IOUtils;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -40,6 +42,8 @@ import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import static com.mousebird.maply.utils.OkHttpUtils.cancel;
 
 /**
  * The multiplex tile source takes a list of remote tile info objects for the
@@ -110,14 +114,14 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 	}
 
 	// Connection task fetches a single image
-	private class ConnectionTask implements com.squareup.okhttp.Callback {
+	private class ConnectionTask implements Callback {
         MultiplexTileSource tileSource = null;
         QuadImageTileLayerInterface layer = null;
         MaplyTileID tileID = null;
         int frame = -1;
         URL url = null;
         String locFile = null;
-        com.squareup.okhttp.Call call;
+        Call call;
         Bitmap bm = null;
         public File cacheFile = null;
         boolean isCanceled = false;
@@ -140,13 +144,15 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
                     cacheFile = new File(locFile);
                     if (cacheFile.exists()) {
                         BufferedInputStream aBufferedInputStream = new BufferedInputStream(new FileInputStream(cacheFile));
-			byte[] rawImage = IOUtils.toByteArray(aBufferedInputStream);
+                        final byte[] rawImage = new byte[(int)cacheFile.length()];
+						aBufferedInputStream.read(rawImage, 0, rawImage.length);
+						aBufferedInputStream.close();
 
-			bm = bitmapFromRaw(rawImage);
+						bm = bitmapFromRaw(rawImage);
 
-			if (debugOutput)
-	                       Log.d("Maply", "Read cached file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
-                    }
+						if (debugOutput)
+							Log.d("Maply", "Read cached file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
+                	    }
                 }
 
                 if (bm != null) {
@@ -182,7 +188,8 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
         }
 
         // Callback from OK HTTP on tile loading failure
-        public void onFailure(Request request, IOException e) {
+		@Override
+		public void onFailure(@NotNull Call call, @NotNull IOException e) {
 			// Ignore cancels
 			if (e != null && e.getLocalizedMessage().contains("Canceled"))
 				return;
@@ -191,8 +198,9 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
         }
 
         // Callback from OK HTTP on success
-        public void onResponse(Response response) {
-            if (isCanceled)
+		@Override
+		public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+			if (isCanceled)
                 return;
 
 			if (response.code() != 404) {
@@ -576,7 +584,7 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 	{
 		synchronized (this) {
 			if (client != null)
-				client.cancel(NET_TAG);
+				cancel(client, NET_TAG);
 			client = null;
 
 			controller = null;

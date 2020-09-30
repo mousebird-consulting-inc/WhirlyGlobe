@@ -294,7 +294,7 @@ public class VectorObject implements Iterable<VectorObject>
 	}
 	private static native void nativeInit();
 	native void initialise();
-	native void dispose();
+	public native void dispose();
 
 	private long nativeHandle;
 }

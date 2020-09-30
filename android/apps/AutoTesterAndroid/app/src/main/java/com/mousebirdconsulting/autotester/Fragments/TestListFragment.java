@@ -1,11 +1,13 @@
 package com.mousebirdconsulting.autotester.Fragments;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +36,7 @@ import com.mousebirdconsulting.autotester.TestCases.CustomBNGTileSource;
 import com.mousebirdconsulting.autotester.TestCases.GeomPointsTestCase;
 import com.mousebirdconsulting.autotester.TestCases.GestureFeedbackTestCase;
 //import com.mousebirdconsulting.autotester.TestCases.GreatCircleTestCase;
+import com.mousebirdconsulting.autotester.TestCases.HeadingTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ImageSingleLevelTestCase;
 import com.mousebirdconsulting.autotester.TestCases.LIDARTestCase;
 import com.mousebirdconsulting.autotester.TestCases.LayerShutdownTestCase;
@@ -130,6 +133,7 @@ public class TestListFragment extends Fragment {
 			testCases.add(new ClusteredMarkersTestCase(getActivity()));
 			testCases.add(new StickersTestCase(getActivity()));
 			testCases.add(new GestureFeedbackTestCase(getActivity()));
+			testCases.add(new HeadingTestCase(getActivity()));
 			testCases.add(new SimpleParticleSystemTestCase(getActivity()));
 			testCases.add(new ParticleSystemTestCase(getActivity()));
 			testCases.add(new ComplexParticleSystemTestCase(getActivity()));

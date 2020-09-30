@@ -350,7 +350,17 @@ void Dictionary::addEntries(const Dictionary *other)
 {
     for (FieldMap::const_iterator it = other->fields.begin();it != other->fields.end();++it)
         fields[it->first] = it->second->copy();
+}
 
+std::vector<std::string> Dictionary::getKeys() const
+{
+    std::vector<std::string> keys;
+
+    for (const auto field : fields) {
+        keys.push_back(field.first);
+    }
+
+    return keys;
 }
     
 }

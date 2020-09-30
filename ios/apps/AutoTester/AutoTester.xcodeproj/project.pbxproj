@@ -37,6 +37,8 @@
 		2B656742237B789700F3CC1D /* mapbox_satellite-v9.json in Resources */ = {isa = PBXBuildFile; fileRef = 2B656741237B789700F3CC1D /* mapbox_satellite-v9.json */; };
 		2B6953651C7E601A007FC51E /* AnimatedColorRampTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B6953641C7E601A007FC51E /* AnimatedColorRampTestCase.m */; };
 		2B6953681C7E67DD007FC51E /* colorramp.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B6953671C7E67DD007FC51E /* colorramp.png */; };
+		2B7145EC23DF85080053D635 /* WideVectorGlobeTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B93D9661D41433500EAD280 /* WideVectorGlobeTestCase.m */; };
+		2B7145ED23DF850A0053D635 /* WideVectorGlobeTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B93D9661D41433500EAD280 /* WideVectorGlobeTestCase.m */; };
 		2B73D6AE207C0D5F00AF5095 /* NotoSans-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B8F3258201021CF006DDE27 /* NotoSans-Bold.ttf */; };
 		2B73D6AF207C0D5F00AF5095 /* NotoSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B8F3256201021CF006DDE27 /* NotoSans-Regular.ttf */; };
 		2B73D6B4207C106C00AF5095 /* GlobeSamplerTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B73D6B2207C106C00AF5095 /* GlobeSamplerTestCase.swift */; };
@@ -49,7 +51,6 @@
 		2B8849EB1E37F7CB0027C397 /* LIDARTestCase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B8849EA1E37F7CB0027C397 /* LIDARTestCase.mm */; };
 		2B8849FB1E37F9B30027C397 /* stadium-utm-quad-data.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 2B8849FA1E37F9B30027C397 /* stadium-utm-quad-data.sqlite */; };
 		2B91A22E1DC14B7500B72527 /* ImageSingleLevelTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B91A22D1DC14B7500B72527 /* ImageSingleLevelTestCase.swift */; };
-		2B93D9671D41433500EAD280 /* WideVectorGlobeTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B93D9661D41433500EAD280 /* WideVectorGlobeTestCase.m */; };
 		2B9DC6C62368A382005200B8 /* StartupShutdownTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B9DC6C52368A382005200B8 /* StartupShutdownTestCase.swift */; };
 		2BB4766920004763006AAACB /* WhirlyGlobeMaplyComponent.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8F858AFC1E7FE60C00037D4E /* WhirlyGlobeMaplyComponent.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		2BBB70831D5E9079009B67A6 /* VectorStyleTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BBB70821D5E9079009B67A6 /* VectorStyleTestCase.m */; };
@@ -569,7 +570,6 @@
 		8FDB56F71ECB9C0700993B7D /* VectorStyleTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BBB70821D5E9079009B67A6 /* VectorStyleTestCase.m */; };
 		8FDB56F81ECB9C0700993B7D /* ShapesTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8200C9E1BE9516300B22CF5 /* ShapesTestCase.m */; };
 		8FDB56F91ECB9C0700993B7D /* WMSTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = E5679F451CB72DE800369A15 /* WMSTestCase.m */; };
-		8FDB56FA1ECB9C0700993B7D /* WideVectorGlobeTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B93D9661D41433500EAD280 /* WideVectorGlobeTestCase.m */; };
 		8FDB56FB1ECB9C0700993B7D /* StarsSunTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8200C971BE93E6E00B22CF5 /* StarsSunTestCase.swift */; };
 		8FDB56FC1ECB9C0700993B7D /* Issue721TestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8820852A1DC81051008F8E76 /* Issue721TestCase.swift */; };
 		8FDB56FD1ECB9C0700993B7D /* TextureVectorTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC0FB771DCAA18A004125F1 /* TextureVectorTestCase.m */; };
@@ -1236,6 +1236,7 @@
 		2BE53AE81D258FE800B60FAD /* WhirlyGlobeMaplyComponent.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = WhirlyGlobeMaplyComponent.xcodeproj; path = "../../library/WhirlyGlobe-MaplyComponent/WhirlyGlobeMaplyComponent.xcodeproj"; sourceTree = "<group>"; };
 		2BFC7E4F1D132DCB0040E2A3 /* ScreenMarkersTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenMarkersTestCase.h; sourceTree = "<group>"; };
 		2BFC7E501D132DCB0040E2A3 /* ScreenMarkersTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ScreenMarkersTestCase.m; sourceTree = "<group>"; };
+		2BFDE8EA2397028E005A1FAC /* c-dash.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "c-dash.png"; path = "../../../resources/vectors/c-dash.png"; sourceTree = "<group>"; };
 		8810B2D11BA9D45F00446CE3 /* MaplyTesterBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MaplyTesterBridge.h; sourceTree = "<group>"; };
 		8820852A1DC81051008F8E76 /* Issue721TestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Issue721TestCase.swift; sourceTree = "<group>"; };
 		88231C781BA784BC00A95F2B /* ConfigViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ConfigViewController.xib; sourceTree = "<group>"; };
@@ -2059,6 +2060,7 @@
 		88FF5BDF1BC31D3C002F15CE /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				2BFDE8EA2397028E005A1FAC /* c-dash.png */,
 				2B656741237B789700F3CC1D /* mapbox_satellite-v9.json */,
 				2B65673F237B6D9C00F3CC1D /* mapbox_satellite-streets-v9.json */,
 				2B6567262376288100F3CC1D /* maptiler_basic.json */,
@@ -3704,6 +3706,7 @@
 				2BDEB3021C924842003259B3 /* ExtrudedModelTestCase.m in Sources */,
 				D8228A921BE77816001D6914 /* MovingScreenLabelsTestCase.swift in Sources */,
 				D8200CA41BE9624300B22CF5 /* LoftedPolysTestCase.m in Sources */,
+				2B7145EC23DF85080053D635 /* WideVectorGlobeTestCase.m in Sources */,
 				D8E12ED01BDEA2E400BB7BC7 /* WeatherShader.swift in Sources */,
 				88BF11521BCD9BF70002205E /* MaplyTestResult.m in Sources */,
 				2B656739237B1C4700F3CC1D /* GlyphProblemTestCase.m in Sources */,
@@ -3766,7 +3769,6 @@
 				2BBB70831D5E9079009B67A6 /* VectorStyleTestCase.m in Sources */,
 				D8200C9F1BE9516300B22CF5 /* ShapesTestCase.m in Sources */,
 				E5679F491CB72DE800369A15 /* WMSTestCase.m in Sources */,
-				2B93D9671D41433500EAD280 /* WideVectorGlobeTestCase.m in Sources */,
 				D8200C981BE93E6E00B22CF5 /* StarsSunTestCase.swift in Sources */,
 				8820852B1DC81051008F8E76 /* Issue721TestCase.swift in Sources */,
 				2BC0FB781DCAA18A004125F1 /* TextureVectorTestCase.m in Sources */,
@@ -3831,13 +3833,13 @@
 				8FDB56F11ECB9C0700993B7D /* LabelsTestCase.m in Sources */,
 				8FDB56F21ECB9C0700993B7D /* FullAnimationTest.m in Sources */,
 				8FDB56F31ECB9C0700993B7D /* LocationTrackingSimTestCase.swift in Sources */,
+				2B7145ED23DF850A0053D635 /* WideVectorGlobeTestCase.m in Sources */,
 				8FDB56F41ECB9C0700993B7D /* LocationTrackingRealTestCase.swift in Sources */,
 				8FDB56F51ECB9C0700993B7D /* MegaMarkersTestCase.m in Sources */,
 				8FDB56F61ECB9C0700993B7D /* VectorsTestCase.m in Sources */,
 				8FDB56F71ECB9C0700993B7D /* VectorStyleTestCase.m in Sources */,
 				8FDB56F81ECB9C0700993B7D /* ShapesTestCase.m in Sources */,
 				8FDB56F91ECB9C0700993B7D /* WMSTestCase.m in Sources */,
-				8FDB56FA1ECB9C0700993B7D /* WideVectorGlobeTestCase.m in Sources */,
 				8FDB56FB1ECB9C0700993B7D /* StarsSunTestCase.swift in Sources */,
 				8FDB56FC1ECB9C0700993B7D /* Issue721TestCase.swift in Sources */,
 				8FDB56FD1ECB9C0700993B7D /* TextureVectorTestCase.m in Sources */,

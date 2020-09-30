@@ -145,6 +145,8 @@ public class MapView extends View
 	native Point2d pointOnScreenFromPlane(Point3d pt,Matrix4d viewModelMatrix,Point2d frameSize);
 	// Minimum possible height above the surface
 	native double minHeightAboveSurface();
+	// Set minimum possible height above the surface
+	native void setMinHeightAboveSurface(double minHeightAboveSurface);
 	// Maximum possible height above the surface
 	native double maxHeightAboveSurface();
 	// Set the view location (including height)

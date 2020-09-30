@@ -357,6 +357,10 @@ using namespace WhirlyKit;
     }
 }
 
+- (void)stop
+{
+}
+
 @end
 
 @implementation MaplyDebugImageLoaderInterpreter
@@ -1183,6 +1187,8 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     dispatch_async(dispatch_get_main_queue(), ^{
         [self->viewC releaseSamplingLayer:self->samplingLayer forUser:self];
         self->samplingLayer = nil;
+        [self->loadInterp stop];
+        self->loadInterp = nil;
     });
 }
 

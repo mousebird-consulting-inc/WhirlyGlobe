@@ -78,10 +78,13 @@ using namespace WhirlyKit;
     if (!renderControl->scene)
         return;
     
+    for (auto sampLayer : samplingLayers)
+        [sampLayer cleanupLayers:sampLayer.layerThread scene:renderControl->scene];
+
     for (auto tileFetcher : tileFetchers)
         [tileFetcher shutdown];
     tileFetchers.clear();
-    
+        
     defaultClusterGenerator = nil;
     
     [[NSNotificationCenter defaultCenter] removeObserver:self];
@@ -1143,6 +1146,20 @@ static const float PerfOutputDelay = 15.0;
     LayoutManager *layoutManager = (LayoutManager *)renderControl->scene->getManager(kWKLayoutManager);
     if (layoutManager)
         layoutManager->setMaxDisplayObjects(maxLayoutObjects);
+}
+
+- (void)setLayoutOverrideIDs:(NSArray *)uuids
+{
+    std::set<std::string> uuidSet;
+    for (NSString *uuid in uuids) {
+        std::string uuidStr = [uuid cStringUsingEncoding:NSASCIIStringEncoding];
+        if (!uuidStr.empty())
+            uuidSet.insert(uuidStr);
+    }
+    
+    LayoutManager *layoutManager = (LayoutManager *)renderControl->scene->getManager(kWKLayoutManager);
+    if (layoutManager)
+        layoutManager->setOverrideUUIDs(uuidSet);
 }
 
 - (void)runLayout

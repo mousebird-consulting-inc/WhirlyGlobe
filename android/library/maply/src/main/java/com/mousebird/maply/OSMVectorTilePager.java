@@ -24,9 +24,9 @@ import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,10 +55,10 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 	int maxZoom = 0;
 	File cacheDir = null;
 	OkHttpClient client = new OkHttpClient();
-	
+
 	/**
 	 * Construct with the data we need to start.
-	 * 
+	 *
 	 * @param inMaplyControl The control we'll add geometry to as we go.
 	 * @param inRemotePath The remote path to the vector tiles.
 	 * @param inMinZoom Minimum zoom level to start at.  Normally 0, but you can cut off levels.
@@ -70,7 +70,7 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 		maplyControl = inMaplyControl;
 		remotePath = inRemotePath;
 		minZoom = inMinZoom;
-		maxZoom = inMaxZoom;		
+		maxZoom = inMaxZoom;
 	}
 
 	/**
@@ -88,7 +88,7 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 	public int maxZoom() {
 		return maxZoom;
 	}
-	
+
 	/**
 	 * Set the cache directory.  Do this once at the beginning.  Changing it will do strange things.
 	 * @param inDir Directory to set cache dir to.
@@ -104,14 +104,14 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 		QuadPagingLayer layer = null;
 		MaplyTileID tileID = null;
 		OSMVectorTilePager pager = null;
-		
+
 		ConnectionTask(OSMVectorTilePager inPager,QuadPagingLayer inLayer, MaplyTileID inTileID)
 		{
 			layer = inLayer;
 			tileID = inTileID;
 			pager = inPager;
 		}
-		
+
 	    @Override
 	    protected String doInBackground(String... urls) {
 	    	String aString = null;
@@ -128,13 +128,13 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 						return null;
 					}
 				}
-		    	
+
 				// Load the JSON from that URL
 			    Request request = new Request.Builder().url(url).build();
 
 			    Response response = client.newCall(request).execute();
 	    		aString = response.body().string();
-	    	} 
+	    	}
 	    	catch (IOException e) {
 //	    		Log.d("OSMVectorTilePager", e.toString());
 	    		pager.didNotLoad(layer,tileID);
@@ -144,20 +144,20 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 	    		pager.didLoad(layer,tileID,aString,false);
 	    	else
 	    		pager.didNotLoad(layer,tileID);
-	    	
+
 	    	return null;
 	    }
 
 	    @Override
-	    protected void onPostExecute(String result) 
+	    protected void onPostExecute(String result)
 	    {
 	    }
 
 	}
-	
+
 	// The paging layer calls us here to start paging a tile
 	@Override
-	public void startFetchForTile(final QuadPagingLayer layer,final MaplyTileID tileID) 
+	public void startFetchForTile(final QuadPagingLayer layer,final MaplyTileID tileID)
 	{
 		Log.i("OSMVectorTilePager","Starting Tile : " + tileID.level + " (" + tileID.x + "," + tileID.y + ")");
 
@@ -183,7 +183,7 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 	{
 		public ArrayList<VectorObject> vecs = new ArrayList<VectorObject>();
 	};
-	
+
 	// Sort vectors into groups based on their kind
 	HashMap<String,VectorGroup> sortIntoGroups(VectorObject vecs)
 	{
@@ -205,11 +205,11 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 			}
 			group.vecs.add(vec);
 			attrs.dispose();
-		}	
-		
+		}
+
 		return groups;
 	}
-	
+
 	// Style for a particular kind of road
 	class RoadStyle
 	{
@@ -227,9 +227,9 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 		public float red,green,blue;
 		public int drawPriority;
 	};
-	
+
 	HashMap<String,RoadStyle> roadStyles = null;
-	
+
 	// Initialize road styles
 	void initRoadStyles()
 	{
@@ -246,19 +246,19 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 			}
 		}
 	}
-		
+
 	// Style roads based on their type
 	void styleRoads(VectorObject roads,List<ComponentObject> compObjs)
 	{
 		if (roads == null)
 			return;
-		
+
 		initRoadStyles();
 		HashMap<String,VectorGroup> groups = sortIntoGroups(roads);
-		
+
 		// Note: Scale up for high res displays
 		float scale = 2;
-		
+
 		// Now work through what we find, matching up to styles
 		for (String roadType : groups.keySet())
 		{
@@ -278,7 +278,7 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 				roadInfo.setEnable(false);
 				compObjs.add(maplyControl.addVectors(group.vecs, roadInfo,MaplyBaseController.ThreadMode.ThreadCurrent));
 			}
-			
+
 			// Road itself
 			VectorInfo roadInfo = new VectorInfo();
 			roadInfo.disposeAfterUse = true;
@@ -289,18 +289,18 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 			compObjs.add(maplyControl.addVectors(group.vecs, roadInfo,MaplyBaseController.ThreadMode.ThreadCurrent));
 		}
 	}
-	
+
 	// Note: We need to share this so we don't go recreating characters all over the place
 	Typeface roadTypeface = Typeface.defaultFromStyle(Typeface.BOLD);
-	
+
 	// Add road labels.
 	void styleRoadLabels(VectorObject roads,List<ComponentObject> compObjs)
-	{		
+	{
 		if (roads == null)
 			return;
-		
+
 		ArrayList<ScreenLabel> labels = new ArrayList<ScreenLabel>();
-		
+
 		for (VectorObject road : roads)
 		{
 			AttrDictionary attrs = road.getAttributes();
@@ -318,8 +318,8 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 //                label.rotation = label.rotation + Math.PI;
 			label.text = name;
 			labels.add(label);
-		}	
-		
+		}
+
 		LabelInfo labelInfo = new LabelInfo();
     	labelInfo.setTextColor(0.f, 0.f, 0.f, 1.f);
     	labelInfo.setBackgroundColor(0.f, 0.f, 0.f, 0.f);
@@ -331,7 +331,7 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 	{
 		if (buildings == null)
 			return;
-		
+
 		VectorInfo buildingInfo = new VectorInfo();
 		buildingInfo.disposeAfterUse = true;
 		buildingInfo.setColor(1.f,186.f/255.f,103.f/255.f,1.f);
@@ -340,7 +340,7 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 		ComponentObject compObj = maplyControl.addVector(buildings,buildingInfo,MaplyBaseController.ThreadMode.ThreadCurrent);
 		compObjs.add(compObj);
 	}
-	
+
 	// Land styles are just colors
 	HashMap<String,Integer> landStyles = null;
 	void initLandStyles()
@@ -384,11 +384,11 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 	{
 		if (land == null)
 			return;
-		
+
 		initLandStyles();
 
 		HashMap<String,VectorGroup> groups = sortIntoGroups(land);
-		
+
 		// Now work through what we find, matching up to styles
 		for (String landType : groups.keySet())
 		{
@@ -406,7 +406,7 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 				landInfo.setFilled(true);
 				compObjs.add(maplyControl.addVectors(group.vecs, landInfo,MaplyBaseController.ThreadMode.ThreadCurrent));
 			}
-		}		
+		}
 	}
 
 	void styleWater(VectorObject water,List<ComponentObject> compObjs)
@@ -423,7 +423,7 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 		ComponentObject compObj = maplyControl.addVector(water, waterInfo,MaplyBaseController.ThreadMode.ThreadCurrent);
 		compObjs.add(compObj);
 	}
-	
+
 	// Apply the styling to show the data, and let the layer know
 	void showData(final QuadPagingLayer layer,Map<String,VectorObject> vecData,final MaplyTileID tileID)
 	{
@@ -434,7 +434,7 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 		styleBuildings(vecData.get("buildings"),compObjs);
 		styleLandUsage(vecData.get("land-usages"),compObjs);
 		styleWater(vecData.get("water-areas"),compObjs);
-		
+
 		layer.addData(compObjs, tileID);
 
 		// Let the layer know we loaded
@@ -456,15 +456,15 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 
 		// Parse the GeoJSON assembly into groups based on the type
 		Map<String,VectorObject> vecData = VectorObject.FromGeoJSONAssembly(json);
-		
+
 		// And display it
 		showData(layer,vecData,tileID);
-					
+
 		// Write it out to the cache
 		if (!wasCached)
 			writeToCache(vecData,tileID);
 	}
-	
+
 	// The connection task failed to load data.  Boo!
 	void didNotLoad(final QuadPagingLayer layer,final MaplyTileID tileID)
 	{
@@ -480,15 +480,15 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 					}
 				});
 	}
-	
+
 	// Filename for cache with type
 	String cacheName(MaplyTileID tileID,String type)
 	{
 		String fileName = type + "_" + tileID.level + "_" + tileID.x + "_" + tileID.y + ".bvec";
-		
+
 		return maplyControl.activity.getCacheDir().getAbsolutePath() + "/" + fileName;
 	}
-	
+
 	// Write the data layers out to the cache
 	void writeToCache(Map<String,VectorObject> vecData,MaplyTileID tileID)
 	{
@@ -500,7 +500,7 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 			vecObj.writeToFile(fileName);
 		}
 	}
-	
+
 	// Read the data layers out of the cache
 	Map<String,VectorObject> readFromCache(MaplyTileID tileID)
 	{
@@ -519,7 +519,7 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 				vecData.put(type, vecObj);
 			}
 		}
-		
+
 		if (vecData.size() > 0)
 			return vecData;
 		return null;

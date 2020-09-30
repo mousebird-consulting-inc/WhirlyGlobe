@@ -28,7 +28,7 @@ package com.mousebird.maply;
  */
 public class MapboxVectorTileParser
 {
-    MapboxVectorTileParser()
+    public MapboxVectorTileParser()
     {
         initialise();
     }

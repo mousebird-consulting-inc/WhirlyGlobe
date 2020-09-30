@@ -522,12 +522,28 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 		}
 	}
 
+	/**
+	 * Set the current heading and update any watchers.
+	 */
 	public void setHeading(final double heading)
 	{
 		if (!isCompletelySetup())
 			return;
 
 		globeView.cancelAnimation();
+		globeView.setHeading(heading);
+	}
+
+	/**
+	 * Return the current heading.
+	 */
+	public double getHeading() {
+		double heading = 0.0;
+		if (isCompletelySetup()) {
+			heading = globeView.getHeading();
+		}
+
+		return heading;
 	}
 
 	/**

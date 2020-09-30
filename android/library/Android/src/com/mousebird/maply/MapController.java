@@ -296,6 +296,14 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 	}
 
 	/**
+	 * Set minimal allowed height above surface
+	 * @param minHeightAboveSurface
+	 */
+	public void setMinHeightAboveSurface(double minHeightAboveSurface) {
+		mapView.setMinHeightAboveSurface(minHeightAboveSurface);
+	}
+
+	/**
 	 * For a given position, how high do we have to be to see the given area.
 	 * <p>
 	 * Even for 2D maps we represent things in terms of height.
