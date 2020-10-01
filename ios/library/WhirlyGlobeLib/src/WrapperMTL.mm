@@ -300,6 +300,8 @@ HeapManagerMTL::HeapManagerMTL(id<MTLDevice> mtlDevice)
 
 id<MTLHeap> HeapManagerMTL::findHeap(HeapType heapType,size_t &size)
 {
+    std::lock_guard<std::mutex> guardLock(lock);
+    
     HeapGroup &heapGroup = heapGroups[heapType];
     for (auto heap : heapGroup.heaps) {
         MTLSizeAndAlign sAlign = [mtlDevice heapBufferSizeAndAlignWithLength:size options:MTLResourceUsageRead];
@@ -322,6 +324,8 @@ id<MTLHeap> HeapManagerMTL::findHeap(HeapType heapType,size_t &size)
 
 id<MTLHeap> HeapManagerMTL::findTextureHeap(MTLTextureDescriptor *desc,size_t size)
 {
+    std::lock_guard<std::mutex> guardLock(texLock);
+
     for (auto heap : texGroups.heaps) {
         MTLSizeAndAlign sAlign = [mtlDevice heapBufferSizeAndAlignWithLength:size options:MTLResourceUsageRead];
         size = sAlign.size;

@@ -183,6 +183,8 @@ protected:
         std::vector<id<MTLHeap> > heaps;
     };
 
+    std::mutex lock;
+    std::mutex texLock;
     id<MTLDevice> mtlDevice;
     HeapGroup heapGroups[MaxType];
     HeapGroup texGroups;
@@ -204,7 +206,7 @@ public:
     // Buffers created for shared uniforms.
     // Wired into the various drawables individually
     BufferEntryMTL uniformBuff;
-    BufferEntryMTL lightingBuff;    
+    BufferEntryMTL lightingBuff;
 };
 
 /// Convert  a float expression into its Metal version
