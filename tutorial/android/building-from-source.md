@@ -6,9 +6,7 @@ prev_next:
     next: your-first-globe-or-map.html
 ---
 
-*Tutorial by Nicholas Hallahan.*
-
-Building the toolkit from source you'll be able to modify and customize WhirlyGlobe-Maply, and your changes will immediately be compiled into your project. If you plan on modifying this toolkit, building from source is your best option.
+Building the toolkit from source, you'll be able to modify and customize WhirlyGlobe-Maply, and your changes will immediately be compiled into your project. If you plan on modifying this toolkit, building from source is your best option.
 
 ### Clone Git Repository
 
@@ -25,14 +23,13 @@ cd WhirlyGlobe
 git checkout develop_3_0
 ```
 
-WhirlyGlobe-Maply uses a bunch of submodules for its dependencies.
+WhirlyGlobe-Maply uses two submodules for its dependencies.
 
 ```sh
 git submodule init
 git submodule update
 ```
 
-There are 13 git submodules that need to be cloned and initialized. This usually takes about a minute.
 
 ### local.properties
 
@@ -119,5 +116,7 @@ Android Studio will ask you to sync Gradle. If all goes well, it will sync witho
 
 Besides this "[Hello Earth](hello-earth.html)" project, there is an example app you can try out called `AutoTesterAndroid`. This is optional, but it is the quickest way to _see something work_. We have [brief instructions](auto-tester-android.html) for you to build AutoTesterAndroid.
 
+---
 
+*Tutorial by Nicholas Hallahan, Steve Gifford, Tim Sylvester.*
 
