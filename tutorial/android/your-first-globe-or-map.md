@@ -107,7 +107,10 @@ public class HelloGlobeFragment extends GlobeMapFragment {
         // `globeControl` is the controller when using MapDisplayType.Globe
         // `mapControl` is the controller when using MapDisplayType.Map
         // `baseControl` refers to whichever of them is used.
-        globeControl.animatePositionGeo(-3.6704803, 40.5023056, 6, 1.0);
+        double latitude = 40.5023056 * Math.PI / 180;
+        double longitude = -3.6704803 * Math.PI / 180;
+        double zoom_earth_radius = 0.5;
+        globeControl.animatePositionGeo(longitude, latitude, zoom_earth_radius, 1.0);
     }
 }
 ```
@@ -143,7 +146,7 @@ Open `app/res/layout/activity_main.xml` and select the "Code" view. Replace the 
 
 That's it! You can now build and run HelloGlobe. An interactive globe with a Stamen Watercolor base layer should appear.
 
-<img src="resources/stamen-whirly-globe.gif" alt="Hello Globe" style="max-width:400px; display: block; margin: auto;" />
+<img src="resources/stamen-globe.jpg" alt="Hello Globe" style="max-width:50%; display: block; margin: auto;" />
 
 ### Create a Map Fragment
 
@@ -216,7 +219,10 @@ public class HelloMapFragment extends GlobeMapFragment {
         // `globeControl` is the controller when using MapDisplayType.Globe
         // `mapControl` is the controller when using MapDisplayType.Map
         // `baseControl` refers to whichever of them is used.
-        mapControl.animatePositionGeo(-3.6704803, 40.5023056, 6, 1.0);
+        double latitude = 40.5023056 * Math.PI / 180;
+        double longitude = -3.6704803 * Math.PI / 180;
+        double zoom_earth_radius = 2.0;
+        mapControl.animatePositionGeo(longitude, latitude, zoom_earth_radius, 1.0);
     }
 }
 ```
@@ -257,7 +263,7 @@ In your `activity_main.xml`, comment out the `HelloGlobeFragment` and replace it
 
 With these changes, your app will now have a map instead of a globe. Go ahead and build and run. A map with a Stamen Watercolor base layer should appear.
 
-<img src="resources/stamen-maply.gif" alt="Hello Map" style="max-width:400px; display: block; margin: auto;" />
+<img src="resources/stamen-map.jpg" alt="Hello Map" style="max-width:50%; display: block; margin: auto;" />
 
 ---
 

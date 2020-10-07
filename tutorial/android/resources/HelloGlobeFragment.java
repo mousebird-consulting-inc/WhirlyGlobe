@@ -38,7 +38,8 @@ public class HelloGlobeFragment extends GlobeMapFragment {
         cacheDir.mkdir();
 
         // Set up access to the tile images
-        RemoteTileInfoNew tileInfo = new RemoteTileInfoNew("http://tile.stamen.com/watercolor/{z}/{x}/{y}.png",0, 18);
+        RemoteTileInfoNew tileInfo =
+                new RemoteTileInfoNew("http://tile.stamen.com/watercolor/{z}/{x}/{y}.png",0, 18);
         tileInfo.cacheDir = cacheDir;
 
         // Set up the globe parameters
@@ -59,6 +60,9 @@ public class HelloGlobeFragment extends GlobeMapFragment {
         // `globeControl` is the controller when using MapDisplayType.Globe
         // `mapControl` is the controller when using MapDisplayType.Map
         // `baseControl` refers to whichever of them is used.
-        globeControl.animatePositionGeo(-3.6704803, 40.5023056, 6, 1.0);
+        double latitude = 40.5023056 * Math.PI / 180;
+        double longitude = -3.6704803 * Math.PI / 180;
+        double zoom_earth_radius = 0.5;
+        globeControl.animatePositionGeo(longitude, latitude, zoom_earth_radius, 1.0);
     }
 }

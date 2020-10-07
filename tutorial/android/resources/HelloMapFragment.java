@@ -60,6 +60,9 @@ public class HelloMapFragment extends GlobeMapFragment {
         // `globeControl` is the controller when using MapDisplayType.Globe
         // `mapControl` is the controller when using MapDisplayType.Map
         // `baseControl` refers to whichever of them is used.
-        mapControl.animatePositionGeo(-3.6704803, 40.5023056, 6, 1.0);
+        double latitude = 40.5023056 * Math.PI / 180;
+        double longitude = -3.6704803 * Math.PI / 180;
+        double zoom_earth_radius = 2.0;
+        mapControl.animatePositionGeo(longitude, latitude, zoom_earth_radius, 1.0);
     }
 }

@@ -71,9 +71,17 @@ Once the appropriate SDK and NDK are available, open `File` / `Project Structure
 
 In order to avoid errors and conflicts, set the source and target compatibility options for the new application to match those of the maply module in the `File` / `Project Structure` options dialog.
 
+![Set Compatibility Versions](resources/android-studio-app-sdk-version.png)
+
+In particular, this has been observed to cause the following exception on application start:
+
+`java.lang.NoSuchMethodError: No static method metafactory(...); in class ...LambdaMetafactory; or its super classes ...`
+
 ### Example App
 
-Besides this "[Hello Earth](hello-earth.html)" project, there is an example app you can try out called `AutoTesterAndroid`. This is optional, but it is the quickest way to _see something work_. We have [brief instructions](auto-tester-android.html) for you to build AutoTesterAndroid.
+To continue building HelloEarth, go to the [Your First Globe or Map](your-first-globe-or-map.html) page.
+
+Besides the [Hello Earth](hello-earth.html) project, there is an example app you can try out called `AutoTesterAndroid`. This is optional, but it is the quickest way to _see something work_. We have [brief instructions](auto-tester-android.html) for you to build AutoTesterAndroid.
 
 ---
 
