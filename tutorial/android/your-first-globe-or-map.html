@@ -105,9 +105,7 @@
           <div class="col-sm-9 tutorial tutorial-main">
 
             <h2>Your First Globe or Map</h2>
-            <p><em>Tutorial by Nicholas Hallahan.</em></p>
-
-<h3 id="globe-or-map">Globe or Map</h3>
+            <h3 id="globe-or-map">Globe or Map</h3>
 
 <p>You can make a 3D globe or a 2D map equally well in WhirlyGlobe-Maply.  Hence the name.  Most of the objects are the same and, after a bit of setup, you use them almost identically.</p>
 
@@ -115,67 +113,59 @@
 
 <p>If you want a rotating globe, you’ll want a <code class="highlighter-rouge">MapDisplayType.Globe</code>. If you want a slippy map, you’ll want a <code class="highlighter-rouge">MapDisplayType.Map</code> enum in your <code class="highlighter-rouge">GlobeMapFragment</code>. We’ll go into greater detail about this setting later in the tutorial.</p>
 
-<h3 id="create-a-fragment">Create a Fragment</h3>
+<h3 id="add-internet-permission">Add Internet Permission</h3>
 
-<p>The easiest way to get a globe in your app is to create a fragment that extends the <code class="highlighter-rouge">GlobeMapFragment</code> class. Most of the boilerplate setup work is done for you in <code class="highlighter-rouge">GlobeMapFragment</code>, and all you have to do is extend several methods from that class for your specific setup.</p>
-
-<p>Right click on the package of your <code class="highlighter-rouge">MainActivity</code> in the project window. Select a new blank fragment.</p>
-
-<p><img src="resources/new-blank-fragment.png" alt="New Blank Fragment" /></p>
-
-<p>Notice that we are not including layout XML. This is because the internal layout of your fragment is already done for you under the hood, by the library. You can optionally include fragment factory methods and interface callbacks, however, you will need to implement those if you want the app to work. For this tutorial, leave those unchecked.</p>
-
-<p><img src="resources/hello-globe-fragment.png" alt="Hello Globe Fragment" /></p>
-
-<p>Select <strong>Finish</strong>.</p>
-
-<h3 id="include-fragment-in-activity-xml">Include Fragment in Activity XML</h3>
-
-<p>Our <code class="highlighter-rouge">HelloGlobeFragment</code> will be in our main activity, and it will fill all of the space.</p>
-
-<p>Open <code class="highlighter-rouge">app/src/main/res/layout/activity_hello_globe.xml</code>. Delete the padding in the <code class="highlighter-rouge">RelativeLayout</code> as well as the <code class="highlighter-rouge">TextView</code>. Inside of the relative layout, place a fragment element as shown below.</p>
-
-<h4 id="activity_mainxml">activity_main.xml</h4>
+<p>We’ll need to be able to load tile images from the internet, which means the application will need to request the internet permission. Add the following <code class="highlighter-rouge">uses-permission</code> element to the manifest section of <code class="highlighter-rouge">app/manifests/AppManifest.xml</code>, as well as the <code class="highlighter-rouge">android:usesCleartextTraffic="true"</code> attribute to allow fetching data from public sources with no encryption:</p>
 
 <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span>
-<span class="nt">&lt;RelativeLayout</span> <span class="na">xmlns:android=</span><span class="s">"http://schemas.android.com/apk/res/android"</span>
-    <span class="na">xmlns:tools=</span><span class="s">"http://schemas.android.com/tools"</span>
-    <span class="na">android:layout_width=</span><span class="s">"match_parent"</span>
-    <span class="na">android:layout_height=</span><span class="s">"match_parent"</span>
-    <span class="na">tools:context=</span><span class="s">"io.theoutpost.helloearth.MainActivity"</span><span class="nt">&gt;</span>
+<span class="nt">&lt;manifest</span> <span class="na">xmlns:android=</span><span class="s">"http://schemas.android.com/apk/res/android"</span>
+    <span class="na">package=</span><span class="s">"com.mousebirdconsulting.helloearth"</span><span class="nt">&gt;</span>
 
-    <span class="nt">&lt;fragment</span>
-        <span class="na">android:layout_width=</span><span class="s">"fill_parent"</span>
-        <span class="na">android:layout_height=</span><span class="s">"fill_parent"</span>
-        <span class="na">android:name=</span><span class="s">"io.theoutpost.helloearth.HelloGlobeFragment"</span>
-        <span class="na">android:id=</span><span class="s">"@+id/fragment"</span>
-        <span class="na">android:layout_centerVertical=</span><span class="s">"true"</span>
-        <span class="na">android:layout_centerHorizontal=</span><span class="s">"true"</span> <span class="nt">/&gt;</span>
-<span class="nt">&lt;/RelativeLayout&gt;</span>
+    <span class="nt">&lt;application</span>
+        <span class="na">android:allowBackup=</span><span class="s">"true"</span>
+        <span class="na">android:icon=</span><span class="s">"@mipmap/ic_launcher"</span>
+        <span class="na">android:label=</span><span class="s">"@string/app_name"</span>
+        <span class="na">android:roundIcon=</span><span class="s">"@mipmap/ic_launcher_round"</span>
+        <span class="na">android:supportsRtl=</span><span class="s">"true"</span>
+        <span class="na">android:theme=</span><span class="s">"@style/AppTheme"</span>
+        <span class="na">android:usesCleartextTraffic=</span><span class="s">"true"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;activity</span> <span class="na">android:name=</span><span class="s">".MainActivity"</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;intent-filter&gt;</span>
+                <span class="nt">&lt;action</span> <span class="na">android:name=</span><span class="s">"android.intent.action.MAIN"</span> <span class="nt">/&gt;</span>
+
+                <span class="nt">&lt;category</span> <span class="na">android:name=</span><span class="s">"android.intent.category.LAUNCHER"</span> <span class="nt">/&gt;</span>
+            <span class="nt">&lt;/intent-filter&gt;</span>
+        <span class="nt">&lt;/activity&gt;</span>
+    <span class="nt">&lt;/application&gt;</span>
+    <span class="nt">&lt;uses-permission</span> <span class="na">android:name=</span><span class="s">"android.permission.INTERNET"</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/manifest&gt;</span>
 </code></pre></div></div>
 
-<p>When you look in the <strong>Design</strong> view of the layout xml, don’t worry if there is a warning that there is no fragment layout. The fragment’s layout is set up for you automatically at runtime.</p>
+<h3 id="add-globe-map-fragment">Add Globe Map Fragment</h3>
 
-<h3 id="setup-helloglobefragmentjava">Setup HelloGlobeFragment.java</h3>
+<p>Create a new Java class called <code class="highlighter-rouge">HelloGlobeFragment</code> in HelloEarth with the following contents, or download the <a href="resources/HelloGlobeFragment.java">HelloGlobeFragment.java</a> file and place it in the appropriate directory, e.g., <code class="highlighter-rouge">HelloEarth/app/src/main/java/com/mousebirdconsulting/helloearth</code>.</p>
 
-<p>Open your <code class="highlighter-rouge">HelloGlobeFragment.java</code> file and delete the boilerplate code. Replace it with the following:</p>
-
-<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="n">io</span><span class="o">.</span><span class="na">theoutpost</span><span class="o">.</span><span class="na">helloearth</span><span class="o">;</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">com.mousebirdconsulting.helloearth</span><span class="o">;</span>
 
 <span class="kn">import</span> <span class="nn">android.os.Bundle</span><span class="o">;</span>
 <span class="kn">import</span> <span class="nn">android.view.LayoutInflater</span><span class="o">;</span>
 <span class="kn">import</span> <span class="nn">android.view.View</span><span class="o">;</span>
 <span class="kn">import</span> <span class="nn">android.view.ViewGroup</span><span class="o">;</span>
+
 <span class="kn">import</span> <span class="nn">com.mousebird.maply.GlobeMapFragment</span><span class="o">;</span>
-<span class="kn">import</span> <span class="nn">com.mousebird.maply.QuadImageTileLayer</span><span class="o">;</span>
-<span class="kn">import</span> <span class="nn">com.mousebird.maply.RemoteTileInfo</span><span class="o">;</span>
-<span class="kn">import</span> <span class="nn">com.mousebird.maply.RemoteTileSource</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.mousebird.maply.QuadImageLoader</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.mousebird.maply.RemoteTileInfoNew</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.mousebird.maply.RenderController</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.mousebird.maply.SamplingParams</span><span class="o">;</span>
 <span class="kn">import</span> <span class="nn">com.mousebird.maply.SphericalMercatorCoordSystem</span><span class="o">;</span>
 
 <span class="kn">import</span> <span class="nn">java.io.File</span><span class="o">;</span>
 
-
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">HelloGlobeFragment</span> <span class="kd">extends</span> <span class="nc">GlobeMapFragment</span> <span class="o">{</span>
+
+    <span class="kd">protected</span> <span class="nc">MapDisplayType</span> <span class="nf">chooseDisplayType</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="nc">MapDisplayType</span><span class="o">.</span><span class="na">Globe</span><span class="o">;</span>
+    <span class="o">}</span>
 
     <span class="nd">@Override</span>
     <span class="kd">public</span> <span class="nc">View</span> <span class="nf">onCreateView</span><span class="o">(</span><span class="nc">LayoutInflater</span> <span class="n">inflater</span><span class="o">,</span> <span class="nc">ViewGroup</span> <span class="n">container</span><span class="o">,</span>
@@ -188,165 +178,189 @@
     <span class="o">}</span>
 
     <span class="nd">@Override</span>
-    <span class="kd">protected</span> <span class="nc">MapDisplayType</span> <span class="nf">chooseDisplayType</span><span class="o">()</span> <span class="o">{</span>
-        <span class="k">return</span> <span class="nc">MapDisplayType</span><span class="o">.</span><span class="na">Globe</span><span class="o">;</span>
-    <span class="o">}</span>
-
-    <span class="nd">@Override</span>
     <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">controlHasStarted</span><span class="o">()</span> <span class="o">{</span>
-        <span class="c1">// setup base layer tiles</span>
-        <span class="nc">String</span> <span class="n">cacheDirName</span> <span class="o">=</span> <span class="s">"stamen_watercolor"</span><span class="o">;</span>
+        <span class="c1">// Set up the local cache directory</span>
+        <span class="nc">String</span> <span class="n">cacheDirName</span> <span class="o">=</span> <span class="s">"stamen_watercolor6"</span><span class="o">;</span>
         <span class="nc">File</span> <span class="n">cacheDir</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">File</span><span class="o">(</span><span class="n">getActivity</span><span class="o">().</span><span class="na">getCacheDir</span><span class="o">(),</span> <span class="n">cacheDirName</span><span class="o">);</span>
         <span class="n">cacheDir</span><span class="o">.</span><span class="na">mkdir</span><span class="o">();</span>
-        <span class="nc">RemoteTileSource</span> <span class="n">remoteTileSource</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">RemoteTileSource</span><span class="o">(</span><span class="k">new</span> <span class="nc">RemoteTileInfo</span><span class="o">(</span><span class="s">"http://tile.stamen.com/watercolor/"</span><span class="o">,</span> <span class="s">"png"</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">18</span><span class="o">));</span>
-        <span class="n">remoteTileSource</span><span class="o">.</span><span class="na">setCacheDir</span><span class="o">(</span><span class="n">cacheDir</span><span class="o">);</span>
-        <span class="nc">SphericalMercatorCoordSystem</span> <span class="n">coordSystem</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">SphericalMercatorCoordSystem</span><span class="o">();</span>
 
-        <span class="c1">// globeControl is the controller when using MapDisplayType.Globe</span>
-        <span class="c1">// mapControl is the controller when using MapDisplayType.Map</span>
-        <span class="nc">QuadImageTileLayer</span> <span class="n">baseLayer</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">QuadImageTileLayer</span><span class="o">(</span><span class="n">globeControl</span><span class="o">,</span> <span class="n">coordSystem</span><span class="o">,</span> <span class="n">remoteTileSource</span><span class="o">);</span>
-        <span class="n">baseLayer</span><span class="o">.</span><span class="na">setImageDepth</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
-        <span class="n">baseLayer</span><span class="o">.</span><span class="na">setSingleLevelLoading</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
-        <span class="n">baseLayer</span><span class="o">.</span><span class="na">setUseTargetZoomLevel</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
-        <span class="n">baseLayer</span><span class="o">.</span><span class="na">setCoverPoles</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
-        <span class="n">baseLayer</span><span class="o">.</span><span class="na">setHandleEdges</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+        <span class="c1">// Set up access to the tile images</span>
+        <span class="nc">RemoteTileInfoNew</span> <span class="n">tileInfo</span> <span class="o">=</span>
+            <span class="k">new</span> <span class="nf">RemoteTileInfoNew</span><span class="o">(</span><span class="s">"http://tile.stamen.com/watercolor/{z}/{x}/{y}.png"</span><span class="o">,</span><span class="mi">0</span><span class="o">,</span> <span class="mi">18</span><span class="o">);</span>
+        <span class="n">tileInfo</span><span class="o">.</span><span class="na">cacheDir</span> <span class="o">=</span> <span class="n">cacheDir</span><span class="o">;</span>
 
-        <span class="c1">// add layer and position</span>
-        <span class="n">globeControl</span><span class="o">.</span><span class="na">addLayer</span><span class="o">(</span><span class="n">baseLayer</span><span class="o">);</span>
-        <span class="n">globeControl</span><span class="o">.</span><span class="na">animatePositionGeo</span><span class="o">(-</span><span class="mf">3.6704803</span><span class="o">,</span> <span class="mf">40.5023056</span><span class="o">,</span> <span class="mi">5</span><span class="o">,</span> <span class="mf">1.0</span><span class="o">);</span>
+        <span class="c1">// Set up the globe parameters</span>
+        <span class="nc">SamplingParams</span> <span class="n">params</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">SamplingParams</span><span class="o">();</span>
+        <span class="n">params</span><span class="o">.</span><span class="na">setCoordSystem</span><span class="o">(</span><span class="k">new</span> <span class="nc">SphericalMercatorCoordSystem</span><span class="o">());</span>
+        <span class="n">params</span><span class="o">.</span><span class="na">setCoverPoles</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+        <span class="n">params</span><span class="o">.</span><span class="na">setEdgeMatching</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+        <span class="n">params</span><span class="o">.</span><span class="na">setMinZoom</span><span class="o">(</span><span class="n">tileInfo</span><span class="o">.</span><span class="na">minZoom</span><span class="o">);</span>
+        <span class="n">params</span><span class="o">.</span><span class="na">setMaxZoom</span><span class="o">(</span><span class="n">tileInfo</span><span class="o">.</span><span class="na">maxZoom</span><span class="o">);</span>
+        <span class="n">params</span><span class="o">.</span><span class="na">setSingleLevel</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+
+        <span class="c1">// Set up an image loader, tying all the previous together.</span>
+        <span class="nc">QuadImageLoader</span> <span class="n">loader</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">QuadImageLoader</span><span class="o">(</span><span class="n">params</span><span class="o">,</span> <span class="n">tileInfo</span><span class="o">,</span> <span class="n">baseControl</span><span class="o">);</span>
+        <span class="n">loader</span><span class="o">.</span><span class="na">setImageFormat</span><span class="o">(</span><span class="nc">RenderController</span><span class="o">.</span><span class="na">ImageFormat</span><span class="o">.</span><span class="na">MaplyImageUShort565</span><span class="o">);</span>
+
+        <span class="c1">// Go to a specific location with animation</span>
+        <span class="c1">//</span>
+        <span class="c1">// `globeControl` is the controller when using MapDisplayType.Globe</span>
+        <span class="c1">// `mapControl` is the controller when using MapDisplayType.Map</span>
+        <span class="c1">// `baseControl` refers to whichever of them is used.</span>
+        <span class="n">globeControl</span><span class="o">.</span><span class="na">animatePositionGeo</span><span class="o">(-</span><span class="mf">3.6704803</span><span class="o">,</span> <span class="mf">40.5023056</span><span class="o">,</span> <span class="mi">6</span><span class="o">,</span> <span class="mf">1.0</span><span class="o">);</span>
     <span class="o">}</span>
-
 <span class="o">}</span>
 </code></pre></div></div>
 
-<p>You can download <a href="resources/HelloGlobeFragment.java">HelloGlobeFragment.java</a> and place it directly in your project if you’d like. Notice that it is extending <code class="highlighter-rouge">com.mousebird.maply.GlobeMapFragment</code>, which is a part of the WhirlyGlobe-Maply library.</p>
+<h3 id="include-fragment-in-the-main-activity-layout">Include Fragment in the Main Activity Layout</h3>
 
-<p>Overridden Methods:</p>
+<p>Open <code class="highlighter-rouge">app/res/layout/activity_main.xml</code> and select the “Code” view. Replace the <code class="highlighter-rouge">TextView</code> with the fragment element as shown below.</p>
 
-<ul>
-  <li><code class="highlighter-rouge">onCreateView</code> sets up and returns the view from the base controller. Here is where you can do custom setup of your fragment.</li>
-  <li><code class="highlighter-rouge">chooseDisplayType</code> is where you declare if you want a globe or a map. We choose <code class="highlighter-rouge">MapDisplayType.Globe</code>.</li>
-  <li><code class="highlighter-rouge">controlHasStarted</code> is the final stage where the controller with the OpenGL Surface is ready for final setup.</li>
-</ul>
+<h4 id="activity_mainxml">activity_main.xml</h4>
 
-<p>That’s it! You can now build your app. A globe with a Stamen Watercolor base layer should appear.</p>
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span>
+<span class="nt">&lt;androidx.constraintlayout.widget.ConstraintLayout</span> <span class="na">xmlns:android=</span><span class="s">"http://schemas.android.com/apk/res/android"</span>
+    <span class="na">xmlns:app=</span><span class="s">"http://schemas.android.com/apk/res-auto"</span>
+    <span class="na">xmlns:tools=</span><span class="s">"http://schemas.android.com/tools"</span>
+    <span class="na">android:id=</span><span class="s">"@+id/relativeLayout"</span>
+    <span class="na">android:layout_width=</span><span class="s">"match_parent"</span>
+    <span class="na">android:layout_height=</span><span class="s">"match_parent"</span>
+    <span class="na">tools:context=</span><span class="s">".MainActivity"</span><span class="nt">&gt;</span>
+
+    <span class="nt">&lt;fragment</span>
+        <span class="na">android:id=</span><span class="s">"@+id/fragment"</span>
+        <span class="na">android:name=</span><span class="s">"com.mousebirdconsulting.helloearth.HelloGlobeFragment"</span>
+        <span class="na">android:layout_width=</span><span class="s">"match_parent"</span>
+        <span class="na">android:layout_height=</span><span class="s">"match_parent"</span>
+        <span class="na">app:layout_constraintBottom_toTopOf=</span><span class="s">"parent"</span>
+        <span class="na">app:layout_constraintEnd_toStartOf=</span><span class="s">"parent"</span>
+        <span class="na">app:layout_constraintStart_toStartOf=</span><span class="s">"parent"</span>
+        <span class="na">app:layout_constraintTop_toTopOf=</span><span class="s">"parent"</span> <span class="nt">/&gt;</span>
+
+<span class="nt">&lt;/androidx.constraintlayout.widget.ConstraintLayout&gt;</span>
+</code></pre></div></div>
+
+<p>That’s it! You can now build and run HelloGlobe. An interactive globe with a Stamen Watercolor base layer should appear.</p>
 
 <p><img src="resources/stamen-whirly-globe.gif" alt="Hello Globe" style="max-width:400px; display: block; margin: auto;" /></p>
 
 <h3 id="create-a-map-fragment">Create a Map Fragment</h3>
 
-<p>It is a similar process creating a map instead of a globe. Go ahead and create another blank fragment as you have done before. Name this one <code class="highlighter-rouge">HelloMapFragment</code>.</p>
+<p>It is a very similar process creating a map instead of a globe.</p>
 
-<p><img src="resources/hello-map-fragment.png" alt="Hello Globe Fragment" /></p>
+<h3 id="setup-hellomapfragment">Setup HelloMapFragment</h3>
 
-<p>Select <strong>Finish</strong>.</p>
+<p>Create another new class, <code class="highlighter-rouge">HelloMapFragment</code>, replacing it with the following code:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">com.mousebirdconsulting.helloearth</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">android.os.Bundle</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">android.view.LayoutInflater</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">android.view.View</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">android.view.ViewGroup</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">com.mousebird.maply.GlobeMapFragment</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.mousebird.maply.QuadImageLoader</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.mousebird.maply.RemoteTileInfoNew</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.mousebird.maply.RenderController</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.mousebird.maply.SamplingParams</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.mousebird.maply.SphericalMercatorCoordSystem</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.io.File</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">HelloMapFragment</span> <span class="kd">extends</span> <span class="nc">GlobeMapFragment</span> <span class="o">{</span>
+
+    <span class="kd">protected</span> <span class="nc">MapDisplayType</span> <span class="nf">chooseDisplayType</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="nc">MapDisplayType</span><span class="o">.</span><span class="na">Map</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="nc">View</span> <span class="nf">onCreateView</span><span class="o">(</span><span class="nc">LayoutInflater</span> <span class="n">inflater</span><span class="o">,</span> <span class="nc">ViewGroup</span> <span class="n">container</span><span class="o">,</span>
+                             <span class="nc">Bundle</span> <span class="n">inState</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kd">super</span><span class="o">.</span><span class="na">onCreateView</span><span class="o">(</span><span class="n">inflater</span><span class="o">,</span> <span class="n">container</span><span class="o">,</span> <span class="n">inState</span><span class="o">);</span>
+
+        <span class="c1">// Do app specific setup logic.</span>
+
+        <span class="k">return</span> <span class="n">baseControl</span><span class="o">.</span><span class="na">getContentView</span><span class="o">();</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">controlHasStarted</span><span class="o">()</span> <span class="o">{</span>
+        <span class="c1">// Set up the local cache directory</span>
+        <span class="nc">String</span> <span class="n">cacheDirName</span> <span class="o">=</span> <span class="s">"stamen_watercolor6"</span><span class="o">;</span>
+        <span class="nc">File</span> <span class="n">cacheDir</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">File</span><span class="o">(</span><span class="n">getActivity</span><span class="o">().</span><span class="na">getCacheDir</span><span class="o">(),</span> <span class="n">cacheDirName</span><span class="o">);</span>
+        <span class="n">cacheDir</span><span class="o">.</span><span class="na">mkdir</span><span class="o">();</span>
+
+        <span class="c1">// Set up access to the tile images</span>
+        <span class="nc">RemoteTileInfoNew</span> <span class="n">tileInfo</span> <span class="o">=</span>
+                <span class="k">new</span> <span class="nf">RemoteTileInfoNew</span><span class="o">(</span><span class="s">"http://tile.stamen.com/watercolor/{z}/{x}/{y}.png"</span><span class="o">,</span><span class="mi">0</span><span class="o">,</span> <span class="mi">18</span><span class="o">);</span>
+        <span class="n">tileInfo</span><span class="o">.</span><span class="na">cacheDir</span> <span class="o">=</span> <span class="n">cacheDir</span><span class="o">;</span>
+
+        <span class="c1">// Set up the map parameters</span>
+        <span class="nc">SamplingParams</span> <span class="n">params</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">SamplingParams</span><span class="o">();</span>
+        <span class="n">params</span><span class="o">.</span><span class="na">setCoordSystem</span><span class="o">(</span><span class="k">new</span> <span class="nc">SphericalMercatorCoordSystem</span><span class="o">());</span>
+        <span class="n">params</span><span class="o">.</span><span class="na">setCoverPoles</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+        <span class="n">params</span><span class="o">.</span><span class="na">setEdgeMatching</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+        <span class="n">params</span><span class="o">.</span><span class="na">setMinZoom</span><span class="o">(</span><span class="n">tileInfo</span><span class="o">.</span><span class="na">minZoom</span><span class="o">);</span>
+        <span class="n">params</span><span class="o">.</span><span class="na">setMaxZoom</span><span class="o">(</span><span class="n">tileInfo</span><span class="o">.</span><span class="na">maxZoom</span><span class="o">);</span>
+        <span class="n">params</span><span class="o">.</span><span class="na">setSingleLevel</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+
+        <span class="c1">// Set up an image loader, tying all the previous together.</span>
+        <span class="nc">QuadImageLoader</span> <span class="n">loader</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">QuadImageLoader</span><span class="o">(</span><span class="n">params</span><span class="o">,</span> <span class="n">tileInfo</span><span class="o">,</span> <span class="n">baseControl</span><span class="o">);</span>
+        <span class="n">loader</span><span class="o">.</span><span class="na">setImageFormat</span><span class="o">(</span><span class="nc">RenderController</span><span class="o">.</span><span class="na">ImageFormat</span><span class="o">.</span><span class="na">MaplyImageUShort565</span><span class="o">);</span>
+
+        <span class="c1">// Go to a specific location with animation</span>
+        <span class="c1">//</span>
+        <span class="c1">// `globeControl` is the controller when using MapDisplayType.Globe</span>
+        <span class="c1">// `mapControl` is the controller when using MapDisplayType.Map</span>
+        <span class="c1">// `baseControl` refers to whichever of them is used.</span>
+        <span class="n">mapControl</span><span class="o">.</span><span class="na">animatePositionGeo</span><span class="o">(-</span><span class="mf">3.6704803</span><span class="o">,</span> <span class="mf">40.5023056</span><span class="o">,</span> <span class="mi">6</span><span class="o">,</span> <span class="mf">1.0</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>You can download <a href="resources/HelloMapFragment.java">HelloMapFragment.java</a> and place it directly in your project.</p>
+
+<p>Notice that this fragment is almost exactly the same as <code class="highlighter-rouge">HelloGlobeFragment.java</code>. There are two differences:</p>
+
+<ol>
+  <li><code class="highlighter-rouge">chooseDisplayType</code> returns <code class="highlighter-rouge">MapDisplayType.Map</code> instead of <code class="highlighter-rouge">MapDisplayType.Globe</code>.</li>
+  <li><code class="highlighter-rouge">controlHasStarted</code> uses <code class="highlighter-rouge">mapControl</code> instead of <code class="highlighter-rouge">globeControl</code>.</li>
+</ol>
 
 <h3 id="replace-activity-xml-with-map-fragment">Replace Activity XML with Map Fragment</h3>
 
 <p>In your <code class="highlighter-rouge">activity_main.xml</code>, comment out the <code class="highlighter-rouge">HelloGlobeFragment</code> and replace it with your new <code class="highlighter-rouge">HelloMapFragment</code>.</p>
 
 <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span>
-<span class="nt">&lt;RelativeLayout</span> <span class="na">xmlns:android=</span><span class="s">"http://schemas.android.com/apk/res/android"</span>
+<span class="nt">&lt;androidx.constraintlayout.widget.ConstraintLayout</span> <span class="na">xmlns:android=</span><span class="s">"http://schemas.android.com/apk/res/android"</span>
+    <span class="na">xmlns:app=</span><span class="s">"http://schemas.android.com/apk/res-auto"</span>
     <span class="na">xmlns:tools=</span><span class="s">"http://schemas.android.com/tools"</span>
+    <span class="na">android:id=</span><span class="s">"@+id/relativeLayout"</span>
     <span class="na">android:layout_width=</span><span class="s">"match_parent"</span>
     <span class="na">android:layout_height=</span><span class="s">"match_parent"</span>
-    <span class="na">tools:context=</span><span class="s">"io.theoutpost.helloearth.MainActivity"</span><span class="nt">&gt;</span>
-
-    <span class="c">&lt;!--&lt;fragment--&gt;</span>
-        <span class="c">&lt;!--android:layout_width="fill_parent"--&gt;</span>
-        <span class="c">&lt;!--android:layout_height="fill_parent"--&gt;</span>
-        <span class="c">&lt;!--android:name="io.theoutpost.helloearth.HelloGlobeFragment"--&gt;</span>
-        <span class="c">&lt;!--android:id="@+id/fragment"--&gt;</span>
-        <span class="c">&lt;!--android:layout_centerVertical="true"--&gt;</span>
-        <span class="c">&lt;!--android:layout_centerHorizontal="true" /&gt;--&gt;</span>
+    <span class="na">tools:context=</span><span class="s">".MainActivity"</span><span class="nt">&gt;</span>
 
     <span class="nt">&lt;fragment</span>
-        <span class="na">android:layout_width=</span><span class="s">"fill_parent"</span>
-        <span class="na">android:layout_height=</span><span class="s">"fill_parent"</span>
-        <span class="na">android:name=</span><span class="s">"io.theoutpost.helloearth.HelloMapFragment"</span>
         <span class="na">android:id=</span><span class="s">"@+id/fragment"</span>
-        <span class="na">android:layout_centerVertical=</span><span class="s">"true"</span>
-        <span class="na">android:layout_centerHorizontal=</span><span class="s">"true"</span> <span class="nt">/&gt;</span>
-<span class="nt">&lt;/RelativeLayout&gt;</span>
+        <span class="na">android:name=</span><span class="s">"com.mousebirdconsulting.helloearth.HelloMapFragment"</span>
+        <span class="na">android:layout_width=</span><span class="s">"match_parent"</span>
+        <span class="na">android:layout_height=</span><span class="s">"match_parent"</span>
+        <span class="na">app:layout_constraintBottom_toTopOf=</span><span class="s">"parent"</span>
+        <span class="na">app:layout_constraintEnd_toStartOf=</span><span class="s">"parent"</span>
+        <span class="na">app:layout_constraintStart_toStartOf=</span><span class="s">"parent"</span>
+        <span class="na">app:layout_constraintTop_toTopOf=</span><span class="s">"parent"</span> <span class="nt">/&gt;</span>
+
+<span class="nt">&lt;/androidx.constraintlayout.widget.ConstraintLayout&gt;</span>
 </code></pre></div></div>
-
-<h3 id="setup-hellomapfragmentjava">Setup HelloMapFragment.java</h3>
-
-<p>Open your <code class="highlighter-rouge">HelloMapFragment.java</code> file and delete the boilerplate code. Replace it with the following:</p>
-
-<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="n">io</span><span class="o">.</span><span class="na">theoutpost</span><span class="o">.</span><span class="na">helloearth</span><span class="o">;</span>
-
-<span class="kn">import</span> <span class="nn">android.os.Bundle</span><span class="o">;</span>
-<span class="kn">import</span> <span class="nn">android.view.LayoutInflater</span><span class="o">;</span>
-<span class="kn">import</span> <span class="nn">android.view.View</span><span class="o">;</span>
-<span class="kn">import</span> <span class="nn">android.view.ViewGroup</span><span class="o">;</span>
-<span class="kn">import</span> <span class="nn">com.mousebird.maply.GlobeMapFragment</span><span class="o">;</span>
-<span class="kn">import</span> <span class="nn">com.mousebird.maply.QuadImageTileLayer</span><span class="o">;</span>
-<span class="kn">import</span> <span class="nn">com.mousebird.maply.RemoteTileInfo</span><span class="o">;</span>
-<span class="kn">import</span> <span class="nn">com.mousebird.maply.RemoteTileSource</span><span class="o">;</span>
-<span class="kn">import</span> <span class="nn">com.mousebird.maply.SphericalMercatorCoordSystem</span><span class="o">;</span>
-
-<span class="kn">import</span> <span class="nn">java.io.File</span><span class="o">;</span>
-
-
-<span class="kd">public</span> <span class="kd">class</span> <span class="nc">HelloMapFragment</span> <span class="kd">extends</span> <span class="nc">GlobeMapFragment</span> <span class="o">{</span>
-
-    <span class="nd">@Override</span>
-    <span class="kd">public</span> <span class="nc">View</span> <span class="nf">onCreateView</span><span class="o">(</span><span class="nc">LayoutInflater</span> <span class="n">inflater</span><span class="o">,</span> <span class="nc">ViewGroup</span> <span class="n">container</span><span class="o">,</span>
-                             <span class="nc">Bundle</span> <span class="n">inState</span><span class="o">)</span> <span class="o">{</span>
-        <span class="kd">super</span><span class="o">.</span><span class="na">onCreateView</span><span class="o">(</span><span class="n">inflater</span><span class="o">,</span> <span class="n">container</span><span class="o">,</span> <span class="n">inState</span><span class="o">);</span>
-
-        <span class="c1">// Do app specific setup logic.</span>
-
-        <span class="k">return</span> <span class="n">baseControl</span><span class="o">.</span><span class="na">getContentView</span><span class="o">();</span>
-    <span class="o">}</span>
-
-    <span class="nd">@Override</span>
-    <span class="kd">protected</span> <span class="nc">MapDisplayType</span> <span class="nf">chooseDisplayType</span><span class="o">()</span> <span class="o">{</span>
-        <span class="k">return</span> <span class="nc">MapDisplayType</span><span class="o">.</span><span class="na">Map</span><span class="o">;</span>
-    <span class="o">}</span>
-
-    <span class="nd">@Override</span>
-    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">controlHasStarted</span><span class="o">()</span> <span class="o">{</span>
-        <span class="c1">// setup base layer tiles</span>
-        <span class="nc">String</span> <span class="n">cacheDirName</span> <span class="o">=</span> <span class="s">"stamen_watercolor"</span><span class="o">;</span>
-        <span class="nc">File</span> <span class="n">cacheDir</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">File</span><span class="o">(</span><span class="n">getActivity</span><span class="o">().</span><span class="na">getCacheDir</span><span class="o">(),</span> <span class="n">cacheDirName</span><span class="o">);</span>
-        <span class="n">cacheDir</span><span class="o">.</span><span class="na">mkdir</span><span class="o">();</span>
-        <span class="nc">RemoteTileSource</span> <span class="n">remoteTileSource</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">RemoteTileSource</span><span class="o">(</span><span class="k">new</span> <span class="nc">RemoteTileInfo</span><span class="o">(</span><span class="s">"http://tile.stamen.com/watercolor/"</span><span class="o">,</span> <span class="s">"png"</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">18</span><span class="o">));</span>
-        <span class="n">remoteTileSource</span><span class="o">.</span><span class="na">setCacheDir</span><span class="o">(</span><span class="n">cacheDir</span><span class="o">);</span>
-        <span class="nc">SphericalMercatorCoordSystem</span> <span class="n">coordSystem</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">SphericalMercatorCoordSystem</span><span class="o">();</span>
-
-        <span class="c1">// globeControl is the controller when using MapDisplayType.Globe</span>
-        <span class="c1">// mapControl is the controller when using MapDisplayType.Map</span>
-        <span class="nc">QuadImageTileLayer</span> <span class="n">baseLayer</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">QuadImageTileLayer</span><span class="o">(</span><span class="n">mapControl</span><span class="o">,</span> <span class="n">coordSystem</span><span class="o">,</span> <span class="n">remoteTileSource</span><span class="o">);</span>
-        <span class="n">baseLayer</span><span class="o">.</span><span class="na">setImageDepth</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
-        <span class="n">baseLayer</span><span class="o">.</span><span class="na">setSingleLevelLoading</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
-        <span class="n">baseLayer</span><span class="o">.</span><span class="na">setUseTargetZoomLevel</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
-        <span class="n">baseLayer</span><span class="o">.</span><span class="na">setCoverPoles</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
-        <span class="n">baseLayer</span><span class="o">.</span><span class="na">setHandleEdges</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
-
-        <span class="c1">// add layer and position</span>
-        <span class="n">mapControl</span><span class="o">.</span><span class="na">addLayer</span><span class="o">(</span><span class="n">baseLayer</span><span class="o">);</span>
-        <span class="n">mapControl</span><span class="o">.</span><span class="na">animatePositionGeo</span><span class="o">(-</span><span class="mf">3.6704803</span><span class="o">,</span> <span class="mf">40.5023056</span><span class="o">,</span> <span class="mi">5</span><span class="o">,</span> <span class="mf">1.0</span><span class="o">);</span>
-        <span class="n">mapControl</span><span class="o">.</span><span class="na">setAllowRotateGesture</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
-    <span class="o">}</span>
-
-<span class="o">}</span>
-</code></pre></div></div>
-
-<p>You can download <a href="resources/HelloMapFragment.java">HelloMapFragment.java</a> and place it directly in your project.</p>
-
-<p>Notice that this fragment is almost exactly the same as <code class="highlighter-rouge">HelloGlobeFragment.java</code>. There are three differences:</p>
-
-<ol>
-  <li><code class="highlighter-rouge">chooseDisplayType</code> returns <code class="highlighter-rouge">MapDisplayType.Map</code> instead of <code class="highlighter-rouge">MapDisplayType.Globe</code>.</li>
-  <li><code class="highlighter-rouge">controlHasStarted</code> uses <code class="highlighter-rouge">mapControl</code> instead of <code class="highlighter-rouge">globeControl</code>.</li>
-  <li>We allow the rotation gesture on <code class="highlighter-rouge">mapControl</code> with <code class="highlighter-rouge">setAllowRotateGesture</code>.</li>
-</ol>
 
 <p>With these changes, your app will now have a map instead of a globe. Go ahead and build and run. A map with a Stamen Watercolor base layer should appear.</p>
 
 <p><img src="resources/stamen-maply.gif" alt="Hello Map" style="max-width:400px; display: block; margin: auto;" /></p>
+
+<hr />
+
+<p><em>Tutorial by Nicholas Hallahan, Steve Gifford, Tim Sylvester.</em></p>
 
 
 
@@ -687,7 +701,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/building-from-binary.html">Building From Nightly</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/building-from-binary.html">Building From Binaries</a></li>
                       
                       
                       

@@ -1,19 +1,24 @@
-package io.theoutpost.helloearth;
+package com.mousebirdconsulting.helloearth;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 import com.mousebird.maply.GlobeMapFragment;
-import com.mousebird.maply.QuadImageTileLayer;
-import com.mousebird.maply.RemoteTileInfo;
-import com.mousebird.maply.RemoteTileSource;
+import com.mousebird.maply.QuadImageLoader;
+import com.mousebird.maply.RemoteTileInfoNew;
+import com.mousebird.maply.RenderController;
+import com.mousebird.maply.SamplingParams;
 import com.mousebird.maply.SphericalMercatorCoordSystem;
 
 import java.io.File;
 
-
 public class HelloGlobeFragment extends GlobeMapFragment {
+
+    protected MapDisplayType chooseDisplayType() {
+        return MapDisplayType.Globe;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -26,32 +31,34 @@ public class HelloGlobeFragment extends GlobeMapFragment {
     }
 
     @Override
-    protected MapDisplayType chooseDisplayType() {
-        return MapDisplayType.Globe;
-    }
-
-    @Override
     protected void controlHasStarted() {
-        // setup base layer tiles
-        String cacheDirName = "stamen_watercolor";
+        // Set up the local cache directory
+        String cacheDirName = "stamen_watercolor6";
         File cacheDir = new File(getActivity().getCacheDir(), cacheDirName);
         cacheDir.mkdir();
-        RemoteTileSource remoteTileSource = new RemoteTileSource(new RemoteTileInfo("http://tile.stamen.com/watercolor/", "png", 0, 18));
-        remoteTileSource.setCacheDir(cacheDir);
-        SphericalMercatorCoordSystem coordSystem = new SphericalMercatorCoordSystem();
 
-        // globeControl is the controller when using MapDisplayType.Globe
-        // mapControl is the controller when using MapDisplayType.Map
-        QuadImageTileLayer baseLayer = new QuadImageTileLayer(globeControl, coordSystem, remoteTileSource);
-        baseLayer.setImageDepth(1);
-        baseLayer.setSingleLevelLoading(false);
-        baseLayer.setUseTargetZoomLevel(false);
-        baseLayer.setCoverPoles(true);
-        baseLayer.setHandleEdges(true);
+        // Set up access to the tile images
+        RemoteTileInfoNew tileInfo = new RemoteTileInfoNew("http://tile.stamen.com/watercolor/{z}/{x}/{y}.png",0, 18);
+        tileInfo.cacheDir = cacheDir;
 
-        // add layer and position
-        globeControl.addLayer(baseLayer);
-        globeControl.animatePositionGeo(-3.6704803, 40.5023056, 5, 1.0);
+        // Set up the globe parameters
+        SamplingParams params = new SamplingParams();
+        params.setCoordSystem(new SphericalMercatorCoordSystem());
+        params.setCoverPoles(true);
+        params.setEdgeMatching(true);
+        params.setMinZoom(tileInfo.minZoom);
+        params.setMaxZoom(tileInfo.maxZoom);
+        params.setSingleLevel(true);
+
+        // Set up an image loader, tying all the previous together.
+        QuadImageLoader loader = new QuadImageLoader(params, tileInfo, baseControl);
+        loader.setImageFormat(RenderController.ImageFormat.MaplyImageUShort565);
+
+        // Go to a specific location with animation
+        //
+        // `globeControl` is the controller when using MapDisplayType.Globe
+        // `mapControl` is the controller when using MapDisplayType.Map
+        // `baseControl` refers to whichever of them is used.
+        globeControl.animatePositionGeo(-3.6704803, 40.5023056, 6, 1.0);
     }
-
 }

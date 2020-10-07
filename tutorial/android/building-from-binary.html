@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width initial-scale=1" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-  <title>Building From Nightly</title>
+  <title>Building From Binaries</title>
   <meta name="description" content="A high performance map and globe toolkit for iOS and Android.
 ">
 
@@ -104,27 +104,14 @@
         <div class="row">
           <div class="col-sm-9 tutorial tutorial-main">
 
-            <h2>Building From Nightly</h2>
-            <p>If you want the latest and greatest improvements to WhirlyGlobe-Maply you can use nightly or feature based builds.  Take a look at the <a href="/WhirlyGlobe/builds/builds.html">nightly versions</a> page.  From there you can get feature branch builds or just a nightly build.  We’ll show you how to use them here.</p>
-
-<h3 id="pick-the-version-you-need">Pick the version you need</h3>
-
-<p>Just go to the <a href="/WhirlyGlobe/builds/builds.html">Automated Builds</a> page and choose the version you want to use.</p>
-
-<p>You have two flavours:</p>
-
-<ul>
-  <li><em>Nightly builds</em>: surprisingly, this is the version built every night (it’s night for us, anyway). Use this version if you’re sure that one specific change was included in that or previous days.</li>
-  <li><em>Commit or Push builds</em>: this happens when someone pushes a change to one of the development branches. Use this version if you know the build number that includes your desired change or we pointed you here directly.</li>
-</ul>
-
-<p>Once you’ve chosen the right version, just download the <code class="highlighter-rouge">.aar</code> file from the <a href="/WhirlyGlobe/builds/builds.html">builds table</a>.</p>
+            <h2>Building From Binaries</h2>
+            <p>The simplest way to start using WhirlyGlobe-Maply is the pre-built binary.  Take a look at the <a href="/WhirlyGlobe/builds/builds.html">builds page</a> page.  From there you can get the AAR file, and we’ll show you how to use it here.</p>
 
 <h3 id="copy-and-include-aar">Copy and Include AAR</h3>
 
-<p>Copy your just downloaded <code class="highlighter-rouge">.aar</code> file into your app’s <code class="highlighter-rouge">libs</code> directory.</p>
+<p>Copy your just-downloaded <code class="highlighter-rouge">.aar</code> file into your app’s <code class="highlighter-rouge">libs</code> directory:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>WhirlyGlobe/WhirlyGlobeSrc/HelloEarth/app/libs
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>HelloEarth/app/libs
 </code></pre></div></div>
 
 <p>Rename it to <code class="highlighter-rouge">WhirlyGlobeMaply.aar</code>.</p>
@@ -144,17 +131,19 @@
 <p>Next add the following packages to the end of the <code class="highlighter-rouge">dependencies</code> directive in <code class="highlighter-rouge">Build.gradle (Module: app)</code>.</p>
 
 <ul>
-  <li><code class="highlighter-rouge">compile 'com.squareup.okhttp:okhttp:2.3.0'</code></li>
-  <li><code class="highlighter-rouge">compile(name:'WhirlyGlobeMaply', ext:'aar')</code></li>
+  <li><code class="highlighter-rouge">implementation('com.squareup.okhttp:okhttp:2.3.0')</code></li>
+  <li><code class="highlighter-rouge">implementation(name:'WhirlyGlobeMaply', ext:'aar')</code></li>
 </ul>
 
 <div class="language-gradle highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">dependencies</span> <span class="o">{</span>
-    <span class="n">compile</span> <span class="nf">fileTree</span><span class="o">(</span><span class="nl">dir:</span> <span class="s1">'libs'</span><span class="o">,</span> <span class="nl">include:</span> <span class="o">[</span><span class="s1">'*.jar'</span><span class="o">])</span>
-    <span class="n">testCompile</span> <span class="s1">'junit:junit:4.12'</span>
-    <span class="n">compile</span> <span class="s1">'com.android.support:appcompat-v7:24.0.0'</span>
-    <span class="n">compile</span> <span class="s1">'com.android.support:support-v4:24.0.0'</span>
-    <span class="n">compile</span> <span class="s1">'com.squareup.okhttp:okhttp:2.3.0'</span>
-    <span class="n">compile</span><span class="o">(</span><span class="nl">name:</span> <span class="s1">'WhirlyGlobeMaply'</span><span class="o">,</span> <span class="nl">ext:</span> <span class="s1">'aar'</span><span class="o">)</span>
+    <span class="n">implementation</span> <span class="nf">fileTree</span><span class="o">(</span><span class="nl">dir:</span> <span class="s2">"libs"</span><span class="o">,</span> <span class="nl">include:</span> <span class="o">[</span><span class="s2">"*.jar"</span><span class="o">])</span>
+    <span class="n">implementation</span> <span class="s1">'androidx.appcompat:appcompat:1.1.0'</span>
+    <span class="n">implementation</span> <span class="s1">'androidx.constraintlayout:constraintlayout:1.1.3'</span>
+    <span class="n">testImplementation</span> <span class="s1">'junit:junit:4.12'</span>
+    <span class="n">androidTestImplementation</span> <span class="s1">'androidx.test.ext:junit:1.1.1'</span>
+    <span class="n">androidTestImplementation</span> <span class="s1">'androidx.test.espresso:espresso-core:3.2.0'</span>
+    <span class="n">implementation</span><span class="o">(</span><span class="s1">'com.squareup.okhttp:okhttp:2.3.0'</span><span class="o">)</span>
+    <span class="n">implementation</span><span class="o">(</span><span class="nl">name:</span><span class="s1">'WhirlyGlobeMaply'</span><span class="o">,</span> <span class="nl">ext:</span><span class="s1">'aar'</span><span class="o">)</span>
 <span class="o">}</span>
 </code></pre></div></div>
 
@@ -162,6 +151,9 @@
 
 <p><img src="resources/gradle-sync.png" alt="Gradle Sync" /></p>
 
+<hr />
+
+<p><em>Tutorial by Nicholas Hallahan, Steve Gifford, Tim Sylvester.</em></p>
 
 
           </div>
@@ -501,7 +493,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item current"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/building-from-binary.html">Building From Nightly</a></li>
+                      <li class="sidebar-list-item current"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/building-from-binary.html">Building From Binaries</a></li>
                       
                       
                       
