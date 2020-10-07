@@ -10,107 +10,66 @@ Building the toolkit from source, you'll be able to modify and customize WhirlyG
 
 ### Clone Git Repository
 
-First you will want to clone the toolkit from Github.
+First you will want to clone the toolkit from Github, if you have not already done so.
 
 ```sh
 git clone https://github.com/mousebird/WhirlyGlobe.git
 ```
 
-The Android portion of the SDK is in the `develop_3_0` branch. Check out this branch.
+The Android portion of the SDK is in the `develop` branch. Check out this branch.
 
 ```sh
 cd WhirlyGlobe
-git checkout develop_3_0
+git checkout develop
 ```
 
-WhirlyGlobe-Maply uses two submodules for its dependencies.
+WhirlyGlobe-Maply uses submodules for its dependencies, so you will need to initialize them as well.
+
+If you're using a GUI for Git, select the "recursive" option when cloning and it should take care of this.
 
 ```sh
 git submodule init
 git submodule update
 ```
 
+### Maply Module Reference
 
-### local.properties
-
-Our build scripts need to know the location of your Android SDK and Android NDK. This is done by creating a `local.properties` file in the `WhirlyGlobe/WhirlyGlobeSrc/Android/` directory. My `local.properties` file is below. Replace these paths to the paths of your Android SDK and NDK respectively.
+Open `settings.gradle (Project Settings)` and add the following lines, updating the relative path into the WhirlyGlobe repository, if necessary:
 
 ```
-sdk.dir=/Users/njh/Library/Android/sdk
-ndk.dir=/usr/local/Cellar/android-ndk/r10e
+include ':maply'
+project(':maply').projectDir = new File('../WhirlyGlobe-3/android/library/maply')
 ```
 
-Homebrew usually places packages in `/usr/local/Cellar`. This is a good place to look to find your NDK. You can find the location of your Android SDK your Android Studio Preferences (Android Studio > Preferences):
+![Maply Project Reference](resources/android-studio-maply-reference.png)
+
+Next, open `File`/`Project Structure`, select `Dependencies`, select the `app` module, click the `Add Dependency` (`+`) button, and select `Module Dependency`.
+
+![Module Dependency](resources/android-studio-module-dependency.png)
+
+In the resulting dialog, check the box next to `maply` and accept.
+
+![Maply Dependency](resources/android-studio-maply-dependency.png)
+
+From this point, Android Studio should build maply and use it whenever necessary while building `HelloEarth`.
+
+### Android SDK and NDK
+
+The build scripts need to know the location of the Android SDK and Android NDK.  Android Studio should take care of installing and/or locating an SDK directory for you, and should prompt you to install the appropriate NDK based on the version referenced by the Maply project.
+
+![NDK Prompt](resources/android-studio-ndk-version-error.png)
+
+If you need to adjust these settings, open Android Studio Preferences, select `Appearance and Behavior`, then `System Settings`, then `Android SDK`.  Here you will be able to select the SDK location, which should be handled automatically, and related packages.  The NDK can be found under `SDK Tools`, and individual NDK versions are available when the `Show Package Details` option is checked.
 
 ![SDK Location in Android Studio](resources/android-sdk-location-in-android-studio.png)
 
-### Building an AAR
+Once the appropriate SDK and NDK are available, open `File` / `Project Structure`, then select `SDK Location` and ensure that the paths are set correctly.
 
-The `.aar` is the binary package container format Android uses, an extension to Java's `.jar` container. Through gradle, we create an AAR of WhirlyGlobe-Maply that you can copy over to your Hello Earth project. First, make sure you are in the Android directory:
+![Project locations](resources/android-studio-sdk-ndk-locations.png)
 
-```
-WhirlyGlobe/WhirlyGlobeSrc/Android
-```
+### Set Version Compatibility
 
-Then, execute the `gradlew` build script:
-
-```
-./gradlew assemble
-```
-
-This will take several minutes. You will be compiling the entirety of WhirlyGlobe-Maply into an AAR file. In fact, there will be two AAR files--one in Debug mode and the other in Release mode.
-
-These AAR files will be located in:
-
-```
-WhirlyGlobe/WhirlyGlobeSrc/Android/build/outputs/aar
-```
-
-Unless you need to debug the underlying library, you should use the `Android-release.aar` in your Hello Earth project. Keep track of this file, you will need to copy it into your app's project.
-
-### Copy and Include AAR
-
-Copy your `Android-release.aar` that you built into your app's `libs` directory.
-
-```
-WhirlyGlobe/WhirlyGlobeSrc/HelloEarth/app/libs
-```
-
-Rename it to `WhirlyGlobeMaply.aar`.
-
-Add the following `flatDir` directive to your `Build.gradle (Project: HelloEarth)` file inside of the `allprojects > repositories` directive.
-
-```gradle
-allprojects {
-    repositories {
-        jcenter()
-        flatDir {
-            dirs 'libs'
-        }
-    }
-}
-```
-
-
-Next add the following packages to the end of the `dependencies` directive in `Build.gradle (Module: app)`.
-
-* `compile 'com.squareup.okhttp:okhttp:2.3.0'`
-* `compile(name:'WhirlyGlobeMaply', ext:'aar')`
-
-```gradle
-dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:24.0.0'
-    compile 'com.android.support:support-v4:24.0.0'
-    compile 'com.squareup.okhttp:okhttp:2.3.0'
-    compile(name: 'WhirlyGlobeMaply', ext: 'aar')
-}
-```
-
-Android Studio will ask you to sync Gradle. If all goes well, it will sync without complaint.
-
-![Gradle Sync](resources/gradle-sync.png)
+In order to avoid errors and conflicts, set the source and target compatibility options for the new application to match those of the maply module in the `File` / `Project Structure` options dialog.
 
 ### Example App
 

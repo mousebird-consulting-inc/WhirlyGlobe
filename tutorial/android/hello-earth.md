@@ -27,6 +27,7 @@ Select __Finish__.  You should see something similar to this.
 
 ![Overview of New Project](resources/android-studio-activity-overview.png)
 
+
 ### WhirlyGlobe-Maply Distributions
 
 At this point, you have started a new standard project, but you need to add WhirlyGlobe-Maply library as a dependency. 
