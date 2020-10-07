@@ -224,13 +224,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_setupShadersNat
 		SceneRendererWrapper rendWrap(env,renderer->getScene(),obj);
 
 		// Default line shaders
-		ProgramGLESRef defaultLineShader(BuildDefaultLineShaderCullingGLES(MaplyDefaultLineShader,renderer));
-		ProgramGLESRef defaultLineShaderNoBack(BuildDefaultLineShaderNoCullingGLES(MaplyNoBackfaceLineShader,renderer));
 		if (isGlobe)
-			rendWrap.addShader(MaplyDefaultLineShader,defaultLineShader);
+			rendWrap.addShader(MaplyDefaultLineShader,ProgramGLESRef(BuildDefaultLineShaderCullingGLES(MaplyDefaultLineShader,renderer)));
 		else
-			rendWrap.addShader(MaplyDefaultLineShader,defaultLineShaderNoBack);
-		rendWrap.addShader(MaplyNoBackfaceLineShader,defaultLineShaderNoBack);
+			rendWrap.addShader(MaplyDefaultLineShader,ProgramGLESRef(BuildDefaultLineShaderNoCullingGLES(MaplyDefaultLineShader,renderer)));
+		rendWrap.addShader(MaplyNoBackfaceLineShader,ProgramGLESRef(BuildDefaultLineShaderNoCullingGLES(MaplyNoBackfaceLineShader,renderer)));
 
 		// Default triangle shaders
 		rendWrap.addShader(MaplyDefaultTriangleShader,ProgramGLESRef(BuildDefaultTriShaderLightingGLES(MaplyDefaultTriangleShader,renderer)));
