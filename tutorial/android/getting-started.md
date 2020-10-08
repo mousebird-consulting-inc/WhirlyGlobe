@@ -3,8 +3,6 @@ title: Before You Start
 layout: android-tutorial
 ---
 
-*Tutorial by Nicholas Hallahan, Steve Gifford, Tim Sylvester.*
-
 ### Code Blocks
 
 There are times you’ll need to enter project settings, code, or commands in the Terminal verbatim. They will look like this:

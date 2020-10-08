@@ -3,40 +3,21 @@ title: AutoTesterAndroid Example App
 layout: android-tutorial
 ---
 
-*Tutorial by Nicholas Hallahan.*
+[AutoTesterAndroid](https://github.com/mousebird/WhirlyGlobe/tree/master/WhirlyGlobeSrc/android/apps/AutoTesterAndroid) is an example application which demonstrates and tests many WhirlyGlobe-Maply features. This app uses both the Whirly Globe globe and Maply map.
 
-AutoTesterAndroid is the [example app](https://github.com/mousebird/WhirlyGlobe/tree/develop_3_0/WhirlyGlobeSrc/AutoTesterAndroid) that demonstrates and tests many WhirlyGlobe-Maply features. This app uses both the Whirly Globe globe and Maply map.
+First, you'll need to clone the [WhirlyGlobe-Maply Repository](https://github.com/mousebird/WhirlyGlobe).
 
-```sh
-cd WhirlyGlobeSrc/AutoTesterAndroid
-```
+{% highlight bash %}
+git clone https://github.com/mousebird/WhirlyGlobe.git
+{% endhighlight %}
 
-There is a script that will compile and build the project for you. This script compiles an AAR and moves it to the correct directory in the AutoTesterAndroid project. It is for your convenience.
+Them, in Android Studio, select the __File__ / __Open__ command, navigate to and select the `android/apps/AutoTesterAndroid` directory to open the project.
 
-```sh
-./buildmaply.sh
-```
+Once open, you should be able to use the __Run 'app'__ command to start AutoTesterAndroid on the selected device or simulator.
 
-Upon success, you should see:
+<img src="resources/auto-tester.jpg" alt="AutoTester" style="max-width:50%; display: block; margin: auto;" />
 
-```
-BUILD SUCCESSFUL
+---
 
-Total time: 5 mins 53.322 secs
-```
+*Tutorial by Nicholas Hallahan, Steve Gifford, Tim Sylvester.*
 
-Now, open Android Studio and select __Import project__.
-
-![Import Project](resources/import-project.png)
-
-Browse to the root of the `AutoTesterAndroid` project, which is located in:
-
-```
-WhirlyGlobe/WhirlyGlobeSrc/AutoTesterAndroid
-```
-
-That's it! You should be able to build the project normally in Android Studio.
-
-| WhirlyGlobe Component | Maply Component |
-| -- | -- |
-| ![](resources/whirlyglobe-component.jpg) | ![](resources/maply-component.jpg)|
