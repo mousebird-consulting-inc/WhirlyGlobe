@@ -10,7 +10,7 @@
 ">
 
   <!-- Bootstrap -->
-  <link href="/WhirlyGlobe-3/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/css/bootstrap.min.css" rel="stylesheet">
 
   <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -19,15 +19,15 @@
   <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
   <![endif]-->
 
-  <link rel="stylesheet" href="/WhirlyGlobe-3/css/main.css">
-  <link rel="canonical" href="http://mousebird.github.io//WhirlyGlobe-3/tutorial/android/vector-data.html">
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://0.0.0.0:4000/tutorial/android/vector-data.html">
 
   <!-- Fontwork -->
-  <link rel="stylesheet" type="text/css" href="/WhirlyGlobe-3/css/MyFontsWebfontsKit.css">
+  <link rel="stylesheet" type="text/css" href="/css/MyFontsWebfontsKit.css">
   <link href='https://fonts.googleapis.com/css?family=Roboto:300' rel='stylesheet' type='text/css'>
 
   <!-- Fav Icon -->
-  <link rel="shortcut icon" href="/WhirlyGlobe-3/images/fav-icon.ico" />
+  <link rel="shortcut icon" href="/images/fav-icon.ico" />
 
   <!--
   /**
@@ -83,15 +83,15 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="/WhirlyGlobe-3/"><img src="/WhirlyGlobe-3/images/WhirlyGlobe-Maply-33.png" width="239" height="33" alt="WhirlyGlobe-Maply"></a>
+        <a class="navbar-brand" href="/"><img src="/images/WhirlyGlobe-Maply-33.png" width="239" height="33" alt="WhirlyGlobe-Maply"></a>
       </div>
       <div class="collapse navbar-collapse">
         <ul class="nav navbar-nav navbar-right">
-          <li><a href="/WhirlyGlobe-3/">Home</a></li>
-          <li><a href="/WhirlyGlobe-3/tutorial/">Tutorial</a></li>
-          <li><a href="/WhirlyGlobe-3/reference/reference.html">Reference</a></li>
-          <li><a href="/WhirlyGlobe-3/apps/apps.html">Apps</a></li>
-          <li><a href="/WhirlyGlobe-3/builds/builds.html">Builds</a></li>
+          <li><a href="/">Home</a></li>
+          <li><a href="/tutorial/">Tutorial</a></li>
+          <li><a href="/reference/reference.html">Reference</a></li>
+          <li><a href="/apps/apps.html">Apps</a></li>
+          <li><a href="/builds/builds.html">Builds</a></li>
         </ul>
       </div>
     </div>
@@ -105,13 +105,13 @@
           <div class="col-sm-9 tutorial tutorial-main">
 
             <h2>Vector Data</h2>
-            <p><em>Tutorial by Nicholas Hallahan.</em></p>
-
-<p>This tutorial guides you through adding GeoJSON vector data to your map. Picking up from the previous tutorial, create a new Java file in your <code class="highlighter-rouge">helloearth</code> package. Name it <code class="highlighter-rouge">GeoJsonHttpTask.java</code>. You can reference the completed <a href="https://github.com/mousebird/AndroidTutorialProject/blob/master/app/src/main/java/io/theoutpost/helloearth/GeoJsonHttpTask.java">GeoJsonHttpTask.java</a> on Github.</p>
+            <p>This tutorial guides you through adding GeoJSON vector data to your globe.</p>
 
 <h3 id="create-asynctask">Create AsyncTask</h3>
 
-<p>This Java class will extend <code class="highlighter-rouge">AsyncTask</code> , allowing you to do an HTTP request in the background. Doing a long-lasting task in as an AsyncTask keeps your main UI thread from locking up. Paste the following boilerplate code in your <code class="highlighter-rouge">GeoJsonHttpTask.java</code> file.</p>
+<p>Picking up from the previous tutorial, create a new Java file in your <code class="highlighter-rouge">helloearth</code> package. Name it <code class="highlighter-rouge">GeoJsonHttpTask.java</code>. You can reference the completed <a href="https://github.com/mousebird/AndroidTutorialProject/blob/master/app/src/main/com/mousebirdconsulting/helloearth/GeoJsonHttpTask.java">GeoJsonHttpTask.java</a> on Github.</p>
+
+<p>This Java class will extend <code class="highlighter-rouge">AsyncTask</code>, representing an HTTP request for GeoJSON in the background which adds the result to the given controller. Doing a long-lasting task in as an AsyncTask keeps your main UI thread from locking up. Paste the following boilerplate code in your <code class="highlighter-rouge">GeoJsonHttpTask.java</code> file.</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">io.theoutpost.helloearth</span><span class="o">;</span>
 
@@ -137,17 +137,6 @@
     <span class="o">}</span>
 <span class="o">}</span>
 </code></pre></div></div>
-
-<h3 id="instantiate-geojsonhttptask">Instantiate GeoJsonHttpTask</h3>
-
-<p>In <code class="highlighter-rouge">HelloMapFragment.java</code>, place the <a href="https://github.com/mousebird/AndroidTutorialProject/blob/edf4f6f3414c79f5c4e43a3f0c79e0d64c41a866/app/src/main/java/io/theoutpost/helloearth/HelloMapFragment.java#L102-L104">following code</a> at the end of the <code class="highlighter-rouge">controlHasStarted</code> method.</p>
-
-<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">final</span> <span class="nc">String</span> <span class="n">url</span> <span class="o">=</span> <span class="s">"https://s3.amazonaws.com/whirlyglobedocs/tutorialsupport/RUS.geojson"</span><span class="o">;</span>
-<span class="nc">GeoJsonHttpTask</span> <span class="n">task</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">GeoJsonHttpTask</span><span class="o">(</span><span class="n">mapControl</span><span class="o">);</span>
-<span class="n">task</span><span class="o">.</span><span class="na">executeOnExecutor</span><span class="o">(</span><span class="nc">AsyncTask</span><span class="o">.</span><span class="na">THREAD_POOL_EXECUTOR</span><span class="o">,</span> <span class="n">url</span><span class="o">);</span>
-</code></pre></div></div>
-
-<p>This will instantiate your GeoJsonHttpTask AsyncTask and give it a reference to the map controller. Then, we execute the task from a background thread pool and give it a URL to the GeoJSON you want on the map.</p>
 
 <h3 id="fetch-geojson-string">Fetch GeoJSON String</h3>
 
@@ -189,21 +178,71 @@
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Override</span>
 <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onPostExecute</span><span class="o">(</span><span class="nc">String</span> <span class="n">json</span><span class="o">)</span> <span class="o">{</span>
-    <span class="nc">VectorInfo</span> <span class="n">vectorInfo</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">VectorInfo</span><span class="o">();</span>
-    <span class="n">vectorInfo</span><span class="o">.</span><span class="na">setColor</span><span class="o">(</span><span class="nc">Color</span><span class="o">.</span><span class="na">RED</span><span class="o">);</span>
-    <span class="n">vectorInfo</span><span class="o">.</span><span class="na">setLineWidth</span><span class="o">(</span><span class="mi">4</span><span class="o">.</span><span class="na">f</span><span class="o">);</span>
     <span class="nc">VectorObject</span> <span class="n">object</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">VectorObject</span><span class="o">();</span>
     <span class="k">if</span> <span class="o">(</span><span class="n">object</span><span class="o">.</span><span class="na">fromGeoJSON</span><span class="o">(</span><span class="n">json</span><span class="o">))</span> <span class="o">{</span>
-        <span class="n">controller</span><span class="o">.</span><span class="na">addVector</span><span class="o">(</span><span class="n">object</span><span class="o">,</span> <span class="n">vectorInfo</span><span class="o">,</span> <span class="nc">MaplyBaseController</span><span class="o">.</span><span class="na">ThreadMode</span><span class="o">.</span><span class="na">ThreadAny</span><span class="o">);</span>
+        <span class="nc">VectorInfo</span> <span class="n">vectorInfo</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">VectorInfo</span><span class="o">();</span>
+        <span class="n">vectorInfo</span><span class="o">.</span><span class="na">setColor</span><span class="o">(</span><span class="nc">Color</span><span class="o">.</span><span class="na">RED</span><span class="o">);</span>
+        <span class="n">vectorInfo</span><span class="o">.</span><span class="na">setLineWidth</span><span class="o">(</span><span class="mi">4</span><span class="o">.</span><span class="na">f</span><span class="o">);</span>
+        <span class="n">controller</span><span class="o">.</span><span class="na">addVector</span><span class="o">(</span><span class="n">object</span><span class="o">,</span> <span class="n">vectorInfo</span><span class="o">,</span> <span class="nc">BaseController</span><span class="o">.</span><span class="na">ThreadMode</span><span class="o">.</span><span class="na">ThreadAny</span><span class="o">);</span>
     <span class="o">}</span>
 <span class="o">}</span>
 </code></pre></div></div>
 
-<p>The <code class="highlighter-rouge">if</code> statement checks if we were able to create a vector object from the JSON string. If it is null or invalid GeoJSON, <code class="highlighter-rouge">fromGeoJSON</code> returns false. Also notice that when you add the vector to the map controller, the 3rd argument is <code class="highlighter-rouge">MaplyBaseController.ThreadMode.ThreadAny</code>. This <code class="highlighter-rouge">enum</code> states that the underlying tesselation and geometry processing work is done in a worker thread in the WhirlyGlobe library. You can alternatively use <code class="highlighter-rouge">MaplyBaseController.ThreadMode.ThreadCurrent</code> if you want to have control over what thread this underlying work is executed on.</p>
+<p>Here we create a vector object out of the GeoJSON.  If successful, we add it to the target controller to be drawn on each frame where it’s visible.</p>
 
-<p>That’s it! You now should see the red outline of Russia on the map from GeoJSON fetched via HTTP.</p>
+<p>Notice that when you add the vector to the map controller, the 3rd argument is <code class="highlighter-rouge">ThreadMode.ThreadAny</code>. This indicates that the underlying tesselation and geometry processing work is to be done in a worker thread in the WhirlyGlobe library. You can use <code class="highlighter-rouge">ThreadMode.ThreadCurrent</code> if you want to control the thread on which this work is done.</p>
+
+<h3 id="instantiate-geojsonhttptask">Instantiate GeoJsonHttpTask</h3>
+
+<p>Again create a new fragment, <code class="highlighter-rouge">HelloGeoJsonFragment</code> or use <a href="https://github.com/mousebird/AndroidTutorialProject/blob/master/app/src/main/java/com/mousebirdconsulting/helloearth/HelloGeoJsonFragment.java">HelloGeoJsonFragment.java</a>.  Here we build on <code class="highlighter-rouge">HelloGlobeFragment</code> and add our GeoJSON request.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">com.mousebirdconsulting.helloearth</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">android.os.AsyncTask</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">HelloGeoJsonFragment</span> <span class="kd">extends</span> <span class="nc">HelloGlobeFragment</span> <span class="o">{</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">controlHasStarted</span><span class="o">()</span> <span class="o">{</span>
+        <span class="kd">super</span><span class="o">.</span><span class="na">controlHasStarted</span><span class="o">();</span>
+
+        <span class="kt">double</span> <span class="n">latitude</span> <span class="o">=</span> <span class="mi">60</span> <span class="o">*</span> <span class="nc">Math</span><span class="o">.</span><span class="na">PI</span> <span class="o">/</span> <span class="mi">180</span><span class="o">;</span>
+        <span class="kt">double</span> <span class="n">longitude</span> <span class="o">=</span> <span class="mi">90</span> <span class="o">*</span> <span class="nc">Math</span><span class="o">.</span><span class="na">PI</span> <span class="o">/</span> <span class="mi">180</span><span class="o">;</span>
+        <span class="kt">double</span> <span class="n">zoom_earth_radius</span> <span class="o">=</span> <span class="mf">2.0</span><span class="o">;</span>
+        <span class="n">globeControl</span><span class="o">.</span><span class="na">animatePositionGeo</span><span class="o">(</span><span class="n">longitude</span><span class="o">,</span> <span class="n">latitude</span><span class="o">,</span> <span class="n">zoom_earth_radius</span><span class="o">,</span> <span class="mf">1.0</span><span class="o">);</span>
+
+        <span class="kd">final</span> <span class="nc">String</span> <span class="n">url</span> <span class="o">=</span> <span class="s">"https://s3.amazonaws.com/whirlyglobedocs/tutorialsupport/RUS.geojson"</span><span class="o">;</span>
+
+        <span class="k">if</span> <span class="o">(</span><span class="n">loadTask</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">loadTask</span><span class="o">.</span><span class="na">cancel</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+            <span class="n">loadTask</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="n">loadTask</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">GeoJsonHttpTask</span><span class="o">(</span><span class="n">globeControl</span><span class="o">);</span>
+
+        <span class="n">loadTask</span><span class="o">.</span><span class="na">executeOnExecutor</span><span class="o">(</span><span class="nc">AsyncTask</span><span class="o">.</span><span class="na">THREAD_POOL_EXECUTOR</span><span class="o">,</span> <span class="n">url</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onDestroy</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">loadTask</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">loadTask</span><span class="o">.</span><span class="na">cancel</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+            <span class="n">loadTask</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="kd">super</span><span class="o">.</span><span class="na">onDestroy</span><span class="o">();</span>
+    <span class="o">}</span>
+
+    <span class="kd">private</span> <span class="nc">GeoJsonHttpTask</span> <span class="n">loadTask</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>You now should see the red outline of Russia on the map from GeoJSON fetched via HTTP.</p>
 
 <p><img src="resources/russia-geojson.jpg" alt="Russia GeoJSON" /></p>
+
+<hr />
+
+<p><em>Tutorial by Nicholas Hallahan, Steve Gifford, Tim Sylvester.</em></p>
+
 
 
           </div>
@@ -267,7 +306,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/getting-started.html">Before You Start</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/getting-started.html">Before You Start</a></li>
                       
                       
                       
@@ -432,7 +471,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/hello-earth.html">Hello Earth Project</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/hello-earth.html">Hello Earth Project</a></li>
                       
                       
                       
@@ -543,7 +582,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/building-from-binary.html">Building From Binaries</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/building-from-binary.html">Building From Binaries</a></li>
                       
                       
                       
@@ -699,7 +738,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/building-from-source.html">Building From Source</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/building-from-source.html">Building From Source</a></li>
                       
                       
                       
@@ -974,7 +1013,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/your-first-globe-or-map.html">Your First Globe or Map</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/your-first-globe-or-map.html">Your First Globe or Map</a></li>
                       
                       
                       
@@ -1061,7 +1100,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/local-image-layer.html">Local Image Layer</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/local-image-layer.html">Local Image Layer</a></li>
                       
                       
                       
@@ -1276,7 +1315,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item current"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/vector-data.html">Vector Data</a></li>
+                      <li class="sidebar-list-item current"><a class="page-link" href="/tutorial/android/vector-data.html">Vector Data</a></li>
                       
                       
                       
@@ -1399,7 +1438,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/screen-markers.html">Screen Markers</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/screen-markers.html">Screen Markers</a></li>
                       
                       
                       
@@ -1546,7 +1585,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/screen-labels.html">Screen Labels</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/screen-labels.html">Screen Labels</a></li>
                       
                       
                       
@@ -1725,7 +1764,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/spheres-android.html">Spheres</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/spheres-android.html">Spheres</a></li>
                       
                       
                       
@@ -1901,7 +1940,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/vector-selection.html">Vector Selection</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/vector-selection.html">Vector Selection</a></li>
                       
                       
                       
@@ -2018,7 +2057,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/screen-marker-selection.html">Screen Marker Selection</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/screen-marker-selection.html">Screen Marker Selection</a></li>
                       
                       
                       
@@ -2095,7 +2134,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/auto-tester-android.html">AutoTesterAndroid Example App</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/auto-tester-android.html">AutoTesterAndroid Example App</a></li>
                       
                       
                       
@@ -2317,7 +2356,7 @@
             
 
             <!-- deliver next/prev links -->
-            <a class="prev" href="/WhirlyGlobe-3/tutorial/android/local-image-layer.html">Previous</a><a class="next" href="/WhirlyGlobe-3/tutorial/android/screen-markers.html">Next</a>
+            <a class="prev" href="/tutorial/android/local-image-layer.html">Previous</a><a class="next" href="/tutorial/android/screen-markers.html">Next</a>
 
 
             
@@ -2380,7 +2419,7 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 
 <!-- Include all compiled plugins (below), or include individual files as needed -->
-<script src="/WhirlyGlobe-3/js/bootstrap.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
 
 <footer class="site-footer">
 
@@ -2422,7 +2461,7 @@
 
         <div class="col-sm-2">
           <ul class="contact-list">
-            <li><a href="/WhirlyGlobe-3/">WhirlyGlobe-Maply</a></li>
+            <li><a href="/">WhirlyGlobe-Maply</a></li>
             <li><a href="mailto:contact@mousebirdconsulting.com">contact@mousebirdconsulting.com</a></li>
           </ul>
         </div>
@@ -2473,6 +2512,6 @@
   </div>
 </footer>
 
-    <script src="/WhirlyGlobe-3/js/tutorial.js"></script>
+    <script src="/js/tutorial.js"></script>
   </body>
 </html>

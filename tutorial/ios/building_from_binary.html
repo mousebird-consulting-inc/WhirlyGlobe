@@ -10,7 +10,7 @@
 ">
 
   <!-- Bootstrap -->
-  <link href="/WhirlyGlobe-3/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/css/bootstrap.min.css" rel="stylesheet">
 
   <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -19,15 +19,15 @@
   <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
   <![endif]-->
 
-  <link rel="stylesheet" href="/WhirlyGlobe-3/css/main.css">
-  <link rel="canonical" href="http://mousebird.github.io//WhirlyGlobe-3/tutorial/ios/building_from_binary.html">
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://0.0.0.0:4000/tutorial/ios/building_from_binary.html">
 
   <!-- Fontwork -->
-  <link rel="stylesheet" type="text/css" href="/WhirlyGlobe-3/css/MyFontsWebfontsKit.css">
+  <link rel="stylesheet" type="text/css" href="/css/MyFontsWebfontsKit.css">
   <link href='https://fonts.googleapis.com/css?family=Roboto:300' rel='stylesheet' type='text/css'>
 
   <!-- Fav Icon -->
-  <link rel="shortcut icon" href="/WhirlyGlobe-3/images/fav-icon.ico" />
+  <link rel="shortcut icon" href="/images/fav-icon.ico" />
 
   <!--
   /**
@@ -83,15 +83,15 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="/WhirlyGlobe-3/"><img src="/WhirlyGlobe-3/images/WhirlyGlobe-Maply-33.png" width="239" height="33" alt="WhirlyGlobe-Maply"></a>
+        <a class="navbar-brand" href="/"><img src="/images/WhirlyGlobe-Maply-33.png" width="239" height="33" alt="WhirlyGlobe-Maply"></a>
       </div>
       <div class="collapse navbar-collapse">
         <ul class="nav navbar-nav navbar-right">
-          <li><a href="/WhirlyGlobe-3/">Home</a></li>
-          <li><a href="/WhirlyGlobe-3/tutorial/">Tutorial</a></li>
-          <li><a href="/WhirlyGlobe-3/reference/reference.html">Reference</a></li>
-          <li><a href="/WhirlyGlobe-3/apps/apps.html">Apps</a></li>
-          <li><a href="/WhirlyGlobe-3/builds/builds.html">Builds</a></li>
+          <li><a href="/">Home</a></li>
+          <li><a href="/tutorial/">Tutorial</a></li>
+          <li><a href="/reference/reference.html">Reference</a></li>
+          <li><a href="/apps/apps.html">Apps</a></li>
+          <li><a href="/builds/builds.html">Builds</a></li>
         </ul>
       </div>
     </div>
@@ -119,7 +119,7 @@
 
 <p>We build WhirlyGlobe-Maply as a binary framework.  Those need to be explicitly imported into the project.</p>
 
-<p><img src="/WhirlyGlobe-3/images/tutorial/source_dist_1.png" alt="Adding the Framework" /></p>
+<p><img src="/images/tutorial/source_dist_1.png" alt="Adding the Framework" /></p>
 
 <p>To add an external library in Xcode, select the top level HelloEarth node in the project tab, click the + at the bottom, and then <strong>Add Files</strong> from the <strong>Add Other</strong> dropdown.</p>
 
@@ -135,19 +135,19 @@
 
 <p>Next, we need to indicate where to find the framework and the header files. Open up Build Settings and scroll down to <strong>Framework Search Paths</strong>.  Add your <strong>BinaryDirectory</strong> here.  This should be the level where your <em>WhirlyGlobeMaplyComponent.framework</em> directory lives.</p>
 
-<p><img src="/WhirlyGlobe-3/images/tutorial/binary_dist_2.png" alt="Adding the Dependent Project" /></p>
+<p><img src="/images/tutorial/binary_dist_2.png" alt="Adding the Dependent Project" /></p>
 
 <p>For the header files, find the <strong>Header Search Paths</strong> in your Build Settings.  Add the path to your <strong>BinaryDirectory</strong> plus Headers, like so.</p>
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="s2">"BinaryDirectory/WhirlyGlobeMaplyComponent.framework/Headers/"</span></code></pre></figure>
 
-<p><img src="/WhirlyGlobe-3/images/tutorial/binary_dist_3.png" alt="Adding the Dependent Project" /></p>
+<p><img src="/images/tutorial/binary_dist_3.png" alt="Adding the Dependent Project" /></p>
 
 <p>Last, we’ll need to pull in a bridging header for Swift.  If you’re not using Swift you don’t need to do this.</p>
 
 <p>Go to Build Settings and look for “Objective-C Bridging Header”.</p>
 
-<p><img src="/WhirlyGlobe-3/images/tutorial/binary_dist_4.png" alt="Adding the Objective-C bridging header" /></p>
+<p><img src="/images/tutorial/binary_dist_4.png" alt="Adding the Objective-C bridging header" /></p>
 
 <p>Type there the following path:</p>
 
@@ -224,7 +224,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/ios/getting_started.html">Before You Start</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/ios/getting_started.html">Before You Start</a></li>
                       
                       
                       
@@ -389,7 +389,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/ios/hello_earth.html">Hello Earth Project</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/ios/hello_earth.html">Hello Earth Project</a></li>
                       
                       
                       
@@ -509,7 +509,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/ios/building_from_source.html">Source Distribution</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/ios/building_from_source.html">Source Distribution</a></li>
                       
                       
                       
@@ -656,7 +656,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item current"><a class="page-link" href="/WhirlyGlobe-3/tutorial/ios/building_from_binary.html">Binary Distribution</a></li>
+                      <li class="sidebar-list-item current"><a class="page-link" href="/tutorial/ios/building_from_binary.html">Binary Distribution</a></li>
                       
                       
                       
@@ -812,7 +812,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/ios/building_from_cocoapod.html">Cocoapods</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/ios/building_from_cocoapod.html">Cocoapods</a></li>
                       
                       
                       
@@ -997,7 +997,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/ios/globe_or_map.html">Globe Or Map</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/ios/globe_or_map.html">Globe Or Map</a></li>
                       
                       
                       
@@ -1237,7 +1237,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/ios/your_first_globe.html">Your First Globe</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/ios/your_first_globe.html">Your First Globe</a></li>
                       
                       
                       
@@ -1393,7 +1393,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/ios/your_first_map.html">Your First Map</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/ios/your_first_map.html">Your First Map</a></li>
                       
                       
                       
@@ -1482,7 +1482,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/ios/local_image_layer.html">Local Image Layer</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/ios/local_image_layer.html">Local Image Layer</a></li>
                       
                       
                       
@@ -1650,7 +1650,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/ios/remote_image_layer.html">Remote Image Layer</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/ios/remote_image_layer.html">Remote Image Layer</a></li>
                       
                       
                       
@@ -1724,7 +1724,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/ios/adding_vector_data.html">Vector Data</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/ios/adding_vector_data.html">Vector Data</a></li>
                       
                       
                       
@@ -1979,7 +1979,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/ios/screen_markers.html">Screen Markers</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/ios/screen_markers.html">Screen Markers</a></li>
                       
                       
                       
@@ -2126,7 +2126,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/ios/screen_labels.html">Screen Labels</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/ios/screen_labels.html">Screen Labels</a></li>
                       
                       
                       
@@ -2297,7 +2297,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/ios/styled_geojson.html">Styled GeoJSON</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/ios/styled_geojson.html">Styled GeoJSON</a></li>
                       
                       
                       
@@ -2452,7 +2452,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/ios/spheres.html">Spheres</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/ios/spheres.html">Spheres</a></li>
                       
                       
                       
@@ -2628,7 +2628,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/ios/vector_selection.html">Vector Selection</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/ios/vector_selection.html">Vector Selection</a></li>
                       
                       
                       
@@ -2751,7 +2751,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/ios/screen_marker_selection.html">Screen Marker Selection</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/ios/screen_marker_selection.html">Screen Marker Selection</a></li>
                       
                       
                       
@@ -2877,7 +2877,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/ios/location_tracking.html">Location Tracking</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/ios/location_tracking.html">Location Tracking</a></li>
                       
                       
                       
@@ -2993,7 +2993,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/ios/cartodb_layer.html">Carto Layer</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/ios/cartodb_layer.html">Carto Layer</a></li>
                       
                       
                       
@@ -3152,7 +3152,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/ios/digitalglobe_mapsapi.html">DigitalGlobe Maps API</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/ios/digitalglobe_mapsapi.html">DigitalGlobe Maps API</a></li>
                       
                       
                       
@@ -3277,7 +3277,7 @@
         <div class="row">
           <div class="col-sm-9" id="prev-next">
             
-            <a class="prev" href="/WhirlyGlobe-3/tutorial/ios/hello_earth.html">Previous</a><a class="next" href="/WhirlyGlobe-3/tutorial/ios/globe_or_map.html">Next</a>
+            <a class="prev" href="/tutorial/ios/hello_earth.html">Previous</a><a class="next" href="/tutorial/ios/globe_or_map.html">Next</a>
 
 
             
@@ -3292,7 +3292,7 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 
 <!-- Include all compiled plugins (below), or include individual files as needed -->
-<script src="/WhirlyGlobe-3/js/bootstrap.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
 
 <footer class="site-footer">
 
@@ -3334,7 +3334,7 @@
 
         <div class="col-sm-2">
           <ul class="contact-list">
-            <li><a href="/WhirlyGlobe-3/">WhirlyGlobe-Maply</a></li>
+            <li><a href="/">WhirlyGlobe-Maply</a></li>
             <li><a href="mailto:contact@mousebirdconsulting.com">contact@mousebirdconsulting.com</a></li>
           </ul>
         </div>
@@ -3385,6 +3385,6 @@
   </div>
 </footer>
 
-    <script src="/WhirlyGlobe-3/js/tutorial.js"></script>
+    <script src="/js/tutorial.js"></script>
   </body>
 </html>

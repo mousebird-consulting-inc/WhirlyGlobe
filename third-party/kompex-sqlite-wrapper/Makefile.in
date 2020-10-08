@@ -1,0 +1,62 @@
+SHELL = /bin/sh
+VPATH = @srcdir@
+
+prefix_ = @prefix@
+real_include := $(prefix_)/include
+real_lib := $(prefix_)/lib
+
+ifneq ($(DESTDIR),)
+	prefix_ = $(DESTDIR)@prefix@
+endif
+
+subdirs = @subdirs@
+top_srcdir = @top_srcdir@
+srcdir = @srcdir@/src
+includedir = @srcdir@/include
+builddir = @srcdir@/build
+prelibdir = @srcdir@/lib
+prefix = $(prefix_)
+exec_prefix = @exec_prefix@
+infodir = $(prefix)/info
+libdir = $(prefix)/lib
+mandir = $(prefix)/share/man/man3
+headerdir = $(prefix)/include/kompex
+
+CC = @CC@
+CFLAGS = @CFLAGS@
+CPPFLAGS = $(CFLAGS) @CPPFLAGS@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@
+INSTALL = @INSTALL@
+MKDIR = mkdir
+RANLIB = ranlib
+
+PRODUCT_NAME=kompex-sqlite-wrapper
+
+all: static shared
+
+clean:
+	$(RM) -r ${builddir}
+	$(RM) -r ${prelibdir}
+	$(RM) man/*.{[1-9],gz}
+	$(RM) config.{h,log,status}
+	$(RM) Makefile
+
+static:
+	$(MAKE) -f Makefile-static.mk CONF=static .build-conf
+
+shared:
+	$(MAKE) -f Makefile-shared.mk CONF=shared .build-conf
+
+install: doc
+	$(MKDIR) -p $(libdir)
+	$(MKDIR) -p $(headerdir)
+	$(MKDIR) -p $(mandir)
+	cp $(prelibdir)/* $(libdir)
+	cp $(includedir)/* $(headerdir)
+	cp man/kompex.3.gz $(mandir)
+
+doc:
+	sed -e "s#{libdir}#${real_lib}#g" -e "s#{PRODUCT_NAME}#${PRODUCT_NAME}#g" -e "s#{headerdir}#${real_include}#g" man/kompex.roff > man/kompex.3
+	gzip -f man/kompex.3
+

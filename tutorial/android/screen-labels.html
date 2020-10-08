@@ -10,7 +10,7 @@
 ">
 
   <!-- Bootstrap -->
-  <link href="/WhirlyGlobe-3/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/css/bootstrap.min.css" rel="stylesheet">
 
   <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -19,15 +19,15 @@
   <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
   <![endif]-->
 
-  <link rel="stylesheet" href="/WhirlyGlobe-3/css/main.css">
-  <link rel="canonical" href="http://mousebird.github.io//WhirlyGlobe-3/tutorial/android/screen-labels.html">
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://0.0.0.0:4000/tutorial/android/screen-labels.html">
 
   <!-- Fontwork -->
-  <link rel="stylesheet" type="text/css" href="/WhirlyGlobe-3/css/MyFontsWebfontsKit.css">
+  <link rel="stylesheet" type="text/css" href="/css/MyFontsWebfontsKit.css">
   <link href='https://fonts.googleapis.com/css?family=Roboto:300' rel='stylesheet' type='text/css'>
 
   <!-- Fav Icon -->
-  <link rel="shortcut icon" href="/WhirlyGlobe-3/images/fav-icon.ico" />
+  <link rel="shortcut icon" href="/images/fav-icon.ico" />
 
   <!--
   /**
@@ -83,15 +83,15 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="/WhirlyGlobe-3/"><img src="/WhirlyGlobe-3/images/WhirlyGlobe-Maply-33.png" width="239" height="33" alt="WhirlyGlobe-Maply"></a>
+        <a class="navbar-brand" href="/"><img src="/images/WhirlyGlobe-Maply-33.png" width="239" height="33" alt="WhirlyGlobe-Maply"></a>
       </div>
       <div class="collapse navbar-collapse">
         <ul class="nav navbar-nav navbar-right">
-          <li><a href="/WhirlyGlobe-3/">Home</a></li>
-          <li><a href="/WhirlyGlobe-3/tutorial/">Tutorial</a></li>
-          <li><a href="/WhirlyGlobe-3/reference/reference.html">Reference</a></li>
-          <li><a href="/WhirlyGlobe-3/apps/apps.html">Apps</a></li>
-          <li><a href="/WhirlyGlobe-3/builds/builds.html">Builds</a></li>
+          <li><a href="/">Home</a></li>
+          <li><a href="/tutorial/">Tutorial</a></li>
+          <li><a href="/reference/reference.html">Reference</a></li>
+          <li><a href="/apps/apps.html">Apps</a></li>
+          <li><a href="/builds/builds.html">Builds</a></li>
         </ul>
       </div>
     </div>
@@ -105,17 +105,39 @@
           <div class="col-sm-9 tutorial tutorial-main">
 
             <h2>Screen Labels</h2>
-            <p><em>Tutorial by Nicholas Hallahan.</em></p>
+            <p>Adding screen lables is a very similar process to adding screen markers. Screen labels are 2D labels that follow a location on the globe or map. As the user moves, they move, but don’t get any bigger or smaller. You have a lot of control over how they look and interact, but they’re simple to use.</p>
 
-<p>Adding screen lables is a very similar process to adding screen markers. Screen labels are 2D labels that follow a location on the globe or map. As the user moves, they move, but don’t get any bigger or smaller. You have a lot of control over how they look and interact, but they’re simple to use.</p>
-
-<p>In our last tutorial we added some markers for the 5 largest cities in Russia. Since WhirlyGlobe-Maply supports UTF-8 strings, we’re going to show off some cyrillic labels. We are going to add to our <a href="https://github.com/mousebird/AndroidTutorialProject/blob/432eed8fde466495694bf2d07cd4a2995a49f9fe/app/src/main/java/io/theoutpost/helloearth/HelloMapFragment.java#L119">HelloMapFragment.java</a>. Just comment out <code class="highlighter-rouge">insertMarkers();</code> in the <code class="highlighter-rouge">controlHasStarted</code> method and put in <code class="highlighter-rouge">insertLabels();</code> instead.</p>
+<p>In our last tutorial we added some markers for the five largest cities in Russia. Since WhirlyGlobe-Maply supports UTF-8 strings, we’re going to show off some cyrillic labels. We are going to add to our <a href="https://github.com/mousebird/AndroidTutorialProject/blob/master/app/src/main/java/com/mousebirdconsulting/helloearth/HelloLabelFragment.java">HelloLabelFragment.java</a>. Just comment out <code class="highlighter-rouge">insertMarkers();</code> in the <code class="highlighter-rouge">controlHasStarted</code> method and put in <code class="highlighter-rouge">insertLabels();</code> instead.</p>
 
 <h3 id="add-labels">Add Labels</h3>
 
 <p>Now, we are going to paste in what we going to declare our labels in a similar way that we did with our markers. Paste in the following method.</p>
 
-<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">private</span> <span class="kt">void</span> <span class="nf">insertLabels</span><span class="o">()</span> <span class="o">{</span>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">com.mousebirdconsulting.helloearth</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">android.graphics.Color</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">android.graphics.Typeface</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">com.mousebird.maply.BaseController</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.mousebird.maply.ComponentObject</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.mousebird.maply.LabelInfo</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.mousebird.maply.Point2d</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.mousebird.maply.ScreenLabel</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.util.ArrayList</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.List</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">HelloLabelFragment</span> <span class="kd">extends</span> <span class="nc">HelloMarkerFragment</span> <span class="o">{</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">controlHasStarted</span><span class="o">()</span> <span class="o">{</span>
+        <span class="kd">super</span><span class="o">.</span><span class="na">controlHasStarted</span><span class="o">();</span>
+
+        <span class="c1">// Insert Labels</span>
+        <span class="n">insertLabels</span><span class="o">();</span>
+    <span class="o">}</span>
+
+    <span class="kd">private</span> <span class="kt">void</span> <span class="nf">insertLabels</span><span class="o">()</span> <span class="o">{</span>
         <span class="nc">List</span><span class="o">&lt;</span><span class="nc">ScreenLabel</span><span class="o">&gt;</span> <span class="n">labels</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ArrayList</span><span class="o">&lt;&gt;();</span>
 
         <span class="nc">LabelInfo</span> <span class="n">labelInfo</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">LabelInfo</span><span class="o">();</span>
@@ -128,50 +150,75 @@
 
         <span class="kt">float</span> <span class="n">layoutImportance</span> <span class="o">=</span> <span class="mi">1</span><span class="o">.</span><span class="na">f</span><span class="o">;</span>
 
-        <span class="c1">// Moskow - Москва</span>
-        <span class="nc">ScreenLabel</span> <span class="n">moskow</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ScreenLabel</span><span class="o">();</span>
-        <span class="n">moskow</span><span class="o">.</span><span class="na">loc</span> <span class="o">=</span> <span class="nc">Point2d</span><span class="o">.</span><span class="na">FromDegrees</span><span class="o">(</span><span class="mf">37.616667</span><span class="o">,</span> <span class="mf">55.75</span><span class="o">);</span> <span class="c1">// Longitude, Latitude</span>
-        <span class="n">moskow</span><span class="o">.</span><span class="na">text</span> <span class="o">=</span> <span class="s">"Москва"</span><span class="o">;</span>
-        <span class="n">moskow</span><span class="o">.</span><span class="na">layoutImportance</span> <span class="o">=</span> <span class="n">layoutImportance</span><span class="o">++;</span>
-        <span class="n">labels</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">moskow</span><span class="o">);</span>
+        <span class="c1">// Moscow - Москва</span>
+        <span class="nc">ScreenLabel</span> <span class="n">label</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ScreenLabel</span><span class="o">();</span>
+        <span class="n">label</span><span class="o">.</span><span class="na">loc</span> <span class="o">=</span> <span class="nc">Point2d</span><span class="o">.</span><span class="na">FromDegrees</span><span class="o">(</span><span class="mf">37.616667</span><span class="o">,</span> <span class="mf">55.75</span><span class="o">);</span> <span class="c1">// Longitude, Latitude</span>
+        <span class="n">label</span><span class="o">.</span><span class="na">text</span> <span class="o">=</span> <span class="s">"Москва"</span><span class="o">;</span>
+        <span class="n">label</span><span class="o">.</span><span class="na">layoutImportance</span> <span class="o">=</span> <span class="n">layoutImportance</span><span class="o">++;</span>
+        <span class="n">labels</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">label</span><span class="o">);</span>
 
         <span class="c1">//  Saint Petersburg - Санкт-Петербург</span>
-        <span class="nc">ScreenLabel</span> <span class="n">stPetersburg</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ScreenLabel</span><span class="o">();</span>
-        <span class="n">stPetersburg</span><span class="o">.</span><span class="na">loc</span> <span class="o">=</span> <span class="nc">Point2d</span><span class="o">.</span><span class="na">FromDegrees</span><span class="o">(</span><span class="mf">30.3</span><span class="o">,</span> <span class="mf">59.95</span><span class="o">);</span>
-        <span class="n">stPetersburg</span><span class="o">.</span><span class="na">text</span> <span class="o">=</span> <span class="s">"Санкт-Петербург"</span><span class="o">;</span>
-        <span class="n">stPetersburg</span><span class="o">.</span><span class="na">layoutImportance</span> <span class="o">=</span> <span class="n">layoutImportance</span><span class="o">++;</span>
-        <span class="n">labels</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">stPetersburg</span><span class="o">);</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ScreenLabel</span><span class="o">();</span>
+        <span class="n">label</span><span class="o">.</span><span class="na">loc</span> <span class="o">=</span> <span class="nc">Point2d</span><span class="o">.</span><span class="na">FromDegrees</span><span class="o">(</span><span class="mf">30.3</span><span class="o">,</span> <span class="mf">59.95</span><span class="o">);</span>
+        <span class="n">label</span><span class="o">.</span><span class="na">text</span> <span class="o">=</span> <span class="s">"Санкт-Петербург"</span><span class="o">;</span>
+        <span class="n">label</span><span class="o">.</span><span class="na">layoutImportance</span> <span class="o">=</span> <span class="n">layoutImportance</span><span class="o">++;</span>
+        <span class="n">labels</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">label</span><span class="o">);</span>
 
         <span class="c1">// Novosibirsk - Новосибирск</span>
-        <span class="nc">ScreenLabel</span> <span class="n">novosibirsk</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ScreenLabel</span><span class="o">();</span>
-        <span class="n">novosibirsk</span><span class="o">.</span><span class="na">loc</span> <span class="o">=</span> <span class="nc">Point2d</span><span class="o">.</span><span class="na">FromDegrees</span><span class="o">(</span><span class="mf">82.95</span><span class="o">,</span> <span class="mf">55.05</span><span class="o">);</span>
-        <span class="n">novosibirsk</span><span class="o">.</span><span class="na">text</span> <span class="o">=</span> <span class="s">"Новосибирск"</span><span class="o">;</span>
-        <span class="n">novosibirsk</span><span class="o">.</span><span class="na">layoutImportance</span> <span class="o">=</span> <span class="n">layoutImportance</span><span class="o">++;</span>
-        <span class="n">labels</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">novosibirsk</span><span class="o">);</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ScreenLabel</span><span class="o">();</span>
+        <span class="n">label</span><span class="o">.</span><span class="na">loc</span> <span class="o">=</span> <span class="nc">Point2d</span><span class="o">.</span><span class="na">FromDegrees</span><span class="o">(</span><span class="mf">82.95</span><span class="o">,</span> <span class="mf">55.05</span><span class="o">);</span>
+        <span class="n">label</span><span class="o">.</span><span class="na">text</span> <span class="o">=</span> <span class="s">"Новосибирск"</span><span class="o">;</span>
+        <span class="n">label</span><span class="o">.</span><span class="na">layoutImportance</span> <span class="o">=</span> <span class="n">layoutImportance</span><span class="o">++;</span>
+        <span class="n">labels</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">label</span><span class="o">);</span>
 
         <span class="c1">// Yekaterinburg - Екатеринбург</span>
-        <span class="nc">ScreenLabel</span> <span class="n">yekaterinburg</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ScreenLabel</span><span class="o">();</span>
-        <span class="n">yekaterinburg</span><span class="o">.</span><span class="na">loc</span> <span class="o">=</span> <span class="nc">Point2d</span><span class="o">.</span><span class="na">FromDegrees</span><span class="o">(</span><span class="mf">60.583333</span><span class="o">,</span> <span class="mf">56.833333</span><span class="o">);</span>
-        <span class="n">yekaterinburg</span><span class="o">.</span><span class="na">text</span> <span class="o">=</span> <span class="s">"Екатеринбург"</span><span class="o">;</span>
-        <span class="n">yekaterinburg</span><span class="o">.</span><span class="na">layoutImportance</span> <span class="o">=</span> <span class="n">layoutImportance</span><span class="o">++;</span>
-        <span class="n">labels</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">yekaterinburg</span><span class="o">);</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ScreenLabel</span><span class="o">();</span>
+        <span class="n">label</span><span class="o">.</span><span class="na">loc</span> <span class="o">=</span> <span class="nc">Point2d</span><span class="o">.</span><span class="na">FromDegrees</span><span class="o">(</span><span class="mf">60.583333</span><span class="o">,</span> <span class="mf">56.833333</span><span class="o">);</span>
+        <span class="n">label</span><span class="o">.</span><span class="na">text</span> <span class="o">=</span> <span class="s">"Екатеринбург"</span><span class="o">;</span>
+        <span class="n">label</span><span class="o">.</span><span class="na">layoutImportance</span> <span class="o">=</span> <span class="n">layoutImportance</span><span class="o">++;</span>
+        <span class="n">labels</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">label</span><span class="o">);</span>
 
         <span class="c1">// Nizhny Novgorod - Нижний Новгород</span>
-        <span class="nc">ScreenLabel</span> <span class="n">nizhnyNovgorod</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ScreenLabel</span><span class="o">();</span>
-        <span class="n">nizhnyNovgorod</span><span class="o">.</span><span class="na">loc</span> <span class="o">=</span> <span class="nc">Point2d</span><span class="o">.</span><span class="na">FromDegrees</span><span class="o">(</span><span class="mf">44.0075</span><span class="o">,</span> <span class="mf">56.326944</span><span class="o">);</span>
-        <span class="n">nizhnyNovgorod</span><span class="o">.</span><span class="na">text</span> <span class="o">=</span> <span class="s">"Нижний Новгород"</span><span class="o">;</span>
-        <span class="n">nizhnyNovgorod</span><span class="o">.</span><span class="na">layoutImportance</span> <span class="o">=</span> <span class="n">layoutImportance</span><span class="o">++;</span>
-        <span class="n">nizhnyNovgorod</span><span class="o">.</span><span class="na">rotation</span> <span class="o">=</span> <span class="nc">Math</span><span class="o">.</span><span class="na">PI</span> <span class="o">/</span> <span class="mi">8</span><span class="o">;</span>
-        <span class="n">labels</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">nizhnyNovgorod</span><span class="o">);</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ScreenLabel</span><span class="o">();</span>
+        <span class="n">label</span><span class="o">.</span><span class="na">loc</span> <span class="o">=</span> <span class="nc">Point2d</span><span class="o">.</span><span class="na">FromDegrees</span><span class="o">(</span><span class="mf">44.0075</span><span class="o">,</span> <span class="mf">56.326944</span><span class="o">);</span>
+        <span class="n">label</span><span class="o">.</span><span class="na">text</span> <span class="o">=</span> <span class="s">"Нижний Новгород"</span><span class="o">;</span>
+        <span class="n">label</span><span class="o">.</span><span class="na">layoutImportance</span> <span class="o">=</span> <span class="n">layoutImportance</span><span class="o">++;</span>
+        <span class="n">label</span><span class="o">.</span><span class="na">rotation</span> <span class="o">=</span> <span class="nc">Math</span><span class="o">.</span><span class="na">PI</span> <span class="o">/</span> <span class="mi">8</span><span class="o">;</span>
+        <span class="n">labels</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">label</span><span class="o">);</span>
 
         <span class="c1">// Add your markers to the map controller.</span>
-        <span class="nc">ComponentObject</span> <span class="n">labelsComponentObject</span> <span class="o">=</span> <span class="n">mapControl</span><span class="o">.</span><span class="na">addScreenLabels</span><span class="o">(</span><span class="n">labels</span><span class="o">,</span> <span class="n">labelInfo</span><span class="o">,</span> <span class="nc">MaplyBaseController</span><span class="o">.</span><span class="na">ThreadMode</span><span class="o">.</span><span class="na">ThreadAny</span><span class="o">);</span>
+        <span class="nc">ComponentObject</span> <span class="n">co</span> <span class="o">=</span> <span class="n">globeControl</span><span class="o">.</span><span class="na">addScreenLabels</span><span class="o">(</span><span class="n">labels</span><span class="o">,</span> <span class="n">labelInfo</span><span class="o">,</span> <span class="nc">BaseController</span><span class="o">.</span><span class="na">ThreadMode</span><span class="o">.</span><span class="na">ThreadAny</span><span class="o">);</span>
     <span class="o">}</span>
+<span class="o">}</span>
 </code></pre></div></div>
 
 <p>Notice there is a <code class="highlighter-rouge">LabelInfo</code> options object that defines how the text is going to look. <code class="highlighter-rouge">setLayoutPlacement</code> is an important <code class="highlighter-rouge">LabelInfo</code>property to set, because this determines the placement of the label in relation to the <code class="highlighter-rouge">loc</code> point. <code class="highlighter-rouge">LabelInfo.LayoutRight</code> means that the label is placed directly to the right of the <code class="highlighter-rouge">loc</code> point. Your other options are <code class="highlighter-rouge">LabelInfo.LayoutLeft</code> and <code class="highlighter-rouge">LabelInfo.LayoutCenter</code>.</p>
 
 <p>Then, we create each label, set their properties, and add them to the map controller.</p>
+
+<p>Once again, reference the new fragment:</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span>
+<span class="nt">&lt;androidx.constraintlayout.widget.ConstraintLayout</span> <span class="na">xmlns:android=</span><span class="s">"http://schemas.android.com/apk/res/android"</span>
+    <span class="na">xmlns:app=</span><span class="s">"http://schemas.android.com/apk/res-auto"</span>
+    <span class="na">xmlns:tools=</span><span class="s">"http://schemas.android.com/tools"</span>
+    <span class="na">android:id=</span><span class="s">"@+id/relativeLayout"</span>
+    <span class="na">android:layout_width=</span><span class="s">"match_parent"</span>
+    <span class="na">android:layout_height=</span><span class="s">"match_parent"</span>
+    <span class="na">tools:context=</span><span class="s">".MainActivity"</span><span class="nt">&gt;</span>
+
+    <span class="nt">&lt;fragment</span>
+        <span class="na">android:id=</span><span class="s">"@+id/fragment"</span>
+        <span class="na">android:name=</span><span class="s">"com.mousebirdconsulting.helloearth.HelloLabelFragment"</span>
+        <span class="na">android:layout_width=</span><span class="s">"match_parent"</span>
+        <span class="na">android:layout_height=</span><span class="s">"match_parent"</span>
+        <span class="na">app:layout_constraintBottom_toTopOf=</span><span class="s">"parent"</span>
+        <span class="na">app:layout_constraintEnd_toStartOf=</span><span class="s">"parent"</span>
+        <span class="na">app:layout_constraintStart_toStartOf=</span><span class="s">"parent"</span>
+        <span class="na">app:layout_constraintTop_toTopOf=</span><span class="s">"parent"</span> <span class="nt">/&gt;</span>
+
+<span class="nt">&lt;/androidx.constraintlayout.widget.ConstraintLayout&gt;</span>
+</code></pre></div></div>
 
 <p><img src="resources/labels.jpg" alt="Labels" /></p>
 
@@ -180,6 +227,11 @@
 <p>In addition to a location and text property for a <code class="highlighter-rouge">ScreenLabel</code>, we have a <code class="highlighter-rouge">layoutImportance</code>. Because labels often overlap or <em>collide</em>, we have a layout engine that helps us figure out which ones we want to draw. When two labels collide, the one that is rendered is the one with the higher <code class="highlighter-rouge">layoutImportance</code> floating point value. If you want all labels rendered regardless of collision, set the <code class="highlighter-rouge">layoutImportance</code> to <code class="highlighter-rouge">Float.MAX_VALUE</code>.</p>
 
 <p>Lastly, we can rotate our screen labels in the same way that we did with screen markers. You will see that Нижний Новгород is slightly rotated counter-clockwise becaue we set a rotation of <code class="highlighter-rouge">Math.PI / 8</code>.</p>
+
+<hr />
+
+<p><em>Tutorial by Nicholas Hallahan, Steve Gifford, Tim Sylvester.</em></p>
+
 
 
           </div>
@@ -243,7 +295,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/getting-started.html">Before You Start</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/getting-started.html">Before You Start</a></li>
                       
                       
                       
@@ -408,7 +460,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/hello-earth.html">Hello Earth Project</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/hello-earth.html">Hello Earth Project</a></li>
                       
                       
                       
@@ -519,7 +571,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/building-from-binary.html">Building From Binaries</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/building-from-binary.html">Building From Binaries</a></li>
                       
                       
                       
@@ -675,7 +727,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/building-from-source.html">Building From Source</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/building-from-source.html">Building From Source</a></li>
                       
                       
                       
@@ -950,7 +1002,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/your-first-globe-or-map.html">Your First Globe or Map</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/your-first-globe-or-map.html">Your First Globe or Map</a></li>
                       
                       
                       
@@ -1037,7 +1089,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/local-image-layer.html">Local Image Layer</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/local-image-layer.html">Local Image Layer</a></li>
                       
                       
                       
@@ -1252,7 +1304,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/vector-data.html">Vector Data</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/vector-data.html">Vector Data</a></li>
                       
                       
                       
@@ -1375,7 +1427,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/screen-markers.html">Screen Markers</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/screen-markers.html">Screen Markers</a></li>
                       
                       
                       
@@ -1522,7 +1574,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item current"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/screen-labels.html">Screen Labels</a></li>
+                      <li class="sidebar-list-item current"><a class="page-link" href="/tutorial/android/screen-labels.html">Screen Labels</a></li>
                       
                       
                       
@@ -1701,7 +1753,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/spheres-android.html">Spheres</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/spheres-android.html">Spheres</a></li>
                       
                       
                       
@@ -1877,7 +1929,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/vector-selection.html">Vector Selection</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/vector-selection.html">Vector Selection</a></li>
                       
                       
                       
@@ -1994,7 +2046,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/screen-marker-selection.html">Screen Marker Selection</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/screen-marker-selection.html">Screen Marker Selection</a></li>
                       
                       
                       
@@ -2071,7 +2123,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/auto-tester-android.html">AutoTesterAndroid Example App</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/auto-tester-android.html">AutoTesterAndroid Example App</a></li>
                       
                       
                       
@@ -2308,7 +2360,7 @@
             
 
             <!-- deliver next/prev links -->
-            <a class="prev" href="/WhirlyGlobe-3/tutorial/android/screen-markers.html">Previous</a><a class="next" href="/WhirlyGlobe-3/tutorial/android/spheres-android.html">Next</a>
+            <a class="prev" href="/tutorial/android/screen-markers.html">Previous</a><a class="next" href="/tutorial/android/spheres-android.html">Next</a>
 
 
             
@@ -2359,7 +2411,7 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 
 <!-- Include all compiled plugins (below), or include individual files as needed -->
-<script src="/WhirlyGlobe-3/js/bootstrap.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
 
 <footer class="site-footer">
 
@@ -2401,7 +2453,7 @@
 
         <div class="col-sm-2">
           <ul class="contact-list">
-            <li><a href="/WhirlyGlobe-3/">WhirlyGlobe-Maply</a></li>
+            <li><a href="/">WhirlyGlobe-Maply</a></li>
             <li><a href="mailto:contact@mousebirdconsulting.com">contact@mousebirdconsulting.com</a></li>
           </ul>
         </div>
@@ -2452,6 +2504,6 @@
   </div>
 </footer>
 
-    <script src="/WhirlyGlobe-3/js/tutorial.js"></script>
+    <script src="/js/tutorial.js"></script>
   </body>
 </html>

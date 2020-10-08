@@ -10,7 +10,7 @@
 ">
 
   <!-- Bootstrap -->
-  <link href="/WhirlyGlobe-3/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/css/bootstrap.min.css" rel="stylesheet">
 
   <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -19,15 +19,15 @@
   <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
   <![endif]-->
 
-  <link rel="stylesheet" href="/WhirlyGlobe-3/css/main.css">
-  <link rel="canonical" href="http://mousebird.github.io//WhirlyGlobe-3/tutorial/android/local-image-layer.html">
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://0.0.0.0:4000/tutorial/android/local-image-layer.html">
 
   <!-- Fontwork -->
-  <link rel="stylesheet" type="text/css" href="/WhirlyGlobe-3/css/MyFontsWebfontsKit.css">
+  <link rel="stylesheet" type="text/css" href="/css/MyFontsWebfontsKit.css">
   <link href='https://fonts.googleapis.com/css?family=Roboto:300' rel='stylesheet' type='text/css'>
 
   <!-- Fav Icon -->
-  <link rel="shortcut icon" href="/WhirlyGlobe-3/images/fav-icon.ico" />
+  <link rel="shortcut icon" href="/images/fav-icon.ico" />
 
   <!--
   /**
@@ -83,15 +83,15 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="/WhirlyGlobe-3/"><img src="/WhirlyGlobe-3/images/WhirlyGlobe-Maply-33.png" width="239" height="33" alt="WhirlyGlobe-Maply"></a>
+        <a class="navbar-brand" href="/"><img src="/images/WhirlyGlobe-Maply-33.png" width="239" height="33" alt="WhirlyGlobe-Maply"></a>
       </div>
       <div class="collapse navbar-collapse">
         <ul class="nav navbar-nav navbar-right">
-          <li><a href="/WhirlyGlobe-3/">Home</a></li>
-          <li><a href="/WhirlyGlobe-3/tutorial/">Tutorial</a></li>
-          <li><a href="/WhirlyGlobe-3/reference/reference.html">Reference</a></li>
-          <li><a href="/WhirlyGlobe-3/apps/apps.html">Apps</a></li>
-          <li><a href="/WhirlyGlobe-3/builds/builds.html">Builds</a></li>
+          <li><a href="/">Home</a></li>
+          <li><a href="/tutorial/">Tutorial</a></li>
+          <li><a href="/reference/reference.html">Reference</a></li>
+          <li><a href="/apps/apps.html">Apps</a></li>
+          <li><a href="/builds/builds.html">Builds</a></li>
         </ul>
       </div>
     </div>
@@ -105,124 +105,133 @@
           <div class="col-sm-9 tutorial tutorial-main">
 
             <h2>Local Image Layer</h2>
-            <p><em>Tutorial by Nicholas Hallahan.</em></p>
+            <p>Now we’re going to add a local image layer to your map. You can have map image tiles stored on your device using the SQLite based MBTiles format. We’re going to show you how to load an MBTiles file from your device and display these tiles.</p>
 
-<p>Now we’re going to add a local image layer to your map. You can have map image tiles stored on your device using the SQLite based MBTiles format. We’re going to show you how to load an MBTiles file from your device and display these tiles.</p>
+<h3 id="add-mbtiles-to-application">Add MBTiles to Application</h3>
 
-<h3 id="copy-geography-class-mbtiles-to-device">Copy Geography Class MBTiles to Device</h3>
+<p>For the sake of simplicity, we’re going to manually add an MBTiles file to your application. For a production app, you’ll want to <a href="https://github.com/mousebird/WhirlyGlobe/blob/e9dec4068156191861d40d5dded1c079449c26f2/WhirlyGlobeSrc/AutoTesterAndroid/app/src/main/java/com/mousebirdconsulting/autotester/TestCases/MBTilesImageTestCase.java#L138-L162">explore various means</a> of getting an MBTiles file onto the device automatically, but that is out of scope from this basic tutorial.</p>
 
-<p>For the sake of keeping this tutorial simple, we’re going to manually copy an MBTiles file to your Android device’s <code class="highlighter-rouge">ExternalStorage</code>. For a production app, you’ll want to <a href="https://github.com/mousebird/WhirlyGlobe/blob/e9dec4068156191861d40d5dded1c079449c26f2/WhirlyGlobeSrc/AutoTesterAndroid/app/src/main/java/com/mousebirdconsulting/autotester/TestCases/MBTilesImageTestCase.java#L138-L162">explore various means</a> of getting an MBTiles file onto the device automatically, but that is out of scope from this basic tutorial.</p>
+<p>First, download our sample <a href="http://whirlyglobedocs.s3-website-us-east-1.amazonaws.com/tutorialsupport/geography-class_medres.mbtiles">Geography Class MBTiles file</a> to your computer and copy it to the following directory under the HelloGlobe application (you will need to create the last two directories):</p>
 
-<p>First, download our sample <a href="http://whirlyglobedocs.s3-website-us-east-1.amazonaws.com/tutorialsupport/geography-class_medres.mbtiles">Geography Class MBTiles file</a> to your computer. Then, using <a href="https://www.android.com/filetransfer/">Android File Transfer</a>, create an <code class="highlighter-rouge">mbtiles</code> directory in the <code class="highlighter-rouge">Phone</code> tab of the file explorer.</p>
+<ul>
+  <li><code class="highlighter-rouge">src/main/assets/mbtiles/geography-class_medres.mbtiles</code></li>
+</ul>
 
-<p><img src="resources/android-file-transfer.png" alt="Android File Transfer" style="max-width: 500px;display:block;margin:auto;" /></p>
+<h3 id="create-a-new-fragment">Create a New Fragment</h3>
 
-<p>Drag over your <code class="highlighter-rouge">geography-class_medres.mbtiles</code> file into your <code class="highlighter-rouge">mbtiles</code> directory.</p>
+<p>Next, we’ll create yet another fragment which loads the tiles from the MBTiles file.  Create a new class, <code class="highlighter-rouge">LocalGlobeFragment</code> with the following, or place <a href="resources/LocalGlobeFragment.java">LocalGlobeFragment.java</a> in the appropriate directory.</p>
 
-<h3 id="granting-permission">Granting Permission</h3>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">com.mousebirdconsulting.helloearth</span><span class="o">;</span>
 
-<p>You can add an MBTiles file from the internal storage of you app, however, in this tutorial, we added it to <code class="highlighter-rouge">ExternalStorage</code>. We need to grant the app permission to access <code class="highlighter-rouge">ExternalStorage</code>, and we must also explicity ask the user for permission.</p>
+<span class="kn">import</span> <span class="nn">android.content.Context</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">android.content.ContextWrapper</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">android.util.Log</span><span class="o">;</span>
 
-<p>In your <a href="https://github.com/mousebird/AndroidTutorialProject/blob/cb8f82ed651cbd8b61524febc9321ec5045e10fd/app/src/main/AndroidManifest.xml#L5">AndroidManifest.xml</a>, add the following line to your manifest:</p>
+<span class="kn">import</span> <span class="nn">com.mousebird.maply.MBTileFetcher</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.mousebird.maply.QuadImageLoader</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.mousebird.maply.SamplingParams</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.mousebird.maply.SphericalMercatorCoordSystem</span><span class="o">;</span>
 
-<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;uses-permission</span> <span class="na">android:name=</span><span class="s">"android.permission.WRITE_EXTERNAL_STORAGE"</span> <span class="nt">/&gt;</span>
+<span class="kn">import</span> <span class="nn">java.io.File</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.io.FileOutputStream</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.io.IOException</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.io.InputStream</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.io.OutputStream</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">LocalGlobeFragment</span> <span class="kd">extends</span> <span class="nc">HelloGlobeFragment</span> <span class="o">{</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">controlHasStarted</span><span class="o">()</span> <span class="o">{</span>
+
+        <span class="nc">File</span> <span class="n">mbTileFile</span><span class="o">;</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="n">mbTileFile</span> <span class="o">=</span> <span class="n">getMBTileAsset</span><span class="o">(</span><span class="s">"geography-class_medres.mbtiles"</span><span class="o">);</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">IOException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="nc">Log</span><span class="o">.</span><span class="na">d</span><span class="o">(</span><span class="s">"HelloEarth"</span><span class="o">,</span> <span class="n">e</span><span class="o">.</span><span class="na">getMessage</span><span class="o">());</span>
+            <span class="k">return</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="nc">MBTileFetcher</span> <span class="n">mbTileFetcher</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">MBTileFetcher</span><span class="o">(</span><span class="n">mbTileFile</span><span class="o">);</span>
+
+        <span class="nc">SamplingParams</span> <span class="n">params</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">SamplingParams</span><span class="o">();</span>
+        <span class="n">params</span><span class="o">.</span><span class="na">setCoordSystem</span><span class="o">(</span><span class="k">new</span> <span class="nc">SphericalMercatorCoordSystem</span><span class="o">());</span>
+        <span class="n">params</span><span class="o">.</span><span class="na">setCoverPoles</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+        <span class="n">params</span><span class="o">.</span><span class="na">setEdgeMatching</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+        <span class="n">params</span><span class="o">.</span><span class="na">setSingleLevel</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+        <span class="n">params</span><span class="o">.</span><span class="na">setMinZoom</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
+        <span class="n">params</span><span class="o">.</span><span class="na">setMaxZoom</span><span class="o">(</span><span class="n">mbTileFetcher</span><span class="o">.</span><span class="na">maxZoom</span><span class="o">);</span>
+
+        <span class="nc">QuadImageLoader</span> <span class="n">loader</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">QuadImageLoader</span><span class="o">(</span><span class="n">params</span><span class="o">,</span><span class="n">mbTileFetcher</span><span class="o">.</span><span class="na">getTileInfo</span><span class="o">(),</span> <span class="n">baseControl</span><span class="o">);</span>
+        <span class="n">loader</span><span class="o">.</span><span class="na">setTileFetcher</span><span class="o">(</span><span class="n">mbTileFetcher</span><span class="o">);</span>
+
+        <span class="kt">double</span> <span class="n">latitude</span> <span class="o">=</span> <span class="mf">40.5023056</span> <span class="o">*</span> <span class="nc">Math</span><span class="o">.</span><span class="na">PI</span> <span class="o">/</span> <span class="mi">180</span><span class="o">;</span>
+        <span class="kt">double</span> <span class="n">longitude</span> <span class="o">=</span> <span class="o">-</span><span class="mf">3.6704803</span> <span class="o">*</span> <span class="nc">Math</span><span class="o">.</span><span class="na">PI</span> <span class="o">/</span> <span class="mi">180</span><span class="o">;</span>
+        <span class="kt">double</span> <span class="n">zoom_earth_radius</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">;</span>
+        <span class="n">globeControl</span><span class="o">.</span><span class="na">animatePositionGeo</span><span class="o">(</span><span class="n">longitude</span><span class="o">,</span> <span class="n">latitude</span><span class="o">,</span> <span class="n">zoom_earth_radius</span><span class="o">,</span> <span class="mf">1.0</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="kd">private</span> <span class="nc">File</span> <span class="nf">getMBTileAsset</span><span class="o">(</span><span class="nc">String</span> <span class="n">name</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">IOException</span> <span class="o">{</span>
+        <span class="nc">ContextWrapper</span> <span class="n">wrapper</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ContextWrapper</span><span class="o">(</span><span class="n">getActivity</span><span class="o">());</span>
+        <span class="nc">File</span> <span class="n">mbTilesDirectory</span> <span class="o">=</span>  <span class="n">wrapper</span><span class="o">.</span><span class="na">getDir</span><span class="o">(</span><span class="s">"mbtiles"</span><span class="o">,</span> <span class="nc">Context</span><span class="o">.</span><span class="na">MODE_PRIVATE</span><span class="o">);</span>
+
+        <span class="nc">InputStream</span> <span class="n">is</span> <span class="o">=</span> <span class="n">getActivity</span><span class="o">().</span><span class="na">getAssets</span><span class="o">().</span><span class="na">open</span><span class="o">(</span><span class="s">"mbtiles/"</span> <span class="o">+</span> <span class="n">name</span><span class="o">);</span>
+        <span class="nc">File</span> <span class="n">of</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">File</span><span class="o">(</span><span class="n">mbTilesDirectory</span><span class="o">,</span> <span class="n">name</span><span class="o">);</span>
+
+        <span class="k">if</span> <span class="o">(!</span><span class="n">of</span><span class="o">.</span><span class="na">exists</span><span class="o">())</span> <span class="o">{</span>
+            <span class="nc">OutputStream</span> <span class="n">os</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">FileOutputStream</span><span class="o">(</span><span class="n">of</span><span class="o">);</span>
+            <span class="kt">byte</span><span class="o">[]</span> <span class="n">mBuffer</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">byte</span><span class="o">[</span><span class="mi">4096</span><span class="o">];</span>
+            <span class="kt">int</span> <span class="n">length</span><span class="o">;</span>
+            <span class="k">while</span> <span class="o">((</span><span class="n">length</span> <span class="o">=</span> <span class="n">is</span><span class="o">.</span><span class="na">read</span><span class="o">(</span><span class="n">mBuffer</span><span class="o">))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">os</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">mBuffer</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">length</span><span class="o">);</span>
+            <span class="o">}</span>
+            <span class="n">os</span><span class="o">.</span><span class="na">flush</span><span class="o">();</span>
+            <span class="n">os</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+            <span class="n">is</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+        <span class="o">}</span>
+
+        <span class="k">return</span> <span class="n">of</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
 </code></pre></div></div>
 
-<p>Your manifest should now look like the following:</p>
+<p>We can’t use the MBTiles from an <code class="highlighter-rouge">InputStream</code>, so there’s a little bit of boilerplate here to copy the data to a file in the application’s data directory.</p>
+
+<h3 id="use-the-new-fragment">Use the New Fragment</h3>
+
+<p>Once again update your main layout, <code class="highlighter-rouge">activity_main.xml</code>, to reference the new fragment:</p>
 
 <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span>
-<span class="nt">&lt;manifest</span> <span class="na">xmlns:android=</span><span class="s">"http://schemas.android.com/apk/res/android"</span>
-    <span class="na">package=</span><span class="s">"io.theoutpost.helloearth"</span><span class="nt">&gt;</span>
+<span class="nt">&lt;androidx.constraintlayout.widget.ConstraintLayout</span> <span class="na">xmlns:android=</span><span class="s">"http://schemas.android.com/apk/res/android"</span>
+    <span class="na">xmlns:app=</span><span class="s">"http://schemas.android.com/apk/res-auto"</span>
+    <span class="na">xmlns:tools=</span><span class="s">"http://schemas.android.com/tools"</span>
+    <span class="na">android:id=</span><span class="s">"@+id/relativeLayout"</span>
+    <span class="na">android:layout_width=</span><span class="s">"match_parent"</span>
+    <span class="na">android:layout_height=</span><span class="s">"match_parent"</span>
+    <span class="na">tools:context=</span><span class="s">".MainActivity"</span><span class="nt">&gt;</span>
 
-    <span class="nt">&lt;uses-permission</span> <span class="na">android:name=</span><span class="s">"android.permission.WRITE_EXTERNAL_STORAGE"</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;fragment</span>
+        <span class="na">android:id=</span><span class="s">"@+id/fragment"</span>
+        <span class="na">android:name=</span><span class="s">"com.mousebirdconsulting.helloearth.LocalGlobeFragment"</span>
+        <span class="na">android:layout_width=</span><span class="s">"match_parent"</span>
+        <span class="na">android:layout_height=</span><span class="s">"match_parent"</span>
+        <span class="na">app:layout_constraintBottom_toTopOf=</span><span class="s">"parent"</span>
+        <span class="na">app:layout_constraintEnd_toStartOf=</span><span class="s">"parent"</span>
+        <span class="na">app:layout_constraintStart_toStartOf=</span><span class="s">"parent"</span>
+        <span class="na">app:layout_constraintTop_toTopOf=</span><span class="s">"parent"</span> <span class="nt">/&gt;</span>
 
-    <span class="nt">&lt;application</span>
-        <span class="na">android:allowBackup=</span><span class="s">"true"</span>
-        <span class="na">android:icon=</span><span class="s">"@mipmap/ic_launcher"</span>
-        <span class="na">android:label=</span><span class="s">"@string/app_name"</span>
-        <span class="na">android:supportsRtl=</span><span class="s">"true"</span>
-        <span class="na">android:theme=</span><span class="s">"@style/AppTheme"</span><span class="nt">&gt;</span>
-        <span class="nt">&lt;activity</span> <span class="na">android:name=</span><span class="s">".MainActivity"</span><span class="nt">&gt;</span>
-            <span class="nt">&lt;intent-filter&gt;</span>
-                <span class="nt">&lt;action</span> <span class="na">android:name=</span><span class="s">"android.intent.action.MAIN"</span> <span class="nt">/&gt;</span>
-
-                <span class="nt">&lt;category</span> <span class="na">android:name=</span><span class="s">"android.intent.category.LAUNCHER"</span> <span class="nt">/&gt;</span>
-            <span class="nt">&lt;/intent-filter&gt;</span>
-        <span class="nt">&lt;/activity&gt;</span>
-    <span class="nt">&lt;/application&gt;</span>
-
-<span class="nt">&lt;/manifest&gt;</span>
+<span class="nt">&lt;/androidx.constraintlayout.widget.ConstraintLayout&gt;</span>
 </code></pre></div></div>
 
-<p>Also, you will need to prompt the user for permission to access files on the device. Let’s do this in your <a href="https://github.com/mousebird/AndroidTutorialProject/blob/cb8f82ed651cbd8b61524febc9321ec5045e10fd/app/src/main/java/io/theoutpost/helloearth/HelloMapFragment.java#L44-L59">HelloMapFragment.java</a>.</p>
+<p>That’s it!</p>
 
-<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">protected</span> <span class="kt">void</span> <span class="nf">controlHasStarted</span><span class="o">()</span> <span class="o">{</span>
-    <span class="nc">Activity</span> <span class="n">activity</span> <span class="o">=</span> <span class="n">getActivity</span><span class="o">();</span>
-    <span class="kd">final</span> <span class="kt">int</span> <span class="no">REQUEST_EXTERNAL_STORAGE</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
-    <span class="nc">String</span><span class="o">[]</span> <span class="no">PERMISSIONS_STORAGE</span> <span class="o">=</span> <span class="o">{</span>
-            <span class="nc">Manifest</span><span class="o">.</span><span class="na">permission</span><span class="o">.</span><span class="na">READ_EXTERNAL_STORAGE</span><span class="o">,</span>
-            <span class="nc">Manifest</span><span class="o">.</span><span class="na">permission</span><span class="o">.</span><span class="na">WRITE_EXTERNAL_STORAGE</span>
-    <span class="o">};</span>
-    <span class="kt">int</span> <span class="n">permission</span> <span class="o">=</span> <span class="nc">ActivityCompat</span><span class="o">.</span><span class="na">checkSelfPermission</span><span class="o">(</span><span class="n">activity</span><span class="o">,</span> <span class="nc">Manifest</span><span class="o">.</span><span class="na">permission</span><span class="o">.</span><span class="na">WRITE_EXTERNAL_STORAGE</span><span class="o">);</span>
+<p>Now you can see a local tile source being drawn on your globe.</p>
 
-    <span class="k">if</span> <span class="o">(</span><span class="n">permission</span> <span class="o">!=</span> <span class="nc">PackageManager</span><span class="o">.</span><span class="na">PERMISSION_GRANTED</span><span class="o">)</span> <span class="o">{</span>
-        <span class="c1">// We don't have permission so prompt the user</span>
-        <span class="nc">ActivityCompat</span><span class="o">.</span><span class="na">requestPermissions</span><span class="o">(</span>
-                <span class="n">activity</span><span class="o">,</span>
-                <span class="no">PERMISSIONS_STORAGE</span><span class="o">,</span>
-                <span class="no">REQUEST_EXTERNAL_STORAGE</span>
-        <span class="o">);</span>
-    <span class="o">}</span>
-    <span class="o">...</span>
-<span class="o">}</span>
-</code></pre></div></div>
+<p><img src="resources/mbtiles.jpg" alt="MBTiles" style="max-width:50%; display: block; margin: auto;" /></p>
 
-<p>This is just some boilerplate code you need to do in newer SDKs when accessing files in external storage.</p>
+<hr />
 
-<h3 id="comment-out-remotetilesource">Comment Out RemoteTileSource</h3>
+<p><em>Tutorial by Nicholas Hallahan, Steve Gifford, Tim Sylvester.</em></p>
 
-<p>Our previous tutorial had code that adds Stamen Watercolor as a remote tile source to the map. Let’s comment out the <a href="https://github.com/mousebird/AndroidTutorialProject/blob/cb8f82ed651cbd8b61524febc9321ec5045e10fd/app/src/main/java/io/theoutpost/helloearth/HelloMapFragment.java#L79-L83">following code</a> in HelloMapFragment.java.</p>
-
-<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//        String cacheDirName = "stamen_watercolor";</span>
-<span class="c1">//        File cacheDir = new File(getActivity().getCacheDir(), cacheDirName);</span>
-<span class="c1">//        cacheDir.mkdir();</span>
-<span class="c1">//        RemoteTileSource remoteTileSource = new RemoteTileSource(new RemoteTileInfo("http://tile.stamen.com/watercolor/", "png", 0, 18));</span>
-<span class="c1">//        remoteTileSource.setCacheDir(cacheDir);</span>
-</code></pre></div></div>
-
-<h3 id="create-mbtilesimagesource">Create MBTilesImageSource</h3>
-
-<p>In place of the <code class="highlighter-rouge">RemoteTileSource</code>, we want to create an <code class="highlighter-rouge">MBTilesImageSource</code>. We get the MBTiles file, check if it is valid, and then create the local image source.</p>
-
-<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">File</span> <span class="n">storageDir</span> <span class="o">=</span> <span class="nc">Environment</span><span class="o">.</span><span class="na">getExternalStorageDirectory</span><span class="o">();</span>
-<span class="nc">File</span> <span class="n">mbtilesDir</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">File</span><span class="o">(</span><span class="n">storageDir</span><span class="o">,</span> <span class="s">"mbtiles"</span><span class="o">);</span>
-<span class="nc">File</span> <span class="n">mbtilesFile</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">File</span><span class="o">(</span><span class="n">mbtilesDir</span><span class="o">,</span> <span class="s">"geography-class_medres.mbtiles"</span><span class="o">);</span>
-<span class="k">if</span> <span class="o">(!</span><span class="n">mbtilesFile</span><span class="o">.</span><span class="na">exists</span><span class="o">())</span> <span class="o">{</span>
-    <span class="k">new</span> <span class="nc">AlertDialog</span><span class="o">.</span><span class="na">Builder</span><span class="o">(</span><span class="n">activity</span><span class="o">)</span>
-            <span class="o">.</span><span class="na">setTitle</span><span class="o">(</span><span class="s">"Missing MBTiles"</span><span class="o">)</span>
-            <span class="o">.</span><span class="na">setMessage</span><span class="o">(</span><span class="s">"Could not find MBTiles file."</span><span class="o">)</span>
-            <span class="o">.</span><span class="na">setPositiveButton</span><span class="o">(</span><span class="n">android</span><span class="o">.</span><span class="na">R</span><span class="o">.</span><span class="na">string</span><span class="o">.</span><span class="na">yes</span><span class="o">,</span> <span class="k">new</span> <span class="nc">DialogInterface</span><span class="o">.</span><span class="na">OnClickListener</span><span class="o">()</span> <span class="o">{</span>
-                <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="nc">DialogInterface</span> <span class="n">dialog</span><span class="o">,</span> <span class="kt">int</span> <span class="n">which</span><span class="o">)</span> <span class="o">{</span>
-                    <span class="c1">// do nothing</span>
-                <span class="o">}</span>
-            <span class="o">}).</span><span class="na">show</span><span class="o">();</span>
-<span class="o">}</span>
-<span class="nc">MBTiles</span> <span class="n">mbtiles</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">MBTiles</span><span class="o">(</span><span class="n">mbtilesFile</span><span class="o">);</span>
-<span class="nc">MBTilesImageSource</span> <span class="n">localTileSource</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">MBTilesImageSource</span><span class="o">(</span><span class="n">mbtiles</span><span class="o">);</span>
-</code></pre></div></div>
-
-<p>Put this <a href="https://github.com/mousebird/AndroidTutorialProject/blob/cb8f82ed651cbd8b61524febc9321ec5045e10fd/app/src/main/java/io/theoutpost/helloearth/HelloMapFragment.java#L61-L75">right before</a> the commented out <code class="highlighter-rouge">RemoteTileSource</code> code.</p>
-
-<h3 id="add-to-layer">Add to Layer</h3>
-
-<p>Now, let’s add the <code class="highlighter-rouge">MBTilesImageSource</code> to the <code class="highlighter-rouge">QuadImageTileLayer</code> in place of the <code class="highlighter-rouge">RemoteTileSource</code>.</p>
-
-<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">QuadImageTileLayer</span> <span class="n">baseLayer</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">QuadImageTileLayer</span><span class="o">(</span><span class="n">mapControl</span><span class="o">,</span> <span class="n">coordSystem</span><span class="o">,</span> <span class="n">localTileSource</span><span class="o">);</span>
-</code></pre></div></div>
-
-<p>That’s it! Now you can see a local tile source being drawn on your map.</p>
-
-<p><img src="resources/mbtiles.jpg" alt="MBTiles" style="max-width:375px; display: block; margin: auto;" /></p>
 
 
           </div>
@@ -286,7 +295,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/getting-started.html">Before You Start</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/getting-started.html">Before You Start</a></li>
                       
                       
                       
@@ -451,7 +460,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/hello-earth.html">Hello Earth Project</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/hello-earth.html">Hello Earth Project</a></li>
                       
                       
                       
@@ -562,7 +571,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/building-from-binary.html">Building From Binaries</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/building-from-binary.html">Building From Binaries</a></li>
                       
                       
                       
@@ -718,7 +727,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/building-from-source.html">Building From Source</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/building-from-source.html">Building From Source</a></li>
                       
                       
                       
@@ -993,7 +1002,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/your-first-globe-or-map.html">Your First Globe or Map</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/your-first-globe-or-map.html">Your First Globe or Map</a></li>
                       
                       
                       
@@ -1080,7 +1089,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item current"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/local-image-layer.html">Local Image Layer</a></li>
+                      <li class="sidebar-list-item current"><a class="page-link" href="/tutorial/android/local-image-layer.html">Local Image Layer</a></li>
                       
                       
                       
@@ -1295,7 +1304,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/vector-data.html">Vector Data</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/vector-data.html">Vector Data</a></li>
                       
                       
                       
@@ -1418,7 +1427,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/screen-markers.html">Screen Markers</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/screen-markers.html">Screen Markers</a></li>
                       
                       
                       
@@ -1565,7 +1574,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/screen-labels.html">Screen Labels</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/screen-labels.html">Screen Labels</a></li>
                       
                       
                       
@@ -1744,7 +1753,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/spheres-android.html">Spheres</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/spheres-android.html">Spheres</a></li>
                       
                       
                       
@@ -1920,7 +1929,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/vector-selection.html">Vector Selection</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/vector-selection.html">Vector Selection</a></li>
                       
                       
                       
@@ -2037,7 +2046,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/screen-marker-selection.html">Screen Marker Selection</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/screen-marker-selection.html">Screen Marker Selection</a></li>
                       
                       
                       
@@ -2114,7 +2123,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/auto-tester-android.html">AutoTesterAndroid Example App</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/auto-tester-android.html">AutoTesterAndroid Example App</a></li>
                       
                       
                       
@@ -2330,7 +2339,7 @@
             
 
             <!-- deliver next/prev links -->
-            <a class="prev" href="/WhirlyGlobe-3/tutorial/android/your-first-globe-or-map.html">Previous</a><a class="next" href="/WhirlyGlobe-3/tutorial/android/vector-data.html">Next</a>
+            <a class="prev" href="/tutorial/android/your-first-globe-or-map.html">Previous</a><a class="next" href="/tutorial/android/vector-data.html">Next</a>
 
 
             
@@ -2402,7 +2411,7 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 
 <!-- Include all compiled plugins (below), or include individual files as needed -->
-<script src="/WhirlyGlobe-3/js/bootstrap.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
 
 <footer class="site-footer">
 
@@ -2444,7 +2453,7 @@
 
         <div class="col-sm-2">
           <ul class="contact-list">
-            <li><a href="/WhirlyGlobe-3/">WhirlyGlobe-Maply</a></li>
+            <li><a href="/">WhirlyGlobe-Maply</a></li>
             <li><a href="mailto:contact@mousebirdconsulting.com">contact@mousebirdconsulting.com</a></li>
           </ul>
         </div>
@@ -2495,6 +2504,6 @@
   </div>
 </footer>
 
-    <script src="/WhirlyGlobe-3/js/tutorial.js"></script>
+    <script src="/js/tutorial.js"></script>
   </body>
 </html>

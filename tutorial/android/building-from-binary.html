@@ -10,7 +10,7 @@
 ">
 
   <!-- Bootstrap -->
-  <link href="/WhirlyGlobe-3/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/css/bootstrap.min.css" rel="stylesheet">
 
   <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -19,15 +19,15 @@
   <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
   <![endif]-->
 
-  <link rel="stylesheet" href="/WhirlyGlobe-3/css/main.css">
-  <link rel="canonical" href="http://mousebird.github.io//WhirlyGlobe-3/tutorial/android/building-from-binary.html">
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://0.0.0.0:4000/tutorial/android/building-from-binary.html">
 
   <!-- Fontwork -->
-  <link rel="stylesheet" type="text/css" href="/WhirlyGlobe-3/css/MyFontsWebfontsKit.css">
+  <link rel="stylesheet" type="text/css" href="/css/MyFontsWebfontsKit.css">
   <link href='https://fonts.googleapis.com/css?family=Roboto:300' rel='stylesheet' type='text/css'>
 
   <!-- Fav Icon -->
-  <link rel="shortcut icon" href="/WhirlyGlobe-3/images/fav-icon.ico" />
+  <link rel="shortcut icon" href="/images/fav-icon.ico" />
 
   <!--
   /**
@@ -83,15 +83,15 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="/WhirlyGlobe-3/"><img src="/WhirlyGlobe-3/images/WhirlyGlobe-Maply-33.png" width="239" height="33" alt="WhirlyGlobe-Maply"></a>
+        <a class="navbar-brand" href="/"><img src="/images/WhirlyGlobe-Maply-33.png" width="239" height="33" alt="WhirlyGlobe-Maply"></a>
       </div>
       <div class="collapse navbar-collapse">
         <ul class="nav navbar-nav navbar-right">
-          <li><a href="/WhirlyGlobe-3/">Home</a></li>
-          <li><a href="/WhirlyGlobe-3/tutorial/">Tutorial</a></li>
-          <li><a href="/WhirlyGlobe-3/reference/reference.html">Reference</a></li>
-          <li><a href="/WhirlyGlobe-3/apps/apps.html">Apps</a></li>
-          <li><a href="/WhirlyGlobe-3/builds/builds.html">Builds</a></li>
+          <li><a href="/">Home</a></li>
+          <li><a href="/tutorial/">Tutorial</a></li>
+          <li><a href="/reference/reference.html">Reference</a></li>
+          <li><a href="/apps/apps.html">Apps</a></li>
+          <li><a href="/builds/builds.html">Builds</a></li>
         </ul>
       </div>
     </div>
@@ -116,7 +116,7 @@
 
 <p>Rename it to <code class="highlighter-rouge">WhirlyGlobeMaply.aar</code>.</p>
 
-<p>Add the following <code class="highlighter-rouge">flatDir</code> directive to your <code class="highlighter-rouge">Build.gradle (Project: HelloEarth)</code> file inside of the <code class="highlighter-rouge">allprojects &gt; repositories</code> directive.</p>
+<p>Add the following <code class="highlighter-rouge">flatDir</code> directive to the <code class="highlighter-rouge">build.gradle (Project: HelloEarth)</code> file inside of the <code class="highlighter-rouge">allprojects &gt; repositories</code> directive.</p>
 
 <div class="language-gradle highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">allprojects</span> <span class="o">{</span>
     <span class="k">repositories</span> <span class="o">{</span>
@@ -128,21 +128,21 @@
 <span class="o">}</span>
 </code></pre></div></div>
 
-<p>Next add the following packages to the end of the <code class="highlighter-rouge">dependencies</code> directive in <code class="highlighter-rouge">Build.gradle (Module: app)</code>.</p>
+<p>Next add the following packages to the end of the <code class="highlighter-rouge">dependencies</code> directive in <code class="highlighter-rouge">build.gradle (Module: app)</code>.</p>
 
 <ul>
-  <li><code class="highlighter-rouge">implementation('com.squareup.okhttp:okhttp:2.3.0')</code></li>
+  <li><code class="highlighter-rouge">implementation 'com.squareup.okhttp3:okhttp:3.14.2'</code></li>
   <li><code class="highlighter-rouge">implementation(name:'WhirlyGlobeMaply', ext:'aar')</code></li>
 </ul>
 
 <div class="language-gradle highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">dependencies</span> <span class="o">{</span>
     <span class="n">implementation</span> <span class="nf">fileTree</span><span class="o">(</span><span class="nl">dir:</span> <span class="s2">"libs"</span><span class="o">,</span> <span class="nl">include:</span> <span class="o">[</span><span class="s2">"*.jar"</span><span class="o">])</span>
-    <span class="n">implementation</span> <span class="s1">'androidx.appcompat:appcompat:1.1.0'</span>
-    <span class="n">implementation</span> <span class="s1">'androidx.constraintlayout:constraintlayout:1.1.3'</span>
+    <span class="n">implementation</span> <span class="s1">'androidx.appcompat:appcompat:1.2.0'</span>
+    <span class="n">implementation</span> <span class="s1">'androidx.constraintlayout:constraintlayout:2.0.1'</span>
     <span class="n">testImplementation</span> <span class="s1">'junit:junit:4.12'</span>
-    <span class="n">androidTestImplementation</span> <span class="s1">'androidx.test.ext:junit:1.1.1'</span>
-    <span class="n">androidTestImplementation</span> <span class="s1">'androidx.test.espresso:espresso-core:3.2.0'</span>
-    <span class="n">implementation</span><span class="o">(</span><span class="s1">'com.squareup.okhttp:okhttp:2.3.0'</span><span class="o">)</span>
+    <span class="n">androidTestImplementation</span> <span class="s1">'androidx.test.ext:junit:1.1.2'</span>
+    <span class="n">androidTestImplementation</span> <span class="s1">'androidx.test.espresso:espresso-core:3.3.0'</span>
+    <span class="n">implementation</span> <span class="s1">'com.squareup.okhttp3:okhttp:3.14.2'</span>
     <span class="n">implementation</span><span class="o">(</span><span class="nl">name:</span><span class="s1">'WhirlyGlobeMaply'</span><span class="o">,</span> <span class="nl">ext:</span><span class="s1">'aar'</span><span class="o">)</span>
 <span class="o">}</span>
 </code></pre></div></div>
@@ -151,9 +151,26 @@
 
 <p><img src="resources/gradle-sync.png" alt="Gradle Sync" /></p>
 
+<h3 id="set-version-compatibility">Set Version Compatibility</h3>
+
+<p>In order to avoid errors and conflicts, set the source and target compatibility options for the new application to match those of the maply module in the <code class="highlighter-rouge">File</code> / <code class="highlighter-rouge">Project Structure</code> options dialog.</p>
+
+<p><img src="resources/android-studio-app-sdk-version.png" alt="Set Compatibility Versions" /></p>
+
+<p>In particular, this has been observed to cause the following exception on application start:</p>
+
+<p><code class="highlighter-rouge">java.lang.NoSuchMethodError: No static method metafactory(...); in class ...LambdaMetafactory; or its super classes ...</code></p>
+
+<h3 id="example-app">Example App</h3>
+
+<p>To continue building HelloEarth, go to the <a href="your-first-globe-or-map.html">Your First Globe or Map</a> page.</p>
+
+<p>Besides the <a href="hello-earth.html">Hello Earth</a> project, there is an example app you can try out called <code class="highlighter-rouge">AutoTesterAndroid</code>. This is optional, but it is the quickest way to <em>see something work</em>. We have <a href="auto-tester-android.html">brief instructions</a> for you to build AutoTesterAndroid.</p>
+
 <hr />
 
 <p><em>Tutorial by Nicholas Hallahan, Steve Gifford, Tim Sylvester.</em></p>
+
 
 
           </div>
@@ -217,7 +234,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/getting-started.html">Before You Start</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/getting-started.html">Before You Start</a></li>
                       
                       
                       
@@ -382,7 +399,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/hello-earth.html">Hello Earth Project</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/hello-earth.html">Hello Earth Project</a></li>
                       
                       
                       
@@ -493,7 +510,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item current"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/building-from-binary.html">Building From Binaries</a></li>
+                      <li class="sidebar-list-item current"><a class="page-link" href="/tutorial/android/building-from-binary.html">Building From Binaries</a></li>
                       
                       
                       
@@ -649,7 +666,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/building-from-source.html">Building From Source</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/building-from-source.html">Building From Source</a></li>
                       
                       
                       
@@ -924,7 +941,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/your-first-globe-or-map.html">Your First Globe or Map</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/your-first-globe-or-map.html">Your First Globe or Map</a></li>
                       
                       
                       
@@ -1011,7 +1028,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/local-image-layer.html">Local Image Layer</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/local-image-layer.html">Local Image Layer</a></li>
                       
                       
                       
@@ -1226,7 +1243,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/vector-data.html">Vector Data</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/vector-data.html">Vector Data</a></li>
                       
                       
                       
@@ -1349,7 +1366,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/screen-markers.html">Screen Markers</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/screen-markers.html">Screen Markers</a></li>
                       
                       
                       
@@ -1496,7 +1513,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/screen-labels.html">Screen Labels</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/screen-labels.html">Screen Labels</a></li>
                       
                       
                       
@@ -1675,7 +1692,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/spheres-android.html">Spheres</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/spheres-android.html">Spheres</a></li>
                       
                       
                       
@@ -1851,7 +1868,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/vector-selection.html">Vector Selection</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/vector-selection.html">Vector Selection</a></li>
                       
                       
                       
@@ -1968,7 +1985,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/screen-marker-selection.html">Screen Marker Selection</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/screen-marker-selection.html">Screen Marker Selection</a></li>
                       
                       
                       
@@ -2045,7 +2062,7 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe-3/tutorial/android/auto-tester-android.html">AutoTesterAndroid Example App</a></li>
+                      <li class="sidebar-list-item"><a class="page-link" href="/tutorial/android/auto-tester-android.html">AutoTesterAndroid Example App</a></li>
                       
                       
                       
@@ -2197,7 +2214,7 @@
         <div class="row">
           <div class="col-sm-9" id="prev-next">
             
-            <a class="prev" href="/WhirlyGlobe-3/tutorial/android/hello-earth.html">Previous</a><a class="next" href="/WhirlyGlobe-3/tutorial/android/your-first-globe-or-map.html">Next</a>
+            <a class="prev" href="/tutorial/android/hello-earth.html">Previous</a><a class="next" href="/tutorial/android/your-first-globe-or-map.html">Next</a>
 
 
             
@@ -2212,7 +2229,7 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 
 <!-- Include all compiled plugins (below), or include individual files as needed -->
-<script src="/WhirlyGlobe-3/js/bootstrap.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
 
 <footer class="site-footer">
 
@@ -2254,7 +2271,7 @@
 
         <div class="col-sm-2">
           <ul class="contact-list">
-            <li><a href="/WhirlyGlobe-3/">WhirlyGlobe-Maply</a></li>
+            <li><a href="/">WhirlyGlobe-Maply</a></li>
             <li><a href="mailto:contact@mousebirdconsulting.com">contact@mousebirdconsulting.com</a></li>
           </ul>
         </div>
@@ -2305,6 +2322,6 @@
   </div>
 </footer>
 
-    <script src="/WhirlyGlobe-3/js/tutorial.js"></script>
+    <script src="/js/tutorial.js"></script>
   </body>
 </html>
