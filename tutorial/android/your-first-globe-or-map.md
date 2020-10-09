@@ -42,7 +42,7 @@ We'll need to be able to load tile images from the internet, which means the app
 
 ### Add Globe Map Fragment
 
-Create a new Java class called `HelloGlobeFragment` in HelloEarth with the following contents, or download the [HelloGlobeFragment.java](resources/HelloGlobeFragment.java) file and place it in the appropriate directory, e.g., `HelloEarth/app/src/main/java/com/mousebirdconsulting/helloearth`.
+Create a new Java class called `HelloGlobeFragment` in HelloEarth with the following contents, or download the [HelloGlobeFragment.java](https://github.com/mousebird/AndroidTutorialProject/blob/master/app/src/main/java/com/mousebirdconsulting/helloearth/HelloGlobeFragment.java) file and place it in the appropriate directory, e.g., `HelloEarth/app/src/main/java/com/mousebirdconsulting/helloearth`.
 
 ```java
 package com.mousebirdconsulting.helloearth;
@@ -227,7 +227,7 @@ public class HelloMapFragment extends GlobeMapFragment {
 }
 ```
 
-You can download [HelloMapFragment.java](resources/HelloMapFragment.java) and place it directly in your project. 
+You can download [HelloMapFragment.java](https://github.com/mousebird/AndroidTutorialProject/blob/master/app/src/main/java/com/mousebirdconsulting/helloearth/HelloMapFragment.java) and place it directly in your project. 
 
 Notice that this fragment is almost exactly the same as `HelloGlobeFragment.java`. There are two differences:
 

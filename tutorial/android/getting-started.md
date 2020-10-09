@@ -15,7 +15,7 @@ Enter Precisely This Text
 
 You should be familiar with the Terminal.  You’ll need to type a number of commands to get started.
 
-We make use of [git](http://en.wikipedia.org/wiki/Git) and [github](http://github.com/).  A passing familiarity will help.
+We make use of [git](http://en.wikipedia.org/wiki/Git) and [github](https://github.com/).  A passing familiarity will help.
 
 For Android development, we use [Android Studio](https://developer.android.com/studio/index.html). Android Studio comes with the Android Development Kit (required). If you are building from source, you will also need the [Native Development Kit (NDK)](https://developer.android.com/ndk/index.html).  You can install all that from the Android Studio interface.
 

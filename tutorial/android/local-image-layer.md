@@ -7,7 +7,7 @@ Now we're going to add a local image layer to your map. You can have map image t
 
 ### Add MBTiles to Application
 
-For the sake of simplicity, we're going to manually add an MBTiles file to your application. For a production app, you'll want to [explore various means](https://github.com/mousebird/WhirlyGlobe/blob/e9dec4068156191861d40d5dded1c079449c26f2/WhirlyGlobeSrc/AutoTesterAndroid/app/src/main/java/com/mousebirdconsulting/autotester/TestCases/MBTilesImageTestCase.java#L138-L162) of getting an MBTiles file onto the device automatically, but that is out of scope from this basic tutorial.
+For the sake of simplicity, we're going to manually add an MBTiles file to your application. For a production app, you'll want to [explore various means](https://github.com/mousebird/WhirlyGlobe/blob/master/WhirlyGlobeSrc/AutoTesterAndroid/app/src/main/java/com/mousebirdconsulting/autotester/TestCases/MBTilesImageTestCase.java#L138-L162) of getting an MBTiles file onto the device automatically, but that is out of scope from this basic tutorial.
 
 First, download our sample [Geography Class MBTiles file](http://whirlyglobedocs.s3-website-us-east-1.amazonaws.com/tutorialsupport/geography-class_medres.mbtiles) to your computer and copy it to the following directory under the HelloGlobe application (you will need to create the last two directories):
 
@@ -15,7 +15,7 @@ First, download our sample [Geography Class MBTiles file](http://whirlyglobedocs
 
 ### Create a New Fragment
 
-Next, we'll create yet another fragment which loads the tiles from the MBTiles file.  Create a new class, `LocalGlobeFragment` with the following, or place [LocalGlobeFragment.java](resources/LocalGlobeFragment.java) in the appropriate directory.
+Next, we'll create yet another fragment which loads the tiles from the MBTiles file.  Create a new class, `LocalGlobeFragment` with the following, or place [LocalGlobeFragment.java](https://github.com/mousebird/AndroidTutorialProject/blob/master/app/src/main/java/com/mousebirdconsulting/helloearth/LocalGlobeFragment.java) in the appropriate directory.
 
 ```java
 package com.mousebirdconsulting.helloearth;
