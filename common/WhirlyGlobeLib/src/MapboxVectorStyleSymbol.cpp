@@ -450,15 +450,26 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                 }
             }
         } else if (vecObj->getVectorType() == VectorLinearType) {
+#if DEBUG
+            if (vecObj->shapes.size() > 1) {
+                wkLogLevel(Warn, "MapboxVectorLayerSymbol: Linear vector object contains %d shapes", vecObj->shapes.size());
+            }
+#endif
             for (VectorShapeRef shape : vecObj->shapes) {
-                VectorLinearRef line = std::dynamic_pointer_cast<VectorLinear>(shape);
-                if (line) {
-                    // Place along the line
-                    Point2f pt;
+                // for each line in the shape set ... (we expect exactly one)
+                if (VectorLinearRef line = std::dynamic_pointer_cast<VectorLinear>(shape)) {
+                    // Place the symbol at the middle of the line
+                    // Note that if there are multiple shapes, this will be recalculated unnecessarily.
                     Point2d middle;
                     double rot;
-                    vecObj->linearMiddle(middle, rot, styleSet->coordSys);
-                    pt = Point2f(middle.x(),middle.y());
+                    if (!vecObj->linearMiddle(middle, rot, styleSet->coordSys)) {
+#if DEBUG
+                        wkLogLevel(Warn, "MapboxVectorLayerSymbol: Failed to compute middle of linear shape");
+#endif
+                        continue;
+                    }
+                    
+                    const auto pt = Point2f(middle.x(), middle.y());
 
                     if (textInclude) {
                         SingleLabelRef label = setupLabel(inst,pt,labelInfo,vecObj->getAttributes(),tileInfo);
@@ -479,6 +490,44 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                         Marker *marker = setupMarker(inst, pt, vecObj, vecObj->getAttributes(), compObj, tileInfo);
                         if (marker)
                             markers.push_back(marker);
+                    }
+                }
+            }
+        }
+        else if (vecObj->getVectorType() == VectorArealType) {
+#if DEBUG
+            if (vecObj->shapes.size() > 1) {
+                wkLogLevel(Warn, "MapboxVectorLayerSymbol: Areal vector object contains %d shapes", vecObj->shapes.size());
+            }
+#endif
+            for (auto shape : vecObj->shapes) {
+                // each polygon in the shape set... (we expect exactly one)
+                if (auto aereal = std::dynamic_pointer_cast<VectorAreal>(shape)) {
+                    
+                    // Place the marker at the middle of the polygon.
+                    // Note that if there are multiple shapes, this will be recalculated unnecessarily.
+                    Point2d middle;
+                    if (!vecObj->centroid(middle)) {
+#if DEBUG
+                        wkLogLevel(Warn, "MapboxVectorLayerSymbol: Failed to compute centroid of areal shape");
+#endif
+                        continue;
+                    }
+                    
+                    const auto pt = Point2f(middle.x(), middle.y());
+                    const auto& attributes = vecObj->getAttributes();
+
+                    if (textInclude) {
+                        if (auto label = setupLabel(inst, pt, labelInfo, attributes, tileInfo)) {
+                            // layout.placement is ignored for polygons
+                            labels.push_back(label);
+                        }
+                    }
+                    
+                    if (iconInclude) {
+                        if (auto marker = setupMarker(inst, pt, vecObj, attributes, compObj, tileInfo)) {
+                            markers.push_back(marker);
+                        }
                     }
                 }
             }
