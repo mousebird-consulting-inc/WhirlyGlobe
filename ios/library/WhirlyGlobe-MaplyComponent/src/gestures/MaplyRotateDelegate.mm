@@ -28,6 +28,8 @@ using namespace Maply;
     Maply::RotationType rotType;
     MapView_iOS *mapView;
     double startRotationAngle;
+    bool rotationStarted;       // has the threshold been reached yet
+    double rotationBaseline;    // the rotation at which the threshold was reached
 }
 
 using namespace Maply;
@@ -38,6 +40,9 @@ using namespace Maply;
 	{
 		mapView = inView;
         rotType = RotNone;
+        _rotateThreshold = 0.0f;
+        _gestureRecognizer = nil;
+        rotationStarted = false;
 	}
 	
 	return self;
@@ -46,10 +51,10 @@ using namespace Maply;
 
 + (MaplyRotateDelegate *)rotateDelegateForView:(UIView *)view mapView:(MapView_iOS *)mapView
 {
-	MaplyRotateDelegate *rotateDelegate = [[MaplyRotateDelegate alloc] initWithMapView:mapView];
-	UIRotationGestureRecognizer *rotationRecognizer = [[UIRotationGestureRecognizer alloc] initWithTarget:rotateDelegate action:@selector(rotateAction:)];
-    rotationRecognizer.delegate = rotateDelegate;
-    [view addGestureRecognizer:rotationRecognizer];
+	auto rotateDelegate = [[MaplyRotateDelegate alloc] initWithMapView:mapView];
+    rotateDelegate.gestureRecognizer = [[UIRotationGestureRecognizer alloc] initWithTarget:rotateDelegate action:@selector(rotateAction:)];
+    rotateDelegate.gestureRecognizer.delegate = rotateDelegate;
+    [view addGestureRecognizer:rotateDelegate.gestureRecognizer];
 	return rotateDelegate;
 }
 
@@ -66,6 +71,7 @@ using namespace Maply;
     // Turn off rotation if we fall below two fingers
     if ([rotate numberOfTouches] < 2)
     {
+        rotationStarted = false;
         return;
     }
     switch (rotate.state)
@@ -79,13 +85,22 @@ using namespace Maply;
             mapView->cancelAnimation();
             if (rotType == RotFree)
             {
-                mapView->setRotAngle(startRotationAngle + rotate.rotation, true);
+                if (!rotationStarted && std::fabs(rotate.rotation) > DegToRad(_rotateThreshold)) {
+                    // They have rotated enough, start rotating the map.
+                    rotationStarted = true;
+                    // Rotate based on this position, not where they started the gesture.
+                    rotationBaseline = rotate.rotation;
+                }
+                if (rotationStarted) {
+                    mapView->setRotAngle(startRotationAngle + rotate.rotation - rotationBaseline, true);
+                }
 	        }
             break;
         case UIGestureRecognizerStateFailed:
         case UIGestureRecognizerStateCancelled:
         case UIGestureRecognizerStateEnded:
             rotType = RotNone;
+            rotationStarted = false;
             break;
         default:
             break;

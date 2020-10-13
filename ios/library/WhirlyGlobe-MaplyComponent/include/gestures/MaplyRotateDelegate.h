@@ -30,6 +30,12 @@ namespace Maply
 
 @interface MaplyRotateDelegate : NSObject <UIGestureRecognizerDelegate>
 
+//The gesture recognizer
+@property (nonatomic,retain) UIGestureRecognizer* gestureRecognizer;
+
+/// The minimum angle (degrees) that must be subtended before rotation begins
+@property(nonatomic,assign) float rotateThreshold;
+
 + (MaplyRotateDelegate *)rotateDelegateForView:(UIView *)view mapView:(Maply::MapView_iOS *)mapView;
 
 @end

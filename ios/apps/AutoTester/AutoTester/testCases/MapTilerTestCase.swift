@@ -108,6 +108,8 @@ class MapTilerTestCase: MaplyTestCase {
         mapVC.performanceOutput = true
         
         startMap(styles[MapTilerStyle], viewC: mapVC, round: false)
+        
+        mapVC.rotateGestureThreshold = 15;
     }
     
     override func setUpWithGlobe(_ mapVC: WhirlyGlobeViewController) {

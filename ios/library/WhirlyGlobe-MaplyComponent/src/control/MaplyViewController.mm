@@ -202,6 +202,7 @@ public:
     _doubleTapDragGesture = true;
     _twoFingerTapGesture = true;
     _doubleTapZoomGesture = true;
+    _rotateGestureThreshold = 0.0f;
 //    self.useOpenGLES = true;
 
     return self;
@@ -219,6 +220,7 @@ public:
     _doubleTapDragGesture = true;
     _twoFingerTapGesture = true;
     _doubleTapZoomGesture = true;
+    _rotateGestureThreshold = 0.0f;
 //    self.useOpenGLES = true;
 
     return self;
@@ -237,6 +239,7 @@ public:
     _doubleTapDragGesture = true;
     _twoFingerTapGesture = true;
     _doubleTapZoomGesture = true;
+    _rotateGestureThreshold = 0.0f;
 
     return self;
 }
@@ -383,8 +386,10 @@ public:
         pinchDelegate.minZoom = mapView->minHeightAboveSurface();
         pinchDelegate.maxZoom = mapView->maxHeightAboveSurface();
     }
-    if(_rotateGesture)
+    if(_rotateGesture) {
         rotateDelegate = [MaplyRotateDelegate rotateDelegateForView:wrapView mapView:mapView.get()];
+        rotateDelegate.rotateThreshold = _rotateGestureThreshold;
+    }
     if(_doubleTapZoomGesture)
     {
         doubleTapDelegate = [MaplyDoubleTapDelegate doubleTapDelegateForView:wrapView mapView:mapView];
@@ -567,45 +572,42 @@ public:
 - (void)setPinchGesture:(bool)pinchGesture
 {
     _pinchGesture = pinchGesture;
-    if (pinchGesture)
+    if (pinchGesture && !pinchDelegate)
     {
-        if (!pinchDelegate)
-        {
-            pinchDelegate = [MaplyPinchDelegate pinchDelegateForView:wrapView mapView:mapView];
-            pinchDelegate.minZoom = mapView->minHeightAboveSurface();
-            pinchDelegate.maxZoom = mapView->maxHeightAboveSurface();
-            
-            if (twoFingerTapDelegate)
-                [twoFingerTapDelegate.gestureRecognizer requireGestureRecognizerToFail:pinchDelegate.gestureRecognizer];
-        }
-    } else {
-        if (pinchDelegate)
-        {
+        // gesture enabled but no delegate is set, create one.
+        pinchDelegate = [MaplyPinchDelegate pinchDelegateForView:wrapView mapView:mapView];
+        pinchDelegate.minZoom = mapView->minHeightAboveSurface();
+        pinchDelegate.maxZoom = mapView->maxHeightAboveSurface();
+
+        if (twoFingerTapDelegate)
+            [twoFingerTapDelegate.gestureRecognizer requireGestureRecognizerToFail:pinchDelegate.gestureRecognizer];
+    }
+    else if (!pinchGesture && pinchDelegate)
+    {
+        // gesture disabled but a delegate is set, remove it
+        if (pinchDelegate.gestureRecognizer) {
             [wrapView removeGestureRecognizer:pinchDelegate.gestureRecognizer];
-            pinchDelegate = nil;
         }
+        pinchDelegate = nil;
     }
 }
 
 - (void)setRotateGesture:(bool)rotateGesture
 {
     _rotateGesture = rotateGesture;
-    if (rotateGesture)
+    if (rotateGesture && !rotateDelegate)
     {
-        if (!rotateDelegate)
-        {
-            rotateDelegate = [MaplyRotateDelegate rotateDelegateForView:wrapView mapView:mapView.get()];
+        // Rotate gesture enabled but no rotate delegate, create one
+        rotateDelegate = [MaplyRotateDelegate rotateDelegateForView:wrapView mapView:mapView.get()];
+        rotateDelegate.rotateThreshold = _rotateGestureThreshold;
+    }
+    else if (!rotateGesture && rotateDelegate)
+    {
+        // Rotate gesture disabled but a delegate exists, remove it.
+        if (rotateDelegate.gestureRecognizer) {
+            [wrapView removeGestureRecognizer:rotateDelegate.gestureRecognizer];
         }
-    } else {
-        if (rotateDelegate)
-        {
-            UIRotationGestureRecognizer *rotRecog = nil;
-            for (UIGestureRecognizer *recog in wrapView.gestureRecognizers)
-                if ([recog isKindOfClass:[UIRotationGestureRecognizer class]])
-                    rotRecog = (UIRotationGestureRecognizer *)recog;
-           [wrapView removeGestureRecognizer:rotRecog];
-           rotateDelegate = nil;
-        }
+        rotateDelegate = nil;
     }
 }
 
@@ -1144,6 +1146,17 @@ public:
 - (float)heading
 {
     return mapView->getRotAngle();
+}
+
+- (void)setRotateGestureThreshold:(float)threshold
+{
+    if (threshold != _rotateGestureThreshold) {
+        _rotateGestureThreshold = threshold;
+        if (rotateDelegate) {
+            rotateDelegate.rotateThreshold = threshold;
+        }
+    }
+    
 }
 
 - (float)getMinZoom

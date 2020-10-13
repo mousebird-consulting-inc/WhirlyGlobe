@@ -342,6 +342,13 @@ typedef NS_ENUM(NSInteger, MaplyMapType) {
  */
 @property(nonatomic,assign) float heading;
 
+/**
+    The minimum angle, in degrees, which a rotate gesture must subtend before rotation begins.
+        i.e., larger values are "stickier"
+        default is zero, causing rotation to begin immediately
+ */
+@property(nonatomic,assign) float rotateGestureThreshold;
+
 /** 
     If set, we'll automatically move to wherever the user tapped.
     
