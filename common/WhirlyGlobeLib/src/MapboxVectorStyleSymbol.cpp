@@ -507,7 +507,7 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                     // Place the marker at the middle of the polygon.
                     // Note that if there are multiple shapes, this will be recalculated unnecessarily.
                     Point2d middle;
-                    if (!vecObj->centroid(middle)) {
+                    if (!vecObj->center(middle)) {
 #if DEBUG
                         wkLogLevel(Warn, "MapboxVectorLayerSymbol: Failed to compute centroid of areal shape");
 #endif
