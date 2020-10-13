@@ -149,6 +149,10 @@ RGBAColorRef VectorStyleSetWrapper_Android::backgroundColor(PlatformThreadInfo *
     return RGBAColorRef(new RGBAColor(0,0,0,0));
 }
 
+// Break the vectors up into groups of this size before calling back to Java
+// This fixes a problem on older Android devices.
+static const int VecBatchSize = 500;
+
 void VectorStyleSetWrapper_Android::buildObjects(PlatformThreadInfo *platformInfo,
         SimpleIdentity styleID,
         std::vector<VectorObjectRef> &vecObjs,
@@ -156,22 +160,28 @@ void VectorStyleSetWrapper_Android::buildObjects(PlatformThreadInfo *platformInf
 {
     PlatformInfo_Android *threadInfo = (PlatformInfo_Android *)platformInfo;
 
-    // Make wrapper objects for the vectors and the tile data
-    std::vector<jobject> vecObjVec;
-    for (auto vecObj: vecObjs) {
-        jobject newObj = MakeVectorObject(threadInfo->env,vecObj);
-        vecObjVec.push_back(newObj);
-    }
     jobject tileDataObj = MakeVectorTileDataObject(threadInfo->env,tileInfo);
-    jobject vecObjArray = BuildObjectArray(threadInfo->env,VectorObjectClassInfo::getClassInfo()->getClass(),vecObjVec);
-    // Tear down our object wrappers
-    for (auto vecObj: vecObjVec)
-        threadInfo->env->DeleteLocalRef(vecObj);
 
-    threadInfo->env->CallVoidMethod(wrapperObj,buildObjectsMethod,styleID,vecObjArray,tileDataObj);
+    for (unsigned int ii=0;ii<vecObjs.size();ii+=VecBatchSize) {
+        // Make wrapper objects for the vectors and the tile data
+        std::vector<jobject> vecObjVec;
+        for (unsigned int jj=0;jj<VecBatchSize;jj++) {
+            if (jj+ii >= vecObjs.size())
+                break;
+            auto vecObj = vecObjs[ii+jj];
+            jobject newObj = MakeVectorObject(threadInfo->env,vecObj);
+            vecObjVec.push_back(newObj);
+        }
+        jobject vecObjArray = BuildObjectArray(threadInfo->env,VectorObjectClassInfo::getClassInfo()->getClass(),vecObjVec);
+        // Tear down our object wrappers
+        for (auto vecObj: vecObjVec)
+            threadInfo->env->DeleteLocalRef(vecObj);
+
+        threadInfo->env->CallVoidMethod(wrapperObj,buildObjectsMethod,styleID,vecObjArray,tileDataObj);
+        threadInfo->env->DeleteLocalRef(vecObjArray);
+    }
 
     threadInfo->env->DeleteLocalRef(tileDataObj);
-    threadInfo->env->DeleteLocalRef(vecObjArray);
 }
 
 void VectorStyleSetWrapper_Android::shutdown(PlatformThreadInfo *platformInfo)
