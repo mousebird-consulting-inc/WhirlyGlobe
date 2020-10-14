@@ -367,8 +367,7 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
     }
 
     // Flush out any drawables for the static geometry
-    for (DrawableMap::iterator it = drawables.begin();
-         it != drawables.end(); ++it)
+    for (auto it = drawables.begin(); it != drawables.end(); ++it)
     {
         if (markerInfo.fadeIn > 0.0)
         {

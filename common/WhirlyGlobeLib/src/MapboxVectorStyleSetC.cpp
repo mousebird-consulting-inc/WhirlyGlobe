@@ -687,38 +687,31 @@ RGBAColorRef MapboxVectorStyleSetImpl::colorValue(const std::string &name,Dictio
     return colorValue(name, val, dict, color, multiplyAlpha);
 }
 
-int MapboxVectorStyleSetImpl::enumValue(DictionaryEntryRef entry,const char *options[],int defVal)
+int MapboxVectorStyleSetImpl::enumValue(DictionaryEntryRef entry,const char * const options[],int defVal)
 {
     if (!entry || entry->getType() != DictTypeString)
         return defVal;
 
     std::string name = entry->getString();
     
-    int which = 0;
-    while (options[which]) {
-        const char *val = options[which];
+    for (int which = 0; options[which]; which++) {
+        const char * const val = options[which];
         if (!strcmp(val, name.c_str()))
             return which;
-        which++;
     }
 
     wkLogLevel(Warn,"Found unexpected value (%s) in enumerated type",name.c_str());
     return defVal;
 }
 
-MapboxTransDoubleRef MapboxVectorStyleSetImpl::transDouble(const std::string &name,DictionaryRef entry,double defVal)
+MapboxTransDoubleRef MapboxVectorStyleSetImpl::transDouble(DictionaryEntryRef theEntry, double defVal)
 {
-    if (!entry)
-        return MapboxTransDoubleRef(new MapboxTransDouble(defVal));
-    
-    // They pass in the whole dictionary and let us look the field up
-    DictionaryEntryRef theEntry = entry->getEntry(name);
     if (!theEntry)
-        return MapboxTransDoubleRef(new MapboxTransDouble(defVal));
+        return std::make_shared<MapboxTransDouble>(defVal);
     
     // This is probably stops
     if (theEntry->getType() == DictTypeDictionary) {
-        MaplyVectorFunctionStopsRef stops(new MaplyVectorFunctionStops());
+        auto stops = std::make_shared<MaplyVectorFunctionStops>();
         stops->parse(theEntry->getDict(), this, false);
         if (stops) {
             return MapboxTransDoubleRef(new MapboxTransDouble(stops));
@@ -726,12 +719,18 @@ MapboxTransDoubleRef MapboxVectorStyleSetImpl::transDouble(const std::string &na
             wkLogLevel(Warn, "Expecting key word 'stops' in entry %s",name.c_str());
         }
     } else if (theEntry->getType() == DictTypeDouble) {
-        return MapboxTransDoubleRef(new MapboxTransDouble(theEntry->getDouble()));
+        return std::make_shared<MapboxTransDouble>(theEntry->getDouble());
     } else {
         wkLogLevel(Warn,"Unexpected type found in entry %s. Was expecting a double.",name.c_str());
     }
 
     return MapboxTransDoubleRef();
+}
+
+
+MapboxTransDoubleRef MapboxVectorStyleSetImpl::transDouble(const std::string &name,DictionaryRef entry,double defVal)
+{
+    return transDouble(entry ? entry->getEntry(name) : DictionaryEntryRef(), defVal);
 }
 
 MapboxTransColorRef MapboxVectorStyleSetImpl::transColor(const std::string &name,DictionaryRef entry,const RGBAColor *defVal)

@@ -27,11 +27,11 @@
 namespace WhirlyKit
 {
 
-static const char *placementVals[] = {"point","line",NULL};
-static const char *transformVals[] = {"none","uppercase","lowercase",NULL};
-static const char *anchorVals[] = {"center","left","right","top","bottom","top-left","top-right","bottom-left","bottom-right",NULL};
+static const char * const placementVals[] = {"point","line",NULL};
+static const char * const transformVals[] = {"none","uppercase","lowercase",NULL};
+static const char * const anchorVals[] = {"center","left","right","top","bottom","top-left","top-right","bottom-left","bottom-right",NULL};
 
-static const char *justifyVals[] = {"center","left","right",NULL};
+static const char * const justifyVals[] = {"center","left","right",NULL};
 
 bool MapboxVectorSymbolLayout::parse(PlatformThreadInfo *inst,
                                      MapboxVectorStyleSetImpl *styleSet,
@@ -59,6 +59,10 @@ bool MapboxVectorSymbolLayout::parse(PlatformThreadInfo *inst,
     }
     textMaxWidth = styleSet->transDouble("text-max-width", styleEntry, 10.0);
     textSize = styleSet->transDouble("text-size", styleEntry, 24.0);
+
+    auto offsetEntries = styleSet->arrayValue("text-offset", styleEntry);
+    textOffsetX = (offsetEntries.size() > 0) ? styleSet->transDouble(offsetEntries[0], 0) : MapboxTransDoubleRef();
+    textOffsetY = (offsetEntries.size() > 1) ? styleSet->transDouble(offsetEntries[1], 0) : MapboxTransDoubleRef();
 
     textAnchor = MBTextCenter;
     if (styleEntry && styleEntry->getType("text-anchor") == DictTypeArray) {
@@ -184,104 +188,104 @@ SingleLabelRef MapboxVectorLayerSymbol::setupLabel(PlatformThreadInfo *inst,
     // Reconstruct the string from its replacement form
     std::string text = layout.textField.build(attrs);
     
-    if (!text.empty()) {
-        // Change the text if needed
-        switch (layout.textTransform)
-        {
-            case MBTextTransNone:
-                break;
-            case MBTextTransUppercase:
-                std::transform(text.begin(), text.end(), text.begin(), ::toupper);
-                break;
-            case MBTextTransLowercase:
-                std::transform(text.begin(), text.end(), text.begin(), ::tolower);
-                break;
-        }
-
-        // TODO: Put this back, but we need information about the font
-        // Break it up into lines, if necessary
-        double textMaxWidth = layout.textMaxWidth->valForZoom(tileInfo->ident.level);
-        if (textMaxWidth != 0.0)
-            text = breakUpText(inst,text,textMaxWidth * labelInfo->fontPointSize,labelInfo);
-        
-        // Construct the label
-        SingleLabelRef label = styleSet->makeSingleLabel(inst,text);
-        label->loc = GeoCoord(pt.x(),pt.y());
-        label->isSelectable = selectable;
-        
-        if (!uuidField.empty())
-            label->uniqueID = attrs->getString(uuidField);
-        else if (uniqueLabel) {
-            label->uniqueID = text;
-            std::transform(label->uniqueID.begin(), label->uniqueID.end(), label->uniqueID.begin(), ::tolower);
-        }
-        
-        // The rank is most important, followed by the zoom level.  This keeps the countries on top.
-        int rank = 1000;
-        if (attrs->hasField("rank")) {
-            rank = attrs->getInt("rank");
-        }
-        // Random tweak to cut down on flashing
-        // TODO: Move the layout importance into the label itself
-        float strHash = calcStringHash(text);
-        label->layoutEngine = true;
-        if (!layout.textAllowOverlap) {
-            // If we're allowing layout, then we need to communicate valid text justification
-            //  if the style wanted us to do that
-            if (layout.textJustifySet) {
-                switch (layout.textJustify) {
-                    case WhirlyKitTextCenter:
-                        label->layoutPlacement = WhirlyKitLayoutPlacementCenter;
-                        break;
-                    case WhirlyKitTextLeft:
-                        label->layoutPlacement = WhirlyKitLayoutPlacementLeft;
-                        break;
-                    case WhirlyKitTextRight:
-                        label->layoutPlacement = WhirlyKitLayoutPlacementRight;
-                        break;
-                }
-            }
-            label->layoutImportance = layout.layoutImportance + 1.0 - (rank + (101-tileInfo->ident.level)/100.0)/1000.0 + strHash/10000.0;
-//            wkLogLevel(Debug,"\ntext: %s import = %f, rank = %d, level = %d, strHash = %f",text.c_str(),label->layoutImportance,rank,tileInfo->ident.level,strHash);
-        } else
-            label->layoutImportance = MAXFLOAT;
-
-        // Anchor options for the layout engine
-        switch (layout.textAnchor) {
-            case MBTextCenter:
-                label->layoutPlacement = WhirlyKitLayoutPlacementCenter;
-                break;
-            case MBTextLeft:
-                label->layoutPlacement = WhirlyKitLayoutPlacementLeft;
-                break;
-            case MBTextRight:
-                label->layoutPlacement = WhirlyKitLayoutPlacementRight;
-                break;
-            case MBTextTop:
-                label->layoutPlacement = WhirlyKitLayoutPlacementAbove;
-                break;
-            case MBTextBottom:
-                label->layoutPlacement = WhirlyKitLayoutPlacementBelow;
-                break;
-                // Note: The rest of these aren't quite right
-            case MBTextTopLeft:
-                label->layoutPlacement = WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementAbove;
-                break;
-            case MBTextTopRight:
-                label->layoutPlacement = WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove;
-                break;
-            case MBTextBottomLeft:
-                label->layoutPlacement = WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementBelow;
-                break;
-            case MBTextBottomRight:
-                label->layoutPlacement = WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementBelow;
-                break;
-        }
-
-        return label;
+    if (text.empty()) {
+        return SingleLabelRef();
     }
     
-    return SingleLabelRef();
+    // Change the text if needed
+    switch (layout.textTransform)
+    {
+        case MBTextTransNone:
+            break;
+        case MBTextTransUppercase:
+            std::transform(text.begin(), text.end(), text.begin(), ::toupper);
+            break;
+        case MBTextTransLowercase:
+            std::transform(text.begin(), text.end(), text.begin(), ::tolower);
+            break;
+    }
+
+    // TODO: Put this back, but we need information about the font
+    // Break it up into lines, if necessary
+    double textMaxWidth = layout.textMaxWidth->valForZoom(tileInfo->ident.level);
+    if (textMaxWidth != 0.0)
+        text = breakUpText(inst,text,textMaxWidth * labelInfo->fontPointSize,labelInfo);
+    
+    // Construct the label
+    SingleLabelRef label = styleSet->makeSingleLabel(inst,text);
+    label->loc = GeoCoord(pt.x(),pt.y());
+    label->isSelectable = selectable;
+    
+    if (!uuidField.empty())
+        label->uniqueID = attrs->getString(uuidField);
+    else if (uniqueLabel) {
+        label->uniqueID = text;
+        std::transform(label->uniqueID.begin(), label->uniqueID.end(), label->uniqueID.begin(), ::tolower);
+    }
+
+    // The rank is most important, followed by the zoom level.  This keeps the countries on top.
+    int rank = 1000;
+    if (attrs->hasField("rank")) {
+        rank = attrs->getInt("rank");
+    }
+    // Random tweak to cut down on flashing
+    // TODO: Move the layout importance into the label itself
+    float strHash = calcStringHash(text);
+    label->layoutEngine = true;
+    if (!layout.textAllowOverlap) {
+        // If we're allowing layout, then we need to communicate valid text justification
+        //  if the style wanted us to do that
+        if (layout.textJustifySet) {
+            switch (layout.textJustify) {
+                case WhirlyKitTextCenter:
+                    label->layoutPlacement = WhirlyKitLayoutPlacementCenter;
+                    break;
+                case WhirlyKitTextLeft:
+                    label->layoutPlacement = WhirlyKitLayoutPlacementLeft;
+                    break;
+                case WhirlyKitTextRight:
+                    label->layoutPlacement = WhirlyKitLayoutPlacementRight;
+                    break;
+            }
+        }
+        label->layoutImportance = layout.layoutImportance + 1.0 - (rank + (101-tileInfo->ident.level)/100.0)/1000.0 + strHash/10000.0;
+//            wkLogLevel(Debug,"\ntext: %s import = %f, rank = %d, level = %d, strHash = %f",text.c_str(),label->layoutImportance,rank,tileInfo->ident.level,strHash);
+    } else
+        label->layoutImportance = MAXFLOAT;
+
+    // Anchor options for the layout engine
+    switch (layout.textAnchor) {
+        case MBTextCenter:
+            label->layoutPlacement = WhirlyKitLayoutPlacementCenter;
+            break;
+        case MBTextLeft:
+            label->layoutPlacement = WhirlyKitLayoutPlacementLeft;
+            break;
+        case MBTextRight:
+            label->layoutPlacement = WhirlyKitLayoutPlacementRight;
+            break;
+        case MBTextTop:
+            label->layoutPlacement = WhirlyKitLayoutPlacementAbove;
+            break;
+        case MBTextBottom:
+            label->layoutPlacement = WhirlyKitLayoutPlacementBelow;
+            break;
+            // Note: The rest of these aren't quite right
+        case MBTextTopLeft:
+            label->layoutPlacement = WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementAbove;
+            break;
+        case MBTextTopRight:
+            label->layoutPlacement = WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove;
+            break;
+        case MBTextBottomLeft:
+            label->layoutPlacement = WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementBelow;
+            break;
+        case MBTextBottomRight:
+            label->layoutPlacement = WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementBelow;
+            break;
+    }
+    
+    return label;
 }
 
 Marker *MapboxVectorLayerSymbol::setupMarker(PlatformThreadInfo *inst,
@@ -348,6 +352,7 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
     if (!visible)
         return;
 
+    const auto zoomLevel = tileInfo->ident.level;
     ComponentObjectRef compObj = styleSet->makeComponentObject(inst);
 
     // Render at the max size and then scale dynamically
@@ -374,13 +379,13 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
     labelInfo->textJustify = layout.textJustify;
 
     if (styleSet->tileStyleSettings->drawPriorityPerLevel > 0)
-        labelInfo->drawPriority = drawPriority + tileInfo->ident.level * styleSet->tileStyleSettings->drawPriorityPerLevel + ScreenDrawPriorityOffset;
+        labelInfo->drawPriority = drawPriority + zoomLevel * styleSet->tileStyleSettings->drawPriorityPerLevel + ScreenDrawPriorityOffset;
     else
         labelInfo->drawPriority = drawPriority + ScreenDrawPriorityOffset;
 
     // We'll try for one color for the whole thing
     // Note: To fix this we need to blast the text apart into pieces
-    RGBAColorRef textColor = styleSet->resolveColor(paint.textColor, NULL, tileInfo->ident.level, MBResolveColorOpacityReplaceAlpha);
+    RGBAColorRef textColor = styleSet->resolveColor(paint.textColor, NULL, zoomLevel, MBResolveColorOpacityReplaceAlpha);
     if (textColor)
         labelInfo->textColor = *textColor;
     labelInfo->opacityExp = paint.textOpacity->expression();
@@ -394,9 +399,9 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
 
     if (paint.textHaloColor && paint.textHaloWidth)
     {
-        labelInfo->outlineColor = paint.textHaloColor->colorForZoom(tileInfo->ident.level);
+        labelInfo->outlineColor = paint.textHaloColor->colorForZoom(zoomLevel);
         // Note: We're not using blue right here
-        labelInfo->outlineSize = (paint.textHaloWidth->valForZoom(tileInfo->ident.level) - paint.textHaloBlur->valForZoom(tileInfo->ident.level)) * layout.globalTextScale;
+        labelInfo->outlineSize = (paint.textHaloWidth->valForZoom(zoomLevel) - paint.textHaloBlur->valForZoom(zoomLevel)) * layout.globalTextScale;
         if (labelInfo->outlineSize < 0.5)
             labelInfo->outlineSize = 0.5;
     }
@@ -410,7 +415,7 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
         markerInfo.maxZoomVis = maxzoom;
     }
     markerInfo.scaleExp = layout.iconSize->expression();
-    bool iconInclude = layout.iconImageField && styleSet->sprites;
+    const bool iconInclude = layout.iconImageField && styleSet->sprites;
     if (iconInclude) {
         markerInfo.programID = styleSet->screenMarkerProgramID;
         markerInfo.drawPriority = labelInfo->drawPriority;
@@ -419,24 +424,31 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
 //    // Note: Made up value for pushing multi-line text together
 //    desc[kMaplyTextLineSpacing] = @(4.0 / 5.0 * font.lineHeight);
     
-    bool textInclude = (textColor && textSize > 0.0 && !layout.textField.chunks.empty());
+    const bool textInclude = (textColor && textSize > 0.0 && !layout.textField.chunks.empty());
     if (!textInclude && !iconInclude)
         return;
+    
+    // Calculate the present value of the offsets in ems.
+    // This isn't in setupLabel because it only needs to be done once.
+    //
+    // Positive values indicate right and down, negative values indicate left and up.
+    // `label->screenOffset` uses the same convention for Y but the opposite convention for X.
+    const Point2d offset = Point2d(layout.textOffsetX ? (layout.textOffsetX->valForZoom(zoomLevel) * textSize) : 0.0,
+                                   layout.textOffsetY ? (layout.textOffsetY->valForZoom(zoomLevel) * -textSize) : 0.0);
     
     std::vector<SingleLabelRef> labels;
     std::vector<Marker *> markers;
     for (auto vecObj : vecObjs) {
         if (vecObj->getVectorType() == VectorPointType) {
             for (VectorShapeRef shape : vecObj->shapes) {
-                VectorPointsRef pts = std::dynamic_pointer_cast<VectorPoints>(shape);
-                if (pts) {
+                if (auto pts = std::dynamic_pointer_cast<VectorPoints>(shape)) {
                     for (auto pt : pts->pts) {
                         if (textInclude) {
-                            SingleLabelRef label = setupLabel(inst,pt,labelInfo,vecObj->getAttributes(),tileInfo);
-                            if (label) {
+                            if (auto label = setupLabel(inst,pt,labelInfo,vecObj->getAttributes(),tileInfo)) {
+                                label->screenOffset = offset;
                                 labels.push_back(label);
-                            } else {
 #if DEBUG
+                            } else {
                                 wkLogLevel(Warn,"Failed to find text for label");
 #endif
                             }
@@ -472,16 +484,16 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                     const auto pt = Point2f(middle.x(), middle.y());
 
                     if (textInclude) {
-                        SingleLabelRef label = setupLabel(inst,pt,labelInfo,vecObj->getAttributes(),tileInfo);
-
-                        if (label) {
+                        if (auto label = setupLabel(inst,pt,labelInfo,vecObj->getAttributes(),tileInfo)) {
                             if (layout.placement == MBPlaceLine) {
                                 label->rotation = -1 * rot + M_PI/2.0;
                                 if (label->rotation > M_PI_2 || label->rotation < -M_PI_2)
                                     label->rotation += M_PI;
                                 label->keepUpright = true;
                             }
-                            
+
+                            label->screenOffset = offset;
+
                             labels.push_back(label);
                         }
                     }
@@ -520,6 +532,8 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                     if (textInclude) {
                         if (auto label = setupLabel(inst, pt, labelInfo, attributes, tileInfo)) {
                             // layout.placement is ignored for polygons
+                            // except for offset, which we already calculated so we might as well use
+                            label->screenOffset = offset;
                             labels.push_back(label);
                         }
                     }
@@ -552,4 +566,4 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
     }
 }
 
-}
+}   // namespace WhirlyKit
