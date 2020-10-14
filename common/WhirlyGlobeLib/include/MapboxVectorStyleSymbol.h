@@ -45,6 +45,9 @@ public:
     MapboxTransDoubleRef textMaxWidth;
     /// If set, the immutable text size
     MapboxTransDoubleRef textSize;
+    /// Text offset in ems
+    MapboxTransDoubleRef textOffsetX;
+    MapboxTransDoubleRef textOffsetY;
     /// Text scale from the global settings
     double globalTextScale;
     /// How the text is laid out in relation to it's attach point
