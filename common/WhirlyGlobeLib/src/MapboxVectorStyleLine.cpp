@@ -24,8 +24,8 @@
 namespace WhirlyKit
 {
 
-static const char *lineCapVals[] = {"butt","round","square",NULL};
-static const char *joinVals[] = {"bevel","round","miter",NULL};
+static const char * const lineCapVals[] = {"butt","round","square",NULL};
+static const char * const joinVals[] = {"bevel","round","miter",NULL};
 
 bool MapboxVectorLineLayout::parse(PlatformThreadInfo *inst,MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry)
 {

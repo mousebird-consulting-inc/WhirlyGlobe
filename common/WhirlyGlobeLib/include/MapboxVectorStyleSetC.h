@@ -233,9 +233,12 @@ public:
     RGBAColorRef colorValue(const std::string &name,DictionaryEntryRef val,DictionaryRef dict,RGBAColor defVal,bool multiplyAlpha);
 
     /// @brief Return the integer corresponding to the name.  Basically parse the enumerated type
-    int enumValue(DictionaryEntryRef entry,const char *options[],int defVal);
+    int enumValue(DictionaryEntryRef entry, const char * const options[],int defVal);
 
-    /// Builds a transitionable double object and returns that
+    /// Builds a transitionable double object from a style entry and returns that
+    MapboxTransDoubleRef transDouble(DictionaryEntryRef entry,double defVal);
+    
+    /// Builds a transitionable double object from a style entry lookup and returns that
     MapboxTransDoubleRef transDouble(const std::string &name,DictionaryRef entry,double defVal);
 
     /// Builds a transitionable color object and returns that
