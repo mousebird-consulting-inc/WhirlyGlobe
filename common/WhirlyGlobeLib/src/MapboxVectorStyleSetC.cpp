@@ -832,24 +832,27 @@ RGBAColorRef MapboxVectorStyleSetImpl::resolveColor(MapboxTransColorRef color,Ma
     if (!color)
         return RGBAColorRef();
 
-    RGBAColor thisColor = color->colorForZoom(zoom);
+    const RGBAColor thisColor = color->colorForZoom(zoom);
 
-    // No opacity, means full opacity
+    // No opacity means full opacity
     if (!opacity || color->hasAlphaOverride())
-        return RGBAColorRef(new RGBAColor(thisColor));
+        return std::make_shared<RGBAColor>(thisColor);
 
-    double thisOpacity = opacity->valForZoom(zoom);
+    double const thisOpacity = opacity->valForZoom(zoom) * 255;
 
     float vals[4];
     thisColor.asUnitFloats(vals);
     switch (resolveMode)
     {
         case MBResolveColorOpacityMultiply:
-            return RGBAColorRef(new RGBAColor(vals[0]*thisOpacity*255,vals[1]*thisOpacity*255,vals[2]*thisOpacity*255,vals[3]*thisOpacity*255));
-            break;
+            return std::make_shared<RGBAColor>(vals[0]*thisOpacity,vals[1]*thisOpacity,vals[2]*thisOpacity,vals[3]*thisOpacity);
         case MBResolveColorOpacityReplaceAlpha:
-            return RGBAColorRef(new RGBAColor(vals[0]*255,vals[1]*255,vals[2]*255,thisOpacity*255));
-            break;
+            return std::make_shared<RGBAColor>(vals[0]*255,vals[1]*255,vals[2]*255,thisOpacity);
+        case MBResolveColorOpacityComposeAlpha:
+            return std::make_shared<RGBAColor>(vals[0]*255,vals[1]*255,vals[2]*255,vals[3]*thisOpacity);
+        default:
+            assert(!"Invalid color resolve type");
+            return RGBAColorRef();
     }
 }
 
