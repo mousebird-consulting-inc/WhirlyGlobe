@@ -189,7 +189,8 @@ typedef std::shared_ptr<MapboxTransText> MapboxTransTextRef;
 // Used for combining color and opacity
 typedef enum {
     MBResolveColorOpacityReplaceAlpha,
-    MBResolveColorOpacityMultiply
+    MBResolveColorOpacityMultiply,
+    MBResolveColorOpacityComposeAlpha,
 } MBResolveColorType;
 
 /**
