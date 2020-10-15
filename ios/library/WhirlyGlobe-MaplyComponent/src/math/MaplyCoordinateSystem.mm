@@ -62,6 +62,12 @@ using namespace WhirlyKit;
 	[self setBoundsLL:&bounds.ll ur:&bounds.ur];
 }
 
+- (void)setBoundsD:(MaplyBoundingBoxD)boundsD
+{
+    ll.x = boundsD.ll.x;    ll.y = boundsD.ll.y;
+    ur.x = boundsD.ur.x;    ur.y = boundsD.ur.y;
+}
+
 - (void)setBoundsLL:(MaplyCoordinate *)inLL ur:(MaplyCoordinate *)inUR
 {
     ll.x = inLL->x;    ll.y = inLL->y;
@@ -143,6 +149,18 @@ using namespace WhirlyKit;
 }
 
 - (instancetype)initWithBoundingBox:(MaplyBoundingBox)bbox
+{
+    PlateCarreeCoordSystem *coordSys = new PlateCarreeCoordSystem();
+    self = [super initWithCoordSystem:CoordSystemRef(coordSys)];
+    ll.x = bbox.ll.x;
+    ll.y = bbox.ll.y;
+    ur.x = bbox.ur.x;
+    ur.y = bbox.ur.y;
+    
+    return self;
+}
+
+- (nullable instancetype)initWithBoundingBoxD:(MaplyBoundingBoxD)bbox
 {
     PlateCarreeCoordSystem *coordSys = new PlateCarreeCoordSystem();
     self = [super initWithCoordSystem:CoordSystemRef(coordSys)];

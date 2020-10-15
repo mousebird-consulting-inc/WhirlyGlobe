@@ -111,9 +111,9 @@ These are the per vertex attributes provided to each vertex shader.
  
      @param name The name of the shader program.  Used for identification and sometimes lookup.
  
-     @param vertex The MTLFunction for vertex processing.
+     @param vertexFunc The MTLFunction for vertex processing.
  
-     @param fragment The MTLFunction for fragment processing.
+     @param fragFunc The MTLFunction for fragment processing.
 
      @param baseViewC The view controller where we'll register the new shader.
  

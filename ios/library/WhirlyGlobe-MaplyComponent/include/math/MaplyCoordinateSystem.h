@@ -39,6 +39,13 @@
  */
 - (void)setBounds:(MaplyBoundingBox)bounds;
 
+/**
+    Set the bounding box in the local coordinate system.
+ 
+    This is the bounding box, for things like display coordinates.  If the extents would normally be in degrees, use radians.  Otherwise, the values are in the local system.
+ */
+- (void)setBoundsD:(MaplyBoundingBoxD)boundsD;
+
 /** 
     Set the bounding box in the local coordinate system.
     
@@ -117,6 +124,9 @@
 
 /// Initialize with the given bounding box (in radians)
 - (nullable instancetype)initWithBoundingBox:(MaplyBoundingBox)bbox;
+
+/// Initialize with the given bounding box (in radians)
+- (nullable instancetype)initWithBoundingBoxD:(MaplyBoundingBoxD)bbox;
 
 @end
 

@@ -84,8 +84,6 @@ This sets up the tile with an NSData object containing raw pixels.  The pixels a
     Initialize with an NSData object containing PNG or JPEG data that can be interpreted by UIImage.
     
     We're expecting PNG, JPEG or another self identified format (e.g. PKM).  These we can interpret ourselves.
-
-    @param borderSize If the image already contains a border, let the ImageTile no.  Pass in 0 if it doesn't.
  */
 - (instancetype)initWithPNGorJPEGData:(NSData *)data viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 
