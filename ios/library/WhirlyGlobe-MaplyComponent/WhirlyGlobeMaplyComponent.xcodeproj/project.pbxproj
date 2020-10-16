@@ -125,6 +125,8 @@
 		2B446B9A21FBA9D50078A975 /* PerformanceTimer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B9921FBA9D50078A975 /* PerformanceTimer.h */; };
 		2B462EF623A9547E0050438C /* NSDictionary+StyleRules.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B462EF523A9547E0050438C /* NSDictionary+StyleRules.h */; };
 		2B462EF823A954870050438C /* NSDictionary+StyleRules.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B462EF723A954870050438C /* NSDictionary+StyleRules.m */; };
+		2B4A816925391A0D0016618C /* lodepng.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4A816725391A0D0016618C /* lodepng.h */; };
+		2B4A816A25391A0D0016618C /* lodepng.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4A816825391A0D0016618C /* lodepng.cpp */; };
 		2B4B63A5236102DA0008C8C1 /* MaplyGlobeRenderController.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B63A4236102DA0008C8C1 /* MaplyGlobeRenderController.h */; };
 		2B4B63A7236102EC0008C8C1 /* MaplyGlobeRenderController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B63A6236102EC0008C8C1 /* MaplyGlobeRenderController.mm */; };
 		2B526BDC240DE04B00647336 /* MetalPerformanceShaders.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B526BDB240DE04B00647336 /* MetalPerformanceShaders.framework */; };
@@ -1142,6 +1144,8 @@
 		2B446B9B21FBA9E90078A975 /* PerformanceTimer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PerformanceTimer.cpp; path = ../../../../common/WhirlyGlobeLib/src/PerformanceTimer.cpp; sourceTree = "<group>"; };
 		2B462EF523A9547E0050438C /* NSDictionary+StyleRules.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+StyleRules.h"; sourceTree = "<group>"; };
 		2B462EF723A954870050438C /* NSDictionary+StyleRules.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+StyleRules.m"; sourceTree = "<group>"; };
+		2B4A816725391A0D0016618C /* lodepng.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lodepng.h; path = ../../../../../common/local_libs/lodepng/lodepng.h; sourceTree = "<group>"; };
+		2B4A816825391A0D0016618C /* lodepng.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = lodepng.cpp; path = ../../../../../common/local_libs/lodepng/lodepng.cpp; sourceTree = "<group>"; };
 		2B4B63A4236102DA0008C8C1 /* MaplyGlobeRenderController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyGlobeRenderController.h; sourceTree = "<group>"; };
 		2B4B63A6236102EC0008C8C1 /* MaplyGlobeRenderController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyGlobeRenderController.mm; sourceTree = "<group>"; };
 		2B526BDB240DE04B00647336 /* MetalPerformanceShaders.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalPerformanceShaders.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk/System/Library/Frameworks/MetalPerformanceShaders.framework; sourceTree = DEVELOPER_DIR; };
@@ -2089,6 +2093,7 @@
 		2B446ABE21F268360078A975 /* external */ = {
 			isa = PBXGroup;
 			children = (
+				2B4A816625391A070016618C /* lodepng */,
 				2B82B4041E82E2490095FB14 /* shapelib-1.3.0b2 */,
 				2B82B7C01E82E6780095FB14 /* clipper */,
 				2B82B3D11E82E2490095FB14 /* glu */,
@@ -2277,6 +2282,15 @@
 				2B446B8721FB97D50078A975 /* ShapeReader.cpp */,
 			);
 			name = "data formats";
+			sourceTree = "<group>";
+		};
+		2B4A816625391A070016618C /* lodepng */ = {
+			isa = PBXGroup;
+			children = (
+				2B4A816725391A0D0016618C /* lodepng.h */,
+				2B4A816825391A0D0016618C /* lodepng.cpp */,
+			);
+			path = lodepng;
 			sourceTree = "<group>";
 		};
 		2B6997F0228DCDB500C31E3F /* metal */ = {
@@ -4258,6 +4272,7 @@
 				2B82B5EB1E82E2490095FB14 /* normal.h in Headers */,
 				2BE53A091D249C2900B60FAD /* generated_message_util.h in Headers */,
 				2B82B61F1E82E2490095FB14 /* NumberToString.h in Headers */,
+				2B4A816925391A0D0016618C /* lodepng.h in Headers */,
 				2BC3D6AD22024EB300CE91D0 /* GlobeAnimateViewMomentum.h in Headers */,
 				2B82B6151E82E2490095FB14 /* JSONSingleton.h in Headers */,
 				2BE5395D1D249BEF00B60FAD /* AAElliptical.h in Headers */,
@@ -4490,6 +4505,7 @@
 				2B82B6BA1E82E24A0095FB14 /* PJ_urmfps.c in Sources */,
 				2B82B6721E82E24A0095FB14 /* PJ_hatano.c in Sources */,
 				2BC3D6E7220B6AEF00CE91D0 /* GeometryOBJReader.cpp in Sources */,
+				2B4A816A25391A0D0016618C /* lodepng.cpp in Sources */,
 				2B82B6231E82E2490095FB14 /* shpopen.c in Sources */,
 				2B82B6621E82E24A0095FB14 /* pj_factors.c in Sources */,
 				2BC3D6D12203EA4A00CE91D0 /* MaplySticker.mm in Sources */,

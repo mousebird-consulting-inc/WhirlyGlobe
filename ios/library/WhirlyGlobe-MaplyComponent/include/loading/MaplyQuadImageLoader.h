@@ -101,6 +101,13 @@
 
 @end
 
+/**
+ This loader interpreter treats input image data objects as PNGs containing raw data.
+ The difference is we'll use a direct PNG reader to tease it out, rather than UIImage.
+ */
+@interface MaplyRawPNGImageLoaderInterpreter : MaplyImageLoaderInterpreter
+@end
+
 /// Name of the shared MaplyRemoteTileFetcher
 extern NSString * _Nonnull const MaplyQuadImageLoaderFetcherName;
 

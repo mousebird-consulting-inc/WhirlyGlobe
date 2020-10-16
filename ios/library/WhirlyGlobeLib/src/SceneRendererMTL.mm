@@ -107,6 +107,7 @@ SceneRendererMTL::SceneRendererMTL(id<MTLDevice> mtlDevice,id<MTLLibrary> mtlLib
     setupInfo.mtlDevice = mtlDevice;
     setupInfo.uniformBuff = setupInfo.heapManage.allocateBuffer(HeapManagerMTL::Drawable,sizeof(WhirlyKitShader::Uniforms));
     setupInfo.lightingBuff = setupInfo.heapManage.allocateBuffer(HeapManagerMTL::Drawable,sizeof(WhirlyKitShader::Lighting));
+    releaseQueue = dispatch_queue_create("Maply release queue", DISPATCH_QUEUE_SERIAL);
 }
     
 SceneRendererMTL::~SceneRendererMTL()
@@ -908,7 +909,8 @@ void SceneRendererMTL::render(TimeInterval duration,
 //                    targetContainerMTL->lastRenderFence = nil;
                     
                     // We can do the free-ing on a low priority queue
-                    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
+                    // But it has to be a single queue, otherwise we'll end up deleting things at the same time.  Oops.
+                    dispatch_async(releaseQueue, ^{
                         frameTeardownInfo->clear();
                     });
                 });
