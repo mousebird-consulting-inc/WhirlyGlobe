@@ -85,15 +85,13 @@ BaseInfo::BaseInfo()
 
 BaseInfo::BaseInfo(const BaseInfo &that)
 : minVis(that.minVis), maxVis(that.minVis), minVisBand(that.minVisBand), maxVisBand(that.maxVisBand),
-  minViewerDist(that.minViewerDist), maxViewerDist(that.maxViewerDist),
-  zoomSlot(that.zoomSlot),minZoomVis(that.minZoomVis),maxZoomVis(that.maxZoomVis),
-  viewerCenter(that.viewerCenter),
-  drawOffset(that.drawOffset), drawPriority(that.drawPriority), enable(that.enable),
-  fade(that.fade), fadeIn(that.fadeIn), fadeOut(that.fadeOut), fadeOutTime(that.fadeOutTime),
-  startEnable(that.startEnable), endEnable(that.endEnable), programID(that.programID),
-  extraFrames(that.extraFrames), zBufferRead(that.zBufferRead), zBufferWrite(that.zBufferWrite),
-  renderTargetID(that.renderTargetID),
-    hasExp(that.hasExp)
+  minViewerDist(that.minViewerDist), maxViewerDist(that.maxViewerDist), zoomSlot(that.zoomSlot),
+  minZoomVis(that.minZoomVis),maxZoomVis(that.maxZoomVis), viewerCenter(that.viewerCenter),
+  drawOffset(that.drawOffset), drawPriority(that.drawPriority), drawOrder(that.drawOrder),
+  enable(that.enable), fade(that.fade), fadeIn(that.fadeIn), fadeOut(that.fadeOut),
+  fadeOutTime(that.fadeOutTime), startEnable(that.startEnable), endEnable(that.endEnable),
+  programID(that.programID), extraFrames(that.extraFrames), zBufferRead(that.zBufferRead),
+  zBufferWrite(that.zBufferWrite), renderTargetID(that.renderTargetID), hasExp(that.hasExp)
 {
 }
     
@@ -119,6 +117,7 @@ BaseInfo::BaseInfo(const Dictionary &dict)
     fadeOutTime = dict.getDouble(MaplyFadeOutTime,0.0);
     drawPriority = dict.getInt("priority",0);
     drawPriority = dict.getInt(MaplyDrawPriority,drawPriority);
+    drawOrder = dict.getInt64(MaplyDrawOrder, DrawOrderTiles);
     drawOffset = dict.getDouble(MaplyDrawOffset,0.0);
     enable = dict.getBool(MaplyEnable,true);
     startEnable = dict.getDouble(MaplyEnableStart,0.0);
@@ -215,6 +214,7 @@ void BaseInfo::setupBasicDrawable(BasicDrawableBuilder *drawBuild) const
     drawBuild->setOnOff(enable);
     if (startEnable != endEnable)
         drawBuild->setEnableTimeRange(startEnable, endEnable);
+    drawBuild->setDrawOrder(drawOrder);
     drawBuild->setDrawPriority(drawPriority);
     drawBuild->setVisibleRange(minVis,maxVis);
     drawBuild->setViewerVisibility(minViewerDist,maxViewerDist,viewerCenter);
@@ -240,6 +240,7 @@ void BaseInfo::setupBasicDrawableInstance(BasicDrawableInstanceBuilder *drawBuil
 {
     drawBuild->setOnOff(enable);
     drawBuild->setEnableTimeRange(startEnable, endEnable);
+    drawBuild->setDrawOrder(drawOrder);
     drawBuild->setDrawPriority(drawPriority);
     drawBuild->setVisibleRange(minVis,maxVis);
     drawBuild->setViewerVisibility(minViewerDist,maxViewerDist,viewerCenter);

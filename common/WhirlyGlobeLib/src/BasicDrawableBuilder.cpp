@@ -58,6 +58,7 @@ void BasicDrawableBuilder::Init()
     basicDraw->endEnable = 0.0;
     basicDraw->programId = EmptyIdentity;
     basicDraw->isAlpha = false;
+    basicDraw->drawOrder = BaseInfo::DrawOrderTiles;
     basicDraw->drawPriority = 0;
     basicDraw->drawOffset = 0;
     basicDraw->type = Points;
@@ -192,6 +193,11 @@ void BasicDrawableBuilder::setAlpha(bool onOff)
 void BasicDrawableBuilder::setDrawOffset(float newOffset)
 {
     basicDraw->drawOffset = newOffset;
+}
+
+void BasicDrawableBuilder::setDrawOrder(int64_t newOrder)
+{
+    basicDraw->drawOrder = newOrder;
 }
 
 void BasicDrawableBuilder::setDrawPriority(unsigned int newPriority)

@@ -935,6 +935,7 @@ SimpleIdentity GeometryManager::addGeometryPoints(const GeometryRawPoints &geomP
         draw->setOnOff(geomInfo.enable);
         draw->setColor(geomInfo.color);
         draw->setVisibleRange(geomInfo.minVis, geomInfo.maxVis);
+        draw->setDrawOrder(geomInfo.drawOrder);
         draw->setDrawPriority(geomInfo.drawPriority);
         
         // Set the point size, at least default

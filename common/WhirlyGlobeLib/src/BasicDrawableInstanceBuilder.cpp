@@ -95,6 +95,12 @@ void BasicDrawableInstanceBuilder::setZoomInfo(int zoomSlot,double minZoomVis,do
     drawInst->maxZoomVis = maxZoomVis;
 }
 
+void BasicDrawableInstanceBuilder::setDrawOrder(int64_t newOrder)
+{
+    drawInst->hasDrawOrder = true;
+    drawInst->drawOrder = newOrder;
+}
+
 void BasicDrawableInstanceBuilder::setDrawPriority(unsigned int newPriority)
 {
     drawInst->hasDrawPriority = true;

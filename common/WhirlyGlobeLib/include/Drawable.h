@@ -71,7 +71,10 @@ public:
     /// Return the local MBR, if we're working in a non-geo coordinate system
     virtual Mbr getLocalMbr() const = 0;
 
-	/// We use this to sort drawables
+    /// We use this to sort drawables
+    virtual int64_t getDrawOrder() const = 0;
+    
+	/// We use this to sort drawables with drawOrder
 	virtual unsigned int getDrawPriority() const = 0;
     
     /// Return the Matrix if there is an active one (ideally not)

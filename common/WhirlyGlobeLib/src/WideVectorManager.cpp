@@ -865,6 +865,9 @@ SimpleIdentity WideVectorManager::instanceVectors(SimpleIdentity vecID,const Wid
             // Changed line width
             drawInst->setLineWidth(vecInfo.width);
             
+            // Changed draw order
+            drawInst->setDrawOrder(vecInfo.drawOrder);
+            
             // Changed draw priority
             drawInst->setDrawPriority(vecInfo.drawPriority);
             

@@ -63,6 +63,7 @@ public:
         TimeInterval fadeUp,fadeDown;
         bool enable;
         TimeInterval startEnable,endEnable;
+        int64_t drawOrder;
         int drawPriority;
         float minVis,maxVis;
         int zoomSlot;
@@ -87,6 +88,8 @@ public:
     void setProgramID(SimpleIdentity progID);
     /// Set the fade in/out
     void setFade(TimeInterval fadeUp,TimeInterval fadeDown);
+    /// Set the draw order
+    void setDrawOrder(int64_t drawOrder);
     /// Set the draw priority
     void setDrawPriority(int drawPriority);
     /// Set the visibility range
@@ -190,6 +193,8 @@ public:
         SimpleIdentity progID;
         /// Color for the geometry
         RGBAColor color;
+        /// Draw order
+        int64_t drawOrder;
         /// Draw priority
         int drawPriority;
         /// Vertex attributes applied to this piece of geometry
@@ -216,8 +221,10 @@ public:
     void setOpacityExp(FloatExpressionInfoRef opacityExp);
     void setColorExp(ColorExpressionInfoRef colorExp);
     void setScaleExp(FloatExpressionInfoRef scaleExp);
+    void setDrawOrder(int64_t drawOrder);
+    int64_t getDrawOrder() const;
     void setDrawPriority(int drawPriority);
-    int getDrawPriority();
+    int getDrawPriority() const;
     void setKeepUpright(bool keepUpright);
     void setRotation(double rotation);
     double getRotation() const { return rotation; }

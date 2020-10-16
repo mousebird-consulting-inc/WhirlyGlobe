@@ -136,7 +136,9 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
     drawInfo.push_back(DrawableInfo(DrawableGeom,chunk->getDrawableID(),chunk->getDrawablePriority()));
     if (geomSettings.useTileCenters)
         chunk->setMatrix(&transMat);
-    
+
+    //chunk->setDrawOrder(drawOrder);
+
     drawPriority = geomSettings.baseDrawPriority + ident.level * geomSettings.drawPriorityPerLevel;
     chunk->setDrawPriority(drawPriority);
     chunk->setVisibleRange(geomSettings.minVis, geomSettings.maxVis);

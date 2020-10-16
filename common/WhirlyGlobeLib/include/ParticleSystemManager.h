@@ -42,6 +42,7 @@ public:
     
     bool enable;
     std::string name;
+    int64_t drawOrder;
     int drawPriority;
     float pointSize;
     ParticleSystemType type;

@@ -25,7 +25,8 @@ namespace WhirlyKit
 {
 
 ParticleSystem::ParticleSystem()
-: enable(true), drawPriority(0), pointSize(1.0), type(ParticleSystemPoint),
+: enable(true), drawOrder(BaseInfo::DrawOrderTiles),
+    drawPriority(0), pointSize(1.0), type(ParticleSystemPoint),
     calcShaderID(EmptyIdentity), renderShaderID(EmptyIdentity),
     lifetime(0.0), baseTime(0.0),
     totalParticles(0), batchSize(0), vertexSize(0),
@@ -110,6 +111,7 @@ SimpleIdentity ParticleSystemManager::addParticleSystem(const ParticleSystem &ne
     draw->getDrawable()->setPointSize(sceneRep->partSys.pointSize);
     draw->getDrawable()->setProgram(sceneRep->partSys.renderShaderID);
     draw->getDrawable()->setCalculationProgram(sceneRep->partSys.calcShaderID);
+    draw->getDrawable()->setDrawOrder(sceneRep->partSys.drawOrder);
     draw->getDrawable()->setDrawPriority(sceneRep->partSys.drawPriority);
     draw->getDrawable()->setBaseTime(newSystem.baseTime);
     draw->getDrawable()->setLifetime(sceneRep->partSys.lifetime);

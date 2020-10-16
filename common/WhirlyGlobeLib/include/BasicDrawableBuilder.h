@@ -76,7 +76,10 @@ public:
     /// Geometry is moved upward by a certain number of units.
     virtual void setDrawOffset(float newOffset);
     
-    /// Draw priority used for sorting
+    /// Draw order user for sorting
+    virtual void setDrawOrder(int64_t newOrder);
+    
+    /// Draw priority used for sorting within drawOrder
     virtual void setDrawPriority(unsigned int newPriority);
 
     /// Set the active transform matrix

@@ -88,6 +88,11 @@ void BasicDrawable::setProgram(SimpleIdentity progId)
     programId = progId;
 }
 
+int64_t BasicDrawable::getDrawOrder() const
+{
+    return drawOrder;
+}
+
 unsigned int BasicDrawable::getDrawPriority() const
 {
     return drawPriority;
@@ -157,6 +162,15 @@ bool BasicDrawable::hasMotion() const
 Mbr BasicDrawable::getLocalMbr() const
 {
     return localMbr;
+}
+
+void BasicDrawable::setDrawOrder(int64_t newOrder)
+{
+    if (newOrder != drawOrder)
+    {
+        drawOrder = newOrder;
+        setValuesChanged();
+    }
 }
 
 void BasicDrawable::setDrawPriority(unsigned int newPriority)
@@ -586,6 +600,29 @@ void TransformChangeRequest::execute2(Scene *scene,SceneRenderer *renderer,Drawa
     BasicDrawableRef basicDraw = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDraw.get())
         basicDraw->setMatrix(&newMat);
+}
+
+DrawOrderChangeRequest::DrawOrderChangeRequest(SimpleIdentity drawId,int64_t drawOrder)
+: DrawableChangeRequest(drawId), drawOrder(drawOrder)
+{
+}
+
+void DrawOrderChangeRequest::execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw)
+{
+
+    BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
+    if (basicDrawable && basicDrawable->drawOrder != drawOrder) {
+        renderer->removeDrawable(draw,false,NULL);
+        basicDrawable->setDrawOrder(drawOrder);
+        renderer->addDrawable(draw);
+    } else {
+        BasicDrawableInstanceRef basicDrawInst = std::dynamic_pointer_cast<BasicDrawableInstance>(draw);
+        if (basicDrawInst && basicDrawInst->getDrawOrder() != drawOrder) {
+            renderer->removeDrawable(draw,false,NULL);
+            basicDrawInst->setDrawOrder(drawOrder);
+            renderer->addDrawable(draw);
+        }
+    }
 }
 
 DrawPriorityChangeRequest::DrawPriorityChangeRequest(SimpleIdentity drawId,int drawPriority)

@@ -734,6 +734,9 @@ SimpleIdentity VectorManager::instanceVectors(SimpleIdentity vecID,const VectorI
             // Changed line width
             drawInst->setLineWidth(vecInfo.lineWidth);
             
+            // Changed draw order
+            drawInst->setDrawOrder(vecInfo.drawOrder);
+            
             // Changed draw priority
             drawInst->setDrawPriority(vecInfo.drawPriority);
 

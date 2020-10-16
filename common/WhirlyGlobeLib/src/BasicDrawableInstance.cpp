@@ -58,6 +58,11 @@ Mbr BasicDrawableInstance::getLocalMbr() const
     return basicDraw->getLocalMbr();
 }
 
+int64_t BasicDrawableInstance::getDrawOrder() const
+{
+    return hasDrawOrder ? drawOrder : basicDraw->getDrawOrder();
+}
+
 unsigned int BasicDrawableInstance::getDrawPriority() const
 {
     if (hasDrawPriority)
@@ -222,6 +227,18 @@ void BasicDrawableInstance::setColor(RGBAColor inColor)
     setValuesChanged();
 
     hasColor = true; color = inColor;
+}
+
+/// Set the draw order
+void BasicDrawableInstance::setDrawOrder(int64_t newOrder)
+{
+    if (hasDrawOrder && drawOrder == newOrder)
+        return;
+    
+    setValuesChanged();
+
+    hasDrawOrder = true;
+    drawOrder = newOrder;
 }
 
 /// Set the draw priority

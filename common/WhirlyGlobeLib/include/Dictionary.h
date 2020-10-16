@@ -49,7 +49,9 @@ public:
     virtual DictionaryType getType(const std::string &name) const = 0;
     
     /// Return an int, using the default if it's missing
-    virtual int getInt(const std::string &name,int defVal=0.0) const = 0;
+    virtual int getInt(const std::string &name,int defVal=0) const = 0;
+    /// Return an int64, using the default if it's missing
+    virtual int64_t getInt64(const std::string &name,int64_t defVal=0) const = 0;
     /// Return a 64 bit unique identity or 0 if missing
     virtual SimpleIdentity getIdentity(const std::string &name) const = 0;
     /// Interpret an int as a boolean

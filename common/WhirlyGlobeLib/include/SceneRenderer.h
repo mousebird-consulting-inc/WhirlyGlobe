@@ -121,15 +121,17 @@ public:
     // Sort by draw priority and zbuffer on or off
     typedef struct {
         bool operator () (const DrawableRef a,const DrawableRef b) const {
-            if (a->getDrawPriority() == b->getDrawPriority()) {
-                bool bufferA = a->getRequestZBuffer();
-                bool bufferB = b->getRequestZBuffer();
-                if (bufferA == bufferB)
-                    return a->getId() < b->getId();
-                return !bufferA;
+            if (a->getDrawOrder() == b->getDrawOrder()) {
+                if (a->getDrawPriority() == b->getDrawPriority()) {
+                    bool bufferA = a->getRequestZBuffer();
+                    bool bufferB = b->getRequestZBuffer();
+                    if (bufferA == bufferB)
+                        return a->getId() < b->getId();
+                    return !bufferA;
+                }
+                return a->getDrawPriority() < b->getDrawPriority();
             }
-            
-            return a->getDrawPriority() < b->getDrawPriority();
+            return a->getDrawOrder() < b->getDrawOrder();
         }
     } PrioritySorter;
 
