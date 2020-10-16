@@ -28,56 +28,60 @@ MutableDictionaryRef MutableDictionaryMake()
 {
     return MutableDictionaryRef(new MutableDictionary_Android());
 }
-    
+
+template <typename T>
+static std::string genericToString(T val)
+{
+    std::ostringstream stream;
+    stream << val;
+    return stream.str();
+}
+template <typename T>
+static T genericFromString(std::string const &string, T defValue)
+{
+    std::stringstream stream(string);
+    T result;
+    return (stream >> result) ? result : defValue;
+}
+
 int MutableDictionary_Android::StringValue::asInt()
 {
-    std::stringstream convert(val);
-    int res;
-    if (!(convert >> res))
-        res = 0;
-    
-    return res;
+    return genericFromString<int>(val, 0);
+}
+
+int64_t MutableDictionary_Android::StringValue::asInt64()
+{
+    return genericFromString<int64_t>(val, 0);
 }
 
 SimpleIdentity MutableDictionary_Android::StringValue::asIdentity()
 {
-    std::stringstream convert(val);
-    SimpleIdentity res;
-    if (!(convert >> res))
-        res = 0;
-    
-    return res;
+    return genericFromString<SimpleIdentity >(val, 0);
 }
 
 double MutableDictionary_Android::StringValue::asDouble()
 {
-    std::stringstream convert(val);
-    double res;
-    if (!(convert >> res))
-        res = 0;
-    
-    return res;
+    return genericFromString<double>(val, 0.0);
 }
     
 void MutableDictionary_Android::IntValue::asString(std::string &retStr)
 {
-    std::ostringstream stream;
-    stream << val;
-    retStr = stream.str();
+    retStr = genericToString(val);
 }
-    
+
+void MutableDictionary_Android::Int64Value::asString(std::string &retStr)
+{
+    retStr = genericToString(val);
+}
+
 void MutableDictionary_Android::DoubleValue::asString(std::string &retStr)
 {
-    std::ostringstream stream;
-    stream << val;
-    retStr = stream.str();
+    retStr = genericToString(val);
 }
     
 void MutableDictionary_Android::IdentityValue::asString(std::string &retStr)
 {
-    std::ostringstream stream;
-    stream << val;
-    retStr = stream.str();
+    retStr = genericToString(val);
 }
 
 DictionaryRef MutableDictionary_Android::DictionaryValue::asDict()
@@ -225,6 +229,14 @@ MutableDictionary_Android::MutableDictionary_Android(RawData *rawData)
                 setInt(attrName, iVal);
             }
                 break;
+            case DictTypeInt64:
+            {
+                int64_t iVal;
+                if (!dataRead.getInt64(iVal))
+                    return;
+                setInt64(attrName, iVal);
+            }
+                break;
             case DictTypeDouble:
             {
                 double dVal;
@@ -259,6 +271,9 @@ void MutableDictionary_Android::asRawData(MutableRawData *rawData)
                 break;
             case DictTypeInt:
                 rawData->addInt(val->asInt());
+                break;
+            case DictTypeInt64:
+                rawData->addInt64(val->asInt64());
                 break;
             case DictTypeDouble:
                 rawData->addDouble(val->asDouble());
@@ -305,7 +320,16 @@ int MutableDictionary_Android::getInt(const std::string &name,int defVal) const
     
     return it->second->asInt();
 }
-    
+
+int64_t MutableDictionary_Android::getInt64(const std::string &name,int64_t defVal) const
+{
+    FieldMap::const_iterator it = fields.find(name);
+    if (it == fields.end())
+        return defVal;
+
+    return it->second->asInt();
+}
+
 SimpleIdentity MutableDictionary_Android::getIdentity(const std::string &name) const
 {
     FieldMap::const_iterator it = fields.find(name);
@@ -361,6 +385,7 @@ RGBAColor MutableDictionary_Android::getColor(const std::string &name,const RGBA
         }
             break;
         // No idea what this means
+        case DictTypeInt64:
         case DictTypeDouble:
         default:
             return defVal;
@@ -468,7 +493,16 @@ void MutableDictionary_Android::setInt(const std::string &name,int val)
     iVal->val = val;
     fields[name] = ValueRef(iVal);
 }
-    
+
+void MutableDictionary_Android::setInt64(const std::string &name,int64_t val)
+{
+    removeField(name);
+
+    Int64Value *iVal = new Int64Value();
+    iVal->val = val;
+    fields[name] = ValueRef(iVal);
+}
+
 void MutableDictionary_Android::setIdentifiable(const std::string &name,SimpleIdentity val)
 {
     removeField(name);
@@ -528,6 +562,9 @@ MutableDictionary_Android::ValueRef MutableDictionary_Android::makeValueRef(Dict
             break;
         case DictTypeInt:
             value = new IntValue(entry->getInt());
+            break;
+        case DictTypeInt64:
+            value = new Int64Value(entry->getInt64());
             break;
         case DictTypeDouble:
             value = new DoubleValue(entry->getDouble());
@@ -604,6 +641,11 @@ int DictionaryEntry_Android::getInt() const
     return val->asInt();
 }
 
+int64_t DictionaryEntry_Android::getInt64() const
+{
+    return val->asInt64();
+}
+
 SimpleIdentity DictionaryEntry_Android::getIdentity() const
 {
     return val->asIdentity();
@@ -646,7 +688,8 @@ RGBAColor DictionaryEntry_Android::getColor() const
             return ret;
         }
             break;
-            // No idea what this means
+            // No idea what this mean
+        case DictTypeInt64:
         case DictTypeDouble:
         default:
             return RGBAColor::white();
@@ -703,6 +746,9 @@ bool DictionaryEntry_Android::isEqual(DictionaryEntryRef inOther) const
             break;
         case DictTypeInt:
             return val->asInt() == other->getInt();
+            break;
+        case DictTypeInt64:
+            return val->asInt64() == other->getInt64();
             break;
         case DictTypeIdentity:
             return val->asIdentity() == other->getIdentity();

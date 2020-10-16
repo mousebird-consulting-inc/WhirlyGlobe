@@ -27,7 +27,10 @@ namespace WhirlyKit
 {
     
 /// Data types in dictionary
-typedef enum {DictTypeNone,DictTypeString,DictTypeInt,DictTypeIdentity,DictTypeDouble,DictTypeObject,DictTypeDictionary,DictTypeArray} DictionaryType;
+typedef enum {
+    DictTypeNone,DictTypeString,DictTypeInt,DictTypeIdentity,DictTypeDouble,
+    DictTypeObject,DictTypeDictionary,DictTypeArray,DictTypeInt64
+} DictionaryType;
 
 class Dictionary;
 typedef std::shared_ptr<Dictionary> DictionaryRef;
