@@ -73,7 +73,6 @@
 		2B4BA6D91C83A22000DC1562 /* uturn.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2B4BA6CD1C83A22000DC1562 /* uturn.geojson */; };
 		2B5E8AF51E943560000B39E5 /* greensquare.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B5E8AF41E943560000B39E5 /* greensquare.png */; };
 		2B60F4462452706200CF9339 /* VectorMBTilesTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B1C264E1C90FFFC00C71B0A /* VectorMBTilesTestCase.swift */; };
-		2B6597F624E7349500FA26A9 /* overlay_timezones.mbtiles in Resources */ = {isa = PBXBuildFile; fileRef = 2B6597F424E7340C00FA26A9 /* overlay_timezones.mbtiles */; };
 		2B68A43C225D06A8009CC720 /* ImageReloadTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B68A43B225D06A8009CC720 /* ImageReloadTestCase.swift */; };
 		2B6953681C7E67DD007FC51E /* colorramp.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B6953671C7E67DD007FC51E /* colorramp.png */; };
 		2B73D6AE207C0D5F00AF5095 /* NotoSans-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B8F3258201021CF006DDE27 /* NotoSans-Bold.ttf */; };
@@ -665,7 +664,6 @@
 		2B4BA6CC1C83A22000DC1562 /* track.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = track.geojson; sourceTree = "<group>"; };
 		2B4BA6CD1C83A22000DC1562 /* uturn.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = uturn.geojson; sourceTree = "<group>"; };
 		2B5E8AF41E943560000B39E5 /* greensquare.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = greensquare.png; path = resources/greensquare.png; sourceTree = "<group>"; };
-		2B6597F424E7340C00FA26A9 /* overlay_timezones.mbtiles */ = {isa = PBXFileReference; lastKnownFileType = file; name = overlay_timezones.mbtiles; path = ../../../../../../Downloads/overlay_timezones.mbtiles; sourceTree = "<group>"; };
 		2B68A43B225D06A8009CC720 /* ImageReloadTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageReloadTestCase.swift; sourceTree = "<group>"; };
 		2B6953671C7E67DD007FC51E /* colorramp.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = colorramp.png; path = AutoTester/colorramp.png; sourceTree = "<group>"; };
 		2B73D6B2207C106C00AF5095 /* GlobeSamplerTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GlobeSamplerTestCase.swift; sourceTree = "<group>"; };
@@ -1409,7 +1407,6 @@
 			isa = PBXGroup;
 			children = (
 				2B033BCE24F6D78400B55248 /* fonts */,
-				2B6597F424E7340C00FA26A9 /* overlay_timezones.mbtiles */,
 				88F0951E1ECD041300E7E686 /* AutoTesterJenkins.plist */,
 				88E4B8CD1B83B6AB0050D21B /* LaunchScreen.xib */,
 				88E4B8C41B83B6AB0050D21B /* AppDelegate.swift */,
@@ -2497,7 +2494,6 @@
 				88FF5ED71BC31D95002F15CE /* TUR.geojson in Resources */,
 				88FF5E921BC31D95002F15CE /* MYS.geojson in Resources */,
 				E5941DCC1E0D02A800E1C8B3 /* osm_roads.sld in Resources */,
-				2B6597F624E7349500FA26A9 /* overlay_timezones.mbtiles in Resources */,
 				88FF5EE71BC31D95002F15CE /* VUT.geojson in Resources */,
 				E5941DCD1E0D02A800E1C8B3 /* osm_water.sld in Resources */,
 				E5941DCA1E0D02A800E1C8B3 /* osm_buildings.sld in Resources */,

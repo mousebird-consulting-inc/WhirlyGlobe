@@ -40,8 +40,9 @@ class MapboxTestCase: MaplyTestCase {
 
         // Put your own Mapbox token here.
         // To get a Mapbox token, go sign up on mapbox.com
-        let token = "GetYerOwnToken"
-        if token == "GetYerOwnToken" {
+        // Go to Edit Scheme, select Run, Arguments, and add an "MAPBOX_TOKEN" entry to Environment Variables.
+        let token = ProcessInfo.processInfo.environment["MAPBOX_TOKEN"] ?? "GetYerOwnToken"
+        if token.count == 0 || token == "GetYerOwnToken" {
             let alertControl = UIAlertController(title: "Missing Token", message: "You need to add your own Mapbox token.\nYou can't use mine.", preferredStyle: .alert)
             alertControl.addAction(UIAlertAction(title: "Fine!", style: .cancel, handler: { _ in
                 alertControl.dismiss(animated: true, completion: nil)
