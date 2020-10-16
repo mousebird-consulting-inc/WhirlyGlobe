@@ -36,9 +36,10 @@ class MapTilerTestCase: MaplyTestCase {
         }
         
         // Maptiler token
-        // Go to maptiler.com, setup an account and get your own
-        let token = "GetYerOwnToken"
-        if token == "GetYerOwnToken" {
+        // Go to maptiler.com, setup an account and get your own.
+        // Go to Edit Scheme, select Run, Arguments, and add an "MAPTILER_TOKEN" entry to Environment Variables.
+        let token = ProcessInfo.processInfo.environment["MAPTILER_TOKEN"] ?? "GetYerOwnToken"
+        if token.count == 0 || token == "GetYerOwnToken" {
             let alertControl = UIAlertController(title: "Missing Token", message: "You need to add your own Maptiler token.\nYou can't use mine.", preferredStyle: .alert)
             alertControl.addAction(UIAlertAction(title: "Fine!", style: .cancel, handler: { _ in
                 alertControl.dismiss(animated: true, completion: nil)
