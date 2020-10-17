@@ -240,8 +240,8 @@ QuadTreeNew::NodeSet QuadSamplingController::builderUnloadCheck(QuadTileBuilder 
     
 void QuadSamplingController::builderLoad(PlatformThreadInfo *threadInfo,
                                          QuadTileBuilder *builder,
-                                        const WhirlyKit::TileBuilderDelegateInfo &updates,
-                                        ChangeSet &changes)
+                                         const WhirlyKit::TileBuilderDelegateInfo &updates,
+                                         ChangeSet &changes)
 {
     std::vector<QuadTileBuilderDelegateRef> delegates;
     {

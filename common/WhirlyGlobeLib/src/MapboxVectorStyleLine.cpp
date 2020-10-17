@@ -185,7 +185,7 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
     if (color)
         vecInfo.color = *color;
     
-    double width = paint.width->valForZoom(tileInfo->ident.level) * lineScale;
+    const double width = paint.width->valForZoom(tileInfo->ident.level) * lineScale;
     if (width > 0.0) {
         vecInfo.width = width;
     }
@@ -195,12 +195,14 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
         vecInfo.widthExp->scaleBy(lineScale);
     vecInfo.colorExp = paint.color->expression();
     vecInfo.opacityExp = paint.opacity->expression();
-    bool include = color && width > 0.0;
+    const bool include = color && width > 0.0;
     
     if (styleSet->tileStyleSettings->drawPriorityPerLevel > 0)
         vecInfo.drawPriority = drawPriority + tileInfo->ident.level * styleSet->tileStyleSettings->drawPriorityPerLevel;
     else
         vecInfo.drawPriority = drawPriority;
+
+    vecInfo.drawOrder = tileInfo->tileNumber();
 
     if (include)
     {

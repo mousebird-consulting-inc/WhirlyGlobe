@@ -378,6 +378,8 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
     labelInfo->fade = 0.0;
     labelInfo->textJustify = layout.textJustify;
 
+    labelInfo->drawOrder = tileInfo->tileNumber();
+
     if (styleSet->tileStyleSettings->drawPriorityPerLevel > 0)
         labelInfo->drawPriority = drawPriority + zoomLevel * styleSet->tileStyleSettings->drawPriorityPerLevel + ScreenDrawPriorityOffset;
     else

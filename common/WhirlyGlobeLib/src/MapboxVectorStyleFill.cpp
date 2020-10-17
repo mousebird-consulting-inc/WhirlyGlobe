@@ -97,12 +97,11 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
         }
         
         ShapeSet tessShapes;
-        for (ShapeSet::iterator it = shapes.begin();it!=shapes.end();it++)
+        for (auto const &it : shapes)
         {
-            VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
-            if (ar)
+            if (auto ar = std::dynamic_pointer_cast<VectorAreal>(it))
             {
-                VectorTrianglesRef trisRef = VectorTriangles::createTriangles();
+                auto trisRef = VectorTriangles::createTriangles();
                 TesselateLoops(ar->loops, trisRef);
                 trisRef->setAttrDict(ar->getAttrDict());
                 trisRef->initGeoMbr();
@@ -145,6 +144,8 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
         else
             vecInfo.drawPriority = drawPriority;
         
+        vecInfo.drawOrder = tileInfo->tileNumber();
+
         if (include) {
             SimpleIdentity vecID = styleSet->vecManage->addVectors(&tessShapes, vecInfo, tileInfo->changes);
             if (vecID != EmptyIdentity) {

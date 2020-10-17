@@ -28,17 +28,17 @@ namespace WhirlyKit
 {
     
 TileGeomSettings::TileGeomSettings()
-: buildGeom(true), useTileCenters(true), color(RGBAColor(255,255,255,255)),
-  programID(0), sampleX(10), sampleY(10),
-    topSampleX(10), topSampleY(10),
-  minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid),
-  baseDrawPriority(0), drawPriorityPerLevel(1), lineMode(false),
-    includeElev(false), enableGeom(true), singleLevel(false)
+    : buildGeom(true), useTileCenters(true), color(RGBAColor(255,255,255,255)),
+      programID(0), sampleX(10), sampleY(10), topSampleX(10), topSampleY(10),
+      minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid),
+      baseDrawPriority(0), drawPriorityPerLevel(1), lineMode(false),
+      includeElev(false), enableGeom(true), singleLevel(false)
 {
 }
     
 LoadedTileNew::LoadedTileNew(const QuadTreeNew::ImportantNode &ident,const MbrD &mbr)
-    : ident(ident), mbr(mbr), enabled(false)
+    : ident(ident), mbr(mbr), enabled(false),
+      tileNumber(ident.NodeNumber())
 {
 }
     
@@ -61,7 +61,7 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
     
     // Scale texture coordinates if we're clipping this tile
     Point2d texScale(1.0,1.0);
-    Point2d texOffset(0.0,0.0);   // Note: Not using this
+    const Point2d texOffset(0.0,0.0);   // Note: Not using this
     
     // Snap to the designated area
     if (theMbr.ll().x() < geomManage->mbr.ll().x()) {
@@ -81,21 +81,21 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
     
     // Calculate a center for the tile
     CoordSystem *sceneCoordSys = geomManage->coordAdapter->getCoordSystem();
-    Point3d ll = geomManage->coordAdapter->localToDisplay(sceneCoordSys->geocentricToLocal(geomManage->coordSys->localToGeocentric(Point3d(theMbr.ll().x(),theMbr.ll().y(),0.0))));
-    Point3d ur = geomManage->coordAdapter->localToDisplay(sceneCoordSys->geocentricToLocal(geomManage->coordSys->localToGeocentric(Point3d(theMbr.ur().x(),theMbr.ur().y(),0.0))));
+    const Point3d ll = geomManage->coordAdapter->localToDisplay(sceneCoordSys->geocentricToLocal(geomManage->coordSys->localToGeocentric(Point3d(theMbr.ll().x(),theMbr.ll().y(),0.0))));
+    const Point3d ur = geomManage->coordAdapter->localToDisplay(sceneCoordSys->geocentricToLocal(geomManage->coordSys->localToGeocentric(Point3d(theMbr.ur().x(),theMbr.ur().y(),0.0))));
     Point3d dispCenter = (ll+ur)/2.0;
     // This clips the center to something 32 bit floating point can represent.
-    Point3f dispCenter3f(dispCenter.x(),dispCenter.y(),dispCenter.z());
+    const Point3f dispCenter3f(dispCenter.x(),dispCenter.y(),dispCenter.z());
     dispCenter = Point3d(dispCenter3f.x(),dispCenter3f.y(),dispCenter3f.z());
 
     // Translation for the middle.  The drawable stores floats which isn't high res enough zoomed way in
-    Point3d chunkMidDisp = (geomSettings.useTileCenters ? dispCenter : Point3d(0,0,0));
+    const Point3d chunkMidDisp = (geomSettings.useTileCenters ? dispCenter : Point3d(0,0,0));
 //        wkLogLevel(Debug,"id = %d: (%d,%d),mid = (%f,%f,%f)",ident.level,ident.x,ident.y,chunkMidDisp.x(),chunkMidDisp.y(),chunkMidDisp.z());
-    Eigen::Affine3d trans(Eigen::Translation3d(chunkMidDisp.x(),chunkMidDisp.y(),chunkMidDisp.z()));
-    Matrix4d transMat = trans.matrix();
+    const Eigen::Affine3d trans(Eigen::Translation3d(chunkMidDisp.x(),chunkMidDisp.y(),chunkMidDisp.z()));
+    const Matrix4d transMat = trans.matrix();
 
     // Size of each chunk
-    Point2d chunkSize = theMbr.ur() - theMbr.ll();
+    const Point2d chunkSize = theMbr.ur() - theMbr.ll();
     
     int sphereTessX = geomSettings.sampleX,sphereTessY = geomSettings.sampleY;
     if (ident.level == 0)
@@ -114,30 +114,31 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
     }
     
     // Unit size of each tesselation in spherical mercator
-    Point2d incr(chunkSize.x()/sphereTessX,chunkSize.y()/sphereTessY);
+    const Point2d incr(chunkSize.x()/sphereTessX,chunkSize.y()/sphereTessY);
     
     // Texture increment for each tesselation
-    TexCoord texIncr(1.0/(float)sphereTessX * texScale.x(),1.0/(float)sphereTessY * texScale.y());
+    const TexCoord texIncr(1.0/(float)sphereTessX * texScale.x(),1.0/(float)sphereTessY * texScale.y());
     
     // We need the corners in geographic for the cullable
-    Point2d chunkLL(theMbr.ll().x(),theMbr.ll().y());
-    Point2d chunkUR(theMbr.ur().x(),theMbr.ur().y());
+    const Point2d chunkLL(theMbr.ll().x(),theMbr.ll().y());
+    const Point2d chunkUR(theMbr.ur().x(),theMbr.ur().y());
     //    Point2d chunkMid = (chunkLL+chunkUR)/2.0;
-    GeoCoord geoLL(geomManage->coordSys->localToGeographic(Point3d(chunkLL.x(),chunkLL.y(),0.0)));
-    GeoCoord geoUR(geomManage->coordSys->localToGeographic(Point3d(chunkUR.x(),chunkUR.y(),0.0)));
+    const GeoCoord geoLL(geomManage->coordSys->localToGeographic(Point3d(chunkLL.x(),chunkLL.y(),0.0)));
+    const GeoCoord geoUR(geomManage->coordSys->localToGeographic(Point3d(chunkUR.x(),chunkUR.y(),0.0)));
     
     BasicDrawableBuilderRef chunk = sceneRender->makeBasicDrawableBuilder("LoadedTileNew chunk");
     chunk->reserve((sphereTessX+1)*(sphereTessY+1),2*sphereTessX*sphereTessY);
     // Note: Make this flexible
     chunk->setupTexCoordEntry(0, 0);
-    
+
+    const auto drawOrder = tileNumber;
+    chunk->setDrawOrder(drawOrder);
+
     std::vector<BasicDrawableBuilderRef> drawables;
     drawables.push_back(chunk);
-    drawInfo.push_back(DrawableInfo(DrawableGeom,chunk->getDrawableID(),chunk->getDrawablePriority()));
+    drawInfo.push_back(DrawableInfo(DrawableGeom,chunk->getDrawableID(),chunk->getDrawablePriority(),drawOrder));
     if (geomSettings.useTileCenters)
         chunk->setMatrix(&transMat);
-
-    //chunk->setDrawOrder(drawOrder);
 
     drawPriority = geomSettings.baseDrawPriority + ident.level * geomSettings.drawPriorityPerLevel;
     chunk->setDrawPriority(drawPriority);
@@ -158,13 +159,14 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
         if (geomSettings.useTileCenters)
             poleChunk->setMatrix(&transMat);
         poleChunk->setType(Triangles);
+        poleChunk->setDrawOrder(drawOrder);
         poleChunk->setDrawPriority(drawPriority);
         poleChunk->setVisibleRange(geomSettings.minVis, geomSettings.maxVis);
 //        poleChunk->setColor(geomSettings.color);
         poleChunk->setLocalMbr(Mbr(Point2f(geoLL.x(),geoLL.y()),Point2f(geoUR.x(),geoUR.y())));
         poleChunk->setProgram(geomSettings.programID);
         poleChunk->setOnOff(false);
-        drawInfo.push_back(DrawableInfo(DrawablePole,poleChunk->getDrawableID(),poleChunk->getDrawablePriority()));
+        drawInfo.push_back(DrawableInfo(DrawablePole,poleChunk->getDrawableID(),poleChunk->getDrawablePriority(),drawOrder));
         separatePoleChunk = true;
     } else
         poleChunk = chunk;
@@ -178,11 +180,12 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
         for (unsigned int iy=0;iy<sphereTessY;iy++)
             for (unsigned int ix=0;ix<sphereTessX;ix++)
             {
-                Point3d org3D = geomManage->coordAdapter->localToDisplay(CoordSystemConvert3d(geomManage->coordSys.get(),sceneCoordSys,Point3d(chunkLL.x()+ix*incr.x(),chunkLL.y()+iy*incr.y(),0.0)));
-                Point3d ptA_3D = geomManage->coordAdapter->localToDisplay(CoordSystemConvert3d(geomManage->coordSys.get(),sceneCoordSys,Point3d(chunkLL.x()+(ix+1)*incr.x(),chunkLL.y()+iy*incr.y(),0.0)));
-                Point3d ptB_3D = geomManage->coordAdapter->localToDisplay(CoordSystemConvert3d(geomManage->coordSys.get(),sceneCoordSys,Point3d(chunkLL.x()+ix*incr.x(),chunkLL.y()+(iy+1)*incr.y(),0.0)));
+                const auto cs = geomManage->coordSys.get();
+                const auto org3D = geomManage->coordAdapter->localToDisplay(CoordSystemConvert3d(cs,sceneCoordSys,Point3d(chunkLL.x()+ix*incr.x(),chunkLL.y()+iy*incr.y(),0.0)));
+                const auto ptA_3D = geomManage->coordAdapter->localToDisplay(CoordSystemConvert3d(cs,sceneCoordSys,Point3d(chunkLL.x()+(ix+1)*incr.x(),chunkLL.y()+iy*incr.y(),0.0)));
+                const auto ptB_3D = geomManage->coordAdapter->localToDisplay(CoordSystemConvert3d(cs,sceneCoordSys,Point3d(chunkLL.x()+ix*incr.x(),chunkLL.y()+(iy+1)*incr.y(),0.0)));
                 
-                TexCoord texCoord(ix*texIncr.x(),1.0-(iy*texIncr.y()));
+                const TexCoord texCoord(ix*texIncr.x(),1.0-(iy*texIncr.y()));
                 
                 chunk->addPoint(Point3d(org3D-chunkMidDisp));
                 chunk->addNormal(org3D);
@@ -211,7 +214,8 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
             for (unsigned int ix=0;ix<sphereTessX+1;ix++)
             {
                 float locZ = 0.0;
-                Point3d loc3D = geomManage->coordAdapter->localToDisplay(CoordSystemConvert3d(geomManage->coordSys.get(),sceneCoordSys,Point3d(chunkLL.x()+ix*incr.x(),chunkLL.y()+iy*incr.y(),locZ)));
+                const auto cs = geomManage->coordSys.get();
+                auto loc3D = geomManage->coordAdapter->localToDisplay(CoordSystemConvert3d(cs,sceneCoordSys,Point3d(chunkLL.x()+ix*incr.x(),chunkLL.y()+iy*incr.y(),locZ)));
                 if (geomManage->coordAdapter->isFlat())
                     loc3D.z() = locZ;
                 
@@ -222,7 +226,7 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
                 locs[iy*(sphereTessX+1)+ix] = loc3D;
                 
                 // Do the texture coordinate seperately
-                TexCoord texCoord(ix*texIncr.x(),1.0-(iy*texIncr.y()));
+                const TexCoord texCoord(ix*texIncr.x(),1.0-(iy*texIncr.y()));
                 texCoords[iy*(sphereTessX+1)+ix] = texCoord;
             }
         }
@@ -232,7 +236,7 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
         {
             for (unsigned int ix=0;ix<sphereTessX+1;ix++)
             {
-                Point3d &loc3D = locs[iy*(sphereTessX+1)+ix];
+                const Point3d &loc3D = locs[iy*(sphereTessX+1)+ix];
                 
                 // And the normal
                 Point3d norm3D;
@@ -241,7 +245,7 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
                 else
                     norm3D = loc3D;
                 
-                TexCoord &texCoord = texCoords[iy*(sphereTessX+1)+ix];
+                const TexCoord &texCoord = texCoords[iy*(sphereTessX+1)+ix];
                 
                 chunk->addPoint(Point3d(loc3D-chunkMidDisp));
                 chunk->addNormal(norm3D);
@@ -269,12 +273,13 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
         if (geomManage->buildSkirts && !geomManage->coordAdapter->isFlat())
         {
             // We'll set up and fill in the drawable
-            BasicDrawableBuilderRef skirtChunk = sceneRender->makeBasicDrawableBuilder("LoadedTileNew SkirtChunk");
+            auto skirtChunk = sceneRender->makeBasicDrawableBuilder("LoadedTileNew SkirtChunk");
             drawables.push_back(skirtChunk);
             if (geomSettings.useTileCenters)
                 skirtChunk->setMatrix(&transMat);
             // We hardwire this to appear after the atmosphere.  A bit hacky.
             skirtChunk->setupTexCoordEntry(0, 0);
+            skirtChunk->setDrawOrder(drawOrder);
             skirtChunk->setDrawPriority(11);
             skirtChunk->setVisibleRange(geomSettings.minVis, geomSettings.maxVis);
 //            skirtChunk->setColor(geomSettings.color);
@@ -284,12 +289,12 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
             skirtChunk->setRequestZBuffer(true);
             skirtChunk->setProgram(geomSettings.programID);
             skirtChunk->setOnOff(false);
-            drawInfo.push_back(DrawableInfo(DrawableSkirt,skirtChunk->getDrawableID(),skirtChunk->getDrawablePriority()));
+            drawInfo.push_back(DrawableInfo(DrawableSkirt,skirtChunk->getDrawableID(),skirtChunk->getDrawablePriority(),drawOrder));
 
             // We'll vary the skirt size a bit.  Otherwise the fill gets ridiculous when we're looking
             //  at the very highest levels.  On the other hand, this doesn't fix a really big large/small
             //  disparity
-            float skirtFactor = 1.0 - 0.2 / (1<<ident.level);
+            const float skirtFactor = 1.0 - 0.2 / (1<<ident.level);
             
             // Bottom skirt
             Point3dVector skirtLocs;
@@ -332,26 +337,26 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
         if (geomManage->coverPoles && !geomManage->coordAdapter->isFlat())
         {
             // If we're at the top, toss in a few more triangles to represent that
-            int maxY = 1 << ident.level;
+            const int maxY = 1 << ident.level;
             if (ident.y == maxY-1)
             {
-                TexCoord singleTexCoord(0.5,0.0);
+                const TexCoord singleTexCoord(0.5,0.0);
                 // One point for the north pole
-                Point3d northPt(0,0,1.0);
+                const Point3d northPt(0,0,1.0);
                 poleChunk->addPoint(Point3d(northPt-chunkMidDisp));
                 if (separatePoleChunk)
                     poleChunk->addColor(geomManage->northPoleColor);
                 else
                     poleChunk->addTexCoord(-1,singleTexCoord);
                 poleChunk->addNormal(Point3d(0,0,1.0));
-                int northVert = poleChunk->getNumPoints()-1;
+                const int northVert = poleChunk->getNumPoints()-1;
                 
                 // A line of points for the outer ring, but we can copy them
-                int startOfLine = poleChunk->getNumPoints();
-                int iy = sphereTessY;
+                const int startOfLine = poleChunk->getNumPoints();
+                const int iy = sphereTessY;
                 for (unsigned int ix=0;ix<sphereTessX+1;ix++)
                 {
-                    Point3d pt = locs[(iy*(sphereTessX+1)+ix)];
+                    const Point3d pt = locs[(iy*(sphereTessX+1)+ix)];
                     poleChunk->addPoint(Point3d(pt-chunkMidDisp));
                     if (geomManage->coordAdapter->isFlat())
                         poleChunk->addNormal(Point3d(0,0,1.0));
@@ -376,9 +381,9 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
             
             if (ident.y == 0)
             {
-                TexCoord singleTexCoord(0.5,1.0);
+                const TexCoord singleTexCoord(0.5,1.0);
                 // One point for the south pole
-                Point3d southPt(0,0,-1.0);
+                const Point3d southPt(0,0,-1.0);
                 poleChunk->addPoint(Point3d(southPt-chunkMidDisp));
                 if (separatePoleChunk)
                     poleChunk->addColor(geomManage->southPoleColor);
@@ -388,11 +393,11 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
                 int southVert = poleChunk->getNumPoints()-1;
                 
                 // A line of points for the outside ring, which we can copy
-                int startOfLine = poleChunk->getNumPoints();
-                int iy = 0;
+                const int startOfLine = poleChunk->getNumPoints();
+                const int iy = 0;
                 for (unsigned int ix=0;ix<sphereTessX+1;ix++)
                 {
-                    Point3d pt = locs[(iy*(sphereTessX+1)+ix)];
+                    const Point3d pt = locs[(iy*(sphereTessX+1)+ix)];
                     poleChunk->addPoint(Point3d(pt-chunkMidDisp));
                     if (geomManage->coordAdapter->isFlat())
                         poleChunk->addNormal(Point3d(0,0,1.0));
@@ -434,25 +439,25 @@ void LoadedTileNew::buildSkirt(BasicDrawableBuilderRef &draw,Point3dVector &pts,
         cornerTex[1] = texCoords[ii+1];
         if (haveElev)
             corners[2] = pts[ii+1].normalized();
-            else
-                corners[2] = pts[ii+1] * skirtFactor;
-                cornerTex[2] = texCoords[ii+1];
-                if (haveElev)
-                    corners[3] = pts[ii].normalized();
-                    else
-                        corners[3] = pts[ii] * skirtFactor;
-                        cornerTex[3] = texCoords[ii];
+        else
+            corners[2] = pts[ii+1] * skirtFactor;
+        cornerTex[2] = texCoords[ii+1];
+        if (haveElev)
+            corners[3] = pts[ii].normalized();
+        else
+            corners[3] = pts[ii] * skirtFactor;
+        cornerTex[3] = texCoords[ii];
         
-                        // Toss in the points, but point the normal up
-                        int base = draw->getNumPoints();
-                        for (unsigned int jj=0;jj<4;jj++)
-                        {
-                            draw->addPoint(Point3d(corners[jj]-theCenter));
-                            Point3d norm = (pts[ii]+pts[ii+1])/2.f;
-                            draw->addNormal(norm);
-                            TexCoord texCoord = cornerTex[jj];
-                            draw->addTexCoord(-1,texCoord);
-                        }
+        // Toss in the points, but point the normal up
+        int base = draw->getNumPoints();
+        for (unsigned int jj=0;jj<4;jj++)
+        {
+            draw->addPoint(Point3d(corners[jj]-theCenter));
+            Point3d norm = (pts[ii]+pts[ii+1])/2.f;
+            draw->addNormal(norm);
+            TexCoord texCoord = cornerTex[jj];
+            draw->addTexCoord(-1,texCoord);
+        }
         
         // Add two triangles
         draw->addTriangle(BasicDrawable::Triangle(base+3,base+2,base+0));
