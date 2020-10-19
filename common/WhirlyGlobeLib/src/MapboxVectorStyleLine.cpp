@@ -125,12 +125,11 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
     
     ComponentObjectRef compObj = styleSet->makeComponentObject(inst);
 
-    std::vector<VectorObjectRef> vecObjs = inVecObjs;
-    
     // Turn into linears (if not already) and then clip to the bounds
     // Slightly different, but we want to clip all the areals that are converted to linears
-    std::vector<VectorObjectRef> newVecObjs;
-    for (auto vecObj : inVecObjs) {
+    std::vector<VectorObjectRef> vecObjs;
+    vecObjs.reserve(inVecObjs.size());
+    for (auto const &vecObj : inVecObjs) {
         bool clip = linearClipToBounds;
         
         VectorObjectRef newVecObj = vecObj;
@@ -144,13 +143,13 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
         if (newVecObj && clip)
             newVecObj = VectorObjectRef(newVecObj->clipToMbr(tileInfo->geoBBox.ll(), tileInfo->geoBBox.ur()));
         if (newVecObj)
-            newVecObjs.push_back(newVecObj);
+            vecObjs.push_back(newVecObj);
     }
-    vecObjs = newVecObjs;
 
     // Subdivide long-ish lines to the globe, if set
     if (subdivToGlobe > 0.0) {
         std::vector<VectorObjectRef> newVecObjs;
+        newVecObjs.reserve(3 * vecObjs.size());
         for (auto vecObj : vecObjs) {
             vecObj->subdivideToGlobe(subdivToGlobe);
             newVecObjs.push_back(vecObj);
@@ -159,51 +158,43 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
     }
     
     // If we have a filled texture, we'll use that
-    float repeatLen = totLen;
+    const float repeatLen = totLen;
     
     // TODO: We can also have a symbol, where we might do the same thing
     // Problem is, we'll need to pass the subtexture logic through to the renderer
     //  because right now it's expecting a single texture that can be strung along the line
     
-    WideVectorInfo vecInfo;
-    vecInfo.hasExp = true;
-    vecInfo.coordType = WideVecCoordScreen;
-    vecInfo.programID = styleSet->wideVectorProgramID;
-    vecInfo.fade = fade;
-    vecInfo.zoomSlot = styleSet->zoomSlot;
-    if (minzoom != 0 || maxzoom < 1000) {
-        vecInfo.minZoomVis = minzoom;
-        vecInfo.maxZoomVis = maxzoom;
-//        wkLogLevel(Debug, "zoomSlot = %d, minZoom = %f, maxZoom = %f",styleSet->zoomSlot,vecInfo.minZoomVis,vecInfo.maxZoomVis);
-    }
-    if (filledLineTexID != EmptyIdentity) {
-        vecInfo.texID = filledLineTexID;
-        vecInfo.repeatSize = repeatLen;
-    }
+    const RGBAColorRef color = styleSet->resolveColor(paint.color, paint.opacity, tileInfo->ident.level, MBResolveColorOpacityMultiply);
+    const double width = paint.width->valForZoom(tileInfo->ident.level) * lineScale;
     
-    RGBAColorRef color = styleSet->resolveColor(paint.color, paint.opacity, tileInfo->ident.level, MBResolveColorOpacityMultiply);
-    if (color)
-        vecInfo.color = *color;
-    
-    double width = paint.width->valForZoom(tileInfo->ident.level) * lineScale;
-    if (width > 0.0) {
-        vecInfo.width = width;
-    }
-    vecInfo.widthExp = paint.width->expression();
-    // Scale by the lineScale
-    if (vecInfo.widthExp)
-        vecInfo.widthExp->scaleBy(lineScale);
-    vecInfo.colorExp = paint.color->expression();
-    vecInfo.opacityExp = paint.opacity->expression();
-    bool include = color && width > 0.0;
-    
-    if (styleSet->tileStyleSettings->drawPriorityPerLevel > 0)
-        vecInfo.drawPriority = drawPriority + tileInfo->ident.level * styleSet->tileStyleSettings->drawPriorityPerLevel;
-    else
-        vecInfo.drawPriority = drawPriority;
-
-    if (include)
+    if (color && width > 0.0)
     {
+        WideVectorInfo vecInfo;
+        vecInfo.hasExp = true;
+        vecInfo.coordType = WideVecCoordScreen;
+        vecInfo.programID = styleSet->wideVectorProgramID;
+        vecInfo.fade = fade;
+        vecInfo.zoomSlot = styleSet->zoomSlot;
+        if (minzoom != 0 || maxzoom < 1000) {
+            vecInfo.minZoomVis = minzoom;
+            vecInfo.maxZoomVis = maxzoom;
+    //        wkLogLevel(Debug, "zoomSlot = %d, minZoom = %f, maxZoom = %f",styleSet->zoomSlot,vecInfo.minZoomVis,vecInfo.maxZoomVis);
+        }
+        if (filledLineTexID != EmptyIdentity) {
+            vecInfo.texID = filledLineTexID;
+            vecInfo.repeatSize = repeatLen;
+        }
+
+        vecInfo.color = *color;
+        vecInfo.width = width;
+        vecInfo.widthExp = paint.width->expression();
+        // Scale by the lineScale
+        if (vecInfo.widthExp)
+            vecInfo.widthExp->scaleBy(lineScale);
+        vecInfo.colorExp = paint.color->expression();
+        vecInfo.opacityExp = paint.opacity->expression();
+        vecInfo.drawPriority = drawPriority + tileInfo->ident.level * std::max(0, styleSet->tileStyleSettings->drawPriorityPerLevel);
+
         // Gather all the linear features
         ShapeSet shapes;
         for (auto vecObj : vecObjs) {
