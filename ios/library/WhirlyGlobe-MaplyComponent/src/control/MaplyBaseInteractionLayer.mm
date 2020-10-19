@@ -228,7 +228,6 @@ public:
     isShuttingDown = true;
     while (numActiveWorkers > 0) {
         workWait.wait(lk);
-        lk.unlock();
     }
 
     [self teardown];
