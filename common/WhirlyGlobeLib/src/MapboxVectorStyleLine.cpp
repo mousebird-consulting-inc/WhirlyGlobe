@@ -125,11 +125,10 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
     
     ComponentObjectRef compObj = styleSet->makeComponentObject(inst);
 
-    std::vector<VectorObjectRef> vecObjs = inVecObjs;
+    std::vector<VectorObjectRef> vecObjs;
     
     // Turn into linears (if not already) and then clip to the bounds
     // Slightly different, but we want to clip all the areals that are converted to linears
-    std::vector<VectorObjectRef> newVecObjs;
     for (auto vecObj : inVecObjs) {
         bool clip = linearClipToBounds;
         
@@ -144,9 +143,8 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
         if (newVecObj && clip)
             newVecObj = VectorObjectRef(newVecObj->clipToMbr(tileInfo->geoBBox.ll(), tileInfo->geoBBox.ur()));
         if (newVecObj)
-            newVecObjs.push_back(newVecObj);
+            vecObjs.push_back(newVecObj);
     }
-    vecObjs = newVecObjs;
 
     // Subdivide long-ish lines to the globe, if set
     if (subdivToGlobe > 0.0) {
@@ -189,23 +187,17 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
     if (width > 0.0) {
         vecInfo.width = width;
     }
-    vecInfo.widthExp = paint.width->expression();
-    // Scale by the lineScale
-    if (vecInfo.widthExp)
-        vecInfo.widthExp->scaleBy(lineScale);
-    vecInfo.colorExp = paint.color->expression();
-    vecInfo.opacityExp = paint.opacity->expression();
-    const bool include = color && width > 0.0;
     
-    if (styleSet->tileStyleSettings->drawPriorityPerLevel > 0)
-        vecInfo.drawPriority = drawPriority + tileInfo->ident.level * styleSet->tileStyleSettings->drawPriorityPerLevel;
-    else
-        vecInfo.drawPriority = drawPriority;
+    if (color && width > 0.0) {
+        vecInfo.widthExp = paint.width->expression();
+        // Scale by the lineScale
+        if (vecInfo.widthExp)
+            vecInfo.widthExp->scaleBy(lineScale);
+        vecInfo.colorExp = paint.color->expression();
+        vecInfo.opacityExp = paint.opacity->expression();
+        vecInfo.drawPriority = drawPriority + tileInfo->ident.level * std::max(0, styleSet->tileStyleSettings->drawPriorityPerLevel);
+        vecInfo.drawOrder = tileInfo->tileNumber();
 
-    vecInfo.drawOrder = tileInfo->tileNumber();
-
-    if (include)
-    {
         // Gather all the linear features
         ShapeSet shapes;
         for (auto vecObj : vecObjs) {
@@ -213,7 +205,7 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
                 shapes.insert(vecObj->shapes.begin(),vecObj->shapes.end());
         }
         
-        SimpleIdentity wideVecID = styleSet->wideVecManage->addVectors(&shapes, vecInfo, tileInfo->changes);
+        const auto wideVecID = styleSet->wideVecManage->addVectors(&shapes, vecInfo, tileInfo->changes);
         if (wideVecID != EmptyIdentity)
             compObj->wideVectorIDs.insert(wideVecID);
     }

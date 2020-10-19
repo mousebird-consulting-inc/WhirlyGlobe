@@ -894,8 +894,8 @@ RGBAColorRef MapboxVectorStyleSetImpl::backgroundColor(PlatformThreadInfo *inst,
 
 std::vector<VectorStyleImplRef> MapboxVectorStyleSetImpl::stylesForFeature(PlatformThreadInfo *inst,
                                                                            DictionaryRef attrs,
-                                                         const QuadTreeIdentifier &tileID,
-                                                         const std::string &layerName)
+                                                                           const QuadTreeIdentifier &tileID,
+                                                                           const std::string &layerName)
 {
     std::vector<VectorStyleImplRef> styles;
     
@@ -914,29 +914,21 @@ bool MapboxVectorStyleSetImpl::layerShouldDisplay(PlatformThreadInfo *inst,
                                                   const std::string &layerName,
                                                   const QuadTreeNew::Node &tileID)
 {
-    auto it = layersBySource.find(layerName);
+    const auto it = layersBySource.find(layerName);
     return it != layersBySource.end();
 }
 
 /// Return the style associated with the given UUID.
 VectorStyleImplRef MapboxVectorStyleSetImpl::styleForUUID(PlatformThreadInfo *inst,long long uuid)
 {
-    auto it = layersByUUID.find(uuid);
-    if (it == layersByUUID.end())
-        return NULL;
-    
-    return it->second;
+    const auto it = layersByUUID.find(uuid);
+    return (it == layersByUUID.end()) ? nullptr : it->second;
 }
 
 // Return a list of all the styles in no particular order.  Needed for categories and indexing
 std::vector<VectorStyleImplRef> MapboxVectorStyleSetImpl::allStyles(PlatformThreadInfo *inst)
 {
-    std::vector<VectorStyleImplRef> styles;
-    
-    for (auto layer : layers)
-        styles.push_back(layer);
-    
-    return styles;
+    return std::vector<VectorStyleImplRef>(layers.begin(), layers.end());
 }
 
 void MapboxVectorStyleSetImpl::addSprites(MapboxVectorStyleSpritesRef newSprites)
