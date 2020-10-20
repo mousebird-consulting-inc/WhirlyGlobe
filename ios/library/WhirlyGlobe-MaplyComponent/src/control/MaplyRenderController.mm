@@ -30,6 +30,7 @@
 #import "SceneRendererMTL.h"
 #import "MaplyActiveObject_private.h"
 #import "MaplyRenderTarget_private.h"
+#import "WorkRegion_private.h"
 
 using namespace WhirlyKit;
 using namespace Eigen;
@@ -436,190 +437,122 @@ using namespace Eigen;
     sceneRenderer->setZBufferMode(zBuffer ? zBufferOn : zBufferOffDefault);
 }
 
-- (bool)startOfWork
-{
-    return [interactLayer startOfWork];
-}
-
-- (void)endOfWork
-{
-    [interactLayer endOfWork];
-}
-
 - (MaplyComponentObject *__nullable)addScreenMarkers:(NSArray *__nonnull)markers desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
-    if (![self startOfWork])
-        return nil;
-    
-    MaplyComponentObject *compObj = [interactLayer addScreenMarkers:markers desc:desc mode:threadMode];
-    
-    [self endOfWork];
-    
-    return compObj;
+    if (auto wr = WorkRegion(interactLayer)) {
+        return [interactLayer addScreenMarkers:markers desc:desc mode:threadMode];
+    }
+    return nil;
 }
 
 - (MaplyComponentObject *__nullable)addMarkers:(NSArray *__nonnull)markers desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
-    if (![self startOfWork])
-        return nil;
-
-    MaplyComponentObject *compObj = [interactLayer addMarkers:markers desc:desc mode:threadMode];
-    
-    [self endOfWork];
-    
-    return compObj;
+    if (auto wr = WorkRegion(interactLayer)) {
+        return [interactLayer addMarkers:markers desc:desc mode:threadMode];
+    }
+    return nil;
 }
 
 - (MaplyComponentObject *__nullable)addScreenLabels:(NSArray *__nonnull)labels desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
-    if (![self startOfWork])
-        return nil;
-    
-    MaplyComponentObject *compObj = [interactLayer addScreenLabels:labels desc:desc mode:threadMode];
-    
-    [self endOfWork];
-
-    return compObj;
+    if (auto wr = WorkRegion(interactLayer)) {
+        return [interactLayer addScreenLabels:labels desc:desc mode:threadMode];
+    }
+    return nil;
 }
 
 - (MaplyComponentObject *__nullable)addLabels:(NSArray *__nonnull)labels desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
-    if (![self startOfWork])
-        return nil;
-
-    MaplyComponentObject *compObj = [interactLayer addLabels:labels desc:desc mode:threadMode];
-
-    [self endOfWork];
-    
-    return compObj;
+    if (auto wr = WorkRegion(interactLayer)) {
+        return [interactLayer addLabels:labels desc:desc mode:threadMode];
+    }
+    return nil;
 }
 
 - (MaplyComponentObject *__nullable)addVectors:(NSArray *__nonnull)vectors desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
-    if (![self startOfWork])
-        return nil;
-
-    MaplyComponentObject *compObj = [interactLayer addVectors:vectors desc:desc mode:threadMode];
-
-    [self endOfWork];
-    
-    return compObj;
+    if (auto wr = WorkRegion(interactLayer)) {
+        return [interactLayer addVectors:vectors desc:desc mode:threadMode];
+    }
+    return nil;
 }
 
 - (MaplyComponentObject *__nullable)instanceVectors:(MaplyComponentObject *__nonnull)baseObj desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
-    if (![self startOfWork])
-        return nil;
-
-    MaplyComponentObject *compObj = [interactLayer instanceVectors:baseObj desc:desc mode:threadMode];
-
-    [self endOfWork];
-    
-    return compObj;
+    if (auto wr = WorkRegion(interactLayer)) {
+        return [interactLayer instanceVectors:baseObj desc:desc mode:threadMode];
+    }
+    return nil;
 }
 
 - (MaplyComponentObject *__nullable)addWideVectors:(NSArray *__nonnull)vectors desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
-    if (![self startOfWork])
-        return nil;
-
-    MaplyComponentObject *compObj = [interactLayer addWideVectors:vectors desc:desc mode:threadMode];
-
-    [self endOfWork];
-    
-    return compObj;
+    if (auto wr = WorkRegion(interactLayer)) {
+        return [interactLayer addWideVectors:vectors desc:desc mode:threadMode];
+    }
+    return nil;
 }
 
 - (MaplyComponentObject *__nullable)addModelInstances:(NSArray *__nonnull)modelInstances desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
-    if (![self startOfWork])
-        return nil;
-
-    MaplyComponentObject *compObj = [interactLayer addModelInstances:modelInstances desc:desc mode:threadMode];
-
-    [self endOfWork];
-    
-    return compObj;
+    if (auto wr = WorkRegion(interactLayer)) {
+        return [interactLayer addModelInstances:modelInstances desc:desc mode:threadMode];
+    }
+    return nil;
 }
 
 - (MaplyComponentObject *__nullable)addGeometry:(NSArray *__nonnull)geom desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
-    if (![self startOfWork])
-        return nil;
-
-    MaplyComponentObject *compObj = [interactLayer addGeometry:geom desc:desc mode:threadMode];
-
-    [self endOfWork];
-    
-    return compObj;
+    if (auto wr = WorkRegion(interactLayer)) {
+        return [interactLayer addGeometry:geom desc:desc mode:threadMode];
+    }
+    return nil;
 }
 
 - (void)changeVector:(MaplyComponentObject *__nonnull)compObj desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
-    if (![self startOfWork])
-        return;
-
-    [interactLayer changeVectors:compObj desc:desc mode:threadMode];
-
-    [self endOfWork];
+    if (auto wr = WorkRegion(interactLayer)) {
+        [interactLayer changeVectors:compObj desc:desc mode:threadMode];
+    }
 }
 
 - (MaplyComponentObject *__nullable)addShapes:(NSArray *__nonnull)shapes desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
-    if (![self startOfWork])
-        return nil;
-
-    MaplyComponentObject *compObj = [interactLayer addShapes:shapes desc:desc mode:threadMode];
-
-    [self endOfWork];
-
-    return compObj;
+    if (auto wr = WorkRegion(interactLayer)) {
+        return [interactLayer addShapes:shapes desc:desc mode:threadMode];
+    }
+    return nil;
 }
 
 - (MaplyComponentObject *__nullable)addStickers:(NSArray *__nonnull)stickers desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
-    if (![self startOfWork])
-        return nil;
-
-    MaplyComponentObject *compObj = [interactLayer addStickers:stickers desc:desc mode:threadMode];
-
-    [self endOfWork];
-    
-    return compObj;
+    if (auto wr = WorkRegion(interactLayer)) {
+        return [interactLayer addStickers:stickers desc:desc mode:threadMode];
+    }
+    return nil;
 }
 
 - (void)changeSticker:(MaplyComponentObject *__nonnull)compObj desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
-    if (![self startOfWork])
-        return;
-
-    [interactLayer changeSticker:compObj desc:desc mode:threadMode];
-
-    [self endOfWork];
+    if (auto wr = WorkRegion(interactLayer)) {
+        [interactLayer changeSticker:compObj desc:desc mode:threadMode];
+    }
 }
 
 - (MaplyComponentObject *__nullable)addBillboards:(NSArray *__nonnull)billboards desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
-    if (![self startOfWork])
-        return nil;
-
-    MaplyComponentObject *compObj = [interactLayer addBillboards:billboards desc:desc mode:threadMode];
-
-    [self endOfWork];
-    
-    return compObj;
+    if (auto wr = WorkRegion(interactLayer)) {
+        return [interactLayer addBillboards:billboards desc:desc mode:threadMode];
+    }
+    return nil;
 }
 
 - (MaplyComponentObject *)addParticleSystem:(MaplyParticleSystem *)partSys desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    if (![self startOfWork])
-        return nil;
-
-    MaplyComponentObject *compObj = [interactLayer addParticleSystem:partSys desc:desc mode:threadMode];
-
-    [self endOfWork];
-
-    return compObj;
+    if (auto wr = WorkRegion(interactLayer)) {
+        return [interactLayer addParticleSystem:partSys desc:desc mode:threadMode];
+    }
+    return nil;
 }
 
 - (void)changeParticleSystem:(MaplyComponentObject *__nonnull)compObj renderTarget:(MaplyRenderTarget *__nullable)target
@@ -629,12 +562,9 @@ using namespace Eigen;
         return;
     }
     
-    if (![self startOfWork])
-        return;
-    
-    [interactLayer changeParticleSystem:compObj renderTarget:target];
-
-    [self endOfWork];
+    if (auto wr = WorkRegion(interactLayer)) {
+        [interactLayer changeParticleSystem:compObj renderTarget:target];
+    }
 }
 
 - (void)addParticleBatch:(MaplyParticleBatch *)batch mode:(MaplyThreadMode)threadMode
@@ -642,178 +572,125 @@ using namespace Eigen;
     if (![batch isValid])
         return;
     
-    if (![self startOfWork])
-        return;
-    
-    [interactLayer addParticleBatch:batch mode:threadMode];
-
-    [self endOfWork];
+    if (auto wr = WorkRegion(interactLayer)) {
+        [interactLayer addParticleBatch:batch mode:threadMode];
+    }
 }
 
 - (MaplyComponentObject *__nullable)addLoftedPolys:(NSArray *__nonnull)polys desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
-    if (![self startOfWork])
-        return nil;
-
-    MaplyComponentObject *compObj = [interactLayer addLoftedPolys:polys desc:desc mode:threadMode];
-
-    [self endOfWork];
-    
-    return compObj;
+    if (auto wr = WorkRegion(interactLayer)) {
+        return [interactLayer addLoftedPolys:polys desc:desc mode:threadMode];
+    }
+    return nil;
 }
 
 - (MaplyComponentObject *__nullable)addPoints:(NSArray * __nonnull)points desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
-    if (![self startOfWork])
-        return nil;
-
-    MaplyComponentObject *compObj = [interactLayer addPoints:points desc:desc mode:threadMode];
-
-    [self endOfWork];
-    
-    return compObj;
+    if (auto wr = WorkRegion(interactLayer)) {
+        return [interactLayer addPoints:points desc:desc mode:threadMode];
+    }
+    return nil;
 }
 
 - (MaplyTexture *__nullable)addTexture:(UIImage *__nonnull)image desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
-    if (![self startOfWork])
-        return nil;
-
-    MaplyTexture *tex = [interactLayer addTexture:image desc:desc mode:threadMode];
-
-    [self endOfWork];
-    
-    return tex;
+    if (auto wr = WorkRegion(interactLayer)) {
+        return [interactLayer addTexture:image desc:desc mode:threadMode];
+    }
+    return nil;
 }
 
 - (MaplyTexture *__nullable)addSubTexture:(MaplyTexture *__nonnull)tex xOffset:(int)x yOffset:(int)y width:(int)width height:(int)height mode:(MaplyThreadMode)threadMode
 {
-    if (![self startOfWork])
-        return nil;
-
-    MaplyTexture *maplyTex = [interactLayer addSubTexture:tex xOffset:x yOffset:y width:width height:height mode:threadMode];
-
-    [self endOfWork];
-    
-    return maplyTex;
+    if (auto wr = WorkRegion(interactLayer)) {
+        return [interactLayer addSubTexture:tex xOffset:x yOffset:y width:width height:height mode:threadMode];
+    }
+    return nil;
 }
 
 
 - (MaplyTexture *__nullable)createTexture:(NSDictionary * _Nullable)spec sizeX:(int)sizeX sizeY:(int)sizeY mode:(MaplyThreadMode)threadMode
 {
-    if (![self startOfWork])
-        return nil;
-    
-    NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:spec];
-    desc[kMaplyTexSizeX] = @(sizeX);
-    desc[kMaplyTexSizeY] = @(sizeY);
-    MaplyTexture *maplyTex = [interactLayer addTexture:nil desc:desc mode:threadMode];
-
-    [self endOfWork];
-    
-    return maplyTex;
+    if (auto wr = WorkRegion(interactLayer)) {
+        auto desc = [NSMutableDictionary dictionaryWithDictionary:spec];
+        desc[kMaplyTexSizeX] = @(sizeX);
+        desc[kMaplyTexSizeY] = @(sizeY);
+        return [interactLayer addTexture:nil desc:desc mode:threadMode];
+    }
+    return nil;
 }
 
 - (void)removeTextures:(NSArray *__nonnull)textures mode:(MaplyThreadMode)threadMode
 {
-    if (![self startOfWork])
-        return;
-
-    [interactLayer removeTextures:textures mode:threadMode];
-    
-    [self endOfWork];
+    if (auto wr = WorkRegion(interactLayer)) {
+        [interactLayer removeTextures:textures mode:threadMode];
+    }
 }
 
 - (void)addRenderTarget:(MaplyRenderTarget * _Nonnull)renderTarget
 {
-    if (![self startOfWork])
-        return;
-
-    renderTarget.renderControl = self;
-    [interactLayer addRenderTarget:renderTarget];
-
-    [self endOfWork];
+    if (auto wr = WorkRegion(interactLayer)) {
+        renderTarget.renderControl = self;
+        [interactLayer addRenderTarget:renderTarget];
+    }
 }
 
 - (void)changeRenderTarget:(MaplyRenderTarget * __nonnull)renderTarget tex:(MaplyTexture * __nullable)tex
 {
-    if (![self startOfWork])
-        return;
-
-    [interactLayer changeRenderTarget:renderTarget tex:tex];
-
-    [self endOfWork];
+    if (auto wr = WorkRegion(interactLayer)) {
+        [interactLayer changeRenderTarget:renderTarget tex:tex];
+    }
 }
 
 - (void)clearRenderTarget:(MaplyRenderTarget *)renderTarget mode:(MaplyThreadMode)threadMode
 {
-    if (![self startOfWork])
-        return;
-    
-    [interactLayer clearRenderTarget:renderTarget mode:threadMode];
-
-    [self endOfWork];
+    if (auto wr = WorkRegion(interactLayer)) {
+        [interactLayer clearRenderTarget:renderTarget mode:threadMode];
+    }
 }
 
 - (void)removeRenderTarget:(MaplyRenderTarget * _Nonnull)renderTarget
 {
-    if (![self startOfWork])
-        return;
-
-    renderTarget.renderControl = nil;
-    [interactLayer removeRenderTarget:renderTarget];
-
-    [self endOfWork];
+    if (auto wr = WorkRegion(interactLayer)) {
+        renderTarget.renderControl = nil;
+        [interactLayer removeRenderTarget:renderTarget];
+    }
 }
 
 - (void)removeObjects:(NSArray *__nonnull)theObjs mode:(MaplyThreadMode)threadMode
 {
-    if (![self startOfWork])
-        return;
-
-    [interactLayer removeObjects:[NSArray arrayWithArray:theObjs] mode:threadMode];
-
-    [self endOfWork];
+    if (auto wr = WorkRegion(interactLayer)) {
+        [interactLayer removeObjects:[NSArray arrayWithArray:theObjs] mode:threadMode];
+    }
 }
 
 - (void)removeObjectsByID:(const SimpleIDSet &)compObjIDs mode:(MaplyThreadMode)threadMode
 {
-    if (![self startOfWork])
-        return;
-
-    [interactLayer removeObjectsByID:compObjIDs mode:threadMode];
-
-    [self endOfWork];
+    if (auto wr = WorkRegion(interactLayer)) {
+        [interactLayer removeObjectsByID:compObjIDs mode:threadMode];
+    }
 }
 
 - (void)disableObjects:(NSArray *__nonnull)theObjs mode:(MaplyThreadMode)threadMode
 {
-    if (![self startOfWork])
-        return;
-
-    [interactLayer disableObjects:theObjs mode:threadMode];
-
-    [self endOfWork];
+    if (auto wr = WorkRegion(interactLayer)) {
+        [interactLayer disableObjects:theObjs mode:threadMode];
+    }
 }
 
 - (void)enableObjects:(NSArray *__nonnull)theObjs mode:(MaplyThreadMode)threadMode
 {
-    if (![self startOfWork])
-        return;
-
-    [interactLayer enableObjects:theObjs mode:threadMode];
-
-    [self endOfWork];
+    if (auto wr = WorkRegion(interactLayer)) {
+        [interactLayer enableObjects:theObjs mode:threadMode];
+    }
 }
 
 - (void)setUniformBlock:(NSData *__nonnull)uniBlock buffer:(int)bufferID forObjects:(NSArray<MaplyComponentObject *> *__nonnull)compObjs mode:(MaplyThreadMode)threadMode
 {
-    if (![self startOfWork])
-        return;
-
-    [interactLayer setUniformBlock:uniBlock buffer:bufferID forObjects:compObjs mode:threadMode];
-
-    [self endOfWork];
+    if (auto wr = WorkRegion(interactLayer)) {
+        [interactLayer setUniformBlock:uniBlock buffer:bufferID forObjects:compObjs mode:threadMode];
+    }
 }
 
 - (MaplyCoordinateSystem *__nullable)coordSystem

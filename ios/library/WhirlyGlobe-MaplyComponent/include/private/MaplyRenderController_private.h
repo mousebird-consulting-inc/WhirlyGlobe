@@ -111,12 +111,6 @@
 
 - (void)updateLights;
 
-/// Called internally to mark a block of work being done
-- (bool) startOfWork;
-
-/// Called internally to end a block of work being done
-- (void) endOfWork;
-
 /// Look for a sampling layer that matches the given parameters
 /// We'll also keep it around until the user lets us know we're done
 - (MaplyQuadSamplingLayer *)findSamplingLayer:(const WhirlyKit::SamplingParams &)params forUser:(WhirlyKit::QuadTileBuilderDelegateRef)userObj;

@@ -48,6 +48,7 @@
 #import "UIColor+Stuff.h"
 #import "NSDictionary+Stuff.h"
 #import "MaplyBaseViewController_private.h"
+#import "WorkRegion_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -3259,10 +3260,9 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 // Not great, but it means we need the start/work calls in here to catch locking shutdowns
 - (void)enableObjects:(NSArray *)userObjs changes:(ChangeSet &)changes
 {
-    if (![self startOfWork])
-        return;
-    [self enableObjectsImpl:userObjs enable:true changes:changes];
-    [self endOfWork];
+    if (auto wr = WorkRegion(self)) {
+        [self enableObjectsImpl:userObjs enable:true changes:changes];
+    }
 }
 
 - (void)disableObjects:(NSArray *)userObjs changes:(ChangeSet &)changes

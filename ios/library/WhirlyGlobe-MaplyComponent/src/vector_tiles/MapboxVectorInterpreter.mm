@@ -47,6 +47,7 @@
 #import "vector_styles/MapnikStyleSet.h"
 #import "private/MapboxVectorStyleSet_private.h"
 #import "MaplyRenderController_private.h"
+#import "WorkRegion_private.h"
 
 using namespace WhirlyKit;
 
@@ -169,7 +170,7 @@ static int BackImageWidth = 16, BackImageHeight = 16;
 
 - (void)dataForTile:(MaplyImageLoaderReturn *)loadReturn loader:(MaplyQuadLoaderBase *)loader
 {
-    MaplyTileID tileID = loadReturn.tileID;
+    const MaplyTileID tileID = loadReturn.tileID;
     std::vector<NSData *> pbfDatas;
     std::vector<UIImage *> images;
     
@@ -186,8 +187,7 @@ static int BackImageWidth = 16, BackImageHeight = 16;
           }
         }
         // Might be an image
-        UIImage *image = [UIImage imageWithData:thisTileData];
-        if (image)
+        if (UIImage *image = [UIImage imageWithData:thisTileData])
             images.push_back(image);
         else
             pbfDatas.push_back(thisTileData);
@@ -202,10 +202,13 @@ static int BackImageWidth = 16, BackImageHeight = 16;
     
     // Coordinates for the coming data
     MaplyBoundingBoxD imageBBox;
-    imageBBox.ll = MaplyCoordinateDMake(0,0);  imageBBox.ur = MaplyCoordinateDMake(offlineRender.getFramebufferSize.width,offlineRender.getFramebufferSize.height);
+    imageBBox.ll = MaplyCoordinateDMake(0,0);
+    imageBBox.ur = MaplyCoordinateDMake(offlineRender.getFramebufferSize.width,offlineRender.getFramebufferSize.height);
+
     MaplyBoundingBoxD localBBox,geoBBox;
     localBBox = [loader boundsForTileD:tileID];
     geoBBox = [loader geoBoundsForTileD:tileID];
+
     MaplyBoundingBoxD spherMercBBox;
     spherMercBBox.ll = [self toMerc:geoBBox.ll];
     spherMercBBox.ur = [self toMerc:geoBBox.ur];
@@ -218,7 +221,7 @@ static int BackImageWidth = 16, BackImageHeight = 16;
         @synchronized(offlineRender)
         {
             // Build the vector objects for use in the image tile
-            RGBAColorRef backColor = imageStyle->backgroundColor(NULL,tileID.level);
+            const RGBAColorRef backColor = imageStyle->backgroundColor(NULL,tileID.level);
             offlineRender.clearColor = backColor ? [UIColor colorFromRGBA:*backColor] : [UIColor blackColor];
             MaplyVectorTileData *vecTileReturn = [[MaplyVectorTileData alloc] initWithID:tileID bbox:imageBBox geoBBox:geoBBox];
 
@@ -264,13 +267,16 @@ static int BackImageWidth = 16, BackImageHeight = 16;
             [offlineRender removeObjects:compObjs mode:MaplyThreadCurrent];
         }
     }
-    
-    if (![[viewC getRenderControl] startOfWork])
-        return;
-    
+
     // Parse everything else and turn into vectors
     std::vector<ComponentObjectRef> compObjs,ovlCompObjs;
     for (NSData *thisTileData : pbfDatas) {
+        // Use a separate work item for each tile, so that we react quickly if told to shut down
+        WorkRegion wr(viewC);
+        if (!wr) {
+            return;
+        }
+
         RawNSDataReader thisTileDataWrap(thisTileData);
         MaplyVectorTileData *vecTileReturn = [[MaplyVectorTileData alloc] initWithID:tileID bbox:spherMercBBox geoBBox:geoBBox];
         // Parse the vector features and then merge them into the change set in the load return
@@ -280,20 +286,20 @@ static int BackImageWidth = 16, BackImageHeight = 16;
         if (!vecTileReturn->data->compObjs.empty())
             compObjs.insert(compObjs.end(),vecTileReturn->data->compObjs.begin(),vecTileReturn->data->compObjs.end());
         
-        auto it = vecTileReturn->data->categories.find("overlay");
+        const auto it = vecTileReturn->data->categories.find("overlay");
         if (it != vecTileReturn->data->categories.end()) {
-            auto ids = it->second;
+            auto const &ids = it->second;
             ovlCompObjs.insert(ovlCompObjs.end(),ids.begin(),ids.end());
         }
     }
 
     if ([loadReturn isKindOfClass:[MaplyImageLoaderReturn class]]) {
-        if (offlineRender) {
-            // Rendered image goes in first
-            MaplyImageTile *tileImage = [[MaplyImageTile alloc] initWithRawImage:imageData width:offlineRender.getFramebufferSize.width height:offlineRender.getFramebufferSize.height viewC:viewC];
-            [loadReturn addImageTile:tileImage];
-        } else {
-            if (images.empty()) {
+        if (auto wr = WorkRegion(viewC)) {
+            if (offlineRender) {
+                // Rendered image goes in first
+                auto tileImage = [[MaplyImageTile alloc] initWithRawImage:imageData width:offlineRender.getFramebufferSize.width height:offlineRender.getFramebufferSize.height viewC:viewC];
+                [loadReturn addImageTile:tileImage];
+            } else if (images.empty()) {
                 // Make a single color background image
                 // We have to do this each time because it can change per level
                 // TODO: Cache this per level or something
@@ -309,19 +315,17 @@ static int BackImageWidth = 16, BackImageHeight = 16;
                     data++;
                 }
 
-                MaplyImageTile *tileImage = [[MaplyImageTile alloc] initWithRawImage:backImageData width:BackImageWidth height:BackImageHeight viewC:viewC];
+                auto tileImage = [[MaplyImageTile alloc] initWithRawImage:backImageData width:BackImageWidth height:BackImageHeight viewC:viewC];
                 [loadReturn addImageTile:tileImage];
             }
-        }
 
-        // Any additional images are tacked on
-        for (UIImage *image : images) {
-            MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithImage:image viewC:viewC];
-            [loadReturn addImageTile:tileData];
+            // Any additional images are tacked on
+            for (UIImage *image : images) {
+                MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithImage:image viewC:viewC];
+                [loadReturn addImageTile:tileData];
+            }
         }
     }
-    
-    [[viewC getRenderControl] endOfWork];
         
     if (!ovlCompObjs.empty()) {
         std::vector<ComponentObjectRef> minusOvls;
