@@ -89,10 +89,4 @@
 /// The base classes fill this in to return their own interaction layer subclass
 - (MaplyBaseInteractionLayer *) loadSetup_interactionLayer;
 
-/// Called internally to mark a block of work being done
-- (bool) startOfWork;
-
-/// Called internally to end a block of work being done
-- (void) endOfWork;
-
 @end

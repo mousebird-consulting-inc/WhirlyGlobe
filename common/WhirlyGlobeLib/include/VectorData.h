@@ -21,7 +21,9 @@
 #import <math.h>
 #import <vector>
 #import <set>
+#import <unordered_set>
 #import <map>
+#import <functional>
 #import "Identifiable.h"
 #import "WhirlyVector.h"
 #import "WhirlyGeometry.h"
@@ -78,16 +80,33 @@ typedef Point3dVector VectorRing3d;
 
 /// Comparison function for the vector shape.
 /// This is here to ensure we don't put in the same pointer twice
-struct VectorShapeRefCmp
+//struct VectorShapeRefLess : std::less<VectorShape*>
+//{
+//    typedef std::less<VectorShape*> super;
+//    bool operator()(const VectorShapeRef &a,const VectorShapeRef &b) const {
+//        return super::operator()(a.get(), b.get());
+//    }
+//};
+struct VectorShapeRefEqual : std::equal_to<VectorShape*>
 {
-    bool operator()(const VectorShapeRef &a,const VectorShapeRef &b) const
-    { return a.get() < b.get(); }
+    typedef std::equal_to<VectorShape*> super;
+    bool operator()(const VectorShapeRef &a,const VectorShapeRef &b) const {
+        return super::operator()(a.get(), b.get());
+    }
+};
+struct VectorShapeRefHash : std::hash<VectorShape*>
+{
+    typedef std::hash<VectorShape*> super;
+    bool operator()(const VectorShapeRef &s) {
+        return super::operator()(s.get());
+    }
 };
   
 /// We pass the shape set around when returing a group of shapes.
-/// It's a set of reference counted shapes.  You have to dynamic
-///  cast to get the specfic type.  Don't forget to use the std dynamic cast
-typedef std::set<VectorShapeRef,VectorShapeRefCmp> ShapeSet;
+/// It's a set of reference counted shapes.  You have to dynamically
+/// cast to get the specfic type.  Don't forget to use the std dynamic cast
+//typedef std::set<VectorShapeRef,VectorShapeRefLess> ShapeSet;
+typedef std::unordered_set<VectorShapeRef, VectorShapeRefHash, VectorShapeRefEqual> ShapeSet;
     
 /// Calculate area of a loop
 float CalcLoopArea(const VectorRing &);

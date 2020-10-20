@@ -80,74 +80,57 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
                                          std::vector<VectorObjectRef> &vecObjs,
                                          VectorTileDataRef tileInfo)
 {
-    if (!visible)
+    if (!visible || !(paint.color || paint.outlineColor))
         return;
     
     ComponentObjectRef compObj = styleSet->makeComponentObject(inst);
 
+    // Gather all the areal features for fill and/or outline
+    ShapeSet shapes;
+    for (auto vecObj : vecObjs) {
+        if (vecObj->getVectorType() == VectorArealType) {
+            shapes.insert(vecObj->shapes.begin(),vecObj->shapes.end());
+        }
+    }
+
     // Filled polygons
     if (paint.color) {
-        ShapeSet shapes;
-
-        // Gather all the areal features
-        for (auto vecObj : vecObjs) {
-            if (vecObj->getVectorType() == VectorArealType) {
-                shapes.insert(vecObj->shapes.begin(),vecObj->shapes.end());
-            }
-        }
-        
+        // tesselate the area features
         ShapeSet tessShapes;
-        for (auto const &it : shapes)
-        {
-            if (auto ar = std::dynamic_pointer_cast<VectorAreal>(it))
-            {
-                auto trisRef = VectorTriangles::createTriangles();
+        for (auto const &it : shapes) {
+            if (auto ar = std::dynamic_pointer_cast<VectorAreal>(it)) {
+                VectorTrianglesRef trisRef = VectorTriangles::createTriangles();
                 TesselateLoops(ar->loops, trisRef);
                 trisRef->setAttrDict(ar->getAttrDict());
                 trisRef->initGeoMbr();
                 tessShapes.insert(trisRef);
             }
         }
-        
-        // Set up the description for constructing vectors
-        VectorInfo vecInfo;
-        bool include = true;
-        vecInfo.hasExp = true;
-        vecInfo.filled = true;
-        vecInfo.centered = true;
-        vecInfo.zoomSlot = styleSet->zoomSlot;
-        vecInfo.zBufferWrite = styleSet->tileStyleSettings->zBufferWrite;
-        vecInfo.zBufferRead = styleSet->tileStyleSettings->zBufferRead;
-        if (minzoom != 0 || maxzoom < 1000) {
-            vecInfo.minZoomVis = minzoom;
-            vecInfo.maxZoomVis = maxzoom;
-        }
-        vecInfo.colorExp = paint.color->expression();
-        vecInfo.opacityExp = paint.opacity->expression();
-
-        if (arealShaderID != EmptyIdentity)
-            vecInfo.programID = arealShaderID;
-        else
-            vecInfo.programID = styleSet->vectorArealProgramID;
-        
-        RGBAColorRef color = styleSet->resolveColor(paint.color, paint.opacity, tileInfo->ident.level, MBResolveColorOpacityComposeAlpha);
-
-//        wkLogLevel(Debug, "Color: %s %d %d %d %d",ident.c_str(),(int)color->r,(int)color->g,(int)color->b,(int)color->a);
-
-        if (color) {
+                
+        if (auto color = styleSet->resolveColor(paint.color, paint.opacity, tileInfo->ident.level, MBResolveColorOpacityComposeAlpha)) {
+            // Set up the description for constructing vectors
+            VectorInfo vecInfo;
+            vecInfo.hasExp = true;
+            vecInfo.filled = true;
+            vecInfo.centered = true;
             vecInfo.color = *color;
-        } else {
-            include = false;
-        }
-        if (styleSet->tileStyleSettings->drawPriorityPerLevel > 0)
-            vecInfo.drawPriority = drawPriority + tileInfo->ident.level * styleSet->tileStyleSettings->drawPriorityPerLevel;
-        else
-            vecInfo.drawPriority = drawPriority;
-        
-        vecInfo.drawOrder = tileInfo->tileNumber();
+            vecInfo.zoomSlot = styleSet->zoomSlot;
+            vecInfo.zBufferWrite = styleSet->tileStyleSettings->zBufferWrite;
+            vecInfo.zBufferRead = styleSet->tileStyleSettings->zBufferRead;
+            vecInfo.colorExp = paint.color->expression();
+            vecInfo.opacityExp = paint.opacity->expression();
+            vecInfo.programID = (arealShaderID != EmptyIdentity) ? arealShaderID : styleSet->vectorArealProgramID;
+            vecInfo.drawPriority = drawPriority + tileInfo->ident.level * std::max(0, styleSet->tileStyleSettings->drawPriorityPerLevel);
+            vecInfo.drawOrder = tileInfo->tileNumber();
 
-        if (include) {
-            SimpleIdentity vecID = styleSet->vecManage->addVectors(&tessShapes, vecInfo, tileInfo->changes);
+            if (minzoom != 0 || maxzoom < 1000) {
+                vecInfo.minZoomVis = minzoom;
+                vecInfo.maxZoomVis = maxzoom;
+            }
+
+            //wkLogLevel(Debug, "Color: %s %d %d %d %d",ident.c_str(),(int)color->r,(int)color->g,(int)color->b,(int)color->a);
+
+            const SimpleIdentity vecID = styleSet->vecManage->addVectors(&tessShapes, vecInfo, tileInfo->changes);
             if (vecID != EmptyIdentity) {
                 compObj->vectorIDs.insert(vecID);
                 
@@ -159,47 +142,26 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
     
     // Outlines
     if (paint.outlineColor) {
-        ShapeSet shapes;
-
-        // Gather all the areal features
-        for (auto vecObj : vecObjs) {
-            if (vecObj->getVectorType() == VectorArealType) {
-                shapes.insert(vecObj->shapes.begin(),vecObj->shapes.end());
-            }
-        }
-        
-        // Set up the description for constructing vectors
-        VectorInfo vecInfo;
-        bool include = true;
-        vecInfo.hasExp = true;
-        vecInfo.filled = false;
-        vecInfo.centered = true;
-        if (minzoom != 0 || maxzoom < 1000) {
-            vecInfo.zoomSlot = styleSet->zoomSlot;
-            vecInfo.minZoomVis = minzoom;
-            vecInfo.maxZoomVis = maxzoom;
-        }
-        vecInfo.colorExp = paint.outlineColor->expression();
-        vecInfo.opacityExp = paint.opacity->expression();
-        if (arealShaderID != EmptyIdentity)
-            vecInfo.programID = arealShaderID;
-        else
-            vecInfo.programID = styleSet->vectorArealProgramID;
-        
-        RGBAColorRef color = styleSet->resolveColor(paint.outlineColor, paint.opacity, tileInfo->ident.level, MBResolveColorOpacityComposeAlpha);
-        if (color) {
+        if (auto color = styleSet->resolveColor(paint.outlineColor, paint.opacity, tileInfo->ident.level, MBResolveColorOpacityComposeAlpha)) {
+            // Set up the description for constructing vectors
+            VectorInfo vecInfo;
+            vecInfo.hasExp = true;
+            vecInfo.filled = false;
+            vecInfo.centered = true;
+            vecInfo.colorExp = paint.outlineColor->expression();
+            vecInfo.opacityExp = paint.opacity->expression();
+            vecInfo.programID = (arealShaderID != EmptyIdentity) ? arealShaderID : styleSet->vectorArealProgramID;
             vecInfo.color = *color;
-        } else {
-            include = false;
-        }
-        
-        if (styleSet->tileStyleSettings->drawPriorityPerLevel > 0)
-            vecInfo.drawPriority = drawPriority + tileInfo->ident.level * styleSet->tileStyleSettings->drawPriorityPerLevel;
-        else
-            vecInfo.drawPriority = drawPriority;
-        
-        if (include) {
-            SimpleIdentity vecID = styleSet->vecManage->addVectors(&shapes, vecInfo, tileInfo->changes);
+            vecInfo.drawPriority = drawPriority + tileInfo->ident.level * std::max(0, styleSet->tileStyleSettings->drawPriorityPerLevel);
+            vecInfo.drawOrder = tileInfo->tileNumber();
+
+            if (minzoom != 0 || maxzoom < 1000) {
+                vecInfo.zoomSlot = styleSet->zoomSlot;
+                vecInfo.minZoomVis = minzoom;
+                vecInfo.maxZoomVis = maxzoom;
+            }
+
+            const SimpleIdentity vecID = styleSet->vecManage->addVectors(&shapes, vecInfo, tileInfo->changes);
             if (vecID != EmptyIdentity) {
                 compObj->vectorIDs.insert(vecID);
             }

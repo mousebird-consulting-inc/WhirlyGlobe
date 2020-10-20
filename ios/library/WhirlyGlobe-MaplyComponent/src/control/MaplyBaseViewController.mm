@@ -31,6 +31,8 @@
 #import "FontTextureManager_iOS.h"
 #import "UIColor+Stuff.h"
 #import "MTLView.h"
+#import "WorkRegion_private.h"
+
 #import <sys/utsname.h>
 
 using namespace Eigen;
@@ -514,17 +516,6 @@ static const float PerfOutputDelay = 15.0;
     [renderControl setHints:changeDict];
 }
 
-- (bool) startOfWork
-{
-    return [renderControl startOfWork];
-}
-
-/// Called internally to end a block of work being done
-- (void) endOfWork
-{
-    [renderControl endOfWork];
-}
-
 #pragma mark - Geometry related methods
 
 - (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
@@ -640,16 +631,10 @@ static const float PerfOutputDelay = 15.0;
 
 - (MaplyComponentObject *)addSelectionVectors:(NSArray *)vectors
 {
-    if (!renderControl)
-        return nil;
-    
-    if (![renderControl startOfWork])
-        return nil;
-    
-    MaplyComponentObject *compObj = [renderControl->interactLayer addSelectionVectors:vectors desc:nil];
-    [renderControl endOfWork];
-    
-    return compObj;
+    if (auto wr = WorkRegion(renderControl)) {
+        return [renderControl->interactLayer addSelectionVectors:vectors desc:nil];
+    }
+    return nil;
 }
 
 - (void)changeVector:(MaplyComponentObject *)compObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
@@ -1082,22 +1067,16 @@ static const float PerfOutputDelay = 15.0;
 
 - (void)startChanges
 {
-    if (!renderControl || ![renderControl startOfWork])
-        return;
-
-    [renderControl->interactLayer startChanges];
-
-    [renderControl endOfWork];
+    if (auto wr = WorkRegion(renderControl)) {
+        [renderControl->interactLayer startChanges];
+    }
 }
 
 - (void)endChanges
 {
-    if (!renderControl || ![renderControl startOfWork])
-        return;
-
-    [renderControl->interactLayer endChanges];
-
-    [renderControl endOfWork];
+    if (auto wr = WorkRegion(renderControl)) {
+        [renderControl->interactLayer endChanges];
+    }
 }
 
 -(NSArray*)objectsAtCoord:(MaplyCoordinate)coord

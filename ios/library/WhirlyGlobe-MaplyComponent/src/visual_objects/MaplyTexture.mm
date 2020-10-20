@@ -21,6 +21,7 @@
 #import "MaplyTexture_private.h"
 #import "MaplyRenderController_private.h"
 #import "MaplyBaseInteractionLayer_private.h"
+#import "WorkRegion_private.h"
 
 using namespace WhirlyKit;
 
@@ -43,12 +44,9 @@ using namespace WhirlyKit;
     if (_texID != EmptyIdentity)
     {
 //        NSLog(@"Clearing texture %lx, for interactLayer %lx",(long)self,(long)_interactLayer);
-        if (_interactLayer)
+        if (auto wr = WorkRegion(_interactLayer))
         {
-            if (![_interactLayer startOfWork])
-                return;
             [_interactLayer clearTexture:self when:0.0];
-            [_interactLayer endOfWork];
         }
     }
 }
