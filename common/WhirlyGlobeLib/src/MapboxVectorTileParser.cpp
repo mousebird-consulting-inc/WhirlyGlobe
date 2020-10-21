@@ -420,6 +420,13 @@ bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst,RawData *rawDat
         return false;
     }
     
+    // Call background
+    if (const auto backgroundStyle = styleDelegate->backgroundStyle(styleInst)) {
+        auto styleData = std::make_shared<VectorTileData>(*tileData);
+        std::vector<VectorObjectRef> objs;
+        backgroundStyle->buildObjects(styleInst, objs, styleData);
+    }
+    
     // Run the styles over their assembled data
     for (auto it : tileData->vecObjsByStyle) {
         std::vector<VectorObjectRef> *vecs = it.second;

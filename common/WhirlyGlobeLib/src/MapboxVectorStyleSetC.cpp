@@ -878,6 +878,17 @@ void MapboxVectorStyleSetImpl::setZoomSlot(int inZoomSlot)
     zoomSlot = inZoomSlot;
 }
 
+VectorStyleImplRef MapboxVectorStyleSetImpl::backgroundStyle(PlatformThreadInfo *inst) const
+{
+    const auto it = layersByName.find("background");
+    if (it != layersByName.end()) {
+        if (auto backLayer = std::dynamic_pointer_cast<MapboxVectorLayerBackground>(it->second)) {
+            return backLayer;
+        }
+    }
+    return VectorStyleImplRef();
+}
+
 RGBAColorRef MapboxVectorStyleSetImpl::backgroundColor(PlatformThreadInfo *inst,double zoom)
 {
     auto it = layersByName.find("background");

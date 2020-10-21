@@ -97,17 +97,19 @@ public:
     
     virtual std::vector<VectorStyleImplRef> stylesForFeature(PlatformThreadInfo *inst,DictionaryRef attrs,
                                                             const QuadTreeIdentifier &tileID,
-                                                            const std::string &layerName);
+                                                            const std::string &layerName) override;
     
     virtual bool layerShouldDisplay(PlatformThreadInfo *inst,
                                     const std::string &name,
-                                    const QuadTreeNew::Node &tileID);
+                                    const QuadTreeNew::Node &tileID) override;
 
-    virtual VectorStyleImplRef styleForUUID(PlatformThreadInfo *inst,long long uuid);
+    virtual VectorStyleImplRef styleForUUID(PlatformThreadInfo *inst,long long uuid) override;
 
-    virtual std::vector<VectorStyleImplRef> allStyles(PlatformThreadInfo *inst);
-    
-    RGBAColorRef backgroundColor(PlatformThreadInfo *inst,double zoom);
+    virtual std::vector<VectorStyleImplRef> allStyles(PlatformThreadInfo *inst) override;
+
+    virtual VectorStyleImplRef backgroundStyle(PlatformThreadInfo *inst) const override;
+
+    virtual RGBAColorRef backgroundColor(PlatformThreadInfo *inst,double zoom) override;
     
 protected:
     NSObject<MaplyRenderControllerProtocol> * __weak viewC;

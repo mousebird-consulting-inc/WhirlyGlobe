@@ -20,6 +20,7 @@
 
 #import "MapboxVectorStyleBackground.h"
 #import "WhirlyKitLog.h"
+#import "Tesselator.h"
 
 namespace WhirlyKit
 {
@@ -63,7 +64,50 @@ void MapboxVectorLayerBackground::buildObjects(PlatformThreadInfo *inst,
                                                std::vector<VectorObjectRef> &vecObjs,
                                                VectorTileDataRef tileInfo)
 {
-    // Nothing to build
+    ComponentObjectRef compObj = styleSet->makeComponentObject(inst);
+
+    const auto color = styleSet->backgroundColor(inst, tileInfo->ident.level);
+
+    std::vector<VectorRing> loops { VectorRing() };
+    tileInfo->geoBBox.asPoints(loops.back());
+    
+    VectorTrianglesRef trisRef = VectorTriangles::createTriangles();
+    TesselateLoops(loops, trisRef);
+    //trisRef->setAttrDict(ar->getAttrDict());
+    trisRef->initGeoMbr();
+    ShapeSet tessShapes { trisRef };
+                
+    VectorInfo vecInfo;
+    vecInfo.hasExp = true;
+    vecInfo.filled = true;
+    vecInfo.centered = true;
+    vecInfo.color = *color;
+    vecInfo.zoomSlot = styleSet->zoomSlot;
+    vecInfo.zBufferWrite = styleSet->tileStyleSettings->zBufferWrite;
+    vecInfo.zBufferRead = styleSet->tileStyleSettings->zBufferRead;
+    vecInfo.colorExp = paint.color->expression();
+    vecInfo.opacityExp = paint.opacity->expression();
+    vecInfo.programID = styleSet->vectorArealProgramID;
+    vecInfo.drawPriority = drawPriority + tileInfo->ident.level * std::max(0, styleSet->tileStyleSettings->drawPriorityPerLevel);
+    vecInfo.drawOrder = tileInfo->tileNumber();
+
+    if (minzoom != 0 || maxzoom < 1000) {
+        vecInfo.minZoomVis = minzoom;
+        vecInfo.maxZoomVis = maxzoom;
+    }
+
+    const SimpleIdentity vecID = styleSet->vecManage->addVectors(&tessShapes, vecInfo, tileInfo->changes);
+    if (vecID != EmptyIdentity) {
+        compObj->vectorIDs.insert(vecID);
+        
+        if (selectable)
+            compObj->vecObjs = vecObjs;
+    }
+    
+    if (!compObj->vectorIDs.empty()) {
+        styleSet->compManage->addComponentObject(compObj);
+        tileInfo->compObjs.push_back(compObj);
+    }
 }
 
 }
