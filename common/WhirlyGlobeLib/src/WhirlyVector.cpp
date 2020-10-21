@@ -268,12 +268,20 @@ void MbrD::expandByFraction(double bufferZone)
 }
 
 
+void MbrD::asPoints(Point2fVector &pts) const
+{
+    pts.push_back(Point2f(pt_ll.x(),pt_ll.y()));
+    pts.push_back(Point2f(pt_ur.x(),pt_ll.y()));
+    pts.push_back(Point2f(pt_ur.x(),pt_ur.y()));
+    pts.push_back(Point2f(pt_ll.x(),pt_ur.y()));
+}
+
 void MbrD::asPoints(Point2dVector &pts) const
 {
     pts.push_back(pt_ll);
+    pts.push_back(Point2d(pt_ur.x(),pt_ll.y()));
     pts.push_back(pt_ur);
-    pts.push_back(pt_ur);
-    pts.push_back(pt_ll);
+    pts.push_back(Point2d(pt_ll.x(),pt_ur.y()));
 }
 
 MbrD MbrD::intersect(const MbrD &that) const
