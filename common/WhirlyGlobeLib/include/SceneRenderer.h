@@ -120,18 +120,22 @@ public:
     
     // Sort by draw priority and zbuffer on or off
     typedef struct {
-        bool operator () (const DrawableRef a,const DrawableRef b) const {
-            if (a->getDrawOrder() == b->getDrawOrder()) {
-                if (a->getDrawPriority() == b->getDrawPriority()) {
-                    bool bufferA = a->getRequestZBuffer();
-                    bool bufferB = b->getRequestZBuffer();
-                    if (bufferA == bufferB)
-                        return a->getId() < b->getId();
-                    return !bufferA;
+        bool operator () (const DrawableRef &a,const DrawableRef &b) const {
+            const auto orderA = a->getDrawOrder();
+            const auto orderB = b->getDrawOrder();
+            if (orderA == orderB) {
+                const auto priorityA = a->getDrawPriority();
+                const auto priorityB = b->getDrawPriority();
+                if (priorityA == priorityB) {
+                    const bool bufferA = a->getRequestZBuffer();
+                    const bool bufferB = b->getRequestZBuffer();
+                    return (bufferA == bufferB) ? (a->getId() < b->getId()) : !bufferA;
                 }
-                return a->getDrawPriority() < b->getDrawPriority();
+                return priorityA < priorityB;
             }
-            return a->getDrawOrder() < b->getDrawOrder();
+            // TODO: put a comment here explaining why drawOrder is in descending order.
+            // The other way causes flashing of the background color, but why?
+            return orderB < orderA;
         }
     } PrioritySorter;
 
