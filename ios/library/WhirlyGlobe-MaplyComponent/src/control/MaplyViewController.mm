@@ -463,7 +463,9 @@ public:
     [super viewDidAppear:animated];
     
     // Let's kick off a view update in case the renderer just got set up
-    mapView->runViewUpdates();
+    if (mapView) {
+        mapView->runViewUpdates();
+    }
 }
 
 - (void)viewWillDisappear:(BOOL)animated
