@@ -75,6 +75,9 @@ public:
     /// Set the draw offset.  This is an integer offset from the base terrain.
     /// Geometry is moved upward by a certain number of units.
     virtual void setDrawOffset(float newOffset);
+
+    /// Draw order used for sorting
+    virtual int64_t getDrawOrder() const;
     
     /// Draw order user for sorting
     virtual void setDrawOrder(int64_t newOrder);

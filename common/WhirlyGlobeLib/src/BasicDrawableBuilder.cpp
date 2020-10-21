@@ -195,6 +195,11 @@ void BasicDrawableBuilder::setDrawOffset(float newOffset)
     basicDraw->drawOffset = newOffset;
 }
 
+int64_t BasicDrawableBuilder::getDrawOrder() const
+{
+    return basicDraw->drawOrder;
+}
+
 void BasicDrawableBuilder::setDrawOrder(int64_t newOrder)
 {
     basicDraw->drawOrder = newOrder;

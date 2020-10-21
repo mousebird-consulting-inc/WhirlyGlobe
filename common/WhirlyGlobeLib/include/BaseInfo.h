@@ -124,16 +124,15 @@ public:
     
     SingleVertexAttributeSet uniforms;
 
-    static const int64_t DrawOrderTiles = 0;
-    static const int64_t DrawOrderBeforeTiles = -1;
-    static const int64_t DrawOrderAfterTiles = 1;
-    
     // 2^48 = 0x1000000000000 = 281474976710656
     // This is enough to enumerate all the tiles in all levels 0 through 23 (inclusive), which has
     // a resolution of about 2cm/pixel.
     // There's room for 64K of these within drawOrder's 64 bits.
     static const int64_t DrawOrderTileBlock = 1LL << 48;
 
+    static const int64_t DrawOrderTiles = 0;
+    static const int64_t DrawOrderBeforeTiles = 1LL << 60;
+    static const int64_t DrawOrderAfterTiles = -1;
 };
 typedef std::shared_ptr<BaseInfo> BaseInfoRef;
 

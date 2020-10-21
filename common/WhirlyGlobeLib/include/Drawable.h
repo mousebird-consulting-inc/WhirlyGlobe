@@ -65,6 +65,8 @@ public:
 	Drawable(const std::string &name);
 	virtual ~Drawable();
 
+    virtual std::string const &getName() const { return name; }
+    
     /// We're allowed to turn drawables off completely
     virtual bool isOn(RendererFrameInfo *frameInfo) const = 0;
 

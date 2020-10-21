@@ -788,18 +788,15 @@ void LayoutManager::updateLayout(ViewStateRef viewState,ChangeSet &changes)
     if (hasUpdates || layoutChanges)
     {
         // Get rid of the last set of drawables
-        for (SimpleIDSet::iterator it = drawIDs.begin(); it != drawIDs.end(); ++it)
-            changes.push_back(new RemDrawableReq(*it));
+        for (const auto &it : drawIDs)
+            changes.push_back(new RemDrawableReq(it));
 //        NSLog(@"  Remove previous drawIDs = %lu",drawIDs.size());
         drawIDs.clear();
 
         // Generate the drawables
         ScreenSpaceBuilder ssBuild(renderer,coordAdapter,renderer->scale);
-        for (LayoutEntrySet::iterator it = layoutObjects.begin();
-             it != layoutObjects.end(); ++it)
+        for (const auto &layoutObj : layoutObjects)
         {
-            LayoutObjectEntry *layoutObj = *it;
-
             layoutObj->obj.offset = Point2d(layoutObj->offset.x(),layoutObj->offset.y());
             if (!layoutObj->currentEnable)
             {
@@ -841,12 +838,14 @@ void LayoutManager::updateLayout(ViewStateRef viewState,ChangeSet &changes)
                 animObj.worldLoc = oldCluster->layoutObj.worldLoc;
                 animObj.setEnableTime(curTime, curTime+params.markerAnimationTime);
                 animObj.state.progID = params.motionShaderID;
+                //animObj.setDrawOrder(?)
                 for (auto &geom : animObj.geometry)
                     geom.progID = params.motionShaderID;
                 ssBuild.addScreenObject(animObj);
                 
                 // And hold off on adding it
                 ScreenSpaceObject shortObj = layoutObj->obj;
+                //shortObj.setDrawOrder(?)
                 shortObj.setEnableTime(curTime+params.markerAnimationTime, 0.0);
                 ssBuild.addScreenObject(shortObj);
             } else {
@@ -864,7 +863,7 @@ void LayoutManager::updateLayout(ViewStateRef viewState,ChangeSet &changes)
 //        NSLog(@"Got %lu clusters",clusters.size());
         
         // Add in the clusters
-        for (auto &cluster : clusters)
+        for (const auto &cluster : clusters)
         {
             // Animate from the old cluster if there is one
             if (cluster.childOfCluster > -1)
@@ -876,7 +875,7 @@ void LayoutManager::updateLayout(ViewStateRef viewState,ChangeSet &changes)
                     wkLogLevel(Warn,"Cluster ID mismatch");
                     continue;
                 }
-                ClusterGenerator::ClusterClassParams &params = oldClusterParams[oldCluster->clusterParamID];
+                const auto &params = oldClusterParams[oldCluster->clusterParamID];
 
                 // Animate from the old cluster to the new one
                 ScreenSpaceObject animObj = cluster.layoutObj;
@@ -884,12 +883,14 @@ void LayoutManager::updateLayout(ViewStateRef viewState,ChangeSet &changes)
                 animObj.worldLoc = oldCluster->layoutObj.worldLoc;
                 animObj.setEnableTime(curTime, curTime+params.markerAnimationTime);
                 animObj.state.progID = params.motionShaderID;
+                //animObj.setDrawOrder(?)
                 for (auto &geom : animObj.geometry)
                     geom.progID = params.motionShaderID;
                 ssBuild.addScreenObject(animObj);
 
                 // Hold off on adding the new one
                 ScreenSpaceObject shortObj = cluster.layoutObj;
+                //shortObj.setDrawOrder(?)
                 shortObj.setEnableTime(curTime+params.markerAnimationTime, 0.0);
                 ssBuild.addScreenObject(shortObj);
                 

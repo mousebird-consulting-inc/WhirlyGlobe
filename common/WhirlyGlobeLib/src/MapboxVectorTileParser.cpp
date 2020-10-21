@@ -226,7 +226,7 @@ bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst,RawData *rawDat
                 cmd = -1;
                 length = 0;
                 
-                VectorObjectRef vecObj = VectorObjectRef(new VectorObject());
+                VectorObjectRef vecObj = std::make_shared<VectorObject>();
                 
                 try {
                     if(g_type == GeomTypeLineString) {
@@ -249,7 +249,7 @@ bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst,RawData *rawDat
                                     y += (static_cast<double>(dy) / scale);
                                     //At this point x/y is a coord encoded in tile coord space, from 0 to TILE_SIZE
                                     //Convert to epsg:3785, then to degrees, then to radians
-                                    Point2d loc((tileOriginX + x / sx),(tileOriginY - y / sy));
+                                    const Point2d loc((tileOriginX + x / sx),(tileOriginY - y / sy));
                                     if (localCoords) {
                                         point = loc;
                                     } else {
@@ -310,7 +310,7 @@ bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst,RawData *rawDat
                                     y += (static_cast<double>(dy) / scale);
                                     //At this point x/y is a coord is encoded in tile coord space, from 0 to TILE_SIZE
                                     //Convert to epsg:3785, then to degrees, then to radians
-                                    Point2d loc((tileOriginX + x / sx),(tileOriginY - y / sy));
+                                    const Point2d loc((tileOriginX + x / sx),(tileOriginY - y / sy));
                                     if (localCoords) {
                                         point = loc;
                                     } else {

@@ -149,7 +149,7 @@ public:
         
         // Decide if we'll appending to an existing drawable or
         //  create a new one
-        int ptCount = (int)(2*(pts.size()+1));
+        const int ptCount = (int)(2*(pts.size()+1));
         if (!drawable || (drawable->getNumPoints()+ptCount > MaxDrawablePoints))
         {
             // We're done with it, toss it to the scene
@@ -274,7 +274,8 @@ class VectorDrawableBuilderTri
 public:
     VectorDrawableBuilderTri(Scene *scene,SceneRenderer *sceneRender,ChangeSet &changeRequests,VectorSceneRep *sceneRep,
                              const VectorInfo *vecInfo,bool doColor)
-    : changeRequests(changeRequests), scene(scene), sceneRender(sceneRender), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL), centerValid(false), center(0,0,0), doColor(doColor), geoCenter(0,0)
+    : changeRequests(changeRequests), scene(scene), sceneRender(sceneRender), sceneRep(sceneRep),
+      vecInfo(vecInfo), drawable(NULL), centerValid(false), center(0,0,0), doColor(doColor), geoCenter(0,0)
     {
     }
     
@@ -382,7 +383,7 @@ public:
                 if (vecInfo->texId != EmptyIdentity)
                     drawable->setTexId(0, vecInfo->texId);
             }
-            int baseVert = drawable->getNumPoints();
+            const int baseVert = drawable->getNumPoints();
             drawMbr.addPoints(pts);
             
             bool doTexCoords = vecInfo->texId != EmptyIdentity;
@@ -607,12 +608,10 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, const VectorInfo &vec
     VectorDrawableBuilderTri drawBuildTri(scene,renderer,changes,sceneRep,&vecInfo,doColors);
     if (centerValid)
         drawBuildTri.setCenter(center,geoCenter);
-        
-    for (ShapeSet::iterator it = shapes->begin();
-         it != shapes->end(); ++it)
+
+    for (auto const &it : *shapes)
     {
-        VectorArealRef theAreal = std::dynamic_pointer_cast<VectorAreal>(*it);
-        if (theAreal.get())
+        if (const auto theAreal = std::dynamic_pointer_cast<VectorAreal>(it))
         {
 //            std::string tileID = (*it)->getAttrDict()->getString("tile");
 //            GeoMbr mbr = theAreal->calcGeoMbr();
@@ -638,8 +637,7 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, const VectorInfo &vec
                 }
             }
         } else {
-            VectorLinearRef theLinear = std::dynamic_pointer_cast<VectorLinear>(*it);
-            if (theLinear.get())
+            if (const auto theLinear = std::dynamic_pointer_cast<VectorLinear>(it))
             {
                 if (vecInfo.filled)
                 {
@@ -655,8 +653,7 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, const VectorInfo &vec
                         drawBuild.addPoints(theLinear->pts,false,theLinear->getAttrDict());
                 }
             } else {
-                VectorLinear3dRef theLinear3d = std::dynamic_pointer_cast<VectorLinear3d>(*it);
-                if (theLinear3d.get())
+                if (const auto theLinear3d = std::dynamic_pointer_cast<VectorLinear3d>(it))
                 {
                     if (vecInfo.filled)
                     {
@@ -672,8 +669,7 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, const VectorInfo &vec
                             drawBuild.addPoints(theLinear3d->pts,false,theLinear3d->getAttrDict());
                     }
                 } else {
-                    VectorTrianglesRef theMesh = std::dynamic_pointer_cast<VectorTriangles>(*it);
-                    if (theMesh.get())
+                    if (const auto theMesh = std::dynamic_pointer_cast<VectorTriangles>(it))
                     {
                         if (vecInfo.filled)
                             drawBuildTri.addPoints(theMesh,theMesh->getAttrDict());
@@ -713,17 +709,16 @@ SimpleIdentity VectorManager::instanceVectors(SimpleIdentity vecID,const VectorI
 
     // Look for the representation
     VectorSceneRep dummyRep(vecID);
-    VectorSceneRepSet::iterator it = vectorReps.find(&dummyRep);
+    const auto it = vectorReps.find(&dummyRep);
     if (it != vectorReps.end())
     {
         VectorSceneRep *sceneRep = *it;
         VectorSceneRep *newSceneRep = new VectorSceneRep();
-        for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
-             idIt != sceneRep->drawIDs.end(); ++idIt)
+        for (const auto &idIt : sceneRep->drawIDs)
         {
             // Make up a BasicDrawableInstance
             BasicDrawableInstanceBuilderRef drawInst = renderer->makeBasicDrawableInstanceBuilder("VectorManager");
-            drawInst->setMasterID(*idIt,BasicDrawableInstance::ReuseStyle);
+            drawInst->setMasterID(idIt,BasicDrawableInstance::ReuseStyle);
             
             // Changed color
             drawInst->setColor(vecInfo.color);
@@ -739,6 +734,9 @@ SimpleIdentity VectorManager::instanceVectors(SimpleIdentity vecID,const VectorI
             
             // Changed draw priority
             drawInst->setDrawPriority(vecInfo.drawPriority);
+            
+            // Changed draw order (is that possible?)
+            drawInst->setDrawOrder(vecInfo.drawOrder);
 
             newSceneRep->instIDs.insert(drawInst->getDrawableID());
             changes.push_back(new AddDrawableReq(drawInst->getDrawable()));
@@ -778,6 +776,9 @@ void VectorManager::changeVectors(SimpleIdentity vecID,const VectorInfo &vecInfo
             
             // Changed draw priority
             changes.push_back(new DrawPriorityChangeRequest(*idIt, vecInfo.drawPriority));
+            
+            // Changed draw order
+            changes.push_back(new DrawOrderChangeRequest(*idIt, vecInfo.drawOrder));
         }
     }
 }

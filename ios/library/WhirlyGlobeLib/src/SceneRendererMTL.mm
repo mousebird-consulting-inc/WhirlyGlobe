@@ -975,7 +975,6 @@ RenderTargetMTLRef SceneRendererMTL::getRenderTarget(SimpleIdentity renderTarget
     if (renderTargetID == EmptyIdentity) {
         return std::dynamic_pointer_cast<RenderTargetMTL>(renderTargets.back());
     } else {
-        // TODO: improve on linear search?
         for (auto target : renderTargets) {
             if (target->getId() == renderTargetID) {
                 return std::dynamic_pointer_cast<RenderTargetMTL>(target);

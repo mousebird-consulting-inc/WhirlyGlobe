@@ -64,16 +64,20 @@ void MapboxVectorLayerBackground::buildObjects(PlatformThreadInfo *inst,
                                                std::vector<VectorObjectRef> &vecObjs,
                                                VectorTileDataRef tileInfo)
 {
-    ComponentObjectRef compObj = styleSet->makeComponentObject(inst);
-
-    const auto color = styleSet->backgroundColor(inst, tileInfo->ident.level);
-
+    //const auto color = styleSet->backgroundColor(inst, tileInfo->ident.level);
+    const auto color = std::make_shared<RGBAColor>(255, 0, 255, 255);
+    
     std::vector<VectorRing> loops { VectorRing() };
     tileInfo->geoBBox.asPoints(loops.back());
     
     VectorTrianglesRef trisRef = VectorTriangles::createTriangles();
     TesselateLoops(loops, trisRef);
     //trisRef->setAttrDict(ar->getAttrDict());
+    auto d = MutableDictionaryMake();
+    d->setString("layer_name", "background");
+    d->setInt("layer_order", 1);
+    d->setInt("geometry_type", 3);
+    trisRef->setAttrDict(d);
     trisRef->initGeoMbr();
     ShapeSet tessShapes { trisRef };
                 
@@ -96,15 +100,13 @@ void MapboxVectorLayerBackground::buildObjects(PlatformThreadInfo *inst,
         vecInfo.maxZoomVis = maxzoom;
     }
 
-    const SimpleIdentity vecID = styleSet->vecManage->addVectors(&tessShapes, vecInfo, tileInfo->changes);
-    if (vecID != EmptyIdentity) {
+    if (const auto vecID = styleSet->vecManage->addVectors(&tessShapes, vecInfo, tileInfo->changes)) {
+        const auto compObj = styleSet->makeComponentObject(inst);
         compObj->vectorIDs.insert(vecID);
         
         if (selectable)
             compObj->vecObjs = vecObjs;
-    }
-    
-    if (!compObj->vectorIDs.empty()) {
+        
         styleSet->compManage->addComponentObject(compObj);
         tileInfo->compObjs.push_back(compObj);
     }
