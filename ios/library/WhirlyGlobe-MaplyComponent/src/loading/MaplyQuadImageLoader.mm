@@ -320,7 +320,6 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
     _drawPriorityPerLevel = 1;
     _color = [UIColor whiteColor];
     _imageFormat = MaplyImageIntRGBA;
-    _borderTexel = 0;
     
     // Start things out after a delay
     // This lets the caller mess with settings
@@ -436,6 +435,14 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
         return;
     
     loader->setRenderTarget(0,[renderTarget renderTargetID]);
+}
+
+- (void)setTextureSize:(int)texSize borderSize:(int)borderSize
+{
+    if (!loader)
+        return;
+    
+    loader->setTexSize(texSize, borderSize);
 }
 
 - (void)setColor:(UIColor *)newColor
