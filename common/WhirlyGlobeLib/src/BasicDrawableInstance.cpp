@@ -254,6 +254,8 @@ void BasicDrawableInstance::setStartTime(TimeInterval inStartTime)
 void BasicDrawableInstance::setUniforms(const SingleVertexAttributeSet &newUniforms)
 {
     uniforms = newUniforms;
+    
+    setValuesChanged();
 }
     
 void BasicDrawableInstance::setUniBlock(const BasicDrawable::UniformBlock &uniBlock)
