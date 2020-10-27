@@ -205,35 +205,33 @@ public class MapboxKindaMap {
             styleSheet.sources.forEach {
                 let source = $0 as! MaplyMapboxVectorStyleSource
                 if source.tileSpec == nil && success {
-                    guard let urlStr = source.url,
-                        let origURL = URL(string: urlStr) else {
-                        print("Expecting either URL or tile info for a source.  Giving up.")
-                        success = false
-                        self.stop()
-                        return
-                    }
-                    let url = self.cacheResolve(self.fileOverride(origURL))
-                    
-                    // Go fetch the TileJSON
-                    let dataTask = URLSession.shared.dataTask(with: self.makeURLRequest(url)) { (data, resp, error) in
-                        guard error == nil else {
-                            print("Error trying to fetch tileJson from \(urlStr)")
-                            self.stop()
-                            return
-                        }
+                    if let urlStr = source.url,
+                        let origURL = URL(string: urlStr) {
+                        let url = self.cacheResolve(self.fileOverride(origURL))
                         
-                        if let data = data,
-                            let resp = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
-                            source.tileSpec = resp
-                            self.cacheFile(origURL, data: data)
+                        // Go fetch the TileJSON
+                        let dataTask = URLSession.shared.dataTask(with: self.makeURLRequest(url)) { (data, resp, error) in
+                            guard error == nil else {
+                                print("Error trying to fetch tileJson from \(urlStr)")
+                                self.stop()
+                                return
+                            }
+                            
+                            if let data = data,
+                                let resp = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
+                                source.tileSpec = resp
+                                self.cacheFile(origURL, data: data)
 
-                            DispatchQueue.main.async {
-                                self.checkFinished()
+                                DispatchQueue.main.async {
+                                    self.checkFinished()
+                                }
                             }
                         }
+                        self.outstandingFetches.append(dataTask)
+                        dataTask.resume()
+                    } else {
+                        print("Expecting either URL or tile info for a source.  Skipping this source.")
                     }
-                    self.outstandingFetches.append(dataTask)
-                    dataTask.resume()
                 }
             }
         }
