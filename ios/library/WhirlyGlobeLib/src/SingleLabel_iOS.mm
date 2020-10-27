@@ -47,6 +47,10 @@ std::vector<DrawableString *> SingleLabel_iOS::generateDrawableStrings(PlatformT
     NSArray *strings = [text componentsSeparatedByString:@"\n"];
     std::vector<DrawableString *> drawStrs;
 
+    if (!fontTexManager) {
+        return drawStrs;
+    }
+
     // May need the line height for multi-line labels
     lineHeight = labelInfo->font.lineHeight;
     if (labelInfo->lineHeight > 0.0)
