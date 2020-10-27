@@ -265,12 +265,17 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     loader->setRenderTarget(focusID, renderTarget.renderTargetID);
 }
 
-- (void)setFocus:(int)focusID shader:(MaplyShader * __nullable)shader
+- (void)setFocus:(int)focusID shader:(MaplyShader *)shader
 {
     if (!loader)
         return;
     
     loader->setShaderID(focusID,[shader getShaderID]);
+}
+
+- (void)changeTileInfos:(NSArray<MaplyTileInfoNew> *)tileInfos
+{
+    [super changeTileInfos:tileInfos];
 }
 
 - (void)shutdown

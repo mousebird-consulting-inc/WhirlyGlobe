@@ -175,6 +175,14 @@ typedef NS_ENUM(NSInteger, MaplyLoadFrameMode) {
   */
 - (MaplyQuadImageFrameLoaderStats * __nonnull)getFrameStats;
 
+/**
+   Change the tile sources and reload all the data.
+   <br>
+   You can change the tile source data is being loaded from.  This will
+   force a reload and everything visual should change as the data comes in.
+  */
+- (void)changeTileInfos:(NSArray<MaplyTileInfoNew> * __nullable)tileInfo;
+
 /** Turn off the image loader and shut things down.
  This unregisters us with the sampling layer and shuts down the various objects we created.
  */
