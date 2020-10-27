@@ -317,7 +317,9 @@ id<MTLHeap> HeapManagerMTL::findHeap(HeapType heapType,size_t &size)
     // TODO: Don't need this for most things
     heapDesc.storageMode = MTLStorageModeShared;
     id<MTLHeap> newHeap = [mtlDevice newHeapWithDescriptor:heapDesc];
-    heapGroup.heaps.push_back(newHeap);
+    if (newHeap) {
+        heapGroup.heaps.push_back(newHeap);
+    }
     
     return newHeap;
 }
@@ -341,7 +343,9 @@ id<MTLHeap> HeapManagerMTL::findTextureHeap(MTLTextureDescriptor *desc,size_t si
     // TODO: Don't need this for most things
     heapDesc.storageMode = MTLStorageModeShared;
     id<MTLHeap> newHeap = [mtlDevice newHeapWithDescriptor:heapDesc];
-    texGroups.heaps.push_back(newHeap);
+    if (newHeap) {
+        texGroups.heaps.push_back(newHeap);
+    }
     
     return newHeap;
 }
@@ -353,7 +357,9 @@ BufferEntryMTL HeapManagerMTL::allocateBuffer(HeapType heapType,size_t size)
         buffer.heap = findHeap(heapType,size);
         buffer.buffer = [buffer.heap newBufferWithLength:size options:MTLResourceStorageModeShared];
         if (!buffer.buffer) {
-            NSLog(@"Uh oh!  Ran out of buffer space");
+            NSLog(@"Uh oh!  Ran out of buffer space [heap type %d, alloc %zu]", heapType, size);
+            buffer.valid = false;
+            return buffer;
         }
         buffer.offset = 0;
     } else {
@@ -373,9 +379,13 @@ BufferEntryMTL HeapManagerMTL::allocateBuffer(HeapType heapType,const void *data
         buffer.heap = findHeap(heapType,size);
         buffer.buffer = [buffer.heap newBufferWithLength:size options:MTLResourceStorageModeShared];
         if (!buffer.buffer) {
-            NSLog(@"Uh oh!  Ran out of buffer space");
+            NSLog(@"Uh oh!  Ran out of buffer space [heap type %d, alloc %zu]", heapType, size);
+            buffer.valid = false;
+            return buffer;
         }
-        memcpy([buffer.buffer contents], data, size);
+        if (data && size) {
+            memcpy([buffer.buffer contents], data, size);
+        }
         buffer.offset = 0;
     } else {
         buffer.heap = nil;
