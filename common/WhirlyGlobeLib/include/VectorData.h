@@ -97,7 +97,7 @@ struct VectorShapeRefEqual : std::equal_to<VectorShape*>
 struct VectorShapeRefHash : std::hash<VectorShape*>
 {
     typedef std::hash<VectorShape*> super;
-    bool operator()(const VectorShapeRef &s) {
+    bool operator()(const VectorShapeRef &s) const {
         return super::operator()(s.get());
     }
 };
