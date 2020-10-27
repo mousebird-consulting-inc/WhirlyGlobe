@@ -258,7 +258,6 @@ public:
         bool enabled; // Set it on or off
         // Node we're using a texture from (could be this one)
         QuadTreeNew::Node texNode;
-        int texSize;           // Size of the texture along one side (both sides are the same)
         std::vector<SimpleIdentity> texIDs;
     };
     
@@ -278,6 +277,8 @@ public:
     QIFRenderState(int numFocus,int numFrames);
     
     std::map<QuadTreeNew::Node,QIFTileStateRef> tiles;
+
+    int texSize,borderSize;
     
     // Number of tiles loaded for each frame
     std::vector<int> tilesLoaded;
@@ -376,6 +377,9 @@ public:
 
     /// In-memory texture type
     void setTexType(TextureType texType);
+    
+    /// If we're using border pixels, set the individual texture size and border size
+    void setTexSize(int texSize,int borderSize);
     
     /// Control draw priority assigned to basic drawable instances
     void setBaseDrawPriority(int newPrior);
@@ -539,6 +543,7 @@ protected:
     bool requiringTopTilesLoaded;
     
     TextureType texType;
+    int texSize,borderSize;
 
     // Number of focus points (1 by default)
     int numFocus;

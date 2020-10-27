@@ -27,6 +27,7 @@
 #import "MaplyRenderTarget_private.h"
 #import "MaplyRenderController_private.h"
 #import "MaplyQuadSampler_private.h"
+#import "lodepng.h"
 
 using namespace WhirlyKit;
 
@@ -199,6 +200,51 @@ using namespace WhirlyKit;
 
 @end
 
+@implementation MaplyRawPNGImageLoaderInterpreter
+
+- (void)dataForTile:(MaplyImageLoaderReturn *)loadReturn loader:(MaplyQuadLoaderBase *)loader
+{
+    NSArray<id> *tileData = [loadReturn getTileData];
+    for (unsigned int ii=0;ii<[tileData count];ii++) {
+        NSData *inData = [tileData objectAtIndex:ii];
+        if (![inData isKindOfClass:[NSData class]])
+            continue;
+        
+        unsigned char *outData = NULL;
+        unsigned int width,height;
+        
+        unsigned int err = 0;
+        int byteWidth = -1;
+        try {
+            LodePNGState pngState;
+            lodepng_state_init(&pngState);
+            err = lodepng_inspect(&width, &height, &pngState, (const unsigned char *)[inData bytes], [inData length]);
+            if (pngState.info_png.color.colortype == LCT_GREY) {
+                byteWidth = 1;
+                err = lodepng_decode_memory(&outData, &width, &height, (const unsigned char *)[inData bytes], [inData length], LCT_GREY, 8);
+            } else {
+                byteWidth = 4;
+                err = lodepng_decode_memory(&outData, &width, &height, (const unsigned char *)[inData bytes], [inData length], LCT_RGBA, 8);
+            }
+        }
+        catch (...) {
+            err = -1;
+        }
+        
+        if (err != 0) {
+            NSLog(@"Failed to read PNG in MaplyRawPNGImageLoaderInterpreter for tile %d: (%d,%d) frame = %d",loadReturn.tileID.level,loadReturn.tileID.x,loadReturn.tileID.y,loadReturn.frame);
+        } else {
+            NSData *retData = [[NSData alloc] initWithBytesNoCopy:outData length:width*height*byteWidth freeWhenDone:YES];
+
+            // Build a wrapper around the data and pass it on
+            MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRawImage:retData width:width height:height components:byteWidth viewC:loader.viewC];
+            loadReturn->loadReturn->images.push_back(tileData->imageTile);
+        }
+    }
+}
+
+@end
+
 @implementation MaplyDebugImageLoaderInterpreter
 {
     NSObject<MaplyRenderControllerProtocol> * __weak viewC;
@@ -274,7 +320,6 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
     _drawPriorityPerLevel = 1;
     _color = [UIColor whiteColor];
     _imageFormat = MaplyImageIntRGBA;
-    _borderTexel = 0;
     
     // Start things out after a delay
     // This lets the caller mess with settings
@@ -390,6 +435,14 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
         return;
     
     loader->setRenderTarget(0,[renderTarget renderTargetID]);
+}
+
+- (void)setTextureSize:(int)texSize borderSize:(int)borderSize
+{
+    if (!loader)
+        return;
+    
+    loader->setTexSize(texSize, borderSize);
 }
 
 - (void)setColor:(UIColor *)newColor

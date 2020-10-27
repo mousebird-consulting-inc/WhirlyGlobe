@@ -203,7 +203,7 @@ bool QuadDisplayControllerNew::viewUpdate(PlatformThreadInfo *threadInfo,ViewSta
         for (auto node : newNodes)
             targetLevel = std::max(targetLevel,node.level);
     }
-    double maxRatio = targetLevel >= maxRejectedImport.size() ? 0.0 : maxRejectedImport[targetLevel+1];
+    double maxRatio = targetLevel >= maxLevel ? 0.0 : maxRejectedImport[targetLevel+1];
 
 //    wkLogLevel(Debug,"Selected level %d for %d nodes",targetLevel,(int)newNodes.size());
 //    for (auto node: newNodes) {

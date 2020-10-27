@@ -517,10 +517,11 @@ QIFTileState::FrameInfo::FrameInfo()
 { }
 
 QIFRenderState::QIFRenderState()
-: lastUpdate(0.0), lastRenderTime(0.0)
+: lastUpdate(0.0), lastRenderTime(0.0), texSize(0), borderSize(0)
 { }
 
 QIFRenderState::QIFRenderState(int numFocus,int numFrames)
+: texSize(0), borderSize(0)
 {
     lastCurFrames.resize(numFocus,-1.0);
     lastUpdate = 0.0;
@@ -634,9 +635,9 @@ void QIFRenderState::updateScene(Scene *scene,
                             // Note: In this case we just use the first texture
                             //       We're assuming that each frame has only one texture
                             if (frame.texIDs.empty())
-                                changes.push_back(new DrawTexChangeRequest(drawID,ii,EmptyIdentity,0,0,relLevel,relX,relY));
+                                changes.push_back(new DrawTexChangeRequest(drawID,ii,EmptyIdentity,texSize,borderSize,relLevel,relX,relY));
                             else
-                                changes.push_back(new DrawTexChangeRequest(drawID,ii,frame.texIDs[0],0,0,relLevel,relX,relY));
+                                changes.push_back(new DrawTexChangeRequest(drawID,ii,frame.texIDs[0],texSize,borderSize,relLevel,relX,relY));
                         //                        NSLog(@"tile %d: (%d,%d), frame = %d getting texNode %d: (%d,%d texID = %d)",tileID.level,tileID.x,tileID.y,ii,frame.texNode.level,frame.texNode.x,frame.texNode.y,frame.texID);
                         }
                     } else {
@@ -685,7 +686,7 @@ QuadImageFrameLoader::QuadImageFrameLoader(const SamplingParams &params,Mode mod
 : mode(mode), loadMode(Narrow), debugMode(false),
     params(params),
     requiringTopTilesLoaded(true),
-    texType(TexTypeUnsignedByte), flipY(true),
+    texType(TexTypeUnsignedByte), texSize(0), borderSize(0), flipY(true),
     baseDrawPriority(100), drawPriorityPerLevel(1),
     colorChanged(false),
     color(RGBAColor(255,255,255,255)),
@@ -874,6 +875,12 @@ BasicDrawable::UniformBlock &QuadImageFrameLoader::getUniBlock()
 void QuadImageFrameLoader::setTexType(TextureType inTexType)
 {
     texType = inTexType;
+}
+
+void QuadImageFrameLoader::setTexSize(int inTexSize,int inBorderSize)
+{
+    texSize = inTexSize;
+    borderSize = inBorderSize;
 }
     
 void QuadImageFrameLoader::setBaseDrawPriority(int newPrior)
@@ -1170,7 +1177,7 @@ void QuadImageFrameLoader::updateRenderState(ChangeSet &changes)
                         changes.push_back(new DrawPriorityChangeRequest(drawID,newDrawPriority));
                         int texIDCount = 0;
                         for (auto texID : texIDs) {
-                            changes.push_back(new DrawTexChangeRequest(drawID,texIDCount,texID,0,0,relLevel,relX,relY));
+                            changes.push_back(new DrawTexChangeRequest(drawID,texIDCount,texID,texSize,borderSize,relLevel,relX,relY));
                             texIDCount++;
                         }
                     }
@@ -1194,6 +1201,8 @@ void QuadImageFrameLoader::buildRenderState(ChangeSet &changes)
 {
     int numFrames = getNumFrames();
     QIFRenderState newRenderState(numFocus,numFrames);
+    newRenderState.texSize = texSize;
+    newRenderState.borderSize = borderSize;
     for (int frameID=0;frameID<numFrames;frameID++)
         newRenderState.topTilesLoaded[frameID] = true;
         

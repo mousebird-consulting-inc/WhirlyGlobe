@@ -25,7 +25,7 @@ namespace WhirlyKit
 {
 
 RenderTargetMTL::RenderTargetMTL()
-    : pixelFormat(MTLPixelFormatBGRA8Unorm)
+    : pixelFormat(MTLPixelFormatBGRA8Unorm), renderPassDescSetFromOutside(false)
 {
     clearOnce = true;
 }

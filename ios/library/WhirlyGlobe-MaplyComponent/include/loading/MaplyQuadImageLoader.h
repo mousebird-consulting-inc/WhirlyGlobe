@@ -101,6 +101,13 @@
 
 @end
 
+/**
+ This loader interpreter treats input image data objects as PNGs containing raw data.
+ The difference is we'll use a direct PNG reader to tease it out, rather than UIImage.
+ */
+@interface MaplyRawPNGImageLoaderInterpreter : MaplyImageLoaderInterpreter
+@end
+
 /// Name of the shared MaplyRemoteTileFetcher
 extern NSString * _Nonnull const MaplyQuadImageLoaderFetcherName;
 
@@ -146,6 +153,14 @@ extern NSString * _Nonnull const MaplyQuadImageLoaderFetcherName;
 - (void)setRenderTarget:(MaplyRenderTarget *__nonnull)renderTarget;
 
 /**
+ In special cases we may have tiles that already have borders baked in.  In that case, call this
+ method to set both the total textures size and the number of border pixels around the outside.
+ 
+ By default this functionality is off.
+ */
+- (void)setTextureSize:(int)texSize borderSize:(int)borderSize;
+
+/**
  Set the image format for internal imagery storage.
  
  OpenGL ES offers us several image formats that are more efficient than 32 bit RGBA, but they're not always appropriate.  This property lets you choose one of them.  The 16 or 8 bit ones can save a huge amount of space and will work well for some imagery, most maps, and a lot of weather overlays.
@@ -166,15 +181,6 @@ extern NSString * _Nonnull const MaplyQuadImageLoaderFetcherName;
  | MaplyImage4Layer8Bit | 32 bits, four channels of 8 bits each.  Just like MaplyImageIntRGBA, but a warning not to do anything too clever in sampling. |
  */
 @property (nonatomic) MaplyQuadImageFormat imageFormat;
-
-/**
- Number of border texels to set up around image tiles.
- 
- For matching image tiles along borders in 3D (probably the globe) we resample the image slightly smaller than we get and make up a boundary around the outside.  This number controls that border size.
- 
- By default this is 1.  It's safe to set it to 0 for 2D maps and some overlays.
- */
-@property (nonatomic) int borderTexel;
 
 @end
 
