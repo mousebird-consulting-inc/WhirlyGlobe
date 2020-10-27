@@ -111,7 +111,7 @@ public class MapboxKindaMap {
     public var spriteJSON: Data?
     public var spritePNG: UIImage?
     public var localMBTiles = [String]()
-    
+        
     // Information about the sources as we fetch them
     public var outstandingFetches: [URLSessionDataTask?] = []
     private var finished = false
@@ -131,7 +131,7 @@ public class MapboxKindaMap {
             
             // If any of the oustanding fetches are running, don't start
             self.outstandingFetches.forEach {
-                if $0?.state == .running {
+                if $0 != nil {
                     done = false
                 }
             }
@@ -210,6 +210,7 @@ public class MapboxKindaMap {
                         let url = self.cacheResolve(self.fileOverride(origURL))
                         
                         // Go fetch the TileJSON
+                        let fetchIdx = self.outstandingFetches.count
                         let dataTask = URLSession.shared.dataTask(with: self.makeURLRequest(url)) { (data, resp, error) in
                             guard error == nil else {
                                 print("Error trying to fetch tileJson from \(urlStr)")
@@ -223,6 +224,7 @@ public class MapboxKindaMap {
                                 self.cacheFile(origURL, data: data)
 
                                 DispatchQueue.main.async {
+                                    self.outstandingFetches[fetchIdx] = nil
                                     self.checkFinished()
                                 }
                             }
@@ -240,8 +242,9 @@ public class MapboxKindaMap {
         if let spriteURLStr = styleSheet.spriteURL,
             var spriteJSONurl = URL(string: spriteURLStr.appending("@2x.json")),
             var spritePNGurl = URL(string: spriteURLStr.appending("@2x.png")) {
-                            spriteJSONurl = self.fileOverride(spriteJSONurl)
-                            spritePNGurl = self.fileOverride(spritePNGurl)
+                spriteJSONurl = self.fileOverride(spriteJSONurl)
+                spritePNGurl = self.fileOverride(spritePNGurl)
+                let fetchIdx1 = self.outstandingFetches.count
                 let dataTask1 = URLSession.shared.dataTask(with: self.makeURLRequest(self.cacheResolve(self.fileOverride(spriteJSONurl)))) { (data, _, error) in
                     guard error == nil else {
                         print("Failed to fetch spriteJSON from \(spriteURLStr)")
@@ -256,12 +259,14 @@ public class MapboxKindaMap {
                     }
 
                     DispatchQueue.main.async {
+                        self.outstandingFetches[fetchIdx1] = nil
                         self.checkFinished()
                     }
                 }
                 self.outstandingFetches.append(dataTask1)
                 dataTask1.resume()
-            let dataTask2 = URLSession.shared.dataTask(with: self.makeURLRequest(self.cacheResolve(self.fileOverride(spritePNGurl)))) { (data, _, error) in
+                let fetchIdx2 = self.outstandingFetches.count
+                let dataTask2 = URLSession.shared.dataTask(with: self.makeURLRequest(self.cacheResolve(self.fileOverride(spritePNGurl)))) { (data, _, error) in
                     guard error == nil else {
                         print("Failed to fetch spritePNG from \(spriteURLStr)")
                         self.stop()
@@ -274,6 +279,7 @@ public class MapboxKindaMap {
                     }
 
                     DispatchQueue.main.async {
+                        self.outstandingFetches[fetchIdx2] = nil
                         self.checkFinished()
                     }
                 }
@@ -314,6 +320,7 @@ public class MapboxKindaMap {
             styleURL = cacheResolve(styleURL)
             
             // Go get the style sheet (this will also handle local
+            let fetchIdx = self.outstandingFetches.count
             let dataTask = URLSession.shared.dataTask(with: self.makeURLRequest(styleURL)) { (data, _, error) in
                 guard error == nil, let data = data else {
                     print("Error fetching style sheet:\n\(String(describing: error))")
@@ -323,6 +330,7 @@ public class MapboxKindaMap {
                 }
                 
                 DispatchQueue.main.async {
+                    self.outstandingFetches[fetchIdx] = nil
                     guard let styleSheet = MapboxVectorStyleSet(json: data,
                                                           settings: self.styleSettings,
                                                             viewC: viewC) else {
