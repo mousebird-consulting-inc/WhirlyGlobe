@@ -108,7 +108,9 @@ class MapTilerTestCase: MaplyTestCase {
     override func setUpWithMap(_ mapVC: MaplyViewController) {
         mapVC.performanceOutput = true
         
-        startMap(styles[MapTilerStyle], viewC: mapVC, round: false)
+        let env = ProcessInfo.processInfo.environment
+        let styleIdx = NumberFormatter().number(from: env["MAPTILER_STYLE"] ?? "")?.intValue ?? MapTilerStyle
+        startMap(styles[styleIdx], viewC: mapVC, round: false)
         
         mapVC.rotateGestureThreshold = 15;
     }
