@@ -118,7 +118,7 @@ public:
     void addScreenObject(const ScreenSpaceObject &screenObject);
     
     /// Return the drawables constructed.  Caller responsible for deletion.
-    void buildDrawables(std::vector<BasicDrawable *> &draws);
+    void buildDrawables(std::vector<BasicDrawableRef> &draws);
     
     /// Build drawables and add them to the change list
     void flushChanges(ChangeSet &changes,SimpleIDSet &drawIDs);

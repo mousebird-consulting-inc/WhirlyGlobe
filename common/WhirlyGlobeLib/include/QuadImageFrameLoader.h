@@ -587,7 +587,7 @@ protected:
     int curOvlLevel;
     
     // If set, used to signal when we're done to a RunRequest in process
-    bool *lastRunReqFlag;
+    std::shared_ptr<bool> lastRunReqFlag;
     
     // True if we're trying to load something, false if we're not
     bool loadingStatus;

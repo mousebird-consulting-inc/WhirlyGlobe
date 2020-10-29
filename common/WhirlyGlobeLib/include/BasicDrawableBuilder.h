@@ -217,7 +217,7 @@ public:
         
     /// Constructs the remaining pieces of the drawable and returns it
     /// Caller is responsible for deletion
-    virtual BasicDrawable *getDrawable() = 0;
+    virtual BasicDrawableRef getDrawable() = 0;
     
     /// Return just the ID of the drawable being created.
     /// This avoids flushing things out
@@ -242,7 +242,7 @@ public:
     virtual void setupStandardAttributes(int numReserve=0);
     
     // The basic drawable we're building up
-    BasicDrawable *basicDraw;
+    BasicDrawableRef basicDraw;
 
     // Unprocessed data arrays
     std::vector<Eigen::Vector3f> points;

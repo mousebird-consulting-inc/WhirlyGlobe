@@ -390,7 +390,7 @@ void ScreenSpaceBuilder::addScreenObject(const ScreenSpaceObject &ssObj)
     }
 }
     
-void ScreenSpaceBuilder::buildDrawables(std::vector<BasicDrawable *> &draws)
+void ScreenSpaceBuilder::buildDrawables(std::vector<BasicDrawableRef> &draws)
 {
     for (auto it : fullDrawables)
     {
@@ -407,11 +407,11 @@ void ScreenSpaceBuilder::buildDrawables(std::vector<BasicDrawable *> &draws)
     
 void ScreenSpaceBuilder::flushChanges(ChangeSet &changes,SimpleIDSet &drawIDs)
 {
-    std::vector<BasicDrawable *> draws;
+    std::vector<BasicDrawableRef> draws;
     buildDrawables(draws);
     for (unsigned int ii=0;ii<draws.size();ii++)
     {
-        BasicDrawable *draw = draws[ii];
+        BasicDrawableRef draw = draws[ii];
         drawIDs.insert(draw->getId());
         changes.push_back(new AddDrawableReq(draw));
     }

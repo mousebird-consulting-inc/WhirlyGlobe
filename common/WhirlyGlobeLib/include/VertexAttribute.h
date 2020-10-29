@@ -110,6 +110,7 @@ public:
     /// std::vector of attribute data.  Type is known by the caller.
     void *data;
 };
+typedef std::shared_ptr<VertexAttribute> VertexAttributeRef;
 
 /** Base class for the single vertex attribute that provides
  the name and type of a vertex attribute.

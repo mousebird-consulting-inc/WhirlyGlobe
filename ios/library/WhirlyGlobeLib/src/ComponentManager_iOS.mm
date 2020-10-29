@@ -77,23 +77,23 @@ void ComponentManager_iOS::removeSelectObjects(SimpleIDSet selIDs)
     }
 }
     
-void ComponentManager_iOS::removeComponentObject(PlatformThreadInfo *threadInfo,SimpleIdentity compID,ChangeSet &changes)
+void ComponentManager_iOS::removeComponentObjects(PlatformThreadInfo *threadInfo,const SimpleIDSet &compIDs,ChangeSet &changes)
 {
-    ComponentObjectRef compObj;
-    
     // Lock around all component objects
     {
         std::lock_guard<std::mutex> guardLock(lock);
         
-        auto it = compObjs.find(compID);
-        compObj = it->second;
+        SimpleIDSet selectIDs;
+        
+        for (auto compID: compIDs) {
+            auto it = compObjs.find(compID);
+            selectIDs.insert(it->second->selectIDs.begin(),it->second->selectIDs.end());
+        }
+        
+        removeSelectObjects(selectIDs);
     }
 
-    // Now clean up the selection stuff
-    if (!compObj->selectIDs.empty())
-        removeSelectObjects(compObj->selectIDs);
-    
-    ComponentManager::removeComponentObject(threadInfo,compID, changes);
+    ComponentManager::removeComponentObjects(threadInfo,compIDs, changes);
 }
     
 void ComponentManager_iOS::clear()

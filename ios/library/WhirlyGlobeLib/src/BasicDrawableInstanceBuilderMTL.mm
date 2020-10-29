@@ -27,7 +27,7 @@ namespace WhirlyKit
 BasicDrawableInstanceBuilderMTL::BasicDrawableInstanceBuilderMTL(const std::string &name,Scene *scene)
     : BasicDrawableInstanceBuilder(name,scene)
 {
-    drawInst = new BasicDrawableInstanceMTL(name);
+    drawInst = std::make_shared<BasicDrawableInstanceMTL>(name);
 
     Init();
 }
@@ -36,7 +36,7 @@ BasicDrawableInstanceBuilderMTL::~BasicDrawableInstanceBuilderMTL()
 {
 }
 
-BasicDrawableInstance *BasicDrawableInstanceBuilderMTL::getDrawable()
+BasicDrawableInstanceRef BasicDrawableInstanceBuilderMTL::getDrawable()
 {
     return drawInst;
 }
