@@ -50,6 +50,12 @@ using namespace Eigen;
   return (rgb.r << 16) | (rgb.g << 8)| rgb.b;
 }
 
+- (NSString *) asHexRGBAString
+{
+    RGBAColor rgb = [self asRGBAColor];
+    return [NSString stringWithFormat:@"#%2d%2d%2d%2d",rgb.r,rgb.g,rgb.b,rgb.a];
+}
+
 - (RGBAColor) asRGBAColor
 {
     RGBAColor color;

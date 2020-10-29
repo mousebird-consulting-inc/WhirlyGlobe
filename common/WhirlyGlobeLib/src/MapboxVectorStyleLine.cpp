@@ -53,7 +53,7 @@ bool MapboxVectorLinePaint::parse(PlatformThreadInfo *inst,MapboxVectorStyleSetI
     if (styleEntry && styleEntry->getType("line-dasharray") == DictTypeArray) {
         auto vecArray = styleEntry->getArray("line-dasharray");
         for (auto entry : vecArray) {
-            if (entry->getType() == DictTypeDouble) {
+            if (entry->getType() == DictTypeDouble || entry->getType() == DictTypeInt) {
                 lineDashArray.push_back(entry->getDouble());
             } else {
                 wkLogLevel(Warn,"Encountered non-double type in MapboxVectorLinePaint dashArray");

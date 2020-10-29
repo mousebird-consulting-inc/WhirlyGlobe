@@ -22,6 +22,7 @@
 #import "MaplyVectorStyleC.h"
 #import "VectorObject.h"
 #import "vector_tile.pb.h"
+#import "DictionaryC.h"
 #import <vector>
 
 static double MAX_EXTENT = 20037508.342789244;
@@ -165,7 +166,8 @@ bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst,RawData *rawDat
                 g_type = static_cast<MapnikGeometryType>(f.type());
                 
                 //Parse attributes
-                MutableDictionaryRef attributes = MutableDictionaryMake();
+//                MutableDictionaryRef attributes = MutableDictionaryMake();
+                MutableDictionaryRef attributes = std::make_shared<MutableDictionaryC>();
                 attributes->setInt("geometry_type", (int)g_type);
                 attributes->setString("layer_name", layerName);
                 attributes->setInt("layer_order",i);

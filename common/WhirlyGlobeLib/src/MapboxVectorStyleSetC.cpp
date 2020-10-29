@@ -127,7 +127,7 @@ bool MaplyVectorFunctionStops::parse(DictionaryRef entry,MapboxVectorStyleSetImp
             
             MaplyVectorFunctionStop fStop;
             fStop.zoom = stopEntries[0]->getDouble();
-            if (stopEntries[1]->getType() == DictTypeDouble) {
+            if (stopEntries[1]->getType() == DictTypeDouble || stopEntries[1]->getType() == DictTypeInt) {
                 fStop.val = stopEntries[1]->getDouble();
             } else {
                 switch (stopEntries[1]->getType())
@@ -718,7 +718,7 @@ MapboxTransDoubleRef MapboxVectorStyleSetImpl::transDouble(DictionaryEntryRef th
         } else {
             wkLogLevel(Warn, "Expecting key word 'stops' in entry %s",name.c_str());
         }
-    } else if (theEntry->getType() == DictTypeDouble) {
+    } else if (theEntry->getType() == DictTypeDouble || theEntry->getType() == DictTypeInt) {
         return std::make_shared<MapboxTransDouble>(theEntry->getDouble());
     } else {
         wkLogLevel(Warn,"Unexpected type found in entry %s. Was expecting a double.",name.c_str());
