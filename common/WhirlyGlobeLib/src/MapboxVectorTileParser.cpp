@@ -226,7 +226,7 @@ bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst,RawData *rawDat
                 cmd = -1;
                 length = 0;
                 
-                VectorObjectRef vecObj = VectorObjectRef(new VectorObject());
+                VectorObjectRef vecObj = std::make_shared<VectorObject>();
                 
                 try {
                     if(g_type == GeomTypeLineString) {
