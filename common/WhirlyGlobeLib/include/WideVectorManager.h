@@ -97,7 +97,7 @@ public:
     virtual ~WideVectorManager();
 
     /// Add widened vectors for display
-    SimpleIdentity addVectors(ShapeSet *shapes,const WideVectorInfo &desc,ChangeSet &changes);
+    SimpleIdentity addVectors(const ShapeSet &shapes,const WideVectorInfo &desc,ChangeSet &changes);
 
     /// Enable/disable active vectors
     void enableVectors(SimpleIDSet &vecIDs,bool enable,ChangeSet &changes);

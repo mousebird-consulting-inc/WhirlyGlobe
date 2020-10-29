@@ -202,7 +202,7 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
                 shapes.insert(vecObj->shapes.begin(),vecObj->shapes.end());
         }
         
-        SimpleIdentity wideVecID = styleSet->wideVecManage->addVectors(&shapes, vecInfo, tileInfo->changes);
+        SimpleIdentity wideVecID = styleSet->wideVecManage->addVectors(shapes, vecInfo, tileInfo->changes);
         if (wideVecID != EmptyIdentity)
             compObj->wideVectorIDs.insert(wideVecID);
     }
