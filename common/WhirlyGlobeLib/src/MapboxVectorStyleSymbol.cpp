@@ -556,6 +556,8 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
     
     if (!markers.empty()) {
         SimpleIdentity markerID = styleSet->markerManage->addMarkers(markers, markerInfo, tileInfo->changes);
+        for (auto marker: markers)
+            delete marker;
         if (markerID != EmptyIdentity)
             compObj->markerIDs.insert(markerID);
     }

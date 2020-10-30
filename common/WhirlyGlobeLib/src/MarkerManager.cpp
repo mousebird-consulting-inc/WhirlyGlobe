@@ -101,6 +101,11 @@ Marker::Marker()
 {
 }
 
+Marker::~Marker()
+{
+    
+}
+
 void Marker::addTexID(SimpleIdentity texID)
 {
     texIDs.push_back(texID);
