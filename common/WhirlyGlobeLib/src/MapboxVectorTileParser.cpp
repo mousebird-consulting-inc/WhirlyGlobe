@@ -22,7 +22,10 @@
 #import "MaplyVectorStyleC.h"
 #import "VectorObject.h"
 #import "vector_tile.pb.h"
+#import "pb_decode.h"
+#import "WhirlyKitLog.h"
 #import <vector>
+#import <string>
 
 static double MAX_EXTENT = 20037508.342789244;
 
@@ -111,97 +114,384 @@ void MapboxVectorTileParser::addCategory(const std::string &category,long long s
 {
     styleCategories[styleID] = category;
 }
+
+class VectorTilePBFParser
+{
+public:
+    typedef VectorTilePBFParser This;
     
+public:
+    VectorTilePBFParser(VectorTileData *tileData,
+                        VectorStyleDelegateImpl* styleData,
+                        PlatformThreadInfo *styleInst)
+        : _tileData    (tileData)
+        , _styleData   (styleData)
+        , _styleInst   (styleInst)
+        , _bbox        (tileData->bbox)
+        , _bboxWidth   (_bbox.ur().x() - _bbox.ll().x())
+        , _bboxHeight  (_bbox.ur().y() - _bbox.ll().y())
+        , _sx          ((_bboxWidth > 0) ? (TileSize / _bboxWidth) : 0)
+        , _sy          ((_bboxHeight > 0) ? (TileSize / _bboxHeight) : 0)
+        , _tileOriginX (tileData->bbox.ll().x())
+        , _tileOriginY (tileData->bbox.ur().y())
+    {
+    }
+
+    bool Parse(const uint8_t* data, size_t length)
+    {
+        _vector_tile_Tile tile = {
+            /* layer     */ { layerDecode, this },
+            /*extensions */ nullptr,
+        };
+
+        auto stream = pb_istream_from_buffer(data, length);
+        if (!pb_decode(&stream, vector_tile_Tile_fields, &tile))
+        {
+            _parseError = stream.errmsg ? stream.errmsg : std::string();
+            return false;
+        }
+
+        return true;
+    }
+    
+    std::string GetErrorString(const char* def) const
+    {
+        return _parseError.length() ? _parseError : def;
+    }
+    const std::string &GetErrorString(const std::string &def) const
+    {
+        return _parseError.length() ? _parseError : def;
+    }
+
+private:
+    // Tile contains a collection of Layers
+    static bool layerDecode(pb_istream_t *stream, const pb_field_t *field, void **arg) {
+        return (*(This**)arg)->layerDecode(stream, field);
+    }
+    bool layerDecode(pb_istream_t *stream, const pb_field_t *field)
+    {
+        _currentLayer = _defaultLayer;
+        _layerStarted = false;
+        if (!pb_decode(stream, vector_tile_Tile_Layer_fields, &_currentLayer))
+        {
+            return false;
+        }
+
+        return layerFinish(_currentLayer);
+    }
+
+    // Layer contains a collection of Features
+    static bool featureDecode(pb_istream_t *stream, const pb_field_t *field, void **arg) {
+        return (*(This**)arg)->featureDecode(stream, field);
+    }
+    bool featureDecode(pb_istream_t *stream, const pb_field_t *field)
+    {
+        layerElement();
+
+        // todo: see if we have enough info to make better guesses here
+        _featureTags.clear();
+        _featureTags.reserve(20);
+        _featureGeometry.clear();
+        _featureGeometry.reserve(100);
+        
+        auto feature = _defaultFeature;
+        if (!pb_decode(stream, vector_tile_Tile_Feature_fields, &feature))
+        {
+            return false;
+        }
+        
+        const auto geomType = static_cast<MapnikGeometryType>(feature.type);
+        wkLog("[%llx] Read feature type %d with %d tags, %d geometry",
+              this, (int)geomType, (int)_featureTags.size(), (int)_featureGeometry.size());
+
+        if (_featureTags.size() % 2 != 0) {
+            wkLogLevel(Warn, "Odd feature tags!");
+        }
+
+        auto attributes = MutableDictionaryMake();
+        attributes->setString("layer_name", _layerName);
+        attributes->setInt("geometry_type", (int)geomType);
+        attributes->setInt("layer_order", _layerIndex);
+
+        for (int m = 0; m + 1 < _featureTags.size(); m += 2)
+        {
+            const auto keyIndex = _featureTags[m];
+            const auto valueIndex = _featureTags[m + 1];
+            
+            if (keyIndex >= _layerKeys.size() || valueIndex >= _layerValues.size()) {
+                ++_badAttributeCount;
+                continue;
+            }
+            
+            const auto &key = _layerKeys[keyIndex];
+            if (key.empty()) {
+                continue;
+            }
+
+            // TODO: We don't really need transient string allocations here
+            const auto skey = std::string(key);
+
+            const auto &value = _layerValues[valueIndex];
+            switch (value.type) {
+                case SmallValue::SmallValString: attributes->setString(skey, std::string(value.stringValue)); break;
+                case SmallValue::SmallValFloat:  attributes->setDouble(skey, value.floatValue); break;
+                case SmallValue::SmallValDouble: attributes->setDouble(skey, value.doubleValue); break;
+                case SmallValue::SmallValInt:    attributes->setInt(skey, value.intValue); break;
+                case SmallValue::SmallValUInt:   attributes->setInt(skey, (int)value.uintValue); break;
+                case SmallValue::SmallValSInt:   attributes->setInt(skey, (int)value.sintValue); break;
+                case SmallValue::SmallValBool:   attributes->setInt(skey, (int)value.boolValue); break;
+                default:
+                case SmallValue::SmallValNone:
+                    _unknownAttributeCount += 1;
+                    wkLogLevel(Warn, "Invalid Value Type %d", value.type);
+                    break;
+            }
+        }
+
+        _featureTags.clear();
+        _featureGeometry.clear();
+
+        return true;
+    }
+
+    // Layer contains a collection of Values
+    static bool valueVecDecode(pb_istream_t *stream, const pb_field_t *field, void **arg) {
+        if (!arg || !*arg) {
+            return true;
+        }
+        auto &vec = **(std::vector<SmallValue>**)arg;
+        
+        std::string_view string;
+        vector_tile_Tile_Value value = vector_tile_Tile_Value_init_zero;
+        value.string_value.funcs.decode = &stringDecode;
+        value.string_value.arg = &string;
+
+        if (!pb_decode(stream, vector_tile_Tile_Value_fields, &value))
+        {
+            return false;
+        }
+
+        if      (!string.empty())        vec.push_back({{.stringValue = string},             SmallValue::SmallValString});
+        else if (value.has_float_value)  vec.push_back({{.floatValue  = value.float_value},  SmallValue::SmallValFloat});
+        else if (value.has_double_value) vec.push_back({{.doubleValue = value.double_value}, SmallValue::SmallValDouble});
+        else if (value.has_int_value)    vec.push_back({{.intValue    = value.int_value},    SmallValue::SmallValInt});
+        else if (value.has_uint_value)   vec.push_back({{.uintValue   = value.uint_value},   SmallValue::SmallValUInt});
+        else if (value.has_sint_value)   vec.push_back({{.sintValue   = value.sint_value},   SmallValue::SmallValSInt});
+        else if (value.has_bool_value)   vec.push_back({{.boolValue   = value.bool_value},   SmallValue::SmallValBool});
+        
+        return true;
+    }
+
+    void layerElement()
+    {
+        // When we see a feature, that means we finished with (some of) the layer message
+        if (!_layerStarted && !layerStart(_currentLayer))
+        {
+            _skipLayer = true;
+        }
+        _layerStarted = true;
+    }
+        
+    // Called when we have first seen a sub-element of a layer, meaning that
+    // the version, name, and extent are populated, and the layer can be evaluated.
+    // Return false to skip this layer.
+    bool layerStart(const vector_tile_Tile_Layer &layer)
+    {
+        if (!layer.has_extent)
+        {
+            wkLog("Layer has no extent! (%s)", _layerName.c_str());
+            return false;
+        }
+        
+        _layerName = _layerNameView;
+        _layerNameView = std::string_view();
+        
+        _layerScale = (double)layer.extent / TileSize;
+       
+        // if we dont have any styles for a layer, dont bother parsing the features
+        if (!_styleData->layerShouldDisplay(_styleInst, _layerName, _tileData->ident))
+        {
+            wkLog("Skipping layer '%s' with no style", _layerName.c_str());
+            return false;
+        }
+
+        wkLog("Starting layer '%s'", _layerName.c_str());
+        
+        return true;
+    }
+
+    bool layerFinish(const vector_tile_Tile_Layer& layer)
+    {
+        wkLog("Layer '%s' has %d keys, %d values", _layerName.c_str(), (int)_layerKeys.size(), (int)_layerValues.size());
+        wkLog("Done with layer '%s'", _layerName.c_str());
+
+        _layerName.clear();
+        _layerKeys.clear();
+        _layerValues.clear();
+        return true;
+    }
+    
+    static bool stringDecode(pb_istream_t *stream, const pb_field_t *field, void **arg)
+    {
+        if (arg && *arg) {
+            *((std::string_view*)*arg) = std::string_view((char*)stream->state, stream->bytes_left);
+        }
+        return true;
+    }
+    static bool stringVecDecode(pb_istream_t *stream, const pb_field_t *field, void **arg)
+    {
+        if (arg && *arg) {
+            auto &vec = **(std::vector<std::string_view>**)arg;
+            vec.push_back(std::string_view((char*)stream->state, stream->bytes_left));
+        }
+        return true;
+    }
+    static bool intVecDecode(pb_istream_t *stream, const pb_field_t *field, void **arg)
+    {
+        if (!arg || !*arg) {
+            return true;
+        }
+        auto &vec = **(std::vector<uint32_t>**)arg;
+        vec.reserve(vec.size() + stream->bytes_left);
+        while (stream->bytes_left)
+        {
+            uint64_t value;
+            if (!pb_decode_varint(stream, &value))
+            {
+                return false;
+            }
+            vec.push_back((uint32_t)value);
+        }
+        return true;
+    }
+
+private:
+    // Default state of state structures, for easy setup
+    
+    const vector_tile_Tile_Layer _defaultLayer = {
+        /* name       */ { &stringDecode,    &_layerNameView },
+        /* features   */ { &featureDecode,   this },
+        /* keys       */ { &stringVecDecode, &_layerKeys },
+        /* values     */ { &valueVecDecode,  &_layerValues },
+        /* has_extent */ false,
+        /* extent     */ 0,
+        /* version    */ 0,
+        /* extensions */ nullptr,
+    };
+    const vector_tile_Tile_Feature _defaultFeature = {
+        /* has_id   */ false,
+        /* id       */ 0LL,
+        /* tags     */ { &intVecDecode, &_featureTags },
+        /* has_type */ false,
+        /* type     */ vector_tile_Tile_GeomType_UNKNOWN,
+        /* geometry */ { &intVecDecode, &_featureGeometry },
+    };
+    const vector_tile_Tile_Value _defaultValue = {
+        /* pb_callback_t string_value */ { stringDecode, nullptr },
+        /* bool has_float_value       */ false,
+        /* float float_value          */ 0.0f,
+        /* bool has_double_value      */ false,
+        /* double double_value        */ 0.0,
+        /* bool has_int_value         */ false,
+        /* int64_t int_value          */ 0LL,
+        /* bool has_uint_value        */ false,
+        /* uint64_t uint_value        */ 0ULL,
+        /* bool has_sint_value        */ false,
+        /* int64_t sint_value         */ 0LL,
+        /* has_bool_value             */ false,
+        /* bool_value                 */ false,
+        /* extensions                 */ nullptr,
+    };
+
+    // The current elements being parsed
+    vector_tile_Tile_Layer _currentLayer;
+    bool _layerStarted = false;
+    bool _skipLayer = false;
+
+    struct SmallValue
+    {
+        enum SmallValueType : int8_t {
+            SmallValNone,
+            SmallValString,
+            SmallValFloat,
+            SmallValDouble,
+            SmallValInt,
+            SmallValUInt,
+            SmallValSInt,
+            SmallValBool,
+        };
+        union {
+            std::string_view stringValue;
+            float floatValue;
+            double doubleValue;
+            int64_t intValue;
+            uint64_t uintValue;
+            int64_t sintValue;
+            bool boolValue;
+        };
+        SmallValueType type;
+    };
+    
+    int _layerIndex = 0;
+    double _layerScale = 0;
+    std::string _layerName;
+    std::string_view _layerNameView;
+    std::vector<uint32_t> _featureTags;
+    std::vector<uint32_t> _featureGeometry;
+    std::vector<std::string_view> _layerKeys;
+    std::vector<SmallValue> _layerValues;
+
+private:
+    const VectorTileData *_tileData;
+    VectorStyleDelegateImpl *_styleData;
+    PlatformThreadInfo *_styleInst;
+    std::string _parseError;
+
+    const MbrD _bbox;
+    const double _bboxWidth;
+    const double _bboxHeight;
+    
+    static const int TileSize = 256;
+    const double _sx;
+    const double _sy;
+    const double _tileOriginX;
+    const double _tileOriginY;
+    
+    double _scale;
+    double _x;
+    double _y;
+    int32_t _dx;
+    int32_t _dy;
+    int _geometrySize;
+    int _cmd;
+    const int CmdBits = 3;
+    unsigned _length;
+    int _k;
+    unsigned _cmdLength;
+    Point2d _point;
+    Point2d _firstCoord;
+    unsigned _featureCount = 0;
+    int _unknownAttributeCount = 0;
+    int _badAttributeCount = 0;
+    int _unknownCommandTypes = 0;
+    int _parseErrors = 0;
+};
+
+
 bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst,RawData *rawData,VectorTileData *tileData)
 {
-    //calulate tile bounds and coordinate shift
-    int tileSize = 256;
-    double sx = tileSize / (tileData->bbox.ur().x() - tileData->bbox.ll().x());
-    double sy = tileSize / (tileData->bbox.ur().y() - tileData->bbox.ll().y());
-    //Tile origin is upper left corner, in epsg:3785
-    double tileOriginX = tileData->bbox.ll().x();
-    double tileOriginY = tileData->bbox.ur().y();
-    
-    double scale;
-    double x;
-    double y;
-    int32_t dx;
-    int32_t dy;
-    int geometrySize;
-    MapnikGeometryType g_type;
-    int cmd;
-    const int cmd_bits = 3;
-    unsigned length;
-    int k;
-    unsigned cmd_length;
-    Point2d point;
-    Point2d firstCoord;
-    
-    unsigned featureCount = 0;
-    
-    int unknownAttributeCount = 0;
-    int badAttributeCount = 0;
-    int unknownCommandTypes = 0;
-    int parseErrors = 0;
+    VectorTilePBFParser parser(tileData, &*styleDelegate, styleInst);
+    if (!parser.Parse(rawData->getRawData(), rawData->getLen()))
+    {
+        wkLogLevel(Warn, "Failed to parse vector tile PBF: '%s'",
+                   std::string(parser.GetErrorString("unknown")).c_str());
+        return false;
+    }
     
     //now attempt to open protobuf
-    vector_tile::Tile tile;
-    if(tile.ParseFromArray(rawData->getRawData(), (int)rawData->getLen())) {
-        // Run through layers
+    /*
         for (unsigned i=0;i<tile.layers_size();++i) {
-            vector_tile::Tile_Layer const& tileLayer = tile.layers(i);
-            scale = tileLayer.extent() / 256.0;
-
-            std::string layerName = tileLayer.name();
-            
-            // if we dont have any styles for a layer, dont bother parsing the features
-            if (!styleDelegate->layerShouldDisplay(styleInst, layerName, tileData->ident))
-                continue;
-            
-            // Work through features
             for (unsigned j=0;j<tileLayer.features_size();++j) {
-                featureCount++;
-                vector_tile::Tile_Feature const & f = tileLayer.features(j);
-                g_type = static_cast<MapnikGeometryType>(f.type());
-                
-                //Parse attributes
-                MutableDictionaryRef attributes = MutableDictionaryMake();
-                attributes->setInt("geometry_type", (int)g_type);
-                attributes->setString("layer_name", layerName);
-                attributes->setInt("layer_order",i);
-                
-                for (int m = 0; m < f.tags_size(); m += 2) {
-                    int32_t key_name = f.tags(m);
-                    int32_t key_value = f.tags(m + 1);
-                    if (key_name < static_cast<std::size_t>(tileLayer.keys_size())
-                        && key_value < static_cast<std::size_t>(tileLayer.values_size())) {
-                        const std::string &key = tileLayer.keys(key_name);
-                        if(key.empty()) {
-                            continue;
-                        }
-                        
-                        vector_tile::Tile_Value const& value = tileLayer.values(key_value);
-                        if (value.has_string_value()) {
-                            attributes->setString(key, value.string_value());
-                        } else if (value.has_int_value()) {
-                            attributes->setInt(key, value.int_value());
-                        } else if (value.has_double_value()) {
-                            attributes->setDouble(key, value.double_value());
-                        } else if (value.has_float_value()) {
-                            attributes->setDouble(key, value.float_value());
-                        } else if (value.has_bool_value()) {
-                            attributes->setInt(key, (int)value.bool_value());
-                        } else if (value.has_sint_value()) {
-                            attributes->setInt(key, (int)value.sint_value());
-                        } else if (value.has_uint_value()) {
-                            attributes->setInt(key, (int)value.uint_value());
-                        } else {
-                            unknownAttributeCount++;
-                        }
-                    } else {
-                        badAttributeCount++;
-                    }
-                }
                 
                 // Ask for the styles that correspond to this feature
                 // If there are none, we can skip this
@@ -419,6 +709,7 @@ bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst,RawData *rawDat
     } else {
         return false;
     }
+     */
     
     // Run the styles over their assembled data
     for (auto it : tileData->vecObjsByStyle) {
