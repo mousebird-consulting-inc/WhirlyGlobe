@@ -748,7 +748,65 @@ WideVectorManager::~WideVectorManager()
     sceneReps.clear();
 }
     
+// TODO: Get rid of this version
 SimpleIdentity WideVectorManager::addVectors(const ShapeSet &shapes,const WideVectorInfo &vecInfo,ChangeSet &changes)
+{
+    // Calculate a center for this geometry
+    GeoMbr geoMbr;
+    for (const auto &shape : shapes)
+    {
+        geoMbr.expand(shape->calcGeoMbr());
+    }
+    // No data?
+    if (!geoMbr.valid())
+        return EmptyIdentity;
+
+    WideVectorDrawableConstructor builder(renderer,scene,&vecInfo);
+
+    const GeoCoord centerGeo = geoMbr.mid();
+
+    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
+    const Point3d localCenter = coordAdapter->getCoordSystem()->geographicToLocal3d(centerGeo);
+    const Point3d centerDisp = coordAdapter->localToDisplay(localCenter);
+    const auto centerUp = coordAdapter->isFlat() ? Point3d(0,0,1) : coordAdapter->normalForLocal(localCenter);
+    
+    builder.setCenter(localCenter,centerDisp);
+
+    for (const auto &shape : shapes)
+    {
+        if (const auto lin = std::dynamic_pointer_cast<VectorLinear>(shape))
+        {
+            builder.addLinear(lin->pts,centerUp,false);
+        }
+        else if (const auto ar = std::dynamic_pointer_cast<VectorAreal>(shape))
+        {
+            for (const auto &loop : ar->loops)
+            {
+                if (loop.size() > 2 && loop.begin() != loop.end())
+                {
+                    // Just tack on another point at the end.  Kind of dumb, but easy.
+                    VectorRing newLoop = loop;
+                    newLoop.push_back(loop[0]);
+                    builder.addLinear(newLoop, centerUp, true);
+                } else
+                    builder.addLinear(loop, centerUp, true);
+            }
+        }
+    }
+//    builder.addLinearDebug();
+    
+    SimpleIdentity vecID = EmptyIdentity;
+    if (auto sceneRep = builder.flush(changes))
+    {
+        vecID = sceneRep->getId();
+        std::lock_guard<std::mutex> guardLock(vecLock);
+        sceneReps.insert(sceneRep);
+    }
+    
+    return vecID;
+}
+
+SimpleIdentity WideVectorManager::addVectors(const std::vector<VectorShapeRef> &shapes,const WideVectorInfo &vecInfo,ChangeSet &changes)
 {
     // Calculate a center for this geometry
     GeoMbr geoMbr;

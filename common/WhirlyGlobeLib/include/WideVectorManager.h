@@ -98,7 +98,8 @@ public:
 
     /// Add widened vectors for display
     SimpleIdentity addVectors(const ShapeSet &shapes,const WideVectorInfo &desc,ChangeSet &changes);
-
+    SimpleIdentity addVectors(const std::vector<VectorShapeRef> &shapes,const WideVectorInfo &desc,ChangeSet &changes);
+    
     /// Enable/disable active vectors
     void enableVectors(SimpleIDSet &vecIDs,bool enable,ChangeSet &changes);
     

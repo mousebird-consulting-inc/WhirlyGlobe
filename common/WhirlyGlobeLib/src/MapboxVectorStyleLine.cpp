@@ -198,10 +198,10 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
 //        vecInfo.drawOrder = tileInfo->tileNumber();
 
         // Gather all the linear features
-        ShapeSet shapes;
+        std::vector<VectorShapeRef> shapes;
         for (auto vecObj : vecObjs) {
             if (vecObj->getVectorType() == VectorLinearType)
-                shapes.insert(vecObj->shapes.begin(),vecObj->shapes.end());
+                std::copy(vecObj->shapes.begin(),vecObj->shapes.end(),std::back_inserter(shapes));
         }
         
         const auto wideVecID = styleSet->wideVecManage->addVectors(shapes, vecInfo, tileInfo->changes);

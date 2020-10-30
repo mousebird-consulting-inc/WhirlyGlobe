@@ -545,6 +545,7 @@ VectorManager::~VectorManager()
     vectorReps.clear();
 }
 
+// TODO: Get rid of this version
 SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, const VectorInfo &vecInfo, ChangeSet &changes)
 {
     if (shapes->empty())
@@ -589,6 +590,163 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, const VectorInfo &vec
           // Calculate the center
           GeoMbr geoMbr;
           for (ShapeSet::iterator it = shapes->begin();it != shapes->end(); ++it)
+              geoMbr.expand((*it)->calcGeoMbr());
+          if (geoMbr.valid())
+          {
+              Point3d p0 = coordAdapter->localToDisplay(coordSys->geographicToLocal3d(geoMbr.ll()));
+              Point3d p1 = coordAdapter->localToDisplay(coordSys->geographicToLocal3d(geoMbr.ur()));
+              center = (p0+p1)/2.0;
+              centerValid = true;
+          }
+        }
+    }
+    
+    // Used to toss out drawables as we go
+    // Its destructor will flush out the last drawable
+    VectorDrawableBuilder drawBuild(scene,renderer,changes,sceneRep,&vecInfo,true,doColors);
+    if (centerValid)
+        drawBuild.setCenter(center,geoCenter);
+    VectorDrawableBuilderTri drawBuildTri(scene,renderer,changes,sceneRep,&vecInfo,doColors);
+    if (centerValid)
+        drawBuildTri.setCenter(center,geoCenter);
+
+    for (auto const &it : *shapes)
+    {
+        if (const auto theAreal = std::dynamic_pointer_cast<VectorAreal>(it))
+        {
+//            std::string tileID = (*it)->getAttrDict()->getString("tile");
+//            GeoMbr mbr = theAreal->calcGeoMbr();
+
+            if (vecInfo.filled)
+            {
+                // Trianglate outside and loops
+                drawBuildTri.addPoints(theAreal->loops,theAreal->getAttrDict());
+            } else {
+                // Work through the loops
+                for (unsigned int ri=0;ri<theAreal->loops.size();ri++)
+                {
+                    VectorRing &ring = theAreal->loops[ri];
+                    
+                    // Break the edges around the globe (presumably)
+                    if (vecInfo.sample > 0.0)
+                    {
+                        VectorRing newPts;
+                        SubdivideEdges(ring, newPts, false, vecInfo.sample);
+                        drawBuild.addPoints(newPts,true,theAreal->getAttrDict());
+                    } else
+                        drawBuild.addPoints(ring,true,theAreal->getAttrDict());
+                }
+            }
+        } else {
+            if (const auto theLinear = std::dynamic_pointer_cast<VectorLinear>(it))
+            {
+                if (vecInfo.filled)
+                {
+                    // Triangulate the outside
+                    drawBuildTri.addPoints(theLinear->pts,theLinear->getAttrDict());
+                } else {
+                    if (vecInfo.sample > 0.0)
+                    {
+                        VectorRing newPts;
+                        SubdivideEdges(theLinear->pts, newPts, false, vecInfo.sample);
+                        drawBuild.addPoints(newPts,false,theLinear->getAttrDict());
+                    } else
+                        drawBuild.addPoints(theLinear->pts,false,theLinear->getAttrDict());
+                }
+            } else {
+                if (const auto theLinear3d = std::dynamic_pointer_cast<VectorLinear3d>(it))
+                {
+                    if (vecInfo.filled)
+                    {
+                        // Triangulate the outside
+                        drawBuildTri.addPoints(theLinear3d->pts,theLinear3d->getAttrDict());
+                    } else {
+                        if (vecInfo.sample > 0.0)
+                        {
+                            VectorRing3d newPts;
+                            SubdivideEdges(theLinear3d->pts, newPts, false, vecInfo.sample);
+                            drawBuild.addPoints(newPts,false,theLinear3d->getAttrDict());
+                        } else
+                            drawBuild.addPoints(theLinear3d->pts,false,theLinear3d->getAttrDict());
+                    }
+                } else {
+                    if (const auto theMesh = std::dynamic_pointer_cast<VectorTriangles>(it))
+                    {
+                        if (vecInfo.filled)
+                            drawBuildTri.addPoints(theMesh,theMesh->getAttrDict());
+                        else {
+                            for (unsigned int ti=0;ti<theMesh->tris.size();ti++)
+                            {
+                                VectorRing ring;
+                                theMesh->getTriangle(ti, ring);
+                                drawBuild.addPoints(ring,true,theMesh->getAttrDict());
+                            }
+                        }
+                    } else {
+                        // Points are... pointless for display
+                    }
+                }
+            }
+        }
+    }
+    
+    drawBuild.flush();
+    drawBuildTri.flush();
+    
+    SimpleIdentity vecID = sceneRep->getId();
+    {
+        std::lock_guard<std::mutex> guardLock(vectorLock);
+        vectorReps.insert(sceneRep);
+    }
+    
+    return vecID;
+}
+
+// TODO: Take a reference instead of a pointer
+SimpleIdentity VectorManager::addVectors(const std::vector<VectorShapeRef> *shapes, const VectorInfo &vecInfo, ChangeSet &changes)
+{
+    if (shapes->empty())
+        return EmptyIdentity;
+    
+    VectorSceneRep *sceneRep = new VectorSceneRep();
+    sceneRep->fade = vecInfo.fade;
+
+    // No longer do anything with points in here
+//    VectorPointsRef thePoints = std::dynamic_pointer_cast<VectorPoints>(*first);
+//    bool linesOrPoints = (thePoints.get() ? false : true);
+    
+    // Look for per vector colors
+    bool doColors = false;
+    for (auto it = shapes->begin();it != shapes->end(); ++it)
+    {
+        if ((*it)->getAttrDict()->hasField("color"))
+        {
+            doColors = true;
+            break;
+        }
+    }
+
+    // Look for a geometry center.  We'll offset everything if there is one
+    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
+    CoordSystem *coordSys = coordAdapter->getCoordSystem();
+    Point3d center(0,0,0);
+    bool centerValid = false;
+    Point2d geoCenter(0,0);
+    // Note: Should work for the globe, but doesn't
+    if (vecInfo.centered && coordAdapter->isFlat())
+    {
+        // We might pass in a center
+        if (vecInfo.vecCenterSet)
+        {
+            geoCenter.x() = vecInfo.vecCenter.x();
+            geoCenter.y() = vecInfo.vecCenter.y();
+            Point3d dispPt = coordAdapter->localToDisplay(coordSys->geographicToLocal(geoCenter));
+            center = dispPt;
+            centerValid = true;
+        } else {
+          // Calculate the center
+          GeoMbr geoMbr;
+          for (auto it = shapes->begin();it != shapes->end(); ++it)
               geoMbr.expand((*it)->calcGeoMbr());
           if (geoMbr.valid())
           {

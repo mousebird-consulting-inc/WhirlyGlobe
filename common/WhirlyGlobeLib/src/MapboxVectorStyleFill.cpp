@@ -86,24 +86,23 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
     ComponentObjectRef compObj = styleSet->makeComponentObject(inst);
 
     // Gather all the areal features for fill and/or outline
-    ShapeSet shapes;
+    std::vector<VectorShapeRef> shapes;
     for (auto vecObj : vecObjs) {
-        if (vecObj->getVectorType() == VectorArealType) {
-            shapes.insert(vecObj->shapes.begin(),vecObj->shapes.end());
-        }
+        if (vecObj->getVectorType() == VectorArealType)
+            std::copy(vecObj->shapes.begin(),vecObj->shapes.end(),std::back_inserter(shapes));
     }
 
     // Filled polygons
     if (paint.color) {
         // tesselate the area features
-        ShapeSet tessShapes;
+        std::vector<VectorShapeRef> tessShapes;
         for (auto const &it : shapes) {
             if (auto ar = std::dynamic_pointer_cast<VectorAreal>(it)) {
                 VectorTrianglesRef trisRef = VectorTriangles::createTriangles();
                 TesselateLoops(ar->loops, trisRef);
                 trisRef->setAttrDict(ar->getAttrDict());
                 trisRef->initGeoMbr();
-                tessShapes.insert(trisRef);
+                tessShapes.push_back(trisRef);
             }
         }
                 

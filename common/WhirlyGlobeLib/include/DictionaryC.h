@@ -19,6 +19,7 @@
  */
 
 #import <map>
+#import <unordered_map>
 #import <string>
 #import "WhirlyVector.h"
 #import "CoordSystem.h"
@@ -162,6 +163,7 @@ public:
 
         std::string val;
     };
+    typedef std::shared_ptr<StringValue> StringValueRef;
 
     class IntValue : public Value
     {
@@ -267,7 +269,7 @@ public:
     typedef std::shared_ptr<ArrayValue> ArrayValueRef;
 
 protected:
-    typedef std::map<std::string,ValueRef> FieldMap;
+    typedef std::unordered_map<std::string,ValueRef> FieldMap;
     FieldMap fields;
 };
 

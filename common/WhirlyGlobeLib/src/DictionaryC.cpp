@@ -709,7 +709,8 @@ std::vector<DictionaryEntryRef> DictionaryEntryC::getArray() const
 
 bool DictionaryEntryC::isEqual(DictionaryEntryRef inOther) const
 {
-    DictionaryEntryCRef other = std::dynamic_pointer_cast<DictionaryEntryC>(inOther);
+//    DictionaryEntryCRef other = std::dynamic_pointer_cast<DictionaryEntryC>(inOther);
+    DictionaryEntryC *other = (DictionaryEntryC *)inOther.get();
     if (!other)
         return false;
 
@@ -724,7 +725,13 @@ bool DictionaryEntryC::isEqual(DictionaryEntryRef inOther) const
 
     switch (type) {
         case DictTypeString:
-            return getString() == other->getString();
+        {
+//            MutableDictionaryC::StringValueRef s1 = std::dynamic_pointer_cast<MutableDictionaryC::StringValue>(val);
+//            MutableDictionaryC::StringValueRef s2 = std::dynamic_pointer_cast<MutableDictionaryC::StringValue>(other->val);
+            MutableDictionaryC::StringValue *s1 = (MutableDictionaryC::StringValue *)val.get();
+            MutableDictionaryC::StringValue *s2 = (MutableDictionaryC::StringValue *)other->val.get();
+            return s1->val == s2->val;
+        }
             break;
         case DictTypeInt:
             return val->asInt() == other->getInt();

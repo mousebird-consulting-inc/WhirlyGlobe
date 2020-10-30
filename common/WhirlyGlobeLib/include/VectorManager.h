@@ -101,7 +101,8 @@ public:
     
     /// Add an array of vectors.  The returned ID can be used for removal.
     SimpleIdentity addVectors(ShapeSet *shapes,const VectorInfo &desc,ChangeSet &changes);
-    
+    SimpleIdentity addVectors(const std::vector<VectorShapeRef> *shapes,const VectorInfo &desc,ChangeSet &changes);
+
     /// Change the vector(s) represented by the given ID
     void changeVectors(SimpleIdentity vecID,const VectorInfo &vecInfo,ChangeSet &changes);
     
