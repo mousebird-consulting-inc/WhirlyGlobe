@@ -424,7 +424,16 @@ DictionaryEntryRef MutableDictionaryC::getEntry(const std::string &name) const
     if (it == fields.end())
         return DictionaryEntryRef();
 
-    return std::make_shared<DictionaryEntryC>(it->second);;
+    return std::make_shared<DictionaryEntryC>(it->second);
+}
+
+MutableDictionaryC::ValueRef MutableDictionaryC::getValueRef(const std::string &name) const
+{
+    FieldMap::const_iterator it = fields.find(name);
+    if (it == fields.end())
+        return ValueRef();
+
+    return it->second;
 }
 
 std::vector<DictionaryEntryRef> MutableDictionaryC::getArray(const std::string &name) const

@@ -91,6 +91,8 @@ public:
     virtual DictionaryRef getDict(const std::string &name) const;
     // Return a generic entry
     virtual DictionaryEntryRef getEntry(const std::string &name) const;
+    // Return a low level value which is faster
+    virtual ValueRef getValueRef(const std::string &name) const;
     // Return an array (if it is an array)
     virtual std::vector<DictionaryEntryRef> getArray(const std::string &name) const;
     // Return an array of keys
@@ -315,5 +317,6 @@ protected:
     DictionaryType type;
     MutableDictionaryC::ValueRef val;
 };
+typedef std::shared_ptr<DictionaryEntryC> DictionaryEntryCRef;
 
 }
