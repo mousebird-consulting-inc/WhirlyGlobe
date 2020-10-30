@@ -689,7 +689,13 @@ bool DictionaryEntryC::isEqual(DictionaryEntryRef inOther) const
     if (!other)
         return false;
 
-    if (type != other->getType())
+    bool compat = type == other->getType();
+    if (!compat) {
+        if ((type == DictTypeInt || type == DictTypeDouble) &&
+            (other->getType() == DictTypeInt || other->getType() == DictTypeDouble))
+            compat = true;
+    }
+    if (!compat)
         return false;
 
     switch (type) {

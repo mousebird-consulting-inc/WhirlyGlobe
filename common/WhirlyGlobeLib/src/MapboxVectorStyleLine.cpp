@@ -122,7 +122,7 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
 {
     if (!visible)
         return;
-    
+
     ComponentObjectRef compObj = styleSet->makeComponentObject(inst);
 
     // Turn into linears (if not already) and then clip to the bounds
