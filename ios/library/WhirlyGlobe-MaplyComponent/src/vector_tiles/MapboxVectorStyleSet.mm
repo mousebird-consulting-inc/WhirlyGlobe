@@ -413,6 +413,11 @@ using namespace WhirlyKit;
     return nil;
 }
 
+- (nullable NSObject<MaplyVectorStyle> *)backgroundStyleViewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+{
+    return nil;
+}
+
 - (NSArray * __nonnull)allStyles
 {
     return [NSMutableArray array];

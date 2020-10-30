@@ -40,7 +40,7 @@ bool MapboxVectorBackgroundPaint::parse(PlatformThreadInfo *inst,
 bool MapboxVectorLayerBackground::parse(PlatformThreadInfo *inst,
                                         DictionaryRef styleEntry,
                                         MapboxVectorStyleLayerRef refLayer,
-                                        int drawPriority)
+                                        int inDrawPriority)
 {
     if (!MapboxVectorStyleLayer::parse(inst,styleEntry,refLayer,drawPriority)) {
         return false;
@@ -57,6 +57,8 @@ bool MapboxVectorLayerBackground::parse(PlatformThreadInfo *inst,
         paint.color->setAlphaOverride(styleEntry->getDouble("alphaoverride"));
     }
     
+    drawPriority = inDrawPriority;
+    
     return true;
 }
 
@@ -64,11 +66,11 @@ void MapboxVectorLayerBackground::buildObjects(PlatformThreadInfo *inst,
                                                std::vector<VectorObjectRef> &vecObjs,
                                                VectorTileDataRef tileInfo)
 {
-    //const auto color = styleSet->backgroundColor(inst, tileInfo->ident.level);
-    const auto color = std::make_shared<RGBAColor>(255, 0, 255, 255);
+    const auto color = styleSet->backgroundColor(inst, tileInfo->ident.level);
     
     std::vector<VectorRing> loops { VectorRing() };
-    tileInfo->geoBBox.asPoints(loops.back());
+    Mbr bbox = tileInfo->geoBBox;
+    bbox.asPoints(loops.back());
     
     VectorTrianglesRef trisRef = VectorTriangles::createTriangles();
     TesselateLoops(loops, trisRef);
@@ -80,11 +82,11 @@ void MapboxVectorLayerBackground::buildObjects(PlatformThreadInfo *inst,
     trisRef->setAttrDict(d);
     trisRef->initGeoMbr();
     ShapeSet tessShapes { trisRef };
-                
+
     VectorInfo vecInfo;
     vecInfo.hasExp = true;
     vecInfo.filled = true;
-    vecInfo.centered = true;
+    vecInfo.centered = false;
     vecInfo.color = *color;
     vecInfo.zoomSlot = styleSet->zoomSlot;
     vecInfo.zBufferWrite = styleSet->tileStyleSettings->zBufferWrite;
@@ -93,7 +95,10 @@ void MapboxVectorLayerBackground::buildObjects(PlatformThreadInfo *inst,
     vecInfo.opacityExp = paint.opacity->expression();
     vecInfo.programID = styleSet->vectorArealProgramID;
     vecInfo.drawPriority = drawPriority + tileInfo->ident.level * std::max(0, styleSet->tileStyleSettings->drawPriorityPerLevel);
-    vecInfo.drawOrder = tileInfo->tileNumber();
+    // TODO: Switch to stencils
+//    vecInfo.drawOrder = tileInfo->tileNumber();
+    
+//    wkLogLevel(Debug, "background: tildID = %d: (%d,%d)  drawOrder = %d, drawPriority = %d",tileInfo->ident.level, tileInfo->ident.x, tileInfo->ident.y, vecInfo.drawOrder,vecInfo.drawPriority);
 
     if (minzoom != 0 || maxzoom < 1000) {
         vecInfo.minZoomVis = minzoom;

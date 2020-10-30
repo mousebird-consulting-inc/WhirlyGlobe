@@ -382,7 +382,7 @@ public class MapboxKindaMap {
                 return
             }
         }
-
+        
         // Put together the tileInfoNew objects
         var tileInfos: [MaplyTileInfoNew] = []
         var localFetchers: [MaplyMBTileFetcher] = []

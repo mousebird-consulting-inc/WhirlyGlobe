@@ -309,6 +309,15 @@ SimpleIdentity MutableDictionaryC::getIdentity(const std::string &name) const
     
     return it->second->asIdentity();
 }
+
+int64_t MutableDictionaryC::getInt64(const std::string &name,int64_t defVal) const
+{
+    FieldMap::const_iterator it = fields.find(name);
+    if (it == fields.end())
+        return EmptyIdentity;
+    
+    return it->second->asIdentity();
+}
     
 bool MutableDictionaryC::getBool(const std::string &name,bool defVal) const
 {
@@ -613,6 +622,12 @@ SimpleIdentity DictionaryEntryC::getIdentity() const
     return val->asIdentity();
 }
 
+int64_t DictionaryEntryC::getInt64(const std::string &name,int64_t defVal) const
+{
+    return val->asIdentity();
+}
+    
+
 bool DictionaryEntryC::getBool() const
 {
     return val->asInt() != 0;
@@ -717,6 +732,9 @@ bool DictionaryEntryC::isEqual(DictionaryEntryRef inOther) const
         case DictTypeIdentity:
             return val->asIdentity() == other->getIdentity();
             break;
+        case DictTypeInt64:
+            return val->asIdentity() == other->getIdentity();
+            break;
         case DictTypeDouble:
             return val->asDouble() == other->getDouble();
             break;
@@ -729,6 +747,8 @@ bool DictionaryEntryC::isEqual(DictionaryEntryRef inOther) const
             return false;
             break;
     }
+    
+    return false;
 }
 
 void DictionaryEntryC::setDouble(double inVal)

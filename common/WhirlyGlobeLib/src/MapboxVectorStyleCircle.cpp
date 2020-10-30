@@ -93,7 +93,6 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
     markerInfo.color = RGBAColor(255,255,255,opacity*255);
     markerInfo.drawPriority = drawPriority;
     markerInfo.programID = styleSet->screenMarkerProgramID;
-    markerInfo.drawOrder = tileInfo->tileNumber();
 
     // Need to find all the points, way down deep
     std::vector<WhirlyKit::Marker *> markers;

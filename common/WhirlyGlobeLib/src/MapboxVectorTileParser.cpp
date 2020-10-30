@@ -422,12 +422,15 @@ bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst,RawData *rawDat
         return false;
     }
     
+    // TODO: Switch to stencils and get this working again
     // Call background
-    if (const auto backgroundStyle = styleDelegate->backgroundStyle(styleInst)) {
-        auto styleData = std::make_shared<VectorTileData>(*tileData);
-        std::vector<VectorObjectRef> objs;
-        backgroundStyle->buildObjects(styleInst, objs, styleData);
-    }
+//    if (const auto backgroundStyle = styleDelegate->backgroundStyle(styleInst)) {
+//        auto styleData = std::make_shared<VectorTileData>(*tileData);
+//        std::vector<VectorObjectRef> objs;
+//        backgroundStyle->buildObjects(styleInst, objs, styleData);
+//
+//        tileData->mergeFrom(styleData.get());
+//    }
     
     // Run the styles over their assembled data
     for (auto it : tileData->vecObjsByStyle) {

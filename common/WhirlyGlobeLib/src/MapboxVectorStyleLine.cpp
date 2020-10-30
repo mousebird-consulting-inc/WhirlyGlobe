@@ -193,8 +193,9 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
             vecInfo.widthExp->scaleBy(lineScale);
         vecInfo.colorExp = paint.color->expression();
         vecInfo.opacityExp = paint.opacity->expression();
-        vecInfo.drawPriority = drawPriority + tileInfo->ident.level * std::max(0, styleSet->tileStyleSettings->drawPriorityPerLevel);
-        vecInfo.drawOrder = tileInfo->tileNumber();
+        vecInfo.drawPriority = drawPriority + tileInfo->ident.level * std::max(0, styleSet->tileStyleSettings->drawPriorityPerLevel)+2;
+        // TODO: Switch to stencils
+//        vecInfo.drawOrder = tileInfo->tileNumber();
 
         // Gather all the linear features
         ShapeSet shapes;
@@ -203,7 +204,7 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
                 shapes.insert(vecObj->shapes.begin(),vecObj->shapes.end());
         }
         
-        const auto wideVecID = styleSet->wideVecManage->addVectors(&shapes, vecInfo, tileInfo->changes);
+        const auto wideVecID = styleSet->wideVecManage->addVectors(shapes, vecInfo, tileInfo->changes);
         if (wideVecID != EmptyIdentity)
             compObj->wideVectorIDs.insert(wideVecID);
     }

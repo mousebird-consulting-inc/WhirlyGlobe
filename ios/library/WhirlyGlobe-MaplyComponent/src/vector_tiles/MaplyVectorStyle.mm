@@ -602,7 +602,7 @@ std::vector<VectorStyleImplRef> VectorStyleDelegateWrapper::allStyles(PlatformTh
 
 VectorStyleImplRef VectorStyleDelegateWrapper::backgroundStyle(PlatformThreadInfo *inst) const
 {
-    NSObject<MaplyVectorStyle> *style = [delegate backgroundStyle: viewC:viewC];
+    NSObject<MaplyVectorStyle> *style = [delegate backgroundStyleViewC:viewC];
     return style ? std::make_shared<VectorStyleWrapper>(viewC,style) : VectorStyleImplRef();
 }
 

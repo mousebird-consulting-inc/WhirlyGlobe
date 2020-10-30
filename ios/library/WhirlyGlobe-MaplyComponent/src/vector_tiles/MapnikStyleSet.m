@@ -319,6 +319,10 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
   return self.symbolizers[uuid];
 }
 
+- (nullable NSObject<MaplyVectorStyle> *)backgroundStyleViewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+{
+    return nil;
+}
 
 #pragma mark - NSXMLDelegate
 - (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName

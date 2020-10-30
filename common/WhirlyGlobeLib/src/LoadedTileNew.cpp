@@ -131,7 +131,9 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
     // Note: Make this flexible
     chunk->setupTexCoordEntry(0, 0);
 
-    const auto drawOrder = tileNumber;
+    // TODO: Revisit this with stencils
+//    const auto drawOrder = tileNumber;
+    const auto drawOrder = BaseInfo::DrawOrderTiles;
     chunk->setDrawOrder(drawOrder);
 
     std::vector<BasicDrawableBuilderRef> drawables;

@@ -133,9 +133,7 @@ public:
                 }
                 return priorityA < priorityB;
             }
-            // TODO: put a comment here explaining why drawOrder is in descending order.
-            // The other way causes flashing of the background color, but why?
-            return orderB < orderA;
+            return orderA < orderB;
         }
     } PrioritySorter;
 

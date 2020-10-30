@@ -377,7 +377,6 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
     labelInfo->screenObject = true;
     labelInfo->fade = 0.0;
     labelInfo->textJustify = layout.textJustify;
-    labelInfo->drawOrder = tileInfo->tileNumber();
     labelInfo->drawPriority = drawPriority + zoomLevel * std::max(0, styleSet->tileStyleSettings->drawPriorityPerLevel) + ScreenDrawPriorityOffset;
     labelInfo->opacityExp = paint.textOpacity->expression();
 
@@ -424,7 +423,6 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
     if (iconInclude) {
         markerInfo.programID = styleSet->screenMarkerProgramID;
         markerInfo.drawPriority = labelInfo->drawPriority;
-        markerInfo.drawOrder = tileInfo->tileNumber();
     }
 
     // Calculate the present value of the offsets in ems.

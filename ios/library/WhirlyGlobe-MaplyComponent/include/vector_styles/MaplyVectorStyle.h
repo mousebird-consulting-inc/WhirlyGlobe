@@ -117,7 +117,7 @@
 - (nullable NSObject<MaplyVectorStyle> *)styleForUUID:(long long)uiid viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC;
 
 /// Return the style for the background
-- (nullable NSObject<MaplyVectorStyle> *)backgroundStyle: viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC;
+- (nullable NSObject<MaplyVectorStyle> *)backgroundStyleViewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC;
 
 // Return a list of all the styles in no particular order.  Needed for categories and indexing
 - (NSArray * __nonnull)allStyles;

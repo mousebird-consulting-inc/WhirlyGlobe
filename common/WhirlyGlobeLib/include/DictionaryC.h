@@ -45,7 +45,7 @@ public:
     MutableDictionaryC(const MutableDictionaryC &that);
     // Assignment operator
     MutableDictionaryC &operator = (const MutableDictionaryC &that);
-    virtual MutableDictionaryRef copy();
+    virtual MutableDictionaryRef copy() override;
     virtual ~MutableDictionaryC();
 
     class Value;
@@ -57,55 +57,57 @@ public:
     ValueRef parseJSONValue(JSONNode::iterator &nodeIt);
 
     /// Clean out the contents
-    void clear();
+    void clear() override;
     
     /// Number of fields being represented
     int numFields() const;
     
     /// Returns true if the field exists
-    virtual bool hasField(const std::string &name) const;
+    virtual bool hasField(const std::string &name) const override;
     
     /// Returns the field type
-    virtual DictionaryType getType(const std::string &name) const;
+    virtual DictionaryType getType(const std::string &name) const override;
     
     /// Remove the given field by name
-    void removeField(const std::string &name);
+    void removeField(const std::string &name) override;
     
     /// Return an int, using the default if it's missing
-    virtual int getInt(const std::string &name,int defVal=0.0) const;
+    virtual int getInt(const std::string &name,int defVal=0.0) const override;
     /// Return a 64 bit unique identity or 0 if missing
-    virtual SimpleIdentity getIdentity(const std::string &name) const;
+    virtual SimpleIdentity getIdentity(const std::string &name) const override;
+    /// Return a 64 bit value or 0 if missing
+    virtual int64_t getInt64(const std::string &name,int64_t defVal=0) const override;
     /// Interpret an int as a boolean
-    virtual bool getBool(const std::string &name,bool defVal=false) const;
+    virtual bool getBool(const std::string &name,bool defVal=false) const override;
     /// Interpret an int as a RGBA color
-    virtual RGBAColor getColor(const std::string &name,const RGBAColor &defVal) const;
+    virtual RGBAColor getColor(const std::string &name,const RGBAColor &defVal) const override;
     /// Return a double, using the default if it's missing
-    virtual double getDouble(const std::string &name,double defVal=0.0) const;
+    virtual double getDouble(const std::string &name,double defVal=0.0) const override;
     /// Return a string, or empty if it's missing
-    virtual std::string getString(const std::string &name) const;
+    virtual std::string getString(const std::string &name) const override;
     /// Return a string, using the default if it's missing
-    virtual std::string getString(const std::string &name,const std::string &defVal) const;
+    virtual std::string getString(const std::string &name,const std::string &defVal) const override;
     /// Return an object pointer
     DelayedDeletableRef getObject(const std::string &name);
     /// Return a dictionary as an entry
-    virtual DictionaryRef getDict(const std::string &name) const;
+    virtual DictionaryRef getDict(const std::string &name) const override;
     // Return a generic entry
-    virtual DictionaryEntryRef getEntry(const std::string &name) const;
+    virtual DictionaryEntryRef getEntry(const std::string &name) const override;
     // Return a low level value which is faster
     virtual ValueRef getValueRef(const std::string &name) const;
     // Return an array (if it is an array)
-    virtual std::vector<DictionaryEntryRef> getArray(const std::string &name) const;
+    virtual std::vector<DictionaryEntryRef> getArray(const std::string &name) const override;
     // Return an array of keys
-    virtual std::vector<std::string> getKeys() const;
+    virtual std::vector<std::string> getKeys() const override;
 
     /// Set field as int
-    void setInt(const std::string &name,int val);
+    void setInt(const std::string &name,int val) override;
     /// Set field as 64 bit unique value
-    void setIdentifiable(const std::string &name,SimpleIdentity val);
+    void setIdentifiable(const std::string &name,SimpleIdentity val) override;
     /// Set field as double
-    void setDouble(const std::string &name,double val);
+    void setDouble(const std::string &name,double val) override;
     /// Set field as string
-    void setString(const std::string &name,const std::string &val);
+    void setString(const std::string &name,const std::string &val) override;
     /// Set the dictionary at the given attribute name
     void setDict(const std::string &name,MutableDictionaryCRef dict);
     /// Set the entry at the given attribute name
@@ -124,7 +126,7 @@ public:
     std::string toString() const;
 
     // Merge in key-value pairs from another dictionary
-    void addEntries(const Dictionary *other);
+    void addEntries(const Dictionary *other) override;
 
     // Make a generic ValueRef from a generic entry (yeah, they're different
     static ValueRef makeValueRef(DictionaryEntryCRef entry);
@@ -283,6 +285,8 @@ public:
     virtual int getInt() const override;
     /// Return a 64 bit unique identity or 0 if missing
     virtual SimpleIdentity getIdentity() const override;
+    /// Return a 64 bit value or 0 if missing
+    virtual int64_t getInt64(const std::string &name,int64_t defVal=0) const;
     /// Interpret an int as a boolean
     virtual bool getBool() const override;
     /// Interpret an int as a RGBA color

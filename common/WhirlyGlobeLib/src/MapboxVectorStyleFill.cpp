@@ -82,7 +82,7 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
 {
     if (!visible || !(paint.color || paint.outlineColor))
         return;
-    
+        
     ComponentObjectRef compObj = styleSet->makeComponentObject(inst);
 
     // Gather all the areal features for fill and/or outline
@@ -120,8 +120,11 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
             vecInfo.colorExp = paint.color->expression();
             vecInfo.opacityExp = paint.opacity->expression();
             vecInfo.programID = (arealShaderID != EmptyIdentity) ? arealShaderID : styleSet->vectorArealProgramID;
-            vecInfo.drawPriority = drawPriority + tileInfo->ident.level * std::max(0, styleSet->tileStyleSettings->drawPriorityPerLevel);
-            vecInfo.drawOrder = tileInfo->tileNumber();
+            vecInfo.drawPriority = drawPriority + tileInfo->ident.level * std::max(0, styleSet->tileStyleSettings->drawPriorityPerLevel) + 1;
+            // TODO: Switch to stencils
+//            vecInfo.drawOrder = tileInfo->tileNumber();
+
+//            wkLogLevel(Debug, "fill: tildID = %d: (%d,%d)  drawOrder = %d, drawPriority = %d",tileInfo->ident.level, tileInfo->ident.x, tileInfo->ident.y, vecInfo.drawOrder,vecInfo.drawPriority);
 
             if (minzoom != 0 || maxzoom < 1000) {
                 vecInfo.minZoomVis = minzoom;
@@ -152,7 +155,7 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
             vecInfo.opacityExp = paint.opacity->expression();
             vecInfo.programID = (arealShaderID != EmptyIdentity) ? arealShaderID : styleSet->vectorArealProgramID;
             vecInfo.color = *color;
-            vecInfo.drawPriority = drawPriority + tileInfo->ident.level * std::max(0, styleSet->tileStyleSettings->drawPriorityPerLevel);
+            vecInfo.drawPriority = drawPriority + tileInfo->ident.level * std::max(0, styleSet->tileStyleSettings->drawPriorityPerLevel) + 1;
             vecInfo.drawOrder = tileInfo->tileNumber();
 
             if (minzoom != 0 || maxzoom < 1000) {

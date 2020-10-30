@@ -84,6 +84,11 @@
     return stylesByUUID[@(uuid)];
 }
 
+- (nullable NSObject<MaplyVectorStyle> *)backgroundStyleViewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+{
+    return nil;
+}
+
 - (NSArray * _Nonnull)allStyles
 {
     return [stylesByUUID allValues];
