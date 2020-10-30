@@ -33,7 +33,21 @@ public:
     QuadTreeIdentifier() { }
     /// Construct with the cell coordinates and level.
     QuadTreeIdentifier(int x,int y,int level) : x(x), y(y), level(level) { }
-    
+
+    static int64_t NodeNumber(int x, int y, int level)
+    {
+        const int64_t twoToZ = 1 << level;
+        
+        // total count of all levels below
+        const int64_t baseCount = (twoToZ * twoToZ - 1) / 3;   // (4 ^ z - 1) / 3
+        
+        // number within this level
+        const int64_t tileNumber = y * twoToZ + x;
+        
+        return baseCount + tileNumber;
+    }
+    int64_t NodeNumber() const { return NodeNumber(x,y,level); }
+
     /// Comparison based on x,y,level.  Used for sorting
     bool operator < (const QuadTreeIdentifier &that) const;
     
@@ -80,6 +94,8 @@ public:
         
         /// Not equal operator
         bool operator != (const Node &that) const;
+        
+        int64_t NodeNumber() const { return QuadTreeIdentifier::NodeNumber(x,y,level); }
         
         /// Spatial subdivision along the X axis relative to the space
         int x;

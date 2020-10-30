@@ -30,7 +30,7 @@ namespace WhirlyKit
 class BillboardDrawableBuilder : virtual public BasicDrawableBuilder
 {
 public:
-    virtual void Init();
+    virtual void Init() override;
     
     /// Each vertex has an offset in 3-space
     void addOffset(const Point3f &offset);

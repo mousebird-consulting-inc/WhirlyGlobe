@@ -358,7 +358,7 @@ void SceneRendererMTL::updateWorkGroups(RendererFrameInfo *inFrameInfo)
                     // If this isn't compatible with the draw group, create a new one
                     if (!drawGroup || zBufferRead != dgZBufferRead || zBufferWrite != dgZBufferWrite) {
                         // It's not, so we need to make a new draw group
-                        drawGroup = DrawGroupMTLRef(new DrawGroupMTL());
+                        drawGroup = std::make_shared<DrawGroupMTL>();
 
                         // Depth stencil, which goes in the command encoder later
                         MTLDepthStencilDescriptor *depthDesc = [[MTLDepthStencilDescriptor alloc] init];
@@ -799,8 +799,8 @@ void SceneRendererMTL::render(TimeInterval duration,
                         [cmdEncode setCullMode:MTLCullModeFront];
                         
                         // Work through the drawables
-                        for (auto &draw : targetContainer->drawables) {
-                            DrawableMTL *drawMTL = dynamic_cast<DrawableMTL *>(draw.get());
+                        for (auto const &draw : targetContainer->drawables) {
+                            auto drawMTL = dynamic_cast<DrawableMTL*>(draw.get());
 
                             // Figure out the program to use for drawing
                             SimpleIdentity drawProgramId = drawMTL->getProgram();
@@ -903,7 +903,6 @@ void SceneRendererMTL::render(TimeInterval duration,
                         }
                         
                         [snapshotDelegate snapshotData:nil];
-
                     }
                     
 //                    targetContainerMTL->lastRenderFence = nil;
@@ -933,9 +932,9 @@ void SceneRendererMTL::render(TimeInterval duration,
     // Update the frames per sec
     if (perfInterval > 0 && frameCount > perfInterval)
     {
-        TimeInterval now = TimeGetCurrent();
-        TimeInterval howLong =  now - frameCountStart;;
-        framesPerSec = frameCount / howLong;
+        const TimeInterval now = TimeGetCurrent();
+        const TimeInterval howLong =  now - frameCountStart;
+        framesPerSec = (howLong > 0) ? frameCount / howLong : 0.;
         frameCountStart = now;
         frameCount = 0;
         
@@ -949,7 +948,9 @@ void SceneRendererMTL::render(TimeInterval duration,
     scene->markProgramsUnchanged();
     
     // No teardown info available between frames
-    teardownInfo = RenderTeardownInfoMTLRef(new RenderTeardownInfoMTL());
+    if (teardownInfo) {
+        teardownInfo.reset();
+    }
 }
 
 void SceneRendererMTL::shutdown()
@@ -971,87 +972,74 @@ void SceneRendererMTL::shutdown()
 
 RenderTargetMTLRef SceneRendererMTL::getRenderTarget(SimpleIdentity renderTargetID)
 {
-    RenderTargetMTLRef renderTarget;
-    
     if (renderTargetID == EmptyIdentity) {
-        renderTarget = std::dynamic_pointer_cast<RenderTargetMTL>(renderTargets.back());
+        return std::dynamic_pointer_cast<RenderTargetMTL>(renderTargets.back());
     } else {
         for (auto target : renderTargets) {
             if (target->getId() == renderTargetID) {
-                renderTarget = std::dynamic_pointer_cast<RenderTargetMTL>(target);
-                break;
+                return std::dynamic_pointer_cast<RenderTargetMTL>(target);
             }
         }
     }
-    
-    return renderTarget;
+    return RenderTargetMTLRef();
 }
 
 RawDataRef SceneRendererMTL::getSnapshot(SimpleIdentity renderTargetID)
 {
-    RenderTargetMTLRef renderTarget = getRenderTarget(renderTargetID);
-    if (!renderTarget)
-        return nil;
-    
-    return renderTarget->snapshot();
+    const auto renderTarget = getRenderTarget(renderTargetID);
+    return renderTarget ? renderTarget->snapshot() : nil;
 }
 
 RawDataRef SceneRendererMTL::getSnapshotAt(SimpleIdentity renderTargetID,int x,int y)
 {
-    RenderTargetMTLRef renderTarget = getRenderTarget(renderTargetID);
-    if (!renderTarget)
-        return nil;
-
-    return renderTarget->snapshot(x, y, 1, 1);
+    const auto renderTarget = getRenderTarget(renderTargetID);
+    return renderTarget ? renderTarget->snapshot(x, y, 1, 1) : nil;
 }
 
 RawDataRef SceneRendererMTL::getSnapshotMinMax(SimpleIdentity renderTargetID)
 {
-    RenderTargetMTLRef renderTarget = getRenderTarget(renderTargetID);
-    if (!renderTarget)
-        return nil;
-
-    return renderTarget->snapshotMinMax();
+    const auto renderTarget = getRenderTarget(renderTargetID);
+    return renderTarget ? renderTarget->snapshotMinMax() : nil;
 }
     
 BasicDrawableBuilderRef SceneRendererMTL::makeBasicDrawableBuilder(const std::string &name) const
 {
-    return BasicDrawableBuilderRef(new BasicDrawableBuilderMTL(name,scene));
+    return std::make_shared<BasicDrawableBuilderMTL>(name,scene);
 }
 
 BasicDrawableInstanceBuilderRef SceneRendererMTL::makeBasicDrawableInstanceBuilder(const std::string &name) const
 {
-    return BasicDrawableInstanceBuilderRef(new BasicDrawableInstanceBuilderMTL(name,scene));
+    return std::make_shared<BasicDrawableInstanceBuilderMTL>(name,scene);
 }
 
 BillboardDrawableBuilderRef SceneRendererMTL::makeBillboardDrawableBuilder(const std::string &name) const
 {
-    return BillboardDrawableBuilderRef(new BillboardDrawableBuilderMTL(name,scene));
+    return std::make_shared<BillboardDrawableBuilderMTL>(name,scene);
 }
 
 ScreenSpaceDrawableBuilderRef SceneRendererMTL::makeScreenSpaceDrawableBuilder(const std::string &name) const
 {
-    return ScreenSpaceDrawableBuilderRef(new ScreenSpaceDrawableBuilderMTL(name,scene));
+    return std::make_shared<ScreenSpaceDrawableBuilderMTL>(name,scene);
 }
 
 ParticleSystemDrawableBuilderRef  SceneRendererMTL::makeParticleSystemDrawableBuilder(const std::string &name) const
 {
-    return ParticleSystemDrawableBuilderRef(new ParticleSystemDrawableBuilderMTL(name,scene));
+    return std::make_shared<ParticleSystemDrawableBuilderMTL>(name,scene);
 }
 
 WideVectorDrawableBuilderRef SceneRendererMTL::makeWideVectorDrawableBuilder(const std::string &name) const
 {
-    return WideVectorDrawableBuilderRef(new WideVectorDrawableBuilderMTL(name,scene));
+    return std::make_shared<WideVectorDrawableBuilderMTL>(name,scene);
 }
 
 RenderTargetRef SceneRendererMTL::makeRenderTarget() const
 {
-    return RenderTargetRef(new RenderTargetMTL());
+    return std::make_shared<RenderTargetMTL>();
 }
 
 DynamicTextureRef SceneRendererMTL::makeDynamicTexture(const std::string &name) const
 {
-    return DynamicTextureRef(new DynamicTextureMTL(name));
+    return std::make_shared<DynamicTextureMTL>(name);
 }
 
     

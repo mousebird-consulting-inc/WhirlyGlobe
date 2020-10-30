@@ -65,8 +65,11 @@ public:
     
     /// Visibility based on zoom level
     void setZoomInfo(int zoomSlot,double minZoomVis,double maxZoomVis);
-        
-    /// Draw priority used for sorting
+
+    /// Draw order used for sorting
+    virtual void setDrawOrder(int64_t newOrder);
+    
+    /// Draw priority used for sorting within drawOrder
     virtual void setDrawPriority(unsigned int newPriority);
     
     /// Override color for the instanced drawable

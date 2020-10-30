@@ -377,18 +377,15 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
     labelInfo->screenObject = true;
     labelInfo->fade = 0.0;
     labelInfo->textJustify = layout.textJustify;
-
-    if (styleSet->tileStyleSettings->drawPriorityPerLevel > 0)
-        labelInfo->drawPriority = drawPriority + zoomLevel * styleSet->tileStyleSettings->drawPriorityPerLevel + ScreenDrawPriorityOffset;
-    else
-        labelInfo->drawPriority = drawPriority + ScreenDrawPriorityOffset;
+    labelInfo->drawOrder = tileInfo->tileNumber();
+    labelInfo->drawPriority = drawPriority + zoomLevel * std::max(0, styleSet->tileStyleSettings->drawPriorityPerLevel) + ScreenDrawPriorityOffset;
+    labelInfo->opacityExp = paint.textOpacity->expression();
 
     // We'll try for one color for the whole thing
     // Note: To fix this we need to blast the text apart into pieces
-    RGBAColorRef textColor = styleSet->resolveColor(paint.textColor, NULL, zoomLevel, MBResolveColorOpacityReplaceAlpha);
+    const auto textColor = styleSet->resolveColor(paint.textColor, NULL, zoomLevel, MBResolveColorOpacityReplaceAlpha);
     if (textColor)
         labelInfo->textColor = *textColor;
-    labelInfo->opacityExp = paint.textOpacity->expression();
 
     // We can apply a scale, but it needs to be scaled to the current text size
     labelInfo->scaleExp = layout.textSize->expression();
@@ -405,7 +402,15 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
         if (labelInfo->outlineSize < 0.5)
             labelInfo->outlineSize = 0.5;
     }
-    
+
+    //    // Note: Made up value for pushing multi-line text together
+    //    desc[kMaplyTextLineSpacing] = @(4.0 / 5.0 * font.lineHeight);
+
+    const bool iconInclude = layout.iconImageField && styleSet->sprites;
+    const bool textInclude = (textColor && textSize > 0.0 && !layout.textField.chunks.empty());
+    if (!textInclude && !iconInclude)
+        return;
+
     // Sort out the image for the marker if we're doing that
     MarkerInfo markerInfo(true);
     markerInfo.hasExp = true;
@@ -415,19 +420,13 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
         markerInfo.maxZoomVis = maxzoom;
     }
     markerInfo.scaleExp = layout.iconSize->expression();
-    const bool iconInclude = layout.iconImageField && styleSet->sprites;
+
     if (iconInclude) {
         markerInfo.programID = styleSet->screenMarkerProgramID;
         markerInfo.drawPriority = labelInfo->drawPriority;
+        markerInfo.drawOrder = tileInfo->tileNumber();
     }
-    
-//    // Note: Made up value for pushing multi-line text together
-//    desc[kMaplyTextLineSpacing] = @(4.0 / 5.0 * font.lineHeight);
-    
-    const bool textInclude = (textColor && textSize > 0.0 && !layout.textField.chunks.empty());
-    if (!textInclude && !iconInclude)
-        return;
-    
+
     // Calculate the present value of the offsets in ems.
     // This isn't in setupLabel because it only needs to be done once.
     //
@@ -521,7 +520,7 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                     Point2d middle;
                     if (!vecObj->center(middle)) {
 #if DEBUG
-                        wkLogLevel(Warn, "MapboxVectorLayerSymbol: Failed to compute centroid of areal shape");
+                        wkLogLevel(Warn, "MapboxVectorLayerSymbol: Failed to compute center of areal shape");
 #endif
                         continue;
                     }

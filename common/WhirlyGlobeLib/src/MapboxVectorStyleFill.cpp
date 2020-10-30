@@ -121,6 +121,7 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
             vecInfo.opacityExp = paint.opacity->expression();
             vecInfo.programID = (arealShaderID != EmptyIdentity) ? arealShaderID : styleSet->vectorArealProgramID;
             vecInfo.drawPriority = drawPriority + tileInfo->ident.level * std::max(0, styleSet->tileStyleSettings->drawPriorityPerLevel);
+            vecInfo.drawOrder = tileInfo->tileNumber();
 
             if (minzoom != 0 || maxzoom < 1000) {
                 vecInfo.minZoomVis = minzoom;
@@ -152,6 +153,7 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
             vecInfo.programID = (arealShaderID != EmptyIdentity) ? arealShaderID : styleSet->vectorArealProgramID;
             vecInfo.color = *color;
             vecInfo.drawPriority = drawPriority + tileInfo->ident.level * std::max(0, styleSet->tileStyleSettings->drawPriorityPerLevel);
+            vecInfo.drawOrder = tileInfo->tileNumber();
 
             if (minzoom != 0 || maxzoom < 1000) {
                 vecInfo.zoomSlot = styleSet->zoomSlot;

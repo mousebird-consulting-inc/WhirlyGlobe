@@ -600,6 +600,12 @@ std::vector<VectorStyleImplRef> VectorStyleDelegateWrapper::allStyles(PlatformTh
     return retStyles;
 }
 
+VectorStyleImplRef VectorStyleDelegateWrapper::backgroundStyle(PlatformThreadInfo *inst) const
+{
+    NSObject<MaplyVectorStyle> *style = [delegate backgroundStyle: viewC:viewC];
+    return style ? std::make_shared<VectorStyleWrapper>(viewC,style) : VectorStyleImplRef();
+}
+
 RGBAColorRef VectorStyleDelegateWrapper::backgroundColor(PlatformThreadInfo *inst,double zoom)
 {
     return RGBAColorRef(new RGBAColor(RGBAColor::black()));

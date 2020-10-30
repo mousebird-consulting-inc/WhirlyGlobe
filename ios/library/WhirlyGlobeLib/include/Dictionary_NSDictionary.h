@@ -67,36 +67,38 @@ public:
     iosDictionary(NSDictionary *dict);
     // Copy constructor
     iosDictionary(const iosDictionary &that);
-    virtual ~iosDictionary();
+    virtual ~iosDictionary() override;
     
     /// Returns true if the field exists
-    bool hasField(const std::string &name) const;
+    bool hasField(const std::string &name) const override;
     
     /// Returns the field type
-    DictionaryType getType(const std::string &name) const;
+    DictionaryType getType(const std::string &name) const override;
     
     /// Return an int, using the default if it's missing
-    int getInt(const std::string &name,int defVal=0.0) const;
+    int getInt(const std::string &name,int defVal=0) const override;
+    /// Return an int64, using the default if it's missing
+    int64_t getInt64(const std::string &name, int64_t defVal) const override;
     /// Return a 64 bit unique identity or 0 if missing
-    SimpleIdentity getIdentity(const std::string &name) const;
+    SimpleIdentity getIdentity(const std::string &name) const override;
     /// Interpret an int as a boolean
-    bool getBool(const std::string &name,bool defVal=false) const;
+    bool getBool(const std::string &name,bool defVal=false) const override;
     /// Interpret an int as a RGBA color
-    RGBAColor getColor(const std::string &name,const RGBAColor &defVal) const;
+    RGBAColor getColor(const std::string &name,const RGBAColor &defVal) const override;
     /// Return a double, using the default if it's missing
-    double getDouble(const std::string &name,double defVal=0.0) const;
+    double getDouble(const std::string &name,double defVal=0.0) const override;
     /// Return a string, or empty if it's missing
-    std::string getString(const std::string &name) const;
+    std::string getString(const std::string &name) const override;
     /// Return a string, using the default if it's missing
-    std::string getString(const std::string &name,const std::string &defVal) const;
+    std::string getString(const std::string &name,const std::string &defVal) const override;
     /// Return a dictionary as an entry
-    DictionaryRef getDict(const std::string &name) const;
+    DictionaryRef getDict(const std::string &name) const override;
     // Return a generic entry
-    virtual DictionaryEntryRef getEntry(const std::string &name) const;
+    virtual DictionaryEntryRef getEntry(const std::string &name) const override;
     // Return an array (if it is an array)
-    virtual std::vector<DictionaryEntryRef> getArray(const std::string &name) const;
+    virtual std::vector<DictionaryEntryRef> getArray(const std::string &name) const override;
     // Return an array of key names
-    virtual std::vector<std::string> getKeys() const;
+    virtual std::vector<std::string> getKeys() const override;
 public:
     NSDictionary *dict;
 };
@@ -113,55 +115,57 @@ public:
     iosMutableDictionary(MutableDictionaryRef dict);
     // Assignment operator
     virtual iosMutableDictionary &operator = (const iosMutableDictionary &that);
-    virtual ~iosMutableDictionary();
-    virtual MutableDictionaryRef copy();
+    virtual ~iosMutableDictionary() override;
+    virtual MutableDictionaryRef copy() override;
 
     /// Returns true if the field exists
-    bool hasField(const std::string &name) const;
+    bool hasField(const std::string &name) const override;
     
     /// Returns the field type
-    DictionaryType getType(const std::string &name) const;
+    DictionaryType getType(const std::string &name) const override;
     
     /// Return an int, using the default if it's missing
-    int getInt(const std::string &name,int defVal=0.0) const;
+    int getInt(const std::string &name,int defVal=0.0) const override;
+    /// Return an int64, using the default if it's missing
+    int64_t getInt64(const std::string &name, int64_t defVal) const override;
     /// Return a 64 bit unique identity or 0 if missing
-    SimpleIdentity getIdentity(const std::string &name) const;
+    SimpleIdentity getIdentity(const std::string &name) const override;
     /// Interpret an int as a boolean
-    bool getBool(const std::string &name,bool defVal=false) const;
+    bool getBool(const std::string &name,bool defVal=false) const override;
     /// Interpret an int as a RGBA color
-    RGBAColor getColor(const std::string &name,const RGBAColor &defVal) const;
+    RGBAColor getColor(const std::string &name,const RGBAColor &defVal) const override;
     /// Return a double, using the default if it's missing
-    double getDouble(const std::string &name,double defVal=0.0) const;
+    double getDouble(const std::string &name,double defVal=0.0) const override;
     /// Return a string, or empty if it's missing
-    std::string getString(const std::string &name) const;
+    std::string getString(const std::string &name) const override;
     /// Return a string, using the default if it's missing
-    std::string getString(const std::string &name,const std::string &defVal) const;
+    std::string getString(const std::string &name,const std::string &defVal) const override;
     /// Return a dictionary as an entry
-    DictionaryRef getDict(const std::string &name) const;
+    DictionaryRef getDict(const std::string &name) const override;
     // Return a generic entry
-    DictionaryEntryRef getEntry(const std::string &name) const;
+    DictionaryEntryRef getEntry(const std::string &name) const override;
     // Return an array (if it is an array)
-    std::vector<DictionaryEntryRef> getArray(const std::string &name) const;
+    std::vector<DictionaryEntryRef> getArray(const std::string &name) const override;
     // Return an array of key names
-    virtual std::vector<std::string> getKeys() const;
+    virtual std::vector<std::string> getKeys() const override;
 
     /// Clean out the contents
-    void clear();
+    void clear() override;
     
     /// Remove the given field by name
-    void removeField(const std::string &name);
+    void removeField(const std::string &name) override;
     
     /// Set field as int
-    void setInt(const std::string &name,int val);
+    void setInt(const std::string &name,int val) override;
     /// Set field as 64 bit unique value
-    void setIdentifiable(const std::string &name,SimpleIdentity val);
+    void setIdentifiable(const std::string &name,SimpleIdentity val) override;
     /// Set field as double
-    void setDouble(const std::string &name,double val);
+    void setDouble(const std::string &name,double val) override;
     /// Set field as string
-    void setString(const std::string &name,const std::string &val);
+    void setString(const std::string &name,const std::string &val) override;
     
     // Merge in key-value pairs from another dictionary
-    void addEntries(const Dictionary *other);
+    void addEntries(const Dictionary *other) override;
     
 public:
     NSMutableDictionary *dict;

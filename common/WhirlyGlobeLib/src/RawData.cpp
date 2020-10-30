@@ -79,6 +79,17 @@ bool RawDataReader::getInt(int &val)
     return true;
 }
 
+bool RawDataReader::getInt64(int64_t &val)
+{
+    size_t dataSize = sizeof(int64_t);
+    if (pos+dataSize > rawData->getLen())
+        return false;
+    val = *((int *)(rawData->getRawData()+pos));
+    pos += dataSize;
+
+    return true;
+}
+
 bool RawDataReader::getDouble(double &val)
 {
     size_t dataSize = sizeof(double);
@@ -140,6 +151,13 @@ unsigned long MutableRawData::getLen() const
 void MutableRawData::addInt(int iVal)
 {
     size_t len = sizeof(int);
+    data.resize(data.size()+len);
+    memcpy(&data[data.size()-len], &iVal, len);
+}
+
+void MutableRawData::addInt64(int64_t iVal)
+{
+    size_t len = sizeof(int64_t);
     data.resize(data.size()+len);
     memcpy(&data[data.size()-len], &iVal, len);
 }

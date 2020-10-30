@@ -96,15 +96,19 @@ public:
     typedef enum { DrawableGeom, DrawableSkirt, DrawablePole } DrawableKind;
     class DrawableInfo {
     public:
-        DrawableInfo(DrawableKind kind,SimpleIdentity drawID,int drawPriority) : kind(kind), drawID(drawID), drawPriority(drawPriority) { }
+        DrawableInfo(DrawableKind kind,SimpleIdentity drawID,int drawPriority, int64_t drawOrder)
+            : kind(kind), drawID(drawID), drawPriority(drawPriority), drawOrder(drawOrder)
+        { }
         DrawableKind kind;      // What this is.  Main geometry or edge.
         SimpleIdentity drawID;  // ID corresponding to the drawable created
         int drawPriority;       // Draw priority we gave it
+        int64_t drawOrder;
     };
     bool enabled;
     QuadTreeNew::ImportantNode ident;
     MbrD mbr;
     std::vector<DrawableInfo> drawInfo;
+    int64_t tileNumber;
     // The Draw Priority as set when created
     int drawPriority;
 };

@@ -37,12 +37,12 @@ using namespace WhirlyKit;
 - (id)initWithID:(MaplyTileID)tileID bbox:(MaplyBoundingBoxD)bbox geoBBox:(MaplyBoundingBoxD)geoBBox
 {
     self = [super init];
-    data = VectorTileDataRef(new VectorTileData());
+    data = std::make_shared<VectorTileData>();
     
     data->ident.x = tileID.x;
     data->ident.y = tileID.y;
     data->ident.level = tileID.level;
-    
+
     data->bbox.ll() = Point2d(bbox.ll.x,bbox.ll.y);
     data->bbox.ur() = Point2d(bbox.ur.x,bbox.ur.y);
     data->geoBBox.ll() = Point2d(geoBBox.ll.x,geoBBox.ll.y);

@@ -212,6 +212,7 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,std::vector<SingleLabe
             justifyOff.y() += heightAboveBaseline/2.0;
 #endif
 
+            screenShape->setDrawOrder(labelInfo->drawOrder);
             screenShape->setDrawPriority(labelInfo->drawPriority+1);
             screenShape->setVisibility(labelInfo->minVis, labelInfo->maxVis);
             screenShape->setZoomInfo(labelInfo->zoomSlot, labelInfo->minZoomVis, labelInfo->maxZoomVis);

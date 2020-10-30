@@ -194,6 +194,18 @@ int iosDictionary::getInt(const std::string &name,int defVal) const
     return [dict intForKey:theName default:defVal];
 }
 
+/// Return an int64, using the default if it's missing
+int64_t iosDictionary::getInt64(const std::string &name, int64_t defVal) const 
+{
+    NSString *theName = StdStringToString(name);
+    
+    NSObject* obj = [dict valueForKey:theName];
+    if (obj && [obj isKindOfClass:[NSNumber class]]) {
+        return [(NSNumber*)obj longLongValue];
+    }
+    return defVal;
+}
+
 /// Return a 64 bit unique identity or 0 if missing
 SimpleIdentity iosDictionary::getIdentity(const std::string &name) const
 {
@@ -356,6 +368,17 @@ int iosMutableDictionary::getInt(const std::string &name,int defVal) const
     NSString *theName = StdStringToString(name);
     
     return [dict intForKey:theName default:defVal];
+}
+
+int64_t iosMutableDictionary::getInt64(const std::string &name,int64_t defVal) const
+{
+    NSString *theName = StdStringToString(name);
+    
+    NSObject* obj = [dict valueForKey:theName];
+    if (obj && [obj isKindOfClass:[NSNumber class]]) {
+        return [(NSNumber*)obj longLongValue];
+    }
+    return defVal;
 }
 
 /// Return a 64 bit unique identity or 0 if missing

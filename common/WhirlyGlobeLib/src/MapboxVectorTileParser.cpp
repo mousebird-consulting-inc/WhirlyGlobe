@@ -251,7 +251,7 @@ bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst,RawData *rawDat
                                     y += (static_cast<double>(dy) / scale);
                                     //At this point x/y is a coord encoded in tile coord space, from 0 to TILE_SIZE
                                     //Convert to epsg:3785, then to degrees, then to radians
-                                    Point2d loc((tileOriginX + x / sx),(tileOriginY - y / sy));
+                                    const Point2d loc((tileOriginX + x / sx),(tileOriginY - y / sy));
                                     if (localCoords) {
                                         point = loc;
                                     } else {
@@ -312,7 +312,7 @@ bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst,RawData *rawDat
                                     y += (static_cast<double>(dy) / scale);
                                     //At this point x/y is a coord is encoded in tile coord space, from 0 to TILE_SIZE
                                     //Convert to epsg:3785, then to degrees, then to radians
-                                    Point2d loc((tileOriginX + x / sx),(tileOriginY - y / sy));
+                                    const Point2d loc((tileOriginX + x / sx),(tileOriginY - y / sy));
                                     if (localCoords) {
                                         point = loc;
                                     } else {
@@ -422,11 +422,18 @@ bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst,RawData *rawDat
         return false;
     }
     
+    // Call background
+    if (const auto backgroundStyle = styleDelegate->backgroundStyle(styleInst)) {
+        auto styleData = std::make_shared<VectorTileData>(*tileData);
+        std::vector<VectorObjectRef> objs;
+        backgroundStyle->buildObjects(styleInst, objs, styleData);
+    }
+    
     // Run the styles over their assembled data
     for (auto it : tileData->vecObjsByStyle) {
         std::vector<VectorObjectRef> *vecs = it.second;
 
-        auto styleData = VectorTileDataRef(new VectorTileData(*tileData));
+        auto styleData = std::make_shared<VectorTileData>(*tileData);
 
         // Ask the subclass to run the style and fill in the VectorTileData
         buildForStyle(styleInst,it.first,*vecs,styleData);
@@ -434,7 +441,7 @@ bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst,RawData *rawDat
         // Sort the results into categories if needed
         auto catIt = styleCategories.find(it.first);
         if (catIt != styleCategories.end() && !styleData->compObjs.empty()) {
-            std::string category = catIt->second;
+            const std::string &category = catIt->second;
             auto compObjs = styleData->compObjs;
             auto categoryIt = tileData->categories.find(category);
             if (categoryIt != tileData->categories.end()) {

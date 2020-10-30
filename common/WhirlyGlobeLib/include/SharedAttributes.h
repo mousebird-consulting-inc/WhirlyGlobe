@@ -35,9 +35,13 @@
 
 /// If the z buffer is on, this will let you resolve.  Takes an NSNumber boolean
 #define MaplyDrawOffset WKString("drawOffset")
-/// This helps decide what order things are drawn in.  Useful when the z buffer is off or you're using transparency.
+/// This helps decide what order things within the same `drawOrder` are drawn.
+/// Useful when the z buffer is off or you're using transparency.
 /// Takes an NSNumber int.
 #define MaplyDrawPriority WKString("drawPriority")
+/// This helps decide what order things are drawn in.
+/// Takes an NSNumber Int64.
+#define MaplyDrawOrder WKString("drawOrder")
 /// Minimum point at which a feature is visible.  Takes an NSNumber float.  The radius of the globe is 1.0
 #define MaplyMinVis WKString("minVis")
 /// Maximum point at which a feature is visible.  Takes an NSNumber float.  The radius of the globe is 1.0

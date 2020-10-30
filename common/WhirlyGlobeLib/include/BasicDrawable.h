@@ -101,6 +101,10 @@ public:
     ///  the surface of the globe as at 1.0
     virtual void setVisibleRange(float minVis,float maxVis,float minVisBand=0.0,float maxVisBand=0.0);
     
+    virtual int64_t getDrawOrder() const;
+    
+    virtual void setDrawOrder(int64_t newOrder);
+    
     /// We use this to sort drawables
     virtual unsigned int getDrawPriority() const;
 
@@ -207,6 +211,7 @@ public:
     int zoomSlot;
     double minZoomVis,maxZoomVis;
     Point3d viewerCenter;
+    int64_t drawOrder;
     unsigned int drawPriority;  // Used to sort drawables
     float drawOffset;    // Number of units of Z buffer resolution to offset upward (by the normal)
     bool isAlpha;  // Set if we want to be drawn last
@@ -376,6 +381,18 @@ public:
     
 protected:
     Eigen::Matrix4d newMat;
+};
+
+/// Change the drawOrder on a drawable
+class DrawOrderChangeRequest : public DrawableChangeRequest
+{
+public:
+    DrawOrderChangeRequest(SimpleIdentity drawId,int64_t drawOrder);
+    
+    void execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw);
+    
+protected:
+    int64_t drawOrder;
 };
 
 /// Change the drawPriority on a drawable

@@ -63,6 +63,8 @@ public:
     /// Clear out any added objects (but not ident, bounds)
     void clear();
     
+    int64_t tileNumber() const { return ident.NodeNumber(); }
+    
     /// Tile ID for this tile
     QuadTreeIdentifier ident;
     
