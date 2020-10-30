@@ -883,6 +883,8 @@ public:
     // Set up a description and create the markers in the marker layer
     ChangeSet changes;
     SimpleIdentity markerID = compManager->markerManager->addMarkers(wgMarkers, markerInfo, changes);
+    for (auto marker: wgMarkers)
+        delete marker;
     if (markerID != EmptyIdentity)
         compObj->contents->markerIDs.insert(markerID);
     [self flushChanges:changes mode:threadMode];
@@ -1203,6 +1205,8 @@ public:
     {
         ChangeSet changes;
         SimpleIdentity markerID = markerManager->addMarkers(wgMarkers, markerInfo, changes);
+        for (auto marker: wgMarkers)
+            delete marker;
         if (markerID != EmptyIdentity)
             compObj->contents->markerIDs.insert(markerID);
         [self flushChanges:changes mode:threadMode];
@@ -1682,7 +1686,7 @@ public:
     if (vectorManager)
     {
         ChangeSet changes;
-        SimpleIdentity vecID = vectorManager->addVectors(&shapes, vectorInfo, changes);
+        SimpleIdentity vecID = vectorManager->addVectors(shapes, vectorInfo, changes);
         [self flushChanges:changes mode:threadMode];
         if (vecID != EmptyIdentity)
             compObj->contents->wideVectorIDs.insert(vecID);

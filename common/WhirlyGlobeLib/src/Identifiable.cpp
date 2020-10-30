@@ -20,27 +20,20 @@
 
 #import "Identifiable.h"
 #import <pthread.h>
-#import <mutex>
-
-static std::mutex identMutex;
+#import <atomic>
 
 namespace WhirlyKit
 {
 	
-static unsigned long curId = 0;
+static std::atomic<uint32_t> curId(0);
 
-Identifiable::Identifiable()
+Identifiable::Identifiable() : myId(++curId)
 {
-    std::lock_guard<std::mutex> lock(identMutex);
-	myId = ++curId;
 }
 	
 SimpleIdentity Identifiable::genId()
 {
-    std::lock_guard<std::mutex> lock(identMutex);
-    SimpleIdentity retId = ++curId;
-    
-    return retId;
+    return ++curId;
 }
     
 }

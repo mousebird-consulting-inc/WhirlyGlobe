@@ -629,25 +629,25 @@ public:
     // Debug verson of add linear
     void addLinearDebug()
     {
-        Point3d up(0,0,1);
+        const Point3d up(0,0,1);
         VectorRing pts;
         pts.push_back(GeoCoord(0,1));
         pts.push_back(GeoCoord(0,0));
         pts.push_back(GeoCoord(1,0));
         
-        RGBAColor color = vecInfo->color;
+        const RGBAColor color = vecInfo->color;
         WideVectorBuilder vecBuilder(vecInfo,Point3d(0,0,0),Point3d(0,0,0),color,false,coordAdapter);
         
         for (unsigned int ii=0;ii<pts.size();ii++)
         {
             // Get the points in display space
-            Point2f geoA = pts[ii];
+            const Point2f geoA = pts[ii];
             
-            Point3d dispPa(geoA.x(),geoA.y(),0.0);
+            const Point3d dispPa(geoA.x(),geoA.y(),0.0);
 
             // Get a drawable ready
-            int ptCount = 5;
-            int triCount = 4;
+            const int ptCount = 5;
+            const int triCount = 4;
             WideVectorDrawableBuilderRef thisDrawable = getDrawable(ptCount,triCount,ptCount,triCount);
             drawMbr.addPoint(geoA);
 
@@ -663,7 +663,7 @@ public:
         flush();
         
         if (drawables.empty())
-            return NULL;
+            return nullptr;
         
         TimeInterval curTime = scene->getCurrentTime();
         
@@ -671,7 +671,7 @@ public:
         sceneRep->fade = vecInfo->fade;
         for (unsigned int ii=0;ii<drawables.size();ii++)
         {
-            WideVectorDrawableBuilderRef drawable = drawables[ii];
+            const auto &drawable = drawables[ii];
             sceneRep->drawIDs.insert(drawable->getDrawableID());
             if (vecInfo->fade > 0.0)
                 drawable->setFade(curTime,curTime+vecInfo->fade);
@@ -725,18 +725,16 @@ void WideVectorSceneRep::enableContents(bool enable,ChangeSet &changes)
 {
     SimpleIDSet allIDs = drawIDs;
     allIDs.insert(instIDs.begin(),instIDs.end());
-    for (SimpleIDSet::iterator it = allIDs.begin();
-         it != allIDs.end(); ++it)
-        changes.push_back(new OnOffChangeRequest(*it,enable));
+    for (const auto &it : allIDs)
+        changes.push_back(new OnOffChangeRequest(it,enable));
 }
 
 void WideVectorSceneRep::clearContents(ChangeSet &changes,TimeInterval when)
 {
     SimpleIDSet allIDs = drawIDs;
     allIDs.insert(instIDs.begin(),instIDs.end());
-    for (SimpleIDSet::iterator it = allIDs.begin();
-         it != allIDs.end(); ++it)
-        changes.push_back(new RemDrawableReq(*it,when));
+    for (const auto &it : allIDs)
+        changes.push_back(new RemDrawableReq(it,when));
 }
 
 WideVectorManager::WideVectorManager()
@@ -745,66 +743,59 @@ WideVectorManager::WideVectorManager()
 
 WideVectorManager::~WideVectorManager()
 {
-    for (WideVectorSceneRepSet::iterator it = sceneReps.begin();
-         it != sceneReps.end(); ++it)
-        delete *it;
+    for (auto it : sceneReps)
+        delete it;
     sceneReps.clear();
 }
     
-SimpleIdentity WideVectorManager::addVectors(ShapeSet *shapes,const WideVectorInfo &vecInfo,ChangeSet &changes)
+SimpleIdentity WideVectorManager::addVectors(const ShapeSet &shapes,const WideVectorInfo &vecInfo,ChangeSet &changes)
 {
-    WideVectorDrawableConstructor builder(renderer,scene,&vecInfo);
-    
     // Calculate a center for this geometry
     GeoMbr geoMbr;
-    for (ShapeSet::iterator it = shapes->begin(); it != shapes->end(); ++it)
+    for (const auto &shape : shapes)
     {
-        GeoMbr thisMbr = (*it)->calcGeoMbr();
-        geoMbr.expand(thisMbr);
+        geoMbr.expand(shape->calcGeoMbr());
     }
     // No data?
     if (!geoMbr.valid())
         return EmptyIdentity;
-    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
-    GeoCoord centerGeo = geoMbr.mid();
-    Point3d localCenter = coordAdapter->getCoordSystem()->geographicToLocal3d(centerGeo);
-    Point3d centerDisp = coordAdapter->localToDisplay(localCenter);
-    builder.setCenter(localCenter,centerDisp);
-    Point3d centerUp(0,0,1);
-    if (!coordAdapter->isFlat())
-    {
-        centerUp = coordAdapter->normalForLocal(localCenter);
-    }
 
-    for (ShapeSet::iterator it = shapes->begin(); it != shapes->end(); ++it)
+    WideVectorDrawableConstructor builder(renderer,scene,&vecInfo);
+
+    const GeoCoord centerGeo = geoMbr.mid();
+
+    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
+    const Point3d localCenter = coordAdapter->getCoordSystem()->geographicToLocal3d(centerGeo);
+    const Point3d centerDisp = coordAdapter->localToDisplay(localCenter);
+    const auto centerUp = coordAdapter->isFlat() ? Point3d(0,0,1) : coordAdapter->normalForLocal(localCenter);
+    
+    builder.setCenter(localCenter,centerDisp);
+
+    for (const auto &shape : shapes)
     {
-        VectorLinearRef lin = std::dynamic_pointer_cast<VectorLinear>(*it);
-        if (lin)
+        if (const auto lin = std::dynamic_pointer_cast<VectorLinear>(shape))
         {
             builder.addLinear(lin->pts,centerUp,false);
-        } else {
-            VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
-            if (ar)
+        }
+        else if (const auto ar = std::dynamic_pointer_cast<VectorAreal>(shape))
+        {
+            for (const auto &loop : ar->loops)
             {
-                for (const auto &loop : ar->loops)
+                if (loop.size() > 2 && loop.begin() != loop.end())
                 {
-                    if (loop.size() > 2 && loop.begin() != loop.end())
-                    {
-                        // Just tack on another point at the end.  Kind of dumb, but easy.
-                        VectorRing newLoop = loop;
-                        newLoop.push_back(loop[0]);
-                        builder.addLinear(newLoop, centerUp, true);
-                    } else
-                        builder.addLinear(loop, centerUp, true);
-                }
+                    // Just tack on another point at the end.  Kind of dumb, but easy.
+                    VectorRing newLoop = loop;
+                    newLoop.push_back(loop[0]);
+                    builder.addLinear(newLoop, centerUp, true);
+                } else
+                    builder.addLinear(loop, centerUp, true);
             }
         }
     }
 //    builder.addLinearDebug();
     
-    WideVectorSceneRep *sceneRep = builder.flush(changes);
     SimpleIdentity vecID = EmptyIdentity;
-    if (sceneRep)
+    if (auto sceneRep = builder.flush(changes))
     {
         vecID = sceneRep->getId();
         std::lock_guard<std::mutex> guardLock(vecLock);
@@ -818,17 +809,17 @@ void WideVectorManager::enableVectors(SimpleIDSet &vecIDs,bool enable,ChangeSet 
 {
     std::lock_guard<std::mutex> guardLock(vecLock);
 
-    for (SimpleIDSet::iterator vit = vecIDs.begin();vit != vecIDs.end();++vit)
+    for (const auto &vit : vecIDs)
     {
-        WideVectorSceneRep dummyRep(*vit);
-        WideVectorSceneRepSet::iterator it = sceneReps.find(&dummyRep);
+        WideVectorSceneRep dummyRep(vit);
+        const auto it = sceneReps.find(&dummyRep);
         if (it != sceneReps.end())
         {
-            WideVectorSceneRep *vecRep = *it;
+            const WideVectorSceneRep *vecRep = *it;
             SimpleIDSet allIDs = vecRep->drawIDs;
             allIDs.insert(vecRep->instIDs.begin(),vecRep->instIDs.end());
-            for (SimpleIDSet::iterator idIt = allIDs.begin(); idIt != allIDs.end(); ++idIt)
-                changes.push_back(new OnOffChangeRequest(*idIt,enable));
+            for (const auto &id : allIDs)
+                changes.push_back(new OnOffChangeRequest(id,enable));
         }
     }
 }
@@ -841,17 +832,16 @@ SimpleIdentity WideVectorManager::instanceVectors(SimpleIdentity vecID,const Wid
 
     // Look for the representation
     WideVectorSceneRep dummyRep(vecID);
-    WideVectorSceneRepSet::iterator it = sceneReps.find(&dummyRep);
+    const auto it = sceneReps.find(&dummyRep);
     if (it != sceneReps.end())
     {
-        WideVectorSceneRep *sceneRep = *it;
-        WideVectorSceneRep *newSceneRep = new WideVectorSceneRep();
-        for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
-             idIt != sceneRep->drawIDs.end(); ++idIt)
+        const WideVectorSceneRep *sceneRep = *it;
+        auto newSceneRep = new WideVectorSceneRep();
+        for (const auto &id : sceneRep->drawIDs)
         {
             // Make up a BasicDrawableInstance
-            BasicDrawableInstanceBuilderRef drawInst = renderer->makeBasicDrawableInstanceBuilder("Wide Vector Manager");
-            drawInst->setMasterID(*idIt,BasicDrawableInstance::ReuseStyle);
+            auto drawInst = renderer->makeBasicDrawableInstanceBuilder("Wide Vector Manager");
+            drawInst->setMasterID(id,BasicDrawableInstance::ReuseStyle);
 
             // Changed enable
             drawInst->setOnOff(vecInfo.enable);
@@ -888,7 +878,7 @@ void WideVectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
     for (SimpleIDSet::iterator vit = vecIDs.begin();vit != vecIDs.end();++vit)
     {
         WideVectorSceneRep dummyRep(*vit);
-        WideVectorSceneRepSet::iterator it = sceneReps.find(&dummyRep);
+        const auto it = sceneReps.find(&dummyRep);
         if (it != sceneReps.end())
         {
             WideVectorSceneRep *sceneRep = *it;
@@ -898,14 +888,13 @@ void WideVectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
             {
                 SimpleIDSet allIDs = sceneRep->drawIDs;
                 allIDs.insert(sceneRep->instIDs.begin(),sceneRep->instIDs.end());
-                for (SimpleIDSet::iterator it = allIDs.begin();
-                     it != allIDs.end(); ++it)
-                    changes.push_back(new FadeChangeRequest(*it, curTime, curTime+sceneRep->fade));
+                for (const auto id : allIDs)
+                    changes.push_back(new FadeChangeRequest(id, curTime, curTime+sceneRep->fade));
                 
                 removeTime = curTime + sceneRep->fade;
             }
             
-            (*it)->clearContents(changes,removeTime);
+            sceneRep->clearContents(changes,removeTime);
             sceneReps.erase(it);
             delete sceneRep;
         }

@@ -88,6 +88,7 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
     Marker();
+    ~Marker();
     
     /// If set, this marker should be made selectable
     ///  and it will be if the selection layer has been set

@@ -35,10 +35,10 @@ using namespace WhirlyKit;
 {
     self = [super init];
     
-    loadReturn = QuadLoaderReturnRef(new QuadLoaderReturn(loader->loader->getGeneration()));
+    loadReturn = std::make_shared<QuadLoaderReturn>(loader->loader->getGeneration());
     viewC = loader.viewC;
     
-    return self;
+    return self;	
 }
 
 - (void)setTileID:(MaplyTileID)tileID

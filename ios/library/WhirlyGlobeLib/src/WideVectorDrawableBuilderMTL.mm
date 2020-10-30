@@ -33,7 +33,7 @@ WideVectorDrawableBuilderMTL::WideVectorDrawableBuilderMTL(const std::string &na
     
 void WideVectorDrawableBuilderMTL::Init(unsigned int numVert, unsigned int numTri, bool globeMode)
 {
-    basicDraw = new BasicDrawableMTL("Wide Vector");
+    basicDraw = std::make_shared<BasicDrawableMTL>("Wide Vector");
     WideVectorDrawableBuilder::Init(numVert,numTri,globeMode);
     
     // Wire up the buffers
@@ -52,12 +52,12 @@ WideVectorTweaker *WideVectorDrawableBuilderMTL::makeTweaker()
     return NULL;
 }
 
-BasicDrawable *WideVectorDrawableBuilderMTL::getDrawable()
+BasicDrawableRef WideVectorDrawableBuilderMTL::getDrawable()
 {
     if (drawableGotten)
         return BasicDrawableBuilderMTL::getDrawable();
     
-    BasicDrawable *theDraw = BasicDrawableBuilderMTL::getDrawable();
+    BasicDrawableRef theDraw = BasicDrawableBuilderMTL::getDrawable();
 
     // Uniforms for regular wide vectors
     WhirlyKitShader::UniformWideVec uniWV;

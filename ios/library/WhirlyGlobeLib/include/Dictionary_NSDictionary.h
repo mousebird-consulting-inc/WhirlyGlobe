@@ -20,6 +20,7 @@
 
 #import <Foundation/Foundation.h>
 #import "Dictionary.h"
+#import "DictionaryC.h"
 
 namespace WhirlyKit
 {
@@ -167,3 +168,11 @@ public:
 };
 
 }
+
+// Convert an NSDictionary to a C++ native DictionaryC
+@interface NSDictionary (DictionaryC)
+
+// Convert to the native C++ DictionaryC
+- (WhirlyKit::MutableDictionaryCRef) toDictionaryC;
+
+@end

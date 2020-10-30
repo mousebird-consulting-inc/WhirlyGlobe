@@ -33,19 +33,19 @@ BillboardDrawableBuilderMTL::BillboardDrawableBuilderMTL(const std::string &name
     
 void BillboardDrawableBuilderMTL::Init()
 {
-    basicDraw = new BasicDrawableMTL("Billboard");
+    basicDraw = std::make_shared<BasicDrawableMTL>("Billboard");
     BillboardDrawableBuilder::Init();
     
     // Wire up the buffers we use
     ((VertexAttributeMTL *)basicDraw->vertexAttributes[offsetIndex])->slot = WhirlyKitShader::WKSVertexBillboardOffsetAttribute;
 }
     
-BasicDrawable *BillboardDrawableBuilderMTL::getDrawable()
+BasicDrawableRef BillboardDrawableBuilderMTL::getDrawable()
 {
     if (drawableGotten)
         return BasicDrawableBuilderMTL::getDrawable();
     
-    BasicDrawable *theDraw = BasicDrawableBuilderMTL::getDrawable();
+    BasicDrawableRef theDraw = BasicDrawableBuilderMTL::getDrawable();
 
     WhirlyKitShader::UniformBillboard uniBB;
     bzero(&uniBB,sizeof(uniBB));

@@ -694,11 +694,9 @@ QuadImageFrameLoader::QuadImageFrameLoader(const SamplingParams &params,Mode mod
     changesSinceLastFlush(true),
     compManager(NULL),
     generation(0),
-    targetLevel(-1), curOvlLevel(-1),
-    lastRunReqFlag(NULL), loadingStatus(true)
+    targetLevel(-1), curOvlLevel(-1), loadingStatus(true)
 {
-    lastRunReqFlag = new bool();
-    *lastRunReqFlag = true;
+    lastRunReqFlag = std::make_shared<bool>(true);
     numFocus = 1;
     renderTargetIDs.push_back(EmptyIdentity);
     shaderIDs.push_back(EmptyIdentity);
@@ -1261,10 +1259,10 @@ void QuadImageFrameLoader::buildRenderState(ChangeSet &changes)
         newRenderState.tiles[tileID] = tileState;
     }
     
-    bool *theLastRunReqFlag = lastRunReqFlag;
+    auto theLastRunReqFlag = lastRunReqFlag;
     auto mergeReq = new RunBlockReq([this,newRenderState,theLastRunReqFlag](Scene *scene,SceneRenderer *renderer,View *view)
     {
-        if (*theLastRunReqFlag) {
+        if (theLastRunReqFlag) {
             if (builder)
                 renderState = newRenderState;
         }

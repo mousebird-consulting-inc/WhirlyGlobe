@@ -21,9 +21,12 @@
 #import "MapboxVectorTileParser.h"
 #import "MaplyVectorStyleC.h"
 #import "VectorObject.h"
+#import "WhirlyKitLog.h"
+#import "DictionaryC.h"
+
 #import "vector_tile.pb.h"
 #import "pb_decode.h"
-#import "WhirlyKitLog.h"
+
 #import <vector>
 #import <string>
 
@@ -199,6 +202,8 @@ private:
         {
             return false;
         }
+
+        _featureCount += 1;
         
         const auto geomType = static_cast<MapnikGeometryType>(feature.type);
         wkLog("[%llx] Read feature type %d with %d tags, %d geometry",
@@ -208,7 +213,7 @@ private:
             wkLogLevel(Warn, "Odd feature tags!");
         }
 
-        auto attributes = MutableDictionaryMake();
+        auto attributes = std::make_shared<MutableDictionaryC>();
         attributes->setString("layer_name", _layerName);
         attributes->setInt("geometry_type", (int)geomType);
         attributes->setInt("layer_order", _layerIndex);

@@ -128,6 +128,8 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
     
     // Set up the markers and get a change set
     SimpleIdentity markerID = styleSet->markerManage->addMarkers(markers, markerInfo, tileInfo->changes);
+    for (auto marker: markers)
+        delete marker;
     if (markerID != EmptyIdentity)
         compObj->markerIDs.insert(markerID);
     styleSet->compManage->addComponentObject(compObj);

@@ -53,7 +53,7 @@ bool MapboxVectorLinePaint::parse(PlatformThreadInfo *inst,MapboxVectorStyleSetI
     if (styleEntry && styleEntry->getType("line-dasharray") == DictTypeArray) {
         auto vecArray = styleEntry->getArray("line-dasharray");
         for (auto entry : vecArray) {
-            if (entry->getType() == DictTypeDouble) {
+            if (entry->getType() == DictTypeDouble || entry->getType() == DictTypeInt) {
                 lineDashArray.push_back(entry->getDouble());
             } else {
                 wkLogLevel(Warn,"Encountered non-double type in MapboxVectorLinePaint dashArray");
@@ -122,7 +122,7 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
 {
     if (!visible)
         return;
-    
+
     ComponentObjectRef compObj = styleSet->makeComponentObject(inst);
 
     // Turn into linears (if not already) and then clip to the bounds
@@ -202,7 +202,7 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
                 shapes.insert(vecObj->shapes.begin(),vecObj->shapes.end());
         }
         
-        SimpleIdentity wideVecID = styleSet->wideVecManage->addVectors(&shapes, vecInfo, tileInfo->changes);
+        SimpleIdentity wideVecID = styleSet->wideVecManage->addVectors(shapes, vecInfo, tileInfo->changes);
         if (wideVecID != EmptyIdentity)
             compObj->wideVectorIDs.insert(wideVecID);
     }

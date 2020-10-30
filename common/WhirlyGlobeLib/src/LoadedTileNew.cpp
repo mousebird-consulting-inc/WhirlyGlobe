@@ -505,22 +505,22 @@ TileGeomManager::NodeChanges TileGeomManager::addRemoveTiles(const QuadTreeNew::
 {
     NodeChanges nodeChanges;
 
-    for (auto ident: removeTiles) {
-        auto it = tileMap.find(ident);
+    for (const auto &ident: removeTiles) {
+        const auto it = tileMap.find(ident);
         if (it != tileMap.end()) {
-            auto tile = it->second;
+            const auto &tile = it->second;
             tile->removeDrawables(changes);
             tileMap.erase(it);
         }
     }
 
-    for (auto ident: addTiles) {
+    for (const auto &ident: addTiles) {
         // Look for an existing tile
-        auto it = tileMap.find(ident);
+        const auto it = tileMap.find(ident);
         if (it == tileMap.end()) {
             // Add a new one
             MbrD mbr = quadTree->generateMbrForNode(ident);
-            LoadedTileNewRef tile = LoadedTileNewRef(new LoadedTileNew(ident,mbr));
+            LoadedTileNewRef tile = std::make_shared<LoadedTileNew>(ident,mbr);
             if (tile->isValidSpatial(this))
             {
                 tile->makeDrawables(sceneRender,this,settings,changes);

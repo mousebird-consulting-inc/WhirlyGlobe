@@ -99,7 +99,7 @@ using namespace WhirlyGlobe;
     if (!self)
         return nil;
     
-    vObj = VectorObjectRef(new VectorObject());
+    vObj = std::make_shared<VectorObject>();
     
     return self;
 }
@@ -130,7 +130,7 @@ using namespace WhirlyGlobe;
         pts->pts.push_back(GeoCoord(coord->x,coord->y));
         iosMutableDictionary *dict = new iosMutableDictionary([NSMutableDictionary dictionaryWithDictionary:attr]);
 
-        vObj = VectorObjectRef(new VectorObject());
+        vObj = std::make_shared<VectorObject>();
 
         pts->setAttrDict(MutableDictionaryRef(dict));
         pts->initGeoMbr();
@@ -166,7 +166,7 @@ using namespace WhirlyGlobe;
     
     if (self)
     {
-        vObj = VectorObjectRef(new VectorObject());
+        vObj = std::make_shared<VectorObject>();
 
         VectorLinearRef lin = VectorLinear::createLinear();
         for (unsigned int ii=0;ii<numCoords;ii++)
@@ -187,7 +187,7 @@ using namespace WhirlyGlobe;
     
     if (self)
     {
-        vObj = VectorObjectRef(new VectorObject());
+        vObj = std::make_shared<VectorObject>();
 
         VectorArealRef areal = VectorAreal::createAreal();
         VectorRing pts;
@@ -213,7 +213,7 @@ using namespace WhirlyGlobe;
     
     if (self)
     {
-        vObj = VectorObjectRef(new VectorObject());
+        vObj = std::make_shared<VectorObject>();
 
         VectorArealRef areal = VectorAreal::createAreal();
         VectorRing pts;
@@ -238,7 +238,7 @@ using namespace WhirlyGlobe;
 
 	self = [super init];
 
-    vObj = VectorObjectRef(new VectorObject());
+    vObj = std::make_shared<VectorObject>();
 
     NSString *nsStr = [[NSString alloc] initWithData:geoJSON encoding:NSUTF8StringEncoding];
     if (!nsStr)
@@ -274,7 +274,7 @@ using namespace WhirlyGlobe;
 	if (error || ![jsonDict isKindOfClass:[NSDictionary class]])
 		return nil;
 
-    vObj = VectorObjectRef(new VectorObject());
+    vObj = std::make_shared<VectorObject>();
 
 	if (self = [super init]) {
 		if (!VectorParseGeoJSON(vObj->shapes, jsonDict))
@@ -289,7 +289,7 @@ using namespace WhirlyGlobe;
 	if (![geoJSON isKindOfClass:[NSDictionary class]])
 		return nil;
 
-    vObj = VectorObjectRef(new VectorObject());
+    vObj = std::make_shared<VectorObject>();
 
 	if (self = [super init]) {
 		if (!VectorParseGeoJSON(vObj->shapes, geoJSON))
@@ -307,7 +307,7 @@ using namespace WhirlyGlobe;
 	if (!fileName)
 		return nil;
     
-    vObj = VectorObjectRef(new VectorObject());
+    vObj = std::make_shared<VectorObject>();
     if (!vObj->fromShapeFile([fileName cStringUsingEncoding:NSASCIIStringEncoding]))
         return nil;
 

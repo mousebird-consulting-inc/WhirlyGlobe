@@ -22,6 +22,7 @@
 #import "UIColor+Stuff.h"
 #import "Dictionary_NSDictionary.h"
 #import "NSDictionary+Stuff.h"
+#import "UIColor+Stuff.h"
 
 namespace WhirlyKit {
     
@@ -505,3 +506,109 @@ void iosMutableDictionary::addEntries(const Dictionary *other)
 }
 
 }
+
+@implementation NSDictionary (DictionaryC)
+
+using namespace WhirlyKit;
+
+- (std::vector<DictionaryEntryRef>)convertArray:(NSArray *)arr
+{
+    std::vector<DictionaryEntryRef> outArr;
+
+    for (id arrVal in arr) {
+        if ([arrVal isKindOfClass:[NSNumber class]]) {
+            auto outVal = std::make_shared<DictionaryEntryC>();
+            outVal->setDouble([arrVal doubleValue]);
+            outArr.push_back(outVal);
+        } else if ([arrVal isKindOfClass:[NSString class]]) {
+            std::string valStr = [(NSString *)arrVal cStringUsingEncoding:NSUTF8StringEncoding];
+            auto outVal = std::make_shared<DictionaryEntryC>();
+            outVal->setString(valStr);
+            outArr.push_back(outVal);
+        } else if ([arrVal isKindOfClass:[UIColor class]]) {
+            auto outVal = std::make_shared<DictionaryEntryC>();
+            NSString *str = [(UIColor *)arrVal asHexRGBAString];
+            std::string valStr = [str cStringUsingEncoding:NSUTF8StringEncoding];
+            outVal->setString(valStr);
+            outArr.push_back(outVal);
+        } else if ([arrVal isKindOfClass:[NSDictionary class]]) {
+            auto outVal = std::make_shared<DictionaryEntryC>();
+            auto valDict = [(NSDictionary *)arrVal toDictionaryC];
+            if (valDict) {
+                outVal->setDictionary(valDict);
+                outArr.push_back(outVal);
+            }
+        } else if ([arrVal isKindOfClass:[NSArray class]]) {
+            auto outVal = std::make_shared<DictionaryEntryC>();
+            auto valArray = [self convertArray:arrVal];
+            if (outVal) {
+                outVal->setArray(valArray);
+                outArr.push_back(outVal);
+            }
+        } else {
+            NSLog(@"Unsupported type found in NSDictionary toDictionaryC for array");
+        }
+    }
+    
+    return outArr;
+}
+
+- (MutableDictionaryCRef) toDictionaryC
+{
+    MutableDictionaryCRef dict = std::make_shared<MutableDictionaryC>();
+    
+    for (NSString *key in [self keyEnumerator]) {
+        id val = [self objectForKey:key];
+        std::string keyStr = [key cStringUsingEncoding:NSUTF8StringEncoding];
+        
+        if ([val isKindOfClass:[NSNumber class]]) {
+            CFNumberType cType = CFNumberGetType((CFNumberRef)val);
+            switch (cType) {
+                case kCFNumberSInt8Type:
+                case kCFNumberSInt16Type:
+                case kCFNumberSInt32Type:
+                case kCFNumberSInt64Type:
+                case kCFNumberShortType:
+                case kCFNumberIntType:
+                case kCFNumberLongType:
+                case kCFNumberLongLongType:
+                    dict->setInt(keyStr, [val intValue]);
+                    break;
+                case kCFNumberFloat32Type:
+                case kCFNumberFloat64Type:
+                case kCFNumberFloatType:
+                case kCFNumberDoubleType:
+                    dict->setDouble(keyStr, [val doubleValue]);
+                    break;
+                case kCFNumberCharType:
+                    // Bool
+                    dict->setInt(keyStr, [val intValue]);
+                    break;
+                default:
+                    NSLog(@"Unsupported type found in NSDictionary toDictionaryC for key %@",key);
+                    break;
+            }
+        } else if ([val isKindOfClass:[NSString class]]) {
+            std::string valStr = [(NSString *)val cStringUsingEncoding:NSUTF8StringEncoding];
+            dict->setString(keyStr, valStr);
+        } else if ([val isKindOfClass:[UIColor class]]) {
+            NSString *str = [(UIColor *)val asHexRGBAString];
+            std::string valStr = [str cStringUsingEncoding:NSUTF8StringEncoding];
+            dict->setString(keyStr,valStr);
+        } else if ([val isKindOfClass:[NSArray class]]) {
+            // Convert the array into dictionary values
+            std::vector<DictionaryEntryRef> outArr = [self convertArray:val];
+            dict->setArray(keyStr, outArr);
+        } else if ([val isKindOfClass:[NSDictionary class]]) {
+            auto valDict = [(NSDictionary *)val toDictionaryC];
+            if (valDict)
+                dict->setDict(keyStr, valDict);
+        } else {
+            NSLog(@"Unsupported type found in NSDictionary toDictionaryC for key %@",key);
+        }
+    }
+    
+    return dict;
+}
+
+@end

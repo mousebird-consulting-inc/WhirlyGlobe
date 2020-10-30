@@ -287,10 +287,11 @@ void RenderTeardownInfoMTL::destroyDrawable(SceneRenderer *renderer,DrawableRef 
 }
 
 
+const bool HeapManagerMTL::UseHeaps =
 #if TARGET_OS_SIMULATOR
-bool HeapManagerMTL::UseHeaps = false;
+    false;
 #else
-bool HeapManagerMTL::UseHeaps = true;
+    true;
 #endif
 
 HeapManagerMTL::HeapManagerMTL(id<MTLDevice> mtlDevice)

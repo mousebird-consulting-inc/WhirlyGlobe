@@ -160,7 +160,7 @@ public:
     typedef enum {Drawable,Other,MaxType} HeapType;
     
     // If false, we'll allocate individual buffers
-    static bool UseHeaps;
+    static const bool UseHeaps;
     
     // Allocate a buffer of the given type and size
     // It may be an entry in a heap, it might not.

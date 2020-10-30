@@ -38,6 +38,9 @@
 ////Convert a UIColor to a hex value
 - (int) asHexRGB;
 
+/// Convert UIColor to a #color string
+- (NSString *) asHexRGBAString;
+
 @end
 
 // A function we can call to force the linker to bring in categories

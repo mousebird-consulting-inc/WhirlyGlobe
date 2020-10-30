@@ -31,7 +31,7 @@ namespace WhirlyKit
 BasicDrawableBuilderMTL::BasicDrawableBuilderMTL(const std::string &name,Scene *scene)
     : BasicDrawableBuilder(name,scene), drawableGotten(false)
 {
-    basicDraw = new BasicDrawableMTL(name);
+    basicDraw = std::make_shared<BasicDrawableMTL>(name);
     BasicDrawableBuilder::Init();
     setupStandardAttributes();
 }
@@ -54,7 +54,7 @@ void BasicDrawableBuilderMTL::setupStandardAttributes(int numReserve)
 BasicDrawableBuilderMTL::~BasicDrawableBuilderMTL()
 {
     if (!drawableGotten && basicDraw)
-        delete basicDraw;
+        basicDraw = NULL;
 }
     
 int BasicDrawableBuilderMTL::addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int slot,int numThings)
@@ -87,12 +87,12 @@ void BasicDrawableBuilderMTL::setupTexCoordEntry(int which,int numReserve)
     }
 }
 
-BasicDrawable *BasicDrawableBuilderMTL::getDrawable()
+BasicDrawableRef BasicDrawableBuilderMTL::getDrawable()
 {
     if (!basicDraw)
         return NULL;
     
-    BasicDrawableMTL *draw = dynamic_cast<BasicDrawableMTL *>(basicDraw);
+    BasicDrawableMTLRef draw = std::dynamic_pointer_cast<BasicDrawableMTL>(basicDraw);
     
     if (!drawableGotten) {
         int ptsIndex = addAttribute(BDFloat3Type, a_PositionNameID);
