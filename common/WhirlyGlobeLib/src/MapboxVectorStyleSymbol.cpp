@@ -464,7 +464,10 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
         } else if (vecObj->getVectorType() == VectorLinearType) {
 #if DEBUG
             if (vecObj->shapes.size() > 1) {
-                wkLogLevel(Warn, "MapboxVectorLayerSymbol: Linear vector object contains %d shapes", vecObj->shapes.size());
+                static int warned = 0;
+                if (!warned++) {
+                    wkLogLevel(Warn, "MapboxVectorLayerSymbol: Linear vector object contains %d shapes", vecObj->shapes.size());
+                }
             }
 #endif
             for (VectorShapeRef shape : vecObj->shapes) {
@@ -509,7 +512,10 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
         else if (vecObj->getVectorType() == VectorArealType) {
 #if DEBUG
             if (vecObj->shapes.size() > 1) {
-                wkLogLevel(Warn, "MapboxVectorLayerSymbol: Areal vector object contains %d shapes", vecObj->shapes.size());
+                static int warned = 0;
+                if (!warned++) {
+                    wkLogLevel(Warn, "MapboxVectorLayerSymbol: Areal vector object contains %d shapes", vecObj->shapes.size());
+                }
             }
 #endif
             for (auto shape : vecObj->shapes) {

@@ -897,6 +897,8 @@
 		2BE7E7B9221B22DE00E4EFBA /* QuadImageFrameLoader_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE7E7B8221B22DE00E4EFBA /* QuadImageFrameLoader_iOS.h */; };
 		2BE7E7BB221B22E500E4EFBA /* QuadImageFrameLoader_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE7E7BA221B22E500E4EFBA /* QuadImageFrameLoader_iOS.mm */; };
 		2BE7E7BC221B99FA00E4EFBA /* MaplyQuadLoader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE1E7A22216163A00815D9C /* MaplyQuadLoader.mm */; };
+		315082CA254CD29000A0A2B2 /* VectorTilePBFParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 315082C9254CD29000A0A2B2 /* VectorTilePBFParser.cpp */; };
+		315082D0254CD2BF00A0A2B2 /* VectorTilePBFParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 315082CF254CD2BF00A0A2B2 /* VectorTilePBFParser.h */; };
 		31942FC6254B5C0A0006B499 /* pb_common.c in Sources */ = {isa = PBXBuildFile; fileRef = 31942F9C254B5C0A0006B499 /* pb_common.c */; };
 		31942FCD254B5C0A0006B499 /* pb_decode.c in Sources */ = {isa = PBXBuildFile; fileRef = 31942FA4254B5C0A0006B499 /* pb_decode.c */; };
 		31942FCE254B5C0A0006B499 /* pb_encode.c in Sources */ = {isa = PBXBuildFile; fileRef = 31942FA5254B5C0A0006B499 /* pb_encode.c */; };
@@ -1822,6 +1824,8 @@
 		2BE7E7B22214C6EB00E4EFBA /* QuadDisplayControllerNew.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = QuadDisplayControllerNew.cpp; path = ../../../../common/WhirlyGlobeLib/src/QuadDisplayControllerNew.cpp; sourceTree = "<group>"; };
 		2BE7E7B8221B22DE00E4EFBA /* QuadImageFrameLoader_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuadImageFrameLoader_iOS.h; sourceTree = "<group>"; };
 		2BE7E7BA221B22E500E4EFBA /* QuadImageFrameLoader_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = QuadImageFrameLoader_iOS.mm; sourceTree = "<group>"; };
+		315082C9254CD29000A0A2B2 /* VectorTilePBFParser.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = VectorTilePBFParser.cpp; path = ../../../../common/WhirlyGlobeLib/src/VectorTilePBFParser.cpp; sourceTree = "<group>"; };
+		315082CF254CD2BF00A0A2B2 /* VectorTilePBFParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = VectorTilePBFParser.h; path = ../../../../common/WhirlyGlobeLib/include/VectorTilePBFParser.h; sourceTree = "<group>"; };
 		31942F9C254B5C0A0006B499 /* pb_common.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pb_common.c; sourceTree = "<group>"; };
 		31942FA4254B5C0A0006B499 /* pb_decode.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pb_decode.c; sourceTree = "<group>"; };
 		31942FA5254B5C0A0006B499 /* pb_encode.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pb_encode.c; sourceTree = "<group>"; };
@@ -2102,6 +2106,7 @@
 				2B68A43E225D4469009CC720 /* MapboxVectorTileParser.h */,
 				2B446B8221FB97C40078A975 /* GeometryOBJReader.h */,
 				2B446B8021FB97C30078A975 /* ShapeReader.h */,
+				315082CF254CD2BF00A0A2B2 /* VectorTilePBFParser.h */,
 			);
 			name = "data formats";
 			sourceTree = "<group>";
@@ -2124,6 +2129,7 @@
 				2B68A440225D447E009CC720 /* MapboxVectorTileParser.cpp */,
 				2B446B8621FB97D50078A975 /* GeometryOBJReader.cpp */,
 				2B446B8721FB97D50078A975 /* ShapeReader.cpp */,
+				315082C9254CD29000A0A2B2 /* VectorTilePBFParser.cpp */,
 			);
 			name = "data formats";
 			sourceTree = "<group>";
@@ -3898,6 +3904,7 @@
 				2B446B8D21FB99C00078A975 /* ScreenImportance.h in Headers */,
 				2BE1E79B2215F4D800815D9C /* ImageTile.h in Headers */,
 				2B446B7B21FB948B0078A975 /* VectorData.h in Headers */,
+				315082D0254CD2BF00A0A2B2 /* VectorTilePBFParser.h in Headers */,
 				2B23132E21F93661006AA344 /* RawData.h in Headers */,
 				2B092BB42373574E00E27CD8 /* MaplyGlobeRenderController_private.h in Headers */,
 				2BE538281D249A1200B60FAD /* MaplySticker.h in Headers */,
@@ -4305,6 +4312,7 @@
 				2B82B6711E82E24A0095FB14 /* PJ_hammer.c in Sources */,
 				2B846EE121F136F700EF2A82 /* pj_pr_list.c in Sources */,
 				2BE1E73B2208B73C00815D9C /* MaplyDoubleTapDelegate.mm in Sources */,
+				315082CA254CD29000A0A2B2 /* VectorTilePBFParser.cpp in Sources */,
 				2BE5399A1D249BEF00B60FAD /* AAFK5.cpp in Sources */,
 				2B8796FC2203861200EF801D /* LayerViewWatcher.mm in Sources */,
 				2B82B6691E82E24A0095FB14 /* PJ_geos.c in Sources */,
