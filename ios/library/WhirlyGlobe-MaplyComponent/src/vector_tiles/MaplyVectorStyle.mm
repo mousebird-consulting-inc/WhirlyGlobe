@@ -564,8 +564,7 @@ VectorStyleDelegateWrapper::stylesForFeature(PlatformThreadInfo *inst,
     
     std::vector<VectorStyleImplRef> retStyles;
     for (NSObject<MaplyVectorStyle> *style : styles) {
-        VectorStyleWrapperRef wrap(new VectorStyleWrapper(viewC,style));
-        retStyles.push_back(wrap);
+        retStyles.push_back(std::make_shared<VectorStyleWrapper>(viewC,style));
     }
     
     return retStyles;
