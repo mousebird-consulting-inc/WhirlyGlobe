@@ -84,6 +84,9 @@ public:
     // Return a list of all the styles in no particular order.  Needed for categories and indexing
     virtual std::vector<VectorStyleImplRef> allStyles(PlatformThreadInfo *inst) override;
 
+    // Return the style for the background, if any
+    virtual VectorStyleImplRef backgroundStyle(PlatformThreadInfo *inst) const override;
+
     /// Return the background color for a given zoom level
     virtual RGBAColorRef backgroundColor(PlatformThreadInfo *inst,double zoom) override;
 

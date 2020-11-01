@@ -26,7 +26,7 @@ namespace WhirlyKit
 BasicDrawableInstanceBuilderGLES::BasicDrawableInstanceBuilderGLES(const std::string &name,Scene *scene)
 : BasicDrawableInstanceBuilder(name,scene), drawableGotten(false)
 {
-    BasicDrawableInstanceGLES *drawInstGL = new BasicDrawableInstanceGLES(name);
+    auto drawInstGL = std::make_shared<BasicDrawableInstanceGLES>(name);
     drawInst = drawInstGL;
     
     Init();
@@ -36,11 +36,11 @@ BasicDrawableInstanceBuilderGLES::BasicDrawableInstanceBuilderGLES(const std::st
     
 BasicDrawableInstanceBuilderGLES::~BasicDrawableInstanceBuilderGLES()
 {
-    if (!drawableGotten && drawInst)
-        delete drawInst;
+    if (!drawableGotten)
+        drawInst.reset();
 }
 
-BasicDrawableInstance *BasicDrawableInstanceBuilderGLES::getDrawable()
+BasicDrawableInstanceRef BasicDrawableInstanceBuilderGLES::getDrawable()
 {
     drawableGotten = true;
     return drawInst;
