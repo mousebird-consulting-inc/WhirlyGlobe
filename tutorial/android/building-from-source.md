@@ -38,7 +38,7 @@ Open `settings.gradle (Project Settings)` and add the following lines, updating 
 
 ```
 include ':maply'
-project(':maply').projectDir = new File('../WhirlyGlobe-3/android/library/maply')
+project(':maply').projectDir = new File('../WhirlyGlobe/android/library/maply')
 ```
 
 ![Maply Project Reference](resources/android-studio-maply-reference.png)

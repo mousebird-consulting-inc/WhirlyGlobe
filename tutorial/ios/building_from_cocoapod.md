@@ -27,7 +27,7 @@ project 'HelloEarth.xcodeproj'
 inhibit_all_warnings!
 
 target 'HelloEarth' do
-        pod 'WhirlyGlobe', :git => 'https://github.com/mousebird/WhirlyGlobe-3.git', :branch => 'master'
+        pod 'WhirlyGlobe', :git => 'https://github.com/mousebird/WhirlyGlobe.git', :branch => 'master'
 end
 {% endhighlight %}
 
@@ -43,7 +43,7 @@ If all goes well it should say something like this.
 
 {% highlight bash %}
 Analyzing dependencies
-Pre-downloading: `WhirlyGlobe` from `https://github.com/mousebird/WhirlyGlobe-3.git`, branch `master`
+Pre-downloading: `WhirlyGlobe` from `https://github.com/mousebird/WhirlyGlobe.git`, branch `master`
 Downloading dependencies
 Installing FMDB (2.7.5)
 Installing KissXML (5.3.1)
