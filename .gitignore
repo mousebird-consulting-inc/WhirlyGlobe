@@ -3,3 +3,4 @@
 DocsXcode/DocsXcode.xcodeproj
 _site/
 .DS_Store
+.jekyll-metadata

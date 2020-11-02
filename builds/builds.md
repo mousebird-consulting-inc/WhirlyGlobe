@@ -31,10 +31,13 @@ pod 'WhirlyGlobe', :http => 'http://url/to/binary/version.zip'
 
 It's too simple to be truth, isn't it?
 
+<!--
 Besides the urls listed below, you also have an special url always pointing to the lastest nightly build:
 
 {% highlight bash %}
 pod 'WhirlyGlobe', :http => 'https://s3-us-west-1.amazonaws.com/whirlyglobemaplydistribution/iOS_daily_builds/WhirlyGlobe-Maply_Nightly_latest.zip'
 {% endhighlight %}
+
+-->
 
 _Note: Cocoapods caches the file downloaded using the URL as cache key, so even though this file always contains the latest nighly build, you will have to clean the cache after the first dowload. For that, check the command `pod cache clean -all`_
