@@ -900,13 +900,12 @@
 		313363AB253E5A2B007C2F27 /* WorkRegion_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 313363AA253E5A24007C2F27 /* WorkRegion_private.h */; };
 		315082CA254CD29000A0A2B2 /* VectorTilePBFParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 315082C9254CD29000A0A2B2 /* VectorTilePBFParser.cpp */; };
 		315082D0254CD2BF00A0A2B2 /* VectorTilePBFParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 315082CF254CD2BF00A0A2B2 /* VectorTilePBFParser.h */; };
-		31942FC6254B5C0A0006B499 /* pb_common.c in Sources */ = {isa = PBXBuildFile; fileRef = 31942F9C254B5C0A0006B499 /* pb_common.c */; };
-		31942FCD254B5C0A0006B499 /* pb_decode.c in Sources */ = {isa = PBXBuildFile; fileRef = 31942FA4254B5C0A0006B499 /* pb_decode.c */; };
-		31942FCE254B5C0A0006B499 /* pb_encode.c in Sources */ = {isa = PBXBuildFile; fileRef = 31942FA5254B5C0A0006B499 /* pb_encode.c */; };
-		31942FDD254B5C0A0006B499 /* pb_common.h in Headers */ = {isa = PBXBuildFile; fileRef = 31942FB9254B5C0A0006B499 /* pb_common.h */; };
-		31942FE2254B5C0A0006B499 /* pb.h in Headers */ = {isa = PBXBuildFile; fileRef = 31942FC0254B5C0A0006B499 /* pb.h */; };
-		31942FE6254B5C0A0006B499 /* pb_encode.h in Headers */ = {isa = PBXBuildFile; fileRef = 31942FC4254B5C0A0006B499 /* pb_encode.h */; };
-		31942FE7254B5C0A0006B499 /* pb_decode.h in Headers */ = {isa = PBXBuildFile; fileRef = 31942FC5254B5C0A0006B499 /* pb_decode.h */; };
+		31872FD52550ED71002C9C73 /* maply_pb_names.h in Headers */ = {isa = PBXBuildFile; fileRef = 31872FD42550ED71002C9C73 /* maply_pb_names.h */; };
+		31942FC6254B5C0A0006B499 /* maply_pb_common.c in Sources */ = {isa = PBXBuildFile; fileRef = 31942F9C254B5C0A0006B499 /* maply_pb_common.c */; };
+		31942FCD254B5C0A0006B499 /* maply_pb_decode.c in Sources */ = {isa = PBXBuildFile; fileRef = 31942FA4254B5C0A0006B499 /* maply_pb_decode.c */; };
+		31942FDD254B5C0A0006B499 /* maply_pb_common.h in Headers */ = {isa = PBXBuildFile; fileRef = 31942FB9254B5C0A0006B499 /* maply_pb_common.h */; };
+		31942FE2254B5C0A0006B499 /* maply_pb.h in Headers */ = {isa = PBXBuildFile; fileRef = 31942FC0254B5C0A0006B499 /* maply_pb.h */; };
+		31942FE7254B5C0A0006B499 /* maply_pb_decode.h in Headers */ = {isa = PBXBuildFile; fileRef = 31942FC5254B5C0A0006B499 /* maply_pb_decode.h */; };
 		3194300A254B77F00006B499 /* vector_tile.pb.c in Sources */ = {isa = PBXBuildFile; fileRef = 31943009254B77F00006B499 /* vector_tile.pb.c */; };
 		E56DB3D51D6B1B17007000D2 /* SLDStyleSet.h in Headers */ = {isa = PBXBuildFile; fileRef = E56DB3D41D6B1B17007000D2 /* SLDStyleSet.h */; };
 		E56E02A71E11F99500C1DD85 /* GeoJSONSource.h in Headers */ = {isa = PBXBuildFile; fileRef = E56E02A61E11F99500C1DD85 /* GeoJSONSource.h */; };
@@ -1828,13 +1827,12 @@
 		313363AA253E5A24007C2F27 /* WorkRegion_private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WorkRegion_private.h; sourceTree = "<group>"; };
 		315082C9254CD29000A0A2B2 /* VectorTilePBFParser.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = VectorTilePBFParser.cpp; path = ../../../../common/WhirlyGlobeLib/src/VectorTilePBFParser.cpp; sourceTree = "<group>"; };
 		315082CF254CD2BF00A0A2B2 /* VectorTilePBFParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = VectorTilePBFParser.h; path = ../../../../common/WhirlyGlobeLib/include/VectorTilePBFParser.h; sourceTree = "<group>"; };
-		31942F9C254B5C0A0006B499 /* pb_common.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pb_common.c; sourceTree = "<group>"; };
-		31942FA4254B5C0A0006B499 /* pb_decode.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pb_decode.c; sourceTree = "<group>"; };
-		31942FA5254B5C0A0006B499 /* pb_encode.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pb_encode.c; sourceTree = "<group>"; };
-		31942FB9254B5C0A0006B499 /* pb_common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pb_common.h; sourceTree = "<group>"; };
-		31942FC0254B5C0A0006B499 /* pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pb.h; sourceTree = "<group>"; };
-		31942FC4254B5C0A0006B499 /* pb_encode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pb_encode.h; sourceTree = "<group>"; };
-		31942FC5254B5C0A0006B499 /* pb_decode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pb_decode.h; sourceTree = "<group>"; };
+		31872FD42550ED71002C9C73 /* maply_pb_names.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = maply_pb_names.h; sourceTree = "<group>"; };
+		31942F9C254B5C0A0006B499 /* maply_pb_common.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = maply_pb_common.c; sourceTree = "<group>"; };
+		31942FA4254B5C0A0006B499 /* maply_pb_decode.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = maply_pb_decode.c; sourceTree = "<group>"; };
+		31942FB9254B5C0A0006B499 /* maply_pb_common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = maply_pb_common.h; sourceTree = "<group>"; };
+		31942FC0254B5C0A0006B499 /* maply_pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = maply_pb.h; sourceTree = "<group>"; };
+		31942FC5254B5C0A0006B499 /* maply_pb_decode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = maply_pb_decode.h; sourceTree = "<group>"; };
 		31943009254B77F00006B499 /* vector_tile.pb.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = vector_tile.pb.c; path = ../../../../common/WhirlyGlobeLib/src/vector_tile.pb.c; sourceTree = "<group>"; };
 		E56DB3D41D6B1B17007000D2 /* SLDStyleSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLDStyleSet.h; sourceTree = "<group>"; };
 		E56DB3D71D6B1B5A007000D2 /* SLDStyleSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SLDStyleSet.m; sourceTree = "<group>"; };
@@ -3589,13 +3587,12 @@
 		31942F9B254B5C0A0006B499 /* nanopb */ = {
 			isa = PBXGroup;
 			children = (
-				31942F9C254B5C0A0006B499 /* pb_common.c */,
-				31942FA4254B5C0A0006B499 /* pb_decode.c */,
-				31942FA5254B5C0A0006B499 /* pb_encode.c */,
-				31942FB9254B5C0A0006B499 /* pb_common.h */,
-				31942FC5254B5C0A0006B499 /* pb_decode.h */,
-				31942FC4254B5C0A0006B499 /* pb_encode.h */,
-				31942FC0254B5C0A0006B499 /* pb.h */,
+				31942F9C254B5C0A0006B499 /* maply_pb_common.c */,
+				31942FA4254B5C0A0006B499 /* maply_pb_decode.c */,
+				31942FB9254B5C0A0006B499 /* maply_pb_common.h */,
+				31942FC5254B5C0A0006B499 /* maply_pb_decode.h */,
+				31942FC0254B5C0A0006B499 /* maply_pb.h */,
+				31872FD42550ED71002C9C73 /* maply_pb_names.h */,
 			);
 			name = nanopb;
 			path = ../../../../common/local_libs/nanopb;
@@ -3669,7 +3666,7 @@
 				2BE538221D249A1200B60FAD /* MaplyScreenObject.h in Headers */,
 				2B23133C21FA919E006AA344 /* Dictionary_NSDictionary.h in Headers */,
 				2B82B71D1E82E24A0095FB14 /* LayerThread.h in Headers */,
-				31942FE7254B5C0A0006B499 /* pb_decode.h in Headers */,
+				31942FE7254B5C0A0006B499 /* maply_pb_decode.h in Headers */,
 				2B4B63A5236102DA0008C8C1 /* MaplyGlobeRenderController.h in Headers */,
 				2B3F4518243F8F8100F85414 /* MaplyVectorStyleC.h in Headers */,
 				2B846F0921F158E100EF2A82 /* ShapeManager.h in Headers */,
@@ -3686,7 +3683,7 @@
 				2B82B60E1E82E2490095FB14 /* JSONMemoryPool.h in Headers */,
 				2BE539601D249BEF00B60FAD /* AAFK5.h in Headers */,
 				2BE539721D249BEF00B60FAD /* AANeptune.h in Headers */,
-				31942FE2254B5C0A0006B499 /* pb.h in Headers */,
+				31942FE2254B5C0A0006B499 /* maply_pb.h in Headers */,
 				2BE5380B1D249A1200B60FAD /* MaplyGeomBuilder.h in Headers */,
 				2BE539881D249BEF00B60FAD /* AAUranus.h in Headers */,
 				2B446B0421F79A600078A975 /* GridClipper.h in Headers */,
@@ -3852,7 +3849,6 @@
 				2BE537FD1D249A1200B60FAD /* MaplyAtmosphere.h in Headers */,
 				2B127BF92012A12B0099F405 /* MaplyRenderController_private.h in Headers */,
 				2BE539871D249BEF00B60FAD /* AASun.h in Headers */,
-				31942FE6254B5C0A0006B499 /* pb_encode.h in Headers */,
 				2BE538201D249A1200B60FAD /* MaplyScreenLabel.h in Headers */,
 				2BE539611D249BEF00B60FAD /* AAGalileanMoons.h in Headers */,
 				2BE537031D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h in Headers */,
@@ -3945,7 +3941,7 @@
 				2BE1E7912213977F00815D9C /* LoadedTileNew.h in Headers */,
 				2BE538651D249A1200B60FAD /* MaplyVectorStyleSimple.h in Headers */,
 				2BE53A931D249C9000B60FAD /* DDXML.h in Headers */,
-				31942FDD254B5C0A0006B499 /* pb_common.h in Headers */,
+				31942FDD254B5C0A0006B499 /* maply_pb_common.h in Headers */,
 				2B82B6161E82E2490095FB14 /* JSONStats.h in Headers */,
 				2B446B0321F79A600078A975 /* WhirlyVector.h in Headers */,
 				2BE538301D249A1200B60FAD /* MaplyViewController.h in Headers */,
@@ -3964,6 +3960,7 @@
 				2B446B0021F79A600078A975 /* Proj4CoordSystem.h in Headers */,
 				2B68A43F225D4469009CC720 /* MapboxVectorTileParser.h in Headers */,
 				2BE5396E1D249BEF00B60FAD /* AAMoonPerigeeApogee.h in Headers */,
+				31872FD52550ED71002C9C73 /* maply_pb_names.h in Headers */,
 				2BB8A3FC21ED43D10025DA98 /* MaplyTwoFingerTapDelegate.h in Headers */,
 				2B0D979B24490FFB00F64852 /* MapboxVectorFilter.h in Headers */,
 				2B82B6841E82E24A0095FB14 /* pj_list.h in Headers */,
@@ -4172,7 +4169,6 @@
 				2B699875228DD36A00C31E3F /* BasicDrawableMTL.mm in Sources */,
 				2BE539AF1D249BEF00B60FAD /* AAParabolic.cpp in Sources */,
 				2B8796EF220375E900EF801D /* GlobeAnimateRotation.cpp in Sources */,
-				31942FCE254B5C0A0006B499 /* pb_encode.c in Sources */,
 				2B8A78B4228A1610008B0A1F /* Drawable.cpp in Sources */,
 				2B8797152203B77900EF801D /* MaplyIconManager.mm in Sources */,
 				2BB8E1FF21FF93CB00154CDC /* MaplyView.cpp in Sources */,
@@ -4200,7 +4196,7 @@
 				2BE1E766220A567100815D9C /* MaplyControllerLayer.mm in Sources */,
 				2B60F43E24523FAB00CF9339 /* MapboxVectorStyleSet.mm in Sources */,
 				2B82B64C1E82E2490095FB14 /* PJ_bonne.c in Sources */,
-				31942FCD254B5C0A0006B499 /* pb_decode.c in Sources */,
+				31942FCD254B5C0A0006B499 /* maply_pb_decode.c in Sources */,
 				2B82B6111E82E2490095FB14 /* JSONNode_Mutex.cpp in Sources */,
 				2B82B6BA1E82E24A0095FB14 /* PJ_urmfps.c in Sources */,
 				2B82B6721E82E24A0095FB14 /* PJ_hatano.c in Sources */,
@@ -4584,7 +4580,7 @@
 				2B8796CF21FFC59D00EF801D /* RawData_NSData.mm in Sources */,
 				2BE539951D249BEF00B60FAD /* AAEclipticalElements.cpp in Sources */,
 				2B82B60C1E82E2490095FB14 /* JSONMemory.cpp in Sources */,
-				31942FC6254B5C0A0006B499 /* pb_common.c in Sources */,
+				31942FC6254B5C0A0006B499 /* maply_pb_common.c in Sources */,
 				2B82B60F1E82E2490095FB14 /* JSONNode.cpp in Sources */,
 				2B846EE221F1370800EF2A82 /* PJ_urm5.c in Sources */,
 				2B8A78C3228B56DE008B0A1F /* ParticleSystemDrawable.cpp in Sources */,
@@ -4665,8 +4661,8 @@
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
 					"$(inherited)",
+					"DEBUG=1",
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -4725,6 +4721,7 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;

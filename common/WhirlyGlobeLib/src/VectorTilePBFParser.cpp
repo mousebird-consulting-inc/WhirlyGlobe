@@ -15,7 +15,7 @@
 #import "DictionaryC.h"
 
 #import "vector_tile.pb.h"
-#import "pb_decode.h"
+#import "maply_pb_decode.h"
 
 #import <vector>
 #import <string>
