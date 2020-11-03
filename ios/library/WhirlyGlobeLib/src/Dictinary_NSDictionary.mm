@@ -540,34 +540,27 @@ using namespace WhirlyKit;
 
     for (id arrVal in arr) {
         if ([arrVal isKindOfClass:[NSNumber class]]) {
-            auto outVal = std::make_shared<DictionaryEntryC>();
-            outVal->setDouble([arrVal doubleValue]);
+            auto outVal = std::make_shared<DictionaryEntryCBasic>([arrVal doubleValue]);
             outArr.push_back(outVal);
         } else if ([arrVal isKindOfClass:[NSString class]]) {
             std::string valStr = [(NSString *)arrVal cStringUsingEncoding:NSUTF8StringEncoding];
-            auto outVal = std::make_shared<DictionaryEntryC>();
-            outVal->setString(valStr);
+            auto outVal = std::make_shared<DictionaryEntryCString>(valStr);
             outArr.push_back(outVal);
         } else if ([arrVal isKindOfClass:[UIColor class]]) {
-            auto outVal = std::make_shared<DictionaryEntryC>();
             NSString *str = [(UIColor *)arrVal asHexRGBAString];
             std::string valStr = [str cStringUsingEncoding:NSUTF8StringEncoding];
-            outVal->setString(valStr);
+            auto outVal = std::make_shared<DictionaryEntryCString>(valStr);
             outArr.push_back(outVal);
         } else if ([arrVal isKindOfClass:[NSDictionary class]]) {
-            auto outVal = std::make_shared<DictionaryEntryC>();
             auto valDict = [(NSDictionary *)arrVal toDictionaryC];
             if (valDict) {
-                outVal->setDictionary(valDict);
+                auto outVal = std::make_shared<DictionaryEntryCDict>(valDict);
                 outArr.push_back(outVal);
             }
         } else if ([arrVal isKindOfClass:[NSArray class]]) {
-            auto outVal = std::make_shared<DictionaryEntryC>();
             auto valArray = [self convertArray:arrVal];
-            if (outVal) {
-                outVal->setArray(valArray);
-                outArr.push_back(outVal);
-            }
+            auto outVal = std::make_shared<DictionaryEntryCArray>(valArray);
+            outArr.push_back(outVal);
         } else {
             NSLog(@"Unsupported type found in NSDictionary toDictionaryC for array");
         }

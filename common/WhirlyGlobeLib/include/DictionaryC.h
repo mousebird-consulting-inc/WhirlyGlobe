@@ -36,12 +36,13 @@ class DictionaryEntryC;
 typedef std::shared_ptr<DictionaryEntryC> DictionaryEntryCRef;
 
 /// The Dictionary is my cross platform replacement for NSDictionary
+/// TODO: Removing & adding things repeatedly will just cause this to grow
 class MutableDictionaryC : public MutableDictionary
 {
 public:
     MutableDictionaryC();
     // Construct from a raw data buffer
-    MutableDictionaryC(RawData *rawData);
+//    MutableDictionaryC(RawData *rawData);
     // Copy constructor
     MutableDictionaryC(const MutableDictionaryC &that);
     // Assignment operator
@@ -49,13 +50,10 @@ public:
     virtual MutableDictionaryRef copy() override;
     virtual ~MutableDictionaryC();
 
-    class Value;
-    typedef std::shared_ptr<Value> ValueRef;
-
     // Parse from a JSON string
-    bool parseJSON(const std::string jsonString);
-    bool parseJSONNode(JSONNode &node);
-    ValueRef parseJSONValue(JSONNode::iterator &nodeIt);
+//    bool parseJSON(const std::string jsonString);
+//    bool parseJSONNode(JSONNode &node);
+//    ValueRef parseJSONValue(JSONNode::iterator &nodeIt);
 
     /// Clean out the contents
     void clear() override;
@@ -65,264 +63,249 @@ public:
     
     /// Returns true if the field exists
     virtual bool hasField(const std::string &name) const override;
-    
+    virtual bool hasField(unsigned int key) const;
+
     /// Returns the field type
     virtual DictionaryType getType(const std::string &name) const override;
-    
+    virtual DictionaryType getType(unsigned int key) const;
+
     /// Remove the given field by name
     void removeField(const std::string &name) override;
-    
+    void removeField(unsigned int key);
+
     /// Return an int, using the default if it's missing
     virtual int getInt(const std::string &name,int defVal=0.0) const override;
+    virtual int getInt(unsigned int key,int defVal=0.0) const;
     /// Return a 64 bit unique identity or 0 if missing
     virtual SimpleIdentity getIdentity(const std::string &name) const override;
+    virtual SimpleIdentity getIdentity(unsigned int key) const;
     /// Return a 64 bit value or 0 if missing
     virtual int64_t getInt64(const std::string &name,int64_t defVal=0) const override;
+    virtual int64_t getInt64(unsigned int key,int64_t defVal=0) const;
     /// Interpret an int as a boolean
     virtual bool getBool(const std::string &name,bool defVal=false) const override;
+    virtual bool getBool(unsigned int key,bool defVal=false) const;
     /// Interpret an int as a RGBA color
     virtual RGBAColor getColor(const std::string &name,const RGBAColor &defVal) const override;
-    /// Return a double, using the default if it's missing
+    virtual RGBAColor getColor(unsigned int key,const RGBAColor &defVal) const;
+    /// Return a double, using the default if it's missingf
     virtual double getDouble(const std::string &name,double defVal=0.0) const override;
+    virtual double getDouble(unsigned int key,double defVal=0.0) const;
     /// Return a string, or empty if it's missing
     virtual std::string getString(const std::string &name) const override;
+    virtual std::string getString(unsigned int key) const;
     /// Return a string, using the default if it's missing
     virtual std::string getString(const std::string &name,const std::string &defVal) const override;
-    /// Return an object pointer
-    DelayedDeletableRef getObject(const std::string &name);
+    virtual std::string getString(unsigned int key,const std::string &defVal) const;
     /// Return a dictionary as an entry
     virtual DictionaryRef getDict(const std::string &name) const override;
+    virtual DictionaryRef getDict(unsigned int key) const;
     // Return a generic entry
     virtual DictionaryEntryRef getEntry(const std::string &name) const override;
-    // Return a low level value which is faster
-    virtual ValueRef getValueRef(const std::string &name) const;
+    virtual DictionaryEntryRef getEntry(unsigned int key) const;
     // Return an array (if it is an array)
     virtual std::vector<DictionaryEntryRef> getArray(const std::string &name) const override;
+    virtual std::vector<DictionaryEntryRef> getArray(unsigned int key) const;
     // Return an array of keys
     virtual std::vector<std::string> getKeys() const override;
 
+    /// Get the key for the given string
+    int getKeyID(const std::string &name);
+    
     /// Set field as int
     void setInt(const std::string &name,int val) override;
+    void setInt(unsigned int key,int val);
     /// Set field as 64 bit unique value
     void setIdentifiable(const std::string &name,SimpleIdentity val) override;
+    void setIdentifiable(unsigned int key,SimpleIdentity val);
     /// Set field as double
     void setDouble(const std::string &name,double val) override;
+    void setDouble(unsigned int key,double val);
     /// Set field as string
     void setString(const std::string &name,const std::string &val) override;
+    void setString(unsigned int key,const std::string &val);
     /// Set the dictionary at the given attribute name
     void setDict(const std::string &name,MutableDictionaryCRef dict);
-    /// Set the entry at the given attribute name
-    void setEntry(const std::string &name,DictionaryEntryCRef entry);
+    void setDict(unsigned int key,MutableDictionaryCRef dict);
     /// Set the array at the given attribute name
     void setArray(const std::string &name,std::vector<DictionaryEntryRef> &entries);
+    void setArray(unsigned int key,std::vector<DictionaryEntryRef> &entries);
     /// Set the array at the given attribute name
     void setArray(const std::string &name,std::vector<DictionaryRef> &entries);
-    /// Set field as pointer
-    void setObject(const std::string &name,DelayedDeletableRef obj);
+    void setArray(unsigned int key,std::vector<DictionaryRef> &entries);
     
     // Write data to a raw data buffer
-    void asRawData(MutableRawData *rawData);
+//    void asRawData(MutableRawData *rawData);
     
-    // Convert to a string for debugging
-    std::string toString() const;
-
     // Merge in key-value pairs from another dictionary
     void addEntries(const Dictionary *other) override;
-
-    // Make a generic ValueRef from a generic entry (yeah, they're different
-    static ValueRef makeValueRef(DictionaryEntryCRef entry);
-
-    class Value
-    {
-    public:
-        Value() { }
-        virtual ~Value() { }
-
-        virtual DictionaryType type() = 0;
-        virtual ValueRef copy() = 0;
-        virtual int asInt() = 0;
-        virtual SimpleIdentity asIdentity() = 0;
-        virtual void asString(std::string &retStr) = 0;
-        virtual double asDouble() = 0;
-        virtual DelayedDeletableRef asObject() { return DelayedDeletableRef(); }
-        virtual DictionaryRef asDict() { return DictionaryRef(); }
-    };
-
-    class StringValue : public Value
-    {
-    public:
-        StringValue() { }
-        StringValue(const std::string &inVal) : val(inVal) { }
-
-        virtual DictionaryType type() { return DictTypeString; }
-        virtual ValueRef copy() { return ValueRef(new StringValue(val)); }
-        virtual int asInt();
-        virtual SimpleIdentity asIdentity();
-        virtual void asString(std::string &retStr) { retStr = val; }
-        virtual double asDouble();
-
-        std::string val;
-    };
-    typedef std::shared_ptr<StringValue> StringValueRef;
-
-    class IntValue : public Value
-    {
-    public:
-        IntValue() : val(0) { }
-        IntValue(int inVal) : val(inVal) { }
-
-        virtual DictionaryType type() { return DictTypeInt; }
-        virtual ValueRef copy() { return ValueRef(new IntValue(val)); }
-        virtual int asInt() { return val; }
-        virtual SimpleIdentity asIdentity() { return val; }
-        virtual void asString(std::string &retStr);
-        virtual double asDouble() { return (double)val; }
-
-        int val;
-    };
-
-    class DoubleValue : public Value
-    {
-    public:
-        DoubleValue() : val(0.0) { }
-        DoubleValue(double inVal) : val(inVal) { }
-
-        virtual DictionaryType type() { return DictTypeDouble; }
-        virtual ValueRef copy() { return ValueRef(new DoubleValue(val)); }
-        virtual int asInt() { return (int)val; }
-        virtual SimpleIdentity asIdentity() { return EmptyIdentity; }
-        virtual void asString(std::string &retStr);
-        virtual double asDouble() { return val; }
-
-        double val;
-    };
-
-    class IdentityValue : public Value
-    {
-    public:
-        IdentityValue() : val(0) { }
-        IdentityValue(SimpleIdentity inVal) : val(inVal) { }
-
-        virtual DictionaryType type() { return DictTypeIdentity; }
-        virtual ValueRef copy() { return ValueRef(new IdentityValue(val)); }
-        virtual int asInt() { return (int)val; }
-        virtual SimpleIdentity asIdentity() { return val; }
-        virtual void asString(std::string &retStr);
-        virtual double asDouble() { return (double)val; }
-
-        SimpleIdentity val;
-    };
-
-    class ObjectValue : public Value
-    {
-    public:
-        ObjectValue() { }
-        ObjectValue(DelayedDeletableRef inVal) : val(inVal) { }
-
-        virtual DictionaryType type() { return DictTypeObject; }
-        virtual ValueRef copy() { return ValueRef(new ObjectValue(val)); }
-        virtual int asInt() { return 0; }
-        virtual void asString(std::string &retStr) { }
-        virtual SimpleIdentity asIdentity() { return EmptyIdentity; }
-        virtual double asDouble() { return 0.0; }
-        virtual DelayedDeletableRef asObject() { return val; }
-
-        DelayedDeletableRef val;
-    };
-
-    class DictionaryValue : public Value
-    {
-    public:
-        DictionaryValue() { }
-        DictionaryValue(MutableDictionaryCRef inVal) : val(inVal) { }
-
-        virtual DictionaryType type() { return DictTypeDictionary; }
-        virtual ValueRef copy() { return ValueRef(new DictionaryValue(val)); }
-        virtual int asInt() { return 0; }
-        virtual void asString(std::string &retStr) { }
-        virtual SimpleIdentity asIdentity() { return EmptyIdentity; }
-        virtual double asDouble() { return 0.0; }
-        virtual DictionaryRef asDict();
-
-        MutableDictionaryCRef val;
-    };
-    typedef std::shared_ptr<DictionaryValue> DictionaryValueRef;
-
-    class ArrayValue : public Value
-    {
-    public:
-        ArrayValue() { }
-        ~ArrayValue() { }
-        ArrayValue(const std::vector<ValueRef> &inVal) : val(inVal) { }
-        ArrayValue(const std::vector<DictionaryEntryRef> &inVal);
-        ArrayValue(const std::vector<DictionaryRef> &inVal);
-
-        virtual DictionaryType type() { return DictTypeArray; }
-        virtual ValueRef copy() { return ValueRef(new ArrayValue(val)); }
-        virtual int asInt() { return 0; }
-        virtual void asString(std::string &retStr) { }
-        virtual SimpleIdentity asIdentity() { return EmptyIdentity; }
-        virtual double asDouble() { return 0.0; }
-
-        std::vector<ValueRef> val;
-    };
-    typedef std::shared_ptr<ArrayValue> ArrayValueRef;
-
+    void addEntries(const MutableDictionaryC *other);
+    
 protected:
-    typedef std::unordered_map<std::string,ValueRef> FieldMap;
-    FieldMap fields;
+    // The array has to let us know what the type is
+    class ArrayEntry {
+    public:
+        DictionaryType type;   // Type of the data in the array
+        std::vector<unsigned int> vals;  // Array entries
+    };
+
+    /// Add the given string key
+    unsigned int addKeyID(const std::string &name);
+    unsigned int addString(const std::string &name);
+    /// Form an array of entries from an array index;
+    std::vector<DictionaryEntryCRef> formArray(int idx) const;
+
+    // The top level entries in the dictionary
+    class Value {
+    public:
+        Value() : type(DictTypeNone), entry(0) { }
+        Value & operator = (const Value &other) { type = other.type;  entry = other.entry;  return *this; }
+        Value(const Value &other) : type(other.type), entry(other.entry) {}
+        Value(DictionaryType type,unsigned int entry) : type(type), entry(entry) {}
+
+        DictionaryType type;
+        unsigned int entry;
+    };
+
+    std::vector<Value> setupArray(const std::vector<DictionaryEntryCRef> &vals);
+
+    // Where we store the actual data
+    std::vector<int> intVals;
+    std::vector<int64_t> int64Vals;
+    std::vector<double> dVals;
+    std::vector<std::string> stringVals;
+    std::vector<std::vector<Value> > arrayVals;
+    std::vector<MutableDictionaryCRef> dictVals;
+    
+    // Map strings to integer values for lookup
+    typedef std::unordered_map<std::string,unsigned int> StringMap;
+    StringMap stringMap;
+    
+    // TODO: Turn the values into an array and index the string values separately from keys
+    // Map integer key values into fields
+    typedef std::unordered_map<unsigned int,Value> ValueMap;
+    ValueMap valueMap;
 };
 
 /// Wrapper around a single value
 class DictionaryEntryC : public DictionaryEntry
 {
 public:
-    DictionaryEntryC() : type(DictTypeNone) { };
-    DictionaryEntryC(MutableDictionaryC::ValueRef val) : val(val) { type = val->type(); }
-    DictionaryEntryC &operator = (const DictionaryEntryC &that) { val = that.val;  type = that.type; return *this; }
-
+    DictionaryEntryC(DictionaryType type) : type(type) { }
+    
     /// Returns the field type
-    virtual DictionaryType getType() const override;
+    virtual DictionaryType getType() const override { return type; }
+    /// Return an int, using the default if it's missing
+    virtual int getInt() const override { return 0; }
+    /// Return a 64 bit unique identity or 0 if missing
+    virtual SimpleIdentity getIdentity() const override {return 0; }
+    /// Return a 64 bit value or 0 if missing
+    virtual int64_t getInt64() const { return 0; }
+    /// Interpret an int as a boolean
+    virtual bool getBool() const override { return false; }
+    /// Interpret an int as a RGBA color
+    virtual RGBAColor getColor() const override { return RGBAColor(0,0,0,0); }
+    /// Return a double, using the default if it's missing
+    virtual double getDouble() const override { return 0.0; }
+    /// Return a string, or empty if it's missing
+    virtual std::string getString() const override { return ""; }
+    /// Return a dictionary as an entry
+    virtual DictionaryRef getDict() const override { return DictionaryRef(); }
+    /// Return an array of refs
+    virtual std::vector<DictionaryEntryRef> getArray() const override { return std::vector<DictionaryEntryRef>(); }
+    /// Compare to other
+    virtual bool isEqual(DictionaryEntryRef other) const override { return false; }
+
+protected:
+    DictionaryType type;
+};
+typedef std::shared_ptr<DictionaryEntryC> DictionaryEntryCRef;
+
+/// Simple entries for a dictionary
+class DictionaryEntryCBasic : public DictionaryEntryC
+{
+public:
+    DictionaryEntryCBasic(int iVal);
+    DictionaryEntryCBasic(double dVal);
+    DictionaryEntryCBasic(int64_t iVal);
+
     /// Return an int, using the default if it's missing
     virtual int getInt() const override;
     /// Return a 64 bit unique identity or 0 if missing
     virtual SimpleIdentity getIdentity() const override;
     /// Return a 64 bit value or 0 if missing
-    virtual int64_t getInt64(const std::string &name,int64_t defVal=0) const;
+    virtual int64_t getInt64() const override;
     /// Interpret an int as a boolean
     virtual bool getBool() const override;
     /// Interpret an int as a RGBA color
     virtual RGBAColor getColor() const override;
     /// Return a double, using the default if it's missing
     virtual double getDouble() const override;
-    /// Return a string, or empty if it's missing
-    virtual std::string getString() const override;
-    /// Return a dictionary as an entry
-    virtual DictionaryRef getDict() const override;
-    /// Return an array of refs
-    virtual std::vector<DictionaryEntryRef> getArray() const override;
     /// Compare to other
     virtual bool isEqual(DictionaryEntryRef other) const override;
 
-    /// Set the value to a double
-    virtual void setDouble(double val);
+public:
+    union {
+        int iVal;
+        int dVal;
+        int64_t i64Val;
+    } val;
+};
+
+/// String entry for a dictionary
+class DictionaryEntryCString : public DictionaryEntryC
+{
+public:
+    DictionaryEntryCString(const std::string &str);
     
-    /// Set the value to the given string
-    virtual void setString(const std::string &val);
+    // TODO: Parse ints and such out of the string
     
-    /// Set the value to a long long
-    virtual void setIdentity(SimpleIdentity val);
-    
-    /// Set the value to a whole array
-    virtual void setArray(const std::vector<DictionaryEntryRef> &arr);
-    
-    /// Set the value to a whole dictionary
-    virtual void setDictionary(MutableDictionaryCRef val);
+    /// Return a string, or empty if it's missing
+    virtual std::string getString() const override;
+    /// Interpret an int as a RGBA color
+    virtual RGBAColor getColor() const override;
+
+    /// Compare to other
+    virtual bool isEqual(DictionaryEntryRef other) const override;
 
 protected:
-    DictionaryType type;
-    MutableDictionaryC::ValueRef val;
+    std::string str;
+};
+
+/// Dictionary entry that is, itself a dictionary (Dictionaryception!)
+class DictionaryEntryCDict : public DictionaryEntryC
+{
+public:
+    DictionaryEntryCDict(const MutableDictionaryCRef &dict);
+    
+    /// Return a dictionary as an entry
+    virtual DictionaryRef getDict() const override;
+
+    /// Compare to other
+    virtual bool isEqual(DictionaryEntryRef other) const override;
+
+protected:
+    MutableDictionaryCRef dict;
 };
 typedef std::shared_ptr<DictionaryEntryC> DictionaryEntryCRef;
+
+/// Dictionary entry that contains an array
+class DictionaryEntryCArray : public DictionaryEntryC
+{
+    friend MutableDictionaryC;
+public:
+    DictionaryEntryCArray(const std::vector<DictionaryEntryCRef> &vals);
+    DictionaryEntryCArray(const std::vector<DictionaryEntryRef> &vals);
+
+    /// Return the array
+    virtual std::vector<DictionaryEntryRef> getArray() const override;
+    virtual std::vector<DictionaryEntryCRef> getArrayC() const;
+
+    /// Compare to other
+    virtual bool isEqual(DictionaryEntryRef other) const override;
+
+protected:
+    std::vector<DictionaryEntryCRef> vals;
+};
 
 }
