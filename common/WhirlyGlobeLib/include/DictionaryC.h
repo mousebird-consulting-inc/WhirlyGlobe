@@ -45,10 +45,15 @@ public:
 //    MutableDictionaryC(RawData *rawData);
     // Copy constructor
     MutableDictionaryC(const MutableDictionaryC &that);
+    // Move constructor
+    MutableDictionaryC(MutableDictionaryC &&that);
     // Assignment operator
     MutableDictionaryC &operator = (const MutableDictionaryC &that);
-    virtual MutableDictionaryRef copy() override;
+    // Move assignment operator
+    MutableDictionaryC &operator = (MutableDictionaryC &&that);
     virtual ~MutableDictionaryC();
+
+    virtual MutableDictionaryRef copy() const override { return std::make_shared<MutableDictionaryC>(*this); }
 
     // Parse from a JSON string
 //    bool parseJSON(const std::string jsonString);
@@ -59,8 +64,8 @@ public:
     void clear() override;
     
     /// Number of fields being represented
-    int numFields() const;
-    
+    int numFields() const { return valueMap.size(); }
+
     /// Returns true if the field exists
     virtual bool hasField(const std::string &name) const override;
     virtual bool hasField(unsigned int key) const;
@@ -150,14 +155,13 @@ protected:
     };
 
     /// Add the given string key
-    unsigned int addKeyID(const std::string &name);
+    unsigned int addKeyID(const std::string &name) { return addString(name); }
     unsigned int addString(const std::string &name);
     /// Form an array of entries from an array index;
     std::vector<DictionaryEntryCRef> formArray(int idx) const;
 
     // The top level entries in the dictionary
-    class Value {
-    public:
+    struct Value {
         Value() : type(DictTypeNone), entry(0) { }
         Value & operator = (const Value &other) { type = other.type;  entry = other.entry;  return *this; }
         Value(const Value &other) : type(other.type), entry(other.entry) {}
@@ -169,6 +173,31 @@ protected:
 
     std::vector<Value> setupArray(const std::vector<DictionaryEntryCRef> &vals);
 
+    template <typename TVal, typename TVec>
+    void set(unsigned int key, TVal val, DictionaryType type, std::vector<TVec> &vals) {
+        set(key, val, type, type, vals);
+    }
+    template <typename TVal, typename TVec>
+    void set(unsigned int key, TVal val, DictionaryType type, DictionaryType altType, std::vector<TVec> &vals) {
+        const auto res = valueMap.insert(std::make_pair(key, Value(type, (int)vals.size())));
+        if (res.second) {
+            // key was inserted
+            vals.push_back(val);
+        } else {
+            // key was already present
+            const auto &mapVal = res.first->second;
+            
+            if (mapVal.type != type && mapVal.type != altType) {
+                // type mismatch, remove it
+                // shouldn't we replace it?
+                valueMap.erase(res.first);
+            } else {
+                vals[mapVal.entry] = val;
+            }
+        }
+    }
+
+    
     // Where we store the actual data
     std::vector<int> intVals;
     std::vector<int64_t> int64Vals;
@@ -225,9 +254,9 @@ typedef std::shared_ptr<DictionaryEntryC> DictionaryEntryCRef;
 class DictionaryEntryCBasic : public DictionaryEntryC
 {
 public:
-    DictionaryEntryCBasic(int iVal);
-    DictionaryEntryCBasic(double dVal);
-    DictionaryEntryCBasic(int64_t iVal);
+    DictionaryEntryCBasic(int iVal)     : DictionaryEntryC(DictTypeInt),    val { .iVal   = iVal } { }
+    DictionaryEntryCBasic(double dVal)  : DictionaryEntryC(DictTypeDouble), val { .dVal   = dVal } { }
+    DictionaryEntryCBasic(int64_t iVal) : DictionaryEntryC(DictTypeInt64),  val { .i64Val = iVal } { }
 
     /// Return an int, using the default if it's missing
     virtual int getInt() const override;
@@ -247,7 +276,7 @@ public:
 public:
     union {
         int iVal;
-        int dVal;
+        double dVal;
         int64_t i64Val;
     } val;
 };
@@ -256,12 +285,17 @@ public:
 class DictionaryEntryCString : public DictionaryEntryC
 {
 public:
-    DictionaryEntryCString(const std::string &str);
-    
+    DictionaryEntryCString(const std::string &str)
+        : DictionaryEntryC(DictTypeString), str(str)
+    {
+    }
+
+    const std::string &getStringRef() const { return str; }
+
     // TODO: Parse ints and such out of the string
     
     /// Return a string, or empty if it's missing
-    virtual std::string getString() const override;
+    virtual std::string getString() const override { return str; }
     /// Interpret an int as a RGBA color
     virtual RGBAColor getColor() const override;
 
@@ -276,10 +310,13 @@ protected:
 class DictionaryEntryCDict : public DictionaryEntryC
 {
 public:
-    DictionaryEntryCDict(const MutableDictionaryCRef &dict);
-    
+    DictionaryEntryCDict(const MutableDictionaryCRef &dict)
+        : DictionaryEntryC(DictTypeDictionary), dict(dict)
+    {
+    }
+
     /// Return a dictionary as an entry
-    virtual DictionaryRef getDict() const override;
+    virtual DictionaryRef getDict() const override { return dict; }
 
     /// Compare to other
     virtual bool isEqual(DictionaryEntryRef other) const override;
@@ -294,7 +331,10 @@ class DictionaryEntryCArray : public DictionaryEntryC
 {
     friend MutableDictionaryC;
 public:
-    DictionaryEntryCArray(const std::vector<DictionaryEntryCRef> &vals);
+    DictionaryEntryCArray(const std::vector<DictionaryEntryCRef> &vals)
+        : DictionaryEntryC(DictTypeArray), vals(vals)
+    {
+    }
     DictionaryEntryCArray(const std::vector<DictionaryEntryRef> &vals);
 
     /// Return the array

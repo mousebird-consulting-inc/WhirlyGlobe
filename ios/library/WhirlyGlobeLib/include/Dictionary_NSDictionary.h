@@ -116,7 +116,7 @@ public:
     // Assignment operator
     virtual iosMutableDictionary &operator = (const iosMutableDictionary &that);
     virtual ~iosMutableDictionary() override;
-    virtual MutableDictionaryRef copy() override;
+    virtual MutableDictionaryRef copy() const override;
 
     /// Returns true if the field exists
     bool hasField(const std::string &name) const override;
