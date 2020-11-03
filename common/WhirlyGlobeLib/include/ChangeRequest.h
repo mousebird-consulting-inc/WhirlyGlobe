@@ -50,8 +50,8 @@ public:
     virtual ~RenderTeardownInfo() { }
     
     // Normally we'll call the regular destroy calls, but various renderers might do something else
-    virtual void destroyTexture(SceneRenderer *renderer,TextureBaseRef tex);
-    virtual void destroyDrawable(SceneRenderer *renderer,DrawableRef draw);
+    virtual void destroyTexture(SceneRenderer *renderer,const TextureBaseRef &tex);
+    virtual void destroyDrawable(SceneRenderer *renderer,const DrawableRef &draw);
 };
 typedef std::shared_ptr<RenderTeardownInfo> RenderTeardownInfoRef;
     
