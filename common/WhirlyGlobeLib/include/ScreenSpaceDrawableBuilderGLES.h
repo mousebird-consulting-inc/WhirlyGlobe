@@ -55,7 +55,7 @@ public:
     virtual ScreenSpaceTweaker *makeTweaker();
     
     /// Fill out and return the drawable
-    virtual BasicDrawable *getDrawable();
+    virtual BasicDrawableRef getDrawable();
 };
     
 }

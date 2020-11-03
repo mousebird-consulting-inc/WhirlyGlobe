@@ -53,13 +53,13 @@ ScreenSpaceTweaker *ScreenSpaceDrawableBuilderGLES::makeTweaker()
     return new ScreenSpaceTweakerGLES();
 }
 
-BasicDrawable *ScreenSpaceDrawableBuilderGLES::getDrawable()
+BasicDrawableRef ScreenSpaceDrawableBuilderGLES::getDrawable()
 {
     if (drawableGotten)
         return BasicDrawableBuilderGLES::getDrawable();
     
-    BasicDrawable *theDraw = BasicDrawableBuilderGLES::getDrawable();
-    setupTweaker(theDraw);
+    auto theDraw = BasicDrawableBuilderGLES::getDrawable();
+    setupTweaker(theDraw.get());
     
     return theDraw;
 }

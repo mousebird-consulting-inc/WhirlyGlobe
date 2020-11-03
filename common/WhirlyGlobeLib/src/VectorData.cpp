@@ -413,6 +413,8 @@ VectorAreal::~VectorAreal()
     
 VectorArealRef VectorAreal::createAreal()
 {
+    // TODO: causes an error, can we `friend std::make_shared`?
+    //return std::make_shared<VectorAreal>();
     return VectorArealRef(new VectorAreal());
 }
 
@@ -519,6 +521,7 @@ VectorPoints::~VectorPoints()
     
 VectorPointsRef VectorPoints::createPoints()
 {
+    //return std::make_shared<VectorPoints>();
     return VectorPointsRef(new VectorPoints());
 }
 

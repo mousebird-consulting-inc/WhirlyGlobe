@@ -28,7 +28,7 @@ namespace WhirlyKit
 BasicDrawableBuilderGLES::BasicDrawableBuilderGLES(const std::string &name,Scene *scene,bool setupStandard)
     : BasicDrawableBuilder(name,scene), drawableGotten(false)
 {
-    basicDraw = new BasicDrawableGLES(name);
+    basicDraw = std::make_shared<BasicDrawableGLES>(name);
     BasicDrawableBuilder::Init();
     if (setupStandard)
         setupStandardAttributes();
@@ -36,8 +36,8 @@ BasicDrawableBuilderGLES::BasicDrawableBuilderGLES(const std::string &name,Scene
     
 BasicDrawableBuilderGLES::~BasicDrawableBuilderGLES()
 {
-    if (!drawableGotten && basicDraw)
-        delete basicDraw;
+    if (!drawableGotten)
+        basicDraw.reset();
 }
 
 int BasicDrawableBuilderGLES::addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int slot,int numThings)
@@ -50,14 +50,11 @@ int BasicDrawableBuilderGLES::addAttribute(BDAttributeDataType dataType,StringId
     return (unsigned int)(basicDraw->vertexAttributes.size()-1);
 }
 
-BasicDrawable *BasicDrawableBuilderGLES::getDrawable()
+BasicDrawableRef BasicDrawableBuilderGLES::getDrawable()
 {
-    if (!basicDraw)
-        return NULL;
-    
-    BasicDrawableGLES *draw = dynamic_cast<BasicDrawableGLES *>(basicDraw);
-    
-    if (!drawableGotten) {
+    auto draw = std::dynamic_pointer_cast<BasicDrawableGLES>(basicDraw);
+
+    if (draw && !drawableGotten) {
         draw->points = points;
         draw->tris = tris;
         draw->vertexSize = draw->singleVertexSize();

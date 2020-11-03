@@ -59,7 +59,7 @@ WideVectorDrawableBuilderGLES::WideVectorDrawableBuilderGLES(const std::string &
     
 void WideVectorDrawableBuilderGLES::Init(unsigned int numVert,unsigned int numTri,bool globeMode)
 {
-    basicDraw = new BasicDrawableGLES("Wide Vector");
+    basicDraw = std::make_shared<BasicDrawableGLES>("Wide Vector");
     WideVectorDrawableBuilder::Init(numVert,numTri,globeMode);
 }
     
@@ -73,13 +73,13 @@ WideVectorTweaker *WideVectorDrawableBuilderGLES::makeTweaker()
     return new WideVectorTweakerGLES();
 }
     
-BasicDrawable *WideVectorDrawableBuilderGLES::getDrawable()
+BasicDrawableRef WideVectorDrawableBuilderGLES::getDrawable()
 {
     if (drawableGotten)
         return BasicDrawableBuilderGLES::getDrawable();
     
-    BasicDrawable *theDraw = BasicDrawableBuilderGLES::getDrawable();
-    setupTweaker(theDraw);
+    const auto theDraw = BasicDrawableBuilderGLES::getDrawable();
+    setupTweaker(theDraw.get());
         
     return theDraw;
 }
