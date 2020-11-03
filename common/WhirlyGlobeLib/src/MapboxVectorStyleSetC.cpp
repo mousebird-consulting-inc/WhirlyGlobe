@@ -912,7 +912,7 @@ std::vector<VectorStyleImplRef> MapboxVectorStyleSetImpl::stylesForFeature(Platf
     
     auto it = layersBySource.find(layerName);
     if (it != layersBySource.end()) {
-        for (auto layer : it->second)
+        for (const auto &layer : it->second)
             if (!layer->filter || layer->filter->testFeature(attrs, tileID))
                 styles.push_back(layer);
     }
