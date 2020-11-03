@@ -54,7 +54,7 @@ Pod::Spec.new do |s|
   end
 
   s.subspec 'MaplyComponent' do |mc|
-    mc.source_files = 'common/WhirlyGlobeLib/include/*.h', 'common/WhirlyGlobeLib/src/*.cpp', 'ios/library/WhirlyGlobeLib/src/*.{mm,m,cpp,metal}', 'ios/library/WhirlyGlobeLib/include/*.h', 'ios/library/WhirlyGlobe-MaplyComponent/include/**/*.h', 'ios/library/WhirlyGlobe-MaplyComponent/src/**/*.{mm,m,cpp,metal}'
+    mc.source_files = 'common/WhirlyGlobeLib/include/*.h', 'common/WhirlyGlobeLib/src/*.{c,cpp}', 'ios/library/WhirlyGlobeLib/src/*.{mm,m,cpp,metal}', 'ios/library/WhirlyGlobeLib/include/*.h', 'ios/library/WhirlyGlobe-MaplyComponent/include/**/*.h', 'ios/library/WhirlyGlobe-MaplyComponent/src/**/*.{mm,m,cpp,metal}'
     mc.public_header_files = 'ios/library/WhirlyGlobe-MaplyComponent/include/*.h', "ios/library/WhirlyGlobe-MaplyComponent/include/vector_tiles/*.h"
     mc.private_header_files = 'ios/library/WhirlyGlobeLib/include/*.h', 'ios/**/vector_tile.pb.h', 'ios/**/MaplyBridge.h'
     mc.dependency 'WhirlyGlobe/locallibs'
