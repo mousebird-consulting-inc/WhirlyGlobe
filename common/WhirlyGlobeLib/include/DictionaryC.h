@@ -41,6 +41,7 @@ class MutableDictionaryC : public MutableDictionary
 {
 public:
     MutableDictionaryC();
+    MutableDictionaryC(int capacity);
     // Construct from a raw data buffer
 //    MutableDictionaryC(RawData *rawData);
     // Copy constructor

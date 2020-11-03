@@ -25,9 +25,17 @@ namespace WhirlyKit
 {
 
 MutableDictionaryC::MutableDictionaryC()
+    : stringMap(20)     // ?
+    , valueMap(20)
 {
 }
-    
+
+MutableDictionaryC::MutableDictionaryC(int capacity)
+    : stringMap(capacity)
+    , valueMap(capacity)
+{
+}
+
 MutableDictionaryC::MutableDictionaryC(const MutableDictionaryC &that)
     : intVals(that.intVals)
     , int64Vals(that.int64Vals)
