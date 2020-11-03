@@ -115,7 +115,7 @@ public:
     virtual MutableDictionary &operator = (const MutableDictionary &that) { return *this; };
     virtual ~MutableDictionary() { };
     // Make a separate copy of this dictionary
-    virtual MutableDictionaryRef copy() = 0;
+    virtual MutableDictionaryRef copy() const = 0;
 
     /// Clean out the contents
     virtual void clear() = 0;

@@ -335,9 +335,9 @@ iosMutableDictionary::~iosMutableDictionary()
     dict = nil;
 }
     
-MutableDictionaryRef iosMutableDictionary::copy()
+MutableDictionaryRef iosMutableDictionary::copy() const
 {
-    return iosMutableDictionaryRef(new iosMutableDictionary(dict));
+    return std::make_shared<iosMutableDictionary>(dict);
 }
     
 /// Returns true if the field exists
