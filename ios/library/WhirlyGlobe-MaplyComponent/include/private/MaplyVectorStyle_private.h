@@ -95,9 +95,10 @@ class VectorStyleDelegateWrapper : public VectorStyleDelegateImpl
 public:
     VectorStyleDelegateWrapper(NSObject<MaplyRenderControllerProtocol> *viewC,NSObject<MaplyVectorStyleDelegate> *delegate);
     
-    virtual std::vector<VectorStyleImplRef> stylesForFeature(PlatformThreadInfo *inst,DictionaryRef attrs,
-                                                            const QuadTreeIdentifier &tileID,
-                                                            const std::string &layerName) override;
+    virtual std::vector<VectorStyleImplRef> stylesForFeature(PlatformThreadInfo *inst,
+                                                             const Dictionary &attrs,
+                                                             const QuadTreeIdentifier &tileID,
+                                                             const std::string &layerName) override;
     
     virtual bool layerShouldDisplay(PlatformThreadInfo *inst,
                                     const std::string &name,

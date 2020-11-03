@@ -323,7 +323,12 @@ void BasicDrawableMTL::setOverrideColor(RGBAColor inColor)
         }
     }
 }
-    
+
+namespace {
+    const static std::string hasTextures("hasTextures");
+    const static std::string hasLighting("hasLighting");
+}
+
 void BasicDrawableMTL::setupArgBuffers(id<MTLDevice> mtlDevice,RenderSetupInfoMTL *setupInfo,SceneMTL *scene,BufferBuilderMTL &buffBuild)
 {
     ProgramMTL *prog = (ProgramMTL *)scene->getProgram(programId);
@@ -344,30 +349,38 @@ void BasicDrawableMTL::setupArgBuffers(id<MTLDevice> mtlDevice,RenderSetupInfoMT
     // Set up the argument buffers if they're not in place
     // This allocates some of the buffer memory, so only do once
     if (prog->vertFunc) {
-        vertABInfo = ArgBuffContentsMTLRef(new ArgBuffContentsMTL(mtlDevice,
-                                                                  setupInfo,
-                                                                  prog->vertFunc,
-                                                                  WhirlyKitShader::WKSVertexArgBuffer,
-                                                                  buffBuild));
-        vertHasTextures = vertABInfo->hasConstant("hasTextures");
-        vertHasLighting = vertABInfo->hasConstant("hasLighting");
+        vertABInfo = std::make_shared<ArgBuffContentsMTL>(mtlDevice,
+                                                          setupInfo,
+                                                          prog->vertFunc,
+                                                          WhirlyKitShader::WKSVertexArgBuffer,
+                                                          buffBuild);
+        vertHasTextures = vertABInfo->hasConstant(hasTextures);
+        vertHasLighting = vertABInfo->hasConstant(hasLighting);
         if (vertABInfo->isEmpty())
-            vertABInfo = NULL;
+            vertABInfo = nullptr;
         if (vertHasTextures)
-            vertTexInfo = ArgBuffRegularTexturesMTLRef(new ArgBuffRegularTexturesMTL(mtlDevice, setupInfo, prog->vertFunc, WhirlyKitShader::WKSVertTextureArgBuffer, buffBuild));
+            vertTexInfo = std::make_shared<ArgBuffRegularTexturesMTL>(mtlDevice,
+                                                                      setupInfo,
+                                                                      prog->vertFunc,
+                                                                      WhirlyKitShader::WKSVertTextureArgBuffer,
+                                                                      buffBuild);
     }
     if (prog->fragFunc) {
-        fragABInfo = ArgBuffContentsMTLRef(new ArgBuffContentsMTL(mtlDevice,
-                                                                  setupInfo,
-                                                                  prog->fragFunc,
-                                                                  WhirlyKitShader::WKSFragmentArgBuffer,
-                                                                  buffBuild));
-        fragHasTextures = fragABInfo->hasConstant("hasTextures");
-        fragHasLighting = fragABInfo->hasConstant("hasLighting");
+        fragABInfo = std::make_shared<ArgBuffContentsMTL>(mtlDevice,
+                                                          setupInfo,
+                                                          prog->fragFunc,
+                                                          WhirlyKitShader::WKSFragmentArgBuffer,
+                                                          buffBuild);
+        fragHasTextures = fragABInfo->hasConstant(hasTextures);
+        fragHasLighting = fragABInfo->hasConstant(hasLighting);
         if (fragABInfo->isEmpty())
-            fragABInfo = NULL;
+            fragABInfo = nullptr;
         if (fragHasTextures)
-            fragTexInfo = ArgBuffRegularTexturesMTLRef(new ArgBuffRegularTexturesMTL(mtlDevice, setupInfo, prog->fragFunc, WhirlyKitShader::WKSFragTextureArgBuffer, buffBuild));
+            fragTexInfo = std::make_shared<ArgBuffRegularTexturesMTL>(mtlDevice,
+                                                                      setupInfo,
+                                                                      prog->fragFunc,
+                                                                      WhirlyKitShader::WKSFragTextureArgBuffer,
+                                                                      buffBuild);
     }
 }
 

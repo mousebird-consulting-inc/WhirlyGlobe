@@ -328,7 +328,7 @@ bool VectorTilePBFParser::checkStyles(SimpleIDSet& styleIDs, const MutableDictio
     }
     
     // TODO: populate a reused vector?
-    const auto styles = _styleDelegate->stylesForFeature(_styleInst, attributes, _tileData->ident, _layerName);
+    const auto styles = _styleDelegate->stylesForFeature(_styleInst, *attributes, _tileData->ident, _layerName);
     for (const auto &style : styles)
     {
         styleIDs.insert(style->getUuid(_styleInst));

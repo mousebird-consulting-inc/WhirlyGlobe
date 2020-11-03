@@ -47,9 +47,7 @@ ArgBuffContentsMTL::ArgBuffContentsMTL(id<MTLDevice> mtlDevice,RenderSetupInfoMT
     // Work through the members, adding an entry for each one we're to fill in
     for (MTLStructMember *mem in members) {
         if (mem.dataType == MTLDataTypeStruct) {
-            EntryRef entry(new Entry());
-            entry->entryID = mem.argumentIndex;
-            entries[entry->entryID] = entry;
+            entries[mem.argumentIndex] = std::make_shared<Entry>(mem.argumentIndex);
         } else if (mem.dataType == MTLDataTypeBool) {
             constants.insert([mem.name cStringUsingEncoding:NSASCIIStringEncoding]);
         }
@@ -95,10 +93,10 @@ void ArgBuffContentsMTL::endEncoding(id<MTLDevice> mtlDevice, id<MTLBlitCommandE
 
 void ArgBuffContentsMTL::updateEntry(id<MTLDevice> mtlDevice,id<MTLBlitCommandEncoder> blitEncode,int entryID,void *rawData,size_t size)
 {
-    auto it = entries.find(entryID);
+    const auto it = entries.find(entryID);
     if (it == entries.end())
         return;
-    auto entry = it->second;
+    const auto entry = it->second;
     
     memcpy([encode constantDataAtIndex:entry->entryID], rawData, size);
 }

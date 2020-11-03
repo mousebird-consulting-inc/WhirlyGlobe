@@ -28,7 +28,7 @@ namespace WhirlyKit {
     
 MutableDictionaryRef MutableDictionaryMake()
 {
-    return MutableDictionaryRef(new iosMutableDictionary());
+    return std::make_shared<iosMutableDictionary>();
 }
     
 static NSString *StdStringToString(const std::string &str)
@@ -97,7 +97,7 @@ std::string iosDictionaryEntry::getString() const
 DictionaryRef iosDictionaryEntry::getDict() const
 {
     if ([value isKindOfClass:[NSDictionary class]]) {
-        return DictionaryRef(new iosDictionary(value));
+        return std::make_shared<iosDictionary>(value);
     }
     
     return DictionaryRef();
@@ -108,8 +108,9 @@ std::vector<DictionaryEntryRef> iosDictionaryEntry::getArray() const
     std::vector<DictionaryEntryRef> refs;
     
     if ([value isKindOfClass:[NSArray class]]) {
+        refs.reserve([(NSArray*)value count]);
         for (id val in (NSArray *)value) {
-            refs.push_back(DictionaryEntryRef(new iosDictionaryEntry(val)));
+            refs.push_back(std::make_shared<iosDictionaryEntry>(val));
         }
     }
     
@@ -264,7 +265,7 @@ DictionaryRef iosDictionary::getDict(const std::string &name) const
 
     id thing = dict[theName];
     if ([thing isKindOfClass:[NSDictionary class]])
-        return iosDictionaryRef(new iosDictionary((NSDictionary *)thing));
+        return std::make_shared<iosDictionary>((NSDictionary *)thing);
     
     return nil;
 }
@@ -277,18 +278,19 @@ DictionaryEntryRef iosDictionary::getEntry(const std::string &name) const
     if (!value)
         return DictionaryEntryRef();
     
-    return DictionaryEntryRef(new iosDictionaryEntry(value));
+    return std::make_shared<iosDictionaryEntry>(value);
 }
 
 std::vector<DictionaryEntryRef> iosDictionary::getArray(const std::string &name) const
 {
     std::vector<DictionaryEntryRef> refs;
     
-    NSString *theName = StdStringToString(name);
-    id value = dict[theName];
+    const NSString *theName = StdStringToString(name);
+    const id value = dict[theName];
     if ([value isKindOfClass:[NSArray class]]) {
+        refs.reserve([(NSArray*)value count]);
         for (id val in (NSArray *)value) {
-            refs.push_back(DictionaryEntryRef(new iosDictionaryEntry(val)));
+            refs.push_back(std::make_shared<iosDictionaryEntry>(val));
         }
     }
     
@@ -298,6 +300,7 @@ std::vector<DictionaryEntryRef> iosDictionary::getArray(const std::string &name)
 std::vector<std::string> iosDictionary::getKeys() const
 {
     std::vector<std::string> keys;
+    keys.reserve([dict count]);
     for (NSString *key in [dict allKeys]) {
         keys.push_back([key cStringUsingEncoding:NSUTF8StringEncoding]);
     }
@@ -439,19 +442,17 @@ DictionaryRef iosMutableDictionary::getDict(const std::string &name) const
 
     id thing = dict[theName];
     if ([thing isKindOfClass:[NSMutableDictionary class]])
-        return iosMutableDictionaryRef(new iosMutableDictionary((NSMutableDictionary *)thing));
+        return std::make_shared<iosMutableDictionary>((NSMutableDictionary *)thing);
     
-    return nil;
+    return DictionaryRef();
 }
 
 DictionaryEntryRef iosMutableDictionary::getEntry(const std::string &name) const
 {
     NSString *theName = StdStringToString(name);
 
-    id value = dict[theName];
-    if (!value)
-        return DictionaryEntryRef();
-    return DictionaryEntryRef(new iosDictionaryEntry(value));
+    const id value = dict[theName];
+    return value ? std::make_shared<iosDictionaryEntry>(value) : DictionaryEntryRef();
 }
 
 std::vector<DictionaryEntryRef> iosMutableDictionary::getArray(const std::string &name) const
@@ -461,8 +462,9 @@ std::vector<DictionaryEntryRef> iosMutableDictionary::getArray(const std::string
     NSString *theName = StdStringToString(name);
     id value = dict[theName];
     if ([value isKindOfClass:[NSArray class]]) {
+        refs.reserve([(NSArray*)value count]);
         for (id val in (NSArray *)value) {
-            refs.push_back(DictionaryEntryRef(new iosDictionaryEntry(val)));
+            refs.push_back(std::make_shared<iosDictionaryEntry>(val));
         }
     }
     
@@ -472,6 +474,7 @@ std::vector<DictionaryEntryRef> iosMutableDictionary::getArray(const std::string
 std::vector<std::string> iosMutableDictionary::getKeys() const
 {
     std::vector<std::string> keys;
+    keys.reserve([dict count]);
     for (NSString *key in [dict allKeys]) {
         keys.push_back([key cStringUsingEncoding:NSUTF8StringEncoding]);
     }
@@ -537,6 +540,7 @@ using namespace WhirlyKit;
 - (std::vector<DictionaryEntryRef>)convertArray:(NSArray *)arr
 {
     std::vector<DictionaryEntryRef> outArr;
+    outArr.reserve([arr count]);
 
     for (id arrVal in arr) {
         if ([arrVal isKindOfClass:[NSNumber class]]) {

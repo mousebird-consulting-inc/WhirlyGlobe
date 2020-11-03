@@ -278,7 +278,7 @@ void MutableDictionaryC::removeField(const std::string &name)
 void MutableDictionaryC::removeField(unsigned int key)
 {
     // TODO: WE're "leaking" (not actually) leaking space in the data arrays
-    auto it = valueMap.find(key);
+    const auto it = valueMap.find(key);
     if (it != valueMap.end())
         valueMap.erase(it);
 }
