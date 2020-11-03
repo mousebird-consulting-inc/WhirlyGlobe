@@ -127,7 +127,7 @@ class MapTilerTestCase: MaplyTestCase {
                 let interval = TimeInterval(components[4]?.doubleValue ?? 1)
                 let count = components[5]?.intValue ?? 1
                 mapVC.setPosition(center, height: outHeight)
-                for i in 0 ..< 2 * count {
+                for i in 0 ... 2 * count {
                     Timer.scheduledTimer(withTimeInterval: TimeInterval(i) * interval, repeats: false) { _ in
                         mapVC.animate(toPosition: center, height: (i % 2 == 0) ? inHeight : outHeight, time: interval)
                     }
