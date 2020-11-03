@@ -146,7 +146,9 @@ bool TextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
     RenderSetupInfoMTL *setupInfo = (RenderSetupInfoMTL *)inSetupInfo;
     
     if (width == 0 || height == 0) {
-        wkLogLevel(Error,"Texture with 0 width or height: %s",name.c_str());
+        if (!isEmptyTexture) {
+            wkLogLevel(Error,"Texture with 0 width or height: %s",name.c_str());
+        }
         return false;
     }
     
