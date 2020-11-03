@@ -246,7 +246,8 @@ void ResourceRefsMTL::use(id<MTLRenderCommandEncoder> cmdEncode)
         [cmdEncode useResource:buff usage:MTLResourceUsageRead];
 //        all[count++] = buff;
     for (id<MTLTexture> tex : textures)
-        [cmdEncode useResource:tex usage:MTLResourceUsageRead];
+        if (tex)
+            [cmdEncode useResource:tex usage:MTLResourceUsageRead];
 //        all[count++] = tex;
     
 //    [cmdEncode useResources:all count:count usage:MTLResourceUsageRead];
