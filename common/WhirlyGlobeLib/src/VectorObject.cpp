@@ -485,6 +485,12 @@ static bool ScreenPointFromGeo(const Point2d &geoCoord,
     return !(screenPt->x() < 0 || screenPt->y() < 0 || screenPt->x() > frameSize.x() || screenPt->y() > frameSize.y());
 }
 
+// Return the square of the hypotenuse, i.e., hypot() without the sqrt()
+inline static double hypotSq(double dx, double dy)
+{
+    return dx * dx + dy * dy;
+}
+
 bool VectorObject::pointNearLinear(const Point2d &coord,float maxDistance,ViewStateRef viewState,const Point2f &frameSize) const
 {
     CoordSystemDisplayAdapter *coordAdapter = viewState->coordAdapter;
@@ -506,6 +512,7 @@ bool VectorObject::pointNearLinear(const Point2d &coord,float maxDistance,ViewSt
     if (!ScreenPointFromGeo(coord, globeView, mapView, coordAdapter, frameSize, modelAndViewMat, modelAndViewMat4d, modelMatFull, modelAndViewNormalMat, &p))
         return false;
 
+    const double maxDistSq = (double)maxDistance * maxDistance;
     for (const auto &shape : shapes)
     {
         if (const auto linear = dynamic_cast<VectorLinear*>(shape.get()))
@@ -516,7 +523,6 @@ bool VectorObject::pointNearLinear(const Point2d &coord,float maxDistance,ViewSt
                 const VectorRing &pts = linear->pts;
                 for (int ii=0;ii<pts.size()-1;ii++)
                 {
-                    float distance = MAXFLOAT;
                     const Point2f &p0 = pts[ii];
                     Point2d pc(p0.x(),p0.y());
                     Point2d a;
@@ -531,21 +537,22 @@ bool VectorObject::pointNearLinear(const Point2d &coord,float maxDistance,ViewSt
                     
                     const Point2d aToP = a - p;
                     const Point2d aToB = a - b;
-                    const double aToBMagitude = pow(hypot(aToB.x(), aToB.y()), 2);
+                    const double aToBMagitude = hypotSq(aToB.x(), aToB.y());
                     const double dot = aToP.x() * aToB.x() + aToP.y() * aToB.y();
                     const double d = dot/aToBMagitude;
-                    
+
+                    double distance = std::numeric_limits<double>::max();
                     if(d < 0)
                     {
-                        distance = hypot(p.x() - a.x(), p.y() - a.y());
+                        distance = hypotSq(p.x() - a.x(), p.y() - a.y());
                     } else if(d > 1) {
-                        distance = hypot(p.x() - b.x(), p.y() - b.y());
+                        distance = hypotSq(p.x() - b.x(), p.y() - b.y());
                     } else {
-                        distance = hypot(p.x() - a.x() + (aToB.x() * d),
+                        distance = hypotSq(p.x() - a.x() + (aToB.x() * d),
                                          p.y() - a.y() + (aToB.y() * d));
                     }
                     
-                    if (distance < maxDistance)
+                    if (distance < maxDistSq)
                         return true;
                 }
             }
@@ -556,7 +563,6 @@ bool VectorObject::pointNearLinear(const Point2d &coord,float maxDistance,ViewSt
                 const VectorRing3d &pts = linear3d->pts;
                 for (int ii=0;ii<pts.size()-1;ii++)
                 {
-                    float distance = MAXFLOAT;
                     Point3d p0 = pts[ii];
                     Point2d pc(p0.x(),p0.y());
                     Point2d a;
@@ -571,21 +577,22 @@ bool VectorObject::pointNearLinear(const Point2d &coord,float maxDistance,ViewSt
 
                     const Point2d aToP = a - p;
                     const Point2d aToB = a - b;
-                    const double aToBMagitude = pow(hypot(aToB.x(), aToB.y()), 2);
+                    const double aToBMagitude = hypotSq(aToB.x(), aToB.y());
                     const double dot = aToP.x() * aToB.x() + aToP.y() * aToB.y();
                     const double d = dot/aToBMagitude;
-                    
+
+                    double distance = std::numeric_limits<double>::max();
                     if(d < 0)
                     {
-                        distance = hypot(p.x() - a.x(), p.y() - a.y());
+                        distance = hypotSq(p.x() - a.x(), p.y() - a.y());
                     } else if(d > 1) {
-                        distance = hypot(p.x() - b.x(), p.y() - b.y());
+                        distance = hypotSq(p.x() - b.x(), p.y() - b.y());
                     } else {
-                        distance = hypot(p.x() - a.x() + (aToB.x() * d),
+                        distance = hypotSq(p.x() - a.x() + (aToB.x() * d),
                                          p.y() - a.y() + (aToB.y() * d));
                     }
                     
-                    if (distance < maxDistance)
+                    if (distance < maxDistSq)
                         return true;
                 }
             }
