@@ -114,14 +114,14 @@ void MapboxVectorTileParser::addCategory(const std::string &category,long long s
     styleCategories[styleID] = category;
 }
 
-bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst,RawData *rawData,VectorTileData *tileData)
+bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst, RawData *rawData, VectorTileData *tileData, bool *cancelBool)
 {
-    volatile bool parsingCancelled = false; // TODO: set this somehow if the tile is unloaded while we're parsing it
+    volatile bool *parsingCancelled = cancelBool; // TODO: set this somehow if the tile is unloaded while we're parsing it
 
     VectorTilePBFParser parser(tileData, &*styleDelegate, styleInst, uuidName, uuidValues,
                                tileData->vecObjsByStyle, localCoords, parseAll,
                                keepVectors ? &tileData->vecObjs : nullptr,
-                               [&](){ return parsingCancelled; });
+                               [&](){ return parsingCancelled ? *parsingCancelled : false; });
     if (!parser.parse(rawData->getRawData(), rawData->getLen()))
     {
         if (parser.getParseCanceled()) {

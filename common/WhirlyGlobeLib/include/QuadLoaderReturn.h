@@ -72,6 +72,9 @@ public:
     // Set if something went wrong with loading
     bool hasError;
     
+    // Set by the loader if we've canceled a tile we're currently building objects for
+    bool cancel;
+    
     // Clean out references to everything
     virtual void clear();
 };

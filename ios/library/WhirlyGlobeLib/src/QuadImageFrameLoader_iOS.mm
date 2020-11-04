@@ -90,6 +90,9 @@ void QIFFrameAsset_ios::cancelFetch(PlatformThreadInfo *threadInfo,QuadImageFram
     
     QIFFrameAsset::cancelFetch(threadInfo, loader, batchOps);
     
+    if (loadReturn)
+        loadReturn->cancel = true;
+    
     if (request)
         [batchOps->toCancel addObject:request];
     request = nil;

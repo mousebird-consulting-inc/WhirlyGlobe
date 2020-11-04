@@ -121,7 +121,7 @@ public:
     
     // Parse the vector tile and return a list of vectors.
     // Returns false on failure.
-    virtual bool parse(PlatformThreadInfo *styleInst,RawData *rawData,VectorTileData *tileData);
+    virtual bool parse(PlatformThreadInfo *styleInst, RawData *rawData, VectorTileData *tileData, bool *cancelBool);
     
     // The subclass calls the appropriate style to build component objects
     //  which are then returned in the VectorTileData

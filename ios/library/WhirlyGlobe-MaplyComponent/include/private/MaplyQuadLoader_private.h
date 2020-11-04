@@ -32,6 +32,9 @@
 
     NSObject<MaplyTileFetcher> *tileFetcher;
     NSObject<MaplyLoaderInterpreter> *loadInterp;
+    // Used to throttle the number of tiles being parsed at once
+    dispatch_queue_t serialQueue;
+    dispatch_semaphore_t serialSemaphore;
     
     int minLevel,maxLevel;
     

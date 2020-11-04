@@ -99,6 +99,7 @@ using namespace WhirlyKit;
     self = [super init];
     _flipY = true;
     _viewC = inViewC;
+    _numSimultaneousTiles = 8;
     
     return self;
 }
@@ -357,6 +358,12 @@ using namespace WhirlyKit;
     if (!loader || !valid)
         return;
     
+    // Could do this at startup too
+    if (_numSimultaneousTiles > 0 && !serialQueue) {
+        serialQueue = dispatch_queue_create("Quad Loader Serial", DISPATCH_QUEUE_SERIAL);
+        serialSemaphore = dispatch_semaphore_create(_numSimultaneousTiles);
+    }
+    
     QuadTreeIdentifier tileID = loadReturn->loadReturn->ident;
     // Don't actually want this one
     if (!loader->isFrameLoading(tileID,loadReturn->loadReturn->frame)) {
@@ -388,7 +395,8 @@ using namespace WhirlyKit;
         // Do the parsing on another thread since it can be slow
         dispatch_queue_t theQueue = _queue;
         if (!theQueue)
-            theQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+            theQueue = serialQueue;
+        dispatch_semaphore_t theSemaphore = serialSemaphore;
 
         // Hold on to these till the task runs
         NSObject<MaplyLoaderInterpreter> *theLoadInterp = self->loadInterp;
@@ -397,17 +405,41 @@ using namespace WhirlyKit;
         dispatch_async(theQueue, ^{
             if (!self->valid || !self->_viewC)
                 return;
-            // No load interpreter means the fetcher created the objects.  Hopefully.
-            if (theLoadInterp)
-                [theLoadInterp dataForTile:loadReturn loader:self];
-            
-            // Need to clean up the loader return objects
-            if ([samplingLayer.layerThread isCancelled]) {
-                [self cleanupLoadedData:loadReturn];
-                return;
-            }
 
-            [self performSelector:@selector(mergeLoadedTile:) onThread:self->samplingLayer.layerThread withObject:loadReturn waitUntilDone:NO];
+            if (theSemaphore) {
+                // Need to limit the number of simultaneous loader return parses
+                dispatch_semaphore_wait(theSemaphore, DISPATCH_TIME_FOREVER);
+                
+                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                    // No load interpreter means the fetcher created the objects.  Hopefully.
+                    if (theLoadInterp)
+                        [theLoadInterp dataForTile:loadReturn loader:self];
+                    
+                    // Need to clean up the loader return objects
+                    if ([samplingLayer.layerThread isCancelled]) {
+                        [self cleanupLoadedData:loadReturn];
+                        return;
+                    }
+
+                    [self performSelector:@selector(mergeLoadedTile:) onThread:self->samplingLayer.layerThread withObject:loadReturn waitUntilDone:NO];
+                    
+                    dispatch_semaphore_signal(theSemaphore);
+                });
+            } else {
+                // Just run it on this queue right here
+                
+                // No load interpreter means the fetcher created the objects.  Hopefully.
+                if (theLoadInterp)
+                    [theLoadInterp dataForTile:loadReturn loader:self];
+                
+                // Need to clean up the loader return objects
+                if ([samplingLayer.layerThread isCancelled]) {
+                    [self cleanupLoadedData:loadReturn];
+                    return;
+                }
+
+                [self performSelector:@selector(mergeLoadedTile:) onThread:self->samplingLayer.layerThread withObject:loadReturn waitUntilDone:NO];
+            }
         });
     }
 }
@@ -442,6 +474,8 @@ using namespace WhirlyKit;
         [[self.viewC getRenderControl] releaseSamplingLayer:self->samplingLayer forUser:self->loader];
         self->loadInterp = nil;
         self->loader = nil;
+        self->serialSemaphore = nil;
+        self->serialQueue = nil;
     });
 }
 
