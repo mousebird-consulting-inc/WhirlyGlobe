@@ -380,6 +380,82 @@ RGBAColor MutableDictionaryC::getColor(const std::string &name,const RGBAColor &
     return getColor(it->second,defVal);
 }
 
+static RGBAColor parseColor(const char* const p, RGBAColor ret)
+{
+    char* end = nullptr;
+    const uint32_t iVal = std::strtol(p, &end, 16);
+    const auto len = end - p;
+
+    // TODO: These should probably be RRGGBBAA, but they're AARRGGBB for now for backward (probably) compatibility...
+    switch (len)
+    {
+#if 1
+    case 3: // #RGB => R=RR G=GG B=BB A=FF
+        ret.b = (iVal      ) & 0xF;
+        ret.g = (iVal >>  4) & 0xF;
+        ret.r = (iVal >>  8) & 0xF;
+        ret.b |= ret.b << 4;
+        ret.g |= ret.g << 4;
+        ret.r |= ret.r << 4;
+        ret.a = 0xFF;
+        break;
+    case 4: // #ARGB => R=RR G=GG B=BB A=AA
+        ret.b = (iVal      ) & 0xF;
+        ret.g = (iVal >>  4) & 0xF;
+        ret.r = (iVal >>  8) & 0xF;
+        ret.a = (iVal >> 12) & 0xF;
+        ret.b |= ret.b << 4;
+        ret.g |= ret.g << 4;
+        ret.r |= ret.r << 4;
+        ret.a |= ret.a << 4;
+        break;
+    case 6: // #RRGGBB => R=RR G=GG B=BB A=FF
+        ret.b = (iVal      ) & 0xFF;
+        ret.g = (iVal >>  8) & 0xFF;
+        ret.r = (iVal >> 16) & 0xFF;
+        ret.a = 0xFF;
+        break;
+    case 8: // #AARRGGBB => R=RR G=GG B=BB A=AA
+        ret.b = (iVal      ) & 0xFF;
+        ret.g = (iVal >>  8) & 0xFF;
+        ret.r = (iVal >> 16) & 0xFF;
+        ret.a = (iVal >> 24) & 0xFF;
+#else
+    case 3: // #RGB => R=RR G=GG B=BB A=FF
+        ret.b = (iVal      ) & 0xF;
+        ret.g = (iVal >>  4) & 0xF;
+        ret.r = (iVal >>  8) & 0xF;
+        ret.b |= ret.b << 4;
+        ret.g |= ret.g << 4;
+        ret.r |= ret.r << 4;
+        ret.a = 0xFF;
+        break;
+    case 4: // #RGBA => R=RR G=GG B=BB A=AA
+        ret.a = (iVal      ) & 0xF;
+        ret.b = (iVal     4) & 0xF;
+        ret.g = (iVal >>  8) & 0xF;
+        ret.r = (iVal >> 12) & 0xF;
+        ret.b |= ret.b << 4;
+        ret.g |= ret.g << 4;
+        ret.r |= ret.r << 4;
+        ret.a |= ret.a << 4;
+        break;
+    case 6: // #RRGGBB => R=RR G=GG B=BB A=FF
+        ret.b = (iVal      ) & 0xFF;
+        ret.g = (iVal >>  8) & 0xFF;
+        ret.r = (iVal >> 16) & 0xFF;
+        ret.a = 0xFF;
+        break;
+    case 8: // #RRGGBBAA => R=RR G=GG B=BB A=AA
+        ret.a = (iVal      ) & 0xFF;
+        ret.b = (iVal >>  8) & 0xFF;
+        ret.g = (iVal >> 16) & 0xFF;
+        ret.r = (iVal >> 24) & 0xFF;
+#endif
+    }
+    return ret;
+}
+
 RGBAColor MutableDictionaryC::getColor(unsigned int key,const RGBAColor &defVal) const
 {
     const auto it = valueMap.find(key);
@@ -392,21 +468,15 @@ RGBAColor MutableDictionaryC::getColor(unsigned int key,const RGBAColor &defVal)
         case DictTypeString:
         {
             const std::string &str = stringVals[val.entry];
-            // We're looking for a #RRGGBBAA
-            if (str.length() < 1 || str[0] != '#')
+            // We're looking for #RRGGBBAA, #RRGGBB, #RGBA, or #RGB
+            if (str.length() < 4 || str[0] != '#')
                 return defVal;
-            
-            int iVal = atoi(&str.c_str()[1]);
-            RGBAColor ret;
-            ret.b = iVal & 0xFF;
-            ret.g = (iVal >> 8) & 0xFF;
-            ret.r = (iVal >> 16) & 0xFF;
-            ret.a = (iVal >> 24) & 0xFF;
-            return ret;
+
+            return parseColor(&str.c_str()[1], defVal);
         }
         case DictTypeInt:
         {
-            int iVal = intVals[val.entry];
+            const uint32_t iVal = intVals[val.entry];
             RGBAColor ret;
             ret.b = iVal & 0xFF;
             ret.g = (iVal >> 8) & 0xFF;
