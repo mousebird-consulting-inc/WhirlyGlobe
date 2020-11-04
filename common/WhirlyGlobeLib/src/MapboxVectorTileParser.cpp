@@ -116,26 +116,35 @@ void MapboxVectorTileParser::addCategory(const std::string &category,long long s
 
 bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst,RawData *rawData,VectorTileData *tileData)
 {
+    volatile bool parsingCanceled = false;
+
     VectorTilePBFParser parser(tileData, &*styleDelegate, styleInst, uuidName, uuidValues,
                                tileData->vecObjsByStyle, localCoords, parseAll,
-                               keepVectors ? &tileData->vecObjs : nullptr);
+                               keepVectors ? &tileData->vecObjs : nullptr,
+                               &parsingCanceled);
     if (!parser.parse(rawData->getRawData(), rawData->getLen()))
     {
-        wkLogLevel(Warn, "Failed to parse vector tile PBF: '%s'",
-                   parser.getErrorString("unknown").c_str());
+        if (parsingCanceled) {
+            wkLogLevel(Debug, "Vector tile PBF parsing canceled (%d/%d/%d)",
+                       tileData->ident.level, tileData->ident.x, tileData->ident.y);
+        } else {
+            wkLogLevel(Warn, "Failed to parse vector tile PBF: '%s' (%d/%d/%d)",
+                       parser.getErrorString("unknown").c_str(),
+                       tileData->ident.level, tileData->ident.x, tileData->ident.y);
 #if DEBUG
-        if (parser.getTotalErrorCount() > 0) {
-            wkLogLevel(Debug,
-                       "Tile %d/%d/%d - Parse Errors: %d, Bad Attributes: %d, "
-                       "Unknown Commands: %d, Unknown Geom: %d, Unknown Value Types: %d",
-                       tileData->ident.level, tileData->ident.x, tileData->ident.y,
-                       parser.getParseErrorCount(),
-                       parser.getBadAttributeCount(),
-                       parser.getUnknownCommandCount(),
-                       parser.getUknownGeomTypeCount(),
-                       parser.getUnknownValueTypeCount());
-        }
+            if (parser.getTotalErrorCount() > 0) {
+                wkLogLevel(Debug,
+                           "Tile %d/%d/%d - Parse Errors: %d, Bad Attributes: %d, "
+                           "Unknown Commands: %d, Unknown Geom: %d, Unknown Value Types: %d",
+                           tileData->ident.level, tileData->ident.x, tileData->ident.y,
+                           parser.getParseErrorCount(),
+                           parser.getBadAttributeCount(),
+                           parser.getUnknownCommandCount(),
+                           parser.getUknownGeomTypeCount(),
+                           parser.getUnknownValueTypeCount());
+            }
 #endif
+        }
         return false;
     }
     

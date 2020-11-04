@@ -49,9 +49,10 @@ public:
         const std::string &uuidName,
         const std::set<std::string> &uuidValues,
         std::map<SimpleIdentity, std::vector<VectorObjectRef>*>& vecObjByStyle,
-        bool localCoords,
-        bool parseAll,
-        std::vector<VectorObjectRef>* keepVectors);
+        bool localCoords = false,
+        bool parseAll = false,
+        std::vector<VectorObjectRef>* keepVectors = nullptr,
+        volatile const bool* cancellationFlag = nullptr);
 
     bool parse(const uint8_t* data, size_t length);
 
@@ -170,6 +171,7 @@ private:
     const bool _localCoords;
     const bool _parseAll;
     std::vector<VectorObjectRef>* _keepVectors = nullptr;
+    volatile const bool* _cancelFlag = nullptr;
 
     // State used during parsing
     const MbrD _bbox;

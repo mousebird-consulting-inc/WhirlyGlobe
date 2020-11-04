@@ -23,6 +23,13 @@
 namespace WhirlyKit
 {
 
+namespace {
+    // Fixed strings to avoid allocations on every call to, e.g., Dictionary::setString
+    const static std::string layerName("layer_name");
+    const static std::string geometryType("geometry_type");
+    const static std::string layerOrder("layer_order");
+}
+
 const vector_tile_Tile_Layer VectorTilePBFParser::_defaultLayer = {
     /* name       */ { &VectorTilePBFParser::stringDecode,    nullptr },
     /* features   */ { &VectorTilePBFParser::featureDecode,   nullptr },
@@ -70,7 +77,8 @@ VectorTilePBFParser::VectorTilePBFParser(
         std::map<SimpleIdentity, std::vector<VectorObjectRef>*>& vecObjByStyle,
         bool localCoords,
         bool parseAll,
-        std::vector<VectorObjectRef>* keepVectors)
+        std::vector<VectorObjectRef>* keepVectors,
+        volatile const bool* cancellationFlag)
     : _tileData     (tileData)
     , _styleDelegate(styleData)
     , _styleInst    (styleInst)
@@ -80,6 +88,7 @@ VectorTilePBFParser::VectorTilePBFParser(
     , _localCoords  (localCoords)
     , _parseAll     (parseAll)
     , _keepVectors  (keepVectors)
+    , _cancelFlag   (cancellationFlag)
     , _bbox         (tileData->bbox)
     , _bboxWidth    (_bbox.ur().x() - _bbox.ll().x())
     , _bboxHeight   (_bbox.ur().y() - _bbox.ll().y())
@@ -115,14 +124,18 @@ bool VectorTilePBFParser::layerDecode(pb_istream_t *stream, const pb_field_iter_
 
 bool VectorTilePBFParser::layerDecode(pb_istream_t *stream, const pb_field_iter_t *field)
 {
+    if (_cancelFlag && *_cancelFlag) {
+        return false;
+    }
+    
     vector_tile_Tile_Layer layer = _defaultLayer;
     _currentLayer = &layer;
-    
+
     layer.name.arg = &_layerNameView;
     layer.features.arg = this;
     layer.keys.arg = &_layerKeys;
     layer.values.arg = &_layerValues;
-    
+
     _layerStarted = false;
     if (!pb_decode(stream, vector_tile_Tile_Layer_fields, &layer))
     {
@@ -155,6 +168,11 @@ bool VectorTilePBFParser::featureDecode(pb_istream_t *stream, const pb_field_ite
 {
     layerElement();
 
+    if (_cancelFlag && *_cancelFlag)
+    {
+        // This tile is no longer needed, so stop parsing it ASAP
+        return false;
+    }
     if (_skipLayer)
     {
         // We're skipping this layer, so don't process any of the features.
@@ -177,16 +195,16 @@ bool VectorTilePBFParser::featureDecode(pb_istream_t *stream, const pb_field_ite
     {
         return false;
     }
-    
+
     const auto geomType = static_cast<MapnikGeometryType>(feature.type);
 
     auto attributes = std::make_shared<MutableDictionaryC>();
-    attributes->setString("layer_name", _layerName);
-    attributes->setInt("geometry_type", (int)geomType);
-    attributes->setInt("layer_order", _layerCount);
+    attributes->setString(layerName, _layerName);
+    attributes->setInt(geometryType, (int)geomType);
+    attributes->setInt(layerOrder, _layerCount);
 
     _layerCount += 1;
-    
+
     if (!processTags(attributes))
     {
         _skippedFeatureCount += 1;
@@ -385,7 +403,7 @@ void VectorTilePBFParser::parseLineString(const std::vector<uint32_t> &geometry,
                     lin->pts.reserve(length);
                     firstCoord = point;
                 }
-                
+
                 lin->pts.push_back(Point2f(point.x(),point.y()));
             }
             else if (cmd == SEG_CLOSE_MASKED)
