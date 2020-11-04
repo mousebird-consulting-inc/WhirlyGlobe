@@ -659,11 +659,11 @@ void MutableDictionaryC::setupArray(const std::vector<DictionaryEntryCRef> &entr
                 case DictTypeIdentity:
                 case DictTypeInt64:
                     out.push_back(Value(DictTypeInt64,int64Vals.size()));
-                    int64Vals.push_back(entry->getInt());
+                    int64Vals.push_back(entry->getInt64());
                     break;
                 case DictTypeDouble:
                     out.push_back(Value(DictTypeDouble,dVals.size()));
-                    dVals.push_back(entry->getInt());
+                    dVals.push_back(entry->getDouble());
                     break;
                 case DictTypeString:
                     out.push_back(Value(DictTypeString,addString(entry->getString())));
