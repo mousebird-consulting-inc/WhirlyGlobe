@@ -412,7 +412,7 @@ using namespace WhirlyKit;
                 
                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                     // No load interpreter means the fetcher created the objects.  Hopefully.
-                    if (theLoadInterp)
+                    if (theLoadInterp && !loadReturn->loadReturn->cancel)
                         [theLoadInterp dataForTile:loadReturn loader:self];
                     
                     // Need to clean up the loader return objects
