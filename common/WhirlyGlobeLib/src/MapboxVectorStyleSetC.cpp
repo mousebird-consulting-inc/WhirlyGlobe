@@ -904,17 +904,20 @@ RGBAColorRef MapboxVectorStyleSetImpl::backgroundColor(PlatformThreadInfo *inst,
 
 
 std::vector<VectorStyleImplRef> MapboxVectorStyleSetImpl::stylesForFeature(PlatformThreadInfo *inst,
-                                                                           DictionaryRef attrs,
+                                                                           const Dictionary &attrs,
                                                                            const QuadTreeIdentifier &tileID,
                                                                            const std::string &layerName)
 {
     std::vector<VectorStyleImplRef> styles;
     
-    auto it = layersBySource.find(layerName);
+    const auto it = layersBySource.find(layerName);
     if (it != layersBySource.end()) {
-        for (const auto &layer : it->second)
-            if (!layer->filter || layer->filter->testFeature(attrs, tileID))
+        for (const auto &layer : it->second) {
+            if (!layer->filter || layer->filter->testFeature(attrs, tileID)) {
+                styles.reserve(it->second.size());
                 styles.push_back(layer);
+            }
+        }
     }
     
     return styles;

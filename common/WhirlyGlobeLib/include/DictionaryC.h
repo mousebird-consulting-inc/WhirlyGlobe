@@ -131,14 +131,14 @@ public:
     void setString(const std::string &name,const std::string &val) override;
     void setString(unsigned int key,const std::string &val);
     /// Set the dictionary at the given attribute name
-    void setDict(const std::string &name,MutableDictionaryCRef dict);
-    void setDict(unsigned int key,MutableDictionaryCRef dict);
+    void setDict(const std::string &name,const MutableDictionaryCRef &dict);
+    void setDict(unsigned int key,const MutableDictionaryCRef &dict);
     /// Set the array at the given attribute name
-    void setArray(const std::string &name,std::vector<DictionaryEntryRef> &entries);
-    void setArray(unsigned int key,std::vector<DictionaryEntryRef> &entries);
+    void setArray(const std::string &name,const std::vector<DictionaryEntryRef> &entries);
+    void setArray(unsigned int key,const std::vector<DictionaryEntryRef> &entries);
     /// Set the array at the given attribute name
-    void setArray(const std::string &name,std::vector<DictionaryRef> &entries);
-    void setArray(unsigned int key,std::vector<DictionaryRef> &entries);
+    void setArray(const std::string &name,const std::vector<DictionaryRef> &entries);
+    void setArray(unsigned int key,const std::vector<DictionaryRef> &entries);
     
     // Write data to a raw data buffer
 //    void asRawData(MutableRawData *rawData);
@@ -172,7 +172,10 @@ protected:
         unsigned int entry;
     };
 
-    std::vector<Value> setupArray(const std::vector<DictionaryEntryCRef> &vals);
+    // Make an entry ref for a given value
+    DictionaryEntryCRef makeEntryRef(const Value &val) const;
+
+    void setupArray(const std::vector<DictionaryEntryCRef> &vals, std::vector<Value>& arr);
 
     template <typename TVal, typename TVec>
     void set(unsigned int key, TVal val, DictionaryType type, std::vector<TVec> &vals) {
@@ -198,7 +201,6 @@ protected:
         }
     }
 
-    
     // Where we store the actual data
     std::vector<int> intVals;
     std::vector<int64_t> int64Vals;

@@ -236,7 +236,7 @@ MutableDictionaryC &MutableDictionaryC::operator = (MutableDictionaryC &&that)
 //        }
 //    }
 //}
-        
+
 bool MutableDictionaryC::hasField(const std::string &name) const
 {
     const auto it = stringMap.find(name);
@@ -252,44 +252,34 @@ bool MutableDictionaryC::hasField(unsigned int key) const
 DictionaryType MutableDictionaryC::getType(const std::string &name) const
 {
     const auto it = stringMap.find(name);
-    if (it == stringMap.end())
-        return DictTypeNone;
-
-    return getType(it->second);
+    return (it != stringMap.end()) ? getType(it->second) : DictTypeNone;
 }
 
 DictionaryType MutableDictionaryC::getType(unsigned int key) const
 {
     const auto it = valueMap.find(key);
-    if (it == valueMap.end())
-        return DictTypeNone;
-
-    return it->second.type;
+    return (it != valueMap.end()) ? it->second.type : DictTypeNone;
 }
 
 void MutableDictionaryC::removeField(const std::string &name)
 {
     const auto it = stringMap.find(name);
-    if (it == stringMap.end())
-        return;
-    removeField(it->second);
+    if (it != stringMap.end())
+        removeField(it->second);
 }
 
 void MutableDictionaryC::removeField(unsigned int key)
 {
     // TODO: WE're "leaking" (not actually) leaking space in the data arrays
-    auto it = valueMap.find(key);
+    const auto it = valueMap.find(key);
     if (it != valueMap.end())
         valueMap.erase(it);
 }
-    
+
 int MutableDictionaryC::getInt(const std::string &name,int defVal) const
 {
     const auto it = stringMap.find(name);
-    if (it == stringMap.end())
-        return defVal;
-
-    return getInt(it->second,defVal);
+    return (it != stringMap.end()) ? getInt(it->second,defVal) : defVal;
 }
 
 int MutableDictionaryC::getInt(unsigned int key,int defVal) const
@@ -297,28 +287,21 @@ int MutableDictionaryC::getInt(unsigned int key,int defVal) const
     const auto it = valueMap.find(key);
     if (it == valueMap.end())
         return defVal;
-    
+
     const auto &val = it->second;
     switch (val.type) {
-        case DictTypeInt:
-            return intVals[val.entry];
-        case DictTypeInt64:
-            return int64Vals[val.entry];
-        case DictTypeDouble:
-            return (int)dVals[val.entry];
+        case DictTypeInt:     return intVals[val.entry];
+        case DictTypeInt64:   return (int)int64Vals[val.entry];
+        case DictTypeDouble:  return (int)dVals[val.entry];
         // TODO: Maybe parse the string
-        default:
-            return defVal;
+        default:              return defVal;
     }
 }
-    
+
 SimpleIdentity MutableDictionaryC::getIdentity(const std::string &name) const
 {
     const auto it = stringMap.find(name);
-    if (it == stringMap.end())
-        return EmptyIdentity;
-
-    return getIdentity(it->second);
+    return (it != stringMap.end()) ? getIdentity(it->second) : EmptyIdentity;
 }
 
 SimpleIdentity MutableDictionaryC::getIdentity(unsigned int key) const
@@ -329,26 +312,19 @@ SimpleIdentity MutableDictionaryC::getIdentity(unsigned int key) const
     
     const auto &val = it->second;
     switch (val.type) {
-        case DictTypeInt:
-            return intVals[val.entry];
+        case DictTypeInt:            return intVals[val.entry];
         case DictTypeInt64:
-        case DictTypeIdentity:
-            return int64Vals[val.entry];
-        case DictTypeDouble:
-            return (int)dVals[val.entry];
+        case DictTypeIdentity:       return int64Vals[val.entry];
+        case DictTypeDouble:         return (SimpleIdentity)dVals[val.entry];
         // TODO: Maybe parse the string
-        default:
-            return EmptyIdentity;
+        default:                     return EmptyIdentity;
     }
 }
 
 int64_t MutableDictionaryC::getInt64(const std::string &name,int64_t defVal) const
 {
     const auto it = stringMap.find(name);
-    if (it == stringMap.end())
-        return defVal;
-
-    return getInt64(it->second,defVal);
+    return (it != stringMap.end()) ? getInt64(it->second,defVal) : defVal;
 }
 
 int64_t MutableDictionaryC::getInt64(unsigned int key,int64_t defVal) const
@@ -356,19 +332,15 @@ int64_t MutableDictionaryC::getInt64(unsigned int key,int64_t defVal) const
     const auto it = valueMap.find(key);
     if (it == valueMap.end())
         return defVal;
-    
+
     const auto &val = it->second;
     switch (val.type) {
-        case DictTypeInt:
-            return intVals[val.entry];
+        case DictTypeInt:      return intVals[val.entry];
         case DictTypeInt64:
-        case DictTypeIdentity:
-            return int64Vals[val.entry];
-        case DictTypeDouble:
-            return (int)dVals[val.entry];
+        case DictTypeIdentity: return int64Vals[val.entry];
+        case DictTypeDouble:   return (int64_t)dVals[val.entry];
         // TODO: Maybe parse the string
-        default:
-            return 0;
+        default:               return defVal;
     }
 }
 
@@ -484,9 +456,7 @@ double MutableDictionaryC::getDouble(unsigned int key,double defVal) const
 std::string MutableDictionaryC::getString(const std::string &name) const
 {
     const auto it = stringMap.find(name);
-    if (it == stringMap.end())
-        return std::string();
-    return getString(it->second);
+    return (it != stringMap.end()) ? getString(it->second) : std::string();
 }
 
 std::string MutableDictionaryC::getString(unsigned int key) const
@@ -516,25 +486,19 @@ std::string MutableDictionaryC::getString(unsigned int key) const
 std::string MutableDictionaryC::getString(const std::string &name,const std::string &defVal) const
 {
     const auto it = stringMap.find(name);
-    if (it == stringMap.end())
-        return defVal;
-    return getString(it->second,defVal);
+    return (it != stringMap.end()) ? getString(it->second,defVal) : defVal;
 }
 
 std::string MutableDictionaryC::getString(unsigned int key,const std::string &defVal) const
 {
     const auto it = valueMap.find(key);
-    if (it == valueMap.end())
-        return defVal;
-    return stringVals[it->second.entry];
+    return (it != valueMap.end()) ? stringVals[it->second.entry] : defVal;
 }
 
 DictionaryRef MutableDictionaryC::getDict(const std::string &name) const
 {
     const auto it = stringMap.find(name);
-    if (it == stringMap.end())
-        return DictionaryRef();
-    return getDict(it->second);
+    return (it != stringMap.end()) ? getDict(it->second) : DictionaryRef();
 }
 
 DictionaryRef MutableDictionaryC::getDict(unsigned int key) const
@@ -551,44 +515,34 @@ DictionaryRef MutableDictionaryC::getDict(unsigned int key) const
 DictionaryEntryRef MutableDictionaryC::getEntry(const std::string &name) const
 {
     const auto it = stringMap.find(name);
-    if (it == stringMap.end())
-        return DictionaryEntryRef();
-    return getEntry(it->second);
+    return (it != stringMap.end()) ? getEntry(it->second) : DictionaryEntryRef();
 }
 
 DictionaryEntryRef MutableDictionaryC::getEntry(unsigned int key) const
 {
     const auto it = valueMap.find(key);
-    if (it == valueMap.end())
-        return DictionaryEntryRef();
-    
-    const auto &val = it->second;
+    return (it != valueMap.end()) ? makeEntryRef(it->second) : DictionaryEntryRef();
+}
+
+DictionaryEntryCRef MutableDictionaryC::makeEntryRef(const Value &val) const
+{
     switch (val.type) {
-        case DictTypeInt:
-            return std::make_shared<DictionaryEntryCBasic>(intVals[val.entry]);
-        case DictTypeIdentity:
-        case DictTypeInt64:
-            return std::make_shared<DictionaryEntryCBasic>(int64Vals[val.entry]);
-        case DictTypeDouble:
-            return std::make_shared<DictionaryEntryCBasic>(dVals[val.entry]);
-        case DictTypeString:
-            return std::make_shared<DictionaryEntryCString>(stringVals[val.entry]);
-        case DictTypeDictionary:
-            return std::make_shared<DictionaryEntryCDict>(dictVals[val.entry]);
-        case DictTypeArray:
-            return std::make_shared<DictionaryEntryCArray>(formArray(val.entry));
-        case DictTypeObject:
-        case DictTypeNone:
-            return DictionaryEntryRef();
+    case DictTypeInt:        return std::make_shared<DictionaryEntryCBasic>(intVals[val.entry]);
+    case DictTypeIdentity:
+    case DictTypeInt64:      return std::make_shared<DictionaryEntryCBasic>(int64Vals[val.entry]);
+    case DictTypeDouble:     return std::make_shared<DictionaryEntryCBasic>(dVals[val.entry]);
+    case DictTypeString:     return std::make_shared<DictionaryEntryCString>(stringVals[val.entry]);
+    case DictTypeDictionary: return std::make_shared<DictionaryEntryCDict>(dictVals[val.entry]);
+    case DictTypeArray:      return std::make_shared<DictionaryEntryCArray>(formArray(val.entry));
+    case DictTypeObject:
+    case DictTypeNone:       return DictionaryEntryCRef();
     }
 }
 
 std::vector<DictionaryEntryRef> MutableDictionaryC::getArray(const std::string &name) const
 {
     const auto it = stringMap.find(name);
-    if (it == stringMap.end())
-        return std::vector<DictionaryEntryRef>();
-    return getArray(it->second);
+    return (it != stringMap.end()) ? getArray(it->second) : std::vector<DictionaryEntryRef>();
 }
 
 std::vector<DictionaryEntryRef> MutableDictionaryC::getArray(unsigned int key) const
@@ -597,12 +551,15 @@ std::vector<DictionaryEntryRef> MutableDictionaryC::getArray(unsigned int key) c
     if (it == valueMap.end() || it->second.type != DictTypeArray)
         return std::vector<DictionaryEntryRef>();
 
-    // TODO: There's probalby a one line way to do this
+    const auto arrayVal = arrayVals[it->second.entry];
+
     std::vector<DictionaryEntryRef> rets;
-    rets.reserve(arrayVals[it->second.entry].size());
-    const auto foo = formArray(it->second.entry);
-    for (auto &val : foo)
-        rets.push_back(val);
+    rets.reserve(arrayVal.size());
+
+    for (const auto &arrEntry: arrayVal) {
+        rets.push_back(makeEntryRef(arrEntry));
+    }
+
     return rets;
 }
 
@@ -614,32 +571,9 @@ std::vector<DictionaryEntryCRef> MutableDictionaryC::formArray(int idx) const
     rets.reserve(arrVals.size());
 
     for (const auto &arrEntry: arrVals) {
-        switch (arrEntry.type) {
-            case DictTypeInt:
-                rets.push_back(std::make_shared<DictionaryEntryCBasic>(intVals[arrEntry.entry]));
-                break;
-            case DictTypeInt64:
-            case DictTypeIdentity:
-                rets.push_back(std::make_shared<DictionaryEntryCBasic>(int64Vals[arrEntry.entry]));
-                break;
-            case DictTypeDouble:
-                rets.push_back(std::make_shared<DictionaryEntryCBasic>(dVals[arrEntry.entry]));
-                break;
-            case DictTypeString:
-                rets.push_back(std::make_shared<DictionaryEntryCString>(stringVals[arrEntry.entry]));
-                break;
-            case DictTypeDictionary:
-                rets.push_back(std::make_shared<DictionaryEntryCDict>(dictVals[arrEntry.entry]));
-                break;
-            case DictTypeArray:
-                rets.push_back(std::make_shared<DictionaryEntryCArray>(formArray(arrEntry.entry)));
-                break;
-            case DictTypeObject:
-            case DictTypeNone:
-                break;
-        }
+        rets.push_back(makeEntryRef(arrEntry));
     }
-    
+
     return rets;
 }
 
@@ -656,9 +590,7 @@ std::vector<std::string> MutableDictionaryC::getKeys() const
 int MutableDictionaryC::getKeyID(const std::string &name)
 {
     const auto &it = stringMap.find(name);
-    if (it == stringMap.end())
-        return -1;
-    return it->second;
+    return (it != stringMap.end()) ? it->second : -1;
 }
 
 void MutableDictionaryC::setInt(const std::string &name,int val)
@@ -700,24 +632,22 @@ void MutableDictionaryC::setString(unsigned int key,const std::string &val)
         valueMap.erase(it);
     
     // Make a new one (psst, it's the same as the keys)
-    auto stringID = addString(val);
-    Value entry(DictTypeString,stringID);
-    valueMap[key] = entry;
+    const auto stringID = addString(val);
+    valueMap[key] = Value(DictTypeString,stringID);
 }
 
-void MutableDictionaryC::setDict(const std::string &name,MutableDictionaryCRef dict)
+void MutableDictionaryC::setDict(const std::string &name,const MutableDictionaryCRef &dict)
 {
     setDict(addKeyID(name),dict);
 }
-void MutableDictionaryC::setDict(unsigned int key,MutableDictionaryCRef dict)
+void MutableDictionaryC::setDict(unsigned int key,const MutableDictionaryCRef &dict)
 {
     set(key, std::ref(dict), DictTypeDictionary, dictVals);
 }
 
-std::vector<MutableDictionaryC::Value> MutableDictionaryC::setupArray(const std::vector<DictionaryEntryCRef> &entries)
+void MutableDictionaryC::setupArray(const std::vector<DictionaryEntryCRef> &entries, std::vector<Value> &out)
 {
-    std::vector<Value> out;
-    out.reserve(entries.size());
+    out.reserve(out.size() + entries.size());
 
     for (auto &entry: entries) {
         if (entry) {
@@ -752,7 +682,9 @@ std::vector<MutableDictionaryC::Value> MutableDictionaryC::setupArray(const std:
                     auto theArray = std::dynamic_pointer_cast<DictionaryEntryCArray>(entry);
                     if (theArray && !theArray->vals.empty()) {
                         out.push_back(Value(DictTypeArray,arrayVals.size()));
-                        auto locArr = setupArray(theArray->getArrayC());
+
+                        std::vector<Value> locArr;
+                        setupArray(theArray->getArrayC(), locArr);
                         arrayVals.push_back(locArr);
                     }
                 }
@@ -763,40 +695,42 @@ std::vector<MutableDictionaryC::Value> MutableDictionaryC::setupArray(const std:
             }
         }
     }
-    
-    return out;
 }
 
-void MutableDictionaryC::setArray(const std::string &name,std::vector<DictionaryEntryRef> &entries)
+void MutableDictionaryC::setArray(const std::string &name,const std::vector<DictionaryEntryRef> &entries)
 {
     setArray(addKeyID(name),entries);
 }
-void MutableDictionaryC::setArray(unsigned int key,std::vector<DictionaryEntryRef> &entries)
+void MutableDictionaryC::setArray(unsigned int key,const std::vector<DictionaryEntryRef> &entries)
 {
     const auto &it = valueMap.find(key);
     // Clear out the field.  Just easier
     if (it != valueMap.end())
         valueMap.erase(it);
-    
+
     // TODO: Can we cast this once?
     std::vector<DictionaryEntryCRef> theEntries;
-    for (auto &entry : entries)
-        if (auto entryC = std::dynamic_pointer_cast<DictionaryEntryC>(entry))
+    for (auto &entry : entries) {
+        if (auto entryC = std::dynamic_pointer_cast<DictionaryEntryC>(entry)) {
             theEntries.push_back(entryC);
-    auto newArray = setupArray(theEntries);
+        }
+    }
 
-    Value entry(DictTypeArray,arrayVals.size());
+    std::vector<Value> newArray;
+    setupArray(theEntries, newArray);
+
+    valueMap[key] = Value(DictTypeArray,arrayVals.size());
     arrayVals.push_back(newArray);
-    valueMap[key] = entry;
 }
 
-void MutableDictionaryC::setArray(const std::string &name,std::vector<DictionaryRef> &entries)
+void MutableDictionaryC::setArray(const std::string &name,const std::vector<DictionaryRef> &entries)
 {
     setArray(addKeyID(name),entries);
 }
-void MutableDictionaryC::setArray(unsigned int key,std::vector<DictionaryRef> &entries)
+void MutableDictionaryC::setArray(unsigned int key,const std::vector<DictionaryRef> &entries)
 {
     std::vector<DictionaryEntryRef> theEntries;
+    theEntries.reserve(entries.size());
     for (auto &entry : entries) {
         if (auto theEntry = std::dynamic_pointer_cast<DictionaryEntryCDict>(entry))
             theEntries.push_back(theEntry);
@@ -817,7 +751,7 @@ void MutableDictionaryC::addEntries(const MutableDictionaryC *other)
     std::vector<unsigned int> stringRemap;
     stringRemap.reserve(other->stringVals.size());
     for (const auto &entry : other->stringVals) {
-        auto newStringID = addString(entry);
+        const auto newStringID = addString(entry);
         stringRemap.push_back(newStringID);
     }
 
@@ -916,60 +850,44 @@ unsigned int MutableDictionaryC::addString(const std::string &name)
 int DictionaryEntryCBasic::getInt() const
 {
     switch (type) {
-        case DictTypeInt:
-            return val.iVal;
+        case DictTypeInt:      return val.iVal;
         case DictTypeIdentity:
-        case DictTypeInt64:
-            return val.i64Val;
-        case DictTypeDouble:
-            return (int)val.dVal;
-        default:
-            return 0;
+        case DictTypeInt64:    return val.i64Val;
+        case DictTypeDouble:   return (int)val.dVal;
+        default:               return 0;
     }
 }
 
 SimpleIdentity DictionaryEntryCBasic::getIdentity() const
 {
     switch (type) {
-        case DictTypeInt:
-            return val.iVal;
+        case DictTypeInt:      return val.iVal;
         case DictTypeIdentity:
-        case DictTypeInt64:
-            return val.i64Val;
-        case DictTypeDouble:
-            return val.dVal;
-        default:
-            return 0;
+        case DictTypeInt64:    return val.i64Val;
+        case DictTypeDouble:   return val.dVal;
+        default:               return 0;
     }
 }
 
 int64_t DictionaryEntryCBasic::getInt64() const
 {
     switch (type) {
-        case DictTypeInt:
-            return val.iVal;
+        case DictTypeInt:      return val.iVal;
         case DictTypeIdentity:
-        case DictTypeInt64:
-            return val.i64Val;
-        case DictTypeDouble:
-            return val.dVal;
-        default:
-            return 0;
+        case DictTypeInt64:    return val.i64Val;
+        case DictTypeDouble:   return val.dVal;
+        default:               return 0;
     }
 }
 
 bool DictionaryEntryCBasic::getBool() const
 {
     switch (type) {
-        case DictTypeInt:
-            return val.iVal != 0;
+        case DictTypeInt:      return val.iVal != 0;
         case DictTypeIdentity:
-        case DictTypeInt64:
-            return val.i64Val != 0;
-        case DictTypeDouble:
-            return val.dVal != 0.0;
-        default:
-            return 0;
+        case DictTypeInt64:    return val.i64Val != 0;
+        case DictTypeDouble:   return val.dVal != 0.0;
+        default:               return false;
     }
 }
 
@@ -980,22 +898,17 @@ RGBAColor DictionaryEntryCBasic::getColor() const
     ret.g = (val.iVal >> 8) & 0xFF;
     ret.r = (val.iVal >> 16) & 0xFF;
     ret.a = (val.iVal >> 24) & 0xFF;
-    
     return ret;
 }
 
 double DictionaryEntryCBasic::getDouble() const
 {
     switch (type) {
-        case DictTypeInt:
-            return val.iVal;
+        case DictTypeInt:      return val.iVal;
         case DictTypeIdentity:
-        case DictTypeInt64:
-            return val.i64Val;
-        case DictTypeDouble:
-            return val.dVal;
-        default:
-            return 0;
+        case DictTypeInt64:    return val.i64Val;
+        case DictTypeDouble:   return val.dVal;
+        default:               return 0;
     }
 }
 
@@ -1004,17 +917,13 @@ bool DictionaryEntryCBasic::isEqual(DictionaryEntryRef other) const
     const auto otherRef = std::dynamic_pointer_cast<DictionaryEntryCBasic>(other);
     if (!otherRef)
         return false;
-    
+
     switch (type) {
-        case DictTypeInt:
-            return val.iVal == otherRef->getInt();
+        case DictTypeInt:      return val.iVal == otherRef->getInt();
         case DictTypeInt64:
-        case DictTypeIdentity:
-            return val.i64Val == otherRef->getInt64();
-        case DictTypeDouble:
-            return val.dVal == otherRef->getDouble();
-        default:
-            return false;
+        case DictTypeIdentity: return val.i64Val == otherRef->getInt64();
+        case DictTypeDouble:   return val.dVal == otherRef->getDouble();
+        default:               return false;
     }
 }
 
@@ -1065,7 +974,7 @@ std::vector<DictionaryEntryRef> DictionaryEntryCArray::getArray() const
             rets.push_back(p);
         }
     }
-    
+
     return rets;
 }
 

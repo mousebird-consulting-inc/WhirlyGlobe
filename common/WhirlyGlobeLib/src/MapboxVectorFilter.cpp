@@ -29,8 +29,8 @@ MapboxVectorFilter::MapboxVectorFilter()
 {
 }
 
-static const char *filterTypes[] = {"==","!=",">",">=","<","<=","in","!in","has","!has","all","any","none"};
-static const char *geomTypes[] = {"Point","LineString","Polygon"};
+static const char * const filterTypes[] = {"==","!=",">",">=","<","<=","in","!in","has","!has","all","any","none"};
+static const char * const geomTypes[] = {"Point","LineString","Polygon"};
 
 bool MapboxVectorFilter::parse(const std::vector<DictionaryEntryRef> &filterArray,MapboxVectorStyleSetImpl *styleSet)
 {
@@ -77,11 +77,11 @@ bool MapboxVectorFilter::parse(const std::vector<DictionaryEntryRef> &filterArra
             wkLogLevel(Warn,"Expecting three arugments for the filter type.");
             return false;
         }
+        inclVals.reserve(filterArray.size());
         attrName = filterArray[1]->getString();
         for (unsigned int ii=2;ii<filterArray.size();ii++)
         {
-            DictionaryEntryRef val = filterArray[ii];
-            val = filterArray[ii];
+            const auto &val = filterArray[ii];
             if (!val)
                 return false;
             inclVals.push_back(val);
@@ -101,7 +101,7 @@ bool MapboxVectorFilter::parse(const std::vector<DictionaryEntryRef> &filterArra
         // Any and all have subfilters
         for (unsigned int ii=1;ii<filterArray.size();ii++)
         {
-            MapboxVectorFilterRef subFilter(new MapboxVectorFilter());
+            const auto subFilter = std::make_shared<MapboxVectorFilter>();
             if (!subFilter->parse(filterArray[ii]->getArray(), styleSet))
                 return false;
             subFilters.push_back(subFilter);
@@ -111,139 +111,94 @@ bool MapboxVectorFilter::parse(const std::vector<DictionaryEntryRef> &filterArra
     return true;
 }
 
-bool MapboxVectorFilter::testFeature(DictionaryRef attrs,const QuadTreeIdentifier &tileID)
-{
-    bool ret = true;
+namespace {
+    const static std::string geometryType("geometry_type");
+}
 
+bool MapboxVectorFilter::testFeature(const Dictionary &attrs,const QuadTreeIdentifier &tileID)
+{
     // Compare geometry type
     if (geomType != MBGeomNone)
     {
-        int attrGeomType = attrs->getInt("geometry_type") - 1;
+        const int attrGeomType = attrs.getInt(geometryType) - 1;
         switch (filterType)
         {
-            case MBFilterEqual:
-                ret = attrGeomType == geomType;
-                break;
-            case MBFilterNotEqual:
-                ret = attrGeomType != geomType;
-                break;
-            default:
-                break;
-        }
-    } else if (filterType == MBFilterAll || filterType == MBFilterAny)
-    {
-        // Run each of the rules as either AND or OR
-        if (filterType == MBFilterAll)
-        {
-            for (auto filter : subFilters)
-            {
-                ret &= filter->testFeature(attrs, tileID);
-                if (!ret)
-                    break;
-            }
-        } else if (filterType == MBFilterAny)
-        {
-            ret = false;
-            for (auto filter : subFilters)
-            {
-                ret |= filter->testFeature(attrs, tileID);
-                if (ret)
-                    break;
-            }
-        } else
-            ret = false;
-    } else if (filterType == MBFilterIn || filterType == MBFilterNotIn)
-    {
-        // Check for attribute value membership
-        bool isIn = false;
-
-        // Note: Not dealing with differing types well
-        DictionaryEntryRef featAttrVal = attrs->getEntry(attrName);
-        if (featAttrVal)
-        {
-            for (auto match : attrVals)
-            {
-                if (match->isEqual(featAttrVal))
-                {
-                    isIn = true;
-                    break;
-                }
-            }
-        }
-
-        ret = (filterType == MBFilterIn ? isIn : !isIn);
-    } else if (filterType == MBFilterHas || filterType == MBFilterNotHas)
-    {
-        // Check for attribute existence
-        bool canHas = false;
-
-        DictionaryEntryRef featAttrVal = attrs->getEntry(attrName);
-        if (featAttrVal)
-            canHas = true;
-
-        ret = (filterType == MBFilterHas ? canHas : !canHas);
-    } else {
-        // Equality related operators
-        DictionaryEntryRef featAttrVal = attrs->getEntry(attrName);
-        if (featAttrVal)
-        {
-            if (featAttrVal->getType() == DictTypeString)
-            {
-                switch (filterType)
-                {
-                    case MBFilterEqual:
-                        ret = featAttrVal->isEqual(attrVal);
-                        break;
-                    case MBFilterNotEqual:
-                        ret = !featAttrVal->isEqual(attrVal);
-                        break;
-                    default:
-                        // Note: Not expecting other comparisons to strings
-                        break;
-                }
-            } else {
-                if (featAttrVal->getType() == DictTypeDouble || featAttrVal->getType() == DictTypeInt)
-                {
-                    double val1 = featAttrVal->getDouble();
-                    double val2 = attrVal->getDouble();
-                    switch (filterType)
-                    {
-                        case MBFilterEqual:
-                            ret = val1 == val2;
-                            break;
-                        case MBFilterNotEqual:
-                            ret = val1 != val2;
-                            break;
-                        case MBFilterGreaterThan:
-                            ret = val1 > val2;
-                            break;
-                        case MBFilterGreaterThanEqual:
-                            ret = val1 >= val2;
-                            break;
-                        case MBFilterLessThan:
-                            ret = val1 < val2;
-                            break;
-                        case MBFilterLessThanEqual:
-                            ret = val1 <= val2;
-                            break;
-                        default:
-                            break;
-                    }
-                } else {
-                    wkLogLevel(Warn,"MapboxVectorFilter: Found numeric comparison that doesn't use numbers.");
-                }
-            }
-        } else {
-            // No attribute means no pass
-            ret = false;
-
-            // A missing value and != is valid
-            if (filterType == MBFilterNotEqual)
-                ret = true;
+            case MBFilterEqual:    return attrGeomType == geomType;
+            case MBFilterNotEqual: return attrGeomType != geomType;
+            default: break;
         }
     }
 
-    return ret;
+    switch (filterType) {
+    // Run each of the rules as either AND or OR
+    case MBFilterAll:
+        for (auto filter : subFilters) {
+            if (!filter->testFeature(attrs, tileID)) {
+                return false;
+            }
+        }
+        return true;
+    case MBFilterAny:
+        for (auto filter : subFilters) {
+            if (filter->testFeature(attrs, tileID)) {
+                return true;
+            }
+        }
+        return false;
+    case MBFilterIn:
+    case MBFilterNotIn:
+        // Check for attribute value membership
+        // Note: Not dealing with differing types well
+        if (const auto featAttrVal = attrs.getEntry(attrName)) {
+            for (auto match : attrVals) {
+                if (match->isEqual(featAttrVal)) {
+                    return (filterType == MBFilterIn);
+                }
+            }
+        }
+        return (filterType != MBFilterIn);
+    case MBFilterHas:
+        // Check for attribute existence
+        return !!attrs.getEntry(attrName);
+    case MBFilterNotHas:
+        // Check for attribute non-existence
+        return !attrs.getEntry(attrName);
+    default:
+        // Equality related operators
+        if (auto featAttrVal = attrs.getEntry(attrName)) {
+            switch (featAttrVal->getType()) {
+            case DictTypeString:
+                switch (filterType) {
+                    case MBFilterEqual:    return  featAttrVal->isEqual(attrVal);
+                    case MBFilterNotEqual: return !featAttrVal->isEqual(attrVal);
+                    default: return true;  // Note: Not expecting other comparisons to strings
+                }
+            case DictTypeInt:
+            case DictTypeDouble:
+                {
+                const double val1 = featAttrVal->getDouble();
+                const double val2 = attrVal->getDouble();
+                switch (filterType)
+                {
+                    case MBFilterEqual:            return val1 == val2;
+                    case MBFilterNotEqual:         return val1 != val2;
+                    case MBFilterGreaterThan:      return val1 > val2;
+                    case MBFilterGreaterThanEqual: return val1 >= val2;
+                    case MBFilterLessThan:         return val1 < val2;
+                    case MBFilterLessThanEqual:    return val1 <= val2;
+                    default: return true;
+                }
+            }
+            default:
+                wkLogLevel(Warn,"MapboxVectorFilter: Found numeric comparison that doesn't use numbers - '%s', %d/%d/%d",
+                           attrName.c_str(), tileID.level, tileID.x, tileID.y);
+                return true;
+            }
+        }
+        // No attribute means no pass
+        // A missing value and != is valid
+        return (filterType == MBFilterNotEqual);
+    }
 }
 
 }

@@ -23,6 +23,13 @@
 namespace WhirlyKit
 {
 
+namespace {
+    // Fixed strings to avoid allocations on every call to, e.g., Dictionary::setString
+    const static std::string layerName("layer_name");
+    const static std::string geometryType("geometry_type");
+    const static std::string layerOrder("layer_order");
+}
+
 const vector_tile_Tile_Layer VectorTilePBFParser::_defaultLayer = {
     /* name       */ { &VectorTilePBFParser::stringDecode,    nullptr },
     /* features   */ { &VectorTilePBFParser::featureDecode,   nullptr },
@@ -70,23 +77,25 @@ VectorTilePBFParser::VectorTilePBFParser(
         std::map<SimpleIdentity, std::vector<VectorObjectRef>*>& vecObjByStyle,
         bool localCoords,
         bool parseAll,
-        std::vector<VectorObjectRef>* keepVectors)
-    : _tileData     (tileData)
-    , _styleDelegate(styleData)
-    , _styleInst    (styleInst)
-    , _uuidName     (uuidName)
-    , _uuidValues   (uuidValues)
-    , _vecObjByStyle(vecObjByStyle)
-    , _localCoords  (localCoords)
-    , _parseAll     (parseAll)
-    , _keepVectors  (keepVectors)
-    , _bbox         (tileData->bbox)
-    , _bboxWidth    (_bbox.ur().x() - _bbox.ll().x())
-    , _bboxHeight   (_bbox.ur().y() - _bbox.ll().y())
-    , _sx           ((_bboxWidth > 0) ? (TileSize / _bboxWidth) : 0)
-    , _sy           ((_bboxHeight > 0) ? (TileSize / _bboxHeight) : 0)
-    , _tileOriginX  (tileData->bbox.ll().x())
-    , _tileOriginY  (tileData->bbox.ur().y())
+        std::vector<VectorObjectRef>* keepVectors,
+        std::function<bool()> isCanceled)
+    : _tileData      (tileData)
+    , _styleDelegate (styleData)
+    , _styleInst     (styleInst)
+    , _uuidName      (uuidName)
+    , _uuidValues    (uuidValues)
+    , _vecObjByStyle (vecObjByStyle)
+    , _localCoords   (localCoords)
+    , _parseAll      (parseAll)
+    , _keepVectors   (keepVectors)
+    , _checkCancelled(isCanceled)
+    , _bbox          (tileData->bbox)
+    , _bboxWidth     (_bbox.ur().x() - _bbox.ll().x())
+    , _bboxHeight    (_bbox.ur().y() - _bbox.ll().y())
+    , _sx            ((_bboxWidth > 0) ? (TileSize / _bboxWidth) : 0)
+    , _sy            ((_bboxHeight > 0) ? (TileSize / _bboxHeight) : 0)
+    , _tileOriginX   (tileData->bbox.ll().x())
+    , _tileOriginY   (tileData->bbox.ur().y())
 {
 }
 
@@ -115,14 +124,24 @@ bool VectorTilePBFParser::layerDecode(pb_istream_t *stream, const pb_field_iter_
 
 bool VectorTilePBFParser::layerDecode(pb_istream_t *stream, const pb_field_iter_t *field)
 {
+    if (_checkCancelled()) {
+        _wasCancelled = true;
+        return false;
+    }
+
     vector_tile_Tile_Layer layer = _defaultLayer;
     _currentLayer = &layer;
-    
+
     layer.name.arg = &_layerNameView;
     layer.features.arg = this;
     layer.keys.arg = &_layerKeys;
     layer.values.arg = &_layerValues;
-    
+
+    _layerKeys.clear();
+    _layerKeys.reserve(layerKeyHeuristic());
+    _layerValues.clear();
+    _layerValues.reserve(layerValueHeuristic());
+
     _layerStarted = false;
     if (!pb_decode(stream, vector_tile_Tile_Layer_fields, &layer))
     {
@@ -155,6 +174,12 @@ bool VectorTilePBFParser::featureDecode(pb_istream_t *stream, const pb_field_ite
 {
     layerElement();
 
+    if (_checkCancelled())
+    {
+        // This result is no longer needed, so stop parsing it ASAP
+        _wasCancelled = true;
+        return false;
+    }
     if (_skipLayer)
     {
         // We're skipping this layer, so don't process any of the features.
@@ -162,13 +187,13 @@ bool VectorTilePBFParser::featureDecode(pb_istream_t *stream, const pb_field_ite
         _skippedFeatureCount += 1;
         return true;
     }
-    
+
     // todo: see if we have enough info to make better guesses here
     _featureTags.clear();
-    _featureTags.reserve(20);
+    _featureTags.reserve(featureTagHeuristic(stream->bytes_left));
     _featureGeometry.clear();
-    _featureGeometry.reserve(100);
-    
+    _featureGeometry.reserve(featureGeometryHeuristic(stream->bytes_left));
+
     auto feature = _defaultFeature;
     feature.tags.arg = &_featureTags;
     feature.geometry.arg = &_featureGeometry;
@@ -177,16 +202,14 @@ bool VectorTilePBFParser::featureDecode(pb_istream_t *stream, const pb_field_ite
     {
         return false;
     }
-    
+
     const auto geomType = static_cast<MapnikGeometryType>(feature.type);
 
     auto attributes = std::make_shared<MutableDictionaryC>();
-    attributes->setString("layer_name", _layerName);
-    attributes->setInt("geometry_type", (int)geomType);
-    attributes->setInt("layer_order", _layerCount);
+    attributes->setString(layerName, _layerName);
+    attributes->setInt(geometryType, (int)geomType);
+    attributes->setInt(layerOrder, _layerCount);
 
-    _layerCount += 1;
-    
     if (!processTags(attributes))
     {
         _skippedFeatureCount += 1;
@@ -204,7 +227,7 @@ bool VectorTilePBFParser::featureDecode(pb_istream_t *stream, const pb_field_ite
     _featureCount += 1;
 
     auto vecObj = std::make_shared<VectorObject>();
-    
+
     // Parse geometry
     try
     {
@@ -277,12 +300,12 @@ bool VectorTilePBFParser::processTags(const MutableDictionaryCRef &attributes)
     {
         const auto keyIndex = _featureTags[m];
         const auto valueIndex = _featureTags[m + 1];
-        
+
         if (keyIndex >= _layerKeys.size() || valueIndex >= _layerValues.size()) {
             _badAttributes += 1;
             continue;
         }
-        
+
         const auto &key = _layerKeys[keyIndex];
         if (key.empty()) {
             continue;
@@ -328,7 +351,7 @@ bool VectorTilePBFParser::checkStyles(SimpleIDSet& styleIDs, const MutableDictio
     }
     
     // TODO: populate a reused vector?
-    const auto styles = _styleDelegate->stylesForFeature(_styleInst, attributes, _tileData->ident, _layerName);
+    const auto styles = _styleDelegate->stylesForFeature(_styleInst, *attributes, _tileData->ident, _layerName);
     for (const auto &style : styles)
     {
         styleIDs.insert(style->getUuid(_styleInst));
@@ -385,7 +408,7 @@ void VectorTilePBFParser::parseLineString(const std::vector<uint32_t> &geometry,
                     lin->pts.reserve(length);
                     firstCoord = point;
                 }
-                
+
                 lin->pts.push_back(Point2f(point.x(),point.y()));
             }
             else if (cmd == SEG_CLOSE_MASKED)
@@ -624,7 +647,7 @@ void VectorTilePBFParser::layerElement()
     }
     _layerStarted = true;
 }
-    
+
 // Called when we have first seen a sub-element of a layer, meaning that
 // the version, name, and extent are populated, and the layer can be evaluated.
 // Return false to skip this layer.
@@ -657,13 +680,15 @@ bool VectorTilePBFParser::layerStart()
 
 bool VectorTilePBFParser::layerFinish()
 {
+    _layerCount += 1;
+
     _layerName.clear();
     _layerKeys.clear();
     _layerValues.clear();
-    
+
     _currentLayer = nullptr;
     _skipLayer = false;
-    
+
     return true;
 }
 

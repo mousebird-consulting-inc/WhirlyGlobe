@@ -367,19 +367,19 @@ using namespace WhirlyKit;
     
     // Might be keeping the data coming back per frame
     // If we are, this tells us to merge when all the data has come back
-    RawDataRef dataWrap(new RawNSDataReader([loadReturn getFirstData]));
+    auto dataWrap = std::make_shared<RawNSDataReader>([loadReturn getFirstData]);
     std::vector<RawDataRef> allData;
+    //allData.reserve(?)
     if (loader->mergeLoadedFrame(loadReturn->loadReturn->ident,loadReturn->loadReturn->frame,dataWrap,allData))
     {
         // In this mode we need to adjust the loader return to contain everything at once
         if (loader->getMode() == QuadImageFrameLoader::SingleFrame && loader->getNumFrames() > 1) {
             loadReturn->tileData.clear();
-            loadReturn->loadReturn->frame = QuadFrameInfoRef(new QuadFrameInfo());
+            loadReturn->loadReturn->frame = std::make_shared<QuadFrameInfo>();
             loadReturn->loadReturn->frame->setId(loader->getFrameInfo(0)->getId());
             loadReturn->loadReturn->frame->frameIndex = 0;
-            for (auto data : allData) {
-                RawNSDataReader *rawData = dynamic_cast<RawNSDataReader *>(data.get());
-                if (rawData) {
+            for (const auto &data : allData) {
+                if (const auto rawData = dynamic_cast<RawNSDataReader *>(data.get())) {
                     loadReturn->tileData.push_back(rawData->getData());
                 }
             }

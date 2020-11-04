@@ -84,10 +84,13 @@ protected:
     RenderSetupInfoMTL *setupInfoMTL;
     
     // Single entry (for a buffer) in the argument buffer
-    typedef struct {
+    struct Entry {
         int entryID;
         std::string name;
-    } Entry;
+        
+        Entry() { }
+        Entry(int entryId) : entryID(entryId) {}
+    };
     typedef std::shared_ptr<Entry> EntryRef;
 
     // Buffer that contains the argument buffer

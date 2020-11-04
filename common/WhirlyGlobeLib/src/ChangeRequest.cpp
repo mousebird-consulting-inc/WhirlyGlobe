@@ -26,12 +26,12 @@
 namespace WhirlyKit
 {
 
-void RenderTeardownInfo::destroyTexture(SceneRenderer *renderer,TextureBaseRef tex)
+void RenderTeardownInfo::destroyTexture(SceneRenderer *renderer,const TextureBaseRef &tex)
 {
     tex->destroyInRenderer(renderer->getRenderSetupInfo(), renderer->getScene());
 }
 
-void RenderTeardownInfo::destroyDrawable(SceneRenderer *renderer,DrawableRef draw)
+void RenderTeardownInfo::destroyDrawable(SceneRenderer *renderer,const DrawableRef &draw)
 {
     draw->teardownForRenderer(renderer->getRenderSetupInfo(), renderer->getScene(), renderer->teardownInfo);
 }

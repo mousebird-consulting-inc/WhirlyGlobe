@@ -275,7 +275,7 @@ public:
     
     /// Return the styles that apply to the given feature (attributes).
     virtual std::vector<VectorStyleImplRef> stylesForFeature(PlatformThreadInfo *inst,
-                                                             DictionaryRef attrs,
+                                                             const Dictionary &attrs,
                                                              const QuadTreeIdentifier &tileID,
                                                              const std::string &layerName) override;
     

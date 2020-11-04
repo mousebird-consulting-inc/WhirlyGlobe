@@ -13,6 +13,7 @@
 #include <VectorData.h>
 #include <WhirlyVector.h>
 
+#include <functional>
 #include <map>
 #include <memory>
 #include <set>
@@ -25,7 +26,6 @@ typedef struct _vector_tile_Tile vector_tile_Tile;
 typedef struct _vector_tile_Tile_Feature vector_tile_Tile_Feature;
 typedef struct _vector_tile_Tile_Layer vector_tile_Tile_Layer;
 typedef struct _vector_tile_Tile_Value vector_tile_Tile_Value;
-
 
 namespace WhirlyKit
 {
@@ -49,9 +49,10 @@ public:
         const std::string &uuidName,
         const std::set<std::string> &uuidValues,
         std::map<SimpleIdentity, std::vector<VectorObjectRef>*>& vecObjByStyle,
-        bool localCoords,
-        bool parseAll,
-        std::vector<VectorObjectRef>* keepVectors);
+        bool localCoords = false,
+        bool parseAll = false,
+        std::vector<VectorObjectRef>* keepVectors = nullptr,
+        std::function<bool()> isCancelled = [](){return false;});
 
     bool parse(const uint8_t* data, size_t length);
 
@@ -66,6 +67,8 @@ public:
     unsigned getUnknownCommandCount() const { return _unknownCommands; }
     unsigned getUknownGeomTypeCount() const { return _unknownGeomTypes; }
     unsigned getUnknownValueTypeCount() const { return _unknownValueTypes; }
+    
+    bool getParseCanceled() const { return _wasCancelled; }
     
     unsigned getTotalErrorCount() const {
         return _unknownValueTypes +
@@ -113,6 +116,13 @@ private:
     inline void layerElement();
     inline bool layerStart();
     inline bool layerFinish();
+
+    static inline int layerKeyHeuristic() { return 10; }
+    static inline int layerValueHeuristic() { return 10; }
+
+    // We assume features are mostly geometry
+    static inline int featureTagHeuristic(int bytesLeft) { return bytesLeft / 100; }
+    static inline int featureGeometryHeuristic(int bytesLeft) { return bytesLeft / 5; }
 
 private:
     // Default state of message structures, for easy setup
@@ -170,6 +180,7 @@ private:
     const bool _localCoords;
     const bool _parseAll;
     std::vector<VectorObjectRef>* _keepVectors = nullptr;
+    std::function<bool()> _checkCancelled;
 
     // State used during parsing
     const MbrD _bbox;
@@ -190,7 +201,8 @@ private:
     unsigned _unknownCommands = 0;
     unsigned _unknownGeomTypes = 0;
     unsigned _parseErrors = 0;
-    
+    bool _wasCancelled = false;
+
     // Constants
     static constexpr int CmdBits = 3;
     static constexpr int TileSize = 256;
