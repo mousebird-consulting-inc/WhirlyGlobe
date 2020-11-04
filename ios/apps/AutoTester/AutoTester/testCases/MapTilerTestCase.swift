@@ -113,6 +113,27 @@ class MapTilerTestCase: MaplyTestCase {
         startMap(styles[styleIdx], viewC: mapVC, round: false)
         
         mapVC.rotateGestureThreshold = 15;
+
+        // e.g., "35.66,139.835,0.025,0.0025,2,20"
+        if let program = env["MAPTILER_PROGRAM"] {
+            let components = program.components(separatedBy: ",")
+                                    .map(NumberFormatter().number)
+            if components.count == 6 {
+                let lat = components[0]?.floatValue ?? 0
+                let lon = components[1]?.floatValue ?? 0
+                let center = MaplyCoordinate(x:lon*Float.pi/180, y:lat*Float.pi/180)
+                let outHeight = components[2]?.floatValue ?? 0.01
+                let inHeight = components[3]?.floatValue ?? 0.001
+                let interval = TimeInterval(components[4]?.doubleValue ?? 1)
+                let count = components[5]?.intValue ?? 1
+                mapVC.setPosition(center, height: outHeight)
+                for i in 0 ... 2 * count {
+                    Timer.scheduledTimer(withTimeInterval: TimeInterval(i) * interval, repeats: false) { _ in
+                        mapVC.animate(toPosition: center, height: (i % 2 == 0) ? inHeight : outHeight, time: interval)
+                    }
+                }
+            }
+        }
     }
     
     override func setUpWithGlobe(_ mapVC: WhirlyGlobeViewController) {

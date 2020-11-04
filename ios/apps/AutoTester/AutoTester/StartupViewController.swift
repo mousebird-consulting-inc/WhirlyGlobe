@@ -80,6 +80,20 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
         }
     }
     
+    private var firstView = true
+    override func viewDidAppear(_ animated: Bool) {
+        if firstView {
+            firstView = false;
+            let env = ProcessInfo.processInfo.environment
+            if let autoStartTest = env["START_TEST"], !autoStartTest.isEmpty {
+                if let test = tests.filter({ test -> Bool in return test.name == autoStartTest }).first {
+                    self.lastInteractiveTestSelected = test
+                    test.startMap(self.navigationController!)
+                }
+            }
+        }
+    }
+    
 	override func tableView(
 		_ tableView: UITableView,
 		numberOfRowsInSection section: Int) -> Int {
