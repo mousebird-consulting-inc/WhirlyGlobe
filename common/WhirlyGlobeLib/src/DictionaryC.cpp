@@ -335,7 +335,7 @@ SimpleIdentity MutableDictionaryC::getIdentity(unsigned int key) const
         case DictTypeIdentity:
             return int64Vals[val.entry];
         case DictTypeDouble:
-            return (int)dVals[val.entry];
+            return (SimpleIdentity)dVals[val.entry];
         // TODO: Maybe parse the string
         default:
             return EmptyIdentity;
@@ -365,7 +365,7 @@ int64_t MutableDictionaryC::getInt64(unsigned int key,int64_t defVal) const
         case DictTypeIdentity:
             return int64Vals[val.entry];
         case DictTypeDouble:
-            return (int)dVals[val.entry];
+            return (int64_t)dVals[val.entry];
         // TODO: Maybe parse the string
         default:
             return 0;
@@ -551,9 +551,7 @@ DictionaryRef MutableDictionaryC::getDict(unsigned int key) const
 DictionaryEntryRef MutableDictionaryC::getEntry(const std::string &name) const
 {
     const auto it = stringMap.find(name);
-    if (it == stringMap.end())
-        return DictionaryEntryRef();
-    return getEntry(it->second);
+    return (it != stringMap.end()) ? getEntry(it->second) : DictionaryEntryRef();
 }
 
 DictionaryEntryRef MutableDictionaryC::getEntry(unsigned int key) const
@@ -561,7 +559,7 @@ DictionaryEntryRef MutableDictionaryC::getEntry(unsigned int key) const
     const auto it = valueMap.find(key);
     if (it == valueMap.end())
         return DictionaryEntryRef();
-    
+
     const auto &val = it->second;
     switch (val.type) {
         case DictTypeInt:
