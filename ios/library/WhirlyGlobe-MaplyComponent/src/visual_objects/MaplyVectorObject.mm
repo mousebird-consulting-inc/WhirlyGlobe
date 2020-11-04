@@ -336,13 +336,13 @@ using namespace WhirlyGlobe;
 
 - (void)setAttributes:(NSDictionary *)attributes
 {
-    MutableDictionaryRef dict(new iosMutableDictionary([NSMutableDictionary dictionaryWithDictionary:attributes]));
+    auto dict = std::make_shared<iosMutableDictionary>([NSMutableDictionary dictionaryWithDictionary:attributes]);
     vObj->setAttributes(dict);
 }
 
 - (void)mergeVectorsFrom:(MaplyVectorObject *)otherVec
 {
-    vObj->mergeVectorsFrom(otherVec->vObj.get());
+    vObj->mergeVectorsFrom(*otherVec->vObj);
 }
 
 /// Add a hole to an existing areal feature
