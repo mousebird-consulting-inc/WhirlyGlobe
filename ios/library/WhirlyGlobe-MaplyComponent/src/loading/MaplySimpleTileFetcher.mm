@@ -249,7 +249,7 @@ typedef std::map<MaplyTileFetchRequest *,TileInfoRef> TileFetchMap;
     dispatch_async(self.queue, ^{
         for (MaplyTileFetchRequest *request in requests) {
             // Set up new request
-            TileInfoRef tile(new TileInfo());
+            const auto tile = std::make_shared<TileInfo>();
             tile->importance = request.importance;
             tile->priority = request.priority;
             tile->request = request;
