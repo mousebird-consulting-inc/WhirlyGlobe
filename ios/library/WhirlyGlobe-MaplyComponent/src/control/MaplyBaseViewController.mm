@@ -832,22 +832,18 @@ static const float PerfOutputDelay = 15.0;
 // Delegate callback for annotation placement
 - (TimeInterval)calloutView:(SMCalloutView *)calloutView delayForRepositionWithSize:(CGSize)offset
 {
-    TimeInterval delay = 0.0;
-    
     // Need to find the annotation this belongs to
-    for (MaplyAnnotation *annotation in annotations)
+    for (const MaplyAnnotation *annotation in annotations)
     {
         if (annotation.calloutView == calloutView && annotation.repositionForVisibility && allowRepositionForAnnnotations)
         {
-            CGPoint pt = [self screenPointFromGeo:annotation.loc];
-            CGPoint newPt = CGPointMake(pt.x+offset.width, pt.y+offset.height);
-            delay = 0.25;
-            if (![self animateToPosition:annotation.loc onScreen:newPt time:delay])
-                delay = 0.0;
+            const CGPoint pt = [self screenPointFromGeo:annotation.loc];
+            const CGPoint newPt = CGPointMake(pt.x+offset.width, pt.y+offset.height);
+            [self animateToPosition:annotation.loc onScreen:newPt time:0.25];
             break;
         }
     }
-    
+
     return 0.0;
 }
 
@@ -1435,76 +1431,55 @@ static const float PerfOutputDelay = 15.0;
     {
         case WhirlyKit::SceneRenderer::RenderMetal:
             return MaplyRenderMetal;
-            break;
         default:
             return MaplyRenderUnknown;
     }
-    
-    return MaplyRenderUnknown;
 }
 
 - (void)addActiveObject:(MaplyActiveObject *__nonnull)theObj
 {
-    if (!renderControl)
-        return;
-    
-    [renderControl addActiveObject:theObj];
+    if (renderControl)
+        [renderControl addActiveObject:theObj];
 }
 
 - (void)removeActiveObject:(MaplyActiveObject *__nonnull)theObj
 {
-    if (!renderControl)
-        return;
-
-    [renderControl removeActiveObject:theObj];
+    if (renderControl)
+        [renderControl removeActiveObject:theObj];
 }
 
 - (void)removeActiveObjects:(NSArray *__nonnull)theObjs
 {
-    if (!renderControl)
-        return;
-
-    [renderControl removeActiveObjects:theObjs];
+    if (renderControl)
+        [renderControl removeActiveObjects:theObjs];
 }
 
 - (bool)addLayer:(MaplyControllerLayer *__nonnull)layer
 {
-    if (!renderControl)
-        return false;
-
-    return [renderControl addLayer:layer];
+    return renderControl && [renderControl addLayer:layer];
 }
 
 - (void)removeLayer:(MaplyControllerLayer *__nonnull)layer
 {
-    if (!renderControl)
-        return;
-
-    [renderControl removeLayer:layer];
+    if (renderControl)
+        [renderControl removeLayer:layer];
 }
 
 - (void)removeLayers:(NSArray *__nonnull)layers
 {
-    if (!renderControl)
-        return;
-
-    [renderControl removeLayers:layers];
+    if (renderControl)
+        [renderControl removeLayers:layers];
 }
 
 - (void)removeAllLayers
 {
-    if (!renderControl)
-        return;
-
-    [renderControl removeAllLayers];
+    if (renderControl)
+        [renderControl removeAllLayers];
 }
 
-- (MaplyRemoteTileFetcher * __nonnull)addTileFetcher:(NSString * __nonnull)name
+- (MaplyRemoteTileFetcher *)addTileFetcher:(NSString * __nonnull)name
 {
-    if (!renderControl)
-        return nil;
-
-    return [renderControl addTileFetcher:name];
+    return renderControl ? [renderControl addTileFetcher:name] : nil;
 }
 
 @end

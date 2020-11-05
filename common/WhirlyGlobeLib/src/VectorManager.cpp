@@ -945,39 +945,36 @@ void VectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
 {
     std::lock_guard<std::mutex> guardLock(vectorLock);
 
-    TimeInterval curTime = scene->getCurrentTime();
-    for (SimpleIDSet::iterator vit = vecIDs.begin(); vit != vecIDs.end(); ++vit)
+    const TimeInterval curTime = scene->getCurrentTime();
+    for (const auto id : vecIDs)
     {
-        VectorSceneRep dummyRep(*vit);
-        VectorSceneRepSet::iterator it = vectorReps.find(&dummyRep);
-        
-        if (it != vectorReps.end())
+        VectorSceneRep dummyRep(id);
+        const auto it = vectorReps.find(&dummyRep);
+        if (it == vectorReps.end())
         {
-            VectorSceneRep *sceneRep = *it;
-            
-            SimpleIDSet allIDs = sceneRep->drawIDs;
-            allIDs.insert(sceneRep->instIDs.begin(),sceneRep->instIDs.end());
-
-            TimeInterval removeTime = 0.0;
-            if (sceneRep->fade > 0.0)
-            {
-                for (SimpleIDSet::iterator idIt = allIDs.begin();
-                     idIt != allIDs.end(); ++idIt)
-                    changes.push_back(new FadeChangeRequest(*idIt, curTime, curTime+sceneRep->fade));
-                
-                removeTime = curTime + sceneRep->fade;
-            }
-            
-            for (SimpleIDSet::iterator idIt = allIDs.begin();
-                 idIt != allIDs.end(); ++idIt)
-                changes.push_back(new RemDrawableReq(*idIt));
-            vectorReps.erase(it);
-            
-            delete sceneRep;
+            continue;
         }
+
+        // Take ownership and automatically clean up this object
+        std::unique_ptr<VectorSceneRep> sceneRep(*it);
+        vectorReps.erase(it);
+
+        // Make a copy and merge the IDs into it
+        // TODO: might be better to iterate `sceneRep->instIDs` with `contains` and avoid the copy...
+        SimpleIDSet allIDs = sceneRep->drawIDs;
+        allIDs.insert(sceneRep->instIDs.begin(),sceneRep->instIDs.end());
+
+        if (sceneRep->fade > 0.0)
+        {
+            for (const auto idIt : allIDs)
+                changes.push_back(new FadeChangeRequest(idIt, curTime, curTime+sceneRep->fade));
+        }
+
+        for (const auto idIt : allIDs)
+            changes.push_back(new RemDrawableReq(idIt));
     }
 }
-    
+
 void VectorManager::enableVectors(SimpleIDSet &vecIDs,bool enable,ChangeSet &changes)
 {
     std::lock_guard<std::mutex> guardLock(vectorLock);

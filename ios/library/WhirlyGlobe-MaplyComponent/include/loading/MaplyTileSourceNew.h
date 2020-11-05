@@ -146,7 +146,7 @@ NSString *__nonnull MaplyTileIDString(MaplyTileID tileID);
 - (void)startTileFetches:(NSArray<MaplyTileFetchRequest *> *__nonnull)requests;
 
 /// Update an active request with a new priority and importance
-- (id __nonnull)updateTileFetch:(id __nonnull)fetchID priority:(int)priority importance:(double)importance;
+- (id __nullable)updateTileFetch:(id __nonnull)fetchID priority:(int)priority importance:(double)importance;
 
 /// Name of this tile fetcher.  Used for coordinating tile sources.
 - (NSString * __nonnull)name;

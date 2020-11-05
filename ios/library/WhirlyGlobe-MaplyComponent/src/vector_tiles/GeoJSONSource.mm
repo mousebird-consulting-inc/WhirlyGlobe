@@ -77,6 +77,7 @@ using namespace WhirlyKit;
                 completionBlock();
                 return;
             });
+            return;
         }
         
         self->_styleSet = [[SLDStyleSet alloc] initWithViewC:baseVC useLayerNames:NO relativeDrawPriority:self->_relativeDrawPriority];

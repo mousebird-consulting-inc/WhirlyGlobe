@@ -96,7 +96,6 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
     startTime = CFAbsoluteTimeGetCurrent();
     self.styleDictionary = [NSMutableDictionary dictionary];
     NSXMLParser *parser = [[NSXMLParser alloc] initWithData:docData];
-    docData = nil;
     parser.delegate = self;
     [parser parse];
 }

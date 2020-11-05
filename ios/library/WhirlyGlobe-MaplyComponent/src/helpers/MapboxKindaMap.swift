@@ -213,7 +213,7 @@ public class MapboxKindaMap {
                         let fetchIdx = self.outstandingFetches.count
                         let dataTask = URLSession.shared.dataTask(with: self.makeURLRequest(url)) { (data, resp, error) in
                             guard error == nil else {
-                                print("Error trying to fetch tileJson from \(urlStr) : \(error)")
+                                print("Error trying to fetch tileJson from \(urlStr) : \(error?.localizedDescription ?? "unknown")")
                                 self.stop()
                                 return
                             }

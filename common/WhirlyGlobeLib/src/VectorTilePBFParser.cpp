@@ -409,13 +409,13 @@ void VectorTilePBFParser::parseLineString(const std::vector<uint32_t> &geometry,
                     firstCoord = point;
                 }
 
-                lin->pts.push_back(Point2f(point.x(),point.y()));
+                lin->pts.emplace_back(point.x(),point.y());
             }
             else if (cmd == SEG_CLOSE_MASKED)
             {
                 if (lin->pts.size() > 0)  //We've already got a line, finish it
                 {
-                    lin->pts.push_back(Point2f(firstCoord.x(),firstCoord.y()));
+                    lin->pts.emplace_back(firstCoord.x(),firstCoord.y());
                     lin->initGeoMbr();
                     shapes.insert(lin);
                     lin.reset();
@@ -487,13 +487,13 @@ bool VectorTilePBFParser::parsePolygon(const std::vector<uint32_t> &geometry, Ve
                     //TODO: does this ever happen when we are part way through a shape? holes?
                 }
                 
-                ring.push_back(Point2f(point.x(),point.y()));
+                ring.emplace_back(point.x(),point.y());
             }
             else if (cmd == SEG_CLOSE_MASKED)
             {
                 if (ring.size() > 0)  //We've already got a line, finish it
                 {
-                    ring.push_back(Point2f(firstCoord.x(),firstCoord.y())); //close the loop
+                    ring.emplace_back(firstCoord.x(),firstCoord.y()); //close the loop
                     shape.loops.push_back(ring); //add loop to shape
                     ring.clear(); //reuse the ring
                 }
@@ -558,7 +558,7 @@ bool VectorTilePBFParser::parsePoints(const std::vector<uint32_t> &geometry, Vec
                         point.x() = DegToRad((point.x() / MAX_EXTENT) * 180.0);
                         point.y() = 2 * atan(exp(DegToRad((point.y() / MAX_EXTENT) * 180.0))) - M_PI_2;
                     }
-                    shape.pts.push_back(Point2f(point.x(),point.y()));
+                    shape.pts.emplace_back(point.x(),point.y());
                 }
             }
             else if (cmd == SEG_CLOSE_MASKED)
@@ -703,7 +703,7 @@ bool VectorTilePBFParser::stringDecode(pb_istream_t *stream, const pb_field_iter
 bool VectorTilePBFParser::stringVecDecode(pb_istream_t *stream, const pb_field_iter_t *field, void **arg)
 {
     auto &vec = **(std::vector<std::string_view>**)arg;
-    vec.push_back(std::string_view((char*)stream->state, stream->bytes_left));
+    vec.emplace_back((char*)stream->state, stream->bytes_left);
     return true;
 }
 

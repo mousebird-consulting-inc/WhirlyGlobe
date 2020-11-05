@@ -281,7 +281,7 @@ typedef std::map<MaplyTileFetchRequest *,TileInfoRef> TileFetchMap;
     });
 }
 
-- (id _Nonnull)updateTileFetch:(id _Nonnull)request priority:(int)priority importance:(double)importance
+- (id)updateTileFetch:(id _Nonnull)request priority:(int)priority importance:(double)importance
 {
     if (!active)
         return nil;
@@ -309,8 +309,10 @@ typedef std::map<MaplyTileFetchRequest *,TileInfoRef> TileFetchMap;
     // Execute an empty task and wait for it to return
     // This drains the queue
     dispatch_sync(self.queue, ^{});
-    
+
+#ifndef __clang_analyzer__  // override __nonnull
     _queue = nil;
+#endif
 }
 
 @end

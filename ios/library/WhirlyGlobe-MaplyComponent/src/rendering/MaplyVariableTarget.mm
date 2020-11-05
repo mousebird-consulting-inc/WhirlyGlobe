@@ -149,7 +149,9 @@
     }
     if (_renderTarget) {
         [viewC removeRenderTarget:_renderTarget];
+#ifndef __clang_analyzer__  // override __nonnull
         _renderTarget = nil;
+#endif
     }
     if (_renderTex) {
         [viewC removeTextures:@[_renderTex] mode:MaplyThreadCurrent];

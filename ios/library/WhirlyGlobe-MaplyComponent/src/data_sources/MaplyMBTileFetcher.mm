@@ -61,7 +61,8 @@ using namespace WhirlyKit;
     }
     
     // Open the sqlite DB
-    if (sqlite3_open([infoPath cStringUsingEncoding:NSASCIIStringEncoding],&sqlDb) != SQLITE_OK)
+    sqlite3 *db = nil;
+    if (sqlite3_open([infoPath cStringUsingEncoding:NSASCIIStringEncoding],&db) != SQLITE_OK)
     {
         return nil;
     }
@@ -69,9 +70,10 @@ using namespace WhirlyKit;
     const auto cs = [[MaplySphericalMercator alloc] initWebStandard];
     
     // Look at the metadata
+    GeoMbr gmbr;
     try
     {
-        sqlhelpers::StatementRead readStmt(sqlDb,@"select value from metadata where name='bounds';");
+        sqlhelpers::StatementRead readStmt(db,@"select value from metadata where name='bounds';");
         if (readStmt.stepRow())
         {
             NSString *bounds = readStmt.getString();
@@ -87,55 +89,66 @@ using namespace WhirlyKit;
             {
                 return nil;
             }
-            geoMbr.ll() = GeoCoord::CoordFromDegrees(ll_lon,ll_lat);
-            geoMbr.ur() = GeoCoord::CoordFromDegrees(ur_lon,ur_lat);
+            gmbr.ll() = GeoCoord::CoordFromDegrees(ll_lon,ll_lat);
+            gmbr.ur() = GeoCoord::CoordFromDegrees(ur_lon,ur_lat);
         } else {
             // No bounds implies it covers the whole earth
-            geoMbr.ll() = GeoCoord::CoordFromDegrees(-180, -85.0511);
-            geoMbr.ur() = GeoCoord::CoordFromDegrees(180, 85.0511);
+            gmbr.ll() = GeoCoord::CoordFromDegrees(-180, -85.0511);
+            gmbr.ur() = GeoCoord::CoordFromDegrees(180, 85.0511);
         }
         
         // And let's convert that over to spherical mercator
-        Point3f ll = [cs getCoordSystem]->geographicToLocal(geoMbr.ll());
+        const Point3f ll = [cs getCoordSystem]->geographicToLocal(gmbr.ll());
         mbr.ll() = Point2f(ll.x(),ll.y());
-        Point3f ur = [cs getCoordSystem]->geographicToLocal(geoMbr.ur());
+        const Point3f ur = [cs getCoordSystem]->geographicToLocal(gmbr.ur());
         mbr.ur() = Point2f(ur.x(),ur.y());
-        
+
         minZoom = 0;  maxZoom = 8;
-        sqlhelpers::StatementRead readStmt2(sqlDb,@"select value from metadata where name='minzoom';");
+        sqlhelpers::StatementRead readStmt2(db,@"select value from metadata where name='minzoom';");
         if (readStmt2.stepRow())
             minZoom = [readStmt2.getString() intValue];
         else {
             // Read it the hard way
-            sqlhelpers::StatementRead readStmt3(sqlDb,@"select min(zoom_level) from tiles;");
+            sqlhelpers::StatementRead readStmt3(db,@"select min(zoom_level) from tiles;");
             if (readStmt3.stepRow())
                 minZoom = [readStmt3.getString() intValue];
         }
-        sqlhelpers::StatementRead readStmt3(sqlDb,@"select value from metadata where name='maxzoom';");
+        sqlhelpers::StatementRead readStmt3(db,@"select value from metadata where name='maxzoom';");
         if (readStmt3.stepRow())
             maxZoom = [readStmt3.getString() intValue];
         else {
             // Read it the hard way
-            sqlhelpers::StatementRead readStmt3(sqlDb,@"select max(zoom_level) from tiles;");
+            sqlhelpers::StatementRead readStmt3(db,@"select max(zoom_level) from tiles;");
             if (readStmt3.stepRow())
                 maxZoom = [readStmt3.getString() intValue];
         }
         
-        sqlhelpers::StatementRead readStmt4(sqlDb,"select value from metadata where name='format';");
+        sqlhelpers::StatementRead readStmt4(db,"select value from metadata where name='format';");
         if (readStmt4.stepRow())
             _format = readStmt4.getString();
         
         // See if there's a tiles table or it's the older(?) style
-        sqlhelpers::StatementRead testStmt(sqlDb,@"SELECT name FROM sqlite_master WHERE type='table' AND name='tiles';");
+        sqlhelpers::StatementRead testStmt(db,@"SELECT name FROM sqlite_master WHERE type='table' AND name='tiles';");
         if (testStmt.stepRow())
             tilesStyles = true;
     } catch (int e) {
-        NSLog(@"Exception fetching MBTiles metadata");
+        NSLog(@"Exception fetching MBTiles metadata (%d)", e);
+        if (db) {
+            sqlite3_close(db);
+        }
+        return nil;
+    } catch (...) {
+        NSLog(@"Unknown exception fetching MBTiles metadata");
+        if (db) {
+            sqlite3_close(db);
+        }
         return nil;
     }
-    
+
     self = [super initWithName:mbTilesName minZoom:minZoom maxZoom:maxZoom];
+    geoMbr = gmbr;
     coordSys = cs;
+    sqlDb = db;
     
     return self;
 }
@@ -181,7 +194,7 @@ using namespace WhirlyKit;
     
     if (sqlDb) {
         sqlite3_close(sqlDb);
-        sqlDb = NULL;
+        sqlDb = nullptr;
     }
 }
 
