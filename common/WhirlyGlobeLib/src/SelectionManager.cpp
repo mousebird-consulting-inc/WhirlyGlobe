@@ -618,7 +618,7 @@ void SelectionManager::removeSelectable(SimpleIdentity selectID)
 void SelectionManager::removeSelectables(const SimpleIDSet &selectIDs)
 {
     std::lock_guard<std::mutex> guardLock(mutex);
-    bool found = false;
+    //bool found = false;
     
     for (SimpleIDSet::iterator sit = selectIDs.begin(); sit != selectIDs.end(); ++sit)
     {
@@ -627,49 +627,49 @@ void SelectionManager::removeSelectables(const SimpleIDSet &selectIDs)
         
         if (it != rect3Dselectables.end())
         {
-            found = true;
+            //found = true;
             rect3Dselectables.erase(it);
         }
         
         RectSelectable2DSet::iterator it2 = rect2Dselectables.find(RectSelectable2D(selectID));
         if (it2 != rect2Dselectables.end())
         {
-            found = true;
+            //found = true;
             rect2Dselectables.erase(it2);
         }
         
         MovingRectSelectable2DSet::iterator itM = movingRect2Dselectables.find(MovingRectSelectable2D(selectID));
         if (itM != movingRect2Dselectables.end())
         {
-            found = true;
+            //found = true;
             movingRect2Dselectables.erase(itM);
         }
         
         PolytopeSelectableSet::iterator it3 = polytopeSelectables.find(PolytopeSelectable(selectID));
         if (it3 != polytopeSelectables.end())
         {
-            found = true;
+            //found = true;
             polytopeSelectables.erase(it3);
         }
 
         MovingPolytopeSelectableSet::iterator it3a = movingPolytopeSelectables.find(MovingPolytopeSelectable(selectID));
         if (it3a != movingPolytopeSelectables.end())
         {
-            found = true;
+            //found = true;
             movingPolytopeSelectables.erase(it3a);
         }
 
         LinearSelectableSet::iterator it5 = linearSelectables.find(LinearSelectable(selectID));
         if (it5 != linearSelectables.end())
         {
-            found = true;
+            //found = true;
             linearSelectables.erase(it5);
         }
 
         BillboardSelectableSet::iterator it4 = billboardSelectables.find(BillboardSelectable(selectID));
         if (it4 != billboardSelectables.end())
         {
-            found = true;
+            //found = true;
             billboardSelectables.erase(it4);
         }
     }
@@ -737,13 +737,14 @@ SelectionManager::PlacementInfo::PlacementInfo(ViewStateRef viewState,SceneRende
     // Sort out what kind of view it is
     globeViewState = dynamic_cast<WhirlyGlobe::GlobeViewState *>(viewState.get());
     mapViewState = dynamic_cast<Maply::MapViewState *>(viewState.get());
-    heightAboveSurface = globeViewState ? globeViewState->heightAboveGlobe : mapViewState->heightAboveSurface;
+    heightAboveSurface = globeViewState ? globeViewState->heightAboveGlobe :
+                            mapViewState ? mapViewState->heightAboveSurface : 0;
     
     // Calculate a slightly bigger framebuffer to grab nearby features
     frameSize = Point2f(renderer->framebufferWidth,renderer->framebufferHeight);
     frameSizeScale = Point2f(renderer->framebufferWidth/scale,renderer->framebufferHeight/scale);
-    float marginX = frameSize.x() * 0.25;
-    float marginY = frameSize.y() * 0.25;
+    const float marginX = frameSize.x() * 0.25;
+    const float marginY = frameSize.y() * 0.25;
     frameMbr.ll() = Point2f(0 - marginX,0 - marginY);
     frameMbr.ur() = Point2f(frameSize.x() + marginX,frameSize.y() + marginY);
 }
@@ -1250,7 +1251,7 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,ViewStateRef vi
                 {
                     if (PointInPolygon(touchPt, screenPts))
                     {
-                        closeDist3d = (sel.center - eyePos).norm();
+                        //closeDist3d = (sel.center - eyePos).norm();
                         break;
                     }
                     

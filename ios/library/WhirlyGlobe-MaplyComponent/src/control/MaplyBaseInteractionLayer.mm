@@ -268,7 +268,7 @@ public:
 
 - (Texture *)createTexture:(UIImage *)image desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    threadMode = [self resolveThreadMode:threadMode];
+    //threadMode = [self resolveThreadMode:threadMode];
     
     int imageFormat = [desc intForKey:kMaplyTexFormat default:MaplyImageIntRGBA];
     bool wrapX = [desc boolForKey:kMaplyTexWrapX default:false];
@@ -518,7 +518,7 @@ public:
 
 - (void)removeTextures:(NSArray *)textures mode:(MaplyThreadMode)threadMode
 {
-    threadMode = [self resolveThreadMode:threadMode];
+    //threadMode = [self resolveThreadMode:threadMode];
 
     for (MaplyTexture *texture in textures)
         [texture clear];
@@ -997,7 +997,7 @@ public:
 {
     // Pick a representive screen object
     int drawPriority = -1;
-    LayoutObject *sampleObj = NULL;
+    LayoutObject *sampleObj = nullptr;
     NSMutableArray *uniqueIDs = [NSMutableArray array];
     for (auto obj : layoutObjects)
     {
@@ -1012,7 +1012,7 @@ public:
                 [uniqueIDs addObject:newStr];
         }
     }
-    SimpleIdentity progID = sampleObj->getTypicalProgramID();
+    const SimpleIdentity progID = sampleObj ? sampleObj->getTypicalProgramID() : EmptyIdentity;
     
     // Ask for a cluster image
     MaplyClusterInfo *clusterInfo = [[MaplyClusterInfo alloc] init];
@@ -1044,7 +1044,9 @@ public:
         retObj.layoutPts = smGeom.coords;
         retObj.selectPts = smGeom.coords;
     }
-    retObj.importance = sampleObj->importance;
+    if (sampleObj) {
+        retObj.importance = sampleObj->importance;
+    }
     
     // Create the texture
     // Note: Keep this around
@@ -2673,8 +2675,10 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
             }
 
             MaplyScreenObject *screenObj = bill.screenObj;
-            if (!screenObj)
+            if (!screenObj) {
+                delete wkBill;
                 continue;
+            }
             MaplyBoundingBox size = [screenObj getSize];
             Point2d size2d = Point2d(size.ur.x-size.ll.x,size.ur.y-size.ll.y);
             wkBill->size = size2d;
@@ -3366,7 +3370,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
 - (NSArray *)findVectorsInPoint:(Point2f)pt inView:(MaplyBaseViewController *)vc multi:(bool)multi
 {
-    if (!layerThread)
+    if (!layerThread || !vc || !vc->renderControl)
         return nil;
     
     NSMutableArray *foundObjs = [NSMutableArray array];

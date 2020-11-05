@@ -470,13 +470,15 @@ using namespace WhirlyGlobe;
 
     double retRot;
     Point2d mid;
-    bool ret = vObj->linearMiddle(mid, retRot, maplyCoordSys->coordSystem.get());
-    if (ret) {
-        middle->x = mid.x();
-        middle->y = mid.y();
-    } else {
-        middle->x = 0.0;
-        middle->y = 0.0;
+    const bool ret = vObj->linearMiddle(mid, retRot, maplyCoordSys->coordSystem.get());
+    if (middle) {
+        if (ret) {
+            middle->x = mid.x();
+            middle->y = mid.y();
+        } else {
+            middle->x = 0.0;
+            middle->y = 0.0;
+        }
     }
     
     if (rot)

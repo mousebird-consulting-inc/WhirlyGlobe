@@ -343,8 +343,8 @@ void SceneRendererMTL::updateWorkGroups(RendererFrameInfo *inFrameInfo)
                     DrawableMTL *drawMTL = dynamic_cast<DrawableMTL *>(draw.get());
                     
                     // Sort out what the zbuffer should be
-                    bool zBufferWrite = (zBufferMode == zBufferOn);
-                    bool zBufferRead = (zBufferMode == zBufferOn);
+                    bool zBufferWrite;// = (zBufferMode == zBufferOn);
+                    bool zBufferRead;// = (zBufferMode == zBufferOn);
                     if (renderTarget->getTex() != nil) {
                         // Off screen render targets don't like z buffering
                         zBufferRead = false;
@@ -478,6 +478,10 @@ void SceneRendererMTL::render(TimeInterval duration,
     float overlapMarginX = 0.0;
     if (mapView) {
         overlapMarginX = scene->getOverlapMargin();
+    }
+
+    if (!theView) {
+        return;
     }
     
     // Get the model and view matrices

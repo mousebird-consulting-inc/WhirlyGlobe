@@ -379,7 +379,7 @@ bool Scene::hasChanges(TimeInterval now)
     bool activeModelsUpdates = false;
     for (auto model : activeModels)
         if (model->hasUpdate()) {
-            activeModelsUpdates = true;
+            //activeModelsUpdates = true;
             return true;
         }
     

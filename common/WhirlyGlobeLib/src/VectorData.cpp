@@ -367,7 +367,7 @@ void VectorTriangles::initGeoMbr()
 bool VectorTrianglesRayIntersect(const Point3d &org,const Point3d &dir,const VectorTriangles &mesh,double *outT,Point3d *iPt)
 {
     double tMin = std::numeric_limits<double>::max();
-    Point3d minPt;
+    Point3d minPt {0,0,0};
     
     // Look for closest intersection
     for (const auto &tri : mesh.tris)

@@ -177,15 +177,14 @@ void SceneGraphManager::attachSceneFragment(SimpleIdentity attachID,SceneGraphNo
             wkLogLevel(Warn,"SceneGraphGenerator: Got orphan node.  Dropping on floor.");
             return;
         }
-    } else {
-        SceneGraphGroup *group = dynamic_cast<SceneGraphGroup *>(node);
-        if (group)
-            // Just put it at the top
-            topNodes.insert(group);
+    } else if (const auto group = dynamic_cast<SceneGraphGroup *>(node)) {
+        // Just put it at the top
+        topNodes.insert(group);
     }
 
     // Index all the various IDs (for future attach points)
-    node->traverseAddNodeIDs(this, allNodes);
+    if (node)
+        node->traverseAddNodeIDs(this, allNodes);
 }
     
 void SceneGraphManager::removeSceneFragment(SimpleIdentity nodeID,ChangeSet &changes)

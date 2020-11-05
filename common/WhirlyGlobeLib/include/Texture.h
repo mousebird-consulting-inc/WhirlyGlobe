@@ -34,6 +34,7 @@ class TextureBase : virtual public Identifiable
 {
 public:
     /// Construct for comparison
+    TextureBase();
     TextureBase(SimpleIdentity thisId);
     TextureBase(const std::string &name);
     
@@ -69,7 +70,7 @@ typedef enum {TexInterpNearest,TexInterpLinear} TextureInterpType;
 class Texture : virtual public TextureBase
 {
 public:
-    /// Construct empty
+    /// Construct with name
 	Texture(const std::string &name);
 	/// Construct with raw texture data.  PVRTC is preferred.
 	Texture(const std::string &name,RawDataRef texData,bool isPVRTC);
@@ -79,11 +80,11 @@ public:
     /// Set the format (before createInGL() is called)
     void setFormat(TextureType inFormat) { format = inFormat; }
     /// Return the format
-    TextureType getFormat() { return format; }
+    TextureType getFormat() const { return format; }
 
     /// Set the interpolation type used for min and mag
     void setInterpType(TextureInterpType inType) { interpType = inType; }
-    TextureInterpType getInterpType() { return interpType; }
+    TextureInterpType getInterpType() const { return interpType; }
 
     /// Set the raw data directly
     /// Texture takes possession of the bytes.  It will free them.
@@ -98,16 +99,16 @@ public:
     /// Set the texture width
     void setWidth(unsigned int newWidth) { width = newWidth; }
     /// Get the texture width
-    int getWidth() { return width; }
+    int getWidth() const { return width; }
     /// Set the texture height
     void setHeight(unsigned int newHeight) { height = newHeight; }
     /// Get the texture height
-    int getHeight() { return height; }
+    int getHeight() const { return height; }
     /// Set this to have a mipmap generated and used for minification
     void setUsesMipmaps(bool use) { usesMipmaps = use; }
     /// Set this to let the texture wrap in the appropriate directions
     void setWrap(bool inWrapU,bool inWrapV) { wrapU = inWrapU;  wrapV = inWrapV; }
-    
+
     /// If we're converting to a single byte, set the source
     void setSingleByteSource(WKSingleByteSource source) { byteSource = source; }
     /// If set, this is a texture we're creating for output purposes

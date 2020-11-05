@@ -1119,7 +1119,7 @@ public:
     Point3d loc = coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(animState.pos.x,animState.pos.y));
     loc.z() = animState.height;
     Maply::MapView testMapView(*(mapView.get()));
-    Point3d newCenter;
+    Point3d newCenter {0,0,0};
     if ([self withinBounds:loc view:wrapView renderer:renderControl->sceneRenderer.get() mapView:&testMapView newCenter:&newCenter])
     {
         GeoCoord geoCoord = coordAdapter->getCoordSystem()->localToGeographic(newCenter);

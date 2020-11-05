@@ -595,8 +595,8 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
     
     // Clusters have priority in the overlap.
     for (auto it : clusterEntries) {
-        Point2f objPt;
-        calcScreenPt(objPt,&it.layoutObj,viewState,screenMbr,frameBufferSize);
+        Point2f objPt = {0,0};
+        /*const bool isInside = */calcScreenPt(objPt,&it.layoutObj,viewState,screenMbr,frameBufferSize);
         auto objPts = it.layoutObj.layoutPts;
         for (auto &pt : objPts)
             pt = pt * resScale + Point2d(objPt.x(),objPt.y());

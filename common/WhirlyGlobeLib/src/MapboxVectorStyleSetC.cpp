@@ -160,7 +160,8 @@ bool MaplyVectorFunctionStops::parse(DictionaryRef entry,MapboxVectorStyleSetImp
 
 double MaplyVectorFunctionStops::valueForZoom(double zoom)
 {
-    MaplyVectorFunctionStop *a = &stops[0],*b = NULL;
+    const MaplyVectorFunctionStop *a = &stops[0];
+    const MaplyVectorFunctionStop *b = nullptr;
     if (zoom <= a->zoom)
         return a->val;
     for (int which = 1;which < stops.size(); which++)
@@ -180,12 +181,13 @@ double MaplyVectorFunctionStops::valueForZoom(double zoom)
         a = b;
     }
 
-    return b->val;
+    return b ? b->val : 0;
 }
 
 RGBAColorRef MaplyVectorFunctionStops::colorForZoom(double zoom)
 {
-    MaplyVectorFunctionStop *a = &stops[0],*b = NULL;
+    const MaplyVectorFunctionStop *a = &stops[0];
+    const MaplyVectorFunctionStop *b = nullptr;
     if (zoom <= a->zoom)
         return a->color;
     for (int which = 1;which < stops.size(); which++)
@@ -211,12 +213,13 @@ RGBAColorRef MaplyVectorFunctionStops::colorForZoom(double zoom)
         a = b;
     }
 
-    return b->color;
+    return b ? b->color : RGBAColorRef();
 }
 
 MapboxRegexField MaplyVectorFunctionStops::textForZoom(double zoom)
 {
-    MaplyVectorFunctionStop *a = &stops[0],*b = NULL;
+    const MaplyVectorFunctionStop *a = &stops[0];
+    const MaplyVectorFunctionStop *b = nullptr;
     if (zoom <= a->zoom)
         return a->textField;
     for (int which = 1;which < stops.size(); which++)
@@ -227,7 +230,7 @@ MapboxRegexField MaplyVectorFunctionStops::textForZoom(double zoom)
         a = b;
     }
 
-    return b->textField;
+    return b ? b->textField : MapboxRegexField();
 }
 
 double MaplyVectorFunctionStops::minValue()
@@ -264,15 +267,12 @@ MapboxTransDouble::MapboxTransDouble(MaplyVectorFunctionStopsRef inStops)
 
 double MapboxTransDouble::valForZoom(double zoom)
 {
-    if (stops) {
-        return stops->valueForZoom(zoom);
-    } else
-        return val;
+    return stops ? stops->valueForZoom(zoom) : val;
 }
 
 bool MapboxTransDouble::isExpression()
 {
-    return stops.get() != NULL;
+    return stops.get() != nullptr;
 }
 
 FloatExpressionInfoRef MapboxTransDouble::expression()

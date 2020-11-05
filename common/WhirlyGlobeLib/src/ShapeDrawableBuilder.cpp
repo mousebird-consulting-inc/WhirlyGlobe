@@ -95,7 +95,7 @@ void ShapeDrawableBuilder::addPoints(Point3dVector &pts,RGBAColor color,Mbr mbr,
     }
     drawMbr.expand(mbr);
 
-    Point3d prevPt,prevNorm,firstPt,firstNorm;
+    Point3d prevPt {0,0,0},prevNorm,firstPt,firstNorm;
     for (unsigned int jj=0;jj<pts.size();jj++)
     {
         // The point is already in display coordinates, so we have to project back

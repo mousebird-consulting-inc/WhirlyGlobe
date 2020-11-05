@@ -199,12 +199,12 @@ public class MapboxKindaMap {
             return
         }
         
-        var success = true
+        //var success = true
         if self.fetchSources {
             // Fetch what we need to for the sources
             styleSheet.sources.forEach {
                 let source = $0 as! MaplyMapboxVectorStyleSource
-                if source.tileSpec == nil && success {
+                if source.tileSpec == nil /*&& success*/ {
                     if let urlStr = source.url,
                         let origURL = URL(string: urlStr) {
                         let url = self.cacheResolve(self.fileOverride(origURL))
@@ -213,7 +213,7 @@ public class MapboxKindaMap {
                         let fetchIdx = self.outstandingFetches.count
                         let dataTask = URLSession.shared.dataTask(with: self.makeURLRequest(url)) { (data, resp, error) in
                             guard error == nil else {
-                                print("Error trying to fetch tileJson from \(urlStr)")
+                                print("Error trying to fetch tileJson from \(urlStr) : \(error)")
                                 self.stop()
                                 return
                             }
@@ -287,9 +287,9 @@ public class MapboxKindaMap {
                 dataTask2.resume()
             }
         
-        if !success {
-            self.stop()
-        }
+        //if !success {
+        //    self.stop()
+        //}
     }
         
     // Done messing with settings?  Then fire this puppy up

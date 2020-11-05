@@ -66,7 +66,7 @@ using namespace WhirlyKit;
         return nil;
     }
     
-    coordSys = [[MaplySphericalMercator alloc] initWebStandard];
+    const auto cs = [[MaplySphericalMercator alloc] initWebStandard];
     
     // Look at the metadata
     try
@@ -96,9 +96,9 @@ using namespace WhirlyKit;
         }
         
         // And let's convert that over to spherical mercator
-        Point3f ll = [coordSys getCoordSystem]->geographicToLocal(geoMbr.ll());
+        Point3f ll = [cs getCoordSystem]->geographicToLocal(geoMbr.ll());
         mbr.ll() = Point2f(ll.x(),ll.y());
-        Point3f ur = [coordSys getCoordSystem]->geographicToLocal(geoMbr.ur());
+        Point3f ur = [cs getCoordSystem]->geographicToLocal(geoMbr.ur());
         mbr.ur() = Point2f(ur.x(),ur.y());
         
         minZoom = 0;  maxZoom = 8;
@@ -135,6 +135,7 @@ using namespace WhirlyKit;
     }
     
     self = [super initWithName:mbTilesName minZoom:minZoom maxZoom:maxZoom];
+    coordSys = cs;
     
     return self;
 }

@@ -285,7 +285,7 @@ bool GeometryModelOBJ::parse(FILE *fp)
         } else if (!strcmp(key,"f"))
         {
             // Face
-            if (toks.size() < 2)
+            if (toks.size() < 2 || !activeGroup)
             {
                 success = false;
                 break;
