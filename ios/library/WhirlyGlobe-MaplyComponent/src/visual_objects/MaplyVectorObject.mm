@@ -331,7 +331,7 @@ using namespace WhirlyGlobe;
     
     if (vObj->shapes.empty())
         return nil;
-    
+
     const VectorShapeRef &vec = *(vObj->shapes.begin());
 
     // If it's a wrapper around an NSDictionary, return that
