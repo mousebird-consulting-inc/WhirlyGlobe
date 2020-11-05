@@ -132,14 +132,14 @@ bool MapboxVectorFilter::testFeature(const Dictionary &attrs,const QuadTreeIdent
     switch (filterType) {
     // Run each of the rules as either AND or OR
     case MBFilterAll:
-        for (auto filter : subFilters) {
+        for (const auto &filter : subFilters) {
             if (!filter->testFeature(attrs, tileID)) {
                 return false;
             }
         }
         return true;
     case MBFilterAny:
-        for (auto filter : subFilters) {
+        for (const auto &filter : subFilters) {
             if (filter->testFeature(attrs, tileID)) {
                 return true;
             }
@@ -150,7 +150,7 @@ bool MapboxVectorFilter::testFeature(const Dictionary &attrs,const QuadTreeIdent
         // Check for attribute value membership
         // Note: Not dealing with differing types well
         if (const auto featAttrVal = attrs.getEntry(attrName)) {
-            for (auto match : attrVals) {
+            for (const auto &match : attrVals) {
                 if (match->isEqual(featAttrVal)) {
                     return (filterType == MBFilterIn);
                 }
@@ -159,10 +159,10 @@ bool MapboxVectorFilter::testFeature(const Dictionary &attrs,const QuadTreeIdent
         return (filterType != MBFilterIn);
     case MBFilterHas:
         // Check for attribute existence
-        return !!attrs.getEntry(attrName);
+        return attrs.hasField(attrName);
     case MBFilterNotHas:
         // Check for attribute non-existence
-        return !attrs.getEntry(attrName);
+        return !attrs.hasField(attrName);
     default:
         // Equality related operators
         if (auto featAttrVal = attrs.getEntry(attrName)) {

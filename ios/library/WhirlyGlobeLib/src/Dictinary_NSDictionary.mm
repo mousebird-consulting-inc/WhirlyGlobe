@@ -117,7 +117,7 @@ std::vector<DictionaryEntryRef> iosDictionaryEntry::getArray() const
     return refs;
 }
 
-bool iosDictionaryEntry::isEqual(DictionaryEntryRef other) const
+bool iosDictionaryEntry::isEqual(const DictionaryEntryRef &other) const
 {
     if (!other)
         return false;

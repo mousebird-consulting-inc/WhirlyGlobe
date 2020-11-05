@@ -982,17 +982,13 @@ double DictionaryEntryCBasic::getDouble() const
     }
 }
 
-bool DictionaryEntryCBasic::isEqual(DictionaryEntryRef other) const
+bool DictionaryEntryCBasic::isEqual(const DictionaryEntryRef &other) const
 {
-    const auto otherRef = std::dynamic_pointer_cast<DictionaryEntryCBasic>(other);
-    if (!otherRef)
-        return false;
-
     switch (type) {
-        case DictTypeInt:      return val.iVal == otherRef->getInt();
+        case DictTypeInt:      return val.iVal == other->getInt();
         case DictTypeInt64:
-        case DictTypeIdentity: return val.i64Val == otherRef->getInt64();
-        case DictTypeDouble:   return val.dVal == otherRef->getDouble();
+        case DictTypeIdentity: return val.i64Val == other->getIdentity();
+        case DictTypeDouble:   return val.dVal == other->getDouble();
         default:               return false;
     }
 }
@@ -1013,13 +1009,13 @@ RGBAColor DictionaryEntryCString::getColor() const
     return ret;
 }
 
-bool DictionaryEntryCString::isEqual(DictionaryEntryRef other) const
+bool DictionaryEntryCString::isEqual(const DictionaryEntryRef &other) const
 {
     const auto otherRef = std::dynamic_pointer_cast<DictionaryEntryCString>(other);
     return otherRef && (str == otherRef->str);
 }
 
-bool DictionaryEntryCDict::isEqual(DictionaryEntryRef other) const
+bool DictionaryEntryCDict::isEqual(const DictionaryEntryRef &other) const
 {
     // TODO: Actually make this work
     return false;
@@ -1053,7 +1049,7 @@ std::vector<DictionaryEntryCRef> DictionaryEntryCArray::getArrayC() const
     return vals;
 }
 
-bool DictionaryEntryCArray::isEqual(DictionaryEntryRef other) const
+bool DictionaryEntryCArray::isEqual(const DictionaryEntryRef &other) const
 {
     // TODO: Make this work
     return false;

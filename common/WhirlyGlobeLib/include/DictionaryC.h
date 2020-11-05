@@ -246,7 +246,7 @@ public:
     /// Return an array of refs
     virtual std::vector<DictionaryEntryRef> getArray() const override { return std::vector<DictionaryEntryRef>(); }
     /// Compare to other
-    virtual bool isEqual(DictionaryEntryRef other) const override { return false; }
+    virtual bool isEqual(const DictionaryEntryRef &other) const override { return false; }
 
 protected:
     DictionaryType type;
@@ -274,7 +274,7 @@ public:
     /// Return a double, using the default if it's missing
     virtual double getDouble() const override;
     /// Compare to other
-    virtual bool isEqual(DictionaryEntryRef other) const override;
+    virtual bool isEqual(const DictionaryEntryRef &other) const override;
 
 public:
     union {
@@ -303,7 +303,7 @@ public:
     virtual RGBAColor getColor() const override;
 
     /// Compare to other
-    virtual bool isEqual(DictionaryEntryRef other) const override;
+    virtual bool isEqual(const DictionaryEntryRef &other) const override;
 
 protected:
     std::string str;
@@ -322,7 +322,7 @@ public:
     virtual DictionaryRef getDict() const override { return dict; }
 
     /// Compare to other
-    virtual bool isEqual(DictionaryEntryRef other) const override;
+    virtual bool isEqual(const DictionaryEntryRef &other) const override;
 
 protected:
     MutableDictionaryCRef dict;
@@ -345,7 +345,7 @@ public:
     virtual std::vector<DictionaryEntryCRef> getArrayC() const;
 
     /// Compare to other
-    virtual bool isEqual(DictionaryEntryRef other) const override;
+    virtual bool isEqual(const DictionaryEntryRef &other) const override;
 
 protected:
     std::vector<DictionaryEntryCRef> vals;
