@@ -109,9 +109,6 @@ void MapboxVectorLayerBackground::buildObjects(PlatformThreadInfo *inst,
         const auto compObj = styleSet->makeComponentObject(inst);
         compObj->vectorIDs.insert(vecID);
         
-        if (selectable)
-            compObj->vecObjs = vecObjs;
-        
         styleSet->compManage->addComponentObject(compObj);
         tileInfo->compObjs.push_back(compObj);
     }

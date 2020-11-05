@@ -180,3 +180,10 @@ public:
 - (WhirlyKit::MutableDictionaryCRef) toDictionaryC;
 
 @end
+
+@interface NSMutableDictionary (DictionaryC)
+
+// Convert one of the DictionaryC objects to an NSDictionary (actually works on dictionary in the right interface)
++ (NSMutableDictionary *) fromDictionaryC:(WhirlyKit::MutableDictionaryRef)dict;
+
+@end

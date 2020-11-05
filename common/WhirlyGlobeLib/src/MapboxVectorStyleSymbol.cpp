@@ -336,6 +336,7 @@ Marker *MapboxVectorLayerSymbol::setupMarker(PlatformThreadInfo *inst,
         marker->selectID = Identifiable::genId();
         styleSet->addSelectionObject(marker->selectID, vecObj, compObj);
         compObj->selectIDs.insert(marker->selectID);
+        compObj->isSelectable = true;
     }
     if (markerTexID != EmptyIdentity)
         marker->texIDs.push_back(markerTexID);

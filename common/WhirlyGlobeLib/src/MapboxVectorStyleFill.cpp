@@ -136,8 +136,10 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
             if (vecID != EmptyIdentity) {
                 compObj->vectorIDs.insert(vecID);
                 
-                if (selectable)
+                if (selectable) {
+                    compObj->isSelectable = selectable;
                     compObj->vecObjs = vecObjs;
+                }
             }
         }
     }

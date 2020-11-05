@@ -25,6 +25,9 @@
 {
 @public
     WhirlyKit::VectorObjectRef vObj;
+    // If the developer requests attributes, we need to convert them to
+    //  a friendly representation
+    NSMutableDictionary *attrCache;
 }
 
 // Construct as a wrapper

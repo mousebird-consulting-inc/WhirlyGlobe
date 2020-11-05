@@ -116,6 +116,7 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
                             marker->selectID = Identifiable::genId();
                             styleSet->addSelectionObject(marker->selectID, vecObj, compObj);
                             compObj->selectIDs.insert(marker->selectID);
+                            compObj->isSelectable = true;
                         }
                         if (!uuidField.empty())
                             marker->uniqueID = uuidField;

@@ -632,3 +632,57 @@ using namespace WhirlyKit;
 }
 
 @end
+
+@implementation NSMutableDictionary (DictionaryC)
+
++ (id) fromEntry:(const DictionaryEntryRef &)entry
+{
+    switch (entry->getType()) {
+        case WhirlyKit::DictTypeString:
+        {
+            NSString *valStr = [NSString stringWithUTF8String:entry->getString().c_str()];
+            return valStr;
+        }
+        case WhirlyKit::DictTypeInt:
+            return @(entry->getInt());
+        case WhirlyKit::DictTypeIdentity:
+        case WhirlyKit::DictTypeInt64:
+            return @(entry->getIdentity());
+        case WhirlyKit::DictTypeDouble:
+            return @(entry->getDouble());
+        case WhirlyKit::DictTypeDictionary:
+            return [NSMutableDictionary fromDictionaryC:std::dynamic_pointer_cast<MutableDictionary>(entry->getDict())];
+        case WhirlyKit::DictTypeArray:
+        {
+            NSMutableArray *outArr = [NSMutableArray array];
+            auto arr = entry->getArray();
+            for (const auto &subEntry: arr)
+                if (id subVal = [NSMutableDictionary fromEntry:subEntry])
+                    [outArr addObject:subVal];
+            return outArr;
+        }
+            break;
+        case WhirlyKit::DictTypeObject:
+        case WhirlyKit::DictTypeNone:
+            break;
+    }
+    
+    return nil;
+}
+
++ (NSMutableDictionary *) fromDictionaryC:(WhirlyKit::MutableDictionaryRef)inDict
+{
+    NSMutableDictionary *outDict = [[NSMutableDictionary alloc] init];
+    
+    auto keys = inDict->getKeys();
+    for (const auto &key : keys) {
+        NSString *keyStr = [NSString stringWithUTF8String:key.c_str()];
+        auto entry = inDict->getEntry(key);
+        id valEntry = [NSMutableDictionary fromEntry:entry];
+        outDict[keyStr] = valEntry;
+    }
+    
+    return outDict;
+}
+
+@end

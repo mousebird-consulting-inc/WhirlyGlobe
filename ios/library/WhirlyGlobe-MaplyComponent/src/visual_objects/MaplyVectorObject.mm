@@ -326,12 +326,25 @@ using namespace WhirlyGlobe;
 
 - (NSMutableDictionary *)attributes
 {
+    if (attrCache)
+        return attrCache;
+    
     if (vObj->shapes.empty())
         return nil;
     
     const VectorShapeRef &vec = *(vObj->shapes.begin());
-    const iosMutableDictionary *dict = (iosMutableDictionary *)vec->getAttrDict().get();
-    return dict ? dict->dict : nil;
+
+    // If it's a wrapper around an NSDictionary, return that
+    iosMutableDictionaryRef dict = std::dynamic_pointer_cast<iosMutableDictionary>(vec->getAttrDict());
+    if (dict)
+        return (NSMutableDictionary *)dict->dict;
+
+    // If it's not an NSDictionary wrapper, return that
+    MutableDictionaryRef cDict = std::dynamic_pointer_cast<MutableDictionary>(vec->getAttrDict());
+    if (cDict)
+        attrCache = [NSMutableDictionary fromDictionaryC:cDict];
+
+    return attrCache;
 }
 
 - (void)setAttributes:(NSDictionary *)attributes
