@@ -328,9 +328,9 @@ using namespace WhirlyGlobe;
 {
     if (vObj->shapes.empty())
         return nil;
-    
+
     const VectorShapeRef &vec = *(vObj->shapes.begin());
-    const iosMutableDictionary *dict = (iosMutableDictionary *)vec->getAttrDict().get();
+    const iosMutableDictionary *dict = dynamic_cast<iosMutableDictionary*>(vec->getAttrDict().get());
     return dict ? dict->dict : nil;
 }
 
