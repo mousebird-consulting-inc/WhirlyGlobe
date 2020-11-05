@@ -553,7 +553,7 @@ VectorStyleDelegateWrapper::stylesForFeature(PlatformThreadInfo *inst,
         dict = dictRef->dict;
     } else if (const auto dictRef = dynamic_cast<const iosMutableDictionary*>(&attrs)) {
         dict = dictRef->dict;
-    } else {
+    } else if (dict) {
         wkLogLevel(Warn, "unsupported dictionary implementation");
         return std::vector<VectorStyleImplRef>();
     }
