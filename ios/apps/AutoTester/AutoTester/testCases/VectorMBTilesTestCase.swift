@@ -70,6 +70,7 @@ class VectorMBTilesTestCase: MaplyTestCase {
         baseCase.baseViewController = mapVC
         baseCase.setUpWithMap(mapVC)
         setupLoader(mapVC)
+        mapVC.setPosition(MaplyCoordinateMakeWithDegrees(3.1, 44), height: 0.07)
     }
     
     override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
@@ -78,6 +79,8 @@ class VectorMBTilesTestCase: MaplyTestCase {
         baseCase.baseViewController = globeVC
         baseCase.setUpWithGlobe(globeVC)
         setupLoader(globeVC)
+        globeVC.keepNorthUp = true
+        globeVC.setPosition(MaplyCoordinateMakeWithDegrees(3.1, 44), height: 0.07)
     }
     
     override func stop() {
