@@ -25,9 +25,9 @@ namespace WhirlyKit
 
 namespace {
     // Fixed strings to avoid allocations on every call to, e.g., Dictionary::setString
-    const static std::string layerName("layer_name");
-    const static std::string geometryType("geometry_type");
-    const static std::string layerOrder("layer_order");
+    const static std::string layerNameKey("layer_name");
+    const static std::string geometryTypeKey("geometry_type");
+    const static std::string layerOrderKey("layer_order");
 }
 
 const vector_tile_Tile_Layer VectorTilePBFParser::_defaultLayer = {
@@ -130,25 +130,143 @@ bool VectorTilePBFParser::layerDecode(pb_istream_t *stream, const pb_field_iter_
     }
 
     vector_tile_Tile_Layer layer = _defaultLayer;
-    _currentLayer = &layer;
+    std::string_view layerNameView;
 
-    layer.name.arg = &_layerNameView;
+    layer.name.arg = &layerNameView;
     layer.features.arg = this;
     layer.keys.arg = &_layerKeys;
     layer.values.arg = &_layerValues;
 
+    const auto layerBytes = (uint32_t)stream->bytes_left;
     _layerKeys.clear();
-    _layerKeys.reserve(layerKeyHeuristic());
+    _layerKeys.reserve(layerKeyHeuristic(layerBytes));
     _layerValues.clear();
-    _layerValues.reserve(layerValueHeuristic());
+    _layerValues.reserve(layerValueHeuristic(layerBytes));
+    _featureTags.clear();
+    _featureTags.reserve(featureTagHeuristic(layerBytes));
+    _featureGeometry.clear();
+    _featureGeometry.reserve(featureGeometryHeuristic(layerBytes));
+    _features.clear();
+    _features.reserve(featureHeuristic(layerBytes));
 
-    _layerStarted = false;
     if (!pb_decode(stream, vector_tile_Tile_Layer_fields, &layer))
     {
         return false;
     }
 
-    return layerFinish();
+    const auto layerName = std::string(layerNameView);
+
+    // When `has_extent` is false, nanopb sets the default in `extent`
+    _layerScale = (double)layer.extent / TileSize;
+
+    // Prevent a divide-by-zero, or negative scales
+    if (_layerScale <= 0)
+    {
+        wkLogLevel(Warn, "VectorTilePBFParser: Invalid layer extent (%s / %d / %d)",
+                   layerName.c_str(), layer.extent, TileSize);
+        _skippedLayerCount += 1;
+        return true;
+    }
+
+    // if we dont have any styles for a layer, dont bother parsing the features
+    if (!_styleDelegate->layerShouldDisplay(_styleInst, layerName, _tileData->ident))
+    {
+        _skippedLayerCount += 1;
+        return true;
+    }
+
+    size_t prevTagIndex = 0;
+    size_t prevGeomIndex = 0;
+    for (auto const &feature : _features)
+    {
+        auto attributes = std::make_shared<MutableDictionaryC>();
+        attributes->setString(layerNameKey, layerName);
+        attributes->setInt(geometryTypeKey, (int)feature.geomType);
+        attributes->setInt(layerOrderKey, _layerCount);
+
+        const bool tagsOk = processTags(attributes, prevTagIndex, prevGeomIndex, feature);
+        //const auto curTagIndex = prevTagIndex;
+        const auto curGeomIndex = prevGeomIndex;
+        const auto curGeomCount = feature.geomIndex - prevGeomIndex;
+        prevTagIndex = feature.tagIndex;
+        prevGeomIndex = feature.geomIndex;
+        
+        if (!tagsOk)
+        {
+            _skippedFeatureCount += 1;
+            continue;
+        }
+
+        SimpleIDUSet styleIDs(featureStyleHeuristic());
+        if (!checkStyles(styleIDs, attributes, layerName))
+        {
+            // Skip this feature
+            _skippedFeatureCount += 1;
+            continue;
+        }
+
+        _featureCount += 1;
+
+        auto vecObj = std::make_shared<VectorObject>();
+
+        // Parse geometry
+        try
+        {
+            switch (feature.geomType)
+            {
+                case GeomTypeLineString:
+                    parseLineString(&_featureGeometry[curGeomIndex], curGeomCount, vecObj->shapes);
+                    break;
+                case GeomTypePolygon:
+                {
+                    auto shape = VectorAreal::createAreal();
+                    if (parsePolygon(&_featureGeometry[curGeomIndex], curGeomCount, *shape))
+                    {
+                        vecObj->shapes.insert(shape);
+                    }
+                    break;
+                }
+                case GeomTypePoint:
+                {
+                    auto shape = VectorPoints::createPoints();
+                    if (parsePoints(&_featureGeometry[curGeomIndex], curGeomCount, *shape))
+                    {
+                        vecObj->shapes.insert(shape);
+                    }
+                    break;
+                }
+                default:
+                case GeomTypeUnknown:
+#if DEBUG
+                    wkLogLevel(Warn, "VectorTilePBFParser: Unknown geometry type %d", feature.geomType);
+#endif
+                    _unknownGeomTypes += 1;
+                    break;
+            }
+        }
+        catch (const std::exception &ex)
+        {
+            wkLogLevel(Error, "VectorTilePBFParser: Vector Parsing Error: %s", ex.what());
+            _parseErrors += 1;
+            vecObj.reset();
+        }
+        catch (...)
+        {
+            wkLogLevel(Error, "VectorTilePBFParser: Vector Parsing Error: ?");   // Bad, don't throw non-exceptions!
+            _parseErrors += 1;
+            vecObj.reset();
+        }
+
+        for (const auto &shape: vecObj->shapes)
+        {
+            shape->setAttrDict(attributes);
+        }
+
+        addFeature(vecObj, styleIDs);
+    }
+    _layerCount += 1;
+
+    return true;
 }
 
 /// https://github.com/mapbox/vector-tile-spec/tree/master/2.1/#432-parameter-integers
@@ -172,28 +290,6 @@ bool VectorTilePBFParser::featureDecode(pb_istream_t *stream, const pb_field_ite
 
 bool VectorTilePBFParser::featureDecode(pb_istream_t *stream, const pb_field_iter_t *field)
 {
-    layerElement();
-
-    if (_checkCancelled())
-    {
-        // This result is no longer needed, so stop parsing it ASAP
-        _wasCancelled = true;
-        return false;
-    }
-    if (_skipLayer)
-    {
-        // We're skipping this layer, so don't process any of the features.
-        // We still have to read past them, of course.
-        _skippedFeatureCount += 1;
-        return true;
-    }
-
-    // todo: see if we have enough info to make better guesses here
-    _featureTags.clear();
-    _featureTags.reserve(featureTagHeuristic(stream->bytes_left));
-    _featureGeometry.clear();
-    _featureGeometry.reserve(featureGeometryHeuristic(stream->bytes_left));
-
     auto feature = _defaultFeature;
     feature.tags.arg = &_featureTags;
     feature.geometry.arg = &_featureGeometry;
@@ -204,104 +300,26 @@ bool VectorTilePBFParser::featureDecode(pb_istream_t *stream, const pb_field_ite
     }
 
     const auto geomType = static_cast<MapnikGeometryType>(feature.type);
-
-    auto attributes = std::make_shared<MutableDictionaryC>();
-    attributes->setString(layerName, _layerName);
-    attributes->setInt(geometryType, (int)geomType);
-    attributes->setInt(layerOrder, _layerCount);
-
-    if (!processTags(attributes))
-    {
-        _skippedFeatureCount += 1;
-        return true;
-    }
-    
-    SimpleIDSet styleIDs;
-    if (!checkStyles(styleIDs, attributes))
-    {
-        // Skip this feature
-        _skippedFeatureCount += 1;
-        return true;
-    }
-
-    _featureCount += 1;
-
-    auto vecObj = std::make_shared<VectorObject>();
-
-    // Parse geometry
-    try
-    {
-        switch (geomType)
-        {
-            case GeomTypeLineString:
-                parseLineString(_featureGeometry, vecObj->shapes);
-                break;
-            case GeomTypePolygon:
-            {
-                auto shape = VectorAreal::createAreal();
-                if (parsePolygon(_featureGeometry, *shape))
-                {
-                    vecObj->shapes.insert(shape);
-                }
-                break;
-            }
-            case GeomTypePoint:
-            {
-                auto shape = VectorPoints::createPoints();
-                if (parsePoints(_featureGeometry, *shape))
-                {
-                    vecObj->shapes.insert(shape);
-                }
-                break;
-            }
-            default:
-            case GeomTypeUnknown:
-#if DEBUG
-                wkLogLevel(Warn, "Unknown geometry type %d", geomType);
-#endif
-                _unknownGeomTypes += 1;
-                break;
-        }
-    }
-    catch (const std::exception &ex)
-    {
-        wkLogLevel(Error, "Vector Parsing Error: %s", ex.what());
-        _parseErrors += 1;
-        vecObj.reset();
-    }
-    catch (...)
-    {
-        wkLogLevel(Error, "Vector Parsing Error: ?");   // Bad, don't throw non-exceptions!
-        _parseErrors += 1;
-        vecObj.reset();
-    }
-    
-    for (const auto &shape: vecObj->shapes)
-    {
-        shape->setAttrDict(attributes);
-    }
-
-    addFeature(vecObj, styleIDs);
-
-    _featureTags.clear();
-    _featureGeometry.clear();
+    _features.emplace_back(_featureTags.size(),_featureGeometry.size(),geomType);
 
     return true;
 }
 
-bool VectorTilePBFParser::processTags(const MutableDictionaryCRef &attributes)
+bool VectorTilePBFParser::processTags(const MutableDictionaryCRef &attributes, size_t tagIdx, size_t geomIdx, const Feature &feature)
 {
-    if (_featureTags.size() % 2 != 0)
+    const auto tagCount = feature.tagIndex - tagIdx;
+    if (tagCount % 2 != 0)
     {
-        wkLogLevel(Warn, "Odd feature tags!");
+        wkLogLevel(Warn, "VectorTilePBFParser: Odd feature tags!");
     }
 
-    for (int m = 0; m + 1 < _featureTags.size(); m += 2)
+    for (size_t m = tagIdx; m + 1 < feature.tagIndex; m += 2)
     {
         const auto keyIndex = _featureTags[m];
         const auto valueIndex = _featureTags[m + 1];
 
         if (keyIndex >= _layerKeys.size() || valueIndex >= _layerValues.size()) {
+            wkLogLevel(Warn, "VectorTilePBFParser: Invalid feature tag %d/%d (%d/%d)", keyIndex, valueIndex, (int)_layerKeys.size(), (int)_layerValues.size());
             _badAttributes += 1;
             continue;
         }
@@ -326,7 +344,7 @@ bool VectorTilePBFParser::processTags(const MutableDictionaryCRef &attributes)
             default:
             case SmallValue::SmallValNone:
                 _unknownValueTypes += 1;
-                wkLogLevel(Warn, "Invalid Value Type %d", value.type);
+                wkLogLevel(Warn, "VectorTilePBFParser: Invalid Value Type %d", value.type);
                 break;
         }
     }
@@ -334,7 +352,7 @@ bool VectorTilePBFParser::processTags(const MutableDictionaryCRef &attributes)
     return true;
 }
 
-bool VectorTilePBFParser::checkStyles(SimpleIDSet& styleIDs, const MutableDictionaryCRef &attributes)
+bool VectorTilePBFParser::checkStyles(SimpleIDUSet& styleIDs, const MutableDictionaryCRef &attributes, const std::string &layerName)
 {
     // Ask for the styles that correspond to this feature
     // If there are none, we can skip this.
@@ -351,7 +369,7 @@ bool VectorTilePBFParser::checkStyles(SimpleIDSet& styleIDs, const MutableDictio
     }
     
     // TODO: populate a reused vector?
-    const auto styles = _styleDelegate->stylesForFeature(_styleInst, *attributes, _tileData->ident, _layerName);
+    const auto styles = _styleDelegate->stylesForFeature(_styleInst, *attributes, _tileData->ident, layerName);
     for (const auto &style : styles)
     {
         styleIDs.insert(style->getUuid(_styleInst));
@@ -360,7 +378,7 @@ bool VectorTilePBFParser::checkStyles(SimpleIDSet& styleIDs, const MutableDictio
     return (!styleIDs.empty() || _parseAll);
 }
 
-void VectorTilePBFParser::parseLineString(const std::vector<uint32_t> &geometry, ShapeSet& shapes)
+void VectorTilePBFParser::parseLineString(const uint32_t *geometry, size_t geomCount, ShapeSet& shapes)
 {
     double x = 0;
     double y = 0;
@@ -370,7 +388,7 @@ void VectorTilePBFParser::parseLineString(const std::vector<uint32_t> &geometry,
     Point2f firstCoord;
     VectorLinearRef lin;
     
-    for (int k = 0; k < geometry.size(); )
+    for (int k = 0; k < geomCount; )
     {
         // length is the number of coordinates before the CMD changes
         if (!length)
@@ -423,27 +441,27 @@ void VectorTilePBFParser::parseLineString(const std::vector<uint32_t> &geometry,
 #if DEBUG
                 else
                 {
-                    wkLogLevel(Warn, "Close line command with no points");
+                    wkLogLevel(Warn, "VectorTilePBFParser: Close line command with no points");
                 }
 #endif
             }
 #if DEBUG
             else
             {
-                wkLogLevel(Warn, "Unknown command %d", cmd);
+                wkLogLevel(Warn, "VectorTilePBFParser: Unknown command %d", cmd);
             }
 #endif
         }
     }
     
-    if (lin->pts.size() > 0)
+    if (lin && lin->pts.size() > 0)
     {
         lin->initGeoMbr();
         shapes.insert(lin);
     }
 }
 
-bool VectorTilePBFParser::parsePolygon(const std::vector<uint32_t> &geometry, VectorAreal& shape)
+bool VectorTilePBFParser::parsePolygon(const uint32_t *geometry, size_t geomCount, VectorAreal& shape)
 {
     double x = 0;
     double y = 0;
@@ -453,7 +471,7 @@ bool VectorTilePBFParser::parsePolygon(const std::vector<uint32_t> &geometry, Ve
     Point2f firstCoord(0, 0);
     VectorRing ring;
     
-    for (int k = 0; k < geometry.size(); )
+    for (int k = 0; k < geomCount; )
     {
         if (!length)
         {
@@ -508,7 +526,7 @@ bool VectorTilePBFParser::parsePolygon(const std::vector<uint32_t> &geometry, Ve
 #if DEBUG
     if (ring.size() > 0)
     {
-        wkLogLevel(Warn, "Finished polygon loop, and ring has %d points", (int)ring.size());
+        wkLogLevel(Warn, "VectorTilePBFParser: Finished polygon loop, and ring has %d points", (int)ring.size());
     }
 #endif
     //TODO: Is there a posibilty of still having a ring here that hasn't been added by a close command?
@@ -521,7 +539,7 @@ bool VectorTilePBFParser::parsePolygon(const std::vector<uint32_t> &geometry, Ve
     return false;
 }
 
-bool VectorTilePBFParser::parsePoints(const std::vector<uint32_t> &geometry, VectorPoints& shape)
+bool VectorTilePBFParser::parsePoints(const uint32_t *geometry, size_t geomCount, VectorPoints& shape)
 {
     double x = 0;
     double y = 0;
@@ -529,7 +547,7 @@ bool VectorTilePBFParser::parsePoints(const std::vector<uint32_t> &geometry, Vec
     int length = 0;
     Point2f point;
     
-    for (int k = 0; k < geometry.size(); )
+    for (int k = 0; k < geomCount; )
     {
         if (!length)
         {
@@ -564,7 +582,7 @@ bool VectorTilePBFParser::parsePoints(const std::vector<uint32_t> &geometry, Vec
             else if (cmd == SEG_CLOSE_MASKED)
             {
 #if DEBUG
-                wkLogLevel(Warn, "Close point feature?");
+                wkLogLevel(Warn, "VectorTilePBFParser: Close point feature?");
 #endif
             }
             else
@@ -582,7 +600,7 @@ bool VectorTilePBFParser::parsePoints(const std::vector<uint32_t> &geometry, Vec
     return false;
 }
 
-void VectorTilePBFParser::addFeature(const VectorObjectRef &vecObj, const SimpleIDSet &styleIDs)
+void VectorTilePBFParser::addFeature(const VectorObjectRef &vecObj, const SimpleIDUSet &styleIDs)
 {
     if (vecObj->shapes.empty())
     {
@@ -626,73 +644,13 @@ bool VectorTilePBFParser::valueVecDecode(pb_istream_t *stream, const pb_field_it
         return false;
     }
 
-    if      (!string.empty())        vec.push_back({{.stringValue = string},             SmallValue::SmallValString});
-    else if (value.has_float_value)  vec.push_back({{.floatValue  = value.float_value},  SmallValue::SmallValFloat});
+         if (value.has_float_value)  vec.push_back({{.floatValue  = value.float_value},  SmallValue::SmallValFloat});
     else if (value.has_double_value) vec.push_back({{.doubleValue = value.double_value}, SmallValue::SmallValDouble});
     else if (value.has_int_value)    vec.push_back({{.intValue    = value.int_value},    SmallValue::SmallValInt});
     else if (value.has_uint_value)   vec.push_back({{.uintValue   = value.uint_value},   SmallValue::SmallValUInt});
     else if (value.has_sint_value)   vec.push_back({{.sintValue   = value.sint_value},   SmallValue::SmallValSInt});
     else if (value.has_bool_value)   vec.push_back({{.boolValue   = value.bool_value},   SmallValue::SmallValBool});
-    
-    return true;
-}
-
-void VectorTilePBFParser::layerElement()
-{
-    // When we see a feature, that means we finished with (some of) the layer message
-    if (!_layerStarted && !layerStart())
-    {
-        _skipLayer = true;
-        _skippedLayerCount += 1;
-    }
-    _layerStarted = true;
-}
-
-// Called when we have first seen a sub-element of a layer, meaning that
-// the version, name, and extent are populated, and the layer can be evaluated.
-// Return false to skip this layer.
-bool VectorTilePBFParser::layerStart()
-{
-    if (!_currentLayer)
-    {
-        wkLogLevel(Error, "Layer not set!");
-        return false;
-    }
-    
-    // When `has_extent` is false, nanopb sets the default in `extent`
-    
-    _layerName = _layerNameView;
-    _layerNameView = std::string_view();
-
-    _layerScale = (double)_currentLayer->extent / TileSize;
-
-    // Prevent a divide-by-zero, or negative scales
-    if (_layerScale <= 0)
-    {
-        wkLogLevel(Warn, "Invalid layer extent (%s / %d / %d)",
-                   _layerName.c_str(), _currentLayer->extent, TileSize);
-        return false;
-    }
-
-    // if we dont have any styles for a layer, dont bother parsing the features
-    if (!_styleDelegate->layerShouldDisplay(_styleInst, _layerName, _tileData->ident))
-    {
-        return false;
-    }
-    
-    return true;
-}
-
-bool VectorTilePBFParser::layerFinish()
-{
-    _layerCount += 1;
-
-    _layerName.clear();
-    _layerKeys.clear();
-    _layerValues.clear();
-
-    _currentLayer = nullptr;
-    _skipLayer = false;
+    else                             vec.push_back({{.stringValue = string},             SmallValue::SmallValString});
 
     return true;
 }
@@ -708,6 +666,9 @@ bool VectorTilePBFParser::stringDecode(pb_istream_t *stream, const pb_field_iter
 bool VectorTilePBFParser::stringVecDecode(pb_istream_t *stream, const pb_field_iter_t *field, void **arg)
 {
     auto &vec = **(std::vector<std::string_view>**)arg;
+    if (stream->bytes_left == 0) {
+        int x = 0;
+    }
     vec.emplace_back((char*)stream->state, stream->bytes_left);
     return true;
 }
