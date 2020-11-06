@@ -658,17 +658,22 @@ bool VectorTilePBFParser::layerStart()
         wkLogLevel(Error, "Layer not set!");
         return false;
     }
-    if (!_currentLayer || !_currentLayer->has_extent)
-    {
-        wkLogLevel(Warn, "Layer has no extent! (%s)", _layerName.c_str());
-        return false;
-    }
+    
+    // When `has_extent` is false, nanopb sets the default in `extent`
     
     _layerName = _layerNameView;
     _layerNameView = std::string_view();
-    
+
     _layerScale = (double)_currentLayer->extent / TileSize;
-   
+
+    // Prevent a divide-by-zero, or negative scales
+    if (_layerScale <= 0)
+    {
+        wkLogLevel(Warn, "Invalid layer extent (%s / %d / %d)",
+                   _layerName.c_str(), _currentLayer->extent, TileSize);
+        return false;
+    }
+
     // if we dont have any styles for a layer, dont bother parsing the features
     if (!_styleDelegate->layerShouldDisplay(_styleInst, _layerName, _tileData->ident))
     {
