@@ -17,6 +17,7 @@
     NSTimer *_labelAnimationTimer;
     NSMutableDictionary *_trafficLabels;
     MaplyBaseViewController *_baseVC;
+    CartoDBLightTestCase *baseCase;
 }
 
 - (instancetype)init
@@ -46,10 +47,10 @@
 
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
-    CartoDBLightTestCase *baseView = [[CartoDBLightTestCase alloc] init];
-    [baseView setUpWithGlobe:globeVC];
+    baseCase = [[CartoDBLightTestCase alloc] init];
+    [baseCase setUpWithGlobe:globeVC];
     globeVC.height = 0.25;
-    [globeVC setPosition:MaplyCoordinateMakeWithDegrees(-98.58, 39.83) height:1.5];
+    [globeVC setPosition:MaplyCoordinateMakeWithDegrees(-100.0, 40.0) height:0.05];
     [self setupWithBaseVC:(MaplyBaseViewController *)globeVC];
 }
 
@@ -61,10 +62,10 @@
 
 - (void)setUpWithMap:(MaplyViewController *)mapVC
 {
-    CartoDBLightTestCase *baseView = [[CartoDBLightTestCase alloc] init];
-    [baseView setUpWithMap:mapVC];
-    mapVC.height = 0.25;
-    [mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-98.58, 39.83) time:0.0];
+    baseCase = [[CartoDBLightTestCase alloc] init];
+    [baseCase setUpWithMap:mapVC];
+    mapVC.height = 0.05;
+    [mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-100.0, 40.0) time:0.0];
     [self setupWithBaseVC:(MaplyBaseViewController *)mapVC];
 }
 

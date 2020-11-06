@@ -45,6 +45,7 @@
     baseViewC = globeVC;
     baseCase = [[GeographyClassTestCase alloc]init];
     [baseCase setUpWithGlobe:globeVC];
+    [globeVC animateToPosition:MaplyCoordinateMakeWithDegrees(-100.0, 40.0) time:1.0];
     
     [self overlayCountryFile:@"USA" ext:@"geojson" viewC:globeVC];
 }
@@ -54,7 +55,8 @@
     baseViewC = mapVC;
     baseCase = [[GeographyClassTestCase alloc]init];
     [baseCase setUpWithMap:mapVC];
-    
+    [mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-100.0, 40.0) time:1.0];
+
     [self overlayCountryFile:@"USA" ext:@"geojson" viewC:mapVC];
 }
 

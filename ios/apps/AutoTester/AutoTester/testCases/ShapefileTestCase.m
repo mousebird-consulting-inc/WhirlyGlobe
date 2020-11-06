@@ -43,7 +43,8 @@
     baseViewC = globeVC;
     baseCase = [[GeographyClassTestCase alloc]init];
     [baseCase setUpWithGlobe:globeVC];
-    
+    [globeVC animateToPosition:MaplyCoordinateMakeWithDegrees(-100.0, 40.0) time:1.0];
+
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
                    ^{
                        [self overlayShapefile];
@@ -56,6 +57,7 @@
     baseViewC = mapVC;
     baseCase = [[GeographyClassTestCase alloc]init];
     [baseCase setUpWithMap:mapVC];
+    [mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-100.0, 40.0) time:1.0];
 
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
                    ^{

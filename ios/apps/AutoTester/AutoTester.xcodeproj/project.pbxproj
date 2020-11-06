@@ -1124,8 +1124,6 @@
 		D84AA5961C1A26C100413B76 /* OSTN02_NTv2.gsb */ = {isa = PBXFileReference; lastKnownFileType = file; name = OSTN02_NTv2.gsb; path = AutoTester/OSTN02_NTv2.gsb; sourceTree = "<group>"; };
 		D84AA5981C1A2B9800413B76 /* BNGTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BNGTestCase.swift; sourceTree = "<group>"; };
 		D8D3E0671C4EDA1800F0D006 /* ParticleTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParticleTestCase.swift; sourceTree = "<group>"; };
-		D8DCCCAA1BDC1A1200BA3866 /* CesiumElevationTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CesiumElevationTestCase.h; sourceTree = "<group>"; };
-		D8DCCCAB1BDC1A1200BA3866 /* CesiumElevationTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CesiumElevationTestCase.m; sourceTree = "<group>"; };
 		D8E12ECC1BDE9FD500BB7BC7 /* AnimatedBasemapTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnimatedBasemapTestCase.swift; sourceTree = "<group>"; };
 		D8F2FE251BE7BD630058A310 /* LabelsTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabelsTestCase.h; sourceTree = "<group>"; };
 		D8F2FE261BE7BD630058A310 /* LabelsTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LabelsTestCase.m; sourceTree = "<group>"; };
@@ -1306,8 +1304,6 @@
 				D84AA5981C1A2B9800413B76 /* BNGTestCase.swift */,
 				D84433E91C14E4E700A52117 /* CartoDBTestCase.h */,
 				D84433EA1C14E4E700A52117 /* CartoDBTestCase.m */,
-				D8DCCCAA1BDC1A1200BA3866 /* CesiumElevationTestCase.h */,
-				D8DCCCAB1BDC1A1200BA3866 /* CesiumElevationTestCase.m */,
 				D8228AA71BE786BE001D6914 /* ClusteredMarkersTestCase.swift */,
 				2BDEB3001C924842003259B3 /* ExtrudedModelTestCase.h */,
 				2BDEB3011C924842003259B3 /* ExtrudedModelTestCase.m */,
