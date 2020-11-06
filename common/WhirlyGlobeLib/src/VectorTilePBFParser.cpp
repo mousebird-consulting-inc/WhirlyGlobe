@@ -666,9 +666,6 @@ bool VectorTilePBFParser::stringDecode(pb_istream_t *stream, const pb_field_iter
 bool VectorTilePBFParser::stringVecDecode(pb_istream_t *stream, const pb_field_iter_t *field, void **arg)
 {
     auto &vec = **(std::vector<std::string_view>**)arg;
-    if (stream->bytes_left == 0) {
-        int x = 0;
-    }
     vec.emplace_back((char*)stream->state, stream->bytes_left);
     return true;
 }
