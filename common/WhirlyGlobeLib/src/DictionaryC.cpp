@@ -751,10 +751,10 @@ void MutableDictionaryC::setupArray(const std::vector<DictionaryEntryCRef> &entr
                 {
                     auto theArray = std::dynamic_pointer_cast<DictionaryEntryCArray>(entry);
                     if (theArray && !theArray->vals.empty()) {
-                        out.push_back(Value(DictTypeArray,arrayVals.size()));
-
                         std::vector<Value> locArr;
                         setupArray(theArray->getArrayC(), locArr);
+
+                        out.push_back(Value(DictTypeArray,arrayVals.size()));
                         arrayVals.push_back(locArr);
                     }
                 }
