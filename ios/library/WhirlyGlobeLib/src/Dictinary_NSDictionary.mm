@@ -670,7 +670,7 @@ using namespace WhirlyKit;
     return nil;
 }
 
-+ (NSMutableDictionary *) fromDictionaryC:(WhirlyKit::MutableDictionaryRef)inDict
++ (NSMutableDictionary *) fromDictionaryCPointer:(const WhirlyKit::MutableDictionary *)inDict
 {
     NSMutableDictionary *outDict = [[NSMutableDictionary alloc] init];
     
@@ -683,6 +683,11 @@ using namespace WhirlyKit;
     }
     
     return outDict;
+}
+
++ (NSMutableDictionary *) fromDictionaryC:(WhirlyKit::MutableDictionaryRef)inDict
+{
+    return [NSMutableDictionary fromDictionaryCPointer:inDict.get()];
 }
 
 @end

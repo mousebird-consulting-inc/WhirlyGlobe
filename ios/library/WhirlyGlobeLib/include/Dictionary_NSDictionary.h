@@ -185,5 +185,6 @@ public:
 
 // Convert one of the DictionaryC objects to an NSDictionary (actually works on dictionary in the right interface)
 + (NSMutableDictionary *) fromDictionaryC:(WhirlyKit::MutableDictionaryRef)dict;
++ (NSMutableDictionary *) fromDictionaryCPointer:(const WhirlyKit::MutableDictionary *)dict;
 
 @end
