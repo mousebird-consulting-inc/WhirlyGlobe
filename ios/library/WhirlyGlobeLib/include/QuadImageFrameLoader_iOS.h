@@ -80,8 +80,6 @@ public:
 protected:
     // Returned by the TileFetcher
     MaplyTileFetchRequest *request;
-    // Set when the Interpreter is being run, used to cancel during that
-    QuadLoaderReturnRef loadReturn;
 };
 typedef std::shared_ptr<QIFFrameAsset_ios> QIFFrameAsset_iosRef;
     

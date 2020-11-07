@@ -65,8 +65,8 @@ void QIFFrameAsset_ios::clear(PlatformThreadInfo *threadInfo,QuadImageFrameLoade
     
     QIFFrameAsset::clear(threadInfo,loader,batchOps,changes);
     
-    if (loadReturn)
-        loadReturn->cancel = true;
+    if (loadReturnRef)
+        loadReturnRef->cancel = true;
 
     if (request) {
         [batchOps->toCancel addObject:request];
@@ -93,8 +93,8 @@ void QIFFrameAsset_ios::cancelFetch(PlatformThreadInfo *threadInfo,QuadImageFram
     
     QIFFrameAsset::cancelFetch(threadInfo, loader, batchOps);
     
-    if (loadReturn)
-        loadReturn->cancel = true;
+    if (loadReturnRef)
+        loadReturnRef->cancel = true;
     
     if (request)
         [batchOps->toCancel addObject:request];

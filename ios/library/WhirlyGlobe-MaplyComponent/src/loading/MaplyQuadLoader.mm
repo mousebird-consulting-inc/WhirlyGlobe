@@ -392,6 +392,8 @@ using namespace WhirlyKit;
             }
         }
         
+        loader->setLoadReturnRef(tileID,loadReturn->loadReturn->frame,loadReturn->loadReturn);
+                
         // Do the parsing on another thread since it can be slow
         dispatch_queue_t theQueue = _queue;
         if (!theQueue)
@@ -458,7 +460,9 @@ using namespace WhirlyKit;
         loadReturn->loadReturn->changes.clear();
     }
     loader->mergeLoadedTile(NULL,loadReturn->loadReturn.get(),changes);
-    
+
+    loader->setLoadReturnRef(loadReturn->loadReturn->ident,loadReturn->loadReturn->frame,NULL);
+
     [samplingLayer.layerThread addChangeRequests:changes];
 }
 

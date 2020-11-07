@@ -112,6 +112,11 @@ void QIFFrameAsset::setLoadReturn(const RawDataRef &data)
     loadReturnSet = true;
 }
 
+void QIFFrameAsset::setLoadReturnRef(const QuadLoaderReturnRef &inLoadReturn)
+{
+    loadReturnRef = inLoadReturn;
+}
+
 void QIFFrameAsset::clearLoadReturn()
 {
     loadReturn.reset();
@@ -488,6 +493,14 @@ bool QIFTileAsset::isFrameLoading(QuadFrameInfoRef frameInfo)
     }
     
     return false;
+}
+
+void QIFTileAsset::setLoadReturnRef(QuadFrameInfoRef frameInfo,QuadLoaderReturnRef loadReturnRef)
+{
+    for (const auto &frame : frames) {
+        if (!frameInfo || frame->getFrameInfo()->getId() == frameInfo->getId())
+            frame->setLoadReturnRef(loadReturnRef);
+    }
 }
     
 void QIFTileAsset::cancelFetches(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QuadFrameInfoRef frameToCancel,QIFBatchOps *batchOps)
@@ -980,7 +993,7 @@ QIFTileAssetRef QuadImageFrameLoader::addNewTile(PlatformThreadInfo *threadInfo,
     }
     
     if (debugMode)
-        wkLogLevel(Debug,"Starting fetch for tile %d: (%d,%d)",ident.level,ident.x,ident.y);
+        wkLogLevel(Debug,"MaplyQuadImageLoader: Starting fetch for tile %d: (%d,%d)",ident.level,ident.x,ident.y);
     
     // Normal remote data fetching
     newTile->startFetching(threadInfo,this, NULL, batchOps, changes);
@@ -994,7 +1007,7 @@ void QuadImageFrameLoader::removeTile(PlatformThreadInfo *threadInfo,const QuadT
     // If it's here, let's get rid of it.
     if (it != tiles.end()) {
         if (debugMode)
-            wkLogLevel(Debug,"Unloading tile %d: (%d,%d)",ident.level,ident.x,ident.y);
+            wkLogLevel(Debug,"MaplyQuadImageLoader: Unloading tile %d: (%d,%d)",ident.level,ident.x,ident.y);
         
         it->second->clear(threadInfo, this, batchOps, changes);
         
@@ -1099,12 +1112,12 @@ void QuadImageFrameLoader::updateRenderState(ChangeSet &changes)
     if (curOvlLevel == -1) {
         curOvlLevel = targetLevel;
         if (debugMode)
-            wkLogLevel(Debug, "Picking new overlay level %d, targetLevel = %d",curOvlLevel,targetLevel);
+            wkLogLevel(Debug, "MaplyQuadImageLoader: Picking new overlay level %d, targetLevel = %d",curOvlLevel,targetLevel);
     } else {
         if (allLoaded) {
             curOvlLevel = targetLevel;
             if (debugMode)
-                wkLogLevel(Debug, "Picking new overlay level %d, targetLevel = %d",curOvlLevel,targetLevel);
+                wkLogLevel(Debug, "MaplyQuadImageLoader: Picking new overlay level %d, targetLevel = %d",curOvlLevel,targetLevel);
         }
     }
     
@@ -1415,7 +1428,7 @@ void QuadImageFrameLoader::builderLoad(PlatformThreadInfo *threadInfo,
     delete batchOps;
     
     if (debugMode)
-        wkLogLevel(Debug,"quadBuilder:updates:changes: changeRequests: %d",(int)changes.size());
+        wkLogLevel(Debug,"MaplyQuadImageLoader: changeRequests: %d",(int)changes.size());
     
     changesSinceLastFlush |= somethingChanged;
     
@@ -1577,6 +1590,17 @@ bool QuadImageFrameLoader::isFrameLoading(const QuadTreeIdentifier &ident,QuadFr
         return tile->isFrameLoading(frame);
     else
         return true;
+}
+
+void QuadImageFrameLoader::setLoadReturnRef(const QuadTreeIdentifier &ident,QuadFrameInfoRef frame,QuadLoaderReturnRef loadReturnRef)
+{
+    auto it = tiles.find(ident);
+    if (it == tiles.end()) {
+        return;
+    }
+    auto tile = it->second;
+
+    tile->setLoadReturnRef(frame,loadReturnRef);
 }
     
 bool QuadImageFrameLoader::mergeLoadedFrame(const QuadTreeIdentifier &ident,QuadFrameInfoRef frame,const RawDataRef &data,std::vector<RawDataRef> &allData)
