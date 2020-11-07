@@ -179,6 +179,11 @@ bool VectorTilePBFParser::layerDecode(pb_istream_t *stream, const pb_field_iter_
     size_t prevGeomIndex = 0;
     for (auto const &feature : _features)
     {
+        if (_checkCancelled()) {
+            _wasCancelled = true;
+            return false;
+        }
+
         auto attributes = std::make_shared<MutableDictionaryC>();
         attributes->setString(layerNameKey, layerName);
         attributes->setInt(geometryTypeKey, (int)feature.geomType);

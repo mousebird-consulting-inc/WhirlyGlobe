@@ -114,27 +114,37 @@ void MapboxVectorTileParser::addCategory(const std::string &category,long long s
     styleCategories[styleID] = category;
 }
 
-bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst, RawData *rawData, VectorTileData *tileData, bool *cancelBool)
+static inline double secondsSince(const std::chrono::steady_clock::time_point &t0)
 {
-    volatile bool *parsingCancelled = cancelBool; // TODO: set this somehow if the tile is unloaded while we're parsing it
+    using namespace std::chrono;
+    return duration_cast<nanoseconds>(steady_clock::now() - t0).count() / 1.0e9;
+}
+
+bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst, RawData *rawData, VectorTileData *tileData, volatile bool *cancelBool)
+{
+    wkLogLevel(Verbose, "MapboxVectorTileParser: Parse [%d/%d/%d] starting",
+               tileData->ident.level, tileData->ident.x, tileData->ident.y);
+    const auto t0 = std::chrono::steady_clock::now();
 
     VectorTilePBFParser parser(tileData, &*styleDelegate, styleInst, uuidName, uuidValues,
                                tileData->vecObjsByStyle, localCoords, parseAll,
                                keepVectors ? &tileData->vecObjs : nullptr,
-                               [&](){ return parsingCancelled ? *parsingCancelled : false; });
+                               [=](){ return cancelBool && *cancelBool; });
     if (!parser.parse(rawData->getRawData(), rawData->getLen()))
     {
-        if (parser.getParseCanceled()) {
-            wkLogLevel(Debug, "Vector tile PBF parsing canceled (%d/%d/%d)",
-                       tileData->ident.level, tileData->ident.x, tileData->ident.y);
+        if (parser.getParseCancelled()) {
+            const auto duration = secondsSince(t0);
+            wkLogLevel(Verbose, "MapboxVectorTileParser: Cancelled [%d/%d/%d] - %.2f MiB - %.4f s",
+                       tileData->ident.level, tileData->ident.x, tileData->ident.y,
+                       rawData->getLen() / 1024.0 / 1024, duration);
         } else {
-            wkLogLevel(Warn, "Failed to parse vector tile PBF: '%s' (%d/%d/%d)",
-                       parser.getErrorString("unknown").c_str(),
-                       tileData->ident.level, tileData->ident.x, tileData->ident.y);
+            wkLogLevel(Warn, "MapboxVectorTileParser: Parse [%d/%d/%d] failed - '%s'",
+                       tileData->ident.level, tileData->ident.x, tileData->ident.y,
+                       parser.getErrorString("unknown").c_str());
 #if DEBUG
             if (parser.getTotalErrorCount() > 0) {
                 wkLogLevel(Debug,
-                           "Tile %d/%d/%d - Parse Errors: %d, Bad Attributes: %d, "
+                           "MapboxVectorTileParser: [%d/%d/%d] parse Errors: %d, Bad Attributes: %d, "
                            "Unknown Commands: %d, Unknown Geom: %d, Unknown Value Types: %d",
                            tileData->ident.level, tileData->ident.x, tileData->ident.y,
                            parser.getParseErrorCount(),
@@ -147,7 +157,14 @@ bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst, RawData *rawDa
         }
         return false;
     }
-    
+
+    const auto duration = std::max(1e-9, secondsSince(t0));
+    wkLogLevel(Verbose, "MapboxVectorTileParser: Finished [%d/%d/%d] - %.2f MiB - %.4f s - %.4f MiB/s - %.1f features/s",
+               tileData->ident.level, tileData->ident.x, tileData->ident.y,
+               rawData->getLen() / 1024.0 / 1024,
+               duration, rawData->getLen() / duration / 1024 / 1024,
+               parser.getFeatureCount() / duration);
+
     // TODO: Switch to stencils and get this working again
     // Call background
 //    if (const auto backgroundStyle = styleDelegate->backgroundStyle(styleInst)) {

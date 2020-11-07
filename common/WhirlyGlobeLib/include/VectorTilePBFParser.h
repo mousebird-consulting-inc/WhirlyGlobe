@@ -69,7 +69,7 @@ public:
     unsigned getUknownGeomTypeCount() const { return _unknownGeomTypes; }
     unsigned getUnknownValueTypeCount() const { return _unknownValueTypes; }
     
-    bool getParseCanceled() const { return _wasCancelled; }
+    bool getParseCancelled() const { return _wasCancelled; }
     
     unsigned getTotalErrorCount() const {
         return _unknownValueTypes +
