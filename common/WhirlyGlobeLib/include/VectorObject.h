@@ -47,64 +47,67 @@ public:
     VectorObject();
 
     /// Construct with an ID
-    VectorObject(SimpleIdentity theId);
-    
+    explicit VectorObject(SimpleIdentity theId);
+
+    /// Construct with an ID and estimated shape count
+    VectorObject(SimpleIdentity theId, int capacity);
+
     /// @brief Return the type of vector
-    VectorObjectType getVectorType();
+    VectorObjectType getVectorType() const;
     
     /// Set if the data is selectable
-    bool isSelectable();
+    bool isSelectable() const;
     void setIsSelectable(bool newSelect);
     
     /// @brief Return the attributes for the first shape or NULL
-    MutableDictionaryRef getAttributes();
+    MutableDictionaryRef getAttributes() const;
     void setAttributes(MutableDictionaryRef newDict);
     
     /// Make a complete company (nothing shared) and return it
-    VectorObjectRef deepCopy();
+    VectorObjectRef deepCopy() const;
     
     /// Dump everything to a string for debugging
-    std::string log();
+    std::string log() const;
     
     /// Add a hole if this contains a single areal feature
     void addHole(const VectorRing &hole);
     
     /// Merge in vectors from the other object
-    void mergeVectorsFrom(VectorObject *other);
+    void mergeVectorsFrom(const VectorObject &other);
     
     /// @brief Returns one shape per VectorObject
     void splitVectors(std::vector<VectorObject *> &vecs);
     
     /// Calculate the center (not the centroid)
-    bool center(Point2d &center);
+    bool center(Point2d &center) const;
     
     /// @brief Calculate the centroid
-    bool centroid(Point2d &center);
+    bool centroid(Point2d &center) const;
     
     /// @brief Calculate the center of the largest loop
-    bool largestLoopCenter(Point2d &center,Point2d &ll,Point2d &ur);
+    bool largestLoopCenter(Point2d &center,Point2d &ll,Point2d &ur) const;
     
     /// @brief Find the middle of a linear feature and return a rotation along that feature
-    bool linearMiddle(Point2d &mid,double &rot);
+    bool linearMiddle(Point2d &mid,double &rot) const;
     
     /// Converts to the display coordinate system before calculating
-    bool linearMiddle(Point2d &mid,double &rot,CoordSystem *coordSys);
+    bool linearMiddle(Point2d &mid,double &rot,CoordSystem *coordSys) const;
     
     /// Return the point right in the middle (index-wise) of a linear feature
-    bool middleCoordinate(Point2d &mid);
+    bool middleCoordinate(Point2d &mid) const;
     
     /// @brief Point inside polygon test
-    bool pointInside(const Point2d &pt);
+    bool pointInside(const Point2d &pt) const;
     
     // Fuzzy matching for selecting Linear features
     // This will project the features to the screen
-    bool pointNearLinear(const Point2d &coord,float maxDistance,ViewStateRef viewState,const Point2f &frameBufferSize);
+    bool pointNearLinear(const Point2d &coord,float maxDistance,ViewStateRef viewState,const Point2f &frameBufferSize) const;
     
     /// Calculate the area of all the loops together
-    double areaOfOuterLoops();
+    double areaOfOuterLoops() const;
     
     /// Bounding box of all the various features together
-    bool boundingBox(Point2d &ll,Point2d &ur);
+    bool boundingBox(Point2d &ll,Point2d &ur) const;
     
     /**
      Subdivide the edges in this feature to a given tolerance.
@@ -123,7 +126,7 @@ public:
     void subdivideToFlatGreatCircle(float epsilon);
 
     /// Tesselate areal features and return a new vector object
-    VectorObjectRef tesselate();
+    VectorObjectRef tesselate() const;
 
     /**
      Clip the given (presumably areal) feature(s) to a grid in radians of the given size.
@@ -158,13 +161,13 @@ public:
      
      Input must be closed areals and output is linears.
      */
-    VectorObjectRef filterClippedEdges();
+    VectorObjectRef filterClippedEdges() const;
 
     // Convert any linear features into areals and return a new vector object
-    VectorObjectRef linearsToAreals();
+    VectorObjectRef linearsToAreals() const;
     
     // Convert any areal features into linears and return a new vector object
-    VectorObjectRef arealsToLinears();
+    VectorObjectRef arealsToLinears() const;
     
     /// @brief Add objects form the given GeoJSON string.
     /// @param json The GeoJSON data as a std::string

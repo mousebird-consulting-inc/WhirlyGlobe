@@ -51,8 +51,11 @@ public:
 
     /// Return the local MBR, if we're working in a non-geo coordinate system
     virtual Mbr getLocalMbr() const;
-    
+
     /// We use this to sort drawables
+    virtual int64_t getDrawOrder() const;
+    
+    /// We use this to sort drawables within the same drawOrder
     virtual unsigned int getDrawPriority() const;
     
     /// Return the ID of the drawable this is based on
@@ -98,6 +101,9 @@ public:
     
     /// Set the color
     virtual void setColor(RGBAColor inColor);
+    
+    /// Set the draw order
+    void setDrawOrder(int64_t newOrder);
     
     /// Set the draw priority
     void setDrawPriority(int newPriority);
@@ -177,6 +183,8 @@ protected:
     BasicDrawableRef basicDraw;
     bool enable;
     TimeInterval startEnable,endEnable;
+    bool hasDrawOrder = false;
+    int64_t drawOrder;
     bool hasDrawPriority;
     int drawPriority;
     bool hasColor;

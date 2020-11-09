@@ -127,7 +127,7 @@ void Circle::makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder
         samples[ii] =  xAxis * radius * sinf(2*M_PI*ii/(float)(sampleX-1)) + radius * yAxis * cosf(2*M_PI*ii/(float)(sampleX-1)) + dispPt;
     
     // We need the bounding box in the local coordinate system
-    Point3d bot,top;
+    Point3d bot {0,0,0},top {0,0,0};
     Mbr shapeMbr;
     for (unsigned int ii=0;ii<samples.size();ii++)
     {

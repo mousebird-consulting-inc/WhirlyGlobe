@@ -1335,7 +1335,7 @@
     
     This is not thread safe and will block the main thread.
   */
-- (NSArray * _Nonnull)objectsAtCoord:(MaplyCoordinate)coord;
+- (NSArray * _Nullable)objectsAtCoord:(MaplyCoordinate)coord;
 
 /// Turn on/off performance output (goes to the log periodically).
 @property (nonatomic,assign) bool performanceOutput;

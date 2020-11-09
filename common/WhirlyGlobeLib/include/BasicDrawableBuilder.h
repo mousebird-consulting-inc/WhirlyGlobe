@@ -75,8 +75,14 @@ public:
     /// Set the draw offset.  This is an integer offset from the base terrain.
     /// Geometry is moved upward by a certain number of units.
     virtual void setDrawOffset(float newOffset);
+
+    /// Draw order used for sorting
+    virtual int64_t getDrawOrder() const;
     
-    /// Draw priority used for sorting
+    /// Draw order user for sorting
+    virtual void setDrawOrder(int64_t newOrder);
+    
+    /// Draw priority used for sorting within drawOrder
     virtual void setDrawPriority(unsigned int newPriority);
 
     /// Set the active transform matrix
@@ -217,7 +223,7 @@ public:
         
     /// Constructs the remaining pieces of the drawable and returns it
     /// Caller is responsible for deletion
-    virtual BasicDrawable *getDrawable() = 0;
+    virtual BasicDrawableRef getDrawable() = 0;
     
     /// Return just the ID of the drawable being created.
     /// This avoids flushing things out
@@ -242,7 +248,7 @@ public:
     virtual void setupStandardAttributes(int numReserve=0);
     
     // The basic drawable we're building up
-    BasicDrawable *basicDraw;
+    BasicDrawableRef basicDraw;
 
     // Unprocessed data arrays
     std::vector<Eigen::Vector3f> points;

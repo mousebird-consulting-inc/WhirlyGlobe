@@ -321,6 +321,7 @@ public:
     MbrD intersect(const MbrD &that) const;
     
     /// Return a list of points, for those routines that need just a list of points
+    void asPoints(Point2fVector &pts) const;
     void asPoints(Point2dVector &pts) const;
     
     /// Expand with the given MBR

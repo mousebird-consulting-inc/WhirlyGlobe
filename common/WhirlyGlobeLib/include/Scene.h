@@ -92,6 +92,7 @@ class AddDrawableReq : public ChangeRequest
 public:
     /// Construct with a drawable.  You're not responsible for deletion
 	AddDrawableReq(Drawable *drawable) : drawRef(drawable) { }
+    /// Passing by ref means don't worry about it
     AddDrawableReq(const DrawableRef &drawRef) : drawRef(drawRef) { }
     /// If the drawable wasn't used, delete it
     ~AddDrawableReq();

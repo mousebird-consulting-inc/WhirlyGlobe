@@ -73,6 +73,8 @@ public:
     
     // Read an integer
     bool getInt(int &val);
+    // Read a long integer
+    bool getInt64(int64_t &val);
     // Read a double
     bool getDouble(double &val);
     // Read a string
@@ -104,6 +106,8 @@ public:
 
     // Add an integer
     virtual void addInt(int iVal);
+    // Add a long integer
+    virtual void addInt64(int64_t iVal);
     // Add a double
     virtual void addDouble(double dVal);
     // Add a string

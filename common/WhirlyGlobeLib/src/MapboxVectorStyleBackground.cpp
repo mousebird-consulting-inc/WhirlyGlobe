@@ -20,6 +20,7 @@
 
 #import "MapboxVectorStyleBackground.h"
 #import "WhirlyKitLog.h"
+#import "Tesselator.h"
 
 namespace WhirlyKit
 {
@@ -39,7 +40,7 @@ bool MapboxVectorBackgroundPaint::parse(PlatformThreadInfo *inst,
 bool MapboxVectorLayerBackground::parse(PlatformThreadInfo *inst,
                                         DictionaryRef styleEntry,
                                         MapboxVectorStyleLayerRef refLayer,
-                                        int drawPriority)
+                                        int inDrawPriority)
 {
     if (!MapboxVectorStyleLayer::parse(inst,styleEntry,refLayer,drawPriority)) {
         return false;
@@ -56,6 +57,8 @@ bool MapboxVectorLayerBackground::parse(PlatformThreadInfo *inst,
         paint.color->setAlphaOverride(styleEntry->getDouble("alphaoverride"));
     }
     
+    drawPriority = inDrawPriority;
+    
     return true;
 }
 
@@ -63,7 +66,52 @@ void MapboxVectorLayerBackground::buildObjects(PlatformThreadInfo *inst,
                                                std::vector<VectorObjectRef> &vecObjs,
                                                VectorTileDataRef tileInfo)
 {
-    // Nothing to build
+    const auto color = styleSet->backgroundColor(inst, tileInfo->ident.level);
+    
+    std::vector<VectorRing> loops { VectorRing() };
+    Mbr bbox = tileInfo->geoBBox;
+    bbox.asPoints(loops.back());
+    
+    VectorTrianglesRef trisRef = VectorTriangles::createTriangles();
+    TesselateLoops(loops, trisRef);
+    //trisRef->setAttrDict(ar->getAttrDict());
+    auto d = MutableDictionaryMake();
+    d->setString("layer_name", "background");
+    d->setInt("layer_order", 1);
+    d->setInt("geometry_type", 3);
+    trisRef->setAttrDict(d);
+    trisRef->initGeoMbr();
+    ShapeSet tessShapes { trisRef };
+
+    VectorInfo vecInfo;
+    vecInfo.hasExp = true;
+    vecInfo.filled = true;
+    vecInfo.centered = false;
+    vecInfo.color = *color;
+    vecInfo.zoomSlot = styleSet->zoomSlot;
+    vecInfo.zBufferWrite = styleSet->tileStyleSettings->zBufferWrite;
+    vecInfo.zBufferRead = styleSet->tileStyleSettings->zBufferRead;
+    vecInfo.colorExp = paint.color->expression();
+    vecInfo.opacityExp = paint.opacity->expression();
+    vecInfo.programID = styleSet->vectorArealProgramID;
+    vecInfo.drawPriority = drawPriority + tileInfo->ident.level * std::max(0, styleSet->tileStyleSettings->drawPriorityPerLevel);
+    // TODO: Switch to stencils
+//    vecInfo.drawOrder = tileInfo->tileNumber();
+    
+//    wkLogLevel(Debug, "background: tildID = %d: (%d,%d)  drawOrder = %d, drawPriority = %d",tileInfo->ident.level, tileInfo->ident.x, tileInfo->ident.y, vecInfo.drawOrder,vecInfo.drawPriority);
+
+    if (minzoom != 0 || maxzoom < 1000) {
+        vecInfo.minZoomVis = minzoom;
+        vecInfo.maxZoomVis = maxzoom;
+    }
+
+    if (const auto vecID = styleSet->vecManage->addVectors(&tessShapes, vecInfo, tileInfo->changes)) {
+        const auto compObj = styleSet->makeComponentObject(inst);
+        compObj->vectorIDs.insert(vecID);
+        
+        styleSet->compManage->addComponentObject(compObj);
+        tileInfo->compObjs.push_back(compObj);
+    }
 }
 
 }

@@ -149,7 +149,7 @@ public:
         
         // Decide if we'll appending to an existing drawable or
         //  create a new one
-        int ptCount = (int)(2*(pts.size()+1));
+        const int ptCount = (int)(2*(pts.size()+1));
         if (!drawable || (drawable->getNumPoints()+ptCount > MaxDrawablePoints))
         {
             // We're done with it, toss it to the scene
@@ -274,7 +274,8 @@ class VectorDrawableBuilderTri
 public:
     VectorDrawableBuilderTri(Scene *scene,SceneRenderer *sceneRender,ChangeSet &changeRequests,VectorSceneRep *sceneRep,
                              const VectorInfo *vecInfo,bool doColor)
-    : changeRequests(changeRequests), scene(scene), sceneRender(sceneRender), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL), centerValid(false), center(0,0,0), doColor(doColor), geoCenter(0,0)
+    : changeRequests(changeRequests), scene(scene), sceneRender(sceneRender), sceneRep(sceneRep),
+      vecInfo(vecInfo), drawable(NULL), centerValid(false), center(0,0,0), doColor(doColor), geoCenter(0,0)
     {
     }
     
@@ -382,7 +383,7 @@ public:
                 if (vecInfo->texId != EmptyIdentity)
                     drawable->setTexId(0, vecInfo->texId);
             }
-            int baseVert = drawable->getNumPoints();
+            const int baseVert = drawable->getNumPoints();
             drawMbr.addPoints(pts);
             
             bool doTexCoords = vecInfo->texId != EmptyIdentity;
@@ -544,6 +545,7 @@ VectorManager::~VectorManager()
     vectorReps.clear();
 }
 
+// TODO: Get rid of this version
 SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, const VectorInfo &vecInfo, ChangeSet &changes)
 {
     if (shapes->empty())
@@ -607,12 +609,10 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, const VectorInfo &vec
     VectorDrawableBuilderTri drawBuildTri(scene,renderer,changes,sceneRep,&vecInfo,doColors);
     if (centerValid)
         drawBuildTri.setCenter(center,geoCenter);
-        
-    for (ShapeSet::iterator it = shapes->begin();
-         it != shapes->end(); ++it)
+
+    for (auto const &it : *shapes)
     {
-        VectorArealRef theAreal = std::dynamic_pointer_cast<VectorAreal>(*it);
-        if (theAreal.get())
+        if (const auto theAreal = std::dynamic_pointer_cast<VectorAreal>(it))
         {
 //            std::string tileID = (*it)->getAttrDict()->getString("tile");
 //            GeoMbr mbr = theAreal->calcGeoMbr();
@@ -638,8 +638,7 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, const VectorInfo &vec
                 }
             }
         } else {
-            VectorLinearRef theLinear = std::dynamic_pointer_cast<VectorLinear>(*it);
-            if (theLinear.get())
+            if (const auto theLinear = std::dynamic_pointer_cast<VectorLinear>(it))
             {
                 if (vecInfo.filled)
                 {
@@ -655,8 +654,7 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, const VectorInfo &vec
                         drawBuild.addPoints(theLinear->pts,false,theLinear->getAttrDict());
                 }
             } else {
-                VectorLinear3dRef theLinear3d = std::dynamic_pointer_cast<VectorLinear3d>(*it);
-                if (theLinear3d.get())
+                if (const auto theLinear3d = std::dynamic_pointer_cast<VectorLinear3d>(it))
                 {
                     if (vecInfo.filled)
                     {
@@ -672,8 +670,164 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, const VectorInfo &vec
                             drawBuild.addPoints(theLinear3d->pts,false,theLinear3d->getAttrDict());
                     }
                 } else {
-                    VectorTrianglesRef theMesh = std::dynamic_pointer_cast<VectorTriangles>(*it);
-                    if (theMesh.get())
+                    if (const auto theMesh = std::dynamic_pointer_cast<VectorTriangles>(it))
+                    {
+                        if (vecInfo.filled)
+                            drawBuildTri.addPoints(theMesh,theMesh->getAttrDict());
+                        else {
+                            for (unsigned int ti=0;ti<theMesh->tris.size();ti++)
+                            {
+                                VectorRing ring;
+                                theMesh->getTriangle(ti, ring);
+                                drawBuild.addPoints(ring,true,theMesh->getAttrDict());
+                            }
+                        }
+                    } else {
+                        // Points are... pointless for display
+                    }
+                }
+            }
+        }
+    }
+    
+    drawBuild.flush();
+    drawBuildTri.flush();
+    
+    SimpleIdentity vecID = sceneRep->getId();
+    {
+        std::lock_guard<std::mutex> guardLock(vectorLock);
+        vectorReps.insert(sceneRep);
+    }
+    
+    return vecID;
+}
+
+// TODO: Take a reference instead of a pointer
+SimpleIdentity VectorManager::addVectors(const std::vector<VectorShapeRef> *shapes, const VectorInfo &vecInfo, ChangeSet &changes)
+{
+    if (shapes->empty())
+        return EmptyIdentity;
+    
+    VectorSceneRep *sceneRep = new VectorSceneRep();
+    sceneRep->fade = vecInfo.fade;
+
+    // No longer do anything with points in here
+//    VectorPointsRef thePoints = std::dynamic_pointer_cast<VectorPoints>(*first);
+//    bool linesOrPoints = (thePoints.get() ? false : true);
+    
+    // Look for per vector colors
+    bool doColors = false;
+    for (auto it = shapes->begin();it != shapes->end(); ++it)
+    {
+        if ((*it)->getAttrDict()->hasField("color"))
+        {
+            doColors = true;
+            break;
+        }
+    }
+
+    // Look for a geometry center.  We'll offset everything if there is one
+    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
+    CoordSystem *coordSys = coordAdapter->getCoordSystem();
+    Point3d center(0,0,0);
+    bool centerValid = false;
+    Point2d geoCenter(0,0);
+    // Note: Should work for the globe, but doesn't
+    if (vecInfo.centered && coordAdapter->isFlat())
+    {
+        // We might pass in a center
+        if (vecInfo.vecCenterSet)
+        {
+            geoCenter.x() = vecInfo.vecCenter.x();
+            geoCenter.y() = vecInfo.vecCenter.y();
+            Point3d dispPt = coordAdapter->localToDisplay(coordSys->geographicToLocal(geoCenter));
+            center = dispPt;
+            centerValid = true;
+        } else {
+          // Calculate the center
+          GeoMbr geoMbr;
+          for (auto it = shapes->begin();it != shapes->end(); ++it)
+              geoMbr.expand((*it)->calcGeoMbr());
+          if (geoMbr.valid())
+          {
+              Point3d p0 = coordAdapter->localToDisplay(coordSys->geographicToLocal3d(geoMbr.ll()));
+              Point3d p1 = coordAdapter->localToDisplay(coordSys->geographicToLocal3d(geoMbr.ur()));
+              center = (p0+p1)/2.0;
+              centerValid = true;
+          }
+        }
+    }
+    
+    // Used to toss out drawables as we go
+    // Its destructor will flush out the last drawable
+    VectorDrawableBuilder drawBuild(scene,renderer,changes,sceneRep,&vecInfo,true,doColors);
+    if (centerValid)
+        drawBuild.setCenter(center,geoCenter);
+    VectorDrawableBuilderTri drawBuildTri(scene,renderer,changes,sceneRep,&vecInfo,doColors);
+    if (centerValid)
+        drawBuildTri.setCenter(center,geoCenter);
+
+    for (auto const &it : *shapes)
+    {
+        if (const auto theAreal = std::dynamic_pointer_cast<VectorAreal>(it))
+        {
+//            std::string tileID = (*it)->getAttrDict()->getString("tile");
+//            GeoMbr mbr = theAreal->calcGeoMbr();
+
+            if (vecInfo.filled)
+            {
+                // Trianglate outside and loops
+                drawBuildTri.addPoints(theAreal->loops,theAreal->getAttrDict());
+            } else {
+                // Work through the loops
+                for (unsigned int ri=0;ri<theAreal->loops.size();ri++)
+                {
+                    VectorRing &ring = theAreal->loops[ri];
+                    
+                    // Break the edges around the globe (presumably)
+                    if (vecInfo.sample > 0.0)
+                    {
+                        VectorRing newPts;
+                        SubdivideEdges(ring, newPts, false, vecInfo.sample);
+                        drawBuild.addPoints(newPts,true,theAreal->getAttrDict());
+                    } else
+                        drawBuild.addPoints(ring,true,theAreal->getAttrDict());
+                }
+            }
+        } else {
+            if (const auto theLinear = std::dynamic_pointer_cast<VectorLinear>(it))
+            {
+                if (vecInfo.filled)
+                {
+                    // Triangulate the outside
+                    drawBuildTri.addPoints(theLinear->pts,theLinear->getAttrDict());
+                } else {
+                    if (vecInfo.sample > 0.0)
+                    {
+                        VectorRing newPts;
+                        SubdivideEdges(theLinear->pts, newPts, false, vecInfo.sample);
+                        drawBuild.addPoints(newPts,false,theLinear->getAttrDict());
+                    } else
+                        drawBuild.addPoints(theLinear->pts,false,theLinear->getAttrDict());
+                }
+            } else {
+                if (const auto theLinear3d = std::dynamic_pointer_cast<VectorLinear3d>(it))
+                {
+                    if (vecInfo.filled)
+                    {
+                        // Triangulate the outside
+                        drawBuildTri.addPoints(theLinear3d->pts,theLinear3d->getAttrDict());
+                    } else {
+                        if (vecInfo.sample > 0.0)
+                        {
+                            VectorRing3d newPts;
+                            SubdivideEdges(theLinear3d->pts, newPts, false, vecInfo.sample);
+                            drawBuild.addPoints(newPts,false,theLinear3d->getAttrDict());
+                        } else
+                            drawBuild.addPoints(theLinear3d->pts,false,theLinear3d->getAttrDict());
+                    }
+                } else {
+                    if (const auto theMesh = std::dynamic_pointer_cast<VectorTriangles>(it))
                     {
                         if (vecInfo.filled)
                             drawBuildTri.addPoints(theMesh,theMesh->getAttrDict());
@@ -713,17 +867,16 @@ SimpleIdentity VectorManager::instanceVectors(SimpleIdentity vecID,const VectorI
 
     // Look for the representation
     VectorSceneRep dummyRep(vecID);
-    VectorSceneRepSet::iterator it = vectorReps.find(&dummyRep);
+    const auto it = vectorReps.find(&dummyRep);
     if (it != vectorReps.end())
     {
         VectorSceneRep *sceneRep = *it;
         VectorSceneRep *newSceneRep = new VectorSceneRep();
-        for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
-             idIt != sceneRep->drawIDs.end(); ++idIt)
+        for (const auto &idIt : sceneRep->drawIDs)
         {
             // Make up a BasicDrawableInstance
             BasicDrawableInstanceBuilderRef drawInst = renderer->makeBasicDrawableInstanceBuilder("VectorManager");
-            drawInst->setMasterID(*idIt,BasicDrawableInstance::ReuseStyle);
+            drawInst->setMasterID(idIt,BasicDrawableInstance::ReuseStyle);
             
             // Changed color
             drawInst->setColor(vecInfo.color);
@@ -734,8 +887,14 @@ SimpleIdentity VectorManager::instanceVectors(SimpleIdentity vecID,const VectorI
             // Changed line width
             drawInst->setLineWidth(vecInfo.lineWidth);
             
+            // Changed draw order
+            drawInst->setDrawOrder(vecInfo.drawOrder);
+            
             // Changed draw priority
             drawInst->setDrawPriority(vecInfo.drawPriority);
+            
+            // Changed draw order (is that possible?)
+            drawInst->setDrawOrder(vecInfo.drawOrder);
 
             newSceneRep->instIDs.insert(drawInst->getDrawableID());
             changes.push_back(new AddDrawableReq(drawInst->getDrawable()));
@@ -775,6 +934,9 @@ void VectorManager::changeVectors(SimpleIdentity vecID,const VectorInfo &vecInfo
             
             // Changed draw priority
             changes.push_back(new DrawPriorityChangeRequest(*idIt, vecInfo.drawPriority));
+            
+            // Changed draw order
+            changes.push_back(new DrawOrderChangeRequest(*idIt, vecInfo.drawOrder));
         }
     }
 }
@@ -783,39 +945,36 @@ void VectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
 {
     std::lock_guard<std::mutex> guardLock(vectorLock);
 
-    TimeInterval curTime = scene->getCurrentTime();
-    for (SimpleIDSet::iterator vit = vecIDs.begin(); vit != vecIDs.end(); ++vit)
+    const TimeInterval curTime = scene->getCurrentTime();
+    for (const auto id : vecIDs)
     {
-        VectorSceneRep dummyRep(*vit);
-        VectorSceneRepSet::iterator it = vectorReps.find(&dummyRep);
-        
-        if (it != vectorReps.end())
+        VectorSceneRep dummyRep(id);
+        const auto it = vectorReps.find(&dummyRep);
+        if (it == vectorReps.end())
         {
-            VectorSceneRep *sceneRep = *it;
-            
-            SimpleIDSet allIDs = sceneRep->drawIDs;
-            allIDs.insert(sceneRep->instIDs.begin(),sceneRep->instIDs.end());
-
-            TimeInterval removeTime = 0.0;
-            if (sceneRep->fade > 0.0)
-            {
-                for (SimpleIDSet::iterator idIt = allIDs.begin();
-                     idIt != allIDs.end(); ++idIt)
-                    changes.push_back(new FadeChangeRequest(*idIt, curTime, curTime+sceneRep->fade));
-                
-                removeTime = curTime + sceneRep->fade;
-            }
-            
-            for (SimpleIDSet::iterator idIt = allIDs.begin();
-                 idIt != allIDs.end(); ++idIt)
-                changes.push_back(new RemDrawableReq(*idIt));
-            vectorReps.erase(it);
-            
-            delete sceneRep;
+            continue;
         }
+
+        // Take ownership and automatically clean up this object
+        std::unique_ptr<VectorSceneRep> sceneRep(*it);
+        vectorReps.erase(it);
+
+        // Make a copy and merge the IDs into it
+        // TODO: might be better to iterate `sceneRep->instIDs` with `contains` and avoid the copy...
+        SimpleIDSet allIDs = sceneRep->drawIDs;
+        allIDs.insert(sceneRep->instIDs.begin(),sceneRep->instIDs.end());
+
+        if (sceneRep->fade > 0.0)
+        {
+            for (const auto idIt : allIDs)
+                changes.push_back(new FadeChangeRequest(idIt, curTime, curTime+sceneRep->fade));
+        }
+
+        for (const auto idIt : allIDs)
+            changes.push_back(new RemDrawableReq(idIt));
     }
 }
-    
+
 void VectorManager::enableVectors(SimpleIDSet &vecIDs,bool enable,ChangeSet &changes)
 {
     std::lock_guard<std::mutex> guardLock(vectorLock);

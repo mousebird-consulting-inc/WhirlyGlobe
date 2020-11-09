@@ -129,9 +129,9 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,std::vector<SingleLabe
     {
         SingleLabel *label = labels[si];
         RGBAColor theTextColor = labelInfo->textColor;
-        RGBAColor theBackColor = labelInfo->backColor;
-        RGBAColor theShadowColor = labelInfo->shadowColor;
-        float theShadowSize = labelInfo->shadowSize;
+        const RGBAColor theBackColor = labelInfo->backColor;
+        const RGBAColor theShadowColor = labelInfo->shadowColor;
+        const float theShadowSize = labelInfo->shadowSize;
         if (label->infoOverride)
         {
             if (label->infoOverride->hasTextColor)
@@ -139,7 +139,7 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,std::vector<SingleLabe
         }
         
         // We set this if the color is embedded in the "font"
-        bool embeddedColor = labelInfo->outlineSize > 0.0 || (label->infoOverride && label->infoOverride->outlineSize > 0.0);
+        const bool embeddedColor = labelInfo->outlineSize > 0.0 || (label->infoOverride && label->infoOverride->outlineSize > 0.0);
 
         // Ask the label to build the strings.  There are OS specific things in there
         // We also need the real line height back (because it's in the font)
@@ -154,7 +154,7 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,std::vector<SingleLabe
             drawMbr.expand(drawStr->mbr);
             layoutMbr.expand(drawStr->mbr);
         }
-        float heightAboveBaseline = drawMbr.ur().y();
+        const float heightAboveBaseline = drawMbr.ur().y();
         
         // Override the layout size, but do so from the middle
         if (label->layoutSize.x() >= 0.0 && label->layoutSize.y() >= 0.0) {
@@ -166,12 +166,14 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,std::vector<SingleLabe
         }
 
         // Set if we're letting the layout engine control placement
-        bool layoutEngine = label->layoutEngine;
-        float layoutImportance = label->layoutImportance;
-        int layoutPlacement = label->layoutPlacement;
+        const bool layoutEngine = label->layoutEngine;
+        const float layoutImportance = label->layoutImportance;
+        const int layoutPlacement = label->layoutPlacement;
         
-        ScreenSpaceObject *screenShape = NULL;
-        LayoutObject *layoutObject = NULL;
+        ScreenSpaceObject scratchScreenSpaceObject;
+        LayoutObject scratchLayoutObject;
+        ScreenSpaceObject *screenShape = nullptr;
+        LayoutObject *layoutObject = nullptr;
 
         // Portions of the label that are shared between substrings
         Point2d iconOff(0,0);
@@ -195,10 +197,10 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,std::vector<SingleLabe
             
             if (layoutEngine)
             {
-                layoutObject = new LayoutObject();
-                screenShape = layoutObject;
-            } else
-                screenShape = new ScreenSpaceObject();
+                screenShape = layoutObject = &scratchLayoutObject;
+            } else {
+                screenShape = &scratchScreenSpaceObject;
+            }
 
             // If we're doing layout, don't justify it
             if (layoutEngine)
@@ -210,6 +212,7 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,std::vector<SingleLabe
             justifyOff.y() += heightAboveBaseline/2.0;
 #endif
 
+            screenShape->setDrawOrder(labelInfo->drawOrder);
             screenShape->setDrawPriority(labelInfo->drawPriority+1);
             screenShape->setVisibility(labelInfo->minVis, labelInfo->maxVis);
             screenShape->setZoomInfo(labelInfo->zoomSlot, labelInfo->minZoomVis, labelInfo->maxZoomVis);
@@ -349,9 +352,10 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,std::vector<SingleLabe
                 // If there's an icon, just expand the whole thing.
                 // Note: Not ideal
                 if (iconGeom.coords.size() > 0)
-                for (unsigned int ig=0;ig<iconGeom.coords.size();ig++)
-                wholeMbr.addPoint(iconGeom.coords[ig]);
-                Point2f ll = wholeMbr.ll(), ur = wholeMbr.ur();
+                    for (unsigned int ig=0;ig<iconGeom.coords.size();ig++)
+                        wholeMbr.addPoint(iconGeom.coords[ig]);
+                const Point2f ll = wholeMbr.ll();
+                const Point2f ur = wholeMbr.ur();
                 select2d.pts[0] = Point2f(ll.x()+label->screenOffset.x(),ll.y()+-label->screenOffset.y());
                 select2d.pts[1] = Point2f(ll.x()+label->screenOffset.x(),ur.y()+-label->screenOffset.y());
                 select2d.pts[2] = Point2f(ur.x()+label->screenOffset.x(),ur.y()+-label->screenOffset.y());
@@ -370,15 +374,15 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,std::vector<SingleLabe
                     movingSelect2d.endTime = screenShape->getEndTime();
                     movingSelectables2D.push_back(movingSelect2d);
                 } else
-                selectables2D.push_back(select2d);
+                    selectables2D.push_back(select2d);
             }
         }
 
         // Work through the lines
         double offsetY = 0.0;
-        std::reverse(drawStrs.begin(),drawStrs.end());
-        for (DrawableString *drawStr : drawStrs)
+        for (auto it = drawStrs.rbegin(); it != drawStrs.rend(); ++it)
         {
+            const auto drawStr = *it;
             if (!drawStr)
                 continue;
             
@@ -416,7 +420,7 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,std::vector<SingleLabe
                     }
                     for (unsigned int ii=0;ii<drawStr->glyphPolys.size();ii++)
                     {
-                        DrawableString::Rect &poly = drawStr->glyphPolys[ii];
+                        const DrawableString::Rect &poly = drawStr->glyphPolys[ii];
                         // Note: Ignoring the desired size in favor of the font size
                         ScreenSpaceObject::ConvexGeometry smGeom;
                         smGeom.progID = labelInfo->programID;
@@ -470,7 +474,7 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,std::vector<SingleLabe
         }
         changes.push_back(new AddDrawableReq(iconDrawable));
         labelRep->drawIDs.insert(iconDrawable->getId());
-    }    
+    }
 }
 
 }

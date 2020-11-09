@@ -27,7 +27,10 @@ namespace WhirlyKit
 {
     
 /// Data types in dictionary
-typedef enum {DictTypeNone,DictTypeString,DictTypeInt,DictTypeIdentity,DictTypeDouble,DictTypeObject,DictTypeDictionary,DictTypeArray} DictionaryType;
+typedef enum {
+    DictTypeNone,DictTypeString,DictTypeInt,DictTypeIdentity,DictTypeDouble,
+    DictTypeObject,DictTypeDictionary,DictTypeArray,DictTypeInt64
+} DictionaryType;
 
 class Dictionary;
 typedef std::shared_ptr<Dictionary> DictionaryRef;
@@ -49,7 +52,9 @@ public:
     virtual DictionaryType getType(const std::string &name) const = 0;
     
     /// Return an int, using the default if it's missing
-    virtual int getInt(const std::string &name,int defVal=0.0) const = 0;
+    virtual int getInt(const std::string &name,int defVal=0) const = 0;
+    /// Return an int64, using the default if it's missing
+    virtual int64_t getInt64(const std::string &name,int64_t defVal=0) const = 0;
     /// Return a 64 bit unique identity or 0 if missing
     virtual SimpleIdentity getIdentity(const std::string &name) const = 0;
     /// Interpret an int as a boolean
@@ -98,7 +103,7 @@ public:
     /// Return an array of refs
     virtual std::vector<DictionaryEntryRef> getArray() const = 0;
     /// Compare to other
-    virtual bool isEqual(DictionaryEntryRef other) const = 0;
+    virtual bool isEqual(const DictionaryEntryRef &other) const = 0;
 };
 
 /// This version of the dictionary can be modified
@@ -110,7 +115,7 @@ public:
     virtual MutableDictionary &operator = (const MutableDictionary &that) { return *this; };
     virtual ~MutableDictionary() { };
     // Make a separate copy of this dictionary
-    virtual MutableDictionaryRef copy() = 0;
+    virtual MutableDictionaryRef copy() const = 0;
 
     /// Clean out the contents
     virtual void clear() = 0;

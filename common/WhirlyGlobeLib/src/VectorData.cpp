@@ -367,7 +367,7 @@ void VectorTriangles::initGeoMbr()
 bool VectorTrianglesRayIntersect(const Point3d &org,const Point3d &dir,const VectorTriangles &mesh,double *outT,Point3d *iPt)
 {
     double tMin = std::numeric_limits<double>::max();
-    Point3d minPt;
+    Point3d minPt {0,0,0};
     
     // Look for closest intersection
     for (const auto &tri : mesh.tris)
@@ -413,6 +413,8 @@ VectorAreal::~VectorAreal()
     
 VectorArealRef VectorAreal::createAreal()
 {
+    // TODO: causes an error, can we `friend std::make_shared`?
+    //return std::make_shared<VectorAreal>();
     return VectorArealRef(new VectorAreal());
 }
 
@@ -519,6 +521,7 @@ VectorPoints::~VectorPoints()
     
 VectorPointsRef VectorPoints::createPoints()
 {
+    //return std::make_shared<VectorPoints>();
     return VectorPointsRef(new VectorPoints());
 }
 

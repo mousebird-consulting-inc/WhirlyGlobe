@@ -33,10 +33,7 @@ ScreenSpaceDrawableBuilderMTL::ScreenSpaceDrawableBuilderMTL(const std::string &
 
 void ScreenSpaceDrawableBuilderMTL::Init(bool hasMotion,bool hasRotation,bool buildAnyway)
 {
-    // TODO: Fix this.  It's dumb.
-    if (basicDraw)
-        delete basicDraw;
-    basicDraw = new BasicDrawableMTL("Screen Space");
+    basicDraw = std::make_shared<BasicDrawableMTL>("Screen Space");
     // Need the entries even if we don't bother to fill them in
     ScreenSpaceDrawableBuilder::Init(hasMotion,hasRotation,true);
     
@@ -52,12 +49,12 @@ ScreenSpaceTweaker *ScreenSpaceDrawableBuilderMTL::makeTweaker()
     return NULL;
 }
 
-BasicDrawable *ScreenSpaceDrawableBuilderMTL::getDrawable()
+BasicDrawableRef ScreenSpaceDrawableBuilderMTL::getDrawable()
 {
     if (drawableGotten)
         return BasicDrawableBuilderMTL::getDrawable();
     
-    BasicDrawable *theDraw = BasicDrawableBuilderMTL::getDrawable();
+    BasicDrawableRef theDraw = BasicDrawableBuilderMTL::getDrawable();
     
     WhirlyKitShader::UniformScreenSpace uniSS;
     bzero(&uniSS,sizeof(uniSS));

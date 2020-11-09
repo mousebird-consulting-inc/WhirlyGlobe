@@ -132,10 +132,10 @@ public:
     void clear();
 
     // Either destroy the texture now or hold on to it for destruction shortly
-    void destroyTexture(SceneRenderer *renderer,TextureBaseRef tex) override;
-    
+    void destroyTexture(SceneRenderer *renderer,const TextureBaseRef &tex) override;
+
     // Either destroy the drawable now or hold on to it for destruction shortly
-    void destroyDrawable(SceneRenderer *renderer,DrawableRef draw) override;
+    void destroyDrawable(SceneRenderer *renderer,const DrawableRef &draw) override;
 
 public:
     ResourceRefsMTLRef resources;
@@ -160,7 +160,7 @@ public:
     typedef enum {Drawable,Other,MaxType} HeapType;
     
     // If false, we'll allocate individual buffers
-    static bool UseHeaps;
+    static const bool UseHeaps;
     
     // Allocate a buffer of the given type and size
     // It may be an entry in a heap, it might not.

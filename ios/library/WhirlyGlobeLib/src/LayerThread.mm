@@ -221,7 +221,7 @@ using namespace WhirlyKit;
         // If there were no changes to add we probably still want to poke the scene
         // Otherwise texture changes don't show up
         if (changesToAdd.empty())
-            changesToAdd.push_back(NULL);
+            changesToAdd.push_back(nullptr);
     }
     
     _scene->addChangeRequests(changesToAdd);

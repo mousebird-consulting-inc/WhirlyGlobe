@@ -84,6 +84,9 @@ public:
     // Store the raw data for use later
     virtual void setLoadReturn(const RawDataRef &data);
     
+    // Store the data used by the interpreter for processing
+    virtual void setLoadReturnRef(const QuadLoaderReturnRef &loadReturnRef);
+    
     // Return the load return
     virtual RawDataRef getLoadReturn();
     
@@ -108,6 +111,8 @@ protected:
     // When fetching a single frame that has multiple data sources, we store the data here
     bool loadReturnSet;
     RawDataRef loadReturn;
+    // Loader return passed to Interpreter
+    QuadLoaderReturnRef loadReturnRef;
 };
 
 typedef std::shared_ptr<QIFFrameAsset> QIFFrameAssetRef;
@@ -157,6 +162,9 @@ public:
 
     // True if the given frame is loading
     virtual bool isFrameLoading(QuadFrameInfoRef frameInfo);
+    
+    // Set the loader return used by the interpreter so we can cancel it
+    virtual void setLoadReturnRef(QuadFrameInfoRef frame,QuadLoaderReturnRef loadReturnRef);
     
     // True if all frames are loaded (just for single frame + multiple source mode)
     virtual bool allFramesLoaded();
@@ -491,6 +499,9 @@ public:
     /// Check if a frame is in the process of loading
     bool isFrameLoading(const QuadTreeIdentifier &ident,QuadFrameInfoRef frame);
     
+    /// Set the loader return ref for cancelling while parsing
+    void setLoadReturnRef(const QuadTreeIdentifier &ident,QuadFrameInfoRef frame,QuadLoaderReturnRef loadReturnRef);
+    
     /// Called when the data for a frame comes back
     /// Returns true if that tile is ready for merging
     bool mergeLoadedFrame(const QuadTreeIdentifier &ident,QuadFrameInfoRef frameInfo,const RawDataRef &data,std::vector<RawDataRef> &allData);
@@ -587,7 +598,7 @@ protected:
     int curOvlLevel;
     
     // If set, used to signal when we're done to a RunRequest in process
-    bool *lastRunReqFlag;
+    std::shared_ptr<bool> lastRunReqFlag;
     
     // True if we're trying to load something, false if we're not
     bool loadingStatus;

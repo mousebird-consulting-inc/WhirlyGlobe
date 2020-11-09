@@ -73,6 +73,7 @@ public:
     
     /// Return an int, using the default if it's missing
     virtual int getInt(const std::string &name,int defVal=0.0) const;
+    virtual int64_t getInt64(const std::string &name,int64_t defVal=0) const;
     /// Return a 64 bit unique identity or 0 if missing
     virtual SimpleIdentity getIdentity(const std::string &name) const;
     /// Interpret an int as a boolean
@@ -98,6 +99,7 @@ public:
 
     /// Set field as int
     void setInt(const std::string &name,int val);
+    void setInt64(const std::string &name,int64_t val);
     /// Set field as 64 bit unique value
     void setIdentifiable(const std::string &name,SimpleIdentity val);
     /// Set field as double
@@ -136,6 +138,7 @@ public:
         virtual DictionaryType type() = 0;
         virtual ValueRef copy() = 0;
         virtual int asInt() = 0;
+        virtual int64_t asInt64() = 0;
         virtual SimpleIdentity asIdentity() = 0;
         virtual void asString(std::string &retStr) = 0;
         virtual double asDouble() = 0;
@@ -152,6 +155,7 @@ public:
         virtual DictionaryType type() { return DictTypeString; }
         virtual ValueRef copy() { return ValueRef(new StringValue(val)); }
         virtual int asInt();
+        virtual int64_t asInt64();
         virtual SimpleIdentity asIdentity();
         virtual void asString(std::string &retStr) { retStr = val; }
         virtual double asDouble();
@@ -168,11 +172,29 @@ public:
         virtual DictionaryType type() { return DictTypeInt; }
         virtual ValueRef copy() { return ValueRef(new IntValue(val)); }
         virtual int asInt() { return val; }
+        virtual int64_t asInt64() { return (int64_t)val; }
         virtual SimpleIdentity asIdentity() { return val; }
         virtual void asString(std::string &retStr);
         virtual double asDouble() { return (double)val; }
 
         int val;
+    };
+
+    class Int64Value : public Value
+    {
+    public:
+        Int64Value() : val(0) { }
+        Int64Value(int64_t inVal) : val(inVal) { }
+
+        virtual DictionaryType type() { return DictTypeInt64; }
+        virtual ValueRef copy() { return ValueRef(new Int64Value(val)); }
+        virtual int asInt() { return (int)val; }
+        virtual int64_t asInt64() { return val; }
+        virtual SimpleIdentity asIdentity() { return (SimpleIdentity)val; }
+        virtual void asString(std::string &retStr);
+        virtual double asDouble() { return (double)val; }
+
+        int64_t val;
     };
 
     class DoubleValue : public Value
@@ -184,6 +206,7 @@ public:
         virtual DictionaryType type() { return DictTypeDouble; }
         virtual ValueRef copy() { return ValueRef(new DoubleValue(val)); }
         virtual int asInt() { return (int)val; }
+        virtual int64_t asInt64() { return (int64_t)val; }
         virtual SimpleIdentity asIdentity() { return EmptyIdentity; }
         virtual void asString(std::string &retStr);
         virtual double asDouble() { return val; }
@@ -200,6 +223,7 @@ public:
         virtual DictionaryType type() { return DictTypeIdentity; }
         virtual ValueRef copy() { return ValueRef(new IdentityValue(val)); }
         virtual int asInt() { return (int)val; }
+        virtual int64_t asInt64() { return (int64_t)val; }
         virtual SimpleIdentity asIdentity() { return val; }
         virtual void asString(std::string &retStr);
         virtual double asDouble() { return (double)val; }
@@ -216,6 +240,7 @@ public:
         virtual DictionaryType type() { return DictTypeObject; }
         virtual ValueRef copy() { return ValueRef(new ObjectValue(val)); }
         virtual int asInt() { return 0; }
+        virtual int64_t asInt64() { return 0; }
         virtual void asString(std::string &retStr) { }
         virtual SimpleIdentity asIdentity() { return EmptyIdentity; }
         virtual double asDouble() { return 0.0; }
@@ -233,6 +258,7 @@ public:
         virtual DictionaryType type() { return DictTypeDictionary; }
         virtual ValueRef copy() { return ValueRef(new DictionaryValue(val)); }
         virtual int asInt() { return 0; }
+        virtual int64_t asInt64() { return 0; }
         virtual void asString(std::string &retStr) { }
         virtual SimpleIdentity asIdentity() { return EmptyIdentity; }
         virtual double asDouble() { return 0.0; }
@@ -254,6 +280,7 @@ public:
         virtual DictionaryType type() { return DictTypeArray; }
         virtual ValueRef copy() { return ValueRef(new ArrayValue(val)); }
         virtual int asInt() { return 0; }
+        virtual int64_t asInt64() { return 0; }
         virtual void asString(std::string &retStr) { }
         virtual SimpleIdentity asIdentity() { return EmptyIdentity; }
         virtual double asDouble() { return 0.0; }
@@ -279,6 +306,8 @@ public:
     virtual DictionaryType getType() const;
     /// Return an int, using the default if it's missing
     virtual int getInt() const;
+    /// Return an int64, using the default if it's missing
+    virtual int64_t getInt64() const;
     /// Return a 64 bit unique identity or 0 if missing
     virtual SimpleIdentity getIdentity() const;
     /// Interpret an int as a boolean

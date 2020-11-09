@@ -182,7 +182,7 @@ using namespace WhirlyGlobe;
                 CGPoint touch0 = [pinch locationOfTouch:0 inView:wrapView];
                 float dx = touch0.x-center.x,dy=touch0.y-center.y;
                 startRot = atan2(dy, dx);
-                Point3d hit;
+                Point3d hit = {0,0,0};  // ?
                 Point3d interPt;
                 double interDist;
                 if (intManager->findIntersection(sceneRender, globeView.get(), frameSizeScaled, Point2f(startPoint.x,startPoint.y), interPt, interDist))

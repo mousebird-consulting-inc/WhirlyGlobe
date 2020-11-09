@@ -25,8 +25,8 @@
 
 - (void) insertMegaMarkers: (MaplyBaseViewController*) theView
 {
-	int numMegaMarkerImages = 1500;
-	int numMegaMarkers = 1000;
+	const int numMegaMarkerImages = 1500;
+	const int numMegaMarkers = 1000;
 
 	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
 	^{

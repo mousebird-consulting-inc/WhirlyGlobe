@@ -127,7 +127,7 @@ bool MaplyVectorFunctionStops::parse(DictionaryRef entry,MapboxVectorStyleSetImp
             
             MaplyVectorFunctionStop fStop;
             fStop.zoom = stopEntries[0]->getDouble();
-            if (stopEntries[1]->getType() == DictTypeDouble) {
+            if (stopEntries[1]->getType() == DictTypeDouble || stopEntries[1]->getType() == DictTypeInt) {
                 fStop.val = stopEntries[1]->getDouble();
             } else {
                 switch (stopEntries[1]->getType())
@@ -160,7 +160,8 @@ bool MaplyVectorFunctionStops::parse(DictionaryRef entry,MapboxVectorStyleSetImp
 
 double MaplyVectorFunctionStops::valueForZoom(double zoom)
 {
-    MaplyVectorFunctionStop *a = &stops[0],*b = NULL;
+    const MaplyVectorFunctionStop *a = &stops[0];
+    const MaplyVectorFunctionStop *b = nullptr;
     if (zoom <= a->zoom)
         return a->val;
     for (int which = 1;which < stops.size(); which++)
@@ -180,12 +181,13 @@ double MaplyVectorFunctionStops::valueForZoom(double zoom)
         a = b;
     }
 
-    return b->val;
+    return b ? b->val : 0;
 }
 
 RGBAColorRef MaplyVectorFunctionStops::colorForZoom(double zoom)
 {
-    MaplyVectorFunctionStop *a = &stops[0],*b = NULL;
+    const MaplyVectorFunctionStop *a = &stops[0];
+    const MaplyVectorFunctionStop *b = nullptr;
     if (zoom <= a->zoom)
         return a->color;
     for (int which = 1;which < stops.size(); which++)
@@ -211,12 +213,13 @@ RGBAColorRef MaplyVectorFunctionStops::colorForZoom(double zoom)
         a = b;
     }
 
-    return b->color;
+    return b ? b->color : RGBAColorRef();
 }
 
 MapboxRegexField MaplyVectorFunctionStops::textForZoom(double zoom)
 {
-    MaplyVectorFunctionStop *a = &stops[0],*b = NULL;
+    const MaplyVectorFunctionStop *a = &stops[0];
+    const MaplyVectorFunctionStop *b = nullptr;
     if (zoom <= a->zoom)
         return a->textField;
     for (int which = 1;which < stops.size(); which++)
@@ -227,7 +230,7 @@ MapboxRegexField MaplyVectorFunctionStops::textForZoom(double zoom)
         a = b;
     }
 
-    return b->textField;
+    return b ? b->textField : MapboxRegexField();
 }
 
 double MaplyVectorFunctionStops::minValue()
@@ -264,15 +267,12 @@ MapboxTransDouble::MapboxTransDouble(MaplyVectorFunctionStopsRef inStops)
 
 double MapboxTransDouble::valForZoom(double zoom)
 {
-    if (stops) {
-        return stops->valueForZoom(zoom);
-    } else
-        return val;
+    return stops ? stops->valueForZoom(zoom) : val;
 }
 
 bool MapboxTransDouble::isExpression()
 {
-    return stops.get() != NULL;
+    return stops.get() != nullptr;
 }
 
 FloatExpressionInfoRef MapboxTransDouble::expression()
@@ -718,7 +718,7 @@ MapboxTransDoubleRef MapboxVectorStyleSetImpl::transDouble(DictionaryEntryRef th
         } else {
             wkLogLevel(Warn, "Expecting key word 'stops' in entry %s",name.c_str());
         }
-    } else if (theEntry->getType() == DictTypeDouble) {
+    } else if (theEntry->getType() == DictTypeDouble || theEntry->getType() == DictTypeInt) {
         return std::make_shared<MapboxTransDouble>(theEntry->getDouble());
     } else {
         wkLogLevel(Warn,"Unexpected type found in entry %s. Was expecting a double.",name.c_str());
@@ -878,6 +878,17 @@ void MapboxVectorStyleSetImpl::setZoomSlot(int inZoomSlot)
     zoomSlot = inZoomSlot;
 }
 
+VectorStyleImplRef MapboxVectorStyleSetImpl::backgroundStyle(PlatformThreadInfo *inst) const
+{
+    const auto it = layersByName.find("background");
+    if (it != layersByName.end()) {
+        if (auto backLayer = std::dynamic_pointer_cast<MapboxVectorLayerBackground>(it->second)) {
+            return backLayer;
+        }
+    }
+    return VectorStyleImplRef();
+}
+
 RGBAColorRef MapboxVectorStyleSetImpl::backgroundColor(PlatformThreadInfo *inst,double zoom)
 {
     auto it = layersByName.find("background");
@@ -893,17 +904,20 @@ RGBAColorRef MapboxVectorStyleSetImpl::backgroundColor(PlatformThreadInfo *inst,
 
 
 std::vector<VectorStyleImplRef> MapboxVectorStyleSetImpl::stylesForFeature(PlatformThreadInfo *inst,
-                                                                           DictionaryRef attrs,
-                                                         const QuadTreeIdentifier &tileID,
-                                                         const std::string &layerName)
+                                                                           const Dictionary &attrs,
+                                                                           const QuadTreeIdentifier &tileID,
+                                                                           const std::string &layerName)
 {
     std::vector<VectorStyleImplRef> styles;
     
-    auto it = layersBySource.find(layerName);
+    const auto it = layersBySource.find(layerName);
     if (it != layersBySource.end()) {
-        for (auto layer : it->second)
-            if (!layer->filter || layer->filter->testFeature(attrs, tileID))
+        for (const auto &layer : it->second) {
+            if (!layer->filter || layer->filter->testFeature(attrs, tileID)) {
+                styles.reserve(it->second.size());
                 styles.push_back(layer);
+            }
+        }
     }
     
     return styles;
@@ -914,29 +928,21 @@ bool MapboxVectorStyleSetImpl::layerShouldDisplay(PlatformThreadInfo *inst,
                                                   const std::string &layerName,
                                                   const QuadTreeNew::Node &tileID)
 {
-    auto it = layersBySource.find(layerName);
+    const auto it = layersBySource.find(layerName);
     return it != layersBySource.end();
 }
 
 /// Return the style associated with the given UUID.
 VectorStyleImplRef MapboxVectorStyleSetImpl::styleForUUID(PlatformThreadInfo *inst,long long uuid)
 {
-    auto it = layersByUUID.find(uuid);
-    if (it == layersByUUID.end())
-        return NULL;
-    
-    return it->second;
+    const auto it = layersByUUID.find(uuid);
+    return (it == layersByUUID.end()) ? nullptr : it->second;
 }
 
 // Return a list of all the styles in no particular order.  Needed for categories and indexing
 std::vector<VectorStyleImplRef> MapboxVectorStyleSetImpl::allStyles(PlatformThreadInfo *inst)
 {
-    std::vector<VectorStyleImplRef> styles;
-    
-    for (auto layer : layers)
-        styles.push_back(layer);
-    
-    return styles;
+    return std::vector<VectorStyleImplRef>(layers.begin(), layers.end());
 }
 
 void MapboxVectorStyleSetImpl::addSprites(MapboxVectorStyleSpritesRef newSprites)

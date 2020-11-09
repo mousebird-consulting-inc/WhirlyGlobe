@@ -71,7 +71,7 @@ public:
     NSObject *getSelectObject(SimpleIdentity selID);
 
     /// Need to remove select IDs before we let the superclass clean up
-    virtual void removeComponentObject(PlatformThreadInfo *threadInfo,SimpleIdentity compID,ChangeSet &changes);
+    virtual void removeComponentObjects(PlatformThreadInfo *threadInfo,const SimpleIDSet &compIDs,ChangeSet &changes) override;
     
     /// Clear out anything we're holding
     void clear();
@@ -80,7 +80,7 @@ public:
     void dumpStats();
     
 protected:
-    virtual ComponentObjectRef makeComponentObject();
+    virtual ComponentObjectRef makeComponentObject() override;
     
     /// Remove the given selectable object
     void removeSelectObjects(SimpleIDSet selID);

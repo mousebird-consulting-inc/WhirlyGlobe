@@ -50,6 +50,10 @@ public:
 
     /// No offset matrix (at the moment)
     const Eigen::Matrix4d *getMatrix() const;
+
+    /// Draw order
+    int64_t getDrawOrder() const;
+    void setDrawOrder(int64_t newOrder);
     
     /// Draw priority for ordering
     unsigned int getDrawPriority() const;
@@ -127,6 +131,7 @@ protected:
     int vertexSize;
     SimpleIdentity calculateProgramId;
     SimpleIdentity renderProgramId;
+    int64_t drawOrder;
     int drawPriority;
     float pointSize;
     TimeInterval lifetime;

@@ -264,7 +264,10 @@ public:
     
     /// Set the zoom slot if we've got continuous zoom going on
     virtual void setZoomSlot(int zoomSlot) override;
-    
+
+    /// Get the background style, if any
+    VectorStyleImplRef backgroundStyle(PlatformThreadInfo *inst) const override;
+
     /// Fish out the background color for a given zoom level
     RGBAColorRef backgroundColor(PlatformThreadInfo *inst,double zoom) override;
     
@@ -272,7 +275,7 @@ public:
     
     /// Return the styles that apply to the given feature (attributes).
     virtual std::vector<VectorStyleImplRef> stylesForFeature(PlatformThreadInfo *inst,
-                                                             DictionaryRef attrs,
+                                                             const Dictionary &attrs,
                                                              const QuadTreeIdentifier &tileID,
                                                              const std::string &layerName) override;
     

@@ -121,5 +121,6 @@ public:
     // Textures currently in use
     std::vector< TextureEntryMTL > activeTextures;
 };
+typedef std::shared_ptr<BasicDrawableMTL> BasicDrawableMTLRef;
     
 }

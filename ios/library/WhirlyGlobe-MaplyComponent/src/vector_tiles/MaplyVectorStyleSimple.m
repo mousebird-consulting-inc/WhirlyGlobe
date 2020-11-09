@@ -36,7 +36,7 @@
                                              inLayer:(NSString *__nonnull)layer
                                                viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC
 {
-    MaplyVectorStyleSimple *style;
+    MaplyVectorStyleSimple *style = nil;
     
     // Look for existing layer
     @synchronized (self) {
@@ -44,9 +44,9 @@
         if (style)
             return @[style];
     }
-    int layer_order = (int)[attributes[@"layer_order"] integerValue];
+    const int layer_order = (int)[attributes[@"layer_order"] integerValue];
     
-    int geomType = (int)[attributes[@"geometry_type"] integerValue];
+    const int geomType = (int)[attributes[@"geometry_type"] integerValue];
     switch (geomType)
     {
         case GeomTypePoint:
@@ -66,11 +66,13 @@
     }
     
     @synchronized (self) {
-        stylesByUUID[@(style.uuid)] = style;
-        stylesByLayerName[layer] = style;
+        if (style) {
+            stylesByUUID[@(style.uuid)] = style;
+            stylesByLayerName[layer] = style;
+        }
     }
-    
-    return @[style];
+
+    return style ? @[style] : @[];
 }
 
 // We'll display all layers
@@ -82,6 +84,11 @@
 - (nullable MaplyVectorTileStyle *)styleForUUID:(long long)uuid viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC
 {
     return stylesByUUID[@(uuid)];
+}
+
+- (nullable NSObject<MaplyVectorStyle> *)backgroundStyleViewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+{
+    return nil;
 }
 
 - (NSArray * _Nonnull)allStyles

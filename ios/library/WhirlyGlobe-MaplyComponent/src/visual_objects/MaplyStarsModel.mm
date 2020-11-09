@@ -131,7 +131,7 @@ typedef struct
     // TODO: Switch to Metal
 //    MaplyShader *shader = [[MaplyShader alloc] initWithName:@"Star Shader" vertex:[NSString stringWithFormat:@"%s",vertexShaderTriPoint] fragment:[NSString stringWithFormat:@"%s",(image ? fragmentShaderTexTriPoint : fragmentShaderTriPoint)] viewC:viewC];
     MaplyShader *shader = nil;
-    [viewC addShaderProgram:shader];
+    //[viewC addShaderProgram:shader];
 //    [shader setUniformFloatNamed:@"u_radius" val:6.0];
     
     NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:inDesc];

@@ -41,8 +41,8 @@ target_include_directories(
 
 include("${LOCALLIBS_DIR}/proj-4/src/wgmaplyCMakeLists.txt")
 include("${LOCALLIBS_DIR}/aaplus/wgmaplyCMakeLists.txt")
-include("${LOCALLIBS_DIR}/protobuf/wgmaplyCMakeLists.txt")
 include("${LOCALLIBS_DIR}/clipper/wgmaplyCMakeLists.txt")
+include("${LOCALLIBS_DIR}/nanopb/wgmaplyCMakeLists.txt")
 include("${LOCALLIBS_DIR}/shapefile/wgmaplyCMakeLists.txt")
 include("${LOCALLIBS_DIR}/glues/wgmaplyCMakeLists.txt")
 include("${LOCALLIBS_DIR}/libjson/wgmaplyCMakeLists.txt")

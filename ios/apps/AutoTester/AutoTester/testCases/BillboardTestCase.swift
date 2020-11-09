@@ -31,7 +31,7 @@ class BillboardTestCase : MaplyTestCase {
             }
             let centroid = vecObj.centroid()
             bboard.center = MaplyCoordinate3dMake(centroid.x, centroid.y, 0.0)
-            bboard.userObject = vecObj.attributes["title"]
+            bboard.userObject = vecObj.attributes?["title"]
             billboards.append(bboard)
         }
         theViewC.addBillboards(billboards, desc: [kMaplyBillboardOrient: kMaplyBillboardOrientEye], mode: .any)

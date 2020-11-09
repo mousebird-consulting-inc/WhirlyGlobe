@@ -65,8 +65,11 @@ public:
     
     /// Visibility based on zoom level
     void setZoomInfo(int zoomSlot,double minZoomVis,double maxZoomVis);
-        
-    /// Draw priority used for sorting
+
+    /// Draw order used for sorting
+    virtual void setDrawOrder(int64_t newOrder);
+    
+    /// Draw priority used for sorting within drawOrder
     virtual void setDrawPriority(unsigned int newPriority);
     
     /// Override color for the instanced drawable
@@ -124,7 +127,7 @@ public:
     
     /// Constructs the remaining pieces of the drawable and returns it
     /// Caller is responsible for deletion
-    virtual BasicDrawableInstance *getDrawable() = 0;
+    virtual BasicDrawableInstanceRef getDrawable() = 0;
     
     /// Return just the ID of the drawable being created
     /// This doesn't flush out the drawable in any way
@@ -135,7 +138,7 @@ protected:
     void Init();
     
     Scene *scene;
-    BasicDrawableInstance *drawInst;
+    BasicDrawableInstanceRef drawInst;
 };
     
 typedef std::shared_ptr<BasicDrawableInstanceBuilder> BasicDrawableInstanceBuilderRef;

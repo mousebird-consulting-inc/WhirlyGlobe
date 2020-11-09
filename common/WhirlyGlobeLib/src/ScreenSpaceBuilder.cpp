@@ -101,6 +101,7 @@ ScreenSpaceBuilder::DrawableWrap::DrawableWrap(SceneRenderer *render,const Drawa
     for (unsigned int ii=0;ii<state.texIDs.size() && ii<2;ii++)
         locDraw->setTexId(ii, state.texIDs[ii]);
     locDraw->setProgram(state.progID);
+    locDraw->setDrawOrder(state.drawOrder);
     locDraw->setDrawPriority(state.drawPriority);
     locDraw->setFade(state.fadeDown, state.fadeUp);
     locDraw->setVisibleRange(state.minVis, state.maxVis);
@@ -206,6 +207,11 @@ void ScreenSpaceBuilder::setFade(TimeInterval fadeUp,TimeInterval fadeDown)
 {
     curState.fadeUp = fadeUp;
     curState.fadeDown = fadeDown;
+}
+
+void ScreenSpaceBuilder::setDrawOrder(int64_t drawOrder)
+{
+    curState.drawOrder = drawOrder;
 }
 
 void ScreenSpaceBuilder::setDrawPriority(int drawPriority)
@@ -390,7 +396,7 @@ void ScreenSpaceBuilder::addScreenObject(const ScreenSpaceObject &ssObj)
     }
 }
     
-void ScreenSpaceBuilder::buildDrawables(std::vector<BasicDrawable *> &draws)
+void ScreenSpaceBuilder::buildDrawables(std::vector<BasicDrawableRef> &draws)
 {
     for (auto it : fullDrawables)
     {
@@ -407,11 +413,11 @@ void ScreenSpaceBuilder::buildDrawables(std::vector<BasicDrawable *> &draws)
     
 void ScreenSpaceBuilder::flushChanges(ChangeSet &changes,SimpleIDSet &drawIDs)
 {
-    std::vector<BasicDrawable *> draws;
+    std::vector<BasicDrawableRef> draws;
     buildDrawables(draws);
     for (unsigned int ii=0;ii<draws.size();ii++)
     {
-        BasicDrawable *draw = draws[ii];
+        BasicDrawableRef draw = draws[ii];
         drawIDs.insert(draw->getId());
         changes.push_back(new AddDrawableReq(draw));
     }
@@ -420,6 +426,7 @@ void ScreenSpaceBuilder::flushChanges(ChangeSet &changes,SimpleIDSet &drawIDs)
     
 ScreenSpaceObject::ScreenSpaceObject::ConvexGeometry::ConvexGeometry()
     : progID(EmptyIdentity), color(255,255,255,255), drawPriority(-1)
+    , drawOrder(BaseInfo::DrawOrderTiles)
 {
 }
     
@@ -509,6 +516,11 @@ void ScreenSpaceObject::setScaleExp(FloatExpressionInfoRef scaleExp)
     state.scaleExp = scaleExp;
 }
 
+void ScreenSpaceObject::setDrawOrder(int64_t drawOrder)
+{
+    state.drawOrder = drawOrder;
+}
+
 void ScreenSpaceObject::setDrawPriority(int drawPriority)
 {
     state.drawPriority = drawPriority;
@@ -561,8 +573,13 @@ SimpleIdentity ScreenSpaceObject::getTypicalProgramID()
     
     return state.progID;
 }
-    
-int ScreenSpaceObject::getDrawPriority()
+
+int64_t ScreenSpaceObject::getDrawOrder() const
+{
+    return state.drawPriority;
+}
+
+int ScreenSpaceObject::getDrawPriority() const
 {
     return state.drawPriority;
 }

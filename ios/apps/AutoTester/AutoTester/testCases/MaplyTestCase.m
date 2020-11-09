@@ -149,7 +149,7 @@
     
     NSString *title = nil,*subTitle = nil;
     CGPoint offset = CGPointZero;
-    MaplyCoordinate loc = MaplyCoordinateMakeWithDegrees(0,0);
+    MaplyCoordinate loc;
     if (isMultiple)
     {
         NSArray *selArr = selectedObjs;

@@ -544,17 +544,20 @@ VectorStyleDelegateWrapper::VectorStyleDelegateWrapper(NSObject<MaplyRenderContr
 
 std::vector<VectorStyleImplRef>
 VectorStyleDelegateWrapper::stylesForFeature(PlatformThreadInfo *inst,
-                                             DictionaryRef attrs,
-                                              const QuadTreeIdentifier &tileID,
-                                              const std::string &layerName)
+                                             const Dictionary &attrs,
+                                             const QuadTreeIdentifier &tileID,
+                                             const std::string &layerName)
 {
     NSDictionary *dict = nil;
-    iosDictionaryRef dictRef = std::dynamic_pointer_cast<iosDictionary>(attrs);
-    if (dictRef) {
+    if (const auto dictRef = dynamic_cast<const iosDictionary*>(&attrs)) {
         dict = dictRef->dict;
-    } else {
-        iosMutableDictionaryRef dictRef = std::dynamic_pointer_cast<iosMutableDictionary>(attrs);
+    } else if (const auto dictRef = dynamic_cast<const iosMutableDictionary*>(&attrs)) {
         dict = dictRef->dict;
+    } else if (const auto dictRef = dynamic_cast<const MutableDictionaryC*>(&attrs)) {
+        dict = [NSMutableDictionary fromDictionaryCPointer:dictRef];
+    } else if (dict) {
+        wkLogLevel(Warn, "unsupported dictionary implementation");
+        return std::vector<VectorStyleImplRef>();
     }
     
     MaplyTileID theTileID;
@@ -563,9 +566,9 @@ VectorStyleDelegateWrapper::stylesForFeature(PlatformThreadInfo *inst,
     NSArray *styles = [delegate stylesForFeatureWithAttributes:dict onTile:theTileID inLayer:layerStr viewC:viewC];
     
     std::vector<VectorStyleImplRef> retStyles;
+    retStyles.reserve([styles count]);
     for (NSObject<MaplyVectorStyle> *style : styles) {
-        VectorStyleWrapperRef wrap(new VectorStyleWrapper(viewC,style));
-        retStyles.push_back(wrap);
+        retStyles.push_back(std::make_shared<VectorStyleWrapper>(viewC,style));
     }
     
     return retStyles;
@@ -598,6 +601,12 @@ std::vector<VectorStyleImplRef> VectorStyleDelegateWrapper::allStyles(PlatformTh
     }
     
     return retStyles;
+}
+
+VectorStyleImplRef VectorStyleDelegateWrapper::backgroundStyle(PlatformThreadInfo *inst) const
+{
+    NSObject<MaplyVectorStyle> *style = [delegate backgroundStyleViewC:viewC];
+    return style ? std::make_shared<VectorStyleWrapper>(viewC,style) : VectorStyleImplRef();
 }
 
 RGBAColorRef VectorStyleDelegateWrapper::backgroundColor(PlatformThreadInfo *inst,double zoom)

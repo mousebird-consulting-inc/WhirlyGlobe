@@ -345,7 +345,7 @@ public:
         [[UIColor blackColor] setFill];
         CGPoint theCenter;
         CGFloat scale = backImage ? renderSize.width / backImage.size.width : 1.0;
-        CGFloat scaleY = backImage ? renderSize.height / backImage.size.height : 1.0;
+        //CGFloat scaleY = backImage ? renderSize.height / backImage.size.height : 1.0;
         theCenter.x = center.x > -1000.0 ? center.x * scale : renderSize.width/2.0;
         theCenter.y = center.y > -1000.0 && backImage ? center.y/backImage.size.height * renderSize.height : renderSize.height/2.0;
         CGContextDrawImage(ctx, CGRectMake(theCenter.x - scale * mainImage.size.width/2.0, (renderSize.height-theCenter.y) - scale * mainImage.size.height/2.0,

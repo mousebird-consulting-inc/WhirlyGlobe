@@ -53,7 +53,7 @@ bool MapboxVectorLinePaint::parse(PlatformThreadInfo *inst,MapboxVectorStyleSetI
     if (styleEntry && styleEntry->getType("line-dasharray") == DictTypeArray) {
         auto vecArray = styleEntry->getArray("line-dasharray");
         for (auto entry : vecArray) {
-            if (entry->getType() == DictTypeDouble) {
+            if (entry->getType() == DictTypeDouble || entry->getType() == DictTypeInt) {
                 lineDashArray.push_back(entry->getDouble());
             } else {
                 wkLogLevel(Warn,"Encountered non-double type in MapboxVectorLinePaint dashArray");
@@ -122,7 +122,7 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
 {
     if (!visible)
         return;
-    
+
     ComponentObjectRef compObj = styleSet->makeComponentObject(inst);
 
     // Turn into linears (if not already) and then clip to the bounds
@@ -193,16 +193,18 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
             vecInfo.widthExp->scaleBy(lineScale);
         vecInfo.colorExp = paint.color->expression();
         vecInfo.opacityExp = paint.opacity->expression();
-        vecInfo.drawPriority = drawPriority + tileInfo->ident.level * std::max(0, styleSet->tileStyleSettings->drawPriorityPerLevel);
+        vecInfo.drawPriority = drawPriority + tileInfo->ident.level * std::max(0, styleSet->tileStyleSettings->drawPriorityPerLevel)+2;
+        // TODO: Switch to stencils
+//        vecInfo.drawOrder = tileInfo->tileNumber();
 
         // Gather all the linear features
-        ShapeSet shapes;
+        std::vector<VectorShapeRef> shapes;
         for (auto vecObj : vecObjs) {
             if (vecObj->getVectorType() == VectorLinearType)
-                shapes.insert(vecObj->shapes.begin(),vecObj->shapes.end());
+                std::copy(vecObj->shapes.begin(),vecObj->shapes.end(),std::back_inserter(shapes));
         }
         
-        SimpleIdentity wideVecID = styleSet->wideVecManage->addVectors(&shapes, vecInfo, tileInfo->changes);
+        const auto wideVecID = styleSet->wideVecManage->addVectors(shapes, vecInfo, tileInfo->changes);
         if (wideVecID != EmptyIdentity)
             compObj->wideVectorIDs.insert(wideVecID);
     }

@@ -144,6 +144,12 @@ std::vector<VectorStyleImplRef> VectorStyleSetWrapper_Android::allStyles(Platfor
     return retStyles;
 }
 
+VectorStyleImplRef VectorStyleSetWrapper_Android::backgroundStyle(PlatformThreadInfo *inst) const
+{
+    // TODO
+    return VectorStyleImplRef();
+}
+
 RGBAColorRef VectorStyleSetWrapper_Android::backgroundColor(PlatformThreadInfo *inst,double zoom)
 {
     return RGBAColorRef(new RGBAColor(0,0,0,0));

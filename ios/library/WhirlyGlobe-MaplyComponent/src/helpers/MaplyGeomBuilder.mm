@@ -433,10 +433,12 @@ using namespace WhirlyKit;
     }
         
     // And the strings
-    for (auto &string : modelBuilder->strings)
+    for (const auto &string : modelBuilder->strings)
     {
         auto theString = string;
-        theString.mat = matrix.mat * theString.mat;
+        if (matrix) {
+            theString.mat = matrix.mat * theString.mat;
+        }
         strings.push_back(theString);
     }
 }
@@ -487,14 +489,14 @@ using namespace WhirlyKit;
 - (MaplyCoordinate3dD)getSize
 {
     MaplyCoordinate3dD ll,ur;
-    [self getSizeLL:&ll ur:&ur];
-    
-    MaplyCoordinate3dD size;
-    size.x = ur.x - ll.x;
-    size.y = ur.y - ll.y;
-    size.z = ur.z - ll.z;
-    
-    return size;
+    if ([self getSizeLL:&ll ur:&ur]) {
+        MaplyCoordinate3dD size;
+        size.x = ur.x - ll.x;
+        size.y = ur.y - ll.y;
+        size.z = ur.z - ll.z;
+        return size;
+    }
+    return {0,0,0};
 }
 
 - (MaplyGeomModel *)makeGeomModel:(MaplyThreadMode)threadMode

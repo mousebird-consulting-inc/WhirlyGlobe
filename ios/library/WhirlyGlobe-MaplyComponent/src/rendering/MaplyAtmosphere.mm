@@ -27,6 +27,7 @@
 using namespace WhirlyKit;
 using namespace Eigen;
 
+#if 0
 static const char *vertexShaderAtmosTri = R"(
 precision highp float;
 
@@ -112,7 +113,6 @@ void main()
 }
 )";
 
-
 static const char *fragmentShaderAtmosTri = R"(
 precision highp float;
 
@@ -136,9 +136,11 @@ void main()
   gl_FragColor = vec4(color,color.b);
 }
 )";
+#endif
 
 #define kAtmosphereShader @"Atmosphere Shader"
 
+#if 0
 static const char *vertexShaderGroundTri = R"(
 precision highp float;
 
@@ -251,6 +253,7 @@ void main()
   gl_FragColor = vec4(v_color, 1.0) + vec4(dayColor + nightColor, 1.0);
 }
 )";
+#endif
 
 #define kAtmosphereGroundShader @"Atmosphere Ground Shader"
 
@@ -382,18 +385,18 @@ static StringIdentity fExposureNameID;
     if (_lockToCamera)
         sunDir3d = cameraPos;
     sunDir3d.normalize();
-    double cameraHeight = cameraPos.norm();
-    float scale = 1.0f / (atm.outerRadius - 1.f);
-    float scaleDepth = 0.25;
+    //double cameraHeight = cameraPos.norm();
+    //float scale = 1.0f / (atm.outerRadius - 1.f);
+    //float scaleDepth = 0.25;
     float wavelength[3];
     [atm getWavelength:wavelength];
     for (unsigned int ii=0;ii<3;ii++)
         wavelength[ii] = (float)(1.0/pow(wavelength[ii],4.0));
     
-    MaplyShader *shaders[2] = {shader,groundShader};
+    //MaplyShader *shaders[2] = {shader,groundShader};
     for (unsigned int ii=0;ii<2;ii++)
     {
-        MaplyShader *thisShader = shaders[ii];
+        //MaplyShader *thisShader = shaders[ii];
         // TODO: Update for Metal
         NSLog(@"MaplyAtmosphere not implemented for Metal.");
     }

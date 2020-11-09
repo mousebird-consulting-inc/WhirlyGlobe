@@ -447,6 +447,11 @@
     return self.symbolizers[uuid];
 }
 
+- (nullable NSObject<MaplyVectorStyle> *)backgroundStyleViewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+{
+    return nil;
+}
+
 - (NSArray * __nonnull)allStyles
 {
     return _symbolizers;

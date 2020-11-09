@@ -53,7 +53,10 @@ using namespace WhirlyKit;
     style = MapboxVectorStyleSetImpl_iOSRef(styleSetImpl);
     styleSetImpl->viewC = viewC;
 
-    iosDictionaryRef dictWrap(new iosDictionary(styleDict));
+//    iosDictionaryRef dictWrap(new iosDictionary(styleDict));
+
+    // Copy from NSDictionary to our internal version
+    MutableDictionaryCRef dictWrap = [styleDict toDictionaryC];
     if (!style->parse(NULL,dictWrap))
         return nil;
     
@@ -406,6 +409,11 @@ using namespace WhirlyKit;
 }
 
 - (nullable NSObject<MaplyVectorStyle> *)styleForUUID:(long long)uiid viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC
+{
+    return nil;
+}
+
+- (nullable NSObject<MaplyVectorStyle> *)backgroundStyleViewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     return nil;
 }

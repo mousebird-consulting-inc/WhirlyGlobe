@@ -115,7 +115,7 @@ NSData *FontTextureManager_iOS::renderGlyph(CGGlyph glyph,FontManager_iOSRef fm,
     } else
         textureOffset = Point2f(1, 1);
     
-        CGRect boundRect = CTFontGetBoundingRectsForGlyphs(fm->font,kCTFontDefaultOrientation,&glyph,NULL,1);
+        CGRect boundRect = CTFontGetBoundingRectsForGlyphs(fm->font,kCTFontOrientationDefault,&glyph,NULL,1);
         size.x() = ceilf(boundRect.size.width)+2*textureOffset.x();  size.y() = ceilf(boundRect.size.height)+2*textureOffset.y();
         width = size.x();  height = size.y();
     
@@ -211,9 +211,9 @@ WhirlyKit::DrawableString *FontTextureManager_iOS::addString(PlatformThreadInfo 
     
     // Work through the runs (which share attributes)
     CFArrayRef runs = CTLineGetGlyphRuns(line);
-    CGFloat lineHeight = 0.0, lineWidth = 0.0, ascent = 0.0, descent = 0.0;
-    lineWidth = CTLineGetTypographicBounds(line,&ascent,&descent,NULL);
-    lineHeight = ascent+descent;
+    CGFloat /*lineHeight = 0.0, lineWidth = 0.0,*/ ascent = 0.0, descent = 0.0;
+    /*lineWidth = */CTLineGetTypographicBounds(line,&ascent,&descent,NULL);
+    //lineHeight = ascent+descent;
     
     DrawStringRep *drawStringRep = new DrawStringRep(drawString->getId());
     
@@ -224,13 +224,16 @@ WhirlyKit::DrawableString *FontTextureManager_iOS::addString(PlatformThreadInfo 
         CFIndex num = CTRunGetGlyphCount(run);
         if (num > 0)
         {
-            CGGlyph *glyphs = (CGGlyph *)malloc(sizeof(CGGlyph)*num);
-            CGPoint *offsets = (CGPoint *)malloc(sizeof(CGPoint)*num);
+            //CGGlyph *glyphs = (CGGlyph *)malloc(sizeof(CGGlyph)*num);
+            //CGPoint *offsets = (CGPoint *)malloc(sizeof(CGPoint)*num);
+            // manage memory automatically
+            std::vector<CGGlyph> glyphs(num);
+            std::vector<CGPoint> offsets(num);
             CFRange range;
             range.location = 0;
             range.length = num;
-            CTRunGetGlyphs(run,range,glyphs);
-            CTRunGetPositions(run,range,offsets);
+            CTRunGetGlyphs(run,range,&glyphs[0]);
+            CTRunGetPositions(run,range,&offsets[0]);
             
             // Need the font manager for this run
             NSDictionary *attrs = (__bridge NSDictionary*)CTRunGetAttributes(run);
@@ -290,7 +293,7 @@ WhirlyKit::DrawableString *FontTextureManager_iOS::addString(PlatformThreadInfo 
                     DrawableString::Rect rect;
                     CGPoint &offset = offsets[jj];
                     
-                    float scale = 1.0/BogusFontScale;
+                    const float scale = 1.0/BogusFontScale;
                     
                     // Note: was -1,-1
                     rect.pts[0] = Point2f(glyphInfo->offset.x()*scale-glyphInfo->textureOffset.x()*scale,glyphInfo->offset.y()*scale-glyphInfo->textureOffset.y()*scale)+Point2f(offset.x,offset.y);
@@ -311,9 +314,6 @@ WhirlyKit::DrawableString *FontTextureManager_iOS::addString(PlatformThreadInfo 
             // Keep track of the glyphs we're using
             drawStringRep->addGlyphs(fm->getId(),glyphsUsed);
             fm->addGlyphRefs(glyphsUsed);
-            
-            free(glyphs);
-            free(offsets);
         }
     }
     

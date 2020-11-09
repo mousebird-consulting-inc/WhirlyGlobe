@@ -60,7 +60,7 @@ typedef NS_ENUM(NSInteger, MaplyVectorObjectType) {
     
     The attribution is returned as an NSDictionary and, though you can modify it, you probably shouldn't.
   */
-@property (nonatomic,readonly) NSMutableDictionary *__nonnull attributes;
+@property (nonatomic,readonly) NSMutableDictionary *__nullable attributes;
 
 /** 
     Parse vector data from geoJSON.

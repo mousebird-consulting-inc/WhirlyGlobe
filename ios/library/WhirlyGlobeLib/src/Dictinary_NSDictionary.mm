@@ -22,12 +22,13 @@
 #import "UIColor+Stuff.h"
 #import "Dictionary_NSDictionary.h"
 #import "NSDictionary+Stuff.h"
+#import "UIColor+Stuff.h"
 
 namespace WhirlyKit {
     
 MutableDictionaryRef MutableDictionaryMake()
 {
-    return MutableDictionaryRef(new iosMutableDictionary());
+    return std::make_shared<iosMutableDictionary>();
 }
     
 static NSString *StdStringToString(const std::string &str)
@@ -96,7 +97,7 @@ std::string iosDictionaryEntry::getString() const
 DictionaryRef iosDictionaryEntry::getDict() const
 {
     if ([value isKindOfClass:[NSDictionary class]]) {
-        return DictionaryRef(new iosDictionary(value));
+        return std::make_shared<iosDictionary>(value);
     }
     
     return DictionaryRef();
@@ -107,15 +108,16 @@ std::vector<DictionaryEntryRef> iosDictionaryEntry::getArray() const
     std::vector<DictionaryEntryRef> refs;
     
     if ([value isKindOfClass:[NSArray class]]) {
+        refs.reserve([(NSArray*)value count]);
         for (id val in (NSArray *)value) {
-            refs.push_back(DictionaryEntryRef(new iosDictionaryEntry(val)));
+            refs.push_back(std::make_shared<iosDictionaryEntry>(val));
         }
     }
     
     return refs;
 }
 
-bool iosDictionaryEntry::isEqual(DictionaryEntryRef other) const
+bool iosDictionaryEntry::isEqual(const DictionaryEntryRef &other) const
 {
     if (!other)
         return false;
@@ -193,6 +195,18 @@ int iosDictionary::getInt(const std::string &name,int defVal) const
     return [dict intForKey:theName default:defVal];
 }
 
+/// Return an int64, using the default if it's missing
+int64_t iosDictionary::getInt64(const std::string &name, int64_t defVal) const 
+{
+    NSString *theName = StdStringToString(name);
+    
+    NSObject* obj = [dict valueForKey:theName];
+    if (obj && [obj isKindOfClass:[NSNumber class]]) {
+        return [(NSNumber*)obj longLongValue];
+    }
+    return defVal;
+}
+
 /// Return a 64 bit unique identity or 0 if missing
 SimpleIdentity iosDictionary::getIdentity(const std::string &name) const
 {
@@ -251,7 +265,7 @@ DictionaryRef iosDictionary::getDict(const std::string &name) const
 
     id thing = dict[theName];
     if ([thing isKindOfClass:[NSDictionary class]])
-        return iosDictionaryRef(new iosDictionary((NSDictionary *)thing));
+        return std::make_shared<iosDictionary>((NSDictionary *)thing);
     
     return nil;
 }
@@ -264,18 +278,19 @@ DictionaryEntryRef iosDictionary::getEntry(const std::string &name) const
     if (!value)
         return DictionaryEntryRef();
     
-    return DictionaryEntryRef(new iosDictionaryEntry(value));
+    return std::make_shared<iosDictionaryEntry>(value);
 }
 
 std::vector<DictionaryEntryRef> iosDictionary::getArray(const std::string &name) const
 {
     std::vector<DictionaryEntryRef> refs;
     
-    NSString *theName = StdStringToString(name);
-    id value = dict[theName];
+    const NSString *theName = StdStringToString(name);
+    const id value = dict[theName];
     if ([value isKindOfClass:[NSArray class]]) {
+        refs.reserve([(NSArray*)value count]);
         for (id val in (NSArray *)value) {
-            refs.push_back(DictionaryEntryRef(new iosDictionaryEntry(val)));
+            refs.push_back(std::make_shared<iosDictionaryEntry>(val));
         }
     }
     
@@ -285,6 +300,7 @@ std::vector<DictionaryEntryRef> iosDictionary::getArray(const std::string &name)
 std::vector<std::string> iosDictionary::getKeys() const
 {
     std::vector<std::string> keys;
+    keys.reserve([dict count]);
     for (NSString *key in [dict allKeys]) {
         keys.push_back([key cStringUsingEncoding:NSUTF8StringEncoding]);
     }
@@ -322,9 +338,9 @@ iosMutableDictionary::~iosMutableDictionary()
     dict = nil;
 }
     
-MutableDictionaryRef iosMutableDictionary::copy()
+MutableDictionaryRef iosMutableDictionary::copy() const
 {
-    return iosMutableDictionaryRef(new iosMutableDictionary(dict));
+    return std::make_shared<iosMutableDictionary>(dict);
 }
     
 /// Returns true if the field exists
@@ -355,6 +371,17 @@ int iosMutableDictionary::getInt(const std::string &name,int defVal) const
     NSString *theName = StdStringToString(name);
     
     return [dict intForKey:theName default:defVal];
+}
+
+int64_t iosMutableDictionary::getInt64(const std::string &name,int64_t defVal) const
+{
+    NSString *theName = StdStringToString(name);
+    
+    NSObject* obj = [dict valueForKey:theName];
+    if (obj && [obj isKindOfClass:[NSNumber class]]) {
+        return [(NSNumber*)obj longLongValue];
+    }
+    return defVal;
 }
 
 /// Return a 64 bit unique identity or 0 if missing
@@ -415,19 +442,17 @@ DictionaryRef iosMutableDictionary::getDict(const std::string &name) const
 
     id thing = dict[theName];
     if ([thing isKindOfClass:[NSMutableDictionary class]])
-        return iosMutableDictionaryRef(new iosMutableDictionary((NSMutableDictionary *)thing));
+        return std::make_shared<iosMutableDictionary>((NSMutableDictionary *)thing);
     
-    return nil;
+    return DictionaryRef();
 }
 
 DictionaryEntryRef iosMutableDictionary::getEntry(const std::string &name) const
 {
     NSString *theName = StdStringToString(name);
 
-    id value = dict[theName];
-    if (!value)
-        return DictionaryEntryRef();
-    return DictionaryEntryRef(new iosDictionaryEntry(value));
+    const id value = dict[theName];
+    return value ? std::make_shared<iosDictionaryEntry>(value) : DictionaryEntryRef();
 }
 
 std::vector<DictionaryEntryRef> iosMutableDictionary::getArray(const std::string &name) const
@@ -437,8 +462,9 @@ std::vector<DictionaryEntryRef> iosMutableDictionary::getArray(const std::string
     NSString *theName = StdStringToString(name);
     id value = dict[theName];
     if ([value isKindOfClass:[NSArray class]]) {
+        refs.reserve([(NSArray*)value count]);
         for (id val in (NSArray *)value) {
-            refs.push_back(DictionaryEntryRef(new iosDictionaryEntry(val)));
+            refs.push_back(std::make_shared<iosDictionaryEntry>(val));
         }
     }
     
@@ -448,6 +474,7 @@ std::vector<DictionaryEntryRef> iosMutableDictionary::getArray(const std::string
 std::vector<std::string> iosMutableDictionary::getKeys() const
 {
     std::vector<std::string> keys;
+    keys.reserve([dict count]);
     for (NSString *key in [dict allKeys]) {
         keys.push_back([key cStringUsingEncoding:NSUTF8StringEncoding]);
     }
@@ -505,3 +532,162 @@ void iosMutableDictionary::addEntries(const Dictionary *other)
 }
 
 }
+
+@implementation NSDictionary (DictionaryC)
+
+using namespace WhirlyKit;
+
+- (std::vector<DictionaryEntryRef>)convertArray:(NSArray *)arr
+{
+    std::vector<DictionaryEntryRef> outArr;
+    outArr.reserve([arr count]);
+
+    for (id arrVal in arr) {
+        if ([arrVal isKindOfClass:[NSNumber class]]) {
+            auto outVal = std::make_shared<DictionaryEntryCBasic>([arrVal doubleValue]);
+            outArr.push_back(outVal);
+        } else if ([arrVal isKindOfClass:[NSString class]]) {
+            std::string valStr = [(NSString *)arrVal cStringUsingEncoding:NSUTF8StringEncoding];
+            auto outVal = std::make_shared<DictionaryEntryCString>(valStr);
+            outArr.push_back(outVal);
+        } else if ([arrVal isKindOfClass:[UIColor class]]) {
+            NSString *str = [(UIColor *)arrVal asHexRGBAString];
+            std::string valStr = [str cStringUsingEncoding:NSUTF8StringEncoding];
+            auto outVal = std::make_shared<DictionaryEntryCString>(valStr);
+            outArr.push_back(outVal);
+        } else if ([arrVal isKindOfClass:[NSDictionary class]]) {
+            auto valDict = [(NSDictionary *)arrVal toDictionaryC];
+            if (valDict) {
+                auto outVal = std::make_shared<DictionaryEntryCDict>(valDict);
+                outArr.push_back(outVal);
+            }
+        } else if ([arrVal isKindOfClass:[NSArray class]]) {
+            auto valArray = [self convertArray:arrVal];
+            auto outVal = std::make_shared<DictionaryEntryCArray>(valArray);
+            outArr.push_back(outVal);
+        } else {
+            NSLog(@"Unsupported type found in NSDictionary toDictionaryC for array");
+        }
+    }
+    
+    return outArr;
+}
+
+- (MutableDictionaryCRef) toDictionaryC
+{
+    MutableDictionaryCRef dict = std::make_shared<MutableDictionaryC>();
+    
+    for (NSString *key in [self keyEnumerator]) {
+        id val = [self objectForKey:key];
+        std::string keyStr = [key cStringUsingEncoding:NSUTF8StringEncoding];
+        
+        if ([val isKindOfClass:[NSNumber class]]) {
+            CFNumberType cType = CFNumberGetType((CFNumberRef)val);
+            switch (cType) {
+                case kCFNumberSInt8Type:
+                case kCFNumberSInt16Type:
+                case kCFNumberSInt32Type:
+                case kCFNumberSInt64Type:
+                case kCFNumberShortType:
+                case kCFNumberIntType:
+                case kCFNumberLongType:
+                case kCFNumberLongLongType:
+                    dict->setInt(keyStr, [val intValue]);
+                    break;
+                case kCFNumberFloat32Type:
+                case kCFNumberFloat64Type:
+                case kCFNumberFloatType:
+                case kCFNumberDoubleType:
+                    dict->setDouble(keyStr, [val doubleValue]);
+                    break;
+                case kCFNumberCharType:
+                    // Bool
+                    dict->setInt(keyStr, [val intValue]);
+                    break;
+                default:
+                    NSLog(@"Unsupported type found in NSDictionary toDictionaryC for key %@",key);
+                    break;
+            }
+        } else if ([val isKindOfClass:[NSString class]]) {
+            std::string valStr = [(NSString *)val cStringUsingEncoding:NSUTF8StringEncoding];
+            dict->setString(keyStr, valStr);
+        } else if ([val isKindOfClass:[UIColor class]]) {
+            NSString *str = [(UIColor *)val asHexRGBAString];
+            std::string valStr = [str cStringUsingEncoding:NSUTF8StringEncoding];
+            dict->setString(keyStr,valStr);
+        } else if ([val isKindOfClass:[NSArray class]]) {
+            // Convert the array into dictionary values
+            std::vector<DictionaryEntryRef> outArr = [self convertArray:val];
+            dict->setArray(keyStr, outArr);
+        } else if ([val isKindOfClass:[NSDictionary class]]) {
+            auto valDict = [(NSDictionary *)val toDictionaryC];
+            if (valDict)
+                dict->setDict(keyStr, valDict);
+        } else {
+            NSLog(@"Unsupported type found in NSDictionary toDictionaryC for key %@",key);
+        }
+    }
+    
+    return dict;
+}
+
+@end
+
+@implementation NSMutableDictionary (DictionaryC)
+
++ (id) fromEntry:(const DictionaryEntryRef &)entry
+{
+    switch (entry->getType()) {
+        case WhirlyKit::DictTypeString:
+        {
+            NSString *valStr = [NSString stringWithUTF8String:entry->getString().c_str()];
+            return valStr;
+        }
+        case WhirlyKit::DictTypeInt:
+            return @(entry->getInt());
+        case WhirlyKit::DictTypeIdentity:
+        case WhirlyKit::DictTypeInt64:
+            return @(entry->getIdentity());
+        case WhirlyKit::DictTypeDouble:
+            return @(entry->getDouble());
+        case WhirlyKit::DictTypeDictionary:
+            return [NSMutableDictionary fromDictionaryC:std::dynamic_pointer_cast<MutableDictionary>(entry->getDict())];
+        case WhirlyKit::DictTypeArray:
+        {
+            NSMutableArray *outArr = [NSMutableArray array];
+            auto arr = entry->getArray();
+            for (const auto &subEntry: arr)
+                if (id subVal = [NSMutableDictionary fromEntry:subEntry])
+                    [outArr addObject:subVal];
+            return outArr;
+        }
+            break;
+        case WhirlyKit::DictTypeObject:
+        case WhirlyKit::DictTypeNone:
+            break;
+    }
+    
+    return nil;
+}
+
++ (NSMutableDictionary *) fromDictionaryCPointer:(const WhirlyKit::MutableDictionary *)inDict
+{
+    NSMutableDictionary *outDict = [[NSMutableDictionary alloc] init];
+    
+    auto keys = inDict->getKeys();
+    for (const auto &key : keys) {
+        NSString *keyStr = [NSString stringWithUTF8String:key.c_str()];
+        auto entry = inDict->getEntry(key);
+        id valEntry = [NSMutableDictionary fromEntry:entry];
+        outDict[keyStr] = valEntry;
+    }
+    
+    return outDict;
+}
+
++ (NSMutableDictionary *) fromDictionaryC:(WhirlyKit::MutableDictionaryRef)inDict
+{
+    return [NSMutableDictionary fromDictionaryCPointer:inDict.get()];
+}
+
+@end

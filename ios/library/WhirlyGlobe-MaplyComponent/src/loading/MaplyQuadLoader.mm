@@ -35,10 +35,10 @@ using namespace WhirlyKit;
 {
     self = [super init];
     
-    loadReturn = QuadLoaderReturnRef(new QuadLoaderReturn(loader->loader->getGeneration()));
+    loadReturn = std::make_shared<QuadLoaderReturn>(loader->loader->getGeneration());
     viewC = loader.viewC;
     
-    return self;
+    return self;	
 }
 
 - (void)setTileID:(MaplyTileID)tileID
@@ -99,6 +99,7 @@ using namespace WhirlyKit;
     self = [super init];
     _flipY = true;
     _viewC = inViewC;
+    _numSimultaneousTiles = 8;
     
     return self;
 }
@@ -357,6 +358,12 @@ using namespace WhirlyKit;
     if (!loader || !valid)
         return;
     
+    // Could do this at startup too
+    if (_numSimultaneousTiles > 0 && !serialQueue) {
+        serialQueue = dispatch_queue_create("Quad Loader Serial", DISPATCH_QUEUE_SERIAL);
+        serialSemaphore = dispatch_semaphore_create(_numSimultaneousTiles);
+    }
+    
     QuadTreeIdentifier tileID = loadReturn->loadReturn->ident;
     // Don't actually want this one
     if (!loader->isFrameLoading(tileID,loadReturn->loadReturn->frame)) {
@@ -367,28 +374,31 @@ using namespace WhirlyKit;
     
     // Might be keeping the data coming back per frame
     // If we are, this tells us to merge when all the data has come back
-    RawDataRef dataWrap(new RawNSDataReader([loadReturn getFirstData]));
+    auto dataWrap = std::make_shared<RawNSDataReader>([loadReturn getFirstData]);
     std::vector<RawDataRef> allData;
+    //allData.reserve(?)
     if (loader->mergeLoadedFrame(loadReturn->loadReturn->ident,loadReturn->loadReturn->frame,dataWrap,allData))
     {
         // In this mode we need to adjust the loader return to contain everything at once
         if (loader->getMode() == QuadImageFrameLoader::SingleFrame && loader->getNumFrames() > 1) {
             loadReturn->tileData.clear();
-            loadReturn->loadReturn->frame = QuadFrameInfoRef(new QuadFrameInfo());
+            loadReturn->loadReturn->frame = std::make_shared<QuadFrameInfo>();
             loadReturn->loadReturn->frame->setId(loader->getFrameInfo(0)->getId());
             loadReturn->loadReturn->frame->frameIndex = 0;
-            for (auto data : allData) {
-                RawNSDataReader *rawData = dynamic_cast<RawNSDataReader *>(data.get());
-                if (rawData) {
+            for (const auto &data : allData) {
+                if (const auto rawData = dynamic_cast<RawNSDataReader *>(data.get())) {
                     loadReturn->tileData.push_back(rawData->getData());
                 }
             }
         }
         
+        loader->setLoadReturnRef(tileID,loadReturn->loadReturn->frame,loadReturn->loadReturn);
+                
         // Do the parsing on another thread since it can be slow
         dispatch_queue_t theQueue = _queue;
         if (!theQueue)
-            theQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+            theQueue = serialQueue;
+        dispatch_semaphore_t theSemaphore = serialSemaphore;
 
         // Hold on to these till the task runs
         NSObject<MaplyLoaderInterpreter> *theLoadInterp = self->loadInterp;
@@ -397,17 +407,41 @@ using namespace WhirlyKit;
         dispatch_async(theQueue, ^{
             if (!self->valid || !self->_viewC)
                 return;
-            // No load interpreter means the fetcher created the objects.  Hopefully.
-            if (theLoadInterp)
-                [theLoadInterp dataForTile:loadReturn loader:self];
-            
-            // Need to clean up the loader return objects
-            if ([samplingLayer.layerThread isCancelled]) {
-                [self cleanupLoadedData:loadReturn];
-                return;
-            }
 
-            [self performSelector:@selector(mergeLoadedTile:) onThread:self->samplingLayer.layerThread withObject:loadReturn waitUntilDone:NO];
+            if (theSemaphore) {
+                // Need to limit the number of simultaneous loader return parses
+                dispatch_semaphore_wait(theSemaphore, DISPATCH_TIME_FOREVER);
+                
+                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                    // No load interpreter means the fetcher created the objects.  Hopefully.
+                    if (theLoadInterp && !loadReturn->loadReturn->cancel)
+                        [theLoadInterp dataForTile:loadReturn loader:self];
+                    
+                    // Need to clean up the loader return objects
+                    if ([samplingLayer.layerThread isCancelled]) {
+                        [self cleanupLoadedData:loadReturn];
+                        return;
+                    }
+
+                    [self performSelector:@selector(mergeLoadedTile:) onThread:self->samplingLayer.layerThread withObject:loadReturn waitUntilDone:NO];
+                    
+                    dispatch_semaphore_signal(theSemaphore);
+                });
+            } else {
+                // Just run it on this queue right here
+                
+                // No load interpreter means the fetcher created the objects.  Hopefully.
+                if (theLoadInterp)
+                    [theLoadInterp dataForTile:loadReturn loader:self];
+                
+                // Need to clean up the loader return objects
+                if ([samplingLayer.layerThread isCancelled]) {
+                    [self cleanupLoadedData:loadReturn];
+                    return;
+                }
+
+                [self performSelector:@selector(mergeLoadedTile:) onThread:self->samplingLayer.layerThread withObject:loadReturn waitUntilDone:NO];
+            }
         });
     }
 }
@@ -426,7 +460,9 @@ using namespace WhirlyKit;
         loadReturn->loadReturn->changes.clear();
     }
     loader->mergeLoadedTile(NULL,loadReturn->loadReturn.get(),changes);
-    
+
+    loader->setLoadReturnRef(loadReturn->loadReturn->ident,loadReturn->loadReturn->frame,NULL);
+
     [samplingLayer.layerThread addChangeRequests:changes];
 }
 
@@ -442,6 +478,8 @@ using namespace WhirlyKit;
         [[self.viewC getRenderControl] releaseSamplingLayer:self->samplingLayer forUser:self->loader];
         self->loadInterp = nil;
         self->loader = nil;
+        self->serialSemaphore = nil;
+        self->serialQueue = nil;
     });
 }
 

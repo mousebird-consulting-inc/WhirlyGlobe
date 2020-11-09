@@ -101,6 +101,11 @@ Marker::Marker()
 {
 }
 
+Marker::~Marker()
+{
+    
+}
+
 void Marker::addTexID(SimpleIdentity texID)
 {
     texIDs.push_back(texID);
@@ -228,6 +233,7 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
             shape->setOpacityExp(markerInfo.opacityExp);
             shape->setColorExp(markerInfo.colorExp);
             shape->setScaleExp(markerInfo.scaleExp);
+            shape->setDrawOrder(markerInfo.drawOrder);
             shape->setDrawPriority(markerInfo.drawPriority);
             shape->setEnable(markerInfo.enable);
             if (markerInfo.startEnable != markerInfo.endEnable)

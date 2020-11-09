@@ -53,6 +53,7 @@
 	baseLayer = [[VectorsTestCase alloc]init];
     [baseLayer setUpWithGlobe:globeVC];
 	[self addLoftedPolysSpain:globeVC];
+    [globeVC animateToPosition:MaplyCoordinateMakeWithDegrees(-100.0, 40.0) time:1.0];
 }
 
 @end

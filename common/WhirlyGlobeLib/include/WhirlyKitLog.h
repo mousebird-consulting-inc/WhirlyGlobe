@@ -25,6 +25,20 @@ typedef enum {Verbose=0,Debug,Info,Warn,Error} WKLogLevel;
 
 // Wrapper around NSLog on iOS.  Other things on other platforms
 extern void wkLog(const char *formatStr,...);
-extern void wkLogLevel(WKLogLevel level,const char *formatStr,...);
+
+// Set, e.g., WK_MIN_LOG_LEVEL=1 to override
+#if !defined(WK_MIN_LOG_LEVEL)
+# if DEBUG
+#  define WK_MIN_LOG_LEVEL WKLogLevel::Verbose
+# else
+#  define WK_MIN_LOG_LEVEL WKLogLevel::Info
+# endif
+#endif
+
+// Skip logging calls below the configured level.
+// The extra do/while makes it safe to use within if/else conditionals.
+// Note that `level` is evaluated twice, watch out for side-effects.
+#define wkLogLevel(level, formatStr...) do{if ((level) >= (WK_MIN_LOG_LEVEL)) { wkLogLevel_((level), formatStr); }}while(0)
+extern void wkLogLevel_(WKLogLevel level,const char *formatStr,...);
 
 #endif

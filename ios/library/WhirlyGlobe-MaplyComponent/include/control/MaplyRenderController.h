@@ -918,7 +918,7 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
 - (void)removeAllLayers;
 
 /// Return a tile fetcher we may share between loaders
-- (MaplyRemoteTileFetcher * __nonnull)addTileFetcher:(NSString * __nonnull)name;
+- (MaplyRemoteTileFetcher * __nullable)addTileFetcher:(NSString * __nonnull)name;
 
 /**
     If in Metal rendering mode, return the Metal device being used.

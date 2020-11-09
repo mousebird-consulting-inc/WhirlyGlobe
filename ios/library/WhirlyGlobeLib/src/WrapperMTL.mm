@@ -21,6 +21,7 @@
 #import "WrapperMTL.h"
 #import "TextureMTL.h"
 #import "DrawableMTL.h"
+#import "WhirlyKitLog.h"
 
 namespace WhirlyKit
 {
@@ -246,7 +247,7 @@ void ResourceRefsMTL::use(id<MTLRenderCommandEncoder> cmdEncode)
         [cmdEncode useResource:buff usage:MTLResourceUsageRead];
 //        all[count++] = buff;
     for (id<MTLTexture> tex : textures)
-        [cmdEncode useResource:tex usage:MTLResourceUsageRead];
+            [cmdEncode useResource:tex usage:MTLResourceUsageRead];
 //        all[count++] = tex;
     
 //    [cmdEncode useResources:all count:count usage:MTLResourceUsageRead];
@@ -262,7 +263,7 @@ void ResourceRefsMTL::clear()
 
 RenderTeardownInfoMTL::RenderTeardownInfoMTL()
 {
-    resources = ResourceRefsMTLRef(new ResourceRefsMTL(true));
+    resources = std::make_shared<ResourceRefsMTL>(true);
 }
 
 void RenderTeardownInfoMTL::clear()
@@ -276,21 +277,22 @@ void RenderTeardownInfoMTL::clear()
         tex->destroyInRenderer(NULL,NULL);
 }
 
-void RenderTeardownInfoMTL::destroyTexture(SceneRenderer *renderer,TextureBaseRef tex)
+void RenderTeardownInfoMTL::destroyTexture(SceneRenderer *renderer,const TextureBaseRef &tex)
 {
     textures.push_back(tex);
 }
 
-void RenderTeardownInfoMTL::destroyDrawable(SceneRenderer *renderer,DrawableRef draw)
+void RenderTeardownInfoMTL::destroyDrawable(SceneRenderer *renderer,const DrawableRef &draw)
 {
     drawables.push_back(draw);
 }
 
 
+const bool HeapManagerMTL::UseHeaps =
 #if TARGET_OS_SIMULATOR
-bool HeapManagerMTL::UseHeaps = false;
+    false;
 #else
-bool HeapManagerMTL::UseHeaps = true;
+    true;
 #endif
 
 HeapManagerMTL::HeapManagerMTL(id<MTLDevice> mtlDevice)
@@ -412,6 +414,10 @@ TextureEntryMTL HeapManagerMTL::newTextureWithDescriptor(MTLTextureDescriptor *d
             }
     } else {
         tex.tex = [mtlDevice newTextureWithDescriptor:desc];
+    }
+
+    if (!tex.tex) {
+        wkLogLevel(Warn, "Failed to allocate texture (%lld)", size);
     }
     
     return tex;

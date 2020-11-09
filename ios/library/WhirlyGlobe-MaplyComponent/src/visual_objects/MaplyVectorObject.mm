@@ -99,7 +99,7 @@ using namespace WhirlyGlobe;
     if (!self)
         return nil;
     
-    vObj = VectorObjectRef(new VectorObject());
+    vObj = std::make_shared<VectorObject>();
     
     return self;
 }
@@ -130,7 +130,7 @@ using namespace WhirlyGlobe;
         pts->pts.push_back(GeoCoord(coord->x,coord->y));
         iosMutableDictionary *dict = new iosMutableDictionary([NSMutableDictionary dictionaryWithDictionary:attr]);
 
-        vObj = VectorObjectRef(new VectorObject());
+        vObj = std::make_shared<VectorObject>();
 
         pts->setAttrDict(MutableDictionaryRef(dict));
         pts->initGeoMbr();
@@ -166,7 +166,7 @@ using namespace WhirlyGlobe;
     
     if (self)
     {
-        vObj = VectorObjectRef(new VectorObject());
+        vObj = std::make_shared<VectorObject>();
 
         VectorLinearRef lin = VectorLinear::createLinear();
         for (unsigned int ii=0;ii<numCoords;ii++)
@@ -187,7 +187,7 @@ using namespace WhirlyGlobe;
     
     if (self)
     {
-        vObj = VectorObjectRef(new VectorObject());
+        vObj = std::make_shared<VectorObject>();
 
         VectorArealRef areal = VectorAreal::createAreal();
         VectorRing pts;
@@ -213,7 +213,7 @@ using namespace WhirlyGlobe;
     
     if (self)
     {
-        vObj = VectorObjectRef(new VectorObject());
+        vObj = std::make_shared<VectorObject>();
 
         VectorArealRef areal = VectorAreal::createAreal();
         VectorRing pts;
@@ -238,7 +238,7 @@ using namespace WhirlyGlobe;
 
 	self = [super init];
 
-    vObj = VectorObjectRef(new VectorObject());
+    vObj = std::make_shared<VectorObject>();
 
     NSString *nsStr = [[NSString alloc] initWithData:geoJSON encoding:NSUTF8StringEncoding];
     if (!nsStr)
@@ -274,7 +274,7 @@ using namespace WhirlyGlobe;
 	if (error || ![jsonDict isKindOfClass:[NSDictionary class]])
 		return nil;
 
-    vObj = VectorObjectRef(new VectorObject());
+    vObj = std::make_shared<VectorObject>();
 
 	if (self = [super init]) {
 		if (!VectorParseGeoJSON(vObj->shapes, jsonDict))
@@ -289,7 +289,7 @@ using namespace WhirlyGlobe;
 	if (![geoJSON isKindOfClass:[NSDictionary class]])
 		return nil;
 
-    vObj = VectorObjectRef(new VectorObject());
+    vObj = std::make_shared<VectorObject>();
 
 	if (self = [super init]) {
 		if (!VectorParseGeoJSON(vObj->shapes, geoJSON))
@@ -307,7 +307,7 @@ using namespace WhirlyGlobe;
 	if (!fileName)
 		return nil;
     
-    vObj = VectorObjectRef(new VectorObject());
+    vObj = std::make_shared<VectorObject>();
     if (!vObj->fromShapeFile([fileName cStringUsingEncoding:NSASCIIStringEncoding]))
         return nil;
 
@@ -326,23 +326,36 @@ using namespace WhirlyGlobe;
 
 - (NSMutableDictionary *)attributes
 {
+    if (attrCache)
+        return attrCache;
+    
     if (vObj->shapes.empty())
         return nil;
-    
-    VectorShapeRef vec = *(vObj->shapes.begin());
-    iosMutableDictionary *dict = (iosMutableDictionary *)vec->getAttrDict().get();
-    return dict ? dict->dict : nil;
+
+    const VectorShapeRef &vec = *(vObj->shapes.begin());
+
+    // If it's a wrapper around an NSDictionary, return that
+    iosMutableDictionaryRef dict = std::dynamic_pointer_cast<iosMutableDictionary>(vec->getAttrDict());
+    if (dict)
+        return (NSMutableDictionary *)dict->dict;
+
+    // If it's not an NSDictionary wrapper, return that
+    MutableDictionaryRef cDict = std::dynamic_pointer_cast<MutableDictionary>(vec->getAttrDict());
+    if (cDict)
+        attrCache = [NSMutableDictionary fromDictionaryC:cDict];
+
+    return attrCache;
 }
 
 - (void)setAttributes:(NSDictionary *)attributes
 {
-    MutableDictionaryRef dict(new iosMutableDictionary([NSMutableDictionary dictionaryWithDictionary:attributes]));
+    auto dict = std::make_shared<iosMutableDictionary>([NSMutableDictionary dictionaryWithDictionary:attributes]);
     vObj->setAttributes(dict);
 }
 
 - (void)mergeVectorsFrom:(MaplyVectorObject *)otherVec
 {
-    vObj->mergeVectorsFrom(otherVec->vObj.get());
+    vObj->mergeVectorsFrom(*otherVec->vObj);
 }
 
 /// Add a hole to an existing areal feature
@@ -470,13 +483,15 @@ using namespace WhirlyGlobe;
 
     double retRot;
     Point2d mid;
-    bool ret = vObj->linearMiddle(mid, retRot, maplyCoordSys->coordSystem.get());
-    if (ret) {
-        middle->x = mid.x();
-        middle->y = mid.y();
-    } else {
-        middle->x = 0.0;
-        middle->y = 0.0;
+    const bool ret = vObj->linearMiddle(mid, retRot, maplyCoordSys->coordSystem.get());
+    if (middle) {
+        if (ret) {
+            middle->x = mid.x();
+            middle->y = mid.y();
+        } else {
+            middle->x = 0.0;
+            middle->y = 0.0;
+        }
     }
     
     if (rot)

@@ -42,9 +42,9 @@ class BillboardDrawableBuilderMTL : virtual public BasicDrawableBuilderMTL, virt
 public:
     BillboardDrawableBuilderMTL(const std::string &name,Scene *scene);
     
-    virtual void Init();
+    virtual void Init() override;
     
-    virtual BasicDrawable *getDrawable();
+    virtual BasicDrawableRef getDrawable() override;
 };
 
 }

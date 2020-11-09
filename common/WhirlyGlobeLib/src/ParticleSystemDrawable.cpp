@@ -21,7 +21,7 @@
 #import "ParticleSystemDrawable.h"
 #import "SceneRenderer.h"
 #import "WhirlyKitLog.h"
-
+#import "BaseInfo.h"
 
 namespace WhirlyKit
 {
@@ -29,7 +29,7 @@ namespace WhirlyKit
 ParticleSystemDrawable::ParticleSystemDrawable(const std::string &name)
     : Drawable(name), enable(true), numTotalPoints(0), batchSize(0), vertexSize(0),
     calculateProgramId(EmptyIdentity), renderProgramId(EmptyIdentity), drawPriority(0),
-    requestZBuffer(false), writeZBuffer(false),
+    drawOrder(BaseInfo::DrawOrderTiles), requestZBuffer(false), writeZBuffer(false),
     maxVis(DrawVisibleInvalid), useRectangles(true), useInstancing(true), baseTime(0.0),
     startb(0.0), endb(0.0), chunks(true), usingContinuousRender(true), renderTargetID(EmptyIdentity),
     lastUpdateTime(0.0), activeVaryBuffer(0)
@@ -56,6 +56,12 @@ Mbr ParticleSystemDrawable::getLocalMbr() const
 
 const Eigen::Matrix4d *ParticleSystemDrawable::getMatrix() const
     { return NULL; }
+
+int64_t ParticleSystemDrawable::getDrawOrder() const
+    { return drawOrder; }
+
+void ParticleSystemDrawable::setDrawOrder(int64_t newOrder)
+    { drawOrder = newOrder; }
 
 unsigned int ParticleSystemDrawable::getDrawPriority() const
     { return drawPriority; }

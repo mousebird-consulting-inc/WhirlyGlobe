@@ -35,15 +35,15 @@ public:
     
     /// Add a new vertex related attribute.  Need a data type and the name the shader refers to
     ///  it by.  The index returned is how you will access it.
-    virtual int addAttribute(BDAttributeDataType dataType,StringIdentity nameID, int slot = -1,int numThings = -1);
+    virtual int addAttribute(BDAttributeDataType dataType,StringIdentity nameID, int slot = -1,int numThings = -1) override;
     
     /// Override this to set the internal Metal buffer
-    virtual void setupTexCoordEntry(int which,int numReserve=0);
+    virtual void setupTexCoordEntry(int which,int numReserve=0) override;
     
     /// Fill out and return the drawable
-    virtual BasicDrawable *getDrawable();
+    virtual BasicDrawableRef getDrawable() override;
     
-    virtual void setupStandardAttributes(int numReserve=0);
+    virtual void setupStandardAttributes(int numReserve=0) override;
     
 protected:
     bool drawableGotten;

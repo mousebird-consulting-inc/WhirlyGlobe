@@ -461,8 +461,8 @@ int SphericalChunkManager::getNumChunks()
 {
     std::lock_guard<std::mutex> guardLock(repLock);
 
-    int numChunks = 0;
-    numChunks = chunkReps.size();
+    //int numChunks = 0;
+    //numChunks = chunkReps.size();
     
     return chunkReps.size();
 }

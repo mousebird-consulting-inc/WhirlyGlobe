@@ -75,7 +75,7 @@ void MapboxVectorLayerCircle::cleanup(ChangeSet &changes)
 
 void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
                                            std::vector<VectorObjectRef> &vecObjs,
-                                          VectorTileDataRef tileInfo)
+                                           VectorTileDataRef tileInfo)
 {
     if (!visible)
         return;
@@ -89,24 +89,24 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
         markerInfo.minZoomVis = minzoom;
         markerInfo.maxZoomVis = maxzoom;
     }
-    double opacity = paint.opacity->valForZoom(tileInfo->ident.level);
+    const double opacity = paint.opacity->valForZoom(tileInfo->ident.level);
     markerInfo.color = RGBAColor(255,255,255,opacity*255);
     markerInfo.drawPriority = drawPriority;
     markerInfo.programID = styleSet->screenMarkerProgramID;
-    
+
     // Need to find all the points, way down deep
     std::vector<WhirlyKit::Marker *> markers;
     for (auto vecObj : vecObjs) {
         if (vecObj->getVectorType() == VectorPointType) {
             for (VectorShapeRef shape : vecObj->shapes) {
-                VectorPointsRef pts = std::dynamic_pointer_cast<VectorPoints>(shape);
-                if (pts) {
+                if (auto pts = std::dynamic_pointer_cast<VectorPoints>(shape)) {
                     for (auto pt : pts->pts) {
                         // Add a marker per point
-                        WhirlyKit::Marker *marker = new WhirlyKit::Marker();
+                        // todo: exception safety
+                        auto marker = new WhirlyKit::Marker();
                         marker->loc = GeoCoord(pt.x(),pt.y());
                         marker->texIDs.push_back(circleTexID);
-                        double radius = paint.radius->valForZoom(tileInfo->ident.level);
+                        const double radius = paint.radius->valForZoom(tileInfo->ident.level);
                         marker->width = 2*radius * styleSet->tileStyleSettings->markerScale; marker->height = 2*radius * styleSet->tileStyleSettings->markerScale;
                         marker->layoutWidth = marker->width; marker->layoutHeight = marker->height;
                         marker->layoutImportance = MAXFLOAT;
@@ -116,6 +116,7 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
                             marker->selectID = Identifiable::genId();
                             styleSet->addSelectionObject(marker->selectID, vecObj, compObj);
                             compObj->selectIDs.insert(marker->selectID);
+                            compObj->isSelectable = true;
                         }
                         if (!uuidField.empty())
                             marker->uniqueID = uuidField;
@@ -128,6 +129,8 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
     
     // Set up the markers and get a change set
     SimpleIdentity markerID = styleSet->markerManage->addMarkers(markers, markerInfo, tileInfo->changes);
+    for (auto marker: markers)
+        delete marker;
     if (markerID != EmptyIdentity)
         compObj->markerIDs.insert(markerID);
     styleSet->compManage->addComponentObject(compObj);

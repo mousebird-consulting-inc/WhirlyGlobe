@@ -29,6 +29,7 @@
 #import "ComponentManager.h"
 #import "CoordSystem.h"
 #import "Dictionary.h"
+#import "DictionaryC.h"
 #import "Drawable.h"
 #import "DynamicTextureAtlas.h"
 #import "FlatMath.h"

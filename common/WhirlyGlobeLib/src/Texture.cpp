@@ -24,6 +24,12 @@
 using namespace WhirlyKit;
 using namespace Eigen;
 
+#ifdef __clang_analyzer__
+# define ANALYSIS_ASSUME_FREED(X) free(temp);
+#else
+# define ANALYSIS_ASSUME_FREED(X)
+#endif
+
 namespace WhirlyKit
 {
 
@@ -31,64 +37,70 @@ namespace WhirlyKit
 // Code courtesy: http://stackoverflow.com/questions/7930148/opengl-es-on-ios-texture-loading-how-do-i-get-from-a-rgba8888-png-file-to-a-r
 RawDataRef ConvertRGBATo565(RawDataRef inData)
 {
-    uint32_t pixelCount = inData->getLen()/4;
+    const uint32_t pixelCount = inData->getLen()/4;
     void *temp = malloc(pixelCount * 2);
     const uint32_t *inPixel32  = (uint32_t *)inData->getRawData();
     uint16_t *outPixel16 = (uint16_t *)temp;
     
     for(uint32_t i=0; i<pixelCount; i++, inPixel32++)
     {
-        uint32_t r = (((*inPixel32 >> 0)  & 0xFF) >> 3);
-        uint32_t g = (((*inPixel32 >> 8)  & 0xFF) >> 2);
-        uint32_t b = (((*inPixel32 >> 16) & 0xFF) >> 3);
+        const uint32_t r = (((*inPixel32 >> 0)  & 0xFF) >> 3);
+        const uint32_t g = (((*inPixel32 >> 8)  & 0xFF) >> 2);
+        const uint32_t b = (((*inPixel32 >> 16) & 0xFF) >> 3);
         
         *outPixel16++ = (r << 11) | (g << 5) | (b << 0);
     }
-    
-    return RawDataRef(new RawDataWrapper(temp,pixelCount*2,true));
+
+    ANALYSIS_ASSUME_FREED(temp);
+
+    return std::make_shared<RawDataWrapper>(temp,pixelCount*2,true);
 }
 
 
 // Convert a buffer in RGBA to 2-byte 4444
 RawDataRef ConvertRGBATo4444(RawDataRef inData)
 {
-    uint32_t pixelCount = inData->getLen()/4;
+    const uint32_t pixelCount = inData->getLen()/4;
     void *temp = malloc(pixelCount * 2);
     const uint32_t *inPixel32  = (uint32_t *)inData->getRawData();
     uint16_t *outPixel16 = (uint16_t *)temp;
     
     for(uint32_t i=0; i<pixelCount; i++, inPixel32++)
     {
-        uint32_t r = (((*inPixel32 >> 0)  & 0xFF) >> 4);
-        uint32_t g = (((*inPixel32 >> 8)  & 0xFF) >> 4);
-        uint32_t b = (((*inPixel32 >> 16) & 0xFF) >> 4);
-        uint32_t a = (((*inPixel32 >> 24) & 0xFF) >> 4);
+        const uint32_t r = (((*inPixel32 >> 0)  & 0xFF) >> 4);
+        const uint32_t g = (((*inPixel32 >> 8)  & 0xFF) >> 4);
+        const uint32_t b = (((*inPixel32 >> 16) & 0xFF) >> 4);
+        const uint32_t a = (((*inPixel32 >> 24) & 0xFF) >> 4);
         
         *outPixel16++ = (r << 12) | (g << 8) | (b << 4) | (a<< 0);
     }
-    
-    return RawDataRef(new RawDataWrapper(temp,pixelCount*2,true));
+
+    ANALYSIS_ASSUME_FREED(temp);
+
+    return std::make_shared<RawDataWrapper>(temp,pixelCount*2,true);
 }
 
 // Convert a buffer in RGBA to 2-byte 5551
 RawDataRef ConvertRGBATo5551(RawDataRef inData)
 {
-    uint32_t pixelCount = inData->getLen()/4;
+    const uint32_t pixelCount = inData->getLen()/4;
     void *temp = malloc(pixelCount * 2);
-    uint32_t *inPixel32  = (uint32_t *)inData->getRawData();
+    const uint32_t *inPixel32  = (uint32_t *)inData->getRawData();
     uint16_t *outPixel16 = (uint16_t *)temp;
     
     for(uint32_t i=0; i<pixelCount; i++, inPixel32++)
     {
-        uint32_t r = (((*inPixel32 >> 0)  & 0xFF) >> 3);
-        uint32_t g = (((*inPixel32 >> 8)  & 0xFF) >> 3);
-        uint32_t b = (((*inPixel32 >> 16) & 0xFF) >> 3);
-        uint32_t a = (((*inPixel32 >> 24) & 0xFF) >> 7);
+        const uint32_t r = (((*inPixel32 >> 0)  & 0xFF) >> 3);
+        const uint32_t g = (((*inPixel32 >> 8)  & 0xFF) >> 3);
+        const uint32_t b = (((*inPixel32 >> 16) & 0xFF) >> 3);
+        const uint32_t a = (((*inPixel32 >> 24) & 0xFF) >> 7);
         
         *outPixel16++ = (r << 11) | (g << 6) | (b << 1) | (a << 0);
     }
-    
-    return RawDataRef(new RawDataWrapper(temp,pixelCount*2,true));
+
+    ANALYSIS_ASSUME_FREED(temp);
+
+    return std::make_shared<RawDataWrapper>(temp,pixelCount*2,true);
 }
 
 // Convert a buffer in A to 1-byte alpha but align it to 32 bits
@@ -112,7 +124,9 @@ RawDataRef ConvertAToA(RawDataRef inData,int width,int height)
         outBytes += outWidth;
     }
 
-    return RawDataRef(new RawDataWrapper(temp,outWidth*height,true));
+    ANALYSIS_ASSUME_FREED(temp);
+
+    return std::make_shared<RawDataWrapper>(temp,outWidth*height,true);
 }
 
 // Convert a buffer in RG to a 2-byte RG but align it to 32 bits
@@ -123,7 +137,7 @@ RawDataRef ConvertRGToRG(RawDataRef inData,int width,int height)
     
     int extra = 2 - (width % 2);
     if (extra == 2) extra = 0;
-    int outWidth = width + extra;
+    const int outWidth = width + extra;
     
     unsigned char *temp = (unsigned char *)malloc(outWidth*height*2);
     
@@ -135,8 +149,10 @@ RawDataRef ConvertRGToRG(RawDataRef inData,int width,int height)
         inBytes += 2*width;
         outBytes += 2*outWidth;
     }
-    
-    return RawDataRef(new RawDataWrapper(temp,outWidth*height*2,true));
+
+    ANALYSIS_ASSUME_FREED(temp);
+
+    return std::make_shared<RawDataWrapper>(temp,outWidth*height*2,true);
 }
 
 RawDataRef ConvertRGBATo16(RawDataRef inData,int width,int height,bool pad)
@@ -148,15 +164,15 @@ RawDataRef ConvertRGBATo16(RawDataRef inData,int width,int height,bool pad)
     if (!pad)
         extra = 0;
     
-    int outWidth = width + extra;
+    const int outWidth = width + extra;
 
     unsigned char *temp = (unsigned char *)malloc(outWidth*height*2);
     bzero(temp,outWidth*height*2);
     
-    uint32_t *inPixel32row  = (uint32_t *)inData->getRawData();
+    const uint32_t *inPixel32row  = (uint32_t *)inData->getRawData();
     uint8_t *outPixel8row = (uint8_t *)temp;
     for (int32_t h=0;h<height;h++) {
-        uint32_t *inPixel32 = inPixel32row;
+        const uint32_t *inPixel32 = inPixel32row;
         uint8_t *outPixel8 = outPixel8row;
         for (int32_t w=0;w<width;w++) {
             uint32_t r = ((*inPixel32 >> 0)  & 0xFF);
@@ -171,24 +187,26 @@ RawDataRef ConvertRGBATo16(RawDataRef inData,int width,int height,bool pad)
         inPixel32row += width;
         outPixel8row += 2*outWidth;
     }
-    
-    return RawDataRef(new RawDataWrapper(temp,outWidth*height*2,true));
+
+    ANALYSIS_ASSUME_FREED(temp);
+
+    return std::make_shared<RawDataWrapper>(temp,outWidth*height*2,true);
 }
 
 // Convert a buffer in RGBA to 1-byte alpha
 RawDataRef ConvertRGBATo8(RawDataRef inData,WKSingleByteSource source)
 {
-    uint32_t pixelCount = inData->getLen()/4;
+    const uint32_t pixelCount = inData->getLen()/4;
     void *temp = malloc(pixelCount);
-    uint32_t *inPixel32  = (uint32_t *)inData->getRawData();
+    const uint32_t *inPixel32  = (uint32_t *)inData->getRawData();
     uint8_t *outPixel8 = (uint8_t *)temp;
     
     for(uint32_t i=0; i<pixelCount; i++, inPixel32++)
     {
-        uint32_t r = ((*inPixel32 >> 0)  & 0xFF);
-        uint32_t g = ((*inPixel32 >> 8)  & 0xFF);
-        uint32_t b = ((*inPixel32 >> 16) & 0xFF);
-        uint32_t a = ((*inPixel32 >> 24) & 0xFF);
+        const uint32_t r = ((*inPixel32 >> 0)  & 0xFF);
+        const uint32_t g = ((*inPixel32 >> 8)  & 0xFF);
+        const uint32_t b = ((*inPixel32 >> 16) & 0xFF);
+        const uint32_t a = ((*inPixel32 >> 24) & 0xFF);
         int sum = 0;
         switch (source)
         {
@@ -210,12 +228,18 @@ RawDataRef ConvertRGBATo8(RawDataRef inData,WKSingleByteSource source)
         }
         *outPixel8++ = (uint8_t)sum;
     }
-    
-    return RawDataRef(new RawDataWrapper(temp,pixelCount,true));
+
+    ANALYSIS_ASSUME_FREED(temp);
+
+    return std::make_shared<RawDataWrapper>(temp,pixelCount,true);
 }
     
 TextureBase::TextureBase(SimpleIdentity thisId)
 : Identifiable(thisId)
+{
+}
+
+TextureBase::TextureBase()
 {
 }
 
@@ -228,15 +252,15 @@ TextureBase::~TextureBase()
 }
 
 Texture::Texture()
-: TextureBase(""), isPVRTC(false), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(TexTypeUnsignedByte), byteSource(WKSingleRGB), interpType(TexInterpLinear), isEmptyTexture(false)
+: TextureBase(), isPVRTC(false), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(TexTypeUnsignedByte), byteSource(WKSingleRGB), interpType(TexInterpLinear), isEmptyTexture(false)
 {    
 }
-	
+
 Texture::Texture(const std::string &name)
 	: TextureBase(name), isPVRTC(false), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(TexTypeUnsignedByte), byteSource(WKSingleRGB), interpType(TexInterpLinear), isEmptyTexture(false)
 {
 }
-	
+
 // Construct with raw texture data
 Texture::Texture(const std::string &name,RawDataRef texData,bool isPVRTC)
 	: TextureBase(name), texData(texData), isPVRTC(isPVRTC), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(TexTypeUnsignedByte), byteSource(WKSingleRGB), interpType(TexInterpLinear), isEmptyTexture(false)

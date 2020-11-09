@@ -38,7 +38,8 @@ typedef enum {
     SEG_END    = 0,
     SEG_MOVETO = 1,
     SEG_LINETO = 2,
-    SEG_CLOSE = (0x40 | 0x0f)
+    SEG_CLOSE = (0x40 | 0x0f),
+    SEG_CLOSE_MASKED = SEG_CLOSE & 0x07,
 } MapnikCommandType;
 
 class PlatformThreadInfo;
@@ -62,6 +63,8 @@ public:
     
     /// Clear out any added objects (but not ident, bounds)
     void clear();
+    
+    int64_t tileNumber() const { return ident.NodeNumber(); }
     
     /// Tile ID for this tile
     QuadTreeIdentifier ident;
@@ -118,7 +121,7 @@ public:
     
     // Parse the vector tile and return a list of vectors.
     // Returns false on failure.
-    virtual bool parse(PlatformThreadInfo *styleInst,RawData *rawData,VectorTileData *tileData);
+    virtual bool parse(PlatformThreadInfo *styleInst, RawData *rawData, VectorTileData *tileData, volatile bool *cancelBool);
     
     // The subclass calls the appropriate style to build component objects
     //  which are then returned in the VectorTileData

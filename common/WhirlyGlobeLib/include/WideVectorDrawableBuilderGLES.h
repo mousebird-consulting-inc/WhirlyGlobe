@@ -52,7 +52,7 @@ public:
 
     virtual WideVectorTweaker *makeTweaker();
 
-    virtual BasicDrawable *getDrawable();
+    virtual BasicDrawableRef getDrawable();
 };
     
 }

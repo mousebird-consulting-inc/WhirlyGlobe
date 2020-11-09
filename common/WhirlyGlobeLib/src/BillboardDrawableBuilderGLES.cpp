@@ -33,7 +33,7 @@ int BillboardDrawableBuilderGLES::addAttribute(BDAttributeDataType dataType,Stri
     return BasicDrawableBuilderGLES::addAttribute(dataType, nameID, slot, numThings);
 }
 
-BasicDrawable *BillboardDrawableBuilderGLES::getDrawable()
+BasicDrawableRef BillboardDrawableBuilderGLES::getDrawable()
 {
     return BasicDrawableBuilderGLES::getDrawable();
 }

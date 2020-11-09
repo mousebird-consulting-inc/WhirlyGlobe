@@ -96,7 +96,6 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
     startTime = CFAbsoluteTimeGetCurrent();
     self.styleDictionary = [NSMutableDictionary dictionary];
     NSXMLParser *parser = [[NSXMLParser alloc] initWithData:docData];
-    docData = nil;
     parser.delegate = self;
     [parser parse];
 }
@@ -319,6 +318,10 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
   return self.symbolizers[uuid];
 }
 
+- (nullable NSObject<MaplyVectorStyle> *)backgroundStyleViewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+{
+    return nil;
+}
 
 #pragma mark - NSXMLDelegate
 - (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName

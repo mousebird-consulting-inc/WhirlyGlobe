@@ -62,7 +62,7 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
 		LocationTrackingSimTestCase(),
 		LocationTrackingRealTestCase(),
         
-        OfflineRenderTestCase(),
+//        OfflineRenderTestCase(),
         
         StartupShutdownTestCase(),
         LayerStartupShutdownTestCase()

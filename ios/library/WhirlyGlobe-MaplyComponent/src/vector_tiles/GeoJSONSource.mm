@@ -77,6 +77,7 @@ using namespace WhirlyKit;
                 completionBlock();
                 return;
             });
+            return;
         }
         
         self->_styleSet = [[SLDStyleSet alloc] initWithViewC:baseVC useLayerNames:NO relativeDrawPriority:self->_relativeDrawPriority];
@@ -101,7 +102,7 @@ using namespace WhirlyKit;
         
         NSMutableDictionary *featureStyles = [NSMutableDictionary new];
         MaplyBoundingBoxD geoBBox;
-        MaplyBoundingBoxD bbox;
+        MaplyBoundingBoxD bbox {{0,0},{0,0}};
         geoBBox.ll.x = -M_PI;  geoBBox.ll.y = -M_PI/2.0;
         geoBBox.ur.x = M_PI; geoBBox.ur.y = M_PI/2.0;
         MaplyTileID tileID = {0,0,0};

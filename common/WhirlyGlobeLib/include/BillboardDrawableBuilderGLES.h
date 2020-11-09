@@ -40,7 +40,7 @@ public:
     
     virtual int addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int slot = -1,int numThings = -1);
 
-    virtual BasicDrawable *getDrawable();
+    virtual BasicDrawableRef getDrawable();
 };
 
 }

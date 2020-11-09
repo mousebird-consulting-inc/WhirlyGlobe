@@ -115,7 +115,8 @@ static const float ClipGridSize = 2.0/180.0*M_PI;
     globeVC.keepNorthUp = true;
     self.baseView = [[GeographyClassTestCase alloc]init];
     [self.baseView setUpWithGlobe:globeVC];
-    
+    [globeVC animateToPosition:MaplyCoordinateMakeWithDegrees(-100.0, 0.0) time:1.0];
+
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
                    ^{
                        //Overlay Countries
@@ -130,6 +131,7 @@ static const float ClipGridSize = 2.0/180.0*M_PI;
 
     self.baseView = [[GeographyClassTestCase alloc]init];
     [self.baseView setUpWithMap:mapVC];
+    [mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-100.0, 0.0) time:1.0];
 
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
                    ^{

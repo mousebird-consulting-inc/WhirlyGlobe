@@ -254,8 +254,8 @@ bool DisplaySolid::isOnScreenForViewState(ViewState *viewState,const Point2f &fr
         for (unsigned int ii=0;ii<polys.size();ii++)
         {
             const Point3dVector &poly = polys[ii];
-            double origArea = PolygonArea(poly,normals[ii]);
-            origArea = std::abs(origArea);
+            //double origArea = PolygonArea(poly,normals[ii]);
+            //origArea = std::abs(origArea);
             
             Vector4dVector pts;
             pts.reserve(poly.size());

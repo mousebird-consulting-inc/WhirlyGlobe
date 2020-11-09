@@ -95,13 +95,13 @@ void ShapeDrawableBuilder::addPoints(Point3dVector &pts,RGBAColor color,Mbr mbr,
     }
     drawMbr.expand(mbr);
 
-    Point3d prevPt,prevNorm,firstPt,firstNorm;
+    Point3d prevPt {0,0,0},prevNorm,firstPt {0,0,0},firstNorm;
     for (unsigned int jj=0;jj<pts.size();jj++)
     {
         // The point is already in display coordinates, so we have to project back
-        Point3d pt = pts[jj];
-        Point3d localPt = coordAdapter->displayToLocal(pt);
-        Point3d norm = coordAdapter->normalForLocal(localPt);
+        const Point3d &pt = pts[jj];
+        const Point3d localPt = coordAdapter->displayToLocal(pt);
+        const Point3d norm = coordAdapter->normalForLocal(localPt);
 
         // Add to drawable
         // Depending on the type, we do this differently

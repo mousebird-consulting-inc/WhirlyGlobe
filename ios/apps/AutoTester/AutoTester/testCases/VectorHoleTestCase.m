@@ -77,6 +77,7 @@
     self.baseView = [[GeographyClassTestCase alloc]init];
     [self.baseView setUpWithGlobe:globeVC];
     self.viewC = globeVC;
+    [globeVC animateToPosition:MaplyCoordinateMakeWithDegrees(0.0, 0.0) time:1.0];
     //Overlay Countries
     [self overlayVectors:(MaplyBaseViewController*)globeVC];
 }
@@ -87,6 +88,7 @@
     self.baseView = [[GeographyClassTestCase alloc]init];
     [self.baseView setUpWithMap:mapVC];
     self.viewC = mapVC;
+    [mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(0.0, 0.0) time:1.0];
     [self overlayVectors:(MaplyBaseViewController*)mapVC];
 }
 
