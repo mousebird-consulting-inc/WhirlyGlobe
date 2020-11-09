@@ -163,6 +163,8 @@ class VectorMBTilesTestCase : MaplyTestCase {
     override fun setUpWithMap(mapVC: MapController?): Boolean {
         baseCase = GeographyClass(mapVC!!.getActivity())
         baseCase?.setUpWithMap(mapVC)
+        val coord = Point2d.FromDegrees(3.1, 44.0)
+        mapVC.setPositionGeo(coord.x, coord.y, 0.07)
 
 //        setupCountriesRaster(mapVC as BaseController)
 //        setupContriesVector(mapVC as BaseController)
@@ -175,6 +177,8 @@ class VectorMBTilesTestCase : MaplyTestCase {
     override fun setUpWithGlobe(globeVC: GlobeController?): Boolean {
         baseCase = GeographyClass(globeVC!!.getActivity())
         baseCase?.setUpWithGlobe(globeVC)
+        val coord = Point2d.FromDegrees(3.1, 44.0)
+        globeVC.setPositionGeo(coord.x, coord.y, 0.07)
 
 //        setupCountriesRaster(globeVC as BaseController)
 //        setupContriesVector(globeVC as BaseController)

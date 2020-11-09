@@ -35,7 +35,7 @@ void wkLog(const char *formatStr,...)
 
 static const char *levels[] = {"Verbose","Debug","Info","Warn","Error"};
 
-void wkLogLevel(WKLogLevel level,const char *formatStr,...)
+void wkLogLevel_(WKLogLevel level,const char *formatStr,...)
 {
     va_list args;
     va_start(args, formatStr);

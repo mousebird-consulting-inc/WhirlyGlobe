@@ -155,8 +155,12 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorObject_getAttributes
 			return NULL;
 
 		MutableDictionary_AndroidRef dict = std::dynamic_pointer_cast<MutableDictionary_Android>((*vecObj)->getAttributes());
+		// Have to convert to our sort of attributes
+		if (!dict) {
+		    dict = std::make_shared<MutableDictionary_Android>(*((*vecObj)->getAttributes().get()));
+		}
 		if (!dict)
-		  return NULL;
+		    return NULL;
 		jobject dictObj = MakeAttrDictionary(env,dict);
 	    return dictObj;
 	}
@@ -304,7 +308,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_mergeVectorsFrom
         if (!vecObj || !otherVecObj)
             return;
 
-        (*vecObj)->mergeVectorsFrom((*otherVecObj).get());
+        (*vecObj)->mergeVectorsFrom(*(*otherVecObj).get());
     }
     catch (...)
     {

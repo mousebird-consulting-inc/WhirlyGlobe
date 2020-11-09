@@ -127,7 +127,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_MapboxVectorTileParser_parse
         int len = env->GetArrayLength(data);
         jbyte *rawData = env->GetByteArrayElements(data,NULL);
         RawDataWrapper rawDataWrap(rawData,len,false);
-        bool ret = inst->parse(&platformInfo,&rawDataWrap,(*tileData).get());
+        bool ret = inst->parse(&platformInfo,&rawDataWrap,(*tileData).get(),NULL);
         if (rawData)
             env->ReleaseByteArrayElements(data,rawData,JNI_ABORT);
 

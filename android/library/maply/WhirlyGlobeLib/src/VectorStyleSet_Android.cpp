@@ -80,15 +80,18 @@ VectorStyleSetWrapper_Android::VectorStyleSetWrapper_Android(PlatformThreadInfo 
 }
 
 std::vector<VectorStyleImplRef> VectorStyleSetWrapper_Android::stylesForFeature(PlatformThreadInfo *platformInfo,
-                                                         DictionaryRef attrs,
+                                                         const Dictionary &attrs,
                                                          const QuadTreeIdentifier &tileID,
                                                          const std::string &layerName)
 {
     PlatformInfo_Android *threadInfo = (PlatformInfo_Android *)platformInfo;
 
+    // TODO: This is making a copy.  See if we can avoid that
+    MutableDictionary_AndroidRef dict = std::make_shared<MutableDictionary_Android>(attrs);
+
     // Wrap the layer name and attributes and call the method
     jobject jStr = threadInfo->env->NewStringUTF(layerName.c_str());
-    jobject attrObj = MakeAttrDictionary(threadInfo->env,std::dynamic_pointer_cast<MutableDictionary_Android>(attrs));
+    jobject attrObj = MakeAttrDictionary(threadInfo->env,dict);
     jlongArray longArray = (jlongArray)threadInfo->env->CallObjectMethod(wrapperObj,stylesForFeatureMethod,attrObj,tileID.x,tileID.y,tileID.level,jStr);
     threadInfo->env->DeleteLocalRef(jStr);
     threadInfo->env->DeleteLocalRef(attrObj);

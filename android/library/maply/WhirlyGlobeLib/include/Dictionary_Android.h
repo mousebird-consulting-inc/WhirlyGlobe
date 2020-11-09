@@ -43,9 +43,10 @@ public:
     MutableDictionary_Android(RawData *rawData);
     // Copy constructor
     MutableDictionary_Android(const MutableDictionary_Android &that);
+    MutableDictionary_Android(const Dictionary &that);
     // Assignment operator
     MutableDictionary_Android &operator = (const MutableDictionary_Android &that);
-    virtual MutableDictionaryRef copy();
+    virtual MutableDictionaryRef copy() const;
     virtual ~MutableDictionary_Android();
 
     class Value;
@@ -110,6 +111,7 @@ public:
     void setDict(const std::string &name,MutableDictionary_AndroidRef dict);
     /// Set the entry at the given attribute name
     void setEntry(const std::string &name,DictionaryEntry_AndroidRef entry);
+    void setEntry(const std::string &name,DictionaryEntryRef entry);
     /// Set the array at the given attribute name
     void setArray(const std::string &name,std::vector<DictionaryEntryRef> &entries);
     /// Set the array at the given attribute name
@@ -128,6 +130,7 @@ public:
 
     // Make a generic ValueRef from a generic entry (yeah, they're different
     static ValueRef makeValueRef(DictionaryEntry_AndroidRef entry);
+    static ValueRef makeValueRef(DictionaryEntryRef entry);
 
     class Value
     {
@@ -323,7 +326,7 @@ public:
     /// Return an array of refs
     virtual std::vector<DictionaryEntryRef> getArray() const;
     /// Compare to other
-    virtual bool isEqual(DictionaryEntryRef other) const;
+    virtual bool isEqual(const DictionaryEntryRef &other) const;
 
 protected:
     DictionaryType type;

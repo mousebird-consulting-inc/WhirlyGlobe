@@ -38,7 +38,7 @@ extern void wkLog(const char *formatStr,...);
 // Skip logging calls below the configured level.
 // The extra do/while makes it safe to use within if/else conditionals.
 // Note that `level` is evaluated twice, watch out for side-effects.
-#define wkLogLevel(level, formatStr...) do{if ((level) >= (WK_MIN_LOG_LEVEL)) { wkLogLevel_((level), formatStr); }}while(0)
+#define wkLogLevel(level, formatStr...) do {if ((level) >= (WK_MIN_LOG_LEVEL)) { wkLogLevel_((level), formatStr); }} while(0)
 extern void wkLogLevel_(WKLogLevel level,const char *formatStr,...);
 
 #endif

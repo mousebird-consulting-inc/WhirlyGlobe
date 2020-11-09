@@ -13,6 +13,6 @@ target_sources(
 
         PUBLIC
 
-        "${CMAKE_CURRENT_LIST_DIR}/pb_common.c"
-        "${CMAKE_CURRENT_LIST_DIR}/pb_decode.c"
+        "${CMAKE_CURRENT_LIST_DIR}/maply_pb_common.c"
+        "${CMAKE_CURRENT_LIST_DIR}/maply_pb_decode.c"
 )

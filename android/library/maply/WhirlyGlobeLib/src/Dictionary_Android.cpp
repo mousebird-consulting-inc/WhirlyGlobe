@@ -108,7 +108,7 @@ MutableDictionary_Android::ArrayValue::ArrayValue(std::vector<DictionaryRef> &en
 }
 
     
-MutableDictionaryRef MutableDictionary_Android::copy()
+MutableDictionaryRef MutableDictionary_Android::copy() const
 {
     return MutableDictionaryRef(new MutableDictionary_Android(*this));
 }
@@ -121,6 +121,13 @@ MutableDictionary_Android::MutableDictionary_Android(const MutableDictionary_And
 {
     for (FieldMap::const_iterator it = that.fields.begin();it != that.fields.end();++it)
         fields[it->first] = it->second->copy();
+}
+
+MutableDictionary_Android::MutableDictionary_Android(const Dictionary &that)
+{
+    auto keys = that.getKeys();
+    for (auto key: keys)
+        setEntry(key,that.getEntry(key));
 }
     
 MutableDictionary_Android::~MutableDictionary_Android()
@@ -577,7 +584,52 @@ MutableDictionary_Android::ValueRef MutableDictionary_Android::makeValueRef(Dict
     return ValueRef(value);
 }
 
+MutableDictionary_Android::ValueRef MutableDictionary_Android::makeValueRef(DictionaryEntryRef entry)
+{
+    Value *value = NULL;
+
+    switch(entry->getType()) {
+        case DictTypeNone:
+        default:
+        case DictTypeArray: {
+            std::vector<DictionaryEntryRef> entries;
+            for (auto thisEntry: entry->getArray()) {
+                entries.push_back(thisEntry);
+            }
+            value = new ArrayValue(entries);
+        }
+            break;
+        case DictTypeDictionary:
+            value = new DictionaryValue(std::dynamic_pointer_cast<MutableDictionary_Android>(entry->getDict()));
+            break;
+        case DictTypeIdentity:
+            value = new IdentityValue(entry->getIdentity());
+            break;
+        case DictTypeInt:
+            value = new IntValue(entry->getInt());
+            break;
+        case DictTypeInt64:
+            value = new Int64Value(entry->getIdentity());
+            break;
+        case DictTypeDouble:
+            value = new DoubleValue(entry->getDouble());
+            break;
+        case DictTypeString:
+            value = new StringValue(entry->getString());
+            break;
+    }
+
+    return ValueRef(value);
+}
+
 void MutableDictionary_Android::setEntry(const std::string &name,DictionaryEntry_AndroidRef entry)
+{
+    removeField(name);
+
+    fields[name] = makeValueRef(entry);
+}
+
+void MutableDictionary_Android::setEntry(const std::string &name,DictionaryEntryRef entry)
 {
     removeField(name);
 
@@ -731,7 +783,7 @@ std::vector<DictionaryEntryRef> DictionaryEntry_Android::getArray() const
     return std::vector<DictionaryEntryRef>();
 }
 
-bool DictionaryEntry_Android::isEqual(DictionaryEntryRef inOther) const
+bool DictionaryEntry_Android::isEqual(const DictionaryEntryRef &inOther) const
 {
     DictionaryEntry_AndroidRef other = std::dynamic_pointer_cast<DictionaryEntry_Android>(inOther);
     if (!other)
