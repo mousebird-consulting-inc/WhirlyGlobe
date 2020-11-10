@@ -75,4 +75,8 @@
   */
 - (void)reload;
 
+- (void)reloadArea:(MaplyBoundingBox)bound;
+
+- (void)reloadAreas:(NSArray<NSValue*>* __nullable)bounds;
+
 @end

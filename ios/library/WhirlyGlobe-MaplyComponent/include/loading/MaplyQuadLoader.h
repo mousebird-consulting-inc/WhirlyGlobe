@@ -205,6 +205,23 @@
   */
 - (void)reload;
 
+/**
+  Force a reload of the tiles overlapping a bounding box.
+  <br>
+  All the current loads will be cancelled, any in flight will be ignored
+  and the loader will ask for a whole new set of data.
+  */
+- (void)reloadArea:(MaplyBoundingBox)bounds;
+
+
+/**
+  Force a reload of the tiles overlapping a set of bounding boxes
+  <br>
+  All the current loads will be cancelled, any in flight will be ignored
+  and the loader will ask for a whole new set of data.
+  */
+- (void)reloadAreas:(NSArray<NSValue*>* __nullable)bounds;
+
 /** Turn off the loader and shut things down.
  This unregisters us with the sampling layer and shuts down the various objects we created.
  */

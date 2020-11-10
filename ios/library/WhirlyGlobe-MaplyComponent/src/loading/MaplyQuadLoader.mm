@@ -273,16 +273,37 @@ using namespace WhirlyKit;
 
 - (void)reload
 {
+    [self reloadAreas:nil];
+}
+
+- (void)reloadArea:(MaplyBoundingBox)bounds
+{
+    [self reloadAreas:@[[NSValue valueWithMaplyBoundingBox:bounds]]];
+}
+
+- (void)reloadAreas:(NSArray<NSValue*>*)bounds
+{
     if (!samplingLayer)
         return;
-    
+
     if ([NSThread currentThread] != samplingLayer.layerThread) {
-        [self performSelector:@selector(reload) onThread:samplingLayer.layerThread withObject:nil waitUntilDone:false];
+        [self performSelector:@selector(reloadAreas:) onThread:samplingLayer.layerThread withObject:bounds waitUntilDone:false];
         return;
     }
 
+    std::vector<Mbr> boxes;
+    const auto count = bounds ? [bounds count] : 0;
+    if (count) {
+        boxes.reserve(count);
+        for (int i = 0; i < count; ++i) {
+            const auto v = [bounds[i] maplyBoundingBoxValue];
+            boxes.emplace_back(Point2f(v.ll.x,v.ll.y), Point2f(v.ur.x,v.ur.y));
+        }
+    }
+    auto const* boxPtr = boxes.empty() ? nullptr : &boxes[0];
+    
     ChangeSet changes;
-    loader->reload(NULL,-1,changes);
+    loader->reload(nullptr,-1,boxPtr,(int)boxes.size(),changes);
     [samplingLayer.layerThread addChangeRequests:changes];
 }
 
