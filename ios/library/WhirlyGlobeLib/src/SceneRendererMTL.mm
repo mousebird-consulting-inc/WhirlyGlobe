@@ -321,8 +321,8 @@ void SceneRendererMTL::updateWorkGroups(RendererFrameInfo *inFrameInfo)
     
     // Build the indirect command buffers if they're available
     if (@available(iOS 13.0, *)) {
-        for (auto &workGroup : workGroups) {
-            for (auto targetContainer : workGroup->renderTargetContainers) {
+        for (const auto &workGroup : workGroups) {
+            for (const auto &targetContainer : workGroup->renderTargetContainers) {
                 if (targetContainer->drawables.empty() && !targetContainer->modified)
                     continue;
                 RenderTargetContainerMTLRef targetContainerMTL = std::dynamic_pointer_cast<RenderTargetContainerMTL>(targetContainer);
@@ -335,13 +335,21 @@ void SceneRendererMTL::updateWorkGroups(RendererFrameInfo *inFrameInfo)
                 } else {
                     renderTarget = std::dynamic_pointer_cast<RenderTargetMTL>(targetContainer->renderTarget);
                 }
+                if (!renderTarget)
+                {
+                    continue;
+                }
 
                 // Sort the drawables into draw groups by Z buffer usage
                 DrawGroupMTLRef drawGroup;
                 bool dgZBufferRead = false, dgZBufferWrite = false;
-                for (auto draw : targetContainer->drawables) {
+                for (const auto &draw : targetContainer->drawables) {
                     DrawableMTL *drawMTL = dynamic_cast<DrawableMTL *>(draw.get());
-                    
+                    if (!drawMTL) {
+                        wkLogLevel(Error, "SceneRendererMTL: Invalid drawable.  Skipping.");
+                        continue;
+                    }
+
                     // Sort out what the zbuffer should be
                     bool zBufferWrite;// = (zBufferMode == zBufferOn);
                     bool zBufferRead;// = (zBufferMode == zBufferOn);
@@ -390,16 +398,24 @@ void SceneRendererMTL::updateWorkGroups(RendererFrameInfo *inFrameInfo)
                 cmdBuffDesc.maxFragmentBufferBindCount = WhirlyKitShader::WKSFragMaxBuffer;
 
                 // Build up indirect buffers for each draw group
-                for (auto drawGroup : targetContainerMTL->drawGroups) {
+                for (const auto &drawGroup : targetContainerMTL->drawGroups) {
                     int curCommand = 0;
                     drawGroup->numCommands = drawGroup->drawables.size();
                     drawGroup->indCmdBuff = [setupInfo.mtlDevice newIndirectCommandBufferWithDescriptor:cmdBuffDesc maxCommandCount:drawGroup->numCommands options:0];
+                    if (!drawGroup->indCmdBuff) {
+                        wkLogLevel(Error, "SceneRendererMTL: Failed to allocate indirect command buffer.  Skipping.");
+                        continue;
+                    }
 
                     // Just run the calculation portion
                     if (workGroup->groupType == WorkGroup::Calculation) {
                         // Work through the drawables
-                        for (auto &draw : targetContainer->drawables) {
+                        for (const auto &draw : targetContainer->drawables) {
                             DrawableMTL *drawMTL = dynamic_cast<DrawableMTL *>(draw.get());
+                            if (!drawMTL) {
+                                wkLogLevel(Error, "SceneRendererMTL: Invalid drawable.  Skipping.");
+                                continue;
+                            }
                             SimpleIdentity calcProgID = drawMTL->getCalculationProgram();
                             
                             // Figure out the program to use for drawing
@@ -407,7 +423,7 @@ void SceneRendererMTL::updateWorkGroups(RendererFrameInfo *inFrameInfo)
                                 continue;
                             ProgramMTL *calcProgram = (ProgramMTL *)scene->getProgram(calcProgID);
                             if (!calcProgram) {
-                                NSLog(@"Invalid calculation program for drawable.  Skipping.");
+                                wkLogLevel(Error, "SceneRendererMTL: Invalid calculation program for drawable.  Skipping.");
                                 continue;
                             }
                             
@@ -417,8 +433,12 @@ void SceneRendererMTL::updateWorkGroups(RendererFrameInfo *inFrameInfo)
                         }
                     } else {
                         // Work through the drawables
-                        for (auto &draw : drawGroup->drawables) {
+                        for (const auto &draw : drawGroup->drawables) {
                             DrawableMTL *drawMTL = dynamic_cast<DrawableMTL *>(draw.get());
+                            if (!drawMTL) {
+                                wkLogLevel(Error, "SceneRendererMTL: Invalid drawable");
+                                continue;
+                            }
 
                             // Figure out the program to use for drawing
                             SimpleIdentity drawProgramId = drawMTL->getProgram();
@@ -689,11 +709,15 @@ void SceneRendererMTL::render(TimeInterval duration,
 
             if (indirectRender) {
                 // Run pre-process on the draw groups
-                for (auto &drawGroup : targetContainerMTL->drawGroups) {
+                for (const auto &drawGroup : targetContainerMTL->drawGroups) {
                     if (drawGroup->numCommands > 0) {
                         bool resourcesChanged = false;
                         for (auto &draw : drawGroup->drawables) {
                             DrawableMTL *drawMTL = dynamic_cast<DrawableMTL *>(draw.get());
+                            if (!drawMTL) {
+                                wkLogLevel(Error, "SceneRendererMTL: Invalid drawable.  Skipping.");
+                                continue;
+                            }
                             drawMTL->runTweakers(&baseFrameInfo);
                             if (drawMTL->preProcess(this, cmdBuff, bltEncode, sceneMTL))
                                 resourcesChanged = true;
@@ -702,8 +726,9 @@ void SceneRendererMTL::render(TimeInterval duration,
                         if (resourcesChanged) {
                             drawGroup->resources.clear();
                             for (auto &draw : drawGroup->drawables) {
-                                DrawableMTL *drawMTL = dynamic_cast<DrawableMTL *>(draw.get());
-                                drawMTL->enumerateResources(&baseFrameInfo, drawGroup->resources);
+                                if (const auto drawMTL = dynamic_cast<DrawableMTL *>(draw.get())) {
+                                    drawMTL->enumerateResources(&baseFrameInfo, drawGroup->resources);
+                                }
                             }
                         }
                         resources.addResources(drawGroup->resources);
@@ -711,11 +736,12 @@ void SceneRendererMTL::render(TimeInterval duration,
                 }
             } else {
                 // Run pre-process ahead of time
-                for (auto &draw : targetContainer->drawables) {
-                    DrawableMTL *drawMTL = dynamic_cast<DrawableMTL *>(draw.get());
-                    drawMTL->runTweakers(&baseFrameInfo);
-                    drawMTL->preProcess(this, cmdBuff, bltEncode, sceneMTL);
-                    drawMTL->enumerateResources(&baseFrameInfo, resources);
+                for (const auto &draw : targetContainer->drawables) {
+                    if (const auto drawMTL = dynamic_cast<DrawableMTL *>(draw.get())) {
+                        drawMTL->runTweakers(&baseFrameInfo);
+                        drawMTL->preProcess(this, cmdBuff, bltEncode, sceneMTL);
+                        drawMTL->enumerateResources(&baseFrameInfo, resources);
+                    }
                 }
             }
 
@@ -727,7 +753,7 @@ void SceneRendererMTL::render(TimeInterval duration,
             
             // Triggered after rendering is finished
             id<MTLFence> renderFence = [mtlDevice newFence];
-                        
+
             // If we're forcing a mipmap calculation, then we're just going to use this render target once
             // If not, then we run some program over it multiple times
             // TODO: Make the reduce operation more explicit
@@ -744,20 +770,20 @@ void SceneRendererMTL::render(TimeInterval duration,
                     // This happens if the dev wants an instantaneous render
                     if (!renderPassDesc)
                         renderPassDesc = renderTarget->getRenderPassDesc(level);
-                    
+
                     baseFrameInfo.renderPassDesc = renderPassDesc;
                 } else {
                     baseFrameInfo.renderPassDesc = renderTarget->getRenderPassDesc(level);
                 }
                 cmdEncode = [cmdBuff renderCommandEncoderWithDescriptor:baseFrameInfo.renderPassDesc];
                 [cmdEncode waitForFence:preProcessFence beforeStages:MTLRenderStageVertex];
-                
+
                 resources.use(cmdEncode);
 
                 if (indirectRender) {
                     if (@available(iOS 12.0, *)) {
                         [cmdEncode setCullMode:MTLCullModeFront];
-                        for (auto drawGroup : targetContainerMTL->drawGroups) {
+                        for (const auto &drawGroup : targetContainerMTL->drawGroups) {
                             if (drawGroup->numCommands > 0) {
                                 [cmdEncode setDepthStencilState:drawGroup->depthStencil];
                                 [cmdEncode executeCommandsInBuffer:drawGroup->indCmdBuff withRange:NSMakeRange(0,drawGroup->numCommands)];
@@ -768,9 +794,13 @@ void SceneRendererMTL::render(TimeInterval duration,
                     // Just run the calculation portion
                     if (workGroup->groupType == WorkGroup::Calculation) {
                         // Work through the drawables
-                        for (auto &draw : targetContainer->drawables) {
+                        for (const auto &draw : targetContainer->drawables) {
                             DrawableMTL *drawMTL = dynamic_cast<DrawableMTL *>(draw.get());
-                            SimpleIdentity calcProgID = drawMTL->getCalculationProgram();
+                            if (!drawMTL) {
+                                wkLogLevel(Error, "SceneRendererMTL: Invalid drawable.  Skipping.");
+                                continue;
+                            }
+                            const SimpleIdentity calcProgID = drawMTL->getCalculationProgram();
                             
                             // Figure out the program to use for drawing
                             if (calcProgID == EmptyIdentity)
@@ -778,7 +808,7 @@ void SceneRendererMTL::render(TimeInterval duration,
 
                             ProgramMTL *calcProgram = (ProgramMTL *)scene->getProgram(calcProgID);
                             if (!calcProgram) {
-                                NSLog(@"Invalid calculation program for drawable.  Skipping.");
+                                wkLogLevel(Error, "SceneRendererMTL: Invalid calculation program for drawable.  Skipping.");
                                 continue;
                             }
                             baseFrameInfo.program = calcProgram;
@@ -803,11 +833,15 @@ void SceneRendererMTL::render(TimeInterval duration,
                         [cmdEncode setCullMode:MTLCullModeFront];
                         
                         // Work through the drawables
-                        for (auto const &draw : targetContainer->drawables) {
+                        for (const auto &draw : targetContainer->drawables) {
                             auto drawMTL = dynamic_cast<DrawableMTL*>(draw.get());
+                            if (!drawMTL) {
+                                wkLogLevel(Error, "SceneRendererMTL: Invalid drawable.  Skipping.");
+                                continue;
+                            }
 
                             // Figure out the program to use for drawing
-                            SimpleIdentity drawProgramId = drawMTL->getProgram();
+                            const SimpleIdentity drawProgramId = drawMTL->getProgram();
                             ProgramMTL *program = (ProgramMTL *)scene->getProgram(drawProgramId);
                             if (!program) {
                                 wkLogLevel(Error, "SceneRendererMTL: Drawable without Program");
