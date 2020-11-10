@@ -1,0 +1,2574 @@
+{
+  "warnings": [
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 91,
+      "symbol": "kMaplySunDrawPriorityDefault",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 92,
+      "symbol": "kMaplyMoonDrawPriorityDefault",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 93,
+      "symbol": "kMaplyAtmosphereDrawPriorityDefault",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 98,
+      "symbol": "kMaplyStickerDrawPriorityDefault",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 99,
+      "symbol": "kMaplyMarkerDrawPriorityDefault",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 100,
+      "symbol": "kMaplyVectorDrawPriorityDefault",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 101,
+      "symbol": "kMaplyParticleSystemDrawPriorityDefault",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 102,
+      "symbol": "kMaplyLabelDrawPriorityDefault",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 103,
+      "symbol": "kMaplyLoftedPolysDrawPriorityDefault",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 104,
+      "symbol": "kMaplyShapeDrawPriorityDefault",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 105,
+      "symbol": "kMaplyBillboardDrawPriorityDefault",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 106,
+      "symbol": "kMaplyModelDrawPriorityDefault",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 107,
+      "symbol": "kMaplyMaxDrawPriorityDefault",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 197,
+      "symbol": "kMaplyVecCenterY",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 314,
+      "symbol": "kMaplyShapeCenterY",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 315,
+      "symbol": "kMaplyShapeCenterZ",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 319,
+      "symbol": "kMaplyVecMinSample",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 323,
+      "symbol": "kMaplyPointSizeDefault",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 327,
+      "symbol": "kMaplyTexMinFilter",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 328,
+      "symbol": "kMaplyTexMagFilter",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 329,
+      "symbol": "kMaplyMinFilterNearest",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 330,
+      "symbol": "kMaplyMinFilterLinear",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 331,
+      "symbol": "kMaplyTexAtlas",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 332,
+      "symbol": "kMaplyTexWrapX",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 333,
+      "symbol": "kMaplyTexWrapY",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 334,
+      "symbol": "kMaplyTexMipmap",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 338,
+      "symbol": "kMaplyDefaultTriangleShader",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 339,
+      "symbol": "kMaplyShaderTriExp",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 341,
+      "symbol": "kMaplyShaderDefaultModelTri",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 343,
+      "symbol": "kMaplyShaderDefaultTriNoLighting",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 344,
+      "symbol": "kMaplyNoLightTriangleShader",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 345,
+      "symbol": "kMaplyShaderNoLightTriangleExp",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 346,
+      "symbol": "kMaplyShaderDefaultMarker",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 348,
+      "symbol": "kMaplyShaderDefaultTriScreenTex",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 350,
+      "symbol": "kMaplyShaderDefaultTriMultiTex",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 351,
+      "symbol": "kMaplyShaderDefaultTriMultiTexRamp",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 352,
+      "symbol": "kMaplyShaderDefaultTriNightDay",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 354,
+      "symbol": "kMaplyShaderDefaultLine",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 355,
+      "symbol": "kMaplyDefaultLineShader",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 357,
+      "symbol": "kMaplyShaderDefaultLineNoBackface",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 358,
+      "symbol": "kMaplyNoBackfaceLineShader",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 360,
+      "symbol": "kMaplyShaderBillboardGround",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 361,
+      "symbol": "kMaplyShaderBillboardEye",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 363,
+      "symbol": "kMaplyShaderDefaultWideVector",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 364,
+      "symbol": "kMaplyShaderWideVectorExp",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 366,
+      "symbol": "kMaplyScreenSpaceDefaultMotionProgram",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 367,
+      "symbol": "kMaplyScreenSpaceDefaultProgram",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 368,
+      "symbol": "kMaplyScreenSpaceExpProgram",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/MaplySharedAttributes.h",
+      "line": 370,
+      "symbol": "kMaplyShaderParticleSystemPointDefault",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/UIKit/NSDictionary+StyleRules.h",
+      "line": 11,
+      "symbol": "NSMutableDictionary(StyleRules)",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.category",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/UIKit/NSDictionary+StyleRules.h",
+      "line": 13,
+      "symbol": "NSMutableDictionary(StyleRules).-styles",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/UIKit/NSDictionary+StyleRules.h",
+      "line": 14,
+      "symbol": "NSMutableDictionary(StyleRules).-rules",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/UIKit/NSDictionary+StyleRules.h",
+      "line": 15,
+      "symbol": "NSMutableDictionary(StyleRules).-symbolizers",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/UIKit/NSDictionary+StyleRules.h",
+      "line": 16,
+      "symbol": "NSMutableDictionary(StyleRules).-layers",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/UIKit/NSDictionary+StyleRules.h",
+      "line": 17,
+      "symbol": "NSMutableDictionary(StyleRules).-filter",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/UIKit/NSDictionary+StyleRules.h",
+      "line": 18,
+      "symbol": "NSMutableDictionary(StyleRules).-setFilter:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/UIKit/NSDictionary+StyleRules.h",
+      "line": 19,
+      "symbol": "NSMutableDictionary(StyleRules).-name",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/UIKit/NSDictionary+StyleRules.h",
+      "line": 21,
+      "symbol": "NSMutableDictionary(StyleRules).-minScaleDenom",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/UIKit/NSDictionary+StyleRules.h",
+      "line": 22,
+      "symbol": "NSMutableDictionary(StyleRules).-setMinScaleDenom:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/UIKit/NSDictionary+StyleRules.h",
+      "line": 23,
+      "symbol": "NSMutableDictionary(StyleRules).-maxScaleDenom",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/UIKit/NSDictionary+StyleRules.h",
+      "line": 24,
+      "symbol": "NSMutableDictionary(StyleRules).-setMaxScaleDenom:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/UIKit/NSDictionary+StyleRules.h",
+      "line": 25,
+      "symbol": "NSMutableDictionary(StyleRules).-parameters",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/UIKit/NSDictionary+StyleRules.h",
+      "line": 33,
+      "symbol": "NSDictionaryStyleDummyFunc",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.function",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/control/MaplyRenderController.h",
+      "line": 41,
+      "symbol": "MaplyThreadMode.MaplyThreadCurrent",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/control/MaplyRenderController.h",
+      "line": 42,
+      "symbol": "MaplyThreadMode.MaplyThreadAny",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/control/MaplyRenderController.h",
+      "line": 47,
+      "symbol": "MaplyQuadImageFormat.MaplyImageIntRGBA",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/control/MaplyRenderController.h",
+      "line": 48,
+      "symbol": "MaplyQuadImageFormat.MaplyImageUShort565",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/control/MaplyRenderController.h",
+      "line": 49,
+      "symbol": "MaplyQuadImageFormat.MaplyImageUShort4444",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/control/MaplyRenderController.h",
+      "line": 50,
+      "symbol": "MaplyQuadImageFormat.MaplyImageUShort5551",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/control/MaplyRenderController.h",
+      "line": 51,
+      "symbol": "MaplyQuadImageFormat.MaplyImageUByteAlpha",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/control/MaplyRenderController.h",
+      "line": 51,
+      "symbol": "MaplyQuadImageFormat.MaplyImageUByteBlue",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/control/MaplyRenderController.h",
+      "line": 51,
+      "symbol": "MaplyQuadImageFormat.MaplyImageUByteGreen",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/control/MaplyRenderController.h",
+      "line": 51,
+      "symbol": "MaplyQuadImageFormat.MaplyImageUByteRed",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/control/MaplyRenderController.h",
+      "line": 52,
+      "symbol": "MaplyQuadImageFormat.MaplyImageUByteRG",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/control/MaplyRenderController.h",
+      "line": 53,
+      "symbol": "MaplyQuadImageFormat.MaplyImageUByteRGB",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/control/MaplyRenderController.h",
+      "line": 54,
+      "symbol": "MaplyQuadImageFormat.MaplyImageETC2RGB8",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/control/MaplyRenderController.h",
+      "line": 54,
+      "symbol": "MaplyQuadImageFormat.MaplyImageETC2RGBA8",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/control/MaplyRenderController.h",
+      "line": 54,
+      "symbol": "MaplyQuadImageFormat.MaplyImageETC2RGBPA8",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/control/MaplyRenderController.h",
+      "line": 55,
+      "symbol": "MaplyQuadImageFormat.MaplyImageEACR11",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/control/MaplyRenderController.h",
+      "line": 55,
+      "symbol": "MaplyQuadImageFormat.MaplyImageEACR11S",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/control/MaplyRenderController.h",
+      "line": 55,
+      "symbol": "MaplyQuadImageFormat.MaplyImageEACRG11",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/control/MaplyRenderController.h",
+      "line": 55,
+      "symbol": "MaplyQuadImageFormat.MaplyImageEACRG11S",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/control/MaplyRenderController.h",
+      "line": 56,
+      "symbol": "MaplyQuadImageFormat.MaplyImage4Layer8Bit",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/control/MaplyRenderController.h",
+      "line": 58,
+      "symbol": "MaplyQuadImageFormat.MaplyImageDoubleFloat16",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/control/MaplyRenderController.h",
+      "line": 58,
+      "symbol": "MaplyQuadImageFormat.MaplyImageDoubleFloat32",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/control/MaplyRenderController.h",
+      "line": 58,
+      "symbol": "MaplyQuadImageFormat.MaplyImageQuadFloat16",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/control/MaplyRenderController.h",
+      "line": 58,
+      "symbol": "MaplyQuadImageFormat.MaplyImageQuadFloat32",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/control/MaplyRenderController.h",
+      "line": 58,
+      "symbol": "MaplyQuadImageFormat.MaplyImageSingleFloat16",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/control/MaplyRenderController.h",
+      "line": 58,
+      "symbol": "MaplyQuadImageFormat.MaplyImageSingleFloat32",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/control/MaplyRenderController.h",
+      "line": 59,
+      "symbol": "MaplyQuadImageFormat.MaplyImageDoubleUInt32",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/control/MaplyRenderController.h",
+      "line": 59,
+      "symbol": "MaplyQuadImageFormat.MaplyImageInt16",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/control/MaplyRenderController.h",
+      "line": 59,
+      "symbol": "MaplyQuadImageFormat.MaplyImageQuadUInt32",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/control/MaplyRenderController.h",
+      "line": 59,
+      "symbol": "MaplyQuadImageFormat.MaplyImageUInt32",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/control/MaplyRenderController.h",
+      "line": 72,
+      "symbol": "MaplyRenderType.MaplyRenderMetal",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/control/MaplyRenderController.h",
+      "line": 73,
+      "symbol": "MaplyRenderType.MaplyRenderUnknown",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/control/MaplyRenderController.h",
+      "line": 880,
+      "symbol": "MaplyRenderControllerProtocol.-setClearColor:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/control/MaplyRenderController.h",
+      "line": 886,
+      "symbol": "MaplyRenderControllerProtocol.-getRenderControl",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/control/MaplyViewController.h",
+      "line": 239,
+      "symbol": "MaplyMapType",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enum",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/control/MaplyViewController.h",
+      "line": 239,
+      "symbol": "MaplyMapType",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.typedef",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/control/MaplyViewController.h",
+      "line": 240,
+      "symbol": "MaplyMapType.MaplyMapType3D",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/control/MaplyViewController.h",
+      "line": 241,
+      "symbol": "MaplyMapType.MaplyMapTypeFlat",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/control/MaplyViewTracker.h",
+      "line": 68,
+      "symbol": "WGViewTracker",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.typedef",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/data_sources/MaplyMBTileFetcher.h",
+      "line": 39,
+      "symbol": "MaplyMBTileFetcher.-coordSys",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/gestures/Maply3DTouchPreviewDatasource.h",
+      "line": 11,
+      "symbol": "Maply3dTouchPreviewDatasource",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.protocol",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/helpers/MaplyLocationTracker.h",
+      "line": 29,
+      "symbol": "",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.struct",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/helpers/MaplyLocationTracker.h",
+      "line": 29,
+      "symbol": "MaplyLocationTrackerSimulationPoint",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.typedef",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/helpers/MaplyLocationTracker.h",
+      "line": 29,
+      "symbol": "MaplyLocationTrackerSimulationPoint.",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.struct",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/helpers/MaplyLocationTracker.h",
+      "line": 31,
+      "symbol": ".lonDeg",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.field",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/helpers/MaplyLocationTracker.h",
+      "line": 31,
+      "symbol": "MaplyLocationTrackerSimulationPoint..lonDeg",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.field",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/helpers/MaplyLocationTracker.h",
+      "line": 32,
+      "symbol": ".latDeg",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.field",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/helpers/MaplyLocationTracker.h",
+      "line": 32,
+      "symbol": "MaplyLocationTrackerSimulationPoint..latDeg",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.field",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/helpers/MaplyLocationTracker.h",
+      "line": 33,
+      "symbol": ".headingDeg",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.field",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/helpers/MaplyLocationTracker.h",
+      "line": 33,
+      "symbol": "MaplyLocationTrackerSimulationPoint..headingDeg",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.field",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/helpers/MaplyLocationTracker.h",
+      "line": 36,
+      "symbol": "",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enum",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/helpers/MaplyLocationTracker.h",
+      "line": 36,
+      "symbol": ".MaplyLocationLockHeadingUp",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/helpers/MaplyLocationTracker.h",
+      "line": 36,
+      "symbol": ".MaplyLocationLockHeadingUpOffset",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/helpers/MaplyLocationTracker.h",
+      "line": 36,
+      "symbol": ".MaplyLocationLockNone",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/helpers/MaplyLocationTracker.h",
+      "line": 36,
+      "symbol": ".MaplyLocationLockNorthUp",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/helpers/MaplyLocationTracker.h",
+      "line": 36,
+      "symbol": "MaplyLocationLockType",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.typedef",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/helpers/MaplyLocationTracker.h",
+      "line": 36,
+      "symbol": "MaplyLocationLockType.",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enum",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/helpers/MaplyLocationTracker.h",
+      "line": 36,
+      "symbol": "MaplyLocationLockType..MaplyLocationLockHeadingUp",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/helpers/MaplyLocationTracker.h",
+      "line": 36,
+      "symbol": "MaplyLocationLockType..MaplyLocationLockHeadingUpOffset",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/helpers/MaplyLocationTracker.h",
+      "line": 36,
+      "symbol": "MaplyLocationLockType..MaplyLocationLockNone",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/helpers/MaplyLocationTracker.h",
+      "line": 36,
+      "symbol": "MaplyLocationLockType..MaplyLocationLockNorthUp",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/helpers/MaplyLocationTracker.h",
+      "line": 43,
+      "symbol": "MaplyLocationTrackerDelegate",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.protocol",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/helpers/MaplyLocationTracker.h",
+      "line": 45,
+      "symbol": "MaplyLocationTrackerDelegate.-locationManager:didFailWithError:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/helpers/MaplyLocationTracker.h",
+      "line": 47,
+      "symbol": "MaplyLocationTrackerDelegate.-locationManager:didChangeAuthorizationStatus:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/helpers/MaplyLocationTracker.h",
+      "line": 51,
+      "symbol": "MaplyLocationTrackerDelegate.-updateLocation:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/helpers/MaplyLocationTracker.h",
+      "line": 53,
+      "symbol": "MaplyLocationTrackerDelegate.-getSimulationPoint",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/helpers/MaplyLocationTracker.h",
+      "line": 62,
+      "symbol": "MaplyLocationTracker",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.class",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/loading/GeoJSONSource.h",
+      "line": 21,
+      "symbol": "GeoJSONSource.-initWithViewC:GeoJSONURL:sldURL:relativeDrawPriority:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/loading/GeoJSONSource.h",
+      "line": 23,
+      "symbol": "GeoJSONSource.-startParseWithCompletion:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/loading/GeoJSONSource.h",
+      "line": 25,
+      "symbol": "GeoJSONSource.-startParse",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/loading/GeoJSONSource.h",
+      "line": 27,
+      "symbol": "GeoJSONSource.loaded",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/loading/GeoJSONSource.h",
+      "line": 28,
+      "symbol": "GeoJSONSource.enabled",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/loading/MaplyQuadImageFrameLoader.h",
+      "line": 77,
+      "symbol": "MaplyLoadFrameMode.MaplyLoadFrameBroad",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/loading/MaplyQuadImageFrameLoader.h",
+      "line": 78,
+      "symbol": "MaplyLoadFrameMode.MaplyLoadFrameNarrow",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/loading/MaplyQuadImageLoader.h",
+      "line": 90,
+      "symbol": "MaplyOvlDebugImageLoaderInterpreter.-initWithViewC:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/loading/MaplyQuadImageLoader.h",
+      "line": 100,
+      "symbol": "MaplyDebugImageLoaderInterpreter.-initWithViewC:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/loading/MaplyQuadImageLoader.h",
+      "line": 129,
+      "symbol": "MaplyQuadImageLoaderBase.drawPriorityPerLevel",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/loading/MaplyQuadImageLoader.h",
+      "line": 132,
+      "symbol": "MaplyQuadImageLoaderBase.color",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/loading/MaplyQuadImageLoader.h",
+      "line": 135,
+      "symbol": "MaplyQuadImageLoaderBase.zBufferWrite",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/loading/MaplyQuadImageLoader.h",
+      "line": 138,
+      "symbol": "MaplyQuadImageLoaderBase.zBufferRead",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/loading/MaplyQuadLoader.h",
+      "line": 124,
+      "symbol": "MaplyQuadLoaderBase.-isLoading",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/loading/MaplyQuadPagingLoader.h",
+      "line": 78,
+      "symbol": "MaplyQuadPagingLoader.-reloadArea:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/loading/MaplyQuadPagingLoader.h",
+      "line": 80,
+      "symbol": "MaplyQuadPagingLoader.-reloadAreas:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/loading/MaplyQuadSampler.h",
+      "line": 79,
+      "symbol": "MaplySamplingParams.hasClipBounds",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/loading/MaplyRemoteTileFetcher.h",
+      "line": 198,
+      "symbol": "MaplyRemoteTileFetcher.debugMode",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/loading/MaplyRemoteTileFetcher.h",
+      "line": 205,
+      "symbol": "MaplyRemoteTileFetcherStats.fetcher",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/loading/MaplyRemoteTileFetcher.h",
+      "line": 208,
+      "symbol": "MaplyRemoteTileFetcherStats.startDate",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/loading/MaplyRemoteTileFetcher.h",
+      "line": 211,
+      "symbol": "MaplyRemoteTileFetcherStats.totalRequests",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/loading/MaplyRemoteTileFetcher.h",
+      "line": 214,
+      "symbol": "MaplyRemoteTileFetcherStats.remoteRequests",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/loading/MaplyRemoteTileFetcher.h",
+      "line": 217,
+      "symbol": "MaplyRemoteTileFetcherStats.totalCancels",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/loading/MaplyRemoteTileFetcher.h",
+      "line": 220,
+      "symbol": "MaplyRemoteTileFetcherStats.totalFails",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/loading/MaplyRemoteTileFetcher.h",
+      "line": 223,
+      "symbol": "MaplyRemoteTileFetcherStats.remoteData",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/loading/MaplyRemoteTileFetcher.h",
+      "line": 226,
+      "symbol": "MaplyRemoteTileFetcherStats.localData",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/loading/MaplyRemoteTileFetcher.h",
+      "line": 229,
+      "symbol": "MaplyRemoteTileFetcherStats.totalLatency",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/loading/MaplyRemoteTileFetcher.h",
+      "line": 232,
+      "symbol": "MaplyRemoteTileFetcherStats.maxActiveRequests",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/loading/MaplyRemoteTileFetcher.h",
+      "line": 235,
+      "symbol": "MaplyRemoteTileFetcherStats.activeRequests",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/loading/MaplyRemoteTileFetcher.h",
+      "line": 238,
+      "symbol": "MaplyRemoteTileFetcherStats.-addStats:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/loading/MaplyRemoteTileFetcher.h",
+      "line": 241,
+      "symbol": "MaplyRemoteTileFetcherStats.-dump",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/loading/MaplyTileSourceNew.h",
+      "line": 41,
+      "symbol": ".level",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.field",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/loading/MaplyTileSourceNew.h",
+      "line": 41,
+      "symbol": ".x",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.field",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/loading/MaplyTileSourceNew.h",
+      "line": 41,
+      "symbol": ".y",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.field",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/loading/MaplyTileSourceNew.h",
+      "line": 41,
+      "symbol": "MaplyTileID..level",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.field",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/loading/MaplyTileSourceNew.h",
+      "line": 41,
+      "symbol": "MaplyTileID..x",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.field",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/loading/MaplyTileSourceNew.h",
+      "line": 41,
+      "symbol": "MaplyTileID..y",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.field",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/math/MaplyCoordinate.h",
+      "line": 34,
+      "symbol": ".x",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.field",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/math/MaplyCoordinate.h",
+      "line": 34,
+      "symbol": ".y",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.field",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/math/MaplyCoordinate.h",
+      "line": 34,
+      "symbol": "MaplyCoordinate..x",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.field",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/math/MaplyCoordinate.h",
+      "line": 34,
+      "symbol": "MaplyCoordinate..y",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.field",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/math/MaplyCoordinate.h",
+      "line": 38,
+      "symbol": "kMaplyNullCoordinate",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/math/MaplyCoordinate.h",
+      "line": 49,
+      "symbol": ".x",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.field",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/math/MaplyCoordinate.h",
+      "line": 49,
+      "symbol": ".y",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.field",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/math/MaplyCoordinate.h",
+      "line": 49,
+      "symbol": "MaplyCoordinateD..x",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.field",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/math/MaplyCoordinate.h",
+      "line": 49,
+      "symbol": "MaplyCoordinateD..y",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.field",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/math/MaplyCoordinate.h",
+      "line": 52,
+      "symbol": "kMaplyNullCoordinateD",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/math/MaplyCoordinate.h",
+      "line": 64,
+      "symbol": ".x",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.field",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/math/MaplyCoordinate.h",
+      "line": 64,
+      "symbol": ".y",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.field",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/math/MaplyCoordinate.h",
+      "line": 64,
+      "symbol": ".z",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.field",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/math/MaplyCoordinate.h",
+      "line": 64,
+      "symbol": "MaplyCoordinate3d..x",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.field",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/math/MaplyCoordinate.h",
+      "line": 64,
+      "symbol": "MaplyCoordinate3d..y",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.field",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/math/MaplyCoordinate.h",
+      "line": 64,
+      "symbol": "MaplyCoordinate3d..z",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.field",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/math/MaplyCoordinate.h",
+      "line": 82,
+      "symbol": "",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.struct",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/math/MaplyCoordinate.h",
+      "line": 82,
+      "symbol": "MaplyCoordinate3dD",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.typedef",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/math/MaplyCoordinate.h",
+      "line": 82,
+      "symbol": "MaplyCoordinate3dD.",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.struct",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/math/MaplyCoordinate.h",
+      "line": 84,
+      "symbol": ".x",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.field",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/math/MaplyCoordinate.h",
+      "line": 84,
+      "symbol": ".y",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.field",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/math/MaplyCoordinate.h",
+      "line": 84,
+      "symbol": ".z",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.field",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/math/MaplyCoordinate.h",
+      "line": 84,
+      "symbol": "MaplyCoordinate3dD..x",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.field",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/math/MaplyCoordinate.h",
+      "line": 84,
+      "symbol": "MaplyCoordinate3dD..y",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.field",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/math/MaplyCoordinate.h",
+      "line": 84,
+      "symbol": "MaplyCoordinate3dD..z",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.field",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/math/MaplyCoordinate.h",
+      "line": 87,
+      "symbol": "kMaplyNullCoordinate3dD",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/math/MaplyCoordinate.h",
+      "line": 111,
+      "symbol": ".ll",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.field",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/math/MaplyCoordinate.h",
+      "line": 111,
+      "symbol": "MaplyBoundingBox..ll",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.field",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/math/MaplyCoordinate.h",
+      "line": 112,
+      "symbol": ".ur",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.field",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/math/MaplyCoordinate.h",
+      "line": 112,
+      "symbol": "MaplyBoundingBox..ur",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.field",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/math/MaplyCoordinate.h",
+      "line": 115,
+      "symbol": "kMaplyNullBoundingBox",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/math/MaplyCoordinate.h",
+      "line": 125,
+      "symbol": "NSValue(MaplyBoundingBox).+valueWithMaplyBoundingBox:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.class",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/math/MaplyCoordinate.h",
+      "line": 126,
+      "symbol": "NSValue(MaplyBoundingBox).maplyBoundingBoxValue",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/math/MaplyCoordinate.h",
+      "line": 136,
+      "symbol": ".ll",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.field",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/math/MaplyCoordinate.h",
+      "line": 136,
+      "symbol": "MaplyBoundingBoxD..ll",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.field",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/math/MaplyCoordinate.h",
+      "line": 137,
+      "symbol": ".ur",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.field",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/math/MaplyCoordinate.h",
+      "line": 137,
+      "symbol": "MaplyBoundingBoxD..ur",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.field",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/math/MaplyCoordinate.h",
+      "line": 140,
+      "symbol": "kMaplyNullBoundingBoxD",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/rendering/MaplyColorRampGenerator.h",
+      "line": 19,
+      "symbol": "MaplyColorRampGenerator.stretch",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/rendering/MaplyRenderTarget.h",
+      "line": 24,
+      "symbol": "MaplyMipmapType",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enum",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/rendering/MaplyRenderTarget.h",
+      "line": 24,
+      "symbol": "MaplyMipmapType",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.typedef",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/rendering/MaplyShader.h",
+      "line": 31,
+      "symbol": "MaplyShaderAttrType.MaplyShaderAttrTypeInt",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/rendering/MaplyShader.h",
+      "line": 32,
+      "symbol": "MaplyShaderAttrType.MaplyShaderAttrTypeFloat",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/rendering/MaplyShader.h",
+      "line": 33,
+      "symbol": "MaplyShaderAttrType.MaplyShaderAttrTypeFloat2",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/rendering/MaplyShader.h",
+      "line": 34,
+      "symbol": "MaplyShaderAttrType.MaplyShaderAttrTypeFloat3",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/rendering/MaplyShader.h",
+      "line": 35,
+      "symbol": "MaplyShaderAttrType.MaplyShaderAttrTypeFloat4",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/rendering/MaplyVariableTarget.h",
+      "line": 77,
+      "symbol": "MaplyVariableTarget.-setUniformBlock:buffer:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapboxVectorStyleSet.h",
+      "line": 25,
+      "symbol": "MapboxLayerType",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enum",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapboxVectorStyleSet.h",
+      "line": 25,
+      "symbol": "MapboxLayerType",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.typedef",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapboxVectorStyleSet.h",
+      "line": 26,
+      "symbol": "MapboxLayerType.MapboxLayerTypeBackground",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapboxVectorStyleSet.h",
+      "line": 27,
+      "symbol": "MapboxLayerType.MapboxLayerTypeCircle",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapboxVectorStyleSet.h",
+      "line": 28,
+      "symbol": "MapboxLayerType.MapboxLayerTypeFill",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapboxVectorStyleSet.h",
+      "line": 29,
+      "symbol": "MapboxLayerType.MapboxLayerTypeLine",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapboxVectorStyleSet.h",
+      "line": 30,
+      "symbol": "MapboxLayerType.MapboxLayerTypeRaster",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapboxVectorStyleSet.h",
+      "line": 31,
+      "symbol": "MapboxLayerType.MapboxLayerTypeSymbol",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapboxVectorStyleSet.h",
+      "line": 32,
+      "symbol": "MapboxLayerType.MapboxLayerTypeUnknown",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapboxVectorStyleSet.h",
+      "line": 111,
+      "symbol": "MapboxVectorStyleSet.viewC",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapboxVectorStyleSet.h",
+      "line": 115,
+      "symbol": "",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enum",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapboxVectorStyleSet.h",
+      "line": 115,
+      "symbol": "MapboxSourceType",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.typedef",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapboxVectorStyleSet.h",
+      "line": 115,
+      "symbol": "MapboxSourceType.",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enum",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapboxVectorStyleSet.h",
+      "line": 116,
+      "symbol": ".MapboxSourceVector",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapboxVectorStyleSet.h",
+      "line": 116,
+      "symbol": "MapboxSourceType..MapboxSourceVector",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapboxVectorStyleSet.h",
+      "line": 117,
+      "symbol": ".MapboxSourceRaster",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapboxVectorStyleSet.h",
+      "line": 117,
+      "symbol": "MapboxSourceType..MapboxSourceRaster",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapboxVectorStyleSet.h",
+      "line": 122,
+      "symbol": "MaplyMapboxVectorStyleSource",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.class",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapboxVectorStyleSet.h",
+      "line": 125,
+      "symbol": "MaplyMapboxVectorStyleSource.name",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapboxVectorStyleSet.h",
+      "line": 128,
+      "symbol": "MaplyMapboxVectorStyleSource.type",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapboxVectorStyleSet.h",
+      "line": 131,
+      "symbol": "MaplyMapboxVectorStyleSource.url",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapboxVectorStyleSet.h",
+      "line": 134,
+      "symbol": "MaplyMapboxVectorStyleSource.tileSpec",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapboxVectorStyleSet.h",
+      "line": 137,
+      "symbol": "MaplyMapboxVectorStyleSource.-initWithName:styleEntry:styleSet:viewC:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MaplyVectorStyle.h",
+      "line": 123,
+      "symbol": "MaplyVectorStyleDelegate.-allStyles",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MaplyVectorStyleSimple.h",
+      "line": 20,
+      "symbol": "MaplyVectorStyleSimpleGenerator.viewC",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MaplyVectorStyleSimple.h",
+      "line": 44,
+      "symbol": "MaplyVectorStyleSimple.viewC",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MaplyVectorStyleSimple.h",
+      "line": 46,
+      "symbol": "MaplyVectorStyleSimple.-initWithGen:viewC:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MaplyVectorStyleSimple.h",
+      "line": 55,
+      "symbol": "MaplyVectorStyleSimplePolygon.color",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MaplyVectorStyleSimple.h",
+      "line": 64,
+      "symbol": "MaplyVectorStyleSimplePoint.font",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MaplyVectorStyleSimple.h",
+      "line": 73,
+      "symbol": "MaplyVectorStyleSimpleLinear.color",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MaplyVectorTileLineStyle.h",
+      "line": 29,
+      "symbol": "MaplyVectorTileStyleLine.-initWithStyleEntry:settings:viewC:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MaplyVectorTileMarkerStyle.h",
+      "line": 29,
+      "symbol": "MaplyVectorTileStyleMarker.-initWithStyleEntry:settings:viewC:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MaplyVectorTilePolygonStyle.h",
+      "line": 29,
+      "symbol": "MaplyVectorTileStylePolygon.-initWithStyleEntry:settings:viewC:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MaplyVectorTileTextStyle.h",
+      "line": 29,
+      "symbol": "MaplyVectorTileStyleText.-initWithStyleEntry:settings:viewC:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapnikStyle.h",
+      "line": 24,
+      "symbol": "MapnikStyle",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.class",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapnikStyle.h",
+      "line": 26,
+      "symbol": "MapnikStyle.rules",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapnikStyle.h",
+      "line": 27,
+      "symbol": "MapnikStyle.name",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapnikStyle.h",
+      "line": 28,
+      "symbol": "MapnikStyle.filterModeFirst",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapnikStyle.h",
+      "line": 29,
+      "symbol": "MapnikStyle.opacity",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapnikStyle.h",
+      "line": 31,
+      "symbol": "MapnikStyle.-addRule:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapnikStyleRule.h",
+      "line": 23,
+      "symbol": "MapnikStyleRule",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.class",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapnikStyleRule.h",
+      "line": 25,
+      "symbol": "MapnikStyleRule.filterPredicate",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapnikStyleRule.h",
+      "line": 27,
+      "symbol": "MapnikStyleRule.minScaleDenominator",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapnikStyleRule.h",
+      "line": 28,
+      "symbol": "MapnikStyleRule.maxScaleDenomitator",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapnikStyleRule.h",
+      "line": 29,
+      "symbol": "MapnikStyleRule.minZoom",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapnikStyleRule.h",
+      "line": 30,
+      "symbol": "MapnikStyleRule.maxZoom",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapnikStyleRule.h",
+      "line": 32,
+      "symbol": "MapnikStyleRule.symbolizers",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapnikStyleRule.h",
+      "line": 34,
+      "symbol": "MapnikStyleRule.-setFilter:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapnikStyleSet.h",
+      "line": 27,
+      "symbol": "MapnikStyleSet",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.class",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapnikStyleSet.h",
+      "line": 29,
+      "symbol": "MapnikStyleSet.tileStyleSettings",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapnikStyleSet.h",
+      "line": 30,
+      "symbol": "MapnikStyleSet.styleDictionary",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapnikStyleSet.h",
+      "line": 31,
+      "symbol": "MapnikStyleSet.viewC",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapnikStyleSet.h",
+      "line": 32,
+      "symbol": "MapnikStyleSet.parsing",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapnikStyleSet.h",
+      "line": 33,
+      "symbol": "MapnikStyleSet.backgroundColor",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapnikStyleSet.h",
+      "line": 34,
+      "symbol": "MapnikStyleSet.tileMaxZoom",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapnikStyleSet.h",
+      "line": 35,
+      "symbol": "MapnikStyleSet.drawPriorityOffset",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapnikStyleSet.h",
+      "line": 36,
+      "symbol": "MapnikStyleSet.alpha",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapnikStyleSet.h",
+      "line": 38,
+      "symbol": "MapnikStyleSet.-initForViewC:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapnikStyleSet.h",
+      "line": 40,
+      "symbol": "MapnikStyleSet.-loadXmlFile:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapnikStyleSet.h",
+      "line": 41,
+      "symbol": "MapnikStyleSet.-loadXmlData:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapnikStyleSet.h",
+      "line": 42,
+      "symbol": "MapnikStyleSet.-loadJsonData:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapnikStyleSet.h",
+      "line": 43,
+      "symbol": "MapnikStyleSet.-loadJsonFile:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapnikStyleSet.h",
+      "line": 44,
+      "symbol": "MapnikStyleSet.-saveAsJSON:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/MapnikStyleSet.h",
+      "line": 45,
+      "symbol": "MapnikStyleSet.-generateStyles",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDExpressions.h",
+      "line": 18,
+      "symbol": "SLDExpression.expression",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDExpressions.h",
+      "line": 19,
+      "symbol": "SLDExpression.+matchesElementNamed:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.class",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDExpressions.h",
+      "line": 20,
+      "symbol": "SLDExpression.+expressionForNode:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.class",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDExpressions.h",
+      "line": 29,
+      "symbol": "SLDPropertyNameExpression.propertyName",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDExpressions.h",
+      "line": 30,
+      "symbol": "SLDPropertyNameExpression.-initWithElement:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDExpressions.h",
+      "line": 38,
+      "symbol": "SLDLiteralExpression.literal",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDExpressions.h",
+      "line": 39,
+      "symbol": "SLDLiteralExpression.-initWithElement:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDExpressions.h",
+      "line": 48,
+      "symbol": "SLDBinaryOperatorExpression.elementName",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDExpressions.h",
+      "line": 50,
+      "symbol": "SLDBinaryOperatorExpression.leftExpression",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDExpressions.h",
+      "line": 51,
+      "symbol": "SLDBinaryOperatorExpression.rightExpression",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDExpressions.h",
+      "line": 53,
+      "symbol": "SLDBinaryOperatorExpression.-initWithElement:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDOperators.h",
+      "line": 19,
+      "symbol": "SLDOperator.predicate",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDOperators.h",
+      "line": 20,
+      "symbol": "SLDOperator.+matchesElementNamed:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.class",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDOperators.h",
+      "line": 21,
+      "symbol": "SLDOperator.+operatorForNode:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.class",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDOperators.h",
+      "line": 31,
+      "symbol": "SLDBinaryComparisonOperator.matchCase",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDOperators.h",
+      "line": 32,
+      "symbol": "SLDBinaryComparisonOperator.elementName",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDOperators.h",
+      "line": 34,
+      "symbol": "SLDBinaryComparisonOperator.leftExpression",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDOperators.h",
+      "line": 35,
+      "symbol": "SLDBinaryComparisonOperator.rightExpression",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDOperators.h",
+      "line": 38,
+      "symbol": "SLDBinaryComparisonOperator.-initWithElement:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDOperators.h",
+      "line": 43,
+      "symbol": "SLDIsNullOperator",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.class",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDOperators.h",
+      "line": 45,
+      "symbol": "SLDIsNullOperator.subExpression",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDOperators.h",
+      "line": 47,
+      "symbol": "SLDIsNullOperator.-initWithElement:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDOperators.h",
+      "line": 52,
+      "symbol": "SLDIsLikeOperator",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.class",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDOperators.h",
+      "line": 54,
+      "symbol": "SLDIsLikeOperator.wildCardStr",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDOperators.h",
+      "line": 55,
+      "symbol": "SLDIsLikeOperator.singleCharStr",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDOperators.h",
+      "line": 56,
+      "symbol": "SLDIsLikeOperator.escapeCharStr",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDOperators.h",
+      "line": 57,
+      "symbol": "SLDIsLikeOperator.matchCase",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDOperators.h",
+      "line": 58,
+      "symbol": "SLDIsLikeOperator.propertyExpression",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDOperators.h",
+      "line": 59,
+      "symbol": "SLDIsLikeOperator.literalExpression",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDOperators.h",
+      "line": 61,
+      "symbol": "SLDIsLikeOperator.-initWithElement:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDOperators.h",
+      "line": 65,
+      "symbol": "SLDIsBetweenOperator",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.class",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDOperators.h",
+      "line": 67,
+      "symbol": "SLDIsBetweenOperator.subExpression",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDOperators.h",
+      "line": 68,
+      "symbol": "SLDIsBetweenOperator.lowerBoundaryExpression",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDOperators.h",
+      "line": 69,
+      "symbol": "SLDIsBetweenOperator.upperBoundaryExpression",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDOperators.h",
+      "line": 71,
+      "symbol": "SLDIsBetweenOperator.-initWithElement:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDOperators.h",
+      "line": 83,
+      "symbol": "SLDNotOperator.subOperator",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDOperators.h",
+      "line": 85,
+      "symbol": "SLDNotOperator.-initWithElement:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDOperators.h",
+      "line": 95,
+      "symbol": "SLDLogicalOperator.elementName",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDOperators.h",
+      "line": 96,
+      "symbol": "SLDLogicalOperator.subOperators",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDOperators.h",
+      "line": 98,
+      "symbol": "SLDLogicalOperator.-initWithElement:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDStyleSet.h",
+      "line": 18,
+      "symbol": "SLDNamedLayer.name",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDStyleSet.h",
+      "line": 19,
+      "symbol": "SLDNamedLayer.userStyles",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDStyleSet.h",
+      "line": 29,
+      "symbol": "SLDUserStyle.name",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDStyleSet.h",
+      "line": 30,
+      "symbol": "SLDUserStyle.featureTypeStyles",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDStyleSet.h",
+      "line": 40,
+      "symbol": "SLDFeatureTypeStyle.rules",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDStyleSet.h",
+      "line": 50,
+      "symbol": "SLDRule.filters",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDStyleSet.h",
+      "line": 51,
+      "symbol": "SLDRule.elseFilters",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDStyleSet.h",
+      "line": 53,
+      "symbol": "SLDRule.minScaleDenominator",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDStyleSet.h",
+      "line": 54,
+      "symbol": "SLDRule.maxScaleDenominator",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDStyleSet.h",
+      "line": 55,
+      "symbol": "SLDRule.relativeDrawPriority",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDStyleSet.h",
+      "line": 57,
+      "symbol": "SLDRule.symbolizers",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDStyleSet.h",
+      "line": 72,
+      "symbol": "SLDFilter.sldOperator",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDStyleSet.h",
+      "line": 87,
+      "symbol": "SLDStyleSet.useLayerNames",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDStyleSet.h",
+      "line": 88,
+      "symbol": "SLDStyleSet.viewC",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDStyleSet.h",
+      "line": 89,
+      "symbol": "SLDStyleSet.tileStyleSettings",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.property",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDStyleSet.h",
+      "line": 104,
+      "symbol": "SLDStyleSet.-loadSldURL:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDStyleSet.h",
+      "line": 105,
+      "symbol": "SLDStyleSet.-loadSldData:baseURL:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_styles/SLDWellKnownMarkers.h",
+      "line": 21,
+      "symbol": "SLDWellKnownMarkers.+imageWithName:strokeColor:fillColor:size:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.class",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_tiles/MapboxVectorTiles.h",
+      "line": 26,
+      "symbol": "MapboxGeometryType",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enum",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_tiles/MapboxVectorTiles.h",
+      "line": 26,
+      "symbol": "MapboxGeometryType",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.typedef",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_tiles/MapboxVectorTiles.h",
+      "line": 28,
+      "symbol": "MapboxGeometryType.GeomTypeUnknown",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_tiles/MapboxVectorTiles.h",
+      "line": 29,
+      "symbol": "MapboxGeometryType.GeomTypePoint",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_tiles/MapboxVectorTiles.h",
+      "line": 30,
+      "symbol": "MapboxGeometryType.GeomTypeLineString",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_tiles/MapboxVectorTiles.h",
+      "line": 31,
+      "symbol": "MapboxGeometryType.GeomTypePolygon",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/visual_objects/MaplyComponentObject.h",
+      "line": 37,
+      "symbol": "WGComponentObject",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.typedef",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/visual_objects/MaplyLabel.h",
+      "line": 24,
+      "symbol": "MaplyLabelJustify",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enum",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/visual_objects/MaplyLabel.h",
+      "line": 24,
+      "symbol": "MaplyLabelJustify",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.typedef",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/visual_objects/MaplyLabel.h",
+      "line": 25,
+      "symbol": "MaplyLabelJustify.MaplyLabelJustifyLeft",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/visual_objects/MaplyLabel.h",
+      "line": 26,
+      "symbol": "MaplyLabelJustify.MaplyLabelJustifyMiddle",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/visual_objects/MaplyLabel.h",
+      "line": 27,
+      "symbol": "MaplyLabelJustify.MaplyLabelJustifyRight",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/visual_objects/MaplyLabel.h",
+      "line": 101,
+      "symbol": "WGLabel",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.typedef",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/visual_objects/MaplyMarker.h",
+      "line": 85,
+      "symbol": "WGMarker",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.typedef",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/visual_objects/MaplyParticleSystem.h",
+      "line": 26,
+      "symbol": "MaplyParticleSystemType",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enum",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/visual_objects/MaplyParticleSystem.h",
+      "line": 26,
+      "symbol": "MaplyParticleSystemType",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.typedef",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/visual_objects/MaplyParticleSystem.h",
+      "line": 27,
+      "symbol": "MaplyParticleSystemType.MaplyParticleSystemTypePoint",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/visual_objects/MaplyParticleSystem.h",
+      "line": 28,
+      "symbol": "MaplyParticleSystemType.MaplyParticleSystemTypeRectangle",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/visual_objects/MaplyScreenLabel.h",
+      "line": 173,
+      "symbol": "WGScreenLabel",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.typedef",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/visual_objects/MaplyScreenMarker.h",
+      "line": 157,
+      "symbol": "WGScreenMarker",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.typedef",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/visual_objects/MaplyShape.h",
+      "line": 93,
+      "symbol": "WGShapeCircle",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.typedef",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/visual_objects/MaplyShape.h",
+      "line": 125,
+      "symbol": "WGShapeSphere",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.typedef",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/visual_objects/MaplyShape.h",
+      "line": 164,
+      "symbol": "WGShapeCylinder",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.typedef",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/visual_objects/MaplyVectorObject.h",
+      "line": 30,
+      "symbol": "MaplyVectorObjectType.MaplyVectorNoneType",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/visual_objects/MaplyVectorObject.h",
+      "line": 31,
+      "symbol": "MaplyVectorObjectType.MaplyVectorPointType",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/visual_objects/MaplyVectorObject.h",
+      "line": 32,
+      "symbol": "MaplyVectorObjectType.MaplyVectorLinearType",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/visual_objects/MaplyVectorObject.h",
+      "line": 33,
+      "symbol": "MaplyVectorObjectType.MaplyVectorLinear3dType",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/visual_objects/MaplyVectorObject.h",
+      "line": 34,
+      "symbol": "MaplyVectorObjectType.MaplyVectorArealType",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/visual_objects/MaplyVectorObject.h",
+      "line": 35,
+      "symbol": "MaplyVectorObjectType.MaplyVectorMultiType",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.enumcase",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/visual_objects/MaplyVectorObject.h",
+      "line": 320,
+      "symbol": "MaplyVectorObject.-linearMiddle:rot:displayCoordSys:",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/visual_objects/MaplyVectorObject.h",
+      "line": 505,
+      "symbol": "WGVectorObject",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.typedef",
+      "warning": "undocumented"
+    }
+  ],
+  "source_directory": "/Users/sjg/dev/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent"
+}

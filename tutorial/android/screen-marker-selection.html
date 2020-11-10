@@ -105,11 +105,11 @@
           <div class="col-sm-9 tutorial tutorial-main">
 
             <h2>Screen Marker Selection</h2>
-            <p>Screen marker selection is similar to <a href="vector-selection.html">vector selection</a>. Markers, however, are treated as an annotation to the map. Markers are added to the map to annotate a location with an icon, and this is done explicitly by creating a <code class="highlighter-rouge">ScreenMarker</code> object. Vector Objects, in contrast, are typically created by parsing vector formats like GeoJSON.</p>
+            <p>Screen marker selection is similar to <a href="vector-selection.html">vector selection</a>. Markers, however, are treated as an annotation to the map. Markers are added to the map to annotate a location with an icon, and this is done explicitly by creating a <code class="language-plaintext highlighter-rouge">ScreenMarker</code> object. Vector Objects, in contrast, are typically created by parsing vector formats like GeoJSON.</p>
 
 <h3 id="switch-to-the-marker-fragment">Switch to the Marker Fragment</h3>
 
-<p>As before, activate the globe fragment with markers in <code class="highlighter-rouge">activity_main.xml</code>:</p>
+<p>As before, activate the globe fragment with markers in <code class="language-plaintext highlighter-rouge">activity_main.xml</code>:</p>
 
 <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="nt">&lt;fragment</span>
         <span class="na">android:id=</span><span class="s">"@+id/fragment"</span>
@@ -118,9 +118,9 @@
 
 <h3 id="create-user-object">Create User Object</h3>
 
-<p>We’ll need to associate some data with each marker.  For this purpose, we create a class, <code class="highlighter-rouge">MarkerProperties</code>:</p>
+<p>We’ll need to associate some data with each marker.  For this purpose, we create a class, <code class="language-plaintext highlighter-rouge">MarkerProperties</code>:</p>
 
-<p>This is the main difference between marker selection and vector selection. A <code class="highlighter-rouge">VectorObject</code> has an attribute dictionary that is populated with data from the source vector data. Markers, however, are usually explicitly created. WhirlyGlobe understands this use case and lets you assign any <code class="highlighter-rouge">Object</code> you would like to <code class="highlighter-rouge">userObject</code>. When your marker is selected, you can then have a reference to your object.</p>
+<p>This is the main difference between marker selection and vector selection. A <code class="language-plaintext highlighter-rouge">VectorObject</code> has an attribute dictionary that is populated with data from the source vector data. Markers, however, are usually explicitly created. WhirlyGlobe understands this use case and lets you assign any <code class="language-plaintext highlighter-rouge">Object</code> you would like to <code class="language-plaintext highlighter-rouge">userObject</code>. When your marker is selected, you can then have a reference to your object.</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MarkerProperties</span> <span class="o">{</span>
     <span class="kd">public</span> <span class="nc">String</span> <span class="n">city</span><span class="o">;</span>
@@ -130,7 +130,7 @@
 
 <h3 id="make-screen-marker-selectable">Make Screen Marker Selectable</h3>
 
-<p>As with vector selection, we need to set the marker object to be selectable. In the <code class="highlighter-rouge">insertMarkers</code> method in <a href="https://github.com/mousebird/AndroidTutorialProject/blob/master/app/src/main/java/com/mousebirdconsulting/helloearth/HelloMarkerFragment.java">HelloMarkerFragment.json</a>, go through each <code class="highlighter-rouge">ScreenMarker</code> and make <code class="highlighter-rouge">marker.selectable = true;</code>, as well as creating and assigning a <code class="highlighter-rouge">MarkerProperties</code> object.</p>
+<p>As with vector selection, we need to set the marker object to be selectable. In the <code class="language-plaintext highlighter-rouge">insertMarkers</code> method in <a href="https://github.com/mousebird/AndroidTutorialProject/blob/master/app/src/main/java/com/mousebirdconsulting/helloearth/HelloMarkerFragment.java">HelloMarkerFragment.json</a>, go through each <code class="language-plaintext highlighter-rouge">ScreenMarker</code> and make <code class="language-plaintext highlighter-rouge">marker.selectable = true;</code>, as well as creating and assigning a <code class="language-plaintext highlighter-rouge">MarkerProperties</code> object.</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">private</span> <span class="kt">void</span> <span class="nf">insertMarkers</span><span class="o">()</span> <span class="o">{</span>
     <span class="o">...</span>
@@ -151,7 +151,7 @@
 
 <h3 id="create-gesture-delegate-method">Create Gesture Delegate Method</h3>
 
-<p>As explained in the <a href="vector-selection.html">Vector Selection Tutorial</a>, we create a <code class="highlighter-rouge">userDidSelect</code> delegate method.</p>
+<p>As explained in the <a href="vector-selection.html">Vector Selection Tutorial</a>, we create a <code class="language-plaintext highlighter-rouge">userDidSelect</code> delegate method.</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Override</span>
 <span class="kd">public</span> <span class="kt">void</span> <span class="nf">userDidSelect</span><span class="o">(</span><span class="nc">GlobeController</span> <span class="n">globeControl</span><span class="o">,</span> <span class="nc">SelectedObject</span><span class="o">[]</span> <span class="n">selObjs</span><span class="o">,</span>
@@ -199,7 +199,7 @@
 
 <p>We might want to draw a new icon for a marker to show that it has been selected. For simplicity, we’ll borrow a built-in drawable instead of creating our own for this example.</p>
 
-<p>Create the following method in <code class="highlighter-rouge">HelloMarkerFragment</code>:</p>
+<p>Create the following method in <code class="language-plaintext highlighter-rouge">HelloMarkerFragment</code>:</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kt">void</span> <span class="nf">addSelectedMarker</span><span class="o">(</span><span class="nc">ScreenMarker</span> <span class="n">screenMarker</span><span class="o">)</span> <span class="o">{</span>
     <span class="k">if</span> <span class="o">(</span><span class="n">selectedMarkerComponent</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
@@ -221,7 +221,7 @@
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">ComponentObject</span> <span class="n">selectedMarkerComponent</span><span class="o">;</span>
 </code></pre></div></div>
 
-<p>And, finally, call the new <code class="highlighter-rouge">addSelectedMarker</code> method when we are handling a selected <code class="highlighter-rouge">ScreenMarker</code>:</p>
+<p>And, finally, call the new <code class="language-plaintext highlighter-rouge">addSelectedMarker</code> method when we are handling a selected <code class="language-plaintext highlighter-rouge">ScreenMarker</code>:</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">...</span>
 <span class="c1">// Screen Marker</span>

@@ -114,12 +114,12 @@
 <p>First, download our sample <a href="http://whirlyglobedocs.s3-website-us-east-1.amazonaws.com/tutorialsupport/geography-class_medres.mbtiles">Geography Class MBTiles file</a> to your computer and copy it to the following directory under the HelloGlobe application (you will need to create the last two directories):</p>
 
 <ul>
-  <li><code class="highlighter-rouge">src/main/assets/mbtiles/geography-class_medres.mbtiles</code></li>
+  <li><code class="language-plaintext highlighter-rouge">src/main/assets/mbtiles/geography-class_medres.mbtiles</code></li>
 </ul>
 
 <h3 id="create-a-new-fragment">Create a New Fragment</h3>
 
-<p>Next, we’ll create yet another fragment which loads the tiles from the MBTiles file.  Create a new class, <code class="highlighter-rouge">LocalGlobeFragment</code> with the following, or place <a href="https://github.com/mousebird/AndroidTutorialProject/blob/master/app/src/main/java/com/mousebirdconsulting/helloearth/LocalGlobeFragment.java">LocalGlobeFragment.java</a> in the appropriate directory.</p>
+<p>Next, we’ll create yet another fragment which loads the tiles from the MBTiles file.  Create a new class, <code class="language-plaintext highlighter-rouge">LocalGlobeFragment</code> with the following, or place <a href="https://github.com/mousebird/AndroidTutorialProject/blob/master/app/src/main/java/com/mousebirdconsulting/helloearth/LocalGlobeFragment.java">LocalGlobeFragment.java</a> in the appropriate directory.</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">com.mousebirdconsulting.helloearth</span><span class="o">;</span>
 
@@ -194,11 +194,11 @@
 <span class="o">}</span>
 </code></pre></div></div>
 
-<p>We can’t use the MBTiles from an <code class="highlighter-rouge">InputStream</code>, so there’s a little bit of boilerplate here to copy the data to a file in the application’s data directory.</p>
+<p>We can’t use the MBTiles from an <code class="language-plaintext highlighter-rouge">InputStream</code>, so there’s a little bit of boilerplate here to copy the data to a file in the application’s data directory.</p>
 
 <h3 id="use-the-new-fragment">Use the New Fragment</h3>
 
-<p>Once again update your main layout, <code class="highlighter-rouge">activity_main.xml</code>, to reference the new fragment:</p>
+<p>Once again update your main layout, <code class="language-plaintext highlighter-rouge">activity_main.xml</code>, to reference the new fragment:</p>
 
 <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span>
 <span class="nt">&lt;androidx.constraintlayout.widget.ConstraintLayout</span> <span class="na">xmlns:android=</span><span class="s">"http://schemas.android.com/apk/res/android"</span>

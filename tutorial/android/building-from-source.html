@@ -114,7 +114,7 @@
 <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git clone https://github.com/mousebird/WhirlyGlobe.git
 </code></pre></div></div>
 
-<p>The Android portion of the SDK is in the <code class="highlighter-rouge">develop</code> branch. Check out this branch.</p>
+<p>The Android portion of the SDK is in the <code class="language-plaintext highlighter-rouge">develop</code> branch. Check out this branch.</p>
 
 <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd </span>WhirlyGlobe
 git checkout develop
@@ -130,23 +130,23 @@ git submodule update
 
 <h3 id="maply-module-reference">Maply Module Reference</h3>
 
-<p>Open <code class="highlighter-rouge">settings.gradle (Project Settings)</code> and add the following lines, updating the relative path into the WhirlyGlobe repository, if necessary:</p>
+<p>Open <code class="language-plaintext highlighter-rouge">settings.gradle (Project Settings)</code> and add the following lines, updating the relative path into the WhirlyGlobe repository, if necessary:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>include ':maply'
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>include ':maply'
 project(':maply').projectDir = new File('../WhirlyGlobe/android/library/maply')
 </code></pre></div></div>
 
 <p><img src="resources/android-studio-maply-reference.png" alt="Maply Project Reference" /></p>
 
-<p>Next, open <code class="highlighter-rouge">File</code>/<code class="highlighter-rouge">Project Structure</code>, select <code class="highlighter-rouge">Dependencies</code>, select the <code class="highlighter-rouge">app</code> module, click the <code class="highlighter-rouge">Add Dependency</code> (<code class="highlighter-rouge">+</code>) button, and select <code class="highlighter-rouge">Module Dependency</code>.</p>
+<p>Next, open <code class="language-plaintext highlighter-rouge">File</code>/<code class="language-plaintext highlighter-rouge">Project Structure</code>, select <code class="language-plaintext highlighter-rouge">Dependencies</code>, select the <code class="language-plaintext highlighter-rouge">app</code> module, click the <code class="language-plaintext highlighter-rouge">Add Dependency</code> (<code class="language-plaintext highlighter-rouge">+</code>) button, and select <code class="language-plaintext highlighter-rouge">Module Dependency</code>.</p>
 
 <p><img src="resources/android-studio-module-dependency.png" alt="Module Dependency" /></p>
 
-<p>In the resulting dialog, check the box next to <code class="highlighter-rouge">maply</code> and accept.</p>
+<p>In the resulting dialog, check the box next to <code class="language-plaintext highlighter-rouge">maply</code> and accept.</p>
 
 <p><img src="resources/android-studio-maply-dependency.png" alt="Maply Dependency" /></p>
 
-<p>From this point, Android Studio should build maply and use it whenever necessary while building <code class="highlighter-rouge">HelloEarth</code>.</p>
+<p>From this point, Android Studio should build maply and use it whenever necessary while building <code class="language-plaintext highlighter-rouge">HelloEarth</code>.</p>
 
 <h3 id="android-sdk-and-ndk">Android SDK and NDK</h3>
 
@@ -154,29 +154,29 @@ project(':maply').projectDir = new File('../WhirlyGlobe/android/library/maply')
 
 <p><img src="resources/android-studio-ndk-version-error.png" alt="NDK Prompt" /></p>
 
-<p>If you need to adjust these settings, open Android Studio Preferences, select <code class="highlighter-rouge">Appearance and Behavior</code>, then <code class="highlighter-rouge">System Settings</code>, then <code class="highlighter-rouge">Android SDK</code>.  Here you will be able to select the SDK location, which should be handled automatically, and related packages.  The NDK can be found under <code class="highlighter-rouge">SDK Tools</code>, and individual NDK versions are available when the <code class="highlighter-rouge">Show Package Details</code> option is checked.</p>
+<p>If you need to adjust these settings, open Android Studio Preferences, select <code class="language-plaintext highlighter-rouge">Appearance and Behavior</code>, then <code class="language-plaintext highlighter-rouge">System Settings</code>, then <code class="language-plaintext highlighter-rouge">Android SDK</code>.  Here you will be able to select the SDK location, which should be handled automatically, and related packages.  The NDK can be found under <code class="language-plaintext highlighter-rouge">SDK Tools</code>, and individual NDK versions are available when the <code class="language-plaintext highlighter-rouge">Show Package Details</code> option is checked.</p>
 
 <p><img src="resources/android-sdk-location-in-android-studio.png" alt="SDK Location in Android Studio" /></p>
 
-<p>Once the appropriate SDK and NDK are available, open <code class="highlighter-rouge">File</code> / <code class="highlighter-rouge">Project Structure</code>, then select <code class="highlighter-rouge">SDK Location</code> and ensure that the paths are set correctly.</p>
+<p>Once the appropriate SDK and NDK are available, open <code class="language-plaintext highlighter-rouge">File</code> / <code class="language-plaintext highlighter-rouge">Project Structure</code>, then select <code class="language-plaintext highlighter-rouge">SDK Location</code> and ensure that the paths are set correctly.</p>
 
 <p><img src="resources/android-studio-sdk-ndk-locations.png" alt="Project locations" /></p>
 
 <h3 id="set-version-compatibility">Set Version Compatibility</h3>
 
-<p>In order to avoid errors and conflicts, set the source and target compatibility options for the new application to match those of the maply module in the <code class="highlighter-rouge">File</code> / <code class="highlighter-rouge">Project Structure</code> options dialog.</p>
+<p>In order to avoid errors and conflicts, set the source and target compatibility options for the new application to match those of the maply module in the <code class="language-plaintext highlighter-rouge">File</code> / <code class="language-plaintext highlighter-rouge">Project Structure</code> options dialog.</p>
 
 <p><img src="resources/android-studio-app-sdk-version.png" alt="Set Compatibility Versions" /></p>
 
 <p>In particular, this has been observed to cause the following exception on application start:</p>
 
-<p><code class="highlighter-rouge">java.lang.NoSuchMethodError: No static method metafactory(...); in class ...LambdaMetafactory; or its super classes ...</code></p>
+<p><code class="language-plaintext highlighter-rouge">java.lang.NoSuchMethodError: No static method metafactory(...); in class ...LambdaMetafactory; or its super classes ...</code></p>
 
 <h3 id="example-app">Example App</h3>
 
 <p>To continue building HelloEarth, go to the <a href="your-first-globe-or-map.html">Your First Globe or Map</a> page.</p>
 
-<p>Besides the <a href="hello-earth.html">Hello Earth</a> project, there is an example app you can try out called <code class="highlighter-rouge">AutoTesterAndroid</code>. This is optional, but it is the quickest way to <em>see something work</em>. We have <a href="auto-tester-android.html">brief instructions</a> for you to build AutoTesterAndroid.</p>
+<p>Besides the <a href="hello-earth.html">Hello Earth</a> project, there is an example app you can try out called <code class="language-plaintext highlighter-rouge">AutoTesterAndroid</code>. This is optional, but it is the quickest way to <em>see something work</em>. We have <a href="auto-tester-android.html">brief instructions</a> for you to build AutoTesterAndroid.</p>
 
 <hr />
 

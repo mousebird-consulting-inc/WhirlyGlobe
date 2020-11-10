@@ -112,9 +112,9 @@
 <h3 id="import-icon-as-image-asset">Import Icon as Image Asset</h3>
 
 <figure style="float:right;"><a href="https://s3.amazonaws.com/whirlyglobedocs/tutorialsupport/ic_city.png" download=""><img src="https://s3.amazonaws.com/whirlyglobedocs/tutorialsupport/ic_city.png" alt="ic_city.png" style="max-width:120px;" /></a><figcaption style="text-align:center"><a href="https://s3.amazonaws.com/whirlyglobedocs/tutorialsupport/ic_city.png" download="">Download Icon</a></figcaption></figure>
-<p>WhirlyGlobe-Maply uses <a href="https://developer.android.com/reference/android/graphics/Bitmap.html"><code class="highlighter-rouge">Bitmap</code></a> objects to draw markers on the map. The easiest way to create a <code class="highlighter-rouge">Bitmap</code> in your app is to add a PNG to your app’s resources. It turns out that Google’s <a href="https://design.google.com/icons/#ic_location_city">Material Design Icon</a> library has many great icons that can be used for a screen marker. Usually these icons come in SVG and PNG formats, including several different resolutions. Depending on how large you want your icon to be, choose whatever PNG size makes sense. For our tutorial, we chose an <code class="highlighter-rouge">drawable-xxhdpi</code> icon called <code class="highlighter-rouge">ic_location_city_black_48dp.png</code>. This image is 144x144px. The actual pixel dimensions are how we specify icon size in the toolkit, so these are what you want to look at when considering your icon resolution.</p>
+<p>WhirlyGlobe-Maply uses <a href="https://developer.android.com/reference/android/graphics/Bitmap.html"><code class="language-plaintext highlighter-rouge">Bitmap</code></a> objects to draw markers on the map. The easiest way to create a <code class="language-plaintext highlighter-rouge">Bitmap</code> in your app is to add a PNG to your app’s resources. It turns out that Google’s <a href="https://design.google.com/icons/#ic_location_city">Material Design Icon</a> library has many great icons that can be used for a screen marker. Usually these icons come in SVG and PNG formats, including several different resolutions. Depending on how large you want your icon to be, choose whatever PNG size makes sense. For our tutorial, we chose an <code class="language-plaintext highlighter-rouge">drawable-xxhdpi</code> icon called <code class="language-plaintext highlighter-rouge">ic_location_city_black_48dp.png</code>. This image is 144x144px. The actual pixel dimensions are how we specify icon size in the toolkit, so these are what you want to look at when considering your icon resolution.</p>
 
-<p>To get a PNG into your application’s assets as an <code class="highlighter-rouge">R.drawable</code>, you need to right click on your project and add a new <strong>Image Asset</strong>.</p>
+<p>To get a PNG into your application’s assets as an <code class="language-plaintext highlighter-rouge">R.drawable</code>, you need to right click on your project and add a new <strong>Image Asset</strong>.</p>
 
 <p><img src="resources/image-asset.png" alt="New Image Asset" /></p>
 
@@ -124,7 +124,7 @@
 
 <h3 id="first-screen-marker">First Screen Marker</h3>
 
-<p>Create a new <a href="https://github.com/mousebird/AndroidTutorialProject/blob/master/app/src/main/java/com/mousebirdconsulting/helloearth/HelloMarkerFragment.java">HelloMarkerFragment.java</a>, we are going to insert our markers right after we add our GeoJSON to the map. Create a new method called <code class="highlighter-rouge">insertMarkers</code>.</p>
+<p>Create a new <a href="https://github.com/mousebird/AndroidTutorialProject/blob/master/app/src/main/java/com/mousebirdconsulting/helloearth/HelloMarkerFragment.java">HelloMarkerFragment.java</a>, we are going to insert our markers right after we add our GeoJSON to the map. Create a new method called <code class="language-plaintext highlighter-rouge">insertMarkers</code>.</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">com.mousebirdconsulting.helloearth</span><span class="o">;</span>
 
@@ -162,11 +162,11 @@
 <span class="o">}</span>
 </code></pre></div></div>
 
-<p><code class="highlighter-rouge">MarkerInfo</code> is an options object used to configure special options for a marker, such as clustering and zoom restrictions. You specify the marker size with a <code class="highlighter-rouge">Point2d</code> object, then this dictates the dimensions of the icon in screen space. In our example, we gave it the same width and height of the image supplied, but you can change these parameters as you see fit, and the toolkit will scale the icon accordingly.</p>
+<p><code class="language-plaintext highlighter-rouge">MarkerInfo</code> is an options object used to configure special options for a marker, such as clustering and zoom restrictions. You specify the marker size with a <code class="language-plaintext highlighter-rouge">Point2d</code> object, then this dictates the dimensions of the icon in screen space. In our example, we gave it the same width and height of the image supplied, but you can change these parameters as you see fit, and the toolkit will scale the icon accordingly.</p>
 
-<p>The basic properties of the object are set by assigning values to public members of the <code class="highlighter-rouge">ScreenMarker</code> object. Here we are setting the location, image, and marker size.</p>
+<p>The basic properties of the object are set by assigning values to public members of the <code class="language-plaintext highlighter-rouge">ScreenMarker</code> object. Here we are setting the location, image, and marker size.</p>
 
-<p>Finally, you can add an individual marker to your map controller with the <code class="highlighter-rouge">addScreenMarker</code> method.</p>
+<p>Finally, you can add an individual marker to your map controller with the <code class="language-plaintext highlighter-rouge">addScreenMarker</code> method.</p>
 
 <p>Once again, reference the new fragment:</p>
 
@@ -245,13 +245,13 @@
 <span class="o">}</span>
 </code></pre></div></div>
 
-<p>Here we are adding all of our markers to an <code class="highlighter-rouge">ArrayList</code>. Then, we add this list to the map with <code class="highlighter-rouge">addScreenMarkers</code> instead of <code class="highlighter-rouge">addScreenMarker</code>.</p>
+<p>Here we are adding all of our markers to an <code class="language-plaintext highlighter-rouge">ArrayList</code>. Then, we add this list to the map with <code class="language-plaintext highlighter-rouge">addScreenMarkers</code> instead of <code class="language-plaintext highlighter-rouge">addScreenMarker</code>.</p>
 
 <p><img src="resources/5cities.jpg" alt="Five Cities" /></p>
 
-<p>You might notice that the icon for Нижний Новгород is upside down. This is because we adjusted the <code class="highlighter-rouge">rotation</code> property of <code class="highlighter-rouge">ScreenMarker nizhnyNovgorod</code>. The parameter is in radians, so π is equivalent to 180 degrees.</p>
+<p>You might notice that the icon for Нижний Новгород is upside down. This is because we adjusted the <code class="language-plaintext highlighter-rouge">rotation</code> property of <code class="language-plaintext highlighter-rouge">ScreenMarker nizhnyNovgorod</code>. The parameter is in radians, so π is equivalent to 180 degrees.</p>
 
-<p>Lastly, <code class="highlighter-rouge">addScreenMarkers</code> returns a <code class="highlighter-rouge">ComponentObject</code> that you can keep track of. This object is your handle to the marker, vector, or other <em>component</em> object that you have added to your map controller. You can then later remove, enable, or disable the corresponding object.</p>
+<p>Lastly, <code class="language-plaintext highlighter-rouge">addScreenMarkers</code> returns a <code class="language-plaintext highlighter-rouge">ComponentObject</code> that you can keep track of. This object is your handle to the marker, vector, or other <em>component</em> object that you have added to your map controller. You can then later remove, enable, or disable the corresponding object.</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">mapControl</span><span class="o">.</span><span class="na">removeObject</span><span class="o">(</span><span class="n">co</span><span class="o">,</span> <span class="nc">BaseController</span><span class="o">.</span><span class="na">ThreadMode</span><span class="o">.</span><span class="na">ThreadAny</span><span class="o">);</span>
 </code></pre></div></div>
