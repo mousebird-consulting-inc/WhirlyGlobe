@@ -12,11 +12,7 @@ WhirlyGlobe-Maply is available for both iOS and Android.
 Getting Started
 ---
 
-If you're new to WhirlyGlobe-Maply, please go [read the main page](http://mousebird.github.com/WhirlyGlobe/).
-
-There's a [mailing list](http://eepurl.com/D30CD) for announcements. Join!
-
-Check out the [mousebird consulting blog](http://mousebirdconsulting.blogspot.com) for current progress.
+If you're new to WhirlyGlobe-Maply, please [read the main page](http://mousebird.github.com/WhirlyGlobe/). See More Information below for useful links and resources.
 
 There’s a tutorial for both iOS and Android:
 
@@ -44,8 +40,10 @@ Want more detail? Go read the [Tutorials](http://mousebird.github.io/WhirlyGlobe
 More Information
 ---
 
-Follow us on Twitter:
+There's a [mailing list](http://eepurl.com/D30CD) for periodic announcements. Join!
 
-[@whrlyglobemaply](https://twitter.com/whrlyglobemaply)
+Check out the [mousebird consulting blog](http://mousebirdconsulting.blogspot.com) for current progress.
 
-Questions to: contact@mousebirdconsulting.com
+Follow us on Twitter: [@whrlyglobemaply](https://twitter.com/whrlyglobemaply)
+
+Email questions to: contact@mousebirdconsulting.com
