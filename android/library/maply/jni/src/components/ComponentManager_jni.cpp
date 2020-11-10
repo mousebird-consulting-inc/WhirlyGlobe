@@ -61,7 +61,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentManager_dispose
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
             ComponentManager_Android *compManager = classInfo->getObject(env,obj);
-            compManager->clearJNI(env);
+            if (compManager) {
+                compManager->clearJNI(env);
+            }
             classInfo->clearHandle(env,obj);
         }
 	}
