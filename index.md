@@ -5,7 +5,7 @@ layout: home
 
 ## WhirlyGlobe-Maply: Globe and map SDK for iOS and Android
 
-Based on OpenGL ES and focused on mobile first, WhirlyGlobe-Maply is used in a wide variety of altas, weather, visualization, and map apps.  The SDK is both a 3D interactive globe for iOS and a 2D flat (or slippy) map for iOS and Android.  It's all open source.
+Based on Metal for iOS and OpenGL ES for Android and focused on mobile first, WhirlyGlobe-Maply is used in a wide variety of altas, weather, visualization, and map apps.  The SDK is both a 3D interactive globe for iOS and a 2D flat (or slippy) map for iOS and Android.  It's all open source.
 The feature list is pretty long, but here are a few things you can display with the toolkit.
 
 <div class="row" style="margin-bottom:10pt">
@@ -74,19 +74,7 @@ The feature list is pretty long, but here are a few things you can display with 
 
 It's big, but it's also friendly.  You develop with the native tools on each platform and we've got some nice [tutorials]({{ site.baseurl }}/tutorial/).  Developers of all skill levels have made WhirlyGlobe-Maply apps.  You can too!
 
-The iOS version, for iPhone and Android is the most mature.  Android is coming along nicely with the 2D map (Maply) ported first.
-
-## Video
-
-WhirlyGlobe-Maply is all about the apps, so check out some of the amazing apps we're in.
-
-<div>
-    <div class="embed-responsive embed-responsive-4by3">
-      <iframe src="http://www.youtube.com/embed/VNWt-DUdBiY?feature=player_embedded" allowfullscreen></iframe>
-    </div>
-</div>
-
-WhirlyGlobe refers to the 3D interactive globe part of the toolkit and Maply is the 2D map.  They share the same core renderer.
+Both iOS and Android versions are mature, with apps deployed to millions of users.
 
 ## Documentation and Resources
 
@@ -99,5 +87,4 @@ WhirlyGlobe refers to the 3D interactive globe part of the toolkit and Maply is 
 
 ## Background
 
-WhirlyGlobe-Maply is wholly owned by <a href="http://www.mousebirdconsulting.com/" target="_blank">mousebird consulting</a> and distributed under the Apache 2.0 license. The toolkit is free, but we make money from consulting. If you're doing something commercial, consider us in your development plans.
-
+WhirlyGlobe-Maply is wholly owned by <a href="http://www.mousebirdconsulting.com/" target="_blank">mousebird consulting</a> and distributed under the Apache 2.0 license. The toolkit is free, but we make money from consulting and support.  If you're making money off your app, you should have a support contract.  If you're doing something big, reach out for consulting rates.
