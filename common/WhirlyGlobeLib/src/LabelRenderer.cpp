@@ -61,7 +61,7 @@ lineHeight(that.lineHeight), fontPointSize(that.fontPointSize)
 }
 
 LabelInfo::LabelInfo(const Dictionary &dict, bool screenObject)
-: screenObject(screenObject), fontPointSize(16.0)
+: BaseInfo(dict), screenObject(screenObject), fontPointSize(16.0)
 {
     hasTextColor = dict.hasField(MaplyTextColor);
     textColor = dict.getColor(MaplyTextColor, RGBAColor(255,255,255,255));

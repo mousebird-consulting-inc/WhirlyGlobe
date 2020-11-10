@@ -1346,6 +1346,8 @@ public:
         // Set up a description and create the markers in the marker layer
         ChangeSet changes;
         SimpleIdentity labelID = labelManager->addLabels(NULL, wgLabels, labelInfo, changes);
+        for (auto label: wgLabels)
+            delete label;
         [self flushChanges:changes mode:threadMode];
         if (labelID != EmptyIdentity)
             compObj->contents->labelIDs.insert(labelID);

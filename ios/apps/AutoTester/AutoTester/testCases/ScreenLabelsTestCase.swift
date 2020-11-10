@@ -61,6 +61,8 @@ class ScreenLabelsTestCase: MaplyTestCase {
                             kMaplyShadowSize: 1.0,
                             kMaplySelectable: true,
                             kMaplyTextColor: UIColor.red,
+                            kMaplyMinVis: 0.1,
+                            kMaplyMaxVis: 0.5,
                             kMaplyBackgroundColor: UIColor.blue]) {
                         labelList.append(comp)
                     }
