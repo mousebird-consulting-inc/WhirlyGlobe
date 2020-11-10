@@ -204,6 +204,10 @@ id<MTLRenderPipelineState> BasicDrawableInstanceMTL::getRenderPipelineState(Scen
 void BasicDrawableInstanceMTL::setupArgBuffers(id<MTLDevice> mtlDevice,RenderSetupInfoMTL *setupInfo,SceneMTL *scene,BufferBuilderMTL &buffBuild)
 {
     ProgramMTL *prog = (ProgramMTL *)scene->getProgram(programID);
+    if (!prog) {
+        NSLog(@"Missing program in BasicDrawableInstanceMTL");
+        return;
+    }
     
     // All of these are optional, but here's what we're expecting
     //   Uniforms

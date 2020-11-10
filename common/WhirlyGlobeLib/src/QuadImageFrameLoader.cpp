@@ -840,7 +840,7 @@ void QuadImageFrameLoader::setColor(RGBAColor &inColor,ChangeSet *changes)
     if (changes) {
         // Have all the tiles change their base color
         // For multi-frame tiles, they'll get a new color on the next frame as well
-        for (auto it : tiles) {
+        for (auto const &it : tiles) {
             auto tile = it.second;
             tile->setColor(this,color,*changes);
         }
@@ -945,35 +945,75 @@ int QuadImageFrameLoader::getGeneration()
 {
     return generation;
 }
-    
+
 void QuadImageFrameLoader::reload(PlatformThreadInfo *threadInfo,int frameIndex, ChangeSet &changes)
+{
+    reload(threadInfo,frameIndex,nullptr,0,changes);
+}
+
+static MbrD GeoBoundToLocal(const Mbr &bound, const CoordSystem& cs)
+{
+    // These should be const
+    const auto ll = const_cast<CoordSystem&>(cs).geographicToLocal(Point2d(bound.ll().x(), bound.ll().y()));
+    const auto ur = const_cast<CoordSystem&>(cs).geographicToLocal(Point2d(bound.ur().x(), bound.ur().y()));
+    return MbrD(Point2d(ll.x(), ll.y()), Point2d(ur.x(), ur.y()));
+}
+
+void QuadImageFrameLoader::reload(PlatformThreadInfo *threadInfo,int frameIndex,const Mbr* bounds,int boundCount,ChangeSet &changes)
 {
     if (debugMode)
         wkLogLevel(Debug, "QuadImageFrameLoader: Starting reload of frame %d",frameIndex);
     
     loadingStatus = true;
     
-    QIFBatchOps *batchOps = makeBatchOps(threadInfo);
-    auto frame = frameIndex >= 0 && frameIndex < frames.size() ? frames[frameIndex] : NULL;
+    auto batchOps = std::unique_ptr<QIFBatchOps>(makeBatchOps(threadInfo));
+    const auto frame = (frameIndex >= 0 && frameIndex < frames.size()) ? frames[frameIndex] : NULL;
 
     generation++;
     
     // Note: Deal with a load coming in that we might already have
-    
+
+    // If we're given bounds, convert them to the same coordinate system as the QuadTree will produce for the tiles
+    auto const controller = getController();
+    auto const quadTree = controller ? controller->getQuadTree() : nullptr;
+    auto const coordSys = controller ? controller->getCoordSys() : nullptr;
+
+    std::vector<Mbr> localBounds;
+    if (bounds && 0 < boundCount && coordSys && quadTree) {
+        localBounds.resize(boundCount);
+        for (int i = 0; i < boundCount; ++i) {
+            localBounds[i] = GeoBoundToLocal(bounds[i], *coordSys);
+        }
+    }
+
     // Look through the tiles and:
     //  Cancel outstanding fetches (that match our frame)
     //  Start new requests
-    for (auto it: tiles) {
-        QIFTileAssetRef tile = it.second;
-        
-        tile->cancelFetches(threadInfo, this, frame, batchOps);
-        tile->startFetching(threadInfo, this, frame, batchOps, changes);
+    for (const auto &it : tiles) {
+        const QIFTileAssetRef &tile = it.second;
+
+        // We cancel everything, even if it's not being refreshed.
+        // We've increased the generation, so the incoming data will be dropped.
+        // It might be better to increment the generation of everything outstanding,
+        // so that if other tiles are still loading they don't end up missing.
+        tile->cancelFetches(threadInfo, this, frame, batchOps.get());
+
+        // If bounding boxes were provided, check them
+        if (!localBounds.empty()) {
+            // Get the bounding box of the tile
+            const auto tileBound = quadTree->generateMbrForNode(tile->getIdent());
+            // If none of the areas overlap, skip this tile.
+            if (std::none_of(localBounds.begin(), localBounds.end(), [&](const auto& b){ return tileBound.overlaps(b); })) {
+                continue;
+            }
+        }
+
+        tile->startFetching(threadInfo, this, frame, batchOps.get(), changes);
     }
     
     // Process all the fetches and cancels at once
     // We're not making any visual changes here, just messing with loading so no ChangeSet
-    processBatchOps(threadInfo,batchOps);
-    delete batchOps;
+    processBatchOps(threadInfo,batchOps.get());
 }
     
 QIFTileAssetRef QuadImageFrameLoader::addNewTile(PlatformThreadInfo *threadInfo,const QuadTreeNew::ImportantNode &ident,QIFBatchOps *batchOps,ChangeSet &changes)

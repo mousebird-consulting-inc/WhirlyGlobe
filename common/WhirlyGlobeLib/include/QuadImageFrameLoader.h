@@ -417,7 +417,10 @@ public:
     
     /// Reload the given frame (or everything)
     virtual void reload(PlatformThreadInfo *threadInfo,int frame, ChangeSet &changes);
-    
+
+    /// Reload matching tiles in the given frame (or everything)
+    virtual void reload(PlatformThreadInfo *threadInfo,int frame,const Mbr *bound,int boundCount,ChangeSet &changes);
+
     /// **** QuadTileBuilderDelegate methods ****
     
     /// Called when the builder first starts up.  Keep this around if you need it.
