@@ -46,19 +46,25 @@
     WhirlyKit::QuadImageFrameLoader::FrameStats frameStats;
 }
 
-- (instancetype)initWithViewC:(NSObject<MaplyRenderControllerProtocol> *)inViewC;
+- (instancetype __nonnull)initWithViewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)inViewC;
 
 // The subclasses return their own
-- (MaplyLoaderReturn *)makeLoaderReturn;
+- (MaplyLoaderReturn * __nullable)makeLoaderReturn;
 
 // We delay setup by a tick so the user can mess with settings
 - (bool)delayedInit;
 
 // Change the tile source to a new one (if they match)
-- (void)changeTileInfos:(NSArray<NSObject<MaplyTileInfoNew> *> *)tileInfos;
+- (void)changeTileInfos:(NSArray<NSObject<MaplyTileInfoNew> *> * __nullable)tileInfos;
 
 // Force a reload of all visible tiles
 - (void)reload;
+
+// Force a reload of all tiles in a bounding box
+- (void)reloadArea:(MaplyBoundingBox)bounds;
+
+// Force a reload of all tiles in a bounding box
+- (void)reloadAreas:(NSArray<NSValue*>* __nullable)bounds;
 
 @end
 

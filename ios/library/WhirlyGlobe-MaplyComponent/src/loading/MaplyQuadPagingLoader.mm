@@ -127,4 +127,14 @@ using namespace WhirlyKit;
     [super reload];
 }
 
+- (void)reloadArea:(MaplyBoundingBox)bound
+{
+    [super reloadArea:bound];
+}
+
+- (void)reloadAreas:(NSArray*)bounds
+{
+    [super reloadAreas:bounds];
+}
+
 @end

@@ -201,3 +201,15 @@ double MaplyGreatCircleDistance(MaplyCoordinate p0,MaplyCoordinate p1)
 }
 
 @end
+
+
+@implementation NSValue (MaplyBoundingBox)
++ (instancetype)valueWithMaplyBoundingBox:(MaplyBoundingBox)value {
+    return [self valueWithBytes:&value objCType:@encode(MaplyBoundingBox)];
+}
+- (MaplyBoundingBox)maplyBoundingBoxValue {
+    MaplyBoundingBox box;
+    [self getValue:&box];
+    return box;
+}
+@end
