@@ -57,6 +57,45 @@
 - (void)addVariableTarget:(MaplyVariableTarget *)target
 {
     auxTargets.push_back(target);
+    
+    if (_rectObj) {
+        [self setupRectangle];
+    }
+}
+
+- (void)setupRectangle
+{
+    if (_rectObj) {
+        [viewC removeObjects:@[_rectObj] mode:MaplyThreadCurrent];
+        _rectObj = nil;
+    }
+    
+    // Set up a rectangle right over the view to render the render target
+    MaplyShapeRectangle *rect = [[MaplyShapeRectangle alloc] init];
+    rect.ll = MaplyCoordinate3dDMake(-1.0, -1.0, 0.0);
+    rect.ur = MaplyCoordinate3dDMake(1.0, 1.0, 0.0);
+    rect.clipCoords = true;
+    [rect addTexture:_renderTex];
+    for (MaplyVariableTarget *auxTarget : auxTargets)
+        [rect addTexture:auxTarget.renderTex];
+    NSString *shaderName = nil;
+    if (_shader)
+        shaderName = [_shader name];
+    else
+        shaderName = kMaplyShaderDefaultTriNoLighting;
+    _rectObj = [viewC addShapes:@[rect]
+                          desc:@{kMaplyColor: _color,
+                                 kMaplyDrawPriority: @(_drawPriority),
+                                 kMaplyShader: shaderName,
+                                 kMaplyZBufferRead: @(_zBuffer),
+                                 kMaplyZBufferWrite: @(NO)
+                                 }
+                          mode:MaplyThreadCurrent];
+    
+    // Pass through the uniform blocks if they've been set up
+    for (auto block : uniBlocks) {
+        [viewC setUniformBlock:block.second buffer:block.first forObjects:@[_rectObj] mode:MaplyThreadCurrent];
+    }
 }
 
 - (void)delayedSetup
@@ -85,35 +124,8 @@
     [viewC addRenderTarget:_renderTarget];
     
     if (_buildRectangle) {
-        // Set up a rectangle right over the view to render the render target
-        MaplyShapeRectangle *rect = [[MaplyShapeRectangle alloc] init];
-        rect.ll = MaplyCoordinate3dDMake(-1.0, -1.0, 0.0);
-        rect.ur = MaplyCoordinate3dDMake(1.0, 1.0, 0.0);
-        rect.clipCoords = true;
-        [rect addTexture:_renderTex];
-        for (MaplyVariableTarget *auxTarget : auxTargets)
-            [rect addTexture:auxTarget.renderTex];
-        NSString *shaderName = nil;
-        if (_shader)
-            shaderName = [_shader name];
-        else
-            shaderName = kMaplyShaderDefaultTriNoLighting;
-        _rectObj = [viewC addShapes:@[rect]
-                              desc:@{kMaplyColor: _color,
-                                     kMaplyDrawPriority: @(_drawPriority),
-                                     kMaplyShader: shaderName,
-                                     kMaplyZBufferRead: @(_zBuffer),
-                                     kMaplyZBufferWrite: @(NO)
-                                     }
-                              mode:MaplyThreadCurrent];
-        
-        // Pass through the uniform blocks if they've been set up
-        for (auto block : uniBlocks) {
-            [viewC setUniformBlock:block.second buffer:block.first forObjects:@[_rectObj] mode:MaplyThreadCurrent];
-        }
+        [self setupRectangle];
     }
-    
-    auxTargets.clear();
 }
 
 /// Scale the screen by this amount for the render target
@@ -142,6 +154,7 @@
 - (void)shutdown
 {
     valid = false;
+    auxTargets.clear();
     
     if (_rectObj) {
         [viewC removeObjects:@[_rectObj] mode:MaplyThreadCurrent];
