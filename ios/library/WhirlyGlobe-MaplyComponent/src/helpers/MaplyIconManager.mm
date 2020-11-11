@@ -453,9 +453,9 @@ public:
 
 - (MaplyComponentObject * __nullable)addFeature:(MaplyVectorObject * __nonnull)vecObj mode:(MaplyThreadMode)mode
 {
-    MaplyComponentObject *compObj = nil;
-    MaplySimpleStyle *style = [self makeStyle:vecObj.attributes];
-    
+    const MaplySimpleStyle *style = [self makeStyle:vecObj.attributes];
+
+    const auto __strong vc = viewC;
     switch ([vecObj vectorType]) {
         case MaplyVectorPointType:
             // It's a screen marker
@@ -465,22 +465,20 @@ public:
                 marker.image = style.markerTex;
                 marker.size = style.markerSize;
                 marker.offset = style.markerOffset;
-                compObj = [viewC addScreenMarkers:@[marker] desc:nil mode:mode];
+                return [vc addScreenMarkers:@[marker] desc:nil mode:mode];
             }
             break;
         case MaplyVectorLinearType:
-            compObj = [viewC addWideVectors:@[vecObj]
+            return [vc addWideVectors:@[vecObj]
                                    desc:@{kMaplyColor: [self resolveColor:style.strokeColor opacity:style.strokeOpacity],
                                           kMaplyVecWidth: @(style.strokeWidth)}
                                    mode:mode];
-            break;
         case MaplyVectorArealType:
-            compObj = [viewC addVectors:@[vecObj]
+            return [vc addVectors:@[vecObj]
                                    desc:@{kMaplyColor: [self resolveColor:style.fillColor opacity:style.fillOpacity],
                                           kMaplyFilled: @(true)
                                    }
                                    mode:mode];
-            break;
         case MaplyVectorNoneType:
         case MaplyVectorMultiType:
         case MaplyVectorLinear3dType:
@@ -488,7 +486,7 @@ public:
             break;
     }
     
-    return compObj;
+    return nil;
 }
 
 - (NSArray<MaplyComponentObject *> * __nonnull)addFeatures:(NSArray<MaplyVectorObject *> * __nonnull)vecObjs mode:(MaplyThreadMode)mode

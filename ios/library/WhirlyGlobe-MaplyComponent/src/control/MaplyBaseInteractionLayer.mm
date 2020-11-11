@@ -162,19 +162,17 @@ public:
 - (void)startWithThread:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)inScene
 {
     layerThread = inLayerThread;
-    offlineMode = layerThread == nil;
+    offlineMode = inLayerThread == nil;
     scene = inScene;
-    sceneRender = layerThread.renderer;
-    
+    sceneRender = inLayerThread.renderer;
+
     compManager = (ComponentManager_iOS *)scene->getManager(kWKComponentManager);
-    
+
     atlasGroup = [[MaplyTextureAtlasGroup alloc] initWithScene:scene sceneRender:sceneRender];
-    
-    if (layerThread)
-        setupInfo = layerThread.renderer->getRenderSetupInfo();
-    
-    if (layerThread)
+
+    if (inLayerThread)
     {
+        setupInfo = inLayerThread.renderer->getRenderSetupInfo();
         ourClusterGen.layer = self;
         compManager->layoutManager->addClusterGenerator(&ourClusterGen);
     }
@@ -214,12 +212,13 @@ public:
 - (void)lockingShutdown
 {
     // This shouldn't happen
-    if (isShuttingDown || (!layerThread && !offlineMode))
+    const auto __strong thread = layerThread;
+    if (isShuttingDown || (!thread && !offlineMode))
         return;
     
-    if ([NSThread currentThread] != layerThread)
+    if ([NSThread currentThread] != thread)
     {
-        [self performSelector:@selector(lockingShutdown) onThread:layerThread withObject:nil waitUntilDone:YES];
+        [self performSelector:@selector(lockingShutdown) onThread:thread withObject:nil waitUntilDone:YES];
         return;
     }
 
@@ -2945,29 +2944,26 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     if (isShuttingDown || (!layerThread && !offlineMode))
         return;
 
-    MaplyParticleBatch *batch = argArray[0];
-    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:1] intValue];
-    
-    ParticleSystemManager *partSysManager = (ParticleSystemManager *)scene->getManager(kWKParticleSystemManager);
+    const MaplyParticleBatch *batch = argArray[0];
+    const MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:1] intValue];
 
     ChangeSet changes;
-    if (partSysManager)
+    if (auto partSysManager = (ParticleSystemManager *)scene->getManager(kWKParticleSystemManager))
     {
-        bool validBatch = true;
+        const auto __strong ps = batch.partSys;
+
         ParticleBatch wkBatch;
-        wkBatch.batchSize = batch.partSys.batchSize;
-        
+        wkBatch.batchSize = ps.batchSize;
 
         // For Metal, we just pass through the data
-        wkBatch.data = RawNSDataReaderRef(new RawNSDataReader(batch.data));
-        
-        if (validBatch)
-            partSysManager->addParticleBatch(batch.partSys.ident, wkBatch, changes);
+        wkBatch.data = std::make_shared<RawNSDataReader>(batch.data);
+
+        partSysManager->addParticleBatch(ps.ident, wkBatch, changes);
     }
-    
+
     // We always want a glFlush here
     changes.push_back(NULL);
-    
+
     [self flushChanges:changes mode:threadMode];
 }
 

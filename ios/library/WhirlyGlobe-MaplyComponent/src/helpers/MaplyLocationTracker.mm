@@ -93,14 +93,15 @@
     if (!_simulate)
         [self teardownLocationManager];
     _delegate = nil;
+    const auto __strong vc = _theViewC;
     if (_markerObj) {
-        [_theViewC removeObjects:@[_markerObj] mode:MaplyThreadCurrent];
-        [_theViewC removeObjects:@[_movingMarkerObj] mode:MaplyThreadCurrent];
+        [vc removeObjects:@[_markerObj] mode:MaplyThreadCurrent];
+        [vc removeObjects:@[_movingMarkerObj] mode:MaplyThreadCurrent];
         _markerObj = nil;
         _movingMarkerObj = nil;
     }
     if (_shapeCircleObj) {
-        [_theViewC removeObjects:@[_shapeCircleObj] mode:MaplyThreadCurrent];
+        [vc removeObjects:@[_shapeCircleObj] mode:MaplyThreadCurrent];
         _shapeCircleObj = nil;
     }
 }
@@ -118,12 +119,13 @@
     
     _markerImgs = [NSMutableArray array];
     _markerImgsDirectional = [NSMutableArray array];
+    const auto __strong vc = _theViewC;
     for (int i=0; i<16; i++) {
-        [_markerImgs addObject:[_theViewC
+        [_markerImgs addObject:[vc
                                 addTexture:[self radialGradientMarkerWithSize:size color0:color0 color1:color1 gradLocation:(0.0 + (float)(8-ABS(8-i))/8.0) radius:(float)(size-32-ABS(8-i))/2.0 directional:false]
                                 desc:nil
                                 mode:MaplyThreadCurrent]];
-        [_markerImgsDirectional addObject:[_theViewC
+        [_markerImgsDirectional addObject:[vc
                                            addTexture:[self radialGradientMarkerWithSize:size color0:color0 color1:color1 gradLocation:(0.0 + (float)(8-ABS(8-i))/8.0) radius:(float)(size-32-ABS(8-i))/2.0 directional:true]
                                             desc:nil
                                            mode:MaplyThreadCurrent]];
@@ -313,22 +315,27 @@
     MaplyShapeCircle *shapeCircle = [[MaplyShapeCircle alloc] init];
     shapeCircle.center = coord;
     
-    MaplyCoordinate coord1 = [self coordOfPointAtTrueCourse:0.0 andDistanceMeters:horizontalAccuracy fromCoord:coord];
-    MaplyCoordinate coord2 = [self coordOfPointAtTrueCourse:90.0 andDistanceMeters:horizontalAccuracy fromCoord:coord];
+    const MaplyCoordinate coord1 = [self coordOfPointAtTrueCourse:0.0 andDistanceMeters:horizontalAccuracy fromCoord:coord];
+    const MaplyCoordinate coord2 = [self coordOfPointAtTrueCourse:90.0 andDistanceMeters:horizontalAccuracy fromCoord:coord];
+
+    const auto __strong vc = _theViewC;
+    const auto __strong mvc = _mapVC;
+    const auto __strong gvc = _globeVC;
     
-    MaplyCoordinate3d dispPt0 = [_theViewC displayPointFromGeo:coord];
-    MaplyCoordinate3d dispPt1 = [_theViewC displayPointFromGeo:coord1];
-    MaplyCoordinate3d dispPt2 = [_theViewC displayPointFromGeo:coord2];
+    const MaplyCoordinate3d dispPt0 = [vc displayPointFromGeo:coord];
+    const MaplyCoordinate3d dispPt1 = [vc displayPointFromGeo:coord1];
+    const MaplyCoordinate3d dispPt2 = [vc displayPointFromGeo:coord2];
     
-    float d1 = sqrtf(powf(dispPt1.x-dispPt0.x, 2.0) + powf(dispPt1.y-dispPt0.y, 2.0));
-    float d2 = sqrtf(powf(dispPt2.x-dispPt0.x, 2.0) + powf(dispPt2.y-dispPt0.y, 2.0));
+    const float d1 = sqrtf(powf(dispPt1.x-dispPt0.x, 2.0) + powf(dispPt1.y-dispPt0.y, 2.0));
+    const float d2 = sqrtf(powf(dispPt2.x-dispPt0.x, 2.0) + powf(dispPt2.y-dispPt0.y, 2.0));
     shapeCircle.radius = (d1 + d2) / 2.0;
+    
     float minHeight = 0.0;
-    if (_globeVC)
-        minHeight = [_globeVC getZoomLimitsMin];
+    if (gvc)
+        minHeight = [gvc getZoomLimitsMin];
     else {
         float maxHeight;
-        [_mapVC getZoomLimitsMin:&minHeight max:&maxHeight];
+        [mvc getZoomLimitsMin:&minHeight max:&maxHeight];
     }
     shapeCircle.height = minHeight * 0.01;
 
@@ -346,9 +353,9 @@
     if (_markerObj || _movingMarkerObj) {
         startLoc = _prevLoc;
         if (_markerObj)
-            [_theViewC removeObjects:@[_markerObj] mode:MaplyThreadCurrent];
+            [theViewC removeObjects:@[_markerObj] mode:MaplyThreadCurrent];
         if (_movingMarkerObj)
-            [_theViewC removeObjects:@[_movingMarkerObj] mode:MaplyThreadCurrent];
+            [theViewC removeObjects:@[_movingMarkerObj] mode:MaplyThreadCurrent];
         _markerObj = nil;
         _movingMarkerObj = nil;
     } else
@@ -362,7 +369,7 @@
     if (location.horizontalAccuracy >= 0) {
         MaplyShapeCircle *shapeCircle = [self shapeCircleForCoord:endLoc AndHorizontalAccuracy:location.horizontalAccuracy];
         if (shapeCircle) {
-            _shapeCircleObj = [_theViewC addShapes:@[shapeCircle] desc:_shapeCircleDesc mode:MaplyThreadCurrent];
+            _shapeCircleObj = [theViewC addShapes:@[shapeCircle] desc:_shapeCircleDesc mode:MaplyThreadCurrent];
         }
         
         NSNumber *orientation;
@@ -402,8 +409,8 @@
         NSTimeInterval ti = [NSDate timeIntervalSinceReferenceDate]+0.5;
         _markerDesc[kMaplyEnableStart] = _movingMarkerDesc[kMaplyEnableEnd] = @(ti);
         
-        _movingMarkerObj = [_theViewC addScreenMarkers:@[movingMarker] desc:_movingMarkerDesc mode:MaplyThreadCurrent];
-        _markerObj = [_theViewC addScreenMarkers:@[marker] desc:_markerDesc mode:MaplyThreadCurrent];
+        _movingMarkerObj = [theViewC addScreenMarkers:@[movingMarker] desc:_movingMarkerDesc mode:MaplyThreadCurrent];
+        _markerObj = [theViewC addScreenMarkers:@[marker] desc:_markerDesc mode:MaplyThreadCurrent];
         
         [self lockToLocation:endLoc heading:(orientation ? orientation.floatValue : 0.0)];
         

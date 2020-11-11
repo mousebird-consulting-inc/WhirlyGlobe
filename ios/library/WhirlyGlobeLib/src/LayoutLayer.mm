@@ -61,18 +61,16 @@ namespace WhirlyKit
     scene = inScene;
     
     // Get us view updates, but we'll filter them
-    if (layerThread.viewWatcher)
-        [layerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:0.0 minDist:0.0 maxLagTime:0.0];
-    
+    [inLayerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:0.0 minDist:0.0 maxLagTime:0.0];
+
     [self checkUpdate];
 }
 
 - (void)teardown
 {
     scene = NULL;
-    if (layerThread.viewWatcher)
-        [layerThread.viewWatcher removeWatcherTarget:self selector:@selector(viewUpdate:)];
-    
+    [layerThread.viewWatcher removeWatcherTarget:self selector:@selector(viewUpdate:)];
+
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(delayCheck) object:nil];
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(checkUpdate) object:nil];
 }

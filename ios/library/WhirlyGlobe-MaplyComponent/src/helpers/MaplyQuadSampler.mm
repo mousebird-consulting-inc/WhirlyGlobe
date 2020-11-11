@@ -233,7 +233,7 @@ using namespace WhirlyKit;
     
     _quadLayer = [[WhirlyKitQuadDisplayLayerNew alloc] initWithController:sampleControl.getDisplayControl()];
 
-    [super.layerThread addLayer:_quadLayer];
+    [inLayerThread addLayer:_quadLayer];
 
     return true;
 }

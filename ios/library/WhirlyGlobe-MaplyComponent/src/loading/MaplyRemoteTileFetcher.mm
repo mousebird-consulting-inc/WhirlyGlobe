@@ -269,7 +269,8 @@ using namespace WhirlyKit;
 
 - (void)dump
 {
-    NSLog(@"---MaplyTileFetcher %@ Stats---",_fetcher.name);
+    const auto __strong fetcher = _fetcher;
+    NSLog(@"---MaplyTileFetcher %@ Stats---",fetcher.name);
     NSLog(@"   Active Requests = %d",_activeRequests);
     NSLog(@"   Max Active Requests = %d",_maxActiveRequests);
     NSLog(@"   Total Requests = %d",_totalRequests);
@@ -281,7 +282,7 @@ using namespace WhirlyKit;
         NSLog(@"   Average request size = %.2fKB",_remoteData / _remoteRequests / 1024.0);
     }
     NSLog(@"   Cached Data = %.2fMB",_localData / (1024.0*1024.0));
-    NSLog(@"   Num Simultaneous = %d",_fetcher.numConnections);
+    NSLog(@"   Num Simultaneous = %d",fetcher.numConnections);
 }
 
 @end
@@ -705,19 +706,17 @@ using namespace WhirlyKit;
                       ^(NSData * _Nullable data, NSURLResponse * _Nullable inResponse, NSError * _Nullable error) {
                           NSHTTPURLResponse *response = (NSHTTPURLResponse *)inResponse;
 
-                          dispatch_queue_t queue = [weakSelf getQueue];
-                          if (queue)
-                              dispatch_async(queue,
-                                 ^{
-                                     if (weakSelf)
-                                         [weakSelf handleData:data response:response error:error tile:tile fetchStart:fetchStartTile];
+                          if (dispatch_queue_t queue = [weakSelf getQueue])
+                              dispatch_async(queue, ^{
+                                     [weakSelf handleData:data response:response error:error tile:tile fetchStart:fetchStartTile];
                                  });
                         }];
         
         // Look for it in local storage first
         bool inLocalStorage = false;
-        if (localStorage) {
-            NSData *data = [localStorage dataForTile:tile->fetchInfo tileID:tile->tileID];
+        const auto __strong ls = localStorage;
+        if (ls) {
+            NSData *data = [ls dataForTile:tile->fetchInfo tileID:tile->tileID];
             if (data) {
                 inLocalStorage = true;
                 
@@ -760,12 +759,10 @@ using namespace WhirlyKit;
            success = false;
            
            // The dev has one more chance to provide the data before we give up
-           if (secondChance) {
-               data = [secondChance dataForTile:tile->fetchInfo tileID:tile->tileID];
-               if (data) {
-                   success = true;
-                   useCache = false;
-               }
+           data = [secondChance dataForTile:tile->fetchInfo tileID:tile->tileID];
+           if (data) {
+               success = true;
+               useCache = false;
            }
        } else {
            // We do nothing for a cancel
@@ -886,9 +883,9 @@ using namespace WhirlyKit;
         if (theQueue) {
             dispatch_async(theQueue,
             ^{
-                [weakSelf finishTile:tile];
-
-                [weakSelf updateLoading];
+                const auto __strong s = weakSelf;
+                [s finishTile:tile];
+                [s updateLoading];
             });
         } else {
             tile->clear();

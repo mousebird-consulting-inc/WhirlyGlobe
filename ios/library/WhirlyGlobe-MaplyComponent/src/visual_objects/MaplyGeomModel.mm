@@ -108,7 +108,7 @@ using namespace Eigen;
         
         if (shape)
         {
-            ShapeManager *shapeManager = (ShapeManager *)layer->scene->getManager(kWKShapeManager);
+            ShapeManager *shapeManager = (ShapeManager *)inLayer->scene->getManager(kWKShapeManager);
 
             WhirlyKit::Shape *wkShape = nil;
             if ([shape isKindOfClass:[MaplyShapeCircle class]])
@@ -130,7 +130,7 @@ using namespace Eigen;
             int whichTex = 0;
             for (const std::string &texFileName : texFileNames)
             {
-                MaplyTexture *tex = [layer addImage:[UIImage imageNamed:[NSString stringWithFormat:@"%s",texFileName.c_str()]] imageFormat:MaplyImage4Layer8Bit mode:threadMode];
+                MaplyTexture *tex = [inLayer addImage:[UIImage imageNamed:[NSString stringWithFormat:@"%s",texFileName.c_str()]] imageFormat:MaplyImage4Layer8Bit mode:threadMode];
                 if (tex)
                 {
                     maplyTextures.insert(tex);
@@ -208,12 +208,12 @@ using namespace Eigen;
         for (auto &it : stringGeom)
             procGeom.push_back(it.second);
         
-        GeometryManager *geomManager = (GeometryManager *)layer->scene->getManager(kWKGeometryManager);
+        GeometryManager *geomManager = (GeometryManager *)inLayer->scene->getManager(kWKGeometryManager);
         GeometryInfo geomInfo;
         baseModelID = geomManager->addBaseGeometry(procGeom, geomInfo, changes);
 
         // Need to flush these changes immediately
-        layer->scene->addChangeRequests(changes);
+        inLayer->scene->addChangeRequests(changes);
         
         return baseModelID;
     }

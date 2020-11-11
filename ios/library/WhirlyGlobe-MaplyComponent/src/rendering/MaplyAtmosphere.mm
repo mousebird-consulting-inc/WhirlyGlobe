@@ -487,19 +487,21 @@ static StringIdentity fExposureNameID;
     sphere.center = MaplyCoordinateMake(0, 0);
     sphere.height = -1.0;
     sphere.radius = _outerRadius;
-    compObj = [viewC addShapes:@[sphere] desc:@{kMaplyZBufferRead: @(NO),
-                                                kMaplyZBufferWrite: @(NO),
-                                                kMaplyShapeSampleX: @(120),
-                                                kMaplyShapeSampleY: @(60),
-                                                kMaplyShapeInsideOut: @(YES),
-                                                kMaplyShapeCenterX: @(0.0),
-                                                kMaplyShapeCenterY: @(0.0),
-                                                kMaplyShapeCenterZ: @(0.0),
-                                                kMaplyDrawPriority: @(kMaplyAtmosphereDrawPriorityDefault),
-                                                kMaplyShader: kAtmosphereShader}];
     
-    sunUpdater = [[SunUpdater alloc] initWithShader:shader groundShader:_groundShader atm:self viewC:viewC];
-    [viewC addActiveObject:sunUpdater];
+    const auto __strong vc = viewC;
+    compObj = [vc addShapes:@[sphere] desc:@{kMaplyZBufferRead: @(NO),
+                                             kMaplyZBufferWrite: @(NO),
+                                             kMaplyShapeSampleX: @(120),
+                                             kMaplyShapeSampleY: @(60),
+                                             kMaplyShapeInsideOut: @(YES),
+                                             kMaplyShapeCenterX: @(0.0),
+                                             kMaplyShapeCenterY: @(0.0),
+                                             kMaplyShapeCenterZ: @(0.0),
+                                             kMaplyDrawPriority: @(kMaplyAtmosphereDrawPriorityDefault),
+                                             kMaplyShader: kAtmosphereShader}];
+    
+    sunUpdater = [[SunUpdater alloc] initWithShader:shader groundShader:_groundShader atm:self viewC:vc];
+    [vc addActiveObject:sunUpdater];
 }
 
 - (MaplyShader *)setupGroundShader
@@ -537,11 +539,12 @@ static StringIdentity fExposureNameID;
 
 - (void)removeFromViewC
 {
+    const auto __strong vc = viewC;
     if (compObj)
-        [viewC removeObject:compObj];
+        [vc removeObject:compObj];
     compObj = nil;
     if (sunUpdater)
-        [viewC removeActiveObject:sunUpdater];
+        [vc removeActiveObject:sunUpdater];
     sunUpdater = nil;
     // Note: Should remove shader
 }

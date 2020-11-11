@@ -53,12 +53,11 @@ using namespace WhirlyGlobe;
 {
     layerThread = inLayerThread;
     scene = inScene;
-    
+
     // We want view updates, but only occasionally
-    if (layerThread.viewWatcher)
-        [(WhirlyKitLayerViewWatcher *)layerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:_minTime minDist:0.0 maxLagTime:0.0];
-    
-    [self performSelector:@selector(startOnThread) onThread:layerThread withObject:nil waitUntilDone:NO];
+    [(WhirlyKitLayerViewWatcher *)inLayerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:_minTime minDist:0.0 maxLagTime:0.0];
+
+    [self performSelector:@selector(startOnThread) onThread:inLayerThread withObject:nil waitUntilDone:NO];
 }
 
 - (void)startOnThread
@@ -69,10 +68,9 @@ using namespace WhirlyGlobe;
 - (void)teardown
 {
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
-    
-    if (layerThread.viewWatcher)
-        [(WhirlyKitLayerViewWatcher *)layerThread.viewWatcher removeWatcherTarget:self selector:@selector(viewUpdate:)];
-    
+
+    [(WhirlyKitLayerViewWatcher *)layerThread.viewWatcher removeWatcherTarget:self selector:@selector(viewUpdate:)];
+
     [_dataSource teardown];
 }
 

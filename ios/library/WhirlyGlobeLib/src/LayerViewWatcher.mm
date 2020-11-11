@@ -103,7 +103,7 @@ public:
         layerThread = inLayerThread;
         view = inView;
         watchers = [NSMutableArray array];
-        lastViewState = inView->makeViewState(layerThread.renderer);
+        lastViewState = inView->makeViewState(inLayerThread.renderer);
         viewWatchWrapper.viewWatcher = self;
         inView->addWatcher(&viewWatchWrapper);
     }
@@ -128,10 +128,14 @@ public:
     {
         [watchers addObject:watch];
     }
-    
-    if (!lastViewState && layerThread.renderer->framebufferWidth != 0)
+
+    if (!lastViewState)
     {
-        lastViewState = view->makeViewState(layerThread.renderer);
+        const auto __strong thread = layerThread;
+        if (thread.renderer->framebufferWidth != 0)
+        {
+            lastViewState = view->makeViewState(thread.renderer);
+        }
     }
     
     // Make sure it gets a starting update
@@ -146,10 +150,12 @@ public:
     LocalWatcher *toRemove = [[LocalWatcher alloc] init];
     toRemove->target = target;
     toRemove->selector = selector;
-    if ([NSThread currentThread] == layerThread)
+    
+    const auto __strong thread = layerThread;
+    if ([NSThread currentThread] == thread)
         [self removeWatcherTargetLayer:toRemove];
     else
-        [self performSelector:@selector(removeWatcherTargetLayer:) onThread:layerThread withObject:toRemove waitUntilDone:NO];
+        [self performSelector:@selector(removeWatcherTargetLayer:) onThread:thread withObject:toRemove waitUntilDone:NO];
 }
 
 - (void)removeWatcherTargetLayer:(LocalWatcher *)toRemove
@@ -158,9 +164,10 @@ public:
     
     @synchronized(self)
     {
+        const id __strong removeTarget = toRemove->target;
         for (LocalWatcher *watch in watchers)
         {
-            if (watch->target == toRemove->target && watch->selector == toRemove->selector)
+            if (watch->target == removeTarget && watch->selector == toRemove->selector)
             {
                 found = watch;
                 break;
@@ -177,11 +184,12 @@ public:
 // This is called in the main thread
 - (void)viewUpdated:(View *)inView
 {
-    if (layerThread.renderer == nil)
+    const auto __strong thread = layerThread;
+    if (thread.renderer == nil)
         return;
     
     // The view has to be valid first
-    if (layerThread.renderer->framebufferWidth <= 0.0)
+    if (thread.renderer->framebufferWidth <= 0.0)
     {
         // Let's check back every so often
         [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(viewUpdated:) object:nil];
@@ -189,7 +197,7 @@ public:
         return;
     }
 
-    ViewStateRef viewState = view->makeViewState(layerThread.renderer);
+    ViewStateRef viewState = view->makeViewState(thread.renderer);
     
     //    lastViewState = viewState;
     @synchronized(self)
@@ -198,7 +206,7 @@ public:
         if (!kickoffScheduled)
         {
             kickoffScheduled = true;
-            [self performSelector:@selector(kickoffViewUpdated) onThread:layerThread withObject:nil waitUntilDone:NO];
+            [self performSelector:@selector(kickoffViewUpdated) onThread:thread withObject:nil waitUntilDone:NO];
         }
     }
 }

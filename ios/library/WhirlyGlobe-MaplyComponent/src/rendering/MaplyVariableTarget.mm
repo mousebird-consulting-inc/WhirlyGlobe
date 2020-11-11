@@ -63,8 +63,9 @@
 {
     if (!valid)
         return;
-    
-    CGSize screenSize = [viewC getFramebufferSize];
+
+    const auto __strong vc = viewC;
+    CGSize screenSize = [vc getFramebufferSize];
 
     // Can get into a race on framebuffer setup
     if (screenSize.width == 0.0) {
@@ -79,10 +80,10 @@
     _texSize = screenSize;
 
     // Set up the render target
-    _renderTex = [viewC createTexture:@{kMaplyTexFormat: @(_type)} sizeX:screenSize.width sizeY:screenSize.height mode:MaplyThreadCurrent];
+    _renderTex = [vc createTexture:@{kMaplyTexFormat: @(_type)} sizeX:screenSize.width sizeY:screenSize.height mode:MaplyThreadCurrent];
     _renderTarget.texture = _renderTex;
     _renderTarget.clearEveryFrame = _clearEveryFrame;
-    [viewC addRenderTarget:_renderTarget];
+    [vc addRenderTarget:_renderTarget];
     
     if (_buildRectangle) {
         // Set up a rectangle right over the view to render the render target
@@ -98,7 +99,7 @@
             shaderName = [_shader name];
         else
             shaderName = kMaplyShaderDefaultTriNoLighting;
-        _rectObj = [viewC addShapes:@[rect]
+        _rectObj = [vc addShapes:@[rect]
                               desc:@{kMaplyColor: _color,
                                      kMaplyDrawPriority: @(_drawPriority),
                                      kMaplyShader: shaderName,
@@ -109,7 +110,7 @@
         
         // Pass through the uniform blocks if they've been set up
         for (auto block : uniBlocks) {
-            [viewC setUniformBlock:block.second buffer:block.first forObjects:@[_rectObj] mode:MaplyThreadCurrent];
+            [vc setUniformBlock:block.second buffer:block.first forObjects:@[_rectObj] mode:MaplyThreadCurrent];
         }
     }
     
@@ -134,8 +135,9 @@
 
 - (void)clear
 {
-    if (_renderTarget && [viewC isKindOfClass:[MaplyBaseViewController class]])
-        [(MaplyBaseViewController *)viewC clearRenderTarget:_renderTarget mode:MaplyThreadCurrent];
+    const auto vc = viewC;
+    if (_renderTarget && [vc isKindOfClass:[MaplyBaseViewController class]])
+        [(MaplyBaseViewController *)vc clearRenderTarget:_renderTarget mode:MaplyThreadCurrent];
 }
 
 /// Stop rendering to the target and release everything
@@ -143,18 +145,19 @@
 {
     valid = false;
     
+    const auto __strong vc = viewC;
     if (_rectObj) {
-        [viewC removeObjects:@[_rectObj] mode:MaplyThreadCurrent];
+        [vc removeObjects:@[_rectObj] mode:MaplyThreadCurrent];
         _rectObj = nil;
     }
     if (_renderTarget) {
-        [viewC removeRenderTarget:_renderTarget];
+        [vc removeRenderTarget:_renderTarget];
 #ifndef __clang_analyzer__  // override __nonnull
         _renderTarget = nil;
 #endif
     }
     if (_renderTex) {
-        [viewC removeTextures:@[_renderTex] mode:MaplyThreadCurrent];
+        [vc removeTextures:@[_renderTex] mode:MaplyThreadCurrent];
         _renderTex = nil;
     }
 }

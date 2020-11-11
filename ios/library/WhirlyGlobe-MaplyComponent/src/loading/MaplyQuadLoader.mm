@@ -243,8 +243,9 @@ using namespace WhirlyKit;
     if (!samplingLayer)
         return;
     
-    if ([NSThread currentThread] != samplingLayer.layerThread) {
-        [self performSelector:@selector(changeTileInfos:) onThread:samplingLayer.layerThread withObject:tileInfos waitUntilDone:false];
+    const auto __strong thread = samplingLayer.layerThread;
+    if ([NSThread currentThread] != thread) {
+        [self performSelector:@selector(changeTileInfos:) onThread:thread withObject:tileInfos waitUntilDone:false];
         return;
     }
 
@@ -252,7 +253,7 @@ using namespace WhirlyKit;
     ChangeSet changes;
     loader->setTileInfos(tileInfos);
     loader->reload(NULL,-1,changes);
-    [samplingLayer.layerThread addChangeRequests:changes];
+    [thread addChangeRequests:changes];
 }
 
 - (void)changeInterpreter:(NSObject<MaplyLoaderInterpreter> *)interp
@@ -260,15 +261,16 @@ using namespace WhirlyKit;
     if (!samplingLayer)
         return;
     
-    if ([NSThread currentThread] != samplingLayer.layerThread) {
-        [self performSelector:@selector(changeInterpreter:) onThread:samplingLayer.layerThread withObject:interp waitUntilDone:false];
+    const auto __strong thread = samplingLayer.layerThread;
+    if ([NSThread currentThread] != thread) {
+        [self performSelector:@selector(changeInterpreter:) onThread:thread withObject:interp waitUntilDone:false];
         return;
     }
     
     ChangeSet changes;
     loadInterp = interp;
     loader->reload(NULL,-1,changes);
-    [samplingLayer.layerThread addChangeRequests:changes];
+    [thread addChangeRequests:changes];
 }
 
 - (void)reload
@@ -286,8 +288,9 @@ using namespace WhirlyKit;
     if (!samplingLayer)
         return;
 
-    if ([NSThread currentThread] != samplingLayer.layerThread) {
-        [self performSelector:@selector(reloadAreas:) onThread:samplingLayer.layerThread withObject:bounds waitUntilDone:false];
+    const auto __strong thread = samplingLayer.layerThread;
+    if ([NSThread currentThread] != thread) {
+        [self performSelector:@selector(reloadAreas:) onThread:thread withObject:bounds waitUntilDone:false];
         return;
     }
 
@@ -304,7 +307,7 @@ using namespace WhirlyKit;
     
     ChangeSet changes;
     loader->reload(nullptr,-1,boxPtr,(int)boxes.size(),changes);
-    [samplingLayer.layerThread addChangeRequests:changes];
+    [thread addChangeRequests:changes];
 }
 
 // Called on a random dispatch queue
@@ -476,24 +479,27 @@ using namespace WhirlyKit;
     }
     
     ChangeSet changes;
+    const auto __strong thread = samplingLayer.layerThread;
+    //const auto __strong loadRet = loadReturn->loadReturn
     if (!loadReturn->loadReturn->changes.empty()) {
-        [samplingLayer.layerThread addChangeRequests:loadReturn->loadReturn->changes];
+        [thread addChangeRequests:loadReturn->loadReturn->changes];
         loadReturn->loadReturn->changes.clear();
     }
     loader->mergeLoadedTile(NULL,loadReturn->loadReturn.get(),changes);
 
     loader->setLoadReturnRef(loadReturn->loadReturn->ident,loadReturn->loadReturn->frame,NULL);
 
-    [samplingLayer.layerThread addChangeRequests:changes];
+    [thread addChangeRequests:changes];
 }
 
 - (void)cleanup
 {
     ChangeSet changes;
-    
     loader->cleanup(NULL,changes);
-    [samplingLayer.layerThread addChangeRequests:changes];
-    [samplingLayer.layerThread flushChangeRequests];
+    
+    const auto __strong thread = samplingLayer.layerThread;
+    [thread addChangeRequests:changes];
+    [thread flushChangeRequests];
 
     dispatch_async(dispatch_get_main_queue(), ^{
         [[self.viewC getRenderControl] releaseSamplingLayer:self->samplingLayer forUser:self->loader];
@@ -508,8 +514,9 @@ using namespace WhirlyKit;
 {
     valid = false;
     
-    if (self->samplingLayer && self->samplingLayer.layerThread)
-        [self performSelector:@selector(cleanup) onThread:self->samplingLayer.layerThread withObject:nil waitUntilDone:NO];
+    const auto __strong thread = samplingLayer.layerThread;
+    if (thread)
+        [self performSelector:@selector(cleanup) onThread:thread withObject:nil waitUntilDone:NO];
 }
 
 @end

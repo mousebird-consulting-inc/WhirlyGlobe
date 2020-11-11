@@ -40,49 +40,40 @@ using namespace WhirlyKit;
 
 - (NSData *)getValueAtX:(int)x y:(int)y
 {
-    if (!_renderControl)
-        return nil;
-    SceneRendererMTLRef sceneRenderer = std::dynamic_pointer_cast<SceneRendererMTL>(_renderControl->sceneRenderer);
-    if (!sceneRenderer)
-        return nil;
-    
-    RawDataRef dataRef = sceneRenderer->getSnapshotAt(_renderTargetID, x, y);
-    RawNSDataReaderRef rawData = std::dynamic_pointer_cast<RawNSDataReader>(dataRef);
-    if (rawData)
-        return rawData->getData();
-    
+    if (const auto __strong rc = _renderControl) {
+        if (const auto sceneRenderer = dynamic_cast<SceneRendererMTL*>(rc->sceneRenderer.get())) {
+            const auto dataRef = sceneRenderer->getSnapshotAt(_renderTargetID, x, y);
+            if (const auto rawData = dynamic_cast<RawNSDataReader*>(dataRef.get())) {
+                return rawData->getData();
+            }
+        }
+    }
     return nil;
 }
 
 - (NSData *)getSnapshot
 {
-    if (!_renderControl)
-        return nil;
-    SceneRendererMTLRef sceneRenderer = std::dynamic_pointer_cast<SceneRendererMTL>(_renderControl->sceneRenderer);
-    if (!sceneRenderer)
-        return nil;
-
-    RawDataRef dataRef = sceneRenderer->getSnapshot(_renderTargetID);
-    RawNSDataReaderRef rawData = std::dynamic_pointer_cast<RawNSDataReader>(dataRef);
-    if (rawData)
-        return rawData->getData();
-    
+    if (const auto __strong rc = _renderControl) {
+        if (const auto sceneRenderer = dynamic_cast<SceneRendererMTL*>(rc->sceneRenderer.get())) {
+            const auto dataRef = sceneRenderer->getSnapshot(_renderTargetID);
+            if (const auto rawData = dynamic_cast<RawNSDataReader*>(dataRef.get())) {
+                return rawData->getData();
+            }
+        }
+    }
     return nil;
 }
 
 - (NSData *)getMinMaxValues
 {
-    if (!_renderControl)
-        return nil;
-    SceneRendererMTLRef sceneRenderer = std::dynamic_pointer_cast<SceneRendererMTL>(_renderControl->sceneRenderer);
-    if (!sceneRenderer)
-        return nil;
-
-    RawDataRef dataRef = sceneRenderer->getSnapshotMinMax(_renderTargetID);
-    RawNSDataReaderRef rawData = std::dynamic_pointer_cast<RawNSDataReader>(dataRef);
-    if (rawData)
-        return rawData->getData();
-    
+    if (const auto __strong rc = _renderControl) {
+        if (const auto sceneRenderer = dynamic_cast<SceneRendererMTL*>(rc->sceneRenderer.get())) {
+            const auto dataRef = sceneRenderer->getSnapshotMinMax(_renderTargetID);
+            if (const auto rawData = dynamic_cast<RawNSDataReader*>(dataRef.get())) {
+                return rawData->getData();
+            }
+        }
+    }
     return nil;
 }
 
