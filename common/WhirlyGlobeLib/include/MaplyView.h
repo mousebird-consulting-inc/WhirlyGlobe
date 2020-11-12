@@ -78,7 +78,7 @@ public:
     double maxHeightAboveSurface();
 
     /// Set the location, but we may or may not run updates
-    void setLoc(WhirlyKit::Point3d &loc,bool runUpdates);
+    void setLoc(const WhirlyKit::Point3d &loc,bool runUpdates);
 
     /// Set the location we're looking from.  Always runs updates
     void setLoc(WhirlyKit::Point3d newLoc);

@@ -44,9 +44,10 @@ using namespace WhirlyKit;
     if (_texID != EmptyIdentity)
     {
 //        NSLog(@"Clearing texture %lx, for interactLayer %lx",(long)self,(long)_interactLayer);
-        if (auto wr = WorkRegion(_interactLayer))
+        auto const __strong layer = _interactLayer;
+        if (auto wr = WorkRegion(layer))
         {
-            [_interactLayer clearTexture:self when:0.0];
+            [layer clearTexture:self when:0.0];
         }
     }
 }

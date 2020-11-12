@@ -37,30 +37,28 @@ using namespace WhirlyKit;
 - (UIViewController * _Nullable)previewingContext:(id<UIViewControllerPreviewing> _Nonnull)previewingContext
                         viewControllerForLocation:(CGPoint)location
 {
-    NSObject *selectedObject = [interactLayer selectLabelsAndMarkerForScreenPoint:location];
+    const auto __strong vc = viewC;
+    const auto __strong layer = interactLayer;
+    NSObject *selectedObject = [layer selectLabelsAndMarkerForScreenPoint:location];
     if(!selectedObject)
     {
-        if([viewC isKindOfClass:[MaplyViewController class]])
+        if([vc isKindOfClass:[MaplyViewController class]])
         {
-            MaplyCoordinate coord = [(MaplyViewController*)viewC geoFromScreenPoint:location];
-            selectedObject = [[interactLayer findVectorsInPoint:Point2f(coord.x, coord.y)] firstObject];
+            const MaplyCoordinate coord = [(MaplyViewController*)vc geoFromScreenPoint:location];
+            selectedObject = [[layer findVectorsInPoint:Point2f(coord.x, coord.y)] firstObject];
         }
         else
         { //globe
             MaplyCoordinate coord;
-            if([(WhirlyGlobeViewController*)viewC geoPointFromScreen:location geoCoord:&coord])
+            if([(WhirlyGlobeViewController*)vc geoPointFromScreen:location geoCoord:&coord])
             {
-                selectedObject = [[interactLayer findVectorsInPoint:Point2f(coord.x, coord.y)] firstObject];
+                selectedObject = [[layer findVectorsInPoint:Point2f(coord.x, coord.y)] firstObject];
             }
         }
     }
-    
-    if(!selectedObject)
-    {
-        return nil;
-    }
-    return [self.datasource maplyViewController:viewC
-              previewViewControllerForSelection:selectedObject];
+
+    return selectedObject ? [self.datasource maplyViewController:vc
+              previewViewControllerForSelection:selectedObject] : nil;
 }
 
 

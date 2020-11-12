@@ -833,7 +833,7 @@ int QuadImageFrameLoader::calcLoadPriority(const QuadTreeNew::ImportantNode &ide
     return restPriority;
 }
     
-void QuadImageFrameLoader::setColor(RGBAColor &inColor,ChangeSet *changes)
+void QuadImageFrameLoader::setColor(const RGBAColor &inColor,ChangeSet *changes)
 {
     color = inColor;
 

@@ -71,10 +71,11 @@ NSTimeInterval const kSMCalloutViewRepositionDelayForUIScrollView = 1.0/3.0;
 }
 
 - (BOOL)supportsHighlighting {
-    if (![self.delegate respondsToSelector:@selector(calloutViewClicked:)])
+    id<SMCalloutViewDelegate> dg = self.delegate;
+    if (![dg respondsToSelector:@selector(calloutViewClicked:)])
         return NO;
-    if ([self.delegate respondsToSelector:@selector(calloutViewShouldHighlight:)])
-        return [self.delegate calloutViewShouldHighlight:self];
+    if ([dg respondsToSelector:@selector(calloutViewShouldHighlight:)])
+        return [dg calloutViewShouldHighlight:self];
     return YES;
 }
 
@@ -82,8 +83,9 @@ NSTimeInterval const kSMCalloutViewRepositionDelayForUIScrollView = 1.0/3.0;
 - (void)unhighlightIfNecessary { if (self.supportsHighlighting) self.backgroundView.highlighted = NO; }
 
 - (void)calloutClicked {
-    if ([self.delegate respondsToSelector:@selector(calloutViewClicked:)])
-        [self.delegate calloutViewClicked:self];
+    id<SMCalloutViewDelegate> dg = self.delegate;
+    if ([dg respondsToSelector:@selector(calloutViewClicked:)])
+        [dg calloutViewClicked:self];
 }
 
 - (UIView *)titleViewOrDefault {
@@ -377,8 +379,9 @@ NSTimeInterval const kSMCalloutViewRepositionDelayForUIScrollView = 1.0/3.0;
     NSTimeInterval delay = 0;
     self.popupCancelled = NO; // reset this before calling our delegate below
     
-    if ([self.delegate respondsToSelector:@selector(calloutView:delayForRepositionWithSize:)] && !CGSizeEqualToSize(offset, CGSizeZero))
-        delay = [self.delegate calloutView:(id)self delayForRepositionWithSize:offset];
+    id<SMCalloutViewDelegate> dg = self.delegate;
+    if ([dg respondsToSelector:@selector(calloutView:delayForRepositionWithSize:)] && !CGSizeEqualToSize(offset, CGSizeZero))
+        delay = [dg calloutView:(id)self delayForRepositionWithSize:offset];
     
     // there's a chance that user code in the delegate method may have called -dismissCalloutAnimated to cancel things; if that
     // happened then we need to bail!
@@ -406,33 +409,35 @@ NSTimeInterval const kSMCalloutViewRepositionDelayForUIScrollView = 1.0/3.0;
 - (void)animationDidStart:(CAAnimation *)anim {
     BOOL presenting = [[anim valueForKey:@"presenting"] boolValue];
     
+    id<SMCalloutViewDelegate> dg = self.delegate;
     if (presenting) {
-        if ([_delegate respondsToSelector:@selector(calloutViewWillAppear:)])
-            [_delegate calloutViewWillAppear:(id)self];
+        if ([dg respondsToSelector:@selector(calloutViewWillAppear:)])
+            [dg calloutViewWillAppear:(id)self];
         
         // ok, animation is on, let's make ourselves visible!
         self.hidden = NO;
     }
     else if (!presenting) {
-        if ([_delegate respondsToSelector:@selector(calloutViewWillDisappear:)])
-            [_delegate calloutViewWillDisappear:(id)self];
+        if ([dg respondsToSelector:@selector(calloutViewWillDisappear:)])
+            [dg calloutViewWillDisappear:(id)self];
     }
 }
 
 - (void)animationDidStop:(CAAnimation *)anim finished:(BOOL)finished {
     BOOL presenting = [[anim valueForKey:@"presenting"] boolValue];
 
+    id<SMCalloutViewDelegate> dg = self.delegate;
     if (presenting && finished) {
-        if ([_delegate respondsToSelector:@selector(calloutViewDidAppear:)])
-            [_delegate calloutViewDidAppear:(id)self];
+        if ([dg respondsToSelector:@selector(calloutViewDidAppear:)])
+            [dg calloutViewDidAppear:(id)self];
     }
     else if (!presenting && finished) {
         
         [self removeFromParent];
         [self.layer removeAnimationForKey:@"dismiss"];
         
-        if ([_delegate respondsToSelector:@selector(calloutViewDidDisappear:)])
-            [_delegate calloutViewDidDisappear:(id)self];
+        if ([dg respondsToSelector:@selector(calloutViewDidDisappear:)])
+            [dg calloutViewDidDisappear:(id)self];
     }
 }
 

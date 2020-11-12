@@ -77,10 +77,9 @@ using namespace WhirlyKit;
     layerThread = inLayerThread;
     
     // We want view updates, but only occasionally
-    if (layerThread.viewWatcher)
-        [layerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:_minTime minDist:0.0 maxLagTime:_maxLag];
+    [inLayerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:_minTime minDist:0.0 maxLagTime:_maxLag];
     
-    [self performSelector:@selector(startOnThread) onThread:layerThread withObject:nil waitUntilDone:NO];
+    [self performSelector:@selector(startOnThread) onThread:inLayerThread withObject:nil waitUntilDone:NO];
     
     return true;
 }
@@ -116,10 +115,9 @@ using namespace WhirlyKit;
 - (void)cleanupLayers:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)scene
 {
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
-    
-    if (layerThread.viewWatcher)
-        [layerThread.viewWatcher removeWatcherTarget:self selector:@selector(viewUpdate:)];
-    
+
+    [layerThread.viewWatcher removeWatcherTarget:self selector:@selector(viewUpdate:)];
+
     [delegate teardown:self];
 }
 

@@ -67,7 +67,7 @@ using namespace WhirlyKit;
     NSMutableArray *sources = [NSMutableArray array];
     for (NSString *sourceName in sourceStyles.allKeys) {
         NSDictionary *styleEntry = sourceStyles[sourceName];
-        MaplyMapboxVectorStyleSource *source = [[MaplyMapboxVectorStyleSource alloc] initWithName:sourceName styleEntry:styleEntry styleSet:self viewC:_viewC];
+        MaplyMapboxVectorStyleSource *source = [[MaplyMapboxVectorStyleSource alloc] initWithName:sourceName styleEntry:styleEntry styleSet:self viewC:viewC];
         if (source)
             [sources addObject:source];
     }

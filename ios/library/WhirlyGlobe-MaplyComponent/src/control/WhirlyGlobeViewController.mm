@@ -186,7 +186,7 @@ public:
 - (void)setDelegate:(NSObject<WhirlyGlobeViewControllerDelegate> *)delegate
 {
     _delegate = delegate;
-    delegateRespondsToViewUpdate = [_delegate respondsToSelector:@selector(globeViewController:didMove:)];
+    delegateRespondsToViewUpdate = [delegate respondsToSelector:@selector(globeViewController:didMove:)];
 }
 
 // Called by the globe view when something changes
@@ -242,6 +242,7 @@ public:
         doubleTapDelegate.zoomTapFactor = _zoomTapFactor;
         doubleTapDelegate.zoomAnimationDuration = _zoomTapAnimationDuration;
     }
+    const auto tapRecognizer = tapDelegate.gestureRecognizer;
     if(_twoFingerTapGesture)
     {
         twoFingerTapDelegate = [WhirlyGlobeTwoFingerTapDelegate twoFingerTapDelegateForView:wrapView globeView:globeView.get()];
@@ -249,17 +250,21 @@ public:
         twoFingerTapDelegate.maxZoom = pinchDelegate.maxHeight;
         twoFingerTapDelegate.zoomTapFactor = _zoomTapFactor;
         twoFingerTapDelegate.zoomAnimationDuration = _zoomTapAnimationDuration;
-        if (pinchDelegate)
-            [twoFingerTapDelegate.gestureRecognizer requireGestureRecognizerToFail:pinchDelegate.gestureRecognizer];
-        [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:twoFingerTapDelegate.gestureRecognizer];
+        
+        const auto twoFingerRecognizer = twoFingerTapDelegate.gestureRecognizer;
+        if (pinchDelegate) {
+            [twoFingerRecognizer requireGestureRecognizerToFail:pinchDelegate.gestureRecognizer];
+        }
+        [tapRecognizer requireGestureRecognizerToFail:twoFingerRecognizer];
     }
     if (_doubleTapDragGesture)
     {
         doubleTapDragDelegate = [WhirlyGlobeDoubleTapDragDelegate doubleTapDragDelegateForView:wrapView globeView:globeView.get()];
         doubleTapDragDelegate.minZoom = pinchDelegate.minHeight;
         doubleTapDragDelegate.maxZoom = pinchDelegate.maxHeight;
-        [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
-        [panDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
+        const auto doubleTapRecognizer = doubleTapDragDelegate.gestureRecognizer;
+        [tapRecognizer requireGestureRecognizerToFail:doubleTapRecognizer];
+        [panDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapRecognizer];
     }
 }
 
@@ -365,6 +370,7 @@ public:
 
 - (void)setPinchGesture:(bool)pinchGesture
 {
+    auto __strong gr = pinchDelegate.gestureRecognizer; // false positive on weak ref access... annoying
     if (pinchGesture)
     {
         if (!pinchDelegate)
@@ -375,14 +381,15 @@ public:
             pinchDelegate.northUp = panDelegate.northUp;
             pinchDelegate.rotateDelegate = rotateDelegate;
             tiltDelegate.pinchDelegate = pinchDelegate;
-            
-            if (twoFingerTapDelegate)
-                [twoFingerTapDelegate.gestureRecognizer requireGestureRecognizerToFail:pinchDelegate.gestureRecognizer];
+
+            gr = pinchDelegate.gestureRecognizer;
+
+            [twoFingerTapDelegate.gestureRecognizer requireGestureRecognizerToFail:gr];
         }
     } else {
         if (pinchDelegate)
         {
-            [wrapView removeGestureRecognizer:pinchDelegate.gestureRecognizer];
+            [wrapView removeGestureRecognizer:gr];
             pinchDelegate = nil;
             tiltDelegate.pinchDelegate = nil;
         }
@@ -427,6 +434,7 @@ public:
 
 - (void)setTiltGesture:(bool)tiltGesture
 {
+    auto __strong tiltRecognizer = tiltDelegate.gestureRecognizer;
     if (tiltGesture)
     {
         if (!tiltDelegate)
@@ -434,16 +442,19 @@ public:
             tiltDelegate = [WhirlyGlobeTiltDelegate tiltDelegateForView:wrapView globeView:globeView.get()];
             tiltDelegate.pinchDelegate = pinchDelegate;
             tiltDelegate.tiltCalcDelegate = tiltControlDelegate;
+            
+            tiltRecognizer = tiltDelegate.gestureRecognizer;
+            
             [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDelegate.gestureRecognizer];
-            [tiltDelegate.gestureRecognizer requireGestureRecognizerToFail:twoFingerTapDelegate.gestureRecognizer];
-            [tiltDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
+
+            [tiltRecognizer requireGestureRecognizerToFail:twoFingerTapDelegate.gestureRecognizer];
+            [tiltRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
         }
-    } else {
-        if (tiltDelegate)
-        {
-            [wrapView removeGestureRecognizer:tiltDelegate.gestureRecognizer];
-            tiltDelegate = nil;
-        }
+    }
+    else if (tiltDelegate)
+    {
+        [wrapView removeGestureRecognizer:tiltRecognizer];
+        tiltDelegate = nil;
     }
 }
 
@@ -639,6 +650,7 @@ public:
 - (void)setTwoFingerTapGesture:(bool)twoFingerTapGesture
 {
     _twoFingerTapGesture = twoFingerTapGesture;
+    auto __strong twoFingerTapRecognizer = twoFingerTapDelegate.gestureRecognizer;
     if (twoFingerTapGesture)
     {
         if (!twoFingerTapDelegate)
@@ -648,13 +660,17 @@ public:
             twoFingerTapDelegate.maxZoom = pinchDelegate.maxHeight;
             twoFingerTapDelegate.zoomTapFactor = _zoomTapFactor;
             twoFingerTapDelegate.zoomAnimationDuration = _zoomTapAnimationDuration;
-            if (pinchDelegate)
-                [twoFingerTapDelegate.gestureRecognizer requireGestureRecognizerToFail:pinchDelegate.gestureRecognizer];
+            
+            twoFingerTapRecognizer = twoFingerTapDelegate.gestureRecognizer;
+            
+            if (pinchDelegate) {
+                [twoFingerTapRecognizer requireGestureRecognizerToFail:pinchDelegate.gestureRecognizer];
+            }
         }
     } else {
         if (twoFingerTapDelegate)
         {
-            [wrapView removeGestureRecognizer:twoFingerTapDelegate.gestureRecognizer];
+            [wrapView removeGestureRecognizer:twoFingerTapRecognizer];
             twoFingerTapDelegate.gestureRecognizer = nil;
             twoFingerTapDelegate = nil;
         }
@@ -664,6 +680,7 @@ public:
 - (void)setDoubleTapDragGesture:(bool)doubleTapDragGesture
 {
     _doubleTapZoomGesture = doubleTapDragGesture;
+    auto __strong doubleTapRecognizer = doubleTapDragDelegate.gestureRecognizer;
     if (doubleTapDragGesture)
     {
         if (!doubleTapDragDelegate)
@@ -671,13 +688,16 @@ public:
             doubleTapDragDelegate = [WhirlyGlobeDoubleTapDragDelegate doubleTapDragDelegateForView:wrapView globeView:globeView.get()];
             doubleTapDragDelegate.minZoom = pinchDelegate.minHeight;
             doubleTapDragDelegate.maxZoom = pinchDelegate.maxHeight;
-            [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
-            [panDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
+            
+            doubleTapRecognizer = doubleTapDelegate.gestureRecognizer;
+            
+            [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapRecognizer];
+            [panDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapRecognizer];
         }
     } else {
         if (doubleTapDragDelegate)
         {
-            [wrapView removeGestureRecognizer:doubleTapDragDelegate.gestureRecognizer];
+            [wrapView removeGestureRecognizer:doubleTapRecognizer];
             doubleTapDragDelegate.gestureRecognizer = nil;
             doubleTapDragDelegate = nil;
         }
@@ -1047,17 +1067,16 @@ public:
 // Called back on the main thread after the interaction thread does the selection
 - (void)handleSelection:(WhirlyGlobeTapMessage *)msg didSelect:(NSArray *)selectedObjs
 {
-    MaplyCoordinate coord;
-    coord.x = msg.whereGeo.lon();
-    coord.y = msg.whereGeo.lat();
-    
-    bool tappedOutside = msg.worldLoc == Point3f(0,0,0);
+    const MaplyCoordinate coord { .x = msg.whereGeo.lon(), .y = msg.whereGeo.lat() };
 
+    const bool tappedOutside = msg.worldLoc == Point3f(0,0,0);
+
+    const auto __strong delegate = _delegate;
     if ([selectedObjs count] > 0 && self.selection)
     {
         // The user selected something, so let the delegate know
-        if ([_delegate respondsToSelector:@selector(globeViewController:allSelect:atLoc:onScreen:)])
-            [_delegate globeViewController:self allSelect:selectedObjs atLoc:coord onScreen:msg.touchLoc];
+        if ([delegate respondsToSelector:@selector(globeViewController:allSelect:atLoc:onScreen:)])
+            [delegate globeViewController:self allSelect:selectedObjs atLoc:coord onScreen:msg.touchLoc];
         else {
             MaplySelectedObject *selectVecObj = nil;
             MaplySelectedObject *selObj = nil;
@@ -1066,8 +1085,8 @@ public:
             {
                 if ([whichObj.selectedObj isKindOfClass:[MaplyVectorObject class]])
                 {
-                    MaplyVectorObject *vecObj0 = selectVecObj.selectedObj;
-                    MaplyVectorObject *vecObj1 = whichObj.selectedObj;
+                    const MaplyVectorObject *vecObj0 = selectVecObj.selectedObj;
+                    const MaplyVectorObject *vecObj1 = whichObj.selectedObj;
                     if (!vecObj0 || ([vecObj1.attributes[kMaplyDrawPriority] intValue] > [vecObj0.attributes[kMaplyDrawPriority] intValue]))
                         selectVecObj = whichObj;
                 } else {
@@ -1080,25 +1099,25 @@ public:
             if (selectVecObj)
                 selObj = selectVecObj;
             
-            if (_delegate && [_delegate respondsToSelector:@selector(globeViewController:didSelect:atLoc:onScreen:)])
-                [_delegate globeViewController:self didSelect:selObj.selectedObj atLoc:coord onScreen:msg.touchLoc];
-            else if (_delegate && [_delegate respondsToSelector:@selector(globeViewController:didSelect:)])
+            if (delegate && [delegate respondsToSelector:@selector(globeViewController:didSelect:atLoc:onScreen:)])
+                [delegate globeViewController:self didSelect:selObj.selectedObj atLoc:coord onScreen:msg.touchLoc];
+            else if (delegate && [delegate respondsToSelector:@selector(globeViewController:didSelect:)])
             {
-                [_delegate globeViewController:self didSelect:selObj.selectedObj];
+                [delegate globeViewController:self didSelect:selObj.selectedObj];
             }
         }
     } else {
-        if (_delegate)
+        if (delegate)
         {
             if (tappedOutside)
             {
                 // User missed all objects and tapped outside the globe
-                if ([_delegate respondsToSelector:@selector(globeViewControllerDidTapOutside:)])
-                    [_delegate globeViewControllerDidTapOutside:self];
+                if ([delegate respondsToSelector:@selector(globeViewControllerDidTapOutside:)])
+                    [delegate globeViewControllerDidTapOutside:self];
             } else {
                 // The user didn't select anything, let the delegate know.
-                if ([_delegate respondsToSelector:@selector(globeViewController:didTapAt:)])
-                    [_delegate globeViewController:self didTapAt:coord];
+                if ([delegate respondsToSelector:@selector(globeViewController:didTapAt:)])
+                    [delegate globeViewController:self didTapAt:coord];
             }
         }
         // Didn't select anything, so rotate
@@ -1139,8 +1158,9 @@ public:
 {
     if (!isPanning && !isRotating && !isZooming && !isAnimating && !isTilting)
     {
-        if ([_delegate respondsToSelector:@selector(globeViewControllerDidStartMoving:userMotion:)])
-            [_delegate globeViewControllerDidStartMoving:self userMotion:userMotion];
+        const auto __strong delegate = _delegate;
+        if ([delegate respondsToSelector:@selector(globeViewControllerDidStartMoving:userMotion:)])
+            [delegate globeViewControllerDidStartMoving:self userMotion:userMotion];
     }
 }
 
@@ -1183,13 +1203,14 @@ public:
     if (isPanning || isRotating || isZooming || isAnimating || isTilting)
         return;
     
-    if (![_delegate respondsToSelector:@selector(globeViewController:didStopMoving:userMotion:)])
+    const auto __strong delegate = _delegate;
+    if (![delegate respondsToSelector:@selector(globeViewController:didStopMoving:userMotion:)])
         return;
     
     MaplyCoordinate corners[4];
     [self corners:corners forRot:globeView->getRotQuat() viewMat:globeView->calcViewMatrix()];
 
-    [_delegate globeViewController:self didStopMoving:corners userMotion:userMotion];
+    [delegate globeViewController:self didStopMoving:corners userMotion:userMotion];
 }
 
 // Called when the tilt delegate starts moving
@@ -1331,7 +1352,10 @@ public:
 
 - (float)findHeightToViewBounds:(MaplyBoundingBox)bbox pos:(MaplyCoordinate)pos
 {
-    GlobeView tempGlobe(*globeView.get());
+    if (!globeView) {
+        return 0;
+    }
+    GlobeView tempGlobe(*globeView);
     
     float oldHeight = globeView->getHeightAboveGlobe();
     Eigen::Quaterniond newRotQuat = tempGlobe.makeRotationToGeoCoord(GeoCoord(pos.x,pos.y), true);
@@ -1544,8 +1568,9 @@ public:
 }
 
 - (void)requirePanGestureRecognizerToFailForGesture:(UIGestureRecognizer *)other {
-    if (panDelegate && panDelegate.gestureRecognizer)
-        [other requireGestureRecognizerToFail:panDelegate.gestureRecognizer];
+    if (const auto __strong rec = panDelegate.gestureRecognizer) {
+        [other requireGestureRecognizerToFail:rec];
+    }
 }
 
 

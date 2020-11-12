@@ -182,7 +182,7 @@ void MapView::setLoc(WhirlyKit::Point3d newLoc)
     setLoc(newLoc,true);
 }
 
-void MapView::setLoc(WhirlyKit::Point3d &newLoc,bool runUpdates)
+void MapView::setLoc(const WhirlyKit::Point3d &newLoc,bool runUpdates)
 {
     loc = newLoc;
     
@@ -192,7 +192,7 @@ void MapView::setLoc(WhirlyKit::Point3d &newLoc,bool runUpdates)
     {
         if (loc.z() < heightInflection)
         {
-            double t = 1.0 - (heightInflection - loc.z()) / (heightInflection - absoluteMinHeight);
+            const double t = 1.0 - (heightInflection - loc.z()) / (heightInflection - absoluteMinHeight);
             nearPlane = t * (defaultNearPlane-absoluteMinNearPlane) + absoluteMinNearPlane;
             farPlane = loc.z()+nearPlane;
         } else {

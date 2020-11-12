@@ -74,7 +74,7 @@ using namespace WhirlyKit;
     _batchSize = 2000;
     _totalParticles = 100000;
     _viewC = viewC;
-    MaplyRenderController *renderControl = [_viewC getRenderControl];
+    MaplyRenderController *renderControl = [viewC getRenderControl];
     _baseTime = renderControl->scene->getCurrentTime();
     _renderTargetID = EmptyIdentity;
     _numRegAttrs = 0;
@@ -132,7 +132,8 @@ using namespace WhirlyKit;
 - (bool) addAttribute:(NSString *)attrName values:(NSData *)data
 {
     // Look for the name
-    for (auto attr : _partSys.attrs)
+    const auto __strong ps = _partSys;
+    for (auto attr : ps.attrs)
     {
         if ([attrName isEqualToString:attr.name])
         {
@@ -140,7 +141,7 @@ using namespace WhirlyKit;
             WhirlyKit::ParticleSystemAttrVals attrVals;
             attrVals.attrID = attr.getId();
             attrVals.data = data;
-            if ([data length] != attr.dataSize() * _partSys.batchSize)
+            if ([data length] != attr.dataSize() * ps.batchSize)
                 return false;
             self.attrVals.push_back(attrVals);
             

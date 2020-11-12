@@ -365,7 +365,7 @@ public:
     QuadDisplayControllerNew *getController();
 
     /// Color for polygons created during loading
-    void setColor(RGBAColor &inColor,ChangeSet *changes);
+    void setColor(const RGBAColor &inColor,ChangeSet *changes);
     const RGBAColor &getColor();
     
     /// Render target for the geometry being created
