@@ -162,9 +162,11 @@ void QIFTileAsset_ios::startFetching(PlatformThreadInfo *threadInfo,QuadImageFra
                         [layer fetchRequestSuccess:request tileID:tileID frame:frame->frameIndex data:nil];
                     } else {
                         request.success = ^(MaplyTileFetchRequest *request, id data) {
+                            // TODO: do we need to clean anything up if layer==nil?
                             [layer fetchRequestSuccess:request tileID:tileID frame:frame->frameIndex data:data];
                         };
                         request.failure = ^(MaplyTileFetchRequest *request, NSError *error) {
+                            // TODO: do we need to clean anything up if layer==nil?
                             [layer fetchRequestFail:request tileID:tileID frame:frame->frameIndex error:error];
                         };
                         [batchOps->toStart addObject:request];

@@ -23,6 +23,7 @@
 #import "GlobeView.h"
 #import "Platform.h"
 #import "SceneRendererMTL.h"
+#import "WhirlyKitLog.h"
 
 using namespace WhirlyKit;
 
@@ -77,6 +78,11 @@ using namespace WhirlyKit;
 
 - (void)dealloc
 {
+#if DEBUG
+    if (!changeRequests.empty()) {
+        wkLogLevel(Error, "Layer thread dealloc with %d changes", (int)changeRequests.size());
+    }
+#endif
 }
 
 - (void)addLayer:(NSObject<WhirlyKitLayer> *)layer
@@ -181,10 +187,15 @@ using namespace WhirlyKit;
 
 - (void)runAddChangeRequests
 {
-    if ([self isCancelled])
-        // Note: Hey, should we be deleting these?
+    if ([self isCancelled]) {
+        std::lock_guard<std::mutex> guardLock(changeLock);
+        for (auto change : changeRequests) {
+            delete change;
+        }
+        changeRequests.clear();
         return;
-    
+    }
+
     inRunAddChangeRequests = true;
     for (NSObject<WhirlyKitLayer> *layer in layers) {
         if ([layer respondsToSelector:@selector(preSceneFlush:)])
@@ -247,6 +258,10 @@ using namespace WhirlyKit;
 - (void)cancel
 {
     [super cancel];
+    if (paused) {
+        // Wake up from the pause lock to recognize the cancel
+        [self unpause];
+    }
     CFRunLoopStop(self.runLoop.getCFRunLoop);
 }
 

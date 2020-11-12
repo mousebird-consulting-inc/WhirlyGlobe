@@ -426,45 +426,41 @@ using namespace WhirlyKit;
 
         // Hold on to these till the task runs
         NSObject<MaplyLoaderInterpreter> *theLoadInterp = self->loadInterp;
-        MaplyQuadSamplingLayer *samplingLayer = self->samplingLayer;
 
         dispatch_async(theQueue, ^{
             if (!self->valid || !self->_viewC)
                 return;
 
+            auto loadAndMerge = ^{
+                // No load interpreter means the fetcher created the objects.  Hopefully.
+                if (theLoadInterp && !loadReturn->loadReturn->cancel)
+                    [theLoadInterp dataForTile:loadReturn loader:self];
+                
+                // Merge in the results on the sampling layer thread.
+                // If the load was canceled, or we're shutting down and the thread no
+                // longer exists, then we need to clean up the results to avoid leaks.
+                const auto thread = self->samplingLayer.layerThread;
+                if (!thread || [thread isCancelled]) {
+                    [self cleanupLoadedData:loadReturn];
+                } else {
+                    [self performSelector:@selector(mergeLoadedTile:) onThread:thread withObject:loadReturn waitUntilDone:NO];
+                }
+            };
+            
             if (theSemaphore) {
                 // Need to limit the number of simultaneous loader return parses
                 dispatch_semaphore_wait(theSemaphore, DISPATCH_TIME_FOREVER);
-                
                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                    // No load interpreter means the fetcher created the objects.  Hopefully.
-                    if (theLoadInterp && !loadReturn->loadReturn->cancel)
-                        [theLoadInterp dataForTile:loadReturn loader:self];
-                    
-                    // Need to clean up the loader return objects
-                    if ([samplingLayer.layerThread isCancelled]) {
-                        [self cleanupLoadedData:loadReturn];
-                        return;
+                    @try {
+                        loadAndMerge();
+                    } @finally {
+                        // _wait and _signal calls must be balanced
+                        dispatch_semaphore_signal(theSemaphore);
                     }
-
-                    [self performSelector:@selector(mergeLoadedTile:) onThread:self->samplingLayer.layerThread withObject:loadReturn waitUntilDone:NO];
-                    
-                    dispatch_semaphore_signal(theSemaphore);
                 });
             } else {
                 // Just run it on this queue right here
-                
-                // No load interpreter means the fetcher created the objects.  Hopefully.
-                if (theLoadInterp)
-                    [theLoadInterp dataForTile:loadReturn loader:self];
-                
-                // Need to clean up the loader return objects
-                if ([samplingLayer.layerThread isCancelled]) {
-                    [self cleanupLoadedData:loadReturn];
-                    return;
-                }
-
-                [self performSelector:@selector(mergeLoadedTile:) onThread:self->samplingLayer.layerThread withObject:loadReturn waitUntilDone:NO];
+                loadAndMerge();
             }
         });
     }
@@ -473,14 +469,13 @@ using namespace WhirlyKit;
 // Called on the SamplingLayer.LayerThread
 - (void)mergeLoadedTile:(MaplyLoaderReturn *)loadReturn
 {
-    if (!loader || !valid) {
+    const auto __strong thread = samplingLayer.layerThread;
+    if (!loader || !thread || !valid) {
         [self cleanupLoadedData:loadReturn];
         return;
     }
     
     ChangeSet changes;
-    const auto __strong thread = samplingLayer.layerThread;
-    //const auto __strong loadRet = loadReturn->loadReturn
     if (!loadReturn->loadReturn->changes.empty()) {
         [thread addChangeRequests:loadReturn->loadReturn->changes];
         loadReturn->loadReturn->changes.clear();
@@ -496,10 +491,18 @@ using namespace WhirlyKit;
 {
     ChangeSet changes;
     loader->cleanup(NULL,changes);
-    
-    const auto __strong thread = samplingLayer.layerThread;
-    [thread addChangeRequests:changes];
-    [thread flushChangeRequests];
+
+    if (!changes.empty()) {
+        const auto __strong thread = samplingLayer.layerThread;
+        if (thread) {
+            [thread addChangeRequests:changes];
+            [thread flushChangeRequests];
+        } else {
+            for (auto change : changes) {
+                delete change;
+            }
+        }
+    }
 
     dispatch_async(dispatch_get_main_queue(), ^{
         [[self.viewC getRenderControl] releaseSamplingLayer:self->samplingLayer forUser:self->loader];
