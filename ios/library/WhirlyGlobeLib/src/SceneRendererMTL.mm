@@ -80,7 +80,8 @@ RendererFrameInfoMTL::RendererFrameInfoMTL(const RendererFrameInfoMTL &that)
 }
 
 SceneRendererMTL::SceneRendererMTL(id<MTLDevice> mtlDevice,id<MTLLibrary> mtlLibrary, float inScale)
-: setupInfo(mtlDevice,mtlLibrary), isShuttingDown(false)
+    : setupInfo(mtlDevice,mtlLibrary)
+    , _isShuttingDown(std::make_shared<bool>(false))
 {
     offscreenBlendEnable = false;
     indirectRender = false;
@@ -920,19 +921,30 @@ void SceneRendererMTL::render(TimeInterval duration,
                 [cmdBuff presentDrawable:drawable];
             }
             lastCmdBuff = cmdBuff;
-            
+
+            // Capture shutdown signal in case `this` is destroyed before the blocks below execute.
+            // This isn't 100% because we could still be destroyed while the blocks are executing,
+            // unless we can be guaranteed that we're always destroyed on the main queue?
+            // We might need `std::enable_shared_from_this` here so that we can keep `this` alive
+            // within the blocks we create here.
+            const auto shuttingDown = this->_isShuttingDown;
+
             // This particular target may want a snapshot
             [cmdBuff addCompletedHandler:^(id<MTLCommandBuffer> _Nonnull) {
-                if (isShuttingDown)
+                if (*shuttingDown)
                     return;
 
                 // TODO: Sort these into the render targets
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    if (isShuttingDown)
+                    if (*shuttingDown)
                         return;
-                    
+
                     // Look for the snapshot delegate that wants this render target
                     for (auto snapshotDelegate : snapshotDelegates) {
+                        if (*shuttingDown) {
+                            break;
+                        }
+                        
                         if (![snapshotDelegate needSnapshot:now])
                             continue;
                         
@@ -993,7 +1005,7 @@ void SceneRendererMTL::render(TimeInterval duration,
 
 void SceneRendererMTL::shutdown()
 {
-    isShuttingDown = true;
+    *_isShuttingDown = true;
     
     if (lastCmdBuff)
         [lastCmdBuff waitUntilCompleted];
