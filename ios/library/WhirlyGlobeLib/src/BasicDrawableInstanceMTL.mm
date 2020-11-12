@@ -99,7 +99,7 @@ void BasicDrawableInstanceMTL::setupForRenderer(const RenderSetupInfo *inSetupIn
     }
     
     // Build the argument buffers with all their attendent memory, ready to copy into
-    setupArgBuffers(setupInfo->mtlDevice,setupInfo,scene,buffBuild);
+    setupArgBuffers(setupInfo->mtlDevice,setupInfo,scene,&buffBuild);
         
     // And let's fault in the vertex descriptor as well
     ProgramMTL *program = (ProgramMTL *)scene->getProgram(programID);
@@ -201,14 +201,20 @@ id<MTLRenderPipelineState> BasicDrawableInstanceMTL::getRenderPipelineState(Scen
     return renderState;
 }
 
-void BasicDrawableInstanceMTL::setupArgBuffers(id<MTLDevice> mtlDevice,RenderSetupInfoMTL *setupInfo,SceneMTL *scene,BufferBuilderMTL &buffBuild)
+void BasicDrawableInstanceMTL::setupArgBuffers(id<MTLDevice> mtlDevice,RenderSetupInfoMTL *setupInfo,SceneMTL *scene,BufferBuilderMTL *buffBuild)
 {
     ProgramMTL *prog = (ProgramMTL *)scene->getProgram(programID);
     if (!prog) {
         NSLog(@"Missing program in BasicDrawableInstanceMTL");
         return;
     }
-    
+
+    // GPU frame capture doesn't like when we stuff an argument buffer with textures inside another buffer
+    BufferBuilderMTL *texBuffBuild = NULL;
+#if !DEBUG
+    texBuffBuild = buffBuild;
+#endif
+
     // All of these are optional, but here's what we're expecting
     //   Uniforms
     //   Lighting
@@ -236,7 +242,7 @@ void BasicDrawableInstanceMTL::setupArgBuffers(id<MTLDevice> mtlDevice,RenderSet
                                                                       setupInfo,
                                                                       prog->vertFunc,
                                                                       WhirlyKitShader::WKSVertTextureArgBuffer,
-                                                                      buffBuild);
+                                                                      texBuffBuild);
     }
     if (prog->fragFunc) {
         fragABInfo = std::make_shared<ArgBuffContentsMTL>(mtlDevice,
@@ -251,7 +257,7 @@ void BasicDrawableInstanceMTL::setupArgBuffers(id<MTLDevice> mtlDevice,RenderSet
                                                                       setupInfo,
                                                                       prog->fragFunc,
                                                                       WhirlyKitShader::WKSFragTextureArgBuffer,
-                                                                      buffBuild);
+                                                                      texBuffBuild);
     }
 }
 
@@ -605,7 +611,10 @@ void BasicDrawableInstanceMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,id<M
                                           indexCount:basicDrawMTL->numTris*3
                                            indexType:MTLIndexTypeUInt16
                                          indexBuffer:basicDrawMTL->triBuffer.buffer
-                                   indexBufferOffset:basicDrawMTL->triBuffer.offset];
+                                   indexBufferOffset:basicDrawMTL->triBuffer.offset
+                                       instanceCount:1
+                                          baseVertex:0
+                                        baseInstance:0];
                     break;
                 default:
                     break;
@@ -626,7 +635,9 @@ void BasicDrawableInstanceMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,id<M
                                            indexType:MTLIndexTypeUInt16
                                          indexBuffer:basicDrawMTL->triBuffer.buffer
                                    indexBufferOffset:basicDrawMTL->triBuffer.offset
-                                       instanceCount:numInst];
+                                       instanceCount:numInst
+                                          baseVertex:0
+                                        baseInstance:0];
                     break;
                 default:
                     break;

@@ -25,7 +25,7 @@ using namespace Eigen;
 namespace WhirlyKit
 {
 
-ArgBuffContentsMTL::ArgBuffContentsMTL(id<MTLDevice> mtlDevice,RenderSetupInfoMTL *inSetupInfoMTL,id<MTLFunction> func,int bufferArgIdx,BufferBuilderMTL &buffBuild)
+ArgBuffContentsMTL::ArgBuffContentsMTL(id<MTLDevice> mtlDevice,RenderSetupInfoMTL *inSetupInfoMTL,id<MTLFunction> func,int bufferArgIdx,BufferBuilderMTL *buffBuild)
 {
     valid = false;
     setupInfoMTL = inSetupInfoMTL;
@@ -54,7 +54,8 @@ ArgBuffContentsMTL::ArgBuffContentsMTL(id<MTLDevice> mtlDevice,RenderSetupInfoMT
     }
     
     // Create a buffer to store the arguments in
-    buffBuild.reserveData([encode encodedLength], &buff);
+    if (buffBuild)
+        buffBuild->reserveData([encode encodedLength], &buff);
     
     isSetup = true;
     valid = true;
@@ -107,11 +108,13 @@ void ArgBuffContentsMTL::addResources(ResourceRefsMTL &resources)
     resources.addEntry(tmpBuff);
 }
 
-ArgBuffRegularTexturesMTL::ArgBuffRegularTexturesMTL(id<MTLDevice> mtlDevice, RenderSetupInfoMTL *setupInfoMTL, id<MTLFunction> mtlFunction, int bufferArgIdx, BufferBuilderMTL &buildBuff)
+ArgBuffRegularTexturesMTL::ArgBuffRegularTexturesMTL(id<MTLDevice> mtlDevice, RenderSetupInfoMTL *setupInfoMTL, id<MTLFunction> mtlFunction, int bufferArgIdx, BufferBuilderMTL *buildBuff)
 {
     encode = [mtlFunction newArgumentEncoderWithBufferIndex:bufferArgIdx];
     size = [encode encodedLength];
-    buildBuff.reserveData(size, &buffer);
+    buffer = setupInfoMTL->heapManage.allocateBuffer(HeapManagerMTL::HeapType::Drawable, size);
+    if (buildBuff)
+        buildBuff->reserveData(size, &buffer);
 }
 
 void ArgBuffRegularTexturesMTL::addTexture(const Point2f &offset,const Point2f &scale,id<MTLTexture> tex)
@@ -132,7 +135,7 @@ void ArgBuffRegularTexturesMTL::updateBuffer(id<MTLDevice> mtlDevice,RenderSetup
     memcpy([encode constantDataAtIndex:WKSTexBuffIndirectScale], &scales[0], sizeof(float)*2*scales.size());
 
     // Then the textures, which are largely opaque
-    int texturesPresent = 0;
+    uint32_t texturesPresent = 0;
     for (unsigned int ii=0;ii<WKSTextureMax;ii++) {
         id<MTLTexture> tex = ii>=texs.size() ? nil : texs[ii];
         [encode setTexture:tex atIndex:WKSTexBuffTextures+ii];
@@ -141,7 +144,7 @@ void ArgBuffRegularTexturesMTL::updateBuffer(id<MTLDevice> mtlDevice,RenderSetup
             texturesPresent |= (1<<ii);
         }
     }
-    memcpy([encode constantDataAtIndex:WKSTexBufTexPresent], &texturesPresent, sizeof(int));
+    memcpy([encode constantDataAtIndex:WKSTexBufTexPresent], &texturesPresent, sizeof(uint32_t));
     
     [bltEncode copyFromBuffer:srcBuffer.buffer sourceOffset:srcBuffer.offset toBuffer:buffer.buffer destinationOffset:buffer.offset size:size];
     

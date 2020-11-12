@@ -298,6 +298,7 @@ const bool HeapManagerMTL::UseHeaps =
 HeapManagerMTL::HeapManagerMTL(id<MTLDevice> mtlDevice)
 : mtlDevice(mtlDevice)
 {
+    memAlign = [mtlDevice heapBufferSizeAndAlignWithLength:1 options:MTLResourceUsageRead].align;
 }
 
 id<MTLHeap> HeapManagerMTL::findHeap(HeapType heapType,size_t &size)
@@ -365,6 +366,11 @@ BufferEntryMTL HeapManagerMTL::allocateBuffer(HeapType heapType,size_t size)
         }
         buffer.offset = 0;
     } else {
+        size_t extra = size % memAlign;
+        if (extra > 0) {
+            size += memAlign - extra;
+        }
+
         buffer.buffer = [mtlDevice newBufferWithLength:size options:MTLResourceStorageModeShared];
         buffer.heap = nil;
         buffer.offset = 0;

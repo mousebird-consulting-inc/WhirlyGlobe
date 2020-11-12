@@ -65,8 +65,10 @@
 
 - (void)setupRectangle
 {
+    NSObject<MaplyRenderControllerProtocol> *theViewC = viewC;
+    
     if (_rectObj) {
-        [viewC removeObjects:@[_rectObj] mode:MaplyThreadCurrent];
+        [theViewC removeObjects:@[_rectObj] mode:MaplyThreadCurrent];
         _rectObj = nil;
     }
     
@@ -83,7 +85,7 @@
         shaderName = [_shader name];
     else
         shaderName = kMaplyShaderDefaultTriNoLighting;
-    _rectObj = [viewC addShapes:@[rect]
+    _rectObj = [theViewC addShapes:@[rect]
                           desc:@{kMaplyColor: _color,
                                  kMaplyDrawPriority: @(_drawPriority),
                                  kMaplyShader: shaderName,
@@ -94,7 +96,7 @@
     
     // Pass through the uniform blocks if they've been set up
     for (auto block : uniBlocks) {
-        [viewC setUniformBlock:block.second buffer:block.first forObjects:@[_rectObj] mode:MaplyThreadCurrent];
+        [theViewC setUniformBlock:block.second buffer:block.first forObjects:@[_rectObj] mode:MaplyThreadCurrent];
     }
 }
 

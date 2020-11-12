@@ -44,7 +44,7 @@ public:
                        RenderSetupInfoMTL *setupInfoMTL,
                        id<MTLFunction> func,
                        int bufferArgIdx,
-                       BufferBuilderMTL &buffBuild);
+                       BufferBuilderMTL *buffBuild);
     
     // Check if this is just empty
     bool isEmpty();
@@ -117,7 +117,7 @@ public:
                               RenderSetupInfoMTL *setupInfoMTL,
                               id<MTLFunction> mtlFunction,
                               int bufferArgIdx,
-                              BufferBuilderMTL &buildBuff);
+                              BufferBuilderMTL *buildBuff);
 
     // Add a texture to encode
     void addTexture(const Point2f &offset,const Point2f &scale,id<MTLTexture> tex);

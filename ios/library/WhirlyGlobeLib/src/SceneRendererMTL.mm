@@ -229,8 +229,8 @@ void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,id<MTL
     
     // Copy this to a buffer and then blit that buffer into place
     // TODO: Try to reuse these
-    id<MTLBuffer> buff = [setupInfo.mtlDevice newBufferWithBytes:&uniforms length:sizeof(uniforms) options:MTLResourceStorageModeShared];
-    [bltEncode copyFromBuffer:buff sourceOffset:0 toBuffer:sceneRender->setupInfo.uniformBuff.buffer destinationOffset:sceneRender->setupInfo.uniformBuff.offset size:sizeof(uniforms)];
+    auto buff = setupInfo.heapManage.allocateBuffer(HeapManagerMTL::HeapType::Drawable, &uniforms, sizeof(uniforms));
+    [bltEncode copyFromBuffer:buff.buffer sourceOffset:buff.offset toBuffer:sceneRender->setupInfo.uniformBuff.buffer destinationOffset:sceneRender->setupInfo.uniformBuff.offset size:sizeof(uniforms)];
 }
 
 void SceneRendererMTL::setupLightBuffer(SceneMTL *scene,RendererFrameInfoMTL *frameInfo,id<MTLBlitCommandEncoder> bltEncode)
@@ -260,8 +260,8 @@ void SceneRendererMTL::setupLightBuffer(SceneMTL *scene,RendererFrameInfoMTL *fr
     
     // Copy this to a buffer and then blit that buffer into place
     // TODO: Try to reuse these
-    id<MTLBuffer> buff = [setupInfo.mtlDevice newBufferWithBytes:&lighting length:sizeof(lighting) options:MTLResourceStorageModeShared];
-    [bltEncode copyFromBuffer:buff sourceOffset:0 toBuffer:sceneRender->setupInfo.lightingBuff.buffer destinationOffset:sceneRender->setupInfo.lightingBuff.offset size:sizeof(lighting)];
+    auto buff = setupInfo.heapManage.allocateBuffer(HeapManagerMTL::HeapType::Drawable, &lighting, sizeof(lighting));
+    [bltEncode copyFromBuffer:buff.buffer sourceOffset:buff.offset toBuffer:sceneRender->setupInfo.lightingBuff.buffer destinationOffset:sceneRender->setupInfo.lightingBuff.offset size:sizeof(lighting)];
 }
     
 void SceneRendererMTL::setupDrawStateA(WhirlyKitShader::UniformDrawStateA &drawState)

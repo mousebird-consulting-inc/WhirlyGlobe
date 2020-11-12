@@ -188,6 +188,9 @@ protected:
     id<MTLDevice> mtlDevice;
     HeapGroup heapGroups[MaxType];
     HeapGroup texGroups;
+
+    // Keep Metal allocations aligned to this
+    size_t memAlign;
 };
 
 /// Passed around to various init and teardown routines

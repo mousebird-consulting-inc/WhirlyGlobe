@@ -382,11 +382,11 @@ struct VertexTriBillboard
 
 typedef struct RegularTextures {
     // A bit per texture that's present
-    int texPresent                          [[ id(WKSTexBufTexPresent) ]];
+    uint32_t texPresent                          [[ id(WKSTexBufTexPresent) ]];
     // Texture indirection (for accessing sub-textures)
-    float offset                            [[ id(WKSTexBuffIndirectOffset) ]] [2*WKSTextureMax];
-    float scale                             [[ id(WKSTexBuffIndirectScale) ]] [2*WKSTextureMax];
-    metal::texture2d<float, metal::access::sample> tex    [[ id(WKSTexBuffTextures) ]] [WKSTextureMax];
+    metal::array<float, 2*WKSTextureMax> offset     [[ id(WKSTexBuffIndirectOffset) ]];
+    metal::array<float, 2*WKSTextureMax> scale      [[ id(WKSTexBuffIndirectScale) ]];
+    metal::array<metal::texture2d<float, metal::access::sample>, WKSTextureMax> tex    [[ id(WKSTexBuffTextures) ]];
 } RegularTextures;
 
 struct VertexTriArgBufferA {
