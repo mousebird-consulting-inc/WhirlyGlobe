@@ -191,10 +191,11 @@ public:
     
     // Explicit wait for shutdown of ongoing frames
     void shutdown();
-    
+
+    bool isShuttingDown() const { return *_isShuttingDown; }
+
 public:
     RenderTargetMTLRef getRenderTarget(SimpleIdentity renderTargetID);
-    bool isShuttingDown;
     id<MTLCommandBuffer> lastCmdBuff;
 
     // If set, we'll use indirect rendering
@@ -205,6 +206,9 @@ public:
     RenderSetupInfoMTL setupInfo;
     std::vector<NSObject<WhirlyKitSnapshot> *> snapshotDelegates;
     dispatch_queue_t releaseQueue;
+    
+private:
+    const std::shared_ptr<bool> _isShuttingDown;
 };
     
 typedef std::shared_ptr<SceneRendererMTL> SceneRendererMTLRef;

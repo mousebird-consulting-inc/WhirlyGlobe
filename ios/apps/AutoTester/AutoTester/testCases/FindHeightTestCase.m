@@ -46,6 +46,7 @@
 
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
+    stopped = false;
     baseView = [[CartoDBLightTestCase alloc] init];
     [baseView setUpWithGlobe:globeVC];
     [self setupWithBaseVC:(MaplyBaseViewController *)globeVC];
@@ -59,18 +60,18 @@
         MaplyBoundingBox bbox;
         bbox.ll = MaplyCoordinateMakeWithDegrees(7.05090689853, 47.7675500593);
         bbox.ur = MaplyCoordinateMakeWithDegrees(8.06813647023, 49.0562323851);
-        MaplyCoordinate center = MaplyCoordinateMakeWithDegrees((7.05090689853+8.06813647023)/2, (47.7675500593+49.0562323851)/2);
-        const double height = [globeVC findHeightToViewBounds:bbox pos:center];
-        globeVC.height = height;
-        [globeVC animateToPosition:center time:5.0];
-        NSLog(@"height = %f",height);
-
         [self addBoundingBox:bbox baseVC:globeVC];
+
+        const MaplyCoordinate center = MaplyCoordinateMakeWithDegrees((7.05090689853+8.06813647023)/2, (47.7675500593+49.0562323851)/2);
+        const double height = [globeVC findHeightToViewBounds:bbox pos:center];
+        [globeVC animateToPosition:center height:height*1.1 heading:0 time:3.0];
+        NSLog(@"height = %f",height);
     });
 }
 
 - (void)setUpWithMap:(MaplyViewController *)mapVC
 {
+    stopped = false;
     baseView = [[CartoDBLightTestCase alloc] init];
     [baseView setUpWithMap:mapVC];
     [self setupWithBaseVC:(MaplyBaseViewController *)mapVC];
@@ -84,13 +85,12 @@
         MaplyBoundingBox bbox;
         bbox.ll = MaplyCoordinateMakeWithDegrees(7.05090689853, 47.7675500593);
         bbox.ur = MaplyCoordinateMakeWithDegrees(8.06813647023, 49.0562323851);
-        MaplyCoordinate center = MaplyCoordinateMakeWithDegrees((7.05090689853+8.06813647023)/2, (47.7675500593+49.0562323851)/2);
-        double height = [mapVC findHeightToViewBounds:bbox pos:center marginX:20.0 marginY:100.0];
-        mapVC.height = height;
-        [mapVC animateToPosition:center time:5.0];
-        NSLog(@"height = %f",height);
-        
         [self addBoundingBox:bbox baseVC:mapVC];
+        
+        const MaplyCoordinate center = MaplyCoordinateMakeWithDegrees((7.05090689853+8.06813647023)/2, (47.7675500593+49.0562323851)/2);
+        const double height = [mapVC findHeightToViewBounds:bbox pos:center marginX:20.0 marginY:100.0];
+        [mapVC animateToPosition:center height:height heading:mapVC.heading time:3.0];
+        NSLog(@"height = %f",height);
     });
 }
 

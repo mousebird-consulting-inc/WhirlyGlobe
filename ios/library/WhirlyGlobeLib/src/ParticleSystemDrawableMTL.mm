@@ -22,6 +22,7 @@
 #import "TextureMTL.h"
 #import <MetalKit/MetalKit.h>
 #import "DefaultShadersMTL.h"
+#import "WhirlyKitLog.h"
 
 namespace WhirlyKit
 {
@@ -64,7 +65,12 @@ void ParticleSystemDrawableMTL::setupForRenderer(const RenderSetupInfo *inSetupI
     
     // Set up a particle buffers to read from and render to
     // Note: Not clear we really need two, but it simplifies debugging
-    int len = numTotalPoints * vertexSize;
+    const int len = numTotalPoints * vertexSize;
+    if (len < 1) {
+        wkLogLevel(Error, "Invalid particle system");
+        return;
+    }
+    
     curPointBuffer = 0;
     pointBuffer[0] = [setupInfo->mtlDevice newBufferWithLength:len options:MTLStorageModeShared];
     if (calculateProgramId != EmptyIdentity)
