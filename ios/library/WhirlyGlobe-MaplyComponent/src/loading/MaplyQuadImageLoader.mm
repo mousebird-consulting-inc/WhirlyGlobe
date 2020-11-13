@@ -201,6 +201,17 @@ using namespace WhirlyKit;
 @end
 
 @implementation MaplyRawPNGImageLoaderInterpreter
+{
+    std::vector<int> valueMap;
+}
+
+- (void)addMappingFrom:(int)inVal to:(int)outVal
+{
+    if (valueMap.empty())
+        valueMap.resize(256,-1);
+    if (inVal < 256)
+        valueMap[inVal] = outVal;
+}
 
 - (void)dataForTile:(MaplyImageLoaderReturn *)loadReturn loader:(MaplyQuadLoaderBase *)loader
 {
@@ -237,6 +248,17 @@ using namespace WhirlyKit;
             err = -1;
         }
         
+        // Remap data values
+        if (byteWidth == 1 && !valueMap.empty()) {
+            unsigned char *data = outData;
+            for (unsigned int ii=0;ii<width*height;ii++) {
+                int newVal = valueMap[*data];
+                if (newVal >= 0)
+                    *data = newVal;
+                data++;
+            }
+        }
+
         if (err != 0) {
             wkLogLevel(Warn, "Failed to read PNG in MaplyRawPNGImageLoaderInterpreter for tile %d: (%d,%d) frame = %d",loadReturn.tileID.level,loadReturn.tileID.x,loadReturn.tileID.y,loadReturn.frame);
         } else {

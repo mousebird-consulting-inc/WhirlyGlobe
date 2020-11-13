@@ -106,6 +106,10 @@
  The difference is we'll use a direct PNG reader to tease it out, rather than UIImage.
  */
 @interface MaplyRawPNGImageLoaderInterpreter : MaplyImageLoaderInterpreter
+
+/// In some cases we just want to pick values out of the input
+- (void)addMappingFrom:(int)inVal to:(int)outVal;
+
 @end
 
 /// Name of the shared MaplyRemoteTileFetcher
