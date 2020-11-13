@@ -39,10 +39,10 @@ public:
     ~ShapeSceneRep(){};
 
     // Enable/disable the contents
-    void enableContents(WhirlyKit::SelectionManager *selectManager,bool enable,ChangeSet &changes);
+    void enableContents(WhirlyKit::SelectionManagerRef &selectManager,bool enable,ChangeSet &changes);
 
     // Clear the contents out of the scene
-    void clearContents(WhirlyKit::SelectionManager *selectManager,ChangeSet &changes,TimeInterval when);
+    void clearContents(WhirlyKit::SelectionManagerRef &selectManager,ChangeSet &changes,TimeInterval when);
 
     SimpleIDSet drawIDs;  // Drawables created for this
     SimpleIDSet selectIDs;  // IDs in the selection layer
@@ -61,7 +61,7 @@ public:
     Shape();
     virtual ~Shape();
 
-	virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManager *selectManager, ShapeSceneRep *sceneRep);
+	virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManagerRef &selectManager, ShapeSceneRep *sceneRep);
     virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, const ShapeInfo &shapeInfo);
 
 public:
@@ -81,7 +81,7 @@ public:
     Circle();
     virtual ~Circle();
     
-    virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManager *selectManager, ShapeSceneRep *sceneRep);
+    virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManagerRef &selectManager, ShapeSceneRep *sceneRep);
     virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, const ShapeInfo &shapeInfo);
     
 public:
@@ -104,7 +104,7 @@ public:
     Sphere();
     virtual ~Sphere();
 
-    virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManager *selectManager, ShapeSceneRep *sceneRep);
+    virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManagerRef &selectManager, ShapeSceneRep *sceneRep);
     virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, const ShapeInfo &shapeInfo);
 
 public:
@@ -123,7 +123,7 @@ public:
     Cylinder();
     virtual ~Cylinder();
     
-    virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManager *selectManager, ShapeSceneRep *sceneRep);
+    virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManagerRef &selectManager, ShapeSceneRep *sceneRep);
     virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, const ShapeInfo &shapeInfo);
 
 public:
@@ -151,7 +151,7 @@ public:
     Linear();
     virtual ~Linear();
     
-    virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManager *selectManager, ShapeSceneRep *sceneRep);
+    virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManagerRef &selectManager, ShapeSceneRep *sceneRep);
     virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, const ShapeInfo &shapeInfo);
 
 public:
@@ -174,7 +174,7 @@ public:
     Extruded();
     virtual ~Extruded();
     
-    virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManager *selectManager, ShapeSceneRep *sceneRep);
+    virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManagerRef &selectManager, ShapeSceneRep *sceneRep);
     virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, const ShapeInfo &shapeInfo);
 
 public:
@@ -208,7 +208,7 @@ public:
 	
     void setTexIDs(std::vector<SimpleIdentity> inTexIDs) { texIDs = inTexIDs; }
 
-    virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManager *selectManager, ShapeSceneRep *sceneRep);
+    virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManagerRef &selectManager, ShapeSceneRep *sceneRep);
     virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, const ShapeInfo &shapeInfo);
 
 public:
@@ -244,8 +244,8 @@ public:
     void setUniformBlock(const SimpleIDSet &shapeIDs,const RawDataRef &uniBlock,int bufferID,ChangeSet &changes);
 
 protected:
-    std::mutex shapeLock;
     ShapeSceneRepSet shapeReps;
 };
+typedef std::shared_ptr<ShapeManager> ShapeManagerRef;
 
 }

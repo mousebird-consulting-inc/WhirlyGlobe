@@ -171,9 +171,9 @@ public:
     void processRequests(ChangeSet &changes);
     
 protected:
-    std::mutex repLock;
     ChunkRepSet chunkReps;
     int borderTexel;
 };
+typedef std::shared_ptr<SphericalChunkManager> SphericalChunkManagerRef;
 
 }

@@ -344,11 +344,11 @@ public:
     /// @brief Layers sorted by source layer name
     std::map<std::string, std::vector<MapboxVectorStyleLayerRef> > layersBySource;
 
-    VectorManager *vecManage;
-    WideVectorManager *wideVecManage;
-    MarkerManager *markerManage;
-    LabelManager *labelManage;
-    ComponentManager *compManage;
+    VectorManagerRef vecManage;
+    WideVectorManagerRef wideVecManage;
+    MarkerManagerRef markerManage;
+    LabelManagerRef labelManage;
+    ComponentManagerRef compManage;
     
     // ID's for the various programs
     SimpleIdentity screenMarkerProgramID;

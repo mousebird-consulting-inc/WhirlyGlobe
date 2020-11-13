@@ -40,9 +40,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentManager_initialise
         Scene *scene = SceneClassInfo::getClassInfo()->getObject(env, sceneObj);
         if (!scene)
             return;
-		ComponentManager_Android *compManager = dynamic_cast<ComponentManager_Android *>(scene->getManager(kWKComponentManager));
+		ComponentManager_AndroidRef compManager = std::dynamic_pointer_cast<ComponentManager_Android>(scene->getManager(kWKComponentManager));
 		compManager->setupJNI(env,obj);
-		ComponentManagerClassInfo::getClassInfo()->setHandle(env,obj,compManager);
+		ComponentManagerClassInfo::getClassInfo()->setHandle(env,obj,new ComponentManager_AndroidRef(compManager));
 	}
 	catch (...)
 	{
@@ -60,9 +60,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentManager_dispose
 		ComponentManagerClassInfo *classInfo = ComponentManagerClassInfo::getClassInfo();
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
-            ComponentManager_Android *compManager = classInfo->getObject(env,obj);
+            ComponentManager_AndroidRef *compManager = classInfo->getObject(env,obj);
             if (compManager) {
-                compManager->clearJNI(env);
+                (*compManager)->clearJNI(env);
+                delete compManager;
             }
             classInfo->clearHandle(env,obj);
         }
@@ -78,12 +79,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentManager_addComponentObj
 {
     try
     {
-        ComponentManager *compManager = ComponentManagerClassInfo::getClassInfo()->getObject(env,obj);
+        ComponentManager_AndroidRef *compManager = ComponentManagerClassInfo::getClassInfo()->getObject(env,obj);
         ComponentObjectRef *compObj = ComponentObjectRefClassInfo::getClassInfo()->getObject(env,compObjObj);
         if (!compManager || !compObj)
             return;
 
-        compManager->addComponentObject(*compObj);
+        (*compManager)->addComponentObject(*compObj);
     }
     catch (...)
     {
@@ -96,11 +97,11 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_ComponentManager_hasComponen
 {
     try
     {
-        ComponentManager *compManager = ComponentManagerClassInfo::getClassInfo()->getObject(env,obj);
+        ComponentManager_AndroidRef *compManager = ComponentManagerClassInfo::getClassInfo()->getObject(env,obj);
         if (!compManager)
             return false;
 
-        return compManager->hasComponentObject(compObjID);
+        return (*compManager)->hasComponentObject(compObjID);
     }
     catch (...)
     {
@@ -115,7 +116,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentManager_removeComponent
 {
     try
     {
-        ComponentManager *compManager = ComponentManagerClassInfo::getClassInfo()->getObject(env,obj);
+        ComponentManager_AndroidRef *compManager = ComponentManagerClassInfo::getClassInfo()->getObject(env,obj);
         ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
         if (!compManager || !changeSet)
             return;
@@ -131,7 +132,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentManager_removeComponent
         }
 
         PlatformInfo_Android platformInfo(env);
-        compManager->removeComponentObjects(&platformInfo,compObjIDs,*(changeSet->get()));
+        (*compManager)->removeComponentObjects(&platformInfo,compObjIDs,*(changeSet->get()));
     }
     catch (...)
     {
@@ -144,7 +145,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentManager_enableComponent
 {
     try
     {
-        ComponentManager *compManager = ComponentManagerClassInfo::getClassInfo()->getObject(env,obj);
+        ComponentManager_AndroidRef *compManager = ComponentManagerClassInfo::getClassInfo()->getObject(env,obj);
         ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
         if (!compManager || !changeSet)
             return;
@@ -159,7 +160,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentManager_enableComponent
                 compObjIDs.insert((*compObj)->getId());
         }
 
-        compManager->enableComponentObjects(compObjIDs,enable,*(changeSet->get()));
+        (*compManager)->enableComponentObjects(compObjIDs,enable,*(changeSet->get()));
     }
     catch (...)
     {

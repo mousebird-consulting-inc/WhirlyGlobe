@@ -118,7 +118,7 @@ static const float MaxDelay = 1.0;
 // We also need to check on updates outside of the layer thread
 - (void)checkUpdate
 {
-    LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
+    LayoutManagerRef layoutManager = std::dynamic_pointer_cast<LayoutManager>(scene->getManager(kWKLayoutManager));
     if (viewState && layoutManager && layoutManager->hasChanges())
     {
         [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(delayCheck) object:nil];
@@ -145,7 +145,7 @@ static const float MaxDelay = 1.0;
 - (void)setMaxDisplayObjects:(int)maxDisplayObjects
 {
     _maxDisplayObjects = maxDisplayObjects;
-    LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
+    LayoutManagerRef layoutManager = std::dynamic_pointer_cast<LayoutManager>(scene->getManager(kWKLayoutManager));
     if (layoutManager)
         layoutManager->setMaxDisplayObjects(_maxDisplayObjects);
 }
@@ -158,7 +158,7 @@ static const float MaxDelay = 1.0;
         return;
     lastUpdate = scene->getCurrentTime();
 
-    LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
+    LayoutManagerRef layoutManager = std::dynamic_pointer_cast<LayoutManager>(scene->getManager(kWKLayoutManager));
     if (layoutManager)
     {
         ChangeSet changes;
@@ -175,7 +175,7 @@ static const float MaxDelay = 1.0;
         return;
     }
     
-    LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
+    LayoutManagerRef layoutManager = std::dynamic_pointer_cast<LayoutManager>(scene->getManager(kWKLayoutManager));
     if (layoutManager)
         layoutManager->addLayoutObjects(newObjects);
 
@@ -191,7 +191,7 @@ static const float MaxDelay = 1.0;
         return;
     }
     
-    LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
+    LayoutManagerRef layoutManager = std::dynamic_pointer_cast<LayoutManager>(scene->getManager(kWKLayoutManager));
     if (layoutManager)
         layoutManager->removeLayoutObjects(objectIDs);
     

@@ -73,7 +73,7 @@ BillboardSceneRep::~BillboardSceneRep()
 {
 }
 
-void BillboardSceneRep::clearContents(SelectionManager *selectManager,ChangeSet &changes,TimeInterval when)
+void BillboardSceneRep::clearContents(SelectionManagerRef &selectManager,ChangeSet &changes,TimeInterval when)
 {
     for (const auto it: drawIDs){
         changes.push_back(new RemDrawableReq(it,when));
@@ -189,6 +189,8 @@ BillboardManager::BillboardManager()
 
 BillboardManager::~BillboardManager()
 {
+    std::lock_guard<std::mutex> guardLock(lock);
+
     for (BillboardSceneRepSet::iterator it = sceneReps.begin(); it != sceneReps.end(); ++it)
         delete *it;
     sceneReps.clear();
@@ -199,8 +201,7 @@ typedef std::map<SimpleIdentity,BillboardBuilderRef> BuilderMap;
 /// Add billboards for display
 SimpleIdentity BillboardManager::addBillboards(std::vector<Billboard*> billboards,const BillboardInfo &billboardInfo,ChangeSet &changes)
 {
-    SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
-
+    SelectionManagerRef selectManager = std::dynamic_pointer_cast<SelectionManager>(scene->getManager(kWKSelectionManager));
 
     BillboardSceneRep *sceneRep = new BillboardSceneRep();
     sceneRep->fade = billboardInfo.fade;
@@ -256,7 +257,7 @@ SimpleIdentity BillboardManager::addBillboards(std::vector<Billboard*> billboard
         
     SimpleIdentity billID = sceneRep->getId();
         
-    std::lock_guard<std::mutex> guardLock(billLock);
+    std::lock_guard<std::mutex> guardLock(lock);
     sceneReps.insert(sceneRep);
     
     return billID;
@@ -264,9 +265,8 @@ SimpleIdentity BillboardManager::addBillboards(std::vector<Billboard*> billboard
 
 void BillboardManager::enableBillboards(SimpleIDSet &billIDs,bool enable,ChangeSet &changes)
 {
-    SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
-        
-    std::lock_guard<std::mutex> guardLock(billLock);
+    SelectionManagerRef selectManager = std::dynamic_pointer_cast<SelectionManager>(scene->getManager(kWKSelectionManager));
+    std::lock_guard<std::mutex> guardLock(lock);
 
     for (SimpleIDSet::iterator bit = billIDs.begin();bit != billIDs.end();++bit)
     {
@@ -287,9 +287,8 @@ void BillboardManager::enableBillboards(SimpleIDSet &billIDs,bool enable,ChangeS
 /// Remove a group of billboards named by the given ID
 void BillboardManager::removeBillboards(SimpleIDSet &billIDs,ChangeSet &changes)
 {
-    SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
-        
-    std::lock_guard<std::mutex> guardLock(billLock);
+    SelectionManagerRef selectManager = std::dynamic_pointer_cast<SelectionManager>(scene->getManager(kWKSelectionManager));
+    std::lock_guard<std::mutex> guardLock(lock);
 
     TimeInterval curTime = scene->getCurrentTime();
     for (SimpleIDSet::iterator bit = billIDs.begin();bit != billIDs.end();++bit)

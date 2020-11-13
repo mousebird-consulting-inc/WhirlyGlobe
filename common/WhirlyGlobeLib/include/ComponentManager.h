@@ -124,29 +124,28 @@ public:
     std::vector<std::pair<ComponentObjectRef,VectorObjectRef> > findVectors(const Point2d &pt,double maxDist,ViewStateRef viewState,const Point2f &frameSize,bool muti);
     
     // These are here for convenience
-    LayoutManager *layoutManager;
-    MarkerManager *markerManager;
-    LabelManager *labelManager;
-    VectorManager *vectorManager;
-    WideVectorManager *wideVectorManager;
-    ShapeManager *shapeManager;
-    SphericalChunkManager *chunkManager;
-    LoftManager *loftManager;
-    BillboardManager *billManager;
-    GeometryManager *geomManager;
-    FontTextureManager *fontTexManager;
-    ParticleSystemManager *partSysManager;
+    LayoutManagerRef layoutManager;
+    MarkerManagerRef markerManager;
+    LabelManagerRef labelManager;
+    VectorManagerRef vectorManager;
+    WideVectorManagerRef wideVectorManager;
+    ShapeManagerRef shapeManager;
+    SphericalChunkManagerRef chunkManager;
+    LoftManagerRef loftManager;
+    BillboardManagerRef billManager;
+    GeometryManagerRef geomManager;
+    FontTextureManagerRef fontTexManager;
+    ParticleSystemManagerRef partSysManager;
     
 protected:
     // Subclass fills this in
     virtual ComponentObjectRef makeComponentObject() = 0;
     
-    std::mutex lock;
-
     ComponentObjectMap compObjs;
 };
+typedef std::shared_ptr<ComponentManager> ComponentManagerRef;
 
 // Make an OS specific component manager
-extern ComponentManager *MakeComponentManager();
+extern ComponentManagerRef MakeComponentManager();
     
 }

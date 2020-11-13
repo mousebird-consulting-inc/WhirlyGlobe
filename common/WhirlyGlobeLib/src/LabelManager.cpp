@@ -44,6 +44,7 @@ LabelManager::LabelManager()
     
 LabelManager::~LabelManager()
 {
+    std::lock_guard<std::mutex> guardLock(lock);
 }
 
 SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,std::vector<SingleLabelRef> &labels,const LabelInfo &desc,ChangeSet &changes)
@@ -67,7 +68,7 @@ SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,std::vecto
     else
         labelRep->fadeOut = 0.0;
 
-    FontTextureManager *fontTexManager = scene->getFontTextureManager();
+    FontTextureManagerRef fontTexManager = scene->getFontTextureManager();
     
     // Set up the label renderer
     LabelRenderer labelRenderer(scene,fontTexManager,&labelInfo);
@@ -82,9 +83,9 @@ SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,std::vecto
     
     changes.insert(changes.end(),labelRenderer.changeRequests.begin(), labelRenderer.changeRequests.end());
 
-    SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
-    LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
-    
+    SelectionManagerRef selectManager = std::dynamic_pointer_cast<SelectionManager>(scene->getManager(kWKSelectionManager));
+    LayoutManagerRef layoutManager = std::dynamic_pointer_cast<LayoutManager>(scene->getManager(kWKLayoutManager));
+
     // Create screen shapes
     if (!labelRenderer.screenObjects.empty())
     {
@@ -130,7 +131,7 @@ SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,std::vecto
 
     SimpleIdentity labelID = labelRep->getId();
     {
-        std::lock_guard<std::mutex> guardLock(labelLock);
+        std::lock_guard<std::mutex> guardLock(lock);
         labelReps.insert(labelRep);
     }
     
@@ -139,7 +140,7 @@ SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,std::vecto
 
 void LabelManager::changeLabel(PlatformThreadInfo *threadInfo,SimpleIdentity labelID,const LabelInfo &labelInfo,ChangeSet &changes)
 {
-    std::lock_guard<std::mutex> guardLock(labelLock);
+    std::lock_guard<std::mutex> guardLock(lock);
 
     LabelSceneRep dummyRep(labelID);
     LabelSceneRepSet::iterator it = labelReps.find(&dummyRep);
@@ -159,10 +160,10 @@ void LabelManager::changeLabel(PlatformThreadInfo *threadInfo,SimpleIdentity lab
     
 void LabelManager::enableLabels(SimpleIDSet labelIDs,bool enable,ChangeSet &changes)
 {
-    SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
-    LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
-    
-    std::lock_guard<std::mutex> guardLock(labelLock);
+    SelectionManagerRef selectManager = std::dynamic_pointer_cast<SelectionManager>(scene->getManager(kWKSelectionManager));
+    LayoutManagerRef layoutManager = std::dynamic_pointer_cast<LayoutManager>(scene->getManager(kWKLayoutManager));
+
+    std::lock_guard<std::mutex> guardLock(lock);
 
     for (SimpleIDSet::iterator lit = labelIDs.begin(); lit != labelIDs.end(); ++lit)
     {
@@ -185,11 +186,11 @@ void LabelManager::enableLabels(SimpleIDSet labelIDs,bool enable,ChangeSet &chan
 
 void LabelManager::removeLabels(PlatformThreadInfo *threadInfo,SimpleIDSet &labelIDs,ChangeSet &changes)
 {
-    SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
-    LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
-    FontTextureManager *fontTexManager = scene->getFontTextureManager();
+    SelectionManagerRef selectManager = std::dynamic_pointer_cast<SelectionManager>(scene->getManager(kWKSelectionManager));
+    LayoutManagerRef layoutManager = std::dynamic_pointer_cast<LayoutManager>(scene->getManager(kWKLayoutManager));
+    FontTextureManagerRef fontTexManager = scene->getFontTextureManager();
     
-    std::lock_guard<std::mutex> guardLock(labelLock);
+    std::lock_guard<std::mutex> guardLock(lock);
 
     TimeInterval curTime = scene->getCurrentTime();
     for (SimpleIDSet::iterator lit = labelIDs.begin(); lit != labelIDs.end(); ++lit)

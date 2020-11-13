@@ -136,7 +136,7 @@ using namespace WhirlyGlobe;
         return;
     }
 
-    IntersectionManager *intManager = (IntersectionManager *)sceneRender->getScene()->getManager(kWKIntersectionManager);
+    IntersectionManagerRef intManager = std::dynamic_pointer_cast<IntersectionManager>(sceneRender->getScene()->getManager(kWKIntersectionManager));
 
 	switch (rotate.state)
 	{

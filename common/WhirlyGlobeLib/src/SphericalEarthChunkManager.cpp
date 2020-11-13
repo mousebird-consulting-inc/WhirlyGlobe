@@ -313,6 +313,7 @@ SphericalChunkManager::SphericalChunkManager()
     
 SphericalChunkManager::~SphericalChunkManager()
 {
+    std::lock_guard<std::mutex> guardLock(lock);
 }
     
 /// Add the given chunk (enabled or disabled)
@@ -376,7 +377,7 @@ SimpleIdentity SphericalChunkManager::addChunks(const std::vector<SphericalChunk
     }
 
     {
-        std::lock_guard<std::mutex> guardLock(repLock);
+        std::lock_guard<std::mutex> guardLock(lock);
         chunkReps.insert(chunkRep);
     }
 
@@ -389,7 +390,7 @@ bool SphericalChunkManager::modifyChunkTextures(SimpleIdentity chunkID,const std
     SimpleIDSet oldTexIDs;
     
     {
-        std::lock_guard<std::mutex> guardLock(repLock);
+        std::lock_guard<std::mutex> guardLock(lock);
         ChunkSceneRepRef dummyRef(new ChunkSceneRep(chunkID));
         ChunkRepSet::iterator it = chunkReps.find(dummyRef);
         if (it != chunkReps.end())
@@ -414,7 +415,7 @@ bool SphericalChunkManager::modifyDrawPriority(SimpleIdentity chunkID,int drawPr
     SimpleIDSet drawIDs;
 
     {
-        std::lock_guard<std::mutex> guardLock(repLock);
+        std::lock_guard<std::mutex> guardLock(lock);
         ChunkSceneRepRef dummyRef(new ChunkSceneRep(chunkID));
         ChunkRepSet::iterator it = chunkReps.find(dummyRef);
         if (it != chunkReps.end())
@@ -432,7 +433,7 @@ bool SphericalChunkManager::modifyDrawPriority(SimpleIdentity chunkID,int drawPr
 /// Enable or disable the given chunk
 void SphericalChunkManager::enableChunk(SimpleIdentity chunkID,bool enable,ChangeSet &changes)
 {
-    std::lock_guard<std::mutex> guardLock(repLock);
+    std::lock_guard<std::mutex> guardLock(lock);
     ChunkSceneRepRef dummyRef(new ChunkSceneRep(chunkID));
     ChunkRepSet::iterator it = chunkReps.find(dummyRef);
     if (it != chunkReps.end()) {
@@ -446,7 +447,7 @@ void SphericalChunkManager::enableChunk(SimpleIdentity chunkID,bool enable,Chang
 /// Remove the given chunks
 void SphericalChunkManager::removeChunks(SimpleIDSet &chunkIDs,ChangeSet &changes)
 {
-    std::lock_guard<std::mutex> guardLock(repLock);
+    std::lock_guard<std::mutex> guardLock(lock);
     for (auto chunkID : chunkIDs) {
         ChunkSceneRepRef dummyRef(new ChunkSceneRep(chunkID));
         ChunkRepSet::iterator it = chunkReps.find(dummyRef);
@@ -459,7 +460,7 @@ void SphericalChunkManager::removeChunks(SimpleIDSet &chunkIDs,ChangeSet &change
 
 int SphericalChunkManager::getNumChunks()
 {
-    std::lock_guard<std::mutex> guardLock(repLock);
+    std::lock_guard<std::mutex> guardLock(lock);
 
     //int numChunks = 0;
     //numChunks = chunkReps.size();

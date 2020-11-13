@@ -386,6 +386,8 @@ LoftManager::LoftManager()
 }
 LoftManager::~LoftManager()
 {
+    std::lock_guard<std::mutex> guardLock(lock);
+
     for (LoftedPolySceneRepSet::iterator it = loftReps.begin();
          it != loftReps.end(); ++it)
         delete *it;
@@ -532,7 +534,7 @@ SimpleIdentity LoftManager::addLoftedPolys(WhirlyKit::ShapeSet *shapes,const Lof
     addGeometryToBuilder(sceneRep, polyInfo, shapeMbr, center, centerValid, geoCenter, *shapes, triMesh, outlines, changes);
     
     {
-        std::lock_guard<std::mutex> guardLock(loftLock);
+        std::lock_guard<std::mutex> guardLock(lock);
         loftReps.insert(sceneRep);
     }
     
@@ -542,7 +544,7 @@ SimpleIdentity LoftManager::addLoftedPolys(WhirlyKit::ShapeSet *shapes,const Lof
 /// Enable/disable lofted polys
 void LoftManager::enableLoftedPolys(const SimpleIDSet &polyIDs,bool enable,ChangeSet &changes)
 {
-    std::lock_guard<std::mutex> guardLock(loftLock);
+    std::lock_guard<std::mutex> guardLock(lock);
 
     for (SimpleIDSet::iterator idIt = polyIDs.begin(); idIt != polyIDs.end(); ++idIt)
     {
@@ -561,7 +563,7 @@ void LoftManager::enableLoftedPolys(const SimpleIDSet &polyIDs,bool enable,Chang
 /// Remove lofted polygons
 void LoftManager::removeLoftedPolys(const SimpleIDSet &polyIDs,ChangeSet &changes)
 {
-    std::lock_guard<std::mutex> guardLock(loftLock);
+    std::lock_guard<std::mutex> guardLock(lock);
 
     for (SimpleIDSet::iterator idIt = polyIDs.begin(); idIt != polyIDs.end(); ++idIt)
     {

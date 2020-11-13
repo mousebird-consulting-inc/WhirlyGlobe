@@ -276,7 +276,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_deleteComponentObje
 	{
 		QuadLoaderReturnRef *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
 		SceneRendererGLES_Android *renderer = SceneRendererInfo::getClassInfo()->getObject(env,renderControlObj);
-		ComponentManager *compManager = ComponentManagerClassInfo::getClassInfo()->getObject(env,compManagerObj);
+		ComponentManager_AndroidRef *compManager = ComponentManagerClassInfo::getClassInfo()->getObject(env,compManagerObj);
 		ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
 		if (!loadReturn || !renderer || !compManager || !changeSet)
 			return;
@@ -296,7 +296,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_deleteComponentObje
 			idSet.insert(compObj->getId());
 
 		PlatformInfo_Android platformInfo(env);
-		compManager->removeComponentObjects(&platformInfo, idSet, *(*changeSet));
+		(*compManager)->removeComponentObjects(&platformInfo, idSet, *(*changeSet));
 	}
 	catch (...)
 	{

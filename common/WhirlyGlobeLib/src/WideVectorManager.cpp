@@ -743,6 +743,8 @@ WideVectorManager::WideVectorManager()
 
 WideVectorManager::~WideVectorManager()
 {
+    std::lock_guard<std::mutex> guardLock(lock);
+
     for (auto it : sceneReps)
         delete it;
     sceneReps.clear();
@@ -799,7 +801,7 @@ SimpleIdentity WideVectorManager::addVectors(const ShapeSet &shapes,const WideVe
     if (auto sceneRep = builder.flush(changes))
     {
         vecID = sceneRep->getId();
-        std::lock_guard<std::mutex> guardLock(vecLock);
+        std::lock_guard<std::mutex> guardLock(lock);
         sceneReps.insert(sceneRep);
     }
     
@@ -856,7 +858,7 @@ SimpleIdentity WideVectorManager::addVectors(const std::vector<VectorShapeRef> &
     if (auto sceneRep = builder.flush(changes))
     {
         vecID = sceneRep->getId();
-        std::lock_guard<std::mutex> guardLock(vecLock);
+        std::lock_guard<std::mutex> guardLock(lock);
         sceneReps.insert(sceneRep);
     }
     
@@ -865,7 +867,7 @@ SimpleIdentity WideVectorManager::addVectors(const std::vector<VectorShapeRef> &
 
 void WideVectorManager::enableVectors(SimpleIDSet &vecIDs,bool enable,ChangeSet &changes)
 {
-    std::lock_guard<std::mutex> guardLock(vecLock);
+    std::lock_guard<std::mutex> guardLock(lock);
 
     for (const auto &vit : vecIDs)
     {
@@ -886,7 +888,7 @@ SimpleIdentity WideVectorManager::instanceVectors(SimpleIdentity vecID,const Wid
 {
     SimpleIdentity newId = EmptyIdentity;
     
-    std::lock_guard<std::mutex> guardLock(vecLock);
+    std::lock_guard<std::mutex> guardLock(lock);
 
     // Look for the representation
     WideVectorSceneRep dummyRep(vecID);
@@ -933,7 +935,7 @@ SimpleIdentity WideVectorManager::instanceVectors(SimpleIdentity vecID,const Wid
     
 void WideVectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
 {
-    std::lock_guard<std::mutex> guardLock(vecLock);
+    std::lock_guard<std::mutex> guardLock(lock);
 
     TimeInterval curTime = scene->getCurrentTime();
     for (SimpleIDSet::iterator vit = vecIDs.begin();vit != vecIDs.end();++vit)

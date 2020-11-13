@@ -89,5 +89,6 @@ protected:
     // Use to map IDs in the selection layer to objects the user passed in
     SelectObjectSet selectObjectSet;
 };
+typedef std::shared_ptr<ComponentManager_iOS> ComponentManager_iOSRef;
     
 }

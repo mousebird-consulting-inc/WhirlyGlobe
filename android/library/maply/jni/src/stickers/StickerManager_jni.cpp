@@ -43,8 +43,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_StickerManager_initialise
         Scene *scene = SceneClassInfo::getClassInfo()->getObject(env, sceneObj);
         if (!scene)
             return;
-        SphericalChunkManager *chunkManager = dynamic_cast<SphericalChunkManager *>(scene->getManager(kWKSphericalChunkManager));
-        StickerManagerClassInfo::getClassInfo()->setHandle(env,obj,chunkManager);
+        SphericalChunkManagerRef chunkManager = std::dynamic_pointer_cast<SphericalChunkManager>(scene->getManager(kWKSphericalChunkManager));
+        StickerManagerClassInfo::getClassInfo()->setHandle(env,obj,new SphericalChunkManagerRef(chunkManager));
     }
     catch (...)
     {
@@ -59,6 +59,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_StickerManager_dispose
 {
     try
     {
+        SphericalChunkManagerRef *chunkManager = StickerManagerClassInfo::getClassInfo()->getObject(env,obj);
+        if (chunkManager)
+            delete chunkManager;
         StickerManagerClassInfo::getClassInfo()->clearHandle(env,obj);
     }
     catch (...)
@@ -72,7 +75,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_StickerManager_addStickers
 {
     try
     {
-        SphericalChunkManager *chunkManager = StickerManagerClassInfo::getClassInfo()->getObject(env,obj);
+        SphericalChunkManagerRef *chunkManager = StickerManagerClassInfo::getClassInfo()->getObject(env,obj);
         SphericalChunkClassInfo *chunkClassInfo = SphericalChunkClassInfo::getClassInfo();
         SphericalChunkInfoRef *chunkInfo = SphericalChunkInfoClassInfo::getClassInfo()->getObject(env,stickerInfoObj);
         ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
@@ -83,7 +86,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_StickerManager_addStickers
         }
 
         if ((*chunkInfo)->programID == EmptyIdentity) {
-            ProgramGLES *prog = (ProgramGLES *)chunkManager->getScene()->findProgramByName(MaplyDefaultTriangleShader);
+            ProgramGLES *prog = (ProgramGLES *)(*chunkManager)->getScene()->findProgramByName(MaplyDefaultTriangleShader);
             if (prog)
                 (*chunkInfo)->programID = prog->getId();
         }
@@ -96,7 +99,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_StickerManager_addStickers
                 chunks.push_back(*chunk);
         }
 
-        SimpleIdentity chunkId = chunkManager->addChunks(chunks,*(*chunkInfo),*(changeSet->get()));
+        SimpleIdentity chunkId = (*chunkManager)->addChunks(chunks,*(*chunkInfo),*(changeSet->get()));
 
         return chunkId;
     }
@@ -114,13 +117,13 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_StickerManager_modifyChunkTe
     try
     {
         StickerManagerClassInfo *classInfo = StickerManagerClassInfo::getClassInfo();
-        SphericalChunkManager *chunkManager = classInfo->getObject(env,obj);
+        SphericalChunkManagerRef *chunkManager = classInfo->getObject(env,obj);
         SphericalChunkInfoRef *chunkInfo = SphericalChunkInfoClassInfo::getClassInfo()->getObject(env,stickerInfoObj);
         ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
         if (!chunkManager || !chunkInfo || !changeSet)
             return false;
 
-        chunkManager->modifyChunkTextures(stickerID,(*chunkInfo)->texIDs,*(changeSet->get()));
+        (*chunkManager)->modifyChunkTextures(stickerID,(*chunkInfo)->texIDs,*(changeSet->get()));
 
         return true;
     }
@@ -138,12 +141,12 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_StickerManager_modifyDrawPri
     try
     {
         StickerManagerClassInfo *classInfo = StickerManagerClassInfo::getClassInfo();
-        SphericalChunkManager *chunkManager = classInfo->getObject(env,obj);
+        SphericalChunkManagerRef *chunkManager = classInfo->getObject(env,obj);
         ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
         if (!chunkManager || !changeSet)
             return false;
 
-        chunkManager->modifyDrawPriority(stickerID,drawPriority,*(changeSet->get()));
+        (*chunkManager)->modifyDrawPriority(stickerID,drawPriority,*(changeSet->get()));
 
         return true;
     }
@@ -161,7 +164,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_StickerManager_enableStickers
     try
     {
         StickerManagerClassInfo *classInfo = StickerManagerClassInfo::getClassInfo();
-        SphericalChunkManager *chunkManager = classInfo->getObject(env,obj);
+        SphericalChunkManagerRef *chunkManager = classInfo->getObject(env,obj);
         ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
         if (!chunkManager || !changeSet)
             return;
@@ -170,7 +173,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_StickerManager_enableStickers
         SimpleIDSet ids;
         for (int ii=0;ii<idArray.len;ii++)
         {
-            chunkManager->enableChunk(idArray.rawLong[ii],enable,*(changeSet->get()));
+            (*chunkManager)->enableChunk(idArray.rawLong[ii],enable,*(changeSet->get()));
         }
     }
     catch (...)
@@ -185,7 +188,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_StickerManager_removeStickers
     try
     {
         StickerManagerClassInfo *classInfo = StickerManagerClassInfo::getClassInfo();
-        SphericalChunkManager *chunkManager = classInfo->getObject(env,obj);
+        SphericalChunkManagerRef *chunkManager = classInfo->getObject(env,obj);
         ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
         if (!chunkManager || !changeSet)
             return;
@@ -195,7 +198,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_StickerManager_removeStickers
         for (int ii=0;ii<idArray.len;ii++)
             ids.insert(idArray.rawLong[ii]);
         
-        chunkManager->removeChunks(ids,*(changeSet->get()));
+        (*chunkManager)->removeChunks(ids,*(changeSet->get()));
     }
     catch (...)
     {

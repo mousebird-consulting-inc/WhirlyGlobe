@@ -378,11 +378,11 @@ MapboxRegexField MapboxTransText::textForZoom(double zoom)
 MapboxVectorStyleSetImpl::MapboxVectorStyleSetImpl(Scene *inScene,CoordSystem *coordSys,VectorStyleSettingsImplRef settings)
 : scene(inScene), currentID(0), tileStyleSettings(settings), coordSys(coordSys), zoomSlot(-1)
 {
-    vecManage = (VectorManager *)scene->getManager(kWKVectorManager);
-    wideVecManage = (WideVectorManager *)scene->getManager(kWKWideVectorManager);
-    markerManage = (MarkerManager *)scene->getManager(kWKMarkerManager);
-    labelManage = (LabelManager *)scene->getManager(kWKLabelManager);
-    compManage = (ComponentManager *)scene->getManager(kWKComponentManager);
+    vecManage = std::dynamic_pointer_cast<VectorManager>(scene->getManager(kWKVectorManager));
+    wideVecManage = std::dynamic_pointer_cast<WideVectorManager>(scene->getManager(kWKWideVectorManager));
+    markerManage = std::dynamic_pointer_cast<MarkerManager>(scene->getManager(kWKMarkerManager));
+    labelManage = std::dynamic_pointer_cast<LabelManager>(scene->getManager(kWKLabelManager));
+    compManage = std::dynamic_pointer_cast<ComponentManager>(scene->getManager(kWKComponentManager));
 
     // We'll look for the versions that do expressions first and
     //  then fall back to the simpler ones

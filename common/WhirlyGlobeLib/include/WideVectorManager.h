@@ -110,8 +110,8 @@ public:
     void removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes);
     
 protected:
-    std::mutex vecLock;
     WideVectorSceneRepSet sceneReps;
 };
+typedef std::shared_ptr<WideVectorManager> WideVectorManagerRef;
     
 }

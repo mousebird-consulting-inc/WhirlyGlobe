@@ -29,7 +29,7 @@ class SingleLabel_iOS: public SingleLabel
 {
 public:
     // Used to build the drawable string on specific platforms
-    virtual std::vector<DrawableString *> generateDrawableStrings(PlatformThreadInfo *threadInfo,const LabelInfo *,FontTextureManager *fontTexManager,float &lineHeight,ChangeSet &changes) override;
+    virtual std::vector<DrawableString *> generateDrawableStrings(PlatformThreadInfo *threadInfo,const LabelInfo *,FontTextureManagerRef &fontTexManager,float &lineHeight,ChangeSet &changes) override;
     
     // Pass this around as an NSString
     NSString *text;

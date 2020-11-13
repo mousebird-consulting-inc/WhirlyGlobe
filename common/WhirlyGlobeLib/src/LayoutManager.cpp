@@ -77,6 +77,8 @@ LayoutManager::LayoutManager()
     
 LayoutManager::~LayoutManager()
 {
+    std::lock_guard<std::mutex> guardLock(lock);
+
     for (LayoutEntrySet::iterator it = layoutObjects.begin();
          it != layoutObjects.end(); ++it)
         delete *it;
@@ -85,21 +87,21 @@ LayoutManager::~LayoutManager()
     
 void LayoutManager::setMaxDisplayObjects(int numObjects)
 {
-    std::lock_guard<std::mutex> guardLock(layoutLock);
+    std::lock_guard<std::mutex> guardLock(lock);
 
     maxDisplayObjects = numObjects;
 }
 
 void LayoutManager::setOverrideUUIDs(const std::set<std::string> &uuids)
 {
-    std::lock_guard<std::mutex> guardLock(layoutLock);
+    std::lock_guard<std::mutex> guardLock(lock);
 
     overrideUUIDs = uuids;
 }
     
 void LayoutManager::addLayoutObjects(const std::vector<LayoutObject> &newObjects)
 {
-    std::lock_guard<std::mutex> guardLock(layoutLock);
+    std::lock_guard<std::mutex> guardLock(lock);
 
     for (unsigned int ii=0;ii<newObjects.size();ii++)
     {
@@ -113,7 +115,7 @@ void LayoutManager::addLayoutObjects(const std::vector<LayoutObject> &newObjects
 
 void LayoutManager::addLayoutObjects(const std::vector<LayoutObject *> &newObjects)
 {
-    std::lock_guard<std::mutex> guardLock(layoutLock);
+    std::lock_guard<std::mutex> guardLock(lock);
 
     for (unsigned int ii=0;ii<newObjects.size();ii++)
     {
@@ -128,7 +130,7 @@ void LayoutManager::addLayoutObjects(const std::vector<LayoutObject *> &newObjec
 /// Enable/disable layout objects
 void LayoutManager::enableLayoutObjects(const SimpleIDSet &theObjects,bool enable)
 {
-    std::lock_guard<std::mutex> guardLock(layoutLock);
+    std::lock_guard<std::mutex> guardLock(lock);
 
     for (SimpleIDSet::const_iterator it = theObjects.begin();
          it != theObjects.end(); ++it)
@@ -151,7 +153,7 @@ void LayoutManager::enableLayoutObjects(const SimpleIDSet &theObjects,bool enabl
     
 void LayoutManager::removeLayoutObjects(const SimpleIDSet &oldObjects)
 {
-    std::lock_guard<std::mutex> guardLock(layoutLock);
+    std::lock_guard<std::mutex> guardLock(lock);
 
     for (SimpleIDSet::const_iterator it = oldObjects.begin();
          it != oldObjects.end(); ++it)
@@ -171,7 +173,7 @@ bool LayoutManager::hasChanges()
 {
     bool ret = false;
     
-    std::lock_guard<std::mutex> guardLock(layoutLock);
+    std::lock_guard<std::mutex> guardLock(lock);
 
     ret = hasUpdates;
     
@@ -181,7 +183,7 @@ bool LayoutManager::hasChanges()
 // Return the screen space objects in a form the selection manager can understand
 void LayoutManager::getScreenSpaceObjects(const SelectionManager::PlacementInfo &pInfo,std::vector<ScreenSpaceObjectLocation> &screenSpaceObjs)
 {
-    std::lock_guard<std::mutex> guardLock(layoutLock);
+    std::lock_guard<std::mutex> guardLock(lock);
 
     // First the regular screen space objects
     for (LayoutEntrySet::iterator it = layoutObjects.begin();
@@ -220,7 +222,7 @@ void LayoutManager::getScreenSpaceObjects(const SelectionManager::PlacementInfo 
     
 void LayoutManager::addClusterGenerator(ClusterGenerator *inClusterGen)
 {
-    std::lock_guard<std::mutex> guardLock(layoutLock);
+    std::lock_guard<std::mutex> guardLock(lock);
 
     clusterGen = inClusterGen;
 }
@@ -765,7 +767,7 @@ void LayoutManager::updateLayout(ViewStateRef viewState,ChangeSet &changes)
 {
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     
-    std::lock_guard<std::mutex> guardLock(layoutLock);
+    std::lock_guard<std::mutex> guardLock(lock);
 
     TimeInterval curTime = scene->getCurrentTime();
     

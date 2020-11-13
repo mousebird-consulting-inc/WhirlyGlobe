@@ -42,8 +42,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeManager_initialise
         Scene *scene = SceneClassInfo::getClassInfo()->getObject(env, sceneObj);
         if (!scene)
             return;
-        ShapeManager *shapeManager = dynamic_cast<ShapeManager *>(scene->getManager(kWKShapeManager));
-        ShapeManagerClassInfo::getClassInfo()->setHandle(env,obj,shapeManager);
+        ShapeManagerRef shapeManager = std::dynamic_pointer_cast<ShapeManager>(scene->getManager(kWKShapeManager));
+        ShapeManagerClassInfo::getClassInfo()->setHandle(env,obj,new ShapeManagerRef(shapeManager));
     }
     catch (...)
     {
@@ -59,6 +59,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeManager_dispose
     try
     {
         ShapeManagerClassInfo *classInfo = ShapeManagerClassInfo::getClassInfo();
+        ShapeManagerRef *inst = classInfo->getObject(env, obj);
+        if (inst)
+            delete inst;
         classInfo->clearHandle(env, obj);
     }
     catch (...)
@@ -73,7 +76,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_ShapeManager_addShapes
     try
     {
         ShapeManagerClassInfo *classInfo = ShapeManagerClassInfo::getClassInfo();
-        ShapeManager *inst = classInfo->getObject(env, obj);
+        ShapeManagerRef *inst = classInfo->getObject(env, obj);
         ShapeInfoRef *shapeInfo = ShapeInfoClassInfo::getClassInfo()->getObject(env, shapeInfoObj);
         ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env, changeObj);
 
@@ -92,7 +95,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_ShapeManager_addShapes
             GreatCircle_Android *greatCircle = dynamic_cast<GreatCircle_Android *>(shape);
             if (greatCircle)
             {
-                Linear *lin = greatCircle->asLinear(inst->getScene()->getCoordAdapter());
+                Linear *lin = greatCircle->asLinear((*inst)->getScene()->getCoordAdapter());
                 if (lin)
                     shapes.push_back(lin);
             } else {
@@ -101,12 +104,12 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_ShapeManager_addShapes
         }
 
         if ((*shapeInfo)->programID == EmptyIdentity) {
-            ProgramGLES *prog = (ProgramGLES *)inst->getScene()->findProgramByName(MaplyDefaultModelTriShader);
+            ProgramGLES *prog = (ProgramGLES *)(*inst)->getScene()->findProgramByName(MaplyDefaultModelTriShader);
             if (prog)
                 (*shapeInfo)->programID = prog->getId();
         }
 
-        SimpleIdentity shapeId = inst->addShapes(shapes, *(*shapeInfo), *(changeSet->get()));
+        SimpleIdentity shapeId = (*inst)->addShapes(shapes, *(*shapeInfo), *(changeSet->get()));
         return shapeId;
     }
     catch (...)
@@ -123,7 +126,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeManager_removeShapes
     try
     {
         ShapeManagerClassInfo *classInfo = ShapeManagerClassInfo::getClassInfo();
-        ShapeManager *inst = classInfo->getObject(env, obj);
+        ShapeManagerRef *inst = classInfo->getObject(env, obj);
         ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env, changeObj);
         if (!inst || !changeSet)
             return;
@@ -135,7 +138,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeManager_removeShapes
             idSet.insert(ids.rawLong[ii]);
         }
         
-        inst->removeShapes(idSet, *(changeSet->get()));
+        (*inst)->removeShapes(idSet, *(changeSet->get()));
     }
     
     catch (...)
@@ -150,7 +153,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeManager_enableShapes
     try
     {
         ShapeManagerClassInfo *classInfo = ShapeManagerClassInfo::getClassInfo();
-        ShapeManager *inst = classInfo->getObject(env, obj);
+        ShapeManagerRef *inst = classInfo->getObject(env, obj);
         ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env, changeObj);
         if (!inst || !changeSet)
             return;
@@ -162,7 +165,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeManager_enableShapes
             idSet.insert(ids.rawLong[ii]);
         }
         
-        inst->enableShapes(idSet, enable, *(changeSet->get()));
+        (*inst)->enableShapes(idSet, enable, *(changeSet->get()));
     }
     
     catch (...)

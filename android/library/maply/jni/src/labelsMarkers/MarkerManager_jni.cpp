@@ -42,8 +42,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerManager_initialise
 	try
 	{
 		Scene *scene = SceneClassInfo::getClassInfo()->getObject(env,sceneObj);
-		MarkerManager *markerManager = dynamic_cast<MarkerManager *>(scene->getManager(kWKMarkerManager));
-		MarkerManagerClassInfo::getClassInfo()->setHandle(env,obj,markerManager);
+		MarkerManagerRef markerManager = std::dynamic_pointer_cast<MarkerManager>(scene->getManager(kWKMarkerManager));
+		MarkerManagerClassInfo::getClassInfo()->setHandle(env,obj,new MarkerManagerRef(markerManager));
 	}
 	catch (...)
 	{
@@ -58,7 +58,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerManager_dispose
 {
 	try
 	{
-		MarkerManagerClassInfo::getClassInfo()->clearHandle(env,obj);
+		MarkerManagerClassInfo *classInfo = MarkerManagerClassInfo::getClassInfo();
+		MarkerManagerRef *markerManager = classInfo->getObject(env,obj);
+		if (markerManager)
+			delete markerManager;
+		classInfo->clearHandle(env,obj);
 	}
 	catch (...)
 	{
@@ -72,7 +76,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_MarkerManager_addMarkers
 	try
 	{
 		MarkerManagerClassInfo *classInfo = MarkerManagerClassInfo::getClassInfo();
-		MarkerManager *markerManager = classInfo->getObject(env,obj);
+		MarkerManagerRef *markerManager = classInfo->getObject(env,obj);
 		MarkerInfoRef *markerInfo = MarkerInfoClassInfo::getClassInfo()->getObject(env,markerInfoObj);
 		ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
 		if (!markerManager || !markerInfo || !changeSet)
@@ -99,14 +103,14 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_MarkerManager_addMarkers
         {
             Program *prog = NULL;
             if (hasMultiTex)
-                prog = markerManager->getScene()->findProgramByName(MaplyDefaultMarkerShader);
+                prog = (*markerManager)->getScene()->findProgramByName(MaplyDefaultMarkerShader);
             else
-                prog = markerManager->getScene()->findProgramByName(MaplyDefaultTriangleShader);
+                prog = (*markerManager)->getScene()->findProgramByName(MaplyDefaultTriangleShader);
             if (prog)
 				(*markerInfo)->programID = prog->getId();
         }
 
-		SimpleIdentity markerId = markerManager->addMarkers(markers,*(*markerInfo),*(changeSet->get()));
+		SimpleIdentity markerId = (*markerManager)->addMarkers(markers,*(*markerInfo),*(changeSet->get()));
 
 		return markerId;
 	}
@@ -124,7 +128,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_MarkerManager_addScreenMarkers
     try
     {
         MarkerManagerClassInfo *classInfo = MarkerManagerClassInfo::getClassInfo();
-        MarkerManager *markerManager = classInfo->getObject(env,obj);
+        MarkerManagerRef *markerManager = classInfo->getObject(env,obj);
 		MarkerInfoRef *markerInfo = MarkerInfoClassInfo::getClassInfo()->getObject(env,markerInfoObj);
         ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
         if (!markerManager || !markerInfo || !changeSet)
@@ -151,14 +155,14 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_MarkerManager_addScreenMarkers
         {
             Program *prog = NULL;
             if (isMoving)
-                prog = markerManager->getScene()->findProgramByName(MaplyScreenSpaceDefaultMotionShader);
+                prog = (*markerManager)->getScene()->findProgramByName(MaplyScreenSpaceDefaultMotionShader);
             else
-                prog = markerManager->getScene()->findProgramByName(MaplyScreenSpaceDefaultShader);
+                prog = (*markerManager)->getScene()->findProgramByName(MaplyScreenSpaceDefaultShader);
             if (prog)
 				(*markerInfo)->programID = prog->getId();
         }
 
-        SimpleIdentity markerId = markerManager->addMarkers(markers,*(*markerInfo),*(changeSet->get()));
+        SimpleIdentity markerId = (*markerManager)->addMarkers(markers,*(*markerInfo),*(changeSet->get()));
         
         return markerId;
     }
@@ -176,7 +180,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerManager_removeMarkers
 	try
 	{
 		MarkerManagerClassInfo *classInfo = MarkerManagerClassInfo::getClassInfo();
-		MarkerManager *markerManager = classInfo->getObject(env,obj);
+		MarkerManagerRef *markerManager = classInfo->getObject(env,obj);
 		ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
 		if (!markerManager || !changeSet)
 			return;
@@ -184,7 +188,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerManager_removeMarkers
         SimpleIDSet idSet;
         ConvertLongArrayToSet(env,idArrayObj,idSet);
 
-		markerManager->removeMarkers(idSet,*(changeSet->get()));
+		(*markerManager)->removeMarkers(idSet,*(changeSet->get()));
 	}
 	catch (...)
 	{
@@ -198,7 +202,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerManager_enableMarkers
 	try
 	{
 		MarkerManagerClassInfo *classInfo = MarkerManagerClassInfo::getClassInfo();
-		MarkerManager *markerManager = classInfo->getObject(env,obj);
+		MarkerManagerRef *markerManager = classInfo->getObject(env,obj);
 		ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
 		if (!markerManager || !changeSet)
 			return;
@@ -211,7 +215,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerManager_enableMarkers
 //		else
 //			__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Disabling marker: %d",(int)ids[0]);
 
-		markerManager->enableMarkers(idSet,enable,*(changeSet->get()));
+		(*markerManager)->enableMarkers(idSet,enable,*(changeSet->get()));
 	}
 	catch (...)
 	{

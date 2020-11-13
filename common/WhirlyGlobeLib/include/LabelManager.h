@@ -86,7 +86,7 @@ public:
     LabelInfoRef infoOverride;
 
     // Used to build the drawable string on specific platforms
-    virtual std::vector<DrawableString *> generateDrawableStrings(PlatformThreadInfo *threadInfo,const LabelInfo *,FontTextureManager *fontTexManager,float &lineHeight,ChangeSet &changes) = 0;
+    virtual std::vector<DrawableString *> generateDrawableStrings(PlatformThreadInfo *threadInfo,const LabelInfo *,FontTextureManagerRef &fontTexManager,float &lineHeight,ChangeSet &changes) = 0;
 };
 typedef std::shared_ptr<SingleLabel> SingleLabelRef;
     
@@ -115,11 +115,10 @@ public:
     void enableLabels(SimpleIDSet labelID,bool enable,ChangeSet &changes);
     
 protected:
-    std::mutex labelLock;
-    
     /// Keep track of labels (or groups of labels) by ID for deletion
     WhirlyKit::LabelSceneRepSet labelReps;
     unsigned int textureAtlasSize;
 };
+typedef std::shared_ptr<LabelManager> LabelManagerRef;
 
 }

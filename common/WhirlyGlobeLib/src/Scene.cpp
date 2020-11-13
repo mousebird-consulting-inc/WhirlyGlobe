@@ -44,7 +44,34 @@
 
 namespace WhirlyKit
 {
-    
+
+SceneManager::SceneManager()
+: scene(NULL), renderer(NULL)
+{
+}
+
+void SceneManager::setRenderer(SceneRenderer *inRenderer)
+{
+//    std::lock_guard<std::mutex> guardLock(lock);
+    renderer = inRenderer;
+}
+
+void SceneManager::setScene(Scene *inScene)
+{
+//    std::lock_guard<std::mutex> guardLock(lock);
+    scene = inScene;
+}
+
+Scene *SceneManager::getScene()
+{
+    return scene;
+}
+
+SceneRenderer *SceneManager::getSceneRenderer()
+{
+    return renderer;
+}
+
 Scene::Scene(CoordSystemDisplayAdapter *adapter)
     : fontTextureManager(NULL), setupInfo(NULL), currentTime(0.0)
 {
@@ -53,31 +80,31 @@ Scene::Scene(CoordSystemDisplayAdapter *adapter)
     coordAdapter = adapter;
     
     // Selection manager is used for object selection from any thread
-    addManager(kWKSelectionManager,new SelectionManager(this));
+    addManager(kWKSelectionManager,std::make_shared<SelectionManager>(this));
     // Intersection handling
-    addManager(kWKIntersectionManager, new IntersectionManager(this));
+    addManager(kWKIntersectionManager, std::make_shared<IntersectionManager>(this));
     // Layout manager handles text and icon layout
-    addManager(kWKLayoutManager, new LayoutManager());
+    addManager(kWKLayoutManager, std::make_shared<LayoutManager>());
     // Shape manager handles circles, spheres and such
-    addManager(kWKShapeManager, new ShapeManager());
+    addManager(kWKShapeManager, std::make_shared<ShapeManager>());
     // Marker manager handles 2D and 3D markers
-    addManager(kWKMarkerManager, new MarkerManager());
+    addManager(kWKMarkerManager, std::make_shared<MarkerManager>());
     // Label manager handes 2D and 3D labels
-    addManager(kWKLabelManager, new LabelManager());
+    addManager(kWKLabelManager, std::make_shared<LabelManager>());
     // Vector manager handes vector features
-    addManager(kWKVectorManager, new VectorManager());
+    addManager(kWKVectorManager, std::make_shared<VectorManager>());
     // Chunk manager handles geographic chunks that cover a large chunk of the globe
-    addManager(kWKSphericalChunkManager, new SphericalChunkManager());
+    addManager(kWKSphericalChunkManager, std::make_shared<SphericalChunkManager>());
     // Loft manager handles lofted polygon geometry
-    addManager(kWKLoftedPolyManager, new LoftManager());
+    addManager(kWKLoftedPolyManager, std::make_shared<LoftManager>());
     // Particle system manager
-    addManager(kWKParticleSystemManager, new ParticleSystemManager());
+    addManager(kWKParticleSystemManager, std::make_shared<ParticleSystemManager>());
     // 3D billboards
-    addManager(kWKBillboardManager, new BillboardManager());
+    addManager(kWKBillboardManager, std::make_shared<BillboardManager>());
     // Widened vectors
-    addManager(kWKWideVectorManager, new WideVectorManager());
+    addManager(kWKWideVectorManager, std::make_shared<WideVectorManager>());
     // Raw Geometry
-    addManager(kWKGeometryManager, new GeometryManager());
+    addManager(kWKGeometryManager, std::make_shared<GeometryManager>());
     // Components (groups of things)
     addManager(kWKComponentManager, MakeComponentManager());
     
@@ -94,9 +121,6 @@ Scene::~Scene()
     
     textures.clear();
     
-    for (std::map<std::string,SceneManager *>::iterator it = managers.begin();
-         it != managers.end(); ++it)
-        delete it->second;
     managers.clear();
     
     auto theChangeRequests = changeRequests;
@@ -191,35 +215,34 @@ void Scene::setRenderer(SceneRenderer *renderer)
     
     std::lock_guard<std::mutex> guardLock(managerLock);
     
-    for (std::map<std::string,SceneManager *>::iterator it = managers.begin();
-         it != managers.end(); ++it)
+    for (auto it = managers.begin(); it != managers.end(); ++it)
         it->second->setRenderer(renderer);
 }
     
-SceneManager *Scene::getManager(const char *name)
+SceneManagerRef Scene::getManager(const char *name)
 {
     std::lock_guard<std::mutex> guardLock(managerLock);
 
     return getManagerNoLock(name);
 }
     
-SceneManager *Scene::getManagerNoLock(const char *name)
+SceneManagerRef Scene::getManagerNoLock(const char *name)
 {
-    SceneManager *ret = NULL;
+    SceneManagerRef ret;
 
-    std::map<std::string,SceneManager *>::iterator it = managers.find((std::string)name);
+    auto it = managers.find((std::string)name);
     if (it != managers.end())
         ret = it->second;
 
     return ret;
 }
 
-void Scene::addManager(const char *name,SceneManager *manager)
+void Scene::addManager(const char *name,const SceneManagerRef &manager)
 {
     std::lock_guard<std::mutex> guardLock(managerLock);
 
     // If there's one here, we'll clear it out first
-    std::map<std::string,SceneManager *>::iterator it = managers.find((std::string)name);
+    auto it = managers.find((std::string)name);
     if (it != managers.end())
         managers.erase(it);
     managers[(std::string)name] = manager;

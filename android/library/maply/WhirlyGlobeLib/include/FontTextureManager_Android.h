@@ -67,5 +67,6 @@ protected:
     jmethodID renderMethodID;
     jfieldID bitmapID,sizeXID,sizeYID,glyphSizeXID,glyphSizeYID,offsetXID,offsetYID,textureOffsetXID,textureOffsetYID;
 };
+typedef std::shared_ptr<FontTextureManager_Android> FontTextureManager_AndroidRef;
 
 }

@@ -70,10 +70,10 @@ public:
     float fade;
     
     // Remove the contents of this scene rep
-    void clearContents(SelectionManager *selectManager,ChangeSet &changes,TimeInterval when);
+    void clearContents(SelectionManagerRef &selectManager,ChangeSet &changes,TimeInterval when);
     
     // Enable/disable contents
-    void enableContents(SelectionManager *selectManager,bool enable,ChangeSet &changes);
+    void enableContents(SelectionManagerRef &selectManager,bool enable,ChangeSet &changes);
 };
     
 typedef std::set<GeomSceneRep *,IdentifiableSorter> GeomSceneRepSet;
@@ -326,8 +326,8 @@ public:
     void setUniformBlock(const SimpleIDSet &geomIDs,const RawDataRef &uniBlock,int bufferID,ChangeSet &changes);
     
 protected:
-    std::mutex geomLock;
     GeomSceneRepSet sceneReps;
 };
+typedef std::shared_ptr<GeometryManager> GeometryManagerRef;
 
 }

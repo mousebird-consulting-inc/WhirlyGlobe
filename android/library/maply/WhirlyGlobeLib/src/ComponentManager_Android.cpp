@@ -26,9 +26,9 @@ namespace WhirlyKit
     
 // The scene wants a component manager early in the process
 // This gives it an Android specific one
-ComponentManager *MakeComponentManager()
+ComponentManagerRef MakeComponentManager()
 {
-    return new ComponentManager_Android();
+    return std::make_shared<ComponentManager_Android>();
 }
 
 ComponentManager_Android::ComponentManager_Android()

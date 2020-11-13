@@ -46,8 +46,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SelectionManager_initialise
         Scene *scene = SceneClassInfo::getClassInfo()->getObject(env, sceneObj);
         if (!scene)
             return;
-		SelectionManager *selectionManager = dynamic_cast<SelectionManager *>(scene->getManager(kWKSelectionManager));
-		SelectionManagerClassInfo::getClassInfo()->setHandle(env,obj,selectionManager);
+		SelectionManagerRef selectionManager = std::dynamic_pointer_cast<SelectionManager>(scene->getManager(kWKSelectionManager));
+		SelectionManagerClassInfo::getClassInfo()->setHandle(env,obj,new SelectionManagerRef(selectionManager));
 	}
 	catch (...)
 	{
@@ -62,7 +62,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SelectionManager_dispose
 {
 	try
 	{
-		SelectionManagerClassInfo::getClassInfo()->clearHandle(env,obj);
+        SelectionManagerClassInfo *classInfo = SelectionManagerClassInfo::getClassInfo();
+        SelectionManagerRef *selectionManager = classInfo->getObject(env,obj);
+        if (selectionManager)
+            delete selectionManager;
+        classInfo->clearHandle(env,obj);
 	}
 	catch (...)
 	{
@@ -76,7 +80,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_SelectionManager_pickObject
 	try
 	{
 		SelectionManagerClassInfo *classInfo = SelectionManagerClassInfo::getClassInfo();
-		SelectionManager *selectionManager = classInfo->getObject(env,obj);
+		SelectionManagerRef *selectionManager = classInfo->getObject(env,obj);
 		ViewStateRefClassInfo *viewStateRefClassInfo = ViewStateRefClassInfo::getClassInfo();
 		ViewStateRef *mapViewState = viewStateRefClassInfo->getObject(env,viewStateObj);
 		Point2dClassInfo *point2DclassInfo = Point2dClassInfo::getClassInfo();
@@ -84,7 +88,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_SelectionManager_pickObject
 		if (!selectionManager || !mapViewState || !point)
 			return EmptyIdentity;
 
-		return (jlong)selectionManager->pickObject(Point2f(point->x(),point->y()),10.0,*mapViewState);
+		return (jlong)(*selectionManager)->pickObject(Point2f(point->x(),point->y()),10.0,*mapViewState);
 	}
 	catch (...)
 	{
@@ -99,8 +103,8 @@ JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_SelectionManager_pickObj
 {
     try
     {
-        SelectionManager *selectionManager = SelectionManagerClassInfo::getClassInfo()->getObject(env,selManageObj);
-        ComponentManager *compManager = ComponentManagerClassInfo::getClassInfo()->getObject(env,compManageObj);
+        SelectionManagerRef *selectionManager = SelectionManagerClassInfo::getClassInfo()->getObject(env,selManageObj);
+        ComponentManager_AndroidRef *compManager = ComponentManagerClassInfo::getClassInfo()->getObject(env,compManageObj);
 		ViewStateRefClassInfo *viewStateRefClassInfo = ViewStateRefClassInfo::getClassInfo();
 		ViewStateRef *mapViewState = viewStateRefClassInfo->getObject(env,viewStateObj);
         Point2dClassInfo *point2DclassInfo = Point2dClassInfo::getClassInfo();
@@ -110,12 +114,12 @@ JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_SelectionManager_pickObj
         
         std::vector<SelectionManager::SelectedObject> selObjs;
 
-        Point2f frameBufferSizeScaled = selectionManager->getSceneRenderer()->getFramebufferSizeScaled();
-        Point2f frameBufferSize = selectionManager->getSceneRenderer()->getFramebufferSize();
+        Point2f frameBufferSizeScaled = (*selectionManager)->getSceneRenderer()->getFramebufferSizeScaled();
+        Point2f frameBufferSize = (*selectionManager)->getSceneRenderer()->getFramebufferSize();
 
         // This takes care of labels, markers, billboards, 3D objects and such.
         Point2f pt2f(point->x(),point->y());
-        selectionManager->pickObjects(pt2f,10.0,*mapViewState,selObjs);
+        (*selectionManager)->pickObjects(pt2f,10.0,*mapViewState,selObjs);
 
         // Need the point in geographic
         WhirlyGlobe::GlobeViewState *globeViewState = dynamic_cast<WhirlyGlobe::GlobeViewState *>((*mapViewState).get());
@@ -129,7 +133,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_SelectionManager_pickObj
         Point3d locPoint = (*mapViewState)->coordAdapter->displayToLocal(dispPt);
 
         // This one does vector features
-        auto vecObjs = compManager->findVectors(Point2d(locPoint.x(),locPoint.y()),20.0,*mapViewState,frameBufferSizeScaled,true);
+        auto vecObjs = (*compManager)->findVectors(Point2d(locPoint.x(),locPoint.y()),20.0,*mapViewState,frameBufferSizeScaled,true);
         for (auto vecObj : vecObjs) {
             SelectionManager::SelectedObject selObj;
             selObj.distIn3D = 0.0;

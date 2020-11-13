@@ -518,7 +518,7 @@ public:
     // Run on the layer thread.  Merge the loaded tile into the data.
     virtual void mergeLoadedTile(PlatformThreadInfo *threadInfo,QuadLoaderReturn *loadReturn,ChangeSet &changes);
 
-    ComponentManager *compManager;
+    ComponentManagerRef compManager;
 
 protected:
     // Return a set of the active frames

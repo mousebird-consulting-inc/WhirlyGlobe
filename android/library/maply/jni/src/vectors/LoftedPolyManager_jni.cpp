@@ -26,7 +26,7 @@
 using namespace WhirlyKit;
 using namespace Eigen;
 
-typedef JavaClassInfo<WhirlyKit::LoftManager> LoftManagerClassInfo;
+typedef JavaClassInfo<WhirlyKit::LoftManagerRef> LoftManagerClassInfo;
 template<> LoftManagerClassInfo *LoftManagerClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_LoftedPolyManager_nativeInit
@@ -43,8 +43,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoftedPolyManager_initialise
         Scene *scene = SceneClassInfo::getClassInfo()->getObject(env, sceneObj);
         if (!scene)
             return;
-        LoftManager *loftManager = dynamic_cast<LoftManager *>(scene->getManager(kWKLoftedPolyManager));
-        LoftManagerClassInfo::getClassInfo()->setHandle(env,obj,loftManager);
+        LoftManagerRef loftManager = std::dynamic_pointer_cast<LoftManager>(scene->getManager(kWKLoftedPolyManager));
+        LoftManagerClassInfo::getClassInfo()->setHandle(env,obj,new LoftManagerRef(loftManager));
     }
     catch (...)
     {
@@ -62,6 +62,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoftedPolyManager_dispose
         LoftManagerClassInfo *classInfo = LoftManagerClassInfo::getClassInfo();
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
+            LoftManagerRef *loftManager = classInfo->getObject(env,obj);
+            if (loftManager)
+                delete loftManager;
             classInfo->clearHandle(env,obj);
         }
     }
@@ -76,7 +79,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_LoftedPolyManager_addPolys
 {
     try
     {
-        LoftManager *loftManager = LoftManagerClassInfo::getClassInfo()->getObject(env,obj);
+        LoftManagerRef *loftManager = LoftManagerClassInfo::getClassInfo()->getObject(env,obj);
         LoftedPolyInfoRef *loftInfo = LoftedPolyInfoClassInfo::getClassInfo()->getObject(env,loftInfoObj);
         ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
         if (!loftManager || !loftInfo || !changeSet)
@@ -96,12 +99,12 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_LoftedPolyManager_addPolys
         if ((*loftInfo)->programID == EmptyIdentity)
         {
             ProgramGLES *prog = NULL;
-            prog = (ProgramGLES *)loftManager->getScene()->findProgramByName(MaplyDefaultTriangleShader);
+            prog = (ProgramGLES *)(*loftManager)->getScene()->findProgramByName(MaplyDefaultTriangleShader);
             if (prog)
                 (*loftInfo)->programID = prog->getId();
         }
 
-        SimpleIdentity loftID = loftManager->addLoftedPolys(&shapes,*(*loftInfo),*(changeSet->get()));
+        SimpleIdentity loftID = (*loftManager)->addLoftedPolys(&shapes,*(*loftInfo),*(changeSet->get()));
 
         return loftID;
     }

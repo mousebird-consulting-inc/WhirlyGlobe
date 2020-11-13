@@ -539,6 +539,8 @@ VectorManager::VectorManager()
 
 VectorManager::~VectorManager()
 {
+    std::lock_guard<std::mutex> guardLock(lock);
+
     for (VectorSceneRepSet::iterator it = vectorReps.begin();
          it != vectorReps.end(); ++it)
         delete *it;
@@ -695,7 +697,7 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, const VectorInfo &vec
     
     SimpleIdentity vecID = sceneRep->getId();
     {
-        std::lock_guard<std::mutex> guardLock(vectorLock);
+        std::lock_guard<std::mutex> guardLock(lock);
         vectorReps.insert(sceneRep);
     }
     
@@ -852,7 +854,7 @@ SimpleIdentity VectorManager::addVectors(const std::vector<VectorShapeRef> *shap
     
     SimpleIdentity vecID = sceneRep->getId();
     {
-        std::lock_guard<std::mutex> guardLock(vectorLock);
+        std::lock_guard<std::mutex> guardLock(lock);
         vectorReps.insert(sceneRep);
     }
     
@@ -863,7 +865,7 @@ SimpleIdentity VectorManager::instanceVectors(SimpleIdentity vecID,const VectorI
 {
     SimpleIdentity newId = EmptyIdentity;
     
-    std::lock_guard<std::mutex> guardLock(vectorLock);
+    std::lock_guard<std::mutex> guardLock(lock);
 
     // Look for the representation
     VectorSceneRep dummyRep(vecID);
@@ -909,7 +911,7 @@ SimpleIdentity VectorManager::instanceVectors(SimpleIdentity vecID,const VectorI
 
 void VectorManager::changeVectors(SimpleIdentity vecID,const VectorInfo &vecInfo,ChangeSet &changes)
 {
-    std::lock_guard<std::mutex> guardLock(vectorLock);
+    std::lock_guard<std::mutex> guardLock(lock);
 
     VectorSceneRep dummyRep(vecID);
     VectorSceneRepSet::iterator it = vectorReps.find(&dummyRep);
@@ -943,7 +945,7 @@ void VectorManager::changeVectors(SimpleIdentity vecID,const VectorInfo &vecInfo
 
 void VectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
 {
-    std::lock_guard<std::mutex> guardLock(vectorLock);
+    std::lock_guard<std::mutex> guardLock(lock);
 
     const TimeInterval curTime = scene->getCurrentTime();
     for (const auto id : vecIDs)
@@ -977,7 +979,7 @@ void VectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
 
 void VectorManager::enableVectors(SimpleIDSet &vecIDs,bool enable,ChangeSet &changes)
 {
-    std::lock_guard<std::mutex> guardLock(vectorLock);
+    std::lock_guard<std::mutex> guardLock(lock);
 
     for (SimpleIDSet::iterator vIt = vecIDs.begin();vIt != vecIDs.end();++vIt)
     {

@@ -166,7 +166,7 @@ public:
     scene = inScene;
     sceneRender = inLayerThread.renderer;
 
-    compManager = (ComponentManager_iOS *)scene->getManager(kWKComponentManager);
+    compManager = std::dynamic_pointer_cast<ComponentManager_iOS>(scene->getManager(kWKComponentManager));
 
     atlasGroup = [[MaplyTextureAtlasGroup alloc] initWithScene:scene sceneRender:sceneRender];
 
@@ -1201,7 +1201,7 @@ public:
     }
     
     // Set up a description and create the markers in the marker layer
-    MarkerManager *markerManager = (MarkerManager *)scene->getManager(kWKMarkerManager);
+    MarkerManagerRef markerManager = std::dynamic_pointer_cast<MarkerManager>(scene->getManager(kWKMarkerManager));
     if (markerManager)
     {
         ChangeSet changes;
@@ -1339,7 +1339,7 @@ public:
         }
     }
     
-    LabelManager *labelManager = (LabelManager *)scene->getManager(kWKLabelManager);
+    LabelManagerRef labelManager = std::dynamic_pointer_cast<LabelManager>(scene->getManager(kWKLabelManager));
     if (labelManager)
     {
         // Set up a description and create the markers in the marker layer
@@ -1448,7 +1448,7 @@ public:
         }
     }
     
-    LabelManager *labelManager = (LabelManager *)scene->getManager(kWKLabelManager);
+    LabelManagerRef labelManager = std::dynamic_pointer_cast<LabelManager>(scene->getManager(kWKLabelManager));
     
     if (labelManager)
     {
@@ -1562,7 +1562,7 @@ public:
     
     if (makeVisible)
     {
-        VectorManager *vectorManager = (VectorManager *)scene->getManager(kWKVectorManager);
+        VectorManagerRef vectorManager = std::dynamic_pointer_cast<VectorManager>(scene->getManager(kWKVectorManager));
         
         if (vectorManager)
         {
@@ -1684,7 +1684,7 @@ public:
             shapes.insert(vecObj->vObj->shapes.begin(),vecObj->vObj->shapes.end());
     }
     
-    WideVectorManager *vectorManager = (WideVectorManager *)scene->getManager(kWKWideVectorManager);
+    WideVectorManagerRef vectorManager = std::dynamic_pointer_cast<WideVectorManager>(scene->getManager(kWKWideVectorManager));
     
     if (vectorManager)
     {
@@ -1767,8 +1767,8 @@ public:
     
     if (makeVisible)
     {
-        VectorManager *vectorManager = (VectorManager *)scene->getManager(kWKVectorManager);
-        WideVectorManager *wideVectorManager = (WideVectorManager *)scene->getManager(kWKWideVectorManager);
+        VectorManagerRef vectorManager = std::dynamic_pointer_cast<VectorManager>(scene->getManager(kWKVectorManager));
+        WideVectorManagerRef wideVectorManager = std::dynamic_pointer_cast<WideVectorManager>(scene->getManager(kWKWideVectorManager));
 
         ChangeSet changes;
         if (vectorManager && !baseObj->contents->vectorIDs.empty())
@@ -1853,7 +1853,7 @@ public:
         if (!compManager->hasComponentObject(vecObj->contents->getId()))
             return;
 
-        VectorManager *vectorManager = (VectorManager *)scene->getManager(kWKVectorManager);
+        VectorManagerRef vectorManager = std::dynamic_pointer_cast<VectorManager>(scene->getManager(kWKVectorManager));
 
         if (vectorManager)
         {
@@ -2011,7 +2011,7 @@ public:
     
     compObj->contents->texs = textures;
     
-    ShapeManager *shapeManager = (ShapeManager *)scene->getManager(kWKShapeManager);
+    ShapeManagerRef shapeManager = std::dynamic_pointer_cast<ShapeManager>(scene->getManager(kWKShapeManager));
     if (shapeManager)
     {
         ChangeSet changes;
@@ -2104,8 +2104,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     [self resolveInfoDefaults:inDesc info:&geomInfo defaultShader:kMaplyShaderDefaultModelTri];
     [self resolveDrawPriority:inDesc info:&geomInfo drawPriority:kMaplyModelDrawPriorityDefault offset:0];
 
-    GeometryManager *geomManager = (GeometryManager *)scene->getManager(kWKGeometryManager);
-    FontTextureManager_iOS *fontTexManager = (FontTextureManager_iOS *)scene->getFontTextureManager();
+    GeometryManagerRef geomManager = std::dynamic_pointer_cast<GeometryManager>(scene->getManager(kWKGeometryManager));
+    FontTextureManager_iOSRef fontTexManager = std::dynamic_pointer_cast<FontTextureManager_iOS>(scene->getFontTextureManager());
 
     // Sort the instances with their models
     GeomModelInstancesSet instSort;
@@ -2292,7 +2292,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     [self resolveInfoDefaults:inDesc info:&geomInfo defaultShader:kMaplyDefaultTriangleShader];
     [self resolveDrawPriority:inDesc info:&geomInfo drawPriority:kMaplyStickerDrawPriorityDefault offset:0];
 
-    GeometryManager *geomManager = (GeometryManager *)scene->getManager(kWKGeometryManager);
+    GeometryManagerRef geomManager = std::dynamic_pointer_cast<GeometryManager>(scene->getManager(kWKGeometryManager));
     
     // Add each raw geometry model
     if (geomManager)
@@ -2388,7 +2388,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     [self resolveInfoDefaults:inDesc info:&chunkInfo defaultShader:kMaplyDefaultTriangleShader];
     [self resolveDrawPriority:inDesc info:&chunkInfo drawPriority:kMaplyStickerDrawPriorityDefault offset:0];
     
-    SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
+    SphericalChunkManagerRef chunkManager = std::dynamic_pointer_cast<SphericalChunkManager>(scene->getManager(kWKSphericalChunkManager));
     ChangeSet changes;
 
     std::vector<SphericalChunk> chunks;
@@ -2498,7 +2498,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         if (!compManager->hasComponentObject(stickerObj->contents->getId()))
             return;
         
-        SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
+        SphericalChunkManagerRef chunkManager = std::dynamic_pointer_cast<SphericalChunkManager>(scene->getManager(kWKSphericalChunkManager));
         
         if (chunkManager)
         {
@@ -2592,7 +2592,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         shapes.insert(vecObj->vObj->shapes.begin(),vecObj->vObj->shapes.end());
 
     ChangeSet changes;
-    LoftManager *loftManager = (LoftManager *)scene->getManager(kWKLoftedPolyManager);
+    LoftManagerRef loftManager = std::dynamic_pointer_cast<LoftManager>(scene->getManager(kWKLoftedPolyManager));
     if (loftManager)
     {
         SimpleIdentity loftID = loftManager->addLoftedPolys(&shapes, loftInfo, changes);
@@ -2654,8 +2654,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     [self resolveDrawPriority:inDesc info:&billInfo drawPriority:kMaplyBillboardDrawPriorityDefault offset:0];
 
     ChangeSet changes;
-    BillboardManager *billManager = (BillboardManager *)scene->getManager(kWKBillboardManager);
-    FontTextureManager_iOS *fontTexManager = (FontTextureManager_iOS *)scene->getFontTextureManager();
+    BillboardManagerRef billManager = std::dynamic_pointer_cast<BillboardManager>(scene->getManager(kWKBillboardManager));
+    FontTextureManager_iOSRef fontTexManager = std::dynamic_pointer_cast<FontTextureManager_iOS>(scene->getFontTextureManager());
     if (billManager && fontTexManager)
     {
         std::vector<Billboard *> wkBills;
@@ -2813,7 +2813,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         calcShaderID = [partSys.positionShader getShaderID];
     }
     
-    ParticleSystemManager *partSysManager = (ParticleSystemManager *)scene->getManager(kWKParticleSystemManager);
+    ParticleSystemManagerRef partSysManager = std::dynamic_pointer_cast<ParticleSystemManager>(scene->getManager(kWKParticleSystemManager));
 
     ChangeSet changes;
     if (partSysManager)
@@ -2925,7 +2925,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
 - (void)changeParticleSystem:(MaplyComponentObject *)compObj renderTarget:(MaplyRenderTarget *)target
 {
-    ParticleSystemManager *partSysManager = (ParticleSystemManager *)scene->getManager(kWKParticleSystemManager);
+    ParticleSystemManagerRef partSysManager = std::dynamic_pointer_cast<ParticleSystemManager>(scene->getManager(kWKParticleSystemManager));
 
     if (partSysManager) {
         ChangeSet changes;
@@ -2948,7 +2948,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     const MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:1] intValue];
 
     ChangeSet changes;
-    if (auto partSysManager = (ParticleSystemManager *)scene->getManager(kWKParticleSystemManager))
+    if (auto partSysManager = std::dynamic_pointer_cast<ParticleSystemManager>(scene->getManager(kWKParticleSystemManager)))
     {
         const auto __strong ps = batch.partSys;
 
@@ -2999,7 +2999,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
     compObj->contents->isSelectable = false;
 
-    GeometryManager *geomManager = (GeometryManager *)scene->getManager(kWKGeometryManager);
+    GeometryManagerRef geomManager = std::dynamic_pointer_cast<GeometryManager>(scene->getManager(kWKGeometryManager));
     
     ChangeSet changes;
     if (geomManager)

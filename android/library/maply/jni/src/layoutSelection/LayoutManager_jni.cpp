@@ -74,7 +74,7 @@ public:
     };
     typedef std::set<ClusterInfo> ClusterInfoSet;
 
-    LayoutManagerWrapper(Scene *scene,LayoutManager *layoutManager)
+    LayoutManagerWrapper(Scene *scene,LayoutManagerRef layoutManager)
         : layoutManager(layoutManager), env(NULL), motionShaderID(EmptyIdentity)
     {
         layoutManager->addClusterGenerator(this);
@@ -93,7 +93,8 @@ public:
                 motionShaderID = program->getId();
         }
     }
-    
+
+    // TODO: Switch over to using platform info
     void setEnv(JNIEnv *inEnv)
     {
         env = inEnv;
@@ -203,7 +204,7 @@ public:
     }
 
 public:
-    LayoutManager *layoutManager;
+    LayoutManagerRef layoutManager;
 
     SimpleIDSet currentClusterTex,oldClusterTex;
     
@@ -227,7 +228,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_initialise
     try
     {
         Scene *scene = SceneClassInfo::getClassInfo()->getObject(env,sceneObj);
-        LayoutManager *layoutManager = dynamic_cast<LayoutManager *>(scene->getManager(kWKLayoutManager));
+        LayoutManagerRef layoutManager = std::dynamic_pointer_cast<LayoutManager>(scene->getManager(kWKLayoutManager));
         LayoutManagerWrapper *wrap = new LayoutManagerWrapper(scene,layoutManager);
         LayoutManagerWrapperClassInfo::getClassInfo()->setHandle(env, obj, wrap);
     }

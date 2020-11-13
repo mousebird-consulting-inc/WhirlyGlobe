@@ -116,8 +116,8 @@ public:
     void enableVectors(SimpleIDSet &vecIDs,bool enable,ChangeSet &changes);
     
 protected:
-    std::mutex vectorLock;
     VectorSceneRepSet vectorReps;
 };
+typedef std::shared_ptr<VectorManager> VectorManagerRef;
 
 }

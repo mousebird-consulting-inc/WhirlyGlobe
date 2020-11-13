@@ -1341,7 +1341,7 @@ void QuadImageFrameLoader::setBuilder(QuadTileBuilder *inBuilder,QuadDisplayCont
 {
     builder = inBuilder;
     control = inControl;
-    compManager = (ComponentManager *)control->getScene()->getManager(kWKComponentManager);
+    compManager = std::dynamic_pointer_cast<ComponentManager>(control->getScene()->getManager(kWKComponentManager));
 }
 
 /// Before we tell the delegate to unload tiles, see if they want to keep them around
@@ -1616,6 +1616,8 @@ void QuadImageFrameLoader::cleanup(PlatformThreadInfo *threadInfo,ChangeSet &cha
 
     processBatchOps(threadInfo,batchOps);
     delete batchOps;
+    
+    compManager.reset();
 }
 
 bool QuadImageFrameLoader::isFrameLoading(const QuadTreeIdentifier &ident,QuadFrameInfoRef frame)

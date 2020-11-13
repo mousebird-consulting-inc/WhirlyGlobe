@@ -102,7 +102,7 @@ typedef std::shared_ptr<LabelInfo> LabelInfoRef;
 class LabelRenderer
 {
 public:
-    LabelRenderer(Scene *scene,FontTextureManager *fontTexManager,const LabelInfo *labelInfo);
+    LabelRenderer(Scene *scene,FontTextureManagerRef &fontTexManager,const LabelInfo *labelInfo);
     
     /// Description of the labels
     const LabelInfo *labelInfo;
@@ -128,7 +128,7 @@ public:
     /// Change requests to pass to the scene
     ChangeSet changeRequests;
     /// Font texture manager to use if we're doing fonts
-    FontTextureManager *fontTexManager;
+    FontTextureManagerRef fontTexManager;
     /// Set if want to use attributed strings (we usually do)
     bool useAttributedString;
     /// Scale, if we're using that

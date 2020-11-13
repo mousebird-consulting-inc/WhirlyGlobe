@@ -58,7 +58,7 @@ MarkerSceneRep::MarkerSceneRep()
 {
 }
     
-void MarkerSceneRep::enableContents(SelectionManager *selectManager,LayoutManager *layoutManager,bool enable,ChangeSet &changes)
+void MarkerSceneRep::enableContents(SelectionManagerRef &selectManager,LayoutManagerRef &layoutManager,bool enable,ChangeSet &changes)
 {
     for (SimpleIDSet::iterator idIt = drawIDs.begin();
          idIt != drawIDs.end(); ++idIt)
@@ -71,7 +71,7 @@ void MarkerSceneRep::enableContents(SelectionManager *selectManager,LayoutManage
         layoutManager->enableLayoutObjects(screenShapeIDs, enable);
 }
     
-void MarkerSceneRep::clearContents(SelectionManager *selectManager,LayoutManager *layoutManager,ChangeSet &changes,TimeInterval when)
+void MarkerSceneRep::clearContents(SelectionManagerRef &selectManager,LayoutManagerRef &layoutManager,ChangeSet &changes,TimeInterval when)
 {
     // Just delete everything
     for (SimpleIDSet::iterator idIt = drawIDs.begin();
@@ -117,6 +117,8 @@ MarkerManager::MarkerManager()
 
 MarkerManager::~MarkerManager()
 {
+    std::lock_guard<std::mutex> guardLock(lock);
+
     for (MarkerSceneRepSet::iterator it = markerReps.begin();
          it != markerReps.end(); ++it)
         delete *it;
@@ -127,8 +129,8 @@ typedef std::map<SimpleIDSet,BasicDrawableBuilderRef> DrawableMap;
 
 SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,const MarkerInfo &markerInfo,ChangeSet &changes)
 {
-    SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
-    LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
+    SelectionManagerRef selectManager = std::dynamic_pointer_cast<SelectionManager>(scene->getManager(kWKSelectionManager));
+    LayoutManagerRef layoutManager = std::dynamic_pointer_cast<LayoutManager>(scene->getManager(kWKLayoutManager));
     TimeInterval curTime = scene->getCurrentTime();
 
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
@@ -403,7 +405,7 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
     SimpleIdentity markerID = markerRep->getId();
     
     {
-        std::lock_guard<std::mutex> guardLock(markerLock);
+        std::lock_guard<std::mutex> guardLock(lock);
         markerReps.insert(markerRep);
     }
     
@@ -412,10 +414,10 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
 
 void MarkerManager::enableMarkers(SimpleIDSet &markerIDs,bool enable,ChangeSet &changes)
 {
-    SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
-    LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
+    SelectionManagerRef selectManager = std::dynamic_pointer_cast<SelectionManager>(scene->getManager(kWKSelectionManager));
+    LayoutManagerRef layoutManager = std::dynamic_pointer_cast<LayoutManager>(scene->getManager(kWKLayoutManager));
 
-    std::lock_guard<std::mutex> guardLock(markerLock);
+    std::lock_guard<std::mutex> guardLock(lock);
 
     for (SimpleIDSet::iterator mit = markerIDs.begin();mit != markerIDs.end(); ++mit)
     {
@@ -432,10 +434,10 @@ void MarkerManager::enableMarkers(SimpleIDSet &markerIDs,bool enable,ChangeSet &
 
 void MarkerManager::removeMarkers(SimpleIDSet &markerIDs,ChangeSet &changes)
 {
-    SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
-    LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
+    SelectionManagerRef selectManager = std::dynamic_pointer_cast<SelectionManager>(scene->getManager(kWKSelectionManager));
+    LayoutManagerRef layoutManager = std::dynamic_pointer_cast<LayoutManager>(scene->getManager(kWKLayoutManager));
 
-    std::lock_guard<std::mutex> guardLock(markerLock);
+    std::lock_guard<std::mutex> guardLock(lock);
 
     TimeInterval curTime = scene->getCurrentTime();
     for (SimpleIDSet::iterator mit = markerIDs.begin();mit != markerIDs.end(); ++mit)

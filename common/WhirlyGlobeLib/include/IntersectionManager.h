@@ -66,9 +66,9 @@ public:
     bool findIntersection(SceneRenderer *renderer,View *theView,const Point2f &frameSize,const Point2f &touchPt,Point3d &iPt,double &dist);
 
 protected:
-    std::mutex mutex;
     Scene *scene;
     std::set<Intersectable *> intersectables;
 };
+typedef std::shared_ptr<IntersectionManager> IntersectionManagerRef;
 
 }

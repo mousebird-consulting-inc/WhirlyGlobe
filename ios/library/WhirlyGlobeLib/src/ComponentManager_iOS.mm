@@ -31,9 +31,9 @@ ComponentObject_iOS::ComponentObject_iOS()
 
 // The scene wants a component manager early in the process
 // This gives it an iOS specific one
-ComponentManager *MakeComponentManager()
+ComponentManagerRef MakeComponentManager()
 {
-    return new ComponentManager_iOS();
+    return std::make_shared<ComponentManager_iOS>();
 }
     
 ComponentManager_iOS::ComponentManager_iOS()

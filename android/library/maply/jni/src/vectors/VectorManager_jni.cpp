@@ -26,7 +26,7 @@
 using namespace WhirlyKit;
 using namespace Maply;
 
-typedef JavaClassInfo<VectorManager> VectorManagerClassInfo;
+typedef JavaClassInfo<VectorManagerRef> VectorManagerClassInfo;
 template<> VectorManagerClassInfo *VectorManagerClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_nativeInit
@@ -43,8 +43,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_initialise
         Scene *scene = SceneClassInfo::getClassInfo()->getObject(env, sceneObj);
         if (!scene)
             return;
-		VectorManager *vecManager = dynamic_cast<VectorManager *>(scene->getManager(kWKVectorManager));
-		VectorManagerClassInfo::getClassInfo()->setHandle(env,obj,vecManager);
+		VectorManagerRef vecManager = std::dynamic_pointer_cast<VectorManager>(scene->getManager(kWKVectorManager));
+		VectorManagerClassInfo::getClassInfo()->setHandle(env,obj,new VectorManagerRef(vecManager));
 	}
 	catch (...)
 	{
@@ -62,6 +62,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_dispose
 		VectorManagerClassInfo *classInfo = VectorManagerClassInfo::getClassInfo();
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
+			VectorManagerRef *vecManager = VectorManagerClassInfo::getClassInfo()->getObject(env,obj);
+			if (vecManager)
+				delete vecManager;
             classInfo->clearHandle(env,obj);
         }
 	}
@@ -76,7 +79,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_VectorManager_addVectors
 {
 	try
 	{
-        VectorManager *vecManager = VectorManagerClassInfo::getClassInfo()->getObject(env,obj);
+        VectorManagerRef *vecManager = VectorManagerClassInfo::getClassInfo()->getObject(env,obj);
 		VectorInfoRef *vecInfo = VectorInfoClassInfo::getClassInfo()->getObject(env,vecInfoObj);
 		ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
 		if (!vecManager || !vecInfo || !changeSet)
@@ -97,14 +100,14 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_VectorManager_addVectors
         {
             ProgramGLES *prog = NULL;
             if ((*vecInfo)->filled)
-				prog = (ProgramGLES *)vecManager->getScene()->findProgramByName(MaplyDefaultTriangleShader);
+				prog = (ProgramGLES *)(*vecManager)->getScene()->findProgramByName(MaplyDefaultTriangleShader);
             else
-            	prog = (ProgramGLES *)vecManager->getScene()->findProgramByName(MaplyDefaultLineShader);
+            	prog = (ProgramGLES *)(*vecManager)->getScene()->findProgramByName(MaplyDefaultLineShader);
             if (prog)
 				(*vecInfo)->programID = prog->getId();
         }
 
-		SimpleIdentity vecID = vecManager->addVectors(&shapes,*(*vecInfo),*(changeSet->get()));
+		SimpleIdentity vecID = (*vecManager)->addVectors(&shapes,*(*vecInfo),*(changeSet->get()));
 
 		return vecID;
 	}
@@ -120,7 +123,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_changeVectors
 (JNIEnv *env, jobject obj, jlongArray idArrayObj, jobject vecInfoObj, jobject changeSetObj)
 {
     try {
-        VectorManager *vecManager = VectorManagerClassInfo::getClassInfo()->getObject(env,obj);
+        VectorManagerRef *vecManager = VectorManagerClassInfo::getClassInfo()->getObject(env,obj);
 		VectorInfoRef *vecInfo = VectorInfoClassInfo::getClassInfo()->getObject(env,vecInfoObj);
         ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
         if (!vecManager || !vecInfo || !changeSet)
@@ -130,7 +133,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_changeVectors
         SimpleIDSet idSet;
         for (unsigned int ii=0;ii<ids.len;ii++)
         {
-            vecManager->changeVectors(ids.rawLong[ii],*(*vecInfo),*(changeSet->get()));
+			(*vecManager)->changeVectors(ids.rawLong[ii],*(*vecInfo),*(changeSet->get()));
         }
     }
     catch (...)
@@ -144,7 +147,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_removeVectors
 {
 	try
 	{
-        VectorManager *vecManager = VectorManagerClassInfo::getClassInfo()->getObject(env,obj);
+        VectorManagerRef *vecManager = VectorManagerClassInfo::getClassInfo()->getObject(env,obj);
 		ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
 		if (!vecManager || !changeSet)
 			return;
@@ -152,7 +155,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_removeVectors
         SimpleIDSet idSet;
         ConvertLongArrayToSet(env,idArrayObj,idSet);
 
-		vecManager->removeVectors(idSet,*(changeSet->get()));
+		(*vecManager)->removeVectors(idSet,*(changeSet->get()));
 	}
 	catch (...)
 	{
@@ -165,7 +168,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_enableVectors
 {
 	try
 	{
-        VectorManager *vecManager = VectorManagerClassInfo::getClassInfo()->getObject(env,obj);
+        VectorManagerRef *vecManager = VectorManagerClassInfo::getClassInfo()->getObject(env,obj);
 		ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
 		if (!vecManager || !changeSet)
 			return;
@@ -173,7 +176,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_enableVectors
         SimpleIDSet idSet;
         ConvertLongArrayToSet(env,idArrayObj,idSet);
 
-		vecManager->enableVectors(idSet,enable,*(changeSet->get()));
+		(*vecManager)->enableVectors(idSet,enable,*(changeSet->get()));
 	}
 	catch (...)
 	{
@@ -186,13 +189,13 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_VectorManager_instanceVectors
 {
 	try
 	{
-        VectorManager *vecManager = VectorManagerClassInfo::getClassInfo()->getObject(env,obj);
+        VectorManagerRef *vecManager = VectorManagerClassInfo::getClassInfo()->getObject(env,obj);
 		VectorInfoRef *vecInfo = VectorInfoClassInfo::getClassInfo()->getObject(env,vecInfoObj);
 		ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
 		if (!vecManager || !vecInfo || !changeSet)
 			return EmptyIdentity;
 
-		return vecManager->instanceVectors(vecID,*(*vecInfo),*(changeSet->get()));
+		return (*vecManager)->instanceVectors(vecID,*(*vecInfo),*(changeSet->get()));
 	}
 	catch (...)
 	{

@@ -106,7 +106,7 @@ LabelSceneRep::LabelSceneRep()
 // Don't want to give them their own separate drawable, obviously
 typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
 
-LabelRenderer::LabelRenderer(Scene *scene,FontTextureManager *fontTexManager,const LabelInfo *labelInfo)
+LabelRenderer::LabelRenderer(Scene *scene,FontTextureManagerRef &fontTexManager,const LabelInfo *labelInfo)
     : useAttributedString(true), scene(scene), fontTexManager(fontTexManager), labelInfo(labelInfo),
     textureAtlasSize(2048), labelRep(NULL)
 {

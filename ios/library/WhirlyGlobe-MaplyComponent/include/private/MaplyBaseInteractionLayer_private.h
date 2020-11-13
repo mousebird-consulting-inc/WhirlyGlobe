@@ -48,7 +48,7 @@
     NSArray *layerThreads;
 
     // Used to track groups of low level objects and vectors
-    WhirlyKit::ComponentManager_iOS *compManager;
+    WhirlyKit::ComponentManager_iOSRef compManager;
 
     std::mutex imageLock;
     // Used to track textures

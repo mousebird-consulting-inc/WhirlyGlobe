@@ -157,7 +157,7 @@ using namespace WhirlyGlobe;
 
 - (NSMutableArray*)selectMultipleLabelsAndMarkersForScreenPoint:(CGPoint)screenPoint
 {
-    SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
+    SelectionManagerRef selectManager = std::dynamic_pointer_cast<SelectionManager>(scene->getManager(kWKSelectionManager));
     std::vector<SelectionManager::SelectedObject> selectedObjs;
     selectManager->pickObjects(Point2f(screenPoint.x,screenPoint.y),10.0,globeView->makeViewState(layerThread.renderer),selectedObjs);
     

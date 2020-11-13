@@ -23,6 +23,6 @@
 
 typedef JavaClassInfo<WhirlyKit::LayoutManager> LayoutManagerClassInfo;
 typedef JavaClassInfo<WhirlyKit::SelectionManager::SelectedObject> SelectedObjectClassInfo;
-typedef JavaClassInfo<WhirlyKit::SelectionManager> SelectionManagerClassInfo;
+typedef JavaClassInfo<WhirlyKit::SelectionManagerRef> SelectionManagerClassInfo;
 
 JNIEXPORT jobject JNICALL MakeSelectedObject(JNIEnv *env,const WhirlyKit::SelectionManager::SelectedObject &selObj);

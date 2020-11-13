@@ -138,6 +138,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_geoBoundsForTileN
         MbrD mbrD = control->getQuadTree()->generateMbrForNode(WhirlyKit::QuadTreeNew::Node(tileX,tileY,tileLevel));
 
         CoordSystem *wkCoordSys = control->getCoordSys();
+        if (!wkCoordSys)
+            return;
         Point2d pts[4];
         pts[0] = wkCoordSys->localToGeographicD(Point3d(mbrD.ll().x(),mbrD.ll().y(),0.0));
         pts[1] = wkCoordSys->localToGeographicD(Point3d(mbrD.ur().x(),mbrD.ll().y(),0.0));

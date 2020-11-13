@@ -216,7 +216,6 @@ protected:
     Eigen::Matrix2d calcScreenRot(float &screenRot,ViewStateRef viewState,WhirlyGlobe::GlobeViewState *globeViewState,ScreenSpaceObject *ssObj,const Point2f &objPt,const Eigen::Matrix4d &modelTrans,const Eigen::Matrix4d &normalMat,const Point2f &frameBufferSize);
     bool runLayoutRules(ViewStateRef viewState,std::vector<ClusterEntry> &clusterEntries,std::vector<ClusterGenerator::ClusterClassParams> &clusterParams);
     
-    std::mutex layoutLock;
     /// If non-zero the maximum number of objects we'll display at once
     int maxDisplayObjects;
     /// If there were updates since the last layout
@@ -234,5 +233,6 @@ protected:
     /// Features we'll force to always display
     std::set<std::string> overrideUUIDs;
 };
+typedef std::shared_ptr<LayoutManager> LayoutManagerRef;
 
 }

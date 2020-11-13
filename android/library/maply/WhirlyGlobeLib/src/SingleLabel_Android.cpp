@@ -25,9 +25,9 @@
 namespace WhirlyKit
 {
 
-std::vector<DrawableString *> SingleLabelAndroid::generateDrawableStrings(PlatformThreadInfo *inThreadInfo,const LabelInfo *inLabelInfo,FontTextureManager *inFontTexManager,float &lineHeight,ChangeSet &changes)
+std::vector<DrawableString *> SingleLabelAndroid::generateDrawableStrings(PlatformThreadInfo *inThreadInfo,const LabelInfo *inLabelInfo,FontTextureManagerRef &inFontTexManager,float &lineHeight,ChangeSet &changes)
 {
-	FontTextureManager_Android *fontTexManager = (FontTextureManager_Android *)inFontTexManager;
+	FontTextureManager_AndroidRef fontTexManager = std::dynamic_pointer_cast<FontTextureManager_Android>(inFontTexManager);
 	const LabelInfoAndroid *labelInfo = (LabelInfoAndroid *)inLabelInfo;
     PlatformInfo_Android *threadInfo = (PlatformInfo_Android *)inThreadInfo;
 

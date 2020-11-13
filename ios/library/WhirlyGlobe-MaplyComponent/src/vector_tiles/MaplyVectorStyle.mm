@@ -512,7 +512,7 @@ void MapboxVectorStyleSetImpl_iOS::addSelectionObject(SimpleIdentity selectID,Ve
     if (!compManage)
         return;
     
-    ComponentManager_iOS *compManage_iOS = (ComponentManager_iOS *)compManage;
+    ComponentManager_iOSRef compManage_iOS = std::dynamic_pointer_cast<ComponentManager_iOS>(compManage);
     
     MaplyVectorObject *vectorObj = [[MaplyVectorObject alloc] initWithRef:vecObj];
     compManage_iOS->addSelectObject(selectID, vectorObj);

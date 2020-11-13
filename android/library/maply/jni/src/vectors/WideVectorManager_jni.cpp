@@ -27,7 +27,7 @@ using namespace Eigen;
 using namespace WhirlyKit;
 using namespace Maply;
 
-typedef JavaClassInfo<WideVectorManager> WideVectorManagerClassInfo;
+typedef JavaClassInfo<WideVectorManagerRef> WideVectorManagerClassInfo;
 template<> WideVectorManagerClassInfo *WideVectorManagerClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorManager_nativeInit
@@ -44,8 +44,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorManager_initialise
         Scene *scene = SceneClassInfo::getClassInfo()->getObject(env, sceneObj);
         if (!scene)
             return;
-        WideVectorManager *vecManager = dynamic_cast<WideVectorManager *>(scene->getManager(kWKWideVectorManager));
-        WideVectorManagerClassInfo::getClassInfo()->setHandle(env,obj,vecManager);
+        WideVectorManagerRef vecManager = std::dynamic_pointer_cast<WideVectorManager>(scene->getManager(kWKWideVectorManager));
+        WideVectorManagerClassInfo::getClassInfo()->setHandle(env,obj,new WideVectorManagerRef(vecManager));
     }
     catch (...)
     {
@@ -63,7 +63,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorManager_dispose
         WideVectorManagerClassInfo *classInfo = WideVectorManagerClassInfo::getClassInfo();
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
-            WideVectorManager *vecManage = classInfo->getObject(env,obj);
+            WideVectorManagerRef *vecManage = classInfo->getObject(env,obj);
             if (!vecManage)
                 return;
             classInfo->clearHandle(env,obj);
@@ -81,7 +81,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_WideVectorManager_addVectors
 {
     try
     {
-        WideVectorManager *vecManager = WideVectorManagerClassInfo::getClassInfo()->getObject(env,obj);
+        WideVectorManagerRef *vecManager = WideVectorManagerClassInfo::getClassInfo()->getObject(env,obj);
         WideVectorInfoRef *vecInfo = WideVectorInfoClassInfo::getClassInfo()->getObject(env,vecInfoObj);
         ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
         if (!vecManager || !vecInfo || !changeSet)
@@ -100,12 +100,12 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_WideVectorManager_addVectors
         // Resolve a missing program
         if ((*vecInfo)->programID == EmptyIdentity)
         {
-            ProgramGLES *prog = (ProgramGLES *)vecManager->getScene()->findProgramByName(MaplyDefaultWideVectorShader);
+            ProgramGLES *prog = (ProgramGLES *)(*vecManager)->getScene()->findProgramByName(MaplyDefaultWideVectorShader);
             if (prog)
                 (*vecInfo)->programID = prog->getId();
         }
 
-        SimpleIdentity vecID = vecManager->addVectors(shapes,*(*vecInfo),*(changeSet->get()));
+        SimpleIdentity vecID = (*vecManager)->addVectors(shapes,*(*vecInfo),*(changeSet->get()));
         
         return vecID;
     }
@@ -122,7 +122,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorManager_removeVectors
 {
     try
     {
-        WideVectorManager *vecManager = WideVectorManagerClassInfo::getClassInfo()->getObject(env,obj);
+        WideVectorManagerRef *vecManager = WideVectorManagerClassInfo::getClassInfo()->getObject(env,obj);
         ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
         if (!vecManager || !changeSet)
             return;
@@ -130,7 +130,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorManager_removeVectors
         SimpleIDSet idSet;
         ConvertLongArrayToSet(env,idArrayObj,idSet);
         
-        vecManager->removeVectors(idSet,*(changeSet->get()));
+        (*vecManager)->removeVectors(idSet,*(changeSet->get()));
     }
     catch (...)
     {
@@ -143,7 +143,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorManager_enableVectors
 {
     try
     {
-        WideVectorManager *vecManager = WideVectorManagerClassInfo::getClassInfo()->getObject(env,obj);
+        WideVectorManagerRef *vecManager = WideVectorManagerClassInfo::getClassInfo()->getObject(env,obj);
         ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
         if (!vecManager || !changeSet)
             return;
@@ -151,7 +151,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorManager_enableVectors
         SimpleIDSet idSet;
         ConvertLongArrayToSet(env,idArrayObj,idSet);
         
-        vecManager->enableVectors(idSet,enable,*(changeSet->get()));
+        (*vecManager)->enableVectors(idSet,enable,*(changeSet->get()));
     }
     catch (...)
     {
@@ -164,13 +164,13 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_WideVectorManager_instanceVecto
 {
     try
     {
-        WideVectorManager *vecManager = WideVectorManagerClassInfo::getClassInfo()->getObject(env,obj);
+        WideVectorManagerRef *vecManager = WideVectorManagerClassInfo::getClassInfo()->getObject(env,obj);
         WideVectorInfoRef *vecInfo = WideVectorInfoClassInfo::getClassInfo()->getObject(env,vecInfoObj);
         ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
         if (!vecManager || !vecInfo || !changeSet)
             return EmptyIdentity;
         
-        return vecManager->instanceVectors(vecID,*(*vecInfo),*(changeSet->get()));
+        return (*vecManager)->instanceVectors(vecID,*(*vecInfo),*(changeSet->get()));
     }
     catch (...)
     {

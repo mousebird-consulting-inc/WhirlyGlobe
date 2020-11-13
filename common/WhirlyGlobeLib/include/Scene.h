@@ -220,25 +220,28 @@ typedef std::map<SimpleIdentity,ProgramRef> ProgramSet;
 class SceneManager
 {
 public:
-    SceneManager() : scene(NULL), renderer(NULL) { }
+    SceneManager();
     virtual ~SceneManager() { };
     
     /// Set (or reset) the current renderer
-    virtual void setRenderer(SceneRenderer *inRenderer) { renderer = inRenderer; }
+    virtual void setRenderer(SceneRenderer *inRenderer);
 
     /// Set the scene we're part of
-    virtual void setScene(Scene *inScene) { scene = inScene; }
+    virtual void setScene(Scene *inScene);
     
     /// Return the scene this is part of
-    Scene *getScene() { return scene; }
+    Scene *getScene();
 
     /// Return the renderer
-    SceneRenderer *getSceneRenderer() { return renderer; }
+    SceneRenderer *getSceneRenderer();
     
 protected:
+    std::mutex lock;
+    
     Scene *scene;
     SceneRenderer *renderer;
 };
+typedef std::shared_ptr<SceneManager> SceneManagerRef;
 
 /** This is the top level scene object for WhirlyKit.
     It keeps track of the drawables and the change requests, which
@@ -315,12 +318,12 @@ public:
     void setRenderer(SceneRenderer *renderer);
     
     /// Return the given manager.  This is thread safe;
-    SceneManager *getManager(const char *name);
+    SceneManagerRef getManager(const char *name);
     /// This one can only be called during scene initialization
-    SceneManager *getManagerNoLock(const char *name);
+    SceneManagerRef getManagerNoLock(const char *name);
     
     /// Add the given manager.  The scene is now responsible for deletion.  This is thread safe.
-    void addManager(const char *name,SceneManager *manager);
+    void addManager(const char *name,const SceneManagerRef &manager);
     
     /// Add an active model.  Only call this on the main thread.
     void addActiveModel(ActiveModelRef);
@@ -399,7 +402,7 @@ public:
     void setFontTextureManager(FontTextureManagerRef newManager);
 
     /// Returns the font texture manager, which is thread safe
-    FontTextureManager *getFontTextureManager() { return fontTextureManager.get(); }
+    FontTextureManagerRef getFontTextureManager() { return fontTextureManager; }
 
 protected:
     /// Don't be calling this
@@ -442,7 +445,7 @@ protected:
     std::mutex managerLock;
     
     /// Managers for various functionality
-    std::map<std::string,SceneManager *> managers;
+    std::map<std::string,SceneManagerRef> managers;
                 
     /// Lock for accessing programs
     std::mutex programLock;

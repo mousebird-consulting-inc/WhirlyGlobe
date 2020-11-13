@@ -58,22 +58,23 @@ ComponentManager::ComponentManager()
     
 ComponentManager::~ComponentManager()
 {
+    std::lock_guard<std::mutex> guardLock(lock);
 }
     
 void ComponentManager::setScene(Scene *scene)
 {
-    layoutManager = (LayoutManager *)scene->getManagerNoLock(kWKLayoutManager);
-    markerManager = (MarkerManager *)scene->getManagerNoLock(kWKMarkerManager);
-    labelManager = (LabelManager *)scene->getManagerNoLock(kWKLabelManager);
-    vectorManager = (VectorManager *)scene->getManagerNoLock(kWKVectorManager);
-    wideVectorManager = (WideVectorManager *)scene->getManagerNoLock(kWKWideVectorManager);
-    shapeManager = (ShapeManager *)scene->getManagerNoLock(kWKShapeManager);
-    chunkManager = (SphericalChunkManager *)scene->getManagerNoLock(kWKSphericalChunkManager);
-    loftManager = (LoftManager *)scene->getManagerNoLock(kWKLoftedPolyManager);
-    billManager = (BillboardManager *)scene->getManagerNoLock(kWKBillboardManager);
-    geomManager = (GeometryManager *)scene->getManagerNoLock(kWKGeometryManager);
+    layoutManager = std::dynamic_pointer_cast<LayoutManager>(scene->getManagerNoLock(kWKLayoutManager));
+    markerManager = std::dynamic_pointer_cast<MarkerManager>(scene->getManagerNoLock(kWKMarkerManager));
+    labelManager = std::dynamic_pointer_cast<LabelManager>(scene->getManagerNoLock(kWKLabelManager));
+    vectorManager = std::dynamic_pointer_cast<VectorManager>(scene->getManagerNoLock(kWKVectorManager));
+    wideVectorManager = std::dynamic_pointer_cast<WideVectorManager>(scene->getManagerNoLock(kWKWideVectorManager));
+    shapeManager = std::dynamic_pointer_cast<ShapeManager>(scene->getManagerNoLock(kWKShapeManager));
+    chunkManager = std::dynamic_pointer_cast<SphericalChunkManager>(scene->getManagerNoLock(kWKSphericalChunkManager));
+    loftManager = std::dynamic_pointer_cast<LoftManager>(scene->getManagerNoLock(kWKLoftedPolyManager));
+    billManager = std::dynamic_pointer_cast<BillboardManager>(scene->getManagerNoLock(kWKBillboardManager));
+    geomManager = std::dynamic_pointer_cast<GeometryManager>(scene->getManagerNoLock(kWKGeometryManager));
     fontTexManager = scene->getFontTextureManager();
-    partSysManager = (ParticleSystemManager *)scene->getManagerNoLock(kWKParticleSystemManager);
+    partSysManager = std::dynamic_pointer_cast<ParticleSystemManager>(scene->getManagerNoLock(kWKParticleSystemManager));
 }
 
 void ComponentManager::addComponentObject(ComponentObjectRef compObj)

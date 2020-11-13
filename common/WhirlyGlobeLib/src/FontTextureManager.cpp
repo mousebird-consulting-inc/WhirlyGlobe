@@ -125,6 +125,8 @@ FontTextureManager::FontTextureManager(SceneRenderer *sceneRender,Scene *scene)
 
 FontTextureManager::~FontTextureManager()
 {
+    std::lock_guard<std::mutex> guardLock(lock);
+
     if (texAtlas)
         delete texAtlas;
     texAtlas = NULL;

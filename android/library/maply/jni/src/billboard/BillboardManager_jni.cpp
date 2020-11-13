@@ -26,7 +26,7 @@
 
 using namespace WhirlyKit;
 
-typedef JavaClassInfo<WhirlyKit::BillboardManager> BillboardManagerClassInfo;
+typedef JavaClassInfo<WhirlyKit::BillboardManagerRef> BillboardManagerClassInfo;
 template<> BillboardManagerClassInfo *BillboardManagerClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_BillboardManager_nativeInit
@@ -44,8 +44,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BillboardManager_initialise
         Scene *scene = SceneClassInfo::getClassInfo()->getObject(env, sceneObj);
         if (!scene)
             return;
-        BillboardManager *billManager = dynamic_cast<BillboardManager *>(scene->getManager(kWKBillboardManager));
-        classInfo->setHandle(env, obj, billManager);
+        BillboardManagerRef billManager = std::dynamic_pointer_cast<BillboardManager>(scene->getManager(kWKBillboardManager));
+        classInfo->setHandle(env, obj, new BillboardManagerRef(billManager));
     }
     catch (...)
     {
@@ -61,6 +61,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BillboardManager_dispose
     try
     {
         BillboardManagerClassInfo *classInfo = BillboardManagerClassInfo::getClassInfo();
+        BillboardManagerRef *billManager = classInfo->getObject(env, obj);
+        if (billManager)
+            delete billManager;
 		classInfo->clearHandle(env, obj);
     }
     catch (...)
@@ -75,7 +78,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_BillboardManager_addBillboards
     try
     {
         BillboardManagerClassInfo *classInfo = BillboardManagerClassInfo::getClassInfo();
-        BillboardManager *billManager = classInfo->getObject(env, obj);
+        BillboardManagerRef *billManager = classInfo->getObject(env, obj);
         BillboardInfoRef *billInfo = BillboardInfoClassInfo::getClassInfo()->getObject(env, infoObj);
         ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env, changeObj);
         if (!billManager || !billInfo || !changeSet)
@@ -95,15 +98,15 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_BillboardManager_addBillboards
         {
             Program *prog = NULL;
             if ((*billInfo)->orient == BillboardInfo::Orient::Eye)
-                prog = billManager->getScene()->findProgramByName(MaplyBillboardEyeShader);
+                prog = (*billManager)->getScene()->findProgramByName(MaplyBillboardEyeShader);
             else
-                prog = billManager->getScene()->findProgramByName(MaplyBillboardGroundShader);
+                prog = (*billManager)->getScene()->findProgramByName(MaplyBillboardGroundShader);
             if (prog)
                 (*billInfo)->programID = prog->getId();
         }
 
 
-        SimpleIdentity billId = billManager->addBillboards(bills, *(*billInfo), *(changeSet->get()));
+        SimpleIdentity billId = (*billManager)->addBillboards(bills, *(*billInfo), *(changeSet->get()));
 
         return billId;
     }
@@ -120,7 +123,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BillboardManager_enableBillboard
     try
     {
         BillboardManagerClassInfo *classInfo = BillboardManagerClassInfo::getClassInfo();
-        BillboardManager *inst = classInfo->getObject(env, obj);
+        BillboardManagerRef *inst = classInfo->getObject(env, obj);
         ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env, changeObj);
         if (!inst || !changeSet)
             return;
@@ -131,7 +134,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BillboardManager_enableBillboard
         {
             idSet.insert(ids.rawLong[ii]);
         }
-        inst->enableBillboards(idSet, enable, *(changeSet->get()));
+        (*inst)->enableBillboards(idSet, enable, *(changeSet->get()));
     }
     catch (...)
     {
@@ -145,7 +148,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BillboardManager_removeBillboard
     try
     {
         BillboardManagerClassInfo *classInfo = BillboardManagerClassInfo::getClassInfo();
-        BillboardManager *inst = classInfo->getObject(env, obj);
+        BillboardManagerRef *inst = classInfo->getObject(env, obj);
         ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env, changeObj);
         if (!inst || !changeSet)
             return;
@@ -156,7 +159,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BillboardManager_removeBillboard
         {
             idSet.insert(ids.rawLong[ii]);
         }
-        inst->removeBillboards(idSet, *(changeSet->get()));
+        (*inst)->removeBillboards(idSet, *(changeSet->get()));
     }
     catch (...)
     {

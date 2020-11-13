@@ -21,7 +21,7 @@
 #import "Maply_jni.h"
 #import "WhirlyGlobe_Android.h"
 
-typedef JavaClassInfo<WhirlyKit::GeometryManager> GeometryManagerClassInfo;
+typedef JavaClassInfo<WhirlyKit::GeometryManagerRef> GeometryManagerClassInfo;
 typedef JavaClassInfo<WhirlyKit::GeometryInfoRef> GeometryInfoClassInfo;
 typedef JavaClassInfo<WhirlyKit::GeometryRaw> GeometryRawClassInfo;
 typedef JavaClassInfo<WhirlyKit::GeometryRawPoints> GeometryRawPointsClassInfo;

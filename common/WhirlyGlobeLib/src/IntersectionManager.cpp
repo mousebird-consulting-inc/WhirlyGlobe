@@ -20,6 +20,7 @@ IntersectionManager::IntersectionManager(Scene *scene)
     
 IntersectionManager::~IntersectionManager()
 {
+    std::lock_guard<std::mutex> guardLock(lock);
 }
     
 void IntersectionManager::addIntersectable(Intersectable *intersect)
@@ -56,7 +57,7 @@ bool IntersectionManager::findIntersection(SceneRenderer *renderer,View *view,co
     Vector3d dir(dir4.x(),dir4.y(),dir4.z());
     dir.normalize();
     
-    std::lock_guard<std::mutex> guardLock(mutex);
+    std::lock_guard<std::mutex> guardLock(lock);
 
     for (auto inter : intersectables)
     {

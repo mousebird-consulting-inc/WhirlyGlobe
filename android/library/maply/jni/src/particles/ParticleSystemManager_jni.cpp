@@ -41,8 +41,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystemManager_initialize
         Scene *scene = SceneClassInfo::getClassInfo()->getObject(env, sceneObj);
         if (!scene)
             return;
-        ParticleSystemManager *particleSystemManager = dynamic_cast<ParticleSystemManager *>(scene->getManager(kWKParticleSystemManager));
-        ParticleSystemManagerClassInfo::getClassInfo()->setHandle(env, obj, particleSystemManager);
+        ParticleSystemManagerRef particleSystemManager = std::dynamic_pointer_cast<ParticleSystemManager>(scene->getManager(kWKParticleSystemManager));
+        ParticleSystemManagerClassInfo::getClassInfo()->setHandle(env, obj, new ParticleSystemManagerRef(particleSystemManager));
     }
     catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystemManager::initialise()");
@@ -56,6 +56,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystemManager_dispose
 {
     try {
         ParticleSystemManagerClassInfo *classInfo = ParticleSystemManagerClassInfo::getClassInfo();
+        ParticleSystemManagerRef *particleSystemManager = classInfo->getObject(env, obj);
+        if (particleSystemManager)
+            delete particleSystemManager;
         classInfo->clearHandle(env, obj);
     }
     catch(...) {
@@ -68,7 +71,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_ParticleSystemManager_addPartic
 {
     try {
         ParticleSystemManagerClassInfo *classInfo = ParticleSystemManagerClassInfo::getClassInfo();
-        ParticleSystemManager *particleSystemManager = classInfo->getObject(env, obj);
+        ParticleSystemManagerRef *particleSystemManager = classInfo->getObject(env, obj);
         
         ParticleSystem *parSys = ParticleSystemClassInfo::getClassInfo()->getObject(env, parSysObj);
         ChangeSetRef *changes = ChangeSetClassInfo::getClassInfo()->getObject(env, changesObj);
@@ -76,7 +79,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_ParticleSystemManager_addPartic
         if (!particleSystemManager || !parSys || !changes)
             return EmptyIdentity;
 
-        return particleSystemManager->addParticleSystem(*parSys, *(changes->get()));
+        return (*particleSystemManager)->addParticleSystem(*parSys, *(changes->get()));
     }
     catch(...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystemManager::addParticleSystem");
@@ -90,7 +93,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystemManager_addParticl
 {
     try {
         ParticleSystemManagerClassInfo *classInfo = ParticleSystemManagerClassInfo::getClassInfo();
-        ParticleSystemManager *particleSystemManager = classInfo->getObject(env, obj);
+        ParticleSystemManagerRef *particleSystemManager = classInfo->getObject(env, obj);
         
         ParticleBatch *batch = ParticleBatchClassInfo::getClassInfo()->getObject(env, batchObj);
         ChangeSetRef *changes = ChangeSetClassInfo::getClassInfo()->getObject(env, changeObj);
@@ -98,7 +101,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystemManager_addParticl
         if (!particleSystemManager || !batch || !changes)
             return;
         
-        particleSystemManager->addParticleBatch(id, *batch, *(changes->get()));
+        (*particleSystemManager)->addParticleBatch(id, *batch, *(changes->get()));
     }
     catch(...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystemManager::addParticleBatch");
@@ -110,13 +113,13 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystemManager_enablePart
 {
     try {
         ParticleSystemManagerClassInfo *classInfo = ParticleSystemManagerClassInfo::getClassInfo();
-        ParticleSystemManager *particleSystemManager = classInfo->getObject(env, obj);
+        ParticleSystemManagerRef *particleSystemManager = classInfo->getObject(env, obj);
         
         ChangeSetRef *changes = ChangeSetClassInfo::getClassInfo()->getObject(env, changeObj);
         if (!particleSystemManager || !changes)
             return;
         
-        particleSystemManager->enableParticleSystem(id, enable, *(changes->get()));
+        (*particleSystemManager)->enableParticleSystem(id, enable, *(changes->get()));
     }
     catch(...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystemManager::enableParticleSystem");
@@ -128,12 +131,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystemManager_removePart
 {
     try {
         ParticleSystemManagerClassInfo *classInfo = ParticleSystemManagerClassInfo::getClassInfo();
-        ParticleSystemManager *particleSystemManager = classInfo->getObject(env, obj);
+        ParticleSystemManagerRef *particleSystemManager = classInfo->getObject(env, obj);
         
         ChangeSetRef *changes = ChangeSetClassInfo::getClassInfo()->getObject(env, changeObj);
         if (!particleSystemManager || !changes)
             return;
-        particleSystemManager->removeParticleSystem(sysID, *(changes->get()));
+        (*particleSystemManager)->removeParticleSystem(sysID, *(changes->get()));
     }
     catch(...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystemManager::removeParticleSystems");

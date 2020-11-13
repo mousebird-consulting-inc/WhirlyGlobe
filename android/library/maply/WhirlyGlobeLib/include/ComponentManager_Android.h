@@ -44,5 +44,6 @@ protected:
     jobject compManagerObj;
     jmethodID objectsRemovedMethod;
 };
+typedef std::shared_ptr<ComponentManager_Android> ComponentManager_AndroidRef;
 
 }

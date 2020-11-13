@@ -981,7 +981,7 @@ static const float PerfOutputDelay = 15.0;
 
 - (void)setMaxLayoutObjects:(int)maxLayoutObjects
 {
-    LayoutManager *layoutManager = (LayoutManager *)renderControl->scene->getManager(kWKLayoutManager);
+    LayoutManagerRef layoutManager = std::dynamic_pointer_cast<LayoutManager>(renderControl->scene->getManager(kWKLayoutManager));
     if (layoutManager)
         layoutManager->setMaxDisplayObjects(maxLayoutObjects);
 }
@@ -995,7 +995,7 @@ static const float PerfOutputDelay = 15.0;
             uuidSet.insert(uuidStr);
     }
     
-    LayoutManager *layoutManager = (LayoutManager *)renderControl->scene->getManager(kWKLayoutManager);
+    LayoutManagerRef layoutManager = std::dynamic_pointer_cast<LayoutManager>(renderControl->scene->getManager(kWKLayoutManager));
     if (layoutManager)
         layoutManager->setOverrideUUIDs(uuidSet);
 }

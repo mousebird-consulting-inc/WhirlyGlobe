@@ -30,4 +30,4 @@ typedef JavaClassInfo<WhirlyKit::Linear> LinearClassInfo;
 typedef JavaClassInfo<WhirlyKit::ShapeInfoRef> ShapeInfoClassInfo;
 typedef JavaClassInfo<WhirlyKit::Sphere> SphereClassInfo;
 typedef JavaClassInfo<WhirlyKit::Rectangle> RectangleClassInfo;
-typedef JavaClassInfo<WhirlyKit::ShapeManager> ShapeManagerClassInfo;
+typedef JavaClassInfo<WhirlyKit::ShapeManagerRef> ShapeManagerClassInfo;

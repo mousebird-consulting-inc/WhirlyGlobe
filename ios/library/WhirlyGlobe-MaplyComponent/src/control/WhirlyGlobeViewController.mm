@@ -1555,7 +1555,7 @@ public:
         return nil;
     
     // Look for the object, returns an ID
-    SelectionManager *selectManager = (SelectionManager *)renderControl->scene->getManager(kWKSelectionManager);
+    SelectionManagerRef selectManager = std::dynamic_pointer_cast<SelectionManager>(renderControl->scene->getManager(kWKSelectionManager));
     SimpleIdentity objId = selectManager->pickObject(Point2f(screenPt.x,screenPt.y), 10.0, globeView->makeViewState(renderControl->sceneRenderer.get()));
     
     if (objId != EmptyIdentity)

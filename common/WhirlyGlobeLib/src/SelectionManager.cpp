@@ -78,6 +78,7 @@ SelectionManager::SelectionManager(Scene *scene)
 
 SelectionManager::~SelectionManager()
 {
+    std::lock_guard<std::mutex> guardLock(lock);
 }
 
 // Add a rectangle (in 3-space) available for selection
@@ -95,7 +96,7 @@ void SelectionManager::addSelectableRect(SimpleIdentity selectId,Point3f *pts,bo
         newSelect.pts[ii] = pts[ii];
 
     {
-        std::lock_guard<std::mutex> guardLock(mutex);
+        std::lock_guard<std::mutex> guardLock(lock);
         rect3Dselectables.insert(newSelect);
     }
 }
@@ -115,7 +116,7 @@ void SelectionManager::addSelectableRect(SimpleIdentity selectId,Point3f *pts,fl
         newSelect.pts[ii] = pts[ii];
     
     {
-        std::lock_guard<std::mutex> guardLock(mutex);
+        std::lock_guard<std::mutex> guardLock(lock);
         rect3Dselectables.insert(newSelect);
     }
 }
@@ -136,7 +137,7 @@ void SelectionManager::addSelectableScreenRect(SimpleIdentity selectId,const Poi
         newSelect.pts[ii] = pts[ii];
     
     {
-        std::lock_guard<std::mutex> guardLock(mutex);
+        std::lock_guard<std::mutex> guardLock(lock);
         rect2Dselectables.insert(newSelect);
     }
 }
@@ -160,7 +161,7 @@ void SelectionManager::addSelectableMovingScreenRect(SimpleIdentity selectId,con
         newSelect.pts[ii] = pts[ii];
     
     {
-        std::lock_guard<std::mutex> guardLock(mutex);
+        std::lock_guard<std::mutex> guardLock(lock);
         movingRect2Dselectables.insert(newSelect);
     }
 }
@@ -197,7 +198,7 @@ void SelectionManager::addSelectableRectSolid(SimpleIdentity selectId,Point3f *p
     }
     
     {
-        std::lock_guard<std::mutex> guardLock(mutex);
+        std::lock_guard<std::mutex> guardLock(lock);
         polytopeSelectables.insert(newSelect);
     }
 }
@@ -232,7 +233,7 @@ void SelectionManager::addSelectableRectSolid(SimpleIdentity selectId,Point3d *p
     }
     
     {
-        std::lock_guard<std::mutex> guardLock(mutex);
+        std::lock_guard<std::mutex> guardLock(lock);
         polytopeSelectables.insert(newSelect);
     }
 }
@@ -278,7 +279,7 @@ void SelectionManager::addPolytope(SimpleIdentity selectId,const std::vector<Poi
     }
     
     {
-        std::lock_guard<std::mutex> guardLock(mutex);
+        std::lock_guard<std::mutex> guardLock(lock);
         polytopeSelectables.insert(newSelect);
     }
 }
@@ -350,7 +351,7 @@ void SelectionManager::addMovingPolytope(SimpleIdentity selectId,const std::vect
     }
     
     {
-        std::lock_guard<std::mutex> guardLock(mutex);
+        std::lock_guard<std::mutex> guardLock(lock);
         movingPolytopeSelectables.insert(newSelect);
     }
 }
@@ -412,7 +413,7 @@ void SelectionManager::addSelectableLinear(SimpleIdentity selectId,const Point3d
     }
 
     {
-        std::lock_guard<std::mutex> guardLock(mutex);
+        std::lock_guard<std::mutex> guardLock(lock);
         linearSelectables.insert(newSelect);
     }
 }
@@ -433,14 +434,14 @@ void SelectionManager::addSelectableBillboard(SimpleIdentity selectId,const Poin
     newSelect.maxVis = maxVis;
     
     {
-        std::lock_guard<std::mutex> guardLock(mutex);
+        std::lock_guard<std::mutex> guardLock(lock);
         billboardSelectables.insert(newSelect);
     }
 }
 
 void SelectionManager::enableSelectable(SimpleIdentity selectID,bool enable)
 {
-    std::lock_guard<std::mutex> guardLock(mutex);
+    std::lock_guard<std::mutex> guardLock(lock);
 
     RectSelectable3DSet::iterator it = rect3Dselectables.find(RectSelectable3D(selectID));
     
@@ -509,7 +510,7 @@ void SelectionManager::enableSelectable(SimpleIdentity selectID,bool enable)
 
 void SelectionManager::enableSelectables(const SimpleIDSet &selectIDs,bool enable)
 {
-    std::lock_guard<std::mutex> guardLock(mutex);
+    std::lock_guard<std::mutex> guardLock(lock);
 
     for (SimpleIDSet::iterator sit = selectIDs.begin(); sit != selectIDs.end(); ++sit)
     {
@@ -583,7 +584,7 @@ void SelectionManager::enableSelectables(const SimpleIDSet &selectIDs,bool enabl
 // Remove the given selectable from consideration
 void SelectionManager::removeSelectable(SimpleIdentity selectID)
 {
-    std::lock_guard<std::mutex> guardLock(mutex);
+    std::lock_guard<std::mutex> guardLock(lock);
 
     RectSelectable3DSet::iterator it = rect3Dselectables.find(RectSelectable3D(selectID));
     
@@ -617,7 +618,7 @@ void SelectionManager::removeSelectable(SimpleIdentity selectID)
 
 void SelectionManager::removeSelectables(const SimpleIDSet &selectIDs)
 {
-    std::lock_guard<std::mutex> guardLock(mutex);
+    std::lock_guard<std::mutex> guardLock(lock);
     //bool found = false;
     
     for (SimpleIDSet::iterator sit = selectIDs.begin(); sit != selectIDs.end(); ++sit)
@@ -879,9 +880,9 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,ViewStateRef vi
     frameBufferSize.x() = renderer->framebufferWidth;
     frameBufferSize.y() = renderer->framebufferHeight;
 
-    LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
-    
-    std::lock_guard<std::mutex> guardLock(mutex);
+    LayoutManagerRef layoutManager = std::dynamic_pointer_cast<LayoutManager>(scene->getManager(kWKLayoutManager));
+
+    std::lock_guard<std::mutex> guardLock(lock);
 
     // Figure out where the screen space objects are, both layout manager
     //  controlled and other

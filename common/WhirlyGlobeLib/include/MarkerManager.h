@@ -46,10 +46,10 @@ public:
     ~MarkerSceneRep() { };
 
     // Clear the contents out of the scene
-    void clearContents(SelectionManager *selectManager,LayoutManager *layoutManager,ChangeSet &changes,TimeInterval when);
+    void clearContents(SelectionManagerRef &selectManager,LayoutManagerRef &layoutManager,ChangeSet &changes,TimeInterval when);
     
     // Enable/disable marker related features
-    void enableContents(SelectionManager *selectManager,LayoutManager *layoutManager,bool enable,ChangeSet &changes);
+    void enableContents(SelectionManagerRef &selectManager,LayoutManagerRef &layoutManager,bool enable,ChangeSet &changes);
 
     SimpleIDSet drawIDs;  // Drawables created for this
     SimpleIDSet selectIDs;  // IDs used for selection
@@ -169,9 +169,9 @@ public:
     virtual void setScene(Scene *inScene);
     
 protected:
-    std::mutex markerLock;
     /// Resources associated with given markers
     MarkerSceneRepSet markerReps;
 };
+typedef std::shared_ptr<MarkerManager> MarkerManagerRef;
 
 }

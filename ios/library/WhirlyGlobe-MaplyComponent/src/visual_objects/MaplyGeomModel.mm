@@ -91,7 +91,7 @@ using namespace Eigen;
 }
 
 // Return the ID for or generate a base model in the Geometry Manager
-- (WhirlyKit::SimpleIdentity)getBaseModel:(MaplyBaseInteractionLayer *)inLayer fontTexManager:(WhirlyKit::FontTextureManager_iOS *)fontTexManager compObj:(MaplyComponentObject *)compObj mode:(MaplyThreadMode)threadMode
+- (WhirlyKit::SimpleIdentity)getBaseModel:(MaplyBaseInteractionLayer *)inLayer fontTexManager:(WhirlyKit::FontTextureManager_iOSRef &)fontTexManager compObj:(MaplyComponentObject *)compObj mode:(MaplyThreadMode)threadMode
 {
     @synchronized(self)
     {
@@ -108,7 +108,7 @@ using namespace Eigen;
         
         if (shape)
         {
-            ShapeManager *shapeManager = (ShapeManager *)inLayer->scene->getManager(kWKShapeManager);
+            ShapeManagerRef shapeManager = std::dynamic_pointer_cast<ShapeManager>(inLayer->scene->getManager(kWKShapeManager));
 
             WhirlyKit::Shape *wkShape = nil;
             if ([shape isKindOfClass:[MaplyShapeCircle class]])
@@ -208,7 +208,7 @@ using namespace Eigen;
         for (auto &it : stringGeom)
             procGeom.push_back(it.second);
         
-        GeometryManager *geomManager = (GeometryManager *)inLayer->scene->getManager(kWKGeometryManager);
+        GeometryManagerRef geomManager = std::dynamic_pointer_cast<GeometryManager>(inLayer->scene->getManager(kWKGeometryManager));
         GeometryInfo geomInfo;
         baseModelID = geomManager->addBaseGeometry(procGeom, geomInfo, changes);
 
