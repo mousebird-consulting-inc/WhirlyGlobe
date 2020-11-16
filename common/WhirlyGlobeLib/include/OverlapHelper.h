@@ -71,7 +71,7 @@ public:
     ClusterHelper(const Mbr &mbr,int sizeX, int sizeY, float resScale, const Point2d &clusterMarkerSize);
     
     // Add an object, possibly forming a group
-    void addObject(LayoutObjectEntry *objEntry,const Point2dVector pts);
+    void addObject(LayoutObjectEntry *objEntry,const Point2dVector &pts);
 
     // Deal with cluster to cluster overlap
     void resolveClusters();
