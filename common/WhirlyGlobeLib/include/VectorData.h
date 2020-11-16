@@ -109,16 +109,26 @@ struct VectorShapeRefHash : std::hash<VectorShape*>
 typedef std::unordered_set<VectorShapeRef, VectorShapeRefHash, VectorShapeRefEqual> ShapeSet;
     
 /// Calculate area of a loop
-float CalcLoopArea(const VectorRing &);
-/// Calculate area of a loop
-double CalcLoopArea(const Point2dVector &);
+template <typename T> double CalcLoopArea(const std::vector<T,Eigen::aligned_allocator<T>>&);
+
 /// Calculate the centroid of a loop
-Point2f CalcLoopCentroid(const VectorRing &loop);
-/// Calculate the centroid of a bunch of points
-Point2d CalcLoopCentroid(const Point2dVector &loop);
+template <typename T> T CalcLoopCentroid(const std::vector<T,Eigen::aligned_allocator<T>>&);
+
+/// Calculate the centroid of a loop when the area is already known
+template <typename T> T CalcLoopCentroid(const std::vector<T,Eigen::aligned_allocator<T>>&, double loopArea);
+
 /// Calculate the center of mass of the points
-Point2d CalcCenterOfMass(const Point2dVector &loop);
-    
+template <typename T> T CalcCenterOfMass(const std::vector<T,Eigen::aligned_allocator<T>> &loop);
+
+extern template double CalcLoopArea<Point2f>(const VectorRing&);
+extern template double CalcLoopArea<Point2d>(const Point2dVector&);
+extern template Point2f CalcLoopCentroid(const VectorRing&);
+extern template Point2d CalcLoopCentroid(const Point2dVector&);
+extern template Point2f CalcLoopCentroid(const VectorRing&, double);
+extern template Point2d CalcLoopCentroid(const Point2dVector&, double);
+extern template Point2f CalcCenterOfMass(const VectorRing&);
+extern template Point2d CalcCenterOfMass(const Point2dVector&);
+
 /// Collection of triangles forming a mesh
 class VectorTriangles : public VectorShape
 {
@@ -260,8 +270,6 @@ protected:
     
 /// A set of strings
 typedef std::set<std::string> StringSet;
-    
-Point2d CalcCenterOfMass(const Point2dVector &loop);
     
 /// Break any edge longer than the given length.
 /// Returns true if it broke anything

@@ -154,7 +154,7 @@ void ClusterHelper::findObjectsWithin(const Mbr &mbr,std::set<int> &objSet)
 }
 
 // Try to add an object.  Might fail (kind of the whole point).
-void ClusterHelper::addObject(LayoutObjectEntry *objEntry,const Point2dVector pts)
+void ClusterHelper::addObject(LayoutObjectEntry *objEntry,const Point2dVector &pts)
 {
     // We'll add this one way or another
     simpleObjects.resize(simpleObjects.size()+1);
