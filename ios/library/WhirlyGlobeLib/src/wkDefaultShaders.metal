@@ -605,9 +605,12 @@ vertex ProjVertexTriWideVec vertexTri_wideVec(
     outVert.color = vertArgs.wideVec.color * calculateFade(uniforms,vertArgs.uniDrawState);
     
     float realWidth2 = w2 * min(uniforms.screenSizeInDisplayCoords.x,uniforms.screenSizeInDisplayCoords.y) / min(uniforms.frameSize.x,uniforms.frameSize.y);
+    float offsetWidth2 = vert.nDir * 40.0 * min(uniforms.screenSizeInDisplayCoords.x,uniforms.screenSizeInDisplayCoords.y) / min(uniforms.frameSize.x,uniforms.frameSize.y);
     float t0 = vert.c0 * realWidth2;
     t0 = clamp(t0,0.0,1.0);
-    float3 realPos = (vert.p1 - vert.position) * t0 + vert.n0 * realWidth2 + pos;
+    float3 realPos = (vert.p1 - vert.position) * t0 + vert.n0 * (realWidth2 + offsetWidth2) + pos;
+//    float3 testDir = normalize(realPos - pos);
+//    realPos = realPos + vert.nDir * vert.n0 * offsetWidth2;
     float texScale = min(uniforms.frameSize.x,uniforms.frameSize.y)/(uniforms.screenSizeInDisplayCoords.x * vertArgs.wideVec.texRepeat);
     float texPos = ((vert.texInfo.z - vert.texInfo.y) * t0 + vert.texInfo.y + vert.texInfo.w * realWidth2) * texScale;
     outVert.texCoord = float2(vert.texInfo.x, texPos);

@@ -53,6 +53,7 @@ void WideVectorDrawableBuilder::Init(unsigned int numVert,unsigned int numTri,bo
     p1_index = addAttribute(BDFloat3Type, StringIndexer::getStringID("a_p1"),numVert);
     tex_index = addAttribute(BDFloat4Type, StringIndexer::getStringID("a_texinfo"),numVert);
     n0_index = addAttribute(BDFloat3Type, StringIndexer::getStringID("a_n0"),numVert);
+    nDir_index = addAttribute(BDFloatType, StringIndexer::getStringID("a_nDir"),numVert);
     c0_index = addAttribute(BDFloatType, StringIndexer::getStringID("a_c0"),numVert);
 }
     
@@ -121,6 +122,11 @@ void WideVectorDrawableBuilder::add_n0(const Point3f &dir)
 #ifdef WIDEVECDEBUG
     n0.push_back(dir);
 #endif
+}
+
+void WideVectorDrawableBuilder::add_nDir(double nDir)
+{
+    addAttributeValue(nDir_index, nDir);
 }
 
 void WideVectorDrawableBuilder::add_c0(float val)

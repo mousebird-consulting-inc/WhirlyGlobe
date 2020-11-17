@@ -63,6 +63,8 @@ public:
     void add_texInfo(float texX,float texYmin,float texYmax,float texOffset);
     // Vector for 90 deg from line
     void add_n0(const Point3f &vec);
+    // Left or right direction vector (needed for offsets)
+    void add_nDir(double nDir);
     // Complex constant we multiply by width for t
     void add_c0(float c);
     // Optional normal
@@ -104,6 +106,7 @@ protected:
     float edgeSize;
     int p1_index;
     int n0_index;
+    int nDir_index;
     int c0_index;
     int tex_index;
     

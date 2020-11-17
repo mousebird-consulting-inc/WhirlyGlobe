@@ -79,13 +79,14 @@ public:
     class InterPoint
     {
     public:
-        InterPoint() : texX(0.0),texYmin(0.0),texYmax(0.0),texOffset(0.0) { }
+        InterPoint() : texX(0.0),texYmin(0.0),texYmax(0.0),texOffset(0.0),nDir(1.0) { }
         // Construct with a single line
-        InterPoint(const Point3d &p0,const Point3d &p1,const Point3d &n0,double inTexX,double inTexYmin,double inTexYmax,double inTexOffset)
+        InterPoint(const Point3d &p0,const Point3d &p1,const Point3d &n0,double inTexX,double inTexYmin,double inTexYmax,double inTexOffset,double inNDir)
         {
             c = 0;
             dir = p1 - p0;
             n = n0;
+            nDir = inNDir;
             org = p0;
             dest = p1;
             texX = inTexX;
@@ -99,6 +100,7 @@ public:
         {
             InterPoint iPt = *this;
             iPt.n *= -1;
+            iPt.nDir *= -1;
             iPt.texX = 1.0 - texX;
             
             return iPt;
@@ -116,18 +118,23 @@ public:
         double c;
         Point3d dir;
         Point3d n;
+        double nDir;
         Point3d org,dest;
         double texX;
         double texYmin,texYmax,texOffset;
     };
     
     // Intersect the wide lines, but return an equation to calculate the point
-    bool intersectWideLines(const Point3d &p0,const Point3d &p1,const Point3d &p2,const Point3d &n0,const Point3d &n1,InterPoint &iPt0,InterPoint &iPt1,double texX,double texY0,double texY1,double texY2)
+    bool intersectWideLines(const Point3d &p0,const Point3d &p1,const Point3d &p2,
+                            const Point3d &n0,const Point3d &n1,
+                            InterPoint &iPt0,InterPoint &iPt1,
+                            double texX,double texY0,double texY1,double texY2,double nDir)
     {
         {
             iPt0.texX = texX;
             iPt0.dir = p0 - p1;
             iPt0.n = n0;
+            iPt0.nDir = nDir;
             iPt0.org = p1;
             iPt0.texYmin = texY1;
             iPt0.dest = p0;
@@ -146,6 +153,7 @@ public:
             iPt1.texX = texX;
             iPt1.dir = p2 - p1;
             iPt1.n = n1;
+            iPt1.nDir = nDir;
             iPt1.org = p1;
             iPt1.texYmin = texY1;
             iPt1.dest = p2;
@@ -174,6 +182,7 @@ public:
             drawable->addNormal(up);
             drawable->add_p1(Vector3dToVector3f(vert.dest));
             drawable->add_n0(Vector3dToVector3f(vert.n));
+            drawable->add_nDir(vert.nDir);
             drawable->add_c0(vert.c);
             drawable->add_texInfo(vert.texX,vert.texYmin,vert.texYmax,vert.texOffset);
         }
@@ -185,6 +194,9 @@ public:
     // Add a triangle to the wide drawable
     void addWideTri(WideVectorDrawableBuilderRef drawable,InterPoint *verts,const Point3d &up)
     {
+        // TODO: Debugging
+        return;
+        
         int startPt = drawable->getNumPoints();
 
         for (unsigned int vi=0;vi<3;vi++)
@@ -194,6 +206,7 @@ public:
             drawable->addNormal(up);
             drawable->add_p1(Vector3dToVector3f(vert.dest));
             drawable->add_n0(Vector3dToVector3f(vert.n));
+            drawable->add_nDir(vert.nDir);
             drawable->add_c0(vert.c);
             drawable->add_texInfo(vert.texX,vert.texYmin,vert.texYmax,vert.texOffset);
         }
@@ -248,8 +261,8 @@ public:
         // Look for valid starting points.  If they're not there, make some simple ones
         if (!edgePointsValid)
         {
-            e0 = InterPoint(paLocal,pbLocal,revNorm0,1.0,texBase,texNext,0.0);
-            e1 = InterPoint(paLocal,pbLocal,norm0,0.0,texBase,texNext,0.0);
+            e0 = InterPoint(paLocal,pbLocal,revNorm0,1.0,texBase,texNext,0.0,-1.0);
+            e1 = InterPoint(paLocal,pbLocal,norm0,0.0,texBase,texNext,0.0,1.0);
             edgePointsValid = true;
         }
 
@@ -271,8 +284,8 @@ public:
             Point3d dirB = (pcLocal-pbLocal).normalized();
             dot = dirA.dot(dirB);
             if (dot > -0.99999998476 && dot < 0.99999998476)
-                if (intersectWideLines(paLocal, pbLocal, pcLocal, norm0, norm1, rPt0, rPt1, 0.0, texBase, texNext, texNext2) &&
-                    intersectWideLines(paLocal, pbLocal, pcLocal, revNorm0, revNorm1, lPt0, lPt1, 1.0, texBase, texNext, texNext2))
+                if (intersectWideLines(paLocal, pbLocal, pcLocal, norm0, norm1, rPt0, rPt1, 0.0, texBase, texNext, texNext2, 1.0) &&
+                    intersectWideLines(paLocal, pbLocal, pcLocal, revNorm0, revNorm1, lPt0, lPt1, 1.0, texBase, texNext, texNext2, -1.0))
                 {
                     iPtsValid = true;
                     angleBetween = acos(dot);
@@ -292,10 +305,10 @@ public:
         }
 
         // End points of the segments
-        InterPoint endPt0(pbLocal,paLocal,norm0,0.0,texNext,texBase,0.0);
+        InterPoint endPt0(pbLocal,paLocal,norm0,0.0,texNext,texBase,0.0,1.0);
         InterPoint endPt1;
         if (pc)
-            endPt1 = InterPoint(pbLocal,pcLocal,norm1,0.0,texNext,texNext2,0.0);
+            endPt1 = InterPoint(pbLocal,pcLocal,norm1,0.0,texNext,texNext2,0.0,1.0);
 
         // Set up the segment points
         if (iPtsValid)
