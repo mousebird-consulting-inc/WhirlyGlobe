@@ -79,10 +79,9 @@ bool VectorObject::fromShapeFile(const std::string &fileName)
         return false;
     
     const int numObj = shapeReader.getNumObjects();
-    shapes.reserve(numObj);
+    shapes.reserve(shapes.size() + numObj);
     for (unsigned int ii=0;ii<numObj;ii++) {
-        VectorShapeRef shape = shapeReader.getObjectByIndex(ii, NULL);
-        shapes.insert(shape);
+        shapes.insert(shapeReader.getObjectByIndex(ii, NULL));
     }
     
     return true;

@@ -173,11 +173,9 @@ double PolyImportance(const Point3dVector &poly,const Point3d &norm,ViewState *v
             screenPts.push_back(screenPt);
         }
         
-        double screenArea = CalcLoopArea(screenPts);
-        if (std::isnan(screenArea))
-            screenArea = 0.0;
+        const double screenArea = CalcLoopArea(screenPts);
         // The polygon came out backwards, so toss it
-        if (screenArea <= 0.0)
+        if (!std::isfinite(screenArea) || screenArea <= 0.0)
             continue;
         
         // Now project the screen points back into model space
