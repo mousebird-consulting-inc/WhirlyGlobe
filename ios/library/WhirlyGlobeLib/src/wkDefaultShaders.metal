@@ -595,22 +595,33 @@ vertex ProjVertexTriWideVec vertexTri_wideVec(
     ProjVertexTriWideVec outVert;
     
     float3 pos = (vertArgs.uniDrawState.singleMat * float4(vert.position.xyz,1.0)).xyz;
-    
+//    float3 pos1 = (vertArgs.uniDrawState.singleMat * float4(vert.p1.xyz,1.0)).xyz;
+
     // Pull out the width and possibly calculate one
     float w2 = vertArgs.wideVec.w2;
     if (w2 > 0.0) {
         w2 = w2 + vertArgs.wideVec.edge;
     }
+    
+    // TODO: Debugging
+    // Vary the offset over time for testing
+    float centerLine = fmod(uniforms.currentTime,10.0)/10.0 * 200.0 - 100.0;
 
     outVert.color = vertArgs.wideVec.color * calculateFade(uniforms,vertArgs.uniDrawState);
     
-    float realWidth2 = w2 * min(uniforms.screenSizeInDisplayCoords.x,uniforms.screenSizeInDisplayCoords.y) / min(uniforms.frameSize.x,uniforms.frameSize.y);
-    float offsetWidth2 = vert.nDir * 40.0 * min(uniforms.screenSizeInDisplayCoords.x,uniforms.screenSizeInDisplayCoords.y) / min(uniforms.frameSize.x,uniforms.frameSize.y);
-    float t0 = vert.c0 * realWidth2;
+    float pixScale = min(uniforms.screenSizeInDisplayCoords.x,uniforms.screenSizeInDisplayCoords.y) / min(uniforms.frameSize.x,uniforms.frameSize.y);
+    float realWidth2 = w2 * pixScale;
+    float realCenterLine = centerLine * pixScale;
+    
+    float t0 = vert.c0 * (realWidth2 + realCenterLine);
     t0 = clamp(t0,0.0,1.0);
-    float3 realPos = (vert.p1 - vert.position) * t0 + vert.n0 * (realWidth2 + offsetWidth2) + pos;
-//    float3 testDir = normalize(realPos - pos);
-//    realPos = realPos + vert.nDir * vert.n0 * offsetWidth2;
+    float3 dir = normalize(vert.p1 - vert.position);
+    float3 realPos = (vert.p1 - vert.position) * t0 +
+                     dir * realWidth2 * vert.offset.y +
+                     vert.n0 * (realCenterLine + realWidth2) +
+                     vert.n0 * realWidth2 * vert.offset.x +
+                     pos;
+    
     float texScale = min(uniforms.frameSize.x,uniforms.frameSize.y)/(uniforms.screenSizeInDisplayCoords.x * vertArgs.wideVec.texRepeat);
     float texPos = ((vert.texInfo.z - vert.texInfo.y) * t0 + vert.texInfo.y + vert.texInfo.w * realWidth2) * texScale;
     outVert.texCoord = float2(vert.texInfo.x, texPos);
@@ -694,11 +705,12 @@ fragment float4 fragmentTri_wideVec(
         patternVal = texArgs.tex[0].sample(sampler2d, float2(0.5,vert.texCoord.y)).r;
     }
     float alpha = 1.0;
-    float across = vert.w2 * vert.texCoord.x;
-    if (across < fragArgs.wideVec.edge)
-        alpha = across/fragArgs.wideVec.edge;
-    if (across > vert.w2-fragArgs.wideVec.edge)
-        alpha = (vert.w2-across)/fragArgs.wideVec.edge;
+    // TODO: Get this working again
+//    float across = vert.w2 * vert.texCoord.x;
+//    if (across < fragArgs.wideVec.edge)
+//        alpha = across/fragArgs.wideVec.edge;
+//    if (across > vert.w2-fragArgs.wideVec.edge)
+//        alpha = (vert.w2-across)/fragArgs.wideVec.edge;
     
     return vert.dotProd > 0.0 ? float4(fragArgs.wideVec.color.rgb,fragArgs.wideVec.color.a*alpha) * patternVal : float4(0.0);
 }

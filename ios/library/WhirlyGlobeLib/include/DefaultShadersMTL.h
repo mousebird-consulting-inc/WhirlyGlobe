@@ -64,7 +64,7 @@ typedef enum {
     WKSVertexWideVecP1Attribute,
     WKSVertexWideVecN0Attribute,
     WKSVertexWideVecC0Attribute,
-    WKSVertexWideVecNDirAttribute
+    WKSVertexWideVecOffsetAttribute
 } WKSVertexWideVecAttributes;
     
 // Screen space vertex attribute positions
@@ -347,7 +347,7 @@ struct VertexTriWideVec
     float4 texInfo [[attribute(WhirlyKitShader::WKSVertexWideVecTexInfoAttribute)]];
     float3 p1 [[attribute(WhirlyKitShader::WKSVertexWideVecP1Attribute)]];
     float3 n0 [[attribute(WhirlyKitShader::WKSVertexWideVecN0Attribute)]];
-    float nDir [[attribute(WhirlyKitShader::WKSVertexWideVecNDirAttribute)]];
+    float2 offset [[attribute(WhirlyKitShader::WKSVertexWideVecOffsetAttribute)]];
     float c0 [[attribute(WhirlyKitShader::WKSVertexWideVecC0Attribute)]];
 };
 
