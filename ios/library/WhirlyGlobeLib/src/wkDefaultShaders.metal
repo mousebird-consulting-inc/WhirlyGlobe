@@ -616,16 +616,16 @@ vertex ProjVertexTriWideVec vertexTri_wideVec(
     float t0 = vert.c0 * (realWidth2 + realCenterLine);
     t0 = clamp(t0,0.0,1.0);
     float3 dir = normalize(vert.p1 - vert.position);
-    float3 realPos = (vert.p1 - vert.position) * t0 +
+    float3 realPosOffset = (vert.p1 - vert.position) * t0 +
                      dir * realWidth2 * vert.offset.y +
                      vert.n0 * (realCenterLine + realWidth2) +
-                     vert.n0 * realWidth2 * vert.offset.x +
-                     pos;
+                     vert.n0 * realWidth2 * vert.offset.x;
     
     float texScale = min(uniforms.frameSize.x,uniforms.frameSize.y)/(uniforms.screenSizeInDisplayCoords.x * vertArgs.wideVec.texRepeat);
     float texPos = ((vert.texInfo.z - vert.texInfo.y) * t0 + vert.texInfo.y + vert.texInfo.w * realWidth2) * texScale;
     outVert.texCoord = float2(vert.texInfo.x, texPos);
-    float4 screenPos = uniforms.pMatrix * (uniforms.mvMatrix * float4(realPos,1.0) + uniforms.mvMatrixDiff * float4(realPos,1.0));
+    float4 screenPos = uniforms.pMatrix * (uniforms.mvMatrix * float4(pos,1.0) + uniforms.mvMatrixDiff * float4(pos,1.0)) +
+                       uniforms.pMatrix * (uniforms.mvMatrix * float4(realPosOffset,0.0) + uniforms.mvMatrixDiff * float4(realPosOffset,0.0));
     screenPos /= screenPos.w;
     outVert.position = float4(screenPos.xy,0,1.0);
 
@@ -675,16 +675,16 @@ vertex ProjVertexTriWideVec vertexTri_wideVecExp(
     float t0 = vert.c0 * (realWidth2 + realCenterLine);
     t0 = clamp(t0,0.0,1.0);
     float3 dir = normalize(vert.p1 - vert.position);
-    float3 realPos = (vert.p1 - vert.position) * t0 +
+    float3 realPosOffset = (vert.p1 - vert.position) * t0 +
                      dir * realWidth2 * vert.offset.y +
                      vert.n0 * (realCenterLine + realWidth2) +
-                     vert.n0 * realWidth2 * vert.offset.x +
-                     pos;
-
+                     vert.n0 * realWidth2 * vert.offset.x;
+    
     float texScale = min(uniforms.frameSize.x,uniforms.frameSize.y)/(uniforms.screenSizeInDisplayCoords.x * vertArgs.wideVec.texRepeat);
     float texPos = ((vert.texInfo.z - vert.texInfo.y) * t0 + vert.texInfo.y + vert.texInfo.w * realWidth2) * texScale;
     outVert.texCoord = float2(vert.texInfo.x, texPos);
-    float4 screenPos = uniforms.pMatrix * (uniforms.mvMatrix * float4(realPos,1.0) + uniforms.mvMatrixDiff * float4(realPos,1.0));
+    float4 screenPos = uniforms.pMatrix * (uniforms.mvMatrix * float4(pos,1.0) + uniforms.mvMatrixDiff * float4(pos,1.0)) +
+                       uniforms.pMatrix * (uniforms.mvMatrix * float4(realPosOffset,0.0) + uniforms.mvMatrixDiff * float4(realPosOffset,0.0));
     screenPos /= screenPos.w;
     outVert.position = float4(screenPos.xy,0,1.0);
 
