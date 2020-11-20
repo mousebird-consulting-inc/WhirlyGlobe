@@ -47,6 +47,7 @@ void WideVectorDrawableBuilder::Init(unsigned int numVert,unsigned int numTri,bo
     tris.reserve(numTri);
     
     lineWidth = 10.0/1024.0;
+    lineOffset = 0.0;
     if (globeMode)
         basicDraw->normalEntry = addAttribute(BDFloat3Type, a_normalNameID,numVert);
     basicDraw->colorEntry = addAttribute(BDChar4Type, a_colorNameID);
@@ -65,6 +66,11 @@ void WideVectorDrawableBuilder::setColor(RGBAColor inColor)
 void WideVectorDrawableBuilder::setLineWidth(float inWidth)
 {
     lineWidth = inWidth;
+}
+
+void WideVectorDrawableBuilder::setLineOffset(float inOffset)
+{
+    lineOffset = inOffset;
 }
  
 void WideVectorDrawableBuilder::setTexRepeat(float inTexRepeat)

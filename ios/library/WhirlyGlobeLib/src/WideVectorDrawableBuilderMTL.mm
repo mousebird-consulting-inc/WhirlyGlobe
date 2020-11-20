@@ -64,6 +64,7 @@ BasicDrawableRef WideVectorDrawableBuilderMTL::getDrawable()
     WhirlyKitShader::UniformWideVec uniWV;
     memset(&uniWV,0,sizeof(uniWV));
     uniWV.w2 = lineWidth/2.0;
+    uniWV.offset = lineOffset;
     uniWV.edge = edgeSize;
     uniWV.texRepeat = texRepeat;
     uniWV.color[0] = color.r/255.0;

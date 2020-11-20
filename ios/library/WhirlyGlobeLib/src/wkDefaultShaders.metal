@@ -602,10 +602,9 @@ vertex ProjVertexTriWideVec vertexTri_wideVec(
         w2 = w2 + vertArgs.wideVec.edge;
     }
     
-    // TODO: Debugging
     // Vary the offset over time for testing
 //    float centerLine = vert.offset.z * (fmod(uniforms.currentTime,10.0)/10.0 * 200.0 - 100.0);
-    float centerLine = 0.0;
+    float centerLine = vert.offset.z * vertArgs.wideVec.offset;
 
     outVert.color = vertArgs.wideVec.color * calculateFade(uniforms,vertArgs.uniDrawState);
     
@@ -663,8 +662,7 @@ vertex ProjVertexTriWideVec vertexTri_wideVecExp(
         w2 = w2 + vertArgs.wideVec.edge;
     }
     
-    // TODO: Tie this to the input
-    float centerLine = 0.0;
+    float centerLine = vert.offset.z * vertArgs.wideVec.offset;
 
     outVert.color = vertArgs.wideVec.color * calculateFade(uniforms,vertArgs.uniDrawState);
     

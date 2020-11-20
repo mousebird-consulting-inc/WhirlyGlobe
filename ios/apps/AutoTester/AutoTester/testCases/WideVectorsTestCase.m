@@ -95,6 +95,7 @@
                                          kMaplyWideVecEdgeFalloff: @(1.0),
                                          kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
                                          kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
+                                         kMaplyWideVecOffset: @(10.0),
                                          // More than 10 degrees need a bevel join
                                          kMaplyWideVecMiterLimit: @(10),
                                          kMaplyVecWidth: @(width)}

@@ -258,6 +258,8 @@
 /// It's real world coordinates for kMaplyWideVecCoordTypeReal and pixel size for kMaplyWideVecCoordTypeScreen
 #define MaplyWideVecTexRepeatLen WKString("repeatSize")
 
+/// Offset to left (negative) or right (positive) of the centerline
+#define MaplyWideVecOffset WKString("vecOffset")
 
 /// If set we'll break up a vector feature to the given epsilon on a globe surface
 #define MaplySubdivEpsilon WKString("subdivisionepsilon")

@@ -77,6 +77,9 @@ public:
     // Line width for vectors is a bit different
     void setLineWidth(float inWidth);
     
+    // Line offset for vectors
+    void setLineOffset(float inOffset);
+    
     /// How often the texture repeats
     void setTexRepeat(float inTexRepeat);
     
@@ -97,6 +100,7 @@ public:
 
 protected:
     float lineWidth;
+    float lineOffset;
     RGBAColor color;
     bool globeMode;
     bool realWidthSet;

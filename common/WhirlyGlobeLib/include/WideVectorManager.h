@@ -52,6 +52,7 @@ public:
 
     RGBAColor color;
     float width;
+    float offset;
     float repeatSize;
     float edgeSize;
     float subdivEps;

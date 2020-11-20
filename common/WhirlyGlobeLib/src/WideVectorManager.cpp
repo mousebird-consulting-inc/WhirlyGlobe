@@ -42,6 +42,7 @@ WideVectorInfo::WideVectorInfo(const Dictionary &dict)
 {
     color = dict.getColor(MaplyColor,RGBAColor(255,255,255,255));
     width = dict.getDouble(MaplyVecWidth,2.0);
+    offset = -dict.getDouble(MaplyWideVecOffset,0.0);
     std::string coordTypeStr = dict.getString(MaplyWideVecCoordType);
     subdivEps = dict.getDouble(MaplySubdivEpsilon,0.0);
     coordType = WideVecCoordScreen;
@@ -591,6 +592,7 @@ public:
             wideDrawable->setTexRepeat(vecInfo->repeatSize);
             wideDrawable->setEdgeSize(vecInfo->edgeSize);
             wideDrawable->setLineWidth(vecInfo->width);
+            wideDrawable->setLineOffset(vecInfo->offset);
 //            drawMbr.reset();
             drawable->setType(Triangles);
             vecInfo->setupBasicDrawable(drawable);
@@ -976,6 +978,9 @@ SimpleIdentity WideVectorManager::instanceVectors(SimpleIdentity vecID,const Wid
             
             // Changed line width
             drawInst->setLineWidth(vecInfo.width);
+            
+            // Changed offset
+//            drawInst->setLineOffset(vecInfo.offset);
             
             // Changed draw order
             drawInst->setDrawOrder(vecInfo.drawOrder);

@@ -221,6 +221,7 @@ struct Lighting {
 // Instructions to the wide vector shaders, usually per-drawable
 struct UniformWideVec {
     float w2;       // Width / 2.0 in screen space
+    float offset;   // Offset from center in screen space
     float edge;     // Edge falloff control
     float texRepeat;  // Texture scaling specific to wide vectors
     simd::float4 color;  // Color override.  TODO: Use the standard one.  Seriously.

@@ -239,6 +239,9 @@ extern NSString* const kMaplyWideVecMiterLimit;
 /// It's real world coordinates for kMaplyWideVecCoordTypeReal and pixel size for kMaplyWideVecCoordTypeScreen
 extern NSString* const kMaplyWideVecTexRepeatLen;
 
+/// Offset to left (negative) or right (positive) of the centerline
+extern NSString* const kMaplyWideVecOffset;
+
 /// If set we'll break up a vector feature to the given epsilon on a globe surface
 extern NSString* const kMaplySubdivEpsilon;
 /// If subdiv epsilon is set we'll look for a subdivision type. Default is simple.
