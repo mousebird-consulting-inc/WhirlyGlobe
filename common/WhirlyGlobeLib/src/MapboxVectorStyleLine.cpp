@@ -47,6 +47,7 @@ bool MapboxVectorLinePaint::parse(PlatformThreadInfo *inst,MapboxVectorStyleSetI
     
     opacity = styleSet->transDouble("line-opacity", styleEntry, 1.0);
     width = styleSet->transDouble("line-width", styleEntry, 1.0);
+    offset = styleSet->transDouble("line-offset", styleEntry, 0.0);
     color = styleSet->transColor("line-color", styleEntry, RGBAColor::black());
     pattern = styleSet->stringValue("line-pattern", styleEntry, "");
     
@@ -166,6 +167,7 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
     
     const RGBAColorRef color = styleSet->resolveColor(paint.color, paint.opacity, tileInfo->ident.level, MBResolveColorOpacityMultiply);
     const double width = paint.width->valForZoom(tileInfo->ident.level) * lineScale;
+    const double offset = paint.offset->valForZoom(tileInfo->ident.level) * lineScale;
     
     if (color && width > 0.0)
     {
@@ -187,10 +189,14 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
 
         vecInfo.color = *color;
         vecInfo.width = width;
+        vecInfo.offset = offset;
         vecInfo.widthExp = paint.width->expression();
         // Scale by the lineScale
         if (vecInfo.widthExp)
             vecInfo.widthExp->scaleBy(lineScale);
+        vecInfo.offsetExp = paint.offset->expression();
+        if (vecInfo.offsetExp)
+            vecInfo.offsetExp->scaleBy(lineScale);
         vecInfo.colorExp = paint.color->expression();
         vecInfo.opacityExp = paint.opacity->expression();
         vecInfo.drawPriority = drawPriority + tileInfo->ident.level * std::max(0, styleSet->tileStyleSettings->drawPriorityPerLevel)+2;

@@ -651,18 +651,22 @@ vertex ProjVertexTriWideVec vertexTri_wideVecExp(
     ProjVertexTriWideVec outVert;
     
     float3 pos = (vertArgs.uniDrawState.singleMat * float4(vert.position.xyz,1.0)).xyz;
-    
+    float zoom = ZoomFromSlot(uniforms, vertArgs.uniDrawState.zoomSlot);
+
     // Pull out the width and possibly calculate one
     float w2 = vertArgs.wideVec.w2;
-    if (vertArgs.wideVec.hasExp) {
-        float zoom = ZoomFromSlot(uniforms, vertArgs.uniDrawState.zoomSlot);
+    if (vertArgs.wideVec.hasExp)
         w2 = ExpCalculateFloat(vertArgs.wideVecExp.widthExp, zoom, 2.0*w2)/2.0;
-    }
     if (w2 > 0.0) {
         w2 = w2 + vertArgs.wideVec.edge;
     }
     
-    float centerLine = vert.offset.z * vertArgs.wideVec.offset;
+    // Pull out the center line offset, or calculate one
+    float centerLine = vertArgs.wideVec.offset;
+    if (vertArgs.wideVec.hasExp) {
+        centerLine = ExpCalculateFloat(vertArgs.wideVecExp.offsetExp, zoom, 0.0);
+    }
+    centerLine = vert.offset.z * centerLine;
 
     outVert.color = vertArgs.wideVec.color * calculateFade(uniforms,vertArgs.uniDrawState);
     

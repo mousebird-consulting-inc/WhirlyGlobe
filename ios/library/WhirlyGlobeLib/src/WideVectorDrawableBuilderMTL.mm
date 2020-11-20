@@ -71,7 +71,7 @@ BasicDrawableRef WideVectorDrawableBuilderMTL::getDrawable()
     uniWV.color[1] = color.g/255.0;
     uniWV.color[2] = color.b/255.0;
     uniWV.color[3] = color.a/255.0;
-    uniWV.hasExp = widthExp || colorExp || opacityExp || includeExp;
+    uniWV.hasExp = widthExp || offsetExp || colorExp || opacityExp || includeExp;
 
     BasicDrawable::UniformBlock uniBlock;
     uniBlock.blockData = RawDataRef(new RawNSDataReader([[NSData alloc] initWithBytes:&uniWV length:sizeof(uniWV)]));
@@ -84,6 +84,8 @@ BasicDrawableRef WideVectorDrawableBuilderMTL::getDrawable()
         memset(&wideVecExp, 0, sizeof(wideVecExp));
         if (widthExp)
             FloatExpressionToMtl(widthExp,wideVecExp.widthExp);
+        if (offsetExp)
+            FloatExpressionToMtl(offsetExp,wideVecExp.offsetExp);
         if (opacityExp)
             FloatExpressionToMtl(opacityExp,wideVecExp.opacityExp);
         if (colorExp)

@@ -63,6 +63,7 @@ public:
     float miterLimit;
     
     FloatExpressionInfoRef widthExp;
+    FloatExpressionInfoRef offsetExp;
     FloatExpressionInfoRef opacityExp;
     ColorExpressionInfoRef colorExp;
 };

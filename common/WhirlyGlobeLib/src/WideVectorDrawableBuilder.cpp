@@ -148,6 +148,11 @@ void WideVectorDrawableBuilder::setWidthExpression(FloatExpressionInfoRef inWidt
     widthExp = inWidthExp;
 }
 
+void WideVectorDrawableBuilder::setOffsetExpression(FloatExpressionInfoRef inOffsetExp)
+{
+    offsetExp = inOffsetExp;
+}
+
 void WideVectorDrawableBuilder::setupTweaker(BasicDrawable *theDraw)
 {
     WideVectorTweaker *tweak = makeTweaker();

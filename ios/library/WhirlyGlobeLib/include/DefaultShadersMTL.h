@@ -231,6 +231,7 @@ struct UniformWideVec {
 // For variable width (and color, etc) lines we'll
 struct UniformWideVecExp {
     FloatExp widthExp;
+    FloatExp offsetExp;
     FloatExp opacityExp;
     ColorExp colorExp;
 };

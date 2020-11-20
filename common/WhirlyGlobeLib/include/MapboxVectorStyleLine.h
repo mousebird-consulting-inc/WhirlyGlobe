@@ -52,6 +52,7 @@ public:
     MapboxTransDoubleRef opacity;
     MapboxTransColorRef color;
     MapboxTransDoubleRef width;
+    MapboxTransDoubleRef offset;
     std::string pattern;
     std::vector<double> lineDashArray;
 };

@@ -92,6 +92,9 @@ public:
     // Apply a width expression
     void setWidthExpression(FloatExpressionInfoRef widthExp);
     
+    // Apply an offset expression
+    void setOffsetExpression(FloatExpressionInfoRef offsetExp);
+    
     // The tweaker sets up uniforms before a given drawable draws
     void setupTweaker(BasicDrawable *theDraw);
     
@@ -115,6 +118,7 @@ protected:
     int tex_index;
     
     FloatExpressionInfoRef widthExp;
+    FloatExpressionInfoRef offsetExp;
     
 #ifdef WIDEVECDEBUG
     Point3fVector locPts;
