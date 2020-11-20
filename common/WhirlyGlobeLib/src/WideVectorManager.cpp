@@ -79,7 +79,7 @@ public:
     class InterPoint
     {
     public:
-        InterPoint() : texX(0.0),texYmin(0.0),texYmax(0.0),texOffset(0.0), offset(0.0,0.0) { }
+        InterPoint() : texX(0.0),texYmin(0.0),texYmax(0.0),texOffset(0.0), offset(0.0,0.0), centerlineDir(1.0) { }
         // Construct with a single line
         InterPoint(const Point3d &p0,const Point3d &p1,const Point3d &n0,double inTexX,double inTexYmin,double inTexYmax,double inTexOffset)
         {
@@ -88,6 +88,7 @@ public:
             n = n0;
             org = p0;
             dest = p1;
+            centerlineDir = 1.0;
             offset = Point2d(0.0,0.0);
             texX = inTexX;
             texYmin = inTexYmin;
@@ -107,6 +108,13 @@ public:
             
             return iPt;
         }
+        
+        InterPoint flipped() {
+            InterPoint newPt = *this;
+            newPt.n *= -1;
+            
+            return newPt;
+        }
 
         // Same point, but offset along the centerline
         InterPoint nudgeAlongCenter(double nudge) {
@@ -124,11 +132,29 @@ public:
             return newPt;
         }
         
+        // Set the texture X coordinate, but otherwise just copy
+        InterPoint withTexX(double newTexX) {
+            InterPoint newPt = *this;
+            newPt.texX = newTexX;
+            
+            return newPt;
+        }
+        
+        // Set the tex min/max accordingly, but otherwise just copy
+        InterPoint withTexY(double newMinTexY,double newMaxTexY) {
+            InterPoint newPt = *this;
+            newPt.texYmin = newMinTexY;
+            newPt.texYmax = newMaxTexY;
+            
+            return newPt;
+        }
+        
         double c;
         Point3d dir;
         Point3d n;
         Point3d org,dest;
         Point2d offset;
+        double centerlineDir;
         double texX;
         double texYmin,texYmax,texOffset;
     };
@@ -137,12 +163,14 @@ public:
     bool intersectWideLines(const Point3d &p0,const Point3d &p1,const Point3d &p2,
                             const Point3d &n0,const Point3d &n1,
                             InterPoint &iPt0,InterPoint &iPt1,
+                            double centerlineDir0, double centerlineDir1,
                             double texX,double texY0,double texY1,double texY2)
     {
         {
             iPt0.texX = texX;
             iPt0.dir = p0 - p1;
             iPt0.n = n0;
+            iPt0.centerlineDir = centerlineDir0;
             iPt0.org = p1;
             iPt0.texYmin = texY1;
             iPt0.dest = p0;
@@ -161,6 +189,7 @@ public:
             iPt1.texX = texX;
             iPt1.dir = p2 - p1;
             iPt1.n = n1;
+            iPt1.centerlineDir = centerlineDir1;
             iPt1.org = p1;
             iPt1.texYmin = texY1;
             iPt1.dest = p2;
@@ -189,7 +218,7 @@ public:
             drawable->addNormal(up);
             drawable->add_p1(Vector3dToVector3f(vert.dest));
             drawable->add_n0(Vector3dToVector3f(vert.n));
-            drawable->add_offset(Vector2dToVector2f(vert.offset));
+            drawable->add_offset(Vector3dToVector3f(Point3d(vert.offset.x(),vert.offset.y(),vert.centerlineDir)));
             drawable->add_c0(vert.c);
             drawable->add_texInfo(vert.texX,vert.texYmin,vert.texYmax,vert.texOffset);
         }
@@ -210,7 +239,7 @@ public:
             drawable->addNormal(up);
             drawable->add_p1(Vector3dToVector3f(vert.dest));
             drawable->add_n0(Vector3dToVector3f(vert.n));
-            drawable->add_offset(Vector2dToVector2f(vert.offset));
+            drawable->add_offset(Vector3dToVector3f(Point3d(vert.offset.x(),vert.offset.y(),vert.centerlineDir)));
             drawable->add_c0(vert.c);
             drawable->add_texInfo(vert.texX,vert.texYmin,vert.texYmax,vert.texOffset);
         }
@@ -265,8 +294,8 @@ public:
         // Look for valid starting points.  If they're not there, make some simple ones
         if (!edgePointsValid)
         {
-            e0 = InterPoint(paLocal,pbLocal,revNorm0,1.0,texBase,texNext,0.0);
-            e1 = e0.nudgeAlongNormal(-2.0);
+            e0 = InterPoint(paLocal,pbLocal,revNorm0,1.0,texBase,texNext,1.0);
+            e1 = e0.nudgeAlongNormal(-2.0).withTexX(0.0);
             edgePointsValid = true;
         }
 
@@ -288,8 +317,8 @@ public:
             Point3d dirB = (pcLocal-pbLocal).normalized();
             dot = dirA.dot(dirB);
             if (dot > -0.99999998476 && dot < 0.99999998476)
-                if (intersectWideLines(paLocal, pbLocal, pcLocal, norm0, norm1, rPt0, rPt1, 0.0, texBase, texNext, texNext2) &&
-                    intersectWideLines(paLocal, pbLocal, pcLocal, revNorm0, revNorm1, lPt0, lPt1, 1.0, texBase, texNext, texNext2))
+                if (intersectWideLines(paLocal, pbLocal, pcLocal, norm0, norm1, rPt0, rPt1, -1.0, -1.0, 0.0, texBase, texNext, texNext2) &&
+                    intersectWideLines(paLocal, pbLocal, pcLocal, revNorm0, revNorm1, lPt0, lPt1, 1.0, 1.0, 1.0, texBase, texNext, texNext2))
                 {
                     iPtsValid = true;
                     angleBetween = acos(dot);
@@ -309,10 +338,10 @@ public:
         }
 
         // End points of the segments
-        InterPoint endPt0(pbLocal,paLocal,revNorm0,0.0,texNext,texBase,0.0);
+        InterPoint endPt0(pbLocal,paLocal,revNorm0,1.0,texNext,texBase,1.0);
         InterPoint endPt1;
         if (pc)
-            endPt1 = InterPoint(pbLocal,pcLocal,norm1,0.0,texNext,texNext2,0.0);
+            endPt1 = InterPoint(pbLocal,pcLocal,norm1,1.0,texNext,texNext2,1.0);
 
         // Set up the segment points
         if (iPtsValid)
@@ -320,26 +349,28 @@ public:
             // Bending right
             if (rPt0.c > 0.0)
             {
-                corners[3] = rPt0.nudgeAlongNormal(-2.0);
+                corners[3] = rPt0.nudgeAlongNormal(-2.0).withTexX(1.0);
                 corners[2] = rPt0;
-                next_e0 = rPt1.nudgeAlongNormal(-2.0);
+                next_e0 = rPt1.nudgeAlongNormal(-2.0).withTexX(1.0);
                 next_e1 = rPt1;
             } else {
                 // Bending left
                 corners[3] = lPt0;
-                corners[2] = lPt0.nudgeAlongNormal(-2.0);
+                corners[2] = lPt0.nudgeAlongNormal(-2.0).withTexX(0.0);
                 next_e0 = lPt1;
-                next_e1 = lPt1.nudgeAlongNormal(-2.0);
+                next_e1 = lPt1.nudgeAlongNormal(-2.0).withTexX(0.0);
             }
         } else {
-            corners[2] = endPt0.nudgeAlongNormal(-2.0);
             corners[3] = endPt0;
+            corners[2] = endPt0.nudgeAlongNormal(-2.0).withTexX(0.0);
             next_e0 = endPt0;
-            next_e1 = endPt0;
+            next_e1 = endPt0.nudgeAlongNormal(-2.0).withTexX(0.0);
         }
         
+        // TODO: Revisit the texture adjustment around corners
+        //       The problem is the corners can be much large depending on offset and width
+        double texAdjust = 0.0;
         // Do the join polygons if we can
-        // Note: Always doing bevel case (sort of)
         if (iPtsValid && buildJunction)
         {
             WideVectorLineJoinType joinType = vecInfo->joinType;
@@ -351,8 +382,8 @@ public:
             if (joinType == WideVecBevelJoin && angleBetween > 150.0 / 180.0 * M_PI)
                 joinType = WideVecMiterJoin;
 
-            // An offset that makes the texture coordinates work
-            double texAdjust = cos(angleBetween/2.0);
+            // An offset that makes the texture coordinates work around corners
+            texAdjust = cos(angleBetween/2.0);
 
             switch (joinType)
             {
@@ -370,56 +401,24 @@ public:
                         InterPoint l2 = next_e0.nudgeAlongCenter(-1.0);
                         InterPoint l3 = next_e0;
 
-                        triVerts[0] = r0;
-                        triVerts[0].texYmin = texNext;
-                        triVerts[0].texYmax = texNext;
-                        triVerts[1] = l1;
-                        triVerts[1].texYmin = texNext;
-                        triVerts[1].texYmax = texNext;
-                        triVerts[1].texOffset = -texAdjust;
-                        triVerts[2] = l0;
-                        triVerts[2].texYmin = texNext;
-                        triVerts[2].texYmax = texNext;
-                        triVerts[2].texOffset = texAdjust;
+                        triVerts[0] = r0.withTexY(texNext,texNext);
+                        triVerts[1] = l1.withTexY(texNext,texNext);
+                        triVerts[2] = l0.withTexY(texNext,texNext);
                         addWideTri(wideDrawable,triVerts,up);
 
-                        triVerts[0] = r0;
-                        triVerts[0].texYmin = texNext;
-                        triVerts[0].texYmax = texNext;
-                        triVerts[1] = l2;
-                        triVerts[1].texYmin = texNext;
-                        triVerts[1].texYmax = texNext;
-                        triVerts[1].texOffset = -texAdjust;
-                        triVerts[2] = l1;
-                        triVerts[2].texYmin = texNext;
-                        triVerts[2].texYmax = texNext;
-                        triVerts[2].texOffset = texAdjust;
+                        triVerts[0] = r0.withTexY(texNext,texNext);
+                        triVerts[1] = l2.withTexY(texNext,texNext);
+                        triVerts[2] = l1.withTexY(texNext,texNext);
                         addWideTri(wideDrawable,triVerts,up);
 
-                        triVerts[0] = r0;
-                        triVerts[0].texYmin = texNext;
-                        triVerts[0].texYmax = texNext;
-                        triVerts[1] = r1;
-                        triVerts[1].texYmin = texNext;
-                        triVerts[1].texYmax = texNext;
-                        triVerts[1].texOffset = -texAdjust;
-                        triVerts[2] = l2;
-                        triVerts[2].texYmin = texNext;
-                        triVerts[2].texYmax = texNext;
-                        triVerts[2].texOffset = texAdjust;
+                        triVerts[0] = r0.withTexY(texNext,texNext);
+                        triVerts[1] = r1.withTexY(texNext,texNext);
+                        triVerts[2] = l2.withTexY(texNext,texNext);
                         addWideTri(wideDrawable,triVerts,up);
 
-                        triVerts[0] = r1;
-                        triVerts[0].texYmin = texNext;
-                        triVerts[0].texYmax = texNext;
-                        triVerts[1] = l3;
-                        triVerts[1].texYmin = texNext;
-                        triVerts[1].texYmax = texNext;
-                        triVerts[1].texOffset = -texAdjust;
-                        triVerts[2] = l2;
-                        triVerts[2].texYmin = texNext;
-                        triVerts[2].texYmax = texNext;
-                        triVerts[2].texOffset = texAdjust;
+                        triVerts[0] = r1.withTexY(texNext,texNext);
+                        triVerts[1] = l3.withTexY(texNext,texNext);
+                        triVerts[2] = l2.withTexY(texNext,texNext);
                         addWideTri(wideDrawable,triVerts,up);
                     } else {
                         // Bending left
@@ -432,56 +431,24 @@ public:
                         InterPoint r2 = next_e1.nudgeAlongCenter(-1.0);
                         InterPoint r3 = next_e1;
 
-                        triVerts[0] = l0;
-                        triVerts[0].texYmin = texNext;
-                        triVerts[0].texYmax = texNext;
-                        triVerts[1] = r0;
-                        triVerts[1].texYmin = texNext;
-                        triVerts[1].texYmax = texNext;
-                        triVerts[1].texOffset = -texAdjust;
-                        triVerts[2] = r1;
-                        triVerts[2].texYmin = texNext;
-                        triVerts[2].texYmax = texNext;
-                        triVerts[2].texOffset = texAdjust;
+                        triVerts[0] = l0.withTexY(texNext,texNext);
+                        triVerts[1] = r0.withTexY(texNext,texNext);
+                        triVerts[2] = r1.withTexY(texNext,texNext);
                         addWideTri(wideDrawable,triVerts,up);
 
-                        triVerts[0] = l0;
-                        triVerts[0].texYmin = texNext;
-                        triVerts[0].texYmax = texNext;
-                        triVerts[1] = r1;
-                        triVerts[1].texYmin = texNext;
-                        triVerts[1].texYmax = texNext;
-                        triVerts[1].texOffset = -texAdjust;
-                        triVerts[2] = r2;
-                        triVerts[2].texYmin = texNext;
-                        triVerts[2].texYmax = texNext;
-                        triVerts[2].texOffset = texAdjust;
+                        triVerts[0] = l0.withTexY(texNext,texNext);
+                        triVerts[1] = r1.withTexY(texNext,texNext);
+                        triVerts[2] = r2.withTexY(texNext,texNext);
                         addWideTri(wideDrawable,triVerts,up);
 
-                        triVerts[0] = l0;
-                        triVerts[0].texYmin = texNext;
-                        triVerts[0].texYmax = texNext;
-                        triVerts[1] = r2;
-                        triVerts[1].texYmin = texNext;
-                        triVerts[1].texYmax = texNext;
-                        triVerts[1].texOffset = -texAdjust;
-                        triVerts[2] = l1;
-                        triVerts[2].texYmin = texNext;
-                        triVerts[2].texYmax = texNext;
-                        triVerts[2].texOffset = texAdjust;
+                        triVerts[0] = l0.withTexY(texNext,texNext);
+                        triVerts[1] = r2.withTexY(texNext,texNext);
+                        triVerts[2] = l1.withTexY(texNext,texNext);
                         addWideTri(wideDrawable,triVerts,up);
 
-                        triVerts[0] = l1;
-                        triVerts[0].texYmin = texNext;
-                        triVerts[0].texYmax = texNext;
-                        triVerts[1] = r2;
-                        triVerts[1].texYmin = texNext;
-                        triVerts[1].texYmax = texNext;
-                        triVerts[1].texOffset = -texAdjust;
-                        triVerts[2] = r3;
-                        triVerts[2].texYmin = texNext;
-                        triVerts[2].texYmax = texNext;
-                        triVerts[2].texOffset = texAdjust;
+                        triVerts[0] = l1.withTexY(texNext,texNext);
+                        triVerts[1] = r2.withTexY(texNext,texNext);
+                        triVerts[2] = r3.withTexY(texNext,texNext);
                         addWideTri(wideDrawable,triVerts,up);
                     }
                 }
@@ -492,49 +459,25 @@ public:
 
                     // Bending right
                     if (rPt0.c > 0.0) {
-                        triVerts[0] = next_e0;
-                        triVerts[0].texYmin = texNext;
-                        triVerts[0].texYmax = texNext;
-                        triVerts[1] = corners[3];
-                        triVerts[1].texYmin = texNext;
-                        triVerts[1].texYmax = texNext;
-                        triVerts[2] = corners[2];
-                        triVerts[2].texYmin = texNext;
-                        triVerts[2].texYmax = texNext;
+                        triVerts[0] = next_e0.withTexY(texNext,texNext);
+                        triVerts[1] = corners[3].withTexY(texNext,texNext);
+                        triVerts[2] = corners[2].withTexY(texNext,texNext);
                         addWideTri(wideDrawable,triVerts,up);
 
-                        triVerts[0] = next_e1;
-                        triVerts[0].texYmin = texNext;
-                        triVerts[0].texYmax = texNext;
-                        triVerts[1] = next_e0;
-                        triVerts[1].texYmin = texNext;
-                        triVerts[1].texYmax = texNext;
-                        triVerts[2] = corners[2];
-                        triVerts[2].texYmin = texNext;
-                        triVerts[2].texYmax = texNext;
+                        triVerts[0] = next_e1.withTexY(texNext,texNext);
+                        triVerts[1] = next_e0.withTexY(texNext,texNext);
+                        triVerts[2] = corners[2].withTexY(texNext,texNext);
                         addWideTri(wideDrawable,triVerts,up);
                     } else {
                         // Bending left
-                        triVerts[0] = corners[3];
-                        triVerts[0].texYmin = texNext;
-                        triVerts[0].texYmax = texNext;
-                        triVerts[1] = corners[2];
-                        triVerts[1].texYmin = texNext;
-                        triVerts[1].texYmax = texNext;
-                        triVerts[2] = next_e1;
-                        triVerts[2].texYmin = texNext;
-                        triVerts[2].texYmax = texNext;
+                        triVerts[0] = corners[3].withTexY(texNext,texNext);
+                        triVerts[1] = corners[2].withTexY(texNext,texNext);
+                        triVerts[2] = next_e1.withTexY(texNext,texNext);
                         addWideTri(wideDrawable,triVerts,up);
                         
-                        triVerts[0] = corners[3];
-                        triVerts[0].texYmin = texNext;
-                        triVerts[0].texYmax = texNext;
-                        triVerts[1] = next_e1;
-                        triVerts[1].texYmin = texNext;
-                        triVerts[1].texYmax = texNext;
-                        triVerts[2] = next_e0;
-                        triVerts[2].texYmin = texNext;
-                        triVerts[2].texYmax = texNext;
+                        triVerts[0] = corners[3].withTexY(texNext,texNext);
+                        triVerts[1] = next_e1.withTexY(texNext,texNext);
+                        triVerts[2] = next_e0.withTexY(texNext,texNext);
                         addWideTri(wideDrawable,triVerts,up);
                     }
                 }

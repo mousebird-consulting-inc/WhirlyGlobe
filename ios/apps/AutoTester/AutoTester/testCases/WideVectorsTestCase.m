@@ -215,10 +215,10 @@
     [self addGeoJson:@"sawtooth.geojson" viewC:viewC];
     [self addGeoJson:@"moving-lawn.geojson" viewC:viewC];
     [self addGeoJson:@"spiral.geojson" viewC:viewC];
-    [self addGeoJson:@"square.geojson" dashPattern:@[@2, @2] width:1.0 viewC:viewC];
+    [self addGeoJson:@"square.geojson" dashPattern:@[@2, @2] width:10.0 viewC:viewC];
     [self addGeoJson:@"track.geojson" viewC:viewC];
-    [self addGeoJson:@"uturn2.geojson" dashPattern:@[@16, @16] width:40 viewC:viewC];
-    
+//    [self addGeoJson:@"uturn2.geojson" dashPattern:@[@16, @16] width:40 viewC:viewC];
+
     [self addGeoJson:@"USA.geojson" viewC:viewC];
 
 //    [self addGeoJson:@"testJson.json" viewC:viewC];
