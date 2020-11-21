@@ -461,6 +461,11 @@ LabelInfoRef MapboxVectorStyleSetImpl_iOS::makeLabelInfo(PlatformThreadInfo *ins
                     if (!font) {
                         font = [UIFont fontWithName:[NSString stringWithFormat:@"%@-%@%@",[components objectAtIndex:0],[components objectAtIndex:1],[components objectAtIndex:2]] size:fontSize];
                     }
+                    
+                    // And try an even stupider construction
+                    if (!font) {
+                        font = [UIFont fontWithName:[NSString stringWithFormat:@"%@-%@_%@-%@",[components objectAtIndex:0],[components objectAtIndex:2],[components objectAtIndex:1],[components objectAtIndex:2]] size:fontSize];
+                    }
                 }
                     break;
                 default:
