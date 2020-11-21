@@ -664,7 +664,7 @@ vertex ProjVertexTriWideVec vertexTri_wideVecExp(
     // Pull out the center line offset, or calculate one
     float centerLine = vertArgs.wideVec.offset;
     if (vertArgs.wideVec.hasExp) {
-        centerLine = ExpCalculateFloat(vertArgs.wideVecExp.offsetExp, zoom, 0.0);
+        centerLine = ExpCalculateFloat(vertArgs.wideVecExp.offsetExp, zoom, centerLine);
     }
     centerLine = vert.offset.z * centerLine;
 
