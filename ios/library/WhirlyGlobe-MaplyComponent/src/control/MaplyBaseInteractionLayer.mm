@@ -1528,17 +1528,25 @@ public:
             vectorInfo.texId = tex.texID;
     }
 
-    ShapeSet shapes;
-    for (MaplyVectorObject *vecObj in vectors)
+    // Estimate the number of items that will be present.
+    // This can make a big difference with tens of thousands of objects.
+    size_t shapeCount = 0;
+    for (const MaplyVectorObject *vecObj in vectors)
+    {
+        shapeCount += vecObj->vObj->shapes.size();
+    }
+
+    ShapeSet shapes(shapeCount);
+    for (const MaplyVectorObject *vecObj in vectors)
     {
         // Maybe need to make a copy if we're going to sample
         if (vectorInfo.subdivEps != 0.0)
         {
-            float eps = vectorInfo.subdivEps;
+            const float eps = vectorInfo.subdivEps;
             NSString *subdivType = inDesc[kMaplySubdivType];
-            bool greatCircle = ![subdivType compare:kMaplySubdivGreatCircle];
-            bool grid = ![subdivType compare:kMaplySubdivGrid];
-            bool staticSubdiv = ![subdivType compare:kMaplySubdivStatic];
+            const bool greatCircle = ![subdivType compare:kMaplySubdivGreatCircle];
+            const bool grid = ![subdivType compare:kMaplySubdivGrid];
+            const bool staticSubdiv = ![subdivType compare:kMaplySubdivStatic];
             MaplyVectorObject *newVecObj = [vecObj deepCopy2];
             // Note: This logic needs to be moved down a level
             //       Along with the subdivision routines above
