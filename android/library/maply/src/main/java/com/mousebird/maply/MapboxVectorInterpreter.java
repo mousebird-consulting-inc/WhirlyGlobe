@@ -133,6 +133,11 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
             // We'll try the raw data if we can't decompress it
         }
 
+        // Don't let the sampling layer shut down while we're working
+        QuadSamplingLayer samplingLayer = loader.samplingLayer.get();
+        if (samplingLayer == null || !samplingLayer.layerThread.startOfWork())
+            return;
+
         // Parse the data into vectors
         // This will skip layers we don't care about
         TileID tileID = loadReturn.getTileID();
@@ -214,6 +219,9 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
             if (tileBitmap != null)
                 imgLoadReturn.addBitmap(tileBitmap);
         }
+
+        // Let the sampling layer shut down
+        samplingLayer.layerThread.endOfWork();
     }
 
 }
