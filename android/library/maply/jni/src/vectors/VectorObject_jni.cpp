@@ -157,6 +157,8 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorObject_getAttributes
 		MutableDictionary_AndroidRef dict = std::dynamic_pointer_cast<MutableDictionary_Android>((*vecObj)->getAttributes());
 		// Have to convert to our sort of attributes
 		if (!dict) {
+		    if (!(*vecObj)->getAttributes())
+		        return NULL;
 		    dict = std::make_shared<MutableDictionary_Android>(*((*vecObj)->getAttributes().get()));
 		}
 		if (!dict)

@@ -150,7 +150,12 @@ class VectorMBTilesTestCase : MaplyTestCase {
 //        handler.postDelayed({
 //            loader.shutdown()
 //            this.loader = null
-//        }, 4000)
+//
+//            val handler = Handler()
+//            handler.postDelayed({
+//                this.setupFranceVector(control)
+//            }, 2000)
+//        }, 2000)
 
     }
 
