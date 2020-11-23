@@ -23,8 +23,8 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.graphics.Color
+import android.os.Handler
 import com.mousebird.maply.*
-import com.mousebirdconsulting.autotester.ConfigOptions
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase
 import java.io.File
 import java.io.FileNotFoundException
@@ -143,6 +143,15 @@ class VectorMBTilesTestCase : MaplyTestCase {
         val loader = QuadPagingLoader(params, fetcher.tileInfo, interp, control)
         loader.setTileFetcher(fetcher)
         this.loader = loader
+
+        // Shut down the loader after 4s
+        // Useful for debugging
+//        val handler = Handler()
+//        handler.postDelayed({
+//            loader.shutdown()
+//            this.loader = null
+//        }, 4000)
+
     }
 
     fun setupShapefile(control: BaseController) {
@@ -155,7 +164,7 @@ class VectorMBTilesTestCase : MaplyTestCase {
         val vecInfo = VectorInfo()
         vecInfo.setColor(Color.MAGENTA)
         vecInfo.drawPriority = 1000000
-        control.addVector(shpData,vecInfo,RenderControllerInterface.ThreadMode.ThreadAny)
+        control.addVector(shpData, vecInfo, RenderControllerInterface.ThreadMode.ThreadAny)
     }
 
     var baseCase: GeographyClass? = null
