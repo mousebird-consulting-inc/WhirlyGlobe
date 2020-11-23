@@ -102,6 +102,7 @@ attribute vec4 a_texinfo;
 attribute vec3 a_p1;
 attribute vec3 a_n0;
 attribute float a_c0;
+attribute vec3 a_offset;
 
 varying vec2 v_texCoord;
 //"varying vec4 v_color;
@@ -112,7 +113,12 @@ void main()
     //  Position along the line
     float t0 = a_c0 * u_real_w2;
     t0 = clamp(t0,0.0,1.0);
-    vec3 realPos = (a_p1 - a_position) * t0 + a_n0 * u_real_w2 + a_position;
+    vec3 dir = normalize(a_p1 - a_position);
+    vec3 realPos = (a_p1 - a_position) * t0 +
+                    dir * u_real_w2 * a_offset.y +
+                    a_n0 * u_real_w2 +
+                    a_n0 * u_real_w2 * a_offset.x +
+                    a_position;
     float texPos = ((a_texinfo.z - a_texinfo.y) * t0 + a_texinfo.y + a_texinfo.w * u_real_w2) * u_texScale;
     v_texCoord = vec2(a_texinfo.x, texPos);
     vec4 screenPos = u_mvpMatrix * vec4(realPos,1.0);
@@ -140,6 +146,7 @@ attribute vec4 a_texinfo;
 attribute vec3 a_p1;
 attribute vec3 a_n0;
 attribute float a_c0;
+attribute vec3 a_offset;
 
 varying vec2 v_texCoord;
 //varying vec4 v_color;
@@ -151,7 +158,12 @@ void main()
     //  Position along the line
     float t0 = a_c0 * u_real_w2;
     t0 = clamp(t0,0.0,1.0);
-    vec3 realPos = (a_p1 - a_position) * t0 + a_n0 * u_real_w2 + a_position;
+    vec3 dir = normalize(a_p1 - a_position);
+    vec3 realPos = (a_p1 - a_position) * t0 +
+                    dir * u_real_w2 * a_offset.y +
+                    a_n0 * u_real_w2 +
+                    a_n0 * u_real_w2 * a_offset.x +
+                    a_position;
     vec4 pt = u_mvMatrix * vec4(a_position,1.0);
     pt /= pt.w;
     vec4 testNorm = u_mvNormalMatrix * vec4(a_normal,0.0);
