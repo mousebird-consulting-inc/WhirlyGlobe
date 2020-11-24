@@ -611,10 +611,7 @@ void BasicDrawableInstanceMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,id<M
                                           indexCount:basicDrawMTL->numTris*3
                                            indexType:MTLIndexTypeUInt16
                                          indexBuffer:basicDrawMTL->triBuffer.buffer
-                                   indexBufferOffset:basicDrawMTL->triBuffer.offset
-                                       instanceCount:1
-                                          baseVertex:0
-                                        baseInstance:0];
+                                   indexBufferOffset:basicDrawMTL->triBuffer.offset];
                     break;
                 default:
                     break;
@@ -635,9 +632,7 @@ void BasicDrawableInstanceMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,id<M
                                            indexType:MTLIndexTypeUInt16
                                          indexBuffer:basicDrawMTL->triBuffer.buffer
                                    indexBufferOffset:basicDrawMTL->triBuffer.offset
-                                       instanceCount:numInst
-                                          baseVertex:0
-                                        baseInstance:0];
+                                       instanceCount:numInst];
                     break;
                 default:
                     break;
