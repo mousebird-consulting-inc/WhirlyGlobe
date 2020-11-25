@@ -1315,7 +1315,7 @@ void QuadImageFrameLoader::buildRenderState(ChangeSet &changes)
     auto theLastRunReqFlag = lastRunReqFlag;
     auto mergeReq = new RunBlockReq([this,newRenderState,theLastRunReqFlag](Scene *scene,SceneRenderer *renderer,View *view)
     {
-        if (theLastRunReqFlag) {
+        if (*theLastRunReqFlag) {
             if (builder)
                 renderState = newRenderState;
         }
