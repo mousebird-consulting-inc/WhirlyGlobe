@@ -16,6 +16,9 @@ import java.util.ArrayList;
  */
 public class MapboxVectorStyleSet implements VectorStyleInterface {
 
+    private MapboxVectorStyleSet() {
+    }
+
     public MapboxVectorStyleSet(String styleJSON,VectorStyleSettings inSettings,DisplayMetrics inDisplayMetrics,RenderControllerInterface inControl) {
         AttrDictionary styleDict = new AttrDictionary();
         if (!styleDict.parseFromJSON(styleJSON)) {
