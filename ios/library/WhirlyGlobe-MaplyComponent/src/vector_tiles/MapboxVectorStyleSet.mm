@@ -166,7 +166,6 @@ using namespace WhirlyKit;
     for (auto layer : style->layers) {
         if (layer->ident == layerName) {
             layer->visible = visible;
-            return;
         }
     }
 }
