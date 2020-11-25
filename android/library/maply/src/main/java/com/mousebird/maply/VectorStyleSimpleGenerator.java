@@ -90,6 +90,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
                     ScreenLabel label = new ScreenLabel();
                     label.text = name != null ? name : ".";
                     label.loc = pt;
+                    label.layoutImportance = 1.f;
 
                     labels.add(label);
                 }

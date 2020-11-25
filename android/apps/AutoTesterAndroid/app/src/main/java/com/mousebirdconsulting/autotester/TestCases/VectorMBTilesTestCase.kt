@@ -144,7 +144,7 @@ class VectorMBTilesTestCase : MaplyTestCase {
         loader.setTileFetcher(fetcher)
         this.loader = loader
 
-        // Shut down the loader after 4s
+        // Shut down the loader after a short period
         // Useful for debugging
 //        val handler = Handler()
 //        handler.postDelayed({
@@ -154,9 +154,8 @@ class VectorMBTilesTestCase : MaplyTestCase {
 //            val handler = Handler()
 //            handler.postDelayed({
 //                this.setupFranceVector(control)
-//            }, 2000)
-//        }, 2000)
-
+//            }, 1000)
+//        }, 500)
     }
 
     fun setupShapefile(control: BaseController) {
