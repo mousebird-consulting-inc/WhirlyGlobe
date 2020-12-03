@@ -37,6 +37,7 @@ class ImageTile_Android : public ImageTile
 {
 public:
     ImageTile_Android();
+    ImageTile_Android(const std::string &name,const RawDataRef &);
     virtual ~ImageTile_Android();
 
     /// Scoop the contents out of a Bitmap

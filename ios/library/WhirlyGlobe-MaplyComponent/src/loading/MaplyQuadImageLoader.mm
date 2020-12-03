@@ -27,7 +27,6 @@
 #import "MaplyRenderTarget_private.h"
 #import "MaplyRenderController_private.h"
 #import "MaplyQuadSampler_private.h"
-#import "lodepng.h"
 
 using namespace WhirlyKit;
 
@@ -222,42 +221,14 @@ using namespace WhirlyKit;
         if (![inData isKindOfClass:[NSData class]])
             continue;
         
-        unsigned char *outData = NULL;
-        unsigned int width,height;
+        unsigned int width=0,height=0;
         
         unsigned int err = 0;
         int byteWidth = -1;
-        try {
-            LodePNGState pngState;
-            lodepng_state_init(&pngState);
-            err = lodepng_inspect(&width, &height, &pngState, (const unsigned char *)[inData bytes], [inData length]);
-            if (pngState.info_png.color.colortype == LCT_GREY) {
-                byteWidth = 1;
-                err = lodepng_decode_memory(&outData, &width, &height, (const unsigned char *)[inData bytes], [inData length], LCT_GREY, 8);
-            } else {
-                byteWidth = 4;
-                err = lodepng_decode_memory(&outData, &width, &height, (const unsigned char *)[inData bytes], [inData length], LCT_RGBA, 8);
-            }
-        }
-        catch (const std::exception &ex) {
-            wkLogLevel(Error, "Exception in MaplyQuadImageLoader::dataForTile: %s", ex.what());
-            err = -1;
-        }
-        catch (...) {
-            wkLogLevel(Error, "Exception in MaplyQuadImageLoader::dataForTile");
-            err = -1;
-        }
-        
-        // Remap data values
-        if (byteWidth == 1 && !valueMap.empty()) {
-            unsigned char *data = outData;
-            for (unsigned int ii=0;ii<width*height;ii++) {
-                int newVal = valueMap[*data];
-                if (newVal >= 0)
-                    *data = newVal;
-                data++;
-            }
-        }
+        unsigned char *outData = RawPNGImageLoaderInterpreter(width,height,
+                                                              (const unsigned char *)[inData bytes],[inData length],
+                                                              valueMap,
+                                                              byteWidth, err);
 
         if (err != 0) {
             wkLogLevel(Warn, "Failed to read PNG in MaplyRawPNGImageLoaderInterpreter for tile %d: (%d,%d) frame = %d",loadReturn.tileID.level,loadReturn.tileID.x,loadReturn.tileID.y,loadReturn.frame);

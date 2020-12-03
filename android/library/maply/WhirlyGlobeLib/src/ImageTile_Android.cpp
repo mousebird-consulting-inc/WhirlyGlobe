@@ -29,6 +29,11 @@ ImageTile_Android::ImageTile_Android()
 {
 }
 
+ImageTile_Android::ImageTile_Android(const std::string &name,const RawDataRef &rawData)
+: ImageTile(name), rawData(rawData), tex(NULL), type(MaplyImgTypeRawImage)
+{
+}
+
 ImageTile_Android::~ImageTile_Android()
 {
     if (tex)

@@ -72,7 +72,7 @@ public class ImageLoaderInterpreter implements LoaderInterpreter
         if (hasPremultiplyOption && usePremultiply)
             options.inPremultiplied = false;
 
-        byte[][] images =loadReturn.getTileData();
+        byte[][] images = loadReturn.getTileData();
         for (byte[] image : images) {
             Bitmap bm = BitmapFactory.decodeByteArray(image,0, image.length,options);
             if (bm != null)
