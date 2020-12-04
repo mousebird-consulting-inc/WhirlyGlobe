@@ -26,7 +26,7 @@ public class RawPNGImageLoaderInterpreter implements LoaderInterpreter {
     /**
      * In some cases we just want to pick values out of the input.
      */
-    native void addMappingFrom(int fromVal,int toVal);
+    public native void addMappingFrom(int fromVal,int toVal);
 
     native void dataForTileNative(byte[] image,LoaderReturn loaderReturn);
 
