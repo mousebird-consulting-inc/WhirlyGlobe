@@ -136,6 +136,14 @@ public class QuadImageFrameLoader extends QuadImageLoaderBase
     protected native void setRenderTargetIDNative(int focusID,long renderTargetID);
 
     /**
+     *  In special cases we may have tiles that already have borders baked in.  In that case, call this
+     *  method to set both the total textures size and the number of border pixels around the outside.
+     *
+     *  By default this functionality is off.
+     */
+    public native void setTextureSize(int tileSize,int borderSize);
+
+    /**
      *  Shader to use for rendering the image frames for a particular focus.
      *
      *  Consult addFocus for what this means.

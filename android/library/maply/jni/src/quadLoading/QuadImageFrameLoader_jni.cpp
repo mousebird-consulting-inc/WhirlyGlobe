@@ -145,6 +145,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_setRenderTa
     }
 }
 
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_setTextureSize
+        (JNIEnv *env, jobject obj, jint texSize, jint borderSize)
+{
+    try {
+        QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
+        if (!loader)
+            return;
+
+        (*loader)->setTexSize(texSize,borderSize);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageFrameLoader::setTextureSize()");
+    }
+}
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_setShaderIDNative
         (JNIEnv *env, jobject obj, jint focusID, jlong shaderID)
 {
