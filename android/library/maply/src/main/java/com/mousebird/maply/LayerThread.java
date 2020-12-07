@@ -251,7 +251,6 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 			public void run() {
 				EGL10 egl = (EGL10) EGLContext.getEGL();
 
-				valid = false;
 				ArrayList<Layer> layersToRemove = null;
 				synchronized (layers) {
 					layersToRemove = new ArrayList<Layer>(layers);
@@ -260,6 +259,7 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 					layer.shutdown();
 				}
 
+				valid = false;
 				egl.eglMakeCurrent(renderer.display, egl.EGL_NO_SURFACE, egl.EGL_NO_SURFACE, egl.EGL_NO_CONTEXT);
 
 				layers.clear();
