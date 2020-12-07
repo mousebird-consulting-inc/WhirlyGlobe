@@ -102,6 +102,9 @@
 		2BC41C8321F00AA6002926B7 /* BNGCustomMapTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84AA5931C1A1C9700413B76 /* BNGCustomMapTestCase.swift */; };
 		2BC41C8521F00AA9002926B7 /* BNGTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84AA5981C1A2B9800413B76 /* BNGTestCase.swift */; };
 		2BD358F31DD3EA0400081EA8 /* AnimatedMarkersTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BD358F21DD3EA0400081EA8 /* AnimatedMarkersTestCase.swift */; };
+		2BD914BD256F1C8D00E724A8 /* icon_167.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD914BB256F1C8D00E724A8 /* icon_167.png */; };
+		2BD914BE256F1C8D00E724A8 /* icon_152.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD914BC256F1C8D00E724A8 /* icon_152.png */; };
+		2BD914E8256F1F8A00E724A8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2BD914E7256F1F8A00E724A8 /* Assets.xcassets */; };
 		2BDEB3021C924842003259B3 /* ExtrudedModelTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BDEB3011C924842003259B3 /* ExtrudedModelTestCase.m */; };
 		2BDEB3141C9391EB003259B3 /* GreatCircleTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BDEB3131C9391EB003259B3 /* GreatCircleTestCase.m */; };
 		2BF29B8C24D2268200553963 /* LegendViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2BF29B8B24D2268200553963 /* LegendViewController.storyboard */; };
@@ -110,7 +113,6 @@
 		8820852B1DC81051008F8E76 /* Issue721TestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8820852A1DC81051008F8E76 /* Issue721TestCase.swift */; };
 		88BF11491BCD3DA40002205E /* MaplyTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 88BF11481BCD3DA40002205E /* MaplyTestCase.m */; };
 		88E4B8CA1B83B6AB0050D21B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 88E4B8C81B83B6AB0050D21B /* Main.storyboard */; };
-		88E4B8CC1B83B6AB0050D21B /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 88E4B8CB1B83B6AB0050D21B /* Images.xcassets */; };
 		88E4B8CF1B83B6AB0050D21B /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 88E4B8CD1B83B6AB0050D21B /* LaunchScreen.xib */; };
 		88F0951F1ECD041300E7E686 /* AutoTesterJenkins.plist in Resources */ = {isa = PBXBuildFile; fileRef = 88F0951E1ECD041300E7E686 /* AutoTesterJenkins.plist */; };
 		88FF5BE71BC31D53002F15CE /* map_pin.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5BE11BC31D53002F15CE /* map_pin.png */; };
@@ -686,6 +688,9 @@
 		2BC2DCEE1D2345AF0088D350 /* PagingLayerTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PagingLayerTestCase.h; sourceTree = "<group>"; };
 		2BC2DCEF1D2345AF0088D350 /* PagingLayerTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PagingLayerTestCase.m; sourceTree = "<group>"; };
 		2BD358F21DD3EA0400081EA8 /* AnimatedMarkersTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnimatedMarkersTestCase.swift; sourceTree = "<group>"; };
+		2BD914BB256F1C8D00E724A8 /* icon_167.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = icon_167.png; path = icons/icon_167.png; sourceTree = "<group>"; };
+		2BD914BC256F1C8D00E724A8 /* icon_152.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = icon_152.png; path = icons/icon_152.png; sourceTree = "<group>"; };
+		2BD914E7256F1F8A00E724A8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2BDEB3001C924842003259B3 /* ExtrudedModelTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExtrudedModelTestCase.h; sourceTree = "<group>"; };
 		2BDEB3011C924842003259B3 /* ExtrudedModelTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ExtrudedModelTestCase.m; sourceTree = "<group>"; };
 		2BDEB3121C9391EB003259B3 /* GreatCircleTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GreatCircleTestCase.h; sourceTree = "<group>"; };
@@ -707,7 +712,6 @@
 		88E4B8C31B83B6AB0050D21B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		88E4B8C41B83B6AB0050D21B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		88E4B8C91B83B6AB0050D21B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		88E4B8CB1B83B6AB0050D21B /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		88E4B8CE1B83B6AB0050D21B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		88F0951E1ECD041300E7E686 /* AutoTesterJenkins.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = AutoTesterJenkins.plist; sourceTree = "<group>"; };
 		88FF5BE11BC31D53002F15CE /* map_pin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = map_pin.png; path = resources/map_pin.png; sourceTree = "<group>"; };
@@ -1406,7 +1410,6 @@
 				88F0951E1ECD041300E7E686 /* AutoTesterJenkins.plist */,
 				88E4B8CD1B83B6AB0050D21B /* LaunchScreen.xib */,
 				88E4B8C41B83B6AB0050D21B /* AppDelegate.swift */,
-				88E4B8CB1B83B6AB0050D21B /* Images.xcassets */,
 				8810B2D11BA9D45F00446CE3 /* MaplyTesterBridge.h */,
 				88E4B8C31B83B6AB0050D21B /* Info.plist */,
 			);
@@ -1416,6 +1419,9 @@
 		88FF5BDF1BC31D3C002F15CE /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				2BD914E7256F1F8A00E724A8 /* Assets.xcassets */,
+				2BD914BC256F1C8D00E724A8 /* icon_152.png */,
+				2BD914BB256F1C8D00E724A8 /* icon_167.png */,
 				88FF5BE11BC31D53002F15CE /* map_pin.png */,
 				88FF5BE21BC31D53002F15CE /* Smiley_Face_Avatar_by_PixelTwist.png */,
 				88FF5BE41BC31D53002F15CE /* Star.png */,
@@ -1971,7 +1977,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0710;
-				LastUpgradeCheck = 1210;
+				LastUpgradeCheck = 1220;
 				ORGANIZATIONNAME = "mousebird consulting";
 				TargetAttributes = {
 					88E4B8BE1B83B6AB0050D21B = {
@@ -2122,6 +2128,7 @@
 				88FF5C791BC31D6D002F15CE /* lowres_wtb_2x0.pvrtc in Resources */,
 				88FF5E401BC31D95002F15CE /* FRA.geojson in Resources */,
 				88FF5CA31BC31D6D002F15CE /* farm-24@2x.png in Resources */,
+				2BD914E8256F1F8A00E724A8 /* Assets.xcassets in Resources */,
 				88FF5E8B1BC31D95002F15CE /* MNP.geojson in Resources */,
 				88FF5E731BC31D95002F15CE /* LBR.geojson in Resources */,
 				2B033BFE24F6DA4600B55248 /* Roboto-Condensed-LightItalic.ttf in Resources */,
@@ -2199,6 +2206,7 @@
 				88FF5CF21BC31D6D002F15CE /* starcatalog_orig.txt in Resources */,
 				2B033BFB24F6DA4600B55248 /* Roboto-Condensed-BoldItalic.ttf in Resources */,
 				2B73D6AE207C0D5F00AF5095 /* NotoSans-Bold.ttf in Resources */,
+				2BD914BD256F1C8D00E724A8 /* icon_167.png in Resources */,
 				E53CF5E81E1EAF73000FB5C1 /* school.png in Resources */,
 				88FF5ECA1BC31D95002F15CE /* SYC.geojson in Resources */,
 				2B4BA6D01C83A22000DC1562 /* mowing-lawn.geojson in Resources */,
@@ -2286,7 +2294,6 @@
 				88FF5CC71BC31D6D002F15CE /* post-24@2x.png in Resources */,
 				88FF5E931BC31D95002F15CE /* MYT.geojson in Resources */,
 				88FF5EE41BC31D95002F15CE /* VGB.geojson in Resources */,
-				88E4B8CC1B83B6AB0050D21B /* Images.xcassets in Resources */,
 				88FF5EC01BC31D95002F15CE /* SPM.geojson in Resources */,
 				88FF5E241BC31D95002F15CE /* COG.geojson in Resources */,
 				2B1C26531C91037100C71B0A /* France.mbtiles in Resources */,
@@ -2453,6 +2460,7 @@
 				2B033BEC24F6D7BA00B55248 /* Roboto-Thin.ttf in Resources */,
 				88FF5EDB1BC31D95002F15CE /* UGA.geojson in Resources */,
 				88FF5E2D1BC31D95002F15CE /* CYM.geojson in Resources */,
+				2BD914BE256F1C8D00E724A8 /* icon_152.png in Resources */,
 				88FF5E3B1BC31D95002F15CE /* EST.geojson in Resources */,
 				88FF5CAE1BC31D6D002F15CE /* industrial-24@2x.png in Resources */,
 				88FF5CF11BC31D6D002F15CE /* vp.mtl in Resources */,
@@ -2657,7 +2665,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -2709,7 +2717,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
@@ -2725,6 +2733,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = BFXSGS6V8N;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2739,7 +2748,8 @@
 				INFOPLIST_FILE = AutoTester/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.mousebirdconsulting.AutoTester;
+				MARKETING_VERSION = 3.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mousebirdconsulting.AutoTesterApp;
 				PRODUCT_NAME = AutoTester;
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -2757,6 +2767,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = BFXSGS6V8N;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2771,7 +2782,8 @@
 				INFOPLIST_FILE = AutoTester/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.mousebirdconsulting.AutoTester;
+				MARKETING_VERSION = 3.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mousebirdconsulting.AutoTesterApp;
 				PRODUCT_NAME = AutoTester;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/AutoTester/MaplyTesterBridge.h";
