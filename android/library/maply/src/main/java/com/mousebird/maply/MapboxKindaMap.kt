@@ -45,16 +45,18 @@ public open class MapboxKindaMap {
      * For example, if you want to load from the bundle, but not have to change
      *  anything in the style sheet, just do this
      */
-    public open fun mapboxURLFor(file: Uri) : Uri {
-        return file
+    public var mapboxURLFor: (Uri) -> Uri = {
+        file: Uri ->
+        file
     }
 
     /* You can override the font to use for a given
      *  font name in the style.  Font names in the style often don't map
      *  directly to local font names.
      */
-    public open fun mapboxFontFor(name: String) : String {
-        return name
+    public var mapboxFontFor: (String) -> String = {
+        name: String ->
+        name
     }
 
     /* This is the importance value used in the sampler for loading
