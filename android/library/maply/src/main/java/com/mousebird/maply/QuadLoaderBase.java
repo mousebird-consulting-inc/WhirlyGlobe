@@ -199,6 +199,8 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
         return null;
     }
 
+    protected boolean isShuttingDown = false;
+
     /**
      * Turn off the loader and shut things down.
      * <br>
@@ -211,6 +213,7 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
         if (samplingLayer == null || samplingLayer.get() == null || control == null || control.get() == null)
             return;
 
+        isShuttingDown = true;
         samplingLayer.get().removeClient(this);
         final QuadLoaderBase loaderBase = this;
 
@@ -325,15 +328,17 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
 
                     // Merge the data back in on the sampling layer's thread
                     final QuadSamplingLayer layer = samplingLayer.get();
-                    if (layer != null) {
+                    if (layer != null && !layer.isShuttingDown && !isShuttingDown) {
                         layer.layerThread.addTask(new Runnable() {
                             @Override
                             public void run() {
-                                if (loadInterp != null) {
+                                if (loadInterp != null && !isShuttingDown) {
                                     ChangeSet changes = new ChangeSet();
-                                    mergeLoaderReturn(loadReturn, changes);
+                                        mergeLoaderReturn(loadReturn, changes);
                                     layer.layerThread.addChanges(changes);
                                     loadReturn.dispose();
+                                } else {
+                                    cleanupLoadedData(holdControl, loadReturn);
                                 }
                             }
                         });
