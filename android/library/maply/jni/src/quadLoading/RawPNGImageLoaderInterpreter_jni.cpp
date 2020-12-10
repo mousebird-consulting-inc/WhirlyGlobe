@@ -90,9 +90,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RawPNGImageLoaderInterpreter_dat
 		if (!rawImage || !loadReturn)
 			return;
 
-		if ((*loadReturn)->images.empty())
-		    return;
-
 		jbyte *bytes = env->GetByteArrayElements(inImage,NULL);
 		jsize len = env->GetArrayLength(inImage);
 
