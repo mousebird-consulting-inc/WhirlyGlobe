@@ -108,6 +108,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RawPNGImageLoaderInterpreter_dat
         } else {
 			RawDataWrapperRef wrap = std::make_shared<RawDataWrapper>(outData,width*height*byteWidth,true);
 			ImageTileRef imgTile = std::make_shared<ImageTile_Android>("Raw PNG",wrap);
+			imgTile->width = width;  imgTile->height = height;
+			imgTile->components = byteWidth;
 			(*loadReturn)->images.push_back(imgTile);
         }
     }
