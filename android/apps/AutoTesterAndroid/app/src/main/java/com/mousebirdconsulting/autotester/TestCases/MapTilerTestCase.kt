@@ -34,11 +34,14 @@ class MapTilerTestCase : MaplyTestCase {
 
         try {
             val json = Okio.buffer(Okio.source(stream)).readUtf8()
-            map = object: MapboxKindaMap(json,control) {
-                override fun mapboxURLFor(file: Uri): Uri {
-                    val str = file.toString()
-                    return Uri.parse(str.replace("MapTilerKey",token))
-                }
+            map = MapboxKindaMap(json,control)
+            map?.mapboxURLFor = {
+                url: Uri ->
+                val urlStr = url.toString()
+                var newStr = urlStr
+                if (urlStr.contains("MapTilerKey"))
+                    newStr = urlStr.replace("MapTilerKey",token)
+                Uri.parse(newStr)
             }
             if (map == null)
                 return
