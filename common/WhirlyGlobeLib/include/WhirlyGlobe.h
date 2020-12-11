@@ -83,6 +83,7 @@
 #import "QuadTileBuilder.h"
 #import "QuadTreeNew.h"
 #import "RawData.h"
+#import "RawPNGImage.h"
 #import "RenderTarget.h"
 #import "Scene.h"
 #import "SceneGraphManager.h"

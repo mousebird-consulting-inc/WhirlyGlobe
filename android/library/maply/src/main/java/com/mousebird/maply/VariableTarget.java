@@ -169,6 +169,9 @@ public class VariableTarget
             rect.setClipCoords(true);
             rect.addTexture(renderTex);
             for (VariableTarget target : auxTargets) {
+                // Bit if a cheat, but it should be fine
+                if (target.renderTex == null)
+                    target.delayedSetup();
                 rect.addTexture(target.renderTex);
             }
             ArrayList<Shape> shapes = new ArrayList<Shape>();

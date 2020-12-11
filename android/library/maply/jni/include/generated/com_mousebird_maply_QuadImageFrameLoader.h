@@ -65,6 +65,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_setRenderTa
 
 /*
  * Class:     com_mousebird_maply_QuadImageFrameLoader
+ * Method:    setTextureSize
+ * Signature: (II)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_setTextureSize
+  (JNIEnv *, jobject, jint, jint);
+
+/*
+ * Class:     com_mousebird_maply_QuadImageFrameLoader
  * Method:    setShaderIDNative
  * Signature: (IJ)V
  */
