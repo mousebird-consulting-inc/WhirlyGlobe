@@ -45,6 +45,7 @@
     _renderTarget = [[MaplyRenderTarget alloc] init];
     _buildRectangle = true;
     _clearEveryFrame = true;
+    _clearVal = 0.0;
     _zBuffer = false;
 
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -124,6 +125,7 @@
     _renderTex = [vc createTexture:@{kMaplyTexFormat: @(_type)} sizeX:screenSize.width sizeY:screenSize.height mode:MaplyThreadCurrent];
     _renderTarget.texture = _renderTex;
     _renderTarget.clearEveryFrame = _clearEveryFrame;
+    _renderTarget.clearVal = _clearVal;
     [vc addRenderTarget:_renderTarget];
     
     if (_buildRectangle) {
