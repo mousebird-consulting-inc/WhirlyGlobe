@@ -628,6 +628,10 @@ void BasicDrawableMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,id<MTLRender
             [cmdEncode drawPrimitives:MTLPrimitiveTypeLine vertexStart:0 vertexCount:numPts];
             break;
         case Triangles:
+            if (numTris == 0) {
+                NSLog(@"BasicDrawableMTL: Found a drawable with no triangles.");
+                return;
+            }
             // This actually draws the triangles (well, in a bit)
             [cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:numTris*3 indexType:MTLIndexTypeUInt16 indexBuffer:triBuffer.buffer indexBufferOffset:triBuffer.offset];
             break;
