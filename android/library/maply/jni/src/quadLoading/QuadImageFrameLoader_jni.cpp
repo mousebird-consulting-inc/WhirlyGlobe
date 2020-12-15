@@ -86,7 +86,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_setCurrentI
         if (!loader)
             return;
 
-        (*loader)->setCurFrame(focusID,curImage);
+        PlatformInfo_Android platformInfo(env);
+        (*loader)->setCurFrame(&platformInfo,focusID,curImage,false);
     }
     catch (...)
     {
