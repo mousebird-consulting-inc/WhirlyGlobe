@@ -310,6 +310,20 @@ using namespace WhirlyKit;
     [thread addChangeRequests:changes];
 }
 
+- (void)updatePriorities
+{
+    if (!samplingLayer)
+        return;
+    
+    const auto __strong thread = samplingLayer.layerThread;
+    if ([NSThread currentThread] != thread) {
+        [self performSelector:@selector(updatePriorities) onThread:thread withObject:nil waitUntilDone:false];
+        return;
+    }
+
+    loader->updatePriorities(NULL);
+}
+
 // Called on a random dispatch queue
 - (void)fetchRequestSuccess:(MaplyTileFetchRequest *)request tileID:(MaplyTileID)tileID frame:(int)frame data:(id)data;
 {

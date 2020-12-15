@@ -904,9 +904,18 @@ void QuadImageFrameLoader::setDrawPriorityPerLevel(int newPrior)
     drawPriorityPerLevel = newPrior;
 }
     
-void QuadImageFrameLoader::setCurFrame(int focusID,double inCurFrame)
+void QuadImageFrameLoader::setCurFrame(PlatformThreadInfo *threadInfo,int focusID,double inCurFrame,bool runUpdatePriorities)
 {
+    if (curFrames[focusID] == inCurFrame)
+        return;
+    
+    int oldInt = curFrames[focusID];
+    int newInt = inCurFrame;
+
     curFrames[focusID] = inCurFrame;
+    
+    if (runUpdatePriorities && (oldInt != newInt))
+        updatePriorities(threadInfo);
 }
     
 double QuadImageFrameLoader::getCurFrame(int focusID)
@@ -1014,6 +1023,23 @@ void QuadImageFrameLoader::reload(PlatformThreadInfo *threadInfo,int frameIndex,
     // Process all the fetches and cancels at once
     // We're not making any visual changes here, just messing with loading so no ChangeSet
     processBatchOps(threadInfo,batchOps.get());
+}
+
+void QuadImageFrameLoader::updatePriorities(PlatformThreadInfo *threadInfo)
+{
+    // Work through the tiles and frames
+    for (const auto &it : tiles) {
+        const QIFTileAssetRef &tile = it.second;
+
+        for (const auto &frame: tile->frames) {
+            if (tile->isFrameLoading(frame->getFrameInfo())) {
+                int newPriority = calcLoadPriority(tile->ident, frame->getFrameInfo()->frameIndex);
+                if (newPriority != frame->getPriority()) {
+                    frame->updateFetching(threadInfo, this, newPriority, tile->ident.importance);
+                }
+            }
+        }
+    }
 }
     
 QIFTileAssetRef QuadImageFrameLoader::addNewTile(PlatformThreadInfo *threadInfo,const QuadTreeNew::ImportantNode &ident,QIFBatchOps *batchOps,ChangeSet &changes)
@@ -1460,6 +1486,8 @@ void QuadImageFrameLoader::builderLoad(PlatformThreadInfo *threadInfo,
         removeTile(threadInfo,inTile, batchOps, changes);
         somethingChanged = true;
     }
+    
+    // Note: Not processing changes in importance
 
     builderLoadAdditional(threadInfo,builder,updates,changes);
     

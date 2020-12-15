@@ -171,8 +171,13 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     if (!loader)
         return;
     
+    if (_loadFrameMode == loadFrameMode)
+        return;
+
     _loadFrameMode = loadFrameMode;
     loader->setLoadMode(_loadFrameMode == MaplyLoadFrameBroad ? QuadImageFrameLoader::LoadMode::Broad : QuadImageFrameLoader::LoadMode::Narrow);
+
+    [self updatePriorities];
 }
 
 - (bool)delayedInit
@@ -213,7 +218,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
 - (void)setFocus:(int)focusID currentImage:(double)where
 {
     double curFrame = std::min(std::max(where,0.0),(double)([loader->frameInfos count]-1));
-    loader->setCurFrame(focusID,curFrame);
+    loader->setCurFrame(NULL, focusID, curFrame, _loadFrameMode != MaplyLoadFrameBroad);
 }
 
 - (double)getCurrentImage
