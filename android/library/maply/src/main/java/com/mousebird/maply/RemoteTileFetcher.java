@@ -270,6 +270,7 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
     RemoteTileFetcher(BaseController baseController, String name)
     {
         super(name);
+        this.name = name;
 
         control = new WeakReference<BaseController>(baseController);
         client = baseController.getHttpClient();
