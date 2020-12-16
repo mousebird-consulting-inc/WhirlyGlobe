@@ -129,6 +129,11 @@ public class VariableTarget
     public Boolean clearEveryFrame = true;
 
     /**
+     * When we're clearing, use this value.  0 by default
+     */
+    public double clearVal = 0.0;
+
+    /**
      * Call setup explicitly after setting values.
      */
     public void setup() {
@@ -155,6 +160,7 @@ public class VariableTarget
         renderTex = viewC.createTexture(frameSize[0], frameSize[1],settings, RenderControllerInterface.ThreadMode.ThreadCurrent);
         renderTarget.texture = renderTex;
         renderTarget.clearEveryFrame = clearEveryFrame;
+        renderTarget.clearVal = (float)clearVal;
         viewC.addRenderTarget(renderTarget);
 
         // Default shader
