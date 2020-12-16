@@ -785,6 +785,11 @@ void QuadImageFrameLoader::setLoadMode(LoadMode newMode)
     updatePriorityDefaults();
 }
 
+QuadImageFrameLoader::LoadMode QuadImageFrameLoader::getLoadMode()
+{
+    return loadMode;
+}
+
 bool QuadImageFrameLoader::getLoadingStatus()
 {
     return loadingStatus;
@@ -904,18 +909,12 @@ void QuadImageFrameLoader::setDrawPriorityPerLevel(int newPrior)
     drawPriorityPerLevel = newPrior;
 }
     
-void QuadImageFrameLoader::setCurFrame(PlatformThreadInfo *threadInfo,int focusID,double inCurFrame,bool runUpdatePriorities)
+void QuadImageFrameLoader::setCurFrame(PlatformThreadInfo *threadInfo,int focusID,double inCurFrame)
 {
     if (curFrames[focusID] == inCurFrame)
         return;
     
-    int oldInt = curFrames[focusID];
-    int newInt = inCurFrame;
-
     curFrames[focusID] = inCurFrame;
-    
-    if (runUpdatePriorities && (oldInt != newInt))
-        updatePriorities(threadInfo);
 }
     
 double QuadImageFrameLoader::getCurFrame(int focusID)

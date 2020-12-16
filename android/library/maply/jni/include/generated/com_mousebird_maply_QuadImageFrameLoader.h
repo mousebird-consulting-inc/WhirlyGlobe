@@ -10,10 +10,18 @@ extern "C" {
 /*
  * Class:     com_mousebird_maply_QuadImageFrameLoader
  * Method:    setLoadFrameModeNative
- * Signature: (I)V
+ * Signature: (I)Z
  */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_setLoadFrameModeNative
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_setLoadFrameModeNative
   (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     com_mousebird_maply_QuadImageFrameLoader
+ * Method:    updatePriorities
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_updatePriorities
+  (JNIEnv *, jobject);
 
 /*
  * Class:     com_mousebird_maply_QuadImageFrameLoader
@@ -34,9 +42,9 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_getNumFocus
 /*
  * Class:     com_mousebird_maply_QuadImageFrameLoader
  * Method:    setCurrentImageNative
- * Signature: (ID)V
+ * Signature: (ID)Z
  */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_setCurrentImageNative
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_setCurrentImageNative
   (JNIEnv *, jobject, jint, jdouble);
 
 /*
