@@ -1570,6 +1570,9 @@ void QuadImageFrameLoader::updateForFrame(RendererFrameInfo *frameInfo)
         return;
     if (!control)
         return;
+    Scene *scene = control->getScene();
+    if (!scene)
+        return;
 
     ChangeSet changes;
 
