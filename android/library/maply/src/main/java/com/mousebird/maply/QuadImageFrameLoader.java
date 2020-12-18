@@ -48,10 +48,22 @@ public class QuadImageFrameLoader extends QuadImageLoaderBase
      */
     public void setLoadFrameMode(FrameLoadMode mode)
     {
-        setLoadFrameModeNative(mode.ordinal());
+        if (setLoadFrameModeNative(mode.ordinal()) && samplingLayer != null) {
+            // If we changed the frame mode we may need to refresh the priorities
+            QuadSamplingLayer layer = samplingLayer.get();
+            if (layer == null || layer.layerThread == null)
+                return;
+            layer.layerThread.addTask(new Runnable() {
+                @Override
+                public void run() {
+                    updatePriorities();
+                }
+            });
+        }
     }
 
-    protected native void setLoadFrameModeNative(int mode);
+    protected native boolean setLoadFrameModeNative(int mode);
+    protected native void updatePriorities();
 
     /**
      *   Add another rendering focus to the frame loader.
@@ -94,10 +106,21 @@ public class QuadImageFrameLoader extends QuadImageLoaderBase
 //        double curFrame = std::min(std::max(where,0.0),(double)([loader->frameInfos count]-1));
         double curFrame = Math.min(Math.max(where,0.0),(double)(tileInfos.length-1));
 
-        setCurrentImageNative(focusID,where);
+        if (setCurrentImageNative(focusID,where) && samplingLayer != null) {
+            // setCurrentImage tells us if we changed the actual image
+            QuadSamplingLayer layer = samplingLayer.get();
+            if (layer == null || layer.layerThread == null)
+                return;
+            layer.layerThread.addTask(new Runnable() {
+                @Override
+                public void run() {
+                    updatePriorities();
+                }
+            });
+        }
     }
 
-    protected native void setCurrentImageNative(int focusID,double where);
+    protected native boolean setCurrentImageNative(int focusID,double where);
 
     /**
      *   Return the interpolated location within the array of frames.

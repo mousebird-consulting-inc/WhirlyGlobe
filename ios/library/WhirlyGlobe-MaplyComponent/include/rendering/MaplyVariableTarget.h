@@ -48,6 +48,9 @@
 /// If set (by default), then we clear out the render target every frame
 @property (nonatomic,assign) bool clearEveryFrame;
 
+/// When we're clearing, use this value.  0 by default
+@property (nonatomic,assign) float clearVal;
+
 /// Shader used to draw the render target to the screen.
 /// Leave this empty and we'll provide our own
 @property (nonatomic,strong,nullable) MaplyShader *shader;

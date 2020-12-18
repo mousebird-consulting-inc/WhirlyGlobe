@@ -337,6 +337,7 @@ public:
     
     /// Set loading mode to Broad (load lowest level first) and Narrow (load current frame first)
     void setLoadMode(LoadMode newMode);
+    LoadMode getLoadMode();
     
     /// True if there's loading going on, false if it's settled
     bool getLoadingStatus();
@@ -394,7 +395,7 @@ public:
     void setDrawPriorityPerLevel(int newPrior);
     
     // What part of the animation we're displaying
-    void setCurFrame(int focusID,double curFrame);
+    void setCurFrame(PlatformThreadInfo *threadInfo, int focusID, double curFrame);
     double getCurFrame(int focusID);
     
     // Need to know how we're loading the tiles to calculate the render state
@@ -420,6 +421,9 @@ public:
 
     /// Reload matching tiles in the given frame (or everything)
     virtual void reload(PlatformThreadInfo *threadInfo,int frame,const Mbr *bound,int boundCount,ChangeSet &changes);
+    
+    /// Recalculate all the frame/tile priorities
+    virtual void updatePriorities(PlatformThreadInfo *threadInfo);
 
     /// **** QuadTileBuilderDelegate methods ****
     

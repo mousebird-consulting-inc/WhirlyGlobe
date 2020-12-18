@@ -1604,6 +1604,7 @@ public class RenderController implements RenderControllerInterface
                 renderTarget.texture.width,renderTarget.texture.height,
                 renderTarget.texture.texID,
                 renderTarget.clearEveryFrame,
+                renderTarget.clearVal,
                 renderTarget.blend,
                 Color.red(renderTarget.color)/255.f,Color.green(renderTarget.color)/255.f,Color.blue(renderTarget.color)/255.f,Color.alpha(renderTarget.color)/255.f);
     }

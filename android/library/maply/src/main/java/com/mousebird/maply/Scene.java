@@ -39,7 +39,7 @@ public class Scene
 	 */
 	public native void addShaderProgram(Shader shader);
 	public native void removeShaderProgram(long shaderID);
-	public native void addRenderTargetNative(long renderTargetID,int width,int height,long texID,boolean clearEveryFrame,boolean blend,float red,float green,float blue,float alpha);
+	public native void addRenderTargetNative(long renderTargetID,int width,int height,long texID,boolean clearEveryFrame,float clearVal,boolean blend,float red,float green,float blue,float alpha);
 	public native void changeRenderTarget(long renderTargetID,long texID);
 	public native void removeRenderTargetNative(long renderTargetID);
 
