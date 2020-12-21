@@ -112,7 +112,7 @@ class iosMutableDictionary : public MutableDictionary
 public:
     iosMutableDictionary();
     iosMutableDictionary(NSMutableDictionary *dict);
-    iosMutableDictionary(MutableDictionaryRef dict);
+    iosMutableDictionary(const MutableDictionaryRef &dict);
     // Assignment operator
     virtual iosMutableDictionary &operator = (const iosMutableDictionary &that);
     virtual ~iosMutableDictionary() override;

@@ -31,9 +31,9 @@
 }
 
 // Construct as a wrapper
-- (id)initWithRef:(WhirlyKit::VectorObjectRef)vecObj;
+- (id)initWithRef:(const WhirlyKit::VectorObjectRef&)vecObj;
 
 // Construct a vector object from the Vector DB raw format
-- (void)addShape:(WhirlyKit::VectorShapeRef)shape;
+- (void)addShape:(const WhirlyKit::VectorShapeRef&)shape;
 
 @end

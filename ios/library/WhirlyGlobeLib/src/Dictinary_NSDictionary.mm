@@ -318,7 +318,7 @@ iosMutableDictionary::iosMutableDictionary(NSMutableDictionary *inDict)
     dict = inDict;
 }
     
-iosMutableDictionary::iosMutableDictionary(MutableDictionaryRef inDict)
+iosMutableDictionary::iosMutableDictionary(const MutableDictionaryRef &inDict)
 {
     iosMutableDictionary *other = dynamic_cast<iosMutableDictionary *>(inDict.get());
     if (other)

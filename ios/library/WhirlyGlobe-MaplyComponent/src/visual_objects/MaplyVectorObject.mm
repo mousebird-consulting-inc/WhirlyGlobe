@@ -104,7 +104,7 @@ using namespace WhirlyGlobe;
     return self;
 }
 
-- (id)initWithRef:(WhirlyKit::VectorObjectRef)vecObj
+- (id)initWithRef:(const WhirlyKit::VectorObjectRef&)vecObj
 {
     self = [super init];
     
@@ -120,7 +120,7 @@ using namespace WhirlyGlobe;
 }
 
 /// Construct with a single point ref
-- (instancetype)initWithPointRef:(MaplyCoordinate *)coord attributes:(NSDictionary *)attr
+- (instancetype)initWithPointRef:(const MaplyCoordinate *)coord attributes:(NSDictionary *)attr
 {
     self = [super init];
     
@@ -128,11 +128,9 @@ using namespace WhirlyGlobe;
     {
         VectorPointsRef pts = VectorPoints::createPoints();
         pts->pts.push_back(GeoCoord(coord->x,coord->y));
-        iosMutableDictionary *dict = new iosMutableDictionary([NSMutableDictionary dictionaryWithDictionary:attr]);
-
+        auto dict = std::make_shared<iosMutableDictionary>([NSMutableDictionary dictionaryWithDictionary:attr]);
         vObj = std::make_shared<VectorObject>();
-
-        pts->setAttrDict(MutableDictionaryRef(dict));
+        pts->setAttrDict(dict);
         pts->initGeoMbr();
         vObj->shapes.insert(pts);
     }
@@ -140,27 +138,24 @@ using namespace WhirlyGlobe;
     return self;
 }
 
-- (instancetype)initWithLineString:(NSArray *)inCoords attributes:(NSDictionary *)attr
+- (instancetype)initWithLineString:(const NSArray *)inCoords attributes:(NSDictionary *)attr
 {
-    int numCoords = [inCoords count]/2;
-    MaplyCoordinate *coords = (MaplyCoordinate *) malloc(sizeof(MaplyCoordinate) * numCoords);
+    const int numCoords = [inCoords count]/2;
+    std::vector<MaplyCoordinate> coords(numCoords);
 
     for (int i = 0; i < numCoords; i++) {
-        float x = [inCoords[2*i] floatValue];
-        float y = [inCoords[2*i+1] floatValue];
-
+        const float x = [inCoords[2*i] floatValue];
+        const float y = [inCoords[2*i+1] floatValue];
         coords[i] = MaplyCoordinateMakeWithDegrees(x, y);
     }
 
-    self = [self initWithLineString:coords numCoords:numCoords attributes:attr];
-
-    free(coords);
+    self = [self initWithLineString:&coords[0] numCoords:numCoords attributes:attr];
 
     return self;
 }
 
 /// Construct with a linear feature (e.g. line string)
-- (instancetype)initWithLineString:(MaplyCoordinate *)coords numCoords:(int)numCoords attributes:(NSDictionary *)attr
+- (instancetype)initWithLineString:(const MaplyCoordinate *)coords numCoords:(int)numCoords attributes:(NSDictionary *)attr
 {
     self = [super init];
     
@@ -171,8 +166,8 @@ using namespace WhirlyGlobe;
         VectorLinearRef lin = VectorLinear::createLinear();
         for (unsigned int ii=0;ii<numCoords;ii++)
             lin->pts.push_back(GeoCoord(coords[ii].x,coords[ii].y));
-        iosMutableDictionary *dict = new iosMutableDictionary([NSMutableDictionary dictionaryWithDictionary:attr]);
-        lin->setAttrDict(MutableDictionaryRef(dict));
+        auto dict = std::make_shared<iosMutableDictionary>([NSMutableDictionary dictionaryWithDictionary:attr]);
+        lin->setAttrDict(dict);
         lin->initGeoMbr();
         vObj->shapes.insert(lin);
     }
@@ -181,7 +176,7 @@ using namespace WhirlyGlobe;
 }
 
 /// Construct as an areal with an exterior
-- (instancetype)initWithAreal:(MaplyCoordinate *)coords numCoords:(int)numCoords attributes:(NSDictionary *)attr
+- (instancetype)initWithAreal:(const MaplyCoordinate *)coords numCoords:(int)numCoords attributes:(NSDictionary *)attr
 {
     self = [super init];
     
@@ -194,8 +189,8 @@ using namespace WhirlyGlobe;
         for (unsigned int ii=0;ii<numCoords;ii++)
             pts.push_back(GeoCoord(coords[ii].x,coords[ii].y));
         areal->loops.push_back(pts);
-        iosMutableDictionary *dict = new iosMutableDictionary([NSMutableDictionary dictionaryWithDictionary:attr]);
-        areal->setAttrDict(MutableDictionaryRef(dict));
+        auto dict = std::make_shared<iosMutableDictionary>([NSMutableDictionary dictionaryWithDictionary:attr]);
+        areal->setAttrDict(dict);
         areal->initGeoMbr();
         vObj->shapes.insert(areal);
     }
@@ -203,7 +198,7 @@ using namespace WhirlyGlobe;
     return self;
 }
 
-- (nonnull instancetype)initWithArealArray:(NSArray<NSNumber *> *__nonnull)coords attributes:(NSDictionary *__nullable)attr
+- (nonnull instancetype)initWithArealArray:(const NSArray<NSNumber *> *__nonnull)coords attributes:(NSDictionary *__nullable)attr
 {
     self = [super init];
     if ([coords count] % 1 != 0) {
@@ -220,8 +215,8 @@ using namespace WhirlyGlobe;
         for (unsigned int ii=0;ii<[coords count];ii+=2)
             pts.push_back(GeoCoord([[coords objectAtIndex:ii] doubleValue],[[coords objectAtIndex:ii+1] doubleValue]));
         areal->loops.push_back(pts);
-        iosMutableDictionary *dict = new iosMutableDictionary([NSMutableDictionary dictionaryWithDictionary:attr]);
-        areal->setAttrDict(MutableDictionaryRef(dict));
+        auto dict = std::make_shared<iosMutableDictionary>([NSMutableDictionary dictionaryWithDictionary:attr]);
+        areal->setAttrDict(dict);
         areal->initGeoMbr();
         vObj->shapes.insert(areal);
     }
@@ -243,8 +238,8 @@ using namespace WhirlyGlobe;
     NSString *nsStr = [[NSString alloc] initWithData:geoJSON encoding:NSUTF8StringEncoding];
     if (!nsStr)
         return nil;
-    std::string str = [nsStr UTF8String];
-    std::string crs = "";
+    const std::string str = [nsStr UTF8String];
+    std::string crs;
     if (!vObj->fromGeoJSON(str, crs))
 		return nil;
 
@@ -359,7 +354,7 @@ using namespace WhirlyGlobe;
 }
 
 /// Add a hole to an existing areal feature
-- (void)addHole:(MaplyCoordinate *)coords numCoords:(int)numCoords
+- (void)addHole:(const MaplyCoordinate *)coords numCoords:(int)numCoords
 {
     if (vObj->shapes.size() != 1)
         return;
@@ -372,31 +367,16 @@ using namespace WhirlyGlobe;
 
 - (MaplyVectorObjectType)vectorType
 {
-    auto type = vObj->getVectorType();
-    MaplyVectorObjectType retType = MaplyVectorNoneType;
-    switch (type)
+    switch (vObj->getVectorType())
     {
-        case VectorNoneType:
-            retType = MaplyVectorNoneType;
-            break;
-        case VectorPointType:
-            retType = MaplyVectorPointType;
-            break;
-        case VectorLinearType:
-            retType = MaplyVectorLinearType;
-            break;
-        case VectorLinear3dType:
-            retType = MaplyVectorLinear3dType;
-            break;
-        case VectorArealType:
-            retType = MaplyVectorArealType;
-            break;
-        case VectorMultiType:
-            retType = MaplyVectorMultiType;
-            break;
+        case VectorNoneType:        return MaplyVectorNoneType;
+        case VectorPointType:       return MaplyVectorPointType;
+        case VectorLinearType:      return MaplyVectorLinearType;
+        case VectorLinear3dType:    return MaplyVectorLinear3dType;
+        case VectorArealType:       return MaplyVectorArealType;
+        case VectorMultiType:       return MaplyVectorMultiType;
+        default:                    return MaplyVectorNoneType;
     }
-    
-    return retType;
 }
 
 - (NSString *)log
@@ -801,7 +781,7 @@ using namespace WhirlyGlobe;
     return newVec;
 }
 
-- (void)addShape:(WhirlyKit::VectorShapeRef)shape {
+- (void)addShape:(const WhirlyKit::VectorShapeRef&)shape {
   vObj->shapes.insert(shape);
 }
 

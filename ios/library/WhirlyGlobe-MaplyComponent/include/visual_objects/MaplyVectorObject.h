@@ -133,35 +133,35 @@ typedef NS_ENUM(NSInteger, MaplyVectorObjectType) {
     
     This version takes a single coordinate and the attributes to go with it.
   */
-- (nonnull instancetype)initWithPointRef:(MaplyCoordinate *__nonnull)coord attributes:(NSDictionary *__nullable)attr;
+- (nonnull instancetype)initWithPointRef:(const MaplyCoordinate *__nonnull)coord attributes:(NSDictionary *__nullable)attr;
 
 /** 
     Initialize with a linear feature.
  
     This version takes an array of coordinate pairs (as NSNumber) and the attribution.  With this it will make a linear feature.
  */
-- (nonnull instancetype)initWithLineString:(NSArray *__nonnull)coords attributes:(NSDictionary *__nullable)attr;
+- (nonnull instancetype)initWithLineString:(const NSArray *__nonnull)coords attributes:(NSDictionary *__nullable)attr;
 
 /** 
     Initialize with a linear feature.
     
     This version takes an array of coordinates, the size of that array and the attribution.  With this it will make a linear feature.
   */
-- (nonnull instancetype)initWithLineString:(MaplyCoordinate *__nonnull)coords numCoords:(int)numCoords attributes:(NSDictionary *__nullable)attr;
+- (nonnull instancetype)initWithLineString:(const MaplyCoordinate *__nonnull)coords numCoords:(int)numCoords attributes:(NSDictionary *__nullable)attr;
 
 /** 
     Inintialize as an areal feature.
     
     This version takes an array of coordinates, the size of that array and the attribution.  With this it will make a single area feature with one (exterior) loop.  To add loops, call addHole:numCoords:
   */
-- (nonnull instancetype)initWithAreal:(MaplyCoordinate *__nonnull)coords numCoords:(int)numCoords attributes:(NSDictionary *__nullable)attr;
+- (nonnull instancetype)initWithAreal:(const MaplyCoordinate *__nonnull)coords numCoords:(int)numCoords attributes:(NSDictionary *__nullable)attr;
 
 /**
   Inintialize as an areal feature.
   
   This version takes an array of coordinates (2 numbers per coordinate).  With this it will make a single area feature with one (exterior) loop.  To add loops, call addHole:numCoords:
 */
-- (nonnull instancetype)initWithArealArray:(NSArray<NSNumber *> *__nonnull)coords attributes:(NSDictionary *__nullable)attr;
+- (nonnull instancetype)initWithArealArray:(const NSArray<NSNumber *> *__nonnull)coords attributes:(NSDictionary *__nullable)attr;
 
 /** 
     Initializes with vectors parsed from geoJSON.
@@ -266,7 +266,7 @@ typedef NS_ENUM(NSInteger, MaplyVectorObjectType) {
     
     This method is expecting to find exactly one areal feature.  If it finds one, it will add the given hole as a loop on the end of the list of loops.
   */
-- (void)addHole:(MaplyCoordinate *__nonnull)coords numCoords:(int)numCoords;
+- (void)addHole:(const MaplyCoordinate *__nonnull)coords numCoords:(int)numCoords;
 
 /** 
     Returns the type of the vector feature.
