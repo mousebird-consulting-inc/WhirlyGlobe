@@ -59,7 +59,7 @@ namespace GeographicLib {
                                   Geodesic::REDUCEDLENGTH |
                                   Geodesic::GEODESICSCALE));
     int count = numit_, trip = 0;
-    real lat1, lon1, azi1, M;
+    real lat1=0, lon1=0, azi1=0, M=0;
     while (count-- || GEOGRAPHICLIB_PANIC) {
       real m, t;
       line.Position(s, lat1, lon1, azi1, m, M, t);

@@ -26,7 +26,7 @@ namespace GeographicLib {
   Math::real OSGB::computenorthoffset() {
     real x, y;
     static const real northoffset =
-      ( OSGBTM().Forward(real(0), OriginLatitude(), real(0), x, y),
+      ( (void)OSGBTM().Forward(real(0), OriginLatitude(), real(0), x, y),
         FalseNorthing() - y );
     return northoffset;
   }

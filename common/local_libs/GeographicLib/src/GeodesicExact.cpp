@@ -213,7 +213,7 @@ namespace GeographicLib {
     // check, e.g., on verifying quadrants in atan2.  In addition, this
     // enforces some symmetries in the results returned.
 
-    real sbet1, cbet1, sbet2, cbet2, s12x, m12x;
+    real sbet1, cbet1, sbet2, cbet2, s12x=0, m12x=0;
     // Initialize for the meridian.  No longitude calculation is done in this
     // case to let the parameter default to 0.
     EllipticFunction E(-_ep2);
@@ -249,7 +249,7 @@ namespace GeographicLib {
       dn2 = (_f >= 0 ? sqrt(1 + _ep2 * Math::sq(sbet2)) :
              sqrt(1 - _e2 * Math::sq(cbet2)) / _f1);
 
-    real a12, sig12;
+    real a12=0, sig12;
 
     bool meridian = lat1 == -90 || slam12 == 0;
 
