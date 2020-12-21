@@ -270,6 +270,22 @@ bool MaplyBoundingBoxContains(MaplyBoundingBox bbox, MaplyCoordinate c);
 MaplyBoundingBox MaplyBoundingBoxFromLocations(const CLLocationCoordinate2D locs[], unsigned int numLocs);
 
 /**
+  Set up a bounding box from a list of 2D coordinates
+ */
+MaplyBoundingBox MaplyBoundingBoxFromCoordinates(const MaplyCoordinate coords[], unsigned int numCoords);
+MaplyBoundingBox MaplyBoundingBoxFromCoordinatesD(const MaplyCoordinateD coords[], unsigned int numCoords);
+MaplyBoundingBoxD MaplyBoundingBoxDFromCoordinates(const MaplyCoordinate coords[], unsigned int numCoords);
+MaplyBoundingBoxD MaplyBoundingBoxDFromCoordinatesD(const MaplyCoordinateD coords[], unsigned int numCoords);
+
+/**
+  Expand a bounding box with a list of 2D coordinates
+ */
+MaplyBoundingBox MaplyBoundingBoxAddCoordinates(MaplyBoundingBox box, const MaplyCoordinate coords[], unsigned int numCoords);
+MaplyBoundingBox MaplyBoundingBoxAddCoordinatesD(MaplyBoundingBox box, const MaplyCoordinateD coords[], unsigned int numCoords);
+MaplyBoundingBoxD MaplyBoundingBoxDAddCoordinates(MaplyBoundingBoxD box, const MaplyCoordinate coords[], unsigned int numCoords);
+MaplyBoundingBoxD MaplyBoundingBoxDAddCoordinatesD(MaplyBoundingBoxD box, const MaplyCoordinateD coords[], unsigned int numCoords);
+
+/**
  Return the intersection of two bounding boxes.
  */
 MaplyBoundingBox MaplyBoundingBoxIntersection(MaplyBoundingBox bbox0,MaplyBoundingBox bbox1);

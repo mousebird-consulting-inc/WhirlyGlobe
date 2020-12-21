@@ -206,7 +206,7 @@ namespace GeographicLib {
     // check, e.g., on verifying quadrants in atan2.  In addition, this
     // enforces some symmetries in the results returned.
 
-    real sbet1, cbet1, sbet2, cbet2, s12x, m12x;
+    real sbet1, cbet1, sbet2, cbet2, s12x=0, m12x=0;
 
     Math::sincosd(lat1, sbet1, cbet1); sbet1 *= _f1;
     // Ensure cbet1 = +epsilon at poles; doing the fix on beta means that sig12
@@ -237,7 +237,7 @@ namespace GeographicLib {
       dn1 = sqrt(1 + _ep2 * Math::sq(sbet1)),
       dn2 = sqrt(1 + _ep2 * Math::sq(sbet2));
 
-    real a12, sig12;
+    real a12=0, sig12;
     // index zero element of this array is unused
     real Ca[nC_];
 

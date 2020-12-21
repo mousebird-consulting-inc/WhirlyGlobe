@@ -23,159 +23,134 @@
 
 using namespace WhirlyKit;
 
-MaplyCoordinate MaplyCoordinateMake(float radLon,float radLat)
-{
-    MaplyCoordinate coord;
-    coord.x = radLon;
-    coord.y = radLat;
-    
-    return coord;
+MaplyCoordinate MaplyCoordinateMake(float radLon,float radLat) { return { radLon, radLat }; }
+MaplyCoordinateD MaplyCoordinateDMake(double radLon,double radLat) { return { radLon, radLat }; }
+MaplyCoordinate MaplyCoordinateMakeWithDegrees(float degLon,float degLat) { return { DegToRad(degLon), DegToRad(degLat) }; }
+MaplyCoordinateD MaplyCoordinateDMakeWithDegrees(double degLon, double degLat) { return { degLon, degLat }; }
+MaplyCoordinateD MaplyCoordinateDMakeWithMaplyCoordinate(MaplyCoordinate c) { return { c.x, c.y }; }
+MaplyCoordinate3d MaplyCoordinate3dMake(float x, float y, float z) { return { x, y, z}; }
+MaplyCoordinate3dD MaplyCoordinate3dDMake(double x, double y, double z) { return { x, y, z }; }
+
+inline MaplyBoundingBox MaplyBoundingBoxMakeFromMbr(Mbr mbr) {
+    return { MaplyCoordinateMake(mbr.ll().x(), mbr.ll().y()), MaplyCoordinateMake(mbr.ur().x(), mbr.ur().y()) };
 }
-
-MaplyCoordinateD MaplyCoordinateDMake(double radLon,double radLat)
-{
-    MaplyCoordinateD coord;
-    coord.x = radLon;
-    coord.y = radLat;
-    
-    return coord;
+inline MaplyBoundingBox MaplyBoundingBoxMakeFromMbrD(MbrD mbr) {
+    return { MaplyCoordinateMake(mbr.ll().x(), mbr.ll().y()), MaplyCoordinateMake(mbr.ur().x(), mbr.ur().y()) };
 }
-
-
-MaplyCoordinate MaplyCoordinateMakeWithDegrees(float degLon,float degLat)
-{
-    MaplyCoordinate coord;
-    coord.x = DegToRad(degLon);
-    coord.y = DegToRad(degLat);
-    
-    return coord;
+inline MaplyBoundingBoxD MaplyBoundingBoxDMakeFromMbr(Mbr mbr) {
+    return { MaplyCoordinateDMake(mbr.ll().x(), mbr.ll().y()), MaplyCoordinateDMake(mbr.ur().x(), mbr.ur().y()) };
 }
-
-MaplyCoordinateD MaplyCoordinateDMakeWithDegrees(double degLon,double degLat)
-{
-    MaplyCoordinateD coord;
-    coord.x = DegToRad(degLon);
-    coord.y = DegToRad(degLat);
-    
-    return coord;
-}
-
-MaplyCoordinateD MaplyCoordinateDMakeWithMaplyCoordinate(MaplyCoordinate c)
-{
-    MaplyCoordinateD coord;
-    coord.x = c.x;
-    coord.y = c.y;
-    return coord;
-}
-
-MaplyCoordinate3d MaplyCoordinate3dMake(float x,float y,float z)
-{
-    MaplyCoordinate3d coord;
-    coord.x = x;  coord.y = y;  coord.z = z;
-    return coord;
-}
-
-MaplyCoordinate3dD MaplyCoordinate3dDMake(double x,double y,double z)
-{
-    MaplyCoordinate3dD coord;
-    coord.x = x;  coord.y = y;  coord.z = z;
-    return coord;
+inline MaplyBoundingBoxD MaplyBoundingBoxDMakeFromMbrD(MbrD mbr) {
+    return { MaplyCoordinateDMake(mbr.ll().x(), mbr.ll().y()), MaplyCoordinateDMake(mbr.ur().x(), mbr.ur().y()) };
 }
 
 MaplyBoundingBox MaplyBoundingBoxMakeWithDegrees(float degLon0,float degLat0,float degLon1,float degLat1)
 {
-    MaplyBoundingBox bbox;
-    bbox.ll = MaplyCoordinateMakeWithDegrees(degLon0, degLat0);
-    bbox.ur = MaplyCoordinateMakeWithDegrees(degLon1, degLat1);
-    
-    return bbox;
+    return {
+        MaplyCoordinateMakeWithDegrees(degLon0, degLat0),
+        MaplyCoordinateMakeWithDegrees(degLon1, degLat1)
+    };
 }
 
 MaplyBoundingBoxD MaplyBoundingBoxDMakeWithDegrees(double degLon0,double degLat0,double degLon1,double degLat1)
 {
-    MaplyBoundingBoxD bbox;
-    bbox.ll = MaplyCoordinateDMakeWithDegrees(degLon0, degLat0);
-    bbox.ur = MaplyCoordinateDMakeWithDegrees(degLon1, degLat1);
-    
-    return bbox;
+    return {
+        MaplyCoordinateDMakeWithDegrees(degLon0, degLat0),
+        MaplyCoordinateDMakeWithDegrees(degLon1, degLat1)
+    };
 }
 
 bool MaplyBoundingBoxesOverlap(MaplyBoundingBox bbox0,MaplyBoundingBox bbox1)
 {
-    Mbr mbr0,mbr1;
-    mbr0.ll() = Point2f(bbox0.ll.x,bbox0.ll.y);
-    mbr0.ur() = Point2f(bbox0.ur.x,bbox0.ur.y);
-    mbr1.ll() = Point2f(bbox1.ll.x,bbox1.ll.y);
-    mbr1.ur() = Point2f(bbox1.ur.x,bbox1.ur.y);
-
+    const Mbr mbr0(Point2f(bbox0.ll.x,bbox0.ll.y), Point2f(bbox0.ur.x,bbox0.ur.y));
+    const Mbr mbr1(Point2f(bbox1.ll.x,bbox1.ll.y), Point2f(bbox1.ur.x,bbox1.ur.y));
     return mbr0.overlaps(mbr1);
 }
 
 bool MaplyBoundingBoxContains(MaplyBoundingBox bbox, MaplyCoordinate c)
 {
-    Mbr mbr;
-    Point2f point = Point2f(c.x, c.y);
-    mbr.ll() = Point2f(bbox.ll.x,bbox.ll.y);
-    mbr.ur() = Point2f(bbox.ur.x,bbox.ur.y);
-
-    return mbr.insideOrOnEdge(point);
+    const Mbr mbr(Point2f(bbox.ll.x,bbox.ll.y), Point2f(bbox.ur.x,bbox.ur.y));
+    return mbr.insideOrOnEdge(Point2f(c.x, c.y));
 }
 
 MaplyBoundingBox MaplyBoundingBoxFromLocations(const CLLocationCoordinate2D locs[], unsigned int numLocs)
 {
     Mbr mbr;
-
     for (unsigned int ii=0;ii<numLocs;ii++) {
-        CLLocationCoordinate2D loc = locs[ii];
-        MaplyCoordinate coord = MaplyCoordinateMakeWithDegrees(loc.longitude, loc.latitude);
+        const CLLocationCoordinate2D &loc = locs[ii];
+        const MaplyCoordinate coord = MaplyCoordinateMakeWithDegrees(loc.longitude, loc.latitude);
         mbr.addPoint(Point2d(coord.x,coord.y));
     }
-        
-    MaplyBoundingBox ret;
-    ret.ll.x = mbr.ll().x();  ret.ll.y = mbr.ll().y();
-    ret.ur.x = mbr.ur().x();  ret.ur.y = mbr.ur().y();
+    return MaplyBoundingBoxMakeFromMbr(mbr);
+}
 
-    return ret;
+namespace {
+    template <typename TBox, typename TPoints>
+    static TBox MbrAdd(TBox box, const TPoints pts[], unsigned count) {
+        for (auto i = 0; i < count; ++i) {
+            box.addPoint(Point2d(pts[i].x, pts[i].y));
+        }
+        return box;
+    }
+    template <typename TMbr>
+    static MaplyBoundingBox ToBox(TMbr mbr) {
+        return MaplyBoundingBox {
+            MaplyCoordinate { mbr.ll().x(), mbr.ll().y() },
+            MaplyCoordinate { mbr.ur().x(), mbr.ur().y() }
+        };
+    }
+    template <typename TMbr>
+    static MaplyBoundingBoxD ToBoxD(TMbr mbr) {
+        return MaplyBoundingBoxD {
+            MaplyCoordinateD { mbr.ll().x(), mbr.ll().y() },
+            MaplyCoordinateD { mbr.ur().x(), mbr.ur().y() }
+        };
+    }
+}
+
+MaplyBoundingBox MaplyBoundingBoxFromCoordinates(const MaplyCoordinate coords[], unsigned int numCoords) {
+    return ToBox(MbrAdd(Mbr(), coords, numCoords));
+}
+MaplyBoundingBox MaplyBoundingBoxFromCoordinatesD(const MaplyCoordinateD coords[], unsigned int numCoords) {
+    return ToBox(MbrAdd(Mbr(), coords, numCoords));
+}
+MaplyBoundingBoxD MaplyBoundingBoxDFromCoordinates(const MaplyCoordinate coords[], unsigned int numCoords) {
+    return ToBoxD(MbrAdd(MbrD(), coords, numCoords));
+}
+MaplyBoundingBoxD MaplyBoundingBoxDFromCoordinatesD(const MaplyCoordinateD coords[], unsigned int numCoords) {
+    return ToBoxD(MbrAdd(MbrD(), coords, numCoords));
+}
+MaplyBoundingBox MaplyBoundingBoxAddCoordinates(MaplyBoundingBox box, const MaplyCoordinate coords[], unsigned int numCoords) {
+    return ToBox(MbrAdd(Mbr(Point2f(box.ll.x, box.ll.y), Point2f(box.ur.x, box.ur.y)), coords, numCoords));
+}
+MaplyBoundingBox MaplyBoundingBoxAddCoordinatesD(MaplyBoundingBox box, const MaplyCoordinateD coords[], unsigned int numCoords) {
+    return ToBox(MbrAdd(Mbr(Point2f(box.ll.x, box.ll.y), Point2f(box.ur.x, box.ur.y)), coords, numCoords));
+}
+MaplyBoundingBoxD MaplyBoundingBoxDAddCoordinates(MaplyBoundingBoxD box, const MaplyCoordinate coords[], unsigned int numCoords) {
+    return ToBoxD(MbrAdd(MbrD(Point2d(box.ll.x, box.ll.y), Point2d(box.ur.x, box.ur.y)), coords, numCoords));
+}
+MaplyBoundingBoxD MaplyBoundingBoxDAddCoordinatesD(MaplyBoundingBoxD box, const MaplyCoordinateD coords[], unsigned int numCoords) {
+    return ToBoxD(MbrAdd(MbrD(Point2d(box.ll.x, box.ll.y), Point2d(box.ur.x, box.ur.y)), coords, numCoords));
 }
 
 MaplyBoundingBox MaplyBoundingBoxIntersection(MaplyBoundingBox bbox0,MaplyBoundingBox bbox1)
 {
-    Mbr mbr0;
-    mbr0.ll() = Point2f(bbox0.ll.x,bbox0.ll.y);
-    mbr0.ur() = Point2f(bbox0.ur.x,bbox0.ur.y);
-    Mbr mbr1;
-    mbr1.ll() = Point2f(bbox1.ll.x,bbox1.ll.y);
-    mbr1.ur() = Point2f(bbox1.ur.x,bbox1.ur.y);
-    Mbr inter = mbr0.intersect(mbr1);
-    
-    MaplyBoundingBox ret;
-    ret.ll.x = inter.ll().x();  ret.ll.y = inter.ll().y();
-    ret.ur.x = inter.ur().x();  ret.ur.y = inter.ur().y();
-    
-    return ret;
+    const Mbr mbr0(Point2f(bbox0.ll.x,bbox0.ll.y), Point2f(bbox0.ur.x,bbox0.ur.y));
+    const Mbr mbr1(Point2f(bbox1.ll.x,bbox1.ll.y), Point2f(bbox1.ur.x,bbox1.ur.y));
+    return MaplyBoundingBoxMakeFromMbr(mbr0.intersect(mbr1));
 }
 
 MaplyBoundingBox MaplyBoundingBoxExpandByFraction(MaplyBoundingBox bbox, float buffer)
 {
-    Mbr mbr;
-    mbr.ll() = Point2f(bbox.ll.x,bbox.ll.y);
-    mbr.ur() = Point2f(bbox.ur.x,bbox.ur.y);
-
+    Mbr mbr(Point2f(bbox.ll.x,bbox.ll.y), Point2f(bbox.ur.x,bbox.ur.y));
     mbr.expandByFraction(buffer);
 
-    MaplyBoundingBox r;
-    r.ll = MaplyCoordinateMake(mbr.ll().x(), mbr.ll().y());
-    r.ur = MaplyCoordinateMake(mbr.ur().x(), mbr.ur().y());
-
-    return r;
+    return MaplyBoundingBoxMakeFromMbr(mbr);
 }
-
-
 
 double MaplyGreatCircleDistance(MaplyCoordinate p0,MaplyCoordinate p1)
 {
-    double delta = acos(sin(p0.y)*sin(p1.y) + cos(p0.y)*cos(p1.y)*cos(p1.x-p0.x));
-    return delta * EarthRadius;
+    return EarthRadius * acos(sin(p0.y)*sin(p1.y) + cos(p0.y)*cos(p1.y)*cos(p1.x-p0.x));
 }
 
 @implementation MaplyCoordinate3dWrapper
