@@ -902,6 +902,90 @@
 		313363AB253E5A2B007C2F27 /* WorkRegion_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 313363AA253E5A24007C2F27 /* WorkRegion_private.h */; };
 		315082CA254CD29000A0A2B2 /* VectorTilePBFParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 315082C9254CD29000A0A2B2 /* VectorTilePBFParser.cpp */; };
 		315082D0254CD2BF00A0A2B2 /* VectorTilePBFParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 315082CF254CD2BF00A0A2B2 /* VectorTilePBFParser.h */; };
+		31833112259112BA005FEF70 /* LambertConformalConic.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 318330BF259112BA005FEF70 /* LambertConformalConic.hpp */; };
+		31833113259112BA005FEF70 /* MGRS.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 318330C0259112BA005FEF70 /* MGRS.hpp */; };
+		31833114259112BA005FEF70 /* LocalCartesian.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 318330C1259112BA005FEF70 /* LocalCartesian.hpp */; };
+		31833115259112BA005FEF70 /* GeodesicLine.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 318330C2259112BA005FEF70 /* GeodesicLine.hpp */; };
+		31833116259112BA005FEF70 /* GravityCircle.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 318330C3259112BA005FEF70 /* GravityCircle.hpp */; };
+		31833117259112BA005FEF70 /* UTMUPS.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 318330C4259112BA005FEF70 /* UTMUPS.hpp */; };
+		31833118259112BA005FEF70 /* Ellipsoid.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 318330C5259112BA005FEF70 /* Ellipsoid.hpp */; };
+		31833119259112BA005FEF70 /* PolarStereographic.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 318330C6259112BA005FEF70 /* PolarStereographic.hpp */; };
+		3183311A259112BA005FEF70 /* AlbersEqualArea.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 318330C7259112BA005FEF70 /* AlbersEqualArea.hpp */; };
+		3183311B259112BA005FEF70 /* Utility.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 318330C8259112BA005FEF70 /* Utility.hpp */; };
+		3183311C259112BA005FEF70 /* MagneticModel.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 318330C9259112BA005FEF70 /* MagneticModel.hpp */; };
+		3183311D259112BA005FEF70 /* SphericalHarmonic1.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 318330CA259112BA005FEF70 /* SphericalHarmonic1.hpp */; };
+		3183311E259112BA005FEF70 /* TransverseMercator.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 318330CB259112BA005FEF70 /* TransverseMercator.hpp */; };
+		3183311F259112BA005FEF70 /* TransverseMercatorExact.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 318330CC259112BA005FEF70 /* TransverseMercatorExact.hpp */; };
+		31833120259112BA005FEF70 /* Config.h in Headers */ = {isa = PBXBuildFile; fileRef = 318330CD259112BA005FEF70 /* Config.h */; };
+		31833121259112BA005FEF70 /* SphericalHarmonic2.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 318330CE259112BA005FEF70 /* SphericalHarmonic2.hpp */; };
+		31833122259112BA005FEF70 /* Geoid.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 318330CF259112BA005FEF70 /* Geoid.hpp */; };
+		31833123259112BA005FEF70 /* Rhumb.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 318330D0259112BA005FEF70 /* Rhumb.hpp */; };
+		31833124259112BA005FEF70 /* SphericalHarmonic.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 318330D1259112BA005FEF70 /* SphericalHarmonic.hpp */; };
+		31833125259112BA005FEF70 /* NormalGravity.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 318330D2259112BA005FEF70 /* NormalGravity.hpp */; };
+		31833126259112BA005FEF70 /* SphericalEngine.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 318330D3259112BA005FEF70 /* SphericalEngine.hpp */; };
+		31833127259112BA005FEF70 /* GeodesicExact.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 318330D4259112BA005FEF70 /* GeodesicExact.hpp */; };
+		31833128259112BA005FEF70 /* GARS.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 318330D5259112BA005FEF70 /* GARS.hpp */; };
+		31833129259112BA005FEF70 /* Geocentric.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 318330D6259112BA005FEF70 /* Geocentric.hpp */; };
+		3183312A259112BA005FEF70 /* Accumulator.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 318330D7259112BA005FEF70 /* Accumulator.hpp */; };
+		3183312B259112BA005FEF70 /* PolygonArea.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 318330D8259112BA005FEF70 /* PolygonArea.hpp */; };
+		3183312C259112BA005FEF70 /* Math.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 318330D9259112BA005FEF70 /* Math.hpp */; };
+		3183312D259112BA005FEF70 /* Geodesic.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 318330DA259112BA005FEF70 /* Geodesic.hpp */; };
+		3183312E259112BA005FEF70 /* AzimuthalEquidistant.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 318330DB259112BA005FEF70 /* AzimuthalEquidistant.hpp */; };
+		3183312F259112BA005FEF70 /* Constants.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 318330DC259112BA005FEF70 /* Constants.hpp */; };
+		31833130259112BA005FEF70 /* OSGB.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 318330DD259112BA005FEF70 /* OSGB.hpp */; };
+		31833131259112BA005FEF70 /* GeoCoords.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 318330DE259112BA005FEF70 /* GeoCoords.hpp */; };
+		31833132259112BA005FEF70 /* Config-ac.h.in in Resources */ = {isa = PBXBuildFile; fileRef = 318330DF259112BA005FEF70 /* Config-ac.h.in */; };
+		31833133259112BA005FEF70 /* CassiniSoldner.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 318330E0259112BA005FEF70 /* CassiniSoldner.hpp */; };
+		31833134259112BA005FEF70 /* MagneticCircle.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 318330E1259112BA005FEF70 /* MagneticCircle.hpp */; };
+		31833135259112BA005FEF70 /* NearestNeighbor.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 318330E2259112BA005FEF70 /* NearestNeighbor.hpp */; };
+		31833136259112BA005FEF70 /* DMS.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 318330E3259112BA005FEF70 /* DMS.hpp */; };
+		31833137259112BA005FEF70 /* Georef.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 318330E4259112BA005FEF70 /* Georef.hpp */; };
+		31833138259112BA005FEF70 /* Gnomonic.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 318330E5259112BA005FEF70 /* Gnomonic.hpp */; };
+		31833139259112BA005FEF70 /* GravityModel.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 318330E6259112BA005FEF70 /* GravityModel.hpp */; };
+		3183313A259112BA005FEF70 /* GeodesicLineExact.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 318330E7259112BA005FEF70 /* GeodesicLineExact.hpp */; };
+		3183313B259112BA005FEF70 /* CircularEngine.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 318330E8259112BA005FEF70 /* CircularEngine.hpp */; };
+		3183313C259112BA005FEF70 /* Geohash.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 318330E9259112BA005FEF70 /* Geohash.hpp */; };
+		3183313D259112BA005FEF70 /* EllipticFunction.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 318330EA259112BA005FEF70 /* EllipticFunction.hpp */; };
+		3183313E259112BA005FEF70 /* DMS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 318330EC259112BA005FEF70 /* DMS.cpp */; };
+		3183313F259112BA005FEF70 /* Georef.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 318330ED259112BA005FEF70 /* Georef.cpp */; };
+		31833140259112BA005FEF70 /* Gnomonic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 318330EE259112BA005FEF70 /* Gnomonic.cpp */; };
+		31833141259112BA005FEF70 /* GravityModel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 318330EF259112BA005FEF70 /* GravityModel.cpp */; };
+		31833142259112BA005FEF70 /* GeodesicLineExact.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 318330F0259112BA005FEF70 /* GeodesicLineExact.cpp */; };
+		31833143259112BA005FEF70 /* CircularEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 318330F1259112BA005FEF70 /* CircularEngine.cpp */; };
+		31833144259112BA005FEF70 /* Geohash.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 318330F2259112BA005FEF70 /* Geohash.cpp */; };
+		31833145259112BA005FEF70 /* EllipticFunction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 318330F3259112BA005FEF70 /* EllipticFunction.cpp */; };
+		31833146259112BA005FEF70 /* PolygonArea.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 318330F4259112BA005FEF70 /* PolygonArea.cpp */; };
+		31833147259112BA005FEF70 /* Accumulator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 318330F5259112BA005FEF70 /* Accumulator.cpp */; };
+		31833148259112BA005FEF70 /* Math.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 318330F6259112BA005FEF70 /* Math.cpp */; };
+		31833149259112BA005FEF70 /* Geodesic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 318330F7259112BA005FEF70 /* Geodesic.cpp */; };
+		3183314A259112BA005FEF70 /* AzimuthalEquidistant.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 318330F8259112BA005FEF70 /* AzimuthalEquidistant.cpp */; };
+		3183314B259112BA005FEF70 /* OSGB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 318330F9259112BA005FEF70 /* OSGB.cpp */; };
+		3183314C259112BA005FEF70 /* GeoCoords.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 318330FA259112BA005FEF70 /* GeoCoords.cpp */; };
+		3183314D259112BA005FEF70 /* CassiniSoldner.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 318330FB259112BA005FEF70 /* CassiniSoldner.cpp */; };
+		3183314E259112BA005FEF70 /* MagneticCircle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 318330FC259112BA005FEF70 /* MagneticCircle.cpp */; };
+		3183314F259112BA005FEF70 /* Rhumb.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 318330FD259112BA005FEF70 /* Rhumb.cpp */; };
+		31833150259112BA005FEF70 /* NormalGravity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 318330FE259112BA005FEF70 /* NormalGravity.cpp */; };
+		31833151259112BA005FEF70 /* SphericalEngine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 318330FF259112BA005FEF70 /* SphericalEngine.cpp */; };
+		31833152259112BA005FEF70 /* GeodesicExact.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 31833100259112BA005FEF70 /* GeodesicExact.cpp */; };
+		31833153259112BA005FEF70 /* GeodesicExactC4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 31833101259112BA005FEF70 /* GeodesicExactC4.cpp */; };
+		31833154259112BA005FEF70 /* GARS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 31833102259112BA005FEF70 /* GARS.cpp */; };
+		31833155259112BA005FEF70 /* Geocentric.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 31833103259112BA005FEF70 /* Geocentric.cpp */; };
+		31833156259112BA005FEF70 /* LambertConformalConic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 31833104259112BA005FEF70 /* LambertConformalConic.cpp */; };
+		31833157259112BA005FEF70 /* MGRS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 31833105259112BA005FEF70 /* MGRS.cpp */; };
+		31833158259112BA005FEF70 /* GravityCircle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 31833106259112BA005FEF70 /* GravityCircle.cpp */; };
+		31833159259112BA005FEF70 /* LocalCartesian.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 31833107259112BA005FEF70 /* LocalCartesian.cpp */; };
+		3183315A259112BA005FEF70 /* GeodesicLine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 31833108259112BA005FEF70 /* GeodesicLine.cpp */; };
+		3183315B259112BA005FEF70 /* PolarStereographic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 31833109259112BA005FEF70 /* PolarStereographic.cpp */; };
+		3183315C259112BA005FEF70 /* UTMUPS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3183310A259112BA005FEF70 /* UTMUPS.cpp */; };
+		3183315D259112BA005FEF70 /* Ellipsoid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3183310B259112BA005FEF70 /* Ellipsoid.cpp */; };
+		3183315E259112BA005FEF70 /* AlbersEqualArea.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3183310C259112BA005FEF70 /* AlbersEqualArea.cpp */; };
+		3183315F259112BA005FEF70 /* MagneticModel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3183310D259112BA005FEF70 /* MagneticModel.cpp */; };
+		31833160259112BA005FEF70 /* Utility.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3183310E259112BA005FEF70 /* Utility.cpp */; };
+		31833161259112BA005FEF70 /* TransverseMercator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3183310F259112BA005FEF70 /* TransverseMercator.cpp */; };
+		31833162259112BA005FEF70 /* TransverseMercatorExact.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 31833110259112BA005FEF70 /* TransverseMercatorExact.cpp */; };
+		31833163259112BA005FEF70 /* Geoid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 31833111259112BA005FEF70 /* Geoid.cpp */; };
+		31833167259114A0005FEF70 /* GeographicLib.h in Headers */ = {isa = PBXBuildFile; fileRef = 31833166259114A0005FEF70 /* GeographicLib.h */; };
+		3183316B259114B0005FEF70 /* GeographicLib.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3183316A259114B0005FEF70 /* GeographicLib.mm */; };
 		31872FD52550ED71002C9C73 /* maply_pb_names.h in Headers */ = {isa = PBXBuildFile; fileRef = 31872FD42550ED71002C9C73 /* maply_pb_names.h */; };
 		31942FC6254B5C0A0006B499 /* maply_pb_common.c in Sources */ = {isa = PBXBuildFile; fileRef = 31942F9C254B5C0A0006B499 /* maply_pb_common.c */; };
 		31942FCD254B5C0A0006B499 /* maply_pb_decode.c in Sources */ = {isa = PBXBuildFile; fileRef = 31942FA4254B5C0A0006B499 /* maply_pb_decode.c */; };
@@ -1831,6 +1915,90 @@
 		313363AA253E5A24007C2F27 /* WorkRegion_private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WorkRegion_private.h; sourceTree = "<group>"; };
 		315082C9254CD29000A0A2B2 /* VectorTilePBFParser.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = VectorTilePBFParser.cpp; path = ../../../../common/WhirlyGlobeLib/src/VectorTilePBFParser.cpp; sourceTree = "<group>"; };
 		315082CF254CD2BF00A0A2B2 /* VectorTilePBFParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = VectorTilePBFParser.h; path = ../../../../common/WhirlyGlobeLib/include/VectorTilePBFParser.h; sourceTree = "<group>"; };
+		318330BF259112BA005FEF70 /* LambertConformalConic.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = LambertConformalConic.hpp; sourceTree = "<group>"; };
+		318330C0259112BA005FEF70 /* MGRS.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MGRS.hpp; sourceTree = "<group>"; };
+		318330C1259112BA005FEF70 /* LocalCartesian.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = LocalCartesian.hpp; sourceTree = "<group>"; };
+		318330C2259112BA005FEF70 /* GeodesicLine.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = GeodesicLine.hpp; sourceTree = "<group>"; };
+		318330C3259112BA005FEF70 /* GravityCircle.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = GravityCircle.hpp; sourceTree = "<group>"; };
+		318330C4259112BA005FEF70 /* UTMUPS.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = UTMUPS.hpp; sourceTree = "<group>"; };
+		318330C5259112BA005FEF70 /* Ellipsoid.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Ellipsoid.hpp; sourceTree = "<group>"; };
+		318330C6259112BA005FEF70 /* PolarStereographic.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = PolarStereographic.hpp; sourceTree = "<group>"; };
+		318330C7259112BA005FEF70 /* AlbersEqualArea.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = AlbersEqualArea.hpp; sourceTree = "<group>"; };
+		318330C8259112BA005FEF70 /* Utility.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Utility.hpp; sourceTree = "<group>"; };
+		318330C9259112BA005FEF70 /* MagneticModel.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MagneticModel.hpp; sourceTree = "<group>"; };
+		318330CA259112BA005FEF70 /* SphericalHarmonic1.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SphericalHarmonic1.hpp; sourceTree = "<group>"; };
+		318330CB259112BA005FEF70 /* TransverseMercator.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = TransverseMercator.hpp; sourceTree = "<group>"; };
+		318330CC259112BA005FEF70 /* TransverseMercatorExact.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = TransverseMercatorExact.hpp; sourceTree = "<group>"; };
+		318330CD259112BA005FEF70 /* Config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Config.h; sourceTree = "<group>"; };
+		318330CE259112BA005FEF70 /* SphericalHarmonic2.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SphericalHarmonic2.hpp; sourceTree = "<group>"; };
+		318330CF259112BA005FEF70 /* Geoid.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Geoid.hpp; sourceTree = "<group>"; };
+		318330D0259112BA005FEF70 /* Rhumb.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Rhumb.hpp; sourceTree = "<group>"; };
+		318330D1259112BA005FEF70 /* SphericalHarmonic.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SphericalHarmonic.hpp; sourceTree = "<group>"; };
+		318330D2259112BA005FEF70 /* NormalGravity.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = NormalGravity.hpp; sourceTree = "<group>"; };
+		318330D3259112BA005FEF70 /* SphericalEngine.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SphericalEngine.hpp; sourceTree = "<group>"; };
+		318330D4259112BA005FEF70 /* GeodesicExact.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = GeodesicExact.hpp; sourceTree = "<group>"; };
+		318330D5259112BA005FEF70 /* GARS.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = GARS.hpp; sourceTree = "<group>"; };
+		318330D6259112BA005FEF70 /* Geocentric.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Geocentric.hpp; sourceTree = "<group>"; };
+		318330D7259112BA005FEF70 /* Accumulator.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Accumulator.hpp; sourceTree = "<group>"; };
+		318330D8259112BA005FEF70 /* PolygonArea.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = PolygonArea.hpp; sourceTree = "<group>"; };
+		318330D9259112BA005FEF70 /* Math.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Math.hpp; sourceTree = "<group>"; };
+		318330DA259112BA005FEF70 /* Geodesic.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Geodesic.hpp; sourceTree = "<group>"; };
+		318330DB259112BA005FEF70 /* AzimuthalEquidistant.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = AzimuthalEquidistant.hpp; sourceTree = "<group>"; };
+		318330DC259112BA005FEF70 /* Constants.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Constants.hpp; sourceTree = "<group>"; };
+		318330DD259112BA005FEF70 /* OSGB.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = OSGB.hpp; sourceTree = "<group>"; };
+		318330DE259112BA005FEF70 /* GeoCoords.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = GeoCoords.hpp; sourceTree = "<group>"; };
+		318330DF259112BA005FEF70 /* Config-ac.h.in */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "Config-ac.h.in"; sourceTree = "<group>"; };
+		318330E0259112BA005FEF70 /* CassiniSoldner.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = CassiniSoldner.hpp; sourceTree = "<group>"; };
+		318330E1259112BA005FEF70 /* MagneticCircle.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MagneticCircle.hpp; sourceTree = "<group>"; };
+		318330E2259112BA005FEF70 /* NearestNeighbor.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = NearestNeighbor.hpp; sourceTree = "<group>"; };
+		318330E3259112BA005FEF70 /* DMS.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = DMS.hpp; sourceTree = "<group>"; };
+		318330E4259112BA005FEF70 /* Georef.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Georef.hpp; sourceTree = "<group>"; };
+		318330E5259112BA005FEF70 /* Gnomonic.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Gnomonic.hpp; sourceTree = "<group>"; };
+		318330E6259112BA005FEF70 /* GravityModel.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = GravityModel.hpp; sourceTree = "<group>"; };
+		318330E7259112BA005FEF70 /* GeodesicLineExact.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = GeodesicLineExact.hpp; sourceTree = "<group>"; };
+		318330E8259112BA005FEF70 /* CircularEngine.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = CircularEngine.hpp; sourceTree = "<group>"; };
+		318330E9259112BA005FEF70 /* Geohash.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Geohash.hpp; sourceTree = "<group>"; };
+		318330EA259112BA005FEF70 /* EllipticFunction.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = EllipticFunction.hpp; sourceTree = "<group>"; };
+		318330EC259112BA005FEF70 /* DMS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DMS.cpp; sourceTree = "<group>"; };
+		318330ED259112BA005FEF70 /* Georef.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Georef.cpp; sourceTree = "<group>"; };
+		318330EE259112BA005FEF70 /* Gnomonic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Gnomonic.cpp; sourceTree = "<group>"; };
+		318330EF259112BA005FEF70 /* GravityModel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GravityModel.cpp; sourceTree = "<group>"; };
+		318330F0259112BA005FEF70 /* GeodesicLineExact.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GeodesicLineExact.cpp; sourceTree = "<group>"; };
+		318330F1259112BA005FEF70 /* CircularEngine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CircularEngine.cpp; sourceTree = "<group>"; };
+		318330F2259112BA005FEF70 /* Geohash.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Geohash.cpp; sourceTree = "<group>"; };
+		318330F3259112BA005FEF70 /* EllipticFunction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EllipticFunction.cpp; sourceTree = "<group>"; };
+		318330F4259112BA005FEF70 /* PolygonArea.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PolygonArea.cpp; sourceTree = "<group>"; };
+		318330F5259112BA005FEF70 /* Accumulator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Accumulator.cpp; sourceTree = "<group>"; };
+		318330F6259112BA005FEF70 /* Math.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Math.cpp; sourceTree = "<group>"; };
+		318330F7259112BA005FEF70 /* Geodesic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Geodesic.cpp; sourceTree = "<group>"; };
+		318330F8259112BA005FEF70 /* AzimuthalEquidistant.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AzimuthalEquidistant.cpp; sourceTree = "<group>"; };
+		318330F9259112BA005FEF70 /* OSGB.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OSGB.cpp; sourceTree = "<group>"; };
+		318330FA259112BA005FEF70 /* GeoCoords.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GeoCoords.cpp; sourceTree = "<group>"; };
+		318330FB259112BA005FEF70 /* CassiniSoldner.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CassiniSoldner.cpp; sourceTree = "<group>"; };
+		318330FC259112BA005FEF70 /* MagneticCircle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MagneticCircle.cpp; sourceTree = "<group>"; };
+		318330FD259112BA005FEF70 /* Rhumb.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Rhumb.cpp; sourceTree = "<group>"; };
+		318330FE259112BA005FEF70 /* NormalGravity.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NormalGravity.cpp; sourceTree = "<group>"; };
+		318330FF259112BA005FEF70 /* SphericalEngine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SphericalEngine.cpp; sourceTree = "<group>"; };
+		31833100259112BA005FEF70 /* GeodesicExact.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GeodesicExact.cpp; sourceTree = "<group>"; };
+		31833101259112BA005FEF70 /* GeodesicExactC4.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GeodesicExactC4.cpp; sourceTree = "<group>"; };
+		31833102259112BA005FEF70 /* GARS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GARS.cpp; sourceTree = "<group>"; };
+		31833103259112BA005FEF70 /* Geocentric.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Geocentric.cpp; sourceTree = "<group>"; };
+		31833104259112BA005FEF70 /* LambertConformalConic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LambertConformalConic.cpp; sourceTree = "<group>"; };
+		31833105259112BA005FEF70 /* MGRS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MGRS.cpp; sourceTree = "<group>"; };
+		31833106259112BA005FEF70 /* GravityCircle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GravityCircle.cpp; sourceTree = "<group>"; };
+		31833107259112BA005FEF70 /* LocalCartesian.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LocalCartesian.cpp; sourceTree = "<group>"; };
+		31833108259112BA005FEF70 /* GeodesicLine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GeodesicLine.cpp; sourceTree = "<group>"; };
+		31833109259112BA005FEF70 /* PolarStereographic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PolarStereographic.cpp; sourceTree = "<group>"; };
+		3183310A259112BA005FEF70 /* UTMUPS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UTMUPS.cpp; sourceTree = "<group>"; };
+		3183310B259112BA005FEF70 /* Ellipsoid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Ellipsoid.cpp; sourceTree = "<group>"; };
+		3183310C259112BA005FEF70 /* AlbersEqualArea.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AlbersEqualArea.cpp; sourceTree = "<group>"; };
+		3183310D259112BA005FEF70 /* MagneticModel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MagneticModel.cpp; sourceTree = "<group>"; };
+		3183310E259112BA005FEF70 /* Utility.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Utility.cpp; sourceTree = "<group>"; };
+		3183310F259112BA005FEF70 /* TransverseMercator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TransverseMercator.cpp; sourceTree = "<group>"; };
+		31833110259112BA005FEF70 /* TransverseMercatorExact.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TransverseMercatorExact.cpp; sourceTree = "<group>"; };
+		31833111259112BA005FEF70 /* Geoid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Geoid.cpp; sourceTree = "<group>"; };
+		31833166259114A0005FEF70 /* GeographicLib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeographicLib.h; sourceTree = "<group>"; };
+		3183316A259114B0005FEF70 /* GeographicLib.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GeographicLib.mm; sourceTree = "<group>"; };
 		31872FD42550ED71002C9C73 /* maply_pb_names.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = maply_pb_names.h; sourceTree = "<group>"; };
 		31942F9C254B5C0A0006B499 /* maply_pb_common.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = maply_pb_common.c; sourceTree = "<group>"; };
 		31942FA4254B5C0A0006B499 /* maply_pb_decode.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = maply_pb_decode.c; sourceTree = "<group>"; };
@@ -1946,6 +2114,7 @@
 		2B446ABE21F268360078A975 /* external */ = {
 			isa = PBXGroup;
 			children = (
+				318330BC259112BA005FEF70 /* GeographicLib */,
 				31942F9B254B5C0A0006B499 /* nanopb */,
 				2B4A816625391A070016618C /* lodepng */,
 				2B82B4041E82E2490095FB14 /* shapelib-1.3.0b2 */,
@@ -3139,6 +3308,7 @@
 		2BC90D5B223308B900D8B606 /* geometry utils */ = {
 			isa = PBXGroup;
 			children = (
+				31833166259114A0005FEF70 /* GeographicLib.h */,
 				2BC90D5C223308C700D8B606 /* ScreenObject_iOS.h */,
 			);
 			name = "geometry utils";
@@ -3147,6 +3317,7 @@
 		2BC90D5E223308CF00D8B606 /* geometry utils */ = {
 			isa = PBXGroup;
 			children = (
+				3183316A259114B0005FEF70 /* GeographicLib.mm */,
 				2BC90D5F223308DB00D8B606 /* ScreenObject_iOS.mm */,
 			);
 			name = "geometry utils";
@@ -3590,6 +3761,120 @@
 			name = loading;
 			sourceTree = "<group>";
 		};
+		318330BC259112BA005FEF70 /* GeographicLib */ = {
+			isa = PBXGroup;
+			children = (
+				318330BD259112BA005FEF70 /* include */,
+				318330EB259112BA005FEF70 /* src */,
+			);
+			name = GeographicLib;
+			path = ../../../../common/local_libs/GeographicLib;
+			sourceTree = "<group>";
+		};
+		318330BD259112BA005FEF70 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				318330BE259112BA005FEF70 /* GeographicLib */,
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
+		318330BE259112BA005FEF70 /* GeographicLib */ = {
+			isa = PBXGroup;
+			children = (
+				318330BF259112BA005FEF70 /* LambertConformalConic.hpp */,
+				318330C0259112BA005FEF70 /* MGRS.hpp */,
+				318330C1259112BA005FEF70 /* LocalCartesian.hpp */,
+				318330C2259112BA005FEF70 /* GeodesicLine.hpp */,
+				318330C3259112BA005FEF70 /* GravityCircle.hpp */,
+				318330C4259112BA005FEF70 /* UTMUPS.hpp */,
+				318330C5259112BA005FEF70 /* Ellipsoid.hpp */,
+				318330C6259112BA005FEF70 /* PolarStereographic.hpp */,
+				318330C7259112BA005FEF70 /* AlbersEqualArea.hpp */,
+				318330C8259112BA005FEF70 /* Utility.hpp */,
+				318330C9259112BA005FEF70 /* MagneticModel.hpp */,
+				318330CA259112BA005FEF70 /* SphericalHarmonic1.hpp */,
+				318330CB259112BA005FEF70 /* TransverseMercator.hpp */,
+				318330CC259112BA005FEF70 /* TransverseMercatorExact.hpp */,
+				318330CD259112BA005FEF70 /* Config.h */,
+				318330CE259112BA005FEF70 /* SphericalHarmonic2.hpp */,
+				318330CF259112BA005FEF70 /* Geoid.hpp */,
+				318330D0259112BA005FEF70 /* Rhumb.hpp */,
+				318330D1259112BA005FEF70 /* SphericalHarmonic.hpp */,
+				318330D2259112BA005FEF70 /* NormalGravity.hpp */,
+				318330D3259112BA005FEF70 /* SphericalEngine.hpp */,
+				318330D4259112BA005FEF70 /* GeodesicExact.hpp */,
+				318330D5259112BA005FEF70 /* GARS.hpp */,
+				318330D6259112BA005FEF70 /* Geocentric.hpp */,
+				318330D7259112BA005FEF70 /* Accumulator.hpp */,
+				318330D8259112BA005FEF70 /* PolygonArea.hpp */,
+				318330D9259112BA005FEF70 /* Math.hpp */,
+				318330DA259112BA005FEF70 /* Geodesic.hpp */,
+				318330DB259112BA005FEF70 /* AzimuthalEquidistant.hpp */,
+				318330DC259112BA005FEF70 /* Constants.hpp */,
+				318330DD259112BA005FEF70 /* OSGB.hpp */,
+				318330DE259112BA005FEF70 /* GeoCoords.hpp */,
+				318330DF259112BA005FEF70 /* Config-ac.h.in */,
+				318330E0259112BA005FEF70 /* CassiniSoldner.hpp */,
+				318330E1259112BA005FEF70 /* MagneticCircle.hpp */,
+				318330E2259112BA005FEF70 /* NearestNeighbor.hpp */,
+				318330E3259112BA005FEF70 /* DMS.hpp */,
+				318330E4259112BA005FEF70 /* Georef.hpp */,
+				318330E5259112BA005FEF70 /* Gnomonic.hpp */,
+				318330E6259112BA005FEF70 /* GravityModel.hpp */,
+				318330E7259112BA005FEF70 /* GeodesicLineExact.hpp */,
+				318330E8259112BA005FEF70 /* CircularEngine.hpp */,
+				318330E9259112BA005FEF70 /* Geohash.hpp */,
+				318330EA259112BA005FEF70 /* EllipticFunction.hpp */,
+			);
+			path = GeographicLib;
+			sourceTree = "<group>";
+		};
+		318330EB259112BA005FEF70 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				318330EC259112BA005FEF70 /* DMS.cpp */,
+				318330ED259112BA005FEF70 /* Georef.cpp */,
+				318330EE259112BA005FEF70 /* Gnomonic.cpp */,
+				318330EF259112BA005FEF70 /* GravityModel.cpp */,
+				318330F0259112BA005FEF70 /* GeodesicLineExact.cpp */,
+				318330F1259112BA005FEF70 /* CircularEngine.cpp */,
+				318330F2259112BA005FEF70 /* Geohash.cpp */,
+				318330F3259112BA005FEF70 /* EllipticFunction.cpp */,
+				318330F4259112BA005FEF70 /* PolygonArea.cpp */,
+				318330F5259112BA005FEF70 /* Accumulator.cpp */,
+				318330F6259112BA005FEF70 /* Math.cpp */,
+				318330F7259112BA005FEF70 /* Geodesic.cpp */,
+				318330F8259112BA005FEF70 /* AzimuthalEquidistant.cpp */,
+				318330F9259112BA005FEF70 /* OSGB.cpp */,
+				318330FA259112BA005FEF70 /* GeoCoords.cpp */,
+				318330FB259112BA005FEF70 /* CassiniSoldner.cpp */,
+				318330FC259112BA005FEF70 /* MagneticCircle.cpp */,
+				318330FD259112BA005FEF70 /* Rhumb.cpp */,
+				318330FE259112BA005FEF70 /* NormalGravity.cpp */,
+				318330FF259112BA005FEF70 /* SphericalEngine.cpp */,
+				31833100259112BA005FEF70 /* GeodesicExact.cpp */,
+				31833101259112BA005FEF70 /* GeodesicExactC4.cpp */,
+				31833102259112BA005FEF70 /* GARS.cpp */,
+				31833103259112BA005FEF70 /* Geocentric.cpp */,
+				31833104259112BA005FEF70 /* LambertConformalConic.cpp */,
+				31833105259112BA005FEF70 /* MGRS.cpp */,
+				31833106259112BA005FEF70 /* GravityCircle.cpp */,
+				31833107259112BA005FEF70 /* LocalCartesian.cpp */,
+				31833108259112BA005FEF70 /* GeodesicLine.cpp */,
+				31833109259112BA005FEF70 /* PolarStereographic.cpp */,
+				3183310A259112BA005FEF70 /* UTMUPS.cpp */,
+				3183310B259112BA005FEF70 /* Ellipsoid.cpp */,
+				3183310C259112BA005FEF70 /* AlbersEqualArea.cpp */,
+				3183310D259112BA005FEF70 /* MagneticModel.cpp */,
+				3183310E259112BA005FEF70 /* Utility.cpp */,
+				3183310F259112BA005FEF70 /* TransverseMercator.cpp */,
+				31833110259112BA005FEF70 /* TransverseMercatorExact.cpp */,
+				31833111259112BA005FEF70 /* Geoid.cpp */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
 		31942F9B254B5C0A0006B499 /* nanopb */ = {
 			isa = PBXGroup;
 			children = (
@@ -3614,10 +3899,12 @@
 				2B0D978C24490B4B00F64852 /* MapboxVectorStyleLine.h in Headers */,
 				2BC3D6AC22024EB300CE91D0 /* MaplyAnimateTranslation.h in Headers */,
 				E5EF69F61D6B931500A2A660 /* SLDExpressions.h in Headers */,
+				31833112259112BA005FEF70 /* LambertConformalConic.hpp in Headers */,
 				2B82B5F31E82E2490095FB14 /* sweep.h in Headers */,
 				2BE5395E1D249BEF00B60FAD /* AAEquationOfTime.h in Headers */,
 				2B82B6131E82E2490095FB14 /* JSONPreparse.h in Headers */,
 				2B846F0E21F158E100EF2A82 /* MarkerManager.h in Headers */,
+				31833134259112BA005FEF70 /* MagneticCircle.hpp in Headers */,
 				2BE5397C1D249BEF00B60FAD /* AAPlanetaryPhenomena.h in Headers */,
 				2B82B6181E82E2490095FB14 /* JSONStream.h in Headers */,
 				2BE538271D249A1200B60FAD /* MaplyStarsModel.h in Headers */,
@@ -3640,6 +3927,7 @@
 				2B846F1121F158E100EF2A82 /* BillboardManager.h in Headers */,
 				2B82B6DA1E82E24A0095FB14 /* NSDictionary+Stuff.h in Headers */,
 				2B82B6141E82E2490095FB14 /* JSONSharedString.h in Headers */,
+				3183313B259112BA005FEF70 /* CircularEngine.hpp in Headers */,
 				2BE538311D249A1200B60FAD /* MaplyControllerLayer.h in Headers */,
 				2BE53A861D249C8300B60FAD /* NSString+DDXML.h in Headers */,
 				2BE53A981D249C9000B60FAD /* DDXMLNode.h in Headers */,
@@ -3669,6 +3957,7 @@
 				2BA827CB225E719D00324594 /* MapboxVectorTiles_private.h in Headers */,
 				2B82B63B1E82E2490095FB14 /* geodesic.h in Headers */,
 				2BE539511D249BEF00B60FAD /* AAAberration.h in Headers */,
+				31833114259112BA005FEF70 /* LocalCartesian.hpp in Headers */,
 				2BE538221D249A1200B60FAD /* MaplyScreenObject.h in Headers */,
 				2B23133C21FA919E006AA344 /* Dictionary_NSDictionary.h in Headers */,
 				2B82B71D1E82E24A0095FB14 /* LayerThread.h in Headers */,
@@ -3677,6 +3966,7 @@
 				2B3F4518243F8F8100F85414 /* MaplyVectorStyleC.h in Headers */,
 				2B846F0921F158E100EF2A82 /* ShapeManager.h in Headers */,
 				2BE538721D249A1200B60FAD /* WhirlyGlobeViewController.h in Headers */,
+				3183313A259112BA005FEF70 /* GeodesicLineExact.hpp in Headers */,
 				2BE538101D249A1200B60FAD /* MaplyLight.h in Headers */,
 				2BE5386C1D249A1200B60FAD /* MapnikStyle.h in Headers */,
 				2BE538431D249A1200B60FAD /* MaplyParticleSystem_private.h in Headers */,
@@ -3688,12 +3978,17 @@
 				2BE5384F1D249A1200B60FAD /* MaplyUpdateLayer_private.h in Headers */,
 				2B82B60E1E82E2490095FB14 /* JSONMemoryPool.h in Headers */,
 				2BE539601D249BEF00B60FAD /* AAFK5.h in Headers */,
+				31833128259112BA005FEF70 /* GARS.hpp in Headers */,
 				2BE539721D249BEF00B60FAD /* AANeptune.h in Headers */,
+				3183312B259112BA005FEF70 /* PolygonArea.hpp in Headers */,
 				31942FE2254B5C0A0006B499 /* maply_pb.h in Headers */,
 				2BE5380B1D249A1200B60FAD /* MaplyGeomBuilder.h in Headers */,
+				31833119259112BA005FEF70 /* PolarStereographic.hpp in Headers */,
 				2BE539881D249BEF00B60FAD /* AAUranus.h in Headers */,
 				2B446B0421F79A600078A975 /* GridClipper.h in Headers */,
 				313363AB253E5A2B007C2F27 /* WorkRegion_private.h in Headers */,
+				3183312F259112BA005FEF70 /* Constants.hpp in Headers */,
+				3183311F259112BA005FEF70 /* TransverseMercatorExact.hpp in Headers */,
 				2B8E608B20D47FEE00FB96F0 /* MaplyRemoteTileFetcher.h in Headers */,
 				2BB8A3CD21ED43A40025DA98 /* MaplyTileSourceNew.h in Headers */,
 				2BE538031D249A1200B60FAD /* MaplyColorRampGenerator.h in Headers */,
@@ -3705,10 +4000,14 @@
 				2B846F1221F158E100EF2A82 /* IntersectionManager.h in Headers */,
 				2BE538141D249A1200B60FAD /* MaplyMoon.h in Headers */,
 				2B446B5621F7E7B80078A975 /* BillboardDrawableBuilder.h in Headers */,
+				31833120259112BA005FEF70 /* Config.h in Headers */,
 				2B446B4A21F7E7B80078A975 /* ParticleSystemDrawable.h in Headers */,
 				2BE538181D249A1200B60FAD /* MaplyParticleSystem.h in Headers */,
+				3183312D259112BA005FEF70 /* Geodesic.hpp in Headers */,
+				31833124259112BA005FEF70 /* SphericalHarmonic.hpp in Headers */,
 				2B446B4921F7E7B80078A975 /* ScreenSpaceDrawableBuilder.h in Headers */,
 				2BBC337C22163AE90038A229 /* QuadSamplingController.h in Headers */,
+				3183311D259112BA005FEF70 /* SphericalHarmonic1.hpp in Headers */,
 				2B82B6091E82E2490095FB14 /* JSONDefs.h in Headers */,
 				2BE539781D249BEF00B60FAD /* AAPhysicalJupiter.h in Headers */,
 				2B446B4D21F7E7B80078A975 /* TextureAtlas.h in Headers */,
@@ -3718,7 +4017,9 @@
 				2BE539841D249BEF00B60FAD /* AASaturnRings.h in Headers */,
 				2BC3D6BF2202537600CE91D0 /* GlobeView_iOS.h in Headers */,
 				2BE5396A1D249BEF00B60FAD /* AAMoon.h in Headers */,
+				31833126259112BA005FEF70 /* SphericalEngine.hpp in Headers */,
 				2B6597EB24E4AF2300FA26A9 /* StringIndexer.h in Headers */,
+				31833121259112BA005FEF70 /* SphericalHarmonic2.hpp in Headers */,
 				2B82B7181E82E24A0095FB14 /* LayoutLayer.h in Headers */,
 				2B63C45F243E44A0002B481C /* MapboxVectorStyleSetC.h in Headers */,
 				2BE538211D249A1200B60FAD /* MaplyScreenMarker.h in Headers */,
@@ -3728,6 +4029,7 @@
 				2B446B5521F7E7B80078A975 /* DynamicTextureAtlas.h in Headers */,
 				2BE539621D249BEF00B60FAD /* AAGlobe.h in Headers */,
 				2B82B60A1E82E2490095FB14 /* JSONGlobals.h in Headers */,
+				31833127259112BA005FEF70 /* GeodesicExact.hpp in Headers */,
 				2BE538061D249A1200B60FAD /* MaplyCoordinate.h in Headers */,
 				2B446B9221FBA8250078A975 /* FontTextureManager.h in Headers */,
 				2B23131A21F8DD61006AA344 /* MaplyFlatView.h in Headers */,
@@ -3749,6 +4051,7 @@
 				2BE1E78B22138A8100815D9C /* MaplyQuadLoader_private.h in Headers */,
 				2B699857228DD31F00C31E3F /* BillboardDrawableBuilderMTL.h in Headers */,
 				2BE538231D249A1200B60FAD /* MaplyShader.h in Headers */,
+				31833113259112BA005FEF70 /* MGRS.hpp in Headers */,
 				2B0387F8206ABD7B00DD5C40 /* MaplyQuadSampler.h in Headers */,
 				2BE5398A1D249BEF00B60FAD /* stdafx.h in Headers */,
 				2BB8A3F521ED43D10025DA98 /* MaplyPanDelegate.h in Headers */,
@@ -3756,6 +4059,7 @@
 				2BB8A3F321ED43D10025DA98 /* MaplyTapDelegate.h in Headers */,
 				2BE539751D249BEF00B60FAD /* AAParabolic.h in Headers */,
 				2BC90D5122319FD700D8B606 /* WhirlyGlobe_iOS.h in Headers */,
+				3183311E259112BA005FEF70 /* TransverseMercator.hpp in Headers */,
 				2B8A786B2284DACC008B0A1F /* VertexAttribute.h in Headers */,
 				2B82B5FA1E82E2490095FB14 /* libbase64++.h in Headers */,
 				2BE5382D1D249A1200B60FAD /* MaplyUpdateLayer.h in Headers */,
@@ -3780,6 +4084,7 @@
 				2BE539521D249BEF00B60FAD /* AAAngularSeparation.h in Headers */,
 				2B82B5FD1E82E2490095FB14 /* internalJSONNode.h in Headers */,
 				2BE538391D249A1200B60FAD /* MaplyBaseInteractionLayer_private.h in Headers */,
+				3183312E259112BA005FEF70 /* AzimuthalEquidistant.hpp in Headers */,
 				2BE538241D249A1200B60FAD /* MaplyShape.h in Headers */,
 				2BE538411D249A1200B60FAD /* MaplyInteractionLayer_private.h in Headers */,
 				2B82B6051E82E2490095FB14 /* GNU_C.h in Headers */,
@@ -3795,6 +4100,7 @@
 				2BC90D6622405DD200D8B606 /* Sun.h in Headers */,
 				2B446B2721F7A0D70078A975 /* Platform.h in Headers */,
 				2B82B5E71E82E2490095FB14 /* memalloc.h in Headers */,
+				3183312A259112BA005FEF70 /* Accumulator.hpp in Headers */,
 				2B82B5EF1E82E2490095FB14 /* priorityq.h in Headers */,
 				2BB8A3F121ED43D10025DA98 /* GlobeTwoFingerTapDelegate.h in Headers */,
 				2BE5397A1D249BEF00B60FAD /* AAPhysicalMoon.h in Headers */,
@@ -3815,6 +4121,7 @@
 				2B446AFC21F79A600078A975 /* FlatMath.h in Headers */,
 				2BE5380E1D249A1200B60FAD /* MaplyImageTile.h in Headers */,
 				2B846F0721F158E100EF2A82 /* LoftManager.h in Headers */,
+				31833135259112BA005FEF70 /* NearestNeighbor.hpp in Headers */,
 				2B82B6071E82E2490095FB14 /* Unknown_C.h in Headers */,
 				2B82B7151E82E24A0095FB14 /* DataLayer.h in Headers */,
 				2BE5397F1D249BEF00B60FAD /* AAPrecession.h in Headers */,
@@ -3838,6 +4145,7 @@
 				2BB8A3EE21ED43D10025DA98 /* MaplyDoubleTapDragDelegate.h in Headers */,
 				2BE538661D249A1200B60FAD /* MaplyVectorTileLineStyle.h in Headers */,
 				2BE539741D249BEF00B60FAD /* AANutation.h in Headers */,
+				3183313C259112BA005FEF70 /* Geohash.hpp in Headers */,
 				2BE538121D249A1200B60FAD /* MaplyMatrix.h in Headers */,
 				2B82B6371E82E2490095FB14 /* emess.h in Headers */,
 				2B446B9621FBA8520078A975 /* Program.h in Headers */,
@@ -3845,6 +4153,7 @@
 				2B73D6C2207D224100AF5095 /* MaplyQuadImageLoader_private.h in Headers */,
 				2BE538341D249A1200B60FAD /* NSData+Zlib.h in Headers */,
 				2BE53AB41D249CAF00B60FAD /* SMCalloutView.h in Headers */,
+				31833125259112BA005FEF70 /* NormalGravity.hpp in Headers */,
 				2B82B71C1E82E24A0095FB14 /* LayerViewWatcher.h in Headers */,
 				E56E02A71E11F99500C1DD85 /* GeoJSONSource.h in Headers */,
 				2B63C463243E474E002B481C /* MapboxVectorStyleSet_private.h in Headers */,
@@ -3864,11 +4173,16 @@
 				2BB8A3FD21ED43D10025DA98 /* MaplyDoubleTapDelegate.h in Headers */,
 				2B23131921F8DD61006AA344 /* GlobeView.h in Headers */,
 				2BD6FA64254B478000FD8374 /* DictionaryC.h in Headers */,
+				31833118259112BA005FEF70 /* Ellipsoid.hpp in Headers */,
+				31833122259112BA005FEF70 /* Geoid.hpp in Headers */,
 				2B699854228DD31F00C31E3F /* ParticleSystemDrawableBuilderMTL.h in Headers */,
 				2B846F1021F158E100EF2A82 /* LayoutManager.h in Headers */,
+				31833123259112BA005FEF70 /* Rhumb.hpp in Headers */,
+				31833131259112BA005FEF70 /* GeoCoords.hpp in Headers */,
 				2B699848228DD31F00C31E3F /* BasicDrawableMTL.h in Headers */,
 				2BE537F81D249A1200B60FAD /* Maply3dTouchPreviewDelegate.h in Headers */,
 				2BE539651D249BEF00B60FAD /* AAJewishCalendar.h in Headers */,
+				31833115259112BA005FEF70 /* GeodesicLine.hpp in Headers */,
 				2BE538421D249A1200B60FAD /* MaplyMatrix_private.h in Headers */,
 				2BC3D6AB22024EB300CE91D0 /* GlobeAnimateRotation.h in Headers */,
 				2BE5382A1D249A1200B60FAD /* MaplyTexture.h in Headers */,
@@ -3901,6 +4215,7 @@
 				2B846F0F21F158E100EF2A82 /* LabelManager.h in Headers */,
 				2B446AE121F288090078A975 /* LabelRenderer.h in Headers */,
 				2BE1E7922213977F00815D9C /* QuadTileBuilder.h in Headers */,
+				3183311C259112BA005FEF70 /* MagneticModel.hpp in Headers */,
 				2B82B5F81E82E2490095FB14 /* JSONOptions.h in Headers */,
 				2BE538371D249A1200B60FAD /* MaplyActiveObject_private.h in Headers */,
 				2BE1E7A522161BD600815D9C /* QuadLoaderReturn.h in Headers */,
@@ -3917,6 +4232,7 @@
 				E5EF69F81D6B931500A2A660 /* SLDSymbolizers.h in Headers */,
 				2B846F1321F158E100EF2A82 /* BaseInfo.h in Headers */,
 				2BE53A831D249C7E00B60FAD /* DDXMLPrivate.h in Headers */,
+				31833136259112BA005FEF70 /* DMS.hpp in Headers */,
 				2B82B61C1E82E2490095FB14 /* JSONWorker.h in Headers */,
 				2BE5383A1D249A1200B60FAD /* MaplyBaseViewController_private.h in Headers */,
 				2BB8A3F021ED43D10025DA98 /* GlobeDoubleTapDragDelegate.h in Headers */,
@@ -3926,7 +4242,10 @@
 				2B82B7C41E82E68E0095FB14 /* clipper.hpp in Headers */,
 				2BC3D6EC220B713700CE91D0 /* sqlhelpers.h in Headers */,
 				2B699849228DD31F00C31E3F /* SceneMTL.h in Headers */,
+				31833129259112BA005FEF70 /* Geocentric.hpp in Headers */,
+				31833116259112BA005FEF70 /* GravityCircle.hpp in Headers */,
 				2B50CEB425798F4800BD4004 /* RawPNGImage.h in Headers */,
+				31833117259112BA005FEF70 /* UTMUPS.hpp in Headers */,
 				2B82B6DC1E82E24A0095FB14 /* NSString+Stuff.h in Headers */,
 				2BE538701D249A1200B60FAD /* WGCoordinate.h in Headers */,
 				2BE5382F1D249A1200B60FAD /* MaplyVertexAttribute.h in Headers */,
@@ -3937,6 +4256,8 @@
 				2B69984A228DD31F00C31E3F /* BasicDrawableInstanceBuilderMTL.h in Headers */,
 				2B69984F228DD31F00C31E3F /* ParticleSystemDrawableMTL.h in Headers */,
 				2B82B5E31E82E2490095FB14 /* dict.h in Headers */,
+				3183313D259112BA005FEF70 /* EllipticFunction.hpp in Headers */,
+				31833167259114A0005FEF70 /* GeographicLib.h in Headers */,
 				2BB8A3F421ED43D10025DA98 /* MaplyZoomGestureDelegate.h in Headers */,
 				2B699852228DD31F00C31E3F /* WrapperMTL.h in Headers */,
 				2B82B5E11E82E2490095FB14 /* dict-list.h in Headers */,
@@ -3955,6 +4276,7 @@
 				2B541C171ECFAA2300EC35A0 /* MaplyRenderTarget.h in Headers */,
 				2B82B60D1E82E2490095FB14 /* JSONMemory.h in Headers */,
 				2BB8A3CE21ED43A40025DA98 /* MaplyMBTileFetcher.h in Headers */,
+				3183311B259112BA005FEF70 /* Utility.hpp in Headers */,
 				2BE537F91D249A1200B60FAD /* MaplyActiveObject.h in Headers */,
 				2B82B5E91E82E2490095FB14 /* mesh.h in Headers */,
 				E56DB3D51D6B1B17007000D2 /* SLDStyleSet.h in Headers */,
@@ -3979,10 +4301,12 @@
 				2B82B6101E82E2490095FB14 /* JSONNode.h in Headers */,
 				2B23131B21F8DD61006AA344 /* MaplyView.h in Headers */,
 				2BE5384D1D249A1200B60FAD /* MaplyTexture_private.h in Headers */,
+				31833137259112BA005FEF70 /* Georef.hpp in Headers */,
 				2B7B84D821223F0300D11447 /* MaplyTextureAtlas_private.h in Headers */,
 				2BBC337B22163AE90038A229 /* QuadSamplingParams.h in Headers */,
 				2B846F0821F158E100EF2A82 /* SelectionManager.h in Headers */,
 				2B82B5EB1E82E2490095FB14 /* normal.h in Headers */,
+				31833139259112BA005FEF70 /* GravityModel.hpp in Headers */,
 				2B82B61F1E82E2490095FB14 /* NumberToString.h in Headers */,
 				2B4A816925391A0D0016618C /* lodepng.h in Headers */,
 				2BC3D6AD22024EB300CE91D0 /* GlobeAnimateViewMomentum.h in Headers */,
@@ -3996,14 +4320,19 @@
 				2BE539591D249BEF00B60FAD /* AAEaster.h in Headers */,
 				2B82B6391E82E2490095FB14 /* geocent.h in Headers */,
 				2BE5394E1D249BEF00B60FAD /* AA+.h in Headers */,
+				31833130259112BA005FEF70 /* OSGB.hpp in Headers */,
 				2B446B3721F7E6780078A975 /* Lighting.h in Headers */,
 				2BE538711D249A1200B60FAD /* WhirlyGlobeComponent.h in Headers */,
 				2B446ABC21F25C330078A975 /* WhirlyTypes.h in Headers */,
 				2BE1E7582208F32900815D9C /* SingleLabel_iOS.h in Headers */,
+				3183312C259112BA005FEF70 /* Math.hpp in Headers */,
 				2B127C03201911D40099F405 /* MapboxVectorInterpreter.h in Headers */,
 				2BE539771D249BEF00B60FAD /* AAParallax.h in Headers */,
+				31833138259112BA005FEF70 /* Gnomonic.hpp in Headers */,
+				3183311A259112BA005FEF70 /* AlbersEqualArea.hpp in Headers */,
 				2BE538251D249A1200B60FAD /* MaplySharedAttributes.h in Headers */,
 				2BE538531D249A1200B60FAD /* MaplyControllerLayer_private.h in Headers */,
+				31833133259112BA005FEF70 /* CassiniSoldner.hpp in Headers */,
 				2BE5384A1D249A1200B60FAD /* MaplyShader_private.h in Headers */,
 				2B7B84DA2122403700D11447 /* MaplyTapMessage.h in Headers */,
 				2B23131C21F8DD61006AA344 /* WhirlyKitView.h in Headers */,
@@ -4097,6 +4426,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				31833132259112BA005FEF70 /* Config-ac.h.in in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4118,6 +4448,7 @@
 				2B82B65A1E82E2490095FB14 /* PJ_eck3.c in Sources */,
 				2B82B67E1E82E24A0095FB14 /* PJ_larr.c in Sources */,
 				2BE539C11D249BEF00B60FAD /* AASun.cpp in Sources */,
+				31833157259112BA005FEF70 /* MGRS.cpp in Sources */,
 				2B87971D2203BF2E00EF801D /* MaplyCoordinate.mm in Sources */,
 				2BE5398E1D249BEF00B60FAD /* AACoordinateTransformation.cpp in Sources */,
 				2B8A78B8228A1A1B008B0A1F /* Identifiable.cpp in Sources */,
@@ -4165,6 +4496,7 @@
 				2BE7E7BB221B22E500E4EFBA /* QuadImageFrameLoader_iOS.mm in Sources */,
 				2B69986B228DD36A00C31E3F /* BasicDrawableBuilderMTL.mm in Sources */,
 				2B82B6491E82E2490095FB14 /* PJ_bacon.c in Sources */,
+				31833160259112BA005FEF70 /* Utility.cpp in Sources */,
 				2BC3D6EE220B714100CE91D0 /* sqlhelpers.mm in Sources */,
 				2B82B6771E82E24A0095FB14 /* pj_initcache.c in Sources */,
 				2B3F452B243FD82200F85414 /* SLDSymbolizers.m in Sources */,
@@ -4177,6 +4509,7 @@
 				2B699875228DD36A00C31E3F /* BasicDrawableMTL.mm in Sources */,
 				2BE539AF1D249BEF00B60FAD /* AAParabolic.cpp in Sources */,
 				2B8796EF220375E900EF801D /* GlobeAnimateRotation.cpp in Sources */,
+				31833161259112BA005FEF70 /* TransverseMercator.cpp in Sources */,
 				2B8A78B4228A1610008B0A1F /* Drawable.cpp in Sources */,
 				2B8797152203B77900EF801D /* MaplyIconManager.mm in Sources */,
 				2BB8E1FF21FF93CB00154CDC /* MaplyView.cpp in Sources */,
@@ -4193,25 +4526,30 @@
 				2B8797212203BF7900EF801D /* MaplyLight.m in Sources */,
 				2B0D979624490BAD00F64852 /* MapboxVectorStyleBackground.cpp in Sources */,
 				2B87971E2203BF2E00EF801D /* MaplyCoordinateSystem.mm in Sources */,
+				31833154259112BA005FEF70 /* GARS.cpp in Sources */,
 				2B8A78A522864E4F008B0A1F /* SphericalEarthChunkManager.cpp in Sources */,
 				2B82B64D1E82E2490095FB14 /* PJ_cass.c in Sources */,
+				3183313E259112BA005FEF70 /* DMS.cpp in Sources */,
 				2B82B6B41E82E24A0095FB14 /* PJ_tmerc.c in Sources */,
 				2B8796D321FFC59D00EF801D /* NSString+Stuff.mm in Sources */,
 				2B3F451E243FD82200F85414 /* MaplyVectorStyle.mm in Sources */,
 				2B8A788B228607B3008B0A1F /* Program.cpp in Sources */,
 				2B8797222203BF7900EF801D /* MaplyBillboard.mm in Sources */,
 				2BC90D60223308DB00D8B606 /* ScreenObject_iOS.mm in Sources */,
+				31833141259112BA005FEF70 /* GravityModel.cpp in Sources */,
 				2BE1E766220A567100815D9C /* MaplyControllerLayer.mm in Sources */,
 				2B60F43E24523FAB00CF9339 /* MapboxVectorStyleSet.mm in Sources */,
 				2B82B64C1E82E2490095FB14 /* PJ_bonne.c in Sources */,
 				31942FCD254B5C0A0006B499 /* maply_pb_decode.c in Sources */,
 				2B82B6111E82E2490095FB14 /* JSONNode_Mutex.cpp in Sources */,
+				31833159259112BA005FEF70 /* LocalCartesian.cpp in Sources */,
 				2B82B6BA1E82E24A0095FB14 /* PJ_urmfps.c in Sources */,
 				2B82B6721E82E24A0095FB14 /* PJ_hatano.c in Sources */,
 				2BC3D6E7220B6AEF00CE91D0 /* GeometryOBJReader.cpp in Sources */,
 				2B4A816A25391A0D0016618C /* lodepng.cpp in Sources */,
 				2B82B6231E82E2490095FB14 /* shpopen.c in Sources */,
 				2B82B6621E82E24A0095FB14 /* pj_factors.c in Sources */,
+				31833142259112BA005FEF70 /* GeodesicLineExact.cpp in Sources */,
 				2BC3D6D12203EA4A00CE91D0 /* MaplySticker.mm in Sources */,
 				2BE1E7A12215F70400815D9C /* ImageTile_iOS.mm in Sources */,
 				2B8A78B3228A1539008B0A1F /* VertexAttribute.cpp in Sources */,
@@ -4222,6 +4560,7 @@
 				2B82B63D1E82E2490095FB14 /* nad_cvt.c in Sources */,
 				2BE539B11D249BEF00B60FAD /* AAParallax.cpp in Sources */,
 				2B82B64A1E82E2490095FB14 /* PJ_bipc.c in Sources */,
+				31833144259112BA005FEF70 /* Geohash.cpp in Sources */,
 				2B82B66E1E82E24A0095FB14 /* pj_gridinfo.c in Sources */,
 				2B8A78E4228C8543008B0A1F /* MaplyShader.mm in Sources */,
 				2B82B68B1E82E24A0095FB14 /* PJ_mbtfpq.c in Sources */,
@@ -4242,6 +4581,7 @@
 				2BE539AE1D249BEF00B60FAD /* AANutation.cpp in Sources */,
 				2BE539BB1D249BEF00B60FAD /* AARiseTransitSet.cpp in Sources */,
 				2BE1E7462208CEA300815D9C /* GlobeTapDelegate.mm in Sources */,
+				31833162259112BA005FEF70 /* TransverseMercatorExact.cpp in Sources */,
 				2BE53A971D249C9000B60FAD /* DDXMLElement.m in Sources */,
 				2B8796D221FFC59D00EF801D /* UIColor+Stuff.mm in Sources */,
 				2B82B6AA1E82E24A0095FB14 /* PJ_robin.c in Sources */,
@@ -4255,9 +4595,11 @@
 				2B8796C821FFC57700EF801D /* ShapeReader.cpp in Sources */,
 				2B699877228DD36A00C31E3F /* WideVectorDrawableBuilderMTL.mm in Sources */,
 				2B82B67F1E82E24A0095FB14 /* PJ_lask.c in Sources */,
+				3183314E259112BA005FEF70 /* MagneticCircle.cpp in Sources */,
 				2B82B5F21E82E2490095FB14 /* sweep.c in Sources */,
 				2B82B6A81E82E24A0095FB14 /* pj_qsfn.c in Sources */,
 				2B3F451D243FD82200F85414 /* GeoJSONSource.mm in Sources */,
+				3183316B259114B0005FEF70 /* GeographicLib.mm in Sources */,
 				2BE539971D249BEF00B60FAD /* AAElliptical.cpp in Sources */,
 				2BE539B21D249BEF00B60FAD /* AAPhysicalJupiter.cpp in Sources */,
 				2BE1E75B2208F33900815D9C /* SingleLabel_iOS.mm in Sources */,
@@ -4274,10 +4616,13 @@
 				2B6597ED24E4AF3600FA26A9 /* StringIndexer.cpp in Sources */,
 				2BE539A51D249BEF00B60FAD /* AAMoonIlluminatedFraction.cpp in Sources */,
 				2BE5399B1D249BEF00B60FAD /* AAGalileanMoons.cpp in Sources */,
+				3183314B259112BA005FEF70 /* OSGB.cpp in Sources */,
 				2B82B6A71E82E24A0095FB14 /* PJ_putp6.c in Sources */,
 				2BE1E73D2208BD4500815D9C /* Maply3dTouchPreviewDelegate.mm in Sources */,
+				3183315D259112BA005FEF70 /* Ellipsoid.cpp in Sources */,
 				2B8796F022037A1A00EF801D /* GlobeAnimateViewMomentum.cpp in Sources */,
 				2B82B66F1E82E24A0095FB14 /* pj_gridlist.c in Sources */,
+				3183315C259112BA005FEF70 /* UTMUPS.cpp in Sources */,
 				2B8A78A82289D539008B0A1F /* BasicDrawableInstance.cpp in Sources */,
 				2B82B6AF1E82E24A0095FB14 /* PJ_sterea.c in Sources */,
 				2BE539B51D249BEF00B60FAD /* AAPhysicalSun.cpp in Sources */,
@@ -4295,6 +4640,7 @@
 				2B8796B721FFB2DE00EF801D /* Platform.mm in Sources */,
 				2B3F4521243FD82200F85414 /* MaplyVectorTileMarkerStyle.mm in Sources */,
 				2B8A789D2286474A008B0A1F /* LabelManager.cpp in Sources */,
+				31833145259112BA005FEF70 /* EllipticFunction.cpp in Sources */,
 				2BE539AA1D249BEF00B60FAD /* AAMoslemCalendar.cpp in Sources */,
 				2B82B6AE1E82E24A0095FB14 /* PJ_stere.c in Sources */,
 				2B8A78AA2289DA3D008B0A1F /* RenderTarget.cpp in Sources */,
@@ -4304,6 +4650,7 @@
 				2B846EEC21F1382300EF2A82 /* pj_fileapi.c in Sources */,
 				2B8A78DF228C8526008B0A1F /* MaplyRenderController.mm in Sources */,
 				2B82B69A1E82E24A0095FB14 /* PJ_ocea.c in Sources */,
+				31833158259112BA005FEF70 /* GravityCircle.cpp in Sources */,
 				2B446B1E21F79AE40078A975 /* GlobeMath.cpp in Sources */,
 				2B82B6B01E82E24A0095FB14 /* pj_strerrno.c in Sources */,
 				2B82B69E1E82E24A0095FB14 /* PJ_ortho.c in Sources */,
@@ -4336,6 +4683,7 @@
 				2B6997EE228CAF7C00C31E3F /* ChangeRequest.cpp in Sources */,
 				2B82B6121E82E2490095FB14 /* JSONPreparse.cpp in Sources */,
 				2B846EE721F137D300EF2A82 /* emess.c in Sources */,
+				31833163259112BA005FEF70 /* Geoid.cpp in Sources */,
 				2B8A78A422864D64008B0A1F /* ShapeManager.cpp in Sources */,
 				2BC3D6E0220B553100CE91D0 /* MaplyVectorObject.mm in Sources */,
 				2BC3D6DA220B520D00CE91D0 /* MaplyAtmosphere.mm in Sources */,
@@ -4368,6 +4716,7 @@
 				2B82B6741E82E24A0095FB14 /* PJ_igh.c in Sources */,
 				2B699872228DD36A00C31E3F /* SceneRendererMTL.mm in Sources */,
 				2B846EE921F1380D00EF2A82 /* aasincos.c in Sources */,
+				31833153259112BA005FEF70 /* GeodesicExactC4.cpp in Sources */,
 				2B8A78A322864B5C008B0A1F /* ShapeDrawableBuilder.cpp in Sources */,
 				2B82B6901E82E24A0095FB14 /* PJ_moll.c in Sources */,
 				2B8A78BC228B3AE9008B0A1F /* TextureAtlas.cpp in Sources */,
@@ -4379,6 +4728,7 @@
 				2B82B5FF1E82E2490095FB14 /* JSONAllocator.cpp in Sources */,
 				2B8A78C6228B5D0A008B0A1F /* ParticleSystemDrawableBuilder.cpp in Sources */,
 				2B82B6B31E82E24A0095FB14 /* PJ_tcea.c in Sources */,
+				31833155259112BA005FEF70 /* Geocentric.cpp in Sources */,
 				2BE1E73C2208B8ED00815D9C /* MaplyDoubleTapDragDelegate.mm in Sources */,
 				2B82B69C1E82E24A0095FB14 /* PJ_omerc.c in Sources */,
 				2B8797232203BF7900EF801D /* MaplyComponentObject.mm in Sources */,
@@ -4388,6 +4738,8 @@
 				2B82B7C31E82E68E0095FB14 /* clipper.cpp in Sources */,
 				2B82B5EE1E82E2490095FB14 /* priorityq.c in Sources */,
 				2B82B5F61E82E2490095FB14 /* tessmono.c in Sources */,
+				3183315A259112BA005FEF70 /* GeodesicLine.cpp in Sources */,
+				3183314C259112BA005FEF70 /* GeoCoords.cpp in Sources */,
 				2B60F43C24523B5800CF9339 /* MapboxVectorTiles.mm in Sources */,
 				2B846EDC21F1365000EF2A82 /* pj_apply_gridshift.c in Sources */,
 				2BC3D6DB220B526D00CE91D0 /* ViewPlacementActiveModel.mm in Sources */,
@@ -4396,6 +4748,7 @@
 				2B846EEE21F1393900EF2A82 /* dict.c in Sources */,
 				2B63C461243E44B6002B481C /* MapboxVectorStyleSetC.cpp in Sources */,
 				2B0D979724490BAD00F64852 /* MapboxVectorStyleCircle.cpp in Sources */,
+				3183315B259112BA005FEF70 /* PolarStereographic.cpp in Sources */,
 				2BE539AC1D249BEF00B60FAD /* AANeptune.cpp in Sources */,
 				2BE539B41D249BEF00B60FAD /* AAPhysicalMoon.cpp in Sources */,
 				2B87971B2203BF2E00EF801D /* WGCoordinate.mm in Sources */,
@@ -4411,8 +4764,10 @@
 				2BC3D6D9220B51C500CE91D0 /* MaplyRenderTarget.mm in Sources */,
 				2B82B6671E82E24A0095FB14 /* pj_gauss.c in Sources */,
 				2B82B6541E82E2490095FB14 /* pj_datum_set.c in Sources */,
+				3183314D259112BA005FEF70 /* CassiniSoldner.cpp in Sources */,
 				2B699879228DD36A00C31E3F /* TextureMTL.mm in Sources */,
 				2B82B6C61E82E24A0095FB14 /* proj_etmerc.c in Sources */,
+				31833149259112BA005FEF70 /* Geodesic.cpp in Sources */,
 				2BC3D6E4220B5ACE00CE91D0 /* VectorData_iOS.mm in Sources */,
 				2BE539911D249BEF00B60FAD /* AADynamicalTime.cpp in Sources */,
 				2B3D7E3722873B6D0065FA18 /* BillboardManager.cpp in Sources */,
@@ -4424,9 +4779,11 @@
 				2B82B6381E82E2490095FB14 /* geocent.c in Sources */,
 				2BE539B01D249BEF00B60FAD /* AAParallactic.cpp in Sources */,
 				2B82B66C1E82E24A0095FB14 /* PJ_gnom.c in Sources */,
+				31833146259112BA005FEF70 /* PolygonArea.cpp in Sources */,
 				2B82B6AD1E82E24A0095FB14 /* PJ_somerc.c in Sources */,
 				2B8797172203B77900EF801D /* MaplyGeomBuilder.mm in Sources */,
 				2B8A78A122864B25008B0A1F /* SceneGraphManager.cpp in Sources */,
+				3183314A259112BA005FEF70 /* AzimuthalEquidistant.cpp in Sources */,
 				2B82B6191E82E2490095FB14 /* JSONValidator.cpp in Sources */,
 				2B82B6981E82E24A0095FB14 /* PJ_nzmg.c in Sources */,
 				2B82B6861E82E24A0095FB14 /* PJ_loxim.c in Sources */,
@@ -4465,6 +4822,7 @@
 				2B8A78DD228C8509008B0A1F /* MaplyQuadImageLoader.mm in Sources */,
 				2B82B6891E82E24A0095FB14 /* PJ_mbt_fps.c in Sources */,
 				2BC3D6CD2203E9FE00CE91D0 /* MaplyScreenLabel.m in Sources */,
+				31833143259112BA005FEF70 /* CircularEngine.cpp in Sources */,
 				2B846EEA21F1381400EF2A82 /* pj_strtod.c in Sources */,
 				2B3F4529243FD82200F85414 /* SLDExpressions.m in Sources */,
 				2BC3D6C722025CAC00CE91D0 /* MaplyAnimateTranslation.cpp in Sources */,
@@ -4472,7 +4830,9 @@
 				2B462EF823A954870050438C /* NSDictionary+StyleRules.m in Sources */,
 				2BE5399C1D249BEF00B60FAD /* AAGlobe.cpp in Sources */,
 				2B82B6441E82E2490095FB14 /* PJ_aitoff.c in Sources */,
+				31833150259112BA005FEF70 /* NormalGravity.cpp in Sources */,
 				2B446B1421F79AD00078A975 /* WhirlyGeometry.cpp in Sources */,
+				31833151259112BA005FEF70 /* SphericalEngine.cpp in Sources */,
 				2B8796CE21FFC59D00EF801D /* Dictinary_NSDictionary.mm in Sources */,
 				2B8A78DB228B9718008B0A1F /* FontTextureManager_iOS.mm in Sources */,
 				2B8A78D6228B93D1008B0A1F /* WideVectorDrawableBuilder.cpp in Sources */,
@@ -4487,6 +4847,7 @@
 				2BC3D6D22203EA6000CE91D0 /* MaplySun.mm in Sources */,
 				2B699874228DD36A00C31E3F /* WrapperMTL.mm in Sources */,
 				2B82B6601E82E24A0095FB14 /* PJ_eqdc.c in Sources */,
+				31833156259112BA005FEF70 /* LambertConformalConic.cpp in Sources */,
 				2BE1E73F2208BE0F00815D9C /* MaplyTapDelegate.mm in Sources */,
 				2B8A789E22864758008B0A1F /* LayoutManager.cpp in Sources */,
 				2B8A78E1228C8530008B0A1F /* MaplyViewController.mm in Sources */,
@@ -4519,10 +4880,12 @@
 				2B69986C228DD36A00C31E3F /* ProgramMTL.mm in Sources */,
 				2BE7E7BC221B99FA00E4EFBA /* MaplyQuadLoader.mm in Sources */,
 				2BC3D6C6220255EA00CE91D0 /* MapView_iOS.mm in Sources */,
+				3183315F259112BA005FEF70 /* MagneticModel.cpp in Sources */,
 				2BE53AB51D249CAF00B60FAD /* SMCalloutView.m in Sources */,
 				2B82B6BC1E82E24A0095FB14 /* PJ_vandg.c in Sources */,
 				2B846EDD21F1365000EF2A82 /* pj_apply_vgridshift.c in Sources */,
 				2BC3D6DF220B550400CE91D0 /* MaplyVariableTarget.mm in Sources */,
+				3183314F259112BA005FEF70 /* Rhumb.cpp in Sources */,
 				2BE1E7532208ECA700815D9C /* MaplyAnnotation.mm in Sources */,
 				2B8796D021FFC59D00EF801D /* UIImage+Stuff.mm in Sources */,
 				2BE1E74E2208E8D500815D9C /* MaplyTileSourceNew.mm in Sources */,
@@ -4535,6 +4898,7 @@
 				2BB8E1FE21FF93CB00154CDC /* MaplyFlatView.cpp in Sources */,
 				2B8A78BD228B3AF3008B0A1F /* Lighting.cpp in Sources */,
 				2B8A78612284C408008B0A1F /* BasicDrawableBuilder.cpp in Sources */,
+				3183315E259112BA005FEF70 /* AlbersEqualArea.cpp in Sources */,
 				2B82B6551E82E2490095FB14 /* pj_datums.c in Sources */,
 				2BE53A8B1D249C8900B60FAD /* DDXMLElementAdditions.m in Sources */,
 				2BE539A41D249BEF00B60FAD /* AAMoon.cpp in Sources */,
@@ -4550,6 +4914,7 @@
 				2B82B68C1E82E24A0095FB14 /* PJ_merc.c in Sources */,
 				2B699880228E26B500C31E3F /* wkDefaultShaders.metal in Sources */,
 				2B82B61B1E82E2490095FB14 /* JSONWorker.cpp in Sources */,
+				31833140259112BA005FEF70 /* Gnomonic.cpp in Sources */,
 				2BE1E764220A43FD00815D9C /* WGInteractionLayer.mm in Sources */,
 				2BC3D6D52203EA9C00CE91D0 /* MaplyZoomGestureDelegate.mm in Sources */,
 				2BE1E7472208CEA300815D9C /* GlobeTapMessage.mm in Sources */,
@@ -4558,12 +4923,16 @@
 				2B82B6511E82E2490095FB14 /* PJ_collg.c in Sources */,
 				2B82B6651E82E24A0095FB14 /* pj_fwd.c in Sources */,
 				2BC3D6CB2203E9D700CE91D0 /* MaplyMoon.mm in Sources */,
+				31833148259112BA005FEF70 /* Math.cpp in Sources */,
 				2B82B6BD1E82E24A0095FB14 /* PJ_vandg2.c in Sources */,
+				31833152259112BA005FEF70 /* GeodesicExact.cpp in Sources */,
 				2BE539A21D249BEF00B60FAD /* AAMars.cpp in Sources */,
 				2BC3D6CA2203E9AB00CE91D0 /* MaplyPoints.mm in Sources */,
 				2BE5399F1D249BEF00B60FAD /* AAJewishCalendar.cpp in Sources */,
+				31833147259112BA005FEF70 /* Accumulator.cpp in Sources */,
 				2BE539981D249BEF00B60FAD /* AAEquationOfTime.cpp in Sources */,
 				2BE539A91D249BEF00B60FAD /* AAMoonPhases.cpp in Sources */,
+				3183313F259112BA005FEF70 /* Georef.cpp in Sources */,
 				2B82B68D1E82E24A0095FB14 /* PJ_mill.c in Sources */,
 				2B846EDE21F1366400EF2A82 /* PJ_gall.c in Sources */,
 				2BE1E767220A567500815D9C /* WGViewControllerLayer.mm in Sources */,
@@ -4788,6 +5157,7 @@
 					../../../common/local_libs/include/,
 					../../../common/local_libs/clipper,
 					../../../common/local_libs/glues/include/,
+					../../../common/local_libs/GeographicLib/include/,
 				);
 				INFOPLIST_FILE = WhirlyGlobeMaplyComponent/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -4842,6 +5212,7 @@
 					../../../common/local_libs/include/,
 					../../../common/local_libs/clipper,
 					../../../common/local_libs/glues/include/,
+					../../../common/local_libs/GeographicLib/include/,
 				);
 				INFOPLIST_FILE = WhirlyGlobeMaplyComponent/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
