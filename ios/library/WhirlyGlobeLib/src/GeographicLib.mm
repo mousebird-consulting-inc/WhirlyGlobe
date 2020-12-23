@@ -195,7 +195,10 @@ namespace {
         const Point3d &a, const Point3d &b, const Point3d &c, const Point3d &d,
         const GeographicLib::Geodesic &geo)
     {
-        // Solve the system of three linear equations:
+        // Set equal the equations defining the two geodesics, as defined by the
+        // intersection of the ellipsoid and a plane through its center, and solve
+        // the resulting system of equations, yielding two antipodal solutions.
+        //
         // ((x4 - x3) * s + x3) * t = (x2 - x1) * r + x1
         // ((y4 - y3) * s + y3) * t = (y2 - y1) * r + y1
         // ((z4 - z3) * s + z3) * t = (z2 - z1) * r + z1
@@ -210,10 +213,10 @@ namespace {
         {
             solveLinear3B(e0, e1, e2);
 
+            // Solution on the right side, and within the segments?
             const auto t = e1[3];
             if (t > 0.0)
             {
-                // Is the intersection within the geodesic segment?
                 const auto s = e0[3] / t;
                 if (s >= 0.0 && s <= 1.0)
                 {
@@ -285,9 +288,108 @@ double GeoLibDistanceD(MaplyCoordinateD startPt, MaplyCoordinateD endPt)
     return s12;
 }
 
+namespace {
+
+    // Project a geocentric point into the orthographic projection defined by the origin
+    static Point3d ProjectOrtho(const Point3d &origin, const Point3d &p)
+    {
+        double sinLat =  origin.z();
+        double cosLat =  std::sqrt(origin.x() * origin.x() + origin.y() * origin.y());
+        const double sinLon =  origin.x() / cosLat;
+        const double cosLon = -origin.y() / cosLat;
+        const double x1 =  p.x() * cosLon + p.y() * sinLon;
+        const double y1 = -p.x() * sinLon + p.y() * cosLon;
+        return { x1, y1 * sinLat + p.z() * cosLat,  -y1 * cosLat + p.z() * sinLat };
+    }
+
+    // Invert orthographic projection
+    static Point3d UnprojectOrtho(const Point3d &origin, const Point3d &p)
+    {
+        const double sinLat =  origin.z();
+        const double cosLat =  std::sqrt(origin.x() * origin.x() + origin.y() * origin.y());
+        const double sinLon =  origin.x() / cosLat;
+        const double cosLon = -origin.y() / cosLat;
+        const double y1  =  p.y() * sinLat  -  p.z() * cosLat;
+        const double z1  =  p.y() * cosLat  +  p.z() * sinLat;
+        return { p.x() * cosLon - y1 * sinLon, p.x() * sinLon + y1 * cosLon, z1 };
+    }
+
+    static const double sinpi4 = std::sin(M_PI_4);
+
+    // Calculate the angle between two vectors.
+    // Both vectors must be normalized!
+    static double angle(Point3d a, Point3d b)
+    {
+        const double dp = a.dot(b);
+        if (std::fabs(dp) < sinpi4)
+        {
+            return std::acos(dp);
+        }
+
+        const auto m = a.cross(b).norm();
+        return (dp < 0) ? M_PI - std::asin(m) : std::asin(m);
+    }
+
+    // TODO: This isn't fully accounting for eccentricity, so it's not super precise.
+    static GeoLibOrthoDist _GeoLibOrthoDistD(const Point3d &gca, const Point3d &gcb, const Point3d &gcc)
+    {
+        // Calculate the unit normal of the geodesic segment
+        const auto geoNorm = gca.cross(gcb).normalized();
+
+        // Calculate the unit normal of that and the point of interest
+        const auto orthoNorm = gcc.cross(geoNorm).normalized();
+
+        // Find the the point where the line to the target point is perpendicular
+        const auto cp = geoNorm.cross(orthoNorm);
+
+        // Calculate the angles along and aside the segment
+        const auto t0 = angle(gca, gcb);
+        const auto t1 = angle(cp, gca);
+        const auto t2 = angle(cp, gcc);
+
+        // Work out which quadrant we're in and fix the signs
+        const auto s1 = (cp.dot(geoNorm.cross(gca)) < 0) ? -1. : 1.;
+        const auto s2 = (gcc.dot(geoNorm) > 0) ? -1. : 1.;
+
+        // Convert the angles to distances
+        const auto rad = GeographicLib::Constants::WGS84_a();
+        return { rad * t1 * s1, rad * t2 * s2, rad * t0 };
+    }
+
+    static double initialHeadingD(const Point3d &startPt, const Point3d &endPt)
+    {
+        // Find the location of the endpoint in the orthographic projection defined by the start point
+        const auto end = ProjectOrtho(startPt, endPt);
+
+        // If x==y==0 they are the same point and the heading is undefined
+        return std::atan2(end.x(), end.y());
+    }
+    //static double finalHeadingD(const Point3d &startPt, const Point3d &endPt)
+    //{
+    //    return std::fmod(initialHeadingD(endPt, startPt) + M_2PI, M_2PI);
+    //}
+
+    static Point3d orthoDirect(const Point3d &start, double azimuthRad, double distMeters)
+    {
+        const double theta = distMeters / wgs84Geodesic.EquatorialRadius();
+        const double r     = sin(theta);
+        const double hdg   = M_PI_2 - azimuthRad;
+        return UnprojectOrtho(start, { r * std::cos(hdg), r * std::sin(hdg), std::cos(theta) });
+    }
+}
+
+
+double GeoLibInitialHeadingD(MaplyCoordinateD startPt, MaplyCoordinateD endPt)
+{
+    const auto gcStart = CoordToGeocentric(startPt);
+    const auto gcEnd = CoordToGeocentric(endPt);
+    return initialHeadingD(gcStart, gcEnd);
+}
+
 bool GeoLibLineDIntersectsCircleD(MaplyCoordinateD startPt, MaplyCoordinateD endPt, MaplyCoordinateD center, double radiusMeters)
 {
     // If either endpoint of the line is within the circle, we're done.
+    // TODO: Is this fast enough to be worthwhile, when we get the same info below?
     if (GeoLibDistanceD(startPt, center) <= radiusMeters ||
         GeoLibDistanceD(endPt, center) <= radiusMeters)
     {
@@ -302,54 +404,60 @@ bool GeoLibLineDIntersectsCircleD(MaplyCoordinateD startPt, MaplyCoordinateD end
             std::fabs(res.crosstrackDistance) <= radiusMeters);
 }
 
-namespace {
-
-static const double sinpi4 = std::sin(M_PI_4);
-
-// Calculate the angle between two vectors.
-// Both vectors must be normalized!
-static double angle(Point3d a, Point3d b)
+GeoLibIntPair GeoLibLineDIntersectCircleD(MaplyCoordinateD startPt, MaplyCoordinateD endPt, MaplyCoordinateD center, double radiusMeters)
 {
-    const double dp = a.dot(b);
-    if (std::fabs(dp) < sinpi4)
+    const auto gcStart = CoordToGeocentric(startPt).normalized();
+    const auto gcEnd = CoordToGeocentric(endPt).normalized();
+    const auto gcCenter = CoordToGeocentric(center).normalized();
+
+    GeoLibIntPair result = { {{ 0.0, 0.0 }, { 0.0, 0.0 }}, { 0.0, 0.0 }, 0 };
+
+    auto const res = _GeoLibOrthoDistD(gcStart, gcEnd, gcCenter);
+    if (res.downtrackDistance < -radiusMeters ||                    // preceeds the GC segment by more than the radius
+        res.downtrackDistance > res.segmentLength + radiusMeters || // follows the GC segment by more than the radius
+        std::fabs(res.crosstrackDistance) > radiusMeters)           // to the side of the GC segment by more than the radius
     {
-        return std::acos(dp);
+        return result;
     }
 
-    const auto m = a.cross(b).norm();
-    return (dp < 0) ? M_PI - std::asin(m) : std::asin(m);
+    // Use the right-triangle-simplified law of cosines for triangles on a sphere
+
+    const double earthRad = wgs84Geodesic.EquatorialRadius();
+    const double a = earthRad * std::acos(std::cos(radiusMeters / earthRad) /
+                                          std::cos(std::fabs(res.crosstrackDistance) / earthRad));
+
+    // The intersections must be symmetric around the perpendicular intercept
+    const double dist1  = res.downtrackDistance + a;
+    const double dist2  = res.downtrackDistance - a;
+
+    const double hdg = initialHeadingD(gcStart, gcEnd);
+
+    if (dist1 >= 0.0 && dist1 <= res.segmentLength)
+    {
+        result.distances[0] = dist1;
+        result.intersections[0] = GeocentricToCoord(orthoDirect(gcStart, hdg, dist1));
+        result.count += 1;
+    }
+    if (dist2 >= 0.0 && dist2 <= res.segmentLength)
+    {
+        result.distances[result.count] = dist2;
+        result.intersections[result.count] = GeocentricToCoord(orthoDirect(gcStart, hdg, dist2));
+        result.count += 1;
+    }
+
+    return result;
 }
+
+namespace {
 
 }
 
-// TODO: This isn't fully accounting for eccentricity, so it's not super precise.
 GeoLibOrthoDist GeoLibOrthoDistD(MaplyCoordinateD a, MaplyCoordinateD b, MaplyCoordinateD c)
 {
     const auto gca = CoordToGeocentric(a).normalized();
     const auto gcb = CoordToGeocentric(b).normalized();
     const auto gcc = CoordToGeocentric(c).normalized();
-
-    // Calculate the unit normal of the geodesic segment
-    const auto geoNorm = gca.cross(gcb).normalized();
-
-    // Calculate the unit normal of that and the point of interest
-    const auto orthoNorm = gcc.cross(geoNorm).normalized();
-
-    // Find the the point where the line to the target point is perpendicular
-    const auto cp = geoNorm.cross(orthoNorm);
-
-    // Calculate the angles along and aside the segment
-    const auto t0 = angle(gca, gcb);
-    const auto t1 = angle(cp, gca);
-    const auto t2 = angle(cp, gcc);
-
-    // Work out which quadrant we're in and fix the signs
-    const auto s1 = (cp.dot(geoNorm.cross(gca)) < 0) ? -1. : 1.;
-    const auto s2 = (gcc.dot(geoNorm) > 0) ? -1. : 1.;
-
-    // Convert the angles to distances
-    const auto rad = GeographicLib::Constants::WGS84_a();
-    return { rad * t1 * s1, rad * t2 * s2, rad * t0 };
+    return _GeoLibOrthoDistD(gca, gcb, gcc);
 }
 
 namespace {
@@ -520,6 +628,15 @@ namespace {
             assertEq(3*M_PI/20, GeoLibSampleArcD(cd(0,0), 1000., -M_PI_4,  M_PI_4, false, p, sizeof(p)/sizeof(p[0])), 1e-6);
             assertEq(3*M_PI/20, GeoLibSampleArcD(cd(0,0), 1000.,  M_PI_4, -M_PI_4, true,  p, sizeof(p)/sizeof(p[0])), 1e-6);
             assertEq(  M_PI/20, GeoLibSampleArcD(cd(0,0), 1000.,  M_PI_4, -M_PI_4, false, p, sizeof(p)/sizeof(p[0])), 1e-6);
+        }
+        void TestInitialHeading() {
+            // TODO
+        }
+        void TestLineIntersectsCircle() {
+            // TODO
+        }
+        void TestLineIntersectCircle() {
+            // TODO
         }
     } test;
 }

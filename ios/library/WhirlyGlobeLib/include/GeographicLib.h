@@ -22,6 +22,12 @@ typedef struct GeoLibInt_t {
     bool intersects;
 } GeoLibInt;
 
+typedef struct GeoLibIntPair_t {
+    MaplyCoordinateD intersections[2];
+    double distances[2];
+    unsigned int count;
+} GeoLibIntPair;
+
 typedef struct GeoLibOrthoDist_t {
     double downtrackDistance;
     double crosstrackDistance;
@@ -56,6 +62,10 @@ bool GeoLibLineDIntersectsPolygonD(MaplyCoordinateD startPt, MaplyCoordinateD en
 // Compute the intersection point of two geodesic segments
 GeoLibInt GeoLibIntersectD(MaplyCoordinateD a, MaplyCoordinateD b, MaplyCoordinateD c, MaplyCoordinateD d);
 
+// Determine where a great circle intersects a small circle
+GeoLibIntPair GeoLibLineDIntersectCircleD(MaplyCoordinateD startPt, MaplyCoordinateD endPt, MaplyCoordinateD center, double radiusMeters);
+
+// Determine whether there's an intersection without bothering to compute its location
 bool GeoLibLineDIntersectsCircleD(MaplyCoordinateD startPt, MaplyCoordinateD endPt, MaplyCoordinateD center, double radiusMeters);
 
 // Compute the orthogonal distances for a point.
