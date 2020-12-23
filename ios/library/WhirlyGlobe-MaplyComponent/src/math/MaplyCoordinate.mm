@@ -26,7 +26,7 @@ using namespace WhirlyKit;
 MaplyCoordinate MaplyCoordinateMake(float radLon,float radLat) { return { radLon, radLat }; }
 MaplyCoordinateD MaplyCoordinateDMake(double radLon,double radLat) { return { radLon, radLat }; }
 MaplyCoordinate MaplyCoordinateMakeWithDegrees(float degLon,float degLat) { return { DegToRad(degLon), DegToRad(degLat) }; }
-MaplyCoordinateD MaplyCoordinateDMakeWithDegrees(double degLon, double degLat) { return { degLon, degLat }; }
+MaplyCoordinateD MaplyCoordinateDMakeWithDegrees(double degLon, double degLat) { return { DegToRad(degLon), DegToRad(degLat) }; }
 MaplyCoordinateD MaplyCoordinateDMakeWithMaplyCoordinate(MaplyCoordinate c) { return { c.x, c.y }; }
 MaplyCoordinate3d MaplyCoordinate3dMake(float x, float y, float z) { return { x, y, z}; }
 MaplyCoordinate3dD MaplyCoordinate3dDMake(double x, double y, double z) { return { x, y, z }; }
