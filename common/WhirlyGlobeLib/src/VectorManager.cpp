@@ -66,10 +66,10 @@ VectorInfo::VectorInfo(const Dictionary &dict)
     {
         vecCenterSet = true;
         vecCenter.x() = dict.getDouble(MaplyVecCenterX);
-        vecCenter.x() = dict.getDouble(MaplyVecCenterY);
+        vecCenter.y() = dict.getDouble(MaplyVecCenterY);
     }
 }
-    
+
 // Really Android?  Really?
 template <typename T>
 std::string to_string(T value)
@@ -102,8 +102,8 @@ std::string VectorInfo::toString()
     
 void VectorSceneRep::clear(ChangeSet &changes)
 {
-    for (SimpleIDSet::iterator it = drawIDs.begin(); it != drawIDs.end(); ++it)
-        changes.push_back(new RemDrawableReq(*it));
+    for (auto it : drawIDs)
+        changes.push_back(new RemDrawableReq(it));
 }
 
 /* Drawable Builder
@@ -115,9 +115,18 @@ class VectorDrawableBuilder
 public:
     VectorDrawableBuilder(Scene *scene,SceneRenderer *sceneRender,ChangeSet &changeRequests,VectorSceneRep *sceneRep,
                           const VectorInfo *vecInfo,bool linesOrPoints,bool doColor)
-    : changeRequests(changeRequests), scene(scene), sceneRender(sceneRender), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL), centerValid(false), center(0,0,0), geoCenter(0,0), doColor(doColor)
+        : changeRequests(changeRequests)
+        , scene(scene)
+        , sceneRender(sceneRender)
+        , sceneRep(sceneRep)
+        , vecInfo(vecInfo)
+        , drawable(nullptr)
+        , centerValid(false)
+        , center(0,0,0)
+        , geoCenter(0,0)
+        , doColor(doColor)
+        , primType(linesOrPoints ? Lines : Points)
     {
-        primType = (linesOrPoints ? Lines : Points);
     }
     
     ~VectorDrawableBuilder()
@@ -132,17 +141,17 @@ public:
         geoCenter = inGeoCenter;
     }
     
-    void addPoints(VectorRing3d &inPts,bool closed,MutableDictionaryRef attrs)
+    void addPoints(const VectorRing3d &inPts,bool closed, const MutableDictionaryRef &attrs)
     {
         VectorRing pts;
         pts.reserve(pts.size());
         for (const auto &pt : inPts)
-            pts.push_back(Point2f(pt.x(),pt.y()));
+            pts.emplace_back(pt.x(),pt.y());
         
         addPoints(pts,closed,attrs);
     }
 
-    void addPoints(VectorRing &pts,bool closed,MutableDictionaryRef attrs)
+    void addPoints(const VectorRing &pts,bool closed,const MutableDictionaryRef &attrs)
     {
         CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
         RGBAColor ringColor = attrs->getColor(MaplyColor, vecInfo->color);
@@ -172,13 +181,13 @@ public:
         for (unsigned int jj=0;jj<pts.size();jj++)
         {
             // Convert to real world coordinates and offset from the globe
-            Point2f &geoPt = pts[jj];
-            Point2d geoCoordD(geoPt.x()+geoCenter.x(),geoPt.y()+geoCenter.y());
-            Point3d localPt = coordAdapter->getCoordSystem()->geographicToLocal(geoCoordD);
-            Point3d norm3d = coordAdapter->normalForLocal(localPt);
-            Point3f norm(norm3d.x(),norm3d.y(),norm3d.z());
-            Point3d pt3d = coordAdapter->localToDisplay(localPt) - center;
-            Point3f pt(pt3d.x(),pt3d.y(),pt3d.z());
+            const Point2f &geoPt = pts[jj];
+            const Point2d geoCoordD(geoPt.x()+geoCenter.x(),geoPt.y()+geoCenter.y());
+            const Point3d localPt = coordAdapter->getCoordSystem()->geographicToLocal(geoCoordD);
+            const Point3d norm3d = coordAdapter->normalForLocal(localPt);
+            const Point3f norm(norm3d.x(),norm3d.y(),norm3d.z());
+            const Point3d pt3d = coordAdapter->localToDisplay(localPt) - center;
+            const Point3f pt(pt3d.x(),pt3d.y(),pt3d.z());
             
             // Add to drawable
             // Depending on the type, we do this differently
@@ -234,14 +243,14 @@ public:
                 sceneRep->drawIDs.insert(drawable->getDrawableID());
                 if (centerValid)
                 {
-                    Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
+                    const Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
                     Matrix4d transMat = trans.matrix();
                     drawable->setMatrix(&transMat);
                 }
                 
                 if (vecInfo->fade > 0.0)
                 {
-                    TimeInterval curTime = scene->getCurrentTime();
+                    const TimeInterval curTime = scene->getCurrentTime();
                     drawable->setFade(curTime,curTime+vecInfo->fade);
                 }
                 changeRequests.push_back(new AddDrawableReq(drawable->getDrawable()));
@@ -262,7 +271,7 @@ protected:
     Point3d center;
     Point2d geoCenter;
     bool centerValid;
-    GeometryType primType;
+    const GeometryType primType;
 };
 
 /* Drawable Builder (Triangle version)
@@ -274,8 +283,16 @@ class VectorDrawableBuilderTri
 public:
     VectorDrawableBuilderTri(Scene *scene,SceneRenderer *sceneRender,ChangeSet &changeRequests,VectorSceneRep *sceneRep,
                              const VectorInfo *vecInfo,bool doColor)
-    : changeRequests(changeRequests), scene(scene), sceneRender(sceneRender), sceneRep(sceneRep),
-      vecInfo(vecInfo), drawable(NULL), centerValid(false), center(0,0,0), doColor(doColor), geoCenter(0,0)
+        : changeRequests(changeRequests)
+        , scene(scene)
+        , sceneRender(sceneRender)
+        , sceneRep(sceneRep)
+        , vecInfo(vecInfo)
+        , drawable(nullptr)
+        , centerValid(false)
+        , center(0,0,0)
+        , doColor(doColor)
+        , geoCenter(0,0)
     {
     }
     
@@ -292,7 +309,7 @@ public:
     }
     
     // This version converts a ring into a mesh (chopping, tesselating, etc...)
-    void addPoints(VectorRing &ring,MutableDictionaryRef attrs)
+    void addPoints(const VectorRing &ring,const MutableDictionaryRef &attrs)
     {
         // Grid subdivision is done here
         std::vector<VectorRing> inRings;
@@ -300,6 +317,7 @@ public:
             ClipLoopToGrid(ring, Point2f(0.0,0.0), Point2f(vecInfo->subdivEps,vecInfo->subdivEps), inRings);
         else
             inRings.push_back(ring);
+        
         VectorTrianglesRef mesh(VectorTriangles::createTriangles());
         for (unsigned int ii=0;ii<inRings.size();ii++)
             TesselateRing(inRings[ii],mesh);
@@ -308,12 +326,12 @@ public:
     }
 
     // This version converts a ring into a mesh (chopping, tesselating, etc...)
-    void addPoints(VectorRing3d &inRing,MutableDictionaryRef attrs)
+    void addPoints(const VectorRing3d &inRing,const MutableDictionaryRef &attrs)
     {
         VectorRing ring;
         ring.reserve(inRing.size());
         for (const auto &pt : inRing)
-            ring.push_back(Point2f(pt.x(),pt.y()));
+            ring.emplace_back(pt.x(),pt.y());
         
         // Grid subdivision is done here
         std::vector<VectorRing> inRings;
@@ -321,6 +339,7 @@ public:
             ClipLoopToGrid(ring, Point2f(0.0,0.0), Point2f(vecInfo->subdivEps,vecInfo->subdivEps), inRings);
         else
             inRings.push_back(ring);
+        
         VectorTrianglesRef mesh(VectorTriangles::createTriangles());
         for (unsigned int ii=0;ii<inRings.size();ii++)
             TesselateRing(inRings[ii],mesh);
@@ -329,7 +348,7 @@ public:
     }
 
     // This version converts a ring into a mesh (chopping, tesselating, etc...)
-    void addPoints(std::vector<VectorRing> &rings,MutableDictionaryRef attrs)
+    void addPoints(const std::vector<VectorRing> &rings,const MutableDictionaryRef &attrs)
     {
         // Grid subdivision is done here
         std::vector<VectorRing> inRings;
@@ -338,6 +357,7 @@ public:
                 ClipLoopToGrid(rings[ii], Point2f(0.0,0.0), Point2f(vecInfo->subdivEps,vecInfo->subdivEps), inRings);
         else
             inRings = rings;
+
         VectorTrianglesRef mesh(VectorTriangles::createTriangles());
         TesselateLoops(inRings, mesh);
         
@@ -345,7 +365,7 @@ public:
     }
 
     // If it's a mesh, we're assuming it's been fully processed (triangulated, chopped, and so on)
-    void addPoints(VectorTrianglesRef mesh,MutableDictionaryRef attrs)
+    void addPoints(const VectorTrianglesRef &mesh, const MutableDictionaryRef &attrs)
     {
         RGBAColor ringColor = attrs->getColor(MaplyColor, vecInfo->color);
 
@@ -363,8 +383,8 @@ public:
             mesh->getTriangle(ir, pts);
             // Decide if we'll appending to an existing drawable or
             //  create a new one
-            int ptCount = (int)pts.size();
-            int triCount = (int)(pts.size()-2);
+            const int ptCount = (int)pts.size();
+            const int triCount = (int)(pts.size()-2);
             if (!drawable ||
                 (drawable->getNumPoints()+ptCount > MaxDrawablePoints) ||
                 (drawable->getNumTris()+triCount > MaxDrawableTriangles))
@@ -392,7 +412,7 @@ public:
             Point3d planeOrg(0,0,0),planeUp(0,0,1),planeX(1,0,0),planeY(0,1,0);
             if (vecInfo->texProj == TextureProjectionTanPlane)
             {
-                Point3d localPt = coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(centroid.x(),centroid.y()));
+                const Point3d localPt = coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(centroid.x(),centroid.y()));
                 planeOrg = coordAdapter->localToDisplay(localPt);
                 planeUp = coordAdapter->normalForLocal(localPt);
                 planeX = Point3d(0,0,1).cross(planeUp);
@@ -413,17 +433,17 @@ public:
                 TexCoord minCoord(MAXFLOAT,MAXFLOAT);
                 for (unsigned int jj=0;jj<pts.size();jj++)
                 {
-                    Point2f &geoPt = pts[jj];
-                    Point2d geoCoordD(geoPt.x()+geoCenter.x(),geoPt.y()+geoCenter.y());
+                    const Point2f &geoPt = pts[jj];
+                    const Point2d geoCoordD(geoPt.x()+geoCenter.x(),geoPt.y()+geoCenter.y());
                     
                     TexCoord texCoord;
                     switch (vecInfo->texProj)
                     {
                         case TextureProjectionTanPlane:
                         {
-                            Point3d dispPt = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(geoCoordD))-center;
-                            Point3d dir = dispPt - planeOrg;
-                            Point3d comp(dir.dot(planeX),dir.dot(planeY),dir.dot(planeUp));
+                            const Point3d dispPt = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(geoCoordD))-center;
+                            const Point3d dir = dispPt - planeOrg;
+                            const Point3d comp(dir.dot(planeX),dir.dot(planeY),dir.dot(planeUp));
                             texCoord.x() = comp.x() * vecInfo->texScale.x();
                             texCoord.y() = comp.y() * vecInfo->texScale.y();
                         }
@@ -457,13 +477,13 @@ public:
             for (unsigned int jj=0;jj<pts.size();jj++)
             {
                 // Convert to real world coordinates and offset from the globe
-                Point2f &geoPt = pts[jj];
-                Point2d geoCoordD(geoPt.x()+geoCenter.x(),geoPt.y()+geoCenter.y());
-                Point3d localPt = coordAdapter->getCoordSystem()->geographicToLocal(geoCoordD);
-                Point3d norm3d = coordAdapter->normalForLocal(localPt);
-                Point3f norm(norm3d.x(),norm3d.y(),norm3d.z());
-                Point3d pt3d = coordAdapter->localToDisplay(localPt) - center;
-                Point3f pt(pt3d.x(),pt3d.y(),pt3d.z());
+                const Point2f &geoPt = pts[jj];
+                const Point2d geoCoordD(geoPt.x()+geoCenter.x(),geoPt.y()+geoCenter.y());
+                const Point3d localPt = coordAdapter->getCoordSystem()->geographicToLocal(geoCoordD);
+                const Point3d norm3d = coordAdapter->normalForLocal(localPt);
+                const Point3f norm(norm3d.x(),norm3d.y(),norm3d.z());
+                const Point3d pt3d = coordAdapter->localToDisplay(localPt) - center;
+                const Point3f pt(pt3d.x(),pt3d.y(),pt3d.z());
                 
                 drawable->addPoint(pt);
                 if (doColor)
@@ -491,9 +511,9 @@ public:
                 // If we're doing screen coordinates, attach the tweaker
                 if (vecInfo->texProj == TextureProjectionScreen)
                 {
-                    Point2f midPt = drawMbr.mid();
-                    Point3d centerPt = scene->getCoordAdapter()->localToDisplay(Point3d(midPt.x(),midPt.y(),0.0));
-                    Point2d texScale(vecInfo->texScale.x(),vecInfo->texScale.y());
+                    const Point2f midPt = drawMbr.mid();
+                    const Point3d centerPt = scene->getCoordAdapter()->localToDisplay(Point3d(midPt.x(),midPt.y(),0.0));
+                    const Point2d texScale(vecInfo->texScale.x(),vecInfo->texScale.y());
                     BasicDrawableScreenTexTweaker *texTweaker = new BasicDrawableScreenTexTweaker(centerPt,texScale);
                     drawable->addTweaker(DrawableTweakerRef(texTweaker));
                 }
@@ -501,15 +521,15 @@ public:
                 drawable->setLocalMbr(drawMbr);
                 if (centerValid)
                 {
-                    Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
-                    Matrix4d transMat = trans.matrix();
+                    const Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
+                    const Matrix4d transMat = trans.matrix();
                     drawable->setMatrix(&transMat);
                 }
                 sceneRep->drawIDs.insert(drawable->getDrawableID());
                 
                 if (vecInfo->fade > 0.0)
                 {
-                    TimeInterval curTime = scene->getCurrentTime();
+                    const TimeInterval curTime = scene->getCurrentTime();
                     drawable->setFade(curTime,curTime+vecInfo->fade);
                 }
                 
@@ -541,11 +561,12 @@ VectorManager::~VectorManager()
 {
     std::lock_guard<std::mutex> guardLock(lock);
 
-    for (VectorSceneRepSet::iterator it = vectorReps.begin();
-         it != vectorReps.end(); ++it)
-        delete *it;
+    for (auto it : vectorReps)
+        delete it;
     vectorReps.clear();
 }
+
+static const std::string colorStr("color");
 
 // TODO: Get rid of this version
 SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, const VectorInfo &vecInfo, ChangeSet &changes)
@@ -562,9 +583,9 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, const VectorInfo &vec
     
     // Look for per vector colors
     bool doColors = false;
-    for (ShapeSet::iterator it = shapes->begin();it != shapes->end(); ++it)
+    for (auto it : *shapes)
     {
-        if ((*it)->getAttrDict()->hasField("color"))
+        if (it->getAttrDict()->hasField(colorStr))
         {
             doColors = true;
             break;
@@ -585,7 +606,7 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, const VectorInfo &vec
         {
             geoCenter.x() = vecInfo.vecCenter.x();
             geoCenter.y() = vecInfo.vecCenter.y();
-            Point3d dispPt = coordAdapter->localToDisplay(coordSys->geographicToLocal(geoCenter));
+            const Point3d dispPt = coordAdapter->localToDisplay(coordSys->geographicToLocal(geoCenter));
             center = dispPt;
             centerValid = true;
         } else {
@@ -595,8 +616,8 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, const VectorInfo &vec
               geoMbr.expand((*it)->calcGeoMbr());
           if (geoMbr.valid())
           {
-              Point3d p0 = coordAdapter->localToDisplay(coordSys->geographicToLocal3d(geoMbr.ll()));
-              Point3d p1 = coordAdapter->localToDisplay(coordSys->geographicToLocal3d(geoMbr.ur()));
+              const Point3d p0 = coordAdapter->localToDisplay(coordSys->geographicToLocal3d(geoMbr.ll()));
+              const Point3d p1 = coordAdapter->localToDisplay(coordSys->geographicToLocal3d(geoMbr.ur()));
               center = (p0+p1)/2.0;
               centerValid = true;
           }
@@ -627,7 +648,7 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, const VectorInfo &vec
                 // Work through the loops
                 for (unsigned int ri=0;ri<theAreal->loops.size();ri++)
                 {
-                    VectorRing &ring = theAreal->loops[ri];
+                    const VectorRing &ring = theAreal->loops[ri];
                     
                     // Break the edges around the globe (presumably)
                     if (vecInfo.sample > 0.0)
@@ -742,7 +763,7 @@ SimpleIdentity VectorManager::addVectors(const std::vector<VectorShapeRef> *shap
         {
             geoCenter.x() = vecInfo.vecCenter.x();
             geoCenter.y() = vecInfo.vecCenter.y();
-            Point3d dispPt = coordAdapter->localToDisplay(coordSys->geographicToLocal(geoCenter));
+            const Point3d dispPt = coordAdapter->localToDisplay(coordSys->geographicToLocal(geoCenter));
             center = dispPt;
             centerValid = true;
         } else {
@@ -752,8 +773,8 @@ SimpleIdentity VectorManager::addVectors(const std::vector<VectorShapeRef> *shap
               geoMbr.expand((*it)->calcGeoMbr());
           if (geoMbr.valid())
           {
-              Point3d p0 = coordAdapter->localToDisplay(coordSys->geographicToLocal3d(geoMbr.ll()));
-              Point3d p1 = coordAdapter->localToDisplay(coordSys->geographicToLocal3d(geoMbr.ur()));
+              const Point3d p0 = coordAdapter->localToDisplay(coordSys->geographicToLocal3d(geoMbr.ll()));
+              const Point3d p1 = coordAdapter->localToDisplay(coordSys->geographicToLocal3d(geoMbr.ur()));
               center = (p0+p1)/2.0;
               centerValid = true;
           }
@@ -784,7 +805,7 @@ SimpleIdentity VectorManager::addVectors(const std::vector<VectorShapeRef> *shap
                 // Work through the loops
                 for (unsigned int ri=0;ri<theAreal->loops.size();ri++)
                 {
-                    VectorRing &ring = theAreal->loops[ri];
+                    const VectorRing &ring = theAreal->loops[ri];
                     
                     // Break the edges around the globe (presumably)
                     if (vecInfo.sample > 0.0)
