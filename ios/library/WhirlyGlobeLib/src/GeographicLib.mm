@@ -291,10 +291,10 @@ double GeoLibDistanceD(MaplyCoordinateD startPt, MaplyCoordinateD endPt)
 namespace {
 
     // Project a geocentric point into the orthographic projection defined by the origin
-    static Point3d ProjectOrtho(const Point3d &origin, const Point3d &p)
+    static Point3d projectOrtho(const Point3d &origin, const Point3d &p)
     {
-        double sinLat =  origin.z();
-        double cosLat =  std::sqrt(origin.x() * origin.x() + origin.y() * origin.y());
+        const double sinLat =  origin.z();
+        const double cosLat =  std::sqrt(origin.x() * origin.x() + origin.y() * origin.y());
         const double sinLon =  origin.x() / cosLat;
         const double cosLon = -origin.y() / cosLat;
         const double x1 =  p.x() * cosLon + p.y() * sinLon;
@@ -303,7 +303,7 @@ namespace {
     }
 
     // Invert orthographic projection
-    static Point3d UnprojectOrtho(const Point3d &origin, const Point3d &p)
+    static Point3d unprojectOrtho(const Point3d &origin, const Point3d &p)
     {
         const double sinLat =  origin.z();
         const double cosLat =  std::sqrt(origin.x() * origin.x() + origin.y() * origin.y());
@@ -359,7 +359,7 @@ namespace {
     static double initialHeadingD(const Point3d &startPt, const Point3d &endPt)
     {
         // Find the location of the endpoint in the orthographic projection defined by the start point
-        const auto end = ProjectOrtho(startPt, endPt);
+        const auto end = projectOrtho(startPt, endPt);
 
         // If x==y==0 they are the same point and the heading is undefined
         return std::atan2(end.x(), end.y());
@@ -374,7 +374,7 @@ namespace {
         const double theta = distMeters / wgs84Geodesic.EquatorialRadius();
         const double r     = sin(theta);
         const double hdg   = M_PI_2 - azimuthRad;
-        return UnprojectOrtho(start, { r * std::cos(hdg), r * std::sin(hdg), std::cos(theta) });
+        return unprojectOrtho(start, { r * std::cos(hdg), r * std::sin(hdg), std::cos(theta) });
     }
 }
 
