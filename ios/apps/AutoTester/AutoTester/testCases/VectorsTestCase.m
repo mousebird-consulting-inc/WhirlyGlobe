@@ -43,11 +43,16 @@
 			kMaplyVecWidth: @(4.0)};
 		NSArray * paths = [[NSBundle mainBundle] pathsForResourcesOfType:@"geojson" inDirectory:nil];
 		for (NSString* fileName  in paths) {
+            // We only want the three letter countries
+            NSString *baseName = [[fileName lastPathComponent] stringByDeletingPathExtension];
+            if ([baseName length] != 3)
+                continue;
 			NSData *jsonData = [NSData dataWithContentsOfFile:fileName];
 			if (jsonData) {
 				MaplyVectorObject *wgVecObj = [MaplyVectorObject VectorObjectFromGeoJSON:jsonData];
                 if (wgVecObj)
                 {
+                    NSLog(@"Loading vector %@",fileName);
                     NSString *vecName = [[wgVecObj attributes] objectForKey:@"ADMIN"];
                     wgVecObj.attributes[@"title"] = vecName;
                     wgVecObj.selectable = true;

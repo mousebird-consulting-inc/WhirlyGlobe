@@ -435,7 +435,6 @@ public class MapboxKindaMap {
             sampleParams.coverPoles = false
             sampleParams.edgeMatching = false
         }
-        sampleParams.minZoom = zoom.min
         sampleParams.maxZoom = zoom.max
         sampleParams.reportedMaxZoom = 21;
         

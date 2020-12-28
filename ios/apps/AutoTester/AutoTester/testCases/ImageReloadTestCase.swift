@@ -32,7 +32,6 @@ class ImageReloadTestCase: MaplyTestCase
         sampleParams.coordSys = MaplySphericalMercator(webStandard: ())
         sampleParams.coverPoles = true
         sampleParams.edgeMatching = true
-        sampleParams.minZoom = tileInfo.minZoom()
         sampleParams.maxZoom = tileInfo.maxZoom()
         sampleParams.singleLevel = true
         
