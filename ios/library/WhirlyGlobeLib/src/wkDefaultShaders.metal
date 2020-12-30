@@ -712,10 +712,12 @@ fragment float4 fragmentTri_wideVec(
     int numTextures = TexturesBase(texArgs.texPresent);
 
     // Dot/dash pattern
-    float patternVal = 1.0;
+    float4 patternColor(1.0,1.0,1.0,1.0);
     if (numTextures > 0) {
         constexpr sampler sampler2d(coord::normalized, address::repeat, filter::linear);
-        patternVal = texArgs.tex[0].sample(sampler2d, float2(0.5,vert.texCoord.y)).r;
+        // Just pulling the alpha at the moment
+        // If we use the rest, we get interpolation down to zero, which isn't quite what we want here
+        patternColor.a = texArgs.tex[0].sample(sampler2d, vert.texCoord).a;
     }
     float alpha = 1.0;
     float across = vert.w2 * vert.texCoord.x;
@@ -725,7 +727,7 @@ fragment float4 fragmentTri_wideVec(
         alpha = (vert.w2-across)/fragArgs.wideVec.edge;
     
     return vert.dotProd > 0.0 ?
-    float4(fragArgs.wideVec.color.rgb,fragArgs.wideVec.color.a*alpha*patternVal)  : float4(0.0);
+    float4(fragArgs.wideVec.color.rgb*patternColor.rgb,fragArgs.wideVec.color.a*alpha*patternColor.a)  : float4(0.0);
 }
 
 struct VertexTriSSArgBufferA {
