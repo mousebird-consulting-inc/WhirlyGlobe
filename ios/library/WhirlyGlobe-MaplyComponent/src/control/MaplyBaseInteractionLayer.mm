@@ -3,7 +3,7 @@
  *  MaplyComponent
  *
  *  Created by Steve Gifford on 12/14/12.
- *  Copyright 2012-2019 mousebird consulting
+ *  Copyright 2012-2020 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -1861,24 +1861,35 @@ public:
         if (!compManager->hasComponentObject(vecObj->contents->getId()))
             return;
 
-        VectorManagerRef vectorManager = std::dynamic_pointer_cast<VectorManager>(scene->getManager(kWKVectorManager));
+        iosDictionary dictWrap(desc);
+        VectorInfo vectorInfo(dictWrap);
+        ChangeSet changes;
 
-        if (vectorManager)
+        if (!vecObj->contents->vectorIDs.empty())
         {
-            iosDictionary dictWrap(desc);
-            VectorInfo vectorInfo(dictWrap);
-
-            // Visual changes
-            ChangeSet changes;
-            for (SimpleIDSet::iterator it = vecObj->contents->vectorIDs.begin();
-                 it != vecObj->contents->vectorIDs.end(); ++it)
-                vectorManager->changeVectors(*it, vectorInfo, changes);
-            
-            // On/off
-            compManager->enableComponentObject(vecObj->contents->getId(), vectorInfo.enable, changes);
-
-            [self flushChanges:changes mode:threadMode];
+            if (const auto vectorManager = std::dynamic_pointer_cast<VectorManager>(scene->getManager(kWKVectorManager)))
+            {
+                for (const auto vid : vecObj->contents->vectorIDs)
+                {
+                    vectorManager->changeVectors(vid, vectorInfo, changes);
+                }
+            }
         }
+        if (!vecObj->contents->wideVectorIDs.empty())
+        {
+            if (const auto wideManager = std::dynamic_pointer_cast<WideVectorManager>(scene->getManager(kWKWideVectorManager)))
+            {
+                for (const auto vid : vecObj->contents->wideVectorIDs)
+                {
+                    wideManager->changeVectors(vid, vectorInfo, changes);
+                }
+            }
+        }
+        
+        // On/off
+        compManager->enableComponentObject(vecObj->contents->getId(), vectorInfo.enable, changes);
+
+        [self flushChanges:changes mode:threadMode];
     }
 }
 
