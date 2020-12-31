@@ -1481,6 +1481,15 @@ public:
         return false;
 }
 
+- (nullable NSValue *)geoPointFromScreen:(CGPoint)screenPt
+{
+    MaplyCoordinate coord;
+    if ([self geoPointFromScreen:screenPt geoCoord:&coord]) {
+        return [NSValue valueWithMaplyCoordinate:coord];
+    }
+    return nil;
+}
+
 - (NSArray *)geocPointFromScreen:(CGPoint)screenPt
 {
 	double coords[3];

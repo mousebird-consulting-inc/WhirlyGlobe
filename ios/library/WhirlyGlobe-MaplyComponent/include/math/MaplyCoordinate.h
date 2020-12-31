@@ -117,6 +117,21 @@ static const MaplyBoundingBox kMaplyNullBoundingBox = {
 	.ur = {.x = FLT_MIN, .y = FLT_MIN}
 };
 
+/**
+    A category that uses NSValue to store MaplyCoordinate data
+ */
+@interface NSValue (MaplyCoordinate)
++ (instancetype)valueWithMaplyCoordinate:(MaplyCoordinate)value;
+@property (readonly) MaplyCoordinate maplyCoordinateValue;
+@end
+
+/**
+    A category that uses NSValue to store MaplyCoordinateD data
+ */
+@interface NSValue (MaplyCoordinateD)
++ (instancetype)valueWithMaplyCoordinateD:(MaplyCoordinateD)value;
+@property (readonly) MaplyCoordinateD maplyCoordinateDValue;
+@end
 
 /**
     A category that uses NSValue to store MaplyBoundingBox data

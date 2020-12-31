@@ -178,6 +178,28 @@ double MaplyGreatCircleDistance(MaplyCoordinate p0,MaplyCoordinate p1)
 @end
 
 
+@implementation NSValue (MaplyCoordinate)
++ (instancetype)valueWithMaplyCoordinate:(MaplyCoordinate)value {
+    return [self valueWithBytes:&value objCType:@encode(MaplyCoordinate)];
+}
+- (MaplyCoordinate)maplyCoordinateValue {
+    MaplyCoordinate c;
+    [self getValue:&c];
+    return c;
+}
+@end
+
+@implementation NSValue (MaplyCoordinateD)
++ (instancetype)valueWithMaplyCoordinateD:(MaplyCoordinateD)value {
+    return [self valueWithBytes:&value objCType:@encode(MaplyCoordinateD)];
+}
+- (MaplyCoordinateD)maplyCoordinateDValue {
+    MaplyCoordinateD c;
+    [self getValue:&c];
+    return c;
+}
+@end
+
 @implementation NSValue (MaplyBoundingBox)
 + (instancetype)valueWithMaplyBoundingBox:(MaplyBoundingBox)value {
     return [self valueWithBytes:&value objCType:@encode(MaplyBoundingBox)];
@@ -188,3 +210,4 @@ double MaplyGreatCircleDistance(MaplyCoordinate p0,MaplyCoordinate p1)
     return box;
 }
 @end
+
