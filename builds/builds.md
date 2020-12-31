@@ -30,6 +30,6 @@ This is an older version of WhirlyGlobe-Maply, provided here for compatibility. 
 
 [Android 2.5 AAR](https://s3-us-west-1.amazonaws.com/whirlyglobemaplydistribution/WhirlyGlobe-Maply_Distribution_2_5.aar)
 
-The iOS version is a binary framework you can import into your project.  One of [our tutorials](https://mousebird.github.io/WhirlyGlobe/tutorial/ios/building_from_binary.html/) discusses that in detail.
+The iOS version is a binary framework you can import into your project.  One of [our tutorials](https://mousebird.github.io/WhirlyGlobe/tutorial/ios/building_from_binary.html) discusses that in detail.
 
 For Android, you can use the AAR and we discuss how in [another tutorial](https://mousebird.github.io/WhirlyGlobe/tutorial/android/building-from-nightly.html).
