@@ -54,6 +54,9 @@
 /// Return the first data object.  You're probably only expecting the one.
 - (id __nullable)getFirstData;
 
+/// Set when the QuadLoader cancels a tile.  You can check this in your dataForTile:
+- (bool)isCancelled;
+
 /// If this is set, the tile failed to parse
 /// You can set it and the system will deal with the results
 @property (nonatomic,strong) NSError * __nullable error;

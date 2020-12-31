@@ -84,6 +84,14 @@ using namespace WhirlyKit;
     return tileData[0];
 }
 
+- (bool)isCancelled
+{
+    if (!loadReturn)
+        return true;
+    
+    return loadReturn->cancel;
+}
+
 - (void)setError:(NSError *)error
 {
     _error = error;
