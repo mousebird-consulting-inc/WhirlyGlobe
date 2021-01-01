@@ -11,6 +11,8 @@ In these tutorials we’ll walk you through getting set up with WhirlyGlobe-Mapl
 
 ***
 
+These tutorials are for WhirlyGlobe-Maply Version 3.0 and greater.
+
 <div class="media">
 <a class="media-left" href= "ios/getting_started.html" border="0"><img src= "{{ site.baseurl }}/images/apple_logo_white.png" alt= "iOS Tutorial" align="left" width="64" height="78" style="margin-left:10px;margin-right:10px" /></a>
 <div class="media-body">

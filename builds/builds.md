@@ -5,11 +5,14 @@ layout: default
 
 Building the toolkit from scratch can be a lot of work.  Even the Cocoapods version compiles a lot of code.  If you just want a binary version, we've got that here.
 
-### Version 2.6
+<!--
+We also provide the results of our Jenkins continuous integration server.  Builds are run for iOS and Android nightly on the development branch and every time we check something in.
 
-The official version of WhirlyGlobe-Maply is 2.6.2 for Android and 2.6.1 for iOS.  The former contains a few tweaks for Android and no changes for iOS.
+If you'd like a good binary build, just grab 2.5 or a *nightly* version.  If you've been sent here for a specific feature, you may want the commit builds.  Those are the ones without *nightly* in the name.
+-->
 
-To use WhirlyGlobe-Maply via Cocoapods, include the following in your Podfile.
+<!--
+### Version 2.5
 
 {% highlight bash %}
 pod 'WhirlyGlobe', :git => 'https://github.com/mousebird/WhirlyGlobe'
@@ -21,6 +24,20 @@ For Android, you can use the AAR and we discuss how in [the Android tutorial](ht
 
 [Android 2.6 AAR](https://s3-us-west-1.amazonaws.com/whirlyglobemaplydistribution/WhirlyGlobe-Maply_Distribution_2_6_2.aar)
 
+For Android, you can use the AAR and we discuss how in [another tutorial](https://mousebird.github.io/WhirlyGlobe/tutorial/android/building-from-nightly.html).
+-->
+
+### Version 3.0
+
+The official released version of WhirlyGlobe-Maply is 3.0.  The downloads are as follows.
+
+[iOS 3.0 framework](https://whirlyglobemaplydistribution.s3-us-west-1.amazonaws.com/WhirlyGlobe-Maply_Distribution_3_0.zip)
+
+[Android 3.0 AAR](https://whirlyglobemaplydistribution.s3-us-west-1.amazonaws.com/WhirlyGlobe-Maply_Distribution_3_0.aar)
+
+The iOS version is a binary framework you can import into your project.  One of [our tutorials](https://mousebird.github.io/WhirlyGlobe/tutorial/ios/building_from_binary.html/) discusses that in detail.
+
+For Android, you can use the AAR and we discuss how in [another tutorial](https://mousebird.github.io/WhirlyGlobe/tutorial/android/building-from-nightly.html).
 
 ### Version 2.5
 
@@ -30,6 +47,13 @@ This is an older version of WhirlyGlobe-Maply, provided here for compatibility. 
 
 [Android 2.5 AAR](https://s3-us-west-1.amazonaws.com/whirlyglobemaplydistribution/WhirlyGlobe-Maply_Distribution_2_5.aar)
 
-The iOS version is a binary framework you can import into your project.  One of [our tutorials](https://mousebird.github.io/WhirlyGlobe/tutorial/ios/building_from_binary.html) discusses that in detail.
+<!--
+Besides the urls listed below, you also have an special url always pointing to the lastest nightly build:
 
-For Android, you can use the AAR and we discuss how in [another tutorial](https://mousebird.github.io/WhirlyGlobe/tutorial/android/building-from-nightly.html).
+{% highlight bash %}
+pod 'WhirlyGlobe', :http => 'https://s3-us-west-1.amazonaws.com/whirlyglobemaplydistribution/iOS_daily_builds/WhirlyGlobe-Maply_Nightly_latest.zip'
+{% endhighlight %}
+
+-->
+
+_Note: Cocoapods caches the file downloaded using the URL as cache key, so even though this file always contains the latest nighly build, you will have to clean the cache after the first dowload. For that, check the command `pod cache clean -all`_

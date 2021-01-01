@@ -3,127 +3,130 @@ title: Local Image Layer
 layout: android-tutorial
 ---
 
-*Tutorial by Nicholas Hallahan.*
-
 Now we're going to add a local image layer to your map. You can have map image tiles stored on your device using the SQLite based MBTiles format. We're going to show you how to load an MBTiles file from your device and display these tiles.
 
-### Copy Geography Class MBTiles to Device
+### Add MBTiles to Application
 
-For the sake of keeping this tutorial simple, we're going to manually copy an MBTiles file to your Android device's `ExternalStorage`. For a production app, you'll want to [explore various means](https://github.com/mousebird/WhirlyGlobe/blob/e9dec4068156191861d40d5dded1c079449c26f2/WhirlyGlobeSrc/AutoTesterAndroid/app/src/main/java/com/mousebirdconsulting/autotester/TestCases/MBTilesImageTestCase.java#L138-L162) of getting an MBTiles file onto the device automatically, but that is out of scope from this basic tutorial.
+For the sake of simplicity, we're going to manually add an MBTiles file to your application. For a production app, you'll want to [explore various means](https://github.com/mousebird/WhirlyGlobe/blob/master/WhirlyGlobeSrc/AutoTesterAndroid/app/src/main/java/com/mousebirdconsulting/autotester/TestCases/MBTilesImageTestCase.java#L138-L162) of getting an MBTiles file onto the device automatically, but that is out of scope from this basic tutorial.
 
-First, download our sample [Geography Class MBTiles file](http://whirlyglobedocs.s3-website-us-east-1.amazonaws.com/tutorialsupport/geography-class_medres.mbtiles) to your computer. Then, using [Android File Transfer](https://www.android.com/filetransfer/), create an `mbtiles` directory in the `Phone` tab of the file explorer.
+First, download our sample [Geography Class MBTiles file](http://whirlyglobedocs.s3-website-us-east-1.amazonaws.com/tutorialsupport/geography-class_medres.mbtiles) to your computer and copy it to the following directory under the HelloGlobe application (you will need to create the last two directories):
 
-<img src="resources/android-file-transfer.png" alt="Android File Transfer" style="max-width: 500px;display:block;margin:auto;">
+* `src/main/assets/mbtiles/geography-class_medres.mbtiles`
 
-Drag over your `geography-class_medres.mbtiles` file into your `mbtiles` directory.
+### Create a New Fragment
 
-### Granting Permission
+Next, we'll create yet another fragment which loads the tiles from the MBTiles file.  Create a new class, `LocalGlobeFragment` with the following, or place [LocalGlobeFragment.java](https://github.com/mousebird/AndroidTutorialProject/blob/master/app/src/main/java/com/mousebirdconsulting/helloearth/LocalGlobeFragment.java) in the appropriate directory.
 
-You can add an MBTiles file from the internal storage of you app, however, in this tutorial, we added it to `ExternalStorage`. We need to grant the app permission to access `ExternalStorage`, and we must also explicity ask the user for permission.
+```java
+package com.mousebirdconsulting.helloearth;
 
-In your [AndroidManifest.xml](https://github.com/mousebird/AndroidTutorialProject/blob/cb8f82ed651cbd8b61524febc9321ec5045e10fd/app/src/main/AndroidManifest.xml#L5), add the following line to your manifest:
+import android.content.Context;
+import android.content.ContextWrapper;
+import android.util.Log;
 
-```xml
-<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+import com.mousebird.maply.MBTileFetcher;
+import com.mousebird.maply.QuadImageLoader;
+import com.mousebird.maply.SamplingParams;
+import com.mousebird.maply.SphericalMercatorCoordSystem;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+public class LocalGlobeFragment extends HelloGlobeFragment {
+
+    @Override
+    protected void controlHasStarted() {
+
+        File mbTileFile;
+        try {
+            mbTileFile = getMBTileAsset("geography-class_medres.mbtiles");
+        } catch (IOException e) {
+            Log.d("HelloEarth", e.getMessage());
+            return;
+        }
+
+        MBTileFetcher mbTileFetcher = new MBTileFetcher(mbTileFile);
+
+        SamplingParams params = new SamplingParams();
+        params.setCoordSystem(new SphericalMercatorCoordSystem());
+        params.setCoverPoles(true);
+        params.setEdgeMatching(true);
+        params.setSingleLevel(true);
+        params.setMinZoom(0);
+        params.setMaxZoom(mbTileFetcher.maxZoom);
+
+        QuadImageLoader loader = new QuadImageLoader(params,mbTileFetcher.getTileInfo(), baseControl);
+        loader.setTileFetcher(mbTileFetcher);
+
+        double latitude = 40.5023056 * Math.PI / 180;
+        double longitude = -3.6704803 * Math.PI / 180;
+        double zoom_earth_radius = 0.5;
+        globeControl.animatePositionGeo(longitude, latitude, zoom_earth_radius, 1.0);
+    }
+
+    private File getMBTileAsset(String name) throws IOException {
+        ContextWrapper wrapper = new ContextWrapper(getActivity());
+        File mbTilesDirectory =  wrapper.getDir("mbtiles", Context.MODE_PRIVATE);
+
+        InputStream is = getActivity().getAssets().open("mbtiles/" + name);
+        File of = new File(mbTilesDirectory, name);
+
+        if (!of.exists()) {
+            OutputStream os = new FileOutputStream(of);
+            byte[] mBuffer = new byte[4096];
+            int length;
+            while ((length = is.read(mBuffer)) > 0) {
+                os.write(mBuffer, 0, length);
+            }
+            os.flush();
+            os.close();
+            is.close();
+        }
+
+        return of;
+    }
+}
 ```
 
-Your manifest should now look like the following:
+We can't use the MBTiles from an `InputStream`, so there's a little bit of boilerplate here to copy the data to a file in the application's data directory.
+
+### Use the New Fragment
+
+Once again update your main layout, `activity_main.xml`, to reference the new fragment:
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="io.theoutpost.helloearth">
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/relativeLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
 
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <fragment
+        android:id="@+id/fragment"
+        android:name="com.mousebirdconsulting.helloearth.LocalGlobeFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toTopOf="parent"
+        app:layout_constraintEnd_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <application
-        android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
-        android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-    </application>
-
-</manifest>
+</androidx.constraintlayout.widget.ConstraintLayout>
 ```
 
-Also, you will need to prompt the user for permission to access files on the device. Let's do this in your [HelloMapFragment.java](https://github.com/mousebird/AndroidTutorialProject/blob/cb8f82ed651cbd8b61524febc9321ec5045e10fd/app/src/main/java/io/theoutpost/helloearth/HelloMapFragment.java#L44-L59).
+That's it!
 
-```java
-protected void controlHasStarted() {
-    Activity activity = getActivity();
-    final int REQUEST_EXTERNAL_STORAGE = 1;
-    String[] PERMISSIONS_STORAGE = {
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
-    };
-    int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+Now you can see a local tile source being drawn on your globe.
 
-    if (permission != PackageManager.PERMISSION_GRANTED) {
-        // We don't have permission so prompt the user
-        ActivityCompat.requestPermissions(
-                activity,
-                PERMISSIONS_STORAGE,
-                REQUEST_EXTERNAL_STORAGE
-        );
-    }
-    ...
-}
-```
+<img src="resources/mbtiles.jpg" alt="MBTiles" style="max-width:50%; display: block; margin: auto;" />
 
-This is just some boilerplate code you need to do in newer SDKs when accessing files in external storage.
+---
 
-### Comment Out RemoteTileSource
+*Tutorial by Nicholas Hallahan, Steve Gifford, Tim Sylvester.*
 
-Our previous tutorial had code that adds Stamen Watercolor as a remote tile source to the map. Let's comment out the [following code](https://github.com/mousebird/AndroidTutorialProject/blob/cb8f82ed651cbd8b61524febc9321ec5045e10fd/app/src/main/java/io/theoutpost/helloearth/HelloMapFragment.java#L79-L83) in HelloMapFragment.java.
-
-```java
-//        String cacheDirName = "stamen_watercolor";
-//        File cacheDir = new File(getActivity().getCacheDir(), cacheDirName);
-//        cacheDir.mkdir();
-//        RemoteTileSource remoteTileSource = new RemoteTileSource(new RemoteTileInfo("http://tile.stamen.com/watercolor/", "png", 0, 18));
-//        remoteTileSource.setCacheDir(cacheDir);
-```
-
-### Create MBTilesImageSource
-
-In place of the `RemoteTileSource`, we want to create an `MBTilesImageSource`. We get the MBTiles file, check if it is valid, and then create the local image source.
-
-```java
-File storageDir = Environment.getExternalStorageDirectory();
-File mbtilesDir = new File(storageDir, "mbtiles");
-File mbtilesFile = new File(mbtilesDir, "geography-class_medres.mbtiles");
-if (!mbtilesFile.exists()) {
-    new AlertDialog.Builder(activity)
-            .setTitle("Missing MBTiles")
-            .setMessage("Could not find MBTiles file.")
-            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    // do nothing
-                }
-            }).show();
-}
-MBTiles mbtiles = new MBTiles(mbtilesFile);
-MBTilesImageSource localTileSource = new MBTilesImageSource(mbtiles);
-```
-
-Put this [right before](https://github.com/mousebird/AndroidTutorialProject/blob/cb8f82ed651cbd8b61524febc9321ec5045e10fd/app/src/main/java/io/theoutpost/helloearth/HelloMapFragment.java#L61-L75) the commented out `RemoteTileSource` code.
-
-### Add to Layer
-
-Now, let's add the `MBTilesImageSource` to the `QuadImageTileLayer` in place of the `RemoteTileSource`.
-
-```java
-QuadImageTileLayer baseLayer = new QuadImageTileLayer(mapControl, coordSystem, localTileSource);
-```
-
-That's it! Now you can see a local tile source being drawn on your map.
-
-<img src="resources/mbtiles.jpg" alt="MBTiles" style="max-width:375px; display: block; margin: auto;" />

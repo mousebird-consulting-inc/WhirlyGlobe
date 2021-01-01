@@ -2,8 +2,7 @@
   files: 
     - filename: getting-started.html
     - filename: hello-earth.html
-    - filename: building-from-repository.html
-    - filename: building-from-nightly.html
+    - filename: building-from-binary.html
     - filename: building-from-source.html
 
 - section: Basics of Display

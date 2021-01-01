@@ -5,4 +5,4 @@ require 'open-uri'
 versions = JSON.parse(open('https://pages.github.com/versions.json').read)
 gem 'github-pages'
 
-ruby '2.6.3'
+ruby '2.7'

@@ -21,9 +21,9 @@ Create a _libs_ subdirectory and add WG-Maply in that path.
 % git submodule add https://github.com/mousebird/WhirlyGlobe.git libs/WhirlyGlobeMaply
 {% endhighlight %}
 
-Next, we need to initialize and update WG-Maply's dependencies.  We heard you liked submodules, so we put submodules in your submodules.  _No, we’re not proud of that joke._
+Next, we need to initialize and update WG-Maply's dependencies.
 
-This part will take a while.  WG-Maply uses a bunch of other projects and it has a lot of data in its Resources submodule.
+We've cut way back on these in recent years, but this part may take a while.  WG-Maply has a lot of data in its Resources submodule.
 
 {% highlight bash %}
 % cd libs/WhirlyGlobe­Maply
@@ -33,31 +33,21 @@ This part will take a while.  WG-Maply uses a bunch of other projects and it has
 
 Once it's done we're done with Terminal. Close that window and open the HelloEarth project in Xcode.
 
-<div class="well">
-<h4><span class="label label-warning" style="margin-right:10px">Note</span>Upgrading to 2.3</h4>
-
-<p>
-  In some rare cases you may have problems upgrading an existing installation to 2.3 or… other times this happens. Hey, git is a dark art.
-</p>
-
-<p>
-  If you get an error message when doing the submodule init, try running the <i>update_from_2_2_to_2_3.sh</i> script.  It cleans out the submodules and tries again, basically.
-</p>
-</div>
-
 ### Adding the Dependencies
 
-Now you need to add the WG-Maply library to the project, along with a number of others upon which WG-Maply depends. 
+Now you need to add the WG-Maply library to the project. 
 
 Select the HelloEarth project, then go to Build Phases, and expand Link Binary With Libraries.
 
 ![Adding the Dependent Project]({{ site.baseurl }}/images/tutorial/source_dist_1.png)
 
-Click the + at the bottom, and then Add Other.
+Click the + at the bottom, and then **Add Files** from the **Add Other** dropdown.
 
-Navigate to the _libs/WhirlyGlobeMaply/WhirlyGlobeSrc/WhirlyGlobe-­MaplyComponent/_ directory, and select _WhirlyGlobe­MaplyComponent.xcodeproj_. Click *Open*.  If you are prompted to share a working copy, **no** is fine.
+Navigate to the _libs/WhirlyGlobeMaply/ios/library/WhirlyGlobe-MaplyComponent/_ directory, and select _WhirlyGlobe­MaplyComponent.xcodeproj_. Click *Open*.
 
-Click + again, and you will see a new option: _libWhirlyGlobe­MaplyComponent.a_. Select that and click **Add**. You'll need to and add the following libraries as well:
+Click + again, and you will see a new option: _WhirlyGlobeMaplyComponent.framework_. Select that and click **Add**.
+
+WG-Maply depends on a number of standard libraries as well, but you shouldn't need to add them.  It should pick those up.  If it doesn't, here they are.
 
 {% highlight bash %}
 + CoreLocation
@@ -67,30 +57,30 @@ Click + again, and you will see a new option: _libWhirlyGlobe­MaplyComponent.a_
 + libsqlite3
 {% endhighlight %}
 
-Once you have all those libraries added, it should look like this.
+We'll also need to embed the WG-Maply framework in any app bundle.  So go to the General tab for the project and select **Embed & Sign** for the _WhirlyGlobeMaplyComponent.framework_ entry under _Frameworks, Libraries, and Embedded Content_.
 
-![Adding the Dependent Project]({{ site.baseurl }}/images/tutorial/source_dist_2.png)
+![Adding the Dependent Project]({{ site.baseurl }}/images/tutorial/source_dist_5.png)
 
-Finally, we need to add the path to the WG-Maply headers so Xcode knows where to find the includes. To do this, go to Build Settings and look for Header Search Paths. 
+Next, we need to add the path to the WG-Maply headers so Xcode knows where to find the includes. To do this, go to Build Settings and look for Header Search Paths. 
 
-![Adding the Dependent Project]({{ site.baseurl }}/images/tutorial/source_dist_3.png)
+![Setting the Header Search Paths]({{ site.baseurl }}/images/tutorial/source_dist_3.png)
 
 Click + and add the following path.
 
 {% highlight bash %}
-"$(SRCROOT)/libs/WhirlyGlobeMaply/WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/"
+"$(SRCROOT)/libs/WhirlyGlobeMaply/ios/library/WhirlyGlobe-MaplyComponent/include/"
 {% endhighlight %}
 
-### Bridging header for Swift
+Last, we'll need to pull in a bridging header for Swift.  If you're not using Swift you don't need to do this.
 
-Maybe you're a lucky guy and you're doing your iOS project using Swift. In such case, you need one final step. Go to Build Settings and look for "Objective-C Bridging Header".
+Go to Build Settings and look for "Objective-C Bridging Header".
 
 ![Adding the Objective-C bridging header]({{ site.baseurl }}/images/tutorial/source_dist_4.png)
 
 Type there the following path:
 
 {% highlight bash %}
-$(SRCROOT)/libs/WhirlyGlobeMaply/WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/MaplyBridge.h
+libs/WhirlyGlobeMaply/ios/library/WhirlyGlobe-MaplyComponent/include/MaplyBridge.h
 {% endhighlight %}
 
 At this point, your project should be set up properly and you’ll be linked to the github repo for updates.

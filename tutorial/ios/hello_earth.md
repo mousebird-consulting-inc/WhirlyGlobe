@@ -12,6 +12,10 @@ Open Xcode, select File, New, and then Project.  Use the Single View Application
 
 ![Single View Application]({{ site.baseurl }}/images/tutorial/hello_earth_template.png)
 
+In this case we're using Swift as the language and Storyboards for the UI.  You can use Objective-C and SwiftUI instead.  Not together, obviously.
+
+![Swift Storyboard]({{ site.baseurl }}/images/tutorial/hello_earth_swift.png)
+
 Call your new app HelloEarth.  You can leave the rest as defaults.
 
 For source control, check the Source Control box to create a local git repository for your project.  You’ll need this if you set up the project with git submodules below.
@@ -23,7 +27,7 @@ Done? Good. Close Xcode and let's modify the project to pull in WG-Maply.
 
 ### WhirlyGlobe-Maply Distributions
 
-We distribute the WhirlyGlobe-Maply library in three ways. Any one of them is fine.  Pick the one you are most familiar with.  Don’t care?  Try binary.
+We distribute the WhirlyGlobe-Maply library in one of three ways. Any one of them is fine.  Pick the one you are most familiar with.  Don’t care?  Try binary.
 
 * [Building from Source](building_from_source.html) - Use submodules for the distribution on github.
 * [Build from binary](building_from_binary.html) - The self contained binary distribution.

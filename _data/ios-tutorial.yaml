@@ -16,7 +16,6 @@
   files: 
     - filename: local_image_layer.html
     - filename: remote_image_layer.html
-    - filename: remote_NASA_image_layers.html
 
 - section: Overlays
   files:
@@ -38,7 +37,4 @@
 - section: Advanced
   files:
     - filename: cartodb_layer.html
-    - filename: aeris_weather.html
-    - filename: component_tester.html
-    - filename: micello_map.html
     - filename: digitalglobe_mapsapi.html

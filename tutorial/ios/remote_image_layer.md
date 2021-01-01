@@ -9,124 +9,120 @@ The Geography Class example only has a few levels of detail.  We can't zoom in v
 
 Let's add a remote tile source, and take a closer look at the Earth. We'll use the Stamen Terrain tile set. If you end up wanting to use these tiles in an app that you distribute, check out the [requirements](http://maps.stamen.com/#terrain). (Full attribution: Map tiles by [Stamen Design](http://stamen.com/), under [CC BY 3.0](http://creativecommons.org/licenses/by/3.0). Data by [OpenStreetMap](http://openstreetmap.org/), under [ODbL](http://www.openstreetmap.org/copyright).)
 
-You'll need to have done the [Local Image Layer](local_image_tiles.html) tutorial.  Open your HelloEarth project and get ready.
+You'll need to have done the [globe](your_first_globe.html) or [map](your_first_map.html) tutorials, either is fine.  Open your HelloEarth project and get ready.
 
 ![Xcode ViewController.m]({{ site.baseurl }}/images/tutorial/local_image_layer_1.png)
 
-If you haven't got one here is a suitable ViewController (for [Objective-C]({{ site.baseurl }}/tutorial/ios/code/ViewController_remote_image_layer.m) or [Swift]({{ site.baseurl }}/tutorial/ios/code/ViewController_remote_image_layer.swift)) file to start with.  This version handles both a globe and a map and makes a nice starting point.
+If you haven't got one here is a suitable ViewController  for [Swift]({{ site.baseurl }}/tutorial/ios/code/ViewController_globe_and_map.swift) file to start with.  This version handles both a globe and a map and makes a nice starting point.
 
-### Remote Tile Source
+### The Basics
 
-We'll set this up to use either the local or remote tiles. Look for the following lines in your source code.
+If you've done the Local Image Layer tutorial, you've got the basics.  The only difference is we're going to get the image tiles from a remote server.  Weirdly enough, this is  simpler than a local image layer.
+
+If you worked through the globe or the map example, you'll need to add this little bit of code to your viewDidLoad method.  This will make the examples work with either globe or map.  If you're using the ViewController file from above, you don't need it.
 
 {% multiple_code %}
-  {% highlight objc %}
-// Set up the layer
-MaplyMBTileSource *tileSource = 
-    [[MaplyMBTileSource alloc] initWithMBTiles:@"geography-­class_medres"];
 
-MaplyQuadImageTilesLayer *layer = 
-    [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys 
-                                      tileSource:tileSource];
+  {% highlight swift %}
+let globeViewC = theViewC as? WhirlyGlobeViewController
+let mapViewC = theViewC as? MaplyViewController
   {% endhighlight %}
 
   {----}
 
-  {% highlight swift %}
-// set up the data source
-if let tileSource = MaplyMBTileSource(mbTiles: "geography-class_medres"),
-        // set up the layer
-        layer = MaplyQuadImageTilesLayer(tileSource: tileSource) {
+    {% highlight objc %}
+  // this logic makes it work for either globe or map
+  WhirlyGlobeViewController *globeViewC = nil;
+  MaplyViewController *mapViewC = nil;
+  if ([theViewC isKindOfClass:[WhirlyGlobeViewController class]])
+      globeViewC = (WhirlyGlobeViewController *)theViewC;
+  else
+      mapViewC = (MaplyViewController *)theViewC;
+    {% endhighlight %}
 
-}
-  {% endhighlight %}
 {% endmultiple_code %}
 
-
-Now replace that with these lines instead.  This will let you use either local or remote data.
+Now, add this declaration to your ViewController.
 
 {% multiple_code %}
-  {% highlight objc %}
-// add the capability to use the local tiles or remote tiles
-bool useLocalTiles = false;
-
-// we'll need this layer in a second
-MaplyQuadImageTilesLayer *layer;
-
-if (useLocalTiles)
-{
-  MaplyMBTileSource *tileSource = 
-        [[MaplyMBTileSource alloc] initWithMBTiles:@"geography­-class_medres"];
-  layer = [[MaplyQuadImageTilesLayer alloc] 
-                initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
-} else {
-  // Because this is a remote tile set, we'll want a cache directory
-  NSString *baseCacheDir = 
-    [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) 
-            objectAtIndex:0];
-  NSString *tilesCacheDir = [NSString stringWithFormat:@"%@/stamentiles/",
-                                                baseCacheDir];
-  int maxZoom = 18;
-
-  // Stamen Terrain Tiles, courtesy of Stamen Design under the Creative Commons Attribution License.
-  // Data by OpenStreetMap under the Open Data Commons Open Database License.
-  MaplyRemoteTileSource *tileSource = 
-    [[MaplyRemoteTileSource alloc] 
-            initWithBaseURL:@"http://tile.stamen.com/terrain/" 
-            ext:@"png" minZoom:0 maxZoom:maxZoom];
-  tileSource.cacheDir = tilesCacheDir;
-  layer = [[MaplyQuadImageTilesLayer alloc] 
-            initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
-}
-  {% endhighlight %}
-
-  {----}
 
   {% highlight swift %}
-// add the capability to use the local tiles or remote tiles
-let useLocalTiles = false
-
-// we'll need this layer in a second
-let layer: MaplyQuadImageTilesLayer
-
-if useLocalTiles {
-    guard let tileSource = MaplyMBTileSource(mbTiles: "geography-class_medres") else {
-        // can't load local tile set
-    }
-    layer = MaplyQuadImageTilesLayer(tileSource: tileSource)!
-}
-else {
-    // Because this is a remote tile set, we'll want a cache directory
-    let baseCacheDir = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0]
-    let tilesCacheDir = "\(baseCacheDir)/stamentiles/"
-    let maxZoom = Int32(18)
-
-    // Stamen Terrain Tiles, courtesy of Stamen Design under the Creative Commons Attribution License.
-    // Data by OpenStreetMap under the Open Data Commons Open Database License.
-    guard let tileSource = MaplyRemoteTileSource(
-            baseURL: "http://tile.stamen.com/terrain/",
-            ext: "png",
-            minZoom: 0, 
-            maxZoom: maxZoom) else {
-        // can't create remote tile source
-        return
-    }
-    tileSource.cacheDir = tilesCacheDir
-    layer = MaplyQuadImageTilesLayer(tileSource: tileSource)!
-}
+var imageLoader : MaplyQuadImageLoader? = nil
   {% endhighlight %}
+
+{----}
+
+  {% highlight objc %}
+    // These go well in your @implementation block
+    MaplyQuadImageLoader *imageLoader;
+    {% endhighlight %}
+    
 {% endmultiple_code %}
 
-Don't forget the call to addLayer below this.  We're just creating a slightly different data source, we still need to add the layer to the globe or map.
-
-There's only one important change here.  Rather than use a MaplyMBTileSource we create a MaplyRemoteTileSource.  It does just what it sounds like, loads its tiles from a remote source.
-
-We also set up a cache for the tiles because it's rude to thrash the server.  We set up the MaplyQuadImageTilesLayer as before.  It can handle a variety of data sources.
-
-And finally, if you're running iOS 9 or later, you'll need to configure the app to be allowed to make HTTP requests. If not, only HTTPS requests are allowed. Just open your Info.plist file, and add the key "App Transport Security Settings". Inside that, add "Allow Arbitrary Loads" key with value "YES".
+One more bit of housekeeping.  Our tile source does not support HTTPS, so we need to configure the app to be allowed to make HTTP requests. Just open your Info.plist file, and add the key "App Transport Security Settings". Inside that, add "Allow Arbitrary Loads" key with value "YES".
 
 ![App Transport Security Settings]({{ site.baseurl }}/images/tutorial/remote_image_layer_3.png)
 
+### Remote Tile Source
+
+Now for the fun bit.  We're going to point WG-Maply at a remote tile source and have it do the rest.
+
+{% multiple_code %}
+
+  {% highlight swift %}
+// Where do we get the tiles and were do we cache them?
+let cacheDir = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0]
+let thisCacheDir = "\(cacheDir)/stamentiles/"
+let maxZoom = Int32(16)
+let tileInfo = MaplyRemoteTileInfoNew(baseURL: "http://tile.stamen.com/watercolor/{z}/{x}/{y}.png",
+                                      minZoom: Int32(0),
+                                      maxZoom: Int32(maxZoom))
+tileInfo.cacheDir = thisCacheDir
+
+// Sampling parameters define how we break down the globe
+let sampleParams = MaplySamplingParams()
+sampleParams.coordSys = MaplySphericalMercator(webStandard: ())
+sampleParams.coverPoles = true
+sampleParams.edgeMatching = true
+sampleParams.minZoom = tileInfo.minZoom
+sampleParams.maxZoom = tileInfo.maxZoom
+sampleParams.singleLevel = true
+
+// The Image Loader does the actual work
+imageLoader = MaplyQuadImageLoader(params: sampleParams, tileInfo: tileInfo, viewC: theViewC!)
+imageLoader!.baseDrawPriority = kMaplyImageLayerDrawPriorityDefault
+  {% endhighlight %}
+
+  {----}
+
+    {% highlight objc %}
+// Where do we get the tiles and were do we cache them?
+NSString *cacheDir = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, true)[0];
+NSString *thisCacheDir = [cacheDir stringByAppendingString:@"/stamentiles/"];
+MaplyRemoteTileInfoNew *tileInfo = [[MaplyRemoteTileInfoNew alloc] initWithBaseURL:@"http://tile.stamen.com/watercolor/{z}/{x}/{y}.png" minZoom:0 maxZoom:16];
+tileInfo.cacheDir = thisCacheDir;
+
+// Describes what the file covers and how deep
+MaplySamplingParams *sampleParams = [[MaplySamplingParams alloc] init];
+sampleParams.coordSys = [[MaplySphericalMercator alloc] initWebStandard];
+sampleParams.coverPoles = true;
+sampleParams.edgeMatching = true;
+sampleParams.minZoom = tileInfo.minZoom;
+sampleParams.maxZoom = tileInfo.maxZoom;
+sampleParams.singleLevel = true;
+
+// Actually loads the images
+imageLoader = [[MaplyQuadImageLoader alloc] initWithParams:sampleParams tileInfo:tileInfo viewC:theViewC];
+imageLoader.baseDrawPriority = kMaplyImageLayerDrawPriorityDefault;
+    {% endhighlight %}
+
+{% endmultiple_code %}
+
+If you worked through the Local Imager Layer example, this is pretty familiar.  The new bit is setting up the MaplyRemoteTileInfoNew object.  We give that a replacement URL with the x, y, and z to be filled in.  We also provide a min and max zoom level.
+
+We don't want to keep fetching the same data repeatedly, so we'll give that TileInfo object a cache directory to use as it sees fit.  The system will clean these up over time, so don't sweat it.  If you need to clear the cache, just clear the directory.
+
+You may also notice we're not setting a Fetcher this time.  There is one behind the scenes, a RemoteTileFetcher, but we don't make you set it up.  You can if you like.
 
 ### Build and Run
 

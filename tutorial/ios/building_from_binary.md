@@ -8,10 +8,10 @@ prev_next:
 
 The binary distribution is one of the easiest ways to get started with WhirlyGlobe-Maply.  We distribute the toolkit as a framework for iOS device and simulator.
 
-First, download the [binary distribution](https://s3-us-west-1.amazonaws.com/whirlyglobemaplydistribution/WhirlyGlobe-Maply_Distribution_2_5.zip) and unzip it into your projects directory. It should look something like this:
+First, download the [binary distribution](https://s3-us-west-1.amazonaws.com/whirlyglobemaplydistribution/WhirlyGlobe-Maply_Distribution_3_0.zip) and unzip it into your projects directory. It should look something like this:
 
 {% highlight bash %}
-projects/WhirlyGlobe_Maply_Distribution_2_5
+projects/WhirlyGlobe_Maply_Distribution_3_0
 {% endhighlight %}
 
 This guide will simply refer to it as **BinaryDirectory** for purposes of indicating paths.
@@ -20,13 +20,15 @@ You will need your HelloEarth project [from earlier](hello_earth.html) for the n
 
 ### Adding the Dependencies
 
-To add an external library in Xcode, select the top level HelloEarth node in the project tab, pick **Build Phases** on the right and open the **Link Binary With Libraries** area.
+We build WhirlyGlobe-Maply as a binary framework.  Those need to be explicitly imported into the project.
 
-![Adding the Framework]({{ site.baseurl }}/images/tutorial/binary_dist_1.png)
+![Adding the Framework]({{ site.baseurl }}/images/tutorial/source_dist_1.png)
 
-Click on the + and select **Add Other**.  Navigate to **BinaryDirectory** and select WhirlyGlobeMaplyComponent.framework., then click Open.
+To add an external library in Xcode, select the top level HelloEarth node in the project tab, click the + at the bottom, and then **Add Files** from the **Add Other** dropdown.
 
-Finally, we'll need to add some libraries that WG-Maply needs. Click + again and add the following.
+Navigate to your  **BinaryDirectory** and select WhirlyGlobeMaplyComponent.framework., then click Open.
+
+We'll need to add some libraries that WG-Maply needs. Click + again and add the following.
 
 {% highlight bash %}
 + CoreLocation
@@ -36,31 +38,28 @@ Finally, we'll need to add some libraries that WG-Maply needs. Click + again and
 + libsqlite3
 {% endhighlight %}
 
-After you’ve put all those in it should look like this.
+Next, we need to indicate where to find the framework and the header files. Open up Build Settings and scroll down to **Framework Search Paths**.  Add your **BinaryDirectory** here.  This should be the level where your _WhirlyGlobeMaplyComponent.framework_ directory lives.
 
-![Libraries]({{ site.baseurl }}/images/tutorial/binary_dist_2.png)
+![Adding the Dependent Project]({{ site.baseurl }}/images/tutorial/binary_dist_2.png)
 
-The last thing we need to do is indicate where to search for WG-Maply header files. Open up Build Settings and scroll down to Header Search Paths. Add the path as follows.  Don’t forget to replace **BinaryDirectory** with your own.
+For the header files, find the **Header Search Paths** in your Build Settings.  Add the path to your **BinaryDirectory** plus Headers, like so.
 
 {% highlight bash %}
 "BinaryDirectory/WhirlyGlobeMaplyComponent.framework/Headers/"
 {% endhighlight %}
 
-If you're using Xcode 7.x you need one final step: go to Build Setting and search for "Framework Search Paths". You have to set there the folder containing the "WhirlyGlobeMaplyComponent.framework" file, that is: your own **BinaryDirectory**.
+![Adding the Dependent Project]({{ site.baseurl }}/images/tutorial/binary_dist_3.png)
 
-![Adding the Framework Search Paths]({{ site.baseurl }}/images/tutorial/binary_dist_3.png)
+Last, we'll need to pull in a bridging header for Swift.  If you're not using Swift you don't need to do this.
 
+Go to Build Settings and look for "Objective-C Bridging Header".
 
-### Bridging header for Swift
-
-Maybe you're a lucky guy and you're doing your iOS project using Swift. In such case, you need one final step. Go to Build Settings and look for "Objective-C Bridging Header".
-
-![Adding the Objective-C bridging header]({{ site.baseurl }}/images/tutorial/source_dist_4.png)
+![Adding the Objective-C bridging header]({{ site.baseurl }}/images/tutorial/binary_dist_4.png)
 
 Type there the following path:
 
 {% highlight bash %}
-"BinaryDirectory/WhirlyGlobeMaplyComponent.framework/Headers/MaplyBridge.h"
+BinaryDirectory/WhirlyGlobe-MaplyComponent/Headers/MaplyBridge.h
 {% endhighlight %}
 
 Don’t forget to replace **BinaryDirectory** with your own.

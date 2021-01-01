@@ -134,8 +134,7 @@
 		2B7AD8641D74A24500342477 /* spheres-android.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "spheres-android.md"; sourceTree = "<group>"; };
 		2B7AD8651D74A24500342477 /* vector-data.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "vector-data.md"; sourceTree = "<group>"; };
 		2B7AD8661D74A24500342477 /* vector-selection.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "vector-selection.md"; sourceTree = "<group>"; };
-		2B7AD8671D75FB1E00342477 /* building-from-nightly.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "building-from-nightly.md"; sourceTree = "<group>"; };
-		2B7AD8681D75FB1E00342477 /* building-from-repository.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "building-from-repository.md"; sourceTree = "<group>"; };
+		2B7AD8671D75FB1E00342477 /* building-from-binary.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "building-from-binary.md"; sourceTree = "<group>"; };
 		2B93D9481D411F4500EAD280 /* auto-tester-android.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "auto-tester-android.md"; sourceTree = "<group>"; };
 		2B93D9491D411F4500EAD280 /* building-from-source.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "building-from-source.md"; sourceTree = "<group>"; };
 		2B93D94A1D411F4500EAD280 /* getting-started.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "getting-started.md"; sourceTree = "<group>"; };
@@ -159,15 +158,11 @@
 		2B93D95D1D411F4500EAD280 /* start-new-android-studio-project.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "start-new-android-studio-project.png"; sourceTree = "<group>"; };
 		2B93D95E1D411F4500EAD280 /* whirlyglobe-component.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "whirlyglobe-component.png"; sourceTree = "<group>"; };
 		2B93D95F1D411F4500EAD280 /* your-first-globe-or-map.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "your-first-globe-or-map.md"; sourceTree = "<group>"; };
-		2B93D9601D411F4C00EAD280 /* index.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = index.md; sourceTree = "<group>"; };
+		2B93D9601D411F4C00EAD280 /* index.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = index.md; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.markdown; };
 		2B93D9611D411FFF00EAD280 /* android-tutorial.yaml */ = {isa = PBXFileReference; lastKnownFileType = text; path = "android-tutorial.yaml"; sourceTree = "<group>"; };
 		2B93D9621D411FFF00EAD280 /* ios-tutorial.yaml */ = {isa = PBXFileReference; lastKnownFileType = text; path = "ios-tutorial.yaml"; sourceTree = "<group>"; };
 		2B96DB6E1B7402DC005FF148 /* ArcGIS_Header.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ArcGIS_Header.png; sourceTree = "<group>"; };
 		2B96DB6F1B7402DC005FF148 /* ArcGISProgression.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ArcGISProgression.png; sourceTree = "<group>"; };
-		2B96DB701B7402DC005FF148 /* NASA_GIBS_Header.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = NASA_GIBS_Header.png; sourceTree = "<group>"; };
-		2B96DB711B7402DC005FF148 /* NASA_layers_header.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = NASA_layers_header.png; sourceTree = "<group>"; };
-		2B96DB721B7402DC005FF148 /* NASA_NightTime_Layer.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = NASA_NightTime_Layer.png; sourceTree = "<group>"; };
-		2B96DB731B7402DC005FF148 /* NASA_SeaTemp_Overlay.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = NASA_SeaTemp_Overlay.png; sourceTree = "<group>"; };
 		2BADFD8A1C7FC9E8004687FB /* miizee.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = miizee.png; sourceTree = "<group>"; };
 		2BB7660F1C73A14700F01F2A /* aeroviereports.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = aeroviereports.jpeg; sourceTree = "<group>"; };
 		2BB766101C73A14700F01F2A /* climearth.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = climearth.jpeg; sourceTree = "<group>"; };
@@ -392,10 +387,6 @@
 			children = (
 				2B96DB6E1B7402DC005FF148 /* ArcGIS_Header.png */,
 				2B96DB6F1B7402DC005FF148 /* ArcGISProgression.png */,
-				2B96DB701B7402DC005FF148 /* NASA_GIBS_Header.png */,
-				2B96DB711B7402DC005FF148 /* NASA_layers_header.png */,
-				2B96DB721B7402DC005FF148 /* NASA_NightTime_Layer.png */,
-				2B96DB731B7402DC005FF148 /* NASA_SeaTemp_Overlay.png */,
 				2B76A0501A1D2C7100C60136 /* globezoomnumbers.gif */,
 				2B76A04F1A1D2B0B00C60136 /* cartodb_results.png */,
 				2B76A04A1A1D202C00C60136 /* cartodb_layer_2.png */,
@@ -475,8 +466,7 @@
 		2B93D9471D411F4500EAD280 /* android */ = {
 			isa = PBXGroup;
 			children = (
-				2B7AD8671D75FB1E00342477 /* building-from-nightly.md */,
-				2B7AD8681D75FB1E00342477 /* building-from-repository.md */,
+				2B7AD8671D75FB1E00342477 /* building-from-binary.md */,
 				2B7AD8601D74A24500342477 /* local-image-layer.md */,
 				2B7AD8611D74A24500342477 /* screen-labels.md */,
 				2B7AD8621D74A24500342477 /* screen-marker-selection.md */,
@@ -540,6 +530,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 			);
 			mainGroup = 2B4E06841A152F8C00ADA318;
