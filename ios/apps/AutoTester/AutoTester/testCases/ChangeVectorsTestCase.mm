@@ -22,6 +22,8 @@
     NSTimer *_animationTimer;
     MaplyComponentObject *_vecObj;
     MaplyComponentObject *_wideVecObj;
+    MaplyComponentObject *_wideTexVecObj;
+    MaplyTexture *_dashedLineTex;
 }
 
 - (instancetype)init
@@ -53,6 +55,7 @@
     self.baseCase = [[VectorsTestCase alloc]init];
     [self.baseCase setUpWithGlobe:vc];
     [self setupWithBaseVC:vc];
+    [vc animateToPosition:MaplyCoordinateMakeWithDegrees(50, -65) height:0.5 heading:0 time:1.0];
 }
 
 - (void)setUpWithMap:(MaplyViewController *)vc
@@ -60,6 +63,7 @@
     self.baseCase = [[VectorsTestCase alloc]init];
     [self.baseCase setUpWithMap:vc];
     [self setupWithBaseVC:vc];
+    [vc animateToPosition:MaplyCoordinateMakeWithDegrees(50, -65) height:0.5 heading:0 time:1.0];
 }
 
 + (nonnull UIColor *)randomColor {
@@ -71,6 +75,19 @@
 
 - (void) animationCallback
 {
+    if (!_dashedLineTex)
+    {
+        auto lineTexBuilder = [[MaplyLinearTextureBuilder alloc] init];
+        [lineTexBuilder setPattern:@[@(2),@(2)]];
+        _dashedLineTex = [self.baseViewController addTexture:[lineTexBuilder makeImage]
+                                         desc:@{kMaplyTexMinFilter: kMaplyMinFilterNearest,
+                                                kMaplyTexMagFilter: kMaplyMinFilterNearest,
+                                                kMaplyTexWrapX: @true,
+                                                kMaplyTexWrapY: @true,
+                                                kMaplyTexFormat: @(MaplyImageIntRGBA)}
+                                         mode:MaplyThreadCurrent];
+    }
+
     if (!_vecObj)
     {
         const MaplyCoordinate pts[] = { MaplyCoordinateMakeWithDegrees(50, -65), MaplyCoordinateMakeWithDegrees(150, -65) };
@@ -83,13 +100,25 @@
     }
     if (!_wideVecObj)
     {
-        const MaplyCoordinate wpts[] = { MaplyCoordinateMakeWithDegrees(50, -66), MaplyCoordinateMakeWithDegrees(150, -66) };
-        const auto wvec = [[MaplyVectorObject alloc] initWithLineString:wpts numCoords:2 attributes:nil];
-        [self subdivide:wvec withVC:self.baseViewController epsilon:0.0001];
-        _wideVecObj = [self.baseViewController addWideVectors:@[wvec] desc:@{
+        const MaplyCoordinate pts[] = { MaplyCoordinateMakeWithDegrees(50, -66), MaplyCoordinateMakeWithDegrees(150, -66) };
+        const auto vec = [[MaplyVectorObject alloc] initWithLineString:pts numCoords:2 attributes:nil];
+        [self subdivide:vec withVC:self.baseViewController epsilon:0.0001];
+        _wideVecObj = [self.baseViewController addWideVectors:@[vec] desc:@{
             kMaplyEnable: @(YES),
             kMaplyColor: [UIColor redColor],
             kMaplyVecWidth: @(5.0)
+        }];
+    }
+    if (!_wideTexVecObj)
+    {
+        const MaplyCoordinate pts[] = { MaplyCoordinateMakeWithDegrees(50, -67), MaplyCoordinateMakeWithDegrees(150, -67) };
+        const auto vec = [[MaplyVectorObject alloc] initWithLineString:pts numCoords:2 attributes:nil];
+        [self subdivide:vec withVC:self.baseViewController epsilon:0.0001];
+        _wideTexVecObj = [self.baseViewController addWideVectors:@[vec] desc:@{
+            kMaplyEnable: @(YES),
+            kMaplyColor: [UIColor blackColor],
+            kMaplyVecWidth: @(5.0),
+            kMaplyVecTexture: _dashedLineTex
         }];
     }
 
@@ -110,6 +139,15 @@
             kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault)
         }];
     }
+    if (_wideTexVecObj)
+    {
+        [self.baseViewController changeVector:_wideTexVecObj desc:@{
+            kMaplyEnable: @((arc4random()%10) ? YES : NO),
+            kMaplyColor: [ChangeVectorsTestCase randomColor],
+            kMaplyVecWidth: @((arc4random()%33) / 4.0f),
+            kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault)
+        }];
+    }
 }
 
 - (void) stop
@@ -118,6 +156,11 @@
         [_animationTimer invalidate];
         _animationTimer = nil;
     }
+
+    _vecObj = nil;
+    _wideVecObj = nil;
+    _wideTexVecObj = nil;
+    _dashedLineTex = nil;
 
     [self.baseCase stop];
 }
