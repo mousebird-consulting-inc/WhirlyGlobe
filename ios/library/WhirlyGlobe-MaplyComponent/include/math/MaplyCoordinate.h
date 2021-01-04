@@ -117,6 +117,21 @@ static const MaplyBoundingBox kMaplyNullBoundingBox = {
 	.ur = {.x = FLT_MIN, .y = FLT_MIN}
 };
 
+/**
+    A category that uses NSValue to store MaplyCoordinate data
+ */
+@interface NSValue (MaplyCoordinate)
++ (instancetype)valueWithMaplyCoordinate:(MaplyCoordinate)value;
+@property (readonly) MaplyCoordinate maplyCoordinateValue;
+@end
+
+/**
+    A category that uses NSValue to store MaplyCoordinateD data
+ */
+@interface NSValue (MaplyCoordinateD)
++ (instancetype)valueWithMaplyCoordinateD:(MaplyCoordinateD)value;
+@property (readonly) MaplyCoordinateD maplyCoordinateDValue;
+@end
 
 /**
     A category that uses NSValue to store MaplyBoundingBox data
@@ -268,6 +283,22 @@ bool MaplyBoundingBoxContains(MaplyBoundingBox bbox, MaplyCoordinate c);
   Set up a bounding box from a list of 2D locations.
  */
 MaplyBoundingBox MaplyBoundingBoxFromLocations(const CLLocationCoordinate2D locs[], unsigned int numLocs);
+
+/**
+  Set up a bounding box from a list of 2D coordinates
+ */
+MaplyBoundingBox MaplyBoundingBoxFromCoordinates(const MaplyCoordinate coords[], unsigned int numCoords);
+MaplyBoundingBox MaplyBoundingBoxFromCoordinatesD(const MaplyCoordinateD coords[], unsigned int numCoords);
+MaplyBoundingBoxD MaplyBoundingBoxDFromCoordinates(const MaplyCoordinate coords[], unsigned int numCoords);
+MaplyBoundingBoxD MaplyBoundingBoxDFromCoordinatesD(const MaplyCoordinateD coords[], unsigned int numCoords);
+
+/**
+  Expand a bounding box with a list of 2D coordinates
+ */
+MaplyBoundingBox MaplyBoundingBoxAddCoordinates(MaplyBoundingBox box, const MaplyCoordinate coords[], unsigned int numCoords);
+MaplyBoundingBox MaplyBoundingBoxAddCoordinatesD(MaplyBoundingBox box, const MaplyCoordinateD coords[], unsigned int numCoords);
+MaplyBoundingBoxD MaplyBoundingBoxDAddCoordinates(MaplyBoundingBoxD box, const MaplyCoordinate coords[], unsigned int numCoords);
+MaplyBoundingBoxD MaplyBoundingBoxDAddCoordinatesD(MaplyBoundingBoxD box, const MaplyCoordinateD coords[], unsigned int numCoords);
 
 /**
  Return the intersection of two bounding boxes.

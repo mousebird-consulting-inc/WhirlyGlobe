@@ -35,7 +35,6 @@ class VectorMBTilesTestCase: MaplyTestCase {
         sampleParams.singleLevel = true
         sampleParams.coverPoles = false
         sampleParams.edgeMatching = false
-        sampleParams.minZoom = 0
         sampleParams.maxZoom = tileFetcher.maxZoom()
             
         // This parses the actual vector data and turns it into geometry

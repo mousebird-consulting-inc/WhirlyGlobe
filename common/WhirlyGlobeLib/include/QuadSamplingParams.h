@@ -43,7 +43,7 @@ public:
     /// Bounding box for the coordinate system
     MbrD coordBounds;
 
-    /// Min zoom level for sampling
+    /// Min zoom level for sampling.  Don't set this to anything other than 0 or 1
     int minZoom;
     /// Max zoom level for sampling
     int maxZoom;

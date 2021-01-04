@@ -64,7 +64,6 @@ class BNGCustomMapTestCase: MaplyTestCase {
         sampleParams.coordSys = bngCoordSys
         sampleParams.coverPoles = false
         sampleParams.edgeMatching = false
-        sampleParams.minZoom = 0
         sampleParams.maxZoom = 22
         sampleParams.singleLevel = true
 

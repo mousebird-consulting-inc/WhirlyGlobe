@@ -669,6 +669,15 @@
   */
 - (bool)geoPointFromScreen:(CGPoint)screenPt geoCoord:(MaplyCoordinate *__nonnull)geoCoord;
 
+/**
+    Calculate a geo coordinate from a point on the screen.
+    
+    @param screenPt Location on the screen.
+    
+    @return The corresponding MaplyCoordinate wrapped in an NSValue  if the point was on the globe, nil otherwise.
+  */
+- (nullable NSValue *)geoPointFromScreen:(CGPoint)screenPt;
+
 /** 
     Calculate a geocentric coordinate from a point on the screen.
  

@@ -34,7 +34,7 @@
 /// The coordinate system we'll be sampling from.
 @property (nonatomic,nonnull,strong) MaplyCoordinateSystem *coordSys;
 
-/// Min zoom level for sampling
+/// Min zoom level for sampling.  Don't set this to anything other than 0 or 1
 @property (nonatomic) int minZoom;
 
 /// Max zoom level for sampling
