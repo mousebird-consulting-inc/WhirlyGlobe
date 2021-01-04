@@ -32,6 +32,8 @@ public class QuadPagingLoader extends QuadLoaderBase {
         this(params,new TileInfoNew[]{tileInfo},inInterp,control);
     }
 
+    protected boolean noFetcher = false;
+
     /**
      * Initialize with the objects needed to run.
      *
@@ -41,7 +43,8 @@ public class QuadPagingLoader extends QuadLoaderBase {
      */
     public QuadPagingLoader(final SamplingParams params,LoaderInterpreter inInterp,BaseController control)
     {
-        this(params,new TileInfoNew[] { },inInterp,control);
+        this(params,new TileInfoNew(params.getMinZoom(),params.getMaxZoom()),inInterp,control);
+        noFetcher = true;
     }
 
     /**
@@ -75,7 +78,7 @@ public class QuadPagingLoader extends QuadLoaderBase {
 
     // Called a tick after creation to let users modify settings before we start
     public void delayedInit(final SamplingParams params) {
-        if (tileFetcher == null) {
+        if (tileFetcher == null && !noFetcher) {
             tileFetcher = getController().addTileFetcher("Image Fetcher");
         }
 

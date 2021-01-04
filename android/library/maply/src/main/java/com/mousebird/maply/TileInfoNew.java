@@ -33,6 +33,12 @@ public class TileInfoNew
     protected TileInfoNew()
     {}
 
+    // Don't use this constructor, use a subclass
+    TileInfoNew(int minZoom,int maxZoom) {
+        this.minZoom = minZoom;
+        this.maxZoom = maxZoom;
+    }
+
     /**
      * A unique ID used for sorting tile info objects when loading.
      */
