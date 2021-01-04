@@ -345,6 +345,7 @@ struct ProjVertexTriB {
 struct VertexTriWideVec
 {
     float3 position [[attribute(WhirlyKitShader::WKSVertexPositionAttribute)]];
+    float4 color [[attribute(WhirlyKitShader::WKSVertexColorAttribute)]];
     float3 normal [[attribute(WhirlyKitShader::WKSVertexNormalAttribute)]];
     float4 texInfo [[attribute(WhirlyKitShader::WKSVertexWideVecTexInfoAttribute)]];
     float3 p1 [[attribute(WhirlyKitShader::WKSVertexWideVecP1Attribute)]];
