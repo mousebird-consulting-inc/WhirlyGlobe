@@ -823,6 +823,15 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
 - (void)enableObjects:(NSArray *__nonnull)theObjs mode:(MaplyThreadMode)threadMode;
 
 /**
+    Set the representation to use for one or more UUIDs
+ 
+    @param uuids Array of NSString UUIDs to update
+    @param repName The representation name to apply, nil to return to the default
+    @param threadMode For MaplyThreadAny we'll do the enable on another thread.  For MaplyThreadCurrent we'll block the current thread to finish the enable.  MaplyThreadAny is preferred.
+ */
+- (void)setRepresentation:(NSString *__nullable)repName ofUUIDs:(NSArray<NSString *> *__nonnull)uuids mode:(MaplyThreadMode)threadMode;
+
+/**
  Pass a uniform block through to a shader.  Only for Metal.
  
  Custom Metal shaders may have their own uniform blocks associated with a known bufferID.

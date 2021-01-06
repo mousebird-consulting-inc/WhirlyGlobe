@@ -50,6 +50,8 @@
 #import "MaplyBaseViewController_private.h"
 #import "WorkRegion_private.h"
 
+#import <unordered_set>
+
 using namespace Eigen;
 using namespace WhirlyKit;
 
@@ -3375,6 +3377,61 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
             [self performSelector:@selector(enableObjectsRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
             break;
     }
+}
+
+// Set the representation to use for the specified UUIDs
+- (void)setRepresentation:(NSString *__nullable)repName ofUUIDs:(NSArray<NSString *> *__nonnull)uuids mode:(MaplyThreadMode)threadMode
+{
+    NSArray *argArray = @[uuids, repName, @(threadMode)];
+    
+    threadMode = [self resolveThreadMode:threadMode];
+    switch (threadMode)
+    {
+        case MaplyThreadCurrent:
+            [self setRepresentationRun:argArray];
+            break;
+        case MaplyThreadAny:
+        {
+            [self performSelector:@selector(setRepresentationRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+            break;
+        }
+    }
+}
+
+- (void)setRepresentation:(NSString *__nullable)repName ofUUIDs:(NSArray<NSString *> *__nonnull)uuids changes:(ChangeSet &)changes
+{
+    if (auto wr = WorkRegion(self)) {
+        [self setRepresentationImpl:repName ofUUIDs:uuids changes:changes];
+    }
+}
+
+- (void)setRepresentationImpl:(NSString *__nullable)repName ofUUIDs:(NSArray<NSString *> *__nonnull)uuids changes:(ChangeSet &)changes
+{
+    if (isShuttingDown || (!layerThread && !offlineMode))
+        return;
+
+    const auto repStr = [repName asStdString];  // blank if null
+    std::unordered_set<std::string> uuidSet(uuids.count);
+    for (const NSString *str in uuids)
+    {
+        uuidSet.insert([str asStdString]);
+    }
+    compManager->setRepresentation(repStr, uuidSet, changes);
+}
+
+- (void)setRepresentationRun:(NSArray *)argArray
+{
+    if (isShuttingDown || (!layerThread && !offlineMode))
+        return;
+
+    NSString *repName = argArray[0];
+    NSArray<NSString *> *uuids = argArray[1];
+    const MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:2] intValue];
+
+    ChangeSet changes;
+    [self setRepresentationImpl:repName ofUUIDs:uuids changes:changes];
+
+    [self flushChanges:changes mode:threadMode];
 }
 
 

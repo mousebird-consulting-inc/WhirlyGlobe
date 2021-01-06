@@ -1052,6 +1052,48 @@ static const float PerfOutputDelay = 15.0;
     [renderControl enableObjects:theObjs mode:threadMode];
 }
 
+- (void)setRepresentation:(NSString *__nullable)repName ofUUIDs:(NSArray<NSString *> *__nonnull)uuids
+{
+    if (uuids.count)
+    {
+        [renderControl setRepresentation:repName ofUUIDs:uuids mode:MaplyThreadAny];
+    }
+}
+
+- (void)setRepresentation:(NSString *__nullable)repName ofUUIDs:(NSArray<NSString *> *__nonnull)uuids mode:(MaplyThreadMode)threadMode
+{
+    if (uuids.count)
+    {
+        [renderControl setRepresentation:repName ofUUIDs:uuids mode:threadMode];
+    }
+}
+
+- (void)setRepresentation:(NSString *__nullable)repName ofObjects:(NSArray<MaplyComponentObject *> *__nonnull)objs
+{
+    [self setRepresentation:repName ofObjects:objs mode:MaplyThreadAny];
+}
+
+- (void)setRepresentation:(NSString *__nullable)repName ofObjects:(NSArray<MaplyComponentObject *> *__nonnull)objs mode:(MaplyThreadMode)threadMode
+{
+    if (!objs.count)
+    {
+        return;
+    }
+    NSMutableArray<NSString *> *theUUIDs = [NSMutableArray new];
+    for (const MaplyComponentObject *obj in objs)
+    {
+        if (auto uuid = [obj getUUID])
+        {
+            [theUUIDs addObject:uuid];
+        }
+    }
+    if (![theUUIDs count])
+    {
+        return;
+    }
+    [renderControl setRepresentation:repName ofUUIDs:theUUIDs mode:threadMode];
+}
+
 - (void)setUniformBlock:(NSData *__nonnull)uniBlock buffer:(int)bufferID forObjects:(NSArray<MaplyComponentObject *> *__nonnull)compObjs mode:(MaplyThreadMode)threadMode
 {
     if (!compObjs)

@@ -248,7 +248,37 @@ void ComponentManager::enableComponentObjects(const SimpleIDSet &compIDs,bool en
         }
     }
 }
-    
+
+template <typename TIter>
+void ComponentManager::setRepresentation(const std::string &repName,
+                                         TIter beg, TIter end,
+                                         ChangeSet &changes)
+{
+    {
+        std::lock_guard<std::mutex> guardLock(lock);
+        
+        for (; beg != end; ++beg)
+        {
+            const std::string &uuid = *beg;
+            // TODO: ?
+        }
+    }
+}
+
+void ComponentManager::setRepresentation(const std::string &repName,
+                                         const std::set<std::string> &uuids,
+                                         ChangeSet &changes)
+{
+    setRepresentation(repName, uuids.begin(), uuids.end(), changes);
+}
+
+void ComponentManager::setRepresentation(const std::string &repName,
+                                         const std::unordered_set<std::string> &uuids,
+                                         ChangeSet &changes)
+{
+    setRepresentation(repName, uuids.begin(), uuids.end(), changes);
+}
+
 void ComponentManager::setUniformBlock(const SimpleIDSet &compIDs,const RawDataRef &uniBlock,int bufferID,ChangeSet &changes)
 {
     std::vector<ComponentObjectRef> compRefs;

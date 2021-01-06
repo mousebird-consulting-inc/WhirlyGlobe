@@ -51,8 +51,22 @@ using namespace WhirlyKit;
     id enable = desc[kMaplyEnable];
     if (enable)
         contents->enable = [enable boolValue];
-    
+    id uuid = desc[kMaplyUUID];
+    if ([uuid isKindOfClass:[NSString class]])
+    {
+        contents->uuid = [uuid asStdString];
+    }
+    id rep = desc[kMaplyRepresentation];
+    if ([rep isKindOfClass:[NSString class]])
+    {
+        contents->representation = [rep asStdString];
+    }
+
     return self;
+}
+
+- (NSString *__nullable)getUUID {
+    return contents->uuid.empty() ? nil : [NSString stringWithUTF8String:contents->uuid.c_str()];
 }
 
 @end

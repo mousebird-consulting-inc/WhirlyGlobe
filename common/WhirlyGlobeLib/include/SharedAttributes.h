@@ -335,3 +335,8 @@
 
 /// Used to designate a non-default render target by ID
 #define MaplyRenderTargetDesc WKString("rendertarget")
+
+/// Used to refer to component objects by unique ID for, e.g., representation selection
+#define MaplyUUIDDesc WKString("uuid")
+/// Used to distinguish the particular representation of a unique ID
+#define MaplyRepresentationDesc WKString("representation")

@@ -77,6 +77,10 @@ extern NSString* const kMaplyZBufferRead;
 extern NSString* const kMaplyZBufferWrite;
 /// Set the render target if the given geometry type supports it
 extern NSString* const kMaplyRenderTarget;
+/// The the UUID of the object
+extern NSString* const kMaplyUUID;
+/// The representation of the UUID this object embodies
+extern NSString* const kMaplyRepresentation;
 
 /// Assign a shader program to a particular feature.  Use the shader program's name
 extern NSString* const kMaplyShader;
