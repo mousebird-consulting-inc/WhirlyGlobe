@@ -72,7 +72,10 @@ NSString* const kMaplyZBufferRead = MaplyZBufferRead;
 NSString* const kMaplyZBufferWrite = MaplyZBufferWrite;
 /// Set the render target if the given geometry type supports it
 NSString* const kMaplyRenderTarget = MaplyRenderTargetDesc;
-
+/// The the UUID of the object
+NSString* const kMaplyUUID = MaplyUUIDDesc;
+/// The representation of the UUID which this object embodies
+NSString* const kMaplyRepresentation = MaplyRepresentationDesc;
 /// Assign a shader program to a particular feature.  Use the shader program's name
 NSString* const kMaplyShader = MaplyShaderString;
 /// An NSDictionary containing uniforms to apply to a shader before drawing

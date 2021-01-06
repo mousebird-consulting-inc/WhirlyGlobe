@@ -686,6 +686,13 @@ using namespace Eigen;
     }
 }
 
+- (void)setRepresentation:(NSString * _Nullable)repName ofUUIDs:(NSArray<NSString *> * _Nonnull)uuids mode:(MaplyThreadMode)threadMode
+{
+    if (auto wr = WorkRegion(interactLayer)) {
+        [interactLayer setRepresentation:repName ofUUIDs:uuids mode:threadMode];
+    }
+}
+
 - (void)setUniformBlock:(NSData *__nonnull)uniBlock buffer:(int)bufferID forObjects:(NSArray<MaplyComponentObject *> *__nonnull)compObjs mode:(MaplyThreadMode)threadMode
 {
     if (auto wr = WorkRegion(interactLayer)) {

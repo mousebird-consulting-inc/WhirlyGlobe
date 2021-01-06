@@ -1126,8 +1126,43 @@
     @param theObjs The objects to enable.
     
     @param threadMode For MaplyThreadAny we'll do the enable on another thread.  For MaplyThreadCurrent we'll block the current thread to finish the enable.  MaplyThreadAny is preferred.
- */
+*/
 - (void)enableObjects:(NSArray *__nonnull)theObjs mode:(MaplyThreadMode)threadMode;
+
+/**
+    Set the representation to use for the matching UUIDs by specifying the UUIDs directly.
+
+    @param uuids Array of NSString, the UUIDs to update
+    @param repName The representation value to apply, nil to return to the default
+*/
+- (void)setRepresentation:(NSString *__nullable)repName ofUUIDs:(NSArray<NSString *> *__nonnull)uuids;
+
+/**
+    Set the representation to use for the matching UUIDs by specifying the UUIDs directly.
+
+    @param uuids Array of NSString, the UUIDs to update
+    @param repName The representation value to apply, nil to return to the default
+    @param threadMode For MaplyThreadAny we'll do the enable on another thread.  For MaplyThreadCurrent we'll block the current thread to finish the enable.  MaplyThreadAny is preferred.
+*/
+- (void)setRepresentation:(NSString *__nullable)repName ofUUIDs:(NSArray<NSString *> *__nonnull)uuids mode:(MaplyThreadMode)threadMode;
+
+
+/**
+    Set the representation to use for the UUIDs of the given objects.
+
+    @param objects Array of ComponentObject, the UUIDs to update
+    @param repName The representation value to apply, nil to return to the default
+*/
+- (void)setRepresentation:(NSString *__nullable)repName ofObjects:(NSArray<MaplyComponentObject *> *__nonnull)objects;
+
+/**
+    Set the representation to use for the UUIDs of the given objects.
+
+    @param objects Array of ComponentObject, the UUIDs to update
+    @param repName The representation value to apply, nil to return to the default
+    @param threadMode For MaplyThreadAny we'll do the enable on another thread.  For MaplyThreadCurrent we'll block the current thread to finish the enable.  MaplyThreadAny is preferred.
+*/
+- (void)setRepresentation:(NSString *__nullable)repName ofObjects:(NSArray<MaplyComponentObject *> *__nonnull)objects mode:(MaplyThreadMode)threadMode;
 
 /**
     Pass a uniform block through to a shader.  Only for Metal.

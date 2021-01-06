@@ -63,6 +63,10 @@ public:
     std::vector<VectorObjectRef> vecObjs;
     
     Point2d vectorOffset;
+    
+    std::string uuid;
+    std::string representation;
+
     bool isSelectable;
     bool enable;
     bool underConstruction;
@@ -117,6 +121,14 @@ public:
     /// Enable/disable a whole group of Component Objects
     virtual void enableComponentObjects(const SimpleIDSet &compIDs,bool enable,ChangeSet &changes);
     
+    virtual void setRepresentation(const std::string &repName,
+                                   const std::set<std::string> &uuids,
+                                   ChangeSet &changes);
+
+    virtual void setRepresentation(const std::string &repName,
+                                   const std::unordered_set<std::string> &uuids,
+                                   ChangeSet &changes);
+
     /// Set a uniform block on the geometry for the given component objects
     virtual void setUniformBlock(const SimpleIDSet &compIDs,const RawDataRef &uniBlock,int bufferID,ChangeSet &changes);
     
@@ -136,11 +148,16 @@ public:
     GeometryManagerRef geomManager;
     FontTextureManagerRef fontTexManager;
     ParticleSystemManagerRef partSysManager;
-    
+
 protected:
     // Subclass fills this in
     virtual ComponentObjectRef makeComponentObject() = 0;
-    
+
+    template <typename TIter>
+    void setRepresentation(const std::string &repName,
+                           TIter beg, TIter end,
+                           ChangeSet &changes);
+
     ComponentObjectMap compObjs;
 };
 typedef std::shared_ptr<ComponentManager> ComponentManagerRef;
