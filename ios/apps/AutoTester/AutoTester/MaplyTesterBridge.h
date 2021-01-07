@@ -36,5 +36,6 @@
 #import "GeoJSONSource.h"
 #import "GlyphProblemTestCase.h"
 #import "ChangeVectorsTestCase.h"
+#import "RepresentationsTestCase.h"
 
 #endif
