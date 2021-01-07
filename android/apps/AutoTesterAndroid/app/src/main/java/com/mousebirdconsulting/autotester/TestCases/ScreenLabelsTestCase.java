@@ -74,6 +74,7 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 		labelInfo.setBackgroundColor(Color.BLUE);
 		labelInfo.setTypeface(Typeface.DEFAULT);
 		labelInfo.setLayoutImportance(1.f);
+//		labelInfo.setLayoutImportance(Float.MAX_VALUE);
 		labelInfo.setLayoutPlacement(LabelInfo.LayoutRight | LabelInfo.LayoutCenter);
 		labelInfo.setTextJustify(LabelInfo.TextJustify.TextLeft);
 //		labelInfo.setMinVis(0.f);
@@ -97,7 +98,10 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 					label.text = labelName;
 					label.loc = object.centroid();
 					label.selectable = true;
-					label.layoutImportance = 1.f;
+//					label.layoutImportance = 1.f;
+//					label.layoutImportance = Float.MAX_VALUE;
+//					label.layoutSize = new Point2d(1000.0f, 256.f );
+//					label.offset = new Point2d(0.0,-300);
 //					label.rotation = Math.PI/4.0;
 					labels.add(label);
 

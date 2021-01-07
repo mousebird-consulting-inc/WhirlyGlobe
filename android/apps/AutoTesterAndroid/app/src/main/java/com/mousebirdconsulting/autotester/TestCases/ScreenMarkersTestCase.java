@@ -78,7 +78,8 @@ public class ScreenMarkersTestCase extends MaplyTestCase
 				marker.size = new Point2d(128, 128);
 				marker.rotation = Math.random() * 2.f * Math.PI;
 				marker.selectable = true;
-//				marker.offset = new Point2d(-64,-64);
+//				marker.offset = new Point2d(0.0,-200);
+//				marker.layoutSize = new Point2d(0.0, 64.0);
 				AttrDictionary attrs = vector.getAttributes();
 				if (attrs != null) {
 					marker.userObject = attrs.getString("ADMIN");
