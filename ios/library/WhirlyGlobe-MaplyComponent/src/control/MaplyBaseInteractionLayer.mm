@@ -3382,7 +3382,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 // Set the representation to use for the specified UUIDs
 - (void)setRepresentation:(NSString *__nullable)repName ofUUIDs:(NSArray<NSString *> *__nonnull)uuids mode:(MaplyThreadMode)threadMode
 {
-    NSArray *argArray = @[uuids, repName, @(threadMode)];
+    NSArray *argArray = @[repName, uuids, @(threadMode)];
     
     threadMode = [self resolveThreadMode:threadMode];
     switch (threadMode)

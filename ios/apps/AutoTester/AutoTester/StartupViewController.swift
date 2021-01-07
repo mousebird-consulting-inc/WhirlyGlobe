@@ -39,6 +39,7 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
         SimpleStyleTestCase(),
         GeoJSONStyleTestCase(),
         LoftedPolysTestCase(),
+        RepresentationsTestCase(),
 
         // Note: 3D labels are currently broken
 //        LabelsTestCase(),
