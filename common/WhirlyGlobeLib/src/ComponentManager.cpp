@@ -50,15 +50,12 @@ void ComponentObject::clear()
 }
 
 ComponentManager::ComponentManager()
-    : layoutManager(NULL), markerManager(NULL), labelManager(NULL), vectorManager(NULL), wideVectorManager(NULL),
-    shapeManager(NULL), loftManager(NULL), billManager(NULL), geomManager(NULL),
-    fontTexManager(NULL), partSysManager(NULL)
 {
 }
     
 ComponentManager::~ComponentManager()
 {
-    std::lock_guard<std::mutex> guardLock(lock);
+    //std::lock_guard<std::mutex> guardLock(lock);
 }
     
 void ComponentManager::setScene(Scene *scene)
@@ -83,6 +80,16 @@ void ComponentManager::addComponentObject(ComponentObjectRef compObj)
     
     compObj->underConstruction = false;
     compObjs[compObj->getId()] = compObj;
+
+    // Does the new object have a UUID?
+    if (!compObj->uuid.empty())
+    {
+        // Is the current representation for that UUID already set?
+        const auto hit = representations.find(compObj->uuid);
+        // Enable if it matches, disable otherwise.
+        // Representation must be none/empty if no current representation is set.
+        compObj->enable = (hit != representations.end()) ? (compObj->representation == hit->second) : compObj->representation.empty();
+    }
 }
 
 bool ComponentManager::hasComponentObject(SimpleIdentity compID)
@@ -212,8 +219,13 @@ void ComponentManager::enableComponentObjects(const SimpleIDSet &compIDs,bool en
             compRefs.push_back(compObj);
         }
     }
-    
-    for (ComponentObjectRef compObj: compRefs)
+
+    enableComponentObjects(compRefs, enable, changes);
+}
+
+void ComponentManager::enableComponentObjects(const std::vector<ComponentObjectRef> &compRefs, bool enable, ChangeSet &changes)
+{
+    for (const auto &compObj : compRefs)
     {
         // Note: Should lock just around this component object
         //       But I'm not sure I want one std::mutex per object
@@ -237,14 +249,17 @@ void ComponentManager::enableComponentObjects(const SimpleIDSet &compIDs,bool en
             geomManager->enableGeometry(compObj->geomIDs, enable, changes);
         if (!compObj->chunkIDs.empty())
         {
-            for (SimpleIDSet::iterator it = compObj->chunkIDs.begin();
-                 it != compObj->chunkIDs.end(); ++it)
-                chunkManager->enableChunk(*it, enable, changes);
+            for (auto const & it : compObj->chunkIDs)
+            {
+                chunkManager->enableChunk(it, enable, changes);
+            }
         }
-        if (partSysManager && !compObj->partSysIDs.empty()) {
-            for (SimpleIDSet::iterator it = compObj->partSysIDs.begin();
-                 it != compObj->partSysIDs.end(); ++it)
-                partSysManager->enableParticleSystem(*it, enable, changes);
+        if (partSysManager && !compObj->partSysIDs.empty())
+        {
+            for (auto const it : compObj->partSysIDs)
+            {
+                partSysManager->enableParticleSystem(it, enable, changes);
+            }
         }
     }
 }
@@ -254,15 +269,43 @@ void ComponentManager::setRepresentation(const std::string &repName,
                                          TIter beg, TIter end,
                                          ChangeSet &changes)
 {
+    std::vector<ComponentObjectRef> enableObjs, disableObjs;
+
     {
         std::lock_guard<std::mutex> guardLock(lock);
-        
+
         for (; beg != end; ++beg)
         {
             const std::string &uuid = *beg;
-            // TODO: ?
+            
+            if (repName.empty())
+            {
+                // Remove entries, return to default (un-set) state
+                representations.erase(uuid);
+            }
+            else
+            {
+                const auto insertResult = representations.insert(std::make_pair(uuid, repName));
+                if (!insertResult.second)
+                {
+                    insertResult.first->second = repName;
+                }
+            }
+
+            for (const auto &kvp : compObjs)
+            {
+                const ComponentObjectRef &obj = kvp.second;
+                if (obj->uuid == uuid)
+                {
+                    // Enable matches, disable non-matches
+                    ((obj->representation == repName) ? enableObjs : disableObjs).push_back(obj);
+                }
+            }
         }
     }
+
+    if (!enableObjs.empty()) enableComponentObjects(enableObjs, true, changes);
+    if (!disableObjs.empty()) enableComponentObjects(disableObjs, false, changes);
 }
 
 void ComponentManager::setRepresentation(const std::string &repName,

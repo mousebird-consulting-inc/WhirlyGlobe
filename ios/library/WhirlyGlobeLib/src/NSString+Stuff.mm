@@ -24,7 +24,7 @@
 
 - (std::string) asStdString
 {
-    const char * const tmpStr = [self cStringUsingEncoding:NSASCIIStringEncoding];
+    const char * const tmpStr = [self cStringUsingEncoding:NSUTF8StringEncoding];
     return tmpStr ? std::string(tmpStr) : std::string();
 }
 
