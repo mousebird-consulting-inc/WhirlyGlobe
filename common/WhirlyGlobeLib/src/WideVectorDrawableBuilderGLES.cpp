@@ -112,7 +112,7 @@ void main()
     //   v_color = a_color;\n"
     //  Position along the line
     float t0 = a_c0 * u_real_w2;
-    t0 = clamp(t0,0.0,1.0);
+    t0 = clamp(t0,-4.0,5.0);
     vec3 dir = normalize(a_p1 - a_position);
     vec3 realPos = (a_p1 - a_position) * t0 +
                     dir * u_real_w2 * a_offset.y +
@@ -157,7 +157,7 @@ void main()
     //   v_color = a_color;
     //  Position along the line
     float t0 = a_c0 * u_real_w2;
-    t0 = clamp(t0,0.0,1.0);
+    t0 = clamp(t0,-4.0,5.0);
     vec3 dir = normalize(a_p1 - a_position);
     vec3 realPos = (a_p1 - a_position) * t0 +
                     dir * u_real_w2 * a_offset.y +
