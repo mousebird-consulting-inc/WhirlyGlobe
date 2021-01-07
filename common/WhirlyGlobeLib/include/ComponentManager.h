@@ -117,7 +117,10 @@ public:
 
     /// Enable/disable the contents of a Component Object
     virtual void enableComponentObject(SimpleIdentity compID,bool enable,ChangeSet &changes);
-    
+
+    /// Enable/disable the contents of a Component Object
+    void enableComponentObjects(const std::vector<ComponentObjectRef> &compIDs, bool enable, ChangeSet &changes);
+
     /// Enable/disable a whole group of Component Objects
     virtual void enableComponentObjects(const SimpleIDSet &compIDs,bool enable,ChangeSet &changes);
     
@@ -159,6 +162,11 @@ protected:
                            ChangeSet &changes);
 
     ComponentObjectMap compObjs;
+
+    // maybe index objects by uuid...
+    //std::unordered_multimap<std::string, ComponentObjectRef> compObjsByUUID;
+
+    std::unordered_map<std::string, std::string> representations;
 };
 typedef std::shared_ptr<ComponentManager> ComponentManagerRef;
 

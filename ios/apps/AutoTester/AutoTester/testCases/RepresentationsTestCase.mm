@@ -35,14 +35,6 @@
 	return self;
 }
 
-//- (void)subdivide:(MaplyVectorObject *)obj withVC:(MaplyBaseViewController *)vc epsilon:(float)epsilon {
-//    const bool isGlobe = [vc isKindOfClass:[WhirlyGlobeViewController class]];
-//    if (isGlobe) [obj subdivideToGlobeGreatCircle:epsilon];
-//    else         [obj subdivideToFlatGreatCircle:epsilon];
-//}
-//|kMaplySubdivType|NSString|When present, this requests that the geometry be broken up to follow the globe (really only makes sense there).  It can be set to kMaplySubdivGreatCircle or kMaplySubdivSimple which do a great circle subdivision and a simple 3-space subdivision respectively.  If the key is missing, we do no subdivision at all.|
-//|kMaplySubdivEpsilon|NSNumber|If there's a kMaplySubdivType set this is the epsilon we'll pass into the subdivision routine.  The value is in display coordinates. 0.01 is a reasonable value.  Smaller results in more subdivision.|
-
 - (void)setupWithBaseVC:(MaplyBaseViewController *)vc {
     _animationTimer = [NSTimer scheduledTimerWithTimeInterval:1.0
                                                        target:self
@@ -56,7 +48,7 @@
     self.baseCase = [[VectorsTestCase alloc]init];
     [self.baseCase setUpWithGlobe:vc];
     [self setupWithBaseVC:vc];
-    [vc animateToPosition:MaplyCoordinateMakeWithDegrees(50, -65) height:0.5 heading:0 time:1.0];
+    [vc setPosition:MaplyCoordinateMakeWithDegrees(50, -65) height:0.5];
 }
 
 - (void)setUpWithMap:(MaplyViewController *)vc
@@ -64,7 +56,7 @@
     self.baseCase = [[VectorsTestCase alloc]init];
     [self.baseCase setUpWithMap:vc];
     [self setupWithBaseVC:vc];
-    [vc animateToPosition:MaplyCoordinateMakeWithDegrees(50, -65) height:0.5 heading:0 time:1.0];
+    [vc setPosition:MaplyCoordinateMakeWithDegrees(50, -65) height:0.5];
 }
 
 - (void) animationCallback
@@ -88,6 +80,9 @@
     
     if (!_vectorObjs)
     {
+        // Set a representation before any objects are added
+        [self.baseViewController setRepresentation:@(reps[3]) ofUUIDs:@[@(vecUUID)]];
+
         const MaplyCoordinate pts1[] = {
             MaplyCoordinateMakeWithDegrees(50, -65),
             MaplyCoordinateMakeWithDegrees(150, -65),
@@ -99,38 +94,46 @@
         };
 
         const auto v1 = [[MaplyVectorObject alloc] initWithLineString:pts1 numCoords:sizeof(pts1)/sizeof(pts1[0]) attributes:nil];
-        const auto v2 = [[MaplyVectorObject alloc] initWithLineString:pts2 numCoords:sizeof(pts2)/sizeof(pts1[0]) attributes:nil];
+        const auto v2 = [[MaplyVectorObject alloc] initWithLineString:pts2 numCoords:sizeof(pts2)/sizeof(pts2[0]) attributes:nil];
 
         _vectorObjs = @[
             [self.baseViewController addWideVectors: @[v1] desc:@{
-                kMaplyEnable: @(YES),
+                kMaplyEnable: @(false),
                 kMaplyColor: [UIColor magentaColor],
+                kMaplySubdivType: kMaplySubdivGreatCircle,
+                kMaplySubdivEpsilon: @0.0001,
                 kMaplyVecWidth: @3,
                 kMaplyWideVecOffset: @-1.5,
                 kMaplyUUID: @(vecUUID),
                 //kMaplyRepresentation: @"" }   // not set
                 }],
             [self.baseViewController addWideVectors: @[v1] desc:@{
-                kMaplyEnable: @(YES),
+                kMaplyEnable: @(false),
                 kMaplyColor: [UIColor redColor],
+                kMaplySubdivType: kMaplySubdivGreatCircle,
+                kMaplySubdivEpsilon: @0.0001,
                 kMaplyVecWidth: @5,
                 kMaplyWideVecOffset: @-2.5,
                 kMaplyUUID: @(vecUUID),
                 kMaplyRepresentation: @(reps[1])
                 }],
             [self.baseViewController addWideVectors: @[v1] desc:@{
-                kMaplyEnable: @(YES),
+                kMaplyEnable: @(false),
                 kMaplyColor: [[UIColor grayColor] colorWithAlphaComponent:0.5],
+                kMaplySubdivType: kMaplySubdivGreatCircle,
+                kMaplySubdivEpsilon: @0.0001,
                 kMaplyVecWidth: @5,
                 kMaplyWideVecOffset: @-2.5,
                 kMaplyUUID: @(vecUUID),
                 kMaplyRepresentation: @(reps[2])
                 }],
             [self.baseViewController addWideVectors: @[v2] desc:@{
-                kMaplyEnable: @(YES),
+                kMaplyEnable: @(false),
                 kMaplyColor: [UIColor magentaColor],
-                kMaplyVecWidth: @3,
-                kMaplyWideVecOffset: @-1.5,
+                kMaplySubdivType: kMaplySubdivGreatCircle,
+                kMaplySubdivEpsilon: @0.0001,
+                kMaplyVecWidth: @6,
+                kMaplyWideVecOffset: @-3,
                 kMaplyVecTexture: _dashedLineTex,
                 kMaplyUUID: @(vecUUID),
                 kMaplyRepresentation: @(reps[3])
