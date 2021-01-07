@@ -668,7 +668,7 @@ vertex ProjVertexTriWideVec vertexTri_wideVecExp(
     }
     centerLine = vert.offset.z * centerLine;
 
-    outVert.color = vertArgs.wideVec.color * calculateFade(uniforms,vertArgs.uniDrawState);
+    outVert.color = vert.color * calculateFade(uniforms,vertArgs.uniDrawState);
     
     float pixScale = min(uniforms.screenSizeInDisplayCoords.x,uniforms.screenSizeInDisplayCoords.y) / min(uniforms.frameSize.x,uniforms.frameSize.y);
     float realWidth2 = w2 * pixScale;
@@ -727,7 +727,7 @@ fragment float4 fragmentTri_wideVec(
         alpha = (vert.w2-across)/fragArgs.wideVec.edge;
     
     return vert.dotProd > 0.0 ?
-    float4(fragArgs.wideVec.color.rgb*patternColor.rgb,fragArgs.wideVec.color.a*alpha*patternColor.a)  : float4(0.0);
+    float4(vert.color.rgb*patternColor.rgb,vert.color.a*alpha*patternColor.a)  : float4(0.0);
 }
 
 struct VertexTriSSArgBufferA {

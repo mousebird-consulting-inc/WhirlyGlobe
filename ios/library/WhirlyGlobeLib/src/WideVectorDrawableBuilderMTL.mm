@@ -60,6 +60,9 @@ BasicDrawableRef WideVectorDrawableBuilderMTL::getDrawable()
     
     BasicDrawableRef theDraw = BasicDrawableBuilderMTL::getDrawable();
 
+    VertexAttributeMTL *colorAttr = (VertexAttributeMTL *)basicDraw->vertexAttributes[basicDraw->colorEntry];
+    colorAttr->setDefaultColor(color);
+
     // Uniforms for regular wide vectors
     WhirlyKitShader::UniformWideVec uniWV;
     memset(&uniWV,0,sizeof(uniWV));
@@ -67,10 +70,6 @@ BasicDrawableRef WideVectorDrawableBuilderMTL::getDrawable()
     uniWV.offset = lineOffset;
     uniWV.edge = edgeSize;
     uniWV.texRepeat = texRepeat;
-    uniWV.color[0] = color.r/255.0;
-    uniWV.color[1] = color.g/255.0;
-    uniWV.color[2] = color.b/255.0;
-    uniWV.color[3] = color.a/255.0;
     uniWV.hasExp = widthExp || offsetExp || colorExp || opacityExp || includeExp;
 
     BasicDrawable::UniformBlock uniBlock;
