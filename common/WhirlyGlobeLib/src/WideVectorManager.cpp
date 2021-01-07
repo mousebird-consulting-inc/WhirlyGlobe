@@ -151,6 +151,14 @@ public:
             return newPt;
         }
         
+        // Set the tex offset, but otherwise just copy
+        InterPoint withTexOffset(double newTexOffset) {
+            InterPoint newPt = *this;
+            newPt.texOffset = newTexOffset;
+            
+            return newPt;
+        }
+        
         double c;
         Point3d dir;
         Point3d n;
@@ -378,7 +386,7 @@ public:
             WideVectorLineJoinType joinType = vecInfo->joinType;
             // Switch to a bevel join if the angle is too great for a miter
             double miterLimit = vecInfo->miterLimit;
-            if (joinType == WideVecMiterJoin && angleBetween < (M_PI-miterLimit*M_PI/180.0))
+            if (joinType == WideVecMiterJoin && angleBetween > (M_PI-miterLimit*M_PI/180.0))
                 joinType = WideVecBevelJoin;
             // We don't do bevels below 30 degrees
             if (joinType == WideVecBevelJoin && angleBetween > 150.0 / 180.0 * M_PI)
@@ -395,7 +403,7 @@ public:
                     if (rPt0.c > 0.0)
                     {
                         InterPoint triVerts[3];
-                        
+
                         InterPoint r0 = corners[2];
                         InterPoint r1 = next_e1;
                         InterPoint l0 = corners[3];
@@ -425,7 +433,7 @@ public:
                     } else {
                         // Bending left
                         InterPoint triVerts[3];
-                        
+
                         InterPoint l0 = corners[3];
                         InterPoint l1 = next_e0;
                         InterPoint r0 = corners[2];
@@ -461,25 +469,27 @@ public:
 
                     // Bending right
                     if (rPt0.c > 0.0) {
-                        triVerts[0] = next_e0.withTexY(texNext,texNext);
-                        triVerts[1] = corners[3].withTexY(texNext,texNext);
-                        triVerts[2] = corners[2].withTexY(texNext,texNext);
+                        double texYmin = lPt0.texYmin, textYmax = lPt0.texYmax;
+                        triVerts[0] = lPt0.withTexY(texYmin,textYmax);
+                        triVerts[1] = corners[3].withTexY(texYmin,textYmax);
+                        triVerts[2] = corners[2].withTexY(texYmin,textYmax);
                         addWideTri(wideDrawable,triVerts,up);
 
-                        triVerts[0] = next_e1.withTexY(texNext,texNext);
-                        triVerts[1] = next_e0.withTexY(texNext,texNext);
-                        triVerts[2] = corners[2].withTexY(texNext,texNext);
+                        triVerts[0] = next_e1.withTexY(texYmin,textYmax);
+                        triVerts[1] = next_e0.withTexY(texYmin,textYmax);
+                        triVerts[2] = lPt1.withTexY(texYmin,textYmax);
                         addWideTri(wideDrawable,triVerts,up);
                     } else {
                         // Bending left
-                        triVerts[0] = corners[3].withTexY(texNext,texNext);
-                        triVerts[1] = corners[2].withTexY(texNext,texNext);
-                        triVerts[2] = next_e1.withTexY(texNext,texNext);
+                        double texYmin = rPt0.texYmin, textYmax = rPt0.texYmax;
+                        triVerts[0] = corners[3].withTexY(texYmin,textYmax);
+                        triVerts[1] = corners[2].withTexY(texYmin,textYmax);
+                        triVerts[2] = rPt0.withTexY(texYmin,textYmax);
                         addWideTri(wideDrawable,triVerts,up);
-                        
-                        triVerts[0] = corners[3].withTexY(texNext,texNext);
-                        triVerts[1] = next_e1.withTexY(texNext,texNext);
-                        triVerts[2] = next_e0.withTexY(texNext,texNext);
+
+                        triVerts[0] = rPt1.withTexY(texYmin,textYmax);
+                        triVerts[1] = next_e1.withTexY(texYmin,textYmax);
+                        triVerts[2] = next_e0.withTexY(texYmin,textYmax);
                         addWideTri(wideDrawable,triVerts,up);
                     }
                 }

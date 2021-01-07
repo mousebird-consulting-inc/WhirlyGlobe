@@ -97,7 +97,7 @@
                                          kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
                                          kMaplyWideVecOffset: @(10.0),
                                          // More than 10 degrees need a bevel join
-                                         kMaplyWideVecMiterLimit: @(10),
+                                         kMaplyWideVecMiterLimit: @(10.0),
                                          kMaplyVecWidth: @(width)}
                                  mode:MaplyThreadCurrent];
             MaplyComponentObject *obj2 = [baseViewC addVectors:@[vecObj]
@@ -119,8 +119,8 @@
 
 - (NSArray *)addGeoJson:(NSString*)name viewC:(MaplyBaseViewController *)viewC
 {
-//    return [self addGeoJson:name dashPattern:@[@8, @8] width:4 viewC:viewC];
-    return [self addGeoJson:name dashPattern:@[@8, @8] width:20 viewC:viewC];
+    return [self addGeoJson:name dashPattern:@[@8, @8] width:4 viewC:viewC];
+//    return [self addGeoJson:name dashPattern:@[@8, @8] width:100 viewC:viewC];
 }
 
 - (NSArray *)addWideVectors:(MaplyVectorObject *)vecObj baseViewC: (MaplyBaseViewController*) baseViewC dashedLineTex: (MaplyTexture*) dashedLineTex filledLineTex: (MaplyTexture*) filledLineTex
@@ -141,7 +141,7 @@
 																				   kMaplyVecTexture: filledLineTex,
 																				   kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
 																				   kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
-																				   kMaplyWideVecMiterLimit: @(1.01),
+//																				   kMaplyWideVecMiterLimit: @(1.01),
 																				   kMaplyWideVecTexRepeatLen: @(8),
 																				   kMaplyMaxVis: @(0.00032424763776361942),
 																				   kMaplyMinVis: @(0.00011049506429117173)
@@ -154,7 +154,7 @@
 																				 kMaplyVecWidth: @(10.0/6371000),
 																				 kMaplyWideVecCoordType: kMaplyWideVecCoordTypeReal,
 																				 kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
-																				 kMaplyWideVecMiterLimit: @(1.01),
+//																				 kMaplyWideVecMiterLimit: @(1.01),
 																				 // Repeat every 10m
 																				 kMaplyWideVecTexRepeatLen: @(10/6371000.f),
 																				 kMaplyMaxVis: @(0.00011049506429117173),
