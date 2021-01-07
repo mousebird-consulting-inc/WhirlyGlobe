@@ -34,6 +34,14 @@
         MaplyCoordinate y = MaplyCoordinateMakeWithDegrees(151.177, -33.946);
         MaplyCoordinate z[] = { x, y };
         MaplyVectorObject *v0 = [[MaplyVectorObject alloc] initWithLineString:z numCoords:2 attributes:nil];
+
+//        UIImage *alcohol = [UIImage imageNamed:@"alcohol-shop-24@2x"];
+//        MaplyScreenMarker *marker = [[MaplyScreenMarker alloc]init];
+//        marker.image = alcohol;
+//        marker.loc = v0.centroid;
+//        marker.selectable = true;
+//        marker.layoutImportance = 1.0;
+
         [v0 subdivideToGlobeGreatCircle:0.001];
         
         [compObjs addObject:[viewC addWideVectors:@[v0] desc:@{
@@ -41,6 +49,8 @@
                                                                kMaplyEnable: @(YES),
                                                                kMaplyVecWidth: @(6.0),
                                                                }]];
+                
+//        [compObjs addObject:[viewC addScreenMarkers:@[marker] desc:nil]];
     }
 
     if (true) {
