@@ -3,7 +3,7 @@
 //  WhirlyGlobeSwiftTester
 //
 //  Created by jmnavarro on 16/09/15.
-//  Copyright (c) 2015-2019 mousebird consulting. All rights reserved.
+//  Copyright (c) 2015-2020 mousebird consulting. All rights reserved.
 //
 
 #ifndef AutoTester_MaplyTesterBridge_h
@@ -35,5 +35,6 @@
 #import "ActiveObjectTestCase.h"
 #import "GeoJSONSource.h"
 #import "GlyphProblemTestCase.h"
+#import "ChangeVectorsTestCase.h"
 
 #endif

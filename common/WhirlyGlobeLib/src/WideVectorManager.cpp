@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/29/14.
- *  Copyright 2011-2019 mousebird consulting.
+ *  Copyright 2011-2020 mousebird consulting.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
  */
 
 #import "WideVectorManager.h"
+#import "VectorManager.h"
 #import "BasicDrawableInstanceBuilder.h"
 #import "FlatMath.h"
 #import "WhirlyKitLog.h"
@@ -999,7 +1000,44 @@ SimpleIdentity WideVectorManager::instanceVectors(SimpleIdentity vecID,const Wid
     
     return newId;
 }
-    
+
+void WideVectorManager::changeVectors(SimpleIdentity vecID,const VectorInfo &vecInfo,ChangeSet &changes)
+{
+    std::lock_guard<std::mutex> guardLock(lock);
+
+    WideVectorSceneRep dummyRep(vecID);
+    const auto it = sceneReps.find(&dummyRep);
+    if (it != sceneReps.end())
+    {
+        const auto sceneRep = *it;
+
+        // Make sure we change both drawables and instances
+        SimpleIDSet allIDs = sceneRep->drawIDs;
+        allIDs.insert(sceneRep->instIDs.begin(),sceneRep->instIDs.end());
+
+        for (auto id : allIDs)
+        {
+            // Changed color
+            changes.push_back(new ColorChangeRequest(id, vecInfo.color));
+            
+            // Changed visibility
+            if (vecInfo.minVis != DrawVisibleInvalid || vecInfo.maxVis != DrawVisibleInvalid)
+            {
+                changes.push_back(new VisibilityChangeRequest(id, vecInfo.minVis, vecInfo.maxVis));
+            }
+            
+            // Changed line width
+            changes.push_back(new LineWidthChangeRequest(id, vecInfo.lineWidth));
+            
+            // Changed draw priority
+            changes.push_back(new DrawPriorityChangeRequest(id, vecInfo.drawPriority));
+            
+            // Changed draw order
+            changes.push_back(new DrawOrderChangeRequest(id, vecInfo.drawOrder));
+        }
+    }
+}
+
 void WideVectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
 {
     std::lock_guard<std::mutex> guardLock(lock);
