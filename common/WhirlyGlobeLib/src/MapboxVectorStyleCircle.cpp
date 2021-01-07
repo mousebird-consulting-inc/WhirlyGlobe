@@ -80,12 +80,13 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
     if (!visible)
         return;
     
-    ComponentObjectRef compObj = styleSet->makeComponentObject(inst);
+    const auto compObj = styleSet->makeComponentObject(inst);
 
     // Default settings
     MarkerInfo markerInfo(true);
     markerInfo.zoomSlot = styleSet->zoomSlot;
-    if (minzoom != 0 || maxzoom < 1000) {
+    if (minzoom != 0 || maxzoom < 1000)
+    {
         markerInfo.minZoomVis = minzoom;
         markerInfo.maxZoomVis = maxzoom;
     }
@@ -96,11 +97,16 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
 
     // Need to find all the points, way down deep
     std::vector<WhirlyKit::Marker *> markers;
-    for (auto vecObj : vecObjs) {
-        if (vecObj->getVectorType() == VectorPointType) {
-            for (VectorShapeRef shape : vecObj->shapes) {
-                if (auto pts = std::dynamic_pointer_cast<VectorPoints>(shape)) {
-                    for (auto pt : pts->pts) {
+    for (auto vecObj : vecObjs)
+    {
+        if (vecObj->getVectorType() == VectorPointType)
+        {
+            for (const VectorShapeRef &shape : vecObj->shapes)
+            {
+                if (const auto pts = dynamic_cast<VectorPoints*>(shape.get()))
+                {
+                    for (auto pt : pts->pts)
+                    {
                         // Add a marker per point
                         // todo: exception safety
                         auto marker = new WhirlyKit::Marker();
@@ -111,7 +117,8 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
                         marker->layoutWidth = marker->width; marker->layoutHeight = marker->height;
                         marker->layoutImportance = MAXFLOAT;
 //                        marker->layoutImportance = importance + (101-tileInfo->ident.level)/100.0;
-                        if (selectable) {
+                        if (selectable)
+                        {
                             marker->isSelectable = true;
                             marker->selectID = Identifiable::genId();
                             styleSet->addSelectionObject(marker->selectID, vecObj, compObj);
@@ -119,7 +126,9 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
                             compObj->isSelectable = true;
                         }
                         if (!uuidField.empty())
+                        {
                             marker->uniqueID = uuidField;
+                        }
                         markers.push_back(marker);
                     }
                 }
@@ -129,11 +138,17 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
     
     // Set up the markers and get a change set
     SimpleIdentity markerID = styleSet->markerManage->addMarkers(markers, markerInfo, tileInfo->changes);
-    for (auto marker: markers)
-        delete marker;
     if (markerID != EmptyIdentity)
+    {
         compObj->markerIDs.insert(markerID);
-    styleSet->compManage->addComponentObject(compObj);
+    }
+    
+    for (auto marker: markers)
+    {
+        delete marker;
+    }
+    
+    styleSet->compManage->addComponentObject(compObj, tileInfo->changes);
     tileInfo->compObjs.push_back(compObj);
 }
 

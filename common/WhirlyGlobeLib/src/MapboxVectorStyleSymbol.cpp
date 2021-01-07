@@ -363,14 +363,16 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
         textSize = 1.0;
     
     // When there's no dynamic scaling, we need to scale the text size down
-    if (!layout.textSize->isExpression()) {
+    if (!layout.textSize->isExpression())
+    {
         textSize /= styleSet->tileStyleSettings->rendererScale;
     }
 
     LabelInfoRef labelInfo = styleSet->makeLabelInfo(inst,layout.textFontNames,textSize);
     labelInfo->hasExp = true;
     labelInfo->zoomSlot = styleSet->zoomSlot;
-    if (minzoom != 0 || maxzoom < 1000) {
+    if (minzoom != 0 || maxzoom < 1000)
+    {
         labelInfo->minZoomVis = minzoom;
         labelInfo->maxZoomVis = maxzoom;
 //        wkLogLevel(Debug, "zoomSlot = %d, minZoom = %f, maxZoom = %f",styleSet->zoomSlot,labelInfo->minZoomVis,labelInfo->maxZoomVis);
@@ -385,22 +387,25 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
     // Note: To fix this we need to blast the text apart into pieces
     const auto textColor = styleSet->resolveColor(paint.textColor, NULL, zoomLevel, MBResolveColorOpacityReplaceAlpha);
     if (textColor)
+    {
         labelInfo->textColor = *textColor;
+    }
 
     // We can apply a scale, but it needs to be scaled to the current text size
     labelInfo->scaleExp = layout.textSize->expression();
-    if (labelInfo->scaleExp) {
+    if (labelInfo->scaleExp)
+    {
         for (unsigned int ii=0;ii<labelInfo->scaleExp->stopOutputs.size();ii++)
+        {
             labelInfo->scaleExp->stopOutputs[ii] /= textSize;
+        }
     }
 
     if (paint.textHaloColor && paint.textHaloWidth)
     {
         labelInfo->outlineColor = paint.textHaloColor->colorForZoom(zoomLevel);
         // Note: We're not using blue right here
-        labelInfo->outlineSize = (paint.textHaloWidth->valForZoom(zoomLevel) - paint.textHaloBlur->valForZoom(zoomLevel)) * layout.globalTextScale;
-        if (labelInfo->outlineSize < 0.5)
-            labelInfo->outlineSize = 0.5;
+        labelInfo->outlineSize = std::max(0.5, (paint.textHaloWidth->valForZoom(zoomLevel) - paint.textHaloBlur->valForZoom(zoomLevel)) * layout.globalTextScale);
     }
 
     //    // Note: Made up value for pushing multi-line text together
@@ -409,19 +414,23 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
     const bool iconInclude = layout.iconImageField && styleSet->sprites;
     const bool textInclude = (textColor && textSize > 0.0 && !layout.textField.chunks.empty());
     if (!textInclude && !iconInclude)
+    {
         return;
+    }
 
     // Sort out the image for the marker if we're doing that
     MarkerInfo markerInfo(true);
     markerInfo.hasExp = true;
     markerInfo.zoomSlot = styleSet->zoomSlot;
-    if (minzoom != 0 || maxzoom < 1000) {
+    if (minzoom != 0 || maxzoom < 1000)
+    {
         markerInfo.minZoomVis = minzoom;
         markerInfo.maxZoomVis = maxzoom;
     }
     markerInfo.scaleExp = layout.iconSize->expression();
 
-    if (iconInclude) {
+    if (iconInclude)
+    {
         markerInfo.programID = styleSet->screenMarkerProgramID;
         markerInfo.drawPriority = labelInfo->drawPriority;
     }
@@ -436,46 +445,64 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
     
     std::vector<SingleLabelRef> labels;
     std::vector<Marker *> markers;
-    for (auto vecObj : vecObjs) {
-        if (vecObj->getVectorType() == VectorPointType) {
-            for (VectorShapeRef shape : vecObj->shapes) {
-                if (auto pts = std::dynamic_pointer_cast<VectorPoints>(shape)) {
-                    for (auto pt : pts->pts) {
-                        if (textInclude) {
-                            if (auto label = setupLabel(inst,pt,labelInfo,vecObj->getAttributes(),tileInfo)) {
+    for (auto vecObj : vecObjs)
+    {
+        if (vecObj->getVectorType() == VectorPointType)
+        {
+            for (VectorShapeRef shape : vecObj->shapes)
+            {
+                if (auto pts = std::dynamic_pointer_cast<VectorPoints>(shape))
+                {
+                    for (auto pt : pts->pts)
+                    {
+                        if (textInclude)
+                        {
+                            if (auto label = setupLabel(inst,pt,labelInfo,vecObj->getAttributes(),tileInfo))
+                            {
                                 label->screenOffset = offset;
                                 labels.push_back(label);
 #if DEBUG
-                            } else {
+                            }
+                            else
+                            {
                                 wkLogLevel(Warn,"Failed to find text for label");
 #endif
                             }
                         }
-                        if (iconInclude) {
-                            Marker *marker = setupMarker(inst, pt, vecObj, vecObj->getAttributes(), compObj, tileInfo);
-                            if (marker)
+                        if (iconInclude)
+                        {
+                            if (Marker *marker = setupMarker(inst, pt, vecObj, vecObj->getAttributes(), compObj, tileInfo))
+                            {
                                 markers.push_back(marker);
+                            }
                         }
                     }
                 }
             }
-        } else if (vecObj->getVectorType() == VectorLinearType) {
+        }
+        else if (vecObj->getVectorType() == VectorLinearType)
+        {
 #if DEBUG
-            if (vecObj->shapes.size() > 1) {
+            if (vecObj->shapes.size() > 1)
+            {
                 static int warned = 0;
-                if (!warned++) {
+                if (!warned++)
+                {
                     wkLogLevel(Warn, "MapboxVectorLayerSymbol: Linear vector object contains %d shapes", vecObj->shapes.size());
                 }
             }
 #endif
-            for (VectorShapeRef shape : vecObj->shapes) {
+            for (VectorShapeRef shape : vecObj->shapes)
+            {
                 // for each line in the shape set ... (we expect exactly one)
-                if (VectorLinearRef line = std::dynamic_pointer_cast<VectorLinear>(shape)) {
+                if (VectorLinearRef line = std::dynamic_pointer_cast<VectorLinear>(shape))
+                {
                     // Place the symbol at the middle of the line
                     // Note that if there are multiple shapes, this will be recalculated unnecessarily.
                     Point2d middle;
                     double rot;
-                    if (!vecObj->linearMiddle(middle, rot, styleSet->coordSys)) {
+                    if (!vecObj->linearMiddle(middle, rot, styleSet->coordSys))
+                    {
 #if DEBUG
                         wkLogLevel(Warn, "MapboxVectorLayerSymbol: Failed to compute middle of linear shape");
 #endif
@@ -484,12 +511,17 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                     
                     const auto pt = Point2f(middle.x(), middle.y());
 
-                    if (textInclude) {
-                        if (auto label = setupLabel(inst,pt,labelInfo,vecObj->getAttributes(),tileInfo)) {
-                            if (layout.placement == MBPlaceLine) {
+                    if (textInclude)
+                    {
+                        if (auto label = setupLabel(inst,pt,labelInfo,vecObj->getAttributes(),tileInfo))
+                        {
+                            if (layout.placement == MBPlaceLine)
+                            {
                                 label->rotation = -1 * rot + M_PI/2.0;
                                 if (label->rotation > M_PI_2 || label->rotation < -M_PI_2)
+                                {
                                     label->rotation += M_PI;
+                                }
                                 label->keepUpright = true;
                             }
 
@@ -499,31 +531,39 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                         }
                     }
                     
-                    if (iconInclude) {
-                        Marker *marker = setupMarker(inst, pt, vecObj, vecObj->getAttributes(), compObj, tileInfo);
-                        if (marker)
+                    if (iconInclude)
+                    {
+                        if (Marker *marker = setupMarker(inst, pt, vecObj, vecObj->getAttributes(), compObj, tileInfo))
+                        {
                             markers.push_back(marker);
+                        }
                     }
                 }
             }
         }
-        else if (vecObj->getVectorType() == VectorArealType) {
+        else if (vecObj->getVectorType() == VectorArealType)
+        {
 #if DEBUG
-            if (vecObj->shapes.size() > 1) {
+            if (vecObj->shapes.size() > 1)
+            {
                 static int warned = 0;
-                if (!warned++) {
+                if (!warned++)
+                {
                     wkLogLevel(Warn, "MapboxVectorLayerSymbol: Areal vector object contains %d shapes", vecObj->shapes.size());
                 }
             }
 #endif
-            for (auto shape : vecObj->shapes) {
+            for (auto shape : vecObj->shapes)
+            {
                 // each polygon in the shape set... (we expect exactly one)
-                if (auto aereal = std::dynamic_pointer_cast<VectorAreal>(shape)) {
+                if (auto aereal = std::dynamic_pointer_cast<VectorAreal>(shape))
+                {
                     
                     // Place the marker at the middle of the polygon.
                     // Note that if there are multiple shapes, this will be recalculated unnecessarily.
                     Point2d middle;
-                    if (!vecObj->center(middle)) {
+                    if (!vecObj->center(middle))
+                    {
 #if DEBUG
                         wkLogLevel(Warn, "MapboxVectorLayerSymbol: Failed to compute center of areal shape");
 #endif
@@ -533,8 +573,10 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                     const auto pt = Point2f(middle.x(), middle.y());
                     const auto& attributes = vecObj->getAttributes();
 
-                    if (textInclude) {
-                        if (auto label = setupLabel(inst, pt, labelInfo, attributes, tileInfo)) {
+                    if (textInclude)
+                    {
+                        if (auto label = setupLabel(inst, pt, labelInfo, attributes, tileInfo))
+                        {
                             // layout.placement is ignored for polygons
                             // except for offset, which we already calculated so we might as well use
                             label->screenOffset = offset;
@@ -542,8 +584,10 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                         }
                     }
                     
-                    if (iconInclude) {
-                        if (auto marker = setupMarker(inst, pt, vecObj, attributes, compObj, tileInfo)) {
+                    if (iconInclude)
+                    {
+                        if (auto marker = setupMarker(inst, pt, vecObj, attributes, compObj, tileInfo))
+                        {
                             markers.push_back(marker);
                         }
                     }
@@ -552,22 +596,31 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
         }
     }
 
-    if (!labels.empty()) {
+    if (!labels.empty())
+    {
         SimpleIdentity labelID = styleSet->labelManage->addLabels(inst, labels, *labelInfo, tileInfo->changes);
         if (labelID != EmptyIdentity)
+        {
             compObj->labelIDs.insert(labelID);
+        }
     }
-    
-    if (!markers.empty()) {
+
+    if (!markers.empty())
+    {
         SimpleIdentity markerID = styleSet->markerManage->addMarkers(markers, markerInfo, tileInfo->changes);
         for (auto marker: markers)
+        {
             delete marker;
+        }
         if (markerID != EmptyIdentity)
+        {
             compObj->markerIDs.insert(markerID);
+        }
     }
     
-    if (!compObj->labelIDs.empty() || !compObj->markerIDs.empty()) {
-        styleSet->compManage->addComponentObject(compObj);
+    if (!compObj->labelIDs.empty() || !compObj->markerIDs.empty())
+    {
+        styleSet->compManage->addComponentObject(compObj, tileInfo->changes);
         tileInfo->compObjs.push_back(compObj);
     }
 }

@@ -180,6 +180,8 @@ extern NSString* const kMaplyFilled;
 
 /// If set, the texture to apply to the feature
 extern NSString* const kMaplyVecTexture;
+/// The format of the image given by kMaplyVecTexture, default MaplyImage4Layer8Bit
+extern NSString* const kMaplyVecTextureFormat;
 /// X scale for textures applied to vectors
 extern NSString* const kMaplyVecTexScaleX;
 /// Y scale for textures applied to vectors

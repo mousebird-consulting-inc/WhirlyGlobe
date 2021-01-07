@@ -201,6 +201,7 @@
 
 /// If set, the texture to apply to the feature
 #define MaplyVecTexture WKString("texture")
+#define MaplyVecTextureFormat WKString("textureFormat")
 #define MaplyVecTexScaleX WKString("texscalex")
 #define MaplyVecTexScaleY WKString("texscaley")
 

@@ -1011,7 +1011,7 @@ SimpleIdentity WideVectorManager::instanceVectors(SimpleIdentity vecID,const Wid
     return newId;
 }
 
-void WideVectorManager::changeVectors(SimpleIdentity vecID,const VectorInfo &vecInfo,ChangeSet &changes)
+void WideVectorManager::changeVectors(SimpleIdentity vecID,const WideVectorInfo &vecInfo,ChangeSet &changes)
 {
     std::lock_guard<std::mutex> guardLock(lock);
 

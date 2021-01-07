@@ -83,30 +83,37 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
     if (!visible || !(paint.color || paint.outlineColor))
         return;
         
-    ComponentObjectRef compObj = styleSet->makeComponentObject(inst);
+    const auto compObj = styleSet->makeComponentObject(inst);
 
     // Gather all the areal features for fill and/or outline
     std::vector<VectorShapeRef> shapes;
-    for (auto vecObj : vecObjs) {
+    for (auto vecObj : vecObjs)
+    {
         if (vecObj->getVectorType() == VectorArealType)
+        {
             std::copy(vecObj->shapes.begin(),vecObj->shapes.end(),std::back_inserter(shapes));
+        }
     }
 
     // Filled polygons
-    if (paint.color) {
+    if (paint.color)
+    {
         // tesselate the area features
         std::vector<VectorShapeRef> tessShapes;
-        for (auto const &it : shapes) {
-            if (auto ar = std::dynamic_pointer_cast<VectorAreal>(it)) {
-                VectorTrianglesRef trisRef = VectorTriangles::createTriangles();
+        for (const auto &it : shapes)
+        {
+            if (const auto ar = dynamic_cast<VectorAreal*>(it.get()))
+            {
+                const auto trisRef = VectorTriangles::createTriangles();
                 TesselateLoops(ar->loops, trisRef);
                 trisRef->setAttrDict(ar->getAttrDict());
                 trisRef->initGeoMbr();
                 tessShapes.push_back(trisRef);
             }
         }
-                
-        if (auto color = styleSet->resolveColor(paint.color, paint.opacity, tileInfo->ident.level, MBResolveColorOpacityComposeAlpha)) {
+
+        if (const auto color = styleSet->resolveColor(paint.color, paint.opacity, tileInfo->ident.level, MBResolveColorOpacityComposeAlpha))
+        {
             // Set up the description for constructing vectors
             VectorInfo vecInfo;
             vecInfo.hasExp = true;
@@ -125,7 +132,8 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
 
 //            wkLogLevel(Debug, "fill: tildID = %d: (%d,%d)  drawOrder = %d, drawPriority = %d",tileInfo->ident.level, tileInfo->ident.x, tileInfo->ident.y, vecInfo.drawOrder,vecInfo.drawPriority);
 
-            if (minzoom != 0 || maxzoom < 1000) {
+            if (minzoom != 0 || maxzoom < 1000)
+            {
                 vecInfo.minZoomVis = minzoom;
                 vecInfo.maxZoomVis = maxzoom;
             }
@@ -133,10 +141,12 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
             //wkLogLevel(Debug, "Color: %s %d %d %d %d",ident.c_str(),(int)color->r,(int)color->g,(int)color->b,(int)color->a);
 
             const SimpleIdentity vecID = styleSet->vecManage->addVectors(&tessShapes, vecInfo, tileInfo->changes);
-            if (vecID != EmptyIdentity) {
+            if (vecID != EmptyIdentity)
+            {
                 compObj->vectorIDs.insert(vecID);
                 
-                if (selectable) {
+                if (selectable)
+                {
                     compObj->isSelectable = selectable;
                     compObj->vecObjs = vecObjs;
                 }
@@ -145,8 +155,10 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
     }
     
     // Outlines
-    if (paint.outlineColor) {
-        if (auto color = styleSet->resolveColor(paint.outlineColor, paint.opacity, tileInfo->ident.level, MBResolveColorOpacityComposeAlpha)) {
+    if (paint.outlineColor)
+    {
+        if (const auto color = styleSet->resolveColor(paint.outlineColor, paint.opacity, tileInfo->ident.level, MBResolveColorOpacityComposeAlpha))
+        {
             // Set up the description for constructing vectors
             VectorInfo vecInfo;
             vecInfo.hasExp = true;
@@ -159,21 +171,24 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
             vecInfo.drawPriority = drawPriority + tileInfo->ident.level * std::max(0, styleSet->tileStyleSettings->drawPriorityPerLevel) + 1;
             vecInfo.drawOrder = tileInfo->tileNumber();
 
-            if (minzoom != 0 || maxzoom < 1000) {
+            if (minzoom != 0 || maxzoom < 1000)
+            {
                 vecInfo.zoomSlot = styleSet->zoomSlot;
                 vecInfo.minZoomVis = minzoom;
                 vecInfo.maxZoomVis = maxzoom;
             }
 
             const SimpleIdentity vecID = styleSet->vecManage->addVectors(&shapes, vecInfo, tileInfo->changes);
-            if (vecID != EmptyIdentity) {
+            if (vecID != EmptyIdentity)
+            {
                 compObj->vectorIDs.insert(vecID);
             }
         }
     }
     
-    if (!compObj->vectorIDs.empty()) {
-        styleSet->compManage->addComponentObject(compObj);
+    if (!compObj->vectorIDs.empty())
+    {
+        styleSet->compManage->addComponentObject(compObj, tileInfo->changes);
         tileInfo->compObjs.push_back(compObj);
     }
 }

@@ -40,7 +40,7 @@
                                                        target:self
                                                      selector:@selector(animationCallback)
                                                      userInfo:nil
-                                                      repeats:YES];
+                                                      repeats:NO];
 }
 
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)vc
@@ -80,14 +80,19 @@
     
     if (!_vectorObjs)
     {
+        // First time
+        
         // Set a representation before any objects are added
+        // "detail" version should appear first: dashed magenta line with alternate geometry
         [self.baseViewController setRepresentation:@(reps[3]) ofUUIDs:@[@(vecUUID)]];
 
-        const MaplyCoordinate pts1[] = {
+        const MaplyCoordinate pts1[] =
+        {
             MaplyCoordinateMakeWithDegrees(50, -65),
             MaplyCoordinateMakeWithDegrees(150, -65),
         };
-        const MaplyCoordinate pts2[] = {
+        const MaplyCoordinate pts2[] =
+        {
             MaplyCoordinateMakeWithDegrees(50, -65),
             MaplyCoordinateMakeWithDegrees(100, -75),
             MaplyCoordinateMakeWithDegrees(150, -65),
@@ -105,6 +110,7 @@
                 kMaplyVecWidth: @3,
                 kMaplyWideVecOffset: @-1.5,
                 kMaplyUUID: @(vecUUID),
+                kMaplySelectable: @"blah",
                 //kMaplyRepresentation: @"" }   // not set
                 }],
             [self.baseViewController addWideVectors: @[v1] desc:@{
@@ -112,8 +118,8 @@
                 kMaplyColor: [UIColor redColor],
                 kMaplySubdivType: kMaplySubdivGreatCircle,
                 kMaplySubdivEpsilon: @0.0001,
-                kMaplyVecWidth: @5,
-                kMaplyWideVecOffset: @-2.5,
+                kMaplyVecWidth: @10,
+                kMaplyWideVecOffset: @-10,
                 kMaplyUUID: @(vecUUID),
                 kMaplyRepresentation: @(reps[1])
                 }],
@@ -122,8 +128,8 @@
                 kMaplyColor: [[UIColor grayColor] colorWithAlphaComponent:0.5],
                 kMaplySubdivType: kMaplySubdivGreatCircle,
                 kMaplySubdivEpsilon: @0.0001,
-                kMaplyVecWidth: @5,
-                kMaplyWideVecOffset: @-2.5,
+                kMaplyVecWidth: @3,
+                kMaplyWideVecOffset: @-1.5,
                 kMaplyUUID: @(vecUUID),
                 kMaplyRepresentation: @(reps[2])
                 }],
@@ -140,9 +146,15 @@
                 }],
         ];
     }
+    else
+    {
+        // Not the first time
 
-    [self.baseViewController setRepresentation:@(reps[idx]) ofUUIDs:@[@(vecUUID)]];
-    idx = (idx + 1) % (sizeof(reps) / sizeof(reps[0]));
+        [self.baseViewController setRepresentation:@(reps[idx]) ofUUIDs:@[@(vecUUID)]];
+        idx = (idx + 1) % (sizeof(reps) / sizeof(reps[0]));
+    }
+
+    _animationTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(animationCallback) userInfo:nil repeats:NO];
 }
 
 - (void) stop

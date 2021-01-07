@@ -23,9 +23,12 @@
 
 namespace WhirlyKit
 {
+
 ComponentObject::ComponentObject()
-: vectorOffset(0.0,0.0), isSelectable(false),
-enable(false), underConstruction(false)
+    : vectorOffset(0.0,0.0)
+    , isSelectable(false)
+    , enable(false)
+    , underConstruction(false)
 {
 }
     
@@ -52,32 +55,32 @@ void ComponentObject::clear()
 ComponentManager::ComponentManager()
 {
 }
-    
+
 ComponentManager::~ComponentManager()
 {
     //std::lock_guard<std::mutex> guardLock(lock);
 }
-    
+
 void ComponentManager::setScene(Scene *scene)
 {
-    layoutManager = std::dynamic_pointer_cast<LayoutManager>(scene->getManagerNoLock(kWKLayoutManager));
-    markerManager = std::dynamic_pointer_cast<MarkerManager>(scene->getManagerNoLock(kWKMarkerManager));
-    labelManager = std::dynamic_pointer_cast<LabelManager>(scene->getManagerNoLock(kWKLabelManager));
-    vectorManager = std::dynamic_pointer_cast<VectorManager>(scene->getManagerNoLock(kWKVectorManager));
-    wideVectorManager = std::dynamic_pointer_cast<WideVectorManager>(scene->getManagerNoLock(kWKWideVectorManager));
-    shapeManager = std::dynamic_pointer_cast<ShapeManager>(scene->getManagerNoLock(kWKShapeManager));
-    chunkManager = std::dynamic_pointer_cast<SphericalChunkManager>(scene->getManagerNoLock(kWKSphericalChunkManager));
-    loftManager = std::dynamic_pointer_cast<LoftManager>(scene->getManagerNoLock(kWKLoftedPolyManager));
-    billManager = std::dynamic_pointer_cast<BillboardManager>(scene->getManagerNoLock(kWKBillboardManager));
-    geomManager = std::dynamic_pointer_cast<GeometryManager>(scene->getManagerNoLock(kWKGeometryManager));
+    layoutManager = scene->getManagerNoLock<LayoutManager>(kWKLayoutManager);
+    markerManager = scene->getManagerNoLock<MarkerManager>(kWKMarkerManager);
+    labelManager = scene->getManagerNoLock<LabelManager>(kWKLabelManager);
+    vectorManager = scene->getManagerNoLock<VectorManager>(kWKVectorManager);
+    wideVectorManager = scene->getManagerNoLock<WideVectorManager>(kWKWideVectorManager);
+    shapeManager = scene->getManagerNoLock<ShapeManager>(kWKShapeManager);
+    chunkManager = scene->getManagerNoLock<SphericalChunkManager>(kWKSphericalChunkManager);
+    loftManager = scene->getManagerNoLock<LoftManager>(kWKLoftedPolyManager);
+    billManager = scene->getManagerNoLock<BillboardManager>(kWKBillboardManager);
+    geomManager = scene->getManagerNoLock<GeometryManager>(kWKGeometryManager);
     fontTexManager = scene->getFontTextureManager();
-    partSysManager = std::dynamic_pointer_cast<ParticleSystemManager>(scene->getManagerNoLock(kWKParticleSystemManager));
+    partSysManager = scene->getManagerNoLock<ParticleSystemManager>(kWKParticleSystemManager);
 }
 
-void ComponentManager::addComponentObject(ComponentObjectRef compObj)
+void ComponentManager::addComponentObject(const ComponentObjectRef &compObj, ChangeSet &changes)
 {
     std::lock_guard<std::mutex> guardLock(lock);
-    
+
     compObj->underConstruction = false;
     compObjs[compObj->getId()] = compObj;
 
@@ -88,7 +91,12 @@ void ComponentManager::addComponentObject(ComponentObjectRef compObj)
         const auto hit = representations.find(compObj->uuid);
         // Enable if it matches, disable otherwise.
         // Representation must be none/empty if no current representation is set.
-        compObj->enable = (hit != representations.end()) ? (compObj->representation == hit->second) : compObj->representation.empty();
+        const bool enable = (hit != representations.end()) ? (compObj->representation == hit->second) : compObj->representation.empty();
+
+        if (enable != compObj->enable)
+        {
+            enableComponentObject(compObj, enable, changes);
+        }
     }
 }
 
@@ -223,44 +231,49 @@ void ComponentManager::enableComponentObjects(const SimpleIDSet &compIDs,bool en
     enableComponentObjects(compRefs, enable, changes);
 }
 
+void ComponentManager::enableComponentObject(const ComponentObjectRef &compObj, bool enable, ChangeSet &changes)
+{
+    // Note: Should lock just around this component object
+    //       But I'm not sure I want one std::mutex per object
+    compObj->enable = enable;
+
+    if (!compObj->vectorIDs.empty())
+        vectorManager->enableVectors(compObj->vectorIDs, enable, changes);
+    if (!compObj->wideVectorIDs.empty())
+        wideVectorManager->enableVectors(compObj->wideVectorIDs, enable, changes);
+    if (!compObj->markerIDs.empty())
+        markerManager->enableMarkers(compObj->markerIDs, enable, changes);
+    if (!compObj->labelIDs.empty())
+        labelManager->enableLabels(compObj->labelIDs, enable, changes);
+    if (!compObj->shapeIDs.empty())
+        shapeManager->enableShapes(compObj->shapeIDs, enable, changes);
+    if (!compObj->billIDs.empty())
+        billManager->enableBillboards(compObj->billIDs, enable, changes);
+    if (!compObj->loftIDs.empty())
+        loftManager->enableLoftedPolys(compObj->loftIDs, enable, changes);
+    if (geomManager && !compObj->geomIDs.empty())
+        geomManager->enableGeometry(compObj->geomIDs, enable, changes);
+    if (!compObj->chunkIDs.empty())
+    {
+        for (auto const & it : compObj->chunkIDs)
+        {
+            chunkManager->enableChunk(it, enable, changes);
+        }
+    }
+    if (partSysManager && !compObj->partSysIDs.empty())
+    {
+        for (auto const it : compObj->partSysIDs)
+        {
+            partSysManager->enableParticleSystem(it, enable, changes);
+        }
+    }
+}
+
 void ComponentManager::enableComponentObjects(const std::vector<ComponentObjectRef> &compRefs, bool enable, ChangeSet &changes)
 {
     for (const auto &compObj : compRefs)
     {
-        // Note: Should lock just around this component object
-        //       But I'm not sure I want one std::mutex per object
-        compObj->enable = enable;
-
-        if (!compObj->vectorIDs.empty())
-            vectorManager->enableVectors(compObj->vectorIDs, enable, changes);
-        if (!compObj->wideVectorIDs.empty())
-            wideVectorManager->enableVectors(compObj->wideVectorIDs, enable, changes);
-        if (!compObj->markerIDs.empty())
-            markerManager->enableMarkers(compObj->markerIDs, enable, changes);
-        if (!compObj->labelIDs.empty())
-            labelManager->enableLabels(compObj->labelIDs, enable, changes);
-        if (!compObj->shapeIDs.empty())
-            shapeManager->enableShapes(compObj->shapeIDs, enable, changes);
-        if (!compObj->billIDs.empty())
-            billManager->enableBillboards(compObj->billIDs, enable, changes);
-        if (!compObj->loftIDs.empty())
-            loftManager->enableLoftedPolys(compObj->loftIDs, enable, changes);
-        if (geomManager && !compObj->geomIDs.empty())
-            geomManager->enableGeometry(compObj->geomIDs, enable, changes);
-        if (!compObj->chunkIDs.empty())
-        {
-            for (auto const & it : compObj->chunkIDs)
-            {
-                chunkManager->enableChunk(it, enable, changes);
-            }
-        }
-        if (partSysManager && !compObj->partSysIDs.empty())
-        {
-            for (auto const it : compObj->partSysIDs)
-            {
-                partSysManager->enableParticleSystem(it, enable, changes);
-            }
-        }
+        enableComponentObject(compObj, enable, changes);
     }
 }
 
