@@ -111,7 +111,7 @@ public:
     SimpleIdentity instanceVectors(SimpleIdentity vecID,const WideVectorInfo &desc,ChangeSet &changes);
 
     /// Change the vector(s) represented by the given ID
-    void changeVectors(SimpleIdentity vecID,const VectorInfo &vecInfo,ChangeSet &changes);
+    void changeVectors(SimpleIdentity vecID,const WideVectorInfo &vecInfo,ChangeSet &changes);
 
     /// Remove a gruop of vectors named by the given ID
     void removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes);

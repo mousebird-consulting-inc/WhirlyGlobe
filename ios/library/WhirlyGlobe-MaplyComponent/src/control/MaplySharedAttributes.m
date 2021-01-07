@@ -153,6 +153,8 @@ NSString* const kMaplyFilled = MaplyFilled;
 
 /// If set, the texture to apply to the feature
 NSString* const kMaplyVecTexture = MaplyVecTexture;
+/// The format of the image given by kMaplyVecTexture, default MaplyImage4Layer8Bit
+NSString* const kMaplyVecTextureFormat = MaplyVecTextureFormat;
 /// X scale for textures applied to vectors
 NSString* const kMaplyVecTexScaleX = MaplyVecTexScaleX;
 /// Y scale for textures applied to vectors

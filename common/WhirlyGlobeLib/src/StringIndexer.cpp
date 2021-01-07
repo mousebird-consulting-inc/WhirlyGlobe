@@ -119,12 +119,8 @@ StringIdentity a_instanceColorNameID;
 StringIdentity a_modelDirNameID;
 
 // Turn the string names into IDs, but just once
-static bool stringsSetup = false;
-void SetupDrawableStrings()
+static void SetupDrawableStringsOnce()
 {
-    if (stringsSetup)
-        return;
-    
     for (unsigned int ii=0;ii<8;ii++) {
         std::string baseMapName = "s_baseMap" + std::to_string(ii);
         baseMapNameIDs[ii] = StringIndexer::getStringID(baseMapName);
@@ -155,7 +151,7 @@ void SetupDrawableStrings()
     materialDiffuseNameID = StringIndexer::getStringID("material.diffuse");
     materialSpecularNameID = StringIndexer::getStringID("material.specular");
     materialSpecularExponentNameID = StringIndexer::getStringID("material.specular_exponent");
-    
+
     mvpMatrixNameID = StringIndexer::getStringID("u_mvpMatrix");
     mvpInvMatrixNameID = StringIndexer::getStringID("u_mvpInvMatrix");
     mvMatrixNameID = StringIndexer::getStringID("u_mvMatrix");
@@ -194,7 +190,11 @@ void SetupDrawableStrings()
     a_useInstanceColorNameID = StringIndexer::getStringID("a_useInstanceColor");
     a_instanceColorNameID = StringIndexer::getStringID("a_instanceColor");
     a_modelDirNameID = StringIndexer::getStringID("a_modelDir");
-
-    stringsSetup = true;
 }
+static std::once_flag stringsSetup;
+void SetupDrawableStrings()
+{
+    std::call_once(stringsSetup, SetupDrawableStringsOnce);
+}
+
 }

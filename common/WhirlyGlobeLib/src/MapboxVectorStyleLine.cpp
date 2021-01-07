@@ -124,34 +124,44 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
     if (!visible)
         return;
 
-    ComponentObjectRef compObj = styleSet->makeComponentObject(inst);
+    const auto compObj = styleSet->makeComponentObject(inst);
 
     // Turn into linears (if not already) and then clip to the bounds
     // Slightly different, but we want to clip all the areals that are converted to linears
     std::vector<VectorObjectRef> vecObjs;
     vecObjs.reserve(inVecObjs.size());
-    for (auto const &vecObj : inVecObjs) {
+    for (auto const &vecObj : inVecObjs)
+    {
         bool clip = linearClipToBounds;
         
         VectorObjectRef newVecObj = vecObj;
         if (dropGridLines)
+        {
             newVecObj = newVecObj->filterClippedEdges();
+        }
         
-        if (newVecObj->getVectorType() == VectorArealType) {
+        if (newVecObj->getVectorType() == VectorArealType)
+        {
             newVecObj = newVecObj->arealsToLinears();
             clip = true;
         }
         if (newVecObj && clip)
+        {
             newVecObj = VectorObjectRef(newVecObj->clipToMbr(tileInfo->geoBBox.ll(), tileInfo->geoBBox.ur()));
+        }
         if (newVecObj)
+        {
             vecObjs.push_back(newVecObj);
+        }
     }
 
     // Subdivide long-ish lines to the globe, if set
-    if (subdivToGlobe > 0.0) {
+    if (subdivToGlobe > 0.0)
+    {
         std::vector<VectorObjectRef> newVecObjs;
         newVecObjs.reserve(3 * vecObjs.size());
-        for (auto vecObj : vecObjs) {
+        for (auto vecObj : vecObjs)
+        {
             vecObj->subdivideToGlobe(subdivToGlobe);
             newVecObjs.push_back(vecObj);
         }
@@ -177,12 +187,14 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
         vecInfo.programID = styleSet->wideVectorProgramID;
         vecInfo.fade = fade;
         vecInfo.zoomSlot = styleSet->zoomSlot;
-        if (minzoom != 0 || maxzoom < 1000) {
+        if (minzoom != 0 || maxzoom < 1000)
+        {
             vecInfo.minZoomVis = minzoom;
             vecInfo.maxZoomVis = maxzoom;
     //        wkLogLevel(Debug, "zoomSlot = %d, minZoom = %f, maxZoom = %f",styleSet->zoomSlot,vecInfo.minZoomVis,vecInfo.maxZoomVis);
         }
-        if (filledLineTexID != EmptyIdentity) {
+        if (filledLineTexID != EmptyIdentity)
+        {
             vecInfo.texID = filledLineTexID;
             vecInfo.repeatSize = repeatLen;
         }
@@ -205,18 +217,24 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
 
         // Gather all the linear features
         std::vector<VectorShapeRef> shapes;
-        for (auto vecObj : vecObjs) {
+        for (auto vecObj : vecObjs)
+        {
             if (vecObj->getVectorType() == VectorLinearType)
+            {
                 std::copy(vecObj->shapes.begin(),vecObj->shapes.end(),std::back_inserter(shapes));
+            }
         }
         
         const auto wideVecID = styleSet->wideVecManage->addVectors(shapes, vecInfo, tileInfo->changes);
         if (wideVecID != EmptyIdentity)
+        {
             compObj->wideVectorIDs.insert(wideVecID);
+        }
     }
     
-    if (!compObj->wideVectorIDs.empty()) {
-        styleSet->compManage->addComponentObject(compObj);
+    if (!compObj->wideVectorIDs.empty())
+    {
+        styleSet->compManage->addComponentObject(compObj, tileInfo->changes);
         tileInfo->compObjs.push_back(compObj);
     }
 }

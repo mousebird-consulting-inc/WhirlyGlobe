@@ -73,11 +73,11 @@ SceneRenderer *SceneManager::getSceneRenderer()
 }
 
 Scene::Scene(CoordSystemDisplayAdapter *adapter)
-    : fontTextureManager(NULL), setupInfo(NULL), currentTime(0.0)
+    : setupInfo(nullptr)
+    , currentTime(0.0)
+    , coordAdapter(adapter)
 {
     SetupDrawableStrings();
-    
-    coordAdapter = adapter;
     
     // Selection manager is used for object selection from any thread
     addManager(kWKSelectionManager,std::make_shared<SelectionManager>(this));
@@ -187,11 +187,8 @@ DrawableRef Scene::getDrawable(SimpleIdentity drawId)
 {
     std::lock_guard<std::mutex> guardLock(drawablesLock);
     
-    auto it = drawables.find(drawId);
-    if (it != drawables.end())
-        return it->second;
-    
-    return DrawableRef();
+    const auto it = drawables.find(drawId);
+    return (it != drawables.end()) ? it->second : DrawableRef();
 }
     
 void Scene::addLocalMbr(const Mbr &localMbr)
@@ -202,50 +199,48 @@ void Scene::addLocalMbr(const Mbr &localMbr)
     // Note: This will only get bigger, never smaller
     if (localMbr.ll().x() < ll.x() && localMbr.ur().x() > ll.x())
     {
-        double dx1 = ll.x() - localMbr.ll().x();
-        double dx2 = localMbr.ur().x() - ll.x();
-        double dx = std::max(dx1,dx2);
-        overlapMargin = std::max(overlapMargin,dx);
+        const double dx1 = ll.x() - localMbr.ll().x();
+        const double dx2 = localMbr.ur().x() - ll.x();
+        overlapMargin = std::max(overlapMargin, std::max(dx1, dx2));
     }
 }
-    
+
 void Scene::setRenderer(SceneRenderer *renderer)
 {
     setupInfo = renderer->getRenderSetupInfo();
     
     std::lock_guard<std::mutex> guardLock(managerLock);
-    
-    for (auto it = managers.begin(); it != managers.end(); ++it)
-        it->second->setRenderer(renderer);
+
+    for (const auto &kvp : managers)
+    {
+        kvp.second->setRenderer(renderer);
+    }
 }
     
-SceneManagerRef Scene::getManager(const char *name)
+SceneManagerRef Scene::getManager(const std::string &name)
 {
     std::lock_guard<std::mutex> guardLock(managerLock);
-
     return getManagerNoLock(name);
 }
     
-SceneManagerRef Scene::getManagerNoLock(const char *name)
+SceneManagerRef Scene::getManagerNoLock(const std::string &name)
 {
-    SceneManagerRef ret;
-
-    auto it = managers.find((std::string)name);
-    if (it != managers.end())
-        ret = it->second;
-
-    return ret;
+    const auto it = managers.find(name);
+    return (it != managers.end()) ? it->second : SceneManagerRef();
 }
 
-void Scene::addManager(const char *name,const SceneManagerRef &manager)
+void Scene::addManager(const std::string &name,const SceneManagerRef &manager)
 {
     std::lock_guard<std::mutex> guardLock(managerLock);
 
     // If there's one here, we'll clear it out first
-    auto it = managers.find((std::string)name);
-    if (it != managers.end())
-        managers.erase(it);
-    managers[(std::string)name] = manager;
+    const auto result = managers.insert(std::make_pair(name, manager));
+    if (!result.second)
+    {
+        // Entry was already present, replace it.
+        // Previous manager reference is released, possibly destroying it.
+        result.first->second = manager;
+    }
     manager->setScene(this);
 }
 
@@ -254,7 +249,7 @@ void Scene::addActiveModel(ActiveModelRef activeModel)
     activeModels.push_back(activeModel);
     activeModel->startWithScene(this);
 }
-    
+
 void Scene::removeActiveModel(ActiveModelRef activeModel)
 {
     int which = 0;
@@ -270,19 +265,15 @@ void Scene::removeActiveModel(ActiveModelRef activeModel)
         activeModel->teardown();
     }
 }
-    
+
 TextureBaseRef Scene::getTexture(SimpleIdentity texId)
 {
     std::lock_guard<std::mutex> guardLock(textureLock);
     
-    TextureBaseRef retTex;
-    auto it = textures.find(texId);
-    if (it != textures.end())
-        retTex = it->second;
-    
-    return retTex;
+    const auto it = textures.find(texId);
+    return (it != textures.end()) ? it->second : TextureBaseRef();
 }
-    
+
 const std::vector<Drawable *> Scene::getDrawables()
 {
     std::vector<Drawable *> retDraws;
@@ -303,20 +294,16 @@ void Scene::setCurrentTime(TimeInterval newTime)
 void Scene::markProgramsUnchanged()
 {
     std::lock_guard<std::mutex> guardLock(programLock);
-    
+
     for (auto it: programs) {
         auto prog = it.second;
-        if (prog->changed)
-            prog->changed = false;
+        prog->changed = false;
     }
 }
 
 TimeInterval Scene::getCurrentTime()
 {
-    if (currentTime == 0.0)
-        return TimeGetCurrent();
-    
-    return currentTime;
+    return (currentTime == 0.0) ? TimeGetCurrent() : currentTime;
 }
 
 TimeInterval Scene::getBaseTime()
@@ -507,7 +494,7 @@ void Scene::dumpStats()
     wkLogLevel(Verbose,"Scene: %ld sub textures",subTextureMap.size());
 }
     
-void Scene::setFontTextureManager(FontTextureManagerRef newManager)
+void Scene::setFontTextureManager(const FontTextureManagerRef &newManager)
 {
     fontTextureManager = newManager;
 }

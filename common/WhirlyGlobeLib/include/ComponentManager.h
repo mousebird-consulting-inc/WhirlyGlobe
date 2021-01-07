@@ -101,7 +101,7 @@ public:
     
     /// Hand a component object over to be managed.
     /// Return an ID to refer to it in the future
-    virtual void addComponentObject(ComponentObjectRef compObj);
+    virtual void addComponentObject(const ComponentObjectRef &compObj, ChangeSet &changes);
     
     /// Check if the component object exists
     virtual bool hasComponentObject(SimpleIdentity compID);
@@ -119,6 +119,9 @@ public:
     virtual void enableComponentObject(SimpleIdentity compID,bool enable,ChangeSet &changes);
 
     /// Enable/disable the contents of a Component Object
+    void enableComponentObject(const ComponentObjectRef &compID, bool enable, ChangeSet &changes);
+
+    /// Enable/disable the contents of a collection of Component Objects
     void enableComponentObjects(const std::vector<ComponentObjectRef> &compIDs, bool enable, ChangeSet &changes);
 
     /// Enable/disable a whole group of Component Objects

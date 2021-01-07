@@ -131,6 +131,13 @@ public:
     SimpleIdentity screenSpaceMotionProgram,screenSpaceDefaultProgram;
 }
 
+// Check a boolean value in a dictionary by key, protecting against unexpected value types
+static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool defValue = false)
+{
+    const id value = dict[key];
+    return [value isKindOfClass:[NSNumber class]] ? [value boolValue] : defValue;
+}
+
 - (instancetype)initWithView:(WhirlyKit::ViewRef)inVisualView
 {
     self = [super init];
@@ -168,7 +175,7 @@ public:
     scene = inScene;
     sceneRender = inLayerThread.renderer;
 
-    compManager = std::dynamic_pointer_cast<ComponentManager_iOS>(scene->getManager(kWKComponentManager));
+    compManager = scene->getManager<ComponentManager_iOS>(kWKComponentManager);
 
     atlasGroup = [[MaplyTextureAtlasGroup alloc] initWithScene:scene sceneRender:sceneRender];
 
@@ -261,21 +268,16 @@ public:
 // In that case, render everything now.
 - (MaplyThreadMode)resolveThreadMode:(MaplyThreadMode)threadMode
 {
-    if (!layerThread)
-        return MaplyThreadCurrent;
-    
-    return threadMode;
+    return layerThread ? threadMode : MaplyThreadCurrent;
 }
 
 - (Texture *)createTexture:(UIImage *)image desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    //threadMode = [self resolveThreadMode:threadMode];
-    
-    int imageFormat = [desc intForKey:kMaplyTexFormat default:MaplyImageIntRGBA];
-    bool wrapX = [desc boolForKey:kMaplyTexWrapX default:false];
-    bool wrapY = [desc boolForKey:kMaplyTexWrapY default:false];
-    int magFilter = [desc enumForKey:kMaplyTexMagFilter values:@[kMaplyMinFilterNearest,kMaplyMinFilterLinear] default:0];
-    bool mipmap = [desc boolForKey:kMaplyTexMipmap default:false];
+    const int imageFormat = [desc intForKey:kMaplyTexFormat default:MaplyImageIntRGBA];
+    const bool wrapX = [desc boolForKey:kMaplyTexWrapX default:false];
+    const bool wrapY = [desc boolForKey:kMaplyTexWrapY default:false];
+    const int magFilter = [desc enumForKey:kMaplyTexMagFilter values:@[kMaplyMinFilterNearest,kMaplyMinFilterLinear] default:0];
+    const bool mipmap = [desc boolForKey:kMaplyTexMipmap default:false];
     
     int imgWidth,imgHeight;
     if (image)
@@ -428,8 +430,7 @@ public:
         imageTextures.push_back(maplyTex);
     }
     
-    if (!changes.empty())
-        [self flushChanges:changes mode:threadMode];
+    [self flushChanges:changes mode:threadMode];
 
     return maplyTex;
 }
@@ -618,10 +619,11 @@ public:
 // We flush out changes in different ways depending on the thread mode
 - (void)flushChanges:(ChangeSet &)changes mode:(MaplyThreadMode)threadMode
 {
-    threadMode = [self resolveThreadMode:threadMode];
-
     if (changes.empty())
         return;
+    
+    threadMode = [self resolveThreadMode:threadMode];
+
     // This means we beat the layer thread setup, so we'll put this in orbit
     if (!scene)
         threadMode = MaplyThreadAny;
@@ -884,13 +886,17 @@ public:
     // Set up a description and create the markers in the marker layer
     ChangeSet changes;
     SimpleIdentity markerID = compManager->markerManager->addMarkers(wgMarkers, markerInfo, changes);
+    
     for (auto marker: wgMarkers)
         delete marker;
+    wgMarkers.clear();
+    
     if (markerID != EmptyIdentity)
         compObj->contents->markerIDs.insert(markerID);
+
+    compManager->addComponentObject(compObj->contents, changes);
+
     [self flushChanges:changes mode:threadMode];
-    
-    compManager->addComponentObject(compObj->contents);
 }
 
 // Called in the main thread.
@@ -900,14 +906,7 @@ public:
 
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj->contents->underConstruction = true;
-    
-    if ([markers count] == 0)
-    {
-        compManager->addComponentObject(compObj->contents);
 
-        return compObj;
-    }
-    
     NSArray *argArray = @[markers, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
     
     switch (threadMode)
@@ -1136,13 +1135,18 @@ public:
     NSArray *markers = [argArray objectAtIndex:0];
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
     NSDictionary *inDesc = [argArray objectAtIndex:2];
-    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
+    const auto threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
     // Note: This assumes everything has images
     bool hasMultiTex = false;
     for (MaplyMarker *marker in markers)
+    {
         if (marker.images)
+        {
             hasMultiTex = true;
+            break;
+        }
+    }
 
     iosDictionary dictWrap(inDesc);
     MarkerInfo markerInfo(dictWrap,false);
@@ -1150,10 +1154,15 @@ public:
     [self resolveDrawPriority:inDesc info:&markerInfo drawPriority:kMaplyMarkerDrawPriorityDefault offset:0];
     
     // Convert to WG markers
-    std::vector<Marker *> wgMarkers;
+    std::vector<Marker*> wgMarkers;
+    // Automatically delete on return or exception
+    std::vector<std::unique_ptr<Marker>> wgMarkerOwner;
+    wgMarkers.reserve(markers.count);
+    wgMarkerOwner.reserve(markers.count);
+    
     for (MaplyMarker *marker in markers)
     {
-        Marker *wgMarker = new Marker();
+        auto wgMarker = std::make_unique<Marker>();
         wgMarker->loc = GeoCoord(marker.loc.x,marker.loc.y);
 
         std::vector<MaplyTexture *> texs;
@@ -1162,27 +1171,36 @@ public:
             if ([marker.image isKindOfClass:[UIImage class]])
             {
                 texs.push_back([self addImage:marker.image imageFormat:MaplyImageIntRGBA mode:threadMode]);
-            } else if ([marker.image isKindOfClass:[MaplyTexture class]])
+            }
+            else if ([marker.image isKindOfClass:[MaplyTexture class]])
             {
                 texs.push_back((MaplyTexture *)marker.image);
             }
-        } else if (marker.images)
+        }
+        else if (marker.images)
         {
             for (id image in marker.images)
             {
                 if ([image isKindOfClass:[UIImage class]])
+                {
                     texs.push_back([self addImage:image imageFormat:MaplyImageIntRGBA wrapFlags:0 interpType:TexInterpLinear mode:threadMode]);
+                }
                 else if ([image isKindOfClass:[MaplyTexture class]])
+                {
                     texs.push_back((MaplyTexture *)image);
+                }
             }
         }
         if (texs.size() > 1)
-            wgMarker->period = marker.period;
-        compObj->contents->texs.insert(texs.begin(),texs.end());
-        if (!texs.empty())
         {
-            for (unsigned int ii=0;ii<texs.size();ii++)
-                wgMarker->texIDs.push_back(texs[ii].texID);
+            wgMarker->period = marker.period;
+        }
+
+        compObj->contents->texs.insert(texs.begin(),texs.end());
+        wgMarker->texIDs.reserve(wgMarker->texIDs.size() + texs.size());
+        for (const auto& tex : texs)
+        {
+            wgMarker->texIDs.push_back(tex.texID);
         }
 
         wgMarker->width = marker.size.width;
@@ -1193,29 +1211,30 @@ public:
             wgMarker->selectID = Identifiable::genId();
         }
         
-        wgMarkers.push_back(wgMarker);
-        
+        wgMarkers.push_back(wgMarker.get());
+        wgMarkerOwner.push_back(std::move(wgMarker));
+
         if (marker.selectable)
         {
             compManager->addSelectObject(wgMarker->selectID,marker);
             compObj->contents->selectIDs.insert(wgMarker->selectID);
         }
     }
-    
+
     // Set up a description and create the markers in the marker layer
-    MarkerManagerRef markerManager = std::dynamic_pointer_cast<MarkerManager>(scene->getManager(kWKMarkerManager));
-    if (markerManager)
+    ChangeSet changes;
+    if (auto markerManager = scene->getManager<MarkerManager>(kWKMarkerManager))
     {
-        ChangeSet changes;
         SimpleIdentity markerID = markerManager->addMarkers(wgMarkers, markerInfo, changes);
-        for (auto marker: wgMarkers)
-            delete marker;
         if (markerID != EmptyIdentity)
+        {
             compObj->contents->markerIDs.insert(markerID);
-        [self flushChanges:changes mode:threadMode];
+        }
     }
     
-    compManager->addComponentObject(compObj->contents);
+    compManager->addComponentObject(compObj->contents, changes);
+    
+    [self flushChanges:changes mode:threadMode];
 }
 
 // Add 3D markers
@@ -1225,12 +1244,6 @@ public:
 
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj->contents->underConstruction = true;
-
-    if ([markers count] == 0)
-    {
-        compManager->addComponentObject(compObj->contents);
-        return compObj;
-    }
 
     NSArray *argArray = @[markers, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
     switch (threadMode)
@@ -1256,27 +1269,29 @@ public:
     NSArray *labels = [argArray objectAtIndex:0];
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
     NSDictionary *inDesc = [argArray objectAtIndex:2];
-    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
-    
-    TimeInterval now = scene->getCurrentTime();
-    
-    bool isMotionLabels = false;
-    if ([[labels objectAtIndex:0] isKindOfClass:[MaplyMovingScreenLabel class]])
-        isMotionLabels = true;
+    const auto threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
+
+    const TimeInterval now = scene->getCurrentTime();
+
+    const bool isMotionLabels = ([[labels objectAtIndex:0] isKindOfClass:[MaplyMovingScreenLabel class]]);
 
     iosDictionary dictWrap(inDesc);
-    LabelInfo_iOS labelInfo(inDesc,dictWrap,true);
+    LabelInfo_iOS labelInfo(inDesc,dictWrap, /*screenObject=*/true);
     [self resolveInfoDefaults:inDesc info:&labelInfo
                 defaultShader:(isMotionLabels ? kMaplyScreenSpaceDefaultMotionProgram : kMaplyScreenSpaceDefaultProgram)];
     [self resolveDrawPriority:inDesc info:&labelInfo drawPriority:kMaplyLabelDrawPriorityDefault offset:_screenObjectDrawPriorityOffset];
     if (!labelInfo.font)
+    {
         labelInfo.font = [UIFont systemFontOfSize:32.0];
+    }
 
     // Convert to WG screen labels
     std::vector<SingleLabel *> wgLabels;
+    // Automatic cleanup
+    std::vector<std::unique_ptr<SingleLabel>> wgLabelOwner;
     for (MaplyScreenLabel *label in labels)
     {
-        SingleLabel_iOS *wgLabel = new SingleLabel_iOS();
+        auto wgLabel = std::make_unique<SingleLabel_iOS>();
         wgLabel->loc = GeoCoord(label.loc.x,label.loc.y);
         wgLabel->rotation = label.rotation;
         wgLabel->text = label.text;
@@ -1332,29 +1347,30 @@ public:
             wgLabel->endTime = now + movingLabel.duration;
         }
 
-        wgLabels.push_back(wgLabel);
-        
+        wgLabels.push_back(wgLabel.get());
+        wgLabelOwner.push_back(std::move(wgLabel));
+
         if (label.selectable)
         {
             compManager->addSelectObject(wgLabel->selectID,label);
             compObj->contents->selectIDs.insert(wgLabel->selectID);
         }
     }
-    
-    LabelManagerRef labelManager = std::dynamic_pointer_cast<LabelManager>(scene->getManager(kWKLabelManager));
-    if (labelManager)
+
+    ChangeSet changes;
+    if (auto labelManager = scene->getManager<LabelManager>(kWKLabelManager))
     {
         // Set up a description and create the markers in the marker layer
-        ChangeSet changes;
         SimpleIdentity labelID = labelManager->addLabels(NULL, wgLabels, labelInfo, changes);
-        for (auto label: wgLabels)
-            delete label;
-        [self flushChanges:changes mode:threadMode];
         if (labelID != EmptyIdentity)
+        {
             compObj->contents->labelIDs.insert(labelID);
+        }
     }
 
-    compManager->addComponentObject(compObj->contents);
+    compManager->addComponentObject(compObj->contents, changes);
+
+    [self flushChanges:changes mode:threadMode];
 }
 
 // Add screen space (2D) labels
@@ -1364,13 +1380,7 @@ public:
 
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj->contents->underConstruction = true;
-    
-    if ([labels count] == 0)
-    {
-        compManager->addComponentObject(compObj->contents);
-        return compObj;
-    }
-    
+
     NSArray *argArray = @[labels, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
 
     switch (threadMode)
@@ -1396,23 +1406,26 @@ public:
     NSArray *labels = [argArray objectAtIndex:0];
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
     NSDictionary *inDesc = [argArray objectAtIndex:2];
-    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
-    
+    const auto threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
+
     iosDictionary dictWrap(inDesc);
-    LabelInfo_iOS labelInfo(inDesc,dictWrap,false);
+    LabelInfo_iOS labelInfo(inDesc,dictWrap, /*screenObject=*/false);
     [self resolveInfoDefaults:inDesc info:&labelInfo defaultShader:kMaplyShaderDefaultTri];
     [self resolveDrawPriority:inDesc info:&labelInfo drawPriority:kMaplyLabelDrawPriorityDefault offset:0];
 
     // Convert to WG labels
     std::vector<SingleLabel *> wgLabels;
+    std::vector<std::unique_ptr<SingleLabel>> wgLabelOwner;
     for (MaplyLabel *label in labels)
     {
-        SingleLabel_iOS *wgLabel = new SingleLabel_iOS();
+        auto wgLabel = std::make_unique<SingleLabel_iOS>();
         NSMutableDictionary *desc = [NSMutableDictionary dictionary];
         wgLabel->loc = GeoCoord(label.loc.x,label.loc.y);
         wgLabel->text = label.text;
+        
         MaplyTexture *tex = nil;
-        if (label.iconImage2) {
+        if (label.iconImage2)
+        {
             tex = [self addImage:label.iconImage2 imageFormat:MaplyImageIntRGBA mode:threadMode];
             compObj->contents->texs.insert(tex);
         }
@@ -1441,28 +1454,30 @@ public:
                 break;
         }
         
-        wgLabels.push_back(wgLabel);
-        
+        wgLabels.push_back(wgLabel.get());
+        wgLabelOwner.push_back(std::move(wgLabel));
+
         if (label.selectable)
         {
             compManager->addSelectObject(wgLabel->selectID,label);
             compObj->contents->selectIDs.insert(wgLabel->selectID);
         }
     }
-    
-    LabelManagerRef labelManager = std::dynamic_pointer_cast<LabelManager>(scene->getManager(kWKLabelManager));
-    
-    if (labelManager)
+
+    ChangeSet changes;
+    if (auto labelManager = scene->getManager<LabelManager>(kWKLabelManager))
     {
-        ChangeSet changes;
         // Set up a description and create the markers in the marker layer
         SimpleIdentity labelID = labelManager->addLabels(NULL, wgLabels, labelInfo, changes);
-        [self flushChanges:changes mode:threadMode];
         if (labelID != EmptyIdentity)
+        {
             compObj->contents->labelIDs.insert(labelID);
+        }
     }
-    
-    compManager->addComponentObject(compObj->contents);
+
+    compManager->addComponentObject(compObj->contents, changes);
+
+    [self flushChanges:changes mode:threadMode];
 }
 
 // Add 3D labels
@@ -1472,13 +1487,7 @@ public:
 
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj->contents->underConstruction = true;
-    
-    if ([labels count] == 0)
-    {
-        compManager->addComponentObject(compObj->contents);
-        return compObj;
-    }
-    
+
     NSArray *argArray = @[labels, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
 
     switch (threadMode)
@@ -1494,6 +1503,32 @@ public:
     return compObj;
 }
 
+- (MaplyTexture * __nullable)getTextureFromDesc:(NSDictionary*)inDesc mode:(MaplyThreadMode)threadMode
+{
+    if (const id theImage = inDesc[kMaplyVecTexture])
+    {
+        if ([theImage isKindOfClass:[UIImage class]])
+        {
+            auto fmt = MaplyImage4Layer8Bit;
+            if (const id value = inDesc[kMaplyVecTextureFormat])
+            {
+                if ([value isKindOfClass:[NSNumber class]])
+                {
+                    fmt = (MaplyQuadImageFormat)[value intValue];
+                }
+            }
+            auto tex = [self addImage:theImage imageFormat:fmt mode:threadMode];
+            return (tex.texID != EmptyIdentity) ? tex : nil;
+        }
+        else if ([theImage isKindOfClass:[MaplyTexture class]])
+        {
+            auto tex = (MaplyTexture *)theImage;
+            return (tex.texID != EmptyIdentity) ? tex : nil;
+        }
+    }
+    return nil;
+}
+
 // Actually add the vectors.
 // Called in an unknown thread
 - (void)addVectorsRun:(NSArray *)argArray
@@ -1504,8 +1539,8 @@ public:
     NSArray *vectors = [argArray objectAtIndex:0];
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
     NSDictionary *inDesc = [argArray objectAtIndex:2];
-    bool makeVisible = [[argArray objectAtIndex:3] boolValue];
-    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:4] intValue];
+    const bool makeVisible = [[argArray objectAtIndex:3] boolValue];
+    const auto threadMode = (MaplyThreadMode)[[argArray objectAtIndex:4] intValue];
     
     iosDictionary dictWrap(inDesc);
     VectorInfo vectorInfo(dictWrap);
@@ -1513,21 +1548,16 @@ public:
     // Might be a custom shader on these
     NSString *shaderName = !vectorInfo.filled ? kMaplyShaderDefaultLine : kMaplyDefaultTriangleShader;
     if (vectorInfo.texProj == TextureProjectionScreen)
+    {
         shaderName = kMaplyShaderDefaultTriScreenTex;
+    }
     [self resolveInfoDefaults:inDesc info:&vectorInfo defaultShader:shaderName];
     [self resolveDrawPriority:inDesc info:&vectorInfo drawPriority:kMaplyVectorDrawPriorityDefault offset:0];
     
     // Look for a texture and add it
-    if (inDesc[kMaplyVecTexture])
+    if (const auto tex = [self getTextureFromDesc:inDesc mode:threadMode])
     {
-        UIImage *theImage = inDesc[kMaplyVecTexture];
-        MaplyTexture *tex = nil;
-        if ([theImage isKindOfClass:[UIImage class]])
-            tex = [self addImage:theImage imageFormat:MaplyImage4Layer8Bit mode:threadMode];
-        else if ([theImage isKindOfClass:[MaplyTexture class]])
-            tex = (MaplyTexture *)theImage;
-        if (tex.texID)
-            vectorInfo.texId = tex.texID;
+        vectorInfo.texId = tex.texID;
     }
 
     // Estimate the number of items that will be present.
@@ -1553,7 +1583,9 @@ public:
             // Note: This logic needs to be moved down a level
             //       Along with the subdivision routines above
             if (greatCircle)
+            {
                 [newVecObj subdivideToGlobeGreatCircle:eps];
+            }
             else if (grid)
             {
                 // The manager has to handle this one
@@ -1561,45 +1593,58 @@ public:
             else if (staticSubdiv)
             {
                 // Note: Fill this in
-            } else
+            }
+            else
+            {
                 [newVecObj subdivideToGlobe:eps];
+            }
 
             shapes.insert(newVecObj->vObj->shapes.begin(),newVecObj->vObj->shapes.end());
-        } else
+        }
+        else
+        {
             // We'll just reference it
             shapes.insert(vecObj->vObj->shapes.begin(),vecObj->vObj->shapes.end());
+        }
     }
-    
+
+    ChangeSet changes;
     if (makeVisible)
     {
-        VectorManagerRef vectorManager = std::dynamic_pointer_cast<VectorManager>(scene->getManager(kWKVectorManager));
-        
-        if (vectorManager)
+        if (const auto vectorManager = scene->getManager<VectorManager>(kWKVectorManager))
         {
-            ChangeSet changes;
-            SimpleIdentity vecID = vectorManager->addVectors(&shapes, vectorInfo, changes);
-            [self flushChanges:changes mode:threadMode];
+            const SimpleIdentity vecID = vectorManager->addVectors(&shapes, vectorInfo, changes);
             if (vecID != EmptyIdentity)
+            {
                 compObj->contents->vectorIDs.insert(vecID);
+            }
         }
     }
-    
+
     // If the vectors are selectable we want to keep them around
-    id selVal = inDesc[@"selectable"];
-    if (selVal && [selVal boolValue])
+    if (dictBool(inDesc, kMaplySelectable))
     {
-        if ([inDesc[kMaplyVecCentered] boolValue])
+        if (dictBool(inDesc, kMaplyVecCentered))
         {
-            if (inDesc[kMaplyVecCenterX])
-                compObj->contents->vectorOffset.x() = [inDesc[kMaplyVecCenterX] doubleValue];
-            if (inDesc[kMaplyVecCenterY])
-                compObj->contents->vectorOffset.y() = [inDesc[kMaplyVecCenterY] doubleValue];
+            if (const id cx = inDesc[kMaplyVecCenterX])
+            {
+                compObj->contents->vectorOffset.x() = [cx doubleValue];
+            }
+            if (const id cy = inDesc[kMaplyVecCenterY])
+            {
+                compObj->contents->vectorOffset.y() = [cy doubleValue];
+            }
         }
+        compObj->contents->vecObjs.reserve(compObj->contents->vecObjs.size() + vectors.count);
         for (MaplyVectorObject *vObj in vectors)
+        {
             compObj->contents->vecObjs.push_back(vObj->vObj);
+        }
     }
     
-    compManager->addComponentObject(compObj->contents);
+    compManager->addComponentObject(compObj->contents, changes);
+    
+    [self flushChanges:changes mode:threadMode];
 }
 
 // Add vectors
@@ -1609,13 +1654,7 @@ public:
 
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj->contents->underConstruction = true;
-    
-    if ([vectors count] == 0)
-    {
-        compManager->addComponentObject(compObj->contents);
-        return compObj;
-    }
-    
+
     NSArray *argArray = @[vectors, compObj, [NSDictionary dictionaryWithDictionary:desc], [NSNumber numberWithBool:YES], @(threadMode)];
     switch (threadMode)
     {
@@ -1637,10 +1676,10 @@ public:
     if (isShuttingDown || (!layerThread && !offlineMode))
         return;
 
-    NSArray *vectors = [argArray objectAtIndex:0];
-    MaplyComponentObject *compObj = [argArray objectAtIndex:1];
+    const NSArray *vectors = [argArray objectAtIndex:0];
+    const MaplyComponentObject *compObj = [argArray objectAtIndex:1];
     NSDictionary *inDesc = [argArray objectAtIndex:2];
-    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
+    const auto threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
     iosDictionary dictWrap(inDesc);
     WideVectorInfo vectorInfo(dictWrap);
@@ -1648,36 +1687,30 @@ public:
     [self resolveDrawPriority:inDesc info:&vectorInfo drawPriority:kMaplyVectorDrawPriorityDefault offset:0];
     
     // Look for a texture and add it
-    if (inDesc[kMaplyVecTexture])
+    if (const auto tex = [self getTextureFromDesc:inDesc mode:threadMode])
     {
-        UIImage *theImage = inDesc[kMaplyVecTexture];
-        MaplyTexture *tex = nil;
-        if ([theImage isKindOfClass:[UIImage class]])
-            tex = [self addImage:theImage imageFormat:MaplyImage4Layer8Bit mode:threadMode];
-        else if ([theImage isKindOfClass:[MaplyTexture class]])
-            tex = (MaplyTexture *)theImage;
-        if (tex.texID) {
-            vectorInfo.texID = tex.texID;
-            compObj->contents->texs.insert(tex);
-        }
+        vectorInfo.texID = tex.texID;
+        compObj->contents->texs.insert(tex);
     }
     
     ShapeSet shapes;
-    for (MaplyVectorObject *vecObj in vectors)
+    for (const MaplyVectorObject *vecObj in vectors)
     {
         // Maybe need to make a copy if we're going to sample
         if (vectorInfo.subdivEps != 0.0)
         {
-            float eps = vectorInfo.subdivEps;
-            NSString *subdivType = inDesc[kMaplySubdivType];
-            bool greatCircle = ![subdivType compare:kMaplySubdivGreatCircle];
-            bool grid = ![subdivType compare:kMaplySubdivGrid];
-            bool staticSubdiv = ![subdivType compare:kMaplySubdivStatic];
+            const float eps = vectorInfo.subdivEps;
+            const NSString *subdivType = inDesc[kMaplySubdivType];
+            const bool greatCircle = ![subdivType compare:kMaplySubdivGreatCircle];
+            const bool grid = ![subdivType compare:kMaplySubdivGrid];
+            const bool staticSubdiv = ![subdivType compare:kMaplySubdivStatic];
             MaplyVectorObject *newVecObj = [vecObj deepCopy2];
             // Note: This logic needs to be moved down a level
             //       Along with the subdivision routines above
             if (greatCircle)
+            {
                 [newVecObj subdivideToGlobeGreatCircle:eps];
+            }
             else if (grid)
             {
                 // The manager has to handle this one
@@ -1685,35 +1718,43 @@ public:
             else if (staticSubdiv)
             {
                 // Note: Fill this in
-            } else
+            }
+            else
+            {
                 [newVecObj subdivideToGlobe:eps];
+            }
 
             shapes.insert(newVecObj->vObj->shapes.begin(),newVecObj->vObj->shapes.end());
-        } else
+        }
+        else
+        {
             // We'll just reference it
             shapes.insert(vecObj->vObj->shapes.begin(),vecObj->vObj->shapes.end());
+        }
     }
-    
-    WideVectorManagerRef vectorManager = std::dynamic_pointer_cast<WideVectorManager>(scene->getManager(kWKWideVectorManager));
-    
-    if (vectorManager)
+
+    ChangeSet changes;
+    if (const auto manager = scene->getManager<WideVectorManager>(kWKWideVectorManager))
     {
-        ChangeSet changes;
-        SimpleIdentity vecID = vectorManager->addVectors(shapes, vectorInfo, changes);
-        [self flushChanges:changes mode:threadMode];
+        const auto vecID = manager->addVectors(shapes, vectorInfo, changes);
         if (vecID != EmptyIdentity)
+        {
             compObj->contents->wideVectorIDs.insert(vecID);
+        }
     }
     
     // If the vectors are selectable we want to keep them around
-    id selVal = inDesc[@"selectable"];
-    if (selVal && [selVal boolValue]) {
-        for (MaplyVectorObject *vObj in vectors)
+    if (dictBool(inDesc, kMaplySelectable))
+    {
+        for (const MaplyVectorObject *vObj in vectors)
+        {
             compObj->contents->vecObjs.push_back(vObj->vObj);
-
+        }
     }
-    
-    compManager->addComponentObject(compObj->contents);
+
+    compManager->addComponentObject(compObj->contents, changes);
+
+    [self flushChanges:changes mode:threadMode];
 }
 
 - (MaplyComponentObject *)addWideVectors:(NSArray *)vectors desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
@@ -1722,13 +1763,7 @@ public:
 
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj->contents->underConstruction = true;
-    
-    if ([vectors count] == 0)
-    {
-        compManager->addComponentObject(compObj->contents);
-        return compObj;
-    }
-    
+
     NSArray *argArray = @[vectors, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
     switch (threadMode)
     {
@@ -1754,8 +1789,8 @@ public:
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
     compObj->contents->vecObjs = baseObj->contents->vecObjs;
     NSDictionary *inDesc = [argArray objectAtIndex:2];
-    bool makeVisible = [[argArray objectAtIndex:3] boolValue];
-    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:4] intValue];
+    const bool makeVisible = [[argArray objectAtIndex:3] boolValue];
+    const auto threadMode = (MaplyThreadMode)[[argArray objectAtIndex:4] intValue];
     
     iosDictionary dictWrap(inDesc);
     VectorInfo vectorInfo(dictWrap);
@@ -1763,49 +1798,50 @@ public:
     [self resolveDrawPriority:inDesc info:&vectorInfo drawPriority:kMaplyVectorDrawPriorityDefault offset:0];
     
     // Look for a texture and add it
-    if (inDesc[kMaplyVecTexture])
+    if (const auto tex = [self getTextureFromDesc:inDesc mode:threadMode])
     {
-        UIImage *theImage = inDesc[kMaplyVecTexture];
-        MaplyTexture *tex = nil;
-        if ([theImage isKindOfClass:[UIImage class]])
-            tex = [self addImage:theImage imageFormat:MaplyImage4Layer8Bit mode:threadMode];
-        else if ([theImage isKindOfClass:[MaplyTexture class]])
-            tex = (MaplyTexture *)theImage;
-        if (tex.texID)
-            vectorInfo.texId = tex.texID;
+        vectorInfo.texId = tex.texID;
     }
     
+    ChangeSet changes;
     if (makeVisible)
     {
-        VectorManagerRef vectorManager = std::dynamic_pointer_cast<VectorManager>(scene->getManager(kWKVectorManager));
-        WideVectorManagerRef wideVectorManager = std::dynamic_pointer_cast<WideVectorManager>(scene->getManager(kWKWideVectorManager));
-
-        ChangeSet changes;
-        if (vectorManager && !baseObj->contents->vectorIDs.empty())
+        if (!baseObj->contents->vectorIDs.empty())
         {
-            for (SimpleIDSet::iterator it = baseObj->contents->vectorIDs.begin();it != baseObj->contents->vectorIDs.end(); ++it)
+            if (const auto vectorManager = scene->getManager<VectorManager>(kWKVectorManager))
             {
-                SimpleIdentity instID = vectorManager->instanceVectors(*it, vectorInfo, changes);
-                if (instID != EmptyIdentity)
-                    compObj->contents->vectorIDs.insert(instID);
+                for (auto vid : baseObj->contents->vectorIDs)
+                {
+                    SimpleIdentity instID = vectorManager->instanceVectors(vid, vectorInfo, changes);
+                    if (instID != EmptyIdentity)
+                    {
+                        compObj->contents->vectorIDs.insert(instID);
+                    }
+                }
             }
         }
-        if (wideVectorManager && !baseObj->contents->wideVectorIDs.empty())
+        if (!baseObj->contents->wideVectorIDs.empty())
         {
-            iosDictionary dictWrap(inDesc);
-            WideVectorInfo vectorInfo(dictWrap);
-
-            for (SimpleIDSet::iterator it = baseObj->contents->wideVectorIDs.begin();it != baseObj->contents->wideVectorIDs.end(); ++it)
+            if (const auto wideVectorManager = scene->getManager<WideVectorManager>(kWKWideVectorManager))
             {
-                SimpleIdentity instID = wideVectorManager->instanceVectors(*it, vectorInfo, changes);
-                if (instID != EmptyIdentity)
-                    compObj->contents->wideVectorIDs.insert(instID);
+                iosDictionary dictWrap(inDesc);
+                WideVectorInfo vectorInfo(dictWrap);
+
+                for (const auto vid : baseObj->contents->wideVectorIDs)
+                {
+                    SimpleIdentity instID = wideVectorManager->instanceVectors(vid, vectorInfo, changes);
+                    if (instID != EmptyIdentity)
+                    {
+                        compObj->contents->wideVectorIDs.insert(instID);
+                    }
+                }
             }
         }
-        [self flushChanges:changes mode:threadMode];
     }
     
-    compManager->addComponentObject(compObj->contents);
+    compManager->addComponentObject(compObj->contents, changes);
+    
+    [self flushChanges:changes mode:threadMode];
 }
 
 // Instance vectors
@@ -1835,13 +1871,7 @@ public:
 {
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj->contents->underConstruction = false;
-    
-    if ([vectors count] == 0)
-    {
-        compManager->addComponentObject(compObj->contents);
-        return compObj;
-    }
-    
+
     NSArray *argArray = @[vectors, compObj, [NSDictionary dictionaryWithDictionary:desc], [NSNumber numberWithBool:NO], @(MaplyThreadCurrent)];
     [self addVectorsRun:argArray];
     
@@ -1863,33 +1893,40 @@ public:
         if (!compManager->hasComponentObject(vecObj->contents->getId()))
             return;
 
-        iosDictionary dictWrap(desc);
-        VectorInfo vectorInfo(dictWrap);
         ChangeSet changes;
 
         if (!vecObj->contents->vectorIDs.empty())
         {
-            if (const auto vectorManager = std::dynamic_pointer_cast<VectorManager>(scene->getManager(kWKVectorManager)))
+            iosDictionary dictWrap(desc);
+            VectorInfo vectorInfo(dictWrap);
+
+            if (const auto vectorManager = scene->getManager<VectorManager>(kWKVectorManager))
             {
                 for (const auto vid : vecObj->contents->vectorIDs)
                 {
                     vectorManager->changeVectors(vid, vectorInfo, changes);
                 }
             }
+
+            // On/off
+            compManager->enableComponentObject(vecObj->contents->getId(), vectorInfo.enable, changes);
         }
         if (!vecObj->contents->wideVectorIDs.empty())
         {
-            if (const auto wideManager = std::dynamic_pointer_cast<WideVectorManager>(scene->getManager(kWKWideVectorManager)))
+            iosDictionary dictWrap(desc);
+            WideVectorInfo wideVecInfo(dictWrap);
+            
+            if (const auto wideManager = scene->getManager<WideVectorManager>(kWKWideVectorManager))
             {
                 for (const auto vid : vecObj->contents->wideVectorIDs)
                 {
-                    wideManager->changeVectors(vid, vectorInfo, changes);
+                    wideManager->changeVectors(vid, wideVecInfo, changes);
                 }
             }
+
+            // On/off
+            compManager->enableComponentObject(vecObj->contents->getId(), wideVecInfo.enable, changes);
         }
-        
-        // On/off
-        compManager->enableComponentObject(vecObj->contents->getId(), vectorInfo.enable, changes);
 
         [self flushChanges:changes mode:threadMode];
     }
@@ -1932,51 +1969,72 @@ public:
     NSArray *shapes = [argArray objectAtIndex:0];
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
     NSDictionary *inDesc = [argArray objectAtIndex:2];
-    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
-    
+    const auto threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
+
     iosDictionary dictWrap(inDesc);
     ShapeInfo shapeInfo(dictWrap);
     shapeInfo.insideOut = false;
     [self resolveInfoDefaults:inDesc info:&shapeInfo defaultShader:kMaplyDefaultTriangleShader];
     [self resolveDrawPriority:inDesc info:&shapeInfo drawPriority:kMaplyShapeDrawPriorityDefault offset:0];
-    
+
     // Need to convert shapes to the form the API is expecting
-    std::vector<Shape *> ourShapes,specialShapes;
+    std::vector<Shape *> ourShapes;
+    std::vector<Shape *> specialShapes;
     std::set<MaplyTexture *> textures;
+
+    // automatic cleanup
+    std::vector<std::unique_ptr<Shape>> shapeOwner;
+    
     for (MaplyShape *shape in shapes)
     {
         Shape *baseShape = NULL;
         if ([shape isKindOfClass:[MaplyShapeCircle class]])
         {
-            MaplyShapeCircle *circle = (MaplyShapeCircle *)shape;
-            Circle *newCircle = (Circle *)[circle asWKShape:inDesc];
+            auto circle = (MaplyShapeCircle *)shape;
+            auto newCircle = (Circle *)[circle asWKShape:inDesc];
+            shapeOwner.emplace_back(newCircle);
+
             baseShape = newCircle;
             ourShapes.push_back(baseShape);
-        } else
-        if ([shape isKindOfClass:[MaplyShapeSphere class]])
+        }
+        else if ([shape isKindOfClass:[MaplyShapeSphere class]])
         {
-            MaplyShapeSphere *sphere = (MaplyShapeSphere *)shape;
-            Sphere *newSphere = (Sphere *)[sphere asWKShape:inDesc];
+            auto sphere = (MaplyShapeSphere *)shape;
+            auto newSphere = (Sphere *)[sphere asWKShape:inDesc];
+            shapeOwner.emplace_back(newSphere);
+
             baseShape = newSphere;
             ourShapes.push_back(baseShape);
-        } else if ([shape isKindOfClass:[MaplyShapeCylinder class]])
+        }
+        else if ([shape isKindOfClass:[MaplyShapeCylinder class]])
         {
-            MaplyShapeCylinder *cyl = (MaplyShapeCylinder *)shape;
-            Cylinder *newCyl = (Cylinder *)[cyl asWKShape:inDesc];
+            auto cyl = (MaplyShapeCylinder *)shape;
+            auto newCyl = (Cylinder *)[cyl asWKShape:inDesc];
+            shapeOwner.emplace_back(newCyl);
+
             baseShape = newCyl;
             ourShapes.push_back(baseShape);
-        } else if ([shape isKindOfClass:[MaplyShapeGreatCircle class]])
+        }
+        else if ([shape isKindOfClass:[MaplyShapeGreatCircle class]])
         {
-            MaplyShapeGreatCircle *gc = (MaplyShapeGreatCircle *)shape;
-            Linear *lin = new Linear();
+            auto gc = (MaplyShapeGreatCircle *)shape;
+            auto lin = std::make_unique<Linear>();
+            
             float eps = 0.001;
-            if ([inDesc[kMaplySubdivEpsilon] isKindOfClass:[NSNumber class]])
-                eps = [inDesc[kMaplySubdivEpsilon] floatValue];
-            bool isStatic = [inDesc[kMaplySubdivType] isEqualToString:kMaplySubdivStatic];
+            if (const id descEps = inDesc[kMaplySubdivEpsilon])
+            {
+                if ([descEps isKindOfClass:[NSNumber class]])
+                {
+                    eps = [descEps floatValue];
+                }
+            }
+            
+            const bool isStatic = [inDesc[kMaplySubdivType] isEqualToString:kMaplySubdivStatic];
             if (isStatic)
                 SampleGreatCircleStatic(Point2d(gc.startPt.x,gc.startPt.y),Point2d(gc.endPt.x,gc.endPt.y),gc.height,lin->pts,visualView->coordAdapter,eps);
             else
                 SampleGreatCircle(Point2d(gc.startPt.x,gc.startPt.y),Point2d(gc.endPt.x,gc.endPt.y),gc.height,lin->pts,visualView->coordAdapter,eps);
+
             lin->lineWidth = gc.lineWidth;
             if (gc.color)
             {
@@ -1984,12 +2042,16 @@ public:
                 RGBAColor color = [gc.color asRGBAColor];
                 lin->color = color;
             }
-            baseShape = lin;
-            specialShapes.push_back(lin);
-        } else if ([shape isKindOfClass:[MaplyShapeRectangle class]])
+            baseShape = lin.get();
+            specialShapes.push_back(lin.get());
+            shapeOwner.push_back(std::move(lin));
+        }
+        else if ([shape isKindOfClass:[MaplyShapeRectangle class]])
         {
-            MaplyShapeRectangle *rc = (MaplyShapeRectangle *)shape;
-            Rectangle *rect = (Rectangle *)[rc asWKShape:inDesc];
+            const auto rc = (MaplyShapeRectangle *)shape;
+            auto rect = (Rectangle *)[rc asWKShape:inDesc];
+            shapeOwner.emplace_back(rect);
+
             if (rc.color)
             {
                 rect->useColor = true;
@@ -2003,44 +2065,49 @@ public:
             }
             // Note: Selectability
             ourShapes.push_back(rect);
-        } else if ([shape isKindOfClass:[MaplyShapeLinear class]])
+        }
+        else if ([shape isKindOfClass:[MaplyShapeLinear class]])
         {
-            MaplyShapeLinear *lin = (MaplyShapeLinear *)shape;
-            Linear *newLin = (Linear *)[lin asWKShape:inDesc coordAdapter:coordAdapter];
+            auto lin = (MaplyShapeLinear *)shape;
+            auto newLin = (Linear *)[lin asWKShape:inDesc coordAdapter:coordAdapter];
+            shapeOwner.emplace_back(newLin);
+            
             baseShape = newLin;
             ourShapes.push_back(newLin);
-        } else if ([shape isKindOfClass:[MaplyShapeExtruded class]])
+        }
+        else if ([shape isKindOfClass:[MaplyShapeExtruded class]])
         {
-            MaplyShapeExtruded *ex = (MaplyShapeExtruded *)shape;
-            Extruded *newEx = (Extruded *)[ex asWKShape:inDesc];
+            auto ex = (MaplyShapeExtruded *)shape;
+            auto newEx = (Extruded *)[ex asWKShape:inDesc];
+            shapeOwner.emplace_back(newEx);
+            
             baseShape = newEx;
 
             ourShapes.push_back(newEx);
         }
         
         // Handle selection
-        if (baseShape) {
-            if (shape.selectable)
-            {
-                baseShape->isSelectable = true;
-                baseShape->selectID = Identifiable::genId();
-                compManager->addSelectObject(baseShape->selectID,shape);
-                compObj->contents->selectIDs.insert(baseShape->selectID);
-            }
+        if (baseShape && shape.selectable)
+        {
+            baseShape->isSelectable = true;
+            baseShape->selectID = Identifiable::genId();
+            compManager->addSelectObject(baseShape->selectID,shape);
+            compObj->contents->selectIDs.insert(baseShape->selectID);
         }
     }
-    
+
     compObj->contents->texs = textures;
-    
-    ShapeManagerRef shapeManager = std::dynamic_pointer_cast<ShapeManager>(scene->getManager(kWKShapeManager));
-    if (shapeManager)
+
+    ChangeSet changes;
+    if (const auto shapeManager = scene->getManager<ShapeManager>(kWKShapeManager))
     {
-        ChangeSet changes;
         if (!ourShapes.empty())
         {
             SimpleIdentity shapeID = shapeManager->addShapes(ourShapes, shapeInfo, changes);
             if (shapeID != EmptyIdentity)
+            {
                 compObj->contents->shapeIDs.insert(shapeID);
+            }
         }
         if (!specialShapes.empty())
         {
@@ -2051,12 +2118,15 @@ public:
             }
             SimpleIdentity shapeID = shapeManager->addShapes(specialShapes, shapeInfo, changes);
             if (shapeID != EmptyIdentity)
+            {
                 compObj->contents->shapeIDs.insert(shapeID);
+            }
         }
-        [self flushChanges:changes mode:threadMode];
     }
-    
-    compManager->addComponentObject(compObj->contents);
+
+    compManager->addComponentObject(compObj->contents, changes);
+
+    [self flushChanges:changes mode:threadMode];
 }
 
 // Add shapes
@@ -2066,13 +2136,7 @@ public:
 
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj->contents->underConstruction = true;
-    
-    if ([shapes count] == 0)
-    {
-        compManager->addComponentObject(compObj->contents);
-        return compObj;
-    }
-    
+
     NSArray *argArray = @[shapes, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
     switch (threadMode)
     {
@@ -2118,46 +2182,51 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     NSArray *modelInstances = argArray[0];
     MaplyComponentObject *compObj = argArray[1];
     NSDictionary *inDesc = argArray[2];
-    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
+    const auto threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
     iosDictionary dictWrap(inDesc);
     GeometryInfo geomInfo(dictWrap);
     [self resolveInfoDefaults:inDesc info:&geomInfo defaultShader:kMaplyShaderDefaultModelTri];
     [self resolveDrawPriority:inDesc info:&geomInfo drawPriority:kMaplyModelDrawPriorityDefault offset:0];
 
-    GeometryManagerRef geomManager = std::dynamic_pointer_cast<GeometryManager>(scene->getManager(kWKGeometryManager));
-    FontTextureManager_iOSRef fontTexManager = std::dynamic_pointer_cast<FontTextureManager_iOS>(scene->getFontTextureManager());
+    const auto geomManager = scene->getManager<GeometryManager>(kWKGeometryManager);
+    const auto fontTexManager = std::dynamic_pointer_cast<FontTextureManager_iOS>(scene->getFontTextureManager());
 
     // Sort the instances with their models
     GeomModelInstancesSet instSort;
     std::vector<MaplyGeomModelGPUInstance *> gpuInsts;
-    for (id theInst in modelInstances)
+    for (const id theInst in modelInstances)
     {
-        if ([theInst isKindOfClass:[MaplyGeomModelInstance class]]) {
+        if ([theInst isKindOfClass:[MaplyGeomModelInstance class]])
+        {
             MaplyGeomModelInstance *mInst = theInst;
             if (mInst.model)
             {
                 GeomModelInstances searchInst(mInst.model);
-                GeomModelInstancesSet::iterator it = instSort.find(&searchInst);
+                const auto it = instSort.find(&searchInst);
                 if (it != instSort.end())
                 {
                     (*it)->instances.push_back(mInst);
-                } else {
-                    GeomModelInstances *newInsts = new GeomModelInstances(mInst.model);
+                }
+                else
+                {
+                    auto newInsts = new GeomModelInstances(mInst.model);
                     newInsts->instances.push_back(mInst);
                     instSort.insert(newInsts);
                 }
             }
-        } else if ([theInst isKindOfClass:[MaplyGeomModelGPUInstance class]]) {
+        }
+        else if ([theInst isKindOfClass:[MaplyGeomModelGPUInstance class]])
+        {
             gpuInsts.push_back(theInst);
         }
     }
     
     // Add each model with its group of instances
+    ChangeSet changes;
     if (geomManager)
     {
         // Regular geometry instances
-        ChangeSet changes;
         for (auto it : instSort)
         {
             // Set up the textures and convert the geometry
@@ -2193,7 +2262,9 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                     {
                         xAxis = Point3d(1,0,0);
                         yAxis = Point3d(0,1,0);
-                    } else {
+                    }
+                    else
+                    {
                         Point3d north(0,0,1);
                         // Note: Also check if we're at a pole
                         xAxis = north.cross(norm);  xAxis.normalize();
@@ -2258,12 +2329,15 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                 
                 SimpleIdentity geomID = geomManager->addGeometryInstances(baseModelID, matInst, geomInfo, changes);
                 if (geomID != EmptyIdentity)
+                {
                     compObj->contents->geomIDs.insert(geomID);
+                }
             }
         }
         
         // GPU Geometry Instances
-        for (auto geomInst : gpuInsts) {
+        for (auto geomInst : gpuInsts)
+        {
             // Set up the textures and convert the geometry
             MaplyGeomModel *model = geomInst.model;
             
@@ -2285,17 +2359,19 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
             
             SimpleIdentity geomID = geomManager->addGPUGeomInstance(baseModelID, programID, srcTexID, srcProgramID, geomInfo, changes);
             if (geomID != EmptyIdentity)
+            {
                 compObj->contents->geomIDs.insert(geomID);
+            }
         }
-        
-        [self flushChanges:changes mode:threadMode];
     }
     
     // Clean up the instances we sorted
     for (auto it : instSort)
         delete it;
-    
-    compManager->addComponentObject(compObj->contents);
+
+    compManager->addComponentObject(compObj->contents, changes);
+
+    [self flushChanges:changes mode:threadMode];
 }
 
 // Called in the layer thread
@@ -2307,19 +2383,16 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     NSArray *geom = argArray[0];
     MaplyComponentObject *compObj = argArray[1];
     NSMutableDictionary *inDesc = argArray[2];
-    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
+    const auto threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
 
     GeometryInfo geomInfo;
     [self resolveInfoDefaults:inDesc info:&geomInfo defaultShader:kMaplyDefaultTriangleShader];
     [self resolveDrawPriority:inDesc info:&geomInfo drawPriority:kMaplyStickerDrawPriorityDefault offset:0];
 
-    GeometryManagerRef geomManager = std::dynamic_pointer_cast<GeometryManager>(scene->getManager(kWKGeometryManager));
-    
     // Add each raw geometry model
-    if (geomManager)
+    ChangeSet changes;
+    if (const auto geomManager = scene->getManager<GeometryManager>(kWKGeometryManager))
     {
-        ChangeSet changes;
-        
         for (MaplyGeomModel *model in geom)
         {
             // This is intended to be instanced, but we can use it
@@ -2332,11 +2405,11 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
             if (geomID != EmptyIdentity)
                 compObj->contents->geomIDs.insert(geomID);
         }
-        
-        [self flushChanges:changes mode:threadMode];
     }
     
-    compManager->addComponentObject(compObj->contents);
+    compManager->addComponentObject(compObj->contents, changes);
+    
+    [self flushChanges:changes mode:threadMode];
 }
 
 - (MaplyComponentObject *)addModelInstances:(NSArray *)modelInstances desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
@@ -2345,13 +2418,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj->contents->underConstruction = true;
-    
-    if ([modelInstances count] == 0)
-    {
-        compManager->addComponentObject(compObj->contents);
-        return compObj;
-    }
-    
+
     NSArray *argArray = @[modelInstances, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
     switch (threadMode)
     {
@@ -2372,13 +2439,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj->contents->underConstruction = true;
-    
-    if ([geom count] == 0)
-    {
-        compManager->addComponentObject(compObj->contents);
-        return compObj;
-    }
-    
+
     NSArray *argArray = @[geom, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
     switch (threadMode)
     {
@@ -2402,14 +2463,14 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     NSArray *stickers = argArray[0];
     MaplyComponentObject *compObj = argArray[1];
     NSDictionary *inDesc = argArray[2];
-    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
+    const auto threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
     iosDictionary dictWrap(inDesc);
     SphericalChunkInfo chunkInfo(dictWrap);
     [self resolveInfoDefaults:inDesc info:&chunkInfo defaultShader:kMaplyDefaultTriangleShader];
     [self resolveDrawPriority:inDesc info:&chunkInfo drawPriority:kMaplyStickerDrawPriorityDefault offset:0];
     
-    SphericalChunkManagerRef chunkManager = std::dynamic_pointer_cast<SphericalChunkManager>(scene->getManager(kWKSphericalChunkManager));
+    const auto chunkManager = scene->getManager<SphericalChunkManager>(kWKSphericalChunkManager);
     ChangeSet changes;
 
     std::vector<SphericalChunk> chunks;
@@ -2417,14 +2478,18 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     for (MaplySticker *sticker in stickers)
     {
         std::vector<SimpleIdentity> texIDs;
-        if (sticker.image) {
+        if (sticker.image)
+        {
             if ([sticker.image isKindOfClass:[UIImage class]])
             {
                 MaplyTexture *tex = [self addImage:sticker.image imageFormat:sticker.imageFormat mode:threadMode];
                 if (tex)
+                {
                     texIDs.push_back(tex.texID);
+                }
                 compObj->contents->texs.insert(tex);
-            } else if ([sticker.image isKindOfClass:[MaplyTexture class]])
+            }
+            else if ([sticker.image isKindOfClass:[MaplyTexture class]])
             {
                 MaplyTexture *tex = (MaplyTexture *)sticker.image;
                 texIDs.push_back(tex.texID);
@@ -2437,9 +2502,12 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
             {
                 MaplyTexture *tex = [self addImage:image imageFormat:sticker.imageFormat mode:threadMode];
                 if (tex)
+                {
                     texIDs.push_back(tex.texID);
+                }
                 compObj->contents->texs.insert(tex);
-            } else if ([image isKindOfClass:[MaplyTexture class]])
+            }
+            else if ([image isKindOfClass:[MaplyTexture class]])
             {
                 MaplyTexture *tex = (MaplyTexture *)image;
                 texIDs.push_back(tex.texID);
@@ -2447,7 +2515,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
             }
         }
         SphericalChunk chunk;
-        Mbr mbr(Point2f(sticker.ll.x,sticker.ll.y), Point2f(sticker.ur.x,sticker.ur.y));
+        const Mbr mbr(Point2f(sticker.ll.x,sticker.ll.y), Point2f(sticker.ur.x,sticker.ur.y));
         chunk.mbr = mbr;
         chunk.texIDs = texIDs;
         // Note: Move this over to info logic
@@ -2456,10 +2524,15 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         if (chunk.sampleX == 0)  chunk.sampleX = 10;
         if (chunk.sampleY == 0) chunk.sampleY = 10;
         chunk.programID = chunkInfo.programID;
+        
         if (inDesc[kMaplySubdivEpsilon] != nil)
+        {
             chunk.eps = [inDesc[kMaplySubdivEpsilon] floatValue];
+        }
         if (sticker.coordSys)
+        {
             chunk.coordSys = [sticker.coordSys getCoordSystem];
+        }
         chunk.rotation = sticker.rotation;
         
         chunks.push_back(chunk);
@@ -2469,11 +2542,14 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     {
         SimpleIdentity chunkID = chunkManager->addChunks(chunks, chunkInfo, changes);
         if (chunkID != EmptyIdentity)
+        {
             compObj->contents->chunkIDs.insert(chunkID);
+        }
     }
 
+    compManager->addComponentObject(compObj->contents, changes);
+    
     [self flushChanges:changes mode:threadMode];
-    compManager->addComponentObject(compObj->contents);
 }
 
 // Add stickers
@@ -2483,13 +2559,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj->contents->underConstruction = true;
-    
-    if ([stickers count] == 0)
-    {
-        compManager->addComponentObject(compObj->contents);
-        return compObj;
-    }
-    
+
     NSArray *argArray = @[stickers, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
     switch (threadMode)
     {
@@ -2519,9 +2589,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         if (!compManager->hasComponentObject(stickerObj->contents->getId()))
             return;
         
-        SphericalChunkManagerRef chunkManager = std::dynamic_pointer_cast<SphericalChunkManager>(scene->getManager(kWKSphericalChunkManager));
-        
-        if (chunkManager)
+        if (const auto chunkManager = scene->getManager<SphericalChunkManager>(kWKSphericalChunkManager))
         {
             // Change the images being displayed
             NSArray *newImages = desc[kMaplyStickerImages];
@@ -2601,7 +2669,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
     
     NSDictionary *inDesc = [argArray objectAtIndex:2];
-    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
+    const auto threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
     iosDictionary dictWrap(inDesc);
     LoftedPolyInfo loftInfo(dictWrap);
@@ -2610,19 +2678,24 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     
     ShapeSet shapes;
     for (MaplyVectorObject *vecObj in vectors)
+    {
         shapes.insert(vecObj->vObj->shapes.begin(),vecObj->vObj->shapes.end());
+    }
 
     ChangeSet changes;
-    LoftManagerRef loftManager = std::dynamic_pointer_cast<LoftManager>(scene->getManager(kWKLoftedPolyManager));
-    if (loftManager)
+    if (const auto loftManager = scene->getManager<LoftManager>(kWKLoftedPolyManager))
     {
         SimpleIdentity loftID = loftManager->addLoftedPolys(&shapes, loftInfo, changes);
-        compObj->contents->loftIDs.insert(loftID);
+        if (loftID)
+        {
+            compObj->contents->loftIDs.insert(loftID);
+        }
         compObj->contents->isSelectable = false;
     }
-    [self flushChanges:changes mode:threadMode];
     
-    compManager->addComponentObject(compObj->contents);
+    compManager->addComponentObject(compObj->contents, changes);
+    
+    [self flushChanges:changes mode:threadMode];
 }
 
 // Add lofted polys
@@ -2632,13 +2705,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj->contents->underConstruction = true;
-    
-    if ([vectors count] == 0)
-    {
-        compManager->addComponentObject(compObj->contents);
-        return compObj;
-    }
-    
+
     NSArray *argArray = @[vectors, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
     switch (threadMode)
     {
@@ -2662,7 +2729,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     NSArray *bills = argArray[0];
     MaplyComponentObject *compObj = argArray[1];
     NSDictionary *inDesc = argArray[2];
-    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
+    const auto threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
     CoordSystemDisplayAdapter *coordAdapter = visualView->coordAdapter;
     CoordSystem *coordSys = coordAdapter->getCoordSystem();
@@ -2675,8 +2742,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     [self resolveDrawPriority:inDesc info:&billInfo drawPriority:kMaplyBillboardDrawPriorityDefault offset:0];
 
     ChangeSet changes;
-    BillboardManagerRef billManager = std::dynamic_pointer_cast<BillboardManager>(scene->getManager(kWKBillboardManager));
-    FontTextureManager_iOSRef fontTexManager = std::dynamic_pointer_cast<FontTextureManager_iOS>(scene->getFontTextureManager());
+    const auto billManager = scene->getManager<BillboardManager>(kWKBillboardManager);
+    const auto fontTexManager = std::dynamic_pointer_cast<FontTextureManager_iOS>(scene->getFontTextureManager());
     if (billManager && fontTexManager)
     {
         std::vector<Billboard *> wkBills;
@@ -2772,12 +2839,16 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         }
         
         SimpleIdentity billId = billManager->addBillboards(wkBills, billInfo, changes);
-        compObj->contents->billIDs.insert(billId);
+        if (billId)
+        {
+            compObj->contents->billIDs.insert(billId);
+        }
         compObj->contents->isSelectable = false;
     }
-    [self flushChanges:changes mode:threadMode];
+
+    compManager->addComponentObject(compObj->contents, changes);
     
-    compManager->addComponentObject(compObj->contents);
+    [self flushChanges:changes mode:threadMode];
 }
 
 // Add billboards
@@ -2787,13 +2858,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj->contents->underConstruction = true;
-    
-    if ([bboards count] == 0)
-    {
-        compManager->addComponentObject(compObj->contents);
-        return compObj;
-    }
-    
+
     NSArray *argArray = @[bboards, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
     switch (threadMode)
     {
@@ -2816,7 +2881,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     MaplyParticleSystem *partSys = argArray[0];
     MaplyComponentObject *compObj = argArray[1];
     NSDictionary *inDesc = argArray[2];
-    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
+    const auto threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
     iosDictionary dictWrap(inDesc);
     BaseInfo partInfo(dictWrap);
@@ -2825,23 +2890,21 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     
     SimpleIdentity partSysShaderID = [inDesc[kMaplyShader] intValue];
     if (partSysShaderID == EmptyIdentity)
+    {
         partSysShaderID = [self getProgramID:kMaplyShaderParticleSystemPointDefault];
-    if (partSys.renderShader) {
+    }
+    if (partSys.renderShader)
+    {
         partSysShaderID = [partSys.renderShader getShaderID];
     }
-    SimpleIdentity calcShaderID = EmptyIdentity;
-    if (partSys.positionShader) {
-        calcShaderID = [partSys.positionShader getShaderID];
-    }
+    const auto calcShaderID = (partSys.positionShader) ? [partSys.positionShader getShaderID] : EmptyIdentity;
     
-    ParticleSystemManagerRef partSysManager = std::dynamic_pointer_cast<ParticleSystemManager>(scene->getManager(kWKParticleSystemManager));
-
     ChangeSet changes;
-    if (partSysManager)
+    if (const auto partSysManager = scene->getManager<ParticleSystemManager>(kWKParticleSystemManager))
     {
         ParticleSystem wkPartSys;
         wkPartSys.setId(partSys.ident);
-        wkPartSys.enable = inDesc[kMaplyEnable] != nil ? [inDesc[kMaplyEnable] boolValue] : true;
+        wkPartSys.enable = dictBool(inDesc, kMaplyEnable);
         wkPartSys.drawPriority = [inDesc[kMaplyDrawPriority] intValue];
         wkPartSys.pointSize = [inDesc[kMaplyPointSize] floatValue];
         wkPartSys.name = [partSys.name cStringUsingEncoding:NSASCIIStringEncoding];
@@ -2853,8 +2916,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         wkPartSys.vertexSize = partSys.vertexSize;
         wkPartSys.baseTime = partSys.baseTime;
         wkPartSys.continuousUpdate = partSys.continuousUpdate;
-        wkPartSys.zBufferRead = [inDesc[kMaplyZBufferRead] boolValue];
-        wkPartSys.zBufferWrite = [inDesc[kMaplyZBufferWrite] boolValue];
+        wkPartSys.zBufferRead = dictBool(inDesc, kMaplyZBufferRead);
+        wkPartSys.zBufferWrite = dictBool(inDesc, kMaplyZBufferWrite);
         wkPartSys.renderTargetID = partSys.renderTargetID;
         // Type
         switch (partSys.type)
@@ -2917,10 +2980,10 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         partSys.ident = partSysID;
         compObj->contents->partSysIDs.insert(partSysID);
     }
+
+    compManager->addComponentObject(compObj->contents, changes);
     
     [self flushChanges:changes mode:threadMode];
-    
-    compManager->addComponentObject(compObj->contents);
 }
 
 - (MaplyComponentObject *)addParticleSystem:(MaplyParticleSystem *)partSys desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
@@ -2946,9 +3009,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
 - (void)changeParticleSystem:(MaplyComponentObject *)compObj renderTarget:(MaplyRenderTarget *)target
 {
-    ParticleSystemManagerRef partSysManager = std::dynamic_pointer_cast<ParticleSystemManager>(scene->getManager(kWKParticleSystemManager));
-
-    if (partSysManager) {
+    if (const auto partSysManager = scene->getManager<ParticleSystemManager>(kWKParticleSystemManager))
+    {
         ChangeSet changes;
 
         SimpleIdentity targetID = target ? target.renderTargetID : EmptyIdentity;
@@ -2969,7 +3031,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     const MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:1] intValue];
 
     ChangeSet changes;
-    if (auto partSysManager = std::dynamic_pointer_cast<ParticleSystemManager>(scene->getManager(kWKParticleSystemManager)))
+    if (const auto partSysManager = scene->getManager<ParticleSystemManager>(kWKParticleSystemManager))
     {
         const auto __strong ps = batch.partSys;
 
@@ -3009,7 +3071,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     NSArray *pointsArray = argArray[0];
     MaplyComponentObject *compObj = argArray[1];
     NSDictionary *inDesc = argArray[2];
-    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
+    const auto threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
     iosDictionary dictWrap(inDesc);
     GeometryInfo geomInfo(dictWrap);
@@ -3020,27 +3082,23 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
     compObj->contents->isSelectable = false;
 
-    GeometryManagerRef geomManager = std::dynamic_pointer_cast<GeometryManager>(scene->getManager(kWKGeometryManager));
-    
     ChangeSet changes;
-    if (geomManager)
+    if (const auto geomManager = scene->getManager<GeometryManager>(kWKGeometryManager))
     {
         for (MaplyPoints *points : pointsArray)
         {
-            Matrix4d mat = Matrix4d::Identity();
-            if (points.transform)
-            {
-                mat = points.transform.mat;
-            }
+            const Matrix4d mat = points.transform ? points.transform.mat : Matrix4d::Identity();
             SimpleIdentity geomID = geomManager->addGeometryPoints(points->points, mat, geomInfo, changes);
             if (geomID != EmptyIdentity)
+            {
                 compObj->contents->geomIDs.insert(geomID);
+            }
         }
     }
-    
+
+    compManager->addComponentObject(compObj->contents, changes);
+
     [self flushChanges:changes mode:threadMode];
-    
-    compManager->addComponentObject(compObj->contents);
 }
 
 - (MaplyComponentObject *)addPoints:(NSArray *)points desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
@@ -3209,6 +3267,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     
     ChangeSet changes;
     compManager->removeComponentObjects(NULL, idSet, changes);
+    
     [self flushChanges:changes mode:threadMode];
 }
 
@@ -3312,8 +3371,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         return;
 
     NSArray *theObjs = argArray[0];
-    bool enable = [argArray[1] boolValue];
-    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:2] intValue];
+    const bool enable = [argArray[1] boolValue];
+    const auto threadMode = (MaplyThreadMode)[[argArray objectAtIndex:2] intValue];
 
     ChangeSet changes;
     [self enableObjectsImpl:theObjs enable:enable changes:changes];

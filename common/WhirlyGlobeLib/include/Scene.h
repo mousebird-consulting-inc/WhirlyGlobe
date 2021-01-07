@@ -318,13 +318,28 @@ public:
     void setRenderer(SceneRenderer *renderer);
     
     /// Return the given manager.  This is thread safe;
-    SceneManagerRef getManager(const char *name);
+    SceneManagerRef getManager(const char *name) { return getManager(std::string(name)); }
+    /// Return the given manager.  This is thread safe;
+    SceneManagerRef getManager(const std::string &name);
     /// This one can only be called during scene initialization
-    SceneManagerRef getManagerNoLock(const char *name);
-    
+    SceneManagerRef getManagerNoLock(const char *name) { return getManagerNoLock(std::string(name)); }
+    /// This one can only be called during scene initialization
+    SceneManagerRef getManagerNoLock(const std::string &name);
+
+    template <typename TManager>
+    std::shared_ptr<TManager> getManager(const char *name) { return std::dynamic_pointer_cast<TManager>(getManager(name)); }
+    template <typename TManager>
+    std::shared_ptr<TManager> getManager(const std::string &name) { return std::dynamic_pointer_cast<TManager>(getManager(name)); }
+    template <typename TManager>
+    std::shared_ptr<TManager> getManagerNoLock(const char *name) { return std::dynamic_pointer_cast<TManager>(getManagerNoLock(name)); }
+    template <typename TManager>
+    std::shared_ptr<TManager> getManagerNoLock(const std::string &name) { return std::dynamic_pointer_cast<TManager>(getManagerNoLock(name)); }
+
     /// Add the given manager.  The scene is now responsible for deletion.  This is thread safe.
-    void addManager(const char *name,const SceneManagerRef &manager);
-    
+    void addManager(const char *name,const SceneManagerRef &manager) { addManager(std::string(name), manager); }
+    /// Add the given manager.  The scene is now responsible for deletion.  This is thread safe.
+    void addManager(const std::string &name,const SceneManagerRef &manager);
+
     /// Add an active model.  Only call this on the main thread.
     void addActiveModel(ActiveModelRef);
     
@@ -399,7 +414,7 @@ public:
     int getNumChangeRequests();
 
     /// Set up the font texture manager.  Don't call this yourself.
-    void setFontTextureManager(FontTextureManagerRef newManager);
+    void setFontTextureManager(const FontTextureManagerRef &newManager);
 
     /// Returns the font texture manager, which is thread safe
     FontTextureManagerRef getFontTextureManager() { return fontTextureManager; }
