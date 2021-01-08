@@ -39,7 +39,9 @@ class ImageReloadTestCase: MaplyTestCase
             return
         }
         self.imageLoader = imageLoader
-        imageLoader.imageFormat = .imageUShort565
+        #if !targetEnvironment(simulator)
+                imageLoader.imageFormat = .imageUShort565;
+        #endif
         //        imageLoader.debugMode = true
         
         // Let things settle and then change the source

@@ -54,8 +54,10 @@ class NASAGIBSTestCase: MaplyTestCase {
             return nil
         }
         imageLoader.baseDrawPriority = kMaplyImageLayerDrawPriorityDefault
-        imageLoader.imageFormat = .imageUShort565;
-        
+        #if !targetEnvironment(simulator)
+                imageLoader.imageFormat = .imageUShort565;
+        #endif
+
         return imageLoader
 	}
 	
@@ -79,8 +81,10 @@ class NASAGIBSTestCase: MaplyTestCase {
             return nil
         }
         imageLoader.baseDrawPriority = kMaplyImageLayerDrawPriorityDefault+1000
-        imageLoader.imageFormat = .imageUShort565;
-        
+        #if !targetEnvironment(simulator)
+                imageLoader.imageFormat = .imageUShort565;
+        #endif
+
         return imageLoader
 	}
 

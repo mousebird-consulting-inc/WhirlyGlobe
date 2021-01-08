@@ -40,7 +40,9 @@ class CartoDBLightTestCase: MaplyTestCase {
         guard let imageLoader = MaplyQuadImageLoader(params: sampleParams, tileInfo: tileInfo, viewC: baseVC) else {
             return nil
         }
+#if !targetEnvironment(simulator)
         imageLoader.imageFormat = .imageUShort565;
+#endif
         //        imageLoader.debugMode = true
         
         return imageLoader
