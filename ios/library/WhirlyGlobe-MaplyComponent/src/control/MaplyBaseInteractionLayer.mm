@@ -1210,14 +1210,16 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
             wgMarker->isSelectable = true;
             wgMarker->selectID = Identifiable::genId();
         }
-        
+
+        const auto selectId = wgMarker->selectID;
+
         wgMarkers.push_back(wgMarker.get());
         wgMarkerOwner.push_back(std::move(wgMarker));
 
         if (marker.selectable)
         {
-            compManager->addSelectObject(wgMarker->selectID,marker);
-            compObj->contents->selectIDs.insert(wgMarker->selectID);
+            compManager->addSelectObject(selectId,marker);
+            compObj->contents->selectIDs.insert(selectId);
         }
     }
 
@@ -1347,13 +1349,15 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
             wgLabel->endTime = now + movingLabel.duration;
         }
 
+        const auto selectId = wgLabel->selectID;
+
         wgLabels.push_back(wgLabel.get());
         wgLabelOwner.push_back(std::move(wgLabel));
 
         if (label.selectable)
         {
-            compManager->addSelectObject(wgLabel->selectID,label);
-            compObj->contents->selectIDs.insert(wgLabel->selectID);
+            compManager->addSelectObject(selectId,label);
+            compObj->contents->selectIDs.insert(selectId);
         }
     }
 
@@ -1454,13 +1458,15 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
                 break;
         }
         
+        const auto selectId = wgLabel->selectID;
+
         wgLabels.push_back(wgLabel.get());
         wgLabelOwner.push_back(std::move(wgLabel));
 
         if (label.selectable)
         {
-            compManager->addSelectObject(wgLabel->selectID,label);
-            compObj->contents->selectIDs.insert(wgLabel->selectID);
+            compManager->addSelectObject(selectId,label);
+            compObj->contents->selectIDs.insert(selectId);
         }
     }
 

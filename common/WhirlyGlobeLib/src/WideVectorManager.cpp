@@ -1037,7 +1037,7 @@ void WideVectorManager::changeVectors(SimpleIdentity vecID,const WideVectorInfo 
             }
             
             // Changed line width
-            changes.push_back(new LineWidthChangeRequest(id, vecInfo.lineWidth));
+            changes.push_back(new LineWidthChangeRequest(id, vecInfo.width));
             
             // Changed draw priority
             changes.push_back(new DrawPriorityChangeRequest(id, vecInfo.drawPriority));
