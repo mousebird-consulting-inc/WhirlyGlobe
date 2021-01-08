@@ -114,14 +114,13 @@ void main()
     float t0 = a_c0 * u_real_w2;
     t0 = clamp(t0,-4.0,5.0);
     vec3 dir = normalize(a_p1 - a_position);
-    vec3 realPos = (a_p1 - a_position) * t0 +
+    vec3 realPosOffset = (a_p1 - a_position) * t0 +
                     dir * u_real_w2 * a_offset.y +
                     a_n0 * u_real_w2 +
-                    a_n0 * u_real_w2 * a_offset.x +
-                    a_position;
+                    a_n0 * u_real_w2 * a_offset.x;
     float texPos = ((a_texinfo.z - a_texinfo.y) * t0 + a_texinfo.y + a_texinfo.w * u_real_w2) * u_texScale;
     v_texCoord = vec2(a_texinfo.x, texPos);
-    vec4 screenPos = u_mvpMatrix * vec4(realPos,1.0);
+    vec4 screenPos = u_mvpMatrix * vec4(a_position,1.0) + u_mvpMatrix * vec4(realPosOffset,0.0);
     screenPos /= screenPos.w;
     gl_Position = vec4(screenPos.xy,0,1.0);
 }
@@ -159,18 +158,17 @@ void main()
     float t0 = a_c0 * u_real_w2;
     t0 = clamp(t0,-4.0,5.0);
     vec3 dir = normalize(a_p1 - a_position);
-    vec3 realPos = (a_p1 - a_position) * t0 +
+    vec3 realPosOffset = (a_p1 - a_position) * t0 +
                     dir * u_real_w2 * a_offset.y +
                     a_n0 * u_real_w2 +
-                    a_n0 * u_real_w2 * a_offset.x +
-                    a_position;
+                    a_n0 * u_real_w2 * a_offset.x;
     vec4 pt = u_mvMatrix * vec4(a_position,1.0);
     pt /= pt.w;
     vec4 testNorm = u_mvNormalMatrix * vec4(a_normal,0.0);
     v_dot = dot(-pt.xyz,testNorm.xyz);
     float texPos = ((a_texinfo.z - a_texinfo.y) * t0 + a_texinfo.y + a_texinfo.w * u_real_w2) * u_texScale;
     v_texCoord = vec2(a_texinfo.x, texPos);
-    vec4 screenPos = u_mvpMatrix * vec4(realPos,1.0);
+    vec4 screenPos = u_mvpMatrix * vec4(a_position,1.0) + u_mvpMatrix * vec4(realPosOffset,0.0);
     screenPos /= screenPos.w;
     gl_Position = vec4(screenPos.xy,0,1.0);
 }
