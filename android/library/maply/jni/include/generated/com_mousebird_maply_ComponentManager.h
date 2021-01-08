@@ -10,10 +10,10 @@ extern "C" {
 /*
  * Class:     com_mousebird_maply_ComponentManager
  * Method:    addComponentObject
- * Signature: (Lcom/mousebird/maply/ComponentObject;)V
+ * Signature: (Lcom/mousebird/maply/ComponentObject;Lcom/mousebird/maply/ChangeSet;)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentManager_addComponentObject
-  (JNIEnv *, jobject, jobject);
+  (JNIEnv *, jobject, jobject, jobject);
 
 /*
  * Class:     com_mousebird_maply_ComponentManager
