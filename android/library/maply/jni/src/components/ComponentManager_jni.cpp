@@ -75,16 +75,17 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentManager_dispose
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentManager_addComponentObject
-  (JNIEnv *env, jobject obj, jobject compObjObj)
+  (JNIEnv *env, jobject obj, jobject compObjObj, jobject changeSetObj)
 {
     try
     {
         ComponentManager_AndroidRef *compManager = ComponentManagerClassInfo::getClassInfo()->getObject(env,obj);
         ComponentObjectRef *compObj = ComponentObjectRefClassInfo::getClassInfo()->getObject(env,compObjObj);
-        if (!compManager || !compObj)
+        ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+        if (!compManager || !compObj || !changeSet)
             return;
 
-        (*compManager)->addComponentObject(*compObj);
+        (*compManager)->addComponentObject(*compObj, **changeSet);
     }
     catch (...)
     {

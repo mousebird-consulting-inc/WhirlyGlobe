@@ -50,7 +50,7 @@ public class ComponentManager
     /**
      * Hand a component object over to be managed.
      */
-    public native void addComponentObject(ComponentObject compObj);
+    public native void addComponentObject(ComponentObject compObj,ChangeSet changes);
 
     /**
      * Return true if the given component object still exists.
