@@ -55,6 +55,8 @@ ShapeInfo::ShapeInfo(const Dictionary &dict)
         center.x() = dict.getDouble(MaplyShapeCenterX, center.x());
         center.y() = dict.getDouble(MaplyShapeCenterY, center.y());
         center.z() = dict.getDouble(MaplyShapeCenterZ, center.z());
+        // Snap to float
+        center.x() = (float)center.x();  center.y() = (float)center.y();  center.z() = (float)center.z();
     }
 }
 
