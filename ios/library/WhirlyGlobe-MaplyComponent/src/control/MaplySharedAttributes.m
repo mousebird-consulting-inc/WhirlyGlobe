@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Ranen Ghosh on 2/24/16.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -161,6 +161,8 @@ NSString* const kMaplyVecTextureProjection = MaplyVecTextureProjection;
 NSString* const kMaplyProjectionTangentPlane = MaplyVecProjectionTangentPlane;
 /// Screen space "projection" for texture coordinates
 NSString* const kMaplyProjectionScreen = MaplyVecProjectionScreen;
+/// No projection for texture coordinates
+NSString* const kMaplyProjectionNone = MaplyVecProjectionNone;
 
 /// If set to true we'll centered any drawables we create for features
 /// This fixes the jittering problem when zoomed in close
