@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by jmnavarro on 10/12/15.
-//  Copyright © 2015-2017 mousebird consulting.
+//  Copyright © 2015-2021 mousebird consulting.
 //
 
 import UIKit
@@ -13,7 +13,7 @@ class BNGCustomMapTestCase: MaplyTestCase {
 	
 	override init() {
 		super.init()
-		self.name = "British National Grid (custom map)"
+		self.name = "British National Grid (custom map) (broken)"
 		self.implementations = [.map]
 	}
 	
