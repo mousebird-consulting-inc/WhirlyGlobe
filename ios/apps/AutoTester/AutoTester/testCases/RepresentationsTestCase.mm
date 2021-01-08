@@ -48,7 +48,7 @@
     self.baseCase = [[VectorsTestCase alloc]init];
     [self.baseCase setUpWithGlobe:vc];
     [self setupWithBaseVC:vc];
-    [vc setPosition:MaplyCoordinateMakeWithDegrees(50, -65) height:0.5];
+    [vc setPosition:MaplyCoordinateMakeWithDegrees(100, -70) height:1.0];
 }
 
 - (void)setUpWithMap:(MaplyViewController *)vc
@@ -56,7 +56,7 @@
     self.baseCase = [[VectorsTestCase alloc]init];
     [self.baseCase setUpWithMap:vc];
     [self setupWithBaseVC:vc];
-    [vc setPosition:MaplyCoordinateMakeWithDegrees(50, -65) height:0.5];
+    [vc setPosition:MaplyCoordinateMakeWithDegrees(100, -70) height:1.0];
 }
 
 - (void) animationCallback
@@ -75,7 +75,7 @@
     }
 
     const char* const vecUUID = "abc—⃘�—⃘123";
-    static const char* const reps[] = { "", "hilite", "subtle", "detail" };
+    static const char* const reps[] = { "", "hilite", "�subtle", "detail" };
     static int idx = 0;
     
     if (!_vectorObjs)
@@ -86,46 +86,32 @@
         // "detail" version should appear first: dashed magenta line with alternate geometry
         [self.baseViewController setRepresentation:@(reps[3]) ofUUIDs:@[@(vecUUID)]];
 
-        const MaplyCoordinate pts1[] =
-        {
-            MaplyCoordinateMakeWithDegrees(50, -65),
-            MaplyCoordinateMakeWithDegrees(150, -65),
-        };
-        const MaplyCoordinate pts2[] =
-        {
-            MaplyCoordinateMakeWithDegrees(50, -65),
-            MaplyCoordinateMakeWithDegrees(100, -75),
-            MaplyCoordinateMakeWithDegrees(150, -65),
-        };
-
-        const auto v1 = [[MaplyVectorObject alloc] initWithLineString:pts1 numCoords:sizeof(pts1)/sizeof(pts1[0]) attributes:nil];
-        const auto v2 = [[MaplyVectorObject alloc] initWithLineString:pts2 numCoords:sizeof(pts2)/sizeof(pts2[0]) attributes:nil];
-
+        const MaplyCoordinate pts[] = { MaplyCoordinateMakeWithDegrees(50, -65), MaplyCoordinateMakeWithDegrees(150, -65) };
+        const auto vec = [[MaplyVectorObject alloc] initWithLineString:pts numCoords:sizeof(pts)/sizeof(pts[0]) attributes:nil];
         _vectorObjs = @[
-            [self.baseViewController addWideVectors: @[v1] desc:@{
+            [self.baseViewController addWideVectors: @[vec] desc:@{
                 kMaplyEnable: @(false),
                 kMaplyColor: [UIColor magentaColor],
                 kMaplySubdivType: kMaplySubdivGreatCircle,
-                kMaplySubdivEpsilon: @0.0001,
+                kMaplySubdivEpsilon: @0.01,
                 kMaplyVecWidth: @3,
                 kMaplyWideVecOffset: @-1.5,
                 kMaplyUUID: @(vecUUID),
-                kMaplySelectable: @"blah",
-                //kMaplyRepresentation: @"" }   // not set
+                //kMaplyRepresentation: @""    // not set
                 }],
-            [self.baseViewController addWideVectors: @[v1] desc:@{
+            [self.baseViewController addWideVectors: @[vec] desc:@{
                 kMaplyEnable: @(false),
                 kMaplyColor: [UIColor redColor],
                 kMaplySubdivType: kMaplySubdivGreatCircle,
-                kMaplySubdivEpsilon: @0.0001,
+                kMaplySubdivEpsilon: @0.001,
                 kMaplyVecWidth: @10,
                 kMaplyWideVecOffset: @-10,
                 kMaplyUUID: @(vecUUID),
                 kMaplyRepresentation: @(reps[1])
                 }],
-            [self.baseViewController addWideVectors: @[v1] desc:@{
+            [self.baseViewController addWideVectors: @[vec] desc:@{
                 kMaplyEnable: @(false),
-                kMaplyColor: [[UIColor grayColor] colorWithAlphaComponent:0.5],
+                kMaplyColor: [[UIColor blackColor] colorWithAlphaComponent:0.5],
                 kMaplySubdivType: kMaplySubdivGreatCircle,
                 kMaplySubdivEpsilon: @0.0001,
                 kMaplyVecWidth: @3,
@@ -133,17 +119,57 @@
                 kMaplyUUID: @(vecUUID),
                 kMaplyRepresentation: @(reps[2])
                 }],
-            [self.baseViewController addWideVectors: @[v2] desc:@{
+            [self.baseViewController addWideVectors: @[vec] desc:@{
                 kMaplyEnable: @(false),
                 kMaplyColor: [UIColor magentaColor],
                 kMaplySubdivType: kMaplySubdivGreatCircle,
-                kMaplySubdivEpsilon: @0.0001,
+                kMaplySubdivEpsilon: @0.00001,
                 kMaplyVecWidth: @6,
                 kMaplyWideVecOffset: @-3,
                 kMaplyVecTexture: _dashedLineTex,
                 kMaplyUUID: @(vecUUID),
                 kMaplyRepresentation: @(reps[3])
                 }],
+        ];
+
+        const auto vecSubdiv = [[MaplyVectorObject alloc] initWithLineString:pts numCoords:sizeof(pts)/sizeof(pts[0]) attributes:nil];
+        [vecSubdiv subdivideToGlobe:0.0001];
+
+        const auto m1 = [MaplyScreenMarker new];
+        m1.loc = [vecSubdiv center];
+        m1.size = CGSizeMake(20, 20);
+        m1.color = [UIColor magentaColor];
+        m1.layoutImportance = MAXFLOAT;
+
+        const auto m2 = [MaplyScreenMarker new];
+        m2.loc = [vecSubdiv centroid];
+        m2.size = CGSizeMake(50, 50);
+        m2.color = [UIColor redColor];
+        m1.rotation = M_PI_4;
+        m2.layoutImportance = MAXFLOAT;
+
+        const auto m3 = [MaplyScreenMarker new];
+        m3.loc = [vecSubdiv linearMiddle:self.baseViewController.coordSystem];
+        m3.size = CGSizeMake(30, 30);
+        m3.color = [[UIColor blackColor] colorWithAlphaComponent:0.5];
+        m3.layoutImportance = MAXFLOAT;
+
+        _markerObjs = @[
+            [self.baseViewController addScreenMarkers:@[m1] desc:@{
+                kMaplyEnable: @(false),
+                kMaplyUUID: @(vecUUID),
+                //kMaplyRepresentation: @""    // not set
+            }],
+            [self.baseViewController addScreenMarkers:@[m2] desc:@{
+                kMaplyEnable: @(false),
+                kMaplyUUID: @(vecUUID),
+                kMaplyRepresentation: @(reps[1])
+            }],
+            [self.baseViewController addScreenMarkers:@[m3] desc:@{
+                kMaplyEnable: @(false),
+                kMaplyUUID: @(vecUUID),
+                kMaplyRepresentation: @(reps[2])
+            }],
         ];
     }
     else
