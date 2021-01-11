@@ -764,12 +764,17 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
         return;
 
     NSArray *markers = [argArray objectAtIndex:0];
+    if (markers.count == 0)
+    {
+        return;
+    }
+
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
     NSDictionary *inDesc = [argArray objectAtIndex:2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
-    
-    TimeInterval now = scene->getCurrentTime();
-    
+
+    const TimeInterval now = scene->getCurrentTime();
+
     bool isMotionMarkers = false;
     if ([[markers objectAtIndex:0] isKindOfClass:[MaplyMovingScreenMarker class]])
         isMotionMarkers = true;
