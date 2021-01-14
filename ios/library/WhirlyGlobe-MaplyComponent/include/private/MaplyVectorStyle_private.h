@@ -38,6 +38,26 @@
 
 @end
 
+// This wraps C++ style implementations to be called from ObjC
+@interface MaplyVectorStyleReverseWrapper: NSObject<MaplyVectorStyle>
+
+/// The C++ style we're wrapping
+- (id __nonnull)initWithCStyle:(WhirlyKit::VectorStyleImplRef)vectorStyle;
+
+/// Unique Identifier for this style
+- (long long) uuid;
+
+/// Category used for sorting
+- (NSString * _Nullable) getCategory;
+
+/// Set if this geometry is additive (e.g. sticks around) rather than replacement
+- (bool) geomAdditive;
+
+/// Construct objects related to this style based on the input data.
+- (void)buildObjects:(NSArray * _Nonnull)vecObjs forTile:(MaplyVectorTileData * __nonnull)tileData viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC;
+
+@end
+
 namespace WhirlyKit
 {
 
