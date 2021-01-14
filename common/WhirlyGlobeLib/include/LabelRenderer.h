@@ -135,7 +135,7 @@ public:
     float scale;
 
     /// Renders the labels into a big texture and stores the resulting info
-    void render(PlatformThreadInfo *threadInfo,std::vector<SingleLabel *> &labels,ChangeSet &changes);
+    void render(PlatformThreadInfo *threadInfo,const std::vector<SingleLabel *> &labels,ChangeSet &changes);
 };
 
 }

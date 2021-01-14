@@ -140,7 +140,7 @@ typedef NS_ENUM(NSInteger, MaplyVectorObjectType) {
  
     This version takes an array of coordinate pairs (as NSNumber) and the attribution.  With this it will make a linear feature.
  */
-- (nonnull instancetype)initWithLineString:(const NSArray *__nonnull)coords attributes:(NSDictionary *__nullable)attr;
+- (nonnull instancetype)initWithLineString:(const NSArray<NSNumber*> *__nonnull)coords attributes:(NSDictionary *__nullable)attr;
 
 /** 
     Initialize with a linear feature.

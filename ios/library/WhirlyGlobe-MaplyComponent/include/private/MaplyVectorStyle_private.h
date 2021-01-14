@@ -45,13 +45,13 @@ namespace WhirlyKit
 class MapboxVectorStyleSetImpl_iOS : public MapboxVectorStyleSetImpl
 {
 public:
-    MapboxVectorStyleSetImpl_iOS(Scene *scene,CoordSystem *coordSys,VectorStyleSettingsImplRef settings);
+    MapboxVectorStyleSetImpl_iOS(Scene *scene,CoordSystem *coordSys,const VectorStyleSettingsImplRef &settings);
     ~MapboxVectorStyleSetImpl_iOS();
 
     NSObject<MaplyRenderControllerProtocol> * __weak viewC;
     
     /// Parse the style set
-    virtual bool parse(PlatformThreadInfo *inst,DictionaryRef dict) override;
+    virtual bool parse(PlatformThreadInfo *inst,const DictionaryRef &dict) override;
     
     /// Local platform implementation for generating a circle and adding it as a texture
     virtual SimpleIdentity makeCircleTexture(PlatformThreadInfo *inst,
@@ -125,12 +125,15 @@ typedef std::shared_ptr<VectorStyleDelegateWrapper> VectorStyleDelegateWrapperRe
 class VectorStyleWrapper : public VectorStyleImpl
 {
 public:
-    VectorStyleWrapper(NSObject<MaplyRenderControllerProtocol> *viewC,NSObject<MaplyVectorStyle> *style);
+    VectorStyleWrapper(NSObject<MaplyRenderControllerProtocol> *viewC,
+                       NSObject<MaplyVectorStyle> *style);
     
-    virtual long long getUuid(PlatformThreadInfo *inst);
-    virtual std::string getCategory(PlatformThreadInfo *inst);
-    virtual bool geomAdditive(PlatformThreadInfo *inst);
-    virtual void buildObjects(PlatformThreadInfo *inst,std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo);
+    virtual long long getUuid(PlatformThreadInfo *inst) override;
+    virtual std::string getCategory(PlatformThreadInfo *inst) override;
+    virtual bool geomAdditive(PlatformThreadInfo *inst) override;
+    virtual void buildObjects(PlatformThreadInfo *inst,
+                              std::vector<VectorObjectRef> &vecObjs,
+                              const VectorTileDataRef &tileData) override;
     
 protected:
     NSObject<MaplyRenderControllerProtocol> * __weak viewC;

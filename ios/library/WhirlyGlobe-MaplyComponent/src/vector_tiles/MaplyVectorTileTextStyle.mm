@@ -21,6 +21,7 @@
 #import "vector_styles/MaplyVectorTileTextStyle.h"
 #import "visual_objects/MaplyScreenLabel.h"
 #import "vector_tiles/MapboxVectorTiles.h"
+#import "NSDictionary+Stuff.h"
 
 typedef enum {
   TextPlacementPoint,
@@ -248,10 +249,13 @@ typedef enum {
     return self;
 }
 
-- (void)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileData *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
+- (void)buildObjects:(NSArray *)vecObjs
+             forTile:(MaplyVectorTileData *)tileInfo
+               viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+                desc:(NSDictionary * _Nullable)extraDesc
 {
     MaplyCoordinateSystem *displaySystem = viewC.coordSystem;
-    
+
     NSMutableArray *compObjs = [NSMutableArray array];
     for (MaplyVectorTileSubStyleText *subStyle in subStyles)
     {
@@ -284,7 +288,8 @@ typedef enum {
                 {
                     MaplyCoordinate center = [vec center];
                     label.loc = center;
-                } else if (subStyle->placement == TextPlacementLine)
+                }
+                else if (subStyle->placement == TextPlacementLine)
                 {
                     MaplyCoordinate middle;
                     double rot;
@@ -295,20 +300,26 @@ typedef enum {
                         label.loc = middle;
                         label.layoutPlacement = kMaplyLayoutCenter;
                         label.rotation = -1 * rot+M_PI/2.0;
-                        if(label.rotation > M_PI_2 || label.rotation < -M_PI_2) {
+                        if(label.rotation > M_PI_2 || label.rotation < -M_PI_2)
+                        {
                             label.rotation += M_PI;
                         }
 
                         label.keepUpright = true;
-                    } else {
+                    } else
+                    {
                         label = nil;
                     }
-                } else if(subStyle->placement == TextPlacementVertex)
+                }
+                else if(subStyle->placement == TextPlacementVertex)
                 {
                     MaplyCoordinate vertex;
-                    if([vec middleCoordinate:&vertex]) {
+                    if([vec middleCoordinate:&vertex])
+                    {
                         label.loc = vertex;
-                    } else {
+                    }
+                    else
+                    {
                         label = nil;
                     }
                 }
@@ -322,12 +333,22 @@ typedef enum {
                 }
             }
             if (subStyle->layoutPlacement)
+            {
                 label.layoutPlacement = [subStyle->layoutPlacement intValue];
+            }
         }
 
-        MaplyComponentObject *compObj = [viewC addScreenLabels:labels desc:subStyle->desc mode:MaplyThreadCurrent];
+        NSDictionary *desc = subStyle->desc ? subStyle->desc : extraDesc;
+        if (subStyle->desc && extraDesc)
+        {
+            [desc dictionaryByMergingWith:extraDesc];
+        }
+
+        MaplyComponentObject *compObj = [viewC addScreenLabels:labels desc:desc mode:MaplyThreadCurrent];
         if (compObj)
+        {
             [compObjs addObject:compObj];
+        }
     }
     
     [tileInfo addComponentObjects:compObjs];

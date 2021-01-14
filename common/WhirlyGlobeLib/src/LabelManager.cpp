@@ -47,7 +47,9 @@ LabelManager::~LabelManager()
     std::lock_guard<std::mutex> guardLock(lock);
 }
 
-SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,std::vector<SingleLabelRef> &labels,const LabelInfo &desc,ChangeSet &changes)
+SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,
+                                       const std::vector<SingleLabelRef> &labels,
+                                       const LabelInfo &desc,ChangeSet &changes)
 {
     std::vector<SingleLabel *> unwrapLabels;
     
@@ -57,7 +59,9 @@ SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,std::vecto
     return addLabels(threadInfo,unwrapLabels, desc, changes);
 }
     
-SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,std::vector<SingleLabel *> &labels,const LabelInfo &labelInfo,ChangeSet &changes)
+SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,
+                                       const std::vector<SingleLabel *> &labels,
+                                       const LabelInfo &labelInfo,ChangeSet &changes)
 {
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
 

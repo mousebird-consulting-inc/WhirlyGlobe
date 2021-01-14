@@ -115,7 +115,7 @@ LabelRenderer::LabelRenderer(Scene *scene,FontTextureManagerRef &fontTexManager,
 
 typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
 
-void LabelRenderer::render(PlatformThreadInfo *threadInfo,std::vector<SingleLabel *> &labels,ChangeSet &changes)
+void LabelRenderer::render(PlatformThreadInfo *threadInfo,const std::vector<SingleLabel *> &labels,ChangeSet &changes)
 {
     TimeInterval curTime = scene->getCurrentTime();
 

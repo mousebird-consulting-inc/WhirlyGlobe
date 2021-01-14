@@ -47,13 +47,13 @@ public:
     MapboxVectorLayerBackground(MapboxVectorStyleSetImpl *styleSet) : MapboxVectorStyleLayer(styleSet) { }
 
     virtual bool parse(PlatformThreadInfo *inst,
-                       DictionaryRef styleEntry,
-                       MapboxVectorStyleLayerRef refLayer,
-                       int drawPriority);
+                       const DictionaryRef &styleEntry,
+                       const MapboxVectorStyleLayerRef &refLayer,
+                       int drawPriority) override;
     
     virtual void buildObjects(PlatformThreadInfo *inst,
                               std::vector<VectorObjectRef> &vecObjs,
-                              VectorTileDataRef tileInfo);
+                              const VectorTileDataRef &tileInfo) override;
 
 public:
     /// Controls how the background looks.

@@ -605,7 +605,7 @@ using namespace WhirlyKit;
                     dict->setInt(keyStr, [val intValue]);
                     break;
                 default:
-                    NSLog(@"Unsupported type found in NSDictionary toDictionaryC for key %@",key);
+                    NSLog(@"Unsupported type %d found in NSDictionary toDictionaryC for key %@",(int)cType,key);
                     break;
             }
         } else if ([val isKindOfClass:[NSString class]]) {
@@ -623,8 +623,8 @@ using namespace WhirlyKit;
             auto valDict = [(NSDictionary *)val toDictionaryC];
             if (valDict)
                 dict->setDict(keyStr, valDict);
-        } else {
-            NSLog(@"Unsupported type found in NSDictionary toDictionaryC for key %@",key);
+        } else if (val != nil && ![val isKindOfClass:[NSNull class]]) {
+            NSLog(@"Unsupported type %@ found in NSDictionary toDictionaryC for key %@",[val class],key);
         }
     }
     

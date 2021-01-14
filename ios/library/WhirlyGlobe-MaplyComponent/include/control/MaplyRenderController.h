@@ -74,11 +74,11 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
 };
 
 /**
-    Render Controler Protocol defines the methods required of a render controller.
+    Render Controller Protocol defines the methods required of a render controller.
  
-    The view controllers and offscreen rendere implement this protocol.
+    The view controllers and offscreen renderers implement this protocol.
   */
-@protocol MaplyRenderControllerProtocol
+@protocol MaplyRenderControllerProtocol <NSObject>
 
 /**
  Set the offset for the screen space objects.
