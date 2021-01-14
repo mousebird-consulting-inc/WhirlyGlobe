@@ -77,7 +77,8 @@ void MapboxVectorLayerCircle::cleanup(PlatformThreadInfo *inst,ChangeSet &change
 
 void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
                                            std::vector<VectorObjectRef> &vecObjs,
-                                           const VectorTileDataRef &tileInfo)
+                                           const VectorTileDataRef &tileInfo,
+                                           const Dictionary *desc)
 {
     if (!visible)
         return;
@@ -161,7 +162,7 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
         const auto &vecObjs = kvp.second.second;
 
         // Generate one component object per unique UUID (including blank)
-        const auto compObj = styleSet->makeComponentObject(inst);
+        const auto compObj = styleSet->makeComponentObject(inst, desc);
 
         compObj->uuid = uuid;
 

@@ -455,7 +455,7 @@
 		2B84ED1E1F83FC9F00B34D73 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE53AC41D249E0600B60FAD /* libz.tbd */; };
 		2B8796B721FFB2DE00EF801D /* Platform.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B2A21F7A4820078A975 /* Platform.mm */; };
 		2B8796C821FFC57700EF801D /* ShapeReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B8721FB97D50078A975 /* ShapeReader.cpp */; };
-		2B8796CE21FFC59D00EF801D /* Dictinary_NSDictionary.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B23133D21FA91A4006AA344 /* Dictinary_NSDictionary.mm */; };
+		2B8796CE21FFC59D00EF801D /* Dictionary_NSDictionary.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B23133D21FA91A4006AA344 /* Dictionary_NSDictionary.mm */; };
 		2B8796CF21FFC59D00EF801D /* RawData_NSData.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B23133521F93969006AA344 /* RawData_NSData.mm */; };
 		2B8796D021FFC59D00EF801D /* UIImage+Stuff.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B5491E82E2490095FB14 /* UIImage+Stuff.mm */; };
 		2B8796D121FFC59D00EF801D /* NSDictionary+Stuff.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B54A1E82E2490095FB14 /* NSDictionary+Stuff.m */; };
@@ -1058,7 +1058,7 @@
 		2B23133721F942D1006AA344 /* Dictionary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Dictionary.h; path = ../../../../common/WhirlyGlobeLib/include/Dictionary.h; sourceTree = "<group>"; };
 		2B23133921F942E1006AA344 /* Dictionary.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Dictionary.cpp; path = ../../../../common/WhirlyGlobeLib/src/Dictionary.cpp; sourceTree = "<group>"; };
 		2B23133B21FA919D006AA344 /* Dictionary_NSDictionary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Dictionary_NSDictionary.h; sourceTree = "<group>"; };
-		2B23133D21FA91A4006AA344 /* Dictinary_NSDictionary.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Dictinary_NSDictionary.mm; sourceTree = "<group>"; };
+		2B23133D21FA91A4006AA344 /* Dictionary_NSDictionary.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Dictionary_NSDictionary.mm; sourceTree = "<group>"; };
 		2B2EA04C23427F88006F2F34 /* DrawableMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DrawableMTL.mm; sourceTree = "<group>"; };
 		2B2EA04E23427FB7006F2F34 /* DrawableMTL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DrawableMTL.h; sourceTree = "<group>"; };
 		2B361DE621233CBE0074D06D /* MaplyTwoFingerTapDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyTwoFingerTapDelegate.mm; sourceTree = "<group>"; };
@@ -2775,7 +2775,7 @@
 		2B82B54D1E82E2490095FB14 /* Cocoa Utils */ = {
 			isa = PBXGroup;
 			children = (
-				2B23133D21FA91A4006AA344 /* Dictinary_NSDictionary.mm */,
+				2B23133D21FA91A4006AA344 /* Dictionary_NSDictionary.mm */,
 				2B23133521F93969006AA344 /* RawData_NSData.mm */,
 				2B82B5491E82E2490095FB14 /* UIImage+Stuff.mm */,
 				2B82B54A1E82E2490095FB14 /* NSDictionary+Stuff.m */,
@@ -4833,7 +4833,7 @@
 				31833150259112BA005FEF70 /* NormalGravity.cpp in Sources */,
 				2B446B1421F79AD00078A975 /* WhirlyGeometry.cpp in Sources */,
 				31833151259112BA005FEF70 /* SphericalEngine.cpp in Sources */,
-				2B8796CE21FFC59D00EF801D /* Dictinary_NSDictionary.mm in Sources */,
+				2B8796CE21FFC59D00EF801D /* Dictionary_NSDictionary.mm in Sources */,
 				2B8A78DB228B9718008B0A1F /* FontTextureManager_iOS.mm in Sources */,
 				2B8A78D6228B93D1008B0A1F /* WideVectorDrawableBuilder.cpp in Sources */,
 				2B8796D121FFC59D00EF801D /* NSDictionary+Stuff.m in Sources */,

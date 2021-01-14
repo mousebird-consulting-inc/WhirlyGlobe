@@ -276,7 +276,7 @@ void MapboxVectorTileParser::buildForStyle(PlatformThreadInfo *styleInst,
 {
     if (auto style = styleDelegate->styleForUUID(styleInst,styleID))
     {
-        style->buildObjects(styleInst,vecObjs,data);
+        style->buildObjects(styleInst,vecObjs,data,nullptr);
     }
 }
     

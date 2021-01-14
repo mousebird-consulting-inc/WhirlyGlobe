@@ -259,7 +259,9 @@ public class MapboxKindaMap {
                     }
 
                     DispatchQueue.main.async {
-                        self.outstandingFetches[fetchIdx1] = nil
+                        if self.outstandingFetches.count > fetchIdx1 {
+                            self.outstandingFetches[fetchIdx1] = nil
+                        }
                         self.checkFinished()
                     }
                 }
@@ -279,7 +281,9 @@ public class MapboxKindaMap {
                     }
 
                     DispatchQueue.main.async {
-                        self.outstandingFetches[fetchIdx2] = nil
+                        if self.outstandingFetches.count > fetchIdx2 {
+                            self.outstandingFetches[fetchIdx2] = nil
+                        }
                         self.checkFinished()
                     }
                 }

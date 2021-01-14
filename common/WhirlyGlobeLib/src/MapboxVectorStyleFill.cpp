@@ -79,12 +79,13 @@ void MapboxVectorLayerFill::cleanup(PlatformThreadInfo *inst,ChangeSet &changes)
 
 void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
                                          std::vector<VectorObjectRef> &vecObjs,
-                                         const VectorTileDataRef &tileInfo)
+                                         const VectorTileDataRef &tileInfo,
+                                         const Dictionary *desc)
 {
     if (!visible || !(paint.color || paint.outlineColor))
         return;
         
-    const auto compObj = styleSet->makeComponentObject(inst);
+    const auto compObj = styleSet->makeComponentObject(inst, desc);
 
     // Gather all the areal features for fill and/or outline
     std::vector<VectorShapeRef> shapes;

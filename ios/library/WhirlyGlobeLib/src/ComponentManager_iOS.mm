@@ -21,14 +21,46 @@
 #import <Foundation/Foundation.h>
 #import "ComponentManager_iOS.h"
 #import "WhirlyKitLog.h"
+#import "NSString+Stuff.h"
+#import "Dictionary_NSDictionary.h"
 
 namespace WhirlyKit
 {
-    
+
 ComponentObject_iOS::ComponentObject_iOS()
 {
 }
 
+ComponentObject_iOS::ComponentObject_iOS(bool enable, bool isSelectable, const NSDictionary *_Nullable desc)
+{
+    this->enable = enable;
+    this->isSelectable = isSelectable;
+    
+    if (desc.count)
+    {
+        if (const id enableValue = desc[kMaplyEnable])
+        {
+            if ([enableValue isKindOfClass:[NSNumber class]])
+            {
+                this->enable = [enableValue boolValue];
+            }
+        }
+        if (const id uuid = desc[kMaplyUUID])
+        {
+            if ([uuid isKindOfClass:[NSString class]])
+            {
+                this->uuid = [((NSString*)uuid) asStdString];
+            }
+        }
+        if (const id rep = desc[kMaplyRepresentation])
+        {
+            if ([rep isKindOfClass:[NSString class]])
+            {
+                this->representation = [((NSString*)rep) asStdString];
+            }
+        }
+    }
+}
 // The scene wants a component manager early in the process
 // This gives it an iOS specific one
 ComponentManagerRef MakeComponentManager()
@@ -59,9 +91,10 @@ NSObject *ComponentManager_iOS::getSelectObject(SimpleIdentity selID)
     return nil;
 }
     
-ComponentObjectRef ComponentManager_iOS::makeComponentObject()
+ComponentObjectRef ComponentManager_iOS::makeComponentObject(const Dictionary *desc)
 {
-    return ComponentObject_iOSRef(new ComponentObject_iOS());
+    NSDictionary *nsDesc = desc ? [NSMutableDictionary fromDictionaryCPointer:desc] : nil;
+    return std::make_shared<ComponentObject_iOS>(/*enabled=*/false, /*isSelectable=*/false, nsDesc);
 }
     
 void ComponentManager_iOS::removeSelectObjects(SimpleIDSet selIDs)

@@ -99,19 +99,18 @@ using namespace WhirlyKit;
     // Make sure this wasn't alreayd added
     if (spriteImage)
         return true;
-    
+
     spriteImage = image;
     MaplyTexture *wholeTex = [_viewC addTexture:image desc:nil mode:MaplyThreadCurrent];
-    
-    MapboxVectorStyleSpritesRef newSprites(new MapboxVectorStyleSprites(wholeTex.texID,(int)image.size.width,(int)image.size.height));
-    iosDictionaryRef dictWrap(new iosDictionary(spriteDict));
-    if (newSprites->parse(style, dictWrap)) {
+
+    auto newSprites = std::make_shared<MapboxVectorStyleSprites>(wholeTex.texID,(int)image.size.width,(int)image.size.height);
+    auto dictWrap = std::make_shared<iosDictionary>(spriteDict);
+    if (newSprites->parse(style, dictWrap))
+    {
         style->addSprites(newSprites,wholeTex);
-    } else {
-        return false;
+        return true;
     }
-    
-    return true;
+    return false;
 }
 
 - (UIColor * __nullable)backgroundColorForZoom:(double)zoom

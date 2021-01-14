@@ -45,6 +45,9 @@ public:
     Dictionary();
     virtual ~Dictionary() { };
 
+    virtual int count() const = 0;
+    virtual bool empty() const = 0;
+
     /// Returns true if the field exists
     virtual bool hasField(const std::string &name) const = 0;
     

@@ -68,7 +68,10 @@ public:
     // Copy constructor
     iosDictionary(const iosDictionary &that);
     virtual ~iosDictionary() override;
-    
+
+    virtual int count() const override;
+    virtual bool empty() const override { return count() == 0; }
+
     /// Returns true if the field exists
     bool hasField(const std::string &name) const override;
     
@@ -111,12 +114,16 @@ class iosMutableDictionary : public MutableDictionary
 {
 public:
     iosMutableDictionary();
+    iosMutableDictionary(const NSDictionary *dict);
     iosMutableDictionary(NSMutableDictionary *dict);
     iosMutableDictionary(const MutableDictionaryRef &dict);
     // Assignment operator
     virtual iosMutableDictionary &operator = (const iosMutableDictionary &that);
     virtual ~iosMutableDictionary() override;
     virtual MutableDictionaryRef copy() const override;
+
+    virtual int count() const override;
+    virtual bool empty() const override { return count() == 0; }
 
     /// Returns true if the field exists
     bool hasField(const std::string &name) const override;
@@ -184,7 +191,8 @@ public:
 @interface NSMutableDictionary (DictionaryC)
 
 // Convert one of the DictionaryC objects to an NSDictionary (actually works on dictionary in the right interface)
-+ (NSMutableDictionary *) fromDictionaryC:(WhirlyKit::MutableDictionaryRef)dict;
-+ (NSMutableDictionary *) fromDictionaryCPointer:(const WhirlyKit::MutableDictionary *)dict;
++ (NSMutableDictionary *) fromDictionaryC:(const WhirlyKit::DictionaryRef &)dict;
++ (NSMutableDictionary *) fromMutableDictionaryC:(const WhirlyKit::MutableDictionaryRef &)dict;
++ (NSMutableDictionary *) fromDictionaryCPointer:(const WhirlyKit::Dictionary *)dict;
 
 @end

@@ -25,6 +25,7 @@
 #import "helpers/MaplyTextureBuilder.h"
 #import "WhirlyGlobe.h"
 #import "MaplyTexture_private.h"
+#import "Dictionary_NSDictionary.h"
 
 using namespace WhirlyKit;
 
@@ -289,13 +290,17 @@ using namespace WhirlyKit;
     return vectorStyle->geomAdditive(NULL);
 }
 
-- (void)buildObjects:(NSArray * _Nonnull)inVecObjs forTile:(MaplyVectorTileData * __nonnull)tileData viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
+- (void)buildObjects:(NSArray *_Nonnull)vecObjs
+             forTile:(MaplyVectorTileData *_Nonnull)tileData
+               viewC:(NSObject<MaplyRenderControllerProtocol> *_Nonnull)viewC
+                desc:(NSDictionary *_Nullable)desc
 {
-    std::vector<VectorObjectRef> vecObjs;
-    for (MaplyVectorObject *vecObj in inVecObjs)
-        vecObjs.push_back(vecObj->vObj);
-    
-    vectorStyle->buildObjects(NULL, vecObjs, tileData->data);
+    std::vector<VectorObjectRef> localVecObjs;
+    for (MaplyVectorObject *vecObj in vecObjs)
+        localVecObjs.push_back(vecObj->vObj);
+
+    auto lDesc = desc ? iosMutableDictionary(desc) : iosMutableDictionary();
+    vectorStyle->buildObjects(nullptr, localVecObjs, tileData->data, &lDesc);
 }
 
 @end
@@ -428,15 +433,18 @@ SimpleIdentity MapboxVectorStyleSetImpl_iOS::makeCircleTexture(PlatformThreadInf
                                                                Point2f *circleSize)
 {
     // We want the texture a bit bigger than specified
-    float scale = tileStyleSettings->markerScale * 2;
+    const float scale = tileStyleSettings->markerScale * 2;
 
     // Build an image for the circle
-    float buffer = 1.0;
-    float radius = inRadius*scale;
-    float strokeWidth = inStrokeWidth*scale;
-    float size = ceil(buffer + radius + strokeWidth)*2;
-    circleSize->x() = size / 2;
-    circleSize->y() = size / 2;
+    const float buffer = 1.0;
+    const float radius = inRadius*scale;
+    const float strokeWidth = inStrokeWidth*scale;
+    const float size = ceil(buffer + radius + strokeWidth)*2;
+    if (circleSize)
+    {
+        circleSize->x() = size / 2;
+        circleSize->y() = size / 2;
+    }
     UIGraphicsBeginImageContext(CGSizeMake(size, size));
     // TODO: Use the opacity
     [[UIColor clearColor] setFill];
@@ -566,9 +574,14 @@ SingleLabelRef MapboxVectorStyleSetImpl_iOS::makeSingleLabel(PlatformThreadInfo 
     return std::make_shared<SingleLabel_iOS>([NSString stringWithUTF8String:text.c_str()]);
 }
 
-ComponentObjectRef MapboxVectorStyleSetImpl_iOS::makeComponentObject(PlatformThreadInfo *inst)
+ComponentObjectRef MapboxVectorStyleSetImpl_iOS::makeComponentObject(PlatformThreadInfo *inst, const Dictionary *_Nullable desc)
 {
-    return std::make_shared<ComponentObject_iOS>();
+    NSDictionary *nsDesc = nil;
+    if (desc && !desc->empty())
+    {
+        nsDesc = [NSMutableDictionary fromDictionaryCPointer:desc];
+    }
+    return std::make_shared<ComponentObject_iOS>(/*enabled=*/false, /*isSelectable=*/false, nsDesc);
 }
 
 void MapboxVectorStyleSetImpl_iOS::addSelectionObject(SimpleIdentity selectID,VectorObjectRef vecObj,ComponentObjectRef compObj)
@@ -698,7 +711,8 @@ bool VectorStyleWrapper::geomAdditive(PlatformThreadInfo *inst)
 
 void VectorStyleWrapper::buildObjects(PlatformThreadInfo *inst,
                                       std::vector<VectorObjectRef> &vecObjs,
-                                      const VectorTileDataRef &tileInfo)
+                                      const VectorTileDataRef &tileInfo,
+                                      const Dictionary *desc)
 {
     if (auto tileData = [[MaplyVectorTileData alloc] init])
     {
@@ -714,7 +728,16 @@ void VectorStyleWrapper::buildObjects(PlatformThreadInfo *inst,
             }
         }
 
-        [style buildObjects:vecArray forTile:tileData viewC:viewC desc:nil];
+        NSDictionary* nsDesc = nil;
+        if (auto iosDesc = dynamic_cast<const iosMutableDictionary*>(desc))
+        {
+            nsDesc = iosDesc->dict;
+        }
+        else if (desc)
+        {
+            nsDesc = [NSMutableDictionary fromDictionaryCPointer:desc];
+        }
+        [style buildObjects:vecArray forTile:tileData viewC:viewC desc:nsDesc];
     }
 }
 

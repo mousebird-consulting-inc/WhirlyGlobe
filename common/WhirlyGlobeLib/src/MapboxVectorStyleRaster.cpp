@@ -33,7 +33,8 @@ bool MapboxVectorLayerRaster::parse(PlatformThreadInfo *inst,
 
 void MapboxVectorLayerRaster::buildObjects(PlatformThreadInfo *inst,
                                            std::vector<VectorObjectRef> &vecObjs,
-                                           const VectorTileDataRef &tileInfo)
+                                           const VectorTileDataRef &tileInfo,
+                                           const Dictionary *desc)
 {
 }
 

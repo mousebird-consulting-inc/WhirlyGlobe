@@ -157,7 +157,7 @@ public:
 
 protected:
     // Subclass fills this in
-    virtual ComponentObjectRef makeComponentObject() = 0;
+    virtual ComponentObjectRef makeComponentObject(const Dictionary *desc = nullptr) = 0;
 
     template <typename TIter>
     void setRepresentation(const std::string &repName,

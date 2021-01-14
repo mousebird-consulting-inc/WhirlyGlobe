@@ -64,7 +64,8 @@ public:
     /// Construct objects related to this style based on the input data.
     virtual void buildObjects(PlatformThreadInfo *inst,
                               std::vector<VectorObjectRef> &vecObjs,
-                              const VectorTileDataRef &tileInfo) override = 0;
+                              const VectorTileDataRef &tileInfo,
+                              const Dictionary *desc) override = 0;
     
     /// Clean up any objects (textures, probably)
     virtual void cleanup(PlatformThreadInfo *inst,ChangeSet &changes);

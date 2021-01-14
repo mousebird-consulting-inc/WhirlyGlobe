@@ -121,7 +121,8 @@ void MapboxVectorLayerLine::cleanup(PlatformThreadInfo *inst,ChangeSet &changes)
 
 void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
                                          std::vector<VectorObjectRef> &inVecObjs,
-                                         const VectorTileDataRef &tileInfo)
+                                         const VectorTileDataRef &tileInfo,
+                                         const Dictionary *desc)
 {
     if (!visible)
         return;
@@ -249,7 +250,7 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
         const auto &shapes = kvp.second;
 
         // Generate one component object per unique UUID (including blank)
-        const auto compObj = styleSet->makeComponentObject(inst);
+        const auto compObj = styleSet->makeComponentObject(inst, desc);
         compObj->uuid = uuid;
 
         if (const auto wideVecID = styleSet->wideVecManage->addVectors(shapes, vecInfo, tileInfo->changes))

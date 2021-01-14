@@ -50,7 +50,8 @@ public:
     
     virtual void buildObjects(PlatformThreadInfo *inst,
                               std::vector<VectorObjectRef> &vecObjs,
-                              const VectorTileDataRef &tileInfo) override;
+                              const VectorTileDataRef &tileInfo,
+                              const Dictionary *desc) override;
     
     virtual void cleanup(PlatformThreadInfo *inst,ChangeSet &changes) override;
     

@@ -67,7 +67,8 @@ bool MapboxVectorLayerBackground::parse(PlatformThreadInfo *inst,
 
 void MapboxVectorLayerBackground::buildObjects(PlatformThreadInfo *inst,
                                                std::vector<VectorObjectRef> &vecObjs,
-                                               const VectorTileDataRef &tileInfo)
+                                               const VectorTileDataRef &tileInfo,
+                                               const Dictionary *desc)
 {
     const auto color = styleSet->backgroundColor(inst, tileInfo->ident.level);
     
@@ -111,7 +112,7 @@ void MapboxVectorLayerBackground::buildObjects(PlatformThreadInfo *inst,
 
     if (const auto vecID = styleSet->vecManage->addVectors(&tessShapes, vecInfo, tileInfo->changes))
     {
-        const auto compObj = styleSet->makeComponentObject(inst);
+        const auto compObj = styleSet->makeComponentObject(inst, desc);
         compObj->vectorIDs.insert(vecID);
         
         styleSet->compManage->addComponentObject(compObj, tileInfo->changes);

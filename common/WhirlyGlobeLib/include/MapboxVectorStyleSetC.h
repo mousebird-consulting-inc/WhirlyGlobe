@@ -317,9 +317,9 @@ public:
     
     /// Add a sprite sheet for use by the layers
     virtual void addSprites(MapboxVectorStyleSpritesRef newSprites);
-    
+
     /// Create a local platform component object
-    virtual ComponentObjectRef makeComponentObject(PlatformThreadInfo *inst) = 0;
+    virtual ComponentObjectRef makeComponentObject(PlatformThreadInfo *inst, const Dictionary *desc = nullptr) = 0;
 
 public:
     Scene *scene;

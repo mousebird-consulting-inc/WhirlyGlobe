@@ -364,7 +364,8 @@ static std::tuple<MarkerPtrVec*, VecObjRefVec*, LabelRefVec*> Lookup(const std::
 
 void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                                            std::vector<VectorObjectRef> &vecObjs,
-                                           const VectorTileDataRef &tileInfo)
+                                           const VectorTileDataRef &tileInfo,
+                                           const Dictionary *desc)
 {
     if (!visible)
         return;
@@ -663,7 +664,7 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
         const auto& labels  = std::get<2>(kvp.second);
 
         // Generate one component object per unique UUID (including blank)
-        const auto compObj = styleSet->makeComponentObject(inst);
+        const auto compObj = styleSet->makeComponentObject(inst, desc);
         compObj->uuid = uuid;
 
         if (selectable)
