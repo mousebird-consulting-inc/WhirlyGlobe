@@ -392,24 +392,43 @@ using namespace WhirlyKit;
     return legend;
 }
 
-// These are here just to satisfy the compiler.  We use the underlying C++ calls instead
+// These wrap the style if someone is using a non-standard path to call it
+// We do that in at least one place
 
 - (nullable NSArray *)stylesForFeatureWithAttributes:(NSDictionary *__nonnull)attributes
                                               onTile:(MaplyTileID)tileID
                                              inLayer:(NSString *__nonnull)layer
                                                viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC
 {
-    return nil;
+    MutableDictionaryCRef dictWrap = [attributes toDictionaryC];
+    const QuadTreeIdentifier tileIDc(tileID.x,tileID.y,tileID.level);
+    const std::string layerName = [layer cStringUsingEncoding:NSUTF8StringEncoding];
+    
+    auto styles = style->stylesForFeature(nil, *(dictWrap.get()), tileIDc, layerName);
+    
+    // Build up a wrapper for each one
+    NSMutableArray *retStyles = [NSMutableArray array];
+    for (auto theStyle: styles) {
+        [retStyles addObject:[[MaplyVectorStyleReverseWrapper alloc] initWithCStyle:theStyle]];
+    }
+
+    return retStyles;
 }
 
 - (BOOL)layerShouldDisplay:(NSString *__nonnull)layer tile:(MaplyTileID)tileID
 {
+    const std::string layerName = [layer cStringUsingEncoding:NSUTF8StringEncoding];
+    const QuadTreeIdentifier tileIDc(tileID.x,tileID.y,tileID.level);
+    style->layerShouldDisplay(nil, layerName, tileIDc);
+    
     return false;
 }
 
-- (nullable NSObject<MaplyVectorStyle> *)styleForUUID:(long long)uiid viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC
+- (nullable NSObject<MaplyVectorStyle> *)styleForUUID:(long long)uuid viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC
 {
-    return nil;
+    auto theStyle = style->styleForUUID(NULL, uuid);
+    
+    return [[MaplyVectorStyleReverseWrapper alloc] initWithCStyle:theStyle];
 }
 
 - (nullable NSObject<MaplyVectorStyle> *)backgroundStyleViewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
@@ -419,7 +438,15 @@ using namespace WhirlyKit;
 
 - (NSArray * __nonnull)allStyles
 {
-    return [NSMutableArray array];
+    auto styles = style->allStyles(NULL);
+
+    // Build up a wrapper for each one
+    NSMutableArray *retStyles = [NSMutableArray array];
+    for (auto theStyle: styles) {
+        [retStyles addObject:[[MaplyVectorStyleReverseWrapper alloc] initWithCStyle:theStyle]];
+    }
+
+    return retStyles;
 }
 
 // Returns the C++ class that does the work

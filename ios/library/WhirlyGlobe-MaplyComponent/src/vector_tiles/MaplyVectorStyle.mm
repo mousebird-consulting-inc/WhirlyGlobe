@@ -257,6 +257,49 @@ using namespace WhirlyKit;
 
 @end
 
+@implementation MaplyVectorStyleReverseWrapper
+{
+    WhirlyKit::VectorStyleImplRef vectorStyle;
+}
+
+- (id)initWithCStyle:(WhirlyKit::VectorStyleImplRef)inVectorStyle
+{
+    self = [super init];
+    vectorStyle = inVectorStyle;
+    
+    return self;
+}
+
+- (long long) uuid
+{
+    return vectorStyle->getUuid(NULL);
+}
+
+- (NSString * _Nullable) getCategory
+{
+    const std::string category = vectorStyle->getCategory(NULL);
+    if (category.empty())
+        return nil;
+    
+    return [NSString stringWithUTF8String:category.c_str()];
+}
+
+- (bool) geomAdditive
+{
+    return vectorStyle->geomAdditive(NULL);
+}
+
+- (void)buildObjects:(NSArray * _Nonnull)inVecObjs forTile:(MaplyVectorTileData * __nonnull)tileData viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
+{
+    std::vector<VectorObjectRef> vecObjs;
+    for (MaplyVectorObject *vecObj in inVecObjs)
+        vecObjs.push_back(vecObj->vObj);
+    
+    vectorStyle->buildObjects(NULL, vecObjs, tileData->data);
+}
+
+@end
+
 NSArray * _Nonnull AddMaplyVectorsUsingStyle(NSArray * _Nonnull vecObjs,NSObject<MaplyVectorStyleDelegate> * _Nonnull styleDelegate,NSObject<MaplyRenderControllerProtocol> * _Nonnull viewC,MaplyThreadMode threadMode)
 {
     MaplyTileID tileID = {0, 0, 0};
