@@ -296,7 +296,7 @@ typedef enum {
                     if ([vec linearMiddle:&middle rot:&rot displayCoordSys:displaySystem])
                     {
                         //TODO: text-max-char-angle-delta
-                        //TODO: rotation calculation is not ideal, it is between 2 points, but it needs to be avergared over a longer distance
+                        //TODO: rotation calculation is not ideal, it is between 2 points, but it needs to be averaged over a longer distance
                         label.loc = middle;
                         label.layoutPlacement = kMaplyLayoutCenter;
                         label.rotation = -1 * rot+M_PI/2.0;
