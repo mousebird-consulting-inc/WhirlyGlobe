@@ -418,9 +418,7 @@ using namespace WhirlyKit;
 {
     const std::string layerName = [layer cStringUsingEncoding:NSUTF8StringEncoding];
     const QuadTreeIdentifier tileIDc(tileID.x,tileID.y,tileID.level);
-    style->layerShouldDisplay(nil, layerName, tileIDc);
-    
-    return false;
+    return style->layerShouldDisplay(nil, layerName, tileIDc);
 }
 
 - (nullable NSObject<MaplyVectorStyle> *)styleForUUID:(long long)uuid viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC
