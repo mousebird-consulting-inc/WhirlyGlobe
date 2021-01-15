@@ -3,7 +3,7 @@
 *  WhirlyGlobe-MaplyComponent
 *
 *  Created by Steve Gifford on 1/3/14.
-*  Copyright 2011-2017 mousebird consulting
+*  Copyright 2011-2021 mousebird consulting
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -129,12 +129,12 @@ class VectorStyleDelegateWrapper : public VectorStyleDelegateImpl
 public:
     VectorStyleDelegateWrapper(NSObject<MaplyRenderControllerProtocol> *_Nonnull viewC,
                                NSObject<MaplyVectorStyleDelegate> *_Nullable delegate);
-    
+
     virtual std::vector<VectorStyleImplRef> stylesForFeature(PlatformThreadInfo *_Nullable inst,
                                                              const Dictionary &attrs,
                                                              const QuadTreeIdentifier &tileID,
                                                              const std::string &layerName) override;
-    
+
     virtual bool layerShouldDisplay(PlatformThreadInfo *_Nullable inst,
                                     const std::string &name,
                                     const QuadTreeNew::Node &tileID) override;
@@ -146,7 +146,7 @@ public:
     virtual VectorStyleImplRef backgroundStyle(PlatformThreadInfo *_Nullable inst) const override;
 
     virtual RGBAColorRef backgroundColor(PlatformThreadInfo *_Nullable inst,double zoom) override;
-    
+
 protected:
     NSObject<MaplyRenderControllerProtocol> *_Nullable  __weak viewC;
     NSObject<MaplyVectorStyleDelegate> *_Nullable delegate;
@@ -162,7 +162,7 @@ class VectorStyleWrapper : public VectorStyleImpl
 public:
     VectorStyleWrapper(NSObject<MaplyRenderControllerProtocol> *_Nonnull viewC,
                        NSObject<MaplyVectorStyle> *_Nonnull style);
-    
+
     virtual long long getUuid(PlatformThreadInfo *_Nullable inst) override;
     virtual std::string getCategory(PlatformThreadInfo *_Nullable inst) override;
     virtual bool geomAdditive(PlatformThreadInfo *_Nullable inst) override;
@@ -170,7 +170,7 @@ public:
                               std::vector<VectorObjectRef> &vecObjs,
                               const VectorTileDataRef &tileData,
                               const Dictionary *_Nullable desc) override;
-    
+
 protected:
     NSObject<MaplyRenderControllerProtocol> *_Nullable  __weak viewC;
     NSObject<MaplyVectorStyle> *_Nullable  __weak style;

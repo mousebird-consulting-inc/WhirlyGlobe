@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 1/3/14.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -305,87 +305,81 @@ using namespace WhirlyKit;
 
 @end
 
+static MapboxGeometryType ConvertGeomType(MaplyVectorObjectType type)
+{
+    switch (type)
+    {
+        case MaplyVectorPointType:      return MapboxGeometryType::GeomTypePoint;
+        case MaplyVectorLinearType:
+        case MaplyVectorLinear3dType:   return MapboxGeometryType::GeomTypeLineString;
+        case MaplyVectorArealType:      return MapboxGeometryType::GeomTypePolygon;
+        default:                        return MapboxGeometryType::GeomTypeUnknown;
+    }
+}
+
 NSArray<MaplyComponentObject*> * _Nonnull AddMaplyVectorsUsingStyle(
     NSArray<MaplyVectorObject*> * _Nonnull vecObjs,
     NSObject<MaplyVectorStyleDelegate> * _Nonnull styleDelegate,
     NSObject<MaplyRenderControllerProtocol> * _Nonnull viewC,
     MaplyThreadMode threadMode)
 {
-    return AddMaplyVectorsUsingStyleAndAttributes(vecObjs, styleDelegate, viewC, /*enable=*/true, threadMode, /*desc=*/nil);
+    return AddMaplyVectorsUsingStyleAndAttributes(vecObjs, styleDelegate, viewC,
+                                                  /*tileId=*/{0,0,0}, /*enable=*/true,
+                                                  threadMode, /*desc=*/nil);
 }
 
 NSArray<MaplyComponentObject*> * _Nonnull AddMaplyVectorsUsingStyleAndAttributes(
     NSArray<MaplyVectorObject*> * _Nonnull vecObjs,
     NSObject<MaplyVectorStyleDelegate> * _Nonnull styleDelegate,
     NSObject<MaplyRenderControllerProtocol> * _Nonnull viewC,
+    MaplyTileID tileID,
     bool enable,
     MaplyThreadMode threadMode,
     NSDictionary * _Nullable desc)
 {
-    MaplyTileID tileID = {0, 0, 0};
-    MaplyBoundingBoxD geoBBox;
-    geoBBox.ll.x = -M_PI;  geoBBox.ll.y = -M_PI/2.0;
-    geoBBox.ur.x = M_PI; geoBBox.ur.y = M_PI/2.0;
+    const MaplyBoundingBoxD geoBBox = { { -M_PI, -M_PI_2 }, { M_PI, M_PI_2 } };
     MaplyVectorTileData *tileData = [[MaplyVectorTileData alloc] initWithID:tileID bbox:geoBBox geoBBox:geoBBox];
     NSMutableDictionary *featureStyles = [[NSMutableDictionary alloc] init];
-    
+
     // First we sort by the styles that each feature uses.
     int whichLayer = 0;
-    for (MaplyVectorObject *thisVecObj in vecObjs)
+    for (const MaplyVectorObject *thisVecObj in vecObjs)
     {
-        for (MaplyVectorObject *vecObj in [thisVecObj splitVectors])
+        for (const MaplyVectorObject *vecObj in [thisVecObj splitVectors])
         {
             NSString *layer = vecObj.attributes[@"layer"];
             if (!layer)
                 layer = vecObj.attributes[@"layer_name"];
             if (layer && ![styleDelegate layerShouldDisplay:layer tile:tileData.tileID])
                 continue;
-            
+
             if (!layer)
                 layer = [NSString stringWithFormat:@"layer%d",whichLayer];
-            
+
             // Need to set a geometry type
-            MapboxGeometryType geomType = MapboxGeometryType::GeomTypeUnknown;
-            switch ([vecObj vectorType])
-            {
-                case MaplyVectorPointType:
-                    geomType = MapboxGeometryType::GeomTypePoint;
-                    break;
-                case MaplyVectorLinearType:
-                case MaplyVectorLinear3dType:
-                    geomType = MapboxGeometryType::GeomTypeLineString;
-                    break;
-                case MaplyVectorArealType:
-                    geomType = MapboxGeometryType::GeomTypePolygon;
-                    break;
-                case MaplyVectorMultiType:
-                    break;
-                default:
-                    break;
-            }
+            const auto geomType = ConvertGeomType([vecObj vectorType]);
             vecObj.attributes[@"geometry_type"] = @(geomType);
-            
+
             NSArray *styles = [styleDelegate stylesForFeatureWithAttributes:vecObj.attributes onTile:tileData.tileID inLayer:layer viewC:viewC];
-            if (styles.count == 0)
-                continue;
-            
             for (NSObject<MaplyVectorStyle> *style in styles)
             {
                 NSMutableArray *featuresForStyle = featureStyles[@(style.uuid)];
-                if(!featuresForStyle) {
+                if(!featuresForStyle)
+                {
                     featuresForStyle = [NSMutableArray new];
                     featureStyles[@(style.uuid)] = featuresForStyle;
                 }
                 [featuresForStyle addObject:vecObj];
             }
         }
-        
+
         whichLayer++;
     }
 
     // Then we add each of those styles as a group for efficiency
     NSArray *symbolizerKeys = [featureStyles.allKeys sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"self" ascending:YES]]];
-    for(id key in symbolizerKeys) {
+    for(id key in symbolizerKeys)
+    {
         NSObject<MaplyVectorStyle> *symbolizer = [styleDelegate styleForUUID:[key longLongValue] viewC:viewC];
         NSArray *features = featureStyles[key];
         [symbolizer buildObjects:features forTile:tileData viewC:viewC desc:desc];

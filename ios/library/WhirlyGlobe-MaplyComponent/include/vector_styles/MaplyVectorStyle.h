@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 1/3/14.
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -183,6 +183,8 @@ NSArray<MaplyComponentObject*> * _Nonnull AddMaplyVectorsUsingStyle(NSArray<Mapl
  
     @param viewC View controller to add the geometry to.
 
+    @param tileId The tile where the feature originates.
+ 
     @param enable Automatically enable the generated objects
  
     @param threadMode MaplyThreadCurrent will block until all the features are added.  MaplyThreadAny will do some of the work on another thread.
@@ -193,6 +195,7 @@ NSArray<MaplyComponentObject*> * _Nonnull AddMaplyVectorsUsingStyleAndAttributes
     NSArray<MaplyVectorObject*> * _Nonnull vecObjs,
     NSObject<MaplyVectorStyleDelegate> * _Nonnull styleDelegate,
     NSObject<MaplyRenderControllerProtocol> * _Nonnull viewC,
+    MaplyTileID tileId,
     bool enable,
     MaplyThreadMode threadMode,
     NSDictionary * _Nullable desc);
