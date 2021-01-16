@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/15/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -125,8 +125,8 @@ void ComponentManager_iOS::removeComponentObjects(PlatformThreadInfo *threadInfo
         
         for (auto compID: compIDs)
         {
-            const auto it = compObjs.find(compID);
-            if (it != compObjs.end() && it->second)
+            const auto it = compObjsById.find(compID);
+            if (it != compObjsById.end() && it->second)
             {
                 selectIDs.insert(it->second->selectIDs.begin(),it->second->selectIDs.end());
             }
@@ -137,7 +137,7 @@ void ComponentManager_iOS::removeComponentObjects(PlatformThreadInfo *threadInfo
 
     ComponentManager::removeComponentObjects(threadInfo,compIDs, changes);
 }
-    
+
 void ComponentManager_iOS::clear()
 {
     std::lock_guard<std::mutex> guardLock(selectLock);

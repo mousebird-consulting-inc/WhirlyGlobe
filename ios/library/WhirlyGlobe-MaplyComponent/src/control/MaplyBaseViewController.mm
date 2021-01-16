@@ -3,7 +3,7 @@
  *  MaplyComponent
  *
  *  Created by Steve Gifford on 12/14/12.
- *  Copyright 2012-2019 mousebird consulting
+ *  Copyright 2012-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -1052,7 +1052,8 @@ static const float PerfOutputDelay = 15.0;
     [renderControl enableObjects:theObjs mode:threadMode];
 }
 
-- (void)setRepresentation:(NSString *__nullable)repName ofUUIDs:(NSArray<NSString *> *__nonnull)uuids
+- (void)setRepresentation:(NSString *__nullable)repName
+                  ofUUIDs:(NSArray<NSString *> *__nonnull)uuids
 {
     if (uuids.count)
     {
@@ -1060,7 +1061,19 @@ static const float PerfOutputDelay = 15.0;
     }
 }
 
-- (void)setRepresentation:(NSString *__nullable)repName ofUUIDs:(NSArray<NSString *> *__nonnull)uuids mode:(MaplyThreadMode)threadMode
+- (void)setRepresentation:(NSString *__nullable)repName
+          fallbackRepName:(NSString *__nullable)fallbackRepName
+                  ofUUIDs:(NSArray<NSString *> *__nonnull)uuids
+{
+    if (uuids.count)
+    {
+        [renderControl setRepresentation:repName fallbackRepName:fallbackRepName ofUUIDs:uuids mode:MaplyThreadAny];
+    }
+}
+
+- (void)setRepresentation:(NSString *__nullable)repName
+                  ofUUIDs:(NSArray<NSString *> *__nonnull)uuids
+                     mode:(MaplyThreadMode)threadMode
 {
     if (uuids.count)
     {
@@ -1068,12 +1081,41 @@ static const float PerfOutputDelay = 15.0;
     }
 }
 
-- (void)setRepresentation:(NSString *__nullable)repName ofObjects:(NSArray<MaplyComponentObject *> *__nonnull)objs
+- (void)setRepresentation:(NSString *__nullable)repName
+          fallbackRepName:(NSString *__nullable)fallbackRepName
+                  ofUUIDs:(NSArray<NSString *> *__nonnull)uuids
+                     mode:(MaplyThreadMode)threadMode
+{
+    if (uuids.count)
+    {
+        [renderControl setRepresentation:repName fallbackRepName:fallbackRepName ofUUIDs:uuids mode:threadMode];
+    }
+}
+
+- (void)setRepresentation:(NSString *__nullable)repName
+                ofObjects:(NSArray<MaplyComponentObject *> *__nonnull)objs
 {
     [self setRepresentation:repName ofObjects:objs mode:MaplyThreadAny];
 }
 
-- (void)setRepresentation:(NSString *__nullable)repName ofObjects:(NSArray<MaplyComponentObject *> *__nonnull)objs mode:(MaplyThreadMode)threadMode
+- (void)setRepresentation:(NSString *__nullable)repName
+          fallbackRepName:(NSString *__nullable)fallbackRepName
+                ofObjects:(NSArray<MaplyComponentObject *> *__nonnull)objs
+{
+    [self setRepresentation:repName fallbackRepName:fallbackRepName ofObjects:objs mode:MaplyThreadAny];
+}
+
+- (void)setRepresentation:(NSString *__nullable)repName
+                ofObjects:(NSArray<MaplyComponentObject *> *__nonnull)objs
+                     mode:(MaplyThreadMode)threadMode
+{
+    [self setRepresentation:repName fallbackRepName:nil ofObjects:objs mode:threadMode];
+}
+
+- (void)setRepresentation:(NSString *__nullable)repName
+          fallbackRepName:(NSString *__nullable)fallbackRepName
+                ofObjects:(NSArray<MaplyComponentObject *> *__nonnull)objs
+                     mode:(MaplyThreadMode)threadMode
 {
     if (!objs.count)
     {
@@ -1091,7 +1133,7 @@ static const float PerfOutputDelay = 15.0;
     {
         return;
     }
-    [renderControl setRepresentation:repName ofUUIDs:theUUIDs mode:threadMode];
+    [renderControl setRepresentation:repName fallbackRepName:fallbackRepName ofUUIDs:theUUIDs mode:threadMode];
 }
 
 - (void)setUniformBlock:(NSData *__nonnull)uniBlock buffer:(int)bufferID forObjects:(NSArray<MaplyComponentObject *> *__nonnull)compObjs mode:(MaplyThreadMode)threadMode

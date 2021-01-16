@@ -3,7 +3,7 @@
  *  WhirlyGlobeMaplyComponent
  *
  *  Created by Stephen Gifford on 1/19/18.
- *  Copyright 2012-2018 Saildrone Inc.
+ *  Copyright 2012-2021 Saildrone Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -843,7 +843,22 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
     @param repName The representation name to apply, nil to return to the default
     @param threadMode For MaplyThreadAny we'll do the enable on another thread.  For MaplyThreadCurrent we'll block the current thread to finish the enable.  MaplyThreadAny is preferred.
  */
-- (void)setRepresentation:(NSString *__nullable)repName ofUUIDs:(NSArray<NSString *> *__nonnull)uuids mode:(MaplyThreadMode)threadMode;
+- (void)setRepresentation:(NSString *__nullable)repName
+                  ofUUIDs:(NSArray<NSString *> *__nonnull)uuids
+                     mode:(MaplyThreadMode)threadMode;
+
+/**
+    Set the representation to use for one or more UUIDs
+ 
+    @param uuids Array of NSString UUIDs to update
+    @param repName The representation name to apply, nil to return to the default
+    @param fallbackRepName The representation to use of no item with `repName` exists.
+    @param threadMode For MaplyThreadAny we'll do the enable on another thread.  For MaplyThreadCurrent we'll block the current thread to finish the enable.  MaplyThreadAny is preferred.
+ */
+- (void)setRepresentation:(NSString *__nullable)repName
+          fallbackRepName:(NSString *__nullable)fallbackRepName
+                  ofUUIDs:(NSArray<NSString *> *__nonnull)uuids
+                     mode:(MaplyThreadMode)threadMode;
 
 /**
  Pass a uniform block through to a shader.  Only for Metal.

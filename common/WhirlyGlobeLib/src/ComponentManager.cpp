@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/15/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -82,15 +82,19 @@ void ComponentManager::addComponentObject(const ComponentObjectRef &compObj, Cha
     std::lock_guard<std::mutex> guardLock(lock);
 
     compObj->underConstruction = false;
-    compObjs[compObj->getId()] = compObj;
+    compObjsById[compObj->getId()] = compObj;
 
     // Does the new object have a UUID?
     if (!compObj->uuid.empty())
     {
+        // track it by that UUID
+        compObjsByUUID.insert(std::make_pair(compObj->uuid, compObj));
+
         // Is the current representation for that UUID already set?
         const auto hit = representations.find(compObj->uuid);
-        // Enable if it matches, disable otherwise.
-        // Representation must be none/empty if no current representation is set.
+
+        // If a representation is set, show this item if it matches that representation.
+        // If no representation is set, show this item if its representation is blank.
         const bool enable = (hit != representations.end()) ? (compObj->representation == hit->second) : compObj->representation.empty();
 
         if (enable != compObj->enable)
@@ -104,27 +108,65 @@ bool ComponentManager::hasComponentObject(SimpleIdentity compID)
 {
     std::lock_guard<std::mutex> guardLock(lock);
 
-    auto it = compObjs.find(compID);
-    return it != compObjs.end();
+    const auto it = compObjsById.find(compID);
+    return it != compObjsById.end();
 }
-    
+
 void ComponentManager::removeComponentObject(PlatformThreadInfo *threadInfo,SimpleIdentity compID, ChangeSet &changes)
 {
-    SimpleIDSet compIDs;
-    compIDs.insert(compID);
-    
+    SimpleIDSet compIDs { compID };
     removeComponentObjects(threadInfo,compIDs, changes);
 }
 
 void ComponentManager::removeComponentObjects(PlatformThreadInfo *threadInfo,const std::vector<ComponentObjectRef> &compObjs,ChangeSet &changes)
 {
     SimpleIDSet compIDs;
-    
+
     for (auto compObj: compObjs) {
         compIDs.insert(compObj->getId());
     }
-    
+
     removeComponentObjects(threadInfo,compIDs, changes);
+}
+
+void ComponentManager::removeComponentObjects_NoLock(PlatformThreadInfo *threadInfo,
+                                                     const SimpleIDSet &compIDs,
+                                                     std::vector<ComponentObjectRef> &objs)
+{
+    objs.reserve(compIDs.size());
+    for (SimpleIdentity compID : compIDs)
+    {
+        const auto it = compObjsById.find(compID);
+        if (it == compObjsById.end())
+        {
+            wkLogLevel(Warn,"Tried to delete object that doesn't exist: %d",compID);
+            return;
+        }
+
+        const ComponentObjectRef &compObj = it->second;
+
+        if (compObj->underConstruction)
+        {
+            wkLogLevel(Warn,"Deleting an object that's under construction");
+        }
+
+        if (!compObj->uuid.empty())
+        {
+            const auto range = compObjsByUUID.equal_range(compObj->uuid);
+            for (auto i = range.first; i != range.second; ++i)
+            {
+                if (i->second->getId() == compID)
+                {
+                    // "References and iterators to the erased elements are invalidated. Other references and iterators are not affected."
+                    compObjsByUUID.erase(i);
+                }
+            }
+        }
+
+        objs.push_back(compObj);
+
+        compObjsById.erase(it);
+    }
 }
 
 void ComponentManager::removeComponentObjects(PlatformThreadInfo *threadInfo,const SimpleIDSet &compIDs,ChangeSet &changes)
@@ -133,31 +175,15 @@ void ComponentManager::removeComponentObjects(PlatformThreadInfo *threadInfo,con
         return;
 
     std::vector<ComponentObjectRef> compRefs;
-    
+
     {
         // Lock around all component objects
         std::lock_guard<std::mutex> guardLock(lock);
-
-        for (SimpleIdentity compID : compIDs) {
-            auto it = compObjs.find(compID);
-            if (it == compObjs.end())
-            {
-                wkLogLevel(Warn,"Tried to delete object that doesn't exist: %d",compID);
-                return;
-            }
-            ComponentObjectRef compObj = it->second;
-            
-            if (compObj->underConstruction) {
-                wkLogLevel(Warn,"Deleting an object that's under construction");
-            }
-            
-            compRefs.push_back(compObj);
-            
-            compObjs.erase(it);
-        }
+        removeComponentObjects_NoLock(threadInfo, compIDs, compRefs);
     }
-    
-    for (ComponentObjectRef compObj : compRefs) {
+
+    for (const ComponentObjectRef &compObj : compRefs)
+    {
         // Get rid of the various layer objects
         if (!compObj->markerIDs.empty())
             markerManager->removeMarkers(compObj->markerIDs, changes);
@@ -182,7 +208,7 @@ void ComponentManager::removeComponentObjects(PlatformThreadInfo *threadInfo,con
             // Giving the fonts 2s to stick around
             //       This avoids problems with texture being paged out.
             //       Without this we lose the textures before we're done with them
-            TimeInterval when = scene->getCurrentTime() + 2.0;
+            const TimeInterval when = scene->getCurrentTime() + 2.0;
             for (SimpleIdentity dStrID : compObj->drawStringIDs)
                 fontTexManager->removeString(dStrID, changes, when);
         }
@@ -212,18 +238,20 @@ void ComponentManager::enableComponentObjects(const SimpleIDSet &compIDs,bool en
         
         for (SimpleIdentity compID : compIDs)
         {
-            auto it = compObjs.find(compID);
-            if (it == compObjs.end())
+            auto it = compObjsById.find(compID);
+            if (it == compObjsById.end())
             {
                 wkLogLevel(Warn,"Tried to enable/disable object that doesn't exist");
                 return;
             }
-            ComponentObjectRef compObj = it->second;
-            
-            if (compObj->underConstruction) {
+
+            const ComponentObjectRef &compObj = it->second;
+
+            if (compObj->underConstruction)
+            {
                 wkLogLevel(Warn,"Disable/enabled an object that's under construction");
             }
-            
+
             compRefs.push_back(compObj);
         }
     }
@@ -279,60 +307,89 @@ void ComponentManager::enableComponentObjects(const std::vector<ComponentObjectR
 
 template <typename TIter>
 void ComponentManager::setRepresentation(const std::string &repName,
+                                         const std::string &fallback,
                                          TIter beg, TIter end,
                                          ChangeSet &changes)
 {
     std::vector<ComponentObjectRef> enableObjs, disableObjs;
 
+    std::unique_lock<std::mutex> guardLock(lock);
+
+    for (; beg != end; ++beg)
     {
-        std::lock_guard<std::mutex> guardLock(lock);
+        const std::string &uuid = *beg;
 
-        for (; beg != end; ++beg)
+        if (repName.empty())
         {
-            const std::string &uuid = *beg;
-            
-            if (repName.empty())
+            // Don't store blank entries, remove them to return to default (un-set) state
+            representations.erase(uuid);
+        }
+        else
+        {
+            if (representations.empty())
             {
-                // Remove entries, return to default (un-set) state
-                representations.erase(uuid);
-            }
-            else
-            {
-                const auto insertResult = representations.insert(std::make_pair(uuid, repName));
-                if (!insertResult.second)
-                {
-                    insertResult.first->second = repName;
-                }
+                // Now that we know they're using the representation feature,
+                // bypass the first few allocation cycles when adding items.
+                representations.reserve(100);
             }
 
-            for (const auto &kvp : compObjs)
+            const auto insertResult = representations.insert(std::make_pair(uuid, repName));
+            if (!insertResult.second)
             {
-                const ComponentObjectRef &obj = kvp.second;
-                if (obj->uuid == uuid)
+                // key exists, update the value
+                insertResult.first->second = repName;
+            }
+        }
+
+        // Find all component items with matching UUIDs
+        const auto range = compObjsByUUID.equal_range(uuid);
+
+        // Put each of them in the enable or disable lists
+        disableObjs.reserve(std::distance(range.first, range.second));
+        for (auto i = range.first; i != range.second; ++i)
+        {
+            const auto &obj = i->second;
+            ((obj->representation == repName) ? enableObjs : disableObjs).push_back(obj);
+        }
+
+        // If there are no matches, enable the fallback (usually blank) representation instead.
+        if (enableObjs.empty() && !disableObjs.empty())
+        {
+            for (size_t i = 0; i < disableObjs.size(); ++i)
+            {
+                const auto &obj = disableObjs[i];
+                if (obj->representation == fallback)
                 {
-                    // Enable matches, disable non-matches
-                    ((obj->representation == repName) ? enableObjs : disableObjs).push_back(obj);
+                    // Move the item from the disable to enable list
+                    enableObjs.push_back(obj);
+                    disableObjs.erase(std::next(disableObjs.begin(), i));
                 }
             }
         }
     }
 
+    guardLock.unlock();
+
     if (!enableObjs.empty()) enableComponentObjects(enableObjs, true, changes);
     if (!disableObjs.empty()) enableComponentObjects(disableObjs, false, changes);
 }
 
-void ComponentManager::setRepresentation(const std::string &repName,
-                                         const std::set<std::string> &uuids,
-                                         ChangeSet &changes)
+void ComponentManager::setRepresentation(const std::string &repName, const std::string &fallback,
+                                         const std::vector<std::string> &uuids, ChangeSet &changes)
 {
-    setRepresentation(repName, uuids.begin(), uuids.end(), changes);
+    setRepresentation(repName, fallback, uuids.begin(), uuids.end(), changes);
 }
 
-void ComponentManager::setRepresentation(const std::string &repName,
-                                         const std::unordered_set<std::string> &uuids,
-                                         ChangeSet &changes)
+void ComponentManager::setRepresentation(const std::string &repName, const std::string &fallback,
+                                         const std::set<std::string> &uuids, ChangeSet &changes)
 {
-    setRepresentation(repName, uuids.begin(), uuids.end(), changes);
+    setRepresentation(repName, fallback, uuids.begin(), uuids.end(), changes);
+}
+
+void ComponentManager::setRepresentation(const std::string &repName, const std::string &fallback,
+                                         const std::unordered_set<std::string> &uuids, ChangeSet &changes)
+{
+    setRepresentation(repName, fallback, uuids.begin(), uuids.end(), changes);
 }
 
 void ComponentManager::setUniformBlock(const SimpleIDSet &compIDs,const RawDataRef &uniBlock,int bufferID,ChangeSet &changes)
@@ -345,19 +402,18 @@ void ComponentManager::setUniformBlock(const SimpleIDSet &compIDs,const RawDataR
         
         for (SimpleIdentity compID : compIDs)
         {
-            auto it = compObjs.find(compID);
-            if (it == compObjs.end())
+            auto it = compObjsById.find(compID);
+            if (it == compObjsById.end())
             {
                 wkLogLevel(Warn,"Tried to set uniform block on object that doesn't exist");
                 return;
             }
-            ComponentObjectRef compObj = it->second;
-            
-            compRefs.push_back(compObj);
+            compRefs.push_back(it->second);
         }
     }
     
-    for (auto compObj : compRefs) {
+    for (const auto &compObj : compRefs)
+    {
         if (shapeManager && !compObj->shapeIDs.empty()) {
             shapeManager->setUniformBlock(compObj->shapeIDs,uniBlock,bufferID,changes);
         }
@@ -380,32 +436,35 @@ std::vector<std::pair<ComponentObjectRef,VectorObjectRef> > ComponentManager::fi
     {
         std::lock_guard<std::mutex> guardLock(lock);
         
-        for (auto it: compObjs) {
-            auto compObj = it.second;
+        for (const auto &kvp: compObjsById)
+        {
+            const auto &compObj = kvp.second;
             if (compObj->enable && compObj->isSelectable && !compObj->vecObjs.empty())
+            {
                 compRefs.push_back(compObj);
+            }
         }
     }
     
     // Work through the vector objects
-    for (auto compObj: compRefs) {
-        auto center = compObj->vectorOffset;
-        Point2d coord;
-        coord.x() = pt.x()-center.x();
-        coord.y() = pt.y()-center.y();
-        
-        for (auto vecObj: compObj->vecObjs) {
-            if (vecObj->pointInside(pt)) {
-                
+    for (const auto &compObj: compRefs)
+    {
+        const auto &center = compObj->vectorOffset;
+        const Point2d coord = { pt.x()-center.x(), pt.y()-center.y() };
+
+        for (auto vecObj: compObj->vecObjs)
+        {
+            if (vecObj->pointInside(pt))
+            {
                 rets.push_back(std::make_pair(compObj, vecObj));
                 
                 if (!multi)
                     break;
                 continue;
             }
-            if (vecObj->pointNearLinear(coord, maxDist, viewState, frameSize)) {
+            if (vecObj->pointNearLinear(coord, maxDist, viewState, frameSize))
+            {
                 rets.push_back(std::make_pair(compObj, vecObj));
-
                 if (!multi)
                     break;
             }

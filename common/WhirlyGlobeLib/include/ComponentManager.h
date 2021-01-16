@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/15/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -126,14 +126,15 @@ public:
 
     /// Enable/disable a whole group of Component Objects
     virtual void enableComponentObjects(const SimpleIDSet &compIDs,bool enable,ChangeSet &changes);
-    
-    virtual void setRepresentation(const std::string &repName,
-                                   const std::set<std::string> &uuids,
-                                   ChangeSet &changes);
 
-    virtual void setRepresentation(const std::string &repName,
-                                   const std::unordered_set<std::string> &uuids,
-                                   ChangeSet &changes);
+    virtual void setRepresentation(const std::string &repName, const std::string &fallback,
+                                   const std::vector<std::string> &uuids, ChangeSet &changes);
+
+    virtual void setRepresentation(const std::string &repName, const std::string &fallback,
+                                   const std::set<std::string> &uuids, ChangeSet &changes);
+
+    virtual void setRepresentation(const std::string &repName, const std::string &fallback,
+                                   const std::unordered_set<std::string> &uuids, ChangeSet &changes);
 
     /// Set a uniform block on the geometry for the given component objects
     virtual void setUniformBlock(const SimpleIDSet &compIDs,const RawDataRef &uniBlock,int bufferID,ChangeSet &changes);
@@ -159,15 +160,19 @@ protected:
     // Subclass fills this in
     virtual ComponentObjectRef makeComponentObject(const Dictionary *desc = nullptr) = 0;
 
+    void removeComponentObjects_NoLock(PlatformThreadInfo *threadInfo,
+                                       const SimpleIDSet &compIDs,
+                                       std::vector<ComponentObjectRef> &objs);
+
     template <typename TIter>
     void setRepresentation(const std::string &repName,
+                           const std::string &fallback,
                            TIter beg, TIter end,
                            ChangeSet &changes);
 
-    ComponentObjectMap compObjs;
+    ComponentObjectMap compObjsById;
 
-    // maybe index objects by uuid...
-    //std::unordered_multimap<std::string, ComponentObjectRef> compObjsByUUID;
+    std::unordered_multimap<std::string, ComponentObjectRef> compObjsByUUID;
 
     std::unordered_map<std::string, std::string> representations;
 };

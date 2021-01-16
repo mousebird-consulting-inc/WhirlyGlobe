@@ -22,6 +22,7 @@
     NSTimer *_animationTimer;
     NSArray<MaplyComponentObject *> *_vectorObjs;
     NSArray<MaplyComponentObject *> *_markerObjs;
+    NSArray<MaplyComponentObject *> *_labelObjs;
     MaplyTexture *_dashedLineTex;
 }
 
@@ -75,9 +76,11 @@
     }
 
     const char* const vecUUID = "abc—⃘�—⃘123";
+    const char* const labelUUID = "0302eb46-7ff0-4db0-a915-ed2096bf1517";
     static const char* const reps[] = { "", "hilite", "�subtle", "detail" };
+    static const int repCount = sizeof(reps) / sizeof(reps[0]);
     static int idx = 0;
-    
+
     if (!_vectorObjs)
     {
         // First time
@@ -171,13 +174,91 @@
                 kMaplyRepresentation: @(reps[2])
             }],
         ];
+
+        auto label0 = [[MaplyScreenLabel alloc] init];
+        label0.loc = MaplyCoordinateMakeWithDegrees(100.0, -68.0);
+        label0.text = [@"rep:" stringByAppendingString:@(reps[0])];
+        label0.layoutImportance = MAXFLOAT;
+        label0.layoutPlacement = kMaplyLayoutCenter;
+
+        auto label1 = [[MaplyScreenLabel alloc] init];
+        label1.loc = MaplyCoordinateMakeWithDegrees(100.0, -68.0);
+        label1.text = [@"rep:" stringByAppendingString:@(reps[1])];
+        label1.layoutImportance = MAXFLOAT;
+        label1.layoutPlacement = kMaplyLayoutCenter;
+
+        auto label2 = [[MaplyScreenLabel alloc] init];
+        label2.loc = MaplyCoordinateMakeWithDegrees(100.0, -68.0);
+        label2.text = [@"rep:" stringByAppendingString:@(reps[2])];
+        label2.layoutImportance = MAXFLOAT;
+        label2.layoutPlacement = kMaplyLayoutCenter;
+
+        auto label3 = [[MaplyScreenLabel alloc] init];
+        label3.loc = MaplyCoordinateMakeWithDegrees(100.0, -68.0);
+        label3.text = [@"rep:" stringByAppendingString:@(reps[3])];
+        label3.layoutImportance = MAXFLOAT;
+        label3.layoutPlacement = kMaplyLayoutCenter;
+
+        _labelObjs = @[
+            [self.baseViewController addScreenLabels:@[label0] desc:@{
+                kMaplyFont: [UIFont boldSystemFontOfSize:24.0],
+                kMaplyTextOutlineColor: [UIColor whiteColor],
+                kMaplyTextOutlineSize: @1.0,
+                kMaplyTextColor: [UIColor blackColor],
+                //kMaplyDrawPriority:
+                kMaplyEnable: @(false),
+                kMaplyUUID: @(labelUUID),
+                //kMaplyRepresentation: @""    // not set
+            }],
+            [self.baseViewController addScreenLabels:@[label1] desc:@{
+                kMaplyFont: [UIFont boldSystemFontOfSize:24.0],
+                kMaplyTextOutlineColor: [UIColor whiteColor],
+                kMaplyTextOutlineSize: @1.0,
+                kMaplyTextColor: [UIColor blackColor],
+                kMaplyEnable: @(false),
+                kMaplyUUID: @(labelUUID),
+                kMaplyRepresentation: @(reps[1])
+            }],
+            // No label for "subtle", display should return to the default
+            //[self.baseViewController addScreenLabels:@[label2] desc:@{
+            //    kMaplyFont: [UIFont boldSystemFontOfSize:24.0],
+            //    kMaplyTextOutlineColor: [UIColor whiteColor],
+            //    kMaplyTextOutlineSize: @1.0,
+            //    kMaplyTextColor: [UIColor blackColor],
+            //    kMaplyEnable: @(false),
+            //    kMaplyUUID: @(labelUUID),
+            //    kMaplyRepresentation: @(reps[2])
+            //}],
+            [self.baseViewController addScreenLabels:@[label3] desc:@{
+                kMaplyFont: [UIFont boldSystemFontOfSize:24.0],
+                kMaplyTextOutlineColor: [UIColor whiteColor],
+                kMaplyTextOutlineSize: @1.0,
+                kMaplyTextColor: [UIColor blackColor],
+                kMaplyEnable: @(false),
+                kMaplyUUID: @(labelUUID),
+                kMaplyRepresentation: @(reps[3])
+            }]
+        ];
     }
     else
     {
         // Not the first time
 
-        [self.baseViewController setRepresentation:@(reps[idx]) ofUUIDs:@[@(vecUUID)]];
-        idx = (idx + 1) % (sizeof(reps) / sizeof(reps[0]));
+        // Cycle the current representation.
+        NSString *rep = @(reps[idx % repCount]);
+        [self.baseViewController setRepresentation:rep ofUUIDs:@[@(vecUUID)]];
+
+        // Alternate between the default fallback and falling back on the "detailed" representation.
+        // That is, the grey lines should correspond to "rep:" and "rep:hilite" alternatively.
+        NSString *fallback = nil;
+        if ((idx % repCount) == 2)
+        {
+            static int fb = 0;
+            fallback = (fb++ % 2) ? @(reps[1]) : nil;
+        }
+        [self.baseViewController setRepresentation:rep fallbackRepName:fallback ofUUIDs:@[@(labelUUID)]];
+        
+        idx += 1;
     }
 
     _animationTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(animationCallback) userInfo:nil repeats:NO];
@@ -192,6 +273,7 @@
 
     _vectorObjs = nil;
     _markerObjs = nil;
+    _labelObjs = nil;
     _dashedLineTex = nil;
 
     [self.baseCase stop];

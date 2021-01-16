@@ -155,10 +155,16 @@
 - (void)disableObjects:(NSArray *__nonnull)userObjs changes:(WhirlyKit::ChangeSet &)changes;
 
 // Set the representation to use for the specified UUIDs
-- (void)setRepresentation:(NSString *__nullable)repName ofUUIDs:(NSArray<NSString *> *__nonnull)uuids mode:(MaplyThreadMode)threadMode;
+- (void)setRepresentation:(NSString *__nullable)repName
+          fallbackRepName:(NSString *__nullable)fallbackRepName
+                  ofUUIDs:(NSArray<NSString *> *__nonnull)uuids
+                     mode:(MaplyThreadMode)threadMode;
 
 // Generate changes for setting the representation to use for the specified UUIDs
-- (void)setRepresentation:(NSString *__nullable)repName ofUUIDs:(NSArray<NSString *> *__nonnull)uuids changes:(WhirlyKit::ChangeSet &)changes;
+- (void)setRepresentation:(NSString *__nullable)repName
+          fallbackRepName:(NSString *__nullable)fallbackRepName
+                  ofUUIDs:(NSArray<NSString *> *__nonnull)uuids
+                  changes:(WhirlyKit::ChangeSet &)changes;
 
 // Pass through a uniform block
 - (void)setUniformBlock:(NSData *__nonnull)uniBlock buffer:(int)bufferID forObjects:(NSArray<MaplyComponentObject *> *__nonnull)compObjs mode:(MaplyThreadMode)threadMode;
