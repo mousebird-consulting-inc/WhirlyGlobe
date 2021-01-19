@@ -375,11 +375,22 @@ MapboxRegexField MapboxTransText::textForZoom(double zoom)
     return stops ? stops->textForZoom(zoom) : textField;
 }
 
+static constexpr size_t TypicalLayerCount = 500;
+
 MapboxVectorStyleSetImpl::MapboxVectorStyleSetImpl(Scene *inScene,
                                                    CoordSystem *coordSys,
-                                                   const VectorStyleSettingsImplRef &settings)
-: scene(inScene), currentID(0), tileStyleSettings(settings), coordSys(coordSys), zoomSlot(-1)
+                                                   const VectorStyleSettingsImplRef &settings) :
+    scene(inScene),
+    currentID(0),
+    tileStyleSettings(settings),
+    coordSys(coordSys),
+    zoomSlot(-1),
+    layersByName(TypicalLayerCount),
+    layersByUUID(TypicalLayerCount),
+    layersBySource(TypicalLayerCount)
 {
+    layers.reserve(TypicalLayerCount);
+
     vecManage = scene->getManager<VectorManager>(kWKVectorManager);
     wideVecManage = scene->getManager<WideVectorManager>(kWKWideVectorManager);
     markerManage = scene->getManager<MarkerManager>(kWKMarkerManager);
@@ -421,29 +432,26 @@ bool MapboxVectorStyleSetImpl::parse(PlatformThreadInfo *inst,const DictionaryRe
 {
     name = styleDict->getString(strName);
     version = styleDict->getInt(strVersion);
-    
+
     // Layers are where the action is
     const std::vector<DictionaryEntryRef> layerStyles = styleDict->getArray(strLayers);
     int which = 0;
     for (auto layerStyle : layerStyles) {
         if (layerStyle->getType() == DictTypeDictionary) {
             auto layer = MapboxVectorStyleLayer::VectorStyleLayer(inst,this,layerStyle->getDict(),(1*which + tileStyleSettings->baseDrawPriority));
-            if (!layer) {
+            if (!layer)
+            {
                 continue;
-            } else {
-                // Sort into various buckets for quick lookup
-                layersByName[layer->ident] = layer;
-                layersByUUID[layer->getUuid(inst)] = layer;
-                if (!layer->sourceLayer.empty()) {
-                    const auto it = layersBySource.find(layer->sourceLayer);
-                    if (it != layersBySource.end()) {
-                        it->second.push_back(layer);
-                    } else {
-                        layersBySource[layer->sourceLayer] = { layer };
-                    }
-                }
-                layers.push_back(layer);
             }
+
+            // Sort into various buckets for quick lookup
+            layersByName[layer->ident] = layer;
+            layersByUUID[layer->getUuid(inst)] = layer;
+            if (!layer->sourceLayer.empty())
+            {
+                layersBySource.insert(std::make_pair(layer->sourceLayer, layer));
+            }
+            layers.push_back(layer);
         }
         which++;
     }
@@ -880,7 +888,6 @@ RGBAColorRef MapboxVectorStyleSetImpl::backgroundColor(PlatformThreadInfo *inst,
     return RGBAColorRef();
 }
 
-
 std::vector<VectorStyleImplRef> MapboxVectorStyleSetImpl::stylesForFeature(PlatformThreadInfo *inst,
                                                                            const Dictionary &attrs,
                                                                            const QuadTreeIdentifier &tileID,
@@ -888,14 +895,17 @@ std::vector<VectorStyleImplRef> MapboxVectorStyleSetImpl::stylesForFeature(Platf
 {
     std::vector<VectorStyleImplRef> styles;
 
-    const auto it = layersBySource.find(layerName);
-    if (it != layersBySource.end()) {
-        styles.reserve(it->second.size() * 20);
-        for (const auto &layer : it->second) {
-            if (!layer->filter || layer->filter->testFeature(attrs, tileID)) {
-                styles.reserve(it->second.size());
-                styles.push_back(layer);
+    const auto range = layersBySource.equal_range(layerName);
+    for (auto i = range.first; i != range.second; ++i)
+    {
+        auto &layer = i->second;
+        if (!layer->filter || layer->filter->testFeature(attrs, tileID))
+        {
+            if (styles.empty())
+            {
+                styles.reserve(std::distance(range.first, range.second));
             }
+            styles.push_back(layer);
         }
     }
     
@@ -907,7 +917,15 @@ bool MapboxVectorStyleSetImpl::layerShouldDisplay(PlatformThreadInfo *inst,
                                                   const std::string &layerName,
                                                   const QuadTreeNew::Node &tileID)
 {
-    return layersBySource.find(layerName) != layersBySource.end();
+    const auto range = layersBySource.equal_range(layerName);
+    for (auto i = range.first; i != range.second; ++i)
+    {
+        if (i->second->visible)
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 /// Return the style associated with the given UUID.

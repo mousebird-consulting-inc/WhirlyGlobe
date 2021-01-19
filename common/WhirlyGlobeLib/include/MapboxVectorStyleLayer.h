@@ -111,6 +111,9 @@ public:
     
     /// Category value, if set
     std::string category;
+    
+    /// @brief The specific representation for this layer (e.g., "selected")
+    std::string representation;
 };
 
 

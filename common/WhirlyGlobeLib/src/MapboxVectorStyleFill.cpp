@@ -82,10 +82,21 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
                                          const VectorTileDataRef &tileInfo,
                                          const Dictionary *desc)
 {
-    if (!visible || !(paint.color || paint.outlineColor))
+    // If a representation is set, we produce results for non-visible layers
+    if (!visible /*&& representation.empty()*/)
+    {
         return;
-        
+    }
+
+    if (!paint.color && !paint.outlineColor)
+    {
+        return;
+    }
+
     const auto compObj = styleSet->makeComponentObject(inst, desc);
+
+    // not currently supported
+    //compObj->representation = representation;
 
     // Gather all the areal features for fill and/or outline
     std::vector<VectorShapeRef> shapes;

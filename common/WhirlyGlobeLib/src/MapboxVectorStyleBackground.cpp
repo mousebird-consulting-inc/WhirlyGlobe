@@ -113,8 +113,12 @@ void MapboxVectorLayerBackground::buildObjects(PlatformThreadInfo *inst,
     if (const auto vecID = styleSet->vecManage->addVectors(&tessShapes, vecInfo, tileInfo->changes))
     {
         const auto compObj = styleSet->makeComponentObject(inst, desc);
+
+        // not currently supported
+        //compObj->representation = representation;
+
         compObj->vectorIDs.insert(vecID);
-        
+
         styleSet->compManage->addComponentObject(compObj, tileInfo->changes);
         tileInfo->compObjs.push_back(compObj);
     }

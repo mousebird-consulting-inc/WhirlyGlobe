@@ -91,12 +91,12 @@ MapboxVectorStyleLayerRef MapboxVectorStyleLayer::VectorStyleLayer(PlatformThrea
         auto filterArray = layerDict->getArray("filter");
         layer->filter->parse(filterArray,styleSet);
     }
-    
+
     layer->visible = styleSet->boolValue("visibility", layerDict->getDict("layout"), "visible", true);
     layer->selectable = styleSet->tileStyleSettings->selectable;
-    
     layer->metadata = layerDict->getDict("metadata");
-    
+    layer->representation = layerDict->getString("X-Maply-Representation");
+
     return layer;
 }
 

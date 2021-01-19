@@ -124,8 +124,11 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
                                          const VectorTileDataRef &tileInfo,
                                          const Dictionary *desc)
 {
-    if (!visible)
+    // If a representation is set, we produce results for non-visible layers
+    if (!visible && representation.empty())
+    {
         return;
+    }
 
     // Turn into linears (if not already) and then clip to the bounds
     // Slightly different, but we want to clip all the areals that are converted to linears
@@ -251,7 +254,9 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
 
         // Generate one component object per unique UUID (including blank)
         const auto compObj = styleSet->makeComponentObject(inst, desc);
+
         compObj->uuid = uuid;
+        compObj->representation = representation;
 
         if (const auto wideVecID = styleSet->wideVecManage->addVectors(shapes, vecInfo, tileInfo->changes))
         {

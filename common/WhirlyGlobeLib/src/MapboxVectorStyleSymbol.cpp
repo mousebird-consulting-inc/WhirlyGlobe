@@ -367,11 +367,14 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                                            const VectorTileDataRef &tileInfo,
                                            const Dictionary *desc)
 {
-    if (!visible)
+    // If a representation is set, we produce results for non-visible layers
+    if (!visible && representation.empty())
+    {
         return;
+    }
 
     const auto zoomLevel = tileInfo->ident.level;
-    
+
     using MarkerPtrVec = std::vector<WhirlyKit::Marker*>;
     using VecObjRefVec = std::vector<VectorObjectRef>;
     using LabelRefVec = std::vector<SingleLabelRef>;
@@ -665,7 +668,9 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
 
         // Generate one component object per unique UUID (including blank)
         const auto compObj = styleSet->makeComponentObject(inst, desc);
+
         compObj->uuid = uuid;
+        compObj->representation = representation;
 
         if (selectable)
         {

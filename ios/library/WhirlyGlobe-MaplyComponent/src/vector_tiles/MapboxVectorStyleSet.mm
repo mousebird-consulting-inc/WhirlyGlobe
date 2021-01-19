@@ -47,11 +47,12 @@ using namespace WhirlyKit;
     if (settings)
         styleSettings = settings->impl;
     else
-        styleSettings = VectorStyleSettingsImplRef(new VectorStyleSettingsImpl([UIScreen mainScreen].scale));
-    
-    MapboxVectorStyleSetImpl_iOS *styleSetImpl = new MapboxVectorStyleSetImpl_iOS([viewC getRenderControl]->scene,[viewC getRenderControl]->visualView->coordAdapter->getCoordSystem(),styleSettings);
-    style = MapboxVectorStyleSetImpl_iOSRef(styleSetImpl);
-    styleSetImpl->viewC = viewC;
+        styleSettings = std::make_shared<VectorStyleSettingsImpl>([UIScreen mainScreen].scale);
+
+    style = std::make_shared<MapboxVectorStyleSetImpl_iOS>([viewC getRenderControl]->scene,
+                                                           [viewC getRenderControl]->visualView->coordAdapter->getCoordSystem(),
+                                                           styleSettings);
+    style->viewC = viewC;
 
 //    iosDictionaryRef dictWrap(new iosDictionary(styleDict));
 

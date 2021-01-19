@@ -336,13 +336,13 @@ public:
     std::vector<MapboxVectorStyleLayerRef> layers;
 
     /// @brief Layers sorted by their ID
-    std::map<std::string, MapboxVectorStyleLayerRef> layersByName;
-    
+    std::unordered_map<std::string, MapboxVectorStyleLayerRef> layersByName;
+
     /// Layers sorted by UUID
-    std::map<long long, MapboxVectorStyleLayerRef> layersByUUID;
+    std::unordered_map<long long, MapboxVectorStyleLayerRef> layersByUUID;
 
     /// @brief Layers sorted by source layer name
-    std::map<std::string, std::vector<MapboxVectorStyleLayerRef> > layersBySource;
+    std::unordered_multimap<std::string, MapboxVectorStyleLayerRef> layersBySource;
 
     VectorManagerRef vecManage;
     WideVectorManagerRef wideVecManage;

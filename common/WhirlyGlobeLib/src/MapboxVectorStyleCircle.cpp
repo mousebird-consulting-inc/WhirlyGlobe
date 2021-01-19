@@ -80,8 +80,11 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
                                            const VectorTileDataRef &tileInfo,
                                            const Dictionary *desc)
 {
-    if (!visible)
+    // If a representation is set, we produce results for non-visible layers
+    if (!visible && representation.empty())
+    {
         return;
+    }
 
     using MarkerPtrVec = std::vector<WhirlyKit::Marker*>;
     using VecObjRefVec = std::vector<VectorObjectRef>;
@@ -165,6 +168,7 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
         const auto compObj = styleSet->makeComponentObject(inst, desc);
 
         compObj->uuid = uuid;
+        compObj->representation = representation;
 
         // Keep the vector objects around if they need to be selectable
         if (selectable)
