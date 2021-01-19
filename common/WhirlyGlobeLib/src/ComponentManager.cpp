@@ -24,6 +24,9 @@
 namespace WhirlyKit
 {
 
+static constexpr size_t TypicalRepUUIDs = 100;
+static constexpr size_t TypicalUUIDComps = 1000;
+
 ComponentObject::ComponentObject()
     : vectorOffset(0.0,0.0)
     , isSelectable(false)
@@ -87,6 +90,11 @@ void ComponentManager::addComponentObject(const ComponentObjectRef &compObj, Cha
     // Does the new object have a UUID?
     if (!compObj->uuid.empty())
     {
+        if (compObjsByUUID.empty())
+        {
+            compObjsByUUID.reserve(TypicalUUIDComps);
+        }
+        
         // track it by that UUID
         compObjsByUUID.insert(std::make_pair(compObj->uuid, compObj));
 
@@ -153,12 +161,16 @@ void ComponentManager::removeComponentObjects_NoLock(PlatformThreadInfo *threadI
         if (!compObj->uuid.empty())
         {
             const auto range = compObjsByUUID.equal_range(compObj->uuid);
-            for (auto i = range.first; i != range.second; ++i)
+            for (auto i = range.first; i != range.second; )
             {
                 if (i->second->getId() == compID)
                 {
                     // "References and iterators to the erased elements are invalidated. Other references and iterators are not affected."
-                    compObjsByUUID.erase(i);
+                    i = compObjsByUUID.erase(i);
+                }
+                else
+                {
+                    ++i;
                 }
             }
         }
@@ -330,7 +342,7 @@ void ComponentManager::setRepresentation(const std::string &repName,
             {
                 // Now that we know they're using the representation feature,
                 // bypass the first few allocation cycles when adding items.
-                representations.reserve(100);
+                representations.reserve(TypicalRepUUIDs);
             }
 
             const auto insertResult = representations.insert(std::make_pair(uuid, repName));
