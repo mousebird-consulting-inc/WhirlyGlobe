@@ -920,7 +920,7 @@ bool MapboxVectorStyleSetImpl::layerShouldDisplay(PlatformThreadInfo *inst,
     const auto range = layersBySource.equal_range(layerName);
     for (auto i = range.first; i != range.second; ++i)
     {
-        if (i->second->visible)
+        if (i->second->visible || !i->second->representation.empty())
         {
             return true;
         }
