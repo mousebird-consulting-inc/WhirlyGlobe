@@ -23,20 +23,7 @@
 
 using namespace WhirlyKit;
 
-// Encapsulates a single tile load request
-@interface MaplySimpleTileFetchInfo : NSObject
-
-@property (nonatomic,assign) int x;
-@property (nonatomic,assign) int y;
-@property (nonatomic,assign) int level;
-
-@end
-
 @implementation MaplySimpleTileFetchInfo
-@end
-
-// Internal object used by the QuadImageLoader to generate tile load info
-@interface MaplySimpleTileInfo : NSObject<MaplyTileInfoNew>
 @end
 
 @implementation MaplySimpleTileInfo
