@@ -73,7 +73,8 @@ public:
     SimpleIdentity circleTexID;
     Point2f circleSize;
     float importance;
-    std::string uuidField;
+    std::string uuidField;      // UUID field for markers/labels (from style settings)
+    std::string repUUIDField;   // UUID field for representations (from style layers)
 };
 
 }

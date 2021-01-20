@@ -89,7 +89,8 @@ public:
     double fade;
     SimpleIdentity filledLineTexID;
 
-    std::string uuidField;
+    std::string uuidField;      // UUID field for markers/labels (from style settings)
+    std::string repUUIDField;   // UUID field for representations (from style layers)
 };
 
 }

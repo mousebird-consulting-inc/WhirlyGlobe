@@ -108,9 +108,12 @@ bool MapboxVectorLayerLine::parse(PlatformThreadInfo *inst,
     }
     fade = styleSet->doubleValue("fade",styleEntry,0.0);
 
-    lineScale = styleSet->tileStyleSettings->lineScale;
+    repUUIDField = styleSet->stringValue("X-Maply-RepresentationUUIDField", styleEntry, std::string());
 
+    lineScale = styleSet->tileStyleSettings->lineScale;
+    
     uuidField = styleSet->tileStyleSettings->uuidField;
+    uuidField = styleSet->stringValue("X-Maply-UUIDField", styleEntry, uuidField);
 
     return true;
 }
@@ -237,7 +240,7 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
         }
 
         const auto attrs = vecObj->getAttributes();
-        const auto uuid = uuidField.empty() ? std::string() : attrs->getString(uuidField);
+        const auto uuid = repUUIDField.empty() ? std::string() : attrs->getString(repUUIDField);
 
         // Look up the vectors of markers/objects for this uuid (including blank), inserting empty ones if necessary
         const auto result = shapesByUUID.insert(std::make_pair(std::ref(uuid), ShapeRefVec()));

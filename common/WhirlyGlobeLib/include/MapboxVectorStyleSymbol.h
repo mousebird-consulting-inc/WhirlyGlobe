@@ -129,7 +129,8 @@ public:
 
     /// If set, only one label with its text will be displayed.  Sorted out by the layout manager.
     bool uniqueLabel;
-    std::string uuidField;
+    std::string uuidField;      // UUID field for markers/labels (from style settings)
+    std::string repUUIDField;   // UUID field for representations (from style layers)
     bool useZoomLevels;
 };
 

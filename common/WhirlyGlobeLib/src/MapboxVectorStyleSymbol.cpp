@@ -48,7 +48,7 @@ bool MapboxVectorSymbolLayout::parse(PlatformThreadInfo *inst,
         textFontArray = styleEntry->getArray("text-font");
     if (!textFontArray.empty()) {
         for (int ii=0;ii<textFontArray.size();ii++) {
-            std::string textField = textFontArray[ii]->getString();
+            const std::string &textField = textFontArray[ii]->getString();
             if (!textField.empty())
                 textFontNames.push_back(textField);
         }
@@ -60,7 +60,7 @@ bool MapboxVectorSymbolLayout::parse(PlatformThreadInfo *inst,
     textMaxWidth = styleSet->transDouble("text-max-width", styleEntry, 10.0);
     textSize = styleSet->transDouble("text-size", styleEntry, 24.0);
 
-    auto offsetEntries = styleSet->arrayValue("text-offset", styleEntry);
+    const auto offsetEntries = styleSet->arrayValue("text-offset", styleEntry);
     textOffsetX = (offsetEntries.size() > 0) ? styleSet->transDouble(offsetEntries[0], 0) : MapboxTransDoubleRef();
     textOffsetY = (offsetEntries.size() > 1) ? styleSet->transDouble(offsetEntries[1], 0) : MapboxTransDoubleRef();
 
@@ -74,9 +74,9 @@ bool MapboxVectorSymbolLayout::parse(PlatformThreadInfo *inst,
     textJustifySet = (styleEntry && styleEntry->getEntry("text-justify"));
     textJustify = styleEntry ? (TextJustify)styleSet->enumValue(styleEntry->getEntry("text-justify"), justifyVals, WhirlyKitTextCenter) : WhirlyKitTextCenter;
     
-    iconImageField = styleSet->transText("icon-image", styleEntry, "");
+    iconImageField = styleSet->transText("icon-image", styleEntry, std::string());
     iconSize = styleSet->transDouble("icon-size", styleEntry, 1.0);
-    
+
     return true;
 }
 
@@ -109,9 +109,12 @@ bool MapboxVectorLayerSymbol::parse(PlatformThreadInfo *inst,
         return false;
 
     uniqueLabel = styleSet->boolValue("unique-label", styleEntry, "yes", false);
-    
+
+    repUUIDField = styleSet->stringValue("X-Maply-RepresentationUUIDField", styleEntry, std::string());
+
     uuidField = styleSet->tileStyleSettings->uuidField;
-    
+    uuidField = styleSet->stringValue("X-Maply-UUIDField", styleEntry, uuidField);
+
     useZoomLevels = styleSet->tileStyleSettings->useZoomLevels;
 
     drawPriority = inDrawPriority;
@@ -481,7 +484,7 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
         }
 
         const auto &attrs = vecObj->getAttributes();
-        const auto uuid = uuidField.empty() ? std::string() : attrs->getString(uuidField);
+        const auto uuid = repUUIDField.empty() ? std::string() : attrs->getString(repUUIDField);
 
         MarkerPtrVec* markers = nullptr;
         VecObjRefVec* vecObjs = nullptr;

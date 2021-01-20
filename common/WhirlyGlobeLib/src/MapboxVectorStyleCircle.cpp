@@ -62,7 +62,10 @@ bool MapboxVectorLayerCircle::parse(PlatformThreadInfo *inst,
     // Larger circles are slightly more important
     importance = drawPriority/1000 + styleSet->tileStyleSettings->markerImportance + maxRadius / 100000.0;
 
+    repUUIDField = styleSet->stringValue("X-Maply-RepresentationUUIDField", styleEntry, std::string());
+
     uuidField = styleSet->tileStyleSettings->uuidField;
+    uuidField = styleSet->stringValue("X-Maply-UUIDField", styleEntry, uuidField);
 
     return true;
 }
@@ -108,6 +111,7 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
     }
 
     std::vector<std::unique_ptr<WhirlyKit::Marker>> markerOwner; // automatic cleanup of local temporary allocations
+    const auto emptyVal = std::make_pair(MarkerPtrVec(), VecObjRefVec());
     for (const auto &vecObj : vecObjs)
     {
         if (vecObj->getVectorType() != VectorPointType)
@@ -139,10 +143,10 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
                 marker->layoutImportance = MAXFLOAT;    //importance + (101-tileInfo->ident.level)/100.0;
                 marker->uniqueID = uuidField.empty() ? std::string() : attrs->getString(uuidField);
 
+                const std::string repUUID = repUUIDField.empty() ? std::string() : attrs->getString(repUUIDField);
+
                 // Look up the vectors of markers/objects for this uuid (including blank), inserting empty ones if necessary
-                const auto result = markersByUUID.insert(std::make_pair(std::ref(marker->uniqueID),
-                                                                        std::make_pair(MarkerPtrVec(),
-                                                                                       VecObjRefVec())));
+                const auto result = markersByUUID.insert(std::make_pair(repUUID, emptyVal));
 
                 auto &markers = result.first->second.first;
                 auto &vecObjs = result.first->second.second;
