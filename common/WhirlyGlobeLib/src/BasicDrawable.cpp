@@ -440,7 +440,7 @@ void BasicDrawableScreenTexTweaker::tweakForFrame(Drawable *draw,RendererFrameIn
 {
     BasicDrawable *basicDraw = dynamic_cast<BasicDrawable *>(draw);
 
-    if (frameInfo->program)
+    if (basicDraw && frameInfo->program)
     {
         Vector4f screenPt = frameInfo->mvpMat * Vector4f(centerPt.x(),centerPt.y(),centerPt.z(),1.0);
         screenPt /= screenPt.w();
@@ -469,38 +469,34 @@ ColorChangeRequest::ColorChangeRequest(SimpleIdentity drawId,RGBAColor inColor)
 
 void ColorChangeRequest::execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw)
 {
-    BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
-    if (basicDrawable)
+    if (auto basicDrawable = dynamic_cast<BasicDrawable*>(draw.get()))
     {
         basicDrawable->setOverrideColor(color);
-    } else {
-        BasicDrawableInstanceRef basicDrawInst = std::dynamic_pointer_cast<BasicDrawableInstance>(draw);
-        if (basicDrawInst)
-            basicDrawInst->setColor(RGBAColor(color[0],color[1],color[2],color[3]));
+    }
+    else if (auto basicDrawInst = dynamic_cast<BasicDrawableInstance*>(draw.get()))
+    {
+        basicDrawInst->setColor(RGBAColor(color[0],color[1],color[2],color[3]));
     }
 }
 
 OnOffChangeRequest::OnOffChangeRequest(SimpleIdentity drawId,bool OnOff)
 : DrawableChangeRequest(drawId), newOnOff(OnOff)
 {
-    
 }
 
 void OnOffChangeRequest::execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw)
 {
-    BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
-    if (basicDrawable) {
+    if (auto basicDrawable = dynamic_cast<BasicDrawable*>(draw.get()))
+    {
         basicDrawable->setOnOff(newOnOff);
     }
-    else {
-        BasicDrawableInstanceRef basicDrawInst = std::dynamic_pointer_cast<BasicDrawableInstance>(draw);
-        if (basicDrawInst)
-            basicDrawInst->setEnable(newOnOff);
-        else {
-            ParticleSystemDrawableRef partSys = std::dynamic_pointer_cast<ParticleSystemDrawable>(draw);
-            if (partSys)
-                partSys->setOnOff(newOnOff);
-        }
+    else if (auto basicDrawInst = dynamic_cast<BasicDrawableInstance*>(draw.get()))
+    {
+        basicDrawInst->setEnable(newOnOff);
+    }
+    else if (auto partSys = dynamic_cast<ParticleSystemDrawable*>(draw.get()))
+    {
+        partSys->setOnOff(newOnOff);
     }
 }
 
@@ -511,11 +507,12 @@ VisibilityChangeRequest::VisibilityChangeRequest(SimpleIdentity drawId,float min
 
 void VisibilityChangeRequest::execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw)
 {
-    BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
-    if (basicDrawable)
+    if (auto basicDrawable = dynamic_cast<BasicDrawable*>(draw.get()))
+    {
         basicDrawable->setVisibleRange(minVis,maxVis);
-    else {
-        BasicDrawableInstanceRef basicDrawInst = std::dynamic_pointer_cast<BasicDrawableInstance>(draw);
+    }
+    else if (auto basicDrawInst = dynamic_cast<BasicDrawableInstance*>(draw.get()))
+    {
         basicDrawInst->setVisibleRange(minVis, maxVis);
     }
 }
@@ -529,8 +526,7 @@ FadeChangeRequest::FadeChangeRequest(SimpleIdentity drawId,TimeInterval fadeUp,T
 void FadeChangeRequest::execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw)
 {
     // Fade it out, then remove it
-    BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
-    if (basicDrawable)
+    if (auto basicDrawable = dynamic_cast<BasicDrawable*>(draw.get()))
     {
         basicDrawable->setFade(fadeDown, fadeUp);
     }

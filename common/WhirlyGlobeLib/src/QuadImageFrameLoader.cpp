@@ -1187,15 +1187,15 @@ void QuadImageFrameLoader::updateRenderState(ChangeSet &changes)
     }
     
     // Work through the tiles, figuring out textures and objects
-    for (auto tileIt : tiles) {
-        auto tileID = tileIt.first;
-        auto tile = tileIt.second;
+    for (const auto &tileIt : tiles) {
+        const auto tileID = tileIt.first;
+        const auto tile = tileIt.second;
         
         // Enable/disable the various visual objects
-        bool enable = tile->getShouldEnable() || !params.singleLevel;
-        auto compObjIDs = tile->getCompObjs();
+        const bool enable = tile->getShouldEnable() || !params.singleLevel;
+        const auto compObjIDs = tile->getCompObjs();
         if (!compObjIDs.empty())
-            compManager->enableComponentObjects(compObjIDs, enable, changes);
+            compManager->enableComponentObjects(compObjIDs, enable, changes, /*resolveReps=*/true);
 
         // Only turn on the overlays if the Tile ID is one of the overlay level
         bool ovlEnable = enable && (tileID.level == curOvlLevel);

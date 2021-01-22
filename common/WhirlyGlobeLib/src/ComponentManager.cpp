@@ -231,26 +231,46 @@ void ComponentManager::removeComponentObjects(PlatformThreadInfo *threadInfo,con
         }
     }
 }
-    
-void ComponentManager::enableComponentObject(SimpleIdentity compID, bool enable, ChangeSet &changes)
-{
-    SimpleIDSet compIDs;
-    compIDs.insert(compID);
-    
-    enableComponentObjects(compIDs, enable, changes);
-}
 
-void ComponentManager::enableComponentObjects(const SimpleIDSet &compIDs,bool enable,ChangeSet &changes)
+void ComponentManager::enableComponentObject(SimpleIdentity compID, bool enable, ChangeSet &changes, bool resolveReps)
 {
-    std::vector<ComponentObjectRef> compRefs;
-    
+    ComponentObjectRef compRef;
+
     {
         // Lock around all component objects
         std::lock_guard<std::mutex> guardLock(lock);
-        
+    
+        const auto it = compObjsById.find(compID);
+        if (it == compObjsById.end())
+        {
+            wkLogLevel(Warn,"Tried to enable/disable object that doesn't exist");
+            return;
+        }
+
+        compRef = it->second;
+
+        if (compRef->underConstruction)
+        {
+            wkLogLevel(Warn,"Disable/enabled an object that's under construction");
+        }
+    }
+
+    enableComponentObject(compRef, enable, changes, resolveReps);
+}
+
+
+void ComponentManager::enableComponentObjects(const SimpleIDSet &compIDs,bool enable,ChangeSet &changes, bool resolveReps)
+{
+    std::vector<ComponentObjectRef> compRefs;
+    compRefs.reserve(compIDs.size());
+
+    {
+        // Lock around all component objects
+        std::lock_guard<std::mutex> guardLock(lock);
+    
         for (SimpleIdentity compID : compIDs)
         {
-            auto it = compObjsById.find(compID);
+            const auto it = compObjsById.find(compID);
             if (it == compObjsById.end())
             {
                 wkLogLevel(Warn,"Tried to enable/disable object that doesn't exist");
@@ -268,10 +288,49 @@ void ComponentManager::enableComponentObjects(const SimpleIDSet &compIDs,bool en
         }
     }
 
-    enableComponentObjects(compRefs, enable, changes);
+    enableComponentObjects(compRefs, enable, changes, resolveReps);
 }
 
-void ComponentManager::enableComponentObject(const ComponentObjectRef &compObj, bool enable, ChangeSet &changes)
+// Determine the new state for "that" given a change to "this."
+static bool ResolveRepresentationState(const ComponentObjectRef &thisObj, const ComponentObjectRef &thatObj)
+{
+    assert(thisObj->uuid == thatObj->uuid && !thisObj->uuid.empty());
+
+    bool const enable = thisObj->enable;
+    if (thisObj.get() == thatObj.get())
+    {
+        return enable;
+    }
+    else if (thatObj->representation == thisObj->representation)
+    {
+        // Another instance of the same representation.
+        // For example, there may be two versions while transitioning between
+        // levels, or the same object may appear in multiple tiles of a dataset.
+        // Apply the same state to it.
+        return enable;
+    }
+    else if (thisObj->representation.empty())
+    {
+        // If the default representation is being enabled, disable others
+        // If it's being disabled, don't mess with the others.
+        return !enable || thatObj->enable;
+    }
+    // If a non-default state is being enabled, disable others
+    else if (enable)
+    {
+        return false;
+    }
+    // If a non-default state is being disabled, enable the default state
+    else if (thatObj->representation.empty())
+    {
+        return true;
+    }
+
+    // No change
+    return thatObj->enable;
+}
+
+void ComponentManager::enableComponentObject(const ComponentObjectRef &compObj, bool enable, ChangeSet &changes, bool resolveReps)
 {
     // Note: Should lock just around this component object
     //       But I'm not sure I want one std::mutex per object
@@ -307,13 +366,73 @@ void ComponentManager::enableComponentObject(const ComponentObjectRef &compObj, 
             partSysManager->enableParticleSystem(it, enable, changes);
         }
     }
+
+    // Handle the other representations of the same thing?
+    if (resolveReps && !compObj->uuid.empty())
+    {
+        // Consider all the objects we know about with this same uuid
+        for (auto i = compObjsByUUID.equal_range(compObj->uuid); i.first != i.second; ++i.first)
+        {
+            // If the desired state is not the state it's in, toggle it
+            const auto &otherObj = i.first->second;
+            if (ResolveRepresentationState(compObj, otherObj) != otherObj->enable)
+            {
+                enableComponentObject(otherObj, !otherObj->enable, changes, false);
+            }
+        }
+    }
 }
 
-void ComponentManager::enableComponentObjects(const std::vector<ComponentObjectRef> &compRefs, bool enable, ChangeSet &changes)
+static const std::less<std::string> DefStringLess;
+static inline bool HasUUID(const ComponentObjectRef &obj)
 {
+    return !obj->uuid.empty();
+}
+static inline bool ByUUIDThenRep(const ComponentObjectRef &l, const ComponentObjectRef &r)
+{
+    return DefStringLess(l->uuid, r->uuid) ||       // less
+        (!DefStringLess(r->uuid, l->uuid) &&        // equal
+          DefStringLess(l->representation, r->representation));
+}
+
+void ComponentManager::enableComponentObjects(const std::vector<ComponentObjectRef> &compRefs, bool enable,
+                                              ChangeSet &changes, bool resolveReps)
+{
+    // It's probably worth an array scan here to avoid unnecessary heap allocations
+    if (resolveReps && compRefs.size() > 1 &&
+        std::any_of(compRefs.begin(), compRefs.end(), HasUUID))
+    {
+        // make a copy, sorted by uuid then by representation
+        std::vector<ComponentObjectRef> sorted(compRefs.size());
+        std::partial_sort_copy(compRefs.begin(), compRefs.end(), sorted.begin(), sorted.end(), ByUUIDThenRep);
+
+        // Iterate the sorted copy by groups of uuids
+        for (auto i = sorted.begin(); i != sorted.end(); )
+        {
+            const auto &obj = *i;
+            const auto groupEnd = std::find_if(i, sorted.end(), [&](const auto &j) { return j->uuid != obj->uuid; });
+            const auto next = obj->uuid.empty() ? groupEnd : std::next(i);
+
+            // For items with no uuid, just call each of them normally.
+            // For items with a uuid, enable or disable the first item in each group, which
+            // will be the default representation (blank) if it's present.  The logic in the
+            // single-item version of enableComponentObject will take care of the rest.
+            for (; i != next; ++i)
+            {
+                enableComponentObject(*i, enable, changes, true);
+            }
+
+            i = groupEnd;
+        }
+        return;
+    }
+
+    // Don't resolve individual items unless we skipped the above because there's only one item.
+    resolveReps = resolveReps && (compRefs.size() == 1);
+
     for (const auto &compObj : compRefs)
     {
-        enableComponentObject(compObj, enable, changes);
+        enableComponentObject(compObj, enable, changes, resolveReps);
     }
 }
 

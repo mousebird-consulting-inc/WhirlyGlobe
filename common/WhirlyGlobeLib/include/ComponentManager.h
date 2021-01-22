@@ -116,16 +116,16 @@ public:
     virtual void removeComponentObjects(PlatformThreadInfo *threadInfo,const std::vector<ComponentObjectRef> &compObjs,ChangeSet &changes);
 
     /// Enable/disable the contents of a Component Object
-    virtual void enableComponentObject(SimpleIdentity compID,bool enable,ChangeSet &changes);
+    virtual void enableComponentObject(SimpleIdentity compID,bool enable,ChangeSet &changes, bool resolveReps = false);
 
     /// Enable/disable the contents of a Component Object
-    void enableComponentObject(const ComponentObjectRef &compID, bool enable, ChangeSet &changes);
+    virtual void enableComponentObject(const ComponentObjectRef &compID, bool enable, ChangeSet &changes, bool resolveReps = false);
 
     /// Enable/disable the contents of a collection of Component Objects
-    void enableComponentObjects(const std::vector<ComponentObjectRef> &compIDs, bool enable, ChangeSet &changes);
+    virtual void enableComponentObjects(const std::vector<ComponentObjectRef> &compIDs, bool enable, ChangeSet &changes, bool resolveReps = false);
 
     /// Enable/disable a whole group of Component Objects
-    virtual void enableComponentObjects(const SimpleIDSet &compIDs,bool enable,ChangeSet &changes);
+    virtual void enableComponentObjects(const SimpleIDSet &compIDs,bool enable,ChangeSet &changes, bool resolveReps = false);
 
     virtual void setRepresentation(const std::string &repName, const std::string &fallback,
                                    const std::vector<std::string> &uuids, ChangeSet &changes);
