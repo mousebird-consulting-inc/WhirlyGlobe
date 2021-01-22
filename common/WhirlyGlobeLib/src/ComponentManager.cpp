@@ -105,10 +105,7 @@ void ComponentManager::addComponentObject(const ComponentObjectRef &compObj, Cha
         // If no representation is set, show this item if its representation is blank.
         const bool enable = (hit != representations.end()) ? (compObj->representation == hit->second) : compObj->representation.empty();
 
-        if (enable != compObj->enable)
-        {
-            enableComponentObject(compObj, enable, changes);
-        }
+        enableComponentObject(compObj, enable, changes);
     }
 }
 
