@@ -70,8 +70,7 @@ bool MapboxVectorLayerLine::parse(PlatformThreadInfo *inst,
                                   const MapboxVectorStyleLayerRef &refLayer,
                                   int drawPriority)
 {
-    if (!styleEntry ||
-        !MapboxVectorStyleLayer::parse(inst, styleEntry,refLayer,drawPriority) ||
+    if (!MapboxVectorStyleLayer::parse(inst, styleEntry,refLayer,drawPriority) ||
         !layout.parse(inst, styleSet, styleEntry->getDict("layout")) ||
         !paint.parse(inst, styleSet, styleEntry->getDict("paint")))
     {

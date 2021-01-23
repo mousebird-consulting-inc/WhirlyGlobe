@@ -28,6 +28,10 @@ bool MapboxVectorLayerRaster::parse(PlatformThreadInfo *inst,
                                     const MapboxVectorStyleLayerRef &refLayer,
                                     int drawPriority)
 {
+    if (!MapboxVectorStyleLayer::parse(inst,styleEntry,refLayer,drawPriority))
+    {
+        return false;
+    }
     return true;
 }
 

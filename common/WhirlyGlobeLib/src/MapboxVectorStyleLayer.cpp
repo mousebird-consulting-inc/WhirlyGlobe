@@ -115,9 +115,14 @@ bool MapboxVectorStyleLayer::parse(PlatformThreadInfo *inst,
                                    const MapboxVectorStyleLayerRef &refLayer,
                                    int inDrawPriority)
 {
+    if (!styleEntry)
+    {
+        return false;
+    }
+
     drawPriority = inDrawPriority;
     uuid = styleSet->generateID();
-    
+
     ident = styleEntry->getString("id");
     source = styleSet->stringValue("source", styleEntry, refLayer ? refLayer->source : std::string());
     sourceLayer = styleSet->stringValue("source-layer", styleEntry, refLayer ? refLayer->sourceLayer : std::string());

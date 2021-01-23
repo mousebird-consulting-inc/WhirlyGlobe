@@ -53,8 +53,7 @@ bool MapboxVectorLayerFill::parse(PlatformThreadInfo *inst,
                                   const MapboxVectorStyleLayerRef &refLayer,
                                   int inDrawPriority)
 {
-    if (!styleEntry ||
-        !MapboxVectorStyleLayer::parse(inst,styleEntry,refLayer,drawPriority) ||
+    if (!MapboxVectorStyleLayer::parse(inst,styleEntry,refLayer,drawPriority) ||
         !paint.parse(inst,styleSet,styleEntry->getDict("paint")))
     {
         return false;
