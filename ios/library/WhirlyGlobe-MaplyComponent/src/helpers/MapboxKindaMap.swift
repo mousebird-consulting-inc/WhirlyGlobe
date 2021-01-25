@@ -645,7 +645,6 @@ public class MapboxKindaMap {
         outstandingFetches.forEach {
             $0?.cancel()
         }
-        outstandingFetches = []
 
         loader?.shutdown()
         loader = nil
