@@ -51,6 +51,7 @@
     MaplyLocationLockType _lockType;
     int _forwardTrackOffset;
     int _markerDrawPriority;
+    bool updateLocationScheduled;
 }
 
 - (nonnull instancetype)initWithViewC:(MaplyBaseViewController *__nullable)viewC delegate:(NSObject<MaplyLocationTrackerDelegate> *__nullable)delegate useHeading:(bool)useHeading useCourse:(bool)useCourse simulate:(bool)simulate {
@@ -342,7 +343,18 @@
     return shapeCircle;
 }
 
+// When using a simulated track, locations seem to come in fast and furious, overwhelming the renderer.
+// This slows things down to a level that can actually be seen
 - (void)updateLocation:(CLLocation *)location {
+    if (!updateLocationScheduled) {
+        updateLocationScheduled = true;
+        [self performSelector:@selector(updateLocationInternal:) withObject:location afterDelay:0.0];
+    }
+}
+
+- (void)updateLocationInternal:(CLLocation *)location {
+    updateLocationScheduled = false;
+    
     __strong MaplyBaseViewController *theViewC = _theViewC;
     if (!theViewC)
         return;
