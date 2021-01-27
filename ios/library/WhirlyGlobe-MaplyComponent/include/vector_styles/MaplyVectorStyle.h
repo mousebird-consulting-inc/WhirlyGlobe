@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 1/3/14.
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -142,7 +142,10 @@
 - (bool) geomAdditive;
 
 /// Construct objects related to this style based on the input data.
-- (void)buildObjects:(NSArray * _Nonnull)vecObjs forTile:(MaplyVectorTileData * __nonnull)tileData viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC;
+- (void)buildObjects:(NSArray * _Nonnull)vecObjs
+             forTile:(MaplyVectorTileData * __nonnull)tileData
+               viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
+                desc:(NSDictionary * _Nullable)desc;
 
 @end
 
@@ -163,7 +166,40 @@ extern "C" {
  
     @param threadMode MaplyThreadCurrent will block until all the features are added.  MaplyThreadAny will do some of the work on another thread.
  */
-NSArray * _Nonnull AddMaplyVectorsUsingStyle(NSArray * _Nonnull vecObjs,NSObject<MaplyVectorStyleDelegate> * _Nonnull styleDelegate,NSObject<MaplyRenderControllerProtocol> * _Nonnull viewC,MaplyThreadMode threadMode);
+NSArray<MaplyComponentObject*> * _Nonnull AddMaplyVectorsUsingStyle(NSArray<MaplyVectorObject*> * _Nonnull vecObjs,
+                                                                    NSObject<MaplyVectorStyleDelegate> * _Nonnull styleDelegate,
+                                                                    NSObject<MaplyRenderControllerProtocol> * _Nonnull viewC,
+                                                                    MaplyThreadMode threadMode);
+
+/**
+    Use a style delegate to interpret vector data.
+ 
+    Run the style delegate against the given vectors.  The resulting features are added to the
+ given view controller using the thread mode specified.
+ 
+    @param vecObjs An array of MaplyVectorObject.
+ 
+    @param styleDelegate The style delegate that controls how the vectors will look.
+ 
+    @param viewC View controller to add the geometry to.
+
+    @param tileId The tile where the feature originates.
+ 
+    @param enable Automatically enable the generated objects
+ 
+    @param threadMode MaplyThreadCurrent will block until all the features are added.  MaplyThreadAny will do some of the work on another thread.
+ 
+    @param desc Additional attributes to include with the generated component objects
+ */
+NSArray<MaplyComponentObject*> * _Nonnull AddMaplyVectorsUsingStyleAndAttributes(
+    NSArray<MaplyVectorObject*> * _Nonnull vecObjs,
+    NSObject<MaplyVectorStyleDelegate> * _Nonnull styleDelegate,
+    NSObject<MaplyRenderControllerProtocol> * _Nonnull viewC,
+    MaplyTileID tileId,
+    bool enable,
+    MaplyThreadMode threadMode,
+    NSDictionary * _Nullable desc);
+
 #ifdef __cplusplus
 }
 #endif

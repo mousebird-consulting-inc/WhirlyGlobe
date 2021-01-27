@@ -56,10 +56,10 @@ public:
     // Simpler version that just takes the text string
     bool parse(const std::string &textVal);
     // Parse the regex text field out of a field name string
-    bool parse(const std::string &fieldName,MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry);
+    bool parse(const std::string &fieldName,MapboxVectorStyleSetImpl *styleSet,const DictionaryRef &styleEntry);
     
     // Build the field based on the attributes
-    std::string build(DictionaryRef attrs);
+    std::string build(const DictionaryRef &attrs);
     
     std::vector<MapboxTextChunk> chunks;
     
@@ -89,7 +89,7 @@ public:
 class MaplyVectorFunctionStops
 {
 public:
-    bool parse(DictionaryRef entry,MapboxVectorStyleSetImpl *styleSet,bool isText);
+    bool parse(const DictionaryRef &entry,MapboxVectorStyleSetImpl *styleSet,bool isText);
 
     /// @brief Calculate a value given the zoom level
     double valueForZoom(double zoom);
@@ -199,11 +199,11 @@ typedef enum {
 class MapboxVectorStyleSetImpl : public VectorStyleDelegateImpl
 {
 public:
-    MapboxVectorStyleSetImpl(Scene *scene,CoordSystem *coordSys,VectorStyleSettingsImplRef settings);
+    MapboxVectorStyleSetImpl(Scene *scene,CoordSystem *coordSys,const VectorStyleSettingsImplRef &settings);
     virtual ~MapboxVectorStyleSetImpl();
     
     // Parse the entire style sheet.  False on failure
-    virtual bool parse(PlatformThreadInfo *inst,DictionaryRef dict);
+    virtual bool parse(PlatformThreadInfo *inst,const DictionaryRef &dict);
 
     /// @brief Default settings and scale factor for Mapnik vector geometry.
     VectorStyleSettingsImplRef tileStyleSettings;
@@ -317,9 +317,9 @@ public:
     
     /// Add a sprite sheet for use by the layers
     virtual void addSprites(MapboxVectorStyleSpritesRef newSprites);
-    
+
     /// Create a local platform component object
-    virtual ComponentObjectRef makeComponentObject(PlatformThreadInfo *inst) = 0;
+    virtual ComponentObjectRef makeComponentObject(PlatformThreadInfo *inst, const Dictionary *desc = nullptr) = 0;
 
 public:
     Scene *scene;
@@ -336,13 +336,13 @@ public:
     std::vector<MapboxVectorStyleLayerRef> layers;
 
     /// @brief Layers sorted by their ID
-    std::map<std::string, MapboxVectorStyleLayerRef> layersByName;
-    
+    std::unordered_map<std::string, MapboxVectorStyleLayerRef> layersByName;
+
     /// Layers sorted by UUID
-    std::map<long long, MapboxVectorStyleLayerRef> layersByUUID;
+    std::unordered_map<long long, MapboxVectorStyleLayerRef> layersByUUID;
 
     /// @brief Layers sorted by source layer name
-    std::map<std::string, std::vector<MapboxVectorStyleLayerRef> > layersBySource;
+    std::unordered_multimap<std::string, MapboxVectorStyleLayerRef> layersBySource;
 
     VectorManagerRef vecManage;
     WideVectorManagerRef wideVecManage;

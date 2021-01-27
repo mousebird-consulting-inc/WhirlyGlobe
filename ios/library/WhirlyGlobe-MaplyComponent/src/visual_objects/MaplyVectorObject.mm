@@ -138,7 +138,7 @@ using namespace WhirlyGlobe;
     return self;
 }
 
-- (instancetype)initWithLineString:(const NSArray *)inCoords attributes:(NSDictionary *)attr
+- (instancetype)initWithLineString:(const NSArray<NSNumber*> *__nonnull)inCoords attributes:(NSDictionary *)attr
 {
     const int numCoords = [inCoords count]/2;
     std::vector<MaplyCoordinate> coords(numCoords);

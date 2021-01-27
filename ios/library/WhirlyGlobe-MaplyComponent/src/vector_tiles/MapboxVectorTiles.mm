@@ -4,7 +4,7 @@
  *
  *  Created by Jesse Crocker, Trailbehind inc. on 3/31/14.
  *  Recreated by Steve Gifford on 4/10/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -53,30 +53,19 @@ using namespace WhirlyKit;
 
 - (MaplyTileID) tileID
 {
-    MaplyTileID newTileID;
-    newTileID.x = data->ident.x;
-    newTileID.y = data->ident.y;
-    newTileID.level = data->ident.level;
-    
-    return newTileID;
+    return { data->ident.x, data->ident.y, data->ident.level };
 }
 
 - (MaplyBoundingBoxD)bounds
 {
-    MaplyBoundingBoxD ret;
-    ret.ll.x = data->bbox.ll().x();  ret.ll.y = data->bbox.ll().y();
-    ret.ur.x = data->bbox.ur().x();  ret.ur.y = data->bbox.ur().y();
-    
-    return ret;
+    return { { data->bbox.ll().x(), data->bbox.ll().y() },
+             { data->bbox.ur().x(), data->bbox.ur().y() } };
 }
 
 - (MaplyBoundingBoxD)geoBounds
 {
-    MaplyBoundingBoxD ret;
-    ret.ll.x = data->geoBBox.ll().x();  ret.ll.y = data->geoBBox.ll().y();
-    ret.ur.x = data->geoBBox.ur().x();  ret.ur.y = data->geoBBox.ur().y();
-    
-    return ret;
+    return { { data->geoBBox.ll().x(), data->geoBBox.ll().y() },
+             { data->geoBBox.ur().x(), data->geoBBox.ur().y() } };
 }
 
 - (void)addComponentObject:(MaplyComponentObject *)compObj
@@ -99,10 +88,15 @@ using namespace WhirlyKit;
 - (NSArray *)componentObjects
 {
     NSMutableArray *ret = [[NSMutableArray alloc] init];
-    for (auto compObj : data->compObjs) {
-        ComponentObject_iOSRef compObjIOS = std::dynamic_pointer_cast<ComponentObject_iOS>(compObj);
-        MaplyComponentObject *newCompObj = [[MaplyComponentObject alloc] initWithRef:compObjIOS];
-        [ret addObject:newCompObj];
+    for (auto compObj : data->compObjs)
+    {
+        if (auto compObjIOS = std::dynamic_pointer_cast<ComponentObject_iOS>(compObj))
+        {
+            if (auto newCompObj = [[MaplyComponentObject alloc] initWithRef:compObjIOS])
+            {
+                [ret addObject:newCompObj];
+            }
+        }
     }
     
     return ret;

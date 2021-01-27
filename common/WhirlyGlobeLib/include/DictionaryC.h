@@ -61,6 +61,9 @@ public:
 //    bool parseJSONNode(JSONNode &node);
 //    ValueRef parseJSONValue(JSONNode::iterator &nodeIt);
 
+    virtual int count() const override { return numFields(); }
+    virtual bool empty() const override { return numFields() == 0; }
+
     /// Clean out the contents
     void clear() override;
     

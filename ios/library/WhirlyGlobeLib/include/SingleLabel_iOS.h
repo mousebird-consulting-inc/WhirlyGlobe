@@ -28,8 +28,14 @@ namespace WhirlyKit
 class SingleLabel_iOS: public SingleLabel
 {
 public:
+    SingleLabel_iOS(NSString* s = nullptr) : text(s) {}
+
     // Used to build the drawable string on specific platforms
-    virtual std::vector<DrawableString *> generateDrawableStrings(PlatformThreadInfo *threadInfo,const LabelInfo *,FontTextureManagerRef &fontTexManager,float &lineHeight,ChangeSet &changes) override;
+    virtual std::vector<DrawableString *> generateDrawableStrings(PlatformThreadInfo *threadInfo,
+                                                                  const LabelInfo *,
+                                                                  FontTextureManagerRef &fontTexManager,
+                                                                  float &lineHeight,
+                                                                  ChangeSet &changes) override;
     
     // Pass this around as an NSString
     NSString *text;
