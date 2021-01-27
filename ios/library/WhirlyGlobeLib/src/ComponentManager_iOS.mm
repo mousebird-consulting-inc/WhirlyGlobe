@@ -147,7 +147,10 @@ void ComponentManager_iOS::clear()
 void ComponentManager_iOS::dumpStats()
 {
     std::lock_guard<std::mutex> guardLock(selectLock);
-    wkLogLevel(Debug, "Component Objects: %d",selectObjectSet.size());
+    wkLogLevel(Debug, "Component Objects: %d",compObjsById.size());
+    wkLogLevel(Debug, "Selectable Objects: %d",selectObjectSet.size());
+    wkLogLevel(Debug, "Objects w/ UUID: %d",compObjsByUUID.size());
+    wkLogLevel(Debug, "Representations: %d",representations.size());
 }
-    
+
 }
