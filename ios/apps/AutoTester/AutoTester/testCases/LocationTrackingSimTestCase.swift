@@ -8,7 +8,7 @@
 
 import UIKit
 
-class LocationTrackingSimTestCase: MaplyTestCase, MaplyLocationTrackerDelegate {
+class LocationTrackingSimTestCase: MaplyTestCase, MaplyLocationTrackerDelegate, MaplyLocationSimulatorDelegate {
 
     var segCtrl: UISegmentedControl?
     var simPointIndex: Int?
@@ -35,8 +35,8 @@ class LocationTrackingSimTestCase: MaplyTestCase, MaplyLocationTrackerDelegate {
         segCtrl?.layer.cornerRadius = 4
         segCtrl?.clipsToBounds = true
         baseVC.view.addSubview(segCtrl!)
-        
-        baseVC.startLocationTracking(with: self, useHeading: true, useCourse: true, simulate: true)
+
+        baseVC.startLocationTracking(with: self, simulator: self, simInterval: 0.5, useHeading: true, useCourse: true)
     }
     
     override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {

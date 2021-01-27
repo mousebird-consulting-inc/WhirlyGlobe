@@ -1447,7 +1447,28 @@
     
     @param useCourse Use location services course information as fallback if heading unavailable
  */
-- (void)startLocationTrackingWithDelegate:(NSObject<MaplyLocationTrackerDelegate> *__nullable)delegate useHeading:(bool)useHeading useCourse:(bool)useCourse simulate:(bool)simulate;
+- (void)startLocationTrackingWithDelegate:(NSObject<MaplyLocationTrackerDelegate> *__nullable)delegate
+                               useHeading:(bool)useHeading
+                                useCourse:(bool)useCourse;
+
+/**
+    Start location tracking
+    
+    @param delegate The MaplyLocationTrackerDelegate for receiving location event callbacks
+    
+    @param simulator The MaplyLocationSimulatorDelegate for producing  locations
+ 
+    @param simInterval The time interval on which to update
+
+    @param useHeading Use location services heading information (requires physical magnetometer)
+    
+    @param useCourse Use location services course information as fallback if heading unavailable
+ */
+- (void)startLocationTrackingWithDelegate:(NSObject<MaplyLocationTrackerDelegate> *__nullable)delegate
+                                simulator:(NSObject<MaplyLocationSimulatorDelegate> *__nullable)simulator
+                              simInterval:(NSTimeInterval)simInterval
+                               useHeading:(bool)useHeading
+                                useCourse:(bool)useCourse;
 
 /**
  Return the current location tracker, if there is one.

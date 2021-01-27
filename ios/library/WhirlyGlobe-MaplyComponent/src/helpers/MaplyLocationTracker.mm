@@ -34,7 +34,8 @@
     __weak MaplyViewController *_mapVC;
     
     __weak NSObject<MaplyLocationTrackerDelegate> *_delegate;
-    
+    __weak NSObject<MaplyLocationSimulatorDelegate> *_simDelegate;
+
     NSMutableArray *_markerImgs, *_markerImgsDirectional;
     
     MaplyComponentObject *_markerObj;
@@ -54,34 +55,56 @@
     bool updateLocationScheduled;
 }
 
-- (nonnull instancetype)initWithViewC:(MaplyBaseViewController *__nullable)viewC delegate:(NSObject<MaplyLocationTrackerDelegate> *__nullable)delegate useHeading:(bool)useHeading useCourse:(bool)useCourse simulate:(bool)simulate {
-    
+- (nonnull instancetype)initWithViewC:(MaplyBaseViewController *__nullable)viewC
+                           useHeading:(bool)useHeading
+                            useCourse:(bool)useCourse {
+    return [self initWithViewC:viewC delegate:nil simulator:nil simInterval:0 useHeading:useHeading useCourse:useCourse];
+}
+
+- (nonnull instancetype)initWithViewC:(MaplyBaseViewController *__nullable)viewC
+                             delegate:(NSObject<MaplyLocationTrackerDelegate> *__nullable)delegate
+                           useHeading:(bool)useHeading
+                            useCourse:(bool)useCourse {
+    return [self initWithViewC:viewC delegate:delegate simulator:nil simInterval:0 useHeading:useHeading useCourse:useCourse];
+}
+
+- (nonnull instancetype)initWithViewC:(MaplyBaseViewController *__nullable)viewC
+                             delegate:(NSObject<MaplyLocationTrackerDelegate> *__nullable)delegate
+                            simulator:(NSObject<MaplyLocationSimulatorDelegate> *__nullable)simulator
+                          simInterval:(NSTimeInterval)simInterval
+                           useHeading:(bool)useHeading
+                            useCourse:(bool)useCourse {
     self = [super init];
-    if (self) {
-        _theViewC = viewC;
-        if ([viewC isKindOfClass:[WhirlyGlobeViewController class]])
-            _globeVC = (WhirlyGlobeViewController *)viewC;
-        else if ([viewC isKindOfClass:[MaplyViewController class]])
-            _mapVC = (MaplyViewController *)viewC;
-        
-        _delegate = delegate;
-        _useHeading = useHeading;
-        _useCourse = useCourse;
-        _simulate = simulate;
-        _lockType = MaplyLocationLockNone;
-        _forwardTrackOffset = 0;
-        _prevLoc = kMaplyNullCoordinate;
-        _markerMinVis = 0.0;
-        _markerMaxVis = 1.0;
-        _markerDrawPriority = kMaplyVectorDrawPriorityDefault+1;
-        
-        [self setupMarkerImages];
-        if (!_simulate)
-            [self setupLocationManager];
-        else {
-            _simUpdateTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(simUpdateTimeout) userInfo:nil repeats:YES];
+    if (!self) {
+        return nil;
+    }
+
+    _theViewC = viewC;
+    if ([viewC isKindOfClass:[WhirlyGlobeViewController class]])
+        _globeVC = (WhirlyGlobeViewController *)viewC;
+    else if ([viewC isKindOfClass:[MaplyViewController class]])
+        _mapVC = (MaplyViewController *)viewC;
+    
+    _delegate = delegate;
+    _simDelegate = simulator;
+    _useHeading = useHeading;
+    _useCourse = useCourse;
+    _simulate = (simulator != nil);
+    _lockType = MaplyLocationLockNone;
+    _forwardTrackOffset = 0;
+    _prevLoc = kMaplyNullCoordinate;
+    _markerMinVis = 0.0;
+    _markerMaxVis = 1.0;
+    _markerDrawPriority = kMaplyVectorDrawPriorityDefault+1;
+    
+    [self setupMarkerImages];
+    if (!_simulate) {
+        [self setupLocationManager];
+    } else {
+        if (!simInterval || simInterval <= 0) {
+            simInterval = 1.0;
         }
-        
+        _simUpdateTimer = [NSTimer scheduledTimerWithTimeInterval:simInterval target:self selector:@selector(simUpdateTimeout) userInfo:nil repeats:YES];
     }
     return self;
 }
@@ -518,19 +541,25 @@
 }
 
 - (void) simUpdateTimeout {
-    __strong NSObject<MaplyLocationTrackerDelegate> *delegate = _delegate;
-    
-    if (!delegate || ![delegate respondsToSelector:@selector(getSimulationPoint)])
+    __strong NSObject<MaplyLocationSimulatorDelegate> *delegate = _simDelegate;
+    if (!delegate || ![delegate respondsToSelector:@selector(getSimulationPoint)]) {
         return;
-    
+    }
+
     MaplyLocationTrackerSimulationPoint simPoint = [delegate getSimulationPoint];
     
-    float lonDeg = simPoint.lonDeg;
-    float latDeg = simPoint.latDeg;
-    float hdgDeg = simPoint.headingDeg;
+    const float lonDeg = simPoint.lonDeg;
+    const float latDeg = simPoint.latDeg;
+    const float hdgDeg = simPoint.headingDeg;
     
     _latestHeading = @(hdgDeg);
-    CLLocation *location = [[CLLocation alloc] initWithCoordinate:(CLLocationCoordinate2D){latDeg, lonDeg} altitude:10000.0 horizontalAccuracy:250 verticalAccuracy:15 course:hdgDeg speed:0 timestamp:[NSDate date]];
+    CLLocation *location = [[CLLocation alloc] initWithCoordinate:{latDeg, lonDeg}
+                                                         altitude:10000.0
+                                               horizontalAccuracy:250
+                                                 verticalAccuracy:15
+                                                           course:hdgDeg
+                                                            speed:0
+                                                        timestamp:[NSDate date]];
     [self updateLocation:location];
 }
 
