@@ -12,7 +12,7 @@ class BNGTestCase: MaplyTestCase {
 	
 	override init(){
 		super.init()
-		self.name = "British National Grid"
+		self.name = "British National Grid (broken)"
 		self.implementations = [.globe, .map]
 	}
     
