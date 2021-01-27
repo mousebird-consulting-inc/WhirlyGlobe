@@ -34,7 +34,8 @@
     __weak MaplyViewController *_mapVC;
     
     __weak NSObject<MaplyLocationTrackerDelegate> *_delegate;
-    
+    __weak NSObject<MaplyLocationSimulatorDelegate> *_simDelegate;
+
     NSMutableArray *_markerImgs, *_markerImgsDirectional;
     
     MaplyComponentObject *_markerObj;
@@ -54,34 +55,56 @@
     bool updateLocationScheduled;
 }
 
-- (nonnull instancetype)initWithViewC:(MaplyBaseViewController *__nullable)viewC delegate:(NSObject<MaplyLocationTrackerDelegate> *__nullable)delegate useHeading:(bool)useHeading useCourse:(bool)useCourse simulate:(bool)simulate {
-    
+- (nonnull instancetype)initWithViewC:(MaplyBaseViewController *__nullable)viewC
+                           useHeading:(bool)useHeading
+                            useCourse:(bool)useCourse {
+    return [self initWithViewC:viewC delegate:nil simulator:nil simInterval:0 useHeading:useHeading useCourse:useCourse];
+}
+
+- (nonnull instancetype)initWithViewC:(MaplyBaseViewController *__nullable)viewC
+                             delegate:(NSObject<MaplyLocationTrackerDelegate> *__nullable)delegate
+                           useHeading:(bool)useHeading
+                            useCourse:(bool)useCourse {
+    return [self initWithViewC:viewC delegate:delegate simulator:nil simInterval:0 useHeading:useHeading useCourse:useCourse];
+}
+
+- (nonnull instancetype)initWithViewC:(MaplyBaseViewController *__nullable)viewC
+                             delegate:(NSObject<MaplyLocationTrackerDelegate> *__nullable)delegate
+                            simulator:(NSObject<MaplyLocationSimulatorDelegate> *__nullable)simulator
+                          simInterval:(NSTimeInterval)simInterval
+                           useHeading:(bool)useHeading
+                            useCourse:(bool)useCourse {
     self = [super init];
-    if (self) {
-        _theViewC = viewC;
-        if ([viewC isKindOfClass:[WhirlyGlobeViewController class]])
-            _globeVC = (WhirlyGlobeViewController *)viewC;
-        else if ([viewC isKindOfClass:[MaplyViewController class]])
-            _mapVC = (MaplyViewController *)viewC;
-        
-        _delegate = delegate;
-        _useHeading = useHeading;
-        _useCourse = useCourse;
-        _simulate = simulate;
-        _lockType = MaplyLocationLockNone;
-        _forwardTrackOffset = 0;
-        _prevLoc = kMaplyNullCoordinate;
-        _markerMinVis = 0.0;
-        _markerMaxVis = 1.0;
-        _markerDrawPriority = kMaplyVectorDrawPriorityDefault+1;
-        
-        [self setupMarkerImages];
-        if (!_simulate)
-            [self setupLocationManager];
-        else {
-            _simUpdateTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(simUpdateTimeout) userInfo:nil repeats:YES];
+    if (!self) {
+        return nil;
+    }
+
+    _theViewC = viewC;
+    if ([viewC isKindOfClass:[WhirlyGlobeViewController class]])
+        _globeVC = (WhirlyGlobeViewController *)viewC;
+    else if ([viewC isKindOfClass:[MaplyViewController class]])
+        _mapVC = (MaplyViewController *)viewC;
+    
+    _delegate = delegate;
+    _simDelegate = simulator;
+    _useHeading = useHeading;
+    _useCourse = useCourse;
+    _simulate = (simulator != nil);
+    _lockType = MaplyLocationLockNone;
+    _forwardTrackOffset = 0;
+    _prevLoc = kMaplyNullCoordinate;
+    _markerMinVis = 0.0;
+    _markerMaxVis = 1.0;
+    _markerDrawPriority = kMaplyVectorDrawPriorityDefault+1;
+    
+    [self setupMarkerImages];
+    if (!_simulate) {
+        [self setupLocationManager];
+    } else {
+        if (!simInterval || simInterval <= 0) {
+            simInterval = 1.0;
         }
-        
+        _simUpdateTimer = [NSTimer scheduledTimerWithTimeInterval:simInterval target:self selector:@selector(simUpdateTimeout) userInfo:nil repeats:YES];
     }
     return self;
 }
@@ -91,6 +114,9 @@
 }
 
 - (void) teardown {
+    if (updateLocationScheduled) {
+        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(updateLocationInternal:) object:nil];
+    }
     if (!_simulate)
         [self teardownLocationManager];
     _delegate = nil;
@@ -478,64 +504,80 @@
     __strong NSObject<MaplyLocationTrackerDelegate> *delegate = _delegate;
     _prevLoc = kMaplyNullCoordinate;
     _latestHeading = nil;
-    if (delegate)
-        [delegate locationManager:manager didFailWithError:error];
+    [delegate locationManager:manager didFailWithError:error];
 }
 
 - (void) locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
-
     __strong NSObject<MaplyLocationTrackerDelegate> *delegate = _delegate;
-    if (delegate)
-        [delegate locationManager:manager didChangeAuthorizationStatus:status];
-    
-    if (status == kCLAuthorizationStatusNotDetermined) {
-        return;
-    }
-    if (status == kCLAuthorizationStatusDenied || status == kCLAuthorizationStatusRestricted) {
-        [self teardownLocationManager];
-    } else if (status == kCLAuthorizationStatusAuthorizedWhenInUse || status == kCLAuthorizationStatusAuthorizedAlways) {
-        
-        [_locationManager startUpdatingLocation];
-        if (_useHeading)
-            [_locationManager startUpdatingHeading];
+    [delegate locationManager:manager didChangeAuthorizationStatus:status];
+
+    switch (status) {
+        case kCLAuthorizationStatusNotDetermined:
+            break;
+        case kCLAuthorizationStatusDenied:
+        case kCLAuthorizationStatusRestricted:
+            [self teardownLocationManager];
+            break;
+        case kCLAuthorizationStatusAuthorizedWhenInUse:
+        case kCLAuthorizationStatusAuthorizedAlways:
+            [_locationManager startUpdatingLocation];
+            if (_useHeading)
+                [_locationManager startUpdatingHeading];
+            break;
     }
 }
 
 - (void) locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations {
-    
-    CLLocation *location = [locations lastObject];
-    
-    [self updateLocation:location];
-    
+    [self updateLocation:[locations lastObject]];
 }
 
 - (void) locationManager:(CLLocationManager *)manager didUpdateHeading:(nonnull CLHeading *)newHeading {
-    
-    if (newHeading.headingAccuracy < 0)
-        _latestHeading = nil;
-    else
-        _latestHeading = @(newHeading.trueHeading);
+    _latestHeading = (newHeading.headingAccuracy >= 0) ? @(newHeading.trueHeading) : nil;
 }
 
 - (void) simUpdateTimeout {
-    __strong NSObject<MaplyLocationTrackerDelegate> *delegate = _delegate;
-    
-    if (!delegate || ![delegate respondsToSelector:@selector(getSimulationPoint)])
-        return;
-    
-    MaplyLocationTrackerSimulationPoint simPoint = [delegate getSimulationPoint];
-    
-    float lonDeg = simPoint.lonDeg;
-    float latDeg = simPoint.latDeg;
-    float hdgDeg = simPoint.headingDeg;
-    
-    _latestHeading = @(hdgDeg);
-    CLLocation *location = [[CLLocation alloc] initWithCoordinate:(CLLocationCoordinate2D){latDeg, lonDeg} altitude:10000.0 horizontalAccuracy:250 verticalAccuracy:15 course:hdgDeg speed:0 timestamp:[NSDate date]];
-    [self updateLocation:location];
+    __strong NSObject<MaplyLocationSimulatorDelegate> *delegate = _simDelegate;
+    if ([delegate respondsToSelector:@selector(getSimulationPoint)] &&
+        (![delegate respondsToSelector:@selector(hasValidLocation)] || [delegate hasValidLocation])) {
+        [self setLocation:[delegate getSimulationPoint]
+                 altitude:10000.0
+       horizontalAccuracy:250
+         verticalAccuracy:15
+                    speed:0];   // todo: calculate speed from positions
+    }
 }
 
 - (MaplyCoordinate)getLocation {
     return _prevLoc;
+}
+
+- (void) setLocation:(MaplyLocationTrackerSimulationPoint)point
+            altitude:(double)altitude {
+    [self setLocation:point
+             altitude:altitude
+   horizontalAccuracy:250
+     verticalAccuracy:15
+                speed:0];
+}
+
+- (void) setLocation:(MaplyLocationTrackerSimulationPoint)point
+            altitude:(double)altitude
+  horizontalAccuracy:(double)horizontalAccuracy
+    verticalAccuracy:(double)verticalAccuracy
+               speed:(double)speed {
+    const float lonDeg = point.lonDeg;
+    const float latDeg = point.latDeg;
+    const float hdgDeg = point.headingDeg;
+
+    _latestHeading = @(hdgDeg);
+    CLLocation *location = [[CLLocation alloc] initWithCoordinate:{latDeg, lonDeg}
+                                                         altitude:altitude
+                                               horizontalAccuracy:horizontalAccuracy
+                                                 verticalAccuracy:verticalAccuracy
+                                                           course:hdgDeg
+                                                            speed:speed
+                                                        timestamp:[NSDate date]];
+    [self updateLocation:location];
 }
 
 @end
