@@ -114,6 +114,9 @@
 }
 
 - (void) teardown {
+    if (updateLocationScheduled) {
+        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(updateLocationInternal:) object:nil];
+    }
     if (!_simulate)
         [self teardownLocationManager];
     _delegate = nil;
@@ -501,70 +504,80 @@
     __strong NSObject<MaplyLocationTrackerDelegate> *delegate = _delegate;
     _prevLoc = kMaplyNullCoordinate;
     _latestHeading = nil;
-    if (delegate)
-        [delegate locationManager:manager didFailWithError:error];
+    [delegate locationManager:manager didFailWithError:error];
 }
 
 - (void) locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
-
     __strong NSObject<MaplyLocationTrackerDelegate> *delegate = _delegate;
-    if (delegate)
-        [delegate locationManager:manager didChangeAuthorizationStatus:status];
-    
-    if (status == kCLAuthorizationStatusNotDetermined) {
-        return;
-    }
-    if (status == kCLAuthorizationStatusDenied || status == kCLAuthorizationStatusRestricted) {
-        [self teardownLocationManager];
-    } else if (status == kCLAuthorizationStatusAuthorizedWhenInUse || status == kCLAuthorizationStatusAuthorizedAlways) {
-        
-        [_locationManager startUpdatingLocation];
-        if (_useHeading)
-            [_locationManager startUpdatingHeading];
+    [delegate locationManager:manager didChangeAuthorizationStatus:status];
+
+    switch (status) {
+        case kCLAuthorizationStatusNotDetermined:
+            break;
+        case kCLAuthorizationStatusDenied:
+        case kCLAuthorizationStatusRestricted:
+            [self teardownLocationManager];
+            break;
+        case kCLAuthorizationStatusAuthorizedWhenInUse:
+        case kCLAuthorizationStatusAuthorizedAlways:
+            [_locationManager startUpdatingLocation];
+            if (_useHeading)
+                [_locationManager startUpdatingHeading];
+            break;
     }
 }
 
 - (void) locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations {
-    
-    CLLocation *location = [locations lastObject];
-    
-    [self updateLocation:location];
-    
+    [self updateLocation:[locations lastObject]];
 }
 
 - (void) locationManager:(CLLocationManager *)manager didUpdateHeading:(nonnull CLHeading *)newHeading {
-    
-    if (newHeading.headingAccuracy < 0)
-        _latestHeading = nil;
-    else
-        _latestHeading = @(newHeading.trueHeading);
+    _latestHeading = (newHeading.headingAccuracy >= 0) ? @(newHeading.trueHeading) : nil;
 }
 
 - (void) simUpdateTimeout {
     __strong NSObject<MaplyLocationSimulatorDelegate> *delegate = _simDelegate;
-    if (!delegate || ![delegate respondsToSelector:@selector(getSimulationPoint)]) {
-        return;
+    if ([delegate respondsToSelector:@selector(getSimulationPoint)] &&
+        (![delegate respondsToSelector:@selector(hasValidLocation)] || [delegate hasValidLocation])) {
+        [self setLocation:[delegate getSimulationPoint]
+                 altitude:10000.0
+       horizontalAccuracy:250
+         verticalAccuracy:15
+                    speed:0];   // todo: calculate speed from positions
     }
-
-    MaplyLocationTrackerSimulationPoint simPoint = [delegate getSimulationPoint];
-    
-    const float lonDeg = simPoint.lonDeg;
-    const float latDeg = simPoint.latDeg;
-    const float hdgDeg = simPoint.headingDeg;
-    
-    _latestHeading = @(hdgDeg);
-    CLLocation *location = [[CLLocation alloc] initWithCoordinate:{latDeg, lonDeg}
-                                                         altitude:10000.0
-                                               horizontalAccuracy:250
-                                                 verticalAccuracy:15
-                                                           course:hdgDeg
-                                                            speed:0
-                                                        timestamp:[NSDate date]];
-    [self updateLocation:location];
 }
 
 - (MaplyCoordinate)getLocation {
     return _prevLoc;
+}
+
+- (void) setLocation:(MaplyLocationTrackerSimulationPoint)point
+            altitude:(double)altitude {
+    [self setLocation:point
+             altitude:altitude
+   horizontalAccuracy:250
+     verticalAccuracy:15
+                speed:0];
+}
+
+- (void) setLocation:(MaplyLocationTrackerSimulationPoint)point
+            altitude:(double)altitude
+  horizontalAccuracy:(double)horizontalAccuracy
+    verticalAccuracy:(double)verticalAccuracy
+               speed:(double)speed {
+    const float lonDeg = point.lonDeg;
+    const float latDeg = point.latDeg;
+    const float hdgDeg = point.headingDeg;
+
+    _latestHeading = @(hdgDeg);
+    CLLocation *location = [[CLLocation alloc] initWithCoordinate:{latDeg, lonDeg}
+                                                         altitude:altitude
+                                               horizontalAccuracy:horizontalAccuracy
+                                                 verticalAccuracy:verticalAccuracy
+                                                           course:hdgDeg
+                                                            speed:speed
+                                                        timestamp:[NSDate date]];
+    [self updateLocation:location];
 }
 
 @end

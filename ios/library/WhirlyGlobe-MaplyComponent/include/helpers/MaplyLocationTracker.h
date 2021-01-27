@@ -58,6 +58,10 @@ typedef enum {MaplyLocationLockNone, MaplyLocationLockNorthUp, MaplyLocationLock
 
 - (MaplyLocationTrackerSimulationPoint)getSimulationPoint;
 
+@optional
+
+- (bool)hasValidLocation;
+
 @end
 
 /* 
@@ -149,6 +153,22 @@ typedef enum {MaplyLocationLockNone, MaplyLocationLockNorthUp, MaplyLocationLock
     @return The coordinate if valid, else kMaplyNullCoordinate
  */
 - (MaplyCoordinate)getLocation;
+
+/**
+    Set the current simulated location.
+ */
+- (void) setLocation:(MaplyLocationTrackerSimulationPoint)point
+            altitude:(double)altitude;
+
+/**
+    Set the current simulated location.
+ */
+- (void) setLocation:(MaplyLocationTrackerSimulationPoint)point
+            altitude:(double)altitude
+  horizontalAccuracy:(double)horizontalAccuracy
+    verticalAccuracy:(double)verticalAccuracy
+               speed:(double)speed;
+;
 
 @end
 
