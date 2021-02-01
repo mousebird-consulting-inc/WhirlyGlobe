@@ -127,7 +127,7 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
                                          const Dictionary *desc)
 {
     // If a representation is set, we produce results for non-visible layers
-    if (!visible && representation.empty())
+    if (!visible && (representation.empty() || repUUIDField.empty()))
     {
         return;
     }
