@@ -167,7 +167,7 @@ public:
     virtual std::string getCategory(PlatformThreadInfo *_Nullable inst) override;
     virtual bool geomAdditive(PlatformThreadInfo *_Nullable inst) override;
     virtual void buildObjects(PlatformThreadInfo *_Nullable inst,
-                              std::vector<VectorObjectRef> &vecObjs,
+                              const std::vector<VectorObjectRef> &vecObjs,
                               const VectorTileDataRef &tileData,
                               const Dictionary *_Nullable desc) override;
 

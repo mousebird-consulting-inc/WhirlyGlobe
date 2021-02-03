@@ -166,7 +166,7 @@ public:
 
     /// Construct objects related to this style based on the input data.
     virtual void buildObjects(PlatformThreadInfo *inst,
-                              std::vector<VectorObjectRef> &vecObjs,
+                              const std::vector<VectorObjectRef> &vecObjs,
                               const VectorTileDataRef &tileInfo,
                               const Dictionary *desc) = 0;
 };

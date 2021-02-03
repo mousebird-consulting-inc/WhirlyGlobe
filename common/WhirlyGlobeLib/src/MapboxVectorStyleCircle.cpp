@@ -78,7 +78,7 @@ void MapboxVectorLayerCircle::cleanup(PlatformThreadInfo *inst,ChangeSet &change
 }
 
 void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
-                                           std::vector<VectorObjectRef> &vecObjs,
+                                           const std::vector<VectorObjectRef> &vecObjs,
                                            const VectorTileDataRef &tileInfo,
                                            const Dictionary *desc)
 {

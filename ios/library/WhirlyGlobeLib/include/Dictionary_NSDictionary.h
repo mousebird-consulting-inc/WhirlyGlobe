@@ -64,7 +64,7 @@ class iosDictionary : public Dictionary
 {
 public:
     iosDictionary();
-    iosDictionary(NSDictionary *dict);
+    iosDictionary(const NSDictionary *dict);
     // Copy constructor
     iosDictionary(const iosDictionary &that);
     virtual ~iosDictionary() override;
@@ -103,7 +103,7 @@ public:
     // Return an array of key names
     virtual std::vector<std::string> getKeys() const override;
 public:
-    NSDictionary *dict;
+    const NSDictionary *dict;
 };
 
 class iosMutableDictionary;
@@ -164,6 +164,8 @@ public:
     
     /// Set field as int
     void setInt(const std::string &name,int val) override;
+    /// Set field as int
+    void setInt64(const std::string &name,int64_t val) override;
     /// Set field as 64 bit unique value
     void setIdentifiable(const std::string &name,SimpleIdentity val) override;
     /// Set field as double

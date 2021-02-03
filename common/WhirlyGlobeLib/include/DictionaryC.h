@@ -124,6 +124,9 @@ public:
     /// Set field as int
     void setInt(const std::string &name,int val) override;
     void setInt(unsigned int key,int val);
+    /// Set field as int64
+    virtual void setInt64(const std::string &name,int64_t val) override;
+    virtual void setInt64(unsigned int key,int64_t val);
     /// Set field as 64 bit unique value
     void setIdentifiable(const std::string &name,SimpleIdentity val) override;
     void setIdentifiable(unsigned int key,SimpleIdentity val);

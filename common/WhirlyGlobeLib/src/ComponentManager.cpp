@@ -20,6 +20,7 @@
 
 #import "ComponentManager.h"
 #import "WhirlyKitLog.h"
+#import "SharedAttributes.h"
 
 namespace WhirlyKit
 {
@@ -27,14 +28,25 @@ namespace WhirlyKit
 static constexpr size_t TypicalRepUUIDs = 100;
 static constexpr size_t TypicalUUIDComps = 1000;
 
-ComponentObject::ComponentObject()
-    : vectorOffset(0.0,0.0)
-    , isSelectable(false)
-    , enable(false)
-    , underConstruction(false)
+ComponentObject::ComponentObject(bool enable, bool selectable) :
+    enable(enable),
+    isSelectable(selectable),
+    underConstruction(false),
+    vectorOffset(0.0,0.0)
 {
 }
-    
+
+ComponentObject::ComponentObject(bool enable, bool selectable, const Dictionary &desc) :
+    ComponentObject(enable, selectable)
+{
+    if (!desc.empty())
+    {
+        this->enable = desc.getBool(MaplyEnable, enable);
+        this->uuid = desc.getString(MaplyUUIDDesc);
+        this->representation = desc.getString(MaplyRepresentationDesc);
+    }
+}
+
 ComponentObject::~ComponentObject()
 {
 }

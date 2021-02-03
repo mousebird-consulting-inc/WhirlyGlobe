@@ -146,14 +146,14 @@ iosDictionary::iosDictionary()
     dict = [[NSDictionary alloc] init];
 }
 
-iosDictionary::iosDictionary(NSDictionary *inDict)
+iosDictionary::iosDictionary(const NSDictionary *inDict)
 {
     dict = inDict;
 }
 
 iosDictionary::iosDictionary(const iosDictionary &that)
 {
-    dict = [[NSDictionary alloc] initWithDictionary:that.dict];
+    dict = [[NSDictionary alloc] initWithDictionary:const_cast<NSDictionary*>(that.dict)];
 }
 
 iosDictionary::~iosDictionary()
@@ -514,6 +514,12 @@ void iosMutableDictionary::setInt(const std::string &name,int val)
     dict[StdStringToString(name)] = @(val);
 }
 
+/// Set field as int
+void iosMutableDictionary::setInt64(const std::string &name,int64_t val)
+{
+    dict[StdStringToString(name)] = @(val);
+}
+
 /// Set field as 64 bit unique value
 void iosMutableDictionary::setIdentifiable(const std::string &name,SimpleIdentity val)
 {
@@ -537,7 +543,7 @@ void iosMutableDictionary::addEntries(const Dictionary *other)
 {
     const iosDictionary *iosDict = dynamic_cast<const iosDictionary *>(other);
     if (iosDict) {
-        [dict addEntriesFromDictionary:iosDict->dict];
+        [dict addEntriesFromDictionary:const_cast<NSDictionary*>(iosDict->dict)];
     } else {
         const iosMutableDictionary *iosMutDict = dynamic_cast<const iosMutableDictionary *>(other);
         if (iosMutDict) {

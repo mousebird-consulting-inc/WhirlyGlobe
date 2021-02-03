@@ -128,6 +128,8 @@ public:
 
     /// Set field as int
     virtual void setInt(const std::string &name,int val) = 0;
+    /// Set field as int64
+    virtual void setInt64(const std::string &name,int64_t val) = 0;
     /// Set field as 64 bit unique value
     virtual void setIdentifiable(const std::string &name,SimpleIdentity val) = 0;
     /// Set field as double

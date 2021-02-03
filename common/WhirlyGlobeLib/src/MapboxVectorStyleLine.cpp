@@ -122,7 +122,7 @@ void MapboxVectorLayerLine::cleanup(PlatformThreadInfo *inst,ChangeSet &changes)
 }
 
 void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
-                                         std::vector<VectorObjectRef> &inVecObjs,
+                                         const std::vector<VectorObjectRef> &inVecObjs,
                                          const VectorTileDataRef &tileInfo,
                                          const Dictionary *desc)
 {

@@ -69,7 +69,7 @@ public:
                        int drawPriority) override;
     
     virtual void buildObjects(PlatformThreadInfo *inst,
-                              std::vector<VectorObjectRef> &vecObjs,
+                              const std::vector<VectorObjectRef> &vecObjs,
                               const VectorTileDataRef &tileInfo,
                               const Dictionary *desc) override;
     
