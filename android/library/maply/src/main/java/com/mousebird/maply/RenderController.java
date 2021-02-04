@@ -39,6 +39,7 @@ public class RenderController implements RenderControllerInterface
     public static final int MarkerDrawPriorityDefault = 40000;
     public static final int LabelDrawPriorityDefault = 60000;
     public static final int ParticleDrawPriorityDefault = 1000;
+    public static final int VectorDrawPriorityDefault = 50000;
 
     Point2d frameSize = new Point2d(0.0, 0.0);
 
