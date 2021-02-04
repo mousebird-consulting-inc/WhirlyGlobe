@@ -550,7 +550,7 @@ std::vector<DictionaryEntryRef> MapboxVectorStyleSetImpl::arrayValue(const std::
     if (thing->getType() == DictTypeArray)
         return thing->getArray();
     
-    wkLogLevel(Warn, "Expected string for %s but got something else",name.c_str());
+    wkLogLevel(Warn, "Expected array for %s but got something else",name.c_str());
     return ret;
 }
 
