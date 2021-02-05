@@ -1,11 +1,12 @@
 package com.mousebirdconsulting.autotester.TestCases
 
+import android.annotation.SuppressLint
 import android.app.Activity
-import com.mousebird.maply.GlobeController
-import com.mousebird.maply.MapController
-import com.mousebirdconsulting.autotester.Framework.MaplyTestCase
+import android.os.Looper
+import com.mousebird.maply.LocationSimulatorDelegate
+import com.mousebird.maply.LocationTracker
 
-class LocationTrackingSimTestCase : MaplyTestCase {
+class LocationTrackingSimTestCase : LocationTrackingRealTestCase, LocationSimulatorDelegate {
 
     constructor(activity: Activity) : super(activity)
     {
@@ -13,19 +14,19 @@ class LocationTrackingSimTestCase : MaplyTestCase {
         implementation = TestExecutionImplementation.Both
     }
 
-    var baseCase : MaplyTestCase? = null
+    @SuppressLint("MissingPermission")
+    override fun setUpTracker() {
+        tracker?.also {
+            it.stop()
+        }
+        tracker = null
 
-    override fun setUpWithMap(mapVC: MapController?): Boolean {
-        baseCase = CartoLightTestCase(getActivity())
-        baseCase?.setUpWithMap(mapVC)
-
-        return true
-    }
-
-    override fun setUpWithGlobe(globeVC: GlobeController?): Boolean {
-        baseCase = CartoLightTestCase(getActivity())
-        baseCase?.setUpWithGlobe(globeVC)
-
-        return true
+        val context = activity.applicationContext
+        baseViewC?.also { vc ->
+            tracker = LocationTracker(vc, this, this,
+                    updateInterval = 0.5, useHeading = true, useCourse = true)?.also {
+                it.start(context, Looper.myLooper())
+            }
+        }
     }
 }

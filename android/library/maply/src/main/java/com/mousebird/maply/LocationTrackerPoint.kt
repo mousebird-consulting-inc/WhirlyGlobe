@@ -1,8 +1,8 @@
 package com.mousebird.maply
 
-class MaplyLocationTrackerPoint {
-    var lonDeg: Double? = null
-    var latDeg: Double? = null
+class LocationTrackerPoint {
+    var lonDeg: Double = 0.0
+    var latDeg: Double = 0.0
     var elevation: Double? = null
     var headingDeg: Double? = null
     var speed: Double? = null
