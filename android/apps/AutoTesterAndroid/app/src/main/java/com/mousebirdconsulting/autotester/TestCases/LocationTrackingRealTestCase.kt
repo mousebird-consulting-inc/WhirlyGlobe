@@ -110,7 +110,7 @@ open class LocationTrackingRealTestCase : MaplyTestCase, LocationTrackerDelegate
         baseCase = CartoLightTestCase(getActivity()).apply {
             setUpWithMap(mapVC)
         }
-        mapVC?.setPositionGeo(-100 * Math.PI / 180.0, 40 * Math.PI / 180.0, 0.01)
+        mapVC?.setPositionGeo(-100 * Math.PI / 180.0, 40 * Math.PI / 180.0, 0.0001)
         setUp()
         return true
     }

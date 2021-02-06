@@ -15,7 +15,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 package com.mousebird.maply
@@ -34,7 +33,6 @@ import com.google.android.gms.location.LocationRequest.PRIORITY_BALANCED_POWER_A
 import com.google.android.gms.tasks.Task
 import java.lang.ref.WeakReference
 import kotlin.math.*
-
 
 class LocationTracker : LocationCallback {
 
@@ -76,22 +74,23 @@ class LocationTracker : LocationCallback {
      * Start location tracking/simulation
      */
     @RequiresPermission(anyOf = [permission.ACCESS_COARSE_LOCATION, permission.ACCESS_FINE_LOCATION])
-    fun start(context: Context, looper: Looper? = null) {
+    fun start(context: Context, looper: Looper? = null, request: LocationRequest? = null) {
         stop()
 
-        this.looper = looper ?: Looper.myLooper()
-        this.handler = Handler(looper)
+        handler = Handler(looper ?: Looper.myLooper())
 
         simulatorDelegate.get()?.let {
-            mainHandler.post(simTask)
+            simulating = true
+            handler?.post(simTask)
         } ?: trackerDelegate.get()?.let {
             locationClient = LocationServices.getFusedLocationProviderClient(context)?.also { client ->
-                val req = LocationRequest()
-                req.priority = 	PRIORITY_BALANCED_POWER_ACCURACY
-                req.interval = (1000.0 * updateInterval).toLong()
-                req.maxWaitTime = 2 * req.interval - 1
-                req.numUpdates = Int.MAX_VALUE
-                locationTask = client.requestLocationUpdates(req, this, this.looper)
+                val req = request ?: LocationRequest().apply {
+                    priority = PRIORITY_BALANCED_POWER_ACCURACY
+                    interval = (1000.0 * updateInterval).toLong()
+                    maxWaitTime = 2 * interval - 1
+                    numUpdates = Int.MAX_VALUE
+                }
+                locationTask = client.requestLocationUpdates(req, this, handler?.looper)
             }
         }
     }
@@ -100,10 +99,9 @@ class LocationTracker : LocationCallback {
      * Stop location tracking/simulation
      */
     fun stop() {
-        locationClient?.also {
-            it.removeLocationUpdates(this)
-        }
-        mainHandler.removeCallbacks(simTask)
+
+        simulating = false
+        handler?.removeCallbacks(simTask)
 
         if (locationTask != null) {
             locationClient?.removeLocationUpdates(this)
@@ -111,24 +109,32 @@ class LocationTracker : LocationCallback {
             locationClient = null
         }
 
-        baseController.get()?.also {
-            it.removeObjects(arrayOf(markerObj, movingMarkerObj, circleObj).filterNotNull(),
-                    RenderControllerInterface.ThreadMode.ThreadCurrent)
-            markerObj = null
-            movingMarkerObj = null
-            circleObj = null
-        }
+        removeComponentObjects()
+        clearInfoObjects()
+        clearMarkerImages()
     }
 
     /**
      * Min visibility for the marker assigned to follow location.
      */
     var markerMinVis = 0.0
+        set(value) {
+            if (field != value) {
+                field = value
+                clearInfoObjects()
+            }
+        }
 
     /**
      * Max visibility for the marker assigned to follow location.
      */
     var markerMaxVis = 1.0
+        set(value) {
+            if (field != value) {
+                field = value
+                clearInfoObjects()
+            }
+        }
 
     /**
      * Draw priority for the marker assigned to follow location.
@@ -137,10 +143,7 @@ class LocationTracker : LocationCallback {
         set(value) {
             if (field != value) {
                 field = value
-                // Recreate the descriptors on next use
-                this.markerInfo = null
-                this.movingMarkerInfo = null
-                this.circleInfo = null
+                clearInfoObjects()
             }
         }
 
@@ -191,10 +194,10 @@ class LocationTracker : LocationCallback {
         updateLocation(convertIf(location?.lastLocation))
     }
 
-    fun convertIf(loc: android.location.Location?): LocationTrackerPoint? {
+    private fun convertIf(loc: android.location.Location?): LocationTrackerPoint? {
         return if (loc != null) convert(loc) else null
     }
-    fun convert(loc: android.location.Location): LocationTrackerPoint {
+    private fun convert(loc: android.location.Location): LocationTrackerPoint {
         return LocationTrackerPoint().apply {
             latDeg = loc.latitude
             lonDeg = loc.longitude
@@ -211,8 +214,6 @@ class LocationTracker : LocationCallback {
         }
     }
 
-    private val threadCurrent = RenderControllerInterface.ThreadMode.ThreadCurrent
-
     private fun updateLocationInternal(location: LocationTrackerPoint?) {
         locationUpdatePending = false
 
@@ -223,10 +224,7 @@ class LocationTracker : LocationCallback {
         val endLoc = if (tracker != null) tracker.locationManagerDidUpdateLocation(this, location) else location
 
         // Remove previous objects
-        vc.removeObjects(arrayOf(markerObj, movingMarkerObj, circleObj).filterNotNull(), threadCurrent)
-        markerObj = null
-        movingMarkerObj = null
-        circleObj = null
+        removeComponentObjects()
 
         prevLocation = lastLocation
         lastLocation = endLoc
@@ -242,6 +240,8 @@ class LocationTracker : LocationCallback {
         val markerInfo = markerInfo ?: return
         val movingMarkerInfo = movingMarkerInfo ?: return
 
+        val now = System.currentTimeMillis() / 1000.0
+
         // If we have a previous location, animate starting there
         val startLoc: LocationTrackerPoint = prevLocation ?: endLoc
 
@@ -254,30 +254,24 @@ class LocationTracker : LocationCallback {
         movingMarker.loc = Point2d.FromDegrees(startLoc.lonDeg, startLoc.latDeg)
         movingMarker.endLoc = Point2d.FromDegrees(endLoc.lonDeg, endLoc.latDeg)
         movingMarker.duration = updateInterval / 2.0
-        movingMarker.period = updateInterval
+        movingMarker.period = 1.0
         movingMarker.size = Point2d(locationTrackerPositionMarkerSize.toDouble(),
                                     locationTrackerPositionMarkerSize.toDouble())
-        movingMarker.rotation = degToRad(if (orientation != null) 90.0 - orientation else 0.0)
+        movingMarker.rotation = degToRad(if (orientation != null) -orientation else 0.0)
         movingMarker.images = if (orientation != null) directionalImages else markerImages
         movingMarker.layoutImportance = Float.MAX_VALUE
+        movingMarkerInfo.setEnableTimes(now, now + movingMarker.duration)
+        movingMarkerObj = vc.addScreenMovingMarkers(listOf(movingMarker), movingMarkerInfo, threadCurrent)
 
         val marker = ScreenMarker()
         marker.loc = movingMarker.endLoc
-        marker.period = updateInterval
+        marker.period = 1.0
         marker.size = movingMarker.size
         marker.rotation = movingMarker.rotation
         marker.images = movingMarker.images
         marker.layoutImportance = Float.MAX_VALUE
-
-        //marker.images = directionalImages
-        //movingMarker.images = directionalImages
-
-        val time = System.currentTimeMillis() / 1000.0 + updateInterval / 2.0
-        markerInfo.setEnableTimes(time, Double.MAX_VALUE)
-        movingMarkerInfo.setEnableTimes(0.0, time)
-
+        markerInfo.setEnableTimes(now + movingMarker.duration, 0.0)
         markerObj = vc.addScreenMarker(marker, markerInfo, threadCurrent)
-        movingMarkerObj = vc.addScreenMovingMarkers(listOf(movingMarker), movingMarkerInfo, threadCurrent)
 
         lockToLocation(endLoc)
     }
@@ -372,13 +366,35 @@ class LocationTracker : LocationCallback {
         }
     }
 
+    private fun clearMarkerImages() {
+        markerImages = null
+        directionalImages = null
+    }
+
+    private fun clearInfoObjects() {
+        markerInfo = null
+        movingMarkerInfo = null
+        circleInfo = null
+    }
+
+    private fun removeComponentObjects() {
+        val objs = arrayOf(markerObj, movingMarkerObj, circleObj).filterNotNull()
+        baseController.get()?.removeObjects(objs, threadCurrent)
+        markerObj = null
+        movingMarkerObj = null
+        circleObj = null
+    }
+
+    @Suppress("SameParameterValue")
     private fun markerGradLoc(n: Int, radius: Int, fraction: Int = 4): Float {
         return (radius / fraction - abs(radius / fraction - n)) * fraction.toFloat() / radius
     }
+    @Suppress("SameParameterValue")
     private fun markerGradRad(n: Int, size: Int, radius: Int, fraction: Int = 4): Float {
         return (size - radius - abs((radius / fraction) - n)) / 2.0f
     }
 
+    @Suppress("SameParameterValue")
     private fun radialGradientMarker(vc: BaseController, size: Int,
                                      @ColorInt color0: Int, @ColorInt color1: Int,
                                      idx: Int, directional: Boolean): MaplyTexture {
@@ -389,6 +405,7 @@ class LocationTracker : LocationCallback {
         return vc.addTexture(image, RenderControllerInterface.TextureSettings(), RenderControllerInterface.ThreadMode.ThreadCurrent)
     }
 
+    @Suppress("SameParameterValue")
     private fun radialGradientMarkerImage(size: Int,
                                           @ColorInt color0: Int, @ColorInt color1: Int,
                                           gradLocation: Float, gradRadius: Float,
@@ -487,7 +504,12 @@ class LocationTracker : LocationCallback {
 
     private val simTask = object : Runnable {
         override fun run() {
-            mainHandler.postDelayed(this, (updateInterval * 1000).toLong())
+            simulatorDelegate.get()?.let {
+                updateLocation(it.locationSimulatorGetLocation())
+            }
+            if (simulating) {
+                handler?.postDelayed(this, (updateInterval * 1000).toLong())
+            }
         }
     }
 
@@ -518,9 +540,10 @@ class LocationTracker : LocationCallback {
 
     private var prevLocation: LocationTrackerPoint? = null
 
-    private var looper: Looper? = null
     private var handler: Handler? = null
-    private val mainHandler: Handler by lazy { Handler(Looper.getMainLooper()) }
+    private var simulating = false
+
+    private val threadCurrent = RenderControllerInterface.ThreadMode.ThreadCurrent
 
     private val locationTrackerPositionMarkerSize = 32
 }
