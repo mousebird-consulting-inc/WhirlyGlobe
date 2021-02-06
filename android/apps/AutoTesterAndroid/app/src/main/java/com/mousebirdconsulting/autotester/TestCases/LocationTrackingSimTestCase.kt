@@ -24,7 +24,7 @@ class LocationTrackingSimTestCase : LocationTrackingRealTestCase, LocationSimula
         val context = activity.applicationContext
         baseViewC?.also { vc ->
             tracker = LocationTracker(vc, this, this,
-                    updateInterval = 0.5, useHeading = true, useCourse = true)?.also {
+                    updateInterval = 0.5, useHeading = true)?.also {
                 it.start(context, Looper.myLooper())
             }
         }

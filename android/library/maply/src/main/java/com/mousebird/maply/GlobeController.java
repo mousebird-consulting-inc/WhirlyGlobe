@@ -185,6 +185,24 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 	}
 
 	/**
+	 * Get the zoom (height) limits for the globe.
+	 */
+	@Override
+	public double getZoomLimitMin()
+	{
+		return (gestureHandler != null) ? gestureHandler.zoomLimitMin : 0.0;
+	}
+
+	/**
+	 * Get the zoom (height) limits for the globe.
+	 */
+	@Override
+	public double getZoomLimitMax()
+	{
+		return (gestureHandler != null) ? gestureHandler.zoomLimitMax : Double.POSITIVE_INFINITY;
+	}
+
+	/**
 	 * Return the geographic point (radians) corresponding to the screen point.
 	 * 
 	 * @param screenPt Input point on the screen.
@@ -285,22 +303,6 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 			return null;
 
 		return theGlobeView.pointOnScreenFromSphere(dispPt, modelMat, renderWrapper.maplyRender.get().frameSize);
-	}
-
-	/**
-	 * Return a point in display space.  Display space is close to what's rendered.
-	 * For the globe it's a model space based on a radius of 1.0.
-	 */
-	public Point3d displayPointFromGeo(Point3d geoPt)
-	{
-		CoordSystemDisplayAdapter coordAdapter = globeView.getCoordAdapter();
-		CoordSystem coordSys = coordAdapter.getCoordSystem();
-		Point3d localPt = coordSys.geographicToLocal(geoPt);
-		if (localPt == null)
-			return null;
-		Point3d dispPt = coordAdapter.localToDisplay(localPt);
-
-		return dispPt;
 	}
 
 	boolean checkCoverage(Mbr mbr,GlobeView theGlobeView,double height)

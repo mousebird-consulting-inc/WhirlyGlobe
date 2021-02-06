@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2014 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -282,6 +282,24 @@ public class MapController extends BaseController implements View.OnTouchListene
 		}
 		
 		return true;
+	}
+
+	/**
+	 * Get the zoom limits for the map.
+	 */
+	@Override
+	public double getZoomLimitMin()
+	{
+		return (gestureHandler != null) ? gestureHandler.zoomLimitMin : 0.0;
+	}
+
+	/**
+	 * Get the zoom limits for the map.
+	 */
+	@Override
+	public double getZoomLimitMax()
+	{
+		return (gestureHandler != null) ? gestureHandler.zoomLimitMin : Double.POSITIVE_INFINITY;
 	}
 
 	/**

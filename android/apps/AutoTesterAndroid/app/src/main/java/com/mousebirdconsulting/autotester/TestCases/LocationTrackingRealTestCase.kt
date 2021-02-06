@@ -50,7 +50,7 @@ open class LocationTrackingRealTestCase : MaplyTestCase, LocationTrackerDelegate
             lin.addView(northBtn)
 
             val hdgBtn = Button(activity.applicationContext)
-            hdgBtn.text = "North Up"
+            hdgBtn.text = "Heading Up"
             hdgBtn.layoutParams = btnLayout
             hdgBtn.textSize = frame.width / 120f
             hdgBtn.isAllCaps = false
@@ -90,8 +90,9 @@ open class LocationTrackingRealTestCase : MaplyTestCase, LocationTrackerDelegate
 
         val context = activity.applicationContext
         baseViewC?.let { vc ->
-            tracker = LocationTracker(vc, this, useHeading = true, useCourse = true).also {
-                it.start(context, Looper.myLooper())
+            tracker = LocationTracker(vc, this, useHeading = true).apply {
+                start(context, Looper.myLooper())
+                lockType = MaplyLocationLockType.MaplyLocationLockNorthUp
             }
         }
     }
@@ -106,18 +107,20 @@ open class LocationTrackingRealTestCase : MaplyTestCase, LocationTrackerDelegate
 
     override fun setUpWithMap(mapVC: MapController?): Boolean {
         baseViewC = mapVC
-        baseCase = CartoLightTestCase(getActivity()).also {
-            it.setUpWithMap(mapVC)
+        baseCase = CartoLightTestCase(getActivity()).apply {
+            setUpWithMap(mapVC)
         }
+        mapVC?.setPositionGeo(-100 * Math.PI / 180.0, 40 * Math.PI / 180.0, 0.01)
         setUp()
         return true
     }
 
     override fun setUpWithGlobe(globeVC: GlobeController?): Boolean {
         baseViewC = globeVC
-        baseCase = CartoLightTestCase(getActivity()).also {
-            it.setUpWithGlobe(globeVC)
+        baseCase = CartoLightTestCase(getActivity()).apply {
+            setUpWithGlobe(globeVC)
         }
+        globeVC?.setPositionGeo(-100 * Math.PI / 180.0, 40 * Math.PI / 180.0, 0.01)
         setUp()
         return true
     }
