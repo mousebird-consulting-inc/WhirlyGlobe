@@ -11,17 +11,29 @@ import Foundation
 // A very dumb graph builder
 class GraphBuilder {
     // Sort endpoints (gross)
-    var points = [String: (loc: CLLocationCoordinate2D, count: Int, marker: MaplyScreenMarker?)]()
+    var points = [String: (loc: CLLocationCoordinate2D, count: Int, uuid: String)]()
+    
+    // Convert point to a simple string for caching (barf)
+    func stringPoint(_ loc: CLLocationCoordinate2D) -> String {
+        return String(format: "%.4f_%.4f", loc.longitude, loc.latitude)
+    }
 
+    // Add an entry for the given point
     func addPoint(_ loc: CLLocation) {
         let coord = loc.coordinate
-        let ptAsStr = String(format: "%.4f_%.4f", coord.longitude, coord.latitude)
+        let ptAsStr = stringPoint(coord)
         
         if let val = points[ptAsStr] {
-            points[ptAsStr] = (coord, val.count+1, nil)
+            points[ptAsStr] = (coord, val.count+1, val.uuid)
         } else {
-            points[ptAsStr] = (coord, 1, nil)
+            points[ptAsStr] = (coord, 1, UUID().uuidString)
         }
+    }
+    
+    // Look for the given point
+    func getPoint(_ loc: CLLocation) -> (loc: CLLocationCoordinate2D, count: Int, uuid: String)? {
+        let ptAsStr = stringPoint(loc.coordinate)
+        return points[ptAsStr]
     }
 }
 
@@ -74,9 +86,23 @@ class AirwayTestCase: MaplyTestCase {
                 marker.image = markerTextures[min(pt.value.count,markerTextures.count-1)]
 //                marker.layoutImportance = MAXFLOAT
                 marker.size = CGSize(width: 24.0, height: 24.0)
+//                marker.maskID = pt.value.uuid
                 markers.append(marker)
             }
             viewC.addScreenMarkers(markers, desc: nil)
+            
+            // For each segment, we want to add the two endpoints as masks
+            for seg in segments {
+                if let locArr = seg.asCLLocationArrays()?.first as? [CLLocation],
+                   let locStart = locArr.first,
+                   let locEnd = locArr.last {
+                    if let markStart = graphBuilder.getPoint(locStart),
+                       let markEnd = graphBuilder.getPoint(locEnd) {
+                        seg.attributes?["maskID 0"] = markStart.uuid
+                        seg.attributes?["maskID 1"] = markEnd.uuid
+                    }
+                }
+            }
 
             viewC.addVectors(segments, desc: [kMaplyVecWidth: 4.0, kMaplyColor: UIColor.blue], mode: .current)
         }
