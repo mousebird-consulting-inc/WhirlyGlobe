@@ -44,22 +44,25 @@ class AirwayTestCase: MaplyTestCase {
             }
             
             var markerTextures: [MaplyTexture] = []
-            markerTextures.append(viewC.addTexture(UIImage(named: "laundry-24@2x.png")!, desc: nil, mode: .current)!)
-            markerTextures.append(viewC.addTexture(UIImage(named: "rocket-24@2x.png")!, desc: nil, mode: .current)!)
-            markerTextures.append(viewC.addTexture(UIImage(named: "prison-24@2x.png")!, desc: nil, mode: .current)!)
-            markerTextures.append(viewC.addTexture(UIImage(named: "shop-24@2x.png")!, desc: nil, mode: .current)!)
-            markerTextures.append(viewC.addTexture(UIImage(named: "slaughterhouse-24@2x.png")!, desc: nil, mode: .current)!)
-            markerTextures.append(viewC.addTexture(UIImage(named: "star-stroked-24@2x.png")!, desc: nil, mode: .current)!)
+            markerTextures.append(viewC.addTexture(UIImage(named: "rocket-24@2x.png")!, desc: nil, mode: .current)!)         // 0, not used
+            markerTextures.append(viewC.addTexture(UIImage(named: "rocket-24@2x.png")!, desc: nil, mode: .current)!)         // 1
+            markerTextures.append(viewC.addTexture(UIImage(named: "star-stroked-24@2x.png")!, desc: nil, mode: .current)!)   // 2
+            markerTextures.append(viewC.addTexture(UIImage(named: "shop-24@2x.png")!, desc: nil, mode: .current)!)           // 3
+            markerTextures.append(viewC.addTexture(UIImage(named: "london-underground-24@2x.png")!, desc: nil, mode: .current)!) // 4
+            markerTextures.append(viewC.addTexture(UIImage(named: "post-24@2x.png")!, desc: nil, mode: .current)!) // 5
+            markerTextures.append(viewC.addTexture(UIImage(named: "town-hall-24@2x.png")!, desc: nil, mode: .current)!) // 6
 
             let graphBuilder = GraphBuilder()
             
             // Work through the airway identifying start and end points
+            var segments = [MaplyVectorObject]()
             for airwayObj in vecObj.splitVectors() {
                 if let locArr = airwayObj.asCLLocationArrays()?.first as? [CLLocation],
                    let locStart = locArr.first,
                    let locEnd = locArr.last {
                     graphBuilder.addPoint(locStart)
                     graphBuilder.addPoint(locEnd)
+                    segments.append(airwayObj)
                 }
             }
             
@@ -69,24 +72,28 @@ class AirwayTestCase: MaplyTestCase {
                 let marker = MaplyScreenMarker()
                 marker.loc = MaplyCoordinateMakeWithDegrees(Float(pt.value.loc.longitude), Float(pt.value.loc.latitude))
                 marker.image = markerTextures[min(pt.value.count,markerTextures.count-1)]
-                marker.layoutImportance = MAXFLOAT
+//                marker.layoutImportance = MAXFLOAT
                 marker.size = CGSize(width: 24.0, height: 24.0)
                 markers.append(marker)
             }
             viewC.addScreenMarkers(markers, desc: nil)
-            
-            viewC.addVectors([vecObj], desc: [kMaplyVecWidth: 4.0, kMaplyColor: UIColor.blue], mode: .current)
+
+            viewC.addVectors(segments, desc: [kMaplyVecWidth: 4.0, kMaplyColor: UIColor.blue], mode: .current)
         }
     }
     
     override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
         baseCase.setUpWithGlobe(globeVC)
-        
+
+        globeVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-110.0, 40.5023056), time: 1.0)
+
         setupAirways(globeVC)
     }
     
     override func setUpWithMap(_ mapVC: MaplyViewController) {
         baseCase.setUpWithMap(mapVC)
+        
+        mapVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-110.0, 40.5023056), time: 1.0)
         
         setupAirways(mapVC)
     }
