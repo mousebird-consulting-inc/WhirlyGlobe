@@ -306,14 +306,15 @@ class LocationTracker : LocationCallback {
                 if (map != null) {
                     map.animatePositionGeo(gp.x, gp.y, map.positionGeo.z, hdg, animTime)
                 } else {
-                    // TODO: Add heading to animatePositionGeo
-                    globe?.animatePositionGeo(gp.x, gp.y, globe.viewState.height, animTime)
+                    globe?.animatePositionGeo( gp.x, gp.y, globe.viewState.height, animTime)
                 }
             }
             MaplyLocationLockType.MaplyLocationLockHeadingUpOffset -> {
                 // TODO: Add animateToPosition:onScreen
                 if (map != null) {
-                    map.animatePositionGeo(gp.x, gp.y, map.positionGeo.z, animTime)
+                    val target = Point3d(gp.x, gp.y, map.positionGeo.z)
+                    val offset = Point2d(0.0, -forwardTrackOffset.toDouble())
+                    map.animatePositionGeo(target,offset,hdg,animTime)
                 } else {
                     globe?.animatePositionGeo(gp.x, gp.y, globe.viewState.height, animTime)
                 }

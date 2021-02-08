@@ -49,15 +49,16 @@ public class MapAnimateTranslate implements MapView.AnimationDelegate
 	 * @param duration How long we want the animation to go.
 	 * @param inBounds Bounding box we want to keep the animation within.
 	 */
-	MapAnimateTranslate(MapView inView,RenderController inRender,Point3d newLoc,double newRot,float duration,Point2d inBounds[])
+	MapAnimateTranslate(MapView inView,RenderController inRender,Point3d newLoc,Double newRot,float duration,Point2d inBounds[])
 	{
 		this(inView,inRender,newLoc,duration,inBounds);
 
-		// If the old and new rotations are within 180 degrees, just interpolate.
-		// Otherwise, we need to go around the other way.
-		// Note that we assume both angles are normalized.
-		if (view != null) {
+		if (view != null && newRot != null) {
 			startRot = view.getRot();
+
+			// If the old and new rotations are within 180 degrees, just interpolate.
+			// Otherwise, we need to go around the other way.
+			// Note that we assume both angles are normalized.
 			dRot = newRot - startRot;
 			if (Math.abs(dRot) < 1.0e-6) {
 				// Don't generate a bunch of rotations for minuscule offsets that won't make any difference
@@ -109,6 +110,10 @@ public class MapAnimateTranslate implements MapView.AnimationDelegate
 		// Calculate location
 		double t = (curTime-startTime)/(endTime-startTime);
 		Point3d newPos = endLoc.subtract(startLoc).multiplyBy(t).addTo(startLoc);
+		if (endLoc.getZ() <= 0.0) {
+			// Not doing height, leave it alone.
+			newPos.setValue(newPos.getX(), newPos.getY(), startLoc.getZ());
+		}
 		if (MapGestureHandler.withinBounds(view, renderer.frameSize, newPos, viewBounds)) {
 			view.setLoc(newPos);
 		}
