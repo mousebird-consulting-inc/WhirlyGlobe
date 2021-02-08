@@ -285,7 +285,7 @@ class LocationTracker : LocationCallback {
 
         val gp = Point2d.FromDegrees(loc.lonDeg, loc.latDeg)
         val animTime = updateInterval / 2.0
-        val hdg = degToRad((180 + (loc.headingDeg ?: 0.0)) % 360)
+        val hdg = -degToRad((360 + (loc.headingDeg ?: 0.0)) % 360)
 
         var lockType = lockType
         if (loc.headingDeg == null &&
@@ -303,10 +303,10 @@ class LocationTracker : LocationCallback {
                 }
             }
             MaplyLocationLockType.MaplyLocationLockHeadingUp -> {
-                // TODO: Add heading to animatePositionGeo
                 if (map != null) {
-                    map.animatePositionGeo(gp.x, gp.y, map.positionGeo.z, animTime)
+                    map.animatePositionGeo(gp.x, gp.y, map.positionGeo.z, hdg, animTime)
                 } else {
+                    // TODO: Add heading to animatePositionGeo
                     globe?.animatePositionGeo(gp.x, gp.y, globe.viewState.height, animTime)
                 }
             }

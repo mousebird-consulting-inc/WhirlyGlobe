@@ -432,6 +432,21 @@ public class MapController extends BaseController implements View.OnTouchListene
 	 */
 	public void animatePositionGeo(final double x,final double y,final double z,final double howLong)
 	{
+		if (mapView != null) {
+			animatePositionGeo(x, y, z, mapView.getRot(), howLong);
+		}
+	}
+
+	/**
+	 * Animate to a new view position
+	 * @param x Horizontal location of the center of the screen in geographic radians (not degrees).
+	 * @param y Vertical location of the center of the screen in geographic radians (not degrees).
+	 * @param z Height above the map in display units.
+	 * @param rot Map rotation in radians
+	 * @param howLong Time (in seconds) to animate.
+	 */
+	public void animatePositionGeo(final double x,final double y,final double z,final double rot,final double howLong)
+	{
 		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderControl.frameSize == null)
 			return;
 
@@ -439,15 +454,18 @@ public class MapController extends BaseController implements View.OnTouchListene
 			addPostSurfaceRunnable(new Runnable() {
 				@Override
 				public void run() {
-					animatePositionGeo(x,y,z,howLong);
+					animatePositionGeo(x,y,z,rot,howLong);
 				}
 			});
 			return;
 		}
 
-		mapView.cancelAnimation();
 		Point3d geoCoord = mapView.coordAdapter.coordSys.geographicToLocal(new Point3d(x,y,0.0));
-		mapView.setAnimationDelegate(new MapAnimateTranslate(mapView, renderControl, new Point3d(geoCoord.getX(),geoCoord.getY(),z), (float) howLong, viewBounds));
+		Point3d newPoint = new Point3d(geoCoord.getX(),geoCoord.getY(),z);
+		MapAnimateTranslate dg = new MapAnimateTranslate(mapView, renderControl, newPoint, rot, (float)howLong, viewBounds);
+
+		mapView.cancelAnimation();
+		mapView.setAnimationDelegate(dg);
 	}
 
 	/**

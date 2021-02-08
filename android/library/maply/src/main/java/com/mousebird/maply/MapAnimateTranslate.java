@@ -34,12 +34,44 @@ public class MapAnimateTranslate implements MapView.AnimationDelegate
 	Point3d startLoc = null;
 	Point3d endLoc = null;
 	Point2d viewBounds[] = null;
+	Double startRot = null;
+	Double dRot = null;
 	double startTime,endTime;
-	
+
 	/**
 	 * Construct a translation with input parameters.  You would set this up and then hand it
 	 * over to a view for use.
-	 * 
+	 *
+	 * @param inView The view we're tied to.
+	 * @param inRender Renderer we're using.
+	 * @param newLoc New location we're translating to.
+	 * @param newRot New rotation we want
+	 * @param duration How long we want the animation to go.
+	 * @param inBounds Bounding box we want to keep the animation within.
+	 */
+	MapAnimateTranslate(MapView inView,RenderController inRender,Point3d newLoc,double newRot,float duration,Point2d inBounds[])
+	{
+		this(inView,inRender,newLoc,duration,inBounds);
+
+		// If the old and new rotations are within 180 degrees, just interpolate.
+		// Otherwise, we need to go around the other way.
+		// Note that we assume both angles are normalized.
+		if (view != null) {
+			startRot = view.getRot();
+			dRot = newRot - startRot;
+			if (Math.abs(dRot) < 1.0e-6) {
+				// Don't generate a bunch of rotations for minuscule offsets that won't make any difference
+				dRot = 0.0;
+			} else if (Math.abs(dRot) > Math.PI) {
+				dRot += ((dRot > 0) ? -2 : 2) * Math.PI;
+			}
+		}
+	}
+
+	/**
+	 * Construct a translation with input parameters.  You would set this up and then hand it
+	 * over to a view for use.
+	 *
 	 * @param inView The view we're tied to.
 	 * @param inRender Renderer we're using.
 	 * @param newLoc New location we're translating to.
@@ -53,7 +85,8 @@ public class MapAnimateTranslate implements MapView.AnimationDelegate
 		endLoc = newLoc;
 		viewBounds = inBounds;
 		startLoc = view.getLoc();
-		
+		startRot = view.getRot();
+
 		startTime = System.currentTimeMillis()/1000.0;
 		endTime = startTime+duration;
 	}
@@ -61,7 +94,7 @@ public class MapAnimateTranslate implements MapView.AnimationDelegate
 	@Override
 	public void updateView(MapView view) 
 	{
-		if (startTime == 0.0 || renderer == null)
+		if (startTime == 0.0 || renderer == null || endTime == startTime)
 			return;
 		
 		double curTime = System.currentTimeMillis()/1000.0;
@@ -70,12 +103,18 @@ public class MapAnimateTranslate implements MapView.AnimationDelegate
 			curTime = endTime;
 			startTime = 0;
 			view.cancelAnimation();
+			return;
 		}
 		
 		// Calculate location
 		double t = (curTime-startTime)/(endTime-startTime);
 		Point3d newPos = endLoc.subtract(startLoc).multiplyBy(t).addTo(startLoc);
-		if (MapGestureHandler.withinBounds(view, renderer.frameSize, newPos, viewBounds))
+		if (MapGestureHandler.withinBounds(view, renderer.frameSize, newPos, viewBounds)) {
 			view.setLoc(newPos);
+		}
+
+		if (startRot != null && dRot != null && dRot != 0.0) {
+			view.setRot(startRot + t * dRot);
+		}
 	}
 }

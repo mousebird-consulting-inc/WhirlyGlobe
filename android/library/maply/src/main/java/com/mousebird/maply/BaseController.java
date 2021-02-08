@@ -102,7 +102,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	/**
 	 * Return the current coordinate system.
 	 */
-	public CoordSystem getCoordSystem() { return coordAdapter.coordSys; }
+	public CoordSystem getCoordSystem() { return (coordAdapter != null) ? coordAdapter.coordSys : null; }
 
 	public void takeScreenshot(ScreenshotListener listener)
 	{
@@ -577,7 +577,10 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 */
 	public Point3d displayPointFromGeo(Point3d geoPt)
 	{
-		CoordSystemDisplayAdapter coordAdapter = view.getCoordAdapter();
+		CoordSystemDisplayAdapter coordAdapter = (view != null) ? view.getCoordAdapter() : null;
+		if (coordAdapter == null) {
+			return null;
+		}
 		Point3d localPt = coordAdapter.getCoordSystem().geographicToLocal(geoPt);
 		return (localPt != null) ? coordAdapter.localToDisplay(localPt) : null;
 	}
