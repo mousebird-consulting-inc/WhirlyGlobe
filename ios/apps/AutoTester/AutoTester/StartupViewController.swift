@@ -27,6 +27,7 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
 		AnimatedMarkersTestCase(),
         ClusteredMarkersTestCase(),
         LabelAnimationTestCase(),
+        MovingScreenMarkersTestCase(),
 
         VectorsTestCase(),
         ChangeVectorsTestCase(),
