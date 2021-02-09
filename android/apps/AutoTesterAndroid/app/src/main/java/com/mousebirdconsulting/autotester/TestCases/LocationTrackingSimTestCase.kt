@@ -2,6 +2,7 @@ package com.mousebirdconsulting.autotester.TestCases
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.graphics.Color
 import android.os.Looper
 import com.mousebird.maply.LocationSimulatorDelegate
 import com.mousebird.maply.LocationTracker
@@ -14,8 +15,6 @@ class LocationTrackingSimTestCase : LocationTrackingRealTestCase, LocationSimula
     {
         setTestName("Location Tracking - Simulated")
         implementation = TestExecutionImplementation.Both
-
-
     }
 
     @SuppressLint("MissingPermission")
@@ -28,14 +27,20 @@ class LocationTrackingSimTestCase : LocationTrackingRealTestCase, LocationSimula
         val context = activity.applicationContext
         baseViewC?.also { vc ->
             tracker = LocationTracker(vc, this, this,
-                    updateInterval = 0.5, useHeading = true)?.also {
-                it.start(context, Looper.myLooper())
-                it.lockType = MaplyLocationLockType.MaplyLocationLockNorthUp
+                    updateInterval = 1.0, useHeading = true).apply {
+                lockType = MaplyLocationLockType.MaplyLocationLockNorthUp
+                markerColorInner = Color.YELLOW
+                markerColorOuter = Color.MAGENTA
+                markerColorShadow = Color.argb(16, 0, 0, 255)
+                markerColorOutline = Color.BLACK
+                start(context, Looper.myLooper())
             }
         }
     }
 
     override fun locationSimulatorGetLocation(): LocationTrackerPoint? {
+        markerSize = (markerSize + 3) % 250
+        tracker?.markerSize = markerSize
         return if ((++simFailIndex % 20) != 0) convert(simPointData[simPointIndex++]) else null
     }
 
@@ -48,9 +53,10 @@ class LocationTrackingSimTestCase : LocationTrackingRealTestCase, LocationSimula
         }
     }
 
-    var simPointIndex = 0
-    var simFailIndex = 0
-    val simPointData = arrayOf(
+    private var simPointIndex = 0
+    private var simFailIndex = 0
+    private var markerSize = 32
+    private val simPointData = arrayOf(
             arrayOf(16.382910,48.211350,275.700000),
             arrayOf(16.382870,48.211250,194.900000),
             arrayOf(16.382830,48.211150,194.900000),

@@ -37,7 +37,7 @@ class LocationTrackingSimTestCase: MaplyTestCase, MaplyLocationTrackerDelegate, 
         segCtrl?.clipsToBounds = true
         baseVC.view.addSubview(segCtrl!)
 
-        baseVC.startLocationTracking(with: self, simulator: self, simInterval: 0.5, useHeading: true, useCourse: true)
+        baseVC.startLocationTracking(with: self, simulator: self, simInterval: 0.75, useHeading: true, useCourse: true)
     }
     
     override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {

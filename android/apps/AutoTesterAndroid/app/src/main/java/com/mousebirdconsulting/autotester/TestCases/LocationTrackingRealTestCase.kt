@@ -83,16 +83,15 @@ open class LocationTrackingRealTestCase : MaplyTestCase, LocationTrackerDelegate
 
     @RequiresPermission(anyOf = [Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION])
     open fun setUpTracker() {
-        tracker?.let {
-            it.stop()
-        }
+        tracker?.stop()
         tracker = null
 
         val context = activity.applicationContext
         baseViewC?.let { vc ->
             tracker = LocationTracker(vc, this, useHeading = true).apply {
-                start(context, Looper.myLooper())
                 lockType = MaplyLocationLockType.MaplyLocationLockNorthUp
+                markerSize = 48
+                start(context, Looper.myLooper())
             }
         }
     }
@@ -110,7 +109,7 @@ open class LocationTrackingRealTestCase : MaplyTestCase, LocationTrackerDelegate
         baseCase = CartoLightTestCase(getActivity()).apply {
             setUpWithMap(mapVC)
         }
-        mapVC?.setPositionGeo(-100 * Math.PI / 180.0, 40 * Math.PI / 180.0, 0.0001)
+        mapVC?.setPositionGeo(-100 * Math.PI / 180.0, 40 * Math.PI / 180.0, 0.00005)
         setUp()
         return true
     }
@@ -120,27 +119,34 @@ open class LocationTrackingRealTestCase : MaplyTestCase, LocationTrackerDelegate
         baseCase = CartoLightTestCase(getActivity()).apply {
             setUpWithGlobe(globeVC)
         }
-        globeVC?.setPositionGeo(-100 * Math.PI / 180.0, 40 * Math.PI / 180.0, 0.01)
+        globeVC?.keepNorthUp = false
+        globeVC?.setPositionGeo(-100 * Math.PI / 180.0, 40 * Math.PI / 180.0, 0.0001)
         setUp()
         return true
     }
 
-    fun onTrackNone() {
+    override fun shutdown() {
+        tracker?.stop()
+        tracker = null
+        super.shutdown()
+    }
+
+    private fun onTrackNone() {
         tracker?.let {
             it.lockType = MaplyLocationLockType.MaplyLocationLockNone
         }
     }
-    fun onTrackNorth() {
+    private fun onTrackNorth() {
         tracker?.let {
             it.lockType = MaplyLocationLockType.MaplyLocationLockNorthUp
         }
     }
-    fun onTrackHeading() {
+    private fun onTrackHeading() {
         tracker?.let {
             it.lockType = MaplyLocationLockType.MaplyLocationLockHeadingUp
         }
     }
-    fun onTrackHeadingForward() {
+    private fun onTrackHeadingForward() {
         tracker?.let {
             it.lockType = MaplyLocationLockType.MaplyLocationLockHeadingUpOffset
             it.forwardTrackOffset = 500

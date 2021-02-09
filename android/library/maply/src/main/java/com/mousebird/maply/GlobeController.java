@@ -22,6 +22,7 @@ package com.mousebird.maply;
 
 import android.app.Activity;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.view.Choreographer;
 import android.view.MotionEvent;
 import android.view.View;
@@ -557,6 +558,29 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 	 */
 	public void animatePositionGeo(final double x,final double y,final double z,final double howLong)
 	{
+		animatePositionGeo(x,y,z,null,howLong);
+	}
+
+	/**
+	 * Animate to a new view position
+	 * @param targetGeoLoc Location of the center of the screen in geographic radians (not degrees).
+	 * @param hdg New heading
+	 * @param howLong Time (in seconds) to animate.
+	 */
+	public void animatePositionGeo(final Point3d targetGeoLoc,Double hdg,final double howLong) {
+		animatePositionGeo(targetGeoLoc.getX(),targetGeoLoc.getY(),targetGeoLoc.getZ(),hdg,howLong);
+	}
+
+	/**
+	 * Animate to a new view position
+	 * @param x Horizontal location of the center of the screen in geographic radians (not degrees).
+	 * @param y Vertical location of the center of the screen in geographic radians (not degrees).
+	 * @param z Height above the map in display units.
+	 * @param hdg New heading
+	 * @param howLong Time (in seconds) to animate.
+	 */
+	public void animatePositionGeo(final double x,final double y,final double z,Double hdg,final double howLong)
+	{
 		if (!isCompletelySetup()) {
 			if (!rendererAttached) {
 				addPostSurfaceRunnable(new Runnable() {
@@ -569,12 +593,95 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 			return;
 		}
 
+		hdg = globeView.northUp ? 0 : ((hdg != null) ? hdg : globeView.getHeading());
+
 		globeView.cancelAnimation();
 		Point3d geoCoord = globeView.coordAdapter.coordSys.geographicToLocal(new Point3d(x,y,0.0));
 		if (geoCoord != null) {
 			Quaternion newQuat = globeView.makeRotationToGeoCoord(x, y, globeView.northUp);
 			if (newQuat != null)
-				globeView.setAnimationDelegate(new GlobeAnimateRotation(globeView, renderControl, newQuat, z, howLong));
+				globeView.setAnimationDelegate(new GlobeAnimateRotation(globeView, renderControl, newQuat, z, hdg, howLong));
+		}
+	}
+
+	/**
+	 * Animate to a new view position
+	 * @param x Horizontal location in geographic radians (not degrees).
+	 * @param y Vertical location in geographic radians (not degrees).
+	 * @param z Height above the map in display units.
+	 * @param offset Screen offset for the target point
+	 * @param hdg New heading
+	 * @param howLong Time (in seconds) to animate.
+	 */
+	public void animatePositionGeo(final double x,final double y,final double z,Point2d offset,Double hdg,final double howLong) {
+		animatePositionGeo(new Point3d(x,y,z),offset,hdg,howLong);
+	}
+
+	/**
+	 * Animate to a new view position
+	 * @param targetGeoLoc Location of the in geographic radians (not degrees).
+	 * @param offset Screen offset for the target point
+	 * @param hdg New heading
+	 * @param howLong Time (in seconds) to animate.
+	 */
+	public void animatePositionGeo(final Point3d targetGeoLoc,final Point2d offset,Double hdg,final double howLong)
+	{
+		if (!isCompletelySetup()) {
+			if (!rendererAttached) {
+				addPostSurfaceRunnable(new Runnable() {
+					@Override
+					public void run() {
+						animatePositionGeo(targetGeoLoc,offset,hdg,howLong);
+					}
+				});
+			}
+			return;
+		}
+
+		globeView.cancelAnimation();
+
+		CoordSystemDisplayAdapter coordAdapter = globeView.coordAdapter;
+		CoordSystem coordSys = (coordAdapter != null) ? coordAdapter.coordSys : null;
+		if (coordSys == null) {
+			return;
+		}
+
+		Matrix4d matrix = globeView.calcModelViewMatrix();
+
+		int[] frameBufSizeArr = getFrameBufferSize();
+		if (frameBufSizeArr == null || frameBufSizeArr.length != 2) {
+			return;
+		}
+		Point2d frameSize = new Point2d(frameBufSizeArr[0], frameBufSizeArr[1]);
+
+		Point2d localOffset = frameSize.multiplyBy(0.5);
+		if (offset != null) {
+			localOffset = localOffset.addTo(offset.multiplyBy(-1));
+		}
+
+		// check that the offset is actually within the globe, or we can't do it anyway
+		Point3d offsetLoc = globeView.pointOnSphereFromScreen(localOffset, matrix, frameSize, true);
+		if (offsetLoc == null) {
+			return;
+		}
+
+		Point3d destPt = coordAdapter.localToDisplay(coordSys.geographicToLocal(targetGeoLoc));
+		Quaternion newRotQuat = globeView.getRotQuat().multiply(new Quaternion(destPt, offsetLoc));
+
+		if (newRotQuat != null && globeView.northUp) {
+			// See where the north pole is going.
+			Point3d northPole = newRotQuat.multiply(new Point3d(0,0,1)).normalized();
+			if (northPole.getY() != 0.0) {
+				// Not straight up, rotate it back to vertical.
+				Double angle = Math.atan(northPole.getX() / northPole.getY()) + ((northPole.getY() < 0) ? Math.PI : 0);
+				newRotQuat = newRotQuat.multiply(new AngleAxis(angle, destPt));
+			}
+		}
+
+		if (newRotQuat != null) {
+			GlobeAnimateRotation dg = new GlobeAnimateRotation(globeView, renderControl, newRotQuat,
+															   targetGeoLoc.getZ(), hdg, howLong);
+			globeView.setAnimationDelegate(dg);
 		}
 	}
 

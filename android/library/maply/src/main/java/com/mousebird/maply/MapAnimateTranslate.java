@@ -98,15 +98,8 @@ public class MapAnimateTranslate implements MapView.AnimationDelegate
 		if (startTime == 0.0 || renderer == null || endTime == startTime)
 			return;
 		
-		double curTime = System.currentTimeMillis()/1000.0;
-		if (curTime > endTime)
-		{
-			curTime = endTime;
-			startTime = 0;
-			view.cancelAnimation();
-			return;
-		}
-		
+		double curTime = Math.min(endTime, System.currentTimeMillis()/1000.0);
+
 		// Calculate location
 		double t = (curTime-startTime)/(endTime-startTime);
 		Point3d newPos = endLoc.subtract(startLoc).multiplyBy(t).addTo(startLoc);
@@ -120,6 +113,12 @@ public class MapAnimateTranslate implements MapView.AnimationDelegate
 
 		if (startRot != null && dRot != null && dRot != 0.0) {
 			view.setRot(startRot + t * dRot);
+		}
+
+		if (curTime >= endTime)
+		{
+			startTime = 0;
+			view.cancelAnimation();
 		}
 	}
 }

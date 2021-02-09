@@ -26,7 +26,6 @@ import android.graphics.Shader
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import androidx.annotation.ColorInt
 import androidx.annotation.RequiresPermission
 import com.google.android.gms.location.*
 import com.google.android.gms.location.LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
@@ -135,6 +134,21 @@ class LocationTracker : LocationCallback {
                 clearInfoObjects()
             }
         }
+
+    var markerSize = 32
+        set(value) {
+            // Limit to at least 16 and ensure that it's even
+            val newValue = (value.coerceAtLeast(8))
+            if (newValue != field) {
+                field = newValue;
+                clearMarkerImages()
+            }
+        }
+
+    var markerColorInner = Color.WHITE
+    var markerColorOuter = Color.argb(255,0,192,255)
+    var markerColorOutline = Color.WHITE
+    var markerColorShadow = Color.argb(48, 0, 0, 0)
 
     /**
      * Draw priority for the marker assigned to follow location.
@@ -255,8 +269,8 @@ class LocationTracker : LocationCallback {
         movingMarker.endLoc = Point2d.FromDegrees(endLoc.lonDeg, endLoc.latDeg)
         movingMarker.duration = updateInterval / 2.0
         movingMarker.period = 1.0
-        movingMarker.size = Point2d(locationTrackerPositionMarkerSize.toDouble(),
-                                    locationTrackerPositionMarkerSize.toDouble())
+        movingMarker.size = Point2d(markerSize.toDouble(),
+                                    markerSize.toDouble())
         movingMarker.rotation = degToRad(if (orientation != null) -orientation else 0.0)
         movingMarker.images = if (orientation != null) directionalImages else markerImages
         movingMarker.layoutImportance = Float.MAX_VALUE
@@ -306,17 +320,18 @@ class LocationTracker : LocationCallback {
                 if (map != null) {
                     map.animatePositionGeo(gp.x, gp.y, map.positionGeo.z, hdg, animTime)
                 } else {
-                    globe?.animatePositionGeo( gp.x, gp.y, globe.viewState.height, animTime)
+                    globe?.animatePositionGeo( gp.x, gp.y, globe.viewState.height, -hdg, animTime)
                 }
             }
             MaplyLocationLockType.MaplyLocationLockHeadingUpOffset -> {
-                // TODO: Add animateToPosition:onScreen
+                val offset = Point2d(0.0, -forwardTrackOffset.toDouble())
                 if (map != null) {
                     val target = Point3d(gp.x, gp.y, map.positionGeo.z)
-                    val offset = Point2d(0.0, -forwardTrackOffset.toDouble())
                     map.animatePositionGeo(target,offset,hdg,animTime)
                 } else {
-                    globe?.animatePositionGeo(gp.x, gp.y, globe.viewState.height, animTime)
+                    // TODO: Add animateToPosition:onScreen
+                    val target = Point3d(gp.x, gp.y, globe!!.viewState.height)
+                    globe.animatePositionGeo(target,offset,-hdg,animTime)
                 }
             }
             else -> {}
@@ -325,17 +340,12 @@ class LocationTracker : LocationCallback {
 
     private fun setupMarkerImages() {
         if (markerImages == null || directionalImages == null) {
-            val size = locationTrackerPositionMarkerSize * 2
-
-            val color0 = Color.WHITE
-            val color1 = Color.argb(255,0,192,255)
-
             baseController.get()?.let { vc ->
                 markerImages = (0..16).map {
-                        radialGradientMarker(vc, size, color0, color1, it, false)
+                        radialGradientMarker(vc, markerSize * 2, it, false)
                     }.toTypedArray()
                 directionalImages = (0..16).map {
-                        radialGradientMarker(vc, size, color0, color1, it, true)
+                        radialGradientMarker(vc, markerSize * 2, it, true)
                 }.toTypedArray()
             }
         }
@@ -397,18 +407,16 @@ class LocationTracker : LocationCallback {
 
     @Suppress("SameParameterValue")
     private fun radialGradientMarker(vc: BaseController, size: Int,
-                                     @ColorInt color0: Int, @ColorInt color1: Int,
                                      idx: Int, directional: Boolean): MaplyTexture {
-        val gradLoc = markerGradLoc(idx, locationTrackerPositionMarkerSize, 4)
-        val gradRad = markerGradRad(idx, size, locationTrackerPositionMarkerSize, 4)
-        val outlineWidth = 4f
-        val image = radialGradientMarkerImage(size, color0, color1, gradLoc, gradRad, outlineWidth, directional)
+        val gradLoc = markerGradLoc(idx, markerSize, 4)
+        val gradRad = markerGradRad(idx, size, markerSize, 4)
+        val outlineWidth = (markerSize / 8f).coerceAtLeast(1f).coerceAtMost(10f)
+        val image = radialGradientMarkerImage(size, gradLoc, gradRad, outlineWidth, directional)
         return vc.addTexture(image, RenderControllerInterface.TextureSettings(), RenderControllerInterface.ThreadMode.ThreadCurrent)
     }
 
     @Suppress("SameParameterValue")
     private fun radialGradientMarkerImage(size: Int,
-                                          @ColorInt color0: Int, @ColorInt color1: Int,
                                           gradLocation: Float, gradRadius: Float,
                                           outlineWidth: Float,
                                           directional: Boolean): Bitmap {
@@ -418,8 +426,8 @@ class LocationTracker : LocationCallback {
 
         val canvas = Canvas(image)
 
-        val paint = Paint(Paint.ANTI_ALIAS_FLAG + Paint.FILTER_BITMAP_FLAG)
-        paint.color = Color.argb(48, 0, 0, 0)
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG.or(Paint.FILTER_BITMAP_FLAG))
+        paint.color = markerColorShadow
         canvas.drawOval(0f, 0f, size.toFloat(), size.toFloat(), paint)
 
         val radius = size / 2.0f
@@ -427,13 +435,13 @@ class LocationTracker : LocationCallback {
         if (directional) {
             val len = size * 5 / 16f
             val width = size * 3 / 16f
-            paint.color = color1
-            paint.alpha = 255
+            //paint.color = markerColorOuter
+            //paint.alpha = Color.alpha(markerColorOuter)
             val vertexes = floatArrayOf(radius,         radius - gradRadius - len,
                                         radius - width, radius - gradRadius,
                                         radius + width, radius - gradRadius)
             val indexes = shortArrayOf(0, 1, 2)
-            val colors = intArrayOf(color1, color1, color1)
+            val colors = intArrayOf(markerColorOuter, markerColorOuter, markerColorOuter)
             canvas.drawVertices(Canvas.VertexMode.TRIANGLES,
                     vertexes.size, vertexes, 0,
                     null, 0,
@@ -442,15 +450,15 @@ class LocationTracker : LocationCallback {
                     paint)
         }
 
-        paint.color = Color.WHITE
+        paint.color = markerColorOutline
         canvas.drawOval(radius - gradRadius - outlineWidth, radius - gradRadius - outlineWidth,
                   radius + gradRadius + outlineWidth,  radius + gradRadius + outlineWidth,
                        paint)
 
-        val gradientPaint = Paint(Paint.ANTI_ALIAS_FLAG + Paint.FILTER_BITMAP_FLAG)
+        val gradientPaint = Paint(Paint.ANTI_ALIAS_FLAG.or(Paint.FILTER_BITMAP_FLAG))
         gradientPaint.shader = RadialGradient(radius, radius,
                 (gradLocation * radius).coerceAtLeast(0.1f),
-                color0, color1, Shader.TileMode.CLAMP)
+                markerColorInner, markerColorOuter, Shader.TileMode.CLAMP)
         canvas.drawOval(radius - gradRadius, radius - gradRadius,
                 radius + gradRadius,  radius + gradRadius,
                 gradientPaint)
@@ -545,6 +553,4 @@ class LocationTracker : LocationCallback {
     private var simulating = false
 
     private val threadCurrent = RenderControllerInterface.ThreadMode.ThreadCurrent
-
-    private val locationTrackerPositionMarkerSize = 32
 }
