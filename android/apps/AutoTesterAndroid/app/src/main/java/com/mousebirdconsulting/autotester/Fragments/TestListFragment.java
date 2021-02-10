@@ -87,6 +87,7 @@ public class TestListFragment extends Fragment {
 			testCases.add(new AnimatedScreenMarkersTestCase(a));
 			testCases.add(new AnimatedMarkersTestCase(a));
 			testCases.add(new ClusteredMarkersTestCase(a));
+			testCases.add(new MovingScreenMarkersTestCase(a));
 			testCases.add(new VectorsTestCase(a));
 			testCases.add(new GreatCircleTestCase(a));
 			testCases.add(new VectorStyleTestCase(a));
@@ -123,6 +124,7 @@ public class TestListFragment extends Fragment {
 //			testCases.add(new ArealTestCase(a));
 			testCases.add(new LocationTrackingRealTestCase(a));
 			testCases.add(new LocationTrackingSimTestCase(a));
+			testCases.add(new GlobeRotationTestCase(a));
 		}
 
 		public void downloadResources() {
