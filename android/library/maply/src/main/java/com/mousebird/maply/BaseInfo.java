@@ -64,7 +64,7 @@ public class BaseInfo
     public native void setViewDistRange(double minViewerDist,double maxViewerDist);
 
     /**
-     * @return Minimim distance from the user that an object will be visible.
+     * @return Minimum distance from the user that an object will be visible.
      */
     public native double getViewDistRangeMin();
 

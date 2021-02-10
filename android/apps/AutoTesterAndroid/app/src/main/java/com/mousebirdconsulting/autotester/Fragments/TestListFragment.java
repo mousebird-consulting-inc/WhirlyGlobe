@@ -1,6 +1,7 @@
 package com.mousebirdconsulting.autotester.Fragments;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -20,7 +21,10 @@ import com.mousebirdconsulting.autotester.MainActivity;
 import com.mousebirdconsulting.autotester.R;
 import com.mousebirdconsulting.autotester.TestCases.*;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class TestListFragment extends Fragment {
 
@@ -48,7 +52,7 @@ public class TestListFragment extends Fragment {
 	}
 
 	private RecyclerView.LayoutManager createLayoutManager() {
-		return new LinearLayoutManager(getActivity().getApplicationContext());
+		return new LinearLayoutManager(Objects.requireNonNull(getActivity()).getApplicationContext());
 	}
 
 	public void changeItemsState(boolean selected) {
@@ -71,10 +75,10 @@ public class TestListFragment extends Fragment {
 
 	private class TestListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-		private ArrayList<MaplyTestCase> testCases = new ArrayList<>();
+		final private ArrayList<MaplyTestCase> testCases = new ArrayList<>();
 
 		TestListAdapter() {
-			Activity a = getActivity();
+			Activity a = Objects.requireNonNull(getActivity());
 			testCases.add(new StamenRemoteTestCase(a));
 			testCases.add(new GeographyClass(a));
 			testCases.add(new AnimatedBaseMapTestCase(a));
@@ -129,13 +133,14 @@ public class TestListFragment extends Fragment {
 
 		public void downloadResources() {
 			ArrayList<MaplyTestCase> incompleteTest = new ArrayList<>();
+			Context context = Objects.requireNonNull(getContext());
 			for (MaplyTestCase testCase : this.testCases) {
 				if (!testCase.areResourcesDownloaded()) {
 					incompleteTest.add(testCase);
-					ConfigOptions.setTestState(getContext(), testCase.getTestName(), ConfigOptions.TestState.Downloading);
+					ConfigOptions.setTestState(context, testCase.getTestName(), ConfigOptions.TestState.Downloading);
 				} else {
-					if (ConfigOptions.getTestState(getContext(), testCase.getTestName()) != ConfigOptions.TestState.Selected) {
-						ConfigOptions.setTestState(getContext(), testCase.getTestName(), ConfigOptions.TestState.Ready);
+					if (ConfigOptions.getTestState(context, testCase.getTestName()) != ConfigOptions.TestState.Selected) {
+						ConfigOptions.setTestState(context, testCase.getTestName(), ConfigOptions.TestState.Ready);
 					}
 				}
 				adapter.notifyDataSetChanged();
@@ -178,14 +183,15 @@ public class TestListFragment extends Fragment {
 			manager.execute();
 		}
 
+		@NotNull
 		@Override
-		public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+		public RecyclerView.ViewHolder onCreateViewHolder(@NotNull ViewGroup parent, int viewType) {
 			View view = LayoutInflater.from(getContext()).inflate(R.layout.testlistitemview, parent, false);
 			return new TestViewHolder(view);
 		}
 
 		@Override
-		public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+		public void onBindViewHolder(@NotNull RecyclerView.ViewHolder holder, int position) {
 			((TestViewHolder) holder).bindViewHolder(testCases.get(position), position);
 		}
 
@@ -195,9 +201,10 @@ public class TestListFragment extends Fragment {
 		}
 
 		public void changeItemsState(boolean selected) {
+			Context context = Objects.requireNonNull(getContext());
 			for (MaplyTestCase testCase : testCases) {
 				ConfigOptions.TestState state = selected ? ConfigOptions.TestState.Ready : ConfigOptions.TestState.Selected;
-				ConfigOptions.setTestState(getContext(), testCase.getTestName(), state);
+				ConfigOptions.setTestState(context, testCase.getTestName(), state);
 			}
 			notifyDataSetChanged();
 		}
@@ -209,10 +216,8 @@ public class TestListFragment extends Fragment {
 
 		private class TestViewHolder extends RecyclerView.ViewHolder {
 
-			private TextView label;
-			private ImageView selected, map, globe, retry, download;
-			private View self;
-			private MaplyTestCase testCase;
+			final private TextView label;
+			final private ImageView selected, map, globe, retry, download;
 			private int index;
 
 			public int getIndex() {
@@ -227,33 +232,29 @@ public class TestListFragment extends Fragment {
 				globe = (ImageView) itemView.findViewById(R.id.globe_icon);
 				retry = (ImageView) itemView.findViewById(R.id.retryDownload);
 				download = (ImageView) itemView.findViewById(R.id.downloading);
-				self = itemView;
+				//self = itemView;
 			}
 
 			public void bindViewHolder(final MaplyTestCase testCase, final int index) {
-				this.testCase = testCase;
+				//final private View self;
 				this.index = index;
 
-				this.label.setText(this.testCase.getTestName());
-				final MainActivity activity = (MainActivity) getActivity();
+				this.label.setText(testCase.getTestName());
+				final MainActivity activity = Objects.requireNonNull((MainActivity)getActivity());
+				final Context context = Objects.requireNonNull(getContext());
 				//if error
-				switch (ConfigOptions.getTestState(getContext(), testCase.getTestName())) {
+				switch (ConfigOptions.getTestState(context, testCase.getTestName())) {
 					case Error:
-						itemView.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorRed));
+						itemView.setBackgroundColor(ContextCompat.getColor(activity, R.color.colorRed));
 						retry.setVisibility(View.VISIBLE);
 						selected.setVisibility(View.INVISIBLE);
 						map.setVisibility(View.INVISIBLE);
 						globe.setVisibility(View.INVISIBLE);
 						download.setVisibility(View.INVISIBLE);
-						retry.setOnClickListener(new View.OnClickListener() {
-							@Override
-							public void onClick(View v) {
-								adapter.downloadTestResources(index);
-							}
-						});
+						retry.setOnClickListener(v -> adapter.downloadTestResources(index));
 						break;
 					case Downloading:
-						itemView.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorGreen));
+						itemView.setBackgroundColor(ContextCompat.getColor(activity, R.color.colorGreen));
 						retry.setVisibility(View.INVISIBLE);
 						selected.setVisibility(View.INVISIBLE);
 						map.setVisibility(View.INVISIBLE);
@@ -265,58 +266,49 @@ public class TestListFragment extends Fragment {
 					case Ready:
 						retry.setVisibility(View.INVISIBLE);
 						download.setVisibility(View.INVISIBLE);
-						itemView.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorWhite));
-						switch (ConfigOptions.getExecutionMode(getContext())) {
+						itemView.setBackgroundColor(ContextCompat.getColor(activity, R.color.colorWhite));
+						switch (ConfigOptions.getExecutionMode(context)) {
 							case Multiple:
-								changeItemState(ConfigOptions.getTestState(getContext(),testCase.getTestName()) == ConfigOptions.TestState.Selected);
+								changeItemState(ConfigOptions.getTestState(context,testCase.getTestName()) == ConfigOptions.TestState.Selected);
 								map.setVisibility(View.INVISIBLE);
 								globe.setVisibility(View.INVISIBLE);
-								itemView.setOnClickListener(new View.OnClickListener() {
-									@Override
-									public void onClick(View v) {
-										if (ConfigOptions.getTestState(getContext(), testCase.getTestName()) == ConfigOptions.TestState.Ready){
-											ConfigOptions.setTestState(getContext(), testCase.getTestName(), ConfigOptions.TestState.Selected);
-										} else {
-											ConfigOptions.setTestState(getContext(), testCase.getTestName(), ConfigOptions.TestState.Ready);
-										}
-										changeItemState(ConfigOptions.getTestState(getContext(),testCase.getTestName()) == ConfigOptions.TestState.Selected);
-										notifyItemChanged(index);
+								itemView.setOnClickListener(v -> {
+									if (ConfigOptions.getTestState(context, testCase.getTestName()) == ConfigOptions.TestState.Ready){
+										ConfigOptions.setTestState(context, testCase.getTestName(), ConfigOptions.TestState.Selected);
+									} else {
+										ConfigOptions.setTestState(context, testCase.getTestName(), ConfigOptions.TestState.Ready);
 									}
+									changeItemState(ConfigOptions.getTestState(context,testCase.getTestName()) == ConfigOptions.TestState.Selected);
+									notifyItemChanged(index);
 								});
 								break;
 
 							case Interactive:
 								selected.setVisibility(View.INVISIBLE);
-								if (this.testCase.getImplementation() == MaplyTestCase.TestExecutionImplementation.Both || this.testCase.getImplementation() == MaplyTestCase.TestExecutionImplementation.Map) {
+								if (testCase.getImplementation() == MaplyTestCase.TestExecutionImplementation.Both || testCase.getImplementation() == MaplyTestCase.TestExecutionImplementation.Map) {
 									map.setVisibility(View.VISIBLE);
 								}
 								else {
 									map.setVisibility(View.INVISIBLE);
 								}
-								if (this.testCase.getImplementation() == MaplyTestCase.TestExecutionImplementation.Both || this.testCase.getImplementation() == MaplyTestCase.TestExecutionImplementation.Globe) {
+								if (testCase.getImplementation() == MaplyTestCase.TestExecutionImplementation.Both || testCase.getImplementation() == MaplyTestCase.TestExecutionImplementation.Globe) {
 									globe.setVisibility(View.VISIBLE);
 								}
 								else {
 									globe.setVisibility(View.INVISIBLE);
 								}
-								map.setOnClickListener(new View.OnClickListener() {
-									@Override
-									public void onClick(View v) {
-										ConfigOptions.setTestType(getContext(), ConfigOptions.TestType.MapTest);
-										if (!activity.isExecuting()) {
-											activity.prepareTest(testCase);
-											activity.runTest(testCase);
-										}
+								map.setOnClickListener(v -> {
+									ConfigOptions.setTestType(getContext(), ConfigOptions.TestType.MapTest);
+									if (!activity.isExecuting()) {
+										activity.prepareTest(testCase);
+										activity.runTest(testCase);
 									}
 								});
-								globe.setOnClickListener(new View.OnClickListener() {
-									@Override
-									public void onClick(View v) {
-										ConfigOptions.setTestType(getContext(), ConfigOptions.TestType.GlobeTest);
-										if (!activity.isExecuting()) {
-											activity.prepareTest(testCase);
-											activity.runTest(testCase);
-										}
+								globe.setOnClickListener(v -> {
+									ConfigOptions.setTestType(getContext(), ConfigOptions.TestType.GlobeTest);
+									if (!activity.isExecuting()) {
+										activity.prepareTest(testCase);
+										activity.runTest(testCase);
 									}
 								});
 								break;
@@ -325,13 +317,10 @@ public class TestListFragment extends Fragment {
 								selected.setVisibility(View.INVISIBLE);
 								map.setVisibility(View.INVISIBLE);
 								globe.setVisibility(View.INVISIBLE);
-								itemView.setOnClickListener(new View.OnClickListener() {
-									@Override
-									public void onClick(View v) {
-										if (!activity.isExecuting()) {
-											activity.prepareTest(testCase);
-											activity.runTest(testCase);
-										}
+								itemView.setOnClickListener(v -> {
+									if (!activity.isExecuting()) {
+										activity.prepareTest(testCase);
+										activity.runTest(testCase);
 									}
 								});
 								break;
@@ -344,12 +333,11 @@ public class TestListFragment extends Fragment {
 						globe.setVisibility(View.INVISIBLE);
 						retry.setVisibility(View.INVISIBLE);
 						download.setVisibility(View.INVISIBLE);
-						switch (ConfigOptions.getExecutionMode(getContext())) {
+						switch (ConfigOptions.getExecutionMode(context)) {
 							case Multiple:
 								this.selected.setImageDrawable(getResources().getDrawable(R.drawable.ic_options_action));
 								break;
 							case Interactive:
-								break;
 							case Single:
 								break;
 						}

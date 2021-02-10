@@ -3,7 +3,6 @@ package com.mousebirdconsulting.autotester.TestCases
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.graphics.Color
-import android.os.Looper
 import com.mousebird.maply.LocationSimulatorDelegate
 import com.mousebird.maply.LocationTracker
 import com.mousebird.maply.LocationTrackerPoint
@@ -29,11 +28,12 @@ class LocationTrackingSimTestCase : LocationTrackingRealTestCase, LocationSimula
             tracker = LocationTracker(vc, this, this,
                     updateInterval = 1.0, useHeading = true).apply {
                 lockType = MaplyLocationLockType.MaplyLocationLockNorthUp
-                markerColorInner = Color.YELLOW
+                //markerColorInner = Color.YELLOW
                 markerColorOuter = Color.MAGENTA
-                markerColorShadow = Color.argb(16, 0, 0, 255)
-                markerColorOutline = Color.BLACK
-                start(context, Looper.myLooper())
+                //markerColorShadow = Color.argb(16, 0, 0, 255)
+                //markerColorOutline = Color.BLACK
+                //accuracyCircleColor = Color.argb(10, 0, 0, 0)
+                start(context)
             }
         }
     }
@@ -41,7 +41,7 @@ class LocationTrackingSimTestCase : LocationTrackingRealTestCase, LocationSimula
     override fun locationSimulatorGetLocation(): LocationTrackerPoint? {
         markerSize = (markerSize + 3) % 250
         tracker?.markerSize = markerSize
-        return if ((++simFailIndex % 20) != 0) convert(simPointData[simPointIndex++]) else null
+        return if ((++simFailIndex % 20) != 0) convert(simPointData[simPointIndex++ % simPointData.size]) else null
     }
 
     private fun convert(p: Array<Double>): LocationTrackerPoint {
@@ -49,7 +49,7 @@ class LocationTrackingSimTestCase : LocationTrackingRealTestCase, LocationSimula
             lonDeg = p[0]
             latDeg = p[1]
             headingDeg = p[2]
-            horizontalAccuracy = p[2]
+            horizontalAccuracy = p[2] / 3
         }
     }
 

@@ -91,7 +91,7 @@ open class LocationTrackingRealTestCase : MaplyTestCase, LocationTrackerDelegate
             tracker = LocationTracker(vc, this, useHeading = true).apply {
                 lockType = MaplyLocationLockType.MaplyLocationLockNorthUp
                 markerSize = 48
-                start(context, Looper.myLooper())
+                start(context)
             }
         }
     }

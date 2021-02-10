@@ -33,30 +33,33 @@ using namespace WhirlyKit;
 
 namespace WhirlyKit
 {
+
 ShapeInfo::ShapeInfo()
-    : color(RGBAColor(255,255,255,255)), lineWidth(1.0), insideOut(false), hasCenter(false), center(0.0,0.0,0.0)
+    : color(RGBAColor(255,255,255,255))
+    , lineWidth(1.0)
+    , insideOut(false)
+    , hasCenter(false)
+    , center(0.0,0.0,0.0)
 {
     zBufferRead = true;
 }
-    
+
 ShapeInfo::ShapeInfo(const Dictionary &dict)
     : BaseInfo(dict)
+    , hasCenter(false)
+    , center(0,0,0)
 {
-    if (!dict.hasField(MaplyZBufferRead))
-        zBufferRead = true;
+    zBufferRead = dict.getBool(MaplyZBufferRead, true);
     color = dict.getColor(MaplyColor,RGBAColor(255,255,255,255));
     lineWidth = dict.getDouble(MaplyVecWidth,1.0);
     insideOut = dict.getBool(MaplyShapeInsideOut,false);
-    hasCenter = false;
-    center = Point3d(0.0,0.0,0.0);
     if (dict.hasField(MaplyShapeCenterX) || dict.hasField(MaplyShapeCenterY) || dict.hasField(MaplyShapeCenterZ))
     {
         hasCenter = true;
-        center.x() = dict.getDouble(MaplyShapeCenterX, center.x());
-        center.y() = dict.getDouble(MaplyShapeCenterY, center.y());
-        center.z() = dict.getDouble(MaplyShapeCenterZ, center.z());
         // Snap to float
-        center.x() = (float)center.x();  center.y() = (float)center.y();  center.z() = (float)center.z();
+        center.x() = (float)dict.getDouble(MaplyShapeCenterX, 0.0);
+        center.y() = (float)dict.getDouble(MaplyShapeCenterY, 0.0);
+        center.z() = (float)dict.getDouble(MaplyShapeCenterZ, 0.0);
     }
 }
 

@@ -23,12 +23,11 @@ import android.Manifest.permission
 import android.content.Context
 import android.graphics.*
 import android.graphics.Shader
-import android.os.Build
-import android.os.Handler
-import android.os.Looper
+import android.os.*
 import androidx.annotation.RequiresPermission
+import androidx.core.graphics.*
 import com.google.android.gms.location.*
-import com.google.android.gms.location.LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
+import com.google.android.gms.location.LocationRequest.*
 import com.google.android.gms.tasks.Task
 import java.lang.ref.WeakReference
 import kotlin.math.*
@@ -76,8 +75,8 @@ class LocationTracker : LocationCallback {
     fun start(context: Context, looper: Looper? = null, request: LocationRequest? = null) {
         stop()
 
-        handler = Handler(looper ?: Looper.myLooper())
-
+        handler = if (looper != null) Handler(looper) else Handler(baseController.get()?.workingThread?.looper)
+        
         simulatorDelegate.get()?.let {
             simulating = true
             handler?.post(simTask)
@@ -89,6 +88,7 @@ class LocationTracker : LocationCallback {
                     maxWaitTime = 2 * interval - 1
                     numUpdates = Int.MAX_VALUE
                 }
+                val looper = baseController.get()?.workingThread?.looper
                 locationTask = client.requestLocationUpdates(req, this, handler?.looper)
             }
         }
@@ -101,6 +101,7 @@ class LocationTracker : LocationCallback {
 
         simulating = false
         handler?.removeCallbacks(simTask)
+        handler = null
 
         if (locationTask != null) {
             locationClient?.removeLocationUpdates(this)
@@ -141,14 +142,49 @@ class LocationTracker : LocationCallback {
             val newValue = (value.coerceAtLeast(8))
             if (newValue != field) {
                 field = newValue;
-                clearMarkerImages()
+                imagesInvalidated = true
             }
         }
 
     var markerColorInner = Color.WHITE
-    var markerColorOuter = Color.argb(255,0,192,255)
+        set(value) {
+            if (field != value) {
+                field = value
+                imagesInvalidated = true
+            }
+        }
+
+    var markerColorOuter = Color.argb(255, 0, 192, 255)
+        set(value) {
+            if (field != value) {
+                field = value
+                imagesInvalidated = true
+            }
+        }
+
     var markerColorOutline = Color.WHITE
+        set(value) {
+            if (field != value) {
+                field = value
+                imagesInvalidated = true
+            }
+        }
+
     var markerColorShadow = Color.argb(48, 0, 0, 0)
+        set(value) {
+            if (field != value) {
+                field = value
+                imagesInvalidated = true
+            }
+        }
+
+    var accuracyCircleColor = Color.argb(52, 15, 15, 26)
+        set(value) {
+            if (field != value) {
+                field = value
+                clearInfoObjects()
+            }
+        }
 
     /**
      * Draw priority for the marker assigned to follow location.
@@ -237,55 +273,87 @@ class LocationTracker : LocationCallback {
         val tracker = trackerDelegate.get()
         val endLoc = if (tracker != null) tracker.locationManagerDidUpdateLocation(this, location) else location
 
-        // Remove previous objects
-        removeComponentObjects()
-
         prevLocation = lastLocation
         lastLocation = endLoc
 
         // If the latest is no location, we're done
         if (endLoc == null) {
+            removeComponentObjects()
             return
         }
 
-        // Create textures and info objects, if they don't already exist
-        setupMarkerImages()
-        val circleInfo = circleInfo ?: return
-        val markerInfo = markerInfo ?: return
-        val movingMarkerInfo = movingMarkerInfo ?: return
+        // If something has changed, we need to remove and re-create the marker image textures.
+        // Hold onto them until after the objects using them are removed, though.
+        var oldMarkerImages: Array<MaplyTexture>? = null
+        var oldDirectionalImages: Array<MaplyTexture>? = null
+        if (imagesInvalidated) {
+            oldMarkerImages = markerImages
+            oldDirectionalImages = directionalImages
+            markerImages = null
+            directionalImages = null
+            imagesInvalidated = false;
+        }
 
-        val now = System.currentTimeMillis() / 1000.0
+        try {
+            // Create textures and info objects, if they don't already exist
+            setupMarkerImages()
+            val circleInfo = circleInfo ?: return
+            val markerInfo = markerInfo ?: return
+            val movingMarkerInfo = movingMarkerInfo ?: return
 
-        // If we have a previous location, animate starting there
-        val startLoc: LocationTrackerPoint = prevLocation ?: endLoc
+            val now = System.currentTimeMillis() / 1000.0
 
-        val circle = circleForLocation(endLoc) ?: return
-        circleObj = vc.addShapes(arrayOf(circle).asList(), circleInfo, threadCurrent)
+            // If we have a previous location, animate starting there
+            val startLoc: LocationTrackerPoint = prevLocation ?: endLoc
 
-        val orientation = if (useHeading) endLoc.headingDeg else null
+            val circle = circleForLocation(endLoc) ?: return
 
-        val movingMarker = ScreenMovingMarker()
-        movingMarker.loc = Point2d.FromDegrees(startLoc.lonDeg, startLoc.latDeg)
-        movingMarker.endLoc = Point2d.FromDegrees(endLoc.lonDeg, endLoc.latDeg)
-        movingMarker.duration = updateInterval / 2.0
-        movingMarker.period = 1.0
-        movingMarker.size = Point2d(markerSize.toDouble(),
-                                    markerSize.toDouble())
-        movingMarker.rotation = degToRad(if (orientation != null) -orientation else 0.0)
-        movingMarker.images = if (orientation != null) directionalImages else markerImages
-        movingMarker.layoutImportance = Float.MAX_VALUE
-        movingMarkerInfo.setEnableTimes(now, now + movingMarker.duration)
-        movingMarkerObj = vc.addScreenMovingMarkers(listOf(movingMarker), movingMarkerInfo, threadCurrent)
+            val orientation = if (useHeading) endLoc.headingDeg else null
 
-        val marker = ScreenMarker()
-        marker.loc = movingMarker.endLoc
-        marker.period = 1.0
-        marker.size = movingMarker.size
-        marker.rotation = movingMarker.rotation
-        marker.images = movingMarker.images
-        marker.layoutImportance = Float.MAX_VALUE
-        markerInfo.setEnableTimes(now + movingMarker.duration, 0.0)
-        markerObj = vc.addScreenMarker(marker, markerInfo, threadCurrent)
+            val movingMarker = ScreenMovingMarker()
+            movingMarker.loc = Point2d.FromDegrees(startLoc.lonDeg, startLoc.latDeg)
+            movingMarker.endLoc = Point2d.FromDegrees(endLoc.lonDeg, endLoc.latDeg)
+            movingMarker.duration = updateInterval / 2.0
+            movingMarker.period = 1.0
+            movingMarker.size = Point2d(markerSize.toDouble(),
+                    markerSize.toDouble())
+            movingMarker.rotation = degToRad(if (orientation != null) -orientation else 0.0)
+            movingMarker.images = if (orientation != null) directionalImages else markerImages
+            movingMarker.layoutImportance = Float.MAX_VALUE
+            movingMarkerInfo.setEnableTimes(now, now + movingMarker.duration)
+
+            val marker = ScreenMarker()
+            marker.loc = movingMarker.endLoc
+            marker.period = 1.0
+            marker.size = movingMarker.size
+            marker.rotation = movingMarker.rotation
+            marker.images = movingMarker.images
+            marker.layoutImportance = Float.MAX_VALUE
+            markerInfo.setEnableTimes(now + movingMarker.duration, 0.0)
+
+            // Capture old object refs
+            val objs = arrayOf(markerObj, movingMarkerObj, circleObj).filterNotNull()
+
+            try {
+                // Add new objects
+                circleObj = vc.addShapes(listOf(circle), circleInfo, threadCurrent)
+                movingMarkerObj = vc.addScreenMovingMarkers(listOf(movingMarker), movingMarkerInfo, threadCurrent)
+                markerObj = vc.addScreenMarker(marker, markerInfo, threadCurrent)
+            } finally {
+                // Remove old objects
+                if (objs.isNotEmpty()) {
+                    baseController.get()?.removeObjects(objs, threadCurrent)
+                }
+            }
+        } finally {
+            // Clean up the old versions of the marker image textures
+            oldMarkerImages?.let {
+                vc.removeTextures(it.toMutableList(), threadAny)
+            }
+            oldDirectionalImages?.let {
+                vc.removeTextures(it.toMutableList(), threadAny)
+            }
+        }
 
         lockToLocation(endLoc)
     }
@@ -320,18 +388,18 @@ class LocationTracker : LocationCallback {
                 if (map != null) {
                     map.animatePositionGeo(gp.x, gp.y, map.positionGeo.z, hdg, animTime)
                 } else {
-                    globe?.animatePositionGeo( gp.x, gp.y, globe.viewState.height, -hdg, animTime)
+                    globe?.animatePositionGeo(gp.x, gp.y, globe.viewState.height, -hdg, animTime)
                 }
             }
             MaplyLocationLockType.MaplyLocationLockHeadingUpOffset -> {
                 val offset = Point2d(0.0, -forwardTrackOffset.toDouble())
                 if (map != null) {
                     val target = Point3d(gp.x, gp.y, map.positionGeo.z)
-                    map.animatePositionGeo(target,offset,hdg,animTime)
+                    map.animatePositionGeo(target, offset, hdg, animTime)
                 } else {
                     // TODO: Add animateToPosition:onScreen
                     val target = Point3d(gp.x, gp.y, globe!!.viewState.height)
-                    globe.animatePositionGeo(target,offset,-hdg,animTime)
+                    globe.animatePositionGeo(target, offset, -hdg, animTime)
                 }
             }
             else -> {}
@@ -368,16 +436,27 @@ class LocationTracker : LocationCallback {
         }
         if (circleInfo == null) {
             circleInfo = ShapeInfo().apply {
-                setColor(0.06f, 0.06f, 0.1f, 0.2f)
-                setFade(0.0)
                 drawPriority = markerDrawPriority - 1
-                // TODO: kMaplySampleX: @(100)
-                // TODO: kMaplyZBufferRead: @(false)
+                setColor(accuracyCircleColor.red / 255f, accuracyCircleColor.green / 255f,
+                        accuracyCircleColor.blue / 255f, accuracyCircleColor.alpha / 255f)
+                setFade(0.0)
+                // Prevent the circle from being occluded by other stuff
+                setZBufferRead(false)
+                // Use a no-light shader so the circle doesn't look different in different geographic locations
+                setShader(baseController.get()?.getShader(com.mousebird.maply.Shader.NoLightTriangleShader))
             }
         }
     }
 
     private fun clearMarkerImages() {
+        baseController.get()?.let { vc ->
+            markerImages?.let {
+                vc.removeTextures(it.toMutableList(), threadAny)
+            }
+            directionalImages?.let {
+                vc.removeTextures(it.toMutableList(), threadAny)
+            }
+        }
         markerImages = null
         directionalImages = null
     }
@@ -437,9 +516,9 @@ class LocationTracker : LocationCallback {
             val width = size * 3 / 16f
             //paint.color = markerColorOuter
             //paint.alpha = Color.alpha(markerColorOuter)
-            val vertexes = floatArrayOf(radius,         radius - gradRadius - len,
-                                        radius - width, radius - gradRadius,
-                                        radius + width, radius - gradRadius)
+            val vertexes = floatArrayOf(radius, radius - gradRadius - len,
+                    radius - width, radius - gradRadius,
+                    radius + width, radius - gradRadius)
             val indexes = shortArrayOf(0, 1, 2)
             val colors = intArrayOf(markerColorOuter, markerColorOuter, markerColorOuter)
             canvas.drawVertices(Canvas.VertexMode.TRIANGLES,
@@ -452,15 +531,15 @@ class LocationTracker : LocationCallback {
 
         paint.color = markerColorOutline
         canvas.drawOval(radius - gradRadius - outlineWidth, radius - gradRadius - outlineWidth,
-                  radius + gradRadius + outlineWidth,  radius + gradRadius + outlineWidth,
-                       paint)
+                radius + gradRadius + outlineWidth, radius + gradRadius + outlineWidth,
+                paint)
 
         val gradientPaint = Paint(Paint.ANTI_ALIAS_FLAG.or(Paint.FILTER_BITMAP_FLAG))
         gradientPaint.shader = RadialGradient(radius, radius,
                 (gradLocation * radius).coerceAtLeast(0.1f),
                 markerColorInner, markerColorOuter, Shader.TileMode.CLAMP)
         canvas.drawOval(radius - gradRadius, radius - gradRadius,
-                radius + gradRadius,  radius + gradRadius,
+                radius + gradRadius, radius + gradRadius,
                 gradientPaint)
 
         return image
@@ -478,6 +557,7 @@ class LocationTracker : LocationCallback {
 
         val circle = ShapeCircle()
         circle.setLoc(center)
+        circle.setSample(100)
 
         val top = coordOfPointAtTrueCourse(center, courseDeg = 0.0, distanceMeters = radius)
         val right = coordOfPointAtTrueCourse(center, courseDeg = 90.0, distanceMeters = radius)
@@ -527,6 +607,7 @@ class LocationTracker : LocationCallback {
 
     private var markerImages: Array<MaplyTexture>? = null
     private var directionalImages: Array<MaplyTexture>? = null
+    private var imagesInvalidated = false
 
     private var markerInfo: MarkerInfo? = null
     private var movingMarkerInfo: MarkerInfo? = null
@@ -538,6 +619,7 @@ class LocationTracker : LocationCallback {
 
     private var trackerDelegate = WeakReference<LocationTrackerDelegate>(null)
     private var simulatorDelegate = WeakReference<LocationSimulatorDelegate>(null)
+    private var simulating = false
     private var updateInterval = 1.0
         set (value) {
             field = value.coerceAtLeast(0.1)
@@ -546,11 +628,10 @@ class LocationTracker : LocationCallback {
     private var locationClient: FusedLocationProviderClient? = null
     private var locationTask: Task<Void>? = null
     private var locationUpdatePending = false
-
     private var prevLocation: LocationTrackerPoint? = null
 
     private var handler: Handler? = null
-    private var simulating = false
 
     private val threadCurrent = RenderControllerInterface.ThreadMode.ThreadCurrent
+    private val threadAny = RenderControllerInterface.ThreadMode.ThreadAny
 }
