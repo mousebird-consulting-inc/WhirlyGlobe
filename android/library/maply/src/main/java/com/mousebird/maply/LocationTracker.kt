@@ -185,7 +185,11 @@ class LocationTracker : LocationCallback {
                 clearInfoObjects()
             }
         }
-
+    
+    var trackerDelegate = WeakReference<LocationTrackerDelegate>(null)
+    
+    var simulatorDelegate = WeakReference<LocationSimulatorDelegate>(null)
+    
     /**
      * Draw priority for the marker assigned to follow location.
      */
@@ -230,7 +234,12 @@ class LocationTracker : LocationCallback {
 
     override fun onLocationAvailability(availability: LocationAvailability?) {
         availability.let { super.onLocationAvailability(it) }
-
+    
+        if (baseController.get() == null) {
+            stop()
+            return
+        }
+        
         // Call the delegate if its present, allowing it to update the result
         val tracker = trackerDelegate.get()
         val a = if (tracker != null) tracker.locationManagerDidChangeAuthorizationStatus(this, availability) else availability
@@ -241,7 +250,12 @@ class LocationTracker : LocationCallback {
 
     override fun onLocationResult(location: LocationResult?) {
         super.onLocationResult(location)
-        updateLocation(convertIf(location?.lastLocation))
+    
+        if (baseController.get() != null) {
+            updateLocation(convertIf(location?.lastLocation))
+        } else {
+            stop()
+        }
     }
 
     private fun convertIf(loc: android.location.Location?): LocationTrackerPoint? {
@@ -267,7 +281,11 @@ class LocationTracker : LocationCallback {
     private fun updateLocationInternal(location: LocationTrackerPoint?) {
         locationUpdatePending = false
 
-        val vc = baseController.get() ?: return
+        val vc = baseController.get()
+        if (vc == null) {
+            stop()
+            return
+        }
 
         // Call the delegate, allowing it to update the result
         val tracker = trackerDelegate.get()
@@ -342,7 +360,7 @@ class LocationTracker : LocationCallback {
             } finally {
                 // Remove old objects
                 if (objs.isNotEmpty()) {
-                    baseController.get()?.removeObjects(objs, threadCurrent)
+                    vc.removeObjects(objs, threadCurrent)
                 }
             }
         } finally {
@@ -362,6 +380,7 @@ class LocationTracker : LocationCallback {
         val map = (baseController.get() as? MapController)
         val globe = (baseController.get() as? GlobeController)
         if (map == null && globe == null) {
+            stop()
             return
         }
 
@@ -593,6 +612,11 @@ class LocationTracker : LocationCallback {
 
     private val simTask = object : Runnable {
         override fun run() {
+            if (baseController.get() == null) {
+                stop()
+                return
+            }
+            
             simulatorDelegate.get()?.let {
                 updateLocation(it.locationSimulatorGetLocation())
             }
@@ -617,8 +641,6 @@ class LocationTracker : LocationCallback {
     private var movingMarkerObj: ComponentObject? = null
     private var circleObj: ComponentObject? = null
 
-    private var trackerDelegate = WeakReference<LocationTrackerDelegate>(null)
-    private var simulatorDelegate = WeakReference<LocationSimulatorDelegate>(null)
     private var simulating = false
     private var updateInterval = 1.0
         set (value) {
