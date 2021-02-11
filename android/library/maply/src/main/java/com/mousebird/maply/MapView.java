@@ -135,15 +135,23 @@ public class MapView extends View
 	// Set the view location from a Point3d
 	void setLoc(Point3d loc)
 	{
+		setLoc(loc,true);
+	}
+
+	// Set the view location from a Point3d
+	void setLoc(Point3d loc, boolean runViewUpdates)
+	{
 		double z = loc.getZ();
 		z = Math.min(maxHeightAboveSurface(), z);
 		z = Math.max(minHeightAboveSurface(), z);
-		
+
 		setLoc(loc.getX(),loc.getY(),z);
-		
-		runViewUpdates();
+
+		if (runViewUpdates) {
+			runViewUpdates();
+		}
 	}
-		
+
 	// Calculate the point on the view plane given the screen location
 	native Point3d pointOnPlaneFromScreen(Point2d screenPt,Matrix4d viewModelMatrix,Point2d frameSize,boolean clip);
 	// Calculate the point on the screen from a point on the view plane

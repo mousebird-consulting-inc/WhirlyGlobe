@@ -75,7 +75,8 @@ Point3d Shape::displayCenter(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,
 }
 
 Circle::Circle()
-: loc(0,0), radius(0.0), height(0.0), sampleX(10)    {
+    : loc(0,0), radius(0.0), height(0.0), sampleX(10)
+{
 }
     
 Circle::~Circle()
@@ -87,15 +88,19 @@ Point3d Circle::displayCenter(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter
     if (shapeInfo.hasCenter)
         return shapeInfo.center;
     
-    Point3d localPt = coordAdapter->getCoordSystem()->geographicToLocal3d(loc);
-    Point3d dispPt = coordAdapter->localToDisplay(localPt);
+    const Point3d localPt = coordAdapter->getCoordSystem()->geographicToLocal3d(loc);
+    const Point3d dispPt = coordAdapter->localToDisplay(localPt);
     
     return dispPt;
 }
-    
-static const float sqrt2 = 1.4142135623;
 
-void Circle::makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, WhirlyKit::SelectionManagerRef &selectManager, WhirlyKit::ShapeSceneRep *sceneRep)
+static const float sqrt2 = M_SQRT2;
+
+void Circle::makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder,
+                                     WhirlyKit::ShapeDrawableBuilderTri *triBuilder,
+                                     WhirlyKit::Scene *scene,
+                                     WhirlyKit::SelectionManagerRef &selectManager,
+                                     WhirlyKit::ShapeSceneRep *sceneRep)
 {
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     
@@ -272,7 +277,8 @@ void Sphere::makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder
 }
     
 Cylinder::Cylinder()
-: loc(0,0), baseHeight(0.0), radius(0.0), height(0.0), sampleX(10)    {
+    : loc(0,0), baseHeight(0.0), radius(0.0), height(0.0), sampleX(10)
+{
 }
 
 Cylinder::~Cylinder()

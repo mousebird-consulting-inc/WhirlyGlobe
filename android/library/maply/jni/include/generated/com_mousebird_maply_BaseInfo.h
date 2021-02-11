@@ -122,10 +122,10 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_BaseInfo_getEnable
 /*
  * Class:     com_mousebird_maply_BaseInfo
  * Method:    setFade
- * Signature: (F)V
+ * Signature: (D)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setFade
-  (JNIEnv *, jobject, jfloat);
+  (JNIEnv *, jobject, jdouble);
 
 /*
  * Class:     com_mousebird_maply_BaseInfo

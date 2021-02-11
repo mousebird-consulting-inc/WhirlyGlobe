@@ -21,7 +21,7 @@
 package com.mousebird.maply;
 
 /**
- * Implements a rotation with momentum on the globe.
+ * Implements a rotation on the globe using a quaternion.
  * <p>
  * 
  * <p>
@@ -36,6 +36,8 @@ public class GlobeAnimateRotation implements GlobeView.AnimationDelegate
 	Quaternion startQuat = null;
 	Quaternion endQuat = null;
 	double startHeight,endHeight;
+	Double startRot = null;
+	Double dRot = null;
 	double startTime,animTime;
 
 	public GlobeAnimateRotation(GlobeView inGlobeView,RenderController inRender,Quaternion newQuat,double newHeight,double animLen)
@@ -50,27 +52,52 @@ public class GlobeAnimateRotation implements GlobeView.AnimationDelegate
 		endHeight = newHeight;
 		endQuat = newQuat;
 	}
-		
+
+	public GlobeAnimateRotation(GlobeView inGlobeView,RenderController inRender,Quaternion newQuat,double newHeight,Double heading,double animLen)
+	{
+		this(inGlobeView,inRender,newQuat,newHeight,animLen);
+
+		if (inGlobeView != null && heading != null && !inGlobeView.northUp) {
+			startRot = inGlobeView.getHeading();
+
+			// If the old and new rotations are within 180 degrees, just interpolate.
+			// Otherwise, we need to go around the other way.
+			// Note that we assume both angles are normalized.
+			dRot = heading - startRot;
+			if (Math.abs(dRot) < 1.0e-6) {
+				// Don't generate a bunch of rotations for minuscule offsets that won't make any difference
+				dRot = 0.0;
+			} else if (Math.abs(dRot) > Math.PI) {
+				dRot += ((dRot > 0) ? -2 : 2) * Math.PI;
+			}
+		}
+	}
+
 	@Override
 	public void updateView(GlobeView view) 
 	{
-		if (startTime == 0.0)
+		if (startTime <= 0 || animTime <= 0 || globeView == null || renderer == null)
 			return;
-		
-		double sinceStart = System.currentTimeMillis()/1000.0-startTime;
+
+		double curTime = Math.min(startTime + animTime, System.currentTimeMillis()/1000.0);
+		double t = (curTime-startTime)/animTime;
+
+		Quaternion newQuat = startQuat.slerp(endQuat,t);
+		globeView.setRotQuat(newQuat);
+
+		double height = (endHeight-startHeight)*t + startHeight;
+		globeView.setHeight(height);
+
+		if (startRot != null && dRot != null && dRot != 0.0) {
+			view.setHeading(startRot + t * dRot);
+		}
+
 		// Reached the end of the allotted time
-		if (sinceStart > animTime)
+		if (t >= 1.0)
 		{
-			sinceStart = animTime;
 			startTime = 0;
 			view.cancelAnimation();
 		}
-
-		double t = sinceStart/animTime;
-		Quaternion newQuat = startQuat.slerp(endQuat,t);
-		double height = (endHeight-startHeight)*t + startHeight;
-		globeView.setRotQuat(newQuat);
-		globeView.setHeight(height);
 	}
 
 }
