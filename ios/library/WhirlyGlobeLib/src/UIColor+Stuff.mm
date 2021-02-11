@@ -34,6 +34,15 @@ using namespace Eigen;
     return [UIColor colorWithRed:red green:green blue:blue alpha:1.0];
 }
 
++ (UIColor *) colorFromShortHexRGB:(int)hexColor
+{
+    int red = (((hexColor) >> 12) & 0xF); red |= red << 4;
+    int green = (((hexColor) >> 4) & 0xF); green |= green << 4;
+    int blue = (((hexColor) >> 0) & 0xF); blue |= blue << 4;
+    
+    return [UIColor colorWithRed:red/255.0f green:green/255.0f blue:blue/255.0f alpha:1.0];
+}
+
 + (UIColor *) colorFromRGBA:(const WhirlyKit::RGBAColor &)color
 {
     float red = color.r / 255.0;

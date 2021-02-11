@@ -23,8 +23,11 @@
 
 @interface UIColor(Stuff)
 
-/// Build a UIColor from a hex value
+/// Build a UIColor from a hex value (#RRGGBB)
 + (UIColor *) colorFromHexRGB:(int)hexColor;
+
+/// Build a UIColor from a hex value (#RGB)
++ (UIColor *) colorFromShortHexRGB:(int)hexColor;
 
 /// Build a UIColor from an RGBAColor
 + (UIColor *) colorFromRGBA:(const WhirlyKit::RGBAColor &)color;

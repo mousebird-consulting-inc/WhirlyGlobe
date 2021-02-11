@@ -202,21 +202,28 @@ public:
     return [[self shared] iconForName:name size:size color:color circleColor:circleColor strokeSize:strokeSize strokeColor:strokeColor];
 }
 
-- (UIColor *)parseColor:(NSString *)colorStr default:(UIColor *)defColor
+// Colors can be in short form:
+//   "#ace"
+// or long form
+//   "#aaccee"
+// with or without the # prefix.
+// Colors are interpreted the same as in CSS, in #RRGGBB and #RGB order.
+// But other color formats or named colors are not supported.
+- (UIColor *)parseColor:(NSString *)str default:(UIColor *)defColor
 {
-    UIColor *color = defColor;
-    NSString *str = colorStr;
-    
-    if ([str length] > 0 && [str characterAtIndex:0] == '#') {
+    const int len = [str length];
+    if (len > 2)
+    {
         NSScanner *scanner = [NSScanner scannerWithString:str];
-        [scanner setScanLocation:1];
+        if ([str characterAtIndex:0] == '#') {
+            [scanner setScanLocation:1];
+        }
         unsigned int val;
         if ([scanner scanHexInt:&val]) {
-            color = [UIColor colorFromHexRGB:val];
+            return (len < 6) ? [UIColor colorFromShortHexRGB:val] : [UIColor colorFromHexRGB:val];
         }
     }
-
-    return color;
+    return defColor;
 }
 
 - (CGFloat)parseNumber:(NSNumber *)num default:(CGFloat)defVal
@@ -282,11 +289,11 @@ public:
                            center:(CGPoint)center
                   clearBackground:(bool)clearBackground
 {
-    NSString *cacheKey = [NSString stringWithFormat:@"%@_%@_%d_%d_%.1f_%0.6X",
+    NSString *cacheKey = [NSString stringWithFormat:@"%@_%@_%d_%d_%.1f_%0.6X_%d",
                           backSymbol,
                           symbol,
                           (int)style.markerSize.width, (int)style.markerSize.height,
-                          strokeSize, [style.color asHexRGB]];
+                          strokeSize, [style.color asHexRGB], clearBackground];
     
     id cached = [texCache objectForKey:cacheKey];
     if ([cached isKindOfClass:[MaplyTexture class]])
@@ -304,10 +311,8 @@ public:
     // Draw into the image context
     CGContextRef ctx = UIGraphicsGetCurrentContext();
     CGContextSetBlendMode(ctx, kCGBlendModeNormal);
-    [[UIColor blackColor] setFill];
     CGRect rect = CGRectMake(0,0,renderSize.width,renderSize.height);
-    CGContextFillRect(ctx, rect);
-        
+
     // We want a custom background image, rather than just the circle
     if (backImage) {
         // Courtesy: https://stackoverflow.com/questions/3514066/how-to-tint-a-transparent-png-image-in-iphone
@@ -327,8 +332,8 @@ public:
             UIColor *strokeColor = [style.color lighterColor];
             CGContextBeginPath(ctx);
             CGContextAddEllipseInRect(ctx, CGRectMake(1,1,renderSize.width-2,renderSize.height-2));
-            [strokeColor setFill];
-            CGContextDrawPath(ctx, kCGPathFill);
+            [strokeColor setStroke];
+            CGContextDrawPath(ctx, kCGPathStroke);
         }
 
         if (!clearBackground) {
