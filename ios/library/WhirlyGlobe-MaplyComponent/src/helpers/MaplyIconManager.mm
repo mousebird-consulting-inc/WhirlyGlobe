@@ -281,7 +281,7 @@ public:
     return mainImage;
 }
 
-// Does much the same work as the image version above, but is slightly different for the simple styel
+// Does much the same work as the image version above, but is slightly different for the simple style
 - (MaplyTexture *)textureForStyle:(MaplySimpleStyle *)style
                        backSymbol:(NSString *)backSymbol
                            symbol:(NSString *)symbol
