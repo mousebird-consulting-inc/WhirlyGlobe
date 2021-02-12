@@ -868,6 +868,12 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
         }
         wgMarker->offset = Point2d(marker.offset.x,marker.offset.y);
         
+        if (marker.maskID) {
+            // TODO: Map the mask ID to a value
+            wgMarker->maskID = 1;
+            wgMarker->maskTargetID = maskRenderTargetID;
+        }
+        
         // Now for the motion related fields
         if ([marker isKindOfClass:[MaplyMovingScreenMarker class]])
         {

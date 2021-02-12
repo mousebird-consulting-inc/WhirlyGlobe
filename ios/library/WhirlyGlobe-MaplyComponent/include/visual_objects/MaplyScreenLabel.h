@@ -137,6 +137,11 @@
 @property (nonatomic,assign) CGSize layoutSize;
 
 /**
+    If this is present, we'll render an ID into the mask layer to be used by other features to mask against.
+ */
+@property (nonatomic,retain,nullable) NSString *maskID;
+
+/**
     Used to resolve to resolve labels that show the same thing.
  
     By default this is nil and not used to resolve conflicts.  When you set it to

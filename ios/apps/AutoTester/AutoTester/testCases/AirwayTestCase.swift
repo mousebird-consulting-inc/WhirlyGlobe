@@ -54,6 +54,8 @@ class AirwayTestCase: MaplyTestCase {
                 print("Failed to load ATS_Route shapefile")
                 return
             }
+
+            viewC.startMaskTarget(nil)
             
             var markerTextures: [MaplyTexture] = []
             markerTextures.append(viewC.addTexture(UIImage(named: "rocket-24@2x.png")!, desc: nil, mode: .current)!)         // 0, not used
@@ -86,7 +88,7 @@ class AirwayTestCase: MaplyTestCase {
                 marker.image = markerTextures[min(pt.value.count,markerTextures.count-1)]
 //                marker.layoutImportance = MAXFLOAT
                 marker.size = CGSize(width: 24.0, height: 24.0)
-//                marker.maskID = pt.value.uuid
+                marker.maskID = pt.value.uuid
                 markers.append(marker)
             }
             viewC.addScreenMarkers(markers, desc: nil)

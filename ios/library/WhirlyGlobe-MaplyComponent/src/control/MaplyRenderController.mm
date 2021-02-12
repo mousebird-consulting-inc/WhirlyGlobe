@@ -658,6 +658,52 @@ using namespace Eigen;
     }
 }
 
+- (void)startMaskTarget:(NSNumber * __nullable)inScale
+{
+    if (maskRenderTarget)
+        return;
+    
+    double scale = inScale ? [inScale doubleValue] : 0.5;
+    
+    const auto __strong vc = self;
+    CGSize screenSize = [vc getFramebufferSize];
+
+    // Can get into a race on framebuffer setup
+    if (screenSize.width == 0.0) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self startMaskTarget:inScale];
+        });
+        return;
+    }
+
+    screenSize.width *= scale;
+    screenSize.height *= scale;
+
+    // Set up the render target
+    maskTex = [vc createTexture:@{kMaplyTexFormat: @(MaplyImageUInt32)} sizeX:screenSize.width sizeY:screenSize.height mode:MaplyThreadCurrent];
+    maskRenderTarget = [[MaplyRenderTarget alloc] init];
+    maskRenderTarget.texture = maskTex;
+    [self addRenderTarget:maskRenderTarget];
+    
+    if (interactLayer)
+        interactLayer->maskRenderTargetID = [maskRenderTarget renderTargetID];
+}
+
+- (void)stopMaskTarget
+{
+    if (interactLayer)
+        interactLayer->maskRenderTargetID = EmptyIdentity;
+    
+    if (maskRenderTarget) {
+        [self removeRenderTarget:maskRenderTarget];
+        maskRenderTarget = nil;
+    }
+    if (maskTex) {
+        [self removeTextures:@[maskTex] mode:MaplyThreadCurrent];
+    }
+}
+
+
 - (void)removeObjects:(NSArray *__nonnull)theObjs mode:(MaplyThreadMode)threadMode
 {
     if (auto wr = WorkRegion(interactLayer)) {

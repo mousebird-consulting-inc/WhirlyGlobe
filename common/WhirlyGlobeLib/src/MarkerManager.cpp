@@ -97,7 +97,8 @@ Marker::Marker()
     height(0), width(0),
     layoutHeight(-1.0), layoutWidth(-1.0),
     rotation(0), offset(0,0), period(0),
-    timeOffset(0), layoutImportance(MAXFLOAT), orderBy(-1)
+    timeOffset(0), layoutImportance(MAXFLOAT), orderBy(-1),
+    maskID(EmptyIdentity), maskRenderTargetID(EmptyIdentity)
 {
 }
 
@@ -242,6 +243,14 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
                 shape->setEnableTime(markerInfo.startEnable, markerInfo.endEnable);
             shape->addGeometry(smGeom);
             markerRep->screenShapeIDs.insert(shape->getId());
+            
+            // Handle the mask rendering if it's there
+            if (marker->maskID != EmptyIdentity && marker->maskRenderTargetID != EmptyIdentity) {
+                auto maskObject = std::make_unique<ScreenSpaceObject>();
+                maskObject->addGeometry(shape->getGeometry());
+                maskObject->set
+                screenShapes.push_back(maskObject);
+            }
             
             // Set up for the layout layer
             if (layoutImport < MAXFLOAT)

@@ -508,6 +508,16 @@ static const float PerfOutputDelay = 15.0;
     [renderControl removeShaderProgram:shader];
 }
 
+- (void)startMaskTarget:(NSNumber * __nullable)inScale
+{
+    [renderControl startMaskTarget];
+}
+
+- (void)stopMaskTarget
+{
+    [renderControl stopMaskTarget];
+}
+
 #pragma mark - Defaults and descriptions
 
 // Set new hints and update any related settings
