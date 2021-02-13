@@ -20,11 +20,30 @@ import android.util.Size
 import androidx.annotation.ColorInt
 
 class SimpleStyle {
-    var markerSize: Size? = null
+    var title: String? = null
+    var description: String? = null
+
+    var markerSymbol: String? = null
+    var backgroundSymbol: String? = null
+    var markerString: String? = null
+    var markerSize: Point2d? = null
+    var markerCenter: Point2d? = null
+    var markerOffset: Point2d? = null
     @ColorInt
-    var markerColor: Int = 0
+    var markerColor: Int? = null
+
+    var clearBackground: Boolean? = null
+    
+    var fillOpacity: Float? = null
     @ColorInt
-    var fillColor: Int = 0
+    var fillColor: Int? = null
+    
+    var strokeWidth: Float? = null
+    var strokeOpacity: Float? = null
     @ColorInt
-    var strokeColor: Int = 0
+    var strokeColor: Int? = null
+    
+    var layoutSize: Size? = null
+
+    var markerTexture: MaplyTexture? = null
 }

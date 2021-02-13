@@ -465,6 +465,19 @@ public class MapController extends BaseController implements View.OnTouchListene
 
 	/**
 	 * Animate to a new view position
+	 * @param x Horizontal location of the center of the screen in geographic radians (not degrees).
+	 * @param y Vertical location of the center of the screen in geographic radians (not degrees).
+	 * @param z Height above the map in display units.
+	 * @param rot Map rotation in radians
+	 * @param howLong Time (in seconds) to animate.
+	 */
+	public void animatePositionGeo(final Point2d loc,final Double z,final Double rot,final double howLong)
+	{
+		animatePositionGeo(new Point3d(loc.getX(),loc.getY(),(z != null)?z:0.0),rot,howLong);
+	}
+
+	/**
+	 * Animate to a new view position
 	 * @param targetGeoLoc Location of the center of the screen in geographic radians (not degrees). z = height above the map in display units.
 	 * @param rot Map rotation in radians
 	 * @param howLong Time (in seconds) to animate.

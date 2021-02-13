@@ -25,48 +25,154 @@ import android.util.Size
 import androidx.annotation.ColorInt
 import androidx.collection.LruCache
 import java.io.IOException
+import java.lang.ref.WeakReference
 import java.util.*
+import kotlin.math.ceil
 
 class SimpleStyleManager {
     
-    var scale = 1.0;    // [UIScreen mainScreen].scale; //?
-    var smallSize = Size(16, 16);
-    var medSize = Size(32, 32);
-    var largeSize = Size(64, 64);
-    var strokeWidthForIcons = 1.0 * scale;
-    var centerIcon = true;
+    var smallSize = Point2d(16.0, 16.0)
+    var medSize = Point2d(32.0, 32.0)
+    var largeSize = Point2d(64.0, 64.0)
     
     constructor(context: Context, vc: RenderControllerInterface) {
-        this.vc = vc
-        this.context = context;
+        this.vc = WeakReference(vc)
+        this.context = context
     }
+    
+    /**
+     * Add a styled object, splitting it up if necessary.
+     */
+    fun addFeatures(obj: VectorObject, mode: ThreadMode): Collection<ComponentObject>? {
+        return addFeatures(listOf(obj), null, mode)
+    }
+    
+    /**
+     * Add a collection of styled objects, splitting each if necessary.
+     */
+    fun addFeatures(objs: Collection<VectorObject>, mode: ThreadMode): Collection<ComponentObject> {
+        return addFeatures(objs, null, mode)
+    }
+    
+    /**
+     * Add an object with a specific style, ignoring its attributes, splitting it if necessary
+     */
+    fun addFeatures(obj: VectorObject, style: SimpleStyle, mode: ThreadMode): Collection<ComponentObject> {
+        return addFeatures(listOf(obj), style, mode)
+    }
+    
+    /**
+     * Add objects with a specific style, ignoring its attributes, splitting it if necessary
+     */
+    fun addFeatures(objs: Collection<VectorObject>, style: SimpleStyle?, mode: ThreadMode): Collection<ComponentObject> {
+        return objs.flatMap { obj ->
+            (obj.splitVectors() ?: arrayOf()).mapNotNull { sObj ->
+                addFeaturesInternal(sObj, style ?: makeStyle(sObj.attributes), mode)
+            }
+        }
+    }
+    
+    fun makeStyle(dict: AttrDictionary): SimpleStyle {
+        val style = SimpleStyle()
+        
+        style.title = dict.getString("title")
+        style.description = dict.getString("description")
+        
+        style.markerSize = medSize
+        dict.getString("marker-size")?.let {
+            when (it) {
+                "small" -> style.markerSize = smallSize
+                "large" -> style.markerSize = largeSize
+            }
+        }
+        
+        style.markerSymbol = dict.getString("marker-symbol")
+        style.backgroundSymbol = dict.getString("marker-background-symbol")
+        
+        style.markerSymbol?.let {
+            if (it.length == 1) {
+                style.markerString = it
+                style.markerSymbol = null
+            }
+        }
+        
+        style.markerColor = parseColor(dict.getString("marker-color"))
+        
+        style.strokeColor = parseColor(dict.getString("stroke"))
+        style.strokeWidth = dict.getString("stroke-width")?.toFloatOrNull()
+        style.strokeOpacity = dict.getString("stroke-opacity")?.toFloatOrNull()
+        
+        style.fillColor = parseColor(dict["fill"]?.toString())
+        style.fillOpacity = dict.getString("fill-opacity")?.toFloatOrNull()
 
-    fun makeStyle(dict: Dictionary<String,Any>): SimpleStyle? {
-        return null
+        val cx = dict.getString("marker-background-center-x")?.toDoubleOrNull()
+        val cy = dict.getString("marker-background-center-y")?.toDoubleOrNull()
+        if (cx != null || cy != null) {
+            style.markerCenter = Point2d(cx ?: 0.0, cy ?: 0.0)
+        }
+    
+        val ox = dict.getString("marker-offset-x")?.toDoubleOrNull()
+        val oy = dict.getString("marker-offset-y")?.toDoubleOrNull()
+        if ((ox != null || oy != null) && style.markerSize != null) {
+            style.markerSize?.let {
+                style.markerOffset = Point2d((it.x * (ox ?: 0.0)),
+                                             (it.y * (oy ?: 0.0)))
+            }
+        }
+
+        style.clearBackground = parseBool(dict.getString("marker-circle"))
+        
+        style.markerTexture = textureForStyle(style)
+
+        return style
     }
     
-    fun addFeature(obj: VectorObject, mode: RenderControllerInterface.ThreadMode): ComponentObject? {
-        return null
-    }
-    
-    fun addFeatures(objs: Collection<VectorObject>, mode: RenderControllerInterface.ThreadMode): Collection<ComponentObject> {
-        return listOf()
-    }
-    
+    /**
+     * Call when done with all the generated objects.
+     */
     fun shutdown() {
         synchronized(textureCache) {
-            vc.removeTextures(textureCache.elements().toList(), threadCurrent)
+            vc.get()?.removeTextures(textureCache.elements().toList(), threadCurrent)
             textureCache.clear()
         }
     }
     
-    private fun loadImage(name: String, cacheKey: String): Drawable? {
+    private fun addFeaturesInternal(obj: VectorObject, style: SimpleStyle, mode: RenderControllerInterface.ThreadMode): ComponentObject? {
+        val vc = this.vc.get() ?: return null
+        when (obj.vectorType) {
+            VectorObject.MaplyVectorObjectType.MaplyVectorPointType -> {
+                if (style.markerTexture != null) {
+                    val marker = ScreenMarker()
+                    marker.loc = obj.center()
+                    marker.tex = style.markerTexture
+                    marker.size = style.markerSize
+                    marker.offset = style.markerOffset
+                    return vc.addScreenMarkers(listOf(marker), null, mode)
+                }
+            }
+            VectorObject.MaplyVectorObjectType.MaplyVectorLinearType -> {
+                val info = WideVectorInfo()
+                info.setLineWidth(style.strokeWidth ?: 2f)
+                info.setColor(resolveColor(style.strokeColor, style.strokeOpacity))
+                return vc.addWideVectors(listOf(obj), info, threadCurrent)
+            }
+            VectorObject.MaplyVectorObjectType.MaplyVectorArealType -> {
+                val info = VectorInfo()
+                info.setColor(resolveColor(style.fillColor, style.fillOpacity))
+                info.setFilled(true)
+                return vc.addVectors(listOf(obj), info, mode)
+            }
+        }
+        return null
+    }
+    
+    private fun loadImage(name: String?): Drawable? {
         if (name == null || name.isEmpty()) {
             return null
         }
     
         synchronized(Shared.drawableCache) {
-            Shared.drawableCache.get(cacheKey)?.let { return it }
+            Shared.drawableCache[name]?.let { return it }
         }
     
         //var bitmap: Bitmap? = null
@@ -75,10 +181,10 @@ class SimpleStyleManager {
         var drawable = Drawable.createFromPath(name)
         
         // todo: try other paths?
-        //fullName = [NSString stringWithFormat:@"%@-24@2x.png",symbol];
-        //mainImage = [UIImage imageNamed:fullName];
-        //NSString *shortName = [symbol stringByDeletingPathExtension];
-        //fullName = [NSString stringWithFormat:@"%@@2x.png",shortName];
+        //fullName = [NSString stringWithFormat:@"%@-24@2x.png",symbol]
+        //mainImage = [UIImage imageNamed:fullName]
+        //NSString *shortName = [symbol stringByDeletingPathExtension]
+        //fullName = [NSString stringWithFormat:@"%@@2x.png",shortName]
     
         if (drawable == null) {
             try {
@@ -99,7 +205,7 @@ class SimpleStyleManager {
     
         if (drawable != null) {
             synchronized(Shared.drawableCache) {
-                Shared.drawableCache.put(cacheKey, drawable)
+                Shared.drawableCache.put(name, drawable)
             }
         }
     
@@ -110,17 +216,14 @@ class SimpleStyleManager {
                             @ColorInt circleColor: Int, strokeWidth: Float,
                             @ColorInt strokeColor: Int): Bitmap? {
         val cacheKey = "${name}_${size.width}_${size.height}_" +
-                        "${circleColor}_${(100*strokeWidth).toInt()}_${strokeColor}"
+                        "${circleColor}_${strokeWidth}_${strokeColor}"
         
         synchronized(Shared.imageCache) {
-            Shared.imageCache.get(cacheKey)?.let { return it }
+            Shared.imageCache[cacheKey]?.let { return it }
         }
 
-        var drawable = loadImage(name, name)
-        if (drawable == null) {
-            return null
-        }
-        
+        var drawable: Drawable? = loadImage(name) ?: return null
+    
         val bitmap = Bitmap.createBitmap(size.width, size.height, Bitmap.Config.ARGB_8888)
         bitmap.eraseColor(Color.TRANSPARENT)
     
@@ -137,21 +240,37 @@ class SimpleStyleManager {
         return bitmap
     }
     
-    private fun textureForStyle(style: SimpleStyle, symbol: String, backSymbol: String,
-                                strokeWidth: Float, center: Point, clearBG: Boolean): MaplyTexture? {
-        val cacheKey = "${symbol}_${backSymbol}_${center.x}_" +
-                        "${center.y}_${(100*strokeWidth).toInt()}_${clearBG}"
+    private fun textureForStyle(style: SimpleStyle): MaplyTexture? {
+        val vc = this.vc.get() ?: return null
         
+        // Make a cache key from anything that can affect the way the texture looks
+        val cacheKey = arrayOf(
+                style.markerSymbol,
+                style.backgroundSymbol,
+                style.markerString,
+                style.markerCenter?.x,
+                style.markerCenter?.y,
+                style.markerSize?.x,
+                style.markerSize?.y,
+                style.markerColor,
+                style.clearBackground,
+                style.fillOpacity,
+                style.fillColor,
+                style.strokeWidth,
+                style.strokeOpacity,
+                style.strokeColor)
+                .joinToString("_") { it?.toString() ?: "" }
+    
         synchronized(textureCache) {
-            textureCache.get(cacheKey)?.let { return it }
+            textureCache[cacheKey]?.let { return it }
         }
         
-        val mainImage = loadImage(symbol, cacheKey + "_main")
-        val backImage = loadImage(backSymbol, cacheKey + "_back")
+        val mainImage = loadImage(style.markerSymbol)
+        val backImage = loadImage(style.backgroundSymbol)
         
-        val renderSize = style.markerSize ?: return null  // * scale
+        val renderSize = style.markerSize ?: return null
     
-        val bitmap = Bitmap.createBitmap(renderSize.width, renderSize.height, Bitmap.Config.ARGB_8888)
+        val bitmap = Bitmap.createBitmap(ceil(renderSize.x).toInt(), ceil(renderSize.y).toInt(), Bitmap.Config.ARGB_8888)
         bitmap.eraseColor(Color.TRANSPARENT)
     
         val canvas = Canvas(bitmap)
@@ -165,27 +284,34 @@ class SimpleStyleManager {
             //backImage.setTintMode()
             backImage.draw(canvas)
         } else {
-            if (strokeWidth > 0) {
+            val strokeWidth = style.strokeWidth ?: 2f
+            val strokeOpacity = style.strokeOpacity ?: 1f
+            if (strokeWidth > 0 && strokeOpacity > 0) {
                 paint.strokeWidth = strokeWidth
-                paint.color = style.strokeColor
+                paint.color = style.strokeColor ?: 0xFF555555.toInt()
                 paint.style = Paint.Style.STROKE
-                canvas.drawOval(0f, 0f, renderSize.width.toFloat(), renderSize.height.toFloat(), paint)
+                canvas.drawOval(0f, 0f, renderSize.x.toFloat(), renderSize.y.toFloat(), paint)
                 // todo: ?
                 //canvas.drawOval(1f, 1f, renderSize.width.toFloat() - 2, renderSize.height.toFloat() - 2, paint)
             }
             
-            if (!clearBG) {
-                paint.color = style.fillColor
+            if (style.clearBackground == false) {
+                paint.color = style.fillColor ?: 0xFF555555.toInt()
                 paint.style = Paint.Style.FILL
-                val sw = strokeWidth.coerceAtLeast(0.0f)
-                canvas.drawOval(sw, sw, renderSize.width - 2 * sw, renderSize.height - 2 * sw, paint)
-                // todo: ?
-                //canvas.drawOval(sw + 1, sw + 1, renderSize.width - 2 * sw - 2, renderSize.height - 2 *  sw - 2, paint)
+                paint.alpha = ((style.fillOpacity ?: 0f) * 255f).toInt()
+                if (paint.alpha > 0) {
+                    canvas.drawOval(strokeWidth, strokeWidth,
+                            (renderSize.x - 2 * strokeWidth).toFloat(),
+                            (renderSize.y - 2 * strokeWidth).toFloat(),
+                            paint)
+                    // todo: ?
+                    //canvas.drawOval(sw + 1, sw + 1, renderSize.width - 2 * sw - 2, renderSize.height - 2 *  sw - 2, paint)
+                }
             }
         }
         
         if (mainImage != null) {
-            val scale = if (backImage != null) renderSize.width / backImage.intrinsicWidth else 1.0
+            val scale = if (backImage != null) renderSize.x / backImage.intrinsicWidth else 1.0
             // todo: Set up scale/translate ?
             //canvas.scale(scalex, scaley, centerx, centery)
             //theCenter.x = if (center.x > -1000.0) center.x * scale else renderSize.width / 2.0
@@ -197,23 +323,62 @@ class SimpleStyleManager {
             mainImage.draw(canvas)
         }
     
-        val tex = vc.addTexture(bitmap, RenderControllerInterface.TextureSettings(), threadCurrent)
-        return tex?.let {
+        return vc.addTexture(bitmap, RenderControllerInterface.TextureSettings(), threadCurrent)?.let {
             synchronized(textureCache) {
-                textureCache.put(cacheKey, tex)
+                textureCache.put(cacheKey, it)
             }
         }
     }
     
-    private val vc: RenderControllerInterface
+    @ColorInt private fun resolveColor(@ColorInt color: Int?, alpha: Float?): Int {
+        val c = color ?: 0x555555
+        val a = alpha ?: 1.0f
+        val r = (Color.red(c) * a).toInt()
+        val g = (Color.green(c) * a).toInt()
+        val b = (Color.blue(c) * a).toInt()
+        return Color.argb((a * 255f).toInt(),r, g, b)
+    }
+    
+    private fun parseBool(s: String?): Boolean? {
+        if (s == null || s.isEmpty()) return null
+        return (s == "1" || s.toLowerCase(Locale.ROOT) == "true")
+    }
+    
+    @ColorInt private fun parseColor(s: String?): Int? {
+        if (s == null || s.isEmpty()) return null
+        try {
+            val c = (if (s[0] == '#') s.substring(1) else s).toInt(16)
+            if (s.length < 5) {
+                // handle short colors
+                val r = c.and(0xF00)
+                val g = c.and(0x0F0)
+                val b = c.and(0x00F)
+                return r.shl(12)   // R__ => R_____
+                    .or(r.shl(8))  // R__ => _R____
+                    .or(g.shl(8))  // _G_ => __G___
+                    .or(g.shl(4))  // _G_ => ___G__
+                    .or(b.shl(4))  // __B => ____B_
+                    .or(b)                  // __B => _____B
+                    .or(0xFF000000.toInt()) // alpha = 1
+            }
+            // regular color, already in the correct order for @ColorInt, add alpha and we're done
+            return c.or(0xFF000000.toInt())
+        } catch (e: java.lang.NumberFormatException) {
+            return null
+        }
+    }
+    
+    private var vc = WeakReference <RenderControllerInterface>(null)
     private val context: Context
     private val textureCache = Hashtable<String, MaplyTexture>()
     
-    private val threadCurrent = RenderControllerInterface.ThreadMode.ThreadCurrent
+    private val threadCurrent = ThreadMode.ThreadCurrent
     
     private object Shared {
         var cacheSize = 4 * 1024 * 1024
-        val imageCache: LruCache<String, Bitmap> by lazy { LruCache(cacheSize) }
-        val drawableCache: LruCache<String, Drawable> by lazy { LruCache(cacheSize) }
+        val imageCache: LruCache<String, Bitmap> by lazy { LruCache<String, Bitmap>(cacheSize) }
+        val drawableCache: LruCache<String, Drawable> by lazy { LruCache<String, Drawable>(cacheSize) }
     }
 }
+
+typealias ThreadMode = RenderControllerInterface.ThreadMode

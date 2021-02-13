@@ -25,6 +25,23 @@ using namespace Eigen;
 
 @implementation UIColor(Stuff)
 
+- (UIColor *)lighterColor
+{
+    return [self lighterColor:1.3];
+}
+
+// Courtesy: https://stackoverflow.com/questions/11598043/get-slightly-lighter-and-darker-color-from-uicolor
+- (UIColor *)lighterColor:(float)withFactor
+{
+    CGFloat h, s, b, a;
+    if ([self getHue:&h saturation:&s brightness:&b alpha:&a])
+        return [UIColor colorWithHue:h
+                          saturation:s
+                          brightness:MIN(b * withFactor, 1.0)
+                               alpha:a];
+    return nil;
+}
+
 + (UIColor *) colorFromHexRGB:(int)hexColor
 {
     float red = (((hexColor) >> 16) & 0xFF)/255.0;
@@ -114,7 +131,7 @@ using namespace Eigen;
             break;
     }
     
-    return color;    
+    return color;
 }
 
 @end

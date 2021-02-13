@@ -94,6 +94,7 @@ public class TestListFragment extends Fragment {
 			testCases.add(new MovingScreenMarkersTestCase(a));
 			testCases.add(new VectorsTestCase(a));
 			testCases.add(new GreatCircleTestCase(a));
+			testCases.add(new SimpleStyleTestCase(a));
 			testCases.add(new VectorStyleTestCase(a));
 			testCases.add(new VectorHoleTestCase(a));
 			testCases.add(new ShapefileTestCase(a));

@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by Steve Gifford on 3/31/20.
-//  Copyright © 2020 mousebird consulting. All rights reserved.
+//  Copyright © 2021 mousebird consulting. All rights reserved.
 //
 
 import UIKit
@@ -33,18 +33,17 @@ class SimpleStyleTestCase: MaplyTestCase {
         """ +
             [prop("title", title, true),
              prop("marker-size", mSz ?? "large", true),
-            prop("marker-color", mC, true),
-            prop("marker-symbol", m, true),
-            prop("marker-background-symbol", bg, true),
-            prop("marker-circle", "\(!(c ?? true))", false),
-            prop("marker-color", mC, true),
-            prop("fill-color", fC, true),
-            prop("fill-opacity", (fA != nil) ? "\(fA!)" : nil, false),
-            prop("stroke-width", (s != nil) ? "\(s!)" : nil, false),
-            prop("stroke-color", sC, true),
-            prop("stroke-opacity", (sA != nil) ? "\(sA!)" : nil, false)
-            ].compactMap { $0 }
-            .joined(separator: ",") +
+             prop("marker-color", mC, true),
+             prop("marker-symbol", m, true),
+             prop("marker-background-symbol", bg, true),
+             prop("marker-circle", "\(!(c ?? true))", false),
+             prop("marker-color", mC, true),
+             prop("fill-color", fC, true),
+             prop("fill-opacity", (fA != nil) ? "\(fA!)" : nil, false),
+             prop("stroke-width", (s != nil) ? "\(s!)" : nil, false),
+             prop("stroke-color", sC, true),
+             prop("stroke-opacity", (sA != nil) ? "\(sA!)" : nil, false)
+            ].compactMap { $0 }.joined(separator: ",") +
         """
           },
           "geometry": { "type": "Point", "coordinates": [ \(lon), \(lat) ] }
