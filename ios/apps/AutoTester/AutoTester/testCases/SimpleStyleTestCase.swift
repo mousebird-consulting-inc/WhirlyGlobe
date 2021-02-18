@@ -22,10 +22,9 @@ class SimpleStyleTestCase: MaplyTestCase {
     static func prop(_ name: String, _ value: String?, _ quote: Bool) -> String? {
         (value != nil) ? ("\"\(name)\": " + (quote ? "\"\(value!)\"" : value!)) : nil
     }
-    static func marker(_ title: String, _ lat: Double, _ lon: Double, m: String? = nil,
-                       bg: String? = nil, c: Bool? = nil, mC: String? = nil, fC: String? = nil,
-                       fA: Double? = nil, s: Double? = nil, sC: String? = nil,
-                       sA: Double? = nil, mSz: String? = nil) -> String {
+    static func marker(_ title: String, _ lat: Double, _ lon: Double, m: String? = nil, bg: String? = nil,
+                       c: Bool? = nil, mC: String? = nil, fC: String? = nil, fA: Double? = nil, s: Double? = nil,
+                       sC: String? = nil, sA: Double? = nil, mSz: String? = nil, ox: Double? = nil, oy: Double? = nil) -> String {
         """
         {
           "type": "Feature",
@@ -42,7 +41,9 @@ class SimpleStyleTestCase: MaplyTestCase {
              prop("fill-opacity", (fA != nil) ? "\(fA!)" : nil, false),
              prop("stroke-width", (s != nil) ? "\(s!)" : nil, false),
              prop("stroke-color", sC, true),
-             prop("stroke-opacity", (sA != nil) ? "\(sA!)" : nil, false)
+             prop("stroke-opacity", (sA != nil) ? "\(sA!)" : nil, false),
+             prop("marker-offset-x", (ox != nil) ? "\(ox!)" : nil, false),
+             prop("marker-offset-y", (oy != nil) ? "\(oy!)" : nil, false)
             ].compactMap { $0 }.joined(separator: ",") +
         """
           },
@@ -51,29 +52,43 @@ class SimpleStyleTestCase: MaplyTestCase {
         """
     }
 
-    static func markers() -> String {
-        var lat = -30.0, lon = 142.0, n = 0
-        return [nil, "bar"].flatMap { m in
-            [nil, "marker-stroked"].flatMap { bg in
+    static func markers1() -> String {
+        let startLon = 142.0, latStep = 0.05, lonStep = 0.05, rowSize = 64
+        var lat = -30.0, lon = startLon, n = 0
+        return  [nil, "bar"].flatMap { m in
+                [nil, "marker-stroked"].flatMap { bg in
+                ["small", "medium", "large"].flatMap { sz in
+                [0.0, 2.0, 5.0].flatMap { sWidth in
+                [0.0, 0.5, 1.0].flatMap { fA in
                 [true, false].flatMap { c in
-                    [0.0, 0.8].flatMap { fA in
-                        [0.0, 2.0].map { s -> String in
-                            lon += 0.1
-                            if (n % 8) == 0 { lat -= 0.1; lon = 140.0 }
-                            n += 1
-                            return marker("marker", lat, lon, m: m, bg: bg, c: c, mC: "0a0",
-                                          fC: "050", fA: fA, s: s, sC: "020", sA: 0.8)
-                        }
-                    }
-                }
-            }
+                ["f0f", "0f0",].flatMap { mColor in
+                ["0fa", "a0f",].flatMap { fColor in
+                ["fa0", "0af",].map { sColor -> String in
+                    lon += lonStep
+                    if (n % rowSize) == 0 { lat -= latStep; lon = startLon }
+                    n += 1
+                    return marker("", lat, lon, m: m, bg: bg, c: c, mC: mColor,
+                                  fC: fColor, fA: fA, s: sWidth, sC: sColor, sA: 0.8, mSz: sz)
+                } } } } } } } }
         }.joined(separator: ",")
     }
+
+    static func markers2() -> String {
+        return [-4.0, -1.5, -0.5, 0.0, 0.5, 1.0].flatMap { ox in
+               [-5.0, -1.5, -0.5, 0.0, 0.5, 1.0].map { oy in
+                return marker("", -30, -140, m: nil, bg: "marker-stroked", c: false,
+                              mC: "0a0", fC: "050", fA: 0.8, s: nil, sC: "020", sA: 0.8,
+                              mSz: "medium", ox: ox, oy: oy)
+               }
+            }.joined(separator: ",")
+    }
+    
     let geoJSON = """
     {
       "type": "FeatureCollection",
       "features": [
-        \(markers()),
+        \(markers1()),
+        \(markers2()),
         {
           "type": "Feature",
           "properties": {
