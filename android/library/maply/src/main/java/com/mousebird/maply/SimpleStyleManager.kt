@@ -20,6 +20,7 @@ package com.mousebird.maply
 import android.content.Context
 import android.content.res.AssetManager
 import android.graphics.*
+import android.util.Log
 import android.util.Size
 import androidx.annotation.ColorInt
 import androidx.collection.LruCache
@@ -79,8 +80,8 @@ class SimpleStyleManager {
      */
     fun addFeatures(objs: Collection<VectorObject>, style: SimpleStyle?, mode: ThreadMode): Collection<ComponentObject> {
         return objs.flatMap { obj ->
-            (obj.splitVectors() ?: arrayOf()).mapNotNull { sObj ->
-                addFeaturesInternal(sObj, style ?: makeStyle(sObj.attributes), mode)
+            (obj.splitVectors() ?: arrayOf()).flatMap { sObj ->
+                addFeaturesInternal(sObj, style ?: makeStyle(sObj.attributes), mode) ?: listOf()
             }
         }
     }
@@ -117,7 +118,7 @@ class SimpleStyleManager {
         
         style.fillColor = parseColor(dict["fill"]?.toString())
         style.fillOpacity = dict.getString("fill-opacity")?.toFloatOrNull()
-
+    
         val cx = dict.getString("marker-background-center-x")?.toDoubleOrNull()
         val cy = dict.getString("marker-background-center-y")?.toDoubleOrNull()
         if (cx != null || cy != null) {
@@ -132,7 +133,19 @@ class SimpleStyleManager {
                                              (it.y * (oy ?: 0.0)))
             }
         }
-
+    
+        style.labelColor = parseColor(dict.getString("label"))
+        style.labelSize = dict.getString("label-size")?.toFloatOrNull()
+        
+        val lx = dict.getString("label-offset-x")?.toDoubleOrNull()
+        val ly = dict.getString("label-offset-y")?.toDoubleOrNull()
+        if (lx != null || ly != null) {
+            style.labelSize?.let {
+                style.labelOffset = Point2d((it * (lx ?: 0.0)),
+                                            (it * (ly ?: 0.0)))
+            }
+        }
+        
         style.clearBackground = parseBool(dict.getString("marker-circle"))
         
         style.markerTexture = textureForStyle(style)
@@ -150,10 +163,12 @@ class SimpleStyleManager {
         }
     }
     
-    private fun addFeaturesInternal(obj: VectorObject, style: SimpleStyle, mode: RenderControllerInterface.ThreadMode): ComponentObject? {
+    private fun addFeaturesInternal(obj: VectorObject, style: SimpleStyle, mode: RenderControllerInterface.ThreadMode): List<ComponentObject>? {
         val vc = this.vc.get() ?: return null
         when (obj.vectorType) {
             VectorObject.MaplyVectorObjectType.MaplyVectorPointType -> {
+                var markerObj: ComponentObject? = null
+                var labelObj: ComponentObject? = null
                 if (style.markerTexture != null) {
                     val marker = ScreenMarker()
                     marker.loc = obj.center()
@@ -163,20 +178,33 @@ class SimpleStyleManager {
                     val info = MarkerInfo()
                     //info.setLayoutImportance(Float.MAX_VALUE)
                     info.enable = true
-                    return vc.addScreenMarkers(listOf(marker), info, mode)
+                    markerObj = vc.addScreenMarkers(listOf(marker), info, mode)
                 }
+                if (style.labelColor != null && style.labelSize != null && (style.title ?: "").isNotEmpty()) {
+                    val label = ScreenLabel()
+                    label.text = style.title
+                    label.loc = obj.center()
+                    label.offset = style.labelOffset ?: Point2d(0.0, 0.0)
+                    label.layoutImportance = Float.MAX_VALUE
+                    val info = LabelInfo()
+                    info.fontSize = style.labelSize ?: 10f
+                    info.textColor = style.labelColor ?: defaultColor
+                    //info.layoutImportance = Float.MAX_VALUE
+                    labelObj = vc.addScreenLabels(listOf(label), info, mode)
+                }
+                return arrayOf(markerObj, labelObj).filterNotNull()
             }
             VectorObject.MaplyVectorObjectType.MaplyVectorLinearType -> {
                 val info = WideVectorInfo()
                 info.setLineWidth(style.strokeWidth ?: 2f)
                 info.setColor(resolveColor(style.strokeColor, style.strokeOpacity))
-                return vc.addWideVectors(listOf(obj), info, threadCurrent)
+                return listOf(vc.addWideVectors(listOf(obj), info, threadCurrent))
             }
             VectorObject.MaplyVectorObjectType.MaplyVectorArealType -> {
                 val info = VectorInfo()
                 info.setColor(resolveColor(style.fillColor, style.fillOpacity))
                 info.setFilled(true)
-                return vc.addVectors(listOf(obj), info, mode)
+                return listOf(vc.addVectors(listOf(obj), info, mode))
             }
             else -> return null
         }
@@ -205,7 +233,7 @@ class SimpleStyleManager {
                 try { return tryLoadAssetImage("$name$suffix") } catch (e2: FileNotFoundException) { }
             }
         } catch (e: Exception) {
-            println(String.format("Failed to load '%s': '%s'", name, e.localizedMessage))
+            Log.w(javaClass.name, String.format("Failed to load '%s': '%s'", name, e.localizedMessage))
         }
         return null
     }
@@ -222,7 +250,7 @@ class SimpleStyleManager {
         return try {
             loadImage(name)
         } catch (e: Exception) {
-            println(String.format("Failed to load '%s': '%s'", name, e.localizedMessage))
+            Log.w(javaClass.name, String.format("Failed to load '%s': '%s'", name, e.localizedMessage))
             null
         }?.also {
             synchronized(imageCache) {
@@ -249,8 +277,6 @@ class SimpleStyleManager {
         val canvas = Canvas(bitmap)
     
         val paint = Paint(Paint.ANTI_ALIAS_FLAG.or(Paint.FILTER_BITMAP_FLAG))
-        //paint.color =
-        //canvas.drawOval(0f, 0f, size.toFloat(), size.toFloat(), paint)
         canvas.drawBitmap(image, 0f, 0f, paint)
     
         synchronized(imageCache) {
@@ -341,7 +367,7 @@ class SimpleStyleManager {
                                     mainImage.getScaledHeight(canvas).toDouble())//mainImage.height.toDouble()
             val scale = renderSize.x / (imageSize.x + 2f * strokeWidth)
             canvas.withSave() {
-                canvas.scale(scale.toFloat(), scale.toFloat())//, (imageSize.x / 2).toFloat(), (imageSize.y / 2).toFloat())
+                canvas.scale(scale.toFloat(), scale.toFloat())
                 canvas.translate(strokeWidth, strokeWidth)
                 style.markerOffset?.let {
                     // todo: before or after translate?  positive or negative?
@@ -393,9 +419,6 @@ class SimpleStyleManager {
                     .or(b.shl(4))  // __B => ____B_
                     .or(b)                  // __B => _____B
                     .or(a.and(255).shl(24)) // alpha = 1
-//                        .also { c ->
-//                            Log.w(javaClass.name, String.format("%s => %x => %d/%d/%d/%d", s, c, Color.alpha(c), Color.red(c), Color.green(c), Color.blue(c)))
-//                        }
             }
             // regular color, already in the correct order for @ColorInt, add alpha and we're done
             return c.or(a.and(255).shl(24))

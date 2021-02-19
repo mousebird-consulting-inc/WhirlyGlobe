@@ -19,7 +19,6 @@ package com.mousebirdconsulting.autotester.TestCases
 import android.app.Activity
 import android.util.Log
 import com.mousebird.maply.*
-
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase
 
 class SimpleStyleTestCase : MaplyTestCase {
@@ -61,6 +60,7 @@ class SimpleStyleTestCase : MaplyTestCase {
     private fun runExamples(vc: BaseController) {
         cleanup()
         styleManager = SimpleStyleManager(activity.applicationContext, vc).also { styleMan ->
+            styleMan.medSize = Point2d(42.0, 36.0)
             componentObjects = arrayOf(vectorGeoJson1, vectorGeoJson2).flatMap { json ->
                 VectorObject().let { obj ->
                     if (obj.fromGeoJSON(json)) {
@@ -81,7 +81,8 @@ class SimpleStyleTestCase : MaplyTestCase {
     private fun marker(title: String, lat: Double, lon: Double, m: String? = null, bg: String? = null,
                        c: Boolean? = null, mC: String? = null, fC: String? = null, fA: Double? = null,
                        s: Double? = null, sC: String? = null, sA: Double? = null, mSz: String? = null,
-                       ox: Double? = null, oy: Double? = null): String {
+                       ox: Double? = null, oy: Double? = null, lC: String? = null, lSz: Double? = null,
+                       lx: Double? = null, ly: Double? = null): String {
         return """
         {
           "type": "Feature",
@@ -94,13 +95,17 @@ class SimpleStyleTestCase : MaplyTestCase {
                     prop("marker-background-symbol", bg, true),
                     prop("marker-circle", "${!(c ?: true)}", false),
                     prop("marker-color", mC, true),
+                    prop("marker-offset-x", if (ox != null) "$ox" else null, false),
+                    prop("marker-offset-y", if (oy != null) "$oy" else null, false),
                     prop("fill", fC, true),
                     prop("fill-opacity", if (fA != null) "$fA" else null, false),
                     prop("stroke-width", if (s != null) "$s" else null, false),
                     prop("stroke", sC, true),
                     prop("stroke-opacity", if (sA != null) "$sA" else null, false),
-                    prop("marker-offset-x", if (ox != null) "$ox" else null, false),
-                    prop("marker-offset-y", if (oy != null) "$oy" else null, false)
+                    prop("label", lC, true),
+                    prop("label-size", if (lSz != null) "$lSz" else null, false),
+                    prop("label-offset-x", if (lx != null) "$lx" else null, false),
+                    prop("label-offset-y", if (ly != null) "$ly" else null, false)
             ).filterNotNull().joinToString(",") +
         """
           },
@@ -134,11 +139,15 @@ class SimpleStyleTestCase : MaplyTestCase {
             }.joinToString(",")
     }
 
+    private fun fmt(v: Double): String {
+        return Regex("\\.0+$").replace("$v", "")
+    }
     private fun markers2(): String {
-        return arrayOf(-4.0, -1.5, -0.5, 0.0, 0.5, 1.0).flatMap { ox ->
-               arrayOf(-5.0, -1.5, -0.5, 0.0, 0.5, 1.0).map { oy ->
-                    marker("", -30.0, 140.0, null, "maki icons/marker-stroked", false,
-                            "f0f", "0fa", 0.7, 0.2, "#0af", 0.8, null, ox, oy)
+        return arrayOf(-4.0, -1.5, 0.0, 1.0).flatMap { ox ->
+               arrayOf(-5.0, -1.5, 0.0, 1.0).map { oy ->
+                    marker("${fmt(ox)},${fmt(oy)}", -30.0, 140.0,null, "maki icons/marker-stroked",
+                            false, "f0f", "0fa", 0.7, 0.2, "#0af", 0.8,
+                            "medium", ox, oy, "#f50", 5.0, ox * 45 / 5, oy * 38 / 5)
                }
             }.joinToString(",")
     }
