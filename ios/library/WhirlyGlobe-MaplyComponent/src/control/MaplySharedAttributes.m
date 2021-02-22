@@ -348,6 +348,7 @@ NSString* const kMaplyShaderWideVectorExp = @"Default Wide Vector with expressio
 
 NSString* const kMaplyScreenSpaceDefaultMotionProgram = @"Default Screenspace Motion";
 NSString* const kMaplyScreenSpaceDefaultProgram = @"Default Screenspace";
+NSString* const kMaplyScreenSpaceMaskProgram = @"Screenspace mask";
 NSString* const kMaplyScreenSpaceExpProgram = @"Screenspace with expressions";
 
 NSString* const kMaplyShaderParticleSystemPointDefault = @"Default Part Sys (Point)";

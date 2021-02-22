@@ -376,6 +376,7 @@ extern NSString* const kMaplyShaderWideVectorExp;
 
 extern NSString* const kMaplyScreenSpaceDefaultMotionProgram;
 extern NSString* const kMaplyScreenSpaceDefaultProgram;
+extern NSString* const kMaplyScreenSpaceMaskProgram;
 extern NSString* const kMaplyScreenSpaceExpProgram;
 
 extern NSString* const kMaplyShaderParticleSystemPointDefault;

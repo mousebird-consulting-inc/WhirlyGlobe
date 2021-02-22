@@ -486,6 +486,15 @@ fragment float4 fragmentTri_basic(
     return vert.color;
 }
 
+// Fragment shader that pulls the mask ID out only
+fragment unsigned int fragmentTri_mask(ProjVertexTriA vert [[stage_in]],
+                              constant Uniforms &uniforms [[ buffer(WKSFragUniformArgBuffer) ]],
+                              constant FragTriArgBufferB & fragArgs [[buffer(WKSFragmentArgBuffer)]],
+                              constant RegularTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
+{
+    return vert.maskID;
+}
+
 // Vertex shader that handles up to two textures
 vertex ProjVertexTriB vertexTri_multiTex(
                 VertexTriB vert [[stage_in]],
@@ -780,6 +789,8 @@ vertex ProjVertexTriA vertexTri_screenSpace(
     } else
         screenOffset = vert.offset;
     
+    outVert.maskID = vert.maskID;
+    
     float2 scale = float2(2.0/uniforms.frameSize.x,2.0/uniforms.frameSize.y);
     outVert.position = (dotProd > 0.0 && pt.z <= 0.0) ? float4(screenPt.xy + float2(screenOffset.x*scale.x,screenOffset.y*scale.y),0.0,1.0) : float4(0.0,0.0,0.0,0.0);
     
@@ -840,6 +851,8 @@ vertex ProjVertexTriA vertexTri_screenSpaceExp(
     } else
         screenOffset = vert.offset;
     
+    outVert.maskID = vert.maskID;
+
     float2 scale = float2(2.0/uniforms.frameSize.x,2.0/uniforms.frameSize.y) * zoomScale;
     outVert.position = (dotProd > 0.0 && pt.z <= 0.0) ? float4(screenPt.xy + float2(screenOffset.x*scale.x,screenOffset.y*scale.y),0.0,1.0) : float4(0.0,0.0,0.0,0.0);
     

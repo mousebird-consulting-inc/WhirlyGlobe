@@ -316,6 +316,7 @@ struct ProjVertexTriA {
     float4 position [[invariant]] [[position]];
     float4 color;
     float2 texCoord;
+    int maskID;
 };
 
 // Triangle vertex with a couple of texture coordinates

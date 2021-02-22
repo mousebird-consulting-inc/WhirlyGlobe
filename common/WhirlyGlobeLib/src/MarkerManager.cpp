@@ -113,6 +113,7 @@ void Marker::addTexID(SimpleIdentity texID)
 }
 
 MarkerManager::MarkerManager()
+: maskProgID(EmptyIdentity)
 {
 }
 
@@ -134,6 +135,12 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
     auto layoutManager = scene->getManager<LayoutManager>(kWKLayoutManager);
     const TimeInterval curTime = scene->getCurrentTime();
 
+    if (maskProgID == EmptyIdentity) {
+        Program *prog = scene->findProgramByName(MaplyScreenSpaceMaskShader);
+        if (prog)
+            maskProgID = prog->getId();
+    }
+    
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     MarkerSceneRep *markerRep = new MarkerSceneRep();
     markerRep->fadeOut = markerInfo.fadeOut;
@@ -251,6 +258,7 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
                 for (auto entry: geom) {
                     entry.vertexAttrs.insert(SingleVertexAttribute(a_maskNameID, renderer->getSlotForNameID(a_maskNameID), (int)marker->maskID));
                     entry.renderTargetID = marker->maskRenderTargetID;
+                    entry.progID = maskProgID;
                     shape->addGeometry(entry);
                 }
             }

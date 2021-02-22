@@ -944,6 +944,13 @@ using namespace Eigen;
     [self addShader:kMaplyScreenSpaceDefaultProgram program:screenSpace];
     [self addShader:kMaplyScreenSpaceDefaultMotionProgram program:screenSpace];
     
+    // Renders the mask ID to the screen
+    ProgramRef screenSpaceMask = ProgramRef(new
+            ProgramMTL(MaplyScreenSpaceMaskShader,
+                       [mtlLib newFunctionWithName:@"vertexTri_screenSpace"],
+                       [mtlLib newFunctionWithName:@"fragmentTri_mask"]));
+    [self addShader:kMaplyScreenSpaceMaskProgram program:screenSpaceMask];
+    
     // Screen Space that handles expressions
     ProgramRef screenSpaceExp = ProgramRef(new
             ProgramMTL([kMaplyScreenSpaceExpProgram cStringUsingEncoding:NSASCIIStringEncoding],

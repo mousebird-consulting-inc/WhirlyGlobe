@@ -176,6 +176,8 @@ public:
 protected:
     /// Resources associated with given markers
     MarkerSceneRepSet markerReps;
+    /// We route the mask polygons to this program, if there are any
+    SimpleIdentity maskProgID;
 };
 typedef std::shared_ptr<MarkerManager> MarkerManagerRef;
 

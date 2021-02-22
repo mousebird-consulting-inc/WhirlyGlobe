@@ -116,6 +116,7 @@
 
 #define MaplyScreenSpaceDefaultMotionShader WKString("Default Screenspace Motion")
 #define MaplyScreenSpaceDefaultShader WKString("Default Screenspace")
+#define MaplyScreenSpaceMaskShader WKString("Screenspace mask")
 #define MaplyScreenSpaceExpShader WKString("Screenspace with expressions")
 
 #define MaplyParticleSystemPointDefaultShader WKString("Default Part Sys (Point)")
