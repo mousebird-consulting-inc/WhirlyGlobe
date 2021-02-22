@@ -437,6 +437,11 @@ bool BasicDrawableBuilder::compareVertexAttributes(const SingleVertexAttributeSe
     return true;
 }
 
+void BasicDrawableBuilder::setVertexAttribute(const SingleVertexAttributeInfo &attr)
+{
+    addAttribute(attr.type,attr.nameID,attr.slot);
+}
+
 void BasicDrawableBuilder::setVertexAttributes(const SingleVertexAttributeInfoSet &attrs)
 {
     for (auto it = attrs.begin();
@@ -505,6 +510,9 @@ void BasicDrawableBuilder::addVertexAttributes(const SingleVertexAttributeSet &a
             case BDIntType:
                 addAttributeValue(attrId, it->data.intVal);
                 break;
+            case BDInt64Type:
+                addAttributeValue(attrId, it->data.int64Val);
+                break;
             case BDDataTypeMax:
                 break;
         }
@@ -524,6 +532,14 @@ void BasicDrawableBuilder::addAttributeValue(int attrId,const RGBAColor &color)
 { basicDraw->vertexAttributes[attrId]->addColor(color); }
 
 void BasicDrawableBuilder::addAttributeValue(int attrId,float val)
+{ basicDraw->vertexAttributes[attrId]->addFloat(val); }
+
+void BasicDrawableBuilder::addAttributeValue(int attrId,int val)
+{
+    basicDraw->vertexAttributes[attrId]->addInt(val);
+}
+
+void BasicDrawableBuilder::addAttributeValue(int attrId,int64_t val)
 { basicDraw->vertexAttributes[attrId]->addFloat(val); }
 
 void BasicDrawableBuilder::addTriangle(BasicDrawable::Triangle tri)

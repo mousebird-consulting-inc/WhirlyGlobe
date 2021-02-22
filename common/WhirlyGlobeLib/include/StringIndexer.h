@@ -72,6 +72,7 @@ extern StringIdentity u_uprightNameID;
 extern StringIdentity u_activerotNameID;
 extern StringIdentity a_rotNameID;
 extern StringIdentity a_dirNameID;
+extern StringIdentity a_maskNameID;
 extern StringIdentity a_texCoordNameID;
 extern StringIdentity u_w2NameID;
 extern StringIdentity u_Realw2NameID;

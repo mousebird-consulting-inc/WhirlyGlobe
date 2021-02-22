@@ -487,6 +487,14 @@ bool SceneRenderer::hasChanges()
     return frameCount - frameCountLastChanged <= extraFrames;
 }
 
+int SceneRenderer::getSlotForNameID(SimpleIdentity nameID)
+{
+    auto it = slotMap.find(nameID);
+    if (it == slotMap.end())
+        return -1;
+    return it->second;
+}
+
 void SceneRenderer::shutdown()
 {
     offDrawables.clear();

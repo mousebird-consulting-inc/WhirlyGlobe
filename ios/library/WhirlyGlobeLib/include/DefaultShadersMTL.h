@@ -71,7 +71,8 @@ typedef enum {
 typedef enum {
     WKSVertexScreenSpaceOffsetAttribute = 5,
     WKSVertexScreenSpaceRotAttribute,
-    WKSVertexScreenSpaceDirAttribute
+    WKSVertexScreenSpaceDirAttribute,
+    WKSVertexScreenSpaceMaskAttribute
 } WKSVertexScreenSpaceAttributes;
     
 // Model instance vertex attribute positions
@@ -372,6 +373,7 @@ struct VertexTriScreenSpace
     float2 offset [[attribute(WhirlyKitShader::WKSVertexScreenSpaceOffsetAttribute)]];
     float3 rot [[attribute(WhirlyKitShader::WKSVertexScreenSpaceRotAttribute)]];
     float3 dir [[attribute(WhirlyKitShader::WKSVertexScreenSpaceDirAttribute)]];
+    int maskID [[attribute(WhirlyKitShader::WKSVertexScreenSpaceMaskAttribute)]];
 };
 
 // Triangle vertex with a couple of texture coordinates

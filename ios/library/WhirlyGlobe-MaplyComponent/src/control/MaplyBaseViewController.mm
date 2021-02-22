@@ -510,7 +510,7 @@ static const float PerfOutputDelay = 15.0;
 
 - (void)startMaskTarget:(NSNumber * __nullable)inScale
 {
-    [renderControl startMaskTarget];
+    [renderControl startMaskTarget:inScale];
 }
 
 - (void)stopMaskTarget

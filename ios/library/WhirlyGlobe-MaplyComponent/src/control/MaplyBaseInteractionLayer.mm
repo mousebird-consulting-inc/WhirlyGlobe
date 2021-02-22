@@ -871,7 +871,7 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
         if (marker.maskID) {
             // TODO: Map the mask ID to a value
             wgMarker->maskID = 1;
-            wgMarker->maskTargetID = maskRenderTargetID;
+            wgMarker->maskRenderTargetID = maskRenderTargetID;
         }
         
         // Now for the motion related fields

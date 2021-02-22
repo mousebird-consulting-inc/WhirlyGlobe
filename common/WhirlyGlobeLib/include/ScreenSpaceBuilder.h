@@ -65,12 +65,14 @@ public:
         TimeInterval startEnable,endEnable;
         int64_t drawOrder;
         int drawPriority;
+        SimpleIdentity renderTargetID;
         float minVis,maxVis;
         int zoomSlot;
         double minZoomVis,maxZoomVis;
         bool motion;
         bool rotation;
         bool keepUpright;
+        bool hasMask;
         FloatExpressionInfoRef opacityExp;
         ColorExpressionInfoRef colorExp;
         FloatExpressionInfoRef scaleExp;
@@ -92,6 +94,8 @@ public:
     void setDrawOrder(int64_t drawOrder);
     /// Set the draw priority
     void setDrawPriority(int drawPriority);
+    /// Set the render target
+    void setRenderTarget(SimpleIdentity renderTargetID);
     /// Set the visibility range
     void setVisibility(float minVis,float maxVis);
     /// Set enable based on zoom
@@ -197,6 +201,8 @@ public:
         int64_t drawOrder;
         /// Draw priority
         int drawPriority;
+        /// Render target
+        SimpleIdentity renderTargetID;
         /// Vertex attributes applied to this piece of geometry
         SingleVertexAttributeSet vertexAttrs;
         
@@ -225,6 +231,7 @@ public:
     int64_t getDrawOrder() const;
     void setDrawPriority(int drawPriority);
     int getDrawPriority() const;
+    void setRenderTarget(SimpleIdentity renderTargetID);
     void setKeepUpright(bool keepUpright);
     void setRotation(double rotation);
     double getRotation() const { return rotation; }
@@ -235,6 +242,7 @@ public:
     void setOrderBy(long orderBy);
     
     void addGeometry(const ConvexGeometry &geom);
+    void addGeometry(const std::vector<ConvexGeometry> &geom);
     std::vector<ConvexGeometry> getGeometry() const { return geometry; }
     
     // Get a program ID either from the drawable state or geometry

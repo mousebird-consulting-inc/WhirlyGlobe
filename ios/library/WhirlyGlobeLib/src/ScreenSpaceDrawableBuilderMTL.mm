@@ -31,7 +31,7 @@ ScreenSpaceDrawableBuilderMTL::ScreenSpaceDrawableBuilderMTL(const std::string &
     this->scene = scene;
 }
 
-void ScreenSpaceDrawableBuilderMTL::Init(bool hasMotion,bool hasRotation,bool buildAnyway)
+void ScreenSpaceDrawableBuilderMTL::Init(bool hasMotion,bool hasRotation,bool hasMaskIDs,bool buildAnyway)
 {
     basicDraw = std::make_shared<BasicDrawableMTL>("Screen Space");
     // Need the entries even if we don't bother to fill them in
@@ -42,6 +42,7 @@ void ScreenSpaceDrawableBuilderMTL::Init(bool hasMotion,bool hasRotation,bool bu
     ((VertexAttributeMTL *)basicDraw->vertexAttributes[offsetIndex])->slot = WhirlyKitShader::WKSVertexScreenSpaceOffsetAttribute;
     ((VertexAttributeMTL *)basicDraw->vertexAttributes[rotIndex])->slot = WhirlyKitShader::WKSVertexScreenSpaceRotAttribute;
     ((VertexAttributeMTL *)basicDraw->vertexAttributes[dirIndex])->slot = WhirlyKitShader::WKSVertexScreenSpaceDirAttribute;
+    ((VertexAttributeMTL *)basicDraw->vertexAttributes[maskIndex])->slot = WhirlyKitShader::WKSVertexScreenSpaceMaskAttribute;
 }
 
 ScreenSpaceTweaker *ScreenSpaceDrawableBuilderMTL::makeTweaker()

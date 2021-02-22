@@ -67,7 +67,6 @@ public:
     // Size to use for selection
     Point2dVector selectPts;
 
-    
     std::string uniqueID;
     
     /// This is used to sort objects for layout.  Bigger is more important.

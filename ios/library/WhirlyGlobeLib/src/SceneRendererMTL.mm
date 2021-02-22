@@ -94,6 +94,9 @@ SceneRendererMTL::SceneRendererMTL(id<MTLDevice> mtlDevice,id<MTLLibrary> mtlLib
 #endif
 
     init();
+    
+    // Slots we need to refer to on the C++ side
+    slotMap[a_maskNameID] = WhirlyKitShader::WKSVertexScreenSpaceMaskAttribute;
 
     // Calculation shaders
     workGroups.push_back(WorkGroupRef(new WorkGroupMTL(WorkGroup::Calculation)));

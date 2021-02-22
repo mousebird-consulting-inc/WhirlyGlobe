@@ -190,6 +190,9 @@ public:
     
     /// Decide if the given list of vertex attributes is the same as the one we have
     bool compareVertexAttributes(const SingleVertexAttributeSet &attrs);
+
+    /// Set up the required vertex attribute
+    void setVertexAttribute(const SingleVertexAttributeInfo &attr);
     
     /// Set up the required vertex attribute arrays from the given list
     void setVertexAttributes(const SingleVertexAttributeInfoSet &attrs);
@@ -212,8 +215,16 @@ public:
     /// Add a float to the given attribute array
     virtual void addAttributeValue(int attrId,float val);
     
+    /// Add an integer value to the given attribute array
+    virtual void addAttributeValue(int attrId,int val);
+    
+    /// Add an identity-type value to the given attribute array
+    virtual void addAttributeValue(int attrId,int64_t val);
+    
     /// Add a triangle.  Should point to the vertex IDs.
     virtual void addTriangle(BasicDrawable::Triangle tri);
+    
+    /// TODO: We need a per-triangle attribute instead of stuffing data always into the vertex attributes
     
     /// Set the uniforms applied to the Program before rendering
     virtual void setUniforms(const SingleVertexAttributeSet &uniforms);

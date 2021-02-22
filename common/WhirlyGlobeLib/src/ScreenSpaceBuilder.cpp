@@ -27,9 +27,9 @@ namespace WhirlyKit
 ScreenSpaceBuilder::DrawableState::DrawableState()
     : period(0.0), progID(EmptyIdentity), fadeUp(0.0), fadeDown(0.0),
     enable(true), startEnable(0.0), endEnable(0.0),
-    drawPriority(0), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid),
+    drawPriority(0), renderTargetID(EmptyIdentity), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid),
     zoomSlot(-1), minZoomVis(DrawVisibleInvalid), maxZoomVis(DrawVisibleInvalid),
-    motion(false), rotation(false), keepUpright(false)
+    motion(false), rotation(false), keepUpright(false), hasMask(false)
 {
 }
     
@@ -43,6 +43,8 @@ bool ScreenSpaceBuilder::DrawableState::operator < (const DrawableState &that) c
         return progID < that.progID;
     if (drawPriority != that.drawPriority)
         return drawPriority < that.drawPriority;
+    if (renderTargetID != that.renderTargetID)
+        return renderTargetID < that.renderTargetID;
     if (minVis != that.minVis)
         return  minVis < that.minVis;
     if (maxVis != that.maxVis)
@@ -69,6 +71,8 @@ bool ScreenSpaceBuilder::DrawableState::operator < (const DrawableState &that) c
         return rotation < that.rotation;
     if (keepUpright != that.keepUpright)
         return keepUpright < that.keepUpright;
+    if (hasMask != that.hasMask)
+        return hasMask < that.hasMask;
     if (vertexAttrs != that.vertexAttrs)
         return vertexAttrs < that.vertexAttrs;
     SimpleIdentity opacityExp0 = opacityExp ? opacityExp->getId() : EmptyIdentity,
@@ -95,7 +99,7 @@ ScreenSpaceBuilder::DrawableWrap::DrawableWrap(SceneRenderer *render,const Drawa
     : state(state), center(0,0,0)
 {
     locDraw = render->makeScreenSpaceDrawableBuilder("ScreenSpace Builder");
-    locDraw->Init(state.motion,state.rotation);
+    locDraw->Init(state.motion,state.rotation,state.hasMask);
     locDraw->setType(Triangles);
     // A max of two textures per
     for (unsigned int ii=0;ii<state.texIDs.size() && ii<2;ii++)
@@ -103,6 +107,8 @@ ScreenSpaceBuilder::DrawableWrap::DrawableWrap(SceneRenderer *render,const Drawa
     locDraw->setProgram(state.progID);
     locDraw->setDrawOrder(state.drawOrder);
     locDraw->setDrawPriority(state.drawPriority);
+    if (state.renderTargetID != EmptyIdentity)
+        locDraw->setRenderTarget(state.renderTargetID);
     locDraw->setFade(state.fadeDown, state.fadeUp);
     locDraw->setVisibleRange(state.minVis, state.maxVis);
     locDraw->setZoomInfo(state.zoomSlot, state.minZoomVis, state.maxZoomVis);
@@ -217,6 +223,11 @@ void ScreenSpaceBuilder::setDrawOrder(int64_t drawOrder)
 void ScreenSpaceBuilder::setDrawPriority(int drawPriority)
 {
     curState.drawPriority = drawPriority;
+}
+
+void ScreenSpaceBuilder::setRenderTarget(SimpleIdentity renderTargetID)
+{
+    curState.renderTargetID = renderTargetID;
 }
 
 void ScreenSpaceBuilder::setVisibility(float minVis,float maxVis)
@@ -359,6 +370,8 @@ void ScreenSpaceBuilder::addScreenObject(const ScreenSpaceObject &ssObj)
             state.progID = geom.progID;
         if (geom.drawPriority > -1)
             state.drawPriority = geom.drawPriority;
+        if (geom.renderTargetID != EmptyIdentity)
+            state.renderTargetID = geom.renderTargetID;
         state.enable = ssObj.enable;
         state.startEnable = ssObj.startEnable;
         state.endEnable = ssObj.endEnable;
@@ -425,7 +438,7 @@ void ScreenSpaceBuilder::flushChanges(ChangeSet &changes,SimpleIDSet &drawIDs)
 }
     
 ScreenSpaceObject::ScreenSpaceObject::ConvexGeometry::ConvexGeometry()
-    : progID(EmptyIdentity), color(255,255,255,255), drawPriority(-1)
+    : progID(EmptyIdentity), color(255,255,255,255), drawPriority(-1), renderTargetID(EmptyIdentity)
     , drawOrder(BaseInfo::DrawOrderTiles)
 {
 }
@@ -526,6 +539,11 @@ void ScreenSpaceObject::setDrawPriority(int drawPriority)
     state.drawPriority = drawPriority;
 }
 
+void ScreenSpaceObject::setRenderTarget(SimpleIdentity renderTargetID)
+{
+    state.renderTargetID = renderTargetID;
+}
+
 void ScreenSpaceObject::setKeepUpright(bool inKeepUpright)
 {
     keepUpright = inKeepUpright;
@@ -562,7 +580,12 @@ void ScreenSpaceObject::addGeometry(const ConvexGeometry &geom)
 {
     geometry.push_back(geom);
 }
-    
+
+void ScreenSpaceObject::addGeometry(const std::vector<ConvexGeometry> &geom)
+{
+    geometry.insert(geometry.end(), geom.begin(), geom.end());
+}
+
 SimpleIdentity ScreenSpaceObject::getTypicalProgramID()
 {
     for (auto geom : geometry)
