@@ -224,7 +224,6 @@ void BaseInfo::setupBasicDrawable(BasicDrawableBuilder *drawBuild) const
     drawBuild->setUniforms(uniforms);
     drawBuild->setRequestZBuffer(zBufferRead);
     drawBuild->setWriteZBuffer(zBufferWrite);
-    drawBuild->setProgram(programID);
     drawBuild->setExtraFrames(extraFrames);
     if (renderTargetID != EmptyIdentity)
         drawBuild->setRenderTarget(renderTargetID);

@@ -265,6 +265,22 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_fromShapeFile
 
 /*
  * Class:     com_mousebird_maply_VectorObject
+ * Method:    canSplit
+ * Signature: ()Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_canSplit
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_VectorObject
+ * Method:    splitVectors
+ * Signature: ()[Lcom/mousebird/maply/VectorObject;
+ */
+JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_VectorObject_splitVectors
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_VectorObject
  * Method:    deepCopyNative
  * Signature: (Lcom/mousebird/maply/VectorObject;)V
  */

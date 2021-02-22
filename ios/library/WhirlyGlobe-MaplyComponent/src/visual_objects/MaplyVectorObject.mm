@@ -698,6 +698,11 @@ using namespace WhirlyGlobe;
 
 - (NSArray *)splitVectors
 {
+    // If the split will amount to a copy, just return this one
+    if (vObj->shapes.size() < 2) {
+        return @[self];
+    }
+
     std::vector<VectorObject *> newVecs;
     vObj->splitVectors(newVecs);
     

@@ -443,7 +443,7 @@ typedef NS_ENUM(NSInteger, MaplyVectorObjectType) {
 - (NSArray *__nullable)asNumbers;
 
 /** 
-    Split up ths feature into individual features and return an array of them.
+    Split up this feature into individual features and return an array of them.
     
     A vector object can represent multiple features with no real rhyme or reason to it.  This method will make one vector object per feature, allowing you to operate on those individually.
     

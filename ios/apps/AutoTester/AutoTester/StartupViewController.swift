@@ -27,6 +27,7 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
 		AnimatedMarkersTestCase(),
         ClusteredMarkersTestCase(),
         LabelAnimationTestCase(),
+        MovingScreenMarkersTestCase(),
 
         VectorsTestCase(),
         ChangeVectorsTestCase(),
@@ -62,6 +63,7 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
 		FindHeightTestCase(),
 		FullAnimationTest(),
 		AnimationDelegateTestCase(),
+        GlobeRotationTestCase(),
 		LocationTrackingSimTestCase(),
 		LocationTrackingRealTestCase(),
         

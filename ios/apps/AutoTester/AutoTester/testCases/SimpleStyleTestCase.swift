@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by Steve Gifford on 3/31/20.
-//  Copyright © 2020 mousebird consulting. All rights reserved.
+//  Copyright © 2021 mousebird consulting. All rights reserved.
 //
 
 import UIKit
@@ -19,28 +19,65 @@ class SimpleStyleTestCase: MaplyTestCase {
     
     let baseCase = StamenWatercolorRemote()
     
+    static func prop(_ name: String, _ value: String?, _ quote: Bool) -> String? {
+        (value != nil) ? ("\"\(name)\": " + (quote ? "\"\(value!)\"" : value!)) : nil
+    }
+    static func marker(_ title: String, _ lat: Double, _ lon: Double, m: String? = nil,
+                       bg: String? = nil, c: Bool? = nil, mC: String? = nil, fC: String? = nil,
+                       fA: Double? = nil, s: Double? = nil, sC: String? = nil,
+                       sA: Double? = nil, mSz: String? = nil) -> String {
+        """
+        {
+          "type": "Feature",
+          "properties": {
+        """ +
+            [prop("title", title, true),
+             prop("marker-size", mSz ?? "large", true),
+             prop("marker-color", mC, true),
+             prop("marker-symbol", m, true),
+             prop("marker-background-symbol", bg, true),
+             prop("marker-circle", "\(!(c ?? true))", false),
+             prop("marker-color", mC, true),
+             prop("fill-color", fC, true),
+             prop("fill-opacity", (fA != nil) ? "\(fA!)" : nil, false),
+             prop("stroke-width", (s != nil) ? "\(s!)" : nil, false),
+             prop("stroke-color", sC, true),
+             prop("stroke-opacity", (sA != nil) ? "\(sA!)" : nil, false)
+            ].compactMap { $0 }.joined(separator: ",") +
+        """
+          },
+          "geometry": { "type": "Point", "coordinates": [ \(lon), \(lat) ] }
+        }
+        """
+    }
+
+    static func markers() -> String {
+        var lat = -30.0, lon = 142.0, n = 0
+        return [nil, "bar"].flatMap { m in
+            [nil, "marker-stroked"].flatMap { bg in
+                [true, false].flatMap { c in
+                    [0.0, 0.8].flatMap { fA in
+                        [0.0, 2.0].map { s -> String in
+                            lon += 0.1
+                            if (n % 8) == 0 { lat -= 0.1; lon = 140.0 }
+                            n += 1
+                            return marker("marker", lat, lon, m: m, bg: bg, c: c, mC: "0a0",
+                                          fC: "050", fA: fA, s: s, sC: "020", sA: 0.8)
+                        }
+                    }
+                }
+            }
+        }.joined(separator: ",")
+    }
     let geoJSON = """
     {
       "type": "FeatureCollection",
       "features": [
+        \(markers()),
         {
           "type": "Feature",
           "properties": {
-            "marker-color": "#00aa00",
-            "marker-size": "large",
-            "marker-symbol": "bar"
-          },
-          "geometry": {
-            "type": "Point",
-            "coordinates": [
-              151.211111,
-              -33.859972
-            ]
-          }
-        },
-        {
-          "type": "Feature",
-          "properties": {
+            "title": "poly",
             "fill": "#ff0000",
             "stroke": "#ffffff"
           },
@@ -75,6 +112,7 @@ class SimpleStyleTestCase: MaplyTestCase {
         {
           "type": "Feature",
           "properties": {
+            "title": "line",
             "stroke": "#0000ff",
             "stroke-width": 10.0
           },
@@ -124,15 +162,9 @@ class SimpleStyleTestCase: MaplyTestCase {
     }
     """
 
-    var styleMan : MaplySimpleStyleManager? = nil
-
     func runExamples(_ vc: MaplyBaseViewController)
     {
-        styleMan = MaplySimpleStyleManager(viewC: vc)
-        guard let styleMan = styleMan else {
-            return
-        }
-        
+        let styleMan = MaplySimpleStyleManager(viewC: vc)
         if let data = geoJSON.data(using: .utf8),
             let vecObj = MaplyVectorObject(fromGeoJSON: data) {
             styleMan.addFeatures([vecObj], mode: .current)
