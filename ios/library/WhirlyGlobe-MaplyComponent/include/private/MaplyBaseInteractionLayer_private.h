@@ -59,6 +59,7 @@
     
     // If set, the render target used for masking features against each other
     WhirlyKit::SimpleIdentity maskRenderTargetID;
+    WhirlyKit::SimpleIdentity maskTexID;
     
     /// Active shaders
     NSMutableArray *shaders;

@@ -100,13 +100,15 @@ class AirwayTestCase: MaplyTestCase {
                    let locEnd = locArr.last {
                     if let markStart = graphBuilder.getPoint(locStart),
                        let markEnd = graphBuilder.getPoint(locEnd) {
-                        seg.attributes?["maskID 0"] = markStart.uuid
-                        seg.attributes?["maskID 1"] = markEnd.uuid
+                        seg.attributes?["maskID0"] = 1
+                        seg.attributes?["maskID1"] = 1
+//                        seg.attributes?["maskID0"] = markStart.uuid
+//                        seg.attributes?["maskID1"] = markEnd.uuid
                     }
                 }
             }
 
-            viewC.addVectors(segments, desc: [kMaplyVecWidth: 4.0, kMaplyColor: UIColor.blue], mode: .current)
+            viewC.addWideVectors(segments, desc: [kMaplyVecWidth: 20.0, kMaplyColor: UIColor.blue], mode: .current)
         }
     }
     

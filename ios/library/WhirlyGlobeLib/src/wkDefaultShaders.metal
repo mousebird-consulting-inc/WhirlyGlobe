@@ -740,10 +740,10 @@ fragment float4 fragmentTri_wideVec(
             if (vert.maskIDs[0] == maskID || vert.maskIDs[1] == maskID)
                 discard_fragment();
         }
-        constexpr sampler sampler2d(coord::normalized, address::repeat, filter::linear);
-        // Just pulling the alpha at the moment
-        // If we use the rest, we get interpolation down to zero, which isn't quite what we want here
-        patternColor.a = texArgs.tex[0].sample(sampler2d, vert.texCoord).a;
+//        constexpr sampler sampler2d(coord::normalized, address::repeat, filter::linear);
+//        // Just pulling the alpha at the moment
+//        // If we use the rest, we get interpolation down to zero, which isn't quite what we want here
+//        patternColor.a = texArgs.tex[0].sample(sampler2d, vert.texCoord).a;
     }
     float alpha = 1.0;
     float across = vert.w2 * vert.texCoord.x;

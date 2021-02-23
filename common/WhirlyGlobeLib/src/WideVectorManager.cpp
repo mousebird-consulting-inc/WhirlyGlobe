@@ -35,7 +35,7 @@ WideVectorInfo::WideVectorInfo()
 : color(255,255,255,255), width(2.0),
 repeatSize(32.0), edgeSize(1.0), subdivEps(0.0),
 coordType(WideVecCoordScreen), joinType(WideVecMiterJoin), capType(WideVecButtCap),
-texID(EmptyIdentity), miterLimit(2.0)
+texID(EmptyIdentity), maskTexID(EmptyIdentity), miterLimit(2.0)
 {    
 }
     
@@ -239,7 +239,7 @@ public:
             drawable->add_c0(vert.c);
             drawable->add_texInfo(vert.texX,vert.texYmin,vert.texYmax,vert.texOffset);
             for (unsigned int ii=0;ii<maskEntries.size();ii++)
-                drawable->addAttributeValue(maskEntries[ii], (int64_t) maskIDs[ii]);
+                drawable->addAttributeValue(maskEntries[ii], (int) maskIDs[ii]);
         }
 
         drawable->addTriangle(BasicDrawable::Triangle(startPt+0,startPt+1,startPt+3));
@@ -262,7 +262,7 @@ public:
             drawable->add_c0(vert.c);
             drawable->add_texInfo(vert.texX,vert.texYmin,vert.texYmax,vert.texOffset);
             for (unsigned int ii=0;ii<maskEntries.size();ii++)
-                drawable->addAttributeValue(maskEntries[ii], (int64_t) maskIDs[ii]);
+                drawable->addAttributeValue(maskEntries[ii], (int) maskIDs[ii]);
         }
         
         drawable->addTriangle(BasicDrawable::Triangle(startPt+0,startPt+1,startPt+2));
@@ -630,11 +630,14 @@ public:
                 wideDrawable->setColorExpression(vecInfo->colorExp);
             maskEntries.resize(numMaskIDs);
             for (unsigned int ii=0;ii<maskEntries.size();ii++)
-                maskEntries[ii] = wideDrawable->addAttribute(BDInt64Type, a_maskNameIDs[ii], sceneRender->getSlotForNameID(a_maskNameIDs[ii]), ptAlloc);
+                maskEntries[ii] = wideDrawable->addAttribute(BDIntType, a_maskNameIDs[ii], sceneRender->getSlotForNameID(a_maskNameIDs[ii]), ptAlloc);
 
             drawable->setColor(vecInfo->color);
+            int baseTexId = 0;
             if (vecInfo->texID != EmptyIdentity)
-                drawable->setTexId(0, vecInfo->texID);
+                drawable->setTexId(baseTexId++, vecInfo->texID);
+            if (vecInfo->maskTexID != EmptyIdentity)
+                drawable->setTexId(baseTexId++, vecInfo->maskTexID);
             if (centerValid)
             {
                 Eigen::Affine3d trans(Eigen::Translation3d(dispCenter.x(),dispCenter.y(),dispCenter.z()));

@@ -149,6 +149,8 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
     visualView = inVisualView;
     mainThread = [NSThread currentThread];
     numActiveWorkers = 0;
+    maskRenderTargetID = EmptyIdentity;
+    maskTexID = EmptyIdentity;
     
     // Grab everything to force people to wait, hopefully
     imageLock.lock();
@@ -1753,6 +1755,7 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
     ChangeSet changes;
     if (const auto manager = scene->getManager<WideVectorManager>(kWKWideVectorManager))
     {
+        vectorInfo.maskTexID = maskTexID;
         const auto vecID = manager->addVectors(shapes, vectorInfo, changes);
         if (vecID != EmptyIdentity)
         {

@@ -685,14 +685,18 @@ using namespace Eigen;
     maskRenderTarget.texture = maskTex;
     [self addRenderTarget:maskRenderTarget];
     
-    if (interactLayer)
+    if (interactLayer) {
         interactLayer->maskRenderTargetID = [maskRenderTarget renderTargetID];
+        interactLayer->maskTexID = maskTex.texID;
+    }
 }
 
 - (void)stopMaskTarget
 {
-    if (interactLayer)
+    if (interactLayer) {
         interactLayer->maskRenderTargetID = EmptyIdentity;
+        interactLayer->maskTexID = EmptyIdentity;
+    }
     
     if (maskRenderTarget) {
         [self removeRenderTarget:maskRenderTarget];
