@@ -485,13 +485,6 @@ fragment float4 fragmentTri_basic(
 {
     int numTextures = TexturesBase(texArgs.texPresent);
     if (numTextures > 0) {
-        if (vert.maskIDs[0] > 0 || vert.maskIDs[1] > 0) {
-            // Pull the maskID from the input texture
-            constexpr sampler sampler2d(coord::normalized, filter::linear);
-            unsigned int maskID = texArgs.tex[numTextures-1].sample(sampler2d, vert.texCoord).r;
-            if (vert.maskIDs[0] == maskID || vert.maskIDs[1] == maskID)
-                discard_fragment();
-        }
         constexpr sampler sampler2d(coord::normalized, filter::linear);
         return vert.color * texArgs.tex[0].sample(sampler2d, vert.texCoord);
     }
@@ -617,6 +610,8 @@ vertex ProjVertexTriWideVec vertexTri_wideVec(
             constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriWideVec outVert;
+    outVert.maskIDs[0] = vert.mask0;
+    outVert.maskIDs[1] = vert.mask1;
     
     float3 pos = (vertArgs.uniDrawState.singleMat * float4(vert.position.xyz,1.0)).xyz;
 
@@ -738,6 +733,13 @@ fragment float4 fragmentTri_wideVec(
     // Dot/dash pattern
     float4 patternColor(1.0,1.0,1.0,1.0);
     if (numTextures > 0) {
+        if (vert.maskIDs[0] > 0 || vert.maskIDs[1] > 0) {
+            // Pull the maskID from the input texture
+            constexpr sampler sampler2d(coord::normalized, filter::linear);
+            unsigned int maskID = texArgs.tex[numTextures-1].sample(sampler2d, vert.texCoord).r;
+            if (vert.maskIDs[0] == maskID || vert.maskIDs[1] == maskID)
+                discard_fragment();
+        }
         constexpr sampler sampler2d(coord::normalized, address::repeat, filter::linear);
         // Just pulling the alpha at the moment
         // If we use the rest, we get interpolation down to zero, which isn't quite what we want here

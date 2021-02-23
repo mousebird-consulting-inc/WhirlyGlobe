@@ -64,7 +64,8 @@ typedef enum {
     WKSVertexWideVecP1Attribute,
     WKSVertexWideVecN0Attribute,
     WKSVertexWideVecC0Attribute,
-    WKSVertexWideVecOffsetAttribute
+    WKSVertexWideVecOffsetAttribute,
+    WKSVertexWideVecMaskAttribute
 } WKSVertexWideVecAttributes;
     
 // Screen space vertex attribute positions
@@ -99,17 +100,17 @@ typedef enum {
 
 // All the buffer entries (other than stage_in) for the vertex shaders
 typedef enum {
-    WKSVertUniformArgBuffer = 10,
-    WKSVertLightingArgBuffer = 11,
+    WKSVertUniformArgBuffer = 12,
+    WKSVertLightingArgBuffer,
     // These are free form with their own subsections
-    WKSVertexArgBuffer = 12,
+    WKSVertexArgBuffer,
     // Textures are optional
-    WKSVertTextureArgBuffer = 13,
+    WKSVertTextureArgBuffer,
     // Model instances
-    WKSVertModelInstanceArgBuffer = 14,
+    WKSVertModelInstanceArgBuffer,
     // If we're using the indirect instancing (can be driven by the GPU) this is
     //  where the indirect buffer lives
-    WKSVertInstanceIndirectBuffer = 15,
+    WKSVertInstanceIndirectBuffer,
     WKSVertMaxBuffer
 } WKSVertexArgumentBuffers;
 
@@ -354,6 +355,8 @@ struct VertexTriWideVec
     float3 n0 [[attribute(WhirlyKitShader::WKSVertexWideVecN0Attribute)]];
     float3 offset [[attribute(WhirlyKitShader::WKSVertexWideVecOffsetAttribute)]];
     float c0 [[attribute(WhirlyKitShader::WKSVertexWideVecC0Attribute)]];
+    int mask0 [[attribute(WhirlyKitShader::WKSVertexWideVecMaskAttribute+0)]];
+    int mask1 [[attribute(WhirlyKitShader::WKSVertexWideVecMaskAttribute+1)]];
 };
 
 // Wide Vector vertex passed to fragment shader
@@ -363,6 +366,7 @@ struct ProjVertexTriWideVec {
     float2 texCoord;
     float dotProd;
     float w2;
+    uint2 maskIDs;
 };
 
 // Input vertex data for Screen Space shaders
