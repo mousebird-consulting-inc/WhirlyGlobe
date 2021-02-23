@@ -1710,7 +1710,7 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
         compObj->contents->texs.insert(tex);
     }
     
-    ShapeSet shapes;
+    std::vector<VectorShapeRef> shapes;
     for (const MaplyVectorObject *vecObj in vectors)
     {
         // Maybe need to make a copy if we're going to sample
@@ -1741,12 +1741,12 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
                 [newVecObj subdivideToGlobe:eps];
             }
 
-            shapes.insert(newVecObj->vObj->shapes.begin(),newVecObj->vObj->shapes.end());
+            shapes.insert(shapes.end(),newVecObj->vObj->shapes.begin(),newVecObj->vObj->shapes.end());
         }
         else
         {
             // We'll just reference it
-            shapes.insert(vecObj->vObj->shapes.begin(),vecObj->vObj->shapes.end());
+            shapes.insert(shapes.end(),vecObj->vObj->shapes.begin(),vecObj->vObj->shapes.end());
         }
     }
 

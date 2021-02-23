@@ -328,6 +328,7 @@ vertex ProjVertexTriA vertexTri_noLight(
                 constant RegularTextures & texArgs  [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriA outVert;
+    outVert.maskIDs = uint2(0,0);
 
     float3 vertPos = (vertArgs.uniDrawState.singleMat * float4(vert.position,1.0)).xyz;
     
@@ -355,6 +356,7 @@ vertex ProjVertexTriA vertexTri_noLightExp(
                 constant RegularTextures & texArgs  [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriA outVert;
+    outVert.maskIDs = uint2(0,0);
 
     float3 vertPos = (vertArgs.uniDrawState.singleMat * float4(vert.position,1.0)).xyz;
     
@@ -399,6 +401,7 @@ vertex ProjVertexTriA vertexTri_light(
                 constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriA outVert;
+    outVert.maskIDs = uint2(0,0);
     
     float3 vertPos = (vertArgs.uniDrawState.singleMat * float4(vert.position,1.0)).xyz;
     if (vertArgs.uniDrawState.clipCoords)
@@ -438,7 +441,8 @@ vertex ProjVertexTriA vertexTri_lightExp(
                 constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriA outVert;
-    
+    outVert.maskIDs = uint2(0,0);
+
     float3 vertPos = (vertArgs.uniDrawState.singleMat * float4(vert.position,1.0)).xyz;
     if (vertArgs.uniDrawState.clipCoords)
         outVert.position = float4(vertPos,1.0);
@@ -479,7 +483,15 @@ fragment float4 fragmentTri_basic(
                 constant FragTriArgBufferB & fragArgs [[buffer(WKSFragmentArgBuffer)]],
                 constant RegularTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
 {
-    if (TexturesBase(texArgs.texPresent) > 0) {
+    int numTextures = TexturesBase(texArgs.texPresent);
+    if (numTextures > 0) {
+        if (vert.maskIDs[0] > 0 || vert.maskIDs[1] > 0) {
+            // Pull the maskID from the input texture
+            constexpr sampler sampler2d(coord::normalized, filter::linear);
+            unsigned int maskID = texArgs.tex[numTextures-1].sample(sampler2d, vert.texCoord).r;
+            if (vert.maskIDs[0] == maskID || vert.maskIDs[1] == maskID)
+                discard_fragment();
+        }
         constexpr sampler sampler2d(coord::normalized, filter::linear);
         return vert.color * texArgs.tex[0].sample(sampler2d, vert.texCoord);
     }
@@ -492,7 +504,7 @@ fragment unsigned int fragmentTri_mask(ProjVertexTriA vert [[stage_in]],
                               constant FragTriArgBufferB & fragArgs [[buffer(WKSFragmentArgBuffer)]],
                               constant RegularTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
 {
-    return vert.maskID;
+    return vert.maskIDs[0];
 }
 
 // Vertex shader that handles up to two textures
@@ -756,7 +768,8 @@ vertex ProjVertexTriA vertexTri_screenSpace(
             constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriA outVert;
-    
+    outVert.maskIDs = uint2(0,0);
+
     float3 pos = (vertArgs.uniDrawState.singleMat * float4(vert.position,1.0)).xyz;
     if (vertArgs.ss.hasMotion)
         pos += (uniforms.currentTime - vertArgs.ss.startTime) * vert.dir;
@@ -789,7 +802,7 @@ vertex ProjVertexTriA vertexTri_screenSpace(
     } else
         screenOffset = vert.offset;
     
-    outVert.maskID = vert.maskID;
+    outVert.maskIDs[0] = vert.maskID;
     
     float2 scale = float2(2.0/uniforms.frameSize.x,2.0/uniforms.frameSize.y);
     outVert.position = (dotProd > 0.0 && pt.z <= 0.0) ? float4(screenPt.xy + float2(screenOffset.x*scale.x,screenOffset.y*scale.y),0.0,1.0) : float4(0.0,0.0,0.0,0.0);
@@ -812,7 +825,8 @@ vertex ProjVertexTriA vertexTri_screenSpaceExp(
             constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriA outVert;
-    
+    outVert.maskIDs = uint2(0,0);
+
     float zoomScale = 1.0;
     if (vertArgs.ss.hasExp) {
         float zoom = ZoomFromSlot(uniforms, vertArgs.uniDrawState.zoomSlot);
@@ -851,7 +865,7 @@ vertex ProjVertexTriA vertexTri_screenSpaceExp(
     } else
         screenOffset = vert.offset;
     
-    outVert.maskID = vert.maskID;
+    outVert.maskIDs[0] = vert.maskID;
 
     float2 scale = float2(2.0/uniforms.frameSize.x,2.0/uniforms.frameSize.y) * zoomScale;
     outVert.position = (dotProd > 0.0 && pt.z <= 0.0) ? float4(screenPt.xy + float2(screenOffset.x*scale.x,screenOffset.y*scale.y),0.0,1.0) : float4(0.0,0.0,0.0,0.0);
@@ -912,7 +926,8 @@ vertex ProjVertexTriA vertexTri_billboard(
             constant VertexTriBillboardArgBuffer & vertArgs [[buffer(WKSVertexArgBuffer)]])
 {
     ProjVertexTriA outVert;
-    
+    outVert.maskIDs = uint2(0,0);
+
     float3 vertPos = (vertArgs.uniDrawState.singleMat * float4(vert.position,1.0)).xyz;
 
     float3 newPos;

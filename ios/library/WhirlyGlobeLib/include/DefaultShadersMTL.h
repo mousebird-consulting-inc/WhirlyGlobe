@@ -95,6 +95,7 @@ typedef enum {
 #define WKSTextureEntryLookup 5
 
 #define MaxZoomSlots 32
+#define MaxMaskSlots 2
 
 // All the buffer entries (other than stage_in) for the vertex shaders
 typedef enum {
@@ -169,7 +170,7 @@ struct UniformDrawStateA {
     float minVisibleFadeBand,maxVisibleFadeBand;
     int zoomSlot;              // Used to pass continuous zoom info
     bool clipCoords;           // If set, the geometry coordinates aren't meant to be transformed
-    bool hasExp;                // Look for a UniformWideVecExp structure for color, opacity, and width
+    bool hasExp;               // Look for a UniformWideVecExp structure for color, opacity, and width
 };
 
 // Uniform expressions optionally passed to basic polygon shaders
@@ -316,7 +317,7 @@ struct ProjVertexTriA {
     float4 position [[invariant]] [[position]];
     float4 color;
     float2 texCoord;
-    int maskID;
+    uint2 maskIDs;
 };
 
 // Triangle vertex with a couple of texture coordinates

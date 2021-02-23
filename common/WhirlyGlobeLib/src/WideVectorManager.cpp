@@ -23,6 +23,7 @@
 #import "BasicDrawableInstanceBuilder.h"
 #import "FlatMath.h"
 #import "WhirlyKitLog.h"
+#import "StringIndexer.h"
 #import "SharedAttributes.h"
 
 using namespace WhirlyKit;
@@ -70,8 +71,14 @@ WideVectorInfo::WideVectorInfo(const Dictionary &dict)
 class WideVectorBuilder
 {
 public:
-    WideVectorBuilder(const WideVectorInfo *vecInfo,const Point3d &localCenter,const Point3d &dispCenter,const RGBAColor inColor,bool makeTurns,CoordSystemDisplayAdapter *coordAdapter)
-    : vecInfo(vecInfo), angleCutoff(DegToRad(30.0)), texOffset(0.0), edgePointsValid(false), coordAdapter(coordAdapter), localCenter(localCenter), dispCenter(dispCenter), makeDistinctTurn(makeTurns)
+    WideVectorBuilder(const WideVectorInfo *vecInfo,
+                      const Point3d &localCenter,
+                      const Point3d &dispCenter,
+                      const RGBAColor inColor,
+                      const std::vector<SimpleIdentity> &maskIDs,
+                      bool makeTurns,
+                      CoordSystemDisplayAdapter *coordAdapter)
+    : vecInfo(vecInfo), angleCutoff(DegToRad(30.0)), texOffset(0.0), edgePointsValid(false), coordAdapter(coordAdapter), localCenter(localCenter), dispCenter(dispCenter), makeDistinctTurn(makeTurns), maskIDs(maskIDs)
     {
         color = inColor;
     }
@@ -231,6 +238,8 @@ public:
             drawable->add_offset(Vector3dToVector3f(Point3d(vert.offset.x(),vert.offset.y(),vert.centerlineDir)));
             drawable->add_c0(vert.c);
             drawable->add_texInfo(vert.texX,vert.texYmin,vert.texYmax,vert.texOffset);
+            for (unsigned int ii=0;ii<maskEntries.size();ii++)
+                drawable->addAttributeValue(maskEntries[ii], (int64_t) maskIDs[ii]);
         }
 
         drawable->addTriangle(BasicDrawable::Triangle(startPt+0,startPt+1,startPt+3));
@@ -252,6 +261,8 @@ public:
             drawable->add_offset(Vector3dToVector3f(Point3d(vert.offset.x(),vert.offset.y(),vert.centerlineDir)));
             drawable->add_c0(vert.c);
             drawable->add_texInfo(vert.texX,vert.texYmin,vert.texYmax,vert.texOffset);
+            for (unsigned int ii=0;ii<maskEntries.size();ii++)
+                drawable->addAttributeValue(maskEntries[ii], (int64_t) maskIDs[ii]);
         }
         
         drawable->addTriangle(BasicDrawable::Triangle(startPt+0,startPt+1,startPt+2));
@@ -549,6 +560,8 @@ public:
     const WideVectorInfo *vecInfo;
     CoordSystemDisplayAdapter *coordAdapter;
     RGBAColor color;
+    std::vector<SimpleIdentity> maskEntries;
+    std::vector<SimpleIdentity> maskIDs;
     Point3d localCenter,dispCenter;
     double angleCutoff;
     bool makeDistinctTurn;
@@ -567,8 +580,8 @@ public:
 class WideVectorDrawableConstructor
 {
 public:
-    WideVectorDrawableConstructor(SceneRenderer *sceneRender,Scene *scene,const WideVectorInfo *vecInfo)
-    : sceneRender(sceneRender), scene(scene), vecInfo(vecInfo), drawable(NULL), centerValid(false), localCenter(0,0,0), dispCenter(0,0,0)
+    WideVectorDrawableConstructor(SceneRenderer *sceneRender,Scene *scene,const WideVectorInfo *vecInfo,int numMaskIDs)
+    : sceneRender(sceneRender), scene(scene), vecInfo(vecInfo), drawable(NULL), centerValid(false), localCenter(0,0,0), dispCenter(0,0,0), numMaskIDs(numMaskIDs)
     {
         coordAdapter = scene->getCoordAdapter();
         coordSys = coordAdapter->getCoordSystem();
@@ -615,6 +628,9 @@ public:
                 wideDrawable->setOpacityExpression(vecInfo->opacityExp);
             if (vecInfo->colorExp)
                 wideDrawable->setColorExpression(vecInfo->colorExp);
+            maskEntries.resize(numMaskIDs);
+            for (unsigned int ii=0;ii<maskEntries.size();ii++)
+                maskEntries[ii] = wideDrawable->addAttribute(BDInt64Type, a_maskNameIDs[ii], sceneRender->getSlotForNameID(a_maskNameIDs[ii]), ptAlloc);
 
             drawable->setColor(vecInfo->color);
             if (vecInfo->texID != EmptyIdentity)
@@ -631,7 +647,10 @@ public:
     }
     
     // Add the points for a linear
-    void addLinear(const VectorRing &pts,const Point3d &up,bool closed)
+    void addLinear(const VectorRing &pts,
+                   const Point3d &up,
+                   const std::vector<SimpleIdentity> maskIDs,
+                   bool closed)
     {
         // We'll add one on the beginning and two on the end
         //  if we're doing a closed loop.  This gets us
@@ -655,7 +674,13 @@ public:
         }
  
         RGBAColor color = vecInfo->color;
-        WideVectorBuilder vecBuilder(vecInfo,localCenter,dispCenter,color,makeDistinctTurns,coordAdapter);
+        WideVectorBuilder vecBuilder(vecInfo,
+                                     localCenter,
+                                     dispCenter,
+                                     color,
+                                     maskIDs,
+                                     makeDistinctTurns,
+                                     coordAdapter);
 
         // Guess at how many points and triangles we'll need
         int totalTriCount = (int)(5*pts.size());
@@ -684,6 +709,7 @@ public:
             int triCount = 2+3;
             int ptCount = triCount*3;
             WideVectorDrawableBuilderRef thisDrawable = getDrawable(ptCount,triCount,totalPtCount,totalTriCount);
+            vecBuilder.maskEntries = maskEntries;
             totalTriCount -= triCount;
             totalPtCount -= ptCount;
             drawMbr.addPoint(geoA);
@@ -711,7 +737,14 @@ public:
         pts.push_back(GeoCoord(1,0));
         
         const RGBAColor color = vecInfo->color;
-        WideVectorBuilder vecBuilder(vecInfo,Point3d(0,0,0),Point3d(0,0,0),color,false,coordAdapter);
+        std::vector<SimpleIdentity> maskIDs;
+        WideVectorBuilder vecBuilder(vecInfo,
+                                     Point3d(0,0,0),
+                                     Point3d(0,0,0),
+                                     color,
+                                     maskIDs,
+                                     false,
+                                     coordAdapter);
         
         for (unsigned int ii=0;ii<pts.size();ii++)
         {
@@ -724,6 +757,7 @@ public:
             const int ptCount = 5;
             const int triCount = 4;
             WideVectorDrawableBuilderRef thisDrawable = getDrawable(ptCount,triCount,ptCount,triCount);
+            vecBuilder.maskEntries = maskEntries;
             drawMbr.addPoint(geoA);
 
             vecBuilder.addPoint(dispPa,up,thisDrawable,false,true,true);
@@ -771,6 +805,8 @@ protected:
     }
 
     bool centerValid;
+    int numMaskIDs;
+    std::vector<SimpleIdentity> maskEntries;
     Point3d localCenter,dispCenter;
     Mbr drawMbr;
     SceneRenderer *sceneRender;
@@ -825,77 +861,22 @@ WideVectorManager::~WideVectorManager()
     sceneReps.clear();
 }
     
-// TODO: Get rid of this version
-SimpleIdentity WideVectorManager::addVectors(const ShapeSet &shapes,const WideVectorInfo &vecInfo,ChangeSet &changes)
-{
-    // Calculate a center for this geometry
-    GeoMbr geoMbr;
-    for (const auto &shape : shapes)
-    {
-        geoMbr.expand(shape->calcGeoMbr());
-    }
-    // No data?
-    if (!geoMbr.valid())
-        return EmptyIdentity;
-
-    WideVectorDrawableConstructor builder(renderer,scene,&vecInfo);
-
-    const GeoCoord centerGeo = geoMbr.mid();
-
-    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
-    const Point3d localCenter = coordAdapter->getCoordSystem()->geographicToLocal3d(centerGeo);
-    const Point3d centerDisp = coordAdapter->localToDisplay(localCenter);
-    const auto centerUp = coordAdapter->isFlat() ? Point3d(0,0,1) : coordAdapter->normalForLocal(localCenter);
-    
-    builder.setCenter(localCenter,centerDisp);
-
-    for (const auto &shape : shapes)
-    {
-        if (const auto lin = std::dynamic_pointer_cast<VectorLinear>(shape))
-        {
-            builder.addLinear(lin->pts,centerUp,false);
-        }
-        else if (const auto ar = std::dynamic_pointer_cast<VectorAreal>(shape))
-        {
-            for (const auto &loop : ar->loops)
-            {
-                if (loop.size() > 2 && loop.begin() != loop.end())
-                {
-                    // Just tack on another point at the end.  Kind of dumb, but easy.
-                    VectorRing newLoop = loop;
-                    newLoop.push_back(loop[0]);
-                    builder.addLinear(newLoop, centerUp, true);
-                } else
-                    builder.addLinear(loop, centerUp, true);
-            }
-        }
-    }
-//    builder.addLinearDebug();
-    
-    SimpleIdentity vecID = EmptyIdentity;
-    if (auto sceneRep = builder.flush(changes))
-    {
-        vecID = sceneRep->getId();
-        std::lock_guard<std::mutex> guardLock(lock);
-        sceneReps.insert(sceneRep);
-    }
-    
-    return vecID;
-}
-
 SimpleIdentity WideVectorManager::addVectors(const std::vector<VectorShapeRef> &shapes,const WideVectorInfo &vecInfo,ChangeSet &changes)
 {
     // Calculate a center for this geometry
+    int numMaskIDs = 0;
     GeoMbr geoMbr;
     for (const auto &shape : shapes)
     {
+        if (shape->getAttrDict()->hasField("maskID0"))
+            numMaskIDs = WhirlyKitMaxMasks;
         geoMbr.expand(shape->calcGeoMbr());
     }
     // No data?
     if (!geoMbr.valid())
         return EmptyIdentity;
 
-    WideVectorDrawableConstructor builder(renderer,scene,&vecInfo);
+    WideVectorDrawableConstructor builder(renderer,scene,&vecInfo,numMaskIDs);
 
     const GeoCoord centerGeo = geoMbr.mid();
 
@@ -908,9 +889,21 @@ SimpleIdentity WideVectorManager::addVectors(const std::vector<VectorShapeRef> &
 
     for (const auto &shape : shapes)
     {
+        // Look for mask IDs.
+        // Only support 2 for now
+        std::vector<SimpleIdentity> maskIDs;
+        if (numMaskIDs > 0) {
+            maskIDs.resize(numMaskIDs,0);
+            for (unsigned int ii=0;ii<2;ii++) {
+                std::string attrName = "maskID" + std::to_string(ii);
+                if (shape->getAttrDict()->hasField(attrName))
+                    maskIDs[ii] = shape->getAttrDict()->getInt64(attrName);
+            }
+        }
+        
         if (const auto lin = std::dynamic_pointer_cast<VectorLinear>(shape))
         {
-            builder.addLinear(lin->pts,centerUp,false);
+            builder.addLinear(lin->pts, centerUp, maskIDs, false);
         }
         else if (const auto ar = std::dynamic_pointer_cast<VectorAreal>(shape))
         {
@@ -921,9 +914,9 @@ SimpleIdentity WideVectorManager::addVectors(const std::vector<VectorShapeRef> &
                     // Just tack on another point at the end.  Kind of dumb, but easy.
                     VectorRing newLoop = loop;
                     newLoop.push_back(loop[0]);
-                    builder.addLinear(newLoop, centerUp, true);
+                    builder.addLinear(newLoop, centerUp, maskIDs, true);
                 } else
-                    builder.addLinear(loop, centerUp, true);
+                    builder.addLinear(loop, centerUp, maskIDs, true);
             }
         }
     }
