@@ -872,7 +872,7 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
         
         if (marker.maskID) {
             // TODO: Map the mask ID to a value
-            wgMarker->maskID = 1;
+            wgMarker->maskID = 670000;
             wgMarker->maskRenderTargetID = maskRenderTargetID;
         }
         

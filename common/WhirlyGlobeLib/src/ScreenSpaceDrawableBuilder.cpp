@@ -25,11 +25,11 @@ namespace WhirlyKit
 {
     
 ScreenSpaceDrawableBuilder::ScreenSpaceDrawableBuilder()
-: keepUpright(false), motion(false), rotation(false), offsetIndex(-1), rotIndex(-1), dirIndex(-1), maskIndex(-1), startTime(0.0)
+: keepUpright(false), motion(false), rotation(false), offsetIndex(-1), rotIndex(-1), dirIndex(-1), startTime(0.0)
 {
 }
 
-void ScreenSpaceDrawableBuilder::Init(bool hasMotion,bool hasRotation,bool hasMaskIDs,bool buildAnyway)
+void ScreenSpaceDrawableBuilder::Init(bool hasMotion,bool hasRotation,bool buildAnyway)
 {
     rotation = hasRotation;
     motion = hasMotion;
@@ -41,8 +41,6 @@ void ScreenSpaceDrawableBuilder::Init(bool hasMotion,bool hasRotation,bool hasMa
         rotIndex = addAttribute(BDFloat3Type, a_rotNameID);
     if (hasMotion || buildAnyway)
         dirIndex = addAttribute(BDFloat3Type, a_dirNameID);
-    if (hasMaskIDs || buildAnyway)
-        maskIndex = addAttribute(BDIntType, a_maskNameID);
 }
     
 void ScreenSpaceDrawableBuilder::setKeepUpright(bool newVal)

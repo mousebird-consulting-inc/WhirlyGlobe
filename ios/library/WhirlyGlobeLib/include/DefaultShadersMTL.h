@@ -53,15 +53,17 @@ struct ColorExp {
 // Basic vertex attribute positions
 typedef enum {
     WKSVertexPositionAttribute = 0,
-    WKSVertexColorAttribute,
-    WKSVertexNormalAttribute,
-    WKSVertexTextureBaseAttribute,
-    WKSVertexMaskAttribute
+    WKSVertexColorAttribute = 1,
+    WKSVertexNormalAttribute = 2,
+    WKSVertexTextureBaseAttribute = 3,
+    // Need some space for textures
+    WKSVertexMaskAttribute = 5
+    // And another space for extra mask
 } WKSVertexAttributes;
     
 // Wide Vector vertex attribute positions
 typedef enum {
-    WKSVertexWideVecTexInfoAttribute = 6,
+    WKSVertexWideVecTexInfoAttribute = 7,
     WKSVertexWideVecP1Attribute,
     WKSVertexWideVecN0Attribute,
     WKSVertexWideVecC0Attribute,
@@ -70,14 +72,14 @@ typedef enum {
     
 // Screen space vertex attribute positions
 typedef enum {
-    WKSVertexScreenSpaceOffsetAttribute = 6,
+    WKSVertexScreenSpaceOffsetAttribute = 7,
     WKSVertexScreenSpaceRotAttribute,
     WKSVertexScreenSpaceDirAttribute
 } WKSVertexScreenSpaceAttributes;
     
 // Model instance vertex attribute positions
 typedef enum {
-    WKSVertexInstanceColorAttribute = 6,
+    WKSVertexInstanceColorAttribute = 7,
     WKSVertexInstanceMatrixAttribute,
     WKSVertexInstanceCenterAttribute,
     WKSVertexInstanceDirAttribute
@@ -86,7 +88,7 @@ typedef enum {
 // Billboard offsets
 // TODO: Billboards should be instances
 typedef enum {
-    WKSVertexBillboardOffsetAttribute = 7
+    WKSVertexBillboardOffsetAttribute = 8
 } WKSVertexBillboardAttributes;
 
 // Maximum number of textures we currently support
@@ -375,10 +377,10 @@ struct VertexTriScreenSpace
     float3 normal [[attribute(WhirlyKitShader::WKSVertexNormalAttribute)]];
     float2 texCoord [[attribute(WhirlyKitShader::WKSVertexTextureBaseAttribute)]];
     float4 color [[attribute(WhirlyKitShader::WKSVertexColorAttribute)]];
+    int maskID [[attribute(WhirlyKitShader::WKSVertexMaskAttribute)]];
     float2 offset [[attribute(WhirlyKitShader::WKSVertexScreenSpaceOffsetAttribute)]];
     float3 rot [[attribute(WhirlyKitShader::WKSVertexScreenSpaceRotAttribute)]];
     float3 dir [[attribute(WhirlyKitShader::WKSVertexScreenSpaceDirAttribute)]];
-    int maskID [[attribute(WhirlyKitShader::WKSVertexMaskAttribute)]];
 };
 
 // Triangle vertex with a couple of texture coordinates

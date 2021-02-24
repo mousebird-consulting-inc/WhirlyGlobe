@@ -31,7 +31,7 @@ class ScreenSpaceDrawableBuilderMTL : virtual public BasicDrawableBuilderMTL, vi
 public:
     ScreenSpaceDrawableBuilderMTL(const std::string &name,Scene *scene);
     
-    virtual void Init(bool hasMotion,bool hasRotation,bool hasMaskIDs, bool buildAnyway = false) override;
+    virtual void Init(bool hasMotion,bool hasRotation, bool buildAnyway = false) override;
     
     ScreenSpaceTweaker *makeTweaker() override;
     

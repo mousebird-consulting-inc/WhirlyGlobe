@@ -100,8 +100,8 @@ class AirwayTestCase: MaplyTestCase {
                    let locEnd = locArr.last {
                     if let markStart = graphBuilder.getPoint(locStart),
                        let markEnd = graphBuilder.getPoint(locEnd) {
-                        seg.attributes?["maskID0"] = 1
-                        seg.attributes?["maskID1"] = 1
+                        seg.attributes?["maskID0"] = 670000
+                        seg.attributes?["maskID1"] = 670000
 //                        seg.attributes?["maskID0"] = markStart.uuid
 //                        seg.attributes?["maskID1"] = markEnd.uuid
                     }
