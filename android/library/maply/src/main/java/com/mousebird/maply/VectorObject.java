@@ -392,8 +392,13 @@ public class VectorObject implements Iterable<VectorObject>
 	 *
 	 * A vector object can represent multiple features.
 	 * This method will make one vector object per feature, allowing you to operate on those individually.
+	 *
+	 * If the object does not contain multiple features, null is returned to avoid unnecessarily
+	 * copying the shape contents.
 	 */
-	public native VectorObject[] splitVectors();
+	public VectorIterator splitVectors() {
+		return canSplit() ? new VectorIterator(this) : null;
+	}
 
 	/**
 	 * Make a complete copy of the vector object and return it.

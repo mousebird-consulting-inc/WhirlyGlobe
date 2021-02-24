@@ -57,35 +57,42 @@ class SimpleStyleManager {
     /**
      * Add a styled object, splitting it up if necessary.
      */
-    fun addFeatures(obj: VectorObject, mode: RenderControllerInterface.ThreadMode): Collection<ComponentObject>? {
+    fun addFeatures(obj: VectorObject, mode: RenderControllerInterface.ThreadMode): Sequence<ComponentObject>? {
         return addFeatures(listOf(obj), null, mode)
     }
     
     /**
      * Add a collection of styled objects, splitting each if necessary.
      */
-    fun addFeatures(objs: Collection<VectorObject>, mode: RenderControllerInterface.ThreadMode): Collection<ComponentObject> {
+    fun addFeatures(objs: Collection<VectorObject>, mode: RenderControllerInterface.ThreadMode): Sequence<ComponentObject> {
         return addFeatures(objs, null, mode)
     }
     
     /**
      * Add an object with a specific style, ignoring its attributes, splitting it if necessary
      */
-    fun addFeatures(obj: VectorObject, style: SimpleStyle, mode: ThreadMode): Collection<ComponentObject> {
+    fun addFeatures(obj: VectorObject, style: SimpleStyle, mode: ThreadMode): Sequence<ComponentObject> {
         return addFeatures(listOf(obj), style, mode)
     }
     
     /**
      * Add objects with a specific style, ignoring its attributes, splitting it if necessary
      */
-    fun addFeatures(objs: Collection<VectorObject>, style: SimpleStyle?, mode: ThreadMode): Collection<ComponentObject> {
-        return objs.flatMap { obj ->
-            (obj.splitVectors() ?: arrayOf()).flatMap { sObj ->
-                addFeaturesInternal(sObj, style ?: makeStyle(sObj.attributes), mode) ?: listOf()
+    fun addFeatures(objs: Collection<VectorObject>, style: SimpleStyle?, mode: ThreadMode): Sequence<ComponentObject> {
+        return sequence {
+            for (obj in objs) {
+                val split = obj.splitVectors()
+                if (split != null) {
+                    for (vec: VectorObject in split) {
+                        yieldAll(addFeaturesInternal(vec, style, mode))
+                    }
+                } else {
+                    yieldAll(addFeaturesInternal(obj, style, mode))
+                }
             }
         }
     }
-    
+
     fun makeStyle(dict: AttrDictionary): SimpleStyle {
         val style = SimpleStyle()
         
@@ -163,8 +170,9 @@ class SimpleStyleManager {
         }
     }
     
-    private fun addFeaturesInternal(obj: VectorObject, style: SimpleStyle, mode: RenderControllerInterface.ThreadMode): List<ComponentObject>? {
-        val vc = this.vc.get() ?: return null
+    private fun addFeaturesInternal(obj: VectorObject, optStyle: SimpleStyle?, mode: RenderControllerInterface.ThreadMode): Sequence<ComponentObject> {
+        val vc = this.vc.get() ?: return sequenceOf()
+        val style = optStyle ?: makeStyle(obj.attributes)
         when (obj.vectorType) {
             VectorObject.MaplyVectorObjectType.MaplyVectorPointType -> {
                 var markerObj: ComponentObject? = null
@@ -192,23 +200,23 @@ class SimpleStyleManager {
                     //info.layoutImportance = Float.MAX_VALUE
                     labelObj = vc.addScreenLabels(listOf(label), info, mode)
                 }
-                return arrayOf(markerObj, labelObj).filterNotNull()
+                return sequenceOf(markerObj, labelObj).filterNotNull()
             }
             VectorObject.MaplyVectorObjectType.MaplyVectorLinearType -> {
                 val info = WideVectorInfo()
                 info.setLineWidth(style.strokeWidth ?: 2f)
                 info.setColor(resolveColor(style.strokeColor, style.strokeOpacity))
-                return listOf(vc.addWideVectors(listOf(obj), info, threadCurrent))
+                return sequenceOf(vc.addWideVectors(listOf(obj), info, threadCurrent))
             }
             VectorObject.MaplyVectorObjectType.MaplyVectorArealType -> {
                 val info = VectorInfo()
                 info.setColor(resolveColor(style.fillColor, style.fillOpacity))
                 info.setFilled(true)
-                return listOf(vc.addVectors(listOf(obj), info, mode))
+                return sequenceOf(vc.addVectors(listOf(obj), info, mode))
             }
-            else -> return null
+            else -> return sequenceOf()
         }
-        return null
+        return sequenceOf()
     }
 
     private fun tryLoadImage(stream: InputStream): Bitmap {

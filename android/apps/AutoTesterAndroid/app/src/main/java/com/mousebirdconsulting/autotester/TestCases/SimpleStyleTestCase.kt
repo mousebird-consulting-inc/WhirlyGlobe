@@ -64,12 +64,12 @@ class SimpleStyleTestCase : MaplyTestCase {
             componentObjects = arrayOf(vectorGeoJson1, vectorGeoJson2).flatMap { json ->
                 VectorObject().let { obj ->
                     if (obj.fromGeoJSON(json)) {
-                        styleMan.addFeatures(obj, threadAny)
+                        styleMan.addFeatures(obj, threadAny) ?: sequenceOf()
                     } else {
                         Log.e(javaClass.name, "Failed to parse JSON")
-                        null
+                        sequenceOf()
                     }
-                } ?: listOf()
+                }.toList()
             }
         }
     }
