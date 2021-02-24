@@ -612,7 +612,7 @@ vertex ProjVertexTriWideVec vertexTri_wideVec(
     ProjVertexTriWideVec outVert;
     outVert.maskIDs[0] = vert.mask0;
     outVert.maskIDs[1] = vert.mask1;
-    
+
     float3 pos = (vertArgs.uniDrawState.singleMat * float4(vert.position.xyz,1.0)).xyz;
 
     // Pull out the width and possibly calculate one
@@ -733,16 +733,14 @@ fragment float4 fragmentTri_wideVec(
     // Dot/dash pattern
     float4 patternColor(1.0,1.0,1.0,1.0);
     if (texArgs.texPresent & (1<<WKSTextureEntryLookup)) {
-//        if (vert.maskIDs[0] > 0 || vert.maskIDs[1] > 0) {
-//            // Pull the maskID from the input texture
+        if (vert.maskIDs[0] > 0 || vert.maskIDs[1] > 0) {
+            // Pull the maskID from the input texture
             constexpr sampler sampler2d(coord::normalized, filter::linear);
             float2 loc(vert.position.x/uniforms.frameSize.x,vert.position.y/uniforms.frameSize.y);
-//        unsigned int maskID = texArgs.maskTex.sample(sampler2d, loc).r;
-        unsigned int maskID = texArgs.maskTex.sample(sampler2d, loc).r;
-//            if (vert.maskIDs[0] == maskID || vert.maskIDs[1] == maskID)
-            if (maskID != 0)
+            unsigned int maskID = texArgs.maskTex.sample(sampler2d, loc).r;
+            if (vert.maskIDs[0] == maskID || vert.maskIDs[1] == maskID)
                 return float4(1.0,0.0,0.0,1.0);
-//        }
+        }
     }
 
     if (numTextures > 0) {
