@@ -43,6 +43,11 @@ class SimpleStyle {
     @ColorInt
     var strokeColor: Int? = null
     
+    @ColorInt
+    var labelColor: Int? = null
+    var labelSize: Float? = null
+    var labelOffset: Point2d? = null
+    
     var layoutSize: Size? = null
 
     var markerTexture: MaplyTexture? = null

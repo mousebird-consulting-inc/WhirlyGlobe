@@ -1,9 +1,8 @@
-/*
- *  VectorObject_jni.cpp
+/*  VectorObject_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2016 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "Vectors_jni.h"
@@ -902,43 +900,6 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_canSplit(JNIEnv
     }
     return false;
 }
-
-/*
- * Class:     com_mousebird_maply_VectorObject
- * Method:    splitVectors
- * Signature: ()Ljava/util/ArrayList;
- */
-extern "C"
-JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_VectorObject_splitVectors(JNIEnv *env, jobject obj) {
-    try {
-        auto classInfo = VectorObjectClassInfo::getClassInfo();
-        auto vecObjPtr = classInfo->getObject(env,obj);
-        if (!vecObjPtr) {
-            return nullptr;
-        }
-
-        auto &vecObj = *vecObjPtr;
-
-        if (vecObj->shapes.size() < 2) {
-            return BuildObjectArray(env,classInfo->getClass(),obj);
-        }
-        std::vector<VectorObject*> newObjs;
-        vecObj->splitVectors(newObjs);
-
-        std::vector<jobject> newWraps;
-        newWraps.reserve(newObjs.size());
-        for (auto newObj : newObjs) {
-            newWraps.push_back(MakeVectorObject(env,VectorObjectRef(newObj)));
-        }
-        return BuildObjectArray(env,classInfo->getClass(),newWraps);
-    }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorObject::splitVectors()");
-    }
-    return nullptr;
-}
-
 
 extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_deepCopyNative

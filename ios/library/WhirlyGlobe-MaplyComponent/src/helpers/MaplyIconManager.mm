@@ -432,6 +432,7 @@
                 marker.image = style.markerTex;
                 marker.size = style.markerSize;
                 marker.offset = style.markerOffset;
+                //marker.layoutImportance = MAXFLOAT;
                 return [vc addScreenMarkers:@[marker] desc:nil mode:mode];
             }
             break;

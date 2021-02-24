@@ -17,8 +17,8 @@
 package com.mousebirdconsulting.autotester.TestCases
 
 import android.app.Activity
+import android.util.Log
 import com.mousebird.maply.*
-
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase
 
 class SimpleStyleTestCase : MaplyTestCase {
@@ -32,14 +32,14 @@ class SimpleStyleTestCase : MaplyTestCase {
     override fun setUpWithGlobe(globeVC: GlobeController): Boolean {
         baseCase.setUpWithGlobe(globeVC)
         runExamples(globeVC)
-        globeVC.animatePositionGeo(Point2d.FromDegrees(151.2, -33.86), 0.5, 0.0, 0.5)
+        globeVC.animatePositionGeo(Point2d.FromDegrees(145.0, -33.0), 0.2, 0.0, 0.5)
         return true
     }
     
     override fun setUpWithMap(mapVC: MapController): Boolean {
         baseCase.setUpWithMap(mapVC)
         runExamples(mapVC)
-        mapVC.animatePositionGeo(Point2d.FromDegrees(151.2, -33.86), 0.5, 0.0, 0.5)
+        mapVC.animatePositionGeo(Point2d.FromDegrees(145.0, -33.0), 0.2, 0.0, 0.5)
         return true
     }
     
@@ -60,14 +60,21 @@ class SimpleStyleTestCase : MaplyTestCase {
     private fun runExamples(vc: BaseController) {
         cleanup()
         styleManager = SimpleStyleManager(activity.applicationContext, vc).also { styleMan ->
+            styleMan.medSize = Point2d(42.0, 36.0)
+            styleMan.objectLocator = object : SimpleStyleManager.StyleObjectLocator {
+                override fun locate(name: String): Collection<String> {
+                    return listOf("maki icons/$name-24@2x.png")
+                }
+            }
             componentObjects = arrayOf(vectorGeoJson1, vectorGeoJson2).flatMap { json ->
                 VectorObject().let { obj ->
                     if (obj.fromGeoJSON(json)) {
-                        styleMan.addFeatures(obj, threadAny)
+                        styleMan.addFeatures(obj, threadAny) ?: sequenceOf()
                     } else {
-                        null
+                        Log.e(javaClass.name, "Failed to parse JSON")
+                        sequenceOf()
                     }
-                } ?: listOf()
+                }.toList()
             }
         }
     }
@@ -76,10 +83,11 @@ class SimpleStyleTestCase : MaplyTestCase {
         return if (value == null) null else ("\"$name\": " + (if (quote) "\"$value\"" else value))
     }
     
-    private fun marker(title: String, lat: Double, lon: Double, m: String? = null,
-        bg: String? = null, c: Boolean? = null, mC: String? = null, fC: String? = null,
-        fA: Double? = null, s: Double? = null, sC: String? = null,
-        sA: Double? = null, mSz: String? = null): String {
+    private fun marker(title: String, lat: Double, lon: Double, m: String? = null, bg: String? = null,
+                       c: Boolean? = null, mC: String? = null, fC: String? = null, fA: Double? = null,
+                       s: Double? = null, sC: String? = null, sA: Double? = null, mSz: String? = null,
+                       ox: Double? = null, oy: Double? = null, lC: String? = null, lSz: Double? = null,
+                       lx: Double? = null, ly: Double? = null): String {
         return """
         {
           "type": "Feature",
@@ -92,11 +100,17 @@ class SimpleStyleTestCase : MaplyTestCase {
                     prop("marker-background-symbol", bg, true),
                     prop("marker-circle", "${!(c ?: true)}", false),
                     prop("marker-color", mC, true),
-                    prop("fill-color", fC, true),
+                    prop("marker-offset-x", if (ox != null) "$ox" else null, false),
+                    prop("marker-offset-y", if (oy != null) "$oy" else null, false),
+                    prop("fill", fC, true),
                     prop("fill-opacity", if (fA != null) "$fA" else null, false),
                     prop("stroke-width", if (s != null) "$s" else null, false),
-                    prop("stroke-color", sC, true),
-                    prop("stroke-opacity", if (sA != null) "$sA" else null, false)
+                    prop("stroke", sC, true),
+                    prop("stroke-opacity", if (sA != null) "$sA" else null, false),
+                    prop("label", lC, true),
+                    prop("label-size", if (lSz != null) "$lSz" else null, false),
+                    prop("label-offset-x", if (lx != null) "$lx" else null, false),
+                    prop("label-offset-y", if (ly != null) "$ly" else null, false)
             ).filterNotNull().joinToString(",") +
         """
           },
@@ -105,20 +119,41 @@ class SimpleStyleTestCase : MaplyTestCase {
         """
     }
     
-    private fun markers(): String {
+    private fun markers1(): String {
+        val startLon = 142.0
         var lat = -30.0
-        var lon = 142.0
+        var lon = startLon
+        val latStep = 0.05
+        val lonStep = 0.05
         var n = 0
+        val rowSize = 64
         return arrayOf(null, "bar").flatMap { m ->
                arrayOf(null, "marker-stroked").flatMap { bg ->
-               arrayOf(true, false).flatMap { c ->
-               arrayOf(0.0, 0.8).flatMap { fA ->
-               arrayOf(0.0, 2.0).map { s ->
-                    lon += 0.1
-                    if ((n++ % 8) == 0) { lat -= 0.1; lon = 140.0 }
-                    marker("marker", lat, lon, m, bg, c, "0a0",
-                           "050", fA, s, "020", 0.8)
-               } } } }
+               arrayOf("small", "medium", "large").flatMap { mSz ->
+               arrayOf(0.0, 2.0, 5.0).flatMap { sWidth ->
+               arrayOf(0.0, 0.5, 1.0).flatMap { fillA ->
+               arrayOf(true, false).flatMap { circle ->
+               arrayOf("f0f", "#0f0").flatMap { mColor ->
+               arrayOf("0fa", "#a0f").flatMap { fColor ->
+               arrayOf("fa0", "#0af").map { sColor ->
+                    lon += lonStep
+                    if ((n++ % rowSize) == 0) { lat -= latStep; lon = startLon }
+                    marker("", lat, lon, m, bg, circle, mColor, fColor,
+                           fillA, sWidth, sColor, 0.8, mSz)
+               } } } } } } } }
+            }.joinToString(",")
+    }
+
+    private fun fmt(v: Double): String {
+        return Regex("\\.0+$").replace("$v", "")
+    }
+    private fun markers2(): String {
+        return arrayOf(-4.0, -1.5, 0.0, 1.0).flatMap { ox ->
+               arrayOf(-5.0, -1.5, 0.0, 1.0).map { oy ->
+                    marker("${fmt(ox)},${fmt(oy)}", -30.0, 140.0,null, "marker-stroked",
+                            false, "f0f", "0fa", 0.7, 0.2, "#0af", 0.8,
+                            "medium", ox, oy, "#f50", 5.0, ox * 45 / 5, oy * 38 / 5)
+               }
             }.joinToString(",")
     }
     
@@ -141,7 +176,8 @@ class SimpleStyleTestCase : MaplyTestCase {
     private val vectorGeoJson2 = """
     { "type": "FeatureCollection",
       "features": [
-        ${markers()},
+        ${markers1()},
+        ${markers2()},
         { "type": "Feature",
           "properties": {
             "title": "poly",
@@ -181,6 +217,6 @@ class SimpleStyleTestCase : MaplyTestCase {
     private var styleManager: SimpleStyleManager? = null
     private var componentObjects: List<ComponentObject>? = null
     
-    private val threadAny = RenderControllerInterface.ThreadMode.ThreadAny
-    private val threadCurrent = RenderControllerInterface.ThreadMode.ThreadCurrent
+    private val threadAny = ThreadMode.ThreadAny
+    private val threadCurrent = ThreadMode.ThreadCurrent
 }

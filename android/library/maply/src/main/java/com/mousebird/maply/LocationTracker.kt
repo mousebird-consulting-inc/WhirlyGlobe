@@ -74,8 +74,9 @@ class LocationTracker : LocationCallback {
     @RequiresPermission(anyOf = [permission.ACCESS_COARSE_LOCATION, permission.ACCESS_FINE_LOCATION])
     fun start(context: Context, looper: Looper? = null, request: LocationRequest? = null) {
         stop()
-
-        handler = if (looper != null) Handler(looper) else Handler(baseController.get()?.workingThread?.looper)
+    
+        val defLooper = baseController.get()?.workingThread?.looper ?: Looper.myLooper()!!
+        handler = Handler(looper ?: defLooper)
         
         simulatorDelegate.get()?.let {
             simulating = true
@@ -88,7 +89,6 @@ class LocationTracker : LocationCallback {
                     maxWaitTime = 2 * interval - 1
                     numUpdates = Int.MAX_VALUE
                 }
-                val looper = baseController.get()?.workingThread?.looper
                 locationTask = client.requestLocationUpdates(req, this, handler?.looper)
             }
         }
