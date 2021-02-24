@@ -48,6 +48,15 @@ class SimpleStyleManager {
         get() { return Shared.cacheSize }
         set(value) { Shared.cacheSize = value }
     
+    public interface StyleObjectLocator {
+        fun locate(name: String): Collection<String>
+    }
+    var objectLocator: StyleObjectLocator = object : StyleObjectLocator {
+        override fun locate(name: String): Collection<String> {
+            return listOf(name, "$name.png")
+        }
+    }
+    
     constructor(context: Context, vc: RenderControllerInterface, assetManager: AssetManager? = null) {
         this.vc = WeakReference(vc)
         this.context = context
@@ -232,13 +241,11 @@ class SimpleStyleManager {
         return File(name).inputStream().use { tryLoadImage(it) }
     }
     
-    private val imageSuffixes = arrayOf("", ".png", "-24@2x.png")
-    
     private fun loadImage(name: String): Bitmap? {
         try {
-            for (suffix in imageSuffixes) {
-                try { return tryLoadFileImage("$name$suffix") } catch (e: FileNotFoundException) { }
-                try { return tryLoadAssetImage("$name$suffix") } catch (e2: FileNotFoundException) { }
+            for (location in objectLocator.locate(name)) {
+                try { return tryLoadFileImage(location) } catch (e: FileNotFoundException) { }
+                try { return tryLoadAssetImage(location) } catch (e2: FileNotFoundException) { }
             }
         } catch (e: Exception) {
             Log.w(javaClass.name, String.format("Failed to load '%s': '%s'", name, e.localizedMessage))

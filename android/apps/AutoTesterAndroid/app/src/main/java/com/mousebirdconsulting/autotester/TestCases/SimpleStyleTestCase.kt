@@ -61,6 +61,11 @@ class SimpleStyleTestCase : MaplyTestCase {
         cleanup()
         styleManager = SimpleStyleManager(activity.applicationContext, vc).also { styleMan ->
             styleMan.medSize = Point2d(42.0, 36.0)
+            styleMan.objectLocator = object : SimpleStyleManager.StyleObjectLocator {
+                override fun locate(name: String): Collection<String> {
+                    return listOf("maki icons/$name-24@2x.png")
+                }
+            }
             componentObjects = arrayOf(vectorGeoJson1, vectorGeoJson2).flatMap { json ->
                 VectorObject().let { obj ->
                     if (obj.fromGeoJSON(json)) {
@@ -122,8 +127,8 @@ class SimpleStyleTestCase : MaplyTestCase {
         val lonStep = 0.05
         var n = 0
         val rowSize = 64
-        return arrayOf(null, "maki icons/bar").flatMap { m ->
-               arrayOf(null, "maki icons/marker-stroked").flatMap { bg ->
+        return arrayOf(null, "bar").flatMap { m ->
+               arrayOf(null, "marker-stroked").flatMap { bg ->
                arrayOf("small", "medium", "large").flatMap { mSz ->
                arrayOf(0.0, 2.0, 5.0).flatMap { sWidth ->
                arrayOf(0.0, 0.5, 1.0).flatMap { fillA ->
@@ -145,7 +150,7 @@ class SimpleStyleTestCase : MaplyTestCase {
     private fun markers2(): String {
         return arrayOf(-4.0, -1.5, 0.0, 1.0).flatMap { ox ->
                arrayOf(-5.0, -1.5, 0.0, 1.0).map { oy ->
-                    marker("${fmt(ox)},${fmt(oy)}", -30.0, 140.0,null, "maki icons/marker-stroked",
+                    marker("${fmt(ox)},${fmt(oy)}", -30.0, 140.0,null, "marker-stroked",
                             false, "f0f", "0fa", 0.7, 0.2, "#0af", 0.8,
                             "medium", ox, oy, "#f50", 5.0, ox * 45 / 5, oy * 38 / 5)
                }
