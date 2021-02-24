@@ -613,8 +613,19 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 	 * @param hdg New heading
 	 * @param howLong Time (in seconds) to animate.
 	 */
-	public void animatePositionGeo(final double x,final double y,final double z,Point2d offset,Double hdg,final double howLong) {
+	public void animatePositionGeo( double x, double y, double z,Point2d offset,Double hdg, double howLong) {
 		animatePositionGeo(new Point3d(x,y,z),offset,hdg,howLong);
+	}
+
+	/**
+	 * Animate to a new view position
+	 * @param xy Location of the in geographic radians (not degrees).
+	 * @param height Height above the map in display units.
+	 * @param hdg New heading
+	 * @param howLong Time (in seconds) to animate.
+	 */
+	public void animatePositionGeo(Point2d xy, Double height, Double hdg, double howLong) {
+		animatePositionGeo(xy.getX(), xy.getY(), height, hdg, howLong);
 	}
 
 	/**

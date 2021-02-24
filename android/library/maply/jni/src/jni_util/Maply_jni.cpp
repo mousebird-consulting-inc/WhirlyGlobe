@@ -257,67 +257,76 @@ JavaDoubleArray::~JavaDoubleArray()
     env->ReleaseDoubleArrayElements(array,rawDouble, 0);
 }
 
-jlongArray BuildLongArray(JNIEnv *env,std::vector<SimpleIdentity> &longVec)
+jlongArray BuildLongArray(JNIEnv *env,const std::vector<SimpleIdentity> &longVec)
 {
     if (longVec.empty())
-        return NULL;
+        return nullptr;
 
     jlongArray newArray = env->NewLongArray(longVec.size());
     if (!newArray)
-        return NULL;
+        return nullptr;
 
     env->SetLongArrayRegion(newArray, 0, longVec.size(), (jlong *)&longVec[0]);
     return newArray;
 }
 
-jdoubleArray BuildDoubleArray(JNIEnv *env,std::vector<double> &doubleVec)
+jdoubleArray BuildDoubleArray(JNIEnv *env,const std::vector<double> &doubleVec)
 {
     if (doubleVec.empty())
-        return NULL;
+        return nullptr;
 
     jdoubleArray newArray = env->NewDoubleArray(doubleVec.size());
     if (!newArray)
-        return NULL;
+        return nullptr;
 
     env->SetDoubleArrayRegion(newArray, 0, doubleVec.size(), (jdouble *)&doubleVec[0]);
     return newArray;
 }
 
-jintArray BuildIntArray(JNIEnv *env,std::vector<int> &intVec)
+jintArray BuildIntArray(JNIEnv *env,const std::vector<int> &intVec)
 {
     if (intVec.empty())
-        return NULL;
+        return nullptr;
 
     jintArray newArray = env->NewIntArray(intVec.size());
     if (!newArray)
-        return NULL;
+        return nullptr;
 
     env->SetIntArrayRegion(newArray, 0, intVec.size(), (jint *)&intVec[0]);
     return newArray;
 }
 
-jobjectArray BuildObjectArray(JNIEnv *env,jclass cls,std::vector<jobject> &objVec)
+jobjectArray BuildObjectArray(JNIEnv *env,jclass cls,jobject singleObj)
+{
+    if (auto newArray = env->NewObjectArray(1,cls,nullptr)) {
+        env->SetObjectArrayElement(newArray,0,singleObj);
+        return newArray;
+    }
+    return nullptr;
+}
+
+jobjectArray BuildObjectArray(JNIEnv *env,jclass cls,const std::vector<jobject> &objVec)
 {
     if (objVec.empty())
-        return NULL;
+        return nullptr;
 
-    jobjectArray newArray = env->NewObjectArray(objVec.size(),cls,NULL);
+    jobjectArray newArray = env->NewObjectArray(objVec.size(),cls,nullptr);
     if (!newArray)
-        return NULL;
+        return nullptr;
 
     for (unsigned int ii=0;ii<objVec.size();ii++)
         env->SetObjectArrayElement(newArray,ii,objVec[ii]);
     return newArray;
 }
 
-jobjectArray BuildStringArray(JNIEnv *env,std::vector<std::string> &objVec)
+jobjectArray BuildStringArray(JNIEnv *env,const std::vector<std::string> &objVec)
 {
     if (objVec.empty())
-        return NULL;
+        return nullptr;
 
-    jobjectArray newArray = env->NewObjectArray(objVec.size(),env->FindClass("java/lang/String"),NULL);
+    jobjectArray newArray = env->NewObjectArray(objVec.size(),env->FindClass("java/lang/String"),nullptr);
     if (!newArray)
-        return NULL;
+        return nullptr;
 
     for (unsigned int ii=0;ii<objVec.size();ii++)
         env->SetObjectArrayElement(newArray,ii,env->NewStringUTF(objVec[ii].c_str()));
