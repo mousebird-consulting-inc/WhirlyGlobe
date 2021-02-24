@@ -44,7 +44,7 @@ void ScreenSpaceDrawableBuilderMTL::Init(bool hasMotion,bool hasRotation,bool ha
     ((VertexAttributeMTL *)basicDraw->vertexAttributes[rotIndex])->slot = WhirlyKitShader::WKSVertexScreenSpaceRotAttribute;
     ((VertexAttributeMTL *)basicDraw->vertexAttributes[dirIndex])->slot = WhirlyKitShader::WKSVertexScreenSpaceDirAttribute;
     if (maskIndex >= 0)
-        ((VertexAttributeMTL *)basicDraw->vertexAttributes[maskIndex])->slot = WhirlyKitShader::WKSVertexScreenSpaceMaskAttribute;
+        ((VertexAttributeMTL *)basicDraw->vertexAttributes[maskIndex])->slot = WhirlyKitShader::WKSVertexMaskAttribute;
 }
 
 ScreenSpaceTweaker *ScreenSpaceDrawableBuilderMTL::makeTweaker()

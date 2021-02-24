@@ -94,12 +94,7 @@ SceneRendererMTL::SceneRendererMTL(id<MTLDevice> mtlDevice,id<MTLLibrary> mtlLib
 #endif
 
     init();
-    
-    // Slots we need to refer to on the C++ side
-    slotMap[a_maskNameID] = WhirlyKitShader::WKSVertexScreenSpaceMaskAttribute;
-    for (unsigned int ii=0;ii<WhirlyKitMaxMasks;ii++)
-        slotMap[a_maskNameIDs[ii]] = WhirlyKitShader::WKSVertexWideVecMaskAttribute+ii;
-    
+        
     // Calculation shaders
     workGroups.push_back(WorkGroupRef(new WorkGroupMTL(WorkGroup::Calculation)));
     // Offscreen target render group
@@ -138,6 +133,11 @@ void SceneRendererMTL::setView(View *newView)
 void SceneRendererMTL::setScene(Scene *newScene)
 {
     SceneRenderer::setScene(newScene);
+    
+    // Slots we need to refer to on the C++ side
+    slotMap[a_maskNameID] = WhirlyKitShader::WKSVertexMaskAttribute;
+    for (unsigned int ii=0;ii<WhirlyKitMaxMasks;ii++)
+        slotMap[a_maskNameIDs[ii]] = WhirlyKitShader::WKSVertexMaskAttribute+ii;
 }
 
 bool SceneRendererMTL::setup(int sizeX,int sizeY,bool offscreen)

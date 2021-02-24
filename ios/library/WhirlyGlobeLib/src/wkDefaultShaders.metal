@@ -733,12 +733,14 @@ fragment float4 fragmentTri_wideVec(
     // Dot/dash pattern
     float4 patternColor(1.0,1.0,1.0,1.0);
     if (texArgs.texPresent & (1<<WKSTextureEntryLookup)) {
-        if (vert.maskIDs[0] > 0 || vert.maskIDs[1] > 0) {
+//        if (vert.maskIDs[0] > 0 || vert.maskIDs[1] > 0) {
+        {
             // Pull the maskID from the input texture
             constexpr sampler sampler2d(coord::normalized, filter::linear);
             float2 loc(vert.position.x/uniforms.frameSize.x,vert.position.y/uniforms.frameSize.y);
             unsigned int maskID = texArgs.maskTex.sample(sampler2d, loc).r;
-            if (vert.maskIDs[0] == maskID || vert.maskIDs[1] == maskID)
+//            if (vert.maskIDs[0] == maskID || vert.maskIDs[1] == maskID)
+            if (maskID != 0)
                 return float4(1.0,0.0,0.0,1.0);
         }
     }
@@ -809,7 +811,7 @@ vertex ProjVertexTriA vertexTri_screenSpace(
         screenOffset = vert.offset;
     
     outVert.maskIDs[0] = vert.maskID;
-    
+
     float2 scale = float2(2.0/uniforms.frameSize.x,2.0/uniforms.frameSize.y);
     outVert.position = (dotProd > 0.0 && pt.z <= 0.0) ? float4(screenPt.xy + float2(screenOffset.x*scale.x,screenOffset.y*scale.y),0.0,1.0) : float4(0.0,0.0,0.0,0.0);
     
