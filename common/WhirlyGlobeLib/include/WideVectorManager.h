@@ -62,7 +62,6 @@ public:
     WideVectorLineJoinType joinType;
     WideVectorLineCapType capType;
     SimpleIdentity texID;
-    SimpleIdentity maskTexID;
     float miterLimit;
     
     FloatExpressionInfoRef widthExp;

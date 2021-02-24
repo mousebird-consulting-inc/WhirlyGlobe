@@ -689,6 +689,11 @@ using namespace Eigen;
         interactLayer->maskRenderTargetID = [maskRenderTarget renderTargetID];
         interactLayer->maskTexID = maskTex.texID;
     }
+    
+    // Any programs that needs the mask texture get it wired in
+    if (Program *prog = scene->findProgramByName(MaplyDefaultWideVectorShader)) {
+        scene->addChangeRequest(new ShaderAddTextureReq(prog->getId(),0,maskTex.texID,0));
+    }
 }
 
 - (void)stopMaskTarget

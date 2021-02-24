@@ -35,7 +35,7 @@ WideVectorInfo::WideVectorInfo()
 : color(255,255,255,255), width(2.0),
 repeatSize(32.0), edgeSize(1.0), subdivEps(0.0),
 coordType(WideVecCoordScreen), joinType(WideVecMiterJoin), capType(WideVecButtCap),
-texID(EmptyIdentity), maskTexID(EmptyIdentity), miterLimit(2.0)
+texID(EmptyIdentity), miterLimit(2.0)
 {    
 }
     
@@ -636,8 +636,6 @@ public:
             int baseTexId = 0;
             if (vecInfo->texID != EmptyIdentity)
                 drawable->setTexId(baseTexId++, vecInfo->texID);
-            if (vecInfo->maskTexID != EmptyIdentity)
-                drawable->setTexId(baseTexId++, vecInfo->maskTexID);
             if (centerValid)
             {
                 Eigen::Affine3d trans(Eigen::Translation3d(dispCenter.x(),dispCenter.y(),dispCenter.z()));

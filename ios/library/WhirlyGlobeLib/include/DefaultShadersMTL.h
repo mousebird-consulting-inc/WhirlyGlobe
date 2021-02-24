@@ -401,6 +401,17 @@ typedef struct RegularTextures {
     metal::array<metal::texture2d<float, metal::access::sample>, WKSTextureMax> tex    [[ id(WKSTexBuffTextures) ]];
 } RegularTextures;
 
+typedef struct WideVecTextures {
+    // A bit per texture that's present
+    uint32_t texPresent                          [[ id(WKSTexBufTexPresent) ]];
+    // Texture indirection (for accessing sub-textures)
+    metal::array<float, 2*WKSTextureMax> offset     [[ id(WKSTexBuffIndirectOffset) ]];
+    metal::array<float, 2*WKSTextureMax> scale      [[ id(WKSTexBuffIndirectScale) ]];
+    metal::array<metal::texture2d<float, metal::access::sample>, WKSTextureEntryLookup> tex    [[ id(WKSTexBuffTextures) ]];
+    metal::texture2d<unsigned int, metal::access::sample> maskTex [[id(WKSTexBuffTextures+WKSTextureEntryLookup)]];
+    metal::array<metal::texture2d<float, metal::access::sample>, WKSTextureMax-WKSTextureEntryLookup> tex2    [[ id(WKSTexBuffTextures+WKSTextureEntryLookup+1) ]];
+} WideVecTextures;
+    
 struct VertexTriArgBufferA {
     WhirlyKitShader::UniformDrawStateA uniDrawState      [[ id(WhirlyKitShader::WKSUniformDrawStateEntry) ]];
     bool hasTextures;
