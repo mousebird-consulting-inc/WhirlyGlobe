@@ -10,9 +10,10 @@ import com.mousebird.maply.ComponentObject;
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.LabelInfo;
 import com.mousebird.maply.MapController;
-import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.BaseController;
 import com.mousebird.maply.MarkerInfo;
 import com.mousebird.maply.Point2d;
+import com.mousebird.maply.RenderController;
 import com.mousebird.maply.ScreenLabel;
 import com.mousebird.maply.ScreenMarker;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
@@ -188,7 +189,7 @@ public class MarkersAndLinesTestCase extends MaplyTestCase {
 
     @Override
     public boolean setUpWithMap(MapController mapVC) throws Exception {
-        CartoDBMapTestCase mapBoxSatelliteTestCase = new CartoDBMapTestCase(getActivity());
+        CartoLightTestCase mapBoxSatelliteTestCase = new CartoLightTestCase(getActivity());
         mapBoxSatelliteTestCase.setUpWithMap(mapVC);
         this.addMarkersAndLines(mapVC);
         return true;
@@ -197,7 +198,7 @@ public class MarkersAndLinesTestCase extends MaplyTestCase {
 
     @Override
     public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
-        CartoDBMapTestCase mapBoxSatelliteTestCase = new CartoDBMapTestCase(getActivity());
+        CartoLightTestCase mapBoxSatelliteTestCase = new CartoLightTestCase(getActivity());
         mapBoxSatelliteTestCase.setUpWithGlobe(globeVC);
         this.addMarkersAndLines(globeVC);
         return true;
@@ -214,7 +215,7 @@ public class MarkersAndLinesTestCase extends MaplyTestCase {
     //***********************************************************************//
 
 
-    private void addMarkersAndLines(MaplyBaseController controller) {
+    private void addMarkersAndLines(BaseController controller) {
 
 
         // First layer
@@ -226,7 +227,7 @@ public class MarkersAndLinesTestCase extends MaplyTestCase {
         mInfo.setDrawPriority(drawPriority);
         mInfo.setColor(Color.DKGRAY);
 
-        markers1 = controller.addScreenMarkers(markers, mInfo, MaplyBaseController.ThreadMode.ThreadCurrent);
+        markers1 = controller.addScreenMarkers(markers, mInfo, RenderController.ThreadMode.ThreadCurrent);
 
         drawPriority += 1;
 
@@ -241,7 +242,7 @@ public class MarkersAndLinesTestCase extends MaplyTestCase {
 
         lInfo.setLayoutPlacement(LabelInfo.LayoutRight);
 
-        labels1 = controller.addScreenLabels(labels, lInfo, MaplyBaseController.ThreadMode.ThreadCurrent);
+        labels1 = controller.addScreenLabels(labels, lInfo, RenderController.ThreadMode.ThreadCurrent);
 
         drawPriority += 100;
 
@@ -253,7 +254,7 @@ public class MarkersAndLinesTestCase extends MaplyTestCase {
         mInfo.setDrawPriority(drawPriority);
         mInfo.setColor(Color.DKGRAY);
 
-        markers2 = controller.addScreenMarkers(markers, mInfo, MaplyBaseController.ThreadMode.ThreadCurrent);
+        markers2 = controller.addScreenMarkers(markers, mInfo, RenderController.ThreadMode.ThreadCurrent);
 
         drawPriority += 1;
 
@@ -268,7 +269,7 @@ public class MarkersAndLinesTestCase extends MaplyTestCase {
 
         lInfo.setLayoutPlacement(LabelInfo.LayoutRight);
 
-        labels2 = controller.addScreenLabels(labels, lInfo, MaplyBaseController.ThreadMode.ThreadCurrent);
+        labels2 = controller.addScreenLabels(labels, lInfo, RenderController.ThreadMode.ThreadCurrent);
 
     }
 

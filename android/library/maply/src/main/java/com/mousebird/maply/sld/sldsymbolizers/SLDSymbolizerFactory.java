@@ -24,9 +24,6 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 
-import com.mousebird.maply.VectorStyleSettings;
-import com.mousebird.maply.MaplyBaseController;
-
 /**
  * Factory class for constructing SLDSymbolizer-subclassed objects.
  */

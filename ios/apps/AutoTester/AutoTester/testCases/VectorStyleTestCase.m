@@ -3,11 +3,11 @@
 //  AutoTester
 //
 //  Created by Steve Gifford on 8/12/16.
-//  Copyright © 2016-2017 mousebird consulting. All rights reserved.
+//  Copyright © 2016-2017 mousebird consulting.
 //
 
 #import "VectorStyleTestCase.h"
-#import "GeographyClassTestCase.h"
+#import "AutoTester-Swift.h"
 
 @implementation VectorStyleTestCase
 {
@@ -19,7 +19,6 @@
 {
     if (self = [super init]) {
         self.name = @"Vector Style Test";
-        self.captureDelay = 5;
         self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
         
     }
@@ -46,6 +45,7 @@
     baseViewC = globeVC;
     baseCase = [[GeographyClassTestCase alloc]init];
     [baseCase setUpWithGlobe:globeVC];
+    [globeVC animateToPosition:MaplyCoordinateMakeWithDegrees(-100.0, 40.0) time:1.0];
     
     [self overlayCountryFile:@"USA" ext:@"geojson" viewC:globeVC];
 }
@@ -55,7 +55,8 @@
     baseViewC = mapVC;
     baseCase = [[GeographyClassTestCase alloc]init];
     [baseCase setUpWithMap:mapVC];
-    
+    [mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-100.0, 40.0) time:1.0];
+
     [self overlayCountryFile:@"USA" ext:@"geojson" viewC:mapVC];
 }
 

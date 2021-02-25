@@ -34,276 +34,62 @@ import java.util.ArrayList;
  */
 public class ComponentObject 
 {
-	// Convert from Long to long array
-	long[] convertIDs(ArrayList<Long> inIDs)
+	public ComponentObject()
 	{
-		int which = 0;
-		long[] ids = new long[inIDs.size()];
-		for (Long id : inIDs)
-		{
-			ids[which] = id;
-			which++;
-		}
-		
-		return ids;
+		initialise();
 	}
-	
+
+	public void finalize()
+	{
+		dispose();
+	}
+
+	// Return the unique ID of this component object
+	public native long getID();
+
 	// Track selection IDs associated with this object
-	void addSelectID(long id)
-	{
-		if (selectIDs == null)
-			selectIDs = new ArrayList<Long>();
-		selectIDs.add(id);
-	}
-	
-	// Track the given texture ID as belonging to us
-	void addTexID(long id)
-	{
-		if (texIDs == null)
-			texIDs = new ArrayList<Long>();
-		texIDs.add(id);
-	}
+	public native void addSelectID(long id);
+
+	public native long[] getSelectIDs();
 
 	// Track the given marker ID as associated with us
-	void addMarkerID(long id)
-	{
-		if (markerIDs == null)
-			markerIDs = new ArrayList<Long>();
-		markerIDs.add(id);
-	}
+	public native void addMarkerID(long id);
 
 	// Track the given sticker ID as associated with us
-	void addStickerID(long id)
-	{
-		if (stickerIDs == null)
-			stickerIDs = new ArrayList<Long>();
-		stickerIDs.add(id);
-	}
+	public native void addStickerID(long id);
 
-	long[] getStickerIDs()
-	{
-		if (stickerIDs == null)
-			return null;
-		long[] retIDs = new long[stickerIDs.size()];
-		int which = 0;
-		for (Long id : stickerIDs) {
-			retIDs[which++] = id;
-		}
-
-		return retIDs;
-	}
+	public native long[] getStickerIDs();
 
 	// Track the given vector ID as associated with us
-	void addVectorID(long id)
-	{
-		if (vectorIDs == null)
-			vectorIDs = new ArrayList<Long>();
-		vectorIDs.add(id);
-	}
+	public native void addVectorID(long id);
 
-	void addWideVectorID(long id)
-	{
-		if (wideVectorIDs == null)
-			wideVectorIDs = new ArrayList<Long>();
-		wideVectorIDs.add(id);
-	}
+	public native void addLoftID(long id);
 
-	ArrayList<VectorObject> vecObjs = null;
+	public native long[] getVectorIDs();
 
-	// Add a vector for selection
-	void addVector(VectorObject vecObj)
-	{
-		if (vecObjs == null)
-			vecObjs = new ArrayList<>();
+	public native void addWideVectorID(long id);
 
-		vecObjs.add(vecObj);
-	}
-
-	long[] getVectorIDs()
-	{
-		if (vectorIDs == null)
-			return null;
-		long[] retIDs = new long[vectorIDs.size()];
-		int which = 0;
-		for (Long id : vectorIDs) {
-			retIDs[which++] = id;
-		}
-
-		return retIDs;
-	}
-
-	long[] getWideVectorIDs()
-	{
-		if (wideVectorIDs == null)
-			return null;
-		long[] retIDs = new long[wideVectorIDs.size()];
-		int which = 0;
-		for (Long id : wideVectorIDs) {
-			retIDs[which++] = id;
-		}
-
-		return retIDs;
-	}
+	public native long[] getWideVectorIDs();
 
 	// Track the given label ID as associated with us
-	void addLabelID(long id)
+	public native void addLabelID(long id);
+
+	public native void addShapeID(long shapeId);
+
+	public native void addBillboardID(long billId);
+
+	public native void addParticleSystemID(long id);
+
+	public native void addGeometryID(long id);
+
+	public native void addVector(VectorObject vecObj);
+
+	static
 	{
-		if (labelIDs == null)
-			labelIDs = new ArrayList<Long>();
-		labelIDs.add(id);
+		nativeInit();
 	}
-
-	public void addShapeID(long shapeId) {
-		if (shapeID == null)
-			shapeID = new ArrayList<>();
-		shapeID.add(shapeId);
-	}
-
-	public void addBillboardID(long billId) {
-		if (this.billIDs == null)
-			this.billIDs = new ArrayList<>();
-		billIDs.add(billId);
-	}
-
-	void addParticleSystemID(long id) {
-		if (particleSystemIDs == null)
-			particleSystemIDs = new ArrayList<Long>();
-		particleSystemIDs.add(id);
-	}
-
-	long[] getParticleSystemIDs()
-	{
-		if (particleSystemIDs == null)
-			return null;
-		long[] retIDs = new long[particleSystemIDs.size()];
-		int which = 0;
-		for (Long id : particleSystemIDs) {
-			retIDs[which++] = id;
-		}
-
-		return retIDs;
-	}
-
-	void addGeometryID(long id)
-	{
-		if (geometryIDs == null)
-			geometryIDs = new ArrayList<Long>();
-		geometryIDs.add(id);
-	}
-
-	long[] getGeometryIDs()
-	{
-		if (geometryIDs == null)
-			return null;
-		long[] retIDs = new long[geometryIDs.size()];
-		int which = 0;
-		for (Long id : geometryIDs) {
-			retIDs[which++] = id;
-		}
-
-		return retIDs;
-	}
-
-	// Enable/disable anything the component object is holding
-	void enable(MaplyBaseController control,boolean enable,ChangeSet changes)
-	{
-		if (vectorIDs != null && vectorIDs.size() > 0)
-			control.vecManager.enableVectors(convertIDs(vectorIDs), enable, changes);
-		if (wideVectorIDs != null && wideVectorIDs.size() > 0)
-			control.wideVecManager.enableVectors(convertIDs(wideVectorIDs), enable, changes);
-		if (markerIDs != null && markerIDs.size() > 0)
-			control.markerManager.enableMarkers(convertIDs(markerIDs), enable, changes);
-		if (stickerIDs != null && stickerIDs.size() > 0)
-			control.stickerManager.enableStickers(convertIDs(stickerIDs), enable, changes);
-		if (labelIDs != null && labelIDs.size() > 0)
-			control.labelManager.enableLabels(convertIDs(labelIDs), enable, changes);
-		if (particleSystemIDs != null && particleSystemIDs.size() >0) {
-			for (Long id : particleSystemIDs) {
-				control.particleSystemManager.enableParticleSystem(id, enable, changes);
-			}
-		}
-		if (geometryIDs != null && geometryIDs.size() > 0)
-			control.geomManager.enableGeometry(convertIDs(geometryIDs), enable, changes);
-		if (shapeID != null && shapeID.size() > 0) {
-			control.shapeManager.enableShapes(convertIDs(shapeID), enable, changes);
-		}
-		if (billIDs != null && billIDs.size() > 0) {
-			control.billboardManager.enableBillboards(convertIDs(billIDs), enable, changes);
-		}
-
-	}
-	
-	// Clear out anything the component object is holding
-	void clear(MaplyBaseController control,ChangeSet changes)
-	{
-		if (vectorIDs != null && vectorIDs.size() > 0)
-		{
-			control.vecManager.removeVectors(convertIDs(vectorIDs), changes);
-			vectorIDs.clear();
-		}
-		if (wideVectorIDs != null && wideVectorIDs.size() > 0)
-		{
-			control.wideVecManager.removeVectors(convertIDs(wideVectorIDs), changes);
-			wideVectorIDs.clear();
-		}
-		if (markerIDs != null && markerIDs.size() > 0)
-		{
-			control.markerManager.removeMarkers(convertIDs(markerIDs), changes);
-			markerIDs.clear();
-		}
-		if (stickerIDs != null && stickerIDs.size() > 0)
-		{
-			control.stickerManager.removeStickers(convertIDs(stickerIDs), changes);
-			stickerIDs.clear();
-		}
-		if (labelIDs != null && labelIDs.size() > 0)
-		{
-			control.labelManager.removeLabels(convertIDs(labelIDs), changes);
-			labelIDs.clear();
-		}
-		if (particleSystemIDs != null && particleSystemIDs.size() >0){
-			for (Long id : particleSystemIDs){
-				control.particleSystemManager.removeParticleSystem(id, changes);
-			}
-			particleSystemIDs.clear();
-		}
-		if (geometryIDs != null && geometryIDs.size() > 0)
-		{
-			control.geomManager.removeGeometry(convertIDs(labelIDs), changes);
-			labelIDs.clear();
-		}
-		if (texIDs != null && texIDs.size() > 0) {
-			for (long texID : texIDs)
-				control.texManager.removeTexture(texID, changes);
-			texIDs.clear();
-		}
-
-		if (shapeID != null && shapeID.size()>0) {
-			control.shapeManager.removeShapes(convertIDs(shapeID), changes);
-			shapeID.clear();
-		}
-
-		if (billIDs != null && billIDs.size() >0){
-			control.billboardManager.removeBillboards(convertIDs(billIDs), changes);
-			billIDs.clear();
-		}
-	}
-	
-	// Selection IDs associated with this object
-	protected ArrayList<Long> selectIDs = null;
-	
-	// Textures in use by this object
-	private ArrayList<Long> texIDs = null;
-
-	// Various render-side object types we're representing
-	private ArrayList<Long> markerIDs = null;
-	private ArrayList<Long> stickerIDs = null;
-	private ArrayList<Long> vectorIDs = null;
-	private ArrayList<Long> wideVectorIDs = null;
-	private ArrayList<Long> labelIDs = null;
-	private ArrayList<Long> particleSystemIDs = null;
-	private ArrayList<Long> geometryIDs = null;
-	private ArrayList<Long> shapeID = null;
-	private ArrayList<Long> billIDs = null;
-
+	private static native void nativeInit();
+	native void initialise();
+	native void dispose();
+	private long nativeHandle;
 }

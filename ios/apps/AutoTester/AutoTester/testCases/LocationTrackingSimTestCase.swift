@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by Ranen Ghosh on 2016-11-23.
-//  Copyright © 2016-2017 mousebird consulting. All rights reserved.
+//  Copyright © 2016-2017 mousebird consulting.
 //
 
 import UIKit
@@ -14,11 +14,12 @@ class LocationTrackingSimTestCase: MaplyTestCase, MaplyLocationTrackerDelegate {
     var simPointIndex: Int?
     var simPointData: [[Float]]?
     
+    var baseLayer : MaplyTestCase? = nil
+    
     override init() {
         super.init()
         
         self.name = "Location Tracking Simulated Test Case"
-        self.captureDelay = 4
         self.implementations = [.globe, .map]
     }
     
@@ -39,8 +40,8 @@ class LocationTrackingSimTestCase: MaplyTestCase, MaplyLocationTrackerDelegate {
     }
     
     override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
-        let baseLayer = StamenWatercolorRemote()
-        baseLayer.setUpWithGlobe(globeVC)
+        baseLayer = StamenWatercolorRemote()
+        baseLayer?.setUpWithGlobe(globeVC)
         globeVC.keepNorthUp = false
         
         setupLocationTracking(baseVC: globeVC)
@@ -49,8 +50,8 @@ class LocationTrackingSimTestCase: MaplyTestCase, MaplyLocationTrackerDelegate {
     }
     
     override func setUpWithMap(_ mapVC: MaplyViewController) {
-        let baseLayer = StamenWatercolorRemote()
-        baseLayer.setUpWithMap(mapVC)
+        baseLayer = StamenWatercolorRemote()
+        baseLayer?.setUpWithMap(mapVC)
         
         setupLocationTracking(baseVC: mapVC)
         

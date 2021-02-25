@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 9/18/18.
- *  Copyright 2011-2018 mousebird consulting
+ *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,11 +18,10 @@
  *
  */
 
-#import "MaplyVariableTarget.h"
+#import "rendering/MaplyVariableTarget.h"
 
 @interface MaplyVariableTarget()
 
-@property (nonatomic,assign) MaplyVariableType type;
-@property (nonatomic,strong) MaplyTexture *renderTex;
+@property (nonatomic,assign) MaplyQuadImageFormat type;
 
 @end

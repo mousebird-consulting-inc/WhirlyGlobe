@@ -3,7 +3,7 @@
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 10/26/12.
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,37 +19,39 @@
  */
 
 #import <UIKit/UIKit.h>
-#import <WhirlyGlobe.h>
-#import "WhirlyGlobeViewController.h"
+#import <WhirlyGlobe_iOS.h>
+#import "control/WhirlyGlobeViewController.h"
 #import "MaplyBaseViewController_private.h"
-#import "WGSphericalEarthWithTexGroup_private.h"
-#import "GlobeDoubleTapDelegate.h"
-#import "GlobeTwoFingerTapDelegate.h"
-#import "GlobeDoubleTapDragDelegate.h"
-#import "TiltDelegate.h"
+#import "gestures/GlobePinchDelegate.h"
+#import "gestures/GlobePanDelegate.h"
+#import "gestures/GlobeTiltDelegate.h"
+#import "gestures/GlobeTapDelegate.h"
+#import "GlobeAnimateRotation.h"
+#import "gestures/GlobeDoubleTapDelegate.h"
+#import "gestures/GlobeTwoFingerTapDelegate.h"
+#import "gestures/GlobeDoubleTapDragDelegate.h"
+#import "gestures/GlobeRotateDelegate.h"
 
 /// This is the private interface to WhirlyGlobeViewController.
 /// Only pull this in if you're subclassing
-@interface WhirlyGlobeViewController()<WhirlyKitViewWatcherDelegate>
+@interface WhirlyGlobeViewController()
 {
 @public    
-    WhirlyGlobe::GlobeScene *globeScene;
-    WhirlyGlobeView *globeView;
+    WhirlyGlobe::GlobeView_iOSRef globeView;
     
     // Local interaction layer
     WGInteractionLayer *globeInteractLayer;
         
     // Gesture recognizers
-    WGPinchDelegateFixed *pinchDelegate;
-    PanDelegateFixed *panDelegate;
-    TiltDelegate *tiltDelegate;
+    WhirlyGlobePinchDelegate *pinchDelegate;
+    WhirlyGlobePanDelegate *panDelegate;
+    WhirlyGlobeTiltDelegate *tiltDelegate;
     WhirlyGlobeTapDelegate *tapDelegate;
     WhirlyGlobeRotateDelegate *rotateDelegate;
-    AnimateViewRotation *animateRotation;    
     WhirlyGlobeDoubleTapDelegate *doubleTapDelegate;
     WhirlyGlobeTwoFingerTapDelegate *twoFingerTapDelegate;
     WhirlyGlobeDoubleTapDragDelegate *doubleTapDragDelegate;
-    WGStandardTiltDelegate *tiltControlDelegate;
+    WhirlyGlobe::StandardTiltDelegateRef tiltControlDelegate;
 
     // Set when we're animating the view point but we know where it's going
     bool knownAnimateEndRot;

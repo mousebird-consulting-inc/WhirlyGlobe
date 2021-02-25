@@ -22,7 +22,8 @@ package com.mousebirdconsulting.autotester.TestCases;
 import android.app.Activity;
 
 import com.mousebird.maply.GlobeController;
-import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.BaseController;
+import com.mousebird.maply.RenderController;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 
 
@@ -42,7 +43,7 @@ public class BillboardTestCase extends MaplyTestCase {
         globeVC.addPostSurfaceRunnable(new Runnable() {
             @Override
             public void run() {
-                BillboardAdapter adapter = new BillboardAdapter(globeVC, getActivity(), MaplyBaseController.ThreadMode.ThreadAny);
+                BillboardAdapter adapter = new BillboardAdapter(globeVC, getActivity(), RenderController.ThreadMode.ThreadAny);
                 adapter.start();
             }
         });

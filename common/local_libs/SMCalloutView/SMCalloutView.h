@@ -134,7 +134,7 @@ extern NSTimeInterval const kSMCalloutViewRepositionDelayForUIScrollView;
 - (void)dismissCalloutAnimated:(BOOL)animated;
 
 /// For subclassers. You can override this method to provide your own custom animation for presenting/dismissing the callout.
-- (CAAnimation *)animationWithType:(SMCalloutAnimation)type presenting:(BOOL)presenting;
+- (CAAnimation * __nullable)animationWithType:(SMCalloutAnimation)type presenting:(BOOL)presenting;
 
 @end
 
@@ -185,7 +185,7 @@ extern NSTimeInterval const kSMCalloutViewRepositionDelayForUIScrollView;
  
  @param calloutView the @c SMCalloutView to reposition
  @param offset caluclated offset necessary to make everything visible
- @returns @c NSTimeInterval to delay the repositioning
+ @returns @c TimeInterval to delay the repositioning
  */
 - (NSTimeInterval)calloutView:(SMCalloutView *)calloutView delayForRepositionWithSize:(CGSize)offset;
 

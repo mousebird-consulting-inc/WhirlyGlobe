@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by Steve Gifford on 11/9/16.
-//  Copyright © 2016-2017 mousebird consulting. All rights reserved.
+//  Copyright © 2016-2017 mousebird consulting.
 //
 
 import Foundation
@@ -14,7 +14,6 @@ class AnimatedMarkersTestCase: MaplyTestCase {
         super.init()
         
         self.name = "Animated Markers"
-        self.captureDelay = 4
         self.implementations = [.globe, .map]
     }
     
@@ -30,23 +29,23 @@ class AnimatedMarkersTestCase: MaplyTestCase {
             marker.period = 4.0
             marker.loc = (object as! MaplyVectorObject).center()
             marker.size = size
-            marker.userObject = (object as AnyObject).userObject!
+            marker.userObject = (object as! MaplyVectorObject).attributes?["title"]
             markers.append(marker)
         }
         theViewC.addMarkers(markers, desc: nil)
     }
     
+    let baseCase : VectorsTestCase = VectorsTestCase()
+    
     override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
-        let baseLayer  = VectorsTestCase()
-        baseLayer.setUpWithGlobe(globeVC)
-        insertMarkers(baseLayer.vecList!, theViewC: globeVC)
+        baseCase.setUpWithGlobe(globeVC)
+        insertMarkers(baseCase.vecList!, theViewC: globeVC)
         globeVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(151.211111, -33.859972), time: 1.0)
     }
     
     override func setUpWithMap(_ mapVC: MaplyViewController) {
-        let baseLayer = VectorsTestCase()
-        baseLayer.setUpWithMap(mapVC)
-        insertMarkers(baseLayer.vecList!, theViewC: mapVC)
+        baseCase.setUpWithMap(mapVC)
+        insertMarkers(baseCase.vecList!, theViewC: mapVC)
         mapVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(151.211111, -33.859972), time: 1.0)
     }
     

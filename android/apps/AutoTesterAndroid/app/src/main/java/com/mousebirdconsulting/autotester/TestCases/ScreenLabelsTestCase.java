@@ -9,9 +9,10 @@ import com.mousebird.maply.ComponentObject;
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.LabelInfo;
 import com.mousebird.maply.MapController;
-import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.BaseController;
 import com.mousebird.maply.MarkerInfo;
 import com.mousebird.maply.Point2d;
+import com.mousebird.maply.RenderController;
 import com.mousebird.maply.ScreenLabel;
 import com.mousebird.maply.ScreenMarker;
 import com.mousebird.maply.VectorObject;
@@ -26,7 +27,7 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 
 	public ScreenLabelsTestCase(Activity activity) {
 		super(activity);
-		this.setTestName("Screen Labels Test");
+		this.setTestName("Screen Labels");
 		this.setDelay(1000);
 		this.implementation = TestExecutionImplementation.Both;
 	}
@@ -65,24 +66,24 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 	// If set, we'll put markers around the points for debugging
 	static boolean addMarkers = true;
 
-	private void insertLabels(ArrayList<VectorObject> objects, MaplyBaseController baseVC) {
+	private void insertLabels(ArrayList<VectorObject> objects, BaseController baseVC) {
 
 		LabelInfo labelInfo = new LabelInfo();
 		labelInfo.setFontSize(32.f);
 		labelInfo.setTextColor(Color.BLACK);
-//		labelInfo.setBackgroundColor(Color.RED);
+		labelInfo.setBackgroundColor(Color.BLUE);
 		labelInfo.setTypeface(Typeface.DEFAULT);
-//		labelInfo.setLayoutImportance(1.f);
-		labelInfo.setLayoutPlacement(LabelInfo.LayoutAbove|LabelInfo.LayoutCenter);
+		labelInfo.setLayoutImportance(1.f);
+		labelInfo.setLayoutPlacement(LabelInfo.LayoutRight | LabelInfo.LayoutCenter);
 		labelInfo.setTextJustify(LabelInfo.TextJustify.TextLeft);
 //		labelInfo.setMinVis(0.f);
 //		labelInfo.setMaxVis(2.5f);
 		labelInfo.setOutlineColor(Color.WHITE);
 		labelInfo.setOutlineSize(2.f);
-		labelInfo.setBackgroundColor(Color.BLUE);
+//		labelInfo.layoutImportance = Float.MAX_VALUE;
 
 		MarkerInfo markerInfo = new MarkerInfo();
-		markerInfo.setDrawPriority(labelInfo.getDrawPriority() - 1);
+		markerInfo.setDrawPriority(labelInfo.getDrawPriority() + 1);
 
 		ArrayList<ScreenLabel> labels = new ArrayList<ScreenLabel>();
 		ArrayList<ScreenMarker> markers = new ArrayList<ScreenMarker>();
@@ -103,7 +104,7 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 					if (addMarkers) {
 						ScreenMarker marker = new ScreenMarker();
 						marker.loc = label.loc;
-						marker.size = new Point2d(32.f,32.f);
+						marker.size = new Point2d(8.f,8.f);
 						markers.add(marker);
 					}
 				}
@@ -111,24 +112,35 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 		}
 
 		// Toss in a few with explicit diacritics
-//		labels.add(makeLabel(-74.075833, 4.4, "Bogotá", 2.f));
-//		labels.add(makeLabel(-74.075833, 4.598056, "Bogotá2", 2.f));
-//		labels.add(makeLabel(6.0219, 47.2431, "Besançon", 2.f));
-//		labels.add(makeLabel(4.361, 43.838, "Nîmes", 2.f));
-//		labels.add(makeLabel(4.9053, 43.9425, "Morières-lès-Avignon", 2.f));
-//		labels.add(makeLabel(11.616667, 44.833333, "Ferrara", 2.f));
-//		labels.add(makeLabel(7, 49.233333, "Saarbrücken", 2.f));
+		labels.add(makeLabel(-74.075833, 4.4, "Bogotá", 2.f));
+		labels.add(makeLabel(-74.075833, 4.598056, "Bogotá2", 2.f));
+		labels.add(makeLabel(6.0219, 47.2431, "Besançon", 2.f));
+		labels.add(makeLabel(4.361, 43.838, "Nîmes", 2.f));
+		labels.add(makeLabel(4.9053, 43.9425, "Morières-lès-Avignon", 2.f));
+		labels.add(makeLabel(11.616667, 44.833333, "Ferrara", 2.f));
+		labels.add(makeLabel(7, 49.233333, "Saarbrücken", 2.f));
 
 		labels.add(makeLabel(0.0, 0.0, "abcdef\nghijklmn\nopqrstu\nvwxyzA\nBCDEF\nGHIJKLMN\nOPQRTST\nUVWXYZ", 10.f));
+		if (addMarkers)
 		{
 			ScreenMarker marker = new ScreenMarker();
 			marker.loc = Point2d.FromDegrees(0.0,0.0);
-			marker.size = new Point2d(32.f, 32.f);
+			marker.size = new Point2d(8.f, 8.f);
 			markers.add(marker);
 		}
-		labels.add(makeLabel(1.0, 0.0, "abcdef\nghijklmn\nopqrstu\nvwxyz", 10.f));
+		labels.add(makeLabel(1.0, -5.0, "abcdef\nghijklmn\nopqrstu\nvwxyz", 10.f));
+		if (addMarkers)
+		{
+			ScreenMarker marker = new ScreenMarker();
+			marker.loc = Point2d.FromDegrees(1.0,-5.0);
+			marker.size = new Point2d(8.f, 8.f);
+			markers.add(marker);
+		}
 
-//		labels.add(makeLabel(4.361, 43.838, "Nîmes", Float.MAX_VALUE));
+		ScreenLabel nimesLabel = makeLabel(4.361, 43.838, "Nîmes", Float.MAX_VALUE);
+		// Tall and skinny for testing
+		nimesLabel.layoutSize = new Point2d(1.0,200.0);
+		labels.add(nimesLabel);
 
 		// Test the layout engine very explicitly
 //		int i = 0;
@@ -137,11 +149,11 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 //			labels.add(makeLabel(4.361 + o, 43.838 + o, "Nîmes " + ++i, Float.MAX_VALUE));
 //		}
 
-		ComponentObject comp = baseVC.addScreenLabels(labels, labelInfo, MaplyBaseController.ThreadMode.ThreadAny);
+		ComponentObject comp = baseVC.addScreenLabels(labels, labelInfo, RenderController.ThreadMode.ThreadAny);
 		if (comp != null)
 			componentObjects.add(comp);
 		if (addMarkers) {
-			comp = baseVC.addScreenMarkers(markers, markerInfo, MaplyBaseController.ThreadMode.ThreadAny);
+			comp = baseVC.addScreenMarkers(markers, markerInfo, RenderController.ThreadMode.ThreadAny);
 			if (comp != null)
 				componentObjects.add(comp);
 		}

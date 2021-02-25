@@ -3,23 +3,25 @@
 //  AutoTester
 //
 //  Created by Steve Gifford on 3/10/16.
-//  Copyright © 2016-2017 mousebird consulting. All rights reserved.
+//  Copyright © 2016-2017 mousebird consulting.
 //
 
 #import <WhirlyGlobeComponent.h>
 #import "ExtrudedModelTestCase.h"
-#import "CartoDBTestCase.h"
+#import "AutoTester-Swift.h"
 
 static const float EarthRadius = 6371000;
 
 @implementation ExtrudedModelTestCase
+{
+    CartoDBLightTestCase *baseView;
+}
 
 - (instancetype)init
 {
     if (self = [super init]) {
         self.name = @"Extruded Model (Arrows)";
-        self.captureDelay = 20;
-        self.implementations = MaplyTestCaseOptionGlobe;
+        self.implementations = MaplyTestCaseImplementationGlobe;
 
     }
     
@@ -108,14 +110,14 @@ static LocationInfo locations[NumLocations] =
 
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
-    CartoDBTestCase *baseView = [[CartoDBTestCase alloc] init];
+    baseView = [[CartoDBLightTestCase alloc] init];
     [baseView setUpWithGlobe:globeVC];
     
     [self addArrows:locations len:NumLocations stride:1 offset:0 desc:
         @{kMaplyColor : [UIColor colorWithRed:1.0 green:0.1 blue:0.0 alpha:1.0],
           kMaplyFade: @(1.0),
-          kMaplyZBufferRead: @(YES),
-          kMaplyZBufferWrite: @(YES),
+          kMaplyZBufferRead: @(NO),
+          kMaplyZBufferWrite: @(NO),
           kMaplyDrawPriority: @(100000)
           }
               viewC:globeVC];

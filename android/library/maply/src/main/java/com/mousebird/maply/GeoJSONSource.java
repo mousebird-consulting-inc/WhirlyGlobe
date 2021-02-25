@@ -1,16 +1,33 @@
+/*
+ *  GeoJSONSource.java
+ *  WhirlyGlobeLib
+ *
+ *  Copyright 2011-2019 mousebird consulting
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ */
+
 package com.mousebird.maply;
 
-import com.mousebird.maply.MaplyBaseController;
 import com.mousebird.maply.sld.sldstyleset.SLDStyleSet;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.FileInputStream;
 import java.io.ByteArrayOutputStream;
-import java.net.URL;
+import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.Vector;
 
 import android.os.AsyncTask;
 import android.util.Log;
@@ -30,7 +47,7 @@ public class GeoJSONSource {
     private boolean enabled;
     private SLDStyleSet styleSet;
     private InputStream jsonStream;
-    private MaplyBaseController baseController;
+    private WeakReference<RenderControllerInterface> baseController;
     ArrayList<ComponentObject> componentObjects = new ArrayList<ComponentObject>();
 
     public boolean isLoaded() {
@@ -46,9 +63,9 @@ public class GeoJSONSource {
             return;
         this.enabled = enabled;
         if (enabled)
-            baseController.enableObjects(componentObjects, MaplyBaseController.ThreadMode.ThreadAny);
+            baseController.get().enableObjects(componentObjects, RenderController.ThreadMode.ThreadAny);
         else
-            baseController.disableObjects(componentObjects, MaplyBaseController.ThreadMode.ThreadAny);
+            baseController.get().disableObjects(componentObjects, RenderController.ThreadMode.ThreadAny);
     }
 
     /**
@@ -71,13 +88,12 @@ public class GeoJSONSource {
      * Sets the globe or map controller to which vector features will be added.
      * @param baseController The MaplyBaseController instance.
      */
-    public void setBaseController(MaplyBaseController baseController) {
-        this.baseController = baseController;
+    public void setBaseController(RenderControllerInterface baseController) {
+        this.baseController = new WeakReference<RenderControllerInterface>(baseController);
     }
 
     public GeoJSONSource() {
 
-        initialise();
         loaded = false;
         enabled = false;
 
@@ -110,7 +126,7 @@ public class GeoJSONSource {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         int nRead;
         byte[] data = new byte[16384];
-        HashMap<String, ArrayList<VectorObject>> featureStyles = new HashMap<String, ArrayList<VectorObject>>();
+        HashMap<Long, ArrayList<VectorObject>> featureStyles = new HashMap<Long, ArrayList<VectorObject>>();
         ArrayList<ComponentObject> componentObjects = new ArrayList<ComponentObject>();
 
         try {
@@ -120,12 +136,13 @@ public class GeoJSONSource {
             }
             buffer.flush();
 
-            VectorObject[] vecs = parseData(buffer.toString());
+            VectorObject vecs = new VectorObject();
+            vecs.fromGeoJSON(buffer.toString());
 
             if (vecs != null) {
-                MaplyTileID nullTileID = new MaplyTileID(0,0,0);
+                TileID nullTileID = new TileID(0,0,0);
                 for (VectorObject vecObj : vecs) {
-                    VectorStyle[] styles = styleSet.stylesForFeature(vecObj.getAttributes(), nullTileID, "", baseController);
+                    VectorStyle[] styles = styleSet.stylesForFeature(vecObj.getAttributes(), nullTileID, "", baseController.get());
                     if (styles == null || styles.length == 0)
                         continue;;
                     for (VectorStyle style : styles) {
@@ -140,18 +157,21 @@ public class GeoJSONSource {
             }
 
             if (vecs != null) {
-                MaplyTileID nullTileID = new MaplyTileID(0, 0, 0);
-                for (String uuid : featureStyles.keySet()) {
-                    VectorStyle style = styleSet.styleForUUID(uuid, baseController);
+                TileID nullTileID = new TileID(0, 0, 0);
+                Mbr bounds = new Mbr(new Point2d(-Math.PI,-Math.PI/2.0),new Point2d(Math.PI,Math.PI/2.0));
+                VectorTileData tileData = new VectorTileData(nullTileID,bounds,bounds);
+                for (Long uuid : featureStyles.keySet()) {
+                    VectorStyle style = styleSet.styleForUUID(uuid, baseController.get());
                     ArrayList<VectorObject> featuresForStyle = featureStyles.get(uuid);
 
                     //List<VectorObject> objects, MaplyTileID tileID, MaplyBaseController controller)
-                    ComponentObject[] newCompObjs = style.buildObjects(featuresForStyle, nullTileID, baseController);
+                    style.buildObjects(featuresForStyle.toArray(new VectorObject[0]), tileData, baseController.get());
+                    ComponentObject[] newCompObjs = tileData.getComponentObjects();
                     if (newCompObjs != null && newCompObjs.length > 0)
                        componentObjects.addAll(Arrays.asList(newCompObjs));
                 }
             }
-            baseController.enableObjects(componentObjects, MaplyBaseController.ThreadMode.ThreadAny);
+            baseController.get().enableObjects(componentObjects, RenderController.ThreadMode.ThreadAny);
 
             this.componentObjects = componentObjects;
             loaded = true;
@@ -162,21 +182,4 @@ public class GeoJSONSource {
             Log.e("ParseTask", "exception", exception);
         }
     }
-
-    native VectorObject[] parseData(String json);
-
-    public void finalize()
-    {
-        dispose();
-    }
-
-    static
-    {
-        nativeInit();
-    }
-    native void initialise();
-    native void dispose();
-    private static native void nativeInit();
-    protected long nativeHandle;
-
 }

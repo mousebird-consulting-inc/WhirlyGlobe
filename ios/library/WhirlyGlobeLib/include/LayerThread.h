@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/1/11.
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
 #import "Scene.h"
 #import "DataLayer.h"
 #import "LayerViewWatcher.h"
-#import "SceneRendererES.h"
+#import "SceneRenderer.h"
 
 /** The Layer Thread manages the objects that put data into a scene
     and take it out later.  These objects also handle the interaction
@@ -31,6 +31,12 @@
     It starts its own thread, obviously, and does all the work there.
  */
 @interface WhirlyKitLayerThread : NSThread
+{
+@public
+    /// We lock this in the main loop.  If anyone else can lock it, that means we're gone.
+    /// Yes, I'm certain there's a better way to do this.
+    std::mutex existenceLock;
+}
 
 /// Scene we're messing with
 @property (nonatomic,readonly) WhirlyKit::Scene *scene;
@@ -38,10 +44,8 @@
 @property (nonatomic,readonly) NSRunLoop *runLoop;
 /// Used to let layers get view change notices
 @property (nonatomic,strong) WhirlyKitLayerViewWatcher *viewWatcher;
-/// Our own EAGLContext, connected by a share group to the main one
-@property (nonatomic,readonly) EAGLContext *glContext;
 /// The renderer we're working with
-@property (nonatomic,weak) WhirlyKitSceneRendererES *renderer;
+@property (nonatomic) WhirlyKit::SceneRenderer *renderer;
 /// Turn this off to disable flushes to GL on the layer thread.
 /// The only reason to do this is going to background.  This is a temporary fix
 @property (nonatomic,assign) bool allowFlush;
@@ -49,7 +53,7 @@
 @property (nonatomic,assign) bool mainLayerThread;
 
 /// Set up with a scene and a view
-- (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyKitView *)inView renderer:(WhirlyKitSceneRendererES *)renderer mainLayerThread:(bool)mainLayerThread;
+- (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyKit::View *)inView renderer:(WhirlyKit::SceneRenderer *)renderer mainLayerThread:(bool)mainLayerThread;
 
 /// Add these before you kick off the thread
 - (void)addLayer:(NSObject<WhirlyKitLayer> *)layer;

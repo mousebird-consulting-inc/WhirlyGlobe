@@ -43,14 +43,14 @@ import java.util.List;
  * @author sjg
  *
  */
-public class MapController extends MaplyBaseController implements View.OnTouchListener, Choreographer.FrameCallback
+public class MapController extends BaseController implements View.OnTouchListener, Choreographer.FrameCallback
 {
 
 	/**
 	 * Settings are parameters we need at the very start of the
 	 * setup process.
 	 */
-	public static class Settings extends MaplyBaseController.Settings
+	public static class Settings extends BaseController.Settings
 	{
 		/**
 		 * Coordinate system to use for the map.
@@ -137,7 +137,7 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 		coordAdapter = inCoordAdapter;
 
 		// Create the scene and map view
-		mapScene = new MapScene(coordAdapter);
+		mapScene = new Scene(coordAdapter,renderControl);
 		scene = mapScene;
 		mapView = new MapView(this,coordAdapter);
 		view = mapView;
@@ -188,7 +188,7 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 	MapView mapView = null;
 	
 	// Map version of scene
-	MapScene mapScene = null;
+	Scene mapScene = null;
 	
 	/**
 	 * Return the screen coordinate for a given geographic coordinate (in radians).
@@ -198,7 +198,7 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 	 */
 	public Point2d screenPointFromGeo(Point2d geoCoord)
 	{
-		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
+		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderControl.frameSize == null)
 			return null;
 
 		return screenPointFromGeo(mapView,geoCoord);
@@ -212,14 +212,14 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 	 */
 	public Point2d geoPointFromScreen(Point2d screenPt)
 	{
-		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
+		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderControl.frameSize == null)
 			return null;
 
 		CoordSystemDisplayAdapter coordAdapter = mapView.getCoordAdapter();
 		CoordSystem coordSys = coordAdapter.getCoordSystem();
 		
 		Matrix4d modelMat = mapView.calcModelViewMatrix();
-		Point3d dispPt = mapView.pointOnPlaneFromScreen(screenPt, modelMat, renderWrapper.maplyRender.frameSize, false);
+		Point3d dispPt = mapView.pointOnPlaneFromScreen(screenPt, modelMat, renderControl.frameSize, false);
 		if (dispPt == null)
 			return null;
 		Point3d localPt = coordAdapter.displayToLocal(dispPt);
@@ -237,12 +237,12 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 	 */
 	public Mbr getCurrentViewGeo()
 	{
-		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
+		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderControl.frameSize == null)
 			return null;
 
 		Mbr geoMbr = new Mbr();
 		
-		Point2d frameSize = renderWrapper.maplyRender.frameSize;
+		Point2d frameSize = renderControl.frameSize;
 		geoMbr.addPoint(geoPointFromScreen(new Point2d(0,0)));
 		geoMbr.addPoint(geoPointFromScreen(new Point2d(frameSize.getX(),0)));
 		geoMbr.addPoint(geoPointFromScreen(new Point2d(frameSize.getX(),frameSize.getY())));
@@ -260,12 +260,12 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 		Point3d dispPt = coordAdapter.localToDisplay(localPt);
 		
 		Matrix4d modelMat = theMapView.calcModelViewMatrix();
-		return theMapView.pointOnScreenFromPlane(dispPt, modelMat, renderWrapper.maplyRender.frameSize);
+		return theMapView.pointOnScreenFromPlane(dispPt, modelMat, renderControl.frameSize);
 	}
 	
 	boolean checkCoverage(Mbr mbr,MapView theMapView,double height)
 	{
-		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
+		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderControl.frameSize == null)
 			return false;
 
 		Point2d centerLoc = mbr.middle();
@@ -273,7 +273,7 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 		theMapView.setLoc(new Point3d(localCoord.getX(),localCoord.getY(),height));
 		
 		List<Point2d> pts = mbr.asPoints();
-		Point2d frameSize = renderWrapper.maplyRender.frameSize;
+		Point2d frameSize = renderControl.frameSize;
 		for (Point2d pt : pts)
 		{
 			Point2d screenPt = screenPointFromGeo(theMapView,pt);
@@ -301,8 +301,7 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 			return;
 		}
 
-		if (gestureHandler != null)
-			gestureHandler.setZoomLimits(inMin,inMax);
+		gestureHandler.setZoomLimits(inMin,inMax);
 	}
 
 	/**
@@ -316,7 +315,7 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 	 */
 	public double findHeightToViewBounds(Mbr mbr,Point2d pos)
 	{
-		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
+		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderControl.frameSize == null)
 			return 0.0;
 
 		// We'll experiment on a copy of the map view
@@ -372,7 +371,7 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 	 */
 	public void setPositionGeo(final double x,final double y,final double z)
 	{
-		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
+		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderControl.frameSize == null)
 			return;
 
 		if (!rendererAttached) {
@@ -396,7 +395,7 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
      */
 	public Point3d getPositionGeo()
 	{
-		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
+		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderControl.frameSize == null)
 			return null;
 
 		Point3d loc = mapView.getLoc();
@@ -415,7 +414,7 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 	 */
 	public void animatePositionGeo(final double x,final double y,final double z,final double howLong)
 	{
-		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
+		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderControl.frameSize == null)
 			return;
 
 		if (!rendererAttached) {
@@ -430,7 +429,7 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 
 		mapView.cancelAnimation();
 		Point3d geoCoord = mapView.coordAdapter.coordSys.geographicToLocal(new Point3d(x,y,0.0));
-		mapView.setAnimationDelegate(new MapAnimateTranslate(mapView, renderWrapper.maplyRender, new Point3d(geoCoord.getX(),geoCoord.getY(),z), (float) howLong, viewBounds));		
+		mapView.setAnimationDelegate(new MapAnimateTranslate(mapView, renderControl, new Point3d(geoCoord.getX(),geoCoord.getY(),z), (float) howLong, viewBounds));
 	}
 
 	/**
@@ -438,7 +437,7 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
      */
 	public void setHeading(final double heading)
 	{
-		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
+		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderControl.frameSize == null)
 			return;
 
 		if (!rendererAttached) {
@@ -460,7 +459,7 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
      */
 	public double getHeading()
 	{
-		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
+		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderControl.frameSize == null)
 			return 0.0;
 
 		return mapView.getRot();
@@ -610,7 +609,7 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
     public void processLongPress(Point2d screenLoc) {
 
 		Matrix4d mapTransform = mapView.calcModelViewMatrix();
-		Point3d loc = mapView.pointOnPlaneFromScreen(screenLoc, mapTransform, renderWrapper.maplyRender.frameSize, false);
+		Point3d loc = mapView.pointOnPlaneFromScreen(screenLoc, mapTransform, renderControl.frameSize, false);
 
 		if (gestureDelegate != null)
 		{
@@ -725,7 +724,7 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 			return null;
 
         Point2d screenCorners[] = new Point2d[4];
-        Point2d frameSize = renderWrapper.maplyRender.frameSize;
+        Point2d frameSize = renderControl.frameSize;
         screenCorners[0] = new Point2d(0.0, 0.0);
         screenCorners[1] = new Point2d(frameSize.getX(), 0.0);
         screenCorners[2] = new Point2d(frameSize.getX(), frameSize.getY());
@@ -736,7 +735,7 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
         Point3d retCorners[] = new Point3d[4];
         CoordSystemDisplayAdapter coordAdapter = mapView.getCoordAdapter();
         if (coordAdapter == null || renderWrapper == null || renderWrapper.maplyRender == null ||
-            renderWrapper.maplyRender.frameSize == null)
+				renderControl.frameSize == null)
             return retCorners;
         CoordSystem coordSys = coordAdapter.getCoordSystem();
         if (coordSys == null)

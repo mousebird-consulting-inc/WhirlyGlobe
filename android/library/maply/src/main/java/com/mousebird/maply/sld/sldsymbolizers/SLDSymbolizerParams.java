@@ -1,11 +1,10 @@
 package com.mousebird.maply.sld.sldsymbolizers;
 
-import android.content.res.AssetManager;
-
-import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.RenderControllerInterface;
 import com.mousebird.maply.VectorStyleSettings;
 import com.mousebird.maply.sld.sldstyleset.AssetWrapper;
 
+import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.util.HashMap;
 
@@ -13,13 +12,13 @@ import java.util.HashMap;
 public class SLDSymbolizerParams {
 
     // Assigned once per SLD
-    private MaplyBaseController baseController;
+    private WeakReference<RenderControllerInterface> baseController;
     private VectorStyleSettings vectorStyleSettings;
     private AssetWrapper assetWrapper;
     private String basePath;
 
-    public MaplyBaseController getBaseController() {
-        return baseController;
+    public RenderControllerInterface getBaseController() {
+        return baseController.get();
     }
     public VectorStyleSettings getVectorStyleSettings() {
         return vectorStyleSettings;
@@ -32,8 +31,8 @@ public class SLDSymbolizerParams {
     }
 
 
-    public SLDSymbolizerParams(MaplyBaseController baseController, AssetWrapper assetWrapper, VectorStyleSettings vectorStyleSettings, String basePath, int relativeDrawPriority) {
-        this.baseController = baseController;
+    public SLDSymbolizerParams(RenderControllerInterface baseController, AssetWrapper assetWrapper, VectorStyleSettings vectorStyleSettings, String basePath, int relativeDrawPriority) {
+        this.baseController = new WeakReference<RenderControllerInterface>(baseController);
         this.assetWrapper = assetWrapper;
         this.vectorStyleSettings = vectorStyleSettings;
         this.basePath = basePath;

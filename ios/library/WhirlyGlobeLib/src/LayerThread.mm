@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/2/11.
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,17 +19,16 @@
  */
 
 #import "LayerThread.h"
-#import "GlobeLayerViewWatcher.h"
-#import "MaplyLayerViewWatcher.h"
-#import "GlobeScene.h"
-#import "MaplyScene.h"
+#import "Scene.h"
 #import "GlobeView.h"
+#import "Platform.h"
+#import "SceneRendererMTL.h"
 
 using namespace WhirlyKit;
 
 @implementation WhirlyKitLayerThread
 {
-    WhirlyKitGLSetupInfo *glSetupInfo;
+    const RenderSetupInfo *setupInfo;
     /// The various data layers we'll display
     NSMutableArray *layers;
     
@@ -46,45 +45,30 @@ using namespace WhirlyKit;
     std::vector<WhirlyKit::ChangeRequest *> changeRequests;
     
     /// We can get change requests from other threads (!)
-    pthread_mutex_t changeLock;
+    std::mutex changeLock;
     
-    /// We lock this in the main loop.  If anyone else can lock it, that means we're gone.
-    /// Yes, I'm certain there's a better way to do this.
-    pthread_mutex_t existenceLock;
-
     NSCondition *pauseLock;
     BOOL paused;
     BOOL inRunAddChangeRequests;
 }
 
-- (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyKitView *)inView renderer:(WhirlyKitSceneRendererES *)inRenderer mainLayerThread:(bool)mainLayerThread
+- (id)initWithScene:(WhirlyKit::Scene *)inScene view:(View *)inView renderer:(SceneRenderer *)inRenderer mainLayerThread:(bool)mainLayerThread
 {
 	if ((self = [super init]))
 	{
+        setupInfo = inRenderer->getRenderSetupInfo();
         _mainLayerThread = mainLayerThread;
 		_scene = inScene;
         _renderer = inRenderer;
 		layers = [NSMutableArray array];
         inRunAddChangeRequests = false;
-        // Note: This could be better
-        if (dynamic_cast<WhirlyGlobe::GlobeScene *>(_scene))
-            _viewWatcher = [[WhirlyGlobeLayerViewWatcher alloc] initWithView:(WhirlyGlobeView *)inView thread:self];
-        else
-            if (dynamic_cast<Maply::MapScene *>(_scene))
-                _viewWatcher = [[MaplyLayerViewWatcher alloc] initWithView:(MaplyView *)inView thread:self];
+        _viewWatcher = [[WhirlyKitLayerViewWatcher alloc] initWithView:inView thread:self];
         
-        // We'll create the context here and set it in the layer thread, always
-        _glContext = [[EAGLContext alloc] initWithAPI:_renderer.context.API sharegroup:_renderer.context.sharegroup];
-
         thingsToRelease = [NSMutableArray array];
         threadsToShutdown = [NSMutableArray array];
         
-        glSetupInfo = [[WhirlyKitGLSetupInfo alloc] init];
-        glSetupInfo->minZres = [inView calcZbufferRes];
         _allowFlush = true;
         
-        pthread_mutex_init(&changeLock,NULL);
-        pthread_mutex_init(&existenceLock,NULL);
         pauseLock = [[NSCondition alloc] init];
 	}
 	
@@ -93,11 +77,6 @@ using namespace WhirlyKit;
 
 - (void)dealloc
 {
-    pthread_mutex_destroy(&changeLock);
-    pthread_mutex_destroy(&existenceLock);
-    // Note: It's not clear why we'd do this here.
-    //       What run loop would it be referring to?
-//    [NSObject cancelPreviousPerformRequestsWithTarget:self];    
 }
 
 - (void)addLayer:(NSObject<WhirlyKitLayer> *)layer
@@ -177,15 +156,13 @@ using namespace WhirlyKit;
     if (newChangeRequests.empty())
         return;
     
-    pthread_mutex_lock(&changeLock);
+    std::lock_guard<std::mutex> guardLock(changeLock);
 
     // If we don't have one coming, schedule a merge
     if (!inRunAddChangeRequests && changeRequests.empty())
         [self performSelector:@selector(runAddChangeRequests) onThread:self withObject:nil waitUntilDone:NO];
     
     changeRequests.insert(changeRequests.end(), newChangeRequests.begin(), newChangeRequests.end());
-    
-    pthread_mutex_unlock(&changeLock);
 }
 
 - (void)flushChangeRequests
@@ -204,8 +181,10 @@ using namespace WhirlyKit;
 
 - (void)runAddChangeRequests
 {
-    [EAGLContext setCurrentContext:_glContext];
-
+    if ([self isCancelled])
+        // Note: Hey, should we be deleting these?
+        return;
+    
     inRunAddChangeRequests = true;
     for (NSObject<WhirlyKitLayer> *layer in layers) {
         if ([layer respondsToSelector:@selector(preSceneFlush:)])
@@ -214,10 +193,11 @@ using namespace WhirlyKit;
     inRunAddChangeRequests = false;
     
     std::vector<WhirlyKit::ChangeRequest *> changesToProcess;
-    pthread_mutex_lock(&changeLock);
-    changesToProcess = changeRequests;
-    changeRequests.clear();
-    pthread_mutex_unlock(&changeLock);
+    {
+        std::lock_guard<std::mutex> guardLock(changeLock);
+        changesToProcess = changeRequests;
+        changeRequests.clear();
+    }
 
     bool requiresFlush = false;
     // Set up anything that needs to be set up
@@ -228,7 +208,7 @@ using namespace WhirlyKit;
         if (change)
         {
             requiresFlush |= change->needsFlush();
-            change->setupGL(glSetupInfo, _scene->getMemManager());
+            change->setupForRenderer(_renderer->getRenderSetupInfo(),_scene);
             changesToAdd.push_back(changesToProcess[ii]);
         } else
             // A NULL change request is just a flush request
@@ -237,13 +217,11 @@ using namespace WhirlyKit;
     
     // If anything needed a flush after that, let's do it
     if (requiresFlush && _allowFlush)
-    {
-        glFlush();
-        
+    {        
         // If there were no changes to add we probably still want to poke the scene
         // Otherwise texture changes don't show up
         if (changesToAdd.empty())
-            changesToAdd.push_back(NULL);
+            changesToAdd.push_back(nullptr);
     }
     
     _scene->addChangeRequests(changesToAdd);
@@ -281,10 +259,11 @@ using namespace WhirlyKit;
 // We'll just spend our time in here
 - (void)main
 {
-    pthread_mutex_lock(&existenceLock);
-    
-    // This should be the default context.  If you change it yourself, change it back
-    [EAGLContext setCurrentContext:_glContext];
+    if ([self isCancelled]) {
+        return;
+    }
+
+    existenceLock.lock();
 
     @autoreleasepool {
         _runLoop = [NSRunLoop currentRunLoop];
@@ -319,6 +298,8 @@ using namespace WhirlyKit;
         }
         
         [NSObject cancelPreviousPerformRequestsWithTarget:self];
+        
+        [_viewWatcher stop];
         
         if ([threadsToShutdown count] > 0)
         {
@@ -355,30 +336,22 @@ using namespace WhirlyKit;
         layers = nil;
     }
     
-    // Okay, we're shutting down, so release the existence lock
-    pthread_mutex_unlock(&existenceLock);
+//    NSLog(@"Layer thread shutting down");
     
     if (_mainLayerThread)
     {
         // If any of the things we're to release are other layer threads
         //  we need to wait for them to shut down.
-        for (NSObject *thing in thingsToRelease)
+        for (WhirlyKitLayerThread *otherLayerThread in threadsToShutdown)
         {
-            if ([thing isKindOfClass:[WhirlyKitLayerThread class]])
-            {
-                WhirlyKitLayerThread *otherLayerThread = (WhirlyKitLayerThread *)thing;
-                pthread_mutex_lock(&otherLayerThread->existenceLock);
-            }
+            otherLayerThread->existenceLock.lock();
         }
 
-        // This should block until the queue is empty
-        dispatch_sync(_scene->getDispatchQueue(), ^{ } );
-#if __IPHONE_OS_VERSION_MIN_REQUIRED < 60000
-        dispatch_release(dispatchQueue);
-#endif
-
         // Tear the scene down.  It's unsafe to do it elsewhere
-        _scene->teardownGL();
+        _scene->teardown();
+    } else {
+        // Okay, we're shutting down, so release the existence lock
+        existenceLock.unlock();
     }
     
     // Delete outstanding change requests
@@ -393,7 +366,11 @@ using namespace WhirlyKit;
     while ([thingsToRelease count] > 0)
         [thingsToRelease removeObject:[thingsToRelease objectAtIndex:0]];
     
-    _glContext = nil;
+    // If this is the main thread, we are well and truly done
+    if (_mainLayerThread) {
+        // Okay, we're shutting down, so release the existence lock
+        existenceLock.unlock();
+    }
 }
 
 

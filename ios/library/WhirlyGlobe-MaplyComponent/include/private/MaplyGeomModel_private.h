@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 12/1/14.
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,12 +18,14 @@
  *
  */
 
-#import "MaplyGeomModel.h"
-#import <WhirlyGlobe.h>
+#import "visual_objects/MaplyGeomModel.h"
+#import <WhirlyGlobe_iOS.h>
 #import "MaplyRenderController_private.h"
 
 namespace WhirlyKit
 {
+class FontTextureManager_iOS;
+    
 // Wraps strings with size and translation
 class GeomStringWrapper
 {
@@ -54,6 +56,8 @@ public:
 - (void)asRawGeometry:(std::vector<WhirlyKit::GeometryRaw> &)rawGeom withTexMapping:(const std::vector<WhirlyKit::SimpleIdentity> &)texFileMap;
 
 // Return the ID for or generate a base model in the Geometry Manager
-- (WhirlyKit::SimpleIdentity)getBaseModel:(MaplyBaseInteractionLayer *)inLayer fontTexManager:(WhirlyKitFontTextureManager *)fontTexManager compObj:(MaplyComponentObject *)compObj mode:(MaplyThreadMode)threadMode;
+- (WhirlyKit::SimpleIdentity)getBaseModel:(MaplyBaseInteractionLayer *)inLayer fontTexManager:(WhirlyKit::FontTextureManager_iOS *)fontTexManager compObj:(MaplyComponentObject *)compObj mode:(MaplyThreadMode)threadMode;
 
 @end
+
+

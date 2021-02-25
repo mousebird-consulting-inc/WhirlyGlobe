@@ -11,7 +11,6 @@ WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/WhirlyGlobeMaplyComponent.framework
 AA+.htm
 AATest.sln
 AATest.vcproj
-CMakeLists.txt
 naughter.css
 stdafx.cpp
 docs
@@ -27,6 +26,7 @@ WhirlyGlobeSrc/AutoTester/AutoTester.xcworkspace
 **/.idea
 android/**/local.properties
 android/library/Android/.gradle
+android/library/maply/.cxx
 ios/library/WhirlyGlobe-MaplyComponent/build
 ios/library/WhirlyGlobe-MaplyComponent/WhirlyGlobeMaplyComponent.framework
 
@@ -36,3 +36,13 @@ android/library/maply/\.externalNativeBuild/
 
 android/apps/AutoTesterAndroid/app/release/
 android/library/maply/.cxx/
+
+~\$TestCaseStatus\.xlsx
+
+~\$CodeBreakdown\.xlsx
+
+android/apps/AutoTesterAndroid/app/gradle/wrapper/
+
+android/apps/AutoTesterAndroid/app/gradlew
+
+android/apps/AutoTesterAndroid/app/gradlew.bat

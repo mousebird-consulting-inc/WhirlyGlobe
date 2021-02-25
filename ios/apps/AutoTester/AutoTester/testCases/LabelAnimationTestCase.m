@@ -3,28 +3,27 @@
 //  AutoTester
 //
 //  Created by Ranen Ghosh on 4/7/16.
-//  Copyright © 2016-2017 mousebird consulting. All rights reserved.
+//  Copyright © 2016-2017 mousebird consulting.
 //
 
 #import "LabelAnimationTestCase.h"
 #import "MaplyBaseViewController.h"
 #import "MaplyViewController.h"
 #import "WhirlyGlobeViewController.h"
-#import "CartoDBTestCase.h"
 #import "MaplyScreenLabel.h"
-
+#import "AutoTester-Swift.h"
 
 @implementation LabelAnimationTestCase {
     NSTimer *_labelAnimationTimer;
     NSMutableDictionary *_trafficLabels;
     MaplyBaseViewController *_baseVC;
+    CartoDBLightTestCase *baseCase;
 }
 
 - (instancetype)init
 {
     if (self = [super init]) {
         self.name = @"Label Animation";
-        self.captureDelay = 2;
 		self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
         
     }
@@ -48,10 +47,10 @@
 
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
-    CartoDBTestCase *baseView = [[CartoDBTestCase alloc] init];
-    [baseView setUpWithGlobe:globeVC];
+    baseCase = [[CartoDBLightTestCase alloc] init];
+    [baseCase setUpWithGlobe:globeVC];
     globeVC.height = 0.25;
-    [globeVC setPosition:MaplyCoordinateMakeWithDegrees(-98.58, 39.83) height:1.5];
+    [globeVC setPosition:MaplyCoordinateMakeWithDegrees(-100.0, 40.0) height:0.05];
     [self setupWithBaseVC:(MaplyBaseViewController *)globeVC];
 }
 
@@ -63,10 +62,10 @@
 
 - (void)setUpWithMap:(MaplyViewController *)mapVC
 {
-    CartoDBTestCase *baseView = [[CartoDBTestCase alloc] init];
-    [baseView setUpWithMap:mapVC];
-    mapVC.height = 0.25;
-    [mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-98.58, 39.83) time:0.0];
+    baseCase = [[CartoDBLightTestCase alloc] init];
+    [baseCase setUpWithMap:mapVC];
+    mapVC.height = 0.05;
+    [mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-100.0, 40.0) time:0.0];
     [self setupWithBaseVC:(MaplyBaseViewController *)mapVC];
 }
 
@@ -117,7 +116,7 @@
     }
     
     
-    _labelAnimationTimer = [NSTimer scheduledTimerWithTimeInterval:1.25 target:self selector:@selector(labelAnimationCallback) userInfo:nil repeats:NO];
+    _labelAnimationTimer = [NSTimer scheduledTimerWithTimeInterval:10.0 target:self selector:@selector(labelAnimationCallback) userInfo:nil repeats:NO];
 }
 
 

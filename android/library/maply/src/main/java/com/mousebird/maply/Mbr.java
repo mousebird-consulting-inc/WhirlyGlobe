@@ -45,6 +45,16 @@ public class Mbr
 	 */
 	public Mbr()
 	{
+		initialize();
+	}
+
+	/**
+	 * We don't create the points by default, but we may need them.
+	 */
+	public void initialize()
+	{
+		ll = new Point2d();
+		ur = new Point2d();
 	}
 	
 	/**

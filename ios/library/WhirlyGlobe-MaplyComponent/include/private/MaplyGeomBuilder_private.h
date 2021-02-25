@@ -3,7 +3,7 @@
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 1/20/16
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@
 
 #import <vector>
 #import <set>
-#import "MaplyGeomBuilder.h"
-#import <WhirlyGlobe.h>
+#import "helpers/MaplyGeomBuilder.h"
+#import <WhirlyGlobe_iOS.h>
 #import "MaplyRenderController_private.h"
 #import "MaplyGeomModel_private.h"
 

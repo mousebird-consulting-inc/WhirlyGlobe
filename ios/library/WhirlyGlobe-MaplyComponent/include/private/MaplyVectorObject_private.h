@@ -3,7 +3,7 @@
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 8/2/12.
- *  Copyright 2012-2017 mousebird consulting
+ *  Copyright 2012-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,35 +18,22 @@
  *
  */
 
-#import "MaplyVectorObject.h"
-#import <WhirlyGlobe.h>
-
-namespace Maply
-{
-
-typedef enum {VectorAttrInt=0,VectorAttrString,VectorAttrReal,VectorAttrMax} VectorAttributeType;
-
-// Vector attributes in a vector DB
-class VectorAttribute
-{
-public:
-    NSString *name;
-    VectorAttributeType type;
-};
-
-}
+#import "visual_objects/MaplyVectorObject.h"
+#import <WhirlyGlobe_iOS.h>
 
 @interface MaplyVectorObject()
+{
+@public
+    WhirlyKit::VectorObjectRef vObj;
+    // If the developer requests attributes, we need to convert them to
+    //  a friendly representation
+    NSMutableDictionary *attrCache;
+}
 
-@property (nonatomic,readonly) WhirlyKit::ShapeSet &shapes;
-@property (nonatomic,readwrite) NSMutableDictionary *attributes;
+// Construct as a wrapper
+- (id)initWithRef:(WhirlyKit::VectorObjectRef)vecObj;
 
 // Construct a vector object from the Vector DB raw format
-+ (MaplyVectorObject *)VectorObjectFromVectorDBRaw:(NSData *)data;
 - (void)addShape:(WhirlyKit::VectorShapeRef)shape;
-
-@end
-
-@interface MaplyVectorDatabase() <WhirlyKitLoftedPolyCache>
 
 @end

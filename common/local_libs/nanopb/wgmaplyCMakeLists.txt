@@ -1,0 +1,18 @@
+cmake_minimum_required(VERSION 3.4.1)
+
+target_include_directories(
+        ${WGTARGET}
+
+        PUBLIC
+
+        "${CMAKE_CURRENT_LIST_DIR}"
+)
+
+target_sources(
+        ${WGTARGET}
+
+        PUBLIC
+
+        "${CMAKE_CURRENT_LIST_DIR}/maply_pb_common.c"
+        "${CMAKE_CURRENT_LIST_DIR}/maply_pb_decode.c"
+)

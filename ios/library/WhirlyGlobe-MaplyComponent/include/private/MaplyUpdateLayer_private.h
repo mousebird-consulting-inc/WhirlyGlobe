@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 4/13/15.
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,9 +18,9 @@
  *
  */
 
-#import "MaplyUpdateLayer.h"
-#import <WhirlyGlobe.h>
+#import "control/MaplyUpdateLayer.h"
+#import <WhirlyGlobe_iOS.h>
 
 @interface MaplyViewerState()
-@property (nonatomic,strong) WhirlyKitViewState *viewState;
+@property (nonatomic) WhirlyKit::ViewStateRef viewState;
 @end

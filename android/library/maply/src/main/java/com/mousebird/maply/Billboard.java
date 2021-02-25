@@ -36,14 +36,6 @@ import java.util.List;
  */
 public class Billboard {
 
-    /// Billboard orientation
-    public static final String MAPLY_BILLBOARD_ORIENTE = "billboardorient";
-    /// Billboards are oriented toward the eye, but rotate on the ground
-    public static final String MAPLY_BILLBOARD_ORIENTE_GROUND = "billboardorientground";
-    /// Billboards are oriented only towards the eye
-    public static final String MAPLY_BILLBOARD_ORIENTE_EYE = "billboardorienteye";
-
-
 	/**
      * Creates an empty billboard.
      */
@@ -129,29 +121,13 @@ public class Billboard {
         this.selectID = selectID;
     }
 
-	/**
-     * TODO(sjg)
-     * @param points
-     * @param texCoords
-     * @param color
-     * @param vertexAttributes
-     * @param texID
-     */
-    public native void addPoly(List<Point2d> points, List<Point2d> texCoords, float[] color, List<VertexAttribute> vertexAttributes, long texID);
 
-	/**
-     * TODO(sjg)
-     */
     public void flatten() {
         if (screenObject != null)
             flattenNative(screenObject);
         screenObject = null;
     }
 
-	/**
-     * TODO(sjg)
-     * @param screenObject
-     */
     public native void flattenNative(ScreenObject screenObject);
 
     public void finalize()
@@ -171,5 +147,4 @@ public class Billboard {
     private long selectID = Identifiable.genID();
     private ScreenObject screenObject;
     private ArrayList<VertexAttribute> vertexAttributes = new ArrayList<>();
-
 }

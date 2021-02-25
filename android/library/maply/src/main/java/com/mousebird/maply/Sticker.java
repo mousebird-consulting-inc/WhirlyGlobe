@@ -26,31 +26,13 @@ public class Sticker
      * Set the lower left corner of the sticker.
      * This is in the given coordinate system.
      */
-    public void setLowerLeft(Point2d pt)
-    {
-        setLowerLeft(pt.getX(),pt.getY());
-    }
+    public native void setLowerLeft(Point2d pt);
 
     /**
      * Set the upper right corner of the sticker.
      * This is in the given coordinate system.
      */
-    public void setUpperRight(Point2d pt)
-    {
-        setUpperRight(pt.getX(),pt.getY());
-    }
-
-    /**
-     * Set the lower left corner of the sticker.
-     * This is in the given coordinate system.
-     */
-    public native void setLowerLeft(double x,double y);
-
-    /**
-     * Set the upper right corner of the sticker.
-     * This is in the given coordinate system.
-     */
-    public native void setUpperRight(double x,double y);
+    public native void setUpperRight(Point2d pt);
 
     /**
      * Set the rotation in radians.  0 by default.
@@ -77,23 +59,12 @@ public class Sticker
      * @param maxSampleY Maximum samples in Y
      */
     public native void setEpsilon(double eps,int minSampleX,int minSampleY,int maxSampleX,int maxSampleY);
-
-    /**
-     * Set the destination image format for images passed in.
-     * The images will be converted to this format.
-     */
-    public void setImageFormat(QuadImageTileLayer.ImageFormat imageFormat)
-    {
-        setImageFormatNative(imageFormat.ordinal());
-    }
-
-    native void setImageFormatNative(int imageFormatEnum);
-
+    
     /**
      * Images to display on the Sticker.  This may include an image or a blending of
      * multiple, depending on the shader.
      */
-    public void setImages(ArrayList<MaplyTexture> textures)
+    public void setTextures(ArrayList<MaplyTexture> textures)
     {
         long[] texIDs = new long[textures.size()];
         int which = 0;
@@ -103,10 +74,10 @@ public class Sticker
             which++;
         }
 
-        setImagesNative(texIDs);
+        setTextureIDs(texIDs);
     }
 
-    native void setImagesNative(long[] texIDs);
+    native void setTextureIDs(long[] texIDs);
 
     static
     {

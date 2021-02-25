@@ -37,14 +37,9 @@ public class MapViewState extends ViewState
 	 * Initialize with the view we're storing the state of and the renderer
 	 * it applies to.
 	 */
-	MapViewState(MapView view,MaplyRenderer renderer)
+	MapViewState(MapView view,RenderController renderer)
 	{
 		initialise(view,renderer);
-	}
-
-	public void finalize()
-	{
-		dispose();
 	}
 
 	static
@@ -52,6 +47,5 @@ public class MapViewState extends ViewState
 		nativeInit();
 	}
 	private static native void nativeInit();
-	native void initialise(MapView view,MaplyRenderer renderer);
-	native void dispose();
+	native void initialise(MapView view,RenderController renderer);
 }

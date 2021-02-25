@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by Stephen Gifford on 3/27/18.
-//  Copyright © 2018 mousebird consulting. All rights reserved.
+//  Copyright © 2018 mousebird consulting.
 //
 
 import UIKit
@@ -14,7 +14,6 @@ class CartoDBLightTestCase: MaplyTestCase {
         super.init()
         
         self.name = "CartoDB Light Test Case"
-        self.captureDelay = 4
         self.implementations = [.globe,.map]
     }
     

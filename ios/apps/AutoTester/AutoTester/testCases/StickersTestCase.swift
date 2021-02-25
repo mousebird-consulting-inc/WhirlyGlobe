@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by jmnavarro on 3/11/15.
-//  Copyright © 2015-2017 mousebird consulting. All rights reserved.
+//  Copyright © 2015-2017 mousebird consulting.
 //
 
 import UIKit
@@ -14,13 +14,14 @@ class StickersTestCase: MaplyTestCase {
 		super.init()
 		
 		self.name = "Stickers"
-		self.captureDelay = 4
 		self.implementations = [.globe, .map]
 	}
+    
+    var startTex : MaplyTexture?
 
 	func addStickers (_ arrayComp: NSArray , baseViewC: MaplyBaseViewController) {
 		let startImage = UIImage(named: "Smiley_Face_Avatar_by_PixelTwist")
-        let startTex = baseViewC.addTexture(startImage!, desc: [kMaplyTexMagFilter: kMaplyMinFilterLinear], mode: MaplyThreadMode.current)
+        startTex = baseViewC.addTexture(startImage!, desc: [kMaplyTexMagFilter: kMaplyMinFilterLinear], mode: MaplyThreadMode.current)
 		var stickers = [MaplySticker]()
 		for object in arrayComp {
 			let sticker = MaplySticker()
@@ -33,12 +34,12 @@ class StickersTestCase: MaplyTestCase {
 		baseViewC.addStickers(stickers, desc: [kMaplyFade: (1.0)])
 	}
     
-    func addTestSticker (baseViewC: MaplyBaseViewController) {
+    func addTestSticker (baseViewC: MaplyBaseViewController, rotation: Double) {
         let startImage = UIImage(named: "greensquare.png")
         
         let sticker = MaplySticker()
         sticker.coordSys = MaplySphericalMercator.init(webStandard: ())
-        sticker.rotation = 45.0 / 180.0 * Float.pi
+        sticker.rotation = Float(rotation) / 180.0 * Float.pi
         let center = MaplyCoordinateMakeWithDegrees(-0.381378, 45.089304)
         var ll = center
         ll.x -= 0.0025
@@ -60,22 +61,23 @@ class StickersTestCase: MaplyTestCase {
         //        baseViewC.addStickers([sticker], desc: [kMaplyColor: UIColor.init(white: 0.25, alpha: 0.25)] )
         baseViewC.addStickers([sticker], desc: [kMaplyColor: UIColor.init(white: 1.0, alpha: 1.0)] )
     }
+    
+    let baseCase = VectorsTestCase()
 	
 	override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
-        let baseLayer = VectorsTestCase()
-        baseLayer.setUpWithGlobe(globeVC)
+        baseCase.setUpWithGlobe(globeVC)
+        globeVC.keepNorthUp = true
 
-        addStickers(baseLayer.vecList, baseViewC: globeVC)
+        addStickers(baseCase.vecList, baseViewC: globeVC)
         
-        addTestSticker(baseViewC: globeVC)
+        addTestSticker(baseViewC: globeVC, rotation: 180.0+10.0)
 	}
 	
 	override func setUpWithMap(_ mapVC: MaplyViewController) {
-		let baseLayer = VectorsTestCase()
-		baseLayer.setUpWithMap(mapVC)
+		baseCase.setUpWithMap(mapVC)
 
-        addStickers(baseLayer.vecList, baseViewC: mapVC)
+        addStickers(baseCase.vecList, baseViewC: mapVC)
         
-        addTestSticker(baseViewC: mapVC)
+        addTestSticker(baseViewC: mapVC, rotation: 45.0)
 	}
 }

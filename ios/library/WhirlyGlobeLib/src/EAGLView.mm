@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/5/11.
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,6 +20,9 @@
 
 #import "EAGLView.h"
 #import <QuartzCore/QuartzCore.h>
+#import "SceneRendererGLES_iOS.h"
+
+using namespace WhirlyKit;
 
 @implementation WhirlyKitEAGLView 
 {
@@ -143,13 +146,30 @@
     if (resizeFail && resizeFailRetry <= 0)
         return;
     
+    if (!_renderer)
+        return;
+    
     if (resizeFail)
         [self layoutSubviews];
 
+    EAGLContext *oldContext = [EAGLContext currentContext];
+    SceneRendererGLES_iOS *sceneRender = (SceneRendererGLES_iOS *)_renderer;
+    sceneRender->useContext();
+
     if (_animating) {
-        [_renderer render:displayLink.frameInterval * 1/60.0];
-    } else
-        [_renderer processScene];
+        if (sceneRender->hasChanges())
+            sceneRender->render(displayLink.frameInterval * 1/60.0);
+        else {
+            // Process the scene even if the window isn't up
+            TimeInterval now = TimeGetCurrent();
+            sceneRender->processScene(now);
+        }
+    } else {
+        TimeInterval now = TimeGetCurrent();
+        sceneRender->processScene(now);
+    }
+    
+    [EAGLContext setCurrentContext:oldContext];
 }
 
 - (void) setFrame:(CGRect)newFrame
@@ -168,8 +188,12 @@
         return;
     }
     
+    EAGLContext *oldContext = [EAGLContext currentContext];
+    SceneRendererGLES_iOS *sceneRender = (SceneRendererGLES_iOS *)_renderer;
+    sceneRender->useContext();
+
     // Try to resize the renderer, multiple times if necessary
-	if (![_renderer resizeFromLayer:(CAEAGLLayer*)self.layer])
+	if (!sceneRender->resize((int)self.frame.size.width*self.contentScaleFactor,(int)self.frame.size.height*self.contentScaleFactor))
     {
         if (!resizeFail)
         {
@@ -178,10 +202,14 @@
         } else
             resizeFailRetry--;
         
+        [EAGLContext setCurrentContext:oldContext];
+
         return;
     }
     resizeFail = false;
     resizeFailRetry = 0;
+
+    [EAGLContext setCurrentContext:oldContext];
 
     [self drawView:nil];
 }

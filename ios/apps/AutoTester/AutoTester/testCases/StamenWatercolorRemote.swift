@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by jmnavarro on 13/10/15.
-//  Copyright © 2015-2017 mousebird consulting. All rights reserved.
+//  Copyright © 2015-2017 mousebird consulting.
 //
 
 import UIKit
@@ -14,69 +14,60 @@ class StamenWatercolorRemote: MaplyTestCase {
 		super.init()
 
 		self.name = "Stamen Watercolor Remote"
-		self.captureDelay = 4
 		self.implementations = [.globe, .map]
 	}
+    
+    var imageLoader : MaplyQuadImageLoader? = nil
 	
-	func setupLayer(_ baseVC: MaplyBaseViewController) -> MaplyQuadImageTilesLayer {
-		let cacheDir = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0]
-		
-		let thisCacheDir = "\(cacheDir)/stamentiles/"
-		let maxZoom = Int32(16)
-		let tileSource = MaplyRemoteTileSource(
-			baseURL: "http://tile.stamen.com/watercolor/",
-			ext: "png", minZoom: Int32(0), maxZoom: Int32(maxZoom))
-		tileSource!.cacheDir = thisCacheDir
-		let layer = MaplyQuadImageTilesLayer(tileSource: tileSource!)
-		layer!.handleEdges = true
-		layer!.drawPriority = kMaplyImageLayerDrawPriorityDefault
-		//		layer!.waitLoad = imageWaitLoad
-		layer!.singleLevelLoading = false
-
-		return layer!;
-	}
+	func setupLoader(_ baseVC: MaplyBaseViewController) -> MaplyQuadImageLoader? {
+        let cacheDir = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0]
+        let thisCacheDir = "\(cacheDir)/stamentiles/"
+        let maxZoom = Int32(16)
+        let tileInfo = MaplyRemoteTileInfoNew(baseURL: "http://tile.stamen.com/watercolor/{z}/{x}/{y}.png",
+                                              minZoom: Int32(0),
+                                              maxZoom: Int32(maxZoom))
+        tileInfo.cacheDir = thisCacheDir
         
-    var layer : MaplyQuadImageTilesLayer? = nil
+        // Parameters describing how we want a globe broken down
+        let sampleParams = MaplySamplingParams()
+        sampleParams.coordSys = MaplySphericalMercator(webStandard: ())
+        sampleParams.coverPoles = true
+        sampleParams.edgeMatching = true
+        sampleParams.minZoom = tileInfo.minZoom()
+        sampleParams.maxZoom = tileInfo.maxZoom()
+        sampleParams.singleLevel = true
+        sampleParams.minImportance = 1024.0 * 1024.0 / 2.0
+        
+        guard let imageLoader = MaplyQuadImageLoader(params: sampleParams, tileInfo: tileInfo, viewC: baseVC) else {
+            return nil
+        }
+        // TODO: Get this working
+//        imageLoader.imageFormat = .imageUShort565
+        //        imageLoader.debugMode = true
+        
+        return imageLoader
+	}
 
 	override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
-		layer = setupLayer(globeVC)
-		
+		imageLoader = setupLoader(globeVC)
+        		
 		globeVC.keepNorthUp = true
-		globeVC.add(layer!)
 		globeVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056), time: 1.0)
+        
+//        globeVC.globeCenter = CGPoint(x: globeVC.view.center.x, y: globeVC.view.center.y + 0.33*globeVC.view.frame.size.height/2.0)
 	}
 
 	override func setUpWithMap(_ mapVC: MaplyViewController) {
-		layer = setupLayer(mapVC)
+		imageLoader = setupLoader(mapVC)
 
-		mapVC.add(layer!)
 		mapVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056), height: 1.0, time: 1.0)
 		mapVC.setZoomLimitsMin(0.01, max: 5.0)
 	}
     
-    func teardownLayer(_ viewC: MaplyBaseViewController) {
-        guard let layer = layer else {
-            return
-        }
+    override func stop() {
+        imageLoader?.shutdown()
+        imageLoader = nil
         
-        viewC.remove(layer)
-        self.layer = nil
+        super.stop()
     }
-    
-    override func tearDown(withMap mapVC: MaplyViewController) {
-        teardownLayer(mapVC)
-    }
-    
-    override func tearDown(withGlobe globeVC: WhirlyGlobeViewController) {
-        teardownLayer(globeVC)
-    }
-
-/*
-   override func remoteResources() -> [AnyObject]? {
-		return nil;
-
-		return ["https://manuals.info.apple.com/en_US/macbook_retina_12_inch_early2016_essentials.pdf"]
-
-	}
-*/
 }

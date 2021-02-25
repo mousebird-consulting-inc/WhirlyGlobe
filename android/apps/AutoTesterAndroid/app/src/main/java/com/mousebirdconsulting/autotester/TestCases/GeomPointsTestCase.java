@@ -6,11 +6,12 @@ import android.graphics.Color;
 import com.mousebird.maply.GeometryInfo;
 import com.mousebird.maply.GeometryRawPoints;
 import com.mousebird.maply.GlobeController;
-import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.BaseController;
 import com.mousebird.maply.Matrix4d;
 import com.mousebird.maply.Point2d;
 import com.mousebird.maply.Point3d;
 import com.mousebird.maply.Points;
+import com.mousebird.maply.RenderController;
 import com.mousebird.maply.Shader;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 
@@ -49,10 +50,10 @@ public class GeomPointsTestCase extends MaplyTestCase {
             "  gl_FragColor = v_color;\n" +
             "}\n";
 
-    Shader makePointShader(MaplyBaseController control)
+    Shader makePointShader(BaseController control)
     {
         Shader shader = new Shader("Point Shader",vertProg,fragProg,control);
-        control.addShaderProgram(shader,"Point Shader");
+        control.addShaderProgram(shader);
 
         return shader;
     }
@@ -98,12 +99,12 @@ public class GeomPointsTestCase extends MaplyTestCase {
         geomInfo.setZBufferWrite(true);
         geomInfo.setShader(shader);
 
-        control.addPoints(pts, geomInfo, MaplyBaseController.ThreadMode.ThreadAny);
+        control.addPoints(pts, geomInfo, RenderController.ThreadMode.ThreadAny);
     }
 
     @Override
     public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
-        CartoDBMapTestCase baseTestCase = new CartoDBMapTestCase(this.getActivity());
+        CartoLightTestCase baseTestCase = new CartoLightTestCase(this.getActivity());
         baseTestCase.setUpWithGlobe(globeVC);
         globeVC.setAllowTilt(true);
         globeVC.setKeepNorthUp(false);

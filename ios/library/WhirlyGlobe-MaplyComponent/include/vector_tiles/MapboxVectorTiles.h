@@ -1,9 +1,9 @@
 /*
- *  MaplyMapnikVectorTiles.h
- *  WhirlyGlobe-MaplyComponent
+ *  MapboxVectorTiles.h
+ *  WhirlyGlobeLib
  *
- *  Created by Jesse Crocker, Trailbehind inc. on 3/31/14.
- *  Copyright 2011-2017 mousebird consulting
+ *  Created by Steve Gifford on 4/10/19.
+ *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,89 +18,48 @@
  *
  */
 
+#import "vector_styles/MaplyVectorTileStyle.h"
+#import "loading/MaplyTileSourceNew.h"
+#import "math/MaplyCoordinate.h"
+#import "vector_styles/MaplyVectorStyle.h"
 
-#import <Foundation/Foundation.h>
-#import "MaplyQuadPagingLayer.h"
-#import "MaplyTileSource.h"
-#import "MaplyCoordinate.h"
-#import "MaplyVectorStyle.h"
-
-/** 
-    Geometry type for data found within PBF files.
-    
-    These are the geometry types supported within Mapnik PBF files.
-  */
-typedef NS_ENUM(NSInteger, MapnikGeometryType) {
-  GeomTypeUnknown = 0,
-  GeomTypePoint = 1,
-  GeomTypeLineString = 2,
-  GeomTypePolygon = 3
+typedef NS_ENUM(NSInteger,MapboxGeometryType)
+{
+    GeomTypeUnknown = 0,
+    GeomTypePoint = 1,
+    GeomTypeLineString = 2,
+    GeomTypePolygon = 3
 };
 
-typedef NS_ENUM(NSInteger, MapnikCommandType) {
-  SEG_END    = 0,
-  SEG_MOVETO = 1,
-  SEG_LINETO = 2,
-  SEG_CLOSE = (0x40 | 0x0f)
-};
 
-@class MaplyVectorTileStyle;
-@class MaplyMBTileSource;
-@class MaplyRemoteTileInfo;
-
-/** 
-    Container for data parsed out of a vector tile.
+/**
+  Container for data parsed out of a Mapbox Vector Tile stream.
+ 
+  This holds the parsed data as well as post-constructed data.  You will likely be handed one of these
+    if you see it at all.  There are few cases where you might construct one.
   */
 @interface MaplyVectorTileData : NSObject
 
-/// Component objects already added to the display, but not yet visible.
-@property (nonatomic,strong,nullable) NSArray *compObjs;
+/// Initialize with tile and bounds, both local coordinates and geographic
+- (id)initWithID:(MaplyTileID)tileID bbox:(MaplyBoundingBoxD)bbox geoBBox:(MaplyBoundingBoxD)geoBBox;
 
-/// If there were any raster layers, they're here by name
-@property (nonatomic,strong,nullable) NSDictionary *rasterLayers;
+/// Tile ID for the tile being built
+@property (readonly) MaplyTileID tileID;
 
-/// If we asked to preserve the vector objects, these are them
-@property (nonatomic,strong,nullable) NSArray *vecObjs;
+/// Bounding box in local coordinates
+@property (readonly) MaplyBoundingBoxD bounds;
 
-/// If there are any wkcategory tags, we'll sort the component objects into groups
-@property (nonatomic,strong,nullable) NSDictionary *categories;
+/// Bounding box in geographic
+@property (readonly) MaplyBoundingBoxD geoBounds;
 
-@end
+/// Add a single component object for tracking
+- (void)addComponentObject:(MaplyComponentObject *)compObj;
 
-/** 
-    Handles the actual data parsing for an individual vector tile after it comes in.
-    
-    It you're letting the toolkit do the paging, use a MaplyMapnikVectorTiles which will create one of these.  You only use this directly if you're fetching the data on your own.
-  */
-@interface MapboxVectorTileParser : NSObject
+/// When a style builds a component object, it needs to add it here
+///  for tracking.  This lets us delete it later.
+- (void)addComponentObjects:(NSArray *)compObjs;
 
-/// Initialize with the style delegate
-- (nonnull instancetype)initWithStyle:(NSObject<MaplyVectorStyleDelegate> *__nonnull)styleDelegate viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC;
-
-/// The styling delegate turns vector data into visible objects in the toolkit
-@property (nonatomic, strong, nonnull) NSObject<MaplyVectorStyleDelegate> *styleDelegate;
-
-/// Maply view controller we're adding this data to
-@property (nonatomic, weak, nullable) NSObject<MaplyRenderControllerProtocol> * __weak viewC;
-
-/// If set, we'll parse into local coordinates as specified by the bounding box, rather than geo coords
-@property (nonatomic, assign) bool localCoords;
-
-/// Keep the vector objects around as we parse them
-@property (nonatomic, assign) bool keepVectors;
-
-/// Parse everything, even if there's no style for it
-@property (nonatomic, assign) bool parseAll;
-
-@property (nonatomic, assign) BOOL debugLabel;
-@property (nonatomic, assign) BOOL debugOutline;
-
-/** 
- Construct the visible objects for the given tile
-
- @param bbox is in the local coordinate system (likely Spherical Mercator)
- */
-- (nullable MaplyVectorTileData *)buildObjects:(NSData *__nonnull)data tile:(MaplyTileID)tileID bounds:(MaplyBoundingBox)bbox geoBounds:(MaplyBoundingBox)geoBbox;
+/// Return all the component objects thus collected
+- (NSArray *)componentObjects;
 
 @end
-

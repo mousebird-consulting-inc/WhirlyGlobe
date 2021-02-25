@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/15/11.
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -26,6 +26,9 @@
 /// Build a UIColor from a hex value
 + (UIColor *) colorFromHexRGB:(int)hexColor;
 
+/// Build a UIColor from an RGBAColor
++ (UIColor *) colorFromRGBA:(const WhirlyKit::RGBAColor &)color;
+
 /// Convert a UIColor to the RBGA color we use internally
 - (WhirlyKit::RGBAColor) asRGBAColor;
 
@@ -34,6 +37,9 @@
 
 ////Convert a UIColor to a hex value
 - (int) asHexRGB;
+
+/// Convert UIColor to a #color string
+- (NSString *) asHexRGBAString;
 
 @end
 

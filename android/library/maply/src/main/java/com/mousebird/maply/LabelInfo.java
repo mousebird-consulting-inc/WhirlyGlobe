@@ -32,7 +32,7 @@ import static android.R.attr.typeface;
  * Rather than specifying them individually they all go here.  You would
  * use this class in the course of an addLabels() or addScreenLabels()
  * call on the MaplyController.
- * 
+ *
  * @author sjg
  */
 public class LabelInfo extends BaseInfo
@@ -49,13 +49,11 @@ public class LabelInfo extends BaseInfo
 		setBackgroundColor(0.f,0.f,0.f,0.f);
 		setTypeface(Typeface.DEFAULT);
 		setFontSize(24.f);
-		setLayoutImportance(Float.MAX_VALUE);
-		setLayoutPlacement(LayoutRight | LayoutLeft | LayoutAbove | LayoutBelow);
 		setTextJustify(TextJustify.TextLeft);
 
 		setDrawPriority(LabelPriorityDefault);
 	}
-	
+
 	public void finalize()
 	{
 		dispose();
@@ -71,8 +69,13 @@ public class LabelInfo extends BaseInfo
 	}
 
 	/**
+	 * Return the text color in a form suitable for Android.
+	 */
+	public native int getTextColor();
+
+	/**
 	 * Set the text color as float values from 0.0 to 1.0
-	 * 
+	 *
 	 * @param r red
 	 * @param g green
 	 * @param b blue
@@ -92,7 +95,7 @@ public class LabelInfo extends BaseInfo
 	/**
 	 * Set the background color of text.  This is what appears in the rectangles behind the text.
 	 * Color components range from 0.0 to 1.0.
-	 * 
+	 *
 	 * @param r red
 	 * @param g green
 	 * @param b blue
@@ -100,20 +103,10 @@ public class LabelInfo extends BaseInfo
 	 */
 	public native void setBackgroundColor(float r,float g,float b,float a);
 
-	void updateLineHeight()
-	{
-		if (fontSize == 0.0 || getTypeface() == null)
-			return;
-
-		Paint paint = new Paint();
-		paint.setTextSize(fontSize);
-		paint.setTypeface(getTypeface());
-		Paint.FontMetrics fm = paint.getFontMetrics();
-		float fontHeight = (float)Math.ceil( Math.abs( fm.bottom ) + Math.abs( fm.top ) );
-		setLineHeightNative(fontHeight);
-	}
-
-	native void setLineHeightNative(float fontHeight);
+	/**
+	 * Return the background text color in a form suitable for Android.
+	 */
+	public native int getBackgroundColor();
 
 	/**
 	 * Set the typeface used in the text.
@@ -126,6 +119,14 @@ public class LabelInfo extends BaseInfo
 	}
 
 	native void setTypefaceNative(Typeface typeface);
+
+	/// Optional font name used for tracking and nothing else
+	public String fontName;
+
+	/**
+	 * Return the typeface used for the labels.
+	 */
+	public native Typeface getTypeface();
 
 	float fontSize = 0.f;
 	/**
@@ -157,6 +158,11 @@ public class LabelInfo extends BaseInfo
 	public native void setOutlineColor(float r,float g,float b,float a);
 
 	/**
+	 * Return the outline color in a form suitable for Android.
+	 */
+	public native int getOutlineColor();
+
+	/**
 	 * Set the color of the outline.
      */
 	public void setOutlineColor(int color)
@@ -170,14 +176,33 @@ public class LabelInfo extends BaseInfo
 	public native void setOutlineSize(float size);
 
 	/**
-	 * The layout engine controls how text is displayed.  It tries to avoid overlaps
-	 * and takes priority into account.  The layout importance controls which labels
-	 * (or other features) are laid out first.  Bigger is more important.
-	 * <p>
-	 * Defaults to MAXFLOAT, which is off.  That means the layout engine does not control
-	 * the associated labels.
+	 * Return the outline size
 	 */
-	public native void setLayoutImportance(float importance);
+	public native float getOutlineSize();
+
+	/**
+	 * Set the color of shadow.
+	 * Color components range from 0.0 to 1.0.
+	 *
+	 * @param r red
+	 * @param g green
+	 * @param b blue
+	 * @param a alpha
+	 */
+	public native void setShadowColor(float r,float g,float b,float a);
+
+	/**
+	 * Set the color of the shadow.
+	 */
+	public void setShadowColor(int color)
+	{
+		setShadowColor(Color.red(color)/255.f,Color.green(color)/255.f,Color.blue(color)/255.f,Color.alpha(color)/255.f);
+	}
+
+	/**
+	 * Set the shadow size for the text.
+	 */
+	public native void setShadowSize(float size);
 
 	// Importance value for the layout engine
 	public float layoutImportance = Float.MAX_VALUE;
@@ -193,7 +218,24 @@ public class LabelInfo extends BaseInfo
 	 * The layout placement controls where we can put the label relative to
 	 * its point.
 	 */
-	public native void setLayoutPlacement(int newPlacement);
+	public void setLayoutPlacement(int newPlacement)
+	{
+		layoutPlacement = newPlacement;
+	}
+	public int layoutPlacement = -1;
+
+	/**
+	 * The layout engine controls how text is displayed.  It tries to avoid overlaps
+	 * and takes priority into account.  The layout importance controls which labels
+	 * (or other features) are laid out first.  Bigger is more important.
+	 * <p>
+	 * Defaults to MAXFLOAT, which is off.  That means the layout engine does not control
+	 * the associated labels.
+	 */
+	public void setLayoutImportance(float newImport)
+	{
+		layoutImportance = newImport;
+	}
 
 	/**
 	 * Justification values for text.  Can be center, left, or right.
@@ -210,30 +252,25 @@ public class LabelInfo extends BaseInfo
 	}
 	native void setTextJustifyNative(int textJustify);
 
-	/**
-	 * Return the typeface used for the labels.
-	 */
-	public native Typeface getTypeface();
-	
-	/**
-	 * Return the text color in a form suitable for Android.
-	 */
-	public native int getTextColor();
+	// Update C++ side for values it needs
+	void updateLineHeight()
+	{
+		if (fontSize == 0.0 || getTypeface() == null)
+			return;
+
+		Paint paint = new Paint();
+		paint.setTextSize(fontSize);
+		paint.setTypeface(getTypeface());
+		Paint.FontMetrics fm = paint.getFontMetrics();
+		float fontHeight = (float)Math.ceil( Math.abs( fm.bottom ) + Math.abs( fm.top ) );
+		setLineHeight(fontHeight);
+	}
 
 	/**
-	 * Return the background text color in a form suitable for Android.
+	 * Rather than calculate it from the Typeface, set the line height directly.
 	 */
-	public native int getBackColor();
+	native void setLineHeight(float fontHeight);
 
-	/**
-	 * Return the outline color in a form suitable for Android.
-	 */
-	public native int getOutlineColor();
-
-	/**
-	 * Return the outline size
-	 */
-	public native float getOutlineSize();
 
 	static
 	{

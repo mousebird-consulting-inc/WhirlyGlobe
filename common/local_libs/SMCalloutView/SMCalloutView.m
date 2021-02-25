@@ -503,12 +503,15 @@ NSTimeInterval const kSMCalloutViewRepositionDelayForUIScrollView = 1.0/3.0;
         stretch.toValue = presenting ? @1.0 : @0.0;
         animation = stretch;
     }
+
+    if (animation) {
+        // CAAnimation is KVC compliant, so we can store whether we're presenting for lookup in our delegate methods
+        [animation setValue:@(presenting) forKey:@"presenting"];
+        
+        animation.fillMode = kCAFillModeForwards;
+        animation.removedOnCompletion = NO;
+    }
     
-    // CAAnimation is KVC compliant, so we can store whether we're presenting for lookup in our delegate methods
-    [animation setValue:@(presenting) forKey:@"presenting"];
-    
-    animation.fillMode = kCAFillModeForwards;
-    animation.removedOnCompletion = NO;
     return animation;
 }
 

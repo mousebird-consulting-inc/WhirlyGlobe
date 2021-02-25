@@ -35,14 +35,14 @@ public class VectorTilePolygonStyle extends VectorTileStyle {
     private VectorInfo vectorInfo;
 
 
-    public VectorTilePolygonStyle(VectorInfo vectorInfo, VectorStyleSettings settings, MaplyBaseController viewC) {
+    public VectorTilePolygonStyle(VectorInfo vectorInfo, VectorStyleSettings settings, RenderControllerInterface viewC) {
         super(viewC);
         this.vectorInfo = vectorInfo;
     }
 
     static double ClipGridSize = 2.0/180.0*Math.PI;
 
-    public ComponentObject[] buildObjects(List<VectorObject> objects, MaplyTileID tileID, MaplyBaseController controller) {
+    public void buildObjects(VectorObject objects[], VectorTileData tileData, RenderControllerInterface controller) {
 
         boolean globeMode = (controller instanceof GlobeController);
         ArrayList<VectorObject> vectors = new ArrayList<VectorObject>();
@@ -81,10 +81,8 @@ public class VectorTilePolygonStyle extends VectorTileStyle {
         }
 
 
-        ComponentObject compObj = controller.addVectors(vectors, vectorInfo, MaplyBaseController.ThreadMode.ThreadCurrent);
-        if (compObj != null)
-            return new ComponentObject[]{compObj};
-        return null;
+        ComponentObject compObj = controller.addVectors(vectors, vectorInfo, RenderController.ThreadMode.ThreadCurrent);
+        tileData.addComponentObject(compObj);
     }
 
 }

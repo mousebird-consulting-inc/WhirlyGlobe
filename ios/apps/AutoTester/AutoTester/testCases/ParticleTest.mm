@@ -3,7 +3,7 @@
  *  WhirlyGlobeComponentTester
  *
  *  Created by Steve Gifford on 10/21/15.
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -294,7 +294,7 @@ void main()
     [posShader delayedSetupWithName:@"Particle Wind Test Pos"
                              vertex:[NSString stringWithFormat:@"%s",vertexPositionShader]
                            fragment:[NSString stringWithFormat:@"%s",fragmentPositionShader]];
-    [viewC addShaderProgram:posShader sceneName:posShader.name];
+    [viewC addShaderProgram:posShader];
     
     // Render shader
     MaplyShader *renderShader = nil;
@@ -310,7 +310,7 @@ void main()
                                                    fragment:[NSString stringWithFormat:@"%s",fragmentRenderShader]
                                                       viewC:viewC];
     }
-    [viewC addShaderProgram:renderShader sceneName:renderShader.name];
+    [viewC addShaderProgram:renderShader];
     
     // Set up the particle system we'll feed with particles
     partSys = [[MaplyParticleSystem alloc] initWithName:@"Particle Wind Test"];
@@ -337,7 +337,7 @@ void main()
     cachedTiles = [NSMutableDictionary dictionary];
     
     // We need to refresh the particles periodically.  We'll do that one a single queue.
-    queue = dispatch_queue_create("Wind Delegate",NULL);
+    queue = dispatch_queue_create("Wind Delegate",DISPATCH_QUEUE_SERIAL);
 
     // Kick off the first generation of particles
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_updateInterval * NSEC_PER_SEC)), queue,
@@ -482,7 +482,7 @@ static const float sqrt2 = 1.41421356237;
         partSysObj = [viewC addParticleSystem:partSys desc:@{kMaplyPointSize: @(4.0), kMaplyDrawPriority: @(kMaplyModelDrawPriorityDefault+1000)} mode:MaplyThreadCurrent];
     }
     
-    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+    NSTimeInterval now = scene->getCurrentTime();
 
     // Data arrays for particles
     // These have to be raw data, rather than objects for speed

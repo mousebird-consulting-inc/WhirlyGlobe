@@ -76,7 +76,7 @@ public class BasicClusterGenerator extends ClusterGenerator {
     private float scale;
     private float textSize = 0.f;
     private HashMap<Integer, MaplyTexture> texByNumber;
-    private MaplyBaseController viewC;
+    private BaseController viewC;
     private boolean correct = false;
     private Activity activity;
 
@@ -85,7 +85,7 @@ public class BasicClusterGenerator extends ClusterGenerator {
      * <p>
      * Each order of magnitude will use another color.  Must provide at least 1.
      */
-    public BasicClusterGenerator(int[] colors, int clusterNumber, Point2d markerSize, MaplyBaseController viewC, Activity activity) {
+    public BasicClusterGenerator(int[] colors, int clusterNumber, Point2d markerSize, BaseController viewC, Activity activity) {
         correct = (colors.length > 0);
         if (!correct) {
             return;
@@ -102,7 +102,7 @@ public class BasicClusterGenerator extends ClusterGenerator {
         this.viewC = viewC;
     }
 
-    public BasicClusterGenerator(Bitmap bitmap,int clusterNumber, Point2d markerSize,float textSize, MaplyBaseController viewC, Activity activity)
+    public BasicClusterGenerator(Bitmap bitmap,int clusterNumber, Point2d markerSize,float textSize, BaseController viewC, Activity activity)
     {
         correct = true;
         this.bitmap = bitmap;
@@ -129,7 +129,7 @@ public class BasicClusterGenerator extends ClusterGenerator {
         this.texByNumber = new HashMap<Integer, MaplyTexture>();
     }
 
-    MaplyBaseController.TextureSettings texSettings = new MaplyBaseController.TextureSettings();
+    RenderController.TextureSettings texSettings = new RenderController.TextureSettings();
 
     @Override
     public ClusterGroup makeClusterGroup(ClusterInfo clusterInfo) {
@@ -185,7 +185,7 @@ public class BasicClusterGenerator extends ClusterGenerator {
             //Draw Text
             c.drawText(Integer.toString(clusterInfo.numObjects), xPos, yPos, text);
 
-            tex = baseController.addTexture(image, texSettings, MaplyBaseController.ThreadMode.ThreadCurrent);
+            tex = baseController.addTexture(image, texSettings, RenderController.ThreadMode.ThreadCurrent);
 
             texByNumber.put(clusterInfo.numObjects, tex);
         }

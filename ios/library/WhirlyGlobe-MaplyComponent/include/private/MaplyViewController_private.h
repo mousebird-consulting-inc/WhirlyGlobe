@@ -3,7 +3,7 @@
  *  MaplyComponent
  *
  *  Created by Steve Gifford on 12/14/12.
- *  Copyright 2012-2017 mousebird consulting
+ *  Copyright 2012-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,25 +21,24 @@
 #import "MaplyViewController.h"
 #import "MaplyBaseViewController_private.h"
 #import "MaplyInteractionLayer_private.h"
-#import "MaplyDoubleTapDelegate.h"
-#import "MaplyTwoFingerTapDelegate.h"
-#import "MaplyDoubleTapDragDelegate.h"
-#import "MaplyTouchCancelAnimationDelegate.h"
+#import "gestures/MaplyTapDelegate.h"
+#import "gestures/MaplyPanDelegate.h"
+#import "gestures/MaplyPinchDelegate.h"
+#import "gestures/MaplyRotateDelegate.h"
+#import "gestures/MaplyDoubleTapDelegate.h"
+#import "gestures/MaplyTwoFingerTapDelegate.h"
+#import "gestures/MaplyDoubleTapDelegate.h"
+#import "gestures/MaplyDoubleTapDragDelegate.h"
+#import "gestures/MaplyTouchCancelAnimationDelegate.h"
+#import "MapView_iOS.h"
 
-@interface MaplyViewController()<WhirlyKitViewWatcherDelegate>
+@interface MaplyViewController()
 {
-    /// Custom map scene
-    Maply::MapScene *mapScene;
-
 @protected
     /// Coordinate system and display adapter
-    WhirlyKit::CoordSystemDisplayAdapter *coordAdapter;
+    WhirlyKit::CoordSystemDisplayAdapterRef coordAdapter;
     /// Maply view
-    MaplyView *mapView;
-    // Flat view for 2D mode
-    MaplyFlatView * flatView;
-    // Scroll view for tethered mode
-    UIScrollView * __weak scrollView;
+    Maply::MapView_iOSRef mapView;
 
 @private    
     /// Our own interaction layer for adding and removing things
@@ -59,7 +58,7 @@
     MaplyCoordinate boundLL,boundUR;
 
     /// Current view animation (kept around so it's not released)
-    NSObject *curAnimation;
+    Maply::MapViewAnimationDelegateRef curAnimation;
     
     // Used for the outside animation interface
     NSObject<MaplyViewControllerAnimationDelegate> *animationDelegate;
@@ -67,7 +66,5 @@
 
     bool delegateRespondsToViewUpdate;
 }
-
-- (void)setupFlatView;
 
 @end

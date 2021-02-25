@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 2/16/15.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,159 +18,48 @@
  *
  */
 
-#import "MapboxVectorStyleSet.h"
-#import "MapboxVectorStyleBackground.h"
-#import "MapboxVectorStyleFill.h"
-#import "MapboxVectorStyleLine.h"
-#import "MapboxVectorStyleRaster.h"
-#import "MapboxVectorStyleSymbol.h"
-#import "MapboxVectorStyleCircle.h"
+#import <WhirlyGlobe.h>
+#import "private/MapboxVectorStyleSet_private.h"
+#import "private/MaplyVectorStyle_private.h"
+#import "MaplyRenderController_private.h"
+#import <map>
 
-/// @brief A single zoom and value
-@interface MaplyVectorFunctionStop : NSObject
+using namespace WhirlyKit;
 
-/// @brief Zoom level this applies to
-@property (nonatomic) double zoom;
-
-/// @brief Value at that zoom level
-@property (nonatomic) double val;
-
-/// @brief Could also just be a color
-@property (nonatomic,nullable,strong) UIColor *color;
-
-@end
-
-/// @brief These are used to control simple values based on zoom level
-@interface MaplyVectorFunctionStops : NSObject
-
-/// @brief Array of function stops as they apply to value.  These are MaplyVectorFunctionStop objects.
-@property (nonatomic,strong,nullable) NSArray *stops;
-
-/// @brief Used in exponential calculation
-@property (nonatomic,assign) double base;
-
-/// @brief Parse out of a JSON array
-- (id _Nullable)initWithArray:(NSArray * __nonnull)dataArray styleSet:(MapboxVectorStyleSet * __nonnull)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)viewC;
-
-/// @brief Calculate a value given the zoom level
-- (double)valueForZoom:(double)zoom;
-
-/// @brief This version returns colors, assuming we're dealing with colors
-- (UIColor * _Nonnull)colorForZoom:(int)zoom;
-
-/// @brief Returns the minimum value
-- (double)minValue;
-
-/// @brief Returns the maximum value
-- (double)maxValue;
-
-@end
-
-@implementation MapboxTransDouble
-{
-@public
-    double val;
-    MaplyVectorFunctionStops *stops;
-}
-
-- (id)initWithDouble:(double)value
-{
-    self = [super init];
-    val = value;
-    
-    return self;
-}
-
-- (id)initWithStops:(MaplyVectorFunctionStops *)inStops
-{
-    self = [super init];
-    stops = inStops;
-    
-    return self;
-}
-
-- (double)valForZoom:(double)zoom
-{
-    if (stops) {
-        return [stops valueForZoom:zoom];
-    } else
-        return val;
-}
-
-- (double)minVal
-{
-    if (stops) {
-        return [stops minValue];
-    } else
-        return val;
-}
-
-- (double)maxVal
-{
-    if (stops) {
-        return [stops maxValue];
-    } else
-        return val;
-}
-
-@end
-
-@implementation MapboxTransColor
-{
-@public
-    UIColor *color;
-    MaplyVectorFunctionStops *stops;
-}
-
-- (id)initWithColor:(UIColor *)inColor
-{
-    self = [super init];
-    color = inColor;
-    
-    return self;
-}
-
-- (id)initWithStops:(MaplyVectorFunctionStops *)inStops
-{
-    self = [super init];
-    stops = inStops;
-    
-    return self;
-}
- 
-- (UIColor *)colorForZoom:(double)zoom
-{
-    if (stops) {
-        return [stops colorForZoom:(int)zoom];
-    } else
-        return color;
-}
-
+@implementation MaplyLegendEntry
 @end
 
 @implementation MapboxVectorStyleSet
 {
-    NSMutableDictionary *layersByUUID;
+    UIImage *spriteImage;
 }
 
-- (id)initWithJSON:(NSData *)styleJSON settings:(MaplyVectorStyleSettings *)settings viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC filter:(bool (^)(NSMutableDictionary * __nonnull))filterBlock
+- (id __nullable)initWithDict:(NSDictionary * __nonnull)styleDict
+                    settings:(MaplyVectorStyleSettings * __nonnull)settings
+                       viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)viewC
 {
     self = [super init];
     if (!self)
         return nil;
-    
+
     _viewC = viewC;
-    NSError *error = nil;
-    _tileStyleSettings = settings;
-    if (!_tileStyleSettings)
-        _tileStyleSettings = [[MaplyVectorStyleSettings alloc] initWithScale:UIScreen.mainScreen.scale];
-    NSDictionary *styleDict = [NSJSONSerialization JSONObjectWithData:styleJSON options:NULL error:&error];
-    if (!styleDict)
+    VectorStyleSettingsImplRef styleSettings;
+    if (settings)
+        styleSettings = settings->impl;
+    else
+        styleSettings = VectorStyleSettingsImplRef(new VectorStyleSettingsImpl([UIScreen mainScreen].scale));
+    
+    MapboxVectorStyleSetImpl_iOS *styleSetImpl = new MapboxVectorStyleSetImpl_iOS([viewC getRenderControl]->scene,[viewC getRenderControl]->visualView->coordAdapter->getCoordSystem(),styleSettings);
+    style = MapboxVectorStyleSetImpl_iOSRef(styleSetImpl);
+    styleSetImpl->viewC = viewC;
+
+//    iosDictionaryRef dictWrap(new iosDictionary(styleDict));
+
+    // Copy from NSDictionary to our internal version
+    MutableDictionaryCRef dictWrap = [styleDict toDictionaryC];
+    if (!style->parse(NULL,dictWrap))
         return nil;
     
-    _name = styleDict[@"name"];
-    _version = [styleDict[@"version"] integerValue];
-    _constants = styleDict[@"constants"];
     _spriteURL = styleDict[@"sprite"];
     
     // Sources tell us where to get tiles
@@ -183,452 +72,369 @@
             [sources addObject:source];
     }
     
-    // Layers are where the action is
-    NSArray *layerStyles = styleDict[@"layers"];
-    NSMutableArray *layers = [NSMutableArray array];
-    NSMutableDictionary *sourceLayers = [NSMutableDictionary dictionary];
-    layersByUUID = [NSMutableDictionary dictionary];
-    NSMutableDictionary *layersByName = [NSMutableDictionary dictionary];
-    int which = 0;
-    for (NSDictionary *layerStyleIter in layerStyles)
-    {
-        NSDictionary *layerStyle = layerStyleIter;
-        if (filterBlock) {
-            NSMutableDictionary *layerStyleMod = [NSMutableDictionary dictionaryWithDictionary:layerStyle];
-            if (!(filterBlock(layerStyleMod)))
-                continue;
-            layerStyle = layerStyleMod;
-        }
-        MaplyMapboxVectorStyleLayer *layer = [MaplyMapboxVectorStyleLayer VectorStyleLayer:self JSON:layerStyle drawPriority:(1*which + settings.baseDrawPriority)];
-        if (layer)
-        {
-            [layers addObject:layer];
-            layersByUUID[layer.uuid] = layer;
-            layersByName[layer.ident] = layer;
-            if (layer.sourceLayer)
-            {
-                NSMutableArray *sourceEntry = sourceLayers[layer.sourceLayer];
-                if (!sourceEntry)
-                    sourceEntry = [NSMutableArray array];
-                [sourceEntry addObject:layer];
-                sourceLayers[layer.sourceLayer] = sourceEntry;
-            }
-        }
-        
-        which++;
-    }
-    _layers = layers;
     _sources = sources;
-    _layersBySource = sourceLayers;
-    _layersByName = layersByName;
     
     return self;
 }
 
-- (NSArray*)stylesForFeatureWithAttributes:(NSDictionary*)attributes
-                                    onTile:(MaplyTileID)tileID
-                                   inLayer:(NSString*)sourceLayer
-                                     viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+- (id)initWithJSON:(NSData *)styleJSON
+          settings:(MaplyVectorStyleSettings *)settings
+             viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
-    NSArray *layersToRun = _layersBySource[sourceLayer];
-    if (!layersToRun)
+    NSError *error = nil;
+    NSDictionary *styleDict = [NSJSONSerialization JSONObjectWithData:styleJSON options:NULL error:&error];
+    if (!styleDict)
         return nil;
-    NSMutableArray *passedLayers = [NSMutableArray array];
-    for (MaplyMapboxVectorStyleLayer *layer in layersToRun)
-    {
-        if (!layer.filter || [layer.filter testFeature:attributes tile:tileID viewC:viewC])
-            [passedLayers addObject:layer];
+    
+    return [self initWithDict:styleDict settings:settings viewC:viewC];
+}
+
+- (void)dealloc
+{
+    
+}
+
+- (bool)addSprites:(NSDictionary * __nonnull)spriteDict image:(UIImage * __nonnull)image
+{
+    // Make sure this wasn't alreayd added
+    if (spriteImage)
+        return true;
+    
+    spriteImage = image;
+    MaplyTexture *wholeTex = [_viewC addTexture:image desc:nil mode:MaplyThreadCurrent];
+    
+    MapboxVectorStyleSpritesRef newSprites(new MapboxVectorStyleSprites(wholeTex.texID,(int)image.size.width,(int)image.size.height));
+    iosDictionaryRef dictWrap(new iosDictionary(spriteDict));
+    if (newSprites->parse(style, dictWrap)) {
+        style->addSprites(newSprites,wholeTex);
+    } else {
+        return false;
     }
     
-    return passedLayers;
+    return true;
 }
 
-- (BOOL)layerShouldDisplay:(NSString*)sourceLayer tile:(MaplyTileID)tileID
+- (UIColor * __nullable)backgroundColorForZoom:(double)zoom
 {
-    NSArray *layersToRun = _layersBySource[sourceLayer];
+    RGBAColorRef color = style->backgroundColor(NULL,zoom);
+    if (!color)
+        return [UIColor blackColor];
+    return [UIColor colorFromRGBA:*color];
+}
+
+- (NSArray<NSString *> *)layerNames
+{
+    NSMutableArray *names = [NSMutableArray array];
     
-    return (layersToRun.count != 0);
+    for (auto layer : style->layers) {
+        NSString *name = [NSString stringWithUTF8String:layer->ident.c_str()];
+        if (name)
+            [names addObject:name];
+    }
+    
+    return names;
 }
 
-- (MaplyVectorTileStyle*)styleForUUID:(NSString*)uuid viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+- (MapboxLayerType) layerType:(NSString * __nonnull)inLayerName
 {
-    return layersByUUID[uuid];
+    std::string layerName = [inLayerName cStringUsingEncoding:NSUTF8StringEncoding];
+    
+    for (auto layer : style->layers) {
+        if (layer->ident == layerName) {
+            if (dynamic_cast<MapboxVectorLayerBackground *>(layer.get()))
+                return MapboxLayerTypeBackground;
+            else if (dynamic_cast<MapboxVectorLayerCircle *>(layer.get()))
+                return MapboxLayerTypeCircle;
+            else if (dynamic_cast<MapboxVectorLayerFill *>(layer.get()))
+                return MapboxLayerTypeFill;
+            else if (dynamic_cast<MapboxVectorLayerLine *>(layer.get()))
+                return MapboxLayerTypeLine;
+            else if (dynamic_cast<MapboxVectorLayerRaster *>(layer.get()))
+                return MapboxLayerTypeRaster;
+            else if (dynamic_cast<MapboxVectorLayerSymbol *>(layer.get()))
+                return MapboxLayerTypeSymbol;
+        }
+    }
+    
+    return MapboxLayerTypeUnknown;
 }
 
-- (id)constantSubstitution:(id)thing forField:(NSString *)field
+- (void)setLayerVisible:(NSString *__nonnull)inLayerName visible:(bool)visible
 {
-    // Look for a constant substitution
-    if ([thing isKindOfClass:[NSString class]])
-    {
-        NSString *stringThing = thing;
-        // Note: This just handles simple ones with full substitution
-        if ([stringThing characterAtIndex:0] == '@')
-        {
-            id constant = _constants[stringThing];
-            if (constant)
-                thing = constant;
-            else {
-                NSLog(@"Failed to substitute constant %@ for field %@",stringThing,field);
-                return thing;
+    std::string layerName = [inLayerName cStringUsingEncoding:NSUTF8StringEncoding];
+    
+    for (auto layer : style->layers) {
+        if (layer->ident == layerName) {
+            layer->visible = visible;
+            return;
+        }
+    }
+}
+
+- (UIColor * __nullable) colorForLayer:(NSString *__nonnull)inLayerName
+{
+    std::string layerName = [inLayerName cStringUsingEncoding:NSUTF8StringEncoding];
+
+    for (auto layer : style->layers) {
+        if (layer->ident == layerName) {
+            auto layerBack = std::dynamic_pointer_cast<MapboxVectorLayerBackground>(layer);
+            if (layerBack) {
+                auto color = layerBack->paint.color;
+                if (!color)
+                    return nil;
+                return [UIColor colorFromRGBA:color->colorForZoom(0.0)];
+            } else {
+                auto layerSymbol = std::dynamic_pointer_cast<MapboxVectorLayerSymbol>(layer);
+                if (layerSymbol) {
+                    auto color = layerSymbol->paint.textColor;
+                    if (!color)
+                        return nil;
+                    return [UIColor colorFromRGBA:color->colorForZoom(0.0)];
+                } else {
+                    auto layerCircle = std::dynamic_pointer_cast<MapboxVectorLayerCircle>(layer);
+                    if (layerCircle) {
+                        auto color = layerCircle->paint.fillColor;
+                        if (!color)
+                            return nil;
+                        return [UIColor colorFromRGBA:*color];
+                    } else {
+                        auto layerLine = std::dynamic_pointer_cast<MapboxVectorLayerLine>(layer);
+                        if (layerLine) {
+                            auto color = layerLine->paint.color;
+                            if (!color)
+                                return nil;
+                            return [UIColor colorFromRGBA:color->colorForZoom(0.0)];
+                        } else {
+                            auto layerFill = std::dynamic_pointer_cast<MapboxVectorLayerFill>(layer);
+                            if (layerFill) {
+                                auto color = layerFill->paint.color;
+                                if (!color)
+                                    return nil;
+                                return [UIColor colorFromRGBA:color->colorForZoom(0.0)];
+                            }
+                        }
+                    }
+                }
+            }
+            return nil;
+        }
+    }
+    
+    return nil;
+}
+
+- (UIImage *)imageForText:(UIColor *)color size:(CGSize)size
+{
+    UIGraphicsBeginImageContext(size);
+    CGFloat fontSize = size.width - 2.0;
+    UIFont *font = [UIFont fontWithName:@"Arial-BoldMT" size:fontSize];
+    NSString *text = @"T";
+    CGFloat margin = 1.0;
+    [text drawInRect:CGRectMake(margin,margin,size.width-2*margin,size.height-2*margin)
+      withAttributes:@{NSFontAttributeName: font, NSForegroundColorAttributeName: color}];
+    
+    UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    return img;
+}
+
+- (UIImage *)imageForLinear:(UIColor *)color size:(CGSize)size
+{
+    UIGraphicsBeginImageContext(size);
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    CGContextSetLineWidth(ctx, size.width/10.0);
+    [color setStroke];
+    CGContextMoveToPoint(ctx, 0.0, size.height);
+    CGContextAddLineToPoint(ctx, size.width, 0.0);
+    CGContextStrokePath(ctx);
+    
+    UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+
+    return img;
+}
+
+- (UIImage *)imageForSymbol:(const std::string &)symbolName size:(CGSize)size
+{
+    if (!style->sprites)
+        return nil;
+    
+    auto sprite = style->sprites->getSprite(symbolName);
+    if (sprite.name.empty())
+        return nil;
+
+    CGImageRef drawImage = CGImageCreateWithImageInRect(spriteImage.CGImage,
+                                                        CGRectMake(sprite.x, sprite.y, sprite.width, sprite.height));
+    UIImage *img = [UIImage imageWithCGImage:drawImage];
+    CGImageRelease(drawImage);
+
+    return img;
+}
+
+- (UIImage *)imageForPolygon:(UIColor *)color size:(CGSize)size
+{
+    UIGraphicsBeginImageContext(size);
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    CGFloat margin = 1.0;
+    [color setFill];
+    CGContextFillRect(ctx, CGRectMake(0.0, 0.0, size.width, size.height));
+    [UIColor.blackColor setFill];
+    CGContextStrokeRect(ctx, CGRectMake(margin, margin, size.width-2*margin, size.height-2*margin));
+
+    UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+
+    return img;
+}
+
+- (UIImage *)imageForCircle:(UIColor *)color size:(CGSize)size
+{
+    UIGraphicsBeginImageContext(size);
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    [color setFill];
+    CGFloat margin = 1.0;
+    CGContextFillEllipseInRect(ctx, CGRectMake(margin, margin, size.width-2*margin, size.height-2*margin));
+    [UIColor.blackColor setStroke];
+    CGContextStrokeEllipseInRect(ctx, CGRectMake(margin, margin, size.width-2*margin, size.height-2*margin));
+    UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+
+    return img;
+}
+
+- (NSArray<MaplyLegendEntry *> * __nonnull)layerLegend:(CGSize)imageSize group:(bool)useGroups
+{
+    NSMutableArray *legend = [NSMutableArray array];
+    NSMutableDictionary *groups = [NSMutableDictionary dictionary];
+    
+    for (auto layer : style->layers) {
+        UIImage *image = nil;
+        auto layerBackground = std::dynamic_pointer_cast<MapboxVectorLayerBackground>(layer);
+        if (layerBackground) {
+            if (layerBackground->paint.color) {
+                image = [self imageForPolygon:[UIColor colorFromRGBA:layerBackground->paint.color->colorForZoom(0.0)] size:imageSize];
+            }
+        } else {
+            auto layerSymbol = std::dynamic_pointer_cast<MapboxVectorLayerSymbol>(layer);
+            if (layerSymbol) {
+                if (layerSymbol->layout.iconImageField) {
+                    MapboxRegexField textField = layerSymbol->layout.iconImageField->textForZoom(0.0);
+                    if (!textField.chunks.empty())
+                        image = [self imageForSymbol:textField.chunks[0].str size:imageSize];
+                } else if (layerSymbol->paint.textColor) {
+                    image = [self imageForText:[UIColor colorFromRGBA:layerSymbol->paint.textColor->colorForZoom(0.0)] size:imageSize];
+                }
+            } else {
+                auto layerCircle = std::dynamic_pointer_cast<MapboxVectorLayerCircle>(layer);
+                if (layerCircle) {
+                    auto color = layerCircle->paint.fillColor;
+                    if (color)
+                        image = [self imageForCircle:[UIColor colorFromRGBA:*color] size:imageSize];
+                } else {
+                    auto layerLine = std::dynamic_pointer_cast<MapboxVectorLayerLine>(layer);
+                    if (layerLine) {
+                        auto color = layerLine->paint.color;
+                        if (color) {
+                            image = [self imageForLinear:[UIColor colorFromRGBA:color->colorForZoom(0.0)] size:imageSize];
+                        }
+                    } else {
+                        auto layerFill = std::dynamic_pointer_cast<MapboxVectorLayerFill>(layer);
+                        if (layerFill) {
+                            auto color = layerFill->paint.color;
+                            if (color) {
+                                image = [self imageForPolygon:[UIColor colorFromRGBA:color->colorForZoom(0.0)] size:imageSize];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        if (!layer->ident.empty()) {
+            std::string groupName = "";
+            std::string name;
+            if (useGroups) {
+                // Parse the name apart
+                auto pos = layer->ident.find_first_of('_');
+                if (pos != std::string::npos) {
+                    groupName = layer->ident.substr(0,pos);
+                    name = layer->ident.substr(pos+1);
+                } else
+                    name = layer->ident;
+            } else
+                name = layer->ident;
+            NSString *nameStr = [NSString stringWithUTF8String:name.c_str()];
+            if (nameStr) {
+                MaplyLegendEntry *entry = [[MaplyLegendEntry alloc] init];
+                entry.name = nameStr;
+                entry.image = image;
+
+                if (!groupName.empty()) {
+                    NSString *groupNameStr = [NSString stringWithUTF8String:groupName.c_str()];
+                    if (groupNameStr) {
+                        MaplyLegendEntry *group = groups[groupNameStr];
+                        if (!group) {
+                            group = [[MaplyLegendEntry alloc] init];
+                            group.name = groupNameStr;
+                            group.entries = [NSMutableArray array];
+                            groups[groupNameStr] = group;
+                            [legend addObject:group];
+                        }
+                        
+                        [group.entries addObject:entry];
+                    }
+                } else
+                    [legend addObject:entry];
             }
         }
     }
     
-    return thing;
+    return legend;
 }
 
-- (int)intValue:(NSString *)name dict:(NSDictionary *)dict defVal:(int)defVal
-{
-    id thing = dict[name];
-    if (!thing)
-        return defVal;
-    
-    thing = [self constantSubstitution:thing forField:name];
-    
-    if ([thing respondsToSelector:@selector(integerValue)])
-        return [thing integerValue];
-    
-    NSLog(@"Expected integer for %@ but got something else",name);
-    return defVal;
-}
+// These are here just to satisfy the compiler.  We use the underlying C++ calls instead
 
-- (double)doubleValue:(id)thing defVal:(double)defVal
+- (nullable NSArray *)stylesForFeatureWithAttributes:(NSDictionary *__nonnull)attributes
+                                              onTile:(MaplyTileID)tileID
+                                             inLayer:(NSString *__nonnull)layer
+                                               viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC
 {
-    thing = [self constantSubstitution:thing forField:nil];
-    
-    if ([thing respondsToSelector:@selector(doubleValue)])
-        return [thing doubleValue];
-    
-    NSLog(@"Expected double but got something else (%@)",thing);
-    return defVal;
-}
-
-- (double)doubleValue:(NSString *)name dict:(NSDictionary *)dict defVal:(double)defVal
-{
-    id thing = dict[name];
-    if (!thing)
-        return defVal;
-    
-    return [self doubleValue:thing defVal:defVal];
-}
-    
-- (bool)boolValue:(NSString *)name dict:(NSDictionary *)dict onValue:(NSString *)onString defVal:(bool)defVal
-{
-    id thing = dict[name];
-    if (!thing)
-        return defVal;
-    
-    if ([thing isKindOfClass:[NSString class]]) {
-        return [thing isEqualToString:onString];
-    } else
-        return defVal;
-}
-
-- (NSString *)stringValue:(NSString *)name dict:(NSDictionary *)dict defVal:(NSString *)defVal
-{
-    id thing = dict[name];
-    if (!thing)
-        return defVal;
-    
-    thing = [self constantSubstitution:thing forField:name];
-    
-    if ([thing isKindOfClass:[NSString class]])
-        return thing;
-    if ([thing respondsToSelector:@selector(stringValue)])
-        return [thing stringValue];
-    
-    NSLog(@"Expected string for %@ but got something else",name);
-    return defVal;
-}
-
-- (NSArray *)arrayValue:(NSString *)name dict:(NSDictionary *)dict defVal:(NSArray *)defVal
-{
-    id thing = dict[name];
-    if (!thing)
-        return defVal;
-    
-    thing = [self constantSubstitution:thing forField:name];
-    
-    if ([thing isKindOfClass:[NSArray class]])
-        return thing;
-    
-    NSLog(@"Expected array for %@ but got something else",name);
-    return defVal;
-}
-
-- (MaplyVectorFunctionStops *)stopsValue:(id)entry defVal:(id)defEntry
-{
-    entry = [self constantSubstitution:entry forField:nil];
-    
-    NSNumber *base = nil;
-    if ([entry isKindOfClass:[NSDictionary class]])
-    {
-        base = ((NSDictionary *)entry)[@"base"];
-        entry = ((NSDictionary *)entry)[@"stops"];
-    }
-    
-    if (!entry)
-    {
-        NSLog(@"Expecting key word 'stops' in entry %@",defEntry);
-        return defEntry;
-    }
-    
-    MaplyVectorFunctionStops *stops = [[MaplyVectorFunctionStops alloc] initWithArray:entry styleSet:self viewC:self.viewC];
-    if (stops)
-    {
-        if ([base isKindOfClass:[NSNumber class]])
-            stops.base = [base doubleValue];
-        return stops;
-    }
-    return defEntry;
-}
-
-- (MapboxTransDouble *__nullable)transDouble:(NSString * __nonnull)name entry:(NSDictionary *__nonnull)entry defVal:(double)defVal
-{
-    // They pass in the whole dictionary and let us look the field up
-    id theEntry = entry[name];
-    if (!theEntry)
-        return [[MapboxTransDouble alloc] initWithDouble:defVal];
-    theEntry = [self constantSubstitution:theEntry forField:nil];
-
-    // This is probably stops
-    if ([theEntry isKindOfClass:[NSDictionary class]]) {
-        MaplyVectorFunctionStops *stops = [self stopsValue:theEntry defVal:name];
-        if (stops) {
-            return [[MapboxTransDouble alloc] initWithStops:stops];
-        } else {
-            NSLog(@"Expecting key word 'stops' in entry %@",name);
-        }
-    } else if ([theEntry isKindOfClass:[NSNumber class]]) {
-        return [[MapboxTransDouble alloc] initWithDouble:[theEntry doubleValue]];
-    } else {
-        NSLog(@"Unexpected type found in entry %@. Was expecting a double.",name);
-    }
-    
     return nil;
 }
 
-- (MapboxTransColor *__nullable)transColor:(NSString *__nonnull)name entry:(NSDictionary *__nonnull)entry defVal:(UIColor * __nullable)defVal
+- (BOOL)layerShouldDisplay:(NSString *__nonnull)layer tile:(MaplyTileID)tileID
 {
-    // They pass in the whole dictionary and let us look the field up
-    id theEntry = entry[name];
-    if (!theEntry) {
-        if (defVal)
-            return [[MapboxTransColor alloc] initWithColor:defVal];
-        return nil;
-    }
-    theEntry = [self constantSubstitution:theEntry forField:nil];
+    return false;
+}
 
-    // This is probably stops
-    if ([theEntry isKindOfClass:[NSDictionary class]]) {
-        MaplyVectorFunctionStops *stops = [self stopsValue:theEntry defVal:name];
-        if (stops) {
-            return [[MapboxTransColor alloc] initWithStops:stops];
-        } else {
-            NSLog(@"Expecting key word 'stops' in entry %@",name);
-        }
-    } else if ([theEntry isKindOfClass:[NSString class]]) {
-        UIColor *color = [self colorValue:name val:theEntry dict:nil defVal:defVal multiplyAlpha:false];
-        if (color)
-            return [[MapboxTransColor alloc] initWithColor:color];
-        else {
-            NSLog(@"Unexpected type found in entry %@. Was expecting a color.",name);
-        }
-    } else {
-        NSLog(@"Unexpected type found in entry %@. Was expecting a color.",name);
-    }
-    
+- (nullable NSObject<MaplyVectorStyle> *)styleForUUID:(long long)uiid viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC
+{
     return nil;
 }
 
-- (UIColor *__nullable)resolveColor:(MapboxTransColor * __nullable)color opacity:(MapboxTransDouble * __nullable)opacity forZoom:(double)zoom mode:(MBResolveColorType)resolveMode
+- (nullable NSObject<MaplyVectorStyle> *)backgroundStyleViewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
-    // No color means no color
-    if (!color)
-        return nil;
-    
-    UIColor *thisColor = [color colorForZoom:zoom];
-
-    // No opacity, means full opacity
-    if (!opacity)
-        return thisColor;
-    
-    double thisOpacity = [opacity valForZoom:zoom];
-    
-    CGFloat red,green,blue,alpha;
-    [thisColor getRed:&red green:&green blue:&blue alpha:&alpha];
-    switch (resolveMode)
-    {
-        case MBResolveColorOpacityMultiply:
-            return [UIColor colorWithRed:red*thisOpacity green:green*thisOpacity blue:blue*thisOpacity alpha:alpha*thisOpacity];
-            break;
-        case MBResolveColorOpacityReplaceAlpha:
-            return [UIColor colorWithRed:red green:green blue:blue alpha:thisOpacity];
-            break;
-    }
+    return nil;
 }
 
-- (UIColor *)color:(UIColor *)color withOpacity:(double)opacity
+- (NSArray * __nonnull)allStyles
 {
-    CGFloat red,green,blue,alpha;
-    [color getRed:&red green:&green blue:&blue alpha:&alpha];
-    return [UIColor colorWithRed:red*opacity green:green*opacity blue:blue*opacity alpha:alpha*opacity];
+    return [NSMutableArray array];
 }
 
-- (UIColor *)colorValue:(NSString *)name val:(id)val dict:(NSDictionary *)dict defVal:(UIColor *)defVal multiplyAlpha:(bool)multiplyAlpha
+// Returns the C++ class that does the work
+- (WhirlyKit::VectorStyleDelegateImplRef) getVectorStyleImpl
 {
-    id thing = nil;
-    if (dict)
-        thing = dict[name];
-    else
-        thing = val;
-    if (!thing)
-        return defVal;
-    
-    thing = [self constantSubstitution:thing forField:name];
-    
-    if (![thing isKindOfClass:[NSString class]])
-    {
-        NSLog(@"Expecting a string for color (%@)",name);
-        return defVal;
-    }
-    
-    NSString *str = thing;
-    if ([str length] == 0)
-    {
-        NSLog(@"Expecting non-empty string for color (%@)",name);
-        return defVal;
-    }
-    // Hex string
-    if ([str characterAtIndex:0] == '#')
-    {
-        // Hex string
-        NSScanner *scanner = [NSScanner scannerWithString:str];
-        [scanner setScanLocation:1];
-        unsigned int iVal;
-        if (![scanner scanHexInt:&iVal])
-        {
-            NSLog(@"Invalid hex value (%@) in color (%@)",str,name);
-            return defVal;
-        }
-
-        int red,green,blue;
-        int alpha = 255;
-        if ([str length] == 4)
-        {
-            red = (iVal >> 8) & 0xf;  red |= red << 4;
-            green = (iVal >> 4) & 0xf;  green |= green << 4;
-            blue = iVal & 0xf;  blue |= blue << 4;
-        } else if ([str length] > 7) {
-            red = (iVal >> 24) & 0xff;
-            green = (iVal >> 16) & 0xff;
-            blue = (iVal >> 8) & 0xff;
-            alpha = iVal & 0xff;
-        } else {
-            red = (iVal >> 16) & 0xff;
-            green = (iVal >> 8) & 0xff;
-            blue = iVal & 0xff;
-        }
-        return [UIColor colorWithRed:(double)red/255.0 green:(double)green/255.0 blue:(double)blue/255.0 alpha:alpha/255.0];
-    } else if ([str rangeOfString:@"rgb("].location == 0)
-    {
-        NSScanner *scanner = [NSScanner scannerWithString:str];
-        NSMutableCharacterSet *skipSet = [[NSMutableCharacterSet alloc] init];
-        [skipSet addCharactersInString:@"(), "];
-        [scanner setCharactersToBeSkipped:skipSet];
-        [scanner setScanLocation:4];
-        int red,green,blue;
-        [scanner scanInt:&red];
-        [scanner scanInt:&green];
-        [scanner scanInt:&blue];
-        
-        return [UIColor colorWithRed:red/255.0 green:green/255.0 blue:blue/255.0 alpha:1.0];
-    } else if ([str rangeOfString:@"rgba("].location == 0)
-    {
-        NSScanner *scanner = [NSScanner scannerWithString:str];
-        NSMutableCharacterSet *skipSet = [[NSMutableCharacterSet alloc] init];
-        [skipSet addCharactersInString:@"(), "];
-        [scanner setCharactersToBeSkipped:skipSet];
-        [scanner setScanLocation:5];
-        int red,green,blue;
-        [scanner scanInt:&red];
-        [scanner scanInt:&green];
-        [scanner scanInt:&blue];
-        float alpha;
-        [scanner scanFloat:&alpha];
-
-        if (multiplyAlpha)
-            return [UIColor colorWithRed:red/255.0*alpha green:green/255.0*alpha blue:blue/255.0*alpha alpha:alpha];
-        else
-            return [UIColor colorWithRed:red/255.0 green:green/255.0 blue:blue/255.0 alpha:alpha];
-    } else if ([str rangeOfString:@"hsl("].location == 0)
-    {
-        NSScanner *scanner = [NSScanner scannerWithString:str];
-        NSMutableCharacterSet *skipSet = [[NSMutableCharacterSet alloc] init];
-        [skipSet addCharactersInString:@"(),% "];
-        [scanner setCharactersToBeSkipped:skipSet];
-        [scanner setScanLocation:4];
-        int hue,sat,light;
-        [scanner scanInt:&hue];
-        [scanner scanInt:&sat];
-        [scanner scanInt:&light];
-        float newLight = light / 100.0;
-        float newSat = sat / 100.0;
-        newSat = newSat * (newLight < 0.5 ? newLight : 1.0-newLight);
-        
-        return [UIColor colorWithHue:hue/360.0 saturation:2.0*newSat/(newLight+newSat) brightness:newLight+newSat alpha:1.0];
-    } else if ([str rangeOfString:@"hsla("].location == 0)
-    {
-        NSScanner *scanner = [NSScanner scannerWithString:str];
-        NSMutableCharacterSet *skipSet = [[NSMutableCharacterSet alloc] init];
-        [skipSet addCharactersInString:@"(),% "];
-        [scanner setCharactersToBeSkipped:skipSet];
-        [scanner setScanLocation:4];
-        int hue,sat,light;
-        float alpha;
-        [scanner scanInt:&hue];
-        [scanner scanInt:&sat];
-        [scanner scanInt:&light];
-        [scanner scanFloat:&alpha];
-        float newLight = light / 100.0;
-        float newSat = sat / 100.0;
-        newSat = newSat * (newLight < 0.5 ? newLight : 1.0-newLight);
-        
-        return [UIColor colorWithHue:hue/360.0 saturation:2.0*newSat/(newLight+newSat) brightness:newLight+newSat alpha:alpha];
-    }
-    
-    
-    NSLog(@"Didn't recognize format of color (%@)",name);
-    return defVal;
+    return style;
 }
 
-- (NSUInteger)enumValue:(NSString *)name options:(NSArray *)options defVal:(NSUInteger)defVal
+- (void)setZoomSlot:(int)zoomSlot
 {
-    if (!name)
-        return defVal;
+    if (!style)
+        return;
     
-    if (![name isKindOfClass:[NSString class]])
-    {
-        NSLog(@"Expecting string for enumerated type.");
-        return defVal;
-    }
-
-    int which = 0;
-    for (NSString *val in options)
-    {
-        if ([val isEqualToString:name])
-            return which;
-        which++;
-    }
-    
-    NSLog(@"Found unexpected value (%@) in enumerated type",name);
-    return defVal;
-}
-
-- (void)unsupportedCheck:(NSString *)field in:(NSString *)what styleEntry:(NSDictionary *)styleEntry
-{
-    if (styleEntry[field])
-        NSLog(@"Found unsupported field (%@) for (%@)",field,what);
+    style->setZoomSlot(zoomSlot);
 }
 
 @end
@@ -656,485 +462,10 @@
     
     if (!_url && !_tileSpec) {
         NSLog(@"Expecting either URL or tileSpec in source %@",_name);
+        return nil;
     }
     
     return self;
 }
-
-@end
-
-@implementation MaplyMapboxVectorStyleLayer
-{
-    NSString *category;
-}
-
-+ (id)VectorStyleLayer:(MapboxVectorStyleSet *)styleSet JSON:(NSDictionary *)layerDict drawPriority:(int)drawPriority
-{
-    MaplyMapboxVectorStyleLayer *layer = nil;
-    MaplyMapboxVectorStyleLayer *refLayer = nil;
-    
-    // Look for the layer with that name
-    NSString *refLayerName = layerDict[@"ref"];
-    if (refLayer)
-    {
-        if (![refLayerName isKindOfClass:[NSString class]])
-        {
-            NSLog(@"Was expecting string for ref in layer");
-            return nil;
-        }
-        
-        refLayer = styleSet.layersByName[refLayerName];
-        if (!refLayer)
-        {
-            NSLog(@"Didn't find layer named (%@)",refLayerName);
-            return nil;
-        }
-    }
-
-    NSString *type = layerDict[@"type"];
-    if (type && ![type isKindOfClass:[NSString class]])
-    {
-        NSLog(@"Expecting string type for layer");
-        return nil;
-    }
-    if ([type isEqualToString:@"fill"])
-    {
-        MapboxVectorLayerFill *fillLayer = [[MapboxVectorLayerFill alloc] initWithStyleEntry:layerDict parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:styleSet.viewC];
-        layer = fillLayer;
-    } else if ([type isEqualToString:@"line"])
-    {
-        MapboxVectorLayerLine *lineLayer = [[MapboxVectorLayerLine alloc] initWithStyleEntry:layerDict parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:styleSet.viewC];
-        layer = lineLayer;
-    } else if ([type isEqualToString:@"symbol"])
-    {
-        MapboxVectorLayerSymbol *symbolLayer = [[MapboxVectorLayerSymbol alloc] initWithStyleEntry:layerDict parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:styleSet.viewC];
-        layer = symbolLayer;
-    } else if ([type isEqualToString:@"circle"])
-    {
-        MapboxVectorLayerCircle *circleLayer = [[MapboxVectorLayerCircle alloc] initWithStyleEntry:layerDict parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:styleSet.viewC];
-        layer = circleLayer;
-    } else if ([type isEqualToString:@"raster"])
-    {
-        MapboxVectorLayerRaster *rasterLayer = [[MapboxVectorLayerRaster alloc] initWithStyleEntry:layerDict parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:styleSet.viewC];
-        layer = rasterLayer;
-    } else if ([type isEqualToString:@"background"])
-    {
-        MapboxVectorLayerBackground *backLayer = [[MapboxVectorLayerBackground alloc] initWithStyleEntry:layerDict parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:styleSet.viewC];
-        layer = backLayer;
-    }
-    if (layerDict[@"filter"])
-    {
-        layer.filter = [[MapboxVectorFilter alloc] initWithArray:[styleSet arrayValue:@"filter" dict:layerDict defVal:nil] styleSet:styleSet viewC:styleSet.viewC];
-        if (!layer.filter)
-        {
-            NSLog(@"MapboxStyleSet: Failed to parse filter for layer %@",layerDict[@"id"]);
-        }
-    }
-    
-    layer.visible = [styleSet boolValue:@"visibility" dict:layerDict[@"layout"] onValue:@"visible" defVal:true];
-    layer.selectable = styleSet.tileStyleSettings.selectable;
-    
-    return layer;
-}
-
-- (id)initWithStyleEntry:(NSDictionary *)layerDict parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
-{
-    self = [super init];
-    if (!self)
-        return nil;
-    
-    self.styleSet = styleSet;
-    self.drawPriorityPerLevel = styleSet.tileStyleSettings.drawPriorityPerLevel;
-    self.drawPriority = drawPriority;
-    self.uuid = [@(rand()) stringValue];
-    
-    _minzoom = -1;
-    _maxzoom = -1;
-    
-    self.ident = layerDict[@"id"];
-    self.source = [styleSet stringValue:@"source" dict:layerDict defVal:refLayer.source];
-    self.sourceLayer = [styleSet stringValue:@"source-layer" dict:layerDict defVal:refLayer.sourceLayer];
-    self.minzoom = [styleSet intValue:@"minzoom" dict:layerDict defVal:refLayer.minzoom];
-    self.maxzoom = [styleSet intValue:@"maxzoom" dict:layerDict defVal:refLayer.maxzoom];
-    category = [styleSet stringValue:@"wkcategory" dict:layerDict defVal:nil];
-    
-    return self;
-}
-
-- (NSString *)getCategory
-{
-    return category;
-}
-
-- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileInfo *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
-{
-    return nil;
-}
-
-@end
-
-@implementation MapboxVectorFilter
-
-- (id)initWithArray:(NSArray *)filterArray styleSet:(MapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
-{
-    if (![filterArray isKindOfClass:[NSArray class]])
-    {
-        NSLog(@"Expecting array for filter");
-        return nil;
-    }
-    if ([filterArray count] < 1)
-    {
-        NSLog(@"Expecting at least one entry in filter");
-        return nil;
-    }
-    
-    self = [super init];
-    if (!self)
-        return nil;
-    
-    _geomType = MBGeomNone;
-    
-    _filterType = (MapboxVectorFilterType)[styleSet enumValue:[filterArray objectAtIndex:0]
-                options:@[@"==",@"!=",@">",@">=",@"<",@"<=",@"in",@"!in",@"has",@"!has",@"all",@"any",@"none"]
-                 defVal:MBFilterNone];
-    
-    // Filter with two arguments
-    if (_filterType == MBFilterNone)
-    {
-        // That's easy
-    } else if (_filterType <= MBFilterLessThanEqual)
-    {
-        // Filters with two arguments
-        if ([filterArray count] < 3)
-        {
-            NSLog(@"Expecting three arugments for filter of type (%@)",[filterArray objectAtIndex:0]);
-            return nil;
-        }
-        
-        // Attribute name can be name or geometry type
-        _attrName = [filterArray objectAtIndex:1];
-        if ([_attrName isEqualToString:@"$type"])
-        {
-            _geomType = (MapboxVectorGeometryType)[styleSet enumValue:[filterArray objectAtIndex:2] options:@[@"Point",@"LineString",@"Polygon"] defVal:MBGeomNone];
-            if (_geomType == MBGeomNone)
-            {
-                NSLog(@"Unrecognized geometry type (%@) in filter",_attrName);
-                return nil;
-            }
-        }
-        
-        _attrVal = [styleSet constantSubstitution:[filterArray objectAtIndex:2] forField:@"Filter attribute value"];
-        if (!_attrVal)
-            return nil;
-    } else if (_filterType <= MBFilterNotIn)
-    {
-        // Filters with inclusion
-        NSMutableArray *inclVals = [NSMutableArray array];
-        if ([filterArray count] < 3)
-        {
-            NSLog(@"Expecting at least three arguments for filter of type (%@)",[filterArray objectAtIndex:0]);
-            return nil;
-        }
-        _attrName = [filterArray objectAtIndex:1];
-        for (unsigned int ii=2;ii<[filterArray count];ii++)
-        {
-            id val = [filterArray objectAtIndex:ii];
-            val = [styleSet constantSubstitution:val forField:@"Filter attribute value"];
-            if (!val)
-                return nil;
-            [inclVals addObject:val];
-        }
-        _attrVals = inclVals;
-    } else if (_filterType <= MBFilterNotHas)
-    {
-        // Filters with existence
-        if ([filterArray count] < 2)
-        {
-            NSLog(@"Expecting at least two arguments for filter of type (%@)",[filterArray objectAtIndex:0]);
-            return nil;
-        }
-        _attrName = [filterArray objectAtIndex:1];
-    } else if (_filterType == MBFilterAll || _filterType == MBFilterAny)
-    {
-        // Any and all have subfilters
-        NSMutableArray *subFilters = [NSMutableArray array];
-        for (unsigned int ii=1;ii<[filterArray count];ii++)
-        {
-            id val = [filterArray objectAtIndex:ii];
-            MapboxVectorFilter *subFilter = [[MapboxVectorFilter alloc] initWithArray:val styleSet:styleSet viewC:viewC];
-            if (!subFilter)
-                return nil;
-            [subFilters addObject:subFilter];
-        }
-        _subFilters = subFilters;
-    }
-    
-    return self;
-}
-
-- (bool)testFeature:(NSDictionary *)attrs tile:(MaplyTileID)tileID viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
-{
-    bool ret = true;
-    
-    // Compare geometry type
-    if (_geomType != MBGeomNone)
-    {
-        int attrGeomType = [attrs[@"geometry_type"] integerValue] - 1;
-        switch (_filterType)
-        {
-            case MBFilterEqual:
-                ret = attrGeomType == _geomType;
-                break;
-            case MBFilterNotEqual:
-                ret = attrGeomType != _geomType;
-                break;
-            default:
-                break;
-        }
-    } else if (_filterType == MBFilterAll || _filterType == MBFilterAny)
-    {
-        // Run each of the rules as either AND or OR
-        if (_filterType == MBFilterAll)
-        {
-            for (MapboxVectorFilter *filter in _subFilters)
-            {
-                ret &= [filter testFeature:attrs tile:tileID viewC:viewC];
-                if (!ret)
-                    break;
-            }
-        } else if (_filterType == MBFilterAny)
-        {
-            ret = false;
-            for (MapboxVectorFilter *filter in _subFilters)
-            {
-                ret |= [filter testFeature:attrs tile:tileID viewC:viewC];
-                if (ret)
-                    break;
-            }
-        } else
-            ret = false;
-    } else if (_filterType == MBFilterIn || _filterType == MBFilterNotIn)
-    {
-        // Check for attribute value membership
-        bool isIn = false;
-        
-        // Note: Not dealing with differing types well
-        id featAttrVal = attrs[_attrName];
-        if (featAttrVal)
-        {
-            for (id match in _attrVals)
-            {
-                if ([match isEqual:featAttrVal])
-                {
-                    isIn = true;
-                    break;
-                }
-            }
-        }
-        
-        ret = (_filterType == MBFilterIn ? isIn : !isIn);
-    } else if (_filterType == MBFilterHas || _filterType == MBFilterNotHas)
-    {
-        // Check for attribute existence
-        bool canHas = false;
-        
-        id featAttrVal = attrs[_attrName];
-        if (featAttrVal)
-            canHas = true;
-        
-        ret = (_filterType == MBFilterHas ? canHas : !canHas);
-    } else {
-        // Equality related operators
-        id featAttrVal = attrs[_attrName];
-        if (featAttrVal)
-        {
-            if ([featAttrVal isKindOfClass:[NSString class]])
-            {
-                switch (_filterType)
-                {
-                    case MBFilterEqual:
-                        ret = [featAttrVal isEqualToString:_attrVal];
-                        break;
-                    case MBFilterNotEqual:
-                        ret = ![featAttrVal isEqualToString:_attrVal];
-                        break;
-                    default:
-                        // Note: Not expecting other comparisons to strings
-                        break;
-                }
-            } else {
-                NSNumber *featAttrNum = (NSNumber *)featAttrVal;
-                NSNumber *attrNum = (NSNumber *)_attrVal;
-                if ([featAttrNum isKindOfClass:[NSNumber class]])
-                {
-                    switch (_filterType)
-                    {
-                        case MBFilterEqual:
-                            ret = [featAttrNum doubleValue] == [attrNum doubleValue];
-                            break;
-                        case MBFilterNotEqual:
-                            ret = [featAttrNum doubleValue] != [attrNum doubleValue];
-                            break;
-                        case MBFilterGreaterThan:
-                            ret = [featAttrNum doubleValue] > [attrNum doubleValue];
-                            break;
-                        case MBFilterGreaterThanEqual:
-                            ret = [featAttrNum doubleValue] >= [attrNum doubleValue];
-                            break;
-                        case MBFilterLessThan:
-                            ret = [featAttrNum doubleValue] < [attrNum doubleValue];
-                            break;
-                        case MBFilterLessThanEqual:
-                            ret = [featAttrNum doubleValue] <= [attrNum doubleValue];
-                            break;
-                        default:
-                            break;
-                    }
-                } else {
-                    NSLog(@"MapboxVectorFilter: Found numeric comparison that doesn't use numbers.");
-                }
-            }
-        } else {
-            // No attribute means no pass
-            ret = false;
-
-            // A missing value and != is valid
-            if (_filterType == MBFilterNotEqual)
-                ret = true;
-        }
-    }
-    
-    return ret;
-}
-
-@end
-
-@implementation MaplyVectorFunctionStop
-@end
-
-@implementation MaplyVectorFunctionStops
-
-- (id)initWithArray:(NSArray *)dataArray styleSet:(MapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
-{
-    if (![dataArray isKindOfClass:[NSArray class]])
-    {
-        NSLog(@"Expected JSON array for function stops.");
-        return nil;
-    }
-    if ([dataArray count] < 2)
-    {
-        NSLog(@"Expecting at least two arguments for function stops.");
-        return nil;
-    }
-    
-    NSMutableArray *stops = [NSMutableArray array];
-    for (NSArray *stop in dataArray)
-    {
-        if (![stop isKindOfClass:[NSArray class]] || [stop count] != 2)
-        {
-            NSLog(@"Expecting two arguments in each entry for a function stop.");
-            return nil;
-        }
-        
-        MaplyVectorFunctionStop *fStop = [[MaplyVectorFunctionStop alloc] init];
-        fStop.zoom = [[stop objectAtIndex:0] doubleValue];
-        id valObj = [stop objectAtIndex:1];
-        if ([valObj isKindOfClass:[NSNumber class]])
-            fStop.val = [valObj doubleValue];
-        else {
-            // Maybe a color?
-            fStop.color = [styleSet colorValue:nil val:valObj dict:nil defVal:nil multiplyAlpha:true];
-        }
-        [stops addObject:fStop];
-    }
-    
-    self = [super init];
-    if (!self)
-        return nil;
-    
-    _base = 1.0;
-    _stops = stops;
-    
-    return self;
-}
-
-- (double)valueForZoom:(double)zoom
-{
-    MaplyVectorFunctionStop *a = _stops[0],*b = nil;
-    if (zoom <= a.zoom)
-        return a.val;
-    for (int which = 1;which < _stops.count; which++)
-    {
-        b = _stops[which];
-        if (a.zoom <= zoom && zoom < b.zoom)
-        {
-            double ratio = 1.0;
-            if (_base == 1.0) {
-                ratio = (zoom-a.zoom)/(b.zoom-a.zoom);
-            } else {
-                double soFar = zoom-a.zoom;
-                ratio = (pow(_base, soFar) - 1.0) / (pow(_base,b.zoom-a.zoom) - 1.0);
-            }
-            return ratio * (b.val-a.val) + a.val;
-        }
-        a = b;
-    }
-    
-    return b.val;
-}
-
-- (UIColor *)colorForZoom:(int)zoom
-{
-    MaplyVectorFunctionStop *a = _stops[0],*b = nil;
-    if (zoom <= a.zoom)
-        return a.color;
-    for (int which = 1;which < _stops.count; which++)
-    {
-        b = _stops[which];
-        if (a.zoom <= zoom && zoom < b.zoom)
-        {
-            double ratio = 1.0;
-            if (_base == 1.0) {
-                ratio = (zoom-a.zoom)/(b.zoom-a.zoom);
-            } else {
-                double soFar = zoom-a.zoom;
-                ratio = (pow(_base, soFar) - 1.0) / (pow(_base,b.zoom-a.zoom) - 1.0);
-            }
-            CGFloat ac[4],bc[4];
-            [a.color getRed:&ac[0] green:&ac[1] blue:&ac[2] alpha:&ac[3]];
-            [b.color getRed:&bc[0] green:&bc[1] blue:&bc[2] alpha:&bc[3]];
-            CGFloat res[4];
-            for (unsigned int ii=0;ii<4;ii++)
-                res[ii] = ratio * (bc[ii]-ac[ii]) + ac[ii];
-            return [UIColor colorWithRed:res[0] green:res[1] blue:res[2] alpha:res[3]];
-        }
-        a = b;
-    }
-    
-    return b.color;
-}
-
-- (double)minValue
-{
-    double val = MAXFLOAT;
-    
-    for (MaplyVectorFunctionStop *stop in _stops) {
-        val = MIN(val,stop.val);
-    }
-    
-    return val;
-}
-
-- (double)maxValue
-{
-    double val = -MAXFLOAT;
-    
-    for (MaplyVectorFunctionStop *stop in _stops) {
-        val = MAX(val,stop.val);
-    }
-    
-    return val;
-}
-
 
 @end

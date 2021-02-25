@@ -28,7 +28,7 @@ import java.io.File;
 /**
  * The MBTiles Source reads Mapbox style MBTiles files.
  */
-public class MBTiles implements MapboxTileSource
+public class MBTiles
 {
 
     //***********************************************************************//
@@ -228,7 +228,7 @@ public class MBTiles implements MapboxTileSource
     /**
      * Fetch the data blog for a given tile.  This blocks.
      */
-    public byte[] getDataTile(MaplyTileID tileID)
+    public byte[] getDataTile(TileID tileID)
     {
         String[] params = new String[3];
         params[0] = Integer.toString(tileID.level);

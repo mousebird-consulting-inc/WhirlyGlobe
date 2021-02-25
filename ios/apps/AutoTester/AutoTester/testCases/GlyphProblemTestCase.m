@@ -10,11 +10,11 @@
 #define MAX_HEIGHT 2.0
 
 #import "GlyphProblemTestCase.h"
+#import "AutoTester-Swift.h"
 
 @interface GlyphProblemTestCase()
 
-@property (nonatomic, strong) MaplyMBTileSource *tileSource;
-@property (nonatomic, strong) MaplyQuadImageTilesLayer *layer;
+@property (nonatomic, strong) GeographyClassTestCase *testCase;
 
 @property (nonatomic, assign) BOOL isChenge;
 
@@ -28,7 +28,6 @@
 {
     if (self = [super init]) {
         self.name = @"GlyphProblem";
-        self.captureDelay = 1;
         self.implementations = MaplyTestCaseImplementationGlobe;
         
     }
@@ -38,24 +37,13 @@
 
 - (void) setup {
     // set up the data source
-    self.tileSource =
-    [[MaplyMBTileSource alloc] initWithMBTiles:@"geography-class_medres"];
-    
-    // set up the layer
-    self.layer = [[MaplyQuadImageTilesLayer alloc] initWithTileSource:self.tileSource];
-    self.layer.handleEdges = true;
-    self.layer.coverPoles = true;
-    self.layer.requireElev = false;
-    self.layer.waitLoad = false;
-    self.layer.drawPriority = kMaplyImageLayerDrawPriorityDefault;
-    self.layer.singleLevelLoading = false;
-    
+    self.testCase = [[GeographyClassTestCase alloc] init];
 }
 
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC{
     
     [self setup];
-    [globeVC addLayer:self.layer];
+    [_testCase setUpWithGlobe:globeVC];
     
     [globeVC setZoomLimitsMin:MIN_HEIGHT max:MAX_HEIGHT];
     globeVC.keepNorthUp = true;//保持正北朝上

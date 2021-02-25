@@ -34,25 +34,15 @@ import java.util.Date;
  */
 public class ParticleSystem {
 
-    public enum STATE {
+    public enum Type {
         /**
          * The particles are defined as points.
          */
-        ParticleSystemPoint(0),
+        Point,
         /**
          * Particles are defined as rectangles.
          */
-        ParticleSystemRectangle(1);
-
-        private final int value;
-
-        STATE(int value) {
-            this.value = value;
-        }
-
-        public int getValue() {
-            return this.value;
-        }
+        Rectangle;
     }
 
     private ParticleSystem() {
@@ -65,83 +55,62 @@ public class ParticleSystem {
     public ParticleSystem(String name) {
         initialise();
         this.setName(name);
-        this.setParticleSystemType(STATE.ParticleSystemPoint);
+        this.setParticleSystemType(Type.Point);
         this.setLifetime(5.0);
         this.setBatchSize(2000);
         this.setTotalParticles(100000);
-        this.setBasetime(new Date().getTime()/1000.0);
-    }
-
-    /**
-     * Add a texture to the particle system.
-     * <br>
-     * All the textures will be handed over to the shader.
-     * @param texture
-     */
-    public void addTexture(Bitmap texture) {
-        images.add(texture);
-    }
-
-    /**
-     * Return the list of textures being used by the shader.
-     * @return
-     */
-    public ArrayList<Bitmap> getTextures() {
-        return images;
+        this.setBasetime(new Date().getTime() / 1000.0);
     }
 
     public void finalize() {
         dispose();
     }
 
-    public native long getIdent();
+    native private void setName(String name);
 
     /**
-     * The particle system name is used for performance debugging.
-     * @param name Name of the particle system.
+     * Returns the unique ID used by the renderer.
      */
-    public native void setName(String name);
+    public native long getID();
 
     /**
-     * Set the draw priority for the particles
-     */
-    public native void setDrawPriority(int drawPriority);
-
-    /**
-     * Set the point size if the particle system is points.
-     */
-    public native void setPointSize(float pointSize);
-
-    /**
-     * Set the shader by ID.  There are times this is useful, but in
-     * general you should call setShader with the shader.
-     * The type of the particle system.
-     * <br>
      * At present particle systems are just point geometry.
-     * @param particleSystemType The type of the particle system.
+     * @param type The type of the particle system.
      */
-    public void setParticleSystemType(ParticleSystem.STATE type)
+    public void setParticleSystemType(ParticleSystem.Type type)
     {
-        setParticleSystemTypeNative(type.getValue());
+        setParticleSystemTypeNative(type.ordinal());
     }
 
-    native void setParticleSystemTypeNative(int particleSystemType);
+    private native void setParticleSystemTypeNative(int type);
 
     /**
-     * Name of the shader to use for the particles.
-     * This should be a shader already registered with the toolkit.
-     * @param shaderID
+     * Assign a shader to the position stage of this particle system.
      */
-    public native void setShaderID(long shaderID);
-
-    /**
-     * Assign a shader to this particle system.
-     * The shader contains all the code to implement the system.
-     */
-    public void setShader(Shader shader)
+    public void setPositionShader(Shader shader)
     {
-        setShaderID(shader.getID());
+        setPositionShaderID(shader.getID());
     }
+
+    /**
+     * Assign a shader to the position stage of this particle system.
+     * @param shaderID The unique ID of the shader
+     */
+    public native void setPositionShaderID(long shaderID);
+
+    /**
+     * Assign a shader to the render stage of this particle system.
+     */
+    public void setRenderShader(Shader shader)
+    {
+        setRenderShaderID(shader.getID());
+    }
+
+    /**
+     * Assign a shader to the render stage of this particle system.
+     * @param shaderID The unique ID of the shader
+     */
+    public native void setRenderShaderID(long shaderID);
 
     /**
      * Sets the particle lifetime.  The system will try to keep particles around for this long.
@@ -169,6 +138,21 @@ public class ParticleSystem {
     public native double getBasetime();
 
     /**
+     * The total number of particles to display at once.  These will be broken up into
+     * batchSized chunks.
+     * <br>
+     * This is the most particles we'll have on the screen at any time.
+     * Space will be allocated for them, so don't overdo it.
+     * @param totalParticles Total number of particles to be represented at once.
+     */
+    public native void setTotalParticles(int totalParticles);
+
+    /**
+     * Total number of particles to display at once.
+     */
+    public native int getTotalParticles();
+
+    /**
      * Size of the individual batches you add when adding particles.  The total number of
      * particles should be a multiple of this.
      * <br>
@@ -185,21 +169,21 @@ public class ParticleSystem {
     public native int getBatchSize();
 
     /**
-     * The total number of particles to display at once.  These will be broken up into
-     * batchSized chunks.
-     * <br>
-     * This is the most particles we'll have on the screen at any time.
-     * Space will be allocated for them, so don't overdo it.
-     * @param totalParticles Total number of particles to be represented at once.
-     */
-    public native void setTotalParticles(int totalParticles);
-
-    /**
      * Turn the continuous render on or off.  By default the particle system is going to
      * move all the particles all the time.  This means the renderer must execute every frame.
      * There are times where this is not appropriate (e.g. stars) and so we can turn it off.
      */
-    public native void setContinuousRender(boolean cRender);
+    public native void setContinuousUpdate(boolean cRender);
+
+    /**
+     * Set the draw priority for the particles
+     */
+    public native void setDrawPriority(int drawPriority);
+
+    /**
+     * Set the point size if the particle system is points.
+     */
+    public native void setPointSize(float pointSize);
 
     /**
      * Add an attribute that will appear in each batch.  Attributes are data values that
@@ -207,35 +191,63 @@ public class ParticleSystem {
      * @param name The name of the attribute we'll look for in each batch.
      * @param type Type of the attribute.
      */
-    public void addParticleSystemAttribute(String name,ParticleSystemAttribute.MaplyShaderAttrType type)
+    public void addAttribute(String name,Shader.AttributeType type)
     {
-        int which = names.size();
-        names.add(name);
-        types.add(type.getValue());
-        addParticleSystemAttributeNative(name,type.ordinal());
+        addAttributeNative(name,type.ordinal());
     }
 
-    native void addParticleSystemAttributeNative(String name, int type);
-
-    native void addTexID(long texID);
+    private native void addAttributeNative(String name, int type);
 
     /**
-     * Returns a list of particle attributes.  For use internally.
+     * For two stage shaders, these are the varying outputs from one shader to the next.
+     * <br>
+     * Two stage shaders run a position shader and then a regular render shader
+     * from the position output.  Add any varying values you want to share per
+     * vertex from the former to the latter.
+     * @param name The name of the varying output
+     * @param inputName Name of the input to the next shader
+     * @param type Data type of the varying
      */
-    public ParticleSystemAttribute [] getAttrs() {
-        if (names.size() != types.size()) {
-            return null;
-        }
+    public void addVarying(String name,String inputName,Shader.AttributeType type)
+    {
+        addVaryingNative(name,inputName,type.ordinal());
+    }
 
-        ParticleSystemAttribute attrsList[] = new ParticleSystemAttribute[names.size()];
-        for (int i = 0 ; i < attrsList.length; i++) {
-            attrsList[i] = new ParticleSystemAttribute();
-            attrsList[i].setName(names.get(i));
-            attrsList[i].setType(ParticleSystemAttribute.MaplyShaderAttrType.values()[types.get(i)]);
-        }
+    private native void addVaryingNative(String name,String inputName,int type);
 
-        return attrsList;
-     }
+    /**
+     * Add a texture to the particle system.
+     * <br>
+     * All the textures will be handed over to the shader.
+     */
+    public void addTexture(MaplyTexture tex) {
+        addTextureID(tex.texID);
+    }
+
+    /**
+     * Add a texture to the shader by ID.
+     */
+    public native void addTextureID(long texID);
+
+    /**
+     * If set we'll compare against the z buffer.
+     */
+    public native void setZBufferRead(boolean zBufferRead);
+
+    /**
+     * If set, we'll write to the z buffer.
+     */
+    public native void setZBufferWrite(boolean zBufferWrite);
+
+    /**
+     * If the particle system is drawing to a render target, set it here.
+     */
+    public void setRenderTarget(RenderTarget target)
+    {
+        setRenderTargetNative(target.renderTargetID);
+    }
+
+    private native void setRenderTargetNative(long targetID);
 
     static {
         nativeInit();
@@ -244,10 +256,6 @@ public class ParticleSystem {
     private static native void nativeInit();
     native void initialise();
     native void dispose();
+
     private long nativeHandle;
-
-    private ArrayList<String> names = new ArrayList<String>();
-    private ArrayList<Integer> types = new ArrayList<Integer>();
-    private ArrayList<Bitmap> images = new ArrayList<>();
-
 }

@@ -23,7 +23,6 @@ import android.app.Activity;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import org.apache.commons.io.IOUtils;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -34,6 +33,8 @@ import java.util.Calendar;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import okio.Okio;
 
 
 public class MaplyStarModel {
@@ -85,7 +86,7 @@ public class MaplyStarModel {
     ParticleSystem particleSystem;
     ComponentObject particleSystemObj;
     GlobeController viewC;
-    MaplyBaseController.ThreadMode addedMode;
+    RenderController.ThreadMode addedMode;
     Bitmap image;
 
 
@@ -115,7 +116,7 @@ public class MaplyStarModel {
                 Matcher m;
                 try {
                     inputStream = assetMgr.open("maplystarmodel/" + path);
-                    String stars = IOUtils.toString(inputStream, Charset.defaultCharset());
+                    String stars = Okio.buffer(Okio.source(inputStream)).readUtf8();
                     Pattern p = Pattern.compile("[-]?[0-9]*\\.?[0-9]+");
                     m = p.matcher(stars);
                 } finally {
@@ -156,7 +157,7 @@ public class MaplyStarModel {
         }
     }
 
-    public void addToViewc (GlobeController inViewC, MaplyBaseController.ThreadMode mode) {
+    public void addToViewc (GlobeController inViewC, RenderController.ThreadMode mode) {
         this.viewC = inViewC;
         this.addedMode = mode;
 
@@ -168,26 +169,25 @@ public class MaplyStarModel {
         //Really simple shader
         Shader shader = new Shader("Star Shader", vertexShaderTriPoint, (image != null ? fragmentShaderTexTriPoint : fragmentShaderTriPoint), viewC);
         shader.setUniform("u_radius", 6.0);
-        viewC.addShaderProgram(shader, "Star Shader");
-
-        long shaderID = viewC.getScene().getProgramIDBySceneName("Star Shader");
+        viewC.addShaderProgram(shader);
 
         //Set up a simple particle system (that doesn't move)
         particleSystem = new ParticleSystem("Stars");
-        particleSystem.setParticleSystemType(ParticleSystem.STATE.ParticleSystemPoint);
+        particleSystem.setParticleSystemType(ParticleSystem.Type.Point);
         particleSystem.setLifetime(1e20);
         particleSystem.setTotalParticles(stars.size());
         particleSystem.setBatchSize(stars.size());
-        particleSystem.setShaderID(shaderID);
-
-
+        if (shader != null)
+            particleSystem.setRenderShader(shader);
 
         if (image != null){
-            particleSystem.addTexture(image);
+            RenderController.TextureSettings texSet = new RenderController.TextureSettings();
+            MaplyTexture tex = inViewC.addTexture(image, texSet, RenderController.ThreadMode.ThreadCurrent);
+            particleSystem.addTexture(tex);
         }
 
-        particleSystem.addParticleSystemAttribute("a_position", ParticleSystemAttribute.MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_FLOAT3);
-        particleSystem.addParticleSystemAttribute("a_size", ParticleSystemAttribute.MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_FLOAT);
+        particleSystem.addAttribute("a_position", Shader.AttributeType.Float3);
+        particleSystem.addAttribute("a_size", Shader.AttributeType.Float);
 
         particleSystemObj = viewC.addParticleSystem(particleSystem, addedMode);
 

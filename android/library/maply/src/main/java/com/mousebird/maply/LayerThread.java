@@ -49,7 +49,7 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	boolean valid = true;
 	public View view = null;
 	public Scene scene = null;
-	public MaplyRenderer renderer = null;
+	public RenderController renderer = null;
 	ReentrantLock startLock = new ReentrantLock();
 	ArrayList<Layer> layers = new ArrayList<Layer>();
 	// A unique context for this thread
@@ -137,7 +137,7 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	private static final int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
 	
 	// Setting the renderer kicks off activity
-	void setRenderer(MaplyRenderer inRenderer)
+	void setRenderer(RenderController inRenderer)
 	{
 		renderer = inRenderer;
 		
@@ -234,7 +234,6 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 			context = null;
 		}
 
-		// Note: Is this blocking?
 		layers = null;
 		view = null;
 		scene = null;
@@ -283,7 +282,7 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	
 	// Note: Need a removeLayer()
 	
-	ChangeSet changes = new ChangeSet();
+	protected ChangeSet changes = new ChangeSet();
 	Handler changeHandler = null;
 
 	/**
@@ -296,9 +295,12 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 		if (changes == null || newChanges == null)
 			return;
 
-		synchronized(changes)
+		final LayerThread layerThread = this;
+
+		synchronized(this)
 		{
 			changes.merge(newChanges);
+			newChanges.dispose();
 			// Schedule a merge with the scene
 			if (changeHandler == null)
 			{
@@ -307,10 +309,19 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 					@Override
 					public void run()
 					{
-						synchronized (changes) {
+						// Do a pre-scene flush callback on the layers
+						for (Layer layer : layers)
+							layer.preSceneFlush(layerThread);
+
+						// Now merge in the changes
+						synchronized (this) {
 							changeHandler = null;
-							if (scene != null)
-								changes.process(scene);
+							if (scene != null) {
+								changes.process(renderer, scene);
+								changes.dispose();
+
+								changes = new ChangeSet();
+							}
 						}
 					}
 				},true);
@@ -338,6 +349,9 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	 */
 	public Handler addDelayedTask(Runnable run,long time)
 	{
+		if (!valid)
+			return null;
+
 		Handler handler = new Handler(getLooper());
 		handler.postDelayed(run, time);
 		return handler;
@@ -484,6 +498,9 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	// Schedule a lagging update (e.g. not too often, but no less than 100ms
 	void scheduleLateUpdate(long delay)
 	{
+		if (!valid)
+			return;
+
 		synchronized(this)
 		{
 			if (trailingHandle != null)
@@ -513,7 +530,7 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 		}
 	}
 	
-	static long UpdatePeriod = 100;
+	public static long UpdatePeriod = 100;
 	
 	// Called when the view updates its information
 	public void viewUpdated(View view)

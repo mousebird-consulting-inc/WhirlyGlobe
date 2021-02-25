@@ -3,7 +3,7 @@
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 3/2/15
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,40 +18,13 @@
  *
  */
 
-#import "MaplyScreenObject.h"
+#import "visual_objects/MaplyScreenObject.h"
 #import <vector>
-
-namespace WhirlyKit
-{
-// Extremely simple polygon class
-class SimplePoly
-{
-public:
-    // Texture or UIImage
-    id texture;
-    UIColor *color;
-    std::vector<Point2d> pts;
-    std::vector<TexCoord> texCoords;
-};
-
-// Wraps strings with size and translation
-class StringWrapper
-{
-public:
-    StringWrapper() : mat(mat.Identity()), str(nil) { }
-    
-    Eigen::Matrix3d mat;
-    CGSize size;
-    NSAttributedString *str;
-};
-}
 
 @interface MaplyScreenObject()
 {
 @public
+    WhirlyKit::ScreenObject screenObj;
     __weak NSObject<MaplyRenderControllerProtocol> *viewC;
-    // 2D polygons
-    std::vector<WhirlyKit::SimplePoly> polys;
-    std::vector<WhirlyKit::StringWrapper> strings;
 }
 @end

@@ -3,23 +3,25 @@
 //  AutoTester
 //
 //  Created by jmnavarro on 3/11/15.
-//  Copyright © 2015-2017 mousebird consulting. All rights reserved.
+//  Copyright © 2015-2017 mousebird consulting.
 //
 
 #import "WideVectorsTestCase.h"
 #import "MaplyBaseViewController.h"
 #import "MaplyTextureBuilder.h"
 #import "MaplyScreenLabel.h"
-#import "GeographyClassTestCase.h"
 #import "WhirlyGlobeViewController.h"
 #import "MaplyViewController.h"
+#import "AutoTester-Swift.h"
 
 @implementation WideVectorsTestCase
+{
+    GeographyClassTestCase * baseCase;
+}
 
 - (instancetype)init
 {
 	if (self = [super init]) {
-		self.captureDelay = 20;
 		self.name = @"Wide Vectors";
 		self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
 	}
@@ -57,16 +59,12 @@
 	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
 		^{
 			// Add the vectors at three different levels
-
-			MaplyVectorDatabase *vecDb = [[MaplyVectorDatabase alloc] initWithShape:@"tl_2013_06075_roads"];
-			if (vecDb) {
-				MaplyVectorObject *vecObj = [vecDb fetchAllVectors];
-				if (vecObj) {
-					[self addWideVectors:vecObj baseViewC:baseViewC
-						   dashedLineTex:dashedLineTex
-						   filledLineTex:filledLineTex];
-				}
-			}
+            MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] initWithShapeFile:@"tl_2013_06075_roads"];
+            if (vecObj) {
+                [self addWideVectors:vecObj baseViewC:baseViewC
+                       dashedLineTex:dashedLineTex
+                       filledLineTex:filledLineTex];
+            }
 		});
 }
 
@@ -217,10 +215,12 @@
     [self addGeoJson:@"sawtooth.geojson" viewC:viewC];
     [self addGeoJson:@"moving-lawn.geojson" viewC:viewC];
     [self addGeoJson:@"spiral.geojson" viewC:viewC];
-    [self addGeoJson:@"square.geojson" viewC:viewC];
+    [self addGeoJson:@"square.geojson" dashPattern:@[@2, @2] width:1.0 viewC:viewC];
     [self addGeoJson:@"track.geojson" viewC:viewC];
     [self addGeoJson:@"uturn2.geojson" dashPattern:@[@16, @16] width:40 viewC:viewC];
     
+    [self addGeoJson:@"USA.geojson" viewC:viewC];
+
 //    [self addGeoJson:@"testJson.json" viewC:viewC];
     
     //    [self addGeoJson:@"straight.geojson"];
@@ -230,16 +230,16 @@
 
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC{
 	
-	GeographyClassTestCase * baseLayer = [[GeographyClassTestCase alloc]init];
-	[baseLayer setUpWithGlobe:globeVC];
+	baseCase = [[GeographyClassTestCase alloc]init];
+	[baseCase setUpWithGlobe:globeVC];
 	[self wideLineTest:globeVC];
     [globeVC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) time:0.1];
 
 }
 
 - (void)setUpWithMap:(MaplyViewController *)mapVC{
-	GeographyClassTestCase * baseLayer = [[GeographyClassTestCase alloc]init];
-	[baseLayer setUpWithMap:mapVC];
+	baseCase = [[GeographyClassTestCase alloc]init];
+	[baseCase setUpWithMap:mapVC];
 	[self wideLineTest:mapVC];
     [mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) time:0.1];
     [self loadShapeFile:mapVC];

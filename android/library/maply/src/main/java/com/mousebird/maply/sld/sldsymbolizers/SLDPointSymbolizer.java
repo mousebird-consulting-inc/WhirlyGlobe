@@ -23,12 +23,12 @@ package com.mousebird.maply.sld.sldsymbolizers;
 import android.graphics.Bitmap;
 import android.util.Log;
 
-import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.RenderController;
+import com.mousebird.maply.RenderControllerInterface;
 import com.mousebird.maply.VectorStyleSettings;
 import com.mousebird.maply.VectorTileMarkerStyle;
 import com.mousebird.maply.VectorTileStyle;
 import com.mousebird.maply.sld.sldstyleset.SLDParseHelper;
-import com.mousebird.maply.MaplyTexture;
 import com.mousebird.maply.MarkerInfo;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -49,7 +49,7 @@ public class SLDPointSymbolizer extends SLDSymbolizer {
 
     public SLDPointSymbolizer(XmlPullParser xpp, SLDSymbolizerParams symbolizerParams) throws XmlPullParserException, IOException {
 
-        MaplyBaseController viewC = symbolizerParams.getBaseController();
+        RenderControllerInterface viewC = symbolizerParams.getBaseController();
         VectorStyleSettings vectorStyleSettings = symbolizerParams.getVectorStyleSettings();
 
         Bitmap bitmap = null;
@@ -92,7 +92,7 @@ public class SLDPointSymbolizer extends SLDSymbolizer {
             }
         }
 
-        markerInfo.setDrawPriority(symbolizerParams.getRelativeDrawPriority() + MaplyBaseController.MarkerDrawPriorityDefault);
+        markerInfo.setDrawPriority(symbolizerParams.getRelativeDrawPriority() + RenderController.MarkerDrawPriorityDefault);
         vectorTileMarkerStyle = new VectorTileMarkerStyle(markerInfo, bitmap, vectorStyleSettings, viewC);
         symbolizerParams.incrementRelativeDrawPriority();
     }

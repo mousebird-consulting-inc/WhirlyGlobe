@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 10/16/14.
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@
  *
  */
 
-#import "MaplyMatrix.h"
-#import <WhirlyGlobe.h>
+#import "math/MaplyMatrix.h"
+#import <WhirlyGlobe_iOS.h>
 
 @interface MaplyMatrix ()
 

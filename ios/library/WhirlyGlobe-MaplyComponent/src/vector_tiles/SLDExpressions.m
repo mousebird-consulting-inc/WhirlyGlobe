@@ -3,10 +3,10 @@
 //  SLDTest
 //
 //  Created by Ranen Ghosh on 2016-08-12.
-//  Copyright © 2016-2017 mousebird consulting. All rights reserved.
+//  Copyright © 2016-2019 mousebird consulting.
 //
 
-#import "SLDExpressions.h"
+#import "vector_styles/SLDExpressions.h"
 #import "DDXML.h"
 
 @implementation SLDExpression
@@ -35,7 +35,15 @@
 - (_Nullable id)initWithElement:(DDXMLElement *)element {
     self = [super init];
     if (self) {
-        self.literal = [element stringValue];
+        NSString *literalString = [element stringValue];
+        int intVal;
+        double dVal;
+        if ([[NSScanner scannerWithString:literalString] scanInt:&intVal]) {
+            self.literal = [NSNumber numberWithInt:intVal];
+        } else if ([[NSScanner scannerWithString:literalString] scanDouble:&dVal]) {
+            self.literal = [NSNumber numberWithDouble:dVal];
+        } else
+            self.literal = literalString;
         self.expression = [NSExpression expressionForConstantValue:self.literal];
     }
     return self;

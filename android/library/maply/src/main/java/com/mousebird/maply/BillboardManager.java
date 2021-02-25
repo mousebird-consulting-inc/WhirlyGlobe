@@ -38,7 +38,7 @@ public class BillboardManager {
     /**
      * Add billboards for display
      */
-    public native long addBillboards(List<Billboard> billboards, BillboardInfo billboardInfo, long billShader, ChangeSet changes);
+    public native long addBillboards(Billboard[] billboards, BillboardInfo billboardInfo, ChangeSet changes);
 
     /**
      * Enable/disable active billboards

@@ -3,11 +3,11 @@
 //  AutoTester
 //
 //  Created by Steve Gifford on 6/25/16.
-//  Copyright © 2016-2017 mousebird consulting. All rights reserved.
+//  Copyright © 2016-2017 mousebird consulting.
 //
 
 #import "ShapefileTestCase.h"
-#import "GeographyClassTestCase.h"
+#import "AutoTester-Swift.h"
 
 @implementation ShapefileTestCase
 {
@@ -20,7 +20,6 @@
 {
     if (self = [super init]) {
         self.name = @"Shapefile";
-        self.captureDelay = 5;
         self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
         
     }
@@ -44,7 +43,8 @@
     baseViewC = globeVC;
     baseCase = [[GeographyClassTestCase alloc]init];
     [baseCase setUpWithGlobe:globeVC];
-    
+    [globeVC animateToPosition:MaplyCoordinateMakeWithDegrees(-100.0, 40.0) time:1.0];
+
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
                    ^{
                        [self overlayShapefile];
@@ -57,6 +57,7 @@
     baseViewC = mapVC;
     baseCase = [[GeographyClassTestCase alloc]init];
     [baseCase setUpWithMap:mapVC];
+    [mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-100.0, 40.0) time:1.0];
 
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
                    ^{
@@ -64,13 +65,6 @@
                    });
 }
 
-- (void) tearDownWithMap:(MaplyViewController *)mapVC {
-    [baseViewC removeObject:compObj];
-}
-
-- (void)tearDownWithGlobe:(WhirlyGlobeViewController *)globeVC{
-    [baseViewC removeObject:compObj];
-}
 - (void) handleSelection:(MaplyBaseViewController *)viewC
                 selected:(NSObject *)selectedObj
 {
@@ -82,7 +76,7 @@
         if ([theVector centroid:&location]) {
             MaplyAnnotation *annotate = [[MaplyAnnotation alloc]init];
             annotate.title = @"Selected";
-            annotate.subTitle = (NSString *)theVector.userObject;
+            annotate.subTitle = (NSString *)theVector.attributes[@"title"];
             [viewC addAnnotation:annotate forPoint:location offset:CGPointZero];
         }
     }

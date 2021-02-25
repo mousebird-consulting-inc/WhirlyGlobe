@@ -32,13 +32,13 @@ package com.mousebird.maply;
 public class GlobeAnimateRotation implements GlobeView.AnimationDelegate
 {
 	GlobeView globeView = null;
-	MaplyRenderer renderer = null;
+	RenderController renderer = null;
 	Quaternion startQuat = null;
 	Quaternion endQuat = null;
 	double startHeight,endHeight;
 	double startTime,animTime;
 
-	public GlobeAnimateRotation(GlobeView inGlobeView,MaplyRenderer inRender,Quaternion newQuat,double newHeight,double animLen)
+	public GlobeAnimateRotation(GlobeView inGlobeView,RenderController inRender,Quaternion newQuat,double newHeight,double animLen)
 	{
 		globeView = inGlobeView;
 		renderer = inRender;

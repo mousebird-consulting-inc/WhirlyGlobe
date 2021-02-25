@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 10/18/13.
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,24 +18,15 @@
  *
  */
 
-#import "MaplyImageTile.h"
+#import "loading/MaplyImageTile.h"
 #import "WhirlyGlobe.h"
-
-typedef enum {MaplyImgTypeImage,MaplyImgTypeData,MaplyImgTypeRawImage,MaplyImgTypePlaceholder} MaplyImgType;
+#import "ImageTile_iOS.h"
 
 @interface MaplyImageTile()
 {
 @public
-    int _width,_height,_components;
-    int _targetWidth,_targetHeight;
-    
-    NSArray *stuff;
+    // All the action is in the C++ object
+    WhirlyKit::ImageTile_iOSRef imageTile;
 }
-
-// Generate a WhirlyKit compatible tile
-- (WhirlyKitLoadedTile *)wkTile:(int)borderTexel convertToRaw:(bool)convertToRaw;
-
-// Internal type
-@property (nonatomic) MaplyImgType type;
 
 @end

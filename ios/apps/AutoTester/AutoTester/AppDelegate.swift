@@ -3,7 +3,7 @@
 //  HelloEarthSwift
 //
 //  Created by jmnavarro on 18/08/15.
-//  Copyright (c) 2015 Mousebird. All rights reserved.
+//  Copyright (c) 2015-2019 mousebird consulting. All rights reserved.
 //
 
 import UIKit
@@ -15,33 +15,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 	var window: UIWindow?
 
 
-	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-/*
-		let path = Bundle.main.path(forResource: "Info", ofType: "plist")
-		if let path = path {
-			let dictionary = NSDictionary.init(contentsOfFile: path)
-			if let dictionary = dictionary {
-				let key = dictionary.value(forKey: "Dropbox Key")
-				if let key = key {
-					Dropbox.setupWithAppKey(key as! String)
-				}
-			}
-		}
- */
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 		return true
 	}
 
-	func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey : Any]) -> Bool {
-/*
-		if let authResult = Dropbox.handleRedirectURL(url) {
-			switch authResult {
-			case .success(let token):
-				print("Success! User is logged into Dropbox with token: \(token)")
-			case .error(let error, let description):
-				print("Error \(error): \(description)")
-			}
-		}
-*/
+    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any]) -> Bool {
 		return false
 	}
 

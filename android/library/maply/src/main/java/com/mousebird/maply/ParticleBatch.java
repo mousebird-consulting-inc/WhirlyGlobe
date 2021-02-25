@@ -30,8 +30,7 @@ package com.mousebird.maply;
  */
 public class ParticleBatch {
 
-    private ParticleSystem partSys;
-    private double time;
+    public ParticleSystem partSys;
 
     private ParticleBatch() {
     }
@@ -45,27 +44,24 @@ public class ParticleBatch {
     public ParticleBatch(ParticleSystem partSys) {
         initialise();
         this.partSys = partSys;
-        this.setBatchSize(this.partSys.getBatchSize());
+        this.setPartSysNative(this.partSys);
     }
 
     public void finalize() {
         dispose();
     }
 
-	/**
-     * Batch size for MaplyParticleBatch.
-     * Should match the particle systems batch size
-     * @param batchSize Batch size for MaplyParticleBatch.
-     */
-    private native void setBatchSize(int batchSize);
+    private native void setPartSysNative(ParticleSystem partSys);
 
-	/**
-     * @return Batch size for MaplyParticleBatch.
+    /**
+     * This will be set by default.  However, you can control what the time basis for a particle batch is.
      */
-    public native int getBatchSize();
+    public native void setTime(double time);
 
-    public native void addAttributeValues(float[] data);
-    public native void addAttributeValues(char[] data);
+    /**
+     * The time basis is used to offset times passed into the particle batch.
+     */
+    public native double getTime();
 
     /**
      * Add an attribute array of the given name.
@@ -74,19 +70,7 @@ public class ParticleBatch {
      * The name must correspond and the length of the data must match.
      * @return true if the attribute array was valid, false otherwise.
      */
-    public boolean addAttribute(String attrName, float[] data) {
-        for (ParticleSystemAttribute attr : this.partSys.getAttrs()) {
-            if (attrName.equals(attr.getName())) {
-                // Found. Now make sure the size matches
-                if (data.length * (Float.SIZE / 8) != attr.getSize() * this.getBatchSize()) {
-                    return false;
-                }
-                this.addAttributeValues(data);
-                return true;
-            }
-        }
-        return false;
-    }
+    public native boolean addAttribute(String name,float[] data);
 
     /**
      * Add an attribute array of the given name.
@@ -95,20 +79,7 @@ public class ParticleBatch {
      * The name must correspond and the length of the data must match.
      * @return true if the attribute array was valid, false otherwise.
      */
-    public boolean addAttribute(String attrName, char[] data)
-    {
-        for (ParticleSystemAttribute attr : this.partSys.getAttrs()) {
-            if (attrName.equals(attr.getName())) {
-                // Found. Now make sure the size matches
-                if (data.length != attr.getSize() * this.getBatchSize()) {
-                    return false;
-                }
-                this.addAttributeValues(data);
-                return true;
-            }
-        }
-        return false;
-    }
+    public native boolean addAttribute(String name,char[] data);
 
 	/**
      * Tests if the batch is valid.
@@ -116,9 +87,8 @@ public class ParticleBatch {
      * This checks if all the attribute arrays are present and valid.
      * @return if the batch is valid.
      */
-    public boolean isValid() {
-        return this.partSys.getAttrs().length == this.getAttributesValueSize();
-    }
+    public native boolean isValid();
+
     static {
         nativeInit();
     }
@@ -127,16 +97,4 @@ public class ParticleBatch {
     native void initialise();
     native void dispose();
     private long nativeHandle;
-
-    /**
-     * Number of attributes the batch needs.
-     */
-    public native int getAttributesValueSize();
-
-	/**
-     * @return The particle system this batch belongs to.
-     */
-    public ParticleSystem getPartSys() {
-        return this.partSys;
-    }
 }

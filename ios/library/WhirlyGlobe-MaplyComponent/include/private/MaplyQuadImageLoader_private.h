@@ -17,25 +17,15 @@
  *
  */
 
-#import "MaplyQuadImageLoader.h"
+#import "loading/MaplyQuadLoader.h"
 #import "QuadTileBuilder.h"
 #import "MaplyQuadSampler_private.h"
+#import "MaplyQuadLoader_private.h"
+#import "loading/MaplyQuadImageLoader.h"
+#import "QuadImageFrameLoader_iOS.h"
 
 @interface MaplyQuadImageLoaderBase()
-{
-@public
-    NSObject<MaplyTileFetcher> *tileFetcher;
-    NSObject<MaplyLoaderInterpreter> *loadInterp;
-    
-    WhirlyKitQuadTileBuilder * __weak builder;
-    WhirlyKitQuadDisplayLayerNew * __weak layer;
-    int minLevel,maxLevel;
-    GLenum texType;
-    WhirlyKit::SimpleIdentity shaderID;
-    
-    MaplyBaseViewController * __weak viewC;
-    MaplyRenderTarget * __weak renderTarget;
-    MaplyQuadSamplingLayer *samplingLayer;
-}
+
+- (instancetype)initWithViewC:(NSObject<MaplyRenderControllerProtocol> *)inViewC;
 
 @end

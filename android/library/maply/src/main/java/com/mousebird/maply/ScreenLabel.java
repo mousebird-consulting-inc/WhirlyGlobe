@@ -62,8 +62,31 @@ public class ScreenLabel
 	// If set, this object is selectable
 	public boolean selectable = false;
 
-	// If set, this is the individual label's layout importance
+	/**
+	 * The layout engine controls how text is displayed.  It tries to avoid overlaps
+	 * and takes priority into account.  The layout importance controls which labels
+	 * (or other features) are laid out first.  Bigger is more important.
+	 * <p>
+	 * Defaults to MAXFLOAT, which is off.  That means the layout engine does not control
+	 * the associated labels.
+	 */
 	public float layoutImportance = 0.f;
+
+	/**
+	 * The layout placement controls where we can put the label relative to
+	 * its point.
+	 */
+	public int layoutPlacement = -1;
+
+	/**
+	 * If set, this is the size of the object as seen by the layout engine.
+	 * If not set, it uses the display size
+	 */
+	public Point2d layoutSize = null;
+
+	// If set, this is a string used to uniquely identify this string
+	// Used for deconfliction in map display
+	public String uniqueID = null;
 
 	/**
 	 * For selection, we include a user accessible object pointer.  You use

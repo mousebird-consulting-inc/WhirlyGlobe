@@ -30,7 +30,7 @@ package com.mousebird.maply;
  */
 public class Layer
 {
-	protected LayerThread layerThread = null;
+	public LayerThread layerThread = null;
 
 	/**
 	 * Once your layer is created and handed to the LayerThread, it needs to
@@ -43,6 +43,15 @@ public class Layer
 	public void startLayer(LayerThread inLayerThread)
 	{
 		layerThread = inLayerThread;
+	}
+
+	/**
+	 * Called on the layer thread right before we flush changes out to the scene.
+	 * You can be guaranteed that no changes you make appear before this is called.
+	 * So it's nice for syncing up display state with the main thread.
+	 */
+	public void preSceneFlush(LayerThread layerThread)
+	{
 	}
 
 	/**

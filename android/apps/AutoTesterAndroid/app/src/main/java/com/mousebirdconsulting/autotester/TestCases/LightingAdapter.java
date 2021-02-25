@@ -20,7 +20,7 @@
 package com.mousebirdconsulting.autotester.TestCases;
 
 import com.mousebird.maply.Light;
-import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.BaseController;
 import com.mousebird.maply.Point3d;
 
 import java.util.ArrayList;
@@ -41,10 +41,10 @@ public class LightingAdapter {
         }
     }
 
-    private MaplyBaseController viewC;
+    private BaseController viewC;
     private List<LocationInfo> locations;
 
-    public LightingAdapter(MaplyBaseController viewC) {
+    public LightingAdapter(BaseController viewC) {
         this.viewC = viewC;
         locations = new ArrayList<>();
         locations.add(new LocationInfo("Kansas City",39.1, -94.58));

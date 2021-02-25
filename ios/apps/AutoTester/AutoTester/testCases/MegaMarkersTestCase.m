@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by jmnavarro on 2/11/15.
-//  Copyright © 2015-2017 mousebird consulting. All rights reserved.
+//  Copyright © 2015-2017 mousebird consulting.
 //
 
 #import "MegaMarkersTestCase.h"
@@ -17,7 +17,6 @@
 - (instancetype)init
 {
 	if (self = [super init]) {
-		self.captureDelay = 3;
 		self.name = @"Mega Markers";
 		self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
 	}
@@ -26,8 +25,8 @@
 
 - (void) insertMegaMarkers: (MaplyBaseViewController*) theView
 {
-	int numMegaMarkerImages = 1500;
-	int numMegaMarkers = 1000;
+	const int numMegaMarkerImages = 1500;
+	const int numMegaMarkers = 1000;
 
 	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
 	^{

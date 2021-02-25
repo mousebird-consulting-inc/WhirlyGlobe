@@ -3,10 +3,10 @@
 //  SLDTest
 //
 //  Created by Ranen Ghosh on 2016-08-12.
-//  Copyright © 2016-2017 mousebird consulting. All rights reserved.
+//  Copyright © 2016-2019 mousebird consulting.
 //
 
-#import "SLDOperators.h"
+#import "vector_styles/SLDOperators.h"
 #import "DDXML.h"
 
 @implementation SLDOperator

@@ -3,11 +3,11 @@
 //  AutoTester
 //
 //  Created by Steve Gifford on 11/2/16.
-//  Copyright © 2016-2017 mousebird consulting. All rights reserved.
+//  Copyright © 2016-2017 mousebird consulting.
 //
 
 #import "TextureVectorTestCase.h"
-#import "GeographyClassTestCase.h"
+#import "AutoTester-Swift.h"
 
 @implementation TextureVectorTestCase
 {
@@ -18,7 +18,6 @@
 {
     if (self = [super init]) {
         self.name = @"Textured Vectors";
-        self.captureDelay = 5;
         self.implementations = MaplyTestCaseImplementationGlobe;
     }
     
@@ -80,10 +79,7 @@ static const float ClipGridSize = 2.0/180.0*M_PI;
             }
         }
     }
-    
-    // Note: At this point you could cache the country vectors on disk and read them back in
-    //       You might want this to speed things up
-    
+        
     // Add all the vectors at once to be more efficient
     // The geometry gets grouped together, which is nice and fast
     [baseVC addVectors:tessObjs desc:
@@ -119,7 +115,8 @@ static const float ClipGridSize = 2.0/180.0*M_PI;
     globeVC.keepNorthUp = true;
     self.baseView = [[GeographyClassTestCase alloc]init];
     [self.baseView setUpWithGlobe:globeVC];
-    
+    [globeVC animateToPosition:MaplyCoordinateMakeWithDegrees(-100.0, 0.0) time:1.0];
+
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
                    ^{
                        //Overlay Countries
@@ -134,6 +131,7 @@ static const float ClipGridSize = 2.0/180.0*M_PI;
 
     self.baseView = [[GeographyClassTestCase alloc]init];
     [self.baseView setUpWithMap:mapVC];
+    [mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-100.0, 0.0) time:1.0];
 
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
                    ^{

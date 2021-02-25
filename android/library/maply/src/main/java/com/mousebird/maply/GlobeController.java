@@ -45,12 +45,12 @@ import static android.R.attr.y;
  * @author sjg
  *
  */
-public class GlobeController extends MaplyBaseController implements View.OnTouchListener, Choreographer.FrameCallback
+public class GlobeController extends BaseController implements View.OnTouchListener, Choreographer.FrameCallback
 {
 	/**
 	 * Settings needed on startup so we can create the proper elements.
 	 */
-	public static class Settings extends MaplyBaseController.Settings
+	public static class Settings extends BaseController.Settings
 	{
 		/**
 		 * This is the background color to set.  We need this early so
@@ -71,7 +71,7 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 	{
 		super(mainActivity,null);
 
-		Init(mainActivity,clearColor);
+		Init(mainActivity,renderControl.clearColor);
 	}
 
 	protected void Init(Activity mainActivity,int clearColor)
@@ -81,8 +81,7 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 		coordAdapter = new FakeGeocentricDisplayAdapter();
 
 		// Create the scene and map view
-		// Note: Expose the cull tree depth
-		globeScene = new GlobeScene(coordAdapter,1);
+		globeScene = new Scene(coordAdapter,renderControl);
 		scene = globeScene;
 		globeView = new GlobeView(this,coordAdapter);
 		view = globeView;
@@ -132,7 +131,7 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 	}
 
 	// Map version of scene
-	GlobeScene globeScene = null;
+	Scene globeScene = null;
 
 	/**
 	 * True if the globe is keeping north facing up on the screen.
@@ -197,7 +196,7 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 		CoordSystem coordSys = coordAdapter.getCoordSystem();
 
 		Matrix4d modelMat = globeView.calcModelViewMatrix();
-		Point3d dispPt = globeView.pointOnSphereFromScreen(screenPt, modelMat, renderWrapper.maplyRender.frameSize, false);
+		Point3d dispPt = globeView.pointOnSphereFromScreen(screenPt, modelMat, renderWrapper.maplyRender.get().frameSize, false);
 		if (dispPt == null)
 			return null;
 		Point3d localPt = coordAdapter.displayToLocal(dispPt);
@@ -208,6 +207,25 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 			return null;
 		return new Point2d(geoCoord.getX(),geoCoord.getY());
 	}
+
+	/**
+	 * Return the model point corresponding to a screen point.
+	 *
+	 * Models space is centered on the globe with a radius of 1.0.
+	 *
+	 * Will return nil if the screen point does not intersect the globe.
+	 */
+	public Point3d modelPointFromScreen(Point2d screenPt)
+	{
+		CoordSystemDisplayAdapter coordAdapter = globeView.getCoordAdapter();
+		CoordSystem coordSys = coordAdapter.getCoordSystem();
+
+		Matrix4d modelMat = globeView.calcModelViewMatrix();
+		Point3d dispPt = globeView.pointOnSphereFromScreen(screenPt, modelMat, renderWrapper.maplyRender.get().frameSize, false);
+
+		return dispPt;
+	}
+
 	
 	/**
 	 * Returns what the user is currently looking at in geographic extents.
@@ -216,7 +234,7 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 	{
 		Mbr geoMbr = new Mbr();
 
-		Point2d frameSize = renderWrapper.maplyRender.frameSize;
+		Point2d frameSize = renderWrapper.maplyRender.get().frameSize;
 		Point2d pt = geoPointFromScreen(new Point2d(0,0));
 		if (pt == null) return null;
 		geoMbr.addPoint(pt);
@@ -266,7 +284,7 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 		if (checkPointAndNormFacing(dispPt,dispPt.normalized(),modelMat,modelNormalMat) < 0.0)
 			return null;
 
-		return theGlobeView.pointOnScreenFromSphere(dispPt, modelMat, renderWrapper.maplyRender.frameSize);
+		return theGlobeView.pointOnScreenFromSphere(dispPt, modelMat, renderWrapper.maplyRender.get().frameSize);
 	}
 
 	/**
@@ -292,11 +310,11 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 		theGlobeView.setLoc(new Point3d(localCoord.getX(),localCoord.getY(),height));
 
 		List<Point2d> pts = mbr.asPoints();
-		Point2d frameSize = renderWrapper.maplyRender.frameSize;
+		Point2d frameSize = renderWrapper.maplyRender.get().frameSize;
 		for (Point2d pt : pts)
 		{
 			Point2d screenPt = screenPointFromGeo(theGlobeView,pt);
-			if (screenPt.getX() < 0.0 || screenPt.getY() < 0.0 || screenPt.getX() > frameSize.getX() || screenPt.getY() > frameSize.getY())
+			if (screenPt == null || screenPt.getX() < 0.0 || screenPt.getY() < 0.0 || screenPt.getX() > frameSize.getX() || screenPt.getY() > frameSize.getY())
 				return false;
 		}
 
@@ -357,6 +375,42 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 		} while (true);
 
 		return maxHeight;
+	}
+
+	static double EarthRadius = 6371000;
+
+	/**
+	 * Calculate a size in meters by projecting the two screen points onto the globe.
+	 * Return -1, -1 if the points weren't on the globe.
+	 */
+	public Point2d realWorldSizeFromScreen(Point2d pt0,Point2d pt1)
+	{
+		Point2d size = new Point2d(-1.0,-1.0);
+		if (!running || view == null || renderWrapper == null || renderWrapper.maplyRender == null || renderControl.frameSize == null)
+			return size;
+
+		int[] frameSizeInt = getFrameBufferSize();
+		Point2d frameSize = new Point2d((double)frameSizeInt[0],(double)frameSizeInt[1]);
+		Point2d screenPt[] = new Point2d[3];
+		screenPt[0] = new Point2d(pt0.getX(),pt0.getY());
+		screenPt[1] = new Point2d(pt1.getX(),pt0.getY());
+		screenPt[2] = new Point2d(pt0.getX(),pt1.getY());
+		Point3d hits[] = new Point3d[3];
+		for (int ii=0;ii<3;ii++) {
+			Matrix4d transform = globeView.calcModelViewMatrix();
+			Point3d hit = globeView.pointOnSphereFromScreen(screenPt[ii], transform, frameSize, true);
+			if (hit == null)
+				return size;
+			hit.normalize();
+			hits[ii] = hit;
+		}
+
+		double da = hits[1].subtract(hits[0]).norm() * EarthRadius;
+		double db = hits[2].subtract(hits[0]).norm() * EarthRadius;
+
+		size.setValue(da,db);
+
+		return size;
 	}
 
 	/**
@@ -420,7 +474,7 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 		if (viewState.tilt != Double.MAX_VALUE)
 			globeView.setTilt(viewState.tilt);
 
-		if (viewState.height != Double.MAX_VALUE && !getKeepNorthUp())
+		if (viewState.heading != Double.MAX_VALUE && !getKeepNorthUp())
 			globeView.setHeading(viewState.heading);
 	}
 
@@ -436,7 +490,7 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 
 		ViewState viewState = new ViewState();
 		viewState.pos = new Point2d(geoLoc.getX(),geoLoc.getY());
-		viewState.height = geoLoc.getZ();
+		viewState.height = loc.getZ();
 		viewState.heading = globeView.getHeading();
 		viewState.tilt = globeView.getTilt();
 
@@ -489,7 +543,7 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 	protected boolean isCompletelySetup()
 	{
 		return running && globeView != null && renderWrapper != null &&
-				renderWrapper.maplyRender != null && renderWrapper.maplyRender.frameSize != null;
+				renderWrapper.maplyRender != null && renderControl.frameSize != null;
 	}
 	
 	/**
@@ -518,7 +572,7 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 		if (geoCoord != null) {
 			Quaternion newQuat = globeView.makeRotationToGeoCoord(x, y, globeView.northUp);
 			if (newQuat != null)
-				globeView.setAnimationDelegate(new GlobeAnimateRotation(globeView, renderWrapper.maplyRender, newQuat, z, howLong));
+				globeView.setAnimationDelegate(new GlobeAnimateRotation(globeView, renderControl, newQuat, z, howLong));
 		}
 	}
 
@@ -528,6 +582,7 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 			return;
 
 		globeView.cancelAnimation();
+		globeView.setHeading(heading);
 	}
 
 	/**
@@ -669,7 +724,7 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 			return;
 
 		Matrix4d globeTransform = globeView.calcModelViewMatrix();
-		Point3d loc = globeView.pointOnSphereFromScreen(screenLoc, globeTransform, renderWrapper.maplyRender.frameSize, false);
+		Point3d loc = globeView.pointOnSphereFromScreen(screenLoc, globeTransform, renderControl.frameSize, false);
 		if (loc == null)
 			return;
 		Point3d localPt = globeView.getCoordAdapter().displayToLocal(loc);
@@ -712,9 +767,6 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
      */
     public void handleStartMoving(boolean userMotion)
     {
-		if (!userMotion)
-			isAnimating = true;
-
 		if (!isCompletelySetup())
 			return;
 
@@ -726,7 +778,10 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 				if (c != null)
 					c.postFrameCallback(this);
 			}
-    }
+
+		if (!userMotion)
+			isAnimating = true;
+	}
 
 	/**
 	 * Called by the gesture handler to filter out end motion events.
@@ -785,7 +840,7 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 			return null;
 
         Point2d screenCorners[] = new Point2d[4];
-        Point2d frameSize = renderWrapper.maplyRender.frameSize;
+        Point2d frameSize = renderControl.frameSize;
         screenCorners[0] = new Point2d(0.0, 0.0);
         screenCorners[1] = new Point2d(frameSize.getX(), 0.0);
         screenCorners[2] = new Point2d(frameSize.getX(), frameSize.getY());
@@ -796,7 +851,7 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
         Point3d retCorners[] = new Point3d[4];
         CoordSystemDisplayAdapter coordAdapter = globeView.getCoordAdapter();
         if (coordAdapter == null || renderWrapper == null || renderWrapper.maplyRender == null ||
-				renderWrapper.maplyRender.frameSize == null)
+				renderControl.frameSize == null)
             return retCorners;
         CoordSystem coordSys = coordAdapter.getCoordSystem();
         if (coordSys == null)

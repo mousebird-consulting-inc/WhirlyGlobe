@@ -58,11 +58,54 @@ public class VectorInfo extends BaseInfo
 	 * Default is fault.
 	 */
 	public native void setFilled(boolean filled);
-	
-//	public native void setTexId(long texId);
-//	public native void setTexScale(float s,float t);
-//	public native void subdivEps(float eps);
-//	public native void setGridSubdiv(boolean gridSubdiv);
+
+	/**
+	 * Vectors can be subdivided to follow a globe.
+	 * If set, this is the offset from the globe that will trigger
+	 * a subdivision.
+	 */
+	public native void setSampleEpsilon(double eps);
+
+	/**
+	 * If set and filled is set, we will apply the given texture across any areal features.
+	 * How the texture is applied can be controlled by the textScale, textureProjection, and vecCenter.
+	 */
+	public void setTexture(MaplyTexture tex)
+	{
+		setTextureID(tex.texID);
+	}
+
+	/**
+	 * Set the texture to use on a vector by ID.
+	 */
+	native void setTextureID(long texID);
+
+	/**
+	 * These control the scale of the texture application.  We'll multiply by these numbers before
+	 * generating texture coordinates from the vertices.
+	 */
+	public native void setTexScale(double u,double v);
+
+	/**
+	 * If set, we'll subdivide areal features on top of the globe
+	 * using a grid to figure out the optimal subdivision.
+	 * This is the vertical distance from the globe to use as a
+	 * trigger for more subdivision.
+	 */
+	public native void setSubdivEps(double eps);
+
+	/**
+	 * When using textures on areal features, you can project the texture a couple of different ways.
+	 * Using TangentPlane works well for the globe and Screen works well in 2D.
+	 */
+	public enum TextureProjection {None,TangentPlane,Screen};
+
+	public void setTextureProjection(TextureProjection texProjection)
+	{
+		setTextureProjectionNative(texProjection.ordinal());
+	}
+
+	native void setTextureProjectionNative(int texProjection);
 
 	/**
 	 * Set the color used by the geometry.
@@ -89,15 +132,11 @@ public class VectorInfo extends BaseInfo
 	public native void setLineWidth(float lineWidth);
 
 	/**
-	 * If set and filled is set, we will apply the given texture across any areal features.
-	 * How the texture is applied can be controlled by the textScale, textureProjection, and vecCenter.
+	 * If set, we'll calculate a center for the vector geometry and
+	 * use that in building the visual geometry.  This is set on
+	 * by default when we pass in a center as well.
 	 */
-	public void setTexture(MaplyTexture tex)
-	{
-		setTextureNative(tex.texID);
-	}
-
-	native void setTextureNative(long texID);
+	native public void setUseCenter();
 
 	/**
 	 * These control the center of a texture application.  If not set we'll use the areal's centroid.
@@ -109,25 +148,6 @@ public class VectorInfo extends BaseInfo
 	}
 
 	native void setVecCenterNative(double x,double y);
-
-	/**
-	 * These control the scale of the texture application.  We'll multiply by these numbers before
-	 * generating texture coordinates from the vertices.
-	 */
-	public native void setTexScale(double u,double v);
-
-	/**
-	 * When using textures on areal features, you can project the texture a couple of different ways.
-	 * Using TangentPlane works well for the globe and Screen works well in 2D.
-	 */
-	public enum TextureProjection {None,TangentPlane,Screen};
-
-	public void setTextureProjection(TextureProjection texProjection)
-	{
-		setTextureProjectionNative(texProjection.ordinal());
-	}
-
-	native void setTextureProjectionNative(int texProjection);
 
 	// Convert to a string for debugging
 	public native String toString();

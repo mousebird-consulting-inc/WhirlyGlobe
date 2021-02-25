@@ -20,6 +20,8 @@
 
 package com.mousebird.maply;
 
+import java.lang.ref.WeakReference;
+
 /**
  * This object parses Mapbox Vector Tile format one tile at a time.
  * Set it up and then ask it to parse the given blob of data into vector objects.
@@ -28,9 +30,26 @@ package com.mousebird.maply;
  */
 public class MapboxVectorTileParser
 {
-    MapboxVectorTileParser()
+    VectorStyleInterface styleDelegate = null;
+    VectorStyleWrapper vecStyleWrap = null;
+    WeakReference<RenderControllerInterface> viewC;
+
+    private MapboxVectorTileParser() { }
+
+    MapboxVectorTileParser(VectorStyleInterface inStyleDelegate,RenderControllerInterface inViewC)
     {
-        initialise();
+        styleDelegate = inStyleDelegate;
+        viewC = new WeakReference<RenderControllerInterface>(inViewC);
+
+        // If the style delegate is backed by a C++ object, we
+        //  can just use that directly.
+        if (inStyleDelegate instanceof MapboxVectorStyleSet) {
+            initialise(inStyleDelegate,true);
+        } else {
+            // If not, then the C++ needs to build a wrapper for it
+            VectorStyleWrapper vecStyleWrap = new VectorStyleWrapper(inStyleDelegate,inViewC);
+            initialise(vecStyleWrap,false);
+        }
     }
 
     public final static int GeomTypeUnknown = 0;
@@ -39,30 +58,22 @@ public class MapboxVectorTileParser
     public final static int GeomTypePolygon = 3;
 
     /**
-     * Data returned from a single parsed tile.
-     * For now it's just vector objects, but eventually it may be images as well.
-     */
-    public static class DataReturn
-    {
-        public VectorObject[] vectorObjects;
-    }
-
-    /**
      * Parse the data from a single tile.
      * This returns a collection of vector objects in DataReturn.
      *
      * @param data The input data to parse.  You should have fetched this on your own.
+     * @param tileData A container for the data we parse and the styles create.
      * @return Returns null on failure to parse.
      */
-    public DataReturn parseData(byte[] data,Mbr mbr)
+    public boolean parseData(byte[] data,VectorTileData tileData)
     {
-        DataReturn dataReturn = new DataReturn();
-        dataReturn.vectorObjects = parseDataNative(data,mbr.ll.getX(),mbr.ll.getY(),mbr.ur.getX(),mbr.ur.getY());
-
-        return dataReturn;
+        return parseDataNative(data, tileData);
     }
 
-    native VectorObject[] parseDataNative(byte[] data,double minX,double minY,double maxX,double maxY);
+    native boolean parseDataNative(byte[] data,VectorTileData tileData);
+
+    /// If set, we'll parse into local coordinates as specified by the bounding box, rather than geo coords
+    native void setLocalCoords(boolean localCoords);
 
     public void finalize()
     {
@@ -73,7 +84,7 @@ public class MapboxVectorTileParser
     {
         nativeInit();
     }
-    native void initialise();
+    native void initialise(Object vectorStyleDelegate,boolean isMapboxStyle);
     native void dispose();
     private static native void nativeInit();
     protected long nativeHandle;

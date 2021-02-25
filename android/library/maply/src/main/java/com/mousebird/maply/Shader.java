@@ -23,6 +23,7 @@ package com.mousebird.maply;
 import android.os.Looper;
 import android.util.Log;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 /**
@@ -36,7 +37,35 @@ import java.util.ArrayList;
  */
 public class Shader 
 {
-	MaplyBaseController control = null;
+	WeakReference<RenderControllerInterface> control;
+
+	// Shaders can be looked up by name
+	public static final String DefaultTriangleShader = "Default Triangle;lighting=yes";
+	public static final String NoLightTriangleShader = "Default Triangle;lighting=no";
+	public static final String DefaultLineShader = "Default Line;backface=yes";
+	public static final String NoBackfaceLineShader = "Default Line;backface=no";
+	public static final String DefaultModelTriShader = "Default Triangle;model=yes;lighting=yes";
+	public static final String DefaultTriScreenTexShader = "Default Triangle;screentex=yes;lighting=yes";
+	public static final String DefaultTriMultiTexShader = "Default Triangle;multitex=yes;lighting=yes";
+	public static final String DefaultTriMultiTexRampShader = "Default Triangle;multitex=yes;lighting=yes;ramp=yes";
+	public static final String DefaultMarkerShader = "Default marker;multitex=yes;lighting=yes";
+	public static final String DefaultTriNightDayShader = "Default Triangle;nightday=yes;multitex=yes;lighting=yes";
+	public static final String BillboardGroundShader = "Default Billboard ground";
+	public static final String BillboardEyeShader = "Default Billboard eye";
+	public static final String DefaultWideVectorShader = "Default Wide Vector";
+	public static final String DefaultWideVectorGlobeShader = "Default Wide Vector Globe";
+	public static final String DefaultScreenSpaceMotionShader = "Default Screenspace Motion";
+	public static final String DefaultScreenSpaceShader = "Default Screenspace";
+
+	// Types used to describe the shader attributes
+	public enum AttributeType {
+		Float4,
+		Float3,
+		Char4,
+		Float2,
+		Float,
+		Int
+	};
 
 	/** Initialize with the file names for the shader program.
 	 * <p>
@@ -44,23 +73,76 @@ public class Shader
      * @param name The name of the shader program.  Used for identification and sometimes lookup.
      * @param vertexSrc The string containing the full vertex program.
      * @param fragSrc The string containing the full fragment program.
-     * @param control The controller where we'll register the new shader.
+     * @param inControl The controller where we'll register the new shader.
      * @return Returns a shader program if it succeeded.  It may not work, however, so call valid first.
      */
-	public Shader(String name,String vertexSrc, String fragSrc,MaplyBaseController inControl)
+	public Shader(String name,String vertexSrc, String fragSrc,RenderControllerInterface inControl)
 	{
-        control = inControl;
-		boolean okay = true;
-		if (Looper.myLooper() == Looper.getMainLooper())
-			okay = control.setEGLContext(null);
+        control = new WeakReference<RenderControllerInterface>(inControl);
+		RenderControllerInterface.ContextInfo context = control.get().setupTempContext(RenderController.ThreadMode.ThreadCurrent);
 
-		if (okay)
-			initialise(name,vertexSrc,fragSrc);
-		else
-			Log.i("Maply","Shader was set up before context was created.  Shader won't work.");
+		initialise(name,vertexSrc,fragSrc);
+
+		if (context != null)
+			control.get().clearTempContext(context);
 	}
 
-    private Shader()
+	/**
+	 * Initialise with an empty program we'll fill in later.
+	 *
+	 * @param inControl The control we'll associate this program with.
+	 */
+	public Shader(RenderControllerInterface inControl)
+	{
+		control = new WeakReference<RenderControllerInterface>(inControl);
+
+		RenderControllerInterface.ContextInfo context = null;
+		if (!inControl.getOfflineMode()) {
+			context = control.get().setupTempContext(RenderController.ThreadMode.ThreadCurrent);
+			if (context == null) {
+				Log.i("Maply", "Shader was set up before context was created.  Shader won't work.");
+				return;
+			}
+		}
+
+		initialise();
+
+		if (!inControl.getOfflineMode()) {
+			control.get().clearTempContext(context);
+		}
+	}
+
+	/**
+	 * This is called after an a minimal setup.  Presumably you'll be setting other attributes
+	 * (like varying names) which must be passed in when the program is created.
+	 *
+	 * @param name The name of the shader program.  Used for identification and sometimes lookup.
+	 * @param vertexSrc The string containing the full vertex program.
+	 * @param fragSrc The string containing the full fragment program.
+	 */
+	public void delayedSetup(String name,String vertexSrc,String fragSrc)
+	{
+		RenderControllerInterface theControl = control.get();
+		if (theControl == null)
+			return;
+
+		RenderControllerInterface.ContextInfo context = null;
+		if (!theControl.getOfflineMode()) {
+			context = theControl.setupTempContext(RenderController.ThreadMode.ThreadCurrent);
+			if (context == null) {
+				Log.i("Maply", "Shader was set up before context was created.  Shader won't work.");
+				return;
+			}
+		}
+
+		delayedSetupNative(name,vertexSrc,fragSrc);
+
+		if (!theControl.getOfflineMode()) {
+			theControl.clearTempContext(context);
+		}
+	}
+
+    protected Shader()
     {
     }
 	
@@ -81,7 +163,7 @@ public class Shader
 	/**
 	 * Add a texture for use in the shader.
 	 * @param name Name to be used in the shader.
-	 * @param bitmap Bitmap to pass into the shader.
+	 * @param texture Texture to pass into the shader.
 	 */
 	public void addTexture(String name,MaplyTexture texture)
 	{
@@ -92,7 +174,7 @@ public class Shader
 
 //        Log.d("Maply","addTexture texID " + texture.texID);
 
-		changes.process(control.getScene());
+		control.get().processChangeSet(changes);
 	}
 
 	native void addTextureNative(ChangeSet changes,String name,long texID);
@@ -103,17 +185,34 @@ public class Shader
 	 */
 	public boolean setUniform(String name,double uni)
 	{
-		MaplyBaseController.ContextInfo context = control.setupTempContext(MaplyBaseController.ThreadMode.ThreadCurrent);
+		RenderControllerInterface.ContextInfo context = control.get().setupTempContext(RenderController.ThreadMode.ThreadCurrent);
 
-		control.requestRender();
+		control.get().requestRender();
 
 		boolean ret = setUniformNative(name,uni);
-		control.clearTempContext(context);
+		control.get().clearTempContext(context);
+
+		return ret;
+	}
+
+	/**
+	 * Set a float uniform in the shader with a given name at the given index.
+	 * Specifically for arrays.
+	 */
+	public boolean setUniformByIndex(String name,double uni,int index)
+	{
+		RenderControllerInterface.ContextInfo context = control.get().setupTempContext(RenderController.ThreadMode.ThreadCurrent);
+
+		control.get().requestRender();
+
+		boolean ret = setUniformByIndexNative(name,uni,index);
+		control.get().clearTempContext(context);
 
 		return ret;
 	}
 
 	public native boolean setUniformNative(String name,double uni);
+	public native boolean setUniformByIndexNative(String name,double uni,int index);
 
 	/** Set an int uniform in the shader with the given name.
 	 * <p>
@@ -121,12 +220,12 @@ public class Shader
 	 */
 	public boolean setUniform(String name,int uni)
 	{
-		MaplyBaseController.ContextInfo context = control.setupTempContext(MaplyBaseController.ThreadMode.ThreadCurrent);
+		RenderControllerInterface.ContextInfo context = control.get().setupTempContext(RenderController.ThreadMode.ThreadCurrent);
 
-		control.requestRender();
+		control.get().requestRender();
 
 		boolean ret = setUniformNative(name,uni);
-		control.clearTempContext(context);
+		control.get().clearTempContext(context);
 
 		return ret;
 	}
@@ -141,12 +240,12 @@ public class Shader
 	 */
 	public boolean setUniform(String name,Point2d pt)
 	{
-		MaplyBaseController.ContextInfo context = control.setupTempContext(MaplyBaseController.ThreadMode.ThreadCurrent);
+		RenderControllerInterface.ContextInfo context = control.get().setupTempContext(RenderController.ThreadMode.ThreadCurrent);
 
-		control.requestRender();
+		control.get().requestRender();
 
 		boolean ret = setUniformNative(name,pt.getX(),pt.getY());
-		control.clearTempContext(context);
+		control.get().clearTempContext(context);
 
 		return ret;
 	}
@@ -159,12 +258,12 @@ public class Shader
 	 */
 	public boolean setUniform(String name,Point3d pt)
 	{
-		MaplyBaseController.ContextInfo context = control.setupTempContext(MaplyBaseController.ThreadMode.ThreadCurrent);
+		RenderControllerInterface.ContextInfo context = control.get().setupTempContext(RenderController.ThreadMode.ThreadCurrent);
 
-		control.requestRender();
+		control.get().requestRender();
 
 		boolean ret = setUniformNative(name, pt.getX(), pt.getY(), pt.getZ());
-		control.clearTempContext(context);
+		control.get().clearTempContext(context);
 
 		return ret;
 	}
@@ -177,12 +276,42 @@ public class Shader
 	 */
 	public boolean setUniform(String name,Point4d pt)
 	{
-		MaplyBaseController.ContextInfo context = control.setupTempContext(MaplyBaseController.ThreadMode.ThreadCurrent);
+		RenderControllerInterface.ContextInfo context = control.get().setupTempContext(RenderController.ThreadMode.ThreadCurrent);
 
-		control.requestRender();
+		control.get().requestRender();
 
 		boolean ret = setUniformNative(name, pt.getX(), pt.getY(), pt.getZ(), pt.getW());
-		control.clearTempContext(context);
+		control.get().clearTempContext(context);
+
+		return ret;
+	}
+
+	/**
+	 * Set the 4 component color value for a uniform with the given index (e.g. it's an array)
+	 */
+	public boolean setUniformColorByIndex(String name,int color,int index)
+	{
+		RenderControllerInterface.ContextInfo context = control.get().setupTempContext(RenderController.ThreadMode.ThreadCurrent);
+
+		control.get().requestRender();
+
+		boolean ret = setUniformColorByIndexNative(name, color, index);
+		control.get().clearTempContext(context);
+
+		return ret;
+	}
+
+	/**
+	 * Set the 4 component color value for a uniform.
+	 */
+	public boolean setUniformColor(String name,int color)
+	{
+		RenderControllerInterface.ContextInfo context = control.get().setupTempContext(RenderController.ThreadMode.ThreadCurrent);
+
+		control.get().requestRender();
+
+		boolean ret = setUniformColorNative(name,color);
+		control.get().clearTempContext(context);
 
 		return ret;
 	}
@@ -190,6 +319,16 @@ public class Shader
 	native boolean setUniformNative(String name,double uniX,double uniY);
 	native boolean setUniformNative(String name,double uniX,double uniY,double uniZ);
 	native boolean setUniformNative(String name,double uniX,double uniY,double uniZ,double uniW);
+	native boolean setUniformColorNative(String name,int color);
+	native boolean setUniformColorByIndexNative(String name,int color,int index);
+
+	/**
+	 * Varyings will be passed from one shader to another using transform feedback.
+	 * It's weird and it's annoying and it has to be done at Shader setup.
+	 *
+	 * @param name Name of the output of the vertex stage to turn into a varying.
+	 */
+	public native void addVarying(String name);
 
 	/**
 	 * Returns the internal Maply ID for the shader.
@@ -200,8 +339,14 @@ public class Shader
 	{
 		nativeInit();
 	}
+	public void finalize()
+	{
+		dispose();
+	}
 	private static native void nativeInit();
 	native void initialise(String name,String vertexSrc, String fragSrc);
+	native void initialise();
+	native void delayedSetupNative(String name,String vertexSrc,String fragSrc);
 	native void dispose();
 	private long nativeHandle;
 	private long nativeSceneHandle;

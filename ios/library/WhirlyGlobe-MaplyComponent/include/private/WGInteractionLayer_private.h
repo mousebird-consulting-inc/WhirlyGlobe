@@ -3,7 +3,7 @@
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 7/21/12.
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 
 #import <Foundation/Foundation.h>
 #import "MaplyBaseInteractionLayer_private.h"
+#import "GlobeTapMessage.h"
 
 // The view controller fills this in
 @protocol WGInteractionLayerDelegate <NSObject>
@@ -32,7 +33,7 @@
  */
 @interface WGInteractionLayer : MaplyBaseInteractionLayer
 {
-    WhirlyGlobeView * __weak globeView;
+    WhirlyGlobe::GlobeView_iOSRef globeView;
 
     // If set, we'll autorotate after a certain amount of time
     float autoRotateInterval,autoRotateDegrees;
@@ -45,7 +46,7 @@
 @property (nonatomic,weak) NSObject<WGInteractionLayerDelegate> * viewController;
 
 // Initialize with the globeView
--(id)initWithGlobeView:(WhirlyGlobeView *)globeView;
+-(id)initWithGlobeView:(WhirlyGlobe::GlobeView_iOSRef)globeView;
 
 // Set the autorotate values
 - (void)setAutoRotateInterval:(float)autoRotateInterval degrees:(float)autoRotateDegrees;

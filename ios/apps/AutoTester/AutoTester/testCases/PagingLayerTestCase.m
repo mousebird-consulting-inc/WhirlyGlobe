@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by Steve Gifford on 6/28/16.
-//  Copyright © 2016-2017 mousebird consulting. All rights reserved.
+//  Copyright © 2016-2017 mousebird consulting.
 //
 
 #import "PagingLayerTestCase.h"
@@ -11,13 +11,14 @@
 
 @implementation PagingLayerTestCase
 {
-    MaplyPagingVectorTestTileSource *tileSource;
+    CartoDBLightTestCase *baseCase;
+    MaplyQuadPagingLoader *loader;
+    MaplyOvlDebugImageLoaderInterpreter *interp;
 }
 
 - (instancetype)init
 {
     if (self = [super init]) {
-        self.captureDelay = 7;
         self.name = @"Paging Layer";
         self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
     }
@@ -26,8 +27,8 @@
 
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
-    CartoDBLightTestCase *baseLayer = [[CartoDBLightTestCase alloc] init];
-    [baseLayer setUpWithGlobe:globeVC];
+    baseCase = [[CartoDBLightTestCase alloc] init];
+    [baseCase setUpWithGlobe:globeVC];
     
     [self setupPagingLayer: globeVC];
 }
@@ -35,42 +36,44 @@
 
 - (void)setUpWithMap:(MaplyViewController *)mapVC
 {
-    CartoDBLightTestCase *baseLayer = [[CartoDBLightTestCase alloc] init];
-    [baseLayer setUpWithMap:mapVC];
+    baseCase = [[CartoDBLightTestCase alloc] init];
+    [baseCase setUpWithMap:mapVC];
     
     [self setupPagingLayer: mapVC];
 }
 
 const bool enableTest = false;
 
-- (void) setupPagingLayer:(MaplyBaseViewController*) baseLayer
+- (void) setupPagingLayer:(MaplyBaseViewController*) baseViewC
 {
-    MaplySphericalMercator *coordSys = [[MaplySphericalMercator alloc] initWebStandard];
-    tileSource = [[MaplyPagingVectorTestTileSource alloc] initWithCoordSys:coordSys minZoom:4 maxZoom:22];
-    MaplyQuadPagingLayer *quadLayer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:coordSys delegate:tileSource];
-    quadLayer.singleLevelLoading = true;
-    quadLayer.useTargetZoomLevel = true;
-    quadLayer.importance = 256*256;
-    quadLayer.useParentTileBounds = false;
-    quadLayer.maxTiles = 100;
-    [baseLayer addLayer:quadLayer];
+    // Describes how we want to break things down
+    MaplySamplingParams *params = [[MaplySamplingParams alloc] init];
+    // TODO: Try this at minZoom = 4 and debug
+    params.minZoom = 0;
+    params.maxZoom = 22;
+    params.minImportance = 256*256;
+    params.singleLevel = true;
+    params.coordSys = [[MaplySphericalMercator alloc] initWebStandard];
+
+    // This will put an outline around a tile and a number in the middle
+    interp = [[MaplyOvlDebugImageLoaderInterpreter alloc] initWithViewC:baseViewC];
     
-    if (enableTest)
-        [self performSelector:@selector(runDisable:) withObject:quadLayer afterDelay:5.0];
+    // Starts loading up the quad tree
+    // With no tileInfo object, it doesn't bother to fetch anything
+    loader = [[MaplyQuadPagingLoader alloc] initWithParams:params tileInfo:nil loadInterp:interp viewC:baseViewC];
+
+//    [self forceReload];
 }
 
-- (void)runEnable:(MaplyQuadPagingLayer *)quadLayer
+- (void)forceReload
 {
-    [quadLayer setEnable:true];
+    [loader reload];
     
-    [self performSelector:@selector(runDisable:) withObject:quadLayer afterDelay:5.0];
-}
-
-- (void)runDisable:(MaplyQuadPagingLayer *)quadLayer
-{
-    [quadLayer setEnable:false];
-    
-    [self performSelector:@selector(runEnable:) withObject:quadLayer afterDelay:5.0];
+    PagingLayerTestCase * __weak weakSelf = self;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3.0 * NSEC_PER_SEC)), dispatch_get_main_queue(),
+    ^{
+        [weakSelf forceReload];
+    });
 }
 
 @end

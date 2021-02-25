@@ -14,7 +14,6 @@ class LayerStartupShutdownTestCase: MaplyTestCase {
         super.init()
 
         self.name = "Repeated Layer Startup/Shutdown"
-        self.captureDelay = 4
         self.implementations = testCase.implementations
     }
     
@@ -23,6 +22,8 @@ class LayerStartupShutdownTestCase: MaplyTestCase {
     var testCase = VectorMBTilesTestCase()
 
     func startGlobeLayer() {
+        self.testCase.globeViewController = globeViewController
+        self.testCase.baseViewController = globeViewController
         self.testCase.setUpWithGlobe(self.globeViewController!)
 
         // Shut it down in a bit
@@ -32,7 +33,7 @@ class LayerStartupShutdownTestCase: MaplyTestCase {
     }
     
     func stopGlobeLayer() {
-        self.testCase.tearDown(withGlobe: self.globeViewController!)
+        self.testCase.stop()
 
         // Start it back up again in a bit
         // Note: Check to see if we're still valid here
@@ -42,6 +43,8 @@ class LayerStartupShutdownTestCase: MaplyTestCase {
     }
     
     func startMapLayer() {
+        self.testCase.mapViewController = mapViewController
+        self.testCase.baseViewController = mapViewController
         self.testCase.setUpWithMap(self.mapViewController!)
 
         // Shut it down in a bit
@@ -51,7 +54,7 @@ class LayerStartupShutdownTestCase: MaplyTestCase {
     }
     
     func stopMapLayer() {
-        self.testCase.tearDown(withMap: self.mapViewController!)
+        self.testCase.stop()
         
         // Start it back up again in a bit
         // Note: Check to see if we're still valid here
@@ -61,11 +64,11 @@ class LayerStartupShutdownTestCase: MaplyTestCase {
     }
 
     // We need to create the globe controller ourselves so we can shut it down
-    override func runGlobeTest(withLock lock: DispatchGroup) {
+    override func startGlobe(_ nav: UINavigationController) {
         globeViewController = WhirlyGlobeViewController()
         baseViewController = globeViewController
-        testView?.addSubview(globeViewController!.view)
-        globeViewController!.view.frame = testView!.bounds
+        nav.pushViewController(baseViewController!, animated: true)
+        _ = baseViewController!.view
         globeViewController!.delegate = self
         // Note: Should also be adding as a child of the view controller
 
@@ -73,11 +76,11 @@ class LayerStartupShutdownTestCase: MaplyTestCase {
     }
     
     // Likewise for the map
-    override func runMapTest(withLock lock: DispatchGroup) {
+    override func startMap(_ nav: UINavigationController) {
         mapViewController = MaplyViewController()
         baseViewController = mapViewController
-        testView?.addSubview(mapViewController!.view)
-        mapViewController!.view.frame = testView!.bounds
+        nav.pushViewController(baseViewController!, animated: true)
+        _ = baseViewController!.view
         mapViewController!.delegate = self
         // Note: Should also be adding as a child of the view controller
         

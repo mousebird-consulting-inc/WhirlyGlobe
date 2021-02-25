@@ -3,15 +3,15 @@
 //  AutoTester
 //
 //  Created by jmnavarro on 29/10/15.
-//  Copyright © 2015-2017 mousebird consulting. All rights reserved.
+//  Copyright © 2015-2017 mousebird consulting.
 //
 
 #import "VectorsTestCase.h"
-#import "GeographyClassTestCase.h"
 #import "MaplyBaseViewController.h"
 #include <stdlib.h>
 #import "MaplyViewController.h"
 #import "WhirlyGlobeViewController.h"
+#import "AutoTester-Swift.h"
 
 @interface VectorsTestCase()
 
@@ -21,17 +21,13 @@
 
 @implementation VectorsTestCase
 
-
-
 - (instancetype)init
 {
 	if (self = [super init]) {
 		self.name = @"Vectors";
-		self.captureDelay = 5;
 		self.compObjs = [[NSMutableArray alloc] init];
         self.vecList = [[NSMutableArray alloc] init];
 		self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
-
 	}
 	
 	return self;
@@ -43,6 +39,7 @@
 	NSDictionary *vectorDict = @{
 			kMaplyColor: [UIColor whiteColor],
 			kMaplySelectable: @(true),
+            kMaplyFade: @(0.2),
 			kMaplyVecWidth: @(4.0)};
 		NSArray * paths = [[NSBundle mainBundle] pathsForResourcesOfType:@"geojson" inDirectory:nil];
 		for (NSString* fileName  in paths) {
@@ -52,14 +49,14 @@
                 if (wgVecObj)
                 {
                     NSString *vecName = [[wgVecObj attributes] objectForKey:@"ADMIN"];
-                    wgVecObj.userObject = vecName;
+                    wgVecObj.attributes[@"title"] = vecName;
                     wgVecObj.selectable = true;
                     [self.vecList addObject:wgVecObj];
                     MaplyComponentObject *compObj = [baseVC addVectors:@[wgVecObj] desc:vectorDict];
                     if (compObj) {
                         [self.compObjs addObject:compObj];
                     }
-                    [baseVC addSelectionVectors:[NSArray arrayWithObject:wgVecObj]];
+//                    [baseVC addSelectionVectors:[NSArray arrayWithObject:wgVecObj]];
                     if ([vecName isEqualToString:@"Spain"]) {
                         self.selectedCountry = wgVecObj;
                     }
@@ -73,8 +70,8 @@
 
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
-	 self.baseView = [[GeographyClassTestCase alloc]init];
-	[self.baseView setUpWithGlobe:globeVC];
+	 self.baseCase = [[GeographyClassTestCase alloc]init];
+	[self.baseCase setUpWithGlobe:globeVC];
 	//Overlay Countries
 	[self overlayCountries:(MaplyBaseViewController*)globeVC];
 }
@@ -82,24 +79,11 @@
 
 - (void)setUpWithMap:(MaplyViewController *)mapVC
 {	
-	 self.baseView = [[GeographyClassTestCase alloc]init];
-	[self.baseView setUpWithMap:mapVC];
+	 self.baseCase = [[GeographyClassTestCase alloc]init];
+	[self.baseCase setUpWithMap:mapVC];
 	[self overlayCountries:(MaplyBaseViewController*)mapVC];
 }
 
-- (void) tearDownWithMap:(MaplyViewController *)mapVC {
-    [mapVC removeObjects:self.compObjs];
-    self.compObjs = nil;
-    self.baseView = nil;
-    
-}
-
-- (void)tearDownWithGlobe:(WhirlyGlobeViewController *)globeVC{
-    
-    [globeVC removeObjects:self.compObjs];
-    self.compObjs = nil;
-    self.baseView = nil;
-}
 - (void) handleSelection:(MaplyBaseViewController *)viewC
 				selected:(NSObject *)selectedObj
 {
@@ -111,10 +95,19 @@
 		if ([theVector centroid:&location]) {
 			MaplyAnnotation *annotate = [[MaplyAnnotation alloc]init];
 			annotate.title = @"Selected";
-			annotate.subTitle = (NSString *)theVector.userObject;
+			annotate.subTitle = (NSString *)theVector.attributes[@"title"];
 			[viewC addAnnotation:annotate forPoint:location offset:CGPointZero];
 		}
 	}
+}
+
+- (void) stop
+{
+    [self.baseCase stop];
+    if (_compObjs) {
+        [self.baseViewController removeObjects:_compObjs];
+        [_compObjs removeAllObjects];
+    }
 }
 
 @end

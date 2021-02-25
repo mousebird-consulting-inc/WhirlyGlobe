@@ -1,9 +1,10 @@
 package com.mousebird.maply;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+
+import androidx.fragment.app.Fragment;
 
 /**
  * A fragment that instantiates either a map or a globe.
@@ -13,11 +14,9 @@ import android.view.ViewGroup;
 public class GlobeMapFragment extends Fragment implements MapController.GestureDelegate, GlobeController.GestureDelegate {
     protected MapController mapControl;
     protected GlobeController globeControl;
-    protected MaplyBaseController baseControl;
+    protected BaseController baseControl;
 
-    public enum MapDisplayType {Globe, Map}
-
-    ;
+    public enum MapDisplayType {Globe, Map};
     protected MapDisplayType mapDisplayType = MapDisplayType.Map;
 
     protected GlobeController.Settings globeSettings = new GlobeController.Settings();
@@ -28,6 +27,13 @@ public class GlobeMapFragment extends Fragment implements MapController.GestureD
      */
     protected MapDisplayType chooseDisplayType() {
         return MapDisplayType.Map;
+    }
+
+    /**
+     * Override this if you've got a different name for the core WG-Maply library.
+     */
+    public String loadLibraryName() {
+        return "whirlyglobemaply";
     }
 
     /**
@@ -60,10 +66,12 @@ public class GlobeMapFragment extends Fragment implements MapController.GestureD
         preControlCreated();
 
         if (mapDisplayType == MapDisplayType.Map) {
+            mapSettings.loadLibraryName = loadLibraryName();
             mapControl = new MapController(getActivity(), mapSettings);
             mapControl.gestureDelegate = this;
             baseControl = mapControl;
         } else {
+            globeSettings.loadLibraryName = loadLibraryName();
             globeControl = new GlobeController(getActivity(), globeSettings);
             globeControl.gestureDelegate = this;
             baseControl = globeControl;

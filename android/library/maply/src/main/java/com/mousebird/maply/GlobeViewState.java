@@ -37,14 +37,9 @@ public class GlobeViewState extends ViewState
 	 * Initialize with the view we're storing the state of and the renderer
 	 * it applies to.
 	 */
-	GlobeViewState(GlobeView view,MaplyRenderer renderer)
+	GlobeViewState(GlobeView view,RenderController renderer)
 	{
 		initialise(view,renderer);
-	}
-
-	public void finalize()
-	{
-		dispose();
 	}
 
 	static
@@ -52,6 +47,5 @@ public class GlobeViewState extends ViewState
 		nativeInit();
 	}
 	private static native void nativeInit();
-	native void initialise(GlobeView view,MaplyRenderer renderer);
-	native void dispose();
+	native void initialise(GlobeView view,RenderController renderer);
 }

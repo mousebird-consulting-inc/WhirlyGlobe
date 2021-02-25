@@ -1,3 +1,22 @@
+/*
+ *  VectorStyleInterface
+ *  com.mousebirdconsulting.maply
+ *
+ *  Created by Steve Gifford.
+ *  Copyright 2013-2019 mousebird consulting
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ */
 package com.mousebird.maply;
 
 /**
@@ -20,7 +39,12 @@ public interface VectorStyleInterface
      * @param controller Maply base controller where the
      * @return A list of vector styles that apply to the vector data with the given attributes.
      */
-    VectorStyle[] stylesForFeature(AttrDictionary attrs,MaplyTileID tileID,String layerName,MaplyBaseController controller);
+    public VectorStyle[] stylesForFeature(AttrDictionary attrs,TileID tileID,String layerName,RenderControllerInterface controller);
+
+    /**
+     * Return the full list of styles.
+     */
+    public VectorStyle[] allStyles();
 
     /**
      * Returns true if the given layer (by name) should be displayed at all.  If you return
@@ -28,7 +52,7 @@ public interface VectorStyleInterface
      * @param layerName Name of the layer to be displayed (or not)
      * @param tileID If we're using a tile source, this is the tile ID.  If not, it will be null.
      */
-    boolean layerShouldDisplay(String layerName,MaplyTileID tileID);
+    public boolean layerShouldDisplay(String layerName,TileID tileID);
 
     /**
      * Returns a vector style corresponding to the given unique ID.  Each vector style has to
@@ -37,5 +61,10 @@ public interface VectorStyleInterface
      * @param controller Base controller used for the geometry.
      * @return Vector Style to be used in displaying geometry.
      */
-    VectorStyle styleForUUID(String uuid,MaplyBaseController controller);
+    public VectorStyle styleForUUID(long uuid,RenderControllerInterface controller);
+
+    /**
+     * Return a color for the background (clear color).
+     */
+    public int backgroundColorForZoom(double zoom);
 }

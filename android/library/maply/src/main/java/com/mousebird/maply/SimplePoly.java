@@ -19,6 +19,8 @@
  */
 package com.mousebird.maply;
 
+import android.graphics.Color;
+
 import java.util.List;
 
 
@@ -38,10 +40,10 @@ public class SimplePoly {
      * Creates a polygon based on a texture, color, points and text coordinates
      */
     public SimplePoly(Texture inTexture, float[] color, List<Point2d> pts, List<Point2d> texCoords) {
-        initialise(inTexture.getID(), color[0], color[1], color[2], color[3], pts, texCoords);
+        initialise(inTexture.getID(), color[0], color[1], color[2], color[3], pts.toArray(new Point2d[0]), texCoords.toArray(new Point2d[0]));
     }
 
-    native void initialise(long texID, float red, float green, float blue, float alpha, List<Point2d> pts, List<Point2d> texCoords);
+    native void initialise(long texID, float red, float green, float blue, float alpha, Point2d[] pts, Point2d[] texCoords);
 
     public void finalize() {
         dispose();
@@ -62,15 +64,17 @@ public class SimplePoly {
     public native void addTextureNative(long texID);
 
     /**
-     * Sets the color of the poy
-     * @param color rgba components (from 0 to 1)
+     * Sets the color of the poly
      */
-    public native void addColor(float[] color);
+    void addColor(int color)
+    {
+        addColor(Color.red(color)/255.f,Color.green(color)/255.f,Color.blue(color)/255.f,Color.alpha(color)/255.f);
+    }
 
     /**
-     * @return the color components (rgba)
+     * Sets the color of the poy
      */
-    public native float[] getColor();
+    public native void addColor(float r,float g,float b,float a);
 
     /**
      * Adds one point to the polygon definition
@@ -82,7 +86,7 @@ public class SimplePoly {
      * Adds a list of points to the polygon definition
      * @param pts list of points
      */
-    public native void addPts(List<Point2d> pts);
+    public native void addPts(Point2d[] pts);
 
     /**
      * Changes one point in the polygon definition.
@@ -101,7 +105,7 @@ public class SimplePoly {
      * Adds a list of text coordinates.
      * @param texCoord the list of coordinates.
      */
-    public native void addTexCoords(List<Point2d> texCoord);
+    public native void addTexCoords(Point2d[] texCoord);
 
     /**
      * Changes one text coordinate.
@@ -109,30 +113,6 @@ public class SimplePoly {
      * @param newTexCoord the next coordinate
      */
     public native void setTexCoord(int index, Point2d newTexCoord);
-
-    /**
-     * @return the number of points in the polygon definition
-     */
-    public native int getPtsSize();
-
-    /**
-     * @return the number of text coordinates
-     */
-    public native int getTexCoordsSize();
-
-    /**
-     * Gets one point in the polygon definition
-     * @param index the index of the point to get
-     * @return the point
-     */
-    public native Point2d getPt(int index);
-
-    /**
-     * Gets one text coodinate
-     * @param index the index of the coordinate to get
-     * @return the text coordinate
-     */
-    public native Point2d getTexCoord(int index);
 
     static {
         nativeInit();

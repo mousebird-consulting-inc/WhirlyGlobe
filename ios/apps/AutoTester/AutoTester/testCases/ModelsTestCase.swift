@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by jmnavarro on 2/11/15.
-//  Copyright © 2015-2017 mousebird consulting. All rights reserved.
+//  Copyright © 2015-2017 mousebird consulting.
 //
 
 import UIKit
@@ -33,12 +33,12 @@ class ModelsTestCase: MaplyTestCase {
 		super.init()
 		
 		self.name = "Models"
-		self.captureDelay = 4
 		self.implementations = [.globe]
 	}
 
+    let baseLayer = GeographyClassTestCase()
+
 	override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
-		let baseLayer = VectorsTestCase()
 		baseLayer.setUpWithGlobe(globeVC)
 
 		let fullPath = Bundle.main.path(forResource: "cessna", ofType: "obj")

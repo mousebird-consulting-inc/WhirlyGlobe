@@ -3,14 +3,14 @@
 //  SLDTest
 //
 //  Created by Ranen Ghosh on 2016-08-12.
-//  Copyright © 2016-2017 mousebird consulting. All rights reserved.
+//  Copyright © 2016-2019 mousebird consulting.
 //
 
-#import "SLDStyleSet.h"
-#import "SLDExpressions.h"
-#import "SLDOperators.h"
-#import "SLDSymbolizers.h"
-#import "MaplyVectorTileStyle.h"
+#import "vector_styles/SLDStyleSet.h"
+#import "vector_styles/SLDExpressions.h"
+#import "vector_styles/SLDOperators.h"
+#import "vector_styles/SLDSymbolizers.h"
+#import "vector_styles/MaplyVectorTileStyle.h"
 #import "DDXML.h"
 
 
@@ -34,7 +34,7 @@
 @interface SLDStyleSet () {
 }
 
-@property (nonatomic, strong) NSMutableDictionary *symbolizers;
+@property (nonatomic, strong) NSMutableArray *symbolizers;
 
 @end
 
@@ -71,7 +71,7 @@
         self.tileStyleSettings.useWideVectors = true;
         symbolizerId = 0;
         _relativeDrawPriority = relativeDrawPriority;
-        self.symbolizers = [NSMutableDictionary dictionary];
+        self.symbolizers = [NSMutableArray array];
     }
     return self;
 }
@@ -336,8 +336,8 @@
             _relativeDrawPriority += 1;
             relativeDrawPriority += 1;
             for (MaplyVectorTileStyle * symbolizer in symbolizers) {
-                symbolizer.uuid = @(symbolizerId);
-                self.symbolizers[@(symbolizerId)] = symbolizer;
+                symbolizer.uuid = symbolizerId;
+                self.symbolizers[symbolizerId] = symbolizer;
                 symbolizerId += 1;
                 [rule.symbolizers addObject:symbolizer];
             }
@@ -443,8 +443,18 @@
     return YES;
 }
 
-- (nullable NSObject<MaplyVectorStyle> *)styleForUUID:(NSString *__nonnull)uuid viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC {
+- (nullable NSObject<MaplyVectorStyle> *)styleForUUID:(long long)uuid viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC {
     return self.symbolizers[uuid];
+}
+
+- (nullable NSObject<MaplyVectorStyle> *)backgroundStyleViewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+{
+    return nil;
+}
+
+- (NSArray * __nonnull)allStyles
+{
+    return _symbolizers;
 }
 
 @end

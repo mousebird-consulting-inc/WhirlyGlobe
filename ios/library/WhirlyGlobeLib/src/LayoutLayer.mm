@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 12/4/12.
- *  Copyright 2011-2017 mousebird consulting. All rights reserved.
+ *  Copyright 2011-2019 mousebird consulting.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@
 
 #import <map>
 #import "LayoutLayer.h"
-#import "GlobeLayerViewWatcher.h"
 #import "GlobeMath.h"
 
 using namespace Eigen;
@@ -40,18 +39,16 @@ namespace WhirlyKit
     // Set if we haven't moved for a while
     bool stopped;
     // Last view state we've seen
-    WhirlyKitViewState *viewState;
+    ViewStateRef viewState;
     // Used for sizing info
-    WhirlyKitSceneRendererES * __weak renderer;
-    NSTimeInterval lastUpdate;
+    TimeInterval lastUpdate;
 }
 
-- (id)initWithRenderer:(WhirlyKitSceneRendererES *)inRenderer
+- (id)initWithRenderer:(SceneRenderer *)inRenderer
 {
     self = [super init];
     if (!self)
         return nil;
-    renderer = inRenderer;
     _maxDisplayObjects = 0;
     lastUpdate = 0.0;
     
@@ -91,17 +88,17 @@ static const float DelayPeriod = 0.2;
 static const float MaxDelay = 1.0;
 
 // We're getting called for absolutely every update here
-- (void)viewUpdate:(WhirlyKitViewState *)inViewState
+- (void)viewUpdate:(WhirlyKitViewStateWrapper *)inViewState
 {
     if (!scene)
         return;
     
-    if (viewState && [viewState isKindOfClass:[WhirlyKitViewState class]] && [inViewState isSameAs:viewState])
+    if (viewState && viewState->isSameAs(inViewState.viewState.get()))
         return;
-    viewState = inViewState;
+    viewState = inViewState.viewState;
     
     // If it's been too long since an update, force the next one
-    if (CFAbsoluteTimeGetCurrent() - lastUpdate > MaxDelay)
+    if (scene->getCurrentTime() - lastUpdate > MaxDelay)
     {
         [self updateLayout];
         return;
@@ -161,7 +158,7 @@ static const float MaxDelay = 1.0;
 //    NSLog(@"UpdateLayout called");
     if (!viewState)
         return;
-    lastUpdate = CFAbsoluteTimeGetCurrent();
+    lastUpdate = scene->getCurrentTime();
 
     LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
     if (layoutManager)

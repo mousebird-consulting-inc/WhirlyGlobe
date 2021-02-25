@@ -22,11 +22,13 @@ package com.mousebird.maply.sld.sldstyleset;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import android.content.res.AssetManager;
+import android.graphics.Color;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
@@ -35,13 +37,11 @@ import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import com.mousebird.maply.AttrDictionary;
-import com.mousebird.maply.MaplyBaseController;
-import com.mousebird.maply.MaplyTileID;
+import com.mousebird.maply.RenderControllerInterface;
+import com.mousebird.maply.TileID;
 import com.mousebird.maply.VectorStyle;
 import com.mousebird.maply.VectorTileStyle;
-import com.mousebird.maply.sld.sldstyleset.SLDNamedLayer;
 import com.mousebird.maply.VectorStyleInterface;
-import com.mousebird.maply.MaplyBaseController;
 import com.mousebird.maply.VectorStyleSettings;
 import com.mousebird.maply.sld.sldsymbolizers.SLDSymbolizerParams;
 
@@ -66,8 +66,8 @@ public class SLDStyleSet implements VectorStyleInterface {
     private boolean useLayerNames;
     private int relativeDrawPriority;
     private HashMap<String, SLDNamedLayer> namedLayers =  new HashMap<String, SLDNamedLayer>();;
-    private HashMap<String, VectorStyle> stylesByUUID = new HashMap<String, VectorStyle>();
-    private MaplyBaseController viewC;
+    private HashMap<Long, VectorStyle> stylesByUUID = new HashMap<Long, VectorStyle>();
+    private WeakReference<RenderControllerInterface> viewC;
     private VectorStyleSettings vectorStyleSettings;
     private SLDSymbolizerParams symbolizerParams;
 
@@ -88,9 +88,9 @@ public class SLDStyleSet implements VectorStyleInterface {
      * @throws XmlPullParserException
      * @throws IOException
      */
-    public SLDStyleSet(MaplyBaseController viewC, AssetWrapper assetWrapper, String sldFileName, DisplayMetrics displayMetrics, boolean useLayerNames, int relativeDrawPriority) throws XmlPullParserException, IOException
+    public SLDStyleSet(RenderControllerInterface viewC, AssetWrapper assetWrapper, String sldFileName, DisplayMetrics displayMetrics, boolean useLayerNames, int relativeDrawPriority) throws XmlPullParserException, IOException
     {
-        this.viewC = viewC;
+        this.viewC = new WeakReference<RenderControllerInterface>(viewC);
         this.useLayerNames = useLayerNames;
         this.relativeDrawPriority = relativeDrawPriority;
 
@@ -159,7 +159,7 @@ public class SLDStyleSet implements VectorStyleInterface {
     }
 
     @Override
-    public VectorStyle[] stylesForFeature(AttrDictionary attrs, MaplyTileID tileID, String layerName, MaplyBaseController controller)
+    public VectorStyle[] stylesForFeature(AttrDictionary attrs, TileID tileID, String layerName, RenderControllerInterface controller)
     {
         List<VectorTileStyle> vectorTileStyles = new ArrayList<VectorTileStyle>();
         boolean matched;
@@ -170,15 +170,24 @@ public class SLDStyleSet implements VectorStyleInterface {
     }
 
     @Override
-    public boolean layerShouldDisplay(String layerName,MaplyTileID tileID)
+    public boolean layerShouldDisplay(String layerName,TileID tileID)
     {
         return true;
     }
 
     @Override
-    public VectorStyle styleForUUID(String uuid,MaplyBaseController controller)
+    public VectorStyle styleForUUID(long uuid, RenderControllerInterface controller)
     {
         VectorStyle style = stylesByUUID.get(uuid);
         return style;
     }
+
+    @Override
+    public VectorStyle[] allStyles()
+    {
+        return stylesByUUID.values().toArray(new VectorStyle[0]);
+    }
+
+    @Override
+    public int backgroundColorForZoom(double zoom) { return Color.BLACK; }
 }

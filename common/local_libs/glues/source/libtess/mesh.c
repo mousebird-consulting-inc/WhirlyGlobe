@@ -288,10 +288,15 @@ GLUhalfEdge* __gl_wgmaply_meshMakeEdge(GLUmesh* mesh)
    GLUvertex* newVertex1=allocVertex();
    GLUvertex* newVertex2=allocVertex();
    GLUface* newFace=allocFace();
-   GLUhalfEdge* e;
+   GLUhalfEdge* e=NULL;
+
+    if (newVertex1!=NULL && newVertex2!=NULL && newFace!=NULL)
+    {
+        e=MakeEdge(&mesh->eHead);
+    }
 
    /* if any one is null then all get freed */
-   if (newVertex1==NULL || newVertex2==NULL || newFace==NULL)
+   if (e==NULL)
    {
       if (newVertex1!=NULL)
       {
@@ -305,12 +310,6 @@ GLUhalfEdge* __gl_wgmaply_meshMakeEdge(GLUmesh* mesh)
       {
          memFree(newFace);
       }
-      return NULL;
-   }
-
-   e=MakeEdge(&mesh->eHead);
-   if (e==NULL)
-   {
       return NULL;
    }
 

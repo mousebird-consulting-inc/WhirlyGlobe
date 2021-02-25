@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/15/11.
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -74,11 +74,14 @@
 - (NSString *)stringForKey:(NSString *)name default:(NSString *)theDefault
 {
     id what = [self objectForKey:name];
-    if (!what || ![what isKindOfClass:[NSString class]])
+    if (!what)
         return theDefault;
+    if ([what isKindOfClass:[NSString class]])
+        return (NSString *)what;
+    if ([what isKindOfClass:[NSNumber class]])
+        return [(NSNumber *)what stringValue];
     
-    NSString *str = what;
-    return str;
+    return theDefault;
 }
 
 /// Parse an enumerated type and return an int

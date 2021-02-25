@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 1/13/17.
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,11 +18,13 @@
  *
  */
 
-#import "MaplyRenderTarget.h"
+#import "rendering/MaplyRenderTarget.h"
+#import "MaplyRenderController_private.h"
 #import "WhirlyGlobe.h"
 
 @interface MaplyRenderTarget()
 
+@property (weak) MaplyRenderController *renderControl;
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity renderTargetID;
 
 @end

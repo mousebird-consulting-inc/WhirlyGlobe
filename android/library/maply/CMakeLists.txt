@@ -7,6 +7,9 @@ cmake_minimum_required(VERSION 3.4.1)
 
 set (WGTARGET "whirlyglobemaply")
 set (LOCALLIBS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../common/local_libs/")
+set (COMMON_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../common/")
+set (WGLIBANDROID "${CMAKE_CURRENT_SOURCE_DIR}/WhirlyGlobeLib/")
+set (JNIDIR "${CMAKE_CURRENT_SOURCE_DIR}/jni/")
 
 # Creates and names a library, sets it as either STATIC
 # or SHARED, and provides the relative paths to its source code.
@@ -22,6 +25,12 @@ add_library( # Sets the name of the library.
         ""
         )
 
+set_target_properties(
+        ${WGTARGET}
+
+        PROPERTIES LINKER_LANGUAGE CXX
+)
+
 target_include_directories(
         ${WGTARGET}
 
@@ -32,14 +41,14 @@ target_include_directories(
 
 include("${LOCALLIBS_DIR}/proj-4/src/wgmaplyCMakeLists.txt")
 include("${LOCALLIBS_DIR}/aaplus/wgmaplyCMakeLists.txt")
-include("${LOCALLIBS_DIR}/protobuf/wgmaplyCMakeLists.txt")
 include("${LOCALLIBS_DIR}/clipper/wgmaplyCMakeLists.txt")
+include("${LOCALLIBS_DIR}/nanopb/wgmaplyCMakeLists.txt")
 include("${LOCALLIBS_DIR}/shapefile/wgmaplyCMakeLists.txt")
 include("${LOCALLIBS_DIR}/glues/wgmaplyCMakeLists.txt")
 include("${LOCALLIBS_DIR}/libjson/wgmaplyCMakeLists.txt")
-include("${LOCALLIBS_DIR}/laszip/wgmaplyCMakeLists.txt")
-include("${CMAKE_CURRENT_SOURCE_DIR}/../WhirlyGlobeLib/src/CMakeLists.txt")
-include("${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/CMakeLists.txt")
+include("${COMMON_DIR}/WhirlyGlobeLib/src/CMakeLists.txt")
+include("${WGLIBANDROID}/src/CMakeLists.txt")
+include("${JNIDIR}/CMakeLists.txt")
 
 set_target_properties(
         ${WGTARGET}
@@ -71,5 +80,5 @@ target_link_libraries( # Specifies the target library.
         # included in the NDK.
         ${log-lib}
 
-        GLESv2 GLESv1_CM android EGL jnigraphics atomic
+        GLESv3 android EGL jnigraphics atomic m
         )

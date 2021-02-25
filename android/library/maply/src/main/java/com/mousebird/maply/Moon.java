@@ -71,7 +71,10 @@ public class Moon {
     static {
         nativeInit();
     }
-
+    public void finalize()
+    {
+        dispose();
+    }
     private static native void nativeInit();
     native void initialise(int year, int month, int day, int hour, int minutes, int second);
     native void dispose();

@@ -3,11 +3,12 @@
 //  AutoTester
 //
 //  Created by Steve Gifford on 8/11/16.
-//  Copyright © 2016-2017 mousebird consulting. All rights reserved.
+//  Copyright © 2016-2017 mousebird consulting.
 //
 
 #import "MaplyTestCase.h"
-#import "GeographyClassTestCase.h"
+
+@class GeographyClassTestCase;
 
 @interface VectorHoleTestCase : MaplyTestCase
 

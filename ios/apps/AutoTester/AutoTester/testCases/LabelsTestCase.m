@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by jmnavarro on 2/11/15.
-//  Copyright © 2015-2017 mousebird consulting. All rights reserved.
+//  Copyright © 2015-2017 mousebird consulting.
 //
 
 #import "LabelsTestCase.h"
@@ -19,7 +19,6 @@
 - (instancetype)init
 {
 	if (self = [super init]) {
-		self.captureDelay = 3;
 		self.name = @"Labels";
 		self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
 	}
@@ -34,13 +33,13 @@
 		MaplyLabel *label = [[MaplyLabel alloc] init];
 		label.loc = object.center;
 		label.size = size;
-		if (object.userObject == nil) {
+		if (object.attributes[@"title"] == nil) {
 			label.text = @"Label";
-			label.userObject = object.userObject;
+			label.userObject = object.attributes[@"title"];
 		}
 		else {
-			label.text = object.userObject;
-			label.userObject = object.userObject;
+			label.text = object.attributes[@"title"];
+			label.userObject = object.attributes[@"title"];
 		}
         
 		if (i % 2 == 0) {

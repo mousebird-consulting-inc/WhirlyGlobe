@@ -22,7 +22,7 @@ public class StickerManager
     }
 
     // Add a single sticker to the scene and return an ID for tracker
-    public native long addSticker(Sticker sticker,StickerInfo stickerInfo,ChangeSet changes);
+    public native long addStickers(Sticker[] stickers,StickerInfo stickerInfo,ChangeSet changes);
 
     // Modify the given chunk with new texture IDs
     public native boolean modifyChunkTextures(long stickerID,StickerInfo stickerInfo,ChangeSet changes);

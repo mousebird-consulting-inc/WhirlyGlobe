@@ -9,7 +9,7 @@
 
 Pod::Spec.new do |s|
   s.name             = "WhirlyGlobe"
-  s.version          = "2.6.5"
+  s.version          = "3.0"
   s.summary          = "WhirlyGlobe-Maply: Geospatial visualization for iOS and Android."
   s.description      = <<-DESC
                         WhirlyGlobe-Maply is a high performance geospatial display toolkit for iOS and Android.
@@ -27,23 +27,24 @@ Pod::Spec.new do |s|
   s.source = { :git => 'https://github.com/mousebird/WhirlyGlobe.git', :branch => 'develop' }
 
   s.compiler_flags = '-D__USE_SDL_GLES__ -D__IPHONEOS__ -DSQLITE_OPEN_READONLY -DHAVE_PTHREAD=1 -DUNORDERED=1 -DLASZIPDLL_EXPORTS=1'
-  s.xcconfig = { "HEADER_SEARCH_PATHS" => " \"$(PODS_ROOT)/eigen/\" \"$(PODS_ROOT)/KissXML/KissXML/\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/protobuf/src/\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/laszip/include/\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/clipper\" \"$(SDKROOT)/usr/include/libxml2\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/glues/include/\" \"$(PODS_ROOT)/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/private/\" \"$(PODS_ROOT)/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_tiles/\" " }
+  s.xcconfig = { "HEADER_SEARCH_PATHS" => " \"$(PODS_ROOT)/WhirlyGlobe/common/local_libs/eigen/\" \"$(PODS_ROOT)/KissXML/KissXML/\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/nanopb/\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/clipper\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/lodepng\" \"$(SDKROOT)/usr/include/libxml2\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/glues/include/\" \"$(PODS_ROOT)/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/private/\" \"$(PODS_ROOT)/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/\" \"$(PODS_ROOT)/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_tiles/\" " }
 
   s.default_subspec = 'MaplyComponent'
 
   s.subspec 'locallibs' do |ll|
     ll.source_files = 'common/local_libs/aaplus/**/*.{h,cpp}',
         'common/local_libs/clipper/cpp/*.{cpp,hpp}',
-        'common/local_libs/laszip/include/laszip/*.h', 'common/local_libs/laszip/src/*.{cpp,hpp}',
-        'common/local_libs/protobuf/src/google/protobuf/*.{cc,h}', 'common/local_libs/protobuf/src/google/protobuf/stubs/*.{cc,h}', 'common/local_libs/protobuf/src/google/protobuf/io/*.{cc,h}', 'common/local_libs/protobuf/src/google/protobuf/testing/*.h',
-        'common/local_libs/shapefile/**/*.{c,h}'
-    ll.preserve_paths = 'common/local_libs/protobuf/src/google/protobuf/*.h', 'common/local_libs/protobuf/src/google/protobuf/stubs/*.h', 'common/local_libs/protobuf/src/google/protobuf/io/*.h',
-        'common/local_libs/laszip/include/laszip/*.h', 'common/local_libs/laszip/src/*.hpp'
+        'common/local_libs/shapefile/**/*.{c,h}',
+        'common/local_libs/lodepng/*.{cpp,h}',
+        'common/local_libs/nanopb/*.{c,h}'
+    ll.preserve_paths = 'common/local_libs/laszip/include/laszip/*.h', 'common/local_libs/laszip/src/*.hpp',
+        'common/local_libs/eigen/Eigen/*', 'common/local_libs/eigen/Eigen/**/*.h',
+        'common/local_libs/lodepng/*.h',
+        'common/local_libs/nanopb/*.h'
     ll.private_header_files = 'common/local_libs/aaplus/**/*.h',
         'common/local_libs/clipper/cpp/*.hpp',
-        'common/local_libs/laszip/include/laszip/*.h','common/local_libs/laszip/src/*.hpp',
-        'common/local_libs/protobuf/src/google/protobuf/*.h', 'common/local_libs/protobuf/src/google/protobuf/stubs/*.h', 'common/local_libs/protobuf/src/google/protobuf/io/*.h', 'common/local_libs/protobuf/src/google/protobuf/testing/*.h',
-        'common/local_libs/shapefile/**/*.h'
+        'common/local_libs/shapefile/**/*.h',
+        'common/local_libs/nanopb/*.h'
   end
 
   s.subspec 'glues' do |gl|
@@ -53,7 +54,7 @@ Pod::Spec.new do |s|
   end
 
   s.subspec 'MaplyComponent' do |mc|
-    mc.source_files = 'ios/library/WhirlyGlobeLib/src/*.{mm,m}', 'ios/library/WhirlyGlobeLib/include/*.h', 'ios/library/WhirlyGlobe-MaplyComponent/include/**/*.h', 'ios/library/WhirlyGlobe-MaplyComponent/src/**/*.{mm,m,cpp}'
+    mc.source_files = 'common/WhirlyGlobeLib/include/*.h', 'common/WhirlyGlobeLib/src/*.{c,cpp}', 'ios/library/WhirlyGlobeLib/src/*.{mm,m,cpp,metal}', 'ios/library/WhirlyGlobeLib/include/*.h', 'ios/library/WhirlyGlobe-MaplyComponent/include/**/*.h', 'ios/library/WhirlyGlobe-MaplyComponent/src/**/*.{mm,m,cpp,metal}'
     mc.public_header_files = 'ios/library/WhirlyGlobe-MaplyComponent/include/*.h', "ios/library/WhirlyGlobe-MaplyComponent/include/vector_tiles/*.h"
     mc.private_header_files = 'ios/library/WhirlyGlobeLib/include/*.h', 'ios/**/vector_tile.pb.h', 'ios/**/MaplyBridge.h'
     mc.dependency 'WhirlyGlobe/locallibs'
@@ -62,10 +63,9 @@ Pod::Spec.new do |s|
     mc.dependency 'FMDB'
     mc.dependency 'libjson'
     mc.dependency 'KissXML'
-    mc.dependency 'eigen'
     mc.dependency 'proj4'
     mc.libraries = 'z', 'xml2', 'c++', 'sqlite3'
-    mc.frameworks = 'CoreLocation', 'MobileCoreServices', 'SystemConfiguration', 'CFNetwork', 'UIKit', 'OpenGLES'
+    mc.frameworks = 'CoreLocation', 'MobileCoreServices', 'SystemConfiguration', 'CFNetwork', 'UIKit', 'OpenGLES', 'Accelerate', 'MetalKit', 'MetalPerformanceShaders'
   end
 
 end

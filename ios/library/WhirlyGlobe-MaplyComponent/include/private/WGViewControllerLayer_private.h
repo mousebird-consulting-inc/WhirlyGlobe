@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 9/17/12.
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,11 +19,11 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <WhirlyGlobe.h>
-#import "MaplyViewControllerLayer_private.h"
+#import <WhirlyGlobe_iOS.h>
+#import "MaplyControllerLayer_private.h"
 
 /// Used to keep track of resources for a layer the user has asked to be created.
 /// Don't mess with these directly.
-@interface WGViewControllerLayer : MaplyViewControllerLayer
+@interface WGViewControllerLayer : MaplyControllerLayer
 
 @end

@@ -44,10 +44,10 @@ class MarkerManager
 	}
 
 	// Add markers to the scene and return an ID to track them
-	public native long addScreenMarkers(List<InternalMarker> markers,MarkerInfo markerInfo,ChangeSet changes);
+	public native long addScreenMarkers(InternalMarker[] markers,MarkerInfo markerInfo,ChangeSet changes);
 
 	// Add markers to the scene and return an ID to track them
-	public native long addMarkers(List<InternalMarker> markers,MarkerInfo markerInfo,ChangeSet changes);
+	public native long addMarkers(InternalMarker[] markers,MarkerInfo markerInfo,ChangeSet changes);
 
 	// Remove markers by ID
 	public native void removeMarkers(long ids[],ChangeSet changes);

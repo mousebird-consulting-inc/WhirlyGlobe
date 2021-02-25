@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 10/25/13.
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "MaplyTexture.h"
-#import "MaplyRenderController.h"
+#import "visual_objects/MaplyTexture.h"
+#import "control/MaplyRenderController.h"
 #import "WhirlyGlobe.h"
 
 @class MaplyBaseInteractionLayer;

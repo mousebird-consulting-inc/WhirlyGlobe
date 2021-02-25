@@ -1738,7 +1738,6 @@ public class GLTextureView extends TextureView implements TextureView.SurfaceTex
                 return true;
             }
             // Notify the owning thread that it should release the context.
-            // TODO: implement a fairness policy. Currently
             // if the owning thread is drawing continuously it will just
             // reacquire the EGL context.
             if (mEglOwner != null) {

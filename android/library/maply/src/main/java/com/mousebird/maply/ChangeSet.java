@@ -39,6 +39,9 @@ public class ChangeSet
 	
 	// Remove a texture from the scene by ID
 	public native void removeTexture(long texID);
+
+	// Request a clear for a render target
+	public native void clearRenderTarget(long renderTargetID);
 	
 	// Merge a new set of changes in at the end
 	// This clears the changes in the ChangeSet passed in
@@ -46,7 +49,7 @@ public class ChangeSet
 	
 	// Create whatever objects want to be created.
 	// We're assuming a valid EGL context is in place
-	public native void process(Scene scene);
+	public native void process(RenderController renderControl,Scene scene);
 	
 	static
 	{

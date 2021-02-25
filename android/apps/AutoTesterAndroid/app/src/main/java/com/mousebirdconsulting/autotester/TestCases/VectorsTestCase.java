@@ -7,17 +7,18 @@ import android.graphics.Color;
 import com.mousebird.maply.ComponentObject;
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.MapController;
-import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.BaseController;
+import com.mousebird.maply.RenderController;
 import com.mousebird.maply.VectorInfo;
 import com.mousebird.maply.VectorObject;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
-
-import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+
+import okio.Okio;
 
 
 public class VectorsTestCase extends MaplyTestCase {
@@ -32,7 +33,7 @@ public class VectorsTestCase extends MaplyTestCase {
 		this.implementation = TestExecutionImplementation.Both;
 	}
 
-	private void overlayCountries(MaplyBaseController baseVC) throws Exception {
+	private void overlayCountries(BaseController baseVC) throws Exception {
 		VectorInfo vectorInfo = new VectorInfo();
 		vectorInfo.setColor(Color.RED);
 		vectorInfo.setLineWidth(4.f);
@@ -43,8 +44,8 @@ public class VectorsTestCase extends MaplyTestCase {
 			InputStream stream = assetMgr.open("country_json_50m/" + path);
 			try {
 				VectorObject vecObject = new VectorObject();
-				vecObject.selectable = true;
-				String json = IOUtils.toString(stream, Charset.defaultCharset());
+				vecObject.setSelectable(true);
+				String json = Okio.buffer(Okio.source(stream)).readUtf8();
 				if (vecObject.fromGeoJSON(json)) {
 					vectors.add(vecObject);
 				}
@@ -64,27 +65,28 @@ public class VectorsTestCase extends MaplyTestCase {
 //		bigVecObj.addAreal(pts);
 
 		// Add as red
-		ComponentObject compObj = baseVC.addVectors(vectors, vectorInfo, MaplyBaseController.ThreadMode.ThreadAny);
-		// Then change to green
+		ComponentObject compObj = baseVC.addVectors(vectors, vectorInfo, RenderController.ThreadMode.ThreadAny);
+		// Then change to white
 		VectorInfo newVectorInfo = new VectorInfo();
-		newVectorInfo.setColor(Color.GREEN);
+		newVectorInfo.setColor(Color.WHITE);
 		newVectorInfo.setLineWidth(4.f);
-		baseVC.changeVectors(compObj,newVectorInfo,MaplyBaseController.ThreadMode.ThreadAny);
+		baseVC.changeVector(compObj,newVectorInfo,RenderController.ThreadMode.ThreadAny);
 	}
 
 	@Override
 	public boolean setUpWithMap(MapController mapVC) throws Exception {
-		CartoDBMapTestCase mapBoxSatelliteTestCase = new CartoDBMapTestCase(getActivity());
-		mapBoxSatelliteTestCase.setUpWithMap(mapVC);
+		GeographyClass baseCase = new GeographyClass(getActivity());
+		baseCase.setUpWithMap(mapVC);
 		overlayCountries(mapVC);
 		return true;
 	}
 
 	@Override
 	public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
-		CartoDBMapTestCase mapBoxSatelliteTestCase = new CartoDBMapTestCase(getActivity());
-		mapBoxSatelliteTestCase.setUpWithGlobe(globeVC);
+		GeographyClass baseCase = new GeographyClass(getActivity());
+		baseCase.setUpWithGlobe(globeVC);
 		overlayCountries(globeVC);
+
 		return true;
 	}
 

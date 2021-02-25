@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/15/11.
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -34,10 +34,26 @@ using namespace Eigen;
     return [UIColor colorWithRed:red green:green blue:blue alpha:1.0];
 }
 
++ (UIColor *) colorFromRGBA:(const WhirlyKit::RGBAColor &)color
+{
+    float red = color.r / 255.0;
+    float green = color.g / 255.0;
+    float blue = color.b / 255.0;
+    float alpha = color.a / 255.0;
+
+    return [UIColor colorWithRed:red green:green blue:blue alpha:alpha];
+}
+
 - (int) asHexRGB
 {
   RGBAColor rgb = [self asRGBAColor];
   return (rgb.r << 16) | (rgb.g << 8)| rgb.b;
+}
+
+- (NSString *) asHexRGBAString
+{
+    RGBAColor rgb = [self asRGBAColor];
+    return [NSString stringWithFormat:@"#%2d%2d%2d%2d",rgb.r,rgb.g,rgb.b,rgb.a];
 }
 
 - (RGBAColor) asRGBAColor

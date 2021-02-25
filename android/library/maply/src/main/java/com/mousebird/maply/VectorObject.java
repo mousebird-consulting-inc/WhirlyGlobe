@@ -44,7 +44,7 @@ public class VectorObject implements Iterable<VectorObject>
 	 */
 	public VectorObject()
 	{
-		initialise();
+		initialise(ident);
 	}
 
 	/**
@@ -52,16 +52,56 @@ public class VectorObject implements Iterable<VectorObject>
 	 */
 	long ident = Identifiable.genID();
 
+	public enum MaplyVectorObjectType {
+		MaplyVectorNoneType(0), MaplyVectorPointType(1), MaplyVectorLinearType(2), MaplyVectorLinear3dType(3), MaplyVectorArealType(4), MaplyVectorMultiType(5);
+		private final int objType;
+		MaplyVectorObjectType(int objType) {this.objType = objType;}
+		public int getValue() { return objType;}
+	};
+
+	/**
+	 * The vector type is one of point, linear, linear3d, areal, or a combination.
+	 */
+	public MaplyVectorObjectType getVectorType()
+	{
+		int vectorType = getVectorTypeNative();
+		if (vectorType == MaplyVectorObjectType.MaplyVectorNoneType.getValue())
+			return MaplyVectorObjectType.MaplyVectorNoneType;
+		else if (vectorType == MaplyVectorObjectType.MaplyVectorPointType.getValue())
+			return MaplyVectorObjectType.MaplyVectorPointType;
+		else if (vectorType == MaplyVectorObjectType.MaplyVectorLinearType.getValue())
+			return MaplyVectorObjectType.MaplyVectorLinearType;
+		else if (vectorType == MaplyVectorObjectType.MaplyVectorLinear3dType.getValue())
+			return MaplyVectorObjectType.MaplyVectorLinear3dType;
+		else if (vectorType == MaplyVectorObjectType.MaplyVectorArealType.getValue())
+			return MaplyVectorObjectType.MaplyVectorArealType;
+		else if (vectorType == MaplyVectorObjectType.MaplyVectorMultiType.getValue())
+			return MaplyVectorObjectType.MaplyVectorMultiType;
+		else
+			return MaplyVectorObjectType.MaplyVectorNoneType;
+	}
+	private native int getVectorTypeNative();
+
 	/**
 	 * Turn this on if you want the vector object to be selectable.
 	 *
 	 */
-	public boolean selectable = false;
+	public native void setSelectable(boolean newSelect);
+
+	/**
+	 * On if this features is selectable.
+	 */
+	public native boolean getSelectable();
 
 	/**
 	 * Return attributes for the feature.  If there are multiple features, we get the first one.
 	 */
 	public native AttrDictionary getAttributes();
+
+	/**
+	 * Reset the attributes for the feature.
+	 */
+	public native void setAttributes(AttrDictionary attrs);
 	
 	/**
 	 * Add a single point
@@ -82,12 +122,12 @@ public class VectorObject implements Iterable<VectorObject>
 	 * Add an areal feature with a single exterior loop and one or more interior loops.
      */
 	public native void addAreal(Point2d ext[],Point2d holes[][]);
-	
-	public void finalize()
-	{
-		dispose();
-	}
-	
+
+	/**
+	 * Merge the vectors from the other vector object into this one.
+	 */
+	public native void mergeVectorsFrom(VectorObject other);
+
 	/**
 	 * Vector objects can be made of lots of smaller objects.  If you need to access
 	 * each of this individually, this iterator will handle that efficiently.
@@ -97,7 +137,12 @@ public class VectorObject implements Iterable<VectorObject>
 	{
 		return new VectorIterator(this);
 	}
-	
+
+	/**
+	 * Calculate the center (not the centroid).
+	 */
+	public native Point2d center();
+
 	/**
 	 * Calculate the centroid of the object.  This assumes we've got at least one areal loop.
 	 * 
@@ -123,24 +168,32 @@ public class VectorObject implements Iterable<VectorObject>
 	public native double linearMiddle(Point2d middle);
 
 	/**
+	 * Calculate the midpoint of a multi-point line.  Also return the rotation.
+	 * Does its work in the coordinate system passed in
+	 *
+	 * @param middle Midpoint of the line
+	 * @param coordSys Coordinate system to project into first.
+	 * @return Orientation along the long at that point
+	 */
+	public native double linearMiddle(Point2d middle,CoordSystem coordSys);
+
+	/**
+	 * Return the point right in the middle (index-wise) of a linear features.
+	 * @param middle Return point
+	 * @return True if this was a linear
+	 */
+	public native boolean middleCoordinate(Point2d middle);
+
+	/**
 	 * Return true if the given point (in geo radians) is inside the vector feature.
 	 * Only makes sense with areals.
      */
 	public native boolean pointInside(Point2d pt);
-	
-	/**
-	 * Load vector objects from a GeoJSON string.
-	 * @param json The GeoSJON string, presumably read from a file or over the network
-	 * @return false if we were unable to parse the GeoJSON
-	 */
-	public native boolean fromGeoJSON(String json);
 
 	/**
-	 * Load vector objects from a Shapefile.
-	 * @param fileName The filename of the Shapefile.
-	 * @return false if we were unable to parse the Shapefile.
+	 * Area of all the out loops together.
 	 */
-	public native boolean fromShapeFile(String fileName);
+	public native double areaOfOuterLoops();
 
 	/**
 	 * Returns the total number of points in a feature.  Used for assessing size.
@@ -148,39 +201,16 @@ public class VectorObject implements Iterable<VectorObject>
 	public native int countPoints();
 
 	/**
-	 * Tesselate the areal features and return a new vector object.
+	 * Bounding box of all the various features together
 	 */
-	public VectorObject tesselate()
-	{
-		VectorObject retVecObj = new VectorObject();
-		if (!tesselateNative(retVecObj))
-			return null;
-
-		return retVecObj;
-	}
-
-	native boolean tesselateNative(VectorObject retVecObj);
-
-	/**
-	 * Clip the given areal features to a grid of the given size.
-	 */
-	public VectorObject clipToGrid(Point2d size)
-	{
-		VectorObject retVecObj = new VectorObject();
-		if (!clipToGridNative(retVecObj,size.getX(),size.getY()))
-			return null;
-
-		return retVecObj;
-	}
-
-	native boolean clipToGridNative(VectorObject retVecObj,double sizeX,double sizeY);
+	public native boolean boundingBox(Point2d ll,Point2d ur);
 
 	/**
 	 Subdivide the edges in this feature to a given tolerance.
 
 	 This will break up long edges in a vector until they lie flat on a globe to a given epsilon.  The epislon is in display coordinates (radius = 1.0). This routine breaks this up along geographic boundaries.
 	 */
-	public VectorObject subdivideToGlobe(float epsilon)
+	public VectorObject subdivideToGlobe(double epsilon)
 	{
 		VectorObject retVecObj = new VectorObject();
 		if (!subdivideToGlobeNative(retVecObj,epsilon))
@@ -189,7 +219,7 @@ public class VectorObject implements Iterable<VectorObject>
 		return retVecObj;
 	}
 
-	native boolean subdivideToGlobeNative(VectorObject retVecObj,double epsilon);
+	private native boolean subdivideToGlobeNative(VectorObject retVecObj,double epsilon);
 
 	/**
 	 Subdivide the edges in this feature to a given tolerance, using great circle math.
@@ -205,7 +235,7 @@ public class VectorObject implements Iterable<VectorObject>
 		return retVecObj;
 	}
 
-	native boolean subdivideToGlobeGreatCircleNative(VectorObject retVecObj,double epsilon);
+	private native boolean subdivideToGlobeGreatCircleNative(VectorObject retVecObj,double epsilon);
 
 	/**
 	 Subdivide the edges in this feature to a given tolerance, using great circle math.
@@ -221,7 +251,35 @@ public class VectorObject implements Iterable<VectorObject>
 		return retVecObj;
 	}
 
-	native boolean subdivideToFlatGreatCircleNative(VectorObject retVecObj,double epsilon);
+	private native boolean subdivideToFlatGreatCircleNative(VectorObject retVecObj,double epsilon);
+
+	/**
+	 * Tesselate the areal features and return a new vector object.
+	 */
+	public VectorObject tesselate()
+	{
+		VectorObject retVecObj = new VectorObject();
+		if (!tesselateNative(retVecObj))
+			return null;
+
+		return retVecObj;
+	}
+
+	private native boolean tesselateNative(VectorObject retVecObj);
+
+	/**
+	 * Clip the given areal features to a grid of the given size.
+	 */
+	public VectorObject clipToGrid(Point2d size)
+	{
+		VectorObject retVecObj = new VectorObject();
+		if (!clipToGridNative(retVecObj,size.getX(),size.getY()))
+			return null;
+
+		return retVecObj;
+	}
+
+	private native boolean clipToGridNative(VectorObject retVecObj,double sizeX,double sizeY);
 
 	/**
 	 * Clip the given features to an Mbr
@@ -235,65 +293,122 @@ public class VectorObject implements Iterable<VectorObject>
 		return retVecObj;
     }
 
-	native boolean clipToMbrNative(VectorObject retVecObj,double llX,double llY, double urX, double urY);
+	private native boolean clipToMbrNative(VectorObject retVecObj,double llX,double llY, double urX, double urY);
 
-    public enum MaplyVectorObjectType {
-        MaplyVectorNoneType(0), MaplyVectorPointType(1), MaplyVectorLinearType(2), MaplyVectorLinear3dType(3), MaplyVectorArealType(4), MaplyVectorMultiType(5);
-        private final int objType;
-        MaplyVectorObjectType(int objType) {this.objType = objType;}
-        public int getValue() { return objType;}
-    };
-
-	public MaplyVectorObjectType getVectorType()
+	/**
+	 * Reproject the vectors from the given system (geographic, by default) into
+	 * the destination coordinate system.  We don't explicitly track units, so if the coordinates
+	 * need to be scaled, pass that in as well.
+	 *
+	 * @param srcSystem Source coordinate system (that the data is already in)
+	 * @param scale Scale factor to apply to the coordinates. 1.0 is a good default.
+	 * @param destSystem Destination coordinate system that we'll project data into.
+	 * @return The new vector object or null.
+	 */
+	public VectorObject reproject(CoordSystem srcSystem,double scale,CoordSystem destSystem)
 	{
-		int vectorType = getVectorTypeNative();
-        if (vectorType == MaplyVectorObjectType.MaplyVectorNoneType.getValue())
-            return MaplyVectorObjectType.MaplyVectorNoneType;
-        else if (vectorType == MaplyVectorObjectType.MaplyVectorPointType.getValue())
-            return MaplyVectorObjectType.MaplyVectorPointType;
-        else if (vectorType == MaplyVectorObjectType.MaplyVectorLinearType.getValue())
-            return MaplyVectorObjectType.MaplyVectorLinearType;
-        else if (vectorType == MaplyVectorObjectType.MaplyVectorLinear3dType.getValue())
-            return MaplyVectorObjectType.MaplyVectorLinear3dType;
-        else if (vectorType == MaplyVectorObjectType.MaplyVectorArealType.getValue())
-            return MaplyVectorObjectType.MaplyVectorArealType;
-        else if (vectorType == MaplyVectorObjectType.MaplyVectorMultiType.getValue())
-            return MaplyVectorObjectType.MaplyVectorMultiType;
-        else
-            return MaplyVectorObjectType.MaplyVectorNoneType;
+		VectorObject retVecObj = new VectorObject();
+		if (!reprojectNative(retVecObj,srcSystem,scale,destSystem))
+			return null;
+
+		return retVecObj;
 	}
 
-    native int getVectorTypeNative();
-	
+	private native boolean reprojectNative(VectorObject vecObj,CoordSystem srcSystem,double scale,CoordSystem destSystem);
+
+	/**
+	 * Filter out edges created from clipping areal features on the server.
+	 *
+	 * In some very specific cases (OSM water) we get polygons that are obviously clipped
+	 * along internal boundaries.  We can clear this up with some very, very specific logic.
+	 *
+	 * Input must be closed areals and output is linears.
+	 *
+	 * @return The filtered vector object or null.
+	 */
+	public VectorObject filterClippedEdges()
+	{
+		VectorObject retVecObj = new VectorObject();
+		if (!filterClippedEdgesNative(retVecObj))
+			return null;
+		return retVecObj;
+	}
+
+	private native boolean filterClippedEdgesNative(VectorObject vecObj);
+
+	/**
+	 * Convert any linears features into areals, by closing them and return
+	 * a new vector object or null.
+	 */
+	public VectorObject linearsToAreals()
+	{
+		VectorObject retVecObj = new VectorObject();
+		if (!linearsToArealsNative(retVecObj))
+			return null;
+		return retVecObj;
+	}
+
+	private native boolean linearsToArealsNative(VectorObject vecObj);
+
+	/**
+	 * Convert any areal features to linears (just the outline) and return
+	 * a new vector object or null.
+	 */
+	public VectorObject arealsToLinears()
+	{
+		VectorObject retVecObj = new VectorObject();
+		if (!arealsToLinearsNative(retVecObj))
+			return null;
+		return retVecObj;
+	}
+
+	private native boolean arealsToLinearsNative(VectorObject vecObj);
+
+	/**
+	 * Load vector objects from a GeoJSON string.
+	 * @param json The GeoSJON string, presumably read from a file or over the network
+	 * @return false if we were unable to parse the GeoJSON
+	 */
+	public native boolean fromGeoJSON(String json);
+
+	/**
+	 * Load vector objects from a Shapefile.
+	 * @param fileName The filename of the Shapefile.
+	 * @return false if we were unable to parse the Shapefile.
+	 */
+	public native boolean fromShapeFile(String fileName);
+
+	/**
+	 * Make a complete copy of the vector object and return it.
+	 */
+	public VectorObject deepCopy()
+	{
+		VectorObject vecObj = new VectorObject();
+		deepCopyNative(vecObj);
+
+		return vecObj;
+	}
+
+	protected native void deepCopyNative(VectorObject vecObj);
+
 	/**
 	 * Load vector objects from a GeoJSON assembly, which is just a bunch of GeoJSON stuck together.
 	 * @param json
 	 * @return
 	 */
 	static public native Map<String,VectorObject> FromGeoJSONAssembly(String json);
-	
-	/**
-	 * Read vector objects from a binary file.  This is fairly efficient and a good way to
-	 * cache data.
-	 * @param fileName The file to read vector data from.
-	 * @return true on success, false otherwise.
-	 */
-	public native boolean readFromFile(String fileName);
-	
-	/**
-	 * Write a vector object to a binary file.  This is fairly efficient for caching data,
-	 * but not to be used for much else.
-	 * @param fileName The file to write data to.
-	 * @return true on success, false otherwise.
-	 */
-	public native boolean writeToFile(String fileName);
-		
+
+	public void finalize()
+	{
+		dispose();
+	}
+
 	static
 	{
 		nativeInit();
 	}
 	private static native void nativeInit();
-	native void initialise();
+	native void initialise(long ident);
 	native void dispose();
 
 	private long nativeHandle;

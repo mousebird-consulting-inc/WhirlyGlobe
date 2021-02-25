@@ -29,7 +29,7 @@ package com.mousebird.maply;
  */
 public class MapAnimateTranslate implements MapView.AnimationDelegate 
 {
-	MaplyRenderer renderer = null;
+	RenderController renderer = null;
 	MapView view = null;
 	Point3d startLoc = null;
 	Point3d endLoc = null;
@@ -46,7 +46,7 @@ public class MapAnimateTranslate implements MapView.AnimationDelegate
 	 * @param duration How long we want the animation to go.
 	 * @param inBounds Bounding box we want to keep the animation within.
 	 */
-	MapAnimateTranslate(MapView inView,MaplyRenderer inRender,Point3d newLoc,float duration,Point2d inBounds[])
+	MapAnimateTranslate(MapView inView,RenderController inRender,Point3d newLoc,float duration,Point2d inBounds[])
 	{
 		view = inView;
 		renderer = inRender;

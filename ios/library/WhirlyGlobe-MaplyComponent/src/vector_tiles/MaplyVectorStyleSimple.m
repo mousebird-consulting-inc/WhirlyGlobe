@@ -6,8 +6,8 @@
 //
 //
 
-#import "MaplyVectorStyleSimple.h"
-#import "MaplyScreenLabel.h"
+#import "vector_styles/MaplyVectorStyleSimple.h"
+#import "visual_objects/MaplyScreenLabel.h"
 
 @implementation MaplyVectorStyleSimpleGenerator
 {
@@ -16,6 +16,7 @@
     MaplyVectorStyleSimplePolygon *polyStyle;
     MaplyVectorStyleSimplePoint *pointStyle;
     MaplyVectorStyleSimpleLinear *linStyle;
+    int uuidCount;
 }
 
 - (id)initWithViewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
@@ -35,8 +36,7 @@
                                              inLayer:(NSString *__nonnull)layer
                                                viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC
 {
-    MaplyVectorStyleSimple *style;
-    
+    MaplyVectorStyleSimple *style = nil;
     
     // Look for existing layer
     @synchronized (self) {
@@ -44,21 +44,21 @@
         if (style)
             return @[style];
     }
-    int layer_order = (int)[attributes[@"layer_order"] integerValue];
+    const int layer_order = (int)[attributes[@"layer_order"] integerValue];
     
-    int geomType = (int)[attributes[@"geometry_type"] integerValue];
+    const int geomType = (int)[attributes[@"geometry_type"] integerValue];
     switch (geomType)
     {
         case GeomTypePoint:
-            style = [[MaplyVectorStyleSimplePoint alloc] initWithViewC:viewC];
+            style = [[MaplyVectorStyleSimplePoint alloc] initWithGen:self viewC:viewC];
             style.drawPriority = kMaplyLabelDrawPriorityDefault+layer_order;
             break;
         case GeomTypeLineString:
-            style = [[MaplyVectorStyleSimpleLinear alloc] initWithViewC:viewC];
+            style = [[MaplyVectorStyleSimpleLinear alloc] initWithGen:self viewC:viewC];
             style.drawPriority = kMaplyVectorDrawPriorityDefault+1000+layer_order;
             break;
         case GeomTypePolygon:
-            style = [[MaplyVectorStyleSimplePolygon alloc] initWithViewC:viewC];
+            style = [[MaplyVectorStyleSimplePolygon alloc] initWithGen:self viewC:viewC];
             style.drawPriority = kMaplyVectorDrawPriorityDefault+layer_order;
             break;
         default:
@@ -66,11 +66,13 @@
     }
     
     @synchronized (self) {
-        stylesByUUID[style.uuid] = style;
-        stylesByLayerName[layer] = style;
+        if (style) {
+            stylesByUUID[@(style.uuid)] = style;
+            stylesByLayerName[layer] = style;
+        }
     }
-    
-    return @[style];
+
+    return style ? @[style] : @[];
 }
 
 // We'll display all layers
@@ -79,22 +81,38 @@
     return true;
 }
 
-- (nullable MaplyVectorTileStyle *)styleForUUID:(NSString *__nonnull)uuid viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC
+- (nullable MaplyVectorTileStyle *)styleForUUID:(long long)uuid viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC
 {
-    return stylesByUUID[uuid];
+    return stylesByUUID[@(uuid)];
+}
+
+- (nullable NSObject<MaplyVectorStyle> *)backgroundStyleViewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+{
+    return nil;
+}
+
+- (NSArray * _Nonnull)allStyles
+{
+    return [stylesByUUID allValues];
+}
+
+
+- (long long)generateID
+{
+    uuidCount = uuidCount + 1;
+    return uuidCount;
 }
 
 @end
 
 @implementation MaplyVectorStyleSimple
 
-- (id)initWithViewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+- (id)initWithGen:(MaplyVectorStyleSimpleGenerator *)gen viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     self = [super init];
     _viewC = viewC;
-    
-    // UUID is just unique, not particularly profound
-    _uuid = [@(rand()) stringValue];
+
+    _uuid = [gen generateID];
     
     return self;
 }
@@ -104,18 +122,17 @@
     return nil;
 }
 
-- (NSArray * __nullable )buildObjects:(NSArray * _Nonnull)vecObjs forTile:(MaplyVectorTileInfo *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
+- (void)buildObjects:(NSArray * _Nonnull)vecObjs forTile:(MaplyVectorTileData *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
 {
-    return nil;
 }
 
 @end
 
 @implementation MaplyVectorStyleSimplePolygon
 
-- (id)initWithViewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+- (id)initWithGen:(MaplyVectorStyleSimpleGenerator *)gen viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
-    self = [super initWithViewC:viewC];
+    self = [super initWithGen:gen viewC:viewC];
     float red = drand48()/2.0;
     float green = drand48()/2.0;
     float blue = 0.0;
@@ -124,7 +141,7 @@
     return self;
 }
 
-- (NSArray * __nullable )buildObjects:(NSArray * _Nonnull)vecObjs forTile:(MaplyVectorTileInfo *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
+- (void)buildObjects:(NSArray * _Nonnull)vecObjs forTile:(MaplyVectorTileData *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
 {
     NSMutableArray *tessObjs = [NSMutableArray array];
     for (MaplyVectorObject *vecObj in vecObjs)
@@ -138,25 +155,23 @@
                                                                            kMaplyFilled: @(YES),
                                                                            kMaplyDrawPriority: @(self.drawPriority)
                                                                            } mode:MaplyThreadCurrent];
-    if (!compObj)
-        return nil;
-    
-    return @[compObj];
+    if (compObj)
+        [tileInfo addComponentObject:compObj];
 }
 
 @end
 
 @implementation MaplyVectorStyleSimplePoint
 
-- (id)initWithViewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+- (id)initWithGen:(MaplyVectorStyleSimpleGenerator *)gen viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
-    self = [super initWithViewC:viewC];
+    self = [super initWithGen:gen viewC:viewC];
     _font = [UIFont systemFontOfSize:24.0];
     
     return self;
 }
 
-- (NSArray * __nullable )buildObjects:(NSArray * _Nonnull)vecObjs forTile:(MaplyVectorTileInfo *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
+- (void)buildObjects:(NSArray * _Nonnull)vecObjs forTile:(MaplyVectorTileData *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
 {
     NSMutableArray *labels = [NSMutableArray array];
     
@@ -177,25 +192,23 @@
     }
     
     if (labels.count == 0)
-        return nil;
+        return;
     
     MaplyComponentObject *compObj = [self.viewC addScreenLabels:labels desc:@{kMaplyTextColor: [UIColor blackColor],
                                                                               kMaplyFont: _font}
                                                            mode:MaplyThreadCurrent];
     
-    if (!compObj)
-        return nil;
-    
-    return @[compObj];
+    if (compObj)
+        [tileInfo addComponentObject:compObj];
 }
 
 @end
 
 @implementation MaplyVectorStyleSimpleLinear
 
-- (id)initWithViewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+- (id)initWithGen:(MaplyVectorStyleSimpleGenerator *)gen viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
-    self = [super initWithViewC:viewC];
+    self = [super initWithGen:gen viewC:viewC];
     float red = drand48()/2.0;
     float green = drand48()/2.0;
     float blue = drand48()/2.0;
@@ -204,7 +217,7 @@
     return self;
 }
 
-- (NSArray * __nullable )buildObjects:(NSArray * _Nonnull)vecObjs forTile:(MaplyVectorTileInfo *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
+- (void)buildObjects:(NSArray * _Nonnull)vecObjs forTile:(MaplyVectorTileData *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
 {
     MaplyComponentObject *compObj = [super.viewC addVectors:vecObjs desc:@{kMaplyColor: _color,
                                                                            kMaplyDrawPriority: @(self.drawPriority),
@@ -212,10 +225,10 @@
                                                                            kMaplyVecWidth: @(4.0)
                                                                            } mode:MaplyThreadCurrent];
 
-    if (!compObj)
-        return nil;
-
-    return @[compObj];
+    if (compObj)
+        [tileInfo addComponentObject:compObj];
 }
+
+
 
 @end
