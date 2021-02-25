@@ -5,7 +5,7 @@ What is WhirlyGlobe-Maply?
 
 WhirlyGlobe-Maply is a mapping toolkit with two parts, hence the dash. The WhirlyGlobe part is an interactive 3D globe. The Maply part is an interactive 2D map. There are separate view controllers (on iOS) for each, but otherwise they share 95% of their code.
 
-This toolkit is used in [many apps](http://mousebird.github.io/WhirlyGlobe/apps/apps.html) from big, complicated apps to even more smaller, simpler apps. Feel free to use it in yours.
+This toolkit is used in [many apps](https://mousebirdconsulting.netlify.app/apps/) from big, complicated apps to even more smaller, simpler apps. Feel free to use it in yours.
 
 WhirlyGlobe-Maply is available for both iOS and Android.
 
@@ -42,7 +42,7 @@ More Information
 
 There's a [mailing list](http://eepurl.com/D30CD) for periodic announcements. Join!
 
-Check out the [mousebird consulting blog](http://mousebirdconsulting.blogspot.com) for current progress.
+Check out the [mousebird consulting blog](https://mousebirdconsulting.netlify.app/blog.html) for current progress.
 
 Follow us on Twitter: [@whrlyglobemaply](https://twitter.com/whrlyglobemaply)
 
