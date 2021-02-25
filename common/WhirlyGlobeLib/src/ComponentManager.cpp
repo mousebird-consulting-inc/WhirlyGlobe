@@ -68,6 +68,7 @@ void ComponentObject::clear()
 }
 
 ComponentManager::ComponentManager()
+: lastMaskID(0)
 {
 }
 
@@ -194,7 +195,7 @@ void ComponentManager::removeComponentObjects(PlatformThreadInfo *threadInfo,con
 {
     if (compIDs.empty())
         return;
-
+    
     std::vector<ComponentObjectRef> compRefs;
 
     {
@@ -203,6 +204,7 @@ void ComponentManager::removeComponentObjects(PlatformThreadInfo *threadInfo,con
         removeComponentObjects_NoLock(threadInfo, compIDs, compRefs);
     }
 
+    SimpleIDSet maskIDs;
     for (const ComponentObjectRef &compObj : compRefs)
     {
         // Get rid of the various layer objects
@@ -238,7 +240,11 @@ void ComponentManager::removeComponentObjects(PlatformThreadInfo *threadInfo,con
             for (SimpleIdentity partSysID : compObj->partSysIDs)
                 partSysManager->removeParticleSystem(partSysID, changes);
         }
+        if (!compObj->maskIDs.empty())
+            maskIDs.insert(compObj->maskIDs.begin(),compObj->maskIDs.end());
     }
+
+    releaseMaskIDs(maskIDs);
 }
 
 void ComponentManager::enableComponentObject(SimpleIdentity compID, bool enable, ChangeSet &changes, bool resolveReps)
@@ -564,6 +570,50 @@ void ComponentManager::setUniformBlock(const SimpleIDSet &compIDs,const RawDataR
             geomManager->setUniformBlock(compObj->geomIDs,uniBlock,bufferID,changes);
         }
         // TODO: Fill this in for the other object types
+    }
+}
+
+SimpleIdentity ComponentManager::retainMaskByName(const std::string &maskName)
+{
+    std::lock_guard<std::mutex> guardLock(maskLock);
+
+    // Add an entry or reuse one
+    MaskEntryRef entry;
+    auto it = maskEntriesByName.find(maskName);
+    if (it == maskEntriesByName.end()) {
+        entry = std::make_shared<MaskEntry>();
+        entry->name = maskName;
+        entry->maskID = ++lastMaskID;
+        entry->refCount = 0;
+        maskEntriesByName[maskName] = entry;
+        maskEntriesByID[entry->maskID] = entry;
+    } else {
+        entry = it->second;
+    }
+    entry->refCount++;
+    
+    return entry->maskID;
+}
+
+void ComponentManager::releaseMaskIDs(const SimpleIDSet &maskIDs)
+{
+    std::lock_guard<std::mutex> guardLock(maskLock);
+
+    for (auto maskID: maskIDs) {
+        // Reduce reference count
+        auto it = maskEntriesByID.find(maskID);
+        if (it != maskEntriesByID.end()) {
+            auto entry = it->second;
+            entry->refCount--;
+
+            // Erase it when we're done
+            if (entry->refCount <= 0) {
+                maskEntriesByID.erase(it);
+                auto it2 = maskEntriesByName.find(entry->name);
+                if (it2 != maskEntriesByName.end())
+                    maskEntriesByName.erase(it2);
+            }
+        }
     }
 }
     

@@ -745,6 +745,7 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
         destAttrs.insert(attr->attr);
 }
 
+// Resolve draw priority into a single number
 - (void)resolveDrawPriority:(NSDictionary *)desc info:(BaseInfo *)info drawPriority:(int)drawPriority offset:(int)offsetPriority
 {
     NSNumber *setting = desc[@"drawPriority"];
@@ -755,6 +756,20 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
         info->drawPriority = iVal + offsetPriority;
     } else {
         info->drawPriority = drawPriority + offsetPriority;
+    }
+}
+
+// Remap the mask strings to IDs
+- (void)resolveMaskIDs:(NSMutableDictionary *)desc compObj:(MaplyComponentObject *)compObj
+{
+    for (unsigned int ii=0;ii<MaxMaskSlots;ii++) {
+        NSString *attrName = [NSString stringWithFormat:@"maskID%d",ii];
+        id obj = desc[attrName];
+        if ([obj isKindOfClass:[NSString class]]) {
+            SimpleIdentity maskID = compManager->retainMaskByName([obj cStringUsingEncoding:NSUTF8StringEncoding]);
+            desc[attrName] = @(maskID);
+            compObj->contents->maskIDs.insert(maskID);
+        }
     }
 }
 
@@ -871,8 +886,8 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
         wgMarker->offset = Point2d(marker.offset.x,marker.offset.y);
         
         if (marker.maskID) {
-            // TODO: Map the mask ID to a value
-            wgMarker->maskID = 670000;
+            wgMarker->maskID = compManager->retainMaskByName([marker.maskID cStringUsingEncoding:NSUTF8StringEncoding]);
+            compObj->contents->maskIDs.insert(wgMarker->maskID);
             wgMarker->maskRenderTargetID = maskRenderTargetID;
         }
         
@@ -1696,7 +1711,7 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
         return;
 
     const NSArray *vectors = [argArray objectAtIndex:0];
-    const MaplyComponentObject *compObj = [argArray objectAtIndex:1];
+    MaplyComponentObject *compObj = [argArray objectAtIndex:1];
     NSDictionary *inDesc = [argArray objectAtIndex:2];
     const auto threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
@@ -1715,6 +1730,11 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
     std::vector<VectorShapeRef> shapes;
     for (const MaplyVectorObject *vecObj in vectors)
     {
+        for (auto shape: vecObj->vObj->shapes) {
+            auto dict = std::dynamic_pointer_cast<iosMutableDictionary>(shape->getAttrDict());
+            [self resolveMaskIDs:dict->dict compObj:compObj];
+        }
+
         // Maybe need to make a copy if we're going to sample
         if (vectorInfo.subdivEps != 0.0)
         {
@@ -1742,7 +1762,7 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
             {
                 [newVecObj subdivideToGlobe:eps];
             }
-
+            
             shapes.insert(shapes.end(),newVecObj->vObj->shapes.begin(),newVecObj->vObj->shapes.end());
         }
         else
