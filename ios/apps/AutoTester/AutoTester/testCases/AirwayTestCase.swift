@@ -106,7 +106,7 @@ class AirwayTestCase: MaplyTestCase {
                 }
             }
 
-            viewC.addWideVectors(segments, desc: [kMaplyVecWidth: 20.0, kMaplyColor: UIColor.blue], mode: .current)
+            viewC.addWideVectors(segments, desc: [kMaplyVecWidth: 2.0, kMaplyColor: UIColor.blue], mode: .current)
         }
     }
     
