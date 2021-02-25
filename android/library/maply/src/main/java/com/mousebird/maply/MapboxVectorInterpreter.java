@@ -92,9 +92,9 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
 
     public void setLoader(QuadLoaderBase inLoader) {
         if (inLoader instanceof QuadPagingLoader) {
-            objectLoader = new WeakReference<QuadPagingLoader>((QuadPagingLoader)inLoader);
+            objectLoader = new WeakReference<>((QuadPagingLoader)inLoader);
         } else if (inLoader instanceof QuadImageLoaderBase) {
-            imageLoader = new WeakReference<QuadImageLoaderBase>((QuadImageLoaderBase)inLoader);
+            imageLoader = new WeakReference<>((QuadImageLoaderBase)inLoader);
         }
     }
 
@@ -112,6 +112,9 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
 
     public void dataForTile(LoaderReturn loadReturn,QuadLoaderBase loader)
     {
+        if (styleGen != null) styleGen.setZoomSlot(loader.getZoomSlot());
+        if (imageStyleGen != null) imageStyleGen.setZoomSlot(loader.getZoomSlot());
+
         byte[] data = loadReturn.getFirstData();
         if (data == null)
             return;
@@ -138,90 +141,92 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
         if (samplingLayer == null || !samplingLayer.layerThread.startOfWork())
             return;
 
-        // Parse the data into vectors
-        // This will skip layers we don't care about
-        TileID tileID = loadReturn.getTileID();
-        Mbr locBounds = loader.geoBoundsForTile(tileID);
-        locBounds.ll = toMerc(locBounds.ll);
-        locBounds.ur = toMerc(locBounds.ur);
-        VectorTileData tileData = new VectorTileData(tileID,locBounds,loader.geoBoundsForTile(tileID));
-        parser.parseData(data,tileData);
-        BaseController theVC = vc.get();
-        ArrayList<ComponentObject> ovlObjs = new ArrayList<ComponentObject>();
-        if (theVC != null) {
-            ComponentObject[] thisOvjObjs = tileData.getComponentObjects("overlay");
-            if (thisOvjObjs != null)
-                Collections.addAll(ovlObjs,thisOvjObjs);
-            loadReturn.mergeChanges(tileData.getChangeSet());
-        }
-
-        // If we have a tile renderer, draw the data into that
-        Bitmap tileBitmap = null;
-        if (tileRender != null) {
-            synchronized (tileRender) {
-                tileRender.setClearColor(imageStyleGen.backgroundColorForZoom(tileID.level));
-                Mbr imageBounds = new Mbr(new Point2d(0.0,0.0), tileRender.frameSize);
-                VectorTileData imageTileData = new VectorTileData(tileID,imageBounds,locBounds);
-
-                // Need to activate the renderer, add the data, enable the objects and then clean it all up
-                // We need to use a specific context that comes with the tile renderer
-                RenderControllerInterface.ContextInfo cInfo = RenderController.getEGLContext();
-                tileRender.setEGLContext(null);
-                imageParser.parseData(data,imageTileData);
-                ChangeSet changes = imageTileData.getChangeSet();
-                changes.process(tileRender,tileRender.getScene());
-                changes.dispose();
-                tileRender.enableObjects(imageTileData.getComponentObjects(), RenderControllerInterface.ThreadMode.ThreadCurrent);
-                tileBitmap = tileRender.renderToBitmap();
-                tileRender.removeObjects(imageTileData.getComponentObjects(), RenderControllerInterface.ThreadMode.ThreadCurrent);
-                tileRender.clearContext();
-                imageTileData.dispose();
-
-                // Reset the OpenGL context back to what it was before
-                // It would have been set up by our own renderer for us on a specific thread
-                theVC.renderControl.setEGLContext(cInfo);
+        try {
+            // Parse the data into vectors
+            // This will skip layers we don't care about
+            TileID tileID = loadReturn.getTileID();
+            Mbr locBounds = loader.geoBoundsForTile(tileID);
+            locBounds.ll = toMerc(locBounds.ll);
+            locBounds.ur = toMerc(locBounds.ur);
+            VectorTileData tileData = new VectorTileData(tileID, locBounds, loader.geoBoundsForTile(tileID));
+            parser.parseData(data, tileData);
+            BaseController theVC = vc.get();
+            ArrayList<ComponentObject> ovlObjs = new ArrayList<ComponentObject>();
+            if (theVC != null) {
+                ComponentObject[] thisOvjObjs = tileData.getComponentObjects("overlay");
+                if (thisOvjObjs != null)
+                    Collections.addAll(ovlObjs, thisOvjObjs);
+                loadReturn.mergeChanges(tileData.getChangeSet());
             }
-        }
 
-        // Sort out overlays if they're there
-        ComponentObject[] regObjs = tileData.getComponentObjects();
-        if (!ovlObjs.isEmpty()) {
-            // Filter the overlays out of regular objects
-            ArrayList<ComponentObject> minusOvls = new ArrayList<ComponentObject>();
-            for (ComponentObject compObj : regObjs) {
-                // Look for it in the overlays
-                boolean found = false;
-                for (ComponentObject ovlObj : ovlObjs) {
-                    if (ovlObj.getID() == compObj.getID()) {
-                        found = true;
-                        break;
+            // If we have a tile renderer, draw the data into that
+            Bitmap tileBitmap = null;
+            if (tileRender != null) {
+                synchronized (tileRender) {
+                    tileRender.setClearColor(imageStyleGen.backgroundColorForZoom(tileID.level));
+                    Mbr imageBounds = new Mbr(new Point2d(0.0, 0.0), tileRender.frameSize);
+                    VectorTileData imageTileData = new VectorTileData(tileID, imageBounds, locBounds);
+
+                    // Need to activate the renderer, add the data, enable the objects and then clean it all up
+                    // We need to use a specific context that comes with the tile renderer
+                    RenderControllerInterface.ContextInfo cInfo = RenderController.getEGLContext();
+                    tileRender.setEGLContext(null);
+                    imageParser.parseData(data, imageTileData);
+                    ChangeSet changes = imageTileData.getChangeSet();
+                    changes.process(tileRender, tileRender.getScene());
+                    changes.dispose();
+                    tileRender.enableObjects(imageTileData.getComponentObjects(), RenderControllerInterface.ThreadMode.ThreadCurrent);
+                    tileBitmap = tileRender.renderToBitmap();
+                    tileRender.removeObjects(imageTileData.getComponentObjects(), RenderControllerInterface.ThreadMode.ThreadCurrent);
+                    tileRender.clearContext();
+                    imageTileData.dispose();
+
+                    // Reset the OpenGL context back to what it was before
+                    // It would have been set up by our own renderer for us on a specific thread
+                    theVC.renderControl.setEGLContext(cInfo);
+                }
+            }
+
+            // Sort out overlays if they're there
+            ComponentObject[] regObjs = tileData.getComponentObjects();
+            if (!ovlObjs.isEmpty()) {
+                // Filter the overlays out of regular objects
+                ArrayList<ComponentObject> minusOvls = new ArrayList<ComponentObject>();
+                for (ComponentObject compObj : regObjs) {
+                    // Look for it in the overlays
+                    boolean found = false;
+                    for (ComponentObject ovlObj : ovlObjs) {
+                        if (ovlObj.getID() == compObj.getID()) {
+                            found = true;
+                            break;
+                        }
                     }
+
+                    if (!found)
+                        minusOvls.add(compObj);
                 }
 
-                if (!found)
-                    minusOvls.add(compObj);
+                regObjs = minusOvls.toArray(new ComponentObject[1]);
             }
 
-            regObjs = minusOvls.toArray(new ComponentObject[1]);
+            // Merge the results into the loadReturn
+            if (objectLoader != null) {
+                ObjectLoaderReturn objLoadReturn = (ObjectLoaderReturn) loadReturn;
+                if (!ovlObjs.isEmpty())
+                    objLoadReturn.addOverlayComponentObjects(ovlObjs.toArray(new ComponentObject[1]));
+                objLoadReturn.addComponentObjects(regObjs);
+            } else if (imageLoader != null) {
+                ImageLoaderReturn imgLoadReturn = (ImageLoaderReturn) loadReturn;
+                if (!ovlObjs.isEmpty())
+                    imgLoadReturn.addOverlayComponentObjects(ovlObjs.toArray(new ComponentObject[1]));
+                imgLoadReturn.addComponentObjects(regObjs);
+                if (tileBitmap != null)
+                    imgLoadReturn.addBitmap(tileBitmap);
+            }
+        } finally {
+            // Let the sampling layer shut down
+            samplingLayer.layerThread.endOfWork();
         }
-
-        // Merge the results into the loadReturn
-        if (objectLoader != null) {
-            ObjectLoaderReturn objLoadReturn = (ObjectLoaderReturn)loadReturn;
-            if (!ovlObjs.isEmpty())
-                objLoadReturn.addOverlayComponentObjects(ovlObjs.toArray(new ComponentObject[1]));
-            objLoadReturn.addComponentObjects(regObjs);
-        } else if (imageLoader != null) {
-            ImageLoaderReturn imgLoadReturn = (ImageLoaderReturn)loadReturn;
-            if (!ovlObjs.isEmpty())
-                imgLoadReturn.addOverlayComponentObjects(ovlObjs.toArray(new ComponentObject[1]));
-            imgLoadReturn.addComponentObjects(regObjs);
-            if (tileBitmap != null)
-                imgLoadReturn.addBitmap(tileBitmap);
-        }
-
-        // Let the sampling layer shut down
-        samplingLayer.layerThread.endOfWork();
     }
 
 }

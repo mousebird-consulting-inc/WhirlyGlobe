@@ -189,7 +189,7 @@ public:
             Point3d n01 = n0 - n1;
             Point3d p21 = p2 - p1;
             
-            double denom = (p21.y()*p01.x() - p01.y()*p21.x());
+            const double denom = (p21.y()*p01.x() - p01.y()*p21.x());
             if (denom == 0.0)
                 return false;
             iPt0.c = (n01.y()*p21.x() - n01.x()*p21.y())/denom;
@@ -207,7 +207,7 @@ public:
             Point3d n10 = n1 - n0;
             Point3d p21 = p2 - p1;
             Point3d p01 = p0 - p1;
-            double denom = p21.x()*p01.y()-p21.y()*p01.x();
+            const double denom = p21.x()*p01.y()-p21.y()*p01.x();
             if (denom == 0.0)
                 return false;
             iPt1.c = (n10.y()*p01.x() - n10.x()*p01.y())/denom;
@@ -219,11 +219,11 @@ public:
     // Add a rectangle to the wide drawable
     void addWideRect(WideVectorDrawableBuilderRef drawable,InterPoint *verts,const Point3d &up)
     {
-        int startPt = drawable->getNumPoints();
+        const int startPt = drawable->getNumPoints();
 
         for (unsigned int vi=0;vi<4;vi++)
         {
-            InterPoint &vert = verts[vi];
+            const InterPoint &vert = verts[vi];
             drawable->addPoint(Vector3dToVector3f(vert.org));
             drawable->addNormal(up);
             drawable->add_p1(Vector3dToVector3f(vert.dest));
@@ -240,11 +240,11 @@ public:
     // Add a triangle to the wide drawable
     void addWideTri(WideVectorDrawableBuilderRef drawable,InterPoint *verts,const Point3d &up)
     {
-        int startPt = drawable->getNumPoints();
+        const int startPt = drawable->getNumPoints();
 
         for (unsigned int vi=0;vi<3;vi++)
         {
-            InterPoint &vert = verts[vi];
+            const InterPoint &vert = verts[vi];
             drawable->addPoint(Vector3dToVector3f(vert.org));
             drawable->addNormal(up);
             drawable->add_p1(Vector3dToVector3f(vert.dest));
@@ -469,7 +469,8 @@ public:
 
                     // Bending right
                     if (rPt0.c > 0.0) {
-                        double texYmin = lPt0.texYmin, textYmax = lPt0.texYmax;
+                        const double texYmin = lPt0.texYmin;
+                        const double textYmax = lPt0.texYmax;
                         triVerts[0] = lPt0.withTexY(texYmin,textYmax);
                         triVerts[1] = corners[3].withTexY(texYmin,textYmax);
                         triVerts[2] = corners[2].withTexY(texYmin,textYmax);
@@ -481,7 +482,8 @@ public:
                         addWideTri(wideDrawable,triVerts,up);
                     } else {
                         // Bending left
-                        double texYmin = rPt0.texYmin, textYmax = rPt0.texYmax;
+                        const double texYmin = rPt0.texYmin;
+                        const double textYmax = rPt0.texYmax;
                         triVerts[0] = corners[3].withTexY(texYmin,textYmax);
                         triVerts[1] = corners[2].withTexY(texYmin,textYmax);
                         triVerts[2] = rPt0.withTexY(texYmin,textYmax);
@@ -568,7 +570,8 @@ class WideVectorDrawableConstructor
 {
 public:
     WideVectorDrawableConstructor(SceneRenderer *sceneRender,Scene *scene,const WideVectorInfo *vecInfo)
-    : sceneRender(sceneRender), scene(scene), vecInfo(vecInfo), drawable(NULL), centerValid(false), localCenter(0,0,0), dispCenter(0,0,0)
+    : sceneRender(sceneRender), scene(scene), vecInfo(vecInfo), drawable(nullptr),
+    centerValid(false), localCenter(0,0,0), dispCenter(0,0,0)
     {
         coordAdapter = scene->getCoordAdapter();
         coordSys = coordAdapter->getCoordSystem();
@@ -701,23 +704,21 @@ public:
         vecBuilder.flush(drawable,!closed,true);
     }
     
-    // Debug verson of add linear
+    // Debug version of add linear
     void addLinearDebug()
     {
         const Point3d up(0,0,1);
-        VectorRing pts;
-        pts.push_back(GeoCoord(0,1));
-        pts.push_back(GeoCoord(0,0));
-        pts.push_back(GeoCoord(1,0));
-        
+        const VectorRing pts = {
+                {0,1},
+                {0,0},
+                {1,0} };
+
         const RGBAColor color = vecInfo->color;
         WideVectorBuilder vecBuilder(vecInfo,Point3d(0,0,0),Point3d(0,0,0),color,false,coordAdapter);
         
-        for (unsigned int ii=0;ii<pts.size();ii++)
+        for (const auto &geoA : pts)
         {
             // Get the points in display space
-            const Point2f geoA = pts[ii];
-            
             const Point3d dispPa(geoA.x(),geoA.y(),0.0);
 
             // Get a drawable ready
@@ -740,13 +741,12 @@ public:
         if (drawables.empty())
             return nullptr;
         
-        TimeInterval curTime = scene->getCurrentTime();
+        const TimeInterval curTime = scene->getCurrentTime();
         
         WideVectorSceneRep *sceneRep = new WideVectorSceneRep();
         sceneRep->fade = vecInfo->fade;
-        for (unsigned int ii=0;ii<drawables.size();ii++)
+        for (const auto &drawable : drawables)
         {
-            const auto &drawable = drawables[ii];
             sceneRep->drawIDs.insert(drawable->getDrawableID());
             if (vecInfo->fade > 0.0)
                 drawable->setFade(curTime,curTime+vecInfo->fade);
@@ -767,7 +767,7 @@ protected:
             drawable->setLocalMbr(drawMbr);
             drawables.push_back(drawable);
         }
-        drawable = NULL;
+        drawable = nullptr;
     }
 
     bool centerValid;
@@ -908,11 +908,11 @@ SimpleIdentity WideVectorManager::addVectors(const std::vector<VectorShapeRef> &
 
     for (const auto &shape : shapes)
     {
-        if (const auto lin = std::dynamic_pointer_cast<VectorLinear>(shape))
+        if (const auto lin = dynamic_cast<VectorLinear*>(shape.get()))
         {
             builder.addLinear(lin->pts,centerUp,false);
         }
-        else if (const auto ar = std::dynamic_pointer_cast<VectorAreal>(shape))
+        else if (const auto ar = dynamic_cast<VectorAreal*>(shape.get()))
         {
             for (const auto &loop : ar->loops)
             {
@@ -922,8 +922,9 @@ SimpleIdentity WideVectorManager::addVectors(const std::vector<VectorShapeRef> &
                     VectorRing newLoop = loop;
                     newLoop.push_back(loop[0]);
                     builder.addLinear(newLoop, centerUp, true);
-                } else
+                } else {
                     builder.addLinear(loop, centerUp, true);
+                }
             }
         }
     }

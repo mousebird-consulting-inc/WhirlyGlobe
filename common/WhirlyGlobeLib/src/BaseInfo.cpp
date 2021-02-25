@@ -55,6 +55,54 @@ void FloatExpressionInfo::scaleBy(double scale)
         stopOutputs[ii] *= scale;
 }
 
+float FloatExpressionInfo::evaluate(float zoom, float defaultValue)
+{
+    if (stopInputs.empty() || stopOutputs.empty())
+    {
+        return defaultValue;
+    }
+
+    if (zoom <= stopInputs.front())
+    {
+        return stopOutputs.front();
+    }
+    if (zoom > stopInputs.back())
+    {
+        return stopOutputs.back();
+    }
+
+    const auto numStops = std::min(stopInputs.size(), stopOutputs.size());
+
+    for (int i = 0; i < numStops - 1; ++i)
+    {
+        if (stopInputs[i] <= zoom && zoom < stopInputs[i + 1])
+        {
+            const auto zoomA = stopInputs[i];
+            const auto zoomB = stopInputs[i + 1];
+            const auto valA = stopOutputs[i];
+            const auto valB = stopOutputs[i + 1];
+            const auto t = (zoom - zoomA) / (zoomB - zoomA);
+            if (base > 0)
+            {
+                // exponential
+                if (base == 1.0f)
+                {
+                    return (float)(t * (valB - valA) + valA);
+                }
+                const auto a = std::pow(base, zoom - zoomA) - 1.0;
+                const auto b = std::pow(base, zoomB - zoomA) - 1.0;
+                return (float)(a / b * (valB - valA) + valA);
+            }
+            else
+            {
+                // linear
+                return (float)(t * (valB - valA) + valA);
+            }
+        }
+    }
+    return stopOutputs.back();
+}
+
 ColorExpressionInfo::ColorExpressionInfo()
 {
 }

@@ -25,6 +25,22 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_backgroundC
 
 /*
  * Class:     com_mousebird_maply_MapboxVectorStyleSet
+ * Method:    getZoomSlot
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_getZoomSlot
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_MapboxVectorStyleSet
+ * Method:    setZoomSlot
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_setZoomSlot
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     com_mousebird_maply_MapboxVectorStyleSet
  * Method:    initialise
  * Signature: (Lcom/mousebird/maply/Scene;Lcom/mousebird/maply/CoordSystem;Lcom/mousebird/maply/VectorStyleSettings;Lcom/mousebird/maply/AttrDictionary;)V
  */

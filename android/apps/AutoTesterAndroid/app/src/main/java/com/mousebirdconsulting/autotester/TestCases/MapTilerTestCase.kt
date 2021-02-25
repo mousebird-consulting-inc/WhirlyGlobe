@@ -62,7 +62,7 @@ class MapTilerTestCase : MaplyTestCase {
     private fun switchMaps() {
         map?.stop()
     
-        currentMap = (currentMap + 1) % 2
+        currentMap = (currentMap + 1) % 3
         setupLoader(baseViewC!!, currentMap)
     }
     
