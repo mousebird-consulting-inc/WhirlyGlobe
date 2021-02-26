@@ -21,6 +21,8 @@
 #import <UIKit/UIKit.h>
 #import "math/MaplyCoordinate.h"
 
+@class MaplyVectorObject;
+
 /// Don't move the label at all
 #define kMaplyLayoutNone (1<<0)
 /// Okay to place centered on point
@@ -140,6 +142,13 @@
     If this is present, we'll render an ID into the mask layer to be used by other features to mask against.
  */
 @property (nonatomic,retain,nullable) NSString *maskID;
+
+/**
+    If set, we'll lay out the the text along the given linear or areal feature.
+    Takes the first feature in the vector, if there are multiple.
+ */
+@property (nonatomic,retain,nullable) MaplyVectorObject *layoutVec;
+
 
 /**
     Used to resolve to resolve labels that show the same thing.
