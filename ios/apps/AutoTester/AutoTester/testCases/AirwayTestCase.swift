@@ -94,6 +94,7 @@ class AirwayTestCase: MaplyTestCase {
             viewC.addScreenMarkers(markers, desc: nil)
             
             // For each segment, we want to add the two endpoints as masks
+            var labels: [MaplyScreenLabel] = []
             for seg in segments {
                 if let locArr = seg.asCLLocationArrays()?.first as? [CLLocation],
                    let locStart = locArr.first,
@@ -104,10 +105,69 @@ class AirwayTestCase: MaplyTestCase {
                         seg.attributes?["maskID1"] = markEnd.uuid
                     }
                 }
+                
+                // Put a label along the line
+                let label = MaplyScreenLabel()
+                label.layoutVec = seg
+                label.text = seg.attributes?["IDENT"] as? String
+                label.loc = seg.center()
+                label.layoutImportance = 1.0
+                labels.append(label)
             }
 
-            viewC.addWideVectors(segments, desc: [kMaplyVecWidth: 2.0, kMaplyColor: UIColor.blue], mode: .current)
+            viewC.addWideVectors(segments, desc: [kMaplyVecWidth: 2.0,
+                                                  kMaplyColor: UIColor.blue],
+                                 mode: .any)
+            viewC.addScreenLabels(labels, desc: [kMaplyFont: UIFont.boldSystemFont(ofSize: 24.0),
+                                                 kMaplyTextColor: UIColor.purple,
+                                                 kMaplyJustify: kMaplyTextJustifyCenter],
+                                  mode: .any)
         }
+    }
+    
+    func setupAirspaces(_ viewC: MaplyBaseViewController) {
+        guard let vecObj = MaplyVectorObject(fromShapeFile: "Airspace_Boundary") else {
+            print("Failed to load Airspace_Boundary shapefile")
+            return
+        }
+
+        // Put the airspace vectors together
+        var airspaceVecs = [MaplyVectorObject]()
+        var labels = [MaplyScreenLabel]()
+        for vec in vecObj.splitVectors() {
+            var include = false
+            if let highVal = vec.attributes?["US_HIGH"] as? Int {
+                if highVal > 0 {
+                    if vec.vectorType() == .arealType {
+                        include = true
+                    }
+                }
+            }
+            
+            if include {
+                // Put a label in the middle
+                let label = MaplyScreenLabel()
+                label.layoutVec = vec
+                label.loc = vec.centroid()
+                label.text = vec.attributes?["NAME"] as? String
+                label.layoutImportance = 1.0
+                
+                if label.text != nil {
+                    labels.append(label)
+                    airspaceVecs.append(vec)
+                }
+            }
+        }
+        
+        viewC.addWideVectors(airspaceVecs, desc: [kMaplyVecWidth: 6.0,
+                                                  kMaplyColor: UIColor.blue], mode: .any)
+        viewC.addScreenLabels(labels, desc: [kMaplyFont: UIFont.boldSystemFont(ofSize: 18.0),
+                                             kMaplyTextColor: UIColor.purple,
+                                             kMaplyTextLayoutOffset: 0.0,  // Right in the center
+                                             kMaplyTextLayoutSpacing: 100.0, // 100 pixels between
+                                             kMaplyTextLayoutRepeat: -1,  // As many as fit
+                                             ],
+                              mode: .any)
     }
     
     override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
@@ -115,7 +175,8 @@ class AirwayTestCase: MaplyTestCase {
 
         globeVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-110.0, 40.5023056), time: 1.0)
 
-        setupAirways(globeVC)
+//        setupAirways(globeVC)
+        setupAirspaces(globeVC)
     }
     
     override func setUpWithMap(_ mapVC: MaplyViewController) {
@@ -123,6 +184,7 @@ class AirwayTestCase: MaplyTestCase {
         
         mapVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-110.0, 40.5023056), time: 1.0)
         
-        setupAirways(mapVC)
+//        setupAirways(mapVC)
+        setupAirspaces(mapVC)
     }
 }

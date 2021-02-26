@@ -164,6 +164,13 @@
 #define MaplyTextJustifyLeft WKString("left")
 /// Justify text to the right
 #define MaplyTextJustifyRight WKString("right")
+/// Layout text to right/left inside/outside by given number of piels
+#define MaplyTextLayoutOffset WKString("layoutoffset")
+/// Space between instances of text along line/inside polygon if repeating
+#define MaplyTextLayoutSpacing WKString("layoutspacing")
+/// How many times to repeat laid out text (-1 infinite, 0 not, or a number)
+#define MaplyTextLayoutRepeat WKString("layoutrepeat")
+
 /// If set, we'll draw a shadow behind each label with this as the stroke size
 #define MaplyShadowSize WKString("shadowSize")
 /// If shadow size is being used, we can control the shadow color like so
