@@ -3,7 +3,6 @@ package com.mousebirdconsulting.autotester.TestCases
 import android.app.Activity
 import android.net.Uri
 import com.mousebird.maply.*
-import com.mousebirdconsulting.autotester.ConfigOptions
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase
 import okio.Okio
 import java.io.IOException
@@ -34,13 +33,12 @@ class MapTilerTestCase : MaplyTestCase {
 
         try {
             val json = Okio.buffer(Okio.source(stream)).readUtf8()
-            map = MapboxKindaMap(json,control)
-            map?.mapboxURLFor = {
-                url: Uri ->
+            map = MapboxKindaMap(json, control)
+            map?.mapboxURLFor = { url: Uri ->
                 val urlStr = url.toString()
                 var newStr = urlStr
                 if (urlStr.contains("MapTilerKey"))
-                    newStr = urlStr.replace("MapTilerKey",token)
+                    newStr = urlStr.replace("MapTilerKey", token)
                 Uri.parse(newStr)
             }
             if (map == null)
@@ -54,15 +52,20 @@ class MapTilerTestCase : MaplyTestCase {
     }
 
     // Switch maps on long press
+    override fun userDidLongPress(globeControl: GlobeController?, selObjs: Array<SelectedObject?>?, loc: Point2d?, screenLoc: Point2d?) {
+        switchMaps()
+    }
     override fun userDidLongPress(mapController: MapController?, selObjs: Array<SelectedObject?>?, loc: Point2d?, screenLoc: Point2d?) {
-        map?.stop()
-
-        currentMap = currentMap + 1
-        if (currentMap > 2)
-            currentMap = 0
-        setupLoader(baseViewC!!, currentMap)
+        switchMaps()
     }
 
+    private fun switchMaps() {
+        map?.stop()
+    
+        currentMap = (currentMap + 1) % 2
+        setupLoader(baseViewC!!, currentMap)
+    }
+    
     var currentMap = 0
     var baseViewC : BaseController? = null
 
@@ -70,6 +73,7 @@ class MapTilerTestCase : MaplyTestCase {
         baseViewC = globeVC
         setupLoader(baseViewC!!, currentMap)
 
+        globeVC?.animatePositionGeo(Point2d.FromDegrees(-100.0, 40.0), 0.5, 0.0, 0.5)
         return true
     }
 

@@ -127,8 +127,8 @@ SingleLabelRef MapboxVectorStyleSetImpl_Android::makeSingleLabel(PlatformThreadI
 
 ComponentObjectRef MapboxVectorStyleSetImpl_Android::makeComponentObject(PlatformThreadInfo *inInst, const Dictionary *desc)
 {
-    return desc ? std::make_shared<ComponentObject>(false, false)
-                : std::make_shared<ComponentObject>(false, false, *desc);
+    return desc ? std::make_shared<ComponentObject>(false, false, *desc)
+                : std::make_shared<ComponentObject>(false, false);
 }
 
 double MapboxVectorStyleSetImpl_Android::calculateTextWidth(PlatformThreadInfo *inInst,LabelInfoRef inLabelInfo,const std::string &text)
