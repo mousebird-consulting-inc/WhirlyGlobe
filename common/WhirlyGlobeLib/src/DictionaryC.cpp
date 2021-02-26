@@ -1,9 +1,8 @@
-/*
- *  Dictionary.cpp
+/*  Dictionary.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 12/16/13.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,11 +14,11 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <sstream>
 #import "DictionaryC.h"
+#import "WhirlyKitLog.h"
 
 namespace WhirlyKit
 {
@@ -48,7 +47,7 @@ MutableDictionaryC::MutableDictionaryC(const MutableDictionaryC &that)
 {
 }
 
-MutableDictionaryC::MutableDictionaryC(MutableDictionaryC &&that)
+MutableDictionaryC::MutableDictionaryC(MutableDictionaryC &&that) noexcept
     : intVals(std::move(that.intVals))
     , int64Vals(std::move(that.int64Vals))
     , dVals(std::move(that.dVals))
@@ -58,11 +57,6 @@ MutableDictionaryC::MutableDictionaryC(MutableDictionaryC &&that)
     , stringMap(std::move(that.stringMap))
     , valueMap(std::move(that.valueMap))
 {
-}
-
-MutableDictionaryC::~MutableDictionaryC()
-{
-    clear();
 }
 
 //bool MutableDictionaryC::parseJSON(const std::string jsonString)
@@ -149,7 +143,7 @@ MutableDictionaryC &MutableDictionaryC::operator = (const MutableDictionaryC &th
     return *this;
 }
 
-MutableDictionaryC &MutableDictionaryC::operator = (MutableDictionaryC &&that)
+MutableDictionaryC &MutableDictionaryC::operator = (MutableDictionaryC &&that) noexcept
 {
     intVals = std::move(that.intVals);
     int64Vals = std::move(that.int64Vals);
@@ -270,7 +264,7 @@ void MutableDictionaryC::removeField(const std::string &name)
 
 void MutableDictionaryC::removeField(unsigned int key)
 {
-    // TODO: WE're "leaking" (not actually) leaking space in the data arrays
+    // We're "leaking" (via fragmentation) space in the data arrays
     const auto it = valueMap.find(key);
     if (it != valueMap.end())
         valueMap.erase(it);
@@ -293,8 +287,9 @@ int MutableDictionaryC::getInt(unsigned int key,int defVal) const
         case DictTypeInt:     return intVals[val.entry];
         case DictTypeInt64:   return (int)int64Vals[val.entry];
         case DictTypeDouble:  return (int)dVals[val.entry];
-        // TODO: Maybe parse the string
-        default:              return defVal;
+        default:
+            wkLogLevel(Warn, "Unsupported conversion from type %d to int", val.type);
+            return defVal;
     }
 }
 
@@ -316,8 +311,9 @@ SimpleIdentity MutableDictionaryC::getIdentity(unsigned int key) const
         case DictTypeInt64:
         case DictTypeIdentity:       return int64Vals[val.entry];
         case DictTypeDouble:         return (SimpleIdentity)dVals[val.entry];
-        // TODO: Maybe parse the string
-        default:                     return EmptyIdentity;
+        default:
+            wkLogLevel(Warn, "Unsupported conversion from type %d to identity", val.type);
+            return EmptyIdentity;
     }
 }
 
@@ -339,18 +335,16 @@ int64_t MutableDictionaryC::getInt64(unsigned int key,int64_t defVal) const
         case DictTypeInt64:
         case DictTypeIdentity: return int64Vals[val.entry];
         case DictTypeDouble:   return (int64_t)dVals[val.entry];
-        // TODO: Maybe parse the string
-        default:               return defVal;
+        default:
+            wkLogLevel(Warn, "Unsupported conversion from type %d to int64", val.type);
+            return defVal;
     }
 }
 
 bool MutableDictionaryC::getBool(const std::string &name,bool defVal) const
 {
     const auto it = stringMap.find(name);
-    if (it == stringMap.end())
-        return defVal;
-
-    return getBool(it->second);
+    return (it == stringMap.end()) ? defVal : getBool(it->second, defVal);
 }
 
 bool MutableDictionaryC::getBool(unsigned int key,bool defVal) const
@@ -361,12 +355,10 @@ bool MutableDictionaryC::getBool(unsigned int key,bool defVal) const
     
     const auto &val = it->second;
     switch (val.type) {
-        case DictTypeInt:
-            return intVals[val.entry] != 0;
-        case DictTypeInt64:
-            return int64Vals[val.entry] != 0;
-        // TODO: Maybe parse the string
+        case DictTypeInt:   return intVals[val.entry] != 0;
+        case DictTypeInt64: return int64Vals[val.entry] != 0;
         default:
+            wkLogLevel(Warn, "Unsupported conversion from type %d to bool", val.type);
             return defVal;
     }
 }
@@ -374,52 +366,43 @@ bool MutableDictionaryC::getBool(unsigned int key,bool defVal) const
 RGBAColor MutableDictionaryC::getColor(const std::string &name,const RGBAColor &defVal) const
 {
     const auto it = stringMap.find(name);
-    if (it == stringMap.end())
-        return defVal;
-
-    return getColor(it->second,defVal);
+    return (it == stringMap.end()) ? defVal : getColor(it->second,defVal);
 }
 
 static RGBAColor parseColor(const char* const p, RGBAColor ret)
 {
     char* end = nullptr;
-    const uint32_t iVal = std::strtol(p, &end, 16);
-    const auto len = end - p;
+    const auto v = (unsigned)std::strtol(p, &end, 16);
 
     // TODO: These should probably be RRGGBBAA, but they're AARRGGBB for now for backward (probably) compatibility...
-    switch (len)
+    switch (end - p)
     {
 #if 1
+#define DUPBITS(x) ((x) | ((x) << 4))
     case 3: // #RGB => R=RR G=GG B=BB A=FF
-        ret.b = (iVal      ) & 0xF;
-        ret.g = (iVal >>  4) & 0xF;
-        ret.r = (iVal >>  8) & 0xF;
-        ret.b |= ret.b << 4;
-        ret.g |= ret.g << 4;
-        ret.r |= ret.r << 4;
+        ret.b = (uint8_t)DUPBITS((v      ) & 0xF);
+        ret.g = (uint8_t)DUPBITS((v >>  4) & 0xF);
+        ret.r = (uint8_t)DUPBITS((v >>  8) & 0xF);
         ret.a = 0xFF;
         break;
     case 4: // #ARGB => R=RR G=GG B=BB A=AA
-        ret.b = (iVal      ) & 0xF;
-        ret.g = (iVal >>  4) & 0xF;
-        ret.r = (iVal >>  8) & 0xF;
-        ret.a = (iVal >> 12) & 0xF;
-        ret.b |= ret.b << 4;
-        ret.g |= ret.g << 4;
-        ret.r |= ret.r << 4;
-        ret.a |= ret.a << 4;
+        ret.b = (uint8_t)DUPBITS((v      ) & 0xF);
+        ret.g = (uint8_t)DUPBITS((v >>  4) & 0xF);
+        ret.r = (uint8_t)DUPBITS((v >>  8) & 0xF);
+        ret.a = (uint8_t)DUPBITS((v >> 12) & 0xF);
         break;
     case 6: // #RRGGBB => R=RR G=GG B=BB A=FF
-        ret.b = (iVal      ) & 0xFF;
-        ret.g = (iVal >>  8) & 0xFF;
-        ret.r = (iVal >> 16) & 0xFF;
+        ret.b = (uint8_t)(v      );
+        ret.g = (uint8_t)(v >>  8);
+        ret.r = (uint8_t)(v >> 16);
         ret.a = 0xFF;
         break;
     case 8: // #AARRGGBB => R=RR G=GG B=BB A=AA
-        ret.b = (iVal      ) & 0xFF;
-        ret.g = (iVal >>  8) & 0xFF;
-        ret.r = (iVal >> 16) & 0xFF;
-        ret.a = (iVal >> 24) & 0xFF;
+        ret.b = (uint8_t)(v      );
+        ret.g = (uint8_t)(v >>  8);
+        ret.r = (uint8_t)(v >> 16);
+        ret.a = (uint8_t)(v >> 24);
+#undef DUPBITS
 #else
     case 3: // #RGB => R=RR G=GG B=BB A=FF
         ret.b = (iVal      ) & 0xF;
@@ -452,6 +435,7 @@ static RGBAColor parseColor(const char* const p, RGBAColor ret)
         ret.g = (iVal >> 16) & 0xFF;
         ret.r = (iVal >> 24) & 0xFF;
 #endif
+        default: break;
     }
     return ret;
 }
@@ -478,15 +462,15 @@ RGBAColor MutableDictionaryC::getColor(unsigned int key,const RGBAColor &defVal)
         {
             const uint32_t iVal = intVals[val.entry];
             RGBAColor ret;
-            ret.b = iVal & 0xFF;
-            ret.g = (iVal >> 8) & 0xFF;
-            ret.r = (iVal >> 16) & 0xFF;
-            ret.a = (iVal >> 24) & 0xFF;
+            ret.b = (uint8_t)iVal;
+            ret.g = (uint8_t)(iVal >> 8);
+            ret.r = (uint8_t)(iVal >> 16);
+            ret.a = (uint8_t)(iVal >> 24);
             return ret;
         }
         // No idea what this means
-        case DictTypeDouble:
         default:
+            wkLogLevel(Warn, "Unsupported conversion from type %d to color", val.type);
             return defVal;
     }
     
@@ -496,10 +480,7 @@ RGBAColor MutableDictionaryC::getColor(unsigned int key,const RGBAColor &defVal)
 double MutableDictionaryC::getDouble(const std::string &name,double defVal) const
 {
     const auto it = stringMap.find(name);
-    if (it == stringMap.end())
-        return defVal;
-
-    return getDouble(it->second,defVal);
+    return (it == stringMap.end()) ? defVal : getDouble(it->second,defVal);
 }
 
 double MutableDictionaryC::getDouble(unsigned int key,double defVal) const
@@ -510,16 +491,14 @@ double MutableDictionaryC::getDouble(unsigned int key,double defVal) const
     
     const auto &val = it->second;
     switch (val.type) {
-        case DictTypeInt:
-            return intVals[val.entry];
+        case DictTypeInt:      return intVals[val.entry];
         case DictTypeInt64:
-        case DictTypeIdentity:
-            return int64Vals[val.entry];
-        case DictTypeDouble:
-            return dVals[val.entry];
+        case DictTypeIdentity: return int64Vals[val.entry];
+        case DictTypeDouble:   return dVals[val.entry];
         // TODO: Maybe parse the string
         default:
-            return 0;
+            wkLogLevel(Warn, "Unsupported conversion from type %d to double", val.type);
+            return defVal;
     }
 }
 
@@ -549,6 +528,7 @@ std::string MutableDictionaryC::getString(unsigned int key) const
         case DictTypeObject:
         case DictTypeDictionary:
         case DictTypeArray:
+            wkLogLevel(Warn, "Unsupported conversion from type %d to string", val.type);
             return std::string();
     }
 }
@@ -574,10 +554,13 @@ DictionaryRef MutableDictionaryC::getDict(const std::string &name) const
 DictionaryRef MutableDictionaryC::getDict(unsigned int key) const
 {
     const auto it = valueMap.find(key);
-    if (it != valueMap.end()) {
+    if (it != valueMap.end())
+    {
         const auto &val = it->second;
         if (val.type == DictTypeDictionary)
+        {
             return dictVals[val.entry];
+        }
     }
     return DictionaryRef();
 }
@@ -605,7 +588,9 @@ DictionaryEntryCRef MutableDictionaryC::makeEntryRef(const Value &val) const
     case DictTypeDictionary: return std::make_shared<DictionaryEntryCDict>(dictVals[val.entry]);
     case DictTypeArray:      return std::make_shared<DictionaryEntryCArray>(formArray(val.entry));
     case DictTypeObject:
-    case DictTypeNone:       return DictionaryEntryCRef();
+    case DictTypeNone:
+        wkLogLevel(Warn, "Unsupported conversion from type %d to entry", val.type);
+        return DictionaryEntryCRef();
     }
 }
 
@@ -618,8 +603,9 @@ std::vector<DictionaryEntryRef> MutableDictionaryC::getArray(const std::string &
 std::vector<DictionaryEntryRef> MutableDictionaryC::getArray(unsigned int key) const
 {
     const auto it = valueMap.find(key);
-    if (it == valueMap.end() || it->second.type != DictTypeArray)
+    if (it == valueMap.end() || it->second.type != DictTypeArray) {
         return std::vector<DictionaryEntryRef>();
+    }
 
     const auto arrayVal = arrayVals[it->second.entry];
 
@@ -640,7 +626,8 @@ std::vector<DictionaryEntryCRef> MutableDictionaryC::formArray(int idx) const
     std::vector<DictionaryEntryCRef> rets;
     rets.reserve(arrVals.size());
 
-    for (const auto &arrEntry: arrVals) {
+    for (const auto &arrEntry: arrVals)
+    {
         rets.push_back(makeEntryRef(arrEntry));
     }
 
@@ -652,7 +639,9 @@ std::vector<std::string> MutableDictionaryC::getKeys() const
     std::vector<std::string> keys;
     keys.reserve(valueMap.size());
     for (const auto &value : valueMap)
+    {
         keys.push_back(stringVals[value.first]);
+    }
     
     return keys;
 }
@@ -660,7 +649,7 @@ std::vector<std::string> MutableDictionaryC::getKeys() const
 int MutableDictionaryC::getKeyID(const std::string &name)
 {
     const auto &it = stringMap.find(name);
-    return (it != stringMap.end()) ? it->second : -1;
+    return (it != stringMap.end()) ? (int)it->second : -1;
 }
 
 void MutableDictionaryC::setInt(const std::string &name,int val)
@@ -709,7 +698,9 @@ void MutableDictionaryC::setString(unsigned int key,const std::string &val)
     const auto &it = valueMap.find(key);
     // Can't reuse string entries because we share them
     if (it != valueMap.end())
+    {
         valueMap.erase(it);
+    }
     
     // Make a new one (psst, it's the same as the keys)
     const auto stringID = addString(val);
@@ -733,29 +724,26 @@ void MutableDictionaryC::setupArray(const std::vector<DictionaryEntryCRef> &entr
         if (entry) {
             switch (entry->getType()) {
                 case DictTypeInt:
-                    out.push_back(Value(DictTypeInt,intVals.size()));
+                    out.emplace_back(DictTypeInt,intVals.size());
                     intVals.push_back(entry->getInt());
                     break;
                 case DictTypeIdentity:
                 case DictTypeInt64:
-                    out.push_back(Value(DictTypeInt64,int64Vals.size()));
+                    out.emplace_back(DictTypeInt64,int64Vals.size());
                     int64Vals.push_back(entry->getInt64());
                     break;
                 case DictTypeDouble:
-                    out.push_back(Value(DictTypeDouble,dVals.size()));
+                    out.emplace_back(DictTypeDouble,dVals.size());
                     dVals.push_back(entry->getDouble());
                     break;
                 case DictTypeString:
-                    out.push_back(Value(DictTypeString,addString(entry->getString())));
+                    out.emplace_back(DictTypeString,addString(entry->getString()));
                     break;
                 case DictTypeDictionary:
-                {
-                    auto theDict = std::dynamic_pointer_cast<MutableDictionaryC>(entry->getDict());
-                    if (theDict) {
-                        out.push_back(Value(DictTypeDictionary,dictVals.size()));
+                    if (auto theDict = std::dynamic_pointer_cast<MutableDictionaryC>(entry->getDict())) {
+                        out.emplace_back(DictTypeDictionary,dictVals.size());
                         dictVals.push_back(theDict);
                     }
-                }
                     break;
                 case DictTypeArray:
                 {
@@ -764,13 +752,15 @@ void MutableDictionaryC::setupArray(const std::vector<DictionaryEntryCRef> &entr
                         std::vector<Value> locArr;
                         setupArray(theArray->getArrayC(), locArr);
 
-                        out.push_back(Value(DictTypeArray,arrayVals.size()));
+                        out.emplace_back(DictTypeArray,arrayVals.size());
                         arrayVals.push_back(locArr);
                     }
+                    break;
                 }
+                case DictTypeObject:
+                    wkLogLevel(Warn, "Unsupported conversion from object to array");
                     break;
                 case DictTypeNone:
-                case DictTypeObject:
                     break;
             }
         }
@@ -790,6 +780,7 @@ void MutableDictionaryC::setArray(unsigned int key,const std::vector<DictionaryE
 
     // TODO: Can we cast this once?
     std::vector<DictionaryEntryCRef> theEntries;
+    theEntries.reserve(entries.size());
     for (auto &entry : entries) {
         if (auto entryC = std::dynamic_pointer_cast<DictionaryEntryC>(entry)) {
             theEntries.push_back(entryC);
@@ -811,9 +802,12 @@ void MutableDictionaryC::setArray(unsigned int key,const std::vector<DictionaryR
 {
     std::vector<DictionaryEntryRef> theEntries;
     theEntries.reserve(entries.size());
-    for (auto &entry : entries) {
+    for (auto &entry : entries)
+    {
         if (auto theEntry = std::dynamic_pointer_cast<DictionaryEntryCDict>(entry))
+        {
             theEntries.push_back(theEntry);
+        }
     }
 
     setArray(key,theEntries);
@@ -822,7 +816,9 @@ void MutableDictionaryC::setArray(unsigned int key,const std::vector<DictionaryR
 void MutableDictionaryC::addEntries(const Dictionary *inOther)
 {
     if (const auto other = dynamic_cast<const MutableDictionaryC *>(inOther))
+    {
         addEntries(other);
+    }
 }
 
 void MutableDictionaryC::addEntries(const MutableDictionaryC *other)
@@ -830,7 +826,8 @@ void MutableDictionaryC::addEntries(const MutableDictionaryC *other)
     // Map from theirs to our strings
     std::vector<unsigned int> stringRemap;
     stringRemap.reserve(other->stringVals.size());
-    for (const auto &entry : other->stringVals) {
+    for (const auto &entry : other->stringVals)
+    {
         const auto newStringID = addString(entry);
         stringRemap.push_back(newStringID);
     }
@@ -856,29 +853,31 @@ void MutableDictionaryC::addEntries(const MutableDictionaryC *other)
     const auto arrayStart = arrayVals.size();
     for (const auto &arr: other->arrayVals) {
         std::vector<Value> outArr;
+        outArr.reserve(arr.size());
         for (const auto &arrEntry: arr) {
             switch (arrEntry.type) {
                 case DictTypeString:
-                    outArr.push_back(Value(DictTypeString,stringRemap[arrEntry.entry]));
+                    outArr.emplace_back(DictTypeString,stringRemap[arrEntry.entry]);
                     break;
                 case DictTypeInt:
-                    outArr.push_back(Value(DictTypeInt,arrEntry.entry+intStart));
+                    outArr.emplace_back(DictTypeInt,arrEntry.entry+intStart);
                     break;
                 case DictTypeInt64:
                 case DictTypeIdentity:
-                    outArr.push_back(Value(DictTypeInt64,arrEntry.entry+int64Start));
+                    outArr.emplace_back(DictTypeInt64,arrEntry.entry+int64Start);
                     break;
                 case DictTypeDouble:
-                    outArr.push_back(Value(DictTypeDouble,arrEntry.entry+dStart));
+                    outArr.emplace_back(DictTypeDouble,arrEntry.entry+dStart);
                     break;
                 case DictTypeDictionary:
-                    outArr.push_back(Value(DictTypeDictionary,arrEntry.entry+dictStart));
+                    outArr.emplace_back(DictTypeDictionary,arrEntry.entry+dictStart);
                     break;
                 case DictTypeArray:
-                    outArr.push_back(Value(DictTypeArray,arrEntry.entry+arrayStart));
+                    outArr.emplace_back(DictTypeArray,arrEntry.entry+arrayStart);
                     break;
                 case DictTypeObject:
                 case DictTypeNone:
+                    wkLogLevel(Warn, "Unsupported conversion from type %d to array entry", arrEntry.type);
                     break;
             }
         }
@@ -888,7 +887,7 @@ void MutableDictionaryC::addEntries(const MutableDictionaryC *other)
     // Now we map the values into their new locations
     for (const auto &value: other->valueMap) {
         unsigned int newKey = stringRemap[value.first];
-        Value val = value.second;
+        Value val = value.second;   // copy
         switch (val.type) {
             case DictTypeString:
                 val.entry = stringRemap[val.entry];
@@ -911,6 +910,7 @@ void MutableDictionaryC::addEntries(const MutableDictionaryC *other)
                 break;
             case DictTypeObject:
             case DictTypeNone:
+                wkLogLevel(Warn, "Unsupported conversion from type %d to array entry", val.type);
                 break;
         }
         valueMap[newKey] = val;
@@ -934,19 +934,15 @@ int DictionaryEntryCBasic::getInt() const
         case DictTypeIdentity:
         case DictTypeInt64:    return val.i64Val;
         case DictTypeDouble:   return (int)val.dVal;
-        default:               return 0;
+        default:
+            wkLogLevel(Warn, "Unsupported conversion from type %d to int", type);
+            return 0;
     }
 }
 
 SimpleIdentity DictionaryEntryCBasic::getIdentity() const
 {
-    switch (type) {
-        case DictTypeInt:      return val.iVal;
-        case DictTypeIdentity:
-        case DictTypeInt64:    return val.i64Val;
-        case DictTypeDouble:   return val.dVal;
-        default:               return 0;
-    }
+    return getInt64();
 }
 
 int64_t DictionaryEntryCBasic::getInt64() const
@@ -956,7 +952,9 @@ int64_t DictionaryEntryCBasic::getInt64() const
         case DictTypeIdentity:
         case DictTypeInt64:    return val.i64Val;
         case DictTypeDouble:   return val.dVal;
-        default:               return 0;
+        default:
+            wkLogLevel(Warn, "Unsupported conversion from type %d to int64", type);
+            return 0;
     }
 }
 
@@ -967,18 +965,16 @@ bool DictionaryEntryCBasic::getBool() const
         case DictTypeIdentity:
         case DictTypeInt64:    return val.i64Val != 0;
         case DictTypeDouble:   return val.dVal != 0.0;
-        default:               return false;
+        default:
+            wkLogLevel(Warn, "Unsupported conversion from type %d to bool", type);
+            return false;
     }
 }
 
 RGBAColor DictionaryEntryCBasic::getColor() const
 {
-    RGBAColor ret;
-    ret.b = val.iVal & 0xFF;
-    ret.g = (val.iVal >> 8) & 0xFF;
-    ret.r = (val.iVal >> 16) & 0xFF;
-    ret.a = (val.iVal >> 24) & 0xFF;
-    return ret;
+    const auto v = (unsigned)val.iVal;
+    return { (uint8_t)(v >> 16),(uint8_t)(v >> 8),(uint8_t)v,(uint8_t)(v >> 24) };
 }
 
 double DictionaryEntryCBasic::getDouble() const
@@ -988,7 +984,9 @@ double DictionaryEntryCBasic::getDouble() const
         case DictTypeIdentity:
         case DictTypeInt64:    return val.i64Val;
         case DictTypeDouble:   return val.dVal;
-        default:               return 0;
+        default:
+            wkLogLevel(Warn, "Unsupported conversion from type %d to double", type);
+            return 0;
     }
 }
 
@@ -999,35 +997,43 @@ bool DictionaryEntryCBasic::isEqual(const DictionaryEntryRef &other) const
         case DictTypeInt64:
         case DictTypeIdentity: return val.i64Val == other->getIdentity();
         case DictTypeDouble:   return val.dVal == other->getDouble();
-        default:               return false;
+        default:
+            wkLogLevel(Warn, "Unsupported comparison of type %d to type %d", type, other->getType());
+            return false;
     }
 }
 
 RGBAColor DictionaryEntryCString::getColor() const
 {
     // We're looking for a #RRGGBBAA
-    if (str.length() < 1 || str[0] != '#')
+    if (str.length() < 3 || str[0] != '#')
         return RGBAColor::white();
 
-    const int iVal = atoi(&str.c_str()[1]);
-    RGBAColor ret;
-    ret.b = iVal & 0xFF;
-    ret.g = (iVal >> 8) & 0xFF;
-    ret.r = (iVal >> 16) & 0xFF;
-    ret.a = (iVal >> 24) & 0xFF;
-
-    return ret;
+    const auto iVal = (unsigned)strtol(&str.c_str()[1], nullptr, 16);
+    return { (uint8_t)(iVal >> 16), (uint8_t)(iVal >> 8), (uint8_t)iVal, (uint8_t)(iVal >> 24) };
 }
 
 bool DictionaryEntryCString::isEqual(const DictionaryEntryRef &other) const
 {
-    const auto otherRef = std::dynamic_pointer_cast<DictionaryEntryCString>(other);
-    return otherRef && (str == otherRef->str);
+    // Try to avoid creating a string unnecessarily
+    if (!other)
+    {
+        return str.empty();
+    }
+    else if (const auto otherCString = dynamic_cast<DictionaryEntryCString*>(other.get()))
+    {
+        return (str == otherCString->str);
+    }
+    else
+    {
+        return str == other->getString();
+    }
 }
 
 bool DictionaryEntryCDict::isEqual(const DictionaryEntryRef &other) const
 {
     // TODO: Actually make this work
+    wkLogLevel(Warn, "Unsupported dictionary comparison");
     return false;
 }
 
@@ -1062,6 +1068,7 @@ std::vector<DictionaryEntryCRef> DictionaryEntryCArray::getArrayC() const
 bool DictionaryEntryCArray::isEqual(const DictionaryEntryRef &other) const
 {
     // TODO: Make this work
+    wkLogLevel(Warn, "Unsupported array comparison");
     return false;
 }
 

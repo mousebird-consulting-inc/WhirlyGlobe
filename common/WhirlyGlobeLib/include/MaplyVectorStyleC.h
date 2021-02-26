@@ -155,6 +155,9 @@ public:
     VectorStyleImpl() { }
     virtual ~VectorStyleImpl() { }
 
+    virtual std::string getIdent() const { return std::string(); }
+    virtual std::string getType() const { return std::string(); }
+
     /// Unique Identifier for this style
     virtual long long getUuid(PlatformThreadInfo *inst) = 0;
     
