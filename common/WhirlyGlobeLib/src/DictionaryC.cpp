@@ -369,73 +369,28 @@ RGBAColor MutableDictionaryC::getColor(const std::string &name,const RGBAColor &
     return (it == stringMap.end()) ? defVal : getColor(it->second,defVal);
 }
 
+static RGBAColor ARGBtoRGBAColor(uint32_t v)
+{
+    return { (uint8_t)(v >> 16),(uint8_t)(v >> 8),(uint8_t)v,(uint8_t)(v >> 24) };
+}
+
 static RGBAColor parseColor(const char* const p, RGBAColor ret)
 {
     char* end = nullptr;
-    const auto v = (unsigned)std::strtol(p, &end, 16);
+    const auto v = (uint32_t)std::strtol(p, &end, 16);
 
     // TODO: These should probably be RRGGBBAA, but they're AARRGGBB for now for backward (probably) compatibility...
     switch (end - p)
     {
-#if 1
-#define DUPBITS(x) ((x) | ((x) << 4))
+#define DUP4(x) (uint8_t)((uint8_t)(x) | ((uint8_t)(x) << 4))   // 0N => NN
     case 3: // #RGB => R=RR G=GG B=BB A=FF
-        ret.b = (uint8_t)DUPBITS((v      ) & 0xF);
-        ret.g = (uint8_t)DUPBITS((v >>  4) & 0xF);
-        ret.r = (uint8_t)DUPBITS((v >>  8) & 0xF);
-        ret.a = 0xFF;
-        break;
+        return RGBAColor(DUP4(v >> 8), DUP4(v >> 4), DUP4(v), 0xFF);
     case 4: // #ARGB => R=RR G=GG B=BB A=AA
-        ret.b = (uint8_t)DUPBITS((v      ) & 0xF);
-        ret.g = (uint8_t)DUPBITS((v >>  4) & 0xF);
-        ret.r = (uint8_t)DUPBITS((v >>  8) & 0xF);
-        ret.a = (uint8_t)DUPBITS((v >> 12) & 0xF);
-        break;
-    case 6: // #RRGGBB => R=RR G=GG B=BB A=FF
-        ret.b = (uint8_t)(v      );
-        ret.g = (uint8_t)(v >>  8);
-        ret.r = (uint8_t)(v >> 16);
-        ret.a = 0xFF;
-        break;
-    case 8: // #AARRGGBB => R=RR G=GG B=BB A=AA
-        ret.b = (uint8_t)(v      );
-        ret.g = (uint8_t)(v >>  8);
-        ret.r = (uint8_t)(v >> 16);
-        ret.a = (uint8_t)(v >> 24);
-#undef DUPBITS
-#else
-    case 3: // #RGB => R=RR G=GG B=BB A=FF
-        ret.b = (iVal      ) & 0xF;
-        ret.g = (iVal >>  4) & 0xF;
-        ret.r = (iVal >>  8) & 0xF;
-        ret.b |= ret.b << 4;
-        ret.g |= ret.g << 4;
-        ret.r |= ret.r << 4;
-        ret.a = 0xFF;
-        break;
-    case 4: // #RGBA => R=RR G=GG B=BB A=AA
-        ret.a = (iVal      ) & 0xF;
-        ret.b = (iVal     4) & 0xF;
-        ret.g = (iVal >>  8) & 0xF;
-        ret.r = (iVal >> 12) & 0xF;
-        ret.b |= ret.b << 4;
-        ret.g |= ret.g << 4;
-        ret.r |= ret.r << 4;
-        ret.a |= ret.a << 4;
-        break;
-    case 6: // #RRGGBB => R=RR G=GG B=BB A=FF
-        ret.b = (iVal      ) & 0xFF;
-        ret.g = (iVal >>  8) & 0xFF;
-        ret.r = (iVal >> 16) & 0xFF;
-        ret.a = 0xFF;
-        break;
-    case 8: // #RRGGBBAA => R=RR G=GG B=BB A=AA
-        ret.a = (iVal      ) & 0xFF;
-        ret.b = (iVal >>  8) & 0xFF;
-        ret.g = (iVal >> 16) & 0xFF;
-        ret.r = (iVal >> 24) & 0xFF;
-#endif
-        default: break;
+        return RGBAColor(DUP4(v >> 8), DUP4(v >> 4), DUP4(v), DUP4(v >> 12));
+#undef DUP4
+    case 6: return ARGBtoRGBAColor(v | 0xFF000000); // #RRGGBB => R=RR G=GG B=BB A=FF
+    case 8: return ARGBtoRGBAColor(v); // #AARRGGBB => R=RR G=GG B=BB A=AA
+    default: break;
     }
     return ret;
 }
@@ -460,13 +415,7 @@ RGBAColor MutableDictionaryC::getColor(unsigned int key,const RGBAColor &defVal)
         }
         case DictTypeInt:
         {
-            const uint32_t iVal = intVals[val.entry];
-            RGBAColor ret;
-            ret.b = (uint8_t)iVal;
-            ret.g = (uint8_t)(iVal >> 8);
-            ret.r = (uint8_t)(iVal >> 16);
-            ret.a = (uint8_t)(iVal >> 24);
-            return ret;
+            return ARGBtoRGBAColor(intVals[val.entry]);
         }
         // No idea what this means
         default:
@@ -495,7 +444,6 @@ double MutableDictionaryC::getDouble(unsigned int key,double defVal) const
         case DictTypeInt64:
         case DictTypeIdentity: return int64Vals[val.entry];
         case DictTypeDouble:   return dVals[val.entry];
-        // TODO: Maybe parse the string
         default:
             wkLogLevel(Warn, "Unsupported conversion from type %d to double", val.type);
             return defVal;
@@ -973,8 +921,7 @@ bool DictionaryEntryCBasic::getBool() const
 
 RGBAColor DictionaryEntryCBasic::getColor() const
 {
-    const auto v = (unsigned)val.iVal;
-    return { (uint8_t)(v >> 16),(uint8_t)(v >> 8),(uint8_t)v,(uint8_t)(v >> 24) };
+    return ARGBtoRGBAColor(val.iVal);
 }
 
 double DictionaryEntryCBasic::getDouble() const
@@ -1005,12 +952,7 @@ bool DictionaryEntryCBasic::isEqual(const DictionaryEntryRef &other) const
 
 RGBAColor DictionaryEntryCString::getColor() const
 {
-    // We're looking for a #RRGGBBAA
-    if (str.length() < 3 || str[0] != '#')
-        return RGBAColor::white();
-
-    const auto iVal = (unsigned)strtol(&str.c_str()[1], nullptr, 16);
-    return { (uint8_t)(iVal >> 16), (uint8_t)(iVal >> 8), (uint8_t)iVal, (uint8_t)(iVal >> 24) };
+    return parseColor(str.c_str(), RGBAColor::white());
 }
 
 bool DictionaryEntryCString::isEqual(const DictionaryEntryRef &other) const
