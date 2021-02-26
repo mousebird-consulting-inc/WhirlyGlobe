@@ -208,7 +208,6 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
      */
     public void shutdown()
     {
-        tileFetcher = null;
         loadInterp = null;
         if (samplingLayer == null || samplingLayer.get() == null || control == null || control.get() == null)
             return;
@@ -237,6 +236,8 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
 
                         samplingLayer.clear();
                         control.clear();
+
+                        tileFetcher = null;
                     }
                 });
             }
