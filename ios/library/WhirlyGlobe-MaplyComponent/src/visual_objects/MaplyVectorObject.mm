@@ -138,7 +138,7 @@ using namespace WhirlyGlobe;
     return self;
 }
 
-- (instancetype)initWithLineString:(const NSArray *)inCoords attributes:(NSDictionary *)attr
+- (instancetype)initWithLineString:(const NSArray<NSNumber*> *__nonnull)inCoords attributes:(NSDictionary *)attr
 {
     const int numCoords = [inCoords count]/2;
     std::vector<MaplyCoordinate> coords(numCoords);
@@ -698,6 +698,11 @@ using namespace WhirlyGlobe;
 
 - (NSArray *)splitVectors
 {
+    // If the split will amount to a copy, just return this one
+    if (vObj->shapes.size() < 2) {
+        return @[self];
+    }
+
     std::vector<VectorObject *> newVecs;
     vObj->splitVectors(newVecs);
     

@@ -38,22 +38,25 @@ bool MapboxVectorBackgroundPaint::parse(PlatformThreadInfo *inst,
 }
 
 bool MapboxVectorLayerBackground::parse(PlatformThreadInfo *inst,
-                                        DictionaryRef styleEntry,
-                                        MapboxVectorStyleLayerRef refLayer,
+                                        const DictionaryRef &styleEntry,
+                                        const MapboxVectorStyleLayerRef &refLayer,
                                         int inDrawPriority)
 {
-    if (!MapboxVectorStyleLayer::parse(inst,styleEntry,refLayer,drawPriority)) {
+    if (!MapboxVectorStyleLayer::parse(inst,styleEntry,refLayer,drawPriority))
+    {
         return false;
     }
     
 //    styleSet->unsupportedCheck("layout","background",styleEntry);
     
-    if (!paint.parse(inst,styleSet,styleEntry->getDict("paint"))) {
+    if (!paint.parse(inst,styleSet,styleEntry->getDict("paint")))
+    {
         return false;
     }
     
     // Mess directly with the opacity because we're using it for other purposes
-    if (styleEntry->hasField("alphaoverride")) {
+    if (styleEntry->hasField("alphaoverride"))
+    {
         paint.color->setAlphaOverride(styleEntry->getDouble("alphaoverride"));
     }
     
@@ -63,8 +66,9 @@ bool MapboxVectorLayerBackground::parse(PlatformThreadInfo *inst,
 }
 
 void MapboxVectorLayerBackground::buildObjects(PlatformThreadInfo *inst,
-                                               std::vector<VectorObjectRef> &vecObjs,
-                                               VectorTileDataRef tileInfo)
+                                               const std::vector<VectorObjectRef> &vecObjs,
+                                               const VectorTileDataRef &tileInfo,
+                                               const Dictionary *desc)
 {
     const auto color = styleSet->backgroundColor(inst, tileInfo->ident.level);
     
@@ -108,9 +112,13 @@ void MapboxVectorLayerBackground::buildObjects(PlatformThreadInfo *inst,
 
     if (const auto vecID = styleSet->vecManage->addVectors(&tessShapes, vecInfo, tileInfo->changes))
     {
-        const auto compObj = styleSet->makeComponentObject(inst);
+        const auto compObj = styleSet->makeComponentObject(inst, desc);
+
+        // not currently supported
+        //compObj->representation = representation;
+
         compObj->vectorIDs.insert(vecID);
-        
+
         styleSet->compManage->addComponentObject(compObj, tileInfo->changes);
         tileInfo->compObjs.push_back(compObj);
     }

@@ -672,6 +672,16 @@ void MutableDictionaryC::setInt(unsigned int key,int val)
     set(key, val, DictTypeInt, intVals);
 }
 
+void MutableDictionaryC::setInt64(const std::string &name,int64_t val)
+{
+    setInt64(addKeyID(name),val);
+}
+
+void MutableDictionaryC::setInt64(unsigned int key,int64_t val)
+{
+    set(key, val, DictTypeInt64, int64Vals);
+}
+
 void MutableDictionaryC::setIdentifiable(const std::string &name,SimpleIdentity val)
 {
     setIdentifiable(addKeyID(name),val);

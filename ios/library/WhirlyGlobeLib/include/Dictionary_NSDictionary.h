@@ -64,11 +64,14 @@ class iosDictionary : public Dictionary
 {
 public:
     iosDictionary();
-    iosDictionary(NSDictionary *dict);
+    iosDictionary(const NSDictionary *dict);
     // Copy constructor
     iosDictionary(const iosDictionary &that);
     virtual ~iosDictionary() override;
-    
+
+    virtual int count() const override;
+    virtual bool empty() const override { return count() == 0; }
+
     /// Returns true if the field exists
     bool hasField(const std::string &name) const override;
     
@@ -100,7 +103,7 @@ public:
     // Return an array of key names
     virtual std::vector<std::string> getKeys() const override;
 public:
-    NSDictionary *dict;
+    const NSDictionary *dict;
 };
 
 class iosMutableDictionary;
@@ -111,12 +114,16 @@ class iosMutableDictionary : public MutableDictionary
 {
 public:
     iosMutableDictionary();
+    iosMutableDictionary(const NSDictionary *dict);
     iosMutableDictionary(NSMutableDictionary *dict);
     iosMutableDictionary(const MutableDictionaryRef &dict);
     // Assignment operator
     virtual iosMutableDictionary &operator = (const iosMutableDictionary &that);
     virtual ~iosMutableDictionary() override;
     virtual MutableDictionaryRef copy() const override;
+
+    virtual int count() const override;
+    virtual bool empty() const override { return count() == 0; }
 
     /// Returns true if the field exists
     bool hasField(const std::string &name) const override;
@@ -157,6 +164,8 @@ public:
     
     /// Set field as int
     void setInt(const std::string &name,int val) override;
+    /// Set field as int
+    void setInt64(const std::string &name,int64_t val) override;
     /// Set field as 64 bit unique value
     void setIdentifiable(const std::string &name,SimpleIdentity val) override;
     /// Set field as double
@@ -184,7 +193,8 @@ public:
 @interface NSMutableDictionary (DictionaryC)
 
 // Convert one of the DictionaryC objects to an NSDictionary (actually works on dictionary in the right interface)
-+ (NSMutableDictionary *) fromDictionaryC:(WhirlyKit::MutableDictionaryRef)dict;
-+ (NSMutableDictionary *) fromDictionaryCPointer:(const WhirlyKit::MutableDictionary *)dict;
++ (NSMutableDictionary *) fromDictionaryC:(const WhirlyKit::DictionaryRef &)dict;
++ (NSMutableDictionary *) fromMutableDictionaryC:(const WhirlyKit::MutableDictionaryRef &)dict;
++ (NSMutableDictionary *) fromDictionaryCPointer:(const WhirlyKit::Dictionary *)dict;
 
 @end

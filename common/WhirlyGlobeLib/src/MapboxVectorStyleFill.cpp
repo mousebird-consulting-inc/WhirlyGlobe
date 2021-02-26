@@ -28,7 +28,7 @@ namespace WhirlyKit
 
 bool MapboxVectorFillPaint::parse(PlatformThreadInfo *inst,
                                   MapboxVectorStyleSetImpl *styleSet,
-                                  DictionaryRef styleEntry)
+                                  const DictionaryRef &styleEntry)
 {
     styleSet->unsupportedCheck("fill-antialias","paint_fill",styleEntry);
     styleSet->unsupportedCheck("fill-translate","paint_fill",styleEntry);
@@ -49,21 +49,21 @@ bool MapboxVectorFillPaint::parse(PlatformThreadInfo *inst,
 }
 
 bool MapboxVectorLayerFill::parse(PlatformThreadInfo *inst,
-                                  DictionaryRef styleEntry,
-                                  MapboxVectorStyleLayerRef refLayer,
+                                  const DictionaryRef &styleEntry,
+                                  const MapboxVectorStyleLayerRef &refLayer,
                                   int inDrawPriority)
 {
-    if (!styleEntry)
-        return false;
-
     if (!MapboxVectorStyleLayer::parse(inst,styleEntry,refLayer,drawPriority) ||
         !paint.parse(inst,styleSet,styleEntry->getDict("paint")))
+    {
         return false;
+    }
     
     arealShaderID = styleSet->tileStyleSettings->settingsArealShaderID;
     
     // Mess directly with the opacity because we're using it for other purposes
-    if (styleEntry && styleEntry->hasField("alphaoverride")) {
+    if (styleEntry && styleEntry->hasField("alphaoverride"))
+    {
         paint.color->setAlphaOverride(styleEntry->getDouble("alphaoverride"));
     }
     
@@ -77,13 +77,25 @@ void MapboxVectorLayerFill::cleanup(PlatformThreadInfo *inst,ChangeSet &changes)
 }
 
 void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
-                                         std::vector<VectorObjectRef> &vecObjs,
-                                         VectorTileDataRef tileInfo)
+                                         const std::vector<VectorObjectRef> &vecObjs,
+                                         const VectorTileDataRef &tileInfo,
+                                         const Dictionary *desc)
 {
-    if (!visible || !(paint.color || paint.outlineColor))
+    // If a representation is set, we produce results for non-visible layers
+    if (!visible /*&& representation.empty()*/)
+    {
         return;
-        
-    const auto compObj = styleSet->makeComponentObject(inst);
+    }
+
+    if (!paint.color && !paint.outlineColor)
+    {
+        return;
+    }
+
+    const auto compObj = styleSet->makeComponentObject(inst, desc);
+
+    // not currently supported
+    //compObj->representation = representation;
 
     // Gather all the areal features for fill and/or outline
     std::vector<VectorShapeRef> shapes;

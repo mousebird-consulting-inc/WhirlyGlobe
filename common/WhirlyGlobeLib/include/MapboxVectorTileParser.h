@@ -105,45 +105,68 @@ class MapboxVectorTileParser
 public:
     MapboxVectorTileParser(PlatformThreadInfo *inst,VectorStyleDelegateImplRef styleDelegate);
     virtual ~MapboxVectorTileParser();
-    
+
     /// If set, we'll parse into local coordinates as specified by the bounding box, rather than geo coords
-    bool localCoords;
-    
+    void setLocalCoords(bool b = true) { localCoords = b; }
+
     /// Keep the vector objects around as we parse them
-    bool keepVectors;
-    
+    void setKeepVectors(bool b = true) { keepVectors = b; }
+
     /// Parse everything, even if there's no style for it
-    bool parseAll;
-    
-    // Add a category for a particulary style ID
-    // These are used for sorting later on
+    void setParseAll(bool b = true) { parseAll = b; }
+
+    /// Add a category for a particulary style ID
+    /// These are used for sorting later on
     void addCategory(const std::string &category,long long styleID);
-    
-    // Parse the vector tile and return a list of vectors.
-    // Returns false on failure.
+
+    /// Parse the vector tile and return a list of vectors.
+    /// Returns false on failure or cancellation.
     virtual bool parse(PlatformThreadInfo *styleInst, RawData *rawData, VectorTileData *tileData, volatile bool *cancelBool);
-    
-    // The subclass calls the appropriate style to build component objects
-    //  which are then returned in the VectorTileData
+
+    /// The subclass calls the appropriate style to build component objects
+    ///  which are then returned in the VectorTileData
     virtual void buildForStyle(PlatformThreadInfo *styleInst,
                                long long styleID,
-                               std::vector<VectorObjectRef> &vecObjs,
-                               VectorTileDataRef data);
-    
-    // Only include features that have the given name and one of the values
-    void setUUIDs(const std::string &name,const std::set<std::string> &uuids);
-    
-    // If set, we'll tack a debug label in the middle of the tile
+                               const std::vector<VectorObjectRef> &vecObjs,
+                               const VectorTileDataRef &data);
+
+    /// Set the name of the uuid field.
+    /// When present, the value is set as the kMaplyUUID attribute on generated objects
+    void setUUIDName(const std::string &name);
+
+    /// Only include features that have the given name and one of the values
+    void setAttributeFilter(const std::string &name,const std::set<std::string> &values);
+    void setAttributeFilter(const std::string &name,std::set<std::string> &&values);
+
+    /// If set, we'll tack a debug label in the middle of the tile
+    void setDebugLabel(bool b = true) { debugLabel = b; }
+
+    /// If set, we'll put an outline around the tile
+    void setDebugOutline(bool b = true) { debugOutline = b; }
+
+    const VectorStyleDelegateImplRef &getStyleDelegate() const { return styleDelegate; }
+protected:
+    /// If set, we'll parse into local coordinates as specified by the bounding box, rather than geo coords
+    bool localCoords;
+
+    /// Keep the vector objects around as we parse them
+    bool keepVectors;
+
+    /// Parse everything, even if there's no style for it
+    bool parseAll;
+
+    /// If set, we'll tack a debug label in the middle of the tile
     bool debugLabel;
-    
-    // If set, we'll put an outline around the tile
+
+    /// If set, we'll put an outline around the tile
     bool debugOutline;
 
-public:
-    // Used for feature inclusion.  Only keep the features that have this attribute and one of the UUIDs.
     std::string uuidName;
-    std::set<std::string> uuidValues;
-    
+
+    // Used for feature inclusion.  Only keep the features that have this attribute and one of the values.
+    std::string filterName;
+    std::set<std::string> filterValues;
+
     VectorStyleDelegateImplRef styleDelegate;
     std::map<long long,std::string> styleCategories;
 };

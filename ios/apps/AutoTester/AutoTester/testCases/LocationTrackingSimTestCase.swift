@@ -8,10 +8,11 @@
 
 import UIKit
 
-class LocationTrackingSimTestCase: MaplyTestCase, MaplyLocationTrackerDelegate {
+class LocationTrackingSimTestCase: MaplyTestCase, MaplyLocationTrackerDelegate, MaplyLocationSimulatorDelegate {
 
     var segCtrl: UISegmentedControl?
-    var simPointIndex: Int?
+    var simPointIndex: Int = 0
+    var simFailIndex: Int = 0
     var simPointData: [[Float]]?
     
     var baseLayer : MaplyTestCase? = nil
@@ -35,8 +36,8 @@ class LocationTrackingSimTestCase: MaplyTestCase, MaplyLocationTrackerDelegate {
         segCtrl?.layer.cornerRadius = 4
         segCtrl?.clipsToBounds = true
         baseVC.view.addSubview(segCtrl!)
-        
-        baseVC.startLocationTracking(with: self, useHeading: true, useCourse: true, simulate: true)
+
+        baseVC.startLocationTracking(with: self, simulator: self, simInterval: 0.75, useHeading: true, useCourse: true)
     }
     
     override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
@@ -46,7 +47,8 @@ class LocationTrackingSimTestCase: MaplyTestCase, MaplyLocationTrackerDelegate {
         
         setupLocationTracking(baseVC: globeVC)
         
-        globeVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(2.3508, 48.8567), height: 0.5, heading: 0.0, time: 0.5)
+        globeVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(16.382910,48.211350), height: 0.0025, heading: 0.0, time: 0.5)
+        globeVC.setZoomLimitsMin(0.0001, max: 1.0)
     }
     
     override func setUpWithMap(_ mapVC: MaplyViewController) {
@@ -55,8 +57,8 @@ class LocationTrackingSimTestCase: MaplyTestCase, MaplyLocationTrackerDelegate {
         
         setupLocationTracking(baseVC: mapVC)
         
-        mapVC.animate(toPosition:MaplyCoordinateMakeWithDegrees(2.3508, 48.8567), height: 0.5, time: 1.0)
-        mapVC.setZoomLimitsMin(0.0005, max: 4.0)
+        mapVC.animate(toPosition:MaplyCoordinateMakeWithDegrees(16.382910,48.211350), height: 0.0025, time: 0.5)
+        mapVC.setZoomLimitsMin(0.0001, max: 4.0)
     }
     
     @objc func onSegChange() {
@@ -80,10 +82,17 @@ class LocationTrackingSimTestCase: MaplyTestCase, MaplyLocationTrackerDelegate {
     }
     
     func getSimulationPoint() -> MaplyLocationTrackerSimulationPoint {
-        let pointData:[Float] = (simPointData?[simPointIndex!])!
-        simPointIndex = (simPointIndex! + 1) % (simPointData?.count)!
-        
-        return MaplyLocationTrackerSimulationPoint(lonDeg: pointData[0], latDeg: pointData[1], headingDeg: pointData[2])
+        if let data = simPointData {
+            let pointData:[Float] = data[simPointIndex]
+            simPointIndex = (simPointIndex + 1) % data.count
+            return MaplyLocationTrackerSimulationPoint(lonDeg: pointData[0], latDeg: pointData[1], headingDeg: pointData[2])
+        }
+        return MaplyLocationTrackerSimulationPoint()
+    }
+    
+    func hasValidLocation() -> Bool {
+        simFailIndex += 1
+        return (simPointData != nil) && (simFailIndex % 20) != 0
     }
     
     func setSimulationPoints() {

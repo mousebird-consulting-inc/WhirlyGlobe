@@ -24,16 +24,21 @@ namespace WhirlyKit
 {
 
 bool MapboxVectorLayerRaster::parse(PlatformThreadInfo *inst,
-                                    DictionaryRef styleEntry,
-                                    MapboxVectorStyleLayerRef refLayer,
+                                    const DictionaryRef &styleEntry,
+                                    const MapboxVectorStyleLayerRef &refLayer,
                                     int drawPriority)
 {
+    if (!MapboxVectorStyleLayer::parse(inst,styleEntry,refLayer,drawPriority))
+    {
+        return false;
+    }
     return true;
 }
 
 void MapboxVectorLayerRaster::buildObjects(PlatformThreadInfo *inst,
-                                           std::vector<VectorObjectRef> &vecObjs,
-                                           VectorTileDataRef tileInfo)
+                                           const std::vector<VectorObjectRef> &vecObjs,
+                                           const VectorTileDataRef &tileInfo,
+                                           const Dictionary *desc)
 {
 }
 

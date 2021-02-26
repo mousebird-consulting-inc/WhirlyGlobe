@@ -93,7 +93,7 @@ static int BackImageWidth = 16, BackImageHeight = 16;
         vecStyle = std::make_shared<VectorStyleDelegateWrapper>(inViewC,inVectorStyle);
 
     imageTileParser = std::make_shared<MapboxVectorTileParser>(nullptr,imageStyle);
-    imageTileParser->localCoords = true;
+    imageTileParser->setLocalCoords();
     vecTileParser = std::make_shared<MapboxVectorTileParser>(nullptr,vecStyle);
     
     return self;
@@ -119,17 +119,24 @@ static int BackImageWidth = 16, BackImageHeight = 16;
 
 - (void)setUUIDName:(NSString *)inUuidName uuidValues:(NSArray<NSString *> *)uuids
 {
-    std::string uuidName = [inUuidName cStringUsingEncoding:NSUTF8StringEncoding];
-    std::set<std::string> uuidValues;
-    for (NSString *uuid in uuids) {
-        std::string uuidStr = [uuid cStringUsingEncoding:NSUTF8StringEncoding];
-        uuidValues.insert(uuidStr);
+    if (imageTileParser || vecTileParser)
+    {
+        std::string uuidName = [inUuidName cStringUsingEncoding:NSUTF8StringEncoding];
+        std::set<std::string> uuidValues;
+        for (NSString *uuid in uuids)
+        {
+            uuidValues.emplace([uuid cStringUsingEncoding:NSUTF8StringEncoding]);
+        }
+
+        if (imageTileParser)
+        {
+            imageTileParser->setAttributeFilter(uuidName,uuidValues);
+        }
+        if (vecTileParser)
+        {
+            vecTileParser->setAttributeFilter(uuidName,uuidValues);
+        }
     }
-    
-    if (imageTileParser)
-        imageTileParser->setUUIDs(uuidName,uuidValues);
-    if (vecTileParser)
-        vecTileParser->setUUIDs(uuidName,uuidValues);
 }
 
 - (void)setLoader:(MaplyQuadLoaderBase *)inLoader

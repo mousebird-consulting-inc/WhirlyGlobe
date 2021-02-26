@@ -96,7 +96,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorTileParser_setLocalC
                 env, obj);
         if (!obj)
             return;
-        inst->localCoords = localCoords;
+        inst->setLocalCoords(localCoords);
     }
     catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply",
@@ -115,7 +115,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_MapboxVectorTileParser_parse
             return false;
 
         // Notify the style delegate of the new environment so it can make Java calls if need be
-        MapboxVectorStyleSetImpl_AndroidRef theStyleDelegate = std::dynamic_pointer_cast<MapboxVectorStyleSetImpl_Android>(inst->styleDelegate);
+        auto theStyleDelegate = std::dynamic_pointer_cast<MapboxVectorStyleSetImpl_Android>(inst->getStyleDelegate());
 
         if (theStyleDelegate)
             theStyleDelegate->setupMethods(env);

@@ -3,7 +3,7 @@
  *  MaplyComponent
  *
  *  Created by Steve Gifford on 12/14/12.
- *  Copyright 2012-2020 mousebird consulting
+ *  Copyright 2012-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -3450,10 +3450,17 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 }
 
 // Set the representation to use for the specified UUIDs
-- (void)setRepresentation:(NSString *__nullable)repName ofUUIDs:(NSArray<NSString *> *__nonnull)uuids mode:(MaplyThreadMode)threadMode
+- (void)setRepresentation:(NSString *__nullable)repName
+          fallbackRepName:(NSString *__nullable)fallbackRepName
+                  ofUUIDs:(NSArray<NSString *> *__nonnull)uuids
+                     mode:(MaplyThreadMode)threadMode
 {
-    NSArray *argArray = @[repName, uuids, @(threadMode)];
-    
+    NSArray *argArray = @[
+        repName ? repName : @"",
+        fallbackRepName ? fallbackRepName : @"",
+        uuids,
+        @(threadMode)];
+
     threadMode = [self resolveThreadMode:threadMode];
     switch (threadMode)
     {
@@ -3468,25 +3475,40 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     }
 }
 
-- (void)setRepresentation:(NSString *__nullable)repName ofUUIDs:(NSArray<NSString *> *__nonnull)uuids changes:(ChangeSet &)changes
+- (void)setRepresentation:(NSString *__nullable)repName
+          fallbackRepName:(NSString *__nullable)fallbackRepName
+                  ofUUIDs:(NSArray<NSString *> *__nonnull)uuids
+                  changes:(ChangeSet &)changes
 {
-    if (auto wr = WorkRegion(self)) {
+    if (auto wr = WorkRegion(self))
+    {
         [self setRepresentationImpl:repName ofUUIDs:uuids changes:changes];
     }
 }
 
-- (void)setRepresentationImpl:(NSString *__nullable)repName ofUUIDs:(NSArray<NSString *> *__nonnull)uuids changes:(ChangeSet &)changes
+- (void)setRepresentationImpl:(NSString *__nullable)repName
+                      ofUUIDs:(NSArray<NSString *> *__nonnull)uuids
+                      changes:(ChangeSet &)changes
+{
+    [self setRepresentationImpl:repName fallbackRepName:@"" ofUUIDs:uuids changes:changes];
+}
+
+- (void)setRepresentationImpl:(NSString *__nullable)repName
+              fallbackRepName:(NSString *__nullable)fallbackRepName
+                      ofUUIDs:(NSArray<NSString *> *__nonnull)uuids
+                      changes:(ChangeSet &)changes
 {
     if (isShuttingDown || (!layerThread && !offlineMode))
         return;
 
-    const auto repStr = [repName asStdString];  // blank if null
+    const auto repStr = [repName asStdString];
+    const auto fallbackStr = [fallbackRepName asStdString];
     std::unordered_set<std::string> uuidSet(uuids.count);
     for (const NSString *str in uuids)
     {
         uuidSet.insert([str asStdString]);
     }
-    compManager->setRepresentation(repStr, uuidSet, changes);
+    compManager->setRepresentation(repStr, fallbackStr, uuidSet, changes);
 }
 
 - (void)setRepresentationRun:(NSArray *)argArray
@@ -3495,12 +3517,12 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         return;
 
     NSString *repName = argArray[0];
-    NSArray<NSString *> *uuids = argArray[1];
-    const MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:2] intValue];
+    NSString *fallbackRepName = argArray[1];
+    NSArray<NSString *> *uuids = argArray[2];
+    const MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
 
     ChangeSet changes;
-    [self setRepresentationImpl:repName ofUUIDs:uuids changes:changes];
-
+    [self setRepresentationImpl:repName fallbackRepName:fallbackRepName ofUUIDs:uuids changes:changes];
     [self flushChanges:changes mode:threadMode];
 }
 

@@ -159,13 +159,16 @@ public:
     
     /// Category used for sorting
     virtual std::string getCategory(PlatformThreadInfo *inst) = 0;
-    
+
     // Note: This no longer really holds
     /// Set if this geometry is additive (e.g. sticks around) rather than replacement
     virtual bool geomAdditive(PlatformThreadInfo *inst) = 0;
 
     /// Construct objects related to this style based on the input data.
-    virtual void buildObjects(PlatformThreadInfo *inst, std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo) = 0;
+    virtual void buildObjects(PlatformThreadInfo *inst,
+                              const std::vector<VectorObjectRef> &vecObjs,
+                              const VectorTileDataRef &tileInfo,
+                              const Dictionary *desc) = 0;
 };
 
 }

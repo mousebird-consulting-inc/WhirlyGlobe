@@ -38,7 +38,7 @@ public:
     /// @brief Initialize with the style sheet and the entry for this layer
     static MapboxVectorStyleLayerRef VectorStyleLayer(PlatformThreadInfo *inst,
                                                       MapboxVectorStyleSetImpl *styleSet,
-                                                      DictionaryRef layerDict,
+                                                      const DictionaryRef &layerDict,
                                                       int drawPriority);
 
     /// @brief Base class initialization.  Copies data out of the refLayer
@@ -47,8 +47,8 @@ public:
 
     // Parse the layer entry out of the style sheet
     virtual bool parse(PlatformThreadInfo *inst,
-                       DictionaryRef styleEntry,
-                       MapboxVectorStyleLayerRef parentLayer,
+                       const DictionaryRef &styleEntry,
+                       const MapboxVectorStyleLayerRef &refLayer,
                        int drawPriority);
 
     /// Unique Identifier for this style
@@ -63,8 +63,9 @@ public:
 
     /// Construct objects related to this style based on the input data.
     virtual void buildObjects(PlatformThreadInfo *inst,
-                              std::vector<VectorObjectRef> &vecObjs,
-                              VectorTileDataRef tileInfo) override = 0;
+                              const std::vector<VectorObjectRef> &vecObjs,
+                              const VectorTileDataRef &tileInfo,
+                              const Dictionary *desc) override = 0;
     
     /// Clean up any objects (textures, probably)
     virtual void cleanup(PlatformThreadInfo *inst,ChangeSet &changes);
@@ -110,6 +111,9 @@ public:
     
     /// Category value, if set
     std::string category;
+    
+    /// @brief The specific representation for this layer (e.g., "selected")
+    std::string representation;
 };
 
 

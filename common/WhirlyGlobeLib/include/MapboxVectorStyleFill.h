@@ -30,7 +30,7 @@ class MapboxVectorFillPaint
 public:
     bool parse(PlatformThreadInfo *inst,
                MapboxVectorStyleSetImpl *styleSet,
-               DictionaryRef styleEntry);
+               const DictionaryRef &styleEntry);
 
     MapboxTransDoubleRef opacity;
     MapboxTransColorRef color;
@@ -44,13 +44,14 @@ public:
     MapboxVectorLayerFill(MapboxVectorStyleSetImpl *styleSet) : MapboxVectorStyleLayer(styleSet) { }
     
     virtual bool parse(PlatformThreadInfo *inst,
-                       DictionaryRef styleEntry,
-                       MapboxVectorStyleLayerRef refLayer,
+                       const DictionaryRef &styleEntry,
+                       const MapboxVectorStyleLayerRef &refLayer,
                        int drawPriority) override;
     
     virtual void buildObjects(PlatformThreadInfo *inst,
-                              std::vector<VectorObjectRef> &vecObjs,
-                              VectorTileDataRef tileInfo) override;
+                              const std::vector<VectorObjectRef> &vecObjs,
+                              const VectorTileDataRef &tileInfo,
+                              const Dictionary *desc) override;
     
     virtual void cleanup(PlatformThreadInfo *inst,ChangeSet &changes) override;
     

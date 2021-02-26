@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 1/3/14.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@
 #import "helpers/MaplyTextureBuilder.h"
 #import "WhirlyGlobe.h"
 #import "MaplyTexture_private.h"
+#import "Dictionary_NSDictionary.h"
 
 using namespace WhirlyKit;
 
@@ -39,7 +40,7 @@ using namespace WhirlyKit;
 {
     self = [super init];
 
-    impl = VectorStyleSettingsImplRef(new VectorStyleSettingsImpl(scale));
+    impl = std::make_shared<VectorStyleSettingsImpl>(scale);
     impl->baseDrawPriority = kMaplyVectorDrawPriorityDefault;
 
     return self;
@@ -257,80 +258,140 @@ using namespace WhirlyKit;
 
 @end
 
-NSArray * _Nonnull AddMaplyVectorsUsingStyle(NSArray * _Nonnull vecObjs,NSObject<MaplyVectorStyleDelegate> * _Nonnull styleDelegate,NSObject<MaplyRenderControllerProtocol> * _Nonnull viewC,MaplyThreadMode threadMode)
+@implementation MaplyVectorStyleReverseWrapper
 {
-    MaplyTileID tileID = {0, 0, 0};
-    MaplyBoundingBoxD geoBBox;
-    geoBBox.ll.x = -M_PI;  geoBBox.ll.y = -M_PI/2.0;
-    geoBBox.ur.x = M_PI; geoBBox.ur.y = M_PI/2.0;
+    WhirlyKit::VectorStyleImplRef vectorStyle;
+}
+
+- (id)initWithCStyle:(WhirlyKit::VectorStyleImplRef)inVectorStyle
+{
+    self = [super init];
+    vectorStyle = inVectorStyle;
+    
+    return self;
+}
+
+- (long long) uuid
+{
+    return vectorStyle->getUuid(NULL);
+}
+
+- (NSString * _Nullable) getCategory
+{
+    const std::string category = vectorStyle->getCategory(NULL);
+    if (category.empty())
+        return nil;
+    
+    return [NSString stringWithUTF8String:category.c_str()];
+}
+
+- (bool) geomAdditive
+{
+    return vectorStyle->geomAdditive(NULL);
+}
+
+- (void)buildObjects:(NSArray *_Nonnull)vecObjs
+             forTile:(MaplyVectorTileData *_Nonnull)tileData
+               viewC:(NSObject<MaplyRenderControllerProtocol> *_Nonnull)viewC
+                desc:(NSDictionary *_Nullable)desc
+{
+    std::vector<VectorObjectRef> localVecObjs;
+    for (MaplyVectorObject *vecObj in vecObjs)
+        localVecObjs.push_back(vecObj->vObj);
+
+    auto lDesc = desc ? iosMutableDictionary(desc) : iosMutableDictionary();
+    vectorStyle->buildObjects(nullptr, localVecObjs, tileData->data, &lDesc);
+}
+
+@end
+
+static MapboxGeometryType ConvertGeomType(MaplyVectorObjectType type)
+{
+    switch (type)
+    {
+        case MaplyVectorPointType:      return MapboxGeometryType::GeomTypePoint;
+        case MaplyVectorLinearType:
+        case MaplyVectorLinear3dType:   return MapboxGeometryType::GeomTypeLineString;
+        case MaplyVectorArealType:      return MapboxGeometryType::GeomTypePolygon;
+        default:                        return MapboxGeometryType::GeomTypeUnknown;
+    }
+}
+
+NSArray<MaplyComponentObject*> * _Nonnull AddMaplyVectorsUsingStyle(
+    NSArray<MaplyVectorObject*> * _Nonnull vecObjs,
+    NSObject<MaplyVectorStyleDelegate> * _Nonnull styleDelegate,
+    NSObject<MaplyRenderControllerProtocol> * _Nonnull viewC,
+    MaplyThreadMode threadMode)
+{
+    return AddMaplyVectorsUsingStyleAndAttributes(vecObjs, styleDelegate, viewC,
+                                                  /*tileId=*/{0,0,0}, /*enable=*/true,
+                                                  threadMode, /*desc=*/nil);
+}
+
+NSArray<MaplyComponentObject*> * _Nonnull AddMaplyVectorsUsingStyleAndAttributes(
+    NSArray<MaplyVectorObject*> * _Nonnull vecObjs,
+    NSObject<MaplyVectorStyleDelegate> * _Nonnull styleDelegate,
+    NSObject<MaplyRenderControllerProtocol> * _Nonnull viewC,
+    MaplyTileID tileID,
+    bool enable,
+    MaplyThreadMode threadMode,
+    NSDictionary * _Nullable desc)
+{
+    const MaplyBoundingBoxD geoBBox = { { -M_PI, -M_PI_2 }, { M_PI, M_PI_2 } };
     MaplyVectorTileData *tileData = [[MaplyVectorTileData alloc] initWithID:tileID bbox:geoBBox geoBBox:geoBBox];
     NSMutableDictionary *featureStyles = [[NSMutableDictionary alloc] init];
-    
+
     // First we sort by the styles that each feature uses.
     int whichLayer = 0;
-    for (MaplyVectorObject *thisVecObj in vecObjs)
+    for (const MaplyVectorObject *thisVecObj in vecObjs)
     {
-        for (MaplyVectorObject *vecObj in [thisVecObj splitVectors])
+        for (const MaplyVectorObject *vecObj in [thisVecObj splitVectors])
         {
             NSString *layer = vecObj.attributes[@"layer"];
             if (!layer)
                 layer = vecObj.attributes[@"layer_name"];
             if (layer && ![styleDelegate layerShouldDisplay:layer tile:tileData.tileID])
                 continue;
-            
+
             if (!layer)
                 layer = [NSString stringWithFormat:@"layer%d",whichLayer];
-            
+
             // Need to set a geometry type
-            MapboxGeometryType geomType = MapboxGeometryType::GeomTypeUnknown;
-            switch ([vecObj vectorType])
-            {
-                case MaplyVectorPointType:
-                    geomType = MapboxGeometryType::GeomTypePoint;
-                    break;
-                case MaplyVectorLinearType:
-                case MaplyVectorLinear3dType:
-                    geomType = MapboxGeometryType::GeomTypeLineString;
-                    break;
-                case MaplyVectorArealType:
-                    geomType = MapboxGeometryType::GeomTypePolygon;
-                    break;
-                case MaplyVectorMultiType:
-                    break;
-                default:
-                    break;
-            }
+            const auto geomType = ConvertGeomType([vecObj vectorType]);
             vecObj.attributes[@"geometry_type"] = @(geomType);
-            
+
             NSArray *styles = [styleDelegate stylesForFeatureWithAttributes:vecObj.attributes onTile:tileData.tileID inLayer:layer viewC:viewC];
-            if (styles.count == 0)
-                continue;
-            
             for (NSObject<MaplyVectorStyle> *style in styles)
             {
                 NSMutableArray *featuresForStyle = featureStyles[@(style.uuid)];
-                if(!featuresForStyle) {
+                if(!featuresForStyle)
+                {
                     featuresForStyle = [NSMutableArray new];
                     featureStyles[@(style.uuid)] = featuresForStyle;
                 }
                 [featuresForStyle addObject:vecObj];
             }
         }
-        
+
         whichLayer++;
     }
 
     // Then we add each of those styles as a group for efficiency
     NSArray *symbolizerKeys = [featureStyles.allKeys sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"self" ascending:YES]]];
-    for(id key in symbolizerKeys) {
+    for(id key in symbolizerKeys)
+    {
         NSObject<MaplyVectorStyle> *symbolizer = [styleDelegate styleForUUID:[key longLongValue] viewC:viewC];
         NSArray *features = featureStyles[key];
-        [symbolizer buildObjects:features forTile:tileData viewC:viewC];
+        [symbolizer buildObjects:features forTile:tileData viewC:viewC desc:desc];
     }
-    
-    // Turn all the objects on
+
     NSArray *compObjs = [tileData componentObjects];
-    [viewC enableObjects:compObjs mode:threadMode];
+
+    if (enable)
+    {
+        // Turn all the objects on
+        [viewC enableObjects:compObjs mode:threadMode];
+    }
 
     return compObjs;
 }
@@ -338,8 +399,10 @@ NSArray * _Nonnull AddMaplyVectorsUsingStyle(NSArray * _Nonnull vecObjs,NSObject
 namespace WhirlyKit
 {
 
-MapboxVectorStyleSetImpl_iOS::MapboxVectorStyleSetImpl_iOS(Scene *scene,CoordSystem *coordSys,VectorStyleSettingsImplRef settings)
-: MapboxVectorStyleSetImpl(scene,coordSys,settings)
+MapboxVectorStyleSetImpl_iOS::MapboxVectorStyleSetImpl_iOS(Scene *scene,
+                                                           CoordSystem *coordSys,
+                                                           const VectorStyleSettingsImplRef &settings)
+    : MapboxVectorStyleSetImpl(scene,coordSys,settings)
 {
 }
 
@@ -347,7 +410,7 @@ MapboxVectorStyleSetImpl_iOS::~MapboxVectorStyleSetImpl_iOS()
 {
 }
 
-bool MapboxVectorStyleSetImpl_iOS::parse(PlatformThreadInfo *inst,DictionaryRef dict)
+bool MapboxVectorStyleSetImpl_iOS::parse(PlatformThreadInfo *inst,const DictionaryRef &dict)
 {
     // Release the textures we're standing on
     textures.clear();
@@ -364,15 +427,18 @@ SimpleIdentity MapboxVectorStyleSetImpl_iOS::makeCircleTexture(PlatformThreadInf
                                                                Point2f *circleSize)
 {
     // We want the texture a bit bigger than specified
-    float scale = tileStyleSettings->markerScale * 2;
+    const float scale = tileStyleSettings->markerScale * 2;
 
     // Build an image for the circle
-    float buffer = 1.0;
-    float radius = inRadius*scale;
-    float strokeWidth = inStrokeWidth*scale;
-    float size = ceil(buffer + radius + strokeWidth)*2;
-    circleSize->x() = size / 2;
-    circleSize->y() = size / 2;
+    const float buffer = 1.0;
+    const float radius = inRadius*scale;
+    const float strokeWidth = inStrokeWidth*scale;
+    const float size = ceil(buffer + radius + strokeWidth)*2;
+    if (circleSize)
+    {
+        circleSize->x() = size / 2;
+        circleSize->y() = size / 2;
+    }
     UIGraphicsBeginImageContext(CGSizeMake(size, size));
     // TODO: Use the opacity
     [[UIColor clearColor] setFill];
@@ -490,37 +556,37 @@ LabelInfoRef MapboxVectorStyleSetImpl_iOS::makeLabelInfo(PlatformThreadInfo *ins
         font = [UIFont systemFontOfSize:fontSize];
         NSLog(@"Failed to find font %s",fontNames[0].c_str());
     }
-        
-    LabelInfoRef labelInfo(new LabelInfo_iOS(font,true));
+
+    auto labelInfo = std::make_shared<LabelInfo_iOS>(font,/*screenObject=*/true);
     labelInfo->programID = screenMarkerProgramID;
-    
+
     return labelInfo;
 }
 
 SingleLabelRef MapboxVectorStyleSetImpl_iOS::makeSingleLabel(PlatformThreadInfo *inst,const std::string &text)
 {
-    NSString *textStr = [NSString stringWithUTF8String:text.c_str()];
-    
-    SingleLabel_iOS *label = new SingleLabel_iOS();
-    label->text = textStr;
-    
-    return SingleLabelRef(label);
+    return std::make_shared<SingleLabel_iOS>([NSString stringWithUTF8String:text.c_str()]);
 }
 
-ComponentObjectRef MapboxVectorStyleSetImpl_iOS::makeComponentObject(PlatformThreadInfo *inst)
+ComponentObjectRef MapboxVectorStyleSetImpl_iOS::makeComponentObject(PlatformThreadInfo *inst, const Dictionary *_Nullable desc)
 {
-    return ComponentObjectRef(new ComponentObject_iOS());
+    NSDictionary *nsDesc = nil;
+    if (desc && !desc->empty())
+    {
+        nsDesc = [NSMutableDictionary fromDictionaryCPointer:desc];
+    }
+    return std::make_shared<ComponentObject_iOS>(/*enabled=*/false, /*isSelectable=*/false, nsDesc);
 }
 
 void MapboxVectorStyleSetImpl_iOS::addSelectionObject(SimpleIdentity selectID,VectorObjectRef vecObj,ComponentObjectRef compObj)
 {
-    if (!compManage)
-        return;
-    
-    ComponentManager_iOSRef compManage_iOS = std::dynamic_pointer_cast<ComponentManager_iOS>(compManage);
-    
-    MaplyVectorObject *vectorObj = [[MaplyVectorObject alloc] initWithRef:vecObj];
-    compManage_iOS->addSelectObject(selectID, vectorObj);
+    if (auto compManage_iOS = dynamic_cast<ComponentManager_iOS*>(compManage.get()))
+    {
+        if (MaplyVectorObject *vectorObj = [[MaplyVectorObject alloc] initWithRef:vecObj])
+        {
+            compManage_iOS->addSelectObject(selectID, vectorObj);
+        }
+    }
 }
 
 
@@ -553,7 +619,7 @@ VectorStyleDelegateWrapper::stylesForFeature(PlatformThreadInfo *inst,
                                              const QuadTreeIdentifier &tileID,
                                              const std::string &layerName)
 {
-    NSDictionary *dict = nil;
+    const NSDictionary *dict = nil;
     if (const auto dictRef = dynamic_cast<const iosDictionary*>(&attrs)) {
         dict = dictRef->dict;
     } else if (const auto dictRef = dynamic_cast<const iosMutableDictionary*>(&attrs)) {
@@ -565,10 +631,12 @@ VectorStyleDelegateWrapper::stylesForFeature(PlatformThreadInfo *inst,
         return std::vector<VectorStyleImplRef>();
     }
     
-    MaplyTileID theTileID;
-    theTileID.x = tileID.x;  theTileID.y = tileID.y; theTileID.level = tileID.level;
+    const MaplyTileID theTileID = { tileID.x, tileID.y, tileID.level };
     NSString *layerStr = [NSString stringWithFormat:@"%s",layerName.c_str()];
-    NSArray *styles = [delegate stylesForFeatureWithAttributes:dict onTile:theTileID inLayer:layerStr viewC:viewC];
+    NSArray *styles = [delegate stylesForFeatureWithAttributes:const_cast<NSDictionary*>(dict)
+                                                        onTile:theTileID
+                                                       inLayer:layerStr
+                                                         viewC:viewC];
     
     std::vector<VectorStyleImplRef> retStyles;
     retStyles.reserve([styles count]);
@@ -583,8 +651,7 @@ bool VectorStyleDelegateWrapper::layerShouldDisplay(PlatformThreadInfo *inst,
                                                     const std::string &name,
                                                     const QuadTreeNew::Node &tileID)
 {
-    MaplyTileID theTileID;
-    theTileID.x = tileID.x;  theTileID.y = tileID.y; theTileID.level = tileID.level;
+    const MaplyTileID theTileID = { tileID.x, tileID.y, tileID.level };
     NSString *layerStr = [NSString stringWithFormat:@"%s",name.c_str()];
     return [delegate layerShouldDisplay:layerStr tile:theTileID];
 }
@@ -592,7 +659,7 @@ bool VectorStyleDelegateWrapper::layerShouldDisplay(PlatformThreadInfo *inst,
 VectorStyleImplRef VectorStyleDelegateWrapper::styleForUUID(PlatformThreadInfo *inst,long long uuid)
 {
     NSObject<MaplyVectorStyle> *style = [delegate styleForUUID:uuid viewC:viewC];
-    return VectorStyleImplRef(new VectorStyleWrapper(viewC,style));
+    return std::make_shared<VectorStyleWrapper>(viewC,style);
 }
 
 std::vector<VectorStyleImplRef> VectorStyleDelegateWrapper::allStyles(PlatformThreadInfo *inst)
@@ -601,8 +668,7 @@ std::vector<VectorStyleImplRef> VectorStyleDelegateWrapper::allStyles(PlatformTh
 
     std::vector<VectorStyleImplRef> retStyles;
     for (NSObject<MaplyVectorStyle> *style : styles) {
-        VectorStyleWrapperRef wrap(new VectorStyleWrapper(viewC,style));
-        retStyles.push_back(wrap);
+        retStyles.push_back(std::make_shared<VectorStyleWrapper>(viewC,style));
     }
     
     return retStyles;
@@ -616,7 +682,7 @@ VectorStyleImplRef VectorStyleDelegateWrapper::backgroundStyle(PlatformThreadInf
 
 RGBAColorRef VectorStyleDelegateWrapper::backgroundColor(PlatformThreadInfo *inst,double zoom)
 {
-    return RGBAColorRef(new RGBAColor(RGBAColor::black()));
+    return std::make_shared<RGBAColor>(RGBAColor::black());
 }
 
 VectorStyleWrapper::VectorStyleWrapper(NSObject<MaplyRenderControllerProtocol> *viewC,NSObject<MaplyVectorStyle> *style)
@@ -631,11 +697,8 @@ long long VectorStyleWrapper::VectorStyleWrapper::getUuid(PlatformThreadInfo *in
 
 std::string VectorStyleWrapper::getCategory(PlatformThreadInfo *inst)
 {
-    std::string category;
     NSString *catStr = [style getCategory];
-    category = [catStr cStringUsingEncoding:NSUTF8StringEncoding];
-    
-    return category;
+    return [catStr cStringUsingEncoding:NSUTF8StringEncoding];
 }
 
 bool VectorStyleWrapper::geomAdditive(PlatformThreadInfo *inst)
@@ -644,20 +707,35 @@ bool VectorStyleWrapper::geomAdditive(PlatformThreadInfo *inst)
 }
 
 void VectorStyleWrapper::buildObjects(PlatformThreadInfo *inst,
-                                      std::vector<VectorObjectRef> &vecObjs,
-                                      VectorTileDataRef tileInfo)
+                                      const std::vector<VectorObjectRef> &vecObjs,
+                                      const VectorTileDataRef &tileInfo,
+                                      const Dictionary *desc)
 {
-    MaplyVectorTileData *tileData = [[MaplyVectorTileData alloc] init];
-    tileData->data = tileInfo;
-    
-    NSMutableArray *vecArray = [NSMutableArray array];
-    for (VectorObjectRef vecObj: vecObjs) {
-        MaplyVectorObject *mVecObj = [[MaplyVectorObject alloc] init];
-        mVecObj->vObj = vecObj;
-        [vecArray addObject:mVecObj];
+    if (auto tileData = [[MaplyVectorTileData alloc] init])
+    {
+        tileData->data = tileInfo;
+
+        NSMutableArray *vecArray = [NSMutableArray array];
+        for (VectorObjectRef vecObj: vecObjs)
+        {
+            if (auto mVecObj = [[MaplyVectorObject alloc] init])
+            {
+                mVecObj->vObj = vecObj;
+                [vecArray addObject:mVecObj];
+            }
+        }
+
+        NSDictionary* nsDesc = nil;
+        if (auto iosDesc = dynamic_cast<const iosMutableDictionary*>(desc))
+        {
+            nsDesc = iosDesc->dict;
+        }
+        else if (desc)
+        {
+            nsDesc = [NSMutableDictionary fromDictionaryCPointer:desc];
+        }
+        [style buildObjects:vecArray forTile:tileData viewC:viewC desc:nsDesc];
     }
-        
-    [style buildObjects:vecArray forTile:tileData viewC:viewC];
 }
 
 }

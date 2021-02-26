@@ -3,7 +3,7 @@
  *  MaplyComponent
  *
  *  Created by Steve Gifford on 12/14/12.
- *  Copyright 2012-2019 mousebird consulting
+ *  Copyright 2012-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -1151,7 +1151,19 @@
     @param uuids Array of NSString, the UUIDs to update
     @param repName The representation value to apply, nil to return to the default
 */
-- (void)setRepresentation:(NSString *__nullable)repName ofUUIDs:(NSArray<NSString *> *__nonnull)uuids;
+- (void)setRepresentation:(NSString *__nullable)repName
+                  ofUUIDs:(NSArray<NSString *> *__nonnull)uuids;
+
+/**
+    Set the representation to use for the matching UUIDs by specifying the UUIDs directly.
+
+    @param repName The representation value to apply, nil to return to the default
+    @param fallbackRepName The representation to use if there are no matches
+    @param uuids Array of NSString, the UUIDs to update
+*/
+- (void)setRepresentation:(NSString *__nullable)repName
+          fallbackRepName:(NSString *__nullable)fallbackRepName
+                  ofUUIDs:(NSArray<NSString *> *__nonnull)uuids;
 
 /**
     Set the representation to use for the matching UUIDs by specifying the UUIDs directly.
@@ -1160,25 +1172,55 @@
     @param repName The representation value to apply, nil to return to the default
     @param threadMode For MaplyThreadAny we'll do the enable on another thread.  For MaplyThreadCurrent we'll block the current thread to finish the enable.  MaplyThreadAny is preferred.
 */
-- (void)setRepresentation:(NSString *__nullable)repName ofUUIDs:(NSArray<NSString *> *__nonnull)uuids mode:(MaplyThreadMode)threadMode;
-
-
-/**
-    Set the representation to use for the UUIDs of the given objects.
-
-    @param objects Array of ComponentObject, the UUIDs to update
-    @param repName The representation value to apply, nil to return to the default
-*/
-- (void)setRepresentation:(NSString *__nullable)repName ofObjects:(NSArray<MaplyComponentObject *> *__nonnull)objects;
+- (void)setRepresentation:(NSString *__nullable)repName
+                  ofUUIDs:(NSArray<NSString *> *__nonnull)uuids
+                     mode:(MaplyThreadMode)threadMode;
 
 /**
-    Set the representation to use for the UUIDs of the given objects.
+    Set the representation to use for the matching UUIDs by specifying the UUIDs directly.
 
-    @param objects Array of ComponentObject, the UUIDs to update
+    @param uuids Array of NSString, the UUIDs to update
     @param repName The representation value to apply, nil to return to the default
+    @param fallbackRepName The representation to use if there are no matches
     @param threadMode For MaplyThreadAny we'll do the enable on another thread.  For MaplyThreadCurrent we'll block the current thread to finish the enable.  MaplyThreadAny is preferred.
 */
-- (void)setRepresentation:(NSString *__nullable)repName ofObjects:(NSArray<MaplyComponentObject *> *__nonnull)objects mode:(MaplyThreadMode)threadMode;
+- (void)setRepresentation:(NSString *__nullable)repName
+          fallbackRepName:(NSString *__nullable)fallbackRepName
+                  ofUUIDs:(NSArray<NSString *> *__nonnull)uuids
+                     mode:(MaplyThreadMode)threadMode;
+
+/**
+    Set the representation to use for the UUIDs of the given objects.
+
+    @param objects Array of ComponentObject, the UUIDs to update
+    @param repName The representation value to apply, nil to return to the default
+    @param fallbackRepName The representation to use if there are no matches
+*/
+- (void)setRepresentation:(NSString *__nullable)repName
+                ofObjects:(NSArray<MaplyComponentObject *> *__nonnull)objects;
+
+/**
+    Set the representation to use for the UUIDs of the given objects.
+
+    @param objects Array of ComponentObject, the UUIDs to update
+    @param repName The representation value to apply, nil to return to the default
+*/
+- (void)setRepresentation:(NSString *__nullable)repName
+          fallbackRepName:(NSString *__nullable)fallbackRepName
+                ofObjects:(NSArray<MaplyComponentObject *> *__nonnull)objects;
+
+/**
+    Set the representation to use for the UUIDs of the given objects.
+
+    @param objects Array of ComponentObject, the UUIDs to update
+    @param repName The representation value to apply, nil to return to the default
+    @param fallbackRepName The representation to use if there are no matches
+    @param threadMode For MaplyThreadAny we'll do the enable on another thread.  For MaplyThreadCurrent we'll block the current thread to finish the enable.  MaplyThreadAny is preferred.
+*/
+- (void)setRepresentation:(NSString *__nullable)repName
+          fallbackRepName:(NSString *__nullable)fallbackRepName
+                ofObjects:(NSArray<MaplyComponentObject *> *__nonnull)objects
+                     mode:(MaplyThreadMode)threadMode;
 
 /**
     Pass a uniform block through to a shader.  Only for Metal.
@@ -1405,7 +1447,28 @@
     
     @param useCourse Use location services course information as fallback if heading unavailable
  */
-- (void)startLocationTrackingWithDelegate:(NSObject<MaplyLocationTrackerDelegate> *__nullable)delegate useHeading:(bool)useHeading useCourse:(bool)useCourse simulate:(bool)simulate;
+- (void)startLocationTrackingWithDelegate:(NSObject<MaplyLocationTrackerDelegate> *__nullable)delegate
+                               useHeading:(bool)useHeading
+                                useCourse:(bool)useCourse;
+
+/**
+    Start location tracking
+    
+    @param delegate The MaplyLocationTrackerDelegate for receiving location event callbacks
+    
+    @param simulator The MaplyLocationSimulatorDelegate for producing  locations
+ 
+    @param simInterval The time interval on which to update
+
+    @param useHeading Use location services heading information (requires physical magnetometer)
+    
+    @param useCourse Use location services course information as fallback if heading unavailable
+ */
+- (void)startLocationTrackingWithDelegate:(NSObject<MaplyLocationTrackerDelegate> *__nullable)delegate
+                                simulator:(NSObject<MaplyLocationSimulatorDelegate> *__nullable)simulator
+                              simInterval:(NSTimeInterval)simInterval
+                               useHeading:(bool)useHeading
+                                useCourse:(bool)useCourse;
 
 /**
  Return the current location tracker, if there is one.

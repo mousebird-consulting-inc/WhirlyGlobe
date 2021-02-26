@@ -21,6 +21,7 @@
 #import "control/WhirlyGlobeViewController.h"
 #import "vector_styles/MaplyVectorTilePolygonStyle.h"
 #import "vector_tiles/MapboxVectorTiles.h"
+#import "NSDictionary+Stuff.h"
 
 // Filled polygons styles
 @implementation MaplyVectorTileStylePolygon
@@ -98,18 +99,26 @@
     return self;
 }
 
-- (void)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileData *)tileData viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
+- (void)buildObjects:(NSArray *)vecObjs
+             forTile:(MaplyVectorTileData *)tileData
+               viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+                desc:(NSDictionary * _Nullable)extraDesc
 {
     MaplyComponentObject *baseObj = nil;
     NSMutableArray *compObjs = [NSMutableArray array];
-    
-    float ClipGridSize = 2.0/180.0*M_PI;
-    
-    for (NSDictionary *desc in subStyles)
+
+    const float ClipGridSize = 2.0/180.0*M_PI;
+
+    for (__strong NSDictionary *desc in subStyles)
     {
         MaplyComponentObject *compObj = nil;
         if (!baseObj)
         {
+            if (extraDesc)
+            {
+                desc = [desc dictionaryByMergingWith:extraDesc];
+            }
+            
             // Tesselate everything here, rather than tying up the layer thread
             NSMutableArray *tessObjs = [NSMutableArray array];
             for (MaplyVectorObject *vec in vecObjs)
@@ -127,15 +136,21 @@
                     tessVec = [vec tesselate];
                 
                 if (tessVec)
+                {
                     [tessObjs addObject:tessVec];
+                }
             }
             
             baseObj = compObj = [viewC addVectors:tessObjs desc:desc mode:MaplyThreadCurrent];
-        } else {
+        }
+        else
+        {
             compObj = [viewC instanceVectors:baseObj desc:desc mode:MaplyThreadCurrent];
         }
         if (compObj)
+        {
             [compObjs addObject:compObj];
+        }
     }
     
     [tileData addComponentObjects:compObjs];

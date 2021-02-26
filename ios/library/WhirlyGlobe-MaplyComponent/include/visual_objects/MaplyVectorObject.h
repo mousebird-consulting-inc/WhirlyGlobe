@@ -140,7 +140,7 @@ typedef NS_ENUM(NSInteger, MaplyVectorObjectType) {
  
     This version takes an array of coordinate pairs (as NSNumber) and the attribution.  With this it will make a linear feature.
  */
-- (nonnull instancetype)initWithLineString:(const NSArray *__nonnull)coords attributes:(NSDictionary *__nullable)attr;
+- (nonnull instancetype)initWithLineString:(const NSArray<NSNumber*> *__nonnull)coords attributes:(NSDictionary *__nullable)attr;
 
 /** 
     Initialize with a linear feature.
@@ -443,7 +443,7 @@ typedef NS_ENUM(NSInteger, MaplyVectorObjectType) {
 - (NSArray *__nullable)asNumbers;
 
 /** 
-    Split up ths feature into individual features and return an array of them.
+    Split up this feature into individual features and return an array of them.
     
     A vector object can represent multiple features with no real rhyme or reason to it.  This method will make one vector object per feature, allowing you to operate on those individually.
     

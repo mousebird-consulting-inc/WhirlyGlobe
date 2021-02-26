@@ -22,7 +22,7 @@
 
 @implementation NSDictionary(Stuff)
 
-- (id)objectForKey:(NSString *)name checkType:(id)theType default:(id)theDefault
+- (id _Nullable)objectForKey:(NSString *)name checkType:(id _Nonnull)theType default:(id _Nullable)theDefault
 {
     id what = [self objectForKey:name];
     if (!what || ![what isKindOfClass:theType])
@@ -31,7 +31,7 @@
     return what;
 }
 
-- (float)floatForKey:(NSString *)name default:(float)theDefault
+- (float)floatForKey:(NSString *_Nonnull)name default:(float)theDefault
 {
     id what = [self objectForKey:name];
     if (!what || ![what isKindOfClass:[NSNumber class]])
@@ -41,7 +41,7 @@
     return [num floatValue];
 }
 
-- (double)doubleForKey:(NSString *)name default:(double)theDefault
+- (double)doubleForKey:(NSString *_Nonnull)name default:(double)theDefault
 {
     id what = [self objectForKey:name];
     if (!what || ![what isKindOfClass:[NSNumber class]])
@@ -51,7 +51,7 @@
     return [num doubleValue];
 }
 
-- (int)intForKey:(NSString *)name default:(int)theDefault
+- (int)intForKey:(NSString *_Nonnull)name default:(int)theDefault
 {
     id what = [self objectForKey:name];
     if (!what || ![what isKindOfClass:[NSNumber class]])
@@ -61,7 +61,7 @@
     return [num intValue];
 }
 
-- (BOOL)boolForKey:(NSString *)name default:(BOOL)theDefault
+- (BOOL)boolForKey:(NSString *_Nonnull)name default:(BOOL)theDefault
 {
     id what = [self objectForKey:name];
     if (!what || ![what isKindOfClass:[NSNumber class]])
@@ -71,7 +71,7 @@
     return [num boolValue];
 }
 
-- (NSString *)stringForKey:(NSString *)name default:(NSString *)theDefault
+- (NSString *_Nullable)stringForKey:(NSString *_Nonnull)name default:(NSString *_Nullable)theDefault
 {
     id what = [self objectForKey:name];
     if (!what)
@@ -85,7 +85,7 @@
 }
 
 /// Parse an enumerated type and return an int
-- (int)enumForKey:(NSString *)name values:(NSArray *)values default:(int)theDefault
+- (int)enumForKey:(NSString *_Nonnull)name values:(NSArray *_Nonnull)values default:(int)theDefault
 {
     id what = [self objectForKey:name];
     if (!what || ![what isKindOfClass:[NSString class]])
@@ -103,6 +103,21 @@
     }
     
     return theDefault;
+}
+
++ (NSDictionary *_Nonnull) dictionaryByMerging:(NSDictionary *_Nullable) dict1 with:(NSDictionary *_Nullable)dict2
+{
+    NSMutableDictionary *result = dict1 ? [NSMutableDictionary dictionaryWithDictionary:dict1] : [NSMutableDictionary new];
+    if (dict2)
+    {
+        [result addEntriesFromDictionary:dict2];
+    }
+    return result;
+}
+
+- (NSDictionary *_Nonnull) dictionaryByMergingWith:(NSDictionary *_Nullable) dict
+{
+    return [[self class] dictionaryByMerging:self with:dict];
 }
 
 @end

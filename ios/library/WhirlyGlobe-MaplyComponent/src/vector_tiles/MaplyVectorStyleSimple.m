@@ -8,6 +8,7 @@
 
 #import "vector_styles/MaplyVectorStyleSimple.h"
 #import "visual_objects/MaplyScreenLabel.h"
+#import "NSDictionary+Stuff.h"
 
 @implementation MaplyVectorStyleSimpleGenerator
 {
@@ -122,7 +123,10 @@
     return nil;
 }
 
-- (void)buildObjects:(NSArray * _Nonnull)vecObjs forTile:(MaplyVectorTileData *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
+- (void)buildObjects:(NSArray * _Nonnull)vecObjs
+             forTile:(MaplyVectorTileData *)tileInfo
+               viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
+                desc:(NSDictionary * _Nullable)desc
 {
 }
 
@@ -137,26 +141,37 @@
     float green = drand48()/2.0;
     float blue = 0.0;
     _color = [UIColor colorWithRed:red+0.5 green:green+0.5 blue:blue+0.5 alpha:0.5];
-    
+
     return self;
 }
 
-- (void)buildObjects:(NSArray * _Nonnull)vecObjs forTile:(MaplyVectorTileData *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
+- (void)buildObjects:(NSArray * _Nonnull)vecObjs
+             forTile:(MaplyVectorTileData *)tileInfo
+               viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
+                desc:(NSDictionary * _Nullable)extraDesc
 {
     NSMutableArray *tessObjs = [NSMutableArray array];
     for (MaplyVectorObject *vecObj in vecObjs)
     {
         MaplyVectorObject *tessObj = [vecObj tesselate];
         if (tessObj)
+        {
             [tessObjs addObject:tessObj];
+        }
     }
-    
-    MaplyComponentObject *compObj = [super.viewC addVectors:tessObjs desc:@{kMaplyColor: _color,
-                                                                           kMaplyFilled: @(YES),
-                                                                           kMaplyDrawPriority: @(self.drawPriority)
-                                                                           } mode:MaplyThreadCurrent];
+
+    NSDictionary *desc = @{
+        kMaplyColor: _color,
+        kMaplyFilled: @(YES),
+        kMaplyDrawPriority: @(self.drawPriority)
+    };
+    desc = [desc dictionaryByMergingWith:extraDesc];
+
+    MaplyComponentObject *compObj = [super.viewC addVectors:tessObjs desc:desc mode:MaplyThreadCurrent];
     if (compObj)
+    {
         [tileInfo addComponentObject:compObj];
+    }
 }
 
 @end
@@ -171,7 +186,10 @@
     return self;
 }
 
-- (void)buildObjects:(NSArray * _Nonnull)vecObjs forTile:(MaplyVectorTileData *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
+- (void)buildObjects:(NSArray * _Nonnull)vecObjs
+             forTile:(MaplyVectorTileData *)tileInfo
+               viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
+                desc:(NSDictionary * _Nullable)extraDesc
 {
     NSMutableArray *labels = [NSMutableArray array];
     
@@ -194,8 +212,14 @@
     if (labels.count == 0)
         return;
     
-    MaplyComponentObject *compObj = [self.viewC addScreenLabels:labels desc:@{kMaplyTextColor: [UIColor blackColor],
-                                                                              kMaplyFont: _font}
+    NSDictionary *desc = @{
+        kMaplyTextColor: [UIColor blackColor],
+        kMaplyFont: _font
+    };
+    desc = [desc dictionaryByMergingWith:extraDesc];
+
+    MaplyComponentObject *compObj = [self.viewC addScreenLabels:labels
+                                                           desc:desc
                                                            mode:MaplyThreadCurrent];
     
     if (compObj)
@@ -217,16 +241,24 @@
     return self;
 }
 
-- (void)buildObjects:(NSArray * _Nonnull)vecObjs forTile:(MaplyVectorTileData *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
+- (void)buildObjects:(NSArray * _Nonnull)vecObjs
+             forTile:(MaplyVectorTileData *)tileInfo
+               viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
+                desc:(NSDictionary * _Nullable)extraDesc
 {
-    MaplyComponentObject *compObj = [super.viewC addVectors:vecObjs desc:@{kMaplyColor: _color,
-                                                                           kMaplyDrawPriority: @(self.drawPriority),
-                                                                           kMaplyFilled: @(NO),
-                                                                           kMaplyVecWidth: @(4.0)
-                                                                           } mode:MaplyThreadCurrent];
+    NSDictionary *desc = @{
+        kMaplyColor: _color,
+        kMaplyDrawPriority: @(self.drawPriority),
+        kMaplyFilled: @(NO),
+        kMaplyVecWidth: @(4.0)
+    };
+    desc = [desc dictionaryByMergingWith:extraDesc];
 
+    MaplyComponentObject *compObj = [super.viewC addVectors:vecObjs desc:desc mode:MaplyThreadCurrent];
     if (compObj)
+    {
         [tileInfo addComponentObject:compObj];
+    }
 }
 
 

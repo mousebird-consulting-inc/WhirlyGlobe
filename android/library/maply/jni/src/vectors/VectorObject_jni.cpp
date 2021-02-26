@@ -1,9 +1,8 @@
-/*
- *  VectorObject_jni.cpp
+/*  VectorObject_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2016 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "Vectors_jni.h"
@@ -829,6 +827,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_arealsToLinears
     return false;
 }
 
+extern "C"
 jboolean Java_com_mousebird_maply_VectorObject_fromGeoJSON
   (JNIEnv *env, jobject obj, jstring jstr)
 {
@@ -839,16 +838,14 @@ jboolean Java_com_mousebird_maply_VectorObject_fromGeoJSON
 		if (!vecObj)
 			return false;
 
-		const char *cStr = env->GetStringUTFChars(jstr,0);
+		const char *cStr = env->GetStringUTFChars(jstr,nullptr);
 		if (!cStr)
 			return false;
 		std::string jsonStr(cStr);
 		env->ReleaseStringUTFChars(jstr, cStr);
 
         std::string crs;
-		bool ret = (*vecObj)->fromGeoJSON(jsonStr,crs);
-
-		return ret;
+		return (*vecObj)->fromGeoJSON(jsonStr,crs);
 	}
 	catch (...)
 	{
@@ -858,6 +855,7 @@ jboolean Java_com_mousebird_maply_VectorObject_fromGeoJSON
     return false;
 }
 
+extern "C"
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_fromShapeFile
 (JNIEnv *env, jobject obj, jstring jstr)
 {
@@ -868,15 +866,13 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_fromShapeFile
         if (!vecObj)
             return false;
 
-        const char *cStr = env->GetStringUTFChars(jstr,0);
+        const char *cStr = env->GetStringUTFChars(jstr,nullptr);
         if (!cStr)
             return false;
         std::string jsonStr(cStr);
         env->ReleaseStringUTFChars(jstr, cStr);
 
-        bool ret = (*vecObj)->fromShapeFile(jsonStr);
-
-        return true;
+        return (*vecObj)->fromShapeFile(jsonStr);
     }
     catch (...)
     {
@@ -886,6 +882,26 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_fromShapeFile
     return false;
 }
 
+/*
+ * Class:     com_mousebird_maply_VectorObject
+ * Method:    canSplit
+ * Signature: ()Z
+ */
+extern "C"
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_canSplit(JNIEnv *env, jobject obj) {
+    try {
+        if (auto vecObjPtr = VectorObjectClassInfo::getClassInfo()->getObject(env,obj)) {
+            return ((*vecObjPtr)->shapes.size() > 1);
+        }
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorObject::canSplit()");
+    }
+    return false;
+}
+
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_deepCopyNative
         (JNIEnv *env, jobject obj, jobject destObj)
 {
@@ -906,29 +922,27 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_deepCopyNative
     }
 }
 
+extern "C"
 JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorObject_FromGeoJSONAssembly
   (JNIEnv *env, jclass vecObjClass, jstring jstr)
 {
 	try
 	{
-		const char *cStr = env->GetStringUTFChars(jstr,0);
+		const char *cStr = env->GetStringUTFChars(jstr,nullptr);
 		if (!cStr)
-			return NULL;
+			return nullptr;
 		std::string jsonStr(cStr);
 		env->ReleaseStringUTFChars(jstr, cStr);
 
 		std::map<std::string,VectorObject *> vecData;
-		bool ret = VectorObject::FromGeoJSONAssembly(jsonStr,vecData);
-
-		if (ret)
+		if (VectorObject::FromGeoJSONAssembly(jsonStr,vecData))
 		{
 			JavaHashMapInfo *hashMapClassInfo = JavaHashMapInfo::getClassInfo(env);
 			jobject hashMap = hashMapClassInfo->makeHashMap(env);
-			for (std::map<std::string,VectorObject *>::iterator it = vecData.begin();
-					it != vecData.end(); ++it)
+			for (const auto &kvp : vecData)
 			{
-				jstring key = env->NewStringUTF(it->first.c_str());
-				jobject vecObj = MakeVectorObject(env,VectorObjectRef(it->second));
+				jstring key = env->NewStringUTF(kvp.first.c_str());
+				jobject vecObj = MakeVectorObject(env,VectorObjectRef(kvp.second));
 				hashMapClassInfo->addObject(env, hashMap, key, vecObj);
 			}
 
@@ -940,7 +954,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorObject_FromGeoJSONAssem
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorObject::FromGeoJSONAssembly()");
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 

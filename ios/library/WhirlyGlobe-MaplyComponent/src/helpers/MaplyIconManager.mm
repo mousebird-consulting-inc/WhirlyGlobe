@@ -1,9 +1,8 @@
-/*
- *  MaplyIconManager.mm
+/*  MaplyIconManager.mm
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 1/11/14.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "helpers/MaplyIconManager.h"
@@ -24,44 +22,6 @@
 
 @implementation MaplySimpleStyle
 @end
-
-// Courtesy: https://stackoverflow.com/questions/11598043/get-slightly-lighter-and-darker-color-from-uicolor
-@implementation UIColor (Lighter)
-
-- (UIColor *)lighterColor
-{
-    CGFloat h, s, b, a;
-    if ([self getHue:&h saturation:&s brightness:&b alpha:&a])
-        return [UIColor colorWithHue:h
-                          saturation:s
-                          brightness:MIN(b * 1.3, 1.0)
-                               alpha:a];
-    return nil;
-}
-
-@end
-
-
-namespace WhirlyKit
-{
-
-class MarkerRep
-{
-public:
-    MarkerRep();
-    
-    // Symbol is small/medium/large
-    typedef enum {MarkerSmall,MarkerMedium,MarkerLarge} IconSize;
-    IconSize size;
-
-    // Symbol is the name of a UIImage or a single character
-    std::string symbol;
-    
-    // Background color of the marker
-    RGBAColor color;
-};
-
-}
 
 @implementation MaplySimpleStyleManager
 {
@@ -74,10 +34,10 @@ public:
 {
     static MaplySimpleStyleManager *iInst = nil;
     
-    @synchronized(self)
-    {
-        if (iInst == NULL)
+    @synchronized(self) {
+        if (iInst == nullptr) {
             iInst = [[self alloc] init];
+        }
     }
     
     return iInst;
@@ -106,22 +66,25 @@ public:
     return self;
 }
 
-- (UIImage *)iconForName:(NSString *)name size:(CGSize)size color:(UIColor *)color circleColor:(UIColor *)circleColor strokeSize:(float)strokeSize strokeColor:(UIColor *)strokeColor
+- (UIImage *)iconForName:(NSString *)name size:(CGSize)size color:(UIColor *)color
+             circleColor:(UIColor *)circleColor strokeSize:(float)strokeSize strokeColor:(UIColor *)strokeColor
 {
     // Look for the cached version
     NSString *cacheKey = [NSString stringWithFormat:@"%@_%d_%d_%.1f_%0.6X_%0.6X", name,
                           (int)size.width, (int)size.height,
                           strokeSize, [color asHexRGB], [strokeColor asHexRGB]];
     
-    id cached = [imageCache objectForKey:cacheKey];
-    if (cached)
+    if (id cached = [imageCache objectForKey:cacheKey])
+    {
         return cached;
+    }
     
     UIImage *iconImage;
     if(name.isAbsolutePath)
     {
         iconImage = [UIImage imageWithContentsOfFile:name];
-    } else if (name)
+    }
+    else if (name)
     {
         NSString *fullName = nil;
         NSString *fileName = [name lastPathComponent];
@@ -194,43 +157,49 @@ public:
 
 + (UIImage *)iconForName:(NSString *)name size:(CGSize)size
 {
-    return [[self shared] iconForName:name size:size color:[UIColor blackColor] circleColor:[UIColor whiteColor] strokeSize:1.0 strokeColor:[UIColor blackColor]];
+    return [[MaplySimpleStyleManager shared] iconForName:name size:size color:[UIColor blackColor]
+                                             circleColor:[UIColor whiteColor] strokeSize:1.0 strokeColor:[UIColor blackColor]];
 }
 
-+ (UIImage *)iconForName:(NSString *)name size:(CGSize)size color:(UIColor *)color circleColor:(UIColor *)circleColor strokeSize:(float)strokeSize strokeColor:(UIColor *)strokeColor
++ (UIImage *)iconForName:(NSString *)name size:(CGSize)size color:(UIColor *)color
+             circleColor:(UIColor *)circleColor strokeSize:(float)strokeSize strokeColor:(UIColor *)strokeColor
 {
-    return [[self shared] iconForName:name size:size color:color circleColor:circleColor strokeSize:strokeSize strokeColor:strokeColor];
+    return [[MaplySimpleStyleManager shared] iconForName:name size:size color:color
+                                             circleColor:circleColor strokeSize:strokeSize strokeColor:strokeColor];
 }
 
-- (UIColor *)parseColor:(NSString *)colorStr default:(UIColor *)defColor
+// Colors can be in short form:
+//   "#ace"
+// or long form
+//   "#aaccee"
+// with or without the # prefix.
+// Colors are interpreted the same as in CSS, in #RRGGBB and #RGB order.
+// But other color formats or named colors are not supported.
++ (UIColor *)parseColor:(NSString *)str default:(UIColor *)defColor
 {
-    UIColor *color = defColor;
-    NSString *str = colorStr;
-    
-    if ([str length] > 0 && [str characterAtIndex:0] == '#') {
+    const int len = [str length];
+    if (len > 2)
+    {
         NSScanner *scanner = [NSScanner scannerWithString:str];
-        [scanner setScanLocation:1];
+        if ([str characterAtIndex:0] == '#') {
+            [scanner setScanLocation:1];
+        }
         unsigned int val;
         if ([scanner scanHexInt:&val]) {
-            color = [UIColor colorFromHexRGB:val];
+            return (len < 6) ? [UIColor colorFromShortHexRGB:val] : [UIColor colorFromHexRGB:val];
         }
     }
-
-    return color;
+    return defColor;
 }
 
-- (CGFloat)parseNumber:(NSNumber *)num default:(CGFloat)defVal
++ (CGFloat)parseNumber:(NSNumber *)num default:(CGFloat)defVal
 {
-    if (num)
-        return [num doubleValue];
-    return defVal;
+    return num ? [num doubleValue] : defVal;
 }
 
-- (bool)parseBool:(NSString *)val default:(bool)defVal
++ (bool)parseBool:(NSString *)val default:(bool)defVal
 {
-    if (val)
-        return [val boolValue];
-    return defVal;
+    return val ? [val boolValue] : defVal;
 }
 
 - (UIImage *)loadImage:(NSString *)symbol cacheKey:(NSString *)cacheKey
@@ -238,11 +207,15 @@ public:
     UIImage *mainImage = nil;
     
     if (!symbol || [symbol length] == 0)
+    {
         return nil;
+    }
     
-    if(symbol.isAbsolutePath) {
+    if(symbol.isAbsolutePath)
+    {
         mainImage = [UIImage imageWithContentsOfFile:symbol];
-    } else if (symbol)
+    }
+    else if (symbol)
     {
         NSString *fullName = nil;
         NSString *fileName = [symbol length] > 0 ? [symbol lastPathComponent] : symbol;
@@ -274,7 +247,7 @@ public:
     return mainImage;
 }
 
-// Does much the same work as the image version above, but is slightly different for the simple styel
+// Does much the same work as the image version above, but is slightly different for the simple style
 - (MaplyTexture *)textureForStyle:(MaplySimpleStyle *)style
                        backSymbol:(NSString *)backSymbol
                            symbol:(NSString *)symbol
@@ -282,11 +255,11 @@ public:
                            center:(CGPoint)center
                   clearBackground:(bool)clearBackground
 {
-    NSString *cacheKey = [NSString stringWithFormat:@"%@_%@_%d_%d_%.1f_%0.6X",
+    NSString *cacheKey = [NSString stringWithFormat:@"%@_%@_%d_%d_%.1f_%0.6X_%d",
                           backSymbol,
                           symbol,
                           (int)style.markerSize.width, (int)style.markerSize.height,
-                          strokeSize, [style.color asHexRGB]];
+                          strokeSize, [style.color asHexRGB], clearBackground];
     
     id cached = [texCache objectForKey:cacheKey];
     if ([cached isKindOfClass:[MaplyTexture class]])
@@ -304,10 +277,8 @@ public:
     // Draw into the image context
     CGContextRef ctx = UIGraphicsGetCurrentContext();
     CGContextSetBlendMode(ctx, kCGBlendModeNormal);
-    [[UIColor blackColor] setFill];
     CGRect rect = CGRectMake(0,0,renderSize.width,renderSize.height);
-    CGContextFillRect(ctx, rect);
-        
+
     // We want a custom background image, rather than just the circle
     if (backImage) {
         // Courtesy: https://stackoverflow.com/questions/3514066/how-to-tint-a-transparent-png-image-in-iphone
@@ -324,11 +295,11 @@ public:
         CGContextRestoreGState(ctx);
     } else {
         if (strokeSize > 0.0) {
-            UIColor *strokeColor = [style.color lighterColor];
+            UIColor *strokeColor = [style.color lighterColor:1.3];
             CGContextBeginPath(ctx);
             CGContextAddEllipseInRect(ctx, CGRectMake(1,1,renderSize.width-2,renderSize.height-2));
-            [strokeColor setFill];
-            CGContextDrawPath(ctx, kCGPathFill);
+            [strokeColor setStroke];
+            CGContextDrawPath(ctx, kCGPathStroke);
         }
 
         if (!clearBackground) {
@@ -379,75 +350,71 @@ public:
 
 - (MaplySimpleStyle * __nonnull)makeStyle:(NSDictionary *__nonnull)dict
 {
-    @synchronized (self) {
-        MaplySimpleStyle *style = [[MaplySimpleStyle alloc] init];
-        style.title = dict[@"title"];
-        style.desc = dict[@"description"];
-        
-        // Sort out marker size
-        NSString *markerSizeStr = dict[@"marker-size"];
-        int markerSizeInt = 1;  // Medium
-        if (markerSizeStr) {
-            markerSizeStr = [markerSizeStr lowercaseString];
-            if ([markerSizeStr isEqualToString:@"small"])
-                markerSizeInt = 0;
-            else if ([markerSizeStr isEqualToString:@"medium"])
-                markerSizeInt = 1;
-            else if ([markerSizeStr isEqualToString:@"large"])
-                markerSizeInt = 2;
-        }
-        switch (markerSizeInt) {
-            case 0:
-                style.markerSize = _smallSize;
-                break;
-            case 1:
-                style.markerSize = _medSize;
-                break;
-            case 2:
-                style.markerSize = _largeSize;
-                break;
-        }
-        style.layoutSize = style.markerSize;
-        
-        // It's either a texture or a single character
-        NSString *symbol = dict[@"marker-symbol"];
-        if ([symbol length] == 1) {
-            style.markerString = symbol;
-            symbol = nil;
-        }
-        NSString *backSymbol = dict[@"marker-background-symbol"];
-        
-        style.color = [self parseColor:dict[@"marker-color"] default:[UIColor whiteColor]];
-        style.strokeColor = [self parseColor:dict[@"stroke"] default:[UIColor colorFromHexRGB:0x555555]];
-        style.strokeOpacity = [self parseNumber:dict[@"stroke-opactiy"] default:1.0];
-        style.strokeWidth = [self parseNumber:dict[@"stroke-width"] default:2.0];
-        style.fillColor = [self parseColor:dict[@"fill"] default:[UIColor colorFromHexRGB:0x555555]];
-        style.fillOpacity = [self parseNumber:dict[@"fill-opacity"] default:0.6];
-        CGPoint center = CGPointMake(-1000.0, -1000.0);
-        center.x = [self parseNumber:dict[@"marker-background-center-x"] default:center.x];
-        center.y = [self parseNumber:dict[@"marker-background-center-y"] default:center.y];
-        if (dict[@"marker-offset-x"] || dict[@"marker-offset-y"]) {
-            CGFloat offsetX = [self parseNumber:dict[@"marker-offset-x"] default:0.0];
-            CGFloat offsetY = [self parseNumber:dict[@"marker-offset-y"] default:0.0];
-            
-            style.markerOffset = CGPointMake(offsetX * style.markerSize.width, offsetY * style.markerSize.height);
-        }
-        bool clearBackground = [self parseBool:dict[@"marker-circle"] default:true];
-
-        // Need a texture for the marker
-        float strokeWidth = [self parseNumber:dict[@"stroke-width"] default:_strokeWidthForIcons];
-        style.markerTex = [self textureForStyle:style backSymbol:backSymbol symbol:symbol strokeSize:strokeWidth center:center clearBackground:clearBackground];
-        // TODO: Handle the single character case
-        
-        return style;
+    MaplySimpleStyle *style = [[MaplySimpleStyle alloc] init];
+    style.title = dict[@"title"];
+    style.desc = dict[@"description"];
+    
+    // Sort out marker size
+    NSString *markerSizeStr = dict[@"marker-size"];
+    int markerSizeInt = 1;  // Medium
+    if (markerSizeStr) {
+        markerSizeStr = [markerSizeStr lowercaseString];
+        if ([markerSizeStr isEqualToString:@"small"])
+            markerSizeInt = 0;
+        else if ([markerSizeStr isEqualToString:@"medium"])
+            markerSizeInt = 1;
+        else if ([markerSizeStr isEqualToString:@"large"])
+            markerSizeInt = 2;
     }
+    switch (markerSizeInt) {
+        case 0:
+            style.markerSize = _smallSize;
+            break;
+        case 1:
+            style.markerSize = _medSize;
+            break;
+        case 2:
+            style.markerSize = _largeSize;
+            break;
+    }
+    style.layoutSize = style.markerSize;
+    
+    // It's either a texture or a single character
+    NSString *symbol = dict[@"marker-symbol"];
+    if ([symbol length] == 1) {
+        style.markerString = symbol;
+        symbol = nil;
+    }
+    NSString *backSymbol = dict[@"marker-background-symbol"];
+    
+    style.color = [MaplySimpleStyleManager parseColor:dict[@"marker-color"] default:[UIColor whiteColor]];
+    style.strokeColor = [MaplySimpleStyleManager parseColor:dict[@"stroke"] default:[UIColor colorFromHexRGB:0x555555]];
+    style.strokeOpacity = [MaplySimpleStyleManager parseNumber:dict[@"stroke-opactiy"] default:1.0];
+    style.strokeWidth = [MaplySimpleStyleManager parseNumber:dict[@"stroke-width"] default:2.0];
+    style.fillColor = [MaplySimpleStyleManager parseColor:dict[@"fill"] default:[UIColor colorFromHexRGB:0x555555]];
+    style.fillOpacity = [MaplySimpleStyleManager parseNumber:dict[@"fill-opacity"] default:0.6];
+    const CGPoint center = CGPointMake(
+        [MaplySimpleStyleManager parseNumber:dict[@"marker-background-center-x"] default:-1000.0],
+        [MaplySimpleStyleManager parseNumber:dict[@"marker-background-center-y"] default:-1000.0]);
+    if (dict[@"marker-offset-x"] || dict[@"marker-offset-y"]) {
+        const CGFloat offsetX = [MaplySimpleStyleManager parseNumber:dict[@"marker-offset-x"] default:0.0];
+        const CGFloat offsetY = [MaplySimpleStyleManager parseNumber:dict[@"marker-offset-y"] default:0.0];
+        style.markerOffset = CGPointMake(offsetX * style.markerSize.width, offsetY * style.markerSize.height);
+    }
+    const bool clearBackground = [MaplySimpleStyleManager parseBool:dict[@"marker-circle"] default:true];
+
+    // Need a texture for the marker
+    const float strokeWidth = [MaplySimpleStyleManager parseNumber:dict[@"stroke-width"] default:_strokeWidthForIcons];
+    style.markerTex = [self textureForStyle:style backSymbol:backSymbol symbol:symbol strokeSize:strokeWidth center:center clearBackground:clearBackground];
+    // TODO: Handle the single character case
+    
+    return style;
 }
 
-- (UIColor *)resolveColor:(UIColor *)color opacity:(CGFloat)opacity
++ (UIColor *)resolveColor:(UIColor *)color opacity:(CGFloat)opacity
 {
     CGFloat red,green,blue,alpha;
     [color getRed:&red green:&green blue:&blue alpha:&alpha];
-    
     return [UIColor colorWithRed:red*opacity green:green*opacity blue:blue*opacity alpha:alpha*opacity];
 }
 
@@ -465,17 +432,18 @@ public:
                 marker.image = style.markerTex;
                 marker.size = style.markerSize;
                 marker.offset = style.markerOffset;
+                //marker.layoutImportance = MAXFLOAT;
                 return [vc addScreenMarkers:@[marker] desc:nil mode:mode];
             }
             break;
         case MaplyVectorLinearType:
             return [vc addWideVectors:@[vecObj]
-                                   desc:@{kMaplyColor: [self resolveColor:style.strokeColor opacity:style.strokeOpacity],
+                                   desc:@{kMaplyColor: [MaplySimpleStyleManager resolveColor:style.strokeColor opacity:style.strokeOpacity],
                                           kMaplyVecWidth: @(style.strokeWidth)}
                                    mode:mode];
         case MaplyVectorArealType:
             return [vc addVectors:@[vecObj]
-                                   desc:@{kMaplyColor: [self resolveColor:style.fillColor opacity:style.fillOpacity],
+                                   desc:@{kMaplyColor: [MaplySimpleStyleManager resolveColor:style.fillColor opacity:style.fillOpacity],
                                           kMaplyFilled: @(true)
                                    }
                                    mode:mode];
@@ -495,9 +463,9 @@ public:
     
     for (MaplyVectorObject *vecObj in vecObjs) {
         for (MaplyVectorObject *vecObj2 in [vecObj splitVectors]) {
-            MaplyComponentObject *compObj = [self addFeature:vecObj2 mode:mode];
-            if (compObj)
+            if (auto compObj = [self addFeature:vecObj2 mode:mode]) {
                 [compObjs addObject:compObj];
+            }
         }
     }
     

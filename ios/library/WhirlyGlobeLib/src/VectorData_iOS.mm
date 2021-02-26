@@ -191,9 +191,9 @@ bool VectorParseFeature(ShapeSet &shapes,NSDictionary *jsonDict)
     
     // Apply the attributes if there are any
     if ([prop isKindOfClass:[NSDictionary class]])
-        for (ShapeSet::iterator it = shapes.begin(); it != shapes.end(); ++it) {
-            iosMutableDictionary *dict = new iosMutableDictionary([NSMutableDictionary dictionaryWithDictionary:prop]);
-            (*it)->setAttrDict(MutableDictionaryRef(dict));
+        for (auto shape : shapes) {
+            auto dict = new iosMutableDictionary([NSMutableDictionary dictionaryWithDictionary:prop]);
+            shape->setAttrDict(MutableDictionaryRef(dict));
         }
     
     // Apply the identity if there is one

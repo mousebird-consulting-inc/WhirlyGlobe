@@ -24,6 +24,7 @@
 #import "helpers/MaplyTextureBuilder.h"
 #import <WhirlyGlobe_iOS.h>
 #import "vector_tiles/MapboxVectorTiles.h"
+#import "NSDictionary+Stuff.h"
 
 // Line styles
 @implementation MaplyVectorTileStyleLine
@@ -152,30 +153,50 @@
     return self;
 }
 
-- (void)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileData *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
+- (void)buildObjects:(NSArray *)vecObjs
+             forTile:(MaplyVectorTileData *)tileInfo
+               viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+                desc:(NSDictionary * _Nullable)extraDesc
 {
     MaplyComponentObject *baseWideObj = nil;
     MaplyComponentObject *baseRegObj = nil;
     NSMutableArray *compObjs = [NSMutableArray array];
     int which = 0;
-    for (NSDictionary *desc in subStyles)
+    for (__strong NSDictionary *desc in subStyles)
     {
+        if (extraDesc)
+        {
+            desc = [desc dictionaryByMergingWith:extraDesc];
+        }
+
         MaplyComponentObject *compObj = nil;
         if (wideVecs[which])
         {
-            if (!baseWideObj) {
+            if (!baseWideObj)
+            {
                 baseWideObj = compObj = [viewC addWideVectors:vecObjs desc:desc mode:MaplyThreadCurrent];
-            } else
+            }
+            else
+            {
                 compObj = [viewC instanceVectors:baseWideObj desc:desc mode:MaplyThreadCurrent];
-        } else {
-            if (!baseRegObj) {
+            }
+        }
+        else
+        {
+            if (!baseRegObj)
+            {
                 baseRegObj = compObj = [viewC addVectors:vecObjs desc:desc mode:MaplyThreadCurrent];
-            } else
+            }
+            else
+            {
                 compObj = [viewC instanceVectors:baseRegObj desc:desc mode:MaplyThreadCurrent];
+            }
         }
 
         if (compObj)
+        {
             [compObjs addObject:compObj];
+        }
         which++;
     }
     

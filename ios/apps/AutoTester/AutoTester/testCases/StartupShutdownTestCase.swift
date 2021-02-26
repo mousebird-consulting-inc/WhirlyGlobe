@@ -32,21 +32,35 @@ class StartupShutdownTestCase: MaplyTestCase {
         self.testCase.globeViewController = globeViewController
         self.testCase.baseViewController = globeViewController
         testCase.setUpWithGlobe(globeViewController!)
-        
+
         // Shut it down in a bit
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-            self.stopGlobe()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
+            if let self = self {
+                self.stopGlobe()
+            }
         }
     }
     
     func stopGlobe() {
 //        globeViewController?.teardown()
+        testCase.stop()
+
+        // If the user backed out on their own, stop
+        if let nav = self.nav {
+            if (globeViewController != nil && nav.topViewController !== globeViewController) ||
+               (mapViewController != nil && nav.topViewController !== mapViewController) {
+                return;
+            }
+        }
+
         globeViewController?.navigationController?.popViewController(animated: true)
 
         // Start it back up again in a bit
         // Note: Check to see if we're still valid here
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.startGlobe(self.nav!)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+            if let self = self, let nav = self.nav {
+                self.startGlobe(nav)
+            }
         }
     }
     
@@ -64,19 +78,36 @@ class StartupShutdownTestCase: MaplyTestCase {
         testCase.setUpWithMap(mapViewController!)
         
         // Shut it down in a bit
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-            self.stopMap()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
+            if let self = self {
+                self.stopMap()
+            }
         }
     }
     
     func stopMap() {
         //        globeViewController?.teardown()
+        testCase.stop()
+        
+        // If the user backed out on their own, stop
+        if let nav = self.nav {
+            if (globeViewController != nil && nav.topViewController !== globeViewController) ||
+               (mapViewController != nil && nav.topViewController !== mapViewController) {
+                return;
+            }
+        }
+
         mapViewController?.navigationController?.popViewController(animated: true)
         
         // Start it back up again in a bit
         // Note: Check to see if we're still valid here
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.startMap(self.nav!)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+            if let self = self {
+                self.startMap(self.nav!)
+            }
         }
+    }
+    
+    override func stop() {
     }
 }

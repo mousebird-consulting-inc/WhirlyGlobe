@@ -33,7 +33,9 @@ typedef enum {MBTextTransNone,MBTextTransUppercase,MBTextTransLowercase} MapboxT
 class MapboxVectorSymbolLayout
 {
 public:
-    bool parse(PlatformThreadInfo *inst,MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry);
+    bool parse(PlatformThreadInfo *inst,
+               MapboxVectorStyleSetImpl *styleSet,
+               const DictionaryRef &styleEntry);
 
     /// How we place the symbol (at a point, or along a line)
     MapboxSymbolPlacement placement;
@@ -74,7 +76,9 @@ public:
 class MapboxVectorSymbolPaint
 {
 public:
-    bool parse(PlatformThreadInfo *inst,MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry);
+    bool parse(PlatformThreadInfo *inst,
+               MapboxVectorStyleSetImpl *styleSet,
+               const DictionaryRef &styleEntry);
 
     // Default text color
     MapboxTransColorRef textColor;
@@ -94,27 +98,39 @@ public:
     MapboxVectorLayerSymbol(MapboxVectorStyleSetImpl *styleSet) : MapboxVectorStyleLayer(styleSet) { }
 
     virtual bool parse(PlatformThreadInfo *inst,
-                       DictionaryRef styleEntry,
-                       MapboxVectorStyleLayerRef refLayer,
+                       const DictionaryRef &styleEntry,
+                       const MapboxVectorStyleLayerRef &refLayer,
                        int drawPriority) override;
     
     virtual void buildObjects(PlatformThreadInfo *inst,
-                              std::vector<VectorObjectRef> &vecObjs,
-                              VectorTileDataRef tileInfo) override;
+                              const std::vector<VectorObjectRef> &vecObjs,
+                              const VectorTileDataRef &tileInfo,
+                              const Dictionary *desc) override;
     
     virtual void cleanup(PlatformThreadInfo *inst,ChangeSet &changes) override;
 
 public:
-    std::string breakUpText(PlatformThreadInfo *inst,const std::string &text,double textMaxWidth,LabelInfoRef labelInfo);
-    SingleLabelRef setupLabel(PlatformThreadInfo *inst,const Point2f &pt,LabelInfoRef labelInfo,MutableDictionaryRef attrs,VectorTileDataRef tileInfo);
-    Marker *setupMarker(PlatformThreadInfo *inst,const Point2f &pt,VectorObjectRef vecObj,MutableDictionaryRef attrs,ComponentObjectRef compObj,VectorTileDataRef tileInfo);
+    std::string breakUpText(PlatformThreadInfo *inst,
+                            const std::string &text,
+                            double textMaxWidth,
+                            const LabelInfoRef &labelInfo);
+    SingleLabelRef setupLabel(PlatformThreadInfo *inst,
+                              const Point2f &pt,
+                              const LabelInfoRef &labelInfo,
+                              const MutableDictionaryRef &attrs,
+                              const VectorTileDataRef &tileInfo);
+    std::unique_ptr<Marker> setupMarker(PlatformThreadInfo *inst,
+                        const Point2f &pt,
+                        const MutableDictionaryRef &attrs,
+                        const VectorTileDataRef &tileInfo);
     
     MapboxVectorSymbolLayout layout;
     MapboxVectorSymbolPaint paint;
 
     /// If set, only one label with its text will be displayed.  Sorted out by the layout manager.
     bool uniqueLabel;
-    std::string uuidField;
+    std::string uuidField;      // UUID field for markers/labels (from style settings)
+    std::string repUUIDField;   // UUID field for representations (from style layers)
     bool useZoomLevels;
 };
 

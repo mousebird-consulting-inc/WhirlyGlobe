@@ -21,6 +21,7 @@
 #import "vector_styles/MaplyVectorTileMarkerStyle.h"
 #import "helpers/MaplyIconManager.h"
 #import "vector_tiles/MapboxVectorTiles.h"
+#import "NSDictionary+Stuff.h"
 
 @interface MaplyVectorTileSubStyleMarker : NSObject
 {
@@ -136,9 +137,12 @@
     return self;
 }
 
-- (void)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileData *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
+- (void)buildObjects:(NSArray *)vecObjs
+             forTile:(MaplyVectorTileData *)tileInfo
+               viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+                desc:(NSDictionary * _Nullable)extraDesc
 {
-    bool isRetina = [UIScreen mainScreen].scale > 1.0;
+    const bool isRetina = [UIScreen mainScreen].scale > 1.0;
 
     // One marker per object
     NSMutableArray *compObjs = [NSMutableArray array];
@@ -151,10 +155,13 @@
             marker.userObject = vec;
             marker.selectable = self.selectable;
             if(subStyle->markerImage)
+            {
                 marker.image = subStyle->markerImage;
-            else {
+            }
+            else
+            {
                 NSString *markerName = [self formatText:subStyle->markerImageTemplate forObject:vec];
-                marker.image =  [MaplySimpleStyleManager iconForName:markerName
+                marker.image = [MaplySimpleStyleManager iconForName:markerName
                                                        size:CGSizeMake(settings.markerScale*subStyle->width+2,
                                                                        settings.markerScale*subStyle->height+2)
                                                       color:[UIColor blackColor]
@@ -162,31 +169,41 @@
                                                  strokeSize:settings.markerScale*subStyle->strokeWidth
                                                   strokeColor:subStyle->strokeColor];
                 if ([marker.image isKindOfClass:[NSNull class]])
+                {
                     marker.image = nil;
+                }
             }
 
-            if (marker.image) {
+            if (marker.image)
+            {
                 marker.loc = [vec center];
-                if (subStyle->allowOverlap)
-                    marker.layoutImportance = MAXFLOAT;
-                else
-                    marker.layoutImportance = settings.markerImportance;
+                marker.layoutImportance = (subStyle->allowOverlap) ? MAXFLOAT : settings.markerImportance;
                 marker.selectable = true;
                 if (marker.image)
                 {
-                    marker.size = CGSizeMake(settings.markerScale*subStyle->width, settings.markerScale*subStyle->height);
                     // The markers will be scaled up on a retina display, so compensate
-                    if (isRetina)
-                        marker.size = CGSizeMake(settings.markerScale*subStyle->width/2.0, settings.markerScale*subStyle->height/2.0);
-                } else
+                    marker.size = isRetina ?
+                        CGSizeMake(settings.markerScale*subStyle->width/2.0, settings.markerScale*subStyle->height/2.0) :
+                        CGSizeMake(settings.markerScale*subStyle->width, settings.markerScale*subStyle->height);
+                }
+                else
+                {
                     marker.size = CGSizeMake(settings.markerScale*subStyle->width, settings.markerScale*subStyle->height);
+                }
                 [markers addObject:marker];
             }
         }
 
-        MaplyComponentObject *compObj = [viewC addScreenMarkers:markers desc:subStyle->desc mode:MaplyThreadCurrent];
+        NSDictionary* desc = subStyle->desc ? subStyle->desc : extraDesc;
+        if (subStyle->desc && extraDesc)
+        {
+            [desc dictionaryByMergingWith:extraDesc];
+        }
+        MaplyComponentObject *compObj = [viewC addScreenMarkers:markers desc:desc mode:MaplyThreadCurrent];
         if (compObj)
+        {
             [compObjs addObject:compObj];
+        }
     }
     
     [tileInfo addComponentObjects:compObjs];

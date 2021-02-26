@@ -47,11 +47,12 @@ using namespace WhirlyKit;
     if (settings)
         styleSettings = settings->impl;
     else
-        styleSettings = VectorStyleSettingsImplRef(new VectorStyleSettingsImpl([UIScreen mainScreen].scale));
-    
-    MapboxVectorStyleSetImpl_iOS *styleSetImpl = new MapboxVectorStyleSetImpl_iOS([viewC getRenderControl]->scene,[viewC getRenderControl]->visualView->coordAdapter->getCoordSystem(),styleSettings);
-    style = MapboxVectorStyleSetImpl_iOSRef(styleSetImpl);
-    styleSetImpl->viewC = viewC;
+        styleSettings = std::make_shared<VectorStyleSettingsImpl>([UIScreen mainScreen].scale);
+
+    style = std::make_shared<MapboxVectorStyleSetImpl_iOS>([viewC getRenderControl]->scene,
+                                                           [viewC getRenderControl]->visualView->coordAdapter->getCoordSystem(),
+                                                           styleSettings);
+    style->viewC = viewC;
 
 //    iosDictionaryRef dictWrap(new iosDictionary(styleDict));
 
@@ -99,19 +100,18 @@ using namespace WhirlyKit;
     // Make sure this wasn't alreayd added
     if (spriteImage)
         return true;
-    
+
     spriteImage = image;
     MaplyTexture *wholeTex = [_viewC addTexture:image desc:nil mode:MaplyThreadCurrent];
-    
-    MapboxVectorStyleSpritesRef newSprites(new MapboxVectorStyleSprites(wholeTex.texID,(int)image.size.width,(int)image.size.height));
-    iosDictionaryRef dictWrap(new iosDictionary(spriteDict));
-    if (newSprites->parse(style, dictWrap)) {
+
+    auto newSprites = std::make_shared<MapboxVectorStyleSprites>(wholeTex.texID,(int)image.size.width,(int)image.size.height);
+    auto dictWrap = std::make_shared<iosDictionary>(spriteDict);
+    if (newSprites->parse(style, dictWrap))
+    {
         style->addSprites(newSprites,wholeTex);
-    } else {
-        return false;
+        return true;
     }
-    
-    return true;
+    return false;
 }
 
 - (UIColor * __nullable)backgroundColorForZoom:(double)zoom
@@ -304,74 +304,61 @@ using namespace WhirlyKit;
 
 - (NSArray<MaplyLegendEntry *> * __nonnull)layerLegend:(CGSize)imageSize group:(bool)useGroups
 {
-    NSMutableArray *legend = [NSMutableArray array];
+    NSMutableArray *legend = [NSMutableArray arrayWithCapacity:(NSUInteger)style->layers.size()];
     NSMutableDictionary *groups = [NSMutableDictionary dictionary];
     
-    for (auto layer : style->layers) {
+    for (const auto &layer : style->layers) {
+        if (!layer->representation.empty()) {
+            // This is an alternate representation of another layer, e.g., "selected"
+            continue;
+        }
+            
         UIImage *image = nil;
-        auto layerBackground = std::dynamic_pointer_cast<MapboxVectorLayerBackground>(layer);
-        if (layerBackground) {
+        if (auto layerBackground = dynamic_cast<MapboxVectorLayerBackground*>(layer.get())) {
             if (layerBackground->paint.color) {
                 image = [self imageForPolygon:[UIColor colorFromRGBA:layerBackground->paint.color->colorForZoom(0.0)] size:imageSize];
             }
-        } else {
-            auto layerSymbol = std::dynamic_pointer_cast<MapboxVectorLayerSymbol>(layer);
-            if (layerSymbol) {
-                if (layerSymbol->layout.iconImageField) {
-                    MapboxRegexField textField = layerSymbol->layout.iconImageField->textForZoom(0.0);
-                    if (!textField.chunks.empty())
-                        image = [self imageForSymbol:textField.chunks[0].str size:imageSize];
-                } else if (layerSymbol->paint.textColor) {
-                    image = [self imageForText:[UIColor colorFromRGBA:layerSymbol->paint.textColor->colorForZoom(0.0)] size:imageSize];
+        } else if (auto layerSymbol = dynamic_cast<MapboxVectorLayerSymbol*>(layer.get())) {
+            if (layerSymbol->layout.iconImageField) {
+                MapboxRegexField textField = layerSymbol->layout.iconImageField->textForZoom(0.0);
+                if (!textField.chunks.empty()) {
+                    image = [self imageForSymbol:textField.chunks[0].str size:imageSize];
                 }
-            } else {
-                auto layerCircle = std::dynamic_pointer_cast<MapboxVectorLayerCircle>(layer);
-                if (layerCircle) {
-                    auto color = layerCircle->paint.fillColor;
-                    if (color)
-                        image = [self imageForCircle:[UIColor colorFromRGBA:*color] size:imageSize];
-                } else {
-                    auto layerLine = std::dynamic_pointer_cast<MapboxVectorLayerLine>(layer);
-                    if (layerLine) {
-                        auto color = layerLine->paint.color;
-                        if (color) {
-                            image = [self imageForLinear:[UIColor colorFromRGBA:color->colorForZoom(0.0)] size:imageSize];
-                        }
-                    } else {
-                        auto layerFill = std::dynamic_pointer_cast<MapboxVectorLayerFill>(layer);
-                        if (layerFill) {
-                            auto color = layerFill->paint.color;
-                            if (color) {
-                                image = [self imageForPolygon:[UIColor colorFromRGBA:color->colorForZoom(0.0)] size:imageSize];
-                            }
-                        }
-                    }
-                }
+            } else if (layerSymbol->paint.textColor) {
+                image = [self imageForText:[UIColor colorFromRGBA:layerSymbol->paint.textColor->colorForZoom(0.0)] size:imageSize];
+            }
+        } else if (auto layerCircle = dynamic_cast<MapboxVectorLayerCircle*>(layer.get())) {
+            if (const auto &color = layerCircle->paint.fillColor) {
+                image = [self imageForCircle:[UIColor colorFromRGBA:*color] size:imageSize];
+            }
+        } else if (auto layerLine = dynamic_cast<MapboxVectorLayerLine*>(layer.get())) {
+            if (const auto &color = layerLine->paint.color) {
+                image = [self imageForLinear:[UIColor colorFromRGBA:color->colorForZoom(0.0)] size:imageSize];
+            }
+        } else if (auto layerFill = dynamic_cast<MapboxVectorLayerFill*>(layer.get())) {
+            if (const auto &color = layerFill->paint.color) {
+                image = [self imageForPolygon:[UIColor colorFromRGBA:color->colorForZoom(0.0)] size:imageSize];
             }
         }
-        
+
         if (!layer->ident.empty()) {
-            std::string groupName = "";
-            std::string name;
+            std::string groupName;
+            std::string name = layer->ident;
             if (useGroups) {
                 // Parse the name apart
-                auto pos = layer->ident.find_first_of('_');
+                const auto pos = layer->ident.find_first_of('_');
                 if (pos != std::string::npos) {
                     groupName = layer->ident.substr(0,pos);
                     name = layer->ident.substr(pos+1);
-                } else
-                    name = layer->ident;
-            } else
-                name = layer->ident;
-            NSString *nameStr = [NSString stringWithUTF8String:name.c_str()];
-            if (nameStr) {
+                }
+            }
+            if (NSString *nameStr = [NSString stringWithUTF8String:name.c_str()]) {
                 MaplyLegendEntry *entry = [[MaplyLegendEntry alloc] init];
                 entry.name = nameStr;
                 entry.image = image;
 
                 if (!groupName.empty()) {
-                    NSString *groupNameStr = [NSString stringWithUTF8String:groupName.c_str()];
-                    if (groupNameStr) {
+                    if (NSString *groupNameStr = [NSString stringWithUTF8String:groupName.c_str()]) {
                         MaplyLegendEntry *group = groups[groupNameStr];
                         if (!group) {
                             group = [[MaplyLegendEntry alloc] init];
@@ -383,8 +370,9 @@ using namespace WhirlyKit;
                         
                         [group.entries addObject:entry];
                     }
-                } else
+                } else {
                     [legend addObject:entry];
+                }
             }
         }
     }
@@ -392,24 +380,41 @@ using namespace WhirlyKit;
     return legend;
 }
 
-// These are here just to satisfy the compiler.  We use the underlying C++ calls instead
+// These wrap the style if someone is using a non-standard path to call it
+// We do that in at least one place
 
 - (nullable NSArray *)stylesForFeatureWithAttributes:(NSDictionary *__nonnull)attributes
                                               onTile:(MaplyTileID)tileID
                                              inLayer:(NSString *__nonnull)layer
                                                viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC
 {
-    return nil;
+    MutableDictionaryCRef dictWrap = [attributes toDictionaryC];
+    const QuadTreeIdentifier tileIDc(tileID.x,tileID.y,tileID.level);
+    const std::string layerName = [layer cStringUsingEncoding:NSUTF8StringEncoding];
+    
+    auto styles = style->stylesForFeature(nil, *(dictWrap.get()), tileIDc, layerName);
+    
+    // Build up a wrapper for each one
+    NSMutableArray *retStyles = [NSMutableArray array];
+    for (auto theStyle: styles) {
+        [retStyles addObject:[[MaplyVectorStyleReverseWrapper alloc] initWithCStyle:theStyle]];
+    }
+
+    return retStyles;
 }
 
 - (BOOL)layerShouldDisplay:(NSString *__nonnull)layer tile:(MaplyTileID)tileID
 {
-    return false;
+    const std::string layerName = [layer cStringUsingEncoding:NSUTF8StringEncoding];
+    const QuadTreeIdentifier tileIDc(tileID.x,tileID.y,tileID.level);
+    return style->layerShouldDisplay(nil, layerName, tileIDc);
 }
 
-- (nullable NSObject<MaplyVectorStyle> *)styleForUUID:(long long)uiid viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC
+- (nullable NSObject<MaplyVectorStyle> *)styleForUUID:(long long)uuid viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC
 {
-    return nil;
+    auto theStyle = style->styleForUUID(NULL, uuid);
+    
+    return [[MaplyVectorStyleReverseWrapper alloc] initWithCStyle:theStyle];
 }
 
 - (nullable NSObject<MaplyVectorStyle> *)backgroundStyleViewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
@@ -419,7 +424,15 @@ using namespace WhirlyKit;
 
 - (NSArray * __nonnull)allStyles
 {
-    return [NSMutableArray array];
+    auto styles = style->allStyles(NULL);
+
+    // Build up a wrapper for each one
+    NSMutableArray *retStyles = [NSMutableArray array];
+    for (auto theStyle: styles) {
+        [retStyles addObject:[[MaplyVectorStyleReverseWrapper alloc] initWithCStyle:theStyle]];
+    }
+
+    return retStyles;
 }
 
 // Returns the C++ class that does the work

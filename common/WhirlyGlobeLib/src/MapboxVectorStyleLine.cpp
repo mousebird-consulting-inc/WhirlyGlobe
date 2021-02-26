@@ -66,17 +66,16 @@ bool MapboxVectorLinePaint::parse(PlatformThreadInfo *inst,MapboxVectorStyleSetI
 }
 
 bool MapboxVectorLayerLine::parse(PlatformThreadInfo *inst,
-                                  DictionaryRef styleEntry,
-                                  MapboxVectorStyleLayerRef refLayer,
+                                  const DictionaryRef &styleEntry,
+                                  const MapboxVectorStyleLayerRef &refLayer,
                                   int drawPriority)
 {
-    if (!styleEntry)
-        return false;
-    
     if (!MapboxVectorStyleLayer::parse(inst, styleEntry,refLayer,drawPriority) ||
         !layout.parse(inst, styleSet, styleEntry->getDict("layout")) ||
         !paint.parse(inst, styleSet, styleEntry->getDict("paint")))
+    {
         return false;
+    }
     
     this->drawPriority = styleSet->intValue("drawPriority", styleEntry, drawPriority);
     linearClipToBounds = styleSet->boolValue("linearize-clip-to-bounds", styleEntry, "yes", false);
@@ -108,7 +107,12 @@ bool MapboxVectorLayerLine::parse(PlatformThreadInfo *inst,
     }
     fade = styleSet->doubleValue("fade",styleEntry,0.0);
 
+    repUUIDField = styleSet->stringValue("X-Maply-RepresentationUUIDField", styleEntry, std::string());
+
     lineScale = styleSet->tileStyleSettings->lineScale;
+    
+    uuidField = styleSet->tileStyleSettings->uuidField;
+    uuidField = styleSet->stringValue("X-Maply-UUIDField", styleEntry, uuidField);
 
     return true;
 }
@@ -118,13 +122,15 @@ void MapboxVectorLayerLine::cleanup(PlatformThreadInfo *inst,ChangeSet &changes)
 }
 
 void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
-                                         std::vector<VectorObjectRef> &inVecObjs,
-                                         VectorTileDataRef tileInfo)
+                                         const std::vector<VectorObjectRef> &inVecObjs,
+                                         const VectorTileDataRef &tileInfo,
+                                         const Dictionary *desc)
 {
-    if (!visible)
+    // If a representation is set, we produce results for non-visible layers
+    if (!visible && (representation.empty() || repUUIDField.empty()))
+    {
         return;
-
-    const auto compObj = styleSet->makeComponentObject(inst);
+    }
 
     // Turn into linears (if not already) and then clip to the bounds
     // Slightly different, but we want to clip all the areals that are converted to linears
@@ -147,7 +153,7 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
         }
         if (newVecObj && clip)
         {
-            newVecObj = VectorObjectRef(newVecObj->clipToMbr(tileInfo->geoBBox.ll(), tileInfo->geoBBox.ur()));
+            newVecObj = newVecObj->clipToMbr(tileInfo->geoBBox.ll(), tileInfo->geoBBox.ur());
         }
         if (newVecObj)
         {
@@ -179,63 +185,87 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
     const double width = paint.width->valForZoom(tileInfo->ident.level) * lineScale;
     const double offset = paint.offset->valForZoom(tileInfo->ident.level) * lineScale;
     
-    if (color && width > 0.0)
+    if (!color || width <= 0.0)
     {
-        WideVectorInfo vecInfo;
-        vecInfo.hasExp = true;
-        vecInfo.coordType = WideVecCoordScreen;
-        vecInfo.programID = styleSet->wideVectorProgramID;
-        vecInfo.fade = fade;
-        vecInfo.zoomSlot = styleSet->zoomSlot;
-        if (minzoom != 0 || maxzoom < 1000)
-        {
-            vecInfo.minZoomVis = minzoom;
-            vecInfo.maxZoomVis = maxzoom;
-    //        wkLogLevel(Debug, "zoomSlot = %d, minZoom = %f, maxZoom = %f",styleSet->zoomSlot,vecInfo.minZoomVis,vecInfo.maxZoomVis);
-        }
-        if (filledLineTexID != EmptyIdentity)
-        {
-            vecInfo.texID = filledLineTexID;
-            vecInfo.repeatSize = repeatLen;
-        }
+        return;
+    }
 
-        vecInfo.color = *color;
-        vecInfo.width = width;
-        vecInfo.offset = offset;
-        vecInfo.widthExp = paint.width->expression();
-        // Scale by the lineScale
-        if (vecInfo.widthExp)
-            vecInfo.widthExp->scaleBy(lineScale);
-        vecInfo.offsetExp = paint.offset->expression();
-        if (vecInfo.offsetExp)
-            vecInfo.offsetExp->scaleBy(lineScale);
-        vecInfo.colorExp = paint.color->expression();
-        vecInfo.opacityExp = paint.opacity->expression();
-        vecInfo.drawPriority = drawPriority + tileInfo->ident.level * std::max(0, styleSet->tileStyleSettings->drawPriorityPerLevel)+2;
-        // TODO: Switch to stencils
+    WideVectorInfo vecInfo;
+    vecInfo.hasExp = true;
+    vecInfo.coordType = WideVecCoordScreen;
+    vecInfo.programID = styleSet->wideVectorProgramID;
+    vecInfo.fade = fade;
+    vecInfo.zoomSlot = styleSet->zoomSlot;
+    vecInfo.color = *color;
+    vecInfo.width = width;
+    vecInfo.offset = offset;
+    vecInfo.widthExp = paint.width->expression();
+    vecInfo.offsetExp = paint.offset->expression();
+    vecInfo.colorExp = paint.color->expression();
+    vecInfo.opacityExp = paint.opacity->expression();
+    vecInfo.drawPriority = drawPriority + tileInfo->ident.level * std::max(0, styleSet->tileStyleSettings->drawPriorityPerLevel)+2;
+    // TODO: Switch to stencils
 //        vecInfo.drawOrder = tileInfo->tileNumber();
+    
+    if (minzoom != 0 || maxzoom < 1000)
+    {
+        vecInfo.minZoomVis = minzoom;
+        vecInfo.maxZoomVis = maxzoom;
+    }
+    if (filledLineTexID != EmptyIdentity)
+    {
+        vecInfo.texID = filledLineTexID;
+        vecInfo.repeatSize = repeatLen;
+    }
+    if (vecInfo.widthExp)
+    {
+        vecInfo.widthExp->scaleBy(lineScale);
+    }
+    if (vecInfo.offsetExp)
+    {
+        vecInfo.offsetExp->scaleBy(lineScale);
+    }
 
-        // Gather all the linear features
-        std::vector<VectorShapeRef> shapes;
-        for (auto vecObj : vecObjs)
+    using ShapeRefVec = std::vector<VectorShapeRef>;
+    auto const capacity = inVecObjs.size() * 5;  // ?
+    std::unordered_map<std::string,ShapeRefVec> shapesByUUID(capacity);
+
+    // Gather all the linear features
+    for (auto vecObj : vecObjs)
+    {
+        if (vecObj->getVectorType() != VectorLinearType)
         {
-            if (vecObj->getVectorType() == VectorLinearType)
-            {
-                std::copy(vecObj->shapes.begin(),vecObj->shapes.end(),std::back_inserter(shapes));
-            }
+            continue;
         }
-        
-        const auto wideVecID = styleSet->wideVecManage->addVectors(shapes, vecInfo, tileInfo->changes);
-        if (wideVecID != EmptyIdentity)
+
+        const auto attrs = vecObj->getAttributes();
+        const auto uuid = repUUIDField.empty() ? std::string() : attrs->getString(repUUIDField);
+
+        // Look up the vectors of markers/objects for this uuid (including blank), inserting empty ones if necessary
+        const auto result = shapesByUUID.insert(std::make_pair(std::ref(uuid), ShapeRefVec()));
+        auto &shapes = result.first->second;
+
+        shapes.reserve(shapes.size() + vecObj->shapes.size());
+        std::copy(vecObj->shapes.begin(),vecObj->shapes.end(),std::back_inserter(shapes));
+    }
+
+    for (const auto &kvp : shapesByUUID)
+    {
+        const auto &uuid = kvp.first;
+        const auto &shapes = kvp.second;
+
+        // Generate one component object per unique UUID (including blank)
+        const auto compObj = styleSet->makeComponentObject(inst, desc);
+
+        compObj->uuid = uuid;
+        compObj->representation = representation;
+
+        if (const auto wideVecID = styleSet->wideVecManage->addVectors(shapes, vecInfo, tileInfo->changes))
         {
             compObj->wideVectorIDs.insert(wideVecID);
+            styleSet->compManage->addComponentObject(compObj, tileInfo->changes);
+            tileInfo->compObjs.push_back(compObj);
         }
-    }
-    
-    if (!compObj->wideVectorIDs.empty())
-    {
-        styleSet->compManage->addComponentObject(compObj, tileInfo->changes);
-        tileInfo->compObjs.push_back(compObj);
     }
 }
 

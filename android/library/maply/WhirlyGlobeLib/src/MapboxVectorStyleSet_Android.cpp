@@ -125,18 +125,22 @@ SingleLabelRef MapboxVectorStyleSetImpl_Android::makeSingleLabel(PlatformThreadI
     return SingleLabelRef(label);
 }
 
-ComponentObjectRef MapboxVectorStyleSetImpl_Android::makeComponentObject(PlatformThreadInfo *inInst)
+ComponentObjectRef MapboxVectorStyleSetImpl_Android::makeComponentObject(PlatformThreadInfo *inInst, const Dictionary *desc)
 {
-    return ComponentObjectRef(new ComponentObject());
+    return desc ? std::make_shared<ComponentObject>(false, false, *desc)
+                : std::make_shared<ComponentObject>(false, false);
 }
 
 double MapboxVectorStyleSetImpl_Android::calculateTextWidth(PlatformThreadInfo *inInst,LabelInfoRef inLabelInfo,const std::string &text)
 {
     PlatformInfo_Android *inst = (PlatformInfo_Android *)inInst;
-    LabelInfoAndroidRef labelInfo = std::dynamic_pointer_cast<LabelInfoAndroid>(inLabelInfo);
 
     jstring jText = inst->env->NewStringUTF(text.c_str());
-    jdouble width = inst->env->CallDoubleMethod(thisObj,calculateTextWidthMethod,jText,labelInfo->labelInfoObj);
+    jdouble width = 0;
+    if (auto labelInfo = dynamic_cast<LabelInfoAndroid*>(inLabelInfo.get()))
+    {
+        width = inst->env->CallDoubleMethod(thisObj,calculateTextWidthMethod,jText,labelInfo->labelInfoObj);
+    }
     inst->env->DeleteLocalRef(jText);
 
     return width;

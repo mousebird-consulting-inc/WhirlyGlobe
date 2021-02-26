@@ -146,19 +146,24 @@ iosDictionary::iosDictionary()
     dict = [[NSDictionary alloc] init];
 }
 
-iosDictionary::iosDictionary(NSDictionary *inDict)
+iosDictionary::iosDictionary(const NSDictionary *inDict)
 {
     dict = inDict;
 }
 
 iosDictionary::iosDictionary(const iosDictionary &that)
 {
-    dict = [[NSDictionary alloc] initWithDictionary:that.dict];
+    dict = [[NSDictionary alloc] initWithDictionary:const_cast<NSDictionary*>(that.dict)];
 }
 
 iosDictionary::~iosDictionary()
 {
     dict = nil;
+}
+
+int iosDictionary::count() const
+{
+    return dict.count;
 }
 
 /// Returns true if the field exists
@@ -313,16 +318,26 @@ iosMutableDictionary::iosMutableDictionary()
     dict = [[NSMutableDictionary alloc] init];
 }
 
+iosMutableDictionary::iosMutableDictionary(const NSDictionary *inDict)
+{
+    dict = inDict ? [NSMutableDictionary dictionaryWithDictionary:const_cast<NSDictionary*>(inDict)] : [NSMutableDictionary new];
+}
+
 iosMutableDictionary::iosMutableDictionary(NSMutableDictionary *inDict)
 {
     dict = inDict;
 }
-    
+
 iosMutableDictionary::iosMutableDictionary(const MutableDictionaryRef &inDict)
 {
     iosMutableDictionary *other = dynamic_cast<iosMutableDictionary *>(inDict.get());
     if (other)
         dict = [[NSMutableDictionary alloc] initWithDictionary:other->dict];
+}
+
+int iosMutableDictionary::count() const
+{
+    return dict.count;
 }
 
 // Assignment operator
@@ -499,6 +514,12 @@ void iosMutableDictionary::setInt(const std::string &name,int val)
     dict[StdStringToString(name)] = @(val);
 }
 
+/// Set field as int
+void iosMutableDictionary::setInt64(const std::string &name,int64_t val)
+{
+    dict[StdStringToString(name)] = @(val);
+}
+
 /// Set field as 64 bit unique value
 void iosMutableDictionary::setIdentifiable(const std::string &name,SimpleIdentity val)
 {
@@ -522,7 +543,7 @@ void iosMutableDictionary::addEntries(const Dictionary *other)
 {
     const iosDictionary *iosDict = dynamic_cast<const iosDictionary *>(other);
     if (iosDict) {
-        [dict addEntriesFromDictionary:iosDict->dict];
+        [dict addEntriesFromDictionary:const_cast<NSDictionary*>(iosDict->dict)];
     } else {
         const iosMutableDictionary *iosMutDict = dynamic_cast<const iosMutableDictionary *>(other);
         if (iosMutDict) {
@@ -605,7 +626,7 @@ using namespace WhirlyKit;
                     dict->setInt(keyStr, [val intValue]);
                     break;
                 default:
-                    NSLog(@"Unsupported type found in NSDictionary toDictionaryC for key %@",key);
+                    NSLog(@"Unsupported type %d found in NSDictionary toDictionaryC for key %@",(int)cType,key);
                     break;
             }
         } else if ([val isKindOfClass:[NSString class]]) {
@@ -623,8 +644,8 @@ using namespace WhirlyKit;
             auto valDict = [(NSDictionary *)val toDictionaryC];
             if (valDict)
                 dict->setDict(keyStr, valDict);
-        } else {
-            NSLog(@"Unsupported type found in NSDictionary toDictionaryC for key %@",key);
+        } else if (val != nil && ![val isKindOfClass:[NSNull class]]) {
+            NSLog(@"Unsupported type %@ found in NSDictionary toDictionaryC for key %@",[val class],key);
         }
     }
     
@@ -670,24 +691,33 @@ using namespace WhirlyKit;
     return nil;
 }
 
-+ (NSMutableDictionary *) fromDictionaryCPointer:(const WhirlyKit::MutableDictionary *)inDict
++ (NSMutableDictionary *) fromDictionaryC:(const WhirlyKit::DictionaryRef &)dict
+{
+    return dict ? [NSMutableDictionary fromDictionaryCPointer:dict.get()] : [NSMutableDictionary new];
+}
+
++ (NSMutableDictionary *) fromMutableDictionaryC:(const WhirlyKit::MutableDictionaryRef &)dict
+{
+    return dict ? [NSMutableDictionary fromDictionaryCPointer:dict.get()] : [NSMutableDictionary new];
+}
+
++ (NSMutableDictionary *) fromDictionaryCPointer:(const WhirlyKit::Dictionary *)inDict
 {
     NSMutableDictionary *outDict = [[NSMutableDictionary alloc] init];
-    
-    auto keys = inDict->getKeys();
-    for (const auto &key : keys) {
-        NSString *keyStr = [NSString stringWithUTF8String:key.c_str()];
-        auto entry = inDict->getEntry(key);
-        id valEntry = [NSMutableDictionary fromEntry:entry];
-        outDict[keyStr] = valEntry;
+
+    if (inDict)
+    {
+        auto keys = inDict->getKeys();
+        for (const auto &key : keys)
+        {
+            NSString *keyStr = [NSString stringWithUTF8String:key.c_str()];
+            auto entry = inDict->getEntry(key);
+            id valEntry = [NSMutableDictionary fromEntry:entry];
+            outDict[keyStr] = valEntry;
+        }
     }
     
     return outDict;
-}
-
-+ (NSMutableDictionary *) fromDictionaryC:(WhirlyKit::MutableDictionaryRef)inDict
-{
-    return [NSMutableDictionary fromDictionaryCPointer:inDict.get()];
 }
 
 @end

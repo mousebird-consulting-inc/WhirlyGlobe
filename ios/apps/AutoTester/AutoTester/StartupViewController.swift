@@ -3,7 +3,7 @@
 //  WhirlyGlobeSwiftTester
 //
 //  Created by jmnavarro on 14/09/15.
-//  Copyright (c) 2015-2020 mousebird consulting. All rights reserved.
+//  Copyright (c) 2015-2021 mousebird consulting. All rights reserved.
 //
 
 import UIKit
@@ -27,6 +27,7 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
 		AnimatedMarkersTestCase(),
         ClusteredMarkersTestCase(),
         LabelAnimationTestCase(),
+        MovingScreenMarkersTestCase(),
 
         VectorsTestCase(),
         ChangeVectorsTestCase(),
@@ -42,7 +43,7 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
         RepresentationsTestCase(),
 
         // Note: 3D labels are currently broken
-//        LabelsTestCase(),
+        LabelsTestCase(),
 		StickersTestCase(),
 
         PagingLayerTestCase(),
@@ -61,6 +62,7 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
 		FindHeightTestCase(),
 		FullAnimationTest(),
 		AnimationDelegateTestCase(),
+        GlobeRotationTestCase(),
 		LocationTrackingSimTestCase(),
 		LocationTrackingRealTestCase(),
         

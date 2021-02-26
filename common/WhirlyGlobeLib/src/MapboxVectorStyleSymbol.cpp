@@ -1,9 +1,9 @@
 /*
- *  MapboxVectorStyleSymbol.h
+ *  MapboxVectorStyleSymbol.cpp
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 2/17/15.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ static const char * const justifyVals[] = {"center","left","right",NULL};
 
 bool MapboxVectorSymbolLayout::parse(PlatformThreadInfo *inst,
                                      MapboxVectorStyleSetImpl *styleSet,
-                                     DictionaryRef styleEntry)
+                                     const DictionaryRef &styleEntry)
 {
     globalTextScale = styleSet->tileStyleSettings->textScale;
     placement = styleEntry ? (MapboxSymbolPlacement)styleSet->enumValue(styleEntry->getEntry("symbol-placement"), placementVals, (int)MBPlacePoint) : MBPlacePoint;
@@ -48,7 +48,7 @@ bool MapboxVectorSymbolLayout::parse(PlatformThreadInfo *inst,
         textFontArray = styleEntry->getArray("text-font");
     if (!textFontArray.empty()) {
         for (int ii=0;ii<textFontArray.size();ii++) {
-            std::string textField = textFontArray[ii]->getString();
+            const std::string &textField = textFontArray[ii]->getString();
             if (!textField.empty())
                 textFontNames.push_back(textField);
         }
@@ -60,7 +60,7 @@ bool MapboxVectorSymbolLayout::parse(PlatformThreadInfo *inst,
     textMaxWidth = styleSet->transDouble("text-max-width", styleEntry, 10.0);
     textSize = styleSet->transDouble("text-size", styleEntry, 24.0);
 
-    auto offsetEntries = styleSet->arrayValue("text-offset", styleEntry);
+    const auto offsetEntries = styleSet->arrayValue("text-offset", styleEntry);
     textOffsetX = (offsetEntries.size() > 0) ? styleSet->transDouble(offsetEntries[0], 0) : MapboxTransDoubleRef();
     textOffsetY = (offsetEntries.size() > 1) ? styleSet->transDouble(offsetEntries[1], 0) : MapboxTransDoubleRef();
 
@@ -74,15 +74,15 @@ bool MapboxVectorSymbolLayout::parse(PlatformThreadInfo *inst,
     textJustifySet = (styleEntry && styleEntry->getEntry("text-justify"));
     textJustify = styleEntry ? (TextJustify)styleSet->enumValue(styleEntry->getEntry("text-justify"), justifyVals, WhirlyKitTextCenter) : WhirlyKitTextCenter;
     
-    iconImageField = styleSet->transText("icon-image", styleEntry, "");
+    iconImageField = styleSet->transText("icon-image", styleEntry, std::string());
     iconSize = styleSet->transDouble("icon-size", styleEntry, 1.0);
-    
+
     return true;
 }
 
 bool MapboxVectorSymbolPaint::parse(PlatformThreadInfo *inst,
                                     MapboxVectorStyleSetImpl *styleSet,
-                                    DictionaryRef styleEntry)
+                                    const DictionaryRef &styleEntry)
 {
     textColor = styleSet->transColor("text-color", styleEntry, RGBAColor::black());
     textOpacity = styleSet->transDouble("text-opacity", styleEntry, 1.0);
@@ -94,21 +94,27 @@ bool MapboxVectorSymbolPaint::parse(PlatformThreadInfo *inst,
 }
 
 bool MapboxVectorLayerSymbol::parse(PlatformThreadInfo *inst,
-                                    DictionaryRef styleEntry,
-                                   MapboxVectorStyleLayerRef refLayer,
-                                   int inDrawPriority)
+                                    const DictionaryRef &styleEntry,
+                                    const MapboxVectorStyleLayerRef &refLayer,
+                                    int inDrawPriority)
 {
     if (!MapboxVectorStyleLayer::parse(inst,styleEntry,refLayer,drawPriority))
+    {
         return false;
-    bool hasLayout = layout.parse(inst,styleSet,styleEntry->getDict("layout"));
-    bool hasPaint = paint.parse(inst,styleSet, styleEntry->getDict("paint"));
+    }
+
+    const bool hasLayout = layout.parse(inst,styleSet,styleEntry->getDict("layout"));
+    const bool hasPaint = paint.parse(inst,styleSet, styleEntry->getDict("paint"));
     if (!hasLayout && !hasPaint)
         return false;
 
     uniqueLabel = styleSet->boolValue("unique-label", styleEntry, "yes", false);
-    
+
+    repUUIDField = styleSet->stringValue("X-Maply-RepresentationUUIDField", styleEntry, std::string());
+
     uuidField = styleSet->tileStyleSettings->uuidField;
-    
+    uuidField = styleSet->stringValue("X-Maply-UUIDField", styleEntry, uuidField);
+
     useZoomLevels = styleSet->tileStyleSettings->useZoomLevels;
 
     drawPriority = inDrawPriority;
@@ -116,20 +122,26 @@ bool MapboxVectorLayerSymbol::parse(PlatformThreadInfo *inst,
     return true;
 }
 
-std::string MapboxVectorLayerSymbol::breakUpText(PlatformThreadInfo *inst,const std::string &text,double textMaxWidth,LabelInfoRef labelInfo)
+std::string MapboxVectorLayerSymbol::breakUpText(PlatformThreadInfo *inst,
+                                                 const std::string &text,
+                                                 double textMaxWidth,
+                                                 const LabelInfoRef &labelInfo)
 {
     // If there are no spaces, let's not break it up
-    if (text.find(" ") == std::string::npos)
+    if (text.find(' ') == std::string::npos)
         return text;
     
     size_t start, end = 0;
     std::vector<std::string> chunks;
-    while ((start = text.find_first_not_of(" ", end)) != std::string::npos) {
-        end = text.find(" ",start);
+    chunks.reserve(text.size() / 5 + 1);
+    while ((start = text.find_first_not_of(' ', end)) != std::string::npos) {
+        end = text.find(' ',start);
         chunks.push_back(text.substr(start, end - start));
     }
-    
-    std::string soFar,retStr;
+
+    std::string soFar,retStr,testStr;
+    soFar.reserve(text.size());
+    retStr.reserve(text.size() + 5);
     for (auto chunk : chunks) {
         if (soFar.empty()) {
             soFar = chunk;
@@ -137,8 +149,8 @@ std::string MapboxVectorLayerSymbol::breakUpText(PlatformThreadInfo *inst,const 
         }
         
         // Try the string with the next chunk
-        std::string testStr = soFar.empty() ? chunk : soFar + " " + chunk;
-        double width = styleSet->calculateTextWidth(inst,labelInfo,testStr);
+        testStr = soFar.empty() ? chunk : soFar + " " + chunk;
+        const double width = styleSet->calculateTextWidth(inst,labelInfo,testStr);
         
         // Flush out what we have so far and start with this new chunk
         if (width > textMaxWidth) {
@@ -146,7 +158,7 @@ std::string MapboxVectorLayerSymbol::breakUpText(PlatformThreadInfo *inst,const 
                 soFar = testStr;
 
             if (retStr.size() > 0) {
-                retStr.append("\n");
+                retStr += '\n';
             }
             retStr.append(soFar);
             soFar = chunk;
@@ -156,9 +168,9 @@ std::string MapboxVectorLayerSymbol::breakUpText(PlatformThreadInfo *inst,const 
         }
     }
     if (retStr.size() > 0)
-        retStr.append("\n");
+        retStr += '\n';
     retStr.append(soFar);
-    
+
     return retStr;
 }
 
@@ -181,9 +193,9 @@ void MapboxVectorLayerSymbol::cleanup(PlatformThreadInfo *inst,ChangeSet &change
 
 SingleLabelRef MapboxVectorLayerSymbol::setupLabel(PlatformThreadInfo *inst,
                                                    const Point2f &pt,
-                                                   LabelInfoRef labelInfo,
-                                                   MutableDictionaryRef attrs,
-                                                   VectorTileDataRef tileInfo)
+                                                   const LabelInfoRef &labelInfo,
+                                                   const MutableDictionaryRef &attrs,
+                                                   const VectorTileDataRef &tileInfo)
 {
     // Reconstruct the string from its replacement form
     std::string text = layout.textField.build(attrs);
@@ -288,24 +300,23 @@ SingleLabelRef MapboxVectorLayerSymbol::setupLabel(PlatformThreadInfo *inst,
     return label;
 }
 
-Marker *MapboxVectorLayerSymbol::setupMarker(PlatformThreadInfo *inst,
-                                             const Point2f &pt,
-                                             VectorObjectRef vecObj,
-                                             MutableDictionaryRef attrs,
-                                             ComponentObjectRef compObj,
-                                             VectorTileDataRef tileInfo)
+std::unique_ptr<Marker> MapboxVectorLayerSymbol::setupMarker(PlatformThreadInfo *inst,
+                                                             const Point2f &pt,
+                                                             const MutableDictionaryRef &attrs,
+                                                             const VectorTileDataRef &tileInfo)
 {
     // The symbol name might get tricky
     std::string symbolName = layout.iconImageField->textForZoom(tileInfo->ident.level).build(attrs);
-    
+
     // Sometimes they stick an empty text string in there
     if (symbolName.empty())
-        return NULL;
-                                
+        return nullptr;
+
     Point2d markerSize;
-    auto subTex = styleSet->sprites->getTexture(symbolName,markerSize);
-    
-    if (markerSize.x() == 0.0) {
+    const auto subTex = styleSet->sprites->getTexture(symbolName,markerSize);
+
+    if (markerSize.x() == 0.0)
+    {
 #if DEBUG
         wkLogLevel(Warn, "MapboxVectorLayerSymbol: Failed to find symbol %s",symbolName.c_str());
         {
@@ -313,55 +324,71 @@ Marker *MapboxVectorLayerSymbol::setupMarker(PlatformThreadInfo *inst,
             std::string symbolName = layout.iconImageField->textForZoom(tileInfo->ident.level).build(attrs);
         }
 #endif
-        return NULL;
+        return nullptr;
     }
     
-    double size = layout.iconSize->valForZoom(tileInfo->ident.level);
-    if (!layout.iconSize->isExpression()) {
+    const double size = layout.iconSize->valForZoom(tileInfo->ident.level);
+    if (!layout.iconSize->isExpression())
+    {
         markerSize.x() *= size;
         markerSize.y() *= size;
     }
-    SimpleIdentity markerTexID = subTex.getId();
 
-    Marker *marker = new Marker();
+    auto marker = std::make_unique<Marker>();
     marker->width = markerSize.x();
     marker->height = markerSize.y();
     marker->loc = GeoCoord(pt.x(),pt.y());
-    if (!layout.iconAllowOverlap)
-        marker->layoutImportance = layout.layoutImportance;
-    else
-        marker->layoutImportance = MAXFLOAT;
-    if (selectable) {
-        marker->isSelectable = true;
-        marker->selectID = Identifiable::genId();
-        styleSet->addSelectionObject(marker->selectID, vecObj, compObj);
-        compObj->selectIDs.insert(marker->selectID);
-        compObj->isSelectable = true;
-    }
+    marker->layoutImportance = layout.iconAllowOverlap ? MAXFLOAT : layout.layoutImportance;
+
+    SimpleIdentity markerTexID = subTex.getId();
     if (markerTexID != EmptyIdentity)
+    {
         marker->texIDs.push_back(markerTexID);
+    }
     
     return marker;
 }
 
 static const int ScreenDrawPriorityOffset = 1000000;
 
-void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
-                                           std::vector<VectorObjectRef> &vecObjs,
-                                           VectorTileDataRef tileInfo)
+using MarkerPtrVec = std::vector<WhirlyKit::Marker*>;
+using VecObjRefVec = std::vector<VectorObjectRef>;
+using LabelRefVec = std::vector<SingleLabelRef>;
+using MarkersByUUIDMap = std::unordered_map<std::string,std::tuple<MarkerPtrVec,VecObjRefVec,LabelRefVec>>;
+static const auto emptyMapValue = std::make_tuple(MarkerPtrVec(),VecObjRefVec(),LabelRefVec());
+
+static std::tuple<MarkerPtrVec*, VecObjRefVec*, LabelRefVec*> Lookup(const std::string &uuid, MarkersByUUIDMap &map)
 {
-    if (!visible)
+    // Look up the vectors of markers/objects for this uuid (including blank), inserting empty ones if necessary
+    const auto result = map.insert(std::make_pair(uuid,emptyMapValue));
+    auto &value = result.first->second;
+    return std::make_tuple(&std::get<0>(value),&std::get<1>(value),&std::get<2>(value));
+}
+
+void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
+                                           const std::vector<VectorObjectRef> &vecObjs,
+                                           const VectorTileDataRef &tileInfo,
+                                           const Dictionary *desc)
+{
+    // If a representation is set, we produce results for non-visible layers
+    if (!visible && (representation.empty() || repUUIDField.empty()))
+    {
         return;
+    }
 
     const auto zoomLevel = tileInfo->ident.level;
-    ComponentObjectRef compObj = styleSet->makeComponentObject(inst);
+
+    using MarkerPtrVec = std::vector<WhirlyKit::Marker*>;
+    using VecObjRefVec = std::vector<VectorObjectRef>;
+    using LabelRefVec = std::vector<SingleLabelRef>;
+    auto const capacity = vecObjs.size() * 5;  // ?
+    std::unordered_map<std::string,std::tuple<MarkerPtrVec,VecObjRefVec,LabelRefVec>> markersByUUID(capacity);
+    const auto emptyMapValue = std::make_tuple(MarkerPtrVec(),VecObjRefVec(),LabelRefVec());
 
     // Render at the max size and then scale dynamically
     double textSize = layout.textSize->maxVal() * layout.globalTextScale;
-    textSize = (int)(textSize + 0.5);
-    if (textSize <= 0.0)
-        textSize = 1.0;
-    
+    textSize = std::max(1.0, std::round(textSize));
+
     // When there's no dynamic scaling, we need to scale the text size down
     if (!layout.textSize->isExpression())
     {
@@ -404,7 +431,7 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
     if (paint.textHaloColor && paint.textHaloWidth)
     {
         labelInfo->outlineColor = paint.textHaloColor->colorForZoom(zoomLevel);
-        // Note: We're not using blue right here
+        // Note: We're not using blur right here
         labelInfo->outlineSize = std::max(0.5, (paint.textHaloWidth->valForZoom(zoomLevel) - paint.textHaloBlur->valForZoom(zoomLevel)) * layout.globalTextScale);
     }
 
@@ -419,15 +446,16 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
     }
 
     // Sort out the image for the marker if we're doing that
-    MarkerInfo markerInfo(true);
+    MarkerInfo markerInfo(/*screenObject=*/true);
     markerInfo.hasExp = true;
     markerInfo.zoomSlot = styleSet->zoomSlot;
+    markerInfo.scaleExp = layout.iconSize->expression();
+
     if (minzoom != 0 || maxzoom < 1000)
     {
         markerInfo.minZoomVis = minzoom;
         markerInfo.maxZoomVis = maxzoom;
     }
-    markerInfo.scaleExp = layout.iconSize->expression();
 
     if (iconInclude)
     {
@@ -442,25 +470,46 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
     // `label->screenOffset` uses the same convention for Y but the opposite convention for X.
     const Point2d offset = Point2d(layout.textOffsetX ? (layout.textOffsetX->valForZoom(zoomLevel) * textSize) : 0.0,
                                    layout.textOffsetY ? (layout.textOffsetY->valForZoom(zoomLevel) * -textSize) : 0.0);
-    
-    std::vector<SingleLabelRef> labels;
-    std::vector<Marker *> markers;
+
+    std::vector<std::unique_ptr<Marker>> markerOwner;
     for (auto vecObj : vecObjs)
     {
-        if (vecObj->getVectorType() == VectorPointType)
+        const auto vecType = vecObj->getVectorType();
+        switch (vecType)
         {
-            for (VectorShapeRef shape : vecObj->shapes)
+            case VectorPointType:
+            case VectorLinearType:
+            case VectorArealType: break;
+            default: continue;
+        }
+
+        const auto &attrs = vecObj->getAttributes();
+        const auto uuid = repUUIDField.empty() ? std::string() : attrs->getString(repUUIDField);
+
+        MarkerPtrVec* markers = nullptr;
+        VecObjRefVec* vecObjs = nullptr;
+        LabelRefVec*  labels  = nullptr;
+
+        if (vecType == VectorPointType)
+        {
+            for (const VectorShapeRef &shape : vecObj->shapes)
             {
-                if (auto pts = std::dynamic_pointer_cast<VectorPoints>(shape))
+                if (auto pts = dynamic_cast<VectorPoints*>(shape.get()))
                 {
-                    for (auto pt : pts->pts)
+                    if (!markers && !pts->pts.empty())
+                    {
+                        // Find/create the map entry now that we know there's something to put in it
+                        std::tie(markers, vecObjs, labels) = Lookup(uuid, markersByUUID);
+                    }
+
+                    for (const auto &pt : pts->pts)
                     {
                         if (textInclude)
                         {
-                            if (auto label = setupLabel(inst,pt,labelInfo,vecObj->getAttributes(),tileInfo))
+                            if (auto label = setupLabel(inst,pt,labelInfo,attrs,tileInfo))
                             {
                                 label->screenOffset = offset;
-                                labels.push_back(label);
+                                labels->push_back(label);
 #if DEBUG
                             }
                             else
@@ -471,16 +520,18 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                         }
                         if (iconInclude)
                         {
-                            if (Marker *marker = setupMarker(inst, pt, vecObj, vecObj->getAttributes(), compObj, tileInfo))
+                            if (auto marker = setupMarker(inst, pt, attrs, tileInfo))
                             {
-                                markers.push_back(marker);
+                                markers->push_back(marker.get());
+                                vecObjs->push_back(vecObj);
+                                markerOwner.emplace_back(std::move(marker));
                             }
                         }
                     }
                 }
             }
         }
-        else if (vecObj->getVectorType() == VectorLinearType)
+        else if (vecType == VectorLinearType)
         {
 #if DEBUG
             if (vecObj->shapes.size() > 1)
@@ -492,11 +543,18 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                 }
             }
 #endif
-            for (VectorShapeRef shape : vecObj->shapes)
+            for (const VectorShapeRef &shape : vecObj->shapes)
             {
                 // for each line in the shape set ... (we expect exactly one)
-                if (VectorLinearRef line = std::dynamic_pointer_cast<VectorLinear>(shape))
+                if (auto line = dynamic_cast<VectorLinear*>(shape.get()))
                 {
+                    if (!markers)
+                    {
+                        // Find/create the map entry now that we know there's something to put in it
+                        std::tie(markers, vecObjs, labels) = Lookup(uuid, markersByUUID);
+                    }
+
+
                     // Place the symbol at the middle of the line
                     // Note that if there are multiple shapes, this will be recalculated unnecessarily.
                     Point2d middle;
@@ -513,7 +571,7 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
 
                     if (textInclude)
                     {
-                        if (auto label = setupLabel(inst,pt,labelInfo,vecObj->getAttributes(),tileInfo))
+                        if (auto label = setupLabel(inst,pt,labelInfo,attrs,tileInfo))
                         {
                             if (layout.placement == MBPlaceLine)
                             {
@@ -527,21 +585,23 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
 
                             label->screenOffset = offset;
 
-                            labels.push_back(label);
+                            labels->push_back(label);
                         }
                     }
                     
                     if (iconInclude)
                     {
-                        if (Marker *marker = setupMarker(inst, pt, vecObj, vecObj->getAttributes(), compObj, tileInfo))
+                        if (auto marker = setupMarker(inst, pt, attrs, tileInfo))
                         {
-                            markers.push_back(marker);
+                            markers->push_back(marker.get());
+                            vecObjs->push_back(vecObj);
+                            markerOwner.emplace_back(std::move(marker));
                         }
                     }
                 }
             }
         }
-        else if (vecObj->getVectorType() == VectorArealType)
+        else if (vecType == VectorArealType)
         {
 #if DEBUG
             if (vecObj->shapes.size() > 1)
@@ -553,12 +613,17 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                 }
             }
 #endif
-            for (auto shape : vecObj->shapes)
+            for (const auto &shape : vecObj->shapes)
             {
                 // each polygon in the shape set... (we expect exactly one)
-                if (auto aereal = std::dynamic_pointer_cast<VectorAreal>(shape))
+                if (auto areal = dynamic_cast<VectorAreal*>(shape.get()))
                 {
-                    
+                    if (!markers)
+                    {
+                        // Find/create the map entry now that we know there's something to put in it
+                        std::tie(markers, vecObjs, labels) = Lookup(uuid, markersByUUID);
+                    }
+
                     // Place the marker at the middle of the polygon.
                     // Note that if there are multiple shapes, this will be recalculated unnecessarily.
                     Point2d middle;
@@ -571,24 +636,25 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                     }
                     
                     const auto pt = Point2f(middle.x(), middle.y());
-                    const auto& attributes = vecObj->getAttributes();
 
                     if (textInclude)
                     {
-                        if (auto label = setupLabel(inst, pt, labelInfo, attributes, tileInfo))
+                        if (auto label = setupLabel(inst, pt, labelInfo, attrs, tileInfo))
                         {
                             // layout.placement is ignored for polygons
                             // except for offset, which we already calculated so we might as well use
                             label->screenOffset = offset;
-                            labels.push_back(label);
+                            labels->push_back(label);
                         }
                     }
-                    
+
                     if (iconInclude)
                     {
-                        if (auto marker = setupMarker(inst, pt, vecObj, attributes, compObj, tileInfo))
+                        if (auto marker = setupMarker(inst, pt, attrs, tileInfo))
                         {
-                            markers.push_back(marker);
+                            markers->push_back(marker.get());
+                            vecObjs->push_back(vecObj);
+                            markerOwner.emplace_back(std::move(marker));
                         }
                     }
                 }
@@ -596,32 +662,57 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
         }
     }
 
-    if (!labels.empty())
+    for (auto &kvp : markersByUUID)
     {
-        SimpleIdentity labelID = styleSet->labelManage->addLabels(inst, labels, *labelInfo, tileInfo->changes);
-        if (labelID != EmptyIdentity)
-        {
-            compObj->labelIDs.insert(labelID);
-        }
-    }
+        const auto& uuid = kvp.first;
+        const auto& markers = std::get<0>(kvp.second);
+        const auto& vecObjs = std::get<1>(kvp.second);
+        const auto& labels  = std::get<2>(kvp.second);
 
-    if (!markers.empty())
-    {
-        SimpleIdentity markerID = styleSet->markerManage->addMarkers(markers, markerInfo, tileInfo->changes);
-        for (auto marker: markers)
+        // Generate one component object per unique UUID (including blank)
+        const auto compObj = styleSet->makeComponentObject(inst, desc);
+
+        compObj->uuid = uuid;
+        compObj->representation = representation;
+
+        if (selectable)
         {
-            delete marker;
+            assert(markers.size() == vecObjs.size());
+            const auto count = std::min(markers.size(), vecObjs.size());
+            for (auto i = (size_t)0; i < count; ++i)
+            {
+                auto *marker = markers[i];
+                const auto &vecObj = vecObjs[i];
+
+                marker->isSelectable = true;
+                marker->selectID = Identifiable::genId();
+                styleSet->addSelectionObject(marker->selectID, vecObj, compObj);
+                compObj->selectIDs.insert(marker->selectID);
+                compObj->isSelectable = true;
+            }
         }
-        if (markerID != EmptyIdentity)
+
+        if (!labels.empty())
         {
-            compObj->markerIDs.insert(markerID);
+            if (const auto labelID = styleSet->labelManage->addLabels(inst, labels, *labelInfo, tileInfo->changes))
+            {
+                compObj->labelIDs.insert(labelID);
+            }
         }
-    }
-    
-    if (!compObj->labelIDs.empty() || !compObj->markerIDs.empty())
-    {
-        styleSet->compManage->addComponentObject(compObj, tileInfo->changes);
-        tileInfo->compObjs.push_back(compObj);
+
+        if (!markers.empty())
+        {
+            if (const auto markerID = styleSet->markerManage->addMarkers(markers, markerInfo, tileInfo->changes))
+            {
+                compObj->markerIDs.insert(markerID);
+            }
+        }
+        
+        if (!compObj->labelIDs.empty() || !compObj->markerIDs.empty())
+        {
+            styleSet->compManage->addComponentObject(compObj, tileInfo->changes);
+            tileInfo->compObjs.push_back(compObj);
+        }
     }
 }
 

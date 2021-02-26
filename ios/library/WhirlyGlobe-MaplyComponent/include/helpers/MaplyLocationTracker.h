@@ -37,11 +37,10 @@ typedef enum {MaplyLocationLockNone, MaplyLocationLockNorthUp, MaplyLocationLock
 
 /* 
     Implement the MaplyLocationTrackerDelegate protocol to receive location services callbacks.
-   
-    This is to handle problems / failures further up the line.
 */
 @protocol MaplyLocationTrackerDelegate
 
+// This is to handle problems / failures further up the line.
 - (void) locationManager:(CLLocationManager * __nonnull)manager didFailWithError:(NSError * __nonnull)error;
 
 - (void) locationManager:(CLLocationManager * __nonnull)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status;
@@ -50,7 +49,18 @@ typedef enum {MaplyLocationLockNone, MaplyLocationLockNorthUp, MaplyLocationLock
 
 - (void) updateLocation:(CLLocation * __nonnull)location;
 
+@end
+
+/*
+    Implement the MaplyLocationSimulatorDelegate protocol to provide simulated locations
+*/
+@protocol MaplyLocationSimulatorDelegate
+
 - (MaplyLocationTrackerSimulationPoint)getSimulationPoint;
+
+@optional
+
+- (bool)hasValidLocation;
 
 @end
 
@@ -64,6 +74,19 @@ typedef enum {MaplyLocationLockNone, MaplyLocationLockNorthUp, MaplyLocationLock
 /// Exposes MaplyLocationTracker's location manager for use elsewhere
 @property (nonatomic, readonly, nullable) CLLocationManager *locationManager;
 
+/**
+    MaplyLocationTracker constructor
+ 
+    @param viewC The globe or map view controller
+ 
+    @param useHeading Use location services heading information (requires physical magnetometer)
+ 
+    @param useCourse Use location services course information as fallback if heading unavailable
+ */
+- (nonnull instancetype)initWithViewC:(MaplyBaseViewController *__nullable)viewC
+                           useHeading:(bool)useHeading
+                            useCourse:(bool)useCourse;
+
 /** 
     MaplyLocationTracker constructor
  
@@ -75,7 +98,30 @@ typedef enum {MaplyLocationLockNone, MaplyLocationLockNorthUp, MaplyLocationLock
  
     @param useCourse Use location services course information as fallback if heading unavailable
  */
-- (nonnull instancetype)initWithViewC:(MaplyBaseViewController *__nullable)viewC delegate:(NSObject<MaplyLocationTrackerDelegate> *__nullable)delegate useHeading:(bool)useHeading useCourse:(bool)useCourse simulate:(bool)simulate;
+- (nonnull instancetype)initWithViewC:(MaplyBaseViewController *__nullable)viewC
+                             delegate:(NSObject<MaplyLocationTrackerDelegate> *__nullable)delegate
+                           useHeading:(bool)useHeading
+                            useCourse:(bool)useCourse;
+
+/**
+    MaplyLocationTracker constructor
+ 
+    @param viewC The globe or map view controller
+ 
+    @param delegate The MaplyLocationTrackerDelegate for receiving location event callbacks
+
+    @param simulator  The MaplyLocationSimulatorDelegate for generating simulated locations
+
+    @param useHeading Use location services heading information (requires physical magnetometer)
+ 
+    @param useCourse Use location services course information as fallback if heading unavailable
+ */
+- (nonnull instancetype)initWithViewC:(MaplyBaseViewController *__nullable)viewC
+                             delegate:(NSObject<MaplyLocationTrackerDelegate> *__nullable)delegate
+                            simulator:(NSObject<MaplyLocationSimulatorDelegate> *__nullable)simulator
+                          simInterval:(NSTimeInterval)simInterval
+                           useHeading:(bool)useHeading
+                            useCourse:(bool)useCourse;
 
 /**
     Min/max visibility for the marker assigned to follow location.
@@ -107,6 +153,22 @@ typedef enum {MaplyLocationLockNone, MaplyLocationLockNorthUp, MaplyLocationLock
     @return The coordinate if valid, else kMaplyNullCoordinate
  */
 - (MaplyCoordinate)getLocation;
+
+/**
+    Set the current simulated location.
+ */
+- (void) setLocation:(MaplyLocationTrackerSimulationPoint)point
+            altitude:(double)altitude;
+
+/**
+    Set the current simulated location.
+ */
+- (void) setLocation:(MaplyLocationTrackerSimulationPoint)point
+            altitude:(double)altitude
+  horizontalAccuracy:(double)horizontalAccuracy
+    verticalAccuracy:(double)verticalAccuracy
+               speed:(double)speed;
+;
 
 @end
 
