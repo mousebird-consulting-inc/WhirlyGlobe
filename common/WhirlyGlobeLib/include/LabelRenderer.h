@@ -87,7 +87,10 @@ public:
     float outlineSize;
     float lineHeight;
     float fontPointSize;
-    
+    float layoutOffset;
+    float layoutSpacing;
+    int layoutRepeat;
+
     FloatExpressionInfoRef opacityExp;
 //    ColorExpressionInfoRef colorExp;
     FloatExpressionInfoRef scaleExp;
@@ -133,6 +136,9 @@ public:
     bool useAttributedString;
     /// Scale, if we're using that
     float scale;
+
+    /// Convenience routine to convert the points to model space
+    Point3dVector convertGeoPtsToModelSpace(const VectorRing &inPts);
 
     /// Renders the labels into a big texture and stores the resulting info
     void render(PlatformThreadInfo *threadInfo,const std::vector<SingleLabel *> &labels,ChangeSet &changes);

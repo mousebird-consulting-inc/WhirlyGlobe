@@ -1376,6 +1376,22 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
             wgLabel->startTime = now;
             wgLabel->endTime = now + movingLabel.duration;
         }
+        
+        if (label.layoutVec && !label.layoutVec->vObj->shapes.empty()) {
+            for (auto shape: label.layoutVec->vObj->shapes) {
+                auto shapeLin = std::dynamic_pointer_cast<VectorLinear>(shape);
+                if (shapeLin) {
+                    wgLabel->layoutShape = shapeLin->pts;
+                    break;
+                } else {
+                    auto shapeAr = std::dynamic_pointer_cast<VectorAreal>(shape);
+                    if (shapeAr && !shapeAr->loops.empty()) {
+                        wgLabel->layoutShape = shapeAr->loops[0];
+                        break;
+                    }
+                }
+            }
+        }
 
         const auto selectId = wgLabel->selectID;
 

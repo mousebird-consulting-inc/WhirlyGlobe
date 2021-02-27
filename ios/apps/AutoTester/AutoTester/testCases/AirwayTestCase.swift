@@ -163,7 +163,7 @@ class AirwayTestCase: MaplyTestCase {
                                                   kMaplyColor: UIColor.blue], mode: .any)
         viewC.addScreenLabels(labels, desc: [kMaplyFont: UIFont.boldSystemFont(ofSize: 18.0),
                                              kMaplyTextColor: UIColor.purple,
-                                             kMaplyTextLayoutOffset: 0.0,  // Right in the center
+                                             kMaplyTextLayoutOffset: 30.0,  // Right in the center
                                              kMaplyTextLayoutSpacing: 100.0, // 100 pixels between
                                              kMaplyTextLayoutRepeat: -1,  // As many as fit
                                              ],

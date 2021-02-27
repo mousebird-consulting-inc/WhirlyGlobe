@@ -39,7 +39,8 @@ LabelInfo::LabelInfo(bool screenObject)
     labelJustify(WhirlyKitLabelMiddle), textJustify(WhirlyKitTextCenter),
     shadowColor(0,0,0,0), shadowSize(-1.0),
     outlineColor(0,0,0,0), outlineSize(-1.0),
-    lineHeight(0.0), fontPointSize(16.0)
+    lineHeight(0.0), fontPointSize(16.0),
+    layoutOffset(0.0), layoutSpacing(20.0), layoutRepeat(0)
 {
     if (screenObject) {
         width = 16.0;
@@ -56,7 +57,8 @@ screenObject(that.screenObject), width(that.width), height(that.height),
 labelJustify(that.labelJustify), textJustify(that.textJustify),
 shadowColor(that.shadowColor), shadowSize(that.shadowSize),
 outlineColor(that.outlineColor), outlineSize(that.outlineSize),
-lineHeight(that.lineHeight), fontPointSize(that.fontPointSize)
+lineHeight(that.lineHeight), fontPointSize(that.fontPointSize),
+layoutOffset(that.layoutOffset), layoutSpacing(that.layoutSpacing), layoutRepeat(that.layoutRepeat)
 {
 }
 
@@ -95,6 +97,9 @@ LabelInfo::LabelInfo(const Dictionary &dict, bool screenObject)
                 textJustify = WhirlyKitTextRight;
         }
     }
+    layoutOffset = dict.getDouble(MaplyTextLayoutOffset,layoutOffset);
+    layoutSpacing = dict.getDouble(MaplyTextLayoutSpacing,layoutSpacing);
+    layoutRepeat = dict.getInt(MaplyTextLayoutRepeat,layoutRepeat);
     lineHeight = dict.getDouble(MaplyTextLineHeight,0.0);
 }
 
@@ -114,6 +119,23 @@ LabelRenderer::LabelRenderer(Scene *scene,FontTextureManagerRef &fontTexManager,
 }
 
 typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
+
+Point3dVector LabelRenderer::convertGeoPtsToModelSpace(const VectorRing &inPts)
+{
+    CoordSystemDisplayAdapter *coordAdapt = scene->getCoordAdapter();
+    CoordSystem *coordSys = coordAdapt->getCoordSystem();
+
+    Point3dVector outPts;
+    outPts.reserve(inPts.size());
+    
+    for (auto pt: inPts) {
+        auto localPt = coordSys->geographicToLocal3d(GeoCoord(pt.x(),pt.y()));
+        Point3d pt3d = coordAdapt->localToDisplay(localPt);
+        outPts.push_back(pt3d);
+    }
+    
+    return outPts;
+}
 
 void LabelRenderer::render(PlatformThreadInfo *threadInfo,const std::vector<SingleLabel *> &labels,ChangeSet &changes)
 {
@@ -281,6 +303,14 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,const std::vector<Sing
                 layoutObject->importance = layoutImportance;
                 layoutObject->acceptablePlacement = layoutPlacement;
                 layoutObject->setEnable(labelInfo->enable);
+                
+                // Setup layout points if we have them
+                if (!label->layoutShape.empty()) {
+                    layoutObject->layoutShape = convertGeoPtsToModelSpace(label->layoutShape);
+                    layoutObject->layoutRepeat = labelInfo->layoutRepeat;
+                    layoutObject->layoutOffset = labelInfo->layoutOffset;
+                    layoutObject->layoutSpacing = labelInfo->layoutSpacing;
+                }
                 
                 // The shape starts out disabled
                 screenShape->setEnable(labelInfo->enable);
