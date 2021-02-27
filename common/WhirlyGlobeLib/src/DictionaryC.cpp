@@ -369,12 +369,12 @@ RGBAColor MutableDictionaryC::getColor(const std::string &name,const RGBAColor &
     return (it == stringMap.end()) ? defVal : getColor(it->second,defVal);
 }
 
-static RGBAColor ARGBtoRGBAColor(uint32_t v)
+RGBAColor ARGBtoRGBAColor(uint32_t v)
 {
     return { (uint8_t)(v >> 16),(uint8_t)(v >> 8),(uint8_t)v,(uint8_t)(v >> 24) };
 }
 
-static RGBAColor parseColor(const char* const p, RGBAColor ret)
+RGBAColor parseColor(const char* const p, RGBAColor ret)
 {
     char* end = nullptr;
     const auto v = (uint32_t)std::strtol(p, &end, 16);
@@ -509,7 +509,9 @@ DictionaryRef MutableDictionaryC::getDict(unsigned int key) const
         {
             return dictVals[val.entry];
         }
+        wkLogLevel(Warn, "Unsupported conversion from type %d to dictionary", val.type);
     }
+    wkLogLevel(Warn, "Missing key %d", key);
     return DictionaryRef();
 }
 

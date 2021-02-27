@@ -25,6 +25,7 @@ using namespace WhirlyKit;
 
 template<> VectorObjectClassInfo *VectorObjectClassInfo::classInfoObj = NULL;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_nativeInit
   (JNIEnv *env, jclass cls)
 {
@@ -37,18 +38,17 @@ JNIEXPORT jobject JNICALL MakeVectorObject(JNIEnv *env,VectorObjectRef vec)
     return MakeVectorObjectWrapper(env,classInfo,vec);
 }
 
-JNIEXPORT jobject JNICALL MakeVectorObjectWrapper(JNIEnv *env,VectorObjectClassInfo *classInfo,VectorObjectRef vec)
+JNIEXPORT jobject JNICALL MakeVectorObjectWrapper(JNIEnv *env,VectorObjectClassInfo *classInfo,const VectorObjectRef &vec)
 {
     jobject newObj = classInfo->makeWrapperObject(env);
     VectorObjectRef *oldRef = classInfo->getObject(env,newObj);
     vec->setId((*oldRef)->getId());
     classInfo->setHandle(env,newObj,new VectorObjectRef(vec));
-    if (oldRef)
-        delete oldRef;
-
+    delete oldRef;
     return newObj;
 }
 
+extern "C"
 void Java_com_mousebird_maply_VectorObject_initialise
   (JNIEnv *env, jobject obj, jlong ident)
 {

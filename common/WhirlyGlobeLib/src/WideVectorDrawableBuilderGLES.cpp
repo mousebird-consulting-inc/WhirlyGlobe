@@ -29,10 +29,10 @@ void WideVectorTweakerGLES::tweakForFrame(Drawable *inDraw,RendererFrameInfo *fr
 {
     if (frameInfo->program)
     {
-        const float scale = std::max(frameInfo->sceneRenderer->framebufferWidth,frameInfo->sceneRenderer->framebufferHeight);
-        const float screenSize = frameInfo->screenSizeInDisplayCoords.x();
-        const float pixDispSize = std::min(frameInfo->screenSizeInDisplayCoords.x(),frameInfo->screenSizeInDisplayCoords.y()) / scale;
-        const float texScale = scale/(screenSize*texRepeat);
+        const double scale = std::max(frameInfo->sceneRenderer->framebufferWidth,frameInfo->sceneRenderer->framebufferHeight);
+        const double screenSize = frameInfo->screenSizeInDisplayCoords.x();
+        const double pixDispSize = std::min(frameInfo->screenSizeInDisplayCoords.x(),frameInfo->screenSizeInDisplayCoords.y()) / scale;
+        const double texScale = scale / (screenSize * texRepeat);
 
         auto programGLES = (ProgramGLES *)frameInfo->program;
 
@@ -41,31 +41,31 @@ void WideVectorTweakerGLES::tweakForFrame(Drawable *inDraw,RendererFrameInfo *fr
             const auto bd = dynamic_cast<BasicDrawable*>(inDraw);
             if (bd && bd->zoomSlot >= 0)
             {
-                auto v = frameInfo->scene->getZoomSlotValue(bd->zoomSlot);
-                const float expWidth = widthExp->evaluate(v, lineWidth);
+                auto zoom = frameInfo->scene->getZoomSlotValue(bd->zoomSlot);
+                const float expWidth = widthExp->evaluate(zoom, lineWidth);
                 programGLES->setUniform(u_w2NameID, expWidth);
-                programGLES->setUniform(u_Realw2NameID, pixDispSize * expWidth);
-                //wkLog("expression width = %f/%f, lineWidth = %f/%f", expWidth, pixDispSize * expWidth, lineWidth, lineWidth * pixDispSize);
+                programGLES->setUniform(u_Realw2NameID, (float)(pixDispSize * expWidth));
+                //wkLog("id=%lld on=%s p=%lld n=%s zoom=%f exp=%f/%f lW=%f/%f", inDraw->getId(), inDraw->isOn(frameInfo)?"T":"F", inDraw->getProgram(), inDraw->getName().c_str(), zoom, expWidth, pixDispSize * expWidth, lineWidth, lineWidth * pixDispSize);
             }
             else
             {
                 programGLES->setUniform(u_w2NameID, lineWidth);
-                programGLES->setUniform(u_Realw2NameID, pixDispSize * lineWidth);
+                programGLES->setUniform(u_Realw2NameID, (float)(pixDispSize * lineWidth));
             }
         }
         else if (realWidthSet)
         {
-            programGLES->setUniform(u_w2NameID, realWidth / pixDispSize);
+            programGLES->setUniform(u_w2NameID, (float)(realWidth / pixDispSize));
             programGLES->setUniform(u_Realw2NameID, realWidth);
         }
         else
         {
             programGLES->setUniform(u_w2NameID, lineWidth);
-            programGLES->setUniform(u_Realw2NameID, pixDispSize * lineWidth);
+            programGLES->setUniform(u_Realw2NameID, (float)(pixDispSize * lineWidth));
         }
         programGLES->setUniform(u_EdgeNameID, edgeSize);
-        programGLES->setUniform(u_texScaleNameID, texScale);
-        programGLES->setUniform(u_colorNameID, Vector4f(color.r/255.0,color.g/255.0,color.b/255.0,color.a/255.0));
+        programGLES->setUniform(u_texScaleNameID, (float)texScale);
+        programGLES->setUniform(u_colorNameID, Vector4f(color.r/255.0f,color.g/255.0f,color.b/255.0f,color.a/255.0f));
     }
 }
 
