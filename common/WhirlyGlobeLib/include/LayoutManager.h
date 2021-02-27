@@ -68,11 +68,17 @@ public:
     Point2dVector selectPts;
 
     std::string uniqueID;
-    
+        
     /// This is used to sort objects for layout.  Bigger is more important.
     float importance;
     /// If set, this is clustering group to sort into
     int clusterGroup;
+
+    /// Layout along line or polygon:  offset left or right, spacing between instances, how many instances
+    int layoutRepeat;
+    float layoutOffset;
+    float layoutSpacing;
+    Point3dVector layoutShape;
 
     /// Options for where to place this object:  WhirlyKitLayoutPlacementLeft, WhirlyKitLayoutPlacementRight,
     ///  WhirlyKitLayoutPlacementAbove, WhirlyKitLayoutPlacementBelow
@@ -212,6 +218,13 @@ public:
     
 protected:
     bool calcScreenPt(Point2f &objPt,LayoutObject *layoutObj,ViewStateRef viewState,const Mbr &screenMbr,const Point2f &frameBufferSize);
+    // Reproject from display coordinates to screen points
+    Point2fVector buildScreenVec(const Point3dVector &pts,
+                                 ViewStateRef viewState,
+                                 unsigned int offi,
+                                 const Mbr &screenMbr,
+                                 const Point2f &frameBufferSize,
+                                 LayoutObject *layoutObj);
     Eigen::Matrix2d calcScreenRot(float &screenRot,ViewStateRef viewState,WhirlyGlobe::GlobeViewState *globeViewState,ScreenSpaceObject *ssObj,const Point2f &objPt,const Eigen::Matrix4d &modelTrans,const Eigen::Matrix4d &normalMat,const Point2f &frameBufferSize);
     bool runLayoutRules(ViewStateRef viewState,std::vector<ClusterEntry> &clusterEntries,std::vector<ClusterGenerator::ClusterClassParams> &clusterParams);
     

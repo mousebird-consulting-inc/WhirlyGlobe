@@ -81,6 +81,8 @@ public:
     float layoutImportance;
     /// Layout placement
     int layoutPlacement;
+    /// Shape for label to follow
+    VectorRing layoutShape;
 
     /// Some attributes can be overridden per label
     LabelInfoRef infoOverride;
