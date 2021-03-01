@@ -34,7 +34,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionaryEntry_nativeInit
 	AttrDictEntryClassInfo::getClassInfo(env,theClass);
 }
 
-JNIEXPORT jobject JNICALL MakeAttrDictionaryEntry(JNIEnv *env,DictionaryEntry_AndroidRef entry)
+JNIEXPORT jobject JNICALL MakeAttrDictionaryEntry(JNIEnv *env,const DictionaryEntry_AndroidRef &entry)
 {
 	AttrDictEntryClassInfo *classInfo = AttrDictEntryClassInfo::getClassInfo(env,"com/mousebird/maply/AttrDictionaryEntry");
 
@@ -201,8 +201,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_AttrDictionaryEntry_getIdentity
     return 0;
 }
 
-JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_AttrDictionaryEntry_getArray
-		(JNIEnv *env, jobject obj)
+JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_AttrDictionaryEntry_getArray(JNIEnv *env, jobject obj)
 {
     try
     {

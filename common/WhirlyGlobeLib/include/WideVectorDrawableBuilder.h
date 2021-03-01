@@ -39,6 +39,8 @@ public:
     float lineWidth;
     float texRepeat;
     RGBAColor color;
+
+    FloatExpressionInfoRef widthExp;
 };
     
 // Used to debug the wide vectors

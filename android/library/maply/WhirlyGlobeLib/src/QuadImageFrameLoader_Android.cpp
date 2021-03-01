@@ -152,8 +152,12 @@ void QIFTileAsset_Android::startFetching(PlatformThreadInfo *inThreadInfo,QuadIm
     threadInfo->env->DeleteLocalRef(frameArray);
 }
 
-QuadImageFrameLoader_Android::QuadImageFrameLoader_Android(PlatformInfo_Android *threadInfo,const SamplingParams &params,int numFrames,Mode mode,JNIEnv *inEnv)
-        : QuadImageFrameLoader(params,mode), numFrames(numFrames), frameLoaderObj(NULL)
+QuadImageFrameLoader_Android::QuadImageFrameLoader_Android(PlatformInfo_Android *threadInfo,
+                                                           const SamplingParams &params,
+                                                           int numFrames,Mode mode,JNIEnv *inEnv) :
+   QuadImageFrameLoader(params,mode),//controller),
+   numFrames(numFrames),
+   frameLoaderObj(nullptr)
 {
     jclass thisClass = QuadImageFrameLoaderClassInfo::getClassInfo()->getClass();
     processBatchOpsMethod = threadInfo->env->GetMethodID(thisClass,"processBatchOps","(Lcom/mousebird/maply/QIFBatchOps;)V");

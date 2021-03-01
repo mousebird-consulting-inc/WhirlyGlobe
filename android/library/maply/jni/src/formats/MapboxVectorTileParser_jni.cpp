@@ -115,21 +115,31 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_MapboxVectorTileParser_parse
             return false;
 
         // Notify the style delegate of the new environment so it can make Java calls if need be
-        auto theStyleDelegate = std::dynamic_pointer_cast<MapboxVectorStyleSetImpl_Android>(inst->getStyleDelegate());
-
-        if (theStyleDelegate)
+        const auto style = inst->getStyleDelegate();
+        if (const auto theStyleDelegate = dynamic_cast<MapboxVectorStyleSetImpl_Android*>(style.get())) {
             theStyleDelegate->setupMethods(env);
+        }
 
         // Need a pointer to this JNIEnv for low level parsing callbacks
         PlatformInfo_Android platformInfo(env);
 
         // Copy data into a temporary buffer (must we?)
-        int len = env->GetArrayLength(data);
+        const int len = env->GetArrayLength(data);
         jbyte *rawData = env->GetByteArrayElements(data,NULL);
-        RawDataWrapper rawDataWrap(rawData,len,false);
-        bool ret = inst->parse(&platformInfo,&rawDataWrap,(*tileData).get(),NULL);
-        if (rawData)
-            env->ReleaseByteArrayElements(data,rawData,JNI_ABORT);
+        bool ret = false;
+        try {
+            RawDataWrapper rawDataWrap(rawData, len, false);
+            ret = inst->parse(&platformInfo, &rawDataWrap, (*tileData).get(), NULL);
+        } catch (...) {
+            // since we can't `finally{}`, handle and re-throw.  todo: RAII wrapper
+            if (rawData) {
+                env->ReleaseByteArrayElements(data, rawData, JNI_ABORT);
+            }
+            throw;
+        }
+        if (rawData) {
+            env->ReleaseByteArrayElements(data, rawData, JNI_ABORT);
+        }
 
         return ret;
     }
