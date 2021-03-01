@@ -1,9 +1,8 @@
-/*
- *  WideVectorDrawable.mm
+/*  WideVectorDrawable.mm
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/29/14.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "WideVectorDrawableBuilder.h"
@@ -160,6 +158,7 @@ void WideVectorDrawableBuilder::setupTweaker(BasicDrawable *theDraw)
     tweak->realWidth = realWidth;
     tweak->edgeSize = edgeSize;
     tweak->lineWidth = lineWidth;
+    tweak->widthExp = widthExp;
     tweak->texRepeat = texRepeat;
     tweak->color = color;
     theDraw->addTweaker(DrawableTweakerRef(tweak));

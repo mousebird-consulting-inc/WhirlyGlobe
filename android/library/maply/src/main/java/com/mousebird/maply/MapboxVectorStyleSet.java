@@ -88,6 +88,12 @@ public class MapboxVectorStyleSet implements VectorStyleInterface {
 
     public native int backgroundColorForZoomNative(double zoom);
 
+    @Override
+    public native int getZoomSlot();
+
+    @Override
+    public native void setZoomSlot(int inZoomSlot);
+
     ArrayList<LabelInfo> labelInfos = new ArrayList<LabelInfo>();
 
     // Return a label info

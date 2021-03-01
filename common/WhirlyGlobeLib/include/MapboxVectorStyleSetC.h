@@ -261,9 +261,12 @@ public:
     
     /// Fetch a layer by name
     virtual MapboxVectorStyleLayerRef getLayer(const std::string &name);
-    
+
     /// Set the zoom slot if we've got continuous zoom going on
-    virtual void setZoomSlot(int zoomSlot) override;
+    virtual int getZoomSlot() const override { return zoomSlot; }
+
+    /// Set the zoom slot if we've got continuous zoom going on
+    virtual void setZoomSlot(int slot) override { zoomSlot = slot; }
 
     /// Get the background style, if any
     VectorStyleImplRef backgroundStyle(PlatformThreadInfo *inst) const override;

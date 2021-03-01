@@ -15,6 +15,9 @@ class MapTilerTestCase: MaplyTestCase {
         
         self.name = "MapTiler Test Cases"
         self.implementations = [.map,.globe]
+        
+        let env = ProcessInfo.processInfo.environment
+        mapTilerStyle = NumberFormatter().number(from: env["MAPTILER_STYLE"] ?? "")?.intValue ?? mapTilerStyle
     }
     
     // Styles included in the bundle
@@ -24,7 +27,8 @@ class MapTilerTestCase: MaplyTestCase {
          ("Streets", "maptiler_streets"),
 //         ("Topo", "maptiler_topo")
     ]
-    let MapTilerStyle = 2
+    var mapTilerStyle = 2
+    var bgAll = false
     
     var mapboxMap : MapboxKindaMap? = nil
     
@@ -34,6 +38,8 @@ class MapTilerTestCase: MaplyTestCase {
             print("Style sheet missing from bundle: \(style.sheet)")
             return
         }
+        
+        print("Starting map with \(style.name) / \(style.sheet), bgAll = \(round)")
         
         // Maptiler token
         // Go to maptiler.com, setup an account and get your own.
@@ -106,15 +112,29 @@ class MapTilerTestCase: MaplyTestCase {
     }
     
     override func setUpWithMap(_ mapVC: MaplyViewController) {
-        mapVC.performanceOutput = true
+        //mapVC.performanceOutput = true
         
-        let env = ProcessInfo.processInfo.environment
-        let styleIdx = NumberFormatter().number(from: env["MAPTILER_STYLE"] ?? "")?.intValue ?? MapTilerStyle
-        startMap(styles[styleIdx], viewC: mapVC, round: false)
-        
+        startMap(styles[mapTilerStyle], viewC: mapVC, round: bgAll)
+
         mapVC.rotateGestureThreshold = 15;
 
+        runProgram(mapVC)
+    }
+    
+    override func setUpWithGlobe(_ mapVC: WhirlyGlobeViewController) {
+        //mapVC.performanceOutput = true
+        
+        startMap(styles[mapTilerStyle], viewC: mapVC, round: bgAll)
+        
+        runProgram(mapVC)
+    }
+
+    private func runProgram(_ viewC: MaplyBaseViewController) {
+        let map = (viewC as? MaplyViewController)
+        let globe = (viewC as? WhirlyGlobeViewController)
+        
         // e.g., "35.66,139.835,0.025,0.0025,2,20"
+        let env = ProcessInfo.processInfo.environment
         if let program = env["MAPTILER_PROGRAM"] {
             let components = program.components(separatedBy: ",")
                                     .map(NumberFormatter().number)
@@ -126,21 +146,30 @@ class MapTilerTestCase: MaplyTestCase {
                 let inHeight = components[3]?.floatValue ?? 0.001
                 let interval = TimeInterval(components[4]?.doubleValue ?? 1)
                 let count = components[5]?.intValue ?? 1
-                mapVC.setPosition(center, height: outHeight)
+                
+                map?.setPosition(center, height: outHeight)
+                globe?.setPosition(center, height: outHeight)
+
                 for i in 0 ... 2 * count {
                     Timer.scheduledTimer(withTimeInterval: TimeInterval(i) * interval, repeats: false) { _ in
-                        mapVC.animate(toPosition: center, height: (i % 2 == 0) ? inHeight : outHeight, time: interval)
+                        let height = (i % 2 == 0) ? inHeight : outHeight
+                        map?.animate(toPosition: center, height: height, time: interval)
+                        globe?.animate(toPosition: center, height: height, heading: 0, time: interval)
                     }
                 }
             }
         }
     }
-    
-    override func setUpWithGlobe(_ mapVC: WhirlyGlobeViewController) {
-        mapVC.performanceOutput = true
-        
-        startMap(styles[MapTilerStyle], viewC: mapVC, round: true)
-    }
 
+    override func maplyViewController(_ viewC: MaplyViewController, didTapAt coord: MaplyCoordinate) {
+        mapboxMap?.stop()
+        mapboxMap = nil
+
+        mapTilerStyle = (mapTilerStyle + 1) % 3
+        if mapTilerStyle == 0 {
+            bgAll = !bgAll
+        }
+        startMap(styles[mapTilerStyle], viewC: viewC, round: bgAll)
+    }
 }
 

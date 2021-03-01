@@ -198,7 +198,7 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
     vecInfo.zoomSlot = styleSet->zoomSlot;
     vecInfo.color = *color;
     vecInfo.width = width;
-    vecInfo.offset = offset;
+    vecInfo.offset = -offset;
     vecInfo.widthExp = paint.width->expression();
     vecInfo.offsetExp = paint.offset->expression();
     vecInfo.colorExp = paint.color->expression();
@@ -223,7 +223,7 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
     }
     if (vecInfo.offsetExp)
     {
-        vecInfo.offsetExp->scaleBy(lineScale);
+        vecInfo.offsetExp->scaleBy(-lineScale);
     }
 
     using ShapeRefVec = std::vector<VectorShapeRef>;

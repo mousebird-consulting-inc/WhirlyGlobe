@@ -458,10 +458,8 @@ public open class MapboxKindaMap {
     // Stop trying to load data if we're doing that
     //  or shutdown the loader if we've gotten to that point
     fun stop() {
-        val theControl = control?.get()
-        if (theControl == null)
-            return
-
+        val theControl = control?.get() ?: return
+    
         // Gotta run on the main thread
         if (Looper.getMainLooper().thread != Thread.currentThread()) {
             theControl.getActivity().runOnUiThread { stop() }

@@ -703,9 +703,10 @@ QuadImageFrameLoader::QuadImageFrameLoader(const SamplingParams &params,Mode mod
     baseDrawPriority(100), drawPriorityPerLevel(1),
     colorChanged(false),
     color(RGBAColor(255,255,255,255)),
-    control(NULL), builder(NULL),
+    control(nullptr),
+    builder(nullptr),
     changesSinceLastFlush(true),
-    compManager(NULL),
+    compManager(nullptr),
     generation(0),
     targetLevel(-1), curOvlLevel(-1), loadingStatus(true)
 {

@@ -1,9 +1,8 @@
-/*
- *  MapboxVectorStyleSet_Android.cpp
+/*  MapboxVectorStyleSet_Android.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/29/20.
- *  Copyright 2011-2020 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "MapboxVectorStyleSet_Android.h"
@@ -107,22 +105,18 @@ LabelInfoRef MapboxVectorStyleSetImpl_Android::makeLabelInfo(PlatformThreadInfo 
 
 SingleLabelRef MapboxVectorStyleSetImpl_Android::makeSingleLabel(PlatformThreadInfo *inInst,const std::string &text)
 {
-    SingleLabelAndroid *label = new SingleLabelAndroid();
+    auto label = std::make_shared<SingleLabelAndroid>();
 
     // Break up the lines and turn the characters into code points for Java
     std::istringstream ss(text);
     std::string line;
+    std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> utf16conv;
     while (std::getline(ss, line, ss.widen('\n'))) {
-        std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> utf16conv;
-        std::u16string utf16 = utf16conv.from_bytes(line);
-
-        std::vector<int> codePoints;
-        for (auto it = utf16.begin(); it != utf16.end(); ++it)
-            codePoints.push_back(*it);
-        label->codePointsLines.push_back(codePoints);
+        const std::u16string utf16 = utf16conv.from_bytes(line);
+        label->codePointsLines.emplace_back(utf16.begin(), utf16.end());
     }
 
-    return SingleLabelRef(label);
+    return label;
 }
 
 ComponentObjectRef MapboxVectorStyleSetImpl_Android::makeComponentObject(PlatformThreadInfo *inInst, const Dictionary *desc)

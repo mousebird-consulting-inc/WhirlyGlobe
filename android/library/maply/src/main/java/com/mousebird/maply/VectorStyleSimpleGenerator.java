@@ -240,4 +240,11 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
     public int backgroundColorForZoom(double zoom) {
         return Color.BLACK;
     }
+
+    @Override
+    public int getZoomSlot() { return -1; }
+
+    @Override
+    public void setZoomSlot(int inZoomSlot) {
+    }
 }
