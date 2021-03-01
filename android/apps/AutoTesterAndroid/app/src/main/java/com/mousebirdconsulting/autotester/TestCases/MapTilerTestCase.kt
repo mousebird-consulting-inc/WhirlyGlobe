@@ -48,7 +48,8 @@ class MapTilerTestCase : MaplyTestCase {
             }
             if (map == null)
                 return
-            map?.backgroundAllPolys = backgroundAll
+            // backgroundAll is only needed for globes
+            map?.backgroundAllPolys = backgroundAll && (control is GlobeController)
             map?.start()
         }
         catch (e: IOException) {
@@ -67,7 +68,7 @@ class MapTilerTestCase : MaplyTestCase {
     private fun switchMaps() {
         map?.stop()
     
-        currentMap = (currentMap + 1) % 3
+        currentMap = (currentMap + 1) % 2
         if (currentMap == 0) {
             bgAll = !bgAll
         }
@@ -75,7 +76,7 @@ class MapTilerTestCase : MaplyTestCase {
     }
     
     var currentMap = 0
-    var bgAll = true
+    var bgAll = false
     var baseViewC : BaseController? = null
 
     override fun setUpWithGlobe(globeVC: GlobeController?): Boolean {
