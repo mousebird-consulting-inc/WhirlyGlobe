@@ -1,9 +1,8 @@
-/*
- *  WideVectorInfo_jni.cpp
+/*  WideVectorInfo_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/8/17.
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,23 +14,25 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
+#include <classInfo/Maply_jni.h>
 #import "Vectors_jni.h"
 #import "com_mousebird_maply_WideVectorInfo.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
 
-template<> WideVectorInfoClassInfo *WideVectorInfoClassInfo::classInfoObj = NULL;
+template<> WideVectorInfoClassInfo *WideVectorInfoClassInfo::classInfoObj = nullptr;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_nativeInit
 (JNIEnv *env, jclass cls)
 {
     WideVectorInfoClassInfo::getClassInfo(env,cls);
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_initialise
 (JNIEnv *env, jobject obj)
 {
@@ -48,6 +49,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_initialise
 
 static std::mutex disposeMutex;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_dispose
 (JNIEnv *env, jobject obj)
 {
@@ -70,6 +72,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_dispose
     }
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setColor
 (JNIEnv *env, jobject obj, jfloat r, jfloat g, jfloat b, jfloat a)
 {
@@ -87,6 +90,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setColor
     }
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setLineWidth
 (JNIEnv *env, jobject obj, jfloat val)
 {
@@ -104,6 +108,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setLineWidth
     }
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setTextureRepeatLength
 (JNIEnv *env, jobject obj, jdouble repeatLen)
 {
@@ -121,6 +126,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setTextureRepeatL
     }
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setEdgeFalloff
 (JNIEnv *env, jobject obj, jdouble edgeFalloff)
 {
@@ -138,6 +144,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setEdgeFalloff
     }
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setJoinTypeNative
 (JNIEnv *env, jobject obj, jint joinType)
 {
@@ -155,6 +162,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setJoinTypeNative
     }
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setMitreLimit
 (JNIEnv *env, jobject obj, jdouble mitreLimit)
 {
@@ -172,6 +180,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setMitreLimit
     }
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setTexID
 (JNIEnv *env, jobject obj, jlong texID)
 {

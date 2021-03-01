@@ -433,6 +433,8 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
         });
     }
 
+    public native int getZoomSlot();
+
     protected native void reloadNative(ChangeSet changes);
 
     public void finalize()

@@ -861,11 +861,6 @@ MapboxVectorStyleLayerRef MapboxVectorStyleSetImpl::getLayer(const std::string &
     return (it == layersByName.end()) ? MapboxVectorStyleLayerRef() : it->second;
 }
 
-void MapboxVectorStyleSetImpl::setZoomSlot(int inZoomSlot)
-{
-    zoomSlot = inZoomSlot;
-}
-
 VectorStyleImplRef MapboxVectorStyleSetImpl::backgroundStyle(PlatformThreadInfo *inst) const
 {
     const auto it = layersByName.find(strBackground);

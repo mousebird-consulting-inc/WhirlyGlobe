@@ -82,7 +82,7 @@ public class QuadPagingLoader extends QuadLoaderBase {
             tileFetcher = getController().addTileFetcher("Image Fetcher");
         }
 
-        samplingLayer = new WeakReference<QuadSamplingLayer>(getController().findSamplingLayer(params, this));
+        samplingLayer = new WeakReference<>(getController().findSamplingLayer(params, this));
         loadInterp.setLoader(this);
     }
 
