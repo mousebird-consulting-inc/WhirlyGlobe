@@ -246,6 +246,5 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
 
     @Override
     public void setZoomSlot(int inZoomSlot) {
-        throw new UnsupportedOperationException();
     }
 }
