@@ -97,12 +97,12 @@ struct VectorShapeRefEqual : std::equal_to<VectorShape*>
 struct VectorShapeRefHash : std::hash<VectorShape*>
 {
     typedef std::hash<VectorShape*> super;
-    bool operator()(const VectorShapeRef &s) const {
+    size_t operator()(const VectorShapeRef &s) const {
         return super::operator()(s.get());
     }
 };
   
-/// We pass the shape set around when returing a group of shapes.
+/// We pass the shape set around when returning a group of shapes.
 /// It's a set of reference counted shapes.  You have to dynamically
 /// cast to get the specfic type.  Don't forget to use the std dynamic cast
 //typedef std::set<VectorShapeRef,VectorShapeRefLess> ShapeSet;
