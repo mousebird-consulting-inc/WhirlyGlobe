@@ -278,7 +278,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_samplingLayerConn
         PlatformInfo_Android platformInfo(env);
         if (control->addBuilderDelegate(&platformInfo,*loader)) {
             // This will result in callbacks to the Java side
-            PlatformInfo_Android platformInfo(env);
             control->notifyDelegateStartup(&platformInfo,((QuadTileBuilderDelegate *) (*loader).get())->getId(),
                                            *(changes->get()));
         }

@@ -1,9 +1,8 @@
-/*
- *  QuadTreeNew.mm
+/*  QuadTreeNew.cpp
  *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 3/26/18.
- *  Copyright 2012-2018 Saildrone Inc
+ *  Created by Steve Gifford
+ *  Copyright 2012-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,10 +14,11 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "QuadTreeNew.h"
+
+static constexpr int maxMaxLevel = 24;
 
 namespace WhirlyKit
 {
@@ -97,7 +97,7 @@ bool QuadTreeNew::ImportantNode::operator==(const WhirlyKit::QuadTreeNew::Import
 }
 
 QuadTreeNew::QuadTreeNew(const MbrD &mbr,int minLevel,int maxLevel)
-    : mbr(mbr), minLevel(minLevel), maxLevel(maxLevel)
+    : mbr(mbr), minLevel(minLevel), maxLevel(std::min(maxLevel, maxMaxLevel))
 {
 }
 
@@ -202,7 +202,7 @@ bool QuadTreeNew::evalNodeVisible(ImportantNode node,const std::vector<double> &
     if (levelsToLoad.find(node.level) != levelsToLoad.end())
         visibleSet.insert(node);
 
-    // Exceeded the number of nodes we can plausible load.  Fail.
+    // Exceeded the number of nodes we can plausibly load.  Fail.
     if (visibleSet.size() > maxNodes)
         return false;
     

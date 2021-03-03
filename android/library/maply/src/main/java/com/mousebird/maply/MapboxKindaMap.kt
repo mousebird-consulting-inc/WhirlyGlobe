@@ -112,7 +112,8 @@ open class MapboxKindaMap {
     /**
      * This is the importance value used in the sampler for loading
      * It's roughly the maximum number of pixels you want a tile to be on the screen
-     * before you load its children.  1024 is good for vector tiles, 256 good for image tiles
+     * before you load its children.
+     * 1024^2 is good for vector tiles, 256^2 is good for image tiles
      */
     var minImportance = 1024.0 * 1024.0
 
@@ -308,12 +309,6 @@ open class MapboxKindaMap {
                     maxZoom = (it.getInt("maxzoom") ?: maxZoom).coerceAtLeast(maxZoom)
                 }
             }
-
-            // Sources probably weren't set up
-            if (minZoom > maxZoom) {
-                Log.w("Maply", "Sources missing.  Bad zoom min/max.")
-                return
-            }
         }
 
         val tileInfos = ArrayList<TileInfoNew>()
@@ -326,6 +321,12 @@ open class MapboxKindaMap {
                 minZoom = it.minZoom.coerceAtMost(minZoom)
                 maxZoom = it.maxZoom.coerceAtLeast(maxZoom)
             }
+        }
+
+        // Sources probably weren't set up
+        if (minZoom > maxZoom) {
+            Log.w("Maply", "Sources missing.  Bad zoom min/max.")
+            return
         }
 
         // Parameters describing how we want a globe broken down

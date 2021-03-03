@@ -199,6 +199,14 @@ public class SimpleTileFetcher extends HandlerThread implements TileFetcher
         });
     }
 
+    protected void initWithName(String name, int minZoom, int maxZoom)
+    {
+        this.name = name;
+        this.minZoom = minZoom;
+        this.maxZoom = maxZoom;
+        this.tileInfo = new SimpleTileInfo(minZoom, maxZoom);
+    }
+
     boolean scheduled = false;
 
     // Schedule the next loading update
@@ -206,12 +214,7 @@ public class SimpleTileFetcher extends HandlerThread implements TileFetcher
     {
         if (!scheduled) {
             Handler handler = new Handler(getLooper());
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    updateLoading();
-                }
-            });
+            handler.post(() -> updateLoading());
         }
     }
 
