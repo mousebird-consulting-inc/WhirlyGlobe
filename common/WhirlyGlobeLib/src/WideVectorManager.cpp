@@ -750,6 +750,10 @@ public:
             sceneRep->drawIDs.insert(drawable->getDrawableID());
             if (vecInfo->fade > 0.0)
                 drawable->setFade(curTime,curTime+vecInfo->fade);
+            drawable->setOffsetExpression(vecInfo->offsetExp);
+            drawable->setWidthExpression(vecInfo->widthExp);
+            drawable->setColorExpression(vecInfo->colorExp);
+            drawable->setOpacityExpression(vecInfo->opacityExp);
             changes.push_back(new AddDrawableReq(drawable->getDrawable()));
         }
         
