@@ -37,6 +37,12 @@ public open class MapboxKindaMap {
      */
     public var backgroundAllPolys = true
 
+    /**
+     * If set, we'll fetch and use the sources from the style sheet.
+     * If not set, the sources have to be provided externally.
+     */
+    public var fetchSources = true
+
     // If set, a top level directory where we'll cache everything
     public var cacheDir: File? = null
 
@@ -79,6 +85,15 @@ public open class MapboxKindaMap {
         styleSettings.drawPriorityPerLevel = 1
     }
 
+    constructor(styleJSON: String, localMBTilesFile: String, control: BaseController) {
+        this.control = WeakReference<BaseController>(control)
+        this.styleSheetJSON = styleJSON
+        this.localMBTiles = sequenceOf(localMBTilesFile)
+        styleSettings.baseDrawPriority = QuadImageLoaderBase.BaseDrawPriorityDefault+1000
+        styleSettings.drawPriorityPerLevel = 1
+    }
+
+    public var localMBTiles: Sequence<String>? = null
     public var styleSettings = VectorStyleSettings()
     public var styleSheet: MapboxVectorStyleSet? = null
     public var styleSheetImage: MapboxVectorStyleSet? = null
@@ -202,17 +217,13 @@ public open class MapboxKindaMap {
      * Then it'll start the actual loader.
      */
     public fun start() {
-        val theControl = control?.get()
-        if (theControl == null)
-            return
+        val theControl = control?.get() ?: return
 
         if (styleSheetJSON != null) {
             // Style sheet is already loaded, so skip that part
             processStyleSheet()
         } else {
-            val theStyleURL = styleURL
-            if (theStyleURL == null)
-                return
+            val theStyleURL = styleURL ?: return
             // Dev might be overriding the source
             val resolvedURL = cacheResolve(mapboxURLFor(theStyleURL))
 
@@ -264,8 +275,8 @@ public open class MapboxKindaMap {
 
         // Fetch what we need to for the sources
         var success = true
-        styleSheet?.sources?.forEach {
-            val source = it
+        val sources = if (fetchSources) styleSheet?.sources else null
+        sources?.forEach { source ->
             // If the tile spec isn't embedded, we need to go get it
             if (source.tileSpec == null && success) {
                 if (source.url.isEmpty()) {
@@ -316,12 +327,12 @@ public open class MapboxKindaMap {
         // Figure out overall min/max zoom
         var minZoom = 10000
         var maxZoom = -1
-        styleSheet?.sources?.forEach {
-            val source = it
-            if (source.tileSpec.hasField("minzoom"))
-                minZoom = source.tileSpec.getInt("minzoom")
-            if (source.tileSpec.hasField("maxzoom"))
-                maxZoom = source.tileSpec.getInt("maxzoom")
+        styleSheet?.sources?.forEach { source ->
+            source.tileSpec?.let {
+                // last one wins... or do we want min-min/max-max, or min-max/max-min?
+                minZoom = it.getInt("minzoom") ?: minZoom
+                maxZoom = it.getInt("maxzoom") ?: maxZoom
+            }
         }
 
         // Sources probably weren't set up
@@ -338,7 +349,7 @@ public open class MapboxKindaMap {
                 val source = it
                 if (source.tileSpec.hasField("tiles")) {
                     val tiles = source.tileSpec.getArray("tiles")
-                    val tileSrc = tiles.get(0).string
+                    val tileSrc = tiles[0].string
                     val tileSource = RemoteTileInfoNew(tileSrc, source.tileSpec.getInt("minzoom"), source.tileSpec.getInt("maxzoom"))
                     if (cacheDir != null) {
                         tileSource.cacheDir = File(cacheDir!!,tileSrc.replace("/","_").
@@ -356,7 +367,7 @@ public open class MapboxKindaMap {
             sampleParams.coordSystem = SphericalMercatorCoordSystem()
             sampleParams.minImportance = minImportance
             sampleParams.singleLevel = true
-            // If we don't have a solid underlayer for each tile, we can't really
+            // If we don't have a solid under-layer for each tile, we can't really
             //  keep level 0 around all the time
             if (!backgroundAllPolys) {
                 sampleParams.setForceMinLevel(false)
@@ -425,16 +436,17 @@ public open class MapboxKindaMap {
             if (control?.get() !is GlobeController) {
                 // Set the background clear to the color at level 0
                 // TODO: Make this change by level
-                val color = styleSheetVector?.backgroundColorForZoom(0.0)
-                if (color != null)
-                    theControl.setClearColor(color)
+                styleSheetVector?.backgroundColorForZoom(0.0)?.let {
+                    theControl.setClearColor(it)
+                }
             }
 
-            if (offlineRender != null && styleSheetImage != null) {
-                mapboxInterp = MapboxVectorInterpreter(styleSheetImage, offlineRender, styleSheetVector, theControl)
+            mapboxInterp = if (offlineRender != null && styleSheetImage != null) {
+                MapboxVectorInterpreter(styleSheetImage, offlineRender, styleSheetVector, theControl)
             } else {
-                mapboxInterp = MapboxVectorInterpreter(styleSheetVector, theControl)
+                MapboxVectorInterpreter(styleSheetVector, theControl)
             }
+
             if (mapboxInterp == null) {
                 Log.w("Maply", "Failed to set up Mapbox interpreter.  Nothing will appear.")
                 stop()
@@ -458,9 +470,7 @@ public open class MapboxKindaMap {
     // Stop trying to load data if we're doing that
     //  or shutdown the loader if we've gotten to that point
     fun stop() {
-        val theControl = control?.get()
-        if (theControl == null)
-            return
+        val theControl = control?.get() ?: return
 
         // Gotta run on the main thread
         if (Looper.getMainLooper().thread != Thread.currentThread()) {

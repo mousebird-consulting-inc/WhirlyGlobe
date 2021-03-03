@@ -186,15 +186,29 @@ void ConvertLongArrayToSet(JNIEnv *env,jlongArray &idArrayObj,std::set<WhirlyKit
     env->ReleaseLongArrayElements(idArrayObj,ids, 0);
 }
 
-JavaString::JavaString(JNIEnv *env,jstring &str)
-: str(str), env(env)
+JavaString::JavaString(JNIEnv *env,jstring str) :
+    str(str),
+    env(env)
 {
-    cStr = env->GetStringUTFChars(str,0);
+    cStr = str ? env->GetStringUTFChars(str,nullptr) : nullptr;
+}
+
+JavaString::JavaString(JavaString &&other) noexcept :
+    env(other.env),
+    str(other.str),
+    cStr(other.cStr)
+{
+    other.env = nullptr;
+    other.cStr = nullptr;
+    other.str = nullptr;
 }
 
 JavaString::~JavaString()
 {
-    env->ReleaseStringUTFChars(str, cStr);
+    if (cStr)
+    {
+        env->ReleaseStringUTFChars(str, cStr);
+    }
 }
 
 JavaBooleanArray::JavaBooleanArray(JNIEnv *env,jbooleanArray &array)

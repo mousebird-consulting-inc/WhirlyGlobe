@@ -1,9 +1,8 @@
-/*
- *  QuadLoaderBase_jni.cpp
+/*  QuadLoaderBase_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by sjg on 3/25/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "QuadLoading_jni.h"
@@ -26,14 +24,15 @@
 using namespace Eigen;
 using namespace WhirlyKit;
 
-template<> QuadImageFrameLoaderClassInfo *QuadImageFrameLoaderClassInfo::classInfoObj = NULL;
+template<> QuadImageFrameLoaderClassInfo *QuadImageFrameLoaderClassInfo::classInfoObj = nullptr;
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_nativeInit
-        (JNIEnv *env, jclass cls)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_nativeInit(JNIEnv *env, jclass cls)
 {
     QuadImageFrameLoaderClassInfo::getClassInfo(env, cls);
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_initialise
         (JNIEnv *env, jobject obj, jobject sampleObj, jint numFrames, jint mode)
 {
@@ -52,6 +51,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_initialise
 
 static std::mutex disposeMutex;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_dispose
         (JNIEnv *env, jobject obj)
 {
@@ -74,6 +74,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_dispose
     }
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_setFlipY
         (JNIEnv *env, jobject obj, jboolean flipY)
 {
@@ -89,6 +90,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_setFlipY
     }
 }
 
+extern "C"
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadLoaderBase_getFlipY
   (JNIEnv *env, jobject obj)
 {
@@ -106,6 +108,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadLoaderBase_getFlipY
     return false;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_setDebugMode
         (JNIEnv *env, jobject obj, jboolean debugMode)
 {
@@ -121,6 +124,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_setDebugMode
     }
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_geoBoundsForTileNative
         (JNIEnv *env, jobject obj, jint tileX, jint tileY, jint tileLevel, jobject llObj, jobject urObj)
 {
@@ -162,6 +166,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_geoBoundsForTileN
     }
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_boundsForTileNative
         (JNIEnv *env, jobject obj, jint tileX, jint tileY, jint tileLevel, jobject llObj, jobject urObj)
 {
@@ -187,6 +192,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_boundsForTileNati
     }
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_displayCenterForTileNative
         (JNIEnv *env, jobject obj, jint tileX, jint tileY, jint tileLevel, jobject ptObj)
 {
@@ -212,6 +218,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_displayCenterForT
     }
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_cleanupNative
         (JNIEnv *env, jobject obj, jobject changeObj)
 {
@@ -234,6 +241,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_cleanupNative
     }
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_mergeLoaderReturn
         (JNIEnv *env, jobject obj, jobject loadRetObj, jobject changeObj)
 {
@@ -256,6 +264,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_mergeLoaderReturn
     }
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_samplingLayerConnectNative
         (JNIEnv *env, jobject obj, jobject layerObj, jobject changeObj)
 {
@@ -280,6 +289,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_samplingLayerConn
     }
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_samplingLayerDisconnectNative
         (JNIEnv *env, jobject obj, jobject layerObj, jobject changeObj)
 {
@@ -299,6 +309,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_samplingLayerDisc
     }
 }
 
+extern "C"
 JNIEXPORT jlong JNICALL Java_com_mousebird_maply_QuadLoaderBase_getFrameID
         (JNIEnv *env, jobject obj, jint frameIndex)
 {
@@ -318,6 +329,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_QuadLoaderBase_getFrameID
     return 0;
 }
 
+extern "C"
 JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadLoaderBase_getGeneration
         (JNIEnv *env, jobject obj)
 {
@@ -336,6 +348,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadLoaderBase_getGeneration
     return 0;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_reloadNative
         (JNIEnv *env, jobject obj, jobject changeSetObj)
 {

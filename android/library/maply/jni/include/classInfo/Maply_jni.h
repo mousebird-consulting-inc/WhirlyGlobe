@@ -360,19 +360,25 @@ protected:
 };
 
 // Wrapper for Java string.  Destructor releases.
-class JavaString
+// These are not meant to be long-lived, and should not be composed into other objects.
+struct JavaString
 {
-public:
     // Construct with the string we want to wrap
-    // Only allocate these on the heap.
-    JavaString(JNIEnv *env,jstring &str);
-    
+    JavaString(JNIEnv *env,jstring str);
+    JavaString(const JavaString &other) = delete;
+    JavaString(JavaString &&other) noexcept;
+
     // This cleans up the reference.
     ~JavaString();
-    
-    JNIEnv *env;
-    jstring &str;
-    const char *cStr;
+
+    operator const char*() const { return cStr; }
+    operator bool() const { return cStr != nullptr; }
+
+	const char *cStr;
+
+private:
+	JNIEnv *env;
+	jstring str;
 };
 
 // Wrapper for Java boolean array.  Destructor cleans up.
