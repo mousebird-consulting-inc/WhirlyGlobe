@@ -28,6 +28,7 @@
 #import "ScreenSpaceBuilder.h"
 #import "SelectionManager.h"
 #import "OverlapHelper.h"
+#import "VectorManager.h"
 
 namespace WhirlyKit
 {
@@ -219,14 +220,20 @@ public:
 protected:
     bool calcScreenPt(Point2f &objPt,LayoutObject *layoutObj,ViewStateRef viewState,const Mbr &screenMbr,const Point2f &frameBufferSize);
     // Reproject from display coordinates to screen points
-    Point2fVector buildScreenVec(const Point3dVector &pts,
+    ShapeSet buildScreenVec(const Point3dVector &pts,
                                  ViewStateRef viewState,
                                  unsigned int offi,
                                  const Mbr &screenMbr,
                                  const Point2f &frameBufferSize,
                                  LayoutObject *layoutObj);
+    // Reproject from screen space back to geographic coordinates
+    ShapeSet buildShapeVec(const ShapeSet &shapes,
+                           ViewStateRef viewState,WhirlyGlobe::GlobeViewState *globeViewState,Maply::MapViewState *mapViewState,
+                           unsigned int oi,const Point2f &frameBufferSize);
     Eigen::Matrix2d calcScreenRot(float &screenRot,ViewStateRef viewState,WhirlyGlobe::GlobeViewState *globeViewState,ScreenSpaceObject *ssObj,const Point2f &objPt,const Eigen::Matrix4d &modelTrans,const Eigen::Matrix4d &normalMat,const Point2f &frameBufferSize);
-    bool runLayoutRules(ViewStateRef viewState,std::vector<ClusterEntry> &clusterEntries,std::vector<ClusterGenerator::ClusterClassParams> &clusterParams);
+    bool runLayoutRules(ViewStateRef viewState,std::vector<ClusterEntry> &clusterEntries,std::vector<ClusterGenerator::ClusterClassParams> &clusterParams,ChangeSet &changes);
+    
+    VectorManagerRef vecManage;
     
     /// If non-zero the maximum number of objects we'll display at once
     int maxDisplayObjects;
@@ -244,6 +251,9 @@ protected:
     ClusterGenerator *clusterGen;
     /// Features we'll force to always display
     std::set<std::string> overrideUUIDs;
+    
+    SimpleIDSet debugVecIDs;  // Used to display debug lines for text layout
+    SimpleIdentity vecProgID;
 };
 typedef std::shared_ptr<LayoutManager> LayoutManagerRef;
 

@@ -158,16 +158,20 @@ class AirwayTestCase: MaplyTestCase {
                 }
             }
         }
-        
-        viewC.addWideVectors(airspaceVecs, desc: [kMaplyVecWidth: 6.0,
-                                                  kMaplyColor: UIColor.blue], mode: .any)
-        viewC.addScreenLabels(labels, desc: [kMaplyFont: UIFont.boldSystemFont(ofSize: 18.0),
-                                             kMaplyTextColor: UIColor.purple,
-                                             kMaplyTextLayoutOffset: 30.0,  // Right in the center
-                                             kMaplyTextLayoutSpacing: 100.0, // 100 pixels between
-                                             kMaplyTextLayoutRepeat: -1,  // As many as fit
-                                             ],
-                              mode: .any)
+
+        if (!airspaceVecs.isEmpty) {
+            viewC.addWideVectors(airspaceVecs, desc: [kMaplyVecWidth: 6.0,
+                                                      kMaplyColor: UIColor.blue], mode: .any)
+        }
+        if (!labels.isEmpty) {
+            viewC.addScreenLabels(labels, desc: [kMaplyFont: UIFont.boldSystemFont(ofSize: 18.0),
+                                                 kMaplyTextColor: UIColor.purple,
+                                                 kMaplyTextLayoutOffset: 30.0,  // Right in the center
+                                                 kMaplyTextLayoutSpacing: 100.0, // 100 pixels between
+                                                 kMaplyTextLayoutRepeat: -1,  // As many as fit
+                                                 ],
+                                  mode: .any)
+        }
     }
     
     override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
