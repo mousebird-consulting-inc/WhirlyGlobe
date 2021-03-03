@@ -22,54 +22,7 @@ import java.net.URL
  * Set the various settings before it gets going to modify how it works.
  * Callbacks control various pieces that might need to be intercepted.
  */
-public open class MapboxKindaMap {
-    var styleURL : Uri? = null
-    var control : WeakReference<BaseController>? = null
-
-    /* If set, we build an image/vector hybrid where the polygons go into
-     *  the image layer and the linears and points are represented as vectors
-     * Otherwise, it's all put in a PagingLayer as vectors.  This is better for an overlay.
-     */
-    public var imageVectorHybrid = true
-
-    /* If set, we'll sort all polygons into the background
-     * Works well zoomed out, less enticing zoomed in
-     */
-    public var backgroundAllPolys = true
-
-    /**
-     * If set, we'll fetch and use the sources from the style sheet.
-     * If not set, the sources have to be provided externally.
-     */
-    public var fetchSources = true
-
-    // If set, a top level directory where we'll cache everything
-    public var cacheDir: File? = null
-
-    /* You can override the file loaded for a particular purpose.
-     * This includes: the TileJSON files, sprite sheets, and the style sheet itself
-     * For example, if you want to load from the bundle, but not have to change
-     *  anything in the style sheet, just do this
-     */
-    public var mapboxURLFor: (Uri) -> Uri = {
-        file: Uri ->
-        file
-    }
-
-    /* You can override the font to use for a given
-     *  font name in the style.  Font names in the style often don't map
-     *  directly to local font names.
-     */
-    public var mapboxFontFor: (String) -> String = {
-        name: String ->
-        name
-    }
-
-    /* This is the importance value used in the sampler for loading
-     * It's roughly the maximum number of pixels you want a tile to be on the screen
-     *  before you load its children.  1024 is good for vector tiles, 256 good for image tiles
-     */
-    public var minImportance = 1024.0 * 1024.0
+open class MapboxKindaMap {
 
     constructor(styleURL: Uri, control: BaseController) {
         this.control = WeakReference<BaseController>(control)
@@ -85,7 +38,7 @@ public open class MapboxKindaMap {
         styleSettings.drawPriorityPerLevel = 1
     }
 
-    constructor(styleJSON: String, localMBTilesFile: String, control: BaseController) {
+    constructor(styleJSON: String, localMBTilesFile: File, control: BaseController) {
         this.control = WeakReference<BaseController>(control)
         this.styleSheetJSON = styleJSON
         this.localMBTiles = sequenceOf(localMBTilesFile)
@@ -93,73 +46,99 @@ public open class MapboxKindaMap {
         styleSettings.drawPriorityPerLevel = 1
     }
 
-    public var localMBTiles: Sequence<String>? = null
-    public var styleSettings = VectorStyleSettings()
-    public var styleSheet: MapboxVectorStyleSet? = null
-    public var styleSheetImage: MapboxVectorStyleSet? = null
-    public var styleSheetVector: MapboxVectorStyleSet? = null
-    public var styleSheetJSON: String? = null
-    public var spriteJSON: ByteArray? = null
-    public var spritePNG: Bitmap? = null
+    var styleURL : Uri? = null
+    var control : WeakReference<BaseController> = WeakReference<BaseController>(null)
+    var localMBTiles: Sequence<File>? = null
+    var styleSettings = VectorStyleSettings()
+    var styleSheet: MapboxVectorStyleSet? = null
+    var styleSheetImage: MapboxVectorStyleSet? = null
+    var styleSheetVector: MapboxVectorStyleSet? = null
+    var styleSheetJSON: String? = null
+    var spriteJSON: ByteArray? = null
+    var spritePNG: Bitmap? = null
+    var mapboxInterp: MapboxVectorInterpreter? = null
+    var loader: QuadLoaderBase? = null
+    var offlineRender: RenderController? = null
+
+    /* If set, we build an image/vector hybrid where the polygons go into
+     *  the image layer and the linears and points are represented as vectors
+     * Otherwise, it's all put in a PagingLayer as vectors.  This is better for an overlay.
+     */
+    var imageVectorHybrid = true
+
+    /* If set, we'll sort all polygons into the background
+     * Works well zoomed out, less enticing zoomed in
+     */
+    var backgroundAllPolys = true
+
+    /**
+     * If set, we'll fetch and use the sources from the style sheet.
+     * If not set, the sources have to be provided externally.
+     */
+    var fetchSources = true
+
+    /**
+     * If set, a top level directory where we'll cache everything
+     */
+    var cacheDir: File? = null
+
+    /**
+     * You can override the file loaded for a particular purpose.
+     * This includes: the TileJSON files, sprite sheets, and the style sheet itself
+     * For example, if you want to load from the bundle, but not have to change
+     *  anything in the style sheet, just do this
+     */
+    var mapboxURLFor: (Uri) -> Uri = {
+        file: Uri ->
+        file
+    }
+
+    /**
+     * You can override the font to use for a given font name in the style.
+     * Font names in the style often don't map directly to local font names.
+     */
+    var mapboxFontFor: (String) -> String = {
+        name: String ->
+        name
+    }
+
+    /**
+     * If set, this will be called right after everything is set up
+     * This is after all the configuration files are fetched so
+     * you can make any final tweaks to loading objects here
+     */
+    var postSetup: (MapboxKindaMap) -> Unit = { }
+
+    /**
+     * This is the importance value used in the sampler for loading
+     * It's roughly the maximum number of pixels you want a tile to be on the screen
+     * before you load its children.  1024 is good for vector tiles, 256 good for image tiles
+     */
+    var minImportance = 1024.0 * 1024.0
 
     // Information about the sources as we fetch them
-    protected var outstandingFetches: ArrayList<Call?> = ArrayList<Call?>()
     private fun addTask(task: Call) {
-        val theControl = control?.get()
-        if (theControl == null)
-            return
-
-        theControl.getActivity().runOnUiThread {
+        control.get()?.getActivity()?.runOnUiThread {
             outstandingFetches.add(task)
         }
     }
 
     private fun clearTask(task: Call) {
-        val theControl = control?.get()
-        if (theControl == null)
-            return
-
-        theControl.getActivity().runOnUiThread {
+        control?.get()?.getActivity()?.runOnUiThread {
             outstandingFetches.remove(task)
         }
     }
 
-    private var finished = false
-
     // Check if we've finished loading stuff
     protected fun checkFinished() {
-        if (finished)
-            return
-
-        val theControl = control?.get()
-        if (theControl == null)
-            return
-
-        theControl.getActivity().runOnUiThread(object: Runnable {
-            override fun run() {
-                if (finished)
-                    return
-
-                var done = true
-
-                // If any of the outstanding fetches are running, don't start the map
-                outstandingFetches.forEach {
-                    if (it != null)
-                        done = false
-                }
-
-                // All done, so start
-                if (done) {
-                    finished = true
-                    startLoader()
-                }
+        // Start the map if no outstanding fetches are running
+        control.get()?.getActivity()?.runOnUiThread {
+            if (!finished && outstandingFetches.all { it == null }) {
+                finished = true
+                startLoader()
             }
-        })
+        }
     }
-
-    public var mapboxInterp: MapboxVectorInterpreter? = null
-    public var loader: QuadLoaderBase? = null
-    public var offlineRender: RenderController? = null
 
     // If we're using a cache dir, look for the file there
     protected fun cacheResolve(url: Uri) : URL {
@@ -173,9 +152,7 @@ public open class MapboxKindaMap {
 
     // Generate a workable cache file path
     protected fun cacheName(url: Uri) : File? {
-        val theCacheDir = cacheDir
-        if (theCacheDir == null)
-            return null
+        val theCacheDir = cacheDir ?: return null
 
         // If the cache dir doesn't exist, we need to create it
         if (!theCacheDir.exists() && !theCacheDir.createNewFile())
@@ -186,7 +163,7 @@ public open class MapboxKindaMap {
             return url.toFile()
 
         // Make up a cache name from the URL
-        val cacheName = url.toString().replace("/","_").replace(":","_").replace("?","_").replace(".","_")
+        val cacheName = cacheNamePattern.replace(url.toString(), "_")
         return File(theCacheDir,cacheName)
     }
 
@@ -216,8 +193,8 @@ public open class MapboxKindaMap {
      * It'll go fetch whatever it needs to fetch until it gets everything.
      * Then it'll start the actual loader.
      */
-    public fun start() {
-        val theControl = control?.get() ?: return
+    fun start() {
+        val theControl = control.get() ?: return
 
         if (styleSheetJSON != null) {
             // Style sheet is already loaded, so skip that part
@@ -267,7 +244,7 @@ public open class MapboxKindaMap {
 
     // Style sheet has been loaded
     fun processStyleSheet() {
-        val theControl = control?.get()
+        val theControl = control.get()
         if (theControl == null || (styleURL == null && styleSheetJSON == null))
             return
         val client = theControl.getHttpClient()
@@ -319,158 +296,194 @@ public open class MapboxKindaMap {
 
     // Everything has been fetched, so fire up the loader
     protected fun startLoader() {
-        val theControl = control?.get()
-        val theStyleSheet = styleSheet
-        if (theControl == null || theStyleSheet == null)
-            return
+        val theControl = control.get() ?: return
 
         // Figure out overall min/max zoom
         var minZoom = 10000
         var maxZoom = -1
-        styleSheet?.sources?.forEach { source ->
-            source.tileSpec?.let {
-                // last one wins... or do we want min-min/max-max, or min-max/max-min?
-                minZoom = it.getInt("minzoom") ?: minZoom
-                maxZoom = it.getInt("maxzoom") ?: maxZoom
+        if (fetchSources) {
+            styleSheet?.sources?.forEach { source ->
+                source.tileSpec?.let {
+                    minZoom = (it.getInt("minzoom") ?: minZoom).coerceAtMost(minZoom)
+                    maxZoom = (it.getInt("maxzoom") ?: maxZoom).coerceAtLeast(maxZoom)
+                }
+            }
+
+            // Sources probably weren't set up
+            if (minZoom > maxZoom) {
+                Log.w("Maply", "Sources missing.  Bad zoom min/max.")
+                return
             }
         }
 
-        // Sources probably weren't set up
-        if (minZoom > maxZoom) {
-            Log.w("Maply", "Sources missing.  Bad zoom min/max.")
-            return
+        val tileInfos = ArrayList<TileInfoNew>()
+        val localFetchers = ArrayList<MBTileFetcher>()
+        localMBTiles?.forEach { item ->
+            val fetcher = MBTileFetcher(item)
+            localFetchers.add(fetcher)
+            fetcher.tileInfo?.also {
+                tileInfos.add(it)
+                minZoom = it.minZoom.coerceAtMost(minZoom)
+                maxZoom = it.maxZoom.coerceAtLeast(maxZoom)
+            }
+        }
+
+        // Parameters describing how we want a globe broken down
+        val sampleParams = SamplingParams()
+        sampleParams.coordSystem = SphericalMercatorCoordSystem()
+        sampleParams.minImportance = minImportance
+        sampleParams.singleLevel = true
+        sampleParams.coverPoles = (theControl is GlobeController)
+        sampleParams.edgeMatching = (theControl is GlobeController)
+        sampleParams.minZoom = minZoom
+        sampleParams.maxZoom = maxZoom
+        //sampleParams.reportedMaxZoom = 24
+        // If we don't have a solid under-layer for each tile, we can't really
+        //  keep level 0 around all the time
+        if (!backgroundAllPolys) {
+            sampleParams.setForceMinLevel(false)
+        } else {
+            sampleParams.minImportanceTop = 0.0
         }
 
         // Image/vector hybrids draw the polygons into a background image
         if (imageVectorHybrid) {
-            // Put together the tileInfoNew objects
-            var tileInfos: ArrayList<RemoteTileInfoNew> = ArrayList<RemoteTileInfoNew>()
-            styleSheet?.sources?.forEach {
-                val source = it
-                if (source.tileSpec.hasField("tiles")) {
-                    val tiles = source.tileSpec.getArray("tiles")
-                    val tileSrc = tiles[0].string
-                    val tileSource = RemoteTileInfoNew(tileSrc, source.tileSpec.getInt("minzoom"), source.tileSpec.getInt("maxzoom"))
-                    if (cacheDir != null) {
-                        tileSource.cacheDir = File(cacheDir!!,tileSrc.replace("/","_").
-                                        replace(":","_").replace("?","_").replace(".","_").
-                                        replace("{","_").replace("}","_"))
-                    }
-                    tileInfos.add(tileSource)
-                } else {
-                    Log.w("Maply", "TileInfo source missing tiles.  Skipping.")
+            startHybridLoader(sampleParams, tileInfos)
+        } else {
+            startSimpleLoader(sampleParams, tileInfos, localFetchers)
+        }
+
+        postSetup(this)
+    }
+
+    private fun startSimpleLoader(sampleParams: SamplingParams,
+                                  tileInfos: ArrayList<TileInfoNew>,
+                                  localFetchers: ArrayList<MBTileFetcher>) {
+        val control = control.get() ?: return
+
+        // todo: deal with sprite sheets
+
+        val vectorStyleDict = AttrDictionary().apply {
+            parseFromJSON(styleSheetJSON)
+        }
+
+        val metrics = control.activity.resources.displayMetrics
+        styleSheetVector = MapboxVectorStyleSet(vectorStyleDict, styleSettings, metrics, control)
+
+        mapboxInterp = MapboxVectorInterpreter(styleSheetVector, control)
+        loader = QuadPagingLoader(sampleParams, tileInfos.toTypedArray(), mapboxInterp, control).also {
+            it.flipY = false
+            if (localFetchers.isNotEmpty()) {
+                it.setTileFetcher(localFetchers[0])
+            }
+        }
+     }
+
+    private fun startHybridLoader(sampleParams: SamplingParams, tileInfos: ArrayList<TileInfoNew>) {
+        val control = control.get() ?: return
+        // Put together the tileInfoNew objects
+        styleSheet?.sources?.forEach {
+            val source = it
+            if (source.tileSpec.hasField("tiles")) {
+                val tiles = source.tileSpec.getArray("tiles")
+                val tileSrc = tiles[0].string
+                val tileSource = RemoteTileInfoNew(tileSrc, source.tileSpec.getInt("minzoom"), source.tileSpec.getInt("maxzoom"))
+                if (cacheDir != null) {
+                    val cacheName = cacheNamePattern.replace(tileSrc, "_")
+                    tileSource.cacheDir = File(cacheDir!!,cacheName)
                 }
-            }
-
-            // Parameters describing how we want a globe broken down
-            val sampleParams = SamplingParams()
-            sampleParams.coordSystem = SphericalMercatorCoordSystem()
-            sampleParams.minImportance = minImportance
-            sampleParams.singleLevel = true
-            // If we don't have a solid under-layer for each tile, we can't really
-            //  keep level 0 around all the time
-            if (!backgroundAllPolys) {
-                sampleParams.setForceMinLevel(false)
-            }
-            if (control?.get() is GlobeController) {
-                sampleParams.coverPoles = true
-                sampleParams.edgeMatching = true
+                tileInfos.add(tileSource)
             } else {
-                sampleParams.coverPoles = false
-                sampleParams.edgeMatching = false
+                Log.w("Maply", "TileInfo source missing tiles.  Skipping.")
             }
-            sampleParams.minZoom = minZoom
-            sampleParams.maxZoom = maxZoom
+        }
 
-            if (styleSheetJSON == null)
-                return
+        if (styleSheetJSON == null)
+            return
 
-            if (backgroundAllPolys) {
-                // Set up an offline renderer and a Mapbox vector style handler to render to it
-                val imageSizeWidth = 512
-                val imageSizeHeight = 512
-                val offlineRender = RenderController(theControl.renderControl, imageSizeWidth,imageSizeHeight)
-                this.offlineRender = offlineRender
-                val imageStyleSettings = VectorStyleSettings()
-                imageStyleSettings.baseDrawPriority = styleSettings.baseDrawPriority
-                // TODO: Do we need this?
+        if (backgroundAllPolys) {
+            // Set up an offline renderer and a Mapbox vector style handler to render to it
+            val imageSizeWidth = 512
+            val imageSizeHeight = 512
+            val offlineRender = RenderController(control.renderControl, imageSizeWidth,imageSizeHeight)
+            this.offlineRender = offlineRender
+            val imageStyleSettings = VectorStyleSettings()
+            imageStyleSettings.baseDrawPriority = styleSettings.baseDrawPriority
+            // TODO: Do we need this?
 //                imageStyleSettings.arealShaderName = kMaplyShaderDefaultTriNoLighting
 
-                // We only want the polygons in the image
-                val imageStyleDict = AttrDictionary()
-                imageStyleDict.parseFromJSON(styleSheetJSON)
-                val imageLayers =  imageStyleDict.getArray("layers")
-                var newImageLayers = ArrayList<AttrDictionaryEntry>()
-                for (layer in imageLayers) {
-                    if (layer.type == AttrDictionaryEntry.Type.DictTypeDictionary) {
-                        val layerDict = layer.dict
-                        val type = layerDict.getString("type")
-                        if (type != null && (type == "background" || type == "fill"))
-                            newImageLayers.add(layer)
-                    }
-                }
-                imageStyleDict.setArray("layers",newImageLayers.toTypedArray())
-                styleSheetImage = MapboxVectorStyleSet(imageStyleDict, styleSettings, theControl.activity.resources.displayMetrics, offlineRender)
-                offlineRender.setClearColor(styleSheetImage!!.backgroundColorForZoom(0.0))
-            }
-
-            val vectorStyleDict = AttrDictionary()
-            vectorStyleDict.parseFromJSON(styleSheetJSON)
-
-            // The polygons only go into the background in this case
-            if (backgroundAllPolys) {
-                val vectorLayers = vectorStyleDict.getArray("layers")
-                var newVectorLayers = ArrayList<AttrDictionaryEntry>()
-                for (layer in vectorLayers) {
-                    if (layer.type == AttrDictionaryEntry.Type.DictTypeDictionary) {
-                        val layerDict = layer.dict
-                        val type = layerDict.getString("type")
-                        if (type != null && (type != "background" && type != "fill"))
-                            newVectorLayers.add(layer)
-                    }
-                }
-                vectorStyleDict.setArray("layers", newVectorLayers.toTypedArray())
-            }
-            styleSheetVector = MapboxVectorStyleSet(vectorStyleDict, styleSettings, theControl.activity.resources.displayMetrics, theControl)
-
-            if (control?.get() !is GlobeController) {
-                // Set the background clear to the color at level 0
-                // TODO: Make this change by level
-                styleSheetVector?.backgroundColorForZoom(0.0)?.let {
-                    theControl.setClearColor(it)
+            // We only want the polygons in the image
+            val imageStyleDict = AttrDictionary()
+            imageStyleDict.parseFromJSON(styleSheetJSON)
+            val imageLayers =  imageStyleDict.getArray("layers")
+            var newImageLayers = ArrayList<AttrDictionaryEntry>()
+            for (layer in imageLayers) {
+                if (layer.type == AttrDictionaryEntry.Type.DictTypeDictionary) {
+                    val layerDict = layer.dict
+                    val type = layerDict.getString("type")
+                    if (type != null && (type == "background" || type == "fill"))
+                        newImageLayers.add(layer)
                 }
             }
+            imageStyleDict.setArray("layers",newImageLayers.toTypedArray())
+            styleSheetImage = MapboxVectorStyleSet(imageStyleDict, styleSettings, control.activity.resources.displayMetrics, offlineRender)
+            offlineRender.setClearColor(styleSheetImage!!.backgroundColorForZoom(0.0))
+        }
 
-            mapboxInterp = if (offlineRender != null && styleSheetImage != null) {
-                MapboxVectorInterpreter(styleSheetImage, offlineRender, styleSheetVector, theControl)
-            } else {
-                MapboxVectorInterpreter(styleSheetVector, theControl)
+        val vectorStyleDict = AttrDictionary()
+        vectorStyleDict.parseFromJSON(styleSheetJSON)
+
+        // The polygons only go into the background in this case
+        if (backgroundAllPolys) {
+            val vectorLayers = vectorStyleDict.getArray("layers")
+            var newVectorLayers = ArrayList<AttrDictionaryEntry>()
+            for (layer in vectorLayers) {
+                if (layer.type == AttrDictionaryEntry.Type.DictTypeDictionary) {
+                    val layerDict = layer.dict
+                    val type = layerDict.getString("type")
+                    if (type != null && (type != "background" && type != "fill"))
+                        newVectorLayers.add(layer)
+                }
             }
+            vectorStyleDict.setArray("layers", newVectorLayers.toTypedArray())
+        }
+        val metrics = control.activity.resources.displayMetrics
+        styleSheetVector = MapboxVectorStyleSet(vectorStyleDict, styleSettings, metrics, control)
 
-            if (mapboxInterp == null) {
-                Log.w("Maply", "Failed to set up Mapbox interpreter.  Nothing will appear.")
-                stop()
+        if (control is GlobeController) {
+            // Set the background clear to the color at level 0
+            // TODO: Make this change by level
+            styleSheetVector?.backgroundColorForZoom(0.0)?.let {
+                control.setClearColor(it)
             }
+        }
 
-            // TODO: Handle more than one source
-            if (backgroundAllPolys) {
-                val imageLoader = QuadImageLoader(sampleParams, tileInfos[0], theControl)
-                imageLoader.setLoaderInterpreter(mapboxInterp!!)
-                loader = imageLoader
-            } else {
-                val vecLoader = QuadPagingLoader(sampleParams, tileInfos[0], mapboxInterp, theControl)
-                loader = vecLoader
-            }
-
+        mapboxInterp = if (offlineRender != null && styleSheetImage != null) {
+            MapboxVectorInterpreter(styleSheetImage, offlineRender, styleSheetVector, control)
         } else {
-            Log.w("Maply", "Non-hybrid case not currently hooked up for 3.0")
+            MapboxVectorInterpreter(styleSheetVector, control)
+        }
+
+        if (mapboxInterp == null) {
+            Log.w("Maply", "Failed to set up Mapbox interpreter.  Nothing will appear.")
+            stop()
+        }
+
+        // TODO: Handle more than one source
+        if (backgroundAllPolys) {
+            val imageLoader = QuadImageLoader(sampleParams, tileInfos[0], control)
+            imageLoader.setLoaderInterpreter(mapboxInterp)
+            loader = imageLoader
+        } else {
+            val vecLoader = QuadPagingLoader(sampleParams, tileInfos[0], mapboxInterp, control)
+            loader = vecLoader
         }
     }
 
     // Stop trying to load data if we're doing that
     //  or shutdown the loader if we've gotten to that point
     fun stop() {
-        val theControl = control?.get() ?: return
+        val theControl = control.get() ?: return
 
         // Gotta run on the main thread
         if (Looper.getMainLooper().thread != Thread.currentThread()) {
@@ -487,8 +500,11 @@ public open class MapboxKindaMap {
         loader?.shutdown()
         loader = null
         mapboxInterp = null
-
-        control = null
+        control.clear()
     }
 
+    protected var outstandingFetches = ArrayList<Call?>()
+
+    private val cacheNamePattern = Regex("[/:?.{}]")
+    private var finished = false
 }
