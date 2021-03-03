@@ -21,6 +21,7 @@
 #import "LayoutManager.h"
 #import "WhirlyGeometry.h"
 #import "GlobeMath.h"
+#import "SharedAttributes.h"
 #import "WhirlyKitLog.h"
 
 using namespace Eigen;
@@ -73,7 +74,7 @@ LayoutObjectEntry::LayoutObjectEntry(SimpleIdentity theId)
 }
     
 LayoutManager::LayoutManager()
-    : maxDisplayObjects(0), hasUpdates(false), clusterGen(NULL)
+    : maxDisplayObjects(0), hasUpdates(false), clusterGen(nullptr), vecProgID(EmptyIdentity)
 {
 }
     
@@ -277,15 +278,52 @@ bool LayoutManager::calcScreenPt(Point2f &objPt,LayoutObject *layoutObj,ViewStat
     return isInside;
 }
 
-Point2fVector LayoutManager::buildScreenVec(const Point3dVector &pts,
+// https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm
+Point2fVector LineGeneralization(const Point2fVector &screenPts,float eps,unsigned int start,unsigned int end)
+{
+    if (screenPts.size() < 3)
+        return screenPts;
+    
+    // Find the point with max distance
+    float dMax = 0.0;
+    unsigned int maxIdx = 0;
+    for (unsigned int ii = start+1;ii<end;ii++) {
+        float t;
+        Point2f pt = ClosestPointOnLineSegment(screenPts[start], screenPts[end], screenPts[ii], t);
+        float dist = (pt-screenPts[ii]).norm();
+        if (dist > dMax) {
+            maxIdx = ii;
+            dMax = dist;
+        }
+    }
+    
+    // If max distance is greater than the epsilon, recursively simplify
+    Point2fVector pts;
+    if (dMax > eps) {
+        Point2fVector pts0 = LineGeneralization(screenPts, eps, start, maxIdx);
+        Point2fVector pts1 = LineGeneralization(screenPts, eps, maxIdx, end);
+        pts.insert(pts.end(),pts0.begin(),pts0.end());
+        pts.insert(pts.end(),pts1.begin(),pts1.end());
+    } else {
+        pts.push_back(screenPts[start]);
+        if (start != end-1)
+            pts.push_back(screenPts[end-1]);
+    }
+    
+    return pts;
+}
+
+ShapeSet LayoutManager::buildScreenVec(const Point3dVector &pts,
                                             ViewStateRef viewState,
                                             unsigned int offi,
                                             const Mbr &screenMbr,
                                             const Point2f &frameBufferSize,
                                             LayoutObject *layoutObj)
 {
+    ShapeSet shapes;
+    
     if (pts.size() == 1)
-        return Point2fVector();
+        return shapes;
     
     Eigen::Matrix4d modelTrans = viewState->fullMatrices[offi];
     bool isClosed = pts.front() == pts.back();
@@ -295,52 +333,136 @@ Point2fVector LayoutManager::buildScreenVec(const Point3dVector &pts,
         Point2f thisObjPt = viewState->pointOnScreenFromDisplay(pt,&modelTrans,frameBufferSize);
         screenPts.push_back(thisObjPt);
     }
-
+    
     // Make sure there's at least some overlap with the screen
     Mbr testMbr(screenPts);
     if (!testMbr.intersect(screenMbr).valid()) {
-        return Point2fVector();
+        return shapes;
     }
-    
+
+    // Filter down to 1pixel to clean up duplicates and such
+    screenPts = LineGeneralization(screenPts,3.0,0,screenPts.size());
+
     // Offset if needed.  Might be left/right inside/outside
     if (layoutObj->layoutOffset != 0.0) {
         Point2fVector newScreenPts;
-        
-        newScreenPts.push_back(screenPts[0]);
+
+        bool first = true;
         for (int ii=1;ii<screenPts.size()-1;ii++) {
             // Offset the lines and then intersect
             const Point2f &l0 = screenPts[ii-1],&l1 = screenPts[ii], &l2 = screenPts[ii+1];
+            if (l0 == l1)
+                continue;
             Point2f dir0 = (l1 - l0).normalized(), dir1 = (l2 - l1).normalized();
+            dir0 = Point2f(-dir0.y(),dir0.x());  dir1 = Point2f(-dir1.y(),dir1.x());
             Point2f na0 = dir0 * layoutObj->layoutOffset + l0;
             Point2f na1 = dir0 * layoutObj->layoutOffset + l1;
             Point2f nb0 = dir1 * layoutObj->layoutOffset + l1;
             Point2f nb1 = dir1 * layoutObj->layoutOffset + l2;
             Point2f cPt;
-            if (IntersectLines(na0,na1,nb0,nb1,&cPt))
-                newScreenPts.push_back(cPt);
-            else
-                newScreenPts.push_back(l1);
+            if (first) {
+                newScreenPts.push_back(na0);
+                first = false;
+            }
+            if (l1 == l2) {
+                newScreenPts.push_back(na1);
+            } else {
+                if (IntersectLines(na0,na1,nb0,nb1,&cPt))
+                    newScreenPts.push_back(cPt);
+                else
+                    newScreenPts.push_back(nb0);
+            }
+            if (ii==screenPts.size()-1)
+                newScreenPts.push_back(nb1);
         }
-        if (isClosed)
-            newScreenPts.push_back(newScreenPts.front());
         screenPts = newScreenPts;
     }
-    
-    // How much pixel distance to collapse
-    const float ScreenCollapse = 3.0;
-    
-    // Now filter out points too close together
-    Point2fVector newScreenPts;
-    newScreenPts.push_back(screenPts[0]);
-    for (unsigned int ii=1;ii<screenPts.size()-1;ii++) {
-        const Point2f p0 = screenPts[ii];
-        const Point2f p1 = screenPts[ii+1];
-        if ((p1 - p0).norm() > ScreenCollapse)
-            newScreenPts.push_back(p0);
+            
+    // Filter out anything outside the screen MBR
+    {
+        std::vector<bool> insidePts;
+        insidePts.reserve(screenPts.size());
+        for (const auto &pt: screenPts) {
+            bool inside = false;
+            if (screenMbr.inside(pt))
+                inside = true;
+            insidePts.push_back(inside);
+        }
+        
+        int startPt = 0,endPt = 0;
+        while (startPt < screenPts.size()) {
+            // Find the starting point
+            for (;startPt<screenPts.size();startPt++) {
+                if (insidePts[startPt] ||
+                    (startPt < screenPts.size()-1 && insidePts[startPt+1]))
+                    break;
+            }
+            
+            // Find the end point
+            for (endPt=startPt+1;endPt<screenPts.size();endPt++) {
+                if (!insidePts[endPt])
+                    break;
+            }
+            
+            // Add this run
+            if (startPt < endPt && startPt < screenPts.size()) {
+                VectorLinearRef lin = VectorLinear::createLinear();
+                int copyTo = endPt < screenPts.size() - 1 ? endPt+1 : endPt;
+                lin->pts.insert(lin->pts.end(), screenPts.begin()+startPt, screenPts.begin()+copyTo);
+                shapes.insert(lin);
+            }
+                        
+            // On to the next one
+            startPt = endPt;
+        }
     }
-    screenPts = newScreenPts;
+    if (screenPts.empty())
+        return shapes;
     
-    return screenPts;
+    return shapes;
+
+    // Ye olde Douglas-Peuker on the line at 3 pixels
+    const float Epsilon = 3.0 * 3;
+    screenPts = LineGeneralization(screenPts,Epsilon,0,screenPts.size());
+    
+    return shapes;
+}
+
+// Project back to
+ShapeSet LayoutManager::buildShapeVec(const ShapeSet &shapes,
+                                      ViewStateRef viewState,WhirlyGlobe::GlobeViewState *globeViewState,Maply::MapViewState *mapViewState,
+                                      unsigned int oi,const Point2f &frameBufferSize)
+{
+    auto coordAdapt = viewState->coordAdapter;
+    auto coordSys = coordAdapt->getCoordSystem();
+    ShapeSet retShapes;
+
+    for (auto &vec: shapes) {
+        VectorLinearRef inLin = std::dynamic_pointer_cast<VectorLinear>(vec);
+        if (!inLin)
+            return ShapeSet();
+        VectorLinearRef lin = VectorLinear::createLinear();
+        for (const auto &pt: inLin->pts) {
+            if (globeViewState) {
+                Point3d modelPt;
+                if (globeViewState->pointOnSphereFromScreen(pt, viewState->fullMatrices[oi], frameBufferSize, modelPt, false)) {
+                    GeoCoord geoPt = coordSys->localToGeographic(coordAdapt->displayToLocal(modelPt));
+                    lin->pts.push_back(Point2f(geoPt.x(),geoPt.y()));
+                }
+            } else {
+                Point3d modelPt;
+                if (mapViewState->pointOnPlaneFromScreen(pt, viewState->fullMatrices[oi], frameBufferSize, modelPt, false)) {
+                    GeoCoord geoPt = coordSys->localToGeographic(coordAdapt->displayToLocal(modelPt));
+                    lin->pts.push_back(Point2f(geoPt.x(),geoPt.y()));
+                }
+            }
+        }
+        
+        lin->initGeoMbr();
+        retShapes.insert(lin);
+    }
+    
+    return retShapes;
 }
 
 Matrix2d LayoutManager::calcScreenRot(float &screenRot,ViewStateRef viewState,WhirlyGlobe::GlobeViewState *globeViewState,ScreenSpaceObject *ssObj,const Point2f &objPt,const Matrix4d &modelTrans,const Matrix4d &normalMat,const Point2f &frameBufferSize)
@@ -407,13 +529,13 @@ typedef std::vector<LayoutObjectContainer> LayoutContainerVec;
 typedef std::map<std::string,LayoutObjectContainer> UniqueLayoutObjectMap;
 
 // Do the actual layout logic.  We'll modify the offset and on value in place.
-bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEntry> &clusterEntries,std::vector<ClusterGenerator::ClusterClassParams> &clusterParams)
+bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEntry> &clusterEntries,std::vector<ClusterGenerator::ClusterClassParams> &clusterParams,ChangeSet &changes)
 {
     if (layoutObjects.empty())
         return false;
     
     bool hadChanges = false;
-    
+        
     ClusteredObjectsSet clusterObjs;
     LayoutContainerVec layoutObjs;
     // Special snowflake layout objects (with unique names)
@@ -698,9 +820,22 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
         for (auto layoutObj : container.objs) {
             // Layout along a shape
             if (!layoutObj->obj.layoutShape.empty()) {
-                for (unsigned int oi=0;oi<2;oi++) {
-                    Point2fVector pts = buildScreenVec(layoutObj->obj.layoutShape,viewState,oi,screenMbr,frameBufferSize,&layoutObj->obj);
-                    if (!pts.empty()) {
+                for (unsigned int oi=0;oi<viewState->viewMatrices.size();oi++) {
+                    ShapeSet screenShapes = buildScreenVec(layoutObj->obj.layoutShape,viewState,oi,screenMbr,frameBufferSize,&layoutObj->obj);
+                    if (!screenShapes.empty()) {
+                        // Turn them back into vectors to debug
+                        VectorInfo vecInfo;
+                        vecInfo.color = RGBAColor::red();
+                        vecInfo.lineWidth = 1.0;
+                        vecInfo.drawPriority = 10000000;
+                        vecInfo.programID = vecProgID;
+                        
+                        ShapeSet shapes = buildShapeVec(screenShapes, viewState, globeViewState, mapViewState, oi, frameBufferSize);
+                        if (!shapes.empty()) {
+                            SimpleIdentity vecId = vecManage->addVectors(&shapes, vecInfo, changes);
+                            if (vecId != EmptyIdentity)
+                                debugVecIDs.insert(vecId);
+                        }
                     }
                 }
             } else {
@@ -846,6 +981,19 @@ void LayoutManager::updateLayout(ViewStateRef viewState,ChangeSet &changes)
 {
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     
+    if (!vecManage) {
+        vecManage = std::dynamic_pointer_cast<VectorManager>(scene->getManager(kWKVectorManager));
+        Program *prog = scene->findProgramByName(MaplyDefaultLineShader);
+        if (prog) {
+            vecProgID = prog->getId();
+        }
+    }
+    
+    if (!debugVecIDs.empty()) {
+        vecManage->removeVectors(debugVecIDs, changes);
+        debugVecIDs.clear();
+    }
+
     std::lock_guard<std::mutex> guardLock(lock);
 
     TimeInterval curTime = scene->getCurrentTime();
@@ -857,7 +1005,7 @@ void LayoutManager::updateLayout(ViewStateRef viewState,ChangeSet &changes)
     
     // This will recalculate the offsets and enables
     // If there were any changes, we need to regenerate
-    bool layoutChanges = runLayoutRules(viewState,clusters,clusterParams);
+    bool layoutChanges = runLayoutRules(viewState,clusters,clusterParams,changes);
     
     // Compare old and new clusters
     if (!layoutChanges && clusters.size() != oldClusters.size())
