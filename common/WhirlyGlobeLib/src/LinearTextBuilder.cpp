@@ -97,50 +97,10 @@ void LinearTextBuilder::process()
         return;
     }
 
-    // Filter down to 1pixel to clean up duplicates and such
+    // Generalize the source line
+    // TODO: Make this a parameter rather than 10px
     screenPts = LineGeneralization(screenPts,10.0,0,screenPts.size());
 
-    // Offset if needed.  Might be left/right inside/outside
-    if (layoutObj->layoutOffset != 0.0) {
-        Point2fVector newScreenPts;
-
-        bool first = true;
-        for (int ii=1;ii<screenPts.size()-1;ii++) {
-            // Offset the lines and then intersect
-            const Point2f &l0 = screenPts[ii-1],&l1 = screenPts[ii], &l2 = screenPts[ii+1];
-            if (l0 == l1)
-                continue;
-            Point2f dir0 = (l1 - l0).normalized(), dir1 = (l2 - l1).normalized();
-            dir0 = Point2f(-dir0.y(),dir0.x());  dir1 = Point2f(-dir1.y(),dir1.x());
-            Point2f na0 = dir0 * layoutObj->layoutOffset + l0;
-            Point2f na1 = dir0 * layoutObj->layoutOffset + l1;
-            Point2f nb0 = dir1 * layoutObj->layoutOffset + l1;
-            Point2f nb1 = dir1 * layoutObj->layoutOffset + l2;
-            Point2f cPt;
-            if (first) {
-                newScreenPts.push_back(na0);
-                first = false;
-            }
-            if (l1 == l2) {
-                newScreenPts.push_back(na1);
-            } else {
-                bool useIntersection = IntersectLines(na0,na1,nb0,nb1,&cPt);
-                // Make sure we didn't get a point too far away
-//                if (useIntersection) {
-//                    double dist = (cPt - l1).norm();
-//                    useIntersection = dist < 3.0*layoutObj->layoutOffset;
-//                }
-                if (useIntersection) {
-                    newScreenPts.push_back(cPt);
-                } else
-                    newScreenPts.push_back(nb0);
-            }
-            if (ii==screenPts.size()-1)
-                newScreenPts.push_back(nb1);
-        }
-        screenPts = newScreenPts;
-    }
-            
     // Filter out anything outside the screen MBR
     {
         std::vector<bool> insidePts;
@@ -181,6 +141,69 @@ void LinearTextBuilder::process()
     }
     if (screenPts.empty())
         return;
+
+    // Offset if needed.  Might be left/right inside/outside
+    if (layoutObj->layoutOffset != 0.0) {
+        std::vector<VectorRing> newRuns;
+
+        for (auto &run: runs) {
+            bool first = true;
+            std::vector<VectorRing> theseRuns;
+            VectorRing thisRun;
+            for (int ii=1;ii<run.size()-1;ii++) {
+                // Offset the lines and then intersect
+                const Point2f &l0 = run[ii-1],&l1 = run[ii], &l2 = run[ii+1];
+                if (l0 == l1)
+                    continue;
+                Point2f dir0 = (l1 - l0).normalized(), dir1 = (l2 - l1).normalized();
+                dir0 = Point2f(-dir0.y(),dir0.x());  dir1 = Point2f(-dir1.y(),dir1.x());
+                Point2f na0 = dir0 * layoutObj->layoutOffset + l0;
+                Point2f na1 = dir0 * layoutObj->layoutOffset + l1;
+                Point2f nb0 = dir1 * layoutObj->layoutOffset + l1;
+                Point2f nb1 = dir1 * layoutObj->layoutOffset + l2;
+                Point2f cPt;
+                if (first) {
+                    thisRun.push_back(na0);
+                    first = false;
+                }
+                if (l1 == l2) {
+                    thisRun.push_back(na1);
+                } else {
+                    double ang = acos(dir0.dot(-dir1));
+                    // Small angles won't work
+                    bool useIntersection = (ang > 90.0 / 180.0 * M_PI);
+                    if (useIntersection) {
+                        useIntersection = IntersectLines(na0,na1,nb0,nb1,&cPt);
+                        // Make sure we didn't get a point too far away
+        //                if (useIntersection) {
+        //                    double dist = (cPt - l1).norm();
+        //                    useIntersection = dist < 3.0*layoutObj->layoutOffset;
+        //                }
+                    }
+                    
+                    // If we can't use the intersection, we'll stop the run
+                    if (useIntersection)
+                        thisRun.push_back(cPt);
+                    else {
+                        if (thisRun.size() > 1)
+                            theseRuns.push_back(thisRun);
+                        thisRun.clear();
+                        thisRun.push_back(nb0);
+                    }
+                }
+                if (ii==run.size()-1)
+                    thisRun.push_back(nb1);
+            }
+            if (thisRun.size() > 1)
+                theseRuns.push_back(thisRun);
+            
+            if (!theseRuns.empty())
+                newRuns.insert(newRuns.end(),theseRuns.begin(),theseRuns.end());
+        }
+        
+        runs = newRuns;
+    }
+            
         
     // Ye olde Douglas-Peuker on the line at 3 pixels
 //    const float Epsilon = 40.0;

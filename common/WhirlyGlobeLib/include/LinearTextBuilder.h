@@ -61,7 +61,6 @@ protected:
 
     Point3dVector pts;
     bool isClosed;
-    Point2fVector screenPts;
     
     std::vector<VectorRing> runs;
 };
