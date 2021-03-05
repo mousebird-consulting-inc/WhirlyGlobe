@@ -24,7 +24,9 @@ namespace WhirlyKit
 {
 
 // https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm
-Point2fVector LineGeneralization(const Point2fVector &screenPts,float eps,unsigned int start,unsigned int end)
+Point2fVector LineGeneralization(const Point2fVector &screenPts,
+                                 float eps, float minLen,
+                                 unsigned int start,unsigned int end)
 {
     if (screenPts.size() < 3)
         return screenPts;
@@ -32,8 +34,10 @@ Point2fVector LineGeneralization(const Point2fVector &screenPts,float eps,unsign
     // Find the point with max distance
     float dMax = 0.0;
     unsigned int maxIdx = 0;
+    float len = 0.0;
     for (unsigned int ii = start+1;ii<end;ii++) {
         float t;
+        len += (screenPts[ii] - screenPts[ii-1]).norm();
         Point2f pt = ClosestPointOnLineSegment(screenPts[start], screenPts[end], screenPts[ii], t);
         float dist = (pt-screenPts[ii]).norm();
         if (dist > dMax) {
@@ -44,15 +48,33 @@ Point2fVector LineGeneralization(const Point2fVector &screenPts,float eps,unsign
     
     // If max distance is greater than the epsilon, recursively simplify
     Point2fVector pts;
-    if (dMax > eps) {
-        Point2fVector pts0 = LineGeneralization(screenPts, eps, start, maxIdx);
-        Point2fVector pts1 = LineGeneralization(screenPts, eps, maxIdx, end);
+    if (dMax > eps || len > minLen) {
+        Point2fVector pts0 = LineGeneralization(screenPts, eps, minLen, start, maxIdx);
+        Point2fVector pts1 = LineGeneralization(screenPts, eps, minLen, maxIdx, end);
         pts.insert(pts.end(),pts0.begin(),pts0.end());
         pts.insert(pts.end(),pts1.begin(),pts1.end());
     } else {
         pts.push_back(screenPts[start]);
         if (start != end-1)
             pts.push_back(screenPts[end-1]);
+    }
+    
+    // Break up the line if it's too long
+    if (pts.size() == 2) {
+        float lineLen = (pts[0] - pts[1]).norm();
+        if (lineLen > minLen) {
+            Point2fVector newPts;
+            int numSeg = round(lineLen / minLen)+1;
+            Point2f dir = pts[1] - pts[0];
+            newPts.push_back(pts[0]);
+            for (unsigned int ii=1;ii<numSeg;ii++) {
+                Point2f newPt = ii * dir / numSeg + pts[0];
+                newPts.push_back(newPt);
+            }
+            newPts.push_back(pts[1]);
+
+            pts = newPts;
+        }
     }
     
     return pts;
@@ -99,48 +121,49 @@ void LinearTextBuilder::process()
 
     // Generalize the source line
     // TODO: Make this a parameter rather than 10px
-    screenPts = LineGeneralization(screenPts,10.0,0,screenPts.size());
+    screenPts = LineGeneralization(screenPts,10.0,100.0,0,screenPts.size());
 
-    // Filter out anything outside the screen MBR
-    {
-        std::vector<bool> insidePts;
-        insidePts.reserve(screenPts.size());
-        for (const auto &pt: screenPts) {
-            bool inside = false;
-            if (screenMbr.inside(pt))
-                inside = true;
-            insidePts.push_back(inside);
-        }
-        
-        int startPt = 0,endPt = 0;
-        while (startPt < screenPts.size()) {
-            // Find the starting point
-            for (;startPt<screenPts.size();startPt++) {
-                if (insidePts[startPt] ||
-                    (startPt < screenPts.size()-1 && insidePts[startPt+1]))
-                    break;
-            }
-            
-            // Find the end point
-            for (endPt=startPt+1;endPt<screenPts.size();endPt++) {
-                if (!insidePts[endPt])
-                    break;
-            }
-            
-            // Add this run
-            if (startPt < endPt && startPt < screenPts.size()) {
-                VectorRing thesePts;
-                int copyTo = endPt < screenPts.size() - 1 ? endPt+1 : endPt;
-                thesePts.insert(thesePts.end(), screenPts.begin()+startPt, screenPts.begin()+copyTo);
-                runs.push_back(thesePts);
-            }
-                        
-            // On to the next one
-            startPt = endPt;
-        }
-    }
+//    // Filter out anything outside the screen MBR
+//    {
+//        std::vector<bool> insidePts;
+//        insidePts.reserve(screenPts.size());
+//        for (const auto &pt: screenPts) {
+//            bool inside = false;
+//            if (screenMbr.inside(pt))
+//                inside = true;
+//            insidePts.push_back(inside);
+//        }
+//
+//        int startPt = 0,endPt = 0;
+//        while (startPt < screenPts.size()) {
+//            // Find the starting point
+//            for (;startPt<screenPts.size();startPt++) {
+//                if (insidePts[startPt] ||
+//                    (startPt < screenPts.size()-1 && insidePts[startPt+1]))
+//                    break;
+//            }
+//
+//            // Find the end point
+//            for (endPt=startPt+1;endPt<screenPts.size();endPt++) {
+//                if (!insidePts[endPt])
+//                    break;
+//            }
+//
+//            // Add this run
+//            if (startPt < endPt && startPt < screenPts.size()) {
+//                VectorRing thesePts;
+//                int copyTo = endPt < screenPts.size() - 1 ? endPt+1 : endPt;
+//                thesePts.insert(thesePts.end(), screenPts.begin()+startPt, screenPts.begin()+copyTo);
+//                runs.push_back(thesePts);
+//            }
+//
+//            // On to the next one
+//            startPt = endPt;
+//        }
+//    }
     if (screenPts.empty())
         return;
+    runs.push_back(screenPts);
 
     // Offset if needed.  Might be left/right inside/outside
     if (layoutObj->layoutOffset != 0.0) {
@@ -153,6 +176,16 @@ void LinearTextBuilder::process()
             for (int ii=1;ii<run.size()-1;ii++) {
                 // Offset the lines and then intersect
                 const Point2f &l0 = run[ii-1],&l1 = run[ii], &l2 = run[ii+1];
+
+                // Point we're considering needs to be visible
+                if (!screenMbr.inside(l1)) {
+                    if (thisRun.size() > 1)
+                        theseRuns.push_back(thisRun);
+                    thisRun.clear();
+
+                    continue;
+                }
+                
                 if (l0 == l1)
                     continue;
                 Point2f dir0 = (l1 - l0).normalized(), dir1 = (l2 - l1).normalized();
@@ -162,6 +195,7 @@ void LinearTextBuilder::process()
                 Point2f nb0 = dir1 * layoutObj->layoutOffset + l1;
                 Point2f nb1 = dir1 * layoutObj->layoutOffset + l2;
                 Point2f cPt;
+                bool newRun = true;
                 if (first) {
                     thisRun.push_back(na0);
                     first = false;
@@ -170,29 +204,36 @@ void LinearTextBuilder::process()
                     thisRun.push_back(na1);
                 } else {
                     double ang = acos(dir0.dot(-dir1));
-                    // Small angles won't work
-                    bool useIntersection = (ang > 90.0 / 180.0 * M_PI);
-                    if (useIntersection) {
-                        useIntersection = IntersectLines(na0,na1,nb0,nb1,&cPt);
-                        // Make sure we didn't get a point too far away
-        //                if (useIntersection) {
-        //                    double dist = (cPt - l1).norm();
-        //                    useIntersection = dist < 3.0*layoutObj->layoutOffset;
-        //                }
-                    }
-                    
-                    // If we can't use the intersection, we'll stop the run
-                    if (useIntersection)
-                        thisRun.push_back(cPt);
-                    else {
-                        if (thisRun.size() > 1)
-                            theseRuns.push_back(thisRun);
-                        thisRun.clear();
-                        thisRun.push_back(nb0);
+                    // Intersection needs to be at least 90deg to be useful to us
+                    if (ang > 90.0 / 180.0 * M_PI) {
+                        // But if it's too shallow, we should just use endpoints
+                        if (abs(ang) < 179.0 / M_PI) {
+                            thisRun.push_back(nb0);
+                            newRun = false;
+                        } else {
+                            // Calculate an intersection
+                            if (IntersectLines(na0,na1,nb0,nb1,&cPt)) {
+                                thisRun.push_back(cPt);
+                            } else {
+                                // Back off to just an endpoint
+                                thisRun.push_back(nb0);
+                            }
+                            newRun = false;
+                        }
                     }
                 }
-                if (ii==run.size()-1)
-                    thisRun.push_back(nb1);
+
+                // Sometime we create a new run, other times just use a simpler point
+                if (newRun) {
+                    if (thisRun.size() > 1)
+                        theseRuns.push_back(thisRun);
+                    thisRun.clear();
+                }
+
+                if (!newRun) {
+                    if (ii==run.size()-1 && screenMbr.inside(l1))
+                        thisRun.push_back(nb1);
+                }
             }
             if (thisRun.size() > 1)
                 theseRuns.push_back(thisRun);
