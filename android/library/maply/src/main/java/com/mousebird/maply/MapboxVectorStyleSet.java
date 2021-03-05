@@ -1,14 +1,24 @@
 package com.mousebird.maply;
 
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
+import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Mapbox Vector Style Set.
@@ -88,26 +98,105 @@ public class MapboxVectorStyleSet implements VectorStyleInterface {
 
     public native int backgroundColorForZoomNative(double zoom);
 
-    ArrayList<LabelInfo> labelInfos = new ArrayList<LabelInfo>();
+    private final ArrayList<LabelInfo> labelInfos = new ArrayList<>();
 
     // Return a label info
     public LabelInfo labelInfoForFont(String fontName,float fontSize) {
-        synchronized (this) {
-            for (LabelInfo labelInfo: labelInfos) {
+        synchronized (labelInfos) {
+            // todo: use a dictionary or something
+            for (LabelInfo labelInfo : labelInfos) {
                 if (labelInfo.fontSize == fontSize && labelInfo.fontName.equals(fontName))
                     return labelInfo;
             }
+        }
 
-            // Didn't find it, so make one up
-            // TODO: What about bold, italic, etc??
-            Typeface typeface = Typeface.create(fontName,Typeface.NORMAL);
-            LabelInfo labelInfo = new LabelInfo();
-            labelInfo.setTypeface(typeface);
-            labelInfo.setFontSize(fontSize);
-            labelInfo.fontName = fontName;
+        Map<String,File> systemFonts = getSystemFonts();
+        File systemFile = systemFonts.get(normalizeFontName(fontName));
+        if (systemFile != null) {
+            // We have that one!
+            return createFromFile(fontName, systemFile, fontSize);
+        }
+
+        Typeface family = Typeface.DEFAULT;
+
+        String origName = fontName;
+        fontName = regularPattern.matcher(fontName).replaceFirst("");
+
+        String newName = sansPattern.matcher(fontName).replaceFirst("");
+        if (!newName.equals(fontName))
+        {
+            fontName = newName;
+            family = Typeface.SANS_SERIF;
+        }
+
+        int style = Typeface.NORMAL;
+        newName = boldPattern.matcher(fontName).replaceFirst(" ");
+        if (!newName.equals(fontName))
+        {
+            fontName = newName;
+            style = style | Typeface.BOLD;
+
+        }
+
+        newName = italicPattern.matcher(fontName).replaceFirst(" ");
+        if (!newName.equals(fontName))
+        {
+            fontName = newName;
+            style = style | Typeface.ITALIC;
+        }
+
+        // Try again with the reduced name
+        systemFile = systemFonts.get(normalizeFontName(fontName));
+        if (systemFile != null)
+        {
+            return createFromFile(origName, systemFile, fontSize);
+        }
+
+        // Didn't find it, so make one up
+        Typeface typeface = Typeface.create(fontName, style);
+        LabelInfo labelInfo = new LabelInfo();
+        labelInfo.setTypeface(typeface);
+        labelInfo.setFontSize(fontSize);
+        labelInfo.fontName = origName;
+        synchronized (labelInfos) {
             labelInfos.add(labelInfo);
+        }
 
-            return labelInfo;
+        return labelInfo;
+    }
+
+    private LabelInfo createFromFile(String fontName, File file, float size) {
+        Typeface typeface = Typeface.createFromFile(file);
+        LabelInfo labelInfo = new LabelInfo();
+        labelInfo.setTypeface(typeface);
+        labelInfo.setFontSize(size);
+        labelInfo.fontName = fontName;
+        synchronized (labelInfos) {
+            labelInfos.add(labelInfo);
+        }
+        return labelInfo;
+    }
+
+    private static Map<String,File> getSystemFonts() {
+        synchronized (syncObj) {
+            if (systemFonts == null) {
+                try {
+                    File[] files = new File(systemFontDir).listFiles();
+
+                    systemFonts = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+                    for (File f : files) {
+                        String fontName = normalizeFontName(f.getName());
+                        // If we find multiple fonts differing only by case or extension, just use the first.
+                        if (!systemFonts.containsKey(fontName)) {
+                            systemFonts.put(fontName, f);
+                        }
+                    }
+                } catch (Exception ex) {
+                    Log.w("MapboxVectorStyleSet", "Failed to get system fonts: " + ex.getMessage());
+                    systemFonts = new TreeMap<>();
+                }
+            }
+            return systemFonts;
         }
     }
 
@@ -187,6 +276,36 @@ public class MapboxVectorStyleSet implements VectorStyleInterface {
     {
         return null;
     }
+
+    private static String normalizeFontName(String s) {
+        return stripAll(s, extensionPattern, separatorPattern);
+    }
+
+    private static String replaceAll(String s, String replacement, Pattern p0) {
+        return p0.matcher(s).replaceAll(replacement);
+    }
+    private static String replaceAll(String s, String replacement, Pattern p0, Pattern... pats) {
+        s = replaceAll(s, replacement, p0);
+        for (Pattern p : pats) {
+            s = replaceAll(s, replacement, p);
+        }
+        return s;
+    }
+    private static String stripAll(String s, Pattern p0, Pattern... pats) {
+        return replaceAll(s, "", p0, pats);
+    }
+
+    private static final Pattern whitespacePattern = Pattern.compile("\\s+");
+    private static final Pattern separatorPattern = Pattern.compile("[\\s-_]+");
+    private static final Pattern extensionPattern = Pattern.compile("\\.\\w+$");
+    private static final Pattern regularPattern = Pattern.compile("[\\s-_]regular\\b", Pattern.CASE_INSENSITIVE);
+    private static final Pattern sansPattern = Pattern.compile("[\\s-_]sans\\b", Pattern.CASE_INSENSITIVE);
+    private static final Pattern boldPattern = Pattern.compile("[\\s-_]bold\\b", Pattern.CASE_INSENSITIVE);
+    private static final Pattern italicPattern = Pattern.compile("[\\s-_]italic\\b", Pattern.CASE_INSENSITIVE);
+
+    private static Map<String,File> systemFonts = null;
+    private static final Object syncObj = new Object();
+    private static final String systemFontDir = "/system/fonts";
 
     public void finalize()
     {

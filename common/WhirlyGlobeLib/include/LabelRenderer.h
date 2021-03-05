@@ -50,10 +50,9 @@ class SingleLabel;
 class LabelSceneRep : public Identifiable
 {
 public:
-    LabelSceneRep();
+    LabelSceneRep() { }
     LabelSceneRep(SimpleIdentity theId) : Identifiable(theId) { }
-    ~LabelSceneRep() { }
-    
+
     float fadeOut;          // Fade interval, for deletion
     SimpleIDSet texIDs;  // Textures we created for this
     SimpleIDSet drawIDs; // Drawables created for this
@@ -102,7 +101,7 @@ typedef std::shared_ptr<LabelInfo> LabelInfoRef;
 class LabelRenderer
 {
 public:
-    LabelRenderer(Scene *scene,FontTextureManagerRef &fontTexManager,const LabelInfo *labelInfo);
+    LabelRenderer(Scene *scene,const FontTextureManagerRef &fontTexManager,const LabelInfo *labelInfo);
     
     /// Description of the labels
     const LabelInfo *labelInfo;
@@ -110,7 +109,7 @@ public:
     int textureAtlasSize;
     /// Coordinate system display adapater
     CoordSystemDisplayAdapter *coordAdapter;
-    /// Label represention (return value)
+    /// Label representation (return value)
     LabelSceneRep *labelRep;
     /// Scene we're building in
     Scene *scene;
@@ -135,7 +134,7 @@ public:
     float scale;
 
     /// Renders the labels into a big texture and stores the resulting info
-    void render(PlatformThreadInfo *threadInfo,std::vector<SingleLabel *> &labels,ChangeSet &changes);
+    void render(PlatformThreadInfo *threadInfo,const std::vector<SingleLabel *> &labels,ChangeSet &changes);
 };
 
 }

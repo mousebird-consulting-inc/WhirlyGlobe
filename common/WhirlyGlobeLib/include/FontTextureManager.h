@@ -51,7 +51,9 @@ public:
     // Comparison operator
     // Subclass fills this in
     virtual bool operator < (const FontManager &that) const;
-    
+
+    virtual void deinit(PlatformThreadInfo *) { }
+
     // Mapping info from glyph to location in a dynamic texture
     class GlyphInfo
     {
@@ -75,7 +77,7 @@ public:
         bool operator () (const GlyphInfo *a,const GlyphInfo *b) const { return a->glyph < b->glyph; }
     } GlyphInfoSorter;
     
-    bool empty() { return glyphs.empty(); }
+    bool empty() const { return glyphs.empty(); }
     
     // Look for an existing glyph and return it if it's there
     GlyphInfo *findGlyph(WKGlyph glyph);

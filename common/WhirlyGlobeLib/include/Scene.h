@@ -181,7 +181,7 @@ public:
 
     // Set up with the function to run
     RunBlockReq(BlockFunc newFunc);
-    virtual ~RunBlockReq();
+    virtual ~RunBlockReq() = default;
 
     // This is probably adding to the change requests and so needs to run first
     bool needPreExecute() { return true; }
@@ -321,7 +321,12 @@ public:
     SceneManagerRef getManager(const char *name);
     /// This one can only be called during scene initialization
     SceneManagerRef getManagerNoLock(const char *name);
-    
+
+    template <typename TManager>
+    std::shared_ptr<TManager> getManager(const char *name) { return std::dynamic_pointer_cast<TManager>(getManager(name)); }
+    template <typename TManager>
+    std::shared_ptr<TManager> getManager(const std::string &name) { return std::dynamic_pointer_cast<TManager>(getManager(name.c_str())); }
+
     /// Add the given manager.  The scene is now responsible for deletion.  This is thread safe.
     void addManager(const char *name,const SceneManagerRef &manager);
     

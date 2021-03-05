@@ -1,9 +1,8 @@
-/*
- *  FontTextureManagerAndroid.cpp
+/*  FontTextureManagerAndroid.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2016 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,71 +14,107 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "FontTextureManager_Android.h"
 #import "LabelInfo_Android.h"
 #import "LabelsAndMarkers_jni.h"
+#import "ScopedEnv_Android.h"
 #import <android/bitmap.h>
 
 namespace WhirlyKit
 {
 
-static const float BogusFontScale = 1.0;
+static const float BogusFontScale = 1.0f;
 
-FontTextureManager_Android::FontManager_Android::FontManager_Android(JNIEnv *env,jobject inTypefaceObj)
+FontTextureManager_Android::FontManager_Android::FontManager_Android(JNIEnv *env,jobject inTypefaceObj) :
+	jvm(nullptr),
+	typefaceObj(env->NewGlobalRef(inTypefaceObj))
 {
-	typefaceObj = env->NewGlobalRef(inTypefaceObj);
+	env->GetJavaVM(&jvm);
 }
 
-FontTextureManager_Android::FontManager_Android::FontManager_Android()
-: typefaceObj(NULL)
+FontTextureManager_Android::FontManager_Android::FontManager_Android() :
+	jvm(nullptr),
+	typefaceObj(nullptr)
 {
 }
 
-void FontTextureManager_Android::FontManager_Android::clearRefs(JNIEnv *savedEnv)
+void FontTextureManager_Android::FontManager_Android::clearRefs(JNIEnv* env)
 {
-	if (typefaceObj)
+	if (env && typefaceObj)
 	{
-		savedEnv->DeleteGlobalRef(typefaceObj);
-		typefaceObj = NULL;
+		env->DeleteGlobalRef(typefaceObj);
+		typefaceObj = nullptr;
 	}
 }
 
 FontTextureManager_Android::FontManager_Android::~FontManager_Android()
 {
+	// should have been cleaned up by now
+	assert(typefaceObj == nullptr);
+	clearRefs(nullptr);
 }
 
-FontTextureManager_Android::FontTextureManager_Android(JNIEnv *env,SceneRenderer *sceneRender,Scene *scene,jobject inCharRenderObj)
-	: FontTextureManager(sceneRender,scene), charRenderObj(NULL)
+void FontTextureManager_Android::FontManager_Android::deinit(PlatformThreadInfo* platformInfo)
 {
-	// TODO: Porting.  This will leak
-	charRenderObj = env->NewGlobalRef(inCharRenderObj);
-	jclass charRenderClass =  env->GetObjectClass(charRenderObj);
-	renderMethodID = env->GetMethodID(charRenderClass, "renderChar", "(ILcom/mousebird/maply/LabelInfo;F)Lcom/mousebird/maply/CharRenderer$Glyph;");
-	jclass glyphClass = env->FindClass("com/mousebird/maply/CharRenderer$Glyph");
-	bitmapID = env->GetFieldID(glyphClass,"bitmap","Landroid/graphics/Bitmap;");
-	sizeXID = env->GetFieldID(glyphClass,"sizeX","F");
-	sizeYID = env->GetFieldID(glyphClass,"sizeY","F");
-	glyphSizeXID = env->GetFieldID(glyphClass,"glyphSizeX","F");
-	glyphSizeYID = env->GetFieldID(glyphClass,"glyphSizeY","F");
-	offsetXID = env->GetFieldID(glyphClass,"offsetX","F");
-	offsetYID = env->GetFieldID(glyphClass,"offsetY","F");
-	textureOffsetXID = env->GetFieldID(glyphClass,"textureOffsetX","F");
-	textureOffsetYID = env->GetFieldID(glyphClass,"textureOffsetY","F");
-    env->DeleteLocalRef(glyphClass);
-    env->DeleteLocalRef(charRenderClass);
+	if (typefaceObj)
+	{
+		if (auto pi = (PlatformInfo_Android*)platformInfo)
+		{
+			clearRefs(pi->env);
+		}
+		else if (auto env = ScopedEnv(jvm))
+		{
+			clearRefs(env);
+		}
+	}
+}
+
+FontTextureManager_Android::FontTextureManager_Android(JNIEnv *env,SceneRenderer *sceneRender,Scene *scene,jobject inCharRenderObj) :
+	FontTextureManager(sceneRender,scene),
+	charRenderObj(env->NewGlobalRef(inCharRenderObj)),
+	env(env)
+{
+	if (const jclass charRenderClass = env->GetObjectClass(charRenderObj))
+	{
+		renderMethodID = env->GetMethodID(charRenderClass, "renderChar",
+										  "(ILcom/mousebird/maply/LabelInfo;F)Lcom/mousebird/maply/CharRenderer$Glyph;");
+		env->DeleteLocalRef(charRenderClass);
+	}
+
+	if (const jclass glyphClass = env->FindClass("com/mousebird/maply/CharRenderer$Glyph"))
+	{
+		bitmapID = env->GetFieldID(glyphClass, "bitmap", "Landroid/graphics/Bitmap;");
+		sizeXID = env->GetFieldID(glyphClass, "sizeX", "F");
+		sizeYID = env->GetFieldID(glyphClass, "sizeY", "F");
+		glyphSizeXID = env->GetFieldID(glyphClass, "glyphSizeX", "F");
+		glyphSizeYID = env->GetFieldID(glyphClass, "glyphSizeY", "F");
+		offsetXID = env->GetFieldID(glyphClass, "offsetX", "F");
+		offsetYID = env->GetFieldID(glyphClass, "offsetY", "F");
+		textureOffsetXID = env->GetFieldID(glyphClass, "textureOffsetX", "F");
+		textureOffsetYID = env->GetFieldID(glyphClass, "textureOffsetY", "F");
+		env->DeleteLocalRef(glyphClass);
+	}
 }
 
 FontTextureManager_Android::~FontTextureManager_Android()
 {
+	if (charRenderObj)
+	{
+		env->DeleteGlobalRef(charRenderObj);
+	}
 }
 
-DrawableString *FontTextureManager_Android::addString(PlatformThreadInfo *inThreadInfo,const std::vector<int> &codePoints,const LabelInfoAndroid *labelInfo,ChangeSet &changes)
+DrawableString *FontTextureManager_Android::addString(
+		PlatformThreadInfo *inThreadInfo,
+		const std::vector<int> &codePoints,
+		const LabelInfoAndroid *labelInfo,
+		ChangeSet &changes)
 {
-	LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
-	PlatformInfo_Android *threadInfo = (PlatformInfo_Android *)inThreadInfo;
+	auto threadInfo = (PlatformInfo_Android *)inThreadInfo;
+	auto classInfo = LabelInfoClassInfo::getClassInfo();
+	auto intClassInfo = JavaIntegerClassInfo::getClassInfo(threadInfo->env);
 
 	// Could be more granular if this slows things down
     std::lock_guard<std::mutex> guardLock(lock);
@@ -87,13 +122,11 @@ DrawableString *FontTextureManager_Android::addString(PlatformThreadInfo *inThre
     // If not initialized, set up texture atlas and such
     init();
 
-    DrawableString *drawString = new DrawableString();
-    DrawStringRep *drawStringRep = new DrawStringRep(drawString->getId());
+    auto drawString = new DrawableString();
+    auto drawStringRep = new DrawStringRep(drawString->getId());
 
     // Look for the font manager that manages the typeface/attribute combo we need
-    FontManager_AndroidRef fm = findFontManagerForFont(threadInfo,labelInfo->typefaceObj,*labelInfo);
-
-	JavaIntegerClassInfo *intClassInfo = JavaIntegerClassInfo::getClassInfo(threadInfo->env);
+    auto fm = findFontManagerForFont(threadInfo,labelInfo->typefaceObj,*labelInfo);
 
     // Work through the characters
     GlyphSet glyphsUsed;
@@ -101,12 +134,13 @@ DrawableString *FontTextureManager_Android::addString(PlatformThreadInfo *inThre
     for (int glyph : codePoints)
     {
 		// Look for an existing glyph
-    	FontManager::GlyphInfo *glyphInfo = fm->findGlyph(glyph);
+    	auto glyphInfo = fm->findGlyph(glyph);
     	if (!glyphInfo)
     	{
         	// Call the renderer
-        	jobject glyphObj = threadInfo->env->CallObjectMethod(charRenderObj,renderMethodID,glyph,labelInfo->labelInfoObj,labelInfo->fontSize);
-        	if (!glyphObj) {
+        	const jobject glyphObj = threadInfo->env->CallObjectMethod(charRenderObj,renderMethodID,glyph,labelInfo->labelInfoObj,labelInfo->fontSize);
+        	if (!glyphObj)
+        	{
         		wkLogLevel(Warn,"Bad glyph passed into FontTextureManager_Android: %d",glyph);
 				continue;
 			}
@@ -134,19 +168,35 @@ DrawableString *FontTextureManager_Android::addString(PlatformThreadInfo *inThre
                     // Create a texture
 					void* bitmapPixels;
 					if (AndroidBitmap_lockPixels(threadInfo->env, bitmapObj, &bitmapPixels) < 0)
-						throw 1;
-					MutableRawData *rawData = new MutableRawData(bitmapPixels,info.height*info.width*4);
-					TextureGLES tex("FontTextureManager");
-					tex.setRawData(rawData,info.width,info.height);
+					{
+						throw std::runtime_error("Unable to lock bitmap pixels");
+					}
+					try
+					{
+						MutableRawData *rawData = new MutableRawData(bitmapPixels,
+																	 info.height * info.width * 4);
+						TextureGLES tex("FontTextureManager");
+						tex.setRawData(rawData, info.width, info.height);
 
-					// Add it to the texture atlas
-                    SubTexture subTex;
-                    Point2f realSize(glyphSize.x()+2*textureOffset.x(),glyphSize.y()+2*textureOffset.y());
-                    std::vector<Texture *> texs;
-                    texs.push_back(&tex);
-                    if (texAtlas->addTexture(sceneRender, texs, -1, &realSize, NULL, subTex, changes, 0, 0, NULL))
-                        glyphInfo = fm->addGlyph(glyph, subTex, Point2f(glyphSize.x(),glyphSize.y()), Point2f(offset.x(),offset.y()), Point2f(textureOffset.x(),textureOffset.y()));
-                    
+						// Add it to the texture atlas
+						SubTexture subTex;
+						Point2f realSize(glyphSize.x() + 2 * textureOffset.x(),
+										 glyphSize.y() + 2 * textureOffset.y());
+						std::vector<Texture *> texs{&tex};
+						if (texAtlas->addTexture(sceneRender, texs, -1, &realSize, NULL, subTex,
+												 changes, 0, 0, NULL)) {
+							glyphInfo = fm->addGlyph(glyph, subTex,
+													 Point2f(glyphSize.x(), glyphSize.y()),
+													 Point2f(offset.x(), offset.y()),
+													 Point2f(textureOffset.x(), textureOffset.y()));
+						}
+					}
+					catch (...)
+					{
+						// finally...
+						AndroidBitmap_unlockPixels(threadInfo->env, bitmapObj);
+						throw;
+					}
                     AndroidBitmap_unlockPixels(threadInfo->env, bitmapObj);
 				}
         	}
@@ -162,9 +212,8 @@ DrawableString *FontTextureManager_Android::addString(PlatformThreadInfo *inThre
         {
             // Now we make a rectangle that covers the glyph in its texture atlas
             DrawableString::Rect rect;
-            Point2f offset(offsetX,-glyphInfo->offset.y());
-
-            float scale = 1.0/BogusFontScale;
+            const Point2f offset(offsetX,-glyphInfo->offset.y());
+            const float scale = 1.0/BogusFontScale;
 
             // Note: was -1,-1
             rect.pts[0] = Point2f(glyphInfo->offset.x()*scale-glyphInfo->textureOffset.x()*scale,glyphInfo->offset.y()*scale-glyphInfo->textureOffset.y()*scale)+offset;
@@ -207,19 +256,21 @@ FontTextureManager_Android::FontManager_AndroidRef FontTextureManager_Android::f
 
 	for (auto it : fontManagers)
 	{
-		FontManager_AndroidRef fm = std::dynamic_pointer_cast<FontManager_Android>(it.second);
-
-		if (labelInfo.typefaceIsSame(threadInfo,fm->typefaceObj) &&
-                fm->pointSize == labelInfo.fontSize &&
+		if (const auto fm = std::dynamic_pointer_cast<FontManager_Android>(it.second))
+		{
+			if (fm->pointSize == labelInfo.fontSize &&
 				fm->color == labelInfo.textColor &&
 				fm->outlineColor == labelInfo.outlineColor &&
-				fm->outlineSize == labelInfo.outlineSize)
-			return fm;
+				fm->outlineSize == labelInfo.outlineSize &&
+				labelInfo.typefaceIsSame(threadInfo, fm->typefaceObj))
+			{
+				return fm;
+			}
+		}
 	}
 
 	// Didn't find it, so create it
-	FontManager_AndroidRef fm(new FontManager_Android(threadInfo->env,typefaceObj));
-	fm->fontName = "";
+	const auto fm = std::make_shared<FontManager_Android>(threadInfo->env,typefaceObj);
 	fm->color = labelInfo.textColor;
 	fm->pointSize = labelInfo.fontSize;
 	fm->outlineColor = labelInfo.outlineColor;

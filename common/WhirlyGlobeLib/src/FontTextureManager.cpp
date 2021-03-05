@@ -186,7 +186,7 @@ void FontTextureManager::removeString(SimpleIdentity drawStringId,ChangeSet &cha
         if (fmIt != fontManagers.end())
         {
             // Decrement the glyph references
-            FontManagerRef fm = fmIt->second;
+            const FontManagerRef &fm = fmIt->second;
             std::vector<SubTexture> texRemove;
             fm->removeGlyphRefs(fit->second,texRemove);
 
@@ -198,6 +198,7 @@ void FontTextureManager::removeString(SimpleIdentity drawStringId,ChangeSet &cha
             // Also see if we're done with the font
             if (fm->refCount <= 0)
             {
+                fm->deinit(nullptr);    // todo: platform info?
                 fontManagers.erase(fmIt);
             }
         }

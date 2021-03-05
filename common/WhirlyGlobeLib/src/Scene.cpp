@@ -448,14 +448,16 @@ void Scene::removeSubTextures(const std::vector<SimpleIdentity> &subTexIDs)
 // Look for a sub texture by ID
 SubTexture Scene::getSubTexture(SimpleIdentity subTexId)
 {
-    std::lock_guard<std::mutex> guardLock(subTexLock);
     SubTexture dumbTex;
     dumbTex.setId(subTexId);
-    SubTextureSet::iterator it = subTextureMap.find(dumbTex);
+
+    std::lock_guard<std::mutex> guardLock(subTexLock);
+
+    const auto it = subTextureMap.find(dumbTex);
     if (it == subTextureMap.end())
     {
         SubTexture passTex;
-        passTex.trans = passTex.trans.Identity();
+        passTex.trans = decltype(passTex.trans)::Identity();
         passTex.texId = subTexId;
         return passTex;
     }
@@ -597,11 +599,8 @@ void Scene::setZoomSlotValue(int zoomSlot,float zoom)
 float Scene::getZoomSlotValue(int zoomSlot)
 {
     std::lock_guard<std::mutex> guardLock(zoomSlotLock);
-    
-    if (zoomSlot < 0 || zoomSlot >= MaplyMaxZoomSlots)
-        return 0.0;
 
-    return zoomSlots[zoomSlot];
+    return (zoomSlot < 0 || zoomSlot >= MaplyMaxZoomSlots) ? 0.0 : zoomSlots[zoomSlot];
 }
 
 void Scene::copyZoomSlots(float *dest)
@@ -624,14 +623,14 @@ TextureBase *AddTextureReq::getTex()
     
 AddTextureReq::~AddTextureReq()
 {
-    texRef = NULL;
+    texRef = nullptr;
 }
     
 void AddTextureReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *view)
 {
     texRef->createInRenderer(renderer->getRenderSetupInfo());
     scene->addTexture(texRef);
-    texRef = NULL;
+    texRef = nullptr;
 }
 
 void RemTextureReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *view)
@@ -640,10 +639,14 @@ void RemTextureReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View
     if (tex)
     {
         if (renderer->teardownInfo)
+        {
             renderer->teardownInfo->destroyTexture(renderer,tex);
+        }
         scene->removeTexture(texture);
     } else
+    {
         wkLogLevel(Warn,"RemTextureReq: No such texture.");
+    }
 }
     
 void AddDrawableReq::setupForRenderer(const RenderSetupInfo *setupInfo,Scene *scene)
@@ -658,20 +661,21 @@ void AddDrawableReq::setupForRenderer(const RenderSetupInfo *setupInfo,Scene *sc
 
 AddDrawableReq::~AddDrawableReq()
 {
-    drawRef = NULL;
+    drawRef = nullptr;
 }
 
 void AddDrawableReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *view)
 {
     // If this is an instance, deal with that madness
-    BasicDrawableInstance *drawInst = dynamic_cast<BasicDrawableInstance *>(drawRef.get());
-    if (drawInst)
+    if (auto drawInst = dynamic_cast<BasicDrawableInstance *>(drawRef.get()))
     {
-        DrawableRef theDraw = scene->getDrawable(drawInst->getMasterID());
-        BasicDrawableRef baseDraw = std::dynamic_pointer_cast<BasicDrawable>(theDraw);
-        if (baseDraw)
+        const auto theDraw = scene->getDrawable(drawInst->getMasterID());
+        if (const auto baseDraw = std::dynamic_pointer_cast<BasicDrawable>(theDraw))
+        {
             drawInst->setMaster(baseDraw);
-        else {
+        }
+        else
+        {
             return;
         }
     }
@@ -682,7 +686,7 @@ void AddDrawableReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::Vie
     if (drawRef->getLocalMbr().valid())
         scene->addLocalMbr(drawRef->getLocalMbr());
             
-    drawRef = NULL;
+    drawRef = nullptr;
 }
 
 RemDrawableReq::RemDrawableReq(SimpleIdentity drawId) : drawID(drawId)
@@ -702,14 +706,17 @@ void RemDrawableReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::Vie
     {
         renderer->removeDrawable(draw, true, renderer->teardownInfo);
         scene->remDrawable(draw);
-    } else
+    }
+    else
+    {
         wkLogLevel(Warn,"Missing drawable for RemDrawableReq: %llu", drawID);
+    }
 }
 
 void AddProgramReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *view)
 {
     scene->addProgram(program);
-    program = NULL;
+    program = nullptr;
 }
 
 void RemProgramReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *view)
@@ -720,11 +727,7 @@ void RemProgramReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View
 RunBlockReq::RunBlockReq(BlockFunc newFunc) : func(newFunc)
 {
 }
-    
-RunBlockReq::~RunBlockReq()
-{
-}
-    
+
 void RunBlockReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *view)
 {
     func(scene,renderer,view);

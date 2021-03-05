@@ -1,9 +1,8 @@
-/*
- *  FontTextureManagerAndroid.h
+/*  FontTextureManagerAndroid.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2016 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <jni.h>
@@ -42,17 +40,19 @@ public:
     public:
     	FontManager_Android(JNIEnv *env,jobject typefaceObj);
     	FontManager_Android();
-        ~FontManager_Android();
+        virtual ~FontManager_Android();
+
+        virtual void deinit(PlatformThreadInfo*) override;
 
         // Clear out global refs to Java objects we may be sitting on
         void clearRefs(JNIEnv *env);
 
+        JavaVM* jvm;
         jobject typefaceObj;
     };
     typedef std::shared_ptr<FontManager_Android> FontManager_AndroidRef;
 
-    /// Add the given string.  Caller is responsible for deleting
-    ///  the DrawableString
+    /// Add the given string.  Caller is responsible for deleting the DrawableString
     DrawableString *addString(PlatformThreadInfo *threadInfo,const std::vector<int> &codePoints,const LabelInfoAndroid *,ChangeSet &changes);
     
 protected:
@@ -62,6 +62,7 @@ protected:
     // Render the glyph with the given font manager
 //    RawDataRef renderGlyph(WKGlyph glyph,FontManageriOS *fm,Point2f &size,Point2f &glyphSize,Point2f &offset,Point2f &textureOffset);
 
+    JNIEnv *env;
     // Java object that can do the character rendering for us
     jobject charRenderObj;
     jmethodID renderMethodID;
