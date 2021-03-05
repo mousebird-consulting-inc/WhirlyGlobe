@@ -32,6 +32,26 @@ Point2fVector LineGeneralization(const Point2fVector &screenPts,
                                  float eps,
                                  unsigned int start,unsigned int end);
 
+/// Used to 'walk' along a linear feature by distance
+class LinearWalker {
+public:
+    LinearWalker(const VectorRing &pts);
+    
+    /// Return the total length
+    float getTotalLength();
+    
+    /// Calculate the next point along the line given the distance
+    /// Or return false if there wasn't anything left
+    bool nextPoint(double distance,Point2f &retPt);
+    
+protected:
+    VectorRing pts;
+    float totalLength;
+    int ptSoFar;
+    float remainDist;
+    float distSoFar;
+};
+
 /**
  Used to lay text out along a line (with or without offset).
  A very specific implementation of a wacky algorithm.
@@ -48,6 +68,9 @@ public:
     
     // Run our crazy stuff
     void process();
+    
+    // Return the individual runs to follow
+    std::vector<VectorRing> getScreenVecs();
     
     // Visual vectors for debugging
     ShapeSet getVisualVecs();
