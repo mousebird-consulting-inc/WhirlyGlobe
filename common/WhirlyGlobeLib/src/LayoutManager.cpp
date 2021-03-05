@@ -637,9 +637,33 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
             // Layout along a shape
             if (!layoutObj->obj.layoutShape.empty()) {
                 for (unsigned int oi=0;oi<viewState->viewMatrices.size();oi++) {
+                    // Set up the text builder to get a set of individual runs to follow
                     LinearTextBuilder textBuilder(viewState,oi,frameBufferSize,&layoutObj->obj);
                     textBuilder.setPoints(layoutObj->obj.layoutShape);
                     textBuilder.process();
+                    
+                    // Follow the individual runs
+                    auto runs = textBuilder.getScreenVecs();
+                    for (auto run: runs) {
+                        LinearWalker walk(run);
+
+                        // Start with an initial offset
+                        Point2f screenPt;
+                        if (!walk.nextPoint(layoutObj->obj.layoutSpacing, screenPt)) {
+                            
+                        }
+                        
+                        for (const auto &geom: layoutObj->obj.geometry) {
+                            
+                        }
+                        
+                        // Offset before the end
+                        if (!walk.nextPoint(layoutObj->obj.layoutSpacing, screenPt)) {
+                            
+                        }
+                    }
+
+                    // Debugging visual output
                     ShapeSet dispShapes = textBuilder.getVisualVecs();
                     if (!dispShapes.empty()) {
                         // Turn them back into vectors to debug

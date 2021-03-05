@@ -64,6 +64,44 @@ Point2fVector LineGeneralization(const Point2fVector &screenPts,
     return pts;
 }
 
+LinearWalker::LinearWalker(const VectorRing &pts)
+: pts(pts), ptSoFar(0), remainDist(0.0), distSoFar(0.0), totalLength(0.0)
+{
+    for (unsigned int ii=0;ii<pts.size()-1;ii++) {
+        totalLength += (pts[ii+1] - pts[ii]).norm();
+    }
+}
+
+float LinearWalker::getTotalLength()
+{
+    return totalLength;
+}
+
+bool LinearWalker::nextPoint(double dist,Point2f &retPt)
+{
+    if (ptSoFar >= pts.size()-1)
+        return false;
+    
+//    float startDistSoFar = distSoFar;
+    
+    float travelSoFar = -remainDist - dist;
+    while (ptSoFar < pts.size()-1) {
+        Point2f dir = pts[ptSoFar+1] - pts[ptSoFar];
+        float segDist = dir.norm();
+        // We're in this segment
+        if (segDist + travelSoFar > 0) {
+            remainDist = segDist + travelSoFar;
+            retPt = pts[ptSoFar] + remainDist/segDist * dir;
+            return true;
+        }
+        // Keep going
+        travelSoFar += segDist;
+        ptSoFar++;
+    }
+    
+    return false;
+}
+
 LinearTextBuilder::LinearTextBuilder(ViewStateRef viewState,
                                     unsigned int offi,
                                     const Point2f &frameBufferSize,
@@ -133,6 +171,11 @@ void LinearTextBuilder::process()
     runs = newRuns;
 
     return;
+}
+
+std::vector<VectorRing> LinearTextBuilder::getScreenVecs()
+{
+    return runs;
 }
 
 ShapeSet LinearTextBuilder::getVisualVecs()
