@@ -19,6 +19,7 @@
  */
 
 #import "LinearTextBuilder.h"
+#import "VectorOffset.h"
 
 namespace WhirlyKit
 {
@@ -48,7 +49,7 @@ Point2fVector LineGeneralization(const Point2fVector &screenPts,
     
     // If max distance is greater than the epsilon, recursively simplify
     Point2fVector pts;
-    if (dMax > eps || len > minLen) {
+    if (maxIdx != 0 && (dMax > eps || len > minLen)) {
         Point2fVector pts0 = LineGeneralization(screenPts, eps, minLen, start, maxIdx);
         Point2fVector pts1 = LineGeneralization(screenPts, eps, minLen, maxIdx, end);
         pts.insert(pts.end(),pts0.begin(),pts0.end());
@@ -123,128 +124,17 @@ void LinearTextBuilder::process()
     // TODO: Make this a parameter rather than 10px
     screenPts = LineGeneralization(screenPts,10.0,100.0,0,screenPts.size());
 
-//    // Filter out anything outside the screen MBR
-//    {
-//        std::vector<bool> insidePts;
-//        insidePts.reserve(screenPts.size());
-//        for (const auto &pt: screenPts) {
-//            bool inside = false;
-//            if (screenMbr.inside(pt))
-//                inside = true;
-//            insidePts.push_back(inside);
-//        }
-//
-//        int startPt = 0,endPt = 0;
-//        while (startPt < screenPts.size()) {
-//            // Find the starting point
-//            for (;startPt<screenPts.size();startPt++) {
-//                if (insidePts[startPt] ||
-//                    (startPt < screenPts.size()-1 && insidePts[startPt+1]))
-//                    break;
-//            }
-//
-//            // Find the end point
-//            for (endPt=startPt+1;endPt<screenPts.size();endPt++) {
-//                if (!insidePts[endPt])
-//                    break;
-//            }
-//
-//            // Add this run
-//            if (startPt < endPt && startPt < screenPts.size()) {
-//                VectorRing thesePts;
-//                int copyTo = endPt < screenPts.size() - 1 ? endPt+1 : endPt;
-//                thesePts.insert(thesePts.end(), screenPts.begin()+startPt, screenPts.begin()+copyTo);
-//                runs.push_back(thesePts);
-//            }
-//
-//            // On to the next one
-//            startPt = endPt;
-//        }
-//    }
     if (screenPts.empty())
         return;
-    runs.push_back(screenPts);
 
-    // Offset if needed.  Might be left/right inside/outside
     if (layoutObj->layoutOffset != 0.0) {
-        std::vector<VectorRing> newRuns;
-
-        for (auto &run: runs) {
-            bool first = true;
-            std::vector<VectorRing> theseRuns;
-            VectorRing thisRun;
-            for (int ii=1;ii<run.size()-1;ii++) {
-                // Offset the lines and then intersect
-                const Point2f &l0 = run[ii-1],&l1 = run[ii], &l2 = run[ii+1];
-
-                // Point we're considering needs to be visible
-                if (!screenMbr.inside(l1)) {
-                    if (thisRun.size() > 1)
-                        theseRuns.push_back(thisRun);
-                    thisRun.clear();
-
-                    continue;
-                }
-                
-                if (l0 == l1)
-                    continue;
-                Point2f dir0 = (l1 - l0).normalized(), dir1 = (l2 - l1).normalized();
-                dir0 = Point2f(-dir0.y(),dir0.x());  dir1 = Point2f(-dir1.y(),dir1.x());
-                Point2f na0 = dir0 * layoutObj->layoutOffset + l0;
-                Point2f na1 = dir0 * layoutObj->layoutOffset + l1;
-                Point2f nb0 = dir1 * layoutObj->layoutOffset + l1;
-                Point2f nb1 = dir1 * layoutObj->layoutOffset + l2;
-                Point2f cPt;
-                bool newRun = true;
-                if (first) {
-                    thisRun.push_back(na0);
-                    first = false;
-                }
-                if (l1 == l2) {
-                    thisRun.push_back(na1);
-                } else {
-                    double ang = acos(dir0.dot(-dir1));
-                    // Intersection needs to be at least 90deg to be useful to us
-                    if (ang > 90.0 / 180.0 * M_PI) {
-                        // But if it's too shallow, we should just use endpoints
-                        if (abs(ang) < 179.0 / M_PI) {
-                            thisRun.push_back(nb0);
-                            newRun = false;
-                        } else {
-                            // Calculate an intersection
-                            if (IntersectLines(na0,na1,nb0,nb1,&cPt)) {
-                                thisRun.push_back(cPt);
-                            } else {
-                                // Back off to just an endpoint
-                                thisRun.push_back(nb0);
-                            }
-                            newRun = false;
-                        }
-                    }
-                }
-
-                // Sometime we create a new run, other times just use a simpler point
-                if (newRun) {
-                    if (thisRun.size() > 1)
-                        theseRuns.push_back(thisRun);
-                    thisRun.clear();
-                }
-
-                if (!newRun) {
-                    if (ii==run.size()-1 && screenMbr.inside(l1))
-                        thisRun.push_back(nb1);
-                }
-            }
-            if (thisRun.size() > 1)
-                theseRuns.push_back(thisRun);
-            
-            if (!theseRuns.empty())
-                newRuns.insert(newRuns.end(),theseRuns.begin(),theseRuns.end());
-        }
-        
-        runs = newRuns;
+        if (isClosed)
+            runs = BufferPolygon(screenPts, layoutObj->layoutOffset);
+        else
+            runs = BufferLoop(screenPts, layoutObj->layoutOffset);
+    } else {
+        runs.push_back(screenPts);
     }
-            
         
     // Ye olde Douglas-Peuker on the line at 3 pixels
 //    const float Epsilon = 40.0;
