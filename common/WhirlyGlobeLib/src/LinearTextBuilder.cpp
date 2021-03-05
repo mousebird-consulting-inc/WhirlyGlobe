@@ -161,14 +161,45 @@ void LinearTextBuilder::process()
     }
     
     // Clip to the screen
-    std::vector<VectorRing> newRuns;
-    for (const auto &run: runs) {
-        std::vector<VectorRing> theseRuns;
-        ClipLoopToMbr(run, screenMbr, false, theseRuns);
-        if (!theseRuns.empty())
-            newRuns.insert(newRuns.end(),theseRuns.begin(),theseRuns.end());
+    {
+        std::vector<VectorRing> newRuns;
+        for (const auto &run: runs) {
+            std::vector<VectorRing> theseRuns;
+            ClipLoopToMbr(run, screenMbr, false, theseRuns);
+            if (!theseRuns.empty())
+                newRuns.insert(newRuns.end(),theseRuns.begin(),theseRuns.end());
+        }
+        runs = newRuns;
     }
-    runs = newRuns;
+    
+    // Break up runs at unlikely angles
+    {
+        std::vector<VectorRing> newRuns;
+        for (const auto &run: runs) {
+            std::vector<VectorRing> theseRuns;
+            VectorRing thisRun;
+            thisRun.push_back(run.front());
+            for (unsigned int ii=1;ii<run.size()-1;ii++) {
+                const Point2f &l0 = run[ii-1], &l1 = run[ii], &l2 = run[ii+1];
+                Point2f dir0 = (l1-l0).normalized(), dir1 = (l2-l1).normalized();
+                double ang = acos(dir0.dot(-dir1));
+                if (ang > 135.0 / 180.0 * M_PI)
+                    thisRun.push_back(l1);
+                else {
+                    thisRun.push_back(l1);
+                    theseRuns.push_back(thisRun);
+                    thisRun.clear();
+                    thisRun.push_back(l1);
+                }
+            }
+            thisRun.push_back(run.back());
+            if (thisRun.size() > 1)
+                theseRuns.push_back(thisRun);
+            if (!theseRuns.empty())
+                newRuns.insert(newRuns.end(),theseRuns.begin(),theseRuns.end());
+        }
+        runs = newRuns;
+    }
 
     return;
 }
