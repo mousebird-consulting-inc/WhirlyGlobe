@@ -20,13 +20,14 @@
 
 #import "LinearTextBuilder.h"
 #import "VectorOffset.h"
+#import "GridClipper.h"
 
 namespace WhirlyKit
 {
 
 // https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm
 Point2fVector LineGeneralization(const Point2fVector &screenPts,
-                                 float eps, float minLen,
+                                 float eps,
                                  unsigned int start,unsigned int end)
 {
     if (screenPts.size() < 3)
@@ -49,9 +50,9 @@ Point2fVector LineGeneralization(const Point2fVector &screenPts,
     
     // If max distance is greater than the epsilon, recursively simplify
     Point2fVector pts;
-    if (maxIdx != 0 && (dMax > eps || len > minLen)) {
-        Point2fVector pts0 = LineGeneralization(screenPts, eps, minLen, start, maxIdx);
-        Point2fVector pts1 = LineGeneralization(screenPts, eps, minLen, maxIdx, end);
+    if (maxIdx != 0 && (dMax > eps)) {
+        Point2fVector pts0 = LineGeneralization(screenPts, eps, start, maxIdx);
+        Point2fVector pts1 = LineGeneralization(screenPts, eps, maxIdx, end);
         pts.insert(pts.end(),pts0.begin(),pts0.end());
         pts.insert(pts.end(),pts1.begin(),pts1.end());
     } else {
@@ -60,35 +61,19 @@ Point2fVector LineGeneralization(const Point2fVector &screenPts,
             pts.push_back(screenPts[end-1]);
     }
     
-    // Break up the line if it's too long
-    if (pts.size() == 2) {
-        float lineLen = (pts[0] - pts[1]).norm();
-        if (lineLen > minLen) {
-            Point2fVector newPts;
-            int numSeg = round(lineLen / minLen)+1;
-            Point2f dir = pts[1] - pts[0];
-            newPts.push_back(pts[0]);
-            for (unsigned int ii=1;ii<numSeg;ii++) {
-                Point2f newPt = ii * dir / numSeg + pts[0];
-                newPts.push_back(newPt);
-            }
-            newPts.push_back(pts[1]);
-
-            pts = newPts;
-        }
-    }
-    
     return pts;
 }
 
 LinearTextBuilder::LinearTextBuilder(ViewStateRef viewState,
                                     unsigned int offi,
-                                    const Mbr &screenMbr,
                                     const Point2f &frameBufferSize,
                                     LayoutObject *layoutObj)
-: viewState(viewState), offi(offi), screenMbr(screenMbr), frameBufferSize(frameBufferSize),
+: viewState(viewState), offi(offi), frameBufferSize(frameBufferSize),
 layoutObj(layoutObj)
 {
+    screenMbr.addPoint(Point2f(0.0,0.0));
+    screenMbr.addPoint(Point2f(frameBufferSize.x(),frameBufferSize.y()));
+    
     coordAdapt = viewState->coordAdapter;
     coordSys = coordAdapt->getCoordSystem();
     globeViewState = dynamic_cast<WhirlyGlobe::GlobeViewState *>(viewState.get());
@@ -122,11 +107,12 @@ void LinearTextBuilder::process()
 
     // Generalize the source line
     // TODO: Make this a parameter rather than 10px
-    screenPts = LineGeneralization(screenPts,10.0,100.0,0,screenPts.size());
+    screenPts = LineGeneralization(screenPts,10.0,0,screenPts.size());
 
     if (screenPts.empty())
         return;
 
+    // Run the offsetting
     if (layoutObj->layoutOffset != 0.0) {
         if (isClosed)
             runs = BufferPolygon(screenPts, layoutObj->layoutOffset);
@@ -135,11 +121,17 @@ void LinearTextBuilder::process()
     } else {
         runs.push_back(screenPts);
     }
-        
-    // Ye olde Douglas-Peuker on the line at 3 pixels
-//    const float Epsilon = 40.0;
-//    screenPts = LineGeneralization(screenPts,Epsilon,0,screenPts.size());
     
+    // Clip to the screen
+    std::vector<VectorRing> newRuns;
+    for (const auto &run: runs) {
+        std::vector<VectorRing> theseRuns;
+        ClipLoopToMbr(run, screenMbr, false, theseRuns);
+        if (!theseRuns.empty())
+            newRuns.insert(newRuns.end(),theseRuns.begin(),theseRuns.end());
+    }
+    runs = newRuns;
+
     return;
 }
 
