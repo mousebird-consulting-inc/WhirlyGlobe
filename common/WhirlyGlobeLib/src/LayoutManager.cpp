@@ -637,7 +637,7 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
             // Layout along a shape
             if (!layoutObj->obj.layoutShape.empty()) {
                 for (unsigned int oi=0;oi<viewState->viewMatrices.size();oi++) {
-                    LinearTextBuilder textBuilder(viewState,oi,screenMbr,frameBufferSize,&layoutObj->obj);
+                    LinearTextBuilder textBuilder(viewState,oi,frameBufferSize,&layoutObj->obj);
                     textBuilder.setPoints(layoutObj->obj.layoutShape);
                     textBuilder.process();
                     ShapeSet dispShapes = textBuilder.getVisualVecs();

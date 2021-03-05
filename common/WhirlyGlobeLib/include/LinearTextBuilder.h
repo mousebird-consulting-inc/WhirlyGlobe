@@ -27,6 +27,11 @@
 
 namespace WhirlyKit {
 
+/// Ye olde Douglas Peucker line generalization algorithm.  Mostly.
+Point2fVector LineGeneralization(const Point2fVector &screenPts,
+                                 float eps,
+                                 unsigned int start,unsigned int end);
+
 /**
  Used to lay text out along a line (with or without offset).
  A very specific implementation of a wacky algorithm.
@@ -35,7 +40,6 @@ class LinearTextBuilder {
 public:
     LinearTextBuilder(ViewStateRef viewState,
                       unsigned int offi,
-                      const Mbr &screenMbr,
                       const Point2f &frameBufferSize,
                       LayoutObject *layoutObj);
     

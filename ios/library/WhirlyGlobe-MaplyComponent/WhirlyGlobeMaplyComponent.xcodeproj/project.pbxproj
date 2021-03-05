@@ -632,6 +632,10 @@
 		2BC90D6622405DD200D8B606 /* Sun.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC90D6422405DD200D8B606 /* Sun.h */; };
 		2BC90D6922405DE700D8B606 /* Sun.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BC90D6722405DE700D8B606 /* Sun.cpp */; };
 		2BC90D6A22405DE700D8B606 /* Moon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BC90D6822405DE700D8B606 /* Moon.cpp */; };
+		2BD645E125F0574B00727680 /* LinearTextBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BD645E025F0574B00727680 /* LinearTextBuilder.h */; };
+		2BD645E525F0576900727680 /* LinearTextBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BD645E425F0576900727680 /* LinearTextBuilder.cpp */; };
+		2BD645EF25F1AF8C00727680 /* VectorOffset.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BD645EE25F1AF8C00727680 /* VectorOffset.h */; };
+		2BD645F325F1AF9B00727680 /* VectorOffset.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BD645F225F1AF9A00727680 /* VectorOffset.cpp */; };
 		2BD6FA64254B478000FD8374 /* DictionaryC.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BD6FA63254B477F00FD8374 /* DictionaryC.h */; };
 		2BD6FA68254B47B000FD8374 /* DictionaryC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BD6FA67254B47AF00FD8374 /* DictionaryC.cpp */; };
 		2BE1E7392208A97100815D9C /* MaplyPinchDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B361DED21233CBE0074D06D /* MaplyPinchDelegate.mm */; };
@@ -1608,6 +1612,10 @@
 		2BC90D6422405DD200D8B606 /* Sun.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Sun.h; path = ../../../../common/WhirlyGlobeLib/include/Sun.h; sourceTree = "<group>"; };
 		2BC90D6722405DE700D8B606 /* Sun.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Sun.cpp; path = ../../../../common/WhirlyGlobeLib/src/Sun.cpp; sourceTree = "<group>"; };
 		2BC90D6822405DE700D8B606 /* Moon.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Moon.cpp; path = ../../../../common/WhirlyGlobeLib/src/Moon.cpp; sourceTree = "<group>"; };
+		2BD645E025F0574B00727680 /* LinearTextBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LinearTextBuilder.h; path = ../../../../common/WhirlyGlobeLib/include/LinearTextBuilder.h; sourceTree = "<group>"; };
+		2BD645E425F0576900727680 /* LinearTextBuilder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LinearTextBuilder.cpp; path = ../../../../common/WhirlyGlobeLib/src/LinearTextBuilder.cpp; sourceTree = "<group>"; };
+		2BD645EE25F1AF8C00727680 /* VectorOffset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VectorOffset.h; path = ../../../../common/WhirlyGlobeLib/include/VectorOffset.h; sourceTree = "<group>"; };
+		2BD645F225F1AF9A00727680 /* VectorOffset.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VectorOffset.cpp; path = ../../../../common/WhirlyGlobeLib/src/VectorOffset.cpp; sourceTree = "<group>"; };
 		2BD6FA63254B477F00FD8374 /* DictionaryC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DictionaryC.h; path = ../../../../common/WhirlyGlobeLib/include/DictionaryC.h; sourceTree = "<group>"; };
 		2BD6FA67254B47AF00FD8374 /* DictionaryC.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DictionaryC.cpp; path = ../../../../common/WhirlyGlobeLib/src/DictionaryC.cpp; sourceTree = "<group>"; };
 		2BE1E7572208F32900815D9C /* SingleLabel_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SingleLabel_iOS.h; sourceTree = "<group>"; };
@@ -2130,6 +2138,7 @@
 			isa = PBXGroup;
 			children = (
 				2B446AF821F79A600078A975 /* GridClipper.h */,
+				2BD645E025F0574B00727680 /* LinearTextBuilder.h */,
 				2B446AEF21F79A5F0078A975 /* OverlapHelper.h */,
 				2B446B2221F79BDF0078A975 /* QuadTreeNew.h */,
 				2B446B8C21FB99C00078A975 /* ScreenImportance.h */,
@@ -2137,6 +2146,7 @@
 				2B446AF521F79A5F0078A975 /* Tesselator.h */,
 				2B446B7A21FB948B0078A975 /* VectorData.h */,
 				2B810090221E07EE00CFF779 /* VectorObject.h */,
+				2BD645EE25F1AF8C00727680 /* VectorOffset.h */,
 				2B446AF221F79A5F0078A975 /* WhirlyGeometry.h */,
 				2B446AF621F79A5F0078A975 /* WhirlyOctEncoding.h */,
 				2B446AF721F79A5F0078A975 /* WhirlyVector.h */,
@@ -2148,6 +2158,7 @@
 			isa = PBXGroup;
 			children = (
 				2B446B0921F79AD00078A975 /* GridClipper.cpp */,
+				2BD645E425F0576900727680 /* LinearTextBuilder.cpp */,
 				2B446B0C21F79AD00078A975 /* OverlapHelper.cpp */,
 				2B446B2421F79BF30078A975 /* QuadTreeNew.cpp */,
 				2B446B8E21FB99D60078A975 /* ScreenImportance.cpp */,
@@ -2155,6 +2166,7 @@
 				2B446B0821F79AD00078A975 /* Tesselator.cpp */,
 				2B446B7C21FB94A00078A975 /* VectorData.cpp */,
 				2B810092221E080700CFF779 /* VectorObject.cpp */,
+				2BD645F225F1AF9A00727680 /* VectorOffset.cpp */,
 				2B446B0D21F79AD00078A975 /* WhirlyGeometry.cpp */,
 				2B446B0A21F79AD00078A975 /* WhirlyOctEncoding.cpp */,
 				2B446B0E21F79AD00078A975 /* WhirlyVector.cpp */,
@@ -4192,6 +4204,7 @@
 				2B446B8321FB97C40078A975 /* ShapeReader.h in Headers */,
 				2B0D978924490B4B00F64852 /* MapboxVectorStyleSymbol.h in Headers */,
 				2B446B4E21F7E7B80078A975 /* Drawable.h in Headers */,
+				2BD645EF25F1AF8C00727680 /* VectorOffset.h in Headers */,
 				2BE538071D249A1200B60FAD /* MaplyCoordinateSystem.h in Headers */,
 				2BC90D58223306D300D8B606 /* ScreenObject.h in Headers */,
 				2BE539711D249BEF00B60FAD /* AANearParabolic.h in Headers */,
@@ -4328,6 +4341,7 @@
 				3183312C259112BA005FEF70 /* Math.hpp in Headers */,
 				2B127C03201911D40099F405 /* MapboxVectorInterpreter.h in Headers */,
 				2BE539771D249BEF00B60FAD /* AAParallax.h in Headers */,
+				2BD645E125F0574B00727680 /* LinearTextBuilder.h in Headers */,
 				31833138259112BA005FEF70 /* Gnomonic.hpp in Headers */,
 				3183311A259112BA005FEF70 /* AlbersEqualArea.hpp in Headers */,
 				2BE538251D249A1200B60FAD /* MaplySharedAttributes.h in Headers */,
@@ -4449,6 +4463,7 @@
 				2B82B67E1E82E24A0095FB14 /* PJ_larr.c in Sources */,
 				2BE539C11D249BEF00B60FAD /* AASun.cpp in Sources */,
 				31833157259112BA005FEF70 /* MGRS.cpp in Sources */,
+				2BD645E525F0576900727680 /* LinearTextBuilder.cpp in Sources */,
 				2B87971D2203BF2E00EF801D /* MaplyCoordinate.mm in Sources */,
 				2BE5398E1D249BEF00B60FAD /* AACoordinateTransformation.cpp in Sources */,
 				2B8A78B8228A1A1B008B0A1F /* Identifiable.cpp in Sources */,
@@ -4559,6 +4574,7 @@
 				2B82B6831E82E24A0095FB14 /* pj_list.c in Sources */,
 				2B82B63D1E82E2490095FB14 /* nad_cvt.c in Sources */,
 				2BE539B11D249BEF00B60FAD /* AAParallax.cpp in Sources */,
+				2BD645F325F1AF9B00727680 /* VectorOffset.cpp in Sources */,
 				2B82B64A1E82E2490095FB14 /* PJ_bipc.c in Sources */,
 				31833144259112BA005FEF70 /* Geohash.cpp in Sources */,
 				2B82B66E1E82E24A0095FB14 /* pj_gridinfo.c in Sources */,
