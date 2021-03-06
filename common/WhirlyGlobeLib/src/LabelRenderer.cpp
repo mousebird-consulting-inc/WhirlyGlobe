@@ -263,7 +263,7 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,const std::vector<Sing
                 // Note: This is an arbitrary border around the text
                 backBorder = 4.0;
                 justifyOff.x() += backBorder;
-                ScreenSpaceObject::ConvexGeometry smGeom;
+                ScreenSpaceConvexGeometry smGeom;
                 smGeom.progID = labelInfo->programID;
                 Point2d ll = Point2d(drawMbr.ll().x(),drawMbr.ll().y())+iconOff+Point2d(-backBorder,-backBorder);
                 Point2d ur = Point2d(drawMbr.ur().x(),drawMbr.ur().y())+iconOff+Point2d(backBorder,backBorder);
@@ -324,7 +324,7 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,const std::vector<Sing
             }
             
             // Deal with the icon here becaue we need its geometry
-            ScreenSpaceObject::ConvexGeometry iconGeom;
+            ScreenSpaceConvexGeometry iconGeom;
             if (label->iconTexture != EmptyIdentity && screenShape)
             {
                 SubTexture subTex = scene->getSubTexture(label->iconTexture);
@@ -456,7 +456,7 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,const std::vector<Sing
                     {
                         const DrawableString::Rect &poly = drawStr->glyphPolys[ii];
                         // Note: Ignoring the desired size in favor of the font size
-                        ScreenSpaceObject::ConvexGeometry smGeom;
+                        ScreenSpaceConvexGeometry smGeom;
                         smGeom.progID = labelInfo->programID;
                         smGeom.coords.push_back(Point2d(poly.pts[1].x()+label->screenOffset.x(),poly.pts[0].y()+label->screenOffset.y() + offsetY) + soff + iconOff + justifyOff + lineOff);
                         smGeom.texCoords.push_back(TexCoord(poly.texCoords[1].u(),poly.texCoords[0].v()));

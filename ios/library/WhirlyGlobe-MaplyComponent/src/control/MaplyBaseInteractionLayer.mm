@@ -1009,7 +1009,7 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
     if (topObject->obj.hasRotation())
         retObj.setRotation(topObject->obj.getRotation());
     
-    std::vector<ScreenSpaceObject::ConvexGeometry> allGeometry = topObject->obj.getGeometry();
+    std::vector<ScreenSpaceConvexGeometry> allGeometry = topObject->obj.getGeometry();
     
     if (allGeometry.empty())
         return;
@@ -1049,7 +1049,7 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
     MaplyClusterGroup *group = [clusterGen makeClusterGroup:clusterInfo];
 
     // Geometry for the new cluster object
-    ScreenSpaceObject::ConvexGeometry smGeom;
+    ScreenSpaceConvexGeometry smGeom;
     smGeom.progID = progID;
     smGeom.coords.push_back(Point2d(-group.size.width/2.0,-group.size.height/2.0));
     smGeom.texCoords.push_back(TexCoord(0,1));

@@ -80,6 +80,9 @@ public:
     float layoutOffset;
     float layoutSpacing;
     Point3dVector layoutShape;
+    /// If we're placing glyphs individually we'll do it with matrices
+    std::vector<std::vector<Eigen::Matrix3d> > layoutPlaces;
+    std::vector<Point3d> layoutModelPlaces;
 
     /// Options for where to place this object:  WhirlyKitLayoutPlacementLeft, WhirlyKitLayoutPlacementRight,
     ///  WhirlyKitLayoutPlacementAbove, WhirlyKitLayoutPlacementBelow
