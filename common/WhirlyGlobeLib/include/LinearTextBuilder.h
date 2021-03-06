@@ -42,14 +42,13 @@ public:
     
     /// Calculate the next point along the line given the distance
     /// Or return false if there wasn't anything left
-    bool nextPoint(double distance,Point2f &retPt);
+    bool nextPoint(double distance,Point2f *retPt);
     
 protected:
     VectorRing pts;
     float totalLength;
     int ptSoFar;
-    float remainDist;
-    float distSoFar;
+    float offsetDist;
 };
 
 /**
@@ -74,6 +73,11 @@ public:
     
     // Visual vectors for debugging
     ShapeSet getVisualVecs();
+    
+    // Convert point from screen coordinates back to world coordinates
+    bool screenToWorld(const Point2f &pt,Point3d &outPt);
+    Point2f worldToScreen(const Point3d &worldPt);
+
 protected:
     CoordSystemDisplayAdapter *coordAdapt;
     CoordSystem *coordSys;

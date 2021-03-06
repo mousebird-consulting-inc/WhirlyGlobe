@@ -65,7 +65,7 @@ Point2fVector LineGeneralization(const Point2fVector &screenPts,
 }
 
 LinearWalker::LinearWalker(const VectorRing &pts)
-: pts(pts), ptSoFar(0), remainDist(0.0), distSoFar(0.0), totalLength(0.0)
+: pts(pts), ptSoFar(0), offsetDist(0.0), totalLength(0.0)
 {
     for (unsigned int ii=0;ii<pts.size()-1;ii++) {
         totalLength += (pts[ii+1] - pts[ii]).norm();
@@ -77,25 +77,24 @@ float LinearWalker::getTotalLength()
     return totalLength;
 }
 
-bool LinearWalker::nextPoint(double dist,Point2f &retPt)
+bool LinearWalker::nextPoint(double dist,Point2f *retPt)
 {
     if (ptSoFar >= pts.size()-1)
         return false;
     
-//    float startDistSoFar = distSoFar;
-    
-    float travelSoFar = -remainDist - dist;
+    float travelSoFar = 0.0;
     while (ptSoFar < pts.size()-1) {
         Point2f dir = pts[ptSoFar+1] - pts[ptSoFar];
-        float segDist = dir.norm();
+        float segLen = dir.norm();
         // We're in this segment
-        if (segDist + travelSoFar > 0) {
-            remainDist = segDist + travelSoFar;
-            retPt = pts[ptSoFar] + remainDist/segDist * dir;
+        if ((dist-travelSoFar) < (segLen-offsetDist)) {
+            offsetDist = offsetDist + (dist-travelSoFar);
+            if (retPt)
+                *retPt = pts[ptSoFar] + offsetDist/segLen * dir;
             return true;
         }
         // Keep going
-        travelSoFar += segDist;
+        travelSoFar += segLen;
         ptSoFar++;
     }
     
@@ -207,6 +206,30 @@ void LinearTextBuilder::process()
 std::vector<VectorRing> LinearTextBuilder::getScreenVecs()
 {
     return runs;
+}
+
+bool LinearTextBuilder::screenToWorld(const Point2f &pt,Point3d &outPt)
+{
+    if (globeViewState) {
+        Point3d modelPt;
+        if (globeViewState->pointOnSphereFromScreen(pt, viewState->fullMatrices[offi], frameBufferSize, modelPt, false)) {
+            outPt = modelPt;
+            return true;
+        }
+    } else {
+        Point3d modelPt;
+        if (mapViewState->pointOnPlaneFromScreen(pt, viewState->fullMatrices[offi], frameBufferSize, modelPt, false)) {
+            outPt = modelPt;
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+Point2f LinearTextBuilder::worldToScreen(const Point3d &worldPt)
+{
+    return viewState->pointOnScreenFromDisplay(worldPt, &viewState->fullMatrices[offi], frameBufferSize);
 }
 
 ShapeSet LinearTextBuilder::getVisualVecs()

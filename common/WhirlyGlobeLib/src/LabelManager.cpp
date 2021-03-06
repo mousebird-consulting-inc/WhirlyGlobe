@@ -95,7 +95,7 @@ SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,
     {
         ScreenSpaceBuilder ssBuild(renderer,coordAdapter,renderer->getScale());
         for (unsigned int ii=0;ii<labelRenderer.screenObjects.size();ii++)
-            ssBuild.addScreenObject(labelRenderer.screenObjects[ii]);
+            ssBuild.addScreenObject(labelRenderer.screenObjects[ii], labelRenderer.screenObjects[ii].getWorldLoc(), labelRenderer.screenObjects[ii].getGeometry());
         ssBuild.flushChanges(changes, labelRep->drawIDs);
     }
     

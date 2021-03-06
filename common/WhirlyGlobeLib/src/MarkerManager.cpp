@@ -214,7 +214,7 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
 
             shape->setPeriod(marker->period);
             
-            ScreenSpaceObject::ConvexGeometry smGeom;
+            ScreenSpaceConvexGeometry smGeom;
             for (unsigned int ii=0;ii<subTexs.size();ii++)
                 smGeom.texIDs.push_back(subTexs[ii].texId);
             smGeom.progID = markerInfo.programID;
@@ -254,7 +254,7 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
             // Handle the mask rendering if it's there
             if (marker->maskID != EmptyIdentity && marker->maskRenderTargetID != EmptyIdentity) {
                 // Make a copy of the geometry, but target it to the mask render target
-                std::vector<ScreenSpaceObject::ConvexGeometry> geom = shape->getGeometry();
+                std::vector<ScreenSpaceConvexGeometry> geom = shape->getGeometry();
                 for (auto entry: geom) {
                     entry.vertexAttrs.insert(SingleVertexAttribute(a_maskNameID, renderer->getSlotForNameID(a_maskNameID), (int)marker->maskID));
                     entry.renderTargetID = marker->maskRenderTargetID;

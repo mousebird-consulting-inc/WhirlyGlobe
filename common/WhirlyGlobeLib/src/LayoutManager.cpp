@@ -643,24 +643,72 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
                     textBuilder.process();
                     
                     // Follow the individual runs
+                    std::vector<std::vector<Eigen::Matrix3d> > layoutInstances;
+                    std::vector<Point3d> layoutModelInstances;
+
                     auto runs = textBuilder.getScreenVecs();
                     for (auto run: runs) {
+                        // We need the length of the glyphs and their center
+                        Mbr layoutMbr(layoutObj->obj.layoutPts);
+                        float textLen = layoutMbr.ur().x();
+                        float midY = layoutMbr.mid().y();
+
                         LinearWalker walk(run);
 
-                        // Start with an initial offset
-                        Point2f screenPt;
-                        if (!walk.nextPoint(layoutObj->obj.layoutSpacing, screenPt)) {
+                        // Make sure we can lay it out at least once
+                        if (textLen + 2.0*layoutObj->obj.layoutSpacing < walk.getTotalLength()) {
+                            // Start with an initial offset
+                            if (!walk.nextPoint(layoutObj->obj.layoutSpacing, nullptr))
+                                continue;
+
+                            std::vector<Eigen::Matrix3d> layoutMats;
+
+                            // Center around the world point on the screen
+                            Point3d worldPt(0.0,0.0,0.0);
+                            if (!textBuilder.screenToWorld(run[0], worldPt))
+                                continue;
+                            Point2f worldScreenPt = run[0];
                             
-                        }
-                        
-                        for (const auto &geom: layoutObj->obj.geometry) {
+                            // Walk through the individual glyphs
+                            float soFarX = 0.0;
+                            bool failed = false;
+                            for (const auto &geom: layoutObj->obj.geometry) {
+                                Mbr glyphMbr(geom.coords);
+                                Point2f span = glyphMbr.span();
+                                Point2f midGlyph = glyphMbr.mid();
+//                                Affine2d transOrigin(Translation2d(-midGlyph.x(),-midY));
+                                Affine2d transOrigin(Translation2d(-midGlyph.x(),-midGlyph.y()));
+
+                                // Walk along the line to get a good center
+                                Point2f centerPt;
+                                if (!walk.nextPoint(glyphMbr.ll().x()-soFarX+span.x()/2.0,&centerPt)) {
+                                    failed = true;
+                                    break;
+                                }
+                                walk.nextPoint(span.x()/2.0, nullptr);
+                                soFarX = glyphMbr.ll().x()+span.x();
+
+                                // Translate the glyph into that position
+                                Affine2d transPlace(Translation2d(centerPt.x()-worldScreenPt.x(),
+                                                                  -(centerPt.y()-worldScreenPt.y())));
+                                layoutMats.push_back(transOrigin.matrix() * transPlace.matrix());
+                            }
                             
+                            if (!failed) {
+                                layoutModelInstances.push_back(worldPt);
+                                layoutInstances.push_back(layoutMats);
+                            }
                         }
-                        
-                        // Offset before the end
-                        if (!walk.nextPoint(layoutObj->obj.layoutSpacing, screenPt)) {
-                            
-                        }
+                    }
+                    
+                    if (!layoutInstances.empty()) {
+                        layoutObj->newEnable = true;
+                        layoutObj->changed = true;
+                        layoutObj->obj.layoutPlaces = layoutInstances;
+                        layoutObj->obj.layoutModelPlaces = layoutModelInstances;
+                        hadChanges |= layoutObj->changed;
+                        layoutObj->newCluster = -1;
+                        layoutObj->offset = Point2d(0.0,0.0);
                     }
 
                     // Debugging visual output
@@ -910,17 +958,25 @@ void LayoutManager::updateLayout(ViewStateRef viewState,ChangeSet &changes)
                 //animObj.setDrawOrder(?)
                 for (auto &geom : animObj.geometry)
                     geom.progID = params.motionShaderID;
-                ssBuild.addScreenObject(animObj);
+                ssBuild.addScreenObject(animObj,animObj.worldLoc,animObj.geometry);
                 
                 // And hold off on adding it
                 ScreenSpaceObject shortObj = layoutObj->obj;
                 //shortObj.setDrawOrder(?)
                 shortObj.setEnableTime(curTime+params.markerAnimationTime, 0.0);
-                ssBuild.addScreenObject(shortObj);
+                ssBuild.addScreenObject(shortObj,shortObj.worldLoc,shortObj.geometry);
             } else {
                 // It's boring, just add it
-                if (layoutObj->newEnable)
-                    ssBuild.addScreenObject(layoutObj->obj);
+                if (layoutObj->newEnable) {
+                    // It's a single point placement
+                    if (layoutObj->obj.layoutShape.empty())
+                        ssBuild.addScreenObject(layoutObj->obj,layoutObj->obj.worldLoc,layoutObj->obj.geometry);
+                    else {
+                        // One or more placements along a path
+                        for (unsigned int ii=0;ii<layoutObj->obj.layoutPlaces.size();ii++)
+                            ssBuild.addScreenObject(layoutObj->obj, layoutObj->obj.layoutModelPlaces[ii], layoutObj->obj.geometry, &layoutObj->obj.layoutPlaces[ii]);
+                    }
+                }
             }
 
             layoutObj->currentEnable = layoutObj->newEnable;
@@ -955,16 +1011,16 @@ void LayoutManager::updateLayout(ViewStateRef viewState,ChangeSet &changes)
                 //animObj.setDrawOrder(?)
                 for (auto &geom : animObj.geometry)
                     geom.progID = params.motionShaderID;
-                ssBuild.addScreenObject(animObj);
+                ssBuild.addScreenObject(animObj, animObj.worldLoc, animObj.geometry);
 
                 // Hold off on adding the new one
                 ScreenSpaceObject shortObj = cluster.layoutObj;
                 //shortObj.setDrawOrder(?)
                 shortObj.setEnableTime(curTime+params.markerAnimationTime, 0.0);
-                ssBuild.addScreenObject(shortObj);
+                ssBuild.addScreenObject(shortObj, shortObj.worldLoc, shortObj.geometry);
                 
             } else
-                ssBuild.addScreenObject(cluster.layoutObj);
+                ssBuild.addScreenObject(cluster.layoutObj, cluster.layoutObj.worldLoc, cluster.layoutObj.geometry);
         }
         
         ssBuild.flushChanges(changes, drawIDs);

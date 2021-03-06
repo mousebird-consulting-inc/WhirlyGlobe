@@ -342,7 +342,7 @@ void ScreenSpaceBuilder::addScreenObjects(std::vector<ScreenSpaceObject> &screen
     {
         ScreenSpaceObject &ssObj = screenObjects[ii];
         
-        addScreenObject(ssObj);
+        addScreenObject(ssObj,ssObj.worldLoc,ssObj.geometry);
     }
 }
     
@@ -355,15 +355,25 @@ void ScreenSpaceBuilder::addScreenObjects(std::vector<ScreenSpaceObject *> &scre
     {
         ScreenSpaceObject *ssObj = screenObjects[ii];
         
-        addScreenObject(*ssObj);
+        addScreenObject(*ssObj, ssObj->worldLoc, ssObj->geometry);
     }
 }
 
-void ScreenSpaceBuilder::addScreenObject(const ScreenSpaceObject &ssObj)
+void ScreenSpaceBuilder::addScreenObject(const ScreenSpaceObject &ssObj,
+                                         const Point3d &worldLoc,
+                                         const std::vector<ScreenSpaceConvexGeometry> &geoms,
+                                         const std::vector<Eigen::Matrix3d> *places)
 {
-    for (unsigned int ii=0;ii<ssObj.geometry.size();ii++)
+    for (unsigned int ii=0;ii<geoms.size();ii++)
     {
-        const ScreenSpaceObject::ConvexGeometry &geom = ssObj.geometry[ii];
+        ScreenSpaceConvexGeometry geom = geoms[ii];
+        // Apply a matrix to the geometry for a given version of the placement
+        if (places) {
+            for (auto &pt: geom.coords) {
+                auto pt2d = (*places)[ii] * Point3d(pt.x(),pt.y(),1.0);
+                pt = Point2d(pt2d.x(),pt2d.y());
+            }
+        }
         DrawableState state = ssObj.state;
         state.texIDs = geom.texIDs;
         if (geom.progID != EmptyIdentity)
@@ -376,10 +386,10 @@ void ScreenSpaceBuilder::addScreenObject(const ScreenSpaceObject &ssObj)
         state.startEnable = ssObj.startEnable;
         state.endEnable = ssObj.endEnable;
         VertexAttributeSetConvert(geom.vertexAttrs,state.vertexAttrs);
-        DrawableWrapRef drawWrap = findOrAddDrawWrap(state,(int)geom.coords.size(),(int)(geom.coords.size()-2),ssObj.worldLoc);
+        DrawableWrapRef drawWrap = findOrAddDrawWrap(state,(int)geom.coords.size(),(int)(geom.coords.size()-2),worldLoc);
         
         // May need to adjust things based on time
-        Point3d startLoc3d = ssObj.worldLoc;
+        Point3d startLoc3d = worldLoc;
         Point3f dir(0,0,0);
         if (state.motion)
         {
@@ -437,7 +447,7 @@ void ScreenSpaceBuilder::flushChanges(ChangeSet &changes,SimpleIDSet &drawIDs)
     draws.clear();
 }
     
-ScreenSpaceObject::ScreenSpaceObject::ConvexGeometry::ConvexGeometry()
+ScreenSpaceConvexGeometry::ScreenSpaceConvexGeometry()
     : progID(EmptyIdentity), color(255,255,255,255), drawPriority(-1), renderTargetID(EmptyIdentity)
     , drawOrder(BaseInfo::DrawOrderTiles)
 {
@@ -576,12 +586,12 @@ void ScreenSpaceObject::setOrderBy(long inOrderBy)
     orderBy = inOrderBy;
 }
 
-void ScreenSpaceObject::addGeometry(const ConvexGeometry &geom)
+void ScreenSpaceObject::addGeometry(const ScreenSpaceConvexGeometry &geom)
 {
     geometry.push_back(geom);
 }
 
-void ScreenSpaceObject::addGeometry(const std::vector<ConvexGeometry> &geom)
+void ScreenSpaceObject::addGeometry(const std::vector<ScreenSpaceConvexGeometry> &geom)
 {
     geometry.insert(geometry.end(), geom.begin(), geom.end());
 }
