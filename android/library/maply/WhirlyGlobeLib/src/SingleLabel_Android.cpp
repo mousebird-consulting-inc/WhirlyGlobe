@@ -53,8 +53,8 @@ std::vector<DrawableString *> SingleLabelAndroid::generateDrawableStrings(
                 drawStr->mbr.ll().y() += lineHeight * whichLine;
                 drawStr->mbr.ur().y() += lineHeight * whichLine;
             }
-            whichLine++;
         }
+        whichLine++;
     }
 
     return drawStrs;

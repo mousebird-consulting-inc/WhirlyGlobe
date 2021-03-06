@@ -162,28 +162,19 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,const std::vector<Sing
         {
             const float height = drawMbr.ur().y()-drawMbr.ll().y();
 
-            switch (labelInfo->labelJustify)
-            {
-                case WhirlyKitLabelLeft:
-                    justifyOff = Point2d(0,0.0);
-                    break;
-                case WhirlyKitLabelMiddle:
-                    justifyOff = Point2d(-(drawMbr.ur().x()-drawMbr.ll().x())/2.0,0.0);
-                    break;
-                case WhirlyKitLabelRight:
-                    justifyOff = Point2d(-(drawMbr.ur().x()-drawMbr.ll().x()),0.0);
-                    break;
-            }
-
-            screenShape = &scratchScreenSpaceObject;
-            if (layoutEngine)
-            {
-                layoutObject = &scratchLayoutObject;
-            }
-
             // If we're doing layout, don't justify it
-            if (layoutEngine)
-                justifyOff = Point2d(0,0);
+            if (!layoutEngine)
+            {
+                const auto width = drawMbr.ur().x() - drawMbr.ll().x();
+                switch (labelInfo->labelJustify)
+                {
+                    case WhirlyKitLabelRight:  justifyOff.x() = -width; break;
+                    case WhirlyKitLabelMiddle: justifyOff.x() = -width / 2.0; break;
+                }
+            }
+            
+            screenShape = layoutEngine ? &scratchLayoutObject : &scratchScreenSpaceObject;
+            layoutObject = layoutEngine ? &scratchLayoutObject : nullptr;
 
 #ifndef __ANDROID__
             // Except we do need to tweak things a little, even for the layout engine
@@ -373,8 +364,9 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,const std::vector<Sing
 
         // Work through the lines
         double offsetY = 0.0;
-        for (const auto &drawStr : drawStrs)
+        for (auto it = drawStrs.rbegin(); it != drawStrs.rend(); ++it)
         {
+            const auto drawStr = *it;
             if (!drawStr)
                 continue;
             
@@ -387,9 +379,6 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,const std::vector<Sing
                 {
                     case WhirlyKitTextCenter:
                         lineOff.x() = (drawMbr.ur().x()-drawMbr.ll().x() - (drawStr->mbr.ur().x()-drawStr->mbr.ll().x()))/2.0;
-                        break;
-                    case WhirlyKitTextLeft:
-                        // Leave it alone
                         break;
                     case WhirlyKitTextRight:
                         lineOff.x() = drawMbr.ur().x()-drawMbr.ll().x() - (drawStr->mbr.ur().x()-drawStr->mbr.ll().x());
