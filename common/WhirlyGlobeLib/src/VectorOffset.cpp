@@ -26,16 +26,20 @@ using namespace ClipperLib;
 namespace WhirlyKit
 {
 
-static float PolyScale = 1e14;
+static float PolyScale = 1e6;
 
-std::vector<VectorRing> BufferLoop(const VectorRing &ring, float offset) {
+std::vector<VectorRing> BufferLoop(const VectorRing &ring, float offset)
+{
+    Mbr mbr(ring);
+    Point2f org = mbr.ll();
+
     Path path;
     for (const auto &pt: ring)
-        path.push_back(IntPoint(pt.x() * PolyScale, pt.y() * PolyScale));
+        path.push_back(IntPoint((pt.x() - org.x()) * PolyScale, (pt.y() - org.y()) * PolyScale));
 
     ClipperOffset co;
     Paths soln;
-    co.AddPath(path, jtMiter, etClosedLine);
+    co.AddPath(path, jtSquare, etOpenButt);
     co.Execute(soln, offset * PolyScale);
     
     std::vector<VectorRing> rets;
@@ -44,7 +48,7 @@ std::vector<VectorRing> BufferLoop(const VectorRing &ring, float offset) {
         VectorRing outRing;
         for (unsigned jj=0;jj<outPoly.size();jj++) {
             IntPoint &outPt = outPoly[jj];
-            outRing.push_back(Point2f(outPt.X/PolyScale,outPt.Y/PolyScale));
+            outRing.push_back(Point2f(outPt.X/PolyScale + org.x(),outPt.Y/PolyScale + org.y()));
         }
         
         if (outRing.size() > 2)
@@ -54,11 +58,14 @@ std::vector<VectorRing> BufferLoop(const VectorRing &ring, float offset) {
 }
 
 /// Offset/buffer a polygon into one or more loops
-std::vector<VectorRing> BufferPolygon(const VectorRing &ring, float offset) {
+std::vector<VectorRing> BufferPolygon(const VectorRing &ring, float offset)
+{
+    Point2f org = ring[0];
+    
     Path path;
     for (const auto &pt: ring)
-        path.push_back(IntPoint(pt.x() * PolyScale, pt.y() * PolyScale));
-    path.push_back(IntPoint(ring[0].x() * PolyScale, ring[0].y() * PolyScale));
+        path.push_back(IntPoint((pt.x() - org.x()) * PolyScale, (pt.y() - org.y()) * PolyScale));
+    path.push_back(IntPoint((ring[0].x() - org.x()) * PolyScale, (ring[0].y() - org.y()) * PolyScale));
 
     ClipperOffset co;
     Paths soln;
@@ -71,9 +78,9 @@ std::vector<VectorRing> BufferPolygon(const VectorRing &ring, float offset) {
         VectorRing outRing;
         for (unsigned jj=0;jj<outPoly.size();jj++) {
             IntPoint &outPt = outPoly[jj];
-            outRing.push_back(Point2f(outPt.X/PolyScale,outPt.Y/PolyScale));
+            outRing.push_back(Point2f(outPt.X/PolyScale + org.x(),outPt.Y/PolyScale + org.y()));
         }
-        outRing.push_back(Point2f(outPoly[0].X/PolyScale,outPoly[0].Y/PolyScale));
+        outRing.push_back(Point2f(outPoly[0].X/PolyScale + org.x(),outPoly[0].Y/PolyScale + org.y()));
         
         if (outRing.size() > 2)
             rets.push_back(outRing);

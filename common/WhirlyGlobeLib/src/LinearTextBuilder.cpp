@@ -77,25 +77,30 @@ float LinearWalker::getTotalLength()
     return totalLength;
 }
 
-bool LinearWalker::nextPoint(double dist,Point2f *retPt)
+bool LinearWalker::nextPoint(double dist,Point2f *retPt,bool savePos)
 {
     if (ptSoFar >= pts.size()-1)
         return false;
     
     float travelSoFar = 0.0;
-    while (ptSoFar < pts.size()-1) {
-        Point2f dir = pts[ptSoFar+1] - pts[ptSoFar];
+    int newPtSoFar = ptSoFar;
+    while (newPtSoFar < pts.size()-1) {
+        Point2f dir = pts[newPtSoFar+1] - pts[newPtSoFar];
         float segLen = dir.norm();
         // We're in this segment
         if ((dist-travelSoFar) < (segLen-offsetDist)) {
-            offsetDist = offsetDist + (dist-travelSoFar);
+            float newOffsetDist = offsetDist + (dist-travelSoFar);
             if (retPt)
-                *retPt = pts[ptSoFar] + offsetDist/segLen * dir;
+                *retPt = pts[newPtSoFar] + newOffsetDist/segLen * dir;
+            if (savePos) {
+                offsetDist = newOffsetDist;
+                ptSoFar = newPtSoFar;
+            }
             return true;
         }
         // Keep going
         travelSoFar += segLen;
-        ptSoFar++;
+        newPtSoFar++;
     }
     
     return false;
@@ -148,15 +153,24 @@ void LinearTextBuilder::process()
 
     if (screenPts.empty())
         return;
+    
+    // Clip to a larger screen MBR
+    {
+        std::vector<VectorRing> newRuns;
+        Mbr largeScreenMbr = screenMbr;
+        largeScreenMbr.expandByFraction(0.1);
+        ClipLoopToMbr(screenPts, largeScreenMbr, true, newRuns,1e6);
+        runs = newRuns;
+    }
 
     // Run the offsetting
     if (layoutObj->layoutOffset != 0.0) {
-        if (isClosed)
-            runs = BufferPolygon(screenPts, layoutObj->layoutOffset);
-        else
-            runs = BufferLoop(screenPts, layoutObj->layoutOffset);
-    } else {
-        runs.push_back(screenPts);
+        std::vector<VectorRing> newRuns;
+        for (const auto &run: runs) {
+            std::vector<VectorRing> theseRuns = BufferPolygon(run, layoutObj->layoutOffset);
+            newRuns.insert(newRuns.end(),theseRuns.begin(),theseRuns.end());
+        }
+        runs = newRuns;
     }
     
     // Clip to the screen
