@@ -664,11 +664,14 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
                             std::vector<Eigen::Matrix3d> layoutMats;
 
                             // Center around the world point on the screen
-                            Point3d worldPt(0.0,0.0,0.0);
-                            if (!textBuilder.screenToWorld(run[0], worldPt))
+                            Point2f midRun;
+                            if (!walk.nextPoint(layoutMbr.span().x()/2.0, &midRun, false))
                                 continue;
-                            Point2f worldScreenPt = run[0];
-                            
+                            Point2f worldScreenPt = midRun;
+                            Point3d worldPt(0.0,0.0,0.0);
+                            if (!textBuilder.screenToWorld(midRun, worldPt))
+                                continue;
+
                             // Walk through the individual glyphs
                             float soFarX = 0.0;
                             bool failed = false;
@@ -681,16 +684,16 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
 
                                 // Walk along the line to get a good center
                                 Point2f centerPt;
-                                if (!walk.nextPoint(glyphMbr.ll().x()-soFarX+span.x()/2.0,&centerPt)) {
+                                if (!walk.nextPoint(span.x(),&centerPt)) {
                                     failed = true;
                                     break;
                                 }
-                                walk.nextPoint(span.x()/2.0, nullptr);
+                                walk.nextPoint(span.x(), nullptr);
                                 soFarX = glyphMbr.ll().x()+span.x();
 
                                 // Translate the glyph into that position
-                                Affine2d transPlace(Translation2d(centerPt.x()-worldScreenPt.x(),
-                                                                  -(centerPt.y()-worldScreenPt.y())));
+                                Affine2d transPlace(Translation2d((centerPt.x()-worldScreenPt.x())/2.0,
+                                                                  -(centerPt.y()-worldScreenPt.y())/2.0));
                                 layoutMats.push_back(transOrigin.matrix() * transPlace.matrix());
                             }
                             
@@ -702,6 +705,7 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
                     }
                     
                     if (!layoutInstances.empty()) {
+                        isActive = true;
                         layoutObj->newEnable = true;
                         layoutObj->changed = true;
                         layoutObj->obj.layoutPlaces = layoutInstances;
@@ -709,6 +713,15 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
                         hadChanges |= layoutObj->changed;
                         layoutObj->newCluster = -1;
                         layoutObj->offset = Point2d(0.0,0.0);
+                    } else {
+                        isActive = false;
+                        layoutObj->newEnable = false;
+                        layoutObj->obj.layoutPlaces.clear();
+                        layoutObj->obj.layoutModelPlaces.clear();
+                    }
+                    
+                    if (layoutObj->currentEnable != isActive) {
+                        layoutObj->changed = true;
                     }
 
                     // Debugging visual output

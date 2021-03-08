@@ -25,9 +25,6 @@
 namespace WhirlyKit
 {
 
-/// Offset/buffer an unconnected loop into one or more loops.
-std::vector<VectorRing> BufferLoop(const VectorRing &ring, float offset);
-
 /// Offset/buffer a polygon into one or more loops
 std::vector<VectorRing> BufferPolygon(const VectorRing &ring, float offset);
 
