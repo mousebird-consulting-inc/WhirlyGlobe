@@ -17,13 +17,14 @@
  */
 
 #import "MapboxVectorStyleSet_Android.h"
+#import "Formats_jni.h"
+#import "LabelsAndMarkers_jni.h"
+#import "Exceptions_jni.h"
 #import <string>
 #import <iostream>
 #import <sstream>
 #import <locale>
 #import <codecvt>
-#import "Formats_jni.h"
-#import "LabelsAndMarkers_jni.h"
 
 namespace WhirlyKit
 {
@@ -36,19 +37,14 @@ MapboxVectorStyleSetImpl_Android::MapboxVectorStyleSetImpl_Android(Scene *scene,
 
 void MapboxVectorStyleSetImpl_Android::setupMethods(JNIEnv *env)
 {
-    // TODO: Turn global reference into local reference for this object
-
     if (!makeLabelInfoMethod) {
         jclass thisClass = MapboxVectorStyleSetClassInfo::getClassInfo()->getClass();
-        // TODO: Get the right signatures
         makeLabelInfoMethod = env->GetMethodID(thisClass, "labelInfoForFont",
                                                "(Ljava/lang/String;F)Lcom/mousebird/maply/LabelInfo;");
         calculateTextWidthMethod = env->GetMethodID(thisClass, "calculateTextWidth",
                 "(Ljava/lang/String;Lcom/mousebird/maply/LabelInfo;)D");
-//        makeCircleTextureMethod = env->GetMethodID(thisClass, "makeLabelInfo",
-//                                                   "");
-//        makeLineTextureMethod = env->GetMethodID(thisClass, "makeLabelInfo",
-//                                                 "");
+//        makeCircleTextureMethod = env->GetMethodID(thisClass, "makeLabelInfo","");
+//        makeLineTextureMethod = env->GetMethodID(thisClass, "makeLabelInfo","");
     }
 }
 
@@ -83,24 +79,40 @@ SimpleIdentity MapboxVectorStyleSetImpl_Android::makeLineTexture(PlatformThreadI
 LabelInfoRef MapboxVectorStyleSetImpl_Android::makeLabelInfo(PlatformThreadInfo *inInst,const std::vector<std::string> &fontNames,float fontSize)
 {
     PlatformInfo_Android *inst = (PlatformInfo_Android *)inInst;
-    std::pair<std::string, float> entry(fontNames[0],fontSize);
 
-    LabelInfoAndroidRef refLabelInfo = NULL;
-    auto it = labelInfos.find(entry);
-    if (it != labelInfos.end())
-        refLabelInfo = it->second;
-    else {
-        jstring jFontNameStr = inst->env->NewStringUTF(fontNames[0].c_str());
-        jobject labelInfoGlobeObj = inst->env->NewGlobalRef(inst->env->CallObjectMethod(thisObj,makeLabelInfoMethod,jFontNameStr,2.0*fontSize));
-        inst->env->DeleteLocalRef(jFontNameStr);
-        LabelInfoAndroidRef *newRef = LabelInfoClassInfo::getClassInfo()->getObject(inst->env,labelInfoGlobeObj);
-        refLabelInfo = *newRef;
-        refLabelInfo->labelInfoObj = labelInfoGlobeObj;
-        refLabelInfo->programID = screenMarkerProgramID;
-        labelInfos[entry] = refLabelInfo;
+    if (fontNames.empty()) {
+        return LabelInfoRef();
     }
 
-    return refLabelInfo;
+    try {
+        const auto key = std::make_pair(fontNames[0],fontSize);
+        const auto result = labelInfos.insert(std::make_pair(key, LabelInfoAndroidRef()));
+        if (!result.second)
+        {
+            // Already present, return it
+            return result.first->second;
+        }
+
+        jstring jFontNameStr = inst->env->NewStringUTF(fontNames[0].c_str());
+        jobject labelInfo = inst->env->CallObjectMethod(thisObj, makeLabelInfoMethod, jFontNameStr, 2.0 * fontSize);
+        logAndClearJVMException(inst->env, "labelInfoForFont");
+        inst->env->DeleteLocalRef(jFontNameStr);
+
+        if (jobject labelInfoGlobeObj = inst->env->NewGlobalRef(labelInfo)) {
+            const auto newRef = LabelInfoClassInfo::getClassInfo()->getObject(inst->env,labelInfoGlobeObj);
+            const auto refLabelInfo = *newRef;
+            refLabelInfo->labelInfoObj = labelInfoGlobeObj;
+            refLabelInfo->programID = screenMarkerProgramID;
+
+            // Save it to the cache map
+            result.first->second = refLabelInfo;
+
+            return refLabelInfo;
+        }
+    } catch (...) {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in makeLabelInfo()");
+    }
+    return LabelInfoRef();
 }
 
 SingleLabelRef MapboxVectorStyleSetImpl_Android::makeSingleLabel(PlatformThreadInfo *inInst,const std::string &text)
@@ -125,7 +137,7 @@ SingleLabelRef MapboxVectorStyleSetImpl_Android::makeSingleLabel(PlatformThreadI
 
 ComponentObjectRef MapboxVectorStyleSetImpl_Android::makeComponentObject(PlatformThreadInfo *inInst)
 {
-    return ComponentObjectRef(new ComponentObject());
+    return std::make_shared<ComponentObject>();
 }
 
 double MapboxVectorStyleSetImpl_Android::calculateTextWidth(PlatformThreadInfo *inInst,LabelInfoRef inLabelInfo,const std::string &text)

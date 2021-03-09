@@ -1,9 +1,8 @@
-/*
- *  MapboxVectorStyleSet_jni.cpp
+/*  MapboxVectorStyleSet_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by sjg
- *  Copyright 2011-2020 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <Formats_jni.h>
@@ -26,14 +24,16 @@
 
 using namespace WhirlyKit;
 
-template<> MapboxVectorStyleSetClassInfo *MapboxVectorStyleSetClassInfo::classInfoObj = NULL;
+template<> MapboxVectorStyleSetClassInfo *MapboxVectorStyleSetClassInfo::classInfoObj = nullptr;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_nativeInit
 (JNIEnv *env, jclass cls)
 {
     MapboxVectorStyleSetClassInfo::getClassInfo(env,cls);
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_initialise
 (JNIEnv *env, jobject obj, jobject sceneObj, jobject coordSysObj, jobject settingsObj, jobject attrObj)
 {
@@ -68,6 +68,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_initialise
 
 static std::mutex disposeMutex;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_dispose
 (JNIEnv *env, jobject obj)
 {
@@ -92,6 +93,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_dispose
     }
 }
 
+extern "C"
 JNIEXPORT jint JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_backgroundColorForZoomNative
         (JNIEnv *env, jobject obj, jdouble zoom)
 {
@@ -118,8 +120,8 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_backgroundC
     return 0;
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_setArealShaderNative
-        (JNIEnv *env, jobject obj, jlong shaderID)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_setArealShaderNative(JNIEnv *env, jobject obj, jlong shaderID)
 {
     try
     {

@@ -354,7 +354,6 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
         return;
 
     const auto zoomLevel = tileInfo->ident.level;
-    ComponentObjectRef compObj = styleSet->makeComponentObject(inst);
 
     // Render at the max size and then scale dynamically
     double textSize = layout.textSize->maxVal() * layout.globalTextScale;
@@ -368,6 +367,10 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
     }
 
     LabelInfoRef labelInfo = styleSet->makeLabelInfo(inst,layout.textFontNames,textSize);
+    if (!labelInfo) {
+        return;
+    }
+
     labelInfo->hasExp = true;
     labelInfo->zoomSlot = styleSet->zoomSlot;
     if (minzoom != 0 || maxzoom < 1000) {
@@ -425,6 +428,8 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
         markerInfo.programID = styleSet->screenMarkerProgramID;
         markerInfo.drawPriority = labelInfo->drawPriority;
     }
+
+    ComponentObjectRef compObj = styleSet->makeComponentObject(inst);
 
     // Calculate the present value of the offsets in ems.
     // This isn't in setupLabel because it only needs to be done once.

@@ -1,9 +1,8 @@
-/*
- *  Maply_jni.cpp
+/*  Maply_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2016 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "Maply_jni.h"
@@ -337,3 +335,4 @@ jobjectArray BuildStringArray(JNIEnv *env,std::vector<std::string> &objVec)
         env->SetObjectArrayElement(newArray,ii,env->NewStringUTF(objVec[ii].c_str()));
     return newArray;
 }
+

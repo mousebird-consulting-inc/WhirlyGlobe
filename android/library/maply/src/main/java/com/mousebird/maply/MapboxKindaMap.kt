@@ -125,7 +125,7 @@ open class MapboxKindaMap {
     }
 
     private fun clearTask(task: Call) {
-        control?.get()?.getActivity()?.runOnUiThread {
+        control.get()?.getActivity()?.runOnUiThread {
             outstandingFetches.remove(task)
         }
     }
@@ -257,7 +257,7 @@ open class MapboxKindaMap {
         sources?.forEach { source ->
             // If the tile spec isn't embedded, we need to go get it
             if (source.tileSpec == null && success) {
-                if (source.url.isEmpty()) {
+                if (source.url?.isEmpty() != false) {
                     Log.w("Maply", "Expecting either URL or tile info for a source.  Giving up.")
                     success = false
                 }
@@ -383,19 +383,22 @@ open class MapboxKindaMap {
     private fun startHybridLoader(sampleParams: SamplingParams, tileInfos: ArrayList<TileInfoNew>) {
         val control = control.get() ?: return
         // Put together the tileInfoNew objects
-        styleSheet?.sources?.forEach {
-            val source = it
-            if (source.tileSpec.hasField("tiles")) {
-                val tiles = source.tileSpec.getArray("tiles")
-                val tileSrc = tiles[0].string
-                val tileSource = RemoteTileInfoNew(tileSrc, source.tileSpec.getInt("minzoom"), source.tileSpec.getInt("maxzoom"))
-                if (cacheDir != null) {
-                    val cacheName = cacheNamePattern.replace(tileSrc, "_")
-                    tileSource.cacheDir = File(cacheDir!!,cacheName)
+        styleSheet?.sources?.forEach { source ->
+            source.tileSpec?.let { tileSpec ->
+                if (tileSpec.hasField("tiles")) {
+                    val minZoom = tileSpec.getInt("minzoom")
+                    val maxZoom = tileSpec.getInt("maxzoom")
+                    val tiles = tileSpec.getArray("tiles")
+                    val tileSrc = tiles[0].string
+                    val tileSource = RemoteTileInfoNew(tileSrc, minZoom, maxZoom)
+                    if (cacheDir != null) {
+                        val cacheName = cacheNamePattern.replace(tileSrc, "_")
+                        tileSource.cacheDir = File(cacheDir!!, cacheName)
+                    }
+                    tileInfos.add(tileSource)
+                } else {
+                    Log.w("Maply", "TileInfo source missing tiles.  Skipping.")
                 }
-                tileInfos.add(tileSource)
-            } else {
-                Log.w("Maply", "TileInfo source missing tiles.  Skipping.")
             }
         }
 
