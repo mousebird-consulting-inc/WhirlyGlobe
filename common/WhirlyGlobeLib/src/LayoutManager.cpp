@@ -675,12 +675,13 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
                             // Walk through the individual glyphs
                             float soFarX = 0.0;
                             bool failed = false;
-                            for (const auto &geom: layoutObj->obj.geometry) {
+                            for (unsigned int ig=0;ig<layoutObj->obj.geometry.size();ig++) {
+                                const auto &geom = layoutObj->obj.geometry[ig];
                                 Mbr glyphMbr(geom.coords);
                                 Point2f span = glyphMbr.span();
                                 Point2f midGlyph = glyphMbr.mid();
-//                                Affine2d transOrigin(Translation2d(-midGlyph.x(),-midY));
-                                Affine2d transOrigin(Translation2d(-midGlyph.x(),-midGlyph.y()));
+                                Affine2d transOrigin(Translation2d(-midGlyph.x(),-midY));
+//                                Affine2d transOrigin(Translation2d(-midGlyph.x(),-midGlyph.y()));
 
                                 // Walk along the line to get a good center
                                 Point2f centerPt;
@@ -691,7 +692,17 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
                                 }
                                 walk.nextPoint(span.x(), nullptr, nullptr);
                                 soFarX = glyphMbr.ll().x()+span.x();
-
+                                
+                                // Don't forget the space between glyphs
+                                if (ig < layoutObj->obj.geometry.size()-1) {
+                                    Mbr glyphNextMbr(layoutObj->obj.geometry[ig+1].coords);
+                                    float padX = glyphNextMbr.ll().x() - glyphMbr.ur().x();
+                                    if (!walk.nextPoint(padX, nullptr, nullptr)) {
+                                        failed = true;
+                                        break;
+                                    }
+                                }
+                                
                                 // Translate the glyph into that position
                                 Affine2d transPlace(Translation2d((centerPt.x()-worldScreenPt.x())/2.0,
                                                                   -(centerPt.y()-worldScreenPt.y())/2.0));
