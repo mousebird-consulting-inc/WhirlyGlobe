@@ -1,9 +1,8 @@
-/*
- *  SceneMTL.mm
+/*  SceneMTL.mm
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/16/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,12 +14,12 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "SceneMTL.h"
 #import "TextureMTL.h"
 #import "DrawableMTL.h"
+#import "FontTextureManager.h"
 
 namespace WhirlyKit
 {
@@ -48,18 +47,21 @@ id<MTLTexture> SceneMTL::getMTLTexture(SimpleIdentity texIdent)
     return ret;
 }
 
-void SceneMTL::teardown()
+void SceneMTL::teardown(PlatformThreadInfo *inst)
 {
-    for (auto it : drawables) {
-        DrawableMTL *draw = dynamic_cast<DrawableMTL *>(it.second.get());
-        if (draw)
-            draw->teardownForRenderer((RenderSetupInfoMTL *)setupInfo,this,NULL);
+    for (const auto &it : drawables) {
+        if (auto draw = dynamic_cast<DrawableMTL *>(it.second.get())) {
+            draw->teardownForRenderer((RenderSetupInfoMTL *)setupInfo,this,nullptr);
+        }
     }
     drawables.clear();
     for (auto it : textures) {
         it.second->destroyInRenderer(setupInfo,this);
     }
     textures.clear();
+    if (fontTextureManager) {
+        fontTextureManager->teardown(inst);
+    }
 }
     
 }
